@@ -1,0 +1,2 @@
+Here are the pieces of documentation composing the Text Product Documentation.  The first three are in the form of slides and notes while the Text Product Reference Guide is a simple "html" document.
+

@@ -1,0 +1,484 @@
+<html>
+<head>
+<title>Subclipse Changelog</title>
+<style>
+li {
+	margin-top: 6px;
+	margin-bottom: 3px;
+}
+li p {
+	margin-top: 3px;
+	margin-bottom: 3px;
+}
+</style>
+</head>
+<body>
+<h1>Subclipse Changelog</h1>
+<p>This file documents all of the changes that have been made to <a
+ href="http://subclipse.tigris.org/">Subclipse</a> beginning with the 1.1.0 release process.
+Please visit <a href="http://subclipse.tigris.org/">
+http://subclipse.tigris.org/</a> for the latest information on Subclipse.</p>
+<p>The latest version of this file can be viewed directly from our
+website at <a
+ href="http://subclipse.tigris.org/subclipse_1.2.x/changes.html">
+http://subclipse.tigris.org/subclipse_1.2.x/changes.html</a>. Please
+note that the file on the website may contain information about changes
+that have not yet been made available in a release. Generally, these changes
+will be available in the next release but it is also possible that a change
+will be pulled out due to testing problems.</p>
+<p>The log of changes leading up to the 1.1.0 release can be viewed <a
+ href="../subclipse/changes.html">here</a>.</p>
+
+<p><b>NOTE:</b> As of Subclipse 1.1.0, the minimum Eclipse requirement is now 3.2.0.</p> 
+
+<p><b>NOTE:</b> Subclipse 1.1.0 removed the SVN Resource History view as we now use the common Team
+History view.  It also removed the SVN Pending Operations view which is replaced by the Synchronize
+view.  You will likely get an Eclipse error message if you use an existing workspace that had
+that view open.  This is normal and is not a problem.  You will get the error the first time you open
+each perspective that had the view open.</p> 
+
+<hr />
+<a name="1.2.4"></a>
+<h4>Version 1.2.4<br>
+27 August 2007</h4>
+<p>from: /branches/1.2.x<br>
+<a href="http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.2.4">
+http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.2.4</a></p>
+<ul>
+ <li>JavaHL 1.4.5 for Windows</li>
+ <li>SVNKit 1.1.4</li>
+ <li>Local history lost when reverting a file. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=575">575</a>)</li>
+ <li>Provide SVN Team options on working sets. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=581">581</a>)</li>
+ <li>Enable Mark Resolved option for property conflicts. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=660">660</a>)</li>
+ <li>Update All/Commit All options added to Synchronize view. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=667">667</a>)</li>
+ <li>Make Edit Change Set dialog modeless to allow commit messages to
+ be edited while using the compare editor in the Synchronize view. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=669">669</a>)</li>
+</ul>
+
+<hr />
+<a name="1.2.3"></a>
+<h4>Version 1.2.3<br>
+27 June 2007</h4>
+<p>from: /branches/1.2.x<br>
+<a href="http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.2.3">
+http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.2.3</a></p>
+<ul>
+ <li>SVNKit 1.1.3 Build 3181</li>
+ <li>New plug-in to support integration with Mylyn 2.0</li>
+ <li>Fixed ClassCastException in Sharing wizard when Subclipse is the only
+  team provider installed. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=642">642</a>)</li>
+ <li>Fixed Eclipse freeze when using nested projects. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=511">511</a>)</li>
+</ul>
+
+<hr />
+<a name="1.2.2"></a>
+<h4>Version 1.2.2<br>
+9 June 2007</h4>
+<p>from: /branches/1.2.x<br>
+<a href="http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.2.2">
+http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.2.2</a></p>
+<ul>
+ <li>Subversion/JavaHL 1.4.4 binaries for Windows</li>
+ <li>Made repository actions adapatable so they can be reused in other
+  plug-ins.  Specifically, CollabNet Desktop.</li>
+ <li>Fixed prompt for HTTPS client certificate passphrase from JavaHL. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=628">628</a>)</li>
+ <li>Fixed potential NPE in getAdminDirectoryName method. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=645">645</a>)</li>
+ <li>Added warning before deleting .svn folders when sharing project. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=611">611</a>)</li>
+ <li>Fixed potential NPE when Synchronizing a project with svn:externals. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=603">603</a>)</li>
+ <li>Improved detection of linked resources by using Eclipse API. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=625">625</a>)</li>
+ <li>Fixed ClassCastException in Sharing wizard when Subclipse is the only
+  team provider installed. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=642">642</a>)</li>
+</ul>
+
+<hr />
+<a name="1.2.1"></a>
+<h4>Version 1.2.1<br>
+2 May 2007</h4>
+<p>from: /branches/1.2.x<br>
+<a href="http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.2.1">
+http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.2.1</a></p>
+<ul>
+ <li>SVNKit 1.1.2</li>
+ <li>Expand all option in Synchronize view. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=591">591</a>)</li>
+ <li>Checkout wizard fails when checking our location root. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=606">606</a>)</li>
+ <li>Error importing Team Project Set file. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=623">623</a>)</li>
+ <li>Support hyperlink detectors in log messages.</li>
+ <li>Commit dialog will word wrap messages by default, unless tsvn:logwidthmarker
+	property is present. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=629">629</a>)</li>
+ <li>Synch view allow change sets to appear in Incoming/Outgoing mode. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=634">634</a>)</li>
+</ul>
+
+<hr />
+<a name="1.2.0"></a>
+<h4>Version 1.2.0<br>
+13 February 2007</h4>
+<p>from: /trunk<br>
+<a href="http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.2.0">
+http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.2.0</a></p>
+<ul>
+ <li>Fixed problems relating to Eclipse 3.3 M5, one with the history view and one
+ with a missing class on the Decorators preference page.</li>
+</ul>
+
+<hr />
+<a name="1.1.10"></a>
+<h4>Version 1.1.10<br>
+1 February 2007</h4>
+<p>from: /trunk<br>
+<a href="http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.1.10">
+http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.1.10</a></p>
+<ul>
+ <li>JavaHL 1.4.3 binaries for Windows</li>
+ <li>SVNKit 1.1.1</li>
+ <li>More improvements to handling of locks.</li>
+ <li>Fixed handling of images and refresh in affected paths viewer. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=589">589</a>)</li>
+ <li>Fix potential NPE in SVNStatusSyncInfo (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=598">598</a>)</li>
+ <li>Modified code to not commit auto-added parents in a separate commit. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=599">599</a>)</li>
+</ul>
+
+<hr />
+<a name="1.1.9"></a>
+<h4>Version 1.1.9<br>
+7 December 2006</h4>
+<p>from: /trunk<br>
+<a href="http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.1.9">
+http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.1.9</a></p>
+<ul>
+ <li>JavaHL 1.4.2 binaries for Windows</li>
+ <li>JavaSVN renamed to SVNKit.  1.1.0 + fixes version included.</li>
+ <li>Removed Java 1.5-specific code.  Changed project settings to insure
+ Java 1.4 compatability.</li>
+ <li>Fixed potential NPE in SVN Properties view.</li>
+ <li>Added back a forced refresh after Switch/Merge operations. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=579">579</a>)</li>
+ <li>Added new prompting UI for SVNKit SSH connections.</li>
+ <li>Removed dependency on compare plugin from core.  Allows for headless
+  operation (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=583">583</a>)</li>
+ <li>Added option to Create Branch/Tag dialog to perform a switch after the
+  branch/tag is created.</li>
+ <li>Improve handling of read-only files that are not managed by Subclipse</li>
+ <li>Small synch view fixes for externals.</li>
+ <li>Created new Eclipse feature to house Mylar integration.  Must be installed
+ separately from same update site URL.</li>
+</ul>
+
+<hr />
+<a name="1.1.8"></a>
+<h4>Version 1.1.8<br>
+23 October 2006</h4>
+<p>from: /trunk<br>
+<a href="http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.1.8">
+http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.1.8</a></p>
+<ul>
+ <li>JavaSVN 1.1.0 Beta5 (includes svn 1.4 working copy format)</li>
+ <li>Fixed StringIndexOutOfBoundsException in Compare with Base</li>
+ <li>Use a better merge API when performing a merge with the same From/To
+ URL</li>
+ <li>Enable the Show History and Annotate options on locally copied files. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=442">442</a>)</li>
+ <li>Fixed problem when clicking on Pending... text when expanding tree in
+ checkout wizard.</li>
+ <li>Rearrange items on SVN menu and remove all toolbar items except Checkout. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=394">394</a>)</li>
+ <li>Removed CVS code that stripped template from commit message. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=566">566</a>)</li>
+ <li>Exception during checkout of project set could hang Eclipse.</li>
+ <li>Revert improvements/fixes.</li>
+ <li>WC to WC copy was not copying local contents.</li>
+ <li>Unescape URL's in decorators.</li>
+ <li>Fix potential NPE in shutdown</li>
+ <li>Fix potential ConcurrentModificationException.</li>
+ <li>Performance improvement in Synch view when resources have been locally
+ deleted.</li>
+ <li>Remove forced refresh after Switch/Merge.  JavaSVN includes fix that makes
+ this no longer neccessary.</li>
+ <li>Commit messages were not being remembered. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=570">570</a>)</li>
+ <li>Refresh the Synchronize view automatically after performing a commit from
+ the view when the Show Out of Date folders option is on.</li>
+ <li>If resource is managed but also in global ignore list, we should not ignore
+ it.</li>
+ <li>Fixed potential NPE in refreshing SyncInfo.</li>
+</ul>
+
+<hr />
+<a name="1.1.7"></a>
+<h4>Version 1.1.7<br>
+03 October 2006</h4>
+<p>from: /trunk<br>
+<a href="http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.1.7">
+http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.1.7</a></p>
+<ul>
+ <li>JavaHL 1.4.0 binaries for Windows.</li>
+ <li>New menu icons.  Menu icons can be specified in the preferences.  We
+ include a default set that is like CVS, the TortoiseSVN set, and a Subversive
+ set</li>
+ <li>Change order of tabs in decorator preferences to match CVS plug-in.</li>
+ <li>Added a preview pane to the decorator preferences to match CVS plug-in.</li>
+ <li>Key binding support added for Add, Ignore, Revert and Copy. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=394">394</a>)</li>
+ <li>Improved retrieval of log messages in Incoming Changeset mode.</li>
+ <li>Additional improvements to handling of .svn folders.</li>
+ <li>Removed the Show Pending Operations view.  This will result in an error
+ reloading any Perspectives that had the view open.  All functionality of this
+ view has been improved upon by the Synchronize view.</li>
+ <li>Removed the Add Keywords dialog.  The properties management features
+ provides everything that is need to manage the svn:keywords property.</li>
+ <li>Restructuring of menu items to match the CVS layout more.</li>
+ <li>Add support for commit templates, similar to those provided by CVS
+ plug-in.</li>
+ <li>Add support for spell checking in commit messages.</li>
+ <li>Fixed potential NPE in Update from Synch view.</li>
+ <li>svn:externals folder shows as outgoing change (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=562">562</a>)</li>
+ <li>Fixed NPE when sharing project that has .svn metadata folders.</li>
+ <li>Fixed decorator refresh when deleting a property.</li>
+ <li>Export from Working Copy was not exporting the contents of the working
+ copy.</li>
+ <li>Fixed NPE in Checkout wizard when a revision is not specified.</li>
+</ul>
+
+<hr />
+<a name="1.1.6"></a>
+<h4>Version 1.1.6<br>
+19 September 2006</h4>
+<p>from: /trunk<br>
+<a href="http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.1.6">
+http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.1.6</a></p>
+<ul>
+ <li>Many performance improvements to status cache maintenance.  Should speed
+ up workspace refreshes/builds as well as Synchronize.</li>
+ <li>Switched resources are now shown with their own decorator. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=521">521</a>)</li>
+ <li>Older revisions of files that do not have an Eclipse editor, such as
+ Word documents, will now be opened in the external editor.</li>
+ <li>History view enhanced to have a vertical layout option  Also new toolbar
+ icons to toggle on/off the display of various elements in the view. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=538">538</a>)</li>
+ <li>Can now export files, not just folders, from the Repositories view. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=540">540</a>)</li>
+ <li>Can now Show History for the repository root from the Repositories view.</li>
+ <li>Option to show Out of Date folders added to Synchronize view.  This should
+ improve usability by prompting the user to update folders when they are out
+ of date.</li>
+ <li>Processing of update option changed in Sync view.  This dovetails with the
+ Show Out of Date Folders change.  Items are selected for update based on what
+ is shown in the view.  When folders were not being shown we were doing some
+ workarounds so that folders would get updated.</li>
+ <li>Added export option to the History view. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=540">540</a>)</li>
+ <li>Support for Incoming Change Sets has been added to the Synchronize view. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=543">543</a>)</li>
+ <li>Allow a commit comment to be specified when sharing a project. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=529">529</a>)</li>
+ <li>Fixed problem parsing bug ID's when the template includes characters
+ after the bug ID. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=536">536</a>)</li>
+ <li>Improve refreshing of tree in Repositories view when a new folder
+ is added. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=505">505</a>)</li>
+ <li>Fix Copy option when project is not located in same folder as workspace. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=464">464</a>)</li>
+ <li>Fixed an assertion failure on Windows when sharing a project and
+ the server was not accessible.</li>
+ <li>Enable viewer contributions so Mylar can add an open corresponding
+  task action.</li>
+ <li>Canonicalize the path case in the Checkout wizard when the user enters a path
+name directly.  This fixes a potential crash of the workspace. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=548">548</a>)</li>
+ <li>Catch potential ClassCastException in Annotate View. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=469">469</a>)</li>
+ <li>Added new preference to "Show Unversioned Resource in Commit Dialog". (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=508">508</a>)</li>
+ <li>When changing the log message and author at the same time, refresh the
+history view if either of them succeed. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=541">541</a>)</li>
+ <li>Add support for --ignore-ancestry and --force to the Merge dialog. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=524">524</a>)</li>
+ <li>Fixed problem with .svn folder being shown after "add to version control".</li>
+ <li>Added support for fonts and colors in label decorators. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=351">351</a>)</li>
+ <li>Added a search option to the History view. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=544">544</a>)</li>
+ <li>Added a search option to the History view. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=544">544</a>)</li>
+ <li>Added ability to checkout a specific revision. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=552">552</a>)</li>
+ <li>Synch view not showing conflict when local file is added, unversioned or'
+ ignored and the file exists in the repository. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=545">545</a>)</li>
+</ul>
+
+<hr />
+<a name="1.1.5"></a>
+<h4>Version 1.1.5<br>
+8 August 2006</h4>
+<p>from: /trunk<br>
+<a href="http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.1.5">
+http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.1.5</a></p>
+<ul>
+ <li>Performance improvement when retrieving svn info on item.  Mainly happened when
+ using svn:externals.</li>
+ <li>Fixed a refactoring error that could occur when renaming package and subpackages.</li>
+ <li>Improved the default internal sizing of the commit dialog to accomodate the
+ bugtraq properties and the possible addition of a bug tracking field on the dialog.</li>
+ <li>JavaSVN 1.1.0 Beta4 + latest fixes.  NTLM authentication, SSH username etc.</li>
+ <li>Performance improvements in status cache maintenance.  Especially in dealing with
+ large refreshes and ignored items. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=530">530</a>)</li>
+</ul>
+
+<hr />
+<a name="1.1.4"></a>
+<h4>Version 1.1.4<br>
+26 July 2006</h4>
+<p>from: /trunk<br>
+<a href="http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.1.4">
+http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.1.4</a></p>
+<ul>
+ <li>License changed to the Eclipse Public License (EPL)</li>
+ <li>JavaSVN library updated to 1.1.0 Beta4</li>
+ <li>Error trying to refresh internal cache for resource that does not exist. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=522">522</a>)</li>
+ <li>Override and Update should update to HEAD</li>
+ <li>Fixed problems in History view when preference was set to get all messages.</li>
+ <li>Corrected typos on preference page.</li>
+</ul>
+
+<hr />
+<a name="1.1.3"></a>
+<h4>Version 1.1.3<br>
+25 July 2006</h4>
+<p>from: /trunk<br>
+<a href="http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.1.3">
+http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.1.3</a></p>
+<ul>
+ <li>License changed to the Eclipse Public License (EPL)</li>
+ <li>JavaSVN library updated to 1.1.0 Beta3</li>
+ <li>Added some missing dependencies to feature.xml for correctness.</li>
+ <li>Corrected some resource strings.</li>
+ <li>Implement new Eclipse 3.2-required method for linked resources.  We still
+ only ignore them, but this at least allows them to exist in the project.</li>
+ <li>SVN menu will not appear in perspective by default.  Can be added by user
+ using Customize Perspective.</li>
+ <li>Fixed minor issue where Next button was not initialy enabled on checkout
+ wizard when it could be.</li>
+ <li>Fixed Compare with options when there was space in path name. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=512">512</a>)</li>
+ <li>Implement new Eclipse 3.2 getSubscriber() method. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=513">513</a>)</li>
+ <li>Performance improvement on startup with large number of projects in
+ workspace.</li>
+ <li>Better control over when Team menu actions are activated.</li>
+ <li>Restore support for tsvn:logtemplate property.</li>
+</ul>
+
+<hr />
+<a name="1.1.2"></a>
+<h4>Version 1.1.2<br>
+13 June 2006</h4>
+<p>from: /trunk<br>
+<a href="http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.1.2">
+http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.1.2</a></p>
+<ul>
+ <li>Fixed refactoring problem when moving more than one class
+  to a new folder.</li>
+ <li>Key binding support for commit, update and synchronize. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=394">394</a>)</li>
+ <li>Do not enable Finish button on Sharing Wizard until the page where
+ you specify the folder name.</li>
+ <li>Fixed problem where History view did not refresh the current revision.</li>
+ <li>Fixed some possible NPE's in Synch view when using svn:externals.</li>
+ <li>Fixed handling of commit from Synch view so that it respects the view
+ settings, such as ChangeSets or items removed from the view. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=506">506</a>)</li>
+ <li>When committing a change set, if the proposed comment was not edited, then
+ the change set was being committed with a null comment.</li>
+</ul>
+
+<hr />
+<a name="1.1.1"></a>
+<h4>Version 1.1.1<br>
+06 June 2006</h4>
+<p>from: /trunk<br>
+<a href="http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.1.1">
+http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.1.1</a></p>
+<ul>
+ <li>Fix NPE in Revert action on an outgoing changeset.</li>
+ <li>Disable Add to Version Control action for an outgoing changeset.</li>
+ <li>Potentially significant performance improvement when using JavaSVN and workspace contains build
+ artifacts produced by an external tool, such as an Ant script.</li>
+ <li>Ctrl-Enter activates OK in Lock dialog.</li>
+ <li>Repository browser/Choose URL dialog is now resizable.</li>
+ <li>Configure Tags dialog is now resizable.</li>
+ <li>History dialog is now resizable and has a sash form to resize sections.</li>
+ <li>Commit dialog remembers resizes to sash layout.</li>
+ <li>Override and Update is enabled on all outgoing files and will delete file
+ if it is unversioned.</li>
+ <li>Unversioned files are shown in the Revert dialog and will be deleted if selected.</li>
+ <li>Compressed folders layout will not always use a tree. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=500">500</a>)</li>
+ <li>Added column sorting to affected paths viewer in history. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=476">476</a>)</li>
+ <li>Replace with options will delete unversioned files, although that is controllable
+ by a new preference</li>
+ <li>Do not show ignored items in Compare with Base. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=498">498</a>)</li>
+ <li>Project name not being set in Checkout Wizard.</li>
+ <li>Allow repository root to be selected in checkout wizard.  Also added a Refresh option. (<a
+  href="http://subclipse.tigris.org/issues/show_bug.cgi?id=481">481</a>)</li>
+</ul>
+
+<hr />
+<a name="1.1.0"></a>
+<h4>Version 1.1.0<br>
+01 June 2006</h4>
+<p>from: /trunk<br>
+<a href="http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.1.0">
+http://subclipse.tigris.org/svn/subclipse/tags/subclipse/1.1.0</a></p>
+<ul>
+ <li>JavaHL 1.3.2 Windows binaries.</li>
+ <li>JavaSVN 1.1.0 Beta 2.  Includes support for file:// protocol.</li>
+ <li>Improvements to Console view, taking advantage of new Eclipse features from 3.1.
+ Includes some new preferences.</li>
+ <li>File names that are output to Console are now hyperlinks to the local workspace file</li>
+ <li>Help/documentation packaged in separate plugin from UI.</li>
+ <li>Plugins now install as JAR's instead of being unpacked.  Removed feature plugin as it
+ was not really needed.  Branding was moved to the core plugin.</li>
+ <li>Improve error reporting in Lock/Unlock actions.</li>
+ <li>Show lock info from server on SVN Resource property page.</li>
+ <li>Support for outgoing changesets in Synchronize view.</li>
+ <li>Support for in-line/live annotation feature.</li>
+ <li>Replaced SVN Resource History view with usage of new common Team History view.</li>
+ <li>Removed checks and messages for workspace case.  Eclipse problem was fixed in 3.2.</li>
+ <li>All dialogs now extend new Eclipse 3.2 TrayDialog class.  This better integrates help with dialog.</li>
+ <li>Icons for Show History and Show Annotation changes to match CVS/Team icon.</li>
+ <li>URL's in History view are opened using the Eclipse browser framework.</li>
+ <li>SVN Repositories are included in Eclipse Import/Export Preferences wizard.  However, only repositories
+ created after version 1.1.0 is installed are included.</li>
+</ul>
+
+</body>
+</html>

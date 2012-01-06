@@ -1,0 +1,54 @@
+      GetQManResourceMembersExample Example
+-------------------------------------------------------------------
+
+This example shows the usage of WS-DM 
+GetResourcePropertyRequest / Response on a 
+Group service.
+The target resource is the WS-DM Adapter itself 
+and the requested property is "ws-rp:Entry".
+WS-DM Adapter is a special WS-Resource (is a Group)
+that  acts as the main entry point for retrieving
+all other managed resources.
+So clients that want to deal with QMan WS-Resources
+must first get resource identifiers sending
+a GetResourcePropertyRequest to WS-DM Adapter 
+with "ws-rp:Entry" as target target property.
+
+-------------------------------------------------------------------
+
+[CLIENT TRACE] SOAP envelope contents (outgoing):
+
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+    <soap:Header>
+        <wsa:To xmlns:wsa="http://www.w3.org/2005/08/addressing">http://192.38.73.2:8080/qman/services/adapter</wsa:To>
+        <wsa:Action xmlns:wsa="http://www.w3.org/2005/08/addressing">http://docs.oasis-open.org/wsrf/rpw-2/GetResourceProperty/GetResourcePropertyRequest</wsa:Action>
+        <wsa:MessageID xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:796bab33-ed59-3432-4e2c-1fadde465a25</wsa:MessageID>
+        <wsa:From xmlns:wsa="http://www.w3.org/2005/08/addressing">
+            <wsa:Address>http://www.w3.org/2005/08/addressing/role/anonymous</wsa:Address>
+        </wsa:From>
+    </soap:Header>
+    <soap:Body>
+        <wsrf-rp:GetResourceProperty
+            xmlns:wsrf-rp="http://docs.oasis-open.org/wsrf/rp-2" xmlns:wsrf-sg="http://docs.oasis-open.org/wsrf/sg-2">wsrf-sg:Entry</wsrf-rp:GetResourceProperty>
+    </soap:Body>
+</soap:Envelope>
+
+-----------------------EXAMPLE FAILURE----------------------
+org.apache.muse.ws.addressing.soap.SoapFault: No route to host: connect
+	at org.apache.muse.core.AbstractResourceClient.invoke(AbstractResourceClient.java:298)
+	at org.apache.muse.core.AbstractResourceClient.invoke(AbstractResourceClient.java:254)
+	at org.apache.muse.ws.resource.remote.WsResourceClient.getResourceProperty(WsResourceClient.java:138)
+	at org.apache.muse.ws.resource.sg.remote.ServiceGroupClient.getMembers(ServiceGroupClient.java:110)
+	at org.apache.qpid.management.example.GetQManResourceMembersExample.execute(GetQManResourceMembersExample.java:61)
+	at org.apache.qpid.management.example.GetQManResourceMembersExample.main(GetQManResourceMembersExample.java:133)
+	
+	
+#########################################################################################
+
+WARNING! Unable to run this sample : port number must be a number.
+-------------------------------------------------------------
+Expected command line args for this sample are :
+
+1) host : ip or host name where QMan is running.
+2) port : port number where QMan is running.
+------------------------------------------------------------

@@ -1,0 +1,618 @@
+module 'XApplication'
+version = 47;
+xdesigned = 1;
+applicationName = 'XApplication';
+generateNameC = * 'TSControl.c';
+generateNameExterns = * 'TSControl.h';
+generateNameResDB = 'TSControl.res';
+generateCHeaderFile = 'TSControl.h';
+generateNameMakefile = * 'Makefile';
+generateMask = 4390924;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 1;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'TSControlDS' : XmDialogShell {
+	arguments {
+	lastGenName = 'TSControlDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_TSControlDS (Widget parent)
+';
+	XmNallowShellResize = true;
+	XmNtitle = 'Time Series Control';
+	XmNminWidth = 260;
+	XmNminHeight = 760;
+	XmNmaxWidth = 260;
+	XmNmaxHeight = 760;
+	};
+object 'TSC_FO' : XmForm {
+	arguments {
+	lastGenName = 'TSC_FO';
+	XmNautoUnmanage = false;
+	XmNnoResize = true;
+	};
+object 'TSC_EndingLB' : XmLabel {
+	arguments {
+	lastGenName = 'TSC_EndingLB';
+	XmNlabelString = 'Ending TimeZ:';
+	XmNalignment = 0;
+	};
+};
+object 'TSC_BeginLB' : XmLabel {
+	arguments {
+	lastGenName = 'TSC_BeginLB';
+	XmNlabelString = 'Beginning TimeZ:';
+	XmNalignment = 0;
+	};
+};
+object '1' : XmSeparator {
+	arguments {
+	lastGenName = 'separator1';
+	};
+};
+object 'TSC_ArrowEndUp' : XmArrowButton {
+	arguments {
+	lastGenName = 'TSC_ArrowEndUp';
+	};
+};
+object 'TSC_ArrowEndDown' : XmArrowButton {
+	arguments {
+	lastGenName = 'TSC_ArrowEndDown';
+	XmNarrowDirection = 1;
+	};
+};
+object 'TSC_ArrowBeginUp' : XmArrowButton {
+	arguments {
+	lastGenName = 'TSC_ArrowBeginUp';
+	XmNarrowDirection = 0;
+	};
+};
+object 'TSC_ArrowBeginDown' : XmArrowButton {
+	arguments {
+	lastGenName = 'TSC_ArrowBeginDown';
+	XmNarrowDirection = 1;
+	};
+};
+object 'TSC_GraphPB' : XmPushButton {
+	arguments {
+	was_selected = true;
+	lastGenName = 'TSC_GraphPB';
+	XmNlabelString = 'Graph';
+	};
+};
+object 'TSC_TabPB' : XmPushButton {
+	arguments {
+	lastGenName = 'TSC_TabPB';
+	XmNlabelString = 'Table';
+	};
+};
+object 'TSC_ClosePB' : XmPushButton {
+	arguments {
+	lastGenName = 'TSC_ClosePB';
+	XmNlabelString = 'Close';
+	};
+};
+object 'TSC_EndmonthPB' : XmPushButton {
+	arguments {
+	lastGenName = 'TSC_EndmonthPB';
+	XmNlabelString = '08';
+	};
+};
+object 'TSC_EnddayPB' : XmPushButton {
+	arguments {
+	lastGenName = 'TSC_EnddayPB';
+	XmNlabelString = '01';
+	};
+};
+object 'TSC_EndyearPB' : XmPushButton {
+	arguments {
+	lastGenName = 'TSC_EndyearPB';
+	XmNlabelString = '1999';
+	};
+};
+object 'TSC_EndhourPB' : XmPushButton {
+	arguments {
+	lastGenName = 'TSC_EndhourPB';
+	XmNlabelString = '15';
+	};
+};
+object 'TSC_BeginmonthPB' : XmPushButton {
+	arguments {
+	lastGenName = 'TSC_BeginmonthPB';
+	XmNlabelString = '07';
+	};
+};
+object 'TSC_BegindayPB' : XmPushButton {
+	arguments {
+	lastGenName = 'TSC_BegindayPB';
+	XmNlabelString = '29';
+	};
+};
+object 'TSC_BeginyearPB' : XmPushButton {
+	arguments {
+	lastGenName = 'TSC_BeginyearPB';
+	XmNlabelString = '1999';
+	};
+};
+object 'TSC_BeginhourPB' : XmPushButton {
+	arguments {
+	lastGenName = 'TSC_BeginhourPB';
+	XmNlabelString = '15';
+	};
+};
+object 'TSC_GroupFO' : XmForm {
+	arguments {
+	lastGenName = 'TSC_GroupFO';
+	XmNautoUnmanage = true;
+	};
+object 'TSC_GroupSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'TSC_GroupSL';
+	};
+abstract object 'TSC_GroupHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'TSC_GroupHSB';
+	};
+};
+abstract object 'TSC_GroupVB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'TSC_GroupVB';
+	};
+};
+abstract object 'TSC_GroupLI' : XmList {
+	arguments {
+	lastGenName = 'TSC_GroupLI';
+	XmNselectionPolicy = 0;
+	XmNlistSizePolicy = 1;
+	};
+};
+};
+object 'TSC_DisplayGrpLB' : XmLabel {
+	arguments {
+	lastGenName = 'TSC_DisplayGrpLB';
+	XmNlabelString = 'Group:';
+	XmNalignment = 0;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -245;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -530;
+	XmNtopAttachment = 1 0 25;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -75;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -25;
+	XmNtopAttachment = 1 0 0;
+    };
+    };
+};
+object 'TSC_StationFO' : XmForm {
+	arguments {
+	lastGenName = 'TSC_StationFO';
+	XmNallowOverlap = true;
+	XmNautoUnmanage = false;
+	};
+object 'TSC_PCoddeSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'TSC_PCoddeSL';
+	};
+abstract object 'TSC_PCodeHB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'TSC_PCodeHB';
+	};
+};
+abstract object 'TSC_PCodeVB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'TSC_PCodeVB';
+	};
+};
+abstract object 'TSC_PCodeLI' : XmList {
+	arguments {
+	lastGenName = 'TSC_PCodeLI';
+	XmNselectionPolicy = 1;
+	XmNlistSizePolicy = 1;
+	XmNscrollBarDisplayPolicy = 1;
+	};
+};
+};
+object 'TSC_StationSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'TSC_StationSL';
+	};
+abstract object 'TSC_StationHB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'TSC_StationHB';
+	};
+};
+abstract object 'TSC_StationVB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'TSC_StationVB';
+	};
+};
+abstract object 'TSC_StationLI' : XmList {
+	arguments {
+	lastGenName = 'TSC_StationLI';
+	XmNselectionPolicy = 0;
+	XmNlistSizePolicy = 1;
+	XmNscrollBarDisplayPolicy = 1;
+	};
+};
+};
+object 'TSC_PeTs' : XmLabel {
+	arguments {
+	lastGenName = 'TSC_PeTs';
+	XmNlabelString = ' ';
+	XmNalignment = 0;
+	};
+};
+object 'TSC_StationLB' : XmLabel {
+	arguments {
+	lastGenName = 'TSC_StationLB';
+	XmNlabelString = 'Search:';
+	XmNalignment = 0;
+	};
+};
+object 'TSC_StationTX' : XmText {
+	arguments {
+	lastGenName = 'TSC_StationTX';
+	};
+};
+object 'TSC_SearchRB' : XmRadioBox {
+	arguments {
+	lastGenName = 'TSC_SearchRB';
+	XmNspacing = 0;
+	};
+object 'TSC_lidTB' : XmToggleButton GADGET {
+	arguments {
+	lastGenName = 'TSC_lidTB';
+	XmNlabelString = 'ID';
+	XmNset = true;
+	};
+};
+object 'TSC_nameTB' : XmToggleButton GADGET {
+	arguments {
+	lastGenName = 'TSC_nameTB';
+	XmNx = 3;
+	XmNy = 29;
+	XmNwidth = 62;
+	XmNheight = 26;
+	XmNlabelString = 'Name';
+	};
+};
+};
+object 'TSC_stnclassFO' : XmForm {
+	arguments {
+	lastGenName = 'TSC_stnclassFO';
+	};
+object 'TSC_heightTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'TSC_heightTB';
+	XmNlabelString = 'River';
+	};
+};
+object 'TSC_tempTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'TSC_tempTB';
+	XmNlabelString = 'Temp';
+	};
+};
+object 'TSC_precipTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'TSC_precipTB';
+	XmNlabelString = 'Precip';
+	};
+};
+object 'TSC_snowTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'TSC_snowTB';
+	XmNlabelString = 'Snow';
+	};
+};
+object 'TSC_otherTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'TSC_otherTB';
+	XmNlabelString = 'Other';
+	};
+};
+object 'TSC_allPB' : XmPushButton {
+	arguments {
+	lastGenName = 'TSC_allPB';
+	XmNlabelString = 'All';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -85;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -25;
+	XmNtopAttachment = 1 0 0;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -245;
+	XmNleftAttachment = 1 0 170;
+	XmNbottomAttachment = 2 0 -25;
+	XmNtopAttachment = 1 0 0;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -165;
+	XmNleftAttachment = 1 0 90;
+	XmNbottomAttachment = 2 0 -25;
+	XmNtopAttachment = 1 0 0;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -85;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -50;
+	XmNtopAttachment = 1 0 25;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -165;
+	XmNleftAttachment = 1 0 90;
+	XmNbottomAttachment = 2 0 -50;
+	XmNtopAttachment = 1 0 25;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -245;
+	XmNleftAttachment = 1 0 170;
+	XmNbottomAttachment = 2 0 -50;
+	XmNtopAttachment = 1 0 25;
+    };
+    };
+};
+object '5' : XmSeparator {
+	arguments {
+	lastGenName = 'separator5';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -250;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -530;
+	XmNtopAttachment = 1 0 340;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -250;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -310;
+	XmNtopAttachment = 1 0 125;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -250;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -335;
+	XmNtopAttachment = 1 0 315;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -65;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -105;
+	XmNtopAttachment = 1 0 80;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -165;
+	XmNleftAttachment = 1 0 70;
+	XmNbottomAttachment = 2 0 -110;
+	XmNtopAttachment = 1 0 75;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -250;
+	XmNleftAttachment = 1 0 170;
+	XmNbottomAttachment = 2 0 -125;
+	XmNtopAttachment = 1 0 60;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -250;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 2 0 -50;
+	XmNtopAttachment = 1 0 0;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -250;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 2 0 -60;
+	XmNtopAttachment = 1 0 50;
+    };
+    };
+};
+object 'TSC_GroupStationOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'TSC_GroupStationOM';
+	};
+abstract object '1' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'label1';
+	};
+};
+abstract object 'TSC_GroupStationCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'TSC_GroupStationCB';
+	XmNx = 10;
+	XmNy = 3;
+	XmNwidth = 105;
+	XmNheight = 32;
+	};
+object 'TSC_GroupStationMB' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'TSC_GroupStationMB';
+	};
+object 'TSC_GroupPB' : XmPushButton {
+	arguments {
+	lastGenName = 'TSC_GroupPB';
+	XmNlabelString = 'Predefined Group';
+	};
+};
+object 'TSC_StationPB' : XmPushButton {
+	arguments {
+	lastGenName = 'TSC_StationPB';
+	XmNlabelString = 'Station Selection';
+	};
+};
+};
+};
+};
+object 'modeLB' : XmLabel {
+	arguments {
+	lastGenName = 'modeLB';
+	XmNlabelString = 'Mode:';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 1 0 120;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -80;
+	XmNtopAttachment = 1 0 60;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 120;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -25;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 5;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 1 0 585;
+	XmNtopAttachment = 1 0 165;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 45;
+	XmNleftAttachment = 1 0 190;
+	XmNbottomAttachment = 1 0 664;
+	XmNtopAttachment = 1 0 75;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 45;
+	XmNleftAttachment = 1 0 190;
+	XmNbottomAttachment = 1 0 645;
+	XmNtopAttachment = 1 0 95;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 45;
+	XmNleftAttachment = 1 0 190;
+	XmNbottomAttachment = 1 0 720;
+	XmNtopAttachment = 1 0 20;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 45;
+	XmNleftAttachment = 1 0 190;
+	XmNbottomAttachment = 1 0 700;
+	XmNtopAttachment = 1 0 40;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 190;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 1 0 10;
+	XmNtopAttachment = 1 0 720;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 110;
+	XmNleftAttachment = 1 0 75;
+	XmNbottomAttachment = 1 0 10;
+	XmNtopAttachment = 1 0 720;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 10;
+	XmNleftAttachment = 1 0 190;
+	XmNbottomAttachment = 1 0 10;
+	XmNtopAttachment = 1 0 720;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -100;
+	XmNleftAttachment = 1 0 65;
+	XmNbottomAttachment = 2 0 -110;
+	XmNtopAttachment = 1 0 80;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -140;
+	XmNleftAttachment = 1 0 105;
+	XmNbottomAttachment = 2 0 -110;
+	XmNtopAttachment = 1 0 80;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -60;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -110;
+	XmNtopAttachment = 1 0 80;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -180;
+	XmNleftAttachment = 1 0 145;
+	XmNbottomAttachment = 2 0 -110;
+	XmNtopAttachment = 1 0 80;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -100;
+	XmNleftAttachment = 1 0 65;
+	XmNbottomAttachment = 2 0 -55;
+	XmNtopAttachment = 1 0 25;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -140;
+	XmNleftAttachment = 1 0 105;
+	XmNbottomAttachment = 2 0 -55;
+	XmNtopAttachment = 1 0 25;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -60;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -55;
+	XmNtopAttachment = 1 0 25;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -180;
+	XmNleftAttachment = 1 0 145;
+	XmNbottomAttachment = 2 0 -55;
+	XmNtopAttachment = 1 0 25;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 5;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -715;
+	XmNtopAttachment = 1 0 180;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 5;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -715;
+	XmNtopAttachment = 1 0 180;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 5;
+	XmNleftAttachment = 1 0 60;
+	XmNbottomAttachment = 1 0 605;
+	XmNtopAttachment = 1 0 120;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 205;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 1 0 610;
+	XmNtopAttachment = 1 0 130;
+    };
+    };
+};
+};
+end module;

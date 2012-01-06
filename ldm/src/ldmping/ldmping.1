@@ -1,0 +1,88 @@
+'\"
+'\" $Header: /cvsroot/ldm/src/ldmping/ldmping.1,v 1.4.24.1 2009/06/18 16:10:57 steve Exp $
+.TH LDMPING 1 "$Date: 2009/06/18 16:10:57 $"
+.SH NAME
+ldmping - check if ldm server is running
+.SH "UNIX SYNOPSIS"
+\fBldmping \fR[\fB\-x\fR] [\fB\-v\fR|\fB\-q\fR] [\fB\-l \fIlogfile\fR] 
+.BI [\-t timeout]
+.BI [\-i interval]
+.BI [\-h remote]
+.BI [remote ...]
+.SH DESCRIPTION
+
+This program sends a RPC NULLPROC request to a list of LDM servers
+\fIremote ...\fR. The default behavior of the program changes depending
+on whether the program is invoked interactively or not. (This is determined
+by whether STDERR "isatty".)
+.LP
+This program is used as a simple check that an LDM server is running
+on a given host and that the server is responding to RPC calls, or to
+perform this check on a group of hosts.
+
+.LP
+.SH OPTIONS 
+.TP 8
+.B \-v
+Verbose flag. 
+If the verbose flag is on, a log message is emitted on success as well
+as failure. If the program is invoked interactively, this is the default.
+.TP 8
+.B \-q
+Quiet, turn off verbose flag. Useful to override the default.
+.TP
+.BI \-l " logfile"
+The path name of a file to be used as the log file for the process.  The
+default is to use standard error when interactive and syslogd(8) otherwise.
+To use syslogd from the command line, enter "ldmping remote >& /dev/null".
+.TP
+.BI \-t " timeout"
+Set the RPC timeout to this many seconds. The default is 10 seconds.
+.TP
+.BI \-i " interval"
+Set the polling interval to this many seconds. If non zero, the program
+will loop forever (until interrupted). If zero, the program tries each remote
+once, exiting with status 0 if all check out okay, otherwise exiting with
+status one (failure) when an error is encountered. The default polling interval
+is 25 when interactive and 0 otherwise.
+.TP
+.BI \-h " remote"
+Requests that  that the LDM server on \fIremote\fR be pinged. Multiple remotes
+may be specified. A list of remotes may be also specified without using "-h".
+If no remotes are specified, defaults to "localhost".
+.TP
+.B \-x
+Requests that debugging information also be printed. (None in this program.)
+.SH OUTPUT FORMAT
+The report consists of 5 fields.
+.LP
+The first field is the state of the connection. The connection may be
+seen as climbing through various states to complete a transaction.
+The lowest state is NAMED, we have defined a service we wish to contact
+(the ldm via TCP at a given \fIremotehost\fR).
+The next state is ADDRESSED, meaning we were able to translate the
+hostname into an IP address. (Sometimes RPC problems are really nameservice
+problems.)
+The third state, PMAP_CLNTED, indicates that the RPC portmapper is up on
+the remote and the fourth, MAPPED, indicates that there is ldm service
+(program 300029) registered.
+The fifth state is H_CLNTED, indicating that we were able to make a
+TCP connection to the port handed us by the RPC portmapper. Presumably this
+is a connection to an ldm server.
+Finally, if the remote service responds to the RPC NULLPROC within the
+\fItimeout\fR interval, we mark it as RESPONDING.
+.LP
+The second field is the time elapsed in completing the call.
+Expect that the Elapsed is greater during the initial connection than
+during subsequent calls, since this time includes all the time taken
+to climb thru the states.
+.LP
+The third field is the TCP port number (returned by the RPC portmapper).
+.LP
+The fourth field is the remote host you specified.
+.LP
+If there is an RPC problem, the RPC status will be printed at the end of
+the line. Note that this status may apply to the RPC portmapper if the
+state is lower than CONNECTED.
+.SH "SEE ALSO"
+ldmd(1), ingestd(1), ulog(3), rpcinfo(1)

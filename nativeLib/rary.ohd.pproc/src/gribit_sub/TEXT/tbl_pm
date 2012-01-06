@@ -1,0 +1,4 @@
+      character*5 tabpm
+      character*50 tabdes
+      common /tbl_pm/ tabpm(255),tabdes(255)
+      

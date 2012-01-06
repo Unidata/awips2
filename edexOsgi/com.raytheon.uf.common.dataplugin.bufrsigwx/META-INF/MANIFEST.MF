@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bufrsigwx Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.bufrsigwx
+Bundle-Version: 1.12.1174.qualifier
+Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: com.raytheon.uf.common.dataplugin.bufrsigwx,
+ com.raytheon.uf.common.dataplugin.bufrsigwx.dao,
+ com.raytheon.uf.common.dataplugin.bufrsigwx.common
+Require-Bundle: com.raytheon.edex.common,
+ com.raytheon.uf.common.pointdata;bundle-version="1.11.8",
+ com.raytheon.uf.edex.pointdata;bundle-version="1.11.8",
+ org.geotools,
+ org.apache.commons.logging,
+ javax.persistence,
+ javax.measure
+Import-Package: com.raytheon.uf.common.dataplugin.bufrssmi,
+ com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.edex.decodertools.time,
+ com.raytheon.uf.edex.pointdata

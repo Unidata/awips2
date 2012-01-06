@@ -1,0 +1,123 @@
+C MEMBER PUC59
+C-----------------------------------------------------------------------
+C
+C                             LAST UPDATE:
+C
+C @PROCESS LVL(77)
+C
+      SUBROUTINE PUC59 (P)
+
+C     THIS IS THE CARD PUNCH ROUTINE FOR ASTORIA TIDE ADJUSTMENT
+
+C     THIS ROUTINE ORIGINALLY WRITTEN BY
+C        JOANNE R. SALERNO  - NWRFC   OCT 1997
+
+C        1         2         3         4         5         6         7
+C23456789012345678901234567890123456789012345678901234567890123456789012
+
+C     POSITION     CONTENTS OF P ARRAY
+
+C      1           VERSION NUMBER OF OPERATION
+C      2-19        GENERAL NAME OR TITLE
+
+C     ASTORIA DW OBSERVED STAGE
+C     20-21       OBSERVED STAGE TIME SERIES IDENTIFIER
+C     22          OBSERVED STAGE DATA TYPE CODE
+
+C     ASTORIA NOS STAGE
+C     23-24       NOS TIME SERIES IDENTIFIER
+C     25          NOS DATA TYPE CODE
+
+C     ASTORIA MAX/MIN OBS/FX BALANCE
+C     26-27       OBS/FX MAX/MIN BALANCE TIME SERIES IDENTIFIER - TIDE1
+C     28            "       "       "    DATA TYPE CODE
+C     29-30       OBS/FX MAX/MIN BALANCE TIME SERIES IDENTIFIER - TIDE2
+C     31            "       "       "    DATA TYPE CODE
+C     32-33       OBS/FX MAX/MIN BALANCE TIME SERIES IDENTIFIER - TIDE3
+C     34            "       "       "    DATA TYPE CODE
+C     35-36       OBS/FX MAX/MIN BALANCE TIME SERIES IDENTIFIER - TIDE4
+C     37            "       "       "    DATA TYPE CODE
+
+C**********************************************************************
+
+C     THE NUMBER OF ELEMENTS REQUIRED IN THE P ARRAY IS  37
+
+C     THE NUMBER OF ELEMENTS REQUIRED IN THE C ARRAY IS   0
+
+C        1         2         3         4         5         6         7
+C23456789012345678901234567890123456789012345678901234567890123456789012
+
+C                   NWRFS CARDS
+C                   FREE FORMAT
+C
+C
+C ASTORIA TIDE ADJUSTMENT
+C ASTID TIDE NOSID STID
+C ASTID1 TIDB ASTID2 TIDB ASTID3 TIDB ASTID4 TIDB
+C
+C     CARD 1 - GENERAL USER SUPPLIED INFORMATION
+C     CARD 2 - TIME SERIES DEFINITION
+C        FIELD 1 - DW OBSERVED STAGE TIME SERIES IDENTIFIER - 8 CHAR
+C        FIELD 2 - DW OBSERVED STAGE DATA TYPE CODE  - 4 CHAR
+C        FIELD 3 - NOS         STAGE TIME SERIES IDENTIFIER - 8 CHAR
+C        FIELD 4 - NOS         STAGE DATA TYPE CODE  - 4 CHAR
+C     CARD 3 - TIME SERIES DEFINITION
+C        FIELD 5  - TIDE1 OBS/FX SERIES IDENTIFIER    - 8 CHAR
+C        FIELD 6  - TIDE1 OBS/FX DATA TYPE CODE       - 4 CHAR
+C        FIELD 7  - TIDE2 OBS/FX SERIES IDENTIFIER    - 8 CHAR
+C        FIELD 8  - TIDE2 OBS/FX DATA TYPE CODE       - 4 CHAR
+C        FIELD 9  - TIDE3 OBS/FX SERIES IDENTIFIER    - 8 CHAR
+C        FIELD 10 - TIDE3 OBS/FX DATA TYPE CODE       - 4 CHAR
+C        FIELD 11 - TIDE4 OBS/FX SERIES IDENTIFIER    - 8 CHAR
+C        FIELD 12 - TIDE4 OBS/FX DATA TYPE CODE       - 4 CHAR
+C
+
+C        1         2         3         4         5         6         7
+C23456789012345678901234567890123456789012345678901234567890123456789012
+
+      DIMENSION P(*)
+
+
+C     COMMON BLOCKS
+
+      COMMON/FDBUG/IODBUG,ITRACE,IDBALL,NDEBUG,IDEBUG(20)
+      COMMON/IONUM/IN,IPR,IPU
+      COMMON/PUDFLT/IPDFLT
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_puc/RCS/puc59.f,v $
+     . $',                                                             '
+     .$Id: puc59.f,v 1.2 2003/06/17 18:20:46 hsu Exp $
+     . $' /
+C    ===================================================================
+C
+
+      DATA ZERO / 0./
+      CALL FPRBUG ('PUC59   ',1,59,IBUG)
+
+
+C ---   CARD 1 USER SUPPLIED INFORMATION
+
+      WRITE(IPU,500) (P(I),I=2,19)
+ 500  FORMAT(20A4)
+
+
+C  ---  CARD 2 INPUT TIME SERIES
+
+         WRITE(IPU,502) (P(I),I=20,25)
+ 502     FORMAT(2(2A4,1X,A4,1X))
+
+
+C  ---  CARD 3 INPUT TIME SERIES
+
+         WRITE(IPU,503) (P(I),I=26,37)
+ 503     FORMAT(4(2A4,1X,A4,1X))
+
+
+      IF (ITRACE.GE.1) WRITE(IODBUG,90)
+ 90   FORMAT('PUC59:  EXITED:')
+
+      RETURN
+      END

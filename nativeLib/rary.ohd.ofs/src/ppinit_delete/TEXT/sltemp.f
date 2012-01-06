@@ -1,0 +1,285 @@
+C MODULE SLTEMP
+C-----------------------------------------------------------------------
+C
+C  ROUTINE TO DELETE STATION TEMP PARAMETERS.
+C
+      SUBROUTINE SLTEMP (LARRAY,ARRAY,NFLD,IRUNCK,ISTAT)
+C
+      CHARACTER*4 TYPE,RDISP,WDISP
+      CHARACTER*20 CHAR/' '/,CHK/' '/
+C
+      DIMENSION ARRAY(LARRAY)
+C
+      INCLUDE 'scommon/dimstan'
+C
+      INCLUDE 'uio'
+      INCLUDE 'scommon/sudbgx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppinit_delete/RCS/sltemp.f,v $
+     . $',                                                             '
+     .$Id: sltemp.f,v 1.2 1998/04/07 17:37:43 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,190)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG('DELT')
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,200) LARRAY,NFLD
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      ISTAT=0
+C
+      LCHAR=LEN(CHAR)/4
+      LCHK=LEN(CHK)/4
+C
+      ISTRT=-1
+      ILPFND=0
+      IRPFND=0
+      NUMFLD=0
+      NUMERR=0
+      NUMWRN=0
+      NDELTE=0
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK FIELDS FOR IDENTIFIERS
+C
+10    CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPE,NREP,INTEGR,REAL,LCHAR,
+     *   CHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,IERR)
+      IF (LDEBUG.GT.0) THEN
+         CALL UPRFLD (NFLD,ISTRT,LENGTH,ITYPE,NREP,INTEGR,REAL,LCHAR,
+     *      CHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,IERR)
+         ENDIF
+      IF (IERR.NE.1) GO TO 20
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,230) NFLD
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+         GO TO 10
+C
+C  CHECK FOR END OF INPUT
+20    IF (NFLD.EQ.-1) GO TO 180
+C
+C  CHECK FOR COMMAND
+      IF (LATSGN.EQ.1) GO TO 180
+C
+C  CHECK FOR PAIRED PARENTHESIS
+      IF (ILPFND.GT.0.AND.IRPFND.EQ.0) GO TO 30
+         GO TO 40
+30    IF (NFLD.EQ.1) CALL SUPCRD
+      WRITE (LP,240) NFLD
+      CALL SULINE (LP,2)
+      ILPFND=0
+      IRPFND=0
+40    IF (LLPAR.GT.0) ILPFND=1
+      IF (LRPAR.GT.0) IRPFND=1
+C
+C  CHECK FOR PARENTHESIS IN FIELD
+      IF (LLPAR.GT.0) CALL UFPACK (LCHK,CHK,ISTRT,1,LLPAR-1,IERR)
+      IF (LLPAR.EQ.0) CALL UFPACK (LCHK,CHK,ISTRT,1,LENGTH,IERR)
+C
+      NUMFLD=NUMFLD+1
+      IF (NUMFLD.GT.1) GO TO 60
+C
+C  CHECK PARAMETER TYPE
+      IF (NFLD.EQ.1) CALL SUPCRD
+      TYPE=CHK
+      IF (TYPE.NE.'TEMP') THEN
+         WRITE (LP,210) 'TEMP',NFLD,CHK(1:LENSTR(CHK))
+         CALL SUERRS (LP,2,NUMERR)
+         ENDIF
+      GO TO 10
+C
+C  CHECK FOR KEYWORD
+60    CALL SUIDCK ('DELT',CHK,NFLD,0,IKEYWD,IUIDCK)
+      IF (IUIDCK.EQ.2) GO TO 180
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,*) 'CHK=',CHK
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+C
+      IF (NUMERR.GT.0) GO TO 10
+C      
+      IF (NFLD.EQ.1) CALL SUPCRD
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+      CALL SUBSTR (CHAR,1,8,STAID,1)
+C
+C  UPDATE GENERAL STATION PARAMETERS
+      IPTR=0
+      IPRERR=0
+      RDISP='OLD'
+      INCLUDE 'scommon/callsrstan'
+      IF (IERR.EQ.0) GO TO 70
+         WRITE (LP,260) 'STAN',STAID
+         CALL SUWRNS (LP,2,NUMWRN)
+         GO TO 10
+C
+C  CHECK IF STATION HAS TEMP PARAMETERS
+70    DO 80 IGP=1,NGPS
+         IF (GPS(IGP).EQ.TYPE) GO TO 90
+80       CONTINUE
+         WRITE (LP,270) TYPE,STAID
+         CALL SUWRNS (LP,2,NUMWRN)
+         GO TO 10
+C
+C  UPDATE DATA GROUP CODES
+90    IF (NGPS.GT.1) GO TO 100
+         NGPS=0
+         GO TO 120
+100   GPS(IGP)=' '
+      DO 110 I=1,NGPS
+         IF (GPS(I).NE.' ') GO TO 110
+         IF (I.EQ.NGPS) GO TO 110
+            GPS(I)=GPS(I+1)
+            GPS(I+1)=' '
+110      CONTINUE
+      NGPS=NGPS-1
+C
+C  WRITE PARAMETERS
+120   WDISP='OLD'
+      IWRITE=1
+      INCLUDE 'scommon/callswstan'
+      IF (IERR.EQ.0) GO TO 130
+         WRITE (LP,310) STAID
+         CALL SULINE (LP,2)
+         GO TO 10
+C
+130   WRITE (LP,320) STAID
+      CALL SULINE (LP,2)
+C
+      IF (LDEBUG.EQ.0) GO TO 140
+C
+      IPRNT=1
+      INCLUDE 'scommon/callspstan'
+C
+140   IF (IPMMMT.EQ.0) GO TO 160
+C
+C  READ TEMP PARAMETERS
+      IPTR=0
+      IPRERR=0
+      INCLUDE 'scommon/callsrtemp'
+      IF (IERR.GT.0) THEN
+         WRITE (LP,260) STAID
+         CALL SUWRNS (LP,2,NUMWRN)
+         GO TO 10
+         ENDIF
+C
+      IF (LDEBUG.GT.0) THEN
+         IPRNT=1
+         INCLUDE 'scommon/callsptemp'
+         ENDIF
+C
+      IF (IRUNCK.EQ.1) GO TO 170
+C
+C  DELETE MAX/MIN TEMPERATURES
+      CALL WPPDMT (IPMMMT,IERR)
+      IF (IERR.NE.0) THEN
+         IF (IERR.EQ.1) THEN
+            WRITE (LP,340) STAID,IPMMMT
+            CALL SUERRS (LP,2,NUMERR)
+            ENDIF
+         IF (IERR.EQ.2) THEN
+            WRITE (LP,350) STAID,IPMMMT
+            CALL SUWRNS (LP,2,NUMWRN)
+            ENDIF
+         IF (IERR.EQ.3) THEN
+            WRITE (LP,360) STAID,IPMMMT
+            CALL SUERRS (LP,2,NUMERR)
+            ENDIF
+         GO TO 10
+         ENDIF
+C
+C  DELETE PARAMETERS FROM PREPROCESSOR PARAMETRIC DATA BASE
+160   TYPE='TEMP'
+      CALL WPPDEL (STAID,TYPE,IERR)
+      IF (IERR.NE.0) THEN
+         IF (IERR.EQ.1) THEN
+            WRITE (LP,330) STAID
+            CALL SUWRNS (LP,2,NUMWRN)
+            ENDIF
+         IF (IERR.GT.1) THEN
+            WRITE (LP,370) IERR,STAID
+            CALL SUWRNS (LP,2,NUMWRN)
+            ENDIF
+         GO TO 10
+         ENDIF
+C
+170   IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,380) STAID
+         CALL SULINE (LP,1)
+         ENDIF
+      CALL SUDWRT (1,'PPP ',IERR)
+C
+C  STATION SUCCESSFULLY DELETED
+      WRITE (LP,390) STAID
+      CALL SULINE (LP,2)
+      NDELTE=NDELTE+1
+      GO TO 10
+C
+C  PRINT NUMBER OF TEMP STATIONS DELETED
+180   IF (NDELTE.EQ.0) THEN
+         WRITE (LP,400)
+         CALL SULINE (LP,2)
+         ENDIF
+      IF (NDELTE.GT.0) THEN
+         WRITE (LP,410) NDELTE
+         CALL SULINE (LP,2)
+         ENDIF
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,420)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+190   FORMAT (' *** ENTER SLTEMP')
+200   FORMAT (' LARRAY=',I5,3X,'NFLD=',I2)
+210   FORMAT ('0*** ERROR - IN SLTEMP - THE CHARACTERS ''',A,
+     *   ' ''WERE EXPECTED IN FIELD ',I2,' BUT ''',A,''' WERE FOUND.')
+230   FORMAT (' NULL FIELD FOUND IN FIELD ',I2)
+240   FORMAT ('0*** NOTE - RIGHT PARENTHESES ASSUMED IN FIELD ',I2,'.')
+260   FORMAT ('0*** WARNING - ',A,' PARAMETERS NOT FOUND  ',
+     *   'FOR STATION ',A,'.')
+270   FORMAT ('0*** WARNING - ',A,' PARAMETERS NOT DEFINED  ',
+     *   'FOR STATION ',A,'.')
+310   FORMAT ('0*** ERROR - STATION GENERAL PARAMETERS ',
+     *   'FOR STATION ',A,' NOT SUCCESSFULLY UPDATED.')
+320   FORMAT ('0*** NOTE - STATION GENERAL PARAMETERS FOR ',
+     *   'FOR STATION ',A,' SUCCESSFULLY UPDATED.')
+330   FORMAT ('0*** WARNING - TEMP PARAMETERS NOT FOUND ',
+     *   'FOR STATION ',A,'.')
+340   FORMAT ('0*** ERROR - SYSTEM ERROR ACCESSING MAX/MIN TEMPS ',
+     *   'FOR STATION ',A,'. IPMMMT=',I3)
+350   FORMAT ('0*** WARNING - MAX/MIN TEMPERATURES AT LOCATION ',I3,
+     *   'FOR STATION ',A,' ARE ALREADY MARKED AS DELETED.')
+360   FORMAT ('0*** ERROR - INVALID VALUE OF MAX/MIN TEMPERATURES ',
+     *   'POINTER (',I3,') FOR STATION ',A,'.')
+370   FORMAT ('0*** WARNING - STATUS CODE ',I3,' FROM WPPDEL ',
+     *   'ENCOUNTERED WHILE DELETING TEMP STATION ',A,'.')
+380   FORMAT (' PARAMETERS DELETED FOR TEMP STATION ',A)
+390   FORMAT ('0*** NOTE - TEMP PARAMETERS FOR ',
+     *   'FOR STATION ',A,' SUCCESSFULLY DELETED.')
+400   FORMAT ('0*** NOTE - NO STATIONS WITH TEMP PARAMETERS ',
+     *   'SUCCESSFULLY PROCESSED.')
+410   FORMAT ('0*** NOTE - ',I3,' STATION TEMP PARAMETERS ',
+     *   'SUCCESSFULLY DELETED.')
+420   FORMAT (' *** EXIT SLTEMP')
+C
+      END

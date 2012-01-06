@@ -1,0 +1,66 @@
+#!/bin/bash
+if [ ${#AWIPS_HOME} = 0 ]
+then
+        path_to_script=`readlink -f $0`
+		export AWIPS_HOME=$(dirname $(dirname $(dirname $(dirname  $path_to_script))))
+fi
+
+# $1 = Primary site
+# $2 = Failed site
+
+if [ $# -ne 2 ]
+then
+   log_msg "Incorrect number of arguments\nCorrect usage: request_grids primary_site failed_site"
+   exit 1
+fi
+
+. ${AWIPS_HOME}/GFESuite/ServiceBackup/configuration/svcbu.env
+
+# Create the log file
+logdir=${IFPS_LOG}/`date +%Y%m%d`
+logfil=svcbu_request_grids_`date +%H%M`
+logfile=${logdir}/${logfil}
+[ ! -d ${logdir} ] && (umask 000;mkdir ${logdir})
+touch ${logdir}/${logfil}
+exec 1>${logdir}/${logfil} 2>&1
+
+# Check the status of the lock file to see if we are OK to proceed
+if [ -f ${LOCK_DIR}/importGrids ];
+then
+	log_msg Cannot import grids for $2.  Import grids process already in progress!
+	exit 1
+fi
+
+touch ${LOCK_DIR}/importGrids
+
+log_msg Contacting central server to get grids for ${2}
+log_msg 0
+
+sub=${2}Grd
+if [ ! -d ${SVCBU_HOME} ]
+then
+mkdir ${SVCBU_HOME}
+fi
+
+if [ -n "${SVCBU_WMO_HEADER}" ]; then
+    msgSendOutput=$($MSG_SEND_COMMAND -a "DEFAULTNCF" -i ${SVCBU_WMO_HEADER} -s $sub -c 23)
+    exitValue=$?
+    if [ $exitValue -ne 0 ]; then
+        log_msg "msg_send FAILED with exit value $exitValue and the following error: $msgSendOutput"
+        rm -f ${LOCK_DIR}/importGrids
+        exit 1
+    fi
+else
+    msgSendOutput=$($MSG_SEND_COMMAND -a "DEFAULTNCF" -s $sub -c 23)
+    exitValue=$?
+    if [ $exitValue -ne 0 ]; then
+        log_msg "msg_send FAILED with exit value $exitValue and the following error: $msgSendOutput"
+        rm -f ${LOCK_DIR}/importGrids
+        exit 1
+    fi
+fi
+log_msg Successfully sent message. MESSAGE ID: $msgSendOutput
+
+log_msg 30
+log_msg "Waiting to receive digital data..."
+exit 0

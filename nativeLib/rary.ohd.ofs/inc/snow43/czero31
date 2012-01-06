@@ -1,0 +1,26 @@
+C..............................................
+C    COMMON BLOCK CZERO31
+C
+C	THE ZERO1 VARIABLES ARE USED TO ACTIVATE FEATURES IN
+C   VARIOUS EQUATIONS.  THEIR VALUES ARE EITHER ZERO OR ONE.
+C
+C    VARIABLE            DESCRIPTION
+C    --------            -----------
+C      FZERO1            = 0 IF THE HEAT DEFICIT <= PHYSICAL MAXIMUM
+C      GZERO1            = 0 IF TINDEX <= 0 AND IS REALISTIC
+C      HZERO1            = 0 IF SNOWFALL <= LIMIT FOR RESETTING TINDEX TO TA
+C      IZERO1            = 0 IF LIQW > WE*PLWHC
+C      JZERO1            = 0 IF HEAT DEFICIT + HEAT EXCANGE >= FREE WATER
+C      KZERO1            = 0 IF AIR TEMPERATURE >= 0
+C      LZERO1            = 0 IF SNOWMELT < FROZEN WATER
+C      MZERO1            = 0 IF AIR TEMPERATURE <= MBASE
+C      NZERO1            = 0 IF CHANGE IN HEAT STORAGE > HEAT DEFICIT
+C..............................................
+C
+      integer FZERO1, GZERO1, HZERO1, IZERO1,
+     1        JZERO1, KZERO1, LZERO1, MZERO1,
+     2        NZERO1
+C
+      COMMON/CZERO31/FZERO1, GZERO1, HZERO1, IZERO1,
+     1               JZERO1, KZERO1, LZERO1, MZERO1,
+     2               NZERO1

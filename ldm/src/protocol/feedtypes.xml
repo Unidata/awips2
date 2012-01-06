@@ -1,0 +1,75 @@
+<feedtypes>
+    <!-- The elements in this XML establish mappings from names to numeric
+    values and vice versa.  Every name must map to only one value.  A value
+    may map to multiple names.  The first such mapping will be the one used
+    for printing.  Only backward references (i.e., to previous mappings)
+    are allowed. If "NONE" or "ANY" is used for a name, then the result is
+    undefined.
+
+    The following are well-known feedtype sets.  Change them at your peril.
+    You may, however, reorder them so that, for any given numeric value, the
+    name you want to be used for printing is the first one.  If "NONE" OR "ANY"
+    is used for a name or if zero is used for a value, then the result is
+    undefined.
+    -->
+
+	<feedset name="PPS"      value="0x1"/>
+	<feedset name="DDS"      value="0x2"/>
+	<feedset name="DDPLUS"   value="DDS|PPS"/>
+	<feedset name="HDS"      value="0x4"/>
+	<feedset name="HRS"      value="0x4"/>
+	<feedset name="IDS"      value="0x8"/>
+	<feedset name="INTNL"    value="0x8"/>
+	<feedset name="SPARE"    value="0x10"/>
+	<feedset name="WMO"      value="DDPLUS|HDS|IDS"/>
+	<feedset name="UNIWISC"  value="0x20"/>
+	<feedset name="MCIDAS"   value="0x20"/>
+	<feedset name="UNIDATA"  value="UNIWISC|WMO"/>
+	<feedset name="ACARS"    value="0x40"/>		<!-- check w/Tom -->
+	<feedset name="PCWS"     value="0x40"/>
+	<feedset name="PROFILER" value="0x80"/>		<!-- check w/Tom -->
+	<feedset name="FSL2"     value="0x80"/>
+	<feedset name="FSL3"     value="0x100"/>
+	<feedset name="FSL4"     value="0x200"/>
+	<feedset name="FSL5"     value="0x400"/>
+	<feedset name="FSL"      value="FSL5|FSL4|FSL3|FSL2|PCWS"/>
+	<feedset name="GPSSRC"   value="0x800"/>
+	<feedset name="AFOS"     value="0x800"/>
+	<feedset name="CONDUIT"  value="0x1000"/>
+	<feedset name="NMC2"     value="0x1000"/>
+	<feedset name="NCEPH"    value="0x1000"/>
+	<feedset name="FNEXRAD"  value="0x2000"/>
+	<feedset name="NMC3"     value="0x2000"/>
+	<feedset name="NMC"      value="NMC3|NMC2|AFOS"/>
+	<feedset name="NLDN"     value="0x4000"/>
+	<feedset name="WSI"      value="0x8000"/>
+	<feedset name="DIFAX"    value="0x10000"/>
+	<feedset name="FAA604"   value="0x20000"/>
+	<feedset name="GPS"      value="0x40000"/>
+	<feedset name="NOGAPS"   value="0x80000"/>
+	<feedset name="FNMOC"    value="0x80000"/>
+	<feedset name="SEISMIC"  value="0x80000"/>
+	<feedset name="CMC"      value="0x100000"/>
+	<feedset name="GEM"      value="0x100000"/>
+	<feedset name="NIMAGE"   value="0x200000"/>
+	<feedset name="IMAGE"    value="0x200000"/>
+	<feedset name="NTEXT"    value="0x400000"/>
+	<feedset name="TEXT"     value="0x400000"/>
+	<feedset name="NGRID"    value="0x800000"/>
+	<feedset name="GRID"     value="0x800000"/>
+	<feedset name="NPOINT"   value="0x1000000"/>
+	<feedset name="POINT"    value="0x1000000"/>
+	<feedset name="NBUFR"    value="0x1000000"/>
+	<feedset name="BUFR"     value="0x1000000"/>
+	<feedset name="NGRAPH"   value="0x2000000"/>
+	<feedset name="GRAPH"    value="0x2000000"/>
+	<feedset name="NOTHER"   value="0x4000000"/>
+	<feedset name="OTHER"    value="0x4000000"/>
+	<feedset name="NPORT"    value="NTEXT|NGRID|NPOINT|NGRAPH|NOTHER"/>
+	<feedset name="NNEXRAD"  value="0x8000000"/>
+	<feedset name="NEXRAD"   value="0x8000000"/>
+	<feedset name="CRAFT"    value="0x10000000"/>
+	<feedset name="NEXRD2"   value="0x10000000"/>
+	<feedset name="NXRDSRC"  value="0x20000000"/>
+	<feedset name="EXP"      value="0x40000000"/>
+</feedtypes>

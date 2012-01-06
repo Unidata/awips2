@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="build-common" default="default">
+
+<!-- MY_DIR=/fs/hseb/pda/users/dsa/devl -->
+
+<!-- <property name="ds_build" value="${env.DS_BUILD}"/> -->
+
+<!-- Imports ================================================================== -->
+
+    <import file="dependencies.xml"/>
+
+<!-- Directory definitions ==================================================== -->
+
+    <property name="jar.name" value="${ant.project.name}.jar" /> 
+    <property name="src.dir" location="src" /> 
+    <property name="classes.dir" location="classes" /> 
+    <property name="other.classes.dir" location="other_classes" />  
+    <property name="exlib.dir" location="../ohd.lib" />
+    <property name="release.dir" location="../../release" /> 
+    <property name="devlib.dir" location="../build.ohd/build" />
+    <property name="bin.dir" location="/tmp/hydro/whfs/bin" />
+    <property name="pproc.bin.dir" location="/tmp/hydro/pproc/bin" /> 
+  
+<!-- Paths ==============================================+===================== -->
+
+
+    <path id="project.classpath"> 
+      <pathelement location="${classes.dir}" /> 
+      <pathelement location="${other.classes.dir}" />
+       
+      <pathelement location="${exlib.dir}/junit.jar" />	
+      <pathelement location="${exlib.dir}/ihfsdb.jar" />
+      <pathelement location="${exlib.dir}/rax_apps.jar" />
+      <pathelement location="${exlib.dir}/damcrest.jar" />
+    </path> 
+  
+  
+<!-- Real Targets ============================================================== -->
+    
+    <target name="default" depends="build"/>
+     
+    <target name="build.full" depends="project.dependencies, build" />
+    
+    <target name="build" depends="print, compile, jar, deliver"/>
+   
+    <target name="project.dependencies">
+        <antcall target="project.${ant.project.name}"/>
+    </target>
+   
+    <target name="print">
+	<echo message="${ant.project.name}"/>
+    </target>
+      
+      
+    <target name="prepare">  	
+	<mkdir dir="${classes.dir}" />
+	<mkdir dir="${other.classes.dir}" />
+	
+	<antcall target="prepare.compile.${ant.project.name}" /> 
+    </target> 
+
+
+    <target name="compile" description="Compiles the java source code" depends="prepare"> 
+  	  <javac srcdir="${src.dir}" destdir="${classes.dir}">
+	       <classpath refid="project.classpath" /> 
+      	  </javac> 
+    </target> 
+
+
+    <target name="jar" description="JARs project" >	
+	    <antcall target="jar.${ant.project.name}"/>
+    </target>
+
+  
+    <target name="clean"> 
+    	<echo  message = "cleaning ${ant.project.name} on ${classes.dir}"  />
+	<delete dir="${classes.dir}" /> 
+    </target> 
+    
+    <target name="scrub" depends="clean"> 
+    	<echo  message = "scrubbing ${ant.project.name} ${other.classes.dir}"  />
+	<delete dir="${other.classes.dir}" /> 
+    </target> 
+
+    <target name="deliver"> 
+	  <antcall target="deliver.${ant.project.name}"/>
+    </target> 
+
+    
+    
+<!-- End Targets ================================================================  -->
+    
+    
+</project>

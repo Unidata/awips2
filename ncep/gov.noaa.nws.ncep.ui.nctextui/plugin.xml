@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.3"?>
+<plugin>
+ 
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+          id="gov.noaa.nws.ncep.ui.nctextui.palette"
+          name="Nctext">
+      </command>
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.nctextui.rsc.NctextuiTool"
+          name="Nctextui Selecting">
+      </command>   
+      <!--
+      <command
+          id="gov.noaa.nws.ncep.ui.nctextui.help"
+          name="NCTEXT Help">
+      </command>
+      -->
+   </extension>
+
+   <extension 
+         point="org.eclipse.ui.handlers">
+       <handler 
+            class="gov.noaa.nws.ncep.ui.nctextui.palette.NctextuiPaletteAction"
+            commandId="gov.noaa.nws.ncep.ui.nctextui.palette">
+       </handler>
+       <!--     
+       <handler
+            class="gov.noaa.nws.ncep.ui.nctextui.rsc.NctextuiModalTool"
+            commandId="gov.noaa.nws.ncep.ui.nctextui.rsc.NctextuiTool">
+       </handler>
+   
+       <handler
+            class="gov.noaa.nws.ncep.ui.nctextui.productManage.HelpHandler"
+            commandId="gov.noaa.nws.ncep.ui.nctextui.help">
+       </handler> 
+      -->
+	</extension>
+
+	<extension
+         point="org.eclipse.ui.views">
+           <category
+            id="gov.noaa.nws.ncep.viz.ui.nmap"
+            name="NMAP Views"/>
+           <view
+            category="gov.noaa.nws.ncep.viz.ui.nmap"
+            allowMultiple="false"
+            restorable="true"
+            class="gov.noaa.nws.ncep.ui.nctextui.palette.NctextuiPaletteWindow"
+            id="gov.noaa.nws.ncep.ui.NCTEXTUI"
+            name="NCTEXT"/>
+   </extension>
+   <!--
+   <extension
+       point="org.eclipse.ui.menus">
+       <menuContribution
+           locationURI="toolbar:gov.noaa.nws.ncep.ui.NCTEXTUI">          
+            <command
+                commandId="gov.noaa.nws.ncep.ui.nctextui.help"
+                label="Help"
+                mnemonic="H"
+                style="push">
+           </command>                   
+       </menuContribution>               
+   </extension>
+   -->
+   <!-- 
+   <extension 
+         point="gov.noaa.nws.ncep.ui.nctextui.palette">
+   </extension>
+	-->
+	
+	
+</plugin>

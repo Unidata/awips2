@@ -1,0 +1,617 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta content="text/html; charset=iso-8859-1"
+ http-equiv="Content-Type">
+  <meta
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]"
+ name="GENERATOR">
+  <meta content="Mark Mathewson" name="Author">
+  <title>D2D Weather Element Names</title>
+</head>
+<body bgcolor="#ffffff">
+<h1 class="3Heading">
+<a name="D2DWeatherElementNames"></a>D2D Weather Element Names</h1>
+<br>
+May 12, 2004<br>
+<br>
+<div class="3Heading"><font color="#ff6666">Note:&nbsp; For the most
+accurate
+information, please use the ncdump command and examine the model data
+files
+directly.</font></div>
+<div class="3Heading">
+<hr width="100%"></div>
+<h2 class="3Heading">GFS80 Model (CONUS 211)<br>
+</h2>
+&nbsp;
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr nosave="">
+      <td nosave=""><b>Weather Element Name</b></td>
+      <td><b>Descriptive Name</b></td>
+      <td><b>Units</b></td>
+      <td><b>Available Levels</b></td>
+    </tr>
+    <tr>
+      <td>gh</td>
+      <td>Geopotential Height</td>
+      <td>meters</td>
+      <td>BL030 BL3060 BL6090 BL90120 BL120150 BL150180 MB 1000 975
+950&nbsp; 925 900
+875 850 825 800 775 750 725 700 675 650 625 600 575 550 525 500 450 400
+350 300 250 200 150 100 <br>
+      </td>
+    </tr>
+    <tr>
+      <td>rh</td>
+      <td>Relative Humidity</td>
+      <td>percent</td>
+      <td>BL030 BL3060 BL6090 BL90120 BL120150 BL150180 MB 1000 975
+950&nbsp; 925 900
+875 850 825 800 775 750 725 700 675 650 625 600 575 550 525 500 450 400
+350 300 250 200 150 100 SIG44100<br>
+      </td>
+    </tr>
+    <tr>
+      <td>t</td>
+      <td>Temperature</td>
+      <td>degrees c.</td>
+      <td>FHAG2 BL030 BL3060 BL6090 BL90120 BL120150 BL150180 MB 1000
+975 950&nbsp; 925 900
+875 850 825 800 775 750 725 700 675 650 625 600 575 550 525 500 450 400
+350 300 250 200 150 100 TROP <br>
+      </td>
+    </tr>
+    <tr>
+      <td>Wind</td>
+      <td>Wind</td>
+      <td>meters/second</td>
+      <td>BL030 BL3060 BL6090 BL90120 BL120150 BL150180 MB 1000 975
+950&nbsp; 925 900 875 850 825 800 775 750 725 700 675 650 625 600 575
+550 525 500 450 400 350 300 250 200 150 100 TROP <br>
+&nbsp;</td>
+    </tr>
+    <tr>
+      <td>av</td>
+      <td>Absolute Vorticity</td>
+      <td>/second</td>
+      <td>MB 850 700 500 250</td>
+    </tr>
+    <tr>
+      <td>pvv</td>
+      <td>Pressure Vertical Velocity</td>
+      <td>Pa/s</td>
+      <td>MB 850 700 500 400 300 250 200 150 100</td>
+    </tr>
+    <tr>
+      <td>p</td>
+      <td>Pressure</td>
+      <td>pascals</td>
+      <td>SFC TROP&nbsp;&nbsp;</td>
+    </tr>
+    <tr>
+      <td>pw</td>
+      <td>Precipitable Water</td>
+      <td>kg/m**2</td>
+      <td>EA</td>
+    </tr>
+    <tr>
+      <td>pmsl</td>
+      <td>Atmospheric pressure (MSL)</td>
+      <td>pascals</td>
+      <td>MSL</td>
+    </tr>
+    <tr>
+      <td>sli</td>
+      <td>Surface Lifted Index</td>
+      <td>degrees K</td>
+      <td>SFC</td>
+    </tr>
+    <tr>
+      <td>tp</td>
+      <td>Total Precipitation</td>
+      <td>kg/m**2</td>
+      <td>SFC</td>
+    </tr>
+    <tr>
+      <td>vss</td>
+      <td>Vertial Speed Shear</td>
+      <td>l/s</td>
+      <td>TROP</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">cape<br>
+      </td>
+      <td style="vertical-align: top;">Convective Available Potential
+Energy<br>
+      </td>
+      <td style="vertical-align: top;">J/kg<br>
+      </td>
+      <td style="vertical-align: top;">SFC BL0180<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">cin<br>
+      </td>
+      <td style="vertical-align: top;">Convective Inhibition<br>
+      </td>
+      <td style="vertical-align: top;">J/kg<br>
+      </td>
+      <td style="vertical-align: top;">SFC BL0180<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>
+</p>
+<hr width="100%">
+<h2>NAM80 Model (CONUS211)<br>
+</h2>
+&nbsp;
+<p>
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr nosave="">
+      <td nosave=""><b>Weather Element Name</b></td>
+      <td><b>Descriptive Name</b></td>
+      <td><b>Units</b></td>
+      <td><b>Available Levels</b></td>
+    </tr>
+    <tr>
+      <td>gh</td>
+      <td>Geopotential Height</td>
+      <td>meters</td>
+      <td>MB 1000-100 by 50&nbsp;&nbsp;</td>
+    </tr>
+    <tr>
+      <td>rh</td>
+      <td>Relative Humidity</td>
+      <td>percent</td>
+      <td>FHAG 2&nbsp; MB 1000-100 by 50&nbsp; BL030 BL3060 BL6090
+BL90120 BL120150 <br>
+      </td>
+    </tr>
+    <tr>
+      <td>t</td>
+      <td>Temperature</td>
+      <td>degrees K</td>
+      <td>FHAG2 MB 1000-100 by 50&nbsp; BL030 BL3060 BL6090 BL90120
+BL120150&nbsp; <br>
+      </td>
+    </tr>
+    <tr>
+      <td>Wind</td>
+      <td>Wind</td>
+      <td>meters/second</td>
+      <td>FHAG 10 MB 1000-100 by 50&nbsp; BL030 BL3060 BL6090 BL90120
+BL120150<br>
+      </td>
+    </tr>
+    <tr>
+      <td>av</td>
+      <td>Absolute Vorticity</td>
+      <td>/second</td>
+      <td>MB 1000 850 700 500 250</td>
+    </tr>
+    <tr>
+      <td>pvv</td>
+      <td>Pressure Vertical Velocity</td>
+      <td>Pa/s</td>
+      <td>MB 1000-100 by 50</td>
+    </tr>
+    <tr>
+      <td>p</td>
+      <td>Atmospheric Pressure</td>
+      <td>pascals</td>
+      <td>SFC&nbsp;&nbsp;</td>
+    </tr>
+    <tr>
+      <td>heli</td>
+      <td>Helicity</td>
+      <td>m/s **2</td>
+      <td>FHAG 0&gt;30</td>
+    </tr>
+    <tr>
+      <td>cape</td>
+      <td>Convective Available Potential Energy</td>
+      <td>J/kg</td>
+      <td>SFC BL0180</td>
+    </tr>
+    <tr>
+      <td>cin</td>
+      <td>Convective Inhibition</td>
+      <td>J/kg</td>
+      <td>SFC BL0180<br>
+      </td>
+    </tr>
+    <tr>
+      <td>bli</td>
+      <td>Best Lifted Index</td>
+      <td>degrees K</td>
+      <td>BL0180<br>
+      </td>
+    </tr>
+    <tr>
+      <td>pli</td>
+      <td>Parcel lifted index</td>
+      <td>degrees K</td>
+      <td>BL 0&gt;30</td>
+    </tr>
+    <tr>
+      <td>pw</td>
+      <td>Precipitable Water</td>
+      <td>kg/m**2</td>
+      <td>EA</td>
+    </tr>
+    <tr>
+      <td>emsp</td>
+      <td>Mean Sea Level Pressure</td>
+      <td>Pascals</td>
+      <td>MSL</td>
+    </tr>
+    <tr>
+      <td>cp</td>
+      <td>Convective Precipitation</td>
+      <td>mm.</td>
+      <td>SFC</td>
+    </tr>
+    <tr>
+      <td>tp</td>
+      <td>Total Precipitation</td>
+      <td>mm.</td>
+      <td>SFC</td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<hr width="100%">
+<h2>RUC80 Model (CONUS211)<br>
+</h2>
+<p>
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr nosave="">
+      <td nosave=""><b>Weather Element Name</b></td>
+      <td><b>Descriptive Name</b></td>
+      <td><b>Units</b></td>
+      <td><b>Available Levels</b></td>
+    </tr>
+    <tr>
+      <td>gh</td>
+      <td>Geopotential Height</td>
+      <td>meters</td>
+      <td>MB 1000-100 by 50&nbsp;&nbsp; FRZ</td>
+    </tr>
+    <tr>
+      <td>rh</td>
+      <td>Relative Humidity</td>
+      <td>percent</td>
+      <td>FHAG 2&nbsp;&nbsp;&nbsp; MB 1000-100 by 50&nbsp;&nbsp; BL030
+BL6090 BL6090 BL150180&nbsp; FRZ</td>
+    </tr>
+    <tr>
+      <td>t</td>
+      <td>Temperature</td>
+      <td>degrees K</td>
+      <td>FHAG 2&nbsp; MB 1000-100 by 50&nbsp;&nbsp;&nbsp; BL030 BL6090
+BL6090 BL150180&nbsp;&nbsp;&nbsp; <br>
+      </td>
+    </tr>
+    <tr>
+      <td>Wind</td>
+      <td>Wind</td>
+      <td>meters/second</td>
+      <td>FHAG 10 MB 1000-100 by 50&nbsp; BL030 BL6090 BL6090 BL150180&nbsp;&nbsp;&nbsp;
+MAXW TROP</td>
+    </tr>
+    <tr>
+      <td>p</td>
+      <td>Atmospheric Pressure</td>
+      <td>pascals</td>
+      <td>SFC&nbsp;&nbsp;&nbsp;&nbsp; FRZ MAWX TROP</td>
+    </tr>
+    <tr>
+      <td>mmsp</td>
+      <td>Mean Sea Level Pressure</td>
+      <td>Pascals</td>
+      <td>MSL</td>
+    </tr>
+    <tr>
+      <td>cp</td>
+      <td>Convective Precipitation</td>
+      <td>mm.</td>
+      <td>SFC</td>
+    </tr>
+    <tr>
+      <td>tp</td>
+      <td>Total Precipitation</td>
+      <td>mm.</td>
+      <td>SFC</td>
+    </tr>
+    <tr>
+      <td>pr</td>
+      <td>Precipitation Rate</td>
+      <td>kg/m**2/s</td>
+      <td>SFC</td>
+    </tr>
+    <tr>
+      <td>lgsp</td>
+      <td>Large Scale Precipitation</td>
+      <td>kg/m**2</td>
+      <td>SFC</td>
+    </tr>
+    <tr>
+      <td>pot</td>
+      <td>Potential Temperature at Tropopause</td>
+      <td>degrees K</td>
+      <td>TROP</td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<hr width="100%"><br>
+&nbsp;
+<h2>NAM40/NAM20 Model (CONUS215/212)<br>
+</h2>
+&nbsp;
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr nosave="">
+      <td nosave=""><b>Weather Element Name</b></td>
+      <td><b>Descriptive Name</b></td>
+      <td><b>Units</b></td>
+      <td><b>Available Levels</b></td>
+    </tr>
+    <tr>
+      <td>gh</td>
+      <td>Geopotential Height</td>
+      <td>meters</td>
+      <td>MB 1000-600 by 25&nbsp; MB 550-100 by 50&nbsp;&nbsp; FHAG2
+BL030 BL3060 BL6090 BL90120 BL120150</td>
+    </tr>
+    <tr>
+      <td>rh</td>
+      <td>Relative Humidity</td>
+      <td>percent</td>
+      <td>MB 975-600 by 25&nbsp; MB 550-300 by 50&nbsp; ,&nbsp; BL030
+BL3060 BL6090 BL90120 BL120150 FHAG2<br>
+      </td>
+    </tr>
+    <tr>
+      <td>t</td>
+      <td>Temperature</td>
+      <td>degrees K</td>
+      <td>MB 1000-600 by 25&nbsp; MB 550-100 by 50&nbsp;&nbsp;</td>
+    </tr>
+    <tr>
+      <td>Wind</td>
+      <td>Wind</td>
+      <td>meters/second</td>
+      <td>MB 1000-600 by 25&nbsp; MB 550-100 by 50&nbsp; FHAG10
+BL030 BL3060 BL6090 BL90120 BL120150</td>
+    </tr>
+    <tr>
+      <td>av</td>
+      <td>Absolute Vorticity</td>
+      <td>/second</td>
+      <td>MB 1000, 850, 700, 500, 250</td>
+    </tr>
+    <tr>
+      <td>pvv</td>
+      <td>Pressure Vertical Velocity</td>
+      <td>Pa/s</td>
+      <td>MB 1000-600 by 25&nbsp; MB 550-100 by 50&nbsp;&nbsp;</td>
+    </tr>
+    <tr>
+      <td>p</td>
+      <td>Atmospheric Pressure</td>
+      <td>pascals</td>
+      <td>SFC</td>
+    </tr>
+    <tr>
+      <td>heli</td>
+      <td>Helicity</td>
+      <td>m/s **2</td>
+      <td>FHAG030<br>
+      </td>
+    </tr>
+    <tr>
+      <td>cape</td>
+      <td>Convective Available Potential Energy</td>
+      <td>J/kg</td>
+      <td>SFC, SFC BL0180</td>
+    </tr>
+    <tr>
+      <td>cin</td>
+      <td>Convective Inhibition</td>
+      <td>J/kg</td>
+      <td>SFC, SFC BL0180<br>
+      </td>
+    </tr>
+    <tr>
+      <td>bli</td>
+      <td>Best Lifted Index</td>
+      <td>degrees K</td>
+      <td>SFC BL 0&gt;180</td>
+    </tr>
+    <tr>
+      <td>pli</td>
+      <td>Parcel lifted index</td>
+      <td>degrees K</td>
+      <td>BL 0&gt;30</td>
+    </tr>
+    <tr>
+      <td>pw</td>
+      <td>Precipitable Water</td>
+      <td>kg/m**2</td>
+      <td>EA</td>
+    </tr>
+    <tr>
+      <td>emsp</td>
+      <td>Mean Sea Level Pressure</td>
+      <td>Pascals</td>
+      <td>MSL</td>
+    </tr>
+    <tr>
+      <td>cp</td>
+      <td>Convective Precipitation</td>
+      <td>mm.</td>
+      <td>SFC</td>
+    </tr>
+    <tr>
+      <td>tp</td>
+      <td>Total Precipitation</td>
+      <td>mm.</td>
+      <td>SFC</td>
+    </tr>
+    <tr>
+      <td>mxt</td>
+      <td>Maximum Temperature</td>
+      <td>degrees K</td>
+      <td>FHAG 2</td>
+    </tr>
+    <tr>
+      <td>mnt</td>
+      <td>Minimum Temperature</td>
+      <td>degrees K</td>
+      <td>FHAG 2</td>
+    </tr>
+    <tr>
+      <td>dpt</td>
+      <td>Dewpoint Temperature</td>
+      <td>degrees K</td>
+      <td>FHAG 2</td>
+    </tr>
+    <tr>
+      <td>ws</td>
+      <td>Wind Speed</td>
+      <td>meters/sec</td>
+      <td>FHAG 10</td>
+    </tr>
+    <tr>
+      <td>wd</td>
+      <td>Wind Direction</td>
+      <td>meters/sec</td>
+      <td>FHAG 10</td>
+    </tr>
+    <tr>
+      <td>tcc</td>
+      <td>Total Cloud Cover</td>
+      <td>percent</td>
+      <td>EA</td>
+    </tr>
+    <tr>
+      <td>thp</td>
+      <td>Thunderstorm Probability</td>
+      <td>percent</td>
+      <td>SFC</td>
+    </tr>
+    <tr>
+      <td>cpozp</td>
+      <td>Probability of Freezing Precip</td>
+      <td>percent</td>
+      <td>SFC</td>
+    </tr>
+    <tr>
+      <td>cpofp</td>
+      <td>Probability of Frozen Precip</td>
+      <td>percent</td>
+      <td>SFC</td>
+    </tr>
+    <tr>
+      <td>pop</td>
+      <td>Probability of Precipitation</td>
+      <td>percent&nbsp;</td>
+      <td>SFC</td>
+    </tr>
+    <tr>
+      <td>snd</td>
+      <td>Snow Depth</td>
+      <td>meters</td>
+      <td>SFC</td>
+    </tr>
+  </tbody>
+</table>
+<hr width="100%">
+<h2><br>
+</h2>
+<h2>gfsLR Model</h2>
+&nbsp;
+<p>
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr nosave="">
+      <td nosave=""><b>Weather Element Name</b></td>
+      <td><b>Descriptive Name</b></td>
+      <td><b>Units</b></td>
+      <td><b>Available Levels</b></td>
+    </tr>
+    <tr>
+      <td>gh</td>
+      <td>Geopotential Height</td>
+      <td>meters</td>
+      <td>MB 1000 850 700 500 300 250</td>
+    </tr>
+    <tr>
+      <td>rh</td>
+      <td>Relative Humidity</td>
+      <td>percent</td>
+      <td>MB 1000 850 700 500 400 300 BL030 SIG44100</td>
+    </tr>
+    <tr>
+      <td>t</td>
+      <td>Temperature</td>
+      <td>degrees K</td>
+      <td>MB 1000 850 700 500 300 250&nbsp; BL030</td>
+    </tr>
+    <tr>
+      <td>Wind</td>
+      <td>Wind</td>
+      <td>meters/second</td>
+      <td>MB 1000 850 700 500 300 250&nbsp; BL030</td>
+    </tr>
+    <tr>
+      <td>av</td>
+      <td>Absolute Vorticity</td>
+      <td>/second</td>
+      <td>MB 850 700 500 250</td>
+    </tr>
+    <tr>
+      <td>pmsl</td>
+      <td>Mean Sea Level Pressure</td>
+      <td>Pascals</td>
+      <td>MSL</td>
+    </tr>
+    <tr>
+      <td>cp</td>
+      <td>Convective Precipitation</td>
+      <td>mm.</td>
+      <td>SFC</td>
+    </tr>
+    <tr>
+      <td>tp</td>
+      <td>Total Precipitation</td>
+      <td>mm.</td>
+      <td>SFC</td>
+    </tr>
+    <tr>
+      <td>wgh</td>
+      <td>Five-wave height</td>
+      <td>meters</td>
+      <td>MB 500</td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<hr width="100%"><br>
+&nbsp;
+<br>
+&nbsp;
+<br>
+&nbsp;
+<div class="Body">&nbsp;<a href="#D2DWeatherElementNames">Back To Top</a>
+<br>
+&nbsp;<a href="GFESuite.html">Back To TOC</a></div>
+</body>
+</html>

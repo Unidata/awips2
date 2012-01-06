@@ -1,0 +1,93 @@
+C MEMBER GWPERR
+C  (from old member PPGWPERR)
+C
+      SUBROUTINE GWPERR(TYPE, NVAL, ISTATC)
+C
+C.....THIS SUBROUTINE IS AN ERROR PROCESSING FOR A WPDDLY ERROR.
+C
+C.....HERE ARE THE ARGUMENTS:
+C
+C.....TYPE   - THE DATA TYPE.
+C.....NVAL   - THE NUMBER OF VALUES TO BE WRITTEN.
+C.....ISTATC - STATUS CODE RETURNED FROM WPDDLY.
+C
+C.....ORIGINALLY WRITTEN BY:
+C
+C.....JERRY M. NUNN       WGRFC FT. WORTH, TEXAS       DECEMBER 1986
+C
+      INCLUDE 'gcommon/gdate'
+      INCLUDE 'common/fctime'
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/pudbug'
+      INCLUDE 'common/errdat'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_maro/RCS/gwperr.f,v $
+     . $',                                                             '
+     .$Id: gwperr.f,v 1.1 1995/09/17 19:02:49 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      DATA ZTIME /4hZ   /
+C
+  901 FORMAT(1H0, '*** ERROR ***  AVAILABLE FILE SPACE EXCEEDED ON PREPR
+     *OCESSOR DATA BASE FOR ', A4, '.')
+  902 FORMAT(1H0, '*** ERROR ***  DAY TO BE WRITTEN ON PREPROCESSOR DATA
+     * BASE FOR ', A4, ' IS NOT CONTINUOUS WITH OTHER PPDB DATA TYPES.')
+  903 FORMAT(1H0, '*** ERROR ***  SYSTEM ERROR ACCESSING PREPROCESSOR DA
+     *TA BASE FILE FOR ', A4, '.')
+  904 FORMAT(1X, 'DATE PROCESSED IS ', I2, '/', I2, '/', I4, 2X, I4, A4,
+     * 3X, '(JULIAN DATE/HOUR ', I6, ' / ', I2, ').')
+  905 FORMAT(1X, I6, ' VALUES WERE TO BE WRITTEN TO DATA FILE.')
+  906 FORMAT(1X, 'SOME OF THE DATA LIKELY HAS NOT BEEN WRITTEN TO FILE.'
+     *)
+  907 FORMAT(1X, 'NO DATA WRITTEN TO FILE.')
+  908 FORMAT(1X, 'PROCESSING CONTINUES.')
+  909 FORMAT(1H0, '*** ENTER SUBROUTINE GWPERR...DATA TYPE ', A4,
+     * '...NO. OF VALUES TO WRITE = ', I4, '...STATUS CODE = ', I4,
+     * ' ***')
+  910 FORMAT(1H0, '*** EXIT SUBROUTINE GWPERR ***')
+C
+      IF(IPTRCE .GT. 0) WRITE(IOPDBG,909) TYPE, NVAL, ISTATC
+C
+C.....GET THE MONTH, DATE, AND HEAR OF THE ATTEMPTED DATA WRITE.
+C
+      CALL MDYH2(IBEGDA, IHRRUN, KZMO, KZDATE, KZYEAR, KZHOUR, NOUTZ,
+     * NOUTDS, ZTIME)
+C
+C.....WRITE OUT ERROR MESSAGES...DEPENDING UPON ISTATC'S VALUE.
+C
+      IF(ISTATC .EQ. 1) GOTO 100
+      IF(ISTATC .EQ. 2) GOTO 200
+      IF(ISTATC .EQ. 3) GOTO 300
+      GOTO 999
+C
+  100 WRITE(IPR,901) TYPE
+      WRITE(IPR,905) NVAL
+      WRITE(IPR,904) KZMO, KZDATE, KZYEAR, KZHOUR, ZTIME, IBEGDA,
+     * IHRRUN
+      WRITE(IPR,906)
+      WRITE(IPR,908)
+      CALL ERROR
+      GOTO 999
+C
+  200 WRITE(IPR,902) TYPE
+  250 WRITE(IPR,904) IZMO, KZDATE, KZYEAR, KZHOUR, ZTIME, IBEGDA,
+     * IHRRUN
+      WRITE(IPR,907)
+      WRITE(IPR,908)
+      CALL ERROR
+      GOTO 999
+C
+  300 WRITE(IPR,903) TYPE
+      CALL ERROR
+      GOTO 250
+C
+  999 IF(IPTRCE .GT. 0) WRITE(IOPDBG,910)
+C
+      RETURN
+      END
+

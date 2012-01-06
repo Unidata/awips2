@@ -1,0 +1,77 @@
+module '*xseAS'
+applicationName = '*xseAS';
+generateNameC = 'xse.c';
+generateNameExterns = 'xse.h';
+generateNameResDB = 'xse.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+generateMask = 39256301;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+value
+object 'xseAS' : XmDialogShell {
+	arguments {
+	name = 'xseAS';
+	XmNallowShellResize = true;
+	XmNtitle = 'Application Abort';
+	XmNminWidth = 350;
+	XmNminHeight = 120;
+	XmNprimary = 1;
+	};
+object 'xseFO' : XmForm {
+	arguments {
+	name = 'xseFO';
+	XmNautoUnmanage = false;
+	};
+object 'xseLB' : XmLabel {
+	arguments {
+	name = 'xseLB';
+	XmNlabelString = 'Application encountered a fatal condition.';
+	};
+};
+object 'xseSP' : XmSeparator {
+	arguments {
+	name = 'xseSP';
+	};
+};
+object 'xse_cancelPB' : XmPushButton {
+	arguments {
+	name = 'xse_cancelPB';
+	XmNwidth = 84;
+	XmNheight = 35;
+	XmNlabelString = 'Cancel';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 1 0 10;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 0;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 1 0 60;
+	XmNtopAttachment = 0 0 0;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 12;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 2 10;
+    };
+    };
+};
+};
+end module;

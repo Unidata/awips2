@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<svg width="80" height="80" 
+viewBox="0 0 80 80" 
+overflow="visible" 
+xmlns="http://www.w3.org/2000/svg" 
+xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
+   <defs>
+<style type="text/css">
+<![CDATA[
+        @font-face { font-family: "StandardFont";
+                src: url(Standard.svg#Standard); }
+
+        text.text
+            {
+                fill: none;
+                font-size: 1em;
+                stroke-width: 1px;
+                font-family: StandardFont;
+                font-size: 1em;
+            }
+]]>
+</style>
+
+<symbol overflow="visible" id="plotData" class="info">  	
+	<text id="sample1" plotMode="sample" class="text" plotParam="validTime" plotFormat="time" plotSymbol="Z">0</text>
+	<text id="sample2" plotMode="sample" class="text" plotParam="satelliteID" plotLookupTable="sat_name_lookup.txt">0</text>
+	<text id="sample3" plotMode="sample" class="text" plotParam="orbitNumber" plotFormat="%8.0f">0</text>
+	<text id="sample4" plotMode="sample" class="text" plotParam="scanNumber" plotFormat="%5.0f">0</text>
+	<text id="lat" plotMode="sample" class="text" plotParam="latitude" plotSymbol="deg" plotFormat="%3.2f">0</text>
+  	<text id="lon" plotMode="sample" class="text" plotParam="longitude" plotSymbol="deg" plotFormat="%3.2f">0</text>
+	<text id="sample5" plotMode="sample" class="text" plotParam="seaTemp" plotUnit="°C" plotFormat="%2.1f" plotSymbol="C">0</text>
+	<text id="seaTempText" plotMode="text" class="text" plotParam="seaTemp" plotUnit="°C" plotFormat="%2.1f" x="0" y="0">0</text>
+</symbol>
+</defs>
+<use id="wind" x="40" y="40" width="80" height="80" visibility="visible" xlink:href="#plotData"/>
+</svg>

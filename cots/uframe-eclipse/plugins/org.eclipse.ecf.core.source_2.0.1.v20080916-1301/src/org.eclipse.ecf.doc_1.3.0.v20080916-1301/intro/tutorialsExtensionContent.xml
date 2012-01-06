@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<introContent>
+	<extensionContent id="orgeclipseecfdoc-introExtension" name="Communications"
+		style="css/tutorials.css" path="tutorials/@">
+		<group label="Communications" id="orgeclipseecfdoc-introLink-group" style-id="content-group">
+			<link 
+				url="http://org.eclipse.ui.intro/showHelpTopic?id=/org.eclipse.ecf.doc/html/tutorials/installation.html" 
+				label="Installation and Running" id="orgeclipseecfdoc-scribbleshare"	style-id="content-link">
+				<text>Installation and Running of the ScribbleShare Tutorial.</text>
+			</link>
+			<link
+				url="http://org.eclipse.ui.intro/showHelpTopic?id=/org.eclipse.ecf.doc/html/tutorials/bot.html"
+				label="Create an IRC bot" id="orgeclipseecfdoc-ircbot" style-id="content-link">
+				<text>Create an IRC bot.</text>
+			</link>
+		</group>
+	</extensionContent>
+</introContent>

@@ -1,0 +1,11 @@
+# See https://svn.apache.org/repos/asf/incubator/qpid/trunk/qpid/bin/verify
+cpp=$CPP/fanout
+
+fanout_listener_dotnet()
+{
+mono $DOTNET_EXAMPLES/example-fanout-Listener.exe localhost 5672
+}
+
+background "Listening" fanout_listener_dotnet 
+clients $cpp/fanout_producer
+outputs $cpp/fanout_producer.out "./fanout_listener_dotnet.out  | remove_uuid"

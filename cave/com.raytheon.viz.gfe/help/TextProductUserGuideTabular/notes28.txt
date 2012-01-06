@@ -1,0 +1,2 @@
+The "getSampler" method takes a list of tuples each of which has an analysisList of weather elements, a time range list, and an area list. It samples the data for all of these combinations.  The HistoSampler object returned contains the raw histogram data for each edit area, time range, and weather element.  You will not need to access information from this object directly, but you will need to pass it on to other methods to create summary statistics.
+

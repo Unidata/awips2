@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Nav Tools Plug-in
+Bundle-SymbolicName: com.raytheon.viz.ui.tools.nav;singleton:=true
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Activator: com.raytheon.viz.ui.tools.nav.Activator
+Bundle-Vendor: Raytheon
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ com.raytheon.viz.ui,
+ org.eclipse.core.expressions,
+ com.raytheon.viz.core,
+ org.geotools
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

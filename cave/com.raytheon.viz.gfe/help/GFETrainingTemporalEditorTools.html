@@ -1,0 +1,197 @@
+<html>
+<title>GFESuite Documentation - Temporal Editor Tools</title>
+<body>
+<h1 align=center>Temporal Editor Tools</h1>
+<br><a href="#TemporalEditorScaleTools">Temporal Editor Scale Tools</a><!-- Leave this comment for formatting purposes -->
+<hr width="100%">
+
+<div CLASS="Body">Each pane of the temporal editor contains one tool that
+depends on the type of the data displayed. For example, temperature is
+a scalar, so the temporal Adjust Scalar tool is the only tool available
+when temperature is displayed. The Adjust Vector tool edits wind data and
+the temporal Set Value tool edits weather and obstructions. The table below
+lists each of the tools, mouse actions, and functions. Note that you do
+not select a tool icon when using the Temporal Editor as you did with the
+Spatial Editor since the tool is implied by the specific data type displayed
+in the data pane.
+<br>&nbsp;
+<table BORDER NOSAVE >
+<tr NOSAVE>
+<td NOSAVE>
+<center><b>Data Type</b></center>
+</td>
+
+<td>
+<center><b>Action</b></center>
+</td>
+
+<td>
+<center><b>Function</b></center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center>Scalar</center>
+</td>
+
+<td>
+<center>MB1 Click &amp; MB1 Drag</center>
+</td>
+
+<td>
+<center>Adjust Gridpoint Values</center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center>Vector</center>
+</td>
+
+<td>
+<center>MB1 Click &amp; Drag&nbsp;</center>
+</td>
+
+<td>
+<center>Adjust Vector Magnitude</center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center>Vector</center>
+</td>
+
+<td>
+<center>Shift MB1 Click &amp; Drag</center>
+</td>
+
+<td>
+<center>Adjust Vector Direction</center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center>Weather</center>
+</td>
+
+<td>
+<center>MB1 Click</center>
+</td>
+
+<td>
+<center>Set Wx Value to current pickup value</center>
+</td>
+</tr>
+
+<tr>
+<td>
+<center>Discrete</center>
+</td>
+
+<td>
+<center>MB1 Click</center>
+</td>
+
+<td>Set Wx Value to current pickup value</td>
+</tr>
+</table>
+
+<p>Button 3 popups are available when using the Temporal Editor tools.&nbsp;
+Refer to the <a href="Button3Popups.html#TemporalEditor">Button 3 Popup
+Reference Guide</a> for more details.
+<br>&nbsp;</div>
+
+<h3>
+<a NAME="TemporalEditorScaleTools"></a>Temporal Editor Scale Tools</h3>
+In addition to the tools that modify data, there's a zoom tool associated
+with the vertical scale located just to the left of the time series display.
+The next table shows how you can manipulate the vertical scale with the
+mouse.&nbsp; An exercise follows that will help you familiarize yourself
+with the manipulating the temporal editor scale.&nbsp; Note that the scale
+tools only apply to Scalar and Vector data types.
+<br>&nbsp;
+<table BORDER >
+<tr>
+<th>
+<div CLASS="CellHeading">Action</div>
+</th>
+
+<th>
+<div CLASS="CellHeading">Function</div>
+</th>
+</tr>
+
+<tr>
+<td>
+<div CLASS="CellBody">MB1 click</div>
+</td>
+
+<td>
+<div CLASS="CellBody">Zoom out</div>
+</td>
+</tr>
+
+<tr>
+<td>
+<div CLASS="CellBody">MB2 click</div>
+</td>
+
+<td>
+<div CLASS="CellBody">Zoom in</div>
+</td>
+</tr>
+
+<tr>
+<td>
+<div CLASS="CellBody">MB1 drag</div>
+</td>
+
+<td>
+<div CLASS="CellBody">Pan (slide scale up or down)</div>
+</td>
+</tr>
+</table>
+
+<ul>
+<li CLASS="Body">
+Purpose: To manipulate the Temporal Editor Scale</li>
+</ul>
+
+<div CLASS="Body">
+<ol>
+<li>
+Select an edit area in the Spatial Editor so that one of the Temporal Editor
+pane contains some data.</li>
+
+<li>
+Move the cursor to the cursor to the far left of the Temporal Editor pane
+and MB2 click.&nbsp; Note that the scale zooms in.</li>
+
+<li>
+Now MB1 click.&nbsp; Note that the scale zooms out.</li>
+
+<li>
+Now MB2 click two or three times.&nbsp; Then MB1 press and drag up and
+down.&nbsp; Note that the scale and the data pan vertically to match your
+mouse movements.</li>
+</ol>
+
+<p><br>The Temporal Editor scale pane offers options via the button 3 popup
+menu. These options control the scaling to fit to data and full view. The
+full set of Temporal Editor popups are described in the <a href="Button3Popups.html#TemporalEditor">Button
+3 Popup Reference Guide</a>.
+<br>&nbsp;
+<p>Now that you know how to manipulate the Temporal Editor pane, it's time
+to edit some data temporally.
+<p>For the next set of exercises, it is best to set up your GFE so that
+both the spatial and temporal editors are visible simultaneously. For all
+of the exercises, you'll be asked to define an edit area then edit the
+data using the temporal editor. Using the temporal editor is similar to
+using the grid point tools. First you define the area over which you want
+to edit using edit areas, then you perform the operation.
+
+</body>
+</html>

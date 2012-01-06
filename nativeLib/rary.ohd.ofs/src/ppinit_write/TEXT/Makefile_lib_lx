@@ -1,0 +1,61 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-ppinit_write library file
+#
+#  cmt: File made on Wed Aug  6 12:52:12 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libppinit_write_t.a:  \
+     $(LIB)/libppinit_write_t.a(swbasn.o)  \
+     $(LIB)/libppinit_write_t.a(swdest.o)  \
+     $(LIB)/libppinit_write_t.a(swdflt.o)  \
+     $(LIB)/libppinit_write_t.a(swgbox.o)  \
+     $(LIB)/libppinit_write_t.a(swgmdr.o)  \
+     $(LIB)/libppinit_write_t.a(swgp24.o)  \
+     $(LIB)/libppinit_write_t.a(swmape.o)  \
+     $(LIB)/libppinit_write_t.a(swmap.o)  \
+     $(LIB)/libppinit_write_t.a(swmaps.o)  \
+     $(LIB)/libppinit_write_t.a(swmapx.o)  \
+     $(LIB)/libppinit_write_t.a(swmaro.o)  \
+     $(LIB)/libppinit_write_t.a(swmat.o)  \
+     $(LIB)/libppinit_write_t.a(swntwk.o)  \
+     $(LIB)/libppinit_write_t.a(swodly.o)  \
+     $(LIB)/libppinit_write_t.a(swog24.o)  \
+     $(LIB)/libppinit_write_t.a(sworrs.o)  \
+     $(LIB)/libppinit_write_t.a(swpcpn.o)  \
+     $(LIB)/libppinit_write_t.a(swpdst.o)  \
+     $(LIB)/libppinit_write_t.a(swpe.o)  \
+     $(LIB)/libppinit_write_t.a(swplst.o)  \
+     $(LIB)/libppinit_write_t.a(swrfro.o)  \
+     $(LIB)/libppinit_write_t.a(swrrs.o)  \
+     $(LIB)/libppinit_write_t.a(swstan.o)  \
+     $(LIB)/libppinit_write_t.a(swstbn.o)  \
+     $(LIB)/libppinit_write_t.a(swtemp.o)  \
+     $(LIB)/libppinit_write_t.a(swurrs.o)
+

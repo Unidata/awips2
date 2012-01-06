@@ -1,0 +1,38 @@
+7
+**************************************
+7
+**************************************
+21:03:40: RiverMonitor Started
+7
+**************************************
+21:03:40: RiverMonitorDataManager.readValidHeightAndDischargePE():  Where Clause:where pe like 'H%' or pe like 'Q%'
+7
+**************************************
+21:03:41: OfficeNotesDataManager.readDataFromOfficeNotes():  Where Clause:order by topic, id, postingtime
+7
+**************************************
+21:03:41: Derived columns file doesnt exist :[/awips/hydroapps/whfs/local/data/app/rivermon/DerivedColumns.txt]
+7
+**************************************
+21:03:41: Derived columns file doesnt exist :[/awips/hydroapps/whfs/local/data/app/rivermon/DerivedColumns.txt]
+7
+**************************************
+21:03:41: RiverMonitorSettings.startRiverMonitor(): Trying to load from file :/awips/hydroapps/whfs/local/data/app/rivermon/DefaultRiverMonitorSettings.txt
+7
+**************************************
+21:03:55: Launch PRECIP Monitor [cmd:/home/ebabin/workspace/ohd.hseb.rivermonitor/src/scripts/start_rivermonitor Precip]
+7
+**************************************
+21:03:56: RiverMonitorDataManager.createRiverMonitorRowDataList():  Memory Info before creating rowdata list:Free:63968112 Max:1023934464 total:65536000
+7
+**************************************
+21:04:00: RiverMonitorDataManager.readConfigFileAndFormConfigMap(): ConfigFile [awips/hydroapps/whfs/local/data/app/rivermon/RiverMonitorPEConfig.txt] doesn't exist
+7
+**************************************
+21:04:01: RiverMonLocGroupDataManager.initRiverMonGroupMap():  Where Clause:order by ordinal
+7
+**************************************
+21:04:01: RiverMonitorLocGroupDataManager.initRiverMonLocationMap():  Where Clause:where group_id not like 'DEFAULT' order by ordinal
+7
+**************************************
+21:04:01: RiverMonitorDataManager.createRiverMonitorRowDataList():  Here 1: Free:150952936 Max:1023934464 total:158924800

@@ -1,0 +1,950 @@
+/*
+    File: NWRTransmitter.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:25 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "NWRTransmitter.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct NWRTransmitter_t
+{
+    char		call_sign[7];
+    char		wfo[4];
+    char		city[21];
+    char		county[21];
+    char		state[3];
+    char		coverage_area[26];
+    double		lat;
+    double		lon;
+    double		transmit_freq;
+    long		transmit_power;
+    char		transmit_prod_code[4];
+    char		transmit_countynum[5];
+    char		use_transmitter[2];
+
+    int		ind_wfo;
+    int		ind_city;
+    int		ind_county;
+    int		ind_state;
+    int		ind_coverage_area;
+    int		ind_lat;
+    int		ind_lon;
+    int		ind_transmit_freq;
+    int		ind_transmit_power;
+    int		ind_transmit_prod_code;
+    int		ind_transmit_countynum;
+    int		ind_use_transmitter;
+} NWRTransmitter_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+NWRTransmitter * GetNWRTransmitter(const char * where)
+{
+
+    NWRTransmitter * listPtr = NULL;
+    NWRTransmitter * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM NWRTransmitter ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct NWRTransmitter_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetNWRTransmitter() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetNWRTransmitter() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetNWRTransmitter() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.call_sign, :dbs.wfo:dbs.ind_wfo, 
+    :dbs.city:dbs.ind_city, :dbs.county:dbs.ind_county, 
+    :dbs.state:dbs.ind_state, :dbs.coverage_area:dbs.ind_coverage_area, 
+    :dbs.lat:dbs.ind_lat, :dbs.lon:dbs.ind_lon, 
+    :dbs.transmit_freq:dbs.ind_transmit_freq, :dbs.transmit_power:dbs.ind_transmit_power, 
+    :dbs.transmit_prod_code:dbs.ind_transmit_prod_code, :dbs.transmit_countynum:dbs.ind_transmit_countynum, 
+    :dbs.use_transmitter:dbs.ind_use_transmitter    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetNWRTransmitter() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (NWRTransmitter *) malloc(sizeof(NWRTransmitter))) != NULL)
+        {
+
+            strcpy(structPtr->call_sign, dbs.call_sign);
+
+            strcpy(structPtr->wfo, dbs.wfo);
+            setNullIfIndicated(dbs.ind_wfo, CHAR, structPtr->wfo);
+
+            strcpy(structPtr->city, dbs.city);
+            setNullIfIndicated(dbs.ind_city, CHAR, structPtr->city);
+
+            strcpy(structPtr->county, dbs.county);
+            setNullIfIndicated(dbs.ind_county, CHAR, structPtr->county);
+
+            strcpy(structPtr->state, dbs.state);
+            setNullIfIndicated(dbs.ind_state, CHAR, structPtr->state);
+
+            strcpy(structPtr->coverage_area, dbs.coverage_area);
+            setNullIfIndicated(dbs.ind_coverage_area, CHAR, structPtr->coverage_area);
+
+            structPtr->lat = dbs.lat;
+            setNullIfIndicated(dbs.ind_lat, DOUBLE, &structPtr->lat);
+
+            structPtr->lon = dbs.lon;
+            setNullIfIndicated(dbs.ind_lon, DOUBLE, &structPtr->lon);
+
+            structPtr->transmit_freq = dbs.transmit_freq;
+            setNullIfIndicated(dbs.ind_transmit_freq, DOUBLE, &structPtr->transmit_freq);
+
+            structPtr->transmit_power = dbs.transmit_power;
+            setNullIfIndicated(dbs.ind_transmit_power, INT, &structPtr->transmit_power);
+
+            strcpy(structPtr->transmit_prod_code, dbs.transmit_prod_code);
+            setNullIfIndicated(dbs.ind_transmit_prod_code, CHAR, structPtr->transmit_prod_code);
+
+            strcpy(structPtr->transmit_countynum, dbs.transmit_countynum);
+            setNullIfIndicated(dbs.ind_transmit_countynum, CHAR, structPtr->transmit_countynum);
+
+            strcpy(structPtr->use_transmitter, dbs.use_transmitter);
+            setNullIfIndicated(dbs.ind_use_transmitter, CHAR, structPtr->use_transmitter);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.call_sign, :dbs.wfo:dbs.ind_wfo, 
+        :dbs.city:dbs.ind_city, :dbs.county:dbs.ind_county, 
+        :dbs.state:dbs.ind_state, :dbs.coverage_area:dbs.ind_coverage_area, 
+        :dbs.lat:dbs.ind_lat, :dbs.lon:dbs.ind_lon, 
+        :dbs.transmit_freq:dbs.ind_transmit_freq, :dbs.transmit_power:dbs.ind_transmit_power, 
+        :dbs.transmit_prod_code:dbs.ind_transmit_prod_code, :dbs.transmit_countynum:dbs.ind_transmit_countynum, 
+        :dbs.use_transmitter:dbs.ind_use_transmitter        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetNWRTransmitter() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+NWRTransmitter * SelectNWRTransmitter(const char * where)
+{
+
+    NWRTransmitter * listPtr = NULL;
+    NWRTransmitter * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM NWRTransmitter ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct NWRTransmitter_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectNWRTransmitter() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectNWRTransmitter() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectNWRTransmitter() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.call_sign, :dbs.wfo:dbs.ind_wfo, 
+    :dbs.city:dbs.ind_city, :dbs.county:dbs.ind_county, 
+    :dbs.state:dbs.ind_state, :dbs.coverage_area:dbs.ind_coverage_area, 
+    :dbs.lat:dbs.ind_lat, :dbs.lon:dbs.ind_lon, 
+    :dbs.transmit_freq:dbs.ind_transmit_freq, :dbs.transmit_power:dbs.ind_transmit_power, 
+    :dbs.transmit_prod_code:dbs.ind_transmit_prod_code, :dbs.transmit_countynum:dbs.ind_transmit_countynum, 
+    :dbs.use_transmitter:dbs.ind_use_transmitter    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectNWRTransmitter() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (NWRTransmitter *) malloc(sizeof(NWRTransmitter))) != NULL)
+        {
+
+            strcpy(structPtr->call_sign, dbs.call_sign);
+
+            strcpy(structPtr->wfo, dbs.wfo);
+            setNullIfIndicated(dbs.ind_wfo, CHAR, structPtr->wfo);
+
+            strcpy(structPtr->city, dbs.city);
+            setNullIfIndicated(dbs.ind_city, CHAR, structPtr->city);
+
+            strcpy(structPtr->county, dbs.county);
+            setNullIfIndicated(dbs.ind_county, CHAR, structPtr->county);
+
+            strcpy(structPtr->state, dbs.state);
+            setNullIfIndicated(dbs.ind_state, CHAR, structPtr->state);
+
+            strcpy(structPtr->coverage_area, dbs.coverage_area);
+            setNullIfIndicated(dbs.ind_coverage_area, CHAR, structPtr->coverage_area);
+
+            structPtr->lat = dbs.lat;
+            setNullIfIndicated(dbs.ind_lat, DOUBLE, &structPtr->lat);
+
+            structPtr->lon = dbs.lon;
+            setNullIfIndicated(dbs.ind_lon, DOUBLE, &structPtr->lon);
+
+            structPtr->transmit_freq = dbs.transmit_freq;
+            setNullIfIndicated(dbs.ind_transmit_freq, DOUBLE, &structPtr->transmit_freq);
+
+            structPtr->transmit_power = dbs.transmit_power;
+            setNullIfIndicated(dbs.ind_transmit_power, INT, &structPtr->transmit_power);
+
+            strcpy(structPtr->transmit_prod_code, dbs.transmit_prod_code);
+            setNullIfIndicated(dbs.ind_transmit_prod_code, CHAR, structPtr->transmit_prod_code);
+
+            strcpy(structPtr->transmit_countynum, dbs.transmit_countynum);
+            setNullIfIndicated(dbs.ind_transmit_countynum, CHAR, structPtr->transmit_countynum);
+
+            strcpy(structPtr->use_transmitter, dbs.use_transmitter);
+            setNullIfIndicated(dbs.ind_use_transmitter, CHAR, structPtr->use_transmitter);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.call_sign, :dbs.wfo:dbs.ind_wfo, 
+        :dbs.city:dbs.ind_city, :dbs.county:dbs.ind_county, 
+        :dbs.state:dbs.ind_state, :dbs.coverage_area:dbs.ind_coverage_area, 
+        :dbs.lat:dbs.ind_lat, :dbs.lon:dbs.ind_lon, 
+        :dbs.transmit_freq:dbs.ind_transmit_freq, :dbs.transmit_power:dbs.ind_transmit_power, 
+        :dbs.transmit_prod_code:dbs.ind_transmit_prod_code, :dbs.transmit_countynum:dbs.ind_transmit_countynum, 
+        :dbs.use_transmitter:dbs.ind_use_transmitter        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectNWRTransmitter() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectNWRTransmitterCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM NWRTransmitter ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountNWRTransmitter() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountNWRTransmitter() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountNWRTransmitter() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountNWRTransmitter() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutNWRTransmitter(const NWRTransmitter * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct NWRTransmitter_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.call_sign, structPtr->call_sign);
+
+    strcpy(dbs.wfo, structPtr->wfo);
+    dbs.ind_wfo = getIndicator(CHAR, (void *)structPtr->wfo);
+
+    strcpy(dbs.city, structPtr->city);
+    dbs.ind_city = getIndicator(CHAR, (void *)structPtr->city);
+
+    strcpy(dbs.county, structPtr->county);
+    dbs.ind_county = getIndicator(CHAR, (void *)structPtr->county);
+
+    strcpy(dbs.state, structPtr->state);
+    dbs.ind_state = getIndicator(CHAR, (void *)structPtr->state);
+
+    strcpy(dbs.coverage_area, structPtr->coverage_area);
+    dbs.ind_coverage_area = getIndicator(CHAR, (void *)structPtr->coverage_area);
+
+    dbs.lat = structPtr->lat;
+    dbs.ind_lat = getIndicator(DOUBLE, (void *)&structPtr->lat);
+
+    dbs.lon = structPtr->lon;
+    dbs.ind_lon = getIndicator(DOUBLE, (void *)&structPtr->lon);
+
+    dbs.transmit_freq = structPtr->transmit_freq;
+    dbs.ind_transmit_freq = getIndicator(DOUBLE, (void *)&structPtr->transmit_freq);
+
+    dbs.transmit_power = structPtr->transmit_power;
+    dbs.ind_transmit_power = getIndicator(INT, (void *)&structPtr->transmit_power);
+
+    strcpy(dbs.transmit_prod_code, structPtr->transmit_prod_code);
+    dbs.ind_transmit_prod_code = getIndicator(CHAR, (void *)structPtr->transmit_prod_code);
+
+    strcpy(dbs.transmit_countynum, structPtr->transmit_countynum);
+    dbs.ind_transmit_countynum = getIndicator(CHAR, (void *)structPtr->transmit_countynum);
+
+    strcpy(dbs.use_transmitter, structPtr->use_transmitter);
+    dbs.ind_use_transmitter = getIndicator(CHAR, (void *)structPtr->use_transmitter);
+
+
+    EXEC SQL INSERT INTO NWRTransmitter (call_sign,wfo,
+        city,county,state,
+        coverage_area,lat,lon,
+        transmit_freq,transmit_power,transmit_prod_code,
+        transmit_countynum,use_transmitter        )
+        VALUES (
+         :dbs.call_sign, :dbs.wfo:dbs.ind_wfo, :dbs.city:dbs.ind_city,
+         :dbs.county:dbs.ind_county, :dbs.state:dbs.ind_state, :dbs.coverage_area:dbs.ind_coverage_area,
+         :dbs.lat:dbs.ind_lat, :dbs.lon:dbs.ind_lon, :dbs.transmit_freq:dbs.ind_transmit_freq,
+         :dbs.transmit_power:dbs.ind_transmit_power, :dbs.transmit_prod_code:dbs.ind_transmit_prod_code, :dbs.transmit_countynum:dbs.ind_transmit_countynum,
+         :dbs.use_transmitter:dbs.ind_use_transmitter);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutNWRTransmitter() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertNWRTransmitter(const NWRTransmitter * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct NWRTransmitter_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.call_sign, structPtr->call_sign);
+
+    strcpy(dbs.wfo, structPtr->wfo);
+    dbs.ind_wfo = getIndicator(CHAR, (void *)structPtr->wfo);
+
+    strcpy(dbs.city, structPtr->city);
+    dbs.ind_city = getIndicator(CHAR, (void *)structPtr->city);
+
+    strcpy(dbs.county, structPtr->county);
+    dbs.ind_county = getIndicator(CHAR, (void *)structPtr->county);
+
+    strcpy(dbs.state, structPtr->state);
+    dbs.ind_state = getIndicator(CHAR, (void *)structPtr->state);
+
+    strcpy(dbs.coverage_area, structPtr->coverage_area);
+    dbs.ind_coverage_area = getIndicator(CHAR, (void *)structPtr->coverage_area);
+
+    dbs.lat = structPtr->lat;
+    dbs.ind_lat = getIndicator(DOUBLE, (void *)&structPtr->lat);
+
+    dbs.lon = structPtr->lon;
+    dbs.ind_lon = getIndicator(DOUBLE, (void *)&structPtr->lon);
+
+    dbs.transmit_freq = structPtr->transmit_freq;
+    dbs.ind_transmit_freq = getIndicator(DOUBLE, (void *)&structPtr->transmit_freq);
+
+    dbs.transmit_power = structPtr->transmit_power;
+    dbs.ind_transmit_power = getIndicator(INT, (void *)&structPtr->transmit_power);
+
+    strcpy(dbs.transmit_prod_code, structPtr->transmit_prod_code);
+    dbs.ind_transmit_prod_code = getIndicator(CHAR, (void *)structPtr->transmit_prod_code);
+
+    strcpy(dbs.transmit_countynum, structPtr->transmit_countynum);
+    dbs.ind_transmit_countynum = getIndicator(CHAR, (void *)structPtr->transmit_countynum);
+
+    strcpy(dbs.use_transmitter, structPtr->use_transmitter);
+    dbs.ind_use_transmitter = getIndicator(CHAR, (void *)structPtr->use_transmitter);
+
+
+    EXEC SQL INSERT INTO NWRTransmitter (call_sign,wfo,
+        city,county,state,
+        coverage_area,lat,lon,
+        transmit_freq,transmit_power,transmit_prod_code,
+        transmit_countynum,use_transmitter        )
+        VALUES (
+         :dbs.call_sign, :dbs.wfo:dbs.ind_wfo, :dbs.city:dbs.ind_city,
+         :dbs.county:dbs.ind_county, :dbs.state:dbs.ind_state, :dbs.coverage_area:dbs.ind_coverage_area,
+         :dbs.lat:dbs.ind_lat, :dbs.lon:dbs.ind_lon, :dbs.transmit_freq:dbs.ind_transmit_freq,
+         :dbs.transmit_power:dbs.ind_transmit_power, :dbs.transmit_prod_code:dbs.ind_transmit_prod_code, :dbs.transmit_countynum:dbs.ind_transmit_countynum,
+         :dbs.use_transmitter:dbs.ind_use_transmitter);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertNWRTransmitter() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateNWRTransmitter(const NWRTransmitter *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct NWRTransmitter_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.call_sign, structPtr->call_sign);
+
+    strcpy(dbs.wfo, structPtr->wfo);
+    dbs.ind_wfo = getIndicator(CHAR, (void *)structPtr->wfo);
+
+    strcpy(dbs.city, structPtr->city);
+    dbs.ind_city = getIndicator(CHAR, (void *)structPtr->city);
+
+    strcpy(dbs.county, structPtr->county);
+    dbs.ind_county = getIndicator(CHAR, (void *)structPtr->county);
+
+    strcpy(dbs.state, structPtr->state);
+    dbs.ind_state = getIndicator(CHAR, (void *)structPtr->state);
+
+    strcpy(dbs.coverage_area, structPtr->coverage_area);
+    dbs.ind_coverage_area = getIndicator(CHAR, (void *)structPtr->coverage_area);
+
+    dbs.lat = structPtr->lat;
+    dbs.ind_lat = getIndicator(DOUBLE, (void *)&structPtr->lat);
+
+    dbs.lon = structPtr->lon;
+    dbs.ind_lon = getIndicator(DOUBLE, (void *)&structPtr->lon);
+
+    dbs.transmit_freq = structPtr->transmit_freq;
+    dbs.ind_transmit_freq = getIndicator(DOUBLE, (void *)&structPtr->transmit_freq);
+
+    dbs.transmit_power = structPtr->transmit_power;
+    dbs.ind_transmit_power = getIndicator(INT, (void *)&structPtr->transmit_power);
+
+    strcpy(dbs.transmit_prod_code, structPtr->transmit_prod_code);
+    dbs.ind_transmit_prod_code = getIndicator(CHAR, (void *)structPtr->transmit_prod_code);
+
+    strcpy(dbs.transmit_countynum, structPtr->transmit_countynum);
+    dbs.ind_transmit_countynum = getIndicator(CHAR, (void *)structPtr->transmit_countynum);
+
+    strcpy(dbs.use_transmitter, structPtr->use_transmitter);
+    dbs.ind_use_transmitter = getIndicator(CHAR, (void *)structPtr->use_transmitter);
+
+
+    sprintf(queryBuffer, " UPDATE NWRTransmitter SET " );
+    strcat(queryBuffer, "call_sign = ? , wfo = ? , city = ? , county = ? , state = ? ,     ");
+    strcat(queryBuffer, "coverage_area = ? , lat = ? , lon = ? , transmit_freq = ? , transmit_power = ? ,     ");
+    strcat(queryBuffer, "transmit_prod_code = ? , transmit_countynum = ? , use_transmitter = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateNWRTransmitter() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.call_sign, :dbs.wfo:dbs.ind_wfo, :dbs.city:dbs.ind_city, :dbs.county:dbs.ind_county, :dbs.state:dbs.ind_state,
+     :dbs.coverage_area:dbs.ind_coverage_area, :dbs.lat:dbs.ind_lat, :dbs.lon:dbs.ind_lon, :dbs.transmit_freq:dbs.ind_transmit_freq, :dbs.transmit_power:dbs.ind_transmit_power,
+     :dbs.transmit_prod_code:dbs.ind_transmit_prod_code, :dbs.transmit_countynum:dbs.ind_transmit_countynum, :dbs.use_transmitter:dbs.ind_use_transmitter;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateNWRTransmitter() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteNWRTransmitter(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM NWRTransmitter ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteNWRTransmitter() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateNWRTransmitterByRecord (const NWRTransmitter * newStructPtr, const NWRTransmitter * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetNWRTransmitterPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateNWRTransmitter(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateNWRTransmitter(const NWRTransmitter * structPtr)
+{
+    UpdateNWRTransmitterByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertNWRTransmitter(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueNWRTransmitter(const NWRTransmitter * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (NWRTransmitterExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertNWRTransmitter(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteNWRTransmitterByRecord(const NWRTransmitter * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetNWRTransmitterPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteNWRTransmitter(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool NWRTransmitterExists(const NWRTransmitter * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetNWRTransmitterPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectNWRTransmitterCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetNWRTransmitterPrimaryKeyWhereString (const NWRTransmitter * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE call_sign = '%s' ",
+            structPtr->call_sign);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeNWRTransmitter( NWRTransmitter * structPtr)
+{
+    NWRTransmitter* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( NWRTransmitter * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetNWRTransmitterDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetNWRTransmitterErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

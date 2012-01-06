@@ -1,0 +1,543 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta http-equiv="CONTENT-TYPE"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-34smp i686) [Netscape]">
+  <meta name="CREATED" content="20010713;13550500">
+  <meta name="CHANGEDBY" content="Tom Lefebvre">
+  <meta name="CHANGED" content="20010713;15202800">
+  <title>iifpnetCDF Formatter User's Guide</title>
+</head>
+<body bgcolor="#ffffff">
+<h1>
+ifpnetCDF Formatter User's Guide</h1>
+<div style="margin-bottom: 0in;">August 1, 2005<br>
+</div>
+<p><br>
+</p>
+<h2><a name="TableofContents"></a>Table of Contents</h2>
+<b><a href="#Overview">Overview</a></b>
+<h4><a href="#RunningtheifpAGProgram">Running the ifpnetCDF Program</a></h4>
+<h4>
+<a href="#OrganizationoftheGriddedData">Organization of the Gridded Data</a></h4>
+<b><a href="#AdditionalDataFields">Additional Data Fields</a></b>
+<p><b><a href="#Converting">Converting to real values from the "-k
+krunch"
+option</a></b>
+<br>
+</p>
+<p><a style="font-weight: bold;" href="#configIntervalFile">Configuration
+Interval File</a><br>
+</p>
+<hr width="100%">
+<h2><a name="Overview"></a>Overview</h2>
+<div style="margin-bottom: 0in;">The ifpnetCDF program reads gridded
+data
+from the ifpServer that you specify and writes the data to a netCDF
+file.
+In addtion to the forecast grids, a <a href="#Topography">topography
+grid</a>,
+<a href="#Latitude">latitude
+grid, or longitude grid</a> can be written to the file using the -g
+option.
+Virtually all of the data describing each weather element is written to
+the file as well, including the grid size, projection and domain
+information,
+units, and valid times for each grid. The following sections describe
+how
+to use this program and document the structure of the resulting netCDF
+file.&nbsp; A special switch is available (-k) to "squish" down the
+formats
+of the data file to as compact as possible.<br>
+<br>
+A special configuration file may be used to "sample" the grids and not
+take each grid in the inventory.&nbsp; This has the benefit of
+dramatically cutting down on the bandwidth required to transmit the
+netCDF file when only a portion of the inventory is required.<br>
+</div>
+<p><br>
+</p>
+<hr>
+<h2><a name="RunningtheifpAGProgram"></a>Running the ifpnetCDF Program</h2>
+<div style="margin-bottom: 0in;">The program is capable of both storing
+and retrieving grids from the ifpServer.</div>
+<div style="margin-bottom: 0in;">The command line syntax is:</div>
+<div style="margin-bottom: 0in;"><tt>ifpnetCDF -o outputFile -h
+hostname
+-r rpcPortNumber -d databaseID [-p parmID] [-s startTime] [-e endTime]
+[-m editAreaName] [-u user] [-g] [-t] [-C configurationIntervalName]<br>
+</tt></div>
+<div style="margin-bottom: 0in;">A sample command line is:</div>
+<div style="margin-bottom: 0in;"><tt>ifpnetCDF -o myGridFile -h
+abc.fsl.noaa.gov
+-r 98000000 -d TEST_GRID__Fcst_00000000_0000 -p T -s 19980604_1200 -e
+19980605_0000
+-m BOU -g -c -t -C cdfSample<br>
+</tt></div>
+<br>
+&nbsp;
+<br>
+&nbsp;
+<br>
+&nbsp;
+<table border="1" cellpadding="2" cellspacing="2" width="100%">
+  <tbody>
+    <tr>
+      <td><b>Option Syntax</b></td>
+      <td><b>Optional or Mandatory</b></td>
+      <td><b>Description</b></td>
+    </tr>
+    <tr>
+      <td>-o filename</td>
+      <td>
+      <center>Optional</center>
+      </td>
+      <td>Specifies the name of the output file. If no output file is
+specified
+the data will be written to the file ifpnetCDFFile.cdf</td>
+    </tr>
+    <tr>
+      <td>-h hostname</td>
+      <td>
+      <center>Mandatory (See Note)</center>
+      </td>
+      <td>Specifies the ifpServer host from which the data will be
+extracted.</td>
+    </tr>
+    <tr>
+      <td>-r port</td>
+      <td>
+      <center>Mandatory (See Note)</center>
+      </td>
+      <td>Specifies the ifpServer host from which the data will be
+extracted.</td>
+    </tr>
+    <tr>
+      <td>-u user</td>
+      <td>
+      <center>Optional</center>
+      </td>
+      <td>Specifies the user for connection to the server. Defaults to
+SITE.
+Important only when using edit area masks and the mask hasn't been
+defined
+in BASE or SITE.</td>
+    </tr>
+    <tr>
+      <td>-d databaseID</td>
+      <td>
+      <center>Mandatory</center>
+      </td>
+      <td>Source database identifier from which to get the data.&nbsp;
+There
+may be only one databaseID specified.&nbsp; The format of the database
+identifier is: site_GRID_optType_modelName_modelRunTime. For example:
+DEN_GRID__eta_19980604_1200.
+(Note double underscore after GRID for databases that don't have the
+optional
+type)</td>
+    </tr>
+    <tr>
+      <td>-p weatherElementName</td>
+      <td>
+      <center>Optional</center>
+      </td>
+      <td>If no -p switches are present, then all weather elements in
+the specified
+databases will be processed.&nbsp; There may be several -p switches
+present
+if desired. For example: -p T -p Td -p Wind.&nbsp; The weather element
+name refers to the SFC level, unless the weather element name contains
+an underscore.&nbsp; To specify a level other than SFC, use the format
+weatherElementName_level, such as T_3K.</td>
+    </tr>
+    <tr>
+      <td>-s startTime</td>
+      <td>
+      <center>Optional</center>
+      </td>
+      <td>Specifies the start time for the range of grids to extract.
+If no time
+is specified, then assume "from the beginning of time". Format is
+yyyyMMDD_HHMM
+or 20010604_1200.</td>
+    </tr>
+    <tr>
+      <td>-e endTime</td>
+      <td>
+      <center>Optional</center>
+      </td>
+      <td>Specifies the ending time for the range of grids to extract.
+If no
+time is specified, then assume "to the end of time". Format is
+yyyyMMDD_HHMM
+or 20010604_1200.</td>
+    </tr>
+    <tr>
+      <td>&nbsp;-m mask</td>
+      <td>
+      <center>Optional</center>
+      </td>
+      <td>Specifies an edit area outside of which the grids are clipped
+with
+a fill value. If the edit area is not specified&nbsp; <br>
+or is not found in the ifpServer, the entire grid will be written to
+the file unclipped.</td>
+    </tr>
+    <tr>
+      <td>&nbsp;-g</td>
+      <td>
+      <center>Optional</center>
+      </td>
+      <td>When specified, a grid of topography, latitude, and longitude
+are also
+written to the netCDF file.</td>
+    </tr>
+    <tr>
+      <td>-c</td>
+      <td>
+      <center>Optional</center>
+      </td>
+      <td>When specified, the output will be compressed. The
+compression factor
+to gzip defaults to 6; this can be changed through the -f switch.</td>
+    </tr>
+    <tr>
+      <td>-f factor</td>
+      <td>
+      <center>Optional</center>
+      </td>
+      <td>When specified with the -c switch, this defines the gzip
+factor to
+be applied to the compression. Defaults to 6. Can range from 1 to 9
+with
+9 being the maximum, but slowest, compression.</td>
+    </tr>
+    <tr>
+      <td>-t</td>
+      <td>
+      <center>Optional</center>
+      </td>
+      <td>When specified, data values will be "trimmed" or rounded to
+the precision
+of the data, as defined by the ifpServer.</td>
+    </tr>
+    <tr>
+      <td>-k</td>
+      <td>
+      <center>Optional</center>
+      </td>
+      <td>The -t switch must also be given if the -k functionality is
+desired.&nbsp;
+The -k switch reformats the data values into smaller units, as as
+converting
+a 32-bit float into a 8-bit byte, in order to save space.&nbsp; When
+the
+-k switch is given and the data has been reformatted, two new
+attributes
+provided (dataMultipler and dataOffset) which are used to convert the
+data
+back into real numbers.</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-C configIntervalName<br>
+      </td>
+      <td style="vertical-align: top; text-align: center;">Optional<br>
+      </td>
+      <td style="vertical-align: top;">Specifies a <a
+ href="#configIntervalFile">configuration interval file</a> which
+controls the interval/spacing of the grids.&nbsp; The name identifies a
+file within the ifpServer TEXT/Utility directory and must be a Python
+file in the correct format.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<font color="#3366ff">Note: The -h and -r switches are predefined if
+you
+are running ifpnetCDF in the GFESuite installed environment.&nbsp; The
+values specified in the installation are picked up automatically. You
+only
+need to specify them if you want to connect to a different ifpServer.</font><font
+ color="#3366ff">&nbsp;</font><font color="#3366ff">&nbsp; If
+environment variables ${CDSHOST} or
+${CDSPORT} are defined, then the default server and port will be
+determined from the environment variables, unless overridden with the
+user specified -h and -r switches.</font>
+<p><br>
+</p>
+<h2>
+<hr width="100%"></h2>
+<h2>
+<a name="OrganizationoftheGriddedData"></a>Organization of the Gridded
+Data in the netCDF file</h2>
+<div style="margin-bottom: 0in;">The organization of the data is
+described
+in the <a href="netCDFFormat.html#OrganizationoftheGriddedData">netCDF
+format documentation</a>.</div>
+<div style="margin-bottom: 0in;">
+<hr width="100%">
+<h2><a name="AdditionalDataFields"></a>Additional Data Fields</h2>
+</div>
+<h3>
+<a name="Topography"></a>Topography</h3>
+<div style="margin-bottom: 0in;">The ifpnetCDF program will optionally
+store
+a topography grid along with the weather elements that you specify.
+This
+grid contains similar attributes and is in units of feet above sea
+level.</div>
+<h3 style="margin-bottom: 0in;">
+<a name="Latitude"></a>Latitude, Longitude</h3>
+<div style="margin-bottom: 0in;">The ifpnetCDF program will optionally
+store
+grids of latitude and longitude at each grid point.&nbsp; Remember that
+longitude is expressed as a negative number, if the domain is in the
+Western
+Hemisphere.&nbsp; If the -k switch is given, then you will need to
+multiply
+the data values by the dataMultiplier and add the dataOffset, per the
+format
+of the netCDF attributes.</div>
+<p><br>
+</p>
+<hr width="100%">
+<h2><a name="Converting"></a>Converting to real values from the "-k
+krunch"
+option</h2>
+If the -k krunch value has been given, then the data values in the file
+need to be converted to actual values through the use of a
+formula.&nbsp;
+The attributes dataMultiplier and dataOffset provide the required
+information.&nbsp;
+If these values are not present, then you may interpret the values
+directly.
+<center>
+<p>data value = (netCDF value * dataMultiplier) + dataOffset<br>
+</p>
+<div style="text-align: left;">
+<hr style="width: 100%; height: 2px;">
+<h2><a name="configIntervalFile"></a>Configuration Interval File</h2>
+The configuration interval file is an optional capability of
+ifpnetCDF.&nbsp;&nbsp; It can be used to select certain grids to be
+placed in the ifpnetCDF output file, rather than all grids in the
+inventory.&nbsp; For example, you can choose to only include 3-hrly
+temperature grids out to 24 hours, then 6-hrly temperature grids out to
+72 hours, and then no temperature grids past 72 hours.&nbsp;&nbsp; You
+can control this capability on a per weather element basis.&nbsp; The
+definition determines a set of explicit times.&nbsp; If there is a grid
+that contains that explicit time, then the grid is included in the
+output.<br>
+<br>
+The configuration interval file is a python file and must reside in the
+ifpServer's TEXT/Utility directory.&nbsp; You can create the file
+through the use of the GFE, with the GFE-&gt;Define Text Products menu,
+or by using a conventional text editor and the <a
+ href="ifpServerText.html">ifpServerText utility</a>.<br>
+<br>
+Here is an example configuration interval file for the ifpnetCDF
+program, which samples the dew point (Td) with basetimes of 3z and 15z,
+which takes 6 hrly grids of Td up to 72 hours, then no Td grids after
+that point.&nbsp; All other weather elements use basetimes of 0z and
+12z, and take 3hr grids out to 24hr, 6 hrly grids out to 96 hr, and
+then 12 hrly grids past this point:<br>
+<br>
+The format is:<br>
+<span style="font-family: monospace; font-weight: bold;">SampleDef[weNameAndLevel]
+= ([listOfbasetimes], [list of offset/intervals])</span>, where<br>
+listOfBasetimes is <span
+ style="font-weight: bold; font-family: monospace;">[basetime1,
+basetime2, basetime3, ...]</span> and <br>
+listOfOffset/Intervals is <span
+ style="font-family: monospace; font-weight: bold;">[(offset1,
+interval1), (offset2, interval2), (offset3, interval3), ...]</span><br>
+<br>
+<span style="font-weight: bold; font-family: monospace;">HR=3600</span><br
+ style="font-weight: bold; font-family: monospace;">
+<br style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">SampleDef = {}</span><br
+ style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">SampleDef['default']
+= (</span><br style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">&nbsp;&nbsp;
+[0*HR, 12*HR],&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #first tuple is
+basetimes</span><br style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">&nbsp;&nbsp;&nbsp;
+[&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#2nd tuple is list of offset from basetime, interval</span><br
+ style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;
+(0*HR,&nbsp;
+3*HR),&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#start at basetime, take every 3 hours</span><br
+ style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;
+(24*HR,
+6*HR),&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#24h+ from basetime, take every 6 hours</span><br
+ style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;
+(96*HR, 12*HR),&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#96h+ from basetime, take every 12 hours</span><br
+ style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">&nbsp;&nbsp;&nbsp;
+])</span><br style="font-weight: bold; font-family: monospace;">
+<br style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">SampleDef['Td_SFC']
+= (</span><br style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">&nbsp;&nbsp;
+[3*HR, 15*HR],&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #basetimes of
+3z and 15z</span><br style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">&nbsp;&nbsp;&nbsp;
+[</span><br style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;
+(0*HR,&nbsp;
+6*HR),&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#start at basetime, take every 6 hours</span><br
+ style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;
+(72*HR, 1000*HR),&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#don't take anything past 72Hr</span><br
+ style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">&nbsp;&nbsp;&nbsp;
+])</span><br>
+<br>
+The file is a Python dictionary.&nbsp; A mandatory key is 'default',
+which applies to all weather elements that are not explicitly
+specified.&nbsp; Each entry consists of a tuple.&nbsp; The first tuple
+is a list of basetimes, the second tuple is a list of (offset,
+interval) values.<br>
+<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">Item<br>
+      </td>
+      <td style="vertical-align: top;">Example<br>
+      </td>
+      <td style="vertical-align: top;">Description<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">SampleDef = {}<br>
+      </td>
+      <td style="vertical-align: top;">SampleDef = {}<br>
+      </td>
+      <td style="vertical-align: top;">Mandatory sampling definition,
+defines the dictionary.&nbsp; The ifpnetCDF program looks for the
+SampleDef variable name.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">BaseTimes<br>
+      </td>
+      <td style="vertical-align: top;">[0*HR, 12*HR]<br>
+      </td>
+      <td style="vertical-align: top;">List of times relative to
+0000z.&nbsp; The values are specified in seconds, thus be sure to
+convert the value to hours.&nbsp; The basetime values should not be
+negative and must be less than 24*HR.&nbsp;&nbsp; The basetimes define
+the "base" of the offset / interval calculations.&nbsp; For example, if
+the basetime is set to 0000z, and the offset/interval is set to
+(0*HR,3*HR), that includes grids that are aligned with 0z, 3z, 6z, 9z,
+...&nbsp;&nbsp; If the basetime was set to 0200z, and the
+offset/interval set to (0*HR, 3*HR), then grids would be included that
+are aligned with 2z, 5z, 8z, 11z, ...&nbsp;&nbsp; There may be more
+than one basetime specified.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Offset/Interval Times<br>
+      </td>
+      <td style="vertical-align: top;">[(0*HR, 3*HR), (24*HR, 6*HR)]<br>
+      </td>
+      <td style="vertical-align: top;">Defines the interval as a series
+of offset and interval tuples.&nbsp; The offset is the starting time,
+offset from the most recent basetime.&nbsp; The 2nd portion of the
+tuple defines the interval to use for the grids.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">'default'<br>
+      </td>
+      <td style="vertical-align: top;">SampleDef['default'] =
+(basetimeList, offset/Interval list)) <br>
+      </td>
+      <td style="vertical-align: top;">Defines the interval for all
+weather elements, unless specified weather elements have their own
+definition.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">'Td_SFC'<br>
+      </td>
+      <td style="vertical-align: top;">SampleDef['Td_SFC'] =
+(basetimeList, offset/interval list)<br>
+      </td>
+      <td style="vertical-align: top;">Defines the interval for weather
+element "Td_SFC", which is a weather element name, followed by an
+underscore character, followed by the weather element level.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<h3>Common Offset/Interval Examples</h3>
+<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td
+ style="vertical-align: top; text-align: center; font-weight: bold;">Definition<br>
+      </td>
+      <td
+ style="vertical-align: top; text-align: center; font-weight: bold;">Basetime
+Definition<br>
+      </td>
+      <td
+ style="vertical-align: top; text-align: center; font-weight: bold;">Offset/Interval
+Definition<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Hourly Grids up to 72 hr from
+basetime, then no more grids.<br>
+      </td>
+      <td style="vertical-align: top;">[0*HR]<br>
+      </td>
+      <td style="vertical-align: top;">[(0*HR, 1*HR), (72*HR, 1000*HR)]<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Hourly Grids up to 12 hr, 3 hrly
+grids to 24 hr, 6 hrly grids after 24hr<br>
+      </td>
+      <td style="vertical-align: top;">[0*HR]<br>
+      </td>
+      <td style="vertical-align: top;">[(0*HR, 1*HR), (12*HR, 3*HR),
+(24*HR, 6*HR)]</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">No grids for first 24 hours,
+then 3 hrly grids through 72 hours, then 6 hrly grids.<br>
+      </td>
+      <td style="vertical-align: top;">[0*HR]<br>
+      </td>
+      <td style="vertical-align: top;">[(24*HR, 3*HR), (72*HR, 6*HR)]<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+</div>
+<p><br>
+</p>
+</center>
+</body>
+</html>

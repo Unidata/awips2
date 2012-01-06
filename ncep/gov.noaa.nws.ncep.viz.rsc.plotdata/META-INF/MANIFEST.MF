@@ -1,0 +1,40 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Plotdata Plug-in
+Bundle-SymbolicName: gov.noaa.nws.ncep.viz.rsc.plotdata;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: gov.noaa.nws.ncep.viz.rsc.plotdata.Activator
+Eclipse-RegisterBuddy: gov.noaa.nws.ncep.resources, com.raytheon.viz.core, com.raytheon.uf.viz.core, com.raytheon.uf.common.serialization
+Eclipse-BuddyPolicy: ext, global
+Require-Bundle: org.eclipse.ui,
+ org.apache.batik,
+ org.eclipse.core.runtime,
+ javax.measure;bundle-version="1.0.0",
+ gov.noaa.nws.ncep.viz.common;bundle-version="1.0.0",
+ gov.noaa.nws.ncep.viz.resources;bundle-version="1.0.0",
+ com.raytheon.uf.viz.core;bundle-version="1.11.17",
+ org.geotools;bundle-version="2.5.2",
+ com.raytheon.viz.core;bundle-version="1.11.17",
+ com.raytheon.viz.ui;bundle-version="1.11.17",
+ com.raytheon.viz.pointdata;bundle-version="1.11.17",
+ com.raytheon.uf.common.message;bundle-version="1.11.22",
+ gov.noaa.nws.ncep.viz.localization;bundle-version="1.0.0",
+ com.raytheon.uf.common.pointdata
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: com.raytheon.edex.scriptfactory,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.viz.core.rsc,
+ com.vividsolutions.jts.geom,
+ gov.noaa.nws.ncep.edex.common.sounding,
+ gov.noaa.nws.ncep.metParameters.parameterConversion,
+ gov.noaa.nws.ncep.metparameters,
+ gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.elements,
+ gov.noaa.nws.ncep.viz.ui.display
+Export-Package: gov.noaa.nws.ncep.viz.rsc.plotdata,
+ gov.noaa.nws.ncep.viz.rsc.plotdata.parameters,
+ gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels,
+ gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.elements,
+ gov.noaa.nws.ncep.viz.rsc.plotdata.rsc

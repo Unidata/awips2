@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title></title>
+</head>
+<body>
+
+<center>
+<h1>How to Create a New Dataset</h1>
+</center>
+
+<p>The following instructions explain how to create a new          dataset.
+This dialog allows the creation of a dataset (an HDF4 SDS or an HDF5 dataset).
+The dataset can be a 1 to 32 dimension array of numbers, characters, or strings.
+&nbsp;<br>
+<br>
+To create a dataset, it is necessary to define its <a href="#dsname">name</a>
+, parent group, <a href="#dstype">datatype,</a> <a href="#dsspace">dataspace</a>
+ (i.e., the dimensions). Optionally, the <a href="#dsstore">storage properties</a>
+ can be specified.<br>
+</p>
+<p>The dataset will be created and filled with zeros. Data can be added with
+the hdfedit tool, or &nbsp;by a program.<br>
+          </p>
+<h2>1) <a name="dsname"></a>Dataset name and path</h2>
+         The <i>name</i> of the new dataset must follow the HDF5 name
+      rules (similar to the unix name rules). The name may contain almost
+any characters, but it must not          contain the path separator, '/'.
+
+<p>The dataset must be a member of some Group. The 'Add to group' selection
+lists all the Groups in the file.          </p>
+<h2>2) <a name="dstype"></a>Datatype</h2>
+The <i>datatype</i> specifies the type of the data elements of the array.
+This Java-based tool only supports three datatypes: integer, float and string.
+         <br>
+<br>
+The size specifies the size of a single data point in bits          such
+as 32-bit integer or 64-bit float. The size of a float is          either
+32-bit or 64-bit. For HDF5, there are          three byte order choices:
+NATIVE, LITTLE ENDIAN and BIG ENDIAN. "NATIVE" byte order means that the
+byte order is determined          by the machine. The byte order cannot be
+specified for HDF4.
+<h2>3) <a name="dsspace"></a>Dataspace</h2>
+The <i>dataspece</i> specifies number of dimensions (rank),           current
+dimension size and maximum dimension size.          The dimension size is
+separated by &nbsp;"x". For example, a 3D dataset might show the dimensions
+as:&nbsp;          <i>20 x 30 x 5</i>. <br>
+<br>
+The current size must be greater           than zero, and the maximum size
+must be at least as large as the current size. A maximum          size or
+zero means the maximum size will be set to the current size. Setting the
+maximum size to -1 &nbsp;will make the dimension "unlimited".
+<h2>4) <a name="dsstore"></a>Storage layout and data compression</h2>
+         There are two options for storage layout: continguous or chunked.
+          The default storage layout is continguous. If chunked layout is
+selected, the chunk size must be specified. <br>
+<br>
+The dataset may be compressed with GZIP. The compression          level is
+ranged from zero (no compression) to 9 (highest compression). &nbsp;In HDF5,
+if compression is selected then the dataset must be chunked.
+</body>
+</html>

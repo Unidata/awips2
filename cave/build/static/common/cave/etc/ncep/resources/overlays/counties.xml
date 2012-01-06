@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<bundle>
+  <displayList>
+    <displays xsi:type="NC-MapRenderableDisplay"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <descriptor xsi:type="mapDescriptor">
+        <resource>
+          <loadProperties>
+            <resourceType>PLAN_VIEW</resourceType>
+          </loadProperties>
+          <properties isSystemResource="false" isBlinking="false"
+            isMapLayer="true" isHoverOn="false" opacity="1.0" isVisible="true" />
+          <resourceData xsi:type="NC-dbOverlayResourceData">
+            <table>mapdata.county</table>
+            <labelField>countyname</labelField>
+            <mapName>County Boundaries</mapName>
+            <lineWidth>${lineWidth}</lineWidth>
+            <lineStyle>${lineStyle}</lineStyle>
+            <legendColor>${legend_color}</legendColor>
+            <color>${color}</color>
+          </resourceData>
+        </resource>
+      </descriptor>
+    </displays>
+  </displayList>
+</bundle>

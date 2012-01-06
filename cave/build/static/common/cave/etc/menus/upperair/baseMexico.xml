@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Acapulco, MX (MACA)" id="raobAcapulco_MX"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="76805"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Arriaga, MX (MARR)" id="raobArriaga_MX"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="76840"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Ciudad Del Carmen, MX (MCME)" id="raobCiudadDelCarmen_MX "
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="76749"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Ciudad Victoria, MX (MCVM)" id="raobCiudadVictoria_MX "
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="76225"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Cozumel_2, MX (MCZM)" id="raobCozumel2_MX"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="76649"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Isle of Guadalupe, MX (MILS)" id="raobIsleofGuadalupe_MX "
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="76151"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Socorro Island, MX (MISC)" id="raobSocorroIsland_MX"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="76723"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Ixtepec, MX (MIZT)" id="raobIxtepec_MX"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="76830"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="La Paz, MX (MLAP)" id="raobLaPaz_MX"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="76405"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Los Mochis, MX (MLMM)" id="raobLosMochis_MX"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="76361"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Chihuahua, MX (MMCU)" id="raobChihuahua_MX "
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="76225"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Mexico/Central, MX (MMDF)" id="raobCentral, MX"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="76679"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Guadalajara, MX (MMGL)" id="raobGuadalajara_MX"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="72226"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Guaymas (MMGM)" id="raobGuaymas"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="76256"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Merida, MX (MMMD)" id="raobMerida_MX"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="76644"/>
+	    </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+                    menuText="Cancun, MX (MMUN)" id="raobCancun_MX"
+                    editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+            <substitute key="stationId" value="76595"/>
+        </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Mexico City, MX (MMMX)" id="raobMexicoCity_MX"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="76679"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Monterrey, MX (MMMY)" id="raobMonterrey_MX"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="76394"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Mazatlan, MX (MMMZ)" id="raobMazatian_MX"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="76458"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Morelia, MX (MMOR)" id="raobMorelia_MX"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="76665"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Monclova, MX (MMOV)" id="raobMonclova_MX"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="76342"/>
+	    </contribute>
+
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Veracruz, MX (MMVR)" id="raobVeracruz_MX"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="76692"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Manzanillo, MX (MMZO)" id="raobManzanillo_MX"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="76654"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Soto La Marina, MX (MSOT)" id="raobSotoLaMarina_MX"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="76499"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Tampico, MX (MTAM)" id="raobTampico_MX"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="76548"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Tapachula, MX (MTAP)" id="raobTapachula_MX"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="76904"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Torreon, MX (MTRC)" id="raobTorreon_MX"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="76382"/>
+	    </contribute>
+</menuTemplate>

@@ -1,0 +1,7 @@
+ldmping.o: ../config/ldmconfig.h
+ldmping.o: ../protocol/h_clnt.h
+ldmping.o: ../protocol/ldm5.h
+ldmping.o: ../protocol/ldm5_clnt.h
+ldmping.o: ../protocol/timestamp.h
+ldmping.o: ../ulog/ulog.h
+ldmping.o: ldmping.c

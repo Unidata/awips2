@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Aww Plug-in
+Bundle-SymbolicName: gov.noaa.nws.ncep.common.dataplugin.aww
+Bundle-Version: 1.0.0.qualifier
+Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Bundle-Vendor: AWIPS II migration
+Require-Bundle: com.raytheon.edex.common;bundle-version="1.10.13",
+ javax.persistence;bundle-version="1.0.0",
+ org.apache.commons.logging;bundle-version="1.0.4",
+ org.apache.log4j;bundle-version="1.0.0",
+ gov.noaa.nws.ncep.common;bundle-version="1.0.0",
+ org.eclipse.ui;bundle-version="3.4.1",
+ org.eclipse.core.runtime;bundle-version="3.4.0"
+Import-Package: com.raytheon.uf.edex.decodertools.core,
+ com.raytheon.uf.edex.decodertools.time,
+ com.raytheon.uf.edex.wmo.message,
+ gov.noaa.nws.ncep.edex.common.dao,
+ org.eclipse.ui.plugin,
+ org.junit,
+ org.osgi.framework
+Export-Package: gov.noaa.nws.ncep.common.dataplugin.aww,
+ gov.noaa.nws.ncep.common.dataplugin.aww.dao

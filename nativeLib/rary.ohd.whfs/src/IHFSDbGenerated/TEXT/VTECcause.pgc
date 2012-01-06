@@ -1,0 +1,719 @@
+/*
+    File: VTECcause.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:32 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "VTECcause.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct VTECcause_t
+{
+    char		immed_cause[3];
+    char		name[26];
+
+    int		ind_name;
+} VTECcause_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+VTECcause * GetVTECcause(const char * where)
+{
+
+    VTECcause * listPtr = NULL;
+    VTECcause * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM VTECcause ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct VTECcause_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetVTECcause() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetVTECcause() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetVTECcause() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.immed_cause, :dbs.name:dbs.ind_name    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetVTECcause() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (VTECcause *) malloc(sizeof(VTECcause))) != NULL)
+        {
+
+            strcpy(structPtr->immed_cause, dbs.immed_cause);
+
+            strcpy(structPtr->name, dbs.name);
+            setNullIfIndicated(dbs.ind_name, CHAR, structPtr->name);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.immed_cause, :dbs.name:dbs.ind_name        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetVTECcause() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+VTECcause * SelectVTECcause(const char * where)
+{
+
+    VTECcause * listPtr = NULL;
+    VTECcause * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM VTECcause ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct VTECcause_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectVTECcause() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectVTECcause() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectVTECcause() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.immed_cause, :dbs.name:dbs.ind_name    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectVTECcause() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (VTECcause *) malloc(sizeof(VTECcause))) != NULL)
+        {
+
+            strcpy(structPtr->immed_cause, dbs.immed_cause);
+
+            strcpy(structPtr->name, dbs.name);
+            setNullIfIndicated(dbs.ind_name, CHAR, structPtr->name);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.immed_cause, :dbs.name:dbs.ind_name        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectVTECcause() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectVTECcauseCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM VTECcause ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountVTECcause() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountVTECcause() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountVTECcause() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountVTECcause() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutVTECcause(const VTECcause * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct VTECcause_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.immed_cause, structPtr->immed_cause);
+
+    strcpy(dbs.name, structPtr->name);
+    dbs.ind_name = getIndicator(CHAR, (void *)structPtr->name);
+
+
+    EXEC SQL INSERT INTO VTECcause (immed_cause,name        )
+        VALUES (
+         :dbs.immed_cause, :dbs.name:dbs.ind_name);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutVTECcause() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertVTECcause(const VTECcause * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct VTECcause_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.immed_cause, structPtr->immed_cause);
+
+    strcpy(dbs.name, structPtr->name);
+    dbs.ind_name = getIndicator(CHAR, (void *)structPtr->name);
+
+
+    EXEC SQL INSERT INTO VTECcause (immed_cause,name        )
+        VALUES (
+         :dbs.immed_cause, :dbs.name:dbs.ind_name);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertVTECcause() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateVTECcause(const VTECcause *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct VTECcause_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.immed_cause, structPtr->immed_cause);
+
+    strcpy(dbs.name, structPtr->name);
+    dbs.ind_name = getIndicator(CHAR, (void *)structPtr->name);
+
+
+    sprintf(queryBuffer, " UPDATE VTECcause SET " );
+    strcat(queryBuffer, "immed_cause = ? , name = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateVTECcause() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.immed_cause, :dbs.name:dbs.ind_name;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateVTECcause() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteVTECcause(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM VTECcause ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteVTECcause() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateVTECcauseByRecord (const VTECcause * newStructPtr, const VTECcause * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetVTECcausePrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateVTECcause(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateVTECcause(const VTECcause * structPtr)
+{
+    UpdateVTECcauseByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertVTECcause(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueVTECcause(const VTECcause * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (VTECcauseExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertVTECcause(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteVTECcauseByRecord(const VTECcause * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetVTECcausePrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteVTECcause(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool VTECcauseExists(const VTECcause * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetVTECcausePrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectVTECcauseCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetVTECcausePrimaryKeyWhereString (const VTECcause * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE immed_cause = '%s' ",
+            structPtr->immed_cause);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeVTECcause( VTECcause * structPtr)
+{
+    VTECcause* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( VTECcause * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetVTECcauseDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetVTECcauseErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

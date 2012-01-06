@@ -1,0 +1,333 @@
+module '*Hb'
+version = 47;
+xdesigned = 1;
+applicationName = '*Hb';
+generateNameC = * 'flood.c';
+generateNameExterns = * 'flood.h';
+generateNameResDB = * 'flood.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+generateMask = 39256301;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'floodDS' : XmDialogShell {
+	arguments {
+	name = 'floodDS';
+	lastGenName = 'floodDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_floodDS (Widget parent)
+';
+	XmNwidth = 810;
+	XmNheight = 615;
+	XmNallowShellResize = true;
+	XmNtitle = 'Flood Damage';
+	XmNminWidth = 810;
+	XmNminHeight = 615;
+	XmNmaxWidth = 810;
+	XmNmaxHeight = 615;
+	XmNbaseWidth = 810;
+	XmNbaseHeight = 615;
+	};
+object 'floodFM' : XmForm {
+	arguments {
+	name = 'floodFM';
+	was_selected = true;
+	lastGenName = 'floodFM';
+	XmNwidth = 810;
+	XmNheight = 615;
+	XmNautoUnmanage = false;
+	};
+object 'flstmtFrm' : XmFrame {
+	arguments {
+	name = 'flstmtFrm';
+	lastGenName = 'flstmtFrm';
+	};
+object 'flstmtFM' : XmForm {
+	arguments {
+	name = 'flstmtFM';
+	lastGenName = 'flstmtFM';
+	XmNwidth = 786;
+	XmNheight = 346;
+	};
+object 'fldamageTxt' : XmText {
+	arguments {
+	name = 'fldamageTxt';
+	lastGenName = 'fldamageTxt';
+	XmNmaxLength = 510;
+	XmNcolumns = 73;
+	XmNwordWrap = true;
+	XmNeditMode = 0;
+	XmNrows = 12;
+	};
+};
+object 'fldamageLbl' : XmLabel {
+	arguments {
+	name = 'fldamageLbl';
+	lastGenName = 'fldamageLbl';
+	XmNlabelString = 'Damage:';
+	};
+};
+object 'flstageLbl' : XmLabel {
+	arguments {
+	name = 'flstageLbl';
+	lastGenName = 'flstageLbl';
+	XmNlabelString = 'Stage:';
+	};
+};
+object 'flstageTxt' : XmText {
+	arguments {
+	name = 'flstageTxt';
+	lastGenName = 'flstageTxt';
+	XmNmaxLength = 8;
+	XmNcolumns = 10;
+	XmNwordWrap = false;
+	};
+};
+object 'flstmtTxt' : XmText {
+	arguments {
+	name = 'flstmtTxt';
+	lastGenName = 'flstmtTxt';
+	XmNmaxLength = 59;
+	};
+};
+object 'flstmtLbl' : XmLabel {
+	arguments {
+	name = 'flstmtLbl';
+	lastGenName = 'flstmtLbl';
+	XmNlabelString = 'Display:';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 1 0 10;
+	XmNleftAttachment = 1 0 100;
+	XmNbottomAttachment = 1 0 10;
+	XmNtopAttachment = 1 0 105;
+    };
+    attachment {
+	XmNrightAttachment = 3 1 10;
+	XmNleftAttachment = 1 0 14;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 106;
+    };
+    attachment {
+	XmNrightAttachment = 3 4 10;
+	XmNleftAttachment = 1 0 34;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 14;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -210;
+	XmNleftAttachment = 1 0 100;
+	XmNbottomAttachment = 2 0 -45;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 10;
+	XmNleftAttachment = 1 0 100;
+	XmNbottomAttachment = 2 0 -95;
+	XmNtopAttachment = 1 0 55;
+    };
+    attachment {
+	XmNrightAttachment = 3 5 10;
+	XmNleftAttachment = 1 0 16;
+	XmNbottomAttachment = 2 0 -88;
+	XmNtopAttachment = 1 0 63;
+    };
+    };
+};
+object 'flstmtFrmLbl' : XmLabel {
+	arguments {
+	name = 'flstmtFrmLbl';
+	lastGenName = 'flstmtFrmLbl';
+	XmNchildType = 2;
+	XmNlabelString = 'Statement';
+	};
+};
+};
+object 'flclsPB' : XmPushButton {
+	arguments {
+	name = 'flclsPB';
+	lastGenName = 'flclsPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Cancel';
+	};
+};
+object 'flhelpPB' : XmPushButton {
+	arguments {
+	name = 'flhelpPB';
+	lastGenName = 'flhelpPB';
+	XmNwidth = 85;
+	XmNheight = 34;
+	XmNlabelString = 'Help';
+	};
+};
+object 'flokPB' : XmPushButton {
+	arguments {
+	name = 'flokPB';
+	lastGenName = 'flokPB';
+	XmNlabelString = 'Ok';
+	};
+};
+object 'flinfoLbl' : XmLabel {
+	arguments {
+	name = 'flinfoLbl';
+	lastGenName = 'flinfoLbl';
+	XmNlabelString = 'Stage';
+	};
+};
+object 'flstgSLB' : XmScrolledList {
+	arguments {
+	name = 'flstgSLB';
+	lastGenName = 'flstgSLB';
+	XmNwidth = 790;
+	};
+abstract object 'flood_horizSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'flood_horizSB';
+	};
+};
+abstract object 'flood_vertSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'flood_vertSB';
+	};
+};
+abstract object 'flstgLB' : XmList {
+	arguments {
+	name = 'flstgLB';
+	lastGenName = 'flstgLB';
+	XmNwidth = 790;
+	XmNheight = 117;
+	XmNvisibleItemCount = 5;
+	XmNlistSizePolicy = 1;
+	XmNscrollBarDisplayPolicy = 1;
+	};
+};
+};
+object 'flnewPB' : XmPushButton {
+	arguments {
+	name = 'flnewPB';
+	lastGenName = 'flnewPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'New';
+	};
+};
+object 'flapplyPB' : XmPushButton {
+	arguments {
+	name = 'flapplyPB';
+	lastGenName = 'flapplyPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Apply';
+	};
+};
+object 'fldeletePB' : XmPushButton {
+	arguments {
+	name = 'fldeletePB';
+	lastGenName = 'fldeletePB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Delete';
+	};
+};
+object 'fldisLbl' : XmLabel {
+	arguments {
+	name = 'fldisLbl';
+	lastGenName = 'fldisLbl';
+	XmNlabelString = 'Display Statement';
+	};
+};
+object 'floodSP' : XmSeparator {
+	arguments {
+	name = 'floodSP';
+	lastGenName = 'floodSP';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 1 0 10;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 6 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 298;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 565;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 701;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 564;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -109;
+	XmNleftAttachment = 1 0 31;
+	XmNbottomAttachment = 2 0 -601;
+	XmNtopAttachment = 1 0 566;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -94;
+	XmNleftAttachment = 1 0 27;
+	XmNbottomAttachment = 2 0 -36;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 10;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 42;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 442;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 564;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 161;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 565;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 583;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 565;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 134;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 13;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 0;
+	XmNleftAttachment = 1 0 -4;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 1 15;
+    };
+    };
+};
+};
+end module;

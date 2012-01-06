@@ -1,0 +1,22 @@
+!
+! Restore File : frzg_lvl_hght_and_rh_ncf
+!
+! Log:
+! J. Carr/HPC   	 1/2000    Initial creation
+!
+GLEVEL=0                   !30:0
+GVCORD=FRZL                !pdly
+SCALE=-2                  !0
+GDPFUN=sm5s(mul(3.28,hght))!sm5s(tmpc)
+TYPE=c                   !c 
+CINT=20/20/160           !0;100
+LINE=6/1/2/1             !15/1/2
+FINT=
+FLINE=
+HILO=0
+HLSYM=0
+WIND=0
+TITLE=1/-1/~ FRZNG LEVEL HGHT, 0-30MB AGL 0C TEMP!0
+COLORS=2                                                                       
+MARKER=2                                                                       
+GRDLBL=5                                                                       

@@ -1,0 +1,136 @@
+<html>
+<title>GFESuite Documentation - Temporal Editor Appearance</title>
+<body>
+<h1 align=center>Temporal Editor Appearance</h1>
+<hr width="100%">
+<p><br>Up to this point you have been using tools in the Grid Manager and
+Spatial Editor to edit data spatially. There is, however, a different type
+of editor in the GFE, called the Temporal Editor, that edits data temporally.
+In the editor, the gridded data is presented data time-series format. This
+time-series represents the average value over an area that you define (the
+current edit area) as a function of time. An example of the Temporal Editor
+display can be found below.</div>
+
+<div CLASS="Body">&nbsp;
+<br><img SRC="images/temporalEditor.jpg" NOSAVE height=1000 width=1000></div>
+
+<p><br>The table below briefly describes the components of the Temporal
+Editor.
+<br>&nbsp;
+<table BORDER >
+<tr>
+<th>
+<div CLASS="CellHeading">Object</div>
+</th>
+
+<th>
+<div CLASS="CellHeading">Purpose</div>
+</th>
+</tr>
+
+<tr>
+<td>
+<div CLASS="CellBody">Time Scale</div>
+</td>
+
+<td>
+<div CLASS="CellBody">Displays the time in GMT</div>
+</td>
+</tr>
+
+<tr>
+<td>
+<div CLASS="CellBody">Scale</div>
+</td>
+
+<td>
+<div CLASS="CellBody">Displays the data scale for that Temporal Pane</div>
+</td>
+</tr>
+
+<tr>
+<td>
+<div CLASS="CellBody">Selected TimeRange</div>
+</td>
+
+<td>
+<div CLASS="CellBody">Displays the currently selected TimeRange</div>
+</td>
+</tr>
+
+<tr>
+<td>
+<div CLASS="CellBody">Temporal Data Selector</div>
+</td>
+
+<td>
+<div CLASS="CellBody">Controls the visibility of the corresponding weather
+element</div>
+</td>
+</tr>
+
+<tr>
+<td>
+<div CLASS="CellBody">TimeSeries Display</div>
+</td>
+
+<td>
+<div CLASS="CellBody">A plot of the time series for that weather element
+over the selected area</div>
+</td>
+</tr>
+
+<tr>
+<td>
+<div CLASS="CellBody">Image Toggle</div>
+</td>
+
+<td>
+<div CLASS="CellBody">Toggles the display from image to graphic</div>
+</td>
+</tr>
+
+<tr>
+<td>
+<div CLASS="CellBody">Temporal Pane Sizer</div>
+</td>
+
+<td>
+<div CLASS="CellBody">Changes the vertical size of individual temporal
+panes.</div>
+</td>
+</tr>
+</table>
+
+<p>To get to the Temporal Editor, select the button in the button bar that
+looks like the picture at the right.&nbsp;<img SRC="images/gmTe0.gif" ALT="Toggle Grid Manager/Temporal Editor" HSPACE=3 height=46 width=46>
+<p>When you select this button the Grid Manager will disappear and the
+Temporal Editor will replace it. To get back to the Grid Manager, just
+press the same button again. Note that the button will change in appearance
+each time it is selected. If you see no data displays in the Temporal Editor,
+use the Select Points tool to define an edit area on the Spatial Editor.
+The&nbsp; edit area that you select in the Spatial Editor is sampled and
+averaged to produce the time series display.
+<p>The weather elements displayed in the Temporal Editor depend upon the
+state of weather elements in the Grid Manager, and the <a href="GFEMainMenu.html#TemporalEditorWeatherElementMode">Temporal
+Editor Weather Element Mode</a>.
+<p>The different type of visualizations are shown <a href="#Visualizations">here</a>.&nbsp;
+Several of the visualizations, such as the <a href="#TimeBar">TimeBar</a>,&nbsp;
+show the average value as determined from sampling the grid data over the
+current edit area.&nbsp;&nbsp; For WEATHER&nbsp;and DISCRETE type of weather
+elements, the <a href="#TEColorBar">TEColorBar</a> visualization will show
+the various ratios of different weather and discrete values in the sampling
+area, as shown below:
+<p><img SRC="images/weatherTEVisual.jpg" NOSAVE height=196 width=831>
+<p>Some of the visualizations, such as the RangeBar as shown below, will
+show you data distribution information across the edit area.&nbsp; The
+user can control the statistics chosen to be displayed, from absolute maximum/minimum,
+to moderated values, and to standard deviation values.
+<p><img SRC="images/VisualTERangeBar.jpg" NOSAVE height=252 width=411>
+<p>The <a href="MainMenuDialogs.html#TEStatisticsDialog">TE&nbsp;Statistics
+Dialog</a>, available from the GFE->Viewing Preferences->Temporal Editor
+Statistics Mode menu, controls the type of statistics that are presented:
+<p><img SRC="images/DialogTEStatisticsMode.jpg" NOSAVE height=278 width=260>
+<p>
+</body>
+</html>

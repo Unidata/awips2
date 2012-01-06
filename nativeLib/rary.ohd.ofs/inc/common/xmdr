@@ -1,0 +1,4 @@
+C                                           *--> FROM COMMON.XMDR
+      COMMON/XMDR/MDRSTA,ICTMDR,MDRST6,ICMDR,NCMDR,IRMDR,NRMDR,
+     $ NMDR,MDR,MDRNUV
+C

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension-point id="configuration" name="ECF Generic Server Configuration" schema="schema/configuration.exsd"/>
+<!--
+   <extension
+         point="org.eclipse.ecf.server.generic.configuration">
+      <connector
+            discovery="true"
+            hostname="localhost"
+            keepAlive="30000"
+            port="3283">
+         <group
+               name="server">
+         </group>
+      </connector>
+   </extension>
+-->
+
+   <!-- Eclipse 3.3.0 has a bug that doesn't allow 'any' threads to run as main apps -->
+   <extension
+         id="org.eclipse.ecf.provider.AppGenericServer"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="*"
+            thread="main"
+            visible="true">
+         <run
+               class="org.eclipse.ecf.server.generic.app.GenericServer"/>
+      </application>
+   </extension>
+   <!-- Eclipse 3.3.1 may have a fix to allow this to run in either main/any thread -->
+   <extension
+         id="org.eclipse.ecf.provider.GenericServer"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="*"
+            thread="any"
+            visible="true">
+         <run
+               class="org.eclipse.ecf.server.generic.app.GenericServer"/>
+      </application>
+   </extension>
+
+   <extension
+         id="Server"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="*"
+            thread="main"
+            visible="true">
+         <run
+               class="org.eclipse.ecf.server.generic.app.GenericServer"/>
+      </application>
+   </extension>
+
+</plugin>

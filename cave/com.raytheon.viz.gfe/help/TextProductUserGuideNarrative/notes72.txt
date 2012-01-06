@@ -1,0 +1,2 @@
+If we have multiple time periods, we must create a conjunctive Local Effect. 
+

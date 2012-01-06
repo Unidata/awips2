@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Atcf Plug-in
+Bundle-SymbolicName: gov.noaa.nws.ncep.edex.plugin.atcf
+Bundle-Version: 1.0.0.qualifier
+Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Bundle-Vendor: NOAA/NWS/NCEP/NCO/SIB
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.raytheon.edex.common;bundle-version="1.11.31",
+ javax.persistence;bundle-version="1.0.0",
+ org.junit;bundle-version="1.0.0",
+ org.apache.log4j;bundle-version="1.0.0",
+ org.apache.commons.logging;bundle-version="1.0.4",
+ com.raytheon.uf.common.localization;bundle-version="1.11.31",
+ gov.noaa.nws.ncep.common.dataplugin.atcf,
+ gov.noaa.nws.ncep.common;bundle-version="1.0.0",
+ gov.noaa.nws.ncep.edex.common;bundle-version="1.0.0"
+Import-Package: gov.noaa.nws.ncep.common.dataplugin.atcf,
+ gov.noaa.nws.ncep.edex.tools.decoder,
+ gov.noaa.nws.ncep.edex.util
+Export-Package: gov.noaa.nws.ncep.edex.plugin.atcf.decoder,
+ gov.noaa.nws.ncep.edex.plugin.atcf.util

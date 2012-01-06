@@ -1,0 +1,326 @@
+module 'XApplication'
+version = 48;
+xdesigned = 1;
+applicationName = 'XApplication';
+generateNameC = * 'preset_saveupdate.c';
+generateNameStubs = 'preset_saveupdate_stubs.c';
+generateNameExterns = * 'preset_saveupdate.h';
+generateNameResDB = './preset_saveupdate.res';
+generateNameCPixmaps = 'preset_saveupdate_pixmaps.h';
+generateCPixmapFile = '';
+generateCHeaderFile = 'preset_saveupdate.h';
+motifFlavour = 2;
+generateMask = 5701632;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 1;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+javaVersion = 2;
+javaUnselectedFiles = '';
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'saveasnewDS' : XmDialogShell {
+	arguments {
+	name = 'saveasnewDS';
+	was_selected = true;
+	lastGenName = 'saveasnewDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_saveasnewDS (Widget parent)
+';
+	XmNwidth = 650;
+	XmNheight = 240;
+	XmNallowShellResize = true;
+	XmNtitle = 'Save Preset Options';
+	XmNminWidth = 650;
+	XmNminHeight = 240;
+	XmNmaxWidth = 650;
+	XmNmaxHeight = 240;
+	XmNbaseWidth = 650;
+	XmNbaseHeight = 240;
+	XmNdeleteResponse = XmDO_NOTHING;
+	};
+object 'saveasnewFO' : XmForm {
+	arguments {
+	name = 'saveasnewFO';
+	lastGenName = 'saveasnewFO';
+	XmNwidth = 650;
+	XmNheight = 240;
+	XmNdialogStyle = XmDIALOG_PRIMARY_APPLICATION_MODAL;
+	XmNresizePolicy = XmRESIZE_GROW;
+	XmNautoUnmanage = false;
+	};
+object 'ok_saveasnewPB' : XmPushButton {
+	arguments {
+	name = 'ok_saveasnewPB';
+	lastGenName = 'ok_saveasnewPB';
+	generateResName = true;
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Ok';
+	};
+};
+object 'cancel_saveasnewPB' : XmPushButton {
+	arguments {
+	name = 'cancel_saveasnewtPB';
+	lastGenName = 'cancel_saveasnewPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Cancel';
+	};
+};
+object 'saveupdate_curFR' : XmFrame {
+	arguments {
+	name = 'saveupdate_curFR';
+	lastGenName = 'saveupdate_curFR';
+	};
+object 'saveupdate_curFO' : XmForm {
+	arguments {
+	name = 'saveupdate_curFO';
+	lastGenName = 'saveupdate_curFO';
+	};
+object 'saveupdate_curidTX' : XmText {
+	arguments {
+	name = 'saveupdate_curidTX';
+	lastGenName = 'saveupdate_curidTX';
+	generateResName = true;
+	XmNwidth = 50;
+	XmNheight = 35;
+	XmNmaxLength = 8;
+	XmNcolumns = 12;
+	XmNeditable = false;
+	};
+};
+object 'saveupdate_curidLB' : XmLabel {
+	arguments {
+	name = 'saveupdate_curidLB';
+	lastGenName = 'saveupdate_curidLB';
+	XmNlabelString = 'UniqueId:';
+	XmNalignment = XmALIGNMENT_END;
+	};
+};
+object 'saveupdate_curdesLB' : XmLabel {
+	arguments {
+	name = 'saveupdate_curdesLB';
+	lastGenName = 'saveupdate_curdesLB';
+	XmNlabelString = 'Description:';
+	};
+};
+object 'saveupdate_currankTX' : XmTextField {
+	arguments {
+	name = 'saveupdate_currankTX';
+	lastGenName = 'saveupdate_currankTX';
+	XmNmaxLength = 5;
+	XmNcolumns = 5;
+	XmNeditable = false;
+	};
+};
+object 'saveupdate_currankLB' : XmLabel {
+	arguments {
+	name = 'saveupdate_currankLB';
+	lastGenName = 'saveupdate_currankLB';
+	XmNlabelString = 'Rank:';
+	};
+};
+object 'saveupdate_curdesTX' : XmTextField {
+	arguments {
+	name = 'saveupdate_curdesTX';
+	lastGenName = 'saveupdate_curdesTX';
+	generateResName = true;
+	XmNwidth = 200;
+	XmNheight = 35;
+	XmNmaxLength = 30;
+	XmNcolumns = 20;
+	XmNeditable = false;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -194;
+	XmNleftAttachment = 1 0 96;
+	XmNbottomAttachment = 2 0 -41;
+	XmNtopAttachment = 1 0 6;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -84;
+	XmNleftAttachment = 1 0 6;
+	XmNbottomAttachment = 2 0 -42;
+	XmNtopAttachment = 1 0 6;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -294;
+	XmNleftAttachment = 1 0 204;
+	XmNbottomAttachment = 2 0 -42;
+	XmNtopAttachment = 1 0 6;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -626;
+	XmNleftAttachment = 1 0 564;
+	XmNbottomAttachment = 2 0 -41;
+	XmNtopAttachment = 1 0 6;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -558;
+	XmNleftAttachment = 1 0 516;
+	XmNbottomAttachment = 2 0 -42;
+	XmNtopAttachment = 1 0 6;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -510;
+	XmNleftAttachment = 1 0 306;
+	XmNbottomAttachment = 2 0 -46;
+	XmNtopAttachment = 1 0 6;
+    };
+    };
+};
+object 'savedefs_curLB' : XmLabel {
+	arguments {
+	name = 'savedefs_curLB';
+	lastGenName = 'savedefs_curLB';
+	XmNframeChildType = XmFRAME_TITLE_CHILD;
+	XmNlabelString = 'Current Information';
+	};
+};
+};
+object 'saveupdate_newFR' : XmFrame {
+	arguments {
+	name = 'saveupdate_newFR';
+	lastGenName = 'saveupdate_newFR';
+	};
+object 'saveupdate_newFO' : XmForm {
+	arguments {
+	name = 'saveupdate_newFO';
+	lastGenName = 'saveupdate_newFO';
+	};
+object 'saveupdate_idTX' : XmTextField {
+	arguments {
+	name = 'saveupdate_idTX';
+	lastGenName = 'saveupdate_idTX';
+	XmNmaxLength = 8;
+	XmNcolumns = 8;
+	XmNresizeWidth = true;
+	};
+};
+object 'saveupdate_idLB' : XmLabel {
+	arguments {
+	name = 'saveupdate_idLB';
+	lastGenName = 'saveupdate_idLB';
+	XmNlabelString = 'UniqueId:';
+	XmNalignment = XmALIGNMENT_END;
+	};
+};
+object 'saveupdate_desLB' : XmLabel {
+	arguments {
+	name = 'saveupdate_desLB';
+	lastGenName = 'saveupdate_desLB';
+	XmNlabelString = 'Description:';
+	XmNalignment = XmALIGNMENT_END;
+	};
+};
+object 'saveupdate_rankLB' : XmLabel {
+	arguments {
+	name = 'saveupdate_rankLB';
+	lastGenName = 'saveupdate_rankLB';
+	XmNlabelString = 'Rank:';
+	};
+};
+object 'saveupdate_rankTX' : XmTextField {
+	arguments {
+	lastGenName = 'saveupdate_rankTX';
+	XmNmaxLength = 5;
+	XmNcolumns = 5;
+	};
+};
+object 'saveupdate_desTX' : XmTextField {
+	arguments {
+	name = 'saveupdate_desTX';
+	lastGenName = 'saveupdate_desTX';
+	XmNmaxLength = 30;
+	XmNcolumns = 30;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -192;
+	XmNleftAttachment = 1 0 96;
+	XmNbottomAttachment = 2 0 -42;
+	XmNtopAttachment = 1 0 6;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -84;
+	XmNleftAttachment = 1 0 12;
+	XmNbottomAttachment = 2 0 -36;
+	XmNtopAttachment = 1 0 6;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -294;
+	XmNleftAttachment = 1 0 204;
+	XmNbottomAttachment = 2 0 -42;
+	XmNtopAttachment = 1 0 6;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -556;
+	XmNleftAttachment = 1 0 516;
+	XmNbottomAttachment = 2 0 -41;
+	XmNtopAttachment = 1 0 6;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -625;
+	XmNleftAttachment = 1 0 564;
+	XmNbottomAttachment = 2 0 -41;
+	XmNtopAttachment = 1 0 6;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -511;
+	XmNleftAttachment = 1 0 306;
+	XmNbottomAttachment = 2 0 -42;
+	XmNtopAttachment = 1 0 6;
+    };
+    };
+};
+object 'savdefs_newLB' : XmLabel {
+	arguments {
+	name = 'savdefs_newLB';
+	lastGenName = 'savdefs_newLB';
+	XmNframeChildType = XmFRAME_TITLE_CHILD;
+	XmNlabelString = 'New Information';
+	};
+};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -288;
+	XmNleftAttachment = 1 0 192;
+	XmNbottomAttachment = 2 0 -222;
+	XmNtopAttachment = 1 0 186;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -438;
+	XmNleftAttachment = 1 0 342;
+	XmNbottomAttachment = 2 0 -222;
+	XmNtopAttachment = 1 0 186;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -642;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -84;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -642;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -174;
+	XmNtopAttachment = 1 0 97;
+    };
+    };
+};
+};
+end module;

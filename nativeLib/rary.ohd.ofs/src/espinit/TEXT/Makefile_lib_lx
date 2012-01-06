@@ -1,0 +1,64 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-espinit library file
+#
+#  cmt: File made on Wed Aug  6 12:48:36 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libespinit_t.a:  \
+     $(LIB)/libespinit_t.a(edefsg.o)  \
+     $(LIB)/libespinit_t.a(edin01.o)  \
+     $(LIB)/libespinit_t.a(edin02.o)  \
+     $(LIB)/libespinit_t.a(edsunt.o)  \
+     $(LIB)/libespinit_t.a(efints.o)  \
+     $(LIB)/libespinit_t.a(egin01.o)  \
+     $(LIB)/libespinit_t.a(egin02.o)  \
+     $(LIB)/libespinit_t.a(einmain.o)  \
+     $(LIB)/libespinit_t.a(eprd01.o)  \
+     $(LIB)/libespinit_t.a(eprd02.o)  \
+     $(LIB)/libespinit_t.a(eprg01.o)  \
+     $(LIB)/libespinit_t.a(eprg02.o)  \
+     $(LIB)/libespinit_t.a(eprhd.o)  \
+     $(LIB)/libespinit_t.a(eprint.o)  \
+     $(LIB)/libespinit_t.a(eprp.o)  \
+     $(LIB)/libespinit_t.a(eprseg.o)  \
+     $(LIB)/libespinit_t.a(eprts.o)  \
+     $(LIB)/libespinit_t.a(epunch.o)  \
+     $(LIB)/libespinit_t.a(erdan.o)  \
+     $(LIB)/libespinit_t.a(erdcmd.o)  \
+     $(LIB)/libespinit_t.a(erdhst.o)  \
+     $(LIB)/libespinit_t.a(ernchk.o)  \
+     $(LIB)/libespinit_t.a(esgchk.o)  \
+     $(LIB)/libespinit_t.a(espts.o)  \
+     $(LIB)/libespinit_t.a(espwtf.o)  \
+     $(LIB)/libespinit_t.a(estrt.o)  \
+     $(LIB)/libespinit_t.a(etsdef.o)  \
+     $(LIB)/libespinit_t.a(eupdat.o)  \
+     $(LIB)/libespinit_t.a(ewrit.o)
+

@@ -1,0 +1,60 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-fcinit_setup library file
+#
+#  cmt: File made on Wed Aug  6 12:49:37 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libfcinit_setup_t.a:  \
+     $(LIB)/libfcinit_setup_t.a(cox58.o)  \
+     $(LIB)/libfcinit_setup_t.a(coxdr1.o)  \
+     $(LIB)/libfcinit_setup_t.a(coxdr2.o)  \
+     $(LIB)/libfcinit_setup_t.a(coxdr3.o)  \
+     $(LIB)/libfcinit_setup_t.a(coxdrv.o)  \
+     $(LIB)/libfcinit_setup_t.a(generateRESJFileName.o)  \
+     $(LIB)/libfcinit_setup_t.a(pin58.o)  \
+     $(LIB)/libfcinit_setup_t.a(prc58.o)  \
+     $(LIB)/libfcinit_setup_t.a(propt1.o)  \
+     $(LIB)/libfcinit_setup_t.a(propt2.o)  \
+     $(LIB)/libfcinit_setup_t.a(propt3.o)  \
+     $(LIB)/libfcinit_setup_t.a(proptb.o)  \
+     $(LIB)/libfcinit_setup_t.a(prp58.o)  \
+     $(LIB)/libfcinit_setup_t.a(prstop.o)  \
+     $(LIB)/libfcinit_setup_t.a(puc58.o)  \
+     $(LIB)/libfcinit_setup_t.a(puopt1.o)  \
+     $(LIB)/libfcinit_setup_t.a(puopt2.o)  \
+     $(LIB)/libfcinit_setup_t.a(puopt3.o)  \
+     $(LIB)/libfcinit_setup_t.a(puoptb.o)  \
+     $(LIB)/libfcinit_setup_t.a(setup1.o)  \
+     $(LIB)/libfcinit_setup_t.a(setup2.o)  \
+     $(LIB)/libfcinit_setup_t.a(setup3.o)  \
+     $(LIB)/libfcinit_setup_t.a(setup.o)  \
+     $(LIB)/libfcinit_setup_t.a(stopin.o)  \
+     $(LIB)/libfcinit_setup_t.a(tab58.o)
+

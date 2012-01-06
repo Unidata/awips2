@@ -1,0 +1,4 @@
+C                                           *--> FROM COMMON.FD
+C  FORECAST COMPONENT TIME SERIES DATA
+      COMMON /FD/ MD,D(200000)
+C

@@ -1,0 +1,67 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="acarsAirports" class="com.raytheon.uf.common.dataplugin.acarssounding.tools.AirportsBean" depends-on="acarsSoundingPluginName" >
+    </bean>
+
+    <bean id="acarsSounding" class="com.raytheon.uf.edex.plugin.acarssounding.ACARSSounding" depends-on="acarsAirports, acarsRegistered" >
+        <constructor-arg ref="acarsSoundingPluginName" />
+        <constructor-arg ref="acarsAirports" />
+    </bean>
+
+    <bean id="acarsSoundingSplitter" class="com.raytheon.uf.edex.plugin.acarssounding.ACARSSoundingSplitter" >
+    </bean>
+
+	<bean id="acarsSoundingSrvCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="acarsSoundingSrv-camel"/>
+  	</bean>  
+
+    <camelContext id="acarsSoundingSrv-camel" 
+                  xmlns="http://camel.apache.org/schema/spring" 
+                  errorHandlerRef="errorHandler"
+                  autoStartup="false">
+        <endpoint id="acarsSoundingEndpoint"/>
+        
+        <endpoint id="scheduledSoundingCron" uri="clusteredquartz://acars/createSounding/?cron=${acarssounding.cron}"/>        
+                
+        <!-- Schedule sounding creation -->
+        <route id="scheduledSounding">
+            <!-- Set the minutes explicitly -->
+            <!-- Deployed time slots -->
+            <from uri="scheduledSoundingCron" />
+            
+            <!-- Development time slots 
+            <from uri="clusteredquartz://acars/createSounding/?cron=00+0,5,10,15,20,25,30,35,40,45,50,55+*+*+*+?" />
+           -->
+            <to uri="jms-generic:queue:scheduledSoundingWork" />
+        </route>
+        
+        <route id="scheduledSoundingWork">
+          <from uri="jms-generic:queue:scheduledSoundingWork" />
+            <split streaming="true">
+              <method bean="acarsSoundingSplitter" method="getSeparator"/>
+              <doTry>
+                   <pipeline>
+                    <setHeader headerName="pluginName">
+                        <constant>acarssounding</constant>
+                    </setHeader>
+                    <setHeader headerName="dequeueTime">
+                        <method bean="acarsSounding" method="getQueueTime" />
+                    </setHeader>
+                    <bean ref="acarsSounding" method="processSounding" />
+                    <to uri="directvm:indexAlert" />
+                   </pipeline>
+                   <doCatch>
+                      <exception>java.lang.Throwable</exception>
+                      <to uri="log:acarssounding?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                   </doCatch>
+              </doTry>
+            </split>
+        </route>
+
+    </camelContext>
+</beans>

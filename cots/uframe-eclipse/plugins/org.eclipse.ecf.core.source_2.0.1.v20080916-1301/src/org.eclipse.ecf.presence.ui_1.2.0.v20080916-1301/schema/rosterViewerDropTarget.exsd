@@ -1,0 +1,152 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="org.eclipse.ecf.presence.ui">
+<annotation>
+      <appInfo>
+         <meta.schema plugin="org.eclipse.ecf.presence.ui" id="rosterViewerDropTarget" name="Roster Viewer Drop Target"/>
+      </appInfo>
+      <documentation>
+         This extension point allows drop targets to be specified for the MultiRosterView.
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <complexType>
+         <sequence>
+            <element ref="dropTarget" minOccurs="1" maxOccurs="unbounded"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appInfo>
+                  <meta.attribute translatable="true"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="dropTarget">
+      <annotation>
+         <documentation>
+            Drop target element.
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="class" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Class for roster viewer drop target.  Must implement &lt;b&gt;org.eclipse.ecf.presence.ui.dnd.IRosterViewerDropTarget&lt;/b&gt;.  Required.
+               </documentation>
+               <appInfo>
+                  <meta.attribute kind="java" basedOn="org.eclipse.ecf.presence.ui.dnd.IRosterViewerDropTarget"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="since"/>
+      </appInfo>
+      <documentation>
+         1.0.0
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="examples"/>
+      </appInfo>
+      <documentation>
+         &lt;pre&gt;
+   &lt;extension
+         point=&quot;org.eclipse.ecf.presence.ui.rosterViewerDropTarget&quot;&gt;
+      &lt;dropTarget
+            class=&quot;org.eclipse.ecf.presence.collab.ui.TextRosterViewerDropTarget&quot;&gt;
+      &lt;/dropTarget&gt;
+   &lt;/extension&gt;
+
+&lt;/pre&gt;
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="apiInfo"/>
+      </appInfo>
+      <documentation>
+         &lt;pre&gt;
+/**
+ * Roster viewer drop target.  This interface defines the 
+ * required methods for implementers of the rosterViewerDropTarget
+ * extension point.
+ */
+public interface IRosterViewerDropTarget {
+
+    /**
+     * Validates dropping on the given roster item. This method is called whenever some 
+     * aspect of the drop operation changes.
+     * 
+     * @param target the object that the mouse is currently hovering over, or
+     *   &lt;code&gt;null&lt;/code&gt; if the mouse is hovering over empty space
+     * @param operation the current drag operation (copy, move, etc.)
+     * @param transferType the current transfer type
+     * @return &lt;code&gt;true&lt;/code&gt; if the drop is valid, and &lt;code&gt;false&lt;/code&gt;
+     *   otherwise
+     */
+ public boolean validateDrop(IRosterItem rosterItem, int operation,
+            TransferData transferType);
+
+    /**
+     * Performs any work associated with the drop.
+     *
+     * @param data the drop data
+     * @return &lt;code&gt;true&lt;/code&gt; if the drop was successful, and 
+     *   &lt;code&gt;false&lt;/code&gt; otherwise
+     */
+
+ public boolean performDrop(Object data);
+}
+
+&lt;/pre&gt;
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="implementation"/>
+      </appInfo>
+      <documentation>
+         No supplied implementation.
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="copyright"/>
+      </appInfo>
+      <documentation>
+         Copyright (c) 2004 Composent, Inc. and others.
+All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html.  Contributors:  Composent, Inc. - initial API and implementation
+      </documentation>
+   </annotation>
+
+</schema>

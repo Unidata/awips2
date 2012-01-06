@@ -1,0 +1,315 @@
+<?php 
+include ("../../../links.php"); 
+include ("../../../includes/header.html"); 
+?>
+<h1>How to Implement HDFView Modules</h1>
+
+<h3>
+Table of Contents</h3>
+
+<ul class="ul">
+    <li class="li2"><a href="#introduction"> 1. Introduction</a>
+    <ul class="ul">
+        <li class="li3"><a href="#introduction_what"> 1.1 What is modular HDFView?</a></li>
+        <li class="li3"><a href="#introduction_why"> 1.2 Why modular HDFView?</a></li>
+        <li class="li3"><a href="#introduction_requirement"> 1.3 Basic requirements</a></li>
+    </ul>
+    <li class="li2"><a href="#fundamental_approach"> 2. Fundamental approach</a></li>
+    <li class="li2"><a href="#io_module">3. How to implement an I/O module</a></li>
+    <ul class="ul">
+        <li class="li3"><a href="#io_module_classes">3.1 Classes to implement</a></li>
+        <li class="li3"><a href="#io_module_steps">3.2 Steps to implement an I/O module</a></li>
+    </ul>
+    <li class="li2"><a href="#gui_module">4. How to implement a GUI module</a></li>
+    <ul class="ul">
+        <li class="li3"><a href="#gui_module_components">4.1 Replaceable GUI components</a></li>
+        <li class="li3"><a href="#gui_module_steps">4.3 Steps to implement a GUI module</a></li>
+    </ul>
+</ul>
+
+
+<P>
+<hr noshade size=1>
+<h2><a NAME="introduction"></a>
+1.Introduction </h2>
+This document describes the modular HDFView interfaces, and provides user
+guidance on how to implement HDFView modules. This guide is not the HDFView
+User's Guide. The HDFView Users Guide is installed with the HDFView or you
+can visit the website at <a href="../UsersGuide/index.html">HDFView User's Guide</a>.
+
+
+<h3><a NAME="introduction_what"></a>
+1.1 What is modular HDFView?</h3>
+Modular HDFView is an improved HDFView with replaceable I/O and GUI modules.
+It consists of several interfaces that enable users to write and use alternative
+implementations of I/O and GUI components to replace default modules. The current
+replaceable modules include:
+<ul class="ul">
+    <li class="li2">File I/O (already implemented)</li>
+    <li class="li2">Image view</li>
+    <li class="li2">Table view (a spreadsheet-like layout)</li>
+    <li class="li2">Text view</li>
+    <li class="li2">Metadata (metadata and attributes) view</li>
+    <li class="li2">Tree view</li>
+    <li class="li2">Palette view</li>
+</ul>
+
+<h3><a NAME="introduction_why"></a>
+1.2 Why modular HDFView?</h3>
+Early versions of HDFView (version 1.3 or earlier) are implemented with standard
+GUI components such as tree view, table, and image view. These components cannot
+be replaced. There is no optional tree view, table view, and etc for users to
+display the data in different way. Supporting a new data format will also require
+major changes in the GUI and I/O source code. To solve this problem, modular HDFView
+is introduced. Modular HDFView will have the following advantages.
+
+<ul class="ul">
+    <li class="li2">Separation of file I/O and data viewer: GUI components do not depend on
+        file I/O implementation. Adding a new file format does not need to change
+        any of the GUI components.</li>
+    <li class="li2">Replaceable GUI modules: users can implement their GUI components to
+        replace the default implementation of the TreeView, TableView, ImageView, etc
+        without change of any other code. The development of use modules and HDFView
+        are independent.</li>
+    <li class="li2">Reuse source code: users can extend their classes from common packages
+        and abstract classes for less coding.</li>
+    <li class="li2">Configurable installation: users can choose to install HDF4 support or
+        HDF5 support or both.</li>
+    <li class="li2">Easy to maintain: replacing/changing one module does not change the rest
+        of the source code.</li>
+</ul>
+
+
+<h3><a NAME="introduction_requirement"></a>
+1.3 Basic requirements</h3>
+The modular HDFView should meet the following basic requirements.
+<ul class="ul">
+    <li class="li2">Separate file I/O access and GUI components so that adding a new data
+        format does not require changing the GUI, and vice visa.</li>
+    <li class="li2">Provide abstract interfaces/classes along with a default implementation.</li>
+    <li class="li2">Dynamically load user's modules: automatically detect user's module,
+        which is packed in jar files</li>
+    <li class="li2">Provide a mechanism for users to select which module to use when multiple
+        modules are provided.</li>
+    <li class="li2">Extensive documentation and examples on how to implement such a module.</li>
+</ul>
+
+<h2><a NAME="fundamental_approach"></a>
+2. Fundamental approach</h2>
+
+The fundamental approach is to re-architect the HDFView so that it separates API
+definition and implementation. The HDFView only calls the abstract interfaces not the
+implementation. This will allow users to write their own classes (or modules)
+which implement the interfaces to replace standard default implementation. The
+main goal is to make the modules easy to implement and flexible to meet user's needs.
+
+<p>
+The HDFView consists of three basic components: <b>the main view, the object package,
+and the GUI modules</b>. The following figure explains the relationship of the
+three components.
+
+<p><center>
+<p><img SRC="components.gif">
+<br><b>HDFView Components</b></center>
+
+<p>
+<b>The main window</b> is the first window frame you see when you start the HDFView. It
+has access to only to the the common object package (abstract data object classes)
+and the GUI interfaces. It does not depend on any implemwntation of theI/O and
+GUI components. Therefore, adding new modules does not require any change in the HDFView.
+This will separate user's implementation from the HDFView development.
+
+<p>
+The layout of the main window is shown in the following figure. The main window has
+two major panels: the TreeView Panel and the Data Panel. The TreeView Panel is used
+to display the structure of the file in tree. The Data Panel is used to show onther
+GUI components such as ImageView, TableView and TextView.
+
+<p><center>
+<p><img SRC="hdfview.gif">
+<br><b>HDFView Main Window</b></center>
+
+<p>
+<b>The common object package</b>, ncsa.hdf.object, consists of abstract classes
+for file access. The abstract classes only define abstract methods such as data
+input/output from/to file. Sub-classes have to implement these interfaces. The HDFView
+only depends on the abstract classes. For example, when you open a file from the HDFView,
+the main view calls the method, ncsa.hdf.object.FileFormat.open(filename) and
+retrieves the file structure. The details of how to open the file and how to retrieve
+the file structure are left for implementation classes.
+
+<p>
+<b>GUI components</b>, such as TreeView, ImageView, TableView, etc, are interfaces
+instead of implementing classes. The main view only access to these interfaces.
+For instance, when you launch a command from the HDFView to display a dataset in
+TableView, the HDFView calls TreeView.showDataContent(dataObject) and returns
+the implementation of the TableView of user's selection.
+
+<h2><a name="io_module"></a>
+3. How to implement an I/O module</h2>
+
+<h3><a name="io_module_classes"></a>
+3.1 Classes to implement</h3>
+
+The following diagram shows the class hierarchy of the object packag.
+The class diagram uses the Unified Modeling Language (UML) notations:
+<i><b>association (has), generalization (inherits), refinement (implements) and
+composition (belongs)</b></i>, to represent the relations of classes.
+HObject is the base class of all data object, which implements DataFormat.
+HObject has two inherited classes: Group and Dataset to represent HDF groups and
+datasets. Dataset has two sub-classes, ScalarDS and CompoundDS. Each FileFormat
+contains one or more HObjects.
+
+<p><center>
+<p><img SRC="io_classes.gif">
+<br><b>I/O Class Hierarchy</b></center>
+
+<p>
+To add new I/O module (file format), the following classes must be implemented.
+<ul class="ul">
+    <li class="li2"><b>FileFormat</b><br>
+FileFormat defines general I/O accessing interface to file resources, such as
+open/close file, and retrieve file structure. For details, read
+<a href="../../javadocs/ncsa/hdf/object/FileFormat.html">FileFormat.html</a>. Two
+implementing classes,
+<a href="../../javadocs/ncsa/hdf/object/h5/H5File.html">H5File</a> and
+<a href="../../javadocs/ncsa/hdf/object/h4/H4File.html">H4File</a>, are provided for the HDFView
+to support HDF5 and HDF4 respectively.</li>
+    <li class="li2"><b>Group</b><br>
+Group is an abstract class. This class includes general information of a group
+object such as members of the group, and common operation on the group.
+For details, read
+<a href="../../javadocs/ncsa/hdf/object/Group.html">Group.html</a>. Two sub-classes,
+<a href="../../javadocs/ncsa/hdf/object/h5/H5Group.html">H5Group</a> and
+<a href="../../javadocs/ncsa/hdf/object/h4/H4Group.html">H4Group</a>, are provided to
+represent HDF5 group and HDF4 group respectively.</li>
+
+    <li class="li2"><b>Dataset (ScarlarDS or CompoundDS or both)</b><br>
+This abstract class includes general information of a dataset object such as
+datatype and dimensions, and common operation on the dataset such as read/write
+data values. Dataset has two abstract subclasses:
+<a href="../../javadocs/ncsa/hdf/object/ScalarDS.html">ScalarDS</a> and
+<a href="../../javadocs/ncsa/hdf/object/CompoundDS.html">CompoundDS</a>. User's
+classes must inherit from either ScalarDS or CompoundDS.
+For details, read
+<a href="../../javadocs/ncsa/hdf/object/Dataset.html">Dataset.html</a>.
+</li>
+
+</ul>
+
+
+
+<h3><a name="io_module_steps"></a>
+3.2 Steps to implement an I/O module</h3>
+
+To add an I/O module into HDFView, you must follow the steps below:
+<ul class="ul">
+    <li class="li2">Download and install HDFView and and include $HDFVIEW/lib/*.jar files in
+    your claspath</li>
+    <li class="li2">Implement your I/O module (FileFormat, Group, and Dataset)</li>
+    <li class="li2">Pack your binary classes in a jar file and put it at $HDFVIEW/lib/ext.</li>
+    <li class="li2">If there is any required dynamic link libary, put it at your system path or
+    at $HDFVIEW/lib/ext for the HDFView to detect it.</li>
+    <li class="li2">Register the new dataformat in HDFView or property file.
+    You only need to register the new dataformat once.</li>
+    <ul class="ul">
+        <li class="li3">Register the new FileFormat from HDFView: Start HDFView and go to
+        "Tools" --> "Add File Format" and add the full class name of the FileFormat
+        with a file extension and key associated to the file format.
+<p><center>
+<p><img SRC="addfileformat.gif">
+<br><b>Register FileFormat from HDFView</b></center>
+        <li class="li2">Register the new FileFormat from property file: start HDFView and
+        close it if you never use the HDFView before. After the first use of
+        the HDFView, it creates a property file, hdfview.props, at the user director.
+        Add the new FileFormat in the property file in the form of <br>
+        module.fileformat.<b>KEY</b>=<b>full_class_path</b>.<br>
+        For example, the highlight
+        line registers the H5File in the HDFView property file,
+        C:\Documents and Settings\xcao\hdfview.props.
+<p><center>
+<p><img SRC="property_file.gif">
+<br><b>Register FileFormat from Property File</b></center>
+    </ul>
+</ul>
+
+<h2><a name="gui_module"></a>
+4. How to implement a GUI module</h2>
+
+
+<h3><a name="gui_module_components"></a>
+4.1 Replaceable GUI components</a></h3>
+The modular HDFView provides several interfaces for GUI components along with default
+implementation. Users can write their own implementation of these interfaces to replace
+the default modules. A HDFView GUI component is TreeView, TableView or ImageView to
+show file content visually. The main HDFView window is a frame to host these
+components. The current replaceable GUI modules include <b>Tree view, Table view,
+Image view, Text view, Metadata view, Palette view</b><br>
+
+<ul class="ul">
+    <li class="li2"><b><a href="../../javadocs/ncsa/hdf/view/TreeView.html">Tree view</a></b><br>
+        TreeView defines interfaces for displaying and operating file structure
+in the form of tree. When you open file, HDFView will invoke the selected tree view
+module and display the structure of the file on the tree view panel. User's module is
+responsible on the details of how the file structure is displayed and what action
+is take when a tree item is clicked. The default tree view displays the structure
+of the file in a tree with data groups and data objects represented as conventional
+folders and icons. Users can easily expand or collapse folders to navigate the
+hierarchical structure of the file.
+<p><center>
+<p><img SRC="tree_view.gif">
+<br><b>Default Tree View</b></center>
+    <li class="li2"><b><a href="../../javadocs/ncsa/hdf/view/TableView.html">Table view</a></b><br>
+        TableView is a spreadsheet-like table to display numberic or string data values.
+The default table view provides very limited prreadsheet features.</li>
+    <li class="li2"><b><a href="../../javadocs/ncsa/hdf/view/ImageView.html">Image view</a></b><br>
+        ImageView is used to display images. The default image view is provided to
+display HDF4/5 images. it has very limited function of processing image. An HDF4
+image is raster image of 8-bit pixels with and indexed RGB color table, or a
+24-bit true color image. An HDF5 image is a dataset that confirms the HDF5 Image
+Specification (with atribute name="CLASS" value="Image"). The default image view
+supports two types of images: indexed and true color. Both indexed image and true
+color image have predefined attributes and data layout according to the HDF5 image
+specification.</li>
+    <li class="li2"><b><a href="../../javadocs/ncsa/hdf/view/TextView.html">Text view</a></b><br>
+        TextView is like a note pad. It displays the content of a dataset, usually
+string-type datasets, in ASCII text. The default text view is a JInternalFrame with
+a JTextArea.</li>
+    <li class="li2"><b><a href="../../javadocs/ncsa/hdf/view/MetaDataView.html">Metadata view</a></b><br>
+        MetadataView shows metadata of objects. Metadata includes attributes, and
+other properties of the object. The default metadata view is a JDialog with a tabbed panel
+to show general information and attribue of a data object.
+<p><center>
+<p><img SRC="attribute_view.gif">
+<br><b>Default Metadata View</b></center></li>
+    <li class="li2"><b><a href="../../javadocs/ncsa/hdf/view/PaletteView.html">Palette view</a></b><br>
+        A palette or color table converts the logical colour numbers stored in
+each pixel of an image dataset, normally represented as RGB triplets, that can be
+displayed as image on the monitor. The palette view is for users to display and modify
+the values of the RGB pixels.</li>
+<p><center>
+<p><img SRC="palette_view.gif">
+<br><b>Default Palette View</b></center>
+</ul>
+
+<h3><a name="gui_module_steps"></a>
+4.2 Steps to implement a GUI module</h3>
+
+To add and use a GUImodule in HDFView, you must follow the steps below:
+<ul class="ul">
+    <li class="li2">Download and install HDFView and and include $HDFVIEW/lib/*.jar files in
+    your claspath</li>
+    <li class="li2">Implement your GUI module (TreeView, TableView, ImageView, etc.)</li>
+    <li class="li2">Pack your binary classes in a jar file and put it at $HDFVIEW/lib/ext.</li>
+    <li class="li2">Restart the HDFView. The HDFView will automatically detects and load
+        the new GUI module.</li>
+    <li class="li2">Set default GUI modlue. By default, HDFView opens dataset with default GUI
+        modules. You can change the default GUI modules by<br>
+        "Tools" --> "User Options" --> "Default Module"
+<p><center>
+<p><img SRC="default_modules.gif">
+<br><b>Set Default GUI Modules</b></center></li>
+</ul>
+<?php 
+include ("../../../includes/footer.html"); 
+?>

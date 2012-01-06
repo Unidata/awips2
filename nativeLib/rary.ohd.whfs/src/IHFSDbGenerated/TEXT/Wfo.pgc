@@ -1,0 +1,702 @@
+/*
+    File: Wfo.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:33 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "Wfo.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct Wfo_t
+{
+    char		wfo[4];
+
+} Wfo_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+Wfo * GetWfo(const char * where)
+{
+
+    Wfo * listPtr = NULL;
+    Wfo * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM Wfo ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Wfo_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetWfo() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetWfo() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetWfo() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.wfo    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetWfo() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (Wfo *) malloc(sizeof(Wfo))) != NULL)
+        {
+
+            strcpy(structPtr->wfo, dbs.wfo);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.wfo        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetWfo() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+Wfo * SelectWfo(const char * where)
+{
+
+    Wfo * listPtr = NULL;
+    Wfo * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM Wfo ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Wfo_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectWfo() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectWfo() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectWfo() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.wfo    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectWfo() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (Wfo *) malloc(sizeof(Wfo))) != NULL)
+        {
+
+            strcpy(structPtr->wfo, dbs.wfo);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.wfo        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectWfo() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectWfoCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM Wfo ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountWfo() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountWfo() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountWfo() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountWfo() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutWfo(const Wfo * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Wfo_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.wfo, structPtr->wfo);
+
+
+    EXEC SQL INSERT INTO Wfo (wfo        )
+        VALUES (
+         :dbs.wfo);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutWfo() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertWfo(const Wfo * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Wfo_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.wfo, structPtr->wfo);
+
+
+    EXEC SQL INSERT INTO Wfo (wfo        )
+        VALUES (
+         :dbs.wfo);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertWfo() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateWfo(const Wfo *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Wfo_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.wfo, structPtr->wfo);
+
+
+    sprintf(queryBuffer, " UPDATE Wfo SET " );
+    strcat(queryBuffer, "wfo = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateWfo() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.wfo;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateWfo() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteWfo(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM Wfo ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteWfo() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateWfoByRecord (const Wfo * newStructPtr, const Wfo * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetWfoPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateWfo(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateWfo(const Wfo * structPtr)
+{
+    UpdateWfoByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertWfo(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueWfo(const Wfo * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (WfoExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertWfo(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteWfoByRecord(const Wfo * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetWfoPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteWfo(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool WfoExists(const Wfo * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetWfoPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectWfoCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetWfoPrimaryKeyWhereString (const Wfo * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE wfo = '%s' ",
+            structPtr->wfo);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeWfo( Wfo * structPtr)
+{
+    Wfo* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( Wfo * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetWfoDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetWfoErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

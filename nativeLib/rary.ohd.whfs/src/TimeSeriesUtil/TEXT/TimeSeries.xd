@@ -1,0 +1,497 @@
+module 'XApplication'
+version = 48;
+xdesigned = 1;
+applicationName = 'XApplication';
+generateNameC = * 'TimeSeries.c';
+generateNameExterns = * 'TimeSeries.h';
+generateNameResDB = 'TimeSeries.res';
+generateCHeaderFile = 'TimeSeries.h';
+generateNameMakefile = 'Makefile';
+motifFlavour = 2;
+generateMask = 4390924;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 0;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 1;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+javaVersion = 2;
+/* group data */
+groupIndex 1;
+/* end group data */
+object 'TimeSeriesDS' : XmDialogShell {
+	arguments {
+	lastGenName = 'TimeSeriesDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_TimeSeriesDS (Widget parent)
+';
+	XmNx = 202;
+	XmNy = 163;
+	XmNwidth = 990;
+	XmNheight = 900;
+	XmNallowShellResize = true;
+	XmNoverrideRedirect = false;
+	XmNsaveUnder = true;
+	XmNtitle = 'Time Series Display';
+	};
+object 'TSFO' : XmForm {
+	arguments {
+	lastGenName = 'TSFO';
+	XmNx = 202;
+	XmNy = 163;
+	XmNwidth = 990;
+	XmNheight = 900;
+	XmNdialogStyle = XmDIALOG_MODELESS;
+	XmNresizePolicy = XmRESIZE_GROW;
+	XmNautoUnmanage = false;
+	};
+object 'TSMB' : XmMenuBar {
+	arguments {
+	was_selected = true;
+	lastGenName = 'TSMB';
+	};
+object 'TS_FileCB' : XmCascadeButton {
+	arguments {
+	lastGenName = 'TS_FileCB';
+	XmNlabelString = 'File';
+	};
+object 'TSFileMenu' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'TSFileMenu';
+	XmNtearOffModel = XmTEAR_OFF_ENABLED;
+	};
+object 'TSCDialogPB' : XmPushButton {
+	arguments {
+	lastGenName = 'TSCDialogPB';
+	XmNlabelString = 'Time Series Control';
+	XmNmnemonic = 'T';
+	XmNaccelerator = 'Ctrl<Key>T';
+	XmNacceleratorText = 'Ctrl-T';
+	};
+};
+object 'TSSavePB' : XmPushButton {
+	arguments {
+	name = 'TSSavePB';
+	lastGenName = 'TSSavePB';
+	XmNlabelString = 'Save';
+	XmNmnemonic = 'S';
+	XmNaccelerator = 'Ctrl<Key>S';
+	XmNacceleratorText = 'Ctrl-S';
+	};
+};
+object 'TSPrintCB' : XmCascadeButton {
+	arguments {
+	lastGenName = 'TSPrintCB';
+	XmNlabelString = 'Print';
+	};
+object 'TSPrintMO' : XmPulldownMenu {
+	arguments {
+	name = 'TSPrintMO';
+	lastGenName = 'TSPrintMO';
+	XmNtearOffModel = XmTEAR_OFF_DISABLED;
+	};
+object 'PInversePB' : XmPushButton {
+	arguments {
+	lastGenName = 'PInversePB';
+	XmNlabelString = 'Reverse Video';
+	};
+};
+object 'PnonInversePB' : XmPushButton {
+	arguments {
+	lastGenName = 'PnonInversePB';
+	XmNlabelString = 'Normal';
+	};
+};
+};
+};
+object 'TSClosePB' : XmPushButton {
+	arguments {
+	name = 'TSClosePB';
+	lastGenName = 'TSClosePB';
+	XmNlabelString = 'Quit';
+	XmNmnemonic = 'Q';
+	XmNaccelerator = 'Ctrl<Key>Q';
+	XmNacceleratorText = 'Ctrl-Q';
+	};
+};
+};
+};
+object 'TSPgDn' : XmCascadeButton {
+	arguments {
+	name = 'TSPgDn';
+	lastGenName = 'TSPgDn';
+	XmNlabelString = 'PgDown';
+	};
+};
+object 'TSPgUp' : XmCascadeButton {
+	arguments {
+	name = 'TSPgUp';
+	lastGenName = 'TSPgUp';
+	XmNlabelString = 'PgUp';
+	};
+};
+object 'TSGraph' : XmCascadeButton {
+	arguments {
+	lastGenName = 'TSGraph';
+	XmNlabelString = 'Graph';
+	};
+object 'TSGraphMenu' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'TSGraphMenu';
+	XmNtearOffModel = XmTEAR_OFF_ENABLED;
+	};
+object 'TSZoomCB' : XmCascadeButton {
+	arguments {
+	lastGenName = 'TSZoomCB';
+	XmNlabelString = 'Zoom';
+	};
+object 'TSZoomMO' : XmPulldownMenu {
+	arguments {
+	name = 'TSZoomMO';
+	lastGenName = 'TSZoomMO';
+	};
+object 'TSSetTB' : XmToggleButton {
+	arguments {
+	name = 'TSSetTB';
+	lastGenName = 'TSSetTB';
+	XmNlabelString = 'Set';
+	XmNmnemonic = 'Z';
+	XmNaccelerator = 'Ctrl<Key>Z';
+	XmNacceleratorText = 'Ctrl-Z';
+	};
+};
+object 'TSResetTB' : XmToggleButton {
+	arguments {
+	name = 'TSResetTB';
+	lastGenName = 'TSResetTB';
+	XmNlabelString = 'Reset';
+	XmNmnemonic = 'R';
+	XmNaccelerator = ' Ctrl<Key>R';
+	XmNacceleratorText = 'Ctrl-R';
+	};
+};
+};
+};
+object 'TSPcAsPPCB' : XmCascadeButton {
+	arguments {
+	name = 'TSPcAsPPCB';
+	lastGenName = 'TSPcAsPPCB';
+	XmNlabelString = 'Show PC as 1Hr. PP';
+	};
+object 'TSShowPCAsPPMO' : XmPulldownMenu {
+	arguments {
+	name = 'TSShowPCAsPPMO';
+	lastGenName = 'TSShowPCAsPPMO';
+	};
+object 'TSOffTB' : XmToggleButton {
+	arguments {
+	name = 'TSOffTB';
+	lastGenName = 'TSOffTB';
+	XmNlabelString = 'Off';
+	XmNmnemonic = 'O';
+	XmNaccelerator = 'Ctrl<Key>O';
+	XmNacceleratorText = 'Ctrl-O';
+	};
+};
+object 'TSInterpolateTB' : XmToggleButton {
+	arguments {
+	name = 'TSInterpolateTB';
+	lastGenName = 'TSInterpolateTB';
+	XmNlabelString = 'Interpolate';
+	XmNmnemonic = 'I';
+	XmNaccelerator = 'Ctrl<Key>I';
+	XmNacceleratorText = 'Ctrl-I';
+	};
+};
+object 'TSAssignTB' : XmToggleButton {
+	arguments {
+	name = 'TSAssignTB';
+	lastGenName = 'TSAssignTB';
+	XmNlabelString = 'Assign';
+	XmNmnemonic = 'A';
+	XmNaccelerator = 'Ctrl<Key>A';
+	XmNacceleratorText = 'Ctrl-A';
+	};
+};
+};
+};
+object 'TSShowFcstTB' : XmToggleButton {
+	arguments {
+	name = 'TSShowFcstTB';
+	lastGenName = 'TSShowFcstTB';
+	XmNlabelString = 'Show Latest Forecast Only';
+	XmNmnemonic = 'F';
+	XmNset = XmSET;
+	XmNvisibleWhenOff = true;
+	XmNaccelerator = 'Ctrl<Key>F';
+	XmNacceleratorText = 'Ctrl-F';
+	};
+};
+object 'TSscalePB' : XmCascadeButton {
+	arguments {
+	lastGenName = 'TSscalePB';
+	XmNlabelString = 'Scale Stages';
+	};
+object 'TSscaleMO' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'TSscaleMO';
+	};
+object 'TSScaleDataOnlyTB' : XmToggleButton {
+	arguments {
+	name = 'TSScaleDataOnlyTB';
+	lastGenName = 'TSScaleDataOnlyTB';
+	XmNlabelString = 'Data Only';
+	XmNmnemonic = '1';
+	XmNaccelerator = 'Ctrl<Key>1';
+	XmNacceleratorText = 'Ctrl-1';
+	};
+};
+object 'TSScaleDataShowCategTB' : XmToggleButton {
+	arguments {
+	name = 'TSScaleDataShowCategTB';
+	lastGenName = 'TSScaleDataShowCategTB';
+	XmNlabelString = 'Data Only, Show Categories';
+	XmNmnemonic = '2';
+	XmNaccelerator = 'Ctrl<Key>2';
+	XmNacceleratorText = 'Ctrl-2';
+	};
+};
+object 'TSScaleDataCategoriesTB' : XmToggleButton {
+	arguments {
+	name = 'TSScaleDataCategoriesTB';
+	lastGenName = 'TSScaleDataCategoriesTB';
+	XmNlabelString = 'Data and Categories';
+	XmNmnemonic = '3';
+	XmNaccelerator = 'Ctrl<Key>3';
+	XmNacceleratorText = 'Ctrl-3';
+	};
+};
+};
+};
+};
+};
+object 'TSCDialog' : XmCascadeButton {
+	arguments {
+	lastGenName = 'TSCDialog';
+	XmNlabelString = 'Options';
+	};
+object 'TSCDialogMenu' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'TSCDialogMenu';
+	XmNtearOffModel = XmTEAR_OFF_ENABLED;
+	};
+object 'TSGridLinesTB' : XmToggleButton {
+	arguments {
+	name = 'TSGridLinesTB';
+	lastGenName = 'TSGridLinesTB';
+	XmNlabelString = 'Grid Lines';
+	XmNmnemonic = 'G';
+	XmNset = XmUNSET;
+	XmNvisibleWhenOff = true;
+	XmNaccelerator = 'Ctrl<Key>G';
+	XmNacceleratorText = 'Ctrl-G';
+	};
+};
+object 'TSPointLine' : XmCascadeButton {
+	arguments {
+	lastGenName = 'TSPointLine';
+	XmNlabelString = 'Plot';
+	};
+object 'TSPlotMO' : XmPulldownMenu {
+	arguments {
+	name = 'TSPlotMO';
+	lastGenName = 'TSPlotMO';
+	};
+object 'TSPointsTB' : XmToggleButton {
+	arguments {
+	name = 'TSPointsTB';
+	lastGenName = 'TSPointsTB';
+	XmNlabelString = 'Points';
+	XmNmnemonic = 'P';
+	XmNaccelerator = 'Ctrl<Key>P';
+	XmNacceleratorText = 'Ctrl-P';
+	};
+};
+object 'TSLinesTB' : XmToggleButton {
+	arguments {
+	name = 'TSLinesTB';
+	lastGenName = 'TSLinesTB';
+	XmNlabelString = 'Lines';
+	XmNmnemonic = 'L';
+	XmNaccelerator = 'Ctrl<Key>L';
+	XmNacceleratorText = 'Ctrl-L';
+	};
+};
+object 'TSBothTB' : XmToggleButton {
+	arguments {
+	name = 'TSBothTB';
+	lastGenName = 'TSBothTB';
+	XmNlabelString = 'Both';
+	XmNmnemonic = 'B';
+	XmNaccelerator = 'Ctrl<Key>B';
+	XmNacceleratorText = 'Ctrl-B';
+	};
+};
+};
+};
+object 'TSBatchScale' : XmCascadeButton {
+	arguments {
+	name = 'TSBatchScale';
+	lastGenName = 'TSBatchScale';
+	XmNlabelString = 'Batch Scale Stages';
+	};
+object 'TSBatchScaleMO' : XmPulldownMenu {
+	arguments {
+	name = 'TSBatchScaleMO';
+	lastGenName = 'TSBatchScaleMO';
+	};
+object 'TSBatchDataOnlyTB' : XmToggleButton {
+	arguments {
+	name = 'TSBatchDataOnlyTB';
+	lastGenName = 'TSBatchDataOnlyTB';
+	XmNlabelString = 'Data Only';
+	XmNmnemonic = 'F1';
+	XmNaccelerator = 'Ctrl<Key>F1';
+	XmNacceleratorText = 'Ctrl-F1';
+	};
+};
+object 'TSBatchShowCategTB' : XmToggleButton {
+	arguments {
+	name = 'TSBatchShowCategTB';
+	lastGenName = 'TSBatchShowCategTB';
+	XmNlabelString = 'Data Only, Show Categories';
+	XmNmnemonic = 'F2';
+	XmNaccelerator = 'Ctrl<Key>F2';
+	XmNacceleratorText = 'Ctrl-F2';
+	};
+};
+object 'TSBatchCategoriesTB' : XmToggleButton {
+	arguments {
+	name = 'TSBatchCategoriesTB';
+	lastGenName = 'TSBatchCategoriesTB';
+	XmNlabelString = 'Data and Categories';
+	XmNmnemonic = 'F3';
+	XmNaccelerator = 'Ctrl<Key>F3';
+	XmNacceleratorText = 'Ctrl-F3';
+	};
+};
+};
+};
+};
+};
+object 'TSEditCB' : XmCascadeButton {
+	arguments {
+	lastGenName = 'TSEditCB';
+	XmNlabelString = 'Edit ';
+	};
+object 'TSEditMO' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'TSEditMO';
+	XmNtearOffModel = XmTEAR_OFF_ENABLED;
+	};
+object 'TSTracePB' : XmPushButton {
+	arguments {
+	lastGenName = 'TSTracePB';
+	XmNlabelString = 'Select Trace';
+	XmNmnemonic = 'e';
+	XmNaccelerator = 'Ctrl<Key>E';
+	XmNacceleratorText = 'Ctrl-E';
+	};
+};
+object '3' : XmSeparator {
+	arguments {
+	lastGenName = 'separator3';
+	};
+};
+object 'TSAddPB' : XmPushButton {
+	arguments {
+	lastGenName = 'TSAddPB';
+	XmNlabelString = 'Insert';
+	XmNmnemonic = 'n';
+	XmNaccelerator = 'Ctrl<Key>N';
+	XmNacceleratorText = 'Ctrl-N';
+	};
+};
+object 'TSDeletePB' : XmPushButton {
+	arguments {
+	lastGenName = 'TSDeletePB';
+	XmNlabelString = 'Delete';
+	XmNaccelerator = 'Ctrl<Key>Y';
+	XmNacceleratorText = 'Ctrl-Y';
+	};
+};
+object 'TSMovePB' : XmPushButton {
+	arguments {
+	lastGenName = 'TSMovePB';
+	XmNlabelString = 'Move';
+	XmNmnemonic = 'M';
+	XmNaccelerator = 'Ctrl<Key>M';
+	XmNacceleratorText = 'Ctrl-M';
+	};
+};
+object 'TSSetMissingPB' : XmPushButton {
+	arguments {
+	lastGenName = 'TSSetMissingPB';
+	XmNlabelString = 'Set Missing';
+	XmNmnemonic = 'S';
+	XmNaccelerator = 'Ctrl<Key>S';
+	XmNacceleratorText = 'Ctrl-S';
+	};
+};
+object '4' : XmSeparator {
+	arguments {
+	lastGenName = 'separator4';
+	};
+};
+object 'TSEditDonePB' : XmPushButton {
+	arguments {
+	lastGenName = 'TSEditDonePB';
+	XmNlabelString = 'Save to Database';
+	XmNmnemonic = 'D';
+	XmNaccelerator = 'Ctrl<Key>D';
+	XmNacceleratorText = 'Ctrl-D';
+	};
+};
+object 'TSEditCancelPB' : XmPushButton {
+	arguments {
+	lastGenName = 'TSEditCancelPB';
+	XmNlabelString = 'Cancel Changes';
+	XmNmnemonic = 'C';
+	XmNaccelerator = 'Ctrl<Key>C';
+	XmNacceleratorText = 'Ctrl-C';
+	};
+};
+};
+};
+};
+object 'TSDrawArea' : XmDrawingArea {
+	arguments {
+	lastGenName = 'TSDrawArea';
+	generateResName = true;
+	XmNmappedWhenManaged = true;
+	XmNsensitive = true;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -995;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 2 0 -35;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 5;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 1 0 5;
+	XmNtopAttachment = 1 0 40;
+    };
+    };
+};
+};
+end module;

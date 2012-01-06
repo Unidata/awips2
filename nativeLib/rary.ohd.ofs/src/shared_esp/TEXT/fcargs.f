@@ -1,0 +1,138 @@
+C MODULE FCARGS
+C-----------------------------------------------------------------------
+C
+C  THIS ROUTINE OBTAINS THE ARGUMENTS, TECHNIQUES AND MODS FROM HCL.
+C
+      SUBROUTINE FCARGS (MODCRD,NUMMOD,MAXMOD,IER)
+C
+C  ROUTINE ORIGINALLY WRITTEN BY GEORGE F SMITH - HRL - 3/1980
+C
+      CHARACTER*8 OLDOPN
+      CHARACTER*80 MODCRD(MAXMOD)
+C
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/sysbug'
+      INCLUDE 'common/fnopr'
+      INCLUDE 'common/fpltab'
+      INCLUDE 'common/fsnw'
+      INCLUDE 'common/fcsegn'
+      INCLUDE 'common/fprog'
+      INCLUDE 'common/fcpuck'
+      COMMON /FSNWUP/ IUPWE,IUPSC
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/shared_esp/RCS/fcargs.f,v $
+     . $',                                                             '
+     .$Id: fcargs.f,v 1.2 2001/06/13 13:42:19 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      IOPNUM=0
+      CALL FSTWHR ('FCARGS  ',IOPNUM,OLDOPN,IOLDOP)
+C
+      IF (ITRACE.GE.1) WRITE (IODBUG,*) 'ENTER FCARGS'
+C
+      ICPU=IFBUG('CPU ')
+C
+      IER=0
+C
+      IF (ICPU.EQ.1) THEN
+         WRITE (IODBUG,20)
+20    FORMAT (' IN FCARGS - ABOUT TO ENTER HIDCHK')
+         CALL FPRCPU
+         ENDIF
+C
+C  SET VALUES FOR TECHNIQUES AND ARGUMENTS USING THE RUN-TIME OPTIONS
+C  IDSEGN IS SEGMENT NAME - IFGID IS FGROUP NAME - ICGID CGROUP NAME
+      CALL HIDCHK (IDSEGN,IFGID,ICGID,MAXMOD,MODCRD,NUMMOD,IER)
+C
+      IF (ICPU.EQ.1) THEN
+         WRITE (IODBUG,30)
+30    FORMAT (' IN FCARGS - BACK FROM HIDCHK')
+         CALL FPRCPU
+         ENDIF
+C
+      IF (MAINUM.EQ.2) GO TO 70
+C
+C  FORCAST FUNCTION
+C
+      IF (ICPU.EQ.1) THEN
+         WRITE (IODBUG,40)
+40    FORMAT (' IN FCARGS - ABOUT TO ENTER FILSGO')
+         CALL FPRCPU
+         INCPU=ICPUT
+         ENDIF
+C
+C  TRANSFER INFORMATION FROM IGTECH AND IGARG ARRAYS IN COMMON BLOCKS
+C  HGTECH AND HGARGM TO VARIABLES IN FORECAST COMPONENT COMMON BLOCKS
+C  FOR THOSE VARIABLES WHICH CAN CHANGE BY SEGMENT
+      CALL FILSGO
+C
+      IF (ICPU.EQ.1) THEN
+         WRITE (IODBUG,50)
+50    FORMAT (' IN FCARGS - BACK FROM FILSGO')
+         CALL FPRCPU
+         SGOCPU=(ICPUT-INCPU)/100.
+         WRITE (IODBUG,60)SGOCPU
+60    FORMAT (' TOTAL CPU TIME FOR FILSGO = ',F8.2,' SECONDS')
+         ENDIF
+      GO TO 100
+C
+C   ESP FUNCTION
+C
+70    IF (ICPU.EQ.1) THEN
+         WRITE (IODBUG,80)
+80    FORMAT (' IN FCARGS - ABOUT TO CALL EILSGO')
+         CALL FPRCPU
+         ENDIF
+      CALL EILSGO
+      IF (ICPU.EQ.1) THEN
+         WRITE (IODBUG,90)
+90    FORMAT (' IN FCARGS - BACK FROM EILSGO')
+         CALL FPRCPU
+         ENDIF
+C
+100   IBUG=IFBUG('MCRD')
+      IF (IBUG.EQ.1) THEN
+         IF (NUMMOD.GT.0) THEN
+            WRITE (IODBUG,110) IDSEGN,NUMMOD,':'
+110   FORMAT (' SEGMENT ',2A4,' HAS ',I3,' MODS' : A)
+            WRITE (IODBUG,120) (I,I=10,80,10)
+120   FORMAT (' MODS ARE:' /
+     *  5X,' ',8I10 /
+     *  5X,' ',8('----+----+'))
+            DO 140 I=1,NUMMOD
+               WRITE (IODBUG,130) I,MODCRD(I)
+130   FORMAT (1X,I4,1X,A)
+140            CONTINUE
+            ELSE
+               WRITE (IODBUG,110) IDSEGN,NUMMOD
+            ENDIF
+         ENDIF
+C
+      IBUG=IFBUG('OPTS')
+      IF (IBUG.EQ.1) THEN
+         WRITE (IODBUG,150) IDSEGN,ITRACE,IDBALL,NDEBUG
+150   FORMAT (' FOR SEGMENT ',2A4,' ITRACE = ',I5 /
+     *  ' IDBALL = ',I5,' NDEBUG = ',I5)
+         IF (NDEBUG.GT.0) WRITE (IODBUG,160) (IDEBUG(I),I=1,NDEBUG)
+160   FORMAT (' OPERATION NUMBERS FOR DEBUG ARE:' / (1X,10I5))
+         WRITE (IODBUG,170) IALL,NDEBGS
+170   FORMAT (' IALL   = ',I5,' NDEBGS = ',I5)
+         IF (NDEBGS.GT.0) WRITE (IODBUG,180)(IDEBGS(I),I=1,NDEBGS)
+180   FORMAT (' SYSTEM DEBUG CODES ARE' / 20(1X,A4))
+         WRITE (IODBUG,190) NOPROT,IPLHY,IPRHY,NOSNOW,IPRSNW,IUPWE,IUPSC
+190   FORMAT (' NOPROT = ',I5,' IPLHY  = ',I5,
+     *  ' IPRHY  = ',I5,' NOSNOW = ',I5,' IPRSNW = ',I5,
+     *  ' IUPWE  = ',I5,' IUPSC  = ',I5)
+        ENDIF
+C
+      CALL FSTWHR (OLDOPN,IOLDOP,OLDOPN,IOLDOP)
+C
+      RETURN
+C
+      END

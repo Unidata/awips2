@@ -1,0 +1,263 @@
+<!-- Severe Thunderstorm Warning configuration -->
+<!-- MODIFIED 
+     JAMIE FREDERICK WFO TSA 2-24-2011
+     EVAN BOOKBINDER WFO EAX 3-23-2011 Initial re-write
+                             4-13-2011 Merge in OB11.4 Coding Changes
+                             9-17-2011 Merge in OB11.8.0-8 NEW XML SYNTAX CHANGES
+     Mike Dangelo    WFO CTP 9-22-2011 to add in remarks and lines which will allow Zone-based products (Alaska TIM)
+-->
+<warngenConfig>
+
+ <!-- Config distance/speed units -->
+ <unitDistance>mi</unitDistance>
+ <unitSpeed>mph</unitSpeed>
+
+ <!-- Maps to load on template selection. Refer to 'Maps' menu in CAVE. 
+ 	The various menu items are also the different maps
+ 	that can be loaded with each template. -->
+ <maps>
+  <map>County Names</map>
+  <map>County Warning Areas</map>
+ </maps>
+
+ <!-- Followups: VTEC actions of allowable followups when this template is selected -->
+ <followups>
+  <followup>NEW</followup>
+  <followup>COR</followup>
+ </followups>
+ 
+ <!-- Phensigs: The list of phenomena and significance combinations that this template applies to -->
+ <phensigs>
+   <phensig>SV.W</phensig>
+ </phensigs>
+ 
+ <!-- Enables/disables user from selecting the Restart button the GUI -->
+ <enableRestart>true</enableRestart>
+
+  <!-- Enable/disables the system to lock text based on various patterns -->
+ <autoLockText>true</autoLockText>
+ 
+ <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
+ 	included with the warning product include torWatches and/or svrWatches, 
+ 	respectively. Please refer to 'includedWatchAreaBuffer' in <areaConfig/>. -->
+ <includedWatches>
+  <includedWatch>torWatches</includedWatch>
+ </includedWatches>
+
+ <!-- durations: the list of possible durations of the warning -->
+ <defaultDuration>30</defaultDuration>
+ <durations>
+  <duration>15</duration>
+  <duration>20</duration>
+  <duration>25</duration>
+  <duration>30</duration>
+  <duration>40</duration>
+  <duration>45</duration>
+  <duration>50</duration>
+  <duration>60</duration>
+  <duration>75</duration>
+  <duration>90</duration>
+ </durations>
+ 
+ <!-- bullets: User specified text generation options 
+          - bulletName: an id that is passed to the template when a bullet
+                      is selected. This should be unique
+          - bulletText: the text presented to the user in the selection list
+          - bulletType: "title" makes the bullet unselectable
+          				"basin" correlates the item to a Geometry in the customlocations table
+          - bulletGroup: Only one bullet can be selected per bulletGroup 
+          - parseString: this string must MATCH a unique phrase in the associated bulletText. 
+          	This will be used to highlight the appropriate bullet on a follow up-->
+<bulletActionGroups>
+<bulletActionGroup action="NEW" phen="SV" sig="W">
+ <bullets>
+  <bullet bulletText="*********** BASIS FOR WARNING (CHOOSE 1) **********" bulletType="title"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="toggle1" bulletDefault="true" parseString="DOPPLER RADAR INDICATED"/>
+  <bullet bulletName="trainedSpotters" bulletText="Trained spotters reported" bulletGroup="toggle1" parseString="TRAINED WEATHER SPOTTERS REPORTED"/>
+  <bullet bulletName="public" bulletText="Public reported" bulletGroup="toggle1" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
+  <bullet bulletName="emergencyMgmt" bulletText="Emergency Management Reported" bulletGroup="toggle1" parseString="EMERGENCY MANAGEMENT REPORTED"/>
+  <bullet bulletName="lawEnforcement" bulletText="Law Enforcement Reported" bulletGroup="toggle1" parseString="THE PUBLIC REPORTED"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******* THREAT (CHOOSE UP TO 1 EACH WIND/HAIL) ******" bulletType="title"/>
+  <bullet bulletName="60mphWind" bulletText="60 mph wind" bulletGroup="toggle2" parseString="60 MPH"/>
+  <bullet bulletName="70mphWind" bulletText="70 mph wind" bulletGroup="toggle2" parseString="70 MPH"/>
+  <bullet bulletName="80mphWind" bulletText="80 mph wind" bulletGroup="toggle2" parseString="80 MPH"/>
+  <bullet bulletName="90mphWind" bulletText="90 mph wind" bulletGroup="toggle2" parseString="90 MPH"/>
+  <bullet bulletName="100mphWind" bulletText="100 mph wind" bulletGroup="toggle2" parseString="100 MPH"/>
+  <bullet bulletName="pennyHail" bulletText="Penny size hail (3/4&quot;)" bulletGroup="toggle3" parseString="PENNY SIZE"/>
+  <bullet bulletName="nickelHail" bulletText="Nickel size hail (7/8&quot;)" bulletGroup="toggle3" parseString="NICKEL SIZE"/>
+  <bullet bulletName="quarterHail" bulletText="Quarter size hail (1&quot;)" bulletGroup="toggle3" parseString="QUARTER SIZE"/>
+  <bullet bulletName="halfdollarHail" bulletText="Half dollar size hail (1 1/4&quot;)" bulletGroup="toggle3" parseString="HALF DOLLAR SIZE"/>
+  <bullet bulletName="pingpongHail" bulletText="Ping pong ball size hail (1 1/2&quot;)" bulletGroup="toggle3" parseString="PING PONG BALL SIZE"/>
+  <bullet bulletName="golfballHail" bulletText="Golf ball size hail (1 3/4&quot;)" bulletGroup="toggle3" parseString="GOLF BALL SIZE"/>
+  <bullet bulletName="twoinchHail" bulletText="Two Inch hail (2&quot;)" bulletGroup="toggle3" parseString="TWO INCHES IN DIAMETER"/>
+  <bullet bulletName="tennisBallHail" bulletText="Tennis ball hail (2 1/2&quot;)" bulletGroup="toggle3" parseString="TENNIS BALL SIZE"/>
+  <bullet bulletName="baseballHail" bulletText="Baseball size hail (2 3/4&quot;)" bulletGroup="toggle3" parseString="BASEBALL SIZE"/>
+  <bullet bulletName="threeinchHail" bulletText="Three inch hail (3&quot;)" bulletGroup="toggle3" parseString="THREE INCHES IN DIAMETER"/>
+  <bullet bulletName="softballHail" bulletText="Softball size hail (3 3/4&quot;)" bulletGroup="toggle3" parseString="SOFTBALL SIZE"/>
+  <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4&quot;)" bulletGroup="toggle3" parseString="GRAPEFRUIT SIZE"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="************ LOCATIONS IMPACTED  **************" bulletType="title"/>
+  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="toggle4" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="toggle4" bulletDefault="true" parseString="LOCATIONS IMPACTED INCLUDE..."/>
+  <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******** CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
+  <bullet bulletName="torWatchRemainsInEffectCTA" bulletText="TOR WATCH IN EFFECT...If a tornado is spotted" parseString="TORNADO WATCH REMAINS IN EFFECT"/>
+  <bullet bulletName="genericCTA" bulletText="Generic threat - standard CTA" bulletDefault="true" parseString="SEVERE THUNDERSTORMS PRODUCE"/>
+  <bullet bulletName="canProduceTornadoesCTA" bulletText="Svr t-storms can produce tornadoes (no TOR watch)" parseString="SOME WEAK ROTATION"/>
+  <bullet bulletName="largeHailCTA" bulletText="Large Hail and Deadly Lightning" parseString="PREPARE IMMEDIATELY FOR LARGE HAIL"/>
+  <bullet bulletName="veryLargeHailCTA" bulletText="Large DESTRUCTIVE Hail" parseString="LARGE DERSTRUCTIVE HAIL"/>
+  <bullet bulletName="largeHailWindCTA" bulletText="Large Hail and Damaging Wind" parseString="LARGE HAIL AND DAMAGING WINDS"/>
+  <bullet bulletName="historyHailCTA" bulletText="History of Producing Large Hail" parseString="HISTORY OF PRODUCING LARGE HAIL"/>
+  <bullet bulletName="historyWindCTA" bulletText="History of Widespread Wind Damage" parseString="HISTORY OF PRODUCING WIDESPREAD WIND DAMAGE"/>
+  <bullet bulletName="historyWindHailCTA" bulletText="History of Dmgg Winds and Large Hail" parseString="HISTORY OF PRODUCING DESTRUCTIVE WINDS AND LARGE HAIL"/>
+  <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="******** SPECIAL CASE CALLS TO ACTION **********" bulletType="title"/>
+  <bullet bulletName="squallLineCTA" bulletText="Squall lines can produce tornadoes (no TOR watch)" parseString="SQUALL LINES CAN"/>
+  <bullet bulletName="superCellsCTA" bulletText="Supercells can product all types of svr...includes tornado" parseString="SUPERCELL THUNDERSTORM"/>
+  <bullet bulletName="gustFrontOutflowCTA" bulletText="Preceding svr gust front/outflow...no rain/thunder expected" parseString="WILL OCCUR WELL AHEAD"/>
+  <bullet bulletName="extremeWindsCTA" bulletText="Extreme damaging winds expected" parseString="TORNADO LIKE WIND SPEEDS"/>
+  <bullet bulletName="lightningCTA" bulletText="Lightning in addition to hail/winds" parseString="CONTINUOUS CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
+  <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET OUT OF THE WATER AND MOVE INDOORS"/>
+  <bullet bulletName="torrentialRainfallCTA" bulletText="Torrential rainfall" parseString="TORRENTIAL RAINFALL IS ALSO OCCURRING"/>
+ </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="COR" phen="SV" sig="W">
+ <bullets>
+  <bullet bulletText="*** CORRECTED PRODUCT. CLICK CREATE TEXT ***" bulletType="title"/>
+ </bullets>
+</bulletActionGroup>
+</bulletActionGroups>
+
+
+
+
+<!--  To create Zone-based products set the four variables below to:-->
+<!--  areaConfig.areaField  to: NAME -->
+<!--  areaConfig.fipsField to: STATE_ZONE -->
+<!--  pathcast.Config.areaField to: NAME  and -->
+<!--  geospatialConfig.areaSource to: Zone -->
+
+ 
+
+
+ <areaConfig>
+  <inclusionPercent>0.00</inclusionPercent>
+  <inclusionAndOr>AND</inclusionAndOr>
+  <inclusionArea>0</inclusionArea>
+ <areaField>COUNTYNAME</areaField>
+<!--  <areaField>NAME</areaField> -->
+  <parentAreaField>NAME</parentAreaField>
+  <areaNotationField>STATE</areaNotationField>
+  <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+  <fipsField>FIPS</fipsField> 
+<!--  <fipsField>STATE_ZONE</fipsField> -->
+  <pointField>NAME</pointField>
+  <sortBy>
+  	<sort>name</sort>
+  </sortBy>
+  <pointFilter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1" constraintType="EQUALS" />
+ 		</mapping>
+  </pointFilter>
+  <includedWatchAreaBuffer>25</includedWatchAreaBuffer>
+ </areaConfig>
+  
+ <pointSource variable="closestPoints">
+ 	<pointField>NAME</pointField>
+ 	<searchMethod>POINTS</searchMethod>
+ 	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1,2" constraintType="IN" />
+ 		</mapping>
+ 	</filter>
+ 	<maxResults>1</maxResults>
+ 	<distanceThreshold>50</distanceThreshold>
+ 	<sortBy>
+ 		<sort>distance</sort>
+  		<sort>warngenlev</sort>
+  		<sort>population</sort>
+  	</sortBy>
+ </pointSource>
+ 
+ <pointSource variable="otherClosestPoints">
+ 	<pointField>NAME</pointField>
+ 	<searchMethod>POINTS</searchMethod>
+ 	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1" constraintType="EQUALS" />
+ 		</mapping>
+ 	</filter>
+ 	<maxResults>5</maxResults>
+ 	<distanceThreshold>100</distanceThreshold>
+ 	<sortBy>
+ 		<sort>distance</sort>
+  	</sortBy>
+ </pointSource>
+ 
+ <pathcastConfig>
+  <withinPolygon>true</withinPolygon>
+  <distanceThreshold>8.0</distanceThreshold>
+  <interval>5</interval>
+  <delta>5</delta>
+  <maxResults>10</maxResults>
+  <maxGroup>8</maxGroup>
+  <pointField>Name</pointField>
+ <areaField>COUNTYNAME</areaField> 
+<!-- <areaField>NAME</areaField> -->
+  <parentAreaField>STATE</parentAreaField>
+  <areaNotationField>STATE</areaNotationField>
+  <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+  <sortBy>
+  	<sort>population</sort>
+  </sortBy>
+  <filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1,2" constraintType="IN" />
+ 		</mapping>
+  </filter>
+ </pathcastConfig>
+ 
+  <pointSource variable="cityList">
+ 	<pointField>NAME</pointField>
+ 	<searchMethod>TRACK</searchMethod>
+ 	<withinPolygon>true</withinPolygon>
+ 	<maxResults>20</maxResults>
+ 	<distanceThreshold>10</distanceThreshold>
+ 	<sortBy>
+  		<sort>warngenlev</sort>
+  		<sort>population</sort>
+  	</sortBy>
+ </pointSource>
+ 
+  <pointSource variable="otherPoints">
+ 	<pointField>NAME</pointField>
+ 	<searchMethod>TRACK</searchMethod>
+ 	<withinPolygon>true</withinPolygon>
+ 	<maxResults>10</maxResults>
+ 	<distanceThreshold>10</distanceThreshold>
+ 	<sortBy>
+  		<sort>distance</sort>
+  	</sortBy>
+	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="3" constraintType="EQUALS" />
+ 		</mapping>
+  	</filter>
+ </pointSource>
+
+ <geospatialConfig>
+  <pointSource>City</pointSource>
+ <areaSource>County</areaSource>
+<!-- <areaSource>Zone</areaSource> -->
+  <parentAreaSource>States</parentAreaSource>
+  <timezoneSource>TIMEZONES</timezoneSource>
+  <timezoneField>TIME_ZONE</timezoneField>
+ </geospatialConfig>
+ 
+ <include file="milemarkers.xml"/>
+ 
+</warngenConfig>

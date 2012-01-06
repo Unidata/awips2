@@ -1,0 +1,162 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="org.eclipse.ecf.presence.bot">
+<annotation>
+      <appInfo>
+         <meta.schema plugin="org.eclipse.ecf.presence.bot" id="imRobot" name="IM Robot"/>
+      </appInfo>
+      <documentation>
+         This extension point allows implementers to define a im bot.
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <complexType>
+         <sequence minOccurs="1" maxOccurs="unbounded">
+            <element ref="imRobot"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appInfo>
+                  <meta.attribute translatable="true"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="imRobot">
+      <annotation>
+         <documentation>
+            The imrobot extension point.
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="id" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The required id for the im robot.  This must be a unique value relative to all other im robots.  For message handlers that are to use this robot, they must provide a imrobotid that matches this value.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="containerFactoryName" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The required container factory name.  This should be the container factory name for a given protocol.  For example, for the built in ECF IRC provider the value is &lt;b&gt;ecf.xmpp.smack&lt;/b&gt;.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="connectId" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The connect ID for connecting to the given container.  For example, for XMPP the expected ID syntax of the connect ID is
+&lt;pre&gt;
+username@host[:port]
+
+for example:  slewis@ecf.eclipse.org
+&lt;/pre&gt;
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  An optional name for the bot.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="connectPassword" type="string">
+            <annotation>
+               <documentation>
+                  An optional connect password.  If a password is required to connect to the given container then an appropriate value must be provided.
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="since"/>
+      </appInfo>
+      <documentation>
+         1.0.0 milestone 6
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="examples"/>
+      </appInfo>
+      <documentation>
+         &lt;pre&gt;
+   &lt;extension
+         point=&quot;org.eclipse.ecf.presence.bot.imRobot&quot;&gt;
+      &lt;imRobot
+            connectID=&quot;slewis@ecf.eclipse.org&quot;
+            containerFactoryName=&quot;ecf.xmpp.smack&quot;
+            id=&quot;org.eclipse.ecf.presence.imbot.defaultbot&quot;/&gt;
+      &lt;/imRobot&gt;
+   &lt;/extension&gt;
+&lt;/pre&gt;
+
+Note that to have the imrobot receive im messages and process them, that the immessagehandler should also be defined 
+using the id for the imrobot given above.  For example:
+
+&lt;pre&gt;
+   &lt;extension
+         point=&quot;org.eclipse.ecf.presence.bot.immessagehandler&quot;&gt;
+      &lt;handler
+            imrobotid=&quot;org.eclipse.ecf.presence.imbot.defaultbot&quot;
+            class=&quot;org.eclipse.ecf.presence.imbot.DefaultIMMessageHandler&quot;&gt;
+      &lt;/handler&gt;
+   &lt;/extension&gt;
+&lt;/pre&gt;
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="apiInfo"/>
+      </appInfo>
+      <documentation>
+         See the API information for the immessagehandler.
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="implementation"/>
+      </appInfo>
+      <documentation>
+         No supplied implementation.
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="copyright"/>
+      </appInfo>
+      <documentation>
+         Copyright (c) 2007 IBM Corporation and others.  All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+      </documentation>
+   </annotation>
+
+</schema>

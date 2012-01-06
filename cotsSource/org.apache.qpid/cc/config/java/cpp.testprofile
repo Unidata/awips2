@@ -1,0 +1,3 @@
+broker.version=0-10
+broker=${project.root}/../cpp/src/qpidd --data-dir ${build.data} -t --load-module store_home/lib/.libs/libbdbstore.so --auth no --no-module-dir
+test.excludesfile=${project.root}/010ExcludeList-store

@@ -1,0 +1,11 @@
+# Product Discipline 0: Meteorological products, Parameter Category 7: Thermodynamic Stability Indices
+#192-254 Reserved for local use
+192:192:Surface Lifted Index:K:LFTX:SLI
+193:193:Best (4 layer) Lifted Index:K:4LFTX:BLI
+194:194:Richardson Number:Numeric:RI
+195:195:Convective Weather Detection Index::CWDI
+196:196:Ultra Violet Index:J/m^2:UVI
+197:197:Updraft Helicity:m^2/s^2:UPHL
+198:198:Leaf Area Index::LAI
+255:255:Missing
+

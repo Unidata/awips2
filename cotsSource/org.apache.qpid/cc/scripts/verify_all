@@ -1,0 +1,166 @@
+#!/bin/sh
+###########################################################
+#Licensed to the Apache Software Foundation (ASF) under one
+#or more contributor license agreements. See the NOTICE file
+#distributed with this work for additional information
+#regarding copyright ownership. The ASF licenses this file
+#to you under the Apache License, Version 2.0 (the
+#"License"); you may not use this file except in compliance
+#with the License. You may obtain a copy of the License at
+#
+#http://www.apache.org/licenses/LICENSE-2.0
+#
+#Unless required by applicable law or agreed to in writing,
+#software distributed under the License is distributed on an
+#"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#KIND, either express or implied. See the License for the
+#specific language governing permissions and limitations
+#under the License.
+###########################################################
+
+cleanup()
+{
+  echo "******************************************************"
+  echo "Cleanup"
+  echo "******************************************************"
+  for PID in `ps aux | grep 'qpidd'|grep 'broker.log'|grep -v 'grep'|awk '{ print $2 }'`
+  do
+     kill -9 $PID
+  done
+}
+
+run_broker()
+{
+  echo "******************************************************"
+  echo "Starting C++ broker"
+  echo "******************************************************"
+  echo ""
+  $CC_HOME/cpp/src/qpidd -t -d --auth no --no-data-dir --log-to-file  $CC_HOME/broker.log
+}
+
+stop_broker()
+{
+  echo "******************************************************"
+  echo "Stopping the C++ broker"
+  echo "******************************************************"
+  echo ""
+  $CC_HOME/cpp/src/qpidd -q
+}
+
+verify()
+{
+ #echo "arg " $2 " path: " $1
+ for dir in $(find $1  -mindepth 1 -maxdepth 1 -type d -not -name '*.svn' -not -name $3 )  
+ do
+  echo $dir
+  for script in $(find $dir -mindepth 1 -maxdepth 1 -type f -name $2 -not -name '*.*')
+  do
+   # echo "script:"  $script
+    cleanup
+    run_broker
+    $CC_HOME/cc/scripts/verify $script >>  $CC_HOME/script.log 2>&1
+    killall 'verify'
+    stop_broker
+  done
+done
+}
+
+run_python_python()
+{
+echo "-----------<Running Python/Python combination>---------"
+verify $CC_HOME/python/examples "verify" "xml-exchange"
+echo "-----------</Running Python/Python combination>---------"
+echo ""
+}
+
+
+run_cpp_cpp()
+{
+echo "-----------<Running C++/C++ combination>---------"
+verify  $CC_HOME/cpp/examples "verify" "*.svn"
+echo "-----------</Running C++/C++ combination>--------"
+echo ""
+}
+
+run_python_cpp_comb()
+{
+echo "-----------<Running Python/C++ combination>---------"
+verify $CC_HOME/cpp/examples "verify_cpp_python" "*.svn"
+verify $CC_HOME/cpp/examples "verify_python_cpp" "*.svn"
+echo "-----------</Running Python/C++ combination>--------"
+echo ""
+}
+
+
+run_java_java()
+{
+echo "-----------<Running Java/Java combination>---------"
+verify $CC_HOME/java/client/example/src/main/java/org/apache/qpid/example/jmsexample "verify" "*.svn"
+echo "-----------</Running Java/Java combination>--------"
+echo ""
+}
+
+run_java_cpp_comb()
+{
+echo "-----------<Running Java/C++ combination>---------"
+verify  $CC_HOME/java/client/example/src/main/java/org/apache/qpid/example/jmsexample "verify_java_cpp" "*.svn"
+verify  $CC_HOME/java/client/example/src/main/java/org/apache/qpid/example/jmsexample "verify_cpp_java" "*.svn"
+echo "-----------</Running Java/C++ combination>--------"
+echo ""
+}
+
+run_java_python_comb()
+{
+echo "-----------<Running Java/Python combination>---------"
+verify $CC_HOME/java/client/example/src/main/java/org/apache/qpid/example/jmsexample "verify_java_python" "*.svn" 
+verify $CC_HOME/java/client/example/src/main/java/org/apache/qpid/example/jmsexample "verify_python_java" "*.svn"
+echo "-----------</Running Java/Python combination>--------"
+echo ""
+}
+
+run_dotnet_dotnet()
+{
+echo "-----------<Running .Net/.Net combination>---------"
+verify $CC_HOME/dotnet/client-010/examples/ "verify" "*.svn"
+echo "-----------</Running .Net/.Net combination>--------"
+echo ""
+}
+
+run_cpp_dotnet()
+{
+echo "-----------<Running C++/.Net combination>---------"
+verify $CC_HOME/dotnet/client-010/examples/ "verify_cpp_dotnet" "*.svn"
+verify $CC_HOME/dotnet/client-010/examples/ "verify_dotnet_cpp" "*.svn"
+echo "-----------</Running C++/.Net combination>--------"
+echo ""
+}
+
+run_java_dotnet()
+{
+echo "-----------<Running Java/.Net combination>---------"
+verify $CC_HOME/dotnet/client-010/examples/ "verify_java_dotnet" "*.svn"
+verify $CC_HOME/dotnet/client-010/examples/ "verify_dotnet_java" "*.svn"
+echo "-----------</Running Java/.Net combination>--------"
+echo ""
+}
+
+run_python_dotnet()
+{
+echo "-----------<Running Python/.Net combination>---------"
+verify $CC_HOME/dotnet/client-010/examples/ "verify_python_dotnet" "*.svn"
+verify $CC_HOME/dotnet/client-010/examples/ "verify_dotnet_python" "*.svn"
+echo "-----------</Running Python/.Net combination>--------"
+echo ""
+}
+
+
+run_python_python
+run_python_cpp_comb
+run_cpp_cpp
+run_java_java
+run_java_cpp_comb
+run_java_python_comb
+run_dotnet_dotnet
+run_cpp_dotnet
+run_java_dotnet
+run_python_dotnet

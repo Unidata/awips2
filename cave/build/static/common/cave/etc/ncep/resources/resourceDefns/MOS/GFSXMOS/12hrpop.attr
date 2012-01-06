@@ -1,0 +1,3 @@
+! Attributes for the GFSXMOS resource with "12hrpop" plot model
+!
+plotModelName=12hrpop

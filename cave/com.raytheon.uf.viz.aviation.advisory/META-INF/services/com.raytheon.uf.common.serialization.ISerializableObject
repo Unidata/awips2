@@ -1,0 +1,7 @@
+com.raytheon.uf.viz.aviation.advisory.rsc.AdvisoryResourceData
+com.raytheon.uf.viz.aviation.advisory.adapter.NonConvSigmetDataAdapter
+com.raytheon.uf.viz.aviation.advisory.adapter.ConvSigmetOutlookDataAdapter
+com.raytheon.uf.viz.aviation.advisory.adapter.ConvSigmetTextDataAdapter
+com.raytheon.uf.viz.aviation.advisory.adapter.ConvSigmetCastDataAdapter
+com.raytheon.uf.viz.aviation.advisory.adapter.AirmetDataAdapter
+com.raytheon.uf.viz.aviation.advisory.adapter.IntlSigmetDataAdapter

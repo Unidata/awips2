@@ -1,0 +1,15 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+  	<!-- Instantiate the handler class for AlertVizRequest Handler -->
+  	<bean id="alertVizHandler" class="com.raytheon.uf.edex.alertviz.handler.AlertVizRequestHandler"/>
+  	<!-- Register the handler class with the AlertViz Register. -->
+  	<bean factory-bean="handlerRegistry" factory-method="register">
+  		<constructor-arg value="com.raytheon.uf.common.alertviz.AlertVizRequest"/>
+  		<constructor-arg ref="alertVizHandler"/>
+  	</bean>
+
+</beans>

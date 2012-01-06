@@ -1,0 +1,1124 @@
+/*
+    File: VTECevent.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:32 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "VTECevent.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct VTECevent_t
+{
+    char		geoid[25];
+    char		product_id[11];
+    dtime_t		producttime;
+    char		productmode[2];
+    char		action[4];
+    char		office_id[6];
+    char		phenom[3];
+    char		signif[2];
+    short		etn;
+    dtime_t		begintime;
+    dtime_t		endtime;
+    char		severity[2];
+    char		immed_cause[3];
+    dtime_t		risetime;
+    dtime_t		cresttime;
+    dtime_t		falltime;
+    char		record[3];
+    char		risets[3];
+    char		crests[3];
+    char		fallts[3];
+    double		crest_value;
+    dtime_t		expiretime;
+
+    int		ind_productmode;
+    int		ind_action;
+    int		ind_office_id;
+    int		ind_phenom;
+    int		ind_signif;
+    int		ind_etn;
+    int		ind_begintime;
+    int		ind_endtime;
+    int		ind_severity;
+    int		ind_immed_cause;
+    int		ind_risetime;
+    int		ind_cresttime;
+    int		ind_falltime;
+    int		ind_record;
+    int		ind_risets;
+    int		ind_crests;
+    int		ind_fallts;
+    int		ind_crest_value;
+    int		ind_expiretime;
+} VTECevent_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+VTECevent * GetVTECevent(const char * where)
+{
+
+    VTECevent * listPtr = NULL;
+    VTECevent * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM VTECevent ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct VTECevent_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetVTECevent() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetVTECevent() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetVTECevent() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.geoid, :dbs.product_id, 
+    :dbs.producttime, :dbs.productmode:dbs.ind_productmode, 
+    :dbs.action:dbs.ind_action, :dbs.office_id:dbs.ind_office_id, 
+    :dbs.phenom:dbs.ind_phenom, :dbs.signif:dbs.ind_signif, 
+    :dbs.etn:dbs.ind_etn, :dbs.begintime:dbs.ind_begintime, 
+    :dbs.endtime:dbs.ind_endtime, :dbs.severity:dbs.ind_severity, 
+    :dbs.immed_cause:dbs.ind_immed_cause, :dbs.risetime:dbs.ind_risetime, 
+    :dbs.cresttime:dbs.ind_cresttime, :dbs.falltime:dbs.ind_falltime, 
+    :dbs.record:dbs.ind_record, :dbs.risets:dbs.ind_risets, 
+    :dbs.crests:dbs.ind_crests, :dbs.fallts:dbs.ind_fallts, 
+    :dbs.crest_value:dbs.ind_crest_value, :dbs.expiretime:dbs.ind_expiretime    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetVTECevent() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (VTECevent *) malloc(sizeof(VTECevent))) != NULL)
+        {
+
+            strcpy(structPtr->geoid, dbs.geoid);
+
+            strcpy(structPtr->product_id, dbs.product_id);
+
+            structPtr->producttime = dbs.producttime;
+
+            strcpy(structPtr->productmode, dbs.productmode);
+            setNullIfIndicated(dbs.ind_productmode, CHAR, structPtr->productmode);
+
+            strcpy(structPtr->action, dbs.action);
+            setNullIfIndicated(dbs.ind_action, CHAR, structPtr->action);
+
+            strcpy(structPtr->office_id, dbs.office_id);
+            setNullIfIndicated(dbs.ind_office_id, CHAR, structPtr->office_id);
+
+            strcpy(structPtr->phenom, dbs.phenom);
+            setNullIfIndicated(dbs.ind_phenom, CHAR, structPtr->phenom);
+
+            strcpy(structPtr->signif, dbs.signif);
+            setNullIfIndicated(dbs.ind_signif, CHAR, structPtr->signif);
+
+            structPtr->etn = dbs.etn;
+            setNullIfIndicated(dbs.ind_etn, SHORT, &structPtr->etn);
+
+            structPtr->begintime = dbs.begintime;
+            setNullIfIndicated(dbs.ind_begintime, DATETIME, &structPtr->begintime);
+
+            structPtr->endtime = dbs.endtime;
+            setNullIfIndicated(dbs.ind_endtime, DATETIME, &structPtr->endtime);
+
+            strcpy(structPtr->severity, dbs.severity);
+            setNullIfIndicated(dbs.ind_severity, CHAR, structPtr->severity);
+
+            strcpy(structPtr->immed_cause, dbs.immed_cause);
+            setNullIfIndicated(dbs.ind_immed_cause, CHAR, structPtr->immed_cause);
+
+            structPtr->risetime = dbs.risetime;
+            setNullIfIndicated(dbs.ind_risetime, DATETIME, &structPtr->risetime);
+
+            structPtr->cresttime = dbs.cresttime;
+            setNullIfIndicated(dbs.ind_cresttime, DATETIME, &structPtr->cresttime);
+
+            structPtr->falltime = dbs.falltime;
+            setNullIfIndicated(dbs.ind_falltime, DATETIME, &structPtr->falltime);
+
+            strcpy(structPtr->record, dbs.record);
+            setNullIfIndicated(dbs.ind_record, CHAR, structPtr->record);
+
+            strcpy(structPtr->risets, dbs.risets);
+            setNullIfIndicated(dbs.ind_risets, CHAR, structPtr->risets);
+
+            strcpy(structPtr->crests, dbs.crests);
+            setNullIfIndicated(dbs.ind_crests, CHAR, structPtr->crests);
+
+            strcpy(structPtr->fallts, dbs.fallts);
+            setNullIfIndicated(dbs.ind_fallts, CHAR, structPtr->fallts);
+
+            structPtr->crest_value = dbs.crest_value;
+            setNullIfIndicated(dbs.ind_crest_value, DOUBLE, &structPtr->crest_value);
+
+            structPtr->expiretime = dbs.expiretime;
+            setNullIfIndicated(dbs.ind_expiretime, DATETIME, &structPtr->expiretime);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.geoid, :dbs.product_id, 
+        :dbs.producttime, :dbs.productmode:dbs.ind_productmode, 
+        :dbs.action:dbs.ind_action, :dbs.office_id:dbs.ind_office_id, 
+        :dbs.phenom:dbs.ind_phenom, :dbs.signif:dbs.ind_signif, 
+        :dbs.etn:dbs.ind_etn, :dbs.begintime:dbs.ind_begintime, 
+        :dbs.endtime:dbs.ind_endtime, :dbs.severity:dbs.ind_severity, 
+        :dbs.immed_cause:dbs.ind_immed_cause, :dbs.risetime:dbs.ind_risetime, 
+        :dbs.cresttime:dbs.ind_cresttime, :dbs.falltime:dbs.ind_falltime, 
+        :dbs.record:dbs.ind_record, :dbs.risets:dbs.ind_risets, 
+        :dbs.crests:dbs.ind_crests, :dbs.fallts:dbs.ind_fallts, 
+        :dbs.crest_value:dbs.ind_crest_value, :dbs.expiretime:dbs.ind_expiretime        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetVTECevent() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+VTECevent * SelectVTECevent(const char * where)
+{
+
+    VTECevent * listPtr = NULL;
+    VTECevent * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM VTECevent ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct VTECevent_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectVTECevent() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectVTECevent() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectVTECevent() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.geoid, :dbs.product_id, 
+    :dbs.producttime, :dbs.productmode:dbs.ind_productmode, 
+    :dbs.action:dbs.ind_action, :dbs.office_id:dbs.ind_office_id, 
+    :dbs.phenom:dbs.ind_phenom, :dbs.signif:dbs.ind_signif, 
+    :dbs.etn:dbs.ind_etn, :dbs.begintime:dbs.ind_begintime, 
+    :dbs.endtime:dbs.ind_endtime, :dbs.severity:dbs.ind_severity, 
+    :dbs.immed_cause:dbs.ind_immed_cause, :dbs.risetime:dbs.ind_risetime, 
+    :dbs.cresttime:dbs.ind_cresttime, :dbs.falltime:dbs.ind_falltime, 
+    :dbs.record:dbs.ind_record, :dbs.risets:dbs.ind_risets, 
+    :dbs.crests:dbs.ind_crests, :dbs.fallts:dbs.ind_fallts, 
+    :dbs.crest_value:dbs.ind_crest_value, :dbs.expiretime:dbs.ind_expiretime    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectVTECevent() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (VTECevent *) malloc(sizeof(VTECevent))) != NULL)
+        {
+
+            strcpy(structPtr->geoid, dbs.geoid);
+
+            strcpy(structPtr->product_id, dbs.product_id);
+
+            structPtr->producttime = dbs.producttime;
+
+            strcpy(structPtr->productmode, dbs.productmode);
+            setNullIfIndicated(dbs.ind_productmode, CHAR, structPtr->productmode);
+
+            strcpy(structPtr->action, dbs.action);
+            setNullIfIndicated(dbs.ind_action, CHAR, structPtr->action);
+
+            strcpy(structPtr->office_id, dbs.office_id);
+            setNullIfIndicated(dbs.ind_office_id, CHAR, structPtr->office_id);
+
+            strcpy(structPtr->phenom, dbs.phenom);
+            setNullIfIndicated(dbs.ind_phenom, CHAR, structPtr->phenom);
+
+            strcpy(structPtr->signif, dbs.signif);
+            setNullIfIndicated(dbs.ind_signif, CHAR, structPtr->signif);
+
+            structPtr->etn = dbs.etn;
+            setNullIfIndicated(dbs.ind_etn, SHORT, &structPtr->etn);
+
+            structPtr->begintime = dbs.begintime;
+            setNullIfIndicated(dbs.ind_begintime, DATETIME, &structPtr->begintime);
+
+            structPtr->endtime = dbs.endtime;
+            setNullIfIndicated(dbs.ind_endtime, DATETIME, &structPtr->endtime);
+
+            strcpy(structPtr->severity, dbs.severity);
+            setNullIfIndicated(dbs.ind_severity, CHAR, structPtr->severity);
+
+            strcpy(structPtr->immed_cause, dbs.immed_cause);
+            setNullIfIndicated(dbs.ind_immed_cause, CHAR, structPtr->immed_cause);
+
+            structPtr->risetime = dbs.risetime;
+            setNullIfIndicated(dbs.ind_risetime, DATETIME, &structPtr->risetime);
+
+            structPtr->cresttime = dbs.cresttime;
+            setNullIfIndicated(dbs.ind_cresttime, DATETIME, &structPtr->cresttime);
+
+            structPtr->falltime = dbs.falltime;
+            setNullIfIndicated(dbs.ind_falltime, DATETIME, &structPtr->falltime);
+
+            strcpy(structPtr->record, dbs.record);
+            setNullIfIndicated(dbs.ind_record, CHAR, structPtr->record);
+
+            strcpy(structPtr->risets, dbs.risets);
+            setNullIfIndicated(dbs.ind_risets, CHAR, structPtr->risets);
+
+            strcpy(structPtr->crests, dbs.crests);
+            setNullIfIndicated(dbs.ind_crests, CHAR, structPtr->crests);
+
+            strcpy(structPtr->fallts, dbs.fallts);
+            setNullIfIndicated(dbs.ind_fallts, CHAR, structPtr->fallts);
+
+            structPtr->crest_value = dbs.crest_value;
+            setNullIfIndicated(dbs.ind_crest_value, DOUBLE, &structPtr->crest_value);
+
+            structPtr->expiretime = dbs.expiretime;
+            setNullIfIndicated(dbs.ind_expiretime, DATETIME, &structPtr->expiretime);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.geoid, :dbs.product_id, 
+        :dbs.producttime, :dbs.productmode:dbs.ind_productmode, 
+        :dbs.action:dbs.ind_action, :dbs.office_id:dbs.ind_office_id, 
+        :dbs.phenom:dbs.ind_phenom, :dbs.signif:dbs.ind_signif, 
+        :dbs.etn:dbs.ind_etn, :dbs.begintime:dbs.ind_begintime, 
+        :dbs.endtime:dbs.ind_endtime, :dbs.severity:dbs.ind_severity, 
+        :dbs.immed_cause:dbs.ind_immed_cause, :dbs.risetime:dbs.ind_risetime, 
+        :dbs.cresttime:dbs.ind_cresttime, :dbs.falltime:dbs.ind_falltime, 
+        :dbs.record:dbs.ind_record, :dbs.risets:dbs.ind_risets, 
+        :dbs.crests:dbs.ind_crests, :dbs.fallts:dbs.ind_fallts, 
+        :dbs.crest_value:dbs.ind_crest_value, :dbs.expiretime:dbs.ind_expiretime        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectVTECevent() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectVTECeventCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM VTECevent ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountVTECevent() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountVTECevent() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountVTECevent() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountVTECevent() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutVTECevent(const VTECevent * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct VTECevent_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.geoid, structPtr->geoid);
+
+    strcpy(dbs.product_id, structPtr->product_id);
+
+    dbs.producttime = structPtr->producttime;
+
+    strcpy(dbs.productmode, structPtr->productmode);
+    dbs.ind_productmode = getIndicator(CHAR, (void *)structPtr->productmode);
+
+    strcpy(dbs.action, structPtr->action);
+    dbs.ind_action = getIndicator(CHAR, (void *)structPtr->action);
+
+    strcpy(dbs.office_id, structPtr->office_id);
+    dbs.ind_office_id = getIndicator(CHAR, (void *)structPtr->office_id);
+
+    strcpy(dbs.phenom, structPtr->phenom);
+    dbs.ind_phenom = getIndicator(CHAR, (void *)structPtr->phenom);
+
+    strcpy(dbs.signif, structPtr->signif);
+    dbs.ind_signif = getIndicator(CHAR, (void *)structPtr->signif);
+
+    dbs.etn = structPtr->etn;
+    dbs.ind_etn = getIndicator(SHORT, (void *)&structPtr->etn);
+
+    dbs.begintime = structPtr->begintime;
+    dbs.ind_begintime = getIndicator(DATETIME, (void *)&structPtr->begintime);
+
+    dbs.endtime = structPtr->endtime;
+    dbs.ind_endtime = getIndicator(DATETIME, (void *)&structPtr->endtime);
+
+    strcpy(dbs.severity, structPtr->severity);
+    dbs.ind_severity = getIndicator(CHAR, (void *)structPtr->severity);
+
+    strcpy(dbs.immed_cause, structPtr->immed_cause);
+    dbs.ind_immed_cause = getIndicator(CHAR, (void *)structPtr->immed_cause);
+
+    dbs.risetime = structPtr->risetime;
+    dbs.ind_risetime = getIndicator(DATETIME, (void *)&structPtr->risetime);
+
+    dbs.cresttime = structPtr->cresttime;
+    dbs.ind_cresttime = getIndicator(DATETIME, (void *)&structPtr->cresttime);
+
+    dbs.falltime = structPtr->falltime;
+    dbs.ind_falltime = getIndicator(DATETIME, (void *)&structPtr->falltime);
+
+    strcpy(dbs.record, structPtr->record);
+    dbs.ind_record = getIndicator(CHAR, (void *)structPtr->record);
+
+    strcpy(dbs.risets, structPtr->risets);
+    dbs.ind_risets = getIndicator(CHAR, (void *)structPtr->risets);
+
+    strcpy(dbs.crests, structPtr->crests);
+    dbs.ind_crests = getIndicator(CHAR, (void *)structPtr->crests);
+
+    strcpy(dbs.fallts, structPtr->fallts);
+    dbs.ind_fallts = getIndicator(CHAR, (void *)structPtr->fallts);
+
+    dbs.crest_value = structPtr->crest_value;
+    dbs.ind_crest_value = getIndicator(DOUBLE, (void *)&structPtr->crest_value);
+
+    dbs.expiretime = structPtr->expiretime;
+    dbs.ind_expiretime = getIndicator(DATETIME, (void *)&structPtr->expiretime);
+
+
+    EXEC SQL INSERT INTO VTECevent (geoid,product_id,
+        producttime,productmode,action,
+        office_id,phenom,signif,
+        etn,begintime,endtime,
+        severity,immed_cause,risetime,
+        cresttime,falltime,record,
+        risets,crests,fallts,
+        crest_value,expiretime        )
+        VALUES (
+         :dbs.geoid, :dbs.product_id, :dbs.producttime,
+         :dbs.productmode:dbs.ind_productmode, :dbs.action:dbs.ind_action, :dbs.office_id:dbs.ind_office_id,
+         :dbs.phenom:dbs.ind_phenom, :dbs.signif:dbs.ind_signif, :dbs.etn:dbs.ind_etn,
+         :dbs.begintime:dbs.ind_begintime, :dbs.endtime:dbs.ind_endtime, :dbs.severity:dbs.ind_severity,
+         :dbs.immed_cause:dbs.ind_immed_cause, :dbs.risetime:dbs.ind_risetime, :dbs.cresttime:dbs.ind_cresttime,
+         :dbs.falltime:dbs.ind_falltime, :dbs.record:dbs.ind_record, :dbs.risets:dbs.ind_risets,
+         :dbs.crests:dbs.ind_crests, :dbs.fallts:dbs.ind_fallts, :dbs.crest_value:dbs.ind_crest_value,
+         :dbs.expiretime:dbs.ind_expiretime);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutVTECevent() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertVTECevent(const VTECevent * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct VTECevent_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.geoid, structPtr->geoid);
+
+    strcpy(dbs.product_id, structPtr->product_id);
+
+    dbs.producttime = structPtr->producttime;
+
+    strcpy(dbs.productmode, structPtr->productmode);
+    dbs.ind_productmode = getIndicator(CHAR, (void *)structPtr->productmode);
+
+    strcpy(dbs.action, structPtr->action);
+    dbs.ind_action = getIndicator(CHAR, (void *)structPtr->action);
+
+    strcpy(dbs.office_id, structPtr->office_id);
+    dbs.ind_office_id = getIndicator(CHAR, (void *)structPtr->office_id);
+
+    strcpy(dbs.phenom, structPtr->phenom);
+    dbs.ind_phenom = getIndicator(CHAR, (void *)structPtr->phenom);
+
+    strcpy(dbs.signif, structPtr->signif);
+    dbs.ind_signif = getIndicator(CHAR, (void *)structPtr->signif);
+
+    dbs.etn = structPtr->etn;
+    dbs.ind_etn = getIndicator(SHORT, (void *)&structPtr->etn);
+
+    dbs.begintime = structPtr->begintime;
+    dbs.ind_begintime = getIndicator(DATETIME, (void *)&structPtr->begintime);
+
+    dbs.endtime = structPtr->endtime;
+    dbs.ind_endtime = getIndicator(DATETIME, (void *)&structPtr->endtime);
+
+    strcpy(dbs.severity, structPtr->severity);
+    dbs.ind_severity = getIndicator(CHAR, (void *)structPtr->severity);
+
+    strcpy(dbs.immed_cause, structPtr->immed_cause);
+    dbs.ind_immed_cause = getIndicator(CHAR, (void *)structPtr->immed_cause);
+
+    dbs.risetime = structPtr->risetime;
+    dbs.ind_risetime = getIndicator(DATETIME, (void *)&structPtr->risetime);
+
+    dbs.cresttime = structPtr->cresttime;
+    dbs.ind_cresttime = getIndicator(DATETIME, (void *)&structPtr->cresttime);
+
+    dbs.falltime = structPtr->falltime;
+    dbs.ind_falltime = getIndicator(DATETIME, (void *)&structPtr->falltime);
+
+    strcpy(dbs.record, structPtr->record);
+    dbs.ind_record = getIndicator(CHAR, (void *)structPtr->record);
+
+    strcpy(dbs.risets, structPtr->risets);
+    dbs.ind_risets = getIndicator(CHAR, (void *)structPtr->risets);
+
+    strcpy(dbs.crests, structPtr->crests);
+    dbs.ind_crests = getIndicator(CHAR, (void *)structPtr->crests);
+
+    strcpy(dbs.fallts, structPtr->fallts);
+    dbs.ind_fallts = getIndicator(CHAR, (void *)structPtr->fallts);
+
+    dbs.crest_value = structPtr->crest_value;
+    dbs.ind_crest_value = getIndicator(DOUBLE, (void *)&structPtr->crest_value);
+
+    dbs.expiretime = structPtr->expiretime;
+    dbs.ind_expiretime = getIndicator(DATETIME, (void *)&structPtr->expiretime);
+
+
+    EXEC SQL INSERT INTO VTECevent (geoid,product_id,
+        producttime,productmode,action,
+        office_id,phenom,signif,
+        etn,begintime,endtime,
+        severity,immed_cause,risetime,
+        cresttime,falltime,record,
+        risets,crests,fallts,
+        crest_value,expiretime        )
+        VALUES (
+         :dbs.geoid, :dbs.product_id, :dbs.producttime,
+         :dbs.productmode:dbs.ind_productmode, :dbs.action:dbs.ind_action, :dbs.office_id:dbs.ind_office_id,
+         :dbs.phenom:dbs.ind_phenom, :dbs.signif:dbs.ind_signif, :dbs.etn:dbs.ind_etn,
+         :dbs.begintime:dbs.ind_begintime, :dbs.endtime:dbs.ind_endtime, :dbs.severity:dbs.ind_severity,
+         :dbs.immed_cause:dbs.ind_immed_cause, :dbs.risetime:dbs.ind_risetime, :dbs.cresttime:dbs.ind_cresttime,
+         :dbs.falltime:dbs.ind_falltime, :dbs.record:dbs.ind_record, :dbs.risets:dbs.ind_risets,
+         :dbs.crests:dbs.ind_crests, :dbs.fallts:dbs.ind_fallts, :dbs.crest_value:dbs.ind_crest_value,
+         :dbs.expiretime:dbs.ind_expiretime);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertVTECevent() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateVTECevent(const VTECevent *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct VTECevent_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.geoid, structPtr->geoid);
+
+    strcpy(dbs.product_id, structPtr->product_id);
+
+    dbs.producttime = structPtr->producttime;
+
+    strcpy(dbs.productmode, structPtr->productmode);
+    dbs.ind_productmode = getIndicator(CHAR, (void *)structPtr->productmode);
+
+    strcpy(dbs.action, structPtr->action);
+    dbs.ind_action = getIndicator(CHAR, (void *)structPtr->action);
+
+    strcpy(dbs.office_id, structPtr->office_id);
+    dbs.ind_office_id = getIndicator(CHAR, (void *)structPtr->office_id);
+
+    strcpy(dbs.phenom, structPtr->phenom);
+    dbs.ind_phenom = getIndicator(CHAR, (void *)structPtr->phenom);
+
+    strcpy(dbs.signif, structPtr->signif);
+    dbs.ind_signif = getIndicator(CHAR, (void *)structPtr->signif);
+
+    dbs.etn = structPtr->etn;
+    dbs.ind_etn = getIndicator(SHORT, (void *)&structPtr->etn);
+
+    dbs.begintime = structPtr->begintime;
+    dbs.ind_begintime = getIndicator(DATETIME, (void *)&structPtr->begintime);
+
+    dbs.endtime = structPtr->endtime;
+    dbs.ind_endtime = getIndicator(DATETIME, (void *)&structPtr->endtime);
+
+    strcpy(dbs.severity, structPtr->severity);
+    dbs.ind_severity = getIndicator(CHAR, (void *)structPtr->severity);
+
+    strcpy(dbs.immed_cause, structPtr->immed_cause);
+    dbs.ind_immed_cause = getIndicator(CHAR, (void *)structPtr->immed_cause);
+
+    dbs.risetime = structPtr->risetime;
+    dbs.ind_risetime = getIndicator(DATETIME, (void *)&structPtr->risetime);
+
+    dbs.cresttime = structPtr->cresttime;
+    dbs.ind_cresttime = getIndicator(DATETIME, (void *)&structPtr->cresttime);
+
+    dbs.falltime = structPtr->falltime;
+    dbs.ind_falltime = getIndicator(DATETIME, (void *)&structPtr->falltime);
+
+    strcpy(dbs.record, structPtr->record);
+    dbs.ind_record = getIndicator(CHAR, (void *)structPtr->record);
+
+    strcpy(dbs.risets, structPtr->risets);
+    dbs.ind_risets = getIndicator(CHAR, (void *)structPtr->risets);
+
+    strcpy(dbs.crests, structPtr->crests);
+    dbs.ind_crests = getIndicator(CHAR, (void *)structPtr->crests);
+
+    strcpy(dbs.fallts, structPtr->fallts);
+    dbs.ind_fallts = getIndicator(CHAR, (void *)structPtr->fallts);
+
+    dbs.crest_value = structPtr->crest_value;
+    dbs.ind_crest_value = getIndicator(DOUBLE, (void *)&structPtr->crest_value);
+
+    dbs.expiretime = structPtr->expiretime;
+    dbs.ind_expiretime = getIndicator(DATETIME, (void *)&structPtr->expiretime);
+
+
+    sprintf(queryBuffer, " UPDATE VTECevent SET " );
+    strcat(queryBuffer, "geoid = ? , product_id = ? , producttime = ? , productmode = ? , action = ? ,     ");
+    strcat(queryBuffer, "office_id = ? , phenom = ? , signif = ? , etn = ? , begintime = ? ,     ");
+    strcat(queryBuffer, "endtime = ? , severity = ? , immed_cause = ? , risetime = ? , cresttime = ? ,     ");
+    strcat(queryBuffer, "falltime = ? , record = ? , risets = ? , crests = ? , fallts = ? ,     ");
+    strcat(queryBuffer, "crest_value = ? , expiretime = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateVTECevent() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.geoid, :dbs.product_id, :dbs.producttime, :dbs.productmode:dbs.ind_productmode, :dbs.action:dbs.ind_action,
+     :dbs.office_id:dbs.ind_office_id, :dbs.phenom:dbs.ind_phenom, :dbs.signif:dbs.ind_signif, :dbs.etn:dbs.ind_etn, :dbs.begintime:dbs.ind_begintime,
+     :dbs.endtime:dbs.ind_endtime, :dbs.severity:dbs.ind_severity, :dbs.immed_cause:dbs.ind_immed_cause, :dbs.risetime:dbs.ind_risetime, :dbs.cresttime:dbs.ind_cresttime,
+     :dbs.falltime:dbs.ind_falltime, :dbs.record:dbs.ind_record, :dbs.risets:dbs.ind_risets, :dbs.crests:dbs.ind_crests, :dbs.fallts:dbs.ind_fallts,
+     :dbs.crest_value:dbs.ind_crest_value, :dbs.expiretime:dbs.ind_expiretime;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateVTECevent() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteVTECevent(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM VTECevent ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteVTECevent() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateVTECeventByRecord (const VTECevent * newStructPtr, const VTECevent * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetVTECeventPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateVTECevent(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateVTECevent(const VTECevent * structPtr)
+{
+    UpdateVTECeventByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertVTECevent(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueVTECevent(const VTECevent * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (VTECeventExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertVTECevent(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteVTECeventByRecord(const VTECevent * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetVTECeventPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteVTECevent(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool VTECeventExists(const VTECevent * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetVTECeventPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectVTECeventCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetVTECeventPrimaryKeyWhereString (const VTECevent * structPtr, char returnWhereString[] )
+{
+    char time_buffer0[40];
+    sprintf(returnWhereString, "WHERE geoid = '%s'  AND product_id = '%s'  AND producttime = '%s' ",
+            structPtr->geoid, structPtr->product_id, dtimet_to_ansi(structPtr->producttime, time_buffer0));
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeVTECevent( VTECevent * structPtr)
+{
+    VTECevent* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( VTECevent * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetVTECeventDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetVTECeventErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

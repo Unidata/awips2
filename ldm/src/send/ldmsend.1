@@ -1,0 +1,68 @@
+'\"
+'\" $Header: /cvsroot/ldm/src/send/ldmsend.1,v 1.6.22.3 2009/06/18 16:21:40 steve Exp $
+.TH LDMSEND 1 "$Date: 2009/06/18 16:21:40 $"
+.SH NAME
+ldmsend - ldm data source example client
+.SH "SYNOPSIS"
+\fBldmsend \fR[\fB\-vx\fR] [\fB\-l \fIlogfile\fR] 
+[\fB-h \fIremote\fR]
+[\fB-P \fIport\fR]
+[\fB-s \fIseqno\fR]
+[\fB-f \fIfeedtype\fR]
+\fIfilename\fR ...
+.SH DESCRIPTION
+.LP
+This program is an example of how to send data using ldm protocols.
+Its primary function is as a coding example. It may also be used to
+test the ldm server.  It might also be useful to resend data
+after a downstream node has been offline. For most applications,
+the use of this program is deprecated in favor of \fBpqinsert(1)\fR.
+.LP
+The program sends each file given on the command line as a separate
+ldm data product to the ldm server on \fBremote\fR. The file name is
+used as product identifier.
+The product feed type is specified by the \fB\-f\fR option.
+The current time is used as product timestamp.
+.SH OPTIONS 
+.TP 8
+.BI \-f " feedtype"
+Asserts that the data being send has feed type \fIfeedtype\fR.
+The default is `EXP', indicating an experimental feedtype.
+.TP
+.BI \-h " remote"
+Sends data to the ldm server on \fIremote\fR. The default is `localhost'.
+.TP
+.BI \-l " logfile"
+the path name of a file to be used as the log file for the process.  The
+default is log to stderr.
+.TP
+.BI \-P " port"
+The port on the remote sytem to which to connect.  Only useful for LDM 6
+protocols.  The well-known LDM port is 388.
+.TP
+.BI \-s " seqno"
+Sets the product sequence number associated with the first product
+to \fIseqno\fR. Subsequent products (files on the command line)
+are numbered sequentially. Defaults to zero.
+.TP
+.B \-v
+Verbose flag.  If present, the log will contain a line for 
+each product file that was sent.
+.TP
+.BI \-x
+Requests that debugging information also be printed.
+.SH EXAMPLE
+The command
+.RS +4
+.nf
+ldmsend -v -h otherhost -f MCIDAS 92010100.are
+.fi
+.RE
+will ship the file `92010100.are' to `otherhost' with feedtype `MCIDAS'.
+The ldm server on `otherhost'
+should be configured to do something with a McIDAS product whose identifier is
+`92010100.are'.
+.SH "SEE ALSO"
+pqinsert(1), ldmd(1), ldmd.conf(5)
+.SH DIAGNOSTICS
+Error messages and log messages are written to the log file. 
