@@ -1,0 +1,556 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Scientific.Signals.Models.AutoRegressiveModel</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="Scientific-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://dirac.cnrs-orleans.fr/ScientificPython/">Scientific Python</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="Scientific-module.html">Package&nbsp;Scientific</a> ::
+        <a href="Scientific.Signals-module.html">Package&nbsp;Signals</a> ::
+        <a href="Scientific.Signals.Models-module.html">Module&nbsp;Models</a> ::
+        Class&nbsp;AutoRegressiveModel
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="Scientific.Signals.Models.AutoRegressiveModel-class.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS DESCRIPTION ==================== -->
+<h1 class="epydoc">Class AutoRegressiveModel</h1><p class="nomargin-top"></p>
+<dl><dt>Known Subclasses:</dt>
+<dd>
+      <ul class="subclass-list">
+<li><a href="Scientific.Signals.Models.AveragedAutoRegressiveModel-class.html">AveragedAutoRegressiveModel</a></li>  </ul>
+</dd></dl>
+
+<hr />
+<p>Auto-regressive model for stochastic process</p>
+  <p>This implementation uses the Burg algorithm to obtain the coefficients
+  of the AR model.</p>
+
+<!-- ==================== INSTANCE METHODS ==================== -->
+<a name="section-InstanceMethods"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td align="left" colspan="2" class="table-header">
+    <span class="table-header">Instance Methods</span></td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.Signals.Models.AutoRegressiveModel-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">order</span>,
+        <span class="summary-sig-arg">data</span>,
+        <span class="summary-sig-arg">delta_t</span>=<span class="summary-sig-default">1</span>)</span></td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><a 
+      href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html"
+      
+      class="link">Scientific.Functions.Interpolation.InterpolatingFunction</a></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.Signals.Models.AutoRegressiveModel-class.html#correlation" class="summary-sig-name">correlation</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">nsteps</span>)</span><br />
+      Returns:
+      the autocorrelation function of the process as estimated from the AR 
+      model</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.Signals.Models.AutoRegressiveModel-class.html#frictionConstant" class="summary-sig-name">frictionConstant</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Returns:
+      the friction constant of the process, i.e.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><a 
+      href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html"
+      
+      class="link">Scientific.Functions.Interpolation.InterpolatingFunction</a></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.Signals.Models.AutoRegressiveModel-class.html#memoryFunction" class="summary-sig-name">memoryFunction</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">nsteps</span>)</span><br />
+      Returns:
+      the memory function of the process as estimated from the AR model</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><a href="Scientific.Functions.Rational.RationalFunction-class.html" 
+      class="link">Scientific.Function.Rational.RationalFunction</a></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.Signals.Models.AutoRegressiveModel-class.html#memoryFunctionZ" class="summary-sig-name">memoryFunctionZ</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Returns:
+      the <i class="math">z</i>-transform of the process' memory function</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><a href="Scientific.Functions.Rational.RationalFunction-class.html" 
+      class="link">Scientific.Function.Rational.RationalFunction</a></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.Signals.Models.AutoRegressiveModel-class.html#memoryFunctionZapprox" class="summary-sig-name">memoryFunctionZapprox</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">den_order</span>)</span><br />
+      Returns:
+      an approximation to the <i class="math">z</i>-transform of the 
+      process' memory function that correponds to an expansion of the 
+      denominator up to order den_order</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><code>Numeric.array</code> of <code>complex</code></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.Signals.Models.AutoRegressiveModel-class.html#poles" class="summary-sig-name">poles</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Returns:
+      the poles of the model in the complex <i class="math">z</i>-plane</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><code>float</code> or <code>complex</code></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.Signals.Models.AutoRegressiveModel-class.html#predictStep" class="summary-sig-name">predictStep</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Calculates the linear prediction of the next step in the series.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><code>Numeric.array</code> of <code>float</code></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.Signals.Models.AutoRegressiveModel-class.html#spectrum" class="summary-sig-name">spectrum</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">omega</span>)</span><br />
+      Returns:
+      the frequency spectrum of the process</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+</table>
+<!-- ==================== METHOD DETAILS ==================== -->
+<a name="section-MethodDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td align="left" colspan="2" class="table-header">
+    <span class="table-header">Method Details</span></td>
+</tr>
+</table>
+<a name="__init__"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__init__</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">order</span>,
+        <span class="sig-arg">data</span>,
+        <span class="sig-arg">delta_t</span>=<span class="sig-default">1</span>)</span>
+    <br /><em class="fname">(Constructor)</em>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>order</code></strong> (<code>int</code>) - the order of the model</li>
+        <li><strong class="pname"><code>data</code></strong> (sequence of <code>float</code> or <code>complex</code>) - the time series</li>
+        <li><strong class="pname"><code>delta_t</code></strong> (<code>float</code>) - the sampling interval for the time series</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="correlation"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">correlation</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">nsteps</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>nsteps</code></strong> (<code>int</code>) - the number of time steps for which the autocorrelation function 
+          is to be evaluated</li>
+    </ul></dd>
+    <dt>Returns: <a 
+      href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html"
+      
+      class="link">Scientific.Functions.Interpolation.InterpolatingFunction</a></dt>
+        <dd>the autocorrelation function of the process as estimated from the
+          AR model</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="frictionConstant"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">frictionConstant</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Returns:</dt>
+        <dd>the friction constant of the process, i.e. the integral over the 
+          memory function</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="memoryFunction"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">memoryFunction</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">nsteps</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>nsteps</code></strong> (<code>int</code>) - the number of time steps for which the memory function is to be 
+          evaluated</li>
+    </ul></dd>
+    <dt>Returns: <a 
+      href="Scientific.Functions.Interpolation.InterpolatingFunction-class.html"
+      
+      class="link">Scientific.Functions.Interpolation.InterpolatingFunction</a></dt>
+        <dd>the memory function of the process as estimated from the AR model</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="memoryFunctionZ"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">memoryFunctionZ</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Returns: <a href="Scientific.Functions.Rational.RationalFunction-class.html" 
+      class="link">Scientific.Function.Rational.RationalFunction</a></dt>
+        <dd>the <i class="math">z</i>-transform of the process' memory 
+          function</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="memoryFunctionZapprox"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">memoryFunctionZapprox</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">den_order</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>den_order</code></strong> (<code>int</code>)</li>
+    </ul></dd>
+    <dt>Returns: <a href="Scientific.Functions.Rational.RationalFunction-class.html" 
+      class="link">Scientific.Function.Rational.RationalFunction</a></dt>
+        <dd>an approximation to the <i class="math">z</i>-transform of the 
+          process' memory function that correponds to an expansion of the 
+          denominator up to order den_order</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="poles"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">poles</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Returns: <code>Numeric.array</code> of <code>complex</code></dt>
+        <dd>the poles of the model in the complex <i class="math">z</i>-plane</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="predictStep"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">predictStep</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Calculates the linear prediction of the next step in the series. This 
+  step is appended internally  to the current trajectory, making it 
+  possible to call this method repeatedly in order to obtain a sequence of 
+  predicted steps.</p>
+  <dl class="fields">
+    <dt>Returns: <code>float</code> or <code>complex</code></dt>
+        <dd>the predicted step</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="spectrum"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">spectrum</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">omega</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>omega</code></strong> (<code>Numeric.array</code> of <code>float</code>) - the angular frequencies at which the spectrum is to be evaluated</li>
+    </ul></dd>
+    <dt>Returns: <code>Numeric.array</code> of <code>float</code></dt>
+        <dd>the frequency spectrum of the process</dd>
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="Scientific-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://dirac.cnrs-orleans.fr/ScientificPython/">Scientific Python</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0 on Tue Oct 28 14:16:07 2008
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.75 [en] (X11; U; Linux 2.2.16-3smp i686) [Netscape]">
+</head>
+<body>
+<font color="#3333FF"><font size=+2>Smart Tools</font></font>
+<p><a NAME="RunSmartTool"></a><font color="#3333FF"><font size=+2>Run a
+Smart Tool for just the area covered by your WFO.</font></font>
+<p><font color="#330000">Running a Smart tool is just like running any
+of the other simple tools.&nbsp; Select a grid to edit by MB1 clicking
+on that grid in the Grid Manager or MB2 clicking on the label for that
+grid in the Spatial Editor.&nbsp; Next you will need to select the edit
+area that corresponds to your WFO.&nbsp; From the GFE Main Menu, select
+</font><font color="#FF0000">Edit
+Areas->WFOs->[Your site ID]</font><font color="#330000">. Open the <a href="ButtonBarDialogs.html#EditActionsDialog">Edit
+Actions Dialog</a>, if not already, and select the smart tool that you
+wish to run.&nbsp; That tool will be executed over your WFO and presumably
+modify the data for the grid that you choose earlier.</font>
+<p><a NAME="AdjustQPFWithSmartTool"></a><font color="#3333FF"><font size=+2>Adjust
+a QPF grid using the QPF Smart Tool.</font></font>
+<p><font color="#330000">Select a QPF grid to edit using the Grid Manager
+or the legends in the Spatial Editor.&nbsp; Then open the <a href="ButtonBarDialogs.html#EditActionsDialog">Edit
+Actions Dialog</a> and select QPF_SmartTool.&nbsp; If there is any complex
+terrain in your WFO area, you should see a terrain influence in the QPF
+field based on the topography and the wind grid valid at the same time.</font>
+<p><a NAME="MakeMaxTemp"></a><font color="#3333FF"><font size=+2>Interpolate
+temperatures to hourly grids and derive a MaxTemp grid from these grids
+using the Smart Tool.</font></font>
+<p><font color="#330000">To interpolate your temperature grids to hourly,
+first select those grids in the Grid Mangaer using MB1 drag operation.&nbsp;
+See the section Select Weather Element and TimeRange for more information.&nbsp;
+Next, from the Main Menu item select </font><font color="#FF0000">Grids->Interpolate...</font><font color="#330000">.&nbsp;
+The <a href="MainMenuDialogs.html#InterpolateDialog">Interpolate Dialog</a>
+will be displayed, choose "By Gaps". You should see new grid appear in
+between the grids that were already defined.&nbsp; See the section on
+<a href="GFETrainingGridMgr.html#InterpolateGrids">Interpolate
+Grids</a> for more infomation.&nbsp; When the interpolation is finished,
+select a MaxT (max temperature) grid to edit from the Grid Manager that
+corresponds to the same time as the time period that you interpolated.&nbsp;
+Then from the <a href="ButtonBarDialogs.html#EditActionsDialog">Edit Actions
+Dialog</a> select the Smart tool, select </font><font color="#FF0000">MaxT_SmartTool</font><font color="#330000">.&nbsp;
+You should see the values for the MaxT assign the maximum value of the
+temperature grids in that same time range.</font>
+<p><a NAME="DeriveSnowAmtGrid"></a><font color="#3333FF"><font size=+2>Derive
+a SnowAmt grid from the QPF field using the appropriate Smart Tool</font></font>
+<p><font color="#330000">First you will need to define a QPF field either
+by hand or from any model you choose.&nbsp; Next create a SnowAmt grid
+from scratch in the Grid Manager by moving the cursor to the same time
+period in the SnowAmt element, MB3 press and hold to get the pop-up menu
+and select <a href="GFETrainingGridMgr.html#CreateGridfromScratch">Create
+From Scratch</a>.&nbsp; See the section <a href="GFETrainingGridMgr.html#CreateGridfromScratch">Create
+Grid From Scratch</a> for more information. Now open the <a href="ButtonBarDialogs.html#EditActionsDialog">Edit
+Actions Dialog</a> and select </font><font color="#FF0000">SnowAmt_SmartTool</font><font color="#330000">.&nbsp;
+You should see the newly created SnowAmt grid defined with new values.&nbsp;
+Note: this tool requires that a Temperature and Freezing Level grid also
+be defined for the same time period.&nbsp; Also note that if your temperature
+grid is not at or below freezing the SnowAmt_SmartTool will (appropriately)
+assign zero SnowAmt to all grid points.</font>
+<p><a NAME="RunSmartToolOnMultipleGrids"></a><font color="#3333FF"><font size=+2>Run
+a Smart Tool on multiple grids, but only over a selected Edit Area</font></font>
+<p><font color="#330000">To accomplish this task you will need to select
+a time period in the Grid Manager and then select and edit area from the
+Spatial Editor.&nbsp; These can be done in either order.&nbsp; To select
+a time period in the Grid Manager see the section <a href="GFETrainingGridMgr.html#SelectWEandTimeRange">Select
+Weather Element and Time Range</a>.&nbsp; To select an edit area in the
+Spatial Editor see the section <a href="GFETrainingSpatialEditor.html#DefineEditAreabyHand">Select
+an Edit Area by Hand</a>.&nbsp; Once you have defined an edit area and
+a time range,&nbsp; select one of the tools in the <a href="ButtonBarDialogs.html#EditActionsDialog">Edit
+Actions Dialog</a>.&nbsp; Note that all of the grids that you selected
+in the Grid Manager turn a </font><font color="#66FFFF">cyan</font><font color="#330000">
+color while they are executing.&nbsp; When the </font><font color="#66FFFF">cyan</font><font color="#330000">
+color turns back to gray, examine the grids and convince yourself that
+the Smart tool was executed over the edit area that you chose and for each
+of the grids that you selected.</font>
+</body>
+</html>

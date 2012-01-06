@@ -1,0 +1,5 @@
+! Parameters and Attributes for the default METAR Resource
+!
+legendString=Fixed Buoy Synop
+plotModelName=default
+reportTypeValue=1005

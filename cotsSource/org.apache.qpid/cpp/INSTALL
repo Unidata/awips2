@@ -1,0 +1,356 @@
+		Installing Qpid/C++
+		===================
+
+Table of Contents
+=================
+1. Introduction
+
+2. Prerequisites
+   2.1. What to Install
+   2.2. How to Install
+      2.2.1. Using Package Management Tools
+      2.2.2. From Source
+	 a. openais
+	 b. boost
+         c. autotools
+   2.3. Important Environment Variable Settings
+
+3. Building from a Source Distribution
+4. Building a Repository Working Copy
+5. Portability
+6. Tests
+7. Doxygen
+8. Troubleshooting
+
+
+1. Introduction
+===============
+Note that the daemon and client API can be installed separately. 
+
+This document describes how to build the Qpid/C++ broker and client, either
+from a checkout of the source or from a source distribution, on Linux/UNIX.
+Please see INSTALL-WINDOWS for information on building on Windows.
+
+This also explains how to install the required prerequisites for Qpid/C++.
+
+
+2. Prerequisites
+================
+We prefer to avoid spending time accommodating older versions of these
+packages, so please make sure that you have the latest stable versions.
+Known version numbers for a succesfull build are given in brackets, take
+these as a recommended minimum version. Older unix versions, for example,
+Redhat Linux 3, will almost certainly require some packages to be upgraded.
+
+
+2.1. What to Install
+====================
+The following libraries and header files must be installed to build
+a source distribution:
+ * boost      <http://www.boost.org>                   	(1.35)(*)
+ * e2fsprogs  <http://e2fsprogs.sourceforge.net/>      	(1.39)
+ * pkgconfig  <http://pkgconfig.freedesktop.org/wiki/> 	(0.21)
+
+(*) earlier versions of boost e.g. 1.33 also work and there is a patch
+to get 1.32 working in the svn tree though that is only recommended as
+a last resort.
+
+Optional cluster functionality requires ONE of:
+ * openais <http://openais.org> 	       		(0.80.3)
+ * corosync <http://corosync.org>			(1.0.0.rc1)
+
+ Optional XML exchange requires:
+ * xqilla  <http://xqilla.sourceforge.net/HomePage>     (2.0.0)                                  
+ * xerces-c <http://xerces.apache.org/xerces-c/>        (2.7.0)  
+
+Optional SSL support requires:
+* nss <http://www.mozilla.org/projects/security/pki/nss/>
+* nspr <http://www.mozilla.org/projects/nspr/>
+
+Qpid has been built using the GNU C++ compiler:
+ * gcc     <http://gcc.gnu.org/>            		(3.4.6)
+
+If you want to build directly from the SVN repository you will need
+all of the above plus:
+
+ * GNU make   <http://www.gnu.org/software/make/>      	(3.8.0)
+ * autoconf   <http://www.gnu.org/software/autoconf/>  	(2.61)
+ * automake   <http://www.gnu.org/software/automake/>  	(1.9.6)
+ * help2man   <http://www.gnu.org/software/help2man/>  	(1.36.4)
+ * libtool    <http://www.gnu.org/software/libtool/>   	(1.5.22)
+ * doxygen    <ftp://ftp.stack.nl/pub/users/dimitri/>  	(1.5.1)
+ * graphviz   <http://www.graphviz.org/>               	(2.12)
+ * ruby 1.8   <http://www.ruby-lang.org>               	(1.8.4)
+
+
+NOTE: make sure to install the related '-devel' packages also!
+
+To build the QMF (Qpid Management Framework) bindings for Ruby and Python,
+the following must also be installed:
+
+ * ruby-devel
+ * python-devel
+ * swig       <http://www.swig.org>                     (1.3.35)
+ 
+UUID problems:
+In some later Linux releases (such as Fedora 12), the uuid/uuid.h file has been
+moved from e2fsprogs-devel into libuuid-devel. If you are using a newer Linux
+release and run into a problem during configure in which uuid.h cannot be found,
+look for and install the libuuid-devel package.
+
+
+2.2. How to Install
+===================
+
+2.2.1. Using Package Management Tools
+=====================================
+
+On linux most packages can be installed using your distribution's
+package management tool. For example on Fedora:
+
+ # yum install boost-devel e2fsprogs-devel pkgconfig gcc-c++ make autoconf automake ruby libtool help2man doxygen graphviz
+
+The optional clustering packages changed name in Fedora 10. On Fedora 9 or earlier:
+ # yum install openais-devel cman-devel
+On Fedora 10 or later
+ # yum install corosync-devel cmanlib-devel
+
+For SASL and SSL, include
+ # yum install cyrus-sasl-devel
+
+For the XML Exchange, include:
+
+ # yum install xqilla-devel xerces-c-devel
+
+Follow the manual installation instruction below for any packages not
+available through your distributions packaging tool.
+
+2.2.2. From Source
+==================
+Required dependencies can be installed and built from source distributions.
+It is recommended that you create a directory to install them to, for example,
+~/qpid-tools.
+
+ To build and install the dependency pakcages:
+
+ 1. Unzip and untar them and cd to the untared directory.
+ 2. do:
+  # ./configure --prefix=~/qpid-tools
+  # make install
+
+The exceptions are openais and boost.
+
+a. openais
+==========
+
+If ais is shipped with you platform and you have 0.80.3-x or later, skip
+builing ais
+
+To build ais: Unpack the source distribution and do:
+ # make
+ # sudo make install DESTDIR=
+ # sudo ldconfig
+
+This will install in the standard places (/usr/lib, /usr/include etc.)
+
+Configuring ais:
+
+Edit /etc/ais/openais.conf and modify the "bindnetaddr" setting
+to your hosts IP address. Do not use 127.0.0.1.
+
+Make sure the UDP port set for mcastport in openais.conf (5405 by
+default) is not blocked by your firewall. Disable the firewall or
+configure it to allow this port for UDP.
+
+Finally start the ais daemon (must be done as root):
+ # sudo /sbin/aisexec
+
+Note that to run the AIS tests your primary group must be "ais".  You
+can change your primary group with the usermod command or set it
+temporarily with the newgrp command.
+
+Troubleshooting tips:
+
+If aisexec goes into a loop printing "entering GATHER state", verify
+your firewall is allowing UDP traffic on the mcastport set in
+openais.conf.
+
+If aisexec reports "got nodejoin message 127.0.0.1" verify the
+bindnetaddr in openais.conf is an active local IP address.  ifconfig
+will list local addresses.
+
+When aisexec is working correctly, the start-up log messages will end
+with "entering OPERATIONAL state." and "got nodejoin message <ip
+address>" where <ip address> is the local IP address specified for
+bindnetaddr in openais.conf.
+
+For further info on openais http://openais.org/
+
+b. boost
+========
+ 1. Unpack boost-jam.
+ 2. Add bjam in the unpacked directory to your path.
+ 3. Unpack boost and cd to the boost untarred directory.
+ 4. do:
+
+  # bjam toolset=gcc variant=release threading=single link=shared \
+    --layout=system --prefix=~/qpid-tools install
+
+c. autotools
+============
+If you don't have sufficiently up-to-date autotools you can get the
+latest by running the script qpid-autotools-install.
+
+1. Decide where you would like to install the tools. It should be in a
+   local directory so that you do not need root privileges. (Suggest
+   $HOME/qpid-tools.) Create an empty directory.
+2. Modify your environment variable PATH to ensure that the bin directory
+   within this directory comes first in the PATH string:
+   PATH=$HOME/qpid-tools/bin:$PATH
+3. Set PKG_CONFIG_PATH=$HOME/qpid-tools/lib/pkgconfig:/usr/lib/pkgconfig
+   (or if it already exists, make sure that the above path to your
+   qpid-tools directory is first).
+4. Run the install utility from the cpp directory:
+   ./qpid-autotools-install --prefix=$HOME/qpid-tools --skip-check
+   (Note that --prefix will only accept an absolute path, so don't use
+   ~/qpid-tools.) The utility will download, compile and install the
+   required tools into the qpid-tools directory (this may take a little
+   time). Watch for any notices about paths at the end of the install -
+   this means that your environment is not correct - see steps 2 and 3
+   above.
+   NOTE: If you omit the --skip-check option, the check of the build
+   can add up to an hour to what is normally a few minutes of install
+   time.
+5. Perform a check: from the command-line run "which automake" and
+   ensure that it finds the automake in your qpid-tools directory. If not,
+   check that the build completed normally and your environment.
+6. (Optional) If having the build artifacts lying around bothers you, delete
+   the (hidden) build directory cpp/.build-auto-tools.
+
+To see help, run ./qpid-autotools-install --help.
+
+
+2.3. Important Environment Variable Settings
+============================================
+Ensure that all the build tools are available on your path, when they are
+manually installed to non-standard locations. For example:
+
+ # export PATH=~/qpid-tools/bin:$PATH
+
+Ensure that pkg-config is set up correctly. For example:
+
+ # export PKG_CONFIG_PATH=~/qpid-tools/lib/pkgconfig:/usr/local/pkgconfig
+ # export PKG_CONFIG=~/qpid-tools/bin/pkg-config
+
+Ensure that the boost libraries are made available on the gcc library path.
+For example:
+
+ # export CXXFLAGS=-I~/qpid-tools/include/boost-1_33_1
+
+
+3. Building from a Source Distribution
+======================================
+In the distribution directory
+
+Build and install with:
+
+ # ./configure --prefix=<install_location>
+ # make all
+ # make install
+
+To build and test everything:
+
+ # make
+ # make check
+
+This builds in the source tree. You can have multiple builds in the
+same working copy with different configuration. For example you can do
+the following to build twice, once for debug, the other with
+optimization:
+
+ # make distclean
+ # mkdir .build-dbg .build-opt
+ # (cd .build-opt ../configure --prefix=/tmp/x && make && make check)
+ # (cd .build-dbg ../configure CXXFLAGS=-g --prefix=/tmp/x \
+    && make && make check)
+
+
+4. Building a Repository Working Copy
+=====================================
+To get the source code from the subversion repository (trunk) do:
+
+ # svn checkout https://svn.apache.org/repos/asf/incubator/qpid/trunk/.
+
+To build a fresh checkout:
+
+Cd to qpid/cpp subdirectory. Before running make on a fresh checkout do:
+
+ # ./bootstrap
+
+This generates config, makefiles and the like - check the script for
+details. You only need to do this once, "make" will keep everything up
+to date thereafter (including re-generating configuration & Makefiles
+if the automake templates change etc.)
+
+If you are developing code yourself, or if you want to help
+us keep the code as tight and robust as possible, consider enabling
+the use of valgrind. If you configure like this:
+
+ # ./configure --enable-valgrind
+
+That will arrange (assuming you have valgrind installed) for "make check"
+to run tests via valgrind.  That makes the tests run more slowly, but
+helps detect certain types of bugs, as well as memory leaks.  If you run
+"make check" and valgrind detects a leak that is not listed as being
+"ignorable-for-now", the test script in question will fail.  However,
+recording whether a leak is ignorable is not easy, when the stack
+signature, libraries, compiler, O/S, architecture, etc., may all vary,
+so if you see a new leak, try to figure out if it's one you can fix
+before adding it to the list.
+
+Now follow instruction for building from a source distribution in step (3).
+
+
+5. Portability
+==============
+All system calls are abstracted by classes under lib/common/sys. This
+provides an object-oriented C++ API and contains platform-specific
+code.
+
+These wrappers are mainly inline by-value classes so they impose no
+run-time penalty compared do direct system calls.
+
+Initially we will have a full linux implementation and a portable
+implementation sufficient for the client using the APR portability
+library. The implementations may change in future but the interface
+for qpid code outside the qpid/sys namespace should remain stable.
+
+
+6. Tests
+========
+See src/tests/README for details.
+
+
+7. Doxygen
+==========
+Doxygen generates documentation in several formats from source code
+using special comments. You can use javadoc style comments if you know
+javadoc, if you don't or want to know the fully story on doxygen
+markup see http://www.stack.nl/~dimitri/doxygen/
+
+Even even if the code is completely uncommented, doxygen generates
+UML-esque dependency diagrams that are ''extremely'' useful in navigating
+around the code, especially for newcomers.
+
+To try it out "make doxygen" then open doxygen/html/index.html.
+
+
+8. Troubleshooting
+==================
+When building, get the following on configure
+  configure: error: Package requirements (apr-1 >= 1.2.2) were not met:
+  
+  No package 'apr-1' found
+  
+The following has not been set 
+  export PKG_CONFIG_PATH=$HOME/qpid-tools/lib/pkgconfig:/usr/lib/pkgconfig

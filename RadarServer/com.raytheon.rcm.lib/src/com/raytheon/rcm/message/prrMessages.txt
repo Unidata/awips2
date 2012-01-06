@@ -1,0 +1,18 @@
+13  Task Failure (self-terminated)
+14  Not Gen (Data Sequence Error)
+15  Invalid Parameters
+16  Volume Scan Aborted
+18  Invalid Password 
+19  Ldshed (Moment Dis)
+20  Avail Next Vol Scan
+21  Unavail (Task Not Ld)
+22  Failure (Task Failed)
+23  Unavail (Slots)
+24  Ldshed (RPG CPU)
+25  Ldshed (RPG Mem)
+26  Illegal Request
+27  Ldshed (Narrowband)
+28  Gen Fault (Req Proc)
+29  Not Gen
+30  No Such Product Code
+31  No Such Message Code

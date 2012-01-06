@@ -1,0 +1,102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta name="copyright" content="Copyright (c) IBM Corporation and others 2000, 2007. This page is made available under license. For full details see the LEGAL in the documentation book that contains this page." >
+<meta http-equiv="Content-Language" content="en-us">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<link rel="STYLESHEET" href="../../book.css" charset="ISO-8859-1"
+	type="text/css">
+<style type="text/css">
+td {border-top: solid thin black;}
+img[alt] {background-color:#ffdddd;}
+tr {vertical-align: top;}
+</style>
+<title>The Classic Hello World Example for ECF</title>
+<script language="JavaScript" type="text/javascript" src="PLUGINS_ROOT/org.eclipse.help/livehelp.js"> </script>
+</head>
+<body>
+<h1><img src="../../intro/css/images/ecf_intro.gif">Eclipse Communication Framework (ECF)</h1>
+<p>
+<h2>The Classic Hello World Example for ECF</h2>
+<h3>Overview</h3>
+<p>As a simple first look at ECF, take a look at implementing a simple "Hello World" plugin that can send messages to other instances of the example app.  
+	As a messaging application, or example is only really useful when multiple instances are running.</p>
+<h3>The Plugin Perspective</h3>
+<p>So what we are going to do is create an Eclipse plugin that contributes to the workbench via the actionSets extension point.  We will create a simple action
+	that will trigger the instantiation of our Hello World client class:<br><pre>public void run(IAction action) {
+        HelloClient client = new HelloClient();
+        try {
+            client.createAndConnect(IDFactory.createStringID("ecftcp://localhost:3282/server"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+}</pre>  From the example source code provided, you can see the Eclipse plugin infrastructure 
+		code in the HelloPlugin and HelloAction classes.  These classes will not be discussed in this tutorial as they are not relevent to ECF.</br></p>
+<h3>The ECF Perspective</h3>
+<p>When we create our client class, HelloClient, from our action, we will provide the class with some setup information it needs to connect to an ECF server:<br><pre>public class HelloClient {
+    
+    public static final String DEFAULT_CONTAINER_TYPE = "ecf.generic.client";
+    public static final String SHARED_OBJECT_ID = "myobject";
+    
+    public HelloClient() {
+        super();
+    }
+
+    public ISharedObjectContainer createAndConnect(ID groupID) {
+        ISharedObjectContainer container = null;
+        try {
+            // Create container instance via ECF container factory
+            container = SharedObjectContainerFactory.getDefault().createSharedObjectContainer(DEFAULT_CONTAINER_TYPE);
+            // Create ID for shared object
+            ID sharedObjectID = IDFactory.createStringID(SHARED_OBJECT_ID);
+            // Create actual shared object
+            ISharedObject sharedObject = new HelloSharedObject();
+            // Add shared object to container
+            container.getSharedObjectManager().addSharedObject(sharedObjectID,sharedObject,new HashMap());
+            // Join group identified by groupID
+            container.joinGroup(groupID,null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return container;
+    }
+}</pre></br>  Note for this Hello
+	World example to be able to join a shared container, an instance of <code>org.eclipse.ecf.provider.app.ServerApplication</code> in the 
+		<code>org.eclipse.ecf.example.collab</code> needs to be running on the same machine.  The configuration information we are passing to the HelloClient is the following:
+		<ol>
+			<li>An ID to represent the group of contained object.<pre>client.createAndConnect(IDFactory.createStringID("ecftcp://localhost:3282/server"));</pre>
+				<ul><li>This ID is passed into HelloClient.createAndConnect().  
+				This ID is shared among all instances of our application that communicate with each other.</li><li>You may notice a URI-style protocol descriptor in our example.  
+				This tells the shared container what protocol to use when adding instances of SharedObjects to the container.</li></ul>
+			</li>
+			<li>An ID to represent the particular type of shared object that is being shared.<pre>public static final String SHARED_OBJECT_ID = "myobject";</pre>
+				<ul><li>We define one of these Shared Object IDs for our application.  
+				If we wanted to create another application that used the same container, but required a seperate event queue, we would define a new Shared Object ID.</li><li>For example,
+				If we wanted to create a Japanese version of Hello World, using an ID seperate from the English version would ensure that no English-only reading clients would be
+				 burdened with figuring out what "Konichiwa Minasan" means.</li></ul></li>
+			<li>A classname that defines in what ways the instances of our shared objects will be able to communicate.<pre>public static final String DEFAULT_CONTAINER_TYPE = "ecf.generic.client";</pre>
+				<li>For our example, we will use the ecf.generic.client class.  You can see an example of this class in the <code>org.eclipse.ecf.provider.comm.tcp.Client</code> class in the <code>org.eclipse.ecf.provider</code> plugin.</li></li>
+				 </ol>
+			With this information, a SharedContainer is created.  From there, we simply create an instance of a SharedObject, in this case the HelloSharedObject class, and join it to the group.  
+			From there, all instances in the container will be able to communicate in this code block:<br><pre>    public void handleEvent(Event event) {
+        if (event instanceof ISharedObjectActivatedEvent) {
+            System.out.println("HELLO WORLD "+getID()+".  I'm activated!");
+        } else if (event instanceof ISharedObjectDeactivatedEvent) {
+            System.out.println("GOODBYE from "+getID()+".  I'm deactivated!");
+        } else if (event instanceof ISharedObjectContainerJoinedEvent) {
+            System.out.println("Remote "+((ISharedObjectContainerJoinedEvent)event).getJoinedContainerID()+" joined!");
+        } else if (event instanceof ISharedObjectContainerDepartedEvent) {
+            System.out.println("Remote "+((ISharedObjectContainerDepartedEvent)event).getDepartedContainerID()+" departed!");
+        } else if (event instanceof ISharedObjectMessageEvent) {
+            ISharedObjectMessageEvent evt = (ISharedObjectMessageEvent) event;
+            System.out.println("Got message "+evt.getData()+" from "+evt.getSenderSharedObjectID());
+        }
+    }</pre></br>
+		</p>
+		<h3>Conclusion</h3>
+		<p>All the "application logic" of our Hello World example is defined in the HelloSharedObject class and this really is the core value that ECF provides.  
+			To grow our application, there are specific parts in the framework for various logical aspects of communication.  For example, to add another protocol, 
+			we would only need to create a new protocol provider, and our core messaging logic would remain untouched.
+		<p>The source code used in this example may be found at [].</p>
+</body>
+</html>

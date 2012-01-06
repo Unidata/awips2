@@ -1,0 +1,50 @@
+#!/bin/ksh
+# run_vacuum   
+# December 29, 2004
+
+# this script runs from the cron every 2 hours
+# it does a vacuum of the IHFS db
+
+#-------------------------------------------------------------------
+
+# This allows you to call this script from outside of ./standard/bin
+RUN_FROM_DIR=`dirname $0`
+
+# set up SOME environment variables for WHFS applications
+. $RUN_FROM_DIR/../../set_hydro_env
+export VACUUM_LOG_DIR=$(get_apps_defaults vacuum_log_dir)
+export DB_NAME=$(get_apps_defaults db_name)
+
+
+# Create log file name 
+#
+
+name_vac=`date -u +vacuum.log.%m%d_%H%M`
+fnm_vac=$VACUUM_LOG_DIR/$name_vac
+
+#----------------------------------------------------------------------
+#  Don't fire up another instance if one is underway
+#  If another instance is running, write a message to the log file and stop
+
+AMIRUNNING_DIR=$VACUUM_LOG_DIR
+
+. /awips/hydroapps/public/bin/amirunning
+
+if [[ $AmIRunning = "yes" ]]
+then
+  echo run_vacuum script cancelled due to other instance running >> $fnm_vac
+  exit 1
+fi
+
+#----------------------------------------------------------------------
+# run vacuum with verbose option on IHFS db
+#
+
+DTZ=`date -u +%T`
+echo begin vacuum at $DTZ >> $fnm_vac
+
+echo database name = $DB_NAME >> $fnm_vac
+$POSTGRESQLBINDIR/vacuumdb  -v  $DB_NAME  >> $fnm_vac  2>>$fnm_vac
+
+DTZ=`date -u +%T`
+echo end vacuum at $DTZ >> $fnm_vac

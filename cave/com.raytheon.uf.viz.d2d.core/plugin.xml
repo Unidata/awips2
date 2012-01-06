@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<?eclipse version="3.2"?>
+<plugin>
+   <extension-point id="com.raytheon.uf.viz.d2d.core.timeMatchingConfigurationFactory" name="com.raytheon.uf.viz.d2d.core.timeMatchingConfigurationFactory" schema="schema/timeMatchingConfigurationFactory.exsd"/>
+   <extension-point id="com.raytheon.uf.viz.d2d.core.cloudHeightAlgorithm" name="com.raytheon.uf.viz.d2d.core.cloudHeightAlgorithm" schema="schema/cloudHeightAlgorithm.exsd"/>
+
+   <extension point="org.eclipse.ui.themes">
+    <themeElementCategory 
+        id="com.raytheon.uf.viz.core.theme.d2d"
+        label="D2D">
+        <description>
+            Theme for D2D
+        </description>
+    </themeElementCategory>
+    <fontDefinition
+        categoryId="com.raytheon.uf.viz.core.theme.d2d"
+        id="com.raytheon.uf.viz.d2d.core.map.D2DColorBarResourceFont"
+        label="D2D Colorbar Font"
+        value="Monospace-regular-11">
+        <description>
+            Colorbar font for D2D
+        </description>
+    </fontDefinition>   
+    <colorDefinition
+    	  categoryId="com.raytheon.uf.viz.core.theme.d2d"
+          id="com.raytheon.uf.viz.d2d.core.map.D2DColorBarResourceColor"
+          label="D2D Colorbar Font Color"
+          value="255,255,255">
+          <description>
+             Colorbar font color for D2D
+          </description>
+    </colorDefinition>
+    <fontDefinition
+        categoryId="com.raytheon.uf.viz.core.theme.d2d"
+        id="com.raytheon.uf.viz.d2d.core.legend.D2DLegendResource"
+        label="D2D Legend Font"
+        value="Monospace-bold-14">
+        <description>
+            Legend font for D2D
+        </description>
+    </fontDefinition>   
+    <fontDefinition
+        categoryId="com.raytheon.uf.viz.core.theme.d2d"
+        id="com.raytheon.uf.viz.d2d.core.sampling.D2DSamplingResource"
+        label="Sampling Font"
+        value="Monospaced-bold-12">
+        <description>
+            The sampling font for D2D
+        </description>
+    </fontDefinition>
+   </extension>
+</plugin>

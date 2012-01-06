@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+
+
+OASIS takes no position regarding the validity or scope of any intellectual property or other rights that might be claimed to pertain to the implementation or use of the technology described in this document or the extent to which any license under such rights might or might not be available; neither does it represent that it has made any effort to identify any such rights. Information on OASIS's procedures with respect to rights in OASIS specifications can be found at the OASIS website. Copies of claims of rights made available for publication and any assurances of licenses to be made available, or the result of an attempt made to obtain a general license or permission for the use of such proprietary rights by implementors or users of this specification, can be obtained from the OASIS Executive Director.
+
+OASIS invites any interested party to bring to its attention any copyrights, patents or patent applications, or other proprietary rights which may cover technology that may be required to implement this specification. Please address the information to the OASIS Executive Director.
+
+Copyright (C) OASIS Open (2005-2006). All Rights Reserved.
+
+This document and translations of it may be copied and furnished to others, and derivative works that comment on or otherwise explain it or assist in its implementation may be prepared, copied, published and distributed, in whole or in part, without restriction of any kind, provided that the above copyright notice and this paragraph are included on all such copies and derivative works. However, this document itself may not be modified in any way, such as by removing the copyright notice or references to OASIS, except as needed for the purpose of developing OASIS specifications, in which case the procedures for copyrights defined in the OASIS Intellectual Property Rights document must be followed, or as required to translate it into languages other than English. 
+
+The limited permissions granted above are perpetual and will not be revoked by OASIS or its successors or assigns. 
+
+This document and the information contained herein is provided on an "AS IS" basis and OASIS DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+
+-->
+
+<xsd:schema 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="http://www.w3.org/2001/XMLSchema" 
+  xmlns:wsa="http://www.w3.org/2005/08/addressing" 
+  xmlns:wsrf-rp="http://docs.oasis-open.org/wsrf/rp-2" 
+  targetNamespace="http://docs.oasis-open.org/wsrf/rmd-1" 
+  xmlns:wsrmd="http://docs.oasis-open.org/wsrf/rmd-1"
+  elementFormDefault="qualified">
+
+  <xsd:import 
+    namespace="http://docs.oasis-open.org/wsrf/rp-2" 
+    schemaLocation="WS-ResourceProperties-1_2.xsd" /> 
+
+  <xsd:import 
+    namespace="http://www.w3.org/2005/08/addressing" 
+    schemaLocation="WS-Addressing-2005_08.xsd" />
+
+
+
+<!-- ======================== Utility Types ======================= -->
+  <xsd:simpleType name="PairsOfURIType">
+    <xsd:list itemType="xsd:anyURI" />
+  </xsd:simpleType>
+
+<!-- ================  PortType Attribute Extensions ================ -->
+  <xsd:attribute name="Descriptor" type="xsd:QName" />
+   
+  <xsd:attribute name="DescriptorLocation" type="xsd:anyURI" />
+
+<!-- ================= Documentation Component ==================== -->
+  <xsd:complexType name="DocumentationType" mixed="true" >
+    <xsd:sequence>
+      <xsd:any namespace="##any" 
+           minOccurs="0" maxOccurs="unbounded" 
+           processContents="lax" />
+    </xsd:sequence>
+    <xsd:anyAttribute/>
+  </xsd:complexType>
+
+  <xsd:complexType name="DocumentedType">
+    <xsd:sequence>
+      <xsd:element name="documentation" type="wsrmd:DocumentationType"
+               minOccurs="0" maxOccurs="1" />
+    </xsd:sequence>
+  </xsd:complexType>
+    
+<!-- ================== Definitions Component ===================== -->
+<!--
+  <Definitions 
+      targetNamespace="xsd:anyURI"
+      {anyAttribute}* > 
+
+  <documentation />? 
+  <MetadataDescriptor /> *
+  {any}*
+
+</Definitions>
+ -->
+ 
+  <xsd:complexType name= "DefinitionsType" >
+    <xsd:complexContent>
+      <xsd:extension base="wsrmd:DocumentedType">
+        <xsd:sequence>
+          <xsd:element ref="wsrmd:MetadataDescriptor" 
+                      minOccurs="0" maxOccurs="unbounded" />
+          <xsd:any namespace="##other" 
+               minOccurs="0" maxOccurs="unbounded"
+               processContents="lax" />
+        </xsd:sequence>
+        <xsd:attribute name="targetNamespace" 
+                       type="xsd:anyURI" use="required"/>
+        <xsd:anyAttribute namespace="##other" processContents="lax"/>
+      </xsd:extension>
+    </xsd:complexContent>    
+  </xsd:complexType> 
+  
+  <xsd:element name="Definitions" type="wsrmd:DefinitionsType" >
+    <xsd:key name="MetadataDescriptor">
+      <xsd:annotation>
+        <xsd:documentation>
+          To form a QName, the name of any MetadataDescriptor must be 
+          unique within a Definitions element.
+        </xsd:documentation>
+      </xsd:annotation>
+      <xsd:selector xpath="wsrmd:MetadataDescriptor" /> 
+      <xsd:field xpath="@name" /> 
+    </xsd:key>
+  </xsd:element>
+
+<!-- =============== MetadataDescriptor Component =================== -->
+<!--
+<MetadataDescriptor 
+      name="xsd:NCName"
+      interface="xsd:QName"
+      wsdlLocation="list of xsd:anyURI"?
+      {anyAttribute}* >
+
+  <documentation />?
+  <Property /> *
+  {any}*
+
+</MetadataDescriptor>
+-->
+
+  <xsd:complexType name= "MetadataDescriptorType" >
+    <xsd:complexContent>
+      <xsd:extension base="wsrmd:DocumentedType">
+        <xsd:sequence>
+          <xsd:element ref="wsrmd:Property" 
+                       minOccurs="0" maxOccurs="unbounded" />
+          <xsd:any namespace="##other" 
+               minOccurs="0" maxOccurs="unbounded"
+               processContents="lax" />
+        </xsd:sequence>
+        <xsd:attribute name="name" 
+                       type="xsd:NCName" use="required"/>
+        <xsd:attribute name="interface" 
+                       type="xsd:QName" use="required"/>
+        <xsd:attribute name="wsdlLocation" 
+                       type="wsrmd:PairsOfURIType" />
+        <xsd:anyAttribute namespace="##other" processContents="lax"/>
+      </xsd:extension>
+    </xsd:complexContent>    
+  </xsd:complexType> 
+  
+  <xsd:element name="MetadataDescriptor" 
+               type="wsrmd:MetadataDescriptorType" />  
+  
+<!-- ==================== Property Component ====================== -->
+<!--
+<Property 
+      name="xsd:QName"
+      mutability="[constant|appendable|mutable]" ?
+      modifiability="[read-only|read-write]" ?
+      subscribability="xs:boolean" ?
+      {anyAttribute}* >
+
+  <documentation />?
+  [ <ValidValues> {any}* </ValidValues> |
+    <ValidValueRange lowerBound=’xsd:simpleType’
+                     upperBound=’xsd:simpleType’>
+    </ValidValueRange> ] ?
+  <StaticValues> {any}* </StaticValues> ?
+
+  {any} *
+
+</Property>
+-->
+  <xsd:complexType name= "PropertyType" >
+    <xsd:complexContent>
+      <xsd:extension base="wsrmd:DocumentedType">
+        <xsd:sequence>
+          <xsd:choice>
+            <xsd:element ref="wsrmd:ValidValues" 
+                         minOccurs="0" maxOccurs="1" />
+            <xsd:element ref="wsrmd:ValidValueRange"
+                         minOccurs="0" maxOccurs="1" />
+          </xsd:choice>
+          <xsd:element ref="wsrmd:StaticValues" 
+                       minOccurs="0" maxOccurs="1" />
+          <xsd:any namespace="##other" 
+                   minOccurs="0" maxOccurs="unbounded"
+                   processContents="lax" />
+        </xsd:sequence>
+        <xsd:attribute name="name" 
+                       type="xsd:QName" use="required"/>
+        <xsd:attribute name="mutability" 
+                       type="wsrmd:MutabilityType" />
+        <xsd:attribute name="modifiability" 
+                       type="wsrmd:ModifiabilityType" />
+        <xsd:attribute name="subscribability" type="xsd:boolean" default="false" />
+        <xsd:anyAttribute namespace="##other" processContents="lax"/>
+      </xsd:extension>
+    </xsd:complexContent>    
+  </xsd:complexType> 
+
+  <xsd:element name="Property" type="wsrmd:PropertyType" />
+    
+  <xsd:simpleType name="MutabilityType">
+    <xsd:restriction base="xsd:string" >
+      <xsd:enumeration value="constant" />
+      <xsd:enumeration value="appendable" />
+      <xsd:enumeration value="mutable" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  
+  <xsd:simpleType name="ModifiabilityType">
+    <xsd:restriction base="xsd:string" >
+      <xsd:enumeration value="read-only" />
+      <xsd:enumeration value="read-write" />
+    </xsd:restriction>
+  </xsd:simpleType>
+
+<!-- ================= Valid Values Component ===================== -->
+<!--
+<ValidValues 
+      {anyAttribute}* >
+  <documentation />?
+  {any}*
+</ValidValues>
+-->
+  <xsd:complexType name= "ValidValuesType" mixed="true">
+    <xsd:sequence>
+      <xsd:element name="documentation" type="wsrmd:DocumentationType"
+                   minOccurs="0" maxOccurs="1" />
+  
+      <xsd:any namespace="##other" 
+               minOccurs="0" maxOccurs="unbounded"
+               processContents="lax" />
+    </xsd:sequence>
+    <xsd:anyAttribute namespace="##other" processContents="lax"/>
+  </xsd:complexType>
+
+  <xsd:element name="ValidValues" type="wsrmd:ValidValuesType" />
+
+<!-- ================= Valid Range Component ===================== -->
+<!--
+<ValidValueRange 
+      lowerBound="xs:anySimpleType" ? upperBound="xs:anySimpleType" ? 
+      {anyAttribute}* >
+  <documentation />?
+  {any}*
+</ValidValueRange>
+-->
+  <xsd:complexType name= "ValidValueRangeType" mixed="true">
+    <xsd:sequence>
+      <xsd:element name="documentation" type="wsrmd:DocumentationType"
+                   minOccurs="0" maxOccurs="1" />
+  
+      <xsd:any namespace="##other" 
+               minOccurs="0" maxOccurs="unbounded"
+               processContents="lax" />
+    </xsd:sequence>
+    <xsd:attribute name="lowerBound" type="xsd:anySimpleType" />
+    <xsd:attribute name="upperBound" type="xsd:anySimpleType" />
+    <xsd:anyAttribute namespace="##other" processContents="lax"/>
+  </xsd:complexType>   
+
+  <xsd:element name="ValidValueRange" type="wsrmd:ValidValueRangeType" />
+
+<!-- ================ Static Values Component ===================== -->
+<!--
+<StaticValues 
+      {anyAttribute}* >
+  <documentation />?
+  {any}*
+</StaticValues>
+-->
+  <xsd:complexType name= "StaticValuesType" mixed="true">
+    <xsd:sequence>
+      <xsd:element name="documentation" type="wsrmd:DocumentationType"
+                   minOccurs="0" maxOccurs="1" />
+  
+      <xsd:any namespace="##other" 
+               minOccurs="0" maxOccurs="unbounded"
+               processContents="lax" />
+    </xsd:sequence>
+    <xsd:anyAttribute namespace="##other" processContents="lax"/>
+  </xsd:complexType> 
+  
+  <xsd:element name="StaticValues" type="wsrmd:StaticValuesType" />
+
+<!-- ================ Initial Values Component ==================== -->
+<!--
+<InitialValues 
+      {anyAttribute}* >
+  <documentation />?
+  {any}*
+</InitialValues>
+-->
+  <xsd:complexType name= "InitialValuesType" mixed="true">
+    <xsd:sequence>
+      <xsd:element name="documentation" type="wsrmd:DocumentationType"
+                   minOccurs="0" maxOccurs="1" />
+  
+      <xsd:any namespace="##other" 
+               minOccurs="0" maxOccurs="unbounded"
+               processContents="lax" />
+    </xsd:sequence>
+    <xsd:anyAttribute namespace="##other" processContents="lax"/>
+  </xsd:complexType> 
+  
+  <xsd:element name="InitialValues" type="wsrmd:InitialValuesType" />
+
+    
+<!-- =========== MetadataDescriptorReference RP GED =============== -->
+  <xsd:complexType name="MetadataDescriptorReferenceType">
+    <xsd:complexContent>  
+      <xsd:extension base="wsa:EndpointReferenceType"/>
+    </xsd:complexContent>    
+  </xsd:complexType> 
+
+  <xsd:element name="MetadataDescriptorReference" 
+               type="wsrmd:MetadataDescriptorReferenceType" />
+
+<!-- 
+
+Metadata Resource RP Doc 
+
+This defines one property - MetadataDescriptor - which must have a cardinality of one.
+
+-->
+
+  <xsd:element name="MetadataResourceRP" type="wsrmd:DefinitionsType"/>
+
+</xsd:schema>

@@ -1,0 +1,24 @@
+C MEMBER UDTYPB
+C-----------------------------------------------------------------------
+C
+C @PROCESS LVL(77)
+C
+C  INITIALIZE COMMON BLOCK UDTYPB
+C
+      BLOCK DATA UDTYPB
+C
+      INCLUDE 'udtypx'
+C
+C
+      DATA IDTFIL/0/,MDTYPE/110/,NDTYPE/0/
+      DATA DTCODE/110*' '/
+      DATA DTDIMN/110*' '/
+      DATA DTUNIT/110*' '/
+      DATA IDTMIS/110*-999/
+      DATA NDTVAL/110*-999/
+      DATA DTTIME/110*' '/
+      DATA NDTADD/110*-999/
+      DATA IDTWRT/110*-999/
+C
+C
+      END

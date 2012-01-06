@@ -1,0 +1,45 @@
+/*****************************************************************************
+ * database.c
+ *
+ * DESCRIPTION
+ *    This file creates a .flx index which allows us to treat a collection of
+ * .flt files as a database, or combine the .flt files into a large "Cube"
+ * format.
+
+ * HISTORY
+ *   7/2003 Arthur Taylor (MDL / RSIS): Started experimenting with.
+ *   8/2003 AAT: Revisited.
+ *
+ * NOTES
+ *****************************************************************************
+ */
+#ifndef DATABASE_H
+#define DATABASE_H
+
+#include <time.h>
+#include "type.h"
+
+#define GDSLEN 129
+#define HEADLEN 20
+
+void ReadGDSBuffer (char *ptr, gdsType * gds);
+
+uShort InsertGDS (char **flxArray, int *flxArrayLen, gdsType * gds);
+
+int InsertPDS (char **flxArray, int *flxArrayLen, char *elem, time_t refTime,
+               char *unit, char *comment, uShort gdsNum, uShort center,
+               uShort subCenter, time_t validTime, char *fltName,
+               sInt4 fltOffset, uChar endian, uChar scan, char **table,
+               int tableLen);
+
+int PrintFLXBuffer (char *flxArray, int flxArrayLen);
+
+void CreateFLX (char **flxArray, int *flxArrayLen);
+
+int ReadFLX (char *filename, char **flxArray, int *flxArrayLen);
+
+int Asc2Flx (char *inFile, char *outFile);
+
+int WriteFLX (char *filename, char *flxArray, int flxArrayLen);
+
+#endif

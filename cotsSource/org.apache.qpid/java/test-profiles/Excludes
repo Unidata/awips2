@@ -1,0 +1,38 @@
+org.apache.qpid.client.MultipleJCAProviderRegistrationTest#test
+// QPID-1715, QPID-1715 : Client Error Handling on close is still broken
+org.apache.qpid.server.queue.QueueCreateTest#testCreatePriorityString
+org.apache.qpid.server.queue.QueueCreateTest#testCreateFlowToDiskValidNoSize
+org.apache.qpid.server.queue.QueueCreateTest#testCreateFlowToDiskInvalid
+org.apache.qpid.server.queue.QueueCreateTest#testCreateFlowToDiskInvalidSize
+
+//
+// QPID-2031 : Broker is not cleanly shutdown by QpidTestCase
+//
+org.apache.qpid.server.logging.BrokerLoggingTest#testBrokerShutdownListeningTCPDefault
+org.apache.qpid.server.logging.BrokerLoggingTest#testBrokerShutdownListeningTCPSSL
+org.apache.qpid.server.logging.BrokerLoggingTest#testBrokerShutdownStopped
+org.apache.qpid.server.logging.VirtualHostLoggingTest#testVirtualhostClosure
+org.apache.qpid.server.logging.MemoryMessageStoreLoggingTest#testMessageStoreClose
+
+// QPID-XXX : Test fails to start external broker due to Derby Exception.
+org.apache.qpid.server.logging.DerbyMessageStoreLoggingTest#*
+
+// QPID-1816 : Client Ack has not been addressed
+org.apache.qpid.test.unit.ack.AcknowledgeAfterFailoverOnMessageTest#testDirtyClientAck
+org.apache.qpid.test.unit.ack.AcknowledgeAfterFailoverOnMessageTest#testClientAck
+org.apache.qpid.test.unit.ack.AcknowledgeAfterFailoverTest#testDirtyClientAck 
+org.apache.qpid.test.unit.ack.AcknowledgeAfterFailoverTest#testClientAck
+
+
+// QPID-143 : Failover can occur between receive and ack but we don't stop the ack.
+// Just fully disable both tests as they are highlighting to many Java Client race conditions
+org.apache.qpid.test.unit.ack.AcknowledgeAfterFailoverOnMessageTest#*
+org.apache.qpid.test.unit.ack.AcknowledgeAfterFailoverTest#*
+
+// The following tests exibit random failures and are temporarily excluded.
+// QPID-2224 Random Test failures - The test needs to be fixed.
+org.apache.qpid.transport.network.mina.MINANetworkDriverTest#*
+// QPID-2225 Random Test failures against the in-vm broker.
+org.apache.qpid.test.unit.ack.FailoverBeforeConsumingRecover#*
+// QPID-2262 Random test failures - The test needs to be fixed.
+org.apache.qpid.server.security.acl.SimpleACLTest#testClientPublishInvalidQueueSuccess

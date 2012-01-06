@@ -1,0 +1,72 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the whfs_lib-RPFEngine library file
+#
+#  cmt: File made on Wed Aug  6 12:59:59 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/whfs_lib/lib
+
+ARFLAGS  = rv
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU -DUSE_XM_MWMUTIL_H -DUSE_XGPM -Wall -Wno-unused-variable -Wno-comment
+
+INSERTS      = -I/fs/hseb/ob83/ohd/whfs_lib/inc/general  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/dbms  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/gui  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/riverpro  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/pproc_lib/inc
+
+INSERTS_CC   = -I/usr/include/informix/esql/  \
+               -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .c .h .o .a
+
+.c.a:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libRPFEngine_t.a:  \
+     $(LIB)/libRPFEngine_t.a(build_ugc.o)  \
+     $(LIB)/libRPFEngine_t.a(check_conditions.o)  \
+     $(LIB)/libRPFEngine_t.a(check_crs_info.o)  \
+     $(LIB)/libRPFEngine_t.a(compute_stage_info.o)  \
+     $(LIB)/libRPFEngine_t.a(create_final_product.o)  \
+     $(LIB)/libRPFEngine_t.a(create_headline_section.o)  \
+     $(LIB)/libRPFEngine_t.a(create_product.o)  \
+     $(LIB)/libRPFEngine_t.a(create_tabular_section.o)  \
+     $(LIB)/libRPFEngine_t.a(define_product_content.o)  \
+     $(LIB)/libRPFEngine_t.a(get_fp_grp_county.o)  \
+     $(LIB)/libRPFEngine_t.a(get_misc.o)  \
+     $(LIB)/libRPFEngine_t.a(get_stages.o)  \
+     $(LIB)/libRPFEngine_t.a(load_offices.o)  \
+     $(LIB)/libRPFEngine_t.a(load_pe_value.o)  \
+     $(LIB)/libRPFEngine_t.a(load_phrase_data.o)  \
+     $(LIB)/libRPFEngine_t.a(load_var.o)  \
+     $(LIB)/libRPFEngine_t.a(load_variable_special.o)  \
+     $(LIB)/libRPFEngine_t.a(load_variable_value.o)  \
+     $(LIB)/libRPFEngine_t.a(malloc_misc.o)  \
+     $(LIB)/libRPFEngine_t.a(order_fps.o)  \
+     $(LIB)/libRPFEngine_t.a(process_vtecinfo.o)  \
+     $(LIB)/libRPFEngine_t.a(read_names.o)  \
+     $(LIB)/libRPFEngine_t.a(read_pcc.o)  \
+     $(LIB)/libRPFEngine_t.a(read_pccnames.o)  \
+     $(LIB)/libRPFEngine_t.a(save_carryover.o)  \
+     $(LIB)/libRPFEngine_t.a(save_cor_carryover.o)  \
+     $(LIB)/libRPFEngine_t.a(select_pid_and_fps.o)  \
+     $(LIB)/libRPFEngine_t.a(verify_templatenames.o)  \
+     $(LIB)/libRPFEngine_t.a(write_pcc.o)
+

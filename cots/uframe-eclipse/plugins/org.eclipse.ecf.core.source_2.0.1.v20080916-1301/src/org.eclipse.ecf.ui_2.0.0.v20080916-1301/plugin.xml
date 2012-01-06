@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.1"?>
+<plugin>
+   <extension-point id="connectWizards" name="ECF Connect Wizard" schema="schema/connectWizards.exsd"/>
+   <extension-point id="configurationWizards" name="ECF Container Configuration Wizard" schema="schema/configurationWizards.exsd"/>
+   <extension
+         point="org.eclipse.ecf.ui.configurationWizards">
+      <category
+            id="org.eclipse.ecf.ui.clientcategory"
+            name="%configurationWizards.category.client">
+      </category>
+      <category
+            id="org.eclipse.ecf.ui.servercategory"
+            name="%configurationWizards.category.server">
+      </category>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="org.eclipse.ecf.internal.ui.CategoryPreferencePage"
+            id="org.eclipse.ecf.ui.category"
+            name="%preferences.page.name">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="org.eclipse.ecf.internal.ui.UIPreferenceInitializer">
+      </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="%view.name"
+            id="org.eclipse.ecf.ui.viewcategory"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="org.eclipse.ecf.internal.ui.perspectives.CommunicationPerspective"
+            icon="icons/enabled/communications.gif"
+            id="org.eclipse.ecf.ui.perspective.communications"
+            name="%perspective.name">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            id="org.eclipse.ecf.ui.commands.category"
+            name="Communications">
+      </category>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="org.eclipse.ecf.ui.newConnection.category"
+            name="Connection">
+      </category>
+   </extension>
+</plugin>

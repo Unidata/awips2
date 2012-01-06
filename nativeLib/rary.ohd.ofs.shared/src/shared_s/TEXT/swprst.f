@@ -1,0 +1,270 @@
+C MODULE SWPRST
+C-----------------------------------------------------------------------
+C
+C  ROUTINE TO PRINT ERROR MESSAGES BASED ON STATUS CODE FROM THE
+C  PROCESSED DATA BASE READ/WRITE ROUTINES.
+C
+      SUBROUTINE SWPRST (CALLER,TSID,TYPE,ITIME,UNITS,FTSID,MAXBUF,
+     *   NVAL,ISTAT)
+C
+      CHARACTER*4 TYPE,UNITS
+      CHARACTER*8 CALLER,TSID,FTSID
+C
+      INCLUDE 'uio'
+      INCLUDE 'scommon/sudbgx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/shared_s/RCS/swprst.f,v $
+     . $',                                                             '
+     .$Id: swprst.f,v 1.2 1998/04/07 18:37:04 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+      IF (ISTRCE.GT.1) THEN
+         WRITE (IOSDBG,40)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  CHECK FOR VALID CALLER CODE
+      IF (CALLER.NE.'WPRDH'.AND.
+     *    CALLER.NE.'WPRDC'.AND.
+     *    CALLER.NE.'WPRDFH'.AND.
+     *    CALLER.NE.'WPRDCF') GO TO 20
+C
+C  CHECK FOR STATUS CODE=0
+      IF (ISTAT.EQ.0) THEN
+         WRITE (LP,50) CALLER(1:LENSTR(CALLER)),ISTAT
+         CALL SULINE (LP,2)
+         GO TO 30
+         ENDIF
+C
+      IF (CALLER.NE.'WPRDH'.AND.CALLER.NE.'WPRDFH') GO TO 10
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  STATUS CODES FOR WPRDH AND WPRDFH
+C
+C  FILE IS FULL
+      IF (ISTAT.EQ.1) THEN
+         WRITE (LP,80) CALLER(1:LENSTR(CALLER)),TYPE,TSID
+         CALL SUERRS (LP,2,-1)
+         GO TO 30
+         ENDIF
+C
+C  TIME SERIES ALREADY EXISTS
+      IF (ISTAT.EQ.2) THEN
+         WRITE (LP,90) CALLER(1:LENSTR(CALLER)),TYPE,TSID
+         CALL SUERRS (LP,2,-1)
+         GO TO 30
+         ENDIF
+C
+C  INVALID DATA TIME INTERVAL
+      IF (ISTAT.EQ.3) THEN
+         WRITE (LP,100) CALLER(1:LENSTR(CALLER)),ITIME,TSID
+         CALL SUERRS (LP,2,-1)
+         GO TO 30
+         ENDIF
+C
+C  INVALID DATA TYPE CODE
+      IF (ISTAT.EQ.4) THEN
+         WRITE (LP,110) CALLER(1:LENSTR(CALLER)),TYPE,TSID
+         CALL SUERRS (LP,2,-1)
+         GO TO 30
+         ENDIF
+C
+C  INVALID UNITS CODE
+      IF (ISTAT.EQ.5) THEN
+         WRITE (LP,120) CALLER(1:LENSTR(CALLER)),UNITS,TSID
+         CALL SUERRS (LP,2,-1)
+         GO TO 30
+         ENDIF
+C
+C  SYSTEM ERROR ACCESSING FILE
+      IF (ISTAT.EQ.6) THEN
+         WRITE (LP,130) CALLER(1:LENSTR(CALLER)),TYPE,TSID
+         CALL SUERRS (LP,2,-1)
+         GO TO 30
+         ENDIF
+C
+C  WORK BUFFER TOO SMALL
+      IF (ISTAT.EQ.7) THEN
+         WRITE (LP,140) CALLER(1:LENSTR(CALLER)),ITIME,TYPE,TSID
+         CALL SUERRS (LP,2,-1)
+         WRITE (LP,70) MAXBUF
+         CALL SULINE (LP,1)
+         GO TO 30
+         ENDIF
+C
+C  MISSING FUTURE ID OR SHOULD NOT HAVE FUTURE ID
+      IF (ISTAT.EQ.8) THEN
+         WRITE (LP,150) CALLER(1:LENSTR(CALLER)),TYPE,TSID
+         CALL SUERRS (LP,2,-1)
+         GO TO 30
+         ENDIF
+C
+C  FUTURE TIME SERIES DOES NOT EXIST
+      IF (ISTAT.EQ.9) THEN
+         WRITE (LP,160) CALLER(1:LENSTR(CALLER)),FTSID,TSID
+         CALL SUERRS (LP,2,-1)
+         GO TO 30
+         ENDIF
+C
+C  INVALID NUMBER OF VALUES PER TIME STEP
+      IF (ISTAT.EQ.10) THEN
+         WRITE (LP,170) CALLER(1:LENSTR(CALLER)),NVAL,TSID
+         CALL SUERRS (LP,2,-1)
+         GO TO 30
+         ENDIF
+C
+C  INVALID IDENTIFIER
+      IF (ISTAT.EQ.11) THEN
+         WRITE (LP,190) CALLER(1:LENSTR(CALLER)),TSID
+         CALL SUERRS (LP,2,-1)
+         GO TO 30
+         ENDIF
+C
+C  INVALID LATITUDE AND/OR LONGITUDE
+      IF (ISTAT.EQ.12) THEN
+         WRITE (LP,180) CALLER(1:LENSTR(CALLER)),TYPE,TSID
+         CALL SUERRS (LP,2,-1)
+         GO TO 30
+         ENDIF
+C
+C  INVALID STATUS CODE
+      WRITE (LP,60) ISTAT,CALLER
+      CALL SUERRS (LP,2,-1)
+      GO TO 30
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+10    IF (CALLER.NE.'WPRDC'.AND.CALLER.NE.'WPRDCF') GO TO 20
+C
+C  STATUS CODES FOR WPRDC AND WPRDCF
+C
+C  TIME SERIES NOT FOUND OR INVALID DATA TYPE
+      IF (ISTAT.EQ.1) THEN
+         WRITE (LP,220) CALLER(1:LENSTR(CALLER)),TYPE,TSID
+         CALL SUERRS (LP,2,-1)
+         GO TO 30
+         ENDIF
+C
+C  INVALID UNITS
+      IF (ISTAT.EQ.2) THEN
+         WRITE (LP,120) CALLER(1:LENSTR(CALLER)),UNITS,TSID
+         CALL SUERRS (LP,2,-1)
+         GO TO 30
+         ENDIF
+C
+C  INVALID FUTURE TIME SERIES
+      IF (ISTAT.EQ.3) THEN
+         WRITE (LP,150) CALLER(1:LENSTR(CALLER)),TYPE,TSID
+         CALL SUERRS (LP,2,-1)
+         GO TO 30
+         ENDIF
+C
+C  FUTURE TIME SERIES DOES NOT EXIST
+      IF (ISTAT.EQ.4) THEN
+         WRITE (LP,160) CALLER(1:LENSTR(CALLER)),FTSID,TSID
+         CALL SUERRS (LP,2,-1)
+         GO TO 30
+         ENDIF
+C
+C  INVALID FUTURE TIME SERIES
+      IF (ISTAT.EQ.5) THEN
+         WRITE (LP,200) CALLER(1:LENSTR(CALLER)),NVAL,FTSID,TSID
+         CALL SUERRS (LP,2,-1)
+         GO TO 30
+         ENDIF
+C
+C  INVALID FUTURE TIME STEP
+      IF (ISTAT.EQ.6) THEN
+         WRITE (LP,210) CALLER(1:LENSTR(CALLER)),TSID,FTSID
+         CALL SUERRS (LP,2,-1)
+         GO TO 30
+         ENDIF
+C
+C  WORK BUFFER TOO SMALL
+      IF (ISTAT.EQ.7) THEN
+         WRITE (LP,140) CALLER(1:LENSTR(CALLER)),TYPE,ITIME,TSID
+         CALL SUERRS (LP,2,-1)
+         WRITE (LP,70) MAXBUF
+         CALL SULINE (LP,1)
+         GO TO 30
+         ENDIF
+C
+C  NO INFORMATION NEEDS TO BE CHANGED         
+      IF (ISTAT.EQ.8) THEN
+         WRITE (LP,225) TYPE,TSID
+         CALL SULINE (LP,2)
+         GO TO 30
+         ENDIF
+C
+C  INVALID STATUS CODE
+      WRITE (LP,60) ISTAT,CALLER
+      CALL SUERRS (LP,2,-1)
+      GO TO 30
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+20    WRITE (LP,230) CALLER(1:LENSTR(CALLER))
+      CALL SUERRS (LP,2,-1)
+C
+30    IF (ISTRCE.GT.1) THEN
+         WRITE (IOSDBG,240)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+40    FORMAT (' *** ENTER SWPRST')
+50    FORMAT ('0*** NOTE - IN SWPRST - ',A,' STATUS CODE IS ',I2,'.')
+60    FORMAT ('0*** ERROR - IN SWPRST - STATUS CODE NOT RECOGNIZED ',
+     *   'FOR ',A,' : ',I3)
+70    FORMAT (23X,'NUMBER OF WORDS IN WORK BUFFER = ',I5)
+80    FORMAT ('0*** ERROR - IN ',A,' - FILE IN WHICH ',A,' TIME ',
+     *   'SERIES FOR IDENTIFIER ',A,' IS TO BE WRITTEN IS FULL.')
+90    FORMAT ('0*** ERROR - IN ',A,' - ',A,' TIME SERIES ALREADY ',
+     *   'EXISTS FOR IDENIFIER ',A,'.')
+100   FORMAT ('0*** ERROR - IN ',A,' - DATA TIME INTERVAL (',I3,
+     *   ') FOR IDENTIFIER ',A,' IS INVALID.')
+110   FORMAT ('0*** ERROR - IN ',A,' - DATA TYPE CODE (',A,') FOR ',
+     *   'IDENTIFIER ',A,' IS INVALID.')
+120   FORMAT ('0*** ERROR - IN ',A,' - DATA UNITS CODE (',A,') FOR ',
+     *   'IDENTIFIER ',A,' IS INVALID.')
+130   FORMAT ('0*** ERROR - IN ',A,' - ACCESSING FILE WHILE WRITING ',
+     *   A,' TIME SERIES FOR IDENTIFIER ',A,'.')
+140   FORMAT ('0*** ERROR - IN ',A,' - WORK BUFFER TO SMALL TO WRITE ',
+     *   I4,' HOUR ',A,' TIME SERIES FOR IDENTIFIER ',A,'.')
+150   FORMAT ('0*** ERROR - IN ',A,' - FUTURE ID FOR ',A,' IDENTIFIER ',
+     *   A,' IS MISSING OR SHOULD NOT HAVE FUTURE IDENTIFIER.')
+160   FORMAT ('0*** ERROR - IN ',A,' - FUTURE TIME SERIES IDENTIFIER ',
+     *   A,' NOT FOUND FOR IDENTIFIER ',A,'.')
+170   FORMAT ('0*** ERROR - IN ',A,' - NUMBER OF VALUES PER TIME ',
+     *   'STEP (',I2,') FOR IDENTIFIER ',A,' IS INVALID.')
+180   FORMAT ('0*** ERROR - IN ',A,' - INVALID ',
+     *   'LATITUDE AND/OR LONGITUDE VALUE ',
+     *   'FOR ',A,' TIME SERIES FOR IDENTIFIER ',A,'.')
+190   FORMAT ('0*** ERROR - IN ',A,' - TIME SERIES IDENTIFIER ',A,
+     *   'IS EITHER BLANK OR ''END''.')
+200   FORMAT ('0*** ERROR - IN ',A,' - NUMBER OF VALUES PER TIME ',
+     *   'INTERVAL (',I2,') OF FUTURE IDENTIFIER (',A,') DOES NOT ',
+     *   'MATCH THAT OF REGULAR IDENTIFIER (',A,').')
+210   FORMAT ('0*** ERROR - IN ',A,' - TIME STEP OF REGULAR ',
+     *   'IDENTIFIER (',A,' DOES NOT MATCH THAT OF FUTURE ',
+     *   'IDENTIFIER (',A,').')
+220   FORMAT ('0*** ERROR - IN ',A,' - ',A,' TIME SERIES FOR ',
+     *   'IDENTIFIER ',A,' NOT FOUND OR TYPE IS INVALID.') 
+225   FORMAT ('0*** NOTE - NO INFORMATION NEEDS TO BE ',
+     *   'CHANGED IN THE PROCESSED DATA BASE FOR ',A,' ',
+     *   'TIME SERIES FOR IDENTIFIER ',A,'.')    
+230   FORMAT ('0*** ERROR - IN SWPRST - INVALID CALLING ROUTINE ',
+     *   'CODE : ',A)
+240   FORMAT (' *** EXIT SWPRST')
+C
+      END

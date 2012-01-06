@@ -1,0 +1,2 @@
+On HPUX:  gmake is required
+On LINUX: make (i.e. gmake)

@@ -1,0 +1,63 @@
+#!/bin/ksh
+
+#   Bias Table Message File Generation Script 
+
+#
+# This allows you to call this script from outside of ./whfs/bin
+RUN_FROM_DIR=`dirname $0`
+
+# Export the value of FXA_HOME here.  This allows read_env.sh to be
+# sourced before set_hydro_env.  This prevents set_hydro_env environment
+# and token settings from being overwritten by read_env.sh.
+#export FXA_HOME=/awips/fxa
+
+# Set up the AWIPS environment.
+#. $FXA_HOME/readenv.sh
+
+# set up SOME environment variables for WHFS applications
+. $RUN_FROM_DIR/../../set_hydro_env
+
+export FXA_LOCAL_SITE=$(get_apps_defaults fxa_local_site)
+TZ=GMT
+export TZ
+
+#
+#   setup log file
+#
+
+BIASMESSLOGDIR=$(get_apps_defaults rfcwide_logs_dir)
+
+fnm=$BIASMESSLOGDIR/biasmesgen.log
+tmp=$BIASMESSLOGDIR/biasmesgen.tmp
+
+#
+#   save latest entries in log file
+#
+
+if [[ -s $fnm ]]
+  then
+     tail -1200 $fnm > $tmp
+     mv $tmp  $fnm
+  fi
+
+#
+#   begin write to log
+#
+
+echo "-------------------------------------------" >> $fnm
+Dte=`date -u`
+echo "Begin at  "$Dte >> $fnm
+
+#
+#   Generate Bias Table Message                             
+#
+
+runso rary.ohd.pproc biasmesgen_main >> $fnm
+
+#
+#   end write to log
+#
+
+Dte=`date -u`
+echo "End   at  "$Dte >> $fnm
+exit 0

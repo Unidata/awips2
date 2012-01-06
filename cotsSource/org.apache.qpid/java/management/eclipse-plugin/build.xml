@@ -1,0 +1,88 @@
+<!--
+ -
+ - Licensed to the Apache Software Foundation (ASF) under one
+ - or more contributor license agreements.  See the NOTICE file
+ - distributed with this work for additional information
+ - regarding copyright ownership.  The ASF licenses this file
+ - to you under the Apache License, Version 2.0 (the
+ - "License"); you may not use this file except in compliance
+ - with the License.  You may obtain a copy of the License at
+ - 
+ -   http://www.apache.org/licenses/LICENSE-2.0
+ - 
+ - Unless required by applicable law or agreed to in writing,
+ - software distributed under the License is distributed on an
+ - "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ - KIND, either express or implied.  See the License for the
+ - specific language governing permissions and limitations
+ - under the License.
+ -
+ -->
+<project name="Eclipse Plugin" default="build">
+
+    <property name="module.depends" value="broker common management/common"/>
+    <property name="module.test.depends" value="broker/test" />
+
+    <import file="../../module.xml"/>
+
+    <!-- module.manifest property to invoke use of 'jar.manifest' jar target when building -->
+    <property name="module.manifest" value="${module.classes}/META-INF/MANIFEST.MF"/>
+
+    <!-- override module.xml 'libs' target, avoids cluttering the 'build/lib' dir as the 
+         MC build/packaging process does not use the libs from there -->
+    <target name="libs"/>
+
+    <target name="copy-plugin-files" description="copy eclipse management plugin files into build tree">
+        <copy todir="${module.classes}/icons" failonerror="true">
+            <fileset dir="icons/"/>
+        </copy>
+        <copy todir="${module.classes}/META-INF/" failonerror="true">
+            <fileset dir="META-INF/"/>
+        </copy>
+        <copy todir="${module.classes}" failonerror="true">
+            <fileset file="icons/splash.bmp"/>
+        </copy>
+        <copy todir="${module.classes}" failonerror="true">
+            <fileset file="plugin.properties"/>
+        </copy>
+        <copy todir="${module.classes}" failonerror="true">
+            <fileset file="plugin.xml"/>
+        </copy>
+    </target>
+
+    <target name="precompile" depends="copy-plugin-files, create-version" />
+
+    <!-- Override imported module.xml release-bin target -->
+    <target name="release-bin" depends="build">
+        <!-- linux gtk x86 -->
+        <ant antfile="build-release.xml">
+            <property file="build-release-common.properties"/>
+            <property file="build-release-linux-gtk-x86.properties"/>
+        </ant>
+
+        <!-- linux gtk x86_64 -->
+        <ant antfile="build-release.xml">
+            <property file="build-release-common.properties"/>
+            <property file="build-release-linux-gtk-x86_64.properties"/>
+        </ant>
+
+        <!-- solaris gtk sparc -->
+        <ant antfile="build-release.xml">
+            <property file="build-release-common.properties"/>
+            <property file="build-release-solaris-gtk-sparc.properties"/>
+        </ant>
+
+        <!-- mac os x -->
+        <ant antfile="build-release-macosx.xml">
+            <property file="build-release-common.properties"/>
+            <property file="build-release-macosx.properties"/>
+        </ant>
+
+        <!-- win32 win32 x86 -->
+        <ant antfile="build-release.xml">
+            <property file="build-release-common.properties"/>
+            <property file="build-release-win32-win32-x86.properties"/>
+        </ant>
+    </target>
+
+</project>

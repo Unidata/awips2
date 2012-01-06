@@ -1,0 +1,31 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="getMasterLevelHandler" class="com.raytheon.uf.edex.plugin.level.handler.GetMasterLevelHandler" />
+	<bean factory-bean="handlerRegistry" factory-method="register">
+  		<constructor-arg value="com.raytheon.uf.common.dataplugin.level.request.GetMasterLevelRequest"/>
+  		<constructor-arg ref="getMasterLevelHandler"/>
+  	</bean>
+
+	<bean id="getLevelHandler" class="com.raytheon.uf.edex.plugin.level.handler.GetLevelHandler" />
+	<bean factory-bean="handlerRegistry" factory-method="register">
+  		<constructor-arg value="com.raytheon.uf.common.dataplugin.level.request.GetLevelRequest"/>
+  		<constructor-arg ref="getLevelHandler"/>
+  	</bean>
+
+	<bean id="getLevelByIdHandler" class="com.raytheon.uf.edex.plugin.level.handler.GetLevelByIdHandler" />
+	<bean factory-bean="handlerRegistry" factory-method="register">
+  		<constructor-arg value="com.raytheon.uf.common.dataplugin.level.request.GetLevelByIdRequest"/>
+  		<constructor-arg ref="getLevelByIdHandler"/>
+  	</bean>
+
+	<bean id="getAllLevelsForMasterLevelHandler" class="com.raytheon.uf.edex.plugin.level.handler.GetAllLevelsForMasterLevelHandler" />
+	<bean factory-bean="handlerRegistry" factory-method="register">
+  		<constructor-arg value="com.raytheon.uf.common.dataplugin.level.request.GetAllLevelsForMasterLevelRequest"/>
+  		<constructor-arg ref="getAllLevelsForMasterLevelHandler"/>
+  	</bean>
+  
+</beans>

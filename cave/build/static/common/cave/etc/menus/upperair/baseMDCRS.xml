@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<contribute xsi:type="bundleItem" file="bundles/MDCRSPlot.xml" 
+	                menuText="000-050hft" id="acars000-050hft"
+	                productInterval="3600" productOffset="1800">
+	        <dataURI>/acars/%</dataURI>
+	        <substitute key="svg" value="acarsPlotDesign.svg"/>
+	        <substitute key="legend" value="MDCRS 000-050hft"/>
+	        <substitute key="between" value="0--1524"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/MDCRSPlot.xml" 
+	                menuText="050-100hft" id="acars050-100hft"
+	                productInterval="3600" productOffset="1800">
+	        <dataURI>/acars/%</dataURI>
+	        <substitute key="svg" value="acarsPlotDesign.svg"/>
+	        <substitute key="legend" value="MDCRS 050-100hft"/>
+	        <substitute key="between" value="1524--3048"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/MDCRSPlot.xml" 
+	                menuText="100-150hft" id="acars100-150hft"
+	                productInterval="3600" productOffset="1800">
+	        <dataURI>/acars/%</dataURI>
+	        <substitute key="svg" value="acarsPlotDesign.svg"/>
+	        <substitute key="legend" value="MDCRS 100-150hft"/>
+	        <substitute key="between" value="3048--4572"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/MDCRSPlot.xml" 
+	                menuText="150-200hft" id="acars150-200hft"
+	                productInterval="3600" productOffset="1800">
+	        <dataURI>/acars/%</dataURI>
+	        <substitute key="svg" value="acarsPlotDesign.svg"/>
+	        <substitute key="legend" value="MDCRS 150-200hft"/>
+	        <substitute key="between" value="4572--6096"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/MDCRSPlot.xml" 
+	                menuText="200-250hft" id="acars200-250hft"
+	                productInterval="3600" productOffset="1800">
+	        <dataURI>/acars/%</dataURI>
+	        <substitute key="svg" value="acarsPlotDesign.svg"/>
+	        <substitute key="legend" value="MDCRS 200-250hft"/>
+	        <substitute key="between" value="6096--7620"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/MDCRSPlot.xml" 
+	                menuText="250-300hft" id="acars250-300hft"
+	                productInterval="3600" productOffset="1800">
+	        <dataURI>/acars/%</dataURI>
+	        <substitute key="svg" value="acarsPlotDesign.svg"/>
+	        <substitute key="legend" value="MDCRS 250-300hft"/>
+	        <substitute key="between" value="7620--9144"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/MDCRSPlot.xml" 
+	                menuText="300-350hft" id="acars300-350hft"
+	                productInterval="3600" productOffset="1800">
+	        <dataURI>/acars/%</dataURI>
+	        <substitute key="svg" value="acarsPlotDesign.svg"/>
+	        <substitute key="legend" value="MDCRS 300-350hft"/>
+	        <substitute key="between" value="9144--10668"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/MDCRSPlot.xml" 
+	                menuText="350-400hft" id="acars350-400hft"
+	                productInterval="3600" productOffset="1800">
+	        <dataURI>/acars/%</dataURI>
+	        <substitute key="svg" value="acarsPlotDesign.svg"/>
+	        <substitute key="legend" value="MDCRS 350-400hft"/>
+	        <substitute key="between" value="10668--12192"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/MDCRSPlot.xml" 
+	                menuText="400-450hft" id="acars400-450hft"
+	                productInterval="3600" productOffset="1800">
+	        <dataURI>/acars/%</dataURI>
+	        <substitute key="svg" value="acarsPlotDesign.svg"/>
+	        <substitute key="legend" value="MDCRS 400-450hft"/>
+	        <substitute key="between" value="12192--13716"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/MDCRSPlot.xml" 
+	                menuText="450-500hft" id="acars450-500hft"
+	                productInterval="3600" productOffset="1800">
+	        <dataURI>/acars/%</dataURI>
+	        <substitute key="svg" value="acarsPlotDesign.svg"/>
+	        <substitute key="legend" value="MDCRS 450-500hft"/>
+	        <substitute key="between" value="13716--15240"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SoundingAvailability.xml" 
+                menuText="1 Hr Prof Avail" id="1hrProfAvail"
+                productInterval="3600" productOffset="1800">
+	        <dataURI>/acarssounding/%</dataURI>
+	        <substitute key="pluginName" value="acarssounding"/>
+	        <substitute key="plotSource" value="MDCRS Profiles 1hr Availability"/>
+	        <substitute key="offset" value="1800"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/SoundingAvailability.xml" 
+                menuText="6 Hr Prof Avail" id="1hrProfAvail"
+                productInterval="21600" productOffset="10800">
+	        <dataURI>/acarssounding/%</dataURI>
+	        <substitute key="pluginName" value="acarssounding"/>
+	        <substitute key="plotSource" value="MDCRS Profiles 6hr Availability"/>
+	        <substitute key="offset" value="10800"/>
+	    </contribute>
+</menuTemplate>

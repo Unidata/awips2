@@ -1,0 +1,105 @@
+#!/bin/bash
+
+#
+# 
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+# 
+
+
+#
+# Temporary hack for producing a binary dev distribution.
+# Includes regular stuff from 'make install' + examples and headers.
+#
+# TODO: Also include debug libraries.
+#
+
+Usage() {
+  echo "usage: $0 [release-version]
+   release-version   e.g. 1.0M1 (defaults to the svn revision)" >&2
+  exit 2
+}
+
+if [[ $# -eq 1 ]]; then
+  [[ $1 == "-?" ]] && Usage
+  version=$1
+elif [[ $# -ne 0 ]]; then
+  Usage
+else
+  # Default the version to the svn revision
+  if which svn >/dev/null 2>&1; then
+    svnRevision=$(svn info | grep ^Revision: | awk '{print $2}')
+    version=r${svnRevision}
+  else
+    echo "You need to have svn in your PATH or specify a release-version"
+    exit 2
+  fi
+fi
+
+releaseName=qpid-cpp-dev-${version}-$(uname -s)-$(uname -p)
+releaseDir=release/$releaseName
+
+if [[ -d $releaseDir ]]; then
+  echo "$releaseDir already exists"
+  exit 2
+fi
+
+# Copy bin.
+mkdir -p $releaseDir/bin
+cp -r src/.libs/* ${releaseDir}/bin
+
+# Copy libs.
+mkdir -p $releaseDir/lib
+cp lib/broker/.libs/lib* lib/common/.libs/lib* lib/client/.libs/lib* \
+    $releaseDir/lib
+
+# Copy gen include files.
+find gen -name \*.h | while read file; do
+  destFile=${releaseDir}/include/$file
+  baseDir=$(dirname $destFile)
+  mkdir -p $baseDir
+  cp $file $destFile
+done
+
+# Copy in lib include files.
+(
+  cd lib; find . -name \*.h | while read file; do
+    destFile=../${releaseDir}/include/$file
+    baseDir=$(dirname $destFile)
+    mkdir -p $baseDir
+    cp $file $destFile
+  done
+)
+
+# Copy non-cppunit tests as examples.
+mkdir -p $releaseDir/examples
+for file in tests/*.cpp; do
+  if grep CppUnit $file >/dev/null; then
+     echo Skipping cppunit file $file
+  else
+     cp $file $releaseDir/examples
+  fi
+done
+
+# Copy Makefile and README for examples.
+cp tests/examples.Makefile $releaseDir/examples/Makefile
+cp tests/examples.README $releaseDir/examples/README
+
+cd release
+tar=$releaseName.tar
+tar cvf $tar $releaseName
+bzip2 $tar

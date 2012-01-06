@@ -1,0 +1,4 @@
+C                                           *--> FROM DACOMMON.WRTOUT
+C  ASAP LOG FILE UPDATE COMMON
+      COMMON /WRTOUT/ LRECP,NRECP
+C

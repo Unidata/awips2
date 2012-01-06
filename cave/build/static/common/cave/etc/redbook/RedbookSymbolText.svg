@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- svg viewBox="0 0 3072 13" -->
+<svg width="12" height="12" viewBox="0 0 12 12" 
+overflow="visible" 
+xmlns="http://www.w3.org/2000/svg" 
+xmlns:xlink="http://www.w3.org/1999/xlink">
+   <defs>
+<font id="WxSymbols" horiz-adv-x="12">	
+<font-face
+    font-family="WxSymbolFont"
+    font-style="normal"
+    units-per-em="12"
+    alphabetic="0">    
+</font-face>
+<!--  <missing-glyph horiz-adv-x="878" d="M128 0V1238H896V0H128ZM276 148H748V1090H276V148Z" /> -->
+<missing-glyph d="M0,0" />
+  <glyph unicode="&#xe001;" d="M6 10 L6 0M7 10 L7 0M1 3 L4 0M8 10 L8 0M1 7 L1 3M1 7 L4 10L8 10M11 3 L11 7M4 0 L8 0L11 3M9 9 L9 1M8 10 L11 7M10 8 L10 2M2 5 L2 2M3 5 L3 1M1 5 L6 5M4 5 L4 0M5 5 L5 0" />
+  <glyph unicode="&#xe002;" d="M2 8 L2 2M3 9 L3 1M1 3 L4 0M1 7 L1 3M1 7 L4 10M11 3 L11 7M4 10 L4 0M5 0 L5 10M4 0 L8 0M7 10 L7 0M4 10 L8 10L8 0L11 3M9 9 L9 1M8 10 L11 7M10 8 L10 2" />
+  <glyph unicode="&#xe003;" d="M2 8 L2 2M3 9 L3 1M4 10 L4 0M1 3 L4 0M1 7 L1 3M1 7 L4 10M11 3 L11 7M4 0 L8 0M5 10 L5 0M6 10 L6 0M7 10 L7 0M4 10 L8 10L8 0L11 3M9 9 L9 1M8 10 L11 7M10 8 L10 2" />
+  <glyph unicode="&#xe004;" d="M8 0 L11 3M4 0 L8 0M1 3 L4 0M1 7 L1 3M1 7 L4 10L8 10L11 7M11 3 L11 7M2 2 L10 8M2 8 L10 2" />
+  <glyph unicode="&#xe005;" d="M8 0 L11 3M4 0 L8 0M1 3 L4 0M1 7 L1 3M1 7 L4 10L8 10L11 7M11 3 L11 7M4 7 L4 3M4 7 L6 5L8 7M8 3 L8 7" />
+  <glyph unicode="&#xe006;" d="M1 1 L1 10L10 10L10 1M1 1 L10 1" />
+  <glyph unicode="&#xe007;" d="M3 0 L6 10L9 0M1 6 L9 0M1 6 L11 6M3 0 L11 6M6 10 L6 2M3 0 L7 6M1 6 L8 4M4 4 L11 6M5 6 L9 0" />
+  <glyph unicode="&#xe00e;" d="M1 3 L4 0M1 7 L1 3M1 7 L4 10L8 10L11 7M11 3 L11 7M8 0 L11 3M4 0 L8 0" />
+  <glyph unicode="&#xe00f;" d="M6 8 L6 2M1 3 L4 0L8 0L11 3M11 7 L11 3M8 10 L11 7M4 10 L8 10M1 7 L4 10M1 7 L1 3" />
+  <glyph unicode="&#xe010;" d="M6 10 L6 5L11 5M10 8 L10 5M1 7 L1 3M1 7 L4 10M11 3 L11 7M8 0 L11 3M4 0 L8 0M1 3 L4 0M8 10 L11 7M9 9 L9 5M8 10 L8 5M4 10 L8 10M7 10 L7 5" />
+  <glyph unicode="&#xe013;" d="M10 8 L10 5M1 7 L1 3M1 7 L4 10M8 10 L11 7M11 3 L11 7M8 0 L11 3M4 0 L8 0M1 3 L4 0M9 9 L9 5M6 5 L11 5M8 10 L8 5M4 10 L8 10M7 10 L7 5M6 10 L6 0" />
+  <glyph unicode="&#xe014;" d="M1 7 L1 3M1 7 L4 10M11 3 L11 7M1 3 L4 0M4 10 L8 10M7 10 L7 0M6 10 L6 0M4 0 L8 0M8 10 L8 0M8 10 L11 7M9 9 L9 1M8 0 L11 3M10 8 L10 2" />
+  <glyph unicode="&#xe015;" d="M1 7 L1 3M1 7 L4 10M11 3 L11 7M1 3 L4 0M4 10 L8 10M7 10 L7 0M6 10 L6 0M4 0 L8 0M8 10 L8 0M8 10 L11 7M9 9 L9 1M8 0 L11 3M10 8 L10 2M1 5 L6 5" />
+  <glyph unicode="&#xe016;" d="M9 9 L11 7M1 1 L9 9" />
+  <glyph unicode="&#xe017;" d="M8 9 L11 9M1 2 L8 9" />
+  <glyph unicode="&#xe018;" d="M9 1 L11 3M1 9 L9 1" />
+  <glyph unicode="&#xe019;" d="M8 2 L11 2M1 9 L8 2" />
+  <glyph unicode="&#xe01a;" d="M3 1 L11 9M1 3 L3 1" />
+  <glyph unicode="&#xe01b;" d="M1 7 L3 9L11 1" />
+  <glyph unicode="&#xe01c;" d="M9 8 L10 8M6 6 L7 6M3 8 L4 8L6 6M7 6 L9 8M10 8 L11 7M2 0 L2 7L3 8" />
+  <glyph unicode="&#xe01d;" d="M1 4 L1 6M8 7 L10 7M2 3 L4 3L8 7M1 6 L2 7L4 7L8 3L10 3L11 4M11 6 L11 4M10 7 L11 6M1 4 L2 3" />
+  <glyph unicode="&#xe01e;" d="M5 7 L5 9M9 1 L9 3M5 1 L5 2M9 8 L9 9M5 7 L9 3M8 10 L9 9M6 10 L8 10M5 9 L6 10M8 0 L9 1M6 0 L8 0M5 1 L6 0" />
+  <glyph unicode="&#xe01f;" d="M5 0 L5 10M7 2 L7 4M4 9 L6 9L7 8M3 2 L4 1M3 8 L4 9M3 8 L3 6L7 4M6 1 L7 2M4 1 L6 1" />
+  <glyph unicode="&#xe020;" d="M5 10 L8 10M5 0 L8 0M4 4 L4 6M4 8 L4 9M4 1 L4 2M6 8 L7 8M6 6 L7 6M6 4 L7 4M6 2 L7 2M4 8 L6 6M7 8 L8 7M4 4 L6 2M7 4 L8 3M4 9 L5 10M7 6 L8 7M4 6 L6 8M7 2 L8 3M4 2 L6 4M4 1 L5 0" />
+  <glyph unicode="&#xe021;" d="M1 1 L1 9M11 1 L11 9M3 5 L9 5M6 2 L6 4M4 1 L5 1M1 9 L2 10M10 10 L11 9M8 6 L8 4M3 2 L4 1M1 1 L2 0M10 0 L11 1M5 1 L6 2M4 7 L6 4M4 9 L4 7M4 9 L5 10L6 10L7 9" />
+  <glyph unicode="&#xe022;" d="M1 7 L11 7M1 2 L11 2" />
+  <glyph unicode="&#xe023;" d="M1 7 L4 7M8 7 L11 7M1 3 L4 3M8 3 L11 3" />
+  <glyph unicode="&#xe024;" d="M1 3 L11 3M1 7 L4 7M8 7 L11 7" />
+  <glyph unicode="&#xe025;" d="M6 1 L6 4M2 5 L7 10M2 5 L6 1M3 1 L6 1" />
+  <glyph unicode="&#xe026;" d="M6 4 L6 7M5 5 L5 6L6 7L7 6L7 5M6 4 L7 5M5 5 L6 4M9 1 L11 3M3 1 L9 1M1 3 L3 1" />
+  <glyph unicode="&#xe027;" d="M3 3 L3 8M9 3 L9 8M6 4 L6 7M1 1 L3 3M9 3 L11 1M1 10 L3 8M9 8 L11 10M6 7 L7 6L7 5M6 4 L7 5M5 5 L6 4M5 6 L5 5M5 6 L6 7" />
+  <glyph unicode="&#xe028;" d="M1 3 L1 8M11 3 L11 8M6 4 L6 7M1 3 L3 1M9 1 L11 3M1 8 L3 10M9 10 L11 8M6 7 L7 6L7 5M6 4 L7 5M5 5 L6 4M5 6 L5 5M5 6 L6 7" />
+  <glyph unicode="&#xe029;" d="M3 0 L3 9M10 0 L10 2M6 4 L6 5M2 9 L10 9M6 4 L10 0M8 0 L10 0M6 5 L10 9" />
+  <glyph unicode="&#xe02a;" d="M2 9 L6 1L10 9M2 9 L6 7L10 9" />
+  <glyph unicode="&#xe02b;" d="M4 2 L4 8M8 2 L8 8M2 0 L4 2M8 2 L10 0M2 10 L4 8M8 8 L10 10" />
+  <glyph unicode="&#xe02c;" d="M5 4 L7 4M5 5 L6 5M7 4 L7 3M5 1 L7 3M5 4 L5 5M6 5 L7 4" />
+  <glyph unicode="&#xe02d;" d="M6 3 L6 6M5 4 L5 5L6 6L7 5L7 4M6 3 L7 4M5 4 L6 3" />
+  <glyph unicode="&#xe02e;" d="M3 4 L9 4M4 2 L8 6M4 6 L8 2" />
+  <glyph unicode="&#xe02f;" d="M3 2 L9 2M6 7 L6 10M5 8 L5 9L6 10L7 9M4 4 L8 0M4 0 L8 4M7 9 L7 8M6 7 L7 8M5 8 L6 7" />
+  <glyph unicode="&#xe030;" d="M1 3 L1 5M10 4 L10 6M1 5 L2 6L4 6L7 3L9 3L10 4" />
+  <glyph unicode="&#xe031;" d="M5 0 L5 10M6 0 L6 10M1 10 L6 10M1 0 L6 0" />
+  <glyph unicode="&#xe032;" d="M5 0 L5 10M6 0 L6 10M1 10 L6 10M5 0 L6 0" />
+  <glyph unicode="&#xe033;" d="M5 0 L5 10M6 0 L6 10M5 10 L6 10M1 0 L6 0" />
+  <glyph unicode="&#xe034;" d="M2 2 L10 2M2 2 L6 7L10 2" />
+  <glyph unicode="&#xe035;" d="M1 8 L11 8M1 5 L11 5M1 2 L11 2" />
+  <glyph unicode="&#xe036;" d="M2 9 L10 9M2 9 L6 1L10 9" />
+  <glyph unicode="&#xe037;" d="M2 5 L11 5M4 1 L4 2M8 8 L8 9M10 6 L10 4M7 10 L8 9M5 10 L7 10M4 9 L5 10M4 9 L4 7L8 3L8 1M7 0 L8 1M5 0 L7 0M4 1 L5 0" />
+  <glyph unicode="&#xe038;" d="M9 0 L9 10M10 0 L10 10M9 10 L10 10M9 0 L10 0" />
+  <glyph unicode="&#xe039;" d="M2 0 L2 10L3 10L3 0M2 0 L3 0" />
+  <glyph unicode="&#xe03a;" d="M1 6 L9 6M3 7 L3 9M7 1 L7 3M4 10 L6 10M4 0 L6 0M6 10 L7 9M9 6 L9 7M9 4 L9 3M3 1 L4 0M3 9 L4 10M3 7 L7 3M6 0 L7 1M9 7 L11 5M9 3 L11 5M1 4 L9 4" />
+  <glyph unicode="&#xe03b;" d="M5 0 L5 10M9 4 L11 6M1 6 L11 6M3 2 L5 0L7 2M9 8 L11 6" />
+  <glyph unicode="&#xe03c;" d="M5 0 L5 10M9 7 L9 8M9 5 L9 4M9 8 L11 6M9 4 L11 6M1 5 L9 5M1 7 L9 7M5 0 L7 2M3 2 L5 0" />
+  <glyph unicode="&#xe03d;" d="M5 0 L5 10L7 8M9 6 L11 4M3 8 L5 10M9 2 L11 4M1 4 L11 4" />
+  <glyph unicode="&#xe03e;" d="M5 0 L5 10M1 5 L9 5M3 8 L5 10L7 8M9 5 L9 6L11 4M9 2 L11 4M9 3 L9 2M1 3 L9 3" />
+  <glyph unicode="&#xe03f;" d="M1 5 L11 5M1 8 L4 8M8 8 L11 8M1 2 L4 2M8 2 L11 2" />
+  <glyph unicode="&#xe040;" d="M1 5 L11 5M1 2 L11 2M1 8 L4 8M8 8 L11 8" />
+  <glyph unicode="&#xe041;" d="M1 5 L11 5M1 2 L11 2M1 8 L3 8M9 8 L11 8M5 4 L7 4M6 5 L6 2M3 8 L6 2L9 8" />
+  <glyph unicode="&#xe042;" d="M1 8 L11 8M1 5 L11 5M1 2 L11 2M5 4 L7 4M6 5 L6 2M3 8 L6 2L9 8" />
+  <glyph unicode="&#xe043;" d="M5 9 L7 9M5 3 L7 3M7 9 L7 8M5 6 L7 8M7 3 L7 2M5 0 L7 2M6 10 L7 9M5 10 L6 10M5 9 L5 10M5 4 L5 3M5 4 L6 4L7 3" />
+  <glyph unicode="&#xe044;" d="M1 4 L1 6M10 5 L10 7M3 3 L5 3L5 2M3 0 L5 2M1 6 L2 7L4 7L7 4L9 4L10 5M3 4 L3 3M3 4 L4 4L5 3" />
+  <glyph unicode="&#xe045;" d="M1 3 L1 5M7 6 L8 6M3 2 L5 2M3 0 L4 0M8 6 L9 7M4 6 L7 3M2 6 L4 6M1 5 L2 6M3 3 L3 2M3 3 L4 3L5 2L5 1M4 0 L5 1M7 3 L10 3L11 4M11 6 L11 4M9 8 L9 7M8 9 L9 8M7 9 L8 9M7 8 L7 9M7 8 L9 8" />
+  <glyph unicode="&#xe046;" d="M1 3 L1 5M10 4 L10 6M2 6 L4 6M3 2 L3 3M4 6 L7 3L9 3L10 4M1 5 L2 6M3 3 L4 3L4 2M3 2 L4 2" />
+  <glyph unicode="&#xe047;" d="M1 3 L1 5M10 4 L10 6M3 2 L3 3M8 6 L8 7M3 3 L4 3L4 2M3 2 L4 2M1 5 L2 6L4 6L7 3L9 3L10 4M7 6 L8 6M7 7 L7 6M7 7 L8 7" />
+  <glyph unicode="&#xe048;" d="M2 1 L2 9M5 8 L11 8M5 5 L11 5M5 2 L11 2M2 9 L3 10M2 1 L3 0" />
+  <glyph unicode="&#xe049;" d="M6 6 L6 9M5 3 L7 3M5 7 L5 8M7 3 L7 2M5 0 L7 2M5 8 L6 9L7 8L7 7M6 6 L7 7M5 7 L6 6M5 4 L5 3M5 4 L6 4L7 3" />
+  <glyph unicode="&#xe04a;" d="M1 5 L11 5M1 5 L3 7M1 5 L3 3M9 7 L11 5M9 3 L11 5" />
+  <glyph unicode="&#xe04b;" d="M1 5 L11 5M3 3 L6 7M3 3 L9 3M6 7 L9 3" />
+  <glyph unicode="&#xe04c;" d="M1 5 L11 5M5 6 L7 4M5 4 L7 6" />
+  <glyph unicode="&#xe04d;" d="M1 2 L11 2M6 4 L6 4M1 2 L6 7L11 2" />
+  <glyph unicode="&#xe04e;" d="M2 9 L10 9M2 9 L2 7L6 1M10 9 L10 7M6 1 L10 7M2 7 L10 7" />
+  <glyph unicode="&#xe04f;" d="M6 7 L6 10M6 0 L6 3M5 8 L5 9M5 1 L5 2M5 9 L6 10L7 9L7 8M6 7 L7 8M5 8 L6 7M5 2 L6 3L7 2L7 1M6 0 L7 1M5 1 L6 0" />
+  <glyph unicode="&#xe050;" d="M2 3 L10 3M3 4 L9 4M4 5 L8 5M5 6 L7 6M6 7 L11 2M1 2 L11 2M1 2 L6 7" />
+  <glyph unicode="&#xe051;" d="M4 0 L4 10M9 4 L9 7M8 5 L8 6M1 10 L5 10L5 0M1 0 L5 0M8 6 L9 7L10 6L10 5M9 4 L10 5M8 5 L9 4" />
+  <glyph unicode="&#xe052;" d="M4 0 L4 10M9 6 L9 9M9 1 L9 4M8 7 L8 8M8 2 L8 3M1 10 L5 10L5 0M1 0 L5 0M8 8 L9 9L10 8L10 7M9 6 L10 7M8 7 L9 6M8 3 L9 4L10 3L10 2M9 1 L10 2M8 2 L9 1" />
+  <glyph unicode="&#xe053;" d="M11 1 L11 9M1 8 L8 8M1 5 L8 5M1 2 L8 2M10 10 L11 9M10 0 L11 1" />
+  <glyph unicode="&#xe054;" d="M4 0 L4 10M5 0 L5 10M7 5 L11 5M1 10 L5 10M1 0 L5 0M7 7 L11 3M7 3 L11 7" />
+  <glyph unicode="&#xe055;" d="M4 0 L4 10M7 5 L11 5M1 10 L5 10L5 0M1 0 L5 0M7 5 L9 7L11 5" />
+  <glyph unicode="&#xe056;" d="M4 0 L4 10M7 8 L11 8M7 2 L11 2M1 10 L5 10L5 0M1 0 L5 0M7 10 L11 6M7 6 L11 10M7 4 L11 0M7 0 L11 4" />
+  <glyph unicode="&#xe057;" d="M4 0 L4 10M7 7 L11 7M7 2 L11 2M1 10 L5 10L5 0M1 0 L5 0M7 7 L9 9L11 7M7 2 L9 4L11 2" />
+  <glyph unicode="&#xe058;" d="M3 0 L3 9M7 0 L7 2M7 6 L10 3M2 9 L10 9M7 0 L10 3M7 0 L9 0M7 6 L10 9" />
+  <glyph unicode="&#xe059;" d="M3 8 L9 8M3 2 L9 2M4 10 L8 6M4 6 L8 10M4 4 L8 0M4 0 L8 4" />
+  <glyph unicode="&#xe05a;" d="M1 10 L1 0M2 10 L2 0M3 10 L3 0M3 5 L9 5M9 10 L9 0M10 10 L10 0M11 10 L11 0M1 10 L3 10M1 0 L3 0M3 4 L9 4M3 6 L9 6M9 10 L11 10M9 0 L11 0" />
+  <glyph unicode="&#xe05b;" d="M1 2 L11 2M1 1 L11 1M1 0 L11 0M1 10 L1 0M3 10 L3 2M2 10 L2 2M1 10 L3 10M11 2 L11 0" />
+  <glyph unicode="&#xe05c;" d="M6 1 L6 10M5 1 L5 3M7 1 L7 3M4 1 L4 2M8 1 L8 2M3 8 L9 8M3 6 L9 6M6 4 L9 1M3 1 L6 4M3 1 L9 1" />
+  <glyph unicode="&#xe05d;" d="M1 1 L11 1M1 1 L11 8" />
+  <glyph unicode="&#xe05e;" d="M1 1 L11 1M1 1 L11 8M5 1 L11 5" />
+  <glyph unicode="&#xe05f;" d="M1 4 L1 5M6 4 L6 5M11 4 L11 5M1 4 L2 3L5 3L6 4L7 3L10 3L11 4" />
+  <glyph unicode="&#xe060;" d="M1 2 L9 10M1 2 L3 0L6 0L8 2" />
+  <glyph unicode="&#xe061;" d="M6 3 L6 4M11 3 L11 4M1 4 L7 10M1 4 L1 3L2 2L5 2L6 3L7 2L10 2L11 3" />
+  <glyph unicode="&#xe062;" d="M4 3 L8 3M2 5 L2 6M2 0 L2 1M6 5 L6 6M10 5 L10 6M10 0 L10 1M2 1 L4 3M8 3 L10 1M2 5 L3 4L5 4L6 5L7 4L9 4L10 5" />
+  <glyph unicode="&#xe063;" d="M1 4 L11 4M1 4 L7 10M1 4 L1 2L2 1L5 1L6 2L7 1L10 1L11 2M11 4 L11 2M6 4 L6 2" />
+  <glyph unicode="&#xe064;" d="M3 0 L3 9M9 0 L9 9M3 9 L5 7L7 7L9 9" />
+  <glyph unicode="&#xe065;" d="M5 3 L7 3M4 4 L4 5L9 10M7 3 L8 4M3 2 L4 1M4 4 L5 3M4 1 L8 1L9 2" />
+  <glyph unicode="&#xe066;" d="M8 7 L10 5M4 7 L8 7M2 5 L2 3M2 5 L4 7M2 3 L10 3M10 5 L10 3" />
+  <glyph unicode="&#xe067;" d="M2 2 L10 2M10 4 L10 2M8 6 L10 4M4 6 L8 6M2 4 L4 6M2 2 L2 4M4 7 L4 6M4 7 L5 8L7 8L8 7M8 6 L8 7" />
+  <glyph unicode="&#xe068;" d="M2 2 L10 2M10 4 L10 2M8 6 L10 4M4 6 L8 6M2 4 L4 6M2 2 L2 4M4 7 L4 6M4 7 L5 8L7 8L8 7M8 6 L8 7M6 5 L6 8" />
+  <glyph unicode="&#xe069;" d="M1 4 L4 4M5 7 L7 7M3 5 L5 7M7 7 L9 5M4 4 L4 3M3 4 L3 5M4 3 L5 2L7 2L8 3M8 4 L8 3M8 4 L11 4M9 5 L9 4" />
+  <glyph unicode="&#xe06a;" d="M1 7 L4 7M8 7 L11 7M4 7 L4 6M8 7 L8 6M4 6 L5 5L7 5L8 6" />
+  <glyph unicode="&#xe06b;" d="M1 5 L11 5" />
+  <glyph unicode="&#xe06c;" d="M1 6 L3 6M5 6 L7 6M9 6 L11 6" />
+  <glyph unicode="&#xe06d;" d="M1 8 L4 8M8 8 L11 8M4 7 L5 6M4 8 L4 7M8 8 L8 7M5 6 L7 6L8 7M2 0 L10 0M2 2 L2 0M2 2 L4 4L8 4L10 2M10 0 L10 2" />
+  <glyph unicode="&#xe06e;" d="M2 9 L3 5M9 5 L10 9M2 9 L10 9M2 4 L2 2L10 2M10 4 L10 2M8 6 L10 4M4 6 L8 6M2 4 L4 6" />
+  <glyph unicode="&#xe06f;" d="M1 2 L10 2M9 5 L10 5L11 4L11 3M10 2 L11 3" />
+  <glyph unicode="&#xe070;" d="M1 2 L10 2M11 3 L11 4M6 5 L7 5M10 5 L11 4M7 5 L8 4L8 3M7 2 L8 3M10 2 L11 3" />
+  <glyph unicode="&#xe071;" d="M1 6 L10 6M11 4 L11 5M9 2 L11 4M10 6 L11 5" />
+  <glyph unicode="&#xe072;" d="M10 8 L10 9M8 10 L9 10M7 9 L8 10M2 0 L10 8M9 10 L10 9" />
+  <glyph unicode="&#xe073;" d="M1 2 L11 2M2 6 L3 6L4 5M1 2 L4 5" />
+  <glyph unicode="&#xe074;" d="M2 0 L8 0M8 9 L9 10M10 8 L10 9M9 10 L10 9M2 0 L10 8" />
+  <glyph unicode="&#xe075;" d="M1 2 L11 2M1 5 L2 5M10 5 L11 5M2 5 L3 4M9 4 L10 5M9 4 L11 2M1 2 L3 4" />
+  <glyph unicode="&#xe076;" d="M1 2 L11 2M10 5 L11 5M9 4 L10 5M9 4 L11 2" />
+  <glyph unicode="&#xe077;" d="M5 10 L7 10M2 1 L2 2M6 1 L6 2M8 8 L8 9M10 1 L10 2M4 9 L5 10M2 2 L8 8M7 10 L8 9M2 1 L3 0L5 0L6 1L7 0L9 0L10 1" />
+  <glyph unicode="&#xe078;" d="M4 4 L4 7M8 10 L11 10M1 0 L4 0M4 7 L8 10M4 7 L7 7L8 6L8 3M4 0 L8 3M4 4 L5 3L8 3" />
+  <glyph unicode="&#xe079;" d="M4 4 L4 7M8 10 L11 10M1 0 L4 0M4 7 L8 10M7 7 L8 6L8 3M4 0 L8 3M4 4 L5 3L5 7M5 3 L8 3M6 7 L6 3M4 7 L7 7M7 3 L7 7" />
+  <glyph unicode="&#xe07a;" d="M6 4 L9 1M3 1 L6 4" />
+  <glyph unicode="&#xe07b;" d="M1 1 L3 1M9 1 L11 1M6 4 L9 1M3 1 L6 4" />
+  <glyph unicode="&#xe07c;" d="M1 1 L3 1M9 1 L11 1M6 7 L9 4M3 4 L6 7M6 4 L9 1M3 1 L6 4" />
+  <glyph unicode="&#xe07d;" d="M6 0 L6 7M2 5 L2 9M10 5 L10 9M2 5 L4 3M8 3 L10 5M4 3 L8 3" />
+  <glyph unicode="&#xe07e;" d="M5 0 L5 7M7 0 L7 7M2 5 L2 9M10 5 L10 9M2 5 L4 3M8 3 L10 5M4 3 L8 3" />
+  <glyph unicode="&#xe07f;" d="M4 0 L4 7M6 0 L6 7M8 0 L8 7M2 5 L2 9M10 5 L10 9M2 5 L4 3L8 3L10 5" />
+  <glyph unicode="&#xe081;" d="M6 10 L6 0M7 10 L7 0M1 3 L4 0M8 10 L8 0M1 7 L1 3M1 7 L4 10L8 10M11 3 L11 7M4 0 L8 0L11 3M9 9 L9 1M8 10 L11 7M10 8 L10 2M2 5 L2 2M3 5 L3 1M1 5 L6 5M4 5 L4 0M5 5 L5 0" />
+  <glyph unicode="&#xe082;" d="M2 8 L2 2M3 9 L3 1M1 3 L4 0M1 7 L1 3M1 7 L4 10M11 3 L11 7M4 10 L4 0M5 0 L5 10M4 0 L8 0M7 10 L7 0M4 10 L8 10L8 0L11 3M9 9 L9 1M8 10 L11 7M10 8 L10 2" />
+  <glyph unicode="&#xe083;" d="M2 8 L2 2M3 9 L3 1M4 10 L4 0M1 3 L4 0M1 7 L1 3M1 7 L4 10M11 3 L11 7M4 0 L8 0M5 10 L5 0M6 10 L6 0M7 10 L7 0M4 10 L8 10L8 0L11 3M9 9 L9 1M8 10 L11 7M10 8 L10 2" />
+  <glyph unicode="&#xe084;" d="M8 0 L11 3M4 0 L8 0M1 3 L4 0M1 7 L1 3M1 7 L4 10L8 10L11 7M11 3 L11 7M2 2 L10 8M2 8 L10 2" />
+  <glyph unicode="&#xe085;" d="M8 0 L11 3M4 0 L8 0M1 3 L4 0M1 7 L1 3M1 7 L4 10L8 10L11 7M11 3 L11 7M4 7 L4 3M4 7 L6 5L8 7M8 3 L8 7" />
+  <glyph unicode="&#xe086;" d="M1 1 L1 10L10 10L10 1M1 1 L10 1" />
+  <glyph unicode="&#xe087;" d="M3 0 L6 10L9 0M1 6 L9 0M1 6 L11 6M3 0 L11 6M6 10 L6 2M3 0 L7 6M1 6 L8 4M4 4 L11 6M5 6 L9 0" />
+  <glyph unicode="&#xe088;" d="M1 10 L10 10M2 9 L10 10M2 9 L9 9M4 8 L9 9M4 8 L9 8M5 7 L9 8M5 7 L8 7M5 6 L8 7M5 6 L7 6M5 5 L7 6M5 5 L6 5M5 4 L6 5M5 4 L6 4M4 3 L6 4M4 3 L5 3M3 2 L5 3M3 2 L4 2M3 1 L4 2" />
+  <glyph unicode="&#xe089;" d="M2 10 L10 10M3 10 L6 1L8 10M3 9 L6 9M4 7 L6 7M4 8 L6 8M1 0 L11 0M5 6 L6 6" />
+  <glyph unicode="&#xe08a;" d="M2 10 L10 10M4 10 L6 3L8 10M4 9 L6 9M5 8 L6 8M1 1 L1 2M1 1 L2 0L3 1L4 3L5 2M5 1 L5 2M5 1 L6 0L7 1L8 3L9 2M9 1 L9 2M9 1 L10 0L11 1M11 2 L11 1M5 7 L6 7" />
+  <glyph unicode="&#xe08e;" d="M1 3 L4 0M1 7 L1 3M1 7 L4 10L8 10L11 7M11 3 L11 7M8 0 L11 3M4 0 L8 0" />
+  <glyph unicode="&#xe08f;" d="M6 8 L6 2M1 3 L4 0L8 0L11 3M11 7 L11 3M8 10 L11 7M4 10 L8 10M1 7 L4 10M1 7 L1 3" />
+  <glyph unicode="&#xe090;" d="M6 10 L6 5L11 5M10 8 L10 5M1 7 L1 3M1 7 L4 10M11 3 L11 7M8 0 L11 3M4 0 L8 0M1 3 L4 0M8 10 L11 7M9 9 L9 5M8 10 L8 5M4 10 L8 10M7 10 L7 5" />
+  <glyph unicode="&#xe093;" d="M10 8 L10 5M1 7 L1 3M1 7 L4 10M8 10 L11 7M11 3 L11 7M8 0 L11 3M4 0 L8 0M1 3 L4 0M9 9 L9 5M6 5 L11 5M8 10 L8 5M4 10 L8 10M7 10 L7 5M6 10 L6 0" />
+  <glyph unicode="&#xe094;" d="M1 7 L1 3M1 7 L4 10M11 3 L11 7M1 3 L4 0M4 10 L8 10M7 10 L7 0M6 10 L6 0M4 0 L8 0M8 10 L8 0M8 10 L11 7M9 9 L9 1M8 0 L11 3M10 8 L10 2" />
+  <glyph unicode="&#xe095;" d="M1 7 L1 3M1 7 L4 10M11 3 L11 7M1 3 L4 0M4 10 L8 10M7 10 L7 0M6 10 L6 0M4 0 L8 0M8 10 L8 0M8 10 L11 7M9 9 L9 1M8 0 L11 3M10 8 L10 2M1 5 L6 5" />
+  <glyph unicode="&#xe096;" d="M9 9 L11 7M1 1 L9 9" />
+  <glyph unicode="&#xe097;" d="M8 9 L11 9M1 2 L8 9" />
+  <glyph unicode="&#xe098;" d="M9 1 L11 3M1 9 L9 1" />
+  <glyph unicode="&#xe099;" d="M8 2 L11 2M1 9 L8 2" />
+  <glyph unicode="&#xe09a;" d="M3 1 L11 9M1 3 L3 1" />
+  <glyph unicode="&#xe09b;" d="M1 7 L3 9L11 1" />
+  <glyph unicode="&#xe09c;" d="M9 8 L10 8M6 6 L7 6M3 8 L4 8L6 6M7 6 L9 8M10 8 L11 7M2 0 L2 7L3 8" />
+  <glyph unicode="&#xe09d;" d="M1 4 L1 6M8 7 L10 7M2 3 L4 3L8 7M1 6 L2 7L4 7L8 3L10 3L11 4M11 6 L11 4M10 7 L11 6M1 4 L2 3" />
+  <glyph unicode="&#xe09e;" d="M5 7 L5 9M9 1 L9 3M5 1 L5 2M9 8 L9 9M5 7 L9 3M8 10 L9 9M6 10 L8 10M5 9 L6 10M8 0 L9 1M6 0 L8 0M5 1 L6 0" />
+  <glyph unicode="&#xe09f;" d="M5 0 L5 10M7 2 L7 4M4 9 L6 9L7 8M3 2 L4 1M3 8 L4 9M3 8 L3 6L7 4M6 1 L7 2M4 1 L6 1" />
+  <glyph unicode="&#xe0a1;" d="M5 10 L7 8M4 9 L8 9M5 8 L7 10M1 5 L5 5M2 6 L4 4M2 4 L4 6M7 5 L11 5M8 6 L10 4M8 4 L10 6M4 1 L8 1M5 2 L7 0M5 0 L7 2" />
+  <glyph unicode="&#xe0a2;" d="M5 10 L7 8M5 8 L7 10M4 9 L8 9M5 6 L7 4M5 4 L7 6M4 5 L8 5M4 1 L8 1M5 0 L7 2M5 2 L7 0" />
+  <glyph unicode="&#xe0a3;" d="M3 8 L9 8M4 10 L8 6M4 6 L8 10M1 2 L5 2M1 0 L5 4M1 4 L5 0M7 4 L11 0M7 0 L11 4M7 2 L11 2" />
+  <glyph unicode="&#xe0a4;" d="M1 5 L5 5M1 7 L5 3M1 3 L5 7M7 5 L11 5M7 3 L11 7M7 7 L11 3" />
+  <glyph unicode="&#xe0a5;" d="M6 3 L6 0M5 2 L6 3M5 1 L5 2M5 1 L6 0L7 1M7 2 L7 1M6 3 L7 2M6 6 L6 9M5 7 L6 6M5 8 L5 7M5 8 L6 9L7 8M7 7 L7 8M6 6 L7 7M8 5 L9 6M8 4 L8 5M8 4 L9 3L10 4M10 5 L10 4M9 6 L10 5M9 3 L9 6M3 6 L3 3M3 6 L4 5M4 4 L4 5M3 3 L4 4M2 4 L3 3M2 5 L2 4M2 5 L3 6" />
+  <glyph unicode="&#xe0a6;" d="M6 8 L6 10M5 9 L6 8M5 9 L6 10L7 9M6 8 L7 9M5 5 L6 6M5 5 L6 4L7 5M6 6 L7 5M6 4 L6 6M5 1 L6 2M5 1 L6 0L7 1M6 2 L7 1M6 0 L6 2" />
+  <glyph unicode="&#xe0a7;" d="M6 7 L6 10M6 7 L7 8M7 9 L7 8M6 10 L7 9M5 9 L6 10M5 8 L5 9M5 8 L6 7M3 3 L3 0M2 2 L3 3M2 1 L2 2M2 1 L3 0L4 1M4 2 L4 1M3 3 L4 2M8 2 L9 3M8 1 L8 2M8 1 L9 0L10 1M10 2 L10 1M9 3 L10 2M9 0 L9 3" />
+  <glyph unicode="&#xe0a8;" d="M3 4 L3 7M2 5 L3 4M2 6 L2 5M2 6 L3 7L4 6M4 5 L4 6M3 4 L4 5M9 4 L9 7M8 5 L9 4M8 6 L8 5M8 6 L9 7L10 6M10 5 L10 6M9 4 L10 5" />
+  <glyph unicode="&#xe0a9;" d="M5 9 L7 9M5 10 L5 9M5 10 L6 10L7 9M7 8 L7 9M5 6 L7 8M5 0 L7 2M7 3 L7 2M6 4 L7 3M5 4 L6 4M5 3 L5 4M5 3 L7 3M1 3 L3 5M3 6 L3 5M2 7 L3 6M1 7 L2 7M1 6 L1 7M1 6 L3 6M9 6 L11 6M9 7 L9 6M9 7 L10 7L11 6M11 5 L11 6M9 3 L11 5" />
+  <glyph unicode="&#xe0aa;" d="M5 10 L6 10M6 9 L6 10M5 8 L6 9M5 6 L6 6M6 5 L6 6M5 4 L6 5M5 2 L6 2M6 1 L6 2M5 0 L6 1" />
+  <glyph unicode="&#xe0ab;" d="M5 9 L7 9M5 10 L5 9M5 10 L6 10L7 9M7 8 L7 9M5 6 L7 8M2 3 L4 3M2 4 L2 3M2 4 L3 4L4 3M4 2 L4 3M2 0 L4 2M8 3 L10 3M8 4 L8 3M8 4 L9 4L10 3M10 2 L10 3M8 0 L10 2" />
+  <glyph unicode="&#xe0ac;" d="M2 6 L4 6M2 7 L2 6M2 7 L3 7L4 6M4 5 L4 6M2 3 L4 5M8 6 L10 6M8 7 L8 6M8 7 L9 7L10 6M10 5 L10 6M8 3 L10 5" />
+  <glyph unicode="&#xe0ad;" d="M1 1 L10 1M1 4 L10 4M1 8 L1 6M1 8 L2 9L4 9L7 6L9 6L10 7M10 9 L10 7" />
+  <glyph unicode="&#xe0ae;" d="M1 5 L5 5M6 8 L6 7M6 8 L7 9L9 9L10 8M10 6 L10 8M7 3 L10 6M7 1 L8 1M8 0 L8 1M7 0 L8 0M7 1 L7 0" />
+  <glyph unicode="&#xe0af;" d="M6 8 L6 7M6 8 L7 9L9 9L10 8M10 6 L10 8M7 3 L10 6M7 1 L8 1M8 0 L8 1M7 0 L8 0M7 1 L7 0" />
+  <glyph unicode="&#xe0b0;" d="M1 5 L5 5M6 8 L6 7M6 8 L7 9L9 9L10 8M10 6 L10 8M7 3 L10 6M7 1 L8 1M8 0 L8 1M7 0 L8 0M7 1 L7 0M3 3 L3 7" />
+  <glyph unicode="&#xe0b1;" d="M1 0 L2 2L4 2L5 0M1 0 L5 0M3 8 L3 2M3 8 L4 9M11 5 L11 3M9 8 L11 5M8 7 L9 8M10 2 L11 3M9 5 L10 2M8 4 L9 5M7 6 L8 4M6 5 L7 6M5 6 L6 5M3 2 L5 6M7 9 L8 7M6 8 L7 9M4 9 L6 8" />
+  <glyph unicode="&#xe0b2;" d="M1 5 L4 5M1 8 L4 8M8 8 L11 8M1 2 L4 2M8 2 L11 2M8 5 L11 5" />
+  <glyph unicode="&#xe0b3;" d="M1 8 L5 8M1 2 L5 2M1 6 L5 10M1 10 L5 6M1 0 L5 4M1 4 L5 0M7 5 L11 5M7 7 L11 3M7 3 L11 7" />
+  <glyph unicode="&#xe0b4;" d="M8 6 L9 7M8 5 L8 6M8 5 L9 4L10 5M10 6 L10 5M9 7 L10 6M9 4 L9 7M2 9 L3 10M2 8 L2 9M2 8 L3 7L4 8M4 9 L4 8M3 10 L4 9M3 7 L3 10M2 2 L3 3M2 1 L2 2M2 1 L3 0L4 1M4 2 L4 1M3 3 L4 2M3 0 L3 3" />
+  <glyph unicode="&#xe0b5;" d="M8 3 L10 5M10 6 L10 5M9 7 L10 6M8 7 L9 7M8 6 L8 7M8 6 L10 6M2 6 L4 8M4 9 L4 8M3 10 L4 9M2 10 L3 10M2 9 L2 10M2 9 L4 9M2 0 L4 2M4 3 L4 2M3 4 L4 3M2 4 L3 4M2 3 L2 4M2 3 L4 3" />
+  <glyph unicode="&#xe0b6;" d="M6 0 L6 10M1 5 L11 5" />
+  <glyph unicode="&#xe0b7;" d="M5 9 L6 10M5 8 L5 9M5 8 L6 7L7 8M7 9 L7 8M6 10 L7 9M6 7 L6 10M2 0 L6 4M2 0 L10 0M6 4 L10 0M5 3 L7 3M4 2 L8 2M3 1 L9 1" />
+  <glyph unicode="&#xe0b8;" d="M3 8 L9 8M4 6 L8 10M4 10 L8 6M2 0 L6 4M2 0 L10 0M6 4 L10 0M5 3 L7 3M4 2 L8 2M3 1 L9 1" />
+  <glyph unicode="&#xe0b9;" d="M1 3 L1 5M7 3 L10 3M4 6 L7 3M2 0 L4 3M2 6 L4 6M10 3 L11 4M11 6 L11 4M1 5 L2 6M2 0 L6 0M4 3 L6 0M3 0 L4 3M8 6 L9 6M9 7 L9 6M8 7 L9 7M8 6 L8 7M4 3 L5 0M3 1 L5 1M4 0 L4 3" />
+  <glyph unicode="&#xe0ba;" d="M1 3 L1 5M7 3 L10 3M4 6 L7 3M3 3 L4 3M2 6 L4 6M10 3 L11 4M11 6 L11 4M1 5 L2 6M4 2 L4 3M3 2 L4 2M3 3 L3 2M7 6 L9 10M7 10 L9 6M6 8 L10 8" />
+  <glyph unicode="&#xe0bb;" d="M1 3 L1 5M7 3 L10 3M4 6 L7 3M2 0 L4 3M2 6 L4 6M10 3 L11 4M11 6 L11 4M1 5 L2 6M2 0 L6 0M4 3 L6 0M3 0 L4 3M7 6 L9 10M7 10 L9 6M6 8 L10 8M4 3 L5 0M3 1 L5 1M4 0 L4 3" />
+  <glyph unicode="&#xe0bc;" d="M5 8 L11 8M6 10 L10 6M6 6 L10 10M3 0 L11 0M3 0 L7 4L11 0M4 1 L10 1M5 2 L9 2M6 3 L8 3M1 6 L2 7M1 5 L1 6M1 5 L2 4L3 5M3 6 L3 5M2 7 L3 6M2 4 L2 7" />
+  <glyph unicode="&#xe0bd;" d="M6 4 L9 1M3 1 L6 4M1 1 L11 1" />
+  <glyph unicode="&#xe0be;" d="M6 7 L9 4M3 4 L6 7M6 4 L9 1M3 1 L6 4M1 1 L11 1" />
+  <glyph unicode="&#xe0bf;" d="M6 7 L9 4M3 4 L6 7M6 4 L9 1M3 1 L6 4M5 3 L7 3M4 2 L8 2M1 1 L11 1M4 1 L6 4M5 1 L6 4M6 1 L6 4L7 1M6 4 L8 1" />
+  <glyph unicode="&#xe0c0;" d="M2 5 L2 9M10 5 L10 9M2 5 L4 3M8 3 L10 5M4 3 L8 3" />
+  <glyph unicode="&#xe0c1;" d="M6 3 L6 10M2 5 L2 9M10 5 L10 9M2 5 L4 3M8 3 L10 5M4 3 L8 3" />
+  <glyph unicode="&#xe0c2;" d="M5 10 L5 3M7 3 L7 10M2 5 L2 9M10 5 L10 9M2 5 L4 3M8 3 L10 5M4 3 L8 3" />
+  <glyph unicode="&#xe0c3;" d="M4 3 L4 10M6 3 L6 10M8 3 L8 10M2 5 L2 9M10 5 L10 9M2 5 L4 3L8 3L10 5" />
+  <glyph unicode="&#xe0c4;" d="M3 6 L5 8M3 4 L3 6M3 4 L5 2L7 2L9 4M9 6 L9 4M7 8 L9 6M5 8 L7 8M2 1 L10 9" />
+  <glyph unicode="&#xe0c5;" d="M6 8 L9 6M9 5 L9 6M1 0 L2 10M10 2 L11 3M9 2 L10 2M8 4 L9 5M9 8 L11 10M9 9 L11 9M10 10 L10 8M9 10 L11 8M2 10 L8 0M1 3 L6 3M7 4 L8 4M11 5 L11 3M3 9 L9 7L11 5" />
+  <glyph unicode="&#xe0c6;" d="M6 6 L7 5M6 4 L7 5M1 5 L7 5M1 2 L4 2M1 8 L4 8L6 9L7 10M4 2 L6 1L7 0M6 0 L7 0M7 1 L7 0M9 7 L11 9M9 9 L11 7M9 3 L11 1M9 1 L11 3M9 2 L11 2M10 1 L10 3M9 8 L11 8M7 9 L7 10M6 10 L7 10M10 7 L10 9" />
+  <glyph unicode="&#xe0c7;" d="M1 9 L11 9M6 1 L7 2M5 2 L6 1M1 1 L1 3M1 1 L2 2M6 1 L6 9M10 2 L11 1M11 3 L11 1M3 9 L3 5M1 1 L3 5M9 5 L9 9M9 5 L11 1" />
+  <glyph unicode="&#xe0c8;" d="M1 9 L11 9M11 1 L11 9M1 1 L11 1M1 9 L1 1M3 7 L9 7M9 3 L9 7M3 3 L9 3M3 7 L3 3M4 3 L4 7M5 7 L5 3M6 3 L6 7M7 7 L7 3M8 3 L8 7" />
+  <glyph unicode="&#xe0c9;" d="M1 7 L9 7M8 0 L11 5M8 10 L11 5M1 3 L9 3" />
+  <glyph unicode="&#xe0ca;" d="M3 10 L3 7M3 10 L6 8L9 10M9 7 L9 10M6 0 L6 5M5 1 L6 0L7 1M3 3 L3 5M2 1 L3 3M1 0 L2 1M1 1 L1 0L2 0M3 7 L4 7M8 9 L8 7M9 3 L9 5M9 3 L10 1L11 0M8 7 L9 7M4 9 L4 7M11 1 L11 0M10 0 L11 0" />
+  <glyph unicode="&#xe0cb;" d="M8 10 L11 5M8 0 L11 5M2 9 L5 9M6 2 L9 2M6 8 L9 8M2 1 L2 9M4 7 L5 9M4 7 L6 3M5 4 L6 3M6 5 L6 3" />
+  <glyph unicode="&#xe0cc;" d="M2 3 L2 10M1 2 L2 3M1 1 L1 2M1 1 L2 0L4 0L5 1M5 2 L5 1M4 3 L5 2M4 10 L4 3M2 10 L4 10M6 6 L8 6M8 4 L8 6M7 3 L8 4M2 4 L3 4M2 6 L3 6M2 8 L3 8M1 1 L5 1M2 0 L2 1M2 0 L3 1L4 0M4 1 L4 0M3 0 L4 1M2 1 L3 0M7 3 L8 2M8 0 L8 2M6 0 L8 0M9 6 L11 6M11 4 L11 6M9 2 L11 4M9 0 L9 2M9 0 L11 0M9 9 L10 10M9 9 L10 8L11 9M10 10 L11 9" />
+  <glyph unicode="&#xe0cd;" d="M2 10 L2 3M1 2 L2 3M1 1 L1 2M1 1 L2 0L4 0L5 1M5 2 L5 1M4 3 L5 2M4 10 L4 3M2 10 L4 10M2 8 L3 8M7 6 L8 6M2 6 L3 6M2 4 L3 4M1 1 L5 1M2 0 L2 1M2 0 L3 1M3 0 L3 1M3 0 L4 1M4 0 L4 1M3 1 L4 0M2 1 L3 0M8 6 L9 5M9 1 L9 5M8 0 L9 1M7 0 L8 0M6 1 L7 0M6 5 L6 1M6 5 L7 6M9 9 L10 10M9 9 L10 8L11 9M10 10 L11 9" />
+  <glyph unicode="&#xe100;" d="" />
+</font>
+<style type="text/css">
+<![CDATA[
+       @font-face { 
+        		font-family: "WxSymbolFont";
+                src: url(#WxSymbols); 
+		}
+        text#theText {
+        		fill:none;
+        		
+                stroke-width: 1px;
+                font-size: 1em;
+                font-family: WxSymbolFont;
+		}
+]]>
+</style>
+
+</defs>
+<text id="theText" stroke="white" x="0" y="11">&#xe05a;</text>
+<!-- <text id="theText" stroke="black" x="0" y="11">&#xe100;&#xe001;&#xe002;&#xe003;&#xe004;&#xe005;&#xe006;&#xe007;&#xe100;&#xe100;&#xe100;&#xe100;&#xe100;&#xe100;&#xe00e;&#xe00f;&#xe010;&#xe100;&#xe100;&#xe013;&#xe014;&#xe015;&#xe016;&#xe017;&#xe018;&#xe019;&#xe01a;&#xe01b;&#xe01c;&#xe01d;&#xe01e;&#xe01f;&#xe020;&#xe021;&#xe022;&#xe023;&#xe024;&#xe025;&#xe026;&#xe027;&#xe028;&#xe029;&#xe02a;&#xe02b;&#xe02c;&#xe02d;&#xe02e;&#xe02f;&#xe030;&#xe031;&#xe032;&#xe033;&#xe034;&#xe035;&#xe036;&#xe037;&#xe038;&#xe039;&#xe03a;&#xe03b;&#xe03c;&#xe03d;&#xe03e;&#xe03f;&#xe040;&#xe041;&#xe042;&#xe043;&#xe044;&#xe045;&#xe046;&#xe047;&#xe048;&#xe049;&#xe04a;&#xe04b;&#xe04c;&#xe04d;&#xe04e;&#xe04f;&#xe050;&#xe051;&#xe052;&#xe053;&#xe054;&#xe055;&#xe056;&#xe057;&#xe058;&#xe059;&#xe05a;&#xe05b;&#xe05c;&#xe05d;&#xe05e;&#xe05f;&#xe060;&#xe061;&#xe062;&#xe063;&#xe064;&#xe065;&#xe066;&#xe067;&#xe068;&#xe069;&#xe06a;&#xe06b;&#xe06c;&#xe06d;&#xe06e;&#xe06f;&#xe070;&#xe071;&#xe072;&#xe073;&#xe074;&#xe075;&#xe076;&#xe077;&#xe078;&#xe079;&#xe07a;&#xe07b;&#xe07c;&#xe07d;&#xe07e;&#xe07f;&#xe100;&#xe081;&#xe082;&#xe083;&#xe084;&#xe085;&#xe086;&#xe087;&#xe088;&#xe089;&#xe08a;&#xe100;&#xe100;&#xe100;&#xe08e;&#xe08f;&#xe090;&#xe100;&#xe100;&#xe093;&#xe094;&#xe095;&#xe096;&#xe097;&#xe098;&#xe099;&#xe09a;&#xe09b;&#xe09c;&#xe09d;&#xe09e;&#xe09f;&#xe100;&#xe0a1;&#xe0a2;&#xe0a3;&#xe0a4;&#xe0a5;&#xe0a6;&#xe0a7;&#xe0a8;&#xe0a9;&#xe0aa;&#xe0ab;&#xe0ac;&#xe0ad;&#xe0ae;&#xe0af;&#xe0b0;&#xe0b1;&#xe0b2;&#xe0b3;&#xe0b4;&#xe0b5;&#xe0b6;&#xe0b7;&#xe0b8;&#xe0b9;&#xe0ba;&#xe0bb;&#xe0bc;&#xe0bd;&#xe0be;&#xe0bf;&#xe0c0;&#xe0c1;&#xe0c2;&#xe0c3;&#xe0c4;&#xe0c5;&#xe0c6;&#xe0c7;&#xe0c8;&#xe0c9;&#xe0ca;&#xe0cb;&#xe0cc;&#xe0cd;</text> -->
+<!--  <rect fill="none" stroke="blue" stroke-width="1px" x="0" y="0" width="12" height="12" /> -->
+</svg>

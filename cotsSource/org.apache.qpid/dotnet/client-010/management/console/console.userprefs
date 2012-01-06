@@ -1,0 +1,42 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workbench ActiveDocument="../../../../../../test/csharpQmfExample/QmfExample.cs" ctype="Workbench">
+    <Files>
+      <File FileName="../../../../../../test/csharpQmfExample/QmfExample.cs" Line="32" Column="24" />
+      <File FileName="../../../../../../console/test/Test.cs" Line="164" Column="33" />
+      <File FileName="../../../../../../test/csharpQmfExample/log.xml" Line="32" Column="1" />
+      <File FileName="Broker.cs" Line="211" Column="19" />
+      <File FileName="Agent.cs" Line="38" Column="4" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State expanded="True">
+          <Node name="console" expanded="True">
+            <Node name="Agent.cs" selected="True" />
+          </Node>
+        </State>
+      </Pad>
+      <Pad Id="ClassPad">
+        <State expanded="True" selected="True">
+          <Node name="console" expanded="True">
+            <Node name="References">
+              <Option id="ShowProjects" value="True" />
+              <Option id="NestedNamespaces" value="False" />
+              <Option id="PublicApiOnly" value="False" />
+              <Option id="GroupByType" value="True" />
+              <Option id="GroupByAccess" value="False" />
+            </Node>
+            <Node name="org" expanded="True">
+              <Node name="apache" expanded="True">
+                <Node name="qpid" expanded="True" />
+              </Node>
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" ctype="Workspace" />
+</Properties>

@@ -1,0 +1,69 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="sfcobsDecoder" class="com.raytheon.edex.plugin.sfcobs.SfcObsDecoder" />
+	<bean id="sfcobsSeparator" class="com.raytheon.edex.plugin.sfcobs.SfcObsSeparator" />
+
+    <bean id="sfcobsPointData" class="com.raytheon.uf.common.dataplugin.sfcobs.dao.SfcObsPointDataTransform">
+        <constructor-arg ref="sfcobsPluginName" />
+    </bean>
+
+	<bean id="sfcobsDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="sfcobs" />
+		<constructor-arg value="jms-dist:queue:Ingest.sfcobs?destinationResolver=#qpidDurableResolver" />
+	</bean>
+	
+	<bean id="sfcobsCamelRegistered" factory-bean="contextManager"
+		factory-method="register" 
+		depends-on="persistCamelRegistered, 
+		            shefCamelRegistered">
+		<constructor-arg ref="sfcobs-camel"/>
+  	</bean>
+
+	<camelContext id="sfcobs-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+		<!--
+		<endpoint id="sfcobsFileEndpoint"
+			uri="file:${edex.home}/data/sbn/sfcobs?noop=true&amp;idempotent=false" />
+
+		<route id="sfcobsFileConsumerRoute">
+			<from ref="sfcobsFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+				<constant>sfcobs</constant>
+			</setHeader>
+			<to uri="jms-generic:queue:Ingest.sfcobs" />
+		</route>
+		-->
+
+		<!-- Begin sfcobs routes -->
+		<route id="sfcobsIngestRoute">
+			<from uri="jms-generic:queue:Ingest.sfcobs?destinationResolver=#qpidDurableResolver" />
+			<setHeader headerName="pluginName">
+				<constant>sfcobs</constant>
+			</setHeader>
+			<bean ref="stringToFile" />
+			<doTry>
+				<pipeline>
+					<bean ref="sfcobsDecoder" method="decode" />
+                    <bean ref="sfcobsPointData" method="toPointData" />
+                    <multicast>
+                      <to uri="directvm:persistIndexAlert" />
+                      <to uri="directvm:synopticToShef"/>
+                    </multicast>
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:sfcobs?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
+		</route>
+
+	</camelContext>
+</beans>

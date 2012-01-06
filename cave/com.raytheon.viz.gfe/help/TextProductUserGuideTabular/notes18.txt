@@ -1,0 +1,2 @@
+A Time Range is a Python class with methods for the startTime and endTime.  These in turn are Python AbsTime classes which have their own methods.  The duration of a time range can be accessed as the number of seconds it covers.
+

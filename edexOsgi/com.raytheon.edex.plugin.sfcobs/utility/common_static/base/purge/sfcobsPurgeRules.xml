@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<purgeRuleSet xmlns:ns2="group">
+
+	<!-- Synoptic fixed land -->
+	<rule>
+		<id>
+			<pluginName>sfcobs</pluginName>
+			<key>reportType=1001</key>
+		</id>
+		<versionsToKeep>13</versionsToKeep>
+		<delta>=00-01:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<id>
+			<pluginName>sfcobs</pluginName>
+			<key>reportType=1001</key>
+		</id>
+		<versionsToKeep>50</versionsToKeep>
+		<delta>=01-00:00:00</delta>
+		<round>+00-12:00:00</round>
+	</rule>
+	<!-- End synoptic fixed land -->
+	
+	<!-- Synoptic mobile land -->
+	<rule>
+		<id>
+			<pluginName>sfcobs</pluginName>
+			<key>reportType=1002</key>
+		</id>
+		<versionsToKeep>13</versionsToKeep>
+		<delta>=00-01:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<id>
+			<pluginName>sfcobs</pluginName>
+			<key>reportType=1002</key>
+		</id>
+		<versionsToKeep>50</versionsToKeep>
+		<delta>=01-00:00:00</delta>
+		<round>+00-12:00:00</round>
+	</rule>
+	<!-- End synoptic mobile land -->
+
+	<!-- Synoptic ship -->
+	<rule>
+		<id>
+			<pluginName>sfcobs</pluginName>
+			<key>reportType=1003</key>
+		</id>
+		<versionsToKeep>34</versionsToKeep>
+		<delta>=00-01:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<id>
+			<pluginName>sfcobs</pluginName>
+			<key>reportType=1003</key>
+		</id>
+		<versionsToKeep>38</versionsToKeep>
+		<delta>=00-03:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<id>
+			<pluginName>sfcobs</pluginName>
+			<key>reportType=1003</key>
+		</id>
+		<versionsToKeep>42</versionsToKeep>
+		<delta>=00-06:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<id>
+			<pluginName>sfcobs</pluginName>
+			<key>reportType=1003</key>
+		</id>
+		<versionsToKeep>50</versionsToKeep>
+		<delta>=01-00:00:00</delta>
+		<round>+00-12:00:00</round>
+	</rule>
+	<!-- End synoptic ship -->
+
+	<!-- Synoptic cman -->
+	<rule>
+		<id>
+			<pluginName>sfcobs</pluginName>
+			<key>reportType=1004</key>
+		</id>
+		<versionsToKeep>34</versionsToKeep>
+		<delta>=00-01:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<id>
+			<pluginName>sfcobs</pluginName>
+			<key>reportType=1004</key>
+		</id>
+		<versionsToKeep>38</versionsToKeep>
+		<delta>=00-03:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<id>
+			<pluginName>sfcobs</pluginName>
+			<key>reportType=1004</key>
+		</id>
+		<versionsToKeep>42</versionsToKeep>
+		<delta>=00-06:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<id>
+			<pluginName>sfcobs</pluginName>
+			<key>reportType=1004</key>
+		</id>
+		<versionsToKeep>50</versionsToKeep>
+		<delta>=01-00:00:00</delta>
+		<round>+00-12:00:00</round>
+	</rule>
+	<!-- End synoptic cman -->
+
+	<!-- Synoptic moored buoy -->
+	<rule>
+		<id>
+			<pluginName>sfcobs</pluginName>
+			<key>reportType=1005</key>
+		</id>
+		<versionsToKeep>34</versionsToKeep>
+		<delta>=00-01:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<id>
+			<pluginName>sfcobs</pluginName>
+			<key>reportType=1005</key>
+		</id>
+		<versionsToKeep>38</versionsToKeep>
+		<delta>=00-03:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<id>
+			<pluginName>sfcobs</pluginName>
+			<key>reportType=1005</key>
+		</id>
+		<versionsToKeep>42</versionsToKeep>
+		<delta>=00-06:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<id>
+			<pluginName>sfcobs</pluginName>
+			<key>reportType=1005</key>
+		</id>
+		<versionsToKeep>50</versionsToKeep>
+		<delta>=01-00:00:00</delta>
+		<round>+00-12:00:00</round>
+	</rule>
+	<!-- End synoptic moored buoy -->
+
+	<!-- Drifting Buoy -->
+	<rule>
+		<id>
+			<pluginName>sfcobs</pluginName>
+			<key>reportType=1006</key>
+		</id>
+		<versionsToKeep>34</versionsToKeep>
+		<delta>=00-01:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<id>
+			<pluginName>sfcobs</pluginName>
+			<key>reportType=1006</key>
+		</id>
+		<versionsToKeep>38</versionsToKeep>
+		<delta>=00-03:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<id>
+			<pluginName>sfcobs</pluginName>
+			<key>reportType=1006</key>
+		</id>
+		<versionsToKeep>42</versionsToKeep>
+		<delta>=00-06:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<id>
+			<pluginName>sfcobs</pluginName>
+			<key>reportType=1006</key>
+		</id>
+		<versionsToKeep>50</versionsToKeep>
+		<delta>=01-00:00:00</delta>
+		<round>+00-12:00:00</round>
+	</rule>
+	<!-- End drifting buoy -->
+
+	<!-- Synoptic marob -->
+	<rule>
+		<id>
+			<pluginName>sfcobs</pluginName>
+			<key>reportType=1007</key>
+		</id>
+		<versionsToKeep>34</versionsToKeep>
+		<delta>=00-01:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<id>
+			<pluginName>sfcobs</pluginName>
+			<key>reportType=1007</key>
+		</id>
+		<versionsToKeep>38</versionsToKeep>
+		<delta>=00-03:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<id>
+			<pluginName>sfcobs</pluginName>
+			<key>reportType=1007</key>
+		</id>
+		<versionsToKeep>42</versionsToKeep>
+		<delta>=00-06:00:00</delta>
+		<round>00-01:00:00</round>
+	</rule>
+	<rule>
+		<id>
+			<pluginName>sfcobs</pluginName>
+			<key>reportType=1007</key>
+		</id>
+		<versionsToKeep>50</versionsToKeep>
+		<delta>=01-00:00:00</delta>
+		<round>+00-12:00:00</round>
+	</rule>
+	<!-- End synoptic marob -->
+</purgeRuleSet>

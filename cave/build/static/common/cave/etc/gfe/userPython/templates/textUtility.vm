@@ -1,0 +1,32 @@
+# ----------------------------------------------------------------------------
+# This software is in the public domain, furnished "as is", without technical
+# support, and with no warranty, express or implied, as to its usefulness for
+# any purpose.
+#
+# ${itemName}.py
+#
+# Author: $author
+# ----------------------------------------------------------------------------
+
+import TextRules
+import SampleAnalysis
+import time, string
+
+class ${itemName}(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
+    def __init__(self):
+        TextRules.TextRules.__init__(self)
+        SampleAnalysis.SampleAnalysis.__init__(self)
+
+    # Include your utility methods here
+    def p_myMethod(self):
+        return 10
+
+## To set up and use this utility:
+##
+## import MyUtility
+##
+## Then, in your TextProduct methods:
+##
+##      self.p_myUtility = MyUtility.MyUtility()
+##      y = self.p_myUtility.p_myMethod()
+##

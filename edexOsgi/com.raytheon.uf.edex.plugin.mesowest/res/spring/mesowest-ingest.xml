@@ -1,0 +1,76 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="mesowestDatabase" class="java.lang.String">
+		<constructor-arg type="java.lang.String" value="metadata" />
+	</bean>
+ 
+    <bean id="mesowestFilter" class="com.raytheon.uf.edex.decodertools.core.filterimpl.PluginDataObjectFilter">
+        <constructor-arg type="java.lang.String" value="mesowest_filters.xml" />
+        <constructor-arg type="java.lang.String" value="SITE" />
+    </bean>
+
+	<bean id="mesowestInitializer" class="com.raytheon.edex.plugin.DefaultPluginInitializer">
+		<constructor-arg ref="mesowestPluginName" />
+		
+	</bean>
+    
+    <bean id="mesowestSeparator" class="com.raytheon.uf.edex.plugin.mesowest.MESOWestSeparator" />
+
+	<!--bean id="mesowestDecoder" class="com.raytheon.uf.edex.plugin.mesowest.MESOWestDecoder">
+        <constructor-arg ref="mesowestPluginName" />
+    </bean-->
+    
+    <bean id="mesowestDecoder" class="com.raytheon.uf.edex.python.decoder.PythonDecoder">
+		<property name="pluginName" value="mesowest" />
+		<property name="pluginFQN" value="com.raytheon.uf.edex.plugin.mesowest" />
+		<property name="moduleName" value="MesowestDecoder" />
+		<property name="recordClassname"
+			value="com.raytheon.uf.edex.plugin.mesowest.common.MESOWestRecord" />
+	</bean>
+
+	<bean id="mesowestCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="mesowest-camel"/>
+  	</bean> 
+
+    <camelContext id="mesowest-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler"
+        autoStartup="false">
+        <!--
+        <endpoint id="mesowestFileEndpoint" uri="file:${edex.home}/data/sbn/mesowest?noop=true&amp;idempotent=false" />
+
+        <route id="mesowestFileConsumerRoute">
+            <from ref="mesowestFileEndpoint" />
+            <bean ref="fileToString" />
+            <setHeader headerName="pluginName">
+                <constant>mesowest</constant>
+            </setHeader>
+            <to uri="jms-generic:queue:Ingest.Mesowest" />
+        </route>
+        -->
+
+        <!-- Begin MESOWest routes -->
+        <route id="mesowestIngestRoute">
+            <from uri="jms-generic:queue:Ingest.Mesowest?destinationResolver=#qpidDurableResolver" />
+            <doTry>
+				<pipeline>
+		            <bean ref="stringToFile" />
+					<bean ref="mesowestDecoder" method="decode" />
+                    <bean ref="mesowestFilter" method="filter" />
+					<to uri="directvm:indexAlert" />				
+				</pipeline>				
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to
+						uri="log:warning?level=ERROR&amp;showBody=false" />
+				</doCatch>				
+			</doTry>
+        </route>
+    </camelContext>
+
+</beans>

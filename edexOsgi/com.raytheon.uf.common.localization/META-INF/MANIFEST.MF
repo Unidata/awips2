@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Localization Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.localization
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Vendor: Raytheon
+Require-Bundle: org.apache.commons.lang,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.serialization.comm;bundle-version="1.0.0",
+ com.raytheon.uf.common.auth,
+ com.raytheon.uf.common.status;bundle-version="1.12.1174"
+Eclipse-BuddyPolicy: registered, ext, global
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
+Export-Package: com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.localization.exception,
+ com.raytheon.uf.common.localization.msgs,
+ com.raytheon.uf.common.localization.stream
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

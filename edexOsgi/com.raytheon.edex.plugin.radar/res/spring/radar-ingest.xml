@@ -1,0 +1,94 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="radarDecompressor" class="com.raytheon.edex.plugin.radar.RadarDecompressor"/>
+	<bean id="radarDecoder" class="com.raytheon.edex.plugin.radar.RadarDecoder"/>
+	<bean id="jms-radar" class="org.apache.camel.component.jms.JmsComponent">
+        <constructor-arg ref="jmsIngestRadarConfig" />
+		<property name="taskExecutor" ref="radarThreadPool" />		
+	</bean>
+	<bean id="jmsIngestRadarConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+			factory-bean="jmsConfig" factory-method="copy">
+	</bean>
+	<bean id="radarThreadPool"
+		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="2" />
+		<property name="maxPoolSize" value="2" />
+	</bean>
+	
+	<bean id="radarDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="radar" />
+		<constructor-arg value="jms-dist:queue:Ingest.Radar" />
+	</bean>
+	
+	<bean id="radarRadarServerDistRegistry" factory-bean="radarserverDistributionSrv"
+		factory-method="register">
+		<constructor-arg value="radar" />
+		<constructor-arg value="jms-dist:queue:Ingest.RadarRadarServer" />
+	</bean>
+
+    <bean id="radarCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="radar-camel"/>
+  	</bean>  
+	
+	<camelContext id="radar-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+		<!--
+		<endpoint id="radarFileEndpoint" uri="file:${edex.home}/data/sbn/radar?noop=true&amp;idempotent=false" />
+
+		<route id="radarFileConsumerRoute">
+			<from ref="radarFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+				<constant>radar</constant>
+			</setHeader>
+			<to uri="jms-radar:queue:Ingest.Radar" />
+		</route>
+		-->
+
+		<!-- Begin Radar routes -->
+		<route id="radarIngestRoute">
+			<from uri="jms-radar:queue:Ingest.Radar?destinationResolver=#qpidDurableResolver" />
+			<to uri="direct:radarcommon" />
+		</route>
+		
+		<route id="radarRadarServerIngestRoute">
+			<from uri="jms-radar:queue:Ingest.RadarRadarServer?destinationResolver=#qpidDurableResolver" />
+			<to uri="direct:radarcommon" />
+		</route>
+
+		<route id="radarCommonIngestRoute">
+			<from uri="direct:radarcommon" />
+			<setHeader headerName="pluginName">
+				<constant>radar</constant>
+			</setHeader>
+			<doTry>
+				<pipeline>
+					<bean ref="stringToFile" />
+					<bean ref="radarDecompressor" method="decompress" />
+					<bean ref="radarDecoder" method="decode" />
+					<to uri="directvm:persistIndexAlert" />
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:radar?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true" />
+				</doCatch>
+			</doTry>
+		</route>
+	</camelContext>
+	
+	<bean id="radarServerConnectionHandler"
+		class="com.raytheon.edex.rpgenvdata.RadarServerConnectionHandler" />
+	<bean factory-bean="handlerRegistry" factory-method="register">
+		<constructor-arg
+			value="com.raytheon.uf.common.dataplugin.radar.request.RadarServerConnectionRequest" />
+		<constructor-arg ref="radarServerConnectionHandler" />
+	</bean>
+</beans>

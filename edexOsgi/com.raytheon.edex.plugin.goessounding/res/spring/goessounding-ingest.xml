@@ -1,0 +1,73 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="goessoundingDecoder"
+		class="com.raytheon.edex.plugin.goessounding.GOESSoundingDecoder" />
+	
+    <bean id="goesSeparatorFactory"
+        class="com.raytheon.edex.plugin.goessounding.GOESSndgSeparatorFactory" />
+
+	<bean id="goessoundingDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg ref="goessoundingPluginName" />
+		<constructor-arg value="jms-dist:queue:Ingest.goessounding?destinationResolver=#qpidDurableResolver" />
+	</bean>
+
+    <bean id="goessoundingCamelRegistered" factory-bean="contextManager"
+		factory-method="register" 
+		depends-on="persistCamelRegistered">
+		<constructor-arg ref="goessounding-camel"/>
+  	</bean>
+
+	<camelContext id="goessounding-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+		<!--
+		<endpoint id="goessndgFileEndpoint"
+			uri="file:${edex.home}/data/sbn/goessndg?noop=true&amp;idempotent=false" />
+
+		<route id="goessndgFileConsumerRoute">
+			<from ref="goessndgFileEndpoint" />
+			<bean ref="fileToString" />
+            <setHeader headerName="pluginName">
+                <constant>goessounding</constant>
+            </setHeader>
+			<to uri="jms-generic:queue:Ingest.goessounding" />
+		</route>
+        -->
+
+		<!-- Begin GOES Sounding routes -->
+        <route id="goessndgIngestRoute">
+            <from uri="jms-generic:queue:Ingest.goessounding?destinationResolver=#qpidDurableResolver" />
+            <setHeader headerName="pluginName">
+                <constant>goessounding</constant>
+            </setHeader>
+            <doTry>
+	            <pipeline>
+    		        <bean ref="stringToFile" />
+            		<split streaming="true">
+		                <method bean="goesSeparatorFactory" method="getSeparator"/>
+        		        <doTry>
+		                    <pipeline>
+        		                <bean ref="goessoundingDecoder" method="decode" />
+                		        <to uri="directvm:persistIndexAlert" />
+		                    </pipeline>
+		                    <doCatch>
+        		                <exception>java.lang.Throwable</exception>
+                		        <to uri="log:goessounding?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+		                    </doCatch>
+        		        </doTry>
+		            </split>
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:goessounding?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                </doCatch>
+            </doTry>
+        </route>
+	</camelContext>
+</beans>

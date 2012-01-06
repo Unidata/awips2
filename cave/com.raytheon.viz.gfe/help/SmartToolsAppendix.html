@@ -1,0 +1,960 @@
+<html>
+<title>GFESuite Documentation - Smart Tools</title>
+<body>
+<h1 align=center>Smart Tools Appendix: Point-based Tools</h1>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp; <a href="#PB-Arguments">Point-based
+Arguments</a>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="#PB-Reserved">Reserved Methods</a>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="#PPEx1">Exercise Point-based-1 --
+Creating a Tool</a>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="#PPEx2">Exercise Point-based-2 --
+Modifying a Tool</a>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="#PPEx3">Exercise Point-based-3 --
+Using VariableLists</a>
+<br>
+&nbsp;&nbsp;&nbsp; <a href="#Wx">Working With&nbsp; Point-based Weather</a>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="#PP-SS1">Exercise Point-based
+SmartScript-1
+-- Accessing Grids Directly</a>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="#PP-SS2">Exercise Point-based
+SmartScript-2
+-- Accessing Variable Grids Directly</a>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="#PP-SS3">Exercise Point-based
+SmartScript-3
+-- Example Tool</a>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="#PP-SS4">Exercise Point-based
+SmartScript-4
+-- Making and Accessing Soundings</a>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="#Modes">Modes</a>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <a href="#PB-Answers">Answers to Point-based
+Exercises</a>
+<br>
+&nbsp;
+</p>
+
+<hr width="100%">
+
+<div class="3Heading">
+<h1><a name="Point-based"></a>Appendix -- Point-based Tools</h1>
+Prior to the introduction of Numeric Python, Smart Tools were
+Point-based
+i.e. the "execute" method of the tool was called for each point of the
+grid.&nbsp; Point-based tools are much slower than their Numeric
+counterparts.&nbsp;
+However, for backward compatibility, Point-based tools are still
+supported.&nbsp;
+In some cases, they are easier to write since&nbsp; if-then-else logic
+can be used for assigning values instead of "where" statements.&nbsp;
+This
+section discusses the differences between Point-based and Numeric Smart
+Tools and contains exercises to illustrate how to write Point-based
+tools.
+<h2><a name="PB-Arguments"></a>Point-based Arguments</h2>
+The arguments to point-based tools differ slightly from those to
+numeric
+tools.&nbsp; The differences are listed below:
+<ul>
+  <li class="Bulleted">&lt;weName&gt; -- the value for one point of the
+given weather
+element.&nbsp;
+Weather element values are as follows:</li>
+  <br>
+&nbsp;
+  <ul>
+    <li>Scalar value: floating point value,</li>
+    <li>Vector value: two-tuple of magnitude and direction, for example:</li>
+    <br>
+&nbsp;&nbsp; mag = Wind[0] <br>
+&nbsp;&nbsp; dir = Wind[1] <li>Weather value: text string indicating
+weather
+Coverage:Type:Intensity:Visibility:Attributes.
+See the <a href="#Wx">"Working With Point-based Weather"</a> section
+for
+more information.</li>
+  </ul>
+</ul>
+<ul>
+  <li class="Bulleted">Topo -- this will give you the topography
+information i.e. the
+elevation
+at each point.</li>
+  <li class="Bulleted">variableElement-- the grid point value for the
+editable weather element
+in the GFE.</li>
+  <li class="Bulleted">&lt;weName&gt;_Grid -- the entire Grid for the
+given element. weName
+can be
+"variableElement", "Topo", or a weather element name. A time-weighted
+average
+of grid values is given. To access grid values, use x and y coordinates
+(see below) as follows:</li>
+  <br>
+&nbsp;&nbsp;&nbsp; value = T_Grid[x][y] <li class="Bulleted">x -- the
+x coordinate for the grid point being
+changed</li>
+  <li class="Bulleted">y -- the y coordinate for the grid point being
+changed</li>
+  <li class="Bulleted">lat -- the latitude for the x,y coordinates for
+the grid point being
+changed</li>
+  <li class="Bulleted">lon -- the longitude for the x,y coordinates for
+the grid point being
+changed</li>
+  <li class="Bulleted">&lt;weName&gt;_MaxGrid -- a grid of maximum
+values for the element over
+the
+GridTimeRange</li>
+  <li class="Bulleted">&lt;weName&gt;_MinGrid -- a grid of minimum
+values for the elementover
+the
+GridTimeRange</li>
+  <li class="Bulleted">&lt;weName&gt;_SumGrid -- a grid of the sum of
+values for the element
+over
+the GridTimeRange</li>
+  <li class="Bulleted">GridHistory is not available for point-based
+tools.</li>
+</ul>
+<h2>
+<a name="PB-Reserved"></a>Reserved Methods</h2>
+Some methods have reserved names and meanings. To understand the
+framework,&nbsp;
+recall that a Point-based Smart Tool may operate over a time range
+which
+may include multiple grids. The mandatory "execute" method is called
+for
+each grid to be modified. Sometimes, you may wish to set up information
+before or after this point-by-point processing occurs. If so, you may
+use
+the following methods:
+<ul>
+  <li>preProcessTool:&nbsp;&nbsp; Called once at beginning of the Tool,
+before
+any grids are processed.</li>
+  <li>postProcessTool:&nbsp;&nbsp; Called once at end of the Tool,
+after all
+grids are processed.</li>
+  <li>preProcessGrid:&nbsp;&nbsp; Called once at the beginning of each
+Grid.</li>
+  <li>postProcessGrid:&nbsp;&nbsp; Called once at the end of each Grid.</li>
+</ul>
+Of course, these methods will be called only if you supply them in your
+tool. They are included as comments in the Smart Tool template that
+appears
+when you create a new tool and are documented there. The possible
+arguments
+to these methods will vary according to the logic of when they are
+called.
+<h3 class="3Heading"><a name="PPEx1"></a>Exercise Point-based-1 --
+Creating a new tool</h3>
+<div class="Body">Create a Smart Tool to yield a SnowAmt equal to the
+current
+QPF value multiplied by 10.</div>
+<div class="Step-First">
+<ol>
+  <li>Select New... on the Button-3 popup over the Smart Tools window.
+The
+New
+Tool Dialog appears into which you will enter:</li>
+</ol>
+<ul>
+  <li class="Bullet-List">Name of the Tool: The Name of the Tool cannot
+have spaces or special
+characters
+except an underline. Enter the name: SnowAmt_LearningTool.</li>
+  <li class="Bullet-List">The Weather Element it modifies. Select
+SnowAmt.</li>
+</ul>
+<div class="Step">
+<ol start="2">
+  <li>Press OK and a Python Editor will appear with a template Python
+module
+for your Tool.</li>
+</ol>
+<ul>
+  <li class="Bullet-List">There are lines to specify that this is a
+"numeric" type tool and to
+import
+the Numeric library.</li>
+  <li class="Bullet-List">Another line specifies the
+WeatherElementEdited. This may be changed if
+you ever wish to modify the element edited by the tool.</li>
+  <li class="Bullet-List">Notice that the Python module has a class
+named "Tool" and several
+methods.
+The "execute" method is mandatory and the one with which we will be
+concerned.
+The "execute" method may have weather element arguments plus various
+special
+arguments which will be supplied by the system when it is called.</li>
+  <li class="Bullet-List">You will notice a funny argument, "self".
+This refers to this Tool
+class
+instance. You don't need to understand much about this now. All you
+need
+to do is make sure you leave it as the first argument to your "execute"
+method.</li>
+  <li class="Bullet-List">If desired, a VariableList can define
+run-time variables that will be
+solicited
+from the user when the Tool is executed. These variables will be passed
+to the method.</li>
+  <li class="Bullet-List">We'll explore the various arguments and
+VariableList later, but for
+this
+tool, you need only one argument (in addition to "self"): QPF.</li>
+</ul>
+<div class="Step">
+<ol start="3">
+  <li>Remove the sample arguments from the "execute" definition, leave
+the
+"self"
+argument, and enter the argument, QPF in the parentheses.&nbsp; When
+the
+tool executes, this argument will contain a Numeric Array representing
+the Fcst QPF grid.</li>
+  <li class="Step">Type in a description of your tool below the
+"execute" definition. This
+description will appear when you click Button-3 --&gt; Info over your
+new
+tool.</li>
+  <li class="Step">Insert a line to multiply the QPF values by 10:</li>
+  <div class="Step">&nbsp;&nbsp;&nbsp; SnowAmt = QPF * 10</div>
+  <div class="Step">This line produces a Numeric Array named "SnowAmt"
+which
+has values 10 times the corresponding QPF values.</div>
+  <li class="Step">Save the Python module. Select File--&gt;Save.</li>
+  <li class="Step">Execute the new tool to see that it works. If you
+encounter errors when
+executing your tool, a Dialog will appear to help you locate the
+problem.
+After successfully executing the tool, the QPF grid appears. Examine
+the
+data by sampling the QPF values and the SnowAmt values.&nbsp; If your
+results
+seem confusing, check to see</li>
+  <li class="Step">Close the Python Editor. Select File--&gt;Close.</li>
+</ol>
+<div class="3Heading">&nbsp;&nbsp;&nbsp;&nbsp; <a href="#PBAnswer1">Click
+here for Answer to Exercise Point-based-1</a></div>
+<h3 class="3Heading">
+<a name="PPEx2"></a>Exercise Point-based-2 -- Modifying a Tool</h3>
+<div class="Body">Modify your SnowAmt_LearningTool to base its new
+value
+based on temperature values. Use the following table:</div>
+<table border="1">
+  <caption>
+  <h3 class="TableTitle">&nbsp;</h3>
+  </caption> <tbody>
+    <tr>
+      <th>
+      <div class="CellHeading">T</div>
+      </th>
+      <th>
+      <div class="CellHeading">Multiply QPF by</div>
+      </th>
+    </tr>
+    <tr>
+      <td>
+      <div class="CellBody">&lt; 20</div>
+      </td>
+      <td>
+      <div class="CellBody">18</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      <div class="CellBody">between 20 and 25</div>
+      </td>
+      <td>
+      <div class="CellBody">14</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      <div class="CellBody">over 25</div>
+      </td>
+      <td>
+      <div class="CellBody">10</div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div class="Step-First">
+<ol>
+  <li>Select Modify... on the Button-3 popup over the
+SnowAmt_LearningTool. A
+dialog appears and you can change the Weather Element on which it
+operates.
+You are not allowed to change the name of the tool. Do not change
+anything
+for this example.</li>
+  <li>Select OK. This opens the Python Editor in which you can make
+changes.
+You will need the corresponding T grid, so add this as an argument to
+your
+method. Modify the Python code with if-elif-else statments to implement
+the Temperature-based table.</li>
+  <li>Save the file. You can try your Tool without closing the editor
+or
+restarting
+the GFE. The changes are effective as soon as you Save. Verify that the
+tool worked by Sampling the SnowAmt and QPF grid values.</li>
+</ol>
+</div>
+<div class="3Heading">&nbsp;<a href="#PBAnswer2">Click here for Answer
+to Exercise Point-based-2.</a></div>
+<h3 class="3Heading">
+<a name="PPEx3"></a>Exercise Point-based-3 -- Using VariableLists</h3>
+<div class="Body">Modify your SnowAmt_LearningTool to adjust the QPF
+only
+in areas above a user-given elevation. To perform this exercise, we
+will
+need to define a variable for the user to input at execution time.
+Remember
+to include "varDict" in your argument list to get the value for the
+user's
+variable. You will also need to access the variable, Topo.</div>
+<div class="Code">&nbsp;<a href="#PBAnswer3">Click here for Answer to
+Exercise
+Point-based-3.</a>
+<br>
+&nbsp;
+<h3 class="3Heading"><a name="Wx"></a>Working with Point-based Weather</h3>
+<div class="Body">The Wx parameter is passed to Tools in a string
+format
+affectionately called the "ugly string." We will examine examples of
+ugly
+strings and how to manipulate them. The WxMethods utility provides some
+"prettier", more convenient methods for working with Weather strings.
+Using
+these methods will make your tool run slower than one that works
+directly
+with the "ugly" string. However, you may want to develop your tool
+using
+the WxMethods and revert to "ugly" string manipulation after your
+algorithm
+is established if you find the performance to be unacceptable. As
+processing
+speed improves, this may become less of an issue. There are many
+examples
+of Wx-based Smart Tools in the examples/smartTools directory.</div>
+<h4>
+"Ugly" Weather Strings</h4>
+<div class="Body">The "ugly string" format is:</div>
+<ul>
+  <div class="Indented">Coverage:Type:Intensity:Visibility:Attributes</div>
+</ul>
+<div class="Body">Examples:</div>
+<ul>
+  <div class="Indented">Iso:RW:-:&lt;NoVis&gt;:</div>
+  <div class="Indented">Wide:T:+:1SM:DmgW,HvyRain</div>
+  <div class="Indented">&nbsp;</div>
+</ul>
+<div class="Body">Weather strings can be concatenated with the ^.</div>
+<ul>
+  <div class="Indented">Iso:RW:--:&lt;NoVis&gt;:^Iso:T:--:&lt;NoVis&gt;:</div>
+</ul>
+<div class="Body">To create a Wx string simply assign a variable to the
+string value. For example:</div>
+<ul>
+  <div class="Indented">Wx =
+"Iso:RW:--:&lt;NoVis&gt;:^Iso:T:--:&lt;NoVis&gt;:"</div>
+  <div class="Indented">Wx = "Wide:S:+:&lt;NoVis&gt;:"</div>
+  <div class="Indented">&nbsp;</div>
+</ul>
+To examine the Wx string, you may use Python "string" commands. Here's
+an example in which we are looking for a particular pattern:
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; import string
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; import SmartScript
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; class Tool
+(SmartScript.SmartScript):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+def __init__(self, dbss):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SmartScript.SmartScript.__init__(self, dbss)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+def execute(self, Wx, varDict):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"Tool to calculate LAL from Wx"
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if string.find(Wx, "Iso:T")&gt;=0:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+LAL = 2
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+elif string.find(Wx, "Sct:T")&gt;=0:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+LAL = 3
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+elif string.find(Wx, "Num:T")&gt;=0:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+LAL = 4
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+elif string.find(Wx, "Wide:T")&gt;=0:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+LAL = 5
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+else
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+LAL = 1
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return LAL
+<br>
+&nbsp;
+</p>
+<div class="Body">To look for a particular Coverage or Type in a Wx
+string
+you could use the string command as follows:
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if string.find(Wx, ":R:")&gt;=0:
+</p>
+<p>Note that we need to include the colons so that the test
+distinguishes
+between "R" and "RW". A similar confusion can arise when looking for
+Coverages
+such as "Sct" and "WSct" or "Chc" and "SChc". If you are looking for a
+particular Coverage, you may want to use the simple (and fast)
+WxMethod,
+WxParts, to separate the string into a list of parts and then test for
+inclusion. At the beginning of your tool, be sure to "import" the
+WxMethods
+utility as shown:
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from WxMethods import *
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; import SmartScript
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; class Tool
+(SmartScript.SmartScript):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+def __init__(self, dbss):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SmartScript.SmartScript.__init__(self, dbss)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+def execute(self, Wx, varDict):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"Tool to calculate PoP from Wx"
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+parts = WxParts(Wx)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if "Def" in parts:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+PoP = 100
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+elif "Wide" in parts:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+PoP = 90
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+elif "Ocnl" in parts:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+PoP = 80
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+elif "Lkly" in parts:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+PoP = 70
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+elif "Chc" in parts:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+PoP = 40
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+elif "SChc" in parts:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+PoP = 20
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+elif "Iso" in parts:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+PoP = 10
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return PoP
+</p>
+<h4>"Prettier" Weather Methods</h4>
+<div class="Body">Let's look at other WxMethods available and how they
+are used.</div>
+<div class="Step-First">
+<ol>
+  <li>Select Button-3--&gt;Modify over the PoP_SmartTool. Select OK to
+see
+the Python
+module for the tool.</li>
+  <li>Examine the code to see the WxContains method in use.</li>
+  <li>In the EditAction Dialog, Select Windows --&gt; Windows --&gt;
+Utilities.&nbsp;
+Select Button-3--&gt;Modify over WxMethods.</li>
+  <li>Look at the documentation for the WxContains method.</li>
+  <li>Select Button-3--&gt;Modify over the Wx_SmartTool.py and examine
+the
+code
+to see the WxString method in use.</li>
+  <li>Look at the documentation for the WxString method in WxMethods.</li>
+  <li>Finally, read the documentation for the WxModify.</li>
+  <li>Close the Python Editor windows.</li>
+</ol>
+<h2>
+<a name="PP-SS1"></a>Exercise Point-based SmartScript-1 -- Accessing
+Grids
+Directly</h2>
+In this exercise, we will access grid values directly from the Smart
+Tool
+instead of from the argument list.
+<ol>
+  <li>In the EditAction Dialog, Select Windows --&gt; Windows --&gt;
+Utilities.&nbsp;
+Select MB-3--&gt;View over SmartScript.</li>
+  <li>Find the method, "getValue" and read the documentation.</li>
+  <li>Return to the Smart Tools Window and create a new smart tool
+which
+edits
+QPF.&nbsp; Access both the current QPF value and the&nbsp; most
+recent&nbsp;
+D2D NAM12 tp (total precipitation) value directly using the "getValue"
+method.&nbsp;
+If the current QPF value is zero, assign the tp value to it. Otherwise,
+return it as is.</li>
+  <li>Run and test your tool to make sure it works.</li>
+</ol>
+<a href="#PB-SSAnswer1">Click here for Answer to Exercise Point-based
+SmartScript-1.</a>
+<h2><a name="PP-SS2"></a>Exercise Point-based SmartScript-2 --
+Accessing Variable
+Grids Directly</h2>
+Often, you will want to choose the model you want to work with at
+run-time.&nbsp;
+You can use a variable list to get the model and then access the grids
+directly.
+<ol>
+  <li>Modify your tool from Exercise SmartScript-1 to have a variable
+D2D
+model
+from which to get the "tp" value.</li>
+  <li>Run and test your tool to make sure it works.</li>
+</ol>
+<a href="#PB-SSAnswer2">Click here for Answer to Exercise Point-based
+SmartScript-2.</a>
+<h2><a name="PP-SS3"></a>Exercise Point-based SmartScript-3 -- Example
+Tool</h2>
+The above examples were fairly simple to illustrate the
+framework.&nbsp;
+In this exercise, we'll examine and run a Smart Tool which is more
+meaningful.&nbsp;
+It accesses various model grids to determine a PoP value.
+<ol>
+  <li>Make a PoP grid active on the GFE.Install the PoP_From_Model tool
+from
+the release/examples/smartTools directory.</li>
+  <li>Examine this tool, the grids it accesses, and the algorithm it
+uses to
+calculate PoP.&nbsp; Notice two more SmartScript methods it
+utilizes:&nbsp;
+"getMeanValue" and "MagDirToUV."</li>
+  <li>Run the tool with various models and geopotential heights for
+Rh.&nbsp;
+Compare results.</li>
+</ol>
+<h2>
+<a name="PP-SS4"></a>Exercise Point-based SmartScript-4 -- Making and
+Accessing
+Soundings</h2>
+The Smart Script class has the capability to create a sounding and get
+a value from the sounding based on a given elevation.&nbsp; In this
+exercise,
+we will create a sounding from model data&nbsp; and Topo information to
+determine the surface temperature.
+<ol>
+  <li>In the SmartScript class, find the method,
+"getSoundingValue".&nbsp;
+Read
+the documentation to learn how to call this method.</li>
+  <li>Find the Unit Conversion methods section and examine the methods
+available.</li>
+  <li>Create a new smart tool which edits T.&nbsp;&nbsp; Allow the user
+to
+set
+the D2D model using a VariableList.&nbsp; Get the value from a sounding
+made from the D2D model grids using the Topo information.&nbsp; You
+will
+have to convert Topo from feet to meters and temperature from K to F.</li>
+  <li>Run and test your tool to make sure it works.</li>
+</ol>
+<a href="#PB-SSAnswer4">Click here for Answer to Exercise Point-based
+SmartScript-4.</a>
+<h2><a name="Modes"></a>Modes</h2>
+The Edit Action Modes cascade (from Main Menu--&gt;GFE) allows us to
+choose
+whether to actually change the data when running an Edit Action or to
+simply
+view discrepancies found in the data. Both operations can be done
+simultaneously,
+as well.NOTE: These modes apply to point-based tools only!
+<ol>
+  <li>From the Main Menu --&gt; GFE, select Edit Action Modes... To
+tear off
+the
+menu, click over the dotted line. To keep the Modes menu on top of the
+GFE, press button-3 over the title bar, and select Set Stacking --&gt;
+On
+Top.</li>
+  <li>You will see the following Check buttons:</li>
+  <ul>
+    <li>Edit Grid Values -- If on, the grids will be edited when Edit
+Actions
+are
+performed.</li>
+    <li>Calculate Discrepancy Edit Area -- When executing the Edit
+Action, an
+edit
+area will be created showing where values would have been changed more
+than the current Discrepancy value, which can be set from the Edit
+Action
+Dialog. A Status Bar message will report the name of the Discrepancy
+Edit
+Area created which will be listed in the Define Edit Area Dialog under
+the "Discrepancy" group. It will be named using a sequence number, the
+element, and time of generation. The sequence number will re-cycle back
+to zero after 25 grids are created. The general form is:</li>
+    <br>
+&nbsp;
+    <p>&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; </p>
+    <p>DseqNo_element_hour_day_month_year </p>
+    <p>For example: </p>
+    <p>D0_T_10_24_12_2001 <br>
+&nbsp; </p>
+    <li>Calculate Discrepancy Grid -- When executing an Edit Action, a
+grid will
+be produced showing the scalar difference between the existing values
+and
+the tool results. This grid will appear in the GridManager for viewing.
+NOTE: This feature is not yet implemented.</li>
+  </ul>
+</ol>
+<h1>
+<a name="PB-Answers"></a>Answers to Point-based Exercises</h1>
+<h2>
+<a name="PBAnswer1"></a>Answer to Exercise Point-based-1</h2>
+import SmartScript
+<p>class Tool (SmartScript.SmartScript):
+<br>
+&nbsp;&nbsp; def __init__(self, dbss):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SmartScript.SmartScript.__init__(self,
+dbss)
+</p>
+<p>&nbsp;&nbsp;&nbsp; def execute(self, QPF):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Tool to return QPF
+multiplied
+by 10"
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Determine new value
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SnowAmt = QPF * 10
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return the new value
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return SnowAmt
+</p>
+<h2><a name="PBAnswer2"></a>Answer to Exercise Point-based-2</h2>
+import SmartScript
+<p>class Tool (SmartScript.SmartScript):
+<br>
+&nbsp;&nbsp; def __init__(self, dbss):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SmartScript.SmartScript.__init__(self,
+dbss)
+</p>
+<p>&nbsp;&nbsp;&nbsp; def execute(self, QPF, T):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Tool to calculate SnowAmt"
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if T &lt; 20:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SnowRatio
+= 18
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; elif T &lt; 25:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SnowRatio
+= 14
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SnowRatio = 10
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Determine new value
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SnowAmt = QPF * SnowRatio
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return the new value
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return SnowAmt
+</p>
+<h2><a name="PBAnswer3"></a>Answer to Exercise Point-based-3</h2>
+import SmartScript
+<p>class Tool (SmartScript.SmartScript):
+<br>
+&nbsp;&nbsp; def __init__(self, dbss):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SmartScript.SmartScript.__init__(self,
+dbss)
+</p>
+<p>&nbsp;&nbsp;&nbsp; def execute(self, QPF, T, Topo, varDict):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Tool to calculate SnowAmt"
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Set up Variables from
+the
+varDict
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; elevation = varDict["Enter
+elevation"]
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if T &lt; 20:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SnowRatio = 18
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; elif T &lt; 25:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SnowRatio = 14
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SnowRatio = 10
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Determine new value
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if Topo &gt; elevation:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SnowAmt = SnowRatio * QPF
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SnowAmt = 0
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return the new value
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return
+SnowAmt
+</p>
+<p>VariableList = [
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("Enter elevation" , 5000,
+"numeric"),
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ]
+<br>
+&nbsp;
+</p>
+<h2><a name="PB-SSAnswer1"></a>Answer to Exercise Point-based
+SmartScript-1</h2>
+import SmartScript
+<p>class Tool (SmartScript.SmartScript):
+<br>
+&nbsp;&nbsp; def __init__(self, dbss):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SmartScript.SmartScript.__init__(self,
+dbss)
+</p>
+<p>&nbsp;&nbsp;&nbsp; def execute(self,&nbsp; x,&nbsp; y,
+GridTimeRange):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "This
+tool accesses QPF and tp&nbsp; grids directly"
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp; Get QPF and tp values
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+qpf = self.getValue("Fcst", "QPF", "SFC", x, y, GridTimeRange)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tp = self.getValue("BOU_D2D_NAM12", "tp","SFC", x, y, GridTimeRange)
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if qpf == 0:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return tp
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+else:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return qpf
+</p>
+<h2><a name="PB-SSAnswer2"></a>Answer to Exercise Point-based
+SmartScript-2</h2>
+import SmartScript
+<p>VariableList = [("Model:" , "", "D2D_model")]
+<br>
+class Tool (SmartScript.SmartScript):
+<br>
+&nbsp;&nbsp; def __init__(self, dbss):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SmartScript.SmartScript.__init__(self,
+dbss)
+</p>
+<p>&nbsp;&nbsp;&nbsp; def execute(self,&nbsp; x,&nbsp; y,
+GridTimeRange,
+varDict):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "This
+tool accesses QPF and tp&nbsp; grids directly"
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+model = varDict["Model:"]
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp; Get QPF and tp values
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+qpf = self.getValue("Fcst", "QPF", "SFC", x, y, GridTimeRange)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+tp = self.getValue(model, "tp","SFC", x, y, GridTimeRange)
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if qpf == 0:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return tp
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+else:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return qpf
+<br>
+&nbsp;
+</p>
+<h2><a name="PB-SSAnswer4"></a>Answer to Exercise Point-based
+SmartScript-4</h2>
+import SmartScript
+<p>VariableList = [("Model:" , "", "D2D_model")]
+</p>
+<p>class Tool (SmartScript.SmartScript):
+<br>
+&nbsp;&nbsp;&nbsp; def __init__(self, dbss):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SmartScript.SmartScript.__init__(self,
+dbss)
+</p>
+<p>&nbsp;&nbsp;&nbsp; def execute(self, Topo, x, y, GridTimeRange,
+varDict):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "This tool initializes T
+based on model temperature soundings"
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; model = varDict["Model:"]
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Make a sounding for T
+at
+this point
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Height will increase in
+the sounding
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; levels =
+["MB1000","MB950","MB900","MB850","MB800",
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"MB750","MB700","MB650","MB600"]
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; topo_M =
+self.convertFtToM(Topo)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T_K =
+self.getSoundingValue(model,
+"t", levels, x, y, GridTimeRange, topo_M)
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; T_F =
+self.convertKtoF(T_K)
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return the new value
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return T_F
+<br>
+&nbsp;
+<br>
+&nbsp;
+<br>
+&nbsp;</p>

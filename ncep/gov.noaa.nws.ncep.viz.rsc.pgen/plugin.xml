@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="com.raytheon.uf.viz.core.resource">
+      <resource
+            class="gov.noaa.nws.ncep.viz.rsc.pgen.rsc.PgenResource"
+            name="PGEN"
+            recordClass=""
+            renderingOrderId="PLOT"
+            resourceType="PLAN_VIEW"/>
+   </extension>
+   <extension
+         point="gov.noaa.nws.ncep.viz.resources.NC-Resource">
+      <nc-resource
+            class="gov.noaa.nws.ncep.viz.rsc.pgen.rsc.PgenResourceData"
+            editDialogClass="gov.noaa.nws.ncep.viz.resources.misc.EditMiscResourceAttrsDialog"
+            name="PGEN">
+      </nc-resource>
+   </extension>
+   <extension
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceAttribute">
+      <nc-resourceAttribute
+            attributeClass="Boolean"
+            attributeName="monoColorEnable"
+            defaultValue="false"
+            ncResourceName="PGEN">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="RGB"
+            attributeName="monoColor"
+            defaultValue="RGB {0, 255, 0}"
+            ncResourceName="PGEN">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="Boolean"
+            attributeName="fillModeEnable"
+            defaultValue="true"
+            ncResourceName="PGEN">
+      </nc-resourceAttribute>
+   </extension>
+
+</plugin>

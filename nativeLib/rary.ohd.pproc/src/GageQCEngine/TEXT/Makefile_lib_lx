@@ -1,0 +1,102 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the pproc_lib-GageQCEngine library file
+#
+#  cmt: File made on Wed Aug  6 13:01:08 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/pproc_lib/lib
+
+ARFLAGS  = rv
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU -DUSE_XM_MWMUTIL_H -DUSE_XGPM -Wall -Wno-unused-variable -Wno-comment
+
+INSERTS      = -I/fs/hseb/ob83/ohd/whfs_lib/inc/general  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/dbms  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/gui  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/riverpro  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/pproc_lib/inc
+
+INSERTS_CC   = -I/usr/include/informix/esql/  \
+               -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .c .h .o .a
+
+.c.a:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libGageQCEngine_t.a:  \
+     $(LIB)/libGageQCEngine_t.a(bad_tvalues.o)  \
+     $(LIB)/libGageQCEngine_t.a(bad_values.o)  \
+     $(LIB)/libGageQCEngine_t.a(calculate_zlevel.o)  \
+     $(LIB)/libGageQCEngine_t.a(check_consistency.o)  \
+     $(LIB)/libGageQCEngine_t.a(estimate_daily_stations.o)  \
+     $(LIB)/libGageQCEngine_t.a(estimate_daily_tstations.o)  \
+     $(LIB)/libGageQCEngine_t.a(estimate_missing_stations.o)  \
+     $(LIB)/libGageQCEngine_t.a(estimate_missing_tstations.o)  \
+     $(LIB)/libGageQCEngine_t.a(estimate_partial_stations.o)  \
+     $(LIB)/libGageQCEngine_t.a(free_dqc_data.o)  \
+     $(LIB)/libGageQCEngine_t.a(get_bad_snotel.o)  \
+     $(LIB)/libGageQCEngine_t.a(get_basin_data.o)  \
+     $(LIB)/libGageQCEngine_t.a(get_dqc_basetime.o)  \
+     $(LIB)/libGageQCEngine_t.a(get_hrap_mask.o)  \
+     $(LIB)/libGageQCEngine_t.a(get_isohyet_coord.o)  \
+     $(LIB)/libGageQCEngine_t.a(get_lat_lon.o)  \
+     $(LIB)/libGageQCEngine_t.a(get_lisohyet.o)  \
+     $(LIB)/libGageQCEngine_t.a(get_lmaxmin.o)  \
+     $(LIB)/libGageQCEngine_t.a(get_maxmin_coord.o)  \
+     $(LIB)/libGageQCEngine_t.a(get_rfc_areas.o)  \
+     $(LIB)/libGageQCEngine_t.a(get_topo_coord.o)  \
+     $(LIB)/libGageQCEngine_t.a(get_tstation_list.o)  \
+     $(LIB)/libGageQCEngine_t.a(get_zlevel.o)  \
+     $(LIB)/libGageQCEngine_t.a(gmttime.o)  \
+     $(LIB)/libGageQCEngine_t.a(initialize_gageqc.o)  \
+     $(LIB)/libGageQCEngine_t.a(init_precip_climo.o)  \
+     $(LIB)/libGageQCEngine_t.a(init_temperature_climo.o)  \
+     $(LIB)/libGageQCEngine_t.a(is_good.o)  \
+     $(LIB)/libGageQCEngine_t.a(load_gage_data.o)  \
+     $(LIB)/libGageQCEngine_t.a(make_map.o)  \
+     $(LIB)/libGageQCEngine_t.a(make_mat.o)  \
+     $(LIB)/libGageQCEngine_t.a(make_rsel.o)  \
+     $(LIB)/libGageQCEngine_t.a(map_freeze_gages_to_grid.o)  \
+     $(LIB)/libGageQCEngine_t.a(map_precip_gages_to_grid.o)  \
+     $(LIB)/libGageQCEngine_t.a(map_temp_gages_to_grid.o)  \
+     $(LIB)/libGageQCEngine_t.a(ouptime.o)  \
+     $(LIB)/libGageQCEngine_t.a(quality_control_stations.o)  \
+     $(LIB)/libGageQCEngine_t.a(quality_control_tstations.o)  \
+     $(LIB)/libGageQCEngine_t.a(read_file.o)  \
+     $(LIB)/libGageQCEngine_t.a(read_freezing_station_list.o)  \
+     $(LIB)/libGageQCEngine_t.a(read_mean_monthly_precip.o)  \
+     $(LIB)/libGageQCEngine_t.a(read_mean_monthly_temp.o)  \
+     $(LIB)/libGageQCEngine_t.a(read_mpe_station_list.o)  \
+     $(LIB)/libGageQCEngine_t.a(read_precip_a.o)  \
+     $(LIB)/libGageQCEngine_t.a(read_precip_b.o)  \
+     $(LIB)/libGageQCEngine_t.a(read_precip_station_list.o)  \
+     $(LIB)/libGageQCEngine_t.a(read_qpf_grids.o)  \
+     $(LIB)/libGageQCEngine_t.a(read_snow.o)  \
+     $(LIB)/libGageQCEngine_t.a(read_t_a.o)  \
+     $(LIB)/libGageQCEngine_t.a(read_t_b.o)  \
+     $(LIB)/libGageQCEngine_t.a(read_temperature_station_list.o)  \
+     $(LIB)/libGageQCEngine_t.a(read_zlevel_a.o)  \
+     $(LIB)/libGageQCEngine_t.a(read_zlevel_b.o)  \
+     $(LIB)/libGageQCEngine_t.a(render_pcp.o)  \
+     $(LIB)/libGageQCEngine_t.a(render_t6.o)  \
+     $(LIB)/libGageQCEngine_t.a(render_t.o)  \
+     $(LIB)/libGageQCEngine_t.a(render_z.o)  \
+     $(LIB)/libGageQCEngine_t.a(write_file.o)  \
+     $(LIB)/libGageQCEngine_t.a(write_qpf_grids.o)
+

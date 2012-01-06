@@ -1,0 +1,139 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="Author" content="Tracy Hansen">
+  <meta name="GENERATOR"
+ content="Mozilla/4.61 [en] (WinNT; I) [Netscape]">
+  <title>ifpBreakAllLocks</title>
+</head>
+<body>
+<h1>
+runProcedure User's Guide</h1>
+<br>
+May 14, 2004<br>
+<hr style="width: 100%; height: 2px;"><br>
+<font color="#000000">The runProcedure program is part of the
+GFESuite software which allows the user to run a Procedure from the
+command line.&nbsp;
+</font><br>
+<hr width="100%">
+<h2>Running the program</h2>
+<h3>
+Command Line Switches</h3>
+From the release/bin directory, the command line syntax is:
+<p><b><tt>./runProcedure -n procedureName -u userName -c configFile
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;[-h host] [-p port] <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;[-a editAreaName] [-s startTime -e endTime] [-t
+timeRange] <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+[-m mutableModel] [-z drtTime][-V varDict]<br>
+</tt></b>
+&nbsp;
+<br>
+&nbsp;
+<table border="1" width="100%">
+  <tbody>
+    <tr>
+      <td>Command Switch</td>
+      <td>Description</td>
+    </tr>
+    <tr>
+      <td>-n</td>
+      <td>Procedure Name. Procedures can be created via the Define
+Procedures Dialog in the GFE. See the <a href="SmartTools.html">GFE
+Smart Tools Training Guide</a> for
+instructions on creating Procedures.</td>
+    </tr>
+    <tr>
+      <td>-u</td>
+      <td> User Name. </td>
+    </tr>
+    <tr>
+      <td>-c</td>
+      <td> Configuration file name. </td>
+    </tr>
+    <tr>
+      <td>-h</td>
+      <td>Optional. Host name upon which the ifpServer is running.
+Default is taken from the siteConfig file.</td>
+    </tr>
+    <tr>
+      <td>-p</td>
+      <td>Optional. RPC port upon which the ifpServer is running.
+Default is taken from the siteConfig file. </td>
+    </tr>
+    <tr>
+      <td>-a</td>
+      <td>Edit Area Name. Optional. If specified, this edit area will
+be passed to your procedure for processing. Procedures can specify edit
+areas internally or by soliciting the user at run time, so this
+argument is optional. If no edit area is specified, Smart Tools invoked
+via the Procedure will automatically operate on the entire grid.</td>
+    </tr>
+    <tr>
+      <td>-s</td>
+      <td>Start Time. Optional.
+&nbsp;Format:&lt;year&gt;&lt;mo&gt;&lt;day&gt;_&lt;hr&gt;&lt;min&gt;,
+such as 20040514_1200. &nbsp; If specified, an End Time must also be
+given. The resulting time range will be passed to your procedure for
+processing. Procedures can specify time ranges internally or by
+soliciting the user at run time, so this argument is optional. </td>
+    </tr>
+    <tr>
+      <td>-e</td>
+      <td>End Time. Optional.
+&nbsp;Format:&lt;year&gt;&lt;mo&gt;&lt;day&gt;_&lt;hr&gt;&lt;min&gt;,
+such as 20040514_2200. &nbsp; If specified, a Start Time must also be
+given, and the resulting time range will be passed to your procedure
+for processing. </td>
+    </tr>
+    <tr>
+      <td>-t</td>
+      <td>Named Time Range. Optional. If specified, the associated time
+range will be passed to your procedure for processing. Specify either a
+Time Range Name <span style="font-style: italic;">OR</span> Start and
+End Times, not both. </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-m<br>
+      </td>
+      <td style="vertical-align: top;">The mutable model can be
+overriden through this switch.&nbsp; Note that the format is in
+the form of type_model or type_model_time, such as "_Fcst" or
+"_NAM_20021002_1200.</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-z<br>
+      </td>
+      <td style="vertical-align: top;">The procedure may be run in the <a
+ href="gfeConfig_Misc.html#DisplacedRealTimeOffset">Displaced
+Real Time Mode</a>.&nbsp; <br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-V&nbsp; <br>
+      </td>
+      <td style="vertical-align: top;">&nbsp;Use this option to provide
+a run-time VariableList instead of displaying the user dialog.<br>
+The varDict must be in the form of a Python dictionary string, e.g.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+-V&nbsp; '{"Input Variable":"variable value", "Another variable": 25}'<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<p></p>
+<hr width="100%"><br>
+Sample Command Line
+<p><tt>./runProcedure -n QPF_SnowAmt -u hansen -h pollux -p 98000000 -c
+gfeConfig -a BoulderCounty -t Today </tt>
+<br>
+</p>
+</body>
+</html>

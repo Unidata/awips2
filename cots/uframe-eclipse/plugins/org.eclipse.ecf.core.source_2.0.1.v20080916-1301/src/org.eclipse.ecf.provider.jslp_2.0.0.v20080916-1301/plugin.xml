@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.3"?>
+<plugin>
+   <extension
+         point="org.eclipse.ecf.containerFactory">
+      <containerFactory
+            class="org.eclipse.ecf.provider.jslp.container.ContainerInstantiator"
+            description="Discovery Container"
+            name="ecf.discovery.jslp"
+            server="true"/>
+   </extension>
+   <extension
+         point="org.eclipse.ecf.identity.namespace">
+      <namespace
+            class="org.eclipse.ecf.provider.jslp.identity.JSLPNamespace"
+            description="JSLP Namespace"
+            name="ecf.namespace.slp"/>
+   </extension>
+
+</plugin>

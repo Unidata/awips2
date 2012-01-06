@@ -1,0 +1,284 @@
+module '*Hb'
+version = 47;
+xdesigned = 1;
+applicationName = '*Hb';
+generateNameC = * 'prefer.c';
+generateNameExterns = * 'prefer.h';
+generateNameResDB = * 'prefer.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+generateMask = 39256293;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'prefDS' : XmDialogShell {
+	arguments {
+	name = 'prefDS';
+	was_selected = true;
+	lastGenName = 'prefDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_prefDS (Widget parent)
+';
+	XmNwidth = 450;
+	XmNheight = 350;
+	XmNallowShellResize = true;
+	XmNtitle =  * 'Preferences';
+	XmNminWidth = 450;
+	XmNminHeight = 350;
+	XmNmaxWidth = 450;
+	XmNmaxHeight = 350;
+	};
+object 'prefFM' : XmForm {
+	arguments {
+	name = 'prefFM';
+	lastGenName = 'prefFM';
+	XmNwidth = 450;
+	XmNheight = 350;
+	XmNresizePolicy = 0;
+	XmNautoUnmanage = false;
+	};
+object 'headerFrm' : XmFrame {
+	arguments {
+	name = 'headerFrm';
+	lastGenName = 'headerFrm';
+	};
+object 'headerRC' : XmRowColumn {
+	arguments {
+	name = 'headerRC';
+	lastGenName = 'headerRC';
+	XmNspacing = 30;
+	XmNmarginWidth = 10;
+	XmNorientation = 2;
+	XmNpacking = 1;
+	};
+object 'pflidTB' : XmToggleButton GADGET {
+	arguments {
+	name = 'pflidTB';
+	lastGenName = 'pflidTB';
+	XmNlabelString =  * 'Handbook V Identifier';
+	};
+};
+object 'pfnameTB' : XmToggleButton GADGET {
+	arguments {
+	name = 'pfnameTB';
+	lastGenName = 'pfnameTB';
+	XmNlabelString =  * 'Location name';
+	};
+};
+};
+object 'pfhdrLbl' : XmLabel {
+	arguments {
+	name = 'pfhdrLbl';
+	lastGenName = 'pfhdrLbl';
+	XmNchildType = 2;
+	XmNlabelString =  * 'Window Title String';
+	};
+};
+};
+object 'pffldsFrm' : XmFrame {
+	arguments {
+	name = 'pffldsFrm';
+	lastGenName = 'pffldsFrm';
+	};
+object 'pffldsFO' : XmForm {
+	arguments {
+	lastGenName = 'pffldsFO';
+	};
+object 'pffldsRC' : XmRowColumn {
+	arguments {
+	lastGenName = 'pffldsRC';
+	XmNorientation = 1;
+	XmNpacking = 2;
+	};
+object 'pfcoTB' : XmToggleButton {
+	arguments {
+	name = 'pfcoTB';
+	lastGenName = 'pfcoTB';
+	XmNlabelString = 'State,County';
+	};
+};
+object 'pfbasinTB' : XmToggleButton {
+	arguments {
+	name = 'pfbasinTB';
+	lastGenName = 'pfbasinTB';
+	XmNlabelString = 'Basin';
+	};
+};
+object 'pfriverTB' : XmToggleButton {
+	arguments {
+	name = 'pfriverTB';
+	lastGenName = 'pfriverTB';
+	XmNlabelString = 'River/Stream';
+	};
+};
+object 'pflatTB' : XmToggleButton {
+	arguments {
+	name = 'pflatTB';
+	lastGenName = 'pflatTB';
+	XmNlabelString = 'Latitude/Longitude';
+	};
+};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 20;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0;
+    };
+    };
+};
+object 'pffldsLbl' : XmLabel {
+	arguments {
+	name = 'pffldsLbl';
+	lastGenName = 'pffldsLbl';
+	XmNchildType = 2;
+	XmNlabelString = 'Fields Included (Select 3)';
+	};
+};
+};
+object 'pfsortFrm' : XmFrame {
+	arguments {
+	name = 'pfsortFrm';
+	lastGenName = 'pfsortFrm';
+	};
+object 'pfsortFO' : XmForm {
+	arguments {
+	lastGenName = 'pfsortFO';
+	};
+object 'pfsortRC' : XmRadioBox {
+	arguments {
+	lastGenName = 'pfsortRC';
+	XmNspacing = 10;
+	XmNmarginHeight = 10;
+	XmNpacking = 1;
+	};
+object 'pfstatTB' : XmToggleButton GADGET {
+	arguments {
+	name = 'pfstatTB';
+	lastGenName = 'pfstatTB';
+	XmNx = 3;
+	XmNy = 10;
+	XmNwidth = 312;
+	XmNheight = 30;
+	XmNlabelString = 'Station';
+	};
+};
+object 'pfsnameTB' : XmToggleButton GADGET {
+	arguments {
+	name = 'pfsnameTB';
+	lastGenName = 'pfsnameTB';
+	XmNx = 3;
+	XmNy = 46;
+	XmNlabelString = 'Name';
+	};
+};
+object 'pfcntyTB' : XmToggleButton GADGET {
+	arguments {
+	name = 'pfcntyTB';
+	lastGenName = 'pfcntyTB';
+	XmNx = 3;
+	XmNy = 82;
+	XmNwidth = 187;
+	XmNheight = 27;
+	XmNlabelString = 'State,County';
+	};
+};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -340;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 2 0 -185;
+	XmNtopAttachment = 1 0 0;
+    };
+    };
+};
+object 'pfsortLbl' : XmLabel {
+	arguments {
+	name = 'pfsortLbl';
+	lastGenName = 'pfsortLbl';
+	XmNchildType = 2;
+	XmNchildHorizontalSpacing = 10;
+	XmNchildHorizontalAlignment = 1;
+	XmNlabelString = 'Sort Criteria';
+	};
+};
+};
+object 'preferSP' : XmSeparator {
+	arguments {
+	name = 'preferSP';
+	lastGenName = 'preferSP';
+	};
+};
+object 'pfokPB' : XmPushButton {
+	arguments {
+	name = 'pfokPB';
+	lastGenName = 'pfokPB';
+	XmNwidth =  * 85;
+	XmNheight =  * 35;
+	XmNlabelString =  * 'Ok';
+	};
+};
+object 'pfclosePB' : XmPushButton {
+	arguments {
+	name = 'pfclosePB';
+	lastGenName = 'pfclosePB';
+	XmNwidth =  * 85;
+	XmNheight =  * 35;
+	XmNlabelString =  * 'Cancel';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 20;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 20;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 20;
+	XmNbottomAttachment = 3 4 20;
+	XmNtopAttachment = 3 1 20;
+    };
+    attachment {
+	XmNrightAttachment = 4 1 0;
+	XmNleftAttachment = 3 2 20;
+	XmNbottomAttachment = 3 4 20;
+	XmNtopAttachment = 4 2 0;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 0;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 1 0 60;
+	XmNtopAttachment = 0 0 0;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 20;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 4 10;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 20;
+	XmNleftAttachment = 0 0 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 4 10;
+    };
+    };
+};
+};
+end module;

@@ -1,0 +1,9 @@
+# See https://svn.apache.org/repos/asf/incubator/qpid/trunk/qpid/bin/verify
+py=$PYTHON/direct
+
+direct_producer_java(){
+java -Dlog4j.configuration=$LOG4J -cp "$CLASSPATH" org.apache.qpid.example.jmsexample.direct.Producer
+}
+
+clients $py/declare_queues.py direct_producer_java $py/direct_consumer.py
+outputs $py/declare_queues.py.out ./direct_producer_java.out  $py/direct_consumer.py.out

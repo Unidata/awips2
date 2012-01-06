@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="Tutorials" link_to="toc.xml#tutorials"> 
+	<topic label="Create an IRC bot" href="html/tutorials/bot.html"/>
+	<topic label="Other Info" href="http://wiki.eclipse.org/Eclipse_Communication_Framework_Project"/>
+</toc>

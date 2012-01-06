@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tsl
+Bundle-SymbolicName: ohd.tsl
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: ohd.common;bundle-version="1.0.0",
+ ohd.db;bundle-version="1.0.0",
+ ohd.pdc_pp;bundle-version="1.0.0",
+ ohd.lib;bundle-version="1.0.0",
+ ohd.ihfsdb;bundle-version="1.0.0"
+Export-Package: ohd.hseb.gui.util,
+ ohd.hseb.model,
+ ohd.hseb.timeserieslite,
+ ohd.hseb.timeserieslite.gui.drawing,
+ ohd.hseb.timeserieslite.pdc,
+ ohd.hseb.timeserieslite.rivermon

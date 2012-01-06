@@ -1,0 +1,42 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the calb-calb_peakflow library file
+#
+#  cmt: File made on Thu Oct 26 14:47:35 EDT 2006 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob81/ohd/calb/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob81/ohd/calb/inc  \
+               -I/fs/hseb/ob81/ohd/ofs/inc  \
+               -I/fs/hseb/ob81/ohd/util/inc  \
+               -I/fs/hseb/ob81/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libcalb_peakflow_t.a:  \
+     $(LIB)/libcalb_peakflow_t.a(ex47.o)  \
+     $(LIB)/libcalb_peakflow_t.a(pin47.o)  \
+     $(LIB)/libcalb_peakflow_t.a(prp47.o)  \
+     $(LIB)/libcalb_peakflow_t.a(sort47.o)  \
+     $(LIB)/libcalb_peakflow_t.a(tab47.o)  \
+     $(LIB)/libcalb_peakflow_t.a(tabl47.o)  \
+     $(LIB)/libcalb_peakflow_t.a(urpeak.o)
+

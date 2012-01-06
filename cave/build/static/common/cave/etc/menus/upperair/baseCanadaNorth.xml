@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Eueka, NW (CWEU)" id="raobEueka_NW"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="71917"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Sachs Harbour, NW (CWSY)" id="raobSachsHarbour_NW"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="71051"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Baker Lake, NW (CYBK)" id="raobBakerLake_NW"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="71926"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Cambridge Bay, NW (CYCB)" id="raobCambridgeBay_NW"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="71925"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Inuvik, NW (CYEV)" id="raobInuvik_NW"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="71957"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Frobisher Bay, NW (CYFB)" id="raobFrobisherBay_NW"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="71909"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Alert, NW (CYLT)" id="raobAlert_NW"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="71082"/>
+	    </contribute>
+	    	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Resolute Bay, NW (CYRB)" id="raobResoluteBay_NW"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="71924"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Fort Smith, NW (CYSM)" id="FortSmith_NW"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="71934"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Hall Beach, NW (CYUX)" id="raobHallBeach_NW"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="71081"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Nonman Wells, NW (CYVQ)" id="raobNonmanWells_NW"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="71043"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Whitehorse, YK (CYXY)" id="raobWhitehorse_YK"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="71964"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Coral Harbour, NW (CYZS)" id="raobCoralHarbour_NW"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="71915"/>
+	    </contribute>
+
+</menuTemplate>

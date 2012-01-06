@@ -1,0 +1,244 @@
+module '*Hb'
+version = 48;
+xdesigned = 1;
+applicationName = '*Hb';
+generateNameC = * 'datum.c';
+generateNameExterns = * 'datum.h';
+generateNameResDB = * 'datum.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+motifFlavour = 2;
+generateMask = 39256293;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+javaVersion = 2;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'datumDS' : XmDialogShell {
+	arguments {
+	name = 'datumDS';
+	lastGenName = 'datumDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_datumDS (Widget parent)
+';
+	XmNwidth = 485;
+	XmNheight = 385;
+	XmNallowShellResize = true;
+	XmNtitle = 'Datum';
+	XmNminWidth = 485;
+	XmNminHeight = 385;
+	XmNmaxWidth = 485;
+	XmNmaxHeight = 385;
+	};
+object 'datumFM' : XmForm {
+	arguments {
+	name = 'datumFM';
+	lastGenName = 'datumFM';
+	XmNwidth = 485;
+	XmNheight = 385;
+	XmNautoUnmanage = false;
+	};
+object 'dtapplyPB' : XmPushButton {
+	arguments {
+	name = 'dtapplyPB';
+	was_selected = true;
+	lastGenName = 'dtapplyPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Save';
+	};
+};
+object 'dtclosePB' : XmPushButton {
+	arguments {
+	name = 'dtclosePB';
+	lastGenName = 'dtclosePB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Close';
+	};
+};
+object 'dtdelPB' : XmPushButton {
+	arguments {
+	name = 'dtdelPB';
+	lastGenName = 'dtdelPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Delete';
+	};
+};
+object 'dtinfoFrm' : XmFrame {
+	arguments {
+	name = 'dtinfoFrm';
+	lastGenName = 'dtinfoFrm';
+	};
+object 'dtinfoFM' : XmForm {
+	arguments {
+	name = 'dtinfoFM';
+	lastGenName = 'dtinfoFM';
+	XmNwidth = 461;
+	XmNheight = 83;
+	};
+object 'dtdateLbl' : XmLabel {
+	arguments {
+	name = 'dtdateLbl';
+	lastGenName = 'dtdateLbl';
+	XmNlabelString = 'Date:';
+	};
+};
+object 'dtdateTxt' : XmText {
+	arguments {
+	name = 'dtdateTxt';
+	lastGenName = 'dtdateTxt';
+	XmNmaxLength = 10;
+	XmNcolumns = 10;
+	};
+};
+object 'dtelevLbl' : XmLabel {
+	arguments {
+	name = 'dtelevLbl';
+	lastGenName = 'dtelevLbl';
+	XmNlabelString = 'Elevation:';
+	};
+};
+object 'dtelevTxt' : XmText {
+	arguments {
+	name = 'dtelevTxt';
+	lastGenName = 'dtelevTxt';
+	XmNmaxLength = 10;
+	XmNcolumns = 10;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 11;
+	XmNbottomAttachment = 1 0 10;
+	XmNtopAttachment = 1 0 36;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 4 4 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 10;
+	XmNleftAttachment = 0 0 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 36;
+    };
+    };
+};
+object 'dtinfoLbl' : XmLabel {
+	arguments {
+	name = 'dtinfoLbl';
+	lastGenName = 'dtinfoLbl';
+	XmNframeChildType = XmFRAME_TITLE_CHILD;
+	XmNlabelString = 'Information';
+	};
+};
+};
+object 'dt_listLbl' : XmLabel {
+	arguments {
+	name = 'dt_listLbl';
+	lastGenName = 'dt_listLbl';
+	XmNlabelString = '  Date                                                            Elevation';
+	};
+};
+object 'datumSLB' : XmScrolledList {
+	arguments {
+	name = 'datumSLB';
+	lastGenName = 'datumSLB';
+	};
+abstract object 'dt_horizSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'dt_horizSB';
+	};
+};
+abstract object 'dt_vertSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'dt_vertSB';
+	};
+};
+abstract object 'datumLB' : XmList {
+	arguments {
+	name = 'datumLB';
+	lastGenName = 'datumLB';
+	XmNwidth = 465;
+	XmNvisibleItemCount = 7;
+	XmNlistSizePolicy = XmCONSTANT;
+	};
+};
+};
+object 'datumSP' : XmSeparator {
+	arguments {
+	name = 'datumSP';
+	lastGenName = 'datumSP';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -135;
+	XmNleftAttachment = 1 0 20;
+	XmNbottomAttachment = 2 0 -375;
+	XmNtopAttachment = 1 0 335;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -465;
+	XmNleftAttachment = 1 0 350;
+	XmNbottomAttachment = 2 0 -375;
+	XmNtopAttachment = 1 0 335;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -300;
+	XmNleftAttachment = 1 0 185;
+	XmNbottomAttachment = 2 0 -375;
+	XmNtopAttachment = 1 0 335;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 10;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 6 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 10;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 35;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 0;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 1 0 60;
+	XmNtopAttachment = 0 0 0;
+    };
+    };
+};
+};
+end module;

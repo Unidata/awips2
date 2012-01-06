@@ -1,0 +1,2 @@
+At a higher level, the FWFTable "makeProduct" method creates the table header using the time range labels.  It then uses the "getStatList" method to gather the statistics for the current edit area over the various time ranges.  Then, it calls each row method in turn to create the weather element rows. 
+

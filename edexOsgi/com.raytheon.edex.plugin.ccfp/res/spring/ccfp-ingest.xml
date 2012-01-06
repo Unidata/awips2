@@ -1,0 +1,67 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="ccfpDecoder" class="com.raytheon.edex.plugin.ccfp.CcfpDecoder" />
+	<bean id="ccfpSeparator" class="com.raytheon.edex.plugin.ccfp.CcfpSeparator" />
+
+	<bean id="ccfpDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="ccfp" />
+		<constructor-arg value="jms-dist:queue:Ingest.ccfp" />
+	</bean>
+
+    <bean id="ccfpCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="ccfp-camel"/>
+  	</bean>
+
+	<camelContext id="ccfp-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+		<!--
+		<endpoint id="ccfpFileEndpoint" uri="file:${edex.home}/data/sbn/ccfp?noop=true&amp;idempotent=false" />
+
+		<route id="ccfpFileConsumerRoute">
+			<from ref="ccfpFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+				<constant>ccfp</constant>
+			</setHeader>
+			<to uri="jms-generic:queue:Ingest.ccfp" />
+		</route>
+        -->
+
+		<!-- Begin ccfp routes -->
+		<route id="ccfpIngestRoute">
+			<from uri="jms-generic:queue:Ingest.ccfp?destinationResolver=#qpidDurableResolver" />
+			<setHeader headerName="pluginName">
+				<constant>ccfp</constant>
+			</setHeader>
+			<doTry>
+				<pipeline>
+					<bean ref="stringToFile" />
+					<split streaming="true">
+						<method bean="ccfpSeparator" method="separate" />
+						<doTry>
+							<pipeline>
+								<bean ref="ccfpDecoder" method="decode" />
+								<to uri="directvm:indexAlert" />
+							</pipeline>
+							<doCatch>
+								<exception>java.lang.Throwable</exception>
+								<to uri="log:ccfp?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+							</doCatch>
+						</doTry>
+					</split>
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:ccfp?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
+		</route>
+	</camelContext>
+</beans>

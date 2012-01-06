@@ -1,0 +1,3 @@
+
+%:
+	# nothing to do

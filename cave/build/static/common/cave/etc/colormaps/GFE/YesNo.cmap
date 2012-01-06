@@ -1,0 +1,7 @@
+<!-- ====================
+This is a colormap file that is read via JaXB to marshel the ColorMap class.
+======================-->
+<colorMap>
+    <color r=" 0.278431372549 " g=" 0.270588235294 " b=" 0.270588235294 " a=" 1.0 " />
+    <color r=" 1.0 " g=" 0.141176470588 " b=" 0.156862745098 " a=" 1.0 " />
+</colorMap>

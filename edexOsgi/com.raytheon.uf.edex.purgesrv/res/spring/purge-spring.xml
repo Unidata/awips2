@@ -1,0 +1,76 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+
+	<bean id="purge" class="com.raytheon.uf.edex.purgesrv.PurgeSrv" />
+	
+	<bean id="purgeOutgoing" class="com.raytheon.uf.edex.dissemination.PurgeOutgoing" >
+		<property name="outgoingDirectory" value="${edex.home}/data/outgoing"/>
+	</bean>
+	
+	<bean id="purgeLogs" class="com.raytheon.uf.edex.log.PurgeLogs" >
+		<property name="logDirectory" value="${edex.home}/logs"/>
+	</bean>
+
+	<camelContext id="clusteredpurgeContext" xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler" autoStartup="false">
+
+        <endpoint id="purgeCron" uri="quartz://purge/purgeScheduled/?cron=${purge.cron}"/>        
+        <endpoint id="purgeOutgoingCron" uri="quartz://purge/purgeOutgoingScheduled/?cron=${purge.outgoing.cron}"/>        
+
+		<!-- Purge on Scheduled timer -->
+		<route id="purgeScheduled">
+			<from uri="purgeCron" />
+			<doTry>
+				<bean ref="purge" method="purgeCron" />
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to
+						uri="log:purge?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true" />
+				</doCatch>
+			</doTry>
+		</route>
+
+		<route id="purgeByRequest">
+			<from uri="jms-generic:queue:purgeRequest" />
+			<doTry>
+				<bean ref="purge" method="purge" />
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to
+						uri="log:purge?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true" />
+				</doCatch>
+			</doTry>
+		</route>
+		
+		
+		<!-- schedule the timer to purge outgoing directory -->
+		<route id="purgeOutgoingScheduled">
+			<from uri="purgeOutgoingCron" />
+			<bean ref="purgeOutgoing" method="purge" />
+		</route>
+      
+	</camelContext>
+		
+	<camelContext id="purgeContext" xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+		
+		<endpoint id="purgeLogsCron" uri="quartz://purge/purgeLogScheduled/?cron=${purge.logs.cron}"/>        
+		
+		<!-- schedule the timer to purge log directories -->
+		<route id="purgeLogScheduled">
+			<from uri="purgeLogsCron" />
+			<bean ref="purgeLogs" method="purge" />
+		</route>
+
+	</camelContext>
+	
+	<bean factory-bean="clusteredCamelContextMgr"
+		factory-method="register">
+		<constructor-arg ref="clusteredpurgeContext" />
+  	</bean>
+
+</beans>
