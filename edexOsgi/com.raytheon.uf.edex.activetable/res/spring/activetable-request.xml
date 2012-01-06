@@ -1,0 +1,61 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="getActiveTableHandler" class="com.raytheon.uf.edex.activetable.GetActiveTableHandler"/>
+  	<bean factory-bean="handlerRegistry" factory-method="register">
+  	  <constructor-arg value="com.raytheon.uf.common.activetable.GetActiveTableRequest"/>
+  	  <constructor-arg ref="getActiveTableHandler"/>
+    </bean>
+    
+	<bean id="getActiveTableDictHandler" class="com.raytheon.uf.edex.activetable.GetActiveTableDictHandler"/>
+  	<bean factory-bean="handlerRegistry" factory-method="register">
+  	  <constructor-arg value="com.raytheon.uf.common.activetable.GetActiveTableDictRequest"/>
+  	  <constructor-arg ref="getActiveTableDictHandler"/>
+    </bean>
+    
+	<bean id="getFourCharSitesHandler" class="com.raytheon.uf.edex.activetable.GetFourCharSitesHandler"/>
+  	<bean factory-bean="handlerRegistry" factory-method="register">
+  	  <constructor-arg value="com.raytheon.uf.common.activetable.GetFourCharSitesRequest"/>
+  	  <constructor-arg ref="getFourCharSitesHandler"/>
+    </bean>
+    
+	<bean id="getVtecAttributeHandler" class="com.raytheon.uf.edex.activetable.GetVtecAttributeHandler"/>
+  	<bean factory-bean="handlerRegistry" factory-method="register">
+  	  <constructor-arg value="com.raytheon.uf.common.activetable.GetVtecAttributeRequest"/>
+  	  <constructor-arg ref="getVtecAttributeHandler"/>
+    </bean>
+    
+	<bean id="dumpActiveTableHandler" class="com.raytheon.uf.edex.activetable.DumpActiveTableHandler"/>
+  	<bean factory-bean="handlerRegistry" factory-method="register">
+  	  <constructor-arg value="com.raytheon.uf.common.activetable.DumpActiveTableRequest"/>
+  	  <constructor-arg ref="dumpActiveTableHandler"/>
+    </bean>
+    
+    <bean id="practiceVtecHandler" class="com.raytheon.uf.edex.activetable.PracticeVtecHandler"/>
+  	<bean factory-bean="handlerRegistry" factory-method="register">
+  	  <constructor-arg value="com.raytheon.uf.common.activetable.SendPracticeProductRequest"/>
+  	  <constructor-arg ref="practiceVtecHandler"/>
+    </bean>
+
+	<!--  practiceProductOfftimeHandler declared in activetable-common -->
+	<bean factory-bean="handlerRegistry" factory-method="register">
+	  <constructor-arg value="com.raytheon.uf.common.activetable.PracticeProductOfftimeRequest"/>
+	  <constructor-arg ref="practiceProductOfftimeHandler"/>
+	</bean>
+	    
+    <bean id="updateActiveTableHandler" class="com.raytheon.uf.edex.activetable.UpdateActiveTableHandler" />
+  	<bean factory-bean="handlerRegistry" factory-method="register">
+  	  <constructor-arg value="com.raytheon.uf.common.activetable.UpdateActiveTableRequest"/>
+  	  <constructor-arg ref="updateActiveTableHandler"/>
+    </bean>
+
+    <bean id="getNextEtnHandler" class="com.raytheon.uf.edex.activetable.GetNextEtnHandler" />
+  	<bean factory-bean="handlerRegistry" factory-method="register">
+  	  <constructor-arg value="com.raytheon.uf.common.activetable.GetNextEtnRequest"/>
+  	  <constructor-arg ref="getNextEtnHandler"/>
+    </bean>
+</beans>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="gov.noaa.nws.ncep.ui.nsharp.palette"
+            name="Nsharp">
+      </command>
+    </extension>
+   <extension 
+         point="org.eclipse.ui.handlers">
+       <handler 
+            class="gov.noaa.nws.ncep.ui.nsharp.palette.NsharpPaletteAction"
+            commandId="gov.noaa.nws.ncep.ui.nsharp.palette">
+       </handler>     
+ 	</extension>
+
+	<extension 
+         point="org.eclipse.ui.views">
+           <category 
+            id="gov.noaa.nws.ncep.ui.nsharp.view"
+            name="NSHARP Views"/>
+           <view 
+            category="gov.noaa.nws.ncep.ui.nsharp.view"
+            allowMultiple="false"
+            restorable="true"
+            class="gov.noaa.nws.ncep.ui.nsharp.palette.NsharpPaletteWindow"
+            id="gov.noaa.nws.ncep.ui.nsharp"
+            name="NSHARP"/>
+   </extension> 
+   <extension
+         point="com.raytheon.uf.viz.core.resource">
+      <resource
+            class="gov.noaa.nws.ncep.ui.nsharp.skewt.rsc.NsharpSkewTResource"
+            name="NsharpSkewT Resource"
+            renderingOrderId="PLOT" />
+ 	  <resource 
+            class="gov.noaa.nws.ncep.ui.nsharp.skewt.rsc.NsharpBackgroundResource" 
+            name="NsharpSkewT Background"
+            renderingOrderId="MAP_OUTLINE" /> 
+   </extension>
+	<extension
+         point="org.eclipse.ui.editors">
+      <editor
+         class="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor"
+         default="true"
+         icon="icons/skewt.gif"  
+         id="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor"
+         name="NsharpSkewt">
+      </editor>
+   </extension>   
+   <extension
+         point="com.raytheon.uf.viz.core.descriptor">
+      <descriptor
+            class="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTDescriptor"
+            editor="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor"
+            name="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTDescriptor">
+      </descriptor>
+   </extension>
+
+</plugin>

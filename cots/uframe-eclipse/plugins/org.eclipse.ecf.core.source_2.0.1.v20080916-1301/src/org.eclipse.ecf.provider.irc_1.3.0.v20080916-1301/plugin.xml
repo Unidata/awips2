@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<plugin>
+   <extension
+         point="org.eclipse.ecf.containerFactory">
+      <containerFactory
+            class="org.eclipse.ecf.internal.provider.irc.container.IRCContainerInstantiator"
+            description="IRC"
+            name="ecf.irc.irclib">
+      </containerFactory>
+   </extension>
+   <extension
+         point="org.eclipse.ecf.identity.namespace">
+      <namespace
+            class="org.eclipse.ecf.internal.provider.irc.identity.IRCNamespace"
+            name="ecf.irc.irclib"/>
+   </extension>
+
+</plugin>

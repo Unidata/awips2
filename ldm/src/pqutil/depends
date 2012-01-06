@@ -1,0 +1,11 @@
+pqutil.o: ../config/ldmconfig.h
+pqutil.o: ../misc/inetutil.h
+pqutil.o: ../pq/pq.h
+pqutil.o: ../protocol/atofeedt.h
+pqutil.o: ../protocol/ldm.h
+pqutil.o: ../protocol/ldmprint.h
+pqutil.o: ../protocol/md5.h
+pqutil.o: ../protocol/prod_class.h
+pqutil.o: ../protocol/timestamp.h
+pqutil.o: ../ulog/ulog.h
+pqutil.o: pqutil.c

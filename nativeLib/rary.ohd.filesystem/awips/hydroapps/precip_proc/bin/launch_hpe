@@ -1,0 +1,10 @@
+#!/bin/ksh
+
+RUN_FROM_DIR=`dirname $0`
+
+. $RUN_FROM_DIR/../../set_hydro_env
+
+export PPROC_BIN=$(get_apps_defaults pproc_bin)
+
+nohup ksh ./start_hpe &
+exit 0

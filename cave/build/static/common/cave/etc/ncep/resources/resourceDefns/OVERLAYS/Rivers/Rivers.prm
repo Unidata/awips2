@@ -1,0 +1,5 @@
+! DbOverlay
+dbName=maps
+tableName=mapdata.allrivers
+labelField=pname
+mapName=All Rivers

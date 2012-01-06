@@ -1,0 +1,2 @@
+The SimpleElementTable uses an "elementList" to specify which elements to list across the columns and in which order.  We can specify any combination of Temp, PoP, and Humidity.  
+

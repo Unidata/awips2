@@ -1,0 +1,1448 @@
+C.......................................
+C File: sfugnl.f
+C Author(s): unknown
+C Date Created: unknown
+C Development group: OHD HSEB
+C Purpose: ROUTINE FOR DEFINING UGNL PARAMETERS USING PPINIT DEFINE
+C 
+C Updated by DHM team on 10/06 to increase size of GEODIR to 120 
+C.......................................
+C$PRAGMA C (GET_APPS_DEFAULTS)
+C MODULE SFUGNL
+C-----------------------------------------------------------------------
+C
+C  ROUTINE FOR DEFINING UGNL PARAMETERS.
+C
+      SUBROUTINE SFUGNL (LARRAY,ARRAY,DISP,PRNOTE,UNITS,NFLD,
+     *   IRUNCK,ISTAT)
+C
+      CHARACTER*(*) DISP,PRNOTE,UNITS
+      CHARACTER*4 TDISP,RDISP,WDISP,TYPE,SORTBY,SORTBYO,SORTBYX
+      PARAMETER (MOPTN=4)
+      CHARACTER*8 OPTN(MOPTN)
+     *   /'MAPSTAT ','MATSTAT ','HRAP    ','        '/
+C     
+      CHARACTER*20 CHAR/' '/,CHK/' '/
+      CHARACTER*20 ENVVAR/' '/
+      CHARACTER GEODIR*120/' '/,GEOUSER*8,GEOPATH*128/' '/
+      CHARACTER*5 GEOREC1,GEOREC2,GEOREC3,GEOREC4
+      LOGICAL*4 FLEXST
+      DIMENSION NHPGEO(4)
+C
+      DIMENSION ARRAY(LARRAY)
+      DIMENSION ULLCHK(4),MDRCHK(5)
+      DIMENSION NHPCHK(4),NHPOLD(4)
+      DIMENSION TELLMTS(2)
+      DIMENSION XCHAR(2)
+C
+      INCLUDE 'scommon/dimstan'      
+C
+      INCLUDE 'uio'
+      INCLUDE 'scommon/sudbgx'
+      INCLUDE 'scommon/sugnlx'
+      INCLUDE 'scommon/sntwfx'
+      INCLUDE 'scommon/sntwkx'
+      INCLUDE 'scommon/sworkx'
+      INCLUDE 'scommon/swrk2x'
+      INCLUDE 'hclcommon/hdflts'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppinit_define/RCS/sfugnl.f,v $
+     . $',                                                             '
+     .$Id: sfugnl.f,v 1.9 2002/02/11 20:55:04 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,930)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG('UGNL')
+C
+      ISTAT=0
+C
+      LCHAR=LEN(CHAR)/4
+      LCHK=LEN(CHK)/4
+C      
+      ILPFND=0
+      IRPFND=0
+      ISTRT=-1
+      NUMFLD=0
+      MINFLD=22
+      MAXFLD=22
+      NPCFLD=NFLD
+      NUMERR=0
+      NUMWRN=0
+      INWIND=0
+      NOPFLD=0
+      NXTFLD=0
+      IOFLD3=0
+C
+C  SET VALUE FOR MISSING PARAMETER
+      UNSD=-999.
+      UNDEF=-997.
+      IUNDEF=-997
+C
+C  SET CHECK AND DEFAULT VALUES
+      ULLCHK(1)=75.0
+      ULLCHK(2)=14.0
+      ULLCHK(3)=60.0
+      ULLCHK(4)=172.0
+      XMXELV=20000.0
+      XMNELV=-380.0
+      IELVMX=0
+      IELVMN=0
+      MDRCHK(1)=1
+      MDRCHK(2)=113
+      MDRCHK(3)=1
+      MDRCHK(4)=89
+      MDRCHK(5)=42
+      XDPOWR=0.5
+      XMNPWR=0.0
+      XMXPWR=10.0
+      NBEGS=5
+      NBEGW=10
+      ICUGNL(1)=2
+      ICUGNL(2)=1
+      NDBLND=3
+      DMNPCN=0.05
+      IDMNPC=0
+      DPCMAX=1.0
+      DSTMNW=0.01
+      STMNWT=0.0
+      STMNWTO=0.0
+      STWTMX=0.1
+      SORTBY='ID'
+      SORTBYO=' '
+      NHPCHK(1)=-250
+      NHPCHK(2)=1661
+      NHPCHK(3)=1
+      NHPCHK(4)=1601
+C
+      IF (UNITS.EQ.'METR') THEN
+         CALL UDUCNV ('FT  ','M   ',1,1,XMXELV,XMXELV,IERR)
+         IF (IERR.GT.0) THEN
+            WRITE (LP,1570) IERR
+            CALL SUERRS (LP,2,NUMERR)
+            ENDIF
+         CALL UDUCNV ('FT  ','M   ',1,1,XMNELV,XMNELV,IERR)
+         IF (IERR.GT.0) THEN
+            WRITE (LP,1570) IERR
+            CALL SUERRS (LP,2,NUMERR)
+            ENDIF
+         CALL UDUCNV ('IN  ','MM  ',1,1,DMNPCN,DMNPCN,IERR)
+         IF (IERR.GT.0) THEN
+            WRITE (LP,1570) IERR
+            CALL SUERRS (LP,2,NUMERR)
+            ENDIF
+         CALL UDUCNV ('IN  ','MM  ',1,1,DPCMAX,DPCMAX,IERR)
+         IF (IERR.GT.0) THEN
+            WRITE (LP,1570) IERR
+            CALL SUERRS (LP,2,NUMERR)
+            ENDIF
+         ENDIF
+C
+C  CHECK NUMBER OF LINES LEFT ON PAGE
+      IF (ISLEFT(10).GT.0) CALL SUPAGE
+C
+C  PRINT CARD
+      CALL SUPCRD
+C
+C  PRINT HEADER LINE
+      WRITE (LP,940)
+      CALL SULINE (LP,2)
+      WRITE (LP,950)
+      CALL SULINE (LP,2)
+C
+C  PRINT OPTIONS
+      TDISP=DISP
+      WRITE (LP,960) TDISP,PRNOTE,UNITS
+      CALL SULINE (LP,2)
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK IF PREPROCESSOR PARAMETRIC DATA BASE ALLOCATED
+      IDPPP=1
+      CALL SUDALC (0,0,0,0,IDPPP,0,0,0,0,0,NUMERR,IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (LP,970)
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 40
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+      IVUGNL=0
+C      
+C  READ UGNL PARAMETERS
+      IPRERR=0
+      INCLUDE 'scommon/callsrugnl'
+C
+C  CHECK IF PARAMETERS EXIST
+      IF (IERR.EQ.0) THEN
+         IF (TDISP.EQ.'NEW') THEN
+            WRITE (LP,980) TDISP
+            CALL SUERRS (LP,2,NUMERR)
+            TDISP='OLD'
+            ENDIF
+         STMNWTO=STMNWT
+         SORTBYO=SORTBY
+         IF (IVUGNL.GE.2) THEN
+            CALL UMEMOV (NHPSUB,NHPOLD,4)
+            ENDIF            
+         IF (LDEBUG.GT.0) THEN
+C        PRINT UGNL PARAMETERS
+            INCLUDE 'scommon/callspugnl'
+            ENDIF
+         ENDIF
+C
+C  CHECK IF PARAMETERS DO NOT EXIST
+      IF (IERR.GT.0) THEN
+         IF (TDISP.EQ.'OLD') THEN
+            TDISP='NEW'
+            WRITE (LP,990) TDISP
+            CALL SUWRNS (LP,2,NUMWRN)
+            ENDIF
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+40    IF (TDISP.EQ.'NEW') GO TO 50
+      IF (TDISP.EQ.'OLD'.AND.IVUGNL.NE.2) GO TO 80
+      GO TO 100
+C
+50    DO 60 I=1,2
+         ELLMTS(I)=UNDEF
+60       CONTINUE
+      DO 70 I=1,4
+         MDRSUB(I)=IUNDEF
+70       CONTINUE
+80    DO 90 I=1,4
+         NHPSUB(I)=IUNDEF
+90       CONTINUE
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK FIELDS FOR DEFINE USER UGNL OPTIONS
+C
+100   IF (INWIND.EQ.1) THEN
+         INULL=1
+         GO TO 110
+         ENDIF
+      INULL=0
+      NULREP=0
+      CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPE,NREP,INTEGR,REAL,
+     *   LCHAR,CHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,IERR)
+      IF (NFLD.EQ.-1) GO TO 180
+      IF (LDEBUG.GT.0) THEN
+         CALL UPRFLD (NFLD,ISTRT,LENGTH,ITYPE,NREP,INTEGR,REAL,
+     *      LCHAR,CHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,IERR)
+         ENDIF
+C
+C  CHECK FOR PAIRED PARENTHESES
+      IF (NOPFLD.EQ.0) CALL SUPFND (ILPFND,IRPFND,NPIFLD,NPCFLD)
+C
+C  CHECK IF DISP IS NEW AND ALL FIELD FOUND
+110   IF (INWIND.EQ.1) THEN
+         IF (NUMFLD.GT.MAXFLD) GO TO 850
+         GO TO 210
+         ENDIF
+C
+C  CHECK FOR NULL FIELD
+      IF (IERR.EQ.1) THEN
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,1000) NFLD
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+         INULL=1
+         GO TO 250
+         ENDIF
+C
+C  CHECK FOR REPEATED NULL FIELD
+      IF (CHAR.EQ.',,'.OR.CHAR.EQ.'NULL') THEN
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,*) 'NREP=',NREP
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+         IF (NREP.GT.0.AND.NREP+NUMFLD.LE.MAXFLD) GO TO 150
+            WRITE (LP,1020) NREP,MAXFLD
+            CALL SUERRS (LP,2,NUMERR)
+            NREP=MAXFLD-NUMFLD
+150      NULREP=NREP-1
+         INULL=1
+         GO TO 200
+         ENDIF
+C
+C  CHECK FOR COMMAND
+      IF (LATSGN.EQ.1) GO TO 180
+C
+C  CHECK FOR PARENTHESIS IN FIELD
+      IF (LLPAR.GT.0) CALL UFPACK (LCHK,CHK,ISTRT,1,LLPAR-1,IERR)
+      IF (LLPAR.EQ.0) CALL UFPACK (LCHK,CHK,ISTRT,1,LENGTH,IERR)
+C
+C  CHECK FOR END OF INPUT
+      IF (CHK.EQ.'/') GO TO 180
+C
+C  IF FIRST FIELD, CONTENTS HAS BEEN CHECK FOR KEYWORD
+      IF (NUMFLD.EQ.0) GO TO 200
+C
+C  IF PROCESSING HRAP OPTIONAL FIELD, DO NOT CHECK FOR KEYWORD
+C
+C  CHECK FOR KEYWORD
+      CALL SUIDCK ('DEFN',CHK,NFLD,0,IKEYWD,IERR)
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,*) 'CHK=',CHK
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      IF (IERR.NE.2) GO TO 200
+180      IF (TDISP.EQ.'NEW'.AND.NUMFLD.LT.MAXFLD) GO TO 190
+            GO TO 850
+190      INWIND=1
+         IF (PRNOTE.EQ.'YES') THEN
+            WRITE (LP,1050)
+            CALL SULINE (LP,2)
+            ENDIF
+         GO TO 100
+C
+C  PRINT CARD
+200   IF (NUMFLD.GT.0.AND.NFLD.EQ.1.AND.INWIND.EQ.0) CALL SUPCRD
+C
+C  CHECK IF PROCESSING OPTIONAL FIELD AND FOUND ONLY PARENTHESES
+210   IF (INULL.EQ.1) GOTO 260
+      IF (NOPFLD.GT.0.AND.LRPAR.EQ.LENGTH.AND.LENGTH.EQ.1) GO TO 250
+C
+C  CHECK FOR OPTIONAL FIELD
+      DO 220 IOPTN=1,MOPTN
+         IF (CHK.EQ.OPTN(IOPTN)) GO TO 230
+220      CONTINUE
+      IF (NUMFLD.LE.MINFLD-1) GO TO 250
+      IF (NOPFLD.GT.0) GO TO 250
+         WRITE (LP,1100) NFLD,CHAR
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 100
+C
+C  OPTIONAL FIELD FOUND
+230   NUMFLD=NUMFLD+1
+C
+C  CHECK FOR PAIRED PARENTHESES
+      IF (ILPFND.GT.0.AND.IRPFND.EQ.0) THEN
+         WRITE (LP,1110) NOPFLD,NPCFLD
+         CALL SULINE (LP,2)
+         ENDIF
+      ILPFND=0
+      IRPFND=0
+C
+C  CHECK IF WERE PROCESSING OPTIONAL FIELD
+      IF (NXTFLD.EQ.0) GO TO 240
+         WRITE (LP,1120) NXTFLD,OPTN(NOPFLD)
+         CALL SUERRS (LP,2,NUMERR)
+C
+C  PROCESS OPTIONAL FIELD
+240   NOPFLD=IOPTN
+      NXTFLD=0
+      GO TO (730,770,810),NOPFLD
+      WRITE (LP,1130) IOPTN
+      CALL SUERRS (LP,2,NUMERR)
+      GO TO 100
+C
+C  SET INDICATORS IF PARENTHESES FOUND
+250   IF (LLPAR.GT.0) ILPFND=1
+      IF (LRPAR.GT.0) IRPFND=1
+C
+260   IF (LATSGN.EQ.0) NUMFLD=NUMFLD+1
+C
+C  CHECK IF FIELD WITH MORE THAN ONE POSSIBLE PARAMETER
+      IF (NOPFLD.GT.0) GO TO (730,770,810),NOPFLD
+C
+C  CHECK IF MAXIMUM NUMBER OF FIELD EXPECTED EXCEEDED
+      IF (NUMFLD.GT.MAXFLD) THEN
+         WRITE (LP,1070) NUMFLD,MAXFLD
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 830
+         ENDIF
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,1060) NUMFLD,MAXFLD,NUMERR
+         CALL SULINE (LP,1)
+         ENDIF
+      GO TO (270,280,320,320,320,320,330,380,430,430,
+     *       430,430,440,440,440,450,490,530,570,610,
+     *       650,690),NUMFLD
+      WRITE (LP,1070) NUMFLD,MAXFLD
+      CALL SULINE (LP,2)
+      GO TO 100
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK PARAMETER TYPE
+C
+270   IF (CHK.NE.'UGNL') THEN
+         WRITE (LP,1080) 'UGNL',NFLD,CHK(1:LENSTR(CHK))
+         CALL SUWRNS (LP,2,NUMWRN)
+         GO TO 100
+         ENDIF
+      TYPE=CHK
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,*) 'TYPE=',TYPE
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      GO TO 100
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  USER NAME
+C
+280   IF (INULL.EQ.0) GO TO 290
+         WRITE (LP,1140) NUMFLD
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 820
+290   IF (ITYPE.EQ.2) GO TO 300
+         WRITE (LP,1180) NUMFLD,NFLD
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 820
+300   IF (LENGTH.LE.8) GO TO 310
+         WRITE (LP,1210) LENGTH
+         CALL SUWRNS (LP,2,NUMWRN)
+310   CALL SUBSTR (CHAR,1,8,UGNLID,1)
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,1230) UGNLID
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  CHECK IF SAME AS USER NAME IN USERPARM FILE
+      CALL SUDOPN (1,'UPRM',IERR)
+      IF (IERR.GT.0) GO TO 820
+      CALL SUBSTR (HNAMRF,1,8,XCHAR,1)
+      IF (UGNLID(1).EQ.XCHAR(1).AND.UGNLID(2).EQ.XCHAR(2)) GO TO 820
+         WRITE (LP,1220) UGNLID,HNAMRF
+         CALL SUWRNS (LP,2,NUMWRN)
+      GO TO 820
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  LATITUDE/LONGITUDE LIMITS
+C
+320   IOFSET=2
+      CALL SFULLM (PRNOTE,INULL,NUMFLD,NFLD,REAL,ITYPE,NUMERR,
+     *   NUMWRN,ULLCHK,ULLMTS,IOFSET,IERR)
+      GO TO 820
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  MAXIMUM ELEVATION LIMIT
+C
+330   IF (INULL.EQ.1) THEN
+         REAL=XMXELV
+         IF (PRNOTE.EQ.'YES') THEN
+            WRITE (LP,1150) NUMFLD,REAL
+            CALL SULINE (LP,2)
+            ENDIF
+         GO TO 350
+         ENDIF
+      IF (ITYPE.EQ.2) THEN
+         WRITE (LP,1190) NUMFLD,NFLD
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 820
+         ENDIF
+350   ELLMTS(1)=REAL
+      IF (ELLMTS(1).LT.XMNELV) THEN
+         WRITE (LP,1240) 'MAXIMUM',ELLMTS(1),'LESS',XMNELV,UNITS
+         CALL SUWRNS (LP,2,NUMWRN)
+         ENDIF
+      IF (ELLMTS(1).GT.XMXELV) THEN
+         WRITE (LP,1240) 'MAXIMUM',ELLMTS(1),'GREATER',XMXELV,UNITS
+         CALL SUWRNS (LP,2,NUMWRN)
+         ENDIF
+      IF (ELLMTS(2).NE.UNDEF) THEN
+         IF (ELLMTS(1).LE.ELLMTS(2)) THEN
+            WRITE (LP,1250) ELLMTS(1),ELLMTS(2)
+            CALL SUERRS (LP,2,NUMERR)
+            GO TO 820
+            ENDIF
+         ENDIF
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,1260) ELLMTS(1)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      IELVMX=1
+      GO TO 820
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  MINIMUM ELEVATION LIMIT
+C
+380   IF (INULL.EQ.1) THEN
+         REAL=XMNELV
+         IF (PRNOTE.EQ.'YES') THEN
+            WRITE (LP,1150) NUMFLD,REAL
+            CALL SULINE (LP,2)
+            ENDIF
+         GO TO 400
+         ENDIF
+      IF (ITYPE.EQ.2) THEN
+         WRITE (LP,1190) NUMFLD,NFLD
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 820
+         ENDIF
+400   ELLMTS(2)=REAL
+      IF (ELLMTS(2).LT.XMNELV) THEN
+         WRITE (LP,1240) 'MINIMUM',ELLMTS(2),'LESS',XMNELV,UNITS
+         CALL SUWRNS (LP,2,NUMWRN)
+         ENDIF
+      IF (ELLMTS(2).GT.XMXELV) THEN
+         WRITE (LP,1240) 'MINIMUM',ELLMTS(2),'GREATER',XMXELV,UNITS
+         CALL SUWRNS (LP,2,NUMWRN)
+         ENDIF
+      IF (ELLMTS(1).NE.UNDEF) THEN
+         IF (ELLMTS(1).LE.ELLMTS(2)) THEN
+            WRITE (LP,1280) ELLMTS(1),ELLMTS(2)
+            CALL SUERRS (LP,2,NUMERR)
+            GO TO 820
+            ENDIF
+         ENDIF
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,1290) ELLMTS(2)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      IELVMN=1
+      GO TO 820
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  MDR SUBSET
+C
+430   IOFSET=8
+      CALL SFUMDR (TDISP,PRNOTE,INULL,NFLD,NUMFLD,INTEGR,ITYPE,
+     *   NUMERR,NUMWRN,MDRCHK,MDRSUB,IOFSET,UNDEF,IERR)
+      GO TO 820
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  DEFAULT POWER IN 1/D**POWER
+C
+440   IOFSET=12
+      CALL SFUPWR (PRNOTE,INULL,NUMFLD,NFLD,REAL,ITYPE,NUMERR,NUMWRN,
+     *   XMNPWR,XMXPWR,XDPOWR,DPOWER,IOFSET,IERR)
+      GO TO 820
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  FIRST MONTH OF SUMMER SEASON
+C
+450   IF (INULL.EQ.1) THEN
+         INTEGR=NBEGS
+         IF (PRNOTE.EQ.'YES') THEN
+            WRITE (LP,1160) NUMFLD,INTEGR
+            CALL SULINE (LP,2)
+            ENDIF
+         GO TO 470
+         ENDIF
+      IF (ITYPE.NE.0) THEN
+         WRITE (LP,1200) NUMFLD,NFLD
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 820
+         ENDIF
+470   ISEASN(1)=INTEGR
+      IF (ISEASN(1).GE.1.AND.ISEASN(1).LE.12) THEN
+         ELSE    
+            WRITE (LP,1300) ISEASN(1)
+            CALL SUWRNS (LP,2,NUMWRN)
+            ISEASN(1)=NBEGS
+            WRITE (LP,1500) NBEGS
+            CALL SULINE (LP,1)
+         ENDIF
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,1310) ISEASN(1)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      GO TO 820
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  FIRST MONTH OF WINTER SEASON
+C
+490   IF (INULL.EQ.1) THEN
+         INTEGR=NBEGW
+         IF (PRNOTE.EQ.'YES') THEN
+            WRITE (LP,1160) NUMFLD,INTEGR
+            CALL SULINE (LP,2)
+            ENDIF
+         GO TO 510
+         ENDIF
+      IF (ITYPE.NE.0) THEN
+         WRITE (LP,1200) NUMFLD,NFLD
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 820
+         ENDIF
+510   ISEASN(2)=INTEGR
+      IF (ISEASN(2).GT.ISEASN(1).AND.ISEASN(2).LE.12) THEN
+         ELSE
+            WRITE (LP,1320) ISEASN(2),ISEASN(1)
+            CALL SUWRNS (LP,2,NUMWRN)
+            ISEASN(2)=NBEGW
+            WRITE (LP,1500) NBEGW
+            CALL SULINE (LP,1)
+         ENDIF
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,1330) ISEASN(2)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      GO TO 820
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  BLEND FACTOR FOR MAT PREPROCESSOR FUNCTION COMPUTATIONS
+C
+530   IF (INULL.EQ.1) THEN
+         INTEGR=NDBLND
+         IF (PRNOTE.EQ.'YES') THEN
+            WRITE (LP,1160) NUMFLD,INTEGR
+            CALL SULINE (LP,2)
+            ENDIF
+         GO TO 550
+         ENDIF
+      IF (ITYPE.NE.0) THEN
+         WRITE (LP,1200) NUMFLD,NFLD
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 820
+         ENDIF
+550   NBLEND(1)=INTEGR
+      IF (NBLEND(1).GE.0.AND.NBLEND(1).LE.24) THEN
+         ELSE
+            WRITE (LP,1340) NBLEND(1)
+            CALL SUWRNS (LP,2,NUMWRN)
+            NBLEND(1)=NDBLND
+            WRITE (LP,1500) NDBLND
+            CALL SULINE (LP,1)
+         ENDIF
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,1350) NBLEND(1)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      GO TO 820
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  BLEND FACTOR FOR MAPE PREPROCESSOR FUNCTION COMPUTATIONS
+C
+570   IF (INULL.EQ.1) THEN
+         INTEGR=NDBLND
+         IF (PRNOTE.EQ.'YES') THEN
+            WRITE (LP,1160) NUMFLD,INTEGR
+            CALL SULINE (LP,2)
+            ENDIF
+         GO TO 590
+         ENDIF
+      IF (ITYPE.NE.0) THEN
+         WRITE (LP,1200) NUMFLD,NFLD
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 820
+         ENDIF
+590   NBLEND(2)=INTEGR
+      IF (NBLEND(2).GE.0.AND.NBLEND(2).LE.24) THEN
+         ELSE
+            WRITE (LP,1360) NBLEND(2)
+            NBLEND(2)=NDBLND
+            WRITE (LP,1500) NDBLND
+            CALL SULINE (LP,1)
+         ENDIF
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,1370) NBLEND(2)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      GO TO 820
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  MINIMUM DAILY PCPN AT <24 HOUR STATIONS
+C
+610   IF (INULL.EQ.1) THEN
+         REAL=DMNPCN
+         IF (PRNOTE.EQ.'YES') THEN
+            WRITE (LP,1150) NUMFLD,REAL
+            CALL SULINE (LP,2)
+            ENDIF
+         GO TO 630
+         ENDIF
+      IF (ITYPE.EQ.2) THEN
+         WRITE (LP,1190) NUMFLD,NFLD
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 820
+         ENDIF
+630   DPCNMN=REAL
+      IF (DPCNMN.GT.0.0.AND.DPCNMN.LE.DPCMAX) THEN
+         ELSE
+            WRITE (LP,1380) DPCNMN,DPCMAX
+            DPCNMN=DMNPCN
+            WRITE (LP,1490) DMNPCN
+            CALL SULINE (LP,1)
+         ENDIF
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,1390) DPCNMN
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      IDMNPC=1
+      GO TO 820
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  MINIMUM WEIGHT OF STATIONS FOR STATION WEIGHTING
+C
+650   IF (INULL.EQ.1) THEN
+         REAL=DSTMNW
+         IF (PRNOTE.EQ.'YES') THEN
+            WRITE (LP,1150) NUMFLD,REAL
+            CALL SULINE (LP,2)
+            ENDIF
+         GO TO 670
+         ENDIF
+      IF (ITYPE.EQ.2) THEN
+         WRITE (LP,1190) NUMFLD,NFLD
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 820
+         ENDIF
+670   STMNWT=REAL
+      IF (STMNWT.GT.0.0.AND.STMNWT.LE.STWTMX) THEN
+         ELSE
+            WRITE (LP,1400) STMNWT,STWTMX
+            CALL SUWRNS (LP,2,NUMWRN)
+            STMNWT=DSTMNW
+            WRITE (LP,1490) DMNPCN
+            CALL SULINE (LP,1)
+         ENDIF            
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,1410) STMNWT
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      GO TO 820
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  INDICATOR HOW STATION NETWORK INFORMATION IS TO BE SORTED
+C
+690   IF (INULL.EQ.1) THEN
+         CHAR='ID'
+         IF (PRNOTE.EQ.'YES') THEN
+            WRITE (LP,1170) NUMFLD,CHAR(1:LENSTR(CHAR))
+            CALL SULINE (LP,2)
+            ENDIF
+         GO TO 710
+         ENDIF
+      IF (ITYPE.NE.2) THEN
+         WRITE (LP,1180) NUMFLD,NFLD
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 820
+         ENDIF
+710   SORTBY=CHAR
+      IF (SORTBY.EQ.'ID'.OR.
+     *    SORTBY.EQ.'DESC') THEN
+         ELSE
+            WRITE (LP,1420) CHAR(1:LENSTR(CHAR))
+            CALL SUWRNS (LP,2,NUMWRN)
+            SORTBY='ID'
+            WRITE (LP,1510) SORTBY
+            CALL SULINE (LP,1)
+         ENDIF
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,1430) SORTBY
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      GO TO 820
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  RESET MAP FUNCTION STATUS INDICATOR
+C
+730   IF (LLPAR.EQ.0) THEN
+         INTEGR=0
+         WRITE (LP,1440) OPTN(1),INTEGR
+         CALL SUWRNS (LP,2,NUMWRN)
+         GO TO 760
+         ENDIF
+      IF (LRPAR.GT.0) THEN
+         IRPFND=1
+         ELSE
+            WRITE (LP,1030) NFLD
+            CALL SULINE (LP,2)
+            LRPAR=LENGTH+1
+         ENDIF
+      CALL UFINFX (INTEGR,ISTRT,LLPAR+1,LRPAR-1,IERR)
+760   IF (INTEGR.EQ.0.OR.
+     *    INTEGR.EQ.1.OR.
+     *    INTEGR.EQ.2) THEN
+         ELSE
+            WRITE (LP,1450) INTEGR
+            CALL SUERRS (LP,2,NUMERR)
+            GO TO 820
+         ENDIF
+      ICUGNL(1)=INTEGR
+      WRITE (LP,1460) ICUGNL(1)
+      CALL SULINE (LP,2)
+      NUMFLD=NUMFLD+1
+      GO TO 820
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  RESET MAT FUNCTION STATUS INDICATOR
+C
+770   IF (LLPAR.EQ.0) THEN
+         INTEGR=0
+         WRITE (LP,1440) OPTN(2),INTEGR
+         CALL SUWRNS (LP,2,NUMWRN)
+         GO TO 800
+         ENDIF
+      IF (LRPAR.GT.0) THEN
+         IRPFND=1
+         ELSE
+            WRITE (LP,1030) NFLD
+            CALL SULINE (LP,2)
+            LRPAR=LENGTH+1
+         ENDIF
+      CALL UFINFX (INTEGR,ISTRT,LLPAR+1,LRPAR-1,IERR)
+800   IF (INTEGR.EQ.0.OR.
+     *    INTEGR.EQ.1) THEN
+         ELSE
+            WRITE (LP,1470) INTEGR
+            CALL SUERRS (LP,2,NUMERR)
+            GO TO 820
+         ENDIF
+      ICUGNL(2)=INTEGR
+      WRITE (LP,1480) ICUGNL(2)
+      CALL SULINE (LP,2)
+      NUMFLD=NUMFLD+1
+      GO TO 820
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  HRAP SUBSET
+C   
+C  SET SIZE OF WORK ARRAYS
+810   LWORK=LSWORK/2
+      LARAY=LSWRK2/3
+C  IY:
+      ID1=1
+C  IXB:
+      ID2=LARAY*1+1
+C  IXE:
+      ID3=LARAY*2+1 
+C      
+C  READ XGRD PARAMETERS
+      IXGRD=1
+      CALL SRXGRD (IVXGRD,LWORK,NXA,SWORK(1),
+     *   LARAY,SWRK2(ID1),SWRK2(ID2),SWRK2(ID3),
+     *   UNUSED,LARRAY,ARRAY,ARRAY,IPRERR,IERR)
+      IF (IERR.GT.0) THEN
+         IXGRD=0
+         IF (IERR.NE.2) THEN
+            WRITE (LP,1565) 'XGRD',IERR
+            CALL SUERRS (LP,2,NUMERR)
+            ENDIF
+         ENDIF
+C  
+      CALL SFUHRP (INULL,NFLD,NUMFLD,ITYPE,INTEGR,REAL,
+     *   CHAR,ISTRT,LENGTH,LLPAR,LRPAR,
+     *   TDISP,PRNOTE,NOPFLD,NXTFLD,IOFLD3,IUNDEF,
+     *   NHPSUB,NHPCHK,NHPOLD,
+     *   IXGRD,NXA,SWORK(1),SWRK2(ID1),SWRK2(ID2),SWRK2(ID3),
+     *   NUMERR,NUMWRN,IERR)
+C
+      GO TO 820
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+820   NPCFLD=NFLD
+C
+C  CHECK FOR REPEATED NULL FIELDS
+      IF (NULREP.EQ.0) GO TO 100
+      NULREP=NULREP-1
+      GO TO 250
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  MAXIMUM FIELDS PROCESSED BUT NO KEYWORD FOUND - SEARCH FOR
+C  NEXT KEYWORD
+830   IF (NULREP.EQ.0) ISTRT=-1
+840   CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPE,NREP,INTEGR,REAL,
+     *   LCHAR,CHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,IERR)
+      IF (LATSGN.EQ.1) GO TO 850
+      IF (LLPAR.GT.0) CALL UFPACK (LCHK,CHK,ISTRT,1,LLPAR-1,IERR)
+      IF (LLPAR.EQ.0) CALL UFPACK (LCHK,CHK,ISTRT,1,LENGTH,IERR)
+      IF (CHK.EQ.'/') GO TO 850
+      CALL SUIDCK ('DEFN',CHK,NFLD,0,IKEYWD,IERR)
+      IF (IERR.EQ.2) GO TO 850
+         WRITE (LP,1540) NFLD,CHAR
+         CALL SUWRNS (LP,2,NUMWRN)
+         GO TO 840
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK NUMBER OF FIELDS PROCESSED
+850   IF (NUMFLD.EQ.1) THEN
+         WRITE (LP,1580)
+         CALL SULINE (LP,2)
+         GO TO 920
+         ENDIF
+C
+C      -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
+C
+C  CHECK IF ANY STATION LAT/LON AND ELEVATION VALUES EXCEED LIMITS
+      IF (UNITS.EQ.'ENGL') THEN
+         CALL UDUCNV ('FT  ','M   ',1,2,ELLMTS,TELLMTS,IERR)
+         ELSE
+            CALL UMEMOV (ELLMTS,TELLMTS,2)
+         ENDIF
+      RDISP='OLD'
+      IPTR=0
+      IPRERR=0
+857   CALL UREPET (' ',STAID,8)
+      INCLUDE 'scommon/callsrstan'
+      IF (IERR.GT.0) THEN
+         IF (IERR.EQ.6) GO TO 860
+         IF (IERR.NE.2) THEN
+            CALL SRPPST (STAID,'STAN',IPTR,LARRAY,0,IPTRNX,IERR)
+            ENDIF
+         GO TO 860
+         ENDIF
+C  CHECK LAT/LON
+      IF (STALOC(1).LT.ULLMTS(2).OR.STALOC(1).GT.ULLMTS(1)) THEN
+         WRITE (LP,1521) 'LATITUDE',STALOC(1),STAID,ULLMTS(2),ULLMTS(1)
+         CALL SUERRS (LP,2,NUMERR)
+         ENDIF
+      IF (STALOC(2).LT.ULLMTS(3).OR.STALOC(2).GT.ULLMTS(4)) THEN
+         WRITE (LP,1521) 'LONGITUDE',STALOC(2),STAID,ULLMTS(3),ULLMTS(4)
+         CALL SUERRS (LP,2,NUMERR)
+         ENDIF
+C  CHECK ELEVATION
+      IF (UNITS.EQ.'ENGL') THEN
+         CALL UDUCNV ('M   ','FT  ',1,1,STAELV,TSTAELV,IERR)
+         ELSE
+            TSTAELV=STAELV
+         ENDIF
+      IF (TSTAELV.GT.ELLMTS(1).OR.TSTAELV.LT.ELLMTS(2)) THEN
+         WRITE (LP,1522) TSTAELV,STAID,ELLMTS(2),ELLMTS(1)
+         CALL SUERRS (LP,2,NUMERR)            
+         ENDIF
+      IF (IPTRNX.GT.0) THEN
+         IPTR=IPTRNX
+         GO TO 857
+         ENDIF
+C
+C      -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
+C
+860   IF (NHPSUB(1).EQ.IUNDEF) GO TO 865
+C
+C  CHECK HRAP SUBSET IN GEO DATA DIRECTORY
+      INDERR=0
+      ENVVAR='geo_data'
+      CALL GET_APPS_DEFAULTS (ENVVAR,LENSTR(ENVVAR),
+     *   GEODIR,LGEODIR)
+      MGEODIR=LEN(GEODIR)
+      IF (LGEODIR.GT.MGEODIR) THEN
+         WRITE (LP,1523) ENVVAR(1:LENSTR(ENVVAR)),LGEODIR,MGEODIR
+         CALL SUERRS (LP,2,NUMERR)
+         INDERR=1
+         ENDIF
+      IF (GEODIR.EQ.' ') THEN
+         WRITE (LP,1524) ENVVAR(1:LENSTR(ENVVAR))
+         CALL SUERRS (LP,2,NUMERR)
+         INDERR=1
+         ENDIF
+      ENVVAR='ifp_rfc'
+      CALL GET_APPS_DEFAULTS (ENVVAR,LENSTR(ENVVAR),
+     *   GEOUSER,LGEOUSER)
+      MGEOUSER=LEN(GEOUSER)
+      IF (LGEOUSER.GT.MGEOUSER) THEN
+         WRITE (LP,1523) ENVVAR(1:LENSTR(ENVVAR)),LGEOUSER,MGEOUSER
+         CALL SUERRS (LP,2,NUMERR)
+         INDERR=1
+         ENDIF
+      IF (GEOUSER.EQ.' ') THEN
+         WRITE (LP,1524) ENVVAR(1:LENSTR(ENVVAR))
+         CALL SUERRS (LP,2,NUMERR)
+         INDERR=1
+         ENDIF
+      IF (INDERR.EQ.1) GO TO 865
+C      
+C  SET PATH NAME FOR GEO DATA FILE
+      MGEOPATH=LEN(GEOPATH)
+      IF (LGEODIR.LE.MGEOPATH) THEN
+         GEOPATH=GEODIR(1:LGEODIR)
+         ELSE
+            WRITE (LP,1531) 'GEOPATH',MGEOPATH
+            CALL SUERRS (LP,2,NUMERR)
+            GO TO 865
+         ENDIF
+      CALL UCNCAT (GEOPATH,'/',IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (LP,1531) 'GEOPATH',MGEOPATH
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 865
+         ENDIF
+      CALL UCNCAT (GEOPATH,GEOUSER(1:LGEOUSER),IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (LP,1531) 'GEOPATH',MGEOPATH
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 865
+         ENDIF
+      CALL UCNCAT (GEOPATH,'/ascii/',IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (LP,1531) 'GEOPATH',MGEOPATH
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 865
+         ENDIF
+      CALL UCNCAT (GEOPATH,'coord_',IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (LP,1531) 'GEOPATH',MGEOPATH
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 865
+         ENDIF
+      CALL UCNCAT (GEOPATH,GEOUSER(1:LGEOUSER),IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (LP,1531) 'GEOPATH',MGEOPATH
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 865
+         ENDIF
+      CALL UCNCAT (GEOPATH,'.dat',IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (LP,1531) 'GEOPATH',MGEOPATH
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 865
+         ENDIF
+C      
+C  CHECK IF FILE EXISTS            
+      INQUIRE (FILE=GEOPATH,EXIST=FLEXST,IOSTAT=IOSTAT)
+      IF (IOSTAT.NE.0) THEN
+         WRITE (LP,1527) 'INQUIRING',GEOPATH(1:LENSTR(GEOPATH)),IOSTAT
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 865
+         ENDIF
+      IF (.NOT.FLEXST) THEN
+         WRITE (LP,1525) GEOPATH(1:LENSTR(GEOPATH))       
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 865
+         ENDIF
+C
+C  OPEN FILE               
+      NUNIT=99
+      OPEN (UNIT=NUNIT,FILE=GEOPATH,STATUS='OLD',
+     *   ACCESS='SEQUENTIAL',IOSTAT=IOSTAT)
+      IF (IOSTAT.NE.0) THEN
+         WRITE (LP,1527) 'OPENING',GEOPATH(1:LENSTR(GEOPATH)),IOSTAT 
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 865
+         ENDIF
+C         
+C  READ GEO DATA FILE 
+      NREC=1            
+      READ (NUNIT,'(A)',ERR=861) GEOREC1 
+      NREC=NREC+1           
+      READ (NUNIT,'(A)',ERR=861) GEOREC2 
+      NREC=NREC+1                      
+      READ (NUNIT,'(A)',ERR=861) GEOREC3 
+      NREC=NREC+1                      
+      READ (NUNIT,'(A)',ERR=861) GEOREC4
+      GO TO 862
+861   WRITE (LP,1526) NREC,GEOPATH(1:LENSTR(GEOPATH))       
+      CALL SUERRS (LP,2,NUMERR)
+      GO TO 865 
+C      
+C  CLOSE FILE     
+862   CLOSE (UNIT=NUNIT,IOSTAT=IOSTAT)
+      IF (IOSTAT.NE.0) THEN
+         WRITE (LP,1527) 'CLOSING',GEOPATH(1:LENSTR(GEOPATH)),IOSTAT
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 865
+         ENDIF
+C      
+C  CONVERT FROM CHARACTER TO INTEGER VALUES
+      INDERR=0
+      IBEG=1
+      IPRERR=1
+      CALL UFA2I (GEOREC1,IBEG,LENSTR(GEOREC1),NHPGEO(1),
+     *   IPRERR,LP,IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (LP,1532) 'GEOREC1',GEOREC1(1:LENSTR(GEOREC1))
+         CALL SUERRS (LP,2,NUMERR)
+         INDERR=1
+         ENDIF
+      CALL UFA2I (GEOREC2,IBEG,LENSTR(GEOREC2),NHPGEO(3),
+     *  IPRERR,LP,IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (LP,1532) 'GEOREC2',GEOREC2(1:LENSTR(GEOREC2))
+         CALL SUERRS (LP,2,NUMERR)
+         INDERR=1
+         ENDIF
+       CALL UFA2I (GEOREC3,IBEG,LENSTR(GEOREC3),NHPGEO(2),
+     *   IPRERR,LP,IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (LP,1532) 'GEOREC3',GEOREC3(1:LENSTR(GEOREC3))
+         CALL SUERRS (LP,2,NUMERR)
+         INDERR=1
+         ENDIF
+      CALL UFA2I (GEOREC4,IBEG,LENSTR(GEOREC4),NHPGEO(4),
+     *   IPRERR,LP,IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (LP,1532) 'GEOREC4',GEOREC4(1:LENSTR(GEOREC4))
+         CALL SUERRS (LP,2,NUMERR)
+         INDERR=1
+         ENDIF
+      IF (INDERR.EQ.1) GO TO 865
+C
+C  CHECK SUBSET VALUES
+      INDERR=0
+      IF (NHPSUB(1).NE.NHPGEO(1)) THEN
+         WRITE (LP,1528) 'WESTERN MOST HRAP COLUMN',NHPSUB(1),NHPGEO(1)
+         CALL SUERRS (LP,2,NUMERR)
+         INDERR=1
+         ENDIF   
+      IF (NHPSUB(2).NE.NHPGEO(2)) THEN
+         WRITE (LP,1528) 'NUMBER OF HRAP COLUMNS',NHPSUB(2),NHPGEO(2)
+         CALL SUERRS (LP,2,NUMERR)
+         INDERR=1
+         ENDIF   
+      IF (NHPSUB(3).NE.NHPGEO(3)) THEN
+         WRITE (LP,1528) 'SOUTHERN MOST HRAP ROW',NHPSUB(3),NHPGEO(3)
+         CALL SUERRS (LP,2,NUMERR)
+         INDERR=1
+         ENDIF   
+      IF (NHPSUB(4).NE.NHPGEO(4)) THEN
+         WRITE (LP,1528) 'NUMBER OF HRAP ROWS',NHPSUB(4),NHPGEO(4)
+         CALL SUERRS (LP,2,NUMERR)
+         INDERR=1
+         ENDIF
+      IF (INDERR.EQ.1) THEN
+         WRITE (LP,1529) GEOPATH(1:LENSTR(GEOPATH))
+         CALL SUERRS (LP,3,NUMERR)
+         ENDIF
+C
+C      -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -    
+C
+C  CHECK IF ALL MDR SUBSET VALUES DEFINED
+865   NSUB=0
+      DO 870 I=1,4
+         IF (MDRSUB(I).EQ.IUNDEF) GO TO 870
+         NSUB=NSUB+1
+870      CONTINUE
+      IF (NSUB.EQ.0) GO TO 910
+      NCHK=4
+      IF (NSUB.NE.NCHK) THEN
+         WRITE (LP,1530) NSUB,NCHK
+         CALL SUERRS (LP,2,NUMERR)
+         ENDIF         
+C
+C  CHECK IF SUFFICIENT SPACE ON PREPROCESSOR DATA BASE FOR MDR SUBSET
+      CALL SUDOPN (1,'PPD ',IERR)
+      IF (IERR.NE.0) THEN
+         NUMERR=NUMERR+1
+         GO TO 910
+         ENDIF
+      INDERR=0
+      CALL RPDMDR (MAXMDR,IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (LP,1550)
+         CALL SUWRNS (LP,2,NUMWRN)
+         INDERR=1
+         GO TO 890
+         ENDIF
+      NUMMDR=MDRSUB(2)*MDRSUB(4)
+      IF (NUMMDR.GT.MAXMDR) THEN
+         WRITE (LP,1560) NUMMDR,MAXMDR
+         CALL SUERRS (LP,2,NUMERR)
+         INDERR=1
+         ENDIF
+890   IF (INDERR.EQ.1) THEN
+         DO 900 I=1,4
+            MDRSUB(I)=IUNDEF
+900         CONTINUE
+         ENDIF
+C
+C  CONVERT UNITS
+910   IF (UNITS.EQ.'ENGL'.AND.IELVMX.EQ.1) THEN
+         CALL UDUCNV ('FT  ','M   ',1,1,ELLMTS(1),ELLMTS(1),IERR)
+         IF (IERR.GT.0) CALL SUERRS (LP,2,NUMERR)
+         ENDIF
+      IF (UNITS.EQ.'ENGL'.AND.IELVMN.EQ.1) THEN
+         CALL UDUCNV ('FT  ','M   ',1,1,ELLMTS(2),ELLMTS(2),IERR)
+         IF (IERR.GT.0) CALL SUERRS (LP,2,NUMERR)
+         ENDIF
+      IF (UNITS.EQ.'METR'.AND.IDMNPC.EQ.1) THEN
+         CALL UDUCNV ('MM  ','IN  ',1,1,DPCNMN,DPCNMN,IERR)
+         IF (IERR.GT.0) CALL SUERRS (LP,2,NUMERR)
+         ENDIF
+C
+C  CHECK IF RUNCHECK OPTION SPECIFIED
+      IF (IRUNCK.EQ.1) GO TO 920
+C
+C  WRITE PARAMETERS IF NO ERRORS ENCOUNTERED
+      IF (NUMERR.GT.0) THEN
+         WRITE (LP,1520) NUMERR
+         CALL SULINE (LP,2)
+         ISTAT=1
+         GO TO 920
+         ENDIF
+C
+C  WRITE PARAMETERS TO FILE
+      IVUGNL=2
+      WDISP=TDISP
+      INCLUDE 'scommon/callswugnl'
+      IF (IERR.GT.0) GO TO 920
+C
+C  SET INDICATOR THAN COMMON /SUGNLX/ HAS BEEN FILLED
+      IUGFIL=1
+C
+      IF (TDISP.EQ.'OLD') THEN
+C     CHECK IF NEED TO SET AUTOMATIC NETWORK RUN INDICATOR
+         INTWK=0
+         IAREA=0
+         ISORTBY=0
+         INTWKI=0
+         IF (STMNWT.NE.STMNWTO) THEN
+            IF (PRNOTE.EQ.'YES') THEN
+               WRITE (LP,1583) 'STMNWT',STMNWTO,STMNWT
+               CALL SULINE (LP,2)
+               ENDIF
+            INTWK=1
+            IAREA=1
+            ENDIF
+         IF (SORTBY.NE.SORTBYO) THEN
+            IF (PRNOTE.EQ.'YES') THEN
+               WRITE (LP,1587) 'SORTBY',SORTBYO,SORTBY
+               CALL SULINE (LP,2)
+               ENDIF
+            INTWK=1
+            ISORTBY=1
+            ENDIF
+         IF (INTWK.EQ.1) THEN
+C        CHECK IF NETWORK FLAG COMMON BLOCK FILLED
+         IF (INFFIL.EQ.0) THEN
+            RDISP='OLD'
+            CALL SUGTNF (LARRAY,ARRAY,RDISP,NUMERR,IERR)
+            IF (IERR.GT.0) THEN
+               WRITE (LP,1585)
+               CALL SULINE (LP,2)
+               ELSE
+                  IF (LDEBUG.GT.1) THEN
+                     CALL SPNTWK (IVNTWK,INWDTE,NNWFLG,INWFLG,UNUSED,
+     *                  IERR)
+                     ENDIF
+                  ENDIF
+               ENDIF
+            IPCPN=0
+            ITEMP=0
+            ITPPVR=0
+            IPTWGTI=0
+            IPSORT=0
+            ITEMP=0
+            ITTAVR=0
+            ITFMM=0
+            ITSORT=0
+            IPE=0
+            IESORT=0
+            IRRS=0
+            NUGPA=0
+            SORTBYX=' '
+            CALL SNTWKI (IPCPN,ITPPVR,IPTWGTI,IPSORT,
+     *         ITEMP,ITTAVR,ITFMM,ITSORT,
+     *         IPE,IESORT,
+     *         IRRS,
+     *         NUGPA,
+     *         SORTBYX,
+     *         IAREA,
+     *         ISORTBY,
+     *         INTWKI,IERR)
+            ENDIF
+C     CHECK IF NEED TO UPDATE NTWK PARAMETERS
+         IF (INTWKI.EQ.1) THEN
+C        UPDATE NTWK PARAMETERS
+            WDISP='OLD'
+            CALL SWNTWK (IVNTWK,UNSD,NNWFLG,INWFLG,INWDTE,
+     *         LARRAY,ARRAY,WDISP,IERR)
+            IF (LDEBUG.GT.1) THEN
+               CALL SPNTWK (IVNTWK,INWDTE,NNWFLG,INWFLG,UNUSED,IERR)
+               ENDIF
+            ENDIF
+C        RESET INDICATOR WHETHER NTWK COMMON BLOCK HAS BEEN FILLED
+            INWFIL=0
+C        RESET IF NEED TO SET OPTION TO RUN NETWORK COMMAND
+         IF (INTWKI.EQ.1.AND.INAUTO.EQ.0) THEN
+            INAUTO=1
+            WRITE (LP,1589)
+            CALL SULINE (LP,2)
+            ENDIF
+         ENDIF
+C
+C  READ PARAMETERS
+      IPRERR=1
+      INCLUDE 'scommon/callsrugnl'
+      IF (IERR.EQ.0) THEN
+C     PRINT PARAMETERS
+         INCLUDE 'scommon/callspugnl'
+         ENDIF
+C
+920   IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,1590)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+930   FORMAT (' *** ENTER SFUGNL')
+940   FORMAT (' ')
+950   FORMAT ('0*--> DEFINE GENERAL USER PARAMETERS')
+960   FORMAT ('0DEFINE OPTIONS IN EFFECT :  ',
+     *   'DISP=',A,3X,
+     *   'PRNTNOTE=',A,3X,
+     *   'UNITS=',A,3X,
+     *   ' ')
+970   FORMAT ('0*** ERROR - PREPROCESSOR PARAMETRIC DATA BASE FILES ',
+     *   'ARE NOT ALLOCATED. INPUT DATA WILL BE CHECKED FOR ERRORS.')
+980   FORMAT ('0*** ERROR - DISPOSITION OF ',A4,' WAS SPECIFIED FOR ',
+     *   'UGNL PARAMETERS BUT PARAMETERS ALREADY EXIST.')
+990   FORMAT ('0*** WARNING - UGNL PARAMETER RECORD DOES NOT EXIST.',
+     *   ' DISP ASSUMED TO BE ',A4,'.')
+1000  FORMAT (' BLANK STRING FOUND IN FIELD ',I2)
+1020  FORMAT ('0*** ERROR - ',I3,' IS AN INVALID NUMBER OF NULL ',
+     *   'FIELDS TO BE REPEATED. MAXIMUM FIELDS ALLOWED IS ',I2,'.')
+1030  FORMAT ('0*** NOTE - RIGHT PARENTHESES ASSUMED IN FIELD ',I2,'.')
+1050  FORMAT ('0*** NOTE - REMAINING UGNL PARAMETERS WILL ',
+     *   'BE FILLED WITH DEFAULT VALUES.')
+1060  FORMAT (' NUMFLD=',I2,3X,'MAXFLD=',I2,3X,'NUMERR=',I2)
+1070  FORMAT ('0*** ERROR - FIELD ',I2,' EXCEEDS MAXIMUM ALLOWABLE ',
+     *   'FIELDS (',I2,').')
+1080  FORMAT ('0*** ERROR - IN SFUGNL - THE CHARACTERS ',A,' ',
+     *   'WERE EXPECTED IN FIELD ',I2,' BUT ',A,' WERE FOUND.')
+1100  FORMAT ('0*** ERROR - INVALID DEFINE STAN OPTION IN CARD FIELD ',
+     *   I2,' : ',A)
+1110  FORMAT ('0*** NOTE - RIGHT PARENTHESES ASSUMED IN OPTIONAL ',
+     *   'INPUT FIELD ',I2,' (CARD FIELD ' ,I2,').')
+1120  FORMAT ('0*** ERROR - FIELD ',I2,' NOT FOUND FOR ',A,' ',
+     *   'OPTION.')
+1130  FORMAT ('0*** ERROR - PROCESSING DEFINE STATION OPTION NUMBER ',
+     *   I2,'.')
+1140  FORMAT ('0*** ERROR - NO VALUE FOUND FOR REQUIRED FIELD ',I2,'.')
+1150  FORMAT ('0*** NOTE - NO VALUE FOUND FOR REQUIRED FIELD ',I2,'. ',
+     *   'DEFAULT VALUE (',F8.2,') WILL BE USED.')
+1160  FORMAT ('0*** NOTE - NO VALUE FOUND FOR REQUIRED FIELD ',I2,'. ',
+     *   'DEFAULT VALUE (',I8,') WILL BE USED.')
+1170  FORMAT ('0*** NOTE - NO VALUE FOUND FOR REQUIRED FIELD ',I2,'. ',
+     *   'DEFAULT VALUE (',A,') WILL BE USED.')
+1180  FORMAT ('0*** ERROR - CHARACTER DATA EXPECTED IN INPUT ',
+     *   'FIELD ',I2,' (CARD FIELD ',I2,').')
+1190  FORMAT ('0*** ERROR - NON-CHARACTER DATA EXPECTED IN INPUT ',
+     *   'FIELD ',I2,' (CARD FIELD ',I2,').')
+1200  FORMAT ('0*** ERROR - INTEGER DATA EXPECTED IN INPUT ',
+     *   'FIELD ',I2,' (CARD FIELD ',I2,').')
+1210  FORMAT ('0*** WARNING - NUMBER OF CHARACTERS IN USER NAME (',I2,
+     *   ') EXCEEDS 8. THE FIRST 8 CHARACTERS WILL BE USE.')
+1220  FORMAT ('0*** WARNING - USER NAME SPECIFIED (',2A4,
+     *   ') IS DIFFERENT FROM USER NAME IN USER PARAMETER FILE (',
+     *   2A4,').')
+1230  FORMAT (' UGNLID=',2A4)
+1240  FORMAT ('0*** WARNING - ',A,' ELEVATION LIMIT (',F8.2,
+     *   ') IS ',A,' THAN ',F8.2,' ',A,'.')
+1250  FORMAT ('0*** ERROR - MAXIMUM ELEVATION LIMIT (',F8.2,
+     *   ') IS NOT GREATER THEN MINIMUM ELEVATION LIMIT (',F8.2,').')
+1260  FORMAT (' MAXIMUM ELEVATION LIMIT SET TO : ',F8.2)
+1280  FORMAT ('0*** ERROR - MINIMUM ELEVATION LIMIT (',F8.2,
+     *   ') IS NOT LESS THEN MAXIMUM ELEVATION LIMIT (',F8.2,').')
+1290  FORMAT (' MINIMUM ELEVATION LIMIT SET TO : ',F8.2)
+1300  FORMAT ('0*** WARNING - FIRST MONTH OF SUMMER (',I3,
+     *   ') MUST BE GREATER THAN ZERO AND LESS THAN OR EQUAL TO 12.')
+1310  FORMAT (' FIRST MONTH OF SUMMER SET TO : ',I2)
+1320  FORMAT ('0*** WARNING - FIRST MONTH OF WINTER (',I3,
+     *   ') MUST BE GREATER THAN FIRST MONTH OF SUMMER (',I2,
+     *   ') AND LESS THAN OR EQUAL TO 12.')
+1330  FORMAT (' FIRST MONTH OF WINTER SET TO : ',I2)
+1340  FORMAT ('0*** WARNING - NUMBER OF MAT  BLEND PERIODS (',I3,
+     *   ') MUST BE GREATER THAN ZERO AND LESS THAN 25.')
+1350  FORMAT (' NUMBER OF MAT BLEND PERIODS SET TO : ',I2)
+1360  FORMAT ('0*** WARNING - NUMBER OF MAPE BLEND PERIODS (',I3,
+     *   ') MUST BE GREATER THAN ZERO AND LESS THAN 25.')
+1370  FORMAT (' NUMBER OF MAPE BLEND PERIODS SET TO : ',I2)
+1380  FORMAT ('0*** WARNING - MINIMUM DAILY PCPN AT <24 HR STATIONS (',
+     *   F8.2,') IS NOT GREATER THAN ZERO OR LESS THEN OR EQUAL TO ',
+     *   F4.1,'.')
+1390  FORMAT (' MINIMUM DAILY PCPN AT <24 HR STATIONS SET TO : ',F7.2)
+1400  FORMAT ('0*** WARNING - MINIMUM STATION WEIGHT TO BE KEPT (',
+     *   F8.2,') IS NOT GREATER THAN ZERO OR LESS THEN OR EQUAL TO ',
+     *   F4.1,'.')
+1410  FORMAT (' MINIMUM STATION WEIGHT TO BE KEPT SET TO : ',F7.2)
+1420  FORMAT ('0*** WARNING - INDICATOR HOW STATION INFORMATION ',
+     *   'SORTED (',A,') MUST BE OR ''ID'' OR ''DESC''.')
+1430  FORMAT (' INDICATOR HOW STATION INFORMATION TO BE SORTED ',
+     *   'SET TO : ',A)
+1440  FORMAT ('0*** WARNING - NO LEFT PARENTHESIS FOUND. ',A,' ',
+     *   'OPTION SET TO ',I2,'.')
+1450  FORMAT ('0*** ERROR - ',I2,' IS AN INVALID MAP STATUS VALUE. ',
+     *   'VALID VALUES ARE 0, 1 OR 2.')
+1460  FORMAT ('0*** NOTE - MAP FUNCTION STATUS INDICATOR WILL BE ',
+     *   'RESET TO ',I2,'.')
+1470  FORMAT ('0*** ERROR - ',I2,' IS AN INVALID MAT STATUS VALUE. ',
+     *   'VALID VALUES ARE 0 OR 1.')
+1480  FORMAT ('0*** NOTE - MAT FUNCTION STATUS INDICATOR WILL BE ',
+     *   'RESET TO ',I2,'.')
+1490  FORMAT (T16,'THE DEFAULT VALUE (',F9.2,') WILL BE USED.')
+1500  FORMAT (T16,'THE DEFAULT VALUE (',I3,') WILL BE USED.')
+1510  FORMAT (T16,'THE DEFAULT VALUE (',A4,') WILL BE USED.')
+1520  FORMAT ('0*** NOTE - UGNL PARAMETERS NOT WRITTEN ',
+     *   'BECAUSE ',I3,' ERRORS ENCOUNTERED.')
+1521  FORMAT ('0*** ERROR - ',A,' ',F7.2,' ',
+     *   'FOR STATION ',A,' ',
+     *   'DOES NOT FALL WITHIN THE SPECIFIED LIMITS (',
+     *   F6.2,' TO ',F6.2,').')
+1522  FORMAT ('0*** ERROR - ELEVATION ',F9.2,' ',
+     *   'FOR STATION ',A,' ',
+     *   'DOES NOT FALL WITHIN THE SPECIFIED LIMITS (',
+     *   F8.2,' TO ',F8.2,').')
+1523  FORMAT ('0*** ERROR - IN SFUGNL - LENGTH OF APPS_DEFAULT ',
+     *   'ENVIRONMENT VARIABLE ',A,' (',I2,') ',
+     *   'EXCEEDS MAXIMUM (',I2,').')
+1524  FORMAT ('0*** ERROR - IN SFUGNL - CANNOT GET APPS_DEFAULT ',
+     *   'VALUE FOR ENVIRONMENT VARIABLE ',A,'.')
+1525  FORMAT ('0*** ERROR - FILE ',A,' NOT FOUND.')
+1526  FORMAT ('0*** ERROR - IN SFUGNL - READING RECORD ',I2,' ',
+     *   'FROM FILE ',A,'.') 
+1527  FORMAT ('0*** ERROR - IN SFUGNL - ',A,' FILE ',A,'. ',
+     *   'IOSTAT=',I2,'.') 
+1528  FORMAT ('0*** ERROR - SPECIFIED ',A,' (',I4,') ',
+     *   'DOES NOT EQUAL THAT FOUND IN THE GEO DATA FILE (',I4,').')       
+1529  FORMAT ('0*** ERROR - ONE OR MORE OF THE SPECIFIED HRAP ',
+     *   'SUBSET VALUES DOES NOT MATCH THAT FOUND IN GEO DATA FILE:' /
+     *   12X,A)
+1531  FORMAT ('0*** ERROR - IN SFUGNL - LENGTH OF VARIABLE ',A,' ',
+     *   '(',I3,') TOO SMALL.')
+1532  FORMAT ('0*** ERROR - IN SFUGNL - CONVERTING THE CONTENTS ',
+     *   'OF VARIABLE ',A,' (',A,') TO AN INTEGER VALUE.')
+1530  FORMAT ('0*** ERROR - ONE OR MORE MDR SUBSET PARAMETERS NOT ',
+     *   'DEFINED. ',I2,' WERE FOUND. ',I2,' WERE EXPECTED.')
+1540  FORMAT ('0*** WARNING - CONTENTS OF FIELD ',I2,' IS NOT A ',
+     *   'KEYWORD : ',A)
+1550  FORMAT ('0*** WARNING - MDR SUBSET CANNOT BE DEFINED ',
+     *   'BECAUSE MDR DATA TYPE IS NOT DEFINED IN THE ',
+     *   'PREPROCESSOR DATA BASE.')
+1560  FORMAT ('0*** ERROR - NUMBER OF MDR STORAGE LOCATIONS NEEDED (',
+     *   I5,') IN THE PPDB TO HOLD SPECIFIED MDR SUBSET IS GREATER ' /
+     *   T14,'THAN THE SPACE ALLOCATED (',I5,').')
+1565  FORMAT ('0*** ERROR - READING ',A,' PARAMETERS. ',
+     *   'STATUS CODE = ',I2)
+1570  FORMAT ('0*** ERROR - CONVERTING PARAMETERS. UDUCNV STATUS ',
+     *   'CODE=',I2)
+1580  FORMAT ('0*** NOTE - NO PARAMETER VALUES SPECIFIED.')
+1583  FORMAT ('0*** NOTE - NETWORK RELATED PARAMETER ',A,' ',
+     *   'WAS CHANGED FROM ',F5.2,' TO ',F5.2,'.')
+1587  FORMAT ('0*** NOTE - NETWORK RELATED PARAMETER ',A,' ',
+     *   'WAS CHANGED FROM ',A,' TO ',A,'.')
+1585  FORMAT ('0*** NOTE - NTWK PARAMETERS NOT SUCCESSFULLY READ. ')
+1589  FORMAT ('0*** NOTE - ONE OR MORE NETWORK RELATED PARAMETERS ',
+     *   'HAVE BEEN CHANGED. ',
+     *   'OPTION SET TO RUN NETWORK COMMAND.')
+1590  FORMAT (' *** EXIT SFUGNL')
+C
+      END

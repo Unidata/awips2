@@ -1,0 +1,20 @@
+9
+**************************************
+9
+**************************************
+21:11:12: RiverMonitor Started
+9
+**************************************
+21:11:12: RiverMonitorDataManager.readValidHeightAndDischargePE():  Where Clause:where pe like 'H%' or pe like 'Q%'
+9
+**************************************
+21:11:12: OfficeNotesDataManager.readDataFromOfficeNotes():  Where Clause:order by topic, id, postingtime
+9
+**************************************
+21:11:12: Derived columns file doesnt exist :[/awips/hydroapps/whfs/local/data/app/rivermon/DerivedColumns.txt]
+9
+**************************************
+21:11:12: Derived columns file doesnt exist :[/awips/hydroapps/whfs/local/data/app/rivermon/DerivedColumns.txt]
+9
+**************************************
+21:11:12: RiverMonitorSettings.startRiverMonitor(): Trying to load from file :/awips/hydroapps/whfs/local/data/app/rivermon/DefaultRiverMonitorSettings.txt

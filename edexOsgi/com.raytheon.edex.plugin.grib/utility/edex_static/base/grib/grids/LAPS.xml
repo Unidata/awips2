@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<polarStereoGridCoverage>
+	<name>400</name>
+	<description>LAPS Grid</description>
+        <firstGridPointCorner>LowerLeft</firstGridPointCorner>
+        <minorAxis>6367470.0</minorAxis>
+        <majorAxis>6367470.0</majorAxis>
+	<nx>125</nx>
+	<ny>125</ny>
+	<la1>39.432804</la1>
+	<lo1>-75.739328</lo1>
+	<lov>-72.208576</lov>
+	<lad>42.274424</lad>
+	<dx>5</dx>
+	<dy>5</dy>
+	<spacingUnit>km</spacingUnit>
+</polarStereoGridCoverage>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.1"?>
+<plugin>
+   <extension
+         id="chatroomrobot"
+         name="chatroomrobot"
+         point="org.eclipse.core.runtime.applications">
+      <application>
+         <run class="org.eclipse.ecf.example.clients.applications.ChatRoomRobotApplication"/>
+      </application>
+   </extension>
+   <extension
+         id="chatsorobot"
+         name="chatsorobot"
+         point="org.eclipse.core.runtime.applications">
+      <application>
+         <run class="org.eclipse.ecf.example.clients.applications.ChatSORobotApplication"/>
+      </application>
+   </extension>
+   <extension
+         id="chatrobot"
+         name="chatrobot"
+         point="org.eclipse.core.runtime.applications">
+      <application>
+         <run class="org.eclipse.ecf.example.clients.applications.ChatRobotApplication">
+         </run>
+      </application>
+   </extension>
+</plugin>

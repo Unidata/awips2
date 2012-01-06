@@ -1,0 +1,172 @@
+#!/bin/bash
+
+import_file=${1}
+log_msg The import_file is: $import_file
+FILESIZE=$(stat -c%s "$import_file")
+log_msg "File Size is: $FILESIZE bytes."
+if [ -a ${import_file} ]
+then
+	log_msg Unpacking configuration data.
+    if [ -d ${SVCBU_HOME} ]
+    then
+		cd ${SVCBU_HOME}
+        echo ${SVCBU_HOME}/* | xargs rm -rf	
+    else
+		mkdir -m 777 ${SVCBU_HOME}
+    fi
+    
+    # Determine the 3 letter failed site id
+    log_msg Service Backup location: ${SVCBU_HOME}
+    cd ${SVCBU_HOME}
+    tar xvf ${import_file} siteID.txt
+    if [ $? -eq 0 ] && [ -a ${SVCBU_HOME}/siteID.txt ]; 
+    then
+		log_msg "Using the siteID.txt method"
+		# siteID.txt file exists.
+		SITE=`cat siteID.txt`
+		rm -f ${SVCBU_HOME}/siteID.txt
+    else
+		log_msg "Using the old tar/cut method"
+		tar -tf ${import_file} | while read line
+		do
+	    	SITE=`echo $line | cut -d. -f2`
+	    	break
+		done
+    fi
+    log_msg Recieved configuration data is from $SITE
+    SITE_CAPS=`echo ${SITE}|tr [a-z] [A-Z]`
+    
+
+    #
+    #determine local site id
+    #
+    my_site=$(cat $SCRIPTS_DIR/siteID.txt)
+    my_site_caps=`echo ${my_site}|tr [a-z] [A-Z]`
+    log_msg My site is: $my_site
+    # Determine which host service backup was run from
+    # if my_site is the same as the failed site, stop
+    if [ "$my_site" = "$SITE" ]
+    then
+    	log_msg You cannot import configuration data for your own site.
+		rm -f ${LOCK_DIR}/importConfiguration
+		touch ${LOCK_DIR}/svcbuerr
+    	log_msg 100
+		exit 1
+    fi
+  
+    # Retrieve the file from the MHS x400 directory
+    log_msg Moving ${import_file} to ${SVCBU_HOME}/svc_bkup_${SITE}.tar
+    mv -f ${import_file} ${SVCBU_HOME}/svc_bkup_${SITE}.tar
+
+    # Update owner and permissions from root to ifps
+    #chown awips:awips ${SVCBU_HOME}/svc_bkup_${SITE}.tar
+    chmod 777 ${SVCBU_HOME}/svc_bkup_${SITE}.tar
+ 
+# File was not found so EXIT
+else
+    log_msg "Unable to locate ${import_file}. Service backup exits now"
+    rm -f ${LOCK_DIR}/importConfiguration
+    touch ${LOCK_DIR}/svcbuerr
+    log_msg 100
+    exit 1
+fi
+
+
+log_msg 50
+log_msg "Extracting files..."
+tar -xvf svc_bkup_${SITE}.tar
+gunzip -c GFEconfig.${SITE}.tar.gz | tar xf -
+if [ $? -ne 0 ]; then
+    log_msg -e "\nERROR: Could not explode GFEconfig.${SITE_CAPS}.tar.gz..."
+    rm -f ${LOCK_DIR}/importConfiguration
+    touch ${LOCK_DIR}/svcbuerr
+    log_msg 100
+    exit 1
+fi
+
+log_msg "Checking format of received configuration data..."
+if [ -d GFEconfig ]; then
+	log_msg "AWIPS II configuration received.  OK to proceed!"
+else
+	log_msg "Incorrectly formatted configuration received.  Cannot continue!"
+	rm -f ${LOCK_DIR}/importConfiguration
+	touch ${LOCK_DIR}/svcbuerr
+    log_msg 100
+    exit 1
+fi
+
+log_msg "Copying files into position..."
+
+log_msg "Checking if localization directories exist for ${SITE_CAPS}"
+edex_site_dest=${LOCALIZATION_PATH}/edex_static/site/${SITE_CAPS}/config
+common_site_dest=${LOCALIZATION_PATH}/common_static/site/${SITE_CAPS}
+cave_site_dest=${LOCALIZATION_PATH}/cave_static/site/${SITE_CAPS}
+
+if [ -d ${edex_site_dest} ]; then
+	log_msg "edex_static site directory exists for ${SITE_CAPS}"
+else
+	log_msg "Creating edex_static site directory for ${SITE_CAPS}" 
+	mkdir -p ${edex_site_dest}
+fi
+log_msg 53
+if [ -d ${common_site_dest} ]; then
+	log_msg "common_static site directory exists for ${SITE_CAPS}"
+else
+	log_msg "Creating common_static site directory for ${SITE_CAPS}"
+	mkdir -p ${common_site_dest}
+fi
+log_msg 56
+if [ -d ${cave_site_dest} ]; then
+	log_msg "cave_static site directory exists for ${SITE_CAPS}"
+else
+	log_msg "Creating cave_static site directory for ${SITE_CAPS}"
+	mkdir -p ${cave_site_dest}
+fi
+
+log_msg "${SITE_CAPS}'s localization directories have been verified"
+log_msg 60
+cp -r GFEconfig/common_static/site/gfe ${common_site_dest}
+log_msg 70
+cp -r GFEconfig/edex_static/site/gfe ${edex_site_dest}
+log_msg 80
+cp -r GFEconfig/cave_static/site/gfe ${cave_site_dest}
+log_msg 90
+log_msg "Files successfully copied!"
+
+log_msg "Changing ownership of received configuration"
+if [ $USER = "root" ]
+then 
+	chown -R awips:fxalpha ${LOCALIZATION_PATH}/edex_static/site/${SITE_CAPS}
+	chown -R awips:fxalpha ${LOCALIZATION_PATH}/common_static/site/${SITE_CAPS}
+	chown -R awips:fxalpha ${LOCALIZATION_PATH}/cave_static/site/${SITE_CAPS}
+elif [ $USER = "awips" ]
+then
+	log_msg "Files already owned by awips"
+else
+	log_msg "Script must be run as user root or awips"
+fi
+
+ 
+log_msg 95
+
+#Change the MHS ID of the received configuration
+backup_config=${LOCALIZATION_PATH}/edex_static/site/${my_site_caps}/config/gfe/siteConfig.py
+failed_config=${LOCALIZATION_PATH}/edex_static/site/${SITE_CAPS}/config/gfe/siteConfig.py
+
+sed -i "s/  / /" $failed_config
+sed -i "s/   / /" $failed_config
+BACKUP_MHSID=$(egrep "GFESUITE_MHSID" ${backup_config})
+FAILED_MHSID=$(egrep "GFESUITE_MHSID" ${failed_config})
+BACKUP_SERVER=$(egrep "GFESUITE_SERVER" ${backup_config})
+FAILED_SERVER=$(egrep "GFESUITE_SERVER" ${failed_config})
+sed -i "s/$FAILED_SERVER/$BACKUP_SERVER/" ${failed_config}
+sed -i "s/$FAILED_MHSID/$BACKUP_MHSID/" ${failed_config}
+sed -i "s/98000000/$SVCBU_FAILED_SITE_PORT/" ${failed_config}
+
+cd ${SVCBU_HOME}
+rm -rf *
+
+rm -f ${LOCK_DIR}/importConfiguration
+log_msg 100
+touch ${LOCK_DIR}/${SITE}svcbuMode
+log_msg "Configuration Import Complete!"

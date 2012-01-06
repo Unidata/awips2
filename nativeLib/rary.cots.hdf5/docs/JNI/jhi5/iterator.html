@@ -1,0 +1,86 @@
+<?php
+include ("../../../links.php"); 
+include ("../../../includes/header.html"); 
+?>
+
+
+<fieldset><h1>Navigating HDF-5 Groups with the Iterator</h1></fieldset>
+
+<p>The HDF-5 C API provides the H5GIterate function, which requires a the
+calling program to pass a C function to be called for each member of the
+group. For languages other than C, two utilities have been
+provided which "wrap" this function, providing a simple generic enumeration
+of an HDF 5 group. The Java HDF-5 Interface provides these utilities.
+<p><strong>The two C functions are:</strong>
+<pre> <b>int H5Gn_members( hid_t locid, char *name )</b></pre>
+ where,
+<blockquote>
+<blockquote><i>locid:</i> (IN) the id of the file or parent group
+<br><i>name:</i> (IN) the name of the group</blockquote>
+
+<p>This function returns the number of objects in the group, as would
+be found by <b><i>H5Ginterate()</i></b>. This includes all the hard
+and soft links. In the case where an object has more than one link
+to it in the same group (essentially, the object has more than one name),
+both links (names) will be counted.</blockquote>
+and
+<pre> <b>herr_t H5Gget_obj_info_idx( hid_t locid, char * group_name, int idx,
+ char **obj_name, int *obj_type);</b></pre>
+
+<blockquote>where,</blockquote>
+
+<blockquote>
+<blockquote><i>locid:</i> (IN) the id of the file or parent group
+<br><i>group_name:</i> (IN) the name of the group
+<br><i>idx</i>: (IN) the index of the object to be read
+<br><i>obj_name</i>: (OUT) the name of the object at index <i>idx</i>
+<br><i>obj_type</i>: (OUT) the HDF-5 type of the object at index
+<i>idx</i>.</blockquote>
+
+<p><br>This function returns the name and type of member number '<i>idx</i>'
+from the group '<i>group_name</i>'. The function <b><i>H5Gn_members</i></b>
+returns the number of elements, which are numbered from <i>0</i> to <i>(n_members
+- 1)</i></blockquote>
+<b>Usage</b>
+<p>These functions are intended to allow a program discover the number
+of members, and then inter ate though them one at a time. The following
+program illustrates the use of these functions in a Java program.
+<blockquote>
+<pre><b>int pid; // the hid_t of the parent of the group to be examined
+String group; // the group to be examined
+...
+int [] oType = new int[1]; // the returned type
+String [] oName = new String[1];
+oName[0] = new String(""); // the returned name</b></pre>
+
+<pre><b>int nelems = 0;</b></pre>
+
+<pre><b>try {
+ nelems = H5.H5Gn_members( pid, group);
+} catch ( HDF5Exception ex) {
+ System.out.println("H5Gn_members: failed, exception: "+ex);
+ exit(1);
+}</b></pre>
+
+<pre><b>// print out all the members
+for (int i = 0; i &lt; nelems; i++) {
+ try {
+ H5.H5Gget_obj_info_idx( pid, group, i, oName, oType);
+ } catch ( HDF5Exception ex) {
+ System.out.println("H5Gget_obj_info_idx: failed, exception: "+ex);
+ exit(1);
+ }</b></pre>
+</blockquote>
+
+<blockquote>
+<pre><b> System.out.println(i+": "+oName+", type: "+oType);
+ // ...open the object and work with it...
+}</b></pre>
+</blockquote>
+
+<?php
+include ("../../../includes/footer.html"); 
+?>
+
+
+

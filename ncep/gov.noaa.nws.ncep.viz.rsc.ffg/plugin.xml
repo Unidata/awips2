@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="com.raytheon.uf.viz.core.resource">
+      <resource
+            class="gov.noaa.nws.ncep.viz.rsc.ffg.rsc.FFGResource"
+            name="FFG"
+            recordClass="gov.noaa.nws.ncep.edex.plugin.ffg.common.FfgRecord"
+            renderingOrderId="PLOT"
+            resourceType="PLAN_VIEW"/>
+   </extension>
+   <extension
+         point="com.raytheon.uf.viz.core.scriptTemplate">
+      <scriptTemplate
+            pluginName="ffg"
+            scriptLibrary="BaseRequest">
+      </scriptTemplate>
+   </extension>
+   <extension
+         point="gov.noaa.nws.ncep.viz.resources.NC-Resource">
+      <nc-resource
+            class="gov.noaa.nws.ncep.viz.rsc.ffg.rsc.FFGResourceData"
+            editDialogClass="gov.noaa.nws.ncep.viz.rsc.ffg.rsc.EditFFGAttrsDialog"
+            name="FFG">
+      </nc-resource>
+   </extension>
+   <extension
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceAttribute">
+      <nc-resourceAttribute
+            attributeClass="Boolean"
+            attributeName="displayValues"
+            defaultValue="false"
+            ncResourceName="FFG">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="symbolName"
+            defaultValue="ASTERISK"
+            ncResourceName="FFG">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="ColorBar"
+            attributeName="colorBar"
+            ncResourceName="FFG">
+      </nc-resourceAttribute>
+   </extension>
+   <extension
+         point="gov.noaa.nws.ncep.viz.localization.localizationData">
+      <singleLocalizationValue
+            name="countyZonesFile"
+            location="stns"
+            fileName="ffgZones.xml">
+      </singleLocalizationValue>
+   </extension>
+
+</plugin>

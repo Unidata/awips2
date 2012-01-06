@@ -1,0 +1,52 @@
+#/****************************************************************************
+# * NCSA HDF                                                                 *
+# * National Comptational Science Alliance                                   *
+# * University of Illinois at Urbana-Champaign                               *
+# * 605 E. Springfield, Champaign IL 61820                                   *
+# *                                                                          *
+# * For conditions of distribution and use, see the accompanying             *
+# * java-hdf5/COPYING file.                                                  *
+# *                                                                          *
+# ****************************************************************************/
+
+CC = @CC@ @COPTNOSHARE@
+HDF5INC = @HDF5INC@
+HDF5LIB = @HDF5LIB@
+RM = @RM@
+AWK = @AWK@
+
+COPT=@COPT@
+
+CFLAGS = -I. -I$(HDF5INC)
+
+LIBS =  $(HDF5LIB)/libhdf5.a -lm -lz
+
+all: clean list-constants
+
+list-constants: mkconst
+	mkconst > H5Const.jjj
+
+mkconst: mkconst.o
+	$(CC) $(CFLAGS) -o mkconst mkconst.o $(LIBS)
+
+mkconst.o: mkconst.c
+
+mkconst.c:
+	$(AWK) -f scr H5Constants-needed > mkconst.c
+
+clean:
+	$(RM) -f mkconst mkconst.o mkconst.c H5Const.jjj *.class
+
+
+JAVAC           = @JAVAC@
+
+CLASSPATH=@CLASSPATH@                                                         
+
+.SUFFIXES: .java .class
+
+.java.class:
+	$(JAVAC) -classpath $(CLASSPATH) $<
+
+TestHDF5Link: TestHDF5Link.class
+	chmod u+x testlink
+

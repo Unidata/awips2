@@ -1,0 +1,26 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="bufruaPluginName" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="bufrua" />
+    </bean>
+
+	<bean id="bufruaProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+		<property name="pluginName" ref="bufruaPluginName" />
+		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.bufrua" />
+		<property name="dao" value="com.raytheon.edex.plugin.bufrua.dao.BufrUADao" />
+		<property name="record" value="com.raytheon.uf.common.dataplugin.bufrua.UAObs" />
+		<property name="initialRetentionTime" value="96" />
+	</bean>
+	
+	<bean id="bufruaRegistered" factory-bean="pluginRegistry" factory-method="register">
+		<constructor-arg ref="bufruaPluginName"/>
+		<constructor-arg ref="bufruaProperties"/>
+	</bean>
+   
+</beans>

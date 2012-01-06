@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Httpclient Plug-in
+Bundle-SymbolicName: org.apache.http
+Bundle-Version: 4.1.2
+Bundle-ClassPath: httpclient-4.1.2.jar,
+ httpclient-cache-4.1.2.jar,
+ httpcore-4.1.2.jar,
+ httpmime-4.1.2.jar
+Require-Bundle: org.apache.commons.codec, 
+ org.apache.commons.logging
+Bundle-Vendor: Raytheon-bundled OSS
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: org.apache.http,
+ org.apache.http.client,
+ org.apache.http.client.cache,
+ org.apache.http.client.entity,
+ org.apache.http.client.methods,
+ org.apache.http.conn,
+ org.apache.http.entity,
+ org.apache.http.impl.client,
+ org.apache.http.impl.conn.tsccm,
+ org.apache.http.params,
+ org.apache.http.protocol,
+ org.apache.http.util

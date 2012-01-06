@@ -1,0 +1,8 @@
+hupsyslog.o: ../config/ldmconfig.h
+hupsyslog.o: hupsyslog.c
+ulog.o: ../config/ldmconfig.h
+ulog.o: ulog.c
+ulog.o: ulog.h
+ulogger.o: ../config/ldmconfig.h
+ulogger.o: ulog.h
+ulogger.o: ulogger.c

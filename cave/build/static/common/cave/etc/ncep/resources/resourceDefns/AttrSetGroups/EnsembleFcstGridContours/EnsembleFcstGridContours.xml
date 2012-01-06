@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AttrSetGroupList xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <AttrSetGroup>
+        <resource>GFS_ENS</resource>
+        <attrSetGroupName>standard</attrSetGroupName>
+        <attrSetNames>500mb_avg_hght,500mb_avg_tmpc</attrSetNames>
+    </AttrSetGroup>
+    <AttrSetGroup>
+        <resource>NAM_00</resource>
+        <attrSetGroupName>standard</attrSetGroupName>
+        <attrSetNames>500mb_avg_hght,500mb_avg_tmpc</attrSetNames>
+    </AttrSetGroup>
+</AttrSetGroupList>

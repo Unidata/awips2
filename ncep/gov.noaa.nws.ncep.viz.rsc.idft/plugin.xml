@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+   <extension
+  		point="com.raytheon.uf.viz.core.resource">
+      <resource
+            class="gov.noaa.nws.ncep.viz.rsc.idft.rsc.IDFTResource"
+            name="IDFT"
+            recordClass="gov.noaa.nws.ncep.edex.plugin.idft.common.IdftRecord"
+            renderingOrderId="PLOT"
+            resourceType="PLAN_VIEW"/>
+   </extension>
+   <extension
+         point="com.raytheon.uf.viz.core.scriptTemplate">
+      <scriptTemplate
+            pluginName="idft"
+            scriptLibrary="BaseRequest">
+      </scriptTemplate>
+   </extension>
+   <extension
+         point="gov.noaa.nws.ncep.viz.resources.NC-Resource">
+      <nc-resource
+            class="gov.noaa.nws.ncep.viz.rsc.idft.rsc.IDFTResourceData"
+            editDialogClass="gov.noaa.nws.ncep.viz.rsc.idft.rsc.EditIDFTAttrsDialog"
+            name="IDFT">
+      </nc-resource>
+   </extension> 
+   <extension
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceAttribute">
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="symbolName"
+            defaultValue="ASTERISK"
+            ncResourceName="IDFT">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="RGB"
+            attributeName="distanceColor"
+            defaultValue="RGB {255,215,0}"
+            ncResourceName="IDFT">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="Double"
+            attributeName="pointSize"
+            defaultValue="2.0"
+            ncResourceName="IDFT">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="RGB"
+            attributeName="pointColor"
+            defaultValue="RGB {255,0,0}"
+            ncResourceName="IDFT">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="RGB"
+            attributeName="arrowColor"
+            defaultValue="RGB {255,215,0}"
+            ncResourceName="IDFT">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="Double"
+            attributeName="arrowLength"
+            defaultValue="1.25"
+            ncResourceName="IDFT">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="Double"
+            attributeName="arrowLineWidth"
+            defaultValue="1.25"
+            ncResourceName="IDFT">
+      </nc-resourceAttribute>
+   </extension>
+
+</plugin>

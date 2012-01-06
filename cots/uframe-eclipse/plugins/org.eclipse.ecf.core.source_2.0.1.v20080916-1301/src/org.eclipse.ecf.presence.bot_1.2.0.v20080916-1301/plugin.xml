@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension-point id="chatRoomRobot" name="Chat Room Robot" schema="schema/chatRoomRobot.exsd"/>
+   <extension-point id="chatRoomMessageHandler" name="Chat Room Message Handler" schema="schema/chatRoomMessageHandler.exsd"/>
+   <extension-point id="imRobot" name="IM Robot" schema="schema/imRobot.exsd"/>
+   <extension-point id="imMessageHandler" name="IM Message Handler" schema="schema/imMessageHandler.exsd"/>
+   <extension
+         id="chatRoomRobot"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="singleton-global"
+            thread="main"
+            visible="true">
+         <run
+               class="org.eclipse.ecf.presence.bot.application.ChatRoomBotApplication">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="imRobot"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="singleton-global"
+            thread="main"
+            visible="true">
+         <run
+               class="org.eclipse.ecf.presence.bot.application.IMBotApplication">
+         </run>
+      </application>
+   </extension>
+<!--
+   <extension
+         point="org.eclipse.ecf.presence.bot.imRobot">
+      <imRobot
+            connectId="fliwatuet@ecf.eclipse.org"
+            connectPassword="fliwatuet"
+            containerFactoryName="ecf.xmpp.smack"
+            id="org.eclipse.ecf.presence.bot.ralph"
+            name="Fliwatuet">
+      </imRobot>
+   </extension>
+   <extension
+         point="org.eclipse.ecf.presence.bot.imMessageHandler">
+      <handler
+            class="org.eclipse.ecf.presence.bot.impl.EmptyIMMessageHandler"
+            imRobotId="org.eclipse.ecf.presence.bot.ralph">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ecf.presence.bot.chatRoomRobot">
+      <chatRoomRobot
+            chatRoom="#eclipse-ecf"
+            connectId="irc://slewis2_@irc.freenode.net"
+            containerFactoryName="ecf.irc.irclib"
+            id="org.eclipse.ecf.presence.bot.steve"
+            name="steve">
+      </chatRoomRobot>
+   </extension>
+   <extension
+         point="org.eclipse.ecf.presence.bot.chatRoomMessageHandler">
+      <handler
+            chatRoomRobotId="org.eclipse.ecf.presence.bot.steve"
+            class="org.eclipse.ecf.presence.bot.impl.EmptyChatRoomMessageHandler">
+      </handler>
+   </extension>
+-->
+</plugin>

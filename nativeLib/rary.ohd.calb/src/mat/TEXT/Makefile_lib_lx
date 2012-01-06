@@ -1,0 +1,50 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the calb-mat library file
+#
+#  cmt: File made on Thu Oct 26 14:47:43 EDT 2006 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob81/ohd/calb/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob81/ohd/calb/inc  \
+               -I/fs/hseb/ob81/ohd/ofs/inc  \
+               -I/fs/hseb/ob81/ohd/util/inc  \
+               -I/fs/hseb/ob81/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libmat_t.a:  \
+     $(LIB)/libmat_t.a(consum.o)  \
+     $(LIB)/libmat_t.a(matcon.o)  \
+     $(LIB)/libmat_t.a(matmn.o)  \
+     $(LIB)/libmat_t.a(mtdati.o)  \
+     $(LIB)/libmat_t.a(mtdatr.o)  \
+     $(LIB)/libmat_t.a(mtestd.o)  \
+     $(LIB)/libmat_t.a(mtestm.o)  \
+     $(LIB)/libmat_t.a(mtmain.o)  \
+     $(LIB)/libmat_t.a(mtopt.o)  \
+     $(LIB)/libmat_t.a(mtrdcd.o)  \
+     $(LIB)/libmat_t.a(mttime.o)  \
+     $(LIB)/libmat_t.a(sxhrtm.o)  \
+     $(LIB)/libmat_t.a(tempck.o)  \
+     $(LIB)/libmat_t.a(tpcor.o)  \
+     $(LIB)/libmat_t.a(uprimo_mat.o)
+

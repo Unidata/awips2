@@ -1,0 +1,35 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+   <bean id="satPreFilter" class="com.raytheon.uf.edex.ohd.pproc.SatPreURIFilter">
+   </bean>   
+       
+    <camelContext id="satPreFilter-context"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler"
+        autoStartup="false">
+        <route id="satPreIngestRoute">
+            <from uri="jms-generic:topic:edex.alerts"/>
+	        <doTry>
+		          <pipeline>
+		          	<bean ref="serializationUtil" method="transformFromThrift" />
+		            <bean ref="satPreFilter" method="matchURI"/>
+		            <!-- <to uri="directvm:persistIndexAlert"/> -->
+		          </pipeline>
+		          <doCatch>
+		             <exception>java.lang.Throwable</exception>
+		             <to uri="log:satPre?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+		          </doCatch>
+	        </doTry>
+        </route>
+	</camelContext>
+	<bean factory-bean="clusteredCamelContextMgr"
+		factory-method="register">
+		<constructor-arg ref="satPreFilter-context" />
+  	</bean>
+</beans>

@@ -1,0 +1,10 @@
+/*
+<gluegen_config>
+	Package com.raytheon.edex.meteolibrary
+	Style AllStatic
+	JavaClass Meteolibrary
+	CustomCCode #include "meteoLib.h"
+</gluegen_config>
+*/
+
+#include "meteoLib.h"

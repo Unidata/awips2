@@ -1,0 +1,2 @@
+In this case, however, the statistic is a single value, so the "getValue" method creates a tuple and returns a minMax where the min==max.  Now the wordMethod can work with a range.  The "getValue" method can be "Min", "Max", "Average", "MinMax", or "Sum".
+

@@ -1,0 +1,10 @@
+**************************************************
+* AWIPS II EDEX ESB Platform                     *
+* Version: SOTE 11.8                             *
+* Raytheon Company                               *
+*------------------------------------------------*
+* Build Date  : MM-DD-YYYY                       *
+* Build Time  : HH:MM:SS.SSS ZZZ                 *
+* Build System: BUILD.SYSTEMXXXXXXXXXXXXXXXXXXXXX*
+**************************************************
+

@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Locator Plug-in
+Bundle-SymbolicName: gov.noaa.nws.ncep.viz.ui.locator;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: gov.noaa.nws.ncep.viz.ui.locator.Activator
+Eclipse-BuddyPolicy: ext, registered, global
+Eclipse-RegisterBuddy: org.apache.velocity, com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.uf.common.status, com.raytheon.viz.ui, com.raytheon.viz.core, com.raytheon.uf.viz.core, com.raytheon.uf.common.serialization, gov.noaa.nws.ncep.viz.resources
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ com.raytheon.viz.core,
+ com.raytheon.viz.ui,
+ org.apache.commons.lang,
+ gov.noaa.nws.ncep.viz.common,
+ org.geotools;bundle-version="2.5.2",
+ gov.noaa.nws.ncep.viz.localization;bundle-version="1.0.0",
+ org.junit;bundle-version="1.0.0",
+ gov.noaa.nws.ncep.viz.resources
+Eclipse-LazyStart: true
+Export-Package: gov.noaa.nws.ncep.viz.ui.locator,
+ gov.noaa.nws.ncep.viz.ui.locator.resource,
+ gov.noaa.nws.ncep.viz.ui.locator.util
+Import-Package: gov.noaa.nws.ncep.viz.resources,
+ gov.noaa.nws.ncep.viz.ui.display

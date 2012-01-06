@@ -1,0 +1,8 @@
+#change to the program directory
+dir=${0%/*}
+if [ "$dir" = "$0" ]; then
+  dir="."
+fi
+cd "$dir"
+
+./activemq xbean:file:../conf/activemq.xml

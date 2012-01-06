@@ -1,0 +1,20 @@
+#!/bin/bash
+
+if [ ${#AWIPS_HOME} = 0 ]
+then
+        path_to_script=`readlink -f $0`
+		export AWIPS_HOME=$(dirname $(dirname $(dirname $(dirname  $path_to_script))))
+fi
+
+. ${AWIPS_HOME}/GFESuite/ServiceBackup/configuration/svcbu.env
+
+function is_number() {
+    printf "%d" $@ > /dev/null 2>&1
+    return $?
+}
+
+log_msg_python $@
+
+if ! is_number $@; then
+	echo "$@"
+fi

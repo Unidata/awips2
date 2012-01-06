@@ -1,0 +1,129 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-fcst_mods library file
+#
+#  cmt: File made on Wed Aug  6 12:50:41 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU -DUSE_XM_MWMUTIL_H -DUSE_XGPM -Wall -Wno-unused-variable -Wno-comment
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+INSERTS_CC   = -I/usr/include/informix/esql/  \
+               -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .c .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+.c.a:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libfcst_mods_t.a:  \
+     $(LIB)/libfcst_mods_t.a(funsrc.o)  \
+     $(LIB)/libfcst_mods_t.a(ifgnor.o)  \
+     $(LIB)/libfcst_mods_t.a(maeicq.o)  \
+     $(LIB)/libfcst_mods_t.a(maescc.o)  \
+     $(LIB)/libfcst_mods_t.a(maiadj.o)  \
+     $(LIB)/libfcst_mods_t.a(mapicb.o)  \
+     $(LIB)/libfcst_mods_t.a(mapicc.o)  \
+     $(LIB)/libfcst_mods_t.a(mapicq.o)  \
+     $(LIB)/libfcst_mods_t.a(matchn.o)  \
+     $(LIB)/libfcst_mods_t.a(mbasef.o)  \
+     $(LIB)/libfcst_mods_t.a(mbfrat.o)  \
+     $(LIB)/libfcst_mods_t.a(mbfrch.o)  \
+     $(LIB)/libfcst_mods_t.a(mbfrcp.o)  \
+     $(LIB)/libfcst_mods_t.a(mbshft.o)  \
+     $(LIB)/libfcst_mods_t.a(mcbase.o)  \
+     $(LIB)/libfcst_mods_t.a(mcbfra.o)  \
+     $(LIB)/libfcst_mods_t.a(mcblnd.o)  \
+     $(LIB)/libfcst_mods_t.a(mchkts.o)  \
+     $(LIB)/libfcst_mods_t.a(mcmdna.o)  \
+     $(LIB)/libfcst_mods_t.a(mcomnd.o)  \
+     $(LIB)/libfcst_mods_t.a(mcshft.o)  \
+     $(LIB)/libfcst_mods_t.a(mdcdat.o)  \
+     $(LIB)/libfcst_mods_t.a(mdterr.o)  \
+     $(LIB)/libfcst_mods_t.a(mf27cb.o)  \
+     $(LIB)/libfcst_mods_t.a(mfcmnd.o)  \
+     $(LIB)/libfcst_mods_t.a(mifcmd.o)  \
+     $(LIB)/libfcst_mods_t.a(mignor.o)  \
+     $(LIB)/libfcst_mods_t.a(miscmd.o)  \
+     $(LIB)/libfcst_mods_t.a(mistdt.o)  \
+     $(LIB)/libfcst_mods_t.a(mldrro.o)  \
+     $(LIB)/libfcst_mods_t.a(mlocch.o)  \
+     $(LIB)/libfcst_mods_t.a(mmfc.o)  \
+     $(LIB)/libfcst_mods_t.a(mods1.o)  \
+     $(LIB)/libfcst_mods_t.a(mods.o)  \
+     $(LIB)/libfcst_mods_t.a(morder.o)  \
+     $(LIB)/libfcst_mods_t.a(mpshft.o)  \
+     $(LIB)/libfcst_mods_t.a(mrains.o)  \
+     $(LIB)/libfcst_mods_t.a(mrda2.o)  \
+     $(LIB)/libfcst_mods_t.a(mrda2k.o)  \
+     $(LIB)/libfcst_mods_t.a(mrdtsh.o)  \
+     $(LIB)/libfcst_mods_t.a(mrdval.o)  \
+     $(LIB)/libfcst_mods_t.a(mrochn.o)  \
+     $(LIB)/libfcst_mods_t.a(mromul.o)  \
+     $(LIB)/libfcst_mods_t.a(mrrich.o)  \
+     $(LIB)/libfcst_mods_t.a(mrrimu.o)  \
+     $(LIB)/libfcst_mods_t.a(msacba.o)  \
+     $(LIB)/libfcst_mods_t.a(msacco.o)  \
+     $(LIB)/libfcst_mods_t.a(msetms.o)  \
+     $(LIB)/libfcst_mods_t.a(msetqm.o)  \
+     $(LIB)/libfcst_mods_t.a(mshift.o)  \
+     $(LIB)/libfcst_mods_t.a(mssarr.o)  \
+     $(LIB)/libfcst_mods_t.a(mswtc1.o)  \
+     $(LIB)/libfcst_mods_t.a(mswtch.o)  \
+     $(LIB)/libfcst_mods_t.a(mtsadd.o)  \
+     $(LIB)/libfcst_mods_t.a(mtschn.o)  \
+     $(LIB)/libfcst_mods_t.a(mtsmul.o)  \
+     $(LIB)/libfcst_mods_t.a(mtsrep.o)  \
+     $(LIB)/libfcst_mods_t.a(muadj.o)  \
+     $(LIB)/libfcst_mods_t.a(mucbas.o)  \
+     $(LIB)/libfcst_mods_t.a(mucbfr.o)  \
+     $(LIB)/libfcst_mods_t.a(muhgad.o)  \
+     $(LIB)/libfcst_mods_t.a(muhgcd.o)  \
+     $(LIB)/libfcst_mods_t.a(muhgch.o)  \
+     $(LIB)/libfcst_mods_t.a(mweadd.o)  \
+     $(LIB)/libfcst_mods_t.a(mwechn.o)  \
+     $(LIB)/libfcst_mods_t.a(mweupt.o)  \
+     $(LIB)/libfcst_mods_t.a(mwitch.o)  \
+     $(LIB)/libfcst_mods_t.a(mxinco.o)  \
+     $(LIB)/libfcst_mods_t.a(mzrodf.o)  \
+     $(LIB)/libfcst_mods_t.a(opugaj.o)  \
+     $(LIB)/libfcst_mods_t.a(chkdollarsign.o)  \
+     $(LIB)/libfcst_mods_t.a(parse_load_dhm_mods.o)
+

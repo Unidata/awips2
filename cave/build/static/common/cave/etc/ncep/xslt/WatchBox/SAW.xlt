@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:import href="getIssueTime.xlt"/>
+<xsl:import href="fmtAnchor.xlt"/>
+<xsl:output method = "text"/>
+
+<!--
+        SAW.xlt
+                - generate WatchBOx SAW product 
+
+        Change Log:
+
+        B. Yin/Chugach  03/10   Initial Coding
+-->
+
+<xsl:variable name="newline"><xsl:text>
+ </xsl:text></xsl:variable>
+
+  <xsl:template match="WatchBox">
+	  <xsl:value-of select="$newline"/>
+          <xsl:text>WWUS30 KWNS </xsl:text>
+          <xsl:call-template name="getIssueTime"/>
+
+	  <xsl:value-of select="$newline"/>
+          <xsl:text>SAW</xsl:text>
+          <xsl:value-of select="@watchNumber"/>
+
+	  <xsl:value-of select="$newline"/>
+          <xsl:text>  SPC AWW </xsl:text>
+          <xsl:call-template name="getIssueTime"/>
+
+	  <xsl:value-of select="$newline"/>
+          <xsl:text>WW </xsl:text>
+          <xsl:value-of select="@watchNumber"/>
+          <xsl:text> </xsl:text>
+
+	  <xsl:if test="@issueStatus = 'Test'">
+	  	<xsl:text> TEST </xsl:text>
+	  </xsl:if>
+
+          <xsl:value-of select="@watchType"/>
+          <xsl:text> </xsl:text>
+
+	  <xsl:for-each select="States">
+                <xsl:value-of select="."/>
+                <xsl:text> </xsl:text>
+          </xsl:for-each>
+
+          <xsl:call-template name="getIssueTime"/>
+          <xsl:text>Z</xsl:text>
+          <xsl:text> - </xsl:text>
+
+	  <xsl:value-of select="substring(@expTime,9,2)"/>
+          <xsl:value-of select="substring(@expTime,12,2)"/>
+          <xsl:value-of select="substring(@expTime,15,2)"/>
+          <xsl:text>Z</xsl:text>
+
+	  <xsl:value-of select="$newline"/>
+          <xsl:text>AXIS..</xsl:text>
+          <xsl:value-of select="@halfWidthSm"/>
+          <xsl:text> STATUE MILES</xsl:text>
+
+	<!-- Box shape -->
+	  <xsl:variable name="box"  select="@boxShape"/>
+	  <xsl:choose>
+      	  	<xsl:when test="contains($box, 'ESOL')"> EITH SIDE OF LINE..</xsl:when>
+      	  	<xsl:when test="contains($box, 'NS')"> NORTH AND SOUTH OF LINE..</xsl:when>
+      	  	<xsl:when test="contains($box, 'EW')"> EAST AND WEST OF LINE..</xsl:when>
+	  </xsl:choose>
+
+	  <xsl:value-of select="$newline"/>
+
+	<!-- Anchor point 1-->
+	  <xsl:call-template name="fmtAnchor">
+		<xsl:with-param name="anchor" select="substring-before(@endPointAnc,' -')"/>
+          </xsl:call-template>
+          <xsl:text>/</xsl:text>
+
+	  <xsl:for-each select="AnchorPoints">
+	   	<xsl:if test="position() = 1">
+	  		<xsl:variable name="anc" select="."/>
+	  		<xsl:value-of select='substring($anc,8)'/>
+          		<xsl:text> </xsl:text>
+	  		<xsl:value-of select='substring($anc,5,2)'/>
+		</xsl:if>
+	  </xsl:for-each>
+          <xsl:text>/</xsl:text>
+          <xsl:text> - </xsl:text>
+
+	<!-- Anchor point 2-->
+	  <xsl:call-template name="fmtAnchor">
+		<xsl:with-param name="anchor" select="substring-after(@endPointAnc,'-')"/>
+          </xsl:call-template>
+
+          <xsl:text>/</xsl:text>
+   	  <xsl:for-each select="AnchorPoints">
+                <xsl:if test="position() = 2">
+                        <xsl:variable name="anc" select="."/>
+                        <xsl:value-of select='substring($anc,8)'/>
+                        <xsl:text> </xsl:text>
+                        <xsl:value-of select='substring($anc,5,2)'/>
+                </xsl:if>
+          </xsl:for-each>
+          <xsl:text>/</xsl:text>
+
+	<!-- VOR points -->
+	  <xsl:value-of select="$newline"/>
+          <xsl:text>..AVIATION COORDS..</xsl:text>
+          <xsl:text> </xsl:text>
+          <xsl:value-of select="@halfWidthNm"/>
+          <xsl:text>NM </xsl:text>
+
+	  <xsl:choose>
+      	  	<xsl:when test="contains($box, 'ESOL')">EITH SIDE</xsl:when>
+      	  	<xsl:when test="contains($box, 'NS')">N/S</xsl:when>
+      	  	<xsl:when test="contains($box, 'EW')">E/W</xsl:when>
+	  </xsl:choose>
+
+          <xsl:text> /</xsl:text>
+	  <xsl:call-template name="fmtAnchor">
+		<xsl:with-param name="anchor" select="substring-before(@endPointVor,'-')"/>
+          </xsl:call-template>
+
+          <xsl:text>- </xsl:text>
+	  <xsl:call-template name="fmtAnchor">
+		<xsl:with-param name="anchor" select="substring-after(@endPointVor,'-')"/>
+          </xsl:call-template>
+          <xsl:text>/  </xsl:text>
+
+	  <xsl:value-of select="$newline"/>
+          <xsl:text>HAIL SURFACE AND ALOFT..</xsl:text>
+          <xsl:value-of select="@hailSize"/>
+          <xsl:text> INCHES. WIND GUSTS..</xsl:text>
+          <xsl:value-of select="@gust"/>
+          <xsl:text> KNOTS.</xsl:text>
+
+	  <xsl:value-of select="$newline"/>
+          <xsl:text>MAX TOPS TO </xsl:text>
+          <xsl:value-of select="@top"/>
+          <xsl:text>. MEAN STORM MOTION VECTOR </xsl:text>
+          <xsl:value-of select="@moveDir"/>
+          <xsl:value-of select="@moveSpeed"/>
+          <xsl:text>.</xsl:text>
+
+	<!-- format corner points lat/lon -->
+	  <xsl:value-of select="$newline"/>
+	  <xsl:value-of select="$newline"/>
+          <xsl:text>LAT...LON</xsl:text>
+	  <xsl:for-each select="Point">
+	  	<xsl:variable name="pos"  select="position()"/>
+	   	<xsl:if test="$pos = 2 or $pos = 4 or $pos = 6 or $pos = 8">
+          		<xsl:text> </xsl:text>
+          		<xsl:variable name="lat" select="format-number(@Lat,'##.00')"/>
+          		<xsl:value-of select="substring-before($lat,'.')"/>
+          		<xsl:value-of select="substring-after($lat,'.')"/>
+          		<xsl:text></xsl:text>
+          		<xsl:variable name="lon" select="format-number(@Lon,'##.00')"/>
+          		<xsl:value-of select="substring-before(substring-after($lon,'-'),'.')"/>
+          		<xsl:value-of select="substring-after($lon,'.')"/>
+            	</xsl:if>
+	  </xsl:for-each>
+
+	  <xsl:value-of select="$newline"/>
+	  <xsl:value-of select="$newline"/>
+          <xsl:text>THIS IS AN APPROXIMATION TO THE WATCH AREA.  FOR A</xsl:text>
+	  <xsl:value-of select="$newline"/>
+          <xsl:text>COMPLETE DEPICTION OF THE WATCH SEE WOUS64 KWNS</xsl:text>
+
+	  <xsl:value-of select="$newline"/>
+          <xsl:text>FOR WOU</xsl:text>
+          <xsl:value-of select="@watchNumber"/>
+          <xsl:text>.</xsl:text>
+
+  </xsl:template>
+</xsl:stylesheet>
+  

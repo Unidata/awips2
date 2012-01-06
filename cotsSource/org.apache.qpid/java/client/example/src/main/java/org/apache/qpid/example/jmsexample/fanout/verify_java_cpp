@@ -1,0 +1,13 @@
+# See https://svn.apache.org/repos/asf/incubator/qpid/trunk/qpid/bin/verify
+# The JMS producer doesn't create qeueues so utilising the c++ declare_queues
+cpp=$CPP/fanout
+
+fanout_producer_java(){
+java -Dlog4j.configuration=$LOG4J -cp "$CLASSPATH" org.apache.qpid.example.jmsexample.fanout.Producer
+}
+
+background "Listening" $cpp/listener
+background "Listening" $cpp/listener
+background "Listening" $cpp/listener
+clients fanout_producer_java
+outputs ./fanout_producer_java.out "$cpp/listener.out | remove_uuid" "$cpp/listenerX.out | remove_uuid" "$cpp/listenerXX.out | remove_uuid"

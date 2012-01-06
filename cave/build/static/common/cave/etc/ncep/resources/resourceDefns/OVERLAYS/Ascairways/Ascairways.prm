@@ -1,0 +1,5 @@
+! DbOverlay
+dbName=ncep
+tableName=bounds.ascairways
+labelField=area
+mapName=ASCAIRWAYS Boundaries

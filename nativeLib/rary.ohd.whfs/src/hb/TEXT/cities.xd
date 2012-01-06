@@ -1,0 +1,460 @@
+module 'Hb'
+version = 47;
+xdesigned = 1;
+applicationName = 'Hb';
+generateNameC = * 'cities.c';
+generateNameExterns = * 'cities.h';
+generateNameResDB = * 'cities.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+generateMask = 39256301;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'citiesDS' : XmDialogShell {
+	arguments {
+	lastGenName = 'citiesDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_citiesDS (Widget parent)
+';
+	XmNwidth = 645;
+	XmNheight = 570;
+	XmNallowShellResize = true;
+	XmNtitle = 'Cities';
+	XmNminWidth = 645;
+	XmNminHeight = 570;
+	XmNmaxWidth = 645;
+	XmNmaxHeight = 570;
+	XmNbaseWidth = 645;
+	XmNbaseHeight = 570;
+	};
+object 'citiesFM' : XmForm {
+	arguments {
+	lastGenName = 'citiesFM';
+	XmNwidth = 645;
+	XmNheight = 570;
+	XmNautoUnmanage = false;
+	};
+object 'cmainFM' : XmForm {
+	arguments {
+	lastGenName = 'cmainFM';
+	XmNautoUnmanage = false;
+	};
+object 'citieslistLA' : XmLabel {
+	arguments {
+	lastGenName = 'citieslistLA';
+	XmNlabelString = 'City   ';
+	XmNalignment = 0;
+	};
+};
+object 'statelistLA' : XmLabel {
+	arguments {
+	name = 'statelistLA';
+	lastGenName = 'statelistLA';
+	XmNlabelString = 'State';
+	};
+};
+object 'latLA' : XmLabel {
+	arguments {
+	name = 'latLA';
+	lastGenName = 'latLA';
+	XmNlabelString = 'Lat';
+	};
+};
+object 'lonLA' : XmLabel {
+	arguments {
+	name = 'lonLA';
+	lastGenName = 'lonLA';
+	XmNlabelString = 'Lon';
+	};
+};
+object 'procedureLA' : XmLabel {
+	arguments {
+	name = 'procedureLA';
+	lastGenName = 'procedureLA';
+	XmNlabelString = 'Procedure';
+	};
+};
+object 'popLA' : XmLabel {
+	arguments {
+	name = 'popLA';
+	lastGenName = 'popLA';
+	XmNlabelString = 'Pop';
+	};
+};
+object 'citiesSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'citiesSL';
+	};
+abstract object 'citiesHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'citiesHSB';
+	};
+};
+abstract object 'citiesVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'citiesVSB';
+	};
+};
+abstract object 'citiesLI' : XmList {
+	arguments {
+	lastGenName = 'citiesLI';
+	XmNvisibleItemCount = 9;
+	XmNautomaticSelection = false;
+	XmNselectionPolicy = 0;
+	XmNlistSizePolicy = 1;
+	XmNscrollBarDisplayPolicy = 1;
+	XmNitemCount = 6;
+	XmNitems = 'MD      SILVER SPRING           32 24 xx    99 40 xx       1            378000
+SILVER SPRING           MD
+SILVER SPRING           MD    32 24 xx  99 40 xx    1           378000
+SILVER SPRING           MD     32 24 xx  99 40 xx       1           378000
+SILVER SPRING           MD      32 24 xx  99 40 xx       1           378000
+SILVER SPRING           MD      32 24 xx    99 40 xx       1          378000';
+	};
+};
+};
+object 'cityitem_FR' : XmFrame {
+	arguments {
+	lastGenName = 'cityitem_FR';
+	};
+object 'cityitem_FM' : XmForm {
+	arguments {
+	lastGenName = 'cityitem_FM';
+	};
+object 'cityitem_cityLA' : XmLabel {
+	arguments {
+	lastGenName = 'cityitem_cityLA';
+	XmNlabelString = 'City:';
+	};
+};
+object 'cityitem_cityTE' : XmText {
+	arguments {
+	lastGenName = 'cityitem_cityTE';
+	XmNmaxLength = 20;
+	XmNcolumns = 20;
+	};
+};
+object 'cityitem_stateLA' : XmLabel {
+	arguments {
+	lastGenName = 'cityitem_stateLA';
+	XmNlabelString = 'State:';
+	};
+};
+object 'cityitem_stateTE' : XmText {
+	arguments {
+	lastGenName = 'cityitem_stateTE';
+	XmNmaxLength = 2;
+	XmNcolumns = 2;
+	};
+};
+object 'cityitem_latLA' : XmLabel {
+	arguments {
+	lastGenName = 'cityitem_latLA';
+	XmNlabelString = 'Lat:';
+	};
+};
+object 'cityitem_latTE' : XmText {
+	arguments {
+	lastGenName = 'cityitem_latTE';
+	XmNmaxLength = 9;
+	XmNcolumns = 11;
+	};
+};
+object 'cityitem_lonLA' : XmLabel {
+	arguments {
+	lastGenName = 'cityitem_lonLA';
+	XmNlabelString = 'Lon:';
+	};
+};
+object 'cityitem_lonTE' : XmText {
+	arguments {
+	lastGenName = 'cityitem_lonTE';
+	XmNmaxLength = 10;
+	XmNcolumns = 13;
+	};
+};
+object 'cityitem_popLA' : XmLabel {
+	arguments {
+	lastGenName = 'cityitem_popLA';
+	XmNlabelString = 'Population:';
+	};
+};
+object 'cityitem_popTE' : XmText {
+	arguments {
+	lastGenName = 'cityitem_popTE';
+	XmNmaxLength = 9;
+	XmNcolumns = 9;
+	};
+};
+object 'cityitem_precOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'cityitem_precOM';
+	XmNorientation = 1;
+	};
+abstract object 'cityitem_precLA' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'cityitem_precLA';
+	XmNlabelString = 'Display Precedence:';
+	};
+};
+abstract object 'cityitem_precCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'cityitem_precCB';
+	};
+object 'cityitem_precPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'cityitem_precPDM';
+	};
+object 'cityitem_precPB1' : XmPushButton {
+	arguments {
+	lastGenName = 'cityitem_precPB1';
+	XmNlabelString = 'Cities (1)';
+	};
+};
+object 'cityitem_precPB2' : XmPushButton {
+	arguments {
+	lastGenName = 'cityitem_precPB2';
+	XmNlabelString = 'Towns (2)';
+	};
+};
+};
+};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 13;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 13;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 42;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 245;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 15;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -290;
+	XmNleftAttachment = 1 0 250;
+	XmNbottomAttachment = 2 0 -80;
+	XmNtopAttachment = 1 0 45;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 305;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 15;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -425;
+	XmNleftAttachment = 1 0 305;
+	XmNbottomAttachment = 2 0 -80;
+	XmNtopAttachment = 1 0 45;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 464;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 9;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -570;
+	XmNleftAttachment = 1 0 435;
+	XmNbottomAttachment = 2 0 -80;
+	XmNtopAttachment = 1 0 45;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 336;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 106;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 336;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 132;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 107;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 105;
+    };
+    };
+};
+object 'cityitem_LA' : XmLabel {
+	arguments {
+	lastGenName = 'cityitem_LA';
+	XmNchildType = 2;
+	XmNlabelString = 'Information';
+	};
+};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -82;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -24;
+	XmNtopAttachment = 1 0 7;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 179;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 3;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 245;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 2;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 337;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 4;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 431;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 4;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 539;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 6;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -597;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -235;
+	XmNtopAttachment = 1 0 30;
+    };
+    attachment {
+	XmNrightAttachment = 4 7 0;
+	XmNleftAttachment = 4 7 0;
+	XmNbottomAttachment = 5 0 98;
+	XmNtopAttachment = 3 7 20;
+    };
+    };
+};
+object 'citiesSE' : XmSeparator {
+	arguments {
+	lastGenName = 'citiesSE';
+	};
+};
+object 'cities_okPB' : XmPushButton {
+	arguments {
+	was_selected = true;
+	lastGenName = 'cities_okPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Ok';
+	};
+};
+object 'cities_addPB' : XmPushButton {
+	arguments {
+	lastGenName = 'cities_addPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Add';
+	};
+};
+object 'cities_updatePB' : XmPushButton {
+	arguments {
+	lastGenName = 'cities_updatePB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Update';
+	};
+};
+object 'cities_deletePB' : XmPushButton {
+	arguments {
+	lastGenName = 'cities_deletePB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Delete';
+	};
+};
+object 'cities_helpPB' : XmPushButton {
+	arguments {
+	lastGenName = 'cities_helpPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Help';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 1 0 20;
+	XmNleftAttachment = 1 0 15;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 20;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 0;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 1 15;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 20;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 2 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 3 3 45;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 2 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 3 4 45;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 2 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 3 5 45;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 2 10;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 20;
+	XmNleftAttachment = 0 0 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 2 10;
+    };
+    };
+};
+};
+end module;

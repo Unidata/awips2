@@ -1,0 +1,922 @@
+/*
+    File: DHRRadar.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:19 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "DHRRadar.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct DHRRadar_t
+{
+    char		radid[4];
+    dtime_t		obstime;
+    short		volcovpat;
+    short		opermode;
+    float		dbzmin;
+    float		dbzinc;
+    float		dbzcnt;
+    short		j_date;
+    short		j_time;
+    short		mean_field_bias;
+    short		sample_size;
+    char		grid_filename[21];
+
+    int		ind_volcovpat;
+    int		ind_opermode;
+    int		ind_dbzmin;
+    int		ind_dbzinc;
+    int		ind_dbzcnt;
+    int		ind_j_date;
+    int		ind_j_time;
+    int		ind_mean_field_bias;
+    int		ind_sample_size;
+    int		ind_grid_filename;
+} DHRRadar_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+DHRRadar * GetDHRRadar(const char * where)
+{
+
+    DHRRadar * listPtr = NULL;
+    DHRRadar * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM DHRRadar ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DHRRadar_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDHRRadar() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDHRRadar() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDHRRadar() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.radid, :dbs.obstime, 
+    :dbs.volcovpat:dbs.ind_volcovpat, :dbs.opermode:dbs.ind_opermode, 
+    :dbs.dbzmin:dbs.ind_dbzmin, :dbs.dbzinc:dbs.ind_dbzinc, 
+    :dbs.dbzcnt:dbs.ind_dbzcnt, :dbs.j_date:dbs.ind_j_date, 
+    :dbs.j_time:dbs.ind_j_time, :dbs.mean_field_bias:dbs.ind_mean_field_bias, 
+    :dbs.sample_size:dbs.ind_sample_size, :dbs.grid_filename:dbs.ind_grid_filename    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDHRRadar() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (DHRRadar *) malloc(sizeof(DHRRadar))) != NULL)
+        {
+
+            strcpy(structPtr->radid, dbs.radid);
+
+            structPtr->obstime = dbs.obstime;
+
+            structPtr->volcovpat = dbs.volcovpat;
+            setNullIfIndicated(dbs.ind_volcovpat, SHORT, &structPtr->volcovpat);
+
+            structPtr->opermode = dbs.opermode;
+            setNullIfIndicated(dbs.ind_opermode, SHORT, &structPtr->opermode);
+
+            structPtr->dbzmin = dbs.dbzmin;
+            setNullIfIndicated(dbs.ind_dbzmin, FLOAT, &structPtr->dbzmin);
+
+            structPtr->dbzinc = dbs.dbzinc;
+            setNullIfIndicated(dbs.ind_dbzinc, FLOAT, &structPtr->dbzinc);
+
+            structPtr->dbzcnt = dbs.dbzcnt;
+            setNullIfIndicated(dbs.ind_dbzcnt, FLOAT, &structPtr->dbzcnt);
+
+            structPtr->j_date = dbs.j_date;
+            setNullIfIndicated(dbs.ind_j_date, SHORT, &structPtr->j_date);
+
+            structPtr->j_time = dbs.j_time;
+            setNullIfIndicated(dbs.ind_j_time, SHORT, &structPtr->j_time);
+
+            structPtr->mean_field_bias = dbs.mean_field_bias;
+            setNullIfIndicated(dbs.ind_mean_field_bias, SHORT, &structPtr->mean_field_bias);
+
+            structPtr->sample_size = dbs.sample_size;
+            setNullIfIndicated(dbs.ind_sample_size, SHORT, &structPtr->sample_size);
+
+            strcpy(structPtr->grid_filename, dbs.grid_filename);
+            setNullIfIndicated(dbs.ind_grid_filename, CHAR, structPtr->grid_filename);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.radid, :dbs.obstime, 
+        :dbs.volcovpat:dbs.ind_volcovpat, :dbs.opermode:dbs.ind_opermode, 
+        :dbs.dbzmin:dbs.ind_dbzmin, :dbs.dbzinc:dbs.ind_dbzinc, 
+        :dbs.dbzcnt:dbs.ind_dbzcnt, :dbs.j_date:dbs.ind_j_date, 
+        :dbs.j_time:dbs.ind_j_time, :dbs.mean_field_bias:dbs.ind_mean_field_bias, 
+        :dbs.sample_size:dbs.ind_sample_size, :dbs.grid_filename:dbs.ind_grid_filename        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetDHRRadar() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+DHRRadar * SelectDHRRadar(const char * where)
+{
+
+    DHRRadar * listPtr = NULL;
+    DHRRadar * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM DHRRadar ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DHRRadar_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDHRRadar() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDHRRadar() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDHRRadar() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.radid, :dbs.obstime, 
+    :dbs.volcovpat:dbs.ind_volcovpat, :dbs.opermode:dbs.ind_opermode, 
+    :dbs.dbzmin:dbs.ind_dbzmin, :dbs.dbzinc:dbs.ind_dbzinc, 
+    :dbs.dbzcnt:dbs.ind_dbzcnt, :dbs.j_date:dbs.ind_j_date, 
+    :dbs.j_time:dbs.ind_j_time, :dbs.mean_field_bias:dbs.ind_mean_field_bias, 
+    :dbs.sample_size:dbs.ind_sample_size, :dbs.grid_filename:dbs.ind_grid_filename    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDHRRadar() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (DHRRadar *) malloc(sizeof(DHRRadar))) != NULL)
+        {
+
+            strcpy(structPtr->radid, dbs.radid);
+
+            structPtr->obstime = dbs.obstime;
+
+            structPtr->volcovpat = dbs.volcovpat;
+            setNullIfIndicated(dbs.ind_volcovpat, SHORT, &structPtr->volcovpat);
+
+            structPtr->opermode = dbs.opermode;
+            setNullIfIndicated(dbs.ind_opermode, SHORT, &structPtr->opermode);
+
+            structPtr->dbzmin = dbs.dbzmin;
+            setNullIfIndicated(dbs.ind_dbzmin, FLOAT, &structPtr->dbzmin);
+
+            structPtr->dbzinc = dbs.dbzinc;
+            setNullIfIndicated(dbs.ind_dbzinc, FLOAT, &structPtr->dbzinc);
+
+            structPtr->dbzcnt = dbs.dbzcnt;
+            setNullIfIndicated(dbs.ind_dbzcnt, FLOAT, &structPtr->dbzcnt);
+
+            structPtr->j_date = dbs.j_date;
+            setNullIfIndicated(dbs.ind_j_date, SHORT, &structPtr->j_date);
+
+            structPtr->j_time = dbs.j_time;
+            setNullIfIndicated(dbs.ind_j_time, SHORT, &structPtr->j_time);
+
+            structPtr->mean_field_bias = dbs.mean_field_bias;
+            setNullIfIndicated(dbs.ind_mean_field_bias, SHORT, &structPtr->mean_field_bias);
+
+            structPtr->sample_size = dbs.sample_size;
+            setNullIfIndicated(dbs.ind_sample_size, SHORT, &structPtr->sample_size);
+
+            strcpy(structPtr->grid_filename, dbs.grid_filename);
+            setNullIfIndicated(dbs.ind_grid_filename, CHAR, structPtr->grid_filename);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.radid, :dbs.obstime, 
+        :dbs.volcovpat:dbs.ind_volcovpat, :dbs.opermode:dbs.ind_opermode, 
+        :dbs.dbzmin:dbs.ind_dbzmin, :dbs.dbzinc:dbs.ind_dbzinc, 
+        :dbs.dbzcnt:dbs.ind_dbzcnt, :dbs.j_date:dbs.ind_j_date, 
+        :dbs.j_time:dbs.ind_j_time, :dbs.mean_field_bias:dbs.ind_mean_field_bias, 
+        :dbs.sample_size:dbs.ind_sample_size, :dbs.grid_filename:dbs.ind_grid_filename        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectDHRRadar() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectDHRRadarCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM DHRRadar ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDHRRadar() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDHRRadar() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDHRRadar() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDHRRadar() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutDHRRadar(const DHRRadar * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DHRRadar_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.radid, structPtr->radid);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.volcovpat = structPtr->volcovpat;
+    dbs.ind_volcovpat = getIndicator(SHORT, (void *)&structPtr->volcovpat);
+
+    dbs.opermode = structPtr->opermode;
+    dbs.ind_opermode = getIndicator(SHORT, (void *)&structPtr->opermode);
+
+    dbs.dbzmin = structPtr->dbzmin;
+    dbs.ind_dbzmin = getIndicator(FLOAT, (void *)&structPtr->dbzmin);
+
+    dbs.dbzinc = structPtr->dbzinc;
+    dbs.ind_dbzinc = getIndicator(FLOAT, (void *)&structPtr->dbzinc);
+
+    dbs.dbzcnt = structPtr->dbzcnt;
+    dbs.ind_dbzcnt = getIndicator(FLOAT, (void *)&structPtr->dbzcnt);
+
+    dbs.j_date = structPtr->j_date;
+    dbs.ind_j_date = getIndicator(SHORT, (void *)&structPtr->j_date);
+
+    dbs.j_time = structPtr->j_time;
+    dbs.ind_j_time = getIndicator(SHORT, (void *)&structPtr->j_time);
+
+    dbs.mean_field_bias = structPtr->mean_field_bias;
+    dbs.ind_mean_field_bias = getIndicator(SHORT, (void *)&structPtr->mean_field_bias);
+
+    dbs.sample_size = structPtr->sample_size;
+    dbs.ind_sample_size = getIndicator(SHORT, (void *)&structPtr->sample_size);
+
+    strcpy(dbs.grid_filename, structPtr->grid_filename);
+    dbs.ind_grid_filename = getIndicator(CHAR, (void *)structPtr->grid_filename);
+
+
+    EXEC SQL INSERT INTO DHRRadar (radid,obstime,
+        volcovpat,opermode,dbzmin,
+        dbzinc,dbzcnt,j_date,
+        j_time,mean_field_bias,sample_size,
+        grid_filename        )
+        VALUES (
+         :dbs.radid, :dbs.obstime, :dbs.volcovpat:dbs.ind_volcovpat,
+         :dbs.opermode:dbs.ind_opermode, :dbs.dbzmin:dbs.ind_dbzmin, :dbs.dbzinc:dbs.ind_dbzinc,
+         :dbs.dbzcnt:dbs.ind_dbzcnt, :dbs.j_date:dbs.ind_j_date, :dbs.j_time:dbs.ind_j_time,
+         :dbs.mean_field_bias:dbs.ind_mean_field_bias, :dbs.sample_size:dbs.ind_sample_size, :dbs.grid_filename:dbs.ind_grid_filename);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutDHRRadar() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertDHRRadar(const DHRRadar * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DHRRadar_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.radid, structPtr->radid);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.volcovpat = structPtr->volcovpat;
+    dbs.ind_volcovpat = getIndicator(SHORT, (void *)&structPtr->volcovpat);
+
+    dbs.opermode = structPtr->opermode;
+    dbs.ind_opermode = getIndicator(SHORT, (void *)&structPtr->opermode);
+
+    dbs.dbzmin = structPtr->dbzmin;
+    dbs.ind_dbzmin = getIndicator(FLOAT, (void *)&structPtr->dbzmin);
+
+    dbs.dbzinc = structPtr->dbzinc;
+    dbs.ind_dbzinc = getIndicator(FLOAT, (void *)&structPtr->dbzinc);
+
+    dbs.dbzcnt = structPtr->dbzcnt;
+    dbs.ind_dbzcnt = getIndicator(FLOAT, (void *)&structPtr->dbzcnt);
+
+    dbs.j_date = structPtr->j_date;
+    dbs.ind_j_date = getIndicator(SHORT, (void *)&structPtr->j_date);
+
+    dbs.j_time = structPtr->j_time;
+    dbs.ind_j_time = getIndicator(SHORT, (void *)&structPtr->j_time);
+
+    dbs.mean_field_bias = structPtr->mean_field_bias;
+    dbs.ind_mean_field_bias = getIndicator(SHORT, (void *)&structPtr->mean_field_bias);
+
+    dbs.sample_size = structPtr->sample_size;
+    dbs.ind_sample_size = getIndicator(SHORT, (void *)&structPtr->sample_size);
+
+    strcpy(dbs.grid_filename, structPtr->grid_filename);
+    dbs.ind_grid_filename = getIndicator(CHAR, (void *)structPtr->grid_filename);
+
+
+    EXEC SQL INSERT INTO DHRRadar (radid,obstime,
+        volcovpat,opermode,dbzmin,
+        dbzinc,dbzcnt,j_date,
+        j_time,mean_field_bias,sample_size,
+        grid_filename        )
+        VALUES (
+         :dbs.radid, :dbs.obstime, :dbs.volcovpat:dbs.ind_volcovpat,
+         :dbs.opermode:dbs.ind_opermode, :dbs.dbzmin:dbs.ind_dbzmin, :dbs.dbzinc:dbs.ind_dbzinc,
+         :dbs.dbzcnt:dbs.ind_dbzcnt, :dbs.j_date:dbs.ind_j_date, :dbs.j_time:dbs.ind_j_time,
+         :dbs.mean_field_bias:dbs.ind_mean_field_bias, :dbs.sample_size:dbs.ind_sample_size, :dbs.grid_filename:dbs.ind_grid_filename);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertDHRRadar() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateDHRRadar(const DHRRadar *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DHRRadar_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.radid, structPtr->radid);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.volcovpat = structPtr->volcovpat;
+    dbs.ind_volcovpat = getIndicator(SHORT, (void *)&structPtr->volcovpat);
+
+    dbs.opermode = structPtr->opermode;
+    dbs.ind_opermode = getIndicator(SHORT, (void *)&structPtr->opermode);
+
+    dbs.dbzmin = structPtr->dbzmin;
+    dbs.ind_dbzmin = getIndicator(FLOAT, (void *)&structPtr->dbzmin);
+
+    dbs.dbzinc = structPtr->dbzinc;
+    dbs.ind_dbzinc = getIndicator(FLOAT, (void *)&structPtr->dbzinc);
+
+    dbs.dbzcnt = structPtr->dbzcnt;
+    dbs.ind_dbzcnt = getIndicator(FLOAT, (void *)&structPtr->dbzcnt);
+
+    dbs.j_date = structPtr->j_date;
+    dbs.ind_j_date = getIndicator(SHORT, (void *)&structPtr->j_date);
+
+    dbs.j_time = structPtr->j_time;
+    dbs.ind_j_time = getIndicator(SHORT, (void *)&structPtr->j_time);
+
+    dbs.mean_field_bias = structPtr->mean_field_bias;
+    dbs.ind_mean_field_bias = getIndicator(SHORT, (void *)&structPtr->mean_field_bias);
+
+    dbs.sample_size = structPtr->sample_size;
+    dbs.ind_sample_size = getIndicator(SHORT, (void *)&structPtr->sample_size);
+
+    strcpy(dbs.grid_filename, structPtr->grid_filename);
+    dbs.ind_grid_filename = getIndicator(CHAR, (void *)structPtr->grid_filename);
+
+
+    sprintf(queryBuffer, " UPDATE DHRRadar SET " );
+    strcat(queryBuffer, "radid = ? , obstime = ? , volcovpat = ? , opermode = ? , dbzmin = ? ,     ");
+    strcat(queryBuffer, "dbzinc = ? , dbzcnt = ? , j_date = ? , j_time = ? , mean_field_bias = ? ,     ");
+    strcat(queryBuffer, "sample_size = ? , grid_filename = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateDHRRadar() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.radid, :dbs.obstime, :dbs.volcovpat:dbs.ind_volcovpat, :dbs.opermode:dbs.ind_opermode, :dbs.dbzmin:dbs.ind_dbzmin,
+     :dbs.dbzinc:dbs.ind_dbzinc, :dbs.dbzcnt:dbs.ind_dbzcnt, :dbs.j_date:dbs.ind_j_date, :dbs.j_time:dbs.ind_j_time, :dbs.mean_field_bias:dbs.ind_mean_field_bias,
+     :dbs.sample_size:dbs.ind_sample_size, :dbs.grid_filename:dbs.ind_grid_filename;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateDHRRadar() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteDHRRadar(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM DHRRadar ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteDHRRadar() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateDHRRadarByRecord (const DHRRadar * newStructPtr, const DHRRadar * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetDHRRadarPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateDHRRadar(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateDHRRadar(const DHRRadar * structPtr)
+{
+    UpdateDHRRadarByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertDHRRadar(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueDHRRadar(const DHRRadar * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (DHRRadarExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertDHRRadar(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteDHRRadarByRecord(const DHRRadar * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetDHRRadarPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteDHRRadar(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool DHRRadarExists(const DHRRadar * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetDHRRadarPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectDHRRadarCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetDHRRadarPrimaryKeyWhereString (const DHRRadar * structPtr, char returnWhereString[] )
+{
+    char time_buffer0[40];
+    sprintf(returnWhereString, "WHERE radid = '%s'  AND obstime = '%s' ",
+            structPtr->radid, dtimet_to_ansi(structPtr->obstime, time_buffer0));
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeDHRRadar( DHRRadar * structPtr)
+{
+    DHRRadar* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( DHRRadar * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetDHRRadarDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetDHRRadarErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

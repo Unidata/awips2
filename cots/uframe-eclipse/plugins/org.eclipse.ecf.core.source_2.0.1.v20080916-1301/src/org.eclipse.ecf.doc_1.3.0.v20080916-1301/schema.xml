@@ -1,0 +1,92 @@
+<project default="schema">
+
+	<property name="dest.path" value="html/reference/extension-points"/>
+
+	<target name="org.eclipse.ecf.identity">
+		<eclipse.convertPath property="org.eclipse.ecf.identity.manifest" resourcePath="/org.eclipse.ecf.core.identity/plugin.xml"/>
+		<antcall target="_plugin">
+			<param name="manifest.path" value="${org.eclipse.ecf.identity.manifest}"/>
+		</antcall>
+	</target>
+
+	<target name="org.eclipse.ecf">
+		<eclipse.convertPath property="org.eclipse.ecf.manifest" resourcePath="/org.eclipse.ecf/plugin.xml"/>
+		<antcall target="_plugin">
+			<param name="manifest.path" value="${org.eclipse.ecf.manifest}"/>
+		</antcall>
+	</target>
+
+	<target name="org.eclipse.ecf.sharedobject">
+		<eclipse.convertPath property="org.eclipse.ecf.sharedobject.manifest" resourcePath="/org.eclipse.ecf.core.sharedobject/plugin.xml"/>
+		<antcall target="_plugin">
+			<param name="manifest.path" value="${org.eclipse.ecf.sharedobject.manifest}"/>
+		</antcall>
+	</target>
+
+
+	<target name="org.eclipse.ecf.provider">
+		<eclipse.convertPath property="org.eclipse.ecf.provider.manifest" resourcePath="/org.eclipse.ecf.provider/plugin.xml"/>
+		<antcall target="_plugin">
+			<param name="manifest.path" value="${org.eclipse.ecf.provider.manifest}"/>
+		</antcall>
+	</target>
+
+	<target name="org.eclipse.ecf.provider.filetransfer">
+		<eclipse.convertPath property="org.eclipse.ecf.provider.filetransfer.manifest" resourcePath="/org.eclipse.ecf.provider.filetransfer/plugin.xml"/>
+		<antcall target="_plugin">
+			<param name="manifest.path" value="${org.eclipse.ecf.provider.filetransfer.manifest}"/>
+		</antcall>
+	</target>
+
+	<target name="org.eclipse.ecf.presence.bot">
+		<eclipse.convertPath property="org.eclipse.ecf.provider.manifest" resourcePath="/org.eclipse.ecf.presence.bot/plugin.xml"/>
+		<antcall target="_plugin">
+			<param name="manifest.path" value="${org.eclipse.ecf.provider.manifest}"/>
+		</antcall>
+	</target>
+
+
+	<target name="org.eclipse.ecf.server.generic">
+		<eclipse.convertPath property="org.eclipse.ecf.server.generic.manifest" resourcePath="/org.eclipse.ecf.server.generic/plugin.xml"/>
+		<antcall target="_plugin">
+			<param name="manifest.path" value="${org.eclipse.ecf.server.generic.manifest}"/>
+		</antcall>
+	</target>
+
+	<target name="org.eclipse.ecf.presence.ui">
+		<eclipse.convertPath property="org.eclipse.ecf.presence.ui.manifest" resourcePath="/org.eclipse.ecf.presence.ui/plugin.xml"/>
+		<antcall target="_plugin">
+			<param name="manifest.path" value="${org.eclipse.ecf.presence.ui.manifest}"/>
+		</antcall>
+	</target>
+
+	<target name="org.eclipse.ecf.ui">
+		<eclipse.convertPath property="org.eclipse.ecf.ui.manifest" resourcePath="/org.eclipse.ecf.ui/plugin.xml"/>
+		<antcall target="_plugin">
+			<param name="manifest.path" value="${org.eclipse.ecf.ui.manifest}"/>
+		</antcall>
+	</target>
+
+	<target name="org.eclipse.ecf.discovery.ui">
+		<eclipse.convertPath property="org.eclipse.ecf.discovery.ui.manifest" resourcePath="/org.eclipse.ecf.discovery.ui/plugin.xml"/>
+		<antcall target="_plugin">
+			<param name="manifest.path" value="${org.eclipse.ecf.discovery.ui.manifest}"/>
+		</antcall>
+	</target>
+
+	<target name="schema" depends="org.eclipse.ecf,org.eclipse.ecf.identity,org.eclipse.ecf.sharedobject,org.eclipse.ecf.provider,org.eclipse.ecf.provider.filetransfer,org.eclipse.ecf.server.generic,org.eclipse.ecf.ui,org.eclipse.ecf.presence.ui,org.eclipse.ecf.presence.bot,org.eclipse.ecf.discovery.ui">
+		<!-- unfortunately, the task generates local filesystem references... fix them! -->
+		<property name="cssurl" value="${osgi.install.area}plugins/org.eclipse.platform.doc.isv_3.1.0"/>
+		<replace dir="${dest.path}" token="${cssurl}" value="../../../../org.eclipse.platform.doc.isv" includes="*.html"/>
+	</target>
+	
+	<target name="_plugin">
+		<pde.convertSchemaToHTML manifest="${manifest.path}" destination="${dest.path}"/>
+	</target>
+	
+	<target name="clean">
+		<delete>
+			<fileset dir="${dest.path}" includes="*.html"/>
+		</delete>
+	</target>
+</project>

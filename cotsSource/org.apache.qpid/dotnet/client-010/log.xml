@@ -1,0 +1,46 @@
+<!--
+ 
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+ 
+   http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+ 
+-->
+<log4net>
+  <appender name="Console" type="log4net.Appender.ConsoleAppender">
+    <layout type="log4net.Layout.PatternLayout">
+      <!-- Pattern to output the caller's file name and line number -->
+      <conversionPattern value="%5level [%thread] (%file:%line) - %message%newline" />
+    </layout>
+  </appender>
+
+  <appender name="RollingFile" type="log4net.Appender.RollingFileAppender">
+    <file value="logs/mylogfile.log" />
+    <appendToFile value="true" />
+    <maximumFileSize value="8192KB" />
+    <maxSizeRollBackups value="2" />
+
+    <layout type="log4net.Layout.PatternLayout">
+      <conversionPattern value="%date [%thread] %-5level %ndc - %message%newline" />
+      <!--<conversionPattern value="%level %thread %logger - %message%newline" />-->
+    </layout>
+  </appender>
+
+  <root>
+    <level value="DEBUG" />
+    <appender-ref ref="Console" />
+    <appender-ref ref="RollingFile" />
+  </root>
+</log4net>

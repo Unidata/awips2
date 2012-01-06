@@ -1,0 +1,4 @@
+C                                           *--> FROM DGCOMMON.DGUNTS
+C  GOES DATA FILE UNITS COMMON BLOCK
+      COMMON /DGUNTS/ KDGRCF
+C

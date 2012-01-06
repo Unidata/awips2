@@ -1,0 +1,93 @@
+#!/bin/sh
+
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+# Test reliability of the replication feature in the face of link
+# failures:
+
+source ./test_env.sh
+
+trap stop_brokers EXIT
+
+stop_brokers() {
+    if [[ $BROKER_A ]] ; then
+        $QPIDD_EXEC --no-module-dir -q --port $BROKER_A
+        unset BROKER_A
+    fi      
+    if [[ $BROKER_B ]] ; then
+        $QPIDD_EXEC --no-module-dir -q --port $BROKER_B
+        unset BROKER_B
+    fi
+}
+
+setup() {
+    rm -f replication-source.log replication-dest.log
+    $QPIDD_EXEC --daemon --port 0 --no-data-dir --no-module-dir --auth no --load-module $REPLICATING_LISTENER_LIB --replication-queue replication --create-replication-queue true  --log-enable trace+ --log-to-file replication-source.log --log-to-stderr 0 > qpidd-repl.port
+    BROKER_A=`cat qpidd-repl.port`
+
+    $QPIDD_EXEC --daemon --port 0 --no-data-dir --no-module-dir --auth no --load-module $REPLICATION_EXCHANGE_LIB  --log-enable info+ --log-to-file replication-dest.log --log-to-stderr 0 > qpidd-repl.port
+    BROKER_B=`cat qpidd-repl.port`
+
+    echo "Testing replication from port $BROKER_A to port $BROKER_B"
+
+    $PYTHON_COMMANDS/qpid-config -a "localhost:$BROKER_B" add exchange replication replication
+    $PYTHON_COMMANDS/qpid-route --ack 500 queue add "localhost:$BROKER_B" "localhost:$BROKER_A" replication replication
+
+    #create test queue (only replicate enqueues for this test):
+    $PYTHON_COMMANDS/qpid-config -a "localhost:$BROKER_A" add queue queue-a --generate-queue-events 1
+    $PYTHON_COMMANDS/qpid-config -a "localhost:$BROKER_B" add queue queue-a
+}
+
+send() {
+    ./sender  --port $BROKER_A --routing-key queue-a --send-eos 1 < replicated.expected
+}
+
+receive() {
+    rm -f replicated.actual
+    ./receiver --port $BROKER_B --queue queue-a > replicated.actual
+}
+
+bounce_link() {
+    echo "Destroying link..."
+    $PYTHON_COMMANDS/qpid-route link del "localhost:$BROKER_B" "localhost:$BROKER_A"
+    echo "Link destroyed; recreating route..."
+    sleep 2
+    $PYTHON_COMMANDS/qpid-route --ack 500 queue add "localhost:$BROKER_B" "localhost:$BROKER_A" replication replication
+    echo "Route re-established"
+}
+
+if test -d ${PYTHON_DIR} && test -e $REPLICATING_LISTENER_LIB && test -e $REPLICATION_EXCHANGE_LIB ;  then
+    setup
+    for i in `seq 1 100000`; do echo Message $i; done > replicated.expected
+    send &
+    receive &
+    for i in `seq 1 5`; do sleep 10; bounce_link; done;
+    wait
+    #check that received list is identical to sent list
+    diff replicated.actual replicated.expected || FAIL=1
+    if [[ $FAIL ]]; then
+        echo reliable replication test failed: expectations not met!
+        exit 1
+    else 
+        echo replication reliable in the face of link failures
+        rm -f replication.actual replication.expected replication-source.log replication-dest.log qpidd-repl.port
+    fi
+fi
+

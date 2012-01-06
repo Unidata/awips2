@@ -1,0 +1,184 @@
+<html>
+<title>GFESuite Documentation - Working With Weather Data</title>
+<body>
+<h1 align=center>
+<a NAME="WorkingwithWeatherData"></a>Working with Weather Data</h1>
+<br><p>&nbsp;&nbsp; <a href="#ThegetIndexMethod--CreatingWeatherData">The
+getIndex method -- Creating Weather Data</a><!-- Leave this comment for formatting purposes -->
+&nbsp;&nbsp; <br><a href="#ThewxValuesMethod--ExaminingWeatherData">The
+wxValue methods -- Examining Weather Data</a><!-- Leave this comment for formatting purposes -->
+<br></p><hr width="100%">
+
+Working with Weather-type elements in Numerical Python tools requires some
+special comments. A wx argument represents a 2-tuple:
+<ul>
+<li>
+wxValues : numerical grid of byte values</li>
+
+<li>
+keys : list of "ugly strings" where the index of the ugly string corresponds
+to the byte value in the wxValues grid.</li>
+</ul>
+For example, if our keys are:
+<ul>
+<li>
+"Sct:RW:-:&lt;NoVis>:"</li>
+
+<li>
+"Chc:T:-:&lt;NoVis>:"</li>
+
+<li>
+"Chc:SW:-:&lt;NoVis>:"</li>
+</ul>
+then, the wxValues grid will have byte values of 0 where there is "Sct:RW:-:&lt;NoVis>:",
+1 where there is "Chc:T:-:&lt;NoVis>:" and 2 where there is "Chc:SW:-:&lt;NoVis>:"
+<h2 align=center>
+<a NAME="ThegetIndexMethod--CreatingWeatherData"></a>The getIndex Method
+-- Creating Weather Data</h2>
+The GFESuite method, "getIndex(uglyString, keys)" will return the byte
+value that corresponds to the given ugly string. It will add a new key
+if a new ugly string is requested. A Numerical Smart Tool or Smart Initialization
+method working with weather data must return a (wxValues, keys) tuple.&nbsp;&nbsp;
+For example:
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; def execute(self, Wx):
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Assign Wx
+based on PoP
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Separate the
+Weather argument into it's two components, wxValues and keys
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; wxValues = Wx[0]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; keys = Wx[1]
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Assign "SChc:RW:-:&lt;NoVis>:"&nbsp;
+where the PoP is less than 30
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; wxValues
+= where(less(PoP,30),&nbsp; self.getIndex("SChc:RW:-:&lt;NoVis>:", keys),&nbsp;
+wxValues)
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return the
+paired components as a tuple
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return
+(wxValues, keys)
+<p>To see how the "getIndex" method is used in a Smart Tool, examine the
+Convective_SmartTool in the examples/smartTools directory.
+<h2 align=center>
+<a NAME="ThewxValuesMethod--ExaminingWeatherData"></a>The wxMask Method
+-- Examining Weather Data</h2>
+The GFESuite method, "wxMask(wxTuple, query, isRegExpr)", allows you to
+examine the ugly string values in the numerical grid of byte values.&nbsp;&nbsp;
+The method returns a mask,&nbsp; i.e. a numeric grid of 0's and 1's, where
+the value is 1 if the given query succeeds.&nbsp; It has the following
+arguments:
+<blockquote>
+<li>
+wxTuple -- a 2-tuple:</li>
+
+<blockquote>
+<li>
+wxValues : numerical grid of byte values</li>
+
+<li>
+keys : list of "ugly strings" where the index of the ugly string corresponds
+to the byte value in the wxValues grid.</li>
+</blockquote>
+
+<li>
+query -- a text string representing a query</li>
+
+<li>
+isreg -- if 1, the query is treated as a regular expression, otherwise
+as a literal string</li>
+</blockquote>
+Examples:
+<p>&nbsp;&nbsp;&nbsp; # Here we want to treat the query as a regular expression
+to avoid confusion between "Chc" and "SChc"
+<br>&nbsp;&nbsp;&nbsp; # This statement will assign PoP a value of 40 where
+the weather has a coverage of "Chc"
+<br>&nbsp;&nbsp;&nbsp; PoP = where(self.wxMask(wxTuple, "^Chc:", 1),&nbsp;
+40,&nbsp;&nbsp; PoP)
+<p>&nbsp;&nbsp;&nbsp;&nbsp; # Here we want to treat the query as a literal
+<br>&nbsp;&nbsp;&nbsp;&nbsp; # This statement will assign PoP a value of
+5 where the weather has type of "L"
+<br>&nbsp;&nbsp;&nbsp;&nbsp; PoP = where(self.wxMask(wxTuple, ":L:"),&nbsp;
+5,&nbsp; PoP)
+<p>To see how the "wxValues" method is used in a Smart Tool, examine the
+PoP_From_Wx tool in the example/smartTools directory.
+<br>&nbsp;
+<h2 align=center>
+<a NAME="WorkingwithDiscreteData"></a>Working with Discrete Data</h2>
+Working with Discrete-type elements in Numerical Python tools requires
+some special comments. A wx argument represents a 2-tuple:
+<ul>
+<li>
+wxValues : numerical grid of byte values</li>
+
+<li>
+keys : list of "strings" where the index of the&nbsp; string corresponds
+to the byte value in the wxValues grid.</li>
+</ul>
+For example, if our keys are:
+<ul>
+<li>
+"SmCrftADV"</li>
+
+<li>
+"SnowADV^WChillADV"</li>
+
+<li>
+"&lt;None>"</li>
+</ul>
+then, the wxValues grid will have byte values of 0 where there is "SmCrftADV",
+1 where there is "SnowADV^WChillADV" and 2 where there is "&lt;None>"
+<h2 align=center>
+<a NAME="ThegetIndexMethod--CreatingDiscreteData"></a>The getIndex Method
+-- Creating Discrete Data</h2>
+The GFESuite method, "getIndex(string, keys)" will return the byte value
+that corresponds to the given string. It will add a new key if a new&nbsp;
+string is requested. A Numerical Smart Tool or Smart Initialization method
+working with discrete data must return a (wxValues, keys) tuple.&nbsp;&nbsp;
+For example:
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; def execute(self, Highlights, WindChill):
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Assign Highlights
+based on WindChill
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Separate the
+Discrete argument into it's two components, wxValues and keys
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; wxValues = Highlights[0]
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; keys = Highlights[1]
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Assign "WChillADV"&nbsp;
+where the WindChill is less than -20
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; wxValues
+= where(less(WindChill,-20),&nbsp; self.getIndex("WChillADV", keys),&nbsp;
+wxValues)
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return the
+paired components as a tuple
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return
+(wxValues, keys)
+<br>&nbsp;
+<br>&nbsp;
+<h2 align=center>
+<a NAME="ThewxValuesMethod--ExaminingWeatherData"></a>The discreteMask
+Method -- Examining Discrete Data</h2>
+The GFESuite method, "discreteMask(wxTuple, query, isRegExpr)", allows
+you to examine the&nbsp; string values in the numerical grid of byte values.&nbsp;&nbsp;
+The method returns a mask,&nbsp; i.e. a numeric grid of 0's and 1's, where
+the value is 1 if the given query succeeds.&nbsp; It has the following
+arguments:
+<blockquote>
+<li>
+wxTuple -- a 2-tuple:</li>
+
+<blockquote>
+<li>
+wxValues : numerical grid of byte values</li>
+
+<li>
+keys : list of "strings" where the index of the string corresponds to the
+byte value in the wxValues grid.</li>
+</blockquote>
+
+<li>
+query -- a text string representing a query</li>
+
+<li>
+isreg -- if 1, the query is treated as a regular expression, otherwise
+as a literal string</li>
+</blockquote>
+</body>
+</html>

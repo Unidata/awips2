@@ -1,0 +1,342 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta content="text/html; charset=iso-8859-1"
+ http-equiv="Content-Type">
+  <meta
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-34smp i686) [Netscape]"
+ name="GENERATOR">
+  <title>ifpServer Startup</title>
+</head>
+<body bgcolor="#ffffff">
+<h1>
+ifpServer Startup Information</h1>
+January 3, 2006<br>
+<br>
+Table of Contents
+<br>
+<br>
+<a href="#StartingtheifpServer">Starting the ifpServer</a>
+<br>
+<a href="#ifpServerCheckConfiguration">ifpServer Check Configuration
+Files Mode</a>
+<br>
+<a href="#ProblemsStartingtheifpServer">Problems starting the ifpServer</a>
+<br>
+<a href="#StoppingtheifpServer">Stopping the ifpServer</a>
+<br>
+<a href="#reboot">Starting the ifpServer automatically on reboot</a>
+<br>
+<a href="#txtProducts">Automatic Configuration of Text Products</a>
+<br>
+<hr width="100%">
+<h2><a name="StartingtheifpServer"></a>Starting the ifpServer</h2>
+The ifpServer is started with the "runIFPServer" script, which is
+located
+in the <i>release</i>/bin directory, normally <b>/awips/GFESuite/primary/bin</b>
+or <span style="font-weight: bold;">/awips/GFESuite/svcbck/bin</span>
+on AWIPS-baselined equipment.
+<p><tt>runIFPServer [-D] [-n] [-t]</tt><span
+ style="font-family: monospace;">
+[-i] [-b] [-a alternateA2Afile]</span><br>
+&nbsp;
+<br>
+&nbsp;
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td><b>Command Line Option</b></td>
+      <td><b>Optional?</b></td>
+      <td><b>Meaning</b></td>
+    </tr>
+    <tr>
+      <td>-D</td>
+      <td>YES</td>
+      <td>Runs the ifpServer as a daemon.&nbsp; Normal use of the
+server is to
+run it as a daemon. The runIFPServer script will add this option
+automatically.</td>
+    </tr>
+    <tr>
+      <td>-n</td>
+      <td>YES</td>
+      <td>Runs the ifpServer in a "check" configuration files
+mode.&nbsp; The
+server checks the configuration files, reports any errors, and exits.</td>
+    </tr>
+    <tr>
+      <td>-t</td>
+      <td>YES</td>
+      <td>Runs the ifpServer in a "terminal" mode, indicating that the
+ifpServer
+will not be run as a daemon.&nbsp; The messages will be output to the
+terminal
+and the server will not be run in background.</td>
+    </tr>
+    <tr>
+      <td>-i</td>
+      <td>YES</td>
+      <td>Runs the ifpServer in a setup mode only. ifpServer will
+generate the
+map backgrounds, edit areas, and configure the text products. The
+server
+will then stop. No network connections are brought up. </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-b<br>
+      </td>
+      <td style="vertical-align: top;">YES<br>
+      </td>
+      <td style="vertical-align: top;">Runs the ifpServer in a BASELINE
+mode only.&nbsp; The localConfig, localMaps, localWxConfig,
+localMapFiles are ignored.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">-a alternateA2AFile<br>
+      </td>
+      <td style="vertical-align: top;">YES<br>
+      </td>
+      <td style="vertical-align: top;">Configure the text products
+using the specified afos2awips.txt file.&nbsp; Normally this switch is
+only used for testing purposes.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<p>Note:&nbsp;the -t switch overrides the -D switch.&nbsp; The -n
+switch
+overrides the -D&nbsp;switch.
+<br>
+Note: on IFPS systems, there is another script that is run that starts
+all of the necessary IFPS servers.&nbsp; That script calls the
+runIFPServer
+script.
+<br>
+</p>
+<p><span style="color: rgb(255, 0, 0); font-weight: bold;">It is
+somewhat dangerous to run the ifpServer in BASELINE mode as data may be
+lost.&nbsp;&nbsp; Any local weather elements defined will no longer
+exist.&nbsp; This may cause local product generation scripts to fail
+and the user may be forced to run the baseline versions of the text
+formatters.</span><br>
+</p>
+<hr width="100%"><br>
+&nbsp;
+<h2><a name="ifpServerCheckConfiguration"></a>ifpServer Check
+Configuration
+Files Mode</h2>
+Starting the ifpServer with "runIFPServer -n" will place the ifpServer
+into a check configuration file mode.&nbsp; The server will simply
+check
+the files and then exit.&nbsp; The following files are checked:
+<ul>
+  <li>serverConfig.py</li>
+  <li>localConfig.py</li>
+  <li>Maps.py</li>
+  <li>MapFiles.py</li>
+  <li>localMaps.py</li>
+  <li>localWxConfig.py</li>
+</ul>
+In the event of an error, output in the log file and on the console
+will
+be output showing the file and the location of the Python error.&nbsp;
+The check script handles syntax errors, but cannot detect all errors.
+<p>Here is an example with no errors:
+</p>
+<p><tt>14:42:47.193 ifpServer.C 152 EVENT: IFP Data Server Starting</tt>
+<br>
+<tt>14:42:47.195 ifpServer.C 153 EVENT: Version: Build Date: Wed Mar
+27 14:37:52 2002 Built By: mark On: camper.fsl.noaa.gov (linux2)
+Version:
+development</tt>
+<br>
+<tt>14:42:47.283 ifpServer.C 162 EVENT: Checking for server
+configuration
+python errors</tt>
+<br>
+<tt>14:42:47.284 ifpServer.C 706 EVENT: Loading server configuration
+info</tt>
+<br>
+<tt>14:42:49.069 ifpServer.C 168 EVENT: No python syntax errors found</tt>
+<br>
+<tt>14:42:49.070 ifpServer.C 172 EVENT: IFP Data Server Stopped.</tt>
+<br>
+&nbsp;
+<br>
+&nbsp;
+</p>
+<p>If an error has occurred, then the messages displayed on the console
+will be similar to this; typically the last line or two will point out
+the location of the error and the line number:
+</p>
+<p><tt>14:45:12.649 ifpServer.C 152 EVENT: IFP Data Server Starting</tt>
+<br>
+<tt>14:45:12.651 ifpServer.C 153 EVENT: Version: Build Date: Wed Mar
+27 14:37:52 2002 Built By: mark On: camper.fsl.noaa.gov (linux2)
+Version:
+development</tt>
+<br>
+<tt>14:45:12.775 ifpServer.C 162 EVENT: Checking for server
+configuration
+python errors</tt>
+<br>
+<tt>14:45:12.776 ifpServer.C 706 EVENT: Loading server configuration
+info</tt>
+<br>
+<tt>14:45:13.109 ifpServer.C 711 PROBLEM: Failed to load one of the
+following</tt>
+<br>
+<tt>serverConfig.py, localConfig.py, or localWxConfig.py</tt>
+<br>
+<tt>Python error:</tt>
+<br>
+<tt>Traceback (most recent call last):</tt>
+<br>
+<tt>&nbsp; File "/scratch/head/GFESuite/etc/serverConfig.py", line
+817, in ?</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; import localConfig</tt>
+<br>
+<tt>&nbsp; File "&lt;string&gt;", line 1</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp; from serverConfig 8mport *</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+^</tt>
+<br>
+<tt>&nbsp;SyntaxError: invalid syntax</tt>
+</p>
+<p><tt>14:45:13.889 ifpServer.C 690 PROBLEM: Error in Maps.py or
+localMaps.py
+file:</tt>
+<br>
+<tt>Traceback (most recent call last):</tt>
+<br>
+<tt>&nbsp; File "/scratch/head/GFESuite/etc/Maps.py", line 161, in
+?</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; import localMaps</tt>
+<br>
+<tt>&nbsp; File "/scratch/head/GFESuite/etc/localMaps.py", line 5,
+in ?</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; maps.remove(Cwamzones)</tt>
+<br>
+<tt>NameError: name 'Cwamzones' is not defined</tt>
+</p>
+<p><tt>14:45:13.890 ifpServer.C 172 EVENT: IFP Data Server Stopped.</tt>
+</p>
+<p>The above information indicates there is a problem in importing
+"localConfig",
+line 1.&nbsp; The traceback shows the error location.&nbsp; The second
+error was found in the localMaps.py file, the name "Cwamzones" was not
+defined, probably due to a misspelling.
+</p>
+<p></p>
+<hr width="100%">
+<h2><a name="ProblemsStartingtheifpServer"></a>Problems Starting the
+ifpServer</h2>
+The ifpServer does some checks before it is fully functional.&nbsp; If
+any of these checks fail, then the server will not come up and will
+shut
+itself down:
+<ul>
+  <li>Checks configuration files for syntax problems.&nbsp; The files
+are
+serverConfig.py,
+localConfig.py, localWxConfig.py, Maps.py, MapFiles.py, and
+localMaps.py.
+In the event of a problem, then the server will abort.</li>
+  <li>If the server is running under "root", the server will
+abort.&nbsp;
+Running
+under "root" can really hose up the file system.</li>
+  <li>Scans the file system and checks the owner and group of all files
+under
+release/data/databases, typically /awips/GFESuite/data/databases on the
+AWIPS-baselined systems.&nbsp; If the owner/group of any file is not
+the
+same as the running ifpServer's owner/group, then the server will
+stop.&nbsp;
+This is to prevent problems having a server corrupting files.&nbsp;
+Messages
+in the log file will indicate the problem file/directory.</li>
+  <li>Checks to see if there is another server running on the same RPC
+port.</li>
+</ul>
+If the server does not come up, then look in the log files for
+problems.&nbsp;
+The logfiles are in <i>release</i>/data/logfiles/<i>yyyymmdd</i>/ifpServer*,
+typically /awips/GFESuite/primary/data/logfiles/<i>yyyymmdd</i>/ifpServer*,
+where
+<i>yyyymmdd</i>
+is the date-time group.
+<p></p>
+<hr width="100%">
+<h2><a name="StoppingtheifpServer"></a>Stopping the ifpServer</h2>
+Stopping the ifpServer is accomplished with the following command:
+<p><tt>stopIFPServer</tt>
+</p>
+<p>which is located in the release/bin, typically
+/awips/GFESuite/primary/bin
+on
+the AWIPS-baselined systems.
+</p>
+<p></p>
+<hr width="100%">
+<h2><a name="reboot"></a>Starting the ifpServer automatically upon
+reboot</h2>
+If you do not want to invoke the runIFPServer script manually each time
+the machine is rebooted, you can arrange for it to be run each time the
+<br>
+machine is rebooted.&nbsp; Perform the following step (you will need
+to be logged in as the "root" user):
+<br>
+&nbsp;
+<li>Edit the file&nbsp; <b>/etc/rc.d/rc.local</b>.&nbsp; Add the
+following
+shell code, replacing the values assigned to GFEHOME and GFEUSER with
+values
+that match your installation.:</li>
+<br>
+&nbsp;
+<blockquote><tt># Change GFEHOME and GFEUSER to match your setup</tt> <br>
+  <tt>GFEHOME='/where/you/installed/the/gfe/suite'</tt> <br>
+  <tt>GFEUSER='ifps'</tt> <br>
+  <tt>if [ -x $GFEHOME/bin/runIFPServer ]; then</tt> <br>
+  <tt>&nbsp;&nbsp;&nbsp; su -c $GFEHOME/bin/runIFPServer $GFEUSER</tt> <br>
+  <tt>fi</tt></blockquote>
+The typical setup for NWS AWIPS baselined machines where <b>/awips/GFESuite/primary</b>
+is the installation directory would be:
+<br>
+&nbsp;
+<blockquote>&nbsp;<tt># Change GFEHOME and GFEUSER to match your setup</tt>
+  <br>
+  <tt>GFEHOME='/awips/GFESuite/primary'</tt> <br>
+  <tt>GFEUSER='ifps'</tt> <br>
+  <tt>if [ -x $GFEHOME/bin/runIFPServer ]; then</tt> <br>
+  <tt>&nbsp;&nbsp;&nbsp; su -c $GFEHOME/bin/runIFPServer $GFEUSER</tt> <br>
+  <tt>fi</tt></blockquote>
+<p><br>
+Now the server will be started when the machine is booted.
+<br>
+&nbsp;
+</p>
+<hr width="100%">
+<h2><a name="txtProducts"></a>Automatic Configuration of Text Products</h2>
+When the ifpServer is started, the text formatter COMBINATION files are
+automatically created, as is the required AreaDictionary. This
+information
+is based on map background shapefile information.
+<p>The text formatters templates are also automatically configured when
+the ifpServer is started. Although there is no need to manually
+run the configure text products script anymore, it is still available.
+Refer to <a href="ConfigureTextProducts.html">configureTextProducts
+script</a>.
+<br>
+&nbsp;
+</p>
+</body>
+</html>

@@ -1,0 +1,14 @@
+#!/bin/ksh
+# run_hydrobrief
+#
+
+# This allows you to call this script from outside of ./standard/bin
+RUN_FROM_DIR=`dirname $0`
+
+# set up SOME environment variables for WHFS applications
+. $RUN_FROM_DIR/../../set_hydro_env
+export DB_NAME=$(get_apps_defaults db_name)
+
+
+echo $RUN_FROM_DIR/hydrobrief -d$DB_NAME
+$RUN_FROM_DIR/hydrobrief$OS_SUFFIX -d$DB_NAME

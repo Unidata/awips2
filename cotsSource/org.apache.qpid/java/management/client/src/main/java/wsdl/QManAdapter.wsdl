@@ -1,0 +1,694 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions
+	targetNamespace="http://amqp.apache.org/qpid/management/qman"
+	xmlns:qman="http://amqp.apache.org/qpid/management/qman"
+	xmlns="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:wsa="http://www.w3.org/2005/08/addressing"
+	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:wsdl-soap="http://schemas.xmlsoap.org/wsdl/soap/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" 
+	xmlns:wsrf-r="http://docs.oasis-open.org/wsrf/r-2" 
+	xmlns:wsrf-rl="http://docs.oasis-open.org/wsrf/rl-2" 
+	xmlns:wsrf-bf="http://docs.oasis-open.org/wsrf/bf-2" 
+	xmlns:wsrf-rp="http://docs.oasis-open.org/wsrf/rp-2"
+	xmlns:wsrf-sg="http://docs.oasis-open.org/wsrf/sg-2" 
+	xmlns:wsrf-sgw="http://docs.oasis-open.org/wsrf/sgw-2" 
+	xmlns:wsnt="http://docs.oasis-open.org/wsn/b-2"
+	xmlns:wsntw="http://docs.oasis-open.org/wsn/bw-2"
+	xmlns:wst="http://docs.oasis-open.org/wsn/t-1"
+	xmlns:wsrmd="http://docs.oasis-open.org/wsrf/rmd-1"
+	xmlns:muws1="http://docs.oasis-open.org/wsdm/muws1-2.xsd"
+	xmlns:muws2="http://docs.oasis-open.org/wsdm/muws2-2.xsd"	
+	name="QManAdapter" >
+	<wsdl:types>	
+		<xsd:schema  elementFormDefault="qualified"  targetNamespace="http://docs.oasis-open.org/wsrf/bf-2">
+			<xsd:include schemaLocation="WS-BaseFaults-1_2.xsd" />
+		</xsd:schema>
+		<xsd:schema  elementFormDefault="qualified"  targetNamespace="http://docs.oasis-open.org/wsrf/rp-2">
+			<xsd:include schemaLocation="WS-ResourceProperties-1_2.xsd" />
+		</xsd:schema>
+		<xsd:schema elementFormDefault="qualified" targetNamespace="http://docs.oasis-open.org/wsrf/r-2">
+			<xsd:include schemaLocation="WS-Resource-1_2.xsd" />
+		</xsd:schema>
+		<xsd:schema elementFormDefault="qualified" targetNamespace="http://www.w3.org/2005/08/addressing">
+			<xsd:include schemaLocation="WS-Addressing-2005_08.xsd"/>
+		</xsd:schema>
+		<xsd:schema elementFormDefault="qualified" targetNamespace="http://schemas.xmlsoap.org/ws/2004/09/mex">
+			<xsd:include schemaLocation="WS-MetadataExchange-2004_09.xsd"/>
+		</xsd:schema>
+		<xsd:schema elementFormDefault="qualified" targetNamespace="http://docs.oasis-open.org/wsrf/sg-2">
+			<xsd:include schemaLocation="WS-ServiceGroup-1_2.xsd" />
+		</xsd:schema>
+		<xsd:schema elementFormDefault="qualified" targetNamespace="http://docs.oasis-open.org/wsdm/muws1-2.xsd">
+			<xsd:include schemaLocation="WSDM-MUWS-Part1-1_1.xsd" />
+		</xsd:schema>
+		<xsd:schema elementFormDefault="qualified" targetNamespace="http://docs.oasis-open.org/wsdm/muws2-2.xsd">
+			<xsd:include schemaLocation="WSDM-MUWS-Part2-1_1.xsd" />
+		</xsd:schema>
+		<xsd:schema elementFormDefault="qualified" targetNamespace="http://docs.oasis-open.org/wsn/b-2">
+			<xsd:include schemaLocation="WS-BaseNotification-1_3.xsd" />
+		</xsd:schema>
+		<xsd:schema elementFormDefault="qualified" targetNamespace="http://docs.oasis-open.org/wsn/t-1">
+			<xsd:include schemaLocation="WS-Topics-1_3.xsd" />
+		</xsd:schema>		
+		<xsd:schema targetNamespace="http://amqp.apache.org/qpid/management/qman">
+			<xsd:import namespace="http://docs.oasis-open.org/wsrf/bf-2" schemaLocation="WS-BaseFaults-1_2.xsd"/>
+			<xsd:import namespace="http://docs.oasis-open.org/wsrf/sg-2" schemaLocation="WS-ServiceGroup-1_2.xsd"/>
+			<xsd:import namespace="http://docs.oasis-open.org/wsrf/rp-2" schemaLocation="WS-ResourceProperties-1_2.xsd"/>
+			<xsd:import namespace="http://docs.oasis-open.org/wsn/b-2" schemaLocation="WS-BaseNotification-1_3.xsd"/>
+			<xsd:import namespace="http://docs.oasis-open.org/wsn/t-1" schemaLocation="WS-Topics-1_3.xsd"/>
+			<xsd:element name="WsDmAdapterResourceProperties">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element ref="wsrf-sg:Entry"/>
+						<xsd:element ref="wsrf-sg:MembershipContentRule"/>
+						<xsd:element ref="wsrf-rp:QueryExpressionDialect" minOccurs="0" maxOccurs="unbounded" />
+						<xsd:element ref="wsnt:FixedTopicSet" />
+						<xsd:element ref="wst:TopicSet" minOccurs="0" />
+						<xsd:element ref="wsnt:TopicExpression" minOccurs="0" maxOccurs="unbounded" />
+						<xsd:element ref="wsnt:TopicExpressionDialect" minOccurs="0" maxOccurs="unbounded" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			
+			<xsd:element name="OperationInvocationFault">
+				<xsd:complexType>
+					<xsd:complexContent>
+						<xsd:extension base="wsrf-bf:BaseFaultType"/>
+					</xsd:complexContent>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="EntityInstanceNotFoundFault">
+				<xsd:complexType>
+					<xsd:complexContent>
+						<xsd:extension base="wsrf-bf:BaseFaultType"/>
+					</xsd:complexContent>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="MalformedEntityNameFault">
+				<xsd:complexType>
+					<xsd:complexContent>
+						<xsd:extension base="wsrf-bf:BaseFaultType"/>
+					</xsd:complexContent>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="NoSuchAttributeFault">
+				<xsd:complexType>
+					<xsd:complexContent>
+						<xsd:extension base="wsrf-bf:BaseFaultType"/>
+					</xsd:complexContent>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="Connect">
+				<xsd:complexType>
+					<xsd:sequence>
+		            	<xsd:element name="host" type="xsd:string" minOccurs="1" nillable="false"/>
+		            	<xsd:element name="port" type="xsd:integer" minOccurs="1" nillable="false"/>
+		            	<xsd:element name="username" type="xsd:string" minOccurs="1" nillable="false"/>
+		            	<xsd:element name="password" type="xsd:string" minOccurs="1" nillable="false"/>
+		            	<xsd:element name="virtualHost" type="xsd:string" minOccurs="1" nillable="false"/>
+		            	<xsd:element name="initialPoolCapacity" type="xsd:integer" minOccurs="1" nillable="false"/>
+		            	<xsd:element name="maxPoolCapacity" type="xsd:integer" minOccurs="1" nillable="false"/>
+		            	<xsd:element name="maxWaitTimeout" type="xsd:long" minOccurs="1" nillable="false"/>		            	
+		          </xsd:sequence>
+		        </xsd:complexType>
+			</xsd:element>
+			<xsd:element name="ConnectResponse"/>
+		</xsd:schema>	
+	</wsdl:types>	
+	
+	<wsdl:message name="SubscribeRequest">
+		<wsdl:part name="SubscribeRequest" element="wsnt:Subscribe" />
+	</wsdl:message>
+
+	<wsdl:message name="SubscribeResponse">
+		<wsdl:part name="SubscribeResponse"
+			element="wsnt:SubscribeResponse" />
+	</wsdl:message>
+
+	<wsdl:message name="SubscribeCreationFailedFault">
+		<wsdl:part name="SubscribeCreationFailedFault"
+			element="wsnt:SubscribeCreationFailedFault" />
+	</wsdl:message>
+
+	<wsdl:message name="TopicExpressionDialectUnknownFault">
+		<wsdl:part name="TopicExpressionDialectUnknownFault"
+			element="wsnt:TopicExpressionDialectUnknownFault" />
+	</wsdl:message>
+
+	<wsdl:message name="InvalidFilterFault">
+		<wsdl:part name="InvalidFilterFault"
+			element="wsnt:InvalidFilterFault" />
+	</wsdl:message>
+
+	<wsdl:message name="InvalidProducerPropertiesExpressionFault">
+		<wsdl:part name="InvalidProducerPropertiesExpressionFault"
+			element="wsnt:InvalidProducerPropertiesExpressionFault" />
+	</wsdl:message>
+
+	<wsdl:message name="InvalidMessageContentExpressionFault">
+		<wsdl:part name="InvalidMessageContentExpressionFault"
+			element="wsnt:InvalidMessageContentExpressionFault" />
+	</wsdl:message>
+
+	<wsdl:message name="UnrecognizedPolicyRequestFault">
+		<wsdl:part name="UnrecognizedPolicyRequestFault"
+			element="wsnt:UnrecognizedPolicyRequestFault" />
+	</wsdl:message>
+
+	<wsdl:message name="UnsupportedPolicyRequestFault">
+		<wsdl:part name="UnsupportedPolicyRequestFault"
+			element="wsnt:UnsupportedPolicyRequestFault" />
+	</wsdl:message>
+
+	<wsdl:message name="NotifyMessageNotSupportedFault">
+		<wsdl:part name="NotifyMessageNotSupportedFault"
+			element="wsnt:NotifyMessageNotSupportedFault" />
+	</wsdl:message>
+
+	<wsdl:message name="UnacceptableInitialTerminationTimeFault">
+		<wsdl:part name="UnacceptableInitialTerminationTimeFault"
+			element="wsnt:UnacceptableInitialTerminationTimeFault" />
+	</wsdl:message>
+
+	<!-- ========== NotificationProducer::GetCurrentMessage =========== 
+		GetCurrentMessage(topicExpression)
+		returns: a NotificationMessage (xsd:any)
+	-->
+	<wsdl:message name="GetCurrentMessageRequest">
+		<wsdl:part name="GetCurrentMessageRequest"
+			element="wsnt:GetCurrentMessage" />
+	</wsdl:message>
+
+	<wsdl:message name="GetCurrentMessageResponse">
+		<wsdl:part name="GetCurrentMessageResponse"
+			element="wsnt:GetCurrentMessageResponse" />
+	</wsdl:message>
+
+	<wsdl:message name="InvalidTopicExpressionFault">
+		<wsdl:part name="InvalidTopicExpressionFault"
+			element="wsnt:InvalidTopicExpressionFault" />
+	</wsdl:message>
+
+	<wsdl:message name="TopicNotSupportedFault">
+		<wsdl:part name="TopicNotSupportedFault"
+			element="wsnt:TopicNotSupportedFault" />
+	</wsdl:message>
+
+	<wsdl:message name="MultipleTopicsSpecifiedFault">
+		<wsdl:part name="MultipleTopicsSpecifiedFault"
+			element="wsnt:MultipleTopicsSpecifiedFault" />
+	</wsdl:message>
+
+	<wsdl:message name="NoCurrentMessageOnTopicFault">
+		<wsdl:part name="NoCurrentMessageOnTopicFault"
+			element="wsnt:NoCurrentMessageOnTopicFault" />
+	</wsdl:message>
+	
+	
+	
+	<wsdl:message name="OperationInvocationFaultMessage">
+    	<wsdl:part name="OperationInvocationFault" element="qman:OperationInvocationFault" />
+    </wsdl:message>
+	<wsdl:message name="EntityInstanceNotFoundFaultMessage">
+    	<wsdl:part name="EntityInstanceNotFound" element="qman:EntityInstanceNotFoundFault" />
+    </wsdl:message>
+	<wsdl:message name="MalformedEntityNameFaultMessage">
+    	<wsdl:part name="MalformedEntityName" element="qman:MalformedEntityNameFault" />
+    </wsdl:message>
+	<wsdl:message name="NoSuchAttributeFaultMessage">
+    	<wsdl:part name="NoSuchAttributeFault" element="qman:NoSuchAttributeFault" />
+    </wsdl:message>
+	<wsdl:message name="ConnectRequestMessage">
+		<wsdl:part name="ConnectRequest" element="qman:Connect" />
+	</wsdl:message>
+	<wsdl:message name="ConnectResponseMessage">
+		<wsdl:part name="ConnectResponse" element="qman:ConnectResponse" />
+	</wsdl:message>
+	<wsdl:message name="InvalidResourcePropertyQNameFault">
+		<wsdl:part name="InvalidResourcePropertyQNameFault" element="wsrf-rp:InvalidResourcePropertyQNameFault" />
+	</wsdl:message>
+	<wsdl:message name="ResourceUnknownFault">
+		<wsdl:part name="ResourceUnknownFault" element="wsrf-r:ResourceUnknownFault" />
+	</wsdl:message> 
+	<wsdl:message name="ResourceUnavailableFault">
+		<wsdl:part name="ResourceUnavailableFault" element="wsrf-r:ResourceUnavailableFault" />
+	</wsdl:message>
+	<wsdl:message name="GetResourcePropertyDocumentRequest">
+		<wsdl:part name="GetResourcePropertyDocumentRequest" element="wsrf-rp:GetResourcePropertyDocument"/>
+	</wsdl:message>
+	<wsdl:message name="GetResourcePropertyDocumentResponse">
+		<wsdl:part name="GetResourcePropertyDocumentResponse" element="wsrf-rp:GetResourcePropertyDocumentResponse"/>
+	</wsdl:message>
+	<wsdl:message name="GetMultipleResourcePropertiesRequest">
+    	<wsdl:part name="GetMultipleResourcePropertiesRequest" element="wsrf-rp:GetMultipleResourceProperties" />
+    </wsdl:message>
+    <wsdl:message name="GetMultipleResourcePropertiesResponse">
+    	<wsdl:part name="GetMultipleResourcePropertiesResponse" element="wsrf-rp:GetMultipleResourcePropertiesResponse" />
+    </wsdl:message>		
+	<wsdl:message name="GetResourcePropertyRequest">
+		<wsdl:part name="GetResourcePropertyRequest" element="wsrf-rp:GetResourceProperty" />
+	</wsdl:message>
+	<wsdl:message name="GetResourcePropertyResponse">
+		<wsdl:part name="GetResourcePropertyResponse" element="wsrf-rp:GetResourcePropertyResponse" />
+	</wsdl:message>	 
+	<wsdl:message name="GetMetadataRequestMessage">
+  		<wsdl:part name="GetMetadataMsg" element="wsx:GetMetadata" />
+	</wsdl:message>
+	<wsdl:message name="GetMetadataResponseMessage">
+  		<wsdl:part name="GetMetadataResponseMsg" element="wsx:Metadata" />
+	</wsdl:message>
+	    <wsdl:message name="QueryResourcePropertiesRequest">
+    	<wsdl:part name="QueryResourcePropertiesRequest" element="wsrf-rp:QueryResourceProperties" />
+    </wsdl:message>
+    <wsdl:message name="QueryResourcePropertiesResponse">
+    	<wsdl:part name="QueryResourcePropertiesResponse" element="wsrf-rp:QueryResourcePropertiesResponse" />
+    </wsdl:message>
+    <wsdl:message name="UnknownQueryExpressionDialectFault">
+    	<wsdl:part name="UnknownQueryExpressionDialectFault" element="wsrf-rp:UnknownQueryExpressionDialectFault" />
+    </wsdl:message>
+    <wsdl:message name="InvalidQueryExpressionFault">
+    	<wsdl:part name="InvalidQueryExpressionFault" element="wsrf-rp:InvalidQueryExpressionFault" />
+    </wsdl:message>
+    <wsdl:message name="QueryEvaluationErrorFault">
+    	<wsdl:part name="QueryEvaluationErrorFault" element="wsrf-rp:QueryEvaluationErrorFault" />
+    </wsdl:message>
+	<wsdl:portType 
+		name="QManAdapterPortType" 
+		wsrf-rp:ResourceProperties="qman:WsDmAdapterResourceProperties" 
+	    wsrmd:Descriptor="WsDmAdapterMetadata" wsrmd:DescriptorLocation="QManAdapter.rmd">
+
+		<wsdl:operation name="Subscribe">
+			<wsdl:input
+				wsa:Action="http://docs.oasis-open.org/wsn/bw-2/NotificationProducer/SubscribeRequest"
+				message="qman:SubscribeRequest" />
+			<wsdl:output
+				wsa:Action="http://docs.oasis-open.org/wsn/bw-2/NotificationProducer/SubscribeResponse"
+				message="qman:SubscribeResponse" />
+			<wsdl:fault name="ResourceUnknownFault"
+				message="qman:ResourceUnknownFault" />
+			<wsdl:fault name="InvalidFilterFault"
+				message="qman:InvalidFilterFault" />
+			<wsdl:fault name="TopicExpressionDialectUnknownFault"
+				message="qman:TopicExpressionDialectUnknownFault" />
+			<wsdl:fault name="InvalidTopicExpressionFault"
+				message="qman:InvalidTopicExpressionFault" />
+			<wsdl:fault name="TopicNotSupportedFault"
+				message="qman:TopicNotSupportedFault" />
+			<wsdl:fault name="InvalidProducerPropertiesExpressionFault"
+				message="qman:InvalidProducerPropertiesExpressionFault" />
+			<wsdl:fault name="InvalidMessageContentExpressionFault"
+				message="qman:InvalidMessageContentExpressionFault" />
+			<wsdl:fault name="UnacceptableInitialTerminationTimeFault"
+				message="qman:UnacceptableInitialTerminationTimeFault" />
+			<wsdl:fault name="UnrecognizedPolicyRequestFault"
+				message="qman:UnrecognizedPolicyRequestFault" />
+			<wsdl:fault name="UnsupportedPolicyRequestFault"
+				message="qman:UnsupportedPolicyRequestFault" />
+			<wsdl:fault name="NotifyMessageNotSupportedFault"
+				message="qman:NotifyMessageNotSupportedFault" />
+			<wsdl:fault name="SubscribeCreationFailedFault"
+				message="qman:SubscribeCreationFailedFault" />
+		</wsdl:operation>
+		<wsdl:operation name="GetCurrentMessage">
+			<wsdl:input
+				wsa:Action="http://docs.oasis-open.org/wsn/bw-2/NotificationProducer/GetCurrentMessageRequest"
+				message="qman:GetCurrentMessageRequest" />
+			<wsdl:output
+				wsa:Action="http://docs.oasis-open.org/wsn/bw-2/NotificationProducer/GetCurrentMessageResponse"
+				message="qman:GetCurrentMessageResponse" />
+			<wsdl:fault name="ResourceUnknownFault"
+				message="qman:ResourceUnknownFault" />
+			<wsdl:fault name="TopicExpressionDialectUnknownFault"
+				message="qman:TopicExpressionDialectUnknownFault" />
+			<wsdl:fault name="InvalidTopicExpressionFault"
+				message="qman:InvalidTopicExpressionFault" />
+			<wsdl:fault name="TopicNotSupportedFault"
+				message="qman:TopicNotSupportedFault" />
+			<wsdl:fault name="NoCurrentMessageOnTopicFault"
+				message="qman:NoCurrentMessageOnTopicFault" />
+			<wsdl:fault name="MultipleTopicsSpecifiedFault"
+				message="qman:MultipleTopicsSpecifiedFault" />
+		</wsdl:operation>		 
+		 
+		<wsdl:operation name="QueryResourceProperties">
+			<wsdl:input 
+				wsa:Action="http://docs.oasis-open.org/wsrf/rpw-2/QueryResourceProperties/QueryResourcePropertiesRequest" 
+				name="QueryResourcePropertiesRequest" 
+				message="qman:QueryResourcePropertiesRequest" />
+			<wsdl:output 
+				wsa:Action="http://docs.oasis-open.org/wsrf/rpw-2/QueryResourceProperties/QueryResourcePropertiesResponse" 
+			    name="QueryResourcePropertiesResponse" 
+			    message="qman:QueryResourcePropertiesResponse" />
+			<wsdl:fault name="ResourceUnknownFault" message="qman:ResourceUnknownFault"/>
+			<wsdl:fault name="ResourceUnavailableFault" message="qman:ResourceUnavailableFault"/>
+			<wsdl:fault name="UnknownQueryExpressionDialectFault" message="qman:UnknownQueryExpressionDialectFault"/>
+			<wsdl:fault name="InvalidQueryExpressionFault" message="qman:InvalidQueryExpressionFault"/>
+			<wsdl:fault name="QueryEvaluationErrorFault" message="qman:QueryEvaluationErrorFault" />
+    	</wsdl:operation>
+		<wsdl:operation name="Connect">
+			<wsdl:documentation>
+				Connects QMan with a new broker.
+			</wsdl:documentation>
+			<wsdl:input 
+				wsa:Action="http://amqp.apache.org/qpid/management/qman/Connect" 
+			    name="ConnectRequestInput" 
+			    message="qman:ConnectRequestMessage" />
+			<wsdl:output 
+				wsa:Action="http://amqp.apache.org/qpid/management/qman/ConnectResponse" 
+			    name="ConnectResponseOutput" 
+			    message="qman:ConnectResponseMessage" />
+		</wsdl:operation>
+		<wsdl:operation name="GetMultipleResourceProperties">
+			<wsdl:documentation>				
+				Returns an array containing values for the requested properties.
+				Note that using this method it's possibile to retrieve only the value of the QManService properties.
+				That is : this method is not supposed to be used for retrieve attributes of the QMan managed entities. For that, the GetManagedEntityAttributeValue must be used.</wsdl:documentation>
+			<wsdl:input 
+				wsa:Action="http://docs.oasis-open.org/wsrf/rpw-2/GetMultipleResourceProperties/GetMultipleResourcePropertiesRequest" 
+			    name="GetMultipleResourcePropertiesRequest" 
+			    message="qman:GetMultipleResourcePropertiesRequest" />
+			<wsdl:output 
+				wsa:Action="http://docs.oasis-open.org/wsrf/rpw-2/GetMultipleResourceProperties/GetMultipleResourcePropertiesResponse" 
+			    name="GetMultipleResourcePropertiesResponse" 
+			    message="qman:GetMultipleResourcePropertiesResponse" />
+			<wsdl:fault name="ResourceUnknownFault" message="qman:ResourceUnknownFault"/>
+			<wsdl:fault name="ResourceUnavailableFault" message="qman:ResourceUnavailableFault"/>
+			<wsdl:fault name="InvalidResourcePropertyQNameFault" message="qman:InvalidResourcePropertyQNameFault" />
+    	</wsdl:operation>	
+		<wsdl:operation name="GetResourcePropertyDocument">
+			<wsdl:documentation>
+				Returns resource's entire WS-RP document, with the most up-to-date values of all properties. Note that using this method it's possibile to retrieve only the value of the QManService properties.
+				That is : this method is not supposed to be used for retrieve attributes of the QMan managed entities. For that, the GetManagedEntityAttributeValue must be used.</wsdl:documentation>
+			<wsdl:input 
+				wsa:Action="http://docs.oasis-open.org/wsrf/rpw-2/GetResourcePropertyDocument/GetResourcePropertyDocumentRequest" 
+			    name="GetResourcePropertyDocumentRequest" 
+			    message="qman:GetResourcePropertyDocumentRequest"/>
+			<wsdl:output 
+				wsa:Action="http://docs.oasis-open.org/wsrf/rpw-2/GetResourcePropertyDocument/GetResourcePropertyDocumentResponse" 
+				name="GetResourcePropertyDocumentResponse" 
+				message="qman:GetResourcePropertyDocumentResponse"/>
+			<wsdl:fault name="ResourceUnknownFault" message="qman:ResourceUnknownFault"/>
+			<wsdl:fault name="ResourceUnavailableFault" message="qman:ResourceUnavailableFault"/>
+		</wsdl:operation>
+		<wsdl:operation name="GetResourceProperty">
+			<wsdl:documentation>
+				Returns the value of the given property. Note that using this method it's possibile to retrieve only the value of the QManService properties.
+				That is : this method is not supposed to be used for retrieve attributes of the QMan managed entities. For that, the GetManagedEntityAttributeValue must be used.
+			</wsdl:documentation>
+			<wsdl:input 
+				wsa:Action="http://docs.oasis-open.org/wsrf/rpw-2/GetResourceProperty/GetResourcePropertyRequest" 
+			    name="GetResourcePropertyRequest" 
+			    message="qman:GetResourcePropertyRequest" />
+			<wsdl:output 
+				wsa:Action="http://docs.oasis-open.org/wsrf/rpw-2/GetResourceProperty/GetResourcePropertyResponse" 
+			    name="GetResourcePropertyResponse" 
+			    message="qman:GetResourcePropertyResponse" />		    
+			<wsdl:fault name="ResourceUnknownFault" message="qman:ResourceUnknownFault"/>
+			<wsdl:fault name="ResourceUnavailableFault" message="qman:ResourceUnavailableFault"/>
+			<wsdl:fault name="InvalidResourcePropertyQNameFault" message="qman:InvalidResourcePropertyQNameFault" />
+		</wsdl:operation>	
+		<wsdl:operation name="GetMetadata">
+			<wsdl:documentation>
+				Implementation of the WS-MetadataExchange GetMetadata port type. Note that the only supported metadata type (dialect) is WSDL.
+			</wsdl:documentation>
+			<wsdl:input 
+				wsa:Action="http://schemas.xmlsoap.org/ws/2004/09/mex/GetMetadata" 
+			    name="GetMetadataMsg" 
+			    message="qman:GetMetadataRequestMessage"/>
+			<wsdl:output 
+				wsa:Action="http://schemas.xmlsoap.org/ws/2004/09/mex/GetMetadataResponse" 
+			    name="GetMetadataResponseMsg" 
+			    message="qman:GetMetadataResponseMessage"/>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:binding name="QManAdapterBinding" type="qman:QManAdapterPortType">
+		<wsdl-soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />        
+		<wsdl:operation name="Subscribe">
+			<wsdl-soap:operation
+				soapAction="http://ws.apache.org/muse/test/wsrf/Subscribe" />
+			<wsdl:input>
+				<wsdl-soap:body use="literal"
+					encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+			</wsdl:input>
+			<wsdl:output>
+				<wsdl-soap:body use="literal"
+					encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+			</wsdl:output>
+			<wsdl:fault name="ResourceUnknownFault">
+				<wsdl-soap:fault
+					namespace="http://ws.apache.org/muse/test/wsrf" use="encoded"
+					name="ResourceUnknownFault" />
+			</wsdl:fault>
+			<wsdl:fault name="InvalidFilterFault">
+				<wsdl-soap:fault
+					namespace="http://ws.apache.org/muse/test/wsrf" use="encoded"
+					name="InvalidFilterFault" />
+			</wsdl:fault>
+			<wsdl:fault name="TopicExpressionDialectUnknownFault">
+				<wsdl-soap:fault
+					namespace="http://ws.apache.org/muse/test/wsrf" use="encoded"
+					name="TopicExpressionDialectUnknownFault" />
+			</wsdl:fault>
+			<wsdl:fault name="InvalidTopicExpressionFault">
+				<wsdl-soap:fault
+					namespace="http://ws.apache.org/muse/test/wsrf" use="encoded"
+					name="InvalidTopicExpressionFault" />
+			</wsdl:fault>
+			<wsdl:fault name="TopicNotSupportedFault">
+				<wsdl-soap:fault
+					namespace="http://ws.apache.org/muse/test/wsrf" use="encoded"
+					name="TopicNotSupportedFault" />
+			</wsdl:fault>
+			<wsdl:fault
+				name="InvalidProducerPropertiesExpressionFault">
+				<wsdl-soap:fault
+					namespace="http://ws.apache.org/muse/test/wsrf" use="encoded"
+					name="InvalidProducerPropertiesExpressionFault" />
+			</wsdl:fault>
+			<wsdl:fault name="InvalidMessageContentExpressionFault">
+				<wsdl-soap:fault
+					namespace="http://ws.apache.org/muse/test/wsrf" use="encoded"
+					name="InvalidMessageContentExpressionFault" />
+			</wsdl:fault>
+			<wsdl:fault
+				name="UnacceptableInitialTerminationTimeFault">
+				<wsdl-soap:fault
+					namespace="http://ws.apache.org/muse/test/wsrf" use="encoded"
+					name="UnacceptableInitialTerminationTimeFault" />
+			</wsdl:fault>
+			<wsdl:fault name="UnrecognizedPolicyRequestFault">
+				<wsdl-soap:fault
+					namespace="http://ws.apache.org/muse/test/wsrf" use="encoded"
+					name="UnrecognizedPolicyRequestFault" />
+			</wsdl:fault>
+			<wsdl:fault name="UnsupportedPolicyRequestFault">
+				<wsdl-soap:fault
+					namespace="http://ws.apache.org/muse/test/wsrf" use="encoded"
+					name="UnsupportedPolicyRequestFault" />
+			</wsdl:fault>
+			<wsdl:fault name="NotifyMessageNotSupportedFault">
+				<wsdl-soap:fault
+					namespace="http://ws.apache.org/muse/test/wsrf" use="encoded"
+					name="NotifyMessageNotSupportedFault" />
+			</wsdl:fault>
+			<wsdl:fault name="SubscribeCreationFailedFault">
+				<wsdl-soap:fault
+					namespace="http://ws.apache.org/muse/test/wsrf" use="encoded"
+					name="SubscribeCreationFailedFault" />
+			</wsdl:fault>
+		</wsdl:operation>
+		<wsdl:operation name="GetCurrentMessage">
+			<wsdl-soap:operation
+				soapAction="http://ws.apache.org/muse/test/wsrf/GetCurrentMessage" />
+			<wsdl:input>
+				<wsdl-soap:body use="literal"
+					encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+			</wsdl:input>
+			<wsdl:output>
+				<wsdl-soap:body use="literal"
+					encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+			</wsdl:output>
+			<wsdl:fault name="ResourceUnknownFault">
+				<wsdl-soap:fault
+					namespace="http://ws.apache.org/muse/test/wsrf" use="encoded"
+					name="ResourceUnknownFault" />
+			</wsdl:fault>
+			<wsdl:fault name="TopicExpressionDialectUnknownFault">
+				<wsdl-soap:fault
+					namespace="http://ws.apache.org/muse/test/wsrf" use="encoded"
+					name="TopicExpressionDialectUnknownFault" />
+			</wsdl:fault>
+			<wsdl:fault name="InvalidTopicExpressionFault">
+				<wsdl-soap:fault
+					namespace="http://ws.apache.org/muse/test/wsrf" use="encoded"
+					name="InvalidTopicExpressionFault" />
+			</wsdl:fault>
+			<wsdl:fault name="TopicNotSupportedFault">
+				<wsdl-soap:fault
+					namespace="http://ws.apache.org/muse/test/wsrf" use="encoded"
+					name="TopicNotSupportedFault" />
+			</wsdl:fault>
+			<wsdl:fault name="NoCurrentMessageOnTopicFault">
+				<wsdl-soap:fault
+					namespace="http://ws.apache.org/muse/test/wsrf" use="encoded"
+					name="NoCurrentMessageOnTopicFault" />
+			</wsdl:fault>
+			<wsdl:fault name="MultipleTopicsSpecifiedFault">
+				<wsdl-soap:fault
+					namespace="http://ws.apache.org/muse/test/wsrf" use="encoded"
+					name="MultipleTopicsSpecifiedFault" />
+			</wsdl:fault>
+		</wsdl:operation>		
+		
+		<wsdl:operation name="QueryResourceProperties">
+        	<wsdl-soap:operation soapAction="QueryResourceProperties"/>
+        	<wsdl:input name="QueryResourcePropertiesRequest">
+        		<wsdl-soap:body 
+        			use="encoded"
+					encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+        	</wsdl:input>
+        	<wsdl:output name="QueryResourcePropertiesResponse">
+        		<wsdl-soap:body 
+        			use="encoded" 
+					encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+        	</wsdl:output>
+        	<wsdl:fault name="ResourceUnknownFault">
+        		<wsdl-soap:fault 
+        			use="encoded" 
+        			name="ResourceUnknownFault"/>
+        	</wsdl:fault>
+        	<wsdl:fault name="ResourceUnavailableFault">
+        		<wsdl-soap:fault 
+        			use="encoded" 
+        			name="ResourceUnavailableFault"/>
+        	</wsdl:fault>
+        	<wsdl:fault name="UnknownQueryExpressionDialectFault">
+        		<wsdl-soap:fault 
+        			use="encoded" 
+        			name="UnknownQueryExpressionDialectFault"/>
+        	</wsdl:fault>
+        	<wsdl:fault name="InvalidQueryExpressionFault">
+        		<wsdl-soap:fault 
+        			use="encoded" 
+        			name="InvalidQueryExpressionFault"/>
+        	</wsdl:fault>
+        	<wsdl:fault name="QueryEvaluationErrorFault">
+        		<wsdl-soap:fault 
+        			use="encoded" 
+        			name="QueryEvaluationErrorFault"/>
+        	</wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="Connect">
+			<wsdl-soap:operation soapAction="Connect" />
+			<wsdl:input>
+				<wsdl-soap:body 
+					use="literal" 
+					encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+			</wsdl:input>
+			<wsdl:output>
+				<wsdl-soap:body 
+					use="literal" 
+					encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+			</wsdl:output>
+		</wsdl:operation>	
+        <wsdl:operation name="GetMultipleResourceProperties">
+        	<wsdl-soap:operation soapAction="GetMultipleResourceProperties"/>
+        	<wsdl:input name="GetMultipleResourcePropertiesRequest">
+        		<wsdl-soap:body 
+        			use="literal"
+					encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+        	</wsdl:input>
+        	<wsdl:output name="GetMultipleResourcePropertiesResponse">
+        		<wsdl-soap:body 
+        			use="literal" 
+					encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+        	</wsdl:output>
+        	<wsdl:fault name="ResourceUnknownFault">
+        		<wsdl-soap:fault 
+        			use="literal" 
+        			name="ResourceUnknownFault"/>
+        	</wsdl:fault>
+        	<wsdl:fault name="ResourceUnavailableFault">
+        		<wsdl-soap:fault 
+        			use="literal" 
+        			name="ResourceUnavailableFault"/>
+        	</wsdl:fault>
+        	<wsdl:fault name="InvalidResourcePropertyQNameFault">
+        		<wsdl-soap:fault 
+        			use="literal" 
+        			name="InvalidResourcePropertyQNameFault"/>
+        	</wsdl:fault>
+        </wsdl:operation>		
+        <wsdl:operation name="GetResourcePropertyDocument">
+        	<wsdl-soap:operation soapAction="GetResourcePropertyDocument"/>
+        	<wsdl:input name="GetResourcePropertyDocumentRequest">
+        		<wsdl-soap:body 
+        			use="literal"
+					encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+        	</wsdl:input>
+        	<wsdl:output name="GetResourcePropertyDocumentResponse">
+        		<wsdl-soap:body 
+        			use="literal" 
+					encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+        	</wsdl:output>
+        	<wsdl:fault name="ResourceUnknownFault">
+        		<wsdl-soap:fault 
+        			use="literal" 
+        			name="ResourceUnknownFault"/>
+        	</wsdl:fault>
+        	<wsdl:fault name="ResourceUnavailableFault">
+        		<wsdl-soap:fault 
+        			use="literal" 
+        			name="ResourceUnavailableFault"/>
+        	</wsdl:fault>
+        </wsdl:operation>		
+      	<wsdl:operation name="GetResourceProperty">
+        	<wsdl-soap:operation soapAction="GetResourceProperty"/>
+        	<wsdl:input name="GetResourcePropertyRequest">
+        		<wsdl-soap:body 
+        			use="literal"
+					encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+        	</wsdl:input>
+        	<wsdl:output name="GetResourcePropertyResponse">
+        		<wsdl-soap:body 
+        			use="literal" 
+					encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+        	</wsdl:output>
+        	<wsdl:fault name="ResourceUnknownFault">
+        		<wsdl-soap:fault 
+        			use="literal" 
+        			name="ResourceUnknownFault"/>
+        	</wsdl:fault>
+        	<wsdl:fault name="ResourceUnavailableFault">
+        		<wsdl-soap:fault 
+        			use="literal" 
+        			name="ResourceUnavailableFault"/>
+        	</wsdl:fault>
+        	<wsdl:fault name="InvalidResourcePropertyQNameFault">
+        		<wsdl-soap:fault 
+        			use="literal" 
+        			name="InvalidResourcePropertyQNameFault"/>
+        	</wsdl:fault>
+        </wsdl:operation>
+		<wsdl:operation name="GetMetadata">
+			<wsdl-soap:operation soapAction="GetMetadata" />
+			<wsdl:input>
+				<wsdl-soap:body 
+					use="literal" 
+					encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+			</wsdl:input>
+			<wsdl:output>
+				<wsdl-soap:body 
+					use="literal" 
+					encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:service name="QManAdapterService">
+    	<wsdl:port name="QManAdapterPort" binding="qman:QManAdapterBinding">
+    		<wsdl-soap:address location="http://romagazzarini:8080/qman/services/adapter"/>
+    	</wsdl:port>
+	</wsdl:service>
+</wsdl:definitions>

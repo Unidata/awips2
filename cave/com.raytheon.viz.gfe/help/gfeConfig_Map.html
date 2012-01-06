@@ -1,0 +1,240 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]">
+  <title>gfeConfig - Map Background Configuration</title>
+</head>
+<body style="background-color: rgb(255, 255, 255);">
+<div class="Body">
+<h2 style="text-align: center;">GFE/ifpIMAGE Configuration File<br>
+Map Background Configuration</h2>
+The map background configuration section defines the following:
+<ul>
+  <li>Initial list of map backgrounds to be displayed when the GFE is
+initialized</li>
+  <li>Available map background colors.</li>
+</ul>
+<table nosave="" border="1" cols="4" width="100%">
+  <tbody>
+    <tr>
+      <td>
+      <center><b>GFE Configuration Item</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to GFE</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to ifpIMAGE</b></center>
+      </td>
+      <td>
+      <center><b>Notes</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#DefaultMapBackgrounds">Default Map Backgrounds</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#MapBackgroundColors">Map Background Colors</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#MapBackgroundLineWidths">Map Background Line Widths</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#MapBackgroundLinePatterns">Map Background Line
+Pattern</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#MapLabelOffsets">Map Label Offsets</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#MapBackgroundLabels">Map Background Labels</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#FontOffset">Map Background Font Offset</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td>The entry Map_font defines the base font to be used on all
+map backgrounds.</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<a name="DefaultMapBackgrounds"></a><b><font size="+1">Default Map
+Backgrounds</font></b>
+<p>The default map background list can contain zero or more map
+names.&nbsp;
+Refer to Maps.py in the server configuration file section for the
+possible
+set of map names, or use the GFE to display the list of available maps
+and choose names from the list. </p>
+<p>The following variable will load the initial loaded set of map
+backgrounds.
+The name of the <br>
+background should match the list of available maps defined in Maps.py
+in the server configuration files. </p>
+<p><b><tt>MapBackgrounds_default = ['CWA','States']</tt></b> <br>
+</p>
+<p>&nbsp; </p>
+<h4><a name="MapBackgroundColors"></a><font size="+1">Map Background
+Colors</font></h4>
+The available set of map background colors is specified in the
+MapBackgrounds_availColors.&nbsp;
+At present, all map backgrounds use the first color, unless explicitly
+overridden; the other colors are not assigned.&nbsp; The list of
+available
+colors is used in the spatial editor popup button 3 menu over the map
+legend.&nbsp;
+It is the list of colors that appear in the change graphic color menu.
+<p>The following variable defines the available colors for the map
+backgrounds
+that appears <br>
+in the color list popup button 3 over a map legend. </p>
+<p><b><tt>MapBackgrounds_availColors = ['gray60', 'yellow', 'white']</tt></b>
+</p>
+<p>Default Map Background colors can be set by map name.&nbsp; If you
+want
+a specific map background, such as States, to be a certain color, then
+this can be defined in the configuration file.&nbsp; You can always
+change
+the map background color to something else during the GFE
+session.&nbsp;
+If not specified, the assigned default color for the map background
+will
+be the first entry in MapBackgrounds_availColors. </p>
+<p>The user may specify a specific color to be used for a map
+background,
+rather than getting a random color assigned. Format is
+mapName_graphicColor
+= color.&nbsp; The color does not need to be in the
+MapBackgrounds_availColors
+list. </p>
+<p><b><tt>States_graphicColor = 'green'</tt></b> <br>
+</p>
+<p>&nbsp; </p>
+<h4><a name="MapBackgroundLineWidths"></a><font size="+1">Map
+Background Line
+Widths</font></h4>
+The default line width of the map background can be specified in the
+configuration
+file.&nbsp; Valid numbers are zero and up. You can always change the
+line
+width interactively during a GFE session.&nbsp; If not specified, then
+the line width is assumed to be zero.
+<p>Default line widths can be set for each map background based on
+map
+name. Zero is the default value, which represents thin lines. The
+larger
+the number, the wider the line.&nbsp; The format is mapName_lineWidth.
+Do not include a decimal point after these entries. </p>
+<p><b><tt>States_lineWidth = 1</tt></b> <br>
+</p>
+<p>&nbsp; </p>
+<h4><a name="MapBackgroundLinePatterns"></a><font size="+1">Map
+Background Line
+Patterns</font></h4>
+The default line pattern can be varied for each map background.&nbsp;
+If
+not specified, then the line pattern is assumed to be solid.&nbsp;
+There
+are currently four line patterns supported in the GFE.
+<p>Default line patterns can be set up for each map background.&nbsp;
+The
+possible strings are "SOLID", "DASHED", "DOTTED",
+"DASHED_DOTTED".&nbsp;
+The values must be enclosed within quotes.&nbsp;&nbsp; The format is
+mapName_linePattern. </p>
+<p><b><tt>States_linePattern = "SOLID"</tt></b> <br>
+</p>
+<p>&nbsp; </p>
+<p><a name="MapLabelOffsets"></a><b><font size="+1">Map Label Offsets</font></b>
+</p>
+<p>MapLabelXOffset and MapLabelYOffset are the number of pixels you
+wish
+to move map city labels relative to their "normal" position (Default is
+(0,0)). </p>
+<p><b><tt>MapLabelXOffset = 0</tt></b> <br>
+<b><tt>MapLabelXOffset = 0</tt></b> <br>
+</p>
+<p>&nbsp; </p>
+<p><a name="MapBackgroundLabels"></a><b><font size="+1">Map
+Background Labels</font></b> </p>
+<p>Labels may be placed on any map background.&nbsp; The choice of
+labels
+is limited to the shapefile attributes that are present for the
+particular
+map background.&nbsp; For example, the States map background has the
+following
+attributes in its shapefile: STATE, FIPS, LON, NAME, recnum, LAT,
+FE_ZONE.&nbsp;
+The format of specifying a default label attribute for the map
+background
+is mapName_labelAttribute = attributeName. </p>
+<p><b><tt>Cities_labelAttribute = "NAME"</tt></b> <br>
+&nbsp; <br>
+<br>
+&nbsp; </p>
+<h4><a name="FontOffset"></a><font size="+1">Map Background Font
+Offset</font></h4>
+The font used for a specific map background display is based on three
+things:
+<blockquote><li>The definition of TextFont*, which defines the standard
+fonts used in
+the
+GFE.</li>
+  <li>The optional definition of display type fonts, which defines
+which of
+the
+standard fonts should be used for this particular type of display
+(e.g.,
+Map_font).</li>
+  <li>The optional font offset, which adds or subtracts an offset size
+from
+the
+calculations derived in the first two steps.</li>
+</blockquote>
+The font offset (called magnification on the GFE menus) allows the
+default
+font size to be increased or decreased on a per-map basis.&nbsp;
+NNumbers
+can range from -2 through +2. Format is mapName_fontOffset.&nbsp;&nbsp;
+Do not include a decimal point after these entries.
+<p><b><tt>States_fontOffset = 0</tt></b> <br>
+&nbsp; <br>
+&nbsp;</p>
+<br>
+<hr style="width: 100%; height: 2px;">&nbsp;
+<div class="Body">
+<center><tt>&nbsp;&nbsp; <a href="GFESuite.html">Back
+To TOC</a></tt></center>
+</div>
+</div>
+</body>
+</html>

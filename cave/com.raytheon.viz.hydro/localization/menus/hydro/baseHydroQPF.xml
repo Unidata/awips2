@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="bundleItem" file="bundles/grib/gribImageBundle.xml"
+		menuText="6hr Mosaic" id="6hrQPF">
+		<substitute key="param" value="tpHPC"/>
+		<substitute key="modelName" value="RFCqpf"/>
+		<substitute key="resourceData" value="dataMappedGridResourceData"/>
+	</contribute>
+	
+	<!-- Although text says 72hr Mosaic, the data is actually
+         TP6hr (TP_HPC), TP6hr is aliased to tpHPC for using different style rules
+         In A1, data is converted into byte data -->
+	<contribute xsi:type="bundleItem" file="bundles/grib/gribVectorBundle.xml"
+		menuText="72hr Mosaic" id="72HrMosaic">
+		<substitute key="param" value="TP6hr"/>
+		<substitute key="modelName" value="RFCqpf"/>
+	</contribute>
+    
+    <!-- Although text says 24hr AKRFC QPF, the data is actually
+         TP6hr (TP_RFC) In A1, data is just every 24 hours -->
+	<contribute xsi:type="bundleItem" file="bundles/grib/gribVectorBundle.xml"
+		menuText="24hr AKRFC QPF" id="24AKQPF">
+		<substitute key="param" value="tpACR"/>
+		<substitute key="modelName" value="RFCqpf"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/grib/gribVectorBundle.xml"
+		menuText="24hr SERFC QPF" id="24SEQPF">
+		<substitute key="param" value="tpALR"/>
+		<substitute key="modelName" value="RFCqpf"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/grib/gribVectorBundle.xml"
+		menuText="24hr WGRFC QPF" id="24WGQPF">
+		<substitute key="param" value="tpFWR"/>
+		<substitute key="modelName" value="RFCqpf"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/grib/gribVectorBundle.xml"
+		menuText="24hr MBRFC QPF" id="24MBQPF">
+		<substitute key="param" value="tpKRF"/>
+		<substitute key="modelName" value="RFCqpf"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/grib/gribVectorBundle.xml"
+		menuText="24hr NCRFC QPF" id="24NCQPF">
+		<substitute key="param" value="tpMSR"/>
+		<substitute key="modelName" value="RFCqpf"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/grib/gribVectorBundle.xml"
+		menuText="24hr LMRFC QPF" id="24LMQPF">
+		<substitute key="param" value="tpORN"/>
+		<substitute key="modelName" value="RFCqpf"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/grib/gribVectorBundle.xml"
+		menuText="24hr NWRFC QPF" id="24NWQPF">
+		<substitute key="param" value="tpPTR"/>
+		<substitute key="modelName" value="RFCqpf"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/grib/gribVectorBundle.xml"
+		menuText="24hr MARFC QPF" id="24MAQPF">
+		<substitute key="param" value="tpRHA"/>
+		<substitute key="modelName" value="RFCqpf"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/grib/gribVectorBundle.xml"
+		menuText="24hr CNRFC QPF" id="24CNQPF">
+		<substitute key="param" value="tpRSA"/>
+		<substitute key="modelName" value="RFCqpf"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/grib/gribVectorBundle.xml"
+		menuText="24hr CBRFC QPF" id="24CBQPF">
+		<substitute key="param" value="tpSTR"/>
+		<substitute key="modelName" value="RFCqpf"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/grib/gribVectorBundle.xml"
+		menuText="24hr NERFC QPF" id="24NEQPF">
+		<substitute key="param" value="tpTAR"/>
+		<substitute key="modelName" value="RFCqpf"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/grib/gribVectorBundle.xml"
+		menuText="24hr OHRFC QPF" id="24OHQPF">
+		<substitute key="param" value="tpTIR"/>
+		<substitute key="modelName" value="RFCqpf"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/grib/gribVectorBundle.xml"
+		menuText="24hr ABRFC QPF" id="24ABQPF">
+		<substitute key="param" value="tpTUA"/>
+		<substitute key="modelName" value="RFCqpf"/>
+	</contribute>
+</menuTemplate>

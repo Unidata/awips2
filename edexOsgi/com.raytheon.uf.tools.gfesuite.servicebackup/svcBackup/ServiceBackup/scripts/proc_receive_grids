@@ -1,0 +1,116 @@
+#!/bin/bash
+
+import_file=${1}
+log_msg Processing file: $import_file
+FILESIZE=$(stat -c%s "$import_file")
+log_msg "File Size is: $FILESIZE bytes."
+
+if [ -a ${import_file} ]
+then
+#
+# Create a Service Backup directory
+#
+#	
+    if [ ! -d ${SVCBU_HOME} ]
+    then
+		mkdir ${SVCBU_HOME}
+    else
+		rm -rf ${SVCBU_HOME}/*.txt
+    fi
+    
+    #
+    # Determine the 3 letter failed site id
+    #
+    log_msg "import_file ${import_file}"
+    sleep 2
+    cd ${SVCBU_HOME}
+    tar xvf ${import_file} siteID.txt
+    if [ $? -eq 0 ] && [ -a ${SVCBU_HOME}/siteID.txt ]; 
+    then
+		log_msg siteID.txt found. Using it...
+		export failed_site=`cat ${SVCBU_HOME}/siteID.txt`
+		if [ -z "${failed_site}" ]; 
+		then
+			log_msg "failed site id not found."
+			log_msg 100
+			rm -f ${LOCK_DIR}/importGrids
+			touch ${LOCK_DIR}/svcbuerr
+			exit 1
+        fi
+	log_msg "failed_site=$failed_site"
+    else
+        #Still need to do this the old way for backward compatibility
+		tar tvf ${import_file} | while read line
+		do
+		    log_msg "Using old tar/cut method."
+		    log_msg "line is $line"
+		    # Can we get rid of this ugly thing somehow???
+		    export failed_site=`echo $line | cut -d' ' -f8|cut -d'G' -f1|cut -d'/' -f6`
+		    log_msg "failed site $failed_site"
+		    break
+	done
+    fi
+    
+	log_msg 50
+#
+# Retrieve the file from the MHS x400 directory
+#
+   log_msg Retrieving the file from the MHS x400 directory...
+   mv ${import_file} ${SVCBU_HOME}/${failed_site}Grd.tar
+   cd ${SVCBU_HOME}
+#
+# Update owner and permissions from root to ifps
+#
+   chmod 777 ${SVCBU_HOME}/${failed_site}Grd.tar
+
+else
+   log_msg Unable to locate the gridded data of failed site: ${import_file} You will need to initialize your grids from models and guidance
+   rm -f ${LOCK_DIR}/importGrids
+   touch ${LOCK_DIR}/svcbuerr
+   log_msg 100
+   exit 1
+fi
+#
+log_msg 60
+log_msg File copied.  Continuing grid processing...
+
+
+log_msg Unzipping/untarring netcdf file...
+sleep 2
+
+tar xOf ${failed_site}Grd.tar > ${failed_site}Grd.netcdf.gz --exclude siteID.txt
+if [ $? -ne 0 ]
+then
+	log_msg "ERROR: tar failed to untar ${failed_site}Grd.tar."
+	rm -f ${LOCK_DIR}/importGrids
+	touch ${LOCK_DIR}/svcbuerr
+    log_msg 100
+	exit 1
+fi
+rm -f ${failed_site}Grd.netcdf.tar
+
+# use iscMosaic to load grids into databases
+log_msg 60
+log_msg "Running iscMosaic to unpack gridded data..."
+SITE=`echo ${failed_site} | tr '[a-z]' '[A-Z]'`
+log_msg "SVCBU_HOST is $SVCBU_HOST"
+log_msg "CDSPORT is $CDSPORT"
+
+log_msg Beginning iscMosaic
+log_msg 75
+${GFESUITE_BIN}/iscMosaic -h $SVCBU_HOST -r $CDSPORT -d ${SITE}_GRID__Fcst_00000000_0000 -f ${SVCBU_HOME}/${failed_site}Grd.netcdf.gz -n
+if [ $? -ne 0 ]
+then
+    log_msg "ERROR: iscMosaic failed to import grids from ${SITE}_GRID__Fcst_00000000_0000"
+    log_msg 100
+    rm -f ${LOCK_DIR}/importGrids
+    touch ${LOCK_DIR}/svcbuerr
+    exit 1
+fi
+
+log_msg Cleaning up netcdf file
+rm ${failed_site}Grd*
+log_msg 100
+rm -f ${LOCK_DIR}/importGrids
+log_msg Digital Data Import Complete!
+exit 0

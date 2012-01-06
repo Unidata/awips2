@@ -1,0 +1,5 @@
+! DbOverlay
+dbName=maps
+tableName=mapdata.timezones
+labelField=name
+mapName=Time Zones

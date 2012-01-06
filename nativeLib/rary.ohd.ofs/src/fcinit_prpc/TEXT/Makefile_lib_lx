@@ -1,0 +1,129 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-fcinit_prpc library file
+#
+#  cmt: File made on Wed Aug  6 12:49:08 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libfcinit_prpc_t.a:  \
+     $(LIB)/libfcinit_prpc_t.a(fprfg1.o)  \
+     $(LIB)/libfcinit_prpc_t.a(fprkq7.o)  \
+     $(LIB)/libfcinit_prpc_t.a(fprlq7.o)  \
+     $(LIB)/libfcinit_prpc_t.a(fprqt7.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc10.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc11.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc13.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc14.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc19.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc1.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc20.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc21.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc22.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc23.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc24.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc26.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc29.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc2.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc31.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc33.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc34.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc35.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc36.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc38.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc41.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc42.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc43.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc44.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc45.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc46.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc51.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc52.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc54.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc56.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc57.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc6.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc7.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc8.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prc9.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp10.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp11.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp12.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp13.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp14.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp15.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp18.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp19.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp1.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp20.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp21.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp22.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp23.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp24.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp25.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp26.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp27.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp29.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp2.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp30.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp31.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp32.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp33.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp34.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp35.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp36.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp37.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp38.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp39.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp41.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp42.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp43.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp44.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp45.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp46.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp48.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp4.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp50.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp51.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp52.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp53.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp54.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp56.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp57.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp59.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp60.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp61.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp62.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp63.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp64.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp6.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp7.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp8.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prp9.o)  \
+     $(LIB)/libfcinit_prpc_t.a(prpb26.o)
+

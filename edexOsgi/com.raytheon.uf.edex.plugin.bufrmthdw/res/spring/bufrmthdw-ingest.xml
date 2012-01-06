@@ -1,0 +1,58 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="bufrmthdwDecoder" class="com.raytheon.uf.edex.plugin.bufrmthdw.MTHDWDecoder">
+        <constructor-arg ref="bufrmthdwPluginName" />
+    </bean>
+
+	<bean id="bufrmthdwDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg ref="bufrmthdwPluginName" />
+		<constructor-arg value="jms-dist:queue:Ingest.bufrmthdw?destinationResolver=#qpidDurableResolver" />
+	</bean>
+
+	<bean id="bufrmthdwCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="bufrmthdw-camel"/>
+  	</bean> 
+
+	<camelContext id="bufrmthdw-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+		<!--
+		<endpoint id="bufrmthdwFileEndpoint" uri="file:${edex.home}/data/sbn/bufrmthdw?noop=true&amp;idempotent=false" />
+
+		<route id="bufrmthdwFileConsumerRoute">
+			<from ref="bufrmthdwFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+                <constant>bufrmthdw</constant>
+			</setHeader>
+			<to uri="jms-generic:queue:Ingest.bufrmthdw" />
+		</route>
+		-->
+
+		<!-- Begin bufrmthdw routes -->
+		<route id="bufrhdwIngestRoute">
+			<from uri="jms-generic:queue:Ingest.bufrmthdw?destinationResolver=#qpidDurableResolver" />
+			<setHeader headerName="pluginName">
+                <constant>bufrmthdw</constant>
+			</setHeader>
+			<doTry>
+				<pipeline>
+					<bean ref="stringToFile" />
+					<bean ref="bufrmthdwDecoder" method="decode" />
+                    <to uri="directvm:persistIndexAlert" />
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:bufrmthdw?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
+		</route>
+	</camelContext>
+</beans>

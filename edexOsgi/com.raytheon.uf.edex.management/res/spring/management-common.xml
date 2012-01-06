@@ -1,0 +1,50 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+  
+    <bean id="mgmtInit" class="com.raytheon.uf.edex.management.MgmtInitializer" />
+  
+    <bean id="changeContextHandler"
+		class="com.raytheon.uf.edex.management.handler.ChangeContextHandler" />
+	<bean factory-bean="handlerRegistry" factory-method="register">
+		<constructor-arg
+			value="com.raytheon.uf.common.management.request.ChangeContextRequest" />
+		<constructor-arg ref="changeContextHandler" />
+	</bean>
+	
+    <bean id="getContextsHandler"
+		class="com.raytheon.uf.edex.management.handler.diagnostic.GetContextsHandler" />
+	<bean factory-bean="handlerRegistry" factory-method="register">
+		<constructor-arg
+			value="com.raytheon.uf.common.management.request.diagnostic.GetContextsRequest" />
+		<constructor-arg ref="getContextsHandler" />
+	</bean>
+	
+	<bean id="statusHandler"
+		class="com.raytheon.uf.edex.management.handler.diagnostic.StatusHandler" />
+	<bean factory-bean="handlerRegistry" factory-method="register">
+		<constructor-arg
+			value="com.raytheon.uf.common.management.request.diagnostic.StatusRequest" />
+		<constructor-arg ref="statusHandler" />
+	</bean>
+	
+	
+   
+
+    <camelContext id="management"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler"
+        autoStartup="true">
+        
+        <endpoint id="managementEndpoint"
+			uri="jetty:http://0.0.0.0:${management.port}/services/edexMgmt?disableStreamCache=true" />        
+     
+     	<route id="managementService">
+			<from ref="managementEndpoint" />
+			<bean ref="routeWrapper" method="executeThrift"/>
+		</route>
+        
+     </camelContext> 
+       
+</beans>
