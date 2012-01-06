@@ -1,0 +1,31 @@
+Sharp95.geometry:               230x120+140+0
+Sharp95.title:                  NSHARP: SkewT Hodograph Analysis and Research Program (Ver 08/02/05)
+!
+!	toplevel_form colors
+!
+Sharp95*background:			grey75
+Sharp95*foreground:			black
+Sharp95*fontList: -adobe-helvetica-*-r-normal-*-14-*-75-75-p-*-iso8859-1
+Sharp95*stations*fontList: -adobe-courier-bold-r-normal--18-180-75-75-m-110-iso8859-1
+!
+! Font for the text window. Choose a fixed width font unless you want
+! to give yourself a headache from unaligned columns
+! 
+Sharp95*text_win.title:       NSHARP: Text Data Display
+Sharp95*text_win.geometry:    673x455+394+235
+Sharp95*error.dialogTitle:    NSHARP: Error
+Sharp95*datafile.dialogTitle: NSHARP: Load Datafile
+Sharp95*giffile.dialogTitle:  NSHARP: Save GIF File
+Sharp95*archivefile.geometry:	328x416+854+101
+Sharp95*archivefile.dialogTitle:  NSHARP: Load NSHARP Archive File
+Sharp95*textfile.dialogTitle:  NSHARP: Save NSHARP Archive File
+
+*indicatorOn:            True
+*fillOnSelect:           True
+*selectColor:            yellow
+
+Sharp95*status_text.fontList: *times-bold-r-*-100*
+!
+!  Input Data Selection Window
+!
+!*dataform.geometry:     1033x901+10+55

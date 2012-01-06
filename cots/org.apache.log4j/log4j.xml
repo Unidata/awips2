@@ -1,0 +1,114 @@
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd"> 
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+   <!-- general application log --> 
+   <appender name="console" class="org.apache.log4j.ConsoleAppender"> 
+      <layout class="org.apache.log4j.PatternLayout"> 
+         <param name="ConversionPattern" value="%-5p %d [%t] %c{1}: %m%n"/> 
+      </layout> 
+      <filter class="org.apache.log4j.varia.LevelRangeFilter">
+         <param name="levelMin" value="DEBUG" />
+         <param name="levelMax" value="INFO" />
+      </filter>
+   </appender>
+
+   <appender name="errConsole" class="org.apache.log4j.ConsoleAppender">
+      <param name="Target" value="System.err"/> 
+      <param name="Threshold" value="WARN" /> 
+      <layout class="org.apache.log4j.PatternLayout"> 
+         <param name="ConversionPattern" value="%-5p %d [%t] %c{1}: %m%n"/> 
+      </layout> 
+   </appender>
+
+   <appender name="NcepILogAppender" class="com.raytheon.uf.viz.core.status.EclipseILogAppender">
+      <param name="pluginId" value="gov.noaa.nws.ncep"/>
+      <param name="category" value="WORKSTATION"/>
+      <param name="source" value="NCEP"/>
+   </appender>
+   
+   <appender name="NcepDailyRollingFileAppender" class="org.apache.log4j.DailyRollingFileAppender">
+      <param name="File" value="${user.home}/caveData/logs/perspectives-daily-file.log" />
+      <param name="DatePattern" value="'.'yyyy-MM-dd"/>
+      <param name="Append" value="true"/>
+      <layout class="org.apache.log4j.PatternLayout">
+         <param name="ConversionPattern" value="%d %-5p [%t] %-17c (%13F:%L) %3x - %m%n"/>
+      </layout>
+   </appender>
+   
+   <!--appender name="NcepRollingFileAppender" class="org.apache.log4j.rolling.RollingFileAppender">
+      <param name="File" value="${user.home}/caveData/logs/ffaResource-rolling-file.log" />
+      <param name="MaxFileSize" value="100KB"/>
+      <param name="MaxBackupIndex" value="1"/>
+      <param name="Append" value="true"/>
+      <layout class="org.apache.log4j.PatternLayout">
+         <param name="ConversionPattern" value="%d %-5p [%t] %c - %m%n"/>
+      </layout>
+   </appender-->
+   
+   <appender name="AlertVizInternalLogAppender" class="org.apache.log4j.rolling.RollingFileAppender">
+      <rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
+         <param name="FileNamePattern" value="${user.home}/caveData/logs/alertviz-%d{yyyyMMdd}.log"/>
+      </rollingPolicy> 
+      <layout class="org.apache.log4j.PatternLayout"> 
+         <param name="ConversionPattern" value="%-5p %d [%t] %c{1}: %m%n"/> 
+      </layout>
+   </appender> 
+   
+   <logger name="gov.noaa.nws.ncep">
+      <level value="INFO"/>
+      <appender-ref ref="NcepILogAppender"/>
+      <appender-ref ref="NcepDailyRollingFileAppender"/>
+   </logger>
+
+   <logger name="edu.wisc.ssec">
+      <level value="INFO"/>
+      <appender-ref ref="NcepILogAppender"/>
+      <appender-ref ref="NcepDailyRollingFileAppender"/>
+   </logger>
+
+   <logger name="AlertVizLogger" additivity="false">
+      <level value="ALL"/>
+      <appender-ref ref="AlertVizInternalLogAppender"/>
+   </logger>
+
+   <logger name="com.raytheon">
+      <level value="INFO"/>
+   </logger>
+
+   <logger name="com.tc">
+      <level value="WARN"/>
+   </logger>
+   <logger name="mx4j">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="org.apache">
+      <level value="INFO"/>
+   </logger>
+   <logger name="org.apache.activemq.spring">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.apache.commons.beanutils">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.apache.qpid">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.geotools">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.apache.xbean.spring">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.springframework">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="uk.ltd.getahead">
+      <level value="WARN"/>
+   </logger>
+
+   <!-- default logging --> 
+   <root> 
+      <level value="INFO"/> 
+      <appender-ref ref="console"/> 
+      <appender-ref ref="errConsole"/>
+    </root> 
+</log4j:configuration> 

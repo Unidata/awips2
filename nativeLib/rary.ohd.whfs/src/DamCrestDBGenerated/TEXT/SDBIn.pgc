@@ -1,0 +1,938 @@
+/*
+    File: SDBIn.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:48 EDT 2008 using database dc_ob7empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "SDBIn.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct SDBIn_t
+{
+    char		nidid[11];
+    char		src[4];
+    char		scenario[3];
+    double		hde;
+    double		bme;
+    double		vol;
+    double		sa;
+    double		tfm;
+    double		qo;
+    double		bw;
+    long		idam;
+    char		comments[31];
+    dtime_t		updated;
+
+    int		ind_hde;
+    int		ind_bme;
+    int		ind_vol;
+    int		ind_sa;
+    int		ind_tfm;
+    int		ind_qo;
+    int		ind_bw;
+    int		ind_idam;
+    int		ind_comments;
+    int		ind_updated;
+} SDBIn_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+SDBIn * GetSDBIn(const char * where)
+{
+
+    SDBIn * listPtr = NULL;
+    SDBIn * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM SDBIn ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct SDBIn_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetSDBIn() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetSDBIn() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetSDBIn() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.nidid, :dbs.src, 
+    :dbs.scenario, :dbs.hde:dbs.ind_hde, 
+    :dbs.bme:dbs.ind_bme, :dbs.vol:dbs.ind_vol, 
+    :dbs.sa:dbs.ind_sa, :dbs.tfm:dbs.ind_tfm, 
+    :dbs.qo:dbs.ind_qo, :dbs.bw:dbs.ind_bw, 
+    :dbs.idam:dbs.ind_idam, :dbs.comments:dbs.ind_comments, 
+    :dbs.updated:dbs.ind_updated    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetSDBIn() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (SDBIn *) malloc(sizeof(SDBIn))) != NULL)
+        {
+
+            strcpy(structPtr->nidid, dbs.nidid);
+
+            strcpy(structPtr->src, dbs.src);
+
+            strcpy(structPtr->scenario, dbs.scenario);
+
+            structPtr->hde = dbs.hde;
+            setNullIfIndicated(dbs.ind_hde, DOUBLE, &structPtr->hde);
+
+            structPtr->bme = dbs.bme;
+            setNullIfIndicated(dbs.ind_bme, DOUBLE, &structPtr->bme);
+
+            structPtr->vol = dbs.vol;
+            setNullIfIndicated(dbs.ind_vol, DOUBLE, &structPtr->vol);
+
+            structPtr->sa = dbs.sa;
+            setNullIfIndicated(dbs.ind_sa, DOUBLE, &structPtr->sa);
+
+            structPtr->tfm = dbs.tfm;
+            setNullIfIndicated(dbs.ind_tfm, DOUBLE, &structPtr->tfm);
+
+            structPtr->qo = dbs.qo;
+            setNullIfIndicated(dbs.ind_qo, DOUBLE, &structPtr->qo);
+
+            structPtr->bw = dbs.bw;
+            setNullIfIndicated(dbs.ind_bw, DOUBLE, &structPtr->bw);
+
+            structPtr->idam = dbs.idam;
+            setNullIfIndicated(dbs.ind_idam, INT, &structPtr->idam);
+
+            strcpy(structPtr->comments, dbs.comments);
+            setNullIfIndicated(dbs.ind_comments, CHAR, structPtr->comments);
+
+            structPtr->updated = dbs.updated;
+            setNullIfIndicated(dbs.ind_updated, DATETIME, &structPtr->updated);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.nidid, :dbs.src, 
+        :dbs.scenario, :dbs.hde:dbs.ind_hde, 
+        :dbs.bme:dbs.ind_bme, :dbs.vol:dbs.ind_vol, 
+        :dbs.sa:dbs.ind_sa, :dbs.tfm:dbs.ind_tfm, 
+        :dbs.qo:dbs.ind_qo, :dbs.bw:dbs.ind_bw, 
+        :dbs.idam:dbs.ind_idam, :dbs.comments:dbs.ind_comments, 
+        :dbs.updated:dbs.ind_updated        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetSDBIn() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+SDBIn * SelectSDBIn(const char * where)
+{
+
+    SDBIn * listPtr = NULL;
+    SDBIn * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM SDBIn ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct SDBIn_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectSDBIn() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectSDBIn() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectSDBIn() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.nidid, :dbs.src, 
+    :dbs.scenario, :dbs.hde:dbs.ind_hde, 
+    :dbs.bme:dbs.ind_bme, :dbs.vol:dbs.ind_vol, 
+    :dbs.sa:dbs.ind_sa, :dbs.tfm:dbs.ind_tfm, 
+    :dbs.qo:dbs.ind_qo, :dbs.bw:dbs.ind_bw, 
+    :dbs.idam:dbs.ind_idam, :dbs.comments:dbs.ind_comments, 
+    :dbs.updated:dbs.ind_updated    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectSDBIn() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (SDBIn *) malloc(sizeof(SDBIn))) != NULL)
+        {
+
+            strcpy(structPtr->nidid, dbs.nidid);
+
+            strcpy(structPtr->src, dbs.src);
+
+            strcpy(structPtr->scenario, dbs.scenario);
+
+            structPtr->hde = dbs.hde;
+            setNullIfIndicated(dbs.ind_hde, DOUBLE, &structPtr->hde);
+
+            structPtr->bme = dbs.bme;
+            setNullIfIndicated(dbs.ind_bme, DOUBLE, &structPtr->bme);
+
+            structPtr->vol = dbs.vol;
+            setNullIfIndicated(dbs.ind_vol, DOUBLE, &structPtr->vol);
+
+            structPtr->sa = dbs.sa;
+            setNullIfIndicated(dbs.ind_sa, DOUBLE, &structPtr->sa);
+
+            structPtr->tfm = dbs.tfm;
+            setNullIfIndicated(dbs.ind_tfm, DOUBLE, &structPtr->tfm);
+
+            structPtr->qo = dbs.qo;
+            setNullIfIndicated(dbs.ind_qo, DOUBLE, &structPtr->qo);
+
+            structPtr->bw = dbs.bw;
+            setNullIfIndicated(dbs.ind_bw, DOUBLE, &structPtr->bw);
+
+            structPtr->idam = dbs.idam;
+            setNullIfIndicated(dbs.ind_idam, INT, &structPtr->idam);
+
+            strcpy(structPtr->comments, dbs.comments);
+            setNullIfIndicated(dbs.ind_comments, CHAR, structPtr->comments);
+
+            structPtr->updated = dbs.updated;
+            setNullIfIndicated(dbs.ind_updated, DATETIME, &structPtr->updated);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.nidid, :dbs.src, 
+        :dbs.scenario, :dbs.hde:dbs.ind_hde, 
+        :dbs.bme:dbs.ind_bme, :dbs.vol:dbs.ind_vol, 
+        :dbs.sa:dbs.ind_sa, :dbs.tfm:dbs.ind_tfm, 
+        :dbs.qo:dbs.ind_qo, :dbs.bw:dbs.ind_bw, 
+        :dbs.idam:dbs.ind_idam, :dbs.comments:dbs.ind_comments, 
+        :dbs.updated:dbs.ind_updated        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectSDBIn() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectSDBInCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM SDBIn ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountSDBIn() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountSDBIn() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountSDBIn() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountSDBIn() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutSDBIn(const SDBIn * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct SDBIn_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.nidid, structPtr->nidid);
+
+    strcpy(dbs.src, structPtr->src);
+
+    strcpy(dbs.scenario, structPtr->scenario);
+
+    dbs.hde = structPtr->hde;
+    dbs.ind_hde = getIndicator(DOUBLE, (void *)&structPtr->hde);
+
+    dbs.bme = structPtr->bme;
+    dbs.ind_bme = getIndicator(DOUBLE, (void *)&structPtr->bme);
+
+    dbs.vol = structPtr->vol;
+    dbs.ind_vol = getIndicator(DOUBLE, (void *)&structPtr->vol);
+
+    dbs.sa = structPtr->sa;
+    dbs.ind_sa = getIndicator(DOUBLE, (void *)&structPtr->sa);
+
+    dbs.tfm = structPtr->tfm;
+    dbs.ind_tfm = getIndicator(DOUBLE, (void *)&structPtr->tfm);
+
+    dbs.qo = structPtr->qo;
+    dbs.ind_qo = getIndicator(DOUBLE, (void *)&structPtr->qo);
+
+    dbs.bw = structPtr->bw;
+    dbs.ind_bw = getIndicator(DOUBLE, (void *)&structPtr->bw);
+
+    dbs.idam = structPtr->idam;
+    dbs.ind_idam = getIndicator(INT, (void *)&structPtr->idam);
+
+    strcpy(dbs.comments, structPtr->comments);
+    dbs.ind_comments = getIndicator(CHAR, (void *)structPtr->comments);
+
+    dbs.updated = structPtr->updated;
+    dbs.ind_updated = getIndicator(DATETIME, (void *)&structPtr->updated);
+
+
+    EXEC SQL INSERT INTO SDBIn (nidid,src,
+        scenario,hde,bme,
+        vol,sa,tfm,
+        qo,bw,idam,
+        comments,updated        )
+        VALUES (
+         :dbs.nidid, :dbs.src, :dbs.scenario,
+         :dbs.hde:dbs.ind_hde, :dbs.bme:dbs.ind_bme, :dbs.vol:dbs.ind_vol,
+         :dbs.sa:dbs.ind_sa, :dbs.tfm:dbs.ind_tfm, :dbs.qo:dbs.ind_qo,
+         :dbs.bw:dbs.ind_bw, :dbs.idam:dbs.ind_idam, :dbs.comments:dbs.ind_comments,
+         :dbs.updated:dbs.ind_updated);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutSDBIn() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertSDBIn(const SDBIn * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct SDBIn_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.nidid, structPtr->nidid);
+
+    strcpy(dbs.src, structPtr->src);
+
+    strcpy(dbs.scenario, structPtr->scenario);
+
+    dbs.hde = structPtr->hde;
+    dbs.ind_hde = getIndicator(DOUBLE, (void *)&structPtr->hde);
+
+    dbs.bme = structPtr->bme;
+    dbs.ind_bme = getIndicator(DOUBLE, (void *)&structPtr->bme);
+
+    dbs.vol = structPtr->vol;
+    dbs.ind_vol = getIndicator(DOUBLE, (void *)&structPtr->vol);
+
+    dbs.sa = structPtr->sa;
+    dbs.ind_sa = getIndicator(DOUBLE, (void *)&structPtr->sa);
+
+    dbs.tfm = structPtr->tfm;
+    dbs.ind_tfm = getIndicator(DOUBLE, (void *)&structPtr->tfm);
+
+    dbs.qo = structPtr->qo;
+    dbs.ind_qo = getIndicator(DOUBLE, (void *)&structPtr->qo);
+
+    dbs.bw = structPtr->bw;
+    dbs.ind_bw = getIndicator(DOUBLE, (void *)&structPtr->bw);
+
+    dbs.idam = structPtr->idam;
+    dbs.ind_idam = getIndicator(INT, (void *)&structPtr->idam);
+
+    strcpy(dbs.comments, structPtr->comments);
+    dbs.ind_comments = getIndicator(CHAR, (void *)structPtr->comments);
+
+    dbs.updated = structPtr->updated;
+    dbs.ind_updated = getIndicator(DATETIME, (void *)&structPtr->updated);
+
+
+    EXEC SQL INSERT INTO SDBIn (nidid,src,
+        scenario,hde,bme,
+        vol,sa,tfm,
+        qo,bw,idam,
+        comments,updated        )
+        VALUES (
+         :dbs.nidid, :dbs.src, :dbs.scenario,
+         :dbs.hde:dbs.ind_hde, :dbs.bme:dbs.ind_bme, :dbs.vol:dbs.ind_vol,
+         :dbs.sa:dbs.ind_sa, :dbs.tfm:dbs.ind_tfm, :dbs.qo:dbs.ind_qo,
+         :dbs.bw:dbs.ind_bw, :dbs.idam:dbs.ind_idam, :dbs.comments:dbs.ind_comments,
+         :dbs.updated:dbs.ind_updated);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertSDBIn() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateSDBIn(const SDBIn *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct SDBIn_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.nidid, structPtr->nidid);
+
+    strcpy(dbs.src, structPtr->src);
+
+    strcpy(dbs.scenario, structPtr->scenario);
+
+    dbs.hde = structPtr->hde;
+    dbs.ind_hde = getIndicator(DOUBLE, (void *)&structPtr->hde);
+
+    dbs.bme = structPtr->bme;
+    dbs.ind_bme = getIndicator(DOUBLE, (void *)&structPtr->bme);
+
+    dbs.vol = structPtr->vol;
+    dbs.ind_vol = getIndicator(DOUBLE, (void *)&structPtr->vol);
+
+    dbs.sa = structPtr->sa;
+    dbs.ind_sa = getIndicator(DOUBLE, (void *)&structPtr->sa);
+
+    dbs.tfm = structPtr->tfm;
+    dbs.ind_tfm = getIndicator(DOUBLE, (void *)&structPtr->tfm);
+
+    dbs.qo = structPtr->qo;
+    dbs.ind_qo = getIndicator(DOUBLE, (void *)&structPtr->qo);
+
+    dbs.bw = structPtr->bw;
+    dbs.ind_bw = getIndicator(DOUBLE, (void *)&structPtr->bw);
+
+    dbs.idam = structPtr->idam;
+    dbs.ind_idam = getIndicator(INT, (void *)&structPtr->idam);
+
+    strcpy(dbs.comments, structPtr->comments);
+    dbs.ind_comments = getIndicator(CHAR, (void *)structPtr->comments);
+
+    dbs.updated = structPtr->updated;
+    dbs.ind_updated = getIndicator(DATETIME, (void *)&structPtr->updated);
+
+
+    sprintf(queryBuffer, " UPDATE SDBIn SET " );
+    strcat(queryBuffer, "nidid = ? , src = ? , scenario = ? , hde = ? , bme = ? ,     ");
+    strcat(queryBuffer, "vol = ? , sa = ? , tfm = ? , qo = ? , bw = ? ,     ");
+    strcat(queryBuffer, "idam = ? , comments = ? , updated = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateSDBIn() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.nidid, :dbs.src, :dbs.scenario, :dbs.hde:dbs.ind_hde, :dbs.bme:dbs.ind_bme,
+     :dbs.vol:dbs.ind_vol, :dbs.sa:dbs.ind_sa, :dbs.tfm:dbs.ind_tfm, :dbs.qo:dbs.ind_qo, :dbs.bw:dbs.ind_bw,
+     :dbs.idam:dbs.ind_idam, :dbs.comments:dbs.ind_comments, :dbs.updated:dbs.ind_updated;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateSDBIn() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteSDBIn(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM SDBIn ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteSDBIn() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateSDBInByRecord (const SDBIn * newStructPtr, const SDBIn * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetSDBInPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateSDBIn(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateSDBIn(const SDBIn * structPtr)
+{
+    UpdateSDBInByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertSDBIn(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueSDBIn(const SDBIn * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (SDBInExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertSDBIn(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteSDBInByRecord(const SDBIn * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetSDBInPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteSDBIn(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool SDBInExists(const SDBIn * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetSDBInPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectSDBInCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetSDBInPrimaryKeyWhereString (const SDBIn * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE nidid = '%s'  AND src = '%s'  AND scenario = '%s' ",
+            structPtr->nidid, structPtr->src, structPtr->scenario);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeSDBIn( SDBIn * structPtr)
+{
+    SDBIn* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( SDBIn * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetSDBInDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetSDBInErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

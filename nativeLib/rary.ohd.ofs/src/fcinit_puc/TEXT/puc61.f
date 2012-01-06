@@ -1,0 +1,130 @@
+C MEMBER PUC61
+C-----------------------------------------------------------------------
+C
+C                             LAST UPDATE:  04/28/1998 TLS
+C
+C @PROCESS LVL(77)
+C
+      SUBROUTINE PUC61 (P)
+
+C     THIS IS THE CARD PUNCH ROUTINE FOR THE STAGE REVIEW OPERATION
+
+C     THIS ROUTINE ORIGINALLY WRITTEN BY
+C        JOANNE R. SALERNO  - NWRFC   JAN 1998      
+
+C        1         2         3         4         5         6         7
+C23456789012345678901234567890123456789012345678901234567890123456789012
+
+C     POSITION     CONTENTS OF P ARRAY
+
+C      1           VERSION NUMBER OF OPERATION
+C      2-19        GENERAL NAME OR TITLE
+
+C  INPUT
+C     20           OBS/FCST TIME INTERVAL          -ITIME
+C     21-23        OBSERVED STAGE                  - CSTAO (STG)
+C     24-26        DW FCST  STAGE                  - CSTAP (STGE)
+C  OUTPUT
+C     27           RANGE & LIMIT TIME INTERVAL     - OTIME
+C     TIDAL RANGE/SLICE DEFINITION
+C     28-29        RANGE LIMIT SERIES IDENTIFIER   -  RANGE
+C     30           RANGE & LIMIT TYPE CODE         -  OUTTC
+C                  RANGE(1) R1 LOWER LIMIT
+C                  RANGE(2) R2 LOWER LIMIT
+C                  RANGE(3) R3 LOWER LIMIT
+C                  RANGE(4) R4 LOWER LIMIT
+C                  RANGE(5) R4 UPPER LIMIT
+C
+C     OBSERVED PRTO3 AVERAGE  BALANCE TIME SERIES PER RANGE
+C     31-32        RANGE1 AVE TIDE BALANCE TIME SERIES ID  -  SBALR1
+C     33-34        RANGE2 AVE TIDE BALANCE TIME SERIES ID  -  SBALR2
+C     35-36        RANGE3 AVE TIDE BALANCE TIME SERIES ID  -  SBALR3
+C     37-38        RANGE4 AVE TIDE BALANCE TIME SERIES ID  -  SBALR4
+C
+C     39-40        RESERVED
+
+C**********************************************************************
+
+C     THE NUMBER OF ELEMENTS REQUIRED IN THE P ARRAY IS  40
+
+C     THE NUMBER OF ELEMENTS REQUIRED IN THE C ARRAY IS   0
+
+C        1         2         3         4         5         6         7
+C23456789012345678901234567890123456789012345678901234567890123456789012
+
+C                   NWRFS CARDS
+C                   FREE FORMAT
+C
+C
+C STAGE REVIEW   
+C CSTAO STG CSTAP STGE RANGE TIDB
+C SBALR1 TIDB SBALR2 TIDB SBALR3 TIDB SBALR4 TIDB
+C
+C     CARD 1 - GENERAL USER SUPPLIED INFORMATION
+C     CARD 2 - TIME SERIES DEFINITION
+C        FIELD 1  - OBS/FCST TIME INTERVAL            -  INTEGER
+C        FIELD 2  - OBSERVED STAGE TIME SERIES ID     - 8 CHAR
+C        FIELD 3  - OBSERVED STAGE DATA TYPE CODE     - 4 CHAR
+C        FIELD 4  - DW OBS/FCST STAGE TIME SERIES ID  - 8 CHAR
+C        FIELD 5  - DW OBS/FCST STAGE DATA TYPE CODE  - 4 CHAR
+C        FIELD 6  - RANGE & BALANCE TS TIME INTERVAL  -   INTEGER
+C        FIELD 7  - RANGE LIMIT TIME SERIES ID        - 8 CHAR
+C        FIELD 8  - RANGE LIMIT DATA TYPE CODE        - 4 CHAR
+C     CARD 3 - TIME SERIES DEFINITION
+C        FIELD 1  - RANGE1 AVE TIDE BALANCE TIME SERIES ID -8 CHAR
+C        FIELD 2  - RANGE2 AVE TIDE BALANCE TIME SERIES ID -8 CHAR
+C        FIELD 3  - RANGE3 AVE TIDE BALANCE TIME SERIES ID -8 CHAR
+C        FIELD 4  - RANGE4 AVE TIDE BALANCE TIME SERIES ID -8 CHAR
+C
+
+C        1         2         3         4         5         6         7
+C23456789012345678901234567890123456789012345678901234567890123456789012
+
+      DIMENSION P(*)
+
+      INTEGER  ITIME,OTIME
+
+C     COMMON BLOCKS
+
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/fdbug'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_puc/RCS/puc61.f,v $
+     . $',                                                             '
+     .$Id: puc61.f,v 1.3 2000/07/21 18:27:33 page Exp $
+     . $' /
+C    ===================================================================
+C
+
+C
+C
+
+      CALL FPRBUG ('PUC61   ',1,61,IBUG)
+
+ 
+C ---   CARD 1 USER SUPPLIED INFORMATION
+
+      WRITE(IPU,500) (P(I),I=2,19)
+ 500  FORMAT(18A4)
+
+ 
+C  ---  CARD 2 INPUT TIME SERIES       
+
+         ITIME = P(20)
+         OTIME = P(27)
+         WRITE(IPU,502) ITIME,(P(I),I=21,26),OTIME,(P(I),I=28,30)
+ 502     FORMAT(I4,1X, 2(2A4,1X,A4,1X), 2X,I4,1X, (2A4,1X,A4,1X) )
+ 
+C  ---  CARD 3 INPUT TIME SERIES       
+
+         WRITE(IPU,503) (P(I),I=31,38)
+ 503     FORMAT(4(2A4,1X))
+
+      IF (ITRACE.GE.1) WRITE(IODBUG,90)
+ 90   FORMAT('PUC61:  EXITED:')
+
+      RETURN
+      END

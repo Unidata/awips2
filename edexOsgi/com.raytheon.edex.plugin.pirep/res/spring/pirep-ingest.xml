@@ -1,0 +1,72 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="pirepDecoder" class="com.raytheon.edex.plugin.pirep.PirepDecoder">
+        <constructor-arg ref="pirepPluginName" />   
+    </bean>
+    
+   <bean id="pirepSeparator" class="com.raytheon.edex.plugin.pirep.PirepSeparator"/>
+
+    <bean id="pirepDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="pirep" />
+		<constructor-arg value="jms-dist:queue:Ingest.pirep" />
+	</bean>
+    
+    <bean id="pirepCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="pirep-camel"/>
+  	</bean>
+    
+    <camelContext id="pirep-camel" 
+                  xmlns="http://camel.apache.org/schema/spring" 
+                  errorHandlerRef="errorHandler"
+                  autoStartup="false">
+        <!-- 
+	    <endpoint id="pirepFileEndpoint" uri="file:${edex.home}/data/sbn/pirep?noop=true&amp;idempotent=false"/>
+        
+        <route id="pirepFileConsumerRoute">
+            <from ref="pirepFileEndpoint"/>
+            <bean ref="fileToString" />
+            <setHeader headerName="pluginName">
+                <constant>pirep</constant>
+            </setHeader>
+            <to uri="jms-generic:queue:Ingest.pirep"/>
+        </route>
+        -->
+        <!-- Begin Pirep routes -->
+        <route id="pirepIngestRoute">
+            <from uri="jms-generic:queue:Ingest.pirep?destinationResolver=#qpidDurableResolver"/>
+            <setHeader headerName="pluginName">
+                <constant>pirep</constant>
+            </setHeader>
+            <doTry>
+                <pipeline>
+                    <bean ref="stringToFile" />
+                    <split streaming="true">
+                        <method bean="pirepSeparator" method="separate"/>
+                        <doTry>
+                            <pipeline>
+                                <bean ref="pirepDecoder" method="decode"/>
+                                <to uri="directvm:indexAlert"/>
+                            </pipeline>
+                            <doCatch>
+                                <exception>java.lang.Throwable</exception>
+                                <to uri="log:pirep?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                            </doCatch>
+                        </doTry>
+                    </split>
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:pirep?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                </doCatch>
+            </doTry>
+        </route>
+	</camelContext>
+</beans>

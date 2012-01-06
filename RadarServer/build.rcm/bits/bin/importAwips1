@@ -1,0 +1,49 @@
+#!/bin/sh
+exe=$0
+while test -L "$exe"; do
+	exe=`readlink "$exe"`
+done
+bin_dir=`dirname "$exe"`
+bin_dir=`cd "$bin_dir";pwd`
+rs_home_dir=`cd "$bin_dir/..";pwd`
+
+props=com.raytheon.rcm
+
+lib_dir="$rs_home_dir/lib"
+cfg_dir="$rs_home_dir/data/config"
+cp=
+
+for jar in "$lib_dir"/*.jar; do
+	cp=$cp:$jar
+done
+
+java=/awips2/java/bin/java
+decompress_products=yes
+
+config_file="$cfg_dir/start-config"
+. "$config_file" || { echo "could not read $config_file"; exit 1 ;}
+
+if test -n "$edex_endpoint_arg"; then
+	edex_endpoint_arg_2="-D$props.edexRadarEndpoint=$edex_endpoint_arg"
+fi	
+if test -z "$log_file"; then
+	log_file=/dev/null
+fi
+if test -n "$configuration_provider"; then
+	cfg_provider_arg_2="-D$props.server.RadarServer.configurationProviderClass=$configuration_provider"
+fi
+if test -n "$awips1_root"; then
+	awips1_root_arg_2="-D$props.awips1.resourceRoot=$awips1_root"
+fi
+if test -n "$awips1_site"; then
+	awips1_site_arg_2="-D$props.awips1.FXA_LOCAL_SITE=$awips1_site"
+fi
+
+exec $java -cp "$cp" \
+ "-D$props.configDir=$cfg_dir" \
+ "-D$props.awips1.decompressRadarProducts=$decompress_products" \
+ $edex_endpoint_arg_2 \
+ $cfg_provider_arg_2 \
+ $awips1_root_arg_2 \
+ $awips1_site_arg_2 \
+ com.raytheon.rcm.config.importer.Importer

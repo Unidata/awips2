@@ -1,0 +1,126 @@
+C MEMBER PDRSDT
+C  (from old member PDRPD1S)
+C-----------------------------------------------------------------------
+C
+      SUBROUTINE PDRSDT (IFDAY,LDAY,NTYPE,IDATYP,IALLFG,ISIBUF,
+     *   LTYPE,IRTYPE,MTYPES,ISTAT)
+C
+C CHECK IFDAY AND LDAY AGAINST DATES FOR EACH TYPE IN IDATYP
+C OF IN ISIBUF IF IALLFG=1.  IF DATES ARE ON PPDB OK, IF NOT,
+C RESET DAYS TO SMALLEST RANGE THAT IF THERE.
+C
+      INCLUDE 'udebug'
+      INCLUDE 'pdbcommon/pddtdr'
+C
+      DIMENSION IRTYPE(1)
+      INTEGER*2 ISIBUF(1)
+      DIMENSION IDATYP(1)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/db_pdbrw/RCS/pdrsdt.f,v $
+     . $',                                                             '
+     .$Id: pdrsdt.f,v 1.1 1995/09/17 18:44:16 dws Exp $
+     . $' /
+C    ===================================================================
+C
+      DATA LPP24/4hPP24/,LTM24/4hTM24/
+      DATA LTF24/4hTF24/
+C
+C
+      IF (IPDTR.GT.0) WRITE (IOGDB,2000)
+2000  FORMAT (' *** ENTER PDRSDT')
+C
+      ISTAT=0
+      NTYPES = NTYPE
+      MTYPES=0
+C
+C  CHECK IF ALL TYPES TO BE PROCESSED
+      IF (IALLFG.EQ.0) GO TO 10
+      ISIDX=11
+      NTYPES=ISIBUF(10)
+      IF (NTYPES.EQ.0) GO TO 200
+C
+C  NOT PROCESSING ALL TYPES
+10    DO 100 IT=1,NTYPES
+         IF (IALLFG.EQ.1) GO TO 20
+C     TYPES ARE IN IDATYP
+         IX=IPDCKD(IDATYP(IT))
+         IF (IX.NE.0) GO TO 30
+            ISTAT=4
+            GO TO 100
+C     TYPE IS ALL, LOOP IN ISIBUF, IF NOT FOUND ASSUME RRS
+20       IX=IPDCKD(ISIBUF(ISIDX))
+         IF (IX.EQ.0) GO TO 90
+C     DONT DO TF24 IN ALL
+         CALL UCMPAR (LTF24,ISIBUF(ISIDX),1,IMATCH)
+         IF (IMATCH.EQ.0) GO TO 90
+            MTYPES=MTYPES+1
+            CALL UMEMOV (ISIBUF(ISIDX),IRTYPE(MTYPES),1)
+            GO TO 40
+C     GOT A TYPE - NOW CHECK DATES
+30       MTYPES=MTYPES+1
+         IRTYPE(MTYPES)=IDATYP(IT)
+40       CALL UMEMOV (IDDTDR(8,IX),IEDATE,1)
+         CALL UMEMOV (IDDTDR(11,IX),LDATE,1)
+         IF (IPDDB.GT.0) WRITE (IOGDB,2009) IFDAY,LDAY,IEDATE,LDATE
+2009  FORMAT (' IFDAY=',I5,3X,'LDAY=',I5,3X,
+     *   'IEDATE=',I5,3X,'LDATE=',I5)
+         IF (LDAY.LT.IEDATE.OR.IFDAY.GT.LDATE) GO TO 910
+            IF (IFDAY.GE.IEDATE) GO TO 50
+            IFDAY=IEDATE
+            ISTAT=6
+50       IF (LDAY.LE.LDATE) GO TO 90
+            LDAY=LDATE
+            ISTAT=6
+90       ISIDX=ISIDX+3
+100      CONTINUE
+C
+C  DONE IF NOT PROCESSING ALL TYPES
+      IF (IALLFG.EQ.0) GO TO 999
+C
+C CHECK PP24 AND TM24
+200   IF (ISIBUF(8).EQ.0) GO TO 210
+      IX=IPDCKD(LPP24)
+      IF (MTYPES.EQ.LTYPE) GO TO 900
+      MTYPES=MTYPES+1
+      CALL UMEMOV (LPP24,IRTYPE(MTYPES),1)
+      IDONE=0
+      GO TO 220
+C
+210   IF (ISIBUF(9).EQ.0) GO TO 999
+      IX=IPDCKD(LTM24)
+      IF (MTYPES.EQ.LTYPE) GO TO 900
+      MTYPES=MTYPES+1
+      CALL UMEMOV (LTM24,IRTYPE(MTYPES),1)
+      IDONE=1
+C
+220   CALL UMEMOV (IDDTDR(8,IX),IEDATE,1)
+      CALL UMEMOV (IDDTDR(11,IX),LDATE,1)
+      IF (IPDDB.GT.0) WRITE (IOGDB,2009) IFDAY,LDAY,IEDATE,LDATE
+      IF (LDAY.LT.IEDATE.OR.IFDAY.GT.LDATE) GO TO 910
+      IF (IFDAY.GE.IEDATE) GO TO 250
+         IFDAY=IEDATE
+         ISTAT=6
+250   IF (LDAY.LE.LDATE) GO TO 260
+         LDAY=LDATE
+         ISTAT=6
+260   IF (IDONE.EQ.0) GO TO 210
+      GO TO 999
+C
+C  DATA TYPE ARRAY TOO SMALL
+900   ISTAT=1
+      GO TO 999
+C
+910   ISTAT=5
+C
+999   IF (IPDDB.GT.0)
+     *   WRITE (IOGDB,2001) MTYPES,(IRTYPE(I),I=1,MTYPES)
+2001  FORMAT (' MTYPES=',I3,3X,'IRTYPE=',10(A4,1X))
+      IF (IPDTR.GT.0) WRITE (IOGDB,2003) ISTAT
+2003  FORMAT (' *** EXIT PDRSDT : ISTAT=',I2)
+C
+      RETURN
+C
+      END

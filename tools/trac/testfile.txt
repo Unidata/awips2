@@ -1,0 +1,8 @@
+This is a testfile
+Deleted two lines and added this
+adding this line
+One more line
+Testing again
+int commit test
+and again
+Test ticket 10955 commit

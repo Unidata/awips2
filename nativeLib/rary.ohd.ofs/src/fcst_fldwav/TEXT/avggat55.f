@@ -1,0 +1,116 @@
+      SUBROUTINE AVGGAT55(KL,J,IFLAG,TT,H2,H1,HGT,HD,CGCG,QGH,
+     1 TCG,QDSN,HDSN,WDSN,QG,DQG,DQGD,K1,K16,K21)
+C
+C  THE METHOD USED IN THIS SUBROUTINE DEVELOPED BY
+C  RANDY WARTMAN OF CORP OF ENGINEER
+C
+      COMMON/GT55/KCG,NCG
+      INCLUDE 'common/fdbug'
+
+      DIMENSION IFLAG(K16,K1)
+      DIMENSION CGCG(K21,K16,K1),TCG(K21,K16,K1),QDSN(K16,K1)
+      DIMENSION HDSN(K16,K1),QGH(K21,K16,K1),WDSN(K16,K1),SNAME(2)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_fldwav/RCS/avggat55.f,v $
+     . $',                                                             '
+     .$Id: avggat55.f,v 1.1 1999/04/23 18:08:21 dws Exp $
+     . $' /
+C    ===================================================================
+C
+
+      DATA SNAME/4HAVGG,4HAT55/
+C
+      CALL FPRBUG(SNAME,1,55,IBUG)
+
+
+      IF(TT.LT.0.001) IFLAG(KL,J)=0
+      GSUB=1.0
+      DSUB=0.
+      DSUBD=0.
+      QG=0.
+      QGOT=0.
+      DQG=0.
+      DQGD=0.
+      RT2G=8.025
+C
+      IF(HGT.LT.0.001) GO TO 200
+      IF(H2.LE.HGT) GO TO 200
+      IF(H2.LT.H1) GO TO 200
+      IF(KCG.EQ.0) GO TO 200
+C
+C
+C     TIME-DEPENDENT GATES: FIND INSTANTANEOUS GATE OPENING
+C
+      DO 10 K=2,KCG
+      IF(TT.LE.TCG(K,KL,J)) GO TO 15
+   10 CONTINUE
+      K=KCG
+   15 L=K-1
+      TFAC=TCG(K,KL,J)-TCG(L,KL,J)
+      DCGCG=(CGCG(K,KL,J)-CGCG(L,KL,J))/TFAC
+      GWI=CGCG(L,KL,J)+DCGCG*(TT-TCG(L,KL,J))
+      DQGH=(QGH(K,KL,J)-QGH(L,KL,J))/TFAC
+      GHI=QGH(L,KL,J)+DQGH*(TT-TCG(L,KL,J))
+C
+C     COMPUTE (ON FIRST PASS ONLY) SPILLWAY DESIGN FLOOD VARIABLES
+C
+      IF(IFLAG(KL,J).EQ.1) GO TO 25
+      GWX=0.
+      DO 21 K=1,KCG
+      GW=CGCG(K,KL,J)
+      IF(GW.GT.GWX) GWX=GW
+   21 CONTINUE
+      IWG=GWX/40
+      IF(IWG.LT.1) IWG=1
+      HDSN(KL,J)=H2-HGT
+      WDSN(KL,J)=AMAX1(GWX-2.0*(0.02*IWG+0.10)*HDSN(KL,J),0.001)
+      QDSN(KL,J)=3.9*WDSN(KL,J)*HDSN(KL,J)**1.5
+      IFLAG(KL,J)=1
+C
+   25 GHED=H2-HGT
+      IF(GHED.LE.(1.2*GHI)) GO TO 40
+C
+C     ORIFICE FLOW AND GATE OVERTOPING FLOW : WEIR HEAD > 1.2*GHI
+C
+      CO=3.9*0.1825*(WDSN(KL,J)/GWI)*(GHED/HDSN(KL,J))**0.1
+      CO=AMAX1(AMIN1(CO,0.72),0.60)
+      GHEDO=AMIN1(GHED-0.5*GHI,H2-H1)
+      QG=CO*GHI*GWI*RT2G*(GHEDO)**0.5
+      IF(H2.GT.HD+GHI) QGOT=3.1*GWI*(H2-(HD+GHI))**1.5
+      QG=QG+QGOT
+C     COMPUTE ORIFICE FLOW DERIVATIVES WRT H2 AND H1
+      DQG=QG*(0.1/GHED + 0.5/GHEDO)
+      IF(H2.GT.HD+GHI) DQG=DQG+1.5*QGOT/(H2-(HD+GHI))
+      IF(H1.GT.(HGT+GHI/2.)) DQGD=QG*(-0.5/(H2-H1))
+      GO TO 200
+C
+C     COMPUTE WEIR FLOW SUBMERGENCE CORRECTION FACTOR & DERIVATIVES
+   40 R=0.
+      IF(H1.GT.HGT) R=(H1-HGT)/(H2-HGT)
+      IF(R.LE.0.67) GO TO 50
+      R67=R-0.67
+      GSUB=1.0-27.8*R67**3
+      DSUB=3.*27.8*R67**2*R/(H2-HGT)
+      DSUBD=-3.*27.8*R67**2/(H2-HGT)
+C
+C     COMPUTE FREE, UNCONTROLLED WEIR FLOW VARIABLES
+   50 QG=GSUB*QDSN(KL,J)*(GHED/HDSN(KL,J))**1.6
+      DFREE=1.6/GHED + DSUB/GSUB
+      DQG=QG*DFREE
+      DQGD=QG*DSUBD/GSUB
+      IF(GHED.LT.GHI) GO TO 200
+C
+C     CONTROLLED WEIR FLOW : WEIR HEAD <= 1.2*GHI, WEIR HEAD >= GHI
+C
+      C0=1-GHI/GHED
+      C1=1-C0**1.5
+      C2=QG
+      QG=C1*C2
+      DQG=QG*DFREE - 1.5*C2*C0**0.5*GHI/GHED**2.0
+      DQGD=C1*DQGD
+C
+  200 RETURN
+      END

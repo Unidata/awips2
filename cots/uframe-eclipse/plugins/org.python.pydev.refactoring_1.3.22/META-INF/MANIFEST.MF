@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.7.0
+Created-By: 11.0-b12 (Sun Microsystems Inc.)
+Bundle-ManifestVersion: 2
+Bundle-Name: %peptic.pluginName
+Bundle-SymbolicName: org.python.pydev.refactoring;singleton:=true
+Bundle-Version: 1.3.22
+Bundle-Activator: org.python.pydev.refactoring.PepticPlugin
+Bundle-Vendor: %peptic.providerName
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime,org.python.pyd
+ ev.core,org.python.pydev.parser,org.eclipse.ltk.core.refactoring,org.
+ eclipse.ltk.ui.refactoring,org.eclipse.core.resources,org.eclipse.jfa
+ ce.text,org.eclipse.ui.ide,org.eclipse.ui.workbench.texteditor,org.ec
+ lipse.ui.editors,org.python.pydev,org.python.pydev.jython,org.eclipse
+ .compare
+Eclipse-LazyStart: true
+Bundle-ClassPath: refactoring.jar,retroweaver-rt.jar
+Export-Package: org.python.pydev.refactoring,org.python.pydev.refactor
+ ing.core,org.python.pydev.refactoring.core.change,org.python.pydev.re
+ factoring.core.edit,org.python.pydev.refactoring.core.request,org.pyt
+ hon.pydev.refactoring.ui.actions,org.python.pydev.refactoring.ui.acti
+ ons.internal
+

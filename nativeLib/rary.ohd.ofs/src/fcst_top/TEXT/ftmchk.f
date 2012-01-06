@@ -1,0 +1,118 @@
+C MEMBER FTMCHK
+C  (from old member FCFTMCHK)
+C
+C     DESC - CHECK FOR CARRYOVER AT START DATE
+C     DESC - CHECK FOR START DATE BEFORE END DATE
+C     DESC - MAKE CERTAIN THAT RUN IS NOT LONGER THAN NDD DAYS
+C
+C..........................
+      SUBROUTINE FTMCHK
+C..........................
+C
+C     SUBROUTINE ORIGINALLY WRITTEN BY
+C              GEORGE F SMITH - HRL - 25 MARCH 1980
+C.......................................................................
+C
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/where'
+      INCLUDE 'common/fctime'
+      INCLUDE 'common/fctim2'
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/killcd'
+      INCLUDE 'common/fprog'
+C
+      DIMENSION SBNAME(2),OLDOPN(2)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_top/RCS/ftmchk.f,v $
+     . $',                                                             '
+     .$Id: ftmchk.f,v 1.1 1995/09/17 19:08:28 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      DATA SBNAME/4HFTMC,4HHK  /
+      DATA IEQ,IGT/2HEQ,2HGT/
+C
+C        WHERE
+C.............
+C
+      IOLDOP=IOPNUM
+      IOPNUM=0
+      DO 10 I=1,2
+      OLDOPN(I)=OPNAME(I)
+   10 OPNAME(I)=SBNAME(I)
+C
+C        TRACE LEVEL = 1
+C..............
+C
+      IF(ITRACE.GE.1)WRITE(IODBUG,900)
+  900 FORMAT(1H0,18H ** FTMCHK ENTERED)
+C
+      CALL FSTITM
+C
+      IF(KLCODE.GT.4)GO TO 9999
+C
+      CALL MDYH2(IDARUN,IHRRUN,IMONTH,IDAY,IYEAR,IHOUR,NZXX,NDXX,INPTZC)
+C
+      CALL MDYH2(LDARUN,LHRRUN,LMONTH,LDAY,LYEAR,LHOUR,NZXX,NDXX,INPTZC)
+C
+      CALL FDATCK(IDARUN,IHRRUN,LDARUN,LHRRUN,IGT,ISW)
+C
+      IF(ISW.EQ.0)GO TO 20
+C
+      WRITE(IPR,600)
+  600 FORMAT(1H0,10X,46H**ERROR** START DATE FOR RUN IS AFTER END DATE)
+      WRITE(IPR,603)IMONTH,IDAY,IYEAR,IHOUR,INPTZC,LMONTH,LDAY,LYEAR,
+     1              LHOUR,INPTZC
+  603 FORMAT(21X,'THE START DATE IS ',I2,1H/,I2,1H/,I4,1H-,I2,1X,A4/
+     1       21X,'THE END   DATE IS ',I2,1H/,I2,1H/,I4,1H-,I2,1X,A4)
+      WRITE(IPR,620)
+  620 FORMAT(15X,'*** THIS COMPUTE OF THE FORECAST FUNCTION WILL BE ',
+     1 ' TERMINATED ***')
+      CALL ERROR
+      GO TO 9999
+C
+   20 CALL FDATCK(IDARUN,IHRRUN,LDARUN,LHRRUN,IEQ,ISW)
+C
+      IF(ISW.EQ.0)GO TO 30
+C
+      WRITE(IPR,601)
+  601 FORMAT(1H0,10X,'**ERROR** START AND END TIMES ARE EQUAL')
+      WRITE(IPR,604)IMONTH,IDAY,IYEAR,IHOUR,INPTZC
+  604 FORMAT(23X,'THE START AND END DATES ARE ',
+     1  I2,1H/,I2,1H/,I4,1H-,I2,1X,A4)
+      WRITE(IPR,620)
+      CALL ERROR
+      GO TO 9999
+C
+   30 IF(IHRRUN.LT.24)GO TO 40
+      IHRRUN=0
+      IDARUN=IDARUN+1
+C
+   40 IF(LDARUN-IDARUN+1.LE.NDD)GO TO 9999
+C
+      LDARUN=IDARUN+NDD-1
+      LHRRUN=24
+C
+      CALL MDYH2(LDARUN,LHRRUN,NMONTH,NDAY,NYEAR,NHOUR,NZXX,NDXX,INPTZC)
+C
+      WRITE(IPR,602)IMONTH,IDAY,IYEAR,IHOUR,INPTZC,LMONTH,LDAY,LYEAR,
+     1              LHOUR,INPTZC,NDD,NMONTH,NDAY,NYEAR,NHOUR,INPTZC
+  602 FORMAT(1H0,10X,34H**WARNING** THE PERIOD TO BE RUN (,I2,1H/,I2,1H/
+     1,  I4,1H-,I2,1X,A4,4H TO ,I2,1H/,I2,1H/,I4,1H-,I2,1X,A4,01H)/
+     2    23X,51HIS LONGER THAN THE MAXIMUM NUMBER OF DAYS ALLOWED (,
+     3     I2,07H DAYS)./
+     4      23X,34HTHE ENDING DATE HAS BEEN RESET TO ,I2,1H/,I2,1H/,I4,
+     5       1H-,I2,1X,A4,1H.)
+C
+      CALL WARN
+C
+ 9999 IOPNUM=IOLDOP
+      OPNAME(1)=OLDOPN(1)
+      OPNAME(2)=OLDOPN(2)
+C
+      RETURN
+      END

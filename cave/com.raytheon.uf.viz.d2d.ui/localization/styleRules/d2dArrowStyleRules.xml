@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+	<!--
+		This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+		pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+		U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+		This_software_product_contains_export-restricted_data_whose
+		export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+		to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+		an_export_license_or_other_authorization.
+
+		Contractor_Name:________Raytheon_Company
+		Contractor_Address:_____6825_Pine_Street,_Suite_340
+		________________________Mail_Stop_B8
+		________________________Omaha,_NE_68106
+		________________________402.291.0100
+
+		See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+		further_licensing_information.
+	-->
+<styleRuleset>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>qVec</parameter>
+			<parameter>qnVec</parameter>
+			<parameter>qsVec</parameter>
+			<parameter>Q Vectors</parameter>
+			<parameter>Qn Vectors</parameter>
+			<parameter>Qs Vectors</parameter>
+		</paramLevelMatches>
+		<arrowStyle>
+			<displayUnits >K/m^2/s*1.0E-12</displayUnits>
+			<scale>-2.5</scale>
+		</arrowStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>FVecs</parameter>
+			<parameter>FsVecs</parameter>
+			<parameter>FnVecs</parameter>
+			<parameter>Frontogenesis Vectors</parameter>
+			<parameter>Fn Vectors</parameter>
+			<parameter>Fs Vectors</parameter>
+		</paramLevelMatches>
+		<arrowStyle>
+			<displayUnits label="K/m/1e10s">K/m/s*1.0E-10</displayUnits>
+			<scale>-1.25</scale>
+		</arrowStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>BlkShr</parameter>
+			<parameter>geoW</parameter>
+			<parameter>ageoW</parameter>
+			<parameter>Geostrophic Wind</parameter>
+			<parameter>Ageo Wind</parameter>
+			<parameter>SNW</parameter>
+		</paramLevelMatches>
+		<arrowStyle>
+			<displayUnits>kts</displayUnits>
+		</arrowStyle>
+	</styleRule>
+	
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>Shear</parameter>
+		</paramLevelMatches>
+		<arrowStyle>
+			<displayUnits>kn/km</displayUnits>
+		</arrowStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>TGrd</parameter>
+		</paramLevelMatches>
+		<arrowStyle>
+		<!-- 
+			<displayUnits>K/(km * 1000)</displayUnits>
+		-->
+		<displayUnits label="K/(km * 1000)">K/m*1.0E6</displayUnits>
+		</arrowStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>EPTGrd</parameter>
+		</paramLevelMatches>
+		<arrowStyle>
+			<displayUnits>K/(km * 100)</displayUnits>
+		</arrowStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>defV</parameter>
+		</paramLevelMatches>
+		<arrowStyle>
+			<displayUnits>(sec^-1)*1.0E-5</displayUnits>
+			<scale>2.5</scale>
+		</arrowStyle>
+	</styleRule>
+
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>Wind</parameter>
+		</paramLevelMatches>
+		<arrowStyle>
+			<displayUnits>kts</displayUnits>
+		</arrowStyle>
+	</styleRule>
+	
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>Windmean</parameter>
+		</paramLevelMatches>
+		<arrowStyle>
+			<displayUnits>kts</displayUnits>
+		</arrowStyle>
+	</styleRule>
+</styleRuleset>

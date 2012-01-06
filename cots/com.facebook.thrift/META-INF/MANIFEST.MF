@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Thrift Plug-in
+Bundle-SymbolicName: com.facebook.thrift
+Bundle-Version: 1.0.0.qualifier
+Bundle-ClassPath: libthrift.jar
+Bundle-Vendor: Raytheon-bundled OSS
+Export-Package: com.facebook.thrift,
+ com.facebook.thrift.protocol,
+ com.facebook.thrift.reflection.limited,
+ com.facebook.thrift.server,
+ com.facebook.thrift.transport
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

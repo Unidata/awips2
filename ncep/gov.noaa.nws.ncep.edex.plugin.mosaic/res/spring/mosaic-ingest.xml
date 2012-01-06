@@ -1,0 +1,69 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	
+	<bean id="mosaicDecoder" class="gov.noaa.nws.ncep.edex.plugin.mosaic.decoder.MosaicDecoder"/>
+
+	<bean id="mosaic" class="com.raytheon.uf.edex.esb.camel.BasicThreadPoolRouter">
+		<constructor-arg>
+			<value>Generic</value>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="mosaicRegistry" class=" com.raytheon.uf.edex.esb.camel.BasicThreadPoolRouter"
+		factory-method="getInstance">
+		<constructor-arg>
+			<value>Generic</value>
+		</constructor-arg>
+		<constructor-arg>
+			<value>mosaic</value>
+		</constructor-arg>
+		<constructor-arg>
+			<value>directvm:mosaicIngest</value>
+		</constructor-arg>
+	</bean>
+
+	<bean id="mosaicCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="mosaic-camel"/>
+  	</bean> 
+
+	<camelContext id="mosaic-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+		<endpoint id="mosaicFileEndpoint" uri="file:${edex.home}/data/sbn/mosaic?noop=true&amp;idempotent=false" />
+
+		<!-- Begin Mosaic routes -->
+		<route id="mosaicFileConsumerRoute">
+			<from ref="mosaicFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+				<constant>mosaic</constant>
+			</setHeader>
+			<to uri="jms-generic:queue:Ingest.Mosaic" />
+		</route>
+
+
+		<route id="mosaicIngestRoute">
+			<from uri="jms-generic:queue:Ingest.Mosaic" />
+			<doTry>
+				<pipeline>
+					<bean ref="stringToFile" />
+					<bean ref="mosaicDecoder" method="decode" />
+					<to uri="directvm:persistIndexAlert" />
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:mosaic?level=ERROR&amp;showBody=false" />
+				</doCatch>
+			</doTry>
+			<!-- bean ref="processUtil" method="delete" /-->
+		</route>
+	</camelContext>
+</beans>

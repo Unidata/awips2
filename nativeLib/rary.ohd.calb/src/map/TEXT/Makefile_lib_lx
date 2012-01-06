@@ -1,0 +1,51 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the calb-map library file
+#
+#  cmt: File made on Thu Oct 26 14:47:41 EDT 2006 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob81/ohd/calb/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob81/ohd/calb/inc  \
+               -I/fs/hseb/ob81/ohd/ofs/inc  \
+               -I/fs/hseb/ob81/ohd/util/inc  \
+               -I/fs/hseb/ob81/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libmap_t.a:  \
+     $(LIB)/libmap_t.a(disnrc.o)  \
+     $(LIB)/libmap_t.a(disrec.o)  \
+     $(LIB)/libmap_t.a(mapmn2.o)  \
+     $(LIB)/libmap_t.a(mapmn.o)  \
+     $(LIB)/libmap_t.a(mpchek.o)  \
+     $(LIB)/libmap_t.a(mpcmpt.o)  \
+     $(LIB)/libmap_t.a(mpdata.o)  \
+     $(LIB)/libmap_t.a(mpdim.o)  \
+     $(LIB)/libmap_t.a(mpform.o)  \
+     $(LIB)/libmap_t.a(mplsts.o)  \
+     $(LIB)/libmap_t.a(mpmain.o)  \
+     $(LIB)/libmap_t.a(mprdts.o)  \
+     $(LIB)/libmap_t.a(mpsmry.o)  \
+     $(LIB)/libmap_t.a(mpstat.o)  \
+     $(LIB)/libmap_t.a(plotd.o)  \
+     $(LIB)/libmap_t.a(uprimo_map.o)
+

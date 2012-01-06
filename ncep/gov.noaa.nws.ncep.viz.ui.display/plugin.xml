@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="gov.noaa.nws.ncep.viz.ui.display.NCMapEditor"
+            default="true"
+            id="gov.noaa.nws.ncep.viz.ui.display.NCMapEditor"
+            name="Natl Cntrs Display Editor">
+      </editor>
+   </extension>
+   <extension
+          point="org.eclipse.ui.contexts">
+           <context 
+                    description="The National Centers Map Editor Context"
+                    id="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+                    name="Natl Centers Map Editor Context">
+           </context>
+           <context 
+                    description="The Natl Centers Product Genaration Context"
+                    id="gov.noaa.nws.ncep.ui.pgen.pgenContext"
+                    name="Natl Centers PGEN Context">
+           </context>           
+   </extension>
+    <!--
+    <extension
+   
+          point="com.raytheon.viz.ui.editorContext">
+       <editorContext
+             editorClass="gov.noaa.nws.ncep.viz.ui.display.NCMapEditor">
+          <contextId
+                id="gov.noaa.nws.ncep.viz.ui.display.NCMapContext">
+          </contextId>
+       </editorContext>
+    </extension>   
+    -->
+<!--
+   <extension
+         point="com.raytheon.uf.viz.core.graphicsTarget">
+      <graphicsTarget
+            class="gov.noaa.nws.ncep.viz.ui.display.NCGLTarget"
+            name="NC-2D">
+      </graphicsTarget>
+   </extension>
+-->
+</plugin>

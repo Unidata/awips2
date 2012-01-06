@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.eclipse.sdk"
+      label="%featureName"
+      version="3.4.1.R34x_v20080827-7O7S78C2J40sK2o_ALcK8tLN_yZSJeg0P-3EtL4Ra90kv"
+      provider-name="%providerName"
+      image="eclipse_update_120.jpg">
+
+   <description>
+      %description
+   </description>
+
+   <copyright>
+      %copyright
+   </copyright>
+
+   <license url="%licenseURL">
+      %license
+   </license>
+
+   <url>
+      <update label="%updateSiteName" url="http://download.eclipse.org/eclipse/updates/3.4"/>
+      <discovery label="%updateSiteName" url="http://download.eclipse.org/eclipse/updates/3.4"/>
+      <discovery label="%secondaryUpdateSiteName" url="http://download.eclipse.org/releases/ganymede"/>
+   </url>
+
+   <includes
+         id="org.eclipse.platform"
+         version="3.4.1.r341_v20080731-9I96EiDElYevwz-p1bP5z-NlAaP7vtX6Utotqsu"/>
+
+   <includes
+         id="org.eclipse.platform.source"
+         version="3.4.1.r341_v20080731-9I96EiDElYevwz-p1bP5z-NlAaP7vtX6Utotqsu"/>
+
+   <includes
+         id="org.eclipse.cvs"
+         version="1.1.1.r34x_20080902-7C79E8N9nJD4oAW9V1938"/>
+
+   <includes
+         id="org.eclipse.cvs.source"
+         version="1.1.1.r34x_20080902-7C79E8N9nJD4oAW9V1938"/>
+
+   <includes
+         id="org.eclipse.jdt"
+         version="3.4.1.r341_v20080709-0800-7o7tEAfEF_U5qyUgrb2HAp539P97"/>
+
+   <includes
+         id="org.eclipse.jdt.source"
+         version="3.4.1.r341_v20080709-0800-7o7tEAfEF_U5qyUgrb2HAp539P97"/>
+
+   <includes
+         id="org.eclipse.pde"
+         version="3.4.1.r341_v20080731-7T7U0E9mlRIuGUYviF_VP"/>
+
+   <includes
+         id="org.eclipse.pde.source"
+         version="3.4.1.r341_v20080731-7T7U0E9mlRIuGUYviF_VP"/>
+
+   <includes
+         id="org.eclipse.pde.p2"
+         version="1.0.0.v20080522-1--7w3119171503111"
+         optional="true"/>
+
+   <includes
+         id="org.eclipse.pde.p2.source"
+         version="1.0.0.v20080522-1--7w3119171503111"
+         optional="true"/>
+
+   <plugin
+         id="org.eclipse.sdk"
+         download-size="0"
+         install-size="0"
+         version="3.4.1.v200809111700"/>
+
+</feature>

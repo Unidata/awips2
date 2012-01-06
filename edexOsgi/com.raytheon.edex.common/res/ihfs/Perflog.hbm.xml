@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+    
+<hibernate-mapping default-lazy="true">
+<!-- 
+    Created by the Middlegen Hibernate plugin 2.1
+
+    http://boss.bekk.no/boss/middlegen/
+    http://www.hibernate.org/
+-->
+
+<class 
+    name="com.raytheon.edex.db.objects.ihfs.Perflog" 
+    table="perflog"
+>
+
+    <composite-id>
+        <key-property 
+            name="process" 
+            column="process" 
+            type="java.lang.String"
+            length="10"
+        />
+        <key-property 
+            name="startTime" 
+            column="start_time" 
+            type="java.sql.Timestamp"
+            length="29"
+        />
+    </composite-id>    
+
+    <property
+        name="numProcessed"
+        type="java.lang.Integer"
+        column="num_processed"
+        length="10"
+    />
+    <property
+        name="numReads"
+        type="java.lang.Integer"
+        column="num_reads"
+        length="10"
+    />
+    <property
+        name="numInserts"
+        type="java.lang.Integer"
+        column="num_inserts"
+        length="10"
+    />
+    <property
+        name="numUpdates"
+        type="java.lang.Integer"
+        column="num_updates"
+        length="10"
+    />
+    <property
+        name="numDeletes"
+        type="java.lang.Integer"
+        column="num_deletes"
+        length="10"
+    />
+    <property
+        name="elapsedTime"
+        type="java.lang.Double"
+        column="elapsed_time"
+        length="17"
+    />
+    <property
+        name="cpuTime"
+        type="java.lang.Double"
+        column="cpu_time"
+        length="17"
+    />
+    <property
+        name="ioTime"
+        type="java.lang.Double"
+        column="io_time"
+        length="17"
+    />
+
+    <!-- Associations -->
+  
+
+</class>
+</hibernate-mapping>
+    <!--
+        
+    -->
+

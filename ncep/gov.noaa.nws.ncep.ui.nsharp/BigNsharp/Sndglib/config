@@ -1,0 +1,6 @@
+# filename to read from
+/sparse/observations/uair/jun00/000624.snd
+# date/time
+000624/0000
+# station list separated by semicolons. no spaces allowed!
+OUN;AMA;DDC;LZK;DNR;LBF

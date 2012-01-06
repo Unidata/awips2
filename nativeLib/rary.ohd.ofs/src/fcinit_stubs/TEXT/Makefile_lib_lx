@@ -1,0 +1,66 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-fcinit_stubs library file
+#
+#  cmt: File made on Wed Aug  6 12:49:42 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libfcinit_stubs_t.a:  \
+     $(LIB)/libfcinit_stubs_t.a(calbio.o)  \
+     $(LIB)/libfcinit_stubs_t.a(co1026.o)  \
+     $(LIB)/libfcinit_stubs_t.a(fupscr.o)  \
+     $(LIB)/libfcinit_stubs_t.a(fwtscr.o)  \
+     $(LIB)/libfcinit_stubs_t.a(pin16.o)  \
+     $(LIB)/libfcinit_stubs_t.a(pin17.o)  \
+     $(LIB)/libfcinit_stubs_t.a(pin28.o)  \
+     $(LIB)/libfcinit_stubs_t.a(pin3.o)  \
+     $(LIB)/libfcinit_stubs_t.a(pin40.o)  \
+     $(LIB)/libfcinit_stubs_t.a(pin47.o)  \
+     $(LIB)/libfcinit_stubs_t.a(pin5.o)  \
+     $(LIB)/libfcinit_stubs_t.a(pm1026.o)  \
+     $(LIB)/libfcinit_stubs_t.a(prc28.o)  \
+     $(LIB)/libfcinit_stubs_t.a(prc3.o)  \
+     $(LIB)/libfcinit_stubs_t.a(prp16.o)  \
+     $(LIB)/libfcinit_stubs_t.a(prp17.o)  \
+     $(LIB)/libfcinit_stubs_t.a(prp28.o)  \
+     $(LIB)/libfcinit_stubs_t.a(prp3.o)  \
+     $(LIB)/libfcinit_stubs_t.a(prp40.o)  \
+     $(LIB)/libfcinit_stubs_t.a(prp47.o)  \
+     $(LIB)/libfcinit_stubs_t.a(prp5.o)  \
+     $(LIB)/libfcinit_stubs_t.a(puc3.o)  \
+     $(LIB)/libfcinit_stubs_t.a(puc40.o)  \
+     $(LIB)/libfcinit_stubs_t.a(tab16.o)  \
+     $(LIB)/libfcinit_stubs_t.a(tab17.o)  \
+     $(LIB)/libfcinit_stubs_t.a(tab28.o)  \
+     $(LIB)/libfcinit_stubs_t.a(tab3.o)  \
+     $(LIB)/libfcinit_stubs_t.a(tab40.o)  \
+     $(LIB)/libfcinit_stubs_t.a(tab47.o)  \
+     $(LIB)/libfcinit_stubs_t.a(tab5.o)  \
+     $(LIB)/libfcinit_stubs_t.a(ts1026.o)
+

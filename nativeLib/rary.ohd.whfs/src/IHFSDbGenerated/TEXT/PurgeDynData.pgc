@@ -1,0 +1,761 @@
+/*
+    File: PurgeDynData.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:27 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "PurgeDynData.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct PurgeDynData_t
+{
+    char		table_name[19];
+    char		time_column_name[19];
+    long		num_hours_host;
+    long		num_hours_backup;
+
+    int		ind_time_column_name;
+    int		ind_num_hours_host;
+    int		ind_num_hours_backup;
+} PurgeDynData_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+PurgeDynData * GetPurgeDynData(const char * where)
+{
+
+    PurgeDynData * listPtr = NULL;
+    PurgeDynData * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM PurgeDynData ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct PurgeDynData_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetPurgeDynData() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetPurgeDynData() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetPurgeDynData() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.table_name, :dbs.time_column_name:dbs.ind_time_column_name, 
+    :dbs.num_hours_host:dbs.ind_num_hours_host, :dbs.num_hours_backup:dbs.ind_num_hours_backup    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetPurgeDynData() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (PurgeDynData *) malloc(sizeof(PurgeDynData))) != NULL)
+        {
+
+            strcpy(structPtr->table_name, dbs.table_name);
+
+            strcpy(structPtr->time_column_name, dbs.time_column_name);
+            setNullIfIndicated(dbs.ind_time_column_name, CHAR, structPtr->time_column_name);
+
+            structPtr->num_hours_host = dbs.num_hours_host;
+            setNullIfIndicated(dbs.ind_num_hours_host, INT, &structPtr->num_hours_host);
+
+            structPtr->num_hours_backup = dbs.num_hours_backup;
+            setNullIfIndicated(dbs.ind_num_hours_backup, INT, &structPtr->num_hours_backup);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.table_name, :dbs.time_column_name:dbs.ind_time_column_name, 
+        :dbs.num_hours_host:dbs.ind_num_hours_host, :dbs.num_hours_backup:dbs.ind_num_hours_backup        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetPurgeDynData() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+PurgeDynData * SelectPurgeDynData(const char * where)
+{
+
+    PurgeDynData * listPtr = NULL;
+    PurgeDynData * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM PurgeDynData ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct PurgeDynData_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectPurgeDynData() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectPurgeDynData() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectPurgeDynData() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.table_name, :dbs.time_column_name:dbs.ind_time_column_name, 
+    :dbs.num_hours_host:dbs.ind_num_hours_host, :dbs.num_hours_backup:dbs.ind_num_hours_backup    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectPurgeDynData() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (PurgeDynData *) malloc(sizeof(PurgeDynData))) != NULL)
+        {
+
+            strcpy(structPtr->table_name, dbs.table_name);
+
+            strcpy(structPtr->time_column_name, dbs.time_column_name);
+            setNullIfIndicated(dbs.ind_time_column_name, CHAR, structPtr->time_column_name);
+
+            structPtr->num_hours_host = dbs.num_hours_host;
+            setNullIfIndicated(dbs.ind_num_hours_host, INT, &structPtr->num_hours_host);
+
+            structPtr->num_hours_backup = dbs.num_hours_backup;
+            setNullIfIndicated(dbs.ind_num_hours_backup, INT, &structPtr->num_hours_backup);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.table_name, :dbs.time_column_name:dbs.ind_time_column_name, 
+        :dbs.num_hours_host:dbs.ind_num_hours_host, :dbs.num_hours_backup:dbs.ind_num_hours_backup        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectPurgeDynData() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectPurgeDynDataCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM PurgeDynData ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountPurgeDynData() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountPurgeDynData() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountPurgeDynData() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountPurgeDynData() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutPurgeDynData(const PurgeDynData * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct PurgeDynData_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.table_name, structPtr->table_name);
+
+    strcpy(dbs.time_column_name, structPtr->time_column_name);
+    dbs.ind_time_column_name = getIndicator(CHAR, (void *)structPtr->time_column_name);
+
+    dbs.num_hours_host = structPtr->num_hours_host;
+    dbs.ind_num_hours_host = getIndicator(INT, (void *)&structPtr->num_hours_host);
+
+    dbs.num_hours_backup = structPtr->num_hours_backup;
+    dbs.ind_num_hours_backup = getIndicator(INT, (void *)&structPtr->num_hours_backup);
+
+
+    EXEC SQL INSERT INTO PurgeDynData (table_name,time_column_name,
+        num_hours_host,num_hours_backup        )
+        VALUES (
+         :dbs.table_name, :dbs.time_column_name:dbs.ind_time_column_name, :dbs.num_hours_host:dbs.ind_num_hours_host,
+         :dbs.num_hours_backup:dbs.ind_num_hours_backup);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutPurgeDynData() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertPurgeDynData(const PurgeDynData * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct PurgeDynData_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.table_name, structPtr->table_name);
+
+    strcpy(dbs.time_column_name, structPtr->time_column_name);
+    dbs.ind_time_column_name = getIndicator(CHAR, (void *)structPtr->time_column_name);
+
+    dbs.num_hours_host = structPtr->num_hours_host;
+    dbs.ind_num_hours_host = getIndicator(INT, (void *)&structPtr->num_hours_host);
+
+    dbs.num_hours_backup = structPtr->num_hours_backup;
+    dbs.ind_num_hours_backup = getIndicator(INT, (void *)&structPtr->num_hours_backup);
+
+
+    EXEC SQL INSERT INTO PurgeDynData (table_name,time_column_name,
+        num_hours_host,num_hours_backup        )
+        VALUES (
+         :dbs.table_name, :dbs.time_column_name:dbs.ind_time_column_name, :dbs.num_hours_host:dbs.ind_num_hours_host,
+         :dbs.num_hours_backup:dbs.ind_num_hours_backup);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertPurgeDynData() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdatePurgeDynData(const PurgeDynData *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct PurgeDynData_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.table_name, structPtr->table_name);
+
+    strcpy(dbs.time_column_name, structPtr->time_column_name);
+    dbs.ind_time_column_name = getIndicator(CHAR, (void *)structPtr->time_column_name);
+
+    dbs.num_hours_host = structPtr->num_hours_host;
+    dbs.ind_num_hours_host = getIndicator(INT, (void *)&structPtr->num_hours_host);
+
+    dbs.num_hours_backup = structPtr->num_hours_backup;
+    dbs.ind_num_hours_backup = getIndicator(INT, (void *)&structPtr->num_hours_backup);
+
+
+    sprintf(queryBuffer, " UPDATE PurgeDynData SET " );
+    strcat(queryBuffer, "table_name = ? , time_column_name = ? , num_hours_host = ? , num_hours_backup = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdatePurgeDynData() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.table_name, :dbs.time_column_name:dbs.ind_time_column_name, :dbs.num_hours_host:dbs.ind_num_hours_host, :dbs.num_hours_backup:dbs.ind_num_hours_backup;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdatePurgeDynData() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeletePurgeDynData(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM PurgeDynData ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeletePurgeDynData() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdatePurgeDynDataByRecord (const PurgeDynData * newStructPtr, const PurgeDynData * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetPurgeDynDataPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdatePurgeDynData(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdatePurgeDynData(const PurgeDynData * structPtr)
+{
+    UpdatePurgeDynDataByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertPurgeDynData(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniquePurgeDynData(const PurgeDynData * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (PurgeDynDataExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertPurgeDynData(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeletePurgeDynDataByRecord(const PurgeDynData * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetPurgeDynDataPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeletePurgeDynData(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool PurgeDynDataExists(const PurgeDynData * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetPurgeDynDataPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectPurgeDynDataCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetPurgeDynDataPrimaryKeyWhereString (const PurgeDynData * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE table_name = '%s' ",
+            structPtr->table_name);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreePurgeDynData( PurgeDynData * structPtr)
+{
+    PurgeDynData* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( PurgeDynData * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetPurgeDynDataDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetPurgeDynDataErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

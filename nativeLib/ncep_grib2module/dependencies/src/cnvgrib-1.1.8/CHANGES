@@ -1,0 +1,75 @@
+
+cnvgrib-1.0   - August 2003 - Original version
+
+cnvgrib-1.0.1 - October 2003 - Corrected error converting level info for
+                               "depth below land surface" from GRIB1 to GRIB2.
+                             - Removed statement that set GRIB1 local table
+                               version to "2".
+
+cnvgrib-1.0.2 - May 2004 - Changed Master Table Version Number from 1 to the
+                           current "operational" value of 2, when converting
+                           from GRIB1 to GRIB2. 
+                         - Added support for Gaussian grids.
+                         - Few minor bug fixes relating to:
+                            1) ensemble params 191 and 192 (grib1 table ver 2)
+                            2) negative pv surface values
+                            3) radius of earth
+                            4) # of missing values in PDS/PDT
+
+cnvgrib-1.1.0 - January 2005 - WMO approved the JPEG2000 and PNG Data 
+                               Representation Templates ( 5.40000 and 5.40010,
+                               respectively ) for operational use.  The 
+                               templates were assigned WMO values of 5.40 and 
+                               5.41, respectively.  Changes were made to the 
+                               source and to acceptable program options to 
+                               recognize either template number.
+                             - Added new option "-m" to support encoding of 
+                               "Missing" data values within the data field when
+                               using Data Representation Templates 5.2 
+                               (option -p2) and 5.3 (options -p31 and -p32 ).
+                               Missing value management is an alternative to
+                               encoding a bitmap when using DRTs 5.2 and 5.3.
+                             - Fixed bug passing null pointers to routines
+                               expecting a valid target.  Thanks to Jaakko
+                               Hyvatti and Portland Group.
+                             - Added fix for bug that caused seg faults on some
+                               systems when generating GRIB1 messages.  Thanks 
+                               to Robert Shectman for this one.
+
+cnvgrib-1.1.1 - April 2005 - Corrected the scaling factor used when converting
+                             potential vorticity surface values.
+
+cnvgrib-1.1.2 - January 2006
+			- Added a new option "-nv" to cause vector quantities 
+			  to be stored in individual GRIB messages versus
+       			  being bundled together which is the default.
+
+cnvgrib-1.1.4 - May 2007
+			- Added a new Grid Definition Template number 204
+                        - Corrected the sale factor for probabilities
+                        - Added more parameters 
+                        - Added the Time Range indicator 51
+
+cnvgrib-1.1.5 - Dec 2007
+                        - Added new local parameters conversion entries
+                        - Declared the variable rmin,rmax in routine (jpcpack.f
+                          and pngpack.f) with double precision to fix for bug
+                          that caused seg fault on NAM tile files
+                        - Added a check for the length of KPDS to determine
+                          the grib is ensemble.
+                        - Added new level (Nominal top of the Atmosphere
+cnvgrib-1.1.6 - Jan 2008
+                        - Added new local parameters conversion entries
+                        - Added new grid id 195 and 196
+                        - Fixed the V-GRD By setting the LPDS(22)=-1
+cnvgrib-1.1.7 - May 2008
+                        - Add missing management value option 0 : No explicit
+                          missing values included within data values
+                          Note: Valid only with complex packing:
+                           1. Complex packing
+                           2. Complex packing and spatial differencing
+cnvgrib-1.1.8 - Aug 2008
+                        - Added new local parameters conversion entries
+                          and table 131
+                        - Added a new Grid Definition Template number
+                          3.32768 (Added Rotate Lat/Lon E-grid)

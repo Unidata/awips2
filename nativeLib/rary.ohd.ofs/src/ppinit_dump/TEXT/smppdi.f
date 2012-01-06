@@ -1,0 +1,589 @@
+C MEMBER SMPPDI
+C-----------------------------------------------------------------------
+C
+C                             LAST UPDATE: 12/16/94.13:16:53 BY $WC20SV
+C
+C @PROCESS LVL(77)
+C
+C DESC: ROUTINE TO DUMP PROCESSED DATA BASE INDEX ENTRIES.
+C DESC: PPINIT COMMAND :  @DUMP PPDINDX
+C
+      SUBROUTINE SMPPDI (LARRAY,IARRAY,NFLD,ISTAT)
+C
+      CHARACTER*4 PARMTP
+      CHARACTER*4 CHAR(5),CHK(5)
+      CHARACTER*5 XCHAR/'CHAR'/
+      CHARACTER*5 XINTGR/'INTGR'/
+      CHARACTER*8 STAID
+      CHARACTER*8 DMPOPT,DPCHK
+C
+      INTEGER*2 I2LOC,I2BUF(32)
+      INTEGER*2 ISIBUF(128)
+C
+      DIMENSION IARRAY(3,1)
+      DIMENSION ITYPES(2,50)
+C
+      INCLUDE 'uio'
+      INCLUDE 'scommon/sudbgx'
+      INCLUDE 'scommon/sworkx'
+      INCLUDE 'pdbcommon/pdrrsc'
+      INCLUDE 'pdbcommon/pdsifc'
+      INCLUDE 'pdbcommon/pdunts'
+      INCLUDE 'pdbcommon/pdhshi'
+      INCLUDE 'pdbcommon/pdhshc'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppinit_dump/RCS/smppdi.f,v $
+     . $',                                                             '
+     .$Id: smppdi.f,v 1.1 1995/09/17 19:12:59 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,310)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG('DUMP')
+C
+      ISTAT=0
+C
+      ISTRT=-1
+      LCHAR=5
+      LCHK=5
+      LDPCHK=LEN(DPCHK)/2
+      ILPFND=0
+      IRPFND=0
+      NUMFLD=0
+      NUMID=0
+      NTYPES=0
+      MTYPES=50
+      ISORT=1
+      DMPOPT='SORT'
+      LSIBUF=128
+      NSWORD=3
+      MAXID=LARRAY/NSWORD
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK FIELDS FOR OPTION
+C
+10    CALL UFIELD (NFLD,ISTRT,LENGTH,IOPTN,NREP,INTEGR,REAL,LCHAR,
+     *   CHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,IERR)
+      IF (LDEBUG.GT.0) THEN
+         CALL UPRFLD (NFLD,ISTRT,LENGTH,IOPTN,NREP,INTEGR,REAL,LCHAR,
+     *      CHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,IERR)
+         ENDIF
+      IF (IERR.NE.1) GO TO 20
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,340) NFLD
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+         GO TO 10
+C
+C  CHECK FOR END OF INPUT
+20    IF (NFLD.EQ.-1) GO TO 70
+C
+C  CHECK FOR COMMAND
+      IF (LATSGN.EQ.1) GO TO 70
+C
+C  CHECK FOR PAIRED PARENTHESIS
+      NPCFLD=0
+      CALL SUPFND (ILPFND,IRPFND,NFLD,NPCFLD)
+      IF (LLPAR.GT.0) ILPFND=1
+      IF (LRPAR.GT.0) IRPFND=1
+      IF (NFLD.EQ.1) CALL SUPCRD
+C
+C  CHECK FOR PARENTHESIS IN FIELD
+      IF (LLPAR.GT.0) CALL UFPACK (LCHK,CHK,ISTRT,1,LLPAR-1,IERR)
+      IF (LLPAR.EQ.0) CALL UFPACK (LCHK,CHK,ISTRT,1,LENGTH,IERR)
+C
+      NUMFLD=NUMFLD+1
+      IF (NUMFLD.GT.1) GO TO 60
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK OPTION
+      CALL SUBSTR (CHK,1,LEN(DPCHK),DPCHK,1)
+      IF (DPCHK.NE.'PPDINDX') THEN
+         WRITE (LP,320) CHK(1)
+         CALL SUERRS (LP,2,-1)
+         GO TO 10
+         ENDIF
+      IF (NFLD.EQ.1) CALL SUPCRD
+C
+C  CHECK DUMP OPTION
+      IF (LLPAR.EQ.0) GO TO 50
+      IF (LRPAR.GT.0) GO TO 30
+         WRITE (LP,350) NFLD
+         CALL SULINE (LP,2)
+         LRPAR=LENGTH+1
+30    CALL UFPACK (LDPCHK,DPCHK,ISTRT,LLPAR+1,LRPAR-1,IERR)
+      IF (DPCHK.EQ.'SORT'.OR.DPCHK.EQ.'NOSORT') GO TO 40
+         WRITE (LP,360) NFLD,DPCHK
+         CALL SUERRS (LP,2,-1)
+         GO TO 50
+40    DMPOPT=DPCHK
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,390) DMPOPT
+         CALL SULINE (LP,1)
+         ENDIF
+50    WRITE (LP,370) DMPOPT
+      CALL SULINE (LP,2)
+      IF (DMPOPT.EQ.'NOSORT') ISORT=0
+      IF (DMPOPT.EQ.'SORT') ISORT=1
+      GO TO 10
+C
+C  CHECK FOR KEYWORD
+60    CALL SUIDCK ('DMPG',CHK,NFLD,0,IKEYWD,IERR)
+      IF (IERR.EQ.2) GO TO 70
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,330) CHK
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+C
+      IF (NFLD.EQ.1) CALL SUPCRD
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  OPEN DATA BASE
+70    CALL SUDOPN (1,'PPD ',IERR)
+      IF (IERR.GT.0) GO TO 290
+C
+C  CHECK IF ANY STATIONS DEFINED
+      IF (NPDSTA.EQ.0) THEN
+         WRITE (LP,380)
+         CALL SULINE (LP,2)
+         GO TO 290
+         ENDIF
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,400) KPDSIF,IH8CHR,IHINRC,
+     *      INFREC,LSTSIF
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      IF (ISLEFT(10).GT.0) CALL SUPAGE
+      WRITE (LP,410)
+      CALL SULINE (LP,2)
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  PRINT CHARACTER INDEX RECORDS
+C
+      WRITE (LP,420)
+      CALL SULINE (LP,2)
+      WRITE (LP,430) XCHAR
+      CALL SULINE (LP,3)
+      LAST=IHINRC-1
+      NREC=0
+      NUM=0
+C
+      DO 80 IREC=IH8CHR,LAST
+         CALL UREADT (KPDSIF,IREC,I2BUF,IERR)
+         NREC=NREC+1
+         NUM=NUM+1
+         N1=(NUM-1)*16+1
+         N2=NUM*16
+         WRITE (LP,440) NREC,IREC,N1,N2,(I2BUF(I),I=1,16)
+         CALL SULINE (LP,1)
+         IF (ISNWPG(LP).EQ.1) THEN
+            WRITE (LP,430) XCHAR
+            CALL SULINE (LP,3)
+            ENDIF
+         NUM=NUM+1
+         N1=(NUM-1)*16+1
+         N2=NUM*16
+         WRITE (LP,450) N1,N2,(I2BUF(I),I=17,32)
+         CALL SULINE (LP,1)
+         IF (ISNWPG(LP).EQ.1) THEN
+            WRITE (LP,430) XCHAR
+            CALL SULINE (LP,3)
+            ENDIF
+80       CONTINUE
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  PRINT INTEGER INDEX RECORDS
+C
+      IF (ISLEFT(10).GT.0) CALL SUPAGE
+      WRITE (LP,460)
+      CALL SULINE (LP,2)
+      WRITE (LP,430) XINTGR
+      CALL SULINE (LP,3)
+      LAST=INFREC-1
+      NREC=0
+      NUM=0
+C
+      DO 90 IREC=IHINRC,LAST
+         CALL UREADT (KPDSIF,IREC,I2BUF,IERR)
+         NREC=NREC+1
+         NUM=NUM+1
+         N1=(NUM-1)*16+1
+         N2=NUM*16
+         WRITE (LP,440) NREC,IREC,N1,N2,(I2BUF(I),I=1,16)
+         CALL SULINE (LP,1)
+         IF (ISNWPG(LP).EQ.1) THEN
+            WRITE (LP,430) XINTGR
+            CALL SULINE (LP,3)
+            ENDIF
+         NUM=NUM+1
+         N1=(NUM-1)*16+1
+         N2=NUM*16
+         WRITE (LP,450) N1,N2,(I2BUF(I),I=17,32)
+         CALL SULINE (LP,1)
+         IF (ISNWPG(LP).EQ.1) THEN
+            WRITE (LP,430) XINTGR
+            CALL SULINE (LP,3)
+            ENDIF
+90       CONTINUE
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  PROCESS STATION INFORMATION RECORDS
+C
+C  READ SIF RECORD
+      IREC=INFREC
+100   CALL UREADT (KPDSIF,IREC,I2BUF,IERR)
+      IF (IERR.EQ.0) GO TO 110
+         WRITE (LP,480) IREC,KPDSIF
+         CALL SUERRS (LP,2,-1)
+         GO TO 120
+110   CALL SUBSTR (I2BUF,3,8,DPCHK,1)
+      IF (DPCHK.EQ.'DELETED') GO TO 120
+      IPSTAN=I2BUF(7)
+      IF (IPSTAN.EQ.0) GO TO 120
+         IF (NUMID+1.GT.MAXID) THEN
+            WRITE (LP,490) MAXID
+            CALL SUERRS (LP,2,-1)
+            GO TO 300
+            ENDIF
+         NUMID=NUMID+1
+         CALL SUBSTR (I2BUF,3,8,IARRAY(1,NUMID),1)
+         IARRAY(3,NUMID)=IREC
+120   NWORDS=I2BUF(1)
+      NRECS=(NWORDS-1)/(LRCPDI*2)+1
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,470) IREC,NWORDS,LRCPDI,NRECS
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      IREC=IREC+NRECS
+      IF (IREC.LE.LSTSIF) GO TO 100
+C
+      IF (NUMID.EQ.0) GO TO 290
+C
+      IF (NUMID.NE.NPDSTA) THEN
+         WRITE (LP,520) NUMID,NPDSTA
+         CALL SUWRNS (LP,2,-1)
+         ENDIF
+C
+      IF (ISORT.EQ.0) GO TO 130
+C
+C  SORT LIST
+      ISPTR=0
+      CALL SUSORT (NSWORD,NUMID,IARRAY,IARRAY,ISPTR,IERR)
+C
+C  INITIALIZE DATA TYPE ARRAY
+130   CALL SMPPDT ('INIT',MTYPES,ITYPES,NTYPES,IERR)
+C
+C  PRINT STATION INFORMATION FILE ENTRIES
+      IF (ISLEFT(10).GT.0) CALL SUPAGE
+      WRITE (LP,500)
+      CALL SULINE (LP,2)
+      WRITE (LP,580)
+      CALL SULINE (LP,4)
+      NPER=4
+      NCOUNT=0
+C
+140   NCOUNT=NCOUNT+1
+      IF (NCOUNT.GT.NUMID) GO TO 290
+      IREC=IARRAY(3,NCOUNT)
+C
+C  READ SIF RECORD
+      CALL UREADT (KPDSIF,IREC,I2BUF,IERR)
+      I2LOC=IREC
+C
+C  SET STATION IDENTIFIER
+      CALL SUBSTR (I2BUF(2),1,8,STAID,1)
+C
+C  SET STATION NUMBER
+      NBRSTA=I2BUF(6)
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,510) STAID,NBRSTA
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  READ STAN PARAMETER RECORD
+      PARMTP='GENL'
+      IPTR=0
+      CALL RPPREC (STAID,PARMTP,IPTR,LSWORK,SWORK,NFILL,IPTRNX,IERR)
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,*)
+     *      ' STAID=',STAID,
+     *      ' PARMTP=',PARMTP,
+     *      ' IPTR=',IPTR,
+     *      ' IERR=',IERR,
+     *      ' '
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      IF (IERR.NE.0) THEN
+         IF (IERR.EQ.2) THEN
+            WRITE (LP,530) PARMTP,STAID
+            CALL SUWRNS (LP,2,-1)
+            ELSE
+               CALL SRPPST (STAID,PARMTP,IPTR,LSWORK,NFILL,IPTRNX,IERR)
+            ENDIF
+         ENDIF
+C
+C  FIND LOCATION IN CHARACTER INDEX ARRAY
+      ICHLOC=0
+      NLOC=0
+      ILOCF=0
+      ILOCL=0
+      DO 160 ILOC=1,NHASHR
+         IF (IPDHSC(ILOC).NE.I2LOC) GO TO 160
+            NLOC=NLOC+1
+            IF (NLOC.EQ.1) GO TO 150
+               IF (ILOCL.GT.0) THEN
+                  WRITE (LP,540) I2LOC,ILOCL
+                  CALL SUWRNS (LP,2,-1)
+                  ENDIF
+               ILOCL=0
+               WRITE (LP,540) I2LOC,ILOC
+               CALL SUWRNS (LP,2,-1)
+               GO TO 160
+150         ILOCF=ILOC
+            ILOCL=ILOC
+160      CONTINUE
+      IF (NLOC.EQ.0) GO TO 180
+      IF (NLOC.GT.1) GO TO 170
+         ICHLOC=ILOCF
+         GO TO 180
+170   CALL PDFNDR (STAID,LSIBUF,IFIND,ISIREC,ISIBUF,IFREE,IERR)
+      WRITE (LP,550) STAID,IFIND
+      CALL SULINE (LP,2)
+      ICHLOC=IFIND
+C
+C  FIND LOCATION IN INTEGER INDEX ARRAY
+180   INTLOC=0
+      NLOC=0
+      ILOCF=0
+      ILOCL=0
+      DO 200 ILOC=1,NHASHR
+         IF (IPDHSI(ILOC).NE.I2LOC) GO TO 200
+            NLOC=NLOC+1
+            IF (NLOC.EQ.1) GO TO 190
+               IF (ILOCL.GT.0) THEN
+                  WRITE (LP,560) I2LOC,ILOCL
+                  CALL SUWRNS (LP,2,-1)
+                  ENDIF
+               ILOCL=0
+               WRITE (LP,560) I2LOC,ILOC
+               CALL SUWRNS (LP,2,-1)
+               GO TO 200
+190         ILOCF=ILOC
+            ILOCL=ILOC
+200      CONTINUE
+      IF (NLOC.EQ.0) GO TO 220
+      IF (NLOC.GT.1) GO TO 210
+         INTLOC=ILOCL
+         GO TO 220
+210   CALL PDFNDI (NBRSTA,LSIBUF,IFIND,ISIREC,ISIBUF,IFREE,IERR)
+      WRITE (LP,570) STAID,IFIND
+      CALL SULINE (LP,2)
+      INTLOC=IFIND
+C
+220   IF (ISNWPG(LP).EQ.1) THEN
+         WRITE (LP,580)
+         CALL SULINE (LP,4)
+         ENDIF
+C
+C  SET NUMBER OF WORDS OF ADDITIONAL TYPES
+      NADDL=I2BUF(10)
+C
+C  CHECK IF ANY ADDITIONAL TYPES
+      IF (NADDL.GT.0) GO TO 230
+C
+C  NO ADDITIONAL TYPES
+      WRITE (LP,590) NCOUNT,IREC,ICHLOC,INTLOC,STAID,
+     *   (I2BUF(J),J=6,9)
+      CALL SULINE (LP,1)
+      IF (I2BUF(8).GT.0)
+     *   CALL SMPPDT ('PP24',MTYPES,ITYPES,NTYPES,IERR)
+      IF (I2BUF(9).GT.0)
+     *   CALL SMPPDT ('TM24',MTYPES,ITYPES,NTYPES,IERR)
+      GO TO 270
+C
+C  STATION HAS ADDITIONAL TYPES
+230   NUM=NADDL
+      IF (NUM.GT.NPER) NUM=NPER
+      IBEG=11
+      IEND=10+NUM*3
+      IF (ISNWPG(LP).EQ.1) THEN
+         WRITE (LP,580)
+         CALL SULINE (LP,4)
+         ENDIF
+      WRITE (LP,600) NCOUNT,IREC,ICHLOC,INTLOC,STAID,
+     *   (I2BUF(J),J=6,9),
+     *   (I2BUF(J),J=IBEG,IEND)
+      CALL SULINE (LP,1)
+      IF (I2BUF(8).GT.0)
+     *   CALL SMPPDT ('PP24',MTYPES,ITYPES,NTYPES,IERR)
+      IF (I2BUF(9).GT.0)
+     *   CALL SMPPDT ('TM24',MTYPES,ITYPES,NTYPES,IERR)
+      DO 240 J=IBEG,IEND,3
+         CALL SUBSTR (I2BUF(J),1,4,ITYPE,1)
+         CALL SMPPDT (ITYPE,MTYPES,ITYPES,NTYPES,IERR)
+240      CONTINUE
+      IF (NADDL.LE.NPER) GO TO 270
+         NUM=NADDL-NPER
+         NTIME=NUM/NPER
+         IF (MOD(NUM,NPER).NE.0) NTIME=NTIME+1
+         IF (NUM.GT.NPER) NUM=NPER
+         IBEG=IEND+1
+         IEND=IBEG+NUM*3-1
+         DO 260 N=1,NTIME
+            IF (ISNWPG(LP).EQ.1) THEN
+               WRITE (LP,580)
+               CALL SULINE (LP,4)
+               ENDIF
+            WRITE (LP,610) (I2BUF(J),J=IBEG,IEND)
+            CALL SULINE (LP,1)
+            DO 250 J=IBEG,IEND,3
+               CALL SUBSTR (I2BUF(J),1,4,ITYPE,1)
+               CALL SMPPDT (ITYPE,MTYPES,ITYPES,NTYPES,IERR)
+250            CONTINUE
+            NUM=NUM-NPER
+            IBEG=IEND+1
+            IEND=IBEG+NUM*3-1
+            IF (IBEG.LE.LRCPDI/2) GO TO 260
+               IREC=IREC+1
+               CALL UREADT (KPDSIF,IREC,I2BUF,IERR)
+               IBEG=1
+               IEND=NUM*3
+260         CONTINUE
+C
+C  CHECK IF FOUND IN CHARACTER INDEX
+270   IF (ICHLOC.EQ.0) THEN
+         WRITE (LP,620) ICHLOC,STAID
+         CALL SUWRNS (LP,2,-1)
+         IF (ISNWPG(LP).EQ.1) THEN
+            WRITE (LP,580)
+            CALL SULINE (LP,4)
+            ENDIF
+         ENDIF
+C
+C  CHECK IF FOUND IN INTEGER INDEX
+      IF (NBRSTA.EQ.0.AND.INTLOC.EQ.0) GO TO 280
+      IF (NBRSTA.GT.0.AND.INTLOC.GT.0) GO TO 280
+         IF (INTLOC.GT.0) THEN
+            WRITE (LP,630) NBRSTA,INTLOC,STAID
+            WRITE (LP,640) STAID,NBRSTA
+            ENDIF
+         IF (INTLOC.EQ.0) THEN
+           WRITE (LP,640) STAID,NBRSTA
+            ENDIF
+         IF (ISNWPG(LP).EQ.1) THEN
+            WRITE (LP,580)
+            CALL SULINE (LP,4)
+            ENDIF
+C
+C  PROCESS NEXT SIF RECORD
+280   GO TO 140
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+290   IF (ISORT.EQ.0) THEN
+         WRITE (LP,650) NUMID
+         CALL SULINE (LP,2)
+         ENDIF
+      IF (ISORT.EQ.1) THEN
+         WRITE (LP,660) NUMID,MAXID
+         CALL SULINE (LP,2)
+         ENDIF
+C
+C  PRINT DATA TYPES FOUND
+      CALL SMPPDT ('PRNT',MTYPES,ITYPES,NTYPES,IERR)
+C
+300   IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,670)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+310   FORMAT (' *** ENTER SMPPDI')
+320   FORMAT ('0*** ERROR - IN SMPPDI - ',A,' IS AN INVALID OPTION.')
+330   FORMAT (' INPUT FIELD = ',5A)
+340   FORMAT (' NULL FIELD FOUND IN FIELD ',I2)
+350   FORMAT ('0*** NOTE - RIGHT PARENTHESES ASSUMED IN FIELD ',
+     *   I2,'.')
+360   FORMAT ('0*** ERROR - CARD FIELD ',I2,' HAS AN INVALID DUMP ',
+     *   'PPDINDX OPTION : ',A)
+370   FORMAT ('0DUMP PPDINDX OPTION IN EFFECT = ',A)
+380   FORMAT ('0*** NOTE - NO STATIONS DEFINED.')
+390   FORMAT (' DUMP PPDINDX OPTION IS ',A)
+400   FORMAT (' KPDSIF=',I2,3X,'IH8CHR=',I5,3X,'IHINRC=',I5,3X,
+     *   'INFREC=',I5,3X,'LSTSIF=',I5)
+410   FORMAT ('0- DUMP OF PREPROCESSOR DATA BASE INDEX -')
+420   FORMAT ('0- CHARACTER INDEX RECORDS -')
+430   FORMAT ('0',
+     *   8X,'RECORD #',3X,A,' LOC',3X,'SIF RECORD NUMBER' /
+     *   1X,8X,8('-'),3X,9('-'),3X,17('-'))
+440   FORMAT (1X,I5,3X,I8,3X,I4,'-',I4,3X,16(I5,1X))
+450   FORMAT (1X,5X,3X,8X,3X,I4,'-',I4,3X,16(I5,1X))
+460   FORMAT ('0- INTEGER INDEX RECORDS -')
+470   FORMAT (' IREC=',I4,3X,'NWORDS=',I2,3X,'LRCPDI=',I2,3X,
+     *   'NRECS=',I2)
+480   FORMAT ('0*** ERROR - IN SMPPDI - DAIO ERROR AT RECORD ',I5,
+     *    ' OF UNIT ',I2,'.')
+490   FORMAT ('0*** ERROR - IN SMPPDI - MAXIMUM NUMBER OF IDENTIFIERS ',
+     *   'THAT CAN BE PROCESSED (',I5,') EXCEEDED.')
+500   FORMAT ('0- STATION INFORMATION FILE RECORDS -')
+510   FORMAT (' STAID=',A,3X,'NBRSTA=',I5)
+520   FORMAT ('0*** WARNING - NUMBER OF STATIONS WITH SIF RECORDS (',
+     *   I5,') DOES NOT EQUAL NUMBER OF STATIONS DEFINED (',I5,').')
+530   FORMAT ('0*** WARNING - ',A,' PARAMETER RECORD NOT FOUND FOR ',
+     *   'STATION ',A,'.')
+540   FORMAT ('0*** WARNING - SIF RECORD NUMBER ',I5,' FOUND AT ',
+     *   'CHARACTER INDEX LOCATION ',I5,'.')
+550   FORMAT ('0*** NOTE - STATION ',A,' SHOULD BE AT CHARACTER ',
+     *   'INDEX LOCATION ',I5,'.')
+560   FORMAT ('0*** WARNING - SIF RECORD NUMBER ',I5,' FOUND AT ',
+     *   'INTEGER INDEX LOCATION ',I5,'.')
+570   FORMAT ('0*** NOTE - STATION ',A,' SHOULD BE AT INTEGER ',
+     *   'INDEX LOCATION ',I5,'.')
+580   FORMAT ('0',T18,'CHAR ',3X,'INTGR',
+     *   T54,'STAN ',3X,'PP24 ',3X,'TM24 ' /
+     *   ' ',5X,'RECORD #',3X,'LOC  ',3X,'LOC  ',3X,
+     *   'STA ID  ',3X,'NUMBER',3X,
+     *   'PNTR ',3X,'PTNR ',3X,'PTNR ',3X,
+     *   'ADDITIONAL DATA TYPES AND POINTER OR RECORD' /
+     *   ' ',5X,8('-'),3X,2(5('-'),3X),8('-'),3X,6('-'),3(3X,5('-')),3X,
+     *       52('-'))
+590   FORMAT (1X,I4,1X,I8,2(3X,I5),3X,A,3X,I6,3(3X,I5))
+600   FORMAT (1X,I4,1X,I8,2(3X,I5),3X,A,3X,I6,3(3X,I5),
+     *   4(3X,2A2,'-',I5,1X))
+610   FORMAT (T78,4(2A2,'-',I5,4X))
+620   FORMAT ('0*** WARNING - INVALID CHARACTER LOCATION (',I5,
+     *   ') FOR STATION ',A,'.')
+630   FORMAT ('0*** WARNING - STATION NUMBER (',I5,') AND ',
+     *   'INTEGER INDEX LOCATION (',I5,') NOT COMPATIBLE FOR STATION ',
+     *   A,'.')
+640   FORMAT ('0*** WARNING - STATION ',A,' HAS A STATION NUMBER ',
+     *   'DEFINED (',I5,') BUT INTEGER INDEX LOCATION IS ZERO.')
+650   FORMAT ('0*** NOTE - ',I5,' STATION INFORMATION FILE RECORDS ',
+     *   'PROCESSED.')
+660   FORMAT ('0*** NOTE - ',I5,' STATION INFORMATION FILE RECORDS ',
+     *   'PROCESSED. A MAXIMUM OF ',I5,' CAN BE PROCESSED.')
+670   FORMAT (' *** EXIT SMPPDI')
+C
+      END

@@ -1,0 +1,32 @@
+#include <string.h>
+
+      void fetch_loc(char iid[8], int *lenid, 
+         double *dlat, double *dlon,
+	 long int *ifetch_cod)
+{
+/*
+   this subroutine selects one record from the location table
+   calling subroutines: ofsde(mape),stageii(readgg)
+*/
+
+      EXEC SQL BEGIN DECLARE SECTION;
+         char id[9];
+         double ddlat,ddlon;
+      EXEC SQL END DECLARE SECTION;
+
+      memset(id,'\0',9);
+      strncpy(id,iid,*lenid);
+
+      EXEC SQL select lat,lon
+	into :ddlat,:ddlon
+	from location
+	where lid=:id;
+
+      *ifetch_cod=sqlca.sqlcode;
+      if(sqlca.sqlcode == 0)
+      {
+        *dlat = ddlat;
+        *dlon = ddlon;
+      }
+
+}  /* end function fetch_loc  */

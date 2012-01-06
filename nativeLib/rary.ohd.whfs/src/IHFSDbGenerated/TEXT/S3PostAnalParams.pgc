@@ -1,0 +1,691 @@
+/*
+    File: S3PostAnalParams.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:30 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "S3PostAnalParams.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct S3PostAnalParams_t
+{
+    short		gg_weighting;
+    float		gg_min_gage_val;
+    short		gg_min_dist;
+    float		kernel_est_scale;
+    float		rhat;
+
+    int		ind_gg_weighting;
+    int		ind_gg_min_gage_val;
+    int		ind_gg_min_dist;
+    int		ind_kernel_est_scale;
+    int		ind_rhat;
+} S3PostAnalParams_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+S3PostAnalParams * GetS3PostAnalParams(const char * where)
+{
+
+    S3PostAnalParams * listPtr = NULL;
+    S3PostAnalParams * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM S3PostAnalParams ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct S3PostAnalParams_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetS3PostAnalParams() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetS3PostAnalParams() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetS3PostAnalParams() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.gg_weighting:dbs.ind_gg_weighting, :dbs.gg_min_gage_val:dbs.ind_gg_min_gage_val, 
+    :dbs.gg_min_dist:dbs.ind_gg_min_dist, :dbs.kernel_est_scale:dbs.ind_kernel_est_scale, 
+    :dbs.rhat:dbs.ind_rhat    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetS3PostAnalParams() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (S3PostAnalParams *) malloc(sizeof(S3PostAnalParams))) != NULL)
+        {
+
+            structPtr->gg_weighting = dbs.gg_weighting;
+            setNullIfIndicated(dbs.ind_gg_weighting, SHORT, &structPtr->gg_weighting);
+
+            structPtr->gg_min_gage_val = dbs.gg_min_gage_val;
+            setNullIfIndicated(dbs.ind_gg_min_gage_val, FLOAT, &structPtr->gg_min_gage_val);
+
+            structPtr->gg_min_dist = dbs.gg_min_dist;
+            setNullIfIndicated(dbs.ind_gg_min_dist, SHORT, &structPtr->gg_min_dist);
+
+            structPtr->kernel_est_scale = dbs.kernel_est_scale;
+            setNullIfIndicated(dbs.ind_kernel_est_scale, FLOAT, &structPtr->kernel_est_scale);
+
+            structPtr->rhat = dbs.rhat;
+            setNullIfIndicated(dbs.ind_rhat, FLOAT, &structPtr->rhat);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.gg_weighting:dbs.ind_gg_weighting, :dbs.gg_min_gage_val:dbs.ind_gg_min_gage_val, 
+        :dbs.gg_min_dist:dbs.ind_gg_min_dist, :dbs.kernel_est_scale:dbs.ind_kernel_est_scale, 
+        :dbs.rhat:dbs.ind_rhat        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetS3PostAnalParams() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+S3PostAnalParams * SelectS3PostAnalParams(const char * where)
+{
+
+    S3PostAnalParams * listPtr = NULL;
+    S3PostAnalParams * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM S3PostAnalParams ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct S3PostAnalParams_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectS3PostAnalParams() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectS3PostAnalParams() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectS3PostAnalParams() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.gg_weighting:dbs.ind_gg_weighting, :dbs.gg_min_gage_val:dbs.ind_gg_min_gage_val, 
+    :dbs.gg_min_dist:dbs.ind_gg_min_dist, :dbs.kernel_est_scale:dbs.ind_kernel_est_scale, 
+    :dbs.rhat:dbs.ind_rhat    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectS3PostAnalParams() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (S3PostAnalParams *) malloc(sizeof(S3PostAnalParams))) != NULL)
+        {
+
+            structPtr->gg_weighting = dbs.gg_weighting;
+            setNullIfIndicated(dbs.ind_gg_weighting, SHORT, &structPtr->gg_weighting);
+
+            structPtr->gg_min_gage_val = dbs.gg_min_gage_val;
+            setNullIfIndicated(dbs.ind_gg_min_gage_val, FLOAT, &structPtr->gg_min_gage_val);
+
+            structPtr->gg_min_dist = dbs.gg_min_dist;
+            setNullIfIndicated(dbs.ind_gg_min_dist, SHORT, &structPtr->gg_min_dist);
+
+            structPtr->kernel_est_scale = dbs.kernel_est_scale;
+            setNullIfIndicated(dbs.ind_kernel_est_scale, FLOAT, &structPtr->kernel_est_scale);
+
+            structPtr->rhat = dbs.rhat;
+            setNullIfIndicated(dbs.ind_rhat, FLOAT, &structPtr->rhat);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.gg_weighting:dbs.ind_gg_weighting, :dbs.gg_min_gage_val:dbs.ind_gg_min_gage_val, 
+        :dbs.gg_min_dist:dbs.ind_gg_min_dist, :dbs.kernel_est_scale:dbs.ind_kernel_est_scale, 
+        :dbs.rhat:dbs.ind_rhat        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectS3PostAnalParams() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectS3PostAnalParamsCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM S3PostAnalParams ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountS3PostAnalParams() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountS3PostAnalParams() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountS3PostAnalParams() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountS3PostAnalParams() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutS3PostAnalParams(const S3PostAnalParams * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct S3PostAnalParams_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    dbs.gg_weighting = structPtr->gg_weighting;
+    dbs.ind_gg_weighting = getIndicator(SHORT, (void *)&structPtr->gg_weighting);
+
+    dbs.gg_min_gage_val = structPtr->gg_min_gage_val;
+    dbs.ind_gg_min_gage_val = getIndicator(FLOAT, (void *)&structPtr->gg_min_gage_val);
+
+    dbs.gg_min_dist = structPtr->gg_min_dist;
+    dbs.ind_gg_min_dist = getIndicator(SHORT, (void *)&structPtr->gg_min_dist);
+
+    dbs.kernel_est_scale = structPtr->kernel_est_scale;
+    dbs.ind_kernel_est_scale = getIndicator(FLOAT, (void *)&structPtr->kernel_est_scale);
+
+    dbs.rhat = structPtr->rhat;
+    dbs.ind_rhat = getIndicator(FLOAT, (void *)&structPtr->rhat);
+
+
+    EXEC SQL INSERT INTO S3PostAnalParams (gg_weighting,gg_min_gage_val,
+        gg_min_dist,kernel_est_scale,rhat        )
+        VALUES (
+         :dbs.gg_weighting:dbs.ind_gg_weighting, :dbs.gg_min_gage_val:dbs.ind_gg_min_gage_val, :dbs.gg_min_dist:dbs.ind_gg_min_dist,
+         :dbs.kernel_est_scale:dbs.ind_kernel_est_scale, :dbs.rhat:dbs.ind_rhat);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutS3PostAnalParams() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertS3PostAnalParams(const S3PostAnalParams * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct S3PostAnalParams_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    dbs.gg_weighting = structPtr->gg_weighting;
+    dbs.ind_gg_weighting = getIndicator(SHORT, (void *)&structPtr->gg_weighting);
+
+    dbs.gg_min_gage_val = structPtr->gg_min_gage_val;
+    dbs.ind_gg_min_gage_val = getIndicator(FLOAT, (void *)&structPtr->gg_min_gage_val);
+
+    dbs.gg_min_dist = structPtr->gg_min_dist;
+    dbs.ind_gg_min_dist = getIndicator(SHORT, (void *)&structPtr->gg_min_dist);
+
+    dbs.kernel_est_scale = structPtr->kernel_est_scale;
+    dbs.ind_kernel_est_scale = getIndicator(FLOAT, (void *)&structPtr->kernel_est_scale);
+
+    dbs.rhat = structPtr->rhat;
+    dbs.ind_rhat = getIndicator(FLOAT, (void *)&structPtr->rhat);
+
+
+    EXEC SQL INSERT INTO S3PostAnalParams (gg_weighting,gg_min_gage_val,
+        gg_min_dist,kernel_est_scale,rhat        )
+        VALUES (
+         :dbs.gg_weighting:dbs.ind_gg_weighting, :dbs.gg_min_gage_val:dbs.ind_gg_min_gage_val, :dbs.gg_min_dist:dbs.ind_gg_min_dist,
+         :dbs.kernel_est_scale:dbs.ind_kernel_est_scale, :dbs.rhat:dbs.ind_rhat);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertS3PostAnalParams() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateS3PostAnalParams(const S3PostAnalParams *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct S3PostAnalParams_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    dbs.gg_weighting = structPtr->gg_weighting;
+    dbs.ind_gg_weighting = getIndicator(SHORT, (void *)&structPtr->gg_weighting);
+
+    dbs.gg_min_gage_val = structPtr->gg_min_gage_val;
+    dbs.ind_gg_min_gage_val = getIndicator(FLOAT, (void *)&structPtr->gg_min_gage_val);
+
+    dbs.gg_min_dist = structPtr->gg_min_dist;
+    dbs.ind_gg_min_dist = getIndicator(SHORT, (void *)&structPtr->gg_min_dist);
+
+    dbs.kernel_est_scale = structPtr->kernel_est_scale;
+    dbs.ind_kernel_est_scale = getIndicator(FLOAT, (void *)&structPtr->kernel_est_scale);
+
+    dbs.rhat = structPtr->rhat;
+    dbs.ind_rhat = getIndicator(FLOAT, (void *)&structPtr->rhat);
+
+
+    sprintf(queryBuffer, " UPDATE S3PostAnalParams SET " );
+    strcat(queryBuffer, "gg_weighting = ? , gg_min_gage_val = ? , gg_min_dist = ? , kernel_est_scale = ? , rhat = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateS3PostAnalParams() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.gg_weighting:dbs.ind_gg_weighting, :dbs.gg_min_gage_val:dbs.ind_gg_min_gage_val, :dbs.gg_min_dist:dbs.ind_gg_min_dist, :dbs.kernel_est_scale:dbs.ind_kernel_est_scale, :dbs.rhat:dbs.ind_rhat;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateS3PostAnalParams() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteS3PostAnalParams(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM S3PostAnalParams ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteS3PostAnalParams() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeS3PostAnalParams( S3PostAnalParams * structPtr)
+{
+    S3PostAnalParams* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( S3PostAnalParams * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetS3PostAnalParamsDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetS3PostAnalParamsErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

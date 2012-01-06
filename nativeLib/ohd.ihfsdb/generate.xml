@@ -1,0 +1,37 @@
+<?xml version="1.0" ?> 
+<project name="ihfsdb" default="runJDbGen" basedir="."> 
+<property name="dist" value="dist" />
+<property name="src" value="src" />
+<property name="db.mach.name" value="localhost" />
+<property name="database" value="hd_ob83oax" />
+
+<target name="runJDbGen" depends="prepare">
+	<java failonerror="yes" classname="ohd.hseb.dbgen.JDbGen" 
+	classpath="$CLASSPATH:${basedir}/../ohd.db/classes">
+		<classpath>
+		<pathelement location="./classes"/>
+		<pathelement path="${basedir}/REQUIRED_JARS/postgresql-8.3-603.jdbc3.jar"/>
+		</classpath>
+		<arg value="jdbc:postgresql://${db.mach.name}:5432/${database}?user=awips"/> <!-- connectionURL -->
+		<arg value="${basedir}/PreferredTableNames.txt"/> <!--preferredTableNameFilePath -->
+		<arg value="${database}"/> <!-- dbName -->
+		<arg value="ohd.hseb.ihfsdb.generated"/> <!-- packageName -->
+		<arg value="${basedir}/src/ohd/hseb/ihfsdb/generated"/> <!-- targetDir -->
+		<arg value="org.postgresql.Driver"/> <!-- driverClassName -->
+	</java>
+</target>	
+
+<target name="prepare">
+   <mkdir dir="${basedir}/src/ohd/hseb/ihfsdb/generated" />
+</target>
+	
+<target name="clean">
+	<delete dir="${basedir}/src/ohd/hseb/ihfsdb/generated"
+	includeemptydirs="true"
+	verbose="true">
+		<fileset dir="${basedir}/src/ohd" 
+			includes="**/*" />
+	</delete>
+	<delete dir="${basedir}/classes"></delete>
+</target>
+</project>

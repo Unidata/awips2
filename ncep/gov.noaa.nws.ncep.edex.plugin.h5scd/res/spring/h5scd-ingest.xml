@@ -1,0 +1,81 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+
+	<bean id="h5scdDecoder"
+		class="gov.noaa.nws.ncep.edex.plugin.h5scd.decoder.H5ScdDecoder">
+		<constructor-arg ref="h5scdPluginName" />
+	</bean>
+
+	<bean id="h5scdPointData"
+		class="gov.noaa.nws.ncep.common.dataplugin.h5scd.dao.H5ScdPointDataTransform" />
+
+	<bean id="h5scdSeparator"
+		class="gov.noaa.nws.ncep.edex.plugin.h5scd.decoder.H5ScdSeparator" />
+
+	<!-- bean id="h5scdRegistry" class=" com.raytheon.uf.edex.esb.camel.BasicThreadPoolRouter" 
+		factory-method="getInstance" depends-on="alphaNumericDatatypePool"> <constructor-arg><value>AlphaNumeric</value></constructor-arg> 
+		<constructor-arg><value>h5scd</value></constructor-arg> <constructor-arg><value>directvm:h5scdIngest</value></constructor-arg> 
+		</bean -->
+
+	<bean id="h5scdDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="h5scd" />
+		<constructor-arg value="jms-dist:queue:Ingest.h5scd" />
+	</bean>
+
+	<bean id="h5scdCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="h5scd-camel" />
+	</bean>
+
+	<camelContext id="h5scd-camel" xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler" autoStartup="false">
+		<endpoint id="h5scdFileEndpoint"
+			uri="file:${edex.home}/data/sbn/h5scd?noop=true&amp;idempotent=false" />
+
+		<!-- Begin H5Scd routes -->
+		<route id="h5scdFileConsumerRoute">
+			<from ref="h5scdFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+				<constant>h5scd</constant>
+			</setHeader>
+			<to uri="jms-generic:queue:Ingest.h5scd" />
+		</route>
+
+		<route id="h5scdIngestRoute">
+			<from uri="jms-generic:queue:Ingest.h5scd" />
+			<setHeader headerName="pluginName">
+				<constant>h5scd</constant>
+			</setHeader>
+			<doTry>
+				<pipeline>
+					<bean ref="stringToFile" />
+					<split streaming="true">
+						<method bean="h5scdSeparator" method="separate" />
+						<doTry>
+							<pipeline>
+								<bean ref="h5scdDecoder" method="decode" />
+								<bean ref="h5scdPointData" method="toPointData" />
+								<to uri="directvm:persistIndexAlert" />
+							</pipeline>
+							<doCatch>
+								<exception>java.lang.Throwable</exception>
+								<to uri="log:h5scd?level=ERROR&amp;showBody=false" />
+							</doCatch>
+						</doTry>
+					</split>
+					<!-- <bean ref="processUtil" method="delete" /> -->
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:h5scd?level=ERROR&amp;showBody=false" />
+				</doCatch>
+			</doTry>
+		</route>
+	</camelContext>
+</beans>

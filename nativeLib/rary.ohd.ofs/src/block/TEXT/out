@@ -1,0 +1,40 @@
+pin19.f        301:      READ (CARD,908,ERR=330) NMF,TIPM,MBASE,PXTEMP,PLWHC,DAYGM,WETOL,
+pin19.f        432:      PS(LPM+10)=PXTEMP
+pin31.f        351:  133 READ(IN,908) NMF,TIPM,MBASE,PXTEMP,PLWHC,DAYGM,WETOL,SCTOL
+pin31.f        545:      PS(LPM+10)=PXTEMP
+pin42.f         43:      READ(IN,900) RSID,RSTYPE,IDT,PXTEMP,TALR,TAID,TATYPE,TAELEV,
+pin42.f         94:      PO(8)=PXTEMP
+prp19.f        159:     1X,6HPXTEMP,2X,5HPLWHC,2X,5HDAYGM)
+prp31.f        189:     1X,6HPXTEMP,2X,5HPLWHC,2X,5HDAYGM)
+prp42.f         35:  901 FORMAT(1H0,10X,'RAIN-SNOW ELEVATION OPERATION--PXTEMP=',
+ex42.f          35:      PXTEMP=PO(8)
+ex42.f          73:      RSL=Z-(PXTEMP*(100.0/TALR))
+ex42.f          78:      RSL=TAELEV+((PTA-PXTEMP)*(100.0/TALR))
+rsno32.f        17:      COMMON/SNPM19/ALAT,SCF,MFMAX,MFMIN,NMF,UADJ,SI,MBASE,PXTEMP,
+rsno32.f       111:      PXTEMP=PS(LPM+10)
+sno32.f         28:      COMMON/SNPM19/ALAT,SCF,MFMAX,MFMIN,NMF,UADJ,SI,MBASE,PXTEMP,
+icp19.c          4:                  MFMIN, NMF, UADJ, SI, GM, MBASE, PXTEMP, PLWHC, TIPM, ALAT,
+icp19.c         17:            nmf, uadj, si, gm, mbase, pxtemp, plwhc, tipm, alat, adc, lmfv,
+icp19.c         21:      *mbase, *pxtemp, *plwhc, *tipm, *alat, *adc, *smfv,
+icp19.c         90:       "  pxtemp=%.3f, plwhc=%.3f, tipm=%.3f, alat=%.3f, adc=%.3f, smfv=%.3f\n",
+icp19.c         94:         *mbase, *pxtemp, *plwhc, *tipm, *alat, *adc, *smfv);
+icp19.c        103:       "  pxtemp=%.3f, plwhc=%.3f, tipm=%.3f, alat=%.3f, adc=%.3f, smfv=%.3f\n",
+icp19.c        107:         *mbase, *pxtemp, *plwhc, *tipm, *alat, *adc, *smfv);
+xtemp.f          2:C  (from old member PPXTEMP)
+fprs43.f       116:     2 ' TINDEX LIQUID   SCF    SI    PXTEMP  MFMAX  MFMIN  ',
+fprsnw.f       117:     2 ' TINDEX LIQUID   SCF    SI    PXTEMP  MFMAX  MFMIN  ',
+fs43tl.f        95: 913  FORMAT(21X,'PXTEMP',9X,'TEMPERATURE THAT SEPARATES RAIN FROM ',
+fs43tl.f        96:     1 'SNOW'/38X,'(SNOW IF TEMPERATURE IS LE PXTEMP)',1X,9(' . '),2A4)
+fsnwtl.f        94: 913  FORMAT(21X,'PXTEMP',9X,'TEMPERATURE THAT SEPARATES RAIN FROM ',
+fsnwtl.f        95:     1 'SNOW'/38X,'(SNOW IF TEMPERATURE IS LE PXTEMP)',1X,9(' . '),2A4)
+fsvs43.f        37:C                           3-9   PARAMETERS(PLWHC,SCF,SI,PXTEMP,
+fsvs43.f       405:C  PXTEMP
+fsvsnw.f        38:C                           3-9   PARAMETERS(PLWHC,SCF,SI,PXTEMP,
+fsvsnw.f       406:C  PXTEMP
+ex19.f          42:      COMMON/SNPM19/ALAT,SCF,MFMAX,MFMIN,NMF,UADJ,SI,MBASE,PXTEMP,
+ex19.f         253:      PXTEMP=PS(LPM+10)
+ex19.f         275:     1  MFMAX,MFMIN,NMF,UADJ,SI,GM,MBASE,PXTEMP,PLWHC,TIPM,ALAT,
+pack19.f        27:      COMMON/SNPM19/ALAT,SCF,MFMAX,MFMIN,NMF,UADJ,SI,MBASE,PXTEMP,
+pack19.f       162:  104 IF(TPX.GT.PXTEMP) GO TO 103
+ex31.f         264:      PXTEMP=PS(LPM+10)
+pack31.f       194:  170 IF(TPX.GT.PXTEMP) GO TO 180

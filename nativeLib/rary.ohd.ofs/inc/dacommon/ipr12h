@@ -1,0 +1,4 @@
+C                                           *--> FROM DACOMMON.IPR12H
+C  ASAP COMMON OF 12 HOUR PREVIOUS DATA POINTER
+      COMMON /IPR12H/ IEPR12,IELR12
+C

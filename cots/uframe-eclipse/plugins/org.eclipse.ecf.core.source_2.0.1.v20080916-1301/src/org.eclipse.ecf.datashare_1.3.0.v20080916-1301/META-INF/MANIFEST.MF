@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %plugin.name
+Bundle-SymbolicName: org.eclipse.ecf.datashare;singleton:=true
+Bundle-Version: 1.3.0.qualifier
+Bundle-Vendor: %plugin.provider
+Bundle-Localization: plugin
+Export-Package: org.eclipse.ecf.datashare,
+ org.eclipse.ecf.datashare.events,
+ org.eclipse.ecf.datashare.mergeable,
+ org.eclipse.ecf.datashare.service
+Bundle-RequiredExecutionEnvironment: CDC-1.0/Foundation-1.0,
+ J2SE-1.3
+Require-Bundle: org.eclipse.ecf,
+ org.eclipse.equinox.common
+Import-Package: org.eclipse.osgi.util;version="1.0.0",
+ org.osgi.framework;version="1.3.0"

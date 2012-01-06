@@ -1,0 +1,144 @@
+1: GFESuite Text Product User Guide
+2: Overview
+3: Part 1
+4: Introduction
+5: Introduction|Concepts
+6: Introduction|Prerequisites
+7: Introduction|Formatter Launcher Dialog
+8: Introduction|Editor Window
+9: Introduction|Steps to Product Creation
+10: Introduction|Steps to Product Creation|Sampler - Grids to Histograms
+11: Introduction|Steps to Product Creation|Analysis and Text Rules
+12: Introduction|Steps to Product Creation|Example
+13: Introduction|Inheritance Hierarchy for Smart Text Products|Inheritance Relationship
+14: Introduction|Inheritance Hierarchy for Smart Text Products|Classes
+15: Introduction|Inheritance Hierarchy for Core Text Products|Site Level Files
+16: Introduction|File Structure for Core Products|Explanation of Files
+17: Introduction|Inheritance Hierarchy for Core Text Products|Region Level Files
+18: Introduction|Inheritance Hierarchy for Core Text Products|Base Level Files
+19: Product set-up|Steps to Set-up Core Products
+20: Product set-up|Set-up Generic Edit Areas
+21: Product set-up|Read Standard File Documentation
+22: Product set-up|Define Text Products Dialog
+23: Product set-up|Read Standard File Documentation
+24: Product set-up|Activate Site Product
+25: Product set-up|Definition File "displayName"
+26: Product set-up|Setting Definition File "displayName"
+27: Product set-up|Run Site Product
+28: Product set-up|Set-up Customized Edit Areas|Applies to "defaultEditAreas" products
+29: Product set-up|Set-up Customized Edit Areas|Definition "defaultEditAreas"
+30: Product set-up|set-up Customized Edit Areas|"defaultEditAreas" Example
+31: Product set-up|set-up Customized Edit Areas|Specifying by lat/lon
+32: Product set-up|set-up Customized Edit Areas|Area Dictionary
+33: Product set-up|set-up Customized Edit Areas|Area Dictionary Example
+34: Product set-up|set-up Customized Edit Areas|Area Header
+35: Product set-up|Run Baseline, Region, Site
+36: Product set-up|Trouble-shooting Fallback
+37: Product set-up|Exercises
+38: Basic Customizations
+39: Basic Customizations|Product Template
+40: Basic Customizations|Inheritance Hierarchy for Core Products
+41: Basic Customizations|Standard Product Template
+42: Basic Customizations|Documentation Section
+43: Basic Customizations|Standard Product Template
+44: Basic Customizations|Standard Product Main Method
+45: Basic Customizations|Standard Product Sub-Methods
+46: Basic Customizations|Standard Product Other Methods
+47: Basic Customizations|Site Definition File
+48: Basic Customizations|Site Overrides File
+49: Basic Customizations|Definition Section|Standard File
+50: Basic Customizations|Definition Section|Site Definition File-1
+51: Basic Customizations|Definition Section|Site Definition File-2
+52: Basic Customizations|Definition Section|Flags
+53: Basic Customizations|Definition Section|Flags
+54: Basic Customizations|Definition Section|Exercises
+55: Basic Customizations|Overriding Methods
+56: Basic Customizations|Overriding Methods Example
+57: Basic Customizations|Text Product Arguments
+58: Basic Customizations|Customizing Narrative Products
+59: Basic Customizations|Thresholds and Variables
+60: Basic Customizations|Inheritance Hierarchy for Core Products
+61: Basic Customizations|Thresholds and Variables
+62: Basic Customizations|Thresholds and Variables|Examples-1
+63: Basic Customizations|Thresholds and Variables|Examples-2
+64: Basic Customizations|Thresholds and Variables|Examples-3
+65: Basic Customizations|Thresholds and Variables|Naming Conventions
+66: Basic Customizations|Thresholds and Variables|Dictionaries
+67: Basic Customizations|Thresholds and Variables|Dictionaries--Short-hand for accessing
+68: Basic Customizations|Thresholds and Variables|Dictionaries--Using a method as an entry
+69: Basic Customizations|Thresholds and Variables|Dictionaries--Using a method as an entry
+70: Basic Customizations|Thresholds and Variables|Dictionaries--"otherwise" entry
+71: Basic Customizations|Thresholds and Variables|Non-Linear Thresholds
+72: Basic Customizations|Thresholds and Variables|Non-Linear Thresholds
+73: Basic Customizations|Thresholds and Variables|SampleAnalysis Arguments
+74: Basic Customizations|Thresholds and Variables|Text Rules Arguments
+75: Basic Customizations|Thresholds and Variables|Arguments Example
+76: Basic Customizations|Thresholds and Variables|Base Override on Current Edit Area
+77: Basic Customizations|Thresholds and Variables|Base Override on Current Component
+78: Basic Customizations|Thresholds and Variables|Customizing Weather
+79: Basic Customizations|Thresholds and Variables|Exercises
+80: Summary|End of Part 1
+81: Exercises|Part 1
+82: Exercises|Part 2
+83: Basic Customizations|Product Components|Overview
+84: Basic Customizations|Product Components|Entries
+85: Basic Customizations|Product Components|Example
+86: Basic Customizations|Product Components|Analysis
+87: Basic Customizations|Product Components|Phrases
+88: Basic Customizations|Product Components|Component Phrase Result
+89: Basic Customizations|Analysis-Driven Phrases
+90: Basic Customizations|Analysis-Driven Phrases|Changing the Analysis Method-1
+91: Basic Customizations|Analysis-Driven Phrases|Changing the Analysis Method-2
+92: Basic Customizations|Analysis-Driven Phrases|Example Result
+93: Basic Customizations|SampleAnalysis Reference|Analysis Methods
+94: Basic Customizations|SampleAnalysis Reference|Moderated Methods
+95: Basic Customizations|SampleAnalysis Reference|Moderated Dictionary
+96: Basic Customizations|SampleAnalysis Reference|Moderated Dictionary
+97: Basic Customizations|Analysis-Driven Phrases|Example Result using Moderated Method
+98: Basic Customizations|Analysis-Driven Phrases|Changing Temporal Resolution-1
+99: Basic Customizations|Analysis-Driven Phrases|Changing Temporal Resolution-2
+100: Basic Customizations|Analysis-Driven Phrases|Example Result Changing Temporal Resolution
+101: Basic Customizations|Analysis-Driven Phrases|Double Weather Element Entries
+102: Basic Customizations|Analysis-Driven Phrases|Weather Analysis
+103: Basic Customizations|Analysis-Driven Phrases|Changing Temporal Resolution for Weather
+104: Basic Customizations|Analysis-Driven Phrases|Example Result Changing Temporal Resolution of Weather
+105: Basic Customizations|Choosing An Alternate Phrase-1
+106: Basic Customizations|TextRules Reference
+107: Basic Customizations|Choosing An Alternate Phrase-2
+108: Basic Customizations|Changing the Order of Phrases
+109: Basic Customizations|Locating Thresholds and Variables
+110: Basic Customizations|TextRules Reference|Phrase Listing
+111: Basic Customizations|TextRules Reference|Phrase Information
+112: Basic Customizations|Inheritance Hierarchy for Core Products
+113: Basic Customizations|Text Rules Modules
+114: Basic Customizations|Text Rules Classes
+115: Basic Customizations|Basic Local Effects|Original Phrase
+116: Basic Customizations|Basic Local Effects|Adding a Local Effect List
+117: Basic Customizations|Basic Local Effects|Example Local Effect List
+118: Basic Customizations|Basic Local Effects|Adding "intersectAreas"
+119: Basic Customizations|Basic Local Effects|Example Results
+120: Basic Customizations|Basic Local Effects|Specification Options
+121: Basic Customizations|Product Component Exercises
+122: Basic Customizations|Narrative Products
+123: Basic Customizations|Narrative Product Definition
+124: Basic Customizations|Narrative Product Example
+125: Basic Customizations|Configurable Issuance
+126: Basic Customizations|Configurable Issuance|Issuance List
+127: Basic Customizations|Configurable Issuance Exercises
+128: Basic Customizations|Headlines|Hazards Grid
+129: Basic Customizations|Headlines|Hazards Grid Example
+130: Basic Customizations|Headlines Configuration|Allowed Hazards
+131: Basic Customizations|Headlines Configuration|Allowed Hazards Example
+132: Basic Customizations|Headlines Configuration|Allowed Hazards Modification
+133: Basic Customizations|Headline Exercises
+134: Basic Customizations|Override File Organization|Standard and Override Files
+135: Basic Customizations|Override File Organization|Need for Organization in Override Files
+136: Basic Customizations|Override File Organization|Guidelines
+137: Help and Feedback
+138: Help and Feedback|Trouble-shooting
+139: Help and Feedback|Using the Listserver-1
+140: Help and Feedback|Using the Listserver-2
+141: Help and Feedback|Exercises
+142: Summary|End of Part 2
+143: Exercises|Part 2
+

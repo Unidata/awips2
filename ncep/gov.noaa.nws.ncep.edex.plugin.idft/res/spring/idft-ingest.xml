@@ -1,0 +1,65 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+
+	<bean id="idftDecoder" class="gov.noaa.nws.ncep.edex.plugin.idft.decoder.IdftDecoder">
+		<constructor-arg ref="idftPluginName" />
+	</bean>
+
+	<bean id="idftSeparator" class="gov.noaa.nws.ncep.edex.plugin.idft.decoder.IdftSeparator" />
+
+	<bean id="idftDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="idft" />
+		<constructor-arg value="jms-dist:queue:Ingest.idft" />
+	</bean>
+
+	<bean id="idftCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="idft-camel"/>
+  	</bean> 
+
+	<camelContext id="idft-camel" xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+		<endpoint id="idftFileEndpoint"
+			uri="file:${edex.home}/data/sbn/idft?noop=true&amp;idempotent=false" />
+
+		<route id="idftFileConsumerRoute"> <from ref="idftFileEndpoint" /> <bean 
+			ref="fileToString" /> <setHeader headerName="pluginName"> <constant>idft</constant> 
+			</setHeader> <to uri="jms-generic:queue:Ingest.idft" /> </route>
+			
+		<!-- Begin idft routes -->
+		<route id="idftIngestRoute">
+			<from uri="jms-generic:queue:Ingest.idft" />
+			<setHeader headerName="pluginName">
+				<constant>idft</constant>
+			</setHeader>
+			<doTry>
+				<pipeline>
+					<bean ref="stringToFile" />
+					<split streaming="true">
+						<method bean="idftSeparator" method="separate" />
+						<doTry>
+							<pipeline>
+								<bean ref="idftDecoder" method="decode" />
+								<to uri="directvm:indexAlert" />
+							</pipeline>
+							<doCatch>
+								<exception>java.lang.Throwable</exception>
+								<to uri="log:idft?level=ERROR&amp;showBody=false" />
+							</doCatch>
+						</doTry>
+					</split>
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:airmet?level=ERROR&amp;showBody=false" />
+				</doCatch>
+			</doTry>
+		</route>
+	</camelContext>
+</beans>

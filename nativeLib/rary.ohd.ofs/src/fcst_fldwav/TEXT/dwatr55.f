@@ -1,0 +1,194 @@
+      SUBROUTINE DWATR55(PO,JNK,NCML,NQCM,J,IL,I,QIL,QII,YIL,YII,DX,YA,
+     1 YMX,DQDT,ITD,K1,K2,K7,K8,K9)
+      COMMON/VS55/MUD,IWF,SHR,VIS,UW,PB,SIMUD
+      COMMON/SS55/NCS,A,B,DB,R,DR,AT,BT,P,DP,ZH
+      COMMON/FLP55/KFLP
+      COMMON/METR55/METRIC
+      COMMON/PRES55/KPRES
+      COMMON/PRMS55/DPRM,WPRM
+      COMMON/IONUM/IN,IPR,IPU
+
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/ofs55'
+
+      DIMENSION PO(*),NQCM(K1)
+      CHARACTER*8 SNAME
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_fldwav/RCS/dwatr55.f,v $
+     . $',                                                             '
+     .$Id: dwatr55.f,v 1.2 2000/12/19 15:47:27 dws Exp $
+     . $' /
+C    ===================================================================
+C
+
+      DATA SNAME/ 'DWATR55 ' /
+C
+      CALL FPRBUG(SNAME,1,55,IBUG)
+
+      YTOP=YMX
+      YBOT=YII
+      YTOP1=YTOP+0.1
+      YBOT1=YBOT-0.1
+CC      DO 105 LL=1,NCS
+CC      LST=NCS-LL+1
+CC      IF(ABS(HS(LST,I,J)).GT.0.0001) GO TO 106
+CC  105 CONTINUE
+CC  106 YTOP=HS(LST,I,J)
+CC      YBOT=HS(1,I,J)
+      E43=4./3.
+      CALL SECT55(PO(LCPR),PO(LOAS),PO(LOBS),PO(LOHS),PO(LOASS),
+     * PO(LOBSS),J,IL,YIL,PO(LCHCAV),PO(LCIFCV),K1,K2,K9)
+      AL=A
+      BL=B
+CCC      DBL=DB
+CCC      ATL=AT
+CCC      BTL=BT
+      PL=WPRM
+      QA=0.5*(QII+QIL)
+      BET=1.06
+      BETI=1.06
+      DBE=0.0
+      DBEI=0.0
+      IF(KFLP.EQ.1) CALL CONV55(PO(LOQKC),PO(LOHKC),PO(LCBEV),PO(LCNKC),
+     * J,IL,YIL,QK,DQK,BET,DBE,0,K1,K2)
+
+      F1=BET*QIL*QIL/AL
+      QI2=QII*QII
+      F=0.
+      DO 113 K=1,20
+      ITD=K
+CCC      FOLD=F
+      CALL SECT55(PO(LCPR),PO(LOAS),PO(LOBS),PO(LOHS),PO(LOASS),
+     * PO(LOBSS),J,I,YA,PO(LCHCAV),PO(LCIFCV),K1,K2,K9)
+      IF(KFLP.EQ.0) GO TO 131
+      AA=0.5*(A+AL)
+      CALL CONV55(PO(LOQKC),PO(LOHKC),PO(LCBEV),PO(LCNKC),J,I,YA,QKI,
+     1 DQKI,BETI,DBEI,0,K1,K2)
+      AQK=0.5*(QK+QKI)
+      SFA=QA*QA/(AQK*AQK)
+      DSFA=-SFA*DQKI/AQK
+      GO TO 132
+  131 P=WPRM
+      DP=DPRM
+      YAA=0.5*(YIL+YA)
+      IF(NQCM(J).LT.0) YAA=QA
+      CALL FRICT55(NCML,PO(LOCM),PO(LOYQCM),J,IL,YAA,CMU,DCM,K1,K7,K8)
+      AA=0.5*(A+AL)
+      BA=0.5*(B+BL)
+      PA=0.5*(P+PL)
+      RA=AA/BA
+      IF(KPRES.EQ.1) RA=AA/PA
+      DRA=0.5*(B/BA-AA*DB/BA/BA)
+      IF(KPRES.EQ.1) DRA=0.5*(B/BA-AA*DP/PA/PA)
+      SFA=CMU*CMU*QA*ABS(QA)/(2.208*AA*AA*RA**E43)
+      DSFA=SFA*(DCM/CMU-B/AA-4./3.*DRA/RA)
+  132 SIA=0.
+      DSIA=0.
+      IF(MUD.NE.1) GO TO 111
+      RPB=1./PB
+      PB1=PB+1.
+      PB2=PB+1.
+      PAA=1./PB2*(UW/VIS)**PB
+      PCC=0.5*(SHR/VIS)**PB
+      DA=AA/BA
+      DDA=0.5*DA*(B/AA-DB/BA)
+      BRK=(QA+PCC*DA*AA)/(PAA*AA*DA**PB1)
+      SIA=BRK**RPB
+      DBRK=((PAA*AA*DA**PB1*PCC*(0.5*DA*B+AA*DDA))-((QA+PCC*DA*AA)*PAA*
+     *  (0.5*B*DA*PB1+PB1*AA*DA**PB*DDA)))/(PAA*AA*DA**PB1)**2.
+      DSIA=RPB*BRK**(RPB-1.)*DBRK
+  111 F=BETI*QI2/A-F1+32.2*AA*(YA-YIL+DX*SFA+DX*SIA)+DQDT*DX
+      FP=-BETI*QI2*B/A/A+32.2*0.5*B*(YA-YIL+DX*SFA+DX*SIA)+
+     &  32.2*AA*(1.0+DX*DSFA+DX*DSIA)+DBEI*QI2/A
+      YNW=YA-F/FP
+CC      IF(YNW.GE.YTOP) YNW=YTOP
+      PYA=YA
+      PYN=YNW
+      PF=F
+      IF(METRIC.EQ.1) THEN
+        PYA=YA/3.281
+        PYN=YNW/3.281
+        PF=PF/115.884
+      ENDIF
+      IF(JNK.GE.10) WRITE(IPR,112) ITD,I,PYA,PYN,PF
+  112 FORMAT(15X,'ITD=',I3,5X,2HI=,I5,5X,'YDWO=',F10.2,5X,
+     * 'YDWN=',F10.2,10X,2HF=,F10.1)
+      IF(ABS(YNW-YA).LE.0.004) GO TO 114
+      YA=YNW
+  113 CONTINUE
+      GO TO 101
+  114 IF(YA.GT.YTOP1.OR.YA.LT.YBOT1) GO TO 101
+      YII=YNW
+CC      IF(YII.GE.YTOP .OR. YII.LE.YBOT) GO TO 101
+      RETURN
+  101 CONTINUE
+C  BISECTION METHOD
+      CALL SECT55(PO(LCPR),PO(LOAS),PO(LOBS),PO(LOHS),PO(LOASS),
+     * PO(LOBSS),J,IL,YIL,PO(LCHCAV),PO(LCIFCV),K1,K2,K9)
+      PL=WPRM
+      QA=0.5*(QII+QIL)
+      F1=QIL*QIL/AL
+      QI2=QII*QII
+      KMX=100
+      ITD=0
+      YMN=YBOT
+      YMX=YTOP
+      YOLD=0.
+    8 ITD=ITD+1
+      YA=0.5*(YMN+YMX)
+      CALL SECT55(PO(LCPR),PO(LOAS),PO(LOBS),PO(LOHS),PO(LOASS),
+     * PO(LOBSS),J,I,YA,PO(LCHCAV),PO(LCIFCV),K1,K2,K9)
+      IF(KFLP.EQ.0) GO TO 138
+      AA=0.5*(A+AL)
+      CALL CONV55(PO(LOQKC),PO(LOHKC),PO(LCBEV),PO(LCNKC),J,I,YA,QKI,
+     * DQKI,BETI,DBEI,0,K1,K2)
+      AQK=0.5*(QK+QKI)
+      SFA=QA*QA/(AQK*AQK)
+      GO TO 11
+  138 P=WPRM
+      YAA=0.5*(YIL+YA)
+      IF(NQCM(J).LT.0) YAA=QA
+      CALL FRICT55(NCML,PO(LOCM),PO(LOYQCM),J,IL,YAA,CMU,DCM,K1,K7,K8)
+      AA=0.5*(A+AL)
+      BA=0.5*(B+BL)
+      PA=0.5*(P+PL)
+      RA=AA/BA
+      IF(KPRES.EQ.1) RA=AA/PA
+      SFA=CMU*CMU*QA*ABS(QA)/(2.208*AA*AA*RA**E43)
+      SIA=0.
+      IF(MUD.NE.1) GO TO 11
+      RPB=1./PB
+      PB1=PB+1.
+      PB2=PB+1.
+      PAA=1./PB2*(UW/VIS)**PB
+      PCC=0.5*(SHR/VIS)**PB
+      DA=AA/BA
+      DDA=0.5*DA*(B/AA-DB/BA)
+      BRK=(QA+PCC*DA*AA)/(PAA*AA*DA**PB1)
+      SIA=BRK**RPB
+   11 F=BETI*QI2/A-F1+32.2*AA*(YA-YIL+DX*SFA+DX*SIA)+DQDT*DX
+      PYIL=YIL
+      PQII=QII
+      PYA=YA
+      IF(METRIC.EQ.0) GO TO 12
+      PYIL=YIL/3.281
+      PQII=QII/35.32
+      PYA=YA/3.281
+   12 IF(JNK.GE.10) WRITE(IPR,13) ITD,I,PYIL,PQII,PYA,F
+   13 FORMAT(15X,'ITD=',I3,5X,2HI=,I5,5X,4HYIL=,F10.2,
+     *  5X,4HQII=,F10.0,5X,3HYA=,F10.2,10X,2HF=,F10.1)
+      IF(F.LT.0.0) YMX=YA
+      IF(F.GT.0.0) YMN=YA
+      IF(ABS(YA-YOLD).LE.0.004) GO TO 14
+      YOLD=YA
+      IF(ITD.LT.KMX) GO TO 8
+      WRITE(IPR,17) I
+   17 FORMAT(//71HDWATER DID NOT CONVERGE IN 100 ITERATIONS. PROGRAM STO
+     *PS AT SECTION NO=,I5//)
+      STOP
+   14 YII=YA
+      RETURN
+      END

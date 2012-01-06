@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Ncccfp Plug-in
+Bundle-SymbolicName: gov.noaa.nws.ncep.common.dataplugin.ncccfp
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: NOAA/NWS/NCEP/NCO/SIB
+Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.raytheon.edex.common;bundle-version="1.11.31",
+ javax.persistence;bundle-version="1.0.0",
+ gov.noaa.nws.ncep.common;bundle-version="1.0.0",
+ org.apache.commons.logging;bundle-version="1.0.4"
+Import-Package: com.vividsolutions.jts.geom,
+ gov.noaa.nws.ncep.edex.common.dao,
+ org.opengis.referencing.crs
+Export-Package: gov.noaa.nws.ncep.common.dataplugin.ncccfp,
+ gov.noaa.nws.ncep.common.dataplugin.ncccfp.dao

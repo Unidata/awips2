@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Adaptersrv Plug-in
+Bundle-SymbolicName: com.raytheon.edex.adaptersrv
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: com.raytheon.edex.common,
+ com.raytheon.uf.edex.core
+Export-Package: com.raytheon.edex.adapterSrv
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

@@ -1,0 +1,3 @@
+C                                           *--> FROM COMMON.FCONIT
+      COMMON /FCONIT/ IVALUE
+C

@@ -1,0 +1,121 @@
+#!/bin/sh
+
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+# Run the qmf interoperability tests.
+MY_DIR=`dirname \`which $0\``
+QPID_DIR=${MY_DIR}/../../../..
+BUILD_DIR=../../..
+PYTHON_DIR=${QPID_DIR}/python
+BROKER_DIR=${BUILD_DIR}/src
+API_DIR=${BUILD_DIR}/bindings/qmf
+SPEC_DIR=${QPID_DIR}/specs
+
+RUBY_LIB_DIR=${API_DIR}/ruby/.libs
+PYTHON_LIB_DIR=${API_DIR}/python/.libs
+
+trap stop_broker INT TERM QUIT
+
+start_broker() {
+    ${BROKER_DIR}/qpidd --daemon --port 0 --no-data-dir --no-module-dir --auth no > _qpidd.port
+    BROKER_PORT=`cat _qpidd.port`
+}
+
+stop_broker() {
+    ${BROKER_DIR}/qpidd -q --port $BROKER_PORT
+    echo "Broker stopped"
+}
+
+start_ruby_agent() {
+    ruby -I${MY_DIR}/../ruby -I${RUBY_LIB_DIR} ${MY_DIR}/agent_ruby.rb localhost $BROKER_PORT &
+    AGENT_PID=$!
+}
+
+stop_ruby_agent() {
+    kill $AGENT_PID
+}
+
+start_python_agent() {
+    PYTHONPATH="${MY_DIR}/../python:${API_DIR}/python:${PYTHON_LIB_DIR}" python ${MY_DIR}/python_agent.py localhost $BROKER_PORT &
+    PY_AGENT_PID=$!
+}
+
+stop_python_agent() {
+    kill $PY_AGENT_PID
+}
+
+TESTS_FAILED=0
+
+if test -d ${PYTHON_DIR} ;  then
+    start_broker
+    echo "Running qmf interop tests using broker on port $BROKER_PORT"
+    PYTHONPATH=${PYTHON_DIR}:${MY_DIR}
+    export PYTHONPATH
+
+    if test -d ${PYTHON_LIB_DIR} ; then
+        echo "    Python Agent (external storage) vs. Pure-Python Console"
+        start_python_agent
+        echo "    Python agent started at pid $PY_AGENT_PID"
+        ${PYTHON_DIR}/qpid-python-test -m python_console -b localhost:$BROKER_PORT $@
+        RETCODE=$?
+        stop_python_agent
+        if test x$RETCODE != x0; then
+            echo "FAIL qmf interop tests (Python Agent)";
+            TESTS_FAILED=1
+        fi
+    fi
+
+    if test -d ${RUBY_LIB_DIR} ; then
+        echo "    Ruby Agent (external storage) vs. Pure-Python Console"
+        start_ruby_agent
+        echo "    Ruby agent started at pid $AGENT_PID"
+        ${PYTHON_DIR}/qpid-python-test -m python_console -b localhost:$BROKER_PORT $@
+        RETCODE=$?
+        if test x$RETCODE != x0; then
+            echo "FAIL qmf interop tests (Ruby Agent)";
+            TESTS_FAILED=1
+        fi
+
+        echo "    Ruby Agent (external storage) vs. Ruby Console"
+        ruby -I${MY_DIR} -I${MY_DIR}/../ruby -I${RUBY_LIB_DIR} ${MY_DIR}/ruby_console_test.rb localhost $BROKER_PORT $@
+        RETCODE=$?
+        stop_ruby_agent
+        if test x$RETCODE != x0; then
+            echo "FAIL qmf interop tests (Ruby Console/Ruby Agent)";
+            TESTS_FAILED=1
+        fi
+    fi
+
+    # Also against the Pure-Python console:
+    #   Ruby agent (internal storage)
+    #   Python agent (external and internal)
+    #   C++ agent (external and internal)
+    #
+    # Other consoles against the same set of agents:
+    #   Wrapped Python console
+    #   Ruby console
+    #   C++ console
+
+    stop_broker
+    if test x$TESTS_FAILED != x0; then
+        echo "TEST FAILED!"
+        exit 1
+    fi
+fi

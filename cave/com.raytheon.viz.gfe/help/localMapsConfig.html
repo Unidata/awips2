@@ -1,0 +1,320 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]">
+  <meta name="Author" content="Mark Mathewson">
+  <title>Map Background Configuration</title>
+</head>
+<body bgcolor="#ffffff">
+<h1 class="3Heading">
+<a name="Top"></a>localMaps.py - Map Background Configuration Override
+File</h1>
+<div class="3Heading">January 18, 2006<br>
+</div>
+<h2><a name="Organization"></a>Organization</h2>
+<a href="#Overview">Overview</a>
+<br>
+<a href="#Format">localMaps.py Format</a>
+<br>
+&nbsp;&nbsp;&nbsp; <a href="#Header">Header</a>
+<br>
+&nbsp;&nbsp;&nbsp; <a href="#Adding">Adding a New Map Background</a>
+<br>
+&nbsp;&nbsp;&nbsp; <a href="#Removing">Removing a map defined in
+Maps.py</a>
+<br>
+&nbsp;&nbsp;&nbsp; <a href="#Modifying">Modifying the characteristics
+of an existing map</a>
+<br>
+<a href="#Placement">Placement of the localMaps.py file</a>
+<br>
+<a href="#Updating">Updating Map Shapefiles</a>
+<br>
+<hr width="100%">
+<h2><a name="Overview"></a>Overview</h2>
+The localMaps.py file provides a mechansism for a site to override
+entries
+in the supplied <a href="mapConfig.html">Maps.py</a> file. New map
+backgrounds
+may be added, maps may be removed from the list, and existing map
+attributes
+may be changed.&nbsp; Refer to the <a href="mapConfig.html">Maps.py</a>
+for the definition of the map background attributes and how they are
+used.
+This document will explain how to add, remove, and modify maps.
+<p>The <a href="MapFiles.html">MapFiles</a> and <a
+ href="localMapFiles.html">localMapFiles</a>
+are used to define the actual shapefile names to be used.&nbsp; These
+should
+NOT be hard-coded into your localMaps file.
+</p>
+<p><b><font color="#ff0000">See the <a
+ href="serverConfiguration.html#ServerDatabaseConfigurationModificationOptions">server
+configuration overview</a> for information on how to make changes that
+are supported to the map backgrounds.</font></b>
+</p>
+<p></p>
+<hr width="100%">
+<h2><a name="Format"></a>localMaps.py Format</h2>
+<a href="EXAMPLElocalMaps.py">Example localMaps.py configuration file</a>
+<h3><a name="Header"></a>Header</h3>
+The localMaps.py file must begin with the following line.&nbsp; This
+line
+instructs the software to import all symbols from the primary
+Maps.py.&nbsp;
+Failure to include this line will result in your modifications not
+being
+recognized by the software:
+<p><tt>from Maps import *</tt>
+<br>
+&nbsp;
+</p>
+<h3><a name="Adding"></a>Adding a New Map Background</h3>
+A new map background can be added through localMaps.py.&nbsp; Refer to
+the syntax requirements of defining a map in the <a
+ href="mapConfig.html">Maps.py</a>
+document.&nbsp; There is one additional line that is very important to
+add (i.e., the append line) in order for the system to recognize the
+new
+map.&nbsp; It is also important NOT to duplicate the Python variable
+name
+(i.e., the name left of the equals ("=") sign) of any Python variable
+in
+the <a href="mapConfig.html">Maps.py</a> file.&nbsp; For example, if a
+map is defined as "CWAzones = ..." in <a href="mapConfig.html">Maps.py</a>,
+do not create a variable that says "CWAzones = ..." in the localMaps.py
+file. Note that this restriction is for adding a map background. If you
+are overriding the characteristics of a map background that is already
+defined in Maps.py, then you will need to use the same Python variable
+name.
+<p>Here is an example of including a county map for the state of
+Wyoming,
+and having it create a set of automatic edit areas in group
+WYCounties):
+</p>
+<p><tt>WYcounties = ShapeFile(MAPDIR)</tt>
+<br>
+<tt>WYcounties.filename(CountyMapName)</tt>
+<br>
+<tt>WYcounties.filter(lambda x : x['STATE'] == "WY")</tt>
+<br>
+<tt>WYcounties.name = 'WYCounties'</tt>
+<br>
+<tt>WYcounties.editAreaName = ['STATE','COUNTYNAME']</tt>
+<br>
+<tt>WYcounties.groupName = 'WYCounties'</tt>
+<br>
+<tt>WYcounties.expandDomain = (2, 2, 0, 0)</tt>
+<br>
+<tt>maps.append(WYcounties)</tt>
+</p>
+<p>In the above example, the map name of "WYCounties" is created,
+consisting
+of all counties with attribute STATE that equals "WY".&nbsp; In
+addition,
+edit areas will be automatically generated in the form of
+STATE_COUNTYNAME
+and will be part of the WYCounties edit area group.&nbsp; The very last
+line appends this new map definition to the list of maps to be
+generated.&nbsp;
+The map clip region will be expanded by 2 degrees to the north and
+east.
+</p>
+<p>Note that if your new map background is using a new shapefile, you
+will
+also need to install the shapefile and create/modify the <a
+ href="localMapFiles.html">localMapFiles.py</a>
+file to indicate the location/name of the shapefile.&nbsp;&nbsp;
+In all cases, the "filename" definition should use an existing mnemonic
+(defined in MapFiles.py or redefined in localMapFiles.py) or a new
+mnemonic (defined in localMapFiles.py).&nbsp;&nbsp; By using mnemonics,
+it is easy to keep your maps up-to-date as you install new shapefiles.<br>
+&nbsp;
+</p>
+<p><a href="EXAMPLElocalMapsAdd.py">Example localMaps.py configuration
+file</a>
+</p>
+<h3><a name="Removing"></a>Removing a Map that is defined in Maps.py</h3>
+Removing a map that is defined in <a href="mapConfig.html">Maps.py</a>,
+but not desired is easy.&nbsp; Find the Python variable name of the map
+you wish to remove by examining <a href="mapConfig.html">Maps.py</a>.&nbsp;
+The python variable name is the name to the left of the "equals" ('=')
+sign.
+<p>For example, if you did not want ifpServer to generate the marine
+zones,
+find the marine zones definition in <a href="mapConfig.html">Maps.py</a>.&nbsp;
+There are actually two maps generated. The identifiers are CWAmzones
+and
+Mzones.&nbsp; The following text would be included within localMaps.py:
+</p>
+<p><tt>maps.remove(CWAmzones)</tt>
+<br>
+<tt>maps.remove(Mzones)</tt>
+</p>
+<p><a href="EXAMPLElocalMapsRemove.py">Example localMaps.py
+configuration
+file</a>
+</p>
+<h3><a name="Modifying"></a>Modifying the characteristics of an
+existing map</h3>
+You can modify the following characterstics of the map:
+<ul>
+  <li>filename of the map shapefile - but ONLY if it is to change the
+mnemonic, e.g., CountyMapName, and not to specify and explicit
+shapefile name, e.g., c_02se05.&nbsp;&nbsp; Explicit filenames are to
+be specified in localMapFiles.py.<br>
+  </li>
+  <li>name of the map background (.name line)</li>
+  <li>filtering (.filter line)</li>
+  <li>generation of edit areas (.editAreaName line)</li>
+  <li>group name of generated edit areas (.groupName)</li>
+  <li>change (or add) the map domain expansion</li>
+  <li>Adjust the precision used when filtering out points to reduce
+data size</li>
+</ul>
+You cannot modify the following characteristic:
+<ul>
+  <li>ShapeFile line</li>
+</ul>
+<h4>
+Filename of the Map Background</h4>
+The explicit shapefile filename of the map may be changed easily, but
+it is not
+changed through localMaps.py.&nbsp; Instead you should use the <a
+ href="localMapFiles.html#Upd">localMapFiles.py</a>
+entry to indicate the filename.&nbsp; Only mnemonics should be changed
+in localMaps.py.&nbsp;&nbsp; You should refer to an existing mnemonic,
+such as CountyMapName, that is already defined in Maps.py, or you can
+use a new mnemonic which you must define in your localMapFiles.py file.<br>
+<h4>Name of the Map Background</h4>
+The format of the line is identical to that found in Maps.py.&nbsp;
+Simply
+repeat the line you want to change and then put the new map name.&nbsp;
+For example, if you want to change the CWAzones map name to MyCWAZones,
+you would add the following line to localMaps.py:
+<p><tt>CWAzones.name = "MyCWAZones"</tt>
+</p>
+<h4>Filter Changes</h4>
+The format of the line is identical to that found in Maps.py.&nbsp;
+Simply
+repeat the line you want to change and then put in the new filter
+string.&nbsp;
+For example, if you want to change the CWAzones filter from all zones
+for
+the CWA to all zones for the state of Ohio, you would add the following
+line to localMaps.py:
+<p><tt>CWAzones.filter(lambda x : x['STATE'] == "OH")</tt>
+</p>
+<p>You can also use any of the alternate methods of specifying the
+filter
+as described in <a href="mapConfig.html#FilteredMap">Maps.py</a>. This
+shows much more complex types of filters than this file.
+</p>
+<p>If you want to turn filtering off completely for a map, you will
+need
+to <a href="#Adding">add a completely new map definition</a>.<br>
+</p>
+<p>Attributes in the shapefile are all treated as strings.&nbsp;&nbsp;
+If you create a filter that needs to do number comparisons, such as a
+population filter, you need to promote the string representation to a
+number representation using the float() function.<br>
+</p>
+<h4>Generation of Edit Area Changes</h4>
+<h5>
+Name Changes</h5>
+The format of the line is identical to that found in Maps.py.&nbsp;
+Simply
+repeat the line you want to change and then put in the new edit area
+name
+definition.&nbsp; If you don't want any edit areas to be generated use
+this format:
+<p><tt>CWAzones.editAreaName = []</tt>
+</p>
+<p>If you want to specify the edit areas are to be based on the CWA,
+then
+use this form:
+</p>
+<p><tt>CWAzones.editAreaName = 'CWA'<br>
+</tt></p>
+Refer to <a href="mapConfig.html">Maps.py</a> for alternate forms of
+the editAreaName.<br>
+<h5>
+Group Name for the Edit Areas</h5>
+The format of the line is identical to that found in Maps.py.&nbsp;
+Simply
+repeat the line you want to change and then put in the new group name
+definition.&nbsp;
+If you don't want the edit areas to be in any group use this format:
+<p><tt>CWAzones.groupName = ''</tt>
+</p>
+<p>If you want to specify the group name, then use this form:
+</p>
+<p><tt>CWAzones.groupName = 'MyZones'</tt>
+<br>
+&nbsp;
+</p>
+<h4>Domain Expansion</h4>
+The format of this line is <a href="mapConfig.html#ExpandedMaps">identical
+to that found in Maps.py</a>.&nbsp; Simply repeat the line you want to
+change (or add a new line):
+<p><tt>CWAzones.expandDomain = (0, 2, 2, 1.5)</tt>
+<a name="Precision"></a></p>
+<h4>Precision</h4>
+The ifpServer will throw out vertex points of polyline and polygon maps
+which are closer togeather than needed for the GFE. Since opinions
+differ
+on how close points are before they are not needed, a ShapeFile can be
+assigned an optional attribute to define this. The attribute is called
+precision and is an integer or None assigned like so:
+<p><tt>CWAzones.precision = 3</tt>
+</p>
+<p>The server will then round all values in the data to this number of
+decimal places. Adjacent duplicate values will then be removed. This
+helps
+reduce the amount of data contained in the maps making them faster to
+display.
+</p>
+<p>By default all polygon and polyline maps will be rounded to a
+precision
+of 2. The above example overrides this to 3. If a site wishes to do no
+rounding then precision can be set to None and this data reduction will
+be skipped entirely.
+</p>
+<p>In summary, precision can be set to an integer greater than or equal
+to zero or None. The best way to change this value is in your
+localMaps.py
+file. The above example could be placed into localMaps.py to change the
+precision of the CWAzones map to 3.
+</p>
+<p><a href="EXAMPLElocalMapsMod.py">Example localMaps.py configuration
+file</a>
+<br>
+</p>
+<hr width="100%">
+<h2><a name="Placement"></a>Placement of the localMaps.py file</h2>
+The localMaps.py file should always be placed in the ***/etc/SITE
+directory
+as explained <a href="serverConfiguration.html#LocationofFiles">here</a>.
+<p>
+</p>
+<hr width="100%">
+<h2><a name="Updating"></a>Updating Map Shapefiles</h2>
+Updating Map Shapefiles is described in the <a
+ href="localMapFiles.html">localMapFiles</a>
+document.&nbsp;&nbsp;
+The site is responsible for obtaining and installing the correct set of
+map shapefiles.<br>
+&nbsp;
+<p></p>
+<hr width="100%"><br>
+&nbsp;
+<br>
+&nbsp;
+<div class="Body">&nbsp;<a href="#Top">Back To Top</a>
+<br>
+&nbsp;<a href="GFESuite.html#TableOfContents">Back To TOC</a></div>
+</body>
+</html>

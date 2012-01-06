@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Notification Plug-in
+Bundle-SymbolicName: com.raytheon.uf.viz.product.alertviz;singleton:=true
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Activator: com.raytheon.uf.viz.product.alertviz.Activator
+Bundle-Vendor: Raytheon
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ com.raytheon.uf.viz.alertviz,
+ com.raytheon.uf.viz.core,
+ com.raytheon.uf.viz.alertviz.ui,
+ com.raytheon.uf.viz.application;bundle-version="1.0.0"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: com.raytheon.uf.common.message
+Export-Package: com.raytheon.uf.viz.product.alertviz

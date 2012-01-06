@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This_software_was_developed_and_/_or_modified_by_Raytheon_Company, pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government. 
+	U.S._EXPORT_CONTROLLED_TECHNICAL_DATA This_software_product_contains_export-restricted_data_whose 
+	export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires 
+	an_export_license_or_other_authorization. Contractor_Name:________Raytheon_Company 
+	Contractor_Address:_____6825_Pine_Street,_Suite_340 ________________________Mail_Stop_B8 
+	________________________Omaha,_NE_68106 ________________________402.291.0100 
+	See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for further_licensing_information. -->
+<vbSourceList>
+	<vbSource key="DGEX186" category="Volume" />
+	<vbSource key="GFS160" category="Volume" />
+	<vbSource key="ETA242" category="Volume" />
+	<vbSource key="mesoEta216" category="Volume" />
+	<vbSource key="SREF216" category="Volume" />
+	<vbSource key="Aviation" category="Volume" views="PLANVIEW TIMESERIES"/>
+	<vbSource key="DGEX185" category="Volume" />
+	<vbSource key="ECMWF-HiRes" category="Volume" />
+	<vbSource key="ECMF-NorthernHemisphere" category="Volume" />
+	<vbSource key="AVN203" category="Volume" />
+	<vbSource key="GFS201" category="Volume" />
+	<vbSource key="GFS212" category="Volume" />
+	<vbSource key="AVN225" category="Volume" />
+	<vbSource key="GFS213" category="Volume" />
+	<vbSource key="ENSEMBLE" category="Volume" views="PLANVIEW TIMESERIES"/>
+	<vbSource key="AVN-NorthernHemisphere" category="Volume" />
+	<vbSource key="HiResW-ARW-AK" category="Volume" />
+	<vbSource key="HiResW-ARW-East" category="Volume" />
+	<vbSource key="HiResW-ARW-PR" category="Volume" />
+	<vbSource key="HiResW-ARW-SJU" category="Volume" />
+	<vbSource key="HiResW-ARW-West" category="Volume" />
+	<vbSource key="HiResW-NMM-AK" category="Volume" />
+	<vbSource key="HiResW-NMM-East" category="Volume" />
+	<vbSource key="HiResW-NMM-PR" category="Volume" />
+	<vbSource key="HiResW-NMM-SJU" category="Volume" />
+	<vbSource key="HiResW-NMM-West" category="Volume" />
+	<vbSource key="MRF204" category="Volume" />
+	<vbSource key="LAMPQPF" category="Volume" />
+	<vbSource key="LAPS" category="Volume" />
+	<vbSource key="ETA218" category="Volume" />
+	<vbSource key="mesoEta215" category="Volume" />
+	<vbSource key="mesoEta212" category="Volume" />
+	<vbSource key="ETA" category="Volume" />
+	<vbSource key="ETA207" category="Volume" />
+	<vbSource key="NOGAPS" category="Volume" />
+	<vbSource key="GFS254" category="Volume" />
+	<vbSource key="SREF243" category="Volume" />
+	<vbSource key="RSM" category="Volume" />
+	<vbSource key="RUC130" category="Volume" />
+	<vbSource key="RUC236" category="Volume" />
+	<vbSource key="RUC" category="Volume" />
+	<vbSource key="GFS161" category="Volume" />
+	<vbSource key="MRF205" category="Volume" />
+	<vbSource key="SREF212" category="Volume" views="PLANVIEW TIMESERIES"/>
+	<vbSource key="UKMET-NorthernHemisphere" category="Volume" />
+	<vbSource key="radar" name="Radar" category="Volume" />
+	<vbSource key="MOSGuide-AK" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="AK-NamDNG5" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="AK-NICICE" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="AK-RTMA" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="AKWAVE239" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="AKwave10" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="AKwave4" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="BHPE" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="CPCoutlook211" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="DHM" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="ENPWAVE253" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="EPwave10" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="GFE" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="GFSGuide" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="GFSLAMPTstorm" name="GFSLAMP-Grid" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="GLERL" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="GlobalWave" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="GRLKwave" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="MOSGuide" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="HurWind175" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="Guam-RTMA" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="GWW233" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="HurWind250" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="HI-NamDNG5" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="HI-RTMA" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="HPCqpfNDFD" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="HPCGuide" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="HPCqpf" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="HPE" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="MPE-Local" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="MSAS" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="NamDNG" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="ETA212" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="NICICE" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="OPCWave181" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="OPCWave182" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="OPCWave180" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="PR-NamDNG5" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="PR-RTMA" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="rfcMPE" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RFCqpf" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTGSST" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTGSSTHR" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTMA" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="SeaIce" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="SPCGuide" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="HurWind226" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="TPCSurgeProb" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="TPCWindProb" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="WCwave10" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="WCwave4" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="WNAWAVE238" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="WNAwave10" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="WNAwave4" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="bufrmosLAMP" name="GFSLAMP-Stn" category="Point"
+		views="TIMESERIES" />
+	<vbSource key="Ldad" category="Point" views="TIMESERIES" />
+	<vbSource key="obs" name="Metar" category="Point" views="TIMESERIES" />
+	<vbSource key="obsOA" name="MetarOA" category="Point"
+		views="PLANVIEW TIMESERIES" />
+	<vbSource key="radar149" name="DMD" category="Point"
+		subCategory="Column" views="CROSSSECTION TIMEHEIGHT VARVSHGT TIMESERIES" />
+	<vbSource key="modelsoundingGFS" name="GFSBufr" category="Point"
+		subCategory="Column" views="CROSSSECTION TIMEHEIGHT VARVSHGT SOUNDING TIMESERIES" />
+	<vbSource key="goessounding" name="GoesBufr" category="Point"
+		subCategory="Column" views="CROSSSECTION TIMEHEIGHT VARVSHGT SOUNDING TIMESERIES" />
+	<vbSource key="acarssounding" name="MDCRS" category="Point"
+		subCategory="Column" views="CROSSSECTION TIMEHEIGHT VARVSHGT SOUNDING TIMESERIES" />
+	<vbSource key="modelsoundingETA" name="NAMBufr" category="Point"
+		subCategory="Column" views="CROSSSECTION TIMEHEIGHT VARVSHGT SOUNDING TIMESERIES" />
+	<vbSource key="poessounding" name="PoesBufr" category="Point"
+		subCategory="Column" views="CROSSSECTION TIMEHEIGHT VARVSHGT SOUNDING TIMESERIES" />
+	<vbSource key="profiler" name="Profiler" category="Point"
+		subCategory="Column" views="CROSSSECTION TIMEHEIGHT VARVSHGT SOUNDING TIMESERIES" />
+	<vbSource key="bufrua" name="Raob" category="Point"
+		subCategory="Column" views="CROSSSECTION TIMEHEIGHT VARVSHGT SOUNDING TIMESERIES" />
+	<vbSource key="bufruaOA" name="RaobOA" category="Point"
+		subCategory="Column" />
+	<vbSource key="radarVWP" name="VWP" category="Point"
+		subCategory="Column" views="CROSSSECTION TIMEHEIGHT VARVSHGT SOUNDING TIMESERIES" />
+</vbSourceList>

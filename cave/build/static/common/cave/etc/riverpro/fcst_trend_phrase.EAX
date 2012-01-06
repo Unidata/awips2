@@ -1,0 +1,29 @@
+# fcst_trend_phrase.xxx, this file is located at /awips/hydroapps/whfs/local/
+# data/app/riverpro. It defines the trend phrases for different trend index,
+# for normal forecast points,the trend indexes are RISE_STEADY, RISE_ABOVEFS, RISE_ABOVEWS, RISE_CONT,
+# RISE_CREST, FLUCTUATE_NEAR, FALL_STEADY, FALL_BELOWFS and FALL_BELOWWS.
+# for the weir points, the trend indexes are
+#
+#
+RISE_STEADY:forecast to rise to near
+RISE_ABOVEFS:expected to rise above flood stage of
+RISE_ABOVEWS:forecast to rise above warning stage of
+RISE_CONT:forecast to rise to near xx ft with continued rise expected
+RISE_CREST:forecast to crest near
+FLUCTUATE_NEAR:forecast to fluctuate near
+FALL_STEADY:forecast to recede to near
+FALL_BELOWFS:forecast to fall below flood stage of
+FALL_BELOWWS:forecast to fall below warning stage of
+#end of trend indexs and associated phrases for normal forecast points.
+
+#For weir points
+WEIR_NO_OVERFLOW:no overflow is expected
+WEIR_SLIGHT_OVERFLOW:possibility of slight overflow
+WEIR_BEGIN_OVERFLOW:forecast to begin overflow
+WEIR_OVERFLOW_INC:overflow depth at weir increasing to
+WEIR_PRESENT_OVERFLOW:present overflow depth is about
+WEIR_REMAIN_OVERFLOW:overflow to remain near depth of
+WEIR_OVERFLOW_DEC:overflow depth at weir decreasing to
+WEIR_END_OVERFLOW:forecast to end overflow
+WEIR_STOP_OVERFLOW:overflow stopped
+WEIR_RENEW_OVERFLOW:forecast to begin renewed overflow

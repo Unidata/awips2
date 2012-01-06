@@ -1,0 +1,179 @@
+C MEMBER PRP41
+C  (from old member FCPRP41)
+C
+      SUBROUTINE PRP41(PO)
+C
+C
+C#######################################################################
+C
+C  THIS SUBROUTINE PRINTS OUT PARAMETRIC DATA FOR THE NEW EVENT-BASED
+C  API-HAR2 OPERATION STORED IN THE PO ARRAY BY THE PIN41 SUBROUTINE.
+C
+C#######################################################################
+C
+C
+C  CONTENTS OF THE PO ARRAY
+C
+C
+C     WORD    NAME       DESCRIPTION                            UNITS
+C  ________   _______    _______________________________________________
+C      1      IVERS      VERSION NUMBER
+C    2 - 3    RID        RUNOFF ZONE ID
+C    4 - 8    RNAME      RUNOFF ZONE NAME
+C      9      IRNUM      RUNOFF ZONE NUMBER
+C     10      RLAT       LATITUDE OF RUNOFF ZONE CENTROID       DEG DEC
+C     11      RLNG       LONGITUDE OF RUNOFF ZONE CENTROID      DEG DEC
+C ********** SEASON QUADRANT PARAMETERS IN POSITIONS 12 - 17 **********
+C     12      AEIWET     WET CURVE AEI VALUE                    INCHES
+C     13      BWET       WET CURVE AI INTERCEPT                 INCHES
+C     14      CWET       WET CURVE CURVATURE
+C     15      AEIDRY     DRY CURVE AEI VALUE                    INCHES
+C     16      BDRY       DRY CURVE AI INTERCEPT                 INCHES
+C     17      CDRY       DRY CURVE CURVATURE
+C ******* PRECIPITATION QUADRANT PARAMETERS IN POSITIONS 18 - 22 ******
+C     18      PA
+C     19      PB
+C     20      PC
+C     21      PD
+C     22      PE         NOTE:  THIS PARAMETER SET TO 1.00
+C     23      FIXPEV     MAPE ADJUSTMENT FACTOR
+C     24      PMAX       MAX LIMIT FOR NEW STORM RAIN/MELT      INCHES
+C     25      R24        24-HOUR API RECESSION FACTOR
+C     26      IDELTA     COMPUTATIONAL TIME STEP                HOURS
+C     27      NSW        NEW STORM WINDOW                       HOURS
+C     28      NSPER      NUMBER OF PERIODS IN NSW
+C     29      IUSEC      NUMBER OF WORDS NEEDED IN CO ARRAY
+C     30      IOFAAA     I/O FLAG FOR API, AEI & AI TIME SERIES
+C     31      ICOF       CARRYOVER INPUT FLAG
+C   32 - 33   TSIDRM     TIME SERIES ID FOR RAIN/MELT
+C     34      DTCRM      DATA TYPE CODE FOR RAIN/MELT
+C   35 - 36   TSIDPE     TIME SERIES ID FOR POTENTIAL ET
+C     37      DTCPE      DATA TYPE CODE FOR POTENTIAL ET
+C   38 - 39   TSIDRO     TIME SERIES ID FOR RUNOFF
+C     40      DTCRO      DATA TYPE CODE FOR RUNOFF
+C   41 - 42   TSIDAI     TIME SERIES ID FOR AI
+C     43      DTCAI      DATA TYPE CODE FOR AI
+C   44 - 45   TSIDAP     TIME SERIES ID FOR API
+C     46      DTCAP      DATA TYPE CODE FOR API
+C   47 - 48   TSIDAE     TIME SERIES ID FOR AEI
+C     49      DTCAE      DATA TYPE CODE FOR AEI
+C   50 - 55              EMPTY
+C
+C#######################################################################
+C
+      DIMENSION PO(1),SUBNAM(2),RID(2),RNAME(5),TSIDRM(2),
+     1          TSIDAE(2),TSIDRO(2),TSIDAI(2),TSIDAP(2),TSIDPE(2)
+      COMMON /IONUM/ IN,IPR,IPU
+      COMMON /FDBUG/ IODBUG,ITRACE,IDBALL,NDEBUG,IDEBUG(20)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_prpc/RCS/prp41.f,v $
+     . $',                                                             '
+     .$Id: prp41.f,v 1.1 1995/09/17 18:50:20 dws Exp $
+     . $' /
+C    ===================================================================
+C
+      DATA SUBNAM/4hPRP4,4h1   /,NOP/41/,EMPTY/4h    /
+C
+C  CALL DEBUG CHECK ROUTINE
+C
+      CALL FPRBUG(SUBNAM,1,NOP,IFDEB)
+C
+C  PULL VARIABLES FROM THE PO ARRAY
+C
+      IVERS=PO(1)
+      RID(1)=PO(2)
+      RID(2)=PO(3)
+      RNAME(1)=PO(4)
+      RNAME(2)=PO(5)
+      RNAME(3)=PO(6)
+      RNAME(4)=PO(7)
+      RNAME(5)=PO(8)
+      IRNUM=PO(9)
+      RLAT=PO(10)
+      RLNG=PO(11)
+      AEIWET=PO(12)
+      BWET=PO(13)
+      CWET=PO(14)
+      AEIDRY=PO(15)
+      BDRY=PO(16)
+      CDRY=PO(17)
+      PA=PO(18)
+      PB=PO(19)
+      PC=PO(20)
+      PD=PO(21)
+      PE=PO(22)
+      FIXPEV=PO(23)
+      PMAX=PO(24)
+      R24=PO(25)
+      IDELTA=PO(26)
+      NSW=PO(27)
+      NSPER=PO(28)
+      IUSEC=PO(29)
+      IOFAAA=PO(30)
+      ICOF=PO(31)
+      TSIDRM(1)=PO(32)
+      TSIDRM(2)=PO(33)
+      DTCRM=PO(34)
+      TSIDPE(1)=PO(35)
+      TSIDPE(2)=PO(36)
+      DTCPE=PO(37)
+      TSIDRO(1)=PO(38)
+      TSIDRO(2)=PO(39)
+      DTCRO=PO(40)
+      TSIDAI(1)=PO(41)
+      TSIDAI(2)=PO(42)
+      DTCAI=PO(43)
+      TSIDAP(1)=PO(44)
+      TSIDAP(2)=PO(45)
+      DTCAP=PO(46)
+      TSIDAE(1)=PO(47)
+      TSIDAE(2)=PO(48)
+      DTCAE=PO(49)
+C
+C  NOW PRINT OUT THESE VARIABLES.
+C
+      WRITE(IPR,1000)IVERS
+      WRITE(IPR,1010)RID,RNAME,IRNUM,RLAT,RLNG
+      WRITE(IPR,1030)AEIWET,BWET,CWET,AEIDRY,BDRY,CDRY
+      WRITE(IPR,1040)PA,PB,PC,PD,PE
+      WRITE(IPR,1050)FIXPEV,PMAX,R24,IDELTA,NSW,NSPER
+      WRITE(IPR,1300)
+      WRITE(IPR,1310)TSIDRM,DTCRM,IDELTA
+      WRITE(IPR,1320)TSIDPE,DTCPE
+      WRITE(IPR,1330)TSIDRO,DTCRO,IDELTA
+      IF(TSIDAI(1)-EMPTY)340,350,340
+340   WRITE(IPR,1340)TSIDAI,DTCAI,IDELTA
+350   IF(TSIDAP(1)-EMPTY)360,370,360
+360   WRITE(IPR,1360)TSIDAP,DTCAP,IDELTA
+370   IF(TSIDAE(1)-EMPTY)380,9999,380
+380   WRITE(IPR,1380)TSIDAE,DTCAE,IDELTA
+9999  RETURN
+1000  FORMAT(/10X,'OPERATION VERSION :  ',I4)
+1010  FORMAT(/12X,'RUNOFF',12X,'RUNOFF',12X,'RUNOFF',5X,'CENTROID LAT',
+     1      3X,'CENTROID LONG',/12X,'ZONE ID',10X,'ZONE NAME',8X,
+     2      'ZONE NUMBER',4X,'(DEG DEC)',6X,'(DEG DEC)',/11X,2A4,4X,
+     3      5A4,6X,I4,10X,F5.2,10X,F5.2)
+1030  FORMAT(/11X,'SEASON QUADRANT COEFFICIENTS :',/12X,'AEIWET    ',
+     1      'BWET    CWET    AEIDRY    BDRY    CDRY',/10X,3(3X,F5.2),
+     2      5X,F5.2,2(3X,F5.2))
+1040  FORMAT(/11X,'PRECIPITATION QUADRANT COEFFICIENTS :',/14X,'PA    ',
+     1      '  PB      PC      PD      PE',/12X,F5.2,4(3X,F5.2))
+1050  FORMAT(/11X,'OTHER VARIABLES NEEDED BY THIS OPERATION :',/12X,
+     1      'POTENTIAL ET ADJUSTMENT FACTOR   :  ',F5.2,/12X,
+     2      'STORM BREAK PRECIP THRESHOLD     :  ',F5.2,/12X,
+     3      '24-HR API RECESSION COEFFICIENT  :  ',F5.2,/12X,
+     4      'COMPUTATIONAL TIME STEP INTERVAL :  ',I4,/12X,
+     5      'NEW STORM WINDOW (HOURS)         :  ',I4,/12X,
+     6      'NEW STORM WINDOW (PERIODS)       :  ',I4)
+1300  FORMAT(/11X,'TIME SERIES USED BY THIS OPERATION :',/18X,
+     1      'CONTENTS',10X,'TS I.D.',8X,'TYPE',8X,'TIME INTERVAL')
+1310  FORMAT(16X,'RAIN/MELT',10X,2A4,8X,A4,8X,I4,' HOURS')
+1320  FORMAT(16X,'POTENTIAL ET',7X,2A4,8X,A4,10X,'24 HOURS')
+1330  FORMAT(16X,'RUNOFF',13X,2A4,8X,A4,8X,I4,' HOURS')
+1340  FORMAT(16X,'STORM AI',11X,2A4,8X,A4,8X,I4,' HOURS')
+1360  FORMAT(16X,'STORM API',10X,2A4,8X,A4,8X,I4,' HOURS')
+1380  FORMAT(16X,'STORM AEI',10X,2A4,8X,A4,8X,I4,' HOURS')
+      END

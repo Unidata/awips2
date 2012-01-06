@@ -1,0 +1,129 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="gov.noaa.nws.ncep.resources" xmlns="http://www.w3.org/2001/XMLSchema">
+<annotation>
+      <appinfo>
+         <meta.schema plugin="gov.noaa.nws.ncep.resources" id="NC-Resource" name="NC-Resource"/>
+      </appinfo>
+      <documentation>
+         Extension point for Resources used by Natl Cntrs
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <annotation>
+         <appinfo>
+            <meta.element />
+         </appinfo>
+      </annotation>
+      <complexType>
+         <choice minOccurs="1" maxOccurs="unbounded">
+            <element ref="nc-resourceAttribute"/>
+         </choice>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="nc-resourceAttribute">
+      <complexType>
+         <attribute name="ncResourceName" type="string" use="required">
+            <annotation>
+               <documentation>
+                  the name of the resource in the nc-resource ext point
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn=":gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="attributeName" type="string" use="required">
+            <annotation>
+               <documentation>
+                  used to access a member variable of the resource data
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="attributeClass" type="string" use="required">
+            <annotation>
+               <documentation>
+                  the class of the member variable.
+
+NOTE: This must be the full class name unless it is a common class with a supported (ie hardcoded) shorthand notation. 
+Examples are the primitives (Integer...),  RGB, PlotModel, and ColorBar
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="defaultValue" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="since"/>
+      </appinfo>
+      <documentation>
+         [Enter the first release in which this extension point appears.]
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="examples"/>
+      </appinfo>
+      <documentation>
+         [Enter extension point usage example here.]
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="apiInfo"/>
+      </appinfo>
+      <documentation>
+         [Enter API information here.]
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="implementation"/>
+      </appinfo>
+      <documentation>
+         [Enter information about supplied implementation of this extension point.]
+      </documentation>
+   </annotation>
+
+
+</schema>

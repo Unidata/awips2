@@ -1,0 +1,4 @@
+! This must match the value in the
+! mcidas DB table valid values are 
+! (GOES12, GOES13, .....)
+satellitename=GOES12

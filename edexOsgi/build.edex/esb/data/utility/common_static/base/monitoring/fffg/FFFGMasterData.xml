@@ -1,0 +1,9 @@
+<FFFGData>    
+    <ExpDateTimeInMillis>-1</ExpDateTimeInMillis>    
+    <Source>
+        <SourceName></SourceName>  
+        <AreaFFG></AreaFFG>        
+        <SourceItem type = "COUNTY" name = "" id = "0" value = ""/>
+        <SourceItem type = "BASIN" name = "" id = "0" value = ""/>
+    </Source>
+</FFFGData>

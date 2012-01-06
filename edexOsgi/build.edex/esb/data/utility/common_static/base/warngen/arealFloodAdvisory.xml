@@ -1,0 +1,248 @@
+<!-- Areal Flood Advisory configuration -->
+<!-- Modified by Phil Kurimski 08-17-2011 for OB11.8.0-4
+                 Evan Bookbinder 09-16-2011 for OB11.8.0-8
+                 Mike Dangelo 09-19-2011 at Alaska TIM -->
+<warngenConfig>
+
+ <!-- Config distance/speed units -->
+ <unitDistance>mi</unitDistance>
+ <unitSpeed>mph</unitSpeed>
+
+ <!-- Maps to load on template selection. Refer to 'Maps' menu in CAVE. 
+ 	The various menu items are also the different maps
+ 	that can be loaded with each template. -->
+ <maps>
+  <map>County Names</map>
+  <map>County Warning Areas</map>
+  <!-- 	<map>FFMP Small Stream Basin Links</map> -->
+  <!-- 	<map>Major Rivers</map> --> 
+ </maps>
+ 
+ <!-- Followups: VTEC actions of allowable followups when this template is selected 
+	Each followup will become available when the appropriate time range permits.
+ -->
+ <followups>
+  <followup>NEW</followup>
+  <followup>COR</followup>
+  <followup>EXT</followup>
+ </followups>
+ 
+ <!-- Phensigs: The list of phenomena and significance combinations that this template applies to -->
+ <phensigs>
+   <phensig>FA.Y</phensig>
+ </phensigs>
+
+ <!-- Enables/disables user from selecting the Restart button the GUI -->
+ <enableRestart>true</enableRestart>
+ 
+   <!-- Enable/disables the system to lock text based on various patterns -->
+ <autoLockText>true</autoLockText>
+
+ <!-- durations: the list of possible durations -->
+ <defaultDuration>180</defaultDuration>
+ <durations>
+  <duration>60</duration>
+  <duration>120</duration>
+  <duration>180</duration>
+  <duration>210</duration>
+  <duration>240</duration>
+  <duration>270</duration>
+  <duration>300</duration>
+  <duration>330</duration>
+  <duration>360</duration>
+  <duration>420</duration>
+  <duration>480</duration>
+  <duration>540</duration>
+  <duration>600</duration>
+  <duration>660</duration>
+  <duration>720</duration>
+  <duration>1440</duration>
+  <duration>2160</duration>
+  <duration>2880</duration>
+  <duration>3600</duration>
+ </durations>
+ 
+<lockedGroupsOnFollowup>ic,advType</lockedGroupsOnFollowup>
+<bulletActionGroups>
+<bulletActionGroup action="NEW" phen="FA" sig="Y">
+ <bullets>
+  <bullet bulletText="*************     TYPE OF ADVISORY    ***********" bulletType="title"/>
+  <bullet bulletName="general" bulletText="general (minor flooding)" bulletGroup="advType" parseString="&quot;-ARROYO&quot;,&quot;-SMALL STREAM FLOOD ADVISORY&quot;,&quot;FLOOD ADVISORY&quot;"/>
+  <bullet bulletName="small" bulletText="small stream" bulletGroup="advType" parseString="&quot;-URBAN AND&quot;,&quot;-ARROYO&quot;,&quot;SMALL STREAM FLOOD ADVISORY&quot;"/>
+  <bullet bulletName="uss" bulletText="urban and small stream" bulletGroup="advType" parseString="URBAN AND SMALL STREAM FLOOD ADVISORY"/>
+  <bullet bulletName="arroyo" bulletText="arroyo and small stream" bulletGroup="advType" parseString="ARROYO"/>
+  <bullet bulletName="hydrologic" bulletText="hydrologic" bulletGroup="advType" parseString="HYDROLOGIC ADVISORY"/> 
+  <bullet bulletText="*********** PRIMARY CAUSE OTHER THAN HEAVY RAIN *********** " bulletType="title"/>
+  <bullet bulletName="SM" bulletText="Snow melt" bulletGroup="ic" parseString=".SM."/>
+  <bullet bulletName="RS" bulletText="Excessive rain and snow melt" bulletGroup="ic" parseString=".RS."/>
+  <bullet bulletName="IJ" bulletText="Ice jam" bulletGroup="ic" parseString=".IJ."/>
+  <bullet bulletName="IC" bulletText="Ice jam and rain" bulletGroup="ic" parseString=".IC."/>
+  <bullet bulletText="*********** SOURCE (choose 1) **********" bulletType="title"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="group2" bulletDefault="true" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR"/>
+  <bullet bulletName="dopplerGauge" bulletText="Doppler radar and automated gauges" bulletGroup="group2"  parseString="AUTOMATED "/>
+  <bullet bulletName="trainedSpotters" bulletText="Trained spotters reported" bulletGroup="group2" parseString="TRAINED WEATHER SPOTTERS REPORTED"/>
+  <bullet bulletName="public" bulletText="Public reported" bulletGroup="group2" parseString="THE PUBLIC REPORTED"/>
+  <bullet bulletName="lawEnforcement" bulletText="Local law enforcement reported" bulletGroup="group2" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
+  <bullet bulletText="*********** EVENT (choose one) *********** " bulletType="title"/>
+  <bullet bulletName="thunder" bulletText="Thunderstorm(s)" bulletGroup="group3" bulletDefault="true" parseString="FROM A THUNDERSTORM "/>
+  <bullet bulletName="actual" bulletText="Minor flooding occurring" bulletGroup="group3" parseString="REPORTED MINOR "/>
+  <bullet bulletName="plainRain" bulletText="Due to only heavy rain" bulletGroup="group3" parseString="DUE TO HEAVY RAIN "/>
+  <bullet bulletName="rapidRiver" bulletText="Rapid river rises" bulletGroup="group3" parseString="FOR RAPID RIVER RISES IN"/>
+  <bullet bulletName="poorDrainage" bulletText="Minor flooding for poor drainage" bulletGroup="group3" parseString="FOR MINOR FLOODING OF POOR DRAINAGE AREAS IN"/>
+  <bullet bulletText="*********** ADDITIONAL INFO ***********" bulletType="title"/>
+  <bullet bulletName="addRainfall" bulletText="Additional rainfall of XX inches expected" parseString="ADDITIONAL RAINFALL"/>
+  <bullet bulletName="specificPlace" bulletText="Specify location" parseString="FLOODING IS OCCURING"/>
+  <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
+  <bullet bulletText="****** CALL TO ACTIONS (choose 1 or more) ******" bulletType="title"/>
+  <bullet bulletName="dontdrownCTA" bulletText="Turn around...dont drown" parseString="MOST FLOOD DEATHS OCCUR IN AUTOMOBILES"/>
+  <bullet bulletName="urbanCTA" bulletText="Urban flooding" parseString="AND PONDING OF WATER IN URBAN AREAS...HIGHWAYS...STREETS AND UNDERPASSES"/>
+  <bullet bulletName="ruralCTA" bulletText="Rural flooding/small streams" parseString="SMALL CREEKS AND STREAMS...HIGHWAYS AND UNDERPASSES"/>
+  <bullet bulletName="donotdriveCTA" bulletText="Do not drive into water" parseString="DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY"/>
+  <bullet bulletName="lowspotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
+  <bullet bulletName="powerCTA" bulletText="Power of flood waters/vehicles" parseString="DO NOT UNDERESTIMATE THE POWER OF FLOOD WATERS"/>
+  <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to local law enforcement" parseString="HAVE THE NEAREST LAW ENFORCEMENT AGENCY RELAY YOUR REPORT"/>
+  <bullet bulletName="advMeans" bulletText="A flood advisory means" parseString="A FLOOD ADVISORY MEANS RIVER OR STREAM FLOWS"/>
+ </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="COR" phen="FA" sig="Y">
+ <bullets>
+  <bullet bulletText="**** CORRECTED PRODUCT. CLICK CREATE TEXT ****" bulletType="title"/>
+  </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="EXT" phen="FA" sig="Y">
+ <bullets>
+  <bullet bulletText="*************     TYPE OF ADVISORY    ***********" bulletType="title"/>
+  <bullet bulletName="general" bulletText="general (minor flooding)" bulletGroup="advType" parseString="&quot;-ARROYO&quot;,&quot;-SMALL STREAM FLOOD ADVISORY&quot;,&quot;FLOOD ADVISORY&quot;"/>
+  <bullet bulletName="small" bulletText="small stream" bulletGroup="advType" parseString="&quot;-URBAN AND&quot;,&quot;-ARROYO&quot;,&quot;SMALL STREAM FLOOD ADVISORY&quot;"/>
+  <bullet bulletName="uss" bulletText="urban and small stream" bulletGroup="advType" parseString="URBAN AND SMALL STREAM FLOOD ADVISORY"/>
+  <bullet bulletName="arroyo" bulletText="arroyo and small stream" bulletGroup="advType" parseString="ARROYO"/>
+  <bullet bulletName="hydrologic" bulletText="hydrologic" bulletGroup="advType" parseString="HYDROLOGIC ADVISORY"/> 
+  <bullet bulletText="*********** PRIMARY CAUSE OTHER THAN HEAVY RAIN *********** " bulletType="title"/>
+  <bullet bulletName="SM" bulletText="Snow melt" bulletGroup="ic" parseString=".SM."/>
+  <bullet bulletName="RS" bulletText="Excessive rain and snow melt" bulletGroup="ic" parseString=".RS."/>
+  <bullet bulletName="IJ" bulletText="Ice jam" bulletGroup="ic" parseString=".IJ."/>
+  <bullet bulletName="IC" bulletText="Ice jam and rain" bulletGroup="ic" parseString=".IC."/>
+  <bullet bulletText="*********** SOURCE (choose 1) **********" bulletType="title"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="group2" bulletDefault="true" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR"/>
+  <bullet bulletName="dopplerGauge" bulletText="Doppler radar and automated gauges" bulletGroup="group2"  parseString="AUTOMATED "/>
+  <bullet bulletName="trainedSpotters" bulletText="Trained spotters reported" bulletGroup="group2" parseString="TRAINED WEATHER SPOTTERS REPORTED"/>
+  <bullet bulletName="public" bulletText="Public reported" bulletGroup="group2" parseString="THE PUBLIC REPORTED"/>
+  <bullet bulletName="lawEnforcement" bulletText="Local law enforcement reported" bulletGroup="group2" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
+  <bullet bulletText="*********** EVENT (choose one) *********** " bulletType="title"/>
+  <bullet bulletName="thunder" bulletText="Thunderstorm(s)" bulletGroup="group3" bulletDefault="true" parseString="FROM A THUNDERSTORM "/>
+  <bullet bulletName="actual" bulletText="Minor flooding occurring" bulletGroup="group3" parseString="REPORTED MINOR "/>
+  <bullet bulletName="plainRain" bulletText="Due to only heavy rain" bulletGroup="group3" parseString="DUE TO HEAVY RAIN "/>
+  <bullet bulletName="rapidRiver" bulletText="Rapid river rises" bulletGroup="group3" parseString="FOR RAPID RIVER RISES IN"/>
+  <bullet bulletName="poorDrainage" bulletText="Minor flooding for poor drainage" bulletGroup="group3" parseString="FOR MINOR FLOODING OF POOR DRAINAGE AREAS IN"/>
+  <bullet bulletText="*********** ADDITIONAL INFO ***********" bulletType="title"/>
+  <bullet bulletName="addRainfall" bulletText="additional rainfall of XX inches expected" parseString="ADDITIONAL RAINFALL"/>
+  <bullet bulletName="specificPlace" bulletText="specify location" parseString="FLOODING IS OCCURING"/>
+  <bullet bulletName="drainages" bulletText="automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
+  <bullet bulletText="****** CALL TO ACTIONS (choose 1 or more) ******" bulletType="title"/>
+  <bullet bulletName="dontdrownCTA" bulletText="Turn around...dont drown" parseString="MOST FLOOD DEATHS OCCUR IN AUTOMOBILES"/>
+  <bullet bulletName="urbanCTA" bulletText="Urban flooding" parseString="AND PONDING OF WATER IN URBAN AREAS...HIGHWAYS...STREETS AND UNDERPASSES"/>
+  <bullet bulletName="ruralCTA" bulletText="Rural flooding/small streams" parseString="SMALL CREEKS AND STREAMS...HIGHWAYS AND UNDERPASSES"/>
+  <bullet bulletName="donotdriveCTA" bulletText="Do not drive into water" parseString="DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY"/>
+  <bullet bulletName="lowspotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
+  <bullet bulletName="powerCTA" bulletText="Power of flood waters/vehicles" parseString="DO NOT UNDERESTIMATE THE POWER OF FLOOD WATERS"/>
+  <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to local law enforcement" parseString="HAVE THE NEAREST LAW ENFORCEMENT AGENCY RELAY YOUR REPORT"/>
+  <bullet bulletName="advMeans" bulletText="A flood advisory means" parseString="A FLOOD ADVISORY MEANS RIVER OR STREAM FLOWS"/>
+ </bullets>
+</bulletActionGroup>
+</bulletActionGroups>
+
+ <areaConfig>
+  <inclusionPercent>0.00</inclusionPercent>
+  <inclusionAndOr>AND</inclusionAndOr>
+  <inclusionArea>0</inclusionArea>
+  <areaField>COUNTYNAME</areaField>
+  <parentAreaField>NAME</parentAreaField>
+  <areaNotationField>STATE</areaNotationField>
+  <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+  <fipsField>FIPS</fipsField>
+  <pointField>NAME</pointField>
+  <sortBy>
+  	<sort>parent</sort>
+  </sortBy>
+  <pointFilter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1" constraintType="EQUALS" />
+ 		</mapping>
+  </pointFilter>
+  <includedWatchAreaBuffer>25</includedWatchAreaBuffer>
+ </areaConfig>
+ 
+ <trackEnabled>false</trackEnabled>
+
+ <pathcastConfig>
+  <withinPolygon>true</withinPolygon>
+  <distanceThreshold>8.0</distanceThreshold>
+  <interval>5</interval>
+  <delta>5</delta>
+  <maxResults>4</maxResults>
+  <maxGroup>8</maxGroup>
+  <pointField>Name</pointField>
+  <areaField>COUNTYNAME</areaField>
+  <parentAreaField>STATE</parentAreaField>
+  <areaNotationField>STATE</areaNotationField>
+  <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+  <sortBy>
+  	<sort>distance</sort>
+  </sortBy>
+ </pathcastConfig>
+
+  <pointSource variable="cityList">
+ 	<pointField>NAME</pointField>
+ 	<searchMethod>POINTS</searchMethod>
+ 	<withinPolygon>true</withinPolygon>
+ 	<maxResults>30</maxResults>
+ 	<distanceThreshold>200</distanceThreshold>
+ 	<sortBy>
+  		<sort>warngenlev</sort>
+  		<sort>population</sort>
+  	</sortBy>
+	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1,2" constraintType="IN" />
+ 		</mapping>
+  	</filter>
+ </pointSource>
+ 
+  <pointSource variable="otherPoints">
+ 	<pointField>NAME</pointField>
+ 	<searchMethod>POINTS</searchMethod>
+ 	<withinPolygon>true</withinPolygon>
+ 	<maxResults>10</maxResults>
+ 	<distanceThreshold>200</distanceThreshold>
+ 	<sortBy>
+  		<sort>name</sort>
+  	</sortBy>
+	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="3" constraintType="EQUALS" />
+ 		</mapping>
+  	</filter>
+ </pointSource>
+ 
+ <geospatialConfig>
+  <pointSource>City</pointSource>
+  <areaSource>County</areaSource>
+  <parentAreaSource>States</parentAreaSource>
+  <timezoneSource>TIMEZONES</timezoneSource>
+  <timezoneField>TIME_ZONE</timezoneField>
+ </geospatialConfig>
+ 
+ <pointSource variable="riverdrainages">
+ 	<pointSource>ffmp_basins</pointSource>
+ 	<pointField>streamname</pointField>
+ 	<filter>
+ 		<mapping key="cwa">
+ 			<constraint constraintValue="$warngenCWAFilter" constraintType="EQUALS" />
+ 		</mapping>
+ 	</filter>
+ 	<withinPolygon>true</withinPolygon>
+ </pointSource>
+ 
+ <include file="milemarkers.xml"/>
+ 
+</warngenConfig>

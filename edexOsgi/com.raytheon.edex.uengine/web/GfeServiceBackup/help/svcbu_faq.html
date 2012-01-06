@@ -1,0 +1,764 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta name="Author" content="John Wagner">
+  <title>Service Backup FAQ</title>
+</head>
+<body>
+<table border="0" width="100%">
+  <tbody>
+    <tr valign="top">
+      <td align="center" valign="top">
+      <h1><a name="#[BACK TO THE TOP]"><font color="#0000ff"><i>Service
+Backup GUI</i> </font></a></h1>
+      <a name="#[BACK TO THE TOP]"> </a>
+      <h2><a name="#[BACK TO THE TOP]"><font color="BLACK"><i>FAQ</i></font></a></h2>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<hr noshade="noshade" size="5">
+<h3>&nbsp;&nbsp;&nbsp;Contents of this section</h3>
+<p align="left">
+<a
+ href="#1.%20%20WHAT%20IS%20THE%20DIFFERENCE%20BETWEEN%20EXIT%20SERVICE%20BACKUP%20AND%20CLEAN%20UP%20SERVICE%20BACKUP"
+ style="text-decoration: none;">1.&nbsp; WHAT IS THE DIFFERENCE BETWEEN
+EXIT SERVICE BACKUP AND CLEAN UP SERVICE BACKUP?</a></p>
+<p align="left">
+<a
+ href="#2.%20%20WHY%20IS%20THE%20EXPORT%20CCCS%20CONFIGURATION%20TO%20THE%20CENTRAL%20SERVER%20BUTTON%20GRAYED%20OUT"
+ style="text-decoration: none;">2.&nbsp; WHY IS THE "EXPORT CCC'S
+CONFIGURATION TO THE CENTRAL SERVER" BUTTON GRAYED OUT?</a></p>
+<p align="left">
+<a
+ href="#3.__WHY_IS_THE_EXPORT_CCCS_DIGITAL_FORECAST_TO_THE_CENTRAL_SERVER_BUTTON_GRAYED_OUT"
+ style="text-decoration: none;">3.&nbsp; WHY IS THE "EXPORT CCC'S
+DIGITAL FORECAST TO THE CENTRAL SERVER" BUTTON GRAYED OUT?</a></p>
+<p align="left">
+<a href="#3.%20%20WHEN%20SHOULD%20I%20USE%20THE%20REFRESH%20BUTTON"
+ style="text-decoration: none;">4</a><a
+ href="#3.%20%20WHEN%20SHOULD%20I%20USE%20THE%20REFRESH%20BUTTON"
+ style="text-decoration: none;">.&nbsp; WHEN SHOULD I USE THE REFRESH
+BUTTON?</a></p>
+<p align="left">
+<a
+ href="#4.__DO_I_NEED_TO_EXPORT_A_FAILED_SITES_GRIDS_TO_THE_CENTRAL_SERVER"
+ style="text-decoration: none;">5.&nbsp; DO I NEED TO EXPORT A FAILED
+SITE'S GRIDS TO THE CENTRAL SERVER?</a></p>
+<p align="left"><a href="#3.%20%20ERROR%20MESSAGES"
+ style="text-decoration: none;">6</a><a href="#3.%20%20ERROR%20MESSAGES"
+ style="text-decoration: none;">.&nbsp; ERROR MESSAGES</a></p>
+<p align="left">&nbsp;&nbsp;&nbsp; SCAN THROUGH ERRORS THAT OCCUR WHEN:<br>
+&nbsp;&nbsp;&nbsp; <a href="#IMPORTING_CONFIGURATION"
+ style="text-decoration: none;">IMPORTING CONFIGURATION</a>
+<br>
+&nbsp;&nbsp;&nbsp; <a href="#IMPORTING_DIGITAL_DATA"
+ style="text-decoration: none;">IMPORTING DIGITAL DATA</a>
+<br>
+&nbsp;&nbsp;&nbsp; <a href="#STARTING_GFE"
+ style="text-decoration: none;">STARTING GFE</a>
+<br>
+&nbsp;&nbsp;&nbsp;
+<a href="#EXPORTING_DIGITAL_DATA_BACK_TO_A_FAILED_SITE"
+ style="text-decoration: none;">EXPORTING DIGITAL DATA BACK TO A FAILED
+SITE</a>
+<br>
+&nbsp;&nbsp;&nbsp;
+<a href="#EXPORTING_A_FAILED_SITES_DIGITAL_DATA_TO_THE_CENTRAL_SERVER"
+ style="text-decoration: none;">EXPORTING A FAILED SITE'S DIGITAL DATA
+TO THE CENTRAL SERVER</a>
+<br>
+&nbsp;&nbsp;&nbsp;
+<a href="#EXPORTING_CONFIGURATION_TO_THE_CENTRAL_SERVER"
+ style="text-decoration: none;">EXPORTING CONFIGURATION TO THE CENTRAL
+SERVER</a>
+<br>
+&nbsp;&nbsp;&nbsp;
+<a href="#EXPORTING_YOUR_DIGITAL_DATA_TO_THE_CENTRAL_SERVER"
+ style="text-decoration: none;">EXPORTING YOUR DIGITAL DATA TO THE
+CENTRAL SERVER</a>
+<br>
+&nbsp;&nbsp;&nbsp; <a href="#EXITING_SERVICE_BACKUP"
+ style="text-decoration: none;">EXITING SERVICE BACKUP</a>
+<br>
+&nbsp;&nbsp;&nbsp; <a href="#CLEANING_UP_SERVICE_BACKUP"
+ style="text-decoration: none;">CLEANING UP SERVICE BACKUP</a>
+</p>
+<hr>
+<p align="left"><b><a
+ name="1.  WHAT IS THE DIFFERENCE BETWEEN EXIT SERVICE BACKUP AND CLEAN UP SERVICE BACKUP">1.&nbsp;
+WHAT IS THE DIFFERENCE BETWEEN "EXIT SERVICE BACKUP" AND "CLEAN UP
+SERVICE BACKUP"?</a>&nbsp; </b>
+<a href="#%5BBACK%20TO%20THE%20TOP%5D" style="text-decoration: none;">[BACK
+TO THE TOP]</a></p>
+<p style="margin-left: 10px;" align="left">The Exit Service Backup
+button is only enabled while you are in Service Backup Mode.&nbsp;
+Selecting this button will run the clean up script and will exit the
+Service Backup GUI when it is finished.&nbsp; The Clean Up Service
+Backup button is enabled even when you are not in Service Backup
+Mode.&nbsp; Selecting this button while in Service Backup Mode will run
+the clean up script, but will not exit the Service Backup GUI.&nbsp;
+Selecting this button while you are not in Service Backup Mode will
+bring up a GUI that allows you to enter the 3 letter ID of the site
+that you wish to clean up.</p>
+<p><b>
+<a
+ name="2.  WHY IS THE EXPORT CCCS CONFIGURATION TO THE CENTRAL SERVER BUTTON GRAYED OUT">2.&nbsp;
+WHY IS THE "EXPORT CCC'S CONFIGURATION TO THE CENTRAL SERVER" BUTTON
+GRAYED OUT?</a>&nbsp; </b>
+<a href="#%5BBACK%20TO%20THE%20TOP%5D" style="text-decoration: none;">[BACK
+TO THE TOP]</a></p>
+<p style="margin-left: 10px;">This button is only enabled while you are
+not in Service Backup Mode and the Service Backup GUI is started as
+user ifps.&nbsp; If the GUI is started by any other user or you are in
+Service Backup Mode, this button will be grayed out.&nbsp; To start the
+GUI as user ifps:</p>
+<p style="margin-left: 10px;"><font face="Lucida Console">1.&nbsp; su
+ifps</font>
+<br style="margin-left: 10px;">
+<font face="Lucida Console">2.&nbsp; cd /awips/ifps/primary/bin</font>
+<br style="margin-left: 10px;">
+<font face="Lucida Console">3.&nbsp; ./service_backup.bat</font></p>
+<p><b>
+<a
+ name="3.__WHY_IS_THE_EXPORT_CCCS_DIGITAL_FORECAST_TO_THE_CENTRAL_SERVER_BUTTON_GRAYED_OUT">3.&nbsp;
+WHY IS THE "EXPORT CCC'S DIGITAL FORECAST TO THE CENTRAL SERVER" BUTTON
+GRAYED OUT?</a> </b><a href="##%5BBACK%20TO%20THE%20TOP%5D"
+ style="text-decoration: none;">[BACK TO THE TOP]</a></p>
+<p style="margin-left: 10px;">This button will become disabled when
+your are in the process of exporting your grids to the central server
+for service backup.&nbsp; At this time, the button will read "Currently
+Exporting CCC's Digital Data" and you may not start up another export
+until it is finished.&nbsp; If the export was started from the ifps
+crontab, then the script will sleep for a random amount of time (up to
+30 minutes) between running ifpnetCDF and sending the grids to the
+central server.&nbsp; This is done to prevent all WFOs from exporting
+their grids at the same time.&nbsp; If you send the grids from the
+Service Backup GUI, they will be send immediately after ifpetCDF
+runs.&nbsp; </p>
+<p><a name="3.  WHEN SHOULD I USE THE REFRESH BUTTON"><b>4</b></a><b><a
+ name="3.  WHEN SHOULD I USE THE REFRESH BUTTON">.&nbsp; WHEN SHOULD I
+USE THE REFRESH BUTTON?</a></b>
+<a href="#%5BBACK%20TO%20THE%20TOP%5D" style="text-decoration: none;">[BACK
+TO THE TOP]</a></p>
+<p style="margin-left: 10px;">The REFRESH button will update the state
+of the Service Backup GUI.&nbsp; It is a good idea to press the REFRESH
+button before performing any other actions to ensure that the GUI
+reflects your current service backup mode.&nbsp; </p>
+<p><a
+ name="4.__DO_I_NEED_TO_EXPORT_A_FAILED_SITES_GRIDS_TO_THE_CENTRAL_SERVER">
+<b>5</b></a><b><a
+ name="4.__DO_I_NEED_TO_EXPORT_A_FAILED_SITES_GRIDS_TO_THE_CENTRAL_SERVER">.&nbsp;
+DO I NEED TO EXPORT A FAILED SITE'S GRIDS TO THE CENTRAL SERVER?</a></b>&nbsp;
+<a href="#%5BBACK%20TO%20THE%20TOP%5D">[BACK TO THE TOP]</a></p>
+<p style="margin-left: 10px;">Starting in IFPS16.1, the Service Backup
+GUI contains an option to export the failed site's digital data to the
+central server.&nbsp; This is a cautionary step to help prevent the
+loss of data when restoring grids to a failed site.&nbsp; If you are
+unable to export a failed site's grids back to them, you can export
+them to the central server.&nbsp; Then, the failed site can contact the
+NCF, who has instructions on how to restore the digital data from the
+central server.</p>
+<p><a name="3.  ERROR MESSAGES"><b>6</b></a><b><a
+ name="3.  ERROR MESSAGES">.&nbsp; ERROR MESSAGES</a>&nbsp; </b>
+<a href="#%5BBACK%20TO%20THE%20TOP%5D" style="text-decoration: none;">[BACK
+TO THE TOP]</a></p>
+<p style="margin-left: 10px;">This section will explain some of the
+different error messages that you may see while using the Service
+Backup GUI.</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_01.jpg" border="0" height="96" width="295"></p>
+<p style="margin-left: 10px;">When you start the Service Backup GUI
+while in service backup mode, you will be prompted to select a
+domain.&nbsp; You will see this message if you attempt to start the
+Service Backup GUI as the failed site.&nbsp; The Service Backup GUI
+must always be started as your site.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;"><font size="4"><b><a
+ name="IMPORTING_CONFIGURATION">
+IMPORTING CONFIGURATION</a>&nbsp; </b><a
+ href="#%5BBACK%20TO%20THE%20TOP%5D" style="text-decoration: none;">[BACK
+TO THE TOP]</a></font></p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_02.jpg" border="0" height="96" width="480"></p>
+<p style="margin-left: 10px;">Before you import a failed site's
+configuration, a script will run to make sure that there are no service
+backup databases on your system that will cause any problems.&nbsp; If
+any IFPS databases are found, you will see this message.&nbsp; If you
+wish to continue, you must select the CLEAN button to clean up that
+site's database and configuration.&nbsp; If you do not wish to clean up
+this site's database and configuration, select QUIT to return to the
+Service Backup GUI.&nbsp; For more information, see
+/data/logs/adapt/ifps/&lt;date&gt;/svcbu_check_&lt;time&gt; on dx4f.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_03.jpg" border="0" height="96" width="579"></p>
+<p style="margin-left: 10px;">Before you import a failed site's
+configuration, a script will run to make sure that there are no service
+backup files on your system that will cause any problems.&nbsp; If any
+IFPS files are found, you will see this message.&nbsp; If you wish to
+continue, you must select the CLEAN button to clean up that site's
+configuration.&nbsp; If you do not wish to clean up this site's
+configuration, select QUIT to return to the Service Backup GUI.&nbsp;
+For more information, see
+/data/logs/adapt/ifps/&lt;date&gt;/svcbu_check_&lt;time&gt; on dx4f.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_04.jpg" border="0" height="96" width="686"></p>
+<p style="margin-left: 10px;">Before you import a failed site's
+configuration, a script will run to make sure that there are no service
+backup files on your system that will cause any problems.&nbsp; If any
+GFE files are found, you will see this message.&nbsp; If you wish to
+continue, you must select the CLEAN button to clean up that site's
+configuration.&nbsp; If you do not wish to clean up this site's
+configuration, select QUIT to return to the Service Backup GUI.&nbsp;
+For more information, see
+/data/logs/adapt/ifps/&lt;date&gt;/svcbu_check_&lt;time&gt; on dx4f.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_05.jpg" border="0" height="96" width="587"></p>
+<p style="margin-left: 10px;">Before you import a failed site's
+configuration, a script will run to make sure that there are no service
+backup files on your system that will cause any problems.&nbsp; If any
+GFE files are found and the Service Backup GUI is not able to determine
+the failed site's ID, you will see this message.&nbsp; Press the
+DETAILS button to view the log file to see what files were found.&nbsp;
+You must delete these files before you are allowed to continue.&nbsp;
+If you do not wish to clean up, select QUIT to return to the Service
+Backup GUI.&nbsp; For more information, see
+/data/logs/adapt/ifps/&lt;date&gt;/svcbu_check_&lt;time&gt; on dx4f.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_06.jpg" border="0" height="96" width="445"></p>
+<p style="margin-left: 10px;">You will see this error message if you
+import you own site ID when asked what site's configuration you wish to
+import.&nbsp; If your site has multiple domains, you will not be
+allowed to import either domain's configuration.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_07.jpg" border="0" height="96" width="402"></p>
+<p style="margin-left: 10px;">You will see this error message when you
+attempt to import a failed site's configuration while in service backup
+mode.&nbsp; If you wish to import this site's configuration again or
+another site's configuration, use the Clean Up Service Backup button to
+clean up this site's configuration first.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_67.jpg" border="0" height="96" width="721"></p>
+<p style="margin-left: 10px;">You will see this error message if a
+failed site's configuration fails to reach your site after 30
+minutes.&nbsp; Possible reasons for seeing this message are problems
+with msg_send or the failed site's configuration is not present on the
+central server.&nbsp; If you would like to continue to wait for the
+failed site's configuration, for up to another 30 minutes, press
+YES.&nbsp; If you do not wish to wait, select NO.&nbsp; Selecting NO
+will clean up the necessary lock files and return you to the Service
+Backup GUI.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_08.jpg" border="0" height="118" width="385"></p>
+<p style="margin-left: 10px;">You will see this error message when you
+attempt to import a failed site's configuration while you are waiting
+for a failed site's server to start.&nbsp; If you wish to import a
+failed site's configuration, you must first wait until after the server
+is started.&nbsp; Be sure to clean up before importing.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_09.jpg" border="0" height="118" width="385"></p>
+<p style="margin-left: 10px;">You will see this error message when you
+attempt to import a failed site's configuration while you are importing
+a failed site's digital data.&nbsp; If you wish to import a failed
+site's configuration, you must first wait until after the import of the
+digital data is finished.&nbsp; Be sure to clean up before importing. </p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_10.jpg" border="0" height="118" width="382"></p>
+<p style="margin-left: 10px;">You will see this error message when you
+attempt to import a failed site's configuration while an import process
+is already running.&nbsp; If you wish to import a failed site's
+configuration, you must first wait until the first import is
+finished.&nbsp; Be sure to clean up before importing.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_38.jpg" border="0" height="118" width="429"></p>
+<p style="margin-left: 10px;">You will see this error message when you
+attempt to import a failed site's configuration while exporting your
+configuration to the central server for service backup.&nbsp; If you
+wish to import a failed site's configuration, you must first wait until
+the export is finished.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_39.jpg" border="0" height="118" width="390"></p>
+<p style="margin-left: 10px;">You will see this error message when you
+attempt to import a failed site's configuration while exporting your
+grids to the central server for service backup.&nbsp; If you wish to
+import a failed site's configuration, you must first wait until the
+export is finished. </p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_40.jpg" border="0" height="118" width="390"></p>
+<p style="margin-left: 10px;">You will see this error message when you
+attempt to import a failed site's configuration while exporting grids
+back to a failed site.&nbsp; If you wish to import another failed
+site's configuration, you must wait until the export is finished.&nbsp;
+Be sure to clean up the first site's configuration before starting
+another import.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_50.jpg" border="0" height="118" width="385"></p>
+<p style="margin-left: 10px;">You will see this error message when you
+attempt to import a failed site's configuration while exporting a
+failed site's grids to the central server.&nbsp; If you wish to import
+another failed site's configuration, you must wait until the export is
+finished.&nbsp; Be sure to clean up the first site's configuration
+before starting another import.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_11.jpg" border="0" height="96" width="401"></p>
+<p style="margin-left: 10px;">You will see this error message if there
+was a problem importing a failed site's configuration, digital data,
+and/or starting their GFE.&nbsp; For more information, see
+/data/logs/adapt/ifps/&lt;date&gt;/svcbu_doall_&lt;time&gt; on the
+machine that you started the import from.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;"><font size="4"><b><a
+ name="IMPORTING_DIGITAL_DATA">
+IMPORTING DIGITAL DATA</a>&nbsp; </b><a
+ href="#%5BBACK%20TO%20THE%20TOP%5D" style="text-decoration: none;">[BACK
+TO THE TOP]</a></font></p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_68.jpg" border="0" height="96" width="663"></p>
+<p style="margin-left: 10px;">You will see this message if a failed
+site's digital data has not reached your site after 30 minutes.&nbsp;
+Possible reasons for seeing this message are problems with msg_send or
+the failed site's digital data is not present on the central
+server.&nbsp; If you wish to continue to wait for the failed site's
+grids, for up to 30 minutes, press YES.&nbsp; If you do not wish to
+wait, press NO.&nbsp; Selecting NO will clean up the necessary lock
+files and will return you to the Service Backup GUI.&nbsp; You will
+still be in service backup mode.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_12.jpg" border="0" height="96" width="607"></p>
+<p style="margin-left: 10px;">If you choose to import a site's
+configuration and import their digital data and/or start their GFE, the
+Service Backup GUI will make 10 attempts at 30 second intervals to
+verify that the failed site's server has started on dx4f.&nbsp; If the
+failed site's server fails to start or takes more than 6 minutes to
+start, you will see this message.&nbsp; For more information, see
+/data/logs/adapt/ifps/&lt;date&gt;/SVCBU_import_config_&lt;time&gt; and
+/data/logs/adapt/ifps/&lt;date&gt;/svcbu_doall_&lt;time&gt; on the
+machine that you started the import from.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_13.jpg" border="0" height="96" width="301"></p>
+<p style="margin-left: 10px;">You will see this message if there was a
+problem importing a failed site's digital data.&nbsp; For more
+information, see
+/data/logs/adapt/ifps/&lt;date&gt;/svcbu_reqGrd_&lt;time&gt; on the
+machine you ran the import from.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_14.jpg" border="0" height="118" width="319"></p>
+<p style="margin-left: 10px;">You will see this error message when you
+attempt to import a failed site's digital data while you are not in
+Service Backup Mode.&nbsp; Import the failed site's configuration
+before importing their digital data.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_15.jpg" border="0" height="118" width="331"></p>
+<p style="margin-left: 10px;">You will see this error message when
+trying to import a failed site's digital data while importing their
+configuration.&nbsp; Wait until the configuration import is complete
+before importing a failed site's digital data.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_16.jpg" border="0" height="118" width="322"></p>
+<p style="margin-left: 10px;">You will see this error message when
+trying to import a failed site's digital data while an import is
+already running.&nbsp; Wait until the first set of grids has finished
+importing before importing again.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_17.jpg" border="0" height="118" width="293"></p>
+<p style="margin-left: 10px;">You will see this error message when
+trying to import a failed site's digital data while the failed site's
+server is trying to start.&nbsp; Please wait until the failed site's
+server is running to import digital data. </p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_41.jpg" border="0" height="118" width="429"></p>
+<p style="margin-left: 10px;">You will see this error message when
+trying to import a failed site's digital data while exporting your
+configuration to the central server.&nbsp; You must wait until the
+export is finished before you can begin to import digital data for a
+failed site.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_42.jpg" border="0" height="118" width="360"></p>
+<p style="margin-left: 10px;">You will see this error message when
+trying to import a failed site's digital data while exporting your
+grids to the central server.&nbsp; You must wait until the export is
+finished before you can begin to import digital data for a failed site.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_43.jpg" border="0" height="118" width="259"></p>
+<p style="margin-left: 10px;">You will see this error message when
+trying to import a failed site's digital data while exporting grids
+back to the failed site.&nbsp; If you wish to re-import the failed
+site's digital data, you must wait until the export has finished. </p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_51.jpg" border="0" height="118" width="374"></p>
+<p style="margin-left: 10px;">You will see this error message when
+trying to import a failed site's digital data while exporting a failed
+site's grids to the central server.&nbsp; If you wish to re-import the
+failed site's digital data, you must wait until the export is finished.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_20.jpg" border="0" height="140" width="405"></p>
+<p style="margin-left: 10px;">If the Service Backup GUI is not able to
+find the failed site's environment file, it is a likely sign that there
+was a problem importing the failed site's configuration.&nbsp; If this
+is the case, you will not be able to import the failed site's digital
+data.&nbsp; You should clean up the failed site's configuration and
+import it again.&nbsp; For more information, see
+/data/logs/adapt/ifps/&lt;date&gt;/svcbu_&lt;time&gt;.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;"><font size="4"><b><a name="STARTING_GFE">STARTING
+GFE</a>&nbsp; </b>
+<a href="#%5BBACK%20TO%20THE%20TOP%5D" style="text-decoration: none;">[BACK
+TO THE TOP]</a></font></p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_18.jpg" border="0" height="96" width="279"></p>
+<p style="margin-left: 10px;">You will see this message if there was a
+problem starting GFE for a failed site.&nbsp; For more information, see
+/data/logs/adapt/ifps/&lt;date&gt;/svcbuGFE_&lt;time&gt; on the machine
+that you tried to start GFE from.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_19.jpg" border="0" height="96" width="473"></p>
+<p style="margin-left: 10px;">When trying to start GFE for any domain,
+the Service Backup GUI must first source that domain's environment
+file.&nbsp; If the Service Backup GUI is not able to find a failed
+site's environment file, it will not be able to start GFE for that
+site.&nbsp; For more information, see
+/data/logs/adapt/ifps/&lt;date&gt;/svcbu_doall_&lt;time&gt;. </p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;"><font size="4">
+<b><a name="EXPORTING_DIGITAL_DATA_BACK_TO_A_FAILED_SITE">EXPORTING
+DIGITAL DATA BACK TO A FAILED SITE</a>&nbsp; </b><a
+ href="#%5BBACK%20TO%20THE%20TOP%5D" style="text-decoration: none;">[BACK
+TO THE TOP]</a></font></p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_21.jpg" border="0" height="140" width="405"></p>
+<p style="margin-left: 10px;">If the Service Backup GUI is not able to
+find the failed site's environment file, it is a likely sign that there
+was a problem importing the failed site's configuration or you are not
+in service backup mode.&nbsp; If this is the case, you will not be able
+to export the grids to a failed site.&nbsp; Ensure that you are in
+service backup mode and that the failed site's environment file is
+present.&nbsp; For more information, see
+/data/logs/adapt/ifps/&lt;date&gt;/svcbu_&lt;time&gt;.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_22.jpg" border="0" height="96" width="363"></p>
+<p style="margin-left: 10px;">You will see this message if there was an
+error exporting the digital data back to a failed site.&nbsp; For more
+information, see
+/data/logs/adapt/ifps/&lt;date&gt;/svcbu_expbksiteGrd_&lt;time&gt; on
+the machine that you ran the export from.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_23.jpg" border="0" height="118" width="319"></p>
+<p style="margin-left: 10px;">You will see this error message if you
+attempt to export grids back to a failed site while you are not in
+Service Backup Mode.&nbsp; You must be in Service Backup Mode to export
+digital data back to a failed site.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_24.jpg" border="0" height="118" width="331"></p>
+<p style="margin-left: 10px;">You will see this error message when
+attempting to export grids back to a failed site while you are
+importing their configuration.&nbsp; Wait until the import is finished
+before exporting the digital data back to the failed site.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_25.jpg" border="0" height="118" width="293"></p>
+<p style="margin-left: 10px;">You will see this error message when
+attempting to export grids back to a failed site while their server is
+trying to start.&nbsp; Wait until the server is started before
+exporting the digital data back to the failed site.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_26.jpg" border="0" height="118" width="264"></p>
+<p style="margin-left: 10px;">You will see this error message when
+attempting to export grids back to a failed site while you are
+importing the site's digital data.&nbsp; Wait until the import is
+finished before exporting the digital data back to the failed site.</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_44.jpg" border="0" height="118" width="429"></p>
+<p style="margin-left: 10px;">You will see this error message when
+attempting to export grids back to a failed site while you are
+exporting your configuration to the central server for service
+backup.&nbsp; You must wait until the export is finished before you can
+begin exporting grids back to a failed site.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_45.jpg" border="0" height="118" width="360"></p>
+<p style="margin-left: 10px;">You will see this error message when
+attempting to export grids back to a failed site while exporting your
+grids to the central server.&nbsp; You must wait until the export is
+finished before you can begin exporting grids back to a failed site.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_46.jpg" border="0" height="118" width="259"></p>
+<p style="margin-left: 10px;">You will see this message when you
+attempt to export digital data back to a failed site while one export
+of the data is already running.&nbsp; If you wish to re-export the
+digital data back to the failed site, you must wait for the first
+export to finish.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_52.jpg" border="0" height="118" width="374"></p>
+<p style="margin-left: 10px;">You will see this error message when you
+attempt to export digital data back to a failed site while exporting
+the failed site's grids to the central server.&nbsp; If you wish to
+export the failed site's grids back to them, you must wait for the
+first export to finish.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;"><font size="4">
+<b><a name="EXPORTING_A_FAILED_SITES_DIGITAL_DATA_TO_THE_CENTRAL_SERVER">EXPORTING
+A FAILED SITE'S DIGITAL DATA TO THE CENTRAL SERVER</a>&nbsp; </b>
+<a href="#%5BBACK%20TO%20THE%20TOP%5D" style="text-decoration: none;">[BACK
+TO THE TOP]</a></font></p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_62.jpg" border="0" height="96" width="511"></p>
+<p style="margin-left: 10px;">You will see this message if there was a
+problem exporting a failed site's digital data to the central
+server.&nbsp; For more information, see
+/data/logs/adapt/ifps/&lt;date&gt;/svcbu_exprtbksiteGrdToCS_&lt;time&gt;
+on the machine you ran the export from.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_63.jpg" border="0" height="140" width="417"></p>
+<p style="margin-left: 10px;">You will see this error message if you
+try to export a failed site's digital data to the central server and
+the failed site's environment file was not found by the Service Backup
+GUI.&nbsp; Make sure that you are in service backup mode and that
+/awips/adapt/ifps/localbin/&lt;failed site&gt;/ifps-&lt;failed
+site&gt;.env is present.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_53.jpg" border="0" height="118" width="405"></p>
+<p style="margin-left: 10px;">You will see this error message if you
+try to export a failed site's digital data to the central server while
+you are not in service backup mode.&nbsp; If you wish to export a
+failed site's grids to the central server, you must first import the
+failed site's configuration.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_54.jpg" border="0" height="118" width="405"></p>
+<p style="margin-left: 10px;">You will see this error message if you
+try to export a failed site's digital data to the central server&nbsp;
+while importing their configuration.&nbsp; You must first let the
+import finish before you can begin exporting to the central server.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_55.jpg" border="0" height="118" width="405"></p>
+<p style="margin-left: 10px;">You will see this error message if you
+try to export a failed site's digital data to the central server while
+importing their digital data.&nbsp; If you wish to export the failed
+site's digital data to the central server, you must let the import
+finish first.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_56.jpg" border="0" height="118" width="400"></p>
+<p style="margin-left: 10px;">You will see this error message if you
+try to export a failed site's digital data to the central server while
+waiting for their server to start.&nbsp; Verify that the failed site's
+server is running before exporting their grids to the central server.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_57.jpg" border="0" height="118" width="429"></p>
+<p style="margin-left: 10px;">You will see this error message if you
+try to export a failed site's digital data tot he central server while
+exporting your configuration to the central server.&nbsp; You must wait
+for the first export to finish before you can export a failed site's
+digital data to the central server.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_58.jpg" border="0" height="118" width="400"></p>
+<p style="margin-left: 10px;">You will see this error message if you
+try to export a failed site's digital data to the central server while
+exporting your digital data to the central server.&nbsp; You must wait
+for your export to finish before you can export the failed site's grids
+to the central server.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_59.jpg" border="0" height="118" width="400"></p>
+<p style="margin-left: 10px;">You will see this error message if you
+try to export a failed site's digital data to the central server while
+exporting the grids back to the failed site.&nbsp; You must first
+finish exporting the grids to the failed site before you can send them
+to the central server.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_60.jpg" border="0" height="118" width="437"></p>
+<p style="margin-left: 10px;">You will see this error message if you
+try to export a failed site's digital data to the central server while
+one export process is already running.&nbsp; If you wish to re-export
+the failed site's digital data, you must let the first export process
+finish. </p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;"><font size="4">
+<b><a name="EXPORTING_CONFIGURATION_TO_THE_CENTRAL_SERVER">EXPORTING
+CONFIGURATION TO THE CENTRAL SERVER</a>&nbsp; </b><a
+ href="#%5BBACK%20TO%20THE%20TOP%5D" style="text-decoration: none;">[BACK
+TO THE TOP]</a></font></p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_27.jpg" border="0" height="96" width="396"></p>
+<p style="margin-left: 10px;">You will see this message if there was a
+problem exporting your configuration to the central server.&nbsp; For
+more information, see
+/data/logs/adapt/ifps/&lt;date&gt;/svcbu_&lt;time&gt; on the machine
+that you ran the export from.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_28.jpg" border="0" height="118" width="418"></p>
+<p style="margin-left: 10px;">You will see this error message if you
+try to export your configuration to the central server while you are in
+Service Backup Mode.&nbsp; You must exit Service Backup Mode before you
+can export your configuration.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_47.jpg" border="0" height="118" width="554"></p>
+<p style="margin-left: 10px;">You will see this error message if you
+try to export you configuration to the central server while the export
+is already running. If you wish to re-export your configuration, you
+must wait for the first export to finish.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;"><font size="4">
+<b><a name="EXPORTING_YOUR_DIGITAL_DATA_TO_THE_CENTRAL_SERVER">EXPORTING
+YOUR DIGITAL DATA TO THE CENTRAL SERVER</a>&nbsp; </b><a
+ href="#%5BBACK%20TO%20THE%20TOP%5D" style="text-decoration: none;">[BACK
+TO THE TOP]</a></font></p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_29.jpg" border="0" height="96" width="308"></p>
+<p style="margin-left: 10px;">You will see this message if there was a
+problem exporting your digital data to the central server.&nbsp; For
+more information, see
+/data/logs/adapt/ifps/&lt;date&gt;/svcbu_expGrd_&lt;time&gt; on the
+machine that you ran the export from.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_66.jpg" border="0" height="140" width="337"></p>
+<p style="margin-left: 10px;">You will see this message if you try to
+export your grids to the central server while an export is already
+running.&nbsp; If you wish to re-export your grids to the central
+server, you must wait for the first export to finish.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_65.jpg" border="0" height="140" width="351"></p>
+<p style="margin-left: 10px;">You will see this error message if you
+try to export your digital data to the central server while exporting a
+failed site's digital data to the central server.&nbsp; You must wait
+for the first export to finish before you can export your grids.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;"><font size="4">
+<b><a name="EXITING_SERVICE_BACKUP">EXITING SERVICE BACKUP</a>&nbsp; </b>
+<a href="#%5BBACK%20TO%20THE%20TOP%5D" style="text-decoration: none;">[BACK
+TO THE TOP]</a></font></p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_30.jpg" border="0" height="96" width="502"></p>
+<p style="margin-left: 10px;">You will see this error message if you
+try to exit service backup while you are not in Service Backup
+Mode.&nbsp; You must be in Service Backup Mode to use the Exit
+button.&nbsp; If you wish to run the cleanup script, use the "CLEAN UP
+SERVICE BACKUP" button.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_31.jpg" border="0" height="118" width="331"></p>
+<p style="margin-left: 10px;">You will see this error message if you
+try to exit service backup while importing a failed site's
+configuration.&nbsp; Wait until the import is complete before exiting
+service backup.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_32.jpg" border="0" height="118" width="264"></p>
+<p style="margin-left: 10px;">You will see this error message if you
+try to exit service backup while importing a failed site's digital
+data.&nbsp; Wait until the import is complete before exiting service
+backup.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_33.jpg" border="0" height="118" width="293"></p>
+<p style="margin-left: 10px;">You will see this error message if you
+try to exit service backup while waiting for a failed site's server to
+start.&nbsp; Wait until the server is started before exiting service
+backup.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_48.jpg" border="0" height="118" width="259"></p>
+<p style="margin-left: 10px;">You will see this error message when
+trying to exit service backup while exporting grids back to a failed
+site.&nbsp; You must wait until the export is finished before you can
+exit service backup.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;"><font size="4">
+<b><a name="CLEANING_UP_SERVICE_BACKUP">CLEANING UP SERVICE BACKUP</a>&nbsp;
+</b><a href="#%5BBACK%20TO%20THE%20TOP%5D"
+ style="text-decoration: none;">[BACK TO THE TOP]</a></font></p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_34.jpg" border="0" height="96" width="380"></p>
+<p style="margin-left: 10px;">You will see this message if you attempt
+to clean up your own site's configuration files.&nbsp; If your site has
+multiple domains, you will not be allowed to clean up either domain's
+configuration.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_35.jpg" border="0" height="96" width="279"></p>
+<p style="margin-left: 10px;">You will see this message if there was a
+problem running the cleanup script.&nbsp; For more information, see
+/data/logs/adapt/ifps/&lt;date&gt;/svcbu_cleanup_&lt;time&gt; on dx4f.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_36.jpg" border="0" height="118" width="293"></p>
+<p style="margin-left: 10px;">You will see this message if you try to
+run the cleanup script while the failed site's server is trying to
+start.&nbsp; Wait until the server is started before you run the
+cleanup script.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_37.jpg" border="0" height="118" width="264"></p>
+<p style="margin-left: 10px;">You will see this message if you try to
+run the cleanup script while importing a failed site's
+configuration.&nbsp; Wait until the import is complete before you run
+the cleanup script.</p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_49.jpg" border="0" height="118" width="259"></p>
+<p style="margin-left: 10px;">You will see this message if you try to
+run the clean up script while exporting grids back to a failed
+site.&nbsp; You must wait until the export is finished before you can
+clean up service backup. </p>
+<p style="margin-left: 10px;">&nbsp;</p>
+<p style="margin-left: 10px;">
+<img src="xmessage_faq_64.jpg" border="0" height="118" width="374"></p>
+<p style="margin-left: 10px;">You will see this error message if you
+try to run the clean up script while exporting a failed site's grids to
+the central server. You must let the export finish before you can clean
+up service backup.</p>
+</body>
+</html>

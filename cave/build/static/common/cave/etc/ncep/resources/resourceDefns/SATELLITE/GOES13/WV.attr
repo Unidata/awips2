@@ -1,0 +1,5 @@
+legend_color=RGB {200, 200, 200}
+colorMapName=watvap
+colorBar=@dfltMcidasColorBar.xml
+imageType=WV
+displayUnitStr=GenericPixel

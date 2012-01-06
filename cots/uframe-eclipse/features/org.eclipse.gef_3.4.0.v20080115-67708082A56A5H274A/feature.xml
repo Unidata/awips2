@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.eclipse.gef"
+      label="%featureName"
+      version="3.4.0.v20080115-67708082A56A5H274A"
+      provider-name="%providerName"
+      image="eclipse_update_120.jpg">
+
+   <description>
+      %description
+   </description>
+
+   <copyright>
+      %copyright
+   </copyright>
+
+   <license url="%licenseURL">
+      %license
+   </license>
+
+   <url>
+      <update label="%updateSiteName" url="http://download.eclipse.org/tools/gef/update-site/releases/site.xml"/>
+      <discovery label="%updateSiteName" url="http://download.eclipse.org/tools/gef/update-site/releases/site.xml"/>
+   </url>
+
+   <requires>
+      <import plugin="org.eclipse.core.runtime" version="3.2.0" match="compatible"/>
+      <import plugin="org.eclipse.ui.views" version="3.2.0" match="compatible"/>
+      <import plugin="org.eclipse.ui.workbench" version="3.2.0" match="compatible"/>
+      <import plugin="org.eclipse.jface" version="3.2.0" match="compatible"/>
+   </requires>
+
+   <includes
+         id="org.eclipse.draw2d"
+         version="3.4.0.v20080115-33-7w3119163_"/>
+
+   <plugin
+         id="org.eclipse.gef"
+         download-size="0"
+         install-size="0"
+         version="3.4.1.v20080716"
+         unpack="false"/>
+
+</feature>
