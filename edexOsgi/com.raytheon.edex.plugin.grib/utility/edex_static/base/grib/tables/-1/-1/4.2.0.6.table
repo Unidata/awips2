@@ -1,0 +1,30 @@
+# Product Discipline 0: Meteorological products, Parameter Category 6: Cloud
+0:0:Cloud ice:mm:CICE:CIce
+1:1:Total cloud cover:%:TCDC:TCC
+2:2:Convective cloud cover:%:CDCON
+3:3:Low cloud cover:%:LCDC
+4:4:Medium cloud cover:%:MCDC
+5:5:High cloud cover:%:HCDC
+6:6:Cloud water:mm:CWAT
+7:7:Cloud amount:%:CAMT
+8:8:Cloud type:(Code table 4.203):CTYP:CTyp
+9:9:Thunderstorm maximum tops:m:TSMT
+10:10:Thunderstorm coverage:(Code table 4.204):TSC
+11:11:Cloud base:m:CBASE:CB
+12:12:Cloud top:m:CTOP:CTop
+13:13:Ceiling:m:CCEIL:CC
+14:14:Non-convective cloud cover:%:CDLYR
+15:15:Cloud work function:J/kg:CWORK
+16:16:Convective cloud efficiency:Proportion:CUEFI
+17:17:Total condensate:kg/kg:TCOND
+18:18:Total column-integrated cloud water:mm:TCOLW
+19:19:Total column-integrated cloud ice:mm:TCOLI
+20:20:Total column-integrated condensate:mm:TCOLC
+21:21:Ice fraction of total condensate:Proportion:FICE
+22:22:Sunshine duration (ECMWF proposal, not WMO approved):s:SUN
+23:23:Cloud Ice Mixing Ratio:kg/kg:CDCIMR
+24:24:SunShine:Numeric:SUNS
+# 25-191 Reserved
+# 192-254 Reserved for local use
+255:255:Missing
+

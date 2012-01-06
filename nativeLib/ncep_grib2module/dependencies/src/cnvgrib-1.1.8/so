@@ -1,0 +1,16 @@
+CHANGES
+cnv12.f
+cnv21.f
+cnv22.f
+cnvgrib.f
+gds2gdt.f
+gdt2gds.f
+grbCnv.so
+makefile
+makepdsens.f
+makepds.f
+pds2pdtens.f
+pds2pdt.f
+putgbexn.f
+README
+setbit.f

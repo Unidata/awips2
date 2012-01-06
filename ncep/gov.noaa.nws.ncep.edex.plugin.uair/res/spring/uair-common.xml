@@ -1,0 +1,26 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+
+	<bean id="uairPluginName" class="java.lang.String">
+		<constructor-arg type="java.lang.String" value="uair" />
+	</bean>
+
+	<bean id="uairProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+		<property name="pluginName" ref="uairPluginName" />
+		<property name="pluginFQN" value="gov.noaa.nws.ncep.common.dataplugin.uair" />
+		<property name="dao" value="gov.noaa.nws.ncep.common.dataplugin.uair.dao.UairDao" />
+        <property name="record" value="gov.noaa.nws.ncep.common.dataplugin.uair.UairRecord" />
+	</bean>
+
+	<bean factory-bean="pluginRegistry" factory-method="register">
+		<constructor-arg ref="uairPluginName"/>
+		<constructor-arg ref="uairProperties"/>
+	</bean>
+    
+</beans>

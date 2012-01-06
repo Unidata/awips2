@@ -1,0 +1,129 @@
+C MEMBER SWODLY
+C-----------------------------------------------------------------------
+C
+C                             LAST UPDATE: 03/09/94.14:20:27 BY $WC20SV
+C
+C @PROCESS LVL(77)
+C
+C DESC WRITE DAILY DATA STATION ALPHABETICAL ORDER
+C
+      SUBROUTINE SWODLY (TYPE,IVODLY,UNUSED,IORDER,IPNTRS,NUMSTA,
+     *   LARRAY,ARRAY,ISTAT)
+C
+      REAL*4 OP24/4HOP24/,OPVR/4HOPVR/,OT24/4HOT24/,OE24/4HOE24/
+      REAL*8 BLNK8/8H        /
+      INTEGER*2 IPNTRS(1)
+C
+      DIMENSION ARRAY(LARRAY)
+C
+      INCLUDE 'uio'
+      INCLUDE 'scommon/sudbgx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppinit_write/RCS/swodly.f,v $
+     . $',                                                             '
+     .$Id: swodly.f,v 1.1 1995/09/17 19:16:17 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+      IF (ISTRCE.GT.0) WRITE (IOSDBG,60)
+      IF (ISTRCE.GT.0) CALL SULINE (IOSDBG,1)
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG(TYPE)
+C
+      IF (LDEBUG.GT.0) WRITE (IOSDBG,70) IVODLY,UNUSED,NUMSTA,LARRAY
+      IF (LDEBUG.GT.0) CALL SULINE (IOSDBG,1)
+C
+      ISTAT=0
+C
+C  CHECK FOR VALID TYPE
+      IF (TYPE.EQ.OP24.OR.TYPE.EQ.OPVR.OR.TYPE.EQ.OT24.OR.
+     *    TYPE.EQ.OE24) GO TO 10
+         WRITE (LP,80) TYPE
+         CALL SUERRS (LP,2,-1)
+         ISTAT=1
+         GO TO 50
+C
+C  CHECK FOR SUFFICIENT SPACE IN PARAMETER ARRAY
+10    MINLEN=5+NUMSTA/2-1
+      IF (LDEBUG.GT.0) WRITE (IOSDBG,90) MINLEN
+      IF (LDEBUG.GT.0) CALL SULINE (IOSDBG,1)
+      IF (MINLEN.LE.LARRAY) GO TO 20
+         WRITE (LP,110) LARRAY,MINLEN
+         CALL SUERRS (LP,2,-1)
+         ISTAT=1
+         GO TO 50
+C
+C  STORE PARAMETER ARRAY VERSION NUMBER
+20    ARRAY(1)=IVODLY+.01
+C
+C  STORE INDICATOR HOW LIST WAS ORDERED
+      ARRAY(2)=IORDER+.01
+C
+C  POSITIONS 3 AND 4 ARE UNUSED
+      ARRAY(3)=UNUSED
+      ARRAY(4)=UNUSED
+C
+C  STORE NUMBER STATIONS IN LIST
+      ARRAY(5)=NUMSTA+.01
+C
+      NPOS=5
+C
+      IF (NUMSTA.EQ.0) GO TO 30
+C
+C  STORE RECORD LOCATION OF PARAMETERS IN PARAMETRIC DATA BASE
+      IPOS=NPOS*4+1
+      CALL SUBSTR (IPNTRS(1),1,NUMSTA*2,ARRAY,IPOS)
+      NPOS=NPOS+(NUMSTA+1)/2
+C
+C  WRITE PARAMETER RECORD TO FILE
+30    IF (LDEBUG.GT.0) WRITE (IOSDBG,100) NPOS
+      IF (LDEBUG.GT.0) CALL SULINE (IOSDBG,1)
+      CALL SUDOPN (1,'PPP ',IERR)
+      IPTR=0
+      CALL WPPREC (BLNK8,TYPE,NPOS,ARRAY,IPTR,IERR)
+      IF (IERR.EQ.0) GO TO 40
+         CALL SWPPST (BLNK8,TYPE,NPOS,IPTR,IERR)
+         ISTAT=IERR
+         WRITE (LP,120)
+         CALL SUERRS (LP,2,-1)
+         GO TO 50
+C
+40    IF (ISTAT.EQ.0) THEN
+         WRITE (LP,130) TYPE
+         CALL SULINE (LP,2)
+         CALL SUDWRT (1,'PPP ',IERR)
+         ELSE
+            WRITE (LP,140) TYPE
+            CALL SULINE (LP,2)
+         ENDIF
+C
+      IF (LDEBUG.GT.0) CALL SUPDMP (TYPE,'BOTH',0,NPOS,ARRAY,ARRAY)
+C
+50    IF (ISTRCE.GT.0) WRITE (IOSDBG,150)
+      IF (ISTRCE.GT.0) CALL SULINE (IOSDBG,1)
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+60    FORMAT (' *** ENTER SWODLY')
+70    FORMAT (' IVODLY=',I2,3X,'UNUSED=',F7.2,3X,'NUMSTA=',I4,3X,
+     *   'LARRAY=',I5)
+80    FORMAT ('0*** ERROR - IN SWODLY - INVALID TYPE CODE : ',A4)
+90    FORMAT (' MINLEN=',I5)
+100   FORMAT (' NPOS=',I5)
+110   FORMAT ('0*** ERROR - IN SWODLY - NOT ENOUGH SPACE IN PARAMETER ',
+     *   'ARRAY: NUMBER OF WORDS IN PARAMETER ARRAY=',I5,3X,
+     *   'NUMBER OF WORDS NEEDED=',I5)
+120   FORMAT ('0*** ERROR - IN SWODLY - UNSUCCESSFUL CALL TO WPPREC.')
+130   FORMAT ('0*** NOTE - ',A4,' PARAMETERS SUCCESSFULLY WRITTEN.')
+140   FORMAT ('0*** NOTE - ',A4,' PARAMETERS NOT SUCCESSFULLY WRITTEN.')
+150   FORMAT (' *** EXIT SWODLY')
+C
+      END

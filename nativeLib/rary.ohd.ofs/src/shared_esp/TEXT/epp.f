@@ -1,0 +1,132 @@
+C MEMBER EPP
+C  (from old member EEPP)
+C
+C @PROCESS LVL(77)
+C                             LAST UPDATE: 06/09/95.11:29:28 BY $WC20SV
+C
+      SUBROUTINE EPP(D,LD,IWKLOC,MD,TSESP,LOC,IDLOOP,LJDCON,
+     1 IHZERO,KNTYR,NYRS,NVPDT,IER)
+C
+C   THIS SUBROUTINE SERVES AS THE ESP DATA PREPROCESSOR.IT
+C   CALLS THE APPROPRIATE GENERATE COMMANDS.
+C
+C
+      LOGICAL LBUG
+
+CHDH  Added by Hank Herr (2004-06-21).
+      CHARACTER*8 TECHNAME
+C
+      DIMENSION D(1),TSESP(1)
+      DIMENSION SBNAME(2),OLDOPN(2)
+C
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/esprun'
+      INCLUDE 'common/where'
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/fctime'
+      INCLUDE 'common/eblend'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/shared_esp/RCS/epp.f,v $
+     . $',                                                             '
+     .$Id: epp.f,v 1.3 2004/06/23 13:44:01 hank Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      DATA CARD/4HCARD/
+      DATA CALB/4HCALB/
+      DATA SBNAME,BLEND/4HEPP ,4H    ,4HBLEN/,DEBUG/4HETSR/
+C
+      IOLDOP=IOPNUM
+      IOPNUM=0
+      DO 10 I=1,2
+      OLDOPN(I)=OPNAME(I)
+   10 OPNAME(I)=SBNAME(I)
+C
+      IF(ITRACE.GE.1) WRITE(IODBUG,900)
+  900 FORMAT(1H0,14H** EPP ENTERED)
+C
+      LBUG=.FALSE.
+      IF(IFBUG(DEBUG).EQ.0) GO TO 20
+      LBUG=.TRUE.
+   20 CONTINUE
+C
+C
+      IER=0
+      
+CHDH  Added by Hank Herr (2004-06-21)...
+CHDH  Load the technique value for SKIPBLND, defaulting to 0 if the
+CHDH  technique is not found!  
+      TECHNAME='SKIPBLND'
+      CALL HPAST (TECHNAME,ISKIPBLND,ISTAT)
+      IF (ISTAT.GT.0) THEN
+          IF (ISTAT.NE.2) THEN
+              CALL FPHPWN (ISTAT,TECHNAME)
+          ENDIF
+      ENDIF
+      
+C
+C CHECK TO SEE WHAT GENERATE IS DESIRED
+C FOR EITHER ONE CHECK IEPASS WHERE:
+C   0=CALIBRATION
+C   1=HISTORICAL SIMULATION
+C   2=ADJUSTED     "
+C   3=CONDITIONAL  "
+C   4=BASE PERIOD
+C
+C
+      IF(LBUG) WRITE(IODBUG,910) TSESP(LOC+13)
+  910 FORMAT(1H0,10X,24HIN EPP GENERATE TYPE IS ,A4)
+C
+      IF (TSESP(LOC+13).EQ.BLEND) GO TO 200
+C
+C
+C   CREATE PE GENERATE COMMAND
+C
+C ONLY CALL EGEX01 ON IST PASS, THAT IS IEPASS=0
+C
+      IF (IEPASS.NE.0) GO TO 999
+      CALL EGEX01(D,LD,TSESP,LOC,IER)
+      GO TO 999
+C
+C   BLEND TS GENERATE COMMAND
+C
+C ONLY TAKE ACTION IF IEPASS=0,3, OR 4
+C IF IEPASS=0 OR 4 THEN CALL ECALBF (PASSING IT LOCATION OF CALB INFO)
+C TO READ CALIBRATION DATA THEN RETURN. IF IEPASS=3 THEN WE MAY WANT
+C TO CALL EGEX02 BUT ONLY IF ICALLB IS NOT EQUAL TO ZERO. ICALLB
+C INDICATES IF SOME TIME SERIES ARE STILL BEING BLENDED.
+C
+C
+200   IF (IEPASS.NE.0.AND.IEPASS.NE.4) GO TO 300
+C
+C   NEED TO MOVE LOC POINTER TO GET IT TO POINT TO THE TSH FOR
+C   A BLEND TS GENERATE TIME SERIES.
+C
+      ILOC=LOC+13
+CEW CHECK HERE FOR CARD OR CALB FILE AND CALL ECARDF OR ECALBF
+C ACCORDINGLY
+      IF(TSESP(LOC+67).EQ.CALB) THEN
+      CALL ECALBF(D,LD,TSESP,ILOC,NVPDT,IDLOOP,LJDCON,KNTYR,NYRS,IER)
+      ELSE
+      CALL ECARDF(D,LD,TSESP,ILOC,NVPDT,IDLOOP,LJDCON,KNTYR,NYRS,IER)
+      ENDIF
+      GO TO 999
+C
+CHDH  Third line below added by Hank Herr (2004-06-21).
+CHDH  If the HCL input deck specified that the blend procedure should
+CHDH  be skipped (i.e. SKIPBLND(1)), then the third line below will
+CHDH  catch it and skip EGEX02, which does the blending.
+300   IF (IEPASS.NE.3) GO TO 999
+      IF(ICALLB.EQ.0) GO TO 999
+      IF(ISKIPBLND.EQ.1) GO TO 999
+      CALL EGEX02(D(1),LD,TSESP,LOC,IWKLOC,MD,IDLOOP,IHZERO,IER)
+C
+999   IOPNUM=IOLDOP
+      OPNAME(1)=OLDOPN(1)
+      OPNAME(2)=OLDOPN(2)
+      RETURN
+      END

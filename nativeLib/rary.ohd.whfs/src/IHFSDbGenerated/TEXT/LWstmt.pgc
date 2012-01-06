@@ -1,0 +1,825 @@
+/*
+    File: LWstmt.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:25 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "LWstmt.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct LWstmt_t
+{
+    char		lid[9];
+    char		pe[3];
+    double		lower_value;
+    double		upper_value;
+    long		criteria_rank;
+    char		statement[513];
+    char		lw_criteria[513];
+    char		lw_source[513];
+
+    int		ind_upper_value;
+    int		ind_statement;
+    int		ind_lw_criteria;
+    int		ind_lw_source;
+} LWstmt_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+LWstmt * GetLWstmt(const char * where)
+{
+
+    LWstmt * listPtr = NULL;
+    LWstmt * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM LWstmt ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct LWstmt_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetLWstmt() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetLWstmt() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetLWstmt() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.lid, :dbs.pe, 
+    :dbs.lower_value, :dbs.upper_value:dbs.ind_upper_value, 
+    :dbs.criteria_rank, :dbs.statement:dbs.ind_statement, 
+    :dbs.lw_criteria:dbs.ind_lw_criteria, :dbs.lw_source:dbs.ind_lw_source    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetLWstmt() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (LWstmt *) malloc(sizeof(LWstmt))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->pe, dbs.pe);
+
+            structPtr->lower_value = dbs.lower_value;
+
+            structPtr->upper_value = dbs.upper_value;
+            setNullIfIndicated(dbs.ind_upper_value, DOUBLE, &structPtr->upper_value);
+
+            structPtr->criteria_rank = dbs.criteria_rank;
+
+            strcpy(structPtr->statement, dbs.statement);
+            setNullIfIndicated(dbs.ind_statement, CHAR, structPtr->statement);
+
+            strcpy(structPtr->lw_criteria, dbs.lw_criteria);
+            setNullIfIndicated(dbs.ind_lw_criteria, CHAR, structPtr->lw_criteria);
+
+            strcpy(structPtr->lw_source, dbs.lw_source);
+            setNullIfIndicated(dbs.ind_lw_source, CHAR, structPtr->lw_source);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.lid, :dbs.pe, 
+        :dbs.lower_value, :dbs.upper_value:dbs.ind_upper_value, 
+        :dbs.criteria_rank, :dbs.statement:dbs.ind_statement, 
+        :dbs.lw_criteria:dbs.ind_lw_criteria, :dbs.lw_source:dbs.ind_lw_source        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetLWstmt() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+LWstmt * SelectLWstmt(const char * where)
+{
+
+    LWstmt * listPtr = NULL;
+    LWstmt * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM LWstmt ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct LWstmt_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectLWstmt() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectLWstmt() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectLWstmt() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.lid, :dbs.pe, 
+    :dbs.lower_value, :dbs.upper_value:dbs.ind_upper_value, 
+    :dbs.criteria_rank, :dbs.statement:dbs.ind_statement, 
+    :dbs.lw_criteria:dbs.ind_lw_criteria, :dbs.lw_source:dbs.ind_lw_source    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectLWstmt() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (LWstmt *) malloc(sizeof(LWstmt))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->pe, dbs.pe);
+
+            structPtr->lower_value = dbs.lower_value;
+
+            structPtr->upper_value = dbs.upper_value;
+            setNullIfIndicated(dbs.ind_upper_value, DOUBLE, &structPtr->upper_value);
+
+            structPtr->criteria_rank = dbs.criteria_rank;
+
+            strcpy(structPtr->statement, dbs.statement);
+            setNullIfIndicated(dbs.ind_statement, CHAR, structPtr->statement);
+
+            strcpy(structPtr->lw_criteria, dbs.lw_criteria);
+            setNullIfIndicated(dbs.ind_lw_criteria, CHAR, structPtr->lw_criteria);
+
+            strcpy(structPtr->lw_source, dbs.lw_source);
+            setNullIfIndicated(dbs.ind_lw_source, CHAR, structPtr->lw_source);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.lid, :dbs.pe, 
+        :dbs.lower_value, :dbs.upper_value:dbs.ind_upper_value, 
+        :dbs.criteria_rank, :dbs.statement:dbs.ind_statement, 
+        :dbs.lw_criteria:dbs.ind_lw_criteria, :dbs.lw_source:dbs.ind_lw_source        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectLWstmt() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectLWstmtCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM LWstmt ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountLWstmt() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountLWstmt() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountLWstmt() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountLWstmt() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutLWstmt(const LWstmt * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct LWstmt_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.pe, structPtr->pe);
+
+    dbs.lower_value = structPtr->lower_value;
+
+    dbs.upper_value = structPtr->upper_value;
+    dbs.ind_upper_value = getIndicator(DOUBLE, (void *)&structPtr->upper_value);
+
+    dbs.criteria_rank = structPtr->criteria_rank;
+
+    strcpy(dbs.statement, structPtr->statement);
+    dbs.ind_statement = getIndicator(CHAR, (void *)structPtr->statement);
+
+    strcpy(dbs.lw_criteria, structPtr->lw_criteria);
+    dbs.ind_lw_criteria = getIndicator(CHAR, (void *)structPtr->lw_criteria);
+
+    strcpy(dbs.lw_source, structPtr->lw_source);
+    dbs.ind_lw_source = getIndicator(CHAR, (void *)structPtr->lw_source);
+
+
+    EXEC SQL INSERT INTO LWstmt (lid,pe,
+        lower_value,upper_value,criteria_rank,
+        statement,lw_criteria,lw_source        )
+        VALUES (
+         :dbs.lid, :dbs.pe, :dbs.lower_value,
+         :dbs.upper_value:dbs.ind_upper_value, :dbs.criteria_rank, :dbs.statement:dbs.ind_statement,
+         :dbs.lw_criteria:dbs.ind_lw_criteria, :dbs.lw_source:dbs.ind_lw_source);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutLWstmt() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertLWstmt(const LWstmt * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct LWstmt_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.pe, structPtr->pe);
+
+    dbs.lower_value = structPtr->lower_value;
+
+    dbs.upper_value = structPtr->upper_value;
+    dbs.ind_upper_value = getIndicator(DOUBLE, (void *)&structPtr->upper_value);
+
+    dbs.criteria_rank = structPtr->criteria_rank;
+
+    strcpy(dbs.statement, structPtr->statement);
+    dbs.ind_statement = getIndicator(CHAR, (void *)structPtr->statement);
+
+    strcpy(dbs.lw_criteria, structPtr->lw_criteria);
+    dbs.ind_lw_criteria = getIndicator(CHAR, (void *)structPtr->lw_criteria);
+
+    strcpy(dbs.lw_source, structPtr->lw_source);
+    dbs.ind_lw_source = getIndicator(CHAR, (void *)structPtr->lw_source);
+
+
+    EXEC SQL INSERT INTO LWstmt (lid,pe,
+        lower_value,upper_value,criteria_rank,
+        statement,lw_criteria,lw_source        )
+        VALUES (
+         :dbs.lid, :dbs.pe, :dbs.lower_value,
+         :dbs.upper_value:dbs.ind_upper_value, :dbs.criteria_rank, :dbs.statement:dbs.ind_statement,
+         :dbs.lw_criteria:dbs.ind_lw_criteria, :dbs.lw_source:dbs.ind_lw_source);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertLWstmt() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateLWstmt(const LWstmt *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct LWstmt_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.pe, structPtr->pe);
+
+    dbs.lower_value = structPtr->lower_value;
+
+    dbs.upper_value = structPtr->upper_value;
+    dbs.ind_upper_value = getIndicator(DOUBLE, (void *)&structPtr->upper_value);
+
+    dbs.criteria_rank = structPtr->criteria_rank;
+
+    strcpy(dbs.statement, structPtr->statement);
+    dbs.ind_statement = getIndicator(CHAR, (void *)structPtr->statement);
+
+    strcpy(dbs.lw_criteria, structPtr->lw_criteria);
+    dbs.ind_lw_criteria = getIndicator(CHAR, (void *)structPtr->lw_criteria);
+
+    strcpy(dbs.lw_source, structPtr->lw_source);
+    dbs.ind_lw_source = getIndicator(CHAR, (void *)structPtr->lw_source);
+
+
+    sprintf(queryBuffer, " UPDATE LWstmt SET " );
+    strcat(queryBuffer, "lid = ? , pe = ? , lower_value = ? , upper_value = ? , criteria_rank = ? ,     ");
+    strcat(queryBuffer, "statement = ? , lw_criteria = ? , lw_source = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateLWstmt() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.lid, :dbs.pe, :dbs.lower_value, :dbs.upper_value:dbs.ind_upper_value, :dbs.criteria_rank,
+     :dbs.statement:dbs.ind_statement, :dbs.lw_criteria:dbs.ind_lw_criteria, :dbs.lw_source:dbs.ind_lw_source;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateLWstmt() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteLWstmt(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM LWstmt ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteLWstmt() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateLWstmtByRecord (const LWstmt * newStructPtr, const LWstmt * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetLWstmtPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateLWstmt(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateLWstmt(const LWstmt * structPtr)
+{
+    UpdateLWstmtByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertLWstmt(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueLWstmt(const LWstmt * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (LWstmtExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertLWstmt(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteLWstmtByRecord(const LWstmt * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetLWstmtPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteLWstmt(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool LWstmtExists(const LWstmt * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetLWstmtPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectLWstmtCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetLWstmtPrimaryKeyWhereString (const LWstmt * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE lid = '%s'  AND pe = '%s'  AND lower_value = %lf  AND criteria_rank = %ld ",
+            structPtr->lid, structPtr->pe, structPtr->lower_value, structPtr->criteria_rank);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeLWstmt( LWstmt * structPtr)
+{
+    LWstmt* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( LWstmt * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetLWstmtDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetLWstmtErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

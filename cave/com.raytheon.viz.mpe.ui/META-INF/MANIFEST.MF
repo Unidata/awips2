@@ -1,0 +1,33 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: MPE Ui Plug-in
+Bundle-SymbolicName: com.raytheon.viz.mpe.ui;singleton:=true
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Activator: com.raytheon.viz.mpe.ui.Activator
+Bundle-Vendor: Raytheon
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ com.raytheon.viz.ui,
+ com.raytheon.viz.core,
+ org.geotools,
+ com.raytheon.edex.common,
+ com.raytheon.viz.hydrocommon,
+ com.raytheon.viz.mpe,
+ com.raytheon.viz.core.contours,
+ javax.measure,
+ org.apache.commons.lang,
+ com.raytheon.uf.viz.app.launcher,
+ com.raytheon.uf.common.mpe,
+ com.raytheon.uf.common.hydro,
+ com.raytheon.uf.viz.core.maps;bundle-version="1.12.1174",
+ com.raytheon.uf.common.dataplugin.shef;bundle-version="1.12.1174",
+ com.raytheon.uf.viz.application,
+ com.raytheon.viz.ui.personalities.awips;bundle-version="1.12.1174"
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.viz.mpe.ui.dialogs.gagetable.xml,
+ com.raytheon.viz.mpe.ui.displays,
+ com.raytheon.viz.mpe.ui.rsc
+Import-Package: com.raytheon.uf.common.colormap,
+ com.raytheon.uf.common.ohd
+Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

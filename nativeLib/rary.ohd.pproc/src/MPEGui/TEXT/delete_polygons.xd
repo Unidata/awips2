@@ -1,0 +1,300 @@
+module 'XApplication'
+version = 48;
+xdesigned = 1;
+applicationName = 'XApplication';
+sourceDirectory = '/fs/hseb/ob7/wfo_rfc/whfs/source/utilfunc/mpe_gui/src/';
+generateNameC = * 'delete_polygons.c';
+generateNameExterns = * 'delete_polygons.h';
+generateNameResDB = 'delete_polygons.res';
+generateCHeaderFile = 'delete_polygons.h';
+motifFlavour = 2;
+generateMask = 4390920;
+useMask = 1;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 1;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+javaVersion = 2;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'deletepolyDS' : XmDialogShell {
+	arguments {
+	name = 'deletepolyDS';
+	lastGenName = 'deletepolyDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_deletepolyDS (Widget parent)
+';
+	XmNx = 621;
+	XmNy = 355;
+	XmNwidth = 401;
+	XmNheight = 245;
+	XmNallowShellResize = true;
+	XmNtitle = 'Delete Polygons';
+	XmNminWidth = 401;
+	XmNminHeight = 245;
+	XmNmaxWidth = 401;
+	XmNmaxHeight = 245;
+	};
+object 'deletepolyFO' : XmForm {
+	arguments {
+	name = 'deletepolyFO';
+	was_selected = true;
+	lastGenName = 'deletepolyFO';
+	XmNwidth = 401;
+	XmNheight = 245;
+	XmNresizePolicy = XmRESIZE_NONE;
+	XmNautoUnmanage = false;
+	};
+object 'datetimeLB' : XmLabel {
+	arguments {
+	name = 'datetimeLB';
+	lastGenName = 'datetimeLB';
+	XmNlabelString = 'Date/Time:';
+	};
+};
+object 'productLB' : XmLabel {
+	arguments {
+	name = 'productLB';
+	lastGenName = 'productLB';
+	XmNlabelString = 'MPE Product:';
+	};
+};
+object 'datetimeTX' : XmTextField {
+	arguments {
+	name = 'datetimeTX';
+	lastGenName = 'datetimeTX';
+	XmNvalue = '';
+	XmNeditable = false;
+	};
+};
+object 'productTX' : XmTextField {
+	arguments {
+	name = 'productTX';
+	lastGenName = 'productTX';
+	XmNvalue = '';
+	XmNeditable = false;
+	};
+};
+object 'numberLB' : XmLabel {
+	arguments {
+	name = 'numberLB';
+	lastGenName = 'numberLB';
+	XmNlabelString = 'Number';
+	};
+};
+object 'actionLB' : XmLabel {
+	arguments {
+	name = 'actionLB';
+	lastGenName = 'actionLB';
+	XmNlabelString = 'Action';
+	};
+};
+object 'valueLB' : XmLabel {
+	arguments {
+	name = 'valueLB';
+	lastGenName = 'valueLB';
+	XmNlabelString = 'Value';
+	};
+};
+object 'displayPB' : XmPushButton {
+	arguments {
+	name = 'displayPB';
+	lastGenName = 'displayPB';
+	XmNwidth = 80;
+	XmNheight = 25;
+	XmNlabelString = 'Display';
+	XmNrecomputeSize = false;
+	};
+};
+object 'undisplayPB' : XmPushButton {
+	arguments {
+	name = 'undisplayPB';
+	lastGenName = 'undisplayPB';
+	XmNwidth = 80;
+	XmNheight = 25;
+	XmNlabelString = 'Undisplay';
+	XmNrecomputeSize = false;
+	};
+};
+object 'deletePB' : XmPushButton {
+	arguments {
+	name = 'deletePB';
+	lastGenName = 'deletePB';
+	XmNwidth = 80;
+	XmNheight = 25;
+	XmNlabelString = 'Delete';
+	XmNrecomputeSize = false;
+	};
+};
+object 'deleteclosePB' : XmPushButton {
+	arguments {
+	name = 'deleteclosePB';
+	lastGenName = 'deleteclosePB';
+	XmNwidth = 80;
+	XmNheight = 25;
+	XmNlabelString = 'Close';
+	XmNrecomputeSize = false;
+	};
+};
+object 'deletepolySP' : XmSeparator {
+	arguments {
+	name = 'deletepolySP';
+	lastGenName = 'deletepolySP';
+	};
+};
+object 'deletepolyLS' : XmScrolledList {
+	arguments {
+	lastGenName = 'deletepolyLS';
+	};
+abstract object 'deletepolySB1' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'deletepolySB1';
+	};
+};
+abstract object 'deletepolySB2' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'deletepolySB2';
+	};
+};
+abstract object 'deletepolyLI' : XmList {
+	arguments {
+	name = 'deletepolyLI';
+	lastGenName = 'deletepolyLI';
+	};
+};
+};
+object 'displayedLB' : XmLabel {
+	arguments {
+	name = 'displayedLB';
+	lastGenName = 'displayedLB';
+	XmNlabelString = 'Displayed';
+	};
+};
+object 'deleteallPB' : XmPushButton {
+	arguments {
+	name = 'deleteallPB';
+	lastGenName = 'deleteallPB';
+	XmNwidth = 80;
+	XmNheight = 25;
+	XmNlabelString = 'Delete All';
+	XmNrecomputeSize = false;
+	};
+};
+object 'persistLB' : XmLabel {
+	arguments {
+	name = 'persistLB';
+	lastGenName = 'persistLB';
+	XmNlabelString = 'Persistent';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 2;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 7;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 204;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 6;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -202;
+	XmNleftAttachment = 1 0 71;
+	XmNbottomAttachment = 2 0 -40;
+	XmNtopAttachment = 1 0 6;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -393;
+	XmNleftAttachment = 1 0 295;
+	XmNbottomAttachment = 2 0 -41;
+	XmNtopAttachment = 1 0 6;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 9;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 47;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 241;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 47;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 336;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 49;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 155;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -186;
+	XmNleftAttachment = 1 0 106;
+	XmNbottomAttachment = 2 0 -181;
+	XmNtopAttachment = 1 0 155;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -285;
+	XmNleftAttachment = 1 0 208;
+	XmNbottomAttachment = 2 0 -181;
+	XmNtopAttachment = 1 0 155;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -237;
+	XmNleftAttachment = 1 0 158;
+	XmNbottomAttachment = 2 0 -234;
+	XmNtopAttachment = 1 0 207;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -396;
+	XmNleftAttachment = 1 0 6;
+	XmNbottomAttachment = 2 0 -197;
+	XmNtopAttachment = 1 0 186;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -383;
+	XmNleftAttachment = 1 0 9;
+	XmNbottomAttachment = 2 0 -148;
+	XmNtopAttachment = 1 0 69;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 71;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 47;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -374;
+	XmNleftAttachment = 1 0 303;
+	XmNbottomAttachment = 2 0 -181;
+	XmNtopAttachment = 1 0 156;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 143;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 47;
+    };
+    };
+};
+};
+end module;

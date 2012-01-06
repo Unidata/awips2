@@ -1,0 +1,187 @@
+<?xml version="1.0"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+    
+<hibernate-mapping default-lazy="true">
+<!-- 
+    Created by the Middlegen Hibernate plugin 2.1
+
+    http://boss.bekk.no/boss/middlegen/
+    http://www.hibernate.org/
+-->
+
+<class 
+    name="com.raytheon.edex.db.objects.ihfs.Fcstptdeterm" 
+    table="fcstptdeterm"
+>
+
+    <composite-id>
+        <key-property 
+            name="hoursQpf" 
+            column="hours_qpf" 
+            type="java.lang.Short"
+            length="5"
+        />
+        <!-- bi-directional many-to-one association to Fcstptservice -->
+        <key-many-to-one
+        	name="fcstptservice"
+	        class="com.raytheon.edex.db.objects.ihfs.Fcstptservice"
+	    >
+    	    <column name="lid" />
+	    </key-many-to-one>
+        <!-- bi-directional many-to-one association to Hydrologicmethod -->
+        <key-many-to-one
+        	name="hydrologicmethod"
+	        class="com.raytheon.edex.db.objects.ihfs.Hydrologicmethod"
+	    >
+    	    <column name="hydrol_method" />
+	    </key-many-to-one>
+        <!-- bi-directional many-to-one association to Definingissuecriteria -->
+        <key-many-to-one
+        	name="definingissuecriteria"
+	        class="com.raytheon.edex.db.objects.ihfs.Definingissuecriteria"
+	    >
+    	    <column name="def_issue_crit" />
+	    </key-many-to-one>
+        <!-- bi-directional many-to-one association to Reservoirmodel -->
+        <key-many-to-one
+        	name="reservoirmodel"
+	        class="com.raytheon.edex.db.objects.ihfs.Reservoirmodel"
+	    >
+    	    <column name="reservoir_model" />
+	    </key-many-to-one>
+        <!-- bi-directional many-to-one association to Routingmethod -->
+        <key-many-to-one
+        	name="routingmethod"
+	        class="com.raytheon.edex.db.objects.ihfs.Routingmethod"
+	    >
+    	    <column name="hydraul_method" />
+	    </key-many-to-one>
+        <!-- bi-directional many-to-one association to Location -->
+        <key-many-to-one
+        	name="location"
+	        class="com.raytheon.edex.db.objects.ihfs.Location"
+	    >
+    	    <column name="upstream_seg" />
+	    </key-many-to-one>
+        <!-- bi-directional many-to-one association to Snowmethod -->
+        <key-many-to-one
+        	name="snowmethod"
+	        class="com.raytheon.edex.db.objects.ihfs.Snowmethod"
+	    >
+    	    <column name="snow_method" />
+	    </key-many-to-one>
+    </composite-id>    
+
+    <property
+        name="hoursQtf"
+        type="java.lang.Short"
+        column="hours_qtf"
+        length="5"
+    />
+    <property
+        name="hoursQzf"
+        type="java.lang.Short"
+        column="hours_qzf"
+        length="5"
+    />
+    <property
+        name="numElevZones"
+        type="java.lang.Short"
+        column="num_elev_zones"
+        length="5"
+    />
+    <property
+        name="consumptiveUse"
+        type="java.lang.String"
+        column="consumptive_use"
+        length="1"
+    />
+    <property
+        name="channelLoss"
+        type="java.lang.String"
+        column="channel_loss"
+        length="1"
+    />
+    <property
+        name="implDate"
+        type="java.sql.Timestamp"
+        column="impl_date"
+        length="13"
+    />
+    <property
+        name="webDate"
+        type="java.sql.Timestamp"
+        column="web_date"
+        length="13"
+    />
+
+    <!-- Associations -->
+  
+    <!-- bi-directional many-to-one association to Fcstgenmethod -->
+    <many-to-one
+        name="fcstgenmethod"
+        class="com.raytheon.edex.db.objects.ihfs.Fcstgenmethod"
+        not-null="true"
+    >
+        <column name="fcst_gen_method" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to Frequencyupdate -->
+    <many-to-one
+        name="frequencyupdateByFrequpdNormal"
+        class="com.raytheon.edex.db.objects.ihfs.Frequencyupdate"
+        not-null="true"
+    >
+        <column name="frequpd_normal" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to Frequencyupdate -->
+    <many-to-one
+        name="frequencyupdateByFrequpdFlood"
+        class="com.raytheon.edex.db.objects.ihfs.Frequencyupdate"
+        not-null="true"
+    >
+        <column name="frequpd_flood" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to Frequencyupdate -->
+    <many-to-one
+        name="frequencyupdateByFrequpdDrought"
+        class="com.raytheon.edex.db.objects.ihfs.Frequencyupdate"
+        not-null="true"
+    >
+        <column name="frequpd_drought" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to Fcsthorizon -->
+    <many-to-one
+        name="fcsthorizon"
+        class="com.raytheon.edex.db.objects.ihfs.Fcsthorizon"
+        not-null="true"
+    >
+        <column name="fcst_horizon" />
+    </many-to-one>
+
+</class>
+</hibernate-mapping>
+    <!--
+        
+    -->
+

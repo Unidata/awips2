@@ -1,0 +1,1 @@
+void closedb(long int *);

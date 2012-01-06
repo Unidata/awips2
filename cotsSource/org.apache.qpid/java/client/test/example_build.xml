@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+<!--
+ -
+ - Licensed to the Apache Software Foundation (ASF) under one
+ - or more contributor license agreements.  See the NOTICE file
+ - distributed with this work for additional information
+ - regarding copyright ownership.  The ASF licenses this file
+ - to you under the Apache License, Version 2.0 (the
+ - "License"); you may not use this file except in compliance
+ - with the License.  You may obtain a copy of the License at
+ - 
+ -   http://www.apache.org/licenses/LICENSE-2.0
+ - 
+ - Unless required by applicable law or agreed to in writing,
+ - software distributed under the License is distributed on an
+ - "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ - KIND, either express or implied.  See the License for the
+ - specific language governing permissions and limitations
+ - under the License.
+ -
+ -->
+
+<!-- example Blaze Component Java build file -->
+
+<project name="example-client" default="jar" basedir=".">
+    <property name="lib" value="${basedir}/lib"/>
+    <property name="common.lib" value="${basedir}/../common/lib"/>
+    <property name="example.dir" value="${basedir}"/>
+    <property name="example.src" value="${example.dir}/src"/>
+    <property name="example.lib" value="${example.dir}/lib"/>
+    <property name="example.tests" value="${example.dir}/test"/>
+    <property name="example.classes" value="${example.dir}/classes"/>
+    <property name="dist" value="${basedir}/dist"/>
+    <property name="dam.dist" value="${basedir}/damPackage"/>
+
+    <!-- Setup details -->
+    <target name="init">
+        <tstamp>
+            <format property="release" pattern="-dMMMyy" locale="en" timezone="GMT"/>
+        </tstamp>
+        <mkdir dir="${example.classes}"/>
+    </target>
+
+    <path id="example.classpath">
+        <fileset dir="${common}/lib">
+            <include name="**/*.jar"/>
+        </fileset>
+        <pathelement path="${example.classes}"/>
+    </path>
+
+    <!-- Remove all built files -->
+    <target name="clean" depends="init">
+        <delete dir="${example.classes}"/>
+    </target>
+
+    <path id="example_amq.classpath">
+        <fileset dir="${basedir}/lib">
+            <include name="**/*.jar"/>
+        </fileset>
+        <fileset dir="${example.lib}">
+            <include name="**/*.jar"/>
+        </fileset>
+        <pathelement path="${example.classes}"/>
+
+    </path>
+
+    <!-- Compile Java -->
+    <target name="compile" depends="init">
+        <javac destdir="${example.classes}" debug="on">
+            <classpath refid="example_amq.classpath"/>
+            <src path="${example.src}"/>
+            <exclude name="**/Test*.java"/>
+        </javac>
+
+        <copy todir="${example.classes}">
+            <!-- copy any non java src files into the build tree, e.g. log4j.properties -->
+            <fileset dir="${example.src}">
+                <exclude name="**/*.java"/>
+                <exclude name="**/package.html"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <!-- Compile and build jar archive -->
+    <target name="dist" depends="compile">
+        <mkdir dir="${dist}"/>
+        <jar basedir="${example.classes}" jarfile="${dist}/example_amq.jar"/>
+    </target>
+
+    <!-- Create release zip and tar -->
+    <target name="release" depends="dist" description="Create a release package">
+
+            <zip destfile="${dist}/example_client.zip">
+                <zipfileset prefix="lib" file="${dist}/example_amq.jar" />
+            </zip>
+
+            <tar destfile="${dist}/example_client.tar.gz" compression="gzip">
+                <tarfileset prefix="lib" file="${dist}/example_amq.jar" />
+            </tar>
+    </target>
+
+
+
+</project>

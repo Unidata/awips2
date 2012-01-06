@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: gempak.jna Plug-in
+Bundle-SymbolicName: gov.noaa.nws.ncep.edex.gempak.jna
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: gov.noaa.nws.ncep.edex.gempak.jna.Activator
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: gov.noaa.nws.ncep.edex.gempak.jna
+Require-Bundle: com.sun.jna;bundle-version="3.0.9"

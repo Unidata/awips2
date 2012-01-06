@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="com.raytheon.uf.viz.ncep.core.feature"
+      label="NCEP Viz Core Feature"
+      version="1.0.0.qualifier"
+      provider-name="RAYTHEON">
+
+   <description url="http://www.example.com/description">
+      [Enter Feature Description here.]
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      [Enter Copyright Description here.]
+   </copyright>
+
+   <license url="http://www.example.com/license">
+      [Enter License Description here.]
+   </license>
+
+   <requires>
+      <import feature="com.raytheon.uf.viz.cots.feature" version="1.0.0.qualifier"/>
+      <import feature="com.raytheon.uf.viz.eclipse.feature" version="1.0.0.qualifier"/>
+      <import feature="com.raytheon.uf.viz.common.core.feature" version="1.0.0.qualifier"/>
+      <import feature="com.raytheon.uf.viz.core.feature" version="1.0.0.qualifier"/>
+      <import feature="com.raytheon.viz.text.feature" version="1.0.0.qualifier"/>
+   </requires>
+
+   <plugin
+         id="gov.noaa.nws.ncep.viz.common"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.viz.localization"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.edex.common"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.gempak.parameters"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.log"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.common.log4j.config"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.viz.ui.display"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.metParameters"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

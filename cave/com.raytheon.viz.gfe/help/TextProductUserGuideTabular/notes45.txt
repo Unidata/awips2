@@ -1,0 +1,2 @@
+The FWFTable uses the "getCurrentTime" method to format the time labels for the product and area headers.
+

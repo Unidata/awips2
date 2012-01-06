@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<binding>
+   <mapping name="latestobsvalue" class="com.raytheon.edex.db.objects.ihfs.Latestobsvalue">
+      <value name="lid" field="lid" usage="required" />
+      <value name="pe" field="pe" usage="required" />
+      <value name="dur" field="dur" usage="required" />
+      <value name="ts" field="ts" usage="required" />
+      <value name="extremum" field="extremum" usage="required" />
+      <value name="obstime" field="obstime" usage="optional" />
+      <value name="value" field="value" usage="optional" />
+      <value name="revision" field="revision" usage="optional" />
+      <value name="shefQualCode" field="shefQualCode" usage="optional" />
+      <value name="qualityCode" field="qualityCode" usage="optional" />
+      <value name="productId" field="productId" usage="optional" />
+      <value name="producttime" field="producttime" usage="optional" />
+      <value name="postingtime" field="postingtime" usage="optional" />
+   </mapping>
+   
+<!--   <mapping name="ingestFilter" class="com.raytheon.edex.db.objects.ihfs.Ingestfilter">-->
+<!--      <value name="lid" field="lid" usage="required" />-->
+<!--      <value name="pe" field="pe" usage="required" />-->
+<!--      <value name="dur" field="dur" usage="required" />-->
+<!--      <value name="ts" field="ts" usage="required" />-->
+<!--      <value name="extremum" field="extremum" usage="required" />-->
+<!--      <value name="tsRank" field="tsRank" usage="optional" />-->
+<!--      <value name="ingest" field="ingest" usage="optional" />-->
+<!--      <value name="ofsInput" field="ofsInput" usage="optional" />-->
+<!--      <value name="stg2Input" field="stg2input" usage="optional" />-->
+<!--      <value name="qualityCode" field="qualityCode" usage="optional" />-->
+<!--      <value name="productId" field="productId" usage="optional" />-->
+<!--      <value name="producttime" field="producttime" usage="optional" />-->
+<!--      <value name="postingtime" field="postingtime" usage="optional" />-->
+<!--   </mapping>-->
+   
+<!-- 
+   <mapping name="location" class="com.raytheon.edex.db.objects.ihfs.Location">
+      <value name="lid" field="lid" usage="required" />
+      <value name="coe" field="coe" usage="optional" />
+      <value name="cpm" field="cpm" usage="optional" />
+      <value name="detail" field="detail" usage="optional" />
+      <value name="elev" field="elev" usage="optional" />
+      <value name="hdatum" field="hdatum" usage="optional" />
+      <value name="hu" field="hu" usage="optional" />
+      <value name="lat" field="lat" usage="optional" />
+      <value name="lon" field="lon" usage="optional" />
+      <value name="lremark" field="lremark" usage="optional" />
+      <value name="lrevise" field="lrevise" usage="optional" />
+      <value name="name" field="name" usage="optional" />
+      <value name="rb" field="rb" usage="optional" />
+      <value name="sbd" field="sbd" usage="optional" />
+      <value name="sn" field="sn" usage="optional" />
+      <value name="waro" field="waro" usage="optional" />
+      <value name="wsfo" field="wsfo" usage="optional" />
+      <value name="type" field="type" usage="optional" />
+      <value name="des" field="des" usage="optional" />
+      <value name="det" field="det" usage="optional" />
+      <value name="post" field="post" usage="optional" />
+      <value name="stntype" field="stntype" usage="optional" />
+      <structure field="rivermonlocation" />
+      <structure field="telem" />
+      <structure field="riverstat" />
+      <structure field="observer" />
+      <structure field="reservoir" />
+      <structure field="dcp" />
+      <structure field="stnclass" />
+      <structure field="county" />
+      <structure field="rfc" />
+      <structure field="timezone" />
+      <structure field="wfo" />
+      <structure field="county" />
+      <structure field="hsa" />
+      <structure field="network" />
+      <collection field="fcstptdeterms">
+         <value name="value" type="java.lang.String" />
+      </collection>
+      <collection field="gages">
+         <value name="value" type="java.lang.String" />
+      </collection>
+      <collection field="contacts">
+         <value name="value" type="java.lang.String" />
+      </collection>
+      <collection field="countynums">
+         <value name="value" type="java.lang.String" />
+      </collection>
+      <collection field="zonenums">
+         <value name="value" type="java.lang.String" />
+      </collection>
+      <collection field="locimages">
+         <value name="value" type="java.lang.String" />
+      </collection>
+      <collection field="ofsstntrans">
+         <value name="value" type="java.lang.String" />
+      </collection>
+      <collection field="locextagencies">
+         <value name="value" type="java.lang.String" />
+      </collection>
+      <collection field="fcstptesps">
+         <value name="value" type="java.lang.String" />
+      </collection>
+   </mapping>
+-->   
+   
+   
+         
+</binding>

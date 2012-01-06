@@ -1,0 +1,662 @@
+#include <math.h>
+#include "bias_table.h"
+#include "DbmsDefs.h"
+#include "mesg_hdr.h"
+#include "interval.h"
+#include "pgtypes_interval.h"
+#include "pgtypes_timestamp.h"
+
+#define BLOCK_DIVDR  -1
+#define BLOCK_ID  1
+#define VERSION_NUM  0
+
+#define NUMHR  2
+
+/*---------------------------------------------------------------------------*/
+/* Modification History:                                                     */
+/* April 21, 2006          Bryon Lawrence     Fixed problem which was        */
+/*                                            preventing more than one       */
+/*                                            bias message from being        */
+/*                                            produced for a site with       */
+/*                                            multiple radars of             */
+/*                                            responsibility.                */
+/*---------------------------------------------------------------------------*/
+
+void create_biastable_mesg ()
+/*
+   Create the bias table message
+
+   Read records from the RWBiasDyn table for the specified date/time
+   Store in structure and write to file
+
+   bias table message file is a binary file
+
+   NUMHR = number of datetime values searched for in rwbiasdyn table for a given radar
+         - if NUMHR = 2, then if no records are found for current hour,
+           then search for records from one hour in past
+
+   nrec_biasdyn = number of records in rwbiasdyn selected
+
+   bias_table_struct = structure containing bias table info which is sent to
+                       function for creating packet to be sent to NEXRAD
+*/
+{
+   int n, nrad, nrec_biasdyn, len;
+   int int1, int2, int3, int4, int5, int6, int7;
+   int status;
+   float float1;
+   float memspan_values[NROWS];
+   char datetime[22], dthr[22], filename[128], dirname[100], cdate[5],
+      ddhhmm[7];
+   char fxa_local_site_id[20];
+
+   char *radar_bias_source = NULL;
+   char reply[50];
+   char strhr[9];
+   long int irc, irc1;
+   int try_sending_local_bias = 0;
+   FILE *fp = NULL;
+
+   EXEC SQL BEGIN DECLARE SECTION;
+   char radarid[4], site_id[4], query_statement[200];
+   short int ind;
+   int send_local_bias = 0;
+   float ssum_gag, ssum_rad, bbias;
+   double nnum_pairs;
+   interval *inthr;
+   timestamp dttmg;
+   timestamp dttmo, dttmp;
+   timestamp dttmo_save;
+   EXEC SQL END DECLARE SECTION;
+
+   memset (radarid, 4, '\0');
+   memset (site_id, 4, '\0');
+   memset (ddhhmm, 7, '\0');
+   strcpy (site_id, biastable.site_id);
+
+   sprintf (strhr, "01:00:00");
+   inthr = PGTYPESinterval_from_asc (strhr, NULL);
+
+   /*--------------------------------------------------------------------*/
+   /*   read directory name for bias table messages from .Apps_defaults  */
+   /*--------------------------------------------------------------------*/
+
+   len = strlen ("bias_message_dir");
+   get_apps_defaults ("bias_message_dir", &len, dirname, &len);
+
+   if (len == 0)
+   {
+      printf
+	 ("Bias Table Message Directory token not found -- program stopping");
+      return;
+   }
+
+   /*--------------------------------------------------------------------*/
+   /*    read the FXA_LOCAL_SITE variable.                               */
+   /*--------------------------------------------------------------------*/
+   memset (fxa_local_site_id, '\0', 20);
+   len = strlen ("FXA_LOCAL_SITE");
+   get_apps_defaults ("FXA_LOCAL_SITE", &len, fxa_local_site_id, &len);
+
+   if (len == 0)
+   {
+      printf ("FXA_LOCAL_SITE environmental variable not defined.\n"
+	   "Office id to retrieve default bias information for not known.\n");
+      printf ("Cannot create the bias message.\n");
+      return;
+   }
+   else
+   {
+      printf ("The value of the FXA_LOCAL_SITE environmental "
+	      "variable is '%s'.\n", fxa_local_site_id);
+   }
+
+   /*--------------------------------------------------------------------*/
+   /*    read the send_local_bias_when_rfc_bias_missing token.           */
+   /*--------------------------------------------------------------------*/
+   len = strlen ("send_local_bias_when_rfc_bias_missing");
+   get_apps_defaults ("send_local_bias_when_rfc_bias_missing", &len,
+		      reply, &len);
+
+   if (len == 0)
+   {
+      printf ("send_local_bias_when_rfc_bias_missing token is not\n"
+	      "defined. Will not send locally-generated mean field\n"
+	      "bias when the rfc mean field bias cannot be found.\n");
+   }
+   else if ((reply[0] == 'Y') || (reply[0] == 'y'))
+   {
+      printf ("Will substitute local mean field bias when the rfc\n"
+	      "mean field bias cannot be found.\n");
+      send_local_bias = 1;
+   }
+   else
+   {
+      printf ("Will not substitute the local mean field bias when\n"
+	      "the rfc mean field bias cannot be found.\n");
+   }
+
+
+   /*-------------------------------------------------------*/
+   /*   Define block divider, id and size (bytes); also     */
+   /*   version # and no. rows             in bias table;   */
+   /*   store in Bias Table Message sub-header              */
+   /*-------------------------------------------------------*/
+
+   biastable.block_divdr = BLOCK_DIVDR;
+   biastable.block_id = BLOCK_ID;
+   biastable.version_num = VERSION_NUM;
+   biastable.block_len =
+      sizeof (short) * (6 * 2 + 5) + sizeof (char) * (4 * 2) +
+      NCOLS * sizeof (int) * (NROWS);
+   biastable.nrows = NROWS;
+
+   /*----------------------------------------------------------*/
+   /*   Define observation and generation times = current time */
+   /*   Generate I*2 values for yyyy, mm, dd, hh, mm, ss       */
+   /*----------------------------------------------------------*/
+
+   PGTYPEStimestamp_current (&dttmg);
+   strcpy (datetime, PGTYPEStimestamp_to_asc (dttmg));
+   PGTYPEStimestamp_current (&dttmo);
+   dttmo_save = dttmo;
+
+/* YEAR */
+
+   cdate[4] = '\0';
+   sprintf (cdate, "%c%c%c%c", datetime[0], datetime[1], datetime[2],
+	    datetime[3]);
+   biastable.obs_datehr[0] = atoi (cdate);
+   biastable.gen_datehr[0] = biastable.obs_datehr[0];
+
+/* MONTH */
+
+   cdate[2] = '\0';
+   sprintf (cdate, "%c%c", datetime[5], datetime[6]);
+   biastable.obs_datehr[1] = atoi (cdate);
+   biastable.gen_datehr[1] = biastable.obs_datehr[1];
+
+/* DAY */
+
+   sprintf (cdate, "%c%c", datetime[8], datetime[9]);
+   biastable.obs_datehr[2] = atoi (cdate);
+   biastable.gen_datehr[2] = biastable.obs_datehr[2];
+
+/* HOUR */
+
+   sprintf (cdate, "%c%c", datetime[11], datetime[12]);
+   biastable.obs_datehr[3] = atoi (cdate);
+   biastable.gen_datehr[3] = biastable.obs_datehr[3];
+
+/* MIN */
+
+   biastable.obs_datehr[4] = 0;
+   sprintf (cdate, "%c%c", datetime[14], datetime[15]);
+   biastable.gen_datehr[4] = atoi (cdate);
+
+/* SEC */
+
+   biastable.obs_datehr[5] = 0;
+   sprintf (cdate, "%c%c", datetime[17], datetime[18]);
+   biastable.gen_datehr[5] = atoi (cdate);
+
+   sprintf (ddhhmm, "%c%c%c%c%c%c", datetime[8], datetime[9],
+	    datetime[11], datetime[12], datetime[14], datetime[15]);
+
+   /*--------------------------------------------------------*/
+   /*     Create the standard NEXRAD Message Header          */
+   /*--------------------------------------------------------*/
+
+   printf ("Create the standard NEXRAD Message Header\n");
+   create_mesg_hdr (biastable.gen_datehr, biastable.block_len);
+
+   /*--------------------------------------------------------*/
+   /*     Read memory span values from RWBiasStat table      */
+   /*--------------------------------------------------------*/
+
+   printf ("Read memory span values from RWBiasStat table\n");
+   read_rwbiasstat (fxa_local_site_id,
+		    &float1,
+		    &int1,
+		    &int2, &int3, &int4, &int5, &int6, &int7, memspan_values);
+
+   /*-----------------------------------------------------------------------*/
+   /* read RadarResponsibility table                                        */
+   /* this site may be responsible for 0, 1, or more radars                 */
+   /* create a bias table message for each radar the site is responsible for */
+   /*-----------------------------------------------------------------------*/
+
+   /*------------------------------------------------------*/
+   /*   Set up cursor for reading from RadarResp table     */
+   /*------------------------------------------------------*/
+
+   sprintf (query_statement,
+	    "SELECT radid FROM RadarResp WHERE site_id= '%s' ", site_id);
+   printf("%s.\n", query_statement);
+   EXEC SQL PREPARE p_sel_rresp_cursor FROM :query_statement;
+   if (sqlca.sqlcode != 0)
+   {
+      printf
+	 ("PostgreSQL error %s attempting to prepare select cursor for reading from RadarResp table\n",
+	  sqlca.sqlstate);
+      return;
+   }
+
+   EXEC SQL declare sel_rresp_cursor cursor with hold for p_sel_rresp_cursor;
+   if (sqlca.sqlcode != 0)
+   {
+      printf
+	 ("PostgreSQL error %s attempting to declare select cursor for reading from RadarResp table\n",
+	  sqlca.sqlstate);
+      return;
+   }
+
+   EXEC SQL open sel_rresp_cursor;
+   if (sqlca.sqlcode != 0)
+   {
+      printf
+	 ("PostgreSQL error %s attempting to open select cursor for reading from RadarResp table\n",
+	  sqlca.sqlstate);
+      return;
+   }
+   irc1 = 0;
+
+   /*------------------------------------------------------*/
+   /*   Read records from RadarResp table                  */
+   /*------------------------------------------------------*/
+
+   printf ("Read records from RadarResp table\n");
+   nrad = 0;
+
+   for (;;)
+   {
+
+      if (nrad > 0)
+      {
+
+	/*-----------------------*/
+	 /*   close cursor        */
+	/*-----------------------*/
+
+	 EXEC SQL close select_cursor;
+	 if (sqlca.sqlcode != 0)
+	 {
+	    printf ("PostgreSQL error %s closing select_cursor\n",
+		    sqlca.sqlstate);
+	 }
+      }
+
+      EXEC SQL fetch sel_rresp_cursor into :radarid;
+
+      irc1 = sqlca.sqlcode;
+      if (irc1 == 0)
+      {
+	 try_sending_local_bias = 1;
+
+   /*-------------------------------------------*/
+   /*   store radar id in bias table structure  */
+   /*-------------------------------------------*/
+
+	 printf ("Radar Id: %s\n", radarid);
+	 strcpy (biastable.radid, radarid);
+
+   /*-----------------------------------------*/
+   /*   get radar number from RadarLoc table  */
+   /*   store in MesgHdr structure            */
+   /*-----------------------------------------*/
+
+	 get_radarnum (radarid);
+
+   /*-----------------------------------------*/
+   /*   Get the radar bias source from        */
+   /*   the RadarLoc table.                   */
+   /*-----------------------------------------*/
+	 radar_bias_source = get_radar_bias_source (radarid);
+
+	 /* This should never happen. */
+	 if (radar_bias_source == NULL)
+	 {
+	    printf
+	       ("Could not retrieve a bias source office id for radar %s.\n"
+		"Skipping to next radar.", radarid);
+	    continue;
+	 }
+
+         printf ("Attempting to receive bias information from source %s.\n",
+                 radar_bias_source );
+
+
+   /*---------------------------------------------------*/
+   /*   generate filename containing bias table message */
+   /*---------------------------------------------------*/
+
+	 gen_filename (ddhhmm, dirname, filename);
+
+   /*--------------------------------------*/
+   /*   loop on number of hours to search  */
+   /*--------------------------------------*/
+
+	 nrec_biasdyn = 0;
+
+	 for (n = 0; n < NUMHR; n++)
+	 {
+
+	    if (n == 0)
+	    {
+	       strcpy (datetime, PGTYPEStimestamp_to_asc (dttmo));
+	    }
+	    else
+	    {
+
+	    /*-----------------------*/
+            /*   close cursor        */
+	    /*-----------------------*/
+
+	       EXEC SQL close select_cursor;
+	       if (sqlca.sqlcode != 0)
+	       {
+		  printf ("PostgreSQL error %s closing select_cursor\n",
+			  sqlca.sqlstate);
+	       }
+
+	    /*--------------------------------------*/
+            /*   subtract 1 hour from datetime      */
+	    /*--------------------------------------*/
+
+	       PGTYPEStimestamp_sub_interval (&dttmo, inthr, &dttmp);
+	       dttmo = dttmp;
+	       strcpy (datetime, PGTYPEStimestamp_to_asc (dttmp));
+
+	       printf ("\nLooking back one hour for RWBiasDyn records\n");
+
+	       cdate[4] = '\0';
+	       sprintf (cdate, "%c%c%c%c", datetime[0], datetime[1],
+			datetime[2], datetime[3]);
+	       biastable.obs_datehr[0] = atoi (cdate);
+
+	       cdate[2] = '\0';
+	       sprintf (cdate, "%c%c", datetime[5], datetime[6]);
+	       biastable.obs_datehr[1] = atoi (cdate);
+
+	       sprintf (cdate, "%c%c", datetime[8], datetime[9]);
+	       biastable.obs_datehr[2] = atoi (cdate);
+
+	       sprintf (cdate, "%c%c", datetime[11], datetime[12]);
+	       biastable.obs_datehr[3] = atoi (cdate);
+
+	    }
+
+	    sprintf (dthr, "%c%c%c%c-%c%c-%c%c %c%c:00:00",
+		     datetime[0], datetime[1], datetime[2], datetime[3],
+		     datetime[5], datetime[6], datetime[8], datetime[9],
+		     datetime[11], datetime[12]);
+	    printf ("searching for records with datetime = %s\n", dthr);
+
+   /*------------------------------------------------------*/
+   /*   Set up cursor for reading from RWBiasDyn table     */
+   /*------------------------------------------------------*/
+
+	    sprintf (query_statement,
+		     "SELECT memspan_ind,numpairs,sumgag,sumrad,bias "
+		     "FROM RWBiasDyn "
+		     "WHERE obstime= '%s' AND radid= '%s' "
+		     "AND office_id ='%s' "
+		     "ORDER BY memspan_ind;", dthr, radarid,
+		     radar_bias_source);
+
+	    EXEC SQL PREPARE p_select_cursor FROM :query_statement;
+	    if (sqlca.sqlcode != 0)
+	    {
+	       printf
+		  ("PostgreSQL error %s attempting to prepare select cursor for reading from RWBiasDyn table\n",
+		   sqlca.sqlstate);
+	       return;
+	    }
+
+	    EXEC SQL DECLARE select_cursor cursor with hold for
+	       p_select_cursor;
+	    if (sqlca.sqlcode != 0)
+	    {
+	       printf
+		  ("PostgreSQL error %s attempting to declare select cursor for reading from RWBiasDyn table\n",
+		   sqlca.sqlstate);
+	       return;
+	    }
+
+	    EXEC SQL open select_cursor;
+	    if (sqlca.sqlcode != 0)
+	    {
+	       printf
+		  ("PostgreSQL error %s attempting to open select cursor (n=%d)",
+		   sqlca.sqlstate, n);
+	       printf (" for reading from RWBiasDyn table\n");
+	       return;
+	    }
+
+   /*-------------------------------------------*/
+   /*   select records for all mem_span values  */
+   /*-------------------------------------------*/
+
+	    irc = 0;
+
+	    for (;;)
+	    {
+	       EXEC SQL fetch select_cursor
+		  into:ind,:nnum_pairs,:ssum_gag,:ssum_rad,:bbias;
+
+	       irc = sqlca.sqlcode;
+	       if (irc == 0)
+	       {
+
+   /*----------------------------------------------------------------------*/
+   /*   If first memory span, then open file and write Message Header      */
+   /*      block fields and Sub-header fields                              */
+   /*----------------------------------------------------------------------*/
+
+		  nrec_biasdyn++;
+
+		  if (ind == 0)
+		  {
+	   /*-------------------------------------*/
+           /*   Open file for writing Bias Table  */
+	   /*-------------------------------------*/
+
+		     if ((fp = fopen (filename, "w")) == NULL)
+		     {
+			printf
+			   ("unable to open file for bias table output - program stopping\n");
+			return;
+		     }
+		     printf ("\nFile %s opened for radarid %s\n", filename,
+			     radarid);
+
+	   /*----------------------------------------------------*/
+           /*   Write Message Header block fields to disk file   */
+	   /*----------------------------------------------------*/
+
+		     fwrite (&MesgHdr.mesg_code, sizeof (short), 2, fp);
+		     fwrite (&MesgHdr.mesg_time, sizeof (int), 2, fp);
+		     fwrite (&MesgHdr.src_id, sizeof (short), 3, fp);
+
+	   /*---------------------------------------*/
+           /*   Print Message Header block fields   */
+	   /*---------------------------------------*/
+
+		     printf ("Message Header Fields:\n");
+		     printf ("  Message Code: %d\n", MesgHdr.mesg_code);
+		     printf ("  Message Date: %d\n", MesgHdr.mesg_date);
+		     printf ("  Message Time: %d\n", MesgHdr.mesg_time);
+		     printf ("  Message Length: %d\n", MesgHdr.mesg_len);
+		     printf ("  Source ID: %d\n", MesgHdr.src_id);
+		     printf ("  Dest. ID: %d\n", MesgHdr.dest_id);
+		     printf ("  No. Blocks: %d\n", MesgHdr.num_blks);
+
+	   /*----------------------------------------------------*/
+	   /*   Write Bias Table Sub-header fields to disk file  */
+	   /*----------------------------------------------------*/
+
+		     fwrite (&biastable.block_divdr, sizeof (short), 4, fp);
+		     fwrite (radar_bias_source, 4, 1, fp);
+                     fwrite (biastable.radid, 4, 1, fp);
+		     fwrite (&biastable.obs_datehr[0], sizeof (short), 6, fp);
+		     fwrite (&biastable.gen_datehr[0], sizeof (short), 6, fp);
+		     fwrite (&biastable.nrows, sizeof (short), 1, fp);
+
+	   /*---------------------------------------*/
+	   /*   Print Bias Table Sub-header fields  */
+	   /*---------------------------------------*/
+
+		     printf
+			("Bias Table sub-header fields: %d  %d  %d  %d  %s  %s\n",
+			 biastable.block_divdr, biastable.block_id,
+			 biastable.version_num, biastable.block_len,
+			 radar_bias_source, biastable.radid);
+
+		     printf
+			("Observation date/time: %d  %02d  %02d  %02d  %02d  %02d\n",
+			 biastable.obs_datehr[0], biastable.obs_datehr[1],
+			 biastable.obs_datehr[2], biastable.obs_datehr[3],
+			 biastable.obs_datehr[4], biastable.obs_datehr[5]);
+
+		     printf
+			("Generation date/time: %d  %02d  %02d  %02d  %02d  %02d\n",
+			 biastable.gen_datehr[0], biastable.gen_datehr[1],
+			 biastable.gen_datehr[2], biastable.gen_datehr[3],
+			 biastable.gen_datehr[4], biastable.gen_datehr[5]);
+
+		     printf ("Table dimensions: %d\n", biastable.nrows);
+		  }
+
+	/*--------------------------------------------------------------------*/
+        /*   For remaining memory spans, fill all (multi-row) Bias Table      */
+        /*   fields                                                           */
+	/*--------------------------------------------------------------------*/
+
+		  biastable.mem_span = cnvrt1000 (log (memspan_values[ind]));
+		  biastable.num_pairs = cnvrt1000 (nnum_pairs);
+		  biastable.sumgag = cnvrt1000 (ssum_gag);
+		  biastable.sumrad = cnvrt1000 (ssum_rad);
+		  biastable.bias = cnvrt1000 (bbias);
+
+	/*-----------------------------------------*/
+        /*   Write Bias Table fields to disk file  */
+	/*-----------------------------------------*/
+
+		  fwrite (&biastable.mem_span, sizeof (int), 1, fp);
+		  fwrite (&biastable.num_pairs, sizeof (int), 1, fp);
+		  fwrite (&biastable.sumgag, sizeof (int), 1, fp);
+		  fwrite (&biastable.sumrad, sizeof (int), 1, fp);
+		  fwrite (&biastable.bias, sizeof (int), 1, fp);
+
+	/*----------------------------*/
+        /*   Print Bias Table fields  */
+	/*----------------------------*/
+
+		  printf ("%10d  %10d  %10d  %10d  %10d\n",
+			  biastable.mem_span, biastable.num_pairs,
+			  biastable.sumgag, biastable.sumrad, biastable.bias);
+
+	       }
+	       else if (irc == 100)
+	       {
+
+		  if (n > 0 && nrec_biasdyn == 0)
+		  {
+		     printf ("no records found in RWBiasDyn table ");
+		     printf ("for radar and obstimes -- no file created\n");
+
+		     /* Check if the radar bias source is not the local
+                        office. */
+		     status = strcmp (radar_bias_source, fxa_local_site_id);
+
+		     /* Attempt to create a bias message file using a bias
+		        created by the the office? */
+		     if ((status != 0) &&
+			 (send_local_bias == 1) &&
+			 (try_sending_local_bias == 1))
+		     {
+			try_sending_local_bias = 0;
+			n = -1;
+                        printf ("Could not find bias information from %s. "
+                                "Searching for bias information from %s.\n",
+                                radar_bias_source, fxa_local_site_id );
+			radar_bias_source = fxa_local_site_id;
+                        dttmo = dttmo_save;
+	                EXEC SQL close select_cursor;
+	                if (sqlca.sqlcode != 0)
+	                {
+		           printf ("PostgreSQL error %s closing select_cursor\n",
+			           sqlca.sqlstate);
+	                }
+
+
+		     }
+
+		  }
+
+		  break;
+
+	       }
+
+	    }			/*  end for on select records for all mem_span values  */
+
+
+	    if (nrec_biasdyn > 0)
+	       break;
+
+	 }			/*  end for on number of hours  */
+
+     /*----------------------------------------------------------------------*/
+     /*  if records have been found in RWBiasDyn table, then close and       */
+     /*  rename file                                                         */
+     /*----------------------------------------------------------------------*/
+
+	 if (nrec_biasdyn > 0)
+	 {
+	    close_file (filename, fp);
+	 }
+
+      }				/* end if(irc1 == 0) */
+      else if (irc1 < 0)
+      {
+
+	 printf
+	    ("PostgreSQL error %s fetching records from RadarResp table\n",
+	     sqlca.sqlstate);
+	 return;
+      }
+
+      else if (irc1 == 100)
+      {
+	 break;
+
+      }
+
+      /* If retrying to send a local mean field bias, do not increment
+         the number of radars. */
+      nrad++;
+
+   }				/* end for on radars site is responsible for  */
+
+   if (nrad == 0)
+      printf ("Site %s is NOT responsible for any radars\n", site_id);
+   else
+      printf ("Site %s is responsible for %d radars\n", site_id, nrad);
+
+   printf ("*** processing complete *** \n");
+   return;
+
+}	/*  end create_biastable_mesg function  */
+
+/*-------------------------------------------------------------------------*/
+
+int cnvrt1000 (double realval)
+{
+   int cnvrtval;
+
+   /* This function scales a real value by 1000 and converts to  */
+   /* nearest integer */
+
+   cnvrtval = (1000.0 * realval + 0.5);
+   return (cnvrtval);
+}

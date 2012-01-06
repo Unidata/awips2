@@ -1,0 +1,150 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta name="copyright" content="Copyright (c) IBM Corporation and others 2000, 2007. This page is made available under license. For full details see the LEGAL in the documentation book that contains this page." >
+<meta http-equiv="Content-Language" content="en-us">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<link rel="STYLESHEET" href="../../book.css" charset="ISO-8859-1"
+	type="text/css">
+<style type="text/css">
+td {border-top: solid thin black;}
+img[alt] {background-color:#ffdddd;}
+tr {vertical-align: top;}
+</style>
+<title>Installation and Running of the ScribbleShare Tutorial</title>
+<script language="JavaScript" type="text/javascript" src="PLUGINS_ROOT/org.eclipse.help/livehelp.js"> </script>
+</head>
+<body>
+<h1><img src="../../intro/css/images/ecf_intro.gif">Eclipse Communication Framework (ECF)</h1>
+<p>
+<h1>How-To: Installation and Running of the ScribbleShare Tutorial</h1>
+
+<p>Last updated: April 10, 2006</p>
+
+<p>This simple how-to is a step-by-step description of how to install and run
+the ScribbleShare ECF tutorial plug-in.  It should guide you to having a 
+working ECF demo in minutes.</p>
+
+<p>The screenshots are based upon  version 3.2 M5a of the Eclipse SDK and
+version 0.7.5 of ECF.</p>
+
+<hr/>
+
+<h2>Step 0: Prerequisites</h2>
+<p>Download and upack into the same directory the latest milestone or stable 
+release of Eclipse 3.2 and compatible versions of EMF, GEF, and ECF.  Currently, 
+these consist of the following files for windows (similar files exist for Linux):</p>
+<ul>
+<li>eclipse-SDK-4.2Mfa-win32.zip</li>
+<li>emf-sdo-xsd-SDK-2.2.0M5.zip</li>
+<li>GEF-ALL-3.2M5.zip</li>
+<li>org.eclipse.ecf.skd-0.7.5.s20060314.zip</li>
+</ul>
+
+<p>After installing Eclipse, EMF, GEF, and ECF, verify that they are all 
+available in your Eclipse environment:</p>
+<ul>
+<li>Bring up the "Help/About Eclipse Platform" dialog.<br/>
+<img src="images/img001.gif" alt="Help/About Eclipse Platform"/><br/>
+&nbsp;</li>
+
+<li>Click on "Plug-in Details".<br/>
+<img src="images/img002.gif" alt="Plug-in Details"/><br/>
+&nbsp;</li>
+
+<li>Click the "Plug-in Id" column heading to order the plug-ins by that field.
+Then, check that ECF set of plug-ins are present.<br/>
+<img src="images/img003.gif" alt="Check ECF plug-ins"/><br/>
+&nbsp;</li>
+</ul>
+<hr/>
+
+<h2>Step 1: Start Your ECF Test Server</h2>
+<p/>
+<ul>
+<li>Start a command shell.</li>
+<li>CD to the Eclipse features directory.</li>
+<li>CD to org.eclipse.ecf.serverfeature_X.X.X\bin directory (X.X.X is the ecf version number).</li>
+<li>Run startserver.cmd for windows, startserver.sh for *.nix.</li>
+<li>The default settings, output to the command shell, are fine for now.<br/>
+<img src="images/img004.gif" alt="ECF Test Server Command Shell"/><br/>
+&nbsp;</li>
+</ul>
+<p/>
+<hr/>
+<h2>Step 2: Run Eclipse and import the ECF tutorial</h2>
+<p/>
+<ul>
+<li>Execute the eclipse.exe of the Eclipse you intalled in Step 0</li>
+<li>Go the the main menu and click File->Import->CVS->Projects From CVS->Next:<br/>
+<img src="images/img005.gif" alt="Import ECF Projects From CVS->Next"/><br/>
+&nbsp;</li>
+<li>Enter the CVS repository info, Host = dev.eclipse.org, Path = /home/technology, User = Anonymous, Password= (leave blank)->Next:<br/>
+<img src="images/img006.gif" alt="Enter CVS Info->Next"/><br/>
+&nbsp;</li>
+<li>Select the radiobutton "Use Specified Module Name" and enter "org.eclipse.ecf/plugins/org.eclipse.ecf.tutorial"->Finish:<br/>
+<img src="images/img007.gif" alt="Select org.eclipse.ecf/plugins/org.eclipse.ecf.tutorial module"/><br/>
+&nbsp;</li>
+</ul>
+<hr/>
+<h2>Step 3: Launch the tutorial plugin in another workbench</h2>
+<p/>
+<ul>
+<li>Right click on the project org.eclipse.ecf.tutorial->Run->Run As->Run...->(Double-Click)Eclipse Application</li>
+<li>Change the launcher name to something meaningful like "ScribbleShare1"<br/>
+<img src="images/img008.gif" alt="Configure Launcher PartI"/><br/>
+&nbsp;</li>
+<li>Click the "Plug-ins" tab, make sure the radiobutton with "launch with all workspace & enabled plug-ins" is selected<br/>
+<img src="images/img009.gif" alt="Configure Launcher PartII"/><br/>
+&nbsp;</li>
+<li>Click Apply->Run</li>
+</ul>
+<hr/>
+
+<h2>Step 4: Connect workspace to ECF server</h2>
+<p/>
+<ul>
+<li>In the newly launched workbench, click the "ECF" menu item->Connect Workspace</li>
+<li>Choose "ECF Generic" Connection Protocol</li>
+<li>Type "ecftcp://localhost:3282/server" for Group ID, "user1" for nickname:<br/>
+<img src="images/img010.gif" alt="Connect Workspace to ECF"/><br/>
+&nbsp;</li>
+</ul>
+<hr/>
+
+<h2>Step 5a: Open ScribbleShare View</h2>
+<p/>
+<ul>
+<li>In the newly launched workbench, click the "ECF Tutorial" menu item->ECF Client:<br/>
+<img src="images/img011.gif" alt="ECF Tutorial Client"/><br/>
+&nbsp;</li>
+<li>Resize and move the workbench window so that it takes up less than half your screen</li>
+</ul><p/>
+
+<h2>Step 5b: Open Another ScribbleShare View</h2>
+<p/>
+<ul>
+<li>Go back to the original Eclipse workbench and repeat Steps 3 and 4.  Be to enter a different "workspace data location" in the new launcher menu</li>
+<li>Resize and move the second workbench window so that it is beside the first one</li>
+<li>Go to the first workbench, draw some stuff in the ECF Client view</li>
+<li>You should observe drawing objects created in one workbench view appearing in the other:<br/>
+<img src="images/img012.gif" alt="Synchronous Collaborating ECF Client Views"/><br/>
+&nbsp;</li>
+</ul><p/>
+<hr/>
+
+<h2>Step 6: Bonus Demo If Another Networked Computer Available</h2>
+<p/>
+<ul>
+<li>Repeat Steps 0-2 if necessary for second computer.</li>
+<li>Edit ScribbleClient.java in ECF project imported from CVS.</li>
+<li>Change String TARGET_SERVER to point to the hostname of the first computer used in part 5 above, for example, "ecftcp://host1:3282/server":<br/>
+<img src="images/img013.gif" alt="Synchronous Collaborating ECF Client Views"/><br/>
+&nbsp;</li>
+<li>Repeat Steps 3-5a on second computer.  There's no need to start the ECF server on the second computer, you'll use the one already running on the first computer.</li>
+<li>You should now observe all workbench views synchronously displaying drawing objects.</li>
+</ul><p/>
+<hr/>
+
+</body>
+</html>

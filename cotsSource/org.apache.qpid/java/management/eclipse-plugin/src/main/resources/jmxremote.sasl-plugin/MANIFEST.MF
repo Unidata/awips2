@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: jmx sasl Plug-in
+Bundle-SymbolicName: jmxremote.sasl
+Bundle-Version: 1.0.1
+Bundle-ClassPath: jmxremote_optional.jar
+Export-Package: com.sun.jmx.remote.generic,
+ com.sun.jmx.remote.opt.internal,
+ com.sun.jmx.remote.opt.security,
+ com.sun.jmx.remote.opt.util,
+ com.sun.jmx.remote.profile.sasl,
+ com.sun.jmx.remote.profile.tls,
+ com.sun.jmx.remote.protocol.jmxmp,
+ com.sun.jmx.remote.socket,
+ javax.management.remote.generic,
+ javax.management.remote.jmxmp,
+ javax.management.remote.message
+Bundle-Vendor:
+Bundle-Localization: plugin

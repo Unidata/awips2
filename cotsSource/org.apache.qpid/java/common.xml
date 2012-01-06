@@ -1,0 +1,284 @@
+<!--
+ -
+ - Licensed to the Apache Software Foundation (ASF) under one
+ - or more contributor license agreements.  See the NOTICE file
+ - distributed with this work for additional information
+ - regarding copyright ownership.  The ASF licenses this file
+ - to you under the Apache License, Version 2.0 (the
+ - "License"); you may not use this file except in compliance
+ - with the License.  You may obtain a copy of the License at
+ - 
+ -   http://www.apache.org/licenses/LICENSE-2.0
+ - 
+ - Unless required by applicable law or agreed to in writing,
+ - software distributed under the License is distributed on an
+ - "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ - KIND, either express or implied.  See the License for the
+ - specific language governing permissions and limitations
+ - under the License.
+ -
+ -->
+<project name="common">
+
+  <dirname property="project.root" file="${ant.file.common}"/>
+
+  <property name="project.name"          value="qpid"/>
+  <property name="project.version"       value="0.6"/>
+  <property name="project.namever"       value="${project.name}-${project.version}"/>
+
+  <property name="resources"             location="${project.root}/resources"/>
+  <property name="test.profiles"         location="${project.root}/test-profiles"/>
+  <property name="build"                 location="${project.root}/build"/>
+  <property name="build.scratch"         location="${build}/scratch"/>
+  <property name="build.bin"             location="${build}/bin"/>
+  <property name="build.etc"             location="${build}/etc"/>
+  <property name="build.lib"             location="${build}/lib"/>
+  <property name="build.results"         location="${build}/results"/>
+  <property name="build.failed"          location="${build.results}/FAILED"/>
+  <property name="build.report"          location="${build}/report"/>
+  <property name="build.release"         location="${build}/release"/>
+  <property name="build.release.prepare" location="${build.release}/prepare"/>
+  <property name="build.data"            location="${build.scratch}/data"/>
+  <property name="build.plugins"         location="${build}/lib/plugins"/>
+  <property name="build.coveragereport"  location="${build}/coverage"/>
+
+  <property name="java.target"           value="1.5"/>
+  <property name="java.source"           value="1.5"/>
+
+  <property name="release"               location="${project.root}/release"/>
+
+  <property name="tasks"                 location="${project.root}/tasks"/>
+  <property name="tasks.classes"         location="${tasks}/classes"/>
+  <property name="tasks.src"             location="${tasks}/src"/>
+
+  <property name="qpid.home"             location="${project.root}/build"/>
+  <property name="qpid.work"             location="${qpid.home}/work"/>
+
+  <property name="javac.compiler.args"   value=""/>
+
+  <property name="cobertura.dir" value="${project.root}/lib/cobertura" />
+  <property name="mllib.dir" value="${project.root}/../python" />
+
+  <path id="cobertura.classpath">
+    <fileset dir="${cobertura.dir}">
+        <include name="cobertura.jar" />
+        <include name="lib/**/*.jar" />
+    </fileset>
+  </path>
+
+  <macrodef name="indirect">
+    <attribute name="name"/>
+    <attribute name="variable"/>
+    <sequential>
+      <property name="@{name}" value="${@{variable}}"/>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="echo-path">
+    <attribute name="refid"/>
+    <sequential>
+      <property name="@{refid}" refid="@{refid}"/>
+      <echo message="@{refid} = ${@{refid}}"/>
+      <pathconvert property="@{refid}.pretty"
+                   refid="@{refid}"
+                   pathsep="${line.separator}    |-- "/>
+      <echo message="@{refid}.pretty =${line.separator}    |-- ${@{refid}.pretty}"/>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="echo-prop">
+    <attribute name="name"/>
+    <sequential>
+      <echo message="@{name} = ${@{name}}"/>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="jython">
+    <attribute name="path"/>
+    <element name="args"/>
+    <sequential>
+      <java jar="${project.root}/lib/jython-2.5.0.jar" fork="true" failonerror="true">
+        <arg value="-Dpython.path=@{path}"/>
+        <args/>
+      </java>
+    </sequential>
+  </macrodef>
+
+  <mkdir dir="${tasks.classes}"/>
+  <javac source="${java.source}" target="${java.target}" srcdir="${tasks.src}" destdir="${tasks.classes}"  classpath="${java.class.path}">
+    <compilerarg line="${javac.compiler.args}"/>
+  </javac>
+
+  <taskdef name="map" classname="org.apache.qpid.tasks.Map"
+           classpath="${tasks.classes}"/>
+  <taskdef name="foreach" classname="org.apache.qpid.tasks.Foreach"
+           classpath="${tasks.classes}"/>
+
+  <macrodef name="copylist">
+    <attribute name="todir"/>
+    <attribute name="dir"/>
+    <attribute name="files"/>
+    <sequential>
+      <foreach property="file" list="@{files}">
+        <copy todir="@{todir}" flatten="true">
+          <fileset dir="@{dir}" includes="${file}"/>
+        </copy>
+      </foreach>
+    </sequential>
+  </macrodef>
+
+  <target name="clean-tasks">
+    <delete dir="${tasks.classes}"/>
+  </target>
+
+  <target name="clean-results">
+    <delete dir="${build.results}"/>
+  </target>
+
+  <target name="report" description="generate test report">
+    <delete dir="${build.report}"/>
+    <mkdir dir="${build.report}"/>
+    <junitreport todir="${build.report}">
+      <fileset dir="${build.results}">
+        <include name="**/TEST-*.xml"/>
+      </fileset>
+      <report todir="${build.report}"/>
+    </junitreport>
+  </target>
+
+  <target name="cobertura-init">
+    <taskdef classpathref="cobertura.classpath" resource="tasks.properties" />
+  </target>
+
+  <target name="help" description="display detailed build documentation">
+    <echo>
+  ant build
+
+    This target compiles all sources, creates java archives, and
+    copies scripts and configurations into the build directory:
+
+      ${build}
+
+    The build directory is treated as a live distro which this target
+    will incrementally update. Developers can put the build/bin
+    directory into their path in order to run any scripts or code
+    directly out of the live build:
+
+      ${build.bin}
+
+  ant test [ -Dtest=&lt;pattern&gt; ] [-Dprofile=&lt;profile&gt;] [ report ]
+
+    Execute unit tests and place the output in the build results
+    directory:
+
+      ${build.results}
+
+    All test output will be redirected to a file of the form:
+
+      TEST-&lt;class&gt;.txt
+
+    The same output is available using an xml file format:
+
+      TEST-&lt;class&gt;.xml
+
+    The test system property may be used to restrict the number of
+    tests run by a given invocation of the ant test target. The
+    following command will run just the MongooseTest test case:
+
+      ant test -Dtest=MongooseTest
+
+    In addition, patterns may be used to specify more than one test.
+    The following command will run both the MongooseTest and GooseTest
+    test cases:
+
+      ant test -Dtest=*ooseTest
+
+    If no test property is specified, the "ant test" target will
+    default to running all available tests for the project or module
+    depending on the current working directory.
+
+    Test Reports
+
+    It can be useful to append the report target in order to
+    generate an html summary of the tests that were just run. The
+    following command will run both the MongooseTest and GooseTest
+    test cases and generate an html summary of the results:
+
+      ant test -Dtest=*ooseTest report
+
+    See the documentation for the "ant report" target for more details
+    on the generated report.
+
+    Test Profiles
+
+    There are a number of profiles defined for running the test suite.
+    These test profiles define how the test should be run. If the test
+    profile is not specified then 'default.testprofile' is utilised.
+    This runs the system tests against the Java InVM broker. Additional
+    test profiles exists as follows:
+
+        cpp : Runs against the built cpp tree broker.
+
+  ant report
+
+    The report target will generate an html summary of the current
+    test results into the report directory:
+
+      ${build.report}
+
+    The report target will operate on all results currently in the
+    build results directory. Results are not cleared unless the clean
+    target is used. This means that several consecutive test runs can
+    be summarized into a single report. The following commands will
+    produce a report summarizing both the MongooseTest and GooseTest
+    test cases:
+
+      ant test -Dtest=MongooseTest
+      ...
+      ant test -Dtest=GooseTest
+      ...
+      ant report
+
+  ant release
+
+    The release target generates binary distribution archives and
+    places them into the release directory:
+
+      ${release}
+
+  ant release-bin
+    
+    The release-bin target generates binary distribution archives for 
+    modules that have a specific binary package configured.
+    To enable for other modules create a target "release-bin" that 
+    depends on target "release-bin-tasks". The output is placed in: 
+
+      ${module.release}
+
+  ant clean
+
+    The clean target removes build artifacts. When invoked from the
+    project root this target will remove the entire project build and
+    release directories:
+
+      ${build}
+        and
+      ${release}
+	and
+      ${module.release}
+
+    When invoked from a specific module, the clean target will delete
+    that modules build root from underneath the project build root:
+
+      ${build}/&lt;module&gt;
+
+  ant clean-results
+
+    The clean-results target removes all test output from the test
+    results directory:
+
+      ${build.results}
+    </echo>
+  </target>
+
+</project>

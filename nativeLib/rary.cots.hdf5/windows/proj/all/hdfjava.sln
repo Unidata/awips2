@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "jhdf5", "..\jhdf5\jhdf5.vcproj", "{A8037537-D6BC-43F4-B24B-B59EB82B1176}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "jhdf", "..\jhdf\jhdf.vcproj", "{71D2D2E5-53DA-484A-9917-EB99F7FDA174}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A8037537-D6BC-43F4-B24B-B59EB82B1176}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A8037537-D6BC-43F4-B24B-B59EB82B1176}.Debug|Win32.Build.0 = Debug|Win32
+		{A8037537-D6BC-43F4-B24B-B59EB82B1176}.Debug|x64.ActiveCfg = Debug|x64
+		{A8037537-D6BC-43F4-B24B-B59EB82B1176}.Debug|x64.Build.0 = Debug|x64
+		{A8037537-D6BC-43F4-B24B-B59EB82B1176}.Release|Win32.ActiveCfg = Release|Win32
+		{A8037537-D6BC-43F4-B24B-B59EB82B1176}.Release|Win32.Build.0 = Release|Win32
+		{A8037537-D6BC-43F4-B24B-B59EB82B1176}.Release|x64.ActiveCfg = Release|x64
+		{A8037537-D6BC-43F4-B24B-B59EB82B1176}.Release|x64.Build.0 = Release|x64
+		{71D2D2E5-53DA-484A-9917-EB99F7FDA174}.Debug|Win32.ActiveCfg = Debug|Win32
+		{71D2D2E5-53DA-484A-9917-EB99F7FDA174}.Debug|Win32.Build.0 = Debug|Win32
+		{71D2D2E5-53DA-484A-9917-EB99F7FDA174}.Debug|x64.ActiveCfg = Debug|x64
+		{71D2D2E5-53DA-484A-9917-EB99F7FDA174}.Debug|x64.Build.0 = Debug|x64
+		{71D2D2E5-53DA-484A-9917-EB99F7FDA174}.Release|Win32.ActiveCfg = Release|Win32
+		{71D2D2E5-53DA-484A-9917-EB99F7FDA174}.Release|Win32.Build.0 = Release|Win32
+		{71D2D2E5-53DA-484A-9917-EB99F7FDA174}.Release|x64.ActiveCfg = Release|x64
+		{71D2D2E5-53DA-484A-9917-EB99F7FDA174}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

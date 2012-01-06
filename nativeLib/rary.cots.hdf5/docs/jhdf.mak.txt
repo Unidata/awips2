@@ -1,0 +1,126 @@
+# Makefile for building HDF4 JNI interface for Windows.
+# 
+# Author: Peter Cao
+#           The HDF Group
+#           Dec 30, 2008
+#
+# Notes: 
+#   To comiple the source code, run 'nmake -f nt_makefile'
+#   You may have add your VS studio bin path to your system path, e.g.
+#   set path=%path";"C:\Program Files\Microsoft Visual Studio 8\VC\bin"
+#
+
+JAVAHOME=D:\Java\jdk1.6.0_01
+HDF4INC=G:\HDF\lib\hdf42r4\include
+HDF4DLIB=G:\HDF\lib\hdf42r4\lib\hd424.lib
+HDF4MLIB=G:\HDF\lib\hdf42r4\lib\hm424.lib
+SZLIB=G:\HDF\lib_external\szip20-win-xpnet-enc\lib\szlib.lib
+ZLIB=G:\HDF\lib_external\zlib-121-windows\lib\zlib.lib
+JPEGLIB=G:\HDF\lib_external\jpeg6_2005\lib\libjpeg.lib
+XDRLIB=G:\HDF\lib\hdf42r4\lib\xdr.lib
+
+#####################################################################
+#      Do not change below this line unless you know what you do    #
+#####################################################################
+
+CC=cl.exe
+LINKER = link.exe
+
+CFLAGS = \
+/I $(HDF4INC) /I $(JAVAHOME)"\include" /I $(JAVAHOME)"\include\win32" \
+/D "_MBCS" /U "__cplusplus" \
+/D "_CRT_SECURE_NO_WARNINGS" /D "_LARGEFILE_SOURCE" \
+/nologo /W3 /EHsc /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FD /c /TP \
+
+LINKFLAG=/nologo /dll /incremental:no /machine:i386 
+
+OBJECTS=hdfanImp.obj hdfdfanImp.obj hdfdfcompImp.obj hdfdfpalImp.obj \
+hdfdfsdImp.obj hdfdfuImp.obj hdfexceptionImp.obj hdfgrImp.obj hdfheImp.obj \
+hdfhxImp.obj hdfImp.obj hdfnativeImp.obj hdfr24Imp.obj hdfr8Imp.obj \
+hdfsdsImp.obj hdfstructsutil.obj hdfvdataImp.obj hdfvfImp.obj hdfvgroupImp.obj \
+hdfvhImp.obj hdfvqImp.obj hdfvsqImp.obj  
+
+MSDEV_LIBS=wsock32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib \
+advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib \
+/NODEFAULTLIB:"MSVCRT" /NODEFAULTLIB:"LIBC.LIB"
+
+all: $(OBJECTS)
+	$(LINKER) /OUT:"jhdf.dll" $(LINKFLAG) $(OBJECTS) $(HDF4DLIB) $(HDF4MLIB) \
+    $(SZLIB) $(ZLIB) $(JPEGLIB) $(XDRLIB) $(MSDEV_LIBS) \
+
+hdfanImp.obj: hdfanImp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+hdfdfanImp.obj: hdfdfanImp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+hdfdfcompImp.obj: hdfdfcompImp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+hdfdfpalImp.obj: hdfdfpalImp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+hdfdfsdImp.obj: hdfdfsdImp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+hdfdfuImp.obj: hdfdfuImp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+hdfexceptionImp.obj: hdfexceptionImp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+hdfgrImp.obj: hdfgrImp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+hdfheImp.obj: hdfheImp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+hdfhxImp.obj: hdfhxImp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+hdfImp.obj: hdfImp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+hdfnativeImp.obj: hdfnativeImp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+hdfr24Imp.obj: hdfr24Imp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+hdfr8Imp.obj: hdfr8Imp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+hdfsdsImp.obj: hdfsdsImp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+hdfstructsutil.obj: hdfstructsutil.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+hdfvdataImp.obj: hdfvdataImp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+hdfvfImp.obj: hdfvfImp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+hdfvgroupImp.obj: hdfvgroupImp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+hdfvhImp.obj: hdfvhImp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+hdfvqImp.obj: hdfvqImp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+hdfvsqImp.obj: hdfvsqImp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+clean:
+	@del *.dll
+	@del *.lib
+	@del *.obj
+	@del *.idb
+	@del *.pdb
+	@del *.ilk
+	@del *.pdb
+	@del *.exp
+

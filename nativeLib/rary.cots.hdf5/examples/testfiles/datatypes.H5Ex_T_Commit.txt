@@ -1,0 +1,7 @@
+Named datatype:  Sensor_Type: 
+   Class: H5T_COMPOUND
+    ObjectHeader
+    Serial number
+    Location
+    Temperature (F)
+    Pressure (inHg)

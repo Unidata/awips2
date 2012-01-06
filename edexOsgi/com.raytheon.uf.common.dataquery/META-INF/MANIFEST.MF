@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Dataquery
+Bundle-SymbolicName: com.raytheon.uf.common.dataquery
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
+Export-Package: com.raytheon.uf.common.dataquery.db,
+ com.raytheon.uf.common.dataquery.requests,
+ com.raytheon.uf.common.dataquery.responses
+Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.12.1173",
+ com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1173"
+Import-Package: com.raytheon.uf.common.time

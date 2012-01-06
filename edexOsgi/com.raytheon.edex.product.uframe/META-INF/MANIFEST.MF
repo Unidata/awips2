@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Uframe Plug-in
+Bundle-SymbolicName: com.raytheon.edex.product.uframe;singleton:=true
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

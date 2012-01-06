@@ -1,0 +1,8 @@
+C                                                *--> FROM CMS(UOPTNX)
+C  GENERAL OPTIONS COMMON BLOCK
+      COMMON /UOPTNX/ NOVPRT
+C  DESCRIPTION OF VARIABLES IN COMMON BLOCK UOPTNX:
+C     VARIABLE   TYPE   I/O   DIM   CONTENTS
+C     --------   ----   ---   ---   --------
+C     NOVPRT     I*4    I     1     NUMBER OF TIMES TO OVERPRINT
+C

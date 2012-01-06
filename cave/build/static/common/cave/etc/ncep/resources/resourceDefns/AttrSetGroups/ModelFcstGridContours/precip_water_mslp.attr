@@ -1,0 +1,23 @@
+!
+! Restore File : precip_water,_mslp
+!
+! Log:
+! D.W.Plummer/NCEP	 2/97	Initial creation
+! D.W.Plummer/NCEP	 8/97	Added FILTER
+!
+GLEVEL=0!0!500:1000!500:1000!1000
+GVCORD=none!none!PRES!PRES!PRES
+SCALE=0!0!-1!-1!0
+GDPFUN=quo(pwtr;25.4)!quo(pwtr;25.4)!ldf(hght)!ldf(hght)!sm5s(add(1000;quo(hght;8.0)))
+TYPE=c/f!c!c
+CINT=0.25/0.5/1.0!0.25/1.25/6.0!6/460/540!6/546!8/904/1080
+LINE=22//1!32//2/1!17/5/2!20/5/2!6//3
+FINT=1.0;1.5;2.0;2.5!
+FLINE=0;23;22;14;2!
+HILO=0!0!0!0!6/H#;L#
+HLSYM=0!0!0!0!1.5;1.5//22;22/3;3/hw
+WIND=18/1/1
+TITLE=5/-1/~ PRECIPITABLE WATER, EST MSL PRESSURE, THICKNESS!0
+COLORS=2                                            
+MARKER=2                                           
+GRDLBL=5                                          

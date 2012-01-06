@@ -1,0 +1,86 @@
+#ifndef LDM_CONFIG_H
+#define LDM_CONFIG_H
+
+#ifndef _XOPEN_SOURCE
+#undef _XOPEN_SOURCE
+#endif
+#ifndef _XOPEN_SOURCE_EXTENDED
+#undef _XOPEN_SOURCE_EXTENDED
+#endif
+
+/* AIX: */
+#undef _ALL_SOURCE
+#undef BSD
+/* Darwin: */
+#undef __DARWIN_UNIX03
+#undef _DARWIN_C_SOURCE
+/* HP-UX: */
+#undef _HPUX_SOURCE
+/* IRIX: */
+#undef _SGI_SOURCE
+#undef _BSD_TYPES
+/* FreeBSD: */
+/* Linux: */
+#undef _BSD_SOURCE
+/* OSF1: */
+#undef _OSF_SOURCE
+/* SunOS: */
+#undef __EXTENSIONS__
+
+/* No database support in pqact/filel.c */
+#undef NO_DB
+/* Concatenate products in pqact/filel.c. Mutually exclusive with DB_XPROD */
+#undef DB_CONCAT
+/* XDR DB products in pqact/filel.c. Mutually exclusive with DB_CONCAT */
+#undef DB_XPROD
+/* Use gdbm interface in pqact/filel.c; default is ndbm */
+#undef USE_GDBM
+#undef HAVE_ST_BLKSIZE
+#undef HAVE_TIMEGM
+#undef ULOGNAME
+#undef LOGNAME_ISSOCK
+#undef NO_ATEXIT
+#undef NO_FSYNC
+#undef NO_FTRUNCATE
+#undef NO_MEMCMP
+#undef NO_MEMMOVE
+#undef NO_MMAP
+#undef NO_POSIXSIGNALS
+#undef NO_RENAME
+#undef NO_REPLACE_SYSLOG
+#undef NO_SETENV
+#undef NO_SETEUID
+#undef NO_STRDUP
+#undef NO_STRERROR
+#undef SIZEOF_INT
+#undef SIZEOF_LONG
+#undef SYSLOG_PIDFILE
+#undef SYSLOG_RETURNS_INT
+#undef TV_INT
+#undef UD_SETPROCTITLE
+#undef _DEV_CONSLOG
+#undef _MAPRGNS
+#undef _NOGROW
+#undef _SYS_USER_INCLUDED
+#undef const
+#undef off_t
+#undef ptrdiff_t
+#undef sig_atomic_t
+#undef ssize_t
+#undef socklen_t
+#undef LDMHOME
+#undef LOG_LDM
+#undef LDM_PORT
+#undef LDM_PROG
+
+#define RESOLVER_TIME_THRESHOLD	10
+
+/*
+ * The following header-files are included here because on FreeBSD 
+ * 4.10-RELEASE-p2, at least, their order is important.
+ */
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+#endif

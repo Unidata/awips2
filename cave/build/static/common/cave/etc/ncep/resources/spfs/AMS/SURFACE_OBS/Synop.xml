@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<rbdBundle rbdName="Synop" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <paneLayout col="1" row="1"/>
+    <selectedPaneId col="0" row="0"/>
+    <geoSyncedPanes>true</geoSyncedPanes>
+    <autoUpdate>false</autoUpdate>
+    <timeMatcher frameInterval="60" timeRange="48" skipValue="0" numFrames="8" dominantResourceName="SURFACE/SYNOP/allReports"/>
+    <displayList>
+        <displays zoomLevel="1.0" mapCenter="-170.0 0.0 0.0">
+            <descriptor xsi:type="NCMapDescriptor" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <resource>
+                    <loadProperties loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <capabilities>
+                            <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="false" brightness="1.0" contrast="1.0"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="NC-PlotResourceData" resourceName="SURFACE/SYNOP/allReports" isEdited="false" retrieveData="false" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="false">
+                        <metadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="sfcobs" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="reportType">
+                                <constraint constraintValue="1001,1002,1003,1004,1005,1006,1007" constraintType="IN"/>
+                            </mapping>
+                        </metadataMap>
+                        <legendColor>RGB {0, 80, 255}</legendColor>
+                        <resourceVersion></resourceVersion>
+                        <frameInterval>60</frameInterval>
+                        <timelineGenMethod>USE_FRAME_INTERVAL</timelineGenMethod>
+                        <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
+                        <dfltNumFrames>8</dfltNumFrames>
+                        <dfltTimeRange>48</dfltTimeRange>
+                        <legendString>Synop (All Reports)</legendString>
+                        <spiFile>synoptic.spi</spiFile>
+                        <plotModelName>default</plotModelName>
+                        <levelKey>Surface</levelKey>
+                        <lowerLimit>-9999.0</lowerLimit>
+                        <upperLimit>1.0E7</upperLimit>
+                        <plotMissingData>false</plotMissingData>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <capabilities/>
+                    </loadProperties>
+                    <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="NC-OverlayResourceGroupData" resourceName="OVERLAY/GeoPolitical/default" isEdited="false">
+                        <legendColor>RGB {255, 228, 220}</legendColor>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+                                <resourceType>PLAN_VIEW</resourceType>
+                                <capabilities/>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+                                <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                            </properties>
+                            <resourceData xsi:type="NC-dbOverlayResourceData" resourceName="OVERLAY/GeoPolitical/default" isEdited="false">
+                                <legendColor>RGB {255, 255, 255}</legendColor>
+                                <mapName>World</mapName>
+                                <table>mapdata.world</table>
+                                <constraint>name not in ('CANADA', 'MEXICO', 'UNITED STATES, THE')</constraint>
+                                <geomField>the_geom</geomField>
+                                <labelField>name</labelField>
+                                <color>RGB {155, 155, 155}</color>
+                                <lineWidth>1</lineWidth>
+                                <lineStyle>SOLID</lineStyle>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+                                <resourceType>PLAN_VIEW</resourceType>
+                                <capabilities/>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+                                <pdProps maxDisplayWidth="100000000" minDisplayWidth="750000"/>
+                            </properties>
+                            <resourceData xsi:type="NC-dbOverlayResourceData" resourceName="OVERLAY/GeoPolitical/default" isEdited="false">
+                                <legendColor>RGB {255, 255, 255}</legendColor>
+                                <mapName>State Boundaries</mapName>
+                                <table>mapdata.states</table>
+                                <geomField>the_geom</geomField>
+                                <labelField>name</labelField>
+                                <color>RGB {155, 155, 155}</color>
+                                <lineWidth>1</lineWidth>
+                                <lineStyle>SOLID</lineStyle>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+                                <resourceType>PLAN_VIEW</resourceType>
+                                <capabilities/>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+                                <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                            </properties>
+                            <resourceData xsi:type="NC-dbOverlayResourceData" resourceName="OVERLAY/GeoPolitical/default" isEdited="false">
+                                <legendColor>RGB {255, 255, 255}</legendColor>
+                                <mapName>Canada</mapName>
+                                <table>mapdata.canada</table>
+                                <geomField>the_geom</geomField>
+                                <labelField>name</labelField>
+                                <color>RGB {155, 155, 155}</color>
+                                <lineWidth>1</lineWidth>
+                                <lineStyle>SOLID</lineStyle>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+                                <resourceType>PLAN_VIEW</resourceType>
+                                <capabilities/>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+                                <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                            </properties>
+                            <resourceData xsi:type="NC-dbOverlayResourceData" resourceName="OVERLAY/GeoPolitical/default" isEdited="false">
+                                <legendColor>RGB {255, 255, 255}</legendColor>
+                                <mapName>Mexico</mapName>
+                                <table>mapdata.mexico</table>
+                                <geomField>the_geom</geomField>
+                                <labelField>name</labelField>
+                                <color>RGB {155, 155, 155}</color>
+                                <lineWidth>1</lineWidth>
+                                <lineStyle>SOLID</lineStyle>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="false">
+                                <resourceType>PLAN_VIEW</resourceType>
+                                <capabilities/>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+                                <pdProps maxDisplayWidth="750000" minDisplayWidth="0"/>
+                            </properties>
+                            <resourceData xsi:type="NC-dbOverlayResourceData" resourceName="OVERLAY/GeoPolitical/default" isEdited="false">
+                                <legendColor>RGB {255, 255, 255}</legendColor>
+                                <mapName>County Boundaries</mapName>
+                                <table>mapdata.county</table>
+                                <geomField>the_geom</geomField>
+                                <labelField>countyname</labelField>
+                                <color>RGB {155, 155, 155}</color>
+                                <lineWidth>1</lineWidth>
+                                <lineStyle>SOLID</lineStyle>
+                            </resourceData>
+                        </resource>
+                        <mapName>Geo-Political</mapName>
+                        <color>RGB {255, 228, 220}</color>
+                        <lineWidth>1</lineWidth>
+                        <lineStyle>SOLID</lineStyle>
+                    </resourceData>
+                </resource>
+                <limitedNumberOfFrames>2147483647</limitedNumberOfFrames>
+                <currentAnimationMode>Latest</currentAnimationMode>
+                <numberOfFrames>12</numberOfFrames>
+                <timeMatcher xsi:type="ncTimeMatcher" frameInterval="60" timeRange="48" skipValue="0" numFrames="8" dominantResourceName="SURFACE/SYNOP/allReports"/>
+                <gridGeometry envelopeMaxY="1.3E7" envelopeMinY="-1.3E7" envelopeMaxX="2.0E7" envelopeMinX="-2.0E7" rangeY="0 10000" rangeX="0 15384">
+                    <CRS>PROJCS["Mercator_1SP", 
+  GEOGCS["WGS84", 
+    DATUM["WGS84", 
+      SPHEROID["WGS84", 6378137.0, 298.257223563]], 
+    PRIMEM["Greenwich", 0.0], 
+    UNIT["degree", 0.017453292519943295], 
+    AXIS["Geodetic longitude", EAST], 
+    AXIS["Geodetic latitude", NORTH]], 
+  PROJECTION["Mercator_1SP"], 
+  PARAMETER["semi_major", 6371200.0], 
+  PARAMETER["semi_minor", 6371200.0], 
+  PARAMETER["latitude_of_origin", 0.0], 
+  PARAMETER["central_meridian", -180.0], 
+  PARAMETER["scale_factor", 1.0], 
+  PARAMETER["false_easting", 0.0], 
+  PARAMETER["false_northing", 0.0], 
+  UNIT["m", 1.0], 
+  AXIS["Easting", EAST], 
+  AXIS["Northing", NORTH]]</CRS>
+                </gridGeometry>
+                <autoUpdate>false</autoUpdate>
+            </descriptor>
+            <predefinedAreaName>World</predefinedAreaName>
+        </displays>
+    </displayList>
+</rbdBundle>

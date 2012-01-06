@@ -1,0 +1,90 @@
+C MODULE PDCVDD
+C-----------------------------------------------------------------------
+C
+      SUBROUTINE PDCVDD (DATA,IFIXDT,RMAG,UNITI,UNITO,JDATA,JEND,
+     *   INTDAT,IREV,DTYPE,STAID,ISTAT)
+C
+C  THIS ROUTINE CONVERTS A REAL DATA VALUE TO AN INTEGER*2 VALUE AND
+C  IS FOR ALL DAILY TYPES EXCEPT PP24.
+C
+      INCLUDE 'udebug'
+      INCLUDE 'pdbcommon/pdbdta'
+C
+      CHARACTER*4 DTYPE
+      CHARACTER*8 STAID
+      INTEGER*2 INTDAT
+C
+      DIMENSION DATA(*)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/db_pdbrw/RCS/pdcvdd.f,v $
+     . $',                                                             '
+     .$Id: pdcvdd.f,v 1.2 2001/06/13 12:44:21 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      IF (IPDTR.GT.0) WRITE (IOGDB,*) 'ENTER PDCVDD'
+C
+      ISTAT=20
+C
+      IPOS=JDATA
+      RMISS=-999.0
+      RD=DATA(JDATA)
+C
+      IF (IFIXDT.EQ.1.OR.RMAG.NE.100.0) GO TO 20
+C
+C  SUM UP THE PRECIP
+      RD1=0.0
+      DO 10 I=2,IFIXDT
+         JDATA=JDATA+1
+         IF (JDATA.GT.JEND) GO TO 30
+         IF (DATA(JDATA).LE.RMISS) GO TO 10
+         RD1=RD1+DATA(JDATA)
+10       CONTINUE
+      IF (RD.LE.RMISS.AND.RD1.GT.0.0) RD=0.0
+      IF (RD.GT.RMISS) RD=RD+RD1
+      JDATA=JDATA+1
+      GO TO 30
+C
+C  UPDATE JDATA BY IFIXDT BUT MAKE SURE NOT GREATER THAN END
+20    JDATA=JDATA+IFIXDT
+      IF (JDATA.GT.JEND) JDATA=JEND+1
+C
+30    IF (INTDAT.NE.MISSNG.AND.IREV.EQ.0) GO TO 50
+C
+C  CHECK IF MISSING SYMBOL
+      IF (RD.GT.RMISS) GO TO 40
+         INTDAT=MISSNG
+         ISTAT=0
+         GO TO 50
+C
+C  CONVERT THE VALUE IF NECESSARY AND CHECK FOR VALID RANGE
+C  SET VALUES NOT TO BE CONVERTED
+40    NVAL=1
+      CALL UDUCNN (NVAL,RMISS,ISTAT)
+C
+C  CONVERT DATA VALUE
+CCC      CALL UDUCNV (UNITI,UNITO,2,1,FACTOR,TFACT,ISTAT)
+      ICONV=1
+      NVAL=1
+      CALL UDUCNV (UNITI,UNITO,ICONV,NVAL,RD,RD,ISTAT)
+C
+C  CHECK THE RANGE OF THE VALUE
+      CALL PDCKVL (STAID,IPOS,DTYPE,RD,ISTAT)
+      IF (ISTAT.NE.0) GO TO 50
+      ADD=0.5
+      IF (RD.LT.0) ADD=-0.5
+      INTDAT=RD*RMAG+ADD
+C
+50    IF (IPDDB.GT.0) WRITE (IOGDB,*) 'IN PDCVDD - RD=',RD,
+     *   ' IFIXDT=',IFIXDT,' RMAG=',RMAG,' INTDAT=',INTDAT
+CCC      IF (IPPDB.GT.0) WRITE (IOGDB,*) FACTOR,TFACT
+C
+      IF (IPDTR.GT.0) WRITE (IOGDB,*) 'EXIT PDCVDD - ISTAT=',ISTAT
+C
+      RETURN
+C
+      END

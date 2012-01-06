@@ -1,0 +1,10 @@
+include=cpp
+
+broker.modules=--load-module ${broker.module.cluster} --cluster-name cpp-java-test-cluster
+
+profile.excludes=XAExcludes CPPPrefetchExcludes CPPTransientExcludes
+
+profile.clustered=true
+profile.failoverMsgCount=10
+profile.failoverIterations=10
+profile.failoverRandomSeed=20080921

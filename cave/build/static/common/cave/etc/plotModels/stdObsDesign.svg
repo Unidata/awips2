@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<svg width="80" height="80" 
+viewBox="0 0 80 80" 
+overflow="visible" 
+xmlns="http://www.w3.org/2000/svg" 
+xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
+   <defs>
+<script type="text/python" plotDelegate="plotDelegate">
+import re
+
+class ObsPlotDelegate(PlotDelegate):
+    def __init__(self):
+        PlotDelegate.__init__(self)
+
+    def getSampleText(self, rec):
+        sampleString = rec.getString("rawMETAR")
+        #strip WMO header
+        sampleString = re.sub("(\\s|\\S)+(METAR)", "\\2", sampleString)
+        #strip all multiple spaces and replace newlines with spaces
+        sampleString = re.sub("(\\s)+", " ", sampleString)
+
+        return sampleString
+
+plotDelegate = ObsPlotDelegate()
+
+</script>
+<style type="text/css">
+<![CDATA[
+        @font-face { font-family: "WindSymbolFont";
+                src: url(WindSymbols.svg#WindSymbols); }
+        @font-face { font-family: "StandardFont";
+                src: url(Standard.svg#Standard); }
+        @font-face { font-family: "WxSymbolFont";
+                src: url(WxSymbols.svg#WxSymbols); }
+        @font-face { font-family: "SpecialSymbolFont";
+                src: url(SpecialSymbols.svg#SpecialSymbols); }
+        text.barb
+            {
+                fill: none;
+                font-size: 1em;
+                font-size: 1em;
+                font-family: WindSymbolFont;
+            }
+        text.arrow
+            {
+                fill: none;
+                font-size: 1em;
+                font-size: 1em;
+                font-family: WindSymbolFont;
+            }
+        text.text
+            {
+                fill: none;
+                font-size: 1em;
+                stroke-width: 1px;
+                font-family: StandardFont;
+                font-size: 1em;
+            }
+        text.weather
+            {
+                fill: none;
+                font-size: 1em;
+                stroke-width: 1px;
+                font-family: WxSymbolFont;
+
+            }
+        text.special
+            {
+                fill: none;
+                font-size: 1em;
+                stroke-width: 1px;
+                font-size: 1em;
+                font-family: SpecialSymbolFont;
+            }
+]]>
+</style>
+
+<symbol overflow="visible" id="plotData" class="info">
+  <text id="rawMETARText" plotMode="sample" class="text" plotParam="rawMETAR" x="0" y="0">0</text> 
+  <g id="windVaneText" plotMode="barb" plotParam="windSpeed,windDir,windGust" plotUnit="kts" x="0" y="0" transform="rotate(0,0,0)">
+	<text id="windVaneText" class="arrow" x="0" y="0">0</text>
+    <text id="windArrowText" class="barb" x="0" y="0">arrow</text>
+    <text id="windGustText" class="text" x="0" y="32" style="text-anchor: middle">0</text>
+  </g>
+  <text id="chngCharText" plotMode="table" class="weather" plotLookupTable="press_change_char_lookup.txt" plotParam="pressChangeChar" style="text-anchor: start;" x="35px" y="0">0</text>
+  <text id="visText" plotMode="range" class="text" plotLookupTable="fractions_lookup.txt" plotParam="visibility" plotUnit="mi" style="text-anchor: start;" plotFormat="%3.5f" x="0" y="10">59</text>
+  <text id="pressChngText" plotMode="text" plotParam="pressChange3Hour" plotFormat="%02.0f" plotUnit="Pa" style="text-anchor: start;" x="10px" y="0">018</text>
+  <text id="dewText" plotMode="text" plotParam="DpT" plotUnit="°F" plotFormat="%3.0f" style="text-anchor: end;" x="-10px" y="10px">59</text>
+  <text id="tempText" plotMode="text" plotParam="T" plotUnit="°F" plotFormat="%3.0f" style="text-anchor: end;" x="-10px" y="-10px">75</text> 
+  <text id="pressure" plotMode="text" plotParam="seaLevelPress" plotUnit="dPa" plotFormat="%5.0f" plotTrim="2" style="text-anchor: start;" x="10px" y="-10px">018</text>
+  <text id="cloudText" plotMode="table" class="special" plotFunctionTable="cloud_select.txt" plotLookupTable="cloud_chars.txt" plotParam="skyCover" style="text-anchor: start" x="0" y="0">0</text>
+  <text id="presentWxText" plotMode="recursive_translation" class="weather" plotLookupTable="wx_symbol_trans.txt" plotParam="presWeather" style="text-anchor: end" x="-10" y="0">0</text>
+  <text id="peakWind" plotMode="text" plotParam="pkwndSpeed" plotUnit="kts" plotFormat="PK%.0f" style="text-anchor: end;" x="-10px" y="20px">59</text>
+</symbol>
+</defs>
+<use id="wind" x="40" y="40" width="80" height="80" visibility="visible" xlink:href="#plotData"/>
+</svg>

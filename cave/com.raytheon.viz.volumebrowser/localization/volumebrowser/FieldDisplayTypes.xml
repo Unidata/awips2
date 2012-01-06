@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<fieldDisplayTypesFile>
+	<field key="Wind" displayTypes="BARB,ARROW,STREAMLINE"/>
+	<field key="geoW" displayTypes="BARB,ARROW"/>
+	<field key="ageoW" displayTypes="BARB,ARROW"/>
+	<field key="ageoVC" displayTypes="STREAMLINE"/>
+	<field key="vertCirc" displayTypes="STREAMLINE"/>
+	<field key="tWind" displayTypes="BARB,ARROW"/>
+	<field key="SNW" displayTypes="BARB"/>
+	<field key="PGrd1" displayTypes="BARB,ARROW"/>
+	<field key="Gust" displayTypes="BARB,ARROW,STREAMLINE"/>
+	<field key="StrmMot" displayTypes="BARB,ARROW,STREAMLINE"/>
+	<field key="Corf" displayTypes="ARROW,BARB"/>
+	<field key="Shear" displayTypes="BARB,ARROW"/>
+	<field key="BlkShr" displayTypes="BARB,ARROW"/>
+	<field key="RM5" displayTypes="BARB,ARROW"/>
+	<field key="LM5" displayTypes="BARB,ARROW"/>
+	<field key="SRMr" displayTypes="ARROW,BARB"/>
+	<field key="SRMl" displayTypes="ARROW,BARB"/>
+	<field key="SNWA" displayTypes="BARB"/>
+	<field key="Wind_avg" displayTypes="BARB,ARROW,STREAMLINE"/>
+	<field key="CorfF" displayTypes="BARB,ARROW"/>
+	<field key="FeatMot" displayTypes="BARB,ARROW,STREAMLINE"/>
+	<field key="Windmean" displayTypes="BARB,ARROW,STREAMLINE"/>
+	<field key="CTSTM" displayTypes="IMAGE"/>
+	<field key="CPOP" displayTypes="IMAGE"/>
+	<field key="visCat" displayTypes="IMAGE"/>
+	<field key="ThPcat" displayTypes="IMAGE"/>
+	<field key="Cig" displayTypes="IMAGE"/>
+	<field key="TPCSG" displayTypes="IMAGE"/>
+	<field key="TPCSG_305E2" displayTypes="IMAGE"/>
+	<field key="TPCSG_274E2" displayTypes="IMAGE"/>
+	<field key="TPCSG_244E2" displayTypes="IMAGE"/>
+	<field key="TPCSG_213E2" displayTypes="IMAGE"/>
+	<field key="TPCSG_183E2" displayTypes="IMAGE"/>
+	<field key="TPCSG_152E2" displayTypes="IMAGE"/>
+	<field key="TPCSG_122E2" displayTypes="IMAGE"/>
+	<field key="TPCSG_91E2" displayTypes="IMAGE"/>
+	<field key="TPCSG_61E2" displayTypes="IMAGE"/>
+	<field key="SLDP" displayTypes="IMAGE"/>
+	<field key="TPFI" displayTypes="IMAGE"/>
+	<field key="TIPD" displayTypes="IMAGE"/>
+	<field key="ICI" displayTypes="IMAGE"/>
+	<field key="ICIP" displayTypes="IMAGE"/>
+	<field key="defV" displayTypes="DUALARROW"/>
+	<field key="qVec" displayTypes="ARROW"/>
+	<field key="TGrd" displayTypes="ARROW"/>
+	<field key="WVdir" displayTypes="ARROW"/>
+	<field key="SWdir" displayTypes="ARROW"/>
+	<field key="dirPW" displayTypes="ARROW"/>
+	<field key="dirSW" displayTypes="ARROW"/>
+	<field key="EPTGrd" displayTypes="ARROW"/>
+	<field key="MTV" displayTypes="ARROW"/>
+	<field key="MSFi" displayTypes="ARROW"/>
+	<field key="FVecs" displayTypes="ARROW"/>
+	<field key="FsVecs" displayTypes="ARROW"/>
+	<field key="FnVecs" displayTypes="ARROW"/>
+	<field key="qnVec" displayTypes="ARROW"/>
+	<field key="qsVec" displayTypes="ARROW"/>
+	<field key="IP" displayTypes="ICON"/>
+	<field key="PTyp" displayTypes="ICON"/>
+	<field key="CTyp" displayTypes="ICON"/>
+	<field key="HI" displayTypes="CONTOUR,ICON,IMAGE"/>
+	<field key="CURU" displayTypes="CONTOUR,ICON,IMAGE"/>
+	<field key="HC" displayTypes="ICON,IMAGE"/>
+	<field key="wx" displayTypes="ICON"/>
+	<field key="covCat" displayTypes="ICON"/>
+	<field key="mslDecks" displayTypes="ICON"/>
+	<field key="aglDecks" displayTypes="ICON"/>
+	<field key="obVis" displayTypes="ICON"/>
+	<field key="PTvA" volumePlaneType="K"/>
+	<field key="NetIO" volumePlaneType="K"/>
+	<field key="PAdv" volumePlaneType="K"/>
+	<field key="DpDt" volumePlaneType="K"/>
+</fieldDisplayTypesFile>

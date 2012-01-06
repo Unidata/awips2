@@ -1,0 +1,677 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+ 
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+ 
+   http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+ 
+-->
+
+<xs:schema targetNamespace="http://docs.oasis-open.org/wsdm/muws2-2.xsd"
+	xmlns:muws2="http://docs.oasis-open.org/wsdm/muws2-2.xsd"
+	xmlns:muws1="http://docs.oasis-open.org/wsdm/muws1-2.xsd"
+	xmlns:wsa="http://www.w3.org/2005/08/addressing"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:import namespace="http://docs.oasis-open.org/wsdm/muws1-2.xsd"
+		schemaLocation="WSDM-MUWS-Part1-1_1.xsd" />
+	<xs:import namespace="http://www.w3.org/2005/08/addressing"
+		schemaLocation="WS-Addressing-2005_08.xsd" />
+	<xs:import namespace="http://www.w3.org/XML/1998/namespace"
+		schemaLocation="XML-Namespace-1998.xsd" />
+	<xs:complexType name="LangString">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute ref="xml:lang" use="required" />
+				<xs:anyAttribute namespace="##other" />
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!-- Begin properties for the Description capability -->
+	<xs:element name="Caption" type="muws2:LangString" />
+	<xs:element name="Description" type="muws2:LangString" />
+	<xs:element name="Version" type="xs:string" />
+	<!-- End   properties for the Description capability -->
+	<xs:complexType name="CategoryType">
+		<xs:sequence>
+			<xs:any minOccurs="0" namespace="##any"
+				processContents="lax" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="StateType">
+		<xs:complexContent>
+			<xs:extension base="muws2:CategoryType" />
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="State" type="muws2:StateType" />
+	<xs:element name="EnteredState" type="muws2:StateType" />
+	<xs:element name="PreviousState" type="muws2:StateType" />
+	<xs:complexType name="StateTransitionType">
+		<xs:sequence>
+			<xs:element ref="muws2:EnteredState" />
+			<xs:element ref="muws2:PreviousState" minOccurs="0" />
+			<xs:any minOccurs="0" maxOccurs="unbounded"
+				namespace="##other" processContents="lax" />
+		</xs:sequence>
+		<xs:attribute name="TransitionIdentifier" type="xs:anyURI"
+			use="optional" />
+		<xs:attribute name="Time" type="xs:dateTime" use="required" />
+		<xs:anyAttribute namespace="##other" />
+	</xs:complexType>
+	<xs:element name="StateTransition" type="muws2:StateTransitionType" />
+	<!-- Begin properties for the OperationalStatus capability -->
+	<xs:element name="OperationalStatus">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="Available" />
+				<xs:enumeration value="PartiallyAvailable" />
+				<xs:enumeration value="Unavailable" />
+				<xs:enumeration value="Unknown" />
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<!-- End   properties for the OperationalStatus capability -->
+	<xs:attributeGroup name="MetricAttributes">
+		<xs:attribute name="ResetAt" type="xs:dateTime" />
+		<xs:attribute name="LastUpdated" type="xs:dateTime" />
+		<xs:attribute name="Duration" type="xs:duration" />
+	</xs:attributeGroup>
+	<!-- Begin properties for the Metrics capability -->
+	<xs:element name="CurrentTime" type="xs:dateTime" />
+	<!-- End   properties for the Metrics capability -->
+	<xs:complexType name="RelationshipTypeType">
+		<xs:complexContent>
+			<xs:extension base="muws2:CategoryType" />
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="Self">
+		<xs:complexType />
+	</xs:element>
+	<xs:complexType name="RelationshipParticipantType">
+		<xs:sequence>
+			<xs:element ref="muws2:Self" minOccurs="0" />
+			<xs:element ref="muws1:ManageabilityEndpointReference"
+				minOccurs="0" maxOccurs="unbounded" />
+			<xs:element ref="wsa:EndpointReference" minOccurs="0"
+				maxOccurs="unbounded" />
+			<xs:element ref="muws1:ResourceId" minOccurs="0" />
+			<xs:element name="Role" type="xs:anyURI" />
+			<xs:any minOccurs="0" maxOccurs="unbounded"
+				namespace="##other" processContents="lax" />
+		</xs:sequence>
+		<xs:anyAttribute namespace="##other" />
+	</xs:complexType>
+	<!-- Begin properties for the RelationshipResource capability -->
+	<xs:element name="Name" type="xs:string" />
+	<xs:element name="Type" type="muws2:RelationshipTypeType" />
+	<xs:element name="Participant"
+		type="muws2:RelationshipParticipantType" />
+	<!-- End   properties for the RelationshipResource capability -->
+	<xs:complexType name="RelationshipType">
+		<xs:sequence>
+			<xs:element ref="muws2:Name" minOccurs="0" />
+			<xs:element ref="muws2:Type" />
+			<xs:element ref="muws2:Participant" minOccurs="2"
+				maxOccurs="unbounded" />
+			<xs:element name="AccessEndpointReference"
+				type="wsa:EndpointReferenceType" minOccurs="0" />
+			<xs:any minOccurs="0" maxOccurs="unbounded"
+				namespace="##other" processContents="lax" />
+		</xs:sequence>
+		<xs:anyAttribute namespace="##other" />
+	</xs:complexType>
+	<!-- Begin properties for the Relationship capability -->
+	<xs:element name="Relationship" type="muws2:RelationshipType" />
+	<!-- End   properties for the Relationship capability -->
+	<xs:element name="RelationshipCreatedNotification">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="muws2:Relationship" />
+				<xs:any minOccurs="0" maxOccurs="unbounded"
+					namespace="##other" processContents="lax" />
+			</xs:sequence>
+			<xs:anyAttribute namespace="##other" />
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="RelationshipDeletedNotification">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="muws2:Relationship" />
+				<xs:any minOccurs="0" maxOccurs="unbounded"
+					namespace="##other" processContents="lax" />
+			</xs:sequence>
+			<xs:anyAttribute namespace="##other" />
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="QueryRelationshipsByType">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="RequestedType" type="xs:QName" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="QueryRelationshipsByTypeResponse">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="muws2:Relationship" minOccurs="0"
+					maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CreationNotification">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="muws1:ManageabilityEndpointReference"
+					minOccurs="0" maxOccurs="unbounded" />
+			</xs:sequence>
+			<xs:anyAttribute namespace="##other" />
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="DestructionNotification">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="muws1:ResourceId" minOccurs="0" />
+			</xs:sequence>
+			<xs:anyAttribute namespace="##other" />
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="SituationCategoryType">
+		<xs:complexContent>
+			<xs:extension base="muws2:CategoryType" />
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="SubstitutableMsgType">
+		<xs:sequence>
+			<xs:element name="Value" type="xs:anySimpleType"
+				minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attribute name="MsgId" type="xs:string" use="required" />
+		<xs:attribute name="MsgIdType" type="xs:anyURI" use="required" />
+	</xs:complexType>
+	<xs:complexType name="SituationType">
+		<xs:sequence>
+			<xs:element name="SituationCategory"
+				type="muws2:SituationCategoryType" />
+			<xs:element name="SuccessDisposition" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="Successful" />
+						<xs:enumeration value="Unsuccessful" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="SituationTime" type="xs:dateTime" />
+			<xs:element name="Priority" type="xs:short" minOccurs="0" />
+			<xs:element name="Severity" type="xs:short" minOccurs="0" />
+			<xs:element name="Message" type="muws2:LangString"
+				minOccurs="0" />
+			<xs:element name="SubstitutableMsg"
+				type="muws2:SubstitutableMsgType" minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="Situation" type="muws2:SituationType" />
+	<xs:complexType name="EventCorrelationPropertiesType">
+		<xs:sequence>
+			<xs:element name="repeatCount" minOccurs="0"
+				maxOccurs="1">
+				<xs:simpleType>
+					<xs:restriction base="xs:short">
+						<xs:minInclusive value="0" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="elapsedTime" minOccurs="0"
+				maxOccurs="1">
+				<xs:simpleType>
+					<xs:restriction base="xs:long">
+						<xs:minInclusive value="0" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="sequenceNumber" type="xs:unsignedLong" />
+	</xs:complexType>
+	<xs:element name="EventCorrelationProperties"
+		type="muws2:EventCorrelationPropertiesType" />
+	<xs:complexType name="MsgCatalogInformationType">
+		<xs:sequence>
+			<xs:element name="msgCatalog" type="xs:anyURI"
+				minOccurs="1" />
+			<xs:element name="msgCatalogType" type="xs:anyURI"
+				minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="MsgCatalogInformation"
+		type="muws2:MsgCatalogInformationType" />
+	<!-- #####   Metadata description elements   ##### -->
+	<xs:element name="Capability" type="xs:anyURI" />
+	<xs:complexType name="DialectableExpressionType" mixed="true">
+		<xs:sequence>
+			<xs:any namespace="##other" processContents="lax"
+				minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attribute name="Dialect" type="xs:anyURI" use="required" />
+		<xs:anyAttribute namespace="##other" />
+	</xs:complexType>
+	<xs:element name="ValidWhile"
+		type="muws2:DialectableExpressionType" />
+	<xs:element name="Units" type="xs:string" />
+	<xs:element name="ChangeType">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="Counter" />
+				<xs:enumeration value="Gauge" />
+				<xs:enumeration value="Unknown" />
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="TimeScope">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="Interval" />
+				<xs:enumeration value="PointInTime" />
+				<xs:enumeration value="SinceReset" />
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="GatheringTime">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="OnChange" />
+				<xs:enumeration value="Periodic" />
+				<xs:enumeration value="OnDemand" />
+				<xs:enumeration value="Unknown" />
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:element name="CalculationInterval" type="xs:duration" />
+	<xs:element name="MetricGroup" type="xs:anyURI" />
+	<xs:element name="PostCondition"
+		type="muws2:DialectableExpressionType" />
+	<!-- =========   StartSituation   ============  -->
+	<xs:element name="StartSituation">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType" />
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="StartInitiated">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType">
+					<xs:sequence>
+						<xs:element ref="muws2:StartSituation" />
+					</xs:sequence>
+				</xs:restriction>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="RestartInitiated">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType">
+					<xs:sequence>
+						<xs:element ref="muws2:StartSituation" />
+					</xs:sequence>
+				</xs:restriction>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="StartCompleted">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType">
+					<xs:sequence>
+						<xs:element ref="muws2:StartSituation" />
+					</xs:sequence>
+				</xs:restriction>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<!-- =========   StopSituation   ============  -->
+	<xs:element name="StopSituation">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType" />
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="StopInitiated">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType">
+					<xs:sequence>
+						<xs:element ref="muws2:StopSituation" />
+					</xs:sequence>
+				</xs:restriction>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="AbortInitiated">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType">
+					<xs:sequence>
+						<xs:element ref="muws2:StopSituation" />
+					</xs:sequence>
+				</xs:restriction>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="PauseInitiated">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType">
+					<xs:sequence>
+						<xs:element ref="muws2:StopSituation" />
+					</xs:sequence>
+				</xs:restriction>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="StopCompleted">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType">
+					<xs:sequence>
+						<xs:element ref="muws2:StopSituation" />
+					</xs:sequence>
+				</xs:restriction>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<!-- =========   RequestSituation   ============  -->
+	<xs:element name="RequestSituation">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType" />
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="RequestInitiated">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType">
+					<xs:sequence>
+						<xs:element ref="muws2:RequestSituation" />
+					</xs:sequence>
+				</xs:restriction>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="RequestCompleted">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType">
+					<xs:sequence>
+						<xs:element ref="muws2:RequestSituation" />
+					</xs:sequence>
+				</xs:restriction>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<!-- =========   DestroySituation   ============  -->
+	<xs:element name="DestroySituation">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType" />
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="DestroyInitiated">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType">
+					<xs:sequence>
+						<xs:element ref="muws2:DestroySituation" />
+					</xs:sequence>
+				</xs:restriction>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="DestroyCompleted">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType">
+					<xs:sequence>
+						<xs:element ref="muws2:DestroySituation" />
+					</xs:sequence>
+				</xs:restriction>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<!-- =========   CreateSituation   ============  -->
+	<xs:element name="CreateSituation">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType" />
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CreateInitiated">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType">
+					<xs:sequence>
+						<xs:element ref="muws2:CreateSituation" />
+					</xs:sequence>
+				</xs:restriction>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="CreateCompleted">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType">
+					<xs:sequence>
+						<xs:element ref="muws2:CreateSituation" />
+					</xs:sequence>
+				</xs:restriction>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<!-- =========   ConnectSituation   ============  -->
+	<xs:element name="ConnectSituation">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType" />
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ConnectInitiated">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType">
+					<xs:sequence>
+						<xs:element ref="muws2:ConnectSituation" />
+					</xs:sequence>
+				</xs:restriction>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ReconnectInitiated">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType">
+					<xs:sequence>
+						<xs:element ref="muws2:ConnectSituation" />
+					</xs:sequence>
+				</xs:restriction>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ConnectCompleted">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType">
+					<xs:sequence>
+						<xs:element ref="muws2:ConnectSituation" />
+					</xs:sequence>
+				</xs:restriction>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<!-- =========   ReportSituation   ============  -->
+	<xs:element name="ReportSituation">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType" />
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="PerformanceReport">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType">
+					<xs:sequence>
+						<xs:element ref="muws2:ReportSituation" />
+					</xs:sequence>
+				</xs:restriction>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="SecurityReport">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType">
+					<xs:sequence>
+						<xs:element ref="muws2:ReportSituation" />
+					</xs:sequence>
+				</xs:restriction>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="HeartbeatReport">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType">
+					<xs:sequence>
+						<xs:element ref="muws2:ReportSituation" />
+					</xs:sequence>
+				</xs:restriction>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="StatusReport">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType">
+					<xs:sequence>
+						<xs:element ref="muws2:ReportSituation" />
+					</xs:sequence>
+				</xs:restriction>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="TraceReport">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType">
+					<xs:sequence>
+						<xs:element ref="muws2:ReportSituation" />
+					</xs:sequence>
+				</xs:restriction>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="DebugReport">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType">
+					<xs:sequence>
+						<xs:element ref="muws2:ReportSituation" />
+					</xs:sequence>
+				</xs:restriction>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="LogReport">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType">
+					<xs:sequence>
+						<xs:element ref="muws2:ReportSituation" />
+					</xs:sequence>
+				</xs:restriction>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<!-- =========   AvailabilitySituation   ============  -->
+	<xs:element name="AvailabilitySituation">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType" />
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<!-- =========   CapabilitySituation   ============  -->
+	<xs:element name="CapabilitySituation">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType" />
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<!-- =========   ConfigureSituation   ============  -->
+	<xs:element name="ConfigureSituation">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType" />
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<!-- =========   OtherSituation   ============  -->
+	<xs:element name="OtherSituation">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:restriction base="muws2:SituationCategoryType" />
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+	<!--   
+		SCHEMA COPY Material
+		Copy and paste element references below into the schema of a resource properties document.
+		These references insure that the correct minOccurs/maxOccurs attributes are specified in a resource property document schema.
+		
+		NOTE: You must import the MUWS Part 2 schema namespace (MUWS2).
+		
+		**    Description Properties    **
+		<xs:element ref="muws2:Caption"
+		minOccurs="0" maxOccurs="unbounded"/>
+		<xs:element ref="muws2:Description"
+		minOccurs="0" maxOccurs="unbounded"/>
+		<xs:element ref="muws2:Version"
+		minOccurs="0"/>
+		
+		**    Operational Status        **
+		<xs:element ref="muws2:OperationalStatus"/>
+		
+		**    Metrics                   **
+		<xs:element ref="muws2:CurrentTime"/>
+		
+		**    Relationship              **
+		<xs:element ref="muws2:Relationship"
+		minOccurs="0" maxOccurs="unbounded"/>
+		
+		**    Relationship Resource     **
+		<xs:element ref="muws2:Name" minOccurs="0"/>
+		<xs:element ref="muws2:Type"/>
+		<xs:element ref="muws2:Participant"
+		minOccurs="2" maxOccurs="unbounded"/>
+		
+	-->
+</xs:schema>

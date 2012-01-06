@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">	
+	<contribute xsi:type="subMenu" menuText="Precip &amp;&amp; Stability">
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+               menuText="Daily Precipitation" id="dailyPrecipitation">
+	        <dataURI>/redbook/%/PEWA31/%</dataURI>
+	        <substitute key="wmo" value="PEWA31"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+               menuText="Snow Cover Plot" id="snowCoverPlot">
+	        <dataURI>/redbook/%/PEWA32/%</dataURI>
+	        <substitute key="wmo" value="PEWA32"/>
+	    </contribute>
+		<contribute xsi:type="subMenu" menuText="Snow Images">
+		    <contribute xsi:type="titleItem" 
+				titleText="------ NOHRSC ------" id="NOHRSCLine"/>			
+			<contribute xsi:type="bundleItem" file="bundles/NOHRSC-SNOW.xml"
+				menuText="Snow Cover" id="snowCover">
+				<substitute key="param" value="MSTAV"/>
+				<substitute key="customLegend" value="Snow Cover"/>
+				<substitute key="sampleFormat" value="0.00"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/NOHRSC-SNOW.xml"
+				menuText="Snow Cover Elev" id="snowCoverElev">
+				<substitute key="param" value="sce"/>
+				<substitute key="customLegend" value="Snow Cover elevation (kft)"/>
+				<substitute key="sampleFormat" value="0.00"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/NOHRSC-SNOW.xml"
+				menuText="Snow Water equiv" id="snowWaterEquiv">
+				<substitute key="param" value="swe"/>
+				<substitute key="customLegend" value="Snow Water Equivalent (in)"/>
+				<substitute key="sampleFormat" value="0.00"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/NOHRSC-SNOW.xml"
+				menuText="Snow Water % nrml" id="snowWaterPercent">	
+				<substitute key="param" value="SWEPN"/>
+				<substitute key="customLegend" value="Snow Water Equivalent % of normal (%)"/>
+				<substitute key="sampleFormat" value="0.00"/>
+			</contribute>
+	    </contribute>
+	    
+	    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+               menuText="Radar Summary" id="radarSummary">
+	        <dataURI>/redbook/%/PAWO82/%</dataURI>
+	        <substitute key="wmo" value="PAWO82"/>
+	        <substitute key="posOff" value="3600"/>
+	        <substitute key="virtOff" value="-2100"/>
+	    </contribute>
+	  	<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+               menuText="Radar Legends" id="radarLegends">
+	        <dataURI>/redbook/%/PAWO83/%</dataURI>
+	        <substitute key="wmo" value="PAWO83"/>
+	        <substitute key="posOff" value="3600"/>
+	        <substitute key="virtOff" value="-2100"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+               menuText="Precip H20 Plot" id="precipH20Plot">
+	        <dataURI>/redbook/%/PEWA33/%</dataURI>
+	        <substitute key="wmo" value="PEWA33"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+               menuText="Precip H20 Analysis" id="precipH20Analysis">
+	        <dataURI>/redbook/%/PEWA34/%</dataURI>
+	        <substitute key="wmo" value="PEWA34"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+               menuText="Sfc-500 RH Plot" id="sfc500RHPlot">
+	        <dataURI>/redbook/%/PRWA51/%</dataURI>
+	        <substitute key="wmo" value="PRWA51"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+               menuText="Lifted-K Index Plot" id="liftedKIndexPlot">
+	        <dataURI>/redbook/%/PXWA50/%</dataURI>
+	        <substitute key="wmo" value="PXWA50"/>
+	    </contribute>
+    </contribute>
+    <contribute xsi:type="subMenu" menuText="Temps &amp;&amp; Weather">
+    	<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+               menuText="Observed Max/Min Temps" id="observedMaxMinTemps"> 
+            <dataURI>/redbook/%/PTWA31/%</dataURI>             
+	        <substitute key="wmo" value="PTWA31, PTWA32"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+               menuText="Normal Max/Min Temps" id="normalMaxMinTemps">  
+            <dataURI>/redbook/%/PTWO33/%</dataURI>                              
+	        <substitute key="wmo" value="PTWO33, PTWO34"/>
+	    </contribute>
+	    <contribute xsi:type="separator" id="separator1"/>
+	    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+               menuText="Frzg Lvl Plot" id="frzgLvlPlot">
+	        <dataURI>/redbook/%/PTWA94/%</dataURI>
+	        <substitute key="wmo" value="PTWA94"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+               menuText="Frzg Lvl Analysis" id="frzgLvlAnalysis">
+	        <dataURI>/redbook/%/PTWA93/%</dataURI>
+	        <substitute key="wmo" value="PTWA93"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+               menuText="Frzg Lvl/Turbulence Fcst" id="frzgLvlTurbulenceFcst">
+	        <substitute key="wmo" value="PTIC94, PTIE94"/>
+	    </contribute>
+	    <contribute xsi:type="separator" id="separator2"/>
+	    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+               menuText="Wx Depiction Plot" id="wxDepictionPlot">
+	        <dataURI>/redbook/%/PGWA31/%</dataURI>
+	        <substitute key="wmo" value="PGWA31"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+               menuText="Wx Depiction Analysis" id="wxDepictionAnalysis">
+	        <dataURI>/redbook/%/PGWA32/%</dataURI>
+	        <substitute key="wmo" value="PGWA32"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+               menuText="Wx Depiction Fcst" id="wxDepictionFcst"> 
+	        <dataURI>/redbook/%/PGIC42/%</dataURI>                            
+	        <substitute key="wmo" value="PGIC42, PGIE43"/>
+	    </contribute>
+	    <contribute xsi:type="separator" id="separator3"/>
+	    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+               menuText="Sfc Geo Wind Plot" id="sfcGeoWindPlot">
+	        <dataURI>/redbook/%/PYWA31/%</dataURI>
+	        <substitute key="wmo" value="PYWA31"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+               menuText="Sfc Geo Relative Vort" id="sfcGeoRelativeVort">
+	        <dataURI>/redbook/%/PYWA32/%</dataURI>
+	        <substitute key="wmo" value="PYWA32"/>
+	    </contribute>
+    </contribute>
+    <contribute xsi:type="subMenu" menuText="National Centers model">
+	    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml"  
+    			menuText="UKMO MSLP" id="UKMOMSLP">
+	        <dataURI>/redbook/%/PPZA50/%</dataURI>
+	        <substitute key="wmo" value="PPZA50,PPZM50,PPZO50,PPZQ50"/>    			
+    	</contribute> 			
+    </contribute>
+    <contribute xsi:type="subMenu" menuText="Sounding-derived plots">
+    	<contribute xsi:type="titleItem" 
+				titleText="------ NAM ------" id="NAMLine"/>
+		<contribute xsi:type="bundleItem" file="bundles/ModelSoundingPlot.xml" 
+                menuText="Sounding Availability" id="namSoundingAvailability">
+	        <substitute key="reportType" value="ETA"/>
+	        <substitute key="levelKey" value="Station"/>
+	        <substitute key="legend" value="NAM Sounding Availability"/>
+	        <substitute key="svgFile" value="sndrAvailabilityDesign.svg"/>
+	    </contribute>  
+	    <contribute xsi:type="bundleItem" file="bundles/ModelSoundingPlot.xml" 
+                menuText="Surface" id="namSurface">
+	        <substitute key="reportType" value="ETA"/>
+	        <substitute key="levelKey" value="Surface"/>
+	        <substitute key="legend" value="NAM Sounding Sfc Plot"/>
+	        <substitute key="svgFile" value="sndrSurfaceDesign.svg"/>
+	    </contribute>  
+	    <contribute xsi:type="bundleItem" file="bundles/ModelSoundingPlot.xml" 
+                menuText="Ceiling/Visibility" id="ceilingVisibility">
+	        <substitute key="reportType" value="ETA"/>
+	        <substitute key="levelKey" value="Station"/>
+	        <substitute key="legend" value="NAM Ceiling/Vis Plot"/>
+	        <substitute key="svgFile" value="sndrCvDesign.svg"/>
+	    </contribute>  
+	    <contribute xsi:type="bundleItem" file="bundles/ModelSoundingPlot.xml" 
+                menuText="1 hr Precip Amt" id="oneHrPrecipAmt">
+	        <substitute key="reportType" value="ETA"/>
+	        <substitute key="levelKey" value="Station"/>
+	        <substitute key="legend" value="NAM Sounding 1-Hr Precip Amt (in)"/>
+	        <substitute key="svgFile" value="sndrPrecipDesign.svg"/>
+	    </contribute>
+		<contribute xsi:type="separator" id="separator4"/>
+		<contribute xsi:type="titleItem" 
+				titleText="------ GFS ------" id="GFSLine"/>
+		<contribute xsi:type="bundleItem" file="bundles/ModelSoundingPlot.xml" 
+                menuText="Sounding Availability" id="gfsSoundingAvailability">
+	        <substitute key="reportType" value="GFS"/>
+	        <substitute key="levelKey" value="Station"/>
+	        <substitute key="legend" value="GFS Sounding Availability"/>
+	        <substitute key="svgFile" value="sndrAvailabilityDesign.svg"/>
+	    </contribute>  
+		<contribute xsi:type="bundleItem" file="bundles/ModelSoundingPlot.xml" 
+                menuText="Surface" id="namSurface">
+	        <substitute key="reportType" value="GFS"/>
+	        <substitute key="levelKey" value="Surface"/>
+	        <substitute key="legend" value="GFS Sounding Sfc Plot"/>
+	        <substitute key="svgFile" value="sndrSurfaceDesign.svg"/>
+	    </contribute>  
+	    <contribute xsi:type="bundleItem" file="bundles/ModelSoundingPlot.xml" 
+                menuText="Cloud Layers" id="cloudLayers">
+	        <substitute key="reportType" value="GFS"/>
+	        <substitute key="levelKey" value="Station"/>
+	        <substitute key="legend" value="GFS Cloud Layers Plot"/>
+	        <substitute key="svgFile" value="sndrCvDesign.svg"/>
+	    </contribute>  
+	    <contribute xsi:type="bundleItem" file="bundles/ModelSoundingPlot.xml" 
+                menuText="3 hr Precip Amt" id="threeHrPrecipAmt">
+	        <substitute key="reportType" value="GFS"/>
+	        <substitute key="levelKey" value="Station"/>
+	        <substitute key="legend" value="GFS Sounding 3-Hr Precip Amt (in)"/>
+	        <substitute key="svgFile" value="sndrPrecipDesign.svg"/>
+	    </contribute>
+    </contribute>
+</menuTemplate>

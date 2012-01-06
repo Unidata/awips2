@@ -1,0 +1,15 @@
+/bin/runso
+/lib/library*.so
+/lib/python2.5/*.so
+/awips/**
+# cots libraries
+/lib/libgfortran*so*
+/lib/libecpg*so*
+/lib/libjasper*so*
+/lib/jnidispatch.so
+/lib/libjvm.so
+/lib/libpgtypes*so*
+/lib/libpq*so*
+/lib/libtcl*so*
+/lib/libtk*so*
+/lib/libXm*so*

@@ -1,0 +1,152 @@
+C MEMBER SUGTPT
+C-----------------------------------------------------------------------
+C
+C @PROCESS LVL(77)
+C
+C DESC ROUTINE TO GET PREPROCESSOR DATA BASE POINTERS.
+C
+      SUBROUTINE SUGTPT (TYPE,LPNTRS,IPNTRS,LPFILL,XMSG,ISTAT)
+C
+      REAL PP24/4HPP24/,PPVR/4HPPVR/
+      REAL TM24/4HTM24/,TAVR/4HTAVR/,TF24/4HTF24/
+      REAL EA24/4HEA24/
+      INTEGER*2 MSNG,IPNTRS(1)
+      CHARACTER*8 XMSG
+C
+      DIMENSION ARRAY(1)
+C
+C  PREPROCESSOR DATA BASE READ/WRITE ARRAYS
+      DIMENSION IDATES(1),IDATA(1)
+C
+      INCLUDE 'uio'
+      INCLUDE 'scommon/sudbgx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/shared_s/RCS/sugtpt.f,v $
+     . $',                                                             '
+     .$Id: sugtpt.f,v 1.1 1995/09/17 19:21:59 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+      IF (ISTRCE.GT.0) WRITE (IOSDBG,70)
+      IF (ISTRCE.GT.0) CALL SULINE (IOSDBG,1)
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG('SYS ')
+C
+      ISTAT=0
+C
+      CALL ULENTH (XMSG,LEN(XMSG),LXMSG)
+C
+C  CHECK FOR VALID TYPE
+      IF (TYPE.EQ.PP24.OR.TYPE.EQ.PPVR.OR.TYPE.EQ.TM24.OR.
+     *    TYPE.EQ.TAVR.OR.TYPE.EQ.TF24.OR.TYPE.EQ.EA24)
+     *   GO TO 10
+         WRITE (LP,80) TYPE
+         CALL SUERRS (LP,2,-1)
+         ISTAT=1
+         GO TO 60
+C
+C  CHECK IF POINTER ARRAY LARGE ENOUGH
+10    CALL SUDOPN (1,'PPD ',IERR)
+      IF (IERR.GT.0) GO TO 60
+      IDATE=1
+      LDATA=1
+      CALL RPDFIL (TYPE,IDATE,LPFILL,LDATA,IERR)
+      IF (IERR.GT.0) THEN
+         IF (IERR.EQ.1) THEN
+            WRITE (LP,90) TYPE
+            CALL SUERRS (LP,2,-1)
+            ENDIF
+         IF (IERR.EQ.2) THEN
+            IF (XMSG.EQ.'NOTE') THEN
+               CALL SULINE (LP,2)
+               WRITE (LP,100) XMSG(1:LXMSG),TYPE
+               ENDIF
+            IF (XMSG.EQ.'WARNING') THEN
+               WRITE (LP,105) XMSG(1:LXMSG),TYPE
+               CALL SUWRNS (LP,2,-1)
+               ENDIF
+            ENDIF
+         IF (IERR.GT.2) THEN
+            WRITE (LP,110) IERR
+            CALL SUERRS (LP,2,-1)
+            ENDIF
+         ISTAT=1
+         GO TO 60
+         ENDIF
+C
+      IF (LPFILL.LE.LPNTRS) GO TO 30
+         WRITE (LP,120) LPFILL,LPNTRS
+         CALL SUERRS (LP,2,-1)
+         ISTAT=1
+         GO TO 60
+C
+C  GET POINTERS FROM PREPROCESSOR DATA BASE
+30    IRETRN=1
+      LENDAT=1
+      CALL RPDDLY (TYPE,IDATE,IRETRN,LPNTRS,IPNTRS,LPFILL,
+     *   LDATA,IDATA,LDFILL,NUMSTA,MSNG,LENDAT,IDATES,
+     *   IERR)
+40    IF (IERR.EQ.0.OR.IERR.EQ.4) GO TO 50
+         IF (IERR.EQ.1.OR.IERR.EQ.3) WRITE (LP,130) LPNTRS
+         IF (IERR.EQ.2.OR.IERR.EQ.3) WRITE (LP,140) LDATA
+         IF (IERR.EQ.3) CALL SUERRS (LP,2,-1)
+         IF (IERR.EQ.5) WRITE (LP,150) TYPE
+         IF (IERR.EQ.6) WRITE (LP,160) TYPE
+         IF (IERR.EQ.7) WRITE (LP,170) LENDAT
+         IF (IERR.EQ.8) WRITE (LP,180)
+         IF (IERR.LT.1.OR.IERR.GT.8) WRITE (LP,190) IERR
+         IF (IERR.NE.6) CALL SUERRS (LP,2,-1)
+         IF (IERR.EQ.6) CALL SUWRNS (LP,2,-1)
+         ISTAT=1
+         GO TO 60
+C
+50    IF (LDEBUG.GT.0)
+     *   CALL SUDPTR (TYPE,IPNTRS,LPFILL)
+C
+60    IF (ISTRCE.GT.0) WRITE (IOSDBG,220)
+      IF (ISTRCE.GT.0) CALL SULINE (IOSDBG,1)
+C
+      RETURN
+C
+C - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+70    FORMAT (' *** ENTER SUGTPT')
+80    FORMAT ('0*** ERROR - IN SUGTPT - INVALID DATA TYPE : ',A4)
+90    FORMAT ('0*** ERROR - IN SUGTPT - DATA TYPE PASSED TO RPDFIL (',
+     *   A4,') IS INVALID.')
+100   FORMAT ('0*** ',A,' - NO POINTERS ARE DEFINED FOR DATA TYPE ',A4,
+     *   ' IN THE PREPROCESSOR DATA BASE.')
+105   FORMAT ('0*** ',A,' - IN SUGTPT - DATA TYPE PASSED TO RPDFIL (',
+     *   A4,') IS VALID BUT NO POINTERS ARE DEFINED IN PREPROCESSOR ',
+     *   'DATA BASE.')
+110   FORMAT ('0*** ERROR - IN SUGTPT - STATUS CODE FROM RPDFIL NOT ',
+     *   'RECOGNIZED : ',I3)
+120   FORMAT ('0*** ERROR - IN SUGTPT - NUMBER OF WORDS NEEDED IN ',
+     *   'PREPROCESSOR DATA BASE POINTER ARRAY (',I5,
+     *   ') EXCEEDS THE ARRAY DIMENSION (',I5,').')
+130   FORMAT ('0*** ERROR - IN SUGTPT - POINTER ARRAY PASSED TO ',
+     *   'RPDDLY IS TOO SMALL. LPNTRS=',I4)
+140   FORMAT ('0*** ERROR - IN SUGTPT - DATA ARRAY PASSED TO RPDDLY ',
+     *   'IS TOO SMALL. LDATA=',I4)
+150   FORMAT ('0*** ERROR - IN SUGTPT - INVALID DAILY DATA TYPE (',A4,
+     *   ') PASSED TO RPDDLY.')
+160   FORMAT ('0*** WARNING - IN SUGTPT - VALID DAILY DATA TYPE (',A4,
+     *   ') PASSED TO RPDDLY BUT TYPE NOT DEFINED.')
+170   FORMAT ('0*** ERROR - IN SUGTPT - WORK ARRAY PASSED TO RPDDLY ',
+     *   'IS TOO SMALL. LENDAT=',I4)
+180   FORMAT ('0*** ERROR - IN SUGTPT - SYSTEM ERROR ACCESSING FILE ',
+     *   'FROM RPDDLY.')
+190   FORMAT ('0*** ERROR - IN SUGTPT - RPDDLY STATUS CODE NOT ',
+     *   'RECOGNIZED. IERR=',I10)
+200   FORMAT ('0*** ERROR - IN SUGTPT - DATA TYPE ',A4,
+     *   'NOT SUCCESSFULLY PROCESSED.')
+210   FORMAT (' STAID=',2A4,3X,'DESCRP=',5A4,3X,'STATE=',A4)
+220   FORMAT (' *** EXIT SUGTPT')
+C
+      END

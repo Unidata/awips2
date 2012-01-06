@@ -1,0 +1,17 @@
+==== client_dotnet.out
+Activating response queue listener for: clientSystem.Byte[]
+Waiting for all responses to arrive ...
+Response: TWAS BRILLIG, AND THE SLITHY TOVES
+Response: DID GIRE AND GYMBLE IN THE WABE.
+Response: ALL MIMSY WERE THE BOROGROVES,
+Response: AND THE MOME RATHS OUTGRABE.
+Shutting down listener for clientSystem.Byte[]
+Response: THAT'S ALL, FOLKS!
+==== server.out | remove_uuid
+Activating request queue listener for: request
+Waiting for requests
+Request: Twas brillig, and the slithy toves  (clientSystem.Byte[])
+Request: Did gire and gymble in the wabe.  (clientSystem.Byte[])
+Request: All mimsy were the borogroves,  (clientSystem.Byte[])
+Request: And the mome raths outgrabe.  (clientSystem.Byte[])
+Request: That's all, folks!  (clientSystem.Byte[])

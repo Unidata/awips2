@@ -1,0 +1,12 @@
+#!/bin/sh
+# Utility to print out currently installed versions of qpid developer
+# dependencies. Assumes that some dependencies are installed with RPM.
+# 
+
+for p in pkg-config doxygen help2man autoconf automake libtool ; do
+    echo `which $p` `$p --version | head -n1`
+done
+
+for r in apr boost boost-devel cppunit cppunit-devel graphviz; do
+    rpm -q $r
+done

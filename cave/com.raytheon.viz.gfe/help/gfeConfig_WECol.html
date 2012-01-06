@@ -1,0 +1,341 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.78 [en] (X11; U; Linux 2.4.9-13smp i686) [Netscape]">
+  <title>gfeConfig - Weather Color Algorithm Configuration</title>
+</head>
+<body style="background-color: rgb(255, 255, 255);">
+<div class="Body">
+<div class="3Heading">
+<h2 style="text-align: center;">GFE/ifpIMAGE Configuration File<br>
+Weather Color Algorithm Configuration</h2>
+The weather color algorithm is very complicated.&nbsp; In order to
+understand
+the algorithm, it is important to understand the capability of the
+weather
+key and its components: coverage/probability, type, intensity,
+visibility,
+and optional attributes.
+<p>The allowed names of types, intensities, and coverage/probabilities
+are available in the <a
+ href="serverConfig.html#WeatherConfigurationSection"><!--disable indexer-->serverConfig.py</a>
+file.</p>
+</div>
+<div class="3Heading">&nbsp;
+<table nosave="" border="1" cols="4" width="100%">
+  <tbody>
+    <tr>
+      <td>
+      <center><b>GFE Configuration Item</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to GFE</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to <a href="ifpIMAGE.html"><!--disable indexer-->ifpIMAGE</a></b></center>
+      </td>
+      <td>
+      <center><b>Notes</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#WeatherColorAlgorithm">Weather Color Algorithm</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#WeatherCoverageFillPatterns">Weather Coverage Fill
+Patterns</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#DefiningColorEntriesforWeatherTypesandIntensities">Defining
+Color Entries for Weather Type and Intensities</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#WeatherGenericColros">Weather Generic Colors</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<blockquote>
+</blockquote>
+<hr style="width: 100%; height: 2px;">
+<h4><br>
+</h4>
+<h3>&lt;&gt;<a name="WeatherColorAlgorithm"></a><font size="+1">Weather
+Color
+Algorithm</font>
+</h3>
+The current weather color algorithm ignores visibility and optional
+attributes.&nbsp;
+The following table illustrates the color algorithm. A composite
+weather
+type is defined as more than one weather type combined for one
+coverage/probability.&nbsp;
+For example, rain is a weather type and snow is a weather type.
+Combining
+rain and snow would be considered a composite weather type.
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr nosave="">
+      <td>
+      <center><b>Number of Unique Coverages/Probabilites</b></center>
+      </td>
+      <td>
+      <center><b>Fill Pattern</b></center>
+      </td>
+      <td nosave="">
+      <center><b>Composite Weather Type</b></center>
+      </td>
+      <td>
+      <center><b>Color</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>Based on entries in WeatherCoverage_names and
+WeatherCoverage_fillPatterns.&nbsp;
+Only one fill pattern will be used based on the coverage/probability
+term.</td>
+      <td>No</td>
+      <td>First looks in&nbsp; WeatherTypeInten_names and
+WeatherTypeInten_colors
+to look for a type and intensity match.&nbsp; If not found, looks in
+WeatherType_names
+and WeatherType_colors for a match.&nbsp; If not found, then assigns a
+color from WeatherGeneric_colors.</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>Based on entries in WeatherCoverage_names and
+WeatherCoverage_fillPatterns.&nbsp;
+Only one fill pattern will be used based on the coverage/probability
+term.</td>
+      <td>Yes</td>
+      <td>First looks in&nbsp; WeatherTypeInten_names and
+WeatherTypeInten_colors
+to look for a composite type and intensity match.&nbsp; If not found,
+looks
+in WeatherType_names and WeatherType_colors for a match.&nbsp; If not
+found,
+then assigns a color from WeatherGeneric_colors.</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Based on entries in WeatherCoverage_names and
+WeatherCoverage_fillPatterns.&nbsp;
+The fill pattern is determined for both of the unique
+coverages/probabilities.&nbsp;
+The pattern is overlapped on the display.</td>
+      <td>No</td>
+      <td>For each unique coverage/probability, first looks in&nbsp;
+WeatherTypeInten_names
+and WeatherTypeInten_colors to look for a type and intensity
+match.&nbsp;
+If not found, looks in WeatherType_names and WeatherType_colors for a
+match.&nbsp;
+If not found, then assigns a color from WeatherGeneric_colors. The
+result
+is two colors on the display each with different fill patterns.</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Based on entries in WeatherCoverage_names and
+WeatherCoverage_fillPatterns.&nbsp;
+The fill pattern is determined for both of the unique
+coverages/probabilities.&nbsp;
+The pattern is overlapped on the display.</td>
+      <td>Yes</td>
+      <td>For each unique coverage/probability, first looks in&nbsp;
+WeatherTypeInten_names
+and WeatherTypeInten_colors to look for a composite type and intensity
+match.&nbsp; If not found, looks in WeatherType_names and
+WeatherType_colors
+for a match.&nbsp; If not found, then assigns a color from
+WeatherGeneric_colors.
+The result is two colors on the display each with different fill
+patterns.</td>
+    </tr>
+    <tr>
+      <td>3 or more</td>
+      <td>Solid fill pattern is always used.</td>
+      <td>N/A</td>
+      <td>Uses a color from WeatherGeneric_colors.&nbsp; The solid
+pattern denotes
+a "complex" set of weather.</td>
+    </tr>
+  </tbody>
+</table>
+<h4>
+<a name="WeatherCoverageFillPatterns"></a><font size="+1">Weather
+Coverage
+Fill Patterns</font></h4>
+WeatherCoverage_names and WeatherCoverage_fillPatterns are
+parallel lists of values and must be the same size.&nbsp; For each
+possible
+weather coverage, the fill patterns array defines the fill pattern to
+use.&nbsp;
+There are only a few allowed fill patterns and line patterns that may
+be
+used. If additional patterns are designed, you will need to contact the
+developers. The available fill patterns are:
+<blockquote><li>WHOLE</li>
+  <li>WIDE</li>
+  <li>SCATTERED</li>
+  <li>WIDE_SCATTERED</li>
+  <li>ISOLATED</li>
+  <li>TRANS_25PC_45DEG</li>
+  <li>TRANS_25PC_135DEG</li>
+  <li>SELECTED_AREA</li>
+  <li>DUALCURVE</li>
+  <li>CURVE</li>
+  <li>VERTICAL</li>
+  <li>CROSS</li>
+  <li>HORIZONTAL</li>
+</blockquote>
+You can view <a href="FillPatterns.html">examples of these fill
+patterns
+here</a>.
+<p>For example, if "Iso" coverage is in the 1st entry of the list and
+ISOLATED
+appears in the first entry of the fill patterns, the for Iso coverage,
+the fill pattern ISOLATED will be used.
+</p>
+<p><b><tt>WeatherCoverage_names = ["Iso", "WSct", "Sct", "Num", "Wide",
+"Ocnl", "SChc",</tt></b>
+<br>
+<b><tt>"Chc", "Lkly", "Def", "Patchy", "&lt;NoCov&gt;"]</tt></b>
+<br>
+<b><tt>WeatherCoverage_fillPatterns = ["ISOLATED", "WIDE_SCATTERED",
+"SCATTERED", "WIDE", "WIDE", "TRANS_25PC_45DEG", "ISOLATED",
+"WIDE_SCATTERED",
+"SCATTERED", "WIDE", "SCATTERED", "WHOLE"]</tt></b>
+<br>
+&nbsp;
+</p>
+<h4><a name="DefiningColorEntriesforWeatherTypesandIntensities"></a><font
+ size="+1">Defining
+Color Entries for Weather Types and Intensities</font></h4>
+With the set of WeatherType and WeatherTypeInten lists, the user may
+specify
+different color combinations for different weather types.&nbsp; An
+example
+of this is shown in the following table:
+<table nosave="" border="1" cols="2" width="100%">
+  <tbody>
+    <tr>
+      <td>
+      <center><b>Weather Type/Intensity</b></center>
+      </td>
+      <td>
+      <center><b>Desired Color</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td>Snow regardless of intensity</td>
+      <td>White</td>
+    </tr>
+    <tr>
+      <td>Rain, all intensities other than heavy</td>
+      <td>Green</td>
+    </tr>
+    <tr>
+      <td>Rain, heavy</td>
+      <td>cyan</td>
+    </tr>
+    <tr>
+      <td>Fog</td>
+      <td>Yellow</td>
+    </tr>
+    <tr>
+      <td>Rain and Snow Mixed</td>
+      <td>Purple</td>
+    </tr>
+    <tr>
+      <td>Freezing Rain</td>
+      <td>Orange</td>
+    </tr>
+    <tr>
+      <td>Thunderstorms (TRW)</td>
+      <td>Red</td>
+    </tr>
+    <tr>
+      <td>Strong Thunderstorms (T+RW)</td>
+      <td>Red1</td>
+    </tr>
+    <tr>
+      <td>No weather</td>
+      <td>Gray40</td>
+    </tr>
+  </tbody>
+</table>
+The entries in the two lists would be as follows:
+<p><b><tt>WeatherType_names = ["S", "R", "F", "RS", "ZR", "TRW",
+"&lt;NoWx&gt;"]</tt></b>
+<br>
+<b><tt>WeatherType_colors = ["white", "green", "yellow", "purple",
+"orange", "red", "gray40"]</tt></b>
+<br>
+<b><tt>WeatherTypeInten_names = ["T+RW", "R+"]</tt></b>
+<br>
+<b><tt>WeatherTypeInten_colors = ["red1", "cyan"]</tt></b>
+</p>
+<p><tt>T</tt>he weather type entries are parallel lists of values and
+must
+be the same size.&nbsp; The user defines the color desired for a
+particular
+composite weather type.&nbsp; The color names may be X colors either in
+named color or #rrggbb format. This list does not contain intensity
+descriptors
+and is searched after the WeatherTypeInten_names and
+WeatherTypeInten_colors.
+</p>
+<p>The weather type intensity entries are parallel lists of values and
+must be the same size. The user defines the color desired for a
+particular
+composite weather type and intensity.
+<br>
+&nbsp;
+</p>
+<h4><a name="WeatherGenericColros"></a><font size="+1">Weather Generic
+Colors</font></h4>
+Weather Generic colors are used for any types that are not defined in
+the
+WeatherType_names or WeatherTypeInten_names.&nbsp; The set of generic
+colors
+are also used for complex weather patterns, where 3 or more different
+probabilities/coverages
+are present in a grid cell.&nbsp; The colors in this list will be used
+before a "random" color is chosen.
+<p><b><tt>WeatherGeneric_colors = ["Coral", "CadetBlue2", "Aquamarine",
+"DarkKhaki",</tt></b>
+<br>
+<b><tt>"DodgerBlue", "IndianRed1", "PaleGreen", "MistyRose",
+"chartreuse3",
+"PapayaWhip"]<br>
+</tt></b></p>
+<hr style="width: 100%; height: 2px;"><b><tt><br>
+</tt></b>
+<div class="Body">
+<center><tt><a href="GFESuite.html">Back To TOC</a></tt></center>
+</div>
+</div>
+</body>
+</html>

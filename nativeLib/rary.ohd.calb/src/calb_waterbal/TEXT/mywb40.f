@@ -1,0 +1,253 @@
+C MEMBER MYWB40
+C  (from old member MCEX40)
+C
+      SUBROUTINE MYWB40(PO,P,CO,LOCPS,LOCPL,QO,QS,NOSUB,IOPT1,IDAY,LASTD
+     &A,MOWY,ITOTDA,IBUG,IAPI)
+C***************************************
+C
+C     THIS SUBROUTINE COMPUTES THE MEAN ANNUAL MULTI-YEAR WATER BALANCE
+C     AND THE OPTIONAL MEAN ANNUAL YEARLY WATER BALANCE AND FILLS THE
+C     CO().
+C
+C     THIS SUBROUTINE WAS INITIALLY WRITTEN BY:
+C     ROBERT M. HARPER     HRL      APRIL, 1991
+C***************************************
+C
+      DIMENSION PO(1),P(1),CO(1),LOCPS(1),LOCPL(1),QO(1),QS(1)
+      DIMENSION VAL(7),SNAME(2)
+C
+      COMMON/FDBUG/IODBUG,ITRACE,IDBALL,NDEBUG,IDEBUG(20)
+      COMMON/FCTIME/IDARUN,IHRRUN,LDARUN,LHRRUN,LDACPD,LHRCPD,NOW(5),
+     &LOCAL,NOUTZ,NOUTDS,NLSTZ,IDA,IHR,LDA,LHR,IDADAT
+      COMMON/FENGMT/METRIC
+      COMMON/CALBRT/IMO,IYR,LMO,LYR
+C
+C  last common statement 'calbrt' added by mike smith 11/19/96
+
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/calb/src/calb_waterbal/RCS/mywb40.f,v $
+     . $',                                                             '
+     .$Id: mywb40.f,v 1.2 1996/12/10 16:39:24 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      DATA BLANK/'    '/
+      DATA SNAME/'MYWB','40  '/
+C***************************************
+C
+C     TRACE LEVEL=1
+      IF(ITRACE .GE. 1) WRITE(IODBUG,900) SNAME
+  900 FORMAT(/1X,'** ',2A4,' ENTERED')
+C***************************************
+C
+C     SET INITAL VALUES
+      NC=7
+      AREA=PO(13)
+      LEAPYR=0
+C
+C     SET FLAG IF WATER BALANCE IS TO BE PLOTTED EVERY YEAR. IOPT1=0 IF
+C     OPTION IS OFF. IOPT1=1 IF OPTION IS ON.
+      IOPT1=0
+      IF(PO(15) .LT. 1) GO TO 10
+      IOPT1=1
+C
+   10 IF(IOPT1 .EQ. 0) GO TO 20
+      IF(MOWY .NE. 1) GO TO 20
+C
+C     INITIALIZE SECOND PART OF CO() AT THE BEGINNING OF EACH WATER YEAR
+C     FOR THE YEARLY WATER BALANCE OPTION.
+      DO 30 J=11,21
+        CO(J)=0.0
+   30 CONTINUE
+C***************************************
+C
+C     COMPUTE THE MULTI-YEAR WEIGHTED SUM WATER BALANCE VALUES FOR THE
+C     CURRENT MONTH (ET, PRECIP, SNOW, RAIN+MELT, DELTA STORAGE,
+C     RECHARGE). TEMPORARILY IN VAL().
+   20 DO 40 K=1,NOSUB
+        I1=23+(K-1)*17
+        WT=PO(I1+5)
+C
+        DO 50 I=1,NC
+          VAL(I)=0.0
+   50   CONTINUE
+C
+C       POINTERS FOR THE PS,PL/PO,ARRAYS
+        LPL=LOCPL(K)
+        LPLS=LPL+PO(I1+15)-1
+        LPLP=LPL+PO(I1+16)-1
+        IF(PO(I1+6) .EQ. BLANK) GO TO 125
+C       SNOW MODEL POINTERS
+        LPS=LOCPS(K)
+        LPSS=LPS+PO(I1+10)-1
+C
+  125   IF(IAPI .EQ. 1) GO TO 55
+C
+C       SACRAMENTO MODEL
+C       ET-DEMAND
+        VAL(1)=P(LPLS+11)*WT
+C       ET-ACTUAL
+        VAL(2)=P(LPLS+3)*WT
+        IF(PO(I1+6) .NE. BLANK) GO TO 60
+C       PRECIP
+        VAL(3)=P(LPLS)*WT
+        GO TO 70
+   60   VAL(3)=P(LPSS)*WT
+   70   IF(PO(I1+6) .NE. BLANK) GO TO 80
+        VAL(4)=0.0
+        VAL(5)=0.0
+        GO TO 90
+C       SNOW
+   80   VAL(4)=P(LPSS+1)*WT
+C       RAIN+MELT
+        VAL(5)=P(LPSS+2)*WT
+   90   IF(PO(I1+6) .NE. BLANK) GO TO 100
+C       CHANGE IN STORAGE
+        VAL(6)=(P(LPLS)-(P(LPLS+1)+P(LPLS+2)+P(LPLS+3)))*WT
+        GO TO 110
+  100   VAL(6)=((P(LPLS)-(P(LPLS+1)+P(LPLS+2)+P(LPLS+3)))*WT)+((P(LPSS)-
+     &P(LPSS+2))*WT)
+C       RECHARGE
+  110   VAL(7)=P(LPLS+2)*WT
+        GO TO 115
+C
+C       CONTINUOUS API MODEL
+C       ET-DEMAND
+   55   VAL(1)=0.0
+        VAL(2)=0.0
+        IF(PO(I1+6) .NE. BLANK) GO TO 65
+C       PRECIP
+        VAL(3)=P(LPSS)*WT
+        GO TO 75
+   65   VAL(3)=P(LPSS)*WT
+   75   IF(PO(I1+6) .NE. BLANK) GO TO 85
+        VAL(4)=0.0
+        VAL(5)=0.0
+        GO TO 95
+C       SNOW
+   85   VAL(4)=P(LPSS+1)*WT
+C       RAIN+MELT
+        VAL(5)=P(LPSS+2)*WT
+C       CHANGE IN STORAGE
+   95   VAL(6)=0.0
+C       RECHARGE
+        VAL(7)=0.0
+C***************************************
+C
+C     DEBUG OUTPUT-CONTENTS OF VAL(1-7)
+  115 IF(IBUG .EQ. 0) GO TO 999
+      WRITE(IODBUG,950) K,WT
+  950 FORMAT(/,5X,'MYWB40 DEBUG OUTPUT-CONTENTS OF VAL(1-7) BEFORE WRITI
+     &NG TO CO() FOR SUBAREA NO.',I5,' WITH A WEIGHT OF ',F5.2)
+      WRITE(IODBUG,960) (VAL(L),L=1,7)
+  960 FORMAT(5X,7(F8.2,2X))
+C***************************************
+C
+C       COMPUTE MULTI-YEAR TOTAL WATER BALANCE SUMS. STORE VALUES IN THE
+C       FIRST PART OF THE CO().
+  999   DO 120 I=1,7
+          CO(I)=CO(I)+VAL(I)
+  120   CONTINUE
+        IF(IOPT1 .LT. 1) GO TO 40
+C
+C       COMPUTE OPTIONAL YEARLY TOTAL WATER BALANCE SUMS. STORE VALUES
+C       IN THE SECOND PART OF THE CO().
+        DO 130 I=11,17
+          CO(I)=CO(I)+VAL(I-10)
+  130   CONTINUE
+   40 CONTINUE
+C***************************************
+C
+      IF(IOPT1 .LT. 1) GO TO 140
+C
+C     COMPUTE YEARLY TOTAL OBSERVED AND SIMULATED DISCHARGE SUMS FOR THE
+C     YEARLY WATER BALANCE OPTION.
+      DO 150 I=IDAY,LASTDA
+        IF(QO(I) .LT. -990.0) GO TO 160
+        CO(20)=CO(20)+1
+        CO(18)=CO(18)+QO(I)
+  160   CO(19)=CO(19)+QS(I)
+        CO(21)=CO(21)+1
+  150 CONTINUE
+      IF(MOWY .EQ. 12) GO TO 170
+      IF(LDA .NE. LDARUN) GO TO 140
+C
+C
+C     CONVERT DISCHARGE TO RUNOFF AT END OF CURRENT YEAR.
+C     METRIC UNITS (MM)
+  170 IF(METRIC .EQ. 0) GO TO 180
+      CONV=1.0/(0.011574*AREA)
+      CO(18)=CO(18)*CONV
+      CO(19)=CO(19)*CONV
+      GO TO 190
+C
+C     ENGLISH UNITS (IN)
+  180 CONV=1.0/(0.011574*25.4*AREA)
+      CO(18)=CO(18)*CONV
+      CO(19)=CO(19)*CONV
+      GO TO 190
+C
+C     COMPUTE MEAN ANNUAL VALUES FOR THE SINGLE YEAR OR PARTIAL YEAR
+C     PERIOD.
+  190 DO 200 I=11,19
+        CO(I)=((CO(I)/CO(20))*CO(21))
+  200 CONTINUE
+C***************************************
+C
+C     COMPUTE THE MULTI-YEAR TOTAL OBSERVED AND SIMULATED DISCHARGE SUMS
+C     FOR THE YEARLY WATER BALANCE OPTION.
+  140 DO 210 I=IDAY,LASTDA
+        IF(QO(I) .LT. -990.0) GO TO 220
+        CO(10)=CO(10)+1
+        CO(8)=CO(8)+QO(I)
+  220   CO(9)=CO(9)+QS(I)
+  210 CONTINUE
+      IF(LDA .NE. LDARUN) GO TO 280
+C
+C     CONVERT DISCHARGE TO RUNOFF AT END OF MULTI-YEAR PERIOD.
+C     METRIC UNITS (MM)
+      IF(METRIC .EQ. 0) GO TO 240
+      CONV=1.0/(0.011574*AREA)
+      CO(8)=CO(8)*CONV
+      CO(9)=CO(9)*CONV
+      GO TO 250
+C
+C     ENGLISH UNITS (IN)
+  240 CONV=1.0/(0.011574*25.4*AREA)
+      CO(8)=CO(8)*CONV
+      CO(9)=CO(9)*CONV
+      GO TO 250
+C
+C     DETERMINE THE AVERAGE YEAR LENGTH DURING THE CALIBRATION PERIOD.
+  250 NYR=(LYR-IYR)+1
+      DO 260 KYR=IYR,LYR
+        IF(KYR .EQ. ((KYR/4)*4)) LEAPYR=LEAPYR+1
+  260 CONTINUE
+      AVGYR=((365*NYR)+LEAPYR)/NYR
+C
+C     COMPUTE THE MEAN ANNUAL VALUES FOR THE MULTI-YEAR PERIOD.
+      DO 270 I=1,9
+        CO(I)=(CO(I)/ITOTDA)*AVGYR
+  270 CONTINUE
+C***************************************
+C
+C     DEBUG OUTPUT-CONTENTS OF CO().
+  280 IF(IBUG .EQ. 0) GO TO 230
+      WRITE(IODBUG,800)
+  800 FORMAT(/,5X,'MYWB40 DEBUG OUTPUT - CONTENTS OF THE FIRST PART OF T
+     &HE CO()-MULTIYEAR VALUES.')
+      WRITE(IODBUG,810) (CO(K),K=1,10)
+  810 FORMAT(5X,10(F10.2,1X))
+      WRITE(IODBUG,820)
+  820 FORMAT(/5X,'CONTENTS OF THE SECOND PART OF THE CO()-OPTIONAL YEARL
+     &Y VALUES.')
+      WRITE(IODBUG,830) (CO(K),K=11,21)
+  830 FORMAT(5X,11(F10.2,1X))
+C***************************************
+C
+  230 RETURN
+      END

@@ -1,0 +1,39 @@
+java.naming.factory.initial=org.apache.qpid.jndi.PropertiesFileInitialContextFactory
+java.naming.provider.url=${test.profiles}/test-provider.properties
+
+broker.version=0-8
+broker=vm
+broker.clean=${test.profiles}/clean-dir ${build.data} ${project.root}/build/work/derbyDB
+broker.ready=Listening on TCP port
+broker.config=${project.root}/build/etc/config-systests.xml
+
+max_prefetch=1000
+
+log=debug
+amqj.logging.level=${log}
+amqj.server.logging.level=${log}
+amqj.protocol.logging.level=${log}
+root.logging.level=warn
+log4j.configuration=file:///${test.profiles}/log4j-test.xml
+log4j.debug=false
+
+# Note test-provider.properties also has variables of same name.
+# Keep in sync
+test.port=15672
+test.mport=18999
+#Note : Management will start open second port on: mport + 100 : 19099 
+test.port.ssl=15671
+test.port.alt=25672
+test.port.alt.ssl=25671
+
+test.exclude=true
+profile.excludes=JavaTransientExcludes JavaInVMExcludes
+test.excludes=Excludes XAExcludes JavaExcludes ${profile}.excludes ${profile.excludes}
+test.fork=no
+test.mem=512M
+test=*Test
+haltonfailure=no
+haltonerror=no
+exclude.modules=none
+
+profile.clustered=false

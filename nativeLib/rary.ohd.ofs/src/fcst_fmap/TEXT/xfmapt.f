@@ -1,0 +1,115 @@
+C MODULE XFMAPT
+C-----------------------------------------------------------------------
+C
+      SUBROUTINE XFMAPT (ID1,ID2,CTDIS,IDTDIS,VALUE,COLST,FP)
+C
+C  ********************************************************************
+C  XFMAPT TIME DISTRIBUTES INPUT DAILY FUTURE PRECIP ESTIMATES INTO
+C  FOUR SIX HOURLY PERIODS. IF A TIME DISTRIBUTION IS NOT INPUT, THE
+C  DAILY PRECIP IS DIVIDED EQUALLY AMONG THE FOUR PERIODS.
+C  *********************************************************************
+C
+C
+C  IMPORTANT VARIABLES INCLUDE:
+C
+C     CTDIS = COMMAND CARD TIME DISTRIBUTION (4 VALUES)
+C    TCTDIS = TOTAL COMMAND CARD TIME DISTRIBUTION (SUM OF THE 4 VALUES)
+C    IDTDIS = IDENTIFIER CARD TIME DISTRIBUTION (4 VALUES)
+C     TIDTD = TOTAL IDENTIFIER CARD TIME DISTRIBUTION (SUM OF THE 4
+C             VALUES)
+C     VALUE = DAILY PRECIP ESTIMATE
+C     COLST = COMPUTATIONAL ORDER LIST
+C        FP = FOUR SIX HOURLY PRECIPITATION VALUES
+C
+      REAL IDTDIS
+      DIMENSION CTDIS(4),IDTDIS(4),TD(4),FP(4),COLST(1),OLDOPN(2)
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/pudbug'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_fmap/RCS/xfmapt.f,v $
+     . $',                                                             '
+     .$Id: xfmapt.f,v 1.3 2000/03/14 12:18:02 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      IOPNUM=-1
+      CALL FSTWHR('XFMAPT  ',IOPNUM,OLDOPN,IOLDOP)
+C
+      IF (IPTRCE.GT.0) WRITE (IOPDBG,*) 'ENTER XFMAPT'
+C
+      IBUG=IPBUG('XFT ')
+C
+      TCTDIS=0.0
+      TIDTD=0.0
+C
+C  CHECK FOR AN INPUT TIME DISTRIBUTION
+      DO 10 I=1,4
+         TCTDIS=TCTDIS+CTDIS(I)
+         TIDTD=TIDTD+IDTDIS(I)
+10       CONTINUE
+C
+C  CHECK FOR IDENTIFIER CARD TIME DISTRIBUTION INPUT
+      IF (TIDTD.LT.0.001) GO TO 30
+      DO 20 I=1,4
+         TD(I)=IDTDIS(I)
+20       CONTINUE
+      TTD=TIDTD
+      GO TO 70
+C
+C  CHECK FOR A COMMAND CARD TIME DISTRIBUTION
+30    IF (TCTDIS.LT.0.001) GO TO 50
+      DO 40 I=1,4
+         TD(I)=CTDIS(I)
+40       CONTINUE
+      TTD=TCTDIS
+      GO TO 70
+C
+C  NO TIME DISTRIBUTION INPUT
+50    DO 60 I=1,4
+         TD(I)=0.25
+60       CONTINUE
+      GO TO 110
+C
+70    IF (TTD.LE.1.001) GO TO 90
+C
+C  THE SUM OF THE INPUT TIME DISTRIBUTION IS GREATER THAN ONE -
+C  NORMALIZE AND PRINT A MESSAGE
+      DO 80 I=1,4
+         TD(I)=TD(I)/TTD
+80       CONTINUE
+      WRITE (IPR,130) COLST(ID1*2-1),COLST(ID1*2),COLST(ID2*2-1),
+     $   COLST(ID2*2),'GREATER'
+      CALL WARN
+      GO TO 110
+C
+90    IF (TTD.GT.0.99) GO TO 110
+C
+C  THE SUM OF THE INPUT TIME DISTRIBUTION IS LESS THAN ONE -
+C  NORMALIZE AND PRINT A MESSAGE
+      DO 100 I=1,4
+         TD(I)=TD(I)/TTD
+100      CONTINUE
+      WRITE (IPR,130) COLST(ID1*2-1),COLST(ID1*2),COLST(ID2*2-1),
+     $   COLST(ID2*2),'LESS'
+      CALL WARN
+C
+C  TIME DISTRIBUTE DAILY PRECIP ESTIMATES
+110   DO 120 I=1,4
+         FP(I)=TD(I)*VALUE
+120      CONTINUE
+C
+      IF(IPTRCE.GT.0) WRITE(IOPDBG,*) 'EXIT XFMAPT'
+C
+      CALL FSTWHR(OLDOPN,IOLDOP,OLDOPN,IOLDOP)
+C
+      RETURN
+C
+130   FORMAT ('0**WARNING** THE SUM OF THE TIME DISTRIBUTIONS ',
+     $ 'FOR AREAS ',2A4,'  TO  ',2A4,' IS ',A,' THAN ONE. ',
+     $ 'INPUT DISTRIBUTIONS HAVE BEEN NORMALIZED TO ONE.')
+C
+      END

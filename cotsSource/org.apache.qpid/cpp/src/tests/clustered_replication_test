@@ -1,0 +1,110 @@
+#!/bin/sh
+
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+# Test reliability of the replication feature in the face of link
+# failures:
+source ./test_env.sh
+
+trap stop_brokers INT EXIT
+
+fail() {
+    echo $1
+    exit 1
+}
+
+stop_brokers() {
+    if [[ $PRIMARY1 ]] ; then
+        $QPIDD_EXEC --no-module-dir -q --port $PRIMARY1
+        unset PRIMARY1
+    fi      
+    if [[ $PRIMARY2 ]] ; then
+        $QPIDD_EXEC --no-module-dir -q --port $PRIMARY2
+        unset PRIMARY2
+    fi      
+    if [[ $DR1 ]] ; then
+        $QPIDD_EXEC --no-module-dir -q --port $DR1
+        unset DR1
+    fi
+    if [[ $DR2 ]] ; then
+        $QPIDD_EXEC --no-module-dir -q --port $DR2
+        unset DR2
+    fi
+}
+
+if test -d $PYTHON_DIR; then
+    . $srcdir/ais_check
+
+    #todo: these cluster names need to be unique to prevent clashes
+    PRIMARY_CLUSTER=PRIMARY_$(hostname)_$$
+    DR_CLUSTER=DR_$(hostname)_$$
+
+    GENERAL_OPTS="--auth no --no-module-dir --no-data-dir --daemon --port 0 --log-to-stderr false"
+    PRIMARY_OPTS="--load-module $REPLICATING_LISTENER_LIB --create-replication-queue true --replication-queue REPLICATION_QUEUE --load-module $CLUSTER_LIB --cluster-name $PRIMARY_CLUSTER"
+    DR_OPTS="--load-module $REPLICATION_EXCHANGE_LIB --load-module $CLUSTER_LIB --cluster-name $DR_CLUSTER"
+
+    rm -f repl*.tmp #cleanup any files left from previous run
+
+    #start first node of primary cluster and set up test queue
+    echo Starting primary cluster
+    PRIMARY1=$(with_ais_group $QPIDD_EXEC $GENERAL_OPTS $PRIMARY_OPTS --log-to-file repl.primary.1.tmp) || fail "Could not start PRIMARY1"
+    $PYTHON_COMMANDS/qpid-config -a "localhost:$PRIMARY1" add queue test-queue --generate-queue-events 2
+    $PYTHON_COMMANDS/qpid-config -a "localhost:$PRIMARY1" add queue control-queue --generate-queue-events 1
+
+    #send 10 messages, consume 5 of them
+    for i in `seq 1 10`; do echo Message$i; done | ./sender --port $PRIMARY1
+    ./receiver --port $PRIMARY1 --messages 5 > /dev/null
+
+    #add new node to primary cluster, testing correct transfer of state:
+    echo Adding node to primary cluster
+    PRIMARY2=$(with_ais_group $QPIDD_EXEC $GENERAL_OPTS $PRIMARY_OPTS --log-to-file repl.primary.2.tmp) || fail "Could not start PRIMARY2 "
+
+    #start DR cluster, set up test queue there and establish replication bridge
+    echo Starting DR cluster
+    DR1=$(with_ais_group $QPIDD_EXEC $GENERAL_OPTS $DR_OPTS --log-to-file repl.dr.1.tmp) || fail "Could not start DR1"
+    DR2=$(with_ais_group $QPIDD_EXEC $GENERAL_OPTS $DR_OPTS --log-to-file repl.dr.2.tmp) || fail "Could not start DR2"
+
+    $PYTHON_COMMANDS/qpid-config -a "localhost:$DR1" add queue test-queue
+    $PYTHON_COMMANDS/qpid-config -a "localhost:$DR1" add queue control-queue
+    $PYTHON_COMMANDS/qpid-config -a "localhost:$DR1" add exchange replication REPLICATION_EXCHANGE
+    $PYTHON_COMMANDS/qpid-route queue add localhost:$DR2 localhost:$PRIMARY2 REPLICATION_EXCHANGE REPLICATION_QUEUE
+
+    #send more messages to primary
+    for i in `seq 11 20`; do echo Message$i; done | ./sender --port $PRIMARY1 --send-eos 1
+
+    #wait for replication events to all be processed:        
+    echo Waiting for replication to complete
+    echo Done | ./sender --port $PRIMARY1 --routing-key control-queue --send-eos 1
+    ./receiver --queue control-queue --port $DR1 > /dev/null
+
+    #verify contents of test queue on dr cluster:
+    echo Verifying...    
+    ./receiver --port $DR2 > repl.out.tmp
+    for i in `seq 6 20`; do echo Message$i; done | diff repl.out.tmp - || FAIL=1
+
+    if [[ $FAIL ]]; then
+        echo Clustered replication test failed: expectations not met!
+        exit 1
+    else 
+        echo Clustered replication test passed
+        rm -f repl*.tmp
+    fi
+
+fi

@@ -1,0 +1,95 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+  
+	<bean id="vtecFilter" class="com.raytheon.edex.plugin.warning.util.WarningHasVTECFilter" />
+
+	<bean id="warningDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="warning" />
+		<constructor-arg value="jms-dist:queue:Ingest.Warning?destinationResolver=#qpidDurableResolver" />
+	</bean>
+	
+	<bean id="warningHandleoupDistRegistry" factory-bean="handleoupDistributionSrv"
+		factory-method="register">
+		<constructor-arg value="warning" />
+		<constructor-arg value="jms-dist:queue:Ingest.Warning?destinationResolver=#qpidDurableResolver" />
+	</bean>
+
+    <bean id="warningCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="warning-camel"/>
+  	</bean>  
+
+	<bean id="jms-warning" class="org.apache.camel.component.jms.JmsComponent">
+        <constructor-arg ref="jmsIngestWarningConfig" />
+		<property name="taskExecutor" ref="warningThreadPool" />		
+	</bean>
+	<bean id="jmsIngestWarningConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+			factory-bean="jmsConfig" factory-method="copy">
+	</bean>
+	<bean id="warningThreadPool"
+		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="1" />
+		<property name="maxPoolSize" value="1" />
+	</bean>
+	
+	<camelContext id="warning-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+		<!--
+		<endpoint id="warningEndpoint"
+			uri="file:${edex.home}/data/sbn/warning?noop=true&amp;idempotent=false" />
+
+		<route id="warningFileConsumerRoute">
+			<from ref="warningEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+				<constant>warning</constant>
+			</setHeader>
+			<to uri="jms-generic:queue:Ingest.Warning" />
+		</route>
+		-->
+
+		<!--
+			Warning routes
+		-->
+		<route id="warningIngestRoute">
+			<from uri="jms-warning:queue:Ingest.Warning?destinationResolver=#qpidDurableResolver" />
+			<setHeader headerName="pluginName">
+				<constant>warning</constant>
+			</setHeader>
+			<doTry>
+				<pipeline>
+					<bean ref="stringToFile" />
+					<bean ref="warningDecoder" method="decode" />
+					<bean ref="index" method="index" />
+					<multicast parallelProcessing="false">
+						<to uri="directvm:warningIngestAlert" />
+						<to uri="jms-warning:queue:edex.spcWatch" />
+						<to uri="jms-warning:queue:edex.tpcWatch" />
+						<filter>
+							<method bean="vtecFilter" method="hasVTEC" />
+							<to uri="jms-warning:queue:activeTablePending?destinationResolver=#qpidDurableResolver" />
+						</filter>
+					</multicast>
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:warning?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true" />
+				</doCatch>
+			</doTry>
+		</route>
+
+		<route id="warningIngestAlert">
+			<from uri="directvm:warningIngestAlert" />
+			<bean ref="toDataURI" method="toDataURI" />
+			<bean ref="processUtil" method="log" />
+			<to uri="vm:stageNotification" />
+		</route>
+
+	</camelContext>
+</beans>

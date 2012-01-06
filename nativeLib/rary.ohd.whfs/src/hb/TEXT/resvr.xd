@@ -1,0 +1,672 @@
+module 'Hb'
+version = 47;
+xdesigned = 1;
+applicationName = 'Hb';
+generateNameC = * 'resvr.c';
+generateNameExterns = * 'resvr.h';
+generateNameResDB = * 'resvr.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+generateMask = 39256293;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'resDS' : XmDialogShell {
+	arguments {
+	lastGenName = 'resDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_resDS (Widget parent)
+';
+	XmNwidth = 715;
+	XmNheight = 600;
+	XmNallowShellResize = true;
+	XmNtitle = 'Reservoir';
+	XmNminWidth = 715;
+	XmNminHeight = 600;
+	XmNmaxWidth = 715;
+	XmNmaxHeight = 600;
+	XmNbaseWidth = 715;
+	XmNbaseHeight = 600;
+	};
+object 'resFM' : XmForm {
+	arguments {
+	lastGenName = 'resFM';
+	XmNwidth = 715;
+	XmNheight = 600;
+	XmNautoUnmanage = false;
+	};
+object 'resinfoFrm' : XmFrame {
+	arguments {
+	lastGenName = 'resinfoFrm';
+	};
+object 'resinfoFM' : XmForm {
+	arguments {
+	lastGenName = 'resinfoFM';
+	XmNwidth =  * 691;
+	XmNheight =  * 227;
+	};
+object 'rnameLbl' : XmLabel {
+	arguments {
+	lastGenName = 'rnameLbl';
+	XmNlabelString =  * 'Name:';
+	};
+};
+object 'rnameTxt' : XmText {
+	arguments {
+	lastGenName = 'rnameTxt';
+	XmNmaxLength =  * 20;
+	XmNcolumns =  * 20;
+	};
+};
+object 'rownerLbl' : XmLabel {
+	arguments {
+	lastGenName = 'rownerLbl';
+	XmNlabelString =  * 'Owner:';
+	};
+};
+object 'rownerOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'rownerOM';
+	};
+abstract object 'rownLbl' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'rownLbl';
+	XmNlabelString =  * ' ';
+	};
+};
+abstract object 'rownerCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'rownerCB';
+	};
+object 'rownerPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'rownerPDM';
+	};
+};
+};
+};
+object 'rtypeLbl' : XmLabel {
+	arguments {
+	lastGenName = 'rtypeLbl';
+	XmNlabelString =  * 'Type:';
+	};
+};
+object 'rtypeOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'rtypeOM';
+	};
+abstract object 'rtypLbl' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'rtypLbl';
+	XmNlabelString =  * ' ';
+	};
+};
+abstract object 'rtypeCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'rtypeCB';
+	};
+object 'rtypePDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'rtypePDM';
+	};
+};
+};
+};
+object 'gatesLbl' : XmLabel {
+	arguments {
+	lastGenName = 'gatesLbl';
+	XmNlabelString =  * 'Gates:';
+	};
+};
+object 'gatesTxt' : XmText {
+	arguments {
+	lastGenName = 'gatesTxt';
+	XmNmaxLength =  * 2;
+	XmNcolumns =  * 2;
+	};
+};
+object 'impdtLbl' : XmLabel {
+	arguments {
+	lastGenName = 'impdtLbl';
+	XmNlabelString =  * 'Impound Date:';
+	};
+};
+object 'impdtTxt' : XmText {
+	arguments {
+	lastGenName = 'impdtTxt';
+	XmNmaxLength =  * 10;
+	XmNcolumns =  * 10;
+	};
+};
+object 'resopsRC' : XmRowColumn {
+	arguments {
+	lastGenName = 'resopsRC';
+	};
+object 'fldctrlTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'fldctrlTB';
+	XmNlabelString =  * 'Flood Control';
+	};
+};
+object 'hydroTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'hydroTB';
+	XmNlabelString =  * 'Hydroelectric';
+	};
+};
+object 'lowqTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'lowqTB';
+	XmNlabelString =  * 'Low Flow Augmentation';
+	};
+};
+object 'navTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'navTB';
+	XmNlabelString =  * 'Navigation';
+	};
+};
+object 'recTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'recTB';
+	XmNlabelString =  * 'Recreation';
+	};
+};
+object 'waterTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'waterTB';
+	XmNlabelString =  * 'Water Supply';
+	};
+};
+};
+object 'functionLbl' : XmLabel {
+	arguments {
+	lastGenName = 'functionLbl';
+	XmNlabelString =  * 'Uses:';
+	};
+};
+object 'resstateLbl' : XmLabel {
+	arguments {
+	name = 'resstateLbl';
+	lastGenName = 'resstateLbl';
+	XmNlabelString = 'State:';
+	};
+};
+object 'resstateTxt' : XmTextField {
+	arguments {
+	name = 'resstateTxt';
+	lastGenName = 'resstateTxt';
+	XmNmaxLength = 2;
+	XmNcolumns = 3;
+	};
+};
+object 'resnidLbl' : XmLabel {
+	arguments {
+	name = 'resnidLbl';
+	lastGenName = 'resnidLbl';
+	XmNlabelString = 'Id:';
+	};
+};
+object 'resnidTxt' : XmTextField {
+	arguments {
+	name = 'resnidTxt';
+	lastGenName = 'resnidTxt';
+	XmNmaxLength = 5;
+	XmNcolumns = 7;
+	};
+};
+object 'nidLbl' : XmLabel {
+	arguments {
+	name = 'nidLbl';
+	was_selected = true;
+	lastGenName = 'nidLbl';
+	XmNlabelString = 'National Inventory of Dams';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 71;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 17;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 136;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 1 0;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 67;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 178;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 124;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 170;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 78;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 139;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 124;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 131;
+    };
+    attachment {
+	XmNrightAttachment = 3 8 10;
+	XmNleftAttachment = 1 0 73;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 99;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 138;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 92;
+    };
+    attachment {
+	XmNrightAttachment = 3 10 10;
+	XmNleftAttachment = 1 0 9;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 58;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 137;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 51;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 515;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 64;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 467;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 66;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 464;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 2 0;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 512;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 13 0;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 578;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 14 0;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 15;
+	XmNleftAttachment = 1 0 606;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 15 0;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 4 13 0;
+	XmNbottomAttachment = 3 13 5;
+	XmNtopAttachment = 1 0 0;
+    };
+    };
+};
+object 'rsinfoLbl' : XmLabel {
+	arguments {
+	lastGenName = 'rsinfoLbl';
+	XmNchildType = 2;
+	XmNlabelString =  * 'Information';
+	};
+};
+};
+object 'relevFrm' : XmFrame {
+	arguments {
+	lastGenName = 'relevFrm';
+	};
+object 'relevFM' : XmForm {
+	arguments {
+	lastGenName = 'relevFM';
+	XmNwidth =  * 298;
+	XmNheight =  * 195;
+	};
+object 'sillLbl' : XmLabel {
+	arguments {
+	lastGenName = 'sillLbl';
+	XmNlabelString =  * 'Sill:';
+	};
+};
+object 'sillTxt' : XmText {
+	arguments {
+	lastGenName = 'sillTxt';
+	XmNmaxLength =  * 8;
+	XmNcolumns =  * 8;
+	};
+};
+object 'fullLbl' : XmLabel {
+	arguments {
+	lastGenName = 'fullLbl';
+	XmNlabelString =  * 'Top:';
+	};
+};
+object 'fullTxt' : XmText {
+	arguments {
+	lastGenName = 'fullTxt';
+	XmNmaxLength =  * 8;
+	XmNcolumns =  * 8;
+	};
+};
+object 'srchgLbl' : XmLabel {
+	arguments {
+	lastGenName = 'srchgLbl';
+	XmNlabelString =  * 'Max Surcharge:';
+	};
+};
+object 'srchgTxt' : XmText {
+	arguments {
+	lastGenName = 'srchgTxt';
+	XmNmaxLength =  * 8;
+	XmNcolumns =  * 8;
+	};
+};
+object 'reselevLbl' : XmLabel {
+	arguments {
+	lastGenName = 'reselevLbl';
+	XmNlabelString =  * 'Reservoir:';
+	};
+};
+object 'reselevTxt' : XmText {
+	arguments {
+	lastGenName = 'reselevTxt';
+	XmNmaxLength =  * 8;
+	XmNcolumns =  * 8;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 3 2 10;
+	XmNleftAttachment = 1 0 113;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 110;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 158;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 103;
+    };
+    attachment {
+	XmNrightAttachment = 3 4 10;
+	XmNleftAttachment = 1 0 108;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 65;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 158;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 58;
+    };
+    attachment {
+	XmNrightAttachment = 3 6 10;
+	XmNleftAttachment = 1 0 19;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 20;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 158;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 13;
+    };
+    attachment {
+	XmNrightAttachment = 3 8 10;
+	XmNleftAttachment = 1 0 64;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 155;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 158;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 148;
+    };
+    };
+};
+object 'relevLbl' : XmLabel {
+	arguments {
+	lastGenName = 'relevLbl';
+	XmNchildType = 2;
+	XmNlabelString =  * 'Elevations';
+	};
+};
+};
+object 'poolFrm' : XmFrame {
+	arguments {
+	lastGenName = 'poolFrm';
+	};
+object 'poolFM' : XmForm {
+	arguments {
+	lastGenName = 'poolFM';
+	XmNwidth =  * 303;
+	XmNheight =  * 195;
+	};
+object 'consLbl' : XmLabel {
+	arguments {
+	lastGenName = 'consLbl';
+	XmNlabelString =  * 'Conservation:';
+	};
+};
+object 'consTxt' : XmText {
+	arguments {
+	lastGenName = 'consTxt';
+	XmNmaxLength =  * 8;
+	XmNcolumns =  * 8;
+	};
+};
+object 'deadLbl' : XmLabel {
+	arguments {
+	lastGenName = 'deadLbl';
+	XmNlabelString =  * 'Dead:';
+	};
+};
+object 'deadTxt' : XmText {
+	arguments {
+	lastGenName = 'deadTxt';
+	XmNmaxLength =  * 8;
+	XmNcolumns =  * 8;
+	};
+};
+object 'fldLbl' : XmLabel {
+	arguments {
+	lastGenName = 'fldLbl';
+	XmNlabelString =  * 'Flood:';
+	};
+};
+object 'fldTxt' : XmText {
+	arguments {
+	lastGenName = 'fldTxt';
+	XmNmaxLength =  * 8;
+	XmNcolumns =  * 8;
+	};
+};
+object 'spwayLbl' : XmLabel {
+	arguments {
+	lastGenName = 'spwayLbl';
+	XmNlabelString =  * 'Spillway:';
+	};
+};
+object 'spwayTxt' : XmText {
+	arguments {
+	lastGenName = 'spwayTxt';
+	XmNmaxLength =  * 8;
+	XmNcolumns =  * 8;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 3 2 10;
+	XmNleftAttachment = 1 0 32;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 108;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 158;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 101;
+    };
+    attachment {
+	XmNrightAttachment = 3 4 10;
+	XmNleftAttachment = 1 0 96;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 153;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 158;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 146;
+    };
+    attachment {
+	XmNrightAttachment = 3 6 10;
+	XmNleftAttachment = 1 0 93;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 19;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 158;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 11;
+    };
+    attachment {
+	XmNrightAttachment = 3 8 10;
+	XmNleftAttachment = 1 0 72;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 63;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 158;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 56;
+    };
+    };
+};
+object 'poolLbl' : XmLabel {
+	arguments {
+	lastGenName = 'poolLbl';
+	XmNchildType = 2;
+	XmNlabelString =  * 'Pools';
+	};
+};
+};
+object 'resvrSP' : XmSeparator {
+	arguments {
+	lastGenName = 'resvrSP';
+	};
+};
+object 'rokPB' : XmPushButton {
+	arguments {
+	lastGenName = 'rokPB';
+	XmNwidth =  * 85;
+	XmNheight =  * 35;
+	XmNlabelString =  * 'Ok';
+	};
+};
+object 'rclosePB' : XmPushButton {
+	arguments {
+	lastGenName = 'rclosePB';
+	XmNwidth =  * 85;
+	XmNheight =  * 35;
+	XmNlabelString =  * 'Cancel';
+	};
+};
+object 'rsdelPB' : XmPushButton {
+	arguments {
+	lastGenName = 'rsdelPB';
+	XmNwidth =  * 85;
+	XmNheight =  * 35;
+	XmNlabelString = 'Delete';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -705;
+	XmNleftAttachment = 1 0 6;
+	XmNbottomAttachment = 2 0 -274;
+	XmNtopAttachment = 1 0 8;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 1 10;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 10;
+	XmNleftAttachment = 1 0 398;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 1 10;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -714;
+	XmNleftAttachment = 1 0 1;
+	XmNbottomAttachment = 2 0 -545;
+	XmNtopAttachment = 1 0 519;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 1 0 10;
+	XmNtopAttachment = 3 4 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 313;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 4 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 615;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 4 10;
+    };
+    };
+};
+};
+end module;

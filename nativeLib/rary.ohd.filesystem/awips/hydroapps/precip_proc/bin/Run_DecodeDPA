@@ -1,0 +1,90 @@
+#!/bin/ksh
+#
+#  this script gathers the DPA (Digital Precip Array) radar products
+#  into the proper directory and decodes them
+#
+#  the decodedpa executable decodes the products
+#
+#  a decoded radar product is a 131x131 array of REAL*4 values where each value
+#  represents the average hourly rainfall at the center of each bin
+# 
+#  beginning in OB3, the decoded radar products are in Little Endian format
+#
+
+RUN_FROM_DIR=`dirname $0`
+
+. $RUN_FROM_DIR/../../set_hydro_env
+
+
+DPAPRODDIR=`get_apps_defaults dpa_prod_dir`
+DPALOGDIR=`get_apps_defaults dpa_log_dir`
+BIN_DIR=`get_apps_defaults pproc_bin`
+
+#
+#  set up log filename                                  
+#
+
+Dte=`date +%m%d%Y`
+fnm=$DPALOGDIR/decodedpa_log_$Dte
+
+#
+#  define delete messages written to log file           
+#
+
+delete_message=" product deleted"
+no_delete_message=" product not deleted"
+file=$1
+
+if  [[ -e $file.LCK ]]
+    then
+       return
+else
+    `touch $file.LCK`
+fi 
+
+runso rary.ohd.pproc decode_dpa_main $1 >> $fnm
+
+#
+#   return codes from decodedpa
+#
+# 0 -- valid product (precip > 0 or supplemental message = "no precip detected")
+# 1 -- valid product, no decoded file created
+#      (product not top-of-hour, supplemental message = "bad rate scan" etc)
+# 2 -- invalid product
+#      (loss of data, unexpected EOF, invalid date or time, etc)
+# 3 -- problem outside of product
+#      (error opening database, error opening product)
+# 4 -- radar not in radarloc table  OR  use_radar=F
+# 5 -- problem converting raw product from Big Endian to Little Endian format
+#      (Linux only)
+
+      fstat=$?
+#      echo "decode dpa return code for file: $1 " $fstat >> $fnm
+      if test $fstat -lt 3
+      then
+        rm -f  $file
+        rm -f  $file.LE
+      fi
+
+      if test $fstat -eq 2
+      then
+        echo "$delete_message" >> $fnm
+      elif test $fstat -eq 3
+      then
+        echo "$no_delete_message" >> $fnm
+      fi
+
+      if test $fstat -eq 4
+      then
+        rm -f  $file
+        rm -f  $file.LE
+        echo "$delete_message" >> $fnm
+      fi
+      if test $fstat -eq 5
+      then
+        rm -f  $file
+        rm -f  $file.LE
+        echo "$delete_message" >> $fnm
+      fi
+`rm $file.LCK`
+exit $fstat

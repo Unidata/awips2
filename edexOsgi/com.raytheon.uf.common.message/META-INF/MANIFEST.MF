@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Message Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.message
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
+Export-Package: com.raytheon.uf.common.message,
+ com.raytheon.uf.common.message.adapter,
+ com.raytheon.uf.common.message.response
+Import-Package: com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.serialization.annotations,
+ org.apache.commons.lang,
+ org.junit
+Require-Bundle: net.sf.cglib;bundle-version="2.1.3",
+ com.raytheon.uf.common.status;bundle-version="1.11.11"

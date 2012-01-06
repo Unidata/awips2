@@ -1,0 +1,154 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-shefpars_driv library file
+#
+#  cmt: File made on Wed Aug  6 12:56:08 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU -DUSE_XM_MWMUTIL_H -DUSE_XGPM -Wall -Wno-unused-variable -Wno-comment
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+INSERTS_CC   = -I/usr/include/informix/esql/  \
+               -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .c .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+.c.a:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libshefpars_driv_t.a:  \
+     $(LIB)/libshefpars_driv_t.a(sh2adj.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh2beg.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh2bla.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh2dt2.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh2fnd.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh2loc.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh2nu2.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh2num.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh2nxd.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh2skp.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh2st1.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh2st2.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh2tya.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh2tyd.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh3ad7.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh3add.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh3adh.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh3adk.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh3adt.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh3ady.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh3dec.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh3dlm.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh3dt0.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh3dt1.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh3dt2.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh3dt3.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh3dt4.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh3dt5.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh3dt6.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh3dt7.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh3dt8.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh3tz0.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh4dt0.o)  \
+     $(LIB)/libshefpars_driv_t.a(sh4dt2.o)  \
+     $(LIB)/libshefpars_driv_t.a(shcdat.o)  \
+     $(LIB)/libshefpars_driv_t.a(shctim.o)  \
+     $(LIB)/libshefpars_driv_t.a(shdble.o)  \
+     $(LIB)/libshefpars_driv_t.a(shdcod.o)  \
+     $(LIB)/libshefpars_driv_t.a(shdeca.o)  \
+     $(LIB)/libshefpars_driv_t.a(shdecb.o)  \
+     $(LIB)/libshefpars_driv_t.a(shdece.o)  \
+     $(LIB)/libshefpars_driv_t.a(shdotb.o)  \
+     $(LIB)/libshefpars_driv_t.a(shdriv.o)  \
+     $(LIB)/libshefpars_driv_t.a(shdura.o)  \
+     $(LIB)/libshefpars_driv_t.a(shedln.o)  \
+     $(LIB)/libshefpars_driv_t.a(sherr.o)  \
+     $(LIB)/libshefpars_driv_t.a(sherrk.o)  \
+     $(LIB)/libshefpars_driv_t.a(sherrm.o)  \
+     $(LIB)/libshefpars_driv_t.a(sherrs.o)  \
+     $(LIB)/libshefpars_driv_t.a(shexcd.o)  \
+     $(LIB)/libshefpars_driv_t.a(shfact.o)  \
+     $(LIB)/libshefpars_driv_t.a(shfmt1.o)  \
+     $(LIB)/libshefpars_driv_t.a(shfmt2.o)  \
+     $(LIB)/libshefpars_driv_t.a(shgcal.o)  \
+     $(LIB)/libshefpars_driv_t.a(shgetk.o)  \
+     $(LIB)/libshefpars_driv_t.a(shgjul.o)  \
+     $(LIB)/libshefpars_driv_t.a(shhrfx.o)  \
+     $(LIB)/libshefpars_driv_t.a(shieom.o)  \
+     $(LIB)/libshefpars_driv_t.a(shihr.o)  \
+     $(LIB)/libshefpars_driv_t.a(shijul.o)  \
+     $(LIB)/libshefpars_driv_t.a(shimn.o)  \
+     $(LIB)/libshefpars_driv_t.a(shimo.o)  \
+     $(LIB)/libshefpars_driv_t.a(shise.o)  \
+     $(LIB)/libshefpars_driv_t.a(shiyr.o)  \
+     $(LIB)/libshefpars_driv_t.a(shline.o)  \
+     $(LIB)/libshefpars_driv_t.a(shmaxe.o)  \
+     $(LIB)/libshefpars_driv_t.a(shout.o)  \
+     $(LIB)/libshefpars_driv_t.a(shoza1.o)  \
+     $(LIB)/libshefpars_driv_t.a(shoze1.o)  \
+     $(LIB)/libshefpars_driv_t.a(shoze2.o)  \
+     $(LIB)/libshefpars_driv_t.a(shpabg.o)  \
+     $(LIB)/libshefpars_driv_t.a(shpcod.o)  \
+     $(LIB)/libshefpars_driv_t.a(shpdec.o)  \
+     $(LIB)/libshefpars_driv_t.a(shpos.o)  \
+     $(LIB)/libshefpars_driv_t.a(shprob.o)  \
+     $(LIB)/libshefpars_driv_t.a(shqual.o)  \
+     $(LIB)/libshefpars_driv_t.a(shquot.o)  \
+     $(LIB)/libshefpars_driv_t.a(shsava.o)  \
+     $(LIB)/libshefpars_driv_t.a(shsavd.o)  \
+     $(LIB)/libshefpars_driv_t.a(shsavi.o)  \
+     $(LIB)/libshefpars_driv_t.a(shsavj.o)  \
+     $(LIB)/libshefpars_driv_t.a(shsavk.o)  \
+     $(LIB)/libshefpars_driv_t.a(shsavl.o)  \
+     $(LIB)/libshefpars_driv_t.a(shsavm.o)  \
+     $(LIB)/libshefpars_driv_t.a(shsavn.o)  \
+     $(LIB)/libshefpars_driv_t.a(shsavp.o)  \
+     $(LIB)/libshefpars_driv_t.a(shsavq.o)  \
+     $(LIB)/libshefpars_driv_t.a(shsavs.o)  \
+     $(LIB)/libshefpars_driv_t.a(shsavu.o)  \
+     $(LIB)/libshefpars_driv_t.a(shsend.o)  \
+     $(LIB)/libshefpars_driv_t.a(shtscd.o)  \
+     $(LIB)/libshefpars_driv_t.a(shtypa.o)  \
+     $(LIB)/libshefpars_driv_t.a(shtypd.o)  \
+     $(LIB)/libshefpars_driv_t.a(shtype.o)  \
+     $(LIB)/libshefpars_driv_t.a(shvern.o)  \
+     $(LIB)/libshefpars_driv_t.a(shyear.o)  \
+     $(LIB)/libshefpars_driv_t.a(shcurd.o)
+

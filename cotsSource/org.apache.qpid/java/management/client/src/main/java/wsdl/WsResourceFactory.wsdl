@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions
+	targetNamespace="http://ws.apache.org/muse/test/wsrf"
+	xmlns:tns="http://ws.apache.org/muse/test/wsrf"
+	xmlns="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:wsdl-soap="http://schemas.xmlsoap.org/wsdl/soap/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	name="WsResourceFactory">
+	<wsdl:types>
+	</wsdl:types>
+	<wsdl:portType name="WsResourceFactoryPortType" >
+	</wsdl:portType>
+	<wsdl:binding name="WsResourceFactoryBinding" type="tns:WsResourceFactoryPortType">
+		<wsdl-soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+	</wsdl:binding>
+	<wsdl:service name="WsResourceFactoryService">
+    	<wsdl:port name="WsResourceFactoryPort" binding="tns:WsResourceFactoryBinding">
+    		<wsdl-soap:address location="http://romagazzarini:8080/wsrf/services/WsResourceFactory"/>
+    	</wsdl:port>
+	</wsdl:service>
+</wsdl:definitions>

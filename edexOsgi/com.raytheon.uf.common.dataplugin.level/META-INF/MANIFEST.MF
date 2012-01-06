@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Level Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.level
+Bundle-Version: 1.12.1174.qualifier
+Eclipse-BuddyPolicy: registered, ext, global
+Eclipse-RegisterBuddy:  com.raytheon.uf.common.serialization
+Bundle-Vendor: Raytheon
+Require-Bundle: javax.measure, 
+ javax.persistence,
+ org.apache.commons.lang,
+ org.apache.commons.logging,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.serialization.comm,
+ com.raytheon.uf.common.status
+Export-Package: com.raytheon.uf.common.dataplugin.level,
+ com.raytheon.uf.common.dataplugin.level.request,
+ com.raytheon.uf.common.dataplugin.level.xml
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: org.hibernate.annotations

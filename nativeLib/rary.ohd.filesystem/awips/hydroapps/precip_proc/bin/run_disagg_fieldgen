@@ -1,0 +1,37 @@
+#  ============================================================================
+#  pgm: run_disagg_fieldgen .. test ver of script to run run_disagg/run_mpe_fieldgen
+#
+#  use:     test_run_all  [num-hours]
+#
+#   in: num-hours .... (optional) if given, input into mpe_fieldgen as the
+#   in:                number of hours, else default to 3
+#   in:                CURRENTLY NOT IMPLEMENTED
+#
+#  rqd: commands - run_disagg, run_mpe_fieldgen, set_hydro_env
+#
+#  ver: 20021022
+#  ============================================================================
+                         type dd_help 1>/dev/null 2>&1 && . dd_help 2>/dev/null
+
+Optns="$@"
+
+# This allows you to call this script from outside of ./whfs/bin
+#   RUN_FROM_DIR=`dirname $0`
+#   WhfsDir=$RUN_FROM_DIR/../..
+
+          ## -------------------------------------- set current dir for scripts
+
+RUN_FROM_DIR=`dirname $0`
+. $RUN_FROM_DIR/../../set_hydro_env
+export PPROC_BIN=$(get_apps_defaults pproc_bin)
+
+          ## -------------------------------------- run run_disagg
+$PPROC_BIN/run_disagg $Optns
+RtnCod=$?
+
+if [ "$RtnCod" != 0 ]; then exit 1; fi
+
+          ## -------------------------------------- run run_mpe_fieldgen
+
+$PPROC_BIN/run_mpe_fieldgen $Optns
+ 

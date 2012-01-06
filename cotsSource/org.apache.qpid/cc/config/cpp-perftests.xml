@@ -1,0 +1,63 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements. See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership. The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied. See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
+<cruisecontrol>
+
+    <project name="qpid-cpp-trunk-perftests"
+             buildafterfailed="false">
+
+        <listeners>
+            <currentbuildstatuslistener file="logs/${project.name}/status.txt"/>
+        </listeners>
+
+        <bootstrappers>
+            <svnbootstrapper localWorkingCopy="../cpp" />
+            <svnbootstrapper localWorkingCopy="../specs" />
+            <svnbootstrapper localWorkingCopy="../python" />
+        </bootstrappers>
+
+        <modificationset quietperiod="30">
+            <alwaysbuild />
+        </modificationset>
+
+        <schedule>
+        <ant  	target="cpp-perftests"
+		uselogger="false"
+		time="0000"
+		timeout="3600"
+		antworkingdir="scripts">
+        </ant> 
+        </schedule>
+
+        <publishers>
+           <!--
+            <email subjectprefix="CC report fro ${project.name}" mailhost="localhost"
+                   returnaddress="my_email"
+		   buildresultsurl="http://my_host:8080/buildresults/${project.name}"
+                   skipusers="false" 
+		   reportsuccess="fixes"
+                   spamwhilebroken="true">
+                   <always address="email"/>
+		   <map alias="name" address="email"/>
+            </email>
+	    -->
+        </publishers>
+
+    </project>
+</cruisecontrol>
