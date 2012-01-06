@@ -1,0 +1,216 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta name="copyright" content="Copyright (c) IBM Corporation and others 2000, 2007. This page is made available under license. For full details see the LEGAL in the documentation book that contains this page." >
+<meta http-equiv="Content-Language" content="en-us">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<link rel="STYLESHEET" href="../../book.css" charset="ISO-8859-1"
+	type="text/css">
+<style type="text/css">
+td {border-top: solid thin black;}
+img[alt] {background-color:#ffdddd;}
+tr {vertical-align: top;}
+</style>
+<title>Create an IRC bot</title>
+<script language="JavaScript" type="text/javascript" src="PLUGINS_ROOT/org.eclipse.help/livehelp.js"> </script>
+</head>
+<body bgcolor="#ffffff">
+<h1><img src="../../intro/css/images/ecf_intro.gif">Eclipse Communication Framework (ECF)</h1>
+<p>
+<h2>Create an IRC bot</h2>
+<p>
+A bot is a useful daemon application for a user to automate tasks similar to a
+script or a macro. An IRC bot is generally a bot that sits in an IRC channel
+and performs tasks such as answering to commands and logging. This tutorial
+will explain how to create an IRC bot using the bot framework.
+</p>
+
+<p>
+<h3>Requirements</h3>
+As regular expression pattern matching is used, a Java runtime environment of
+1.4.2 or higher is required.
+</p>
+
+<p>
+<h3>Project Setup</h3>
+<b>Dependencies</b>
+<ol>
+<li>Create a 'Plug-in Project' like how you normally would. Since this is a
+bot that will be run in headless mode, we do not need any UI components. You do
+not even need an activator class.</li>
+<li>Open the 'MANIFEST.MF' file and go to the 'Dependencies' tab.</li>
+<li>Add 'org.eclipse.ecf', 'org.eclipse.ecf.presence', and
+'org.eclipse.ecf.presence.bot' as a 'Required Plug-in'.</li>
+<li>Now add 'org.eclipse.core.runtime' as an 'Imported Package'.</li>
+</ol>
+</p>
+
+<p>
+<b>MANIFEST.MF</b>
+<pre> Manifest-Version: 1.0
+ Bundle-ManifestVersion: 2
+ Bundle-Name: Geir Plug-in
+ Bundle-SymbolicName: org.eclipse.ecf.example.geir;singleton:=true
+ Bundle-Version: 1.0.0
+ Require-Bundle: org.eclipse.ecf,
+  org.eclipse.ecf.presence,
+  org.eclipse.ecf.presence.bot
+ Import-Package: org.eclipse.core.runtime</pre>
+</p>
+
+<p>
+<b>Extensions</b>
+<ol>
+<li>Open the 'Extensions' tab.</li>
+<li>Add the 'org.eclipse.ecf.presence.bot.chatRoomRobot' and the
+'org.eclipse.ecf.presence.bot.chatRoomMessageHandler' extension point.</li>
+<li>Select the 'org.eclipse.ecf.presence.bot.chatRoomRobot' extension.</li>
+<li>Fill in something unique for your 'id'. 'org.eclipse.ecf.example.bot.geir2'</li>
+<li>Fill in 'ecf.irc.irclib' for your 'containerFactoryName'.</li>
+<li>For the 'connectId', select an IRC server of your choice and a name for the
+bot. 'irc://geir2@irc.freenode.net'</li>
+<li>For the 'chatRoom' field, pick the channel that you want your bot to join
+upon successful connection to the server above. '#eclipse'</li>
+<li>Now select the 'org.eclipse.ecf.presence.bot.chatRoomMessageHandler' extension point.</li>
+<li>For your 'id', copy the same 'id' that you filled in above.
+'org.eclipse.ecf.example.bot.geir2'</li>
+<li>In 'filterExpression', enter a regular expression that should be matched
+for parsing purposes for your bot. '(~bug[0-9]*)</li>
+<li>Click on the 'class*' hyperlink and then create a new class that implements
+the 'org.eclipse.ecf.presence.bot.IChatRoomMessageHandler' interface. For this
+example, I will assume that your class's name is 'Geir2Bot' under the
+'org.eclipse.ecf.example.bot' package..</li>
+</ol>
+</p>
+
+<p>
+<b>plugin.xml</b>
+<pre> &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+ &lt;?eclipse version=&quot;3.2&quot;?&gt;
+ &lt;plugin&gt;
+    &lt;extension
+          point=&quot;org.eclipse.ecf.presence.bot.chatRoomMessageHandler&quot;&gt;
+       &lt;handler
+             chatRoomRobotId=&quot;org.eclipse.ecf.example.bot.geir2&quot;
+             class=&quot;org.eclipse.ecf.example.bot.Geir2Bot&quot;
+             filterExpression=&quot;(~bug[0-9]*)&quot;&gt;
+       &lt;/handler&gt;
+    &lt;/extension&gt;
+    &lt;extension
+          point=&quot;org.eclipse.ecf.presence.bot.chatRoomRobot&quot;&gt;
+       &lt;chatRoomRobot
+             connectId=&quot;irc://geir2@irc.freenode.net&quot;
+             containerFactoryName=&quot;ecf.irc.irclib&quot;
+             id=&quot;org.eclipse.ecf.example.bot.geir2&quot;&gt;
+          &lt;chatRooms
+		        name=&quot;#eclipse&quot;&lt;
+          &gt;/chatRooms&lt;
+       &lt;/chatRoomRobot&gt;
+    &lt;/extension&gt;
+ &lt;/plugin&gt;</pre>
+</p>
+
+<p>
+<h3>Writing the Code</h3>
+<ol>
+<li>Open the 'Geir2Bot' class that you have created.</ul>
+<li>Since we want our bot to be able to say something, we need to retrieve an
+interface that will provide us with such a functionality.</ul>
+<li>Add a field to the class of type 'IChatMessageSender'.</ul>
+<li>We will retrieve our instance in the
+'preChatRoomConnect(IChatRoomContainer, ID)' method. This method will be called
+right before our bot joins the channel (#eclipse in our case). You can retrieve
+an instance of an IChatMessageSender by calling 'getChatRoomMessageSender()' on
+the provided 'IChatRoomContainer' instance.</ul>
+<li>Now that our bot has a mechanism for replying, we should write some code to
+parse the messages that the bot receives so that it can give a correct response.
+To get the string that's been said, use the 'getMessage()' method from the
+'IChatRoomMessage' interface that's passed into the
+'handleRoomMessage(IChatRoomMessage)' method.</ul>
+<li>Our regular expression of '(~bug[0-9]*)' implies that any string beginning
+with ~bug followed by any number of digits will be a valid input for our bot to
+read. So let's add some string handling code to route people to Eclipse's
+bugzilla when they type something like ~bug150000 or ~bug180078.</ul>
+<li>To send a reply to the IRC channel, simply use IChatRoomMessageSender's
+'sendMessage(String)' method. This method will throw an 'ECFException', but
+given this simple scenario, we won't bother to handle it.</li>
+</ol>
+</p>
+
+<p>
+<b>org.eclipse.ecf.example.bot.Geir2Bot</b>
+<pre> package org.eclipse.ecf.example.bot;
+ 
+ import org.eclipse.ecf.core.IContainer;
+ import org.eclipse.ecf.core.identity.ID;
+ import org.eclipse.ecf.core.util.ECFException;
+ import org.eclipse.ecf.presence.bot.IChatRoomBotEntry;
+ import org.eclipse.ecf.presence.bot.IChatRoomMessageHandler;
+ import org.eclipse.ecf.presence.chatroom.IChatRoomContainer;
+ import org.eclipse.ecf.presence.chatroom.IChatRoomMessage;
+ import org.eclipse.ecf.presence.chatroom.IChatRoomMessageSender;
+ 
+ public class Geir2Bot implements IChatRoomMessageHandler {
+ 
+ 	private IChatRoomMessageSender sender;
+ 
+ 	public void handleRoomMessage(IChatRoomMessage message) {
+ 		// use substring 1 to just truncate the opening tilda (~)
+ 		String msg = message.getMessage().substring(1);
+ 		try {
+ 			if (msg.equals("bug")) { //$NON-NLS-1$
+ 				// if no number was provided, just send them to bugzilla
+ 				sender.sendMessage("https://bugs.eclipse.org/bugs/"); //$NON-NLS-1$
+ 			} else {
+ 				// otherwise, give the person a direct link to the bug
+  				sender.sendMessage("https://bugs.eclipse.org/bugs/" //$NON-NLS-1$
+ 						+ "show_bug.cgi?id=" + msg.substring(3)); //$NON-NLS-1$
+ 			}
+ 		} catch (ECFException e) {
+ 			e.printStackTrace();
+ 		}
+ 	}
+ 
+ 	public void init(IChatRoomBotEntry robot) {
+ 		// nothing to do
+ 	}
+ 
+ 	public void preChatRoomConnect(IChatRoomContainer roomContainer, ID roomID) {
+ 		sender = roomContainer.getChatRoomMessageSender();
+ 	}
+ 
+ 	public void preContainerConnect(IContainer container, ID targetID) {
+ 		// nothing to do
+ 	}
+ 
+ }</pre>
+</p>
+
+<p>
+<b>Running the Example</b>
+<ol>
+<li>Open the 'Run' dialog and then right-click on 'Eclipse Application' and
+select 'New'.</li>
+<li>From the combo drop down in the 'Program to Run' section, select 'Run an 
+pplication:' and choose 'org.eclipse.ecf.presence.bot.chatRoomRobot'.</li>
+<li>Click on the 'Plug-ins' tab.</li>
+<li>From the top, select 'plug-ins selected below only' from the drop down box.</li>
+<li>Pick the plug-in you created (in the example, this was
+'org.eclipse.ecf.example.geir') and 'org.eclipse.ecf.provider.irc'.</li>
+<li>Click on the '''Add Required Plug-ins''' button on the right and then hit
+'Run'.</li>
+<li>Moments later, your bot should appear in the server and channel that you
+specified in the 'plugin.xml' file.</li>
+</ol>
+</p>
+
+<p>
+<pre> * geir2 (n=geir2@bas3-kitchener06-1096650252.dsl.bell.ca) has joined #eclipse
+ &lt;user&gt; ~bug
+ &lt;geir2&gt; https://bugs.eclipse.org/bugs/
+ &lt;user&gt; ~bug76759
+ &lt;geir2&gt; https://bugs.eclipse.org/bugs/show_bug.cgi?id=76759</pre>
+</p>
+
+</body>
+</html>

@@ -1,0 +1,2 @@
+Null values are those that fall below the "null_nlValue" for a given weather element.  Word methods set the words to the empty string if there are no grids available and to the special string, "null", if the values are below threshold.  In the special case of a range that straddles the "null_nlValue", words are set using the "around" qualifier e.g. "around 10 mph". 
+

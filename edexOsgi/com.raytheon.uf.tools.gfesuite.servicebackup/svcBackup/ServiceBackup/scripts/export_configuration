@@ -1,0 +1,147 @@
+#!/bin/bash
+if [ ${#AWIPS_HOME} = 0 ]
+then
+        path_to_script=`readlink -f $0`
+		export AWIPS_HOME=$(dirname $(dirname $(dirname $(dirname  $path_to_script))))
+fi
+
+# $1 = Site name
+
+. ${AWIPS_HOME}/GFESuite/ServiceBackup/configuration/svcbu.env
+
+SITE=`echo ${1} | tr '[A-Z]' '[a-z]'`
+CAPS_SITE=`echo ${1} | tr [a-z] [A-Z]`
+export SITE
+
+if [ -f ${LOCK_DIR}/${SITE}exportConfig ];
+then
+	log_msg Cannot export configuration for ${CAPS_SITE}.  Export configuration process already in progress!
+	exit 1
+fi
+
+touch ${LOCK_DIR}/${SITE}exportConfig
+
+# Create the log file
+logdir=${IFPS_LOG}/`date +%Y%m%d`
+logfil=svcbu_export_config_`date +%H%M`
+logfile=${logdir}/${logfil}
+[ ! -d ${logdir} ] && (umask 000;mkdir ${logdir})
+touch ${logdir}/${logfil}
+exec 1>${logdir}/${logfil} 2>&1
+
+# Update status percent to 0
+log_msg 0
+
+log_msg Changing to SVCBU_HOME directory: ${SVCBU_HOME}
+cd ${SVCBU_HOME}
+
+log_msg Clearing contents of ${SVCBU_HOME}
+echo ${SVCBU_HOME}/* | xargs rm -rf
+
+log_msg Writing site ID to text file...
+echo $SITE > ${SVCBU_HOME}/siteID.txt 
+log_msg 10
+
+log_msg  Preparing configuration files for export...
+
+edexDest=GFEconfig/edex_static
+commonDest=GFEconfig/common_static
+caveDest=GFEconfig/cave_static 
+log_msg 15
+
+log_msg Making temporary edex configuration directories...
+mkdir -p $edexDest/site
+log_msg 20
+
+log_msg Making temporary common configuration directories...
+mkdir -p $commonDest/site
+log_msg 25
+
+log_msg Making temporary cave configuration directories
+mkdir -p $caveDest/site
+log_msg 30
+
+# Copies the localization information to the staging area
+log_msg Copying common site configuration for site ${CAPS_SITE} to temporary directory...
+cp -r ${LOCALIZATION_PATH}/common_static/site/${CAPS_SITE}/gfe $commonDest/site
+log_msg 40
+
+log_msg Copying edex site configuration for site ${CAPS_SITE} to temporary directory...
+cp -r ${LOCALIZATION_PATH}/edex_static/site/${CAPS_SITE}/config/gfe $edexDest/site
+log_msg 50
+
+log_msg Copying cave site configuration for site ${CAPS_SITE} to temporary directory...
+cp -r ${LOCALIZATION_PATH}/cave_static/site/${CAPS_SITE}/gfe $caveDest/site
+log_msg 60
+
+# Tar up everything.
+log_msg 65
+log_msg Tarring and zipping configuration to file GFEconfig.${SITE}.tar.gz
+tar cf - GFEconfig|gzip -9 - > GFEconfig.${SITE}.tar.gz
+if [ $? -ne 0 ]
+then
+   log_msg "Failed to make GFEConfig tar file.Program exits now."
+   rm -f ${LOCK_DIR}/${SITE}exportConfig
+   exit 1
+fi
+# Cleanup
+log_msg Cleaning up temporary files
+rm -fR GFEconfig
+
+log_msg 75
+log_msg Preparing compressed file for exporting to central server...
+log_msg Compressing to file svc_bkup_${SITE}.tar
+tar cf svc_bkup_${SITE}.tar *.gz siteID.txt
+
+log_msg 85
+
+#check for failure of the tar file
+if [ $? -ne 0 ]
+then
+  log_msg "failed to make the tar file. Program exits."
+
+  rm -f ${LOCK_DIR}/${SITE}exportConfig 
+  exit 1
+fi
+
+# Cleanup zip files
+#
+log_msg Cleaning up zip files
+rm -fr *.gz
+rm siteID.txt
+
+
+log_msg Sending the tar file to the central server...
+
+log_msg 90
+
+# Check to see if ${SVCBU_WMO_HEADER} is assigned a value. If so, call msg_send with -i.
+# Otherwise, don't call it with -i
+if [ -n "${SVCBU_WMO_HEADER}" ]; then
+	log_msg $MSG_SEND_COMMAND -e ${SVCBU_HOME}/svc_bkup_${SITE}.tar -a ${SVCBU_ADDRESSEE} -i ${SVCBU_WMO_HEADER} -s ${SITE}2 -c 20
+    msgSendOutput=$($MSG_SEND_COMMAND -e ${SVCBU_HOME}/svc_bkup_${SITE}.tar -a ${SVCBU_ADDRESSEE} -i ${SVCBU_WMO_HEADER} -s ${SITE}2 -c 20)
+    exitValue=$?
+    if [ $exitValue -ne 0 ]
+    then
+		log_msg "msg_send FAILED with exit value $exitValue and the following error: $msgSendOutput"
+		rm -f ${LOCK_DIR}/${SITE}exportConfig
+	exit 1
+    fi
+else
+	log_msg $MSG_SEND_COMMAND -e ${SVCBU_HOME}/svc_bkup_${SITE}.tar -a ${SVCBU_ADDRESSEE} -s ${SITE}2 -c 20
+    msgSendOutput=$($MSG_SEND_COMMAND -e ${SVCBU_HOME}/svc_bkup_${SITE}.tar -a ${SVCBU_ADDRESSEE} -s ${SITE}2 -c 20)
+    exitValue=$?
+    if [ $exitValue -ne 0 ]
+    then
+		log_msg "msg_send FAILED with exit value $exitValue and the following error: $msgSendOutput"
+		rm -f ${LOCK_DIR}/${SITE}exportConfig
+	exit 1
+    fi
+fi
+log_msg Successfully sent message. MESSAGE ID: $msgSendOutput
+
+#echo ${SVCBU_HOME}/* | xargs rm -rf
+rm -f ${LOCK_DIR}/${SITE}exportConfig
+log_msg Configuration data has been exported!
+log_msg 100
+exit 0

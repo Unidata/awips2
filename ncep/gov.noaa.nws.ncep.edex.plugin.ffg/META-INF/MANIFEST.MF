@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Ffg Plug-in
+Bundle-SymbolicName: gov.noaa.nws.ncep.edex.plugin.ffg
+Bundle-Version: 1.0.0.qualifier
+Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Bundle-Vendor: NOAA/NWS/NCEP/NCO
+Require-Bundle: com.raytheon.edex.common;bundle-version="1.10.13",
+ javax.persistence;bundle-version="1.0.0",
+ org.apache.commons.logging;bundle-version="1.0.4",
+ gov.noaa.nws.ncep.common,
+ gov.noaa.nws.ncep.edex.common;bundle-version="1.0.0",
+ org.apache.log4j;bundle-version="1.0.0",
+ gov.noaa.nws.ncep.common.dataplugin.ffg;bundle-version="1.0.0"
+Export-Package: gov.noaa.nws.ncep.edex.plugin.ffg.decoder,
+ gov.noaa.nws.ncep.edex.plugin.ffg.util
+Import-Package: com.raytheon.uf.edex.decodertools.core,
+ com.raytheon.uf.edex.wmo.message,
+ gov.noaa.nws.ncep.common.tools,
+ gov.noaa.nws.ncep.edex.tools.decoder,
+ gov.noaa.nws.ncep.edex.util,
+ org.junit
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

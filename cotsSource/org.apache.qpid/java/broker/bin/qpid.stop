@@ -1,0 +1,178 @@
+#!/bin/bash
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+# qpid.stop Script
+# 
+# Script checks for a given pid running DEFAULT_SEARCH and attempts to quit it
+#
+
+MAX_ATTEMPTS=2
+SLEEP_DELAY=1
+DEFAULT_SEARCH="PNAME=QPBRKR"
+
+if [ -z "$QPID_STOP_SEARCH" ]; then
+    SEARCH=$DEFAULT_SEARCH;
+else
+    SEARCH=$QPID_STOP_SEARCH;
+fi
+
+#
+# Forcably Quit the specified PID($1)
+#
+forceQuit()
+{
+kill -9 $1
+}
+
+#
+# Gracefully ask the PID($1) to quit
+#
+quit()
+{
+kill $1
+}
+
+#
+# grep for the session ID ($1) and return 0 for successful quit and 1 for process alive
+#
+lookup_pid()
+{
+result=`ps -e | grep $1 | wc -l`
+}
+
+#
+# grep ps for all instances of $SEARCH for the current user and collect PIDs
+#
+lookup_all_pids()
+{
+pids=`pgrep -f -U $USER $SEARCH`
+result_all=`echo -n $pids | wc -w`
+}
+
+#
+# check that the PID passed in is for a Qpid broker owned by this user and alive
+#
+validate_pid()
+{
+result=`pgrep -fl $SEARCH | grep $1 | wc -l`
+}
+
+#
+# Show the PS output for given set of pids
+#
+showPids()
+{
+ps -o user,pid,args -p $pids
+}
+
+#
+# Sleep and then check then lookup the PID($1) to ensure it has quit
+#
+check()
+{
+echo "Waiting $SLEEP_DELAY second for $1 to exit"
+sleep $SLEEP_DELAY
+lookup_pid $1
+}
+
+#
+# Verify the PID($1) is available
+#
+verifyPid()
+{
+validate_pid $1
+if [[ $[$result] == 1 ]] ; then
+ brokerspid=$1
+else
+ echo "Unable to locate Qpid Broker Process with PID $1. Check PID and try again."
+ exit -1
+fi
+}
+
+#
+# Stops all Qpid brokers for current user
+#
+qpid_stopall_brokers()
+{
+for pid in $pids ; do
+    lookup_pid $pid;
+    brokerspid=$pid;
+    stop_broker $pid;
+done
+}
+
+#
+# Stops Qpid broker with brokerspid id
+#
+stop_broker()
+{
+# Attempt to quit the process MAX_ATTEMPTS Times
+attempt=0
+while [[ $[$result] > 0 && $[$attempt] < $[$MAX_ATTEMPTS] ]] ; do
+    quit $brokerspid
+    check $brokerspid
+    attempt=$[$attempt + 1]
+done
+
+# Check that it has quit
+if [[ $[$result] == 0 ]] ; then
+    echo "Process quit"
+else
+
+ attempt=0
+ # Now attempt to force quit the process
+    while [[ $[$result] > 0 && $[$attempt] < $[$MAX_ATTEMPTS] ]] ; do
+        forceQuit $brokerspid
+        check $brokerspid
+        attempt=$[$attempt + 1]
+    done
+
+ # Output final status
+    if [[ $[$result] > 0 && $[$attempt] == $[$MAX_ATTEMPTS] ]] ; then
+	    echo "Stopped trying to kill process: $brokerspid"
+	    echo "Attempted to stop $attempt times"
+    else
+	    echo "Done "
+    fi
+fi
+
+}
+
+#
+# Main Run
+#
+
+# Check if we are killing all qpid pids or just one.
+# Now uses local function qpid_stopall_brokers
+if [[ $# == 0 ]] ; then
+    lookup_all_pids
+    if [[ $[$result_all] > 0 ]] ; then
+        echo "Killing All Qpid Brokers for user: '$USER'"
+        qpid_stopall_brokers
+    else
+        echo "No Qpid Brokers found running for user: " $USER
+    fi
+	exit $result
+else	
+	verifyPid $1
+	stop_broker
+    exit $result
+fi
+

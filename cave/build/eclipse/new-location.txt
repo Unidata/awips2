@@ -1,0 +1,5 @@
+The files that were in this location have moved.
+
+The latest version of Eclipse is now located under the 'cots/uframe-eclipse' 
+directory. The location of Eclipse is specified as a command line argument to 
+the build.sh script.

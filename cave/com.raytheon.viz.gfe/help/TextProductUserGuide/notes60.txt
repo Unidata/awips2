@@ -1,0 +1,2 @@
+Recall the Infrastructure and inheritance hierarchy with the SampleAnalysis and TextRules libraries. We will now learn how to override methods from these libraries.  
+

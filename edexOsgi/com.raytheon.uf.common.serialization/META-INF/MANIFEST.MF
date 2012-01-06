@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Serialization Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.serialization
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Vendor: Raytheon
+Eclipse-BuddyPolicy: registered, ext, global
+Require-Bundle: com.facebook.thrift,
+ com.raytheon.uf.common.status,
+ net.sf.cglib;visibility:=reexport,
+ javax.persistence,
+ org.geotools,
+ javax.measure;resolution:=optional,
+ com.raytheon.uf.common.util
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.serialization.adapters,
+ com.raytheon.uf.common.serialization.annotations,
+ com.raytheon.uf.common.serialization.thrift
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: org.junit

@@ -1,0 +1,106 @@
+#!/bin/sh
+#
+# script to configure LDM scripts with:
+#
+#	LDM PATH environment variable
+# 	location of perl
+#	LDMHOME environment variable
+#	fully qualified hostname
+#
+# To manually configure, define variables below, ie perl="/opt/bin/perl"
+#
+perl="definehere"
+LDMHOME="definehere"
+HOST="definehere"
+path="definehere"
+#
+# end of user configuration
+#
+clear
+echo Run scriptconfig as user LDM to get the correct environment
+echo
+echo Check that the following defines are correct:
+echo
+#
+if [ $path = "definehere" ]
+then
+	echo $PATH > /dev/null
+	if [ $? != 0 ]
+	then
+		echo 'No $PATH environment variable found'
+		echo 'edit scriptconfig to manually set $path variable'
+		exit 1
+	fi
+fi
+echo '$PATH' " is defined as $PATH"
+echo
+#
+if [ $perl = "definehere" ]
+then
+	perl=`which perl`
+	#echo $perl
+	`echo $perl | grep "no perl in"`
+	if [ $? = 0 ]
+	then
+		echo "No perl utility found"
+		echo edit scriptconfig to manually set the location of perl
+		exit 1
+	fi
+fi
+echo perl is located at: $perl
+echo
+#
+if [ $LDMHOME = "definehere" ]
+then
+	echo $HOME > /dev/null
+	if [ $? != 0 ]
+	then
+		echo 'No $HOME environment variable found, needed to set $LDMHOME'
+		echo 'edit scriptconfig to manually set $LDMHOME variable'
+		exit 1
+	fi
+	LDMHOME=$HOME
+fi
+echo '$LDMHOME' " is defined as $LDMHOME"
+echo
+
+if [ $HOST = "definehere" ]
+then
+	HOST=`hostname`
+	#echo $HOST
+	dotindex=`echo $HOST | awk '{print index($1,".")}'`
+	#echo $dotindex
+	if [ $dotindex -eq 0 ]
+	then
+		echo "Fully qualified hostname needed, $HOST not fully qualified."
+		echo 'edit scriptconfig to manually set $HOST variable'
+		exit 1
+	fi
+fi
+echo fully qualified '$HOST' is defined as $HOST
+echo
+#
+echo If these defines are not correct, edit file scriptconfig to manually set
+echo the required variables. Editing instruction are inside file.
+echo
+
+#
+files=`ls *.in`
+#echo $files
+#
+for file in $files
+do
+	if [ $file = "Makefile.in" ]
+	then
+		continue
+	fi
+	fileout=`echo $file | awk '{print substr($1,1,length($1)-3)}'`
+	sed "s#@PERL@#$perl#
+		s#@LDMHOME@#$LDMHOME#
+		s#@PATH@#$PATH#
+		     s/^#.hostname/\$hostname/
+			s#@HOSTNAME@#$HOST#" $file > $fileout
+	chmod 775 $fileout
+	echo $fileout was configured
+done
+#

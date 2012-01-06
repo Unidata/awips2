@@ -1,0 +1,468 @@
+// ----------------------------------------------------------------------------
+// TS - base class from which all time series are derived
+// ----------------------------------------------------------------------------
+// Notes:	(1)	This is the abstract base class for all time series.
+//			The derived class hierarchy is then:
+//
+//					    	   TS
+//				|	    |	  	   |		|
+//				V	    V	    	   V		V
+//			     MinuteTS	HourTS 		 MonthTS    IrregularTS
+//				|	    |       	   |
+//				V	    V       	   V
+//			HECDSSMinuteTS	NWSHourTS     StateModMonthTS
+//
+//			In general, the majority of the data members will be
+//			used for all derived time series.  However, some will
+//			not be appropriate.  The decision has been made to
+//			keep them here to make it less work to manage the
+//			first layer of derived classes.  For example, the
+//			sparse time series does not need to store _interval_base
+//			and _interval_mult.  Most of the other data still
+//			applies.
+//		(2)	Because this is a base class, anything derived
+//			from the class can only be as specific as the base
+//			class.  Therefore, routines to do conversions between
+//			time series types will have to be done outside of this
+//			class library.  We are implementing as a base
+//			class to allow polymorphism when used by complicated
+//			modeling objects (e.g. Operation).
+//		(3)	It is assumed that the first layer will define
+//			the best way to store the data.  In other words,
+//			different data intervals will have different storage
+//			methods.  The goal is not to conceptualize time series
+//			so much that they all consist of an array of date and
+//			data values.  For constant interval time series, the
+//			best performance will be to store the values in an
+//			ordered array that is indexed by month, etc.  If this
+//			assumption is wrong, then maybe the middle layer gets
+//			folded into the base class.
+//		(4)	It will be desirable to build some streaming control
+//			into this class.  For example, we may want to read
+//			multiple time series from the same file (for certain
+//			time series types) or may want to read one block of
+//			data from multiple files (e.g., when running a memory-
+//			sensitive application that only needs to have in memory
+//			one month of data for every time series in the system
+//			and reuses that space).  For now assume that we will
+//			always read the entire time series in but be aware that
+//			more control may be added later.
+// ----------------------------------------------------------------------------
+// History:
+//
+// Apr, May 96	Steven A. Malers, RTi	Start developing the library based on
+//					the C version of the TS library.
+// 10 Sep 96	SAM, RTi		Formalize the class enough so that we
+//					can begin to use with the Operation
+//					class to work on the DSS.
+// 05 Feb 97	SAM, RTi		Add allocateDataSpace and setDataValue
+//					virtual functions.  Add _dirty
+//					so that we know when data has been
+//					set (to indicate that we need to redo
+//					calcMaxMin).  Add getDataPosition and
+//					freeDataSpace.
+// 26 May 97	SAM, RTi		Add writePersistentHeader.  To increase
+//					performance in derived classes, make
+//					more data members protected.  Also add
+//					_data_date1 and _data_date2 to hold the
+//					dates where we actually have data.
+// 06 Jun 1997	SAM, RTi		Add a third position argument to
+//					getDataPosition to work with the
+//					MinuteTS data.  Other intervals will not
+//					use the 2nd or 3rd positions.
+//					Add TSIntervalFromString.
+// 16 Jun 1997	MJR, RTi		Overloaded calcMaxMinValues to 
+//					find and return max and min between
+//					two dates that are passed in.
+// 17 Sep 1997	SAM, RTi		Add an interval for irregular data.
+//					Update so that we do not use defines.
+//					Instead, define static flags that are
+//					part of the class.  Move stand-alone
+//					functions into classes:
+//					TSDoubleYear -> TSDate::toDouble
+//					TSIntervalFromString ->
+//						TSIdent::parseInterval
+//					TSGetNumIntervals ->
+//						TSDate::getNumIntervals
+//					TSGetDateFromIndex ->
+//						TSDate::getDateFromIndex
+// 06 Jan 1998	SAM, RTi		Update to use getDataLimits,
+//					setDataLimits, refresh and change
+//					data limits to _data_limits.  Put all
+//					but the original dates and the overall
+//					date limits in _data_limits.
+//					Add _sequence_number.
+// 01 Apr 1998	MJR, RTi		Added the setIdentifier( TSIdent& )
+//					function.
+// 16 Apr 1998	Daniel Weiler, RTi	Added _is_instantaneous flag
+// ----------------------------------------------------------------------------
+
+#ifndef TS_INCLUDED
+#define TS_INCLUDED
+
+#include <iostream.h>			// Need for I/O
+#include <fstream.h>
+
+#include "TSData.h"			// The time series data point class
+#include "resj/TSDate.h"			// The time series date class
+#include "resj/TSIdent.h"			// The time series identifier class
+#include "TSLimits.h"			// The time series data limits class
+
+#define	INSTANTANEOUS 1
+
+class TS
+{
+// Data that previously were defines...
+// Start the important definitions used in the time series library.  Defining
+// these here is OK because any time series that is derived anywhere along
+// the line will have to include this file somehow.
+
+public:
+
+	static const int DATES_ABSOLUTE;	// All intervals are
+						// absolute date.
+	static const int DATES_RELATIVE;	// Intervals relative
+						// to first.
+	static const int DATES_UNIT;		// No times, just a
+						// counter of readings.
+
+	static const int FORMAT_MATRIX;		// Formats for simple output.
+	static const int FORMAT_SPREADSHEET;	// Formats for simple output.
+
+						// Formatting flags common to
+						// all formats...
+	static const int FORMAT_MATRIX_PRINT_NOTES;
+						// Print notes.
+	static const int FORMAT_MATRIX_PRINT_HEADER;
+						// Print full header.
+
+	static const int FORMAT_SPREADSHEET_TAB_DELIM;
+	static const int FORMAT_SPREADSHEET_COMMA_DELIM;
+	static const int FORMAT_SPREADSHEET_PIPE_DELIM;
+						// Modifiers for spreadsheet
+						// formatting.
+
+						// Modifiers for matrix
+						// formatting...
+	static const int FORMAT_MATRIX_PRINT_STAT_TOT;
+						// Print total values.
+	static const int FORMAT_MATRIX_PRINT_STAT_AT;
+						// Print adjusted total number.
+	static const int FORMAT_MATRIX_PRINT_STAT_NUM;
+						// Print number of values.
+	static const int FORMAT_MATRIX_PRINT_STAT_MIN;
+						// Print minimum value.
+	static const int FORMAT_MATRIX_PRINT_STAT_MAX;
+						// Print maximum value.
+	static const int FORMAT_MATRIX_PRINT_STAT_MEAN;
+						// Print mean value.
+	static const int FORMAT_MATRIX_PRINT_STAT_MED;
+						// Print median value.
+	static const int FORMAT_MATRIX_PRINT_STAT_SDEV;
+						// Print standard deviation.
+	static const int FORMAT_MATRIX_PRINT_ALL_STATS;
+						// Print all matrix format
+						// extras.
+
+/*	static const double INFINITY;		// Large value.
+*/
+    /*modified by Guoxian Zhou 
+	avoid the same varible name from mathdef.h 05/15/2003 */
+	static const double u_INFINITY;		// Large value.
+
+	static const int INTERVAL_SECOND;	// Everything is relative to
+						// this.   We should not have
+						// to go smaller than this
+						// unless we are doing signal
+						// processing.  Then we can use
+						// negative numbers!
+	static const int INTERVAL_MINUTE;	// From here on out, use the
+						// number of seconds in the
+						// interval.
+	static const int INTERVAL_HOUR;
+	static const int INTERVAL_DAY;
+	static const int INTERVAL_WEEK;
+	static const int INTERVAL_MONTH;	// 31 days
+	static const int INTERVAL_YEAR;		// 365 days
+	static const int INTERVAL_IRREGULAR;	// Irregular recordings.
+
+	static const int ISTREAM_STATUS_NONE;	// Have not read in.
+	static const int ISTREAM_STATUS_OPEN;	// In the middle of reading.
+	static const int ISTREAM_STATUS_CLOSED;	// Done reading.
+
+public:
+	// The basic member functions...
+	TS ( void );			// Standard constructor.
+	TS ( char * );			// Need to use a "virtual" constructor
+					// inside of this to instantiate a time
+					// series from a persistent source.
+					// In other words, we want the more
+					// specific derived classes to call
+					// their version of readPersistent()
+					// when a time series is constructed
+					// from a char * file name.
+	virtual ~TS ( void );		// Destructor.
+        TS& operator= ( const TS& );	// Overload =.
+	TS ( const TS& );		// Copy constructor.
+
+	// More specific member functions.  Make most of the return types int
+	// for now so that we can check return status.
+
+	int addToComments ( char * );	// Add to the comments.
+	int addToGenesis ( char * );	// Add to the genesis.
+	int copyHeader ( TS & );	// Copy the header from another time
+					// series.
+	char **getComments ( void );	// Get the comments.
+	virtual TSDate getDataDate ( TSDate &, int );
+					// Get previous or next dates relative
+					// to the specified date.
+	TSLimits getDataLimits ( void );// Get the limits of the data.
+	int getDataIntervalBase( void );// Get the base interval
+	int getDataIntervalBaseOriginal( void );// Get the base interval orig.
+	int getDataIntervalMult( void );// Get the mult interval
+	int getDataIntervalMultOriginal( void );// Get the mult interval orig.
+	char *getDataUnits( void );	// Get the data units
+	char *getDataUnitsOriginal( void );// Get the original data units
+	char *getDataType( void );	// Get the data type
+	TSDate getDate1( void );	// Get the starting date
+	TSDate getDate2( void );	// Get the ending date
+	TSDate getDate1Original( void );// Get the original starting date
+	TSDate getDate2Original( void );// Get the original ending date
+	char *getDescription( void );	// Get the description
+	char **getGenesis ( void );	// Get the genesis array.
+	TSIdent getIdentifier( void );	// Get the identifier
+	char *getIdentifierString( void );
+					// Get the identifier as a string
+	int getInstantaneous ( );	// returns _is_instantaneous. 
+	char *getLocation( void );	// Get the TSIdent location
+	double getMaxValue( void );	// Get the Maximum value;
+	double getMinValue( void );	// Get the Minimum value;
+	double getMissing( void );	// Get the missing data value
+	TSDate getNonMissingDataDate1 ( void );
+					// Get the starting date for
+					// non-missing data.
+	TSDate getNonMissingDataDate2 ( void );
+					// Get the ending date for
+					// non-missing data.
+	int getSequenceNumber ( void );	// Get the sequence number.
+	char *getVersion ( void );	// Get the TS format version.
+
+	int isDataMissing( double );	// Determines if a data point is missing
+
+	int setComments ( char ** );	// Set the comments.
+	int setDate1 ( TSDate );	// Set the starting date.
+	int setDate2 ( TSDate );	// Set the ending date.
+	int setDate1Original ( TSDate );// Set the original starting date.
+	int setDate2Original ( TSDate );// Set the original ending date.
+	int setDataInterval ( int base, int mult );
+					// Set the data interval.
+	int setDataIntervalOriginal ( int base, int mult );
+					// Set the original data interval.
+	int setDataLimits ( TSLimits );	// Set the data limits.
+					// parts.
+	int setDataType ( char * );	// Set the data type.
+	int setDataUnits ( char * );	// Set the data units.
+	int setDataUnitsOriginal ( char * );
+					// Set the original data units.
+	int setDescription ( char * );	// Set the description.
+	int setGenesis ( char ** );	// Set the genesis.
+	int setIdentifier ( char * );	// Set the identifier.
+	int setIdentifier ( char *, char *, char *, char *, char * );
+					// Set the identifier using all 5
+	int setInstantaneous();		// Sets _is_instantaneous to true.
+	int setIdentifier ( TSIdent & );// Set the identifier.
+	int setLocation ( char * );	// Set the TSIdent location.
+	int setMaxValue( double );	// Set the maximum value.
+	int setMinValue( double );	// Set the minumum value.
+	int setMissing ( double );	// Set the missing data value.
+	int setSequenceNumber ( int );	// Set the sequence number.
+	int setVersion ( char * );	// Set the data version.
+
+	// The following are expected to be defined at the first layer
+	// (abstract based on data interval and the data storage format)...
+
+	virtual int allocateDataSpace ( void );	// Allocate the data array
+						// space once start and end
+						// dates are set.
+	virtual int freeDataSpace ( void );	// Free the data space.
+	virtual char **formatOutput ( int, unsigned long );
+	virtual int formatOutput ( ostream &, int, unsigned long int );
+	virtual int formatOutput ( char *, int, unsigned long int );
+						// Format the time series for
+						// output using a simple output
+						// format (e.g., a bulk text
+						// version.  Specify the output
+						// format and the modifier for
+						// that format.  This is meant
+						// to be implemented at the
+						// MonthTS, HourTS, etc., level.
+	virtual TSData getDataPoint ( TSDate & );
+						// Get a point of data.
+	virtual double *getDataPointer ( TSDate& );
+						// Given a date, get a pointer
+						// to the value for that date.
+	virtual int getDataPosition ( TSDate&, int *, int *, int * );
+						// Given a date, get the row
+						// and column (and optional
+						// 3rd dimention) position of
+						// the data in the data array.
+						// This is a utility routine
+						// called by the other routines.
+	virtual double getDataValue ( TSDate& );
+						// Given a date, get the data
+						// value for that date.
+	virtual int refresh ( void ); 		// Calculate the maximum and
+						// minimum values for the
+						// time series data (to reset
+						// _limits).
+	virtual int setDataValue ( TSDate &, double );
+						// Set the data value for a
+						// date.
+
+	// The following are expected to be defined at the second layer
+	// (specific to the native data storage format)...
+
+	virtual int printSample ( ostream & );
+						// Print a sample if
+						// appropriate (if in a
+						// database, maybe print a
+						// note about the table
+						// location).
+	virtual int readPersistent ( istream & );
+	virtual int readPersistent ( char* );
+						// Read from a persistent
+						// storage medium.
+	virtual int readPersistentHeader( istream& );
+	virtual int readPersistentHeader( char* );
+						// Read the header from a 
+						// persistent storage medium.
+	virtual int writePersistent ( ostream & );
+	virtual int writePersistent ( char* );
+						// Write to a persistent
+						// storage medium specific to
+						// a derived class format.  For
+						// example, write a USGS format
+						// output file.  If a simple
+						// output format is desired,
+						// call formatOutput.
+	virtual int writePersistentHeader( ostream& );
+	virtual int writePersistentHeader( char* );
+						// Write the header to a 
+						// persistent storage medium.
+protected:
+	// Protected functions...
+
+	int setNonMissingDataDate1 ( TSDate );	// Set the starting date for
+						// non-missing data.
+	int setNonMissingDataDate2 ( TSDate );	// Set the ending date for
+						// non-missing data.
+
+	// Date/time...
+	TSDate		_date1, _date2;		// The overall limits.  These
+						// are also in _data_limits.
+	TSDate		_date1_original,	// Beginning and ending dates
+			_date2_original;	// (includes time zone) of
+						// data in data source (for
+						// example a file may have 20
+						// years of data but we are
+						// only reading 10.
+
+	// Data interval (might make this a separate class if it gets to be
+	// too troublesome)...
+
+	long int	_data_interval_base;	// The data interval base.  See
+						// TSINTERVAL_*.
+	int		_data_interval_mult;	// The base interval multiplier
+						// (what to multiply
+						// _interval_base by to get the
+						// real interval).  For example
+						// 15-minute data would have
+						// _interval_base =
+						// TSINTERVAL_MINUTE and
+						// _interval_mult = 15.
+	long int	_data_interval_base_original;
+						// The data interval in the
+						// data source (for example, the
+						// source may be in days but
+						// the current time series is
+						// in months).
+	int		_data_interval_mult_original;
+						// See above.  This is for the
+						// original data.
+	// Data type...
+	char		*_data_type;		// NWS data types (or enhanced
+						// data types?)
+	// Units...
+	char		*_data_units;		// Current data units.
+	char		*_data_units_original;	// Units when in data source
+						// (for example the current data
+						// may be in CFS and the
+						// original was in CMS).
+
+	// Version of the data format (mainly for use with files)...
+
+	char		*_version;		// To allow for different
+						// versions of files to be read.
+
+	// Input source information...
+	char		*_input_name;		// Filename if read from file
+						// or perhaps a database
+						// descriptor.
+	ifstream	_input_stream;		// The input stream
+						// corresponding to
+						// "_input_name".
+	int		_input_stream_status;	// Status of the input stream.
+						// See TSISTREAM_STATUS*.
+	// Identifier...
+	TSIdent		_id;			// Identifier.
+	int		_sequence_number;	// Number used when more than
+						// one time series has the same
+						// identifier (e.g., in a
+						// sequence of TS
+						// manipulations).  At this time
+						// it is uncertain how this will
+						// full be used.
+
+	// Indicates whether we have dirtied the data by calling
+	// setDataValue...
+
+	int		_dirty;			// Dirty data flag.  We should
+						// call routines like
+						// calcMaxMin (any others?).
+						// Or better yet call some
+						// other cleanup routine, as
+						// yet undefined.
+	// Limits...
+	TSLimits	_data_limits;		// The maximum and minimum data
+						// values and corresponding
+						// dates, and the first and last
+						// dates with non-missing data.
+
+	int		_date_type;		// See TSDATES_*.
+
+	int 		_is_instantaneous;	// Set if TS is instantaneous
+						// data.
+	// Missing data...
+	double		_missing;		// The missing data value.
+	double		_missingl;		// Lower bound on the missing
+						// data value (for quick
+						// comparisons).
+	double		_missingu;		// Upper bound on the missing
+						// data value (for quick
+						// comparisons).
+
+private:
+
+	// Private function for house keeping
+	int init ( void );
+
+	// Description...
+	char		*_description;		// Short description.
+	char		**_comments;		// For now, use a string list
+						// for comments.
+	// History...
+	char		**_genesis;		// String list of genesis
+						// information.
+};
+
+#endif // TS_INCLUDED

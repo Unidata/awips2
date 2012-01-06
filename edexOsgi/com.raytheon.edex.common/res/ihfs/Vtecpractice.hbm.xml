@@ -1,0 +1,194 @@
+<?xml version="1.0"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+    
+<hibernate-mapping default-lazy="true">
+<!-- 
+    Created by the Middlegen Hibernate plugin 2.1
+
+    http://boss.bekk.no/boss/middlegen/
+    http://www.hibernate.org/
+-->
+
+<class 
+    name="com.raytheon.edex.db.objects.ihfs.Vtecpractice" 
+    table="vtecpractice"
+>
+
+    <composite-id>
+        <key-property 
+            name="geoid" 
+            column="geoid" 
+            type="java.lang.String"
+            length="24"
+        />
+        <key-property 
+            name="productId" 
+            column="product_id" 
+            type="java.lang.String"
+            length="10"
+        />
+        <key-property 
+            name="producttime" 
+            column="producttime" 
+            type="java.sql.Timestamp"
+            length="29"
+        />
+    </composite-id>    
+
+    <property
+        name="productmode"
+        type="java.lang.String"
+        column="productmode"
+        length="1"
+    />
+    <property
+        name="officeId"
+        type="java.lang.String"
+        column="office_id"
+        length="5"
+    />
+    <property
+        name="etn"
+        type="java.lang.Short"
+        column="etn"
+        length="5"
+    />
+    <property
+        name="begintime"
+        type="java.sql.Timestamp"
+        column="begintime"
+        length="29"
+    />
+    <property
+        name="endtime"
+        type="java.sql.Timestamp"
+        column="endtime"
+        length="29"
+    />
+    <property
+        name="risetime"
+        type="java.sql.Timestamp"
+        column="risetime"
+        length="29"
+    />
+    <property
+        name="cresttime"
+        type="java.sql.Timestamp"
+        column="cresttime"
+        length="29"
+    />
+    <property
+        name="falltime"
+        type="java.sql.Timestamp"
+        column="falltime"
+        length="29"
+    />
+    <property
+        name="risets"
+        type="java.lang.String"
+        column="risets"
+        length="2"
+    />
+    <property
+        name="crests"
+        type="java.lang.String"
+        column="crests"
+        length="2"
+    />
+    <property
+        name="fallts"
+        type="java.lang.String"
+        column="fallts"
+        length="2"
+    />
+    <property
+        name="crestValue"
+        type="java.lang.Double"
+        column="crest_value"
+        length="17"
+    />
+    <property
+        name="expiretime"
+        type="java.sql.Timestamp"
+        column="expiretime"
+        length="29"
+    />
+
+    <!-- Associations -->
+  
+    <!-- bi-directional many-to-one association to Vtecrecord -->
+    <many-to-one
+        name="vtecrecord"
+        class="com.raytheon.edex.db.objects.ihfs.Vtecrecord"
+        not-null="true"
+    >
+        <column name="record" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to Vtecsever -->
+    <many-to-one
+        name="vtecsever"
+        class="com.raytheon.edex.db.objects.ihfs.Vtecsever"
+        not-null="true"
+    >
+        <column name="severity" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to Vtecphenom -->
+    <many-to-one
+        name="vtecphenom"
+        class="com.raytheon.edex.db.objects.ihfs.Vtecphenom"
+        not-null="true"
+    >
+        <column name="phenom" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to Vtecaction -->
+    <many-to-one
+        name="vtecaction"
+        class="com.raytheon.edex.db.objects.ihfs.Vtecaction"
+        not-null="true"
+    >
+        <column name="action" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to Vteccause -->
+    <many-to-one
+        name="vteccause"
+        class="com.raytheon.edex.db.objects.ihfs.Vteccause"
+        not-null="true"
+    >
+        <column name="immed_cause" />
+    </many-to-one>
+    <!-- bi-directional many-to-one association to Vtecsignif -->
+    <many-to-one
+        name="vtecsignif"
+        class="com.raytheon.edex.db.objects.ihfs.Vtecsignif"
+        not-null="true"
+    >
+        <column name="signif" />
+    </many-to-one>
+
+</class>
+</hibernate-mapping>
+    <!--
+        
+    -->
+

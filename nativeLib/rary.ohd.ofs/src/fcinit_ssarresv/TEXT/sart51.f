@@ -1,0 +1,263 @@
+C MEMBER SART51
+C-----------------------------------------------------------------
+C
+C@PROCESS LVL(77)
+C
+      SUBROUTINE SART51(WK,IUSEW,LEFTW,NTSAR)
+C
+C DESC GET TIME-SERIES INFO FOR SAR SUB-SECTION OF OPERATION 51
+C-------------------------------------------------------------------
+C  ARGS:
+C     WK - ARRAY TO HOLD ENCODED TIME-SERIES INFO
+C    IUSEW - NUMBER OF WORDS ALREADY USED IN WORK ARRAY
+C    LEFTW - NUMBER OF WORDS LEFT IN WORK ARRAY
+C     NTSAR - NUMBER OF WORDS NEEDED TO STORE TS INFO
+C-------------------------------------------------------------------
+C
+C  KUANG HSU - HRL - APRIL 1994
+C----------------------------------------------------------------
+      INCLUDE 'common/read51'
+      INCLUDE 'common/fld51'
+      INCLUDE 'common/comn51'
+      INCLUDE 'common/fdbug'
+C
+      DIMENSION KEYWDS(2,16),LKEYWD(16),UC(13),DIM(13),WK(*)
+      DIMENSION TSID(2,13),DTYPE(13),IDT(13),TSIO(13)
+      LOGICAL TSOK(13),NRQFND(13)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_ssarresv/RCS/sart51.f,v $
+     . $',                                                             '
+     .$Id: sart51.f,v 1.3 2000/07/21 16:59:33 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      DATA KEYWDS/
+     .            4HINST,4HQO1 ,4HINST,4HQO2 ,4HMEAN,4HQOUT,
+     .            4HPOOL,4H    ,4HSTOR,4HAGE ,
+     .            4HOBSQ,4HO   ,4HOBSQ,4HOM  ,4HOBSH,4H    ,
+     .            4HTRIB,4HQL1 ,4HTRIB,4HQL2 ,4HBACK,4HQI1 ,
+     .            4HBACK,4HQI2 ,4HBACK,4HQIM ,
+     .            4HENDT,4H    ,4HENDT,4HS   ,4HENDS,4HAR  /
+      DATA LKEYWD/2,2,2,1,2,2,2,1,2,2,2,2,2,1,2,2/
+      DATA NKEYWD/16/
+      DATA NDKEY/2/
+C
+      DATA  UC/4HCMS ,4HCMS ,4HCMSD,4HM   ,4HCMSD,
+     &         4HCMS ,4HCMSD,4HM   ,4HCMS ,4HCMS ,
+     &         4HCMS ,4HCMS ,4HCMSD/
+      DATA DIM/4HL3/T,4HL3/T,4HL3  ,4HL   ,4HL3  ,
+     &         4HL3/T,4HL3  ,4HL   ,4HL3/T,4HL3/T,
+     &         4HL3/T,4HL3/T,4HL3  /
+      DATA BLANK/4H    /
+C
+      DATA TSIO/1.01,1.01,1.01,1.01,1.01,0.01,0.01,0.01,1.01,1.01,
+     & 1.01,1.01,1.01/
+C
+C  INITIALIZE LOCAL VARIABLES
+C
+      NTSAR = 0
+      USEDUP = .FALSE.
+C
+C  INITIALIZE TIME-SERIES ID'S TO BLANKS
+C
+      DO 5 I=1,13
+      TSID(1,I) = BLANK
+      TSID(2,I) = BLANK
+      TSOK(I) = .FALSE.
+      NRQFND(I) = .FALSE.
+    5 CONTINUE
+C
+C----------------------------------------------------------------
+C  LOOK FOR PROPER TIME-SERIES KEYWORDS
+C
+ 10   CONTINUE
+      NUMFLD = 0
+      CALL UFLD51(NUMFLD,IERF)
+      IF (IERF.GT.0) GO TO 9000
+C
+   20 CONTINUE
+      NUMWD = (LEN-1)/4 + 1
+      IDEST = IKEY26(CHAR,NUMWD,KEYWDS,LKEYWD,NKEYWD,NDKEY) + 1
+C
+      GO TO (100,300,300,300,300,300,300,300,300,300,300,300,300,300,
+     & 400,400,500), IDEST
+C
+C------------------------------------------------------------
+C  NO VALID KEYWORD FOUND
+C
+  100 CONTINUE
+      CALL STER51(1,1)
+      GO TO 10
+C
+C-----------------------------------------------------------------------
+C AN OPTIONAL TIME-SERIES KEYWORD HAS BEEN FOUND. WE MUST NOW GET
+C  THE TS ID, DATA TYPE, AND TIME INTERVAL.  IF THIS TYPE OF
+C  TS HAS ALREADY BEEN FOUND, SIGNAL AN ERROR.
+C
+  300 CONTINUE
+      ID = IDEST-1
+      IF (.NOT.NRQFND(ID)) GO TO 310
+C
+      CALL STER51(44,1)
+      GO TO 10
+C
+C  SIGNAL THAT TIME-SERIES HAS BEEN FOUND AND GET NEXT THREE FIELDS
+C  ON LINE
+C
+  310 CONTINUE
+      NRQFND(ID) = .TRUE.
+C
+      CALL TSID51(TSID(1,ID),DTYPE(ID),IDT(ID),TSOK(ID))
+C
+      IF (.NOT.TSOK(ID)) GO TO 10
+C
+C  SEE IF TIME-SERIES EXISTS
+C
+      ICHK = 0
+cc      MSGVAL = 0
+cc      IF(ID.GE.6 .AND. ID.LE.10) MSGVAL=1
+      MSGVAL=1.01-TSIO(I)
+      CALL CHEKTS(TSID(1,ID),DTYPE(ID),IDT(ID),ICHK,DCODE,
+     & MSGVAL,0,IERCK)
+      IF (IBUG.GE.2) WRITE(IODBUG,1666) ICHK
+ 1666 FORMAT('  VALUE OF ICHK = ',I10)
+C
+      IF (IERCK.NE.0) THEN
+C  TIME-SERIES DOES NOT EXIST OR MISSING DATA NOT ALLOWED
+C
+        CALL STER51(45,1)
+        TSOK(ID) = .FALSE.
+        GO TO 10
+      END IF
+C
+C  CHECK UNITS FOR THIS TIME-SERIES
+C
+      IX = ID
+      CALL FDCODE(DTYPE(ID),UCODE,DCODE,IX,IX,X,IX,IERD)
+C
+      IF (ID.EQ.9 .OR. ID.EQ.10) THEN
+      IF (UCODE.EQ.UC(ID) .OR.UCODE.EQ.UC(8)) GO TO 320
+      ENDIF
+C
+      IF (UCODE.NE.UC(ID)) THEN
+        CALL STRN51(93,1,UCODE,1)
+        TSOK(ID) = .FALSE.
+        GO TO 10
+      END IF
+C
+C  CHECK DIMENSIONS AGAINST ALLOWED FOR THIS TIME SERIES.
+C
+      IF (DCODE.NE.DIM(ID)) THEN
+        CALL STER51(46,1)
+        TSOK(ID) = .FALSE.
+        GO TO 10
+      END IF
+C
+C     TIME INTERVAL MUST BE BETWEEN 1 - 24
+C
+C
+320   CONTINUE
+       IF (IDT(ID).LE.0 .OR. IDT(ID).GE.25) THEN
+        CALL STER51(47,1)
+        TSOK(ID) = .FALSE.
+        GO TO 10
+      END IF
+C
+      GO TO 10
+C
+C--------------------------------------------------------------------
+C  'ENDT' HAS BEEN FOUND. TIME TO PROCESS AND STORE TS INFO IN THE ORDER
+C    1) INSTQO1 (OUTPUT)
+C    2) INSTQO2 (OUTPUT)
+C    3) MEANQOUT (OUTPUT)
+C    4) POOL (OUTPUT)
+C    5) STORAGE (OUTPUT)
+C    6) OBSQO (INPUT)
+C    7) OBSQOM (INPUT)
+C    8) OBSH (INPUT)
+C    9) UPSQH (INPUT)
+C   10) DNSQH (INPUT)
+C   11) BACKQI1 (OUTPUT)
+C   12) BACKQI2 (OUTPUT)
+C   13) BACKQIM (OUTPUT)
+C
+  400 CONTINUE
+C
+C--------------------------------------------------------------------
+C  NOW STORE ANY OPTIONAL TIME-SERIES. THESE MUST BE ENTERED WITH
+C  NO ERRORS TO BE STORED FULLY. IF THEY HAVEN'T BEEN DEFINED, AN ALL
+C  BLANK ID IS STORED IN WORK ARRAY
+C
+      IF(MINODT.LE.0) MINODT=IDT(2)
+C
+      DO 490 I=1,13
+C
+C  IF AN OPTIONAL TIME-SERIES HASN'T BEEN ENTERED, JUST STORE BLANKS
+C
+      IF (.NOT.NRQFND(I)) GO TO 480
+C
+C  IF AN ERROR OCCURRED ON INPUT, SKIP TO NEXT TIME-SERIES.
+C
+      IF (.NOT.TSOK(I)) GO TO 490
+C
+C  STORE THE ID, DATA TYPE AND TIME INTERVAL
+C
+      CALL FLWK51(WK,IUSEW,LEFTW,TSID(1,I),501)
+      CALL FLWK51(WK,IUSEW,LEFTW,TSID(2,I),501)
+      CALL FLWK51(WK,IUSEW,LEFTW,DTYPE(I),501)
+C
+C  CHECK TO SEE THAT TIME INTERVAL FOR THE TIME SERIES ARE
+C  THE SAME AS OPERATIONAL TIME INTERVAL
+C
+      IF(IDT(I).NE.MINODT) THEN
+        CALL STER51(48,1)
+        NTSAR = NTSAR + 5
+        GO TO 9999
+      ENDIF
+      DT = IDT(I) + 0.01
+      CALL FLWK51(WK,IUSEW,LEFTW,DT,501)
+      CALL FLWK51(WK,IUSEW,LEFTW,TSIO(I),501)
+C
+      NTSAR = NTSAR + 5
+      GO TO 490
+C
+C  JUST STORE A BLANK ID IN WORK
+C
+  480 CONTINUE
+      CALL FLWK51(WK,IUSEW,LEFTW,BLANK,501)
+      CALL FLWK51(WK,IUSEW,LEFTW,BLANK,501)
+      CALL FLWK51(WK,IUSEW,LEFTW,BLANK,501)
+      CALL FLWK51(WK,IUSEW,LEFTW,BLANK,501)
+      CALL FLWK51(WK,IUSEW,LEFTW,BLANK,501)
+C
+      NTSAR = NTSAR + 5
+C
+  490 CONTINUE
+      GO TO 9999
+C
+C-----------------------------------------------------------------------
+C  ENDSAR FOUND WHERE IT SHOULDN'T BE. SIGNAL ERROR AND RETURN
+C
+  500 CONTINUE
+      USEDUP = .TRUE.
+      CALL STER51(43,1)
+      GO TO 9999
+C
+C
+ 9000 CONTINUE
+      IF (IERF.EQ.1) CALL STER51(19,1)
+      IF (IERF.EQ.2) CALL STER51(20,1)
+      IF (IERF.EQ.3) CALL STER51(21,1)
+      IF (IERF.EQ.4) CALL STER51(1,1)
+      IF (IERF.NE.3) GO TO 10
+      USEDUP = .TRUE.
+C
+C-------------------------------------------------------
+C
+ 9999 CONTINUE
+      RETURN
+      END

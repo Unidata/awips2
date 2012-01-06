@@ -1,0 +1,4 @@
+! DbOverlay
+tableName=mapdata.basins
+labelField=name
+mapName=River Drainage Basins

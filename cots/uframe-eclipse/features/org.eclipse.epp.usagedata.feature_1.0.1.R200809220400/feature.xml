@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.eclipse.epp.usagedata.feature"
+      label="Usage Data Collector"
+      version="1.0.1.R200809220400"
+      provider-name="Eclipse.org">
+
+   <description url="http://www.eclipse.org/epp/usagedata/index.php">
+      The Usage Data Collector collects information
+about how individuals are using the Eclipse platform. This
+information is periodically uploaded to servers hosted by
+The Eclipse Foundation (though this is configurable). The intent
+is to use this data to help committers and organizations better
+understand how developers are using Eclipse.
+Target Users of the Data:
+* Users of Eclipse
+* Committers working on Eclipse projects
+* ISVs and organization creating Eclipse based software
+* Enterprise IT departments that make extensive use of Eclipse
+Foundation
+* Academic researchers that want to study how developer work
+Data to Be Collected
+Captured data is associated with a user through a combination
+of workstation and workspace ids that are automatically generated
+by the collector. This identification is not tied to any personal
+information about the user.
+The usage data monitors:
+* Start up and shutdown times of a workspace
+* What is being used and when (timestamp), including
+1. Loaded bundles
+2. Commands accessed via keyboard shortcuts
+3. Actions invoked via menus or toolbars
+4. Perspective changes
+5. View usage
+6. Editor usage 
+Where possible, the usage data collector also capture the symbolic
+name and version of the bundle contributing the command/action/perspective/view/editor.
+   </description>
+
+   <copyright url="http://www.eclipse.org/legal/epl-v10.html">
+      Copyright (c) 2007, 2008 The Eclipse Foundation.
+All rights reserved. This program and the accompanying materials
+are made available under the terms of the Eclipse Public License
+v1.0 which accompanies this distribution, and is available at
+http://www.eclipse.org/legal/epl-v10.html
+   </copyright>
+
+   <license url="http://www.eclipse.org/legal/epl-v10.html">
+      %license
+   </license>
+
+   <url>
+      <update label="EPP Update Site" url="http://download.eclipse.org/technology/epp/updates/1.0/"/>
+   </url>
+
+   <requires>
+      <import plugin="org.eclipse.core.runtime" version="3.3.0" match="compatible"/>
+      <import plugin="org.eclipse.ui" version="3.3.0" match="compatible"/>
+      <import plugin="org.eclipse.ui.forms" version="3.3.0" match="compatible"/>
+   </requires>
+
+   <plugin
+         id="org.apache.commons.httpclient"
+         download-size="0"
+         install-size="0"
+         version="3.1.0.v20080605-1935"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.epp.usagedata.gathering"
+         download-size="0"
+         install-size="0"
+         version="1.0.1.R200809220400"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.epp.usagedata.recording"
+         download-size="0"
+         install-size="0"
+         version="1.0.1.R200809220400"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.epp.usagedata.ui"
+         download-size="0"
+         install-size="0"
+         version="1.0.1.R200809220400"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.codec"
+         download-size="0"
+         install-size="0"
+         version="1.3.0.v20080530-1600"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.logging"
+         download-size="0"
+         install-size="0"
+         version="1.0.4.v20080605-1930"
+         unpack="false"/>
+
+</feature>

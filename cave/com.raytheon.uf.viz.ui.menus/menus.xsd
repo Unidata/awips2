@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="menuContributionFile" type="menuContributionFile"/>
+
+  <xs:element name="menuTemplate" type="menuTemplateFile"/>
+
+  <xs:complexType name="menuTemplateFile">
+    <xs:sequence>
+      <xs:element name="contribute" type="abstractMenuContribution" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="abstractMenuContribution" abstract="true">
+  	<xs:sequence />
+  	<xs:attribute name="id" type="xs:string" />
+  	<xs:attribute name="suppressErrors" type="xs:string" />
+  </xs:complexType>
+
+  <xs:complexType name="menuContributionFile">
+    <xs:sequence>
+      <xs:element name="substitute" type="variableSubstitution" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="include" type="include" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="include">
+    <xs:sequence>
+      <xs:element name="substitute" type="variableSubstitution" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="remove" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="visibleOnActionSet" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="fileName" type="xs:string" use="required"/>
+    <xs:attribute name="installTo" type="xs:string"/>
+    <xs:attribute name="subMenu" type="xs:string"/>
+  </xs:complexType>
+
+  <xs:complexType name="variableSubstitution">
+    <xs:sequence/>
+    <xs:attribute name="key" type="xs:string" use="required"/>
+    <xs:attribute name="value" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="bundleItem">
+    <xs:complexContent>
+      <xs:extension base="abstractMenuContribution">
+        <xs:sequence>
+          <xs:element name="dataURI" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element name="substitute" type="variableSubstitution" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="timeQuery" type="xs:boolean"/>
+        <xs:attribute name="menuText" type="xs:string"/>
+        <xs:attribute name="file" type="xs:string"/>
+        <xs:attribute name="productInterval" type="xs:int"/>
+        <xs:attribute name="useReferenceTime" type="xs:boolean"/>
+        <xs:attribute name="productOffset" type="xs:int"/>
+        <xs:attribute name="editorType" type="xs:string"/>
+        <xs:attribute name="fullBundleLoad" type="xs:boolean"/>
+        <xs:attribute name="commandId" type="xs:string"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="satBundleItem">
+    <xs:complexContent>
+      <xs:extension base="bundleItem">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+    <xs:complexType name="toolBarItem">
+    <xs:complexContent>
+      <xs:extension base="abstractMenuContribution">
+        <xs:sequence>
+          <xs:element name="contribute" type="abstractMenuContribution" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="toolItemName" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="menuItem">
+    <xs:complexContent>
+      <xs:extension base="abstractMenuContribution">
+        <xs:attribute name="menuText" type="xs:string"/>
+        <xs:attribute name="textLookup" type="xs:string"/>
+        <xs:attribute name="key" type="xs:string"/>
+        <xs:attribute name="dataType" type="xs:string"/>
+        <xs:attribute name="indentText" type="xs:boolean"/>
+        <xs:attribute name="mapScale" type="xs:string"/>
+        <xs:attribute name="displayType" type="xs:string"/>
+        
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="vertCoordMenuItem">
+    <xs:complexContent>
+      <xs:extension base="menuItem">
+        <xs:attribute name="heightScale" type="xs:string"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="titleItem">
+    <xs:complexContent>
+      <xs:extension base="abstractMenuContribution">
+        <xs:attribute name="titleText" type="xs:string"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="titleImgItem">
+    <xs:complexContent>
+      <xs:extension base="abstractMenuContribution">
+        <xs:attribute name="titleText" type="xs:string"/>
+        <xs:attribute name="displayImage" type="xs:boolean"/>
+        <xs:attribute name="displayDashes" type="xs:boolean"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="command">
+    <xs:complexContent>
+      <xs:extension base="abstractMenuContribution">
+        <xs:sequence>
+          <xs:element name="parameter" type="variableSubstitution" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="menuText" type="xs:string"/>
+        <xs:attribute name="commandId" type="xs:string"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="subMenu">
+    <xs:complexContent>
+      <xs:extension base="abstractMenuContribution">
+        <xs:sequence>
+          <xs:element name="contribute" type="abstractMenuContribution" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="menuText" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="toolbarSubMenu">
+    <xs:complexContent>
+      <xs:extension base="abstractMenuContribution">
+        <xs:sequence>
+          <xs:element name="contribute" type="abstractMenuContribution" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="menuText" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="separator">
+    <xs:complexContent>
+      <xs:extension base="abstractMenuContribution">
+        <xs:sequence/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="subinclude">
+  	<xs:complexContent>
+  		<xs:extension base="abstractMenuContribution">
+  			<xs:sequence>
+  				<xs:element name="substitute"
+  					type="variableSubstitution" minOccurs="0" maxOccurs="unbounded" />
+  			</xs:sequence>
+  			<xs:attribute name="fileName" type="xs:string"
+  				use="required" />
+  			<xs:attribute name="subMenu" type="xs:string"></xs:attribute>
+  		</xs:extension>
+  	</xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="placeholder">
+    <xs:complexContent>
+      <xs:extension base="abstractMenuContribution">
+        <xs:sequence/>
+        <xs:attribute name="menuText" type="xs:string"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+</xs:schema>
+

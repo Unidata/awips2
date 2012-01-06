@@ -1,0 +1,37 @@
+#undef _XOPEN_SOURCE
+
+#undef _ALL_SOURCE
+#undef _XOPEN_SOURCE_EXTENDED 
+#undef _HPUX_SOURCE
+#undef _BSD_TYPES
+#undef _BSD_SOURCE
+#undef __BSD_VISIBLE
+#undef _OSF_SOURCE
+#undef __EXTENSIONS__
+
+#undef SIZEOF_SHORT
+#undef SIZEOF_INT
+#undef SIZEOF_LONG
+#undef SIZEOF_FLOAT
+#undef SIZEOF_DOUBLE
+#undef SIZEOF_ENUM
+#undef SIZEOF_GID_T
+
+#define SIZEOF_INT32	(32/CHAR_BIT)
+#define SIZEOF_INT64	(64/CHAR_BIT)
+
+#undef WORDS_BIGENDIAN
+#undef IEEE_FLOAT
+#undef IEEE_DOUBLE
+#define GETRPCBYNUMBER_ARG_TYPE int
+
+#undef HAVE_STROPTS_H
+#undef HAVE_SYS_IOCTL_H
+
+#include <limits.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <sys/uio.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>

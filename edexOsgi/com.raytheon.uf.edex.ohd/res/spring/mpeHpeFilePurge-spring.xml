@@ -1,0 +1,41 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="mpeHpeFilePurger" class="com.raytheon.uf.edex.ohd.pproc.PprocSrv">
+		<constructor-arg>
+			<list>
+				<value>purge_mpe_files</value>
+				<value>purge_hpe_files</value>
+			</list>
+		</constructor-arg>
+	</bean>
+
+	<camelContext id="mpeHpeFilePurger-context"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+
+		<endpoint id="mpeHpeFilePurgerCron" uri="clusteredquartz://pproc/mpeHpeFilePurgerScheduled/?cron=${mpehpefilepurge.cron}"/>
+
+		<!-- Run mpeHpeFilePurger on Scheduled timer -->
+		<route id="mpeHpeFilePurgerScheduled">
+			<from uri="mpeHpeFilePurgerCron" />
+			<to uri="jms-generic:queue:mpeHpeFilePurgerScheduledWork" />
+		</route>
+		
+		<route id="mpeHpeFilePurgerScheduledWork">
+		    <from uri="jms-generic:queue:mpeHpeFilePurgerScheduledWork" />
+            <doTry>
+				<bean ref="mpeHpeFilePurger" method="execute" />
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:mpeHpeFilePurge?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                </doCatch>
+            </doTry>
+		</route>
+
+	</camelContext>
+
+</beans>

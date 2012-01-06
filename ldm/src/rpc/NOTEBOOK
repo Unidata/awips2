@@ -1,0 +1,6 @@
+Steps to port to 64-bit systems:
+
+    Check the use of macros like IXDR_PUT_LONG to ensure that the
+    buffer pointer is "int32_t*" and not "long*".
+
+    Check the use of "long" variables in all the xdr*.c files.

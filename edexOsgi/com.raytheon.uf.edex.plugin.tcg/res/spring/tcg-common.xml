@@ -1,0 +1,23 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="tcgPluginName" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="tcg" />
+    </bean>
+
+    <bean id="tcgProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+        <property name="pluginName" ref="tcgPluginName" />
+		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.tcg" />
+        <property name="dao" value="com.raytheon.uf.common.dataplugin.tcg.dao.TropicalCycloneGuidanceDao" />
+        <property name="record" value="com.raytheon.uf.common.dataplugin.tcg.TropicalCycloneGuidance" />
+    </bean>
+    
+	<bean factory-bean="pluginRegistry" factory-method="register">
+		<constructor-arg ref="tcgPluginName"/>
+		<constructor-arg ref="tcgProperties"/>
+	</bean>
+
+</beans>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature id="org.eclipse.pde.p2.source" version="1.0.0.v20080522-1--7w3119171503111" label="%featureName" provider-name="%providerName"     >
+	<description >
+		%description
+	</description>
+	<copyright >
+		%copyright
+	</copyright>
+	<license url="%licenseURL">
+		%license
+	</license>
+	<url>
+		<update url="http://download.eclipse.org/eclipse/updates/3.4" label="%updateSiteName"/>
+		<discovery url="http://download.eclipse.org/eclipse/updates/3.4" label="%updateSiteName"/>
+	</url>
+	<plugin id="org.eclipse.pde.p2.ui.source" version="1.0.0.v20080604-2000"     unpack="false"/>
+</feature>

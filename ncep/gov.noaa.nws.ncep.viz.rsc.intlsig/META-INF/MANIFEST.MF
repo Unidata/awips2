@@ -1,0 +1,33 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Intlsig Plug-in
+Bundle-SymbolicName: gov.noaa.nws.ncep.viz.rsc.intlsig;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: gov.noaa.nws.ncep.viz.rsc.intlsig.Activator
+Eclipse-BuddyPolicy: ext, registered, global
+Eclipse-RegisterBuddy: org.apache.velocity, com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.uf.common.status, com.raytheon.viz.ui, com.raytheon.viz.core, com.raytheon.uf.viz.core, com.raytheon.uf.common.serialization, gov.noaa.nws.ncep.resources
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ gov.noaa.nws.ncep.viz.resources,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.viz.core,
+ gov.noaa.nws.ncep.viz.common,
+ gov.noaa.nws.ncep.ui.pgen
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.edex.decodertools.core,
+ com.raytheon.uf.viz.core.exception,
+ com.raytheon.uf.viz.core.rsc,
+ com.vividsolutions.jts.geom,
+ gov.noaa.nws.ncep.common.dataplugin.intlsigmet,
+ gov.noaa.nws.ncep.common.dataplugin.intlsigmet.dao,
+ gov.noaa.nws.ncep.common.tools,
+ gov.noaa.nws.ncep.ui.pgen.display,
+ gov.noaa.nws.ncep.ui.pgen.elements,
+ gov.noaa.nws.ncep.viz.common,
+ org.opengis.referencing.crs,
+ gov.noaa.nws.ncep.viz.ui.display
+Export-Package: gov.noaa.nws.ncep.viz.rsc.intlsig,
+ gov.noaa.nws.ncep.viz.rsc.intlsig.rsc

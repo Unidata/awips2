@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>ECF Service Access Handler</title>
+<style type="text/css">@import url("../../book.css");</style>
+<style type="text/css">@import url("../../schema.css");</style>
+</HEAD>
+<BODY>
+<H1 style="text-align:center">ECF Service Access Handler</H1>
+<p></p>
+<h6 class="CaptionFigColumn SchemaHeader">Identifier: </h6>org.eclipse.ecf.discovery.ui.serviceAccessHandler<p></p>
+<h6 class="CaptionFigColumn SchemaHeader">Since: </h6>2.0.0M5
+<p></p>
+
+<h6 class="CaptionFigColumn SchemaHeader">Description: </h6>This extension point allows plugins to add menu items to the
+discovery view's context menu for accessing/invoking a remote service.<p></p>
+<h6 class="CaptionFigColumn SchemaHeader">Configuration Markup:</h6>
+<p></p>
+<p class="code SchemaDtd">&lt;!ELEMENT <a name="e.extension">extension</a> (<a href="#e.serviceAccessHandler">serviceAccessHandler</a>)+&gt;</p>
+<p class="code SchemaDtd">&lt;!ATTLIST extension</p>
+<p class="code SchemaDtdAttlist">point&nbsp;CDATA #REQUIRED<p class="code SchemaDtdAttlist">id&nbsp;&nbsp;&nbsp;&nbsp;CDATA #IMPLIED<p class="code SchemaDtdAttlist">name&nbsp;&nbsp;CDATA #IMPLIED&gt;</p>
+<p></p>
+<ul class="ConfigMarkupAttlistDesc">
+</ul>
+<br><p class="code SchemaDtd">&lt;!ELEMENT <a name="e.serviceAccessHandler">serviceAccessHandler</a> EMPTY&gt;</p>
+<p class="code SchemaDtd">&lt;!ATTLIST serviceAccessHandler</p>
+<p class="code SchemaDtdAttlist">class&nbsp;CDATA #REQUIRED&gt;</p>
+<p></p>
+<ul class="ConfigMarkupAttlistDesc">
+<li><b>class</b> - Required service access handler class.  Note this class must implement the <b>org.eclipse.ecf.discovery.ui.views.IServiceAccessHandler</b> interface.</li>
+</ul>
+<br><h6 class="CaptionFigColumn SchemaHeader">Examples: </h6>Here is example usage of the serviceAccessHandler extension point.  In this example, a http/http service handler is declared:
+
+<pre class="Example"><span class="code SchemaTag">
+   &lt;extension
+         point=</span><span class="code SchemaCstring">&quot;org.eclipse.ecf.discovery.ui.serviceAccessHandler&quot;</span><span class="code SchemaTag">&gt;
+      &lt;serviceAccessHandler
+            class=</span><span class="code SchemaCstring">&quot;org.eclipse.ecf.discovery.ui.HttpServiceAccessHandler&quot;</span><span class="code SchemaTag">&gt;
+      &lt;/serviceAccessHandler&gt;
+   &lt;/extension&gt;
+</span></pre>
+
+Here's is implementation of the HttpServiceAccessHandler:
+
+<pre class="Example"><span class="code SchemaTag">
+public class HttpServiceAccessHandler implements IServiceAccessHandler {
+
+ private static final String RFC2782_PATH = "path"; //$NON-NLS-1$
+ //private static final String RFC2782_USERNAME = "u"; //$NON-NLS-1$
+ //private static final String RFC2782_PASSWORD = "p"; //$NON-NLS-1$
+ static final IContributionItem[] EMPTY_CONTRIBUTION = {};
+
+ public HttpServiceAccessHandler() {
+  // nothing to do
+ }
+
+ public IContributionItem[] getContributionsForService(IServiceInfo serviceInfo) {
+  IServiceID serviceID = serviceInfo.getServiceID();
+  List serviceTypes = Arrays.asList(serviceID.getServiceTypeID().getProtocols());
+  String protocol = null;
+  if (serviceTypes.contains("http")) //$NON-NLS-1$
+   protocol = "http"; //$NON-NLS-1$
+  else if (serviceTypes.contains("https")) //$NON-NLS-1$
+   protocol = "https"; //$NON-NLS-1$
+  if (protocol == null)
+   return EMPTY_CONTRIBUTION;
+  URI location = serviceInfo.getLocation();
+  StringBuffer buf = new StringBuffer(protocol);
+  buf.append("://").append(location.getHost()); //$NON-NLS-1$
+  if (location.getPort() != -1)
+   buf.append(":").append(location.getPort()).append("/"); //$NON-NLS-1$ //$NON-NLS-2$
+  IServiceProperties svcProps = serviceInfo.getServiceProperties();
+  final String path = svcProps.getPropertyString(RFC2782_PATH);
+  if (path != null)
+   buf.append(path);
+  final String urlString = buf.toString();
+  //final String username = svcProps.getPropertyString(RFC2782_USERNAME);
+  //final String password = svcProps.getPropertyString(RFC2782_PASSWORD);
+  Action action = new Action() {
+   public void run() {
+    openBrowser(urlString);
+   }
+  };
+  action.setText(Messages.HttpServiceAccessHandler_MENU_TEXT + urlString);
+  return new IContributionItem[] {new ActionContributionItem(action)};
+ }
+
+ protected void openBrowser(String urlString) {
+  final IWorkbenchBrowserSupport support = PlatformUI.getWorkbench().getBrowserSupport();
+  try {
+   support.createBrowser(null).openURL(new URL(urlString));
+  } catch (final Exception e) {
+   logError(Messages.HttpServiceAccessHandler_EXCEPTION_CREATEBROWSER, e);
+  }
+
+ }
+
+ protected void logError(String exceptionString, Throwable e) {
+  Activator.getDefault().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, IStatus.ERROR, exceptionString, e));
+
+ }
+
+}
+
+</span></pre>
+<p></p>
+
+<h6 class="CaptionFigColumn SchemaHeader">Supplied Implementation: </h6>None.
+<p></p>
+
+<br>
+<p class="note SchemaCopyright">
+/****************************************************************************
+ * Copyright (c) 2008 Composent, Inc. and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Composent, Inc. - initial API and implementation
+ *****************************************************************************/
+
+</p>
+</BODY>
+</HTML>

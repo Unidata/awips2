@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Sshp
+Bundle-SymbolicName: ohd.sshp
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: ohd.common;bundle-version="1.0.0",
+ ohd.db;bundle-version="1.0.0",
+ ohd.lib;bundle-version="1.0.0",
+ ohd.ihfsdb;bundle-version="1.0.0"
+Export-Package: ohd.hseb.sshp,
+ ohd.hseb.sshp.gui,
+ ohd.hseb.sshp.messaging,
+ ohd.hseb.sshp.precip,
+ ohd.hseb.sshp.window

@@ -1,0 +1,1269 @@
+/*
+    File: HourlyPC.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:23 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "HourlyPC.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct HourlyPC_t
+{
+    char		lid[9];
+    char		ts[3];
+    date		obsdate;
+    char		minute_offset[25];
+    char		hourly_qc[25];
+    short		hour1;
+    short		hour2;
+    short		hour3;
+    short		hour4;
+    short		hour5;
+    short		hour6;
+    short		hour7;
+    short		hour8;
+    short		hour9;
+    short		hour10;
+    short		hour11;
+    short		hour12;
+    short		hour13;
+    short		hour14;
+    short		hour15;
+    short		hour16;
+    short		hour17;
+    short		hour18;
+    short		hour19;
+    short		hour20;
+    short		hour21;
+    short		hour22;
+    short		hour23;
+    short		hour24;
+
+    int		ind_minute_offset;
+    int		ind_hourly_qc;
+    int		ind_hour1;
+    int		ind_hour2;
+    int		ind_hour3;
+    int		ind_hour4;
+    int		ind_hour5;
+    int		ind_hour6;
+    int		ind_hour7;
+    int		ind_hour8;
+    int		ind_hour9;
+    int		ind_hour10;
+    int		ind_hour11;
+    int		ind_hour12;
+    int		ind_hour13;
+    int		ind_hour14;
+    int		ind_hour15;
+    int		ind_hour16;
+    int		ind_hour17;
+    int		ind_hour18;
+    int		ind_hour19;
+    int		ind_hour20;
+    int		ind_hour21;
+    int		ind_hour22;
+    int		ind_hour23;
+    int		ind_hour24;
+} HourlyPC_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+HourlyPC * GetHourlyPC(const char * where)
+{
+
+    HourlyPC * listPtr = NULL;
+    HourlyPC * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM HourlyPC ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct HourlyPC_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetHourlyPC() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetHourlyPC() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetHourlyPC() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.lid, :dbs.ts, 
+    :dbs.obsdate, :dbs.minute_offset:dbs.ind_minute_offset, 
+    :dbs.hourly_qc:dbs.ind_hourly_qc, :dbs.hour1:dbs.ind_hour1, 
+    :dbs.hour2:dbs.ind_hour2, :dbs.hour3:dbs.ind_hour3, 
+    :dbs.hour4:dbs.ind_hour4, :dbs.hour5:dbs.ind_hour5, 
+    :dbs.hour6:dbs.ind_hour6, :dbs.hour7:dbs.ind_hour7, 
+    :dbs.hour8:dbs.ind_hour8, :dbs.hour9:dbs.ind_hour9, 
+    :dbs.hour10:dbs.ind_hour10, :dbs.hour11:dbs.ind_hour11, 
+    :dbs.hour12:dbs.ind_hour12, :dbs.hour13:dbs.ind_hour13, 
+    :dbs.hour14:dbs.ind_hour14, :dbs.hour15:dbs.ind_hour15, 
+    :dbs.hour16:dbs.ind_hour16, :dbs.hour17:dbs.ind_hour17, 
+    :dbs.hour18:dbs.ind_hour18, :dbs.hour19:dbs.ind_hour19, 
+    :dbs.hour20:dbs.ind_hour20, :dbs.hour21:dbs.ind_hour21, 
+    :dbs.hour22:dbs.ind_hour22, :dbs.hour23:dbs.ind_hour23, 
+    :dbs.hour24:dbs.ind_hour24    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetHourlyPC() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (HourlyPC *) malloc(sizeof(HourlyPC))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->ts, dbs.ts);
+
+            structPtr->obsdate = pg_date_to_date_t(dbs.obsdate);
+
+            strcpy(structPtr->minute_offset, dbs.minute_offset);
+            setNullIfIndicated(dbs.ind_minute_offset, CHAR, structPtr->minute_offset);
+
+            strcpy(structPtr->hourly_qc, dbs.hourly_qc);
+            setNullIfIndicated(dbs.ind_hourly_qc, CHAR, structPtr->hourly_qc);
+
+            structPtr->hour1 = dbs.hour1;
+            setNullIfIndicated(dbs.ind_hour1, SHORT, &structPtr->hour1);
+
+            structPtr->hour2 = dbs.hour2;
+            setNullIfIndicated(dbs.ind_hour2, SHORT, &structPtr->hour2);
+
+            structPtr->hour3 = dbs.hour3;
+            setNullIfIndicated(dbs.ind_hour3, SHORT, &structPtr->hour3);
+
+            structPtr->hour4 = dbs.hour4;
+            setNullIfIndicated(dbs.ind_hour4, SHORT, &structPtr->hour4);
+
+            structPtr->hour5 = dbs.hour5;
+            setNullIfIndicated(dbs.ind_hour5, SHORT, &structPtr->hour5);
+
+            structPtr->hour6 = dbs.hour6;
+            setNullIfIndicated(dbs.ind_hour6, SHORT, &structPtr->hour6);
+
+            structPtr->hour7 = dbs.hour7;
+            setNullIfIndicated(dbs.ind_hour7, SHORT, &structPtr->hour7);
+
+            structPtr->hour8 = dbs.hour8;
+            setNullIfIndicated(dbs.ind_hour8, SHORT, &structPtr->hour8);
+
+            structPtr->hour9 = dbs.hour9;
+            setNullIfIndicated(dbs.ind_hour9, SHORT, &structPtr->hour9);
+
+            structPtr->hour10 = dbs.hour10;
+            setNullIfIndicated(dbs.ind_hour10, SHORT, &structPtr->hour10);
+
+            structPtr->hour11 = dbs.hour11;
+            setNullIfIndicated(dbs.ind_hour11, SHORT, &structPtr->hour11);
+
+            structPtr->hour12 = dbs.hour12;
+            setNullIfIndicated(dbs.ind_hour12, SHORT, &structPtr->hour12);
+
+            structPtr->hour13 = dbs.hour13;
+            setNullIfIndicated(dbs.ind_hour13, SHORT, &structPtr->hour13);
+
+            structPtr->hour14 = dbs.hour14;
+            setNullIfIndicated(dbs.ind_hour14, SHORT, &structPtr->hour14);
+
+            structPtr->hour15 = dbs.hour15;
+            setNullIfIndicated(dbs.ind_hour15, SHORT, &structPtr->hour15);
+
+            structPtr->hour16 = dbs.hour16;
+            setNullIfIndicated(dbs.ind_hour16, SHORT, &structPtr->hour16);
+
+            structPtr->hour17 = dbs.hour17;
+            setNullIfIndicated(dbs.ind_hour17, SHORT, &structPtr->hour17);
+
+            structPtr->hour18 = dbs.hour18;
+            setNullIfIndicated(dbs.ind_hour18, SHORT, &structPtr->hour18);
+
+            structPtr->hour19 = dbs.hour19;
+            setNullIfIndicated(dbs.ind_hour19, SHORT, &structPtr->hour19);
+
+            structPtr->hour20 = dbs.hour20;
+            setNullIfIndicated(dbs.ind_hour20, SHORT, &structPtr->hour20);
+
+            structPtr->hour21 = dbs.hour21;
+            setNullIfIndicated(dbs.ind_hour21, SHORT, &structPtr->hour21);
+
+            structPtr->hour22 = dbs.hour22;
+            setNullIfIndicated(dbs.ind_hour22, SHORT, &structPtr->hour22);
+
+            structPtr->hour23 = dbs.hour23;
+            setNullIfIndicated(dbs.ind_hour23, SHORT, &structPtr->hour23);
+
+            structPtr->hour24 = dbs.hour24;
+            setNullIfIndicated(dbs.ind_hour24, SHORT, &structPtr->hour24);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.lid, :dbs.ts, 
+        :dbs.obsdate, :dbs.minute_offset:dbs.ind_minute_offset, 
+        :dbs.hourly_qc:dbs.ind_hourly_qc, :dbs.hour1:dbs.ind_hour1, 
+        :dbs.hour2:dbs.ind_hour2, :dbs.hour3:dbs.ind_hour3, 
+        :dbs.hour4:dbs.ind_hour4, :dbs.hour5:dbs.ind_hour5, 
+        :dbs.hour6:dbs.ind_hour6, :dbs.hour7:dbs.ind_hour7, 
+        :dbs.hour8:dbs.ind_hour8, :dbs.hour9:dbs.ind_hour9, 
+        :dbs.hour10:dbs.ind_hour10, :dbs.hour11:dbs.ind_hour11, 
+        :dbs.hour12:dbs.ind_hour12, :dbs.hour13:dbs.ind_hour13, 
+        :dbs.hour14:dbs.ind_hour14, :dbs.hour15:dbs.ind_hour15, 
+        :dbs.hour16:dbs.ind_hour16, :dbs.hour17:dbs.ind_hour17, 
+        :dbs.hour18:dbs.ind_hour18, :dbs.hour19:dbs.ind_hour19, 
+        :dbs.hour20:dbs.ind_hour20, :dbs.hour21:dbs.ind_hour21, 
+        :dbs.hour22:dbs.ind_hour22, :dbs.hour23:dbs.ind_hour23, 
+        :dbs.hour24:dbs.ind_hour24        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetHourlyPC() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+HourlyPC * SelectHourlyPC(const char * where)
+{
+
+    HourlyPC * listPtr = NULL;
+    HourlyPC * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM HourlyPC ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct HourlyPC_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectHourlyPC() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectHourlyPC() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectHourlyPC() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.lid, :dbs.ts, 
+    :dbs.obsdate, :dbs.minute_offset:dbs.ind_minute_offset, 
+    :dbs.hourly_qc:dbs.ind_hourly_qc, :dbs.hour1:dbs.ind_hour1, 
+    :dbs.hour2:dbs.ind_hour2, :dbs.hour3:dbs.ind_hour3, 
+    :dbs.hour4:dbs.ind_hour4, :dbs.hour5:dbs.ind_hour5, 
+    :dbs.hour6:dbs.ind_hour6, :dbs.hour7:dbs.ind_hour7, 
+    :dbs.hour8:dbs.ind_hour8, :dbs.hour9:dbs.ind_hour9, 
+    :dbs.hour10:dbs.ind_hour10, :dbs.hour11:dbs.ind_hour11, 
+    :dbs.hour12:dbs.ind_hour12, :dbs.hour13:dbs.ind_hour13, 
+    :dbs.hour14:dbs.ind_hour14, :dbs.hour15:dbs.ind_hour15, 
+    :dbs.hour16:dbs.ind_hour16, :dbs.hour17:dbs.ind_hour17, 
+    :dbs.hour18:dbs.ind_hour18, :dbs.hour19:dbs.ind_hour19, 
+    :dbs.hour20:dbs.ind_hour20, :dbs.hour21:dbs.ind_hour21, 
+    :dbs.hour22:dbs.ind_hour22, :dbs.hour23:dbs.ind_hour23, 
+    :dbs.hour24:dbs.ind_hour24    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectHourlyPC() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (HourlyPC *) malloc(sizeof(HourlyPC))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->ts, dbs.ts);
+
+            structPtr->obsdate = pg_date_to_date_t(dbs.obsdate);
+
+            strcpy(structPtr->minute_offset, dbs.minute_offset);
+            setNullIfIndicated(dbs.ind_minute_offset, CHAR, structPtr->minute_offset);
+
+            strcpy(structPtr->hourly_qc, dbs.hourly_qc);
+            setNullIfIndicated(dbs.ind_hourly_qc, CHAR, structPtr->hourly_qc);
+
+            structPtr->hour1 = dbs.hour1;
+            setNullIfIndicated(dbs.ind_hour1, SHORT, &structPtr->hour1);
+
+            structPtr->hour2 = dbs.hour2;
+            setNullIfIndicated(dbs.ind_hour2, SHORT, &structPtr->hour2);
+
+            structPtr->hour3 = dbs.hour3;
+            setNullIfIndicated(dbs.ind_hour3, SHORT, &structPtr->hour3);
+
+            structPtr->hour4 = dbs.hour4;
+            setNullIfIndicated(dbs.ind_hour4, SHORT, &structPtr->hour4);
+
+            structPtr->hour5 = dbs.hour5;
+            setNullIfIndicated(dbs.ind_hour5, SHORT, &structPtr->hour5);
+
+            structPtr->hour6 = dbs.hour6;
+            setNullIfIndicated(dbs.ind_hour6, SHORT, &structPtr->hour6);
+
+            structPtr->hour7 = dbs.hour7;
+            setNullIfIndicated(dbs.ind_hour7, SHORT, &structPtr->hour7);
+
+            structPtr->hour8 = dbs.hour8;
+            setNullIfIndicated(dbs.ind_hour8, SHORT, &structPtr->hour8);
+
+            structPtr->hour9 = dbs.hour9;
+            setNullIfIndicated(dbs.ind_hour9, SHORT, &structPtr->hour9);
+
+            structPtr->hour10 = dbs.hour10;
+            setNullIfIndicated(dbs.ind_hour10, SHORT, &structPtr->hour10);
+
+            structPtr->hour11 = dbs.hour11;
+            setNullIfIndicated(dbs.ind_hour11, SHORT, &structPtr->hour11);
+
+            structPtr->hour12 = dbs.hour12;
+            setNullIfIndicated(dbs.ind_hour12, SHORT, &structPtr->hour12);
+
+            structPtr->hour13 = dbs.hour13;
+            setNullIfIndicated(dbs.ind_hour13, SHORT, &structPtr->hour13);
+
+            structPtr->hour14 = dbs.hour14;
+            setNullIfIndicated(dbs.ind_hour14, SHORT, &structPtr->hour14);
+
+            structPtr->hour15 = dbs.hour15;
+            setNullIfIndicated(dbs.ind_hour15, SHORT, &structPtr->hour15);
+
+            structPtr->hour16 = dbs.hour16;
+            setNullIfIndicated(dbs.ind_hour16, SHORT, &structPtr->hour16);
+
+            structPtr->hour17 = dbs.hour17;
+            setNullIfIndicated(dbs.ind_hour17, SHORT, &structPtr->hour17);
+
+            structPtr->hour18 = dbs.hour18;
+            setNullIfIndicated(dbs.ind_hour18, SHORT, &structPtr->hour18);
+
+            structPtr->hour19 = dbs.hour19;
+            setNullIfIndicated(dbs.ind_hour19, SHORT, &structPtr->hour19);
+
+            structPtr->hour20 = dbs.hour20;
+            setNullIfIndicated(dbs.ind_hour20, SHORT, &structPtr->hour20);
+
+            structPtr->hour21 = dbs.hour21;
+            setNullIfIndicated(dbs.ind_hour21, SHORT, &structPtr->hour21);
+
+            structPtr->hour22 = dbs.hour22;
+            setNullIfIndicated(dbs.ind_hour22, SHORT, &structPtr->hour22);
+
+            structPtr->hour23 = dbs.hour23;
+            setNullIfIndicated(dbs.ind_hour23, SHORT, &structPtr->hour23);
+
+            structPtr->hour24 = dbs.hour24;
+            setNullIfIndicated(dbs.ind_hour24, SHORT, &structPtr->hour24);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.lid, :dbs.ts, 
+        :dbs.obsdate, :dbs.minute_offset:dbs.ind_minute_offset, 
+        :dbs.hourly_qc:dbs.ind_hourly_qc, :dbs.hour1:dbs.ind_hour1, 
+        :dbs.hour2:dbs.ind_hour2, :dbs.hour3:dbs.ind_hour3, 
+        :dbs.hour4:dbs.ind_hour4, :dbs.hour5:dbs.ind_hour5, 
+        :dbs.hour6:dbs.ind_hour6, :dbs.hour7:dbs.ind_hour7, 
+        :dbs.hour8:dbs.ind_hour8, :dbs.hour9:dbs.ind_hour9, 
+        :dbs.hour10:dbs.ind_hour10, :dbs.hour11:dbs.ind_hour11, 
+        :dbs.hour12:dbs.ind_hour12, :dbs.hour13:dbs.ind_hour13, 
+        :dbs.hour14:dbs.ind_hour14, :dbs.hour15:dbs.ind_hour15, 
+        :dbs.hour16:dbs.ind_hour16, :dbs.hour17:dbs.ind_hour17, 
+        :dbs.hour18:dbs.ind_hour18, :dbs.hour19:dbs.ind_hour19, 
+        :dbs.hour20:dbs.ind_hour20, :dbs.hour21:dbs.ind_hour21, 
+        :dbs.hour22:dbs.ind_hour22, :dbs.hour23:dbs.ind_hour23, 
+        :dbs.hour24:dbs.ind_hour24        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectHourlyPC() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectHourlyPCCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM HourlyPC ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountHourlyPC() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountHourlyPC() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountHourlyPC() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountHourlyPC() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutHourlyPC(const HourlyPC * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct HourlyPC_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.ts, structPtr->ts);
+
+    dbs.obsdate = date_t_to_pg_date(structPtr->obsdate);
+
+    strcpy(dbs.minute_offset, structPtr->minute_offset);
+    dbs.ind_minute_offset = getIndicator(CHAR, (void *)structPtr->minute_offset);
+
+    strcpy(dbs.hourly_qc, structPtr->hourly_qc);
+    dbs.ind_hourly_qc = getIndicator(CHAR, (void *)structPtr->hourly_qc);
+
+    dbs.hour1 = structPtr->hour1;
+    dbs.ind_hour1 = getIndicator(SHORT, (void *)&structPtr->hour1);
+
+    dbs.hour2 = structPtr->hour2;
+    dbs.ind_hour2 = getIndicator(SHORT, (void *)&structPtr->hour2);
+
+    dbs.hour3 = structPtr->hour3;
+    dbs.ind_hour3 = getIndicator(SHORT, (void *)&structPtr->hour3);
+
+    dbs.hour4 = structPtr->hour4;
+    dbs.ind_hour4 = getIndicator(SHORT, (void *)&structPtr->hour4);
+
+    dbs.hour5 = structPtr->hour5;
+    dbs.ind_hour5 = getIndicator(SHORT, (void *)&structPtr->hour5);
+
+    dbs.hour6 = structPtr->hour6;
+    dbs.ind_hour6 = getIndicator(SHORT, (void *)&structPtr->hour6);
+
+    dbs.hour7 = structPtr->hour7;
+    dbs.ind_hour7 = getIndicator(SHORT, (void *)&structPtr->hour7);
+
+    dbs.hour8 = structPtr->hour8;
+    dbs.ind_hour8 = getIndicator(SHORT, (void *)&structPtr->hour8);
+
+    dbs.hour9 = structPtr->hour9;
+    dbs.ind_hour9 = getIndicator(SHORT, (void *)&structPtr->hour9);
+
+    dbs.hour10 = structPtr->hour10;
+    dbs.ind_hour10 = getIndicator(SHORT, (void *)&structPtr->hour10);
+
+    dbs.hour11 = structPtr->hour11;
+    dbs.ind_hour11 = getIndicator(SHORT, (void *)&structPtr->hour11);
+
+    dbs.hour12 = structPtr->hour12;
+    dbs.ind_hour12 = getIndicator(SHORT, (void *)&structPtr->hour12);
+
+    dbs.hour13 = structPtr->hour13;
+    dbs.ind_hour13 = getIndicator(SHORT, (void *)&structPtr->hour13);
+
+    dbs.hour14 = structPtr->hour14;
+    dbs.ind_hour14 = getIndicator(SHORT, (void *)&structPtr->hour14);
+
+    dbs.hour15 = structPtr->hour15;
+    dbs.ind_hour15 = getIndicator(SHORT, (void *)&structPtr->hour15);
+
+    dbs.hour16 = structPtr->hour16;
+    dbs.ind_hour16 = getIndicator(SHORT, (void *)&structPtr->hour16);
+
+    dbs.hour17 = structPtr->hour17;
+    dbs.ind_hour17 = getIndicator(SHORT, (void *)&structPtr->hour17);
+
+    dbs.hour18 = structPtr->hour18;
+    dbs.ind_hour18 = getIndicator(SHORT, (void *)&structPtr->hour18);
+
+    dbs.hour19 = structPtr->hour19;
+    dbs.ind_hour19 = getIndicator(SHORT, (void *)&structPtr->hour19);
+
+    dbs.hour20 = structPtr->hour20;
+    dbs.ind_hour20 = getIndicator(SHORT, (void *)&structPtr->hour20);
+
+    dbs.hour21 = structPtr->hour21;
+    dbs.ind_hour21 = getIndicator(SHORT, (void *)&structPtr->hour21);
+
+    dbs.hour22 = structPtr->hour22;
+    dbs.ind_hour22 = getIndicator(SHORT, (void *)&structPtr->hour22);
+
+    dbs.hour23 = structPtr->hour23;
+    dbs.ind_hour23 = getIndicator(SHORT, (void *)&structPtr->hour23);
+
+    dbs.hour24 = structPtr->hour24;
+    dbs.ind_hour24 = getIndicator(SHORT, (void *)&structPtr->hour24);
+
+
+    EXEC SQL INSERT INTO HourlyPC (lid,ts,
+        obsdate,minute_offset,hourly_qc,
+        hour1,hour2,hour3,
+        hour4,hour5,hour6,
+        hour7,hour8,hour9,
+        hour10,hour11,hour12,
+        hour13,hour14,hour15,
+        hour16,hour17,hour18,
+        hour19,hour20,hour21,
+        hour22,hour23,hour24        )
+        VALUES (
+         :dbs.lid, :dbs.ts, :dbs.obsdate,
+         :dbs.minute_offset:dbs.ind_minute_offset, :dbs.hourly_qc:dbs.ind_hourly_qc, :dbs.hour1:dbs.ind_hour1,
+         :dbs.hour2:dbs.ind_hour2, :dbs.hour3:dbs.ind_hour3, :dbs.hour4:dbs.ind_hour4,
+         :dbs.hour5:dbs.ind_hour5, :dbs.hour6:dbs.ind_hour6, :dbs.hour7:dbs.ind_hour7,
+         :dbs.hour8:dbs.ind_hour8, :dbs.hour9:dbs.ind_hour9, :dbs.hour10:dbs.ind_hour10,
+         :dbs.hour11:dbs.ind_hour11, :dbs.hour12:dbs.ind_hour12, :dbs.hour13:dbs.ind_hour13,
+         :dbs.hour14:dbs.ind_hour14, :dbs.hour15:dbs.ind_hour15, :dbs.hour16:dbs.ind_hour16,
+         :dbs.hour17:dbs.ind_hour17, :dbs.hour18:dbs.ind_hour18, :dbs.hour19:dbs.ind_hour19,
+         :dbs.hour20:dbs.ind_hour20, :dbs.hour21:dbs.ind_hour21, :dbs.hour22:dbs.ind_hour22,
+         :dbs.hour23:dbs.ind_hour23, :dbs.hour24:dbs.ind_hour24);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutHourlyPC() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertHourlyPC(const HourlyPC * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct HourlyPC_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.ts, structPtr->ts);
+
+    dbs.obsdate = date_t_to_pg_date(structPtr->obsdate);
+
+    strcpy(dbs.minute_offset, structPtr->minute_offset);
+    dbs.ind_minute_offset = getIndicator(CHAR, (void *)structPtr->minute_offset);
+
+    strcpy(dbs.hourly_qc, structPtr->hourly_qc);
+    dbs.ind_hourly_qc = getIndicator(CHAR, (void *)structPtr->hourly_qc);
+
+    dbs.hour1 = structPtr->hour1;
+    dbs.ind_hour1 = getIndicator(SHORT, (void *)&structPtr->hour1);
+
+    dbs.hour2 = structPtr->hour2;
+    dbs.ind_hour2 = getIndicator(SHORT, (void *)&structPtr->hour2);
+
+    dbs.hour3 = structPtr->hour3;
+    dbs.ind_hour3 = getIndicator(SHORT, (void *)&structPtr->hour3);
+
+    dbs.hour4 = structPtr->hour4;
+    dbs.ind_hour4 = getIndicator(SHORT, (void *)&structPtr->hour4);
+
+    dbs.hour5 = structPtr->hour5;
+    dbs.ind_hour5 = getIndicator(SHORT, (void *)&structPtr->hour5);
+
+    dbs.hour6 = structPtr->hour6;
+    dbs.ind_hour6 = getIndicator(SHORT, (void *)&structPtr->hour6);
+
+    dbs.hour7 = structPtr->hour7;
+    dbs.ind_hour7 = getIndicator(SHORT, (void *)&structPtr->hour7);
+
+    dbs.hour8 = structPtr->hour8;
+    dbs.ind_hour8 = getIndicator(SHORT, (void *)&structPtr->hour8);
+
+    dbs.hour9 = structPtr->hour9;
+    dbs.ind_hour9 = getIndicator(SHORT, (void *)&structPtr->hour9);
+
+    dbs.hour10 = structPtr->hour10;
+    dbs.ind_hour10 = getIndicator(SHORT, (void *)&structPtr->hour10);
+
+    dbs.hour11 = structPtr->hour11;
+    dbs.ind_hour11 = getIndicator(SHORT, (void *)&structPtr->hour11);
+
+    dbs.hour12 = structPtr->hour12;
+    dbs.ind_hour12 = getIndicator(SHORT, (void *)&structPtr->hour12);
+
+    dbs.hour13 = structPtr->hour13;
+    dbs.ind_hour13 = getIndicator(SHORT, (void *)&structPtr->hour13);
+
+    dbs.hour14 = structPtr->hour14;
+    dbs.ind_hour14 = getIndicator(SHORT, (void *)&structPtr->hour14);
+
+    dbs.hour15 = structPtr->hour15;
+    dbs.ind_hour15 = getIndicator(SHORT, (void *)&structPtr->hour15);
+
+    dbs.hour16 = structPtr->hour16;
+    dbs.ind_hour16 = getIndicator(SHORT, (void *)&structPtr->hour16);
+
+    dbs.hour17 = structPtr->hour17;
+    dbs.ind_hour17 = getIndicator(SHORT, (void *)&structPtr->hour17);
+
+    dbs.hour18 = structPtr->hour18;
+    dbs.ind_hour18 = getIndicator(SHORT, (void *)&structPtr->hour18);
+
+    dbs.hour19 = structPtr->hour19;
+    dbs.ind_hour19 = getIndicator(SHORT, (void *)&structPtr->hour19);
+
+    dbs.hour20 = structPtr->hour20;
+    dbs.ind_hour20 = getIndicator(SHORT, (void *)&structPtr->hour20);
+
+    dbs.hour21 = structPtr->hour21;
+    dbs.ind_hour21 = getIndicator(SHORT, (void *)&structPtr->hour21);
+
+    dbs.hour22 = structPtr->hour22;
+    dbs.ind_hour22 = getIndicator(SHORT, (void *)&structPtr->hour22);
+
+    dbs.hour23 = structPtr->hour23;
+    dbs.ind_hour23 = getIndicator(SHORT, (void *)&structPtr->hour23);
+
+    dbs.hour24 = structPtr->hour24;
+    dbs.ind_hour24 = getIndicator(SHORT, (void *)&structPtr->hour24);
+
+
+    EXEC SQL INSERT INTO HourlyPC (lid,ts,
+        obsdate,minute_offset,hourly_qc,
+        hour1,hour2,hour3,
+        hour4,hour5,hour6,
+        hour7,hour8,hour9,
+        hour10,hour11,hour12,
+        hour13,hour14,hour15,
+        hour16,hour17,hour18,
+        hour19,hour20,hour21,
+        hour22,hour23,hour24        )
+        VALUES (
+         :dbs.lid, :dbs.ts, :dbs.obsdate,
+         :dbs.minute_offset:dbs.ind_minute_offset, :dbs.hourly_qc:dbs.ind_hourly_qc, :dbs.hour1:dbs.ind_hour1,
+         :dbs.hour2:dbs.ind_hour2, :dbs.hour3:dbs.ind_hour3, :dbs.hour4:dbs.ind_hour4,
+         :dbs.hour5:dbs.ind_hour5, :dbs.hour6:dbs.ind_hour6, :dbs.hour7:dbs.ind_hour7,
+         :dbs.hour8:dbs.ind_hour8, :dbs.hour9:dbs.ind_hour9, :dbs.hour10:dbs.ind_hour10,
+         :dbs.hour11:dbs.ind_hour11, :dbs.hour12:dbs.ind_hour12, :dbs.hour13:dbs.ind_hour13,
+         :dbs.hour14:dbs.ind_hour14, :dbs.hour15:dbs.ind_hour15, :dbs.hour16:dbs.ind_hour16,
+         :dbs.hour17:dbs.ind_hour17, :dbs.hour18:dbs.ind_hour18, :dbs.hour19:dbs.ind_hour19,
+         :dbs.hour20:dbs.ind_hour20, :dbs.hour21:dbs.ind_hour21, :dbs.hour22:dbs.ind_hour22,
+         :dbs.hour23:dbs.ind_hour23, :dbs.hour24:dbs.ind_hour24);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertHourlyPC() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateHourlyPC(const HourlyPC *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct HourlyPC_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.ts, structPtr->ts);
+
+    dbs.obsdate = date_t_to_pg_date(structPtr->obsdate);
+
+    strcpy(dbs.minute_offset, structPtr->minute_offset);
+    dbs.ind_minute_offset = getIndicator(CHAR, (void *)structPtr->minute_offset);
+
+    strcpy(dbs.hourly_qc, structPtr->hourly_qc);
+    dbs.ind_hourly_qc = getIndicator(CHAR, (void *)structPtr->hourly_qc);
+
+    dbs.hour1 = structPtr->hour1;
+    dbs.ind_hour1 = getIndicator(SHORT, (void *)&structPtr->hour1);
+
+    dbs.hour2 = structPtr->hour2;
+    dbs.ind_hour2 = getIndicator(SHORT, (void *)&structPtr->hour2);
+
+    dbs.hour3 = structPtr->hour3;
+    dbs.ind_hour3 = getIndicator(SHORT, (void *)&structPtr->hour3);
+
+    dbs.hour4 = structPtr->hour4;
+    dbs.ind_hour4 = getIndicator(SHORT, (void *)&structPtr->hour4);
+
+    dbs.hour5 = structPtr->hour5;
+    dbs.ind_hour5 = getIndicator(SHORT, (void *)&structPtr->hour5);
+
+    dbs.hour6 = structPtr->hour6;
+    dbs.ind_hour6 = getIndicator(SHORT, (void *)&structPtr->hour6);
+
+    dbs.hour7 = structPtr->hour7;
+    dbs.ind_hour7 = getIndicator(SHORT, (void *)&structPtr->hour7);
+
+    dbs.hour8 = structPtr->hour8;
+    dbs.ind_hour8 = getIndicator(SHORT, (void *)&structPtr->hour8);
+
+    dbs.hour9 = structPtr->hour9;
+    dbs.ind_hour9 = getIndicator(SHORT, (void *)&structPtr->hour9);
+
+    dbs.hour10 = structPtr->hour10;
+    dbs.ind_hour10 = getIndicator(SHORT, (void *)&structPtr->hour10);
+
+    dbs.hour11 = structPtr->hour11;
+    dbs.ind_hour11 = getIndicator(SHORT, (void *)&structPtr->hour11);
+
+    dbs.hour12 = structPtr->hour12;
+    dbs.ind_hour12 = getIndicator(SHORT, (void *)&structPtr->hour12);
+
+    dbs.hour13 = structPtr->hour13;
+    dbs.ind_hour13 = getIndicator(SHORT, (void *)&structPtr->hour13);
+
+    dbs.hour14 = structPtr->hour14;
+    dbs.ind_hour14 = getIndicator(SHORT, (void *)&structPtr->hour14);
+
+    dbs.hour15 = structPtr->hour15;
+    dbs.ind_hour15 = getIndicator(SHORT, (void *)&structPtr->hour15);
+
+    dbs.hour16 = structPtr->hour16;
+    dbs.ind_hour16 = getIndicator(SHORT, (void *)&structPtr->hour16);
+
+    dbs.hour17 = structPtr->hour17;
+    dbs.ind_hour17 = getIndicator(SHORT, (void *)&structPtr->hour17);
+
+    dbs.hour18 = structPtr->hour18;
+    dbs.ind_hour18 = getIndicator(SHORT, (void *)&structPtr->hour18);
+
+    dbs.hour19 = structPtr->hour19;
+    dbs.ind_hour19 = getIndicator(SHORT, (void *)&structPtr->hour19);
+
+    dbs.hour20 = structPtr->hour20;
+    dbs.ind_hour20 = getIndicator(SHORT, (void *)&structPtr->hour20);
+
+    dbs.hour21 = structPtr->hour21;
+    dbs.ind_hour21 = getIndicator(SHORT, (void *)&structPtr->hour21);
+
+    dbs.hour22 = structPtr->hour22;
+    dbs.ind_hour22 = getIndicator(SHORT, (void *)&structPtr->hour22);
+
+    dbs.hour23 = structPtr->hour23;
+    dbs.ind_hour23 = getIndicator(SHORT, (void *)&structPtr->hour23);
+
+    dbs.hour24 = structPtr->hour24;
+    dbs.ind_hour24 = getIndicator(SHORT, (void *)&structPtr->hour24);
+
+
+    sprintf(queryBuffer, " UPDATE HourlyPC SET " );
+    strcat(queryBuffer, "lid = ? , ts = ? , obsdate = ? , minute_offset = ? , hourly_qc = ? ,     ");
+    strcat(queryBuffer, "hour1 = ? , hour2 = ? , hour3 = ? , hour4 = ? , hour5 = ? ,     ");
+    strcat(queryBuffer, "hour6 = ? , hour7 = ? , hour8 = ? , hour9 = ? , hour10 = ? ,     ");
+    strcat(queryBuffer, "hour11 = ? , hour12 = ? , hour13 = ? , hour14 = ? , hour15 = ? ,     ");
+    strcat(queryBuffer, "hour16 = ? , hour17 = ? , hour18 = ? , hour19 = ? , hour20 = ? ,     ");
+    strcat(queryBuffer, "hour21 = ? , hour22 = ? , hour23 = ? , hour24 = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateHourlyPC() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.lid, :dbs.ts, :dbs.obsdate, :dbs.minute_offset:dbs.ind_minute_offset, :dbs.hourly_qc:dbs.ind_hourly_qc,
+     :dbs.hour1:dbs.ind_hour1, :dbs.hour2:dbs.ind_hour2, :dbs.hour3:dbs.ind_hour3, :dbs.hour4:dbs.ind_hour4, :dbs.hour5:dbs.ind_hour5,
+     :dbs.hour6:dbs.ind_hour6, :dbs.hour7:dbs.ind_hour7, :dbs.hour8:dbs.ind_hour8, :dbs.hour9:dbs.ind_hour9, :dbs.hour10:dbs.ind_hour10,
+     :dbs.hour11:dbs.ind_hour11, :dbs.hour12:dbs.ind_hour12, :dbs.hour13:dbs.ind_hour13, :dbs.hour14:dbs.ind_hour14, :dbs.hour15:dbs.ind_hour15,
+     :dbs.hour16:dbs.ind_hour16, :dbs.hour17:dbs.ind_hour17, :dbs.hour18:dbs.ind_hour18, :dbs.hour19:dbs.ind_hour19, :dbs.hour20:dbs.ind_hour20,
+     :dbs.hour21:dbs.ind_hour21, :dbs.hour22:dbs.ind_hour22, :dbs.hour23:dbs.ind_hour23, :dbs.hour24:dbs.ind_hour24;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateHourlyPC() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteHourlyPC(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM HourlyPC ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteHourlyPC() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateHourlyPCByRecord (const HourlyPC * newStructPtr, const HourlyPC * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetHourlyPCPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateHourlyPC(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateHourlyPC(const HourlyPC * structPtr)
+{
+    UpdateHourlyPCByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertHourlyPC(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueHourlyPC(const HourlyPC * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (HourlyPCExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertHourlyPC(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteHourlyPCByRecord(const HourlyPC * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetHourlyPCPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteHourlyPC(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool HourlyPCExists(const HourlyPC * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetHourlyPCPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectHourlyPCCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetHourlyPCPrimaryKeyWhereString (const HourlyPC * structPtr, char returnWhereString[] )
+{
+    char date_buffer0[40];
+    sprintf(returnWhereString, "WHERE lid = '%s'  AND ts = '%s'  AND obsdate = '%s' ",
+            structPtr->lid, structPtr->ts, date_t_to_ansi_date(structPtr->obsdate, date_buffer0));
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeHourlyPC( HourlyPC * structPtr)
+{
+    HourlyPC* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( HourlyPC * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetHourlyPCDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetHourlyPCErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

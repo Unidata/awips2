@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<gribParamInfo xmlns:ns2="group">
+	<valtimeMINUSreftime>
+		<fcst>0</fcst>
+		<fcst>3600</fcst>
+		<fcst>7200</fcst>
+		<fcst>10800</fcst>
+		<fcst>21600</fcst>
+		<fcst>32400</fcst>
+		<fcst>43200</fcst>
+	</valtimeMINUSreftime>
+	<gribParameterInfo xsi:type="parameterInfo"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<short_name>reftime</short_name>
+		<long_name>reference time</long_name>
+		<units>seconds since (1970-1-1 00:00:00.0)</units>
+		<fillValue>0.0</fillValue>
+		<n3D>0</n3D>
+	</gribParameterInfo>
+	<gribParameterInfo xsi:type="parameterInfo"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<short_name>staticCoriolis</short_name>
+		<long_name>Coriolis parameter</long_name>
+		<units>s^-1</units>
+		<fillValue>-99999.0</fillValue>
+		<n3D>0</n3D>
+	</gribParameterInfo>
+	<gribParameterInfo xsi:type="parameterInfo"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<short_name>valtimeMINUSreftime</short_name>
+		<units>seconds</units>
+		<fillValue>0.0</fillValue>
+		<n3D>0</n3D>
+	</gribParameterInfo>
+	<gribParameterInfo xsi:type="parameterInfo"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<short_name>staticSpacing</short_name>
+		<long_name>Grid spacing</long_name>
+		<units>m</units>
+		<fillValue>-99999.0</fillValue>
+		<n3D>0</n3D>
+	</gribParameterInfo>
+	<gribParameterInfo xsi:type="parameterInfo"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<short_name>sld</short_name>
+		<long_name>Supercooled Large Droplet Icing Probability</long_name>
+		<units></units>
+		<udunits></udunits>
+		<uiname>sldIcngProb</uiname>
+		<valid_range>0.0</valid_range>
+		<valid_range>1.0</valid_range>
+		<fillValue>-99999.0</fillValue>
+		<n3D>30</n3D>
+		<levels>FH 304 610 914 1219 1524 1828 2133 2438 2743 3048 3352 3657
+			3962</levels>
+	</gribParameterInfo>
+	<gribParameterInfo xsi:type="parameterInfo"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<short_name>icng</short_name>
+		<long_name>Total Icing Potential</long_name>
+		<units></units>
+		<udunits></udunits>
+		<uiname>TotalIcngPot</uiname>
+		<valid_range>0.0</valid_range>
+		<valid_range>1.0</valid_range>
+		<fillValue>-99999.0</fillValue>
+		<n3D>30</n3D>
+		<levels>FH 305 610 914 1219 1524 1829 2134 2438 2743 3048 3353 3658
+			3962</levels>
+	</gribParameterInfo>
+	<gribParameterInfo xsi:type="parameterInfo"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<short_name>staticTopo</short_name>
+		<long_name>Topography</long_name>
+		<units>m</units>
+		<fillValue>-99999.0</fillValue>
+		<n3D>0</n3D>
+	</gribParameterInfo>
+	<gribParameterInfo xsi:type="parameterInfo"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<short_name>icprb</short_name>
+		<long_name>Total Icing Probability</long_name>
+		<units></units>
+		<udunits></udunits>
+		<uiname>TotalIcngProb</uiname>
+		<valid_range>0.0</valid_range>
+		<valid_range>1.0</valid_range>
+		<fillValue>-99999.0</fillValue>
+		<n3D>30</n3D>
+		<levels>FH 304 610 914 1219 1524 1828 2133 2438 2743 3048 3352 3657
+			3962</levels>
+	</gribParameterInfo>
+	<gribParameterInfo xsi:type="parameterInfo"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<short_name>icsev</short_name>
+		<long_name>Icing Severity</long_name>
+		<units></units>
+		<udunits></udunits>
+		<uiname>IcngSev</uiname>
+		<valid_range>0.0</valid_range>
+		<valid_range>4.0</valid_range>
+		<fillValue>-99999.0</fillValue>
+		<n3D>30</n3D>
+		<levels>FH 304 610 914 1219 1524 1828 2133 2438 2743 3048 3352 3657
+			3962</levels>
+	</gribParameterInfo>
+	<gribParameterInfo xsi:type="parameterInfo"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<short_name>turb</short_name>
+		<long_name>Turbulence Hazard Index</long_name>
+		<units></units>
+		<udunits></udunits>
+		<uiname>turbHazIndex</uiname>
+		<valid_range>0.0</valid_range>
+		<valid_range>1.0</valid_range>
+		<fillValue>-99999.0</fillValue>
+		<n3D>36</n3D>
+		<levels>FH 3048 3353 3658 3962 4267 4572 4877 5182 5486 5791 6096 6400
+			6705</levels>
+	</gribParameterInfo>
+</gribParamInfo>

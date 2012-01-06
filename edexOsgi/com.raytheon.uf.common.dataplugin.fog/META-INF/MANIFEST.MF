@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Fog common Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.fog
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Vendor: RAYTHEON
+Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: com.raytheon.uf.common.dataplugin.fog, com.raytheon.uf.common.dataplugin.fog.dao, com.raytheon.uf.common.dataplugin.fog.analysis
+Require-Bundle: javax.persistence;bundle-version="1.0.0",
+ com.raytheon.edex.common;bundle-version="1.11.1",
+ org.apache.commons.logging;bundle-version="1.0.4",
+ org.geotools;bundle-version="2.5.2",
+ com.raytheon.uf.common.monitor;bundle-version="1.11.5",
+ com.raytheon.uf.common.localization;bundle-version="1.11.13",
+ com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0"

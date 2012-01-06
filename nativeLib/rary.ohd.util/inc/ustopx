@@ -1,0 +1,4 @@
+C                                                *--> FROM CMS(USTOPX)
+C  STOP INFORMATION COMMON BLOCK
+      COMMON /USTOPX/ ISTOPX
+C

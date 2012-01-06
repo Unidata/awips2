@@ -1,0 +1,57 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="bufrncwfDecoder" class="com.raytheon.uf.edex.plugin.bufrncwf.BUFRncwfDecoder">
+        <constructor-arg ref="bufrncwfPluginName" />
+    </bean>
+    <bean id="bufrncwfDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg ref="bufrncwfPluginName" />
+		<constructor-arg value="jms-dist:queue:Ingest.bufrncwf?destinationResolver=#qpidDurableResolver" />
+	</bean>
+
+	<bean id="bufrncwfCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="bufrncwf-camel"/>
+  	</bean> 
+
+    <camelContext id="bufrncwf-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler"
+        autoStartup="false">
+        <!--
+        <endpoint id="bufrncwfFileEndpoint" uri="file:${edex.home}/data/sbn/bufrncwf?noop=true&amp;idempotent=false" />
+
+        <route id="bufrncwfFileConsumerRoute">
+            <from ref="bufrncwfFileEndpoint" />
+            <bean ref="fileToString" />
+            <setHeader headerName="pluginName">
+                <constant>bufrncwf</constant>
+            </setHeader>
+            <to uri="jms-generic:queue:Ingest.bufrncwf" />
+        </route>
+        -->
+
+        <!-- Begin bufrncwf routes -->
+        <route id="bufrncwfIngestRoute">
+            <from uri="jms-generic:queue:Ingest.bufrncwf?destinationResolver=#qpidDurableResolver" />
+            <setHeader headerName="pluginName">
+                <constant>bufrncwf</constant>
+            </setHeader>
+            <doTry>
+                <pipeline>
+		            <bean ref="stringToFile" />
+                    <bean ref="bufrncwfDecoder" method="decode" />
+                    <to uri="directvm:persistIndexAlert" />
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:bufrncwf?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+</beans>

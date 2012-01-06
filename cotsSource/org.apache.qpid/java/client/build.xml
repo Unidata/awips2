@@ -1,0 +1,52 @@
+<!--
+ -
+ - Licensed to the Apache Software Foundation (ASF) under one
+ - or more contributor license agreements.  See the NOTICE file
+ - distributed with this work for additional information
+ - regarding copyright ownership.  The ASF licenses this file
+ - to you under the Apache License, Version 2.0 (the
+ - "License"); you may not use this file except in compliance
+ - with the License.  You may obtain a copy of the License at
+ - 
+ -   http://www.apache.org/licenses/LICENSE-2.0
+ - 
+ - Unless required by applicable law or agreed to in writing,
+ - software distributed under the License is distributed on an
+ - "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ - KIND, either express or implied.  See the License for the
+ - specific language governing permissions and limitations
+ - under the License.
+ -
+ -->
+<project name="AMQ Client" default="build">
+
+  <property name="module.depends" value="common"/>
+  <property name="module.test.depends" value="common/test" />
+  <property name="module.genpom" value="true"/>
+  <property name="module.genpom.args" value="-Sgeronimo-jms_1.1_spec=provided"/>
+
+  <import file="../module.xml"/>
+
+  <property name="output.dir" value="${module.precompiled}/org/apache/qpid/filter/selector"/>
+
+  <target name="precompile">
+    <mkdir dir="${output.dir}"/>
+    <javacc target="src/main/grammar/SelectorParser.jj"
+            outputdirectory="${output.dir}"
+            javacchome="${project.root}/lib"/>
+  </target>
+
+
+  <uptodate property="doc-release.done" targetfile="${module.release}/api/index.html">
+    <srcfiles dir="${module.src}" includes="**/*.java"/>
+  </uptodate>
+
+  <target name="doc-release" depends="build" unless="doc-release.done">
+      <javadoc destdir="${module.release}/api" sourcepathref="module.src.path"
+               classpathref="module.class.path" packagenames="org.apache.qpid.jms"/>
+  </target>
+
+  <target name="release-bin" depends="release-bin-tasks"/>    
+
+  <target name="bundle" depends="bundle-tasks"/>
+</project>

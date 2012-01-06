@@ -1,0 +1,54 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements. See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership. The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied. See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<cruisecontrol>
+    <project name="bdbstore-cpp-trunk"
+             buildafterfailed="false">
+
+        <listeners>
+            <currentbuildstatuslistener file="logs/${project.name}/status.txt"/>
+        </listeners>
+
+        <bootstrappers>
+            <svnbootstrapper localWorkingCopy="${env.CPPSTORE_HOME}"/>
+        </bootstrappers>
+
+        <modificationset quietperiod="30">
+            <buildstatus logdir="${env.CC_HOME}/cc/logs/qpid-cpp-trunk/"/>
+            <svn localWorkingCopy="${env.CPPSTORE_HOME}"/>
+        </modificationset>
+
+        <schedule interval="3600">
+            <exec timeout="1800"
+                  command="/bin/bash"
+                  args="${env.CC_HOME}/cc/scripts/bdbstorecppbuild.sh"
+                  workingdir="${env.CPPSTORE_HOME}"/>
+        </schedule>
+
+        <publishers>
+            <email subjectprefix="${mail.subject}: ${project.name}" mailhost="${mail.host}"
+                   returnaddress="${mail.returnaddress}"
+                   buildresultsurl="http://${env.HOSTNAME}:8080/buildresults/${project.name}"
+                   skipusers="false"
+                   reportsuccess="fixes"
+                   spamwhilebroken="true">
+                <always address="${mail.list}"/>
+            </email>
+        </publishers>
+    </project>
+</cruisecontrol>

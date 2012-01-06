@@ -1,0 +1,31 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Nctext Plug-in
+Bundle-SymbolicName: gov.noaa.nws.ncep.edex.plugin.nctext
+Bundle-Version: 1.0.0.qualifier
+Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Bundle-Vendor: NOAA/NWS/NCEP/NCO/SIB
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: com.raytheon.edex.db.dao,
+ com.raytheon.edex.exception,
+ com.raytheon.edex.plugin,
+ com.raytheon.edex.util,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.dataplugin.annotations,
+ com.raytheon.uf.common.dataplugin.persist,
+ com.raytheon.uf.common.datastorage,
+ com.raytheon.uf.common.serialization.annotations,
+ com.raytheon.uf.common.serialization.comm,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.edex.decodertools.core,
+ javax.persistence,
+ org.apache.commons.logging
+Export-Package: gov.noaa.nws.ncep.edex.plugin.nctext.common,
+ gov.noaa.nws.ncep.edex.plugin.nctext.common.dao,
+ gov.noaa.nws.ncep.edex.plugin.nctext.query
+Require-Bundle: com.raytheon.edex.common;bundle-version="1.11.7",
+ gov.noaa.nws.ncep.edex.common;bundle-version="1.0.0",
+ javax.persistence;bundle-version="1.0.0",
+ org.apache.commons.logging;bundle-version="1.0.4",
+ org.apache.log4j;bundle-version="1.0.0",
+ com.raytheon.uf.edex.decodertools;bundle-version="1.11.7"

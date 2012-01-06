@@ -1,0 +1,194 @@
+C MODULE WDGCH
+C-----------------------------------------------------------------------
+C
+C  ROUTINE CHANGE A STATION IN THE GOES CONTROL FILE.
+C
+      SUBROUTINE WDGCH (USERID,GOESID,IDTYPE,PPDBID,PPDBDS,
+     *   NDLYTP,DLYTYP,NRRSTP,RRSTYP,IRTIME,ITIME,
+     *   MADDTP,ADDTYP,NADDTP,MDELTP,DELTYP,NDELTP,
+     *   ISTAT)
+C
+      CHARACTER*4 DLYTYP(NDLYTP),RRSTYP(NRRSTP)
+      CHARACTER*4 ADDTYP(MADDTP),DELTYP(MDELTP)
+      PARAMETER (MAXOLD=50)
+      CHARACTER*4 DLYOLD(MAXOLD),RRSOLD(MAXOLD)
+      CHARACTER*8 USERID,GOESID,PPDBID
+      CHARACTER*8 USERIDX,GOESIDX,PPDBIDX
+      CHARACTER*20 PPDBDS,PPDBDSX
+      CHARACTER*128 FILENAME
+      DIMENSION IRTIME(*),ITIME(*)
+      DIMENSION ITMOLD(MAXOLD)
+C
+      INCLUDE 'uio'
+      INCLUDE 'udebug'
+      INCLUDE 'dgcommon/dgunts'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/shared_goes/RCS/wdgch.f,v $
+     . $',                                                             '
+     .$Id: wdgch.f,v 1.2 1998/04/07 18:38:58 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      ISTAT=0
+C
+      IF (IDETR.GT.0) WRITE (IOGDB,10)
+10    FORMAT (' *** ENTER WDGCH')
+C
+C  OPEN FILE
+      IOPEN=2
+      CALL UDOPEN (KDGRCF,IOPEN,FILENAME,LRECL,IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (LP,20) FILENAME(1:LENSTR(FILENAME))
+20    FORMAT ('0*** ERROR - IN WDGCH - CANNOT OPEN FILE ',A,'.')
+         ISTAT=1
+         GO TO 260
+         ENDIF
+C
+C  GET NUMBER OF STATIONS DEFINED
+      READ (KDGRCF,REC=1,IOSTAT=IERR) NHEAD
+      IF (IERR.NE.0) THEN
+         WRITE (LP,30) IERR,FILENAME(1:LENSTR(FILENAME))
+30    FORMAT ('0*** ERROR - IN WDGCH - IOSTAT=',I5,' READING ',
+     *   'FILE ',A,'.')
+         ISTAT=1
+         GO TO 250
+         ENDIF
+      IF (IERR.LT.0) THEN
+         WRITE (LP,40) FILENAME(1:LENSTR(FILENAME))
+40    FORMAT ('0*** ERROR - IN WDGCH - EOF WHILE READING RECORD 1 OF ',
+     *   'FILE ',A,'.')
+         ISTAT=1
+         GO TO 250
+         ENDIF
+      IF (NHEAD.EQ.0) THEN
+         IF (IDEDB.GT.0) WRITE (IOGDB,50) FILENAME(1:LENSTR(FILENAME))
+50    FORMAT (' NO STATIONS ARE DEFINED IN FILE ',A)
+         ISTAT=2
+         GO TO 250
+         ENDIF
+C
+C  SEARCH FILE FOR STATION
+      NHEAD=NHEAD+1
+      DO 60 NHD=2,NHEAD
+         READ (KDGRCF,REC=NHD,ERR=80) USERIDX,GOESIDX,
+     *     IDTYPEX,PPDBIDX,PPDBDSX,
+     *     NDLYOLD,(DLYOLD(I),I=1,NDLYOLD),
+     *     NRRSOLD,(RRSOLD(I),I=1,NRRSOLD),
+     *     NITMOLD,(ITMOLD(I),I=1,NITMOLD)
+         IF (USERIDX.EQ.USERID.AND.
+     *       GOESIDX.EQ.GOESID.AND.
+     *       IDTYPEX.EQ.IDTYPE.AND.
+     *       PPDBIDX.EQ.PPDBID) GO TO 100
+60       CONTINUE
+      IF (IDEDB.GT.0) WRITE (IOGDB,70) USERID,GOESID,
+     *   FILENAME(1:LENSTR(FILENAME))
+70    FORMAT (' USERID ',A,
+     *   ' GOESID ',A,
+     *   ' IDTYPE ',I2,
+     *   ' PPDBID ',A,
+     *   ' NOT FOUND IN FILE ',A)
+      ISTAT=3
+      GO TO 250
+
+80    WRITE (LP,90) FILENAME(1:LENSTR(FILENAME))
+90    FORMAT ('0*** ERROR - IN WDGCR - BAD READ OR EOF IN FILE ',A,'.')
+      ISTAT=1
+      GO TO 250
+
+C  SET DATA TIME INTERVAL
+100   DO 110 I=1,NDLYTP
+         ITIME(I)=0
+         IF (DLYTYP(I).EQ.'PP24') ITIME(I)=24*60
+         IF (DLYTYP(I).EQ.'PP06') ITIME(I)=06*60
+         IF (DLYTYP(I).EQ.'PP03') ITIME(I)=03*60
+         IF (DLYTYP(I).EQ.'PP01') ITIME(I)=01*60
+         IF (DLYTYP(I).EQ.'TM24') ITIME(I)=24*60
+         IF (DLYTYP(I).EQ.'TA06') ITIME(I)=06*60
+         IF (DLYTYP(I).EQ.'TA03') ITIME(I)=03*60
+         IF (DLYTYP(I).EQ.'TA01') ITIME(I)=01*60
+         IF (DLYTYP(I).EQ.'TN24') ITIME(I)=24*60
+         IF (DLYTYP(I).EQ.'TX24') ITIME(I)=24*60
+         IF (DLYTYP(I).EQ.'EA24') ITIME(I)=24*60
+         IF (ITIME(I).EQ.0) THEN
+            IF (IDEDB.GT.0) WRITE (IOGDB,105) DLYTYP(I),PPDBID,GOESID
+105   FORMAT (' DLYTYP ',A,
+     *   ' FOR PPDBID ',A,
+     *   ' AND GOESID ',A,
+     *   ' IS INVALID')
+            ISTAT=4
+            ENDIF
+110      CONTINUE
+      IF (ISTAT.GT.0) GO TO 250
+      DO 120 I=1,NRRSTP
+         ITIME(NDLYTP+I)=IRTIME(I)*60
+120      CONTINUE
+C
+      NITIME=NDLYTP+NRRSTP
+C
+      WRITE (KDGRCF,REC=NHD,ERR=140) USERID,GOESID,
+     *   IDTYPE,PPDBID,PPDBDS,
+     *   NDLYTP,(DLYTYP(I),I=1,NDLYTP),
+     *   NRRSTP,(RRSTYP(I),I=1,NRRSTP),
+     *   NITIME,(ITIME(I),I=1,NITIME)
+      IF (IDEDB.GT.0) WRITE (IOGDB,130) GOESID,NHD,
+     *   FILENAME(1:LENSTR(FILENAME))
+130   FORMAT (' STATION ',A,' CHANGED AT RECORD' ,I5,' IN FILE ',A)
+      GO TO 160
+C
+140   WRITE (LP,150) NHD,FILENAME(1:LENSTR(FILENAME))
+150   FORMAT ('0*** ERROR - IN WDGCH - BAD WRITE AT RECORD ',I5,
+     *   ' IN FILE ',A,'.')
+      ISTAT=1
+      GO TO 250
+
+160   NDELTP=0
+      NADDTP=0
+C
+C  FIND ADDED DAILY TYPES
+      DO 180 I=1,NDLYTP
+         DO 170 J=1,NDLYOLD
+            IF (DLYTYP(I).EQ.DLYOLD(J)) GO TO 180
+170         CONTINUE
+            NADDTP=NADDTP+1
+            ADDTYP(NADDTP)=DLYTYP(I)
+180      CONTINUE
+C
+C  FIND DELETED DAILY TYPES
+      DO 200 I=1,NDLYOLD
+         DO 190 J=1,NDLYTP
+            IF (DLYOLD(I).EQ.DLYTYP(J)) GO TO 200
+190         CONTINUE
+            NDELTP=NDELTP+1
+            DELTYP(NDELTP)=DLYOLD(I)
+200      CONTINUE
+C
+C  FIND ADDED RRS TYPES
+      DO 220 I=1,NRRSTP
+         DO 210 J=1,NRRSOLD
+            IF (RRSTYP(I).EQ.RRSOLD(J)) GO TO 220
+210         CONTINUE
+            NADDTP=NADDTP+1
+            ADDTYP(NADDTP)=RRSTYP(I)
+220      CONTINUE
+C
+C  FIND DELETED RRS TYPES
+      DO 240 I=1,NRRSOLD
+         DO 230 J=1,NRRSTP
+            IF (RRSOLD(I).EQ.RRSTYP(J)) GO TO 240
+230         CONTINUE
+            NDELTP=NDELTP+1
+            DELTYP(NDELTP)=RRSOLD(I)
+240      CONTINUE
+C
+250   CALL UPCLOS (KDGRCF,' ',IERR)
+
+260   IF (IDETR.GT.0) WRITE (IOGDB,270)
+270   FORMAT (' *** EXIT WDGCH')
+C
+      RETURN
+C
+      END

@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Binlightning Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.binlightning
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Vendor: RAYTHEON
+Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: com.raytheon.uf.common.dataplugin.binlightning,
+ com.raytheon.uf.common.dataplugin.binlightning.dao,
+ com.raytheon.uf.common.dataplugin.binlightning.impl
+Require-Bundle: com.raytheon.edex.common,
+ org.geotools,
+ org.apache.commons.logging,
+ javax.persistence,
+ javax.measure
+Import-Package: com.raytheon.uf.common.dataplugin.binlightning,
+ com.raytheon.uf.edex.decodertools.core,
+ com.raytheon.uf.edex.decodertools.time

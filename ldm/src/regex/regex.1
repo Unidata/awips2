@@ -1,0 +1,107 @@
+." $Id: regex.1,v 1.2.16.1.2.2 2009/06/18 16:19:38 steve Exp $
+.TH REGEX 1 "$Date: 2009/06/18 16:19:38 $"
+.SH NAME
+regex \- Verify extended regular-expressions.
+.SH SYNOPSIS
+.HP
+.ft B
+regex
+.nh
+\%[-n\ \fIcount\fP]
+\%[-s\ \fIstring\fP]
+\%\fIpattern\fP]
+.hy
+.ft
+.SH DESCRIPTION
+.LP
+This utility validates an extended regular-expression and, 
+optionally, matches it against a specified string.
+.LP
+A looping option allows sufficient time to accumulate to permit the
+determination
+of the relative efficiency of, otherwise, equivalent regular-expressions.
+.LP
+Because a downstream LDM uses a extended regular-expression in its
+request for data products from an upstream LDM, it is important that the
+regular expression be efficient.  We have documented simple but 
+pathological regular expressions from a downstream LDM request that have
+caused the upstream LDM to spend over 99% of its user-time in the execution
+of the regular expressions.  We're not making this up.
+.SH OPTIONS
+.TP
+.BI "-n " count
+The number of times to match the regular-expression against the string.
+.TP
+.BI "-s " string
+The string to be matched against the regular-expression.  
+.SH OPERAND
+.TP
+.I pattern
+An extended reqular-expression to be compiled and, optionally, compared against
+the argument of the
+.B \-s
+option.
+.SH "STANDARD OUTPUT"
+If the regular-expression is successfully compiled and the 
+.B \-s
+option is
+used, then the utility prints "match" or "no match" as appropriate
+to standard output.
+.SH "STANDARD ERROR"
+If the utility is incorrectly invoked or the regular-expression fails to
+compile, then a diagnostic message is written to standard error.
+.SH EXAMPLE
+The regular-expression
+.B [09]$
+is MUCH faster than the regular-expression
+.B .*[09]$
+under Solaris:
+
+.nf
+.RS +4
+$ time ./regex -n 10000 -s 'xxxxxxxxxxxxxxxxx' '[09]$'
+no match
+
+real    0m0.014s
+user    0m0.010s    <-- NOTE
+sys     0m0.010s
+$ time ./regex -n 10000 -s 'xxxxxxxxxxxxxxxxx' '.*[09]$'
+no match
+
+real    0m1.870s
+user    0m1.850s    <-- NOTE
+sys     0m0.010s
+.fi
+.RE
+.SH "EXIT STATUS"
+.LP
+The following exit values are returned:
+.TP
+0
+Success.  Regular-expression successfuly compiled.
+.TP
+1
+Usage error.
+.TP
+2
+Regular-expression error.
+.SH "SEE ALSO"
+For information on extended regular-expressions, see
+.B http://www.opengroup.org/onlinepubs/7908799/xbd/re.html.
+.SH SUPPORT
+.LP
+If you have problems with this program, then you should first examine the 
+LDM email archive for similar problems and how they were solved.
+The email archive is available via the following World Wide Web URL:
+.sp
+.RS
+\fBhttp://www.unidata.ucar.edu/software/ldm/\fP
+.RE
+.sp
+If this does not suffice and your site is a member of the Unidata 
+program, then send an inquiry via email -- together will all relevant 
+information -- to
+.sp
+.RS
+\fBsupport@unidata.ucar.edu\fP
+.RE

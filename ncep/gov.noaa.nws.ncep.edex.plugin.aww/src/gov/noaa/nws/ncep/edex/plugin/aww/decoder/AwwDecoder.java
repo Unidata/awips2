@@ -1,0 +1,235 @@
+/**
+ * 
+ * AwwDecoder
+ * 
+ * This java class decodes advisory, watch, and warning raw data including
+ * 1. flash flood, tornado and severe thunderstorm warning reports (warning - dcwarn)
+ * 2. tornado and severe thunderstorm watch box reports and watch status reports (watch – dcwtch)
+ * 3. watch county notification reports (wcn – dcwcn)
+ * 4. winter storm reports (wstm – Dcwstm)
+ * 5. watch outline update reports (wou – Dcwou)
+ * 6. flash flood watch reports (ffa – Dcffa)
+ * 7. severe local storm reports (tornado and severe thunderstorm watch reports) (svrl – dcsvrl).
+ *  
+ * HISTORY
+ *
+ * Date         Ticket#         Engineer    Description
+ * ------------ ----------      ----------- --------------------------
+ * 03/2009      38				L. Lin     	Initial coding
+ * 04/2009      38				L. Lin      Convert to TO10
+ * 07/2009		38				L. Lin		Migration to TO11
+ * 09/2009		38              L. Lin		Will not store bullmessage
+ *                                          if length over the database size
+ * 11/2009	    38              L. Lin      Correctly get UGC information.    
+ * 11/2009      38              L. Lin      Migration to TO11 D6.
+ * 05/2010      38              L. Lin      Migration to TO11DR11.    
+ * 01/26/2011   N/A             M. Gao      Refactor: 
+ * 											1. if AwwParser.processWMO failed, simply
+ *											   drop the record by throwing an exception
+ *											2. comment out the end check "if(record == null") 
+ *											   because it is a dead code.                
+ * </pre>
+ * 
+ * This code has been developed by the SIB for use in the AWIPS2 system.
+ * @author L. Lin
+ * @version 1.0
+ */
+
+package gov.noaa.nws.ncep.edex.plugin.aww.decoder;
+
+import gov.noaa.nws.ncep.common.dataplugin.aww.AwwRecord;
+import gov.noaa.nws.ncep.common.dataplugin.aww.AwwUgc;
+import gov.noaa.nws.ncep.edex.plugin.aww.exception.AwwDecoderException;
+import gov.noaa.nws.ncep.edex.plugin.aww.util.AwwParser;
+import gov.noaa.nws.ncep.edex.tools.decoder.MndTime;
+import gov.noaa.nws.ncep.edex.util.UtilN;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import com.raytheon.edex.esb.Headers;
+import com.raytheon.edex.exception.DecoderException;
+import com.raytheon.edex.plugin.AbstractDecoder;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.PluginException;
+import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
+
+public class AwwDecoder extends AbstractDecoder {
+
+    private final String pluginName;
+
+    private Calendar mndTime = null;
+
+    /**
+     * Constructor
+     * 
+     * @throws DecoderException
+     */
+    public AwwDecoder(String name) throws DecoderException {
+        pluginName = name;
+    }
+
+    public PluginDataObject[] decode(byte[] data, Headers headers)
+            throws DecoderException {
+
+        String traceId = "";
+        if (headers != null) {
+            traceId = (String) headers.get("traceId");
+        }
+        // Regular expression for the county table
+        // final String UGC_EXP =
+        // "([A-Z]{3}\\d{3})(\\-|\\>)(\\S)+\\x0d\\x0d\\x0a((\\d{6}|\\d{3})\\-(\\S)*\\x0d\\x0d\\x0a)*";
+        final String UGC_EXP = "([A-Z]{3}[0-9]{3}[\\-\\>].*[0-9]{6}\\-)[\\r\\n]+";
+
+        // Pattern used for extracting the UGC line
+        Pattern ugcPattern = Pattern.compile(UGC_EXP, Pattern.DOTALL);
+
+        // String segmentDelim ="$$";
+        String segmentDelim = "\\x24\\x24";
+        String etx = IDecoderConstants.ETX;
+
+        ArrayList<String> watchesList = new ArrayList<String>();
+
+        byte[] messageData = null;
+        String theBulletin = null;
+
+        // Check if there are more bulletins
+        AwwSeparator sep = AwwSeparator.separate(data, headers);
+        messageData = sep.next();
+        String theMessage = new String(messageData);
+
+        /*
+         * May have multiple duplicate bulletins, only get the first bulletin
+         * and eliminate the remaining bulletins after the first bulletin.
+         */
+        Scanner cc = new Scanner(theMessage).useDelimiter(etx);
+        if (cc.hasNext()) {
+            theBulletin = cc.next();
+        } else {
+            theBulletin = theMessage;
+        }
+
+        // Set MND (Mass News Disseminator) time string and convert it into
+        // Calendar object
+        MndTime mt = new MndTime(theBulletin.getBytes());
+        mndTime = mt.getMndTime();
+
+        // Decode and set WMO line
+        AwwRecord record = AwwParser.processWMO(theBulletin, mndTime);
+        if (record == null) {
+            throw new AwwDecoderException("Error on decoding Aww Record");
+        }
+
+        // Get report type
+        String reportType = AwwParser.getReportType(theBulletin);
+
+        ArrayList<String> segmentList = new ArrayList<String>();
+        segmentList.clear();
+
+        // Break the bulletin message into segments by a "$$"
+        Scanner sc = new Scanner(theBulletin).useDelimiter(segmentDelim);
+
+        while (sc.hasNext()) {
+            String segment = sc.next();
+            Matcher ugcMatcher = ugcPattern.matcher(segment);
+            // discard if the segment did not have an UGC line.
+            if (ugcMatcher.find()) {
+                segmentList.add(segment);
+            }
+        }
+
+        if (record != null) {
+            try {
+                // process each segment in a order of UGC, VTEC, H-VTEC, FIPS,
+                // LATLON...
+                for (String segment : segmentList) {
+                    Matcher ugcMatcher = ugcPattern.matcher(segment);
+                    if (ugcMatcher.find()) {
+                        AwwUgc ugc = AwwParser.processUgc(ugcMatcher.group(),
+                                segment, mndTime, watchesList);
+                        record.addAwwUGC(ugc);
+
+                        /*
+                         * Collect watch numbers which are the event tracking
+                         * numbers in VTEC lines as one of primary keys in AWW
+                         * record to prevent not writing raw data to DB note: 1.
+                         * each bulletin may have multiple segments 2. each
+                         * segment has one UGC line but may have multiple VTEC
+                         * lines and have more than one watch number
+                         */
+                        if (watchesList.size() > 0) {
+                            String collectWatches = null;
+                            for (int idxWatch = 0; idxWatch < watchesList
+                                    .size(); idxWatch++) {
+
+                                if (idxWatch == 0) {
+                                    collectWatches = watchesList.get(idxWatch);
+                                } else {
+                                    collectWatches = collectWatches.concat("/")
+                                            .concat(watchesList.get(idxWatch));
+                                }
+                            }
+                            // System.out.println("==collection length=" +
+                            // collectWatches.length() );
+                            record.setWatchNumber(collectWatches);
+                        } else {
+
+                            // The special reports may not have VTEC line; given
+                            // a default watch number "0000".
+                            record.setWatchNumber("0000");
+                        }
+
+                    }
+                }
+
+            } catch (Exception e) {
+                logger.error("Error processing decoded sigmet", e);
+                record = null;
+            }
+        }
+        /*
+         * Check the AWW record object. If not, throws exception.
+         */
+        if (record != null) {
+            record.setReportType(reportType.trim().replace(' ', '_'));
+            record.setTraceId(traceId);
+            record.setPluginName(pluginName);
+            try {
+                record.constructDataURI();
+            } catch (PluginException e) {
+                throw new DecoderException("Error constructing dataURI", e);
+            }
+        }
+
+        // Decode and set attention line
+        record.setAttentionWFO(AwwParser.processATTN(theBulletin));
+
+        // Set MND remark
+        record.setMndTime(mt.getMndTimeString());
+
+        // Replace special characters to a blank so that it may be readable.
+        if (theBulletin.length() < 40000) {
+            record.setBullMessage(UtilN.removeLeadingWhiteSpaces(theBulletin
+                    .replace('\r', ' ').replace('\003', ' ')
+                    .replace('\000', ' ').replace('\001', ' ')
+                    .replace('\036', ' ')));
+        }
+
+        // Return the AwwRecord record object.
+        // if (record == null) {
+        // return new PluginDataObject[0];
+        // } else {
+        // return new PluginDataObject[] {record};
+        // }
+        /*
+         * The reason the above is commented out is the check to see if record
+         * == null is a dead code. It will never get executed according the
+         * logic before the if statement.
+         */
+        return new PluginDataObject[] { record };
+
+    }
+}

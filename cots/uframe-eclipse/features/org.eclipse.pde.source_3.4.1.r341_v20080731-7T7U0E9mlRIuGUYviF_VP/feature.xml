@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature id="org.eclipse.pde.source" version="3.4.1.r341_v20080731-7T7U0E9mlRIuGUYviF_VP" label="%featureName" provider-name="%providerName" image="eclipse_update_120.jpg"    >
+	<description >
+		%description
+	</description>
+	<copyright >
+		%copyright
+	</copyright>
+	<license url="%licenseURL">
+		%license
+	</license>
+	<url>
+		<update url="http://download.eclipse.org/eclipse/updates/3.4" label="%updateSiteName"/>
+		<discovery url="http://download.eclipse.org/eclipse/updates/3.4" label="%updateSiteName"/>
+	</url>
+	<plugin id="org.objectweb.asm.source" version="3.1.0.v200803061910"     unpack="false"/>
+	<plugin id="org.eclipse.pde.source" version="3.4.0.v20080603"     unpack="false"/>
+	<plugin id="org.eclipse.pde.build.source" version="3.4.1.R34x_v20080805"     unpack="false"/>
+	<plugin id="org.eclipse.pde.core.source" version="3.4.0.v20080903-1700"     unpack="false"/>
+	<plugin id="org.eclipse.pde.junit.runtime.source" version="3.4.0.v20080529-1800"     unpack="false"/>
+	<plugin id="org.eclipse.pde.runtime.source" version="3.4.0.v20080723-1000"     unpack="false"/>
+	<plugin id="org.eclipse.pde.ui.source" version="3.4.0.v20080803-1700"     unpack="false"/>
+	<plugin id="org.eclipse.pde.ui.templates.source" version="3.4.0.v20080514-1500"     unpack="false"/>
+	<plugin id="org.eclipse.ui.views.log.source" version="1.0.0.v20080803-1700"     unpack="false"/>
+	<plugin id="org.eclipse.pde.api.tools.source" version="1.0.0.v20080730_r341"     unpack="false"/>
+	<plugin id="org.eclipse.pde.api.tools.ui.source" version="1.0.0.v20080730_r341"     unpack="false"/>
+</feature>

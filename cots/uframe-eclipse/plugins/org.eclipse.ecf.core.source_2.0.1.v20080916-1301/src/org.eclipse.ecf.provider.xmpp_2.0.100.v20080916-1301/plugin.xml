@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.1"?>
+<plugin>
+   <extension
+         point="org.eclipse.ecf.containerFactory">
+      <containerFactory
+            class="org.eclipse.ecf.internal.provider.xmpp.XMPPContainerInstantiator"
+            description="XMPP (Jabber)"
+            name="ecf.xmpp.smack">
+      </containerFactory>
+   </extension>
+   <extension
+         point="org.eclipse.ecf.containerFactory">
+      <containerFactory
+            class="org.eclipse.ecf.internal.provider.xmpp.XMPPSContainerInstantiator"
+            description="XMPP SSL (Jabber SSL)"
+            name="ecf.xmpps.smack">
+      </containerFactory>
+   </extension>
+   <extension
+         point="org.eclipse.ecf.identity.namespace">
+      <namespace
+            class="org.eclipse.ecf.provider.xmpp.identity.XMPPNamespace"
+            description="XMPP Namespace"
+            name="ecf.xmpp"/>
+   </extension>
+   <extension
+         point="org.eclipse.ecf.identity.namespace">
+      <namespace
+            class="org.eclipse.ecf.provider.xmpp.identity.XMPPSNamespace"
+            description="XMPP SSL Namespace"
+            name="ecf.xmpps"/>
+   </extension>
+   <extension
+         point="org.eclipse.ecf.identity.namespace">
+      <namespace
+            class="org.eclipse.ecf.provider.xmpp.identity.XMPPRoomNamespace"
+            description="XMPP Room Namespace"
+            name="xmpp.room.jive"/>
+   </extension>
+
+   <extension
+         point="org.eclipse.ecf.identity.namespace">
+      <namespace
+            class="org.eclipse.ecf.provider.xmpp.identity.XMPPFileNamespace"
+            description="XMPP File Namespace"
+            name="ecf.provider.filetransfer.xmpp"/>
+   </extension>
+
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+      <factory
+            adaptableType="org.eclipse.ecf.provider.xmpp.XMPPContainer"
+            class="org.eclipse.ecf.provider.datashare.DatashareContainerAdapterFactory">
+         <adapter type="org.eclipse.ecf.datashare.IChannelContainerAdapter"/>
+      </factory>
+   </extension>
+
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+      <factory
+            adaptableType="org.eclipse.ecf.provider.xmpp.XMPPSContainer"
+            class="org.eclipse.ecf.provider.datashare.DatashareContainerAdapterFactory">
+         <adapter type="org.eclipse.ecf.datashare.IChannelContainerAdapter"/>
+      </factory>
+   </extension>
+
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+      <factory
+            adaptableType="org.eclipse.ecf.provider.xmpp.XMPPContainer"
+            class="org.eclipse.ecf.internal.provider.xmpp.XMPPRemoteServiceAdapterFactory">
+         <adapter type="org.eclipse.ecf.remoteservice.IRemoteServiceContainerAdapter"/>
+      </factory>
+   </extension>
+
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+      <factory
+            adaptableType="org.eclipse.ecf.provider.xmpp.XMPPSContainer"
+            class="org.eclipse.ecf.internal.provider.xmpp.XMPPRemoteServiceAdapterFactory">
+         <adapter type="org.eclipse.ecf.remoteservice.IRemoteServiceContainerAdapter"/>
+      </factory>
+   </extension>
+
+   <extension-point id="iqProviders" name="IQ Providers" schema="schema/iqProvider.exsd"/>
+   <extension-point id="extensionProviders" name="Extension Providers" schema="schema/extensionProvider.exsd"/>
+   <extension-point id="providerDirectories" name="Provider Directories" schema="schema/providerDirectories.exsd"/>
+   <extension
+         point="org.eclipse.ecf.filetransfer.urlStreamHandlerService">
+      <urlStreamHandlerService
+            protocol="xmppfile"
+            serviceClass="org.eclipse.ecf.internal.provider.xmpp.XMPPFiletURLStreamHandlerService">
+      </urlStreamHandlerService>
+   </extension>
+</plugin>

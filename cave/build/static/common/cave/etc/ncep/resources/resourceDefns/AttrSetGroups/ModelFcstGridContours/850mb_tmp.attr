@@ -1,0 +1,22 @@
+!
+! Restore File : 850mb_tmp
+!
+! Log:
+! J.W. Carr/HPC 	 4/98	Initial creation
+!
+GLEVEL=850
+GVCORD=pres
+SCALE=0         !0         !0
+GDPFUN=sm9s(tmpc)!sm9s(tmpc)!sm9s(tmpc)
+TYPE=c/f       !c         !c
+CINT=3/-99/0   !3/3/18    !3/21/99
+LINE=27/1/2    !2/1/2     !16/1/2
+FINT=-24;-18;-12;-6;0;18
+FLINE=24;30;28;29;25;0;17
+HILO=
+HLSYM=
+WIND=18/1/1
+TITLE=5/-1/~ @ TEMPERATURE!
+COLORS=2                                                                       
+MARKER=2                                                                       
+GRDLBL=5                                                                       

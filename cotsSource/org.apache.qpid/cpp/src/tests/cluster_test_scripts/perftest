@@ -1,0 +1,54 @@
+#!/bin/sh
+
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+# Run a distributed perftest against a cluster.
+# Args: npubs nsubs [perftest-options]
+
+source config.sh
+
+NPUBS=${1:-4} ; shift
+NSUBS=${1:-4} ; shift
+OPTS="--npubs $NPUBS --nsubs $NSUBS $*"
+
+CLIENTS=($CLIENT_HOSTS)
+BROKERS=(`cat $CLUSTER_HOME/hosts`)
+PORTS=(`cat $CLUSTER_HOME/ports`)
+
+start() {
+    client=${CLIENTS[i % ${#CLIENTS[*]}]}
+    broker=${BROKERS[i % ${#BROKERS[*]}]}
+    port=${PORTS[i % ${#PORTS[*]}]}
+    ssh -n $client $PERFTEST $OPTS $* -b $broker -p $port &
+    PIDS="$PIDS $!"
+}
+
+ssh ${CLIENTS[0]} $PERFTEST $OPTS --setup -b ${BROKERS[0]} -p${PORTS[0]}
+for (( i=0 ; i < $NPUBS ; ++i)); do start --publish; done
+for (( ; i < $NPUBS+$NSUBS ; ++i)); do start --subscribe; done
+ssh ${CLIENTS[0]} $PERFTEST $OPTS --control  -b ${BROKERS[0]}  -p${PORTS[0]}
+
+for pid in $PIDS; do
+    wait $pid || echo "ERROR: client process $pid failed"
+done
+
+`dirname $0`/cluster_check
+
+

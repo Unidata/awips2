@@ -1,0 +1,172 @@
+<!--
+ -
+ - Licensed to the Apache Software Foundation (ASF) under one
+ - or more contributor license agreements.  See the NOTICE file
+ - distributed with this work for additional information
+ - regarding copyright ownership.  The ASF licenses this file
+ - to you under the Apache License, Version 2.0 (the
+ - "License"); you may not use this file except in compliance
+ - with the License.  You may obtain a copy of the License at
+ - 
+ -   http://www.apache.org/licenses/LICENSE-2.0
+ - 
+ - Unless required by applicable law or agreed to in writing,
+ - software distributed under the License is distributed on an
+ - "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ - KIND, either express or implied.  See the License for the
+ - specific language governing permissions and limitations
+ - under the License.
+ -
+ -->
+<project name="JMX Management Console Binary Release" default="release-bin">
+
+	<!-- check properties that must be set by caller -->
+    <target name="check" description="ensure all required properties are set">
+    	<condition property="properties.set">
+    		<and>
+    	        <!-- common properties -->
+                <isset property ="mcplugin.filename"/>
+                <isset property ="jmxremote.sasl.manifest"/>
+                <!-- platform specific properties -->
+                <isset property ="qpidmc.ini"/>
+                <isset property ="qpidmc.executable"/>
+                <isset property ="release.name"/>
+                <isset property ="release.subdir"/>
+                <isset property ="rcp.libs"/>
+                <isset property ="rcp.configuration.dir"/>
+    		    <or>
+    		        <isset property ="release.zip"/>
+    		        <isset property ="release.tar.gz"/>
+    		    </or>
+        	</and>
+            <!-- Optional Properties:
+
+    	    For linux libcairo-swt.so file:
+            qpidmc.companion.library
+
+    	    For solaris .xpm files:
+            qpidmc.solaris.xpm.files
+            
+            -->
+        </condition>
+
+        <fail unless="properties.set" message="some required properties were not set"/>
+    </target>
+
+    <target name="release-bin-prepare">
+        <mkdir dir="${release.subdir}"/>
+    </target>
+
+    <target name="release-bin-qpid-mc-plugin">
+       <available file="${build.lib}/qpid-management-eclipse-plugin-${project.version}.jar" property="management-eclipse-plugin.jar.present"/>
+       <fail unless="management-eclipse-plugin.jar.present" message="Please run ant build for the management-eclipse-plugin module"/>
+
+        <!-- Copy the qpid management-eclipse-plugin module jar -->
+        <copy tofile="${release.subdir}/plugins/${mcplugin.filename}.jar" flatten="true" failonerror="true">
+            <fileset file="${build.lib}/qpid-management-eclipse-plugin-${project.version}.jar"/>
+        </copy>
+    </target>
+
+    <target name="release-bin-jmxremote-plugin">
+        <!-- Copy the jmxremote.sasl plugin's manifest, creating its plugin directory -->
+        <copy todir="${release.subdir}/plugins/jmxremote.sasl_1.0.1/META-INF" flatten="true" failonerror="true">
+            <fileset file="${jmxremote.sasl.manifest}"/>
+        </copy>
+    </target>
+
+    <target name="release-bin-qpid-management-common-plugin">
+	<available file="${build.lib}/qpid-management-common_${project.version}.0.osgi.jar" property="management-common.jar.present"/>
+	<fail unless="management-common.jar.present" message="Please run ant bundle for the management-common module"/>
+
+        <!-- Copy the qpid-management-common module osgi jar -->
+        <copy todir="${release.subdir}/plugins" failonerror="true">
+            <fileset file="${build.lib}/qpid-management-common_${project.version}.0.osgi.jar"/>
+        </copy>
+    </target>
+    
+    <target name="release-bin-executable-companion-library" if="qpidmc.companion.library">
+        <!-- Copy the rcp executable companion library file -->
+        <copy todir="${release.subdir}" flatten="true" failonerror="true">
+            <fileset file="${qpidmc.companion.library}"/>
+        </copy>
+    </target>
+
+    <target name="release-bin-executable-solaris-xpm-files" if="qpidmc.solaris.xpm.files">
+        <!-- Copy the solaris xpm files -->
+        <copy todir="${release.subdir}" flatten="true" failonerror="true">
+            <fileset dir="${basedir}" includes="${qpidmc.solaris.xpm.files}"/>
+        </copy>
+    </target>
+    
+    <target name="release-bin-rcp-deps" description="copy eclipse-rcp dependencies into module release"
+        depends="release-bin-executable-companion-library, release-bin-executable-solaris-xpm-files">
+        
+        <!-- Copy the rcp executable file -->
+        <copy todir="${release.subdir}" flatten="true" failonerror="true">
+            <fileset file="${qpidmc.executable}"/>
+        </copy>
+        <chmod dir="${release.subdir}" perm="u+rx" includes="qpidmc*"/>
+        
+        <!-- Copy remaining startup & license files -->
+        <copy todir="${release.subdir}" flatten="true" failonerror="true">
+            <fileset file="${qpidmc.ini}"/>
+        </copy>
+
+        <!-- Copy the rcp module libs -->
+        <copy todir="${release.subdir}/plugins" failonerror="true">
+            <fileset dir="${project.root}" includes="${rcp.libs}"/>
+            <globmapper from="lib${file.separator}*" to="*"/>
+        </copy>
+
+        <!-- Copy the relevant configuration dir -->
+        <copy todir="${release.subdir}/configuration" failonerror="true">
+            <fileset dir="${rcp.configuration.dir}"/>
+        </copy>
+        <chmod dir="${release.subdir}/configuration" perm="ugo+r" includes="**/*"/>
+    </target>
+  
+    <target name="release-bin-zip" if="release.zip" description="build mc zip archive">
+        <zip destfile="${release.zip}">
+            <zipfileset dir="${release.subdir}" prefix="${release.name}" filemode="755">
+                <include name="qpidmc*"/>
+                <exclude name="qpidmc.ini"/>
+            </zipfileset>
+            
+            <zipfileset dir="${release.subdir}" prefix="${release.name}" filemode="644">
+                <include name="qpidmc.ini"/>
+            </zipfileset>
+
+            <zipfileset dir="${release.subdir}" prefix="${release.name}" filemode="644" dirmode="755">
+                <exclude name="qpidmc*"/>
+            </zipfileset>
+        </zip>
+    </target>    		
+
+    <target name="release-bin-gzip" if="release.tar.gz" description="build mc tar.gz archive">
+        <tar destfile="${release.tar.gz}" longfile="gnu" compression="gzip">
+            <tarfileset dir="${release.subdir}" prefix="${release.name}" filemode="755">
+                <include name="qpidmc*"/>
+                <exclude name="qpidmc.ini"/>
+            </tarfileset>
+
+            <tarfileset dir="${release.subdir}" prefix="${release.name}" filemode="644">
+                <include name="qpidmc.ini"/>
+            </tarfileset>
+
+            <tarfileset dir="${release.subdir}" prefix="${release.name}" filemode="644" dirmode="755">
+                <exclude name="qpidmc*"/>
+            </tarfileset>
+        </tar>
+    </target>
+
+    <target name="release-bin-resources" description="copy project resources into module release">
+        <copy todir="${release.subdir}" failonerror="false" flatten="true">
+            <fileset dir="${resources}" excludes="META-INF"/>
+        </copy>
+    </target>
+    
+    <!-- override imported module.xml release-bin target -->
+    <target name="release-bin" depends="check,release-bin-prepare,release-bin-rcp-deps,release-bin-resources,
+        release-bin-qpid-mc-plugin,release-bin-qpid-management-common-plugin,release-bin-jmxremote-plugin,release-bin-zip,release-bin-gzip"/>
+    
+</project>

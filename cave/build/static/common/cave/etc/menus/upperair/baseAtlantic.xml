@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Dakar, Senegal (GOOY)" id="raobDakar_Senegal"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="61641"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Sal, Cape Verde (GVAC)" id="raobSal_CapeVerde"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="08594"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Albrook, Panama (MABK)" id="raobAlbrook_Panama"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="78808"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Curacao (MACC)" id="raobCuracao"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="78988"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="St. Maarten (MACM)" id="raobSTMaarten"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="78866"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="San Andres Island (MCSP)" id="raobSanAndresIsland"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="80001"/>
+	    </contribute>
+
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Santo Domingo, DR (MDSD)" id="raobSantoDomingo_DR"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="78486"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Grand Cayman, Cayman Is (MKCG)" id="raobGrandCayman_CaymanIs"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="78384"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Kingston, Jamaica (MKJP)" id="raobKingston_Jamaica"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="78397"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Barbados (MKPB)" id="raobBarbados"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="78954"/>
+	    </contribute>
+
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Trinidad (MKPP)" id="raobTrinidad"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="78970"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Howard AFB, PM (MPHO)" id="raobHowardAFB_PM "
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="78806"/>
+	    </contribute>
+
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Guantanamo Bay, CU (MUGM)" id="raobPortland_ME"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="78367"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Nassau (MYNN)" id="raobNassau"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="78073"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Belize City, Belize (MZBZ)" id="raobJBelizeCity_Belize"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="78583"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Riohacha, Colombia (SKRH)" id="raobRiohacha_Colombia"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="80035"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Cayenne, French Guiana (SOCA)" id="raobCayenne_FrenchGuiana"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="81405"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Le Ralset, Guadeloupe (TFFR)" id="LeRalset_Guadeloupe"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="78897"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="San Juan, PR (TJSJ)" id="raobWashington_DC"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="78526"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Bermuda (TXKF)" id="raobBermuda"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="78016"/>
+	    </contribute>
+</menuTemplate>

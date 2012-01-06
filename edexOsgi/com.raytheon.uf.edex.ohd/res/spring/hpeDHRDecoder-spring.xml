@@ -1,0 +1,51 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="radarDecompressor" class="com.raytheon.edex.plugin.radar.RadarDecompressor"/>
+	<bean id="dhrDecodeSrv" class="com.raytheon.uf.edex.ohd.pproc.HPEDhrSrv" />
+
+	<bean id="dhrDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="dhr" />
+		<constructor-arg value="jms-dist:queue:Ingest.dhr?destinationResolver=#qpidDurableResolver" />
+	</bean>
+	
+	<bean id="dhrRadarServerDistRegistry" factory-bean="radarserverDistributionSrv"
+		factory-method="register">
+		<constructor-arg value="dhr" />
+		<constructor-arg value="jms-dist:queue:Ingest.dhr?destinationResolver=#qpidDurableResolver" />
+	</bean>
+
+ 	<camelContext id="clusteredDHRroutes" 
+ 	    autoStartup="false"
+	    xmlns="http://camel.apache.org/schema/spring"
+	    errorHandlerRef="errorHandler">                
+		<!-- Begin dhr Routes -->
+		<route id="dhrIngestRoute">
+			<from uri="jms-generic:queue:Ingest.dhr?destinationResolver=#qpidDurableResolver" />
+			<setHeader headerName="pluginName">
+				<constant>dhr</constant>
+			</setHeader>
+			<doTry>
+				<pipeline>
+					<bean ref="setIngestHeaderFields"/>
+					<bean ref="stringToFile"  />
+					<bean ref="radarDecompressor" method="decompressToFile" />
+					<bean ref="dhrDecodeSrv" method="process" />
+					<!-- <bean ref="processUtil" method="log"/> -->
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:dhr?level=INFO&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
+		</route>
+ 	</camelContext>
+ 	<bean factory-bean="clusteredCamelContextMgr"
+		factory-method="register">
+		<constructor-arg ref="clusteredDHRroutes" />
+  	</bean>
+</beans>
