@@ -1,0 +1,35 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="q2Proc" class="com.raytheon.uf.edex.ohd.pproc.Q2FileUnzip"/>
+	
+	<bean id="q2DistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="q2" />
+		<constructor-arg value="jms-dist:queue:Ingest.q2?destinationResolver=#qpidDurableResolver" />
+	</bean>
+
+	<camelContext id="q2Proc-context"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+
+		<!-- Run the Q2 File Processor on new files -->
+		<route id="q2File">
+		    <from uri="jms-generic:queue:Ingest.q2?destinationResolver=#qpidDurableResolver" />
+			<doTry>
+				<pipeline>
+					<bean ref="q2Proc" method="unzip" />
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:q2File?level=INFO&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
+		</route>
+
+	</camelContext>
+
+</beans>

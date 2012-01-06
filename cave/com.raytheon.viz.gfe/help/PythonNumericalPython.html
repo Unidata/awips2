@@ -1,0 +1,325 @@
+<html>
+<title>GFESuite Documentation - Numerical Python</title>
+<body>
+<h1 align=center>
+<a NAME="NumericalPython"></a>Numerical Python</h1>
+<div CLASS="2Heading">&nbsp;&nbsp;&nbsp; <a href="#NumericArrays">Numeric
+Arrays</a></div>
+
+<div CLASS="2Heading">&nbsp;&nbsp;&nbsp; <a href="#Grids">Grids</a></div>
+
+<div CLASS="2Heading">&nbsp;&nbsp;&nbsp; <a href="#BasicArithmeticOperations">Basic
+Arithmetic Operations</a></div>
+
+<div CLASS="2Heading">&nbsp;&nbsp;&nbsp; <a href="#LogicalStatementsandMasks">Logical
+Statements and Masks</a></div>
+
+<div CLASS="2Heading">&nbsp;&nbsp;&nbsp; <a href="#ComplexLogicalStatements">Complex
+Logical Statements</a></div>
+
+<div CLASS="2Heading">&nbsp;&nbsp;&nbsp; <a href="#ConditionalStatements-thewherestatement">Conditional
+Statements -- the "where" statement</a></div>
+
+<div CLASS="2Heading">&nbsp;&nbsp;&nbsp;<a href="#ClippingorLimitingthevaluesofaGrid">
+Clipping (or Limiting) the Values of a Grid</a></div>
+
+<div CLASS="2Heading">&nbsp;&nbsp;&nbsp;<a href="#Cubes"> Cubes</a></div>
+
+<div CLASS="2Heading">&nbsp;&nbsp;&nbsp; <a href="#AccessingPartsofGridsandCubes">Accessing
+Parts of Grids and Cubes</a></div>
+
+<div CLASS="2Heading">&nbsp;&nbsp;&nbsp; <a href="#LookingUpAColumnofaCube">Looking
+up the Columns of a Cube</a></div>
+
+<div CLASS="2Heading">&nbsp;&nbsp;&nbsp;<a href="#Reducing"> Reducing</a></div>
+
+<hr width="100%">
+
+Numerical Python is an extension to Python that provides the capability
+of operating on grids easily and efficiently.&nbsp;&nbsp; The syntax for
+Numerical Python is fully explained in the <a href="numdoc.html">Numerical
+Python</a> document.&nbsp; In this section, we will explain the basic concepts
+that are relevant to the GFESuite.&nbsp; To access the Numerical Python
+library, include the following statement in your Python module:
+<p>from Numeric import *
+<h2 align=center>
+<a NAME="NumericArrays"></a>Numeric Arrays</h2>
+The basic data structure for Numerical Python is a Numeric Array.&nbsp;&nbsp;
+The array objects are generally homogeneous collections of potentially
+large volumes of numbers. All numbers in a array are the same kind (i.e.
+number representation, such as double-precision floating point). Array
+objects must be full (no empty cells are allowed), and their size is immutable.
+The specific numbers within them can change throughout the life of the
+array. Here is an example of Python code using the array objects (italicized
+text refers to user input, non-italicized text to computer output):
+<p>> python
+<br>>>> <i>from Numeric import *</i>
+<br>>>> <i>vector1 = array((1,2,3,4,5))</i>
+<br>>>> <i>print vector1</i>
+<p>[1 2 3 4 5]
+<p>>>> <i>matrix1 = array(([0,1],[1,3]))</i>
+<br>>>> <i>print matrix1</i>
+<p>[[0 1]
+<p>[1 3]]
+<p>>>> <i>print vector1.shape, matrix1.shape</i>
+<p>(5,) (2,2)
+<p># Note the "shape" is the dimensions of the array
+<p>>>> <i>print vector1 + vector1</i>
+<p>[ 2 4 6 8 10]]
+<p>>>> <i>print matrix1 * matrix1</i>
+<p>[[0 1]
+<p>[1 9]]
+<p># Note that this is not the matrix multiplication of linear algebra
+
+
+<h2 align=center>
+<a NAME="Grids"></a>Grids</h2>
+GFESuite extensions such as Smart Tools and Smart Initialization provide
+access to grid data via 2-dimensional Numerical Python arrays.&nbsp; The
+naming of these grids and the methods of access may differ, but the concepts
+and operations on the underlying Numerical Python arrays is the same.
+<h2 align=center>
+<a NAME="BasicArithmeticOperations"></a>Basic Arithmetic Operations</h2>
+Basic arithmetic operations are very easy in Numerical Python and operate
+on entire grids at once.&nbsp; When operating on grids, we ensure that
+the grids are all the same size in the x and y dimensions. Any D2D or IFP
+data that you access is assured to have the same grid sizes.&nbsp;&nbsp;&nbsp;
+If you have two grids, called grid1 and grid2 and you want to make a difference
+grid and store it into grid3, then the syntax is:
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; grid3 = grid1 - grid2
+<p>If you want to add a constant value to a grid, then the syntax is like
+this:
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; grid = grid + 5.0
+<p>Converting a grid from degrees Kelvin to degrees Fahrenheit is as simple
+as:
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; gridF = (gridK - 273.15)
+* 9/5 + 32
+<p>In general, do not use loops to index through points in the grid.&nbsp;
+Performance will suffer greatly.&nbsp; Normally you access the entire grid
+at a time, using the above
+<br>syntax.&nbsp; The operation you specify will be applied to EVERY grid
+point in the grid.
+<p>To initialize a grid, GFESuite extensions provide an empty array (set
+to zeros) guaranteed to be of the correct dimensions.&nbsp; The empty array
+is called "self._empty".&nbsp; To initialize a grid to a particular value,
+say 3.0:
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; grid = self._empty + 3.0
+<p>Note:&nbsp; self._empty is not available in Python in general.&nbsp;
+It is specific to GFESuite extensions such as Smart Tools and Smart Initialization
+which have knowledge of the appropriate grid dimensions for your domain.
+<h2 align=center>
+<a NAME="LogicalStatementsandMasks"></a>Logical Statements and Masks</h2>
+Logical statements are used to compare grid values.&nbsp; The result from
+a logical statement is typically a "boolean" grid, which is a grid that
+has either 1 (true) or 0 (false) values.&nbsp; These grids are sometimes
+called "masks" and are used with conditional statements.&nbsp; Each logical
+statement requires two arguments, the first being the grid,
+<br>and the second being the numerical value for comparison (or even another
+grid). Here is a subset of statements that you may find useful:
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; less(),&nbsp; equal(),&nbsp;
+not_equal(),&nbsp; greater(),&nbsp; greater_equal(),&nbsp; less_equal()
+<p>For example, to create a mask called bgrid, which represents whether
+grid points of temperatures are greater than 50 degrees, the statement
+would be:
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bgrid = greater(tGrid, 50)
+<h2 align=center>
+<a NAME="ComplexLogicalStatements"></a>Complex Logical Statements</h2>
+Sometimes you need a mask that has two logical statements.&nbsp; You can
+use the logical_and() and logical_or() statements to combine logical statements.
+Each of these statements require two arguments, which are the ones that
+are going to combine with "and" or "or".
+<p>For example, to create a mask called bgrid, which represents grid points
+from temperatures that are between 40 and 60, you could use a statement
+like this:
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bgrid = logical_and(greater_equal(tGrid,
+40), less_equal(tGrid, 60))
+<p>To create a mask which represents the grid points from temperatures
+that are below 40 or above 60:
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bgrid = logical_or(less(tGrid,
+40), greater(tGrid, 60))
+<h2 align=center>
+<a NAME="ConditionalStatements-thewherestatement"></a>Conditional Statements
+- the "where" statement</h2>
+Normally a logical statement isn't too useful by itself, and you want to
+assign a value to a grid based on whether a conditional is true or false.&nbsp;
+The <i>where</i>
+<br>statement is similar to a if...else... statement in C++ or Python.&nbsp;
+The <i>where</i> statement takes three arguments:&nbsp; the first is the
+logical statement, the second is the
+<br>value to be assigned to the grid if the logical statement is true,
+and the third is the value to be assigned to the output if the logical
+statement is false.
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; where(conditional statement,
+assignment if true, assignment if false)
+<p>For example,
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; snowGrid = where(less(tGrid,
+32), 10.0*QPF,&nbsp; 0.0))
+<p>takes the tGrid and compares it to 32 degrees.&nbsp; This results in
+a temporary boolean grid which has grid points that are set to true if
+the temperature is less than 32 and
+<br>false if the temperature is greater to or equal to 32.&nbsp;&nbsp;
+The calculated snow grid is based on the boolean grid and the QPF grid.&nbsp;
+If the temperature is equal or above
+<br>32, then the "false"assignment is done, thus assigning zero to the
+snowGrid.&nbsp; If the temperature is below 32, then the "true" assignment
+is performed
+<br>and the snowGrid is set to 10 times the value of the QPF grid.
+<h2 align=center>
+<a NAME="ClippingorLimitingthevaluesofaGrid"></a>Clipping (or Limiting)
+the values of a Grid</h2>
+Many output grids need to be clipped or limited to a range of values.&nbsp;
+For example, if you calculate a QPF that is modified based on upslope and
+downslope and the
+<br>calculation results in a negative QPF, you know that you need to change
+it to 0.0 (since negative QPFs are not allowed).&nbsp; The "clip" function
+takes three arguments:
+<br>the input grid, the minimum value, and the maximum value.
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; finalQPF = clip(calcQPF,
+0.0, 10.0)
+<h2 align=center>
+<a NAME="Cubes"></a>Cubes</h2>
+While the GFESuite Forecast grids represent surface weather elements, D2D
+model grids often represent weather elements at various atmospheric levels.&nbsp;
+In Numerical Python, we can represent this data as 3-dimensional arrays,
+or cubes.&nbsp;&nbsp;&nbsp; When examining weather element cubes, we often
+have a cube of geopotential height available to map between pressure levels
+and elevation.
+<p><img SRC="images/SmartTools-8.jpg" height=719 width=959>
+<br>&nbsp;
+<p>Note the naming convention we use for cube variables: <i>wxElement_c</i>
+where <i>_c</i> indicates a cube.
+<h2 align=center>
+<a NAME="AccessingPartsofGridsandCubes"></a>Accessing Parts of Grids and
+Cubes</h2>
+The syntax for accessing individual rows or columns in a grid is similar
+to accessing portions of a list in Python, using the bracket and colon
+syntax.&nbsp; For example:
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; print grid[25][45]
+<p>will print the value of the grid at the 45th column of the 25th row.
+<p>Refer to the Numerical Python documentation for more details.&nbsp;
+For cubes,&nbsp; you can access any individual level using indexing, or
+multiple levels using more complicated indexing.&nbsp; For example, if
+you have an relative humidity cube of 6 levels, and you want just the 2nd
+level (remember Python counts from 0), you would use this syntax:
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rh_c[1]
+<p>If you wanted a cube that only had the 2nd through 4th levels, then
+the syntax would be:
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rh_c[1:3]
+<h2 align=center>
+<a NAME="LookingUpAColumnofaCube"></a>Looking Up the Columns of a Cube</h2>
+Some of your algorithms will want to "look up the columns" of a cube and
+then stop when certain critera has been reached.&nbsp; An example of this
+is the calculation of freezing level.&nbsp; We want to start at the surface
+and go up until we reach the point where the temperature is below freezing.&nbsp;
+Then we interpolate between that level and the previous level to find the
+"real" freezing level.
+<p>The following function (from Smart Initialization) accesses the cubes
+of geopotential heights and temperatures.&nbsp; The true surface topography
+grid is also accessed:
+<p>&nbsp;&nbsp;&nbsp; def calcFzLevel(self,&nbsp; gh_c,&nbsp; t_c,&nbsp;
+topo):
+<p>We start with a grid that contains -1.&nbsp; The&nbsp; self._minus variable
+is a 2-D grid of -1s.&nbsp; During the calculation up the column, the grid
+will contain -1 if the freezing level has
+<br>not yet been reached, or the actual freezing level if the level has
+been reached.&nbsp; We make the assumption that the freezing level can
+never be -1 (since that is below
+<br>sea level).
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fzl = self._minus
+<p>The <b>for</b> loop "i" goes from 0 to the size of the z dimension of&nbsp;
+the cube of gh.&nbsp; The 0 represents the 'z' dimension.
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for i in xrange(gh_c.shape[0]):
+<p>We use a try/except block to "catch" the failure on the first iteration
+of the <b>for</b> loop.&nbsp; The exception is caused by accessing the
+"i-1"th level which is illegal when i
+<br>== 0.
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; try:
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# Interpolate between cube levels
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+val = gh_c[i-1] + (gh_c[i] - gh_c[i-1]) / (t_c[i] - t_c[i-1])&nbsp; * (273.15
+- t_c[i-1])
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+except:
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# Handle the first level
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+val = gh_c[i]
+<p>After we have calculated "val", which is a 2-D grid, representing the
+freezing level height based on the two temperatures and two gh values at
+each layer, then
+<br>we apply it only in certain cases.&nbsp; The following statement only
+assigns the calculated freezing level if it already hasn't been assigned,
+and the actual temperature of
+<br>the layer is less than freezing.
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fzl
+= where(logical_and(equal(fzl, -1),&nbsp; less_equal(t_c[i], 273.15)),
+val,&nbsp; fzl)
+<p>The following simply converts the meters to feet.
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fzl
+= fzl * 0.3048
+<p>And the grid is returned.
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return
+fzl
+<br>&nbsp;
+
+<h2 align=center>
+<a NAME="Reducing"></a>Reducing</h2>
+The concept of "reducing" is a numerical python concept of taking a multi-dimensional
+grid (or cube) and reducing its dimensions.&nbsp; Another concept is flattening
+the grid.&nbsp; For example, take all of the relative humidities from the
+surface to a fixed millibar level and average them.&nbsp; You start with
+a cube of rh and end up with a 2-D grid of average rh.&nbsp; This example
+calculates the probability of precipitation based on the&nbsp; Fcst QPF,
+and the geopotential heights and relative humidity cubes.
+<p><tt>&nbsp;&nbsp;&nbsp; def calcPoP(self, gh_c, rh_c, QPF, topo):</tt>
+<p>The first few lines take the gh and rh cubes and only use the first
+8 levels.
+<p><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # only use the first
+8 levels (up to MB600)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; gh_c = gh_c[:8,:,:]</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rh_c = rh_c[:8,:,:]</tt>
+<p>The less statement creates a 3-D mask based on the gh levels and the
+topography levels.&nbsp; The mask is 1 where the gh level is less than
+the topography and 0 where the gh level is greater or equal to the topography.
+<p><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mask = less(gh_c, topo)</tt>
+<p>Wherever there is a 1 in the mask, rh_avg gets a 0.&nbsp; Wherever there
+was a 0 in the mask, rh_avg gets the value in the rh_c.&nbsp; The rh_avg
+is still a cube with 0 below the surface.
+<p><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rh_avg = where(mask,
+0, rh_c)</tt>
+<p>We need a count grid since we have to compute an average. The count
+is actually a cube that has a 0 if the rh_avg is 0 or less, and a 1 if
+the rh_avg is greater than 0.
+<p><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; count = where(greater(rh_avg,
+0), 1, 0)</tt>
+<p>The add.reduce() sums up along the z-axis (the 0 indicates the z-direction,
+1 the x-direction, 2 the y-direction), and returns a single number that
+is the sum in each column.&nbsp; It turns the 3-D cube into a 2-D grid.&nbsp;
+Count is a 2-D grid.
+<p><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; count = add.reduce(count,
+0)</tt>
+<p>The add.reduce() sums up the rh grids in the column above the surface.
+<p><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rh_avg = add.reduce(rh_avg,
+0)</tt>
+<p>The real average relative humidity is calculated in this next compound
+statement.&nbsp; The average relative humidity is the rh_avg/count.&nbsp;
+We do some extra work to ensure that the count is not zero by adding 0.001
+to the count.
+<p><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dpop = rh_avg / (count
++ .001) - 70.0</tt>
+<p>We force dpop to be within the range -30 to 30%.
+<p><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dpop = clip(dpop, -30,
+30)</tt>
+<p>Finally we calculate the primary pop.&nbsp; If QPF &lt; 0.02, then the
+pop is 1000 * QPF.&nbsp; Otherwise set QPF to 350*QPF + 13.
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pop = where(less(QPF,
+0.02), QPF * 1000, QPF * 350 + 13)</tt>
+<p>We add in the delta pop.
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pop = pop + dpop</tt>
+<p>We make sure the range is between 0 and 100%
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pop = clip(pop, 0, 100)</tt>
+<p>And return the answer.
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return pop</tt>
+</body>
+</html>

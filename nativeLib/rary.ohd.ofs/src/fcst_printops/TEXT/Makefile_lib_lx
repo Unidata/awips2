@@ -1,0 +1,47 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-fcst_printops library file
+#
+#  cmt: File made on Wed Aug  6 12:50:51 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libfcst_printops_t.a:  \
+     $(LIB)/libfcst_printops_t.a(fprops.o)  \
+     $(LIB)/libfcst_printops_t.a(fprs43.o)  \
+     $(LIB)/libfcst_printops_t.a(fprsac.o)  \
+     $(LIB)/libfcst_printops_t.a(fprsnw.o)  \
+     $(LIB)/libfcst_printops_t.a(fprtps.o)  \
+     $(LIB)/libfcst_printops_t.a(fs43tl.o)  \
+     $(LIB)/libfcst_printops_t.a(fsactl.o)  \
+     $(LIB)/libfcst_printops_t.a(fsnwtl.o)  \
+     $(LIB)/libfcst_printops_t.a(fsvs43.o)  \
+     $(LIB)/libfcst_printops_t.a(fsvsac.o)  \
+     $(LIB)/libfcst_printops_t.a(fsvsnw.o)  \
+     $(LIB)/libfcst_printops_t.a(fun007.o)
+

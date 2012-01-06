@@ -1,0 +1,55 @@
+      GetQManResourceMembersExample Example
+-------------------------------------------------------------------
+
+This example shows the usage of WS-DM 
+GetResourcePropertyRequest / Response on a 
+Group service.
+The target resource is the WS-DM Adapter itself 
+and the requested property is "ws-rp:Entry".
+WS-DM Adapter is a special WS-Resource (is a Group)
+that  acts as the main entry point for retrieving
+all other managed resources.
+So clients that want to deal with QMan WS-Resources
+must first get resource identifiers sending
+a GetResourcePropertyRequest to WS-DM Adapter 
+with "ws-rp:Entry" as target target property.
+
+-------------------------------------------------------------------
+
+[CLIENT TRACE] SOAP envelope contents (outgoing):
+
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+    <soap:Header>
+        <wsa:To xmlns:wsa="http://www.w3.org/2005/08/addressing">http://romagazzarini:8080/qman/services/adapter</wsa:To>
+        <wsa:Action xmlns:wsa="http://www.w3.org/2005/08/addressing">http://docs.oasis-open.org/wsrf/rpw-2/GetResourceProperty/GetResourcePropertyRequest</wsa:Action>
+        <wsa:MessageID xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:024c678b-1fab-cb6a-0992-30027817fb92</wsa:MessageID>
+        <wsa:From xmlns:wsa="http://www.w3.org/2005/08/addressing">
+            <wsa:Address>http://www.w3.org/2005/08/addressing/role/anonymous</wsa:Address>
+        </wsa:From>
+    </soap:Header>
+    <soap:Body>
+        <wsrf-rp:GetResourceProperty
+            xmlns:wsrf-rp="http://docs.oasis-open.org/wsrf/rp-2" xmlns:wsrf-sg="http://docs.oasis-open.org/wsrf/sg-2">wsrf-sg:Entry</wsrf-rp:GetResourceProperty>
+    </soap:Body>
+</soap:Envelope>
+
+[CLIENT TRACE] SOAP envelope contents (incoming):
+
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+    <soap:Header>
+        <wsa:To xmlns:wsa="http://www.w3.org/2005/08/addressing">http://www.w3.org/2005/08/addressing/role/anonymous</wsa:To>
+        <wsa:Action xmlns:wsa="http://www.w3.org/2005/08/addressing">http://docs.oasis-open.org/wsrf/rpw-2/GetResourceProperty/GetResourcePropertyResponse</wsa:Action>
+        <wsa:MessageID xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:90b0e421-6467-a72e-a8f4-cdedb80460b6</wsa:MessageID>
+        <wsa:RelatesTo RelationshipType="wsa:Reply" xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:024c678b-1fab-cb6a-0992-30027817fb92</wsa:RelatesTo>
+        <wsa:From xmlns:wsa="http://www.w3.org/2005/08/addressing">
+            <wsa:Address>http://romagazzarini:8080/qman/services/adapter</wsa:Address>
+        </wsa:From>
+    </soap:Header>
+    <soap:Body>
+        <wsrf-rp:GetResourcePropertyResponse xmlns:wsrf-rp="http://docs.oasis-open.org/wsrf/rp-2"/>
+    </soap:Body>
+</soap:Envelope>
+
+--------------------------------------------------------------------------
+QMan has at the moment 0 registered resources.
+--------------------------------------------------------------------------

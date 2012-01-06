@@ -1,0 +1,171 @@
+C MEMBER XS1026
+C  (from old member FCXS1026)
+C
+      SUBROUTINE XS1026(SUNUM,PO,W,D,LOCWS,LOCOWS,IDPT)
+C--------------------------------------------------------------------
+C  SUBROUTINE TO RETRIEVE PARM, TS AND CO INFO FOR THE UPSTREAM MINI-
+C  MIZATION SCHEME (SU#10), AND TO CALL THE ROUTINE FOR DETERMINING
+C  MODEL OUTPUTS FOR THIS TIME PERIOD.
+C--------------------------------------------------------------------
+C  WRITTEN BY - JOE OSTROWSKI - HRL - SEPT 1983
+C--------------------------------------------------------------------
+C
+      INCLUDE 'common/resv26'
+      INCLUDE 'common/exg26'
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/usmi26'
+C
+      DIMENSION PO(1),W(1),LOCWS(1),LOCOWS(1),IDPT(1),D(1)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_res/RCS/xs1026.f,v $
+     . $',                                                             '
+     .$Id: xs1026.f,v 1.1 1995/09/17 19:07:00 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C---------------------------------------------------------------------
+C
+      IF (IBUG.GE.1) WRITE(IODBUG,1600)
+ 1600 FORMAT('   *** ENTER XS1026 ***')
+C
+C  GET VARIOUS POINTERS FOR THE SCHEME
+C
+      CALL XPTR26(SUNUM,PO,IORD,IBASE,LEVEL,LOCPM,LOCTS,LOCCO)
+C
+C  SET EXECUTION FLAG AND POINTER
+C
+      LOCEX = IORD*3
+      W(LOCEX) = 1.01
+C
+C  GET CARRYOVER VALUES
+C
+      IOFFCO = LOCWS(4) + LOCCO - 1
+      USQ1 = W(IOFFCO+1)
+      USTAGB = W(IOFFCO+2)
+      USTAG1 = W(IOFFCO+3)
+C
+C  SET POINTERS FOR TIME SERIES LOCATIONS
+C
+      IOFFTS = IDOFST * NTIM24
+      LOCTSM = W(LOCEX-1)
+      LOCTSU = IDPT(LOCTSM) + IOFFTS
+      USTAG2 = D(IDPT(LOCTSM+1)+IOFFTS+NS2-1)
+C
+C---------------------------------------
+C  NOW GET PARMS (ALL DEFINITIONS OF VARIABLES ARE IN SUB. USMN26)
+C
+C  FIRST SET OF PARMS IS FOR THE THREE-WAY UPSTREAM RATING CURVE.
+C
+      NUSTAG = PO(LOCPM)
+      LOCUST = LOCPM + 1
+      LOCNXT = LOCUST + NUSTAG
+      NPOOLU = PO(LOCNXT)
+      LOCUPP = LOCNXT + 1
+      LOCNXT = LOCUPP + NPOOLU
+      LOCUSQ = LOCNXT
+      LOCNXT = LOCUSQ + NUSTAG*NPOOLU
+C
+C  DECISION TABLE LINES ARE NEXT
+C
+      NUMM = PO(LOCNXT)
+      LOCPK = LOCNXT + 1
+      LOCDDN = LOCPK + NUMM
+      LOCRAT = LOCDDN + NUMM
+      LOCSTG = LOCRAT + NUMM
+      LOCSTE = LOCSTG + NUMM
+      LOCNXT = LOCSTE + NUMM
+C
+C  VARIOUS SPECS ARE NEXT
+C
+      NTIME = PO(LOCNXT)
+      FAC = PO(LOCNXT+1)
+      REFILL = PO(LOCNXT+2)
+      PERMXQ = PO(LOCNXT+3)
+      QLIMNF = PO(LOCNXT+4)
+      ELVNRM = PO(LOCNXT+5)
+C
+C  IF ELVNRM IS 'RULE' (I.E. = -999.0) NEED TO GET RULE CURVE
+C
+      IFM = IFMSNG(ELVNRM)
+      IF (IFM.EQ.1) CALL XFRU26(PO,LOCNXT+6,W,LOCOWS)
+      IADD = 1
+      IF (IFM.EQ.1.AND.PO(LOCNXT+6).GT.0.0) IADD = 2*PO(LOCNXT+6) + 1
+      LOCNXT = LOCNXT + 6 + IADD
+C
+C  GET ELEV VS. MAXQ CURVE
+C
+      CALL XFMQ26(SUNUM,PO,LOCNXT,W,LOCOWS,IMQTYP,LOCMQ,LOKELV,NDAMQ)
+      LOCMQ2 = LOCMQ + NDAMQ
+C
+C  SET NEXT LOCATION IN PO BASED ON TYPE OF CURVE ENTERED.
+C
+      IWHICH = PO(LOCNXT)
+      IF (IWHICH.GE.0) GO TO 100
+C
+C  CURVE ENTERED DIRECTLY
+C
+      NVAL = PO(LOCNXT+1)
+      IADD = 2*NVAL + 1
+      GO TO 200
+C
+  100 CONTINUE
+      IF (IWHICH.GT.0) GO TO 150
+C
+C  NO TAILWATER EFFECTS.
+C
+      NVAL = PO(LOCNXT+2)
+      IADD = 3
+      IF (NVAL.GT.0) IADD = 2*NVAL + 3
+      GO TO 200
+C
+C  TAIL WATER EFFECTS TO BE CONSIDERED.
+C
+  150 CONTINUE
+      NVAL = PO(LOCNXT+1)
+      IADD = 2
+      IF (NVAL .GT. 0) IADD = 2*NVAL + 2
+      LOCNXT = LOCNXT + IADD
+C
+      NVAL = PO(LOCNXT)
+      IADD = 3
+      IF (NVAL.GT.0) IADD = 2*NVAL + 3
+C
+C  SET INTERPOLATION SWITCH FOR MAXQ CURVE
+C
+  200 CONTINUE
+      LOCNXT = LOCNXT + IADD
+      NTERPQ = PO(LOCNXT)
+C
+C  SET FINAL MISCELLANEOUS VARIABLES
+C
+      NTIMIN = MINODT
+      RISE = USTAG1 - USTAGB
+C
+C  CALL ROUTINE TO COMPUTE DISCHARGE
+C
+      IF (IMQTYP.EQ.2) GO TO 500
+      CALL USMN26(D(LOCTSU),PO(LOCUST),PO(LOCUPP),PO(LOCUSQ),PO(LOCPK),
+     .            PO(LOCDDN),PO(LOCRAT),PO(LOCSTG),PO(LOCSTE),PO(LOCMQ),
+     .            PO(LOCMQ2),PO(LESSTO),PO(LESELV))
+      GO TO 1000
+C
+  500 CONTINUE
+      CALL USMN26(D(LOCTSU),PO(LOCUST),PO(LOCUPP),PO(LOCUSQ),PO(LOCPK),
+     .            PO(LOCDDN),PO(LOCRAT),PO(LOCSTG),PO(LOCSTE),PO(LOKELV)
+     .            ,W(LOCMQ),PO(LESSTO),PO(LESELV))
+C
+C  UPDATE CARRYOVER
+C
+ 1000 CONTINUE
+      W(IOFFCO+1) = D(LOCTSU+NS2-1)
+      W(IOFFCO+2) = USTAG1
+      W(IOFFCO+3) = USTAG2
+C
+      IF (IBUG.GE.1) WRITE(IODBUG,1699)
+ 1699 FORMAT('    *** EXIT XS1026 ***')
+      RETURN
+      END

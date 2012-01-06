@@ -1,0 +1,79 @@
+C MEMBER HEAD18
+C  (from old member FCEX18)
+C-----------------------------------------------------------------------
+C
+C                             LAST UPDATE: 03/22/95.10:10:21 BY $WC20SV
+C
+C @PROCESS LVL(77)
+C
+      SUBROUTINE HEAD18 (PO,IYR,AMO,TZONE)
+C
+C   THIS ROUTINE IS CALLED BY THE EXECUTION ROUTINE
+C   FOR THE PLOT-TS OPERATION. IT WRITES THE HEADER INFO AT THE
+C   BEGINNING OF THE PLOT.
+C
+C   THIS ROUTINE WAS INITIALLY PROGRAMMED BY
+C   GERALD N. DAY  -  HRL  MAY 1980
+C
+C   ARGUMENTS -
+C
+C     PO - P ARRAY (INPUT)
+C     IYR - YEAR (WATER YEAR FOR THE WATER YEAR PLOT) (INPUT)
+C     AMO - 4 CHARACTER MONTH SYMBOL (INPUT)
+C     TZONE - 4 CHARACTER TIME ZONE SYMBOL (INPUT)
+C
+      DIMENSION PO(*)
+      COMMON/FENGMT/METRIC
+      COMMON/FDBUG/IODBUG,ITRACE,IDBALL,NDEBUG,IDEBUG(20)
+      COMMON/IONUM/IN,IPR,IPU
+      INCLUDE 'common/fprog'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_plotts/RCS/head18.f,v $
+     . $',                                                             '
+     .$Id: head18.f,v 1.1 1995/09/17 18:58:24 dws Exp $
+     . $' /
+C    ===================================================================
+C
+      NOPT=PO(7)
+      NPLOTS=PO(8)
+      NTTS=PO(9)
+      IF(NOPT.NE.1) GO TO 20
+      WRITE(IPR,700) (PO(I),I=2,6),IYR
+      GO TO 30
+   20 IF(MAINUM.EQ.1)WRITE(IPR,600)
+  600 FORMAT(////)
+      IF(MAINUM.NE.1)WRITE(IPR,601)
+  601 FORMAT(1H1)
+      WRITE(IPR,702) (PO(I),I=2,6),AMO,IYR,TZONE
+   30 NTSKNT=0
+      DO 50 I=1,NPLOTS
+      IPO=11+9*(I-1)
+      UNITS=PO(IPO+6)
+      IF(METRIC.EQ.0) UNITS=PO(IPO+7)
+      WRITE(IPR,705) I,UNITS
+      WRITE(IPR,710)
+      NTS=PO(IPO+5)
+      DO 40 J=1,NTS
+      IPO=11+9*NPLOTS+12*(NTSKNT+J-1)
+      IDT=PO(IPO+4)
+      WRITE(IPR,715) J,(PO(IPO+K),K=1,3),IDT,(PO(IPO+K),K=5,10)
+   40 CONTINUE
+      NTSKNT=NTSKNT+NTS
+   50 CONTINUE
+      IF(ITRACE.GE.1) WRITE(IODBUG,910)
+      RETURN
+  700 FORMAT(1H1,1X,16HPLOT TIME SERIES,8X,5A4,10X,17H*** WATER YEAR - ,
+     1 I4,4H ***)
+  702 FORMAT(2X,16HPLOT TIME SERIES,8X,5A4,10X,4H*** ,
+     1 A4,2H/ ,I4,4H ***,10X,12HTIME ZONE = ,A4)
+  705 FORMAT(1H0,30X,4HPLOT,I4,5X,6HUNITS=,2X,A4)
+  710 FORMAT(1H0,5X,11HTIME SERIES,6X,4HI.D.,4X,
+     1 19HTYPE  TIME INTERVAL,6X,5HTITLE,5X,11HPLOT SYMBOL)
+  715 FORMAT(8X,I4,9X,2A4,2X,A4,7X,I2,8X,3A4,6X,A1,10X,2A4)
+  720 FORMAT(1H0,1X,15HWATER YEAR PLOT,/,7X,I4)
+  900 FORMAT(1H0,17H** HEAD18 ENTERED)
+  910 FORMAT(1H0,16H** HEAD18 EXITED)
+      END

@@ -1,0 +1,12 @@
+# Product Discipline 0: Meteorological products, Parameter Category 2: Momentum
+# 192-254 Reserved for local use
+192:192:Vertical speed sheer:s^-1:VWSH:VSS
+193:193:Horizontal Momentum Flux:N/m^2:MFLX
+194:194:U-Component Storm Motion:m/s:USTM
+195:195:V-Component Storm Motion:m/s:VSTM
+196:196:Drag Coefficient::CD
+197:197:Frictional Velocity:m/s:FRICV
+198:198:Incremental Prob WS 34 kts or greater:%:PWS34
+199:199:Incremental Prob WS 50 kts or greater:%:PWS50
+200:200:Incremental Prob WS 64 kts or greater:%:PWS64
+255:255:Missing

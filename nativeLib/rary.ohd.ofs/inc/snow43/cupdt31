@@ -1,0 +1,24 @@
+C..............................................
+C    COMMON BLOCK CUPDT31
+C
+C    VARIABLE            DESCRIPTION
+C    --------            -----------
+C      rnsnwk            Factor for computation of derivatives 
+C                        when using RSNWELEV opeartion
+C      p1                Predicted state error covariance matrix.
+C      q                 System noise covariance matrix.
+C      cvu               Input error covariance matrix.
+C      r                 Measurement error covariance matrix.
+C      h                 measurement weighting matrix.
+C      llfltr            Number of system inputs (2: precip, temp)
+C      mmfltr            Number of observations (1: water equivalent)
+C      nnfltr            Number of states (5)
+C..............................................
+C
+      real    rnsnwk, p1, q, cvu, r, h
+      integer llfltr, mmfltr, nnfltr
+C
+      common/cupdt31/llfltr, mmfltr, nnfltr, rnsnwk,
+     1               p1(5,5), q(5,5), cvu(2,2),
+     2               r(1,1), h(1,5)
+C

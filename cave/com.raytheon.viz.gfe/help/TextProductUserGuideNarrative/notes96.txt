@@ -1,0 +1,2 @@
+The setPhraseSetUp method takes the information in the elementInfoList and creates the subPhrase nodes, one for each analysis entry for the first element.  
+

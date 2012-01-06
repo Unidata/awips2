@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.7.0
+Created-By: 11.0-b12 (Sun Microsystems Inc.)
+Bundle-ManifestVersion: 2
+Bundle-Name: Jython Plug-in
+Bundle-SymbolicName: org.python.pydev.jython; singleton:=true
+Bundle-Version: 1.3.22
+Bundle-ClassPath: pydev-jython.jar,retroweaver-rt.jar,jython.jar
+Bundle-Activator: org.python.pydev.jython.JythonPlugin
+Bundle-Vendor: Fabio Zadrozny
+Bundle-Localization: plugin
+Eclipse-BuddyPolicy: global
+Require-Bundle: org.eclipse.core.runtime,org.python.pydev.core,org.ecl
+ ipse.ui,org.eclipse.ui.console,org.eclipse.jface.text,org.junit;resol
+ ution:=optional
+Eclipse-LazyStart: true
+Export-Package: org.python.compiler,org.python.core,org.python.modules
+ ,org.python.modules.sre,org.python.parser,org.python.pydev.jython,org
+ .python.pydev.jython.ui,org.python.rmi,org.python.util
+

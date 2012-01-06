@@ -1,0 +1,967 @@
+#!/usr/bin/perl
+#
+# ldmcheck uses unix utilities and the ldm logs to give a status report
+# for the LDM.
+#
+# Dependencies:  
+$ENV{ 'PATH' } = 
+	"/bin:/sbin:/usr/local/bin:/usr/ucb:/usr/bsd:/usr/bin:$ENV{ 'PATH' }";
+$ENV{ 'SHELL' } = '/bin/sh';
+$ENV{ 'IFS' } = ''if $ENV{ 'IFS' } ne '';
+
+# process command line switches
+
+while ($_ = $ARGV[0], /^-/) {
+	 shift;
+       last if /^--$/;
+	      /^-D(.*)/ && ($debug = $1);
+	     /^(-v)/ && $verbose++;
+	     /^(-d)/ && ( $dir = shift ) ;
+	     /^(-l)/ && ( $logtype = shift ) ;
+	     /^(-f)/ && ( $feedtype = shift ) ;
+	     /^(-h)/ && ( $host = shift ) ;
+	     /^(-t)/ && ( $lhours = shift ) ;
+}
+
+# chdir home to look for runtime link
+
+chdir() ;
+
+# extract ldm version number
+
+if( -l "runtime" ) {
+	@fields = split( /[ \t\n]+/ , `ls -l runtime` ) ;
+	$version =  substr( $fields[ $#fields ], 4, 6 ) ;
+	undef( @fields ) ;
+} else {
+	$version = "Unknown" ;
+}
+
+# number of hours to collect information
+
+$lhours = 24 unless $lhours ;
+$logtype = "ldmd.log" unless $logtype ;
+
+# goto log dir
+
+$dir = "/usr/local/ldm/logs" unless $dir ;
+chdir "$dir" || die "Can't cd to log dir $dir: $!\n" ;
+
+open( VM, "vmstat 2 5 |" ) || die "Could not open vmstat: $!\n" ;
+
+for( $i = 0; $i < 7; $i++ ) {
+	$_ = <VM> ;
+}
+
+close VM ;
+( @all ) = split( /[ \t\n]+/, $_ ) ;
+$idle = $all[ $#all ] ;
+
+$uptime = `uptime` ;
+$tmp = index( $uptime, "load" ) ;
+$uptime = substr( $uptime, $tmp ) ;
+
+chop( $hostname = `uname -n` ) ;
+
+# Search logs starting with the current one first
+
+@LOGS = split( /[ \t\n]+/, `/bin/ls -tx "$logtype"*` ) ;
+ 
+for( $i = 0; $i <= $#LOGS; $i++ ) {
+        
+	open( LOG, "$LOGS[ $i ]" ) || die "Could not open $LOGS[ $i ]: $!\n" ;
+
+	while( <LOG> ) {
+		next if( /ldmadmin|Recycled|Accepted|accepts/ ) ;
+		next if( /togem|nids2area|gribtonc|mctingest/ ) ;
+		next if( /nldn2md|lwfile|lwtoa3|lwtmd/ ) ;
+		next if( /scour:|notifyme/ ) ;
+		( $month, $day, $hourtime, @flds ) = split( " ", $_ ) ;
+		$hour = substr( $hourtime, 0, 2 ) ;
+		if( ! $range{ "$day $hour" } ) {
+			if( $skiphours ) {
+				if( ! $skip{ "$day $hour" } ) {
+					$skip{ "$day $hour" } = 1 ;
+					$skiphours-- ;
+				}
+				next ;
+			}
+			$range{ "$day $hour" } = 1 ;
+			$hours24++ ;
+		}
+		#skip ldm action messages
+		next if( $flds[ 2 ] =~ 
+			/^(file|stdiofile|pipe|exec|dbfile|noop)/ ) ;
+		#skip verbose product messages
+		next if( $flds[ 3 ] =~ /^199|^200/ ) ;
+		&linecheck() ;
+
+	}
+	close LOG ;
+	last unless $hours24 < $lhours ;
+	$skiphours = $hours24 +1 if( $i == 0 && $hours24 > 5 && $lhours < 49 );
+
+	# these undefs stop the updates to the variables after the current
+	# log file has been read.
+	undef( $asslog ) ;
+	undef( $bcflog ) ;
+	undef( $cedlog ) ;
+	undef( $chklog ) ;
+	undef( $csblog ) ;
+	undef( $deslog ) ;
+	undef( $eiblog ) ;
+	undef( $geplog ) ;
+	undef( $guolog ) ;
+	undef( $hallog ) ;
+	undef( $hielog ) ;
+	undef( $hyalog ) ;
+	undef( $liplog ) ;
+	undef( $lqclog ) ;
+	undef( $lqflog ) ;
+	undef( $maplog ) ;
+	undef( $nsdlog ) ;
+	undef( $nullog ) ;
+	undef( $nzslog ) ;
+	undef( $perlog ) ;
+	undef( $pqalog ) ;
+	undef( $ptslog ) ;
+	undef( $rbflog ) ;
+	undef( $rdllog ) ;
+	undef( $reqlog ) ;
+	undef( $rfmlog ) ;
+	undef( $rhilog ) ;
+	undef( $rhalog ) ;
+	undef( $rnrlog ) ;
+	undef( $rpglog ) ;
+	undef( $rralog ) ;
+	undef( $rrclog ) ;
+	undef( $rrtlog ) ;
+	undef( $rtolog ) ;
+	undef( $ubdlog ) ;
+	undef( $wrllog ) ;
+	undef( $ghbnlog ) ;
+}
+
+#output report
+
+&report() ;
+
+exit 0 ;
+
+
+# Check the current line for problems.  
+
+sub linecheck
+{
+
+if( /usage/ ) {
+	( $tmp, $usage ) = split( ":", $flds[ 5 ] ) ;
+	if( $usage > $iusage ) {
+		$queueusage = "Max Queue usage is $usage bytes, it occurred at $month $day $hourtime" ;
+		$iusage = $usage ;
+	}
+	return ;
+
+} elsif( /ReReading configuration/ ) {
+	if( ! $lastrereadconfig || $rrclog ) {
+		$lastrereadconfig = 
+		"Last Reread of $flds[ 3 ] $flds[ 5 ] at $month $day $hourtime" ;
+		$rrclog = 1 ;
+	}
+	return ;
+
+} elsif( /Rereading access-control/ ) {
+	if( ! $lastrereadaccess || $rralog ) {
+		$lastrereadaccess = 
+		"Last Reread of $flds[ 3 ] $flds[ 5 ] at $month $day $hourtime" ;
+		$rrclog = 1 ;
+	}
+	return ;
+
+} elsif( /Unknown action/ ) {
+	if( ! $lastpqactstatus1 || $pqalog ) {
+		$lastpqactstatus1 = 
+		"$flds[ 2 ] $flds[ 3 ] $flds[ 4 ] $flds[ 5 ] $flds[ 6 ] $flds[ 7 ] " ;
+		$_ = <LOG> ;
+		( @flds ) = split( " ", $_ ) ;
+		$lastpqactstatus2 = "in $flds[ 9 ]\n\tat $month $day $hourtime" ;
+		$pqalog = 1 ;
+	}
+	return ;
+
+} elsif( /built/ ) {
+    $lastrunpg = "Last LDM restart at $month $day $hourtime";
+    $runpg++;
+    $rpglog = 1;
+
+} elsif( /gethostbyname/ ) {
+	$gethostbyname++ ;
+	if( ! $lastgethostbyname || $ghbnlog ) {
+		$lastgethostbyname = "$month $day $hourtime" ;
+		$ghbnlog = 1 ;
+	}
+	#$flds[ 3 ] =  $flds[ 2 ] if(  $flds[ 3 ] =~ /FEEDME/ ) ;
+	#chop( $flds[ 3 ] ) ;
+	$flds[ 4 ] =~ s/gethostbyname\(// ;
+	chop( $flds[ 4 ] ) ;
+	chop( $flds[ 4 ] ) ;
+	if( $gethostbyname{ $flds[ 4 ] } ) {
+		$tmp = $gethostbyname{ $flds[ 4 ] } ;
+		$gethostbyname{ $flds[ 4 ] } = ++$tmp ;
+	} else {
+		$gethostbyname{ $flds[ 4 ] } = 1 ;
+	}
+	return ;
+
+# not checked
+} elsif( /RPC: Rpcbind failure/ ) {
+	$rpcbindf++ ;
+	if( ! $lastrpcbindf || $rbflog ) {
+		$lastrpcbindf = "$month $day $hourtime" ;
+		$rbflog = 1 ;
+	}
+	$flds[ 3 ] =  $flds[ 2 ] if(  $flds[ 3 ] =~ /FEEDME/ ) ;
+	chop( $flds[ 3 ] ) ;
+	if( $rpcbindf{ $flds[ 3 ] } ) {
+		$tmp = $rpcbindf{ $flds[ 3 ] } ;
+		$rpcbindf{ $flds[ 3 ] } = ++$tmp ;
+	} else {
+		$rpcbindf{ $flds[ 3 ] } = 1 ;
+	}
+	return ;
+
+} elsif( /RPC: Timed out|RPC_TIMED_OUT/ ) {
+	$rpctimeo++ ;
+	if( ! $lastrpctimeo || $rtolog ) {
+		$lastrpctimeo = "$month $day $hourtime" ;
+		$rtolog = 1 ;
+	}
+	if( $flds[ 1 ] =~ /surf_split/ ) {
+		chop( $flds[ 1 ] ) ;
+		$flds[ 2 ] = $flds[ 1 ] ;
+	}
+	#$flds[ 2 ] = $flds[ 1 ] if( $flds[ 2 ] =~ /ship/ ) ;
+	#$flds[ 2 ] = substr( $flds[ 1 ], 5 ) if( $flds[ 1 ] =~ /feed=/ ) ;
+	$flds[ 2 ] =  $flds[ 0 ] if(  $flds[ 0 ] =~ /\(feed\)/ ) ;
+	$flds[ 2 ] =  $flds[ 1 ] if(  $flds[ 1 ] =~ /\(feed\)/ ) ;
+	$flds[ 2 ] =~ s/\[\d{1,6}\]:// ;
+	if( $rpctimeo{ $flds[ 2 ] } ) {
+		$tmp = $rpctimeo{ $flds[ 2 ] } ;
+		$rpctimeo{ $flds[ 2 ] } = ++$tmp ;
+	} else {
+		$rpctimeo{ $flds[ 2 ] } = 1 ;
+	}
+	return ;
+
+# not checked
+} elsif( /Could not get arguments for RPC request/ ) {
+	$rpcrequest++ ;
+	if( ! $lastrpcrequest || $reqlog ) {
+		$lastrpcrequest = "$month $day $hourtime" ;
+		$reqlog = 1 ;
+	}
+	if( $flds[ 8 ] =~ /HEREIS/ ) {
+		$flds[ 8 ] = substr( $flds[ 7 ], 5 ) ;
+	} else {
+		$flds[ 8 ] = substr( $flds[ 8 ], 5 ) ;
+	}
+	chop( $flds[ 8 ] ) ;
+	if( $rpcrequest{ $flds[ 8 ] } ) {
+		$tmp = $rpcrequest{ $flds[ 8 ] } ;
+		$rpcrequest{ $flds[ 8 ] } = ++$tmp ;
+	} else {
+		$rpcrequest{ $flds[ 8 ] } = 1 ;
+	}
+	return ;
+
+} elsif( /RPC: Program not registered|RPC_PROG_NOT_REGISTERED/ ) {
+	$rpcnot++ ;
+	if( ! $lastrpcnot || $rnrlog ) {
+		$lastrpcnot = "$month $day $hourtime" ;
+		$rnrlog = 1 ;
+	}
+	#$flds[ 3 ] = substr( $flds[ 1 ], 5 ) if( $flds[ 1 ] =~ /feed=/ ) ;
+	chop( $flds[ 2 ] ) ;
+	if( $rpcnot{ $flds[ 2 ] } ) {
+		$tmp = $rpcnot{ $flds[ 2 ] } ;
+		$rpcnot{ $flds[ 2 ] } = ++$tmp ;
+	} else {
+		$rpcnot{ $flds[ 2 ] } = 1 ;
+	}
+	return ;
+
+# not checked
+} elsif( /Port mapper failure|RPC_PMAP_FAILURE/ ) {
+	$rpcmap++ ;
+	if( ! $lastrpcmap || $maplog ) {
+		$lastrpcmap = "$month $day $hourtime" ;
+		$maplog = 1 ;
+	}
+	$flds[ 3 ] = substr( $flds[ 1 ], 5 ) if( $flds[ 1 ] =~ /feed=/ ) ;
+	chop( $flds[ 3 ] ) ;
+	if( $rpcmap{ $flds[ 3 ] } ) {
+		$tmp = $rpcmap{ $flds[ 3 ] } ;
+		$rpcmap{ $flds[ 3 ] } = ++$tmp ;
+	} else {
+		$rpcmap{ $flds[ 3 ] } = 1 ;
+	}
+	return ;
+
+# not checked
+} elsif( /F_RDLCK/ ) {
+	$rdlck++ ;
+	if( ! $lastrdlck || $rdllog ) {
+		$lastrdlck = "$month $day $hourtime" ;
+		$rdllog = 1 ;
+	}
+	chop( $flds[ 1 ] ) ;
+	$flds[ 1 ] = substr( $flds[ 1 ], 5 ) if( $flds[ 1 ] =~ /feed=/ ) ;
+	if( $rdlck{ $flds[ 1 ] } ) {
+		$tmp = $rdlck{ $flds[ 1 ] } ;
+		$rdlck{ $flds[ 1 ] } = ++$tmp ;
+	} else {
+		$rdlck{ $flds[ 1 ] } = 1 ;
+	}
+	return ;
+
+# not checked
+} elsif( /F_WRLCK/ ) {
+	$wrlck++ ;
+	if( ! $lastwrlck || $wrllog ) {
+		$lastwrlck = "$month $day $hourtime" ;
+		$wrllog = 1 ;
+	}
+	chop( $flds[ 1 ] ) ;
+	if( $wrlck{ $flds[ 1 ] } ) {
+		$tmp = $wrlck{ $flds[ 1 ] } ;
+		$wrlck{ $flds[ 1 ] } = ++$tmp ;
+	} else {
+		$wrlck{ $flds[ 1 ] } = 1 ;
+	}
+	return ;
+
+} elsif( /Breaking connection|Disconnect/ ) {
+	$breaking++ ;
+	if( ! $lastbreaking || $bcflog ) {
+		$lastbreaking = "$month $day $hourtime" ;
+		$bcflog = 1 ;
+	}
+	$flds[ 1 ] = substr( $flds[ 0 ], 5 ) if( $flds[ 0 ] =~ /feed=/ ) ;
+	$flds[ 1 ] = substr( $flds[ 1 ], 5 ) if( $flds[ 1 ] =~ /feed=/ ) ;
+	$flds[ 1 ] = $flds[ 0 ] if( $flds[ 1 ] =~ /Disconnect/ ) ;
+	chop(  $flds[ 1 ] ) ;
+	#$flds[ 1 ] = substr( $flds[ 1 ], 5 ) ;
+	$flds[ 1 ] =~ s/\[\d{1,6}\]// ;
+	if( $breaking{ $flds[ 1 ] } ) {
+		$tmp = $breaking{ $flds[ 1 ] } ;
+		$breaking{ $flds[ 1 ] } = ++$tmp ;
+	} else {
+		$breaking{ $flds[ 1 ] } = 1 ;
+	}
+	return ;
+
+# not checked
+} elsif( /bad checksum/ ) {
+	$checksum++ ;
+	if( ! $lastchecksum || $chklog ) {
+		$lastchecksum = "$month $day $hourtime" ;
+		$chklog = 1 ;
+	}
+	chop( $flds[ 1 ] ) ;
+	if( $checksum{ $flds[ 1 ] } ) {
+		$tmp = $checksum{ $flds[ 1 ] } ;
+		$checksum{ $flds[ 1 ] } = ++$tmp ;
+	} else {
+		$checksum{ $flds[ 1 ] } = 1 ;
+	}
+	return ;
+
+} elsif( /Connection established/ ) {
+	$connection++ ;
+	$flds[ 1 ] = $flds[ 0 ] if( $flds[ 0 ] =~ /feed=/ ) ;
+	chop( $flds[ 1 ] ) ;
+	$flds[ 1 ] = substr( $flds[ 1 ], 5 ) ;
+	if( ! $lastconnection || $cedlog ) {
+		$lastconnection = "$month $day $hourtime" ;
+		$cedlog = 1 ;
+
+		$connection{ $flds[ 1 ] } = "$month $day $hourtime" ;
+	}
+	$connection{ $flds[ 1 ] } = "$month $day $hourtime" 
+		if( ! $connection{ $flds[ 1 ] } ) ;
+	return ;
+
+# not checked
+} elsif( /Expanding input/ ) {
+	$expanding++ ;
+	if( ! $lastexpanding || $eiblog ) {
+		$lastexpanding = "$month $day $hourtime" ;
+		$eiblog = 1 ;
+	}
+	chop(  $flds[ 1 ] ) ;
+	if( $expanding{ $flds[ 1 ] } ) {
+		$tmp = $expanding{ $flds[ 1 ] } ;
+		$expanding{ $flds[ 1 ] } = ++$tmp ;
+	} else {
+		$expanding{ $flds[ 1 ] } = 1 ;
+	}
+	return ;
+
+} elsif( /Giving up/ ) {
+	$givingup++ ;
+	if( ! $lastgivingup || $guolog ) {
+		$lastgivingup = "$month $day $hourtime" ;
+		$guolog = 1 ;
+	}
+	$flds[ 1 ] = $flds[ 0 ] if( $flds[ 0 ] =~ /feed=/ ) ;
+	chop(  $flds[ 1 ] ) ;
+	$flds[ 1 ] = substr( $flds[ 1 ], 5 ) ;
+	$givingup{ $flds[ 1 ] } = "$month $day $hourtime" ;
+	return ;
+
+# not checked
+} elsif( /GRIB end of product section not found/ ) {
+	$endproduct++ ;
+	if( ! $lastendproduct || $geplog ) {
+		$lastendproduct = "$month $day $hourtime" ;
+		$geplog = 1 ;
+	}
+	return ;
+
+} elsif( /Hit a lock/ ) {
+	$hlock++ ;
+	if( ! $lasthlock || $hallog ) {
+		$lasthlock = "$month $day $hourtime" ;
+		$hallog = 1 ;
+	}
+	return ;
+
+} elsif( /HIYA error/ ) {
+	$hiya++ ;
+	if( ! $lasthiya || $hyalog ) {
+		$lasthiya = "$month $day $hourtime" ;
+		$hyalog = 1 ;
+	}
+	$flds[ 1 ] = $flds[ 0 ] if( $flds[ 0 ] =~ /feed=/ ) ;
+	chop(  $flds[ 1 ] ) ;
+	$flds[ 1 ] = substr( $flds[ 1 ], 5 ) ;
+	$flds[ 1 ] =~ s/\[\d{1,6}\]// ;
+	if( $hiya{ $flds[ 1 ] } ) {
+		$tmp = $hiya{ $flds[ 1 ] } ;
+		$hiya{ $flds[ 1 ] } = ++$tmp ;
+	} else {
+		$hiya{ $flds[ 1 ] } = 1 ;
+	}
+	return ;
+
+} elsif( /No space left on device/ ) {
+	$nospace++ ;
+	if( ! $lastnospace || $nsdlog ) {
+		$lastnospace = "$month $day $hourtime" ;
+		$nsdlog = 1 ;
+	}
+	return ;
+
+} elsif( /NULLPROC error|h_clnt_call/ ) {
+	$nullproc++ ;
+	if( ! $lastnullproc || $nullog ) {
+		$lastnullproc = "$month $day $hourtime" ;
+		$nullog = 1 ;
+	}
+	$flds[ 3 ] = $flds[ 2 ] if( $flds[ 1 ] =~ /h_clnt_call/ ) ;
+	$flds[ 3 ] = substr( $flds[ 0 ], 5 ) if( $flds[ 0 ] =~ /feed=/ ) ;
+	chop(  $flds[ 3 ] ) ;
+	#$flds[ 1 ] = substr( $flds[ 1 ], 5 ) ;
+	$flds[ 3 ] =~ s/\[\d{1,6}\]// ;
+	if( $nullproc{ $flds[ 3 ] } ) {
+		$tmp = $nullproc{ $flds[ 3 ] } ;
+		$nullproc{ $flds[ 3 ] } = ++$tmp ;
+	} else {
+		$nullproc{ $flds[ 3 ] } = 1 ;
+	}
+	return ;
+
+} elsif( /HEREIS error/ ) {
+	$hereis++ ;
+	if( ! $lasthereis || $hielog ) {
+		$lasthereis = "$month $day $hourtime" ;
+		$hielog = 1 ;
+	}
+	$flds[ 1 ] = $flds[ 0 ] if( $flds[ 0 ] =~ /feed=/ ) ;
+	chop(  $flds[ 1 ] ) ;
+	$flds[ 1 ] = substr( $flds[ 1 ], 5 ) ;
+	$flds[ 1 ] =~ s/\[\d{1,6}\]// ;
+	if( $hereis{ $flds[ 1 ] } ) {
+		$tmp = $hereis{ $flds[ 1 ] } ;
+		$hereis{ $flds[ 1 ] } = ++$tmp ;
+	} else {
+		$hereis{ $flds[ 1 ] } = 1 ;
+	}
+	return ;
+
+} elsif( /COMINGSOON/ ) {
+	return unless /BLKDATA error/ ;
+	$comingsoon++ ;
+	if( ! $lastcomingsoon || $csblog ) {
+		$lastcomingsoon = "$month $day $hourtime" ;
+		$csblog = 1 ;
+	}
+	$flds[ 1 ] = $flds[ 0 ] if( $flds[ 0 ] =~ /feed=/ ) ;
+	chop(  $flds[ 1 ] ) ;
+	$flds[ 1 ] = substr( $flds[ 1 ], 5 ) ;
+	$flds[ 1 ] =~ s/\[\d{1,6}\]// ;
+	if( $comingsoon{ $flds[ 1 ] } ) {
+		$tmp = $comingsoon{ $flds[ 1 ] } ;
+		$comingsoon{ $flds[ 1 ] } = ++$tmp ;
+	} else {
+		$comingsoon{ $flds[ 1 ] } = 1 ;
+	}
+	return ;
+
+} elsif( /Unexpected BLKDATA/ ) {
+	$ublkdata++ ;
+	if( ! $lastublkdata || $ubdlog ) {
+		$lastublkdata = "$month $day $hourtime" ;
+		$ubdlog = 1 ;
+	}
+	return ;
+
+} elsif( /Permission denied/ ) {
+	$permission++ ;
+	if( ! $lastpermission || $perlog ) {
+		$lastpermission = "$month $day $hourtime" ;
+		$perlog = 1 ;
+	}
+	chop( $flds[ 2 ] ) ;
+	if( $permission{ $flds[ 2 ] } ) {
+		$tmp = $permission{ $flds[ 2 ] } ;
+		$permission{ $flds[ 2 ] } = ++$tmp ;
+	} else {
+		$permission{ $flds[ 2 ] } = 1 ;
+	}
+	return ;
+
+# not checked
+} elsif( /Product-in-progress list is full/ ) {
+	$inprogress++ ;
+	if( ! $lastinprogress || $liplog ) {
+		$lastinprogress = "$month $day $hourtime" ;
+		$liplog = 1 ;
+	}
+	if( $inprogress{ $flds[ 2 ] } ) {
+		$tmp = $inprogress{ $flds[ 2 ] } ;
+		$inprogress{ $flds[ 2 ] } = ++$tmp ;
+	} else {
+		$inprogress{ $flds[ 2 ] } = 1 ;
+	}
+	return ;
+
+} elsif( /Queue full, deleting oldest product/ ) {
+	$queuefull++ ;
+	if( ! $lastqueuefull || $lqflog ) {
+		$lastqueuefull = "$month $day $hourtime" ;
+		$lqflog = 1 ;
+	}
+	return ;
+
+# not checked
+} elsif( /Rejecting FEEDME|want feedtype/ ) {
+	$rfeedme++ ;
+	if( ! $lastrfeedme || $rfmlog ) {
+		$lastrfeedme = "$month $day $hourtime" ;
+		$rfmlog = 1 ;
+	}
+	chop(  $flds[ 6 ] ) ;
+	$flds[ 6 ] = substr( $flds[ 6 ], 5 ) ;
+	if( $rfeedme{ $flds[ 6 ] } ) {
+		$tmp = $rfeedme{ $flds[ 6 ] } ;
+		$rfeedme{ $flds[ 6 ] } = ++$tmp ;
+	} else {
+		$rfeedme{ $flds[ 6 ] } = 1 ;
+	}
+	return ;
+
+# not checked
+} elsif( /Rejecting HEREIS/ ) {
+	$rhereis++ ;
+	if( ! $lastrhereis || $rhilog ) {
+		$lastrhereis = "$month $day $hourtime" ;
+		$rhilog = 1 ;
+	}
+	return ;
+
+# not checked
+} elsif( /Rejecting HIYA/ ) {
+	$rhiya++ ;
+	if( ! $lastrhiya || $rhalog ) {
+		$lastrhiya = "$month $day $hourtime" ;
+		$rhalog = 1 ;
+	}
+	return ;
+
+# not checked
+} elsif( /Rejecting retransmission/ ) {
+	$retrans++ ;
+	if( ! $lastretrans || $rrtlog ) {
+		$lastretrans = "$month $day $hourtime" ;
+		$rrtlog = 1 ;
+	}
+	$flds[ 2 ] = $flds[ 1 ] if( $flds[ 2 ] =~ /Rejecting/ ) ;
+	chop( $flds[ 2 ] ) ;
+	if( $retrans{ $flds[ 2 ] } ) {
+		$tmp = $retrans{ $flds[ 2 ] } ;
+		$retrans{ $flds[ 2 ] } = ++$tmp ;
+	} else {
+		$retrans{ $flds[ 2 ] } = 1 ;
+	}
+	return ;
+
+# not checked
+} elsif( /assertion/ ) {
+	$assertion++ ;
+	if( ! $lastassertion || $asslog ) {
+		$lastassertion = "$month $day $hourtime" ;
+		$asslog = 1 ;
+	}
+	chop(  $flds[ 1 ] ) ;
+	if( $assertion{ $flds[ 1 ] } ) {
+		$tmp = $assertion{ $flds[ 1 ] } ;
+		$assertion{ $flds[ 1 ] } = ++$tmp ;
+	} else {
+		$assertion{ $flds[ 1 ] } = 1 ;
+	}
+	return ;
+
+} elsif( /destination server/ ) {
+	$destination++ ;
+	if( ! $lastdestination || $deslog ) {
+		$lastdestination = "$month $day $hourtime" ;
+		$deslog = 1 ;
+	}
+	return ;
+
+} elsif( /product is too small/ ) {
+	$toosmall++ ;
+	if( ! $lasttoosmall || $ptslog ) {
+		$lasttoosmall = "$month $day $hourtime" ;
+		$ptslog = 1 ;
+	}
+	return ;
+
+} elsif( /region_get|pq_delete|pq_seqdel/ ) {
+	$queuecorrupt++ ;
+	if( ! $lastqueuecorrupt || $lqclog ) {
+		$lastqueuecorrupt = "$month $day $hourtime" ;
+		$lqclog = 1 ;
+	}
+	return ;
+
+} elsif( /status/ ) {
+	return if( /status 0|noti/ ) ;
+	$status++ ;
+	if( ! $laststatus || $nzslog ) {
+		$laststatus = "$month $day $hourtime" ;
+		$nzslog = 1 ;
+	}
+	return ;
+
+
+# not checked
+} elsif( /version/ ) {
+	$version = $flds[ 4 ] if( $version eq "Unknown" ) ;
+	return ;
+
+}
+
+print if( $verbose ) ;
+
+}
+
+
+# report
+sub report
+{
+
+# Current LDM status
+print "LDM status report from the logs for the last $hours24 hours.\n\n" ;
+print "Currently $hostname is running $idle percent idle\n" ;
+print $uptime ;
+print "Running version number $version.\n" ;
+if( $runpg ) {
+	print "LDM was restarted $runpg time(s)\n" ;
+	print "\t$lastrunpg\n" ;
+} else {
+	print "LDM was not restarted in the last $hours24 hours.\n" ;
+}
+print "$queueusage\n" ;
+print "$lastrereadconfig\n" if( $lastrereadconfig ) ;
+print "$lastrereadaccess\n" if( $lastrereadaccess ) ;
+if( $connection ) {
+	print "'Connection established' message occurred $connection time(s).\n" ;
+	print "\tLast one at:  $lastconnection\n" ;
+
+	foreach $feed ( sort keys %connection ) {
+		print "\tFor $feed established at $connection{ $feed }\n" ;
+	}
+}
+
+
+# Critical LDM status that need immediate attention
+print "\nCritical LDM problems that need immediate attention:\n" ;
+
+if( $lastpqactstatus1 ) {
+	print "$lastpqactstatus1 $lastpqactstatus2\n" ;
+}
+
+if( $nospace ) {
+	print "'No space left on device' message occurred $nospace time(s).\n" ;
+	print "\tLast one at:  $lastnospace\n" ;
+}
+
+if( $queuefull ) {
+	print "'Queue full' message occurred $queuefull time(s).\n" ;
+	print "\tLast one at:  $lastqueuefull\n" ;
+}
+
+if( $queuecorrupt ) {
+	print "Queue corruption message occurred $queuecorrupt time(s).\n" ;
+	print "\tLast one at:  $lastqueuecorrupt\n" ;
+}
+
+if( $rhiya ) {
+	print "'Rejecting HIYA' message occurred $rhiya time(s).\n" ;
+	print "\tLast one at:  $lastrhiya\n" ;
+}
+
+if( $rfeedme ) {
+	print "'Rejecting FEEDME' message occurred $rfeedme time(s).\n" ;
+	print "\tLast one at:  $lastrfeedme\n" ;
+
+	foreach $feed ( sort keys %rfeedme ) {
+		print "\tFor $feed it happened $rfeedme{ $feed } time(s).\n" ;
+	}
+}
+
+if( $rhereis ) {
+	print "'Rejecting HEREIS' message occurred $rhereis time(s).\n" ;
+	print "\tLast one at:  $lastrhereis\n" ;
+}
+
+if( $assertion ) {
+	print "assertion failure message occurred $assertion time(s).\n" ;
+	print "\tLast one at:  $lastassertion\n" ;
+
+	foreach $feed ( sort keys %assertion ) {
+		print "\tFor $feed it happened $assertion{ $feed } time(s).\n" ;
+	}
+}
+
+if( $hlock ) {
+	print "'Hit a lock' message occurred $hlock time(s).\n" ;
+	print "\tLast one at:  $lasthlock\n" ;
+}
+
+if( $rdlck ) {
+	print "'fcntl F_RDLCK failed' message $rdlck time(s).\n" ;
+	print "\tLast one at:  $lastrdlck\n" ;
+
+	foreach $feed ( sort keys %rdlck ) {
+		print "\tFor $feed it happened $rdlck{ $feed } time(s).\n" ;
+	}
+}
+
+if( $permission ) {
+	print "'Permission denied' message $permission time(s).\n" ;
+	print "\tLast one at:  $lastpermission\n" ;
+
+	foreach $feed ( sort keys %permission ) {
+		print "\tFor $feed it happened $permission{ $feed } time(s).\n" ;
+	}
+}
+
+if( $wrlck ) {
+	print "'fcntl F_WRLCK failed' message $wrlck time(s).\n" ;
+	print "\tLast one at:  $lastwrlck\n" ;
+
+	foreach $feed ( sort keys %wrlck ) {
+		print "\tFor $feed it happened $wrlck{ $feed } time(s).\n" ;
+	}
+}
+
+
+# Potential Problems
+print "\n\nPotential LDM Problems:\n" ;
+
+if( $gethostbyname ) {
+	print "'gethostbyname: lookup Timed out' message occurred $gethostbyname time(s).\n" ;
+	print "\tLast one at:  $lastgethostbyname\n" ;
+
+	foreach $host ( sort keys %gethostbyname ) {
+		print "\tFor $host it happened $gethostbyname{ $host } time(s).\n" ;
+	}
+}
+
+if( $givingup ) {
+	print "'Giving up' message occurred $givingup time(s).\n" ;
+	print "\tLast one at:  $lastgivingup\n" ;
+
+	foreach $feed ( sort keys %givingup ) {
+		print "\tFor $feed it happened at $givingup{ $feed }.\n" ;
+	}
+}
+
+if( $destination ) {
+	print "'Destination Server Timed Out' message occurred $destination time(s).\n" ;
+	print "\tLast one at:  $lastdestination\n" ;
+}
+
+if( $status ) {
+	print "Non-zero Status message occurred $status time(s).\n" ;
+	print "\tLast one at:  $laststatus\n" ;
+}
+
+if( $breaking ) {
+	print "'Breaking connection' message occurred $breaking time(s).\n" ;
+	print "\tLast one at:  $lastbreaking\n" ;
+
+	foreach $feed ( sort keys %breaking ) {
+		print "\tFor $feed it happened $breaking{ $feed } time(s).\n" ;
+	}
+}
+
+if( $inprogress ) {
+	print "'Product-in-progress list is full' message occurred $inprogress time(s).\n" ;
+	print "\tLast one at:  $lastinprogress\n" ;
+
+	foreach $feed ( sort keys %inprogress ) {
+		print "\tFor $feed it happened $inprogress{ $feed } time(s).\n" ;
+	}
+}
+
+if( $rpcnot ) {
+	print "'RPC: Program not registered' message occurred $rpcnot time(s).\n" ;
+	print "\tLast one at:  $lastrpcnot\n" ;
+
+	foreach $feed ( sort keys %rpcnot ) {
+		print "\tFor $feed it happened $rpcnot{ $feed } time(s).\n" ;
+	}
+}
+
+if( $rpcmap ) {
+	print "'Port mapper failure' message occurred $rpcmap time(s).\n" ;
+	print "\tLast one at:  $lastrpcmap\n" ;
+
+	foreach $feed ( sort keys %rpcmap ) {
+		print "\tFor $feed it happened $rpcmap{ $feed } time(s).\n" ;
+	}
+}
+
+if( $rpcbindf ) {
+	print "'RPC: Rpcbind failure' message occurred $rpcbindf time(s).\n" ;
+	print "\tLast one at:  $lastrpcbindf\n" ;
+
+	foreach $feed ( sort keys %rpcbindf ) {
+		print "\tFor $feed it happened $rpcbindf{ $feed } time(s).\n" ;
+	}
+}
+
+if( $rpctimeo ) {
+	print "'RPC: Timed out' message occurred $rpctimeo time(s).\n" ;
+	print "\tLast one at:  $lastrpctimeo\n" ;
+
+	foreach $feed ( sort keys %rpctimeo ) {
+		print "\tFor $feed it happened $rpctimeo{ $feed } time(s).\n" ;
+	}
+}
+
+if( $rpcrequest ) {
+	print "'Couldn\'t get arguments for RPC request' message occurred $rpcrequest time(s).\n" ;
+	print "\tLast one at:  $lastrpcrequest\n" ;
+
+	foreach $feed ( sort keys %rpcrequest ) {
+		print "\tFor $feed it happened $rpcrequest{ $feed } time(s).\n" ;
+	}
+}
+
+if( $nullproc ) {
+	print "'NULLPROC error' message occurred $nullproc time(s).\n" ;
+	print "\tLast one at:  $lastnullproc\n" ;
+
+	foreach $feed ( sort keys %nullproc ) {
+		print "\tFor $feed it happened $nullproc{ $feed } time(s).\n" ;
+	}
+}
+
+if( $hereis ) {
+	print "'HEREIS error' message occurred $hereis time(s).\n" ;
+	print "\tLast one at:  $lasthereis\n" ;
+
+	foreach $feed ( sort keys %hereis ) {
+		print "\tFor $feed it happened $hereis{ $feed } time(s).\n" ;
+	}
+}
+
+if( $comingsoon ) {
+	print "'COMINGSOON/BLKDATA error' message occurred $comingsoon time(s).\n" ;
+	print "\tLast one at:  $lastcomingsoon\n" ;
+
+	foreach $feed ( sort keys %comingsoon ) {
+		print "\tFor $feed it happened $comingsoon{ $feed } time(s).\n" ;
+	}
+}
+
+if( $hiya ) {
+	print "'HIYA error' message occurred $hiya time(s).\n" ;
+	print "\tLast one at:  $lasthiya\n" ;
+
+	foreach $feed ( sort keys %hiya ) {
+		print "\tFor $feed it happened $hiya{ $feed } time(s).\n" ;
+	}
+}
+
+if( $ublkdata ) {
+	print "'Rejecting HEREIS' message occurred $ublkdata time(s).\n" ;
+	print "\tLast one at:  $lastublkdata\n" ;
+}
+
+if( $retrans ) {
+	print "'Rejecting retransmission' message occurred $retrans time(s).\n" ;
+	print "\tLast one at:  $lastretrans\n" ;
+
+	foreach $feed ( sort keys %retrans ) {
+		print "\tFor $feed it happened $retrans{ $feed } time(s).\n" ;
+	}
+}
+
+if( $checksum ) {
+	print "'bad checksum' message occurred $checksum time(s).\n" ;
+	print "\tLast one at:  $lastchecksum\n" ;
+
+	foreach $feed ( keys %checksum ) {
+		print "\tFor $feed it happened $checksum{ $feed } time(s).\n" ;
+	}
+}
+
+if( $expanding ) {
+	print "'Expanding input buffer' message occurred $expanding time(s).\n" ;
+	print "\tLast one at:  $lastexpanding\n" ;
+
+	foreach $feed ( keys %expanding ) {
+		print "\tFor $feed it happened $expanding{ $feed } time(s).\n" ;
+	}
+}
+
+# Decoder Problems
+print "\nDecoder LDM Problems:\n" ;
+
+if( $toosmall ) {
+	print "'product is too small' message occurred $toosmall time(s).\n" ;
+	print "\tLast one at:  $lasttoosmall\n" ;
+}
+
+if( $endproduct ) {
+	print "'GRIB end of product section not found' message occurred $endproduct time(s).\n" ;
+	print "\tLast one at:  $lastendproduct\n" ;
+}
+
+}

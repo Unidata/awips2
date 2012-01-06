@@ -1,0 +1,25 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="profilerPluginName" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="profiler" />
+    </bean>
+
+	<bean id="profilerProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+		<property name="pluginName" ref="profilerPluginName" />
+		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.profiler" />
+		<property name="dao" value="com.raytheon.uf.common.dataplugin.profiler.dao.ProfilerDAO" />
+		<property name="record" value="com.raytheon.uf.common.dataplugin.profiler.ProfilerObs" />
+	</bean>
+	
+	<bean factory-bean="pluginRegistry" factory-method="register">
+		<constructor-arg value="profiler"/>
+		<constructor-arg ref="profilerProperties"/>
+	</bean>
+	
+</beans>

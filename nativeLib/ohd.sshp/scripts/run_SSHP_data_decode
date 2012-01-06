@@ -1,0 +1,47 @@
+#!/bin/ksh
+# file name: run_SSHP_data_decoder
+# Created: 12/15/2003
+# Modified: 04/01/2004
+# Modified: 03/30/2004 - added amIRunning
+
+# This allows you to run this script from outside of ./bin
+RUN_FROM_DIR=`dirname $0`
+
+# set up SOME environment variables for WHFS applications
+. $RUN_FROM_DIR/../../set_hydro_env
+
+# set initial lid to the first command line argument passed into the script
+LID_PASSED_IN=$1
+
+export CLASSPATH=$CLASSPATH:$DB_DRIVER_PATH
+# need to add a path to the jar file for this application
+CLASSPATH=$CLASSPATH:$WHFS_BIN_DIR/SiteSpecific.jar
+
+
+# Java bin directory
+JBINDIR=$SYS_JAVA_DIR/bin
+
+wait_time=$1
+
+# Keeps the last 1200 lines of the log file
+
+LOGFILE=$SSHP_LOG_DIR/SacXMLDecoder.log
+
+# ensure that only 1 instance of this script runs on a machine
+AMIRUNNING_DIR=$SSHP_LOG_DIR
+. /awips/hydroapps/public/bin/amirunning
+
+if [[ $AmIRunning = "yes" ]]
+then
+    messageDate=`date -u '+%Y/%m/%d %k:%M:%S.XXX'` 
+	echo $messageDate: Startup of run_SSHP_data_decode cancelled because of prior running instance >> $LOGFILE
+  	exit 1
+fi
+
+TMPFILE=$SSHP_LOG_DIR/SacXMLDecoder.tmp
+tail -1200 $LOGFILE > $TMPFILE
+mv $TMPFILE $LOGFILE
+
+# set up an X Terminal window to write stdout and run the SacXMLDecoder application
+$JBINDIR/java ohd.hseb.sshp.messaging.SacXMLDecoder $JDBCURL $SSHP_INCOMING_DIR $SSHP_INGEST_XML_DIR $SSHP_LOG_DIR $wait_time >>$LOGFILE 2>>$LOGFILE
+exit

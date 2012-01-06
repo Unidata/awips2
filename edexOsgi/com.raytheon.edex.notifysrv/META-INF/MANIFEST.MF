@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Notifysrv Plug-in
+Bundle-SymbolicName: com.raytheon.edex.notifysrv
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: com.raytheon.edex.common,
+ org.apache.commons.configuration,
+ org.apache.commons.logging
+Export-Package: com.raytheon.edex.services
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: com.raytheon.uf.edex.core

@@ -1,0 +1,63 @@
+#  ============================================================================
+#  pgm: Makefile_obj_lx .. makefile to update the util-block object files
+#
+#  cmt: File made on Wed Aug  6 12:56:32 EDT 2008 by user "dsa"
+#  ============================================================================
+ 
+OBJ = /fs/hseb/ob83/ohd/util/obj/block/TEXT
+
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/ofs/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .o
+
+.f.o:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && chmod 664 ${*F}.o  \
+	   && echo "o - ${*F}.o" \
+	   || echo "e - ${*F}"
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+objects:  \
+     $(OBJ)/bdlooknset.o  \
+     $(OBJ)/ublock.o  \
+     $(OBJ)/udacpybd.o  \
+     $(OBJ)/ufldbloc.o  \
+     $(OBJ)/uincldbd.o  \
+     $(OBJ)/ustopbd.o
+
+$(OBJ)/bdlooknset.o: bdlooknset.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/ublock.o: ublock.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/udacpybd.o: udacpybd.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/ufldbloc.o: ufldbloc.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/uincldbd.o: uincldbd.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/ustopbd.o: ustopbd.f
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+

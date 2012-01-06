@@ -1,0 +1,25 @@
+
+
+
+
+
+
+        $(LS) $(IHFS_TABLE_DIR) $(VIEW_DIR) > $(TABLE_FILE_TEMP)
+        $(CAT) $(TABLE_FILE_TEMP) | grep -v '^s\.' | grep '\.t' |/usr/bin/cut -d. -f1  > $(TABLE_IHFS_FILE)
+
+
+
+ls $IHFS_TABLE_DIR $VIEW_DIR > table_file_temp.dat
+
+
+cat table_file_temp | grep -v '^s\.' | grep '\.t' | /usr/bin/cut -d. -f1 >
+PreferredIHFSTableNames.txt
+
+
+
+
+dump generated .pgc files to
+/fs/hseb/ob81/ohd/whfs/src/dbmsgen/TEXT
+
+dump .h files to 
+/fs/hseb/ob81/ohd/whfs/inc/lib/dbms/

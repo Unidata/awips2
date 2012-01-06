@@ -1,0 +1,11 @@
+#  IMPACT SUBSECTION TEMPLATES
+#-----------------------------
+name: default
+phrasestr:At <ImpactStg> feet, <ImpactDescr>.
+#
+name: refstage
+phrasestr:At stages near <ImpactRefStg> feet, <ImpactDescr>.
+#
+name: test
+phrasestr:Reference stage= <ImpactRefType>, <ImpactRefStg>; &
+Impact= <ImpactStg> <ImpactDescr>...

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.eclipse.ecf.start">
+      <run
+            class="org.eclipse.ecf.internal.docshare.ECFStart">
+      </run>
+   </extension>
+      <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="popup:#CompilationUnitEditorContext">
+         <dynamic
+               class="org.eclipse.ecf.internal.provisional.docshare.menu.DocShareRosterMenuContributionItem"
+               id="org.eclipse.ecf.editorshare.dynamic1">
+         </dynamic>
+      </menuContribution>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="popup:#TextEditorContext">
+         <dynamic
+               class="org.eclipse.ecf.internal.provisional.docshare.menu.DocShareRosterMenuContributionItem"
+               id="org.eclipse.ecf.editorshare.dynamic2">
+         </dynamic>
+      </menuContribution>
+   </extension>
+
+   
+</plugin>

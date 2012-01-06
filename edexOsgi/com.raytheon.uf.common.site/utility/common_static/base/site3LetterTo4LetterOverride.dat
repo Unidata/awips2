@@ -1,0 +1,11 @@
+#Overrides the default 3 to 4 letter mapping obtained using national_category_template
+# These two overrides were pulled from legacy GFE
+AER PAFC
+ALU PAFC
+ACR PACR
+AFC PAFC
+AFG PAFG
+AJK PAJK
+GUM PGUM
+HFO PHFO
+SJU TSJU

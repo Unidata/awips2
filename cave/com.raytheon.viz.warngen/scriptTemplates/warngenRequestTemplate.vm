@@ -1,0 +1,21 @@
+
+#if($mode == "select")
+#set($office = $scriptMetadata.get("office").constraintValue)
+#set($phenomena = $scriptMetadata.get("phenomena").constraintValue)
+#set($significance = $scriptMetadata.get("significance").constraintValue)
+import VtecEventRetrieval
+runner = VtecEventRetrieval.VtecEventRetrieval()
+runner.setClientID('VTEC Retrieval')
+runner.setFields('${office}','${phenomena}','${significance}')
+return runner.execute()
+#elseif($mode == "update")
+#set($office = $scriptMetadata.get("office").constraintValue)
+#set($phenomena = $scriptMetadata.get("phenomena").constraintValue)
+#set($significance = $scriptMetadata.get("significance").constraintValue)
+#set($sequence = $scriptMetadata.get("sequence").constraintValue)
+import VtecEventUpdate
+runner = VtecEventUpdate.VtecEventUpdate()
+runner.setClientID('VTEC Update')
+runner.setFields('${office}','${phenomena}','${significance}','${sequence}')
+return runner.execute()
+#end

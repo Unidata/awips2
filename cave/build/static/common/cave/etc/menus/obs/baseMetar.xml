@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="bundleItem" file="bundles/StationPlot.xml"
+			menuText="Station Plot" id="StationPlot">
+			<dataURI>/obs/%</dataURI>		
+    </contribute> 
+	<contribute xsi:type="subMenu" menuText="Other Plots">
+		<contribute xsi:type="bundleItem" file="bundles/15minSurfacePlot.xml"
+			menuText="15 min Plot" id="15MinSurfacePlot">
+			<dataURI>/obs/%</dataURI>	
+        </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/MetarPlot.xml" 
+               menuText="24Hr Chg" id="24HrChg">
+	        <dataURI>/obs/%</dataURI>
+	        <substitute key="svg" value="metar24ChgDesign.svg"/>
+	        <substitute key="legend" value="METAR 24H Change"/> 
+	        <substitute key="posOffset" value="1800"/>
+	        <substitute key="negOffset" value="1800"/>    
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/MetarPlot.xml" 
+               menuText="Ceil/Vis Plot (AGL)" id="CeilVisPlotAGL">
+	        <dataURI>/obs/%</dataURI>
+	        <substitute key="svg" value="metarCvDesign.svg"/>
+	        <substitute key="legend" value="Ceiling (agl) and Visibility"/> 
+	        <substitute key="posOffset" value="1800"/>
+	        <substitute key="negOffset" value="1800"/>    
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/MetarPlot.xml" 
+               menuText="Ceil/Vis Plot (MSL)" id="CeilVisPlotMSL">
+	        <dataURI>/obs/%</dataURI>
+	        <substitute key="svg" value="metarCvMslDesign.svg"/>
+	        <substitute key="legend" value="Ceiling (msl) and Visibility"/>
+	        <substitute key="posOffset" value="1800"/>
+	        <substitute key="negOffset" value="1800"/> 	        
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/MetarPlot.xml" 
+               menuText="Wind Ch/HeatIdx" id="WindChHeatIdx">
+	        <dataURI>/obs/%</dataURI>
+	        <substitute key="svg" value="metarHiWcDesign.svg"/>
+	        <substitute key="legend" value="Wind Chill/Heat Index plot"/>
+	        <substitute key="posOffset" value="1800"/>
+	        <substitute key="negOffset" value="1800"/> 	        
+	    </contribute> 
+        <contribute xsi:type="separator" id="PrecipSeparator"/>
+	    
+	    <contribute xsi:type="titleItem" 
+			titleText="------ Precip ------" id="PrecipLine"/>
+		
+		<contribute xsi:type="bundleItem" file="bundles/MetarPrecipPlot.xml" 
+               menuText="24hr Precip" id="24HrPrecip">
+	        <dataURI>/obs/%</dataURI>
+	        <substitute key="duration" value="24"/>
+	        <substitute key="posOffset" value="21600"/>
+	        <substitute key="negOffset" value="0"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/MetarPrecipPlot.xml" 
+               menuText="6hr Precip" id="6HrPrecip">
+	        <dataURI>/obs/%</dataURI>
+			<substitute key="duration" value="6"/>
+	        <substitute key="posOffset" value="10800"/>
+	        <substitute key="negOffset" value="10800"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/MetarPrecipPlot.xml" 
+               menuText="3hr Precip" id="3HrPrecip">
+	        <dataURI>/obs/%</dataURI>
+	        <substitute key="duration" value="3"/>
+	        <substitute key="posOffset" value="1800"/>
+	        <substitute key="negOffset" value="9000"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/MetarPrecipPlot.xml" 
+               menuText="1hr Precip" id="1HrPrecip">
+	        <dataURI>/obs/%</dataURI>
+	        <substitute key="duration" value="1"/>
+	        <substitute key="posOffset" value="1800"/>
+	        <substitute key="negOffset" value="1800"/>       
+	    </contribute>
+	    
+	    <contribute xsi:type="separator" id="msasSeparator"/>
+	    <contribute xsi:type="titleItem" 
+			titleText="------ MSAS Obs------" id="msasLine"/>
+		<contribute xsi:type="subinclude" fileName="menus/obs/baseMSASObs.xml"/>
+    </contribute>
+</menuTemplate>

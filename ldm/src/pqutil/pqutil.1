@@ -1,0 +1,215 @@
+." $Id: pqutil.1,v 1.5.20.1.2.2 2009/06/18 16:19:29 steve Exp $
+.TH PQUTIL 1 "$Date: 2009/06/18 16:19:29 $"
+.SH NAME
+pqutil - utility program for the LDM product queue
+.SH SYNOPSIS
+.HP
+.ft B
+pqutil
+.nh
+\%[-l\ \fIlogfile\fP]
+\%[-v]
+\%[-x]
+\%[-c]
+\%[-n]
+\%[-a\ \fIalign\fP]
+\%[-p]
+\%[-s\ \fIinitalsz\fP]
+\%[-S\ \fInproducts\fP]
+\%[-r]
+\%[-P]
+\%[-L]
+\%[-F]
+\%[-M]
+\%[-w]
+\%\fIpq_file\fP
+.hy
+.ft
+.SH DESCRIPTION
+.LP
+This is an interactive program that provides an interface to the LDM
+product queue.  It may be used to create a queue, examine the contents of
+a queue, insert products into the queue and monitor products as they are
+received by the queue.  Once the program has been started it prompts for
+commands (and optional modifiers).  Typing help at the command prompt
+will cause an abbreviated help screen to be displayed.
+
+.SH OPTIONS
+.TP
+.BI \-l " logfile"
+The path name of a file to be used as the log file for the process.  The
+default is to log to STDERR.
+.TP
+.B -v
+Verbose logging.
+.TP
+.B -x
+Debugging information is also emitted.
+.TP
+.B -c
+Create the product queue.  Clobber the old queue if it exists.
+.TP
+.B -n
+Create the product queue.  Exit with an error condition if the queue already
+exists.
+.TP
+.BI \-a " align"
+Align (round up) queue space allocations to \fIalign\fP boundaries.
+.TP
+.B -p
+Align (round up) queue space allocations to the system pagesize.
+.TP
+.BI \-s " initialsz"
+Allocate the data section of the queue to be \fIintialsz\fP size.
+.TP
+.BI \-S " nproducts"
+Allocate initial index space for \fInproduct\fP products.
+.TP
+.B -r
+Open the queue as read only.
+.TP
+.B -P
+Open the queue as private (PQ_PRIVATE).
+.TP
+.B -L
+Open the queue with no locking (PQ_NOLOCK).
+.TP
+.B -F
+Open the queue as a fixed size (PQ_NOGROW).
+.TP
+.B -M
+Open the queue without using mmap() (PQ_NOMAP).
+.TP
+.B -w
+Tells
+.B pqutil
+to run the watch command.  When the watch command is terminated,
+.B pqutil
+will exit.
+
+.SH COMMANDS
+.TP
+.B set \fIoption\fP \fIvalue\fP
+Set the specified option to the specified value.
+.TP
+.B show \fIoption\fP
+Show the value of the specified option.
+.TP
+.B read \fIfilename\fP
+Read a product from the file specified by \fIfilename\fP.  Use a - to specify
+standard input (STDIN).
+.TP
+.B new \fIproduct size\fP
+Set up
+.B pqutil
+to write a multi-part product of \fIproduct size\fP size.  Size is in bytes.
+.TP
+.B put \fIfilename\fP
+Enter a piece of the product started with the new command, reading the piece
+form the file specified by \fIfilename\fP.  Use a - to specify standard input
+(STDIN).
+.TP
+.B write
+Write the product entered using the new and put commands to the product
+queue.
+.TP
+.B discard
+Discard a partially created product (created with the new and put commands).
+.TP
+.B display \fIfilename\fP
+Display products in the queue that match the product class parameters,
+writing the products to the file specified by \fIfilename\fP.  Use a - to
+specifiy standard input (STDIN).
+.TP
+.B watch
+Monitor products as they enter the queue.  This command modifies the to and
+from times in the product class, as well as the cursor time.  This can also
+be run by using the \fI-w\fP switch when starting
+.B pqutil.
+.TP
+.B delete \fItotime\fP
+Delete products in the queue older than \fItotime\fP time, where \fItotime\fP
+is one of [0|NOW|EOT|yyyymmddhhmm].
+.TP
+.B stats
+Write queue usage statistics to the log (STDERR by default).
+.TP
+.B quit
+Exit the
+.B pqutil
+utility.
+
+.SH COMMAND OPTIONS
+.TP
+.B feedtype
+Sets the product class feedtype.  Can be any valid LDM feedtype or feedtype
+expression. (Default is ANY)
+.TP
+.B pattern
+Set the product class pattern.  Can be any valid regular expression.
+(Default is .*)
+.TP
+.B cursor
+Set the queue cursor time.  Can be one of 0 (beginning of time), NOW (current
+time), EOT (end of time), or a time specified in the form yyyymmddhhmm (e.g.
+199510241330). (default is NOW)
+.TP
+.B direction
+Sets the cursor direction.  Can be one of LT (move backwards), EQ (equals
+current cursor time, GT (move forward). (Default is GT)
+.TP
+.B totime
+Set the product class to time.  Can be one of 0 (beginning of time), NOW
+(current time), EOT (end of time), or a time specified in the form
+yyyymmddhhmm (e.g. 199510241330). (Default is EOT)
+.TP
+.B fromtime
+Set the product class from time.  Can be one of 0 (beginning of time),
+NOW (current time), EOT (end of time), or a time specified in the form
+yyyymmddhhmm (e.g. 199510241330).  (Default is 0)
+.TP
+.B arrival
+Set the arrival time in the product information structure.    Can be one of
+0 (beginning of time), NOW (current time), EOT (end of time), or a time
+specified in the form yyyymmddhhmm (e.g. 199510241330).  (Default is NOW)
+.TP
+.B prodftype
+Set the product feedtype in the product information structure.  Can be any
+valid LDM feedtype or feedtype expression.  (Default is EXP)
+.TP
+.B seqno
+Set the sequence number in the product information structure.  Can be any
+positive integrer.  (Default is set at 1 and incremented whenever a product
+is inserted into the queue)
+.TP
+.B origin
+Set the originating hostname in the product information structure.  Can be
+any valid hostname.  (Default is the localhost name)
+.TP
+.B ident
+Set the product ID in the product information structure.  (Default is
+TEST PRODUCT)
+
+.SH "SEE ALSO"
+.LP
+.BR ldmd (1),
+.BR pq (3),
+WWW URL \fBhttp://www.unidata.ucar.edu/software/ldm/\fP.
+
+.SH SUPPORT
+.LP
+If you have problems with this program, then you should first examine the 
+LDM email archive for similar problems and how they were solved.
+The email archive is available via the following World Wide Web URL:
+.sp
+.RS
+\fBhttp://www.unidata.ucar.edu/software/ldm/\fP
+.RE
+.sp
+If this does not suffice and your site is a member of the Unidata 
+program, then send an inquiry via email -- together will all relevant 
+information to
+.sp
+.RS
+\fBsupport@unidata.ucar.edu\fP
+.RE

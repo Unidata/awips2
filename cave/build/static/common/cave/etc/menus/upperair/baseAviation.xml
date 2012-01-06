@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="subMenu" menuText="Aviation">
+		<contribute xsi:type="titleItem" titleText="------ Convection Products ------" />
+		<contribute xsi:type="bundleItem" file="bundles/ConvSigmet.xml"
+			menuText="Convective SIGMET" id="ConvSigmet">
+			<dataURI>/convsigmet/%</dataURI>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/BufrNcwf.xml" menuText="NCWF" id="NCWF">
+			<dataURI>/bufrncwf/%</dataURI>
+		</contribute>
+		<contribute xsi:type="subMenu" menuText="CCFP">
+			<contribute xsi:type="bundleItem" file="bundles/Ccfp.xml" menuText="2 Hour" id="CCFP2HOUR">
+					<dataURI>/ccfp/%</dataURI>
+					<substitute key="validDuration" value="7200"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/Ccfp.xml" menuText="4 Hour" id="CCFP4HOUR">
+					<dataURI>/ccfp/%</dataURI>
+					<substitute key="validDuration" value="14400"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/Ccfp.xml" menuText="6 Hour" id="CCFP6HOUR">
+					<dataURI>/ccfp/%</dataURI>
+					<substitute key="validDuration" value="21600"/>
+			</contribute>		</contribute>
+		<contribute xsi:type="separator" id="separator1"/>
+		
+		<contribute xsi:type="titleItem" titleText="------ Icing Products ------" />
+		<contribute xsi:type="bundleItem" file="bundles/NonConvSigmet.xml" menuText="SIGMET" id="SIGMETICING">
+			<dataURI>/nonconvsigmet/%</dataURI>
+			<substitute key="hazardType" value="ICING"/>
+			<substitute key="color" value="#FFFFFF"/>
+			<substitute key="name" value="Icing SIGMET"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Airmet.xml" menuText="AIRMET" id="AIRMETICING">
+			<dataURI>/airmet/%</dataURI>
+			<substitute key="hazardType" value="ICING"/>
+			<substitute key="color" value="#0000FF"/>
+			<substitute key="name" value="Icing AIRMET"/>
+		</contribute>
+		<contribute xsi:type="separator" id="separator2"/>
+		
+		<contribute xsi:type="titleItem" titleText="------ Turbulence Products ------" />
+		<contribute xsi:type="bundleItem" file="bundles/NonConvSigmet.xml" menuText="SIGMET" id="SIGMETTURB">
+			<dataURI>/nonconvsigmet/%</dataURI>
+			<substitute key="hazardType" value="TURBULENCE"/>
+			<substitute key="color" value="#FF4444"/>
+			<substitute key="name" value="Turbulence SIGMET"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Airmet.xml" menuText="AIRMET" id="AIRMETTURB">
+			<dataURI>/airmet/%</dataURI>
+			<substitute key="hazardType" value="TURBULENCE"/>
+			<substitute key="color" value="#00FF00"/>
+			<substitute key="name" value="Turbulence AIRMET"/>
+		</contribute>
+		<contribute xsi:type="separator" id="separator3"/>
+		
+		<contribute xsi:type="titleItem" titleText="------ Visibility Products ------" />
+		<contribute xsi:type="subMenu" menuText="AIRMET">
+			<contribute xsi:type="bundleItem" file="bundles/Airmet.xml" menuText="IFR" id="AIRMETIFR">
+				<dataURI>/airmet/%</dataURI>
+				<substitute key="hazardType" value="INSTRUMENT FLIGHT RULES"/>
+				<substitute key="color" value="#00FFFF"/>
+				<substitute key="name" value="IFR AIRMET"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/Airmet.xml" menuText="Mtn Obscn" id="AIRMETMTNOBSC">
+				<dataURI>/airmet/%</dataURI>
+				<substitute key="hazardType" value="MOUNTAIN OBSCURATION"/>
+				<substitute key="color" value="#FF0088"/>
+				<substitute key="name" value="Mtn Obscn AIRMET"/>
+			</contribute>
+		</contribute>
+		<contribute xsi:type="separator" id="separator4"/>
+		
+		<contribute xsi:type="titleItem" titleText="------ Tropical Cyclone ------" />
+		<contribute xsi:type="bundleItem" file="bundles/NonConvSigmet.xml" menuText="SIGMET" id="SIGMETTTOPCYCLONE">
+			<dataURI>/nonconvsigmet/%</dataURI>
+			<substitute key="hazardType" value="TROPICAL CYCLONE"/>
+			<substitute key="color" value="#00FFFF"/>
+			<substitute key="name" value="Tropical Cyclone SIGMET"/>
+		</contribute>
+		<contribute xsi:type="separator" id="separator5"/>
+		
+		<contribute xsi:type="titleItem" titleText="------ Volcanic Ash ------" />
+		<contribute xsi:type="bundleItem" file="bundles/NonConvSigmet.xml" menuText="SIGMET" id="SIGMETVOLCANICASH">
+			<dataURI>/nonconvsigmet/%</dataURI>
+			<substitute key="hazardType" value="VOLCANIC ASH CLOUD"/>
+			<substitute key="color" value="#00FF00"/>
+			<substitute key="name" value="Volcanic Ash SIGMET"/>
+		</contribute>
+  		<contribute xsi:type="bundleItem" file="bundles/VAA.xml" menuText="Volcanic Ash Advisories" id="VAA">
+			<dataURI>/vaa/%</dataURI>
+		</contribute>
+		<contribute xsi:type="separator" id="separator6"/>
+		
+		<contribute xsi:type="titleItem" titleText="------Center Weather ------" />
+		<contribute xsi:type="bundleItem" file="bundles/CWA.xml" menuText="Center Weather Advisories" id="cwa">
+			<dataURI>/cwa/%</dataURI>
+		</contribute>
+		<contribute xsi:type="separator" id="separator7"/>
+
+		<contribute xsi:type="titleItem" titleText="------Significant Weather------" />
+		<contribute xsi:type="bundleItem" file="bundles/BufrSigWx.xml" menuText="Medium Level" id="SigWxMedium">
+			<dataURI>/bufrsigwx/%/SWM/%</dataURI>
+			<substitute key="wxLayer" value="SWM"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/BufrSigWx.xml" menuText="High Level" id="SigWxHigh">
+			<dataURI>/bufrsigwx/%/SWH/%</dataURI>
+			<substitute key="wxLayer" value="SWH"/>
+		</contribute>
+	</contribute>
+	<contribute xsi:type="separator" id="separator8"/>
+</menuTemplate>

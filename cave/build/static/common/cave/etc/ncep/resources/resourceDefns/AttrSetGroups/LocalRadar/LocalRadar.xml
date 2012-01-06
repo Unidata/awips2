@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AttrSetGroupList xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <AttrSetGroup>
+        <resource>LCL</resource>
+        <attrSetGroupName>ALL</attrSetGroupName>
+        <attrSetNames>BREF1_1.00,BREF2_1.00,BREF3_1.00,BREF4_1.00,BREF5_1.00,BREF6_1.00,CREFP_4.00,RCM_0.00,SRVEL1_1.00,SRVEL2_1.00,SRVEL3_1.00,SRVEL4_1.00,SRVEL5_1.00,SRVEL6_1.00,TOPS_1.00,VEL1_1.00,VEL2_1.00,VEL3_1.00,VEL4_1.00,VEL5_1.00,VEL6_1.00,VIL_1.00</attrSetNames>
+    </AttrSetGroup>
+</AttrSetGroupList>

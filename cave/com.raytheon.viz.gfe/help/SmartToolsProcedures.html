@@ -1,0 +1,200 @@
+<html>
+<title>GFESuite Documentation - Smart Tools</title>
+<body>
+<h1 align=center>Smart Tools Procedures</h1>
+<!-- Leave this comment for formatting purposes -->
+<a href="#ExecuteSS">Executing
+Procedures</a> <br>
+<a href="#ExProc1">Exercise Procedure-1 -- Creating
+a Procedure</a> <br>
+<a href="#ExProc2">Exercise Procedure-2 -- Using
+the Smart Script Library from a Procedure</a> <br>
+<a href="#ExProc3">Exercise Procedure-3 -- Running
+Procedures in the Background</a>
+<!-- Leave this comment for formatting purposes -->
+<hr width="100%">
+<h1 class="2Heading">
+<a name="SS"></a><u><font size="+4">Procedures</font></u></h1>
+<img width="487" height="5" src="images/SmartTools-1.gif">
+<div class="Body">Once we have a set of Smart Tools, it is natural to
+want
+to execute related tools together in succession and to perform other
+operations
+such as copying, creating, and interpolating grids. For this, we have
+Procedures.
+The following diagram depicts the Procedure architecture within the
+GFESuite
+software. It shows Procedures as a sequence of commands which modify
+the
+Forecast database. Like Smart Tools, these commands are written in
+Python,
+but operate at a higher level through the Smart Script Library to copy
+the Forecast database from models, interpolate grids, and call Smart
+Tools.
+The GFESuite software locates the procedure, sets up information to be
+passed to it, and invokes it. Procedures can be run from the GFE or in
+background mode.
+<br>
+&nbsp;
+<div class="Body"><img width="1200" height="800"
+ src="images/SmartTools-9.jpg"></div>
+<p><br>
+Using procedures you can:</p>
+</div>
+<ul>
+  <li class="Bullet-List">Copy grids from a model into your forecast</li>
+  <li class="Bullet-List">Remove grids from the forecast</li>
+  <li class="Bullet-List">Interpolate gaps in your forecast</li>
+  <li class="Bullet-List">Assign the default value to a set of grids</li>
+  <li class="Bullet-List">Create grids from scratch</li>
+  <li class="Bullet-List">TimeShift grids of your choice</li>
+  <li class="Bullet-List">Call Smart Tools</li>
+  <li class="Bullet-List">Call other Procedures</li>
+</ul>
+</div>
+<h3 class="3Heading">
+<a name="ExecuteSS"></a>Executing Procedures</h3>
+<div class="Body">Procedures can be set up to appear under various menu
+items on the GFE Main Menu.&nbsp; Keep in mind that you can make a
+procedure
+that can take several minutes to complete, particularly if it includes
+a lot of interpolation.</div>
+<div class="Step-First">
+<ol>
+  <li>Try executing the QPF_SnowAmt Procedure which appears under&nbsp;
+Main
+Menu --&gt; Edit and runs the QPF_SmartTool followed by the
+SnowAmt_SmartTool.</li>
+</ol>
+</div>
+NOTE: Procedures can be run in background mode from the command line.
+For
+instructions, see the <a href="runProcedure.html">runProcedure</a>
+documentation
+and <a href="#ExProc3">Exercise Procedure-3</a> below.
+<h3 class="3Heading"><a name="ExProc1"></a>Exercise Procedure-1 --
+Creating a Procedure</h3>
+<div class="Body">For the following exercise, choose two or more tools
+from the Smart Tool list you would like to run in sequence. One
+possibility
+would be to run the Assign_Value tool followed by the Smooth tool.</div>
+<div class="Step-First">
+<ol>
+  <li>Choose Main Menu--&gt;Populate--&gt;Define Procedures. From the
+MB3
+Pop-up in
+the Procedures Window, choose New....</li>
+  <li>Enter a Name for your Procedure.</li>
+  <li>Select OK. A Python Editor window will appear with the Procedure
+template.</li>
+  <li>The MenuItems list defines the GFE menu item(s) under which the
+Procedure
+is to appear. Possible items are: Populate, Edit, Consistency,
+Verify, and Hazards.&nbsp;
+Set up the MenuItems list, perhaps listing "Edit" as the item under
+which
+you want your procedure to appear.</li>
+  <li>Make sure the Tools you want to run in your procedure (if any)
+appear
+in
+the proper order in the Tool List. Specify the weather element to be
+modified
+by the tool. If you want the tool to modify the active element,
+whatever
+it may be, enter "variableElement" for the element name. This is likely
+to be your choice for tools like Assign_Value or Smooth.</li>
+  <li>Save the Python file and run your Procedure.</li>
+</ol>
+</div>
+<div class="Body">Note: If any of the tools in your procedure need
+user-supplied
+variables, the system will automatically ask the user for them when
+your
+procedure is run. Procedures can be simple or extremely powerful
+because
+of the availability of the Smart Script Class library. (<a
+ href="SmartScriptClass.html">See
+the section describing this library</a> )
+<p><a href="#AnswerProc1">Click here for Answer to Exercise Procedure-1.</a>
+</p>
+<h3 class="3Heading"><a name="ExProc2"></a>Exercise Procedure-2 --
+Using the SmartScript Library
+from a Procedure</h3>
+<div class="Body">The Smart Script library contains methods for
+"procedure-type"
+commands which allow you to copy data from models, create grids from
+scratch
+and perform interpolattion,&nbsp; as well as methods for calling Smart
+Tools.&nbsp; In this exercise, we'll create a Procedure to call some of
+these commands.
+<blockquote><li>Study the SmartScript Libary commands:&nbsp; <a
+ href="SmartScriptClass.html#copyCmd">copyCmd</a>, <a
+ href="SmartScriptClass.html#createFromScratchCmd">createFromScratchCmd</a>,
+    <a href="SmartScriptClass.html#getDatabase">getDatabase</a>,
+and <a href="SmartScriptClass.html#createTimeRange">createTimeRange</a>.</li>
+  <li>Study the SmartScript Library section on "<a
+ href="SmartScriptClass.html#Calls">Calling
+Smart Tools and Procedures</a><a href="SmartScriptClass.html#Proc">.</a>"</li>
+  <li>From the Define Procedures Dialog Procedures Window, select
+MB3--&gt;New.</li>
+  <li>Name your Procedure and select OK.</li>
+  <li>Include a VariableList with a "model" field for the user to
+select
+an IFP input model.</li>
+  <li>Use the SmartScript Library commands: getDatabase,
+createTimeRange,
+copyCmd,
+createFromScratchCmd, and callSmartTool to:</li>
+  <ul>
+    <li>Create a databaseID for the chosen model,</li>
+    <li>Create a time range based on the model (perhaps the first 12
+hours),</li>
+    <li>Copy the grids from the model for the new time range,</li>
+    <li>Create 1-hour T grids every 3 hours over the new time range,</li>
+    <li>Run the Smart Tool from Exercise SmartScript-4 over the new
+time range,
+interpolating for missing data by setting the&nbsp; <a
+ href="GFEMainMenu.html#MissingDataMode">Missing
+Data Mode</a>.&nbsp; Pass the varDict from the Procedure to the Smart
+Tool
+in the "callSmartTool" command so that the VariableList dialog does not
+appear twice. For this to work, make sure that the VariableList model
+field
+has the same name as that in the Smart Tool.</li>
+  </ul>
+  <li>Run and test your Procedure to make sure it works.&nbsp;&nbsp;
+Note
+that
+the Procedure could take some time to execute since the Smart Tool is
+being
+called over a time range of grids.&nbsp; You can notice the progress of
+execution in the <a href="StatusBar.html#ProgressBar">Progress Bar</a>.
+Also, if you are running the GFE from a terminal window, you will see
+status
+messages appear in the window.</li>
+</blockquote>
+<a href="#AnswerProc2">Click here for Answer to Exercise Procedure-2.</a></div>
+</div>
+<div class="Body">&nbsp;</div>
+</div>
+<h3 class="3Heading">
+<a name="ExProc3"></a>Exercise Procedure-3 -- Running Procedures in the
+Background</h3>
+<div class="Body">Procedures which are routine or take time to execute
+can be run in background mode. This exercise will show you how to do
+this.
+<blockquote><li>Study the documentation and example for the <a
+ href="runProcedure.html">runProcedure</a>
+command.</li>
+  <li>Run your the procedure of Exercise Procedure-1 from the command
+line
+using
+the "runProcedure" command.&nbsp; Note you will need to specify an edit
+area and a time range.&nbsp; Also, since you will be running the
+Procedure
+outside the context of the GFE,&nbsp; you will have to reference
+specific
+weather elements instead of "variableElement" in your ToolList.</li>
+</blockquote>
+<a href="#AnswerProc3">Click here for Answer to Exercise Procedure-3.</a></div>
+</div>

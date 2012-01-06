@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  	<contribute xsi:type="bundleItem" file="bundles/hydro/FFGLmosaic.xml"
+		menuText="1hr FFG Mosaic" id="1hrFFG">
+		<dataURI>/grib/%/FFG0124hr/%</dataURI>
+		<substitute key="timespan" value="FFG0124hr"/>
+	    <substitute key="type" value="FFG-"/>
+	    <substitute key="name" value="RFC 1hr FFG Mosaic"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/hydro/FFGLmosaic.xml"
+		menuText="3hr FFG Mosaic" id="3hrFFG">
+		<dataURI>/grib/%/FFG0324hr/%</dataURI>
+		<substitute key="timespan" value="FFG0324hr"/>
+	    <substitute key="type" value="FFG-"/>
+	    <substitute key="name" value="RFC 3hr FFG Mosaic"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/hydro/FFGLmosaic.xml"
+		menuText="6hr FFG Mosaic" id="6hrFFG">
+		<dataURI>/grib/%/FFG0624hr/%</dataURI>
+		<substitute key="timespan" value="FFG0624hr"/>
+	    <substitute key="type" value="FFG-"/>
+	    <substitute key="name" value="RFC 6hr FFG Mosaic"/>
+	</contribute>
+	<contribute xsi:type="subMenu" menuText="RFC Images" id="RFCImgMenu">
+		<contribute xsi:type="subMenu" menuText="ABRFC" id="ABRFCMenu">
+		  	<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+		  		menuText="1hr FFG" id="AB1hrFFG">
+				<dataURI>/grib/%/FFG-TUA/FFG0124hr/%</dataURI>
+				<substitute key="timespan" value="FFG0124hr"/>
+				<substitute key="model" value="FFG-TUA"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+				menuText="3hr FFG" id="AB3hrFFG">
+				<dataURI>/grib/%/FFG-TUA/FFG0324hr/%</dataURI>
+				<substitute key="timespan" value="FFG0324hr"/>
+	    		<substitute key="model" value="FFG-TUA"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+				menuText="6hr FFG" id="AB6hrFFG">
+				<dataURI>/grib/%/FFG-TUA/FFG0624hr/%</dataURI>
+				<substitute key="timespan" value="FFG0624hr"/>
+	    		<substitute key="model" value="FFG-TUA"/>
+			</contribute>
+		</contribute>
+		<contribute xsi:type="subMenu" menuText="AKRFC" id="AKRFCMenu">
+		  	<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+		  		menuText="1hr FFG" id="AK1hrFFG">
+				<dataURI>/grib/%/FFG-ACR/FFG0124hr/%</dataURI>
+				<substitute key="timespan" value="FFG0124hr"/>
+				<substitute key="model" value="FFG-ACR"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+				menuText="3hr FFG" id="AK3hrFFG">
+				<dataURI>/grib/%/FFG-ACR/FFG0324hr/%</dataURI>
+				<substitute key="timespan" value="FFG0324hr"/>
+	    		<substitute key="model" value="FFG-ACR"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+				menuText="6hr FFG" id="AK6hrFFG">
+				<dataURI>/grib/%/FFG-ACR/FFG0624hr/%</dataURI>
+				<substitute key="timespan" value="FFG0624hr"/>
+	    		<substitute key="model" value="FFG-ACR"/>
+			</contribute>
+		</contribute>
+		<contribute xsi:type="subMenu" menuText="CBRFC" id="CBRFCMenu">
+		  	<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+		  		menuText="1hr FFG" id="CB1hrFFG">
+				<dataURI>/grib/%/FFG-STR/FFG0124hr/%</dataURI>
+				<substitute key="timespan" value="FFG0124hr"/>
+				<substitute key="model" value="FFG-STR"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+				menuText="3hr FFG" id="CB3hrFFG">
+				<dataURI>/grib/%/FFG-STR/FFG0324hr/%</dataURI>
+				<substitute key="timespan" value="FFG0324hr"/>
+	    		<substitute key="model" value="FFG-STR"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+				menuText="6hr FFG" id="CB6hrFFG">
+				<dataURI>/grib/%/FFG-STR/FFG0624hr/%</dataURI>
+				<substitute key="timespan" value="FFG0624hr"/>
+	    		<substitute key="model" value="FFG-STR"/>
+			</contribute>
+		</contribute>
+		<contribute xsi:type="subMenu" menuText="CNRFC" id="CNRFCMenu">
+		  	<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+		  		menuText="1hr FFG" id="CN1hrFFG">
+				<dataURI>/grib/%/FFG-RSA/FFG0124hr/%</dataURI>
+				<substitute key="timespan" value="FFG0124hr"/>
+				<substitute key="model" value="FFG-RSA"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+				menuText="3hr FFG" id="CN3hrFFG">
+				<dataURI>/grib/%/FFG-RSA/FFG0324hr/%</dataURI>
+				<substitute key="timespan" value="FFG0324hr"/>
+	    		<substitute key="model" value="FFG-RSA"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+				menuText="6hr FFG" id="CN6hrFFG">
+				<dataURI>/grib/%/FFG-RSA/FFG0624hr/%</dataURI>
+				<substitute key="timespan" value="FFG0624hr"/>
+	    		<substitute key="model" value="FFG-RSA"/>
+			</contribute>
+		</contribute>
+		<contribute xsi:type="subMenu" menuText="LMRFC" id="LMRFCMenu">
+		  	<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+		  		menuText="1hr FFG" id="LM1hrFFG">
+				<dataURI>/grib/%/FFG-ORN/FFG0124hr/%</dataURI>
+				<substitute key="timespan" value="FFG0124hr"/>
+				<substitute key="model" value="FFG-ORN"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+				menuText="3hr FFG" id="LM3hrFFG">
+				<dataURI>/grib/%/FFG-ORN/FFG0324hr/%</dataURI>
+				<substitute key="timespan" value="FFG0324hr"/>
+	    		<substitute key="model" value="FFG-ORN"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+				menuText="6hr FFG" id="LM6hrFFG">
+				<dataURI>/grib/%/FFG-ORN/FFG0624hr/%</dataURI>
+				<substitute key="timespan" value="FFG0624hr"/>
+	    		<substitute key="model" value="FFG-ORN"/>
+			</contribute>
+		</contribute>
+		<contribute xsi:type="subMenu" menuText="MARFC" id="MARFCMenu">
+		  	<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+		  		menuText="1hr FFG" id="MA1hrFFG">
+				<dataURI>/grib/%/FFG-RHA/FFG0124hr/%</dataURI>
+				<substitute key="timespan" value="FFG0124hr"/>
+				<substitute key="model" value="FFG-RHA"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+				menuText="3hr FFG" id="MA3hrFFG">
+				<dataURI>/grib/%/FFG-RHA/FFG0324hr/%</dataURI>
+				<substitute key="timespan" value="FFG0324hr"/>
+	    		<substitute key="model" value="FFG-RHA"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+				menuText="6hr FFG" id="MA6hrFFG">
+				<dataURI>/grib/%/FFG-RHA/FFG0624hr/%</dataURI>
+				<substitute key="timespan" value="FFG0624hr"/>
+	    		<substitute key="model" value="FFG-RHA"/>
+			</contribute>
+		</contribute>
+		<contribute xsi:type="subMenu" menuText="MBRFC" id="MBRFCMenu">
+		  	<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+		  		menuText="1hr FFG" id="MB1hrFFG">
+				<dataURI>/grib/%/FFG-KRF/FFG0124hr/%</dataURI>
+				<substitute key="timespan" value="FFG0124hr"/>
+				<substitute key="model" value="FFG-KRF"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+				menuText="3hr FFG" id="MB3hrFFG">
+				<dataURI>/grib/%/FFG-KRF/FFG0324hr/%</dataURI>
+				<substitute key="timespan" value="FFG0324hr"/>
+	    		<substitute key="model" value="FFG-KRF"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+				menuText="6hr FFG" id="MB6hrFFG">
+				<dataURI>/grib/%/FFG-KRF/FFG0624hr/%</dataURI>
+				<substitute key="timespan" value="FFG0624hr"/>
+	    		<substitute key="model" value="FFG-KRF"/>
+			</contribute>
+		</contribute>
+		<contribute xsi:type="subMenu" menuText="NCRFC" id="NCRFCMenu">
+		  	<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+		  		menuText="1hr FFG" id="NC1hrFFG">
+				<dataURI>/grib/%/FFG-MSR/FFG0124hr/%</dataURI>
+				<substitute key="timespan" value="FFG0124hr"/>
+				<substitute key="model" value="FFG-MSR"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+				menuText="3hr FFG" id="NC3hrFFG">
+				<dataURI>/grib/%/FFG-MSR/FFG0324hr/%</dataURI>
+				<substitute key="timespan" value="FFG0324hr"/>
+	    		<substitute key="model" value="FFG-MSR"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+				menuText="6hr FFG" id="NC6hrFFG">
+				<dataURI>/grib/%/FFG-MSR/FFG0624hr/%</dataURI>
+				<substitute key="timespan" value="FFG0624hr"/>
+	    		<substitute key="model" value="FFG-MSR"/>
+			</contribute>
+		</contribute>
+		<contribute xsi:type="subMenu" menuText="NERFC" id="NERFCMenu">
+		  	<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+		  		menuText="1hr FFG" id="NE1hrFFG">
+				<dataURI>/grib/%/FFG-TAR/FFG0124hr/%</dataURI>
+				<substitute key="timespan" value="FFG0124hr"/>
+				<substitute key="model" value="FFG-TAR"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+				menuText="3hr FFG" id="NE3hrFFG">
+				<dataURI>/grib/%/FFG-TAR/FFG0324hr/%</dataURI>
+				<substitute key="timespan" value="FFG0324hr"/>
+	    		<substitute key="model" value="FFG-TAR"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+				menuText="6hr FFG" id="NE6hrFFG">
+				<dataURI>/grib/%/FFG-TAR/FFG0624hr/%</dataURI>
+				<substitute key="timespan" value="FFG0624hr"/>
+	    		<substitute key="model" value="FFG-TAR"/>
+			</contribute>
+		</contribute>
+		<contribute xsi:type="subMenu" menuText="NWRFC" id="NWRFCMenu">
+		  	<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+		  		menuText="1hr FFG" id="NW1hrFFG">
+				<dataURI>/grib/%/FFG-PTR/FFG0124hr/%</dataURI>
+				<substitute key="timespan" value="FFG0124hr"/>
+				<substitute key="model" value="FFG-PTR"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+				menuText="3hr FFG" id="NW3hrFFG">
+				<dataURI>/grib/%/FFG-PTR/FFG0324hr/%</dataURI>
+				<substitute key="timespan" value="FFG0324hr"/>
+	    		<substitute key="model" value="FFG-PTR"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+				menuText="6hr FFG" id="NW6hrFFG">
+				<dataURI>/grib/%/FFG-PTR/FFG0624hr/%</dataURI>
+				<substitute key="timespan" value="FFG0624hr"/>
+	    		<substitute key="model" value="FFG-PTR"/>
+			</contribute>
+		</contribute>
+		<contribute xsi:type="subMenu" menuText="OHRFC" id="OHRFCMenu">
+		  	<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+		  		menuText="1hr FFG" id="OH1hrFFG">
+				<dataURI>/grib/%/FFG-TIR/FFG0124hr/%</dataURI>
+				<substitute key="timespan" value="FFG0124hr"/>
+				<substitute key="model" value="FFG-TIR"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+				menuText="3hr FFG" id="OH3hrFFG">
+				<dataURI>/grib/%/FFG-TIR/FFG0324hr/%</dataURI>
+				<substitute key="timespan" value="FFG0324hr"/>
+	    		<substitute key="model" value="FFG-TIR"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+				menuText="6hr FFG" id="OH6hrFFG">
+				<dataURI>/grib/%/FFG-TIR/FFG0624hr/%</dataURI>
+				<substitute key="timespan" value="FFG0624hr"/>
+	    		<substitute key="model" value="FFG-TIR"/>
+			</contribute>
+		</contribute>
+		<contribute xsi:type="subMenu" menuText="SERFC" id="SERFCMenu">
+		  	<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+		  		menuText="1hr FFG" id="SE1hrFFG">
+				<dataURI>/grib/%/FFG-ALR/FFG0124hr/%</dataURI>
+				<substitute key="timespan" value="FFG0124hr"/>
+				<substitute key="model" value="FFG-ALR"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+				menuText="3hr FFG" id="SE3hrFFG">
+				<dataURI>/grib/%/FFG-ALR/FFG0324hr/%</dataURI>
+				<substitute key="timespan" value="FFG0324hr"/>
+	    		<substitute key="model" value="FFG-ALR"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+				menuText="6hr FFG" id="SE6hrFFG">
+				<dataURI>/grib/%/FFG-ALR/FFG0624hr/%</dataURI>
+				<substitute key="timespan" value="FFG0624hr"/>
+	    		<substitute key="model" value="FFG-ALR"/>
+			</contribute>
+		</contribute>
+		<contribute xsi:type="subMenu" menuText="WGRFC" id="WGRFCMenu">
+		  	<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+		  		menuText="1hr FFG" id="WG1hrFFG">
+				<dataURI>/grib/%/FFG-FWR/FFG0124hr/%</dataURI>
+				<substitute key="timespan" value="FFG0124hr"/>
+				<substitute key="model" value="FFG-FWR"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+				menuText="3hr FFG" id="WG3hrFFG">
+				<dataURI>/grib/%/FFG-FWR/FFG0324hr/%</dataURI>
+				<substitute key="timespan" value="FFG0324hr"/>
+	    		<substitute key="model" value="FFG-FWR"/>
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/hydro/FFGmosaic.xml"
+				menuText="6hr FFG" id="WG6hrFFG">
+				<dataURI>/grib/%/FFG-FWR/FFG0624hr/%</dataURI>
+				<substitute key="timespan" value="FFG0624hr"/>
+	    		<substitute key="model" value="FFG-FWR"/>
+			</contribute>
+		</contribute>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/FFGCounty.xml"
+		menuText="County FFG" id="CntyFFG">
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/FFGZone.xml"
+		menuText="Zone FFG" id="ZnFFG">
+	</contribute>
+</menuTemplate>

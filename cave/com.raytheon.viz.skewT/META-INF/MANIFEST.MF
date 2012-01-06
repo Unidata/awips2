@@ -1,0 +1,33 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: SkewT Plug-in
+Bundle-SymbolicName: com.raytheon.viz.skewt;singleton:=true
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Activator: com.raytheon.viz.skewt.Activator
+Bundle-Vendor: Raytheon
+Eclipse-RegisterBuddy: com.raytheon.viz.core, org.geotools, com.raytheon.uf.common.serialization
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ com.raytheon.viz.core,
+ com.raytheon.viz.ui,
+ org.geotools,
+ com.raytheon.viz.core.graphing,
+ javax.measure,
+ com.raytheon.edex.meteolib,
+ org.apache.commons.lang;bundle-version="2.3.0",
+ com.raytheon.uf.viz.xy;bundle-version="1.11.31",
+ com.raytheon.uf.common.sounding;bundle-version="1.0.0"
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.viz.skewt,
+ com.raytheon.viz.skewt.mockdata,
+ com.raytheon.viz.skewt.mouse,
+ com.raytheon.viz.skewt.rsc,
+ com.raytheon.viz.skewt.rscdata,
+ com.raytheon.viz.skewt.ui
+Import-Package: com.raytheon.uf.common.dataplugin.grib,
+ com.raytheon.uf.viz.d2d.core,
+ com.raytheon.uf.viz.d2d.core.legend,
+ com.raytheon.uf.viz.d2d.core.time,
+ com.raytheon.uf.viz.sounding,
+ com.raytheon.uf.viz.sounding.adapters
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

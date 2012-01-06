@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-ManifestVersion: 2
+Bundle-Name: Qpid JMX Management Console Plug-in
+Bundle-SymbolicName: org.apache.qpid.management.ui; singleton:=true
+Bundle-Version: 0.6.0
+Bundle-Activator: org.apache.qpid.management.ui.Activator
+Bundle-Vendor: Apache Software Foundation
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.ui.forms,
+ qpid-management-common,
+ org.apache.commons.codec;bundle-version="1.3.0"
+Eclipse-LazyStart: true
+Export-Package: org.apache.qpid.management.ui,
+ org.apache.qpid.management.ui.actions,
+ org.apache.qpid.management.ui.exceptions,
+ org.apache.qpid.management.ui.jmx,
+ org.apache.qpid.management.ui.model,
+ org.apache.qpid.management.ui.sasl,
+ org.apache.qpid.management.ui.views

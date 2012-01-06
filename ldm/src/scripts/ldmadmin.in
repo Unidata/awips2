@@ -1,0 +1,1355 @@
+#!@PERL@
+#
+# $Id: ldmadmin.in,v 1.86.2.3.2.2.2.17.2.43 2009/07/30 21:23:33 steve Exp $
+#
+# File:         ldmadmin
+#
+# Copyright 1995 University Corporation for Atmospheric Research
+# See ../COPYRIGHT file for copying and redistribution conditions.
+#
+# Description: This perl script provides a command line interface to LDM
+#  programs.
+#
+# Files:
+#
+#  $LDMHOME/ldm.pid          file containing process group ID
+#  $LDMHOME/.ldmadmin.lck    lock file for operations that modify the LDM
+#  $LDMHOME/.[0-9a-f]*.info  product-information of the last, successfuly-
+#                            received data-product
+###############################################################################
+
+###############################################################################
+# DEFAULT CONFIGURATION SECTION
+###############################################################################
+if (! $ENV{'LDMHOME'}) {
+    $ENV{'LDMHOME'} = "$ENV{'HOME'}";
+}
+$configurationFilePath = "$ENV{'LDMHOME'}/etc/ldmadmin-pl.conf";
+
+###############################################################################
+# END OF DEFAULT CONFIGURATION
+###############################################################################
+srand;	# called once at start
+
+# Some parameters used by this script:
+$progname = "ldmadmin";
+$log_hours = 24;
+$feedset = "ANY";
+chop($os = `uname -s`);
+chop($release = `uname -r`);
+my($begin) = 19700101;
+my($end) = 30000101;
+
+# we want a flush after every print statement
+$| = 1;
+
+# Get the command. Error if no command specified.
+$_ = $ARGV[0];
+shift;
+$command = $_;
+if (!$command) {
+    print_usage();
+    exit 1;
+}
+
+$line_prefix = "";
+$pqact_conf_option = 0;
+
+# Read the standard configuration-file.
+#
+require $configurationFilePath;
+
+while ($_ = $ARGV[0]) {
+    shift;
+    /^([a-z]|[A-Z]|\/)/ && ($ldmd_conf = $_);
+    /^-b/ && ($begin = shift);
+    /^-e/ && ($end = shift);
+    /^-q/ && ($q_path = shift);
+    /^-s/ && ($q_size = shift);
+    if (/^-C/) {
+	$configurationFilePath = shift;
+	require $configurationFilePath;
+    }
+    /^-c/ && $pq_clobber++;
+    /^-f/ && $pq_fast++;
+    /^-v/ && $verbose++;
+    /^-x/ && ($debug++, $verbose++);
+    /^-M/ && ($max_clients = shift);
+    /^-m/ && ($max_latency = shift);
+    /^-n/ && ($numlogs = shift);
+    /^-o/ && ($offset = shift);
+    /^-P/ && ($port = shift);
+    /^-l/ && ($log_file = shift);
+    /^-t/ && ($log_hours = shift);
+    /^-f/ && ($feedset = shift);
+    /^-p/ && ($pqact_conf = shift, $pqact_conf_option = 1);
+}
+
+# Check the hostname for a fully-qualified version.
+#
+if ($hostname !~ /\./) {
+    bad_exit("The LDM-hostname is not fully-qualified.  " . 
+	"Manually edit the \"$hostname\" variable in the ldmadmin(1) ".
+	"configuration-file, $configurationFilePath.");
+}
+
+# Change the current working directory to the home directory.  This will prevent
+# core files from being created all over the place.
+#
+chdir $ldmhome;
+
+# Ensure that some environment variables are set.
+$ENV{'LDMHOSTNAME'} = "$hostname";
+$ENV{'PATH'} = "$bin_path:$ENV{'PATH'}";
+
+#
+# process the command request
+#
+if ($command eq "start") {	# start the ldm
+    checkTime();
+    $status = start_ldm();
+}
+elsif ($command eq "stop") {	# stop the ldm
+    $status = stop_ldm();
+    checkTime();
+}
+elsif ($command eq "restart") {	# restart the ldm
+    $status = stop_ldm();
+    checkTime();
+    if (!$status) {
+	$status = start_ldm();
+    }
+}
+elsif ($command eq "mkqueue") {	# create a product queue using pqcreate(1)
+    $status = make_pq();
+    checkTime();
+}
+elsif ($command eq "delqueue") { # delete a product queue
+    $status = delete_pq();
+    if ($status == 0 && $delete_info_files) {
+	unlink <.*.info>;
+    }
+    checkTime();
+}
+elsif ($command eq "mksurfqueue") { # create a product queue for pqsurf(1)
+    $status = make_surf_pq();
+    checkTime();
+}
+elsif ($command eq "delsurfqueue") { # delete a pqsurf product queue
+    $status = del_surf_pq();
+    checkTime();
+}
+elsif ($command eq "newlog") {	# rotate the log files
+    make_lockfile();
+    $status = new_log();
+    rm_lockfile();
+    checkTime();
+}
+elsif ($command eq "scour") {	# scour data directories
+    system("scour $scour_file");
+    $status = $?;
+    checkTime(0);
+}
+elsif ($command eq "isrunning") { # check if the ldm is running
+    $status = !isRunning();
+    checkTime(0);
+}
+elsif ($command eq "check") {	# analyze the log files
+    system("$bin_path/ldmcheck -d $log_path");
+    checkTime(0);
+}
+elsif ($command eq "watch") {	# monitor incoming products
+    if (!isRunning()) {
+	bad_exit("There is no LDM server running");
+    }
+    system("$bin_path/pqutil -r -f \"$feedset\" -w $pq_path");
+    checkTime(0);
+}
+elsif ($command eq "pqactcheck") {	# check pqact file for errors
+    $status = !are_pqact_confs_ok();
+    checkTime();
+}
+elsif ($command eq "pqactHUP") {	# HUP pqact 
+    ldmadmin_pqactHUP();
+    checkTime();
+}
+elsif ($command eq "queuecheck") {	# check queue for corruption 
+    if (isRunning()) {
+	bad_exit("queuecheck: The LDM system is running. queuecheck aborted");
+    }
+    $status = !isProductQueueOk();
+    checkTime(0);
+}
+elsif ($command eq "config") {	# show the ldm configuration
+    $status = ldm_config();
+    checkTime();
+}
+elsif ($command eq "log") {	# do a more on the logfile
+    system("more","$log_file");
+    $status = $?;
+    checkTime(0);
+}
+elsif ($command eq "tail") {	# do a tail -f on the logfile
+    system("tail","-f","$log_file");
+    $status = $?;
+    checkTime(0);
+}
+elsif ($command eq "clean") {	# rm lockfile and PID-file
+    if (isRunning()) {
+	errmsg("The LDM system is running!  Stop it first.");
+	$status = 1;
+    }
+    elsif (system("rm -f $lock_file")) {
+	errmsg("Couldn't remove ldmadmin(1) lock-file \"$lock_file\"");
+	$status = 2;
+    }
+    elsif (system("rm -f $pid_file")) {
+	errmsg("Couldn't remove PID-file \"$pid_file\"");
+	$status = 3;
+    }
+    else {
+	$status = 0;
+    }
+    checkTime(0);
+}
+elsif ($command eq "checktime") {
+    print "Checking accuracy of system clock ... ";
+    $check_time = 1;
+    if (checkTime(0)) {
+	print "OK\n";
+    }
+    else {
+	$status = 1;
+    }
+}
+elsif ($command eq "printmetrics") {
+    $status = printMetrics();
+    checkTime();
+}
+elsif ($command eq "addmetrics") {
+    $status = system("ldmadmin printmetrics >>$metrics_file");
+}
+elsif ($command eq "plotmetrics") {
+    $status = plotMetrics();
+    checkTime();
+}
+elsif ($command eq "newmetrics") {
+    $status = system("newlog $metrics_file $num_metrics");
+    checkTime();
+}
+elsif ($command eq "usage") {	# print usage message
+    print_usage();
+    $status = 0;
+    checkTime();
+}
+else {				# bad command
+    errmsg("Unknown command: \"$command\"");
+    print_usage();
+    $status = 1;
+}
+#
+# that's all folks
+#
+exit $status;
+
+###############################################################################
+# bad_exit error routine.  Writes error to both stderr and via syslogd.
+###############################################################################
+
+sub bad_exit
+{
+    my($err_str) = @_;
+    my($date_str) = get_date();
+
+# remove the lockfile if it exists
+    if (-e $lock_file) {
+	rm_lockfile();
+    }
+# output to standard error
+    errmsg("$date_str $hostname $progname[$<]: $err_str");
+
+# exit with extreme prejudice
+    exit 1;
+}
+
+###############################################################################
+# Date Routine.  Gets data and time as GMT in the same format as the LDM log
+# file.
+###############################################################################
+
+sub get_date
+{
+    @month_array = (Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec);
+ 
+    my($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =
+        gmtime(time());
+ 
+    my($date_string) =
+        sprintf("%s %d %02d:%02d:%02d UTC", $month_array[$mon], $mday,
+                $hour, $min,$sec);
+ 
+    return $date_string;
+}
+
+###############################################################################
+# Print a usage message and exit.  Should only be called when the command is
+# usage, or command line arguments are bad or missing.
+###############################################################################
+
+sub print_usage
+{
+    print "Usage: $progname command [options] [conf_file]";
+    print "\n\ncommands:";
+    print "\n\tstart [-v] [-x] [-m maxLatency] [-o offset] [-q q_path] [-M max_clients]\n" .
+	"\t\t\t\t\t\tStart the LDM";
+    print "\n\tstop\t\t\t\t\tStop the LDM";
+    print "\n\trestart [-v] [-x] [-m maxLatency] [-o offset] [-q q_path] [-M max_clients]\n" .
+	"\t\t\t\t\t\tRestart a running LDM";
+    print "\n\tmkqueue [-v] [-x] [-c] [-f] [-q q_path]\n" .
+	"\t\t\t\t\t\tCreate a product queue";
+    print "\n\tdelqueue [-q q_path]\t\t\tDelete a product queue";
+    print "\n\tmksurfqueue [-v] [-x] [-c] [-f] [-q q_path]\n" .
+	"\t\t\t\t\t\tCreate a product queue for \n" .
+	"\t\t\t\t\t\t  pqsurf";
+    print "\n\tdelsurfqueue [-q q_path]\t\tDelete a pqsurf product queue";
+    print "\n\tnewlog [-n numlogs] [-l logfile]\tRotate a log file";
+    print "\n\tscour\t\t\t\t\tScour data directories";
+    print "\n\tisrunning\t\t\t\tExit status 0 if LDM is running,";
+    print "\n\t\t\t\t\t\t  else exit 1";
+    print "\n\tpqactcheck [-p pqact_conf]\t\tCheck syntax for pqact files";
+    print "\n\tpqactHUP\t\t\t\tSend HUP signal to pqact program";
+    print "\n\tqueuecheck\t\t\t\tCheck for queue corruption";
+    print "\n\twatch [-f feedpat]\t\t\tMonitor incoming products";
+    print "\n\tconfig\t\t\t\t\tPrint LDM configuration";
+    print "\n\tlog\t\t\t\t\tPage through the LDM log file";
+    print "\n\ttail\t\t\t\t\tMonitor the LDM log file";
+    print "\n\tchecktime\t\t\t\tChecks the system clock";
+    print "\n\tclean\t\t\t\t\tRemoves lock and pid files";
+    print "\n\tprintmetrics\t\t\t\tPrints LDM metrics";
+    print "\n\taddmetrics\t\t\t\tAccumulates LDM metrics";
+    print "\n\tplotmetrics [-b begin] [-e end]\t\tPlots LDM metrics";
+    print "\n\tnewmetrics\t\t\t\tRotates the metrics files";
+    print "\n\tusage\t\t\t\t\tThis message\n";
+    print "\n\noptions:";
+    print "\n\t-b begin\tBegin time as YYYYMMDD[.hh[mm[ss]]]";
+    print "\n\t-C path\t\tConfiguration-file for this utility";
+    print "\n\t\t\t  Default: $configurationFilePath";
+    print "\n\t-c\t\tClobber an exisiting product queue";
+    print "\n\t-e end\t\tEnd time as YYYYMMDD[.hh[mm[ss]]]";
+    print "\n\t-f feedset\tFeed set to use with command";
+    print "\n\t\t\t  Default: $feedset";
+    print "\n\t\t\t  If more than one word, enclose string in double quotes";
+    print "\n\t\t\t  Default is user name, tty, login time";
+    print "\n\t-l logfile\tName of logfile";
+    print "\n\t\t\t  Default: $log_file";
+    print "\n\t-m maxLatency\tConditional data-request temporal-offset";
+    print "\n\t-M max_clients\tMaximum number of active clients";
+    print "\n\t-n numlogs\tNumber of logs to rotate";
+    print "\n\t\t\t  Default: $numlogs";
+    print "\n\t-o offset\tUnconditional data-request temporal-offset";
+    print "\n\t-q q_path\tSpecify a product queue path";
+    print "\n\t\t\t  LDM Default: $pq_path";
+    print "\n\t\t\t  pqsurf Default: $surf_path";
+    print "\n\t-t hours\tNumber of hours to apply to command";
+    print "\n\t\t\t  Default: $log_hours";
+    print "\n\t-v\t\tTurn on verbose mode";
+    print "\n\t-x\t\tTurn on debug mode (includes verbose mode)";
+    print "\n\nconf_file:";
+    print "\n\twhich LDM configuration-file file to use";
+    print "\n\t    Default: $ldmd_conf";
+    print "\n";
+}
+
+###############################################################################
+# check for the existence of the lock file.  Exit if found, create if not
+# found.
+###############################################################################
+
+sub make_lockfile
+{
+    if (-e $lock_file) {
+	bad_exit("make_lockfile: another ldmadmin process exists");
+    }
+
+    open(LOCKFILE,">$lock_file") ||
+	bad_exit("make_lockfile: Cannot open lock file $lock_file");
+    close(LOCKFILE);
+
+}
+
+###############################################################################
+# remove a lock file. exit if not found.
+###############################################################################
+
+sub rm_lockfile
+{
+    if (-e $lock_file) {
+	unlink($lock_file);
+    }
+    else {
+	bad_exit("rm_lockfile: Lock file does not exist");
+    }
+
+}
+
+###############################################################################
+# create a product queue
+###############################################################################
+
+sub make_pq
+{
+    if ($q_size) {
+	bad_exit("product queue -s flag not supported, no action taken.");
+    }
+
+# lock file check
+
+    make_lockfile();
+
+# can't do this while there is a server running
+
+    if (isRunning()) {
+	bad_exit("make_pq: There is a server running, mkqueue aborted");
+    }
+
+# set path and size if necessary
+
+    if ($q_path) {
+	$pq_path = $q_path;
+    }
+
+# build the command line
+
+    $cmd_line = "pqcreate";
+
+    if ($debug) {
+	$cmd_line .= " -x";
+    }
+    if ($verbose) {
+	$cmd_line .= " -v";
+    }
+
+    if ($pq_clobber) {
+	$cmd_line .= " -c";
+    }
+
+    if ($pq_fast) {
+	$cmd_line .= " -f";
+    }
+
+    if ($pq_slots ne "default") {
+	$cmd_line .= " -S $pq_slots";
+    }
+
+    $cmd_line .= " -q $pq_path -s $pq_size";
+
+# execute pqcreate
+
+    system("$cmd_line");
+
+    if ($?) {
+    	rm_lockfile();
+	bad_exit("make_pq: mkqueue failed");
+        return 1;
+    }
+
+# remove the lockfile
+
+    rm_lockfile();
+
+    return 0;
+}
+
+###############################################################################
+# delete a product queue
+###############################################################################
+
+sub delete_pq
+{
+# lock file check
+
+    make_lockfile();
+
+# check to see if the server is running.  Exit if it is
+
+    if (isRunning()) {
+	bad_exit("delete_pq: A server is running, cannot delete the queue");
+    }
+
+# check for queue_path
+
+    if ($q_path) {
+	$pq_path = $q_path;
+    }
+
+# kill the queue
+
+    system("ls $pq_path > /dev/null 2>&1");
+    if ($?) {
+	bad_exit("delete_pq: $pq_path does not exist");
+    }
+    else {
+	unlink($pq_path);
+    }
+
+# remove the lock file
+
+    rm_lockfile();
+
+    return 0;
+}
+
+###############################################################################
+# create a pqsurf product queue
+###############################################################################
+
+sub make_surf_pq
+{
+    if ($q_size) {
+	bad_exit("product queue -s flag not supported, no action taken.");
+    }
+
+# lock file check
+
+    make_lockfile();
+
+# can't do this while there is a server running
+
+    if (isRunning()) {
+	bad_exit("make_surf_pq: There is a server running, mkqueue aborted");
+    }
+
+# set path if necessary
+
+    if ($q_path) {
+	$surf_path = $q_path;
+    }
+
+# need the number of slots to create
+
+    $surf_slots = $surf_size / 1000000 * 6881;
+
+# build the command line
+
+    $cmd_line = "pqcreate";
+
+    if ($debug) {
+	$cmd_line .= " -x";
+    }
+    if ($verbose) {
+	$cmd_line .= " -v";
+    }
+
+    if ($pq_clobber) {
+	$cmd_line .= " -c";
+    }
+
+    if ($pq_fast) {
+	$cmd_line .= " -f";
+    }
+
+    $cmd_line .= " -S $surf_slots -q $surf_path -s $surf_size";
+
+# execute pqcreate
+
+    system("$cmd_line");
+    $retval = $?;
+
+# remove the lockfile
+
+    rm_lockfile();
+
+    return $retval;
+}
+
+###############################################################################
+# delete a pqsurf product queue
+###############################################################################
+
+sub del_surf_pq
+{
+# lock file check
+
+    make_lockfile();
+
+# check to see if the server is running.  Exit if it is
+
+    if (isRunning()) {
+	bad_exit("del_surf_pq: A server is running, cannot delete the queue");
+    }
+
+# check for the queue path
+
+    if ($q_path) {
+	$surf_path = $q_path;
+    }
+
+# kill the queue
+
+    system("ls $surf_path > /dev/null 2>&1");
+    if ($?) {
+	bad_exit("del_surf_pq: $surf_path does not exist");
+    }
+    else {
+	unlink($surf_path);
+    }
+
+# remove the lock file
+
+    rm_lockfile();
+
+    return 0;
+}
+
+###############################################################################
+# start the LDM server
+###############################################################################
+
+sub start_ldm
+{
+# make sure there is no other server running
+
+    if (isRunning()) {
+	bad_exit("start_ldm: There is another server running, start aborted");
+    }
+
+    if (-e $pid_file) {
+	bad_exit("start_ldm: PID-file \"$pid_file\" exists.  " .
+	    "Verify that all is well and then execute\n" .
+	    "    ldmadmin clean\n" .
+	    "to remove the PID-file.");
+    }
+
+# Adjust the pathname of the product-queue
+    if ($q_path) {
+	$pq_path = $q_path;
+    }
+
+# create the lockfile
+
+    make_lockfile();
+
+# make sure we have a product queue in place
+
+    system("ls $pq_path > /dev/null 2>&1");
+    if ($?) {
+	bad_exit("product queue, $pq_path, does not exist");
+    }
+
+    if (!isProductQueueOk())  {
+	bad_exit("LDM not started");
+    }
+
+# Check the pqact(1) configuration-file(s)
+    {
+	print "Checking pqact(1) configuration-file(s)...\n";
+	my $prev_line_prefix = $line_prefix;
+	$line_prefix .= "    ";
+	if (!are_pqact_confs_ok()) {
+	    bad_exit("");
+	}
+	$line_prefix = $prev_line_prefix;
+    }
+
+# if log_rotate is other than 0, rotate the ldm logs
+
+    if ($log_rotate) {
+	new_log();
+    }
+
+# build the command line
+
+    $cmd_line = "rpc.ldmd -I $ip_addr -P $port -M $max_clients -m $max_latency -o $offset -q $pq_path";
+
+    if ($debug) {
+	$cmd_line .= " -x";
+    }
+    if ($verbose) {
+	$cmd_line .= " -v";
+    }
+
+# Check the ldm(1) configuration-file
+    {
+	print "Checking LDM configuration-file ($ldmd_conf)...\n";
+	my $prev_line_prefix = $line_prefix;
+	$line_prefix .= "    ";
+	( @output ) = `$cmd_line -nl- $ldmd_conf 2>&1` ;
+	if ($?) {
+	    bad_exit(
+		"Problem with LDM configuration-file:\n@output");
+	}
+	$line_prefix = $prev_line_prefix;
+    }
+
+    print "Starting the LDM server...\n";
+
+    system("$cmd_line $ldmd_conf > $pid_file");
+    if ($?) {
+	unlink($pid_file);
+	bad_exit("start_ldm: Could not start LDM server");
+    }
+
+# check to make sure things are running
+
+    my($loopcount) = 1;
+    while(!isRunning()) {
+	if($loopcount > 15) {
+	    bad_exit("start_ldm: Server not started.");
+	}
+	sleep($loopcount);
+	$loopcount++;
+    }
+
+# remove the lockfile
+
+    rm_lockfile();
+
+    return 0;
+}
+
+###############################################################################
+# stop the LDM server
+###############################################################################
+
+sub stop_ldm
+{
+    # create the lockfile
+    make_lockfile();
+
+    # get pid 
+    $rpc_pid = getPid() ;
+
+    if ($rpc_pid == -1) {
+	errmsg("The LDM isn't running or its process-ID is unavailable");
+    }
+    else {
+	# Flush system I/O buffers to disk.
+	print "Flushing the LDM product-queue to disk...\n";
+	system( "sync" );
+	sleep(1);
+
+	# kill the server and associated processes
+	print "Stopping the LDM server...\n";
+	system( "kill $rpc_pid" );
+
+	# we may need to sleep to make sure that the port is deregistered
+	my($loopcount) = 1;
+	while(isRunning()) {
+	    if($loopcount > 65) {
+		    bad_exit("stop_ldm: Server not dead.");
+	    }
+	    print "Waiting for the LDM to terminate\n" ;
+	    sleep($loopcount);
+	    $loopcount++;
+	}
+    }
+
+    # remove product-information files that are older than the LDM pid-file.
+    removeOldProdInfoFiles();
+
+    # remove the lockfile
+    rm_lockfile();
+
+    # get rid of the pid file
+    unlink($pid_file);
+
+    return 0;
+}
+
+###############################################################################
+# rotate the specified log file, keeping $numlog files
+###############################################################################
+
+sub new_log
+{
+# rotate the log
+
+    system("newlog $log_file $numlogs");
+
+# if rotation successful, notify syslogd
+
+    if ($?) {
+	bad_exit("new_log: log rotation failed");
+    }
+    else {
+	system("hupsyslog");
+    }
+
+    return 0;
+}
+
+###############################################################################
+# print the LDM configuration information
+###############################################################################
+
+sub ldm_config
+{
+    print  "\n";
+    print  "hostname:              $hostname\n";
+    print  "os:                    $os\n";
+    print  "release:               $release\n";
+    print  "ldmhome:               $ldmhome\n";
+    print  "LDM version:           @VERSION@\n";
+    print  "PATH:                  $ENV{'PATH'}\n";
+    print  "bin path:              $bin_path\n";
+    print  "etc path:              $etc_path\n";
+    print  "log path:              $log_path\n";
+    print  "data path:             $data_path\n";
+    print  "LDM conf file:         $ldmd_conf\n";
+    print  "pqact(1) conf file:    $pqact_conf\n";
+    print  "scour(1) conf file:    $scour_file\n";
+    print  "product queue:         $pq_path\n";
+    print  "queue size:            $pq_size bytes\n";
+    print  "queue slots:           $pq_slots\n";
+    print  "pqsurf(1) path:        $surf_path\n";
+    print  "pqsurf(1) size:        $surf_size\n";
+    printf "IP address:            %s\n", length($ip_addr) ? $ip_addr : "all";
+    printf "port:                  %d\n", length($port) ? $port : @LDM_PORT@; 
+    print  "PID file:              $pid_file\n";
+    print  "Lock file:             $lock_file\n";
+    print  "ldmadmin(1) conf file: $configurationFilePath\n";
+    print  "maximum clients:       $max_clients\n";
+    print  "maximum latency:       $max_latency\n";
+    print  "time offset:           $offset\n";
+    print  "log file:              $log_file\n";
+    print  "numlogs:               $numlogs\n";
+    print  "log_rotate:            $log_rotate\n";
+    print  "netstat:               $netstat\n";
+    print  "metrics file:          $metrics_file\n";
+    print  "metrics files:         $metrics_files\n";
+    print  "num_metrics:           $num_metrics\n";
+    print  "check time:            $check_time\n";
+    print  "delete info files:     $delete_info_files\n";
+    print  "ntpdate(1):            $ntpdate\n";
+    print  "ntpdate(1) timeout:    $ntpdate_timeout\n";
+    print  "time servers:          @time_servers\n";
+    print  "time-offset limit:     $check_time_limit\n";
+    print  "check time abort:      $abort_if_check_time_failure\n";
+    print "\n";
+
+    return 0;
+}
+
+###############################################################################
+# check if the LDM is running.  return 1 if running, 0 if not.
+###############################################################################
+
+sub isRunning
+{
+    my($running) = 0;
+    my($pid) = getPid();
+
+    if ($pid != -1) {
+	system("kill -0 $pid > /dev/null 2>&1");
+	$running = !$?;
+    }
+
+    if (!$running) {
+	my($cmd_line) = "ldmping -l- -i 0";
+
+	if (length($ip_addr)) {
+	    $cmd_line .= " $ip_addr";
+	}
+
+	system("$cmd_line > /dev/null 2>&1");
+	$running = !$?;
+    }
+
+    return $running;
+}
+
+###############################################################################
+# get PID number.  return pid or -1
+###############################################################################
+
+sub getPid
+{
+    my( $i, @F, $pid_num ) ;
+
+    if (-e $pid_file) {
+	    open(PIDFILE,"<$pid_file");
+	    $pid_num = <PIDFILE>;
+	    chomp( $pid_num );
+	    close( PIDFILE ) ;
+	    return $pid_num if( $pid_num =~ /^\d{1,6}/ ) ;
+    }
+    return -1;
+}
+
+###############################################################################
+# Check the pqact.conf file(s) for errors
+###############################################################################
+
+sub are_pqact_confs_ok
+{
+    my $are_ok = 1;
+    my @pathnames = ();
+
+    if ($pqact_conf_option) {
+	# A "pqact" configuration-file was specified on the command-line.
+	@pathnames = ($pqact_conf);
+    }
+    else {
+	# No "pqact" configuration-file was specified on the command-line.
+	# Set "@pathnames" according to the "pqact" configuration-files
+	# specified in the LDM configuration-file.
+	if (!open(LDM_CONF_FILE, "<$ldmd_conf")) {
+	    bad_exit("Could not open LDM configuration-file, $ldmd_conf");
+	}
+	else {
+	    while (<LDM_CONF_FILE>) {
+		if (/^exec/i && /pqact/) {
+		    chomp;
+		    s/^exec\s+"\s*//i;
+		    s/\s*"\s*$//;
+
+		    my @fields = split;
+		    my $pathname;
+
+		    if (($#fields == 0) ||
+			    ($fields[$#fields] =~ /^-/) ||
+			    ($fields[$#fields-1] =~ /^-[ldqfpito]/)) {
+		    	$pathname = $pqact_conf;
+		    }
+		    else {
+			$pathname = $fields[$#fields];
+		    }
+		    @pathnames = (@pathnames, $pathname);
+		}
+	    }
+
+	    close(LDM_CONF_FILE);
+	}
+    }
+
+    for my $pathname (@pathnames) {
+	# Examine the "pqact" configuration-file for leading spaces.
+	my @output;
+	my $leading_spaces = 0;
+
+	print "$line_prefix$pathname: ";
+
+	( @output ) = `grep -n "^ " $pathname 2> /dev/null` ;
+	if ($#output >= 0) {
+	    print "remove leading spaces in the following:\n" ;
+
+	    my $prev_line_prefix = $line_prefix;
+	    $line_prefix .= "    ";
+
+	    for my $line (@output) {
+		print "$line_prefix$line";
+	    }
+
+	    $line_prefix = $prev_line_prefix;
+	    $leading_spaces = 1;
+	}
+
+	if ($leading_spaces) {
+	    $are_ok = 0;
+	}
+	else {
+	    # Check the syntax of the "pqact" configuration-file via "pqact".
+	    my $read_ok = 0;
+
+	    ( @output ) = `pqact -vl - -q /dev/null $pathname 2>&1` ;
+
+	    for my $line (@output) {
+		if ($line =~ /Successfully read/) {
+		    $read_ok = 1;
+		    last;
+		}
+	    }
+
+	    if ($read_ok) {
+		print "syntactically correct\n" ;
+	    }
+	    else {
+		print "has problems:\n" ;
+
+		my $prev_line_prefix = $line_prefix;
+		$line_prefix .= "    ";
+
+		for my $line (@output) {
+		    print "$line_prefix$line";
+		}
+
+		$line_prefix = $prev_line_prefix;
+		$are_ok = 0;
+	    }
+	}
+    }
+
+    return $are_ok;
+}
+
+###############################################################################
+# HUP the pqact program(s)
+###############################################################################
+
+sub ldmadmin_pqactHUP
+{
+    if ($os eq "SunOS" && $release =~ /^4/) {
+	    open( IN, "ps -gawxl |" ) ||
+		bad_exit("ps: Cannot open ps");
+	    $default = 0 ;
+    } elsif($os =~ /BSD/i) {
+	    open( IN, "ps ajx |" ) ||
+		bad_exit("ps: Cannot open ps");
+	    $default = 1 ;
+
+    } else {
+	    open( IN, "ps -fu $ENV{'USER'} |" ) ||
+		bad_exit("ps: Cannot open ps");
+	    $default = 1 ;
+    }
+    # each platform has fields in different order, looking for PID
+    $_ = <IN> ;
+    s/^\s*([A-Z].*)/$1/ ;
+    $index = -1 ;
+    ( @F ) = split( /[ \t]+/, $_ ) ;
+    for( $i = 0; $i <= $#F; $i++ ) {
+	    next if( $F[ $i ] =~ /PPID/i ) ;
+	    if( $F[ $i ] =~ /PID/i ) {
+		    $index = $i ;
+		    last ;
+	    }
+    }
+    $index = $default if( $index == -1 ) ;
+
+    @F = ( ) ;
+    # Search through all processes, looking for "pqact".  Only processes that
+    # are owned by the user will respond to the HUP signal.
+    while( <IN> ) {
+	    next unless( /pqact/ ) ;
+	    s/^\s*([a-z0-9].*)/$1/ ;
+	    ( @F ) = split( /[ \t]+/, $_ ) ;
+	$pqactPid .= " $F[ $index ]" ;
+    }
+    close( IN ) ;
+
+    if ($pqactPid eq "") {
+	  errmsg("pqact: process not found, cannot HUP pqact");
+    } else {
+	  print "Check pqact HUP with command \"ldmadmin tail\"\n" ;
+	  system( "kill -HUP $pqactPid" );
+    }
+}
+
+###############################################################################
+# Check the queue file for errors
+###############################################################################
+
+sub isProductQueueOk
+{
+    my $isOk = 0;
+    my($status) = system("pqcheck -l- -q $pq_path 2>/dev/null") >> 8;
+
+    if( 0 == $status ) {
+	print "The product-queue is OK.\n";
+	$isOk = 1;
+    }
+    elsif (1 == $status) {
+	errmsg(
+	    "The self-consistency of the product-queue couldn't be " .
+	    "determined.  See the logfile for details.");
+    }
+    elsif (2 == $status) {
+	errmsg(
+	    "The product-queue doesn't have a writer-counter.  Using " .
+	    "\"pqcheck -F\" to create one...");
+	system("pqcheck -F -q $pq_path");
+	if ($?) {
+	    errmsg("Couldn't add writer-counter to product-queue.");
+	}
+	else {
+	    $isOk = 1;
+	}
+    }
+    elsif (3 == $status) {
+	errmsg(
+	    "The writer-counter of the product-queue isn't zero.  Either" .
+	    "a process has the product-queue open for writing or the queue" .
+	    "might be corrupt.  Terminate the process and recheck or use\n" .
+	    "    pqcat -l- -s -q $pq_path && pqcheck -F -q $pq_path\n" .
+	    "to validate the queue and set the writer-counter to zero.");
+    }
+    else {
+	errmsg(
+	    "The product-queue is corrupt.  Use\n" .
+	    "    ldmadmin delqueue && ldmadmin mkqueue\n" .
+	    "to remove and recreate it.");
+    }
+    return $isOk;
+}
+
+###############################################################################
+# Remove product-information files that are older than the LDM pid-file.
+###############################################################################
+
+sub removeOldProdInfoFiles
+{
+     system("find .*.info -prune \! -newer $pid_file | xargs rm -f");
+}
+
+###############################################################################
+# Check the system clock
+###############################################################################
+
+sub checkTime
+{
+    my $failure = 1;
+    # If it exists, then use the passed-in argument to decide whether or not to
+    # abort on failure,
+    #
+    my $abort_if_check_time_failure =
+	($#_ >= 0 ? $_[0] : $abort_if_check_time_failure);
+    if (!$check_time) {
+	if ($warn_if_check_time_disabled) {
+	    errmsg("\n".
+		"WARNING: The checking of the system clock is disabled.  ".
+		"You might loose data if the clock is off.  To enable this ".
+		"checking, set the variable \"\$check_time\" to 1 in the ".
+		"configuration-file, $configurationFilePath.");
+	}
+	$failure = 0;
+    }
+    else {
+	if ($#time_servers < 0) {
+	    errmsg("\nWARNING: No time-servers are specified by the variable ".
+		"\"\@time_servers\" in the configuration-file, ".
+		"$configurationFilePath.  Consequently, the ".
+		"system clock can't be checked and you might loose data if ".
+		"it's off.");
+	}
+	else {
+	    my @hosts = @time_servers;
+	    while ($#hosts >= 0) {
+		my $i = int(rand(scalar(@hosts)));
+		my $timeServer = $hosts[$i];
+		@hosts = (@hosts[0 .. ($i-1)], @hosts[($i+1) .. $#hosts]);
+		if (!open(NTPDATE,
+		    "$ntpdate -q -t $ntpdate_timeout $timeServer 2>&1 |")) {
+		    errmsg("\n".
+			"Couldn't invoke the ntpdate(1) ".
+			"utility, \"$ntpdate\": $!.  ".
+			"Set the value of the variable \"\$ntpdate\" ".
+			"in the configuration-file, $configurationFilePath, ".
+			"to the pathname of the ntpdate(1) utility.");
+		    last;
+		}
+		else {
+		    my $offset;
+		    while (<NTPDATE>) {
+			if (/offset\s+([+-]?\d*\.\d*)/) {
+			    $offset = $1;
+			    last;
+			}
+		    }
+		    close NTPDATE;
+		    if (length($offset) == 0) {
+			errmsg("\n".
+			    "Couldn't get time from time-server at ".
+			    "$timeServer using the ntpdate(1) utility, ".
+			    "\"$ntpdate\".  ".
+			    "If the utility is valid and this happens often, ".
+			    "then remove $timeServer ".
+			    "from variable \"\@time_servers\" in the ".
+			    "configuration-file, $configurationFilePath.");
+		    }
+		    else {
+			if (abs($offset) > $check_time_limit) {
+			    errmsg("\n".
+				"The system clock is more than ".
+				"$check_time_limit seconds off, which is ".
+				"specified by the variable ".
+				"\"\$check_time_limit\" in the ".
+				"configuration-file, ".
+				"$configurationFilePath.");
+			}
+			else {
+			    $failure = 0;
+			}
+			last;
+		    }
+		}
+	    }
+	}
+	if ($failure) {
+	    errmsg("\n".
+		"You should either fix the problem (recommended) or disable ".
+		"time-checking by setting the variable \"\$check_time\" to ".
+		"0 in the configuration-file, $configurationFilePath, (not ".
+		"recommended).");
+	    if ($abort_if_check_time_failure) {
+		bad_exit("Aborting....");
+	    }
+	}
+    }
+    return !$failure;
+}
+
+###############################################################################
+# Metrics:
+###############################################################################
+
+# Command for getting a UTC timestamp:
+sub getTime
+{
+    chomp(my($time) = `date -u +%Y%m%d.%H%M%S`);
+    return $time;
+}
+#
+# Command for getting the running 1, 5, and 15 minute load averages:
+sub getLoad
+{
+    chomp(my($output) = `uptime`);
+    return (split(/,?\s+/, $output))[-3, -2, -1];
+}
+#
+# Command for getting the number of connections to the LDM port (local, remote):
+sub getPortCount
+{
+    my($localCount) = 0;
+    my($remoteCount) = 0;
+    open(FH, $netstat."|") or die "Can't fork(): $!";
+    while (<FH>) {
+	if (/ESTABLISHED/) {
+	    my(@fields) = split(/\s+/);
+	    $localCount++ if ($fields[3] =~ /:$port$/);
+	    $remoteCount++ if ($fields[4] =~ /:$port$/);
+	}
+    }
+    close FH or die "Can't close(): status=$?";
+    return ($localCount, $remoteCount);
+}
+#
+# Command for getting product-queue metrics (age, #prods):
+sub getPq
+{
+    my($age);
+    my($prodCount);
+    my($byteCount);
+    open(FH, "pqmon -l- 2>&1 |") or die "Can't fork(): $!";
+    while (<FH>) {
+	my(@fields) = split(/\s+/);
+	if ($#fields == 13) {
+	    $age = $fields[13];
+	    $prodCount = $fields[5];
+	    $byteCount = $fields[8];
+	}
+    }
+    close FH or die "Can't close(): status=$?";
+    return ($age, $prodCount, $byteCount);
+}
+#
+# Command for getting space-usage metrics:
+#
+sub getCpu
+{
+    my($userTime) = -1;
+    my($sysTime) = -1;
+    my($idleTime) = -1;
+    my($waitTime) = -1;
+    my($memUsed) = -1;
+    my($memFree) = -1;
+    my($swapUsed) = -1;
+    my($swapFree) = -1;
+    my($contextSwitches) = -1;
+    my($haveMem) = 0;
+    my($haveSwap) = 0;
+    open(FH, "top -b -n 1 |") or die "Can't fork(): $!";
+    while (<FH>) {
+	if (/^mem/i) {
+	    s/k/e3/gi;
+	    s/m/e6/gi;
+	    s/g/e9/gi;
+	    /([[:digit:]]+(e\d)?) used/i;	$memUsed = $1;
+	    /([[:digit:]]+(e\d)?) phys/i;	$memUsed = $1;
+	    /([[:digit:]]+(e\d)?) free/i;	$memFree = $1;
+	    $haveMem = 1;
+	    if (/swap/) {
+		/([[:digit:]]+(e\d)?) free swap/i;	$swapFree = $1;
+		/([[:digit:]]+(e\d)?) (total )?swap/i;	$swapUsed =
+		    $1 - $swapFree;
+		$haveSwap = 1;
+	    }
+	}
+	elsif (/^swap/i) {
+	    s/k/e3/gi;
+	    s/m/e6/gi;
+	    s/g/e9/gi;
+	    /([[:digit:]]+(e\d)?) used/i;	$swapUsed = $1;
+	    /([[:digit:]]+(e\d)?) free/i;	$swapFree = $1;
+	    $haveSwap = 1;
+	}
+	last if ($haveMem && $haveSwap);
+    }
+    close FH or die "Can't close(): status=$?";
+
+    my($csIndex) = -1;
+    my($usIndex) = -1;
+    my($syIndex) = -1;
+    my($idIndex) = -1;
+    my($waIndex) = -1;
+    my($line) = "";
+    open(FH, "vmstat 1 2|") or die "Can't fork(): $!";
+    while (<FH>) {
+	if ($csIndex == -1 && /\s+cs\s+/) {
+	    my(@fields) = split(/\s+/);
+	    for (my($i) = 0; $i <= $#fields; ++$i) {
+		if ($fields[$i] eq "cs") {
+		    $csIndex = $i;
+		}
+		elsif ($fields[$i] eq "us") {
+		    $usIndex = $i;
+		}
+		elsif ($fields[$i] eq "sy") {
+		    $syIndex = $i;
+		}
+		elsif ($fields[$i] eq "id") {
+		    $idIndex = $i;
+		}
+		elsif ($fields[$i] eq "wa") {
+		    $waIndex = $i;
+		}
+	    }
+	}
+	$line = $_
+    }
+    close FH or die "Can't close(): status=$?";
+    my(@fields) = split(/\s+/, $line);
+    ($contextSwitches = $fields[$csIndex]) if $csIndex >= 0;
+    ($sysTime = $fields[$syIndex]) if $syIndex >= 0;
+    ($userTime = $fields[$usIndex]) if $usIndex >= 0;
+    ($idleTime = $fields[$idIndex]) if $idIndex >= 0;
+    ($waitTime = $fields[$waIndex]) if $waIndex >= 0;
+
+    return ($userTime, $sysTime, $idleTime, $waitTime, 
+	$memUsed, $memFree, $swapUsed, $swapFree, $contextSwitches);
+}
+#
+# Command for printing metrics:
+sub printMetrics
+{
+    print join(' ', getTime(), getLoad(), getPortCount(), getPq(), getCpu());
+    print "\n";
+    return $?;
+}
+#
+# Command for plotting metrics:
+sub plotMetrics
+{
+    return system("plotMetrics -b $begin -e $end $metrics_files");
+}
+
+###############################################################################
+# Print an error-message
+###############################################################################
+
+sub errmsg
+{
+    $SIG{PIPE} = 'IGNORE';
+    open(FH, "|fmt 1>&2")	or die "Can't fork(): $!";
+    print FH @_			or die "Can't write(): $!";
+    close FH			or die "Can't close(): status=$?";
+}

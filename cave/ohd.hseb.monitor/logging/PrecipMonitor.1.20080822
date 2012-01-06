@@ -1,0 +1,32 @@
+1
+**************************************
+1
+**************************************
+21:10:03: PrecipMonitor Started
+1
+**************************************
+21:10:03: OfficeNotesDataManager.readDataFromOfficeNotes():  Where Clause:order by topic, id, postingtime
+1
+**************************************
+21:10:03: Derived columns file doesnt exist :[/awips/hydroapps/whfs/local/data/app/rivermon/PrecipDerivedColumns.txt]
+1
+**************************************
+21:10:03: Derived columns file doesnt exist :[/awips/hydroapps/whfs/local/data/app/rivermon/PrecipDerivedColumns.txt]
+1
+**************************************
+21:10:03: PrecipMonitorSettings.startPrecipMonitor(): Trying to load from file :/awips/hydroapps/whfs/local/data/app/rivermon/DefaultPrecipMonitorSettings.txt
+1
+**************************************
+21:10:03: SettingsFileManager.isValidSettingsFile(): [/awips/hydroapps/whfs/local/data/app/rivermon/DefaultPrecipMonitorSettings.txt] doesn't exist
+1
+**************************************
+21:10:03: PrecipMonitorDataManager.createPrecipMonitorRowDataList():  Memory Info before creating rowdata list:Free:63957608 Max:1023934464 total:65536000
+1
+**************************************
+21:10:09: RiverMonLocGroupDataManager.initRiverMonGroupMap():  Where Clause:order by ordinal
+1
+**************************************
+21:10:09: RiverMonitorLocGroupDataManager.initRiverMonLocationMap():  Where Clause:where group_id not like 'DEFAULT' order by ordinal
+1
+**************************************
+21:10:09: PrecipMonitorDataManager.createPrecipMonitorRowDataList():  1:Free:102711168 Max:1023934464 total:157351936

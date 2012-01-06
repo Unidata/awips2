@@ -1,0 +1,246 @@
+#################################################
+## MARINE WEATHER STATEMENT ASHFALL STANDALONE ##
+## ORIGINAL MWS CREATED BY PHIL KURIMSKI - WFO DTX   
+## AND MODIFIED BY TOM BIRCHARD - WFO HFO 
+## 9/22/11 ALASKA TIM FOR ASHFALL PURPOSES 
+##
+#################################################
+## Set null variables used in the template
+#########################################
+#set ($capable = "")
+#set ($hailType = "")
+#if(${productClass}=="O")
+#set($productClass = "X")
+#end
+${WMOId} ${vtecOffice} 000000 ${BBBId}
+MWS${siteId}
+#if(${specialCorText})
+${specialCorText}
+#else
+#if(${productClass}=="T")
+TEST...MARINE WEATHER STATEMENT...TEST
+#else
+MARINE WEATHER STATEMENT
+#end
+NATIONAL WEATHER SERVICE ${officeShort}
+#backupText(${backupSite})
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+
+######################################################################
+## Deleted VTEC and Marine Zone Name lines to come in line with NWS Directive 10-314
+######################################################################
+${ugcline}
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+#######################################################################
+## List of Event Types. Added several events such as Shower...Cloud and Front.
+## Removed line selections and determined line based on Track Type in GUI.
+#######################################################################
+## Assume head1 is selected.
+#set ($headerType = "VOLCANIC ASH")
+#set ($eventType = "VOLCANIC ASH")
+#if(${list.contains($bullets, "lightva")})
+	#set ($headerType = "LIGHT VOLCANIC ASHFALL")
+	#set ($eventType = "LIGHT VOLCANIC ASHFALL")
+#end
+#if(${list.contains($bullets, "verylightva")})
+	#set ($headerType = "VERY LIGHT VOLCANIC ASHFALL")
+	#set ($eventType = "VERY LIGHT VOLCANIC ASHFALL")
+#end
+#######################################################################
+## Section to create line wording based on track type.
+#######################################################################
+#set ($stormline = "${headerType}")
+#set ($pathheader = "THE ${headerType}")
+#if(${stormType} == "line")
+	#set($stormline = "LINE OF ${headerType}S")
+	#set($pathheader = "${headerType}S")
+	#set($headerType = "A ${headerType}S")
+#end
+#######################################################################
+## Corrective coding (following this segemnt) to prevent the use of 
+## "Line of Fronts" in the Product 
+## and this segment was added to allow for visibility reduction
+#######################################################################
+#set ($threatType = "REDUCING VISIBILITY TO LESS THAN 2 NM")
+
+#if(${list.contains($bullets, "vis2nm")})
+	#set ($threatType = "REDUCING VISIBILITY TO LESS THAN 2 NM")
+#end
+#if(${list.contains($bullets, "vis3nm")})
+	#set ($threatType = "REDUCING VISIBILITY TO LESS THAN 3 NM")
+#end
+#if(${list.contains($bullets, "visnear5nm")})
+	#set ($threatType = "REDUCING VISIBILITY TO NEAR 5 NM")
+#end
+
+########################################################
+
+#set ($headerType1 = "...${headerType} EXPECTED OVER THE COASTAL WATERS...")
+#if(${list.contains($bullets, "ashadv")})
+#	#set ($headerType1 = "...ASHFALL ADVISORY IN EFFECT FOR ${headerType}...")
+#end
+#if(${list.contains($bullets, "approachHead")})
+#	#set ($headerType1 = "...${headerType} APPROACHING THE COASTAL WATERS...")
+#end
+#if(${list.contains($bullets, "overHead")})
+#	#set ($headerType1 = "...${headerType} OVER THE COASTAL WATERS...")
+#end
+#######################################################################
+## Added Hail Section
+#######################################################################
+#if(${list.contains($bullets, "smallHail")})
+	#set ($hailType = " AND SMALL HAIL")
+#end
+${headerType1}
+
+#######################################################################
+##  Added section to produce areas affected by statement
+#######################################################################
+THE AREAS AFFECTED INCLUDE...
+#######################################################################
+## Set the fipsstring variable to null for marine zone combinations
+#######################################################################
+##set ($fipsstring = "")
+#foreach (${area} in ${areas}) 
+  ${area.name}...
+#######################################################################
+## The following code will create a string of marine zone fips codes
+## which will be important in combining marine zones
+#######################################################################
+##set ($fipsstring = $fipsstring + $area.fips + "-")
+#end
+
+#*
+###################################################################################################
+## The following code is an example of how to combine marine zones for 3 continuous marine zones
+## Note you start out with the largest combination first then whittle it down until you only have
+## one zone left. You can do this as many times as you wish for as many combinations as you have.
+## Make sure you comment out the ${area.name}... line above to use the marine zone combination
+## If you have any questions contact: Phil Kurimski - WFO DTX
+###################################################################################################
+#set ($zonecombo = "")
+#if(($fipsstring.contains("AMZ154")) && ($fipsstring.contains("AMZ156")) && ($fipsstring.contains("AMZ152")))
+  #set ($zonecombo = "COASTAL WATERS FROM OREGON INLET TO CAPE LOOKOUT NC OUT 20 NM...")
+#elseif(($fipsstring.contains("AMZ154")) && ($fipsstring.contains("AMZ156")))
+  #set ($zonecombo = "COASTAL WATERS FROM CAPE HATTERAS TO CAPE LOOKOUT NC OUT 20 NM...")
+#elseif(($fipsstring.contains("AMZ152")) && ($fipsstring.contains("AMZ154")))
+  #set ($zonecombo = "COASTAL WATERS FROM OREGON INLET TO OCRACOKE INLET NC OUT 20 NM...")
+#elseif($fipsstring.contains("AMZ154"))
+  #set ($zonecombo = "COASTAL WATERS FROM CAPE HATTERAS TO OCRACOKE INLET NC OUT 20 NM...")
+#elseif($fipsstring.contains("AMZ156"))
+  #set ($zonecombo = "COASTAL WATERS FROM OCRACOKE INLET TO CAPE LOOKOUT NC OUT 20 NM...")
+#elseif($fipsstring.contains("AMZ152"))
+  #set ($zonecombo = "COASTAL WATERS FROM OREGON INLET TO CAPE HATTERAS NC OUT 20 NM...")
+#end
+
+$zonecombo
+*#
+
+#######################################################################
+## Basis section that incorporates line phenomena...capable vs producing
+## and threat based on selections above. Added Satellite Imagery to basis.
+#######################################################################
+#set ($report = "!** YOU DIDN'T SELECT A REPORTER **! ${threatType}")
+#if(${list.contains($bullets, "seismic")})
+  #set ($report = "SEISMIC ACTIVITY AND SATELLITE IMAGERY INDICATED THAT !** ENTER VOLCANO NAME HERE **! WAS ERUPTING...WITH ${stormline}...${threatType}...")
+#end
+#if(${list.contains($bullets, "reports")})
+  #set ($report = "REPORTS INDICATED THAT !** ENTER VOLCANO NAME HERE **! HAD ERUPTED...WITH ${stormline}...${threatType}...") 
+#end
+## Storm current location description
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+AT ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}...${report} ##
+#handleClosestPoints($list, $closestPoints, $otherClosestPoints, $stormType,"THESE STORMS WERE LOCATED", "OVER", 4, "NM")
+#if($movementSpeed < 3 || ${stationary})
+. NEARLY STATIONARY.
+#else
+MOVING #direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} KNOTS.
+#end
+
+#set ($phenomena = "${pathheader}") 
+#set ($warningType = "STATEMENT") 
+#if(${list.contains($bullets, "pathcast")})
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#pathCast("${phenomena} WILL BE NEAR..." ${phenomena} ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 1)
+
+#elseif(${list.contains($bullets, "listoflocations")})
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#### THE THIRD ARGUMENT IS A NUMBER SPECIFYING THE NUMBER OF COLUMNS TO OUTPUT THE CITIES LIST IN
+#### 0 IS A ... SEPARATED LIST, 1 IS ONE PER LINE, >1 IS A COLUMN FORMAT
+#### IF YOU USE SOMETHING OTHER THAN "LOCATIONS IMPACTED INCLUDE" LEAD IN BELOW, MAKE SURE THE
+#### ACCOMPANYING XML FILE PARSE STRING IS CHANGED TO MATCH!
+#locationsList("LOCATIONS IMPACTED INCLUDE..." "${phenomena}" 0 ${locationList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 1)
+
+#end
+
+##############################################
+###### SPECIAL VENUE/EVENT CASE ##############
+##############################################
+#if(${list.contains($bullets, "specialEvent")})
+#if(${stormType} == "line")
+THOSE ATTENDING THE !**event/venue name or location**! ARE IN THE PATH OF THESE STORMS AND SHOULD PREPARE FOR IMMINENT DANGEROUS WEATHER CONDITIONS. SEEK SHELTER NOW.
+#else
+THOSE ATTENDING THE !**event/venue name or location**! ARE IN THE PATH OF THIS STORM AND SHOULD PREPARE FOR IMMINENT DANGEROUS WEATHER CONDITIONS. SEEK SHELTER NOW.
+
+#end
+#end
+AN ASHFALL ADVISORY MEANS THAT THE VOLCANO IS UNDERGOING A MINOR ERUPTION AND THERE IS THE POTENTIAL THAT MARINERS COULD BE AFFECTED BY A LIMITED HAZARD EXTENT...SUCH AS LESS THAN 1/4 INCH OF ASHFALL...PUMICE RAFTS...OR SOME FLOATING DEBRIS.
+
+#####################
+## CALL TO ACTIONS ##
+#####################
+#######################################################################
+## Check to see if we've selected any calls to action. In our .cfg file
+## we ended each CTA bullet ID with "CTA" for this reason as a 'trip'
+## Added CTA statements for the possibility of future SMW.
+#######################################################################
+#foreach ($bullet in $bullets)
+#if ($bullet.endsWith("CTA"))
+#set ($ctaSelected = "YES")
+#end
+#end
+
+#if (${ctaSelected} == "YES")
+PRECAUTIONARY/PREPAREDNESS ACTIONS...
+#end
+##
+
+#if(${list.contains($bullets, "ashCTA")})
+ASH IS AN EYE AND RESPIRATORY IRRITANT AND IS ABRASIVE. THOSE WITH RESPIRATORY SENSITIVITIES SHOULD TAKE EXTRA PRECAUTIONS TO MINIMIZE EXPOSURE. PROTECT ELECTRONICS AND COVER AIR INTAKES IF ASHFALL IS EXPECTED OR CONFIRMED. REMOVE ASH FROM SURFACES WITH WATER IF POSSIBLE TO PREVENT EXCESSIVE ACCUMULATION.
+
+#end
+#if(${list.contains($bullets, "reportCTA")})
+REPORT SEVERE WEATHER TO THE COAST GUARD. THEY WILL RELAY YOUR REPORT TO THE NATIONAL WEATHER SERVICE IN ${officeLoc}.
+
+#end
+#if (${ctaSelected} == "YES")
+&&
+#end
+
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
+
+#end
+
+#printcoords(${areaPoly}, ${list})
+
+
+$$
+
+!**NAME/INITIALS**!
+#end

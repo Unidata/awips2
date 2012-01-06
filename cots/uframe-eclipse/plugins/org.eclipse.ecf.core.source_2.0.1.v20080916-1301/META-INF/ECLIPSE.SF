@@ -1,0 +1,1243 @@
+Signature-Version: 1.0
+SHA1-Digest-Manifest: zY2QVQ6h67n3AvEAW4f7bohTqPA=
+Created-By: 1.5.0 (IBM Corporation)
+SHA1-Digest-Manifest-Main-Attributes: yq5SBamEbY778QcaZhSzBoCT70g=
+
+Name: src/org.eclipse.ecf.provider.msn_1.2.0.v20080916-1301/src.zip
+SHA1-Digest: VhWcrGmEdoKCf0cHX9aukl971rg=
+
+Name: src/org.eclipse.ecf.provider.xmpp.ui_2.0.0.v20080916-1301/META-I
+ NF/MANIFEST.MF
+SHA1-Digest: drVveDrKnD4yP3r399yRWGCgWds=
+
+Name: src/org.eclipse.ecf.provider.irc_1.3.0.v20080916-1301/plugin.pro
+ perties
+SHA1-Digest: lJdhHbcgMUXL0gF3yMcZZkO39Xc=
+
+Name: src/org.eclipse.ecf.presence.bot_1.2.0.v20080916-1301/plugin.pro
+ perties
+SHA1-Digest: 5jriZGU1qr7T6vQpeHPw7huEg9g=
+
+Name: src/org.eclipse.ecf.provider.filetransfer.efs_1.5.0.v20080916-13
+ 01/plugin.xml
+SHA1-Digest: REGaW2GghRIuusO5P2y+tiy+j3E=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/reference/exte
+ nsion-points/org_eclipse_ecf_presence_bot_chatRoomMessageHandler.html
+SHA1-Digest: opuDBcI/riIF10ObAe+rWfh/tbk=
+
+Name: src/org.eclipse.ecf.sharedobject_1.3.0.v20080916-1301/plugin.pro
+ perties
+SHA1-Digest: J6740dbN+sWVjHNgkY7u8bFG7a8=
+
+Name: src/org.eclipse.ecf.provider.ui_1.3.0.v20080916-1301/plugin.xml
+SHA1-Digest: 6k+k6dPYw78/XMxjX1WQWasBmpg=
+
+Name: src/org.eclipse.ecf.presence.bot_1.2.0.v20080916-1301/schema/imR
+ obot.exsd
+SHA1-Digest: ufWSxLqoWMVicBJhZv42U7Wi5i0=
+
+Name: src/org.eclipse.ecf.remoteservice.ui_2.0.0.v20080916-1301/META-I
+ NF/MANIFEST.MF
+SHA1-Digest: AizEOoMoqwFQNclwkockQtBwczQ=
+
+Name: src/org.eclipse.ecf.provider.filetransfer.scp_2.0.0.v20080916-13
+ 01/plugin.xml
+SHA1-Digest: xwxyNLW36xmEYFUs+gtZMdtd9To=
+
+Name: src/org.eclipse.ecf.provider.r_osgi_2.0.0.v20080916-1301/about.h
+ tml
+SHA1-Digest: Fwow+rYMQtX1uhydaKz+iN4UDvs=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/toc.xml
+SHA1-Digest: 0DmoeQRKP1POfFbmyWhcDSS5tgo=
+
+Name: src/org.eclipse.ecf.provider.irc.ui_1.3.0.v20080916-1301/plugin.
+ properties
+SHA1-Digest: oxWT18jGUIeJbo5KFsTTl6SxZUc=
+
+Name: src/org.eclipse.ecf.docshare_2.0.0.v20080916-1301/plugin.xml
+SHA1-Digest: 2Re1STaoqdjs4CmPEYotV6cR+PQ=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/reference/exte
+ nsion-points/org_eclipse_ecf_server_generic_configuration.html
+SHA1-Digest: zij3eeD/AeybtWQjlG8BU8tcKW4=
+
+Name: src/org.eclipse.ecf.presence.ui_1.2.0.v20080916-1301/plugin.prop
+ erties
+SHA1-Digest: BkVhclWMARQGcN8xkFb9cSO4CbE=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/tutorials/imag
+ es/img006.gif
+SHA1-Digest: 2dCL5IARtY/9yvkAMbCGOd1/eNc=
+
+Name: src/org.eclipse.ecf.provider.xmpp_2.0.100.v20080916-1301/src.zip
+SHA1-Digest: BaUVvMfTPFNyocLBGHxTo5kokTQ=
+
+Name: src/org.eclipse.ecf.presence.ui_1.2.0.v20080916-1301/META-INF/MA
+ NIFEST.MF
+SHA1-Digest: /C/JisbDxuRjsTnv86X1bhehPGw=
+
+Name: META-INF/eclipse.inf
+SHA1-Digest: DC4iHwipf8FJMZGFaPiGGsxgfA0=
+
+Name: src/org.eclipse.ecf.ui_2.0.0.v20080916-1301/icons/enabled/add_co
+ ntact.gif
+SHA1-Digest: QLcF0l5XDZKNU3IkJbgIKeljpb4=
+
+Name: src/org.eclipse.ecf.provider.xmpp.ui_2.0.0.v20080916-1301/plugin
+ .xml
+SHA1-Digest: ZyTDhsLAKUiXQGIM69gge8xp1dg=
+
+Name: src/org.eclipse.ecf.provider_1.3.0.v20080916-1301/META-INF/MANIF
+ EST.MF
+SHA1-Digest: +TvpbbKM3KW1eVzPnNSKt89Ub10=
+
+Name: src/org.eclipse.ecf.filetransfer.ui_1.4.0.v20080916-1301/about.h
+ tml
+SHA1-Digest: uDKZe2qjcIfq7BKTdT6xmNnMXAo=
+
+Name: src/org.eclipse.ecf.ui_2.0.0.v20080916-1301/plugin.properties
+SHA1-Digest: Xv96BufF5C12XqGoIQj+wzDTh5I=
+
+Name: src/org.eclipse.ecf.provider.r_osgi_2.0.0.v20080916-1301/META-IN
+ F/MANIFEST.MF
+SHA1-Digest: V4Qb+X3Z9LcmbWKDwqggW4AAuBg=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/plugin.xml
+SHA1-Digest: pqddmRiNw0PN4UgNWvPbcEhTEPU=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/concepts/intro
+ .html
+SHA1-Digest: kMyd8OY60qKmddhIKWKgOQHEnKg=
+
+Name: src/org.eclipse.ecf.provider.datashare_1.3.0.v20080916-1301/src.
+ zip
+SHA1-Digest: pTG5rMzoU3Bq6xL/b1q9zOdZNcU=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/gettingstarted
+ /images/img3.png
+SHA1-Digest: FzUn7f8oRUKDB5mSJEhYL7uHFq0=
+
+Name: src/org.eclipse.ecf.remoteservice_2.0.0.v20080916-1301/src.zip
+SHA1-Digest: ykbBdZdBWl0eKiEZVmtwmJGDJ60=
+
+Name: src/org.eclipse.ecf.provider.msn_1.2.0.v20080916-1301/about.html
+SHA1-Digest: 8rfOFP5tq2s8v4Oym9PG7l1gVec=
+
+Name: src/org.eclipse.ecf.docshare_2.0.0.v20080916-1301/about.html
+SHA1-Digest: wH7PBiy+VlzEW8rexUhI/v2YqQU=
+
+Name: src/ch.ethz.iks.r_osgi.remote_1.0.0.RC2_v20080916-1301/LICENSE.t
+ xt
+SHA1-Digest: gZzLTmueh+lSXzevVaMuCaT3HOA=
+
+Name: src/org.eclipse.ecf.provider.msn_1.2.0.v20080916-1301/META-INF/M
+ ANIFEST.MF
+SHA1-Digest: WfXzB11ym9VttyC6mRokjPNNoIw=
+
+Name: src/org.eclipse.ecf.presence.ui_1.2.0.v20080916-1301/icons/open_
+ contacts.gif
+SHA1-Digest: 8O7LZO/BQMN6hVbS8XDHL0gmqYg=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/reference/exte
+ nsion-points/org_eclipse_ecf_ui_configurationWizards.html
+SHA1-Digest: UlwdGpEt2akeMTsUtyek65NwQBk=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/tocapi.xml
+SHA1-Digest: 6/U+iyXe3eP3D0Tyob/ld5AfRl8=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/gettingstarted
+ /ecf_overview.html
+SHA1-Digest: 3LgqB/mO9rlTOawKtn2cDAzqKcA=
+
+Name: src/ch.ethz.iks.r_osgi.remote_1.0.0.RC2_v20080916-1301/about.htm
+ l
+SHA1-Digest: 7AzVV9NTMd2NUYIgNiuFVGrAzVo=
+
+Name: src/org.eclipse.ecf.server_1.3.0.v20080916-1301/META-INF/MANIFES
+ T.MF
+SHA1-Digest: llNV6y0HfxINwrmfDa4gGQv26G0=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/gettingstarted
+ /images/commperspective.png
+SHA1-Digest: LUgQaV7Z2e52DsUBzKGJKX4ljTw=
+
+Name: src/org.eclipse.ecf.datashare_1.3.0.v20080916-1301/META-INF/MANI
+ FEST.MF
+SHA1-Digest: yZonTtI5hCsx/Zjs6sVpkpX00bY=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/gettingstarted
+ /graphshare.html
+SHA1-Digest: vMUu/eEp6dXjTenPt8p+GaUUobs=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/intro/tutorialsExte
+ nsionContent.xml
+SHA1-Digest: YCKSlBV5Vra3OYhCHaC6iY9XT1g=
+
+Name: src/org.eclipse.ecf.presence.collab.ui_1.2.0.v20080916-1301/plug
+ in.xml
+SHA1-Digest: 8Cthg/2Ziom0HvaKaIf7O4D+YSQ=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/tutorials/imag
+ es/img003.gif
+SHA1-Digest: OtSr1mubuftNBsZ/1HvBhbrqxn0=
+
+Name: src/org.eclipse.ecf.sharedobject_1.3.0.v20080916-1301/schema/sha
+ redObjectFactory.exsd
+SHA1-Digest: WufQg/suuV2kDGoMIKZH352D79E=
+
+Name: src/org.eclipse.ecf.server.generic_1.2.0.v20080916-1301/schema/c
+ onfiguration.exsd
+SHA1-Digest: DcQNKJojEC9gok7TND/mvKJxaK8=
+
+Name: src/org.jivesoftware.smack_2.2.1/META-INF/MANIFEST.MF
+SHA1-Digest: 8//0Om02IytlT5yZVtmyA2mpCeM=
+
+Name: src/org.eclipse.ecf.remoteservice_2.0.0.v20080916-1301/plugin.pr
+ operties
+SHA1-Digest: PnD7UFXmSWFwdjpUQG7eFFC++9I=
+
+Name: src/org.eclipse.ecf.provider.bittorrent.ui_0.2.0.v20080916-1301/
+ icons/filewiz_download.png
+SHA1-Digest: 1IPkGnoFvWhNTciLmiOwf2BPptA=
+
+Name: src/org.eclipse.ecf.ui_2.0.0.v20080916-1301/icons/enabled/termin
+ ate_co.gif
+SHA1-Digest: b6orFCOAQK0tg+D9BRDStJxJ8mg=
+
+Name: src/ch.ethz.iks.r_osgi.remote_1.0.0.RC2_v20080916-1301/META-INF/
+ MANIFEST.MF
+SHA1-Digest: B6dx5LSaqG9o7sTVJqoMT8zBnd8=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/schema.xml
+SHA1-Digest: vrmiqzwax3ejJ8p8kTHd1mm5b9E=
+
+Name: src/org.eclipse.ecf.provider.irc.ui_1.3.0.v20080916-1301/src.zip
+SHA1-Digest: NJIy5M2i0/zCVOup6rzQQKwcNWs=
+
+Name: src/org.eclipse.ecf.sharedobject_1.3.0.v20080916-1301/about.html
+SHA1-Digest: 75Tz3BPxK2G4HmcLQ5U5fB8AGWo=
+
+Name: src/org.eclipse.ecf.provider.xmpp_2.0.100.v20080916-1301/schema/
+ extensionProvider.exsd
+SHA1-Digest: 2yotrOLvsy45ntCYlPIzguYbTuM=
+
+Name: src/org.eclipse.ecf.discovery.ui_2.0.0.v20080916-1301/META-INF/M
+ ANIFEST.MF
+SHA1-Digest: Gt2gMHJKl0LmKholE075tZwnG8I=
+
+Name: src/org.eclipse.ecf.provider.remoteservice_1.3.0.v20080916-1301/
+ META-INF/MANIFEST.MF
+SHA1-Digest: ppNvKhqCCBeyqtrXXugZ+ESvR08=
+
+Name: src/org.eclipse.ecf.ui_2.0.0.v20080916-1301/icons/wizards/collab
+ oration_wizard.png
+SHA1-Digest: 4FFcmoqUEzx5JdBCZ6rZao3zaz4=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/tutorials/imag
+ es/img009.gif
+SHA1-Digest: kaV2SADpNmSeKxJKY5IPMbEREzw=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/reference/exte
+ nsion-points/org_eclipse_ecf_provider_filetransfer_sendFileTransferPr
+ otocolFactory.html
+SHA1-Digest: ALI0IdSmmEsZ8YMOuDbcGNIiC+Q=
+
+Name: src/org.eclipse.ecf.presence.ui_1.2.0.v20080916-1301/plugin.xml
+SHA1-Digest: GZYa8jlVlodiSjuhOl/lFkfs/ys=
+
+Name: src/org.eclipse.ecf.server_1.3.0.v20080916-1301/src.zip
+SHA1-Digest: D2hW0mVL2hhbgEl/QTxur4rBdso=
+
+Name: src/org.eclipse.ecf.presence.bot_1.2.0.v20080916-1301/schema/cha
+ tRoomMessageHandler.exsd
+SHA1-Digest: n8cqKfCb8RiNbVDGrtgsFmgr+jE=
+
+Name: src/org.eclipse.ecf.filetransfer.ui_1.4.0.v20080916-1301/icons/t
+ ransf_download.gif
+SHA1-Digest: T7uLSnK87ygY4ppuX3z+C5lJ8A4=
+
+Name: src/org.eclipse.ecf.provider.xmpp_2.0.100.v20080916-1301/schema/
+ iqProvider.exsd
+SHA1-Digest: xlzzbbTvd4iO6kM4XcfI5ZhAyzY=
+
+Name: src/org.eclipse.ecf.ui_2.0.0.v20080916-1301/icons/enabled/contac
+ t_disabled.gif
+SHA1-Digest: 1SotxoEl6mXeEpfmIy5Uvnn4hF8=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/reference/exte
+ nsion-points/org_eclipse_ecf_discovery_ui_serviceAccessHandler.html
+SHA1-Digest: 1saDw6LRBuIp9igUj1fQnGyTLv8=
+
+Name: src/org.eclipse.ecf.ui_2.0.0.v20080916-1301/icons/disabled/termi
+ nate_co.gif
+SHA1-Digest: Q4uxRzkzRWfptajMLS9YAaZ49po=
+
+Name: src/org.eclipse.ecf.provider.jslp_2.0.0.v20080916-1301/plugin.pr
+ operties
+SHA1-Digest: KDmmX0QYJEIggs/P+p6YzkdxE2Y=
+
+Name: src/org.eclipse.ecf.presence.ui_1.2.0.v20080916-1301/icons/colla
+ boration.gif
+SHA1-Digest: eeVBBURP7S/qEkj36kVqR5YRavQ=
+
+Name: src/org.eclipse.ecf.ui_2.0.0.v20080916-1301/icons/enabled/contac
+ t_away.gif
+SHA1-Digest: U/IBcxlU4ZzvNBB8QpT2BOmx+Cg=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/reference/exte
+ nsion-points/org_eclipse_ecf_identity_namespace.html
+SHA1-Digest: pfQaJXA9XSHaz1EQntaYKll3qKY=
+
+Name: src/org.eclipse.ecf.provider.msn.ui_1.3.0.v20080916-1301/plugin.
+ properties
+SHA1-Digest: cYlklYpGEpEwK5y3tVJqFCmznb0=
+
+Name: src/org.eclipse.ecf.discovery_2.0.0.v20080916-1301/META-INF/MANI
+ FEST.MF
+SHA1-Digest: 91yo4UEPbimyHt/1B5EogMTnfZM=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/intro/css/tutorials
+ .css
+SHA1-Digest: U7nb9e+8qrAgAcTvJgUxpfwkmoA=
+
+Name: src/org.eclipse.ecf.provider.xmpp_2.0.100.v20080916-1301/META-IN
+ F/MANIFEST.MF
+SHA1-Digest: 212Au0TohDAUo3foYN4dnR9QII8=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/reference/exte
+ nsion-points/org_eclipse_ecf_presence_bot_chatRoomRobot.html
+SHA1-Digest: YV26DRu3nCic1fFcKNE36ZgVqKw=
+
+Name: src/org.eclipse.ecf.provider.bittorrent_0.3.0.v20080916-1301/MET
+ A-INF/MANIFEST.MF
+SHA1-Digest: mtnVToo/F1AjC1i0XiUqKcsyHy8=
+
+Name: src/org.eclipse.ecf.discovery_2.0.0.v20080916-1301/about.html
+SHA1-Digest: H0/lBp6dfKk3AdNOqkkKJitKEbI=
+
+Name: src/org.eclipse.ecf.datashare_1.3.0.v20080916-1301/src.zip
+SHA1-Digest: 6Pc52Hhac2+pFXS1MiEi/puzk+E=
+
+Name: src/org.eclipse.ecf.provider.msn_1.2.0.v20080916-1301/plugin.pro
+ perties
+SHA1-Digest: 8lQXb116UNnHYPviO/kJ+SpltBs=
+
+Name: src/org.eclipse.ecf.protocol.msn_1.2.0.v20080916-1301/plugin.pro
+ perties
+SHA1-Digest: jsS7Gu5s84Kwf9N2UzTRN5U4qgc=
+
+Name: src/org.eclipse.ecf.provider.msn.ui_1.3.0.v20080916-1301/META-IN
+ F/MANIFEST.MF
+SHA1-Digest: qTHM6JzEYqVJ3RYlOt4shu4lRu0=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/gettingstarted
+ /default_style.css
+SHA1-Digest: 9bNvyuo1mmlHXXirJ/2UgdkqoO4=
+
+Name: src/org.eclipse.ecf.provider.ui_1.3.0.v20080916-1301/src.zip
+SHA1-Digest: Ndau+tCN7KBa6nCb7JjRjzM5BZ4=
+
+Name: plugin.xml
+SHA1-Digest: BqMjC6S+iKHiyNJruqmTbMQTOLI=
+
+Name: src/org.eclipse.ecf.provider.irc_1.3.0.v20080916-1301/plugin.xml
+SHA1-Digest: 4mOjYt3CevWmhKISxdzD+kB6W1k=
+
+Name: src/org.eclipse.ecf.presence.ui_1.2.0.v20080916-1301/icons/messa
+ ges.gif
+SHA1-Digest: lNomiL+Lh6v0HVkMRRSWMxTDOS4=
+
+Name: src/org.eclipse.ecf.discovery.ui_2.0.0.v20080916-1301/schema/ser
+ viceAccessHandler.exsd
+SHA1-Digest: zm2o/oHQ8pCfKuRl47O16EsM+HI=
+
+Name: src/org.eclipse.ecf.remoteservice.ui_2.0.0.v20080916-1301/plugin
+ .properties
+SHA1-Digest: BXgM2YShpGsZVGysMjaRlzX8Y+o=
+
+Name: src/org.eclipse.ecf.provider.discovery_2.0.0.v20080916-1301/src.
+ zip
+SHA1-Digest: RCCrdX7belcailpM+/Ro6yUMMsc=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/gettingstarted
+ /images/img14.png
+SHA1-Digest: sre9EGnIrINvAa3/sUfPDj3hHsw=
+
+Name: src/org.eclipse.ecf.server.generic_1.2.0.v20080916-1301/META-INF
+ /MANIFEST.MF
+SHA1-Digest: V0eNLuBfbadshxo3SkvVUKOpDo0=
+
+Name: src/org.eclipse.ecf.server.generic_1.2.0.v20080916-1301/about.ht
+ ml
+SHA1-Digest: BdTFaHSOn2GiZKIba1KG4sJCQ4U=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/gettingstarted
+ /images/commperspectiveselect.png
+SHA1-Digest: TPv1pxDfYNC0Bm5QjGojq/Sw6xs=
+
+Name: src/org.eclipse.ecf.filetransfer.ui_1.4.0.v20080916-1301/plugin.
+ properties
+SHA1-Digest: S+XFEVWVAgohZnveVkzjmBZ9jBk=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/reference/exte
+ nsion-points/org_eclipse_ecf_provider_filetransfer_retrieveFileTransf
+ erProtocolFactory.html
+SHA1-Digest: ioN3qVwXJr6Zn0Iiwbt7QO3WANM=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/gettingstarted
+ /images/img1.png
+SHA1-Digest: cyln/KqOLMv/I2nanUU7rM0DwIw=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/tutorials/imag
+ es/img002.gif
+SHA1-Digest: orXXr1p7WVv2gwfGgqGG32q4WAg=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/gettingstarted
+ /images/img11.png
+SHA1-Digest: 7OeTgsPA58E3hs3Z7rbNPhf0E18=
+
+Name: src/org.eclipse.ecf.presence_1.3.0.v20080916-1301/src.zip
+SHA1-Digest: wYmX3Xn6nng2xHY4Wx6Gp25P1X4=
+
+Name: src/org.eclipse.ecf.provider.datashare_1.3.0.v20080916-1301/plug
+ in.xml
+SHA1-Digest: Jmi1t5jmUtDd7oIMHzKiibAPLWc=
+
+Name: src/org.eclipse.ecf.provider.r_osgi_2.0.0.v20080916-1301/src.zip
+SHA1-Digest: 25mKcTjyx8xByJQHaOrO18b+7wg=
+
+Name: src/org.eclipse.ecf.ui_2.0.0.v20080916-1301/icons/enabled/messag
+ e.gif
+SHA1-Digest: 1HTO0rpjURwgBt7buhIggeK4yGw=
+
+Name: src/org.eclipse.ecf.provider.ui_1.3.0.v20080916-1301/plugin.prop
+ erties
+SHA1-Digest: z+n0dd0ZqYIQ22B3zz4AGYRhp+E=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/gettingstarted
+ /images/img6.png
+SHA1-Digest: eiHJdzNi8+UU8Y25r+m4cBYa4Qs=
+
+Name: src/org.eclipse.ecf.provider.bittorrent_0.3.0.v20080916-1301/abo
+ ut.html
+SHA1-Digest: gPlgQPlErWh6sCXRQ6khNOx354c=
+
+Name: src/org.jivesoftware.smack_2.2.1/asl-v20.txt
+SHA1-Digest: moZ/AcA1+ZpGIY7z0VqbyIZ4ZNs=
+
+Name: src/org.eclipse.ecf.provider.filetransfer.efs_1.5.0.v20080916-13
+ 01/src.zip
+SHA1-Digest: 2NMdX8n2UY6tvwTxZta33gVFLgg=
+
+Name: src/org.eclipse.ecf.provider.jslp_2.0.0.v20080916-1301/src.zip
+SHA1-Digest: L3dd4ZnDeXoz4MO8zGdGBRpcs0M=
+
+Name: src/org.jivesoftware.smack_2.2.1/src.zip
+SHA1-Digest: 06vFJvPIuB7kI1whubQOrBwbkKY=
+
+Name: src/org.eclipse.ecf.provider_1.3.0.v20080916-1301/plugin.propert
+ ies
+SHA1-Digest: kQroQOl2NlMfE0+hl6Z6KWZgPHk=
+
+Name: src/org.eclipse.ecf.protocol.msn_1.2.0.v20080916-1301/src.zip
+SHA1-Digest: 4I4maJMdmpIf8GAJkTnakg0mvow=
+
+Name: src/org.eclipse.ecf.provider.xmpp.ui_2.0.0.v20080916-1301/about.
+ html
+SHA1-Digest: FSfyX8mP/L12jxuU4vsYrdnkUVI=
+
+Name: src/org.eclipse.ecf.discovery.ui_2.0.0.v20080916-1301/plugin.pro
+ perties
+SHA1-Digest: NV6Z0Age1lbhLaVgp6klaMaZjW0=
+
+Name: src/org.jivesoftware.smack_2.2.1/META-INF/smack.providers
+SHA1-Digest: XkEAXVeNE064m4a+WOJmM4OYvmI=
+
+Name: src/org.eclipse.ecf.provider.ui_1.3.0.v20080916-1301/icons/conta
+ ct_enabled.gif
+SHA1-Digest: 8rrd2mSHd0cHL/+6cj40ash/MoE=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/tutorials/imag
+ es/img011.gif
+SHA1-Digest: lhcwfp79HmimOB/2lyAtdco65QU=
+
+Name: src/org.eclipse.ecf.provider.jmdns_2.0.0.v20080916-1301/asl-v20.
+ txt
+SHA1-Digest: 4AUlYFIXnuTdnHdf4qfrZf9fRHo=
+
+Name: src/org.eclipse.ecf.ui_2.0.0.v20080916-1301/icons/wizards/chat_w
+ izard.png
+SHA1-Digest: gCeshNbFCkEudo1OeZmkDjG5IMA=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/gettingstarted
+ /prerequisites.html
+SHA1-Digest: DNBrFZMrMxAFlkZf5TnCazJwKRM=
+
+Name: src/org.eclipse.ecf.filetransfer.ui_1.4.0.v20080916-1301/icons/t
+ ransf_upload.gif
+SHA1-Digest: D9fjOfcPNzb0G4cgdf4haKEcDaA=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/tocpics_Concepts.xm
+ l
+SHA1-Digest: DU0A4qj7EpeyYYNnumLEZ083RrY=
+
+Name: src/org.eclipse.ecf.presence.collab.ui_1.2.0.v20080916-1301/icon
+ s/internal_browser.gif
+SHA1-Digest: pdclsAtdh6VlXZVRJZtEsfo4d84=
+
+Name: src/org.eclipse.ecf.provider.filetransfer.scp_2.0.0.v20080916-13
+ 01/plugin.properties
+SHA1-Digest: 5A5upHsewWzykz7nIJzxcSrASms=
+
+Name: src/org.eclipse.ecf.ui_2.0.0.v20080916-1301/icons/enabled/group.
+ gif
+SHA1-Digest: pSvIKcFwsrHM5HDBKhTqBIPlfx8=
+
+Name: src/org.eclipse.ecf.presence.collab.ui_1.2.0.v20080916-1301/META
+ -INF/MANIFEST.MF
+SHA1-Digest: 2e6Yblx1kEj/VqwrODKL7Hv2tUs=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/reference/exte
+ nsion-points/org_eclipse_ecf_presence_ui_rosterViewerDropTarget.html
+SHA1-Digest: AMs4dElxaRh1rBJWgexlI+GCQvw=
+
+Name: src/org.eclipse.ecf.telephony.call_1.2.0.v20080916-1301/src.zip
+SHA1-Digest: 5U52z8Totci4tG4lE56AE4imJN4=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/topics_Samples.xml
+SHA1-Digest: fpCl8f422XZieXpOfRb26hKn1V0=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/gettingstarted
+ /images/img9.png
+SHA1-Digest: itEeYYTda3yxT5Is7bWO+fE9uQc=
+
+Name: src/org.eclipse.ecf.ui_2.0.0.v20080916-1301/icons/enabled/messag
+ es.gif
+SHA1-Digest: Ymv3iva9gnbGmt14KKCvhzrS76I=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/intro/css/whatsnew.
+ css
+SHA1-Digest: SgvO/GHkP761n9vq3Q4qCeGSoik=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/reference/exte
+ nsion-points/org_eclipse_ecf_containerFactory.html
+SHA1-Digest: lU4fct7Bknx5WUMQCrni8NSqACc=
+
+Name: src/org.eclipse.ecf.provider.jmdns_2.0.0.v20080916-1301/lib/jmdn
+ s.jar
+SHA1-Digest: L2pUDwB1J3XOPbphyUn09XgN8iI=
+
+Name: src/org.eclipse.ecf.docshare_2.0.0.v20080916-1301/plugin.propert
+ ies
+SHA1-Digest: wAL3eDLKD1ga6/UqqQYM/E7HTtE=
+
+Name: src/org.eclipse.ecf.filetransfer.ui_1.4.0.v20080916-1301/src.zip
+SHA1-Digest: Qunz6rWXRbp98bUj+xx0jYs5O5k=
+
+Name: src/org.eclipse.ecf.ui_2.0.0.v20080916-1301/schema/connectWizard
+ s.exsd
+SHA1-Digest: 5maSHmXR0mLc3gzxwSgp0aDUvqs=
+
+Name: src/org.eclipse.ecf.provider.discovery_2.0.0.v20080916-1301/plug
+ in.properties
+SHA1-Digest: YpryXSiM8Uf4dy47fhSTsNjNIBE=
+
+Name: src/org.eclipse.ecf.provider.bittorrent_0.3.0.v20080916-1301/plu
+ gin.xml
+SHA1-Digest: nzSWxZh9BT/isxthR80cWSZDfjI=
+
+Name: src/org.eclipse.ecf.provider.msn.ui_1.3.0.v20080916-1301/about.h
+ tml
+SHA1-Digest: lf5gQdSMMZaZhjdXz9p7M6OQojI=
+
+Name: src/org.eclipse.ecf.provider.jmdns_2.0.0.v20080916-1301/plugin.x
+ ml
+SHA1-Digest: 7398Cf8ZWvP5SRxFzvOT3G7W6EA=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/tutorials/inst
+ allation.html
+SHA1-Digest: PZzgH7tUrplANs33q9bBAbGZbKs=
+
+Name: src/org.eclipse.ecf.docshare_2.0.0.v20080916-1301/META-INF/MANIF
+ EST.MF
+SHA1-Digest: G9MnV9KQhMDqc04ZOHn7fVlLlSc=
+
+Name: src/org.eclipse.ecf.provider.remoteservice_1.3.0.v20080916-1301/
+ plugin.xml
+SHA1-Digest: TzphuGzbIc16N3ph53gvIC2h/7k=
+
+Name: src/org.eclipse.ecf.provider.filetransfer.scp_2.0.0.v20080916-13
+ 01/META-INF/MANIFEST.MF
+SHA1-Digest: ToEBFXVasaYxHdE3r82Xtvx7HIY=
+
+Name: src/ch.ethz.iks.r_osgi.remote_1.0.0.RC2_v20080916-1301/src.zip
+SHA1-Digest: Dpk0cG+1SRi/u87aNJF4EFeonlc=
+
+Name: src/org.eclipse.ecf.protocol.bittorrent_0.3.0/src.zip
+SHA1-Digest: 4BVKHo70AH10pQWqy2pQ6nwEPqo=
+
+Name: src/org.eclipse.ecf.provider.datashare_1.3.0.v20080916-1301/plug
+ in.properties
+SHA1-Digest: 99TqfFzpWab3EEbo0Gfu4PxE118=
+
+Name: src/org.eclipse.ecf.telephony.call.ui_1.2.0.v20080916-1301/src.z
+ ip
+SHA1-Digest: f2Wy59x0Z+eWvRqlArdy4k+1UBM=
+
+Name: src/org.eclipse.ecf.provider.xmpp_2.0.100.v20080916-1301/schema/
+ providerDirectories.exsd
+SHA1-Digest: nmqwS1jhKdbBrngP8QbaG1m0XQ4=
+
+Name: src/org.eclipse.ecf.remoteservice.ui_2.0.0.v20080916-1301/about.
+ html
+SHA1-Digest: swgNNvwJJYl4QF57kJhpM2U3vcM=
+
+Name: src/org.eclipse.ecf.server_1.3.0.v20080916-1301/plugin.propertie
+ s
+SHA1-Digest: vZYdZ5Y91iLYg1a9fKeM2Qtx+Ng=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/gettingstarted
+ /images/img4.png
+SHA1-Digest: OhDiWm1/tB4tKqyb12OrOD174AI=
+
+Name: src/org.eclipse.ecf.provider.bittorrent.ui_0.2.0.v20080916-1301/
+ icons/transf_download.gif
+SHA1-Digest: ujrLrwryPbHEBSXv7vMvE7QlnPE=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/concepts/share
+ dobject.html
+SHA1-Digest: xqQ39Iim2m8bljQcd3RMu5CC3Kc=
+
+Name: src/org.jivesoftware.smack_2.2.1/jars/xpp.jar
+SHA1-Digest: CavYCKWeIogBSeLxyGxl330Hc9A=
+
+Name: src/org.eclipse.ecf.provider.xmpp_2.0.100.v20080916-1301/about.h
+ tml
+SHA1-Digest: ZTy3OtK4kXn8/eZv6LHQwvf8Qko=
+
+Name: src/org.eclipse.ecf.ui_2.0.0.v20080916-1301/icons/enabled/new_co
+ nnection.gif
+SHA1-Digest: Q3Fstw9TOd15wb8bgI8UGUgRQyU=
+
+Name: src/org.eclipse.ecf.provider.msn.ui_1.3.0.v20080916-1301/plugin.
+ xml
+SHA1-Digest: ZPFXFAMzGk0E1G9Uu2VQC2AL9Sw=
+
+Name: src/org.eclipse.ecf.sharedobject_1.3.0.v20080916-1301/src.zip
+SHA1-Digest: hJf0N8OThXew4LrmG//DuxDpeGo=
+
+Name: src/org.eclipse.ecf.discovery.ui_2.0.0.v20080916-1301/icons/nav_
+ refresh.gif
+SHA1-Digest: 4VEvfbuB4FVJn53LIlmV59F3GMY=
+
+Name: src/org.jivesoftware.smack_2.2.1/about.html
+SHA1-Digest: pQ2AF4bqZylrp9VKzOKr3xF7cP4=
+
+Name: src/org.eclipse.ecf.provider.irc.ui_1.3.0.v20080916-1301/plugin.
+ xml
+SHA1-Digest: I1WwtUyXOWRPF1b9KItrw7oIDNw=
+
+Name: src/org.eclipse.ecf.provider.irc_1.3.0.v20080916-1301/lib/irclib
+ .jar
+SHA1-Digest: i01Y3tg3isj4f92x48KKRSDTtGA=
+
+Name: src/org.eclipse.ecf.provider.bittorrent.ui_0.2.0.v20080916-1301/
+ plugin.xml
+SHA1-Digest: YFuKGyPvX+HqVN1prPaXQHWm2GM=
+
+Name: src/org.eclipse.ecf.protocol.msn_1.2.0.v20080916-1301/META-INF/M
+ ANIFEST.MF
+SHA1-Digest: 9ormZlCyGulLDqzUtVEzPJXYqNc=
+
+Name: src/org.eclipse.ecf.server_1.3.0.v20080916-1301/about.html
+SHA1-Digest: YaDmGM07Q5OMjsvP89nFDY3kkaM=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/intro/css/overview.
+ css
+SHA1-Digest: c1li24E9/VWbZr7gMDeUTRnkjfg=
+
+Name: src/org.eclipse.ecf.presence.bot_1.2.0.v20080916-1301/schema/cha
+ tRoomRobot.exsd
+SHA1-Digest: GIeKtsC92aUb3aGcXCNaVolexWc=
+
+Name: src/org.eclipse.ecf.presence.bot_1.2.0.v20080916-1301/src.zip
+SHA1-Digest: lazOa7ek/L1946gT+biedIHErLU=
+
+Name: src/org.eclipse.ecf.filetransfer.ui_1.4.0.v20080916-1301/icons/f
+ ilewiz_upload.png
+SHA1-Digest: ug8pkVTSE2fUM+Fiy3M2GxTR6aY=
+
+Name: src/org.eclipse.ecf.provider_1.3.0.v20080916-1301/plugin.xml
+SHA1-Digest: Ff3REAxk0I9+MSTAFFTcj1y9hFE=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/gettingstarted
+ /images/img2.png
+SHA1-Digest: IBahQHOeRXOcX4RM7vvVylVVk94=
+
+Name: src/org.eclipse.ecf.provider.datashare_1.3.0.v20080916-1301/META
+ -INF/MANIFEST.MF
+SHA1-Digest: onuUlDqKk53higb2TtvlVRvTa94=
+
+Name: src/org.eclipse.ecf.provider.jmdns_2.0.0.v20080916-1301/NOTICE.t
+ xt
+SHA1-Digest: 3oJzD6enMN0KgkUlxQkom+YHmag=
+
+Name: src/org.eclipse.ecf.protocol.msn_1.2.0.v20080916-1301/about.html
+SHA1-Digest: YxHcjj8lHv0MC0PEFanWLye6nus=
+
+Name: src/org.eclipse.ecf.telephony.call.ui_1.2.0.v20080916-1301/plugi
+ n.properties
+SHA1-Digest: uD2Vc7TsDWrHWUL32E7niS1ozPw=
+
+Name: src/org.eclipse.ecf.provider.remoteservice_1.3.0.v20080916-1301/
+ plugin.properties
+SHA1-Digest: Rb+hgeBdYoLwQ2uPAmN+lWRaDAY=
+
+Name: src/org.eclipse.ecf.provider.r_osgi_2.0.0.v20080916-1301/plugin.
+ properties
+SHA1-Digest: /fVFVMgXhjcESK//N88t8oceVBE=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/gettingstarted
+ /images/commperspectivewidgets.png
+SHA1-Digest: UblZA5WOl2qbrkqgr9qpOX8wAQs=
+
+Name: src/org.eclipse.ecf.provider.ui_1.3.0.v20080916-1301/about.html
+SHA1-Digest: 6dVc5/GjVYr871Y7svmUILBwyLw=
+
+Name: src/org.eclipse.ecf.discovery.ui_2.0.0.v20080916-1301/icons/defa
+ ult_provider_image.gif
+SHA1-Digest: guCYQyQBTdwuF+zHiuP8G8WnneA=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/reference/exte
+ nsion-points/org_eclipse_ecf_start.html
+SHA1-Digest: NV0Gp8WfPWIfgsUGfgGyKBT2s9s=
+
+Name: src/org.eclipse.ecf.presence_1.3.0.v20080916-1301/about.html
+SHA1-Digest: udxZu5UPxaAU9cjBWt9MDxP3y74=
+
+Name: src/org.eclipse.ecf.remoteservice.ui_2.0.0.v20080916-1301/src.zi
+ p
+SHA1-Digest: JEeU95QFfzeC3gmXeO6rnQQR7HY=
+
+Name: src/org.eclipse.ecf.provider.bittorrent.ui_0.2.0.v20080916-1301/
+ about.html
+SHA1-Digest: f6Adi1550nThNWpRAHa3Du/pYGo=
+
+Name: src/org.eclipse.ecf.provider.irc.ui_1.3.0.v20080916-1301/about.h
+ tml
+SHA1-Digest: UcbVExL/MpvSYZmFuPGVVFhIPnU=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/tutorials/imag
+ es/img001.gif
+SHA1-Digest: 99sILnE8HJd65NAooqyz79uvNJA=
+
+Name: src/org.eclipse.ecf.presence.collab.ui_1.2.0.v20080916-1301/plug
+ in.properties
+SHA1-Digest: Vi7qvjjRihYZZ/Wgk3R52B6P+pg=
+
+Name: src/org.eclipse.ecf.server.generic_1.2.0.v20080916-1301/plugin.p
+ roperties
+SHA1-Digest: NmuCTNY6/biww3jNfmmErnKN02M=
+
+Name: src/org.eclipse.ecf.provider.jmdns_2.0.0.v20080916-1301/about.ht
+ ml
+SHA1-Digest: APw+wCq/WxAxMjz5el4bBI+8/KI=
+
+Name: src/org.eclipse.ecf.sharedobject_1.3.0.v20080916-1301/META-INF/M
+ ANIFEST.MF
+SHA1-Digest: yVRurkQ9DplqGKzOb98YNp/i9m0=
+
+Name: src/org.eclipse.ecf.provider.discovery_2.0.0.v20080916-1301/abou
+ t.html
+SHA1-Digest: zzU5kr0ZAsPiSyNZxT2+YHf7XnQ=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/gettingstarted
+ /images/img5.png
+SHA1-Digest: 2sXdaN0P6/32JitK3HIjFP/1VOI=
+
+Name: src/org.eclipse.ecf.remoteservice_2.0.0.v20080916-1301/about.htm
+ l
+SHA1-Digest: g0PAGUxcX8v2uh+vHMTbb30fgCQ=
+
+Name: src/org.eclipse.ecf.presence.bot_1.2.0.v20080916-1301/META-INF/M
+ ANIFEST.MF
+SHA1-Digest: eeaHbcQSoDUF8N5f+/36BQ6vBjM=
+
+Name: src/org.eclipse.ecf.discovery.ui_2.0.0.v20080916-1301/src.zip
+SHA1-Digest: zVzGW23Y5pv+OAVrdGs/MSQWQTc=
+
+Name: src/org.eclipse.ecf.ui_2.0.0.v20080916-1301/icons/enabled/collab
+ oration_32x32.png
+SHA1-Digest: nzcorHf7DH36jbrt521LDXjvCS4=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/tutorials/imag
+ es/img005.gif
+SHA1-Digest: 0NjnMXGxQufUSYIh8aOHRSNHhXE=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/gettingstarted
+ /quickStart.html
+SHA1-Digest: YyIJqTlZNDnZpQGLxap7+o0OOio=
+
+Name: src/org.eclipse.ecf.provider.filetransfer.scp_2.0.0.v20080916-13
+ 01/about.html
+SHA1-Digest: No4cPN1GlzO0Uov1imUe7/xNGbc=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/gettingstarted
+ /images/img13.png
+SHA1-Digest: VqrUAVRhB5xg4C8htkLaSicV3lU=
+
+Name: src/org.eclipse.ecf.provider.remoteservice_1.3.0.v20080916-1301/
+ about.html
+SHA1-Digest: SxM2tuAV+cD5F8G60WCtVriqH6Y=
+
+Name: src/org.eclipse.ecf.discovery_2.0.0.v20080916-1301/src.zip
+SHA1-Digest: 2ZjQ3AqA6UzdglBNIWXVg61Sf6o=
+
+Name: src/org.eclipse.ecf.ui_2.0.0.v20080916-1301/icons/enabled/add.gi
+ f
+SHA1-Digest: mpv2Ytx8ajU0g0YB6Sm/X44kmIY=
+
+Name: src/org.eclipse.ecf.provider.bittorrent.ui_0.2.0.v20080916-1301/
+ src.zip
+SHA1-Digest: 4UP65TmLyRpmtK4q4oYctsI8ujA=
+
+Name: src/org.eclipse.ecf.provider.msn_1.2.0.v20080916-1301/plugin.xml
+SHA1-Digest: bSmKn0lZ0N6iqZg055ftrto48v4=
+
+Name: src/org.eclipse.ecf.provider.ui_1.3.0.v20080916-1301/icons/perso
+ n.gif
+SHA1-Digest: FLLb/mn/RreJ990I3DJXd3qJaKI=
+
+Name: src/org.eclipse.ecf.presence.bot_1.2.0.v20080916-1301/about.html
+SHA1-Digest: VnRR0eTYgUKc9P3PXqN1tY6P3+M=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/intro/whatsnewExten
+ sionContent.xml
+SHA1-Digest: Bs1mt3/vPmmETRLm1zx3er3LfQI=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/concepts/conta
+ iner.html
+SHA1-Digest: VQ9CGGX8621YaX9gSUERk//1Knc=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/gettingstarted
+ /runserver.html
+SHA1-Digest: mlFAbr36UWFjePdBpCYhCpP4U7Y=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/gettingstarted
+ /images/img7.png
+SHA1-Digest: uap1HVnN1bvJlnenXdie3c6tQzA=
+
+Name: src/ch.ethz.iks.r_osgi.remote_1.0.0.RC2_v20080916-1301/plugin.pr
+ operties
+SHA1-Digest: WzbBlMmmzvxdCPC/VoYtXYpcXEg=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/tutorials/imag
+ es/img008.gif
+SHA1-Digest: l8RR/u2zk+eqEtq6RxtiO4bh09E=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/tutorials/imag
+ es/img012.gif
+SHA1-Digest: VXc4jQbsc9v6enRYTRxm/8ikgeY=
+
+Name: plugin.properties
+SHA1-Digest: Vy52QwvUmDdXeQS62GTK+G6qB+g=
+
+Name: src/org.eclipse.ecf.presence.collab.ui_1.2.0.v20080916-1301/src.
+ zip
+SHA1-Digest: zPwXWCWTV2EAmQPoEM6xs04apFI=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/gettingstarted
+ /images/img15.png
+SHA1-Digest: DRGiavlc7QTrjfVxGQ3j/GEsTQM=
+
+Name: src/org.eclipse.ecf.provider.remoteservice_1.3.0.v20080916-1301/
+ src.zip
+SHA1-Digest: dn0cHU/az7z27wi4lsmf5Fob0WI=
+
+Name: src/org.eclipse.ecf.provider.bittorrent_0.3.0.v20080916-1301/src
+ .zip
+SHA1-Digest: Qxft++T5JkWyMuj7qdptsBMqGzA=
+
+Name: src/org.eclipse.ecf.provider.xmpp_2.0.100.v20080916-1301/asl-v20
+ .txt
+SHA1-Digest: WN4TRpt8l5u2H8O6d3BUAxruuJk=
+
+Name: src/org.eclipse.ecf.provider.filetransfer.scp_2.0.0.v20080916-13
+ 01/src.zip
+SHA1-Digest: wMVWy696m1V1twOaJbC3qZF3W5I=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/about.html
+SHA1-Digest: RQ/z8DT08iibzTuBm5EflpnBK94=
+
+Name: src/org.eclipse.ecf.ui_2.0.0.v20080916-1301/icons/enabled/identi
+ ty.gif
+SHA1-Digest: +JJcco0YV5UMewYboXVbDngKrKI=
+
+Name: src/org.eclipse.ecf.server.generic_1.2.0.v20080916-1301/server.x
+ ml
+SHA1-Digest: o4GDAB+teYxsbSmCbEMU0UqjLRY=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/tutorials/imag
+ es/img010.gif
+SHA1-Digest: eNNd0pkQrLz+mhfgoxAzWYteUA4=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/tutorials/imag
+ es/img007.gif
+SHA1-Digest: GzST9Nkzys6I4AJkIt1fTTVtAvk=
+
+Name: src/org.eclipse.ecf.provider_1.3.0.v20080916-1301/src.zip
+SHA1-Digest: S7GSsjyHiTFxdYapNxQDwgi2oRM=
+
+Name: src/org.eclipse.ecf.provider.bittorrent.ui_0.2.0.v20080916-1301/
+ META-INF/MANIFEST.MF
+SHA1-Digest: gkGEdGwMoApEINnjVYc8WzCcseM=
+
+Name: src/org.eclipse.ecf.telephony.call_1.2.0.v20080916-1301/META-INF
+ /MANIFEST.MF
+SHA1-Digest: HF+nLM/1uHI093mjKDfjPQSFXFU=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/reference/exte
+ nsion-points/org_eclipse_ecf_presence_bot_imMessageHandler.html
+SHA1-Digest: nFgpbqHNwUebNCsR5174W9ZE6MM=
+
+Name: src/org.jivesoftware.smack_2.2.1/META-INF/smack-config.xml
+SHA1-Digest: r8T66Ej5UBdf6dQBUZcovyI4sak=
+
+Name: src/org.eclipse.ecf.presence.collab.ui_1.2.0.v20080916-1301/icon
+ s/console_view.gif
+SHA1-Digest: XyGcPS5gBLATtygfUu4yPPOgMEY=
+
+Name: src/org.eclipse.ecf.sharedobject_1.3.0.v20080916-1301/plugin.xml
+SHA1-Digest: 3kOqceXvUlcs2cuilble1E3MvQU=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/plugin.properties
+SHA1-Digest: hVAC1juFuEvLLVOymMJRpnyua8s=
+
+Name: src/org.eclipse.ecf.provider.msn.ui_1.3.0.v20080916-1301/src.zip
+SHA1-Digest: f8T7M/SH3/rUsAC/vREyvLT5yzc=
+
+Name: src/org.eclipse.ecf.filetransfer.ui_1.4.0.v20080916-1301/icons/f
+ ilewiz_download.png
+SHA1-Digest: vWgFBw3qhXsLTbyuY0UvEuPNRP4=
+
+Name: src/org.eclipse.ecf.server.generic_1.2.0.v20080916-1301/launchco
+ nfigs/ECF Server Application.launch
+SHA1-Digest: TruEf0BTXvu4vlfiKxive2Zij5o=
+
+Name: src/org.eclipse.ecf.server.generic_1.2.0.v20080916-1301/src.zip
+SHA1-Digest: amSkXPDsZSx1ZGUBpTF/pFA1cvE=
+
+Name: src/org.eclipse.ecf.presence.bot_1.2.0.v20080916-1301/plugin.xml
+SHA1-Digest: 1nztH+YGavrVPC+BvsfimGn0RDc=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/gettingstarted
+ /helloworld.html
+SHA1-Digest: kG7pYeUVNys45oIQ3YtxDT/l7Ys=
+
+Name: src/org.eclipse.ecf.ui_2.0.0.v20080916-1301/schema/configuration
+ Wizards.exsd
+SHA1-Digest: i4Cw0SgeaX18UuTOoOaflwNiP2U=
+
+Name: src/org.eclipse.ecf.presence_1.3.0.v20080916-1301/plugin.propert
+ ies
+SHA1-Digest: gD6JTL0WsroWAV60GXoo50nqV00=
+
+Name: src/org.eclipse.ecf.server.generic_1.2.0.v20080916-1301/plugin.x
+ ml
+SHA1-Digest: VshatHUqeNYSjCVG/hrXNojUNXs=
+
+Name: src/org.eclipse.ecf.provider.filetransfer.efs_1.5.0.v20080916-13
+ 01/META-INF/MANIFEST.MF
+SHA1-Digest: zF0tuOcyWMtDJb4s+Onrp5PReCM=
+
+Name: src/org.eclipse.ecf.provider_1.3.0.v20080916-1301/about.html
+SHA1-Digest: 0XuMumPYXIl9QcUSH5u+2Y6U0tY=
+
+Name: src/org.eclipse.ecf.presence.ui_1.2.0.v20080916-1301/icons/chats
+ .gif
+SHA1-Digest: ww9HAprMpJi6DTrINXxlPoE2ELI=
+
+Name: src/org.eclipse.ecf.provider.xmpp.ui_2.0.0.v20080916-1301/src.zi
+ p
+SHA1-Digest: H6qkky1UPX+7D3/ABaVNlRRxq1I=
+
+Name: src/org.eclipse.ecf.provider.jmdns_2.0.0.v20080916-1301/plugin.p
+ roperties
+SHA1-Digest: bQM2HSfm5vuIbaBY3J7lYvGCkY8=
+
+Name: src/org.eclipse.ecf.presence.ui_1.2.0.v20080916-1301/about.html
+SHA1-Digest: QWgEumoXEDWNzWty4q26B0APqmw=
+
+Name: src/org.eclipse.ecf.server.generic_1.2.0.v20080916-1301/launchco
+ nfigs/ECF Client Application.launch
+SHA1-Digest: fXIfmRwekvxyni6/UL/gFvlqqeY=
+
+Name: src/org.eclipse.ecf.discovery.ui_2.0.0.v20080916-1301/about.html
+SHA1-Digest: G7vAujLTX5H9e58b24rYPR5REfo=
+
+Name: src/org.eclipse.ecf.telephony.call_1.2.0.v20080916-1301/about.ht
+ ml
+SHA1-Digest: kDzKGMSYtLyQMPnvohUCjQlfgwc=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/gettingstarted
+ /images/img12.png
+SHA1-Digest: fasFxdbqjoFpUoBLIQ2u9wbsaJA=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/intro/css/images/ec
+ f_intro.gif
+SHA1-Digest: 6XSdtsFRnAxQIKM0g6N/9ZKoFB4=
+
+Name: src/org.eclipse.ecf.ui_2.0.0.v20080916-1301/plugin.xml
+SHA1-Digest: 37u0zeEGI9z8GtRV3eUw2NaobgM=
+
+Name: src/org.eclipse.ecf.ui_2.0.0.v20080916-1301/icons/enabled/add_gr
+ oup.gif
+SHA1-Digest: eY8vKFNbNf+lB6B+X66Hf7kcOyo=
+
+Name: src/org.eclipse.ecf.provider.xmpp_2.0.100.v20080916-1301/plugin.
+ xml
+SHA1-Digest: 3VcHKSm78mb0Jb45LnaAgCwspeE=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/tutorials/bot.
+ html
+SHA1-Digest: DQVRZMgfZ8scOFyDbAg+p+Kg6iA=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/intro/overviewExten
+ sionContent.xml
+SHA1-Digest: IqiXnRJO088ofJp9mjWlGJMSy2E=
+
+Name: src/org.jivesoftware.smack_2.2.1/plugin.properties
+SHA1-Digest: edehMO6Hfid7Urnxqwwc0ehUIvc=
+
+Name: src/org.eclipse.ecf.provider.jmdns_2.0.0.v20080916-1301/src.zip
+SHA1-Digest: bI/bfjF0rRVM+vrwc+6f04I1ppM=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/gettingstarted
+ /connect.html
+SHA1-Digest: bli8WZVNlQbJlJBAjF18tBNVEck=
+
+Name: src/org.eclipse.ecf.presence_1.3.0.v20080916-1301/META-INF/MANIF
+ EST.MF
+SHA1-Digest: G2pk9ND6rjF1IzrKhqvaHL3ZXsk=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/topics_Reference.xm
+ l
+SHA1-Digest: 9Za7kqAn7r6JSdE+xpvF61D92Ew=
+
+Name: src/org.eclipse.ecf.provider.jslp_2.0.0.v20080916-1301/plugin.xm
+ l
+SHA1-Digest: XOYmgZSC4FOar0octN080kob8eA=
+
+Name: src/org.eclipse.ecf.datashare_1.3.0.v20080916-1301/about.html
+SHA1-Digest: 4OtugQ026vbAPbSWp5Pyew0PwLw=
+
+Name: about.html
+SHA1-Digest: q/X5ijj/8RbHsvqd0uwQtM1+8tk=
+
+Name: src/org.eclipse.ecf.provider.ui_1.3.0.v20080916-1301/META-INF/MA
+ NIFEST.MF
+SHA1-Digest: 7xH0GU+DBtbtfMHCp2tzWGNNxus=
+
+Name: src/org.eclipse.ecf.telephony.call.ui_1.2.0.v20080916-1301/about
+ .html
+SHA1-Digest: F6d6pRGdjQMC9owe82d9oIILpb0=
+
+Name: src/org.eclipse.ecf.presence.bot_1.2.0.v20080916-1301/schema/imM
+ essageHandler.exsd
+SHA1-Digest: F910Np6nYbltCyy+a20wZq28BzI=
+
+Name: src/org.eclipse.ecf.ui_2.0.0.v20080916-1301/icons/enabled/contac
+ t_enabled.gif
+SHA1-Digest: VRNUQXAdvdPGte3Hx3mYiFSGz54=
+
+Name: src/org.eclipse.ecf.provider.r_osgi_2.0.0.v20080916-1301/plugin.
+ xml
+SHA1-Digest: LPRs5Wh+JEn64Jk5NHa+yjVjsHQ=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/notices.html
+SHA1-Digest: 7qqJjaItyjid5P+7uu8VKoWEqNI=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/reference/exte
+ nsion-points/org_eclipse_ecf_sharedobject_sharedObjectFactory.html
+SHA1-Digest: 3SuaEU88KjOae7mli8IUrsA4Fc8=
+
+Name: src/org.eclipse.ecf.provider.discovery_2.0.0.v20080916-1301/plug
+ in.xml
+SHA1-Digest: Tf8BQacUs6s28FyFpJnr7ZUTjHc=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/reference/exte
+ nsion-points/org_eclipse_ecf_provider_filetransfer_browseFileTransfer
+ ProtocolFactory.html
+SHA1-Digest: FteDXBoGmksjlPmd5c48Wv/C8RI=
+
+Name: src/org.eclipse.ecf.provider.irc_1.3.0.v20080916-1301/about.html
+SHA1-Digest: 5nk37Bm+E3mdKiB/QcaBJgmxPgU=
+
+Name: src/org.eclipse.ecf.provider.xmpp_2.0.100.v20080916-1301/plugin.
+ properties
+SHA1-Digest: 2o3Afgd/dlSU5NmcWTjyT2wxCxw=
+
+Name: src/org.eclipse.ecf.ui_2.0.0.v20080916-1301/src.zip
+SHA1-Digest: 5MvwuRM5ejX1veU/CNjCyYFh5O8=
+
+Name: src/org.eclipse.ecf.provider.filetransfer.efs_1.5.0.v20080916-13
+ 01/plugin.properties
+SHA1-Digest: EgjjC/nLXedH55GnfQk9jH/Nkz8=
+
+Name: src/org.eclipse.ecf.provider.jmdns_2.0.0.v20080916-1301/META-INF
+ /MANIFEST.MF
+SHA1-Digest: xMP9o1G+bDphonPesNNnkocB0ng=
+
+Name: src/org.eclipse.ecf.remoteservice_2.0.0.v20080916-1301/META-INF/
+ MANIFEST.MF
+SHA1-Digest: XtCH14fI+YKfHO9gisVrWcYvfRI=
+
+Name: src/org.eclipse.ecf.docshare_2.0.0.v20080916-1301/src.zip
+SHA1-Digest: J07cDjkmgVe9f6xPWfGdKOSpJEA=
+
+Name: src/org.eclipse.ecf.provider.xmpp.ui_2.0.0.v20080916-1301/plugin
+ .properties
+SHA1-Digest: ek2UTQ5jVZqE7YNAfAuk7v4PQOs=
+
+Name: src/org.eclipse.ecf.telephony.call.ui_1.2.0.v20080916-1301/META-
+ INF/MANIFEST.MF
+SHA1-Digest: 2zr9LxJgJOh88FyoDKouYo1/t48=
+
+Name: src/org.eclipse.ecf.provider.filetransfer.efs_1.5.0.v20080916-13
+ 01/about.html
+SHA1-Digest: lQOoOXI9JlQGDBzQSykalUxPKbI=
+
+Name: src/org.eclipse.ecf.discovery_2.0.0.v20080916-1301/plugin.proper
+ ties
+SHA1-Digest: RUol4Dckby7y0OWn6zlq+e+Fkzc=
+
+Name: src/org.eclipse.ecf.provider.datashare_1.3.0.v20080916-1301/abou
+ t.html
+SHA1-Digest: NoGaBbHfLfHGgUviGqIIQPmrb6Y=
+
+Name: src/org.eclipse.ecf.provider.irc.ui_1.3.0.v20080916-1301/META-IN
+ F/MANIFEST.MF
+SHA1-Digest: 5UFshUZZZCHCrWOH7AlhF/DOGMQ=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/reference/exte
+ nsion-points/org_eclipse_ecf_presence_bot_imRobot.html
+SHA1-Digest: nqM0WtVlippap2UGS0PB3rhjV9k=
+
+Name: src/org.eclipse.ecf.provider.bittorrent_0.3.0.v20080916-1301/plu
+ gin.properties
+SHA1-Digest: CAmI06JFLkBw0BEiTpkwYOoZp0A=
+
+Name: src/org.eclipse.ecf.provider.jslp_2.0.0.v20080916-1301/about.htm
+ l
+SHA1-Digest: pK6A6ZfsXHRSiDL/QuI1/ohmhU0=
+
+Name: src/org.eclipse.ecf.presence.ui_1.2.0.v20080916-1301/schema/rost
+ erViewerDropTarget.exsd
+SHA1-Digest: j48IDMJOjZNRlFnod4HSGnHrqwE=
+
+Name: src/org.eclipse.ecf.provider.irc_1.3.0.v20080916-1301/asl-v20.tx
+ t
+SHA1-Digest: 6xcrhSVV/JWKacnQlD5j0TdSwD8=
+
+Name: src/org.eclipse.ecf.datashare_1.3.0.v20080916-1301/plugin.proper
+ ties
+SHA1-Digest: dzxSil9GgmhqOfbGmn9g9YpoEOw=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/topics_GettingStart
+ ed.xml
+SHA1-Digest: O6kG7ynR8sOkiDyoiSXcK85jti4=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/tutorials/imag
+ es/img004.gif
+SHA1-Digest: wvj01vBbSjis1OUyjyDNYBGdMFs=
+
+Name: src/org.eclipse.ecf.provider.discovery_2.0.0.v20080916-1301/META
+ -INF/MANIFEST.MF
+SHA1-Digest: ddxPA5da9rbUf/uB7kMSYFjkmx0=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/reference/exte
+ nsion-points/org_eclipse_ecf_ui_connectWizards.html
+SHA1-Digest: cLlJaPkwJc50buHx2GcFurdg/8I=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/META-INF/MANIFEST.M
+ F
+SHA1-Digest: ISP0LZCSRBLUerSKpnAydFadkBk=
+
+Name: src/org.eclipse.ecf.telephony.call_1.2.0.v20080916-1301/plugin.p
+ roperties
+SHA1-Digest: ZmjNzxfGy0vvD1NUNwPKzqV6liE=
+
+Name: src/org.eclipse.ecf.filetransfer.ui_1.4.0.v20080916-1301/icons/t
+ ransf_view.gif
+SHA1-Digest: 80tP3syCR68hc1pbsTjNpsz1Vwk=
+
+Name: src/org.eclipse.ecf.provider.irc_1.3.0.v20080916-1301/META-INF/M
+ ANIFEST.MF
+SHA1-Digest: QI51pmAvrx6WekQKdsWR1Cx+h9E=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/tutorials/imag
+ es/img013.gif
+SHA1-Digest: WcIjexWHkI01qBSbmkM0mDn//ck=
+
+Name: src/org.eclipse.ecf.ui_2.0.0.v20080916-1301/about.html
+SHA1-Digest: n4ut5FyToRlvBkn3x/YQmIuUkdE=
+
+Name: src/org.eclipse.ecf.presence.ui_1.2.0.v20080916-1301/src.zip
+SHA1-Digest: ADQG934qOWuj9LR8GmIKsZg7Hg0=
+
+Name: src/org.eclipse.ecf.filetransfer.ui_1.4.0.v20080916-1301/plugin.
+ xml
+SHA1-Digest: Q15OpffVnI2opTsD0AlPUBXZyLI=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/intro/css/images/ec
+ f_intro_hov.gif
+SHA1-Digest: eEaIpZPrz/16REPUh86znT1FrcA=
+
+Name: src/org.eclipse.ecf.presence.ui_1.2.0.v20080916-1301/icons/conta
+ cts.gif
+SHA1-Digest: COLABKPufwVBFj0ps7TVoMmH2AI=
+
+Name: src/org.eclipse.ecf.ui_2.0.0.v20080916-1301/icons/enabled/contac
+ t_do_not_disturb.gif
+SHA1-Digest: HVccI1EZ9fIiNoCpoMk0b0qR82U=
+
+Name: src/org.eclipse.ecf.ui_2.0.0.v20080916-1301/icons/enabled/chat_3
+ 2X32.png
+SHA1-Digest: Kw2bEvN2NjUrG37bDqKhMeToGKM=
+
+Name: src/org.eclipse.ecf.filetransfer.ui_1.4.0.v20080916-1301/META-IN
+ F/MANIFEST.MF
+SHA1-Digest: e3uAIbrViqJwYN9Jjbi4719Wdw4=
+
+Name: src/org.eclipse.ecf.ui_2.0.0.v20080916-1301/icons/enabled/commun
+ ications.gif
+SHA1-Digest: EBwH6gpQVJ01gs/7u2o8G+Mokvk=
+
+Name: src/org.eclipse.ecf.provider.bittorrent.ui_0.2.0.v20080916-1301/
+ plugin.properties
+SHA1-Digest: tAEVi7wCVXkxlhSNEL1QfQ8IKCw=
+
+Name: src/org.eclipse.ecf.presence.collab.ui_1.2.0.v20080916-1301/abou
+ t.html
+SHA1-Digest: yVX1rVR4MxkdNZRGrdIafjGD+Uc=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/topics_Tutorials.xm
+ l
+SHA1-Digest: 5zZ0Zv/hMI2Ap6kssv5pLRXRnx4=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/topics_Extpoint.xml
+SHA1-Digest: lnGspy9zLiA5csVtMLnTvCY4jnM=
+
+Name: src/org.eclipse.ecf.doc_1.3.0.v20080916-1301/html/gettingstarted
+ /images/img10.png
+SHA1-Digest: i+N0m7T9VRfi+YfpdBHRvDCsHwc=
+
+Name: src/org.eclipse.ecf.provider.irc_1.3.0.v20080916-1301/src.zip
+SHA1-Digest: EexHVHT69HTnfWmLKTO8k/hRB8k=
+
+Name: src/org.eclipse.ecf.ui_2.0.0.v20080916-1301/icons/enabled/add_ch
+ at.gif
+SHA1-Digest: qtyLs7WTSYAZ6S1apfi+QmWH5QU=
+

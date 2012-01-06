@@ -1,0 +1,24 @@
+#!/bin/ksh
+
+# File name: run_var_assimilator
+# Author   : Varalakshmi Rajaram
+
+# This allows you to run this script from outside of ./bin
+RUN_FROM_DIR=`dirname $0`
+
+# set up SOME environment variables for WHFS applications
+. $RUN_FROM_DIR/../../set_hydro_env
+
+export var_dir=$WHFS_LOCAL_DATA_DIR/var
+VAR_OUTPUT_DIR=$var_dir/output
+#VAR_LOG is the hard-coded name for the output for the FORTRAN code
+VAR_LOG=$VAR_OUTPUT_DIR/log_var
+
+rm -f $VAR_LOG
+
+fortran_var_log_dir=$WHFS_LOCAL_DATA_DIR/log/var/
+fortran_var_log=$fortran_var_log_dir/stdout_fortran_var.log
+
+#Execute the Fortran var program
+$WHFS_BIN_DIR/var_assimilator.LX  > $fortran_var_log 2>&1
+echo "Completed Var-- in script" >> $fortran_var_log

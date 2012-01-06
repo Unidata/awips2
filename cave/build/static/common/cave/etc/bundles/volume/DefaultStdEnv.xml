@@ -1,0 +1,197 @@
+<bundle xmlns:ns2="group">
+    <displayList>
+        <displays xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="d2DMapRenderableDisplay" scale="CONUS" density="1.0" magnification="1.0" zoomLevel="1.0" mapCenter="-79.09835514095181 33.915979250804455 0.0">
+            <descriptor xsi:type="mapDescriptor">
+                
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <capabilities>
+                            <capability xsi:type="densityCapability" density="0.0"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true" sampling="true" spatial="true">
+                        <metadataMap>
+                            <mapping key="modelInfo.parameterAbbreviation">
+                                <constraint constraintValue="T" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="modelInfo.modelName">
+                                <constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="grib" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="modelInfo.level.masterLevel.name">
+                                <constraint constraintValue="TILT" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="modelInfo.level.leveltwovalue">
+                                <constraint constraintValue="-999999" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <capabilities>
+                            <capability xsi:type="densityCapability" density="0.0"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true" sampling="true" spatial="true">
+                        <metadataMap>
+                            <mapping key="modelInfo.parameterAbbreviation">
+                                <constraint constraintValue="RH" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="modelInfo.modelName">
+                                <constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="grib" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="modelInfo.level.masterLevel.name">
+                                <constraint constraintValue="TILT" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="modelInfo.level.leveltwovalue">
+                                <constraint constraintValue="-999999" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="BARB" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <capabilities>
+                            <capability xsi:type="densityCapability" density="0.0"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true" sampling="true" spatial="true">
+                        <metadataMap>
+                            <mapping key="modelInfo.parameterAbbreviation">
+                                <constraint constraintValue="Wind" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="modelInfo.modelName">
+                                <constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="grib" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="modelInfo.level.masterLevel.name">
+                                <constraint constraintValue="TILT" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="modelInfo.level.leveltwovalue">
+                                <constraint constraintValue="-999999" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <capabilities>
+                            <capability xsi:type="densityCapability" density="0.0"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true" sampling="true" spatial="true">
+                        <metadataMap>
+                            <mapping key="modelInfo.parameterAbbreviation">
+                                <constraint constraintValue="EPT" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="modelInfo.modelName">
+                                <constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="grib" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="modelInfo.level.masterLevel.name">
+                                <constraint constraintValue="TILT" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="modelInfo.level.leveltwovalue">
+                                <constraint constraintValue="-999999" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <capabilities>
+                            <capability xsi:type="densityCapability" density="0.0"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true" sampling="true" spatial="true">
+                        <metadataMap>
+                            <mapping key="modelInfo.parameterAbbreviation">
+                                <constraint constraintValue="TW" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="modelInfo.modelName">
+                                <constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="grib" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="modelInfo.level.masterLevel.name">
+                                <constraint constraintValue="TILT" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="modelInfo.level.leveltwovalue">
+                                <constraint constraintValue="-999999" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties xsi:type="gridLoadProperties" displayType="CONTOUR" loadWithoutData="false">
+                        <resourceType>PLAN_VIEW</resourceType>
+                        <capabilities>
+                            <capability xsi:type="densityCapability" density="0.0"/>
+                        </capabilities>
+                    </loadProperties>
+                    <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="false">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    </properties>
+                    <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true" sampling="true" spatial="true">
+                        <metadataMap>
+                            <mapping key="modelInfo.parameterAbbreviation">
+                                <constraint constraintValue="P" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="modelInfo.modelName">
+                                <constraint constraintValue="${modelName}" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="grib" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="modelInfo.level.masterLevel.name">
+                                <constraint constraintValue="TILT" constraintType="EQUALS"/>
+                            </mapping>
+                            <mapping key="modelInfo.level.leveltwovalue">
+                                <constraint constraintValue="-999999" constraintType="EQUALS"/>
+                            </mapping>
+                        </metadataMap>
+                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
+                    </resourceData>
+                </resource>
+                <timeMatcher xsi:type="d2DTimeMatcher" deltaFilter="0" forecastFilter="0"/>
+
+            </descriptor>
+        </displays>
+    </displayList>
+</bundle>

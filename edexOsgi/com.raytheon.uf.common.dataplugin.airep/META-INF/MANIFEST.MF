@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Airep
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.airep
+Bundle-Version: 1.0.0.qualifier
+Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.dataplugin.annotations,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.pointdata.spatial,
+ com.raytheon.uf.common.serialization.annotations,
+ com.raytheon.uf.common.time,
+ com.vividsolutions.jts.geom,
+ javax.measure.converter,
+ javax.measure.quantity,
+ javax.measure.unit,
+ javax.persistence
+Require-Bundle: com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.serialization;bundle-version="1.12.1174"
+Export-Package: com.raytheon.uf.common.dataplugin.airep

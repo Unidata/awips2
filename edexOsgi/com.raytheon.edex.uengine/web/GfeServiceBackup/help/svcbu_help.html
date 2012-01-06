@@ -1,0 +1,464 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+         
+  <meta http-equiv="Content-Language" content="en-us">
+         
+  <meta name="GENERATOR" content="Microsoft FrontPage 6.0">
+         
+  <meta name="ProgId" content="FrontPage.Editor.Document">
+         
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+  <title>IFPS SERVICE BACKUP GUI</title>
+</head>
+<body>
+
+ 
+ 
+<TABLE BORDER="0" WIDTH="100%" id="table1">
+   <TR VALIGN="TOP">
+      <TD ALIGN="CENTER" VALIGN="TOP">
+       <H1><A NAME="#SERVICE BACKUP GUI HELP PAGE"><FONT COLOR="#0000FF"><I>Service Backup GUI</I>
+           </FONT></H1>
+       <H2><FONT COLOR="BLACK"><I>HELP</I></FONT></H2></TD>
+   </TR>
+</TABLE><BR>
+<HR SIZE=5 NOSHADE>
+ 
+<table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse; " bordercolor="#ffffff" width="100%" id="AutoNumber1" bordercolorlight="#FFFFFF" bordercolordark="#FFFFFF">
+   <tbody>
+     <tr>
+       <td width="50%">       
+      <p align="Left"><a href="#BUTTONS"><font size="4" color="#000000">BUTTONS</font></a>
+       </p>
+       <a style="text-decoration: none">GHG SERVICE BACKUP</span></a>
+       <br>
+       <a style="text-decoration: none; " href="#IMPORT CONFIGURATION DATA">IMPORT CONFIGURATION DATA</a>
+       <br>
+       <a style="text-decoration: none; " href="#IMPORT FAILED SITES DIGITAL DATA">IMPORT FAILED SITES DIGITAL DATA</a>
+       <br>
+       <a style="text-decoration: none; " href="#EXPORT GRIDS TO FAILED SITE">EXPORT GRIDS TO FAILED SITE</a>
+       <br>
+       <a style="text-decoration: none; " href="#EXPORT CCCS CONFIGURATION TO THE CENTRAL SERVER">EXPORT CCC'S CONFIGURATION TO THE CENTRAL SERVER</a>
+       <br>
+       <a style="text-decoration: none; " href="#EXPORT CCCS DIGITAL FORECAST TO THE CENTRAL SERVER">EXPORT CCC'S DIGITAL FORECAST TO THE CENTRAL SERVER</a>
+       <br>
+       <a style="text-decoration: none; " href="#EXPORT_A_FAILED_SITES_DIGITAL_DATA_TO_THE_CENTRAL_SERVER">EXPORT A FAILED SITE'S DIGITAL DATA TO THE CENTRAL SERVER</a>
+       <br>
+       <a style="text-decoration: none; " href="#START GFE">START     
+GFE</a>
+       <br>
+       <a style="text-decoration: none; " href="#EXIT SERVICE BACKUP">EXIT SERVICE BACKUP</a>
+       <br>
+       <a style="text-decoration: none; " href="#CLEAN UP SERVICE BACKUP">CLEAN UP SERVICE BACKUP</a>
+       <br>
+       <a style="text-decoration: none; " href="#OK">OK</a>
+       <br>
+       <a style="text-decoration: none; " href="#REFRESH">REFRESH</a>
+       </td>
+       <td width="50%">       
+      <p align="Left"><a href="#BANNERS"><font size="4" color="#000000">BANNERS</font></a>
+       </p>
+       <a style="text-decoration: none; " href="#YOU ARE NOT IN BACKUP MODE">YOU ARE NOT IN BACKUP MODE</a>
+       <br>
+       <a style="text-decoration: none; " href="#YOU ARE CURRENTLY IMPORTING A FAILED SITES CONFIGURATION">YOU ARE CURRENTLY IMPORTING A FAILED SITES CONFIGURATION</a>
+       <br>
+       <a style="text-decoration: none; " href="#WAITING FOR A FAILED SITES SERVER TO START">WAITING FOR A FAILED SITES SERVER TO START</a>
+       <br>
+       <a style="text-decoration: none; " href="#YOU ARE CURRENTLY IMPORTING A FAILED SITES DIGITAL DATA">YOU ARE CURRENTLY IMPORTING A FAILED SITES DIGITAL DATA</a>
+       <br>
+       <a style="text-decoration: none; " href="#YOU ARE CURRENTLY BACKING UP XXX">YOU ARE CURRENTLY BACKING UP XXX</a>
+       <br>
+       <a style="text-decoration: none; " href="#EXPORTING_GRIDS_BACK_TO_XXX">EXPORTING GRIDS BACK TO XXX</a>
+       <br>
+       <a style="text-decoration: none; " href="#YOU_ARE_CURRENTLY_EXPORTING_YOUR_CONFIGURATION_TO_THE_CENTRAL_SERVER">YOU ARE CURRENTLY EXPORTING YOUR      CONFIGURATION TO THE CENTRAL SERVER</a>
+       <br>
+       <a style="text-decoration: none; " href="#YOU_ARE_CURRENTLY_EXPORTING_YOUR_GRIDS_TO_THE_CENTRAL_SERVER">YOU ARE CURRENTLY EXPORTING YOUR GRIDS      TO THE CENTRAL SERVER</a>
+       <br>
+       <a style="text-decoration: none; " href="#YOU_ARE_CURRENTLY_EXPORTING_XXXS_GRIDS_TO_THE_CENTRAL_SERVER">YOU ARE CURRENTLY EXPORTING XXX'S GRIDS  	TO THE CENTRAL SERVER</a>
+       </td>
+     </tr>
+   
+  </tbody> 
+</table>
+ 
+<hr> 
+<p align="Left"><font size="4"><b><u><a name="BUTTONS">BUTTONS</a></u> </b>
+<a name="BUTTONS" style="text-decoration: none; " href="##SERVICE BACKUP GUI HELP PAGE">[BACK TO THE TOP]</a>
+ </font></p>
+ 
+<p align="Left"><b><a name="EMERGENCY_GFE_(GHG_ONLY)">GHG SERVICE BACKUP</a>
+ </b><a style="text-decoration: none; " href="##SERVICE BACKUP GUI HELP PAGE">
+[BACK TO THE TOP]</a>
+ </p>
+ 
+<p align="Left" style="margin-left: 10px; ">This button will allow you to start 
+another site's GFE after downloading their configuration. Before you are allowed 
+to start the failed site's GFE, check_svcbu.bat will run to check for any 
+service backup files that may cause problems. If any files are found, you will 
+be prompted to clean up. If you do not clean up, you will not be allowed to 
+continue, since serious errors may occur (server not starting, text products not 
+working, etc.). If no service backup files are found, you will be asked for the 
+failed site's ID. Once the failed site's configuration is downloaded and the 
+server is started, the failed site's GFE will start. At this time, you will be 
+able to create the Hazards grids for the failed site.  <b>NOTE: You should not 
+create any other grids at this time. You must first import the failed site's 
+grids in order to perform a full service backup.</b></p>
+ 
+<p align="Left"><b><a name="IMPORT CONFIGURATION DATA">IMPORT CONFIGURATION
+ DATA</a>
+ </b><a style="text-decoration: none; " href="##SERVICE BACKUP GUI HELP PAGE">[BACK TO THE TOP]</a>
+ </p>
+ 
+<p align="Left" style="margin-left: 10px; ">This button will allow you to
+ import  another site's configuration data.  Before you are allowed to import,
+  check_svcbu.bat will run to check for any service backup files that may
+cause  problems.  If any are found, you will be prompted to clean up.  If
+you  do not clean up, you will not be allowed to continue, for errors may
+occur.   If no files are found or once the files are cleaned up, you will
+be asked if you  would like to also import the failed site's digital data
+and/or start their GFE  after the import is finished.  Make your choice and
+select OK.  </p>
+ 
+<p align="Left" style="margin-left: 10px; ">This button will be disabled
+while you  are in the process of importing a site's configuration or digital
+data.  It  will be enabled at all other times. </p>
+ 
+<p align="Left"><b><a name="IMPORT FAILED SITES DIGITAL DATA">IMPORT FAILED
+ SITE'S DIGITAL DATA</a>
+ </b><a style="text-decoration: none; " href="##SERVICE BACKUP GUI HELP PAGE">[BACK TO THE TOP]</a>
+ </p>
+ 
+<p align="Left" style="margin-left: 10px; ">This button will also be called
+ "IMPORT  CCC's DIGITAL DATA" when you are in service backup mode.  It will
+ allow you  to import the digital data of the site specified in the title
+(CCC in this  example).  You will also be asked if you would like to start
+GFE for the  failed site once the import is finished.  Make your choice and
+select OK.</p>
+ 
+<p align="Left" style="margin-left: 10px; ">This button will only be enabled
+ after  you have successfully imported the failed site's configuration. 
+It  will be  disabled while you are importing a failed site's configuration
+or  digital data  or are not in service backup mode.</p>
+ 
+<p align="Left"><b><a name="EXPORT GRIDS TO FAILED SITE">EXPORT GRIDS TO
+FAILED SITE</a>
+ </b><a style="text-decoration: none; " href="##SERVICE BACKUP GUI HELP PAGE">[BACK TO THE TOP]</a>
+ </p>
+ 
+<p align="Left" style="margin-left: 10px; ">This button will also be called
+ "EXPORT  GRIDS TO CCC" when you are in service backup mode.  It will allow
+ you to  export the digital data back to the failed site (CCC in this example).</p>
+ 
+<p align="Left" style="margin-left: 10px; ">This button will only be enabled
+ after  you have successfully imported the failed site's configuration. 
+It  will be  disabled while you are importing a failed site's configuration
+or  digital data  or you are not in service backup mode.</p>
+ 
+<p align="Left"><b><a name="EXPORT CCCS CONFIGURATION TO THE CENTRAL SERVER">
+  EXPORT CCC'S CONFIGURATION TO THE CENTRAL SERVER</a>
+ </b><a style="text-decoration: none; " href="##SERVICE BACKUP GUI HELP PAGE">[BACK TO THE TOP]</a>
+ </p>
+ 
+<p align="Left" style="margin-left: 10px; ">This button will allow you to
+ export  your own configuration (CCC's in this example) to the central server
+ for service  backup.</p>
+ 
+<p align="Left" style="margin-left: 10px; ">This button will only be enabled
+ when  you start the GUI as user ifps and are not in service backup mode.&nbsp; 
+If you start the Service Backup GUI as any other user, the button label will 
+read &quot;Must Be User IFPS to Export CCC's Configuration&quot;. </p>
+ 
+<p align="Left"><b><a name="EXPORT CCCS DIGITAL FORECAST TO THE CENTRAL SERVER">
+  EXPORT CCC'S DIGITAL FORECAST TO THE CENTRAL SERVER</a>
+ </b><a style="text-decoration: none; " href="##SERVICE BACKUP GUI HELP PAGE">[BACK TO THE TOP]</a>
+ </p>
+ 
+<p align="Left" style="margin-left: 10px; ">This button will allow you to
+ export  your digital data (CCC's in this example) to the central server
+for  service  backup.</p>
+ 
+<p align="Left" style="margin-left: 10px; ">This button will be enabled whenever
+ you  are not currently exporting your digital forecast to the central server.</p>
+ 
+<p align="Left" style="margin-left: 0px; "><b><a name="EXPORT_A_FAILED_SITES_DIGITAL_DATA_TO_THE_CENTRAL_SERVER">
+  EXPORT A  FAILED SITE'S DIGITAL DATA TO THE CENTRAL SERVER</a>
+ </b><a style="text-decoration: none; " href="##SERVICE BACKUP GUI HELP PAGE">[BACK TO THE TOP]</a>
+ </p>
+ 
+<p align="Left" style="margin-left: 10px; ">This button will allow you to
+ export a  failed site's digital data to the central server.  (<b>NOTE:</b>
+    You  still need to export the digital data back to the failed site.)</p>
+ 
+<p align="Left" style="margin-left: 10px; ">This button will be enabled after
+ you  have successfully imported the failed site's configuration.  It will
+ be  disabled while you are exporting configuration or digital data or while
+ you are  not in service backup mode.</p>
+ 
+<p align="Left"><b><a name="START GFE">START GFE</a>
+ </b><a style="text-decoration: none; " href="##SERVICE BACKUP GUI HELP PAGE">[BACK TO THE TOP]</a>
+ </p>
+ 
+<p align="Left" style="margin-left: 10px; ">This button will allow you to
+ start GFE  for a specified time.  If you are in service backup mode or have
+ multiple  domains at your site, you will be asked what domain you would
+like  to start  service backup for.  Otherwise, GFE will start for your site
+only.</p>
+ 
+<p align="Left" style="margin-left: 10px; ">This button will be enabled at
+ all  times.</p>
+ 
+<p align="Left"><b><a name="EXIT SERVICE BACKUP">EXIT SERVICE BACKUP</a>
+ </b><a style="text-decoration: none; " href="##SERVICE BACKUP GUI HELP PAGE">[BACK TO THE TOP]</a>
+ </p>
+ 
+<p align="Left" style="margin-left: 10px; ">This button will also be called
+ "EXIT  SERVICE BACKUP FOR CCC" while you are in service backup mode.  It
+will  allow you to clean up the failed site's configuration (CCC in this
+example) and  will close the Service Backup GUI when finished.</p>
+ 
+<p align="Left" style="margin-left: 10px; ">This button will only be enabled
+ while  you are in service backup mode. </p>
+ 
+<p align="Left"><b><a name="CLEAN UP SERVICE BACKUP">CLEAN UP SERVICE BACKUP</a>
+ </b><a style="text-decoration: none; " href="##SERVICE BACKUP GUI HELP PAGE">[BACK TO THE TOP]</a>
+ </p>
+ 
+<p align="Left" style="margin-left: 10px; ">This button will allow you to
+ clean up a  failed site's configuration.  If you are in service backup mode,
+ it will  clean up the configuration of the failed site.  If you are not
+currently  in  backup mode, then you will be prompted for the site ID that
+you wish to clean  up.</p>
+ 
+<p align="Left" style="margin-left: 10px; ">This button will be disabled
+while you  are importing a failed site's digital data.</p>
+ 
+<p align="Left"><b><a name="OK">OK</a>
+ </b><a style="text-decoration: none; " href="##SERVICE BACKUP GUI HELP PAGE">[BACK TO THE TOP]</a>
+ </p>
+ 
+<p align="Left" style="margin-left: 10px; ">This button perform the selected
+ action.   It will stay depressed until the selected action is finished.</p>
+ 
+<p><b><a name="REFRESH">REFRESH</a>
+ </b><a style="text-decoration: none; " href="##SERVICE BACKUP GUI HELP PAGE">[BACK TO THE TOP]</a>
+ </p>
+ 
+<p style="margin-left: 10px; ">This button will refresh the banner message
+ (if  necessary) and will enable/disable the necessary buttons.  It will
+also   unselect any button.</p>
+ 
+<p align="Left"><font size="4"><b><u><a name="BANNERS">BANNERS</a></u> </b>
+<a style="text-decoration: none; " href="##SERVICE BACKUP GUI HELP PAGE">[BACK TO THE TOP]</a>
+ </font></p>
+ 
+<p align="Left"><b><a name="YOU ARE NOT IN BACKUP MODE">YOU ARE NOT IN BACKUP
+ MODE</a>
+ </b><a style="text-decoration: none; " href="##SERVICE BACKUP GUI HELP PAGE">[BACK TO THE TOP]</a>
+ </p>
+ 
+<p align="Center"><img border="0" src="banner_no_backup.gif" width="541" height="798">
+ </p>
+ 
+<p align="Left" style="margin-left: 10px; ">This banner will appear if you
+ are not  in service backup mode.  At this time, only the following buttons
+ will be  enabled:</p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2">EMERGENCY GFE
+(GHG ONLY)</font></p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2">IMPORT CONFIGURATION
+ DATA</font></p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2">EXPORT CCC'S CONFIGURATION
+ TO THE CENTRAL SERVER (if the GUI is started as user  ifps)</font></p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2">EXPORT CCC'S DIGITAL
+ FORECAST TO THE CENTRAL SERVER</font></p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2">START GFE</font></p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2">CLEAN UP SERVICE
+ BACKUP</font></p>
+ 
+<p align="Left"><b><a name="YOU ARE CURRENTLY IMPORTING A FAILED SITES CONFIGURATION">
+  YOU ARE CURRENTLY IMPORTING A FAILED SITE'S CONFIGURATION</a>
+ </b><a style="text-decoration: none; " href="##SERVICE BACKUP GUI HELP PAGE">[BACK TO THE TOP]</a>
+ </p>
+ 
+<p align="Center"><img border="0" src="banner_imprtMode.gif" width="541" height="834">
+ </p>
+ 
+<p align="Left" style="margin-left: 10px; ">This banner will appear while
+ you are in  the process of importing a failed site's configuration from
+the  central server  from another Service Backup GUI.  At this time, only
+the following buttons  will be enabled:</p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2">EXPORT CCC'S DIGITAL
+ FORECAST TO THE CENTRAL SERVER</font></p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2">START GFE</font></p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2">CLEAN UP SERVICE
+ BACKUP</font></p>
+ 
+<p align="Left"><b><a name="WAITING FOR A FAILED SITES SERVER TO START">WAITING
+ FOR A FAILED SITE'S SERVER TO START</a>
+ </b><a style="text-decoration: none; " href="##SERVICE BACKUP GUI HELP PAGE">[BACK TO THE TOP]</a>
+ </p>
+ 
+<p align="Center"><img border="0" src="banner_waitMode.gif" width="541" height="834">
+ </p>
+ 
+<p align="Left" style="margin-left: 10px; ">This banner may also read "WAITING
+ FOR  XXX'S SERVER TO START"  It will appear while you are waiting for a
+failed   site's server (xxx's in this example) to start.  At this time, only
+the  following buttons will be enabled:</p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2">EXPORT CCC'S DIGITAL
+ FORECAST TO THE CENTRAL SERVER</font></p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2">START GFE</font></p>
+ 
+<p align="Left"><b><a name="YOU ARE CURRENTLY IMPORTING A FAILED SITES DIGITAL DATA">
+  YOU ARE CURRENTLY IMPORTING A FAILED SITE'S DIGITAL DATA</a>
+ </b><a style="text-decoration: none; " href="##SERVICE BACKUP GUI HELP PAGE">[BACK TO THE TOP]</a>
+ </p>
+ 
+<p align="Center"><img border="0" src="banner_imprtGrdMode.gif" width="520" height="834">
+ </p>
+ 
+<p align="Left" style="margin-left: 10px; ">This banner may also read "YOU
+ ARE  CURRENTLY IMPORTING XXX'S DIGITAL DATA."  It will appear while you
+are   importing a failed site's digital data (xxx's in this example).  At
+this   time, only the following buttons will be enabled:</p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2">EXPORT CCC'S DIGITAL
+ FORECAST TO THE CENTRAL SERVER</font></p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2">START GFE</font></p>
+ 
+<p align="Left"><b><a name="YOU ARE CURRENTLY BACKING UP XXX">YOU ARE CURRENTLY
+ BACKING UP XXX</a>
+ </b><a style="text-decoration: none; " href="##SERVICE BACKUP GUI HELP PAGE">[BACK TO THE TOP]</a>
+ </p>
+ 
+<p align="Center"><img border="0" src="banner_svcbuMode.gif" width="520" height="834">
+ </p>
+ 
+<p align="Left" style="margin-left: 10px; ">This message will appear while
+ you are  in service backup mode for a failed site (XXX in this example). 
+ At this  time, the following buttons will be enabled:</p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2">IMPORT CONFIGURATION
+ DATA</font></p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2">IMPORT XXX'S DIGITAL
+ DATA</font></p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2">EXPORT GRIDS TO
+ XXX</font></p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2">EXPORT CCC'S DIGITAL
+ FORECAST TO THE CENTRAL SERVER</font></p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2"> START GFE</font></p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2">EXIT SERVICE BACKUP 
+FOR XXX</font></p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2">CLEAN UP SERVICE
+ BACKUP</font></p>
+ 
+<p align="Left"><b><a name="EXPORTING_GRIDS_BACK_TO_XXX">EXPORTING GRIDS
+BACK TO XXX</a>
+ </b><a style="text-decoration: none; " href="##SERVICE BACKUP GUI HELP PAGE">[BACK TO THE TOP]</a>
+ </p>
+  
+<p align="Center" style="margin-left: 20px; "><img border="0" src="banner_exprtbksiteGrdMode.gif" width="520" height="806">
+ </p>
+ This message will appear while  you are  exporting a failed site's grids
+back to them.  At this time, the  following  buttons will be enabled: 
+<p align="Left" style="margin-left: 20px; "><font size="2">    EXPORT  CCC'S
+ DIGITAL FORECAST TO THE CENTRAL SERVER</font></p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2">    START GFE</font></p>
+ 
+<p align="Left"><b><a name="YOU_ARE_CURRENTLY_EXPORTING_YOUR_CONFIGURATION_TO_THE_CENTRAL_SERVER">
+   YOU ARE CURRENTLY EXPORTING YOUR CONFIGURATION TO THE CENTRAL SERVER</a>
+ </b><a style="text-decoration: none; " href="##SERVICE BACKUP GUI HELP PAGE">[BACK TO THE TOP]</a>
+ </p>
+ 
+<p align="Center" style="margin-left: 20px; "><img border="0" src="banner_exprtMode.gif" width="617" height="834">
+ </p>
+ This message will appear when  you are  exporting your configuration to
+the central server for service backup.  At  this time, the following buttons
+will be enabled: 
+<p align="Left" style="margin-left: 20px; "><font size="2">    EXPORT  CCC'S
+ DIGITAL FORECAST TO THE CENTRAL SERVER</font></p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2">     START GFE</font></p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2">CLEAN  UP SERVICE 
+BACKUP</font></p>
+ 
+<p align="Left"><b><a name="YOU_ARE_CURRENTLY_EXPORTING_YOUR_GRIDS_TO_THE_CENTRAL_SERVER">
+  YOU ARE  CURRENTLY EXPORTING YOUR GRIDS TO THE CENTRAL SERVER</a>
+ </b><a style="text-decoration: none; " href="##SERVICE BACKUP GUI HELP PAGE">[BACK TO THE TOP]</a>
+ </p>
+ 
+<p align="Center" style="margin-left: 20px; "><img border="0" src="banner_exprtGrdMode.gif" width="576" height="834">
+ </p>
+ This message will appear when  you are  exporting your grids to the central
+server for service backup.  If you are  not in service backup mode, the following
+buttons will be enabled: 
+<p align="Left" style="margin-left: 20px; "><font size="2">    IMPORT  CONFIGURATION
+ DATA</font></p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2">     START GFE</font></p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2">CLEAN  UP SERVICE 
+BACKUP</font></p>
+ 
+<p align="Left" style="margin-left: 20px; ">If you are in service backup
+mode, the  following buttons will be enabled:</p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2">      IMPORT CONFIGURATION
+ DATA</font></p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2">      IMPORT CCC'S
+ DIGITAL DATA</font></p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2">      EXPORT GRIDS
+ TO CCC</font></p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2">      EXPORT CCC'S
+ DIGITAL DATA TO THE CENTRAL SERVER</font></p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2">      START GFE</font></p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2">      EXIT SERVICE
+ BACKUP FOR CCC</font></p>
+ 
+<p align="Left" style="margin-left: 20px; "><font size="2">      CLEAN UP
+ SERVICE BACKUP</font></p>
+ 
+<p align="Left"><b><a name="YOU_ARE_CURRENTLY_EXPORTING_XXXS_GRIDS_TO_THE_CENTRAL_SERVER">
+  YOU ARE  CURRENTLY EXPORTING XXX'S GRIDS TO THE CENTRAL SERVER</a>
+ </b><a style="text-decoration: none; " href="##SERVICE BACKUP GUI HELP PAGE">[BACK TO THE TOP]</a>
+ </p>
+ 
+<p align="Center"><img border="0" src="banner_exprtbksiteGrdToCSMode.gif" width="582" height="834">
+ </p>
+ 
+<p align="Left"> This message will appear while you are exporting a failed
+ site's grids to the  central server.  At this time, the following buttons
+ will be enabled:</p>
+ 
+<p align="Left" style="margin-left: 10px; "><font size="2">EXPORT CCC'S DIGITAL 
+FORECAST TO THE CENTRAL SERVER</font></p>
+ 
+<p align="Left" style="margin-left: 10px; "><font size="2">START GFE</font></p>
+
+</body>
+</html>

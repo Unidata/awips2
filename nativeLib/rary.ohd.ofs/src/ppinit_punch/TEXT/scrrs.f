@@ -1,0 +1,194 @@
+C MODULE SCRRS
+C-----------------------------------------------------------------------
+C
+C  ROUTINE TO PUNCH STATION RRS PARAMETERS.
+C
+      SUBROUTINE SCRRS (IPNCH,IPURRS,IVRRS,STAID,
+     *   NRRSTP,NDIST,RRSTYP,URMISS,IRTIME,MNODAY,NUMOBS,
+     *   INTERP,EXTRAP,FLOMIN,FRACT,ISTAT)
+C
+C
+      CHARACTER*4 CCODE,POPT
+      CHARACTER*12 CHAR
+      CHARACTER*80 CARD/' '/
+C
+      DIMENSION STAID(2)
+C
+      INCLUDE 'scommon/dimrrs'      
+C
+      INCLUDE 'uio'
+      INCLUDE 'scommon/sudbgx'
+      INCLUDE 'scommon/surrsx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppinit_punch/RCS/scrrs.f,v $
+     . $',                                                             '
+     .$Id: scrrs.f,v 1.3 1998/07/06 12:30:00 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+      IF (ISTRCE.GT.1) THEN
+         WRITE (IOSDBG,110)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG('RRS ')
+C
+      ISTAT=0
+C      
+      MCHAR=LEN(CHAR)
+C
+C  CHECK IF URRS COMMON BLOCK FILLED
+      IF (IURRSX.EQ.0) THEN
+         WRITE (LP,120)
+         CALL SUWRNS (LP,2,-1)
+         IURRSX=-1
+         IF (IPURRS.EQ.0) THEN
+            WRITE (LP,125)
+            CALL SULINE (LP,2)
+            IPURRS=1
+            ENDIF
+         ENDIF
+C
+C  PRINT PARAMETER ARRAY VERSION NUMBER
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,130) IVRRS
+         CALL SULINE (IOSDBG,2)
+         ENDIF
+C
+C  PUNCH RRS STATION IDENTIFIER
+      IF (IPNCH.GT.0) THEN
+         NPOS=1
+         CALL UTOCRD (ICDPUN,NPOS,'STAN',4,1,CARD,0,0,LNUM,IERR)
+         IF (IERR.GT.0) GO TO 90
+         CALL UTOCRD (ICDPUN,NPOS,STAID,8,1,CARD,3,0,LNUM,IERR)
+         IF (IERR.GT.0) GO TO 90
+         CALL UPNCRD (ICDPUN,CARD)
+         ENDIF
+C
+C  PUNCH 'RRS' STARTING IN COLUMN 1
+      NPOS=1
+      CALL UTOCRD (ICDPUN,NPOS,'RRS',3,2,CARD,0,0,LNUM,IERR)
+      IF (IERR.GT.0) GO TO 90
+C
+      NMISS=0
+      IPNCHC=0
+C
+C  PROCESS EACH RRS DATA TYPE
+      DO 80 ITYPE=1,NRRSTP
+         IF (IPNCHC.EQ.1) GO TO 10
+         IF (ITYPE.EQ.1) GO TO 20
+         IF (NDIST.EQ.0) GO TO 20
+         IF (FLOMIN(ITYPE).LE.0.) GO TO 20
+10          CALL UPNCRD (ICDPUN,CARD)
+            NPOS=6
+C     PUNCH THE DATA TYPE CODE
+20       CALL UTOCRD (ICDPUN,NPOS,RRSTYP(ITYPE),4,1,CARD,0,19,LNUM,IERR)
+         IF (IERR.GT.0) GO TO 90
+C     PUNCH TIME SERIES DATA TIME INTERVAL
+         CALL UINTCH (IRTIME(ITYPE),MCHAR,CHAR,LFILL,IERR)
+         CALL UTOCRD (ICDPUN,NPOS,CHAR,MCHAR,1,CARD,1,0,LNUM,IERR)
+         IF (IERR.GT.0) GO TO 90
+         LPURRS=IPURRS
+         IF (IURRSX.GT.0.AND.NTYPCD.GT.0) THEN
+C        CHECK IF URRS DEFAULTS DEFINED
+            DO 30 ITYPCD=1,NTYPCD
+               CALL UMEMOV (TYPCD(ITYPCD),CCODE,1)
+               IF (RRSTYP(ITYPE).EQ.CCODE) GO TO 40
+30             CONTINUE
+               LPURRS=1
+               GO TO 50
+C        CHECK IF URRS DIFFERENT FROM THOSE DEFINED
+40          IF (MNODAY(ITYPE).NE.MNDAY(ITYPCD)) LPURRS=1
+            IF (NUMOBS(ITYPE).NE.NMOBS(ITYPCD)) LPURRS=1
+            ENDIF
+50       IF (LPURRS.EQ.1) THEN
+C        PUNCH MINIMUM DAYS OF DATA TO BE RETAINED ON THE PPDB
+            CALL UINTCH (MNODAY(ITYPE),MCHAR,CHAR,LFILL,IERR)
+            CALL UTOCRD (ICDPUN,NPOS,CHAR,MCHAR,1,CARD,1,0,
+     *         LNUM,IERR)
+            IF (IERR.GT.0) GO TO 90
+C        PUNCH TYPICAL NUMBER OF OBSERVATIONS TO BE HELD ON THE PPDB
+            CALL UINTCH (NUMOBS(ITYPE),MCHAR,CHAR,LFILL,IERR)
+            CALL UTOCRD (ICDPUN,NPOS,CHAR,MCHAR,1,CARD,1,0,
+     *         LNUM,IERR)
+            IF (IERR.GT.0) GO TO 90
+            ENDIF
+C     THE FOLLOWING ARE OUTPUT ONLY IF MISSING DATA IS NOT ALLOWED
+         IF (URMISS(ITYPE).NE.'SAME') THEN
+            CALL UTOCRD (ICDPUN,NPOS,'MSNG(NO)',8,1,CARD,0,0,LNUM,IERR)
+            NMISS=NMISS+1
+C        PUNCH INTERPOLATION OPTION
+            POPT='LIN'
+            IF (INTERP(NMISS).EQ.1) POPT='RET'
+            CALL UTOCRD (ICDPUN,NPOS,POPT,4,1,CARD,0,0,LNUM,IERR)
+            IF (IERR.GT.0) GO TO 90
+C        PUNCH EXTRAPOLATION RECESSION CONSTANT
+            NUMDEC=2
+            CALL URELCH (EXTRAP(NMISS),MCHAR,CHAR,NUMDEC,NFILL,IERR)
+            CALL UTOCRD (ICDPUN,NPOS,CHAR,MCHAR,1,CARD,0,0,
+     *         LNUM,IERR)
+            IF (IERR.GT.0) GO TO 90
+            ENDIF
+C     THE FOLLOWING ARE OUTPUT ONLY IF MINIMUM FLOW SPECIFIED
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,140) NDIST,ITYPE,FLOMIN(ITYPE)
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+         IF (NDIST.EQ.0) GO TO 70
+         IF (FLOMIN(ITYPE).LE.0.) GO TO 70
+C        PUNCH MINIMUM FLOW
+            CALL UTOCRD (ICDPUN,NPOS,'MIN(',4,0,CARD,0,0,LNUM,IERR)
+            NUMDEC=2
+            CALL URELCH (FLOMIN(ITYPE),MCHAR,CHAR,NUMDEC,NFILL,IERR)
+            CALL UTOCRD (ICDPUN,NPOS,CHAR,MCHAR,0,CARD,0,0,
+     *         LNUM,IERR)
+            CALL UTOCRD (ICDPUN,NPOS,')',1,1,CARD,0,0,LNUM,IERR)
+            IF (IERR.GT.0) GO TO 90
+C        PUNCH FRACTIONAL FLOW
+            CALL UTOCRD (ICDPUN,NPOS,'DIST(',5,0,CARD,0,0,LNUM,IERR)
+            NSPACE=1
+            DO 60 IHR=1,24
+               NUMDEC=2
+               CALL URELCH (FRACT(IHR,ITYPE),MCHAR,CHAR,NUMDEC,NFILL,
+     *            IERR)
+               IF (IHR.EQ.24) NSPACE=0
+               CALL UTOCRD (ICDPUN,NPOS,CHAR,MCHAR,NSPACE,CARD,0,0,
+     *            LNUM,IERR)
+60             CONTINUE
+            CALL UTOCRD (ICDPUN,NPOS,')',1,1,CARD,0,0,LNUM,IERR)
+            IF (IERR.GT.0) GO TO 90
+            IPNCHC=1
+70       NPOS=NPOS+3
+80       CONTINUE
+C
+      CALL UPNCRD (ICDPUN,CARD)
+      GO TO 100
+C
+90    ISTAT=1
+C
+100   IF (ISTRCE.GT.1) THEN
+         WRITE (IOSDBG,160)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+110   FORMAT (' *** ENTER SCRRS')
+120   FORMAT ('0*** WARNING - IN SCRRS - COMMON BLOCK SURRSX IS ',
+     *   'NOT FILLED. ',
+     *   'DEFAULTS FOR MIN DAYS AND TYPICAL OBS ',
+     *   'CANNOT BE OBTAINED.')
+125   FORMAT ('0*** NOTE - IN SCRRS - RRSPUNCH OPTION SET TO ''YES''.')
+130   FORMAT ('0PARAMETER ARRAY VERSION NUMBER = ',I2)
+140   FORMAT (' NDIST=',I2,3X,'ITYPE=',I2,3X,'FLOMIN(ITYPE)=',F9.2)
+160   FORMAT(' *** EXIT SCRRS')
+C
+      END

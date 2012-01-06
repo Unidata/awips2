@@ -1,0 +1,49 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ffg-ffguid_sub library file
+#
+#  cmt: File made on Thu Oct 26 14:48:22 EDT 2006 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob81/ohd/ffg/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob81/ohd/ffg/inc  \
+               -I/fs/hseb/ob81/ohd/ofs/inc  \
+               -I/fs/hseb/ob81/ohd/util/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libffguid_sub_t.a:  \
+     $(LIB)/libffguid_sub_t.a(calcp.o)  \
+     $(LIB)/libffguid_sub_t.a(calcro.o)  \
+     $(LIB)/libffguid_sub_t.a(chekrc.o)  \
+     $(LIB)/libffguid_sub_t.a(chekts.o)  \
+     $(LIB)/libffguid_sub_t.a(chkrrc.o)  \
+     $(LIB)/libffguid_sub_t.a(ckarea.o)  \
+     $(LIB)/libffguid_sub_t.a(cparea.o)  \
+     $(LIB)/libffguid_sub_t.a(cpcary.o)  \
+     $(LIB)/libffguid_sub_t.a(cpgrid.o)  \
+     $(LIB)/libffguid_sub_t.a(cphed.o)  \
+     $(LIB)/libffguid_sub_t.a(cpsize.o)  \
+     $(LIB)/libffguid_sub_t.a(cpsup.o)  \
+     $(LIB)/libffguid_sub_t.a(getsro.o)  \
+     $(LIB)/libffguid_sub_t.a(linint.o)  \
+     $(LIB)/libffguid_sub_t.a(trcary.o)
+

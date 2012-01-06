@@ -1,0 +1,86 @@
+#!/usr/bin/env python
+#
+# 
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+# 
+#
+
+
+import os, sys, mllib
+from templating import Parser
+from dotnetgenutil import *
+
+out_dir = sys.argv[1]
+spec_file = sys.argv[2]
+tpl_dir = sys.argv[3]
+pkg_dir = os.path.join(out_dir, "generated")
+
+if not os.path.exists(pkg_dir):
+  os.makedirs(pkg_dir)
+
+spec = mllib.xml_parse(spec_file)
+
+def excludes(nd):
+  if (nd.parent is not None and
+      nd.parent.name == "class" and
+      nd.parent["@name"] in ("file", "stream")):
+    return False
+  else:
+    return True
+
+def execute(output, template, **kwargs):
+  f = open(os.path.join(tpl_dir, template))
+  input = f.read()
+  f.close()
+  p = Parser(**kwargs)
+  p.parse(input)
+  fname = os.path.join(pkg_dir, output)
+  f = open(fname, "w")
+  f.write(p.output)
+  f.close()
+
+execute("Type.cs", "Type.tpl", spec = spec)
+execute("Constant.cs", "Constant.tpl", spec = spec)
+
+structs = spec.query["amqp/struct"] + \
+    spec.query["amqp/class/struct", excludes] + \
+    spec.query["amqp/class/command/result/struct", excludes]
+controls = spec.query["amqp/class/control", excludes]
+commands = spec.query["amqp/class/command", excludes]
+
+composites = structs + controls + commands
+
+for c in composites:
+  name = cname(c)
+  execute("%s.cs" % name, "Composite.tpl", type = c, name = name)
+
+execute("MethodDelegate.cs", "MethodDelegate.tpl", composites = composites)
+execute("Option.cs", "Option.tpl", composites = composites)
+execute("Invoker.cs", "Invoker.tpl", composites = controls + commands)
+execute("IInvoker.cs", "IInvoker.tpl", composites = controls + commands)
+execute("StructFactory.cs", "StructFactory.tpl", composites = composites)
+
+def is_enum(nd):
+  return nd["enum"] is not None
+
+enums = spec.query["amqp/domain", is_enum] + \
+    spec.query["amqp/class/domain", is_enum]
+
+for e in enums:
+  name = cname(e)
+  execute("%s.cs" % name, "Enum.tpl", name = name, type = e)

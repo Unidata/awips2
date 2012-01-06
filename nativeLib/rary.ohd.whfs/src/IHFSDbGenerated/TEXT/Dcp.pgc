@@ -1,0 +1,826 @@
+/*
+    File: Dcp.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:19 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "Dcp.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct Dcp_t
+{
+    char		lid[9];
+    char		criteria[51];
+    char		owner[11];
+    char		goes[9];
+    char		rptfreq[5];
+    char		rptime[9];
+    char		notify[2];
+
+    int		ind_criteria;
+    int		ind_owner;
+    int		ind_goes;
+    int		ind_rptfreq;
+    int		ind_rptime;
+    int		ind_notify;
+} Dcp_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+Dcp * GetDcp(const char * where)
+{
+
+    Dcp * listPtr = NULL;
+    Dcp * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM Dcp ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Dcp_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDcp() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDcp() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDcp() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.lid, :dbs.criteria:dbs.ind_criteria, 
+    :dbs.owner:dbs.ind_owner, :dbs.goes:dbs.ind_goes, 
+    :dbs.rptfreq:dbs.ind_rptfreq, :dbs.rptime:dbs.ind_rptime, 
+    :dbs.notify:dbs.ind_notify    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDcp() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (Dcp *) malloc(sizeof(Dcp))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->criteria, dbs.criteria);
+            setNullIfIndicated(dbs.ind_criteria, CHAR, structPtr->criteria);
+
+            strcpy(structPtr->owner, dbs.owner);
+            setNullIfIndicated(dbs.ind_owner, CHAR, structPtr->owner);
+
+            strcpy(structPtr->goes, dbs.goes);
+            setNullIfIndicated(dbs.ind_goes, CHAR, structPtr->goes);
+
+            strcpy(structPtr->rptfreq, dbs.rptfreq);
+            setNullIfIndicated(dbs.ind_rptfreq, CHAR, structPtr->rptfreq);
+
+            strcpy(structPtr->rptime, dbs.rptime);
+            setNullIfIndicated(dbs.ind_rptime, CHAR, structPtr->rptime);
+
+            strcpy(structPtr->notify, dbs.notify);
+            setNullIfIndicated(dbs.ind_notify, CHAR, structPtr->notify);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.lid, :dbs.criteria:dbs.ind_criteria, 
+        :dbs.owner:dbs.ind_owner, :dbs.goes:dbs.ind_goes, 
+        :dbs.rptfreq:dbs.ind_rptfreq, :dbs.rptime:dbs.ind_rptime, 
+        :dbs.notify:dbs.ind_notify        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetDcp() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+Dcp * SelectDcp(const char * where)
+{
+
+    Dcp * listPtr = NULL;
+    Dcp * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM Dcp ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Dcp_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDcp() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDcp() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDcp() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.lid, :dbs.criteria:dbs.ind_criteria, 
+    :dbs.owner:dbs.ind_owner, :dbs.goes:dbs.ind_goes, 
+    :dbs.rptfreq:dbs.ind_rptfreq, :dbs.rptime:dbs.ind_rptime, 
+    :dbs.notify:dbs.ind_notify    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDcp() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (Dcp *) malloc(sizeof(Dcp))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->criteria, dbs.criteria);
+            setNullIfIndicated(dbs.ind_criteria, CHAR, structPtr->criteria);
+
+            strcpy(structPtr->owner, dbs.owner);
+            setNullIfIndicated(dbs.ind_owner, CHAR, structPtr->owner);
+
+            strcpy(structPtr->goes, dbs.goes);
+            setNullIfIndicated(dbs.ind_goes, CHAR, structPtr->goes);
+
+            strcpy(structPtr->rptfreq, dbs.rptfreq);
+            setNullIfIndicated(dbs.ind_rptfreq, CHAR, structPtr->rptfreq);
+
+            strcpy(structPtr->rptime, dbs.rptime);
+            setNullIfIndicated(dbs.ind_rptime, CHAR, structPtr->rptime);
+
+            strcpy(structPtr->notify, dbs.notify);
+            setNullIfIndicated(dbs.ind_notify, CHAR, structPtr->notify);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.lid, :dbs.criteria:dbs.ind_criteria, 
+        :dbs.owner:dbs.ind_owner, :dbs.goes:dbs.ind_goes, 
+        :dbs.rptfreq:dbs.ind_rptfreq, :dbs.rptime:dbs.ind_rptime, 
+        :dbs.notify:dbs.ind_notify        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectDcp() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectDcpCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM Dcp ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDcp() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDcp() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDcp() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDcp() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutDcp(const Dcp * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Dcp_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.criteria, structPtr->criteria);
+    dbs.ind_criteria = getIndicator(CHAR, (void *)structPtr->criteria);
+
+    strcpy(dbs.owner, structPtr->owner);
+    dbs.ind_owner = getIndicator(CHAR, (void *)structPtr->owner);
+
+    strcpy(dbs.goes, structPtr->goes);
+    dbs.ind_goes = getIndicator(CHAR, (void *)structPtr->goes);
+
+    strcpy(dbs.rptfreq, structPtr->rptfreq);
+    dbs.ind_rptfreq = getIndicator(CHAR, (void *)structPtr->rptfreq);
+
+    strcpy(dbs.rptime, structPtr->rptime);
+    dbs.ind_rptime = getIndicator(CHAR, (void *)structPtr->rptime);
+
+    strcpy(dbs.notify, structPtr->notify);
+    dbs.ind_notify = getIndicator(CHAR, (void *)structPtr->notify);
+
+
+    EXEC SQL INSERT INTO Dcp (lid,criteria,
+        owner,goes,rptfreq,
+        rptime,notify        )
+        VALUES (
+         :dbs.lid, :dbs.criteria:dbs.ind_criteria, :dbs.owner:dbs.ind_owner,
+         :dbs.goes:dbs.ind_goes, :dbs.rptfreq:dbs.ind_rptfreq, :dbs.rptime:dbs.ind_rptime,
+         :dbs.notify:dbs.ind_notify);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutDcp() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertDcp(const Dcp * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Dcp_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.criteria, structPtr->criteria);
+    dbs.ind_criteria = getIndicator(CHAR, (void *)structPtr->criteria);
+
+    strcpy(dbs.owner, structPtr->owner);
+    dbs.ind_owner = getIndicator(CHAR, (void *)structPtr->owner);
+
+    strcpy(dbs.goes, structPtr->goes);
+    dbs.ind_goes = getIndicator(CHAR, (void *)structPtr->goes);
+
+    strcpy(dbs.rptfreq, structPtr->rptfreq);
+    dbs.ind_rptfreq = getIndicator(CHAR, (void *)structPtr->rptfreq);
+
+    strcpy(dbs.rptime, structPtr->rptime);
+    dbs.ind_rptime = getIndicator(CHAR, (void *)structPtr->rptime);
+
+    strcpy(dbs.notify, structPtr->notify);
+    dbs.ind_notify = getIndicator(CHAR, (void *)structPtr->notify);
+
+
+    EXEC SQL INSERT INTO Dcp (lid,criteria,
+        owner,goes,rptfreq,
+        rptime,notify        )
+        VALUES (
+         :dbs.lid, :dbs.criteria:dbs.ind_criteria, :dbs.owner:dbs.ind_owner,
+         :dbs.goes:dbs.ind_goes, :dbs.rptfreq:dbs.ind_rptfreq, :dbs.rptime:dbs.ind_rptime,
+         :dbs.notify:dbs.ind_notify);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertDcp() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateDcp(const Dcp *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Dcp_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.criteria, structPtr->criteria);
+    dbs.ind_criteria = getIndicator(CHAR, (void *)structPtr->criteria);
+
+    strcpy(dbs.owner, structPtr->owner);
+    dbs.ind_owner = getIndicator(CHAR, (void *)structPtr->owner);
+
+    strcpy(dbs.goes, structPtr->goes);
+    dbs.ind_goes = getIndicator(CHAR, (void *)structPtr->goes);
+
+    strcpy(dbs.rptfreq, structPtr->rptfreq);
+    dbs.ind_rptfreq = getIndicator(CHAR, (void *)structPtr->rptfreq);
+
+    strcpy(dbs.rptime, structPtr->rptime);
+    dbs.ind_rptime = getIndicator(CHAR, (void *)structPtr->rptime);
+
+    strcpy(dbs.notify, structPtr->notify);
+    dbs.ind_notify = getIndicator(CHAR, (void *)structPtr->notify);
+
+
+    sprintf(queryBuffer, " UPDATE Dcp SET " );
+    strcat(queryBuffer, "lid = ? , criteria = ? , owner = ? , goes = ? , rptfreq = ? ,     ");
+    strcat(queryBuffer, "rptime = ? , notify = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateDcp() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.lid, :dbs.criteria:dbs.ind_criteria, :dbs.owner:dbs.ind_owner, :dbs.goes:dbs.ind_goes, :dbs.rptfreq:dbs.ind_rptfreq,
+     :dbs.rptime:dbs.ind_rptime, :dbs.notify:dbs.ind_notify;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateDcp() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteDcp(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM Dcp ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteDcp() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateDcpByRecord (const Dcp * newStructPtr, const Dcp * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetDcpPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateDcp(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateDcp(const Dcp * structPtr)
+{
+    UpdateDcpByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertDcp(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueDcp(const Dcp * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (DcpExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertDcp(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteDcpByRecord(const Dcp * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetDcpPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteDcp(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool DcpExists(const Dcp * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetDcpPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectDcpCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetDcpPrimaryKeyWhereString (const Dcp * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE lid = '%s' ",
+            structPtr->lid);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeDcp( Dcp * structPtr)
+{
+    Dcp* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( Dcp * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetDcpDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetDcpErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

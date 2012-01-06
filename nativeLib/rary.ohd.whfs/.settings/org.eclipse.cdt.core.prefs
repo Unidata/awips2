@@ -1,0 +1,4 @@
+#Sun Mar 07 14:20:45 CST 2010
+eclipse.preferences.version=1
+environment/project/cdt.managedbuild.config.gnu.so.debug.1458795573=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?>\n<environment append\="true" appendContributed\="true"/>\n
+environment/project/cdt.managedbuild.config.gnu.so.debug.1458795573.2082809710=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?>\n<environment append\="true" appendContributed\="false">\n<variable delimiter\=";" name\="HOME" operation\="replace" value\="${env_var\:HOME}"/>\n<variable delimiter\=";" name\="PATH" operation\="replace" value\="../../build.native/i386-pc-linux-gnu/bin\:${env_var\:PATH}"/>\n<variable delimiter\=";" name\="USER" operation\="replace" value\="${env_var\:USER}"/>\n</environment>\n

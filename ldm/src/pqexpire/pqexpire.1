@@ -1,0 +1,162 @@
+." $Id: pqexpire.1,v 1.10.20.3 2009/06/18 16:15:34 steve Exp $
+.TH PQEXPIRE 1 "$Date: 2009/06/18 16:15:34 $"
+.SH NAME
+pqexpire - program to delete old products from a Unidata LDM product queue
+.SH SYNOPSIS
+.HP
+.ft B
+pqexpire
+.nh
+\%[-v]
+\%[-x]
+\%[-w]
+\%[-l\ \fIlogfile\fP]
+\%[-q\ \fIqueue\fP]
+\%[-i\ \fIinterval\fP]
+\%[-a\ \fIage\fP]
+\%[-f\ \fIfeedtype\fP]
+\%[-p\ \fIpattern\fP]
+.hy
+.ft
+.SH DESCRIPTION
+.LP
+This program deletes old data products from a local
+product queue (see \fBpq(3)\fP). 
+It scans from the oldest product in the queue towards the most recent,
+deleting those which are older than \fIage\fP which also match the
+\fIfeedtype\fP and \fIpattern\fP specifications.
+.LP
+If other programs insert products into a product queue,
+.B pqexpire
+may be run on the queue to keep it from eventually filling up, but it
+is no longer required.  The pq library now automatically deletes
+oldest products from the queue efficiently to make space for inserting
+a new product, when needed.
+.LP
+Although not required,
+this program may be used with an \fBrpc.ldmd(1)\fP server that
+inserts products from one or more upstream nodes into a queue, or
+with \fBpqing(1)\fP ingesters that insert LDM products into a queue
+from a data source.  It can be run manually or periodically by
+\fBcron(1)\fP, or by \fBrpc.ldmd(1)\fP at startup, from
+an \fBexec\fP line in the configuration file.
+.LP
+Statistics are output about the number and size of products deleted and
+queue usage.
+.LP
+In typical use (see the \fB-i\fP \fIinterval\fP option below), the program
+makes multiple scans through the queue. In this mode, we wish to keep the scans
+at the "old" end of the queue (away from the action). So, we terminate a scan by
+by conditions other than reaching the insertion end of the queue.
+A scan will be terminated by hitting a lock held by another process. 
+It will also be terminated when it reaches a certain point in the
+queue, which is determined by a heuristic based upon the product
+latency encountered during 
+the scan and the \fIinterval\fP.
+
+.LP
+.SH OPTIONS
+.TP
+.B -v
+Verbose logging.  When this option is specified, for every product that is
+deleted from the queue a line is emitted that contains information about the
+product. Queue usage statistics are emitted on each pass, as well.
+.TP
+.B -x
+Debugging information is also emitted.
+.TP
+.B -w
+Wait on region locks. The default is to treat hitting a locked region
+the same as end of queue.
+.TP
+.BI "-l " logfile
+The path name of a file to be used as the log file for the process.  The
+default is to use \fBsyslogd\fP(8) if no logfile is provided.  Specifying
+`-' logs messages to stderr.
+.TP
+.BI "-q " queue
+The pathname of the data product queue.
+The default is \fBdata/ldm.pq\fP relative to the installation point,
+which is typically \fB/usr/local/ldm\fP. The compiled in default can
+be overridden by setting the environment variable \fBLDMPQFNAME\fP.
+Use of \fB-q\fP overrides the default and the environment variable.
+.TP
+.BI \-i " interval"
+Looping interval, in seconds.  The default is 300 seconds.
+If the \fIinterval\fP is zero, the program makes one pass through
+the queue and exits. When \fIinterval\fP is non-zero, the program performs
+multiple scans of the queue, sleeping \fIinterval\fP seconds between each scan.
+In this case, the program will continue to run until terminated by an
+external signal.
+The time reference for product removal
+is reset on each pass.
+When you specify an interval of zero, you probably want to specify the
+\fB-w\fP flag as well.
+.TP
+.BI \-a " age"
+Minimum product age, in hours, as a floating-point number.  Only products
+that were created more than \fIage\fP hours ago will be
+removed from the queue.  The default is 1.0833 hours (one hour + 300 seconds).
+.TP
+.BI \-f " feedtype"
+Deletes from the queue only products that have a feedtype that is a
+member of the \fIfeedtype\fP set.  The default is `ANY', specifying all
+feed types.  See \fBpqact\fP(1) for a list of basic feed types
+and the use of feedtype expressions to specify combinations of basic
+feed types.
+.TP
+.BI \-p " pattern"
+Deletes from the product queue only products whose identifier
+matches the regular expression \fIpattern\fP.
+The default is `\fB.*\fP', specifying all products.
+.TP
+.SH SIGNALS
+.TP
+.B SIGTERM
+Graceful termination.
+.TP
+.B SIGINT
+Immediate termination.
+.TP
+.B SIGUSR1
+Write statistics to log output.
+.TP
+.B SIGUSR2
+Cyclically increment the verbosity of the program. Assumming the program was
+started without the \fB-v\fP or \fB-x\fP switches, the first \fBSIGUSR2\fP will
+make it verbose and \fBLOG_INFO\fP priority messages will appear.
+The second will turn on the \fBLOG_DEBUG\fP priority messages as well.
+A third will take it back to the normal state.
+
+.SH STATISTICS
+The program emits data rate statistics each time through the main loop.
+The time base for this rate is creation time of the newest product
+deleted minus the creation of the oldest, taken over the lifetime of
+the program.  So, there is a smoothing effect.
+
+.SH EXAMPLE
+
+The following invocation will delete WSI (NEXTRAD) products
+older than \.23333 hours (14 minutes) from a
+product queue in \fB/tmp/ldm.pq\fP.  It will loop every 120 seconds,
+deleting more products as they get old enough.
+
+.RS +4
+  pqexpire -i 120 -a .23333 -f WSI -q /tmp/ldm.pq
+.RE
+
+.SH "SEE ALSO"
+.LP
+.BR ldmd (1),
+.BR pqact (1),
+.BR pqing(1),
+.BR pq (3),
+.BR ulog (3),
+.BR syslogd (8),
+WWW URL \fBhttp://www.unidata.ucar.edu/software/ldm/\fP.
+.SH DIAGNOSTICS
+Error and log messages are written using the ulog(3) interface.
+The lower layer \fBpq(3)\fP library will emit messages of the form
+"fcntl F_WRLCK failed for rgn ..." when \fBpqexpire\fP hits a lock.
+In the context of this program, these messages are normal and not
+indicative of a problem.

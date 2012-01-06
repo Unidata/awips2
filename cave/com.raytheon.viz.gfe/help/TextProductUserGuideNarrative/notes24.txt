@@ -1,0 +1,2 @@
+There are many other node methods some of which are listed here.  These methods reside in the ForecastNarrative engine which cannot be overridden but is available for perusal in the examples/textProducts directory.
+

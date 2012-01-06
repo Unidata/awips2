@@ -1,0 +1,6 @@
+C                                           *--> FROM common/udtypc
+      COMMON /UDTYPC/ ICFULL,MTYPE,NTYPE,
+     *   TYPE(200),DIMN(200),UNIT(200),
+     *   MISS(200),NVAL(200),TIME(200),
+     *   NADD(200)
+C

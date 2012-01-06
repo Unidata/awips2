@@ -1,0 +1,65 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="bufrquikscatDecoder" class="com.raytheon.uf.edex.plugin.bufrquikscat.QUIKScatDecoder">
+        <constructor-arg ref="bufrquikscatPluginName" />
+    </bean>
+
+   <!-- Filter out all southern hemisphere data -->
+   <bean id="quikscatSHFilter" class="com.raytheon.uf.edex.decodertools.core.filterimpl.PluginDataObjectFilter">
+        <constructor-arg type="java.lang.String" value="quikscat_filters.xml" />
+        <constructor-arg type="java.lang.String" value="BASE" />
+   </bean>
+
+    <bean id="bufrquikscatDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg ref="bufrquikscatPluginName" />
+		<constructor-arg value="jms-dist:queue:Ingest.bufrquikscat?destinationResolver=#qpidDurableResolver" />
+	</bean>
+
+	<bean id="bufrquikscatCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="bufrquikscat-camel"/>
+  	</bean> 
+
+    <camelContext id="bufrquikscat-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler"
+        autoStartup="false">
+        <!--
+        <endpoint id="bufrquikscatFileEndpoint" uri="file:${edex.home}/data/sbn/bufrquikscat?noop=true&amp;idempotent=false" />
+
+        <route id="bufrquikscatFileConsumerRoute">
+            <from ref="bufrquikscatFileEndpoint" />
+            <bean ref="fileToString" />
+            <setHeader headerName="pluginName">
+                <constant>bufrquikscat</constant>
+            </setHeader>
+            <to uri="jms-generic:queue:Ingest.bufrquikscat" />
+        </route>
+        -->
+
+        <!-- Begin bufrquikscat routes -->
+        <route id="bufrquikscatIngestRoute">
+            <from uri="jms-generic:queue:Ingest.bufrquikscat?destinationResolver=#qpidDurableResolver" />
+            <setHeader headerName="pluginName">
+                <constant>bufrquikscat</constant>
+            </setHeader>
+            <doTry>
+                <pipeline>
+		            <bean ref="stringToFile" />
+                    <bean ref="bufrquikscatDecoder" method="decode" />
+                    <bean ref="quikscatSHFilter" method="filter" />
+                    <to uri="directvm:persistIndexAlert" />
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:bufrquikscat?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+</beans>

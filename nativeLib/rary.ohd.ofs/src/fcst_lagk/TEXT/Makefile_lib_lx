@@ -1,0 +1,47 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-fcst_lagk library file
+#
+#  cmt: File made on Wed Aug  6 12:50:24 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libfcst_lagk_t.a:  \
+     $(LIB)/libfcst_lagk_t.a(ex7.o)  \
+     $(LIB)/libfcst_lagk_t.a(fcmpk7.o)  \
+     $(LIB)/libfcst_lagk_t.a(fexa7.o)  \
+     $(LIB)/libfcst_lagk_t.a(fintp7.o)  \
+     $(LIB)/libfcst_lagk_t.a(fk7.o)  \
+     $(LIB)/libfcst_lagk_t.a(fka7.o)  \
+     $(LIB)/libfcst_lagk_t.a(flag7.o)  \
+     $(LIB)/libfcst_lagk_t.a(fop7.o)  \
+     $(LIB)/libfcst_lagk_t.a(fprpc7.o)  \
+     $(LIB)/libfcst_lagk_t.a(fqdt7.o)  \
+     $(LIB)/libfcst_lagk_t.a(fserc7.o)  \
+     $(LIB)/libfcst_lagk_t.a(ftwtl7.o)
+

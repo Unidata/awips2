@@ -1,0 +1,1161 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.78 [en] (X11; U; Linux 2.4.9-13smp i686) [Netscape]">
+  <title>ifpServer netCDF Format</title>
+</head>
+<body text="#000000" bgcolor="#ffffff" link="#0000ee" vlink="#551a8b"
+ alink="#ff0000">
+<h1>
+ifpServer D2D netCDF File Format</h1>
+October 6, 2002
+<br>
+
+<br>
+This document describes the format of the netCDF file that is:
+<ul>
+  <li>
+read by the ifpServer as a D2D database</li>
+</ul>
+If you are interested in the format of the netCDF files generated from
+the <a href="ifpnetCDF.html">ifpnetCDF product formatter<!-- Leave this comment in for formatting purposes--></a>&nbsp; or<!-- Leave this comment in for formatting purposes-->
+read
+by the <a href="iscMosaic.html">iscMosaic program<!-- Leave this comment in for formatting purposes--></a> , then refer to<!-- Leave this comment in for formatting purposes-->
+the
+<a href="netCDFFormat.html">netCDF File Format Document<!-- Leave this comment in for formatting purposes--></a>.
+<p>Table of Contents
+<br>
+<a href="#dimensions">netCDF Required Dimensions</a>
+<br>
+<a href="#netCDFVariableNames">netCDF Variable Names</a>
+<br>
+<a href="#attributes">netCDF Variable Attributes</a>
+<br>
+<a href="#attributes">netCDF Global Attributes</a>
+<br>
+<a href="#DiagnosingModelProblems">Diagnosing Model Problems</a>
+<br>
+<a href="#ncdump">Example of ncdump</a>
+</p>
+<p></p>
+<hr width="100%">
+<h2><a name="dimensions"></a>netCDF Required Dimensions</h2>
+Each netCDF file is required to contain the following set of
+dimensions:
+<br>
+&nbsp;
+<table border="1" width="100%" nosave="">
+  <tbody>
+    <tr>
+      <td><b>Dimension</b></td>
+      <td><b>Description</b></td>
+      <td><b>Required by GFESuite?</b></td>
+    </tr>
+    <tr>
+      <td>x</td>
+      <td>X-dimension of all grids</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>y</td>
+      <td>Y-dimension of all grids</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+</p>
+<hr width="100%"><br>
+&nbsp;
+<h2><a name="netCDFVariableNames"></a>netCDF Variable Names</h2>
+Each netCDF variable name represents a set of grids, plus additional
+information:
+<br>
+&nbsp;
+<table border="1" width="100%" nosave="">
+  <caption>&nbsp;</caption>
+  <tbody>
+    <tr nosave="">
+      <td nosave=""><b>Variable Name Format<br>
+      </b></td>
+      <td><b>Example</b></td>
+      <td><b>Data Type</b></td>
+      <td><b>Dimensions</b></td>
+      <td><b>Description</b></td>
+      <td><b>Required by GFESuite?</b></td>
+    </tr>
+    <tr>
+      <td>name</td>
+      <td>gh</td>
+      <td>4-D cube of data, float</td>
+      <td>(#grids, #levels, y,x)</td>
+      <td>The actual gridded data is contained in these variables.
+Attributes
+are associated with this variable.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>nameLevels</td>
+      <td>ghLevels</td>
+      <td>2-D array of charaters</td>
+      <td>(#levels, charsPerLevel)</td>
+      <td>The names of each of the vertical levels is in this variable,
+such
+as 500MB.</td>
+      <td>Yes, if there are more than 1 level in the data. If not
+specified,
+then the level name is assigned "Dflt".</td>
+    </tr>
+    <tr>
+      <td>nameInventory</td>
+      <td>ghInventory</td>
+      <td>2-D array of characters</td>
+      <td>(#grids, #levels)</td>
+      <td>An indicator 0 or 1 is used to denote whether that grid is
+present
+in the "name" variable. These bits change as model data arrives.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>_tp12, _tp6</td>
+      <td>_tp12, _tp6</td>
+      <td>array of numbers, int</td>
+      <td>#grids</td>
+      <td>Indicates whether total precipitation is for a 6 hour period
+or for
+a 12 hour period.&nbsp; Some models provide QPF grids every 6 hours,
+but
+the durations of each grid alternates between QPF for the last 6 hours,
+and the last 12 hours.</td>
+      <td>No.&nbsp; If not specified, then it assumed that Total
+Precipitation
+(_tp) valid accumulation time is the time between grids.</td>
+    </tr>
+    <tr>
+      <td>valtimeMINUSreftime</td>
+      <td>valtimeMINUSreftime</td>
+      <td>array of numbers, int</td>
+      <td># grids</td>
+      <td>indicates the offset in seconds between the model reference
+(base)
+time, and the grid.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>reftime</td>
+      <td>reftime</td>
+      <td>single number, float</td>
+      <td>n/a</td>
+      <td>indicates the number of seconds between Jan 1, 1970 at 0000z
+and the
+model base time (analysis time)</td>
+      <td>No. The D2D convention is to use the file name as the base
+model time.
+The "reftime" variable is not used.</td>
+    </tr>
+    <tr>
+      <td>model</td>
+      <td>model</td>
+      <td>array of characters</td>
+      <td>namelen</td>
+      <td>defines the model name as it appears in the GFE GUI and
+ifpServer databases.&nbsp;
+There can be only ONE netCDF file valid for the same time that has the
+same model definition, or the ifpServer/GFE will not see all of them.</td>
+      <td>Yes. The model specified will be modified by eliminating
+spaces and
+non-alphanumeric characters. Note that the model name may be overridden
+using the <a href="serverConfig.html#D2DModelFileDirectories">D2DDIRS
+in serverConfig.py</a> and
+      <a
+ href="localConfig.html#ModifyingthelistofD2DDirectoriesformodelaccess">
+localConfig.py.</a> Thus if the "model" variable in the netCDF file
+isn't to your liking or there is a conflict with other netCDF files,
+you
+can effectively change it using the syntax in the D2DDIRS definition.</td>
+    </tr>
+    <tr>
+      <td>staticTopo</td>
+      <td>staticTopo</td>
+      <td>2-D grid, float</td>
+      <td>(y, x)</td>
+      <td>Contains the topography in meters for the model.&nbsp;</td>
+      <td>No. This field is recommended, but not required.</td>
+    </tr>
+  </tbody>
+</table>
+<hr width="100%">
+<h2><a name="attributes"></a>netCDF variable Attributes</h2>
+<div style="margin-bottom: 0in;">Every "name" variable in the netCDF
+file
+has a collection of attributes.&nbsp; In the table below, we briefly
+describe
+each attribute and its meaning.&nbsp; For more information about a
+particular
+attribute, click on the link.
+<br>
+&nbsp;
+<br>
+&nbsp;
+<table border="1" width="100%" nosave="">
+  <tbody>
+    <tr>
+      <td><b>Attribute Name</b></td>
+      <td><b>Attribute Description</b></td>
+      <td><b>Required by GFESuite?</b></td>
+    </tr>
+    <tr>
+      <td>long_name</td>
+      <td>Contains a descriptive name that describes the variable.</td>
+      <td>No. If long_name is not specified, GFESuite will use the
+variable name
+instead.</td>
+    </tr>
+    <tr>
+      <td>units</td>
+      <td>Units for the variable.&nbsp; This is used by the GFE to
+display units
+in the legend, ifpIMAGE for the units in its legend, and for copy/paste
+operations within the GFE to determine how to convert units to the Fcst
+database units.</td>
+      <td>Yes.</td>
+    </tr>
+    <tr>
+      <td>valid_range</td>
+      <td>Minimum and maximum range of the variable.&nbsp; This is used
+by the
+ifpServer to limit the data, and by the GFE to assign color tables to
+the
+data. (ifpServer also looks for valid_min and valid_max if valid_range
+does not exist)</td>
+      <td>No. If not specified, then the minimum is assigned as 0 and
+the maximum
+assigned as 5000.</td>
+    </tr>
+    <tr>
+      <td>_FillValue</td>
+      <td>Fill Value, indicating no data at the point.</td>
+      <td>No.&nbsp; If not specified, then the fill value is assumed to
+be MAXFLOAT.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<h2>
+<a name="global"></a>netCDF Global Attributes</h2>
+<div style="margin-bottom: 0in;">&nbsp;
+<br>
+The following netCDF global attributes are required in order for the
+ifpServer to recognize the netCDF file as valid:
+<table border="1" width="100%" nosave="">
+  <caption>&nbsp;</caption>
+  <tbody>
+    <tr>
+      <td><b>Attribute</b></td>
+      <td><b>Description</b></td>
+      <td><b>Required by GFESuite?</b></td>
+    </tr>
+    <tr>
+      <td>projName</td>
+      <td>Contains the projection name.&nbsp; Must be one of the
+following: LAMBERT_CONFORMAL,
+MERCATOR, STEREOGRAPHIC, LATLON, CYLINDRICAL_EQUIDISTANT</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>lon00</td>
+      <td>Longitude in degrees of lower-left grid point (0, 0)</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>lat00</td>
+      <td>Latitude in degrees of lower-left grid point (0, 0)</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>latNxNy</td>
+      <td>Latitude in degrees of upper-right grid point (maxX, maxY)</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>lonNxNy</td>
+      <td>Longitude in degrees of upper-right grid point (maxX, maxY)</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>centralLon</td>
+      <td>Center longitude for the mercator projection, where the
+mercator projection
+is parallel to the Earth's surface. Center longitude for the polar
+stereographic
+and Lambert Conformal projections, where the projection has north as
+straight
+up.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>centralLat</td>
+      <td>Center latitude for the polar stereographic and Lambert
+Conformal projections,
+where the plane intersects the Earth's surface.</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+<hr width="100%">
+<br>
+&nbsp;
+<h2><a name="DiagnosingModelProblems"></a>Diagnosing Model Problems</h2>
+If you point the ifpServer to a D2D directory and the model is not
+appearing,
+verify that:
+<ul>
+  <li>
+the file name is in the standard format of yyyymmdd_hhmm, which is the
+model base time</li>
+  <li>
+that the file contains all of the required variables, dimensions, and
+attributes
+as outlined above</li>
+  <li>
+that there isn't more than ONE directory in the <a
+ href="localConfig.html#ModifyingthelistofD2DDirectoriesformodelaccess">D2DDIRS</a>
+configuration containing files that have an variable called "model"
+with
+the same name</li>
+</ul>
+If all else fails, you can turn on the debugging logging option in the
+ifpServer.&nbsp; In this mode the ifpServer will log all problems it
+finds
+with model data files.&nbsp; To turn on this feature, perform the
+following
+steps:
+<ol>
+  <li>
+Edit the file <i>release</i>/etc/BASE/logPref/ifpServer.logPref, where <i>release</i>
+is the installation directory. On AWIPS-baseline equipment this file is
+located at /awips/GFESuite/primary/etc/BASE/logPref/ifpServer.logPref.&nbsp; Add the
+following
+line in the middle of the file (before the prefix section).&nbsp; Refer
+to the <a href="logFiles.html">log files document</a> for details. Add
+an entry:&nbsp;&nbsp;&nbsp;&nbsp; all&nbsp; D2DFile.C&nbsp; file debug
+= on</li>
+  <li>
+Stop and restart the ifpServer.</li>
+  <li>
+Look in the server log files.&nbsp; It will show the problems for all
+files
+it finds.&nbsp; If it doesn't identify your file or directory, recheck
+your <a
+ href="localConfig.html#ModifyingthelistofD2DDirectoriesformodelaccess">D2DDIRS</a>
+to be sure you have set it up correctly.</li>
+</ol>
+<p><br>
+</p>
+<hr width="100%">
+<h2><a name="ncdump"></a>Example of ncdump</h2>
+<a href="#header">Header dump of netcdf file</a>
+<br>
+<a href="#valtime">Valid Time dump</a>
+<br>
+<a href="#model">model dump</a>
+<br>
+<a href="#inventory">inventory dump</a>
+<br>
+<a href="#levels">levels dump</a></div>
+<a name="header"></a>This is an example of an ncdump -h of an NAM
+model,
+showing all of the correct fields:
+<p><tt>ncdump -h 20020327_1200</tt>
+</p>
+<p><tt>netcdf 20020327_1200 {</tt>
+<br>
+<tt>dimensions:</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; record = UNLIMITED ; // (11 currently)</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; n_valtimes = 15 ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; data_variables = 20 ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; charsPerLevel = 10 ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; namelen = 132 ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; x = 93 ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; y = 65 ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; levels_1 = 1 ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; levels_2 = 2 ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; levels_5 = 5 ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; levels_19 = 19 ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; levels_25 = 25 ;</tt>
+<br>
+<tt>variables:</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; float gh(record, levels_19, y, x) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; gh:long_name =
+"Geopotential
+height" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; gh:units = "m" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; gh:udunits = "meters"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; gh:uiname = "geoPotHt"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; gh:valid_range = 0.f,
+20000.f ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; gh:_FillValue = -99999.f
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; gh:_n3D = 19 ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; gh:levels = "MB 1000-100
+by 50" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char ghLevels(levels_19, charsPerLevel) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char ghInventory(n_valtimes, levels_19) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; float rh(record, levels_25, y, x) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rh:long_name = "Relative
+Humidity" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rh:units = "%" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rh:udunits = "percent"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rh:uiname = "rh" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rh:valid_range = 0.f,
+100.f ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rh:_FillValue = -99999.f
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rh:_n3D = 20 ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rh:levels = "FHAG
+2&nbsp;
+MB 1000-100 by 50&nbsp; BL 0&gt;30 30&gt;60 60&gt;90 90&gt;120
+120&gt;150" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char rhLevels(levels_25, charsPerLevel) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char rhInventory(n_valtimes, levels_25) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; float t(record, levels_25, y, x) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t:long_name =
+"Temperature"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t:units = "K" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t:udunits =
+"degree_Kelvin"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t:uiname = "T" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t:valid_range = 180.f,
+330.f ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t:_FillValue = -99999.f
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t:_n3D = 20 ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t:levels = "FHAG 2&nbsp;
+MB 1000-100 by 50&nbsp; BL 0&gt;30 30&gt;60 60&gt;90 90&gt;120
+120&gt;150" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char tLevels(levels_25, charsPerLevel) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char tInventory(n_valtimes, levels_25) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; float uw(record, levels_25, y, x) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; uw:long_name = "u wind
+component" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; uw:units = "m/s" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; uw:udunits = "meter/sec"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; uw:uiname = "uWind"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; uw:valid_range = -150.f,
+150.f ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; uw:_FillValue = -99999.f
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; uw:_n3D = 20 ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; uw:levels = "FHAG 10
+MB 1000-100 by 50&nbsp; BL 0&gt;30 30&gt;60 60&gt;90 90&gt;120
+120&gt;150" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char uwLevels(levels_25, charsPerLevel) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char uwInventory(n_valtimes, levels_25) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; float vw(record, levels_25, y, x) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; vw:long_name = "v wind
+component" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; vw:units = "m/s" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; vw:udunits = "meter/sec"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; vw:uiname = "vWind"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; vw:valid_range = -150.f,
+150.f ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; vw:_FillValue = -99999.f
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; vw:_n3D = 20 ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; vw:levels = "FHAG 10
+MB 1000-100 by 50&nbsp; BL 0&gt;30 30&gt;60 60&gt;90 90&gt;120
+120&gt;150" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char vwInventory(n_valtimes, levels_25) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; float av(record, levels_5, y, x) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; av:long_name = "absolute
+vorticity" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; av:units = "1/s" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; av:udunits = "1/second"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; av:uiname = "absVort"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; av:valid_range = -0.01f,
+0.01f ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; av:_FillValue = -99999.f
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; av:_n3D = 4 ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; av:levels = "MB 1000
+850 700 500 250" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char avLevels(levels_5, charsPerLevel) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char avInventory(n_valtimes, levels_5) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; float pvv(record, levels_19, y, x) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pvv:long_name =
+"Pressure
+vertical velocity" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pvv:units = "Pa/s" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pvv:udunits =
+"pascal/second"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pvv:uiname = "Pvv" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pvv:valid_range = -2.5f,
+2.5f ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pvv:_FillValue =
+-99999.f
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pvv:_n3D = 19 ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pvv:levels = "MB
+1000-100
+by 50" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char pvvLevels(levels_19, charsPerLevel) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char pvvInventory(n_valtimes, levels_19) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; float p(record, levels_1, y, x) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; p:long_name = "pressure"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; p:units = "Pa" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; p:udunits = "pascal"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; p:uiname = "atmP" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; p:valid_range = 0.f,
+110000.f ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; p:_FillValue = -99999.f
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; p:_n3D = 1 ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; p:levels = "SFC" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char pLevels(levels_1, charsPerLevel) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char pInventory(n_valtimes, levels_1) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; float heli(record, levels_1, y, x) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; heli:long_name =
+"helicity"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; heli:units = "m/s2"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; heli:udunits =
+"meter/second2"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; heli:uiname = "hel"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; heli:valid_range = 0.f,
+1000.f ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; heli:_FillValue =
+-99999.f
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; heli:_n3D = 0 ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; heli:levels = "FHAG
+0&gt;30" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char heliLevels(levels_1, charsPerLevel) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char heliInventory(n_valtimes, levels_1) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; float cape(record, levels_2, y, x) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cape:long_name =
+"Convective
+Available Potential Energy" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cape:units = "J/kg"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cape:udunits =
+"joule/Kilogram"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cape:uiname = "CAPE"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cape:valid_range = 0.f,
+6000.f ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cape:_FillValue =
+-99999.f
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cape:_n3D = 0 ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cape:levels = "SFC BL
+0&gt;180" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char capeLevels(levels_2, charsPerLevel) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char capeInventory(n_valtimes, levels_2) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; float cin(record, levels_2, y, x) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cin:long_name =
+"Convective
+Inhibition" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cin:units = "J/kg" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cin:udunits =
+"joule/Kilogram"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cin:uiname = "convInhib"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cin:valid_range = 0.f,
+400.f ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cin:_FillValue =
+-99999.f
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cin:_n3D = 0 ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cin:levels = "SFC BL
+0&gt;180" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char cinLevels(levels_2, charsPerLevel) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char cinInventory(n_valtimes, levels_2) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; float bli(record, levels_1, y, x) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bli:long_name = "Best
+lifted index" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bli:units = "K" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bli:udunits =
+"degree_Kelvin"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bli:uiname =
+"bestLftInd"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bli:valid_range = -20.f,
+50.f ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bli:_FillValue =
+-99999.f
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bli:_n3D = 0 ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bli:levels = "BL
+0&gt;180"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char bliLevels(levels_1, charsPerLevel) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char bliInventory(n_valtimes, levels_1) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; float pli(record, levels_1, y, x) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pli:long_name = "Parcel
+lifted index" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pli:units = "K" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pli:udunits =
+"degree_Kelvin"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pli:uiname =
+"parcLftInd"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pli:valid_range = -20.f,
+50.f ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pli:_FillValue =
+-99999.f
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pli:_n3D = 0 ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pli:levels = "BL
+0&gt;30"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char pliLevels(levels_1, charsPerLevel) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char pliInventory(n_valtimes, levels_1) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; float pw(record, levels_1, y, x) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pw:long_name =
+"precipitable
+water" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pw:units = "mm" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pw:udunits =
+"millimeter"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pw:uiname = "precipH2O"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pw:valid_range = 0.f,
+300.f ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pw:_FillValue = -99999.f
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pw:_n3D = 0 ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pw:levels = "EA" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char pwLevels(levels_1, charsPerLevel) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char pwInventory(n_valtimes, levels_1) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; float emsp(record, levels_1, y, x) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; emsp:long_name = "ETA
+Mean Sea Level Pressure" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; emsp:units = "Pa" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; emsp:udunits = "pascal"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; emsp:uiname = "ETAMSL"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; emsp:valid_range =
+80000.f,
+110000.f ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; emsp:_FillValue =
+-99999.f
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; emsp:_n3D = 0 ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; emsp:levels = "MSL"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char emspLevels(levels_1, charsPerLevel) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char emspInventory(n_valtimes, levels_1) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; float pmsl(record, levels_1, y, x) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pmsl:long_name =
+"pressure
+at mean sea level" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pmsl:units = "Pa" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pmsl:udunits = "pascal"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pmsl:uiname = "PMSL"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pmsl:valid_range =
+80000.f,
+110000.f ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pmsl:_FillValue =
+-99999.f
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pmsl:_n3D = 0 ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pmsl:levels = "MSL"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char pmslLevels(levels_1, charsPerLevel) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char pmslInventory(n_valtimes, levels_1) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; float cp(record, levels_1, y, x) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cp:long_name =
+"convective
+precipitation" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cp:units = "mm" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cp:udunits =
+"millimeter"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cp:uiname = "convPrecip"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cp:valid_range = 0.f,
+1000.f ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cp:_FillValue = -99999.f
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cp:_n3D = 0 ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cp:levels = "SFC" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char cpLevels(levels_1, charsPerLevel) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char cpInventory(n_valtimes, levels_1) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; float tp(record, levels_1, y, x) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tp:long_name = "total
+precipitation" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tp:units = "mm" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tp:udunits =
+"millimeter"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tp:uiname = "totPrecip"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tp:valid_range = 0.f,
+1000.f ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tp:_FillValue = -99999.f
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tp:_n3D = 0 ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tp:levels = "SFC" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char tpLevels(levels_1, charsPerLevel) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char tpInventory(n_valtimes, levels_1) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; float _tp12(n_valtimes) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; float _tp6(n_valtimes) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; int valtimeMINUSreftime(n_valtimes) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+valtimeMINUSreftime:units
+= "seconds" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; double reftime ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; reftime:long_name =
+"reference time" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; reftime:units = "seconds
+since (1970-1-1 00:00:00.0)" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char origin(namelen) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; char model(namelen) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; float staticTopo(y, x) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; staticTopo:units =
+"meters"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; staticTopo:long_name
+= "Topography" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; staticTopo:_FillValue
+= -99999.f ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; float staticCoriolis(y, x) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; staticCoriolis:units
+= "/second" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; staticCoriolis:long_name
+= "Coriolis parameter" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+staticCoriolis:_FillValue
+= -99999.f ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; float staticSpacing(y, x) ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; staticSpacing:units
+= "meters" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; staticSpacing:long_name
+= "Grid spacing" ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; staticSpacing:_FillValue
+= -99999.f ;</tt>
+</p>
+<p><tt>// global attributes:</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :cdlDate = "20010328"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :depictorName =
+"grid211@16944264"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :projIndex = 3 ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :projName =
+"LAMBERT_CONFORMAL"
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :centralLat = 25.f ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :centralLon = -95.f
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :rotation = 25.f ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :xMin = -0.255644f ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :xMax = 0.196647f ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :yMax = -0.562235f ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :yMin = -0.876877f ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :lat00 = 12.19004f ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :lon00 = -133.459f ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :latNxNy = 57.28995f
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :lonNxNy = -49.38491f
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :dxKm = 78.04174f ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :dyKm = 78.04293f ;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :latDxDy = 40.60606f
+;</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :lonDxDy = -100.5548f
+;</tt>
+</p>
+<p><a name="valtime"></a>Looking at specifics for the
+valtimeMINUSreftime:
+</p>
+<p><tt>ncdump -v valtimeMINUSreftime 20020327_1200</tt>
+</p>
+<p><tt>data:</tt>
+</p>
+<p><tt>&nbsp;valtimeMINUSreftime = 0, 21600, 43200, 64800, 86400,
+108000,
+129600, 151200,</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; 172800, 194400, 216000, 237600, 259200, 280800,
+302400 ;</tt>
+<br>
+&nbsp;
+</p>
+<p><a name="model"></a>Looking at specifics for the model:
+</p>
+<p><tt>ncdump -v model 20020327_1200</tt>
+</p>
+<p><tt>data:</tt>
+</p>
+<p><tt>&nbsp;model = "ETA" ;</tt>
+</p>
+<p><a name="inventory"></a>Looking at specifics for the inventory bits:
+</p>
+<p><tt>ncdump -v ghInventory 20020327_1200</tt>
+</p>
+<p><tt>data:</tt>
+</p>
+<p><tt>&nbsp;ghInventory =</tt>
+<br>
+<tt>&nbsp; "1111111111111111111",</tt>
+<br>
+<tt>&nbsp; "1111111111111111111",</tt>
+<br>
+<tt>&nbsp; "1111111111111111111",</tt>
+<br>
+<tt>&nbsp; "1111111111111111111",</tt>
+<br>
+<tt>&nbsp; "1111111111111111111",</tt>
+<br>
+<tt>&nbsp; "1111111111111111111",</tt>
+<br>
+<tt>&nbsp; "1111111111111111111",</tt>
+<br>
+<tt>&nbsp; "1111111111111111111",</tt>
+<br>
+<tt>&nbsp; "1111111111111111111",</tt>
+<br>
+<tt>&nbsp; "1111111111111111111",</tt>
+<br>
+<tt>&nbsp; "1111111111111111111",</tt>
+<br>
+<tt>&nbsp; "",</tt>
+<br>
+<tt>&nbsp; "",</tt>
+<br>
+<tt>&nbsp; "",</tt>
+<br>
+<tt>&nbsp; "" ;</tt>
+<br>
+&nbsp;
+</p>
+<p><a name="levels"></a>Looking at the specifics for the levels:
+</p>
+<p><tt>ncdump -v ghLevels 20020327_1200</tt>
+</p>
+<p><tt>data:</tt>
+</p>
+<p><tt>&nbsp;ghLevels =</tt>
+<br>
+<tt>&nbsp; "MB 1000&nbsp;&nbsp; ",</tt>
+<br>
+<tt>&nbsp; "MB 950&nbsp;&nbsp;&nbsp; ",</tt>
+<br>
+<tt>&nbsp; "MB 900&nbsp;&nbsp;&nbsp; ",</tt>
+<br>
+<tt>&nbsp; "MB 850&nbsp;&nbsp;&nbsp; ",</tt>
+<br>
+<tt>&nbsp; "MB 800&nbsp;&nbsp;&nbsp; ",</tt>
+<br>
+<tt>&nbsp; "MB 750&nbsp;&nbsp;&nbsp; ",</tt>
+<br>
+<tt>&nbsp; "MB 700&nbsp;&nbsp;&nbsp; ",</tt>
+<br>
+<tt>&nbsp; "MB 650&nbsp;&nbsp;&nbsp; ",</tt>
+<br>
+<tt>&nbsp; "MB 600&nbsp;&nbsp;&nbsp; ",</tt>
+<br>
+<tt>&nbsp; "MB 550&nbsp;&nbsp;&nbsp; ",</tt>
+<br>
+<tt>&nbsp; "MB 500&nbsp;&nbsp;&nbsp; ",</tt>
+<br>
+<tt>&nbsp; "MB 450&nbsp;&nbsp;&nbsp; ",</tt>
+<br>
+<tt>&nbsp; "MB 400&nbsp;&nbsp;&nbsp; ",</tt>
+<br>
+<tt>&nbsp; "MB 350&nbsp;&nbsp;&nbsp; ",</tt>
+<br>
+<tt>&nbsp; "MB 300&nbsp;&nbsp;&nbsp; ",</tt>
+<br>
+<tt>&nbsp; "MB 250&nbsp;&nbsp;&nbsp; ",</tt>
+<br>
+<tt>&nbsp; "MB 200&nbsp;&nbsp;&nbsp; ",</tt>
+<br>
+<tt>&nbsp; "MB 150&nbsp;&nbsp;&nbsp; ",</tt>
+<br>
+<tt>&nbsp; "MB 100&nbsp;&nbsp;&nbsp; " ;</tt>
+<br>
+&nbsp;
+<br>
+&nbsp;
+</p>
+</body>
+</html>

@@ -1,0 +1,56 @@
+#!/bin/sh
+
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+# Start a cluster
+# 
+# Arguments: NAME HOST [host...]
+# Start a cluster called NAME with N nodes running on the given HOSTs
+# repeat the host name to run multiple brokers on one host. Use dynamic
+# ports.
+#
+# Log files, data directories and hosts/ports files are all stored under
+# $HOME/cluster_test/$NAME
+# 
+
+source config.sh
+
+CLUSTER_NAME=`date +"${USER}_%F_%T"`
+HOSTS=($BROKER_HOSTS)
+for ((i = 0; i < ${#HOSTS[*]}; ++i)) ; do
+    host=${HOSTS[$i]}
+    datadir=$CLUSTER_HOME/broker$i
+    log=$datadir/qpidd.log
+    ssh $host "rm -rf $datadir; mkdir -p $datadir" || {
+	echo "ERROR: can't make data dir $datadir"; exit 1
+    }
+    port=`ssh $host "echo $QPIDD -dp0 --cluster-name=$CLUSTER_NAME \
+	  --data-dir=$datadir \
+	  --log-to-file=$log --log-prefix=broker$i \
+	  $QPIDD_OPTS | newgrp ais"` || {
+	error "ERROR: can't start broker $i on  $host"; exit 1;
+    }
+    PORTS="$PORTS $port"
+done
+
+echo "$BROKER_HOSTS" > $CLUSTER_HOME/hosts
+echo "$PORTS" > $CLUSTER_HOME/ports
+
+`dirname $0`/cluster_check $NAME

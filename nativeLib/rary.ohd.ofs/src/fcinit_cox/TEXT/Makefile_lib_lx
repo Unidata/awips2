@@ -1,0 +1,76 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-fcinit_cox library file
+#
+#  cmt: File made on Wed Aug  6 12:48:39 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libfcinit_cox_t.a:  \
+     $(LIB)/libfcinit_cox_t.a(cnco26.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox10.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox11.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox13.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox14.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox19.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox1.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox20.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox21.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox22.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox23.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox24.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox26.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox29.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox2.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox31.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox33.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox34.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox35.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox36.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox38.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox41.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox42.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox43.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox44.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox45.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox46.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox51.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox52.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox54.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox56.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox57.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox6.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox7.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox8.o)  \
+     $(LIB)/libfcinit_cox_t.a(cox9.o)  \
+     $(LIB)/libfcinit_cox_t.a(fgcox1.o)  \
+     $(LIB)/libfcinit_cox_t.a(isun26.o)  \
+     $(LIB)/libfcinit_cox_t.a(stp126.o)  \
+     $(LIB)/libfcinit_cox_t.a(stp226.o)  \
+     $(LIB)/libfcinit_cox_t.a(tscv26.o)
+

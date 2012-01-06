@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Apache Commons Cli Plug-in
+Bundle-SymbolicName: org.apache.commons.cli
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Raytheon-bundled OSS
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ClassPath: commons-cli-1.2.jar
+Export-Package: org.apache.commons.cli

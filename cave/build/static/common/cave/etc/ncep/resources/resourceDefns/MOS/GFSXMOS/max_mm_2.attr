@@ -1,0 +1,3 @@
+! Attributes for the GFSXMOS resource with "maxmm2" plot model
+!
+plotModelName=maxmm2
