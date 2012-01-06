@@ -1,0 +1,367 @@
+." $Id: pqact.1,v 1.9.20.1.2.6 2009/06/18 16:14:52 steve Exp $
+.TH PQACT 1 "$Date: 2009/06/18 16:14:52 $"
+.SH NAME
+pqact - program to process products in a Unidata LDM product queue
+.SH SYNOPSIS
+.HP
+.ft B
+pqact
+.nh
+\%[-v]
+\%[-x]
+\%[-l\ \fIlogpath\fP]
+\%[-d\ \fIdatadir\fP]
+\%[-q\ \fIpqfname\fP]
+\%[-f\ \fIfeedtype\fP]
+\%[-p\ \fIpattern\fP]
+\%[-i\ \fIinterval\fP]
+\%[-t\ \fItime\fP]
+\%[-o\ \fItime\fP]
+\%[\fIconf_file\fP]
+.hy
+.ft R
+.SH DESCRIPTION
+.LP
+This program processes ldm data products from a local product queue (see
+\fBpq\fP(3)).  Pattern matching is used to specify what actions are
+performed on each product.
+.LP
+A product's feed type is used for coarse product discrimination, and pattern
+matching on product identifiers determines which of a set of general actions
+are applied to the product.  A product identifier may match multiple
+patterns, and hence multiple actions may be applied to it.  A pattern may be
+used to mark parts of a product identifier for use in the associated action.
+The actions supported include filing products for later scheduled decoding
+or for direct use, decoding products as they arrive, adding products to a
+database for quick retrieval by applications, or executing arbitrary
+programs on the arrival of selected products, e.g., mailing local severe
+weather warnings to users.
+.LP
+.B pqact
+uses a configuration file
+.IR conf_file ,
+(default pqact.conf) to set up the table of patterns and associated actions
+for products.  This file is human-readable and editable.  It contains a list
+of pattern-action entries, where a pattern is a (feed type, regular
+expression) pair.  The available actions are described in the ``USAGE''
+section, below.
+.LP
+Although it can be run manually, this program
+is typically started as subprocess of the ldm server, \fBrpc.ldmd(1)\fP,
+at system startup, from an \fBexec\fP line in the configuration file.
+This ensures that \fBpqact\fP is in the same process group as other
+programs sharing the queue.
+.LP
+When a \fBpqact\fP process terminates, it writes the insertion-time of
+the last successfully-processed data-product into a file.  The pathname
+of the file is that of the configuration-file with ".state" appended.
+This allows a subsequent \fBpqact\fP process that executes the same
+configuration-file to start processing where the previous process stopped.
+It also means that a configuration-file should have at most one \fBpqact\fPr
+process executing it as a time.
+.SH OPTIONS
+.TP
+.B -v
+Verbose logging.
+Informative messages (level \fBLOG_INFO\fP) are logged, including a line for
+each product read out of the product queue and a line for each action
+invoked on a product.
+By default, only messages of severity \fBLOG_NOTICE\fP and greater are
+logged.
+.TP
+.B -x
+Debug logging.
+Debugging messages (level \fBLOG_DEBUG\fP) are logged.
+.TP
+.BI "-l " logpath
+Log file pathname.
+The program uses Unidata's \fBulog\fP(3) package to write error and log
+messages.
+The default is to write to the \fBsyslogd\fP(8) daemon.  If this option is
+specified, however, then messages will be written to the file
+\fIlogpath\fP unless that pathname is "-", in which case all messages will be
+written to standard error and the program will not put itself into the
+background.
+.TP
+.BI \-d " datadir"
+The directory relative to
+which file names are specified in the configuration file.  
+The default is set at compile time, typically /usr/local/ldm.
+.TP
+.BI "-q " pqfname
+The name of the product queue file.
+The default is \fBdata/ldm.pq\fP relative to the installation point,
+which is typically \fB/usr/local/ldm\fP. The compiled in default can
+be overridden by setting the environment variable \fBLDMPQFNAME\fP.
+You can specify a null product queue
+\fB/dev/null\fP to just check the syntax of a configuration file for
+\fBpqact\fP, as in
+.RS +12
+pqact -v -l- -q /dev/null pqact.conf
+.RE
+.TP
+.BI \-f " feedtype"
+Reads from the product queue only products that have a feedtype that is a
+member of the \fIfeedtype\fP set.  The default is `ANY', specifying all
+feedtypes.  See the ``Usage'' section below for a list of basic feedtypes
+and the use of feedtype expressions to specify combinations of basic
+feedtypes.
+.TP
+.BI \-p " pattern"
+Reads from the product queue only products whose identifier
+matches \fIpattern\fP.
+The default is `\fB.*\fP', specifying all products.  A pattern that is
+longer than two characters and that has a ".*" prefix is deemed
+pathological and causes the program to log a warning message.
+.TP
+.BI \-i " time"
+Polling interval, in seconds.
+Check for new products in the product queue every \fItime\fP seconds.
+When
+.B pqact
+is run in the same process group as the programs that insert products into
+the product queue, a signal informs
+.B pqact
+and all other interested processes in the process group
+whenever a new product is available, so polling is not necessary in this
+case.  The default
+interval is 15 seconds.
+.TP
+.BI \-o " time"
+Offset time, in seconds.
+Begin scan with products created \fItime\fP
+seconds earlier than the current time.
+The default is to begin just after the time stamp of the oldest product
+in the queue at startup.
+This option might be used when manually processing data from an old queue.
+.TP
+.I conf_file
+Configuration file.  This is the pattern-action file that specifies what to
+do with each product whose feed type and product identifier match a
+specified pattern.  The format of this file is described in the ``Usage''
+section, below.  The default is \fBetc/pqact.conf\fP relative to the
+installation point, which is typically \fB/usr/local/ldm\fP.   
+.SH SIGNALS
+.TP
+.BR SIGTERM
+Graceful termination after finishing actions on current product.
+.TP
+.BR SIGHUP
+Rereads configuration file.
+.TP
+.BR SIGINT
+Immediate termination.
+.TP
+.B SIGUSR1
+A no-op. (This program currently keeps no internal statistics.)
+.TP
+.B SIGUSR2
+Cyclically increment the verbosity of the program. Assumming the program was
+started without the \fB-v\fP or \fB-x\fP switches, the first \fBSIGUSR2\fP will
+make it verbose and \fBLOG_INFO\fP priority messages will appear.
+The second will turn on the \fBLOG_DEBUG\fP priority messages as well.
+A third will take it back to the normal state.
+.TP
+.B SIGCONT
+Wake up if sleeping, because there is a new product in the queue.
+
+.SH USAGE
+.LP
+Each pattern-action rule in the configuration file begins with a
+non-white-space character and consists of three fields, separated by one or
+more tab characters: a feedtype field, a pattern field, and an action field
+that may include one or more action arguments.  An initial `#' character
+indicates a comment line.  An initial sequence of one or more blank or tab
+characters indicates a new field of the previous pattern-action line. This
+allows multiline pattern-action rules.
+
+
+.SS Feedtypes
+.LP
+Each data product has an associated feedtype and product identifier.  The
+feedtype names the data stream from which the product originated and the
+product identifier distinguishes different products within a data stream.
+The feedtype field provides coarse discrimination among various data
+sources.  It helps determine how the product identifiers should be
+interpreted, since each data source may use a different scheme for product
+identifiers.  The feedtypes currently recognized are:
+
+.TP 10
+.B NONE
+matches no feed
+.TP 10
+.B PPS
+Public Products Service
+.TP 10
+.B DDS
+Domestic Data Service
+.TP 10
+.B DDPLUS
+Domestic Data Plus, a union of DDS and PPS.
+.TP 10
+.B IDS
+International Product Service
+.TP 10
+.B HRS
+High-Resolution Data Service, consisting of forecast model outputs from the
+U.S. National Meteorological Center and the European Center for Medium-Range
+Weather Forecasts.
+.TP 10
+.B WMO
+any of the above WMO format products, so named because they use World
+Meteorological Organization standard headers for product identifiers.
+.TP 10
+.B MCIDAS
+Unidata/Wisconsin broadcast
+.TP 10
+.B PCWS
+Forecast Systems Lab PC DARE feed
+.TP 10
+.B FSL
+Other FSL feeds
+.TP 10
+.B NMC
+NMC feeds
+.TP 10
+.B NLDN
+National Lighting Data Network
+.TP 10
+.B EXP
+experimental data feed
+.TP 10
+.B ANY
+wild card, matches any product feedtype
+.LP
+The feedtype field may also contain a feedtype expression specifying a
+combination of the above named feedtypes, using the union operator `|', the
+difference operator `-', and parentheses for grouping.  For example, to
+specify products from either the IDS feed or the HRS feed, use
+.RS +4
+IDS|HRS
+.RE
+.LP
+To specify any products from the WMO feeds except HRS products, use
+.RS +4
+WMO-HRS
+.RE
+
+.SS Product Identifiers
+.LP
+A product identifier is typically extracted from characters at the beginning
+of a product in the data stream. When a product is first processed or
+created, the feedtype and product identifier are assigned. For each product
+it reads out of the product queue,
+.B pqact
+attempts to match the
+feedtype and identifier against entries in the configuration file. Whether a
+product is captured or processed further is determined by whether its
+feedtype and identifier match any of the pattern-action rules specified in
+the configuration file.
+.LP
+The identifier of a product is successively matched against each pattern
+in the configuration file that has a matching feedtype; whenever a match is
+found with such a pattern, the associated action is invoked.
+
+.SS Patterns
+.LP
+A pattern is an extended regular expression (see \fBregex\fP(5)) that matches
+product identifiers in the data stream. Since the end of the pattern field
+is delimited by a tab or newline character, the pattern cannot contain a
+literal tab or newline character but may contain blanks.  Patterns longer
+than two characters and that start with a ".*" prefix are deemed pathological
+and cause the program to log warning messages.
+
+
+.SS Actions
+.LP
+The action field consists of an action command followed by a tab and one or
+more arguments separated by blanks or tabs.  Valid actions in the LDM are:
+
+.TP 10
+.B FILE
+Write a product into a file.
+.TP 10
+.B STDIOFILE
+Buffered write of a product into a file.
+.TP 10
+.B PIPE
+Run another process with the product as input.
+.TP 10
+.B EXEC
+Run another process (no connection).
+.TP 10
+.B DBFILE
+Store a product in a database.
+.TP 10
+.B ALLOW
+Obsolete action to specify which hosts may request which products.  This is
+now handled by the \fBldmd.access\fP configuration file of \fBrpc.ldmd\fP(1)
+instead.
+.TP 10
+.B ACCEPT
+Obsolete action to specify which hosts may feed which products.  This is
+now handled by the \fBldmd.access\fP configuration file of \fBrpc.ldmd\fP(1)
+instead.
+.LP
+For more information on these actions and their arguments, see the LDM Site
+Manager's Guide.
+
+.SS Pattern-Action Rules
+.LP
+A product may match multiple pattern-action lines.  In that case the
+specified actions are invoked for that product in the same order they appear
+in the configuration file.
+.LP
+Parts of a matching product identifier and components of the date of the
+data or the current date and time may be substituted into action arguments
+before the action is invoked.  For more information about the notations for
+this, consult the section on the pqact(1) configuration-file in the
+``LDM Basics'' webpages for your particular release at
+\fBhttp://www.unidata.ucar.edu/software/ldm\fP.
+
+.SH EXAMPLE
+
+The following pattern-action rule will append all products from the DDS data
+stream that have product identifiers (in this case WMO headers) beginning
+with the characters `SAUS' to hourly files named saus_\fImmdd\fP.wmo
+(extracting the appropriate month and day fields from the product
+identifiers):
+.RS +4
+DDS	^SAUS.. ... (..)(..)	FILE	saus_\1\2.wmo
+.RE
+
+.SH FILES
+.TP
+.B pqact.conf
+Default configuration-file.
+.TP
+.B pqact.conf.state
+Default persistent-state file.  Used to hold the insertion-time of
+the last, successfully-processed data-product.
+
+.SH "SEE ALSO"
+.LP
+.BR runpg (1),
+.BR ldmd (1),
+.BR ulog (3),
+.BR pq (3),
+.BR syslogd (8),
+WWW URL \fBhttp://www.unidata.ucar.edu/software/ldm/\fP.
+
+.SH SUPPORT
+.LP
+If you have problems with this program, then you should first examine the 
+LDM email archive for similar problems and how they were solved.
+The email archive is available via the following World Wide Web URL:
+.sp
+.RS
+\fBhttp://www.unidata.ucar.edu/software/ldm\fP
+.RE
+.sp
+If this does not suffice and your site is a member of the Unidata 
+program, then send an inquiry via email -- together will all relevant 
+information -- to
+.sp
+.RS
+\fBsupport@unidata.ucar.edu\fP
+.RE

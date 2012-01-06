@@ -1,0 +1,10 @@
+#!/bin/ksh
+# run_create_gage_file
+
+# This allows this script to be run from outside of ./precip_proc/bin
+RUN_FROM_DIR=`dirname $0`
+
+# Set up SOME environmental variables required by hmap_mpe.
+. $RUN_FROM_DIR/../../set_hydro_env
+
+runso rary.ohd.pproc read_topo_main

@@ -1,0 +1,111 @@
+C MODULE WDSCR
+C-----------------------------------------------------------------------
+C
+C  ROUTINE TO CREATE A STATION IN THE SASM CONTROL FILE.
+C
+      SUBROUTINE WDSCR (USERID,SAID,SMID,PPDBID,DESCRP,STALAT,
+     *   IDTPP,IDTTA,IPE,ISD,ISW,ISTAT)
+C
+C
+      CHARACTER*8 USERID,PPDBID,SAID,SMID
+      CHARACTER*8 USERIDX,PPDBIDX,SAIDX,SMIDX
+      CHARACTER*20 DESCRP
+      CHARACTER*128 FILENAME
+C
+      INCLUDE 'uio'
+      INCLUDE 'udebug'
+      INCLUDE 'dscommon/dsunts'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/shared_sasm/RCS/wdscr.f,v $
+     . $',                                                             '
+     .$Id: wdscr.f,v 1.2 1998/04/07 18:40:16 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+      ISTAT=0
+C
+      IF (IDETR.GT.0) WRITE (IOGDB,10)
+10    FORMAT (' *** ENTER WDSCR')
+C
+C  OPEN FILE
+      IOPEN=2
+      CALL UDOPEN (KDSRCF,IOPEN,FILENAME,LRECL,IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (LP,20) FILENAME(1:LENSTR(FILENAME))
+20    FORMAT ('0*** ERROR - IN WDSCR - CANNOT OPEN FILE ',A,'.')
+         ISTAT=1
+         GO TO 200
+         ENDIF
+C
+C  GET NUMBER OF ENTRIES
+      NHD=0
+      READ (KDSRCF,REC=1,ERR=60) NHEAD
+      IF (NHEAD.GT.0) GO TO 80
+         NHEAD=1
+         WRITE (KDSRCF,REC=1,ERR=40) NHEAD
+         NHD=2
+         GO TO 80
+40    WRITE (LP,50) FILENAME(1:LENSTR(FILENAME))
+50    FORMAT ('0*** ERROR - IN WDSCR - BAD WRITE TO FIRST RECORD IN ',
+     *  'FILE ',A,'.')
+      ISTAT=1
+      GO TO 190
+60    WRITE (LP,70) FILENAME(1:LENSTR(FILENAME))
+70    FORMAT ('0*** ERROR - IN WDSCR - BAD READ IN FILE ',A,'.')
+      ISTAT=1
+      GO TO 190
+C
+C  SEARCH FILE - IF STATION NOT FOUND SEE IF THERE IS A DELETED RECORD
+80    IF (NHD.GT.0) GO TO 150
+      LDELTE=0
+      NHEAD=NHEAD+1
+      DO 90 NHD=2,NHEAD
+         READ (KDSRCF,REC=NHD,ERR=130) USERIDX,SAIDX,SMIDX,
+     *      PPDBIDX
+         IF (USERIDX.EQ.USERID.AND.
+     *       PPDBIDX.EQ.PPDBID) THEN
+            ISTAT=2
+            GO TO 190
+            ENDIF
+        IF (LDELTE.EQ.0.AND.PPDBIDX.EQ.'*DELETED') LDELTE=NHD
+90      CONTINUE
+      IF (LDELTE.GT.0) GO TO 120
+         WRITE (KDSRCF,REC=1,ERR=100) NHEAD
+         NHD=NHEAD+1
+         GO TO 150
+100   WRITE (LP,110) FILENAME(1:LENSTR(FILENAME))
+110   FORMAT ('0*** ERROR - IN WDSCR - BAD WRITE TO FILE ',A,'.')
+      ISTAT=1
+      GO TO 190
+120   NHD=LDELTE
+      GO TO 150
+130   WRITE (LP,140) FILENAME(1:LENSTR(FILENAME))
+140   FORMAT ('0*** ERROR - IN WDSCR - BAD READ OR EOF IN FILE ',A,'.')
+      ISTAT=1
+      GO TO 190
+C
+150   WRITE (KDSRCF,REC=NHD,ERR=170) USERID,SAID,SMID,PPDBID,DESCRP,
+     *   STALAT,IDTPP,IDTTA,IPE,ISD,ISW
+      IF (IDEDB.GT.0) WRITE (IOGDB,160) PPDBID,NHD,
+     *   FILENAME(1:LENSTR(FILENAME))
+160   FORMAT (' PPDBID ',A,' CREATED AT RECORD ',I5,' IN FILE ',A)
+      GO TO 190
+170   WRITE (LP,180) NHD,FILENAME(1:LENSTR(FILENAME))
+180   FORMAT ('0*** ERROR - IN WDSCR - BAD WRITE AT RECORD ',I5,
+     *   'IN FILE ',A,'.')
+      ISTAT=1
+
+C  CLOSE FILE
+190   CALL UPCLOS (KDSRCF,' ',IERR)
+C
+200   IF (IDETR.GT.0) WRITE (IOGDB,210)
+210   FORMAT (' *** EXIT WDSCR')
+C
+      RETURN
+C
+      END

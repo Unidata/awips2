@@ -1,0 +1,60 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="vaaDecoder" class="com.raytheon.uf.edex.plugin.vaa.VAADecoder">
+        <constructor-arg ref="vaaPluginName" />
+    </bean>
+
+    <bean id="vaaDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg ref="vaaPluginName" />
+		<constructor-arg value="jms-dist:queue:Ingest.vaa?destinationResolver=#qpidDurableResolver" />
+	</bean>
+
+	<bean id="vaaCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="vaa-camel"/>
+  	</bean> 
+
+    <camelContext id="vaa-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler"
+        autoStartup="false">
+        <!--
+        <endpoint id="vaaFileEndpoint" uri="file:${edex.home}/data/sbn/vaa?noop=true&amp;idempotent=false" />
+
+        <route id="vaaFileConsumerRoute">
+            <from ref="vaaFileEndpoint" />
+            <bean ref="fileToString" />
+            <setHeader headerName="pluginName">
+                <constant>vaa</constant>
+            </setHeader>
+            <to uri="jms-generic:queue:Ingest.vaa" />
+        </route>
+        -->
+
+        <!-- Begin vaa routes -->
+        <route id="vaaIngestRoute">
+            <from uri="jms-generic:queue:Ingest.vaa?destinationResolver=#qpidDurableResolver" />
+            <setHeader headerName="pluginName">
+                <constant>vaa</constant>
+            </setHeader>
+            <pipeline>
+                <doTry>
+                    <pipeline>
+                        <bean ref="stringToFile" />
+                        <bean ref="vaaDecoder" method="decode" />
+                        <to uri="directvm:persistIndexAlert" />
+                    </pipeline>
+                    <doCatch>
+                        <exception>java.lang.Throwable</exception>
+                        <to uri="log:vaa?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                    </doCatch>
+                </doTry>
+            </pipeline>
+        </route>
+    </camelContext>
+</beans>

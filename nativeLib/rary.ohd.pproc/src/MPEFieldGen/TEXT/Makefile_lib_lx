@@ -1,0 +1,126 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the pproc_lib-MPEFieldGen library file
+#
+#  cmt: File made on Wed Aug  6 13:01:27 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/pproc_lib/lib
+
+ARFLAGS  = rv
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU -DUSE_XM_MWMUTIL_H -DUSE_XGPM -Wall -Wno-unused-variable -Wno-comment
+
+INSERTS      = -I/fs/hseb/ob83/ohd/whfs_lib/inc/general  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/dbms  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/gui  \
+	       -I/fs/hseb/ob83/ohd/util/inc/netcdf_inc  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/riverpro  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/pproc_lib/inc
+
+INSERTS_CC   = -I/usr/include/informix/esql/  \
+               -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .c .h .o .a
+
+.c.a:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libMPEFieldGen_t.a:  \
+     $(LIB)/libMPEFieldGen_t.a(apply_mfb.o)  \
+     $(LIB)/libMPEFieldGen_t.a(apply_polygons.o)  \
+     $(LIB)/libMPEFieldGen_t.a(build_neighbor_list.o)  \
+     $(LIB)/libMPEFieldGen_t.a(calculate_mean_bias.o)  \
+     $(LIB)/libMPEFieldGen_t.a(calculate_pixel_height.o)  \
+     $(LIB)/libMPEFieldGen_t.a(cal_radar.o)  \
+     $(LIB)/libMPEFieldGen_t.a(check_autosave.o)  \
+     $(LIB)/libMPEFieldGen_t.a(check_multiple.o)  \
+     $(LIB)/libMPEFieldGen_t.a(check_multisensor_qc.o)  \
+     $(LIB)/libMPEFieldGen_t.a(check_spatial_consistency.o)  \
+     $(LIB)/libMPEFieldGen_t.a(create_mosaic.o)  \
+     $(LIB)/libMPEFieldGen_t.a(delete_zeros.o)  \
+     $(LIB)/libMPEFieldGen_t.a(gage_only.o)  \
+     $(LIB)/libMPEFieldGen_t.a(gage_radar_data.o)  \
+     $(LIB)/libMPEFieldGen_t.a(gage_radar_pairs_qc.o)  \
+     $(LIB)/libMPEFieldGen_t.a(get_beam_height.o)  \
+     $(LIB)/libMPEFieldGen_t.a(get_climate.o)  \
+     $(LIB)/libMPEFieldGen_t.a(get_hostname.o)  \
+     $(LIB)/libMPEFieldGen_t.a(get_mean_bias.o)  \
+     $(LIB)/libMPEFieldGen_t.a(get_os_system.o)  \
+     $(LIB)/libMPEFieldGen_t.a(hpsort.o)  \
+     $(LIB)/libMPEFieldGen_t.a(lb_gr_pairs.o)  \
+     $(LIB)/libMPEFieldGen_t.a(local_bias.o)  \
+     $(LIB)/libMPEFieldGen_t.a(main_mpe_fieldgen.o)  \
+     $(LIB)/libMPEFieldGen_t.a(mathstuf.o)  \
+     $(LIB)/libMPEFieldGen_t.a(mpe_constructor.o)  \
+     $(LIB)/libMPEFieldGen_t.a(mpe_destructor.o)  \
+     $(LIB)/libMPEFieldGen_t.a(mpe_fieldgen_utils.o)  \
+     $(LIB)/libMPEFieldGen_t.a(mpe_parse_args.o)  \
+     $(LIB)/libMPEFieldGen_t.a(multi_sensor.o)  \
+     $(LIB)/libMPEFieldGen_t.a(p3_lmosaic.o)  \
+     $(LIB)/libMPEFieldGen_t.a(pair_gage_radar.o)  \
+     $(LIB)/libMPEFieldGen_t.a(print_versionf.o)  \
+     $(LIB)/libMPEFieldGen_t.a(qksort.o)  \
+     $(LIB)/libMPEFieldGen_t.a(ram_disk.o)  \
+     $(LIB)/libMPEFieldGen_t.a(read_dbparams.o)  \
+     $(LIB)/libMPEFieldGen_t.a(read_dparadar.o)  \
+     $(LIB)/libMPEFieldGen_t.a(read_gage_data.o)  \
+     $(LIB)/libMPEFieldGen_t.a(read_gage_precip.o)  \
+     $(LIB)/libMPEFieldGen_t.a(read_geo_data.o)  \
+     $(LIB)/libMPEFieldGen_t.a(read_lightning.o)  \
+     $(LIB)/libMPEFieldGen_t.a(read_misc.o)  \
+     $(LIB)/libMPEFieldGen_t.a(read_params.o)  \
+     $(LIB)/libMPEFieldGen_t.a(read_precip_limit.o)  \
+     $(LIB)/libMPEFieldGen_t.a(read_pseudo_precip.o)  \
+     $(LIB)/libMPEFieldGen_t.a(read_radar_data.o)  \
+     $(LIB)/libMPEFieldGen_t.a(read_radarloc.o)  \
+     $(LIB)/libMPEFieldGen_t.a(read_radarresult.o)  \
+     $(LIB)/libMPEFieldGen_t.a(read_rwbiasdyn2.o)  \
+     $(LIB)/libMPEFieldGen_t.a(read_rwbiasstat.o)  \
+     $(LIB)/libMPEFieldGen_t.a(read_rwparams.o)  \
+     $(LIB)/libMPEFieldGen_t.a(read_satellite.o)  \
+     $(LIB)/libMPEFieldGen_t.a(read_spe.o)  \
+     $(LIB)/libMPEFieldGen_t.a(read_triangulated_gage.o)  \
+     $(LIB)/libMPEFieldGen_t.a(readxmrg.o)  \
+     $(LIB)/libMPEFieldGen_t.a(run_bmosaic.o)  \
+     $(LIB)/libMPEFieldGen_t.a(run_gageonly.o)  \
+     $(LIB)/libMPEFieldGen_t.a(run_lmosaic.o)  \
+     $(LIB)/libMPEFieldGen_t.a(run_lsatpre.o)  \
+     $(LIB)/libMPEFieldGen_t.a(run_mlmosaic.o)  \
+     $(LIB)/libMPEFieldGen_t.a(run_mmosaic.o)  \
+     $(LIB)/libMPEFieldGen_t.a(run_rfcbmosaic.o)  \
+     $(LIB)/libMPEFieldGen_t.a(run_rfcmmosaic.o)  \
+     $(LIB)/libMPEFieldGen_t.a(run_rfcmosaic.o)  \
+     $(LIB)/libMPEFieldGen_t.a(run_rmosaic.o)  \
+     $(LIB)/libMPEFieldGen_t.a(run_satpre.o)  \
+     $(LIB)/libMPEFieldGen_t.a(run_sgmosaic.o)  \
+     $(LIB)/libMPEFieldGen_t.a(run_srgmosaic.o)  \
+     $(LIB)/libMPEFieldGen_t.a(run_srmosaic.o)  \
+     $(LIB)/libMPEFieldGen_t.a(save_gif.o)  \
+     $(LIB)/libMPEFieldGen_t.a(save_netcdf.o)  \
+     $(LIB)/libMPEFieldGen_t.a(statistics.o)  \
+     $(LIB)/libMPEFieldGen_t.a(update_state_variable.o)  \
+     $(LIB)/libMPEFieldGen_t.a(work.o)  \
+     $(LIB)/libMPEFieldGen_t.a(wr2perflog.o)  \
+     $(LIB)/libMPEFieldGen_t.a(write_array.o)  \
+     $(LIB)/libMPEFieldGen_t.a(write_gageqc.o)  \
+     $(LIB)/libMPEFieldGen_t.a(write_params.o)  \
+     $(LIB)/libMPEFieldGen_t.a(write_qpe.o)  \
+     $(LIB)/libMPEFieldGen_t.a(write_radarresult.o)  \
+     $(LIB)/libMPEFieldGen_t.a(write_rwbiasdyn.o)  \
+     $(LIB)/libMPEFieldGen_t.a(write_rwresult.o)
+

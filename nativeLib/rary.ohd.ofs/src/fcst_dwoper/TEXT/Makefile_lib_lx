@@ -1,0 +1,75 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-fcst_dwoper library file
+#
+#  cmt: File made on Wed Aug  6 12:49:58 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libfcst_dwoper_t.a:  \
+     $(LIB)/libfcst_dwoper_t.a(adjts21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(bdry21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(blinit21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(blndtd21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(bwcm21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(bwtr21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(ckhilo21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(dvrg21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(dwsm21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(engl21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(ex21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(frct21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(getbal21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(getlag21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(inbi21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(incd21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(intp21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(intr21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(latq21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(lowq21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(mtrx21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(nonc21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(plot21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(prcl21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(prep21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(prts21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(ratc21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(savc21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(sect21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(setbal21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(stat21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(strc21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(tdfill21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(tdinit21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(tdintp21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(terp21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(undo21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(werq21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(wmup21.o)  \
+     $(LIB)/libfcst_dwoper_t.a(wplt21.o)
+

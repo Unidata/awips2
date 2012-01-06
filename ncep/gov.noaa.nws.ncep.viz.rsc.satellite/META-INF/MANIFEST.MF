@@ -1,0 +1,39 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: NC Satellite Resource Plug-in
+Bundle-SymbolicName: gov.noaa.nws.ncep.viz.rsc.satellite;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: gov.noaa.nws.ncep.viz.rsc.satellite.Activator
+Eclipse-RegisterBuddy: gov.noaa.nws.ncep.viz.resources, org.apache.velocity, com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.uf.common.status, com.raytheon.viz.ui, com.raytheon.viz.core, com.raytheon.uf.viz.core, com.raytheon.uf.common.serialization
+Eclipse-BuddyPolicy: ext, global
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ com.raytheon.viz.core,
+ com.raytheon.edex.common,
+ gov.noaa.nws.ncep.edex.common;bundle-version="1.0.0",
+ com.raytheon.uf.common.serialization.comm,
+ gov.noaa.nws.ncep.common;bundle-version="1.0.0",
+ gov.noaa.nws.ncep.viz.resources;bundle-version="1.0.0",
+ com.raytheon.viz.ui,
+ javax.measure;bundle-version="1.0.0",
+ javax.persistence;bundle-version="1.0.0",
+ com.raytheon.edex.uengine;bundle-version="1.11.17",
+ org.apache.commons.lang,
+ org.geotools,
+ com.raytheon.uf.common.colormap;bundle-version="1.11.7",
+ gov.noaa.nws.ncep.viz.common,
+ com.raytheon.uf.common.message;bundle-version="1.11.7",
+ com.raytheon.uf.edex.decodertools;bundle-version="1.11.17",
+ com.raytheon.viz.satellite;bundle-version="1.11.17",
+ com.raytheon.uf.viz.core,
+ javax.media.opengl,
+ com.raytheon.uf.viz.derivparam;bundle-version="1.11.31",
+ gov.noaa.nws.ncep.common.dataplugin.mcidas;bundle-version="1.0.0",
+ com.raytheon.uf.common.dataplugin.satellite;bundle-version="1.0.0"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: gov.noaa.nws.ncep.viz.rsc.satellite,
+ gov.noaa.nws.ncep.viz.rsc.satellite.rsc,
+ gov.noaa.nws.ncep.viz.rsc.satellite.units
+Import-Package: 
+ gov.noaa.nws.ncep.viz.ui.display

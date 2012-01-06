@@ -1,0 +1,260 @@
+<html>
+<title>GFESuite Documentation - </title>
+<body>
+<h1><a name="Numerics"></a>Numeric Library Methods</h1>
+<br>
+<a href="#getTopo">getTopo</a>
+<br>
+<a href="#wxMask">wxMask</a>
+<br>
+<a href="#getIndex">getIndex</a>
+<br>
+<a href="#encodeEditArea">encodeEditArea</a>
+<br>
+<a href="#decodeEditArea">decodeEditArea</a>
+<br>
+<a href="#getindicies">getindicies</a>
+<br>
+<a href="#offset">offset</a>
+<br>
+<a href="#agradient">agradient</a>
+<br>
+<a href="#diff2">diff2</a>
+<!-- Leave this comment for formatting purposes -->
+<hr width="100%">
+
+
+
+<h2>
+<a name="getTopo"></a>getTopo</h2>
+def getTopo(self):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return the numeric topo grid
+<h2><a name="wxMask"></a>wxMask</h2>
+def wxMask(self, wx, query, isreg=0):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns a numeric mask i.e.
+a grid of 0's and 1's
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # where the value is 1 if the
+given query succeeds
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Arguments:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; wx --
+a 2-tuple:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+wxValues : numerical grid of byte values
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+keys : list of "ugly strings" where the index of
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+the ugly string corresponds to the byte value in
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+the wxValues grid.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; query
+-- a text string representing a query
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; isreg
+-- if 1, the query is treated as a regular expression
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+otherwise as a literal string
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Examples:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; # Here
+we want to treat the query as a regular expression
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; PoP
+= where(self.wxMask(wxTuple, "^Chc:", 1), maximum(40, PoP), PoP)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; # Here
+we want to treat the query as a literal
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; PoP
+= where(self.wxMask(wxTuple, ":L:") maximum(5, PoP), PoP)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # See the <a
+ href="SmartTools.html#SS-Ex7">Smart
+Tool Training Guide -- Numerical Tools and Working with Weather Section</a>
+for more information.
+<br>
+&nbsp;
+<h2><a name="wxMask"></a>discreteMask</h2>
+def wxMask(self, wx, query, isreg=0):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns a numeric mask i.e.
+a grid of 0's and 1's
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # where the value is 1 if the
+given query succeeds
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Arguments:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; wx --
+a 2-tuple:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+values : numerical grid of byte values
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+keys : list of "ugly strings" where the index of
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+the ugly string corresponds to the byte value in
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+the discreteValues grid.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; query
+-- a text string representing a query
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; isreg
+-- if 1, the query is treated as a regular expression
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+otherwise as a literal string
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Examples:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; # Here
+we want to treat the query as a regular expression
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; PoP
+= where(self.wxMask(wxTuple, "BlzrdWRN", 1), maximum(40, PoP), PoP)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; # Here
+we want to treat the query as a literal
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; PoP
+= where(self.wxMask(wxTuple, "WintStmWRN") maximum(5, PoP), PoP)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<h2><a name="getIndex"></a>getIndex</h2>
+def getIndex(self, uglyStr, keys):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; Returns
+the byte value that corresponds to the
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; given
+ugly string. If the ugly string is not found a new key will be added
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; and
+the index to the new entry will be returned.&nbsp; This method works
+for
+grids
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; of type
+weather and discrete.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Arguments:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; uglyStr:
+a string representing a weather value or a discrete value
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; keys:
+a list of ugly strings.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+A Wx argument represents a 2-tuple:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+wxValues : numerical grid of byte values
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+keys : list of "ugly strings" where the index of
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+the ugly string corresponds to the byte value in the wxValues grid.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+For example, if our keys are:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"Sct:RW:-:<novis>:"
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"Chc:T:-:<novis>:"
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"Chc:SW:-:<novis>:"
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Then, the wxValues grid will have byte values of 0 where
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+there is "Sct:RW:-:<novis>:", 1 where there is "Chc:T:-:<novis>:"
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+and 2 where there is "Chc:SW:-:<novis>:"
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # See the <a
+ href="SmartTools.html#SS-Ex7">Smart
+Tool Training Guide -- Numerical Tools and Working with Weather Section</a>
+for more information.&nbsp;</novis></novis></novis></novis></novis></novis>
+<h2><a name="encodeEditArea"></a>encodeEditArea</h2>
+def encodeEditArea(self, editArea):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns a Numeric Python mask for
+the edit area
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # "editArea" can be a named area or
+a referenceData object
+<h2><a name="decodeEditArea"></a>decodeEditArea</h2>
+def decodeEditArea(self, mask):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns a refData object for the given
+mask
+<h2><a name="getindicies"></a>getindicies</h2>
+def getindicies(self, o, l):
+<h2><a name="offset"></a>offset</h2>
+def offset(self, a, x, y):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Gives an offset grid for array, a,
+by x and y points
+<h2><a name="agradient"></a>agradient</h2>
+def agradient(self, a):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Gives offset grids in the "forward"
+x and "up" y directions
+<h2><a name="diff2"></a>diff2</h2>
+def diff2(self, x, n=1, axis=-1):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # diff2(x,n=1,axis=-1) calculates the
+first-order, discrete
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # center difference approximation to
+the derivative along the axis
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # specified. array edges are padded
+with adjacent values.

@@ -1,0 +1,908 @@
+/*
+    File: Admin.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:16 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "Admin.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct Admin_t
+{
+    char		focalpoint[25];
+    char		ofc[21];
+    char		phone[13];
+    char		region[21];
+    char		regno[2];
+    char		cd404[9];
+    date		tenyr;
+    date		oneyr;
+    char		hsa[6];
+    short		hsa_num;
+    char		hb_password[9];
+
+    int		ind_focalpoint;
+    int		ind_ofc;
+    int		ind_phone;
+    int		ind_region;
+    int		ind_regno;
+    int		ind_cd404;
+    int		ind_tenyr;
+    int		ind_oneyr;
+    int		ind_hsa_num;
+    int		ind_hb_password;
+} Admin_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+Admin * GetAdmin(const char * where)
+{
+
+    Admin * listPtr = NULL;
+    Admin * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM Admin ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Admin_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetAdmin() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetAdmin() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetAdmin() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.focalpoint:dbs.ind_focalpoint, :dbs.ofc:dbs.ind_ofc, 
+    :dbs.phone:dbs.ind_phone, :dbs.region:dbs.ind_region, 
+    :dbs.regno:dbs.ind_regno, :dbs.cd404:dbs.ind_cd404, 
+    :dbs.tenyr:dbs.ind_tenyr, :dbs.oneyr:dbs.ind_oneyr, 
+    :dbs.hsa, :dbs.hsa_num:dbs.ind_hsa_num, 
+    :dbs.hb_password:dbs.ind_hb_password    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetAdmin() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (Admin *) malloc(sizeof(Admin))) != NULL)
+        {
+
+            strcpy(structPtr->focalpoint, dbs.focalpoint);
+            setNullIfIndicated(dbs.ind_focalpoint, CHAR, structPtr->focalpoint);
+
+            strcpy(structPtr->ofc, dbs.ofc);
+            setNullIfIndicated(dbs.ind_ofc, CHAR, structPtr->ofc);
+
+            strcpy(structPtr->phone, dbs.phone);
+            setNullIfIndicated(dbs.ind_phone, CHAR, structPtr->phone);
+
+            strcpy(structPtr->region, dbs.region);
+            setNullIfIndicated(dbs.ind_region, CHAR, structPtr->region);
+
+            strcpy(structPtr->regno, dbs.regno);
+            setNullIfIndicated(dbs.ind_regno, CHAR, structPtr->regno);
+
+            strcpy(structPtr->cd404, dbs.cd404);
+            setNullIfIndicated(dbs.ind_cd404, CHAR, structPtr->cd404);
+
+            structPtr->tenyr = pg_date_to_date_t(dbs.tenyr);
+            setNullIfIndicated(dbs.ind_tenyr, INT, &structPtr->tenyr);
+
+            structPtr->oneyr = pg_date_to_date_t(dbs.oneyr);
+            setNullIfIndicated(dbs.ind_oneyr, INT, &structPtr->oneyr);
+
+            strcpy(structPtr->hsa, dbs.hsa);
+
+            structPtr->hsa_num = dbs.hsa_num;
+            setNullIfIndicated(dbs.ind_hsa_num, SHORT, &structPtr->hsa_num);
+
+            strcpy(structPtr->hb_password, dbs.hb_password);
+            setNullIfIndicated(dbs.ind_hb_password, CHAR, structPtr->hb_password);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.focalpoint:dbs.ind_focalpoint, :dbs.ofc:dbs.ind_ofc, 
+        :dbs.phone:dbs.ind_phone, :dbs.region:dbs.ind_region, 
+        :dbs.regno:dbs.ind_regno, :dbs.cd404:dbs.ind_cd404, 
+        :dbs.tenyr:dbs.ind_tenyr, :dbs.oneyr:dbs.ind_oneyr, 
+        :dbs.hsa, :dbs.hsa_num:dbs.ind_hsa_num, 
+        :dbs.hb_password:dbs.ind_hb_password        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetAdmin() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+Admin * SelectAdmin(const char * where)
+{
+
+    Admin * listPtr = NULL;
+    Admin * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM Admin ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Admin_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectAdmin() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectAdmin() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectAdmin() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.focalpoint:dbs.ind_focalpoint, :dbs.ofc:dbs.ind_ofc, 
+    :dbs.phone:dbs.ind_phone, :dbs.region:dbs.ind_region, 
+    :dbs.regno:dbs.ind_regno, :dbs.cd404:dbs.ind_cd404, 
+    :dbs.tenyr:dbs.ind_tenyr, :dbs.oneyr:dbs.ind_oneyr, 
+    :dbs.hsa, :dbs.hsa_num:dbs.ind_hsa_num, 
+    :dbs.hb_password:dbs.ind_hb_password    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectAdmin() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (Admin *) malloc(sizeof(Admin))) != NULL)
+        {
+
+            strcpy(structPtr->focalpoint, dbs.focalpoint);
+            setNullIfIndicated(dbs.ind_focalpoint, CHAR, structPtr->focalpoint);
+
+            strcpy(structPtr->ofc, dbs.ofc);
+            setNullIfIndicated(dbs.ind_ofc, CHAR, structPtr->ofc);
+
+            strcpy(structPtr->phone, dbs.phone);
+            setNullIfIndicated(dbs.ind_phone, CHAR, structPtr->phone);
+
+            strcpy(structPtr->region, dbs.region);
+            setNullIfIndicated(dbs.ind_region, CHAR, structPtr->region);
+
+            strcpy(structPtr->regno, dbs.regno);
+            setNullIfIndicated(dbs.ind_regno, CHAR, structPtr->regno);
+
+            strcpy(structPtr->cd404, dbs.cd404);
+            setNullIfIndicated(dbs.ind_cd404, CHAR, structPtr->cd404);
+
+            structPtr->tenyr = pg_date_to_date_t(dbs.tenyr);
+            setNullIfIndicated(dbs.ind_tenyr, INT, &structPtr->tenyr);
+
+            structPtr->oneyr = pg_date_to_date_t(dbs.oneyr);
+            setNullIfIndicated(dbs.ind_oneyr, INT, &structPtr->oneyr);
+
+            strcpy(structPtr->hsa, dbs.hsa);
+
+            structPtr->hsa_num = dbs.hsa_num;
+            setNullIfIndicated(dbs.ind_hsa_num, SHORT, &structPtr->hsa_num);
+
+            strcpy(structPtr->hb_password, dbs.hb_password);
+            setNullIfIndicated(dbs.ind_hb_password, CHAR, structPtr->hb_password);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.focalpoint:dbs.ind_focalpoint, :dbs.ofc:dbs.ind_ofc, 
+        :dbs.phone:dbs.ind_phone, :dbs.region:dbs.ind_region, 
+        :dbs.regno:dbs.ind_regno, :dbs.cd404:dbs.ind_cd404, 
+        :dbs.tenyr:dbs.ind_tenyr, :dbs.oneyr:dbs.ind_oneyr, 
+        :dbs.hsa, :dbs.hsa_num:dbs.ind_hsa_num, 
+        :dbs.hb_password:dbs.ind_hb_password        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectAdmin() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectAdminCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM Admin ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountAdmin() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountAdmin() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountAdmin() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountAdmin() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutAdmin(const Admin * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Admin_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.focalpoint, structPtr->focalpoint);
+    dbs.ind_focalpoint = getIndicator(CHAR, (void *)structPtr->focalpoint);
+
+    strcpy(dbs.ofc, structPtr->ofc);
+    dbs.ind_ofc = getIndicator(CHAR, (void *)structPtr->ofc);
+
+    strcpy(dbs.phone, structPtr->phone);
+    dbs.ind_phone = getIndicator(CHAR, (void *)structPtr->phone);
+
+    strcpy(dbs.region, structPtr->region);
+    dbs.ind_region = getIndicator(CHAR, (void *)structPtr->region);
+
+    strcpy(dbs.regno, structPtr->regno);
+    dbs.ind_regno = getIndicator(CHAR, (void *)structPtr->regno);
+
+    strcpy(dbs.cd404, structPtr->cd404);
+    dbs.ind_cd404 = getIndicator(CHAR, (void *)structPtr->cd404);
+
+    dbs.tenyr = date_t_to_pg_date(structPtr->tenyr);
+    dbs.ind_tenyr = getIndicator(INT, (void *)&structPtr->tenyr);
+
+    dbs.oneyr = date_t_to_pg_date(structPtr->oneyr);
+    dbs.ind_oneyr = getIndicator(INT, (void *)&structPtr->oneyr);
+
+    strcpy(dbs.hsa, structPtr->hsa);
+
+    dbs.hsa_num = structPtr->hsa_num;
+    dbs.ind_hsa_num = getIndicator(SHORT, (void *)&structPtr->hsa_num);
+
+    strcpy(dbs.hb_password, structPtr->hb_password);
+    dbs.ind_hb_password = getIndicator(CHAR, (void *)structPtr->hb_password);
+
+
+    EXEC SQL INSERT INTO Admin (focalpoint,ofc,
+        phone,region,regno,
+        cd404,tenyr,oneyr,
+        hsa,hsa_num,hb_password        )
+        VALUES (
+         :dbs.focalpoint:dbs.ind_focalpoint, :dbs.ofc:dbs.ind_ofc, :dbs.phone:dbs.ind_phone,
+         :dbs.region:dbs.ind_region, :dbs.regno:dbs.ind_regno, :dbs.cd404:dbs.ind_cd404,
+         :dbs.tenyr:dbs.ind_tenyr, :dbs.oneyr:dbs.ind_oneyr, :dbs.hsa,
+         :dbs.hsa_num:dbs.ind_hsa_num, :dbs.hb_password:dbs.ind_hb_password);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutAdmin() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertAdmin(const Admin * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Admin_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.focalpoint, structPtr->focalpoint);
+    dbs.ind_focalpoint = getIndicator(CHAR, (void *)structPtr->focalpoint);
+
+    strcpy(dbs.ofc, structPtr->ofc);
+    dbs.ind_ofc = getIndicator(CHAR, (void *)structPtr->ofc);
+
+    strcpy(dbs.phone, structPtr->phone);
+    dbs.ind_phone = getIndicator(CHAR, (void *)structPtr->phone);
+
+    strcpy(dbs.region, structPtr->region);
+    dbs.ind_region = getIndicator(CHAR, (void *)structPtr->region);
+
+    strcpy(dbs.regno, structPtr->regno);
+    dbs.ind_regno = getIndicator(CHAR, (void *)structPtr->regno);
+
+    strcpy(dbs.cd404, structPtr->cd404);
+    dbs.ind_cd404 = getIndicator(CHAR, (void *)structPtr->cd404);
+
+    dbs.tenyr = date_t_to_pg_date(structPtr->tenyr);
+    dbs.ind_tenyr = getIndicator(INT, (void *)&structPtr->tenyr);
+
+    dbs.oneyr = date_t_to_pg_date(structPtr->oneyr);
+    dbs.ind_oneyr = getIndicator(INT, (void *)&structPtr->oneyr);
+
+    strcpy(dbs.hsa, structPtr->hsa);
+
+    dbs.hsa_num = structPtr->hsa_num;
+    dbs.ind_hsa_num = getIndicator(SHORT, (void *)&structPtr->hsa_num);
+
+    strcpy(dbs.hb_password, structPtr->hb_password);
+    dbs.ind_hb_password = getIndicator(CHAR, (void *)structPtr->hb_password);
+
+
+    EXEC SQL INSERT INTO Admin (focalpoint,ofc,
+        phone,region,regno,
+        cd404,tenyr,oneyr,
+        hsa,hsa_num,hb_password        )
+        VALUES (
+         :dbs.focalpoint:dbs.ind_focalpoint, :dbs.ofc:dbs.ind_ofc, :dbs.phone:dbs.ind_phone,
+         :dbs.region:dbs.ind_region, :dbs.regno:dbs.ind_regno, :dbs.cd404:dbs.ind_cd404,
+         :dbs.tenyr:dbs.ind_tenyr, :dbs.oneyr:dbs.ind_oneyr, :dbs.hsa,
+         :dbs.hsa_num:dbs.ind_hsa_num, :dbs.hb_password:dbs.ind_hb_password);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertAdmin() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateAdmin(const Admin *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct Admin_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.focalpoint, structPtr->focalpoint);
+    dbs.ind_focalpoint = getIndicator(CHAR, (void *)structPtr->focalpoint);
+
+    strcpy(dbs.ofc, structPtr->ofc);
+    dbs.ind_ofc = getIndicator(CHAR, (void *)structPtr->ofc);
+
+    strcpy(dbs.phone, structPtr->phone);
+    dbs.ind_phone = getIndicator(CHAR, (void *)structPtr->phone);
+
+    strcpy(dbs.region, structPtr->region);
+    dbs.ind_region = getIndicator(CHAR, (void *)structPtr->region);
+
+    strcpy(dbs.regno, structPtr->regno);
+    dbs.ind_regno = getIndicator(CHAR, (void *)structPtr->regno);
+
+    strcpy(dbs.cd404, structPtr->cd404);
+    dbs.ind_cd404 = getIndicator(CHAR, (void *)structPtr->cd404);
+
+    dbs.tenyr = date_t_to_pg_date(structPtr->tenyr);
+    dbs.ind_tenyr = getIndicator(INT, (void *)&structPtr->tenyr);
+
+    dbs.oneyr = date_t_to_pg_date(structPtr->oneyr);
+    dbs.ind_oneyr = getIndicator(INT, (void *)&structPtr->oneyr);
+
+    strcpy(dbs.hsa, structPtr->hsa);
+
+    dbs.hsa_num = structPtr->hsa_num;
+    dbs.ind_hsa_num = getIndicator(SHORT, (void *)&structPtr->hsa_num);
+
+    strcpy(dbs.hb_password, structPtr->hb_password);
+    dbs.ind_hb_password = getIndicator(CHAR, (void *)structPtr->hb_password);
+
+
+    sprintf(queryBuffer, " UPDATE Admin SET " );
+    strcat(queryBuffer, "focalpoint = ? , ofc = ? , phone = ? , region = ? , regno = ? ,     ");
+    strcat(queryBuffer, "cd404 = ? , tenyr = ? , oneyr = ? , hsa = ? , hsa_num = ? ,     ");
+    strcat(queryBuffer, "hb_password = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateAdmin() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.focalpoint:dbs.ind_focalpoint, :dbs.ofc:dbs.ind_ofc, :dbs.phone:dbs.ind_phone, :dbs.region:dbs.ind_region, :dbs.regno:dbs.ind_regno,
+     :dbs.cd404:dbs.ind_cd404, :dbs.tenyr:dbs.ind_tenyr, :dbs.oneyr:dbs.ind_oneyr, :dbs.hsa, :dbs.hsa_num:dbs.ind_hsa_num,
+     :dbs.hb_password:dbs.ind_hb_password;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateAdmin() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteAdmin(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM Admin ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteAdmin() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateAdminByRecord (const Admin * newStructPtr, const Admin * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetAdminPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateAdmin(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateAdmin(const Admin * structPtr)
+{
+    UpdateAdminByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertAdmin(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueAdmin(const Admin * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (AdminExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertAdmin(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteAdminByRecord(const Admin * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetAdminPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteAdmin(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool AdminExists(const Admin * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetAdminPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectAdminCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetAdminPrimaryKeyWhereString (const Admin * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE hsa = '%s' ",
+            structPtr->hsa);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeAdmin( Admin * structPtr)
+{
+    Admin* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( Admin * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetAdminDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetAdminErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

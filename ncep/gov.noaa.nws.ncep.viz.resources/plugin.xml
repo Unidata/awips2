@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension-point id="NC-Resource" name="NC-Resource" schema="schema/nc_resource.exsd"/>
+   <extension-point id="NC-ResourceAttribute" name="NC-ResourceAttribute" schema="schema/nc_rsc_attr.exsd"/>
+
+   <extension
+         point="com.raytheon.viz.ui.contextualMenu">
+      <contextualMenu
+            actionClass="gov.noaa.nws.ncep.viz.resources.attributes.EditResourceAttrsAction"
+            capabilityInterface="gov.noaa.nws.ncep.viz.resources.INatlCntrsResource"
+            name="Edit Natl Cntrs Attributes"
+            sortID="11">
+      </contextualMenu>
+      <!--contextualMenu
+            actionClass="gov.noaa.nws.ncep.resources.attributes.EditResourceAttrsAction"
+            capabilityInterface="gov.noaa.nws.ncep.resources.INatlCntrsResource"
+            name="Natl Cntrs Resource Attr Editable"
+            sortID="801">
+      </contextualMenu-->
+   </extension>
+   
+</plugin>

@@ -1,0 +1,41 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Monitor Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.monitor
+Bundle-Version: 1.12.1174.qualifier
+Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.uf.common.monitor,
+ com.raytheon.uf.common.monitor.config,
+ com.raytheon.uf.common.monitor.data,
+ com.raytheon.uf.common.monitor.events,
+ com.raytheon.uf.common.monitor.processing,
+ com.raytheon.uf.common.monitor.scan,
+ com.raytheon.uf.common.monitor.scan.config,
+ com.raytheon.uf.common.monitor.scan.xml,
+ com.raytheon.uf.common.monitor.xml
+Require-Bundle: com.raytheon.uf.common.dataplugin;bundle-version="1.11.5",
+ org.geotools;bundle-version="2.5.2",
+ org.apache.commons.collections,
+ com.raytheon.uf.common.geospatial;bundle-version="1.0.0",
+ com.raytheon.uf.common.dataplugin.binlightning;bundle-version="1.0.0",
+ com.raytheon.uf.common.localization;bundle-version="1.11.17",
+ org.eclipse.swt,
+ com.raytheon.uf.common.dataplugin.grib;bundle-version="1.11.26",
+ com.raytheon.uf.common.sounding;bundle-version="1.12.1112",
+ com.raytheon.uf.common.dataplugin.bufrua;bundle-version="1.12.1112",
+ com.raytheon.uf.edex.pointdata;bundle-version="1.12.1112",
+ com.raytheon.uf.common.pointdata;bundle-version="1.12.1112",
+ com.raytheon.uf.common.site;bundle-version="1.0.0",
+ javax.measure;bundle-version="1.0.0",
+ com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0",
+ com.raytheon.uf.common.serialization,
+ org.springframework;bundle-version="2.5.6",
+ com.raytheon.uf.common.status;bundle-version="1.12.1174",
+ com.raytheon.uf.edex.database
+Import-Package: com.raytheon.uf.common.datastorage,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.edex.database.plugin
+

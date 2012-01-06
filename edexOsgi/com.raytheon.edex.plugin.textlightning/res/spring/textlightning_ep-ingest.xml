@@ -1,0 +1,58 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="textlightningDecoder"
+		class="com.raytheon.edex.plugin.textlightning.TextLightningDecoder" />	
+
+	<bean id="textlightningDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="textlightning" />
+		<constructor-arg value="jms-dist:queue:Ingest.textlightning?destinationResolver=#qpidDurableResolver" />
+	</bean>
+
+    <bean id="textlightningCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="textlightning-camel"/>
+  	</bean>  
+
+	<camelContext id="textlightning-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+		<!--
+		<endpoint id="textlightningFileEndpoint"
+			uri="file:${edex.home}/data/sbn/textlightning?noop=true&amp;idempotent=false" />
+
+		<route id="textlightningFileConsumerRoute">
+			<from ref="textlightningFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+				<constant>textlightning</constant>
+			</setHeader>
+			<to uri="jms-generic:queue:Ingest.textlightning" />
+		</route>
+		-->
+
+		<!-- Begin textlightning routes -->
+		<route id="textlightningIngestRoute">
+			<from uri="jms-generic:queue:Ingest.textlightning?destinationResolver=#qpidDurableResolver" />
+			<setHeader headerName="pluginName">
+				<constant>textlightning</constant>
+			</setHeader>
+			<doTry>
+				<pipeline>
+        			<bean ref="stringToFile" />
+					<bean ref="textlightningDecoder" method="decode" />
+					<to uri="directvm:persistIndexAlert" />
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:textlightning?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
+		</route>
+	</camelContext>
+</beans>

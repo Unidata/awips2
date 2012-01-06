@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <!-- 
+         Pres menu item
+     -->
+    <contribute xsi:type="toolBarItem" toolItemName = "Pres">
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="100MB"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="150MB"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="200MB"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="250MB"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="300MB"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="400MB"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="500MB"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="700MB"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="850MB"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="925MB"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="1000MB"  indentText="false"/>
+    	
+    	<contribute xsi:type="toolbarSubMenu" menuText="10-575 mb">
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="10MB"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="30MB"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="50MB"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="125MB"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="175MB"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="225MB"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="275MB"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="325MB"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="350MB"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="375MB"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="425MB"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="450MB"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="475MB"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="525MB"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="550MB"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="575MB"  indentText="false"/>
+    	</contribute>
+    	
+    	<contribute xsi:type="toolbarSubMenu" menuText="600-1050 mb">
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="600MB"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="625MB"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="650MB"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="675MB"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="725MB"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="750MB"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="775MB"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="800MB"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="825MB"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="875MB"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="900MB"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="950MB"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="975MB"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="1025MB"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="1050MB"  indentText="false"/>
+    	</contribute>    	
+    </contribute>    
+    
+    <!-- 
+         Theta menu item
+     -->
+    <contribute xsi:type="toolBarItem" toolItemName = "Theta">
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="250K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="255K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="260K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="265K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="270K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="275K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="280K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="285K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="290K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="295K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="300K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="305K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="310K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="315K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="320K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="325K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="330K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="335K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="340K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="345K"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="350K"  indentText="false"/>
+    	<contribute xsi:type="titleImgItem" titleText="ThetaE" displayImage="true" displayDashes="true"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="310Ke"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="315Ke"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="320Ke"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="325Ke"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="330Ke"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="335Ke"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="340Ke"  indentText="false"/>
+    </contribute>
+    
+    <!-- 
+         Hgt menu item
+     -->
+    <contribute xsi:type="toolBarItem" toolItemName = "Hgt">
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="54ft"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="1500 m" key="1.5km"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="0.5kmAgl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="1kmAgl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="1.5kmAgl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="2kmAgl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="2.5kmAgl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="3kmAgl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="3.5kmAgl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="4kmAgl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="4.5kmAgl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="5kmAgl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="5.5kmAgl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="6kmAgl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="7kmAgl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="8kmAgl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="9kmAgl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="10kmAgl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="11kmAgl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="12kmAgl"  indentText="false"/>
+    	
+    	<contribute xsi:type="toolbarSubMenu" menuText="MSL">
+    	    <contribute xsi:type="menuItem" menuText="0.5 km MSL" key="0.5km"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="1 km MSL" key="1km"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="1.5 km MSL" key="1.5km"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="2 km MSL" key="2km"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="2.5 km MSL" key="2.5km"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="3 km MSL" key="3km"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="3.5 km MSL" key="3.5km"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="4 km MSL" key="4km"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="4.5 km MSL" key="4.5km"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="5 km MSL" key="5km"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="5.5 km MSL" key="5.5km"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="6 km MSL" key="6km"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="7 km MSL" key="7km"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="8 km MSL" key="8km"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="9 km MSL" key="9km"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="10 km MSL" key="10km"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="11 km MSL" key="11km"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="12 km MSL" key="12km"  indentText="false"/>
+    	</contribute>
+    	
+    	<contribute xsi:type="toolbarSubMenu" menuText="kft AGL">
+    	    <contribute xsi:type="menuItem" menuText="5 kft AGL" key="5kftAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="10 kft AGL" key="10kftAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="15 kft AGL" key="15kftAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="20 kft AGL" key="20kftAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="25 kft AGL" key="25kftAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="30 kft AGL" key="30kftAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="35 kft AGL" key="35kftAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="40 kft AGL" key="40kftAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="45 kft AGL" key="45kftAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="50 kft AGL" key="50kftAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="55 kft AGL" key="55kftAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="60 kft AGL" key="60kftAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="65 kft AGL" key="65kftAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="70 kft AGL" key="70kftAgl"  indentText="false"/>
+    	</contribute>
+    	
+    	<contribute xsi:type="toolbarSubMenu" menuText="kft MSL">
+    	    <contribute xsi:type="menuItem" menuText="1 kft MSL" key="1kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="2 kft MSL" key="2kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="3 kft MSL" key="3kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="4 kft MSL" key="4kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="5 kft MSL" key="5kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="6 kft MSL" key="6kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="7 kft MSL" key="7kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="8 kft MSL" key="8kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="9 kft MSL" key="9kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="10 kft MSL" key="10kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="11 kft MSL" key="11kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="12 kft MSL" key="12kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="13 kft MSL" key="13kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="14 kft MSL" key="14kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="15 kft MSL" key="15kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="16 kft MSL" key="16kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="17 kft MSL" key="17kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="20 kft MSL" key="20kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="25 kft MSL" key="25kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="30 kft MSL" key="30kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="35 kft MSL" key="35kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="40 kft MSL" key="40kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="45 kft MSL" key="45kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="50 kft MSL" key="50kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="55 kft MSL" key="55kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="60 kft MSL" key="60kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="65 kft MSL" key="65kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="70 kft MSL" key="70kft"  indentText="false"/>
+    	</contribute>
+    	
+    	<contribute xsi:type="toolbarSubMenu" menuText="FL180-FL450">
+    	    <contribute xsi:type="menuItem" menuText="FL180" key="18kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="FL190" key="19kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="FL200" key="20kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="FL210" key="21kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="FL220" key="22kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="FL230" key="23kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="FL240" key="24kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="FL250" key="25kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="FL260" key="26kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="FL270" key="27kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="FL280" key="28kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="FL290" key="29kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="FL300" key="30kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="FL310" key="31kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="FL320" key="32kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="FL330" key="33kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="FL340" key="34kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="FL350" key="35kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="FL360" key="36kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="FL370" key="37kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="FL380" key="38kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="FL390" key="39kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="FL400" key="40kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="FL410" key="41kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="FL420" key="42kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="FL430" key="43kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="FL440" key="44kft"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="FL450" key="45kft"  indentText="false"/>
+    	</contribute>    	
+    </contribute>    
+    
+    <!-- 
+         Temp menu item
+     -->
+    <contribute xsi:type="toolBarItem" toolItemName = "Temp">
+    	<contribute xsi:type="menuItem" menuText="-40C" key="-40C"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="-35C" key="-35C"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="-30C" key="-30C"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="-25C" key="-25C"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="-20C" key="-20C"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="-18C" key="-18C"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="-16C" key="-16C"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="-14C" key="-14C"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="-12C" key="-12C"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="-10C" key="-10C"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="-5C" key="-5C"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="0C" key="0C"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="5C" key="5C"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="10C" key="10C"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="15C" key="15C"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="20C" key="20C"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="25C" key="25C"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="30C" key="30C"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="Htfl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="Mept"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="WetBulb0"  indentText="false"/>
+    </contribute>
+    
+    <!-- 
+         Tilts menu item
+     -->
+    <contribute xsi:type="toolBarItem" toolItemName = "Tilts">
+    	<contribute xsi:type="menuItem" menuText="0.0 deg" key="0.0deg"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="0.5 deg" key="0.5deg"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="0.9 deg" key="0.9deg"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="1.5 deg" key="1.5deg"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="1.8 deg" key="1.8deg"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="2.4 deg" key="2.4deg"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="3.4 deg" key="3.4deg"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="4.3 deg" key="4.3deg"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="5.3 deg" key="5.3deg"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="6.0 deg" key="6.0deg"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="7.5 deg" key="7.5deg"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="8.7 deg" key="8.7deg"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="10 deg" key="10deg"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="12 deg" key="12deg"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="14 deg" key="14deg"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="17 deg" key="17deg"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="20 deg" key="20deg"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="25 deg" key="25deg"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="30 deg" key="30deg"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="35 deg" key="35deg"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="40 deg" key="40deg"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="45 deg" key="45deg"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="50 deg" key="50deg"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="55 deg" key="55deg"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="60 deg" key="60deg"  indentText="false"/>
+    </contribute>
+    
+    <!-- 
+         Misc menu item
+     -->
+    <contribute xsi:type="toolBarItem" toolItemName = "Misc">
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="Surface"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="FrzLvl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="Htfl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="MaxWind"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="MaxShear" key="MaxShear"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="Trop"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="BLyr"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="30agl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="60agl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="90agl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="120agl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="150agl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="Mept"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="WetBulb0"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="CloudBase"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="LowCloudBase"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="MidCloudBase"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="HighCloudBase"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="CloudCeiling"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="CloudTop"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="ConvCloudTop"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="LiftCondLvl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="EchoTop"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="El"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="PV5"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="PV10"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="PV15"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="PV20"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="Primary" key="Primary"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="Secondary" key="Secondary"  indentText="false"/>
+    </contribute>
+    
+    <!-- 
+         Lyrs menu item
+     -->
+    <contribute xsi:type="toolBarItem" toolItemName = "Lyrs">
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="Layer"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="LowLyr"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="MidLyr"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="HiLyr"  indentText="false"/>
+    	<contribute xsi:type="titleImgItem" titleText="Pressure" displayImage="true" displayDashes="true"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="300MB-200MB"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="400MB-200MB"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="500MB-100MB"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="500MB-300MB"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="700MB-300MB"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="700MB-500MB"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="850MB-300MB"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="850MB-500MB"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="850MB-700MB"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="925MB-700MB"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="925MB-850MB"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="1000MB-500MB"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="1000MB-700MB"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="1000MB-850MB"  indentText="false"/>
+    	<contribute xsi:type="titleImgItem" titleText="Height" displayImage="true" displayDashes="true"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="0-1kmAgl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="0-2kmAgl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="0-3kmAgl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="0-4kmAgl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="0-5kmAgl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="0-6kmAgl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="0-10kmAgl"  indentText="false"/>
+    	<contribute xsi:type="menuItem" textLookup="LevelMapping" key="3-6kmAgl"  indentText="false"/>
+    	
+    	<contribute xsi:type="toolbarSubMenu" menuText="thin layers">
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="0-0.5kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="0.5-1kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="1   -1.5 km AGL" key="1-1.5kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="1.5-2    km AGL" key="1.5-2kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="2   -2.5 km AGL" key="2-2.5kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="2.5-3    km AGL" key="2.5-3kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="3   -3.5 km AGL" key="3-3.5kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="3.5-4    km AGL" key="3.5-4kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="4   -4.5 km AGL" key="4-4.5kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="4.5-5    km AGL" key="4.5-5kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="5   -5.5 km AGL" key="5-5.5kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="5.5-6    km AGL" key="5.5-6kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="6   -7    km AGL" key="6-7kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="7   -8    km AGL" key="7-8kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="8   -9    km AGL" key="8-9kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="9   -10  km AGL" key="9-10kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="10 -11  km AGL" key="10-11kmAgl"  indentText="false"/>
+    	    <contribute xsi:type="menuItem" menuText="11 -12  km AGL" key="11-12kmAgl"  indentText="false"/>
+    	</contribute>
+    	
+    	<contribute xsi:type="titleImgItem" titleText="Temp" displayImage="true" displayDashes="true"/>
+    	<contribute xsi:type="menuItem" menuText="3C to -1C" key="3C_-1C"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="-3C to -10C" key="-3C_-10C"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="-12C to -18C" key="-12C_-18C"  indentText="false"/>
+    	<contribute xsi:type="menuItem" menuText="-10C to -30C" key="-10C_-30C"  indentText="false"/>
+    </contribute>
+</menuTemplate>

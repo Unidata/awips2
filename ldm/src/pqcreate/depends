@@ -1,0 +1,8 @@
+pqcreate.o: ../config/ldmconfig.h
+pqcreate.o: ../misc/paths.h
+pqcreate.o: ../pq/pq.h
+pqcreate.o: ../protocol/ldm.h
+pqcreate.o: ../protocol/prod_class.h
+pqcreate.o: ../protocol/timestamp.h
+pqcreate.o: ../ulog/ulog.h
+pqcreate.o: pqcreate.c

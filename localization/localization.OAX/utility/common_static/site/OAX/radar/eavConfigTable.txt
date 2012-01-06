@@ -1,0 +1,14 @@
+// Each line in eavConfigTable.txt contains up to three space-delimited
+// items: an angle, a formatting prefix, and a rounding value. These are
+// used to format the EAV display and sample strings.
+// If a line does not have a useable angle from 0.0 to 90.0 as the first
+// item it will be ignored. It is assumed the lines have increasing angle
+// values. A line with less than three items, a rounding value <=0, or an
+// angle >MAX_EAV_ANGLE (80 deg; defined in RadarPVImageDepict.C) will be
+// treated as the last line, which is used to supply the angle threshold
+// and output string for those cases where the direction is too close to
+// perpendicular to the radial to allow the algorithm to generate a number.
+// A backquote is changed to a space. 
+0   ~    1
+50  ~~   5
+75  ***

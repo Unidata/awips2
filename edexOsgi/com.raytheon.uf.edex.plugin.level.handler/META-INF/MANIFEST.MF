@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Handler Plug-in
+Bundle-SymbolicName: com.raytheon.uf.edex.plugin.level.handler
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.dataplugin.level,
+ com.raytheon.uf.edex.plugin.level
+Import-Package: com.raytheon.edex.db.dao,
+ com.raytheon.uf.common.serialization.comm,
+ com.raytheon.uf.edex.database.plugin,
+ org.apache.commons.logging,
+ org.springframework.orm.hibernate3.support

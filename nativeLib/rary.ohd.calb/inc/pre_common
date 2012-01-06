@@ -1,0 +1,7 @@
+C Common block:  pre_common
+C------------------------------------------------------------------------------
+c  stores the dimension and datatype out of cardlo
+c   for use in the preadjust program
+
+      character dtype*4, dimn*4
+      common / pre_common/ dtype, dimn

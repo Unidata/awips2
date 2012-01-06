@@ -1,0 +1,12 @@
+# Product Discipline 0: Meteorological products, Parameter Category 5: Long-wave Radiation
+0:0:Net long wave radiation flux (surface):W/m^2:NLWRS:NLRS
+1:1:Net long wave radiation flux (top of atmosphere):W/m^2:NLWRT
+2:2:Long wave radiation flux:W/m^2:LWAVR
+3:3:Downward long-wave radiation flux:W/m^2:DLWRF
+4:4:Upward long-wave radiation flux:W/m^2:ULWRF
+5:5:Net Long-Wave Radiation Flux:W/m^2:NLWRF
+6:6:Net Long-Wave Radiation Flux, Clear Sky:W/m^2:NLWRCS
+# 7-191 Reserved
+#192-254 Reserved for local use
+255:255:Missing
+

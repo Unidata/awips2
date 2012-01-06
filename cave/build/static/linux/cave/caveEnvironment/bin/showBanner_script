@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# Need to make sure we determine what TMCP_HOME should
+# be if it is not set because this script may be ran
+# remotely under certain conditions.
+dir=${0%/*}
+if [ "$dir" = "$0" ]; then
+ dir="."
+fi
+cd "$dir/.."
+
+if [ ! -n "${TMCP_HOME}" ]
+then
+    export TMCP_HOME=.
+fi
+
+if [ $6 = "kde" ]
+then
+    kstart --alldesktops $TMCP_HOME/bin/showBanner $2 $3 $4 $5 &
+else
+    $TMCP_HOME/bin/showBanner $2 $3 $4 $5 &
+fi

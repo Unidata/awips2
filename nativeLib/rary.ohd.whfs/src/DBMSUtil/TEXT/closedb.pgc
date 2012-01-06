@@ -1,0 +1,12 @@
+void closedb(long int *return_code)
+{
+
+    if (ECPGstatus(__LINE__,"CURRENT")) {
+
+        EXEC SQL DISCONNECT;
+
+        *return_code=sqlca.sqlcode;
+
+    }
+
+}    /*   end closedb   */

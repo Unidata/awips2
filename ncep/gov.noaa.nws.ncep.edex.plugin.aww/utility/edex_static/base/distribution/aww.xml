@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<requestPatterns xmlns:ns2="group">
+    <regex>^[AFN]G.*</regex>
+    <regex>^FAUS20 PANC.*</regex>
+    <regex>^FAUS20 KZ.*</regex>
+    <regex>^FXUS70.*</regex>
+    <regex>^FXUS76 KOKC.*</regex>
+    <regex>^FQUS71.*</regex>
+    <regex>^FVXX2[0-4].*</regex>
+    <regex>^FVCN0[0-4].*</regex>
+    <regex>^FVAU0[2-4].*</regex>
+    <regex>^FVAK2[1-5] PAWU.*</regex>
+    <regex>^FZCA72 TJSJ.*</regex>
+    <regex>^FZUS7[12346].*</regex>
+    <regex>^FZUS60.*</regex>
+    <regex>^RR.*</regex>
+    <regex>^RWAK3[12].*</regex>
+    <regex>^RWAK42.*</regex>
+    <regex>^RWCA[03][13].*</regex>
+    <regex>^RWCA3[1-4].*</regex>
+    <regex>^RWCA[03][13].*</regex>
+    <regex>^RWCA3[1-4].*</regex>
+    <regex>^RW(US|CA)4[23].*</regex>
+    <regex>^RWUS3[12].*</regex>
+    <regex>^WFUS.*</regex>
+    <regex>^WGCA[4-7]2 TJSJ.*</regex>
+    <regex>^WGUS[4-8][1-5].*</regex>
+    <regex>^WGUS44.*</regex>
+    <regex>^WHC[AU]31.*</regex>
+    <regex>^WHUS4[1256].*</regex>
+    <regex>^WOUS64 KWNS.*</regex>
+    <regex>^WOHW40.*</regex>
+    <regex>^WRUS01.*</regex>
+    <regex>^WRCA0[12]^RR.*</regex>
+    <regex>^WRAK01.*</regex>
+    <regex>^WTUS8[1-2].*</regex>
+    <regex>^WTHW80.*</regex>
+    <regex>^WUUS5[1-5].*</regex>
+    <regex>^WUUS0[1-3].*</regex>
+    <regex>^WW.*</regex>
+</requestPatterns>

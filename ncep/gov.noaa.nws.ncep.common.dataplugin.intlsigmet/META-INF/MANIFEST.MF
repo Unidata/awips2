@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Intlsigmet Plug-in
+Bundle-SymbolicName: gov.noaa.nws.ncep.common.dataplugin.intlsigmet
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Require-Bundle: gov.noaa.nws.ncep.common;bundle-version="1.0.0",
+ com.raytheon.edex.common;bundle-version="1.11.1",
+ com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
+  org.apache.commons.logging;bundle-version="1.0.4",
+ org.geotools,
+ javax.persistence,
+ javax.measure
+Export-Package: gov.noaa.nws.ncep.common.dataplugin.intlsigmet,
+ gov.noaa.nws.ncep.common.dataplugin.intlsigmet.dao
+Import-Package: gov.noaa.nws.ncep.edex.common.dao

@@ -1,0 +1,287 @@
+####################
+## FLOOD ADVISORY ##
+####################
+## Edited by Phil Kurimski     8-17-2011 for OB11.8.0-4 ##
+##             Evan Bookbinder 9-16-2011 for OB11.8.0-8 ##
+##             Mike Dangelo    9-19-2011 at Alaska TIM ##
+##
+#if(${action} == "EXT")
+	#set($starttime = "000000T0000Z")
+	#set($extend = true)
+#else
+	#set($starttime = ${dateUtil.format(${start}, ${timeFormat.ymdthmz})})
+	#set($extend = false)
+#end
+##
+#if(${list.contains($bullets, "small")})
+	#set($advType = "SMALL STREAM FLOOD ADVISORY")
+	#set($advTypeShort = "SMALL STREAM FLOODING")
+#elseif(${list.contains($bullets, "uss")})
+	#set($advType = "URBAN AND SMALL STREAM FLOOD ADVISORY")
+	#set($advTypeShort = "URBAN AND SMALL STREAM FLOODING")
+	#set($extend = false)
+#elseif(${list.contains($bullets, "arroyo")})
+	#set($advType = "ARROYO AND SMALL STREAM FLOOD ADVISORY")
+	#set($advTypeShort = "ARROYO AND SMALL STREAM FLOODING")
+	#set($extend = false)
+#elseif(${list.contains($bullets, "hydrologic")})
+	#set($advType = "HYDROLOGIC ADVISORY")
+	#set($advTypeShort = "MINOR FLOODING")
+	#set($extend = false)
+#else
+	#set($advType = "FLOOD ADVISORY")
+	#set($advTypeShort = "MINOR FLOODING")
+#end
+##
+#set($ic = "ER")
+#set($hycType = "")
+#if(${list.contains($bullets, "SM")})
+	#set($ic = "SM")
+	#set($hycType = "MELTING SNOW")
+#elseif(${list.contains($bullets, "RS")})
+	#set($ic = "RS")
+	#set($hycType = "RAIN AND MELTING SNOW")
+#elseif(${list.contains($bullets, "IJ")})
+	#set($ic = "IJ")
+	#set($hycType = "ICE JAM FLOODING")
+#elseif(${list.contains($bullets, "IC")})
+	#set($ic = "IC")
+#elseif(${list.contains($bullets, "rapidRiver")})
+	#set($hycType = "RAPID RIVER RISES")
+#elseif(${list.contains($bullets, "poorDrainage")})
+	#set($hycType = "MINOR FLOODING OF POOR DRAINAGE AREAS")
+#end
+##
+${WMOId} ${vtecOffice} 000000 ${BBBId}
+FLS${siteId}
+#if(${specialCorText})
+${specialCorText}
+#else
+#if(${productClass}=="T")
+TEST...FLOOD ADVISORY...TEST
+#else
+FLOOD ADVISORY
+#end
+NATIONAL WEATHER SERVICE ${officeShort}
+#backupText(${backupSite})
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+${ugcline}
+/${productClass}.${action}.${vtecOffice}.FA.Y.${etn}.${starttime}-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
+/00000.N.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
+#foreach (${area} in ${areas})
+${area.name} ${area.stateabbr}-##
+#end
+
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+#headlineext(${officeLoc}, ${backupSite}, ${extend})
+
+* ##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+${advType} FOR...
+#if (${hycType} != "")
+<L>  ${hycType} IN...</L>
+#end
+#firstBullet(${areas})
+
+* ##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone})
+
+#set ($report = "!** warning basis **!")
+#set ($report2 = "")
+#set ($cause = "HEAVY RAIN")
+#if(${list.contains($bullets, "SM")})
+  #set ($cause = "SNOW MELT")   
+#end
+#if(${list.contains($bullets, "RS")})
+  #set ($cause = "HEAVY RAIN AND SNOW MELT")   
+#end
+#if(${list.contains($bullets, "IJ")})
+  #set ($cause = "AN ICE JAM")   
+#end
+#if(${list.contains($bullets, "IC")})
+  #set ($cause = "AN ICE JAM AND HEAVY RAIN")   
+#end
+#if(${list.contains($bullets, "rapidRiver")})
+  #set ($report2 = ". RAPID RIVER RISES WILL RESULT IN MINOR FLOODING")   
+#end
+#if(${list.contains($bullets, "poorDrainage")})
+  #set ($report2 = ". OVERFLOWING POOR DRAINAGE AREAS WILL RESULT IN MINOR FLOODING")   
+#end
+#if(${list.contains($bullets, "doppler")})
+  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED ${cause} THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
+#end
+#if(${list.contains($bullets, "doppler")} && ${list.contains($bullets, "thunder")})
+  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED ${cause} DUE TO A THUNDERSTORM THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
+#end
+#if(${list.contains($bullets, "doppler")} && ${list.contains($bullets, "thunder")} && ${stormType} == "line")
+  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED ${cause} DUE TO A LINE OF THUNDERSTORMS THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
+#end
+#if(${list.contains($bullets, "dopplerGauge")})
+  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED ${cause} THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
+#end
+#if(${list.contains($bullets, "dopplerGauge")} && ${list.contains($bullets, "thunder")})
+  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED ${cause} DUE TO A THUNDERSTORM THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
+#end
+#if(${list.contains($bullets, "dopplerGauge")} && ${list.contains($bullets, "thunder")} && ${stormType} == "line")
+  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED ${cause} DUE TO A LINE OF THUNDERSTORMS THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
+#end
+#if(${list.contains($bullets, "trainedSpotters")})
+  #set ($report = "TRAINED WEATHER SPOTTERS REPORTED ${cause} CAUSING ${advTypeShort} IN !** LOCATION **!${report2}")   
+#end
+#if(${list.contains($bullets, "trainedSpotters")} && ${list.contains($bullets, "thunder")})
+  #set ($report = "TRAINED WEATHER SPOTTERS REPORTED ${cause} IN !** LOCATION **! DUE TO A THUNDERSTORM THAT WILL CAUSE ${advTypeShort}${report2}")   
+#end
+#if(${list.contains($bullets, "trainedSpotters")} && ${list.contains($bullets, "actual")})
+  #set ($report = "TRAINED WEATHER SPOTTERS REPORTED ${cause} CAUSING ${advTypeShort} IN !** LOCATION **!${report2}")   
+#end
+#if(${list.contains($bullets, "trainedSpotters")} && ${list.contains($bullets, "plainRain")})
+  #set ($report = "TRAINED WEATHER SPOTTERS REPORTED ${cause} IN !** LOCATION **! THAT WILL CAUSE ${advTypeShort}${report2}")   
+#end
+#if(${list.contains($bullets, "lawEnforcement")})
+  #set ($report = "LOCAL LAW ENFORCEMENT REPORTED ${cause} CAUSING ${advTypeShort} IN !** LOCATION **!${report2}")   
+#end
+#if(${list.contains($bullets, "lawEnforcement")} && ${list.contains($bullets, "thunder")})
+  #set ($report = "LOCAL LAW ENFORCEMENT REPORTED ${cause} IN !** LOCATION **! DUE TO A THUNDERSTORM IN THAT WILL CAUSE ${advTypeShort}${report2}")   
+#end
+#if(${list.contains($bullets, "lawEnforcement")} && ${list.contains($bullets, "actual")})
+  #set ($report = "LOCAL LAW ENFORCEMENT REPORTED ${cause} CAUSING ${advTypeShort} IN !** LOCATION **!${report2}")   
+#end
+#if(${list.contains($bullets, "lawEnforcement")} && ${list.contains($bullets, "plainRain")})
+  #set ($report = "LOCAL LAW ENFORCEMENT REPORTED ${cause} IN !** LOCATION **! THAT WILL CAUSE ${advTypeShort}${report2}")   
+#end
+#if(${list.contains($bullets, "public")})
+  #set ($report = "THE PUBLIC REPORTED ${cause} CAUSING ${advTypeShort} IN !** LOCATION **!${report2}")   
+#end
+#if(${list.contains($bullets, "public")} && ${list.contains($bullets, "thunder")})
+  #set ($report = "THE PUBLIC REPORTED ${advTypeShort} IN !** LOCATION **! DUE TO A THUNDERSTORM THAT WILL CAUSE ${advTypeShort}")   
+#end
+#if(${list.contains($bullets, "public")} && ${list.contains($bullets, "actual")})
+  #set ($report = "THE PUBLIC REPORTED ${cause} CAUSING ${advTypeShort} IN !** LOCATION **!${report2}")   
+#end
+#if(${list.contains($bullets, "public")} && ${list.contains($bullets, "plainRain")})
+  #set ($report = "THE PUBLIC REPORTED ${cause} IN !** LOCATION **! THAT WILL CAUSE MINOR FLOODING${report2}")   
+#end
+#*
+#if(${list.contains($bullets, "SM")})
+  #set ($report = "MINOR FLOODING IS !** OCCURRING/EXPECTED **! DUE TO SNOW MELT")   
+#end
+#if(${list.contains($bullets, "RS")})
+  #set ($report = "MINOR FLOODING IS !** OCCURRING/EXPECTED **! DUE TO HEAVY RAIN AND SNOW MELT")   
+#end
+#if(${list.contains($bullets, "IJ")})
+  #set ($report = "MINOR FLOODING IS !** OCCURRING/EXPECTED **! DUE TO AN ICE JAM")   
+#end
+#if(${list.contains($bullets, "IC")})
+  #set ($report = "MINOR FLOODING IS !** OCCURRING/EXPECTED **! DUE TO AN ICE JAM AND HEAVY RAIN")   
+#end
+*#
+#if(${list.contains($bullets, "doppler")} || ${list.contains($bullets, "dopplerGauge")})
+#set($estimate = "UP TO !** Number **! INCHES OF RAIN HAS FALLEN IN THE PAST HOUR.")
+#else
+#set($estimate = "")
+#end
+* ##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+AT ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}...${report}. ${estimate}
+
+#set ($phenomena = "FLOOD") 
+#set ($warningType = "ADVISORY") 
+* ##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#locationsList("SOME LOCATIONS THAT WILL EXPERIENCE MINOR FLOODING INCLUDE" "MINOR FLOODING" 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+
+#if(${list.contains($bullets, "addRainfall")})
+ADDITIONAL RAINFALL OF !** Edit Amount **! INCHES IS EXPECTED OVER THE AREA.  THIS ADDITIONAL RAIN WILL MAKE MINOR FLOODING.
+
+#end
+#if(${list.contains($bullets, "specificPlace")})
+MINOR FLOODING IS OCCURRING NEAR !** Enter Location **!. 
+
+#end
+#if(${list.contains($bullets, "drainages")})
+#drainages(${riverdrainages})
+
+#end
+##############################################
+###### mile markers ##############
+##############################################
+#parse("milemarkers.vm")
+#####################
+## CALL TO ACTIONS ##
+#####################
+##Check to see if we've selected any calls to action. In our .cfg file
+##we ended each CTA bullet ID with "CTA" for this reason as a 'trip'
+#foreach ($bullet in $bullets)
+#if($bullet.endsWith("CTA"))
+#set ($ctaSelected = "YES")
+#end
+#end
+
+#if(${ctaSelected} == "YES") 
+PRECAUTIONARY/PREPAREDNESS ACTIONS...
+#end
+##
+
+#if(${list.contains($bullets, "advMeans")})
+A FLOOD ADVISORY MEANS RIVER OR STREAM FLOWS ARE ELEVATED OR PONDING OF WATER IN URBAN OR OTHER AREAS IS OCCURRING OR IS IMMINENT.
+
+#end
+#if(${list.contains($bullets, "dontdrownCTA")})
+MOST FLOOD DEATHS OCCUR IN AUTOMOBILES. NEVER DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY. FLOOD WATERS ARE USUALLY DEEPER THAN THEY APPEAR. JUST ONE FOOT OF FLOWING WATER IS POWERFUL ENOUGH TO SWEEP VEHICLES OFF THE ROAD. WHEN ENCOUNTERING FLOODED ROADS MAKE THE SMART CHOICE...TURN AROUND...DONT DROWN.
+
+#end
+#if(${list.contains($bullets, "urbanCTA")})
+EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE ELEVATED LEVELS ON SMALL CREEKS AND STREAMS...AND PONDING OF WATER IN URBAN AREAS...HIGHWAYS...STREETS AND UNDERPASSES AS WELL AS OTHER POOR DRAINAGE AREAS AND LOW LYING SPOTS.
+
+#end
+#if(${list.contains($bullets, "ruralCTA")})
+EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE FLOODING OF SMALL CREEKS AND STREAMS...HIGHWAYS AND UNDERPASSES. ADDITIONALLY...COUNTRY ROADS AND FARMLANDS ALONG THE BANKS OF CREEKS...STREAMS AND OTHER LOW LYING AREAS ARE SUBJECT TO FLOODING.
+
+#end
+#if(${list.contains($bullets, "donotdriveCTA")})
+DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY. THE WATER DEPTH MAY BE TOO GREAT TO ALLOW YOUR CAR TO CROSS SAFELY. MOVE TO HIGHER GROUND.
+
+#end
+#if(${list.contains($bullets, "lowspotsCTA")})
+IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS WHICH ARE POTENTIALLY DANGEROUS IN HEAVY RAIN. DO NOT ATTEMPT TO TRAVEL ACROSS FLOODED ROADS. FIND ALTERNATE ROUTES. IT TAKES ONLY A FEW INCHES OF SWIFTLY FLOWING WATER TO CARRY VEHICLES AWAY.
+
+#end
+#if(${list.contains($bullets, "powerCTA")})
+DO NOT UNDERESTIMATE THE POWER OF FLOOD WATERS. ONLY A FEW INCHES OF RAPIDLY FLOWING WATER CAN QUICKLY CARRY AWAY YOUR VEHICLE.
+
+#end
+#if(${list.contains($bullets, "reportFloodingCTA")})
+TO REPORT FLOODING...HAVE THE NEAREST LAW ENFORCEMENT AGENCY RELAY YOUR REPORT TO THE NATIONAL WEATHER SERVICE FORECAST OFFICE.
+
+#end
+#if(${ctaSelected} == "YES") 
+&&
+
+#end
+#################################### END OF CTA STUFF ###################################
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
+
+#end
+#printcoords(${areaPoly}, ${list})
+
+
+$$
+
+!**NAME/INITIALS**!
+#end

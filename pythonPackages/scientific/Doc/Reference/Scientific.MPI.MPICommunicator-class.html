@@ -1,0 +1,843 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Scientific.MPI.MPICommunicator</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="Scientific-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://dirac.cnrs-orleans.fr/ScientificPython/">Scientific Python</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="Scientific-module.html">Package&nbsp;Scientific</a> ::
+        <a href="Scientific.MPI-module.html">Package&nbsp;MPI</a> ::
+        Class&nbsp;MPICommunicator
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="Scientific.MPI.MPICommunicator-class.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS DESCRIPTION ==================== -->
+<h1 class="epydoc">Class MPICommunicator</h1><p class="nomargin-top"></p>
+<p>MPI Communicator</p>
+  <p>There is no constructor for MPI Communicator objects. The default 
+  communicator is given by Scientific.MPI.world, and other communicators 
+  can only be created by methods on an existing communicator object.</p>
+  <p>A communicator object has two read-only attributes: 'rank' is an 
+  integer which indicates the rank of the current process in the 
+  communicator, and 'size' is an integer equal to the number of processes 
+  that participate in the communicator.</p>
+
+<!-- ==================== INSTANCE METHODS ==================== -->
+<a name="section-InstanceMethods"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td align="left" colspan="2" class="table-header">
+    <span class="table-header">Instance Methods</span></td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.MPI.MPICommunicator-class.html#abort" class="summary-sig-name">abort</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">error_code</span>)</span><br />
+      Abort all processes associated with the communicator.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.MPI.MPICommunicator-class.html#allreduce" class="summary-sig-name">allreduce</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">sendbuffer</span>,
+        <span class="summary-sig-arg">receivebuffer</span>,
+        <span class="summary-sig-arg">operation</span>)</span><br />
+      Combine data from all processes and send result to all</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="barrier"></a><span class="summary-sig-name">barrier</span>(<span class="summary-sig-arg">self</span>)</span><br />
+      Wait until all processes in the communicator have called the same 
+      method, then all processes continue.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.MPI.MPICommunicator-class.html#broadcast" class="summary-sig-name">broadcast</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">array</span>,
+        <span class="summary-sig-arg">root</span>)</span><br />
+      Send data to all processes</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><a href="Scientific.MPI.MPICommunicator-class.html" 
+      class="link">MPICommunicator</a></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.MPI.MPICommunicator-class.html#duplicate" class="summary-sig-name">duplicate</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Returns:
+      a new communicator with the same properties as the original one</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><code>NoneType</code> or <code>tuple</code></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.MPI.MPICommunicator-class.html#nonblockingProbe" class="summary-sig-name">nonblockingProbe</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">source</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">tag</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Check for incoming messages</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><a href="Scientific.MPI.MPIRequest-class.html" 
+      class="link">MPIRequest</a></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.MPI.MPICommunicator-class.html#nonblockingReceive" class="summary-sig-name">nonblockingReceive</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">data</span>,
+        <span class="summary-sig-arg">source</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">tag</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Receive data from another process (non-blocking)</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><a href="Scientific.MPI.MPIRequest-class.html" 
+      class="link">MPIRequest</a></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.MPI.MPICommunicator-class.html#nonblockingSend" class="summary-sig-name">nonblockingSend</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">data</span>,
+        <span class="summary-sig-arg">destination</span>,
+        <span class="summary-sig-arg">tag</span>)</span><br />
+      Send data to another process (non-blocking)</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><code>tuple</code></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.MPI.MPICommunicator-class.html#receive" class="summary-sig-name">receive</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">data</span>,
+        <span class="summary-sig-arg">source</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">tag</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Receive data from another process (blocking)</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><code>tuple</code></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.MPI.MPICommunicator-class.html#receiveString" class="summary-sig-name">receiveString</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">source</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">tag</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Receive string data from another process (blocking)</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.MPI.MPICommunicator-class.html#reduce" class="summary-sig-name">reduce</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">sendbuffer</span>,
+        <span class="summary-sig-arg">receivebuffer</span>,
+        <span class="summary-sig-arg">operation</span>,
+        <span class="summary-sig-arg">root</span>)</span><br />
+      Combine data from all processes and send result to one</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.MPI.MPICommunicator-class.html#send" class="summary-sig-name">send</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">data</span>,
+        <span class="summary-sig-arg">destination</span>,
+        <span class="summary-sig-arg">tag</span>)</span><br />
+      Send data to another process (blocking)</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.MPI.MPICommunicator-class.html#share" class="summary-sig-name">share</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">send</span>,
+        <span class="summary-sig-arg">receive</span>)</span><br />
+      Distribute data from each processpr to all other processesors</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.MPI.MPICommunicator-class.html#subset" class="summary-sig-name">subset</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">ranks</span>)</span><br />
+      Create a communicator for a subset of the processes</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+</table>
+<!-- ==================== METHOD DETAILS ==================== -->
+<a name="section-MethodDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td align="left" colspan="2" class="table-header">
+    <span class="table-header">Method Details</span></td>
+</tr>
+</table>
+<a name="abort"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">abort</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">error_code</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Abort all processes associated with the communicator. For emergency 
+  use only.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>error_code</code></strong> (<code>int</code>) - error code passed back to the calling program (usually a shell) 
+          under most Unix implementations of MPI</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="allreduce"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">allreduce</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">sendbuffer</span>,
+        <span class="sig-arg">receivebuffer</span>,
+        <span class="sig-arg">operation</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Combine data from all processes and send result to all</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>sendbuffer</code></strong> (<code>Numeric.array</code>) - an array holding the data that each process contributes</li>
+        <li><strong class="pname"><code>receivebuffer</code></strong> (<code>Numeric.array</code>) - an array acting as a buffer for the result of the reduction</li>
+        <li><strong class="pname"><code>operation</code></strong> (MPIOperationObject) - one of the operation objects: <a 
+          href="Scientific.MPI.max-class.html" class="link">max</a>, <a 
+          href="Scientific.MPI.min-class.html" class="link">min</a>, <a 
+          href="Scientific.MPI.prod-class.html" class="link">prod</a>, <a 
+          href="Scientific.MPI.sum-class.html" class="link">sum</a>, <a 
+          href="Scientific.MPI.land-class.html" class="link">land</a>, <a 
+          href="Scientific.MPI.lor-class.html" class="link">lor</a>, <a 
+          href="Scientific.MPI.lxor-class.html" class="link">lxor</a>, <a 
+          href="Scientific.MPI.band-class.html" class="link">band</a>, <a 
+          href="Scientific.MPI.bor-class.html" class="link">bor</a>, <a 
+          href="Scientific.MPI.bxor-class.html" class="link">bxor</a>, <a 
+          href="Scientific.MPI.maxloc-class.html" class="link">maxloc</a> 
+          and <a href="Scientific.MPI.minloc-class.html" 
+          class="link">minloc</a></li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="broadcast"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">broadcast</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">array</span>,
+        <span class="sig-arg">root</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Send data to all processes</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>array</code></strong> (Numeric.array) - an array containing the data to be sent on the sending process 
+          and serving as a buffer for the incoming data on all processes. 
+          The shape and type of the array must be the same on all 
+          processes.</li>
+        <li><strong class="pname"><code>root</code></strong> (<code>int</code>) - the rank of the sending process</li>
+    </ul></dd>
+  </dl>
+<div class="fields">      <p><strong>Note:</strong>
+        The data is sent to all processes, including the sending one.
+      </p>
+</div></td></tr></table>
+</div>
+<a name="duplicate"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">duplicate</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Returns: <a href="Scientific.MPI.MPICommunicator-class.html" 
+      class="link">MPICommunicator</a></dt>
+        <dd>a new communicator with the same properties as the original one</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="nonblockingProbe"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">nonblockingProbe</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">source</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">tag</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Check for incoming messages</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>source</code></strong> (<code>int</code> or <code>NoneType</code>) - the rank of the process from which messages are accepted. 
+          <code>None</code> means data is accepted from any process.</li>
+        <li><strong class="pname"><code>tag</code></strong> (<code>int</code> or <code>NoneType</code>) - Identifier that acts as a filter; only messages with a matching 
+          tag are considered. A value of <code>None</code> means that any 
+          tag will match.</li>
+    </ul></dd>
+    <dt>Returns: <code>NoneType</code> or <code>tuple</code></dt>
+        <dd><code>None</code> if no messages are available, otherwise a tuple
+          containing the source rank and the tag</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="nonblockingReceive"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">nonblockingReceive</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">data</span>,
+        <span class="sig-arg">source</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">tag</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Receive data from another process (non-blocking)</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>data</code></strong> (<code>Numeric.array</code>) - a contiguous array object to which the incoming data is copied. 
+          It must have the right shape.</li>
+        <li><strong class="pname"><code>source</code></strong> (<code>int</code> or <code>NoneType</code>) - the rank of the process from which data is accepted. 
+          <code>None</code> means data is accepted from any process.</li>
+        <li><strong class="pname"><code>tag</code></strong> (<code>int</code> or <code>NoneType</code>) - Identifier that acts as a filter; only messages with a matching 
+          tag are received. A value of <code>None</code> means that any tag
+          will match.</li>
+    </ul></dd>
+    <dt>Returns: <a href="Scientific.MPI.MPIRequest-class.html" 
+      class="link">MPIRequest</a></dt>
+        <dd>MPI request object (used to wait for completion and obtain the 
+          received data)</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="nonblockingSend"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">nonblockingSend</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">data</span>,
+        <span class="sig-arg">destination</span>,
+        <span class="sig-arg">tag</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Send data to another process (non-blocking)</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>data</code></strong> (<code>str</code> or <code>Numeric.array</code>. Array arguments 
+          must have contiguous storage. General object arrays are not 
+          allowed.) - the data to be sent</li>
+        <li><strong class="pname"><code>destination</code></strong> (<code>int</code>) - the rank of the destination process</li>
+        <li><strong class="pname"><code>tag</code></strong> (<code>int</code>) - Identifier</li>
+    </ul></dd>
+    <dt>Returns: <a href="Scientific.MPI.MPIRequest-class.html" 
+      class="link">MPIRequest</a></dt>
+        <dd>MPI request object (used to wait for completion)</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="receive"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">receive</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">data</span>,
+        <span class="sig-arg">source</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">tag</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Receive data from another process (blocking)</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>data</code></strong> (<code>Numeric.array</code> or <code>str</code>) - either a contiguous array object, or a one-letter typecode (in 
+          practice, one would use Numeric.Int, Numeric.Float, etc.). If an 
+          array, the data is copied to the array, whic must have the right 
+          shape. If a typecode, an array of that type is created and used 
+          as the buffer for incoming data.</li>
+        <li><strong class="pname"><code>source</code></strong> (<code>int</code> or <code>NoneType</code>) - the rank of the process from which data is accepted. 
+          <code>None</code> means data is accepted from any process.</li>
+        <li><strong class="pname"><code>tag</code></strong> (<code>int</code> or <code>NoneType</code>) - Identifier that acts as a filter; only messages with a matching 
+          tag are received. A value of <code>None</code> means that any tag
+          will match.</li>
+    </ul></dd>
+    <dt>Returns: <code>tuple</code></dt>
+        <dd>a tuple containing four elements: the array containing the data, 
+          the source process rank (an <code>int</code>), the message tag 
+          (an <code>int</code>), and the number of elements that were 
+          received (an <code>int</code>).</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="receiveString"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">receiveString</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">source</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">tag</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Receive string data from another process (blocking)</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>source</code></strong> (<code>int</code> or <code>NoneType</code>) - the rank of the process from which data is accepted. 
+          <code>None</code> means data is accepted from any process.</li>
+        <li><strong class="pname"><code>tag</code></strong> (<code>int</code> or <code>NoneType</code>) - Identifier that acts as a filter; only messages with a matching 
+          tag are received. A value of <code>None</code> means that any tag
+          will match.</li>
+    </ul></dd>
+    <dt>Returns: <code>tuple</code></dt>
+        <dd>a tuple containing three elements: the string containing the 
+          data, the source process rank (an <code>int</code>), the message 
+          tag (an <code>int</code>).</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="reduce"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">reduce</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">sendbuffer</span>,
+        <span class="sig-arg">receivebuffer</span>,
+        <span class="sig-arg">operation</span>,
+        <span class="sig-arg">root</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Combine data from all processes and send result to one</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>sendbuffer</code></strong> (<code>Numeric.array</code>) - an array holding the data that each process contributes</li>
+        <li><strong class="pname"><code>receivebuffer</code></strong> (<code>Numeric.array</code>) - an array acting as a buffer for the result of the reduction. Used
+          only by the process whose rank is root</li>
+        <li><strong class="pname"><code>operation</code></strong> (MPIOperationObject) - one of the operation objects: <a 
+          href="Scientific.MPI.max-class.html" class="link">max</a>, <a 
+          href="Scientific.MPI.min-class.html" class="link">min</a>, <a 
+          href="Scientific.MPI.prod-class.html" class="link">prod</a>, <a 
+          href="Scientific.MPI.sum-class.html" class="link">sum</a>, <a 
+          href="Scientific.MPI.land-class.html" class="link">land</a>, <a 
+          href="Scientific.MPI.lor-class.html" class="link">lor</a>, <a 
+          href="Scientific.MPI.lxor-class.html" class="link">lxor</a>, <a 
+          href="Scientific.MPI.band-class.html" class="link">band</a>, <a 
+          href="Scientific.MPI.bor-class.html" class="link">bor</a>, <a 
+          href="Scientific.MPI.bxor-class.html" class="link">bxor</a>, <a 
+          href="Scientific.MPI.maxloc-class.html" class="link">maxloc</a> 
+          and <a href="Scientific.MPI.minloc-class.html" 
+          class="link">minloc</a></li>
+        <li><strong class="pname"><code>root</code></strong> (<code>int</code>) - the rank of the process that received the result</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="send"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">send</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">data</span>,
+        <span class="sig-arg">destination</span>,
+        <span class="sig-arg">tag</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Send data to another process (blocking)</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>data</code></strong> (<code>str</code> or <code>Numeric.array</code>. Array arguments 
+          must have contiguous storage. General object arrays are not 
+          allowed.) - the data to be sent</li>
+        <li><strong class="pname"><code>destination</code></strong> (<code>int</code>) - the rank of the destination process</li>
+        <li><strong class="pname"><code>tag</code></strong> (<code>int</code>) - Identifier</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="share"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">share</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">send</span>,
+        <span class="sig-arg">receive</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Distribute data from each processpr to all other processesors</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>send</code></strong> (<code>Numeric.array</code>) - an array of identical shape and type on all processes. It 
+          contains on each process the data that is sent.</li>
+        <li><strong class="pname"><code>receive</code></strong> (<code>Numeric.array</code>) - an array whose type is the same as for the send array and which 
+          has an additional dimension (the first one) whose length is the 
+          number of processes. After the call, the value of receive[i] is 
+          equal to the contents of the array send in process i.</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="subset"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">subset</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">ranks</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Create a communicator for a subset of the processes</p>
+  <p>The method should be called by all processes simultaneously. The 
+  return value will be the new communicator on those processes listed in 
+  <code>ranks</code> and <code>None</code> for the rest.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>ranks</code></strong> (<code>list</code> of <code>int</code>) - a list of ranks, one for each process that should belong to the 
+          new communicator</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>a new communicator containing a subset of the processes 
+          participating in the original one</dd>
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="Scientific-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://dirac.cnrs-orleans.fr/ScientificPython/">Scientific Python</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0 on Tue Oct 28 14:16:06 2008
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

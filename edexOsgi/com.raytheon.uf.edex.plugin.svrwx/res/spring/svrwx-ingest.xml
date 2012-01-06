@@ -1,0 +1,46 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="svrwxDecoder" class="com.raytheon.uf.edex.plugin.svrwx.SvrWxDecoder">
+        <constructor-arg ref="svrwxPluginName" />
+    </bean>
+
+	<bean id="svrwxDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg ref="svrwxPluginName" />
+		<constructor-arg value="jms-dist:queue:Ingest.svrwx" />
+	</bean>
+	
+	<bean id="svrwxCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="svrwx-camel"/>
+  	</bean> 	
+	
+    <camelContext id="svrwx-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler"
+        autoStartup="false">
+
+        <route id="svrwxIngestRoute">
+            <from uri="jms-generic:queue:Ingest.svrwx?destinationResolver=#qpidDurableResolver" />
+            <setHeader headerName="pluginName">
+                <constant>svrwx</constant>
+            </setHeader>
+            <doTry>
+               <pipeline>
+                  <bean ref="stringToFile" />
+                  <bean ref="svrwxDecoder" method="decode" />
+                  <to uri="directvm:persistIndexAlert" />
+               </pipeline>
+               <doCatch>
+                   <exception>java.lang.Throwable</exception>
+                   <to uri="log:svrwx?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+               </doCatch>
+            </doTry>
+        </route>
+
+    </camelContext>
+</beans>

@@ -1,0 +1,80 @@
+'\"
+'\" $Header: /cvsroot/ldm/src/notifyme/notifyme.1,v 1.11.22.1 2009/06/18 16:14:42 steve Exp $
+.TH NOTIFYME 1 "$Date: 2009/06/18 16:14:42 $"
+.SH NAME
+notifyme - ldm NOTIFYME example client
+.SH "UNIX SYNOPSIS"
+\fBnotifyme \fR[\fB\-x -v\fR] [\fB\-l \fIlogfile\fR] 
+.BI [\-h " remote" ]
+.BI [\-p " pattern" ]
+.BI [\-f " feedtype" ]
+.BI [\-o " offset" ]
+.BI [\-t " timeout" ]
+.BI [\-T " TotalTimeo" ]
+.SH DESCRIPTION
+This program receives notification messages from the 
+Unidata Local Data Management system (ldm) and optionally
+prints the notification information with timestamps.
+It establishes a connection with the LDM server at \fIremote\fR and requests
+notification of the arrival data whose identifier matches \fIpattern\fR.
+As data arrives at the server,  notification is sent to this program.
+.LP
+This program is an example of how to use ldm4 notification.
+.SH OPTIONS 
+.TP 8
+.BI \-f " feedtype"
+Requests that notification of data that originates in a feed type of type 
+\fIfeedtype\fP be sent along.
+The default is `ANY'.
+.TP
+.BI \-h " remote"
+Requests notification from the ldm server on \fIremote\fR. Default
+is "localhost".
+.TP
+.BI \-l " logfile"
+the path name of a file to be used as the log file for the process.  By
+default messages are sent to syslogd(8).  If a HUP signal is received, the
+log file is closed and then reopened.
+.TP
+.BI \-o " offset"
+Requests notification for data that arrived \fIoffset\fP seconds before NOW.
+.TP
+.BI \-p " pattern"
+Requests that notification of data be sent along that matches \fIpattern\fP.
+The default is `\fB.*\fP'.
+.TP
+.BI \-T " TotalTimeo"
+Give up attempting to make a connection after
+\fITotalTimeo\fR seconds. Any partially built up client connnection
+is destroyed and we start over.
+.TP
+.BI \-t " timeout"
+Sets the RPC timeout on FEEDME requests to \fItimeout\fR seconds.
+.TP
+.B \-v
+Verbose flag.  If present, the log will contain a line for 
+each product that was received. Each line reports (1) the current system time, 
+(2) the string 'notifyme', (3) the product size, (4) the time the product 
+was injected into the IDD, (5) the feed type, (6) a sequence number, and 
+(7) the product ID with the actual product time. (If you take the difference 
+between the first and fourth fields, you can see how long it took the product 
+to arrive at the host.)
+.TP
+.BI \-x
+Requests that debugging information also be printed.
+.SH EXAMPLE
+The command
+.RS +4
+.nf
+notifyme -v -l - -h localhost
+.fi
+.RE
+will let you watch the data come in on `localhost'.
+.SH "SEE ALSO"
+ldmd(1), ldmd.conf(5), feedme(1) 
+.SH DIAGNOSTICS
+Error messages and log messages are written to the
+log file. 
+.SH BUGS and LIMITATIONS
+Doesn't do anything particularly useful. If you leave off the -v
+flag, it doesn't do anything useful.

@@ -1,0 +1,4 @@
+      character*4 iffgid,igptyp,qtsidg,dtcqg
+      common /igparm/ fvers,iffgid(2),igptyp,iqoptg,iroptg,rinten(5),
+     1                bank,pcimpg,taqg(5),qtsidg(2),dtcqg,intqg,iusei
+     

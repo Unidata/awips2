@@ -1,0 +1,131 @@
+#!/bin/ksh
+#
+#  This script gathers the lightning data from the file in netcdf format and
+#  inserts them in the "lightning" table.
+#
+
+# umask 002 # which is 775 (rwxrwxr_x) or umask 001 = 776 (rwxrwxrw_)
+
+RUN_FROM_DIR=`dirname $0`
+
+. $RUN_FROM_DIR/../../set_hydro_env
+export LIGHTNING_LOG_DIR=$(get_apps_defaults lightning_log_dir)
+export DB_NAME=$(get_apps_defaults db_name)
+
+echo Starting...
+INFILE=`get_apps_defaults lightning_input_dir`
+
+TEMPDIR=$LIGHTNING_LOG_DIR
+export INFILE TEMPDIR
+
+#
+#  set up log filename                                  
+#
+
+TZ=GMT
+export TZ
+
+Dte=`date +%m%d%Y`
+logfnm=$LIGHTNING_LOG_DIR/lightning_proc_log_$Dte
+echo $logfnm
+
+Starttime=`date`
+echo "-------- Run_lightning_proc started at: $Starttime --------" >> $logfnm  
+echo "****** Operating system is " `uname` >> $logfnm  
+echo "****** Database name is $DB_NAME " >> $logfnm  
+### Get current the year, Month, Day
+YY=`date '+%Y'`
+MM=`date '+%m'`
+DD=`date '+%d'`
+HR=`date '+%H'`
+
+### Compute 1 hour behind from current time
+hour=`expr $HR - 1`
+
+### Compute ending day of a month or month of a year
+if [ $hour -le 9 ]
+   then
+        hour=0${hour}
+   else
+        hour=${hour}
+fi
+   
+if [ $hour -lt 0 ]
+then
+  hour=23
+  DD=`expr $DD - 1`
+     
+  if [ $DD -le 9 ]
+  then
+    DD=0${DD}
+  else
+    DD=${DD}
+  fi
+
+  if [ $DD -eq 0 ]
+  then
+    MM=`expr $MM - 1`
+    if [ $MM -le 9 ]
+    then
+      MM=0${MM}
+    else
+      MM=${MM}
+    fi
+
+    if [ $MM -eq 0 ]
+    then
+      MM=12
+      YY=`expr $YY - 1`
+    fi
+    case $MM in
+     02)  YRMOD=`expr $YY % 4`        #Leap year
+          if [ $YRMOD -eq 0 -o $YY -eq 00 ] #do not change -eq 0 and -eq 00 
+          then
+             DD=29
+          else
+             DD=28
+          fi
+     ;;
+     04|06|09|11)  DD=30
+     ;;
+     01|03|05|07|08|10|12)  DD=31
+     ;;
+     *) echo "ERROR!!! Invalid month $MM" >> $logfnm
+        exit
+        ;;
+    esac
+  fi
+fi
+
+Datetime=${YY}${MM}${DD}_${hour}00
+echo "$Datetime is the file that will be processed." >> $logfnm
+
+#** Copy file to data dir
+if [ -f "$INFILE/$Datetime" ]; then
+  cp $INFILE/$Datetime  $TEMPDIR/.   
+  fstat=$?
+    if test $fstat -ne 0; then
+      echo "ERROR: copy $TEMPDIR/$Datetime failed." >> $logfnm
+    else
+      echo "copy $TEMPDIR/$Datetime succeeded." >> $logfnm
+      chmod 755 $TEMPDIR/2*  
+    fi  
+else
+  echo "WARNING: CAN NOT FIND FILE $INFILE/$Datetime !!!" >> $logfnm
+  Endtime=`date`
+  echo "-------- Run_lightning_proc ended at: $Endtime --------" >> $logfnm  
+  echo "  " >> $logfnm
+  exit
+fi
+
+#*** Run lightning_proc program to process data
+for fname in `ls -1F $TEMPDIR/2*`
+do
+  echo Processing $fname >> $logfnm 
+  runso rary.ohd.pproc lightning_proc_main $fname >> $logfnm 2>>$logfnm
+  rm -f $fname
+done
+
+Endtime=`date`
+echo "-------- Run_lightning_proc ended at: $Endtime --------" >> $logfnm  
+echo "  " >> $logfnm

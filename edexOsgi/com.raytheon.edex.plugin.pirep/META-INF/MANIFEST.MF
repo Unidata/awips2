@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Pirep Plug-in
+Bundle-SymbolicName: com.raytheon.edex.plugin.pirep
+Bundle-Version: 1.12.1174.qualifier
+Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Bundle-Vendor: RAYTHEON
+Require-Bundle: com.raytheon.edex.common,
+ com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
+ org.apache.commons.logging,
+ org.geotools,
+ javax.measure,
+ javax.persistence,
+ org.apache.camel;bundle-version="1.0.0";resolution:=optional
+Export-Package: com.raytheon.edex.plugin.pirep,
+ com.raytheon.edex.plugin.pirep.decoder
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: com.raytheon.uf.common.dataplugin.pirep

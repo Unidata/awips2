@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Jna
+Bundle-SymbolicName: com.sun.jna
+Bundle-Version: 3.0.9
+Bundle-ClassPath: jna.jar
+Bundle-Vendor: Raytheon-bundled OSS
+Export-Package: com.sun.jna,
+ com.sun.jna.ptr
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

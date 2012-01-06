@@ -1,0 +1,866 @@
+/*
+    File: RWPrefs.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:29 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "RWPrefs.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct RWPrefs_t
+{
+    char		userid[33];
+    char		state_overlay[4];
+    char		city_overlay[4];
+    char		county_overlay[4];
+    char		river_overlay[4];
+    char		basin_overlay[4];
+    char		radar_overlay[4];
+    short		num_hours_wind;
+    char		def_display_type[11];
+
+    int		ind_state_overlay;
+    int		ind_city_overlay;
+    int		ind_county_overlay;
+    int		ind_river_overlay;
+    int		ind_basin_overlay;
+    int		ind_radar_overlay;
+    int		ind_num_hours_wind;
+    int		ind_def_display_type;
+} RWPrefs_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+RWPrefs * GetRWPrefs(const char * where)
+{
+
+    RWPrefs * listPtr = NULL;
+    RWPrefs * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM RWPrefs ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RWPrefs_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRWPrefs() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRWPrefs() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRWPrefs() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.userid, :dbs.state_overlay:dbs.ind_state_overlay, 
+    :dbs.city_overlay:dbs.ind_city_overlay, :dbs.county_overlay:dbs.ind_county_overlay, 
+    :dbs.river_overlay:dbs.ind_river_overlay, :dbs.basin_overlay:dbs.ind_basin_overlay, 
+    :dbs.radar_overlay:dbs.ind_radar_overlay, :dbs.num_hours_wind:dbs.ind_num_hours_wind, 
+    :dbs.def_display_type:dbs.ind_def_display_type    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRWPrefs() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (RWPrefs *) malloc(sizeof(RWPrefs))) != NULL)
+        {
+
+            strcpy(structPtr->userid, dbs.userid);
+
+            strcpy(structPtr->state_overlay, dbs.state_overlay);
+            setNullIfIndicated(dbs.ind_state_overlay, CHAR, structPtr->state_overlay);
+
+            strcpy(structPtr->city_overlay, dbs.city_overlay);
+            setNullIfIndicated(dbs.ind_city_overlay, CHAR, structPtr->city_overlay);
+
+            strcpy(structPtr->county_overlay, dbs.county_overlay);
+            setNullIfIndicated(dbs.ind_county_overlay, CHAR, structPtr->county_overlay);
+
+            strcpy(structPtr->river_overlay, dbs.river_overlay);
+            setNullIfIndicated(dbs.ind_river_overlay, CHAR, structPtr->river_overlay);
+
+            strcpy(structPtr->basin_overlay, dbs.basin_overlay);
+            setNullIfIndicated(dbs.ind_basin_overlay, CHAR, structPtr->basin_overlay);
+
+            strcpy(structPtr->radar_overlay, dbs.radar_overlay);
+            setNullIfIndicated(dbs.ind_radar_overlay, CHAR, structPtr->radar_overlay);
+
+            structPtr->num_hours_wind = dbs.num_hours_wind;
+            setNullIfIndicated(dbs.ind_num_hours_wind, SHORT, &structPtr->num_hours_wind);
+
+            strcpy(structPtr->def_display_type, dbs.def_display_type);
+            setNullIfIndicated(dbs.ind_def_display_type, CHAR, structPtr->def_display_type);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.userid, :dbs.state_overlay:dbs.ind_state_overlay, 
+        :dbs.city_overlay:dbs.ind_city_overlay, :dbs.county_overlay:dbs.ind_county_overlay, 
+        :dbs.river_overlay:dbs.ind_river_overlay, :dbs.basin_overlay:dbs.ind_basin_overlay, 
+        :dbs.radar_overlay:dbs.ind_radar_overlay, :dbs.num_hours_wind:dbs.ind_num_hours_wind, 
+        :dbs.def_display_type:dbs.ind_def_display_type        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetRWPrefs() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+RWPrefs * SelectRWPrefs(const char * where)
+{
+
+    RWPrefs * listPtr = NULL;
+    RWPrefs * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM RWPrefs ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RWPrefs_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRWPrefs() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRWPrefs() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRWPrefs() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.userid, :dbs.state_overlay:dbs.ind_state_overlay, 
+    :dbs.city_overlay:dbs.ind_city_overlay, :dbs.county_overlay:dbs.ind_county_overlay, 
+    :dbs.river_overlay:dbs.ind_river_overlay, :dbs.basin_overlay:dbs.ind_basin_overlay, 
+    :dbs.radar_overlay:dbs.ind_radar_overlay, :dbs.num_hours_wind:dbs.ind_num_hours_wind, 
+    :dbs.def_display_type:dbs.ind_def_display_type    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRWPrefs() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (RWPrefs *) malloc(sizeof(RWPrefs))) != NULL)
+        {
+
+            strcpy(structPtr->userid, dbs.userid);
+
+            strcpy(structPtr->state_overlay, dbs.state_overlay);
+            setNullIfIndicated(dbs.ind_state_overlay, CHAR, structPtr->state_overlay);
+
+            strcpy(structPtr->city_overlay, dbs.city_overlay);
+            setNullIfIndicated(dbs.ind_city_overlay, CHAR, structPtr->city_overlay);
+
+            strcpy(structPtr->county_overlay, dbs.county_overlay);
+            setNullIfIndicated(dbs.ind_county_overlay, CHAR, structPtr->county_overlay);
+
+            strcpy(structPtr->river_overlay, dbs.river_overlay);
+            setNullIfIndicated(dbs.ind_river_overlay, CHAR, structPtr->river_overlay);
+
+            strcpy(structPtr->basin_overlay, dbs.basin_overlay);
+            setNullIfIndicated(dbs.ind_basin_overlay, CHAR, structPtr->basin_overlay);
+
+            strcpy(structPtr->radar_overlay, dbs.radar_overlay);
+            setNullIfIndicated(dbs.ind_radar_overlay, CHAR, structPtr->radar_overlay);
+
+            structPtr->num_hours_wind = dbs.num_hours_wind;
+            setNullIfIndicated(dbs.ind_num_hours_wind, SHORT, &structPtr->num_hours_wind);
+
+            strcpy(structPtr->def_display_type, dbs.def_display_type);
+            setNullIfIndicated(dbs.ind_def_display_type, CHAR, structPtr->def_display_type);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.userid, :dbs.state_overlay:dbs.ind_state_overlay, 
+        :dbs.city_overlay:dbs.ind_city_overlay, :dbs.county_overlay:dbs.ind_county_overlay, 
+        :dbs.river_overlay:dbs.ind_river_overlay, :dbs.basin_overlay:dbs.ind_basin_overlay, 
+        :dbs.radar_overlay:dbs.ind_radar_overlay, :dbs.num_hours_wind:dbs.ind_num_hours_wind, 
+        :dbs.def_display_type:dbs.ind_def_display_type        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectRWPrefs() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectRWPrefsCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM RWPrefs ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRWPrefs() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRWPrefs() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRWPrefs() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRWPrefs() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutRWPrefs(const RWPrefs * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RWPrefs_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.userid, structPtr->userid);
+
+    strcpy(dbs.state_overlay, structPtr->state_overlay);
+    dbs.ind_state_overlay = getIndicator(CHAR, (void *)structPtr->state_overlay);
+
+    strcpy(dbs.city_overlay, structPtr->city_overlay);
+    dbs.ind_city_overlay = getIndicator(CHAR, (void *)structPtr->city_overlay);
+
+    strcpy(dbs.county_overlay, structPtr->county_overlay);
+    dbs.ind_county_overlay = getIndicator(CHAR, (void *)structPtr->county_overlay);
+
+    strcpy(dbs.river_overlay, structPtr->river_overlay);
+    dbs.ind_river_overlay = getIndicator(CHAR, (void *)structPtr->river_overlay);
+
+    strcpy(dbs.basin_overlay, structPtr->basin_overlay);
+    dbs.ind_basin_overlay = getIndicator(CHAR, (void *)structPtr->basin_overlay);
+
+    strcpy(dbs.radar_overlay, structPtr->radar_overlay);
+    dbs.ind_radar_overlay = getIndicator(CHAR, (void *)structPtr->radar_overlay);
+
+    dbs.num_hours_wind = structPtr->num_hours_wind;
+    dbs.ind_num_hours_wind = getIndicator(SHORT, (void *)&structPtr->num_hours_wind);
+
+    strcpy(dbs.def_display_type, structPtr->def_display_type);
+    dbs.ind_def_display_type = getIndicator(CHAR, (void *)structPtr->def_display_type);
+
+
+    EXEC SQL INSERT INTO RWPrefs (userid,state_overlay,
+        city_overlay,county_overlay,river_overlay,
+        basin_overlay,radar_overlay,num_hours_wind,
+        def_display_type        )
+        VALUES (
+         :dbs.userid, :dbs.state_overlay:dbs.ind_state_overlay, :dbs.city_overlay:dbs.ind_city_overlay,
+         :dbs.county_overlay:dbs.ind_county_overlay, :dbs.river_overlay:dbs.ind_river_overlay, :dbs.basin_overlay:dbs.ind_basin_overlay,
+         :dbs.radar_overlay:dbs.ind_radar_overlay, :dbs.num_hours_wind:dbs.ind_num_hours_wind, :dbs.def_display_type:dbs.ind_def_display_type);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutRWPrefs() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertRWPrefs(const RWPrefs * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RWPrefs_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.userid, structPtr->userid);
+
+    strcpy(dbs.state_overlay, structPtr->state_overlay);
+    dbs.ind_state_overlay = getIndicator(CHAR, (void *)structPtr->state_overlay);
+
+    strcpy(dbs.city_overlay, structPtr->city_overlay);
+    dbs.ind_city_overlay = getIndicator(CHAR, (void *)structPtr->city_overlay);
+
+    strcpy(dbs.county_overlay, structPtr->county_overlay);
+    dbs.ind_county_overlay = getIndicator(CHAR, (void *)structPtr->county_overlay);
+
+    strcpy(dbs.river_overlay, structPtr->river_overlay);
+    dbs.ind_river_overlay = getIndicator(CHAR, (void *)structPtr->river_overlay);
+
+    strcpy(dbs.basin_overlay, structPtr->basin_overlay);
+    dbs.ind_basin_overlay = getIndicator(CHAR, (void *)structPtr->basin_overlay);
+
+    strcpy(dbs.radar_overlay, structPtr->radar_overlay);
+    dbs.ind_radar_overlay = getIndicator(CHAR, (void *)structPtr->radar_overlay);
+
+    dbs.num_hours_wind = structPtr->num_hours_wind;
+    dbs.ind_num_hours_wind = getIndicator(SHORT, (void *)&structPtr->num_hours_wind);
+
+    strcpy(dbs.def_display_type, structPtr->def_display_type);
+    dbs.ind_def_display_type = getIndicator(CHAR, (void *)structPtr->def_display_type);
+
+
+    EXEC SQL INSERT INTO RWPrefs (userid,state_overlay,
+        city_overlay,county_overlay,river_overlay,
+        basin_overlay,radar_overlay,num_hours_wind,
+        def_display_type        )
+        VALUES (
+         :dbs.userid, :dbs.state_overlay:dbs.ind_state_overlay, :dbs.city_overlay:dbs.ind_city_overlay,
+         :dbs.county_overlay:dbs.ind_county_overlay, :dbs.river_overlay:dbs.ind_river_overlay, :dbs.basin_overlay:dbs.ind_basin_overlay,
+         :dbs.radar_overlay:dbs.ind_radar_overlay, :dbs.num_hours_wind:dbs.ind_num_hours_wind, :dbs.def_display_type:dbs.ind_def_display_type);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertRWPrefs() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateRWPrefs(const RWPrefs *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RWPrefs_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.userid, structPtr->userid);
+
+    strcpy(dbs.state_overlay, structPtr->state_overlay);
+    dbs.ind_state_overlay = getIndicator(CHAR, (void *)structPtr->state_overlay);
+
+    strcpy(dbs.city_overlay, structPtr->city_overlay);
+    dbs.ind_city_overlay = getIndicator(CHAR, (void *)structPtr->city_overlay);
+
+    strcpy(dbs.county_overlay, structPtr->county_overlay);
+    dbs.ind_county_overlay = getIndicator(CHAR, (void *)structPtr->county_overlay);
+
+    strcpy(dbs.river_overlay, structPtr->river_overlay);
+    dbs.ind_river_overlay = getIndicator(CHAR, (void *)structPtr->river_overlay);
+
+    strcpy(dbs.basin_overlay, structPtr->basin_overlay);
+    dbs.ind_basin_overlay = getIndicator(CHAR, (void *)structPtr->basin_overlay);
+
+    strcpy(dbs.radar_overlay, structPtr->radar_overlay);
+    dbs.ind_radar_overlay = getIndicator(CHAR, (void *)structPtr->radar_overlay);
+
+    dbs.num_hours_wind = structPtr->num_hours_wind;
+    dbs.ind_num_hours_wind = getIndicator(SHORT, (void *)&structPtr->num_hours_wind);
+
+    strcpy(dbs.def_display_type, structPtr->def_display_type);
+    dbs.ind_def_display_type = getIndicator(CHAR, (void *)structPtr->def_display_type);
+
+
+    sprintf(queryBuffer, " UPDATE RWPrefs SET " );
+    strcat(queryBuffer, "userid = ? , state_overlay = ? , city_overlay = ? , county_overlay = ? , river_overlay = ? ,     ");
+    strcat(queryBuffer, "basin_overlay = ? , radar_overlay = ? , num_hours_wind = ? , def_display_type = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateRWPrefs() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.userid, :dbs.state_overlay:dbs.ind_state_overlay, :dbs.city_overlay:dbs.ind_city_overlay, :dbs.county_overlay:dbs.ind_county_overlay, :dbs.river_overlay:dbs.ind_river_overlay,
+     :dbs.basin_overlay:dbs.ind_basin_overlay, :dbs.radar_overlay:dbs.ind_radar_overlay, :dbs.num_hours_wind:dbs.ind_num_hours_wind, :dbs.def_display_type:dbs.ind_def_display_type;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateRWPrefs() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteRWPrefs(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM RWPrefs ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteRWPrefs() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateRWPrefsByRecord (const RWPrefs * newStructPtr, const RWPrefs * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetRWPrefsPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateRWPrefs(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateRWPrefs(const RWPrefs * structPtr)
+{
+    UpdateRWPrefsByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertRWPrefs(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueRWPrefs(const RWPrefs * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (RWPrefsExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertRWPrefs(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteRWPrefsByRecord(const RWPrefs * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetRWPrefsPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteRWPrefs(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool RWPrefsExists(const RWPrefs * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetRWPrefsPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectRWPrefsCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetRWPrefsPrimaryKeyWhereString (const RWPrefs * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE userid = '%s' ",
+            structPtr->userid);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeRWPrefs( RWPrefs * structPtr)
+{
+    RWPrefs* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( RWPrefs * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetRWPrefsDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetRWPrefsErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

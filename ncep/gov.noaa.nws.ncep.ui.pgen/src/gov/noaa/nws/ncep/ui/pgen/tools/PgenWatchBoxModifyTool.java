@@ -1,0 +1,302 @@
+/*
+ * gov.noaa.nws.ncep.ui.pgen.tools.PgenWatchBoxModifyTool
+ * 
+ * 29 October 2009
+ *
+ * This code has been developed by the NCEP/SIB for use in the AWIPS2 system.
+ */
+
+package gov.noaa.nws.ncep.ui.pgen.tools;
+
+import gov.noaa.nws.ncep.edex.common.stationTables.Station;
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
+import gov.noaa.nws.ncep.ui.pgen.attrDialog.WatchBoxAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrDialog.WatchInfoDlg;
+import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
+import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
+import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+import gov.noaa.nws.ncep.ui.pgen.display.IWatchBox;
+
+import java.awt.Color;
+import java.util.ArrayList;
+
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.ui.PlatformUI;
+
+import com.raytheon.uf.viz.core.rsc.IInputHandler;
+import com.vividsolutions.jts.geom.Coordinate;
+
+
+/**
+ * Implements a modal map tool to modify PGEN watch boxes.
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date       	Ticket#		Engineer	Description
+ * ------------	----------	-----------	--------------------------
+ * 10/09					B. Yin   	Initial Creation.
+ * 04/11		?			B. Yin		Bring up the WatchBox spec dialog
+ * 
+ * </pre>
+ * 
+ * @author	B. Yin
+ */
+
+public class PgenWatchBoxModifyTool extends PgenSelectingTool {
+
+	/*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.tools.AbstractTool#runTool()
+     */
+    @Override
+    protected void activateTool( ) {
+
+    	super.activateTool();
+    	
+    	if ( event.getTrigger() instanceof WatchBox ) {
+    		((WatchBoxAttrDlg)attrDlg).setWatchBox( (WatchBox)event.getTrigger());
+    		((WatchBoxAttrDlg)attrDlg).enableShapeBtn(false);
+    		((WatchBoxAttrDlg)attrDlg).setWbTool(this);
+    		
+    		//set wb as selected and open spec dialog
+    		// this is for ending of the wb drawing.
+    		if ( drawingLayer.getSelectedDE() == null ){
+    			drawingLayer.setSelected( (WatchBox)event.getTrigger());
+    			((WatchBoxAttrDlg)attrDlg).enableButtons();
+    			((WatchBoxAttrDlg)attrDlg).openSpecDlg();
+    		}
+    	}
+        
+    }
+
+    /**
+     * Returns the current mouse handler.
+     * @return
+     */   
+    public IInputHandler getMouseHandler() {	
+    
+        if ( this.mouseHandler == null ) {
+        	
+        	this.mouseHandler = new PgenWatchBoxModifyHandler();
+        	
+        }
+        
+        return this.mouseHandler;
+        
+    }
+    
+    /**
+     * A mouse handler for the watch box modify tool
+     * @author bingfan
+     *
+     */
+	private class PgenWatchBoxModifyHandler extends PgenSelectingTool.PgenSelectHandler {
+        /*
+         * (non-Javadoc)
+         * 
+         * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseDown(int,
+         *      int, int)
+         */
+        @Override	   	
+        public boolean handleMouseDown(int anX, int aY, int button) { 
+        	
+        	//  Check if mouse is in geographic extent
+        	Coordinate loc = mapEditor.translateClick(anX, aY);
+        	if ( loc == null ) return false;
+        	
+        	// clean up
+        	if ( button == 3 ) {
+            	
+            	// Close the attribute dialog and do the cleanup.
+            	if ( attrDlg != null ) {
+            		attrDlg.close();
+            	}
+
+            	attrDlg = null;
+            	
+        		drawingLayer.removeGhostLine();
+        		ptSelected = false;
+            	drawingLayer.removeSelected();
+      	        mapEditor.refresh();
+        		PgenUtil.setSelectingMode();
+
+            	return true;
+            	
+            }
+            else{
+            	
+               	return false;
+               	
+            }
+        	
+        }
+        
+	    /*
+         * (non-Javadoc)
+         * 
+         * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseDownMove(int,
+         *      int, int)
+         */
+        @Override
+        public boolean handleMouseDownMove(int x, int y, int button) {
+        	//  Check if mouse is in geographic extent
+        	Coordinate loc = mapEditor.translateClick(x, y);
+        	if ( loc == null ) return false;
+
+        	DrawableElement tmpEl = drawingLayer.getSelectedDE();
+
+        	if ( tmpEl != null && (tmpEl instanceof WatchBox) ) {
+
+        		if ( !ptSelected ){
+        			// Select the nearest point and create the ghost element.
+        			ghostEl = (WatchBox)tmpEl.copy();
+        			
+        			if ( ghostEl != null ) {
+        				ghostEl.setColors(new Color[]{ghostColor, new java.awt.Color( 255,255,255)});
+
+        				ArrayList<Coordinate> points = new ArrayList<Coordinate>();
+        				points.addAll( tmpEl.getPoints());
+
+        				ghostEl.setPoints( points);
+
+        				ghostEl.setPgenCategory( tmpEl.getPgenCategory());
+        				ghostEl.setPgenType( tmpEl.getPgenType());
+
+        				ptIndex = getNearestPtIndex( ghostEl, loc);
+
+        				ptSelected = true;
+        			}
+        		}
+        		else {
+        			//create the ghost watch box
+        			ghostEl.setPoints( ((WatchBox)tmpEl).createNewWatchBox(ptIndex, loc, ((IWatchBox)attrDlg).getWatchBoxShape()));
+        			drawingLayer.setGhostLine(ghostEl);
+        			mapEditor.refresh();
+
+        		}
+        	}
+
+        	return false;
+                
+        }
+        
+        /*
+         * (non-Javadoc)
+         * 
+         * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseUp(int, int,
+         *      int)
+         */
+        @Override
+        public boolean handleMouseUp(int x, int y, int button) {
+        	
+        	// Finish the editing
+    		if (button == 1 && drawingLayer != null ){
+    			
+          	   	// Create a copy of the currently editing watch box
+    			WatchBox el = (WatchBox) drawingLayer.getSelectedDE();
+
+    			if ( el != null ){
+    				
+	    			WatchBox newEl = (WatchBox)el.copy();			
+
+    				if ( ptSelected ) {
+
+    					ptSelected = false;
+    					
+    					// re-snap the new watch box
+    					resnapWatchBox( mapEditor, (WatchBox)ghostEl, newEl );
+    			    	((WatchBoxAttrDlg)attrDlg).setWatchBox(newEl);
+    			    	WatchInfoDlg infoDlg = ((WatchBoxAttrDlg)attrDlg).getWatchInfoDlg();
+    			    	if ( infoDlg != null && infoDlg.getShell()!= null ){
+    			    		if ( infoDlg.isCountyLock()){
+    			    			newEl.setCountyList(el.getCountyList());
+    			    		}
+    			    		else {
+    			    			infoDlg.clearCwaPane();
+    			    		}
+    			    		infoDlg.setStatesWFOs();
+    			    	}
+    			    	
+    			    	// Replace the selected watch box with this new watch box
+    					drawingLayer.replaceElement(el, newEl);
+    					
+    					// Set this new element as the currently selected element 
+    					// Collections do not need to reset.
+    					if ( !(drawingLayer.getSelectedComp() instanceof DECollection )){
+    						drawingLayer.setSelected(newEl);
+    					}
+
+    					drawingLayer.removeGhostLine();
+
+					}
+    				
+    				mapEditor.refresh();
+
+    			}
+    		}
+        	
+            return true;
+            
+        }
+
+	}
+	
+	/**
+	 * Re-snap the input watch box on the nearest anchor points
+	 * @param editor - map editor
+	 * @param oldBox - the input watch box
+	 * @param newBox - the result watch box (can be the input watch box)
+	 * @return - false if there is no anchor point in the input watch box.
+	 */
+	public static boolean resnapWatchBox(NCMapEditor editor, WatchBox oldBox, WatchBox newBox ){
+		
+		Station anchor1 = null;
+		Station anchor2 = null;
+		ArrayList<Coordinate>watchPts = null;
+
+		// get a list of anchor points in the watch box
+		ArrayList<Station> anchorsInPoly = PgenWatchBoxDrawingTool.getAnchorsInPoly(editor, oldBox.getPoints());
+
+		// if there is no anchor point, pop up a warning message and return false.
+		if ( anchorsInPoly == null || anchorsInPoly.isEmpty() ){
+			MessageDialog infoDlg = new MessageDialog( 
+					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
+					"Information", null, "No anchor point in the area!",
+					MessageDialog.INFORMATION, new String[]{"OK"}, 0);
+
+			infoDlg.open();
+			return false;
+
+		}
+		else {
+
+			anchor1 = WatchBox.getNearestAnchorPt(oldBox.getPoints().get(0), anchorsInPoly);
+			anchor2 = WatchBox.getNearestAnchorPt(oldBox.getPoints().get(4), anchorsInPoly);
+
+			if ( anchor1 != null && anchor2 != null ){
+
+				watchPts = WatchBox.generateWatchBoxPts(newBox.getWatchBoxShape(),  
+						oldBox.getHalfWidth(), 
+						WatchBox.snapOnAnchor(anchor1, oldBox.getPoints().get(0)), 
+						WatchBox.snapOnAnchor(anchor2, oldBox.getPoints().get(4)) );
+
+				newBox.setPoints(watchPts);
+				newBox.setAnchors(anchor1, anchor2);
+			}
+
+			return true;
+		}			
+	}
+	
+	public void setAddDelCntyHandler( ){
+
+		setHandler(new PgenWatchBoxAddDelCntyHandler(mapEditor, drawingLayer,
+				((WatchBoxAttrDlg)attrDlg).getWatchBox(), this));
+	}
+	
+	public void resetMouseHandler(){
+		setHandler(new PgenWatchBoxModifyHandler() );
+	}  
+}

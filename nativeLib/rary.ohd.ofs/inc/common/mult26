@@ -1,0 +1,4 @@
+C                                           *--> FROM COMMON.MULT26
+      COMMON/MULT26/MULTNM(3,10),NMDEF(10),DMCODE(5,10),IWKWD(5,10),
+     .              IPOWD(5,10)
+C

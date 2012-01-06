@@ -1,0 +1,876 @@
+module 'XApplication'
+version = 48;
+xdesigned = 1;
+applicationName = 'XApplication';
+generateNameC = * 'tabular.c';
+generateNameExterns = * 'tabular.h';
+generateNameCPP = * 'tabular.c';
+generateNameCPPExterns = * 'tabular.h';
+generateNameResDB = * 'tabular.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+generateCPPHeaderFile = '';
+motifFlavour = 2;
+generateMask = 4390920;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+javaVersion = 2;
+/* group data */
+groupIndex 1;
+groups {
+	group0(0) {
+		public tabularMsgPB;
+	};
+};
+/* end group data */
+object 'tabinsertDS' : XmDialogShell {
+	arguments {
+	lastGenName = 'tabinsertDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_tabinsertDS (Widget parent)
+';
+	XmNallowShellResize = true;
+	XmNtitle = 'Insert Forecast Data Attributes';
+	XmNminWidth = 240;
+	XmNminHeight = 255;
+	XmNmaxWidth = 240;
+	XmNmaxHeight = 255;
+	XmNdeleteResponse = XmDO_NOTHING;
+	};
+object 'tabinsertFO' : XmForm {
+	arguments {
+	lastGenName = 'tabinsertFO';
+	XmNautoUnmanage = false;
+	};
+object 'tabinsertCancelPB' : XmPushButton {
+	arguments {
+	lastGenName = 'tabinsertCancelPB';
+	XmNlabelString = 'Cancel';
+	};
+};
+object 'tabinsertSavePB' : XmPushButton {
+	arguments {
+	lastGenName = 'tabinsertSavePB';
+	XmNlabelString = 'Save';
+	};
+};
+object 'tabinsertPidLB' : XmLabel {
+	arguments {
+	lastGenName = 'tabinsertPidLB';
+	XmNlabelString = 'Product ID/Time:';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'tabinsertPidTE' : XmTextField {
+	arguments {
+	lastGenName = 'tabinsertPidTE';
+	XmNmaxLength = 10;
+	};
+};
+object 'tabinsertPtimeTE' : XmTextField {
+	arguments {
+	lastGenName = 'tabinsertPtimeTE';
+	XmNmaxLength = 19;
+	};
+};
+object 'tabinsertBtimeLB' : XmLabel {
+	arguments {
+	lastGenName = 'tabinsertBtimeLB';
+	XmNlabelString = 'Basis Time:';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'tabinsertBtimeTE' : XmTextField {
+	arguments {
+	lastGenName = 'tabinsertBtimeTE';
+	XmNmaxLength = 19;
+	};
+};
+object 'tabinsert_tsSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'tabinsert_tsSL';
+	};
+abstract object 'tabinsert_tsHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'tabinsert_tsHSB';
+	};
+};
+abstract object 'tabinsert_tsVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'tabinsert_tsVSB';
+	};
+};
+abstract object 'tabinsert_tsLI' : XmList {
+	arguments {
+	lastGenName = 'tabinsert_tsLI';
+	};
+};
+};
+object 'tabinsert_tsLB' : XmLabel {
+	arguments {
+	lastGenName = 'tabinsert_tsLB';
+	XmNlabelString = 'Type
+Source:';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -95;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -250;
+	XmNtopAttachment = 1 0 225;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -235;
+	XmNleftAttachment = 1 0 150;
+	XmNbottomAttachment = 2 0 -250;
+	XmNtopAttachment = 1 0 225;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -130;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -30;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -235;
+	XmNleftAttachment = 1 0 15;
+	XmNbottomAttachment = 2 0 -65;
+	XmNtopAttachment = 1 0 30;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -235;
+	XmNleftAttachment = 1 0 15;
+	XmNbottomAttachment = 2 0 -100;
+	XmNtopAttachment = 1 0 65;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -130;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -130;
+	XmNtopAttachment = 1 0 105;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -235;
+	XmNleftAttachment = 1 0 15;
+	XmNbottomAttachment = 2 0 -165;
+	XmNtopAttachment = 1 0 130;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -225;
+	XmNleftAttachment = 1 0 75;
+	XmNbottomAttachment = 2 0 -220;
+	XmNtopAttachment = 1 0 170;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -70;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -205;
+	XmNtopAttachment = 1 0 170;
+    };
+    };
+};
+};
+object 'tabularDS' : XmDialogShell {
+	arguments {
+	name = 'tabularDS';
+	lastGenName = 'tabularDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_tabularDS (Widget parent)
+';
+	XmNallowShellResize = true;
+	XmNtitle = 'Tabular Time Series Display';
+	XmNminWidth = 600;
+	XmNminHeight = 950;
+	XmNmaxWidth = 600;
+	XmNmaxHeight = 950;
+	XmNdeleteResponse = XmDO_NOTHING;
+	};
+object 'tabularFM' : XmForm {
+	arguments {
+	name = 'tabularFM';
+	lastGenName = 'tabularFM';
+	XmNautoUnmanage = false;
+	};
+object 'tabulartsSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'tabulartsSL';
+	folded = true;
+	};
+abstract object 'tabulartsHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'tabulartsHSB';
+	};
+};
+abstract object 'tabulartsVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'tabulartsVSB';
+	};
+};
+abstract object 'tabulartsLI' : XmList {
+	arguments {
+	lastGenName = 'tabulartsLI';
+	XmNselectionPolicy = XmSINGLE_SELECT;
+	XmNlistSizePolicy = XmRESIZE_IF_POSSIBLE;
+	};
+};
+};
+object 'tabularSL' : XmScrolledList {
+	arguments {
+	name = 'tabularSL';
+	lastGenName = 'tabularSL';
+	folded = true;
+	};
+abstract object 'tabularHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'tabularHSB';
+	};
+};
+abstract object 'tabularVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'tabularVSB';
+	};
+};
+abstract object 'tabularLI' : XmList {
+	arguments {
+	name = 'tabularLB';
+	lastGenName = 'tabularLI';
+	XmNvisibleItemCount = 19;
+	XmNselectionPolicy = XmEXTENDED_SELECT;
+	XmNlistSizePolicy = XmCONSTANT;
+	};
+};
+};
+object 'tabularElemFR' : XmFrame {
+	arguments {
+	lastGenName = 'tabularElemFR';
+	};
+object 'tabularElemFO' : XmForm {
+	arguments {
+	lastGenName = 'tabularElemFO';
+	folded = true;
+	};
+object 'tabularvalLA' : XmLabel {
+	arguments {
+	lastGenName = 'tabularvalLA';
+	XmNlabelString = 'Value:';
+	XmNalignment = XmALIGNMENT_END;
+	};
+};
+object 'tabularvalTE' : XmText {
+	arguments {
+	lastGenName = 'tabularvalTE';
+	XmNmaxLength = 8;
+	XmNcolumns = 11;
+	};
+};
+object 'tabulartimeLA' : XmLabel {
+	arguments {
+	lastGenName = 'tabulartimeLA';
+	XmNlabelString = 'Time:';
+	XmNalignment = XmALIGNMENT_END;
+	};
+};
+object 'tabulartimeTE' : XmText {
+	arguments {
+	lastGenName = 'tabulartimeTE';
+	XmNmaxLength = 19;
+	};
+};
+object 'tabularApplyPB' : XmPushButton {
+	arguments {
+	lastGenName = 'tabularApplyPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Update/Insert Value';
+	};
+};
+object 'tabularMsgPB' : XmPushButton {
+	arguments {
+	lastGenName = 'tabularMsgPB';
+	XmNlabelString = 'Set Missing';
+	};
+};
+object 'tabularSetQCPB' : XmPushButton {
+	arguments {
+	lastGenName = 'tabularSetQCPB';
+	XmNlabelString = 'Set QC';
+	};
+};
+object 'tabularDeletePB' : XmPushButton {
+	arguments {
+	lastGenName = 'tabularDeletePB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Delete';
+	};
+};
+object 'tabularQcOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'tabularQcOM';
+	};
+abstract object '21' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'label21';
+	XmNx = 3;
+	XmNy = 3;
+	XmNwidth = 37;
+	XmNheight = 22;
+	};
+};
+abstract object 'tabularQcCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'tabularQcCB';
+	XmNx = 10;
+	XmNy = 3;
+	XmNwidth = 30;
+	XmNheight = 32;
+	};
+object 'tabularQcPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'tabularQcPDM';
+	};
+object 'qcGoodPB' : XmPushButton {
+	arguments {
+	lastGenName = 'qcGoodPB';
+	XmNlabelString = 'Good';
+	};
+};
+object 'qcQuestPB' : XmPushButton {
+	arguments {
+	lastGenName = 'qcQuestPB';
+	XmNwidth = 38;
+	XmNheight = 24;
+	XmNlabelString = 'Quest.';
+	};
+};
+object 'qcBadPB' : XmPushButton {
+	arguments {
+	lastGenName = 'qcBadPB';
+	XmNlabelString = 'Bad';
+	};
+};
+};
+};
+};
+object 'tabularQcLA' : XmLabel {
+	arguments {
+	lastGenName = 'tabularQcLA';
+	XmNlabelString = 'QC:';
+	XmNalignment = XmALIGNMENT_END;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -55;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 2 0 -35;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -160;
+	XmNleftAttachment = 1 0 55;
+	XmNbottomAttachment = 2 0 -40;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -205;
+	XmNleftAttachment = 1 0 160;
+	XmNbottomAttachment = 2 0 -35;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -445;
+	XmNleftAttachment = 1 0 205;
+	XmNbottomAttachment = 2 0 -40;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -180;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -80;
+	XmNtopAttachment = 1 0 50;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -315;
+	XmNleftAttachment = 1 0 190;
+	XmNbottomAttachment = 2 0 -80;
+	XmNtopAttachment = 1 0 50;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -440;
+	XmNleftAttachment = 1 0 325;
+	XmNbottomAttachment = 2 0 -80;
+	XmNtopAttachment = 1 0 50;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -575;
+	XmNleftAttachment = 1 0 450;
+	XmNbottomAttachment = 2 0 -80;
+	XmNtopAttachment = 1 0 50;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -585;
+	XmNleftAttachment = 1 0 480;
+	XmNbottomAttachment = 2 0 -40;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -485;
+	XmNleftAttachment = 1 0 445;
+	XmNbottomAttachment = 2 0 -35;
+	XmNtopAttachment = 1 0 10;
+    };
+    };
+};
+object 'tabularelemLA' : XmLabel {
+	arguments {
+	name = 'tabularelemLA';
+	lastGenName = 'tabularelemLA';
+	XmNframeChildType = XmFRAME_TITLE_CHILD;
+	XmNlabelString = 'Edit Selected';
+	};
+};
+};
+object 'tabularSP' : XmSeparator {
+	arguments {
+	name = 'tabularSP';
+	lastGenName = 'tabularSP';
+	};
+};
+object 'tabularCancelPB' : XmPushButton {
+	arguments {
+	lastGenName = 'tabularCancelPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Close';
+	};
+};
+object 'tabularEncodePB' : XmPushButton {
+	arguments {
+	lastGenName = 'tabularEncodePB';
+	XmNlabelString = 'SHEF Encode Selected';
+	};
+};
+object 'tabularSendPB' : XmPushButton {
+	arguments {
+	lastGenName = 'tabularSendPB';
+	XmNlabelString = 'Send Product';
+	};
+};
+object 'tabularClearPB' : XmPushButton {
+	arguments {
+	lastGenName = 'tabularClearPB';
+	XmNlabelString = 'Clear Product';
+	};
+};
+object 'tabularEditPB' : XmPushButton {
+	arguments {
+	lastGenName = 'tabularEditPB';
+	XmNlabelString = 'Review Product';
+	};
+};
+object 'tabularIssuePB' : XmPushButton {
+	arguments {
+	lastGenName = 'tabularIssuePB';
+	XmNlabelString = 'Review Send Script';
+	};
+};
+object 'tabularpilLA' : XmLabel {
+	arguments {
+	lastGenName = 'tabularpilLA';
+	XmNlabelString = 'Product:';
+	};
+};
+object 'tabularpilTE' : XmText {
+	arguments {
+	lastGenName = 'tabularpilTE';
+	XmNmaxLength = 10;
+	};
+};
+object 'tabularnamestreamLA' : XmLabel {
+	arguments {
+	lastGenName = 'tabularnamestreamLA';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'tabularfloodLA' : XmLabel {
+	arguments {
+	lastGenName = 'tabularfloodLA';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'tabular_pedtseLA' : XmLabel {
+	arguments {
+	lastGenName = 'tabular_pedtseLA';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'tabularheaderLA' : XmLabel {
+	arguments {
+	lastGenName = 'tabularheaderLA';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'tabularportimeLA' : XmLabel {
+	arguments {
+	lastGenName = 'tabularportimeLA';
+	XmNlabelString = '2006-06-02 12:00 - 2006-06-02 18:00';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'tabularporLA' : XmLabel {
+	arguments {
+	lastGenName = 'tabularporLA';
+	XmNlabelString = 'TimeZ:';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'tabulartsLA' : XmLabel {
+	arguments {
+	lastGenName = 'tabulartsLA';
+	XmNlabelString = 'Loc   PE  Dur TS E       BasisTime(Z)';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'tabularlistallTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'tabularlistallTB';
+	XmNlabelString = 'List ALL Forecasts';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'tabularPrintPB' : XmPushButton {
+	arguments {
+	lastGenName = 'tabularPrintPB';
+	XmNlabelString = 'Send Table
+to Printer';
+	};
+};
+object 'tabularSavePB' : XmPushButton {
+	arguments {
+	lastGenName = 'tabularSavePB';
+	XmNlabelString = 'Save Table
+to File';
+	};
+};
+object 'tabularInsertFR' : XmFrame {
+	arguments {
+	lastGenName = 'tabularInsertFR';
+	};
+object 'tabularInsertFO' : XmForm {
+	arguments {
+	was_selected = true;
+	lastGenName = 'tabularInsertFO';
+	};
+object 'tabularInsertProdIDLA' : XmLabel {
+	arguments {
+	lastGenName = 'tabularInsertProdIDLA';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'tabularInsertProdTimeLA' : XmLabel {
+	arguments {
+	lastGenName = 'tabularInsertProdTimeLA';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'tabularInsertBasisLA' : XmLabel {
+	arguments {
+	lastGenName = 'tabularInsertBasisLA';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'tabularInsertTypSrcLA' : XmLabel {
+	arguments {
+	lastGenName = 'tabularInsertTypSrcLA';
+	XmNlabelString = 'TS';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'tabularInsertEditPB' : XmPushButton {
+	arguments {
+	lastGenName = 'tabularInsertEditPB';
+	XmNlabelString = 'Edit';
+	};
+};
+object 'tabularUseProductTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'tabularUseProductTB';
+	XmNlabelString = 'Use Product Time/ID:';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'tabularInsertCopyPB' : XmPushButton {
+	arguments {
+	lastGenName = 'tabularInsertCopyPB';
+	XmNlabelString = 'Copy Full 
+Forecast';
+	};
+};
+object 'tabularUseBasisTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'tabularUseBasisTB';
+	XmNlabelString = 'Fcst BasisTime:';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'tabularUseTypSrcTB' : XmToggleButton {
+	arguments {
+	lastGenName = 'tabularUseTypSrcTB';
+	XmNlabelString = 'Fcst TypSrc:';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -230;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -65;
+	XmNtopAttachment = 1 0 45;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -230;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -45;
+	XmNtopAttachment = 1 0 25;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -235;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -110;
+	XmNtopAttachment = 1 0 90;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -160;
+	XmNleftAttachment = 1 0 125;
+	XmNbottomAttachment = 2 0 -135;
+	XmNtopAttachment = 1 0 110;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -145;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -155;
+	XmNtopAttachment = 1 0 135;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -230;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 2 0 -25;
+	XmNtopAttachment = 1 0 0;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -240;
+	XmNleftAttachment = 1 0 160;
+	XmNbottomAttachment = 2 0 -155;
+	XmNtopAttachment = 1 0 110;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 65;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -125;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 2 0 -135;
+	XmNtopAttachment = 1 0 110;
+    };
+    };
+};
+object 'tabularInsertLA' : XmLabel {
+	arguments {
+	lastGenName = 'tabularInsertLA';
+	XmNframeChildType = XmFRAME_TITLE_CHILD;
+	XmNlabelString = 'Inserted Data Attributes';
+	};
+};
+};
+object 'tabularqcdescTE' : XmTextField {
+	arguments {
+	lastGenName = 'tabularqcdescTE';
+	XmNeditable = false;
+	XmNcursorPositionVisible = true;
+	};
+};
+object 'tabular2SP' : XmSeparator {
+	arguments {
+	lastGenName = 'tabular2SP';
+	XmNorientation = XmVERTICAL;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -345;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -210;
+	XmNtopAttachment = 1 0 50;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -595;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -630;
+	XmNtopAttachment = 1 0 275;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -595;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -780;
+	XmNtopAttachment = 1 0 670;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -595;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -905;
+	XmNtopAttachment = 1 0 895;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -340;
+	XmNleftAttachment = 1 0 255;
+	XmNbottomAttachment = 2 0 -945;
+	XmNtopAttachment = 1 0 910;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -215;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -815;
+	XmNtopAttachment = 1 0 785;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -215;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -885;
+	XmNtopAttachment = 1 0 855;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -435;
+	XmNleftAttachment = 1 0 230;
+	XmNbottomAttachment = 2 0 -815;
+	XmNtopAttachment = 1 0 785;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -215;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -850;
+	XmNtopAttachment = 1 0 820;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -435;
+	XmNleftAttachment = 1 0 230;
+	XmNbottomAttachment = 2 0 -850;
+	XmNtopAttachment = 1 0 820;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -300;
+	XmNleftAttachment = 1 0 235;
+	XmNbottomAttachment = 2 0 -885;
+	XmNtopAttachment = 1 0 860;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -435;
+	XmNleftAttachment = 1 0 305;
+	XmNbottomAttachment = 2 0 -890;
+	XmNtopAttachment = 1 0 855;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -595;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -235;
+	XmNtopAttachment = 1 0 215;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -595;
+	XmNleftAttachment = 1 0 345;
+	XmNbottomAttachment = 2 0 -255;
+	XmNtopAttachment = 1 0 235;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -345;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -255;
+	XmNtopAttachment = 1 0 235;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -595;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -275;
+	XmNtopAttachment = 1 0 255;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -420;
+	XmNleftAttachment = 1 0 75;
+	XmNbottomAttachment = 2 0 -30;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -75;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -25;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -345;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -50;
+	XmNtopAttachment = 1 0 30;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -595;
+	XmNleftAttachment = 1 0 420;
+	XmNbottomAttachment = 2 0 -25;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -585;
+	XmNleftAttachment = 1 0 475;
+	XmNbottomAttachment = 2 0 -890;
+	XmNtopAttachment = 1 0 840;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -585;
+	XmNleftAttachment = 1 0 475;
+	XmNbottomAttachment = 2 0 -835;
+	XmNtopAttachment = 1 0 785;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -595;
+	XmNleftAttachment = 1 0 350;
+	XmNbottomAttachment = 2 0 -210;
+	XmNtopAttachment = 1 0 30;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -595;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -670;
+	XmNtopAttachment = 1 0 635;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -465;
+	XmNleftAttachment = 1 0 450;
+	XmNbottomAttachment = 2 0 -890;
+	XmNtopAttachment = 1 0 785;
+    };
+    };
+};
+};
+end module;

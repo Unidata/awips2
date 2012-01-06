@@ -1,0 +1,37 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+  
+  <bean id="retrieveWhfsServiceData" class="com.raytheon.uf.edex.ohd.whfs.WhfsServiceHandler"/>
+
+   <bean factory-bean="handlerRegistry" factory-method="register">
+     <constructor-arg value="com.raytheon.uf.common.hydro.service.WhfsServiceRequest"/>
+     <constructor-arg ref="retrieveWhfsServiceData"/>
+   </bean>
+   
+   	<bean id="mpeProcessGribHandler" class="com.raytheon.uf.edex.ohd.pproc.MpeProcessGribSrv" />
+	<bean factory-bean="handlerRegistry" factory-method="register">
+  		<constructor-arg value="com.raytheon.uf.common.hydro.service.MpeGribProcessRequest"/>
+  		<constructor-arg ref="mpeProcessGribHandler"/>
+  	</bean>
+  
+	<camelContext id="mpeFieldGenReq-context"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">		
+		<route id="mpeHttp">
+			<from uri="jetty:http://0.0.0.0:9581/services/mpeFieldGenHttpService?disableStreamCache=true" />
+			<doTry>
+				<bean ref="mpeFieldGenService" method="process" />
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:mpeFieldGen?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
+			<bean ref="serializationUtil" method="transformToThrift" />
+		</route>
+	</camelContext>
+ 
+</beans>
+

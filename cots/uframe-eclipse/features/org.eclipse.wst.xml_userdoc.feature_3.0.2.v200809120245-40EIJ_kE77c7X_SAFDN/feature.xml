@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.eclipse.wst.xml_userdoc.feature"
+      label="%featureName"
+      version="3.0.2.v200809120245-40EIJ_kE77c7X_SAFDN"
+      provider-name="%providerName">
+
+   <description>
+      %description
+   </description>
+
+   <copyright>
+      %copyright
+   </copyright>
+
+   <license url="license.html">
+      %license
+   </license>
+
+   <url>
+      <update label="%updateSiteName" url="http://download.eclipse.org/webtools/updates/"/>
+   </url>
+
+   <plugin
+         id="org.eclipse.wst.dtdeditor.doc.user"
+         download-size="0"
+         install-size="0"
+         version="1.0.400.v200805150028"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.wst.sse.doc.user"
+         download-size="0"
+         install-size="0"
+         version="1.1.0.v200805211530"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.wst.xmleditor.doc.user"
+         download-size="0"
+         install-size="0"
+         version="1.0.401.v200808071323"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.wst.xsdeditor.doc.user"
+         download-size="0"
+         install-size="0"
+         version="1.0.500.v200809092106"
+         unpack="false"/>
+
+</feature>

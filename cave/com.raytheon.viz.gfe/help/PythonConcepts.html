@@ -1,0 +1,314 @@
+<html>
+<title>GFESuite Documentation - Python Concepts</title>
+<body>
+<h1>
+<a NAME="PythonConcepts"></a>Python Concepts</h1>
+</div>
+
+<div CLASS="2Heading">&nbsp;&nbsp;&nbsp; <a href="#IndentationandComments">Indentation
+and Comments</a></div>
+<div CLASS="2Heading">&nbsp;&nbsp;&nbsp; <a href="#Methods">Methods</a></div>
+<div CLASS="2Heading">&nbsp;&nbsp;&nbsp; <a href="#Ifstatements">"if" statements</a></div>
+<div CLASS="2Heading">&nbsp;&nbsp;&nbsp; <a href="#DataStructures">Data
+Structures</a></div>
+<div CLASS="2Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#Lists">Lists</a></div>
+<div CLASS="2Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#Tuples">Tuples</a></div>
+<div CLASS="2Heading">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#Dictionaries">Dictionaries</a>
+<div CLASS="2Heading">&nbsp;&nbsp;&nbsp; <a href="#Classes">Classes</a></div>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#Inheritance">Inheritance</a></div>
+<hr width="100%">
+
+<div CLASS="Body">Here is a simple piece of Python code to illustrate the
+basic features:</div>
+
+<div CLASS="Code"><font color="#006600">def myMethod(value1, value2):</font></div>
+
+<div CLASS="Code"><font color="#006600">&nbsp;&nbsp;&nbsp; # This is a
+comment</font></div>
+
+<div CLASS="Code">&nbsp;
+<br><font color="#006600">&nbsp;&nbsp;&nbsp; if value1 == 0:</font></div>
+
+<div CLASS="Code"><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+print "No value"</font></div>
+
+<div CLASS="Code"><font color="#006600">&nbsp;&nbsp;&nbsp; elif value1
+> 10:</font></div>
+
+<div CLASS="Code"><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+print "Value is greater than 10 "</font></div>
+
+<div CLASS="Code"><font color="#006600">&nbsp;&nbsp;&nbsp; else:</font></div>
+
+<div CLASS="Code"><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+print "Value is ", value1</font></div>
+<hr width="100%">
+<h2 align=center><a NAME="IndentationandComments"></a>Indentation and Comments</h2>
+<div CLASS="Body">Python recognizes code blocks by indentation. Because
+there are no brackets, you must make sure that statements within a code
+block all begin in the same column. Fortunately, the Python editor helps
+enforce this when you use the Tab key. Comments are denoted by the number
+sign: #</div>
+<br>
+<h2 align=center>
+<a NAME="Methods"></a>Methods</h2>
+<div CLASS="Body">Python methods or functions are defined with the "def"
+keyword followed by method name, arguments, and a colon.</div>
+<h2 align=center>
+<a NAME="Ifstatements"></a>"if" statements</h2>
+
+<div CLASS="Body">The format of an "if" statement with "elif" and "else"
+is shown above. Note that there are no parentheses around the expression
+which is instead followed by a colon.</div>
+
+<h2 align=center>
+<a NAME="DataStructures"></a>Data Structures</h2>
+
+<div CLASS="Body">Variables need not be declared or typed. They are defined
+as they are used. There are very powerful built-in data types.</div>
+
+<blockquote>
+<li CLASS="4Heading">
+<a NAME="Lists"></a>Lists</li>
+</blockquote>
+
+<div CLASS="Body">A List is written as a list of comma-separated values
+(items) between square brackets. List items need not all have the same
+type. Lists are accessed via their index.
+<p>Example:
+<br>&nbsp;</div>
+
+<div CLASS="Code">&nbsp;&nbsp;&nbsp; <font color="#006600">myList = ['spam',
+'eggs', 100, 1234]</font></div>
+
+<div CLASS="Code"><font color="#006600">&nbsp;&nbsp;&nbsp; myFavoriteFood
+= myList[0]</font></div>
+
+<ul>
+<li CLASS="4Heading">
+<a NAME="Tuples"></a>Tuples</li>
+</ul>
+
+<div CLASS="Body">A tuple consists of a number of values separated by commas,
+for instance:</div>
+
+<div CLASS="Code">&nbsp;&nbsp;&nbsp;<font color="#006600"> t = (12345,
+54321, 'hello!')</font></div>
+
+<div CLASS="Code"><font color="#006600">&nbsp;&nbsp;&nbsp; myNumber = t[0]</font></div>
+
+<div CLASS="Body">They are indexed and referred to just as lists, but cannot
+be changed i.e. they are immutable.</div>
+
+<ul>
+<li CLASS="4Heading">
+<a NAME="Dictionaries"></a>Dictionaries</li>
+</ul>
+
+<div CLASS="Body">Another useful data type built into Python is the dictionary.
+Dictionaries are sometimes found in other languages as ``associative memories''
+or ``associative arrays''. Unlike sequences, which are indexed by a range
+of numbers, dictionaries are indexed by keys, which can be any immutable
+type such as strings and numbers. Tuples can be used as keys if they contain
+only strings, numbers, or tuples. You cannot use lists as keys, since lists
+can be modified.</div>
+
+<div CLASS="Body">&nbsp;
+<br>It is best to think of a dictionary as an unordered set of "key:value"
+pairs, with the requirement that the keys are unique (within one dictionary).
+A pair of braces creates an empty dictionary: {}. Placing a comma-separated
+list of "key:value" pairs within the braces adds initial "key:value" pairs
+to the dictionary; this is also the way dictionaries are written on output.
+The main operations on a dictionary are storing a value with some key and
+extracting the value given the key. Here is an example using a dictionary:</div>
+
+<div CLASS="Body">&nbsp;</div>
+
+<div CLASS="Code">&nbsp;&nbsp;&nbsp; <font color="#006600">tel = {'jack':
+4098, 'sape': 4139}</font></div>
+
+<div CLASS="Code"><font color="#006600">&nbsp;&nbsp;&nbsp; tel['guido']
+= 4127</font></div>
+
+<div CLASS="Code"><font color="#006600">&nbsp;&nbsp;&nbsp; jacksNumber
+= tel[`jack']</font></div>
+
+<div CLASS="Code"><font color="#006600">&nbsp;&nbsp;&nbsp; print tel</font></div>
+
+<div CLASS="Code"><font color="#006600">&nbsp;&nbsp;&nbsp; print jacksNumber</font></div>
+
+<div CLASS="Body">Result:</div>
+
+<div CLASS="Code">&nbsp;&nbsp;&nbsp; <font color="#663366">{'guido': 4127,
+'jack': 4098, 'sape':4139}</font></div>
+
+<div CLASS="Code"><font color="#663366">&nbsp;&nbsp;&nbsp; 4098</font>
+<br>&nbsp;
+<h2 align=center>
+<a NAME="Classes"></a>Classes</h2>
+A "class" is a collection of methods and statementes that are related and
+perform a coherent set of tasks.&nbsp; For example, if we have a set of
+methods that perform useful operations on strings, we might want to create
+a class structure to group them together.&nbsp; A simple class can be declared
+as follows:
+<p>&nbsp;&nbsp;&nbsp;&nbsp; <font color="#006600">class MyClass:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# class declaration</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+def myMethod(self, str):&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # method
+defined within the class</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+print str&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# a simple print statement</font>
+<p>Notice the indentation.&nbsp; Every method or variable within the class
+must be indented consistently to indicate its inclusion in the class.&nbsp;
+Note the special "self" argument.&nbsp; This is a way for us to keep track
+of what class a method or variable belongs to.&nbsp; You don't need to
+worry much about it except to:
+<blockquote>
+<li>
+Make sure to list "self" as the first argument of method definitions within
+the class and</li>
+
+<li>
+Make sure that when calling another method within the class, use "self.methodName"
+omitting&nbsp; "self" as the first argument:</li>
+</blockquote>
+<font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp; class MyClass:</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+def myMethod(self, str):</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+print str</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+def anotherMethod(self):</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</font><font color="#663366">self.myMethod("guido rocks")</font>
+<ul>
+<li>
+<font color="#000000">Make sure that if you want to use a variable in multiple
+methods of a class, you refer to it with the "self" qualifier:</font></li>
+</ul>
+<font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp; class MyClass:</font>
+<p><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+def myMethod(self, str):</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+print str</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</font><font color="#663366">self.myStr = str</font>
+<p><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+def anotherMethod(self):</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.myMethod("guido rocks")</font>
+<p><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</font><font color="#663366">def aThirdMethod(self):</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</font><font color="#663366">print "Last string printed", self.myStr</font>
+<p>When you want to use the methods inside a class, you "instantiate" the
+class or create an instance of the class.&nbsp; Then you can call the methods
+of the class as shown below:
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font color="#006600"> classInstance =
+MyClass()</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; classInstance.myMethod("spam
+and eggs")</font>
+<p>This would result in output of:
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#663366">spam
+and eggs</font>
+<p><font color="#000000">Finally, you may want to include a "constructor"
+which is a special method to be run any time the class is instantiated.&nbsp;
+This is handy if you want to initialize variables.</font>
+<p><font color="#006600">&nbsp;&nbsp;&nbsp; class MyClass:</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+def __init__(self):</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.myStr = ""</font>
+<blockquote>
+<li>
+<a NAME="Inheritance"></a><b>Inheritance</b></li>
+</blockquote>
+Often we find that a new class would benefit from having the functionality
+of an existing class.&nbsp; Instead of altering the existing class, we
+can "inherit" its functionality and then add to it or alter it in our new
+class. For example,&nbsp; suppose we have a WeatherElement class that stores
+and performs general operations on&nbsp; a weather element such as temperature,&nbsp;
+sky cover, or wind.&nbsp;&nbsp;&nbsp; We might find operations for creating
+a new grid, storing a grid or deleting a grid from the inventory.&nbsp;
+However, when we need to calculate the values for the grid, our functions
+might be different depending on whether the weather element is a Scalar
+or a Vector.&nbsp; In this case, we might want to create two new classes,
+one for operating on Scalar weather elements and one for operating on Vector
+weather elements.&nbsp; However, we would like both classes to have access
+to the general methods in the original WeatherElement class.
+<p>When there is an inheritance relationship, we call the existing class
+the "base" class and the new class the "derived" class.&nbsp; This relationship
+is specified as follows:
+<p>&nbsp;&nbsp;&nbsp;&nbsp; <font color="#006600">class DerivedClass (BaseClass):</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+def __init__(self):</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+BaseClass.__init__(self)</font>
+<p>Notice that we included a constructor and instantiated the BaseClass
+to ensure that any base class initializations will take place.&nbsp;&nbsp;
+Here's how our example classes might be declared:
+<p>&nbsp;&nbsp;&nbsp; <font color="#006600">class WeatherElement:</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+def __init__(self):</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+pass</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+def storeGrid(self):</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+...</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+def deleteGrid(self):</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+...</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+def createGrid(self):</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+...</font>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; <font color="#006600">class ScalarElement (WeatherElement):</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+def __init__(self):</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+WeatherElement.__init__(self)</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+def calculateScalarValues(self):</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+...</font>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; <font color="#006600">class VectorElement (WeatherElement):</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+def __init__(self):</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+WeatherElement.__init__(self)</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+def calculateVectorValues(self):</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+...</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+def createGrid(self):</font>
+<br><font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# Special case of creating a vector grid</font>
+<br>&nbsp;
+<p>Now the DerivedClass can call any methods in the BaseClass using the
+"self" argument.&nbsp;&nbsp; So, for example, the "storeGrid" method is
+available to both the ScalarElement and VectorElement classes.&nbsp; If
+we want to alter the functionality of a BaseClass method, we can simply
+include a copy of it in the DerivedClass definition and make any desired
+changes to it there.&nbsp; Notice that we have included a copy of the "createGrid"
+method within the VectorElement class for which there will be some special
+set-up when creating the vector grid. When a method is called, the system
+first searches in the DerivedClass for it.&nbsp; If it is not there, it
+searches in the BaseClass.&nbsp; Of course, the BaseClass may have inherited
+from another class and, if so,&nbsp; the search will proceed recursively.
+<p>Sometimes it is useful to draw classes and their inheritance relationships.&nbsp;
+We do so as shown below:
+<p><img SRC="images/Python1.jpg" height=480 width=640>
+<br>&nbsp;
+<br>&nbsp;
+<p>The classes are represented by the rectangles and the special "inheritance
+symbol" indicates that the Derived Class inherits the methods and variables
+from the Base Class.&nbsp; Think of the symbol not as an arrow indicating
+flow, but as an "umbrella" indicating inclusion of capabilities.
+<br>&nbsp;
+<br>&nbsp;
+</body>
+</html>

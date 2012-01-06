@@ -1,0 +1,211 @@
+Manifest-Version: 1.0
+Bundle-SymbolicName: org.eclipse.ecf.examples.source; singleton=true
+Created-By: 10.0-b19 (Sun Microsystems Inc.)
+Bundle-Name: %pluginName
+Bundle-Localization: plugin
+Bundle-Version: 2.0.1.v20080916-1301
+Bundle-Vendor: %providerName
+Ant-Version: Apache Ant 1.7.0
+
+Name: src/org.eclipse.ecf.examples.updatesite.client_1.0.100.v20080916
+ -1301/plugin.properties
+SHA1-Digest: ze7DL2cYoA7lLVtkQzaPZMFCr20=
+
+Name: plugin.xml
+SHA1-Digest: I0t+o6kXbySrxIY1bLaTaeai3Vc=
+
+Name: src/org.eclipse.ecf.example.collab_1.3.0.v20080916-1301/about.in
+ i
+SHA1-Digest: nwUBB3Yb7hXCCCQS1LqmwAaE2SU=
+
+Name: src/org.eclipse.ecf.examples.updatesite.server_1.0.100.v20080916
+ -1301/launch/Remote Updatesite Server.launch
+SHA1-Digest: tz+hip8UCn4uJOdlmvq32tornuw=
+
+Name: src/org.eclipse.ecf.examples.remoteservices.server_1.0.100.v2008
+ 0916-1301/plugin.xml
+SHA1-Digest: Zao3Thd/RnB33ENW9GdQFWP9UG8=
+
+Name: src/org.eclipse.ecf.examples.remoteservices.client_1.0.100.v2008
+ 0916-1301/about.html
+SHA1-Digest: IQUr+Vpivv+x5SKEmMJMFXmH/q4=
+
+Name: src/org.eclipse.ecf.example.collab_1.3.0.v20080916-1301/src.zip
+SHA1-Digest: +QUnQmvQ2gPyHHtipxeum/oNT7I=
+
+Name: src/org.eclipse.ecf.examples.remoteservices.server_1.0.100.v2008
+ 0916-1301/plugin.properties
+SHA1-Digest: JAj7pJyUuipiQRD4G21wnJUBlYc=
+
+Name: META-INF/eclipse.inf
+SHA1-Digest: mMu9B1RvBNqGYnDx5LUCAyUTzv4=
+
+Name: src/org.eclipse.ecf.example.collab.editor_1.0.200.v20080916-1301
+ /META-INF/MANIFEST.MF
+SHA1-Digest: PWX5o7SJBdB9QD3lGMxEjrBu0n0=
+
+Name: src/org.eclipse.ecf.example.collab_1.3.0.v20080916-1301/example3
+ 2.png
+SHA1-Digest: UQXbmOce4LmherzYP64eYOmXxNA=
+
+Name: src/org.eclipse.ecf.examples.updatesite.client_1.0.100.v20080916
+ -1301/src.zip
+SHA1-Digest: MolbNDmH8ljtR1U38CrORHnjtM4=
+
+Name: src/org.eclipse.ecf.example.collab_1.3.0.v20080916-1301/plugin.x
+ ml
+SHA1-Digest: 32vJUJeUjwaPGdsSyBZsY/nWyB0=
+
+Name: src/org.eclipse.ecf.example.clients_1.3.0.v20080916-1301/about.h
+ tml
+SHA1-Digest: IQUr+Vpivv+x5SKEmMJMFXmH/q4=
+
+Name: src/org.eclipse.ecf.example.collab_1.3.0.v20080916-1301/about.pr
+ operties
+SHA1-Digest: hbPA/GsbMZMD7f1TPmDk4MtsqzA=
+
+Name: about.html
+SHA1-Digest: IQUr+Vpivv+x5SKEmMJMFXmH/q4=
+
+Name: src/org.eclipse.ecf.examples.remoteservices.client_1.0.100.v2008
+ 0916-1301/plugin.properties
+SHA1-Digest: g/+P77O7nw72+h85shlMExi1Emk=
+
+Name: src/org.eclipse.ecf.examples.remoteservices.server_1.0.100.v2008
+ 0916-1301/META-INF/MANIFEST.MF
+SHA1-Digest: DFE7+rColBi+F6splAYMrFU8zqI=
+
+Name: src/org.eclipse.ecf.examples.updatesite.server_1.0.100.v20080916
+ -1301/META-INF/MANIFEST.MF
+SHA1-Digest: ZuvLokkxcYIrjdAymmZslytygnM=
+
+Name: src/org.eclipse.ecf.example.collab_1.3.0.v20080916-1301/plugin.p
+ roperties
+SHA1-Digest: NN7DH7jPYF+j8/edYmQdeRZvcQk=
+
+Name: src/org.eclipse.ecf.example.collab_1.3.0.v20080916-1301/icons/co
+ mmunications.gif
+SHA1-Digest: yKBQROgci/KWoYJ5563/fo4Ski8=
+
+Name: src/org.eclipse.ecf.example.collab_1.3.0.v20080916-1301/META-INF
+ /MANIFEST.MF
+SHA1-Digest: Ak5pmHHTx3hA/ifH4ICTaduJtOc=
+
+Name: src/org.eclipse.ecf.examples.updatesite.server_1.0.100.v20080916
+ -1301/plugin.properties
+SHA1-Digest: oqwsW7DxoXNXBusgE6rf1tXQK94=
+
+Name: src/org.eclipse.ecf.example.clients_1.3.0.v20080916-1301/src.zip
+SHA1-Digest: kSHJ5ZpIF8W5sSzNMwW+bo4qufw=
+
+Name: src/org.eclipse.ecf.examples.updatesite.server_1.0.100.v20080916
+ -1301/about.html
+SHA1-Digest: IQUr+Vpivv+x5SKEmMJMFXmH/q4=
+
+Name: src/org.eclipse.ecf.examples.updatesite.server_1.0.100.v20080916
+ -1301/src.zip
+SHA1-Digest: frIZPoeWFGY357fpBQw4ykYD2oM=
+
+Name: src/org.eclipse.ecf.examples.remoteservices.common_1.0.100.v2008
+ 0916-1301/about.html
+SHA1-Digest: IQUr+Vpivv+x5SKEmMJMFXmH/q4=
+
+Name: src/org.eclipse.ecf.examples.remoteservices.common_1.0.100.v2008
+ 0916-1301/META-INF/MANIFEST.MF
+SHA1-Digest: US9NidcNMD7Msduy9QdPN2huFIA=
+
+Name: src/org.eclipse.ecf.examples.remoteservices.common_1.0.100.v2008
+ 0916-1301/src.zip
+SHA1-Digest: 5h2dMEzmo0I27TkQmY6p9XA2K3s=
+
+Name: src/org.eclipse.ecf.examples.updatesite.client_1.0.100.v20080916
+ -1301/plugin.xml
+SHA1-Digest: Egp048UqIawFgeWD13mbibYhrmM=
+
+Name: src/org.eclipse.ecf.example.collab_1.3.0.v20080916-1301/icons/co
+ llaboration.gif
+SHA1-Digest: A+9NWpUHbal8H6arj1fHHalFv9A=
+
+Name: src/org.eclipse.ecf.example.collab_1.3.0.v20080916-1301/icons/me
+ ssages.gif
+SHA1-Digest: /flNVFj3c42kc4rSAVq4O/yDQIM=
+
+Name: plugin.properties
+SHA1-Digest: UhU1qYccfQ93ryFNAJIN8aGODt0=
+
+Name: src/org.eclipse.ecf.examples.remoteservices.common_1.0.100.v2008
+ 0916-1301/plugin.properties
+SHA1-Digest: Fvs+lCkJo4zX/OiKvVuyRFPgNqk=
+
+Name: src/org.eclipse.ecf.examples.remoteservices.server_1.0.100.v2008
+ 0916-1301/launch/r-OSGi Remote EnvironmentInfo Server.launch
+SHA1-Digest: zmvHgSTjKaLYU3BXnFNIUp1uHVg=
+
+Name: src/org.eclipse.ecf.example.collab.editor_1.0.200.v20080916-1301
+ /plugin.properties
+SHA1-Digest: P4Y3ggHrlBBXMtfbEFs2QOj9M+U=
+
+Name: src/org.eclipse.ecf.examples.remoteservices.client_1.0.100.v2008
+ 0916-1301/plugin.xml
+SHA1-Digest: OMMPlwdBnezgLF1C8Rx0aa2e6VY=
+
+Name: src/org.eclipse.ecf.examples.remoteservices.server_1.0.100.v2008
+ 0916-1301/about.html
+SHA1-Digest: IQUr+Vpivv+x5SKEmMJMFXmH/q4=
+
+Name: src/org.eclipse.ecf.examples.remoteservices.client_1.0.100.v2008
+ 0916-1301/META-INF/MANIFEST.MF
+SHA1-Digest: tVnjw+yY8ZkcdjXlowII05Z3ho8=
+
+Name: src/org.eclipse.ecf.examples.remoteservices.server_1.0.100.v2008
+ 0916-1301/src.zip
+SHA1-Digest: yTLNygx75J9975HYFintvW4kgcA=
+
+Name: src/org.eclipse.ecf.example.clients_1.3.0.v20080916-1301/plugin.
+ properties
+SHA1-Digest: geLjdMwebRp+6N3CVnSLFjme3MY=
+
+Name: src/org.eclipse.ecf.example.collab_1.3.0.v20080916-1301/about.ht
+ ml
+SHA1-Digest: IQUr+Vpivv+x5SKEmMJMFXmH/q4=
+
+Name: src/org.eclipse.ecf.examples.updatesite.client_1.0.100.v20080916
+ -1301/about.html
+SHA1-Digest: IQUr+Vpivv+x5SKEmMJMFXmH/q4=
+
+Name: src/org.eclipse.ecf.example.clients_1.3.0.v20080916-1301/META-IN
+ F/MANIFEST.MF
+SHA1-Digest: nUigBYOCrkMTyTwcR0e+y9x5DPo=
+
+Name: src/org.eclipse.ecf.examples.remoteservices.server_1.0.100.v2008
+ 0916-1301/launch/Generic Remote EnvironmentInfo Server.launch
+SHA1-Digest: +CQPcjnnnFNV0u8Mtqmd3pmMlNg=
+
+Name: src/org.eclipse.ecf.examples.updatesite.server_1.0.100.v20080916
+ -1301/plugin.xml
+SHA1-Digest: dvz7H6fHxC6is+7qHjFPedPcrko=
+
+Name: src/org.eclipse.ecf.example.collab_1.3.0.v20080916-1301/icons/co
+ ntact_enabled.gif
+SHA1-Digest: M4tW3gyCf9bKzamxMk7YyrbLW3k=
+
+Name: src/org.eclipse.ecf.example.clients_1.3.0.v20080916-1301/plugin.
+ xml
+SHA1-Digest: W4tWhUnu03Q49YPdH/MDJAf/g50=
+
+Name: src/org.eclipse.ecf.examples.updatesite.client_1.0.100.v20080916
+ -1301/META-INF/MANIFEST.MF
+SHA1-Digest: pIVZ8GugShYQkr5ebPUeI4LJad8=
+
+Name: src/org.eclipse.ecf.examples.remoteservices.client_1.0.100.v2008
+ 0916-1301/src.zip
+SHA1-Digest: AR1jkEGuW0FRkfdro1Fmuf4UyZg=
+
+Name: src/org.eclipse.ecf.example.collab.editor_1.0.200.v20080916-1301
+ /src.zip
+SHA1-Digest: AtFc83iy+skseOBx7vmbZnpz2y4=
+
+Name: src/org.eclipse.ecf.example.collab.editor_1.0.200.v20080916-1301
+ /about.html
+SHA1-Digest: IQUr+Vpivv+x5SKEmMJMFXmH/q4=
+

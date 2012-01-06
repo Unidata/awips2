@@ -1,0 +1,89 @@
+<bundle>
+ <mapDescriptor>
+  <scale>CONUS</scale>
+  <zoomLevel>0.5405884981155396</zoomLevel>
+  <center>
+   <coord>-98.63120732934439</coord>
+   <coord>38.59133904765234</coord>
+   <coord>0.0</coord>
+  </center>
+  <gridGeometry>
+   <crs>PROJCS["Lambert Conformal (SP: 25.0/25.0, Origin: -95.0)", 
+  GEOGCS["WGS84", 
+    DATUM["WGS84", 
+      SPHEROID["WGS84", 6378137.0, 298.257223563]], 
+    PRIMEM["Greenwich", 0.0], 
+    UNIT["degree", 0.017453292519943295], 
+    AXIS["Geodetic longitude", EAST], 
+    AXIS["Geodetic latitude", NORTH]], 
+  PROJECTION["Lambert_Conformal_Conic_1SP"], 
+  PARAMETER["central_meridian", -95.0], 
+  PARAMETER["latitude_of_origin", 25.0], 
+  PARAMETER["false_easting", 0.0], 
+  PARAMETER["false_northing", 0.0], 
+  UNIT["m", 1.0], 
+  AXIS["Easting", EAST], 
+  AXIS["Northing", NORTH]]</crs>
+   <gridRange maxX="14315" maxY="10000"/>
+   <envelope minX="-4226114.5" maxX="3250830.75" minY="-832694.5" maxY="4368704.0"/>
+  </gridGeometry>
+  <loadMode>VALID_TIME_SEQ</loadMode>
+  <resourcePair>
+   <resource name="mapResourceGroup">
+    <properties>
+     <value field="name">State/County Boundaries</value>
+     <value field="resourceList">
+      <resourcePair>
+       <resource name="BCD Resource">
+        <properties>
+         <value field="name">State Boundaries</value>
+         <value field="filename">conandsta.bcd</value>
+         <value field="color">RGB {155, 155, 155}</value>
+         <value field="outlineWidth">1</value>
+         <value field="outlineOn">true</value>
+        </properties>
+       </resource>
+       <resourceProperties>
+        <isVisible>true</isVisible>
+        <opacity>1.0</opacity>
+        <isMapLayer>true</isMapLayer>
+        <progressiveDisclosureProperties>
+         <minDisplayWidth>750000</minDisplayWidth>
+         <maxDisplayWidth>100000000</maxDisplayWidth>
+        </progressiveDisclosureProperties>
+       </resourceProperties>
+      </resourcePair>
+      <resourcePair>
+       <resource name="BCD Resource">
+        <properties>
+         <value field="name">US Counties</value>
+         <value field="filename">uscounty.bcd</value>
+         <value field="color">RGB {155, 155, 155}</value>
+         <value field="outlineWidth">1</value>
+         <value field="outlineOn">true</value>
+        </properties>
+       </resource>
+       <resourceProperties>
+        <isVisible>true</isVisible>
+        <opacity>1.0</opacity>
+        <isMapLayer>true</isMapLayer>
+        <progressiveDisclosureProperties>
+         <minDisplayWidth>0</minDisplayWidth>
+         <maxDisplayWidth>750000</maxDisplayWidth>
+        </progressiveDisclosureProperties>
+       </resourceProperties>
+      </resourcePair>
+     </value>
+     <value field="color">RGB {155, 155, 155}</value>
+     <value field="outlineWidth">1</value>
+     <value field="outlineOn">true</value>
+    </properties>
+   </resource>
+   <resourceProperties>
+    <isVisible>true</isVisible>
+    <opacity>1.0</opacity>
+    <isMapLayer>true</isMapLayer>
+   </resourceProperties>
+  </resourcePair>
+ </mapDescriptor>
+</bundle>

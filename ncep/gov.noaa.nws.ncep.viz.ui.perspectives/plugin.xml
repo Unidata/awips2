@@ -1,0 +1,986 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="gov.noaa.nws.ncep.viz.ui.perspectives.NCPerspective"
+            id="gov.noaa.nws.ncep.viz.ui.NCPerspective"
+            name="National Centers">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="gov.noaa.nws.ncep.viz.ui.personalities.NCActionSet"
+            label="National Centers Action Set"
+            visible="false">
+      </actionSet>
+   </extension>
+   <extension
+         point="org.eclipse.core.expressions.definitions">
+      <definition
+            id="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+         <with
+               variable="activeContexts">
+            <iterate
+                  operator="or">
+               <equals
+                     value="gov.noaa.nws.ncep.viz.ui.personalities.NCActionSet">
+               </equals>
+            </iterate>
+         </with>
+      </definition>
+      <definition
+            id="gov.noaa.nws.ncep.viz.ui.personalities.notInNCActionSet">
+         <with
+               variable="activeContexts">
+            <iterate
+                  operator="and">
+               <not><equals
+                     value="gov.noaa.nws.ncep.viz.ui.personalities.NCActionSet">
+               </equals></not>
+            </iterate>
+         </with>
+      </definition>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+         <menuContribution
+            locationURI="menu:org.eclipse.ui.main.menu?before=help">
+           <menu
+                id="NCFile"
+                label="File"
+                mnemonic="F">
+             <visibleWhen>
+                <reference
+                      definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+                </reference></visibleWhen>
+             <menu
+                   label="New">
+                <command
+                     commandId="gov.noaa.nws.ncep.viz.actions.resourceManager"
+                     id="gov.noaa.nws.ncep.viz.actions.resourceManager"
+                     label="RBD..."
+                     style="push"
+                     tooltip="Resource Manager">
+                  <visibleWhen>
+                     <reference
+                           definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+                     </reference>
+                  </visibleWhen>
+                  <parameter
+                        name="mode"
+                        value="LOAD">
+                  </parameter>
+               </command>                   
+                <command
+                      commandId="gov.noaa.nws.ncep.viz.ui.newResource"
+                      label="Resource..."
+                      mnemonic="R"
+                      style="push">
+                </command>
+                <command
+                      commandId="gov.noaa.nws.ncep.viz.ui.newMapEditor"
+                      label="Display..."
+                      mnemonic="N"
+                      style="push">
+                 <parameter
+                       name="promptForName"
+                       value="true">
+                 </parameter>
+                      
+                </command>
+                <command
+                    commandId="gov.noaa.nws.ncep.viz.ui.actions.createCustomProjection"
+                    label="Area...">
+              </command>                
+             </menu>
+             <separator
+                   name="beforeSaveGroup"
+                   visible="true">
+             </separator>
+             <command
+                   commandId="com.raytheon.viz.ui.actions.notImplemented"
+                   label="Save"
+                   style="push"
+                   mnemonic="S">
+             </command>
+             <command
+                   commandId="com.raytheon.viz.ui.actions.saveScreen"
+                   label="Save As ..."
+                   style="push"
+                   mnemonic="A">
+             </command>
+             <separator
+                   name="beforePreferences"
+                   visible="true">
+             </separator>
+            <command
+                  commandId="org.eclipse.ui.window.preferences" 
+                  label="Preferences..."
+                  style="push"
+                  mnemonic="f">
+            </command>
+             <separator
+                   name="beforePrint"
+                   visible="true">
+             </separator>
+             <command
+                   commandId="com.raytheon.viz.ui.actions.printScreenAction"
+                   label="Print"
+                   style="push"
+                   mnemonic="P">
+             </command>
+             <command
+                   commandId="com.raytheon.viz.ui.actions.printScreenReverseAction"
+                   label="Print Reverse Image..."
+                   style="push">
+             </command>
+             <separator
+                   name="beforeExit"
+                   visible="true">
+             </separator>
+             <command
+                   commandId="org.eclipse.ui.file.exit"
+                   label="Exit..."
+                   style="push"
+                   mnemonic="E">
+             </command>
+           </menu>
+           <menu
+                id="NCOption"
+                label="Options"
+                mnemonic="O">
+             <visibleWhen>
+                <reference
+                      definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+                </reference></visibleWhen>
+             <command
+                   commandId="gov.noaa.nws.ncep.ui.actions.ImagePropertiesAction"
+                   label="Image Properties"
+                   style="push"
+                   mnemonic="I">
+             </command> 
+             <command
+                   commandId="gov.noaa.nws.ncep.viz.ui.actions.CursorAction"
+                   id = "gov.noaa.nws.ncep.viz.ui.actions.CursorAction"
+                   label="Cursor"
+                   style="push"
+                   mnemonic="u">
+             </command>
+             <command
+                   commandId="gov.noaa.nws.ncep.viz.ui.options.SyncPanes"
+                   id="gov.noaa.nws.ncep.viz.ui.options.SyncPanes"
+                   label="Synchronize Panes"
+                   style="toggle"
+                   mnemonic="S"
+                   tooltip="Synchronize Panes">
+             </command>
+             <command
+                   commandId="gov.noaa.nws.ncep.viz.ui.actions.BadFrameAction"
+                   id="gov.noaa.nws.ncep.viz.ui.actions.BadFrameAction"
+                   label="Bad Frame"
+                   style="push"
+                   mnemonic="B">
+             </command>
+             <menu
+                   id="NCZoomMode"
+                   label="Zoom Mode">
+                <command
+                     commandId="com.raytheon.viz.ui.actions.notImplemented"
+                     label="Corner"
+                     style="push">
+                </command>
+                <command
+                     commandId="com.raytheon.viz.ui.actions.notImplemented"
+                     label="Center"
+                     style="push">
+                </command>
+             </menu>
+             <command
+                   commandId="com.raytheon.viz.ui.actions.notImplemented"
+                   label="Pan Share"
+                   style="toggle"
+                   mnemonic="P">
+             </command>
+             <separator
+                   name="beforeLoopGroup"
+                   visible="true">
+             </separator>
+           <command
+                   commandId="gov.noaa.nws.ncep.viz.ui.actions.LoopManagement"
+                   id="gov.noaa.nws.ncep.viz.ui.actions.LoopManagement"
+                   label="Loop Management"
+                   style="push"
+                   mnemonic="L">
+             </command>
+             <separator
+                   name="beforeSeek"
+                   visible="true">
+             </separator>
+            <command
+                   commandId="gov.noaa.nws.ncep.viz.ui.actions.seek"
+                   label="Seek Preferences"
+                   style="push"
+                   mnemonic="e">
+             </command>
+            <command
+                   commandId="com.raytheon.viz.ui.actions.notImplemented"
+                   label="Base Overlay"
+                   style="push"
+                   mnemonic="O">
+             </command>
+            <command
+                   commandId="gov.noaa.nws.ncep.viz.ui.preferences.handler"
+                   label="PGEN Layer Link"
+                   style="push"
+                   mnemonic="LL">
+             </command>
+           </menu>
+           <menu
+                 id="NCPredefinedArea"
+                 label="Area"
+                 mnemonic="A">
+              <visibleWhen>
+                 <reference
+                       definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+                 </reference>
+              </visibleWhen>
+              <dynamic 
+                   class="gov.noaa.nws.ncep.viz.ui.perspectives.menus.PredefinedAreaMenu"
+                   id="gov.noaa.nws.ncep.viz.ui.perspectives.menus.PredefinedAreaMenu">
+             </dynamic>
+              
+              <command
+                    commandId="gov.noaa.nws.ncep.viz.ui.actions.loadPredefinedArea"
+                    label="LOCAL">
+                 <parameter
+                       name="areaName"
+                       value="LOCAL">
+                 </parameter>
+              </command>
+              <command
+                    commandId="gov.noaa.nws.ncep.viz.ui.actions.loadSatelliteArea"
+                    label="SAT">
+              </command>
+              <!--command
+                    commandId="gov.noaa.nws.ncep.viz.ui.actions.loadPredefinedArea.DISABLED"
+                    label="Custom">
+                 <parameter
+                       name="areaName"
+                       value="Custom">
+                 </parameter>
+              </command-->
+              <command
+                    commandId="gov.noaa.nws.ncep.viz.ui.actions.createCustomProjection"
+                    label="Custom...">
+              </command>
+           </menu>
+           <menu
+                 id="NCOverlays"
+                 label="Overlays"
+                 mnemonic="v">
+              <visibleWhen>
+                 <reference
+                       definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+                 </reference>
+              </visibleWhen>
+              <dynamic 
+                   class="gov.noaa.nws.ncep.viz.ui.perspectives.menus.OverlayMenu"
+                   id="gov.noaa.nws.ncep.viz.ui.perspectives.menus.OverlayMenu">
+             </dynamic>
+           </menu>
+<!--           <menu
+                 id="AddResource"
+                 label="Add Resource"
+                 mnemonic="r">
+              <visibleWhen>
+                 <reference
+                       definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+                 </reference>
+              </visibleWhen>
+              <dynamic 
+                   class="gov.noaa.nws.ncep.viz.ui.perspectives.menus.ResourceMenu"
+                   id="gov.noaa.nws.ncep.viz.ui.perspectives.menus.ResourceMenu">
+             </dynamic>
+           </menu> -->
+           <menu
+                 id="NCTools"
+                 label="Tools"
+                 mnemonic="T"
+                 tooltip="Tools">
+              <visibleWhen>
+                 <reference
+                       definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+                 </reference>
+              </visibleWhen>
+              <command
+                    commandId="gov.noaa.nws.ncep.viz.actions.resourceManager"
+                    label="Create RBDs"
+                    mnemonic="R"
+                    style="push"
+                    tooltip="Create RBDs">
+                 <parameter
+                       name="mode"
+                       value="CREATE">
+                 </parameter>
+              </command>
+              <command
+                    commandId="gov.noaa.nws.ncep.viz.actions.resourceManager"
+                    label="Manage Resources"
+                    mnemonic="M"
+                    style="push"
+                    tooltip="Create and Edit Resource Definitions">
+                 <parameter
+                       name="mode"
+                       value="MANAGE">
+                 </parameter>
+              </command>
+              <command
+                    commandId="gov.noaa.nws.ncep.viz.actions.resourceManager"
+                    label="Manage SPFs"
+                    mnemonic="S"
+                    style="push"
+                    tooltip="Save Multiple SPFs">
+                 <parameter
+                       name="mode"
+                       value="MULTI-SPF">
+                 </parameter>
+              </command>
+            <command
+                   commandId="gov.noaa.nws.ncep.viz.actions.cloudHeight"
+                   label="Cloud Height"
+                   style="push"
+                   mnemonic="H">
+             </command>
+             <separator
+                   name="beforeLocator"
+                   visible="true">
+             </separator>
+             <command
+                   commandId="com.raytheon.viz.ui.actions.notImplemented"
+                   label="Locator Editor"
+                   style="push"
+                   mnemonic="E">
+             </command>
+              <command
+                    commandId="gov.noaa.nws.ncep.viz.ui.locatorOptsDflts"
+                    label="Locator Defaults"
+                    mnemonic="D"
+                    style="push"
+                    tooltip="Locator Options Defaults">
+              </command>
+             <separator
+                   name="beforeLogos"
+                   visible="true">
+             </separator>
+             <command
+                   commandId="gov.noaa.nws.ncep.viz.ui.actions.LogosAction"
+                   id = "gov.noaa.nws.ncep.viz.ui.actions.LogosAction"
+                   label="Logos"
+                   style="push"
+                   mnemonic="g">
+             </command>
+              <command
+                    commandId="gov.noaa.nws.ncep.viz.plotModelMngr"
+                    label="Plot Model Manager"
+                    mnemonic="P"
+                    style="push"
+                    tooltip="Plot Model Manager">
+              </command>
+              <menu
+                   id="AODT"
+                   label="AODT" >
+                <command
+                     commandId="gov.noaa.nws.ncep.ui.actions.aodt.operational"
+                     label="Operational"
+                     style="push">
+                </command>
+                <!-- command
+                     commandId="gov.noaa.nws.ncep.ui.actions.aodt.experimental"
+                     label="Experimental"
+                     style="push">
+                </command-->
+             </menu>
+              <command
+                    commandId="gov.noaa.nws.ncep.viz.colorMapEditor"
+                    label="Colormap Editor"
+                    mnemonic="C"
+                    style="push"
+                    tooltip="Colormap Editor">
+              </command>
+              <command
+                    commandId="sync.file.tool.command"
+                    label="Sync File Tool"
+                    style="push">
+              </command>
+           </menu>
+           <menu
+                id="NCHelp"
+                label="Help"
+                mnemonic="H">
+             <visibleWhen>
+                 <reference
+                       definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+                 </reference>
+              </visibleWhen>
+             <command
+                   commandId="com.raytheon.viz.ui.actions.notImplemented"
+                   label="Show tooltips"
+                   style="toggle">
+             </command>
+             <separator
+                   name="separator1"
+                   visible="true">
+             </separator>
+             <command
+                   commandId="org.eclipse.ui.help.aboutAction"
+                   label="About CAVE"
+                   mnemonic="A"
+                   style="push">
+             </command>
+             <separator
+                   name="aboutAdditions"
+                   visible="false">
+             </separator>
+          </menu>         			
+         </menuContribution>
+         <menuContribution
+               locationURI="menu:NCHelp?after=additions">
+
+           <command
+                 commandId="com.raytheon.viz.ui.actions.notImplemented"
+                 label="NC Help"
+                 style="push">
+                <visibleWhen>
+                <reference
+                      definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+                </reference></visibleWhen>
+           </command>
+         </menuContribution>
+         <menuContribution
+               locationURI="toolbar:org.eclipse.ui.main.toolbar">
+            <toolbar
+                  id="NC-1">
+               <command
+                     commandId="gov.noaa.nws.ncep.viz.actions.resourceManager"
+                     icon="icons/data.gif"
+                     id="gov.noaa.nws.ncep.viz.actions.resourceManager"
+                     label="Load Resource Bundle"
+                     style="push"
+                     tooltip="Resource Manager">
+                  <visibleWhen>
+                     <reference
+                           definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+                     </reference>
+                  </visibleWhen>
+                  <parameter
+                        name="mode"
+                        value="LOAD">
+                  </parameter>
+               </command>
+	            <command
+                   commandId="gov.noaa.nws.ncep.viz.ui.autoUpdate"
+                   icon="icons/blank.gif"
+                   id="gov.noaa.nws.ncep.viz.ui.autoUpdate"
+                   style="toggle"
+                   tooltip="Auto update">
+                <visibleWhen>
+	               <reference
+	                     definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+	               </reference>
+	            </visibleWhen>
+	            </command>
+	            <command
+                   commandId="gov.noaa.nws.ncep.ui.pgen.palette"
+                   id="gov.noaa.nws.ncep.ui.actions.productGeneration"
+                   icon="icons/pgen.gif"
+                   label="Product Generation"
+                   style="push"
+                   tooltip="product generation">
+                <visibleWhen>
+	               <reference
+	                     definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+	               </reference>
+	            </visibleWhen>
+	            </command>
+	            <command
+                   commandId="com.raytheon.viz.ui.actions.notImplemented"
+                   id="gov.noaa.nws.ncep.viz.ui.actions.print"
+                   icon="icons/print.gif"
+                   label="Print"
+                   style="push"
+                   tooltip="print">
+                <visibleWhen>
+	               <reference
+	                     definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+	               </reference>
+	            </visibleWhen>
+	            </command>
+	            <command
+                   commandId="gov.noaa.nws.ncep.viz.ui.actions.clearData"
+                   id="gov.noaa.nws.ncep.viz.ui.actions.clearData"
+                   icon="icons/wipe.gif"
+                   label="Clear Data"
+                   style="push"
+                   tooltip="clear data">
+                <visibleWhen>
+	               <reference
+	                     definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+	               </reference>
+	            </visibleWhen>
+	            </command>
+	            <command
+                   commandId="com.raytheon.viz.ui.actions.notImplemented"
+                   id="gov.noaa.nws.ncep.viz.ui.actions.reloadFrame"
+                   icon="icons/reload.gif"
+                   label="Reload Frame"
+                   style="push"
+                   tooltip="reload frame">
+                <visibleWhen>
+	               <reference
+	                     definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+	               </reference>
+	            </visibleWhen>
+	            </command>
+	            <command
+                   commandId="gov.noaa.nws.ncep.viz.ui.actions.seek"
+                   id="gov.noaa.nws.ncep.viz.ui.actions.seek"
+                   icon="icons/seek.gif"
+                   label="Seek"
+                   style="toggle"
+                   tooltip="seek">
+                <visibleWhen>
+	               <reference
+	                     definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+	               </reference>
+	            </visibleWhen>
+	            </command>
+             <command
+                   commandId="gov.noaa.nws.ncep.viz.actions.cloudHeight"
+                   icon="icons/cldhgt.gif"
+                   id="gov.noaa.nws.ncep.viz.actions.cloudHeight"
+                   label="Cloud Height"
+                   style="toggle"
+                   tooltip="Cloud Height">
+                <visibleWhen>
+                   <reference
+                         definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+                   </reference>
+                </visibleWhen>
+             </command>
+             <command
+                   commandId="gov.noaa.nws.ncep.ui.nctextui.palette"
+                   icon="icons/nwx.gif"
+                   id="gov.noaa.nws.ncep.ui.nctextui.palette"
+                   label="Nctext"
+                   style="push"
+                   tooltip="nctext">
+                <visibleWhen>
+                   <reference
+                         definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+                   </reference>
+                </visibleWhen>
+             </command>
+ 
+              <command
+                   commandId="gov.noaa.nws.ncep.ui.nsharp.palette"
+                   icon="icons/nsharp.gif"
+                   id="gov.noaa.nws.ncep.ui.nsharp.palette"
+                   label="Nsharp"
+                   style="push"
+                   tooltip="nsharp">
+                <visibleWhen>
+                   <reference
+                         definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+                   </reference>
+                </visibleWhen>
+             </command>
+             
+             <!--command
+                   commandId="com.raytheon.viz.ui.actions.notImplemented"
+                   icon="icons/aodt.gif"
+                   id="gov.noaa.nws.ncep.viz.ui.actions.AODT"
+                   label="AODT"
+                   style="push"
+                   tooltip="Hurricane Track">
+                <visibleWhen>
+                   <reference
+                         definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+                   </reference>
+                </visibleWhen>
+             </command-->
+	        </toolbar>
+         </menuContribution>
+         <menuContribution
+             locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+            <toolbar
+                  id="NC-2">
+               <command
+                     commandId="gov.noaa.nws.ncep.viz.tools.pan"
+                     icon="icons/pan.gif"
+                     id="gov.noaa.nws.ncep.viz.tools.pan"
+                     label="Pan"
+                     style="radio"
+                     tooltip="Pan">
+                  <visibleWhen>
+                     <reference
+                           definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+                     </reference>
+                  </visibleWhen>
+               </command>	            
+	            <command
+	               commandId="gov.noaa.nws.ncep.viz.tools.zoom"
+                   id="gov.noaa.nws.ncep.viz.tools.zoom"
+                   icon="icons/zoom.gif"
+                   disabledIcon="icons/zoom_active.gif"
+                   label="Zoom"
+                   style="radio"
+                   tooltip="zoom">
+                <visibleWhen>
+	               <reference
+	                     definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+	               </reference>
+	            </visibleWhen>
+	            </command>
+	            <command
+                   commandId="gov.noaa.nws.ncep.viz.tools.unzoom"
+                   id="gov.noaa.nws.ncep.viz.tools.unzoom"
+                   icon="icons/unzoom.gif"
+                   label="Unzoom"
+                   style="push"
+                   tooltip="unzoom">
+                <visibleWhen>
+	               <reference
+	                     definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+	               </reference>
+	            </visibleWhen>
+	            </command>
+	        </toolbar>
+         </menuContribution>
+         <menuContribution
+             locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+            <toolbar
+                  id="NC-3">
+	            <command
+                   commandId="gov.noaa.nws.ncep.viz.ui.actions.hideFrames"
+                   icon="icons/hide_loop.gif"
+                   id="gov.noaa.nws.ncep.viz.ui.actions.hideFrames"
+                   label="Hide Frames"
+                   style="push"
+                   tooltip="hide frames">
+                <visibleWhen>
+	               <reference
+	                     definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+	               </reference>
+	            </visibleWhen>
+	            </command>
+	            <command
+                   commandId="gov.noaa.nws.ncep.viz.ui.actions.frameTool"
+                   icon="icons/firstfm.gif"
+                   id="gov.noaa.nws.ncep.viz.ui.actions.firstFrame"
+                   label="First Frame"
+                   tooltip="show first frame">
+                <visibleWhen>
+	               <reference
+	                     definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+	               </reference>
+	            </visibleWhen>
+                <parameter
+                      name="operation"
+                      value="FIRST">
+                </parameter>
+                <parameter
+                      name="mode"
+                      value="TIME_ONLY">
+                </parameter>
+	            </command>
+	            <command
+                   commandId="gov.noaa.nws.ncep.viz.ui.actions.loopBackward"
+                   id="gov.noaa.nws.ncep.viz.ui.actions.loopBackward"
+                   icon="icons/loopback.gif"
+                   label="Loop Backward"
+                   style="toggle"
+                   tooltip="loop backward">
+                <visibleWhen>
+	               <reference
+	                     definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+	               </reference>
+	            </visibleWhen>
+	            </command>
+	            <command
+                   commandId="gov.noaa.nws.ncep.viz.ui.actions.frameTool"
+                   icon="icons/stepback.gif"
+                   label="Step Backward"
+                   tooltip="step backward">
+                <visibleWhen>
+	               <reference
+	                     definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+	               </reference>
+	            </visibleWhen>
+                <parameter
+                      name="operation"
+                      value="PREVIOUS">
+                </parameter>
+                <parameter
+                      name="mode"
+                      value="TIME_ONLY">
+                </parameter>
+	            </command>
+	            <command
+                   commandId="gov.noaa.nws.ncep.viz.ui.actions.frameTool"
+                   id="gov.noaa.nws.ncep.viz.ui.actions.stepForward"
+                   icon="icons/stepfrwd.gif"
+                   label="Step Forward"
+                   tooltip="step forward">
+                <visibleWhen>
+	               <reference
+	                     definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+	               </reference>
+	            </visibleWhen>
+                <parameter
+                      name="operation"
+                      value="NEXT">
+                </parameter>
+                <parameter
+                      name="mode"
+                      value="TIME_ONLY">
+                </parameter>
+	            </command>
+	            <command
+	               commandId="gov.noaa.nws.ncep.viz.ui.actions.loopForward"
+                   id="gov.noaa.nws.ncep.viz.ui.actions.loopForward"
+                   icon="icons/loopfrwd.gif"
+                   label="Loop Forward"
+                   style="toggle"
+                   tooltip="loop forward">
+                <visibleWhen>
+	               <reference
+	                     definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+	               </reference>
+	            </visibleWhen>
+	            </command>
+	            <command
+                   commandId="gov.noaa.nws.ncep.viz.ui.actions.rock"
+                   id="gov.noaa.nws.ncep.viz.ui.actions.rock"
+                   icon="icons/rock.gif"
+                   label="Rock"
+                   style="toggle"
+                   tooltip="rock">
+                <visibleWhen>
+	               <reference
+	                     definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+	               </reference>
+	            </visibleWhen>
+	            </command>
+	            <command
+                   commandId="gov.noaa.nws.ncep.viz.ui.actions.frameTool"
+                   id="gov.noaa.nws.ncep.viz.ui.actions.lastFrame"
+                   icon="icons/lastfm.gif"
+                   label="Last Frame"
+                   tooltip="show last frame">
+                <visibleWhen>
+	               <reference
+	                     definitionId="gov.noaa.nws.ncep.viz.ui.personalities.inNCActionSet">
+	               </reference>
+	            </visibleWhen>
+                <parameter
+                      name="operation"
+                      value="LAST">
+                </parameter>
+                <parameter
+                      name="mode"
+                      value="TIME_ONLY">
+                </parameter>
+	            </command>
+            </toolbar>
+         </menuContribution>
+         <!--menuContribution
+            locationURI="toolbar:mapControls?before=additions">
+               <command
+                     commandId="com.raytheon.viz.ui.tools.nav.PanTool">
+               <toolbar
+                  id="mapControls">
+                     <visibleWhen>
+                      <reference
+                            definitionId="gov.noaa.nws.ncep.viz.ui.personalities.notInNCActionSet">
+                      </reference>
+                   </visibleWhen>
+               </toolbar>
+               </command>
+         </menuContribution-->
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="gov.noaa.nws.ncep.viz.ui.actions.loadPredefinedArea"
+            name="Load Predefined Area">
+         <commandParameter
+               id="areaName"
+               name="areaName"
+               optional="false">
+         </commandParameter>
+      </command>
+      <command
+            id="gov.noaa.nws.ncep.viz.ui.actions.loadSatelliteArea"
+            name="Switch to Satellite Area">
+      </command>
+      <command
+            description="A command with no associated handler, to let us (temporarily) gray out inoperative selections..."
+            id="gov.noaa.nws.ncep.viz.ui.actions.loadPredefinedArea.DISABLED"
+            name="Load Predefined Area - DISABLED">
+         <commandParameter
+               id="areaName"
+               name="areaName"
+               optional="false">
+         </commandParameter>
+      </command>
+      <command
+            id="gov.noaa.nws.ncep.viz.ui.actions.loadOverlay"
+            name="Load Overlay">
+         <commandParameter
+               id="overlayName"
+               name="overlayName"
+               optional="false">
+         </commandParameter>
+      </command>
+      <command
+            description="A command with no associated handler, to let us (temporarily) gray out inoperative selections..."
+            id="gov.noaa.nws.ncep.viz.ui.actions.loadOverlay.DISABLED"
+            name="Load Overlay - DISABLED">
+         <commandParameter
+               id="overlayName"
+               name="overlayName"
+               optional="false">
+         </commandParameter>
+      </command>
+      <command
+            description="Auto Update"
+            id="gov.noaa.nws.ncep.viz.ui.autoUpdate"
+            name="Auto Update">
+      </command>
+      <command
+            id="sync.file.tool.command"
+            name="Synchronization Tool Command">
+      </command>
+      <command
+            id="gov.noaa.nws.ncep.viz.ui.preferences.handler"
+            name="Preferences Handler">
+      </command>
+   </extension>
+   
+   <extension
+         point="com.raytheon.viz.ui.perspectiveManager">
+      <perspectiveManager
+      		perspectiveId="gov.noaa.nws.ncep.viz.ui.NCPerspective"
+            class="gov.noaa.nws.ncep.viz.ui.perspectives.NCPerspectiveManager"
+            name="NCPerspectiveManager">
+      </perspectiveManager>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="gov.noaa.nws.ncep.viz.overlays.MapOverlayAction"
+            commandId="gov.noaa.nws.ncep.viz.ui.actions.loadOverlay">
+      </handler>
+      <handler
+            class="gov.noaa.nws.ncep.viz.localization.command.handler.SyncFileToolCommandHandler"
+            commandId="sync.file.tool.command">
+      </handler>
+      <handler
+            class="gov.noaa.nws.ncep.viz.ui.perspectives.PreferencesHandler"
+            commandId="gov.noaa.nws.ncep.viz.ui.preferences.handler">
+      </handler>
+      
+   </extension>
+   
+   <extension
+  		point="org.eclipse.ui.activities">
+  		<!--  this extension point is used to remove specified Raytheon menus
+  		      and toolbar items from the NC Perspective.  -->
+  		<activity
+    		name="National Centers"
+    		description="UI for National Centers Perspective"
+    		id="gov.noaa.nws.ncep.NC.activity">
+    		<enabledWhen>
+	            <with variable="activeWorkbenchWindow.activePerspective">
+	               <not>
+	                <equals
+                     	value="gov.noaa.nws.ncep.viz.ui.NCPerspective">
+               		</equals>
+	               </not>
+	            </with>
+	        </enabledWhen>
+  		</activity>
+  		
+  		<activityPatternBinding
+  			activityId="gov.noaa.nws.ncep.NC.activity"
+  			pattern="com\.raytheon\.viz\.ui\.tools\.nav/.*">    <!-- Raytheons Pan and Zoom -->
+		</activityPatternBinding>
+
+  		<activityPatternBinding
+  			activityId="gov.noaa.nws.ncep.NC.activity"
+  			pattern="com\.raytheon\.viz\.ui\.personalities\.awips/.*">    <!-- Raytheons CAVE Menu -->
+		</activityPatternBinding>
+		  		
+  		<!--  this gets rid of all Raytheon menus and toolbars!!!!  activityPatternBinding
+  			activityId="gov.noaa.nws.ncep.NC.activity"
+  			pattern="com\.raytheon\..*/.*">
+		</activityPatternBinding-->
+  		
+   </extension>
+   <extension
+         point="gov.noaa.nws.ncep.viz.localization.localizationData">
+      <singleLocalizationValue
+            name="defaultRBDFile"
+            location="resources"
+            fileName="BasicWX_US.xml">
+      </singleLocalizationValue>
+   </extension>
+      
+      <!--Definition of the NCMapContext -->
+   <extension
+         point="com.raytheon.uf.viz.core.classContext">
+         <classContext
+            class="gov.noaa.nws.ncep.viz.ui.perspectives.NCPerspectiveManager">
+             <contextId
+                   id="gov.noaa.nws.ncep.viz.ui.display.NCMapContext">
+             </contextId>
+         </classContext>
+   </extension> 
+   
+         <extension
+         point="org.eclipse.ui.bindings"
+         id="gov.noaa.nws.ncep.viz.ui.NcPerspective.bindings"
+          >
+         <key
+            commandId="gov.noaa.nws.ncep.viz.actions.resourceManager"
+            contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+            schemeId="com.raytheon.viz.ui.awips.scheme"
+            sequence="W">
+                 <parameter
+                       id="mode"
+                       value="CREATE">
+                 </parameter>
+         </key>  
+         
+         <key
+            commandId="gov.noaa.nws.ncep.viz.actions.resourceManager"
+            contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+            schemeId="com.raytheon.viz.ui.awips.scheme"
+            sequence="SPACE">
+                 <parameter
+                       id="mode"
+                       value="LOAD">
+                 </parameter>
+         </key> 
+         
+         <key
+            commandId="gov.noaa.nws.ncep.viz.ui.actions.hideFrames"
+            contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+            schemeId="com.raytheon.viz.ui.awips.scheme"
+            sequence="H">
+         </key>  
+        </extension>
+</plugin>

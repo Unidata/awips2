@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ 
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+ 
+   http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+ 
+-->
+
+<muse xmlns="http://ws.apache.org/muse/descriptor" 
+      xmlns:wsrf-sgw="http://docs.oasis-open.org/wsrf/sgw-2" 
+      xmlns:qman="http://amqp.apache.org/qpid/management/qman"  
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+      xsi:schemaLocation="http://ws.apache.org/muse/descriptor muse-descriptor.xsd">	
+	<custom-serializer>
+		<java-serializable-type>java.lang.Object</java-serializable-type>
+   		<java-serializer-class>org.apache.qpid.management.wsdm.muse.serializer.ObjectSerializer</java-serializer-class>
+	</custom-serializer>
+	<custom-serializer>
+		<java-serializable-type>java.util.Map</java-serializable-type>
+   		<java-serializer-class>org.apache.qpid.management.wsdm.muse.serializer.MapSerializer</java-serializer-class>
+	</custom-serializer>
+	<custom-serializer>
+		<java-serializable-type>java.util.HashMap</java-serializable-type>
+   		<java-serializer-class>org.apache.qpid.management.wsdm.muse.serializer.MapSerializer</java-serializer-class>
+	</custom-serializer>
+	<custom-serializer>
+		<java-serializable-type>java.util.UUID</java-serializable-type>
+   		<java-serializer-class>org.apache.qpid.management.wsdm.muse.serializer.UUIDSerializer</java-serializer-class>
+	</custom-serializer>
+	<custom-serializer>
+		<java-serializable-type>org.apache.qpid.management.wsdm.capabilities.Result</java-serializable-type>
+   		<java-serializer-class>org.apache.qpid.management.wsdm.muse.serializer.InvocationResultSerializer</java-serializer-class>
+	</custom-serializer>
+	<custom-serializer>
+		<java-serializable-type>java.util.Date</java-serializable-type>
+   		<java-serializer-class>org.apache.qpid.management.wsdm.muse.serializer.DateSerializer</java-serializer-class>
+	</custom-serializer>
+	<router>
+		<java-router-class>org.apache.muse.ws.resource.impl.WsResourceRouter</java-router-class>
+		<logging>
+			<log-file>log/muse.log</log-file>
+			<log-level>SEVERE</log-level>
+		</logging>
+		<persistence>
+			<java-persistence-class>org.apache.muse.core.routing.RouterFilePersistence</java-persistence-class>
+			<persistence-location>router-entries</persistence-location>
+		</persistence>
+	</router>
+	<resource-type use-router-persistence="true">
+		<context-path>consumer</context-path>
+		<wsdl>
+			<wsdl-file>wsdl/WS-BaseNotification-1_3.wsdl</wsdl-file>
+			<wsdl-port-type xmlns:wsntw="http://docs.oasis-open.org/wsn/bw-2">wsntw:NotificationConsumer</wsdl-port-type>
+		</wsdl>
+		<java-id-factory-class>org.apache.qpid.management.wsdm.common.QManResourceIdFactory</java-id-factory-class>
+		<java-resource-class>org.apache.muse.core.SimpleResource</java-resource-class>
+		<capability>
+			<capability-uri>http://docs.oasis-open.org/wsn/bw-2/NotificationConsumer</capability-uri>
+			<java-capability-class>org.apache.muse.ws.notification.impl.SimpleNotificationConsumer</java-capability-class>
+		</capability>
+		<capability>
+			<capability-uri>http://amqp.apache.org/qpid/management/qman/consumer</capability-uri>
+			<java-capability-class>org.apache.qpid.management.wsdm.capabilities.ConsumerCapability</java-capability-class>
+		</capability>
+	</resource-type>
+	<resource-type>
+		<context-path>SubscriptionManager</context-path>
+		<wsdl>
+			<wsdl-file>wsdl/WS-BaseNotification-1_3.wsdl</wsdl-file>
+			<wsdl-port-type xmlns:wsntw="http://docs.oasis-open.org/wsn/bw-2">wsntw:SubscriptionManager</wsdl-port-type>
+		</wsdl>
+		<java-id-factory-class>org.apache.qpid.management.wsdm.common.QManResourceIdFactory</java-id-factory-class>
+		<java-resource-class>org.apache.muse.ws.resource.impl.SimpleWsResource</java-resource-class>
+		<capability>
+			<capability-uri>http://schemas.xmlsoap.org/ws/2004/09/mex/GetMetadata</capability-uri>
+			<java-capability-class>org.apache.muse.ws.metadata.impl.SimpleMetadataExchange</java-capability-class>
+		</capability>
+		<capability>
+			<capability-uri>http://docs.oasis-open.org/wsrf/rpw-2/Get</capability-uri>
+			<java-capability-class>org.apache.muse.ws.resource.properties.get.impl.SimpleGetCapability</java-capability-class>
+		</capability>
+		<capability>
+			<capability-uri>http://docs.oasis-open.org/wsn/bw-2/SubscriptionManager</capability-uri>
+			<java-capability-class>org.apache.muse.ws.notification.impl.SimpleSubscriptionManager</java-capability-class>
+			<init-param>
+				<param-name>trace-notifications</param-name>
+				<param-value>true</param-value>
+			</init-param>
+		</capability>
+		<capability>
+			<capability-uri>http://docs.oasis-open.org/wsrf/rlw-2/ImmediateResourceTermination</capability-uri>
+			<java-capability-class>org.apache.muse.ws.resource.lifetime.impl.SimpleImmediateTermination</java-capability-class>
+		</capability>
+		<capability>
+			<capability-uri>http://docs.oasis-open.org/wsrf/rlw-2/ScheduledResourceTermination</capability-uri>
+			<java-capability-class>org.apache.muse.ws.resource.lifetime.impl.SimpleScheduledTermination</java-capability-class>
+		</capability>
+		<init-param>
+			<param-name>validate-wsrp-schema</param-name>
+			<param-value>false</param-value>
+		</init-param>
+	</resource-type>	
+	<resource-type use-router-persistence="true">
+		<context-path>adapter</context-path>
+		<wsdl>
+			<wsdl-file>wsdl/QManAdapter.wsdl</wsdl-file>
+			<wsdl-port-type xmlns:qman="http://amqp.apache.org/qpid/management/qman">qman:QManAdapterPortType</wsdl-port-type>
+		</wsdl>
+		<java-id-factory-class>org.apache.qpid.management.wsdm.common.QManResourceIdFactory</java-id-factory-class>
+		<java-resource-class>org.apache.muse.ws.resource.impl.SimpleWsResource</java-resource-class>
+		<capability>
+			<capability-uri >http://amqp.apache.org/qpid/management/qman</capability-uri>
+			<java-capability-class>org.apache.qpid.management.wsdm.capabilities.QManAdapterCapability</java-capability-class>
+		</capability>
+		<capability>
+			<capability-uri>http://schemas.xmlsoap.org/ws/2004/09/mex/GetMetadata</capability-uri>
+			<java-capability-class>org.apache.muse.ws.metadata.impl.SimpleMetadataExchange</java-capability-class>
+		</capability>
+		<capability>
+			<capability-uri>http://docs.oasis-open.org/wsrf/rpw-2/Get</capability-uri>
+			<java-capability-class>org.apache.muse.ws.resource.properties.get.impl.SimpleGetCapability</java-capability-class>
+		</capability>
+		<capability>
+			<capability-uri>http://docs.oasis-open.org/wsrf/rpw-2/Query</capability-uri>
+			<java-capability-class>org.apache.muse.ws.resource.properties.query.impl.SimpleQueryCapability</java-capability-class>
+		</capability>
+		<capability>
+			<capability-uri>http://docs.oasis-open.org/wsrf/sgw-2/ServiceGroup</capability-uri>
+			<java-capability-class>org.apache.muse.ws.resource.sg.impl.SimpleServiceGroup</java-capability-class>
+		</capability>
+		<capability>
+			<capability-uri>http://docs.oasis-open.org/wsn/bw-2/NotificationProducer</capability-uri>
+			<java-capability-class>org.apache.muse.ws.notification.impl.SimpleNotificationProducer</java-capability-class>
+		</capability>
+		<init-param>
+			<param-name>validate-wsrp-schema</param-name>
+			<param-value>false</param-value>
+		</init-param>		
+	</resource-type>
+	<resource-type>
+		<context-path>QManWsResource</context-path>
+		<wsdl>  
+			<!-- Note that this is not a complete WSDL. It is just a base template where resource specific capabilities wll be added. -->
+			<wsdl-file>wsdl/QManWsResource.wsdl</wsdl-file>
+			<wsdl-port-type xmlns:qman="http://amqp.apache.org/qpid/management/qman">qman:QManWsResourcePortType</wsdl-port-type>
+		</wsdl>
+		<java-id-factory-class>org.apache.qpid.management.wsdm.common.ObjectNameIdFactory</java-id-factory-class>
+		<java-resource-class>org.apache.qpid.management.wsdm.muse.resources.QManWsResource</java-resource-class>
+		<capability>
+			<capability-uri>http://schemas.xmlsoap.org/ws/2004/09/mex/GetMetadata</capability-uri>
+			<java-capability-class>org.apache.qpid.management.wsdm.capabilities.QManMetadataExchangeCapability</java-capability-class>
+		</capability>
+		<capability>
+			<capability-uri>http://docs.oasis-open.org/wsrf/rpw-2/Get</capability-uri>
+			<java-capability-class>org.apache.muse.ws.resource.properties.get.impl.SimpleGetCapability</java-capability-class>
+		</capability>
+		<capability>
+			<capability-uri>http://docs.oasis-open.org/wsrf/rpw-2/Query</capability-uri>
+			<java-capability-class>org.apache.muse.ws.resource.properties.query.impl.SimpleQueryCapability</java-capability-class>
+		</capability>
+		<capability>
+			<capability-uri>http://docs.oasis-open.org/wsrf/rpw-2/Set</capability-uri>
+			<java-capability-class>org.apache.muse.ws.resource.properties.set.impl.SimpleSetCapability</java-capability-class>
+		</capability>
+		<capability>
+			<capability-uri>http://docs.oasis-open.org/wsrf/rpw-2/Put</capability-uri>
+			<java-capability-class>org.apache.muse.ws.resource.properties.set.impl.SimpleSetCapability</java-capability-class>
+		</capability>
+	</resource-type>
+	<resource-type>
+		<context-path>ServiceGroupEntry</context-path>
+		<wsdl>
+			<wsdl-file>/wsdl/WS-ServiceGroupEntry-1_2.wsdl</wsdl-file>
+			<wsdl-port-type>wsrf-sgw:ServiceGroupEntryPortType</wsdl-port-type>
+		</wsdl>
+		<java-id-factory-class>org.apache.qpid.management.wsdm.common.QManResourceIdFactory</java-id-factory-class>
+		<java-resource-class>org.apache.muse.ws.resource.impl.SimpleWsResource</java-resource-class>
+		<capability>
+			<capability-uri>http://schemas.xmlsoap.org/ws/2004/09/mex/GetMetadata</capability-uri>
+			<java-capability-class>org.apache.muse.ws.metadata.impl.SimpleMetadataExchange</java-capability-class>
+		</capability>
+		<capability>
+			<capability-uri>http://docs.oasis-open.org/wsrf/rpw-2/Get</capability-uri>
+			<java-capability-class>org.apache.muse.ws.resource.properties.get.impl.SimpleGetCapability</java-capability-class>
+		</capability>
+		<capability>
+			<capability-uri>http://docs.oasis-open.org/wsrf/sgw-2/ServiceGroupEntry</capability-uri>
+			<java-capability-class>org.apache.muse.ws.resource.sg.impl.SimpleEntry</java-capability-class>
+		</capability>
+		<init-param>
+			<param-name>validate-wsrp-schema</param-name>
+			<param-value>false</param-value>
+		</init-param>
+	</resource-type>
+</muse>

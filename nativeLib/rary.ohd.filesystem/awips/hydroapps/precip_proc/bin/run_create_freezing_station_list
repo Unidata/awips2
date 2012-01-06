@@ -1,0 +1,12 @@
+#!/bin/ksh
+# run_create_gage_file
+
+# This script is called from Build_Station_List.
+# It should not be run alone.  It assumes that set_hydro_env has already
+# been sourced.
+
+# This allows this script to be run from outside of ./precip_proc/bin
+RUN_FROM_DIR=`dirname $0`
+. $RUN_FROM_DIR/../../set_hydro_env
+
+runso rary.ohd.pproc create_freezing_station_list_main

@@ -1,0 +1,591 @@
+module 'Hb'
+version = 47;
+xdesigned = 1;
+applicationName = 'Hb';
+generateNameC = * './crest.c';
+generateNameExterns = * './crest.h';
+generateNameResDB = * './crest.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+generateMask = 39256301;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'crestDS' : XmDialogShell {
+	arguments {
+	name = 'crestDS';
+	lastGenName = 'crestDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_crestDS (Widget parent)
+';
+	XmNallowShellResize = true;
+	XmNtitle = 'Crest History';
+	XmNminWidth = 1160;
+	XmNminHeight = 612;
+	XmNmaxWidth = 1160;
+	XmNmaxHeight = 612;
+	};
+object 'crestFM' : XmForm {
+	arguments {
+	name = 'crestFM';
+	lastGenName = 'crestFM';
+	XmNautoUnmanage = false;
+	};
+object 'crstsclDA' : XmDrawingArea {
+	arguments {
+	name = 'crstsclDA';
+	lastGenName = 'crstsclDA';
+	XmNwidth = 55;
+	XmNheight = 439;
+	};
+};
+object 'crstdrwDA' : XmDrawingArea {
+	arguments {
+	name = 'crstdrwDA';
+	lastGenName = 'crstdrwDA';
+	XmNwidth = 571;
+	XmNheight = 439;
+	XmNforeground = color('black');
+	};
+};
+object 'crstslctOM' : XmOptionMenu {
+	arguments {
+	name = 'crstslctOM';
+	lastGenName = 'crstslctOM';
+	};
+abstract object 'crstslctLbl' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'crstslctLbl';
+	XmNwidth = 137;
+	XmNheight = 27;
+	XmNlabelString = 'Filter Crests By:';
+	};
+};
+abstract object 'crstslctCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'crstslctCB';
+	XmNx = 99;
+	XmNy = 3;
+	};
+object 'crstslctPDM' : XmPulldownMenu {
+	arguments {
+	name = 'crstslctPDM';
+	lastGenName = 'crstslctPDM';
+	};
+object 'crstallPB' : XmPushButton {
+	arguments {
+	name = 'crstallPB';
+	lastGenName = 'crstallPB';
+	XmNlabelString = 'All';
+	};
+};
+object 'crsthwPB' : XmPushButton {
+	arguments {
+	name = 'crsthwPB';
+	lastGenName = 'crsthwPB';
+	XmNlabelString = 'Above Action Stage';
+	};
+};
+object 'crstlwPB' : XmPushButton {
+	arguments {
+	name = 'crstlwPB';
+	lastGenName = 'crstlwPB';
+	XmNlabelString = 'Below Action Stage';
+	};
+};
+};
+};
+};
+object 'crestLbl' : XmLabel {
+	arguments {
+	name = 'crestLbl';
+	was_selected = true;
+	lastGenName = 'crestLbl';
+	XmNlabelString = 'Stage            Flow             Date             Time';
+	XmNalignment = 0;
+	};
+};
+object 'crestSLB' : XmScrolledList {
+	arguments {
+	name = 'crestSLB';
+	lastGenName = 'crestSLB';
+	XmNwidth = 480;
+	};
+abstract object 'crestHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'crestHSB';
+	};
+};
+abstract object 'crestVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'crestVSB';
+	};
+};
+abstract object 'crestLB' : XmList {
+	arguments {
+	name = 'crestLB';
+	lastGenName = 'crestLB';
+	XmNwidth = 460;
+	XmNvisibleItemCount = 6;
+	XmNlistSizePolicy = 2;
+	};
+};
+};
+object 'stageFrm' : XmFrame {
+	arguments {
+	name = 'stageFrm';
+	lastGenName = 'stageFrm';
+	};
+object 'stageFM' : XmForm {
+	arguments {
+	name = 'stageFM';
+	lastGenName = 'stageFM';
+	};
+object 'crststgLbl' : XmLabel {
+	arguments {
+	name = 'crststgLbl';
+	lastGenName = 'crststgLbl';
+	XmNlabelString = 'Stage:';
+	XmNalignment = 2;
+	};
+};
+object 'crststgTxt' : XmText {
+	arguments {
+	name = 'crststgTxt';
+	lastGenName = 'crststgTxt';
+	XmNmaxLength = 8;
+	XmNcolumns = 14;
+	};
+};
+object 'crstqLbl' : XmLabel {
+	arguments {
+	name = 'crstqLbl';
+	lastGenName = 'crstqLbl';
+	XmNlabelString = 'Flow:';
+	XmNalignment = 2;
+	};
+};
+object 'crstqTxt' : XmText {
+	arguments {
+	name = 'crstqTxt';
+	lastGenName = 'crstqTxt';
+	XmNmaxLength = 8;
+	XmNcolumns = 14;
+	};
+};
+object 'crstdatLbl' : XmLabel {
+	arguments {
+	name = 'crstdatLbl';
+	lastGenName = 'crstdatLbl';
+	XmNlabelString = 'Date:';
+	XmNalignment = 2;
+	};
+};
+object 'crstdatTxt' : XmText {
+	arguments {
+	name = 'crstdatTxt';
+	lastGenName = 'crstdatTxt';
+	XmNmaxLength = 10;
+	XmNcolumns = 16;
+	};
+};
+object 'crsttimLbl' : XmLabel {
+	arguments {
+	name = 'crsttimLbl';
+	lastGenName = 'crsttimLbl';
+	XmNlabelString = 'Time:';
+	XmNalignment = 2;
+	};
+};
+object 'crsttimTxt' : XmText {
+	arguments {
+	name = 'crsttimTxt';
+	lastGenName = 'crsttimTxt';
+	XmNmaxLength = 5;
+	XmNcolumns = 10;
+	};
+};
+object 'crstodTB' : XmToggleButton {
+	arguments {
+	name = 'crstodTB';
+	lastGenName = 'crstodTB';
+	XmNlabelString = 'Based on Old Datum';
+	XmNalignment = 0;
+	};
+};
+object 'crsthwTB' : XmToggleButton {
+	arguments {
+	name = 'crsthwTB';
+	lastGenName = 'crsthwTB';
+	XmNlabelString = 'Observed by High Water Mark';
+	XmNalignment = 0;
+	};
+};
+object 'crsticeTB' : XmToggleButton {
+	arguments {
+	name = 'crsticeTB';
+	lastGenName = 'crsticeTB';
+	XmNlabelString = 'Affected by Ice Jam';
+	XmNalignment = 0;
+	};
+};
+object 'crestcatOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'crestcatOM';
+	};
+abstract object '10' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'label10';
+	};
+};
+abstract object 'crestcatCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'crestcatCB';
+	};
+object 'crestcatPDM' : XmPulldownMenu {
+	arguments {
+	name = 'crstsortPDM';
+	lastGenName = 'crestcatPDM';
+	};
+object 'crestOfficalPB' : XmPushButton {
+	arguments {
+	lastGenName = 'crestOfficalPB';
+	XmNlabelString = 'Official Crest';
+	};
+};
+object 'crestRecordPB' : XmPushButton {
+	arguments {
+	lastGenName = 'crestRecordPB';
+	XmNlabelString = 'Record Crest';
+	};
+};
+object 'crestPrelimPB' : XmPushButton {
+	arguments {
+	lastGenName = 'crestPrelimPB';
+	XmNlabelString = 'Preliminary Status';
+	};
+};
+};
+};
+};
+object 'crstsuprsTB' : XmToggleButton {
+	arguments {
+	name = 'crstsuprsTB';
+	lastGenName = 'crstsuprsTB';
+	XmNlabelString = 'Suppress Printed Display';
+	};
+};
+object 'crstrmkLbl' : XmLabel {
+	arguments {
+	name = 'crstrmkLbl';
+	lastGenName = 'crstrmkLbl';
+	XmNlabelString = 'Remarks';
+	};
+};
+object 'crstrmkTxt' : XmText {
+	arguments {
+	name = 'crstrmkTxt';
+	lastGenName = 'crstrmkTxt';
+	XmNmaxLength = 80;
+	XmNcolumns = 62;
+	XmNwordWrap = true;
+	XmNeditMode = 0;
+	XmNrows = 4;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -80;
+	XmNleftAttachment = 1 0 15;
+	XmNbottomAttachment = 2 0 -40;
+	XmNtopAttachment = 1 0 15;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -205;
+	XmNleftAttachment = 1 0 85;
+	XmNbottomAttachment = 2 0 -40;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -80;
+	XmNleftAttachment = 1 0 35;
+	XmNbottomAttachment = 2 0 -80;
+	XmNtopAttachment = 1 0 55;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -205;
+	XmNleftAttachment = 1 0 85;
+	XmNbottomAttachment = 2 0 -80;
+	XmNtopAttachment = 1 0 45;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -320;
+	XmNleftAttachment = 1 0 270;
+	XmNbottomAttachment = 2 0 -40;
+	XmNtopAttachment = 1 0 15;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -460;
+	XmNleftAttachment = 1 0 325;
+	XmNbottomAttachment = 2 0 -40;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -320;
+	XmNleftAttachment = 1 0 270;
+	XmNbottomAttachment = 2 0 -80;
+	XmNtopAttachment = 1 0 55;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -415;
+	XmNleftAttachment = 1 0 325;
+	XmNbottomAttachment = 2 0 -80;
+	XmNtopAttachment = 1 0 45;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -150;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -120;
+	XmNtopAttachment = 1 0 90;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -280;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -160;
+	XmNtopAttachment = 1 0 130;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 290;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 130;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -465;
+	XmNleftAttachment = 1 0 280;
+	XmNbottomAttachment = 2 0 -125;
+	XmNtopAttachment = 1 0 85;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -240;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -200;
+	XmNtopAttachment = 1 0 170;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 210;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -465;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -320;
+	XmNtopAttachment = 1 0 235;
+    };
+    };
+};
+object 'stageLbl' : XmLabel {
+	arguments {
+	name = 'stageLbl';
+	lastGenName = 'stageLbl';
+	XmNchildType = 2;
+	XmNlabelString = 'Info for Selected Crest';
+	};
+};
+};
+object 'crstsortOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'crstsortOM';
+	};
+abstract object 'crstsortLbl' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'crstsortLbl';
+	XmNlabelString = 'Sort Crests By:';
+	};
+};
+abstract object 'crstsortCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'crstsortCB';
+	};
+object 'crstsortPDM' : XmPulldownMenu {
+	arguments {
+	name = 'crstsortPDM';
+	lastGenName = 'crstsortPDM';
+	};
+object 'crstdatePB' : XmPushButton {
+	arguments {
+	lastGenName = 'crstdatePB';
+	XmNlabelString = 'Date';
+	};
+};
+object 'crstflowPB' : XmPushButton {
+	arguments {
+	lastGenName = 'crstflowPB';
+	XmNlabelString = 'Flow';
+	};
+};
+object 'crststagePB' : XmPushButton {
+	arguments {
+	lastGenName = 'crststagePB';
+	XmNlabelString = 'Stage';
+	};
+};
+};
+};
+};
+object 'crestSP' : XmSeparator {
+	arguments {
+	name = 'crestSP';
+	lastGenName = 'crestSP';
+	};
+};
+object 'crstokPB' : XmPushButton {
+	arguments {
+	name = 'crstokPB';
+	lastGenName = 'crstokPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Ok';
+	};
+};
+object 'crstapplyPB' : XmPushButton {
+	arguments {
+	name = 'crstapplyPB';
+	lastGenName = 'crstapplyPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Apply';
+	};
+};
+object 'crstclsPB' : XmPushButton {
+	arguments {
+	name = 'crstclsPB';
+	lastGenName = 'crstclsPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Close';
+	};
+};
+object 'crstnewPB' : XmPushButton {
+	arguments {
+	name = 'crstnewPB';
+	lastGenName = 'crstnewPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'New';
+	};
+};
+object 'crstdelPB' : XmPushButton {
+	arguments {
+	name = 'crstdelPB';
+	lastGenName = 'crstdelPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Delete';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 12;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 35;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 69;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 35;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -371;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -525;
+	XmNtopAttachment = 1 0 485;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 682;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -1150;
+	XmNleftAttachment = 1 0 670;
+	XmNbottomAttachment = 2 0 -150;
+	XmNtopAttachment = 1 0 35;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -1150;
+	XmNleftAttachment = 1 0 670;
+	XmNbottomAttachment = 2 0 -520;
+	XmNtopAttachment = 1 0 165;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -620;
+	XmNleftAttachment = 1 0 380;
+	XmNbottomAttachment = 2 0 -525;
+	XmNtopAttachment = 1 0 485;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -1155;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -545;
+	XmNtopAttachment = 1 0 535;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -90;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -600;
+	XmNtopAttachment = 1 0 565;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 265;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 565;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 555;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 565;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 800;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 565;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 1065;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 565;
+    };
+    };
+};
+};
+end module;

@@ -1,0 +1,150 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-db_hclrw library file
+#
+#  cmt: File made on Wed Aug  6 12:48:11 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libdb_hclrw_t.a:  \
+     $(LIB)/libdb_hclrw_t.a(fidflt.o)  \
+     $(LIB)/libdb_hclrw_t.a(hadtec.o)  \
+     $(LIB)/libdb_hclrw_t.a(hcardi.o)  \
+     $(LIB)/libdb_hclrw_t.a(hcardr.o)  \
+     $(LIB)/libdb_hclrw_t.a(hcardw.o)  \
+     $(LIB)/libdb_hclrw_t.a(hckarg.o)  \
+     $(LIB)/libdb_hclrw_t.a(hckcng.o)  \
+     $(LIB)/libdb_hclrw_t.a(hckids.o)  \
+     $(LIB)/libdb_hclrw_t.a(hcklst.o)  \
+     $(LIB)/libdb_hclrw_t.a(hckpsw.o)  \
+     $(LIB)/libdb_hclrw_t.a(hcktag.o)  \
+     $(LIB)/libdb_hclrw_t.a(hcktyp.o)  \
+     $(LIB)/libdb_hclrw_t.a(hckyni.o)  \
+     $(LIB)/libdb_hclrw_t.a(hclear.o)  \
+     $(LIB)/libdb_hclrw_t.a(hcmpsu.o)  \
+     $(LIB)/libdb_hclrw_t.a(hcngpr.o)  \
+     $(LIB)/libdb_hclrw_t.a(hcnunv.o)  \
+     $(LIB)/libdb_hclrw_t.a(hdatea.o)  \
+     $(LIB)/libdb_hclrw_t.a(hdatec.o)  \
+     $(LIB)/libdb_hclrw_t.a(hddflt.o)  \
+     $(LIB)/libdb_hclrw_t.a(hdeldf.o)  \
+     $(LIB)/libdb_hclrw_t.a(hdelfn.o)  \
+     $(LIB)/libdb_hclrw_t.a(hdelld.o)  \
+     $(LIB)/libdb_hclrw_t.a(hdelop.o)  \
+     $(LIB)/libdb_hclrw_t.a(hdelpr.o)  \
+     $(LIB)/libdb_hclrw_t.a(hdeltn.o)  \
+     $(LIB)/libdb_hclrw_t.a(hdfltf.o)  \
+     $(LIB)/libdb_hclrw_t.a(hdfltp.o)  \
+     $(LIB)/libdb_hclrw_t.a(hdfltt.o)  \
+     $(LIB)/libdb_hclrw_t.a(hdfunc.o)  \
+     $(LIB)/libdb_hclrw_t.a(hdlld1.o)  \
+     $(LIB)/libdb_hclrw_t.a(hdllda.o)  \
+     $(LIB)/libdb_hclrw_t.a(hdlldr.o)  \
+     $(LIB)/libdb_hclrw_t.a(hdnwld.o)  \
+     $(LIB)/libdb_hclrw_t.a(hdoptn.o)  \
+     $(LIB)/libdb_hclrw_t.a(hdproc.o)  \
+     $(LIB)/libdb_hclrw_t.a(hdrpr.o)  \
+     $(LIB)/libdb_hclrw_t.a(hdtech.o)  \
+     $(LIB)/libdb_hclrw_t.a(hdwldr.o)  \
+     $(LIB)/libdb_hclrw_t.a(hexecp.o)  \
+     $(LIB)/libdb_hclrw_t.a(hfdfnm.o)  \
+     $(LIB)/libdb_hclrw_t.a(hfeqls.o)  \
+     $(LIB)/libdb_hclrw_t.a(hfexcp.o)  \
+     $(LIB)/libdb_hclrw_t.a(hflprn.o)  \
+     $(LIB)/libdb_hclrw_t.a(hfnd3b.o)  \
+     $(LIB)/libdb_hclrw_t.a(hfndcm.o)  \
+     $(LIB)/libdb_hclrw_t.a(hfnddf.o)  \
+     $(LIB)/libdb_hclrw_t.a(hfrprn.o)  \
+     $(LIB)/libdb_hclrw_t.a(hgarsz.o)  \
+     $(LIB)/libdb_hclrw_t.a(hgetp2.o)  \
+     $(LIB)/libdb_hclrw_t.a(hgetpm.o)  \
+     $(LIB)/libdb_hclrw_t.a(hgetta.o)  \
+     $(LIB)/libdb_hclrw_t.a(hgettm.o)  \
+     $(LIB)/libdb_hclrw_t.a(hgfnum.o)  \
+     $(LIB)/libdb_hclrw_t.a(hgtdfr.o)  \
+     $(LIB)/libdb_hclrw_t.a(hgtdin.o)  \
+     $(LIB)/libdb_hclrw_t.a(hgtgid.o)  \
+     $(LIB)/libdb_hclrw_t.a(hgtrcd.o)  \
+     $(LIB)/libdb_hclrw_t.a(hgtrdn.o)  \
+     $(LIB)/libdb_hclrw_t.a(hgtusr.o)  \
+     $(LIB)/libdb_hclrw_t.a(hidchk.o)  \
+     $(LIB)/libdb_hclrw_t.a(hincmd.o)  \
+     $(LIB)/libdb_hclrw_t.a(hincnx.o)  \
+     $(LIB)/libdb_hclrw_t.a(hldcbs.o)  \
+     $(LIB)/libdb_hclrw_t.a(hmchid.o)  \
+     $(LIB)/libdb_hclrw_t.a(hmodcd.o)  \
+     $(LIB)/libdb_hclrw_t.a(hmodck.o)  \
+     $(LIB)/libdb_hclrw_t.a(hnmpsw.o)  \
+     $(LIB)/libdb_hclrw_t.a(hpasmd.o)  \
+     $(LIB)/libdb_hclrw_t.a(hpasta.o)  \
+     $(LIB)/libdb_hclrw_t.a(hpast.o)  \
+     $(LIB)/libdb_hclrw_t.a(hpfldf.o)  \
+     $(LIB)/libdb_hclrw_t.a(hpfnum.o)  \
+     $(LIB)/libdb_hclrw_t.a(hpfung.o)  \
+     $(LIB)/libdb_hclrw_t.a(hpoptg.o)  \
+     $(LIB)/libdb_hclrw_t.a(hppldf.o)  \
+     $(LIB)/libdb_hclrw_t.a(hpprcg.o)  \
+     $(LIB)/libdb_hclrw_t.a(hprars.o)  \
+     $(LIB)/libdb_hclrw_t.a(hprids.o)  \
+     $(LIB)/libdb_hclrw_t.a(hprmod.o)  \
+     $(LIB)/libdb_hclrw_t.a(hprnts.o)  \
+     $(LIB)/libdb_hclrw_t.a(hprtog.o)  \
+     $(LIB)/libdb_hclrw_t.a(hprtos.o)  \
+     $(LIB)/libdb_hclrw_t.a(hptchn.o)  \
+     $(LIB)/libdb_hclrw_t.a(hptecg.o)  \
+     $(LIB)/libdb_hclrw_t.a(hptrcd.o)  \
+     $(LIB)/libdb_hclrw_t.a(hptrdn.o)  \
+     $(LIB)/libdb_hclrw_t.a(hptstr.o)  \
+     $(LIB)/libdb_hclrw_t.a(hputld.o)  \
+     $(LIB)/libdb_hclrw_t.a(hrdctl.o)  \
+     $(LIB)/libdb_hclrw_t.a(hreppr.o)  \
+     $(LIB)/libdb_hclrw_t.a(hreprd.o)  \
+     $(LIB)/libdb_hclrw_t.a(hreprn.o)  \
+     $(LIB)/libdb_hclrw_t.a(hridxc.o)  \
+     $(LIB)/libdb_hclrw_t.a(hrldrr.o)  \
+     $(LIB)/libdb_hclrw_t.a(hroptn.o)  \
+     $(LIB)/libdb_hclrw_t.a(hrprdn.o)  \
+     $(LIB)/libdb_hclrw_t.a(hsaved.o)  \
+     $(LIB)/libdb_hclrw_t.a(hsetar.o)  \
+     $(LIB)/libdb_hclrw_t.a(hsetdy.o)  \
+     $(LIB)/libdb_hclrw_t.a(hsethr.o)  \
+     $(LIB)/libdb_hclrw_t.a(hsetop.o)  \
+     $(LIB)/libdb_hclrw_t.a(hsetpm.o)  \
+     $(LIB)/libdb_hclrw_t.a(hsrldr.o)  \
+     $(LIB)/libdb_hclrw_t.a(hstats.o)  \
+     $(LIB)/libdb_hclrw_t.a(hsysda.o)  \
+     $(LIB)/libdb_hclrw_t.a(htoday.o)  \
+     $(LIB)/libdb_hclrw_t.a(hupmod.o)  \
+     $(LIB)/libdb_hclrw_t.a(hwdctl.o)  \
+     $(LIB)/libdb_hclrw_t.a(hwidxc.o)  \
+     $(LIB)/libdb_hclrw_t.a(hwixen.o)  \
+     $(LIB)/libdb_hclrw_t.a(hwproc.o)  \
+     $(LIB)/libdb_hclrw_t.a(hwropt.o)  \
+     $(LIB)/libdb_hclrw_t.a(udatea.o)  \
+     $(LIB)/libdb_hclrw_t.a(udatec.o)
+

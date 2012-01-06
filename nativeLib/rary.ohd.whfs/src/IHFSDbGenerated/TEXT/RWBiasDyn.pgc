@@ -1,0 +1,826 @@
+/*
+    File: RWBiasDyn.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:29 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "RWBiasDyn.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct RWBiasDyn_t
+{
+    char		radid[4];
+    char		office_id[6];
+    dtime_t		obstime;
+    short		memspan_ind;
+    double		numpairs;
+    float		sumgag;
+    float		sumrad;
+    float		bias;
+
+    int		ind_numpairs;
+    int		ind_sumgag;
+    int		ind_sumrad;
+    int		ind_bias;
+} RWBiasDyn_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+RWBiasDyn * GetRWBiasDyn(const char * where)
+{
+
+    RWBiasDyn * listPtr = NULL;
+    RWBiasDyn * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM RWBiasDyn ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RWBiasDyn_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRWBiasDyn() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRWBiasDyn() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRWBiasDyn() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.radid, :dbs.office_id, 
+    :dbs.obstime, :dbs.memspan_ind, 
+    :dbs.numpairs:dbs.ind_numpairs, :dbs.sumgag:dbs.ind_sumgag, 
+    :dbs.sumrad:dbs.ind_sumrad, :dbs.bias:dbs.ind_bias    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRWBiasDyn() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (RWBiasDyn *) malloc(sizeof(RWBiasDyn))) != NULL)
+        {
+
+            strcpy(structPtr->radid, dbs.radid);
+
+            strcpy(structPtr->office_id, dbs.office_id);
+
+            structPtr->obstime = dbs.obstime;
+
+            structPtr->memspan_ind = dbs.memspan_ind;
+
+            structPtr->numpairs = dbs.numpairs;
+            setNullIfIndicated(dbs.ind_numpairs, DOUBLE, &structPtr->numpairs);
+
+            structPtr->sumgag = dbs.sumgag;
+            setNullIfIndicated(dbs.ind_sumgag, FLOAT, &structPtr->sumgag);
+
+            structPtr->sumrad = dbs.sumrad;
+            setNullIfIndicated(dbs.ind_sumrad, FLOAT, &structPtr->sumrad);
+
+            structPtr->bias = dbs.bias;
+            setNullIfIndicated(dbs.ind_bias, FLOAT, &structPtr->bias);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.radid, :dbs.office_id, 
+        :dbs.obstime, :dbs.memspan_ind, 
+        :dbs.numpairs:dbs.ind_numpairs, :dbs.sumgag:dbs.ind_sumgag, 
+        :dbs.sumrad:dbs.ind_sumrad, :dbs.bias:dbs.ind_bias        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetRWBiasDyn() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+RWBiasDyn * SelectRWBiasDyn(const char * where)
+{
+
+    RWBiasDyn * listPtr = NULL;
+    RWBiasDyn * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM RWBiasDyn ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RWBiasDyn_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRWBiasDyn() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRWBiasDyn() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRWBiasDyn() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.radid, :dbs.office_id, 
+    :dbs.obstime, :dbs.memspan_ind, 
+    :dbs.numpairs:dbs.ind_numpairs, :dbs.sumgag:dbs.ind_sumgag, 
+    :dbs.sumrad:dbs.ind_sumrad, :dbs.bias:dbs.ind_bias    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRWBiasDyn() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (RWBiasDyn *) malloc(sizeof(RWBiasDyn))) != NULL)
+        {
+
+            strcpy(structPtr->radid, dbs.radid);
+
+            strcpy(structPtr->office_id, dbs.office_id);
+
+            structPtr->obstime = dbs.obstime;
+
+            structPtr->memspan_ind = dbs.memspan_ind;
+
+            structPtr->numpairs = dbs.numpairs;
+            setNullIfIndicated(dbs.ind_numpairs, DOUBLE, &structPtr->numpairs);
+
+            structPtr->sumgag = dbs.sumgag;
+            setNullIfIndicated(dbs.ind_sumgag, FLOAT, &structPtr->sumgag);
+
+            structPtr->sumrad = dbs.sumrad;
+            setNullIfIndicated(dbs.ind_sumrad, FLOAT, &structPtr->sumrad);
+
+            structPtr->bias = dbs.bias;
+            setNullIfIndicated(dbs.ind_bias, FLOAT, &structPtr->bias);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.radid, :dbs.office_id, 
+        :dbs.obstime, :dbs.memspan_ind, 
+        :dbs.numpairs:dbs.ind_numpairs, :dbs.sumgag:dbs.ind_sumgag, 
+        :dbs.sumrad:dbs.ind_sumrad, :dbs.bias:dbs.ind_bias        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectRWBiasDyn() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectRWBiasDynCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM RWBiasDyn ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRWBiasDyn() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRWBiasDyn() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRWBiasDyn() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRWBiasDyn() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutRWBiasDyn(const RWBiasDyn * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RWBiasDyn_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.radid, structPtr->radid);
+
+    strcpy(dbs.office_id, structPtr->office_id);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.memspan_ind = structPtr->memspan_ind;
+
+    dbs.numpairs = structPtr->numpairs;
+    dbs.ind_numpairs = getIndicator(DOUBLE, (void *)&structPtr->numpairs);
+
+    dbs.sumgag = structPtr->sumgag;
+    dbs.ind_sumgag = getIndicator(FLOAT, (void *)&structPtr->sumgag);
+
+    dbs.sumrad = structPtr->sumrad;
+    dbs.ind_sumrad = getIndicator(FLOAT, (void *)&structPtr->sumrad);
+
+    dbs.bias = structPtr->bias;
+    dbs.ind_bias = getIndicator(FLOAT, (void *)&structPtr->bias);
+
+
+    EXEC SQL INSERT INTO RWBiasDyn (radid,office_id,
+        obstime,memspan_ind,numpairs,
+        sumgag,sumrad,bias        )
+        VALUES (
+         :dbs.radid, :dbs.office_id, :dbs.obstime,
+         :dbs.memspan_ind, :dbs.numpairs:dbs.ind_numpairs, :dbs.sumgag:dbs.ind_sumgag,
+         :dbs.sumrad:dbs.ind_sumrad, :dbs.bias:dbs.ind_bias);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutRWBiasDyn() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertRWBiasDyn(const RWBiasDyn * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RWBiasDyn_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.radid, structPtr->radid);
+
+    strcpy(dbs.office_id, structPtr->office_id);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.memspan_ind = structPtr->memspan_ind;
+
+    dbs.numpairs = structPtr->numpairs;
+    dbs.ind_numpairs = getIndicator(DOUBLE, (void *)&structPtr->numpairs);
+
+    dbs.sumgag = structPtr->sumgag;
+    dbs.ind_sumgag = getIndicator(FLOAT, (void *)&structPtr->sumgag);
+
+    dbs.sumrad = structPtr->sumrad;
+    dbs.ind_sumrad = getIndicator(FLOAT, (void *)&structPtr->sumrad);
+
+    dbs.bias = structPtr->bias;
+    dbs.ind_bias = getIndicator(FLOAT, (void *)&structPtr->bias);
+
+
+    EXEC SQL INSERT INTO RWBiasDyn (radid,office_id,
+        obstime,memspan_ind,numpairs,
+        sumgag,sumrad,bias        )
+        VALUES (
+         :dbs.radid, :dbs.office_id, :dbs.obstime,
+         :dbs.memspan_ind, :dbs.numpairs:dbs.ind_numpairs, :dbs.sumgag:dbs.ind_sumgag,
+         :dbs.sumrad:dbs.ind_sumrad, :dbs.bias:dbs.ind_bias);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertRWBiasDyn() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateRWBiasDyn(const RWBiasDyn *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RWBiasDyn_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.radid, structPtr->radid);
+
+    strcpy(dbs.office_id, structPtr->office_id);
+
+    dbs.obstime = structPtr->obstime;
+
+    dbs.memspan_ind = structPtr->memspan_ind;
+
+    dbs.numpairs = structPtr->numpairs;
+    dbs.ind_numpairs = getIndicator(DOUBLE, (void *)&structPtr->numpairs);
+
+    dbs.sumgag = structPtr->sumgag;
+    dbs.ind_sumgag = getIndicator(FLOAT, (void *)&structPtr->sumgag);
+
+    dbs.sumrad = structPtr->sumrad;
+    dbs.ind_sumrad = getIndicator(FLOAT, (void *)&structPtr->sumrad);
+
+    dbs.bias = structPtr->bias;
+    dbs.ind_bias = getIndicator(FLOAT, (void *)&structPtr->bias);
+
+
+    sprintf(queryBuffer, " UPDATE RWBiasDyn SET " );
+    strcat(queryBuffer, "radid = ? , office_id = ? , obstime = ? , memspan_ind = ? , numpairs = ? ,     ");
+    strcat(queryBuffer, "sumgag = ? , sumrad = ? , bias = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateRWBiasDyn() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.radid, :dbs.office_id, :dbs.obstime, :dbs.memspan_ind, :dbs.numpairs:dbs.ind_numpairs,
+     :dbs.sumgag:dbs.ind_sumgag, :dbs.sumrad:dbs.ind_sumrad, :dbs.bias:dbs.ind_bias;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateRWBiasDyn() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteRWBiasDyn(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM RWBiasDyn ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteRWBiasDyn() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateRWBiasDynByRecord (const RWBiasDyn * newStructPtr, const RWBiasDyn * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetRWBiasDynPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateRWBiasDyn(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateRWBiasDyn(const RWBiasDyn * structPtr)
+{
+    UpdateRWBiasDynByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertRWBiasDyn(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueRWBiasDyn(const RWBiasDyn * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (RWBiasDynExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertRWBiasDyn(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteRWBiasDynByRecord(const RWBiasDyn * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetRWBiasDynPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteRWBiasDyn(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool RWBiasDynExists(const RWBiasDyn * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetRWBiasDynPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectRWBiasDynCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetRWBiasDynPrimaryKeyWhereString (const RWBiasDyn * structPtr, char returnWhereString[] )
+{
+    char time_buffer0[40];
+    sprintf(returnWhereString, "WHERE radid = '%s'  AND office_id = '%s'  AND obstime = '%s'  AND memspan_ind = %d ",
+            structPtr->radid, structPtr->office_id, dtimet_to_ansi(structPtr->obstime, time_buffer0), structPtr->memspan_ind);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeRWBiasDyn( RWBiasDyn * structPtr)
+{
+    RWBiasDyn* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( RWBiasDyn * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetRWBiasDynDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetRWBiasDynErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

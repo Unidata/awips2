@@ -1,0 +1,433 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta name="Author" content="John Wagner">
+   <title>Service Backup Instructions</title>
+</head>
+<body>
+<TABLE BORDER="0" WIDTH="100%">
+   <TR VALIGN="TOP">
+      <TD ALIGN="CENTER" VALIGN="TOP">
+       <H1><A NAME="Top"><FONT COLOR="#0000FF"><I>Service Backup GUI</I>
+           </FONT></H1>
+       <H2><FONT COLOR="BLACK"><I>INSTRUCTIONS</I></FONT></H2></TD>
+   </TR>
+</TABLE><BR>
+<HR SIZE=5 NOSHADE>
+<H3>&nbsp;&nbsp;&nbsp;Contents of this section</H3>
+<p>
+&nbsp;&nbsp;&nbsp; 
+<a href="#HOW_TO_START_GHG_SERVICE_BACKUP" style="text-decoration: none">HOW TO START GHG SERVICE BACKUP</a></p>
+&nbsp;&nbsp;&nbsp;
+<a href="#HOW TO IMPORT A FAILED SITES CONFIGURATION AND DIGITAL DATA AND START THEIR GFE IN ONE STEP" style="text-decoration: none">
+HOW TO IMPORT A FAILED SITE'S CONFIGURATION AND DIGITAL DATA AND START 
+THEIR GFE IN 
+ONE STEP</a>
+<p>
+&nbsp;&nbsp;&nbsp;
+<a href="#HOW TO IMPORT  A FAILED SITES CONFIGURATION AND DIGITAL DATA IN ONE STEP" style="text-decoration: none">
+HOW TO IMPORT&nbsp; A FAILED SITE'S CONFIGURATION AND DIGITAL DATA IN ONE STEP</a>
+</p>
+<p>
+&nbsp;&nbsp;&nbsp;
+<a href="#HOW TO IMPORT A FAILED SITES CONFIGURATION AND START THEIR GFE IN ONE STEP" style="text-decoration: none">
+HOW TO IMPORT A FAILED SITE'S CONFIGURATION AND START THEIR GFE IN 
+ONE STEP</a> </p>
+<p>
+&nbsp;&nbsp;&nbsp;
+<a href="#HOW TO IMPORT A FAILED SITES CONFIGURATION" style="text-decoration: none">
+HOW TO IMPORT A FAILED SITE'S CONFIGURATION</a> </p>
+<p>
+&nbsp;&nbsp;&nbsp;
+<a href="#HOW TO IMPORT A FAILED SITES DIGITAL DATA AND START THEIR GFE IN ONE STEP" style="text-decoration: none">
+HOW TO IMPORT A FAILED SITE'S DIGITAL DATA AND START THEIR GFE IN ONE STEP</a>
+</p>
+<p>
+&nbsp;&nbsp;&nbsp;
+<a href="#HOW TO IMPORT A FAILED SITES DIGITAL DATA" style="text-decoration: none">
+HOW TO IMPORT A FAILED SITE'S DIGITAL DATA</a> </p>
+<p>
+&nbsp;&nbsp;&nbsp;
+<a href="#HOW TO EXPORT GRIDS BACK TO A FAILED SITE" style="text-decoration: none">
+HOW TO EXPORT GRIDS BACK TO A FAILED SITE</a> </p>
+<p>
+&nbsp;&nbsp;&nbsp;
+<a href="#HOW_TO_EXPORT_A_FAILED_SITES_DIGITAL_DATA_TO_THE_CENTRAL_SERVER" style="text-decoration: none">HOW TO EXPORT A FAILED SITE'S DIGITAL DATA 
+TO THE CENTRAL SERVER</a></p>
+<p>
+&nbsp;&nbsp;&nbsp;
+<a href="#HOW TO EXPORT YOUR CONFIGURATION TO THE CENTRAL SERVER" style="text-decoration: none">
+HOW TO EXPORT YOUR CONFIGURATION TO THE CENTRAL SERVER</a> </p>
+<p>
+&nbsp;&nbsp;&nbsp;
+<a href="#HOW TO EXPORT YOUR DIGITAL DATA TO THE CENTRAL SERVER" style="text-decoration: none">
+HOW TO EXPORT YOUR DIGITAL DATA TO THE CENTRAL SERVER</a> </p>
+<p>
+&nbsp;&nbsp;&nbsp;
+<a href="#HOW TO START GFE FROM THE SERVICE BACKUP GUI" style="text-decoration: none">
+HOW TO START GFE FROM THE SERVICE BACKUP GUI</a> </p>
+<p>&nbsp;&nbsp;&nbsp; <a href="#HOW TO EXIT SERVICE BACKUP" style="text-decoration: none">
+HOW TO EXIT SERVICE BACKUP</a> </p>
+<p>&nbsp;&nbsp;&nbsp; <a href="#HOW TO CLEAN UP SERVICE BACKUP" style="text-decoration: none">
+HOW TO CLEAN UP SERVICE BACKUP</a> </p>
+<hr>
+<p align="left">&nbsp;</p>
+<p align="left"><b><a name="HOW_TO_START_GHG_SERVICE_BACKUP">HOW TO START GHG 
+SERVICE BACKUP</a> </b><a href="#Top" style="text-decoration: none">[BACK 
+TO THE TOP]</a></p>
+<p align="left">1,&nbsp; Verify that the banner at the top of the Service Backup 
+GUI reads &quot;YOU ARE NOT IN BACKUP MODE.&quot;&nbsp; If you are already in backup mode 
+for another site, you will need to run the
+<a href="#HOW TO CLEAN UP SERVICE BACKUP" style="text-decoration: none">
+clean up</a> script first.</p>
+<p align="center">
+<img border="0" src="banner_no_backup.gif" width="539" height="796"></p>
+<p align="left">2.&nbsp; Select GHG Service Backup and press OK.</p>
+<p align="left">3.&nbsp; The script will first check to see if there are any 
+service backup files present that may cause a problem.&nbsp; If any are found, 
+you will be prompted to clean up.&nbsp; If you wish to clean up and continue, 
+select CLEAN.&nbsp; Otherwise, select QUIT to return to the Service Backup GUI.&nbsp; </p>
+<p align="center">
+<img border="0" src="xmessage_faq_02.jpg" width="480" height="96"></p>
+<p align="left">If no files are found, the script will run silently and you will 
+not be notified.</p>
+<p align="left">4.&nbsp; Another GUI will appear, asking for the ID of the 
+failed site.&nbsp; Enter the failed site's 3 letter ID and press OK.</p>
+<p align="center">
+<img border="0" src="failed_site.jpg" width="544" height="259"></p>
+<p align="left">5.&nbsp; After a few minutes, a progress bar will appear with 
+the status of the failed site's configuration.&nbsp; When it is finished, you 
+may close the progress bar.</p>
+<p align="left">6.&nbsp; Once the configuration import is complete and the 
+failed site's server is started, the Service Backup GUI will make up to ten 
+attempts to connect to the server.&nbsp; If it is not able to connect after ten 
+attempts, you will be notified and will not be allowed to continue.</p>
+<p align="center">
+<img border="0" src="xmessage_inst_01.jpg" width="382" height="64"></p>
+<p align="left">
+7.&nbsp; Once the GUI is able to connect to the server, the GFE Startup GUI will 
+appear.&nbsp; Select a User, Config file, and Mode and press Start.&nbsp; At 
+this point, you will be able to generate the failed site's warnings.&nbsp; Once 
+you have done this, you can <a href="#HOW TO IMPORT A FAILED SITES DIGITAL DATA" style="text-decoration: none">import the failed site's digital data 
+</a>and perform a full service backup.</p>
+<p align="left">
+&nbsp;</p>
+<p align="left"><b>
+<a name="HOW TO IMPORT A FAILED SITES CONFIGURATION AND DIGITAL DATA AND START THEIR GFE IN ONE STEP">HOW TO IMPORT A FAILED SITE'S CONFIGURATION AND DIGITAL DATA AND START 
+THEIR GFE IN 
+ONE STEP</a>&nbsp; </b> 
+<a style="text-decoration: none" href="#Top">[BACK TO THE TOP]</a></p>
+<p align="left">1.&nbsp; Verify that the banner at the top of the Service Backup 
+GUI reads &quot;YOU ARE NOT IN BACKUP MODE.&quot;&nbsp; If you are backing up 
+another site, you will 
+need to <a href="#HOW TO CLEAN UP SERVICE BACKUP"
+ style="text-decoration: none">clean up </a>first.</p>
+<p align="center">
+<img border="0" src="banner_no_backup.gif" width="539" height="796"></p>
+<p align="left">2.&nbsp; Select Import Configuration Data and press OK.</p>
+<p align="left">3.&nbsp; The script will first check to see if there are any 
+service backup files present that may cause a problem.&nbsp; If any are found, 
+you will be prompted to clean up.&nbsp; If you wish to clean up and continue, 
+select CLEAN.&nbsp; Otherwise, select QUIT to return to the Service Backup GUI.&nbsp; </p>
+<p align="center">
+<img border="0" src="xmessage_faq_02.jpg" width="480" height="96"></p>
+<p align="left">If no files are found, the script will run silently and you will 
+not be notified.</p>
+<p align="left">4.&nbsp; Another GUI will appear asking you &quot;Would you also like 
+to Import Digital Forecast and/or Start GFE.&quot;&nbsp; Verify that both buttons are 
+selected and press OK.</p>
+<p align="center">
+<img border="0" src="option_both.jpg" width="307" height="300"></p>
+<p align="left">5.&nbsp; Another GUI will appear, asking for the ID of the 
+failed site.&nbsp; Enter the failed site's 3 letter ID and press OK.</p>
+<p align="center">
+<img border="0" src="failed_site.jpg" width="544" height="259"></p>
+<p align="left">6.&nbsp; After a few minutes, a progress bar will appear with 
+the status of the failed site's configuration.&nbsp; When it is finished, you 
+may close the progress bar.</p>
+<p align="left">7.&nbsp; Once the configuration import is complete and the 
+failed site's server is started, the Service Backup GUI will make up to ten 
+attempts to connect to the server.&nbsp; If it is not able to connect after ten 
+attempts, you will be notified and will not be allowed to continue.</p>
+<p align="center">
+<img border="0" src="xmessage_inst_01.jpg" width="382" height="64"></p>
+<p align="left">8.&nbsp; If the GUI is able to connect to the failed site's 
+server, you will see another progress bar appear with the status of&nbsp; the 
+import of the failed site's digital data.&nbsp; When it is finished, you may 
+close the progress bar.</p>
+<p align="left">9.&nbsp; If the import of the digital data is successful, the 
+GFE Startup GUI will appear.&nbsp; Select a User, Config file, and Mode and press Start.</p>
+
+<p align="left">&nbsp;</p>
+
+<p align="left"><b>
+<a name="HOW TO IMPORT  A FAILED SITES CONFIGURATION AND DIGITAL DATA IN ONE STEP">HOW TO IMPORT&nbsp; A FAILED SITE'S CONFIGURATION AND DIGITAL DATA IN 
+ONE STEP</a>&nbsp; </b> 
+<a style="text-decoration: none" href="#Top">[BACK TO THE TOP]</a></p>
+<p align="left">1.&nbsp; Verify that the banner at the top of the Service Backup 
+GUI reads &quot;YOU ARE NOT IN BACKUP MODE.&quot;&nbsp; If you are already in 
+backup mode, you will 
+need to <a href="#HOW TO CLEAN UP SERVICE BACKUP"
+ style="text-decoration: none">clean up</a> first.</p>
+<p align="center">
+<img border="0" src="banner_no_backup.gif" width="539" height="796"></p>
+<p align="left">2.&nbsp; Select Import Configuration Data and press OK.</p>
+<p align="left">3.&nbsp; The script will first check to see if there are any 
+service backup files present that may cause a problem.&nbsp; If any are found, 
+you will be prompted to clean up.&nbsp; If you wish to clean up and continue, 
+select CLEAN.&nbsp; Otherwise, select QUIT to return to the Service Backup GUI.&nbsp; </p>
+<p align="center">
+<img border="0" src="xmessage_faq_02.jpg" width="480" height="96"></p>
+<p align="left">If no files are found, the script will run silently and you will 
+not be notified.</p>
+<p align="left">4.&nbsp; Another GUI will appear asking you &quot;Would you also like 
+to Import Digital Forecast and/or Start GFE.&quot;&nbsp; Verify that only the &quot;Import 
+Digital Data&quot; button is 
+selected and press OK.</p>
+<p align="center">
+<img border="0" src="option_import.jpg" width="307" height="300"></p>
+<p align="left">5.&nbsp; Another GUI will appear, asking for the ID of the 
+failed site.&nbsp; Enter the failed site's 3 letter ID and press OK.</p>
+<p align="center">
+<img border="0" src="failed_site.jpg" width="544" height="259"></p>
+<p align="left">6.&nbsp; After a few minutes, a progress bar will appear with 
+the status of the failed site's configuration.&nbsp; When it is finished, you 
+may close the progress bar.</p>
+<p align="left">7.&nbsp; Once the configuration import is complete and the 
+failed site's server is started, the Service Backup GUI will make up to ten 
+attempts to connect to the server.&nbsp; If it is not able to connect after ten 
+attempts, you will be notified and will not be allowed to continue.</p>
+<p align="center">
+<img border="0" src="xmessage_inst_01.jpg" width="382" height="64"></p>
+<p align="left">8.&nbsp; If the GUI is able to connect to the failed site's 
+server, you will see another progress bar appear with the status of&nbsp; the 
+import of the failed site's digital data.&nbsp; When it is finished, you may 
+close the progress bar.</p>
+<p align="left">&nbsp;</p>
+
+<p align="left"><b>
+<a name="HOW TO IMPORT A FAILED SITES CONFIGURATION AND START THEIR GFE IN ONE STEP">HOW TO IMPORT A FAILED SITE'S CONFIGURATION AND START THEIR GFE IN 
+ONE STEP</a>&nbsp; </b> 
+<a style="text-decoration: none" href="#Top">[BACK TO THE TOP]</a></p>
+<p align="left">1.&nbsp; Verify that the banner at the top of the Service Backup 
+GUI reads &quot;YOU ARE NOT IN BACKUP MODE.&quot;&nbsp; If you are already in 
+backup mode, you will 
+need to <a href="#HOW TO CLEAN UP SERVICE BACKUP"
+ style="text-decoration: none">clean up</a> first.</p>
+<p align="center">
+<img border="0" src="banner_no_backup.gif" width="539" height="796"></p>
+<p align="left">2.&nbsp; Select Import Configuration Data and press OK.</p>
+<p align="left">3.&nbsp; The script will first check to see if there are any 
+service backup files present that may cause a problem.&nbsp; If any are found, 
+you will be prompted to clean up.&nbsp; If you wish to clean up and continue, 
+select CLEAN.&nbsp; Otherwise, select QUIT to return to the Service Backup GUI.&nbsp; </p>
+<p align="center">
+<img border="0" src="xmessage_faq_02.jpg" width="480" height="96"></p>
+<p align="left">If no files are found, the script will run silently and you will 
+not be notified.</p>
+<p align="left">4.&nbsp; Another GUI will appear asking you &quot;Would you also like 
+to Import Digital Forecast and/or Start GFE.&quot;&nbsp; Verify that only the &quot;Start 
+GFE&quot; button is 
+selected and press OK.</p>
+<p align="center">
+<img border="0" src="option_gfe.jpg" width="307" height="300"></p>
+<p align="left">5.&nbsp; Another GUI will appear, asking for the ID of the 
+failed site.&nbsp; Enter the failed site's 3 letter ID and press OK.</p>
+<p align="center">
+<img border="0" src="failed_site.jpg" width="544" height="259"></p>
+<p align="left">6.&nbsp; After a few minutes, a progress bar will appear with 
+the status of the failed site's configuration.&nbsp; When it is finished, you 
+may close the progress bar.</p>
+<p align="left">7.&nbsp; Once the configuration import is complete and the 
+failed site's server is started, the Service Backup GUI will make up to ten 
+attempts to connect to the server.&nbsp; If it is not able to connect after ten 
+attempts, you will be notified and will not be allowed to continue.</p>
+<p align="center">
+<img border="0" src="xmessage_inst_01.jpg" width="382" height="64"></p>
+<p align="left">8.&nbsp; If the GUI is able to connect to the failed site's 
+server, the GFE Startup GUI will appear.&nbsp; Select a User, Config file, and 
+Mode and 
+press Start.</p>
+<p align="left">&nbsp;</p>
+
+<p align="left"><b><a name="HOW TO IMPORT A FAILED SITES CONFIGURATION">HOW TO IMPORT A FAILED SITE'S CONFIGURATION</a>&nbsp; </b>
+<a style="text-decoration: none" href="#Top">[BACK TO THE TOP]</a></p>
+<p align="left">1.&nbsp; Verify that the banner at the top of the Service Backup 
+GUI reads &quot;YOU ARE NOT IN BACKUP MODE.&quot;&nbsp; If you are already in 
+backup mode, you will 
+need to <a href="#HOW TO CLEAN UP SERVICE BACKUP"
+ style="text-decoration: none">clean up</a> first.</p>
+<p align="center">
+<img border="0" src="banner_no_backup.gif" width="539" height="796"></p>
+<p align="left">2.&nbsp; Select Import Configuration Data and press OK.</p>
+<p align="left">3.&nbsp; The script will first check to see if there are any 
+service backup files present that may cause a problem.&nbsp; If any are found, 
+you will be prompted to clean up.&nbsp; If you wish to clean up and continue, 
+select CLEAN.&nbsp; Otherwise, select QUIT to return to the Service Backup GUI.&nbsp; </p>
+<p align="center">
+<img border="0" src="xmessage_faq_02.jpg" width="480" height="96"></p>
+<p align="left">If no files are found, the script will run silently and you will 
+not be notified.</p>
+<p align="left">4.&nbsp; Another GUI will appear asking you &quot;Would you also like 
+to Import Digital Forecast and/or Start GFE.&quot;&nbsp; Verify that both buttons are 
+deselected and press OK.</p>
+<p align="center">
+<img border="0" src="option_none.jpg" width="307" height="300"></p>
+<p align="left">5.&nbsp; Another GUI will appear, asking for the ID of the 
+failed site.&nbsp; Enter the failed site's 3 letter ID and press OK.</p>
+<p align="center">
+<img border="0" src="failed_site.jpg" width="544" height="259"></p>
+<p align="left">
+&nbsp;</p>
+<p align="left">6.&nbsp; After a few minutes, a progress bar will appear with 
+the status of the failed site's configuration.&nbsp; When it is finished, you 
+may close the progress bar.</p>
+<p align="left">&nbsp;</p>
+<p><b>
+<a name="HOW TO IMPORT A FAILED SITES DIGITAL DATA AND START THEIR GFE IN ONE STEP">HOW TO IMPORT A FAILED SITE'S DIGITAL DATA AND START THEIR GFE IN ONE STEP</a>&nbsp;</b>
+<a style="text-decoration: none" href="#Top">[BACK TO THE TOP]</a></p>
+<p>1.&nbsp; Verify that the banner at the top of the Service Backup GUI reads 
+&quot;YOU ARE CURRENTLY BACKING UP XXX&quot; (where XXX is a failed site). If it doesn't, 
+you must first <a href="#HOW TO IMPORT A FAILED SITES CONFIGURATION AND DIGITAL DATA AND START THEIR GFE IN ONE STEP" style="text-decoration: none">import 
+the failed site's configuration</a></p>
+
+<p align="center">
+<img border="0" src="banner_svcbuMode.gif" width="518" height="828"></p>
+
+<p>2.&nbsp; Select Import XXX's Digital Data and press OK.</p>
+
+<p>3.&nbsp; Another GUI will appear asking you &quot;Would you also like to Start 
+GFE.&quot;&nbsp; Verify that &quot;Start GFE&quot; is selected and press OK.&nbsp; </p>
+
+<p align="center">
+<img border="0" src="option_import_gfe.jpg" width="286" height="250"></p>
+
+<p>4.&nbsp; After a few minutes, a progress bar will appear with the status of 
+the failed site's digital data.&nbsp; When it is finished, you may close the 
+progress bar.</p>
+
+<p>5.&nbsp; If the import is successful, the GFE Startup GUI will appear.&nbsp; Select a User, Config 
+file, and Mode and press Start.</p>
+
+<p>&nbsp;</p>
+
+<p><b><a name="HOW TO IMPORT A FAILED SITES DIGITAL DATA">HOW TO IMPORT A FAILED SITE'S DIGITAL DATA</a>&nbsp; </b>
+<a style="text-decoration: none" href="#Top">[BACK TO THE TOP]</a></p>
+
+<p>1.&nbsp; Verify that the banner at the top of the Service Backup GUI reads 
+&quot;YOU ARE CURRENTLY BACKING UP XXX&quot; (where XXX is a failed site). If it doesn't, 
+you must first 
+<a href="#HOW TO IMPORT A FAILED SITES CONFIGURATION AND DIGITAL DATA AND START THEIR GFE IN ONE STEP"
+ style="text-decoration: none">import the failed site's configuration</a>.</p>
+
+<p align="center">
+<img border="0" src="banner_svcbuMode.gif" width="518" height="828"></p>
+
+<p>2.&nbsp; Select Import XXX's Digital Data and press OK.</p>
+
+<p>3.&nbsp; Another GUI will appear asking you &quot;Would you also like to Start 
+GFE.&quot;&nbsp; Verify that &quot;Start GFE&quot; is deselected and press OK.&nbsp; </p>
+
+<p align="center">
+<img border="0" src="option_import_no_gfe.jpg" width="286" height="250"></p>
+
+<p>4.&nbsp; After a few minutes, a progress bar will appear with the status of 
+the failed site's digital data.&nbsp; When it is finished, you may close the 
+progress bar.</p>
+
+<p>&nbsp;</p>
+
+<p><b><a name="HOW TO EXPORT GRIDS BACK TO A FAILED SITE">HOW TO EXPORT GRIDS BACK TO A FAILED SITE</a>&nbsp; </b>
+<a style="text-decoration: none" href="#Top">[BACK TO THE TOP]</a></p>
+<p>1.&nbsp; Verify that the banner at the top of the Service Backup GUI reads 
+&quot;YOU ARE CURRENTLY BACKING UP XXX&quot; (where XXX is a failed site).&nbsp; If it 
+doesn't, you must first 
+<a href="#HOW TO IMPORT A FAILED SITES CONFIGURATION AND DIGITAL DATA AND START THEIR GFE IN ONE STEP"
+ style="text-decoration: none">import the failed site's configuration</a>.</p>
+<p align="center">
+<img border="0" src="banner_svcbuMode.gif" width="518" height="828"></p>
+<p>2.&nbsp;&nbsp; Select Export Grids to XXX and press OK.</p>
+<p>3.&nbsp; A message will appear saying &quot;Exporting Digital Data Back to XXX&quot; 
+(where XXX is the failed site).</p>
+<p align="center">
+<img border="0" src="xmessage_inst_02.jpg" width="321" height="96"></p>
+<p>&nbsp;</p>
+<p><b><a name="HOW_TO_EXPORT_A_FAILED_SITES_DIGITAL_DATA_TO_THE_CENTRAL_SERVER">
+HOW TO EXPORT A FAILED SITE'S DIGITAL DATA TO THE CENTRAL SERVER</a>&nbsp; </b>
+<a href="#Top" style="text-decoration: none">
+[BACK TO THE TOP]</a></p>
+<p>1.&nbsp; Verify that the message at the top of the GUI reads &quot;YOU ARE 
+CURRENTLY BACKING UP XXX&quot; (where XXX is a failed site).&nbsp; If it doesn't, you 
+must first 
+<a href="#HOW TO IMPORT A FAILED SITES CONFIGURATION AND DIGITAL DATA AND START THEIR GFE IN ONE STEP"
+ style="text-decoration: none">import the failed site's configuration</a>.</p>
+<p align="center">
+<img border="0" src="banner_svcbuMode.gif" width="518" height="828"></p>
+<p>2.&nbsp; Select Export XXX's Grids To The Central Server and press OK.</p>
+<p>3.&nbsp; A message will appear saying &quot;Exporting XXX's Digital Data To The 
+Central Server&quot; (where XXX is the failed site).</p>
+<p align="center">
+<img border="0" src="xmessage_inst_04.jpg" width="447" height="96"></p>
+<p>&nbsp;</p>
+<p><b><a name="HOW TO EXPORT YOUR CONFIGURATION TO THE CENTRAL SERVER">HOW TO EXPORT YOUR CONFIGURATION TO THE CENTRAL SERVER</a>&nbsp; </b>
+<a style="text-decoration: none" href="#Top">[BACK TO THE TOP]</a></p>
+<p>1.&nbsp; Start the Service Backup GUI as user ifps.&nbsp; to do this:</p>
+<p>&nbsp;&nbsp;&nbsp; a.&nbsp; <font size="-1" face="Lucida Console">su ifps</font>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;b.&nbsp; <font size="-1" face="Lucida Console">cd /awips/ifps/primary/bin</font>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;c.&nbsp; <font size="-1" face="Lucida Console">./service_backup.bat </font></p>
+<p>2.&nbsp; Verify that the message at the top of the GUI reads &quot;YOU ARE NOT IN 
+BACKUP MODE.&quot;&nbsp; If it does not, you will not be able to export your 
+configuration to the central server.</p>
+<p align="center">
+<img border="0" src="banner_no_backup.gif" width="539" height="796"></p>
+<p>3.&nbsp; Select Export CCC's Configuration to the Central Server (where CCC 
+is your site's 3 letter ID) and press OK.</p>
+<p>&nbsp;</p>
+<p><b><a name="HOW TO EXPORT YOUR DIGITAL DATA TO THE CENTRAL SERVER">HOW TO EXPORT YOUR DIGITAL DATA TO THE CENTRAL SERVER</a>&nbsp; </b>
+<a style="text-decoration: none" href="#Top">[BACK TO THE TOP]</a></p>
+<p>1.&nbsp; Select Export CCC's Digital Forecast to the Central Server (where 
+CCC is your site's 3 letter ID) and press OK.</p>
+<p>&nbsp;</p>
+<p><b><a name="HOW TO START GFE FROM THE SERVICE BACKUP GUI">HOW TO START GFE FROM THE SERVICE BACKUP GUI</a>&nbsp; </b>
+<a style="text-decoration: none" href="#Top">[BACK TO THE TOP]</a></p>
+<p>1.&nbsp; Select Start GFE from the Service Backup GUI and press OK.</p>
+<p>2.&nbsp; If you are currently in Service Backup Mode or your site has 
+multiple domains, you will be asked which domain you would like to start GFE 
+for.&nbsp; Select a domain and press OK.&nbsp; </p>
+<p align="center">
+<img border="0" src="choose_domain.jpg" width="243" height="190"></p>
+<p>If you are not in Service Backup Mode or your site does not have multiple 
+domains, GFE will start for your site.</p>
+<p>3.&nbsp; The GFE Startup GUI will appear.&nbsp; Select a User, Config file, 
+and Mode and press Start.</p>
+<p>&nbsp;</p>
+<p><b><a name="HOW TO EXIT SERVICE BACKUP">HOW TO EXIT SERVICE BACKUP</a>&nbsp; </b>
+<a style="text-decoration: none" href="#Top">[BACK TO THE TOP]</a></p>
+<p>1.&nbsp; Verify that the banner at the top of the Service Backup GUI reads 
+&quot;YOU ARE CURRENTLY BACKING UP XXX&quot; (where XXX is a failed site).&nbsp; If it 
+does not, you will not be able to exit service backup.</p>
+<p align="center">
+<img border="0" src="banner_svcbuMode.gif" width="518" height="828"></p>
+<p>2.&nbsp; Select Exit Service Backup for XXX (where XXX is a failed site) and 
+press OK.</p>
+<p>3.&nbsp; The service backup clean up script will run.&nbsp; If it is 
+successful, the Service Backup GUI will disappear when it is finished.</p>
+<p>&nbsp;</p>
+<p><b><a name="HOW TO CLEAN UP SERVICE BACKUP">HOW TO CLEAN UP SERVICE BACKUP</a>&nbsp; </b>
+<a style="text-decoration: none" href="#Top">[BACK TO THE TOP]</a></p>
+<p>1.&nbsp; Select Clean Up Service Backup from the Service Backup GUI and press 
+OK.</p>
+<p>2.&nbsp; If the Service Backup GUI is able to determine the failed site, you 
+will see a message saying &quot;Cleaning Up XXX's Configuration&quot;</p>
+<p align="center">
+<img border="0" src="xmessage_inst_03.jpg" width="299" height="96"></p>
+<p>3.&nbsp; If the Service Backup GUI cannot determine the failed site's ID, a 
+GUI will appear asking you for the failed site's ID.&nbsp; Enter the failed 
+site's 3 letter ID and press OK. </p>
+<p align="center">
+<img border="0" src="failed_site.jpg" width="544" height="259"></p>
+
+</body>
+</html>

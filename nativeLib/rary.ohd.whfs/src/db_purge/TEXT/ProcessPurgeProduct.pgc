@@ -1,0 +1,308 @@
+#include <sqlca.h>
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#include "db_purge.h"
+
+EXEC SQL include pgtypes_timestamp;
+
+/**************************************************************
+Name:  		ProcessPurgeProduct.c
+
+Description:  	Deletes records as specified by PurgeProduct table.
+		Called by db_purge main.
+
+Algorithm:	The algorithm employed here follows:
+
+		FOR EACH RECORD IN PurgeProduct DO
+			SELECT *
+			  FROM TextProduct
+			 WHERE TextProduct.product_id =
+			       PurgeProduct.product_id
+			 ORDER
+			    BY producttime DESC, postingtime DESC
+
+			number_to_delete = COUNT(*) -
+					   PurgeProduct.num_versions
+
+			IF number_to_delete > 0 THEN
+			    FOR i=1 TO (number_to_delete - 1)
+				TextProduct.MOVENEXT
+			    ENDFOR
+			    delete_product_id = TextProduct.product_id
+			    delete_producttime = TextProduct.producttime
+			    delete_postingtime = TextProduct.postingtime
+
+			    DELETE
+			      FROM TextProduct
+		   	     WHERE TextProduct.postingtime <
+			           delete_postingtime
+			       AND TextProduct.product_id =
+				   delete_product_id
+			ENDIF
+		ENDFOR
+
+*********************************************************/
+
+void ProcessPurgeProduct()
+{
+
+
+   /* host variable */
+
+   EXEC SQL BEGIN DECLARE SECTION;
+
+      char delete_product_id[11];
+      char product_id[11];   /* Fields for PurgeProduct */
+      char sql_stmt[500];   /* Generic SQL statement */
+      timestamp delete_postingtime;
+      timestamp delete_producttime;
+      timestamp postingtime;
+      timestamp producttime;  /* Fields for PurgeProduct */
+      long count_tp_records;   /* Number of TextProduct records */
+      long num_versions;
+
+   EXEC SQL END DECLARE SECTION;
+
+   /* regular C variables */
+
+   int number_to_delete;		/* Num of TextProduct recs to delete */
+   int i;				/* Famous loop-counter */
+   char Sproducttime[50];		/* String version of producttime */
+   char Spostingtime[50];		/* String version of postingtime */
+
+
+   /* FOR EACH RECORD IN PurgeProduct DO ----------------------------- */
+
+   printf( "\nBegin PurgeProduct:\n");
+   sprintf(sql_stmt,
+   "SELECT product_id, num_versions, producttime, postingtime "
+   "FROM PurgeProduct;");
+
+   EXEC SQL PREPARE pp_id FROM :sql_stmt;
+   if (sqlca.sqlcode != 0)
+   {
+      printf( "ERROR - Can't PREPARE cursor for PurgeProduct (%s)\n",
+                   sqlca.sqlstate);
+      return;
+   }
+
+   EXEC SQL DECLARE pp_cur CURSOR WITH HOLD FOR pp_id;
+   if (sqlca.sqlcode != 0)
+   {
+      printf( "ERROR - Can't DECLARE cursor for PurgeProduct (%s)\n",
+                   sqlca.sqlstate);
+      return;
+   }
+
+   EXEC SQL OPEN pp_cur;
+   if (sqlca.sqlcode != 0)
+   {
+      printf( "ERROR - Can't OPEN cursor for PurgeProduct (%s)\n",
+              sqlca.sqlstate);
+      return;
+   }
+
+
+   for(;;)		/* Loop until break reached a few lines down */
+   {
+      EXEC SQL FETCH pp_cur INTO :product_id, :num_versions,
+	 :producttime, :postingtime;
+
+      if (sqlca.sqlcode != 0)
+      {
+	 /* break if no more PurgeProduct records */
+
+	 if (sqlca.sqlcode == 100)
+	 {
+	    break;
+	 }
+
+
+	 /* must be ERROR! */
+
+	 printf( "ERROR - Can't FETCH PurgeProduct record (%s)\n",
+	              sqlca.sqlstate);
+
+	 return;
+      }
+
+
+      /*-----------------------------------------
+	 SELECT *
+	 FROM TextProduct
+	 WHERE TextProduct.product_id =
+	 PurgeProduct.product_id
+	 ORDER
+	 BY producttime DESC, postingtime DESC
+	 -----------------------------------------*/
+
+      sprintf(sql_stmt, "SELECT product_id, producttime, postingtime"
+	      " FROM TextProduct WHERE product_id = '%s' "
+	      " ORDER BY producttime DESC, postingtime DESC;",
+	      product_id);
+      EXEC SQL PREPARE tp_id FROM :sql_stmt;
+      if (sqlca.sqlcode != 0)
+      {
+	 printf( "ERROR - Can't PREPARE cursor for TextProduct (%s)\n",
+	         sqlca.sqlstate);
+	 return;
+      }
+
+      EXEC SQL DECLARE tp_cur CURSOR WITH HOLD FOR tp_id;
+      if (sqlca.sqlcode != 0)
+      {
+	 printf( "ERROR - Can't DECLARE cursor for TextProduct (%s)\n",
+	         sqlca.sqlstate);
+	 return;
+      }
+
+      EXEC SQL OPEN tp_cur;
+      if (sqlca.sqlcode != 0)
+      {
+	 printf( "ERROR - Can't OPEN cursor for TextProduct (%s)\n",
+		 sqlca.sqlstate);
+	 return;
+      }
+
+
+      /*--------------------------------------------
+	 number_to_delete = COUNT(*) -
+	 PurgeProduct.num_versions
+	 --------------------------------------------*/
+      sprintf(sql_stmt, "SELECT count(*) FROM TextProduct "
+	      " WHERE product_id = '%s'; ", product_id);
+
+      EXEC SQL PREPARE tpc_id FROM :sql_stmt;
+      if (sqlca.sqlcode != 0)
+      {
+	 printf( "ERROR - Can't PREPARE cursor for TextProduct (%s)\n",
+	         sqlca.sqlstate);
+	 return;
+      }
+
+      EXEC SQL DECLARE tpc_cur CURSOR WITH HOLD FOR tpc_id;
+      if (sqlca.sqlcode != 0)
+      {
+	 printf( "ERROR - Can't DECLARE cursor for TextProduct (%s)\n",
+	         sqlca.sqlstate);
+	 return;
+      }
+
+      EXEC SQL OPEN tpc_cur;
+      if (sqlca.sqlcode != 0)
+      {
+	 printf( "ERROR - Can't OPEN cursor for TextProduct count (%s)\n",
+		 sqlca.sqlstate);
+	 return;
+      }
+
+      EXEC SQL FETCH tpc_cur INTO :count_tp_records;
+      if (sqlca.sqlcode != 0)
+      {
+	 printf( "ERROR - Can't FETCH TextProduct record count (%s)\n",
+	         sqlca.sqlstate);
+	 return;
+      }
+
+      number_to_delete = count_tp_records - num_versions;
+
+      if (number_to_delete < 0)
+	 number_to_delete = 0;
+
+
+      if (number_to_delete == 0)
+      {
+        printf( "   "
+	      "%s - None deleted; %ld products currently <= %ld max.\n",
+	      product_id, count_tp_records, num_versions);
+      }
+
+      else
+      {
+        printf( "   "
+	      "%s - %d deleted; were %ld products > %ld max.\n",
+	      product_id, number_to_delete, count_tp_records, num_versions);
+      }
+
+
+      /*------------------------------------------------
+	 IF number_to_delete > 0 THEN
+	 FOR i=1 TO (number_to_delete - 1)
+	 TextProduct.MOVENEXT
+	 ENDFOR
+	 delete_product_id  = TextProduct.product_id
+	 delete_producttime = TextProduct.producttime
+	 delete_postingtime = TextProduct.postingtime
+
+	 DELETE FROM TextProduct
+	 WHERE TextProduct.producttime <= delete_producttime
+	 AND TextProduct.postingtime   <= delete_postingtime
+	 AND TextProduct.product_id = delete_product_id
+	 END If
+	 ------------------------------------------------*/
+
+      if (number_to_delete > 0)
+      {
+         if (num_versions > 0)
+	 {
+	    for (i = 0; i < num_versions; i++)
+	    {
+	       EXEC SQL FETCH tp_cur INTO :delete_product_id,
+	          :delete_producttime,
+	          :delete_postingtime;
+	       if (sqlca.sqlcode != 0)
+	       {
+	          printf( "ERROR - Can't FETCH TextProduct record (%s)\n",
+	                  sqlca.sqlstate);
+	          return;
+	       }
+	    }
+
+	    dttoasc(&delete_producttime, Sproducttime);
+	    dttoasc(&delete_postingtime, Spostingtime);
+	    sprintf(sql_stmt, "DELETE FROM TextProduct"
+		    " WHERE product_id = '%s'"
+		    " AND producttime < '%s'"
+		    " AND postingtime < '%s';",
+		    delete_product_id, Sproducttime, Spostingtime);
+
+         }
+
+	 else
+	 {
+	    sprintf(sql_stmt, "DELETE FROM TextProduct"
+		    " WHERE product_id = '%s';", product_id);
+	 }
+
+	 EXEC SQL EXECUTE IMMEDIATE :sql_stmt;
+	 printf( "    %s\n", sql_stmt);
+	 if (sqlca.sqlcode != 0)
+	 {
+	    printf( "ERROR - DELETE failed - EXECUTE IMMEDIATE return code = %s\n", sqlca.sqlstate);
+	    return;
+	 }
+
+
+      }  /* end if num to delete > 0 */
+
+      EXEC SQL CLOSE tp_cur;
+      if (sqlca.sqlcode != 0)
+      {
+	 printf( "ERROR attempting to close tp_cur cursor (%s)\n",
+		 sqlca.sqlstate);
+	 return;
+      }
+
+      EXEC SQL CLOSE tpc_cur;
+      if (sqlca.sqlcode != 0)
+      {
+	 printf( "ERROR attempting to close tpc_cur cursor (%s)\n",
+		 sqlca.sqlstate);
+	 return;
+      }
+
+   }
+}

@@ -1,0 +1,64 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta name="copyright" content="Copyright (c) IBM Corporation and others 2000, 2007. This page is made available under license. For full details see the LEGAL in the documentation book that contains this page." >
+<meta http-equiv="Content-Language" content="en-us">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<link rel="STYLESHEET" href="../../book.css" charset="ISO-8859-1"
+	type="text/css">
+<style type="text/css">
+td {border-top: solid thin black;}
+img[alt] {background-color:#ffdddd;}
+tr {vertical-align: top;}
+</style>
+<title>Shared Model Editing</title>
+<script language="JavaScript" type="text/javascript" src="PLUGINS_ROOT/org.eclipse.help/livehelp.js"> </script>
+</head>
+<body>
+<h1><img src="../../intro/css/images/ecf_intro.gif">Eclipse Communication Framework (ECF)</h1>
+<p>
+<h2>Shared Model Editing Using GraphShare</h2>
+<p>The Shared Data Graph Editor allows a group of Eclipse users
+connected to the same container group to collaboratively edit arbitrary
+EMF-generated models. It is an example application that shows how to
+use the GraphShare service.</p>
+<h3>Prerequisites</h3>
+<p>In addition to ECF, you will need:<br>
+</p>
+<ol>
+  <li>Eclipse 3.1M4+</li>
+  <li>EMF+SDO 2.1.0.I2005+<br>
+  </li>
+</ol>
+<h3>Steps</h3>
+<ol>
+  <li>In your workspace, create a simple project, e.g. <span
+ style="font-style: italic;">test</span>.</li>
+  <li>Use the ECF Collaboration Client to connect to a collaboration
+server (local or remote).</li>
+  <li>Create a sample file to collaboratively edit:</li>
+  <ol>
+    <li>In the Navigator view, right-click your newly-created project
+and select <span style="font-style: italic;">New -&gt; Other...</span></li>
+    <li>Select <span style="font-style: italic;">Example EMF Model
+Creation Wizards -&gt; Data Graph Model</span> and click <span
+ style="font-style: italic;">Next</span>.</li>
+    <li>Choose a unique filename for your new model. Note that the full
+workspace path of this file (including the project and all folders) is
+very important -- it is what identifies the model among the peers.
+Click <span style="font-style: italic;">Next</span>.</li>
+    <li>Select <span style="font-style: italic;">http:///org/eclipse/ecf/example/library.ecore</span>
+as the model URI and <span style="font-style: italic;">Library</span>
+as the Model Object. Click <span style="font-style: italic;">Finish</span>.<br>
+    </li>
+  </ol>
+  <li>If you are the first one to share this file, you will see an
+empty Library. If someone else already published this model, you will
+get the initial copy from them.</li>
+  <li>Make changes to the model. When you save, your changes will be
+broadcast to others. When someone else saves, your unsaved changes, if
+any, will be thrown away and replaced by theirs.<br>
+  </li>
+</ol>
+</body>
+</html>

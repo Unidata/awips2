@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Acars Plug-in
+Bundle-SymbolicName: com.raytheon.uf.edex.plugin.acars
+Bundle-Version: 1.12.1174.qualifier
+Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Bundle-Vendor: RAYTHEON
+Require-Bundle: org.apache.commons.logging,
+ com.raytheon.edex.common,
+ com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
+ org.geotools,
+ javax.persistence,
+ javax.measure
+Export-Package: com.raytheon.uf.edex.plugin.acars,
+ com.raytheon.uf.edex.plugin.acars.common,
+ com.raytheon.uf.edex.plugin.acars.dao
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: com.raytheon.uf.common.dataplugin.acars

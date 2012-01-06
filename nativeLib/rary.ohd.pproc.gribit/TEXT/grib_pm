@@ -1,0 +1,4 @@
+      character*62 gtab0,gtaba,gtab9c,gtab2,gtab128
+      common /grib_pm/ num0,gtab0(10),numa,gtaba(20),num9c,gtab9c(137),
+     +                 num2,gtab2(6),num128,gtab128(255)
+     

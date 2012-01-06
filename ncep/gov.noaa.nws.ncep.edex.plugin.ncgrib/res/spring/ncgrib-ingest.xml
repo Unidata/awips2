@@ -1,0 +1,100 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<!-- Done to force instantiation of the NcgribTables -->
+	<bean id="ncgribTableLookup" class="gov.noaa.nws.ncep.edex.util.ncgrib.NcgribTableLookup" factory-method="getInstance" depends-on="ncgribRegistered" />
+
+	<bean id="ncgribNotifyTransform" class="gov.noaa.nws.ncep.edex.plugin.ncgrib.notify.NcgribNotifyTransform" />
+
+	<bean id="ncgribDecoder" class="gov.noaa.nws.ncep.edex.plugin.ncgrib.NcgribDecoder"/>
+  	
+  	<bean id="ncgridAssembler" class="gov.noaa.nws.ncep.edex.plugin.ncgrib.NcgridAssembler"/>
+  	
+  	<bean id="ingest-ncgrib" class="org.apache.camel.component.jms.JmsComponent">
+        <constructor-arg ref="jmsIngestNcgribConfig" />
+		<property name="taskExecutor" ref="ncgribThreadPool" />		
+	</bean>
+	<bean id="jmsIngestNcgribConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+			factory-bean="jmsConfig" factory-method="copy" >
+                <property name="listenerConnectionFactory" ref="jms2SessConnFactory" />
+                <property name="templateConnectionFactory" ref="jms2SessConnFactory" />
+        </bean>
+	<bean id="ncgribThreadPool"
+		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="4" />
+		<property name="maxPoolSize" value="4" />
+	</bean>
+
+        <bean id="ncgribLargeFileChecker" class="gov.noaa.nws.ncep.edex.plugin.ncgrib.NcgribLargeFileChecker" />
+        <bean id="ncgribLargeFileLockRelease" class="gov.noaa.nws.ncep.edex.plugin.ncgrib.NcgribLockRelease" />
+
+	<bean id="ncgribCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="ncgrib-camel"/>
+  	</bean> 
+	
+	<camelContext id="ncgrib-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+		<endpoint id="ncgribFileEndpoint" uri="file:${edex.home}/data/sbn/ncgrib?noop=true&amp;idempotent=false" />
+
+		<!-- Begin Ncgrib Routes -->
+		<route id="ncgribFileConsumerRoute">
+			<from ref="ncgribFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+				<constant>ncgrib</constant>
+			</setHeader>
+			<to uri="ingest-ncgrib:queue:Ingest.Ncgrib" />
+		</route>
+
+
+		<route id="ncgribIngestRoute">
+			<from uri="ingest-ncgrib:queue:Ingest.Ncgrib?concurrentConsumers=4&amp;destinationResolver=#qpidDurableResolver" />
+			<setHeader headerName="pluginName">
+				<constant>ncgrib</constant>
+			</setHeader>
+			<doTry>
+    			<pipeline>
+					<bean ref="stringToFile" />
+                                        <bean ref="ncgribLargeFileChecker" />
+					<bean ref="ncgribDecoder" method="decode" />
+					<bean ref="persist" method="persist" />
+					<bean ref="index" method="index" />
+					<bean ref="ncgridAssembler" method="process"/>
+					<multicast parallelProcessing="false">
+						  <to uri="directvm:ncgribIngestAlert" />
+						  <to uri="vm:ncgribNotification" /> 
+					</multicast>
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:ncgrib?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true" />
+				</doCatch>
+                                <doFinally>
+                                        <bean ref="ncgribLargeFileLockRelease" />
+                                </doFinally>
+			</doTry>
+		</route>
+
+		<route id="ncgribIngestAlert">
+			<from uri="directvm:ncgribIngestAlert" />
+			<bean ref="toDataURI" method="toDataURI" />
+			<bean ref="processUtil" method="log" />
+			<to uri="vm:stageNotification" />
+		</route>
+		
+		<route id="ncgribNotification">
+			<from uri="vm:ncgribNotification?concurrentConsumers=4" />
+			<bean ref="ncgribNotifyTransform" method="transformToMessages" />
+			<bean ref="serializationUtil" method="transformToThrift" />
+			<to uri="jms-generic:topic:ncgribNotification?timeToLive=15000" />
+		</route>
+				
+	</camelContext>
+
+</beans>

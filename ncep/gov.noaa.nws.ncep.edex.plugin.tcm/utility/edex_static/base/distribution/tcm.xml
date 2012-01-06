@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<requestPatterns xmlns:ns2="group">
+    <regex>^WT(NT|PZ)[23][1-5]</regex>
+    <regex>^WTPA[23][1-5]</regex>
+    <regex>^WTPN[23][1-5]</regex>
+    <regex>^W[HT]PS01</regex>
+</requestPatterns>

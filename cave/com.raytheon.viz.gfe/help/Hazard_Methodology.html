@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>Hazard Grid Methodology</title>
+</head>
+<body>
+<h1>Hazard Grid Methodology</h1>
+<a href="#createnew">Create a new Hazard with MakeHazard</a><br>
+<a href="#editexisting">How to edit/delete existing hazards</a><br>
+<a href="#forcesegments">How to force a single hazard to break into two
+or more segments (WSW/NPW)</a><br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<big><big><span style="font-weight: bold;"><br>
+</span></big></big><big><big><span style="font-weight: bold;"><a
+ name="createnew"></a><span
+ style="color: rgb(102, 0, 204); text-decoration: underline;">Creating
+a New Hazard With
+MakeHazard</span></span></big></big><br>
+<big><big><span style="font-weight: bold;"><br>
+</span><small>This simple scenario describes using MakeHazard to create
+one hazard. It assumes you<br>
+are starting with no hazards in your Hazard grid.<br>
+<br>
+1. Start MakeHazard:<br>
+<br>
+<img style="width: 800px; height: 497px;" alt="Make Hazards Tool"
+ src="images/MakeHazards.png"><br>
+<br>
+2. Select the Hazard you wish to create under the Hazard List.<br>
+<br>
+<img style="width: 800px; height: 497px;" alt="Make Hazards 2"
+ src="images/MakeHazards2.png"><br>
+<br>
+3. Select the start and end time for the hazard you are creating.<br>
+<br>
+<img style="width: 800px; height: 497px;" alt="Make Hazards 3"
+ src="images/MakeHazards3.png"><br>
+<br>
+4. Select the zones for this hazard. Note: If you do not select zones
+at this step, the hazard type and time range will<br>
+be applied to the current active edit area in GFE.<br>
+<br>
+<img style="width: 800px; height: 497px;" alt="Make Hazard 4"
+ src="images/MakeHazards4.png"><br>
+<br>
+5. Press Run/Dismiss. The tool will close, and a temporary hazard grid
+will be created. Notice in the example<br>
+below, the grid name in hazISW, the temporary grid for an Ice Storm
+Warning.<br>
+<br>
+<img style="width: 800px; height: 497px;" alt="Make Hazards Temp Grid"
+ src="images/MakeHazardTempGrid.png"><br>
+</small><span style="font-weight: bold;"></span></big><br>
+6. The final step to creating a simple hazard is to run the <a
+ href="MergeHazards.html">MergeHazards</a> tool, which will recombine
+all <br>
+temporary grids back into the actual hazard grid.<br>
+<br>
+<img style="width: 800px; height: 497px;" alt="Finished Hazard grid"
+ src="images/MakeHazardHazGrid.png"><br>
+<br>
+At this point, you can run the formatter launcher, and create your
+hazard products. <br>
+<br>
+<br>
+</big><big><big><span style="font-weight: bold;"><a name="editexisting"></a><span
+ style="color: rgb(102, 0, 204);"><span
+ style="text-decoration: underline;">How to use tools to edit combined
+hazards</span><br>
+<br>
+<small><span style="color: rgb(0, 0, 0);">The general method for
+working with combined hazards is this:<br>
+</span></small></span></span></big></big>
+<ul>
+  <li>Run <a href="SeparateHazards.html">SeparateHazards</a> to break
+the hazard grid into it's components.</li>
+  <li>Click on the temporary hazard grid.</li>
+  <li>Run <a href="MakeHazard.html">MakeHazard</a> and adjust the
+times or areas of the grid.</li>
+  <li>If you wish to remove the hazard completely, simply delete the
+temporary grid.</li>
+  <li>Run <a href="MergeHazards.html">MergeHazards</a> to recombine
+the temporary grids.</li>
+  <li>Save, Publish, and run Formatter launcher for the hazard.<br>
+  </li>
+</ul>
+<big>
+The Hazards grid will be locked when you run the SeparateHazards
+procedure to prevent conflicts from other users. <br>
+</big>
+<h2><big><big><span style="font-weight: bold;"><span
+ style="color: rgb(102, 0, 204);"></span></span></big></big></h2>
+<big><big><span style="font-weight: bold;"><span
+ style="color: rgb(102, 0, 204);"></span></span></big></big><big><br>
+</big><big><big><span style="font-weight: bold;"><a name="forcesegments"></a><span
+ style="color: rgb(102, 0, 204); text-decoration: underline;">How force
+segments for the same hazard<br>
+<br>
+</span><span style="color: rgb(102, 0, 204);"><small><span
+ style="color: rgb(204, 0, 0);">This method is only applicable to a
+very special case of WSW/NPW/RFW product. Normally<br>
+GHG takes care of the segmentation of products. </span></small></span></span><span
+ style="color: rgb(102, 0, 204);"><small><span
+ style="color: rgb(204, 0, 0);"><small style="color: rgb(0, 0, 0);">The
+one case where this method would be used<br>
+is if you have a single hazard type, and you want to force two segments
+in the final product. For <br>
+instance, if you have a Winter Storm Warning (WS.W) from 12Z to 22Z,
+but you need to talk<br>
+about snow in the west and freezing rain in the east, you might want to
+break this into two <br>
+segments. Here is an example using MakeHazard:</small></span></small></span><span
+ style="font-weight: bold;"><span style="color: rgb(102, 0, 204);"><small><span
+ style="color: rgb(204, 0, 0);"><br>
+<br>
+<span style="color: rgb(0, 0, 0);">Step 1: Run MakeHazard for the first
+segment. Enter 1 in the ETN/Segment Number box. Press Run.<br>
+<br>
+<img style="width: 800px; height: 497px;"
+ alt="Forced Segments in Make Hazard 1"
+ src="images/MakeHazardForcedSeg1.png"><br>
+</span> </span></small></span><span
+ style="color: rgb(102, 0, 204); text-decoration: underline;"><small><span
+ style="text-decoration: underline;"><span
+ style="color: rgb(204, 0, 0);"></span></span></small></span></span></big></big><big><big><span
+ style="font-weight: bold;"><span style="color: rgb(102, 0, 204);"><small><span
+ style="color: rgb(204, 0, 0);"><span style="color: rgb(0, 0, 0);"><br>
+Step 2: Create the second segment. Enter 2 in the ETN/Segment Number
+box. Press Run/Dismiss.<br>
+<br>
+<img style="width: 800px; height: 531px;"
+ alt="Forced Segment 2 in MakeHazard"
+ src="images/MakeHazardForcedSeg2.png"><br>
+<br>
+</span></span></small></span></span></big></big><big><big><span
+ style="font-weight: bold;"><span style="color: rgb(102, 0, 204);"><small><span
+ style="color: rgb(204, 0, 0);"><span style="color: rgb(0, 0, 0);">Step
+3: Run MergeHazards.<br>
+<br>
+<img style="width: 282px; height: 294px;" alt="Merge Hazards Menu"
+ src="images/MergeHazardsMenu.png"><br>
+<br>
+Step 4: Save and publish your hazard grid. Although it looks like one
+area, note the difference in the legend.&nbsp; <span
+ style="font-style: italic;">Note that you can switch the Hazards
+display to a combination of Image and Bounded Area, and then increase
+the Line Width in order to see the different segments.</span><br>
+<br>
+<img style="width: 847px; height: 657px;" alt="Combined Segments"
+ src="images/CombinedSegments.png"><br>
+<br>
+Step 5: Run the product. Notice that although VTEC codes are the same
+and headlines are the same,<br>
+that the product has been forced into two segments.<br>
+<br>
+<img alt="" src="images/ForcedSegmentsWSW.png"><br>
+<br>
+<br>
+<br>
+</span></span></small></span></span></big></big><big><big><span
+ style="font-weight: bold;"><span style="color: rgb(102, 0, 204);"><small><span
+ style="color: rgb(204, 0, 0);"><span style="color: rgb(0, 0, 0);"></span></span></small></span></span></big></big><big><big><span
+ style="font-weight: bold;"><span
+ style="color: rgb(102, 0, 204); text-decoration: underline;"><br>
+<br>
+</span></span></big></big>
+</body>
+</html>

@@ -1,0 +1,38 @@
+#!/bin/sh
+
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+source ./test_env.sh
+. $srcdir/ais_check
+
+host=127.0.0.1
+
+unset QPID_NO_MODULE_DIR	# failover_soak uses --module-dir, dont want clash
+MODULES=${MODULES:-$moduledir}
+MESSAGES=${MESSAGES:-1000000}
+REPORT_FREQUENCY=${REPORT_FREQUENCY:-20000}
+VERBOSITY=${VERBOSITY:-10}
+DURABILITY=${DURABILITY:-0}
+N_QUEUES=${N_QUEUES:-1}
+N_BROKERS=${N_BROKERS:-3}
+
+rm -f soak-*.log
+exec ./failover_soak $MODULES ./declare_queues ./replaying_sender ./resuming_receiver $MESSAGES $REPORT_FREQUENCY $VERBOSITY $DURABILITY $N_QUEUES $N_BROKERS
+

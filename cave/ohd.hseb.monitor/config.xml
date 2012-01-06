@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<configuration>
+  <jdbcUrl>jdbc:postgresql://localhost:5432/hd_ob83oax?user=awips&amp;password=awips</jdbcUrl>
+  <rivermon_config_dir>/home/awips/hydro/config</rivermon_config_dir>
+  <rivermon_log_dir>/home/awips/hydro/logs</rivermon_log_dir>
+</configuration>

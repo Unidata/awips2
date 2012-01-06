@@ -1,0 +1,74 @@
+#!/usr/bin/env python
+
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+import os
+import optparse
+import sys
+import socket
+from time import time, strftime, gmtime, sleep
+from qmf.console import Console, Session
+
+class EventConsole(Console):
+  def event(self, broker, event):
+    print event
+
+  def brokerConnected(self, broker):
+    print strftime("%c", gmtime(time())), "NOTIC qpid-printevents:brokerConnected broker=%s" % broker.getUrl()
+
+  def brokerDisconnected(self, broker):
+    print strftime("%c", gmtime(time())), "NOTIC qpid-printevents:brokerDisconnected broker=%s" % broker.getUrl()
+
+
+##
+## Main Program
+##
+def main():
+  _usage = "%prog [options] [broker-addr]..."
+  _description = \
+"""Collect and print events from one or more Qpid message brokers.  If no broker-addr is
+supplied, %prog will connect to 'localhost:5672'.
+broker-addr is of the form:  [username/password@] hostname | ip-address [:<port>]
+ex: localhost, 10.1.1.7:10000, broker-host:10000, guest/guest@localhost
+"""
+  p = optparse.OptionParser(usage=_usage, description=_description)
+
+  options, arguments = p.parse_args()
+  if len(arguments) == 0:
+    arguments.append("localhost")
+
+  console = EventConsole()
+  session = Session(console, rcvObjects=False, rcvHeartbeats=False, manageConnections=True)
+  brokers = []
+  for host in arguments:
+    brokers.append(session.addBroker(host))
+
+  try:
+    while (True):
+      sleep(10)
+  except KeyboardInterrupt:
+    for broker in brokers:
+      session.delBroker(broker)
+    print
+    sys.exit(0)
+ 
+if __name__ == '__main__':
+  main()
+

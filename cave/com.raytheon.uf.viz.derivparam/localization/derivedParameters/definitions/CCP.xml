@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<DerivedParameter unit="%" name="Cloud Cover" abbreviation="CCP" xmlns:ns2="group">
+    <Method name="Alias">
+        <Field abbreviation="CCOV"/>
+    </Method>
+    <Method models="HPCGuide" displayName="Total Cloud Cover" name="Multiply">
+        <Field abbreviation="TCC"/>
+        <ConstantField value="0.01"/>
+    </Method>
+    <Method models="RTMA" displayName="GOES Effective Cloud Amount" name="Multiply">
+        <Field abbreviation="TCC"/>
+        <ConstantField value="0.01"/>
+    </Method>
+    <Method name="Multiply">
+        <Field abbreviation="TCC"/>
+        <ConstantField value="0.01"/>
+    </Method>
+    <Method levels="Surface" name="Mapping">
+        <Field level="Station" abbreviation="clouds_bestCat"/>
+        <!--  Mapping information -->
+        <ConstantField value="0"/>
+        <ConstantField value="0"/>
+        
+        <ConstantField value="8"/>
+        <ConstantField value="1.0"/>
+        
+        <ConstantField value="12"/>
+        <ConstantField value=".80"/>
+        
+        <ConstantField value="11"/>
+        <ConstantField value=".30"/>
+        
+        <ConstantField value="13"/>
+        <ConstantField value=".10"/>
+    </Method>
+    <Method levels="Surface" name="Max" models="modelsounding">
+        <Field level="HiLyr" abbreviation="CCP"/>
+        <Field level="MidLyr" abbreviation="CCP"/>
+        <Field level="LowLyr" abbreviation="CCP"/>
+    </Method>
+    <Method levels="LowLyr" name="Alias" models="modelsounding">
+        <Field level="Station" abbreviation="lowCld"/>
+    </Method>
+    <Method levels="MidLyr" name="Alias" models="modelsounding">
+        <Field level="Station" abbreviation="midCld"/>
+    </Method>
+    <Method levels="HiLyr" name="Alias" models="modelsounding">
+        <Field level="Station" abbreviation="hiCld"/>
+    </Method>
+</DerivedParameter>

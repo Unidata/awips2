@@ -1,0 +1,108 @@
+# Product Discipline 0: Meteorological products, Parameter Category 1: moisture category
+0:0:Specific Humidity:kg kg-1:SPF H
+1:1:Relative Humidity:%:R H
+2:2:Humidity Mixing Ratio:kg kg-1:MIXR
+3:3:Precipitable Water:kg m-2:P WAT
+4:4:Vapor Pressure:Pa:VAPP
+5:5:Saturation Deficit:Pa:SAT D
+6:6:Evaporation:kg m-2:EVP
+7:7:Precipitation Rate:kg m-2 s-1:PRATE
+8:8:Total Precipitation:kg m-2:A PCP
+9:9:Large-Scale Precipitation (non-convective):kg m-2:NCPCP
+10:10:Convective Precipitation:kg m-2:ACPCP
+11:11:Snow Depth:m:SNO D
+12:12:Snowfall Rate Water Equivalent:kg m-2 s-1:SRWEQ
+13:13:Water Equivalent of Accumulated Snow Depth:kg m-2:WEASD
+14:14:Convect Snow:kg m-2:SNO C
+15:15:Large-Scale Snow:kg m-2:SNO L
+16:16:Snow Melt:kg m-2:SNO M
+17:17:Snow Age:day:SNOAG
+18:18:Absolute Humidity:kg m-3:ABSH
+19:19:Precipitation Type:See Table 4.201:PTYPE
+20:20:Integrated Liquid Water:kg m-2:ILIQW
+21:21:Condensate:kg kg-1:TCOND
+22:22:Cloud Mixing Ratio:kg kg-1:CLWMR
+23:23:Ice Water Mixing Ratio:kg kg-1:ICMR
+24:24:Rain Mixing Ratio:kg kg-1:RWMR
+25:25:Snow Mixing Ratio:kg kg-1:SNMR
+26:26:Horizontal Moisture Convergence:kg kg-1 s-1:MCONV
+27:27:Maximum Relative Humidity:%:MAXRH
+28:28:Maximum Absolute Humidity:kg m-3:MAXAH
+29:29:Total Snowfall:m:ASNOW
+30:30:Precipitable Water Category:See Table 4.202:PWCAT
+31:31:Hail:m:HAIL
+32:32:Grauple:kg kg-1:GRLE
+33:33:Categorical Rain:Code table 4.222:CRAIN
+34:34:Categorical Freezing Rain:Code table 4.222:CFRZR
+35:35:Categorical Ice Pellets:Code table 4.222:CICEP
+36:36:Categorical Snow:Code table 4.222:CSNOW
+37:37:Convective Precipitation Rate:kg m-2 s-1:CPRAT
+38:38:Horizontal Moisture Divergence:kg kg-1 s-1:MCONV
+39:39:Percent frozen precipitation:%:CPOFP
+40:40:Potential Evaporation:kg m-2:PEVAP
+41:41:Potential Evaporation Rate:W m-2:PEVPR
+42:42:Snow Cover:%:SNOWC
+43:43:Rain Fraction of Total Liquid Water:Proportion:FRAIN
+44:44:Rime Factor:Numeric:RIME
+45:45:Total Column Integrated Rain:kg m-2:TCOLR
+46:46:Total Column Integrated Snow:kg m-2:TCOLS
+47:47:Large Scale Water Precipitation (Non-Convective):kg m-2:LSWP
+48:48:Convective Water Precipitation:kg m-2:CWP
+49:49:Total Water Precipitation:kg m-2:TWATP
+50:50:Total Snow Precipitation:kg m-2:TSNOWP
+51:51:Total Column Water (Vertically integrated total water (vapour+cloud water/ice):kg m-2:TCWAT
+52:52:Total Precipitation Rate:kg m-2s-1:TPRATE
+53:53:Total Snowfall Rate Water Equivalent:kg m-2s-1:TSRWE
+54:54:Large Scale Precipitation Rate:kg m-2s-1:LSPRATE
+55:55:Convective Snowfall Rate Water Equivalent:kg m-2s-1:CSRWE
+56:56:Large Scale Snowfall Rate Water Equivalent:kg m-2s-1:LSSRWE
+57:57:Total Snowfall Rate:m s-1:TSRATE
+58:58:Convective Snowfall Rate:m s-1:CSRATE
+59:59:Large Scale Snowfall Rate:m s-1:LSSRATE
+60:60:Snow Depth Water Equivalent:kg m-2:SDWE
+61:61:Snow Density:kg m-3:SDEN
+62:62:Snow Evaporation:kg m-2:SEVAP
+#63:63:Reserved::
+64:64:Total Column Integrated Water Vapour:kg m-2:TCIWV
+65:65:Rain Precipitation Rate:kg m-2s-1:RPRATE
+66:66:Snow Precipitation Rate:kg m-2s-1:SPRATE
+67:67:Freezing Rain Precipitation Rate:kg m-2s-1:FPRATE
+68:68:Ice Pellets Precipitation Rate:kg m-2s-1:IPRATE
+#69-191:69-191:Reserved::
+#192-254:192-254:Reserved for Local Use::
+192:192:Categorical Rain (yes=1; no=0)::CRAIN
+193:193:Categorical Freezing Rain (yes=1; no=0)::CFRZR
+194:194:Categorical Ice Pellets (yes=1; no=0)::CICEP
+195:195:Categorical Snow (yes=1; no=0)::CSNOW
+196:196:Convective Precipitation Rate:kg m-2 s-1:CPRAT
+197:197:Horizontal Moisture Divergence:kg kg-1 s-1:MCONV
+198:198:Minimum Relative Humidity:%:MINRH
+199:199:Potential Evaporation:kg m-2:PEVAP
+200:200:Potential Evaporation Rate:W m-2:PEVPR
+201:201:Snow Cover:%:SNOWC
+202:202:Rain Fraction of Total Liquid Water::FRAIN
+203:203:Rime Factor::RIME
+204:204:Total Column Integrated Rain:kg m-2:TCOLR
+205:205:Total Column Integrated Snow:kg m-2:TCOLS
+206:206:Total Icing Potential Diagnostic::TIPD
+207:207:Number concentration for ice particles::NCIP
+208:208:Snow temperature:K:SNO T
+209:209:Total column-integrated supercooled liquid water:kg m-2:TCLSW
+210:210:Total column-integrated melting ice:kg m-2:TCOLM
+211:211:Evaporation - Precipitation:cm per day:EMNP
+212:212:Sublimation (evaporation from snow):W m-2:SBSNO
+213:213:Deep Convective Moistening Rate:kg kg-1 s-1:CNVMR
+214:214:Shallow Convective Moistening Rate:kg kg-1 s-1:SHAMR
+215:215:Vertical Diffusion Moistening Rate:kg kg-1 s-1:VDFMR
+216:216:Condensation Pressure of Parcali Lifted From Indicate Surface:Pa:CONDP
+217:217:Large scale moistening rate:kg/kg/s:LRGMR
+218:218:Specific humidity at top of viscous sublayer:kg/kg:QZ0
+219:219:Maximum specific humidity at 2m:kg/kg:QMAX
+220:220:Minimum specific humidity at 2m:kg/kg:QMIN
+221:221:Liquid precipitation (rainfall):kg/m2:ARAIN
+222:222:Snow temperature, depth-avg:K:SNOWT
+223:223:Total precipitation (nearest grid point):kg/m2:APCPN
+224:224:Convective precipitation (nearest grid point):kg/m2:ACPCPN
+225:225:Freezing Rain:kg/m2:FRZR
+226:226:Predominant Weather:Numeric (See note 3):PWTHER
+255:255:Missing::

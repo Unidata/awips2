@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ 
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+ 
+   http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+ 
+-->
+
+<web-app id="qman" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+	<description>
+		Q-Man is a Management bridge that exposes one (or several) Qpid
+		broker domain model as MBeans that are accessible through the
+		Java Management Extensions (JMX) and / or WS-DM.
+	</description>
+	<display-name>QManEE</display-name>
+    <listener>
+		<description>
+			Provides lifecycle management for QMan module.
+		</description>
+		<display-name>QMan Lifecycle manager</display-name>
+		<listener-class>org.apache.qpid.management.servlet.QManLifeCycleManager</listener-class>
+	</listener>
+	<servlet>
+		<display-name>QMan Proxy Servlet</display-name>
+		<servlet-name>Proxy</servlet-name>
+		<servlet-class>org.apache.qpid.management.servlet.WSDMAdapter</servlet-class>
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+	<servlet>
+		<display-name>View Console (System Overview) Action</display-name>
+		<servlet-name>ViewConsole</servlet-name>
+		<servlet-class>org.apache.qpid.management.web.action.ConsoleAction</servlet-class>
+		<load-on-startup>5</load-on-startup>
+	</servlet>
+	<servlet>
+		<display-name>View Resources</display-name>
+		<servlet-name>ResourceManagement</servlet-name>
+		<servlet-class>org.apache.qpid.management.web.action.ResourcesManagementAction</servlet-class>
+	</servlet>
+	<servlet>
+		<display-name>JMX Perspective</display-name>
+		<servlet-name>JmxPerspective</servlet-name>
+		<servlet-class>org.apache.qpid.management.web.action.JmxPerspectiveAction</servlet-class>
+	</servlet>
+	<servlet>
+		<display-name>WSDM Properties Perspective</display-name>
+		<servlet-name>WsdmPropertiesPerspective</servlet-name>
+		<servlet-class>org.apache.qpid.management.web.action.WsdmPropertiesPerspectiveAction</servlet-class>
+	</servlet>	
+	<servlet>
+		<display-name>WSDM Operations Perspective</display-name>
+		<servlet-name>WsdmOperationsPerspective</servlet-name>
+		<servlet-class>org.apache.qpid.management.web.action.WsdmOperationsPerspectiveAction</servlet-class>
+	</servlet>	
+	<servlet>
+		<display-name>WSDM WSDL Perspective</display-name>
+		<servlet-name>WsdmWsdlPerspective</servlet-name>
+		<servlet-class>org.apache.qpid.management.web.action.WsdmWsdlPerspectiveAction</servlet-class>
+	</servlet>	
+	<servlet>
+		<display-name>WSDM RMD Perspective</display-name>
+		<servlet-name>WsdmRmdPerspective</servlet-name>
+		<servlet-class>org.apache.qpid.management.web.action.WsdmRmdPerspectiveAction</servlet-class>
+	</servlet>	
+	<servlet>
+		<display-name>Logging Configurator</display-name>
+		<servlet-name>LoggingConfiguration</servlet-name>
+		<servlet-class>org.apache.qpid.management.web.action.LoggingConfigurationAction</servlet-class>
+	</servlet>	
+	<servlet>
+		<display-name>Brokers Management</display-name>
+		<servlet-name>BrokersManagement</servlet-name>
+		<servlet-class>org.apache.qpid.management.web.action.BrokersManagementAction</servlet-class>
+	</servlet>	
+	<servlet>
+		<description>
+			Connects QMAn to one or more brokers depending from what is
+			specified on the given (via system property) configuration
+			file. 
+		</description>
+		<display-name>Connect QMan to Broker</display-name>
+		<servlet-name>ConnectQManToBroker</servlet-name>
+		<servlet-class>org.apache.qpid.management.servlet.ConnectQManToBroker</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ResourceManagement</servlet-name>
+		<url-pattern>/resources_management</url-pattern>
+	</servlet-mapping>	
+	<servlet-mapping>
+		<servlet-name>WsdmWsdlPerspective</servlet-name>
+		<url-pattern>/wsdm_wsdl_perspective</url-pattern> 
+	</servlet-mapping>	
+	<servlet-mapping>
+		<servlet-name>WsdmRmdPerspective</servlet-name>
+		<url-pattern>/wsdm_rmd_perspective</url-pattern> 
+	</servlet-mapping>	
+	<servlet-mapping>
+		<servlet-name>WsdmOperationsPerspective</servlet-name>
+		<url-pattern>/wsdm_operations_perspective</url-pattern> 
+	</servlet-mapping>	
+	<servlet-mapping>
+		<servlet-name>WsdmPropertiesPerspective</servlet-name>
+		<url-pattern>/wsdm_properties_perspective</url-pattern> 
+	</servlet-mapping>		
+	<servlet-mapping>
+		<servlet-name>BrokersManagement</servlet-name>
+		<url-pattern>/brokers_management</url-pattern> 
+	</servlet-mapping>		
+	<servlet-mapping>
+		<servlet-name>JmxPerspective</servlet-name>
+		<url-pattern>/jmx_perspective</url-pattern> 
+	</servlet-mapping>		
+	<servlet-mapping>
+		<servlet-name>LoggingConfiguration</servlet-name>
+		<url-pattern>/logging_configuration</url-pattern> 
+	</servlet-mapping>		
+	<servlet-mapping>
+		<servlet-name>ViewConsole</servlet-name>
+		<url-pattern>/console</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>ConnectQManToBroker</servlet-name>
+		<url-pattern>/test/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Proxy</servlet-name>
+		<url-pattern>/services/*</url-pattern>
+	</servlet-mapping>
+	<login-config>
+		<auth-method>BASIC</auth-method>
+	</login-config>
+</web-app>

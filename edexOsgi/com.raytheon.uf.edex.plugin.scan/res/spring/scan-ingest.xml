@@ -1,0 +1,50 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="scanMenuCreator" class="com.raytheon.uf.edex.dat.utils.DatMenuUtil" depends-on="pointDataRegistered, vilGenerator, qpfGenerator, preciprateGenerator, fogGenerator, cwatGenerator, ffmpGenerator"/>
+
+	<bean id="scanCpgSrvDispatcher" class="com.raytheon.uf.edex.cpgsrv.CPGDispatcher"/>
+	
+	<bean id="scanThreadPool"
+		class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="2" />
+		<property name="maxPoolSize" value="6" />
+		<property name="keepAliveSeconds" value="60000" />
+	</bean>
+
+    <bean id="scanGenerator" class="com.raytheon.uf.edex.plugin.scan.ScanGenerator" depends-on="commonTimeRegistered">
+   		<property name="executor" ref="scanThreadPool"/>
+    </bean>
+
+    <bean factory-bean="scanCpgSrvDispatcher" factory-method="register">
+		<constructor-arg ref="scanGenerator"/>
+	</bean>
+
+	<camelContext id="clusteredScanRoutes"
+	    autoStartup="false"
+	    xmlns="http://camel.apache.org/schema/spring"
+	    errorHandlerRef="errorHandler">                
+	    <route id="scanCpgSrvListenerRoute">
+            <from uri="jms-generic:queue:scanCpgsrvFiltering"/>
+	        <doTry>
+		          <pipeline>
+		          	<bean ref="serializationUtil" method="transformFromThrift" />
+		            <bean ref="scanCpgSrvDispatcher" method="matchURIs"/>
+		          </pipeline>
+		          <doCatch>
+		             <exception>java.lang.Throwable</exception>
+		             <to uri="log:scanCpgSrv?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+		          </doCatch>
+	        </doTry>
+        </route>
+    </camelContext>
+    <bean factory-bean="clusteredCamelContextMgr"
+		factory-method="register">
+		<constructor-arg ref="clusteredScanRoutes" />
+  	</bean>
+</beans>

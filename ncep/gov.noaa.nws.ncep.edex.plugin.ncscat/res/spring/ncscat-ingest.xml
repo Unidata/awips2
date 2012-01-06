@@ -1,0 +1,76 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+	<bean id="ncscatDao" class="gov.noaa.nws.ncep.common.dataplugin.ncscat.dao.NcscatDao">
+	<constructor-arg ref="ncscatPluginName"/> 
+	</bean>
+
+	<bean id="ncscatDecoder" class="gov.noaa.nws.ncep.edex.plugin.ncscat.decoder.NcscatDecoder">
+	<constructor-arg ref="ncscatPluginName"/> 
+	</bean>
+
+	
+	<bean id="ncscatDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="ncscat" />
+		<constructor-arg value="jms-dist:queue:Ingest.ncscat" />
+	</bean>
+
+	<bean id="ncscatCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="ncscat-camel"/>
+  	</bean> 
+
+	<camelContext id="ncscat-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+		<endpoint id="ncscatFileEndpoint" uri="file:${edex.home}/data/sbn/ncscat??noop=true&amp;idempotent=false" />
+
+		<!-- Begin Ncscat routes -->
+		<route id="ncscatFileConsumerRoute">
+			<from ref="ncscatFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+				<constant>ncscat</constant>
+			</setHeader>
+			<to uri="jms-generic:queue:Ingest.Ncscat" />
+		</route>
+
+
+		<route id="ncscatIngestRoute">
+			<from uri="jms-generic:queue:Ingest.Ncscat" />
+		<!-- 	<setHeader headerName="pluginName">
+				<constant>ncscat</constant>
+			</setHeader>-->
+			<doTry>
+				<pipeline>
+				<bean ref="stringToFile" />
+			<doTry>
+				<pipeline>
+					
+					<!--
+			need to replace the method decode with 	decodeNcscatInputFile
+					<bean ref="ncscatDecoder" method="decode" />	-->
+					<bean ref="ncscatDecoder" method="decodeNcscatInputFile" />	
+					<to uri="directvm:persistIndexAlert" />
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:ncscat?level=ERROR&amp;showBody=false" />
+				</doCatch>
+			</doTry>
+		    </pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:ncscat?level=ERROR&amp;showBody=false" />
+				</doCatch>
+			</doTry>
+	<!-- bean ref="processUtil" method="delete" /-->
+		</route>
+	</camelContext>
+</beans>

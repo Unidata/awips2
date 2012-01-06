@@ -1,0 +1,169 @@
+<?php
+$page_title = "HDFView User's Guide"; 
+include ("../../../links.php"); 
+include ("../../../includes/header.html"); 
+?>
+<link href="edit.css" rel="stylesheet" type="text/css" />
+
+<p>
+<a href="index.html">[Index]</a>
+<a href="ug01introduction.html">[1]</a>
+<a href="ug02start.html">[2]</a>
+<a href="ug03objects.html">[3]</a>
+<a href="ug04treeview.html">[4]</a>
+<a href="ug05spreadsheet.html">[5]</a>
+<a href="ug06imageview.html">[6]</a>
+<a href="ug07textview.html">[7]</a>
+</p>
+
+<fieldset><h1>HDFView User's Guide</h1></fieldset>
+<p>
+<i>Version 2.6<br>January 2010</i></p>
+
+<p><i><b>
+This document is a user's guide on how to use HDFView. For information on
+implementing an HDFView module, please read  
+<a href="http://www.hdfgroup.org/hdf-java-html/hdfview/ModularGuide/index.html">
+A User's Guide on How to Implement HDFView Modules</a>
+</b></i></p>
+
+<hr />
+<p>HDFView is a graphic utility designed for viewing and editing the
+contents of HDF4 and HDF5 files. This document provides the following information:</p>
+
+<ul class="ul">
+
+<li class="li2">
+User instructions for HDFView</li>
+<li class="li2">
+A brief discussion of the HDF object model
+(Details of the HDF object model are available from
+<a href="http://www.hdfgroup.org/hdf-java-html/hdf-object/index.html">HDF Object Package</a>.)</li>
+
+</ul>
+
+<hr noshade size=1 />
+<h2>Table of Contents</h2>
+
+<ul class="ul">
+
+<li class="li2">
+<a href="ug01introduction.html">Chapter 1: Introduction</a></li>
+
+<ul class="ul">
+<li class="li2"><a href="ug01introduction.html#ug01overview">1.1 Overview</a></li>
+<li class="li2"><a href="ug01introduction.html#ug01release" >1.2 About This Release</a></li>
+<li class="li2"><a href="ug01introduction.html#ug01features">1.3 Current Features</a>
+  <ul class="ul">
+<li class="li2"><a href="ug01introduction.html#ug01browsing">1.3.1 Browsing Features</a></li>
+<li class="li2"><a href="ug01introduction.html#ug01editing">1.3.2 Editing Features</a></li>
+</ul></li>
+<li class="li2"><a href="ug01introduction.html#ug01limitations">1.4 Limitations/Known Problems</a></li>
+<li class="li2"><a href="ug01introduction.html#ug1furtherinfo">1.5 Further Information</a></li>
+</ul>
+
+<br />
+<li class="li2">
+<a href="ug02start.html">Chapter 2: Getting Started</a>
+<ul class="ul">
+<li class="li2"><a href="ug02start.html#ug02main">2.1 The Main Window</a></li>
+<li class="li2"><a href="ug02start.html#ug02load">2.2 Opening a File</a></li>
+<li class="li2"><a href="ug02start.html#ug02tree">2.3 Tree View of File Hierarchy</a></li>
+<li class="li2"><a href="ug02start.html#ug02message">2.4 Status Information</a></li>
+<li class="li2"><a href="ug02start.html#ug02property">2.5 Viewing HDF Metadata</a></li>
+<li class="li2"><a href="ug02start.html#ug02modules">2.6 Selecting GUI Modules</a></li>
+</ul>
+</li>
+
+<br />
+<li class="li2">
+<a href="ug03objects.html">Chapter 3: HDF5 Data Objects</a>
+<ul class="ul">
+<li class="li2"><a href="ug03objects.html#ug03overview" >3.1 Overview</a></li>
+<li class="li2"><a href="ug03objects.html#ug03definition">3.2 The HDF Object Package</a></li>
+<li class="li2"><a href="ug03objects.html#ug03hierarchy">3.3 Class Hierarchy</a></li>
+<li class="li2"><a href="ug03objects.html#ug03application">3.4 Using the HDF Object Package</a></li>
+</ul>
+</li>
+
+<br />
+<li class="li2">
+<a href="ug04treeview.html">Chapter 4: The Tree Viewer</a>
+
+<ul class="ul">
+  <li class="li2"><a href="ug04treeview.html#ug04overview" >4.1 Overview</a></li>
+  <li class="li2"><a href="ug04treeview.html#ug04tree">4.2 Tree Structure</a></li>
+  <li class="li2"><a href="ug04treeview.html#ug04data">4.3 View Data Content</a></li>
+  <li class="li2"><a href="ug04treeview.html#ug04metadata">4.4 Display Metadata and Attributes</a></li>
+  <li class="li2"><a href="ug04treeview.html#ug04edit">4.5 Edit File and  File Structure</a>
+      <ul class="ul">
+        <li class="li2"><a href="ug04treeview.html#ug04file">4.5.1 Create and Save File</a></li>
+        <li class="li2"><a href="ug04treeview.html#ug04add">4.5.2 Add and Delete Object</a></li>
+        <li class="li2"><a href="ug04treeview.html#ug04copy">4.5.3 Copy and Paste Object</a></li>
+        <li class="li2"><a href="ug04treeview.html#ug04attribute">4.5.4 Add, Delete and Modify Attribute</a></li>
+      </ul>
+  </li>
+  <li class="li2"></li>
+</ul></li>
+
+<br />
+<li class="li2">
+<a href="ug05spreadsheet.html">Chapter 5: Table Viewer</a>
+<ul class="ul">
+<li class="li2"><a href="ug05spreadsheet.html#ug05display">5.1 Open Dataset</a></li>
+<li class="li2"><a href="ug05spreadsheet.html#ug05subset">5.2 Subset and Dimension Selection</a>
+  <ul class="ul">
+    <li class="li2"> <a href="ug05spreadsheet.html#ug05subset_size">5.2.1 Dimension Size</a></li>
+    <li class="li2"> <a href="ug05spreadsheet.html#ug05subset_3d">5.2.2 Three or More Dimensions</a></li>
+    <li class="li2"> <a href="ug05spreadsheet.html#ug05subset_transpose">5.2.3 Swap Dimension and Data Transpose</a></li>
+    <li class="li2"> <a href="ug05spreadsheet.html#ug05subset_compound">5.2.4 Compound Dataset Options</a></li>
+  </ul></li>
+<li class="li2"><a href="ug05spreadsheet.html#ug05lineplot">5.3 Display a Column/Row Line Plot</a></li>
+<li class="li2"><a href="ug05spreadsheet.html#ug05change">5.4 Change Data Value</a></li>
+<li class="li2"><a href="ug05spreadsheet.html#ug05save">5.5 Save Data Values to a Text File</a></li>
+<li class="li2"><a href="ug05spreadsheet.html#ug05import">5.6 Import Data from a Text File</a></li>
+</ul></li>
+
+<br />
+<li class="li2">
+<a href="ug06imageview.html">Chapter 6: Image Viewer</a>
+
+<ul class="ul">
+<li class="li2"><a href="ug06imageview.html#ug06image">6.1 Display a 2-D or 3-D Image</a>
+  <ul class="ul">
+    <li><a href="ug06imageview.html#ug06image_indexed" >6.1.1 Indexed Image (8-Bit)</a></li>
+    <li><a href="ug06imageview.html#ug06image_true" >6.1.2 True Color Image</a></li>
+  </ul>
+</li>
+<li class="li2"><a href="ug06imageview.html#ug06zoom">6.2 Zoom/Flip/Contour Image</a></li>
+<li class="li2"><a href="ug06imageview.html#ug06palette">6.3 View and Modify Image Palette/Values</a></li>
+<li class="li2"><a href="ug06imageview.html#ug06histogram">6.4 Show Histogram of Pixel Values</a></li>
+<li class="li2"><a href="ug06imageview.html#ug06import">6.5 Import JPEG, GIF, PNG, or BMP Image to HDF4/5</a></li>
+<li class="li2"><a href="ug06imageview.html#ug06save">6.6 Save HDF Image to JPEG, GIF, PNG, or BMP File</a></li>
+</ul>
+</li>
+<br />
+<li class="li2">
+<a href="ug07textview.html">Chapter 7: Text Viewer</a></li>
+</ul>
+
+
+<!-- BEGIN OF FOOTER INFO -->
+<hr noshade size=1>
+
+<p>
+<a href="index.html">[Index]</a>
+<a href="ug01introduction.html">[1]</a>
+<a href="ug02start.html">[2]</a>
+<a href="ug03objects.html">[3]</a>
+<a href="ug04treeview.html">[4]</a>
+<a href="ug05spreadsheet.html">[5]</a>
+<a href="ug06imageview.html">[6]</a>
+<a href="ug07textview.html">[7]</a>
+</p>
+
+<h5>Last Modified: &nbsp; December 16, 2008</h5>
+<!-- END OF FOOTER INFO -->
+
+</body>
+</html>

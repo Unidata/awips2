@@ -1,0 +1,516 @@
+/**
+ * This software was developed and / or modified by Raytheon Company,
+ * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+ * 
+ * U.S. EXPORT CONTROLLED TECHNICAL DATA
+ * This software product contains export-restricted data whose
+ * export/transfer/disclosure is restricted by U.S. law. Dissemination
+ * to non-U.S. persons whether in the United States or abroad requires
+ * an export license or other authorization.
+ * 
+ * Contractor Name:        Raytheon Company
+ * Contractor Address:     6825 Pine Street, Suite 340
+ *                         Mail Stop B8
+ *                         Omaha, NE 68106
+ *                         402.291.0100
+ * 
+ * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+ * further licensing information.
+ **/
+package com.raytheon.uf.edex.plugin.cwa.decoder;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.measure.converter.UnitConverter;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.geotools.referencing.GeodeticCalculator;
+
+import com.raytheon.edex.esb.Headers;
+import com.raytheon.uf.common.dataplugin.PluginException;
+import com.raytheon.uf.common.dataplugin.cwa.CWADimension;
+import com.raytheon.uf.common.dataplugin.cwa.CWARecord;
+import com.raytheon.uf.common.dataplugin.cwa.dao.CWARecordDao;
+import com.raytheon.uf.common.pointdata.PointDataContainer;
+import com.raytheon.uf.common.pointdata.PointDataDescription;
+import com.raytheon.uf.common.pointdata.PointDataView;
+import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.edex.plugin.cwa.util.TableLoader;
+import com.raytheon.uf.edex.plugin.cwa.util.Utility;
+import com.raytheon.uf.edex.wmo.message.WMOHeader;
+import com.vividsolutions.jts.geom.Coordinate;
+
+/**
+ * 
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Feb 1, 2010            jsanchez     Initial creation
+ * 
+ * </pre>
+ * 
+ * @author jsanchez
+ * @version 1.0
+ */
+public class CWAParser {
+    /** The logger */
+    private Log logger = LogFactory.getLog(getClass());
+
+    private final PointDataDescription pointDataDescription;
+
+    private final TableLoader pirepTable;
+
+    private final CWARecordDao cwaDao;
+
+    private Map<File, PointDataContainer> containerMap;
+
+    private final GeodeticCalculator gc = new GeodeticCalculator();
+
+    private String pluginName;
+
+    private String eventId;
+
+    private String text;
+
+    private double size;
+
+    private DataTime startTime;
+
+    private DataTime endTime;
+
+    private CWADimension dimension;
+
+    private List<Coordinate> coordinates = new ArrayList<Coordinate>();
+
+    boolean isVicinity;
+
+    private WMOHeader wmoHeader;
+
+    private String traceId;
+
+    int currentReport = -1;
+
+    private HashMap<String, Boolean> URI_MAP = new HashMap<String, Boolean>();
+
+    private static HashMap<String, Float> dirToDeg = new HashMap<String, Float>();
+
+    private List<CWARecord> reports;
+
+    private static UnitConverter nauticalmileToMeter = NonSI.NAUTICAL_MILE
+            .getConverterTo(SI.METER);
+
+    static {
+        dirToDeg.put("N", 0f);
+        dirToDeg.put("NNE", 22.5f);
+        dirToDeg.put("NE", 45f);
+        dirToDeg.put("ENE", 67.5f);
+        dirToDeg.put("E", 90f);
+        dirToDeg.put("ESE", 112.5f);
+        dirToDeg.put("SE", 135f);
+        dirToDeg.put("SSE", 157.5f);
+        dirToDeg.put("S", 180f);
+        dirToDeg.put("SSW", 202.5f);
+        dirToDeg.put("SW", 225f);
+        dirToDeg.put("WSW", 247.5f);
+        dirToDeg.put("W", 270f);
+        dirToDeg.put("WNW", 292.5f);
+        dirToDeg.put("NW", 315f);
+        dirToDeg.put("NNW", 337.5f);
+    }
+
+    /**
+     * 
+     * @param message
+     * @param wmoHeader
+     * @param pdd
+     */
+    public CWAParser(CWARecordDao dao, PointDataDescription pdd, String name,
+            TableLoader pirepTable) {
+        pointDataDescription = pdd;
+        cwaDao = dao;
+        pluginName = name;
+        containerMap = new HashMap<File, PointDataContainer>();
+        this.pirepTable = pirepTable;
+    }
+
+    /**
+     * Does this parser contain any more reports.
+     * 
+     * @return Does this parser contain any more reports.
+     */
+    public boolean hasNext() {
+        boolean next = (reports != null);
+        if (next) {
+            next = ((currentReport >= 0) && (currentReport < reports.size()));
+        }
+        if (!next) {
+            reports = null;
+            currentReport = -1;
+        }
+        return next;
+    }
+
+    /**
+     * Get the next available report. Returns a null reference if no more
+     * reports are available.
+     * 
+     * @return The next available report.
+     */
+    public CWARecord next() {
+
+        CWARecord report = null;
+        if (currentReport < 0) {
+            return report;
+        }
+        if (currentReport >= reports.size()) {
+            reports = null;
+            currentReport = -1;
+        } else {
+            report = reports.get(currentReport++);
+            logger.debug("Getting report " + report);
+
+            try {
+                report.constructDataURI();
+                if (URI_MAP.containsKey(report.getDataURI())) {
+                    report = null;
+                } else {
+                    URI_MAP.put(report.getDataURI(), Boolean.TRUE);
+                }
+            } catch (PluginException e) {
+                logger.error(traceId + "- Unable to construct dataURI", e);
+                report = null;
+            }
+            if (report != null) {
+
+                PointDataContainer pdc = getContainer(report);
+
+                // Populate the point data.
+                PointDataView view = pdc.append();
+                view.setString("wmoHeader", report.getWmoHeader());
+                view.setString("dataURI", report.getDataURI());
+                view.setString("eventId", report.getEventId());
+                view.setString("dimension", report.getDimension().toString());
+                view.setString("text", report.getText());
+
+                int index = 0;
+                if (report.getCoordinates() != null) {
+                    for (Coordinate c : report.getCoordinates()) {
+                        view.setFloat("latitudes", (float) c.y, index);
+                        view.setFloat("longitudes", (float) c.x, index);
+                        index++;
+                    }
+                }
+                view.setInt("numOfPoints", index);
+                report.setPointDataView(view);
+            }
+        }
+        return report;
+    }
+
+    /**
+     * 
+     * @param obsData
+     * @return
+     */
+    private PointDataContainer getContainer(CWARecord obsData) {
+
+        File file = cwaDao.getFullFilePath(obsData);
+        PointDataContainer container = containerMap.get(file);
+        if (container == null) {
+            container = PointDataContainer.build(pointDataDescription);
+            containerMap.put(file, container);
+        }
+        return container;
+    }
+
+    /**
+     * 
+     * @param start
+     * @return
+     */
+    private List<CWARecord> findReports(byte[] message) {
+
+        List<CWARecord> reports = new ArrayList<CWARecord>();
+
+        List<InternalReport> parts = InternalReport.identifyMessage(message);
+        if (parts != null) {
+            for (InternalReport iRpt : parts) {
+                String s = iRpt.getReportLine();
+                switch (iRpt.getLineType()) {
+                case ISSUANCE:
+                    if (eventId != null && dimension != CWADimension.CANCELED) {
+                        reports.add(getRecord());
+                    }
+                    clearData();
+                    parseIssuanceInfo(s);
+                    break;
+                case VALID_TO:
+                    parseValidToInfo(s);
+                    break;
+                case VICINITY:
+                    parseVicinityInfo(s);
+                    break;
+                case CANCEL:
+                    dimension = CWADimension.CANCELED;
+                    break;
+                case COORDS:
+                    parseCoordinateInfo(s);
+                    break;
+                case TEXT:
+                    if (eventId != null) {
+                        if (text.length() > 0) {
+                            text += "\n";
+                        }
+                        text += s;
+                        parseGeometryInfo(s);
+                    }
+                    break;
+                case END:
+                    if (eventId != null && dimension != CWADimension.CANCELED) {
+                        reports.add(getRecord());
+                    }
+                    clearData();
+                    break;
+                }
+            }
+        }
+        return reports;
+    }
+
+    /**
+     * Set the message data and decode all message reports.
+     * 
+     * @param message
+     *            Raw message data.
+     * @param traceId
+     *            Trace id for this data.
+     */
+    public void setData(byte[] message, String traceId, Headers headers) {
+        currentReport = -1;
+        this.traceId = traceId;
+        wmoHeader = new WMOHeader(message, headers);
+        if (wmoHeader != null) {
+            reports = findReports(message);
+        } else {
+            logger.error(traceId + "- Missing or invalid WMOHeader");
+        }
+        if ((reports != null) && (reports.size() > 0)) {
+            currentReport = 0;
+        }
+    }
+
+    private void parseIssuanceInfo(String issuanceInfo) {
+        String[] parts = issuanceInfo.split(" ");
+        if (parts != null && parts[0] != null) {
+            eventId = parts[0];
+        }
+
+        int day = -1;
+        int hr = -1;
+        int min = -1;
+
+        Pattern p = Pattern.compile(InternalReport.TIME);
+        Matcher m = p.matcher(issuanceInfo);
+        if (m.find()) {
+            String time = m.group();
+            try {
+                day = Integer.parseInt(time.substring(0, 2));
+                hr = Integer.parseInt(time.substring(2, 4));
+                min = Integer.parseInt(time.substring(4).trim());
+                startTime = getDataTime(day, hr, min);
+            } catch (NumberFormatException e) {
+                // Do nothing
+            }
+        }
+    }
+
+    private void parseValidToInfo(String validToInfo) {
+        int day = -1;
+        int hr = -1;
+        int min = -1;
+        ;
+
+        Pattern p = Pattern.compile(InternalReport.TIME);
+        Matcher m = p.matcher(validToInfo);
+        if (m.find()) {
+            String time = m.group();
+            try {
+                day = Integer.parseInt(time.substring(0, 2));
+                hr = Integer.parseInt(time.substring(2, 4));
+                min = Integer.parseInt(time.substring(4).trim());
+                endTime = getDataTime(day, hr, min);
+            } catch (NumberFormatException e) {
+                // Do nothing
+            }
+        }
+    }
+
+    private void parseVicinityInfo(String vicinityInfo) {
+        Pattern vicinityPtrn = Pattern.compile(InternalReport.VICINITY);
+        Matcher m = vicinityPtrn.matcher(vicinityInfo);
+        if (m.find()) {
+            String vicinity = m.group(2);
+            if (pirepTable.contains(vicinity)) {
+                coordinates.add(pirepTable.get(vicinity));
+            }
+            dimension = CWADimension.AREA;
+            isVicinity = true;
+        }
+    }
+
+    private void parseCoordinateInfo(String coordinateInfo) {
+        String tokens[] = coordinateInfo.replace("-", " - ").split(" ");
+
+        boolean getMoreCoords = true;
+        float distance = 0;
+        float direction = 0;
+        for (String tok : tokens) {
+            if (tok.equals("CANCEL") || tok.endsWith("CNCL")
+                    || tok.endsWith("CNCL") || tok.endsWith("CNLD")
+                    || tok.endsWith("CANCELLED") || tok.endsWith("CNL")) {
+                dimension = CWADimension.CANCELED;
+                break;
+            } else if (tok.equals("FROM") || tok.equals("FM")
+                    || tok.equals("TO") || tok.equals("-")) {
+                getMoreCoords = true;
+            } else if (getMoreCoords) {
+                getMoreCoords = false;
+                Pattern p = Pattern.compile(InternalReport.DIRDIST);
+                Matcher m = p.matcher(tok);
+                if (m.matches()) {
+                    try {
+                        distance = Integer.parseInt(m.group(1));
+                        direction = dirToDeg.get(m.group(2));
+                        getMoreCoords = true;
+                        continue;
+                    } catch (NumberFormatException e) {
+                        logger.error("Bad distance: " + m.group(1));
+                        distance = 0;
+                        continue;
+                    } catch (Exception e) {
+                        logger.error("Bad direction: " + m.group(2));
+                        direction = 0;
+                        continue;
+                    }
+                }
+                Coordinate coord = null;
+                if (pirepTable.contains(tok)) {
+                    coord = pirepTable.get(tok);
+                    if (distance != 0) {
+                        this.gc.setStartingGeographicPoint(coord.x, coord.y);
+                        if (direction > 180) {
+                            direction -= 360;
+                        }
+                        this.gc.setDirection(direction,
+                                nauticalmileToMeter.convert(distance));
+                        coordinates
+                                .add(new Coordinate(
+                                        this.gc.getDestinationGeographicPoint()
+                                                .getX(),
+                                        this.gc.getDestinationGeographicPoint()
+                                                .getY()));
+                    } else {
+                        coordinates.add(coord);
+                    }
+                    dimension = CWADimension.AREA;
+                    distance = 0;
+                } else if (tok.length() == 0 || tok.equals("")) {
+                    getMoreCoords = true;
+                } else {
+                    logger.error("Bad location. '" + tok
+                            + "' not in the pirepTable.txt");
+                }
+            }
+        }
+    }
+
+    private void parseGeometryInfo(String geometryInfo) {
+        boolean found = false;
+        Pattern lineGeomPtrn = Pattern.compile(InternalReport.LINE_GEOM);
+        Pattern lineGeom2Ptrn = Pattern.compile(InternalReport.LINE_GEOM2);
+        Pattern areaGeomPtrn = Pattern.compile(InternalReport.AREA_GEOM);
+        Pattern pointGeom2Ptrn = Pattern.compile(InternalReport.POINT_GEOM2);
+
+        Pattern patterns[] = { lineGeomPtrn, lineGeom2Ptrn, areaGeomPtrn,
+                pointGeom2Ptrn };
+        for (Pattern p : patterns) {
+            Matcher m = p.matcher(geometryInfo);
+            if (m.find()) {
+                Pattern sizePtrn = Pattern.compile("(\\d{1,3})");
+                m = sizePtrn.matcher(geometryInfo);
+                if (m.find()) {
+                    size = nauticalmileToMeter.convert(Double.parseDouble((m
+                            .group())));
+                    found = true;
+                }
+            }
+        }
+
+        if (!found && size == 0 && (isVicinity || coordinates.size() > 0)) {
+            size = 2000; // 2 km = 2000 m
+        }
+    }
+
+    private void clearData() {
+        coordinates.clear();
+        isVicinity = false;
+        size = 0;
+        eventId = null;
+        text = "";
+        dimension = CWADimension.CANCELED;
+        startTime = null;
+        endTime = null;
+    }
+
+    private DataTime getDataTime(int day, int hour, int minute) {
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        cal.set(Calendar.DAY_OF_MONTH, day);
+        cal.set(Calendar.HOUR_OF_DAY, hour);
+        cal.set(Calendar.MINUTE, minute);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return new DataTime(cal);
+    }
+
+    private CWARecord getRecord() {
+        CWARecord record = new CWARecord();
+        record.setEventId(eventId);
+        record.setDimension(dimension);
+        record.setMessageData(text);
+        record.setPluginName(pluginName);
+        // TimeRange tr = new TimeRange(
+        // startTime.getRefTimeAsCalendar(),
+        // endTime.getRefTimeAsCalendar());
+        // DataTime dataTime = new DataTime(
+        // startTime.getRefTimeAsCalendar(),tr);
+        DataTime dataTime = new DataTime(startTime.getRefTimeAsCalendar());
+        record.setDataTime(dataTime);
+        Coordinate[] coord = null;
+        if (coordinates.size() == 1) {
+            coord = Utility.makeArea(coordinates.get(0), size);
+        } else if (coordinates.size() == 2 && size > 0) {
+            coord = Utility.makeArea(
+                    coordinates.toArray(new Coordinate[coordinates.size()]),
+                    size);
+        } else {
+            coord = coordinates.toArray(new Coordinate[coordinates.size()]);
+        }
+        record.setText(text);
+        record.setCoordinates(coord);
+        return record;
+    }
+}

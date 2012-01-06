@@ -1,0 +1,5 @@
+! DbOverlay
+dbName=ncep
+tableName=bounds.asctropfirs
+labelField=area
+mapName=ASCTROPFIRS Boundaries
