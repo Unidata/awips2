@@ -1,0 +1,3 @@
+You can customize the Headlines in the products in two ways:  Each standard file contains a list of "allowedHeadlines".  You can alter this list if you like.  In addition, you may customize the time descriptors for the headlines in various ways.
+
+

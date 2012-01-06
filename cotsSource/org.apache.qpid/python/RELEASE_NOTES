@@ -1,0 +1,12 @@
+Apache Python 0.6 Release Notes
+------------------------------
+
+The Qpid 0.6 release of the python client contains support the for both
+ 0-8 and 0-10 of the AMQP specification as well as support for the
+non-WIP portion of the 0-9 specification.  You can access these
+specifications from:
+
+http://www.amqp.org/confluence/display/AMQP/AMQP+Specification
+
+The README file provided contains some details on installing and using
+the python client that is included with this distribution.

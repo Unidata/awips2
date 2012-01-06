@@ -1,0 +1,1 @@
+Finally, we have the Extended Component definition with entries such as the analysisList and phraseList.  

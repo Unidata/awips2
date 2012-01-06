@@ -1,0 +1,1706 @@
+C MODULE PRTOBS
+C-----------------------------------------------------------------------
+C
+      SUBROUTINE PRTOBS (JULBEG,IHRBEG,JULEND,XRUNTP,XDTYPE,
+     *   ISTTYP,IUNTYP,JULHRB,JULHRE,LIWKBUF,IWKBUF)
+C
+C   THIS ROUTINE PRINTS THE DAILY AND/OR RRS DATA FOR THE SPECIFIED
+C   PERIOD OF RECORD FOR THE SPECIFIED STATIONS OR DATA TYPES.
+C
+C   ARGUMENT LIST:
+C
+C     NAME      TYPE  I/O   DIM   DESCRIPTION
+C     ------    ----  ---   ---   -----------
+C     JULBEG     I     I     1    BEGINNING DATE (JULIAN DAY)
+C     JULEND     I     I     1    ENDING DATE (JULIAN DAY)
+C     XRUNTP     A8    I     1    RUN TYPE CODE ('STAID' OR 'DTYPE')
+C     XDTYPE     A8    I     1    'RRS' OR 'DAILY' IF XRUNTP IS
+C                                    'STAID'
+C                                 DATA TYPE CODE IF XRUNTP IS 'DTYPE'
+C     ISTTYP     I     I     1    STATION IDENTIFIER TYPE:
+C                                    0=IDENTIFIER
+C                                    1=NUMBER
+C     IUNTYP     I     I     1    UNITS TYPE:
+C                                    0=ENGLISH
+C                                    1=METRIC
+C
+      PARAMETER (LADTYP=50)
+      PARAMETER (LIBUF1=1000)
+      PARAMETER (LIBUF2=1000)
+      PARAMETER (LIDATA=9000)
+      PARAMETER (LSIBUF=128)
+      PARAMETER (LMINUT=750)
+      PARAMETER (LOBS=LMINUT*2)
+      PARAMETER (MSTAID=64)
+      PARAMETER (MDLTYP=64)
+      PARAMETER (MRRTYP=64)
+      PARAMETER (LDATES=64)
+      PARAMETER (NCVTYP=5)
+      PARAMETER (LRDATA=300)
+      PARAMETER (LIHUR=240)
+C
+      CHARACTER*4 XTYPE,ZTYPE,XDUNIT,XCHAR4
+      CHARACTER*4 ADTYP(LADTYP)
+      CHARACTER*6 CALLEE/'?'/
+      CHARACTER*8 XRUNTP,XDTYPE,ZDTYPE
+      CHARACTER*20 PDTYPE
+      CHARACTER*103 XLINE
+C
+      INTEGER*2 IDATA(LIDATA)
+      INTEGER*2 ISIBUF(LSIBUF)
+      INTEGER*2 ICVTYP(2,NCVTYP)
+C
+      DIMENSION IBUF1(LIBUF1),IBUF2(LIBUF2)
+      DIMENSION IWKBUF(LIWKBUF)
+      DIMENSION RDATA(LRDATA),IHUR(LIHUR)
+      DIMENSION RMAGNI(3,7)
+C
+C  THE FOLLOWING ARRAYS MUST BE THE SAME DIMENSION
+      CHARACTER*8 XSTAID(MSTAID)
+      CHARACTER*4 XRSTYP(MRRTYP)
+C
+C  THE FOLLOWING ARRAYS USED BY RPD1S MUST BE THE SAME DIMENSION
+      CHARACTER*4 XDLTYP(MDLTYP)
+      DIMENSION IDATES(MDLTYP),IDTIME(MDLTYP),NVPDT(MDLTYP)
+      INTEGER*2 MSNG(MDLTYP)
+C
+C  THE FOLLOWING ARRAYS USED BY RPDRRS
+      DIMENSION MINUT(LMINUT)
+      INTEGER*4 OBS(LOBS)
+C
+      INCLUDE 'uiox'
+      INCLUDE 'udatas'
+      INCLUDE 'udebug'
+      INCLUDE 'hclcommon/hdflts'
+      INCLUDE 'pdbcommon/pdunts'
+      INCLUDE 'pdbcommon/pdbdta'
+      INCLUDE 'pdbcommon/pdsifc'
+      INCLUDE 'pdbcommon/pddtdr'
+      INCLUDE 'pdbcommon/pdrrsc'
+      INCLUDE 'pdbcommon/pdtrrx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppdutil/RCS/prtobs.f,v $
+     . $',                                                             '
+     .$Id: prtobs.f,v 1.8 2002/02/11 20:49:34 dws Exp $
+     . $' /
+C    ===================================================================
+C
+      DATA ICVTYP/2HPP,1,2HTM,2,2HEA,2,2HTA,2,2HTF,2/
+      DATA RMAGNI/4HIN  ,4HMM  ,100.0,4HDEGF,4HDEGC,10.0,
+     *            4HDEGF,4HDEGC,10.0,4HMI/H,4HKM/H,10.0,
+     *            4HPCTD,4HPCTD,10.0,4HPCT ,4HPCT ,1.0,4HLY  ,
+     *            4HLY  ,1.0/
+C
+C
+      ISTAT=0
+C
+      IF (IPDTR.GT.0) WRITE (LP,*) 'ENTER PRTOBS'
+C
+      IF (IPDDB.GT.0) WRITE (LP,*)
+     *   ' XRUNTP=',XRUNTP,
+     *   ' XDTYPE=',XDTYPE,
+     *   ' ISTTYP=',ISTTYP,
+     *   ' IUNTYP=',IUNTYP
+C
+      FACTOR=1.0
+      TFACT=0.0
+C
+      ISAVTF=0
+      IPRNT=0
+      IPRNTF=0
+C
+C  CHECK RUN TYPE
+      IF (XRUNTP.EQ.'DTYPE') GO TO 620
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  PROCESS SPECIFIED STATIONS
+C
+C  READ STATION IDENTIFIER CARDS
+10    CALL RIDCRD (ISTTYP,XSTAID,NSTAID,LASTCD,ISTAT)
+      IF (ISTAT.NE.0) GO TO 1250
+      IF (IPDDB.GT.0) WRITE (IOGDB,*) 'NSTAID=',NSTAID
+C
+      IPRPAG=1
+      IPRHDR=1
+C
+C  CALCULATE NUMBER OF DAYS IN PERIOD
+      NUMDAY=JULEND-JULBEG+1
+      IF (IPDDB.GT.0) WRITE (IOGDB,*) 'NUMDAY=',NUMDAY
+C
+      KSTAID=1
+      IDORRS=0
+C
+C  FIND STATION IDENTIFIER IN RECORD FOR DATA TYPE
+20    IF (ISTTYP.EQ.1) GO TO 30
+C
+C  IDENTIFIER IS 8 CHARACTER
+      CALLEE='PDFNDR'
+      CALL PDFNDR (XSTAID(KSTAID),LSIBUF,IFIND,ISIREC,ISIBUF,IFREE,
+     *   ISTAT)
+      IF (ISTAT.NE.0) GO TO 1230
+      GO TO 40
+C
+C  IDENTIFIER IS STATION NUMBER
+30    CALLEE='PDFNDI'
+      CALL PDFNDI (XSTAID(KSTAID),LSIBUF,IFIND,ISIREC,ISIBUF,IFREE,
+     *   ISTAT)
+      IF (ISTAT.NE.0) GO TO 1230
+C
+40    IF (IFIND.EQ.0) THEN
+         CALL ULINE (LP,2)
+         WRITE (LP,1260) XSTAID(KSTAID)
+         GO TO 430
+         ENDIF
+C
+      IF (XDTYPE.EQ.'RRS'.OR.IDORRS.EQ.1) GO TO 280
+C
+C      -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
+C
+C  PROCESS DAILY DATA TYPES
+C
+C  CHECK SIF RECORD FOR THE FUTURE TEMPERATURE TYPE
+      NTYPES=ISIBUF(10)
+      JSIBUF=11
+      DO 50 I=1,NTYPES
+         CALL UMEMOV (ISIBUF(JSIBUF),XCHAR4,1)
+         IF (XCHAR4.EQ.'TF24') THEN
+C        SET FLAG TO PRINT TF24 DATA AFTER THE DAILY DATA TYPES
+            ISAVTF=1
+            GO TO 60
+            ENDIF
+         JSIBUF=JSIBUF+3
+50       CONTINUE
+C
+60    KDLYTP=1
+      IIDATA=1
+C
+C  SAVE DATES SINCE CAN BE RESET BY RPD1S AND NEED FOR TF24
+      JULNXT=JULBEG
+      JULAST=JULEND
+      IF (IPDDB.GT.0) WRITE (IOGDB,*) 'JULNXT=',JULNXT,
+     *   'JULAST=',JULAST
+C
+C  READ OBSERVED DATA
+      PDTYPE='OBSERVED DAILY'
+      CALLEE='RPD1S'
+      NTYPER=1
+      XTYPE='ALL'
+      CALL RPD1S (XSTAID(KSTAID),ISTTYP,NTYPER,XTYPE,JULNXT,JULAST,
+     *   MDLTYP,XDLTYP,NDLYTP,LIDATA,IDATA,LDFILL,IDTIME,NVPDT,
+     *   MSNG,ISTAT)
+      IF (IPDDB.GT.0) WRITE (IOGDB,*) 'RPD1S STATUS CODE=',ISTAT
+      IF (ISTAT.EQ.0) GO TO 70
+      GO TO (1210,1210,460,480,540,570,1230),ISTAT
+      GO TO 1110
+C
+70    IF (NDLYTP.EQ.0) GO TO 250
+      IF (IPDDB.GT.0) WRITE (IOGDB,1270) LDFILL,(IDTIME(I),NVPDT(I),
+     *    I=1,NDLYTP)
+      IF (IPDDB.GT.0) WRITE (IOGDB,1280) (IDATA(L),L=1,LDFILL)
+C
+80    IF (LDFILL.LT.1) GO TO 260
+C
+      ZTYPE=XDLTYP(KDLYTP)
+C
+C  FIND DATA TYPE IN DIRECTORY, GET CONVERSION FACTOR FOR DATA VALUES
+      IDX=IPDCKD(ZTYPE)
+      NUMDTA=NVPDT(KDLYTP)*24/IDTIME(KDLYTP)*(JULAST-JULNXT+1)
+      IF (IPDDB.GT.0) WRITE (IOGDB,*) 'KDLYTP=',KDLYTP,
+     *   ' NVPDT(KDLYTP)=',NVPDT(KDLYTP),
+     *   ' IDTIME(KDLYTP)=',IDTIME(KDLYTP),
+     *   ' NUMDTA=',NUMDTA
+C
+C  FIND UNITS CONVERSION TYPE
+      DO 90 I=1,NCVTYP
+         IF (IDDTDR(2,IDX).EQ.ICVTYP(1,I)) GO TO 100
+90       CONTINUE
+      CALL ULINE (LP,2)
+      WRITE (LP,1490) IDDTDR(2,IDX)
+      GO TO 430
+C
+C  SET POINTER FOR MAGNITUDE
+100   ISTSAV=ICVTYP(2,I)
+C
+C  CHECK UNITS TYPE
+      IF (IUNTYP.EQ.1) THEN
+C     GET CONVERSION FACTORS
+         ICONV=2
+         NVAL=1
+         CALL UDUCNV (RMAGNI(1,ISTSAV),RMAGNI(2,ISTSAV),ICONV,NVAL,
+     *      FACTOR,TFACT,ISTAT)
+         IF (ISTAT.NE.0) GO TO 600
+         ENDIF
+C
+C  CONVERT DATA TO REAL
+      ISSS=ISTSAV
+      DO 120 L=1,NUMDTA
+         IF (ZTYPE.EQ.'PP24') THEN
+            IF (L.GT.LRDATA) THEN
+               CALL ULINE (LP,2)
+               WRITE (LP,1360) 'RDATA',LRDATA
+               GO TO 430
+               ENDIF
+            IF (L.GT.LIHUR) THEN
+               CALL ULINE (LP,2)
+               WRITE (LP,1360) 'IHUR',LIHUR
+               GO TO 430
+               ENDIF
+            CALL PDGTPP (IDATA(IIDATA),RDATA(L),IHUR(L),IPP24)
+            IF (IHUR(I).EQ.0.OR.IHUR(I).EQ.24) GO TO 110
+               IHUR(I)=IHUR(I)+NHOPDB-TIME(2)
+               IF (IHUR(I).GT.24) IHUR(I)=IHUR(I)-24
+               GO TO 110
+            ENDIF
+         R=IDATA(IIDATA)
+         RDATA(L)=R/RMAGNI(3,ISSS)
+         IF (IDATA(IIDATA).EQ.MSNG(KDLYTP)) RDATA(L)=IDATA(IIDATA)
+         IF (ZTYPE.EQ.'EA24') THEN
+            ISSS=ISSS+1
+            IF (ISSS.GT.7) ISSS=2
+            ENDIF
+110      IIDATA=IIDATA+1
+120      CONTINUE
+C
+      RMSNG=MSNG(KDLYTP)
+      DO 130 M=1,NUMDTA
+         IF (RDATA(M).LE.RMSNG) GOTO 130
+         RDATA(M)=(RDATA(M)*FACTOR)+TFACT
+130      CONTINUE
+      IF (IPDDB.GT.0) WRITE (IOGDB,1290) FACTOR,TFACT,
+     *    (RDATA(I),I=1,NUMDTA)
+C
+C  SET DATA UNITS
+      IF (ZTYPE.NE.'EA24') THEN
+         CALL UMEMOV (RMAGNI(IUNTYP+1,ISTSAV),XDUNIT,1)
+         ELSE
+            IF (IUNTYP.EQ.0) XDUNIT='ENGL'
+            IF (IUNTYP.EQ.1) XDUNIT='METR'
+         ENDIF
+      IF (IPDDB.GT.0) WRITE (IOGDB,*) 'IUNTYP=',IUNTYP,
+     *   ' XDUNIT=',XDUNIT
+C
+      MM=1
+      IDDD=JULNXT-1
+      IHOUR=24
+C
+C  IF LESS THAN 24 HOUR DATA MUST ADJUST DAY AND HOUR
+      IF (IDDTDR(6,IDX).GT.0) GO TO 140
+C
+C  GET HOUR FROM TIME INTERVAL
+      IXX=IPDCDW(ZTYPE)
+      IHOUR=IDDTDR(5,IXX)
+C
+140   NONLIN=8
+      IF (ZTYPE.EQ.'EA24') NONLIN=6
+      IF (NONLIN.GT.NUMDTA) NONLIN=NUMDTA
+      MMM=MM+NONLIN-1
+      CALL MDYH2 (IDDD,IHOUR,IMO,IDAY,IYR,IHR,ITZ,IDSAV,TIME(3))
+      IYR=MOD(IYR,100)
+C
+      CALL UREPET (' ',XLINE,LEN(XLINE))
+      IPOS=1
+C
+C  ENCODE THE DATA
+      DO 200 IJ=MM,MMM
+C     CHECK IF MISSING DATA
+         IF (RDATA(IJ).EQ.-9999.0) GO TO 180
+C     CHECK IF TYPE IS LESS THAN 24 HOUR PRECIP
+         IF (ZTYPE.NE.'PP24') THEN
+C        ISTSAV=1 IS 'PP' FROM UNITS CONVERSION ARRAY
+            IF (ISTSAV.EQ.1) THEN
+               NCHAR=5
+               GO TO 160
+               ENDIF
+            GO TO 170
+            ENDIF
+         NCHAR=6
+C     CHECK IF ESTIMATED VALUE           
+         IF (IHUR(IJ).EQ.24) THEN
+            CALL UMOVEX ('E',1,XLINE,IPOS+NCHAR,1)
+            ENDIF
+C     CHECK IF PARTIAL DAY TOTAL            
+         IF (IHUR(IJ).EQ.0.OR.IHUR(IJ).EQ.24) THEN
+            ELSE
+               CALL UMOVEX ('H',1,XLINE,IPOS+NCHAR,1)
+            ENDIF
+C     PRECPITATION DATA
+160      NDEC=2
+         IPRERR=0
+         CALL UFF2A (RDATA(IJ),XLINE,IPOS,NCHAR,NDEC,IPRERR,LP,IERR)
+         IF (IERR.NE.0) THEN
+            NDECN=1
+            INOTE=0
+            IF (INOTE.EQ.1) THEN
+               CALL ULINE (LP,2)
+               WRITE (LP,1293) ZTYPE,RDATA(IJ),NCHAR,NDEC,NDECN
+               ENDIF
+            NDEC=NDECN
+            IPRERR=1
+            CALL UFF2A (RDATA(IJ),XLINE,IPOS,NCHAR,NDEC,IPRERR,LP,IERR)
+            IF (IERR.NE.0) THEN
+               CALL ULINE (LP,2)
+               WRITE (LP,1295) 'UFF2A',ZTYPE,RDATA(IJ),NCHAR,NDEC
+               ENDIF
+            ENDIF
+         IF (ZTYPE.EQ.'PP24') THEN
+            IF (IHUR(IJ).EQ.24.OR.IHUR(IJ).EQ.0) GO TO 175
+C           ENCODE HOUR
+               IHUR(IJ)=IHUR(IJ)-TIME(2)+LOCAL-NLSTZ
+               IF (IHUR(IJ).GE.24) IHUR(IJ)=IHUR(IJ)-24
+               NCHAR=2
+               IPRERR=1
+               CALL UFI2A (IHUR(IJ),XLINE,IPOS+6,NCHAR,IPRERR,LP,IERR)
+               IF (IERR.NE.0) THEN
+                  CALL ULINE (LP,2)
+                  WRITE (LP,1297) 'UFI2A','HOUR',IJ,IHUR(IJ)
+                  ENDIF
+            ENDIF
+175      IF (NCHAR.EQ.5) NADD=9
+         IF (NCHAR.EQ.6) NADD=10
+         IPOS=IPOS+NADD
+         GO TO 200
+C     TEMPERATURE DATA
+170      NCHAR=7
+         NDEC=1
+         IPRERR=1
+         CALL UFF2A (RDATA(IJ),XLINE,IPOS,NCHAR,NDEC,IPRERR,LP,IERR)
+         IF (IERR.NE.0) THEN
+            CALL ULINE (LP,2)
+            WRITE (LP,1295) 'UFF2A',ZTYPE,RDATA(IJ),NCHAR,NDEC
+            ENDIF
+         IPOS=IPOS+9
+         GO TO 200
+C     MISSING DATA
+180      NCHAR=5
+         NDEC=0
+         IPRERR=1
+         CALL UFF2A (RDATA(IJ),XLINE,IPOS,NCHAR,NDEC,IPRERR,LP,IERR)
+         IF (IERR.NE.0) THEN
+            CALL ULINE (LP,2)
+            WRITE (LP,1295) 'UFF2A','MISSING',RDATA(IJ),NCHAR,NDEC
+            ENDIF
+         IPOS=IPOS+10
+200      CONTINUE
+C
+C  CHECK IF NEED TO PRINT HEADER
+      IF (IPRPAG.EQ.1) THEN
+         CALL UPAGE (LP)
+         IPRPAG=0
+         ENDIF
+      NLINEL=1
+      CALL ULINEL (LP,NLINEL,IRETRN)
+      IF (IPRHDR.EQ.0.AND.IRETRN.EQ.0) THEN
+         ELSE
+            IPRHDR=0
+            CALL ULINE (LP,2)
+            WRITE (LP,1300) TIME(3)
+            CALL ULINE (LP,4)
+            WRITE (LP,1310)
+         ENDIF
+C
+      IF (MM.GT.1) GO TO 210
+         CALL ULINE (LP,1)
+         WRITE (LP,1320) (ISIBUF(N),N=2,6),ZTYPE,XDUNIT,
+     *      IDTIME(KDLYTP),IMO,IDAY,IYR,IHR,XLINE(1:IPOS)
+         GO TO 220
+210   CALL ULINE (LP,1)
+      WRITE (LP,1330) IMO,IDAY,IYR,IHR,XLINE(1:IPOS)
+C
+220   NUMDTA=NUMDTA-NONLIN
+      IF (NUMDTA.LT.1) GO TO 250
+C
+C  RECOMPUTE HOUR AND DAY
+      IF (IDDTDR(6,IDX).LT.0) GO TO 240
+         IDDD=IDDD+NONLIN/IDDTDR(6,IDX)
+230      MM=MMM+1
+         GO TO 140
+240   IDDD=IDDD+NONLIN/IDDTDR(6,IXX)
+      IF (IDDTDR(6,IXX).EQ.24) IHOUR=IHOUR+8
+      IF (IHOUR.LT.24) GO TO 230
+      IHOUR=1
+      IDDD=IDDD+1
+      GO TO 230
+C
+250   KDLYTP=KDLYTP+1
+      IF (KDLYTP.LE.NDLYTP) GO TO 80
+C
+C  CHECK IF STATION HAS TF24 DATA
+260   IF (ISAVTF.EQ.0) GO TO 270
+      IIDATA=1
+      KDLYTP=1
+      NDLYTP=0
+      ISAVTF=0
+      XDLTYP(KDLYTP)='TF24'
+C
+C  READ FUTURE DATA
+      PDTYPE='FUTURE DAILY'
+      CALLEE='RPD1SF'
+      JULNXT=JULBEG
+      JULAST=JULEND
+      CALL RPD1SF (XSTAID(KSTAID),ISTTYP,XDLTYP(KDLYTP),JULNXT,JULAST,
+     *   LIDATA,IDATA,LDATES,IDATES,LDFILL,IDTIME,NVPDT,MSNG,ISTAT)
+      IF (ISTAT.EQ.0) GO TO 80
+      GO TO (460,480,510,590,1210,590,1230),ISTAT
+      GO TO 1110
+C
+270   KSTAID=KSTAID+1
+      IF (KSTAID.LE.NSTAID) GO TO 20
+      IF (XDTYPE(1:4).NE.'BOTH') GO TO 440
+      IDORRS=1
+      KSTAID=1
+      GO TO 20
+C
+C      -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
+C
+C  PROCESS RRS DATA TYPES
+C
+280   PDTYPE='RRS'
+C
+C  SET NUMBER OF TYPES
+      NTYPES=ISIBUF(10)
+      IF (IPDDB.GT.0) WRITE (IOGDB,*) 'NTYPES=',NTYPES
+      IF (NTYPES.EQ.0) GO TO 460
+C
+C  SET DATA TYPES
+      JSIBUF=11
+      DO 290 I=1,NTYPES
+         CALL UMEMOV (ISIBUF(JSIBUF),XRSTYP(I),1)
+         JSIBUF=JSIBUF+3
+290      CONTINUE
+C
+      DO 420 IRRSTP=1,NTYPES
+C     CHECK IF RRS DATA TYPE
+         IRX=IPDCKR(XRSTYP(IRRSTP))
+         IF (IPDDB.GT.0) WRITE (IOGDB,*) 'NTYPES=',NTYPES,
+     *      ' IRRSTP=',IRRSTP,
+     *      ' IRX=',IRX
+         IF (IRX.EQ.0) THEN
+            IF (NTYPES.EQ.1) GO TO 460
+            GO TO 420
+            ENDIF
+         JULBEH=JULHRB+NHOPDB
+         JULENH=JULHRE+NHOPDB
+C     READ RRS DATA
+         IF (IPDDB.GT.0) WRITE (IOGDB,*) 'JULBEH=',JULBEH,
+     *      ' JULENH=',JULENH
+         CALLEE='RPDRRS'
+         CALL RPDRRS (XSTAID(KSTAID),ISTTYP,XRSTYP(IRRSTP),NVLPOB,
+     *      JULBEH,JULENH,
+     *      LOBS,OBS,NUMOBS,LMINUT,MINUT,LIWKBUF,IWKBUF,LSTHR,ISTAT)
+         IF (IPDDB.GT.0) WRITE (IOGDB,1340) ISTAT,NUMOBS,LSTHR,JULBEH,
+     *       JULENH
+         PDTYPE='RRS'
+         IF (ISTAT.EQ.0) GO TO 300
+         GO TO (1210,500,460,310,1210,1210,1230),ISTAT
+         GO TO 1110
+C     CHECK IF NEED TO PRINT HEADER
+300      IF (IPRPAG.EQ.1) THEN
+            CALL UPAGE (LP)
+            IPRPAG=0
+            ENDIF
+         NLINEL=1
+         CALL ULINEL (LP,NLINEL,IRETRN)
+         IF (IPRHDR.EQ.0.AND.IRETRN.EQ.0) THEN
+            ELSE
+               IF (IRETRN.GT.0) CALL UPAGE (LP)
+               IPRHDR=1
+            ENDIF
+C     CHECK IF ANY OBSERVATIONS
+310      IF (NUMOBS.EQ.0) THEN
+            CALL ULINE (LP,2)
+            WRITE (LP,1350) XSTAID(KSTAID),XRSTYP(IRRSTP)
+            GO TO 420
+            ENDIF
+         IF (IPDDB.GT.0) WRITE (IOGDB,*) 'NVLPOB=',NVLPOB
+C     CONVERT DATE FOR LAST OBSERVED HOUR
+         IFDAY=(LSTHR-NHOPDB)/24+1
+         IFD=IFDAY*24
+         IH=LSTHR-IFD+NHOPDB
+         IF (IH.LT.0) IH=0
+         CALL MDYH2 (IFDAY,IH,IMO,IDAY,IYR,IHR,ITZ,IDSAV,TIME(3))
+         IYR=MOD(IYR,100)
+C     GET CONVERSION FACTORS
+         NDTA=NUMOBS*NVLPOB
+         IF (IPDDB.GT.0) WRITE (IOGDB,*) 'NDTA=',NDTA,
+     *      ' NUMOBS=',NUMOBS
+         CALL PFDUNT (XRSTYP(IRRSTP),IUNTYP,XDUNIT)
+         CALL PDCKCV (XDUNIT,XRSTYP(IRRSTP),2,ICONVT,FACTOR,TFACT,ISTAT)
+         IF (ISTAT.NE.0) GO TO 600
+C     MOVE VALUES FOR CONVERSION
+         NOBS=2
+         IF (NVLPOB.EQ.3) NOBS=3
+         L=2
+         LADD=0
+         IF (IPDDB.GT.0) WRITE (LP,1410) (OBS(N),N=1,NDTA,NOBS)
+         DO 320 N=2,NDTA,NOBS
+            IF (L.GT.LIBUF1) THEN
+               LADD=LADD+1
+               ELSE
+                  CALL UMEMOV (OBS(N),IBUF1(L),1)
+               ENDIF
+            L=L+1
+320         CONTINUE
+         IF (LADD.GT.0) THEN
+            CALL ULINE (LP,2)
+            WRITE (LP,1365) 'IBUF1',LIBUF1,LIBUF1+LADD
+            GO TO 430
+            ENDIF
+         IF (ICONVT.EQ.0) GO TO 330
+C        CONVERT DATA
+            RMISS=MISSNG
+            CALL PDCNVT (FACTOR,TFACT,L,1,RMISS,IBUF1(2))
+            IF (IPDDB.GT.0) WRITE (IOGDB,1420) FACTOR,TFACT,(IBUF1(LX),
+     *         LX=1,NDTA)
+330      IOBS=1
+         IPOS=1
+         NTIME=0
+         IF=1
+         CALL UREPET (' ',XLINE,LEN(XLINE))
+C     GET LENGTH OF FIELD AND NUMBER OF DECIMAL PLACES FOR THIS TYPE
+         IF (NVLPOB.EQ.3) GO TO 370
+C     RRS DISPLAY FOR INSTANTANEOUS DATA
+         CALL ULINE (LP,2)
+         WRITE (LP,1370) 'INSTANTANEOUS ',TIME(3),IMO,IDAY,IYR,IHR
+         CALL ULINE (LP,4)
+         WRITE (LP,1380)
+         DO 360 IUMOBS=1,NUMOBS
+C        CONVERT DATES
+            IF (MINUT(IF).GT.30) OBS(IOBS)=OBS(IOBS)-1
+            IFDAY=(OBS(IOBS)-NHOPDB)/24+1
+            IFD=IFDAY*24
+            IH=OBS(IOBS)-IFD+NHOPDB
+            CALL MDYH2 (IFDAY,IH,IMO,IDAY,IYR,IHR,ITZ,IDSAV,TIME(3))
+            IF (IPDDB.GT.0)
+     *         WRITE (IOGDB,1430) IFDAY,IH,IMO,IDAY,IYR,IHR,ITZ,IDSAV,
+     *             TIME(3)
+            IYR=MOD(IYR,100)
+C        ENCODE THE DATE AND TIME
+            IPRERR=1
+            CALL UFI2A (IMO,XLINE,IPOS,-2,IPRERR,LP,IERR)
+            IPOS=IPOS+2
+            CALL UMOVEX ('/',1,XLINE,IPOS,1)
+            IPOS=IPOS+1
+            CALL UFI2A (IDAY,XLINE,IPOS,-2,IPRERR,LP,IERR)
+            IPOS=IPOS+2
+            CALL UMOVEX ('/',1,XLINE,IPOS,1)
+            IPOS=IPOS+1
+            CALL UFI2A (IYR,XLINE,IPOS,-2,IPRERR,LP,IERR)
+            IPOS=IPOS+3
+            CALL UFI2A (IHR,XLINE,IPOS,-2,IPRERR,LP,IERR)
+            IPOS=IPOS+2
+            CALL UMOVEX (':',1,XLINE,IPOS,1)
+            IPOS=IPOS+1
+            CALL UFI2A (MINUT(IF),XLINE,IPOS,-2,IPRERR,LP,IERR)
+C        ENCODE THE RRS DATA
+            IPOS=IPOS+3
+            NCHAR=LFIELD(IRX)
+            NDEC=NUMDEC(IRX)
+            IPRERR=1
+            CALL UFF2A (IBUF1(IF+1),XLINE,IPOS,NCHAR,NDEC,IPRERR,LP,
+     *         IERR)
+            IF (IERR.NE.0) THEN
+               CALL ULINE (LP,2)
+               WRITE (LP,1295) 'UFF2A','RRS',IBUF1(IF+1),NCHAR,NDEC
+               ENDIF
+            IPOS=IPOS+NCHAR
+            IF (IUMOBS.EQ.NUMOBS) GO TO 340
+            IOBS=IOBS+NOBS
+            IF=IF+1
+            NTIME=NTIME+1
+            NPER=24
+            IF (IPOS+NPER.LT.LEN(XLINE)) THEN
+               NSPACE=2
+               NADD=(NTIME*(NPER+NSPACE))-IPOS+1
+               IF (NADD.GT.0) IPOS=IPOS+NADD
+               GO TO 360
+               ENDIF
+            IF (IPOS.GT.LEN(XLINE)) IPOS=LEN(XLINE)
+            IF (IUMOBS.LE.4) THEN
+               CALL ULINE (LP,1)
+               WRITE (LP,1390) (ISIBUF(M),M=2,6),XRSTYP(IRRSTP),XDUNIT,
+     *             XLINE(1:IPOS)
+               GO TO 350
+               ENDIF
+340         CALL ULINE (LP,1)
+            WRITE (LP,1400) XLINE(1:IPOS)
+350         CALL UREPET (' ',XLINE,LEN(XLINE))
+            IPOS=1
+            NTIME=0
+360         CONTINUE
+         GO TO 420
+C     RRS DISPLAY FOR PERIOD AVERAGE DATA
+370      CALL ULINE (LP,2)
+         WRITE (LP,1370) 'PERIOD AVERAGE',TIME(3),IMO,IDAY,IYR,IHR
+         CALL ULINE (LP,4)
+         WRITE (LP,1440)
+C     MOVE PERIOD FOR PRINT
+         L=1
+         LADD=0
+         DO 380 N=3,NDTA,3
+            IF (L.GT.LIBUF2) THEN
+               LADD=LADD+1
+               ELSE
+                  IBUF2(L)=OBS(N)
+               ENDIF
+            L=L+1
+380         CONTINUE
+         IF (LADD.GT.0) THEN
+            CALL ULINE (LP,2)
+            WRITE (LP,1365) 'IBUF2',LIBUF2,LIBUF2+LADD
+            GO TO 430
+            ENDIF
+         DO 410 IUMOBS=1,NUMOBS
+            IFDAY=(OBS(IOBS)-NHOPDB)/24+1
+            IFD=IFDAY*24
+            IH=OBS(IOBS)-IFD+NHOPDB
+            CALL MDYH2 (IFDAY,IH,IMO,IDAY,IYR,IHR,ITZ,IDSAV,TIME(3))
+            IYR=MOD(IYR,100)
+C        ENCODE THE DATE AND TIME
+            CALL UFI2A (IMO,XLINE,IPOS,-2,IPRERR,LP,IERR)
+            IPOS=IPOS+2
+            CALL UMOVEX ('/',1,XLINE,IPOS,1)
+            IPOS=IPOS+1
+            CALL UFI2A (IDAY,XLINE,IPOS,-2,IPRERR,LP,IERR)
+            IPOS=IPOS+2
+            CALL UMOVEX ('/',1,XLINE,IPOS,1)
+            IPOS=IPOS+1
+            CALL UFI2A (IYR,XLINE,IPOS,-2,IPRERR,LP,IERR)
+            IPOS=IPOS+2
+            CALL UMOVEX ('-',1,XLINE,IPOS,1)
+            IPOS=IPOS+1
+            CALL UFI2A (IHR,XLINE,IPOS,-2,IPRERR,LP,IERR)
+            IPOS=IPOS+2
+C        ENCODE THE PERIOD
+            IPOS=IPOS+2
+            NCHAR=2
+            IPRERR=1
+            CALL UFI2A (IBUF2(IF),XLINE,IPOS,NCHAR,IPRERR,LP,IERR)
+            IPOS=IPOS+2
+C        ENCODE THE DATA
+            IPOS=IPOS+1
+            NCHAR=LFIELD(IRX)
+            NDEC=NUMDEC(IRX)
+            IPRERR=1
+            CALL UFF2A (IBUF1(IF+1),XLINE,IPOS,NCHAR,NDEC,IPRERR,LP,
+     *         IERR)
+            IF (IERR.NE.0) THEN
+               CALL ULINE (LP,2)
+               WRITE (LP,1295) 'UFF2A','RRS',IBUF1(IF+1),NCHAR,NDEC
+               ENDIF
+            IPOS=IPOS+NCHAR
+            IF (IUMOBS.EQ.NUMOBS) GO TO 390
+            IOBS=IOBS+NOBS
+            IF=IF+1
+            NTIME=NTIME+1
+            NPER=26
+            IF (IPOS+NPER.LT.LEN(XLINE)) THEN
+               NSPACE=2
+               NADD=(NTIME*(NPER+NSPACE))-IPOS+1
+               IF (NADD.GT.0) IPOS=IPOS+NADD
+               GO TO 410
+               ENDIF
+            IF (IPOS.GT.LEN(XLINE)) IPOS=LEN(XLINE)
+            IF (IUMOBS.LE.3) THEN
+               CALL ULINE (LP,1)
+               WRITE (LP,1390) (ISIBUF(M),M=2,6),XRSTYP(IRRSTP),XDUNIT,
+     *             XLINE(1:IPOS)
+               GO TO 400
+               ENDIF
+390         CALL ULINE (LP,1)
+            WRITE (LP,1400) XLINE(1:IPOS)
+400         CALL UREPET (' ',XLINE,LEN(XLINE))
+            IPOS=1
+            NTIME=0
+410         CONTINUE
+420      CONTINUE
+C
+430   KSTAID=KSTAID+1
+      IF (KSTAID.LE.NSTAID) GO TO 20
+C
+440   IF (XDTYPE(1:4).NE.'BOTH') GO TO 450
+      IF (IDORRS.EQ.1) GO TO 450
+      IDORRS=1
+      KSTAID=1
+      GO TO 20
+C
+450   IF (LASTCD.EQ.1) GO TO 10
+C
+      GO TO 1250
+C
+C      -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
+C
+460   CALL ULINE (LP,2)
+      WRITE (LP,470) XSTAID(KSTAID),PDTYPE(1:LENSTR(PDTYPE))
+470   FORMAT ('0**WARNING** STATION ',A,' DOES NOT HAVE ',A,' DATA.')
+      GO TO 430
+C
+480   CALL ULINE (LP,2)
+      WRITE (LP,490) 'DAILY',XDLTYP(KDLYTP)
+490   FORMAT ('0**ERROR** ',A,' DATA TYPE ',A,' NOT FOUND.')
+      GO TO 430
+C
+500   CALL ULINE (LP,2)
+      WRITE (LP,490) 'RRS',XRSTYP(IRRSTP)
+      GO TO 430
+C
+510   IF (ISTTYP.EQ.1) THEN
+         CALL ULINE (LP,2)
+         WRITE (LP,520) XDLTYP(KDLYTP),XSTAID(KSTAID)
+520   FORMAT ('0**WARNING** NO VALUES IN TIME PERIOD FOR FUTURE ',
+     *   'DAILY DATA TYPE ',A,' FOR STATION NUMBER ',I8,'.')
+         GO TO 430
+         ENDIF
+      CALL ULINE (LP,2)
+      WRITE (LP,530) XDLTYP(KDLYTP),XSTAID(KSTAID)
+530   FORMAT ('0**WARNING** NO VALUES IN TIME PERIOD FOR FUTURE ',
+     *   'DAILY DATA TYPE ',A,' FOR STATION ',A,'.')
+      GO TO 430
+C
+540   IF (ISTTYP.EQ.1) THEN
+         CALL ULINE (LP,2)
+         WRITE (LP,550) XSTAID(KSTAID)
+550   FORMAT ('0**WARNING** NO VALUES IN TIME PERIOD FOR ANY DAILY ',
+     *   'DATA TYPES FOR STATION NUMBER ',I8,'.')
+         GO TO 260
+         ENDIF
+      CALL ULINE (LP,2)
+      WRITE (LP,560) XSTAID(KSTAID)
+560   FORMAT ('0**WARNING** NO VALUES IN TIME PERIOD FOR ANY ',
+     *   'DAILY DATA TYPES FOR STATION ',A,'.')
+      GO TO 260
+C
+570   IF (IPRNT.EQ.1) GO TO 70
+      CALL ULINE (LP,2)
+      WRITE (LP,580) 'OBSERVED',XSTAID(KSTAID)
+580   FORMAT ('0**WARNING** NOT ALL DATES REQUESTED FOR ',A,
+     *   ' DATA EXIST FOR STATION ',A,
+     *   '. DATES THAT EXIST WILL BE PRINTED.')
+      IPRNT=1
+      GO TO 70
+C
+590   IF (IPRNTF.EQ.0) THEN
+         CALL ULINE (LP,2)
+         WRITE (LP,580) 'FUTURE',XSTAID(KSTAID)
+         IPRNTF=1
+         ENDIF
+      GO TO 80
+C
+C  CONVERSION ERROR
+600   CALL ULINE (LP,2)
+      WRITE (LP,610)
+610   FORMAT ('0**ERROR** IN PRTOBS - UNITS CONVERSION ERROR.')
+      GO TO 1250
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  PROCESS SPECIFIED DATA TYPES
+C
+620   IDSPLA=0
+      IDFLG=0
+      IRX=0
+      IDX=0
+C
+      IPRPAG=1
+      IPRHDR=1
+C
+      IALL=0
+      IF (XDTYPE.EQ.'ALL') IALL=1
+      NADTYP=0
+      IADTYP=0
+C
+      ZDTYPE=XDTYPE
+C
+C  CALCULATE NUMBER OF DAYS IN PERIOD
+      NUMDAY=JULEND-JULBEG+1
+      IF (IPDDB.GT.0) WRITE (IOGDB,*) 'NUMDAY=',NUMDAY
+      JULNXT=JULBEG
+C
+C  CHECK IF DATA TYPE IS MDR6
+      IF (IALL.EQ.1.OR.ZDTYPE.EQ.'MDR6') THEN
+         ZDTYPE='MDR6'
+         CALL PRTMDR (ZDTYPE,JULBEG,JULEND,LIDATA,IDATA)
+         IF (IALL.EQ.0) GO TO 1250
+         ENDIF
+C
+C  CHECK IF DATA TYPE IS PPSR
+      IF (IALL.EQ.1.OR.ZDTYPE.EQ.'PPSR') THEN
+         ZDTYPE='PPSR'
+         CALL PRTPSR (ZDTYPE,JULBEG,JULEND,LIDATA,IDATA,IUNTYP)
+         IF (IALL.EQ.0) GO TO 1250
+         ENDIF
+C
+C  CHECK IF ANY SIF RECORDS DEFINED
+      IF (LSTSIF.LE.INFREC) THEN
+         CALL ULINE (LP,2)
+         WRITE (LP,1450)
+         GO TO 1250
+         ENDIF
+C
+C  GET LIST OF DATA TYPES
+      IF (IALL.EQ.1) THEN
+         IREC=INFREC+1
+C     READ SIF RECORD TO FIND DAILY DATA TYPE
+625      CALL PDRSIF (IREC,NXTSIF,LSIBUF,ISIBUF,IERR)
+         IF (IERR.NE.0) THEN
+            CALLEE='PDRSIF'
+            GO TO 1230
+            ENDIF
+C     GET STATION IDENTIFIER
+         XSTAID(1)=' '
+         CALL UMEMOV (ISIBUF(2),XSTAID(1),2)
+C     CHECK IF DELETED
+         IF (XSTAID(1).EQ.'DELETED') GO TO 700
+C     CHECK IF STATION HAS PP24 DATA
+         IF (ISIBUF(8).NE.0) THEN
+            XTYPE='PP24'
+            IF (NADTYP.GT.0) THEN
+               DO 630 N=1,NADTYP
+                  IF (XTYPE.EQ.ADTYP(N)) GO TO 640
+630               CONTINUE
+               ENDIF
+            IF (NADTYP+1.GT.LADTYP) THEN
+               CALL ULINE (LP,2)
+               WRITE (LP,1360) 'ADTYP',LADTYP
+               GO TO 1070
+               ENDIF
+            NADTYP=NADTYP+1
+            ADTYP(NADTYP)=XTYPE
+            IF (IPDDB.GT.0) THEN
+               WRITE (LP,*) 'ADTYP(',NADTYP,')=',ADTYP(NADTYP)
+               ENDIF
+            ENDIF
+C     CHECK IF STATION HAS TM24 DATA
+640      IF (ISIBUF(9).NE.0) THEN
+            XTYPE='TM24'
+            IF (NADTYP.GT.1) THEN
+               DO 650 N=1,NADTYP
+                  IF (XTYPE.EQ.ADTYP(N)) GO TO 660
+650               CONTINUE
+               ENDIF
+            IF (NADTYP+1.GT.LADTYP) THEN
+               CALL ULINE (LP,2)
+               WRITE (LP,1360) 'ADTYP',LADTYP
+               GO TO 1070
+               ENDIF
+            NADTYP=NADTYP+1
+            ADTYP(NADTYP)=XTYPE
+            IF (IPDDB.GT.0) THEN
+               WRITE (LP,*) 'ADTYP(',NADTYP,')=',ADTYP(NADTYP)
+               ENDIF
+            ENDIF
+C     GET NUMBER OF ADDITIONAL DATA TYPES
+660      NTYPES=ISIBUF(10)
+         IF (NTYPES.GT.0) THEN
+            JSIBUF=11
+            DO 690 I=1,NTYPES
+               CALL UMEMOV (ISIBUF(JSIBUF),XTYPE,1)
+               IF (NADTYP.GT.1) THEN
+                  DO 670 N=1,NADTYP
+                     IF (XTYPE.EQ.ADTYP(N)) GO TO 680
+670                  CONTINUE
+                  ENDIF
+               IF (NADTYP+1.GT.LADTYP) THEN
+                  CALL ULINE (LP,2)
+                  WRITE (LP,1360) 'ADTYP',LADTYP
+                  GO TO 1070
+                  ENDIF
+               NADTYP=NADTYP+1
+               ADTYP(NADTYP)=XTYPE
+               IF (IPDDB.GT.0) THEN
+                  WRITE (LP,*) 'ADTYP(',NADTYP,')=',ADTYP(NADTYP)
+                  ENDIF
+680            JSIBUF=JSIBUF+3
+690            CONTINUE
+            ENDIF
+C     CHECK IF LAST SIF RECORD READ
+700      IF (NXTSIF.LE.LSTSIF) THEN
+            IREC=NXTSIF
+            GO TO 625
+            ENDIF
+C     SORT DATA TYPES
+         IDIM1=1
+         ISPTR=0
+         CALL USORT1 (IDIM1,NADTYP,ADTYP,ADTYP,ISPTR,IERR)
+         ENDIF
+C
+C CHECK IF ALL OPTION SPECIFIED
+710   IF (IALL.EQ.1) THEN
+         IADTYP=IADTYP+1
+         IF (IPDDB.GT.0) THEN
+            WRITE (LP,*) 'ADTYP(',IADTYP,')=',ADTYP(IADTYP)
+            ENDIF
+         IF (IADTYP.LE.NADTYP) THEN
+            ZDTYPE=ADTYP(IADTYP)
+            PDTYPE='DAILY'
+            IRX=IPDCKR(ZDTYPE)
+            IF (IRX.NE.0) PDTYPE='RRS'
+            CALL ULINE (LP,2)
+            WRITE (LP,1460) PDTYPE(1:LENSTR(PDTYPE)),
+     *         ZDTYPE(1:LENSTR(ZDTYPE))
+            GO TO 720
+            ENDIF
+         GO TO 1090
+720      IPRHDR=1
+         ENDIF
+C
+      IREC=INFREC+1
+C
+C  READ SIF RECORD TO FIND DAILY DATA TYPE
+730   CALL PDRSIF (IREC,NXTSIF,LSIBUF,ISIBUF,IERR)
+      IF (IERR.NE.0) THEN
+         CALLEE='PDRSIF'
+         GO TO 1230
+         ENDIF
+C
+C  GET IDENTIFIER FROM RECORD
+      XSTAID(1)=' '
+      CALL UMEMOV (ISIBUF(2),XSTAID(1),2)
+C
+C  CHECK IF DELETED
+      IF (XSTAID(1).EQ.'DELETED') GO TO 1070
+C
+C  CHECK DATA TYPE
+      IF (ZDTYPE.EQ.'PP24') THEN
+         IF (ISIBUF(8).NE.0) GO TO 770
+         GO TO 1070
+         ENDIF
+      IF (ZDTYPE.EQ.'TM24') THEN
+         IF (ISIBUF(9).NE.0) GO TO 770
+         GO TO 1070
+         ENDIF
+C
+C  CHECK IF STATION HAS SPECIFIED TYPE
+      NTYPES=ISIBUF(10)
+      IF (NTYPES.GT.0) THEN
+         JSIBUF=11
+         DO 740 I=1,NTYPES
+            CALL UMEMOV (ISIBUF(JSIBUF),XTYPE,1)
+            IF (XTYPE.EQ.ZDTYPE) THEN
+               IF (ZDTYPE.EQ.'TF24') GO TO 760
+               GO TO 750
+               ENDIF
+            JSIBUF=JSIBUF+3
+740         CONTINUE
+         ENDIF
+      GO TO 1070
+C
+C  CHECK IF RRS DATA TYPE
+750   IRX=IPDCKR(ZDTYPE)
+      IF (IRX.NE.0) GO TO 960
+C
+C      -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
+C
+C  PROCESS DAILY DATA TYPES
+C
+      IDX=IPDCDW(ZDTYPE)
+      IF (IDX.EQ.0) THEN
+         CALL ULINE (LP,2)
+         WRITE (LP,1470) ZDTYPE(1:LENSTR(ZDTYPE))
+         GO TO 1250
+         ENDIF
+C
+      KDLYTP=1
+      IIDATA=1
+C
+C  CHECK IF VALID READ TYPE
+      IF (IDDTDR(4,IDX).GT.-4) GO TO 770
+         CALL ULINE (LP,2)
+         WRITE (LP,1480) ZDTYPE
+         GO TO 1250
+C
+C  READ FUTURE DATA
+760   KDLYTP=1
+      IDTYPE=0
+      IIDATA=1
+      CALLEE='RPD1SF'
+      CALL RPD1SF (XSTAID(1),IDTYPE,ZDTYPE,JULNXT,JULEND,
+     *   LIDATA,IDATA,LDATES,IDATES,LDFILL,IDTIME,NVPDT,MSNG,ISTAT)
+      IF (ISTAT.EQ.0) GO TO 780
+      GO TO (1100,1130,1150,1190,1210,1190,1230),ISTAT
+      GO TO 1110
+C
+C  READ OBSERVED DATA
+770   KDLYTP=1
+      IDTYPE=0
+      IIDATA=1
+      CALLEE='RPD1S'
+      NTYPER=1
+      IF (ZDTYPE(3:4).EQ.'06'.OR.
+     *    ZDTYPE(3:4).EQ.'03'.OR.
+     *    ZDTYPE(3:4).EQ.'01') THEN
+         IF (JULNXT.EQ.JULBEG.AND.IHRBEG.NE.0) JULNXT=JULNXT+1
+         ENDIF
+      CALL RPD1S (XSTAID(1),IDTYPE,NTYPER,ZDTYPE,JULNXT,JULEND,
+     *   MDLTYP,XDLTYP,NDLYTP,LIDATA,IDATA,LDFILL,IDTIME,NVPDT,
+     *   MSNG,ISTAT)
+      IF (ISTAT.EQ.0) GO TO 780
+      GO TO (1210,1210,1100,1130,1150,1170,1230),ISTAT
+      GO TO 1110
+C
+780   IDX=IPDCKD(ZDTYPE)
+      IF (LDFILL.LT.1) GO TO 1070
+C
+      NUMDTA=NVPDT(KDLYTP)*24/IDTIME(KDLYTP)*(JULEND-JULNXT+1)
+      IF (IPDDB.GT.0) WRITE (IOGDB,*) 'KDLYTP=',KDLYTP,
+     *   ' NVPDT(KDLYTP)=',NVPDT(KDLYTP),
+     *   ' IDTIME(KDLYTP)=',IDTIME(KDLYTP),
+     *   ' NUMDTA=',NUMDTA
+C
+C  FIND UNITS CONVERSION TYPE
+      DO 790 JCVTYP=1,NCVTYP
+         IF (IDDTDR(2,IDX).EQ.ICVTYP(1,JCVTYP)) GO TO 800
+790      CONTINUE
+      CALL ULINE (LP,2)
+      WRITE (LP,1490) IDDTDR(2,IDX)
+      GO TO 1250
+C
+C  SET POINTER FOR MAGNITUDE
+800   ISTSAV=ICVTYP(2,JCVTYP)
+C
+C  CHECK UNITS TYPE
+      IF (IUNTYP.EQ.1) THEN
+C     GET CONVERSION FACTORS
+         ICONV=2
+         NVAL=1
+         CALL UDUCNV (RMAGNI(1,ISTSAV),RMAGNI(2,ISTSAV),ICONV,NVAL,
+     *      FACTOR,TFACT,ISTAT)
+         IF (ISTAT.NE.0) GO TO 600
+         ENDIF
+C
+C  CONVERT DATA TO REAL
+      ISSS=ISTSAV
+      DO 820 I=1,NUMDTA
+         IF (ZDTYPE.EQ.'PP24') THEN
+            IF (I.GT.LRDATA) THEN
+               CALL ULINE (LP,2)
+               WRITE (LP,1360) 'RDATA',LRDATA
+               GO TO 1070
+               ENDIF
+            IF (I.GT.LIHUR) THEN
+               CALL ULINE (LP,2)
+               WRITE (LP,1360) 'IHUR',LIHUR
+               GO TO 1070
+               ENDIF
+            CALL PDGTPP (IDATA(IIDATA),RDATA(I),IHUR(I),IPP24)
+            IF (IHUR(I).EQ.0.OR.IHUR(I).EQ.24) GO TO 810
+               IHUR(I)=IHUR(I)+NHOPDB-TIME(2)
+               IF (IHUR(I).GT.24) IHUR(I)=IHUR(I)-24
+               GO TO 810
+            ENDIF
+         R=IDATA(IIDATA)
+         RDATA(I)=R/RMAGNI(3,ISSS)
+         IF (IDATA(IIDATA).EQ.MSNG(KDLYTP)) RDATA(I)=IDATA(IIDATA)
+         IF (ZDTYPE.EQ.'EA24') THEN
+            ISSS=ISSS+1
+            IF (ISSS.GT.7) ISSS=2
+            IF (IDATA(IIDATA).EQ.MSNG(KDLYTP)) RDATA(I)=IDATA(IIDATA)
+            ENDIF
+810      IIDATA=IIDATA+1
+820      CONTINUE
+C
+      RMSNG=MSNG(KDLYTP)
+      DO 830 L=1,NUMDTA
+         IF (RDATA(L).LE.RMSNG) GOTO 830
+         RDATA(L)=(RDATA(L)*FACTOR)+TFACT
+830   CONTINUE
+      IF (IPDDB.GT.0) WRITE (IOGDB,1290) FACTOR,TFACT,
+     *   (RDATA(N),N=1,NUMDTA)
+C
+      MM=1
+      IDDD=JULNXT-1
+      IHOUR=24
+      IXX=0
+C
+C  IF LESS THAN 24 HOUR DATA MUST ADJUST DAY AND HOUR
+      IF (IDDTDR(6,IDX).GT.0) GO TO 840
+C     GET HOUR FROM TIME INTERVAL
+         IXX=IPDCDW(ZDTYPE)
+         IHOUR=IDDTDR(5,IXX)
+C
+840   NONLIN=8
+      IF (ZDTYPE.EQ.'EA24') NONLIN=6
+      IF (NONLIN.GT.NUMDTA) NONLIN=NUMDTA
+      MMM=MM+NONLIN-1
+      CALL MDYH2 (IDDD,IHOUR,IMO,IDAY,IYR,IHR,ITZ,IDSAV,TIME(3))
+      IYR=MOD(IYR,100)
+C
+      IF (IPDDB.GT.0) WRITE (IOGDB,*) 'NONLIN=',NONLIN,
+     *   ' MM=',MM,
+     *   ' MMM=',MMM
+C
+      IPOS=2
+      CALL UREPET (' ',XLINE,LEN(XLINE))
+C
+C  ENCODE THE DATA
+      DO 900 I=MM,MMM
+         IF (RDATA(I).EQ.-9999.0) GO TO 880
+C     CHECK IF TYPE IS LESS THAN 24 HOUR PRECIP
+         IF (ZDTYPE.NE.'PP24') THEN
+C        ISTSAV=1 IS 'PP' FROM UNITS CONVERSION ARRAY
+            IF (ISTSAV.EQ.1) THEN
+               NCHAR=5
+               GO TO 860
+               ENDIF
+            GO TO 870
+            ENDIF
+         NCHAR=6
+C     CHECK IF ESTIMATED DATA
+         IF (IHUR(I).EQ.24) THEN
+            CALL UMOVEX ('E',1,XLINE,IPOS+NCHAR,1)
+            ENDIF
+C     CHECK IF PARITAL DAY TOTAL
+         IF (IHUR(I).EQ.0.OR.IHUR(I).EQ.24) THEN
+            ELSE
+               CALL UMOVEX ('H',1,XLINE,IPOS+NCHAR,1)
+            ENDIF
+860      NDEC=2
+         IPRERR=0
+         CALL UFF2A (RDATA(I),XLINE,IPOS,NCHAR,NDEC,IPRERR,LP,IERR)
+         IF (IERR.NE.0) THEN
+            NDECN=1
+            INOTE=0
+            IF (INOTE.EQ.1) THEN
+               CALL ULINE (LP,2)
+               WRITE (LP,1293) ZTYPE,RDATA(I),NCHAR,NDEC,NDECN
+               ENDIF
+            NDEC=NDECN
+            IPRERR=1
+            CALL UFF2A (RDATA(I),XLINE,IPOS,NCHAR,NDEC,IPRERR,LP,IERR)
+            IF (IERR.NE.0) THEN
+               CALL ULINE (LP,2)
+               WRITE (LP,1295) 'UFF2A',ZTYPE,RDATA(I),NCHAR,NDEC
+               ENDIF
+            ENDIF
+         IF (ZDTYPE.EQ.'PP24') THEN
+            IF (IHUR(I).EQ.24.OR.IHUR(I).EQ.0) GO TO 865
+C           ENCODE THE HOUR
+               IPRERR=1
+               CALL UFI2A (IHUR(I),XLINE,IPOS+6,2,IPRERR,LP,IERR)
+               IF (IERR.NE.0) THEN
+                  CALL ULINE (LP,2)
+                  WRITE (LP,1297) 'UFI2A','HOUR',I,IHUR(I)
+                  ENDIF
+               ENDIF
+865      IF (NCHAR.EQ.5) NADD=9
+         IF (NCHAR.EQ.6) NADD=10
+         IPOS=IPOS+NADD
+         GO TO 900
+C     TEMPERATURE DATA
+870      NCHAR=7
+         NDEC=1
+         IPRERR=1
+         CALL UFF2A (RDATA(I),XLINE,IPOS,NCHAR,NDEC,IPRERR,LP,IERR)
+         IF (IERR.NE.0) THEN
+            CALL ULINE (LP,2)
+            WRITE (LP,1295) 'UFF2A',ZDTYPE,RDATA(I),NCHAR,NDEC
+            ENDIF
+         IPOS=IPOS+9
+         GO TO 900
+C     MISSING DATA
+880      NCHAR=5
+         NDEC=0
+         IPRERR=1
+         CALL UFF2A (RDATA(I),XLINE,IPOS,NCHAR,NDEC,IPRERR,LP,IERR)
+         IF (IERR.NE.0) THEN
+            CALL ULINE (LP,2)
+            WRITE (LP,1295) 'UFF2A','MISSING',RDATA(I),NCHAR,NDEC
+            ENDIF
+         IPOS=IPOS+9
+900      CONTINUE
+C
+C  CHECK IF NEED TO PRINT HEADER
+      IF (IPRPAG.EQ.1) THEN
+         CALL UPAGE (LP)
+         IPRPAG=0
+         ENDIF
+      NLINEL=1
+      CALL ULINEL (LP,NLINEL,IRETRN)
+      IF (IPDDB.GT.0) WRITE (IOGDB,*) 'IPRHDR=',IPRHDR,
+     *   ' IRETRN=',IRETRN
+      IF (IPRHDR.EQ.0.AND.IRETRN.EQ.0) THEN
+         ELSE
+            IPRHDR=0
+            IF (ZDTYPE.NE.'EA24') THEN
+               CALL UMEMOV (RMAGNI(IUNTYP+1,ISTSAV),XDUNIT,1)
+               ELSE
+                  IF (IUNTYP.EQ.0) XDUNIT='ENGL'
+                  IF (IUNTYP.EQ.1) XDUNIT='METR'
+               ENDIF
+            IF (IPDDB.GT.0) WRITE (IOGDB,*) 'IUNTYP=',IUNTYP,
+     *         ' XDUNIT=',XDUNIT
+            CALL ULENTH (ZDTYPE,LEN(ZDTYPE),LENTH)
+            IF (LENTH.LT.4) LENTH=4
+            CALL ULINE (LP,2)
+            WRITE (LP,1500) ZDTYPE(1:LENTH),XDUNIT,TIME(3)
+            CALL ULINE (LP,2)
+            WRITE (LP,1510)
+            ENDIF
+C
+      IF (MM.GT.1) GO TO 910
+C
+      CALL ULINE (LP,1)
+      WRITE (LP,1520) (ISIBUF(M),M=2,6),
+     *   IMO,IDAY,IYR,IHR,
+     *   XLINE(1:IPOS)
+      GO TO 920
+C
+910   CALL ULINE (LP,1)
+      WRITE (LP,1530) IMO,IDAY,IYR,IHR,XLINE(1:IPOS)
+C
+920   NUMDTA=NUMDTA-NONLIN
+      IF (NUMDTA.LT.1) GO TO 950
+C
+C  RECOMPUTE HOUR AND DAY
+      IF (IDDTDR(6,IDX).LT.0) GO TO 940
+      IDDD=IDDD+NONLIN/IDDTDR(6,IDX)
+930   MM=MMM+1
+      GO TO 840
+940   IDDD=IDDD+NONLIN/IDDTDR(6,IXX)
+      IF (IDDTDR(6,IXX).EQ.24) IHOUR=IHOUR+8
+      IF (IHOUR.LT.24) GO TO 930
+      IHOUR=1
+      IDDD=IDDD+1
+      GO TO 930
+C
+950   IDSPLA=1
+      GO TO 1070
+C
+C      -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
+C
+C  PROCESS RRS DATA
+C
+960   JULBEH=JULHRB+NHOPDB
+      JULENH=JULHRE+NHOPDB
+      IF (IPDDB.GT.0) WRITE (IOGDB,*) 'JULBEH=',JULBEH,
+     *  ' JULENH=',JULENH
+C
+C  READ RRS DATA
+      CALLEE='RPDRRS'
+      IDTYPE=0
+      CALL RPDRRS (XSTAID(1),IDTYPE,ZDTYPE,NVLPOB,JULBEH,JULENH,
+     *   LOBS,OBS,NUMOBS,LMINUT,MINUT,LIWKBUF,IWKBUF,LSTHR,ISTAT)
+      IF (IPDDB.GT.0) WRITE (IOGDB,*) 'ISTAT=',ISTAT,
+     *     ' NUMOBS=',NUMOBS,
+     *     ' LSTHR=',LSTHR,
+     *     ' JULBEH=',JULBEH,
+     *     ' JULENH=',JULENH
+      IF (ISTAT.EQ.1) THEN
+         CALL ULINE (LP,2)
+         WRITE (LP,1540)
+         ENDIF
+      IF (ISTAT.GE.6) THEN
+         IGOTO=ISTAT-5
+         GO TO (1210,1230),IGOTO
+         GO TO 1110
+         ENDIF
+C
+C  CHECK IF ANY OBSERVATIONS
+      IF (NUMOBS.EQ.0) THEN
+         CALL ULINE (LP,2)
+         WRITE (LP,1350) XSTAID(1),ZDTYPE(1:LENSTR(ZDTYPE))
+         IDFLG=1
+         GO TO 1070
+         ENDIF
+C
+C  CHECK IF NEED TO PRINT HEADER
+      IF (IPRPAG.EQ.1) THEN
+         CALL UPAGE (LP)
+         IPRPAG=0
+         ENDIF
+      NLINEL=1
+      CALL ULINEL (LP,NLINEL,IRETRN)
+      IF (IPDDB.GT.0) WRITE (IOGDB,*) 'IPRHDR=',IPRHDR,
+     *   ' IRETRN=',IRETRN
+      IF (IPRHDR.EQ.0.AND.IRETRN.EQ.0) THEN
+         ELSE
+            IPRHDR=0
+            CALL PFDUNT (ZDTYPE,IUNTYP,XDUNIT)
+            IF (NVLPOB.EQ.2) THEN
+               CALL ULENTH (ZDTYPE,LEN(ZDTYPE),LENTH)
+               IF (LENTH.LT.4) LENTH=4
+               CALL ULINE (LP,2)
+               WRITE (LP,1550) 'INSTANTANEOUS ',ZDTYPE(1:LENTH),XDUNIT,
+     *            TIME(3)
+               CALL ULINE (LP,4)
+               WRITE (LP,1560)
+               ENDIF
+            IF (NVLPOB.EQ.3) THEN
+               CALL ULENTH (ZDTYPE,LEN(ZDTYPE),LENTH)
+               IF (LENTH.LT.4) LENTH=4
+               CALL ULINE (LP,2)
+               WRITE (LP,1550) 'PERIOD AVERAGE',ZDTYPE(1:LENTH),XDUNIT,
+     *            TIME(3)
+               CALL ULINE (LP,4)
+               WRITE (LP,1570)
+            ENDIF
+         ENDIF
+C
+      NDTA=NUMOBS*NVLPOB
+      NOBS=2
+      IF (NVLPOB.EQ.3) NOBS=3
+      L=2
+      LADD=0
+      DO 970 N=2,NDTA,NOBS
+         IF (L.GT.LIBUF1) THEN
+            LADD=LADD+1
+            ELSE
+               CALL UMEMOV (OBS(N),IBUF1(L),1)
+            ENDIF
+         L=L+1
+970      CONTINUE
+      IF (LADD.GT.0) THEN
+         CALL ULINE (LP,2)
+         WRITE (LP,1365) 'IBUF1',LIBUF1,LIBUF1+LADD
+         GO TO 1070
+         ENDIF
+C
+C  GET CONVERSION FACTORS
+      CALL PDCKCV (XDUNIT,ZDTYPE,2,ICONVT,FACTOR,TFACT,ISTAT)
+      IF (ISTAT.NE.0) GO TO 600
+
+      IF (ICONVT.EQ.0) GO TO 980
+C     CONVERT DATA
+         RMISS=MISSNG
+         CALL PDCNVT (FACTOR,TFACT,L,1,RMISS,IBUF1(2))
+         IF (IPDDB.GT.0) WRITE (IOGDB,1420) FACTOR,TFACT,
+     *      (IBUF1(LX),LX=1,NDTA)
+C
+980   IOBS=1
+      IPOS=1
+      NTIME=0
+      IF=1
+      CALL UREPET (' ',XLINE,LEN(XLINE))
+C
+      IF (NOBS.EQ.3) GO TO 1020
+C
+C  RRS DISPLAY FOR INSTANTANEOUS DATA
+      DO 1010 IUMOBS=1,NUMOBS
+         IF (IPDDB.GT.0) WRITE (IOGDB,1580) MINUT(IF),OBS(IOBS)
+         IF (MINUT(IF).GT.30) OBS(IOBS)=OBS(IOBS)-1
+         IFDAY=(OBS(IOBS)-NHOPDB)/24+1
+         IFD=IFDAY*24
+         IH=OBS(IOBS)-IFD+NHOPDB
+         CALL MDYH2 (IFDAY,IH,IMO,IDAY,IYR,IHR,ITZ,IDSAV,TIME(3))
+         IYR=MOD(IYR,100)
+         IF (IPDDB.GT.0) WRITE (IOGDB,1590) OBS(IOBS),IMO,IDAY,IYR,IHR
+C     ENCODE THE DATE AND TIME
+         IPRERR=1
+         CALL UFI2A (IMO,XLINE,IPOS,-2,IPRERR,LP,IERR)
+         IPOS=IPOS+2
+         CALL UMOVEX ('/',1,XLINE,IPOS,1)
+         IPOS=IPOS+1
+         CALL UFI2A (IDAY,XLINE,IPOS,-2,IPRERR,LP,IERR)
+         IPOS=IPOS+2
+         CALL UMOVEX ('/',1,XLINE,IPOS,1)
+         IPOS=IPOS+1
+         CALL UFI2A (IYR,XLINE,IPOS,-2,IPRERR,LP,IERR)
+         IPOS=IPOS+2
+         IPOS=IPOS+1
+         CALL UFI2A (IHR,XLINE,IPOS,-2,IPRERR,LP,IERR)
+         IPOS=IPOS+2
+         CALL UMOVEX (':',1,XLINE,IPOS,1)
+         IPOS=IPOS+1
+         CALL UFI2A (MINUT(IF),XLINE,IPOS,-2,IPRERR,LP,IERR)
+         IPOS=IPOS+2
+C     ENCODE THE RRS DATA
+         IPOS=IPOS+1
+         NCHAR=LFIELD(IRX)
+         NDEC=NUMDEC(IRX)
+         IPRERR=1
+         CALL UFF2A (IBUF1(IF+1),XLINE,IPOS,NCHAR,NDEC,IPRERR,LP,
+     *      IERR)
+         IF (IERR.NE.0) THEN
+            CALL ULINE (LP,2)
+            WRITE (LP,1295) 'UFF2A','RRS',RDATA(IF+1),NCHAR,NDEC
+            ENDIF
+         IPOS=IPOS+NCHAR
+         IF (IUMOBS.EQ.NUMOBS) GO TO 990
+         IOBS=IOBS+NOBS
+         IF=IF+1
+         NTIME=NTIME+1
+         NPER=24
+         IF (IPOS+NPER.LT.LEN(XLINE)) THEN
+            NSPACE=2
+            NADD=(NTIME*(NPER+NSPACE))-IPOS+1
+            IF (NADD.NE.0) IPOS=IPOS+IABS(NADD)
+            GO TO 1010
+            ENDIF
+         IF (IPOS.GT.LEN(XLINE)) IPOS=LEN(XLINE)
+         IF (IUMOBS.LE.4) THEN
+            CALL ULINE (LP,1)
+            WRITE (LP,1600) (ISIBUF(M),M=2,6),XLINE(1:IPOS)
+            GO TO 1000
+            ENDIF
+990      CALL ULINE (LP,1)
+         WRITE (LP,1610) XLINE(1:IPOS)
+1000     CALL UREPET (' ',XLINE,LEN(XLINE))
+         IPOS=1
+         NTIME=0
+1010     CONTINUE
+C
+      IDSPLA=1
+      GO TO 1070
+C
+C  RRS DISPLAY FOR PERIOD AVERAGE DATA
+1020  L=1
+      LADD=0
+      DO 1030 N=3,NDTA,NOBS
+         IF (L.GT.LIBUF2) THEN
+            LADD=LADD+1
+            ELSE
+               IBUF2(L)=OBS(N)
+            ENDIF
+         L=L+1
+1030     CONTINUE
+      IF (LADD.GT.0) THEN
+         CALL ULINE (LP,2)
+         WRITE (LP,1365) 'IBUF2',LIBUF2,LIBUF2+LADD
+         GO TO 1070
+         ENDIF
+      DO 1060 IUMOBS=1,NUMOBS
+         IFDAY=(OBS(IOBS)-NHOPDB)/24+1
+         IFD=IFDAY*24
+         IH=OBS(IOBS)-IFD+NHOPDB
+         CALL MDYH2 (IFDAY,IH,IMO,IDAY,IYR,IHR,ITZ,IDSAV,TIME(3))
+         IYR=MOD(IYR,100)
+C     ENCODE THE DATE AND TIME
+         IPRERR=1
+         CALL UFI2A (IMO,XLINE,IPOS,-2,IPRERR,LP,IERR)
+         IPOS=IPOS+2
+         CALL UMOVEX ('/',1,XLINE,IPOS,1)
+         IPOS=IPOS+1
+         CALL UFI2A (IDAY,XLINE,IPOS,-2,IPRERR,LP,IERR)
+         IPOS=IPOS+2
+         CALL UMOVEX ('/',1,XLINE,IPOS,1)
+         IPOS=IPOS+1
+         CALL UFI2A (IYR,XLINE,IPOS,-2,IPRERR,LP,IERR)
+         IPOS=IPOS+2
+         CALL UMOVEX ('-',1,XLINE,IPOS,1)
+         IPOS=IPOS+1
+         CALL UFI2A (IHR,XLINE,IPOS,-2,IPRERR,LP,IERR)
+         IPOS=IPOS+2
+C     ENCODE THE PERIOD
+         IPOS=IPOS+2
+         NCHAR=2
+         IPRERR=1
+         CALL UFI2A (IBUF2(IF),XLINE,IPOS,NCHAR,IPRERR,LP,IERR)
+         IPOS=IPOS+3
+C     ENCODE THE DATA
+         NCHAR=LFIELD(IRX)
+         NDEC=NUMDEC(IRX)
+         IPRERR=1
+         CALL UFF2A (IBUF1(IF+1),XLINE,IPOS,NCHAR,NDEC,IPRERR,LP,
+     *      IERR)
+         IF (IERR.NE.0) THEN
+            CALL ULINE (LP,2)
+            WRITE (LP,1295) 'UFF2A','RRS',IBUF1(IF+1),NCHAR,NDEC
+            ENDIF
+         IPOS=IPOS+NCHAR
+         IF (IUMOBS.EQ.NUMOBS) GO TO 1040
+         IOBS=IOBS+NOBS
+         IF=IF+1
+         NTIME=NTIME+1
+         NPER=26
+         IF (IPOS+NPER.LT.LEN(XLINE)) THEN
+            NSPACE=2
+            NADD=(NTIME*(NPER+NSPACE))-IPOS+1
+            IF (IPDDB.GT.0) WRITE (IOGDB,*) 'IPOS=',IPOS,
+     *         ' NTIME=',NTIME,
+     *         ' NPER=',NPER,
+     *         ' NSPACE=',NSPACE,
+     *         ' NADD=',NADD
+            IF (NADD.NE.0) IPOS=IPOS+IABS(NADD)
+            GO TO 1060
+            ENDIF
+         IF (IPOS.GT.LEN(XLINE)) IPOS=LEN(XLINE)
+         IF (IUMOBS.LE.3) THEN
+            CALL ULINE (LP,1)
+            WRITE (LP,1600) (ISIBUF(M),M=2,6),XLINE(1:IPOS)
+            GO TO 1050
+            ENDIF
+1040     CALL ULINE (LP,1)
+         WRITE (LP,1610) XLINE(1:IPOS)
+1050     CALL UREPET (' ',XLINE,LEN(XLINE))
+         IPOS=1
+         NTIME=0
+1060     CONTINUE
+C
+      IDSPLA=1
+C
+C  CHECK IF LAST SIF RECORD READ
+1070  IF (NXTSIF.LE.LSTSIF) THEN
+         IREC=NXTSIF
+         GO TO 730
+         ENDIF
+C
+1080  IF (IALL.EQ.1) GO TO 710
+C
+1090  IF (IDSPLA.NE.0.OR.IDFLG.NE.0) GO TO 1250
+      IF (IPRNT.EQ.0) THEN
+         CALL ULINE (LP,2)
+         WRITE (LP,1620) ZDTYPE(1:LENSTR(ZDTYPE))
+         ENDIF
+      GO TO 1250
+C
+C      -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -
+C
+1100  CALL ULINE (LP,2)
+      WRITE (LP,1260) XSTAID(1)
+      IDFLG=1
+      GO TO 1070
+C
+1110  CALL ULINE (LP,2)
+      WRITE (LP,1120) CALLEE,ISTAT,XSTAID(1)
+1120  FORMAT ('0**ERROR** UNEXPECTED RETURN CODE (',I3,
+     *   ') FROM ROUTINE ',A,'PROCESSING STATION ',A,'.')
+      GO TO 1070
+C
+1130  IF (IALL.EQ.0) THEN
+         CALL ULINE (LP,2)
+         WRITE (LP,1140) ZDTYPE(1:LENSTR(ZDTYPE)),XSTAID(1)
+1140  FORMAT ('0**ERROR** DATA TYPE ',A,' NOT FOUND FOR STATION ',A,'.')
+         GO TO 1070
+         ENDIF
+C
+1150  CALL ULINE (LP,2)
+      WRITE (LP,1160) ZDTYPE(1:LENSTR(ZDTYPE))
+1160  FORMAT ('0**WARNING** NO ',A,
+     *   ' VALUES FOUND FOR THE SPECIFIED DATES.')
+      GO TO 1080
+C
+1170  IF (IPRNT.EQ.1) GO TO 780
+      CALL ULINE (LP,2)
+      WRITE (LP,1180) 'OBSERVED',ZDTYPE(1:LENSTR(ZDTYPE))
+1180  FORMAT ('0**WARNING** NOT ALL DATES REQUESTED FOR ',A,
+     *   ' DATA EXIST FOR DATA TYPE ',A,
+     *   '. DATES THAT EXIST WILL BE PRINTED.')
+      IPRNT=1
+      GO TO 780
+C
+1190  IF (IPRNTF.EQ.0) THEN
+         CALL ULINE (LP,2)
+         WRITE (LP,1180) 'FUTURE',ZDTYPE(1:LENSTR(ZDTYPE))
+         IPRNTF=1
+         ENDIF
+      GO TO 780
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+1210  CALL ULINE (LP,2)
+      WRITE (LP,1220) CALLEE,ISTAT
+1220  FORMAT ('0**ERROR** WORK ARRAYS TOO SMALL. ',
+     *   A,' STATUS CODE=',I2)
+      GO TO 1250
+C
+1230  CALL ULINE (LP,2)
+      WRITE (LP,1240) CALLEE,ISTAT
+1240  FORMAT ('0**ERROR** IN PRTOBS - SYSTEM ERROR. ',
+     *   A,' STATUS CODE=',I2)
+C
+1250  IF (IPDTR.GT.0) WRITE (LP,*) 'EXIT PRTOBS'
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+1260  FORMAT ('0**ERROR** STATION ',A,' NOT FOUND.')
+1270  FORMAT (' LDFILL=',I4,(' IDTIME=',I6,' NVPDT=',I6))
+1280  FORMAT (' DATA=',10I6)
+1290  FORMAT (' FACTOR=',F8.3,' TFACT=',F8.3 /
+     *   (' DATA=',9(F11.3,2X)))
+1293  FORMAT ('0**NOTE** ',A,' DATA VALUE ',F10.3,' CANNOT BE ',
+     *   'CONVERTED TO CHARACTER USING A FIELD WIDTH OF ',I2,' AND ',
+     *   I2,' DECIMAL PLACES. ' /
+     *   10X,I2,' DECIMAL PLACES WILL BE TRIED.')
+1295  FORMAT ('0**ERROR** IN ROUTINE ',A,' CONVERTING ',A,' ',
+     *   'DATA VALUE ',G10.3,' TO CHARACTER USING A FIELD WIDTH OF ',I2,
+     *   ' AND ',I2,' DECIMAL PLACES.')
+1297  FORMAT ('0**ERROR** IN ROUTINE ',A,' CONVERTING ',A,' ',
+     *   'DATA VALUE NUMBER ',I4,'. VALUE IS ',I6,'.')
+1300  FORMAT ('0*** DAILY DATA ***',5X,
+     *   'TIME ZONE = ',A4)
+1310  FORMAT ('0',5X,'STATION',5X,'DATA',9X,'TIME',2X,'DATE OF FIRST' /
+     *   4X,'ID',4X,'NUMBER',2X,'TYPE',2X,'UNITS',
+     *      2X,'INTV',2X,'VALUE ON LINE',2X,'VALUES' /
+     *   1X,8('-'),1X,
+     *      6('-'),2X,4('-'),2X,5('-'),2X,4('-'),2X,13('-'),2X,
+     *      78('-'))
+1320  FORMAT (1X,4A2,1X,I6,2X,A,2X,A,1X,2X,
+     *   2X,I2.2,2X,1X,
+     *   I2.2,'/',I2.2,'/',I2.2,'-',I2.2,1X,2X,
+     *   A)
+1330  FORMAT (T39,2(I2.2,'/'),I2.2,'-',I2.2,3X,A)
+1340  FORMAT (' RETURN FROM READ WITH ISTAT NUMOBS LSTHR JULBEH',
+     *    ' JULENH=',2I3,3I9)
+1350  FORMAT ('0**NOTE** NO OBSERVATIONS IN PERIOD FOR ',
+     *   'STATION ',A,' AND RRS TYPE ',A,'.')
+1360  FORMAT ('0**ERROR** SIZE OF ARRAY ',A,' (',I4,') EXCEEDED.')
+1365  FORMAT ('0**ERROR** SIZE OF ARRAY ',A,' (',I4,') EXCEEDED. ',I5,
+     *   ' WORDS NEEDED.')
+1370  FORMAT ('0*** RRS ',A,' DATA ***',5X,
+     *   'TIME ZONE = ',A4,5X,
+     *   'LAST OBSERVED HOUR = ',I2.2,2('/',I2.2),'-',I2.2)
+1380  FORMAT ('0',5X,'STATION',5X,'DATA' /
+     *   4X,'ID',4X,'NUMBER',2X,
+     *      'TYPE',2X,'UNITS',2X,
+     *      4(2X,'DATE',4X,'TIME',3X,'VALUE',4X) /
+     *   1X,8('-'),1X,6('-'),2X,
+     *      4('-'),2X,5('-'),2X,
+     *      3(24('-'),2X),24('-'))
+1390  FORMAT (1X,4A2,1X,I6,2X,A,2X,A,1X,2X,A)
+1400  FORMAT (T32,A)
+1410  FORMAT (' OBS TIME=',5I9)
+1420  FORMAT (' FACTOR=',F8.3, 'TFACT=',F8.3 /
+     *    ' RRS DATA=',10(F8.3))
+1430  FORMAT (' IFDAY=',I6,' IH=',I3,' IMO=',I3,' IDAY=',I3,
+     *    ' IYR=',I5,' IHR=',I5,' ITZ=',A4,' IDSAV=',I3,
+     *    ' TIME(3)=',A4)
+1440  FORMAT ('0',5X,'STATION',5X,'DATA' /
+     *   4X,'ID',4X,'NUMBER',2X,
+     *      'TYPE',2X,'UNITS',6X,'DATE',3X,'PERIOD',2X,'VALUE',8X,
+     *      'DATE',3X,'PERIOD',2X,'VALUE',8X,'DATE',3X,'PERIOD',2X,
+     *      'VALUE' /
+     *   1X,8('-'),1X,6('-'),2X,4('-'),2X,5('-'),2X,
+     *      3(26('-'),2X))
+1450  FORMAT ('0**ERROR** NO STATIONS DEFINED.')
+1460  FORMAT ('0**NOTE** ',A,' DATA TYPE SET TO ',A,'.')
+1470  FORMAT ('0**ERROR** DATA TYPE ',A,' NOT FOUND.')
+1480  FORMAT ('0**ERROR** DATA TYPE ',A,' IS A WRITE ONLY TYPE.')
+1490  FORMAT ('0**ERROR** DATA TYPE ',A4,' NOT FOUND IN ',
+     *   'CONVERSION FACTOR ARRAY.')
+1500  FORMAT ('0*** DAILY DATA TYPE ',A,' ***',5X,
+     *   'DATA UNITS = ',A,5X,
+     *   'TIME ZONE = ',A4)
+1510  FORMAT ('0',5X,'STATION',5X,'DATE OF FIRST' /
+     *   4X,'ID',4X,'NUMBER',2X,'VALUE ON LINE',2X,'VALUES' /
+     *   1X,8('-'),1X,6('-'),2X,13('-'),2X,78('-'))
+1520  FORMAT (1X,4A2,1X,I6,2X,1X,
+     *   I2.2,'/',I2.2,'/',I2.2,'-',I2.2,1X,2X,
+     *   A)
+1530  FORMAT (19X,2(I2.2,'/'),I2.2,'-',I2.2,3X,A)
+1540  FORMAT ('0**WARNING** ARRAY TO HOLD RRS OBSERVATIONS IS NOT ',
+     *   'LARGE ENOUGH TO HOLD ALL THE DATA REQUESTED. END OF PERIOD ',
+     *   'WILL BE TRUNCATED.')
+1550  FORMAT ('0*** RRS ',A,' DATA TYPE ',A,' ***',5X,
+     *   'DATA UNITS = ',A,5X,
+     *   'TIME ZONE = ',A4)
+1560  FORMAT ('0',5X,'STATION' /
+     *   ' ',3X,'ID',3X,1X,'NUMBER',2X,
+     *       4(2X,'DATE',3X,'TIME',5X,'VALUE',1X,2X) /
+     *   1X,8('-'),1X,6('-'),2X,4(24('-'),2X))
+1570  FORMAT ('0',5X,'STATION' /
+     *   ' ',3X,'ID',3X,1X,'NUMBER',2X,
+     *       3(2X,'DATE',3X,'PERIOD',4X,'VALUE',2X,2X) /
+     *   1X,8('-'),1X,6('-'),2X,3(26('-'),2X))
+1580  FORMAT (' MINUT(IF)=',I3,3X,'OBS(IOBS)=',I6)
+1590  FORMAT (' OBS(IOBS)=',I6,3X,'IMO=',I2,3X,'IDAY=',I2,3X,
+     *   'IYR=',I2,3X,'IHR=',I2)
+1600  FORMAT (1X,4A2,1X,I6,2X,A)
+1610  FORMAT (18X,A)
+1620  FORMAT ('0**NOTE** NO STATIONS WITH DATA TYPE ',A,' FOUND.')
+C
+      END

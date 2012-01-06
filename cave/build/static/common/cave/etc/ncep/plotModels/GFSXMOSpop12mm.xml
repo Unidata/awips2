@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<PlotModel svgTemplate="standardPlotModel_gfsxmosStandard.svg" category="GFSXMOS" name="pop12mm">
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="12" paramName="MARK">
+        <Position>MC</Position>
+        <Color red="255" green="228" blue="220"/>  <!-- GEMPAK#01 -->
+    </PlotModelElement>
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="12" paramName="PP12">
+        <Position>UL</Position>
+        <Color red="255" green="174" blue="185"/>  <!-- GEMPAK#11 -->
+    </PlotModelElement>
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="12" paramName="PP1A">
+        <Position>UR</Position>
+        <Color red="255" green="106" blue="106"/>  <!-- GEMPAK#12 -->
+    </PlotModelElement>
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="12" paramName="STID">
+        <Position>LC</Position>
+        <Color red="255" green="228" blue="220"/>  <!-- GEMPAK#01 -->
+    </PlotModelElement>
+</PlotModel>

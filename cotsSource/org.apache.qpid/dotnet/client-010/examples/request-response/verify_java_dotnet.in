@@ -1,0 +1,36 @@
+==== server_java.out | remove_uuid
+Server: Setting an ExceptionListener on the connection as sample uses a MessageConsumer
+Server: Creating a non-transacted, auto-acknowledged session
+Server: Creating a MessageConsumer
+Server: Creating a MessageProducer
+Server: Starting connection so MessageConsumer can receive messages
+Server: Receiving the message
+Server: Activating response queue listener
+Server: 	Response = TWAS BRILLIG, AND THE SLITHY TOVES
+
+Server: Receiving the message
+Server: Activating response queue listener
+Server: 	Response = DID GIRE AND GYMBLE IN THE WABE.
+
+Server: Receiving the message
+Server: Activating response queue listener
+Server: 	Response = ALL MIMSY WERE THE BOROGROVES,
+
+Server: Receiving the message
+Server: Activating response queue listener
+Server: 	Response = AND THE MOME RATHS OUTGRABE.
+
+Server: Receiving the message
+Server: Activating response queue listener
+Server: 	Response = THAT'S ALL, FOLKS!
+
+Server: Receiving the message
+==== client_dotnet.out
+Activating response queue listener for: clientSystem.Byte[]
+Waiting for all responses to arrive ...
+Response: TWAS BRILLIG, AND THE SLITHY TOVES
+Response: DID GIRE AND GYMBLE IN THE WABE.
+Response: ALL MIMSY WERE THE BOROGROVES,
+Response: AND THE MOME RATHS OUTGRABE.
+Shutting down listener for clientSystem.Byte[]
+Response: THAT'S ALL, FOLKS!

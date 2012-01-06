@@ -1,0 +1,18 @@
+
+<mapDescriptor>
+ <resource class="com.raytheon.viz.pngtile.rsc.QuadTiledRasterResource">
+  <properties>
+   <value field="name">TiledResource (AVHRR)</value>
+   <value field="filename">AVHRR/</value>
+   <value field="contrast">1.0</value>
+   <value field="brightness">1.0</value>
+   <value field="interpolationState">false</value>
+  </properties>
+  <resourceProperties>
+   <isVisible>true</isVisible>
+   <opacity>1.0</opacity>
+   <isLabeled>false</isLabeled>
+   <isHoverOn>false</isHoverOn>
+  </resourceProperties>
+ </resource>
+</mapDescriptor>

@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-31smp i686) [Netscape]">
+  <meta name="Author" content="Mark Mathewson">
+  <title>Map Background Configuration</title>
+</head>
+<body bgcolor="#ffffff">
+<h1 class="3Heading">
+<a name="Top"></a>localMapFiles.py - Map Background Shapefile Naming
+File
+Overrides</h1>
+<div class="3Heading">January 18, 2006<br>
+</div>
+<h1 class="3Heading"></h1>
+<h2>
+<a name="Organization"></a>Organization</h2>
+<a href="#Overview">Overview</a>
+<br>
+<a href="#Format">localMapFiles.py Format</a>
+<br>
+&nbsp;&nbsp;&nbsp; <a href="#Adding">Adding a New Map Background</a>
+<br>
+&nbsp;&nbsp;&nbsp; <a href="#Upd">Updating a map shapefile</a>
+<br>
+<a href="#Placement">Placement of the localMapFiles.py file</a>
+<br>
+<a href="#Updating">Updating Map Shapefiles</a>
+<br>
+<hr width="100%">
+<h2><a name="Overview"></a>Overview</h2>
+The localMapFiles.py file is used for overriding the defined shapefile
+names in the <a href="MapFiles.html">MapFiles.py</a> file.&nbsp; It is
+the primary mechansism for reconfiguring the map backgrounds when
+updated
+shapefiles are installed.&nbsp; Explicit shapefile names should be
+defined in the localMapFiles.py file and should be equated to a
+mnemonic, e.g., CountyMapName, that is used in Maps.py and localMaps.py.<br>
+<p><b><font color="#ff0000">See the <a
+ href="serverConfiguration.html#ServerDatabaseConfigurationModificationOptions">server
+configuration overview</a> for information on how to make changes that
+are supported to the map backgrounds.<br>
+</font></b></p>
+<p><b><font color="#ff0000">NOTE: Starting with software releases in
+January 2006, GFESuite is installed with separate GFE CORE and Map
+Shapefile components.&nbsp; For AWIPS releases, the map shapefile
+component will not normally be provided.&nbsp;&nbsp; WFOs will be
+responsible for downloading from NOAA1 their own set of shapefiles, and
+defining them through localMapFiles.py.&nbsp;&nbsp;&nbsp; If the map
+configuration is not correct during the installation time, then the
+install will fail.&nbsp;&nbsp;&nbsp; Even though the GFE CORE and Map
+Shapefile components will not both be delivered for AWIPS,&nbsp; the
+etc/BASE/MapFiles.py will still point to the Map Shapefile set of
+shapefiles.&nbsp; This makes it imperative for sites to have their own
+localMapFiles.py to point to their inventory of maps.<br>
+</font></b></p>
+<p></p>
+<hr width="100%">
+<h2><a name="Format"></a>localMaps.py Format</h2>
+<a href="EXAMPLElocalMapFiles.py">Example localMapFiles.py
+configuration
+file</a>
+<br>
+&nbsp;
+<h3><a name="Adding"></a>Adding a New Map Background</h3>
+A new map background can be added through <a
+ href="localMapsConfig.html">localMaps.py</a>,
+but it is highly recommended that you use the localMapFiles.py method
+to define
+the shapefile name.&nbsp; This will allow you to update the shapefile
+at
+a later time and only have to change the localMapFiles.py file.
+<p>Here is an example of adding a shapefile for time zone.&nbsp; The
+variable
+name, by convention, should include the "MapName"&nbsp;as part of the
+variable:
+</p>
+<p><tt>TimeZoneMapName = 'tz_13se02'</tt>
+<br>
+<tt></tt>&nbsp;
+</p>
+<h3><a name="Upd"></a>Updating a map Shapefile</h3>
+Updating the definition of the map shapefile when a shapefile is
+updated
+is very simple, just repeat the definition that is contained in
+MapFiles.py
+and change the filename of the map.&nbsp; In this example, the zone
+shapefile
+is being updated to a September 13, 2002 version:
+<p><tt>ZoneMapName = 'z_13sep02'</tt><tt></tt>
+</p>
+<p></p>
+<hr width="100%">
+<h2><a name="Placement"></a>Placement of the localMapFiles.py file</h2>
+The localMapFiles.py file should always be placed in the ***/etc/SITE
+directory
+as explained <a href="serverConfiguration.html#LocationofFiles">here</a>.
+<p>
+</p>
+<hr width="100%">
+<h2><a name="Updating"></a>Updating Map Shapefiles</h2>
+The procedure to update map shapefiles is outlined below:
+<ol>
+  <li>
+Download the new shapefiles from the AWIPS Map GIS catalog.</li>
+  <ul>
+    <li>If you are on AWIPS, then you should sftp to the NOAA1 server using the appropriate (NWS-supplied) username and password.&nbsp; Then "cd" to pub/maps
+where the shapefiles are located.&nbsp; Then download the desired
+shapefiles.<br>
+    </li>
+  </ul>
+  <li>
+unzip them into a directory, or uncompress them as necessary.&nbsp; If
+they have a *.Z extension, you can use the uncompress command.&nbsp; If
+they have a *.gz extension, then you use the gzip -d&nbsp;
+command.&nbsp;
+When you are finished, verify that you have a *.shp, *.shx, and *.dbf
+file.</li>
+  <li>
+gzip -9 each portion of the map&nbsp; (.shp, .shx, .dbf) using the
+command
+    <b><tt>gzip -9 *.shp *.shx *.dbf</tt></b></li>
+  <li>
+Place the updated shapefiles into the <i>release</i>/data/maps
+directory,
+where <i>release</i> is the software installation directory, nominally
+/awips/GFESuite/primary for AWIPS installations (thus your map
+shapefiles are put
+into /awips/GFESuite/primary/data/maps).&nbsp; <br>
+  </li>
+  <li>
+Modify your localMapFiles.py file and redefine the reference name, such
+as CountyMapName, to point to the new shapefile.</li>
+  <li>
+Restart the ifpServer.</li>
+</ol>
+<div class="Body">&nbsp;<a href="#Top">Back To Top</a>
+<br>
+&nbsp;<a href="GFESuite.html#TableOfContents">Back To TOC</a></div>
+</body>
+</html>

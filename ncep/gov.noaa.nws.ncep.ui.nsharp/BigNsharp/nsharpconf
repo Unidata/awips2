@@ -1,0 +1,29 @@
+# Menu Name | Filename | Data Type | Search pattern (glob)
+Observed   | LATEST_FILE | NSHARP_OBS | /NAWIPS/nadata2/observations/uair/*.snd
+TAMDAR     | LATEST_FILE | NSHARP_OBS | /NAWIPS/nadata2/observations/tamdar/*.tdar
+Archive    | LATEST_FILE | NSHARP_OBS | /spcarch1b/sparse/observations/uair/2006/*.snd
+PFC Gfs    | LATEST_FILE | NSHARP_PFC | /NAWIPS/nadata2/model/pfcst/gfs_*.snd*
+PFC Nam    | LATEST_FILE | NSHARP_PFC | /NAWIPS/nadata2/model/pfcst/nam_*.snd*
+#PFC Namp   | LATEST_FILE | NSHARP_PFC | /NAWIPS/nadata2/model/pfcst/namp_*.snd*
+PFC NamKF  | LATEST_FILE | NSHARP_PFC | /NAWIPS/nadata2/model/pfcst/etakf*.snd*
+PFC RUC    | LATEST_FILE | NSHARP_PFC | /NAWIPS/nadata2/model/pfcst/ruc2_*.snd*
+#PFC RUCP    | LATEST_FILE | NSHARP_PFC | /NAWIPS/nadata2/model/pfcst/ruc2p*.snd*
+#PFC WRF-NMM4  | LATEST_FILE | NSHARP_PFC | /NAWIPS/nadata2/model/pfcst/cent4km*.snd*
+#PFC WRF-NMM3  | LATEST_FILE | NSHARP_PFC | /NAWIPS/nadata2/model/pfcst/cent3km*.snd*
+PFC WRF-NSSL4  | LATEST_FILE | NSHARP_PFC | /NAWIPS/nadata2/model/pfcst/wrf4nssl*.snd*
+PFC WRF-NMM   | LATEST_FILE | NSHARP_PFC | /NAWIPS/nadata2/model/pfcst/conus4km*.snd*
+#PFC SSEF-CN | LATEST_FILE | NSHARP_PFC | /NAWIPS/nadata2/model/pfcst/ssef_cn_*.snd*
+#PFC SSEF-PH3 | LATEST_FILE | NSHARP_PFC | /NAWIPS/nadata2/model/pfcst/ssef_ph3_*.snd*
+#PFC CAPS2 | LATEST_FILE | NSHARP_PFC | /NAWIPS/nadata2/model/pfcst/ssef_spc2_*.snd*
+#PFC NCAR3 | LATEST_FILE | NSHARP_PFC | /NAWIPS/nadata2/model/pfcst/ncar_3km_*.snd*
+GRID ECMWF | LATEST_FILE | NSHARP_MDL | /NAWIPS/nadata2/model/ecmwfhr/ecmwf_hr*
+GRID RUC   | LATEST_FILE | NSHARP_MDL | /NAWIPS/nadata2/model/ruc40/ruc*
+GRID RUC2A | LATEST_FILE | NSHARP_MDL | /NAWIPS/nadata2/model/ruc2a/ruc2a*
+GRID Nam   | LATEST_FILE | NSHARP_MDL | /NAWIPS/nadata2/model/nam40/nam*
+GRID NamKF | LATEST_FILE | NSHARP_MDL | /NAWIPS/nadata2/model/namkf40/nam*
+GRID GFS   | LATEST_FILE | NSHARP_MDL | /NAWIPS/nadata2/model/gfs/gfs*
+GRID GFS_Long| LATEST_FILE | NSHARP_MDL | /NAWIPS/nadata2/model/gfslong/gfs*
+#GRID WRF-NMM | LATEST_FILE | NSHARP_MDL | /NAWIPS/nadata2/model/wrf4/wrf4*
+#GRID WRF-ARWw | LATEST_FILE | NSHARP_MDL | /NAWIPS/nadata2/model/hiresw/*westarw*
+#GRID WRF-ARWe | LATEST_FILE | NSHARP_MDL | /NAWIPS/nadata2/model/hiresw/*eastarw*
+

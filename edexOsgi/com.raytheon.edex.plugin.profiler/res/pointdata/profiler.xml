@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding='UTF-8'?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<pointDataDescription>
+  <parameter name="profilerName" numDims="1" type="STRING" />
+  <parameter name="validTime" numDims="1" type="LONG" />  
+  
+  <parameter name="windSpeedSfc" numDims="1" type="FLOAT" unit="m/s" />
+  <parameter name="windDirSfc" numDims="1" type="FLOAT" unit="degree" />
+  <parameter name="pressure" numDims="1" type="FLOAT" unit="Pa" />
+  <parameter name="temperature" numDims="1" type="FLOAT" unit="K" />
+  <parameter name="rainRate" numDims="1" type="FLOAT" unit="kg/m**2/s" />
+  <parameter name="relHumidity" numDims="1" type="FLOAT" unit="%" />
+  <parameter name="submode" numDims="1" type="INT" />
+  <!-- level data -->
+  <parameter name="numProfLvls" numDims="1" type="INT" />
+  <parameter name="height" numDims="2" type="FLOAT" unit="m" />
+  <!-- horizontal speed components -->
+  <parameter name="uComponent" numDims="2" type="FLOAT" unit="m/s" />
+  <parameter name="vComponent" numDims="2" type="FLOAT" unit="m/s" />
+  <parameter name="HorizSpStdDev" numDims="2" type="FLOAT" unit="m/s" />
+  <!-- vertical speed component -->
+  <parameter name="wComponent" numDims="2" type="FLOAT" unit="m/s" />
+  <parameter name="VertSpStdDev" numDims="2" type="FLOAT" unit="m/s" />
+  <!--  -->
+  <parameter name="peakPower" numDims="2" type="FLOAT" unit="dB" />
+  <parameter name="levelMode" numDims="2" type="INT" />
+  <parameter name="uvQualityCode" numDims="2" type="INT" />
+  <parameter name="consensusNum" numDims="2" type="INT" />
+</pointDataDescription>

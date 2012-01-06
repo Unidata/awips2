@@ -1,0 +1,7 @@
+# See https://svn.apache.org/repos/asf/incubator/qpid/trunk/qpid/bin/verify 
+py=$PYTHON_EXAMPLES/fanout
+background "Listening" ./listener
+background "Listening" ./listener
+clients $py/fanout_producer.py
+outputs $py/fanout_producer.py.out "./listener.out | remove_uuid" "./listenerX.out | remove_uuid"
+

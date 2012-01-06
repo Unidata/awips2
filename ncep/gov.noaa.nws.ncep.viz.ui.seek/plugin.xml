@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+      
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.viz.ui.actions.seek"
+          name="Seek Results">
+      </command>
+   </extension>
+      
+   <extension
+         point="org.eclipse.ui.handlers">
+      
+      <handler
+            class="gov.noaa.nws.ncep.viz.ui.seek.SeekResultsAction"
+            commandId="gov.noaa.nws.ncep.viz.ui.actions.seek">
+      </handler>
+   </extension>
+   <extension
+         point="gov.noaa.nws.ncep.viz.localization.localizationData">
+      <singleLocalizationValue
+            name="locatorTable"
+            location="locator"
+            fileName="locator_tbl.xml">
+      </singleLocalizationValue>
+   </extension>
+
+</plugin>

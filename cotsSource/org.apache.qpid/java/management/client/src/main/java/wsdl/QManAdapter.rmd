@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<Definitions xmlns="http://docs.oasis-open.org/wsrf/rmd-1">
+	<MetadataDescriptor
+		xmlns:wsrf-sg="http://docs.oasis-open.org/wsrf/sg-2"
+		xmlns:wsrf-rp="http://docs.oasis-open.org/wsrf/rp-2"
+		xmlns:wsrl="http://docs.oasis-open.org/wsrf/rl-2" 	
+	    xmlns:wsnt="http://docs.oasis-open.org/wsn/b-2" 
+	    xmlns:wst="http://docs.oasis-open.org/wsn/t-1" 
+	    xmlns:muws1="http://docs.oasis-open.org/wsdm/muws1-2.xsd" 
+	    xmlns:muws2="http://docs.oasis-open.org/wsdm/muws2-2.xsd"
+		xmlns:qman="http://amqp.apache.org/qpid/management/qman"
+		name="WsDmAdapterMetadata"
+		interface="qman:QManAdapterPortType"
+		wsdlLocation="http://amqp.apache.org/qpid/management/qman QManAdapter.wsdl">
+		<Property name="wsrf-sg:MembershipContentRule" modifiability="read-only" mutability="mutable">
+			<StaticValues>
+				<wsrf-sg:MembershipContentRule MemberInterface="qman:QManWsResourcePortType"/>
+			</StaticValues>
+		</Property>
+		<Property name="wsrf-sg:Entry" modifiability="read-only" mutability="mutable" />
+		<Property name="wsrf-rp:QueryExpressionDialect" modifiability="read-only" mutability="constant" />
+		<Property name="wsnt:FixedTopicSet" modifiability="read-only" mutability="constant" />
+		<Property name="wst:TopicSet" modifiability="read-only" mutability="mutable" />
+		<Property name="wsnt:TopicExpression" modifiability="read-only" mutability="mutable" />
+		<Property name="wsnt:TopicExpressionDialect" modifiability="read-only" mutability="mutable" />
+	</MetadataDescriptor>
+</Definitions>

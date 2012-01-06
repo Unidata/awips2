@@ -1,0 +1,11 @@
+Apache Qpid C++ 0.6 Release Notes
+--------------------------------
+
+The Qpid 0.6 release of the c++ client and broker support the 0-10
+version of the AMQP specification.  You can access this specification
+from: 
+
+http://www.amqp.org/confluence/display/AMQP/AMQP+Specification
+
+Please take time to go through the README file provided with the
+distro to get a good understanding about build system etc.

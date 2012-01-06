@@ -1,0 +1,3226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.3"?>
+<plugin>
+   <extension-point id="palette" name="palette" schema="schema/palette.exsd"/>
+
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+          id="gov.noaa.nws.ncep.ui.pgen.palette"
+          name="Product Generation">
+      </command>
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+          name="Pgen Single Point Drawing">
+      </command>     
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenVolcanoDraw"
+          name="Pgen Volcano Drawing">
+      </command>           
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDualDraw"
+          name="Pgen Dual Point Drawing">
+      </command>  
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+          name="Pgen Multi Point Drawing">
+      </command> 
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.outlookDraw"
+          name="Pgen Outlook Drawing">
+      </command> 
+       <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenOutlookSetCont"
+          name="Pgen Outlook Set Continue Lines">
+      </command>  
+  	  <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenJetDraw"
+          name="Pgen Jet Drawing">
+      </command> 
+  	  <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenGfaDraw"
+          name="Pgen Gfa Drawing">
+      </command> 
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenLabeledLineDraw"
+          name="Pgen Cloud Drawing">
+      </command> 
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenLabeledLineModify"
+          name="Pgen Labeled Line Modify">
+      </command> 
+	  <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenWatchBoxDraw"
+          name="Pgen Watch Box Drawing">
+      </command>
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenWatchStatusLineDraw"
+          name="Pgen Watch Status Line Drawing">
+      </command>  
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenWatchBoxModify"
+          name="Pgen Watch Box Modify">
+      </command> 
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenVectorDraw"
+          name="Pgen Vector Drawing">
+          
+      </command>
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenTextDraw"
+          name="Pgen Text Drawing">
+      </command>      
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenAvnTextDraw"
+          name="Pgen Aviation Text Drawing">
+      </command>      
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSelect"
+          name="Pgen Selecting">
+      </command>   
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiSelect"
+          name="Pgen Multi Selecting">
+      </command>           
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDeleteElement"
+          name="Pgen Deleting Element">
+      </command>       
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenCopyElement"
+          name="Pgen Copy Element">
+      </command>    
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMoveElement"
+          name="Pgen Move Element">
+      </command>    
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenFlipDrawingElement"
+          name="Pgen Flip Element">
+      </command>    
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDeleteAll"
+          name="Pgen Deleting All">
+      </command> 
+    <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenProd"
+          name="Pgen Prod">
+      </command>             
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDeletePoint"
+          name="Pgen Deleting Point">
+      </command>       
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenAddPoint"
+          name="Pgen Add Point">
+      </command>       
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenAddPointAlt"
+          name="Pgen Add Point Alt">
+      </command>       
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDistance"
+          name="Pgen Distance">
+      </command>       
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDeletePart"
+          name="Pgen Deleting Part">
+      </command>       
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDeleteObj"
+          name="Pgen Deleting Obj">
+      </command> 
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenRotateElement"
+          name="Pgen Rotate Element">
+      </command>    
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenModifyTool"
+          name="Pgen Modify Lines">
+      </command>
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenConnect"
+          name="Pgen Connect">
+      </command>                                   
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenExtrapTool"
+          name="Pgen Extrapolate Object">
+      </command>        
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenInterpTool"
+          name="Pgen Interpolate Object">
+      </command>        
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenFilterTool"
+          name="Pgen Filter">
+      </command>        
+       <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenFromTool"
+          name="From">
+      </command>        
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenCycleTool"
+          name="Cycle selection">
+      </command>        
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenGfaFormatTool"
+          name="Cycle selection">
+      </command>        
+      <command
+          id="gov.noaa.nws.ncep.ui.pgen.fileManage"
+          name="Manage Product File">
+      </command>
+      <command categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.exit"
+          name="Exit Product Generation">
+      </command>
+      <command
+          id="gov.noaa.nws.ncep.ui.pgen.restore"
+          name="Restore Elements">
+      </command>
+      <command
+          id="gov.noaa.nws.ncep.ui.pgen.layering"
+          name="Start PGEN Layering">
+      </command>     
+      <command
+          id="gov.noaa.nws.ncep.ui.pgen.productManage"
+          name="Manage Products">
+      </command>               
+      <command
+          id="gov.noaa.nws.ncep.ui.pgen.launchProduct"
+          name="Launch Products">
+      </command>               
+       <command
+          id="gov.noaa.nws.ncep.ui.pgen.productConfigure"
+          name="Configure Product Types">
+      </command>  
+      <command
+          id="gov.noaa.nws.ncep.ui.pgen.PgenHelp"
+          name="PGEN Help">
+      </command>  
+      <command
+          id="gov.noaa.nws.ncep.ui.pgen.undo"
+          name="Manage Undo/Redo">
+         <commandParameter
+               id="action"
+               name="action"
+               optional="false">
+         </commandParameter>          
+      </command>
+      <command categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.tca"
+          name="TCA">
+      </command>
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.contours"
+          name="Contours">
+      </command>
+      <command categoryId="com.raytheon.viz.ui.modalTool" 
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenVolCreate" 
+          name="Pgen Volcano Create"> 
+      </command>
+      <command 
+            id="gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringHotKeyCommand"
+            name="Activate Layer From Hot Key">
+            <commandParameter 
+                  id="layerIndex"
+                  name="layerIndex"/>
+      </command>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.handlers">
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.palette.PgenPaletteAction"
+            commandId="gov.noaa.nws.ncep.ui.pgen.palette">
+       </handler>       
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenSinglePointDrawingTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw">
+       </handler>
+        <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenVolcanoDrawingTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenVolcanoDraw">
+       </handler>   
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenDualPointDrawingTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDualDraw">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenMultiPointDrawingTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenJetDrawingTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenJetDraw">
+       </handler>
+        <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenGfaDrawingTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenGfaDraw">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenWatchBoxDrawingTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenWatchBoxDraw">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenLabeledLineDrawingTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenLabeledLineDraw">
+       </handler>
+        <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenLabeledLineModifyTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenLabeledLineModify">
+       </handler>
+        <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenWatchStatusLineDrawingTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenWatchStatusLineDraw">
+       </handler>    
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenWatchBoxModifyTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenWatchBoxModify">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenVectorDrawingTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenVectorDraw">
+       </handler>      
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenTextDrawingTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenTextDraw">
+       </handler>      
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenAvnTextDrawingTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenAvnTextDraw">
+       </handler>      
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenSelectingTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSelect">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenMultiSelectTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiSelect">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenConnectTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenConnect">
+       </handler>      
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenDeleteElement"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDeleteElement">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenCopyElement"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenCopyElement">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenMoveElement"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMoveElement">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenFlipDrawingElement"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenFlipDrawingElement">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenDeleteAll"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDeleteAll">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenProd"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenProd">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenDeletePoint"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDeletePoint">
+       </handler>       
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenAddPoint"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenAddPoint">
+       </handler>       
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenAddPointAlt"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenAddPointAlt">
+       </handler>       
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenDistanceOptions"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDistance">
+       </handler>       
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenDeletePart"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDeletePart">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenDeleteObj"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDeleteObj">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenRotateElement"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenRotateElement">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenModifyTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenModifyTool">
+       </handler> 
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenExtrapTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenExtrapTool">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenInterpolationTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenInterpTool">
+       </handler>    
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenFilterTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenFilterTool">
+       </handler>    
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenFromTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenFromTool">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenCycleTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenCycleTool">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenGfaFormatTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenGfaFormatTool">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenFileManageHandler"
+            commandId="gov.noaa.nws.ncep.ui.pgen.fileManage">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenExitHandler"
+            commandId="gov.noaa.nws.ncep.ui.pgen.exit">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenRestoreHandler"
+            commandId="gov.noaa.nws.ncep.ui.pgen.restore">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringHandler"
+            commandId="gov.noaa.nws.ncep.ui.pgen.layering">
+       </handler>      
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.productManage.ProductManageHandler"
+            commandId="gov.noaa.nws.ncep.ui.pgen.productManage">
+       </handler>                 
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.productManage.ProductConfigureHandler"
+            commandId="gov.noaa.nws.ncep.ui.pgen.productConfigure">
+       </handler> 
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.productManage.PgenHelpHandler"
+            commandId="gov.noaa.nws.ncep.ui.pgen.PgenHelp">
+       </handler> 
+       <handler                      
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenUndoRedoHandler"
+            commandId="gov.noaa.nws.ncep.ui.pgen.undo">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenTcaTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.tca">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenContoursTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.contours">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenOutlookDrawingTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.outlookDraw">
+       </handler>
+   		<handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenOutlookSetCont"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenOutlookSetCont">
+       </handler>        
+       <handler 
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenVolcanoCreateTool" 
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenVolCreate">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringHotKeyHandler"
+            commandId="gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringHotKeyCommand">
+       </handler>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.views">
+           <category
+            id="gov.noaa.nws.ncep.viz.ui.nmap"
+            name="NMAP Views"/>
+           <view
+            category="gov.noaa.nws.ncep.viz.ui.nmap"
+            allowMultiple="false"
+            restorable="true"
+            class="gov.noaa.nws.ncep.ui.pgen.palette.PgenPaletteWindow"
+            id="gov.noaa.nws.ncep.ui.PGEN"
+            name="PGEN"/>
+   </extension>
+   
+   <extension
+       point="org.eclipse.ui.menus">
+       <menuContribution
+           locationURI="toolbar:gov.noaa.nws.ncep.ui.PGEN">
+           <command
+                  commandId="gov.noaa.nws.ncep.ui.pgen.productManage"
+                  label="Start"
+                  mnemonic="S"
+                  style="pulldown"
+                  id="gov.noaa.nws.ncep.ui.pgen.PGEN.productLaunch">
+           </command>
+                             
+           <command
+                commandId="gov.noaa.nws.ncep.ui.pgen.productConfigure"
+                label="Configure"
+                mnemonic="C"
+                style="push">
+           </command>
+
+           <command
+                commandId="gov.noaa.nws.ncep.ui.pgen.PgenHelp"
+                label="Help"
+                mnemonic="H"
+                style="push">
+           </command> 
+                                     
+       </menuContribution>               
+   </extension> 
+ 
+   <extension
+       point="org.eclipse.ui.menus">
+       <menuContribution
+           locationURI="menu:gov.noaa.nws.ncep.ui.pgen.PGEN.productLaunch">   
+           <dynamic
+              class="gov.noaa.nws.ncep.ui.pgen.productManage.ProductLauncher"
+              id="gov.noaa.nws.ncep.ui.pgen.productManage.productLauncher">
+           </dynamic>                                 
+       </menuContribution>               
+   </extension> 
+
+   <extension
+         point="gov.noaa.nws.ncep.ui.pgen.palette">
+         <control
+             name="Open"
+             label="Open MetObject File"
+             commandId="gov.noaa.nws.ncep.ui.pgen.fileManage"
+             icon="icons/open.gif" />
+         <control
+             name="Save"
+             label="Save MetObject File"
+             commandId="gov.noaa.nws.ncep.ui.pgen.fileManage"
+             alwaysVisible="true"
+             icon="icons/save.gif" />
+         <control
+             name="Save As"
+             label="Save As..."
+             commandId="gov.noaa.nws.ncep.ui.pgen.fileManage"
+             alwaysVisible="true"
+             icon="icons/saveas.gif" />
+         <control
+             name="Exit"
+             label="Exit PGEN"
+             commandId="gov.noaa.nws.ncep.ui.pgen.exit"
+             alwaysVisible="true"
+             icon="icons/exit.gif" />
+         <control
+             name="Restore"
+             label="Restore From Previous Session"
+             commandId="gov.noaa.nws.ncep.ui.pgen.restore"
+             icon="icons/restore.gif" />
+         <control
+             name="Refresh"
+             label="Refresh"
+             commandId="com.raytheon.viz.ui.actions.notImplemented"
+             icon="icons/refresh.gif" />
+         <control
+             name="Start Layer"
+             label="Start Layer"
+             commandId="gov.noaa.nws.ncep.ui.pgen.layering"
+             icon="icons/layer.gif" />
+ <!--
+         <control
+             name="Open Prod"
+             label="Open Prod"
+             commandId="com.raytheon.viz.ui.actions.notImplemented"
+             icon="icons/openprod.gif" />
+   -->
+         <control
+             name="Save All"
+             label="SAVE All"
+             commandId="com.raytheon.viz.ui.actions.notImplemented"
+             icon="icons/saveall.gif" />
+         <control
+             name="ProdCtrl"
+             label="ProdCtrl"
+             alwaysVisible="true"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenProd"
+             icon="icons/prod.gif" />
+         <action
+             name="Select"
+             label="Select Object"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSelect"             
+             alwaysVisible="true"
+             icon="icons/select.gif" />
+         <action
+             name="Modify"
+             label="Modify Object"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenModifyTool"
+             icon="icons/modify.gif" />
+         <action
+             name="Connect"
+             label="Connect Objects"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenConnect"
+             icon="icons/connect.gif" />
+         <action
+             name="MultiSelect"
+             label="Select Multiple Object"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiSelect"
+             icon="icons/multisel.gif" />
+         <action
+             name="Move"
+             label="Move Object"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMoveElement"
+             icon="icons/move.gif" />
+         <action
+             name="Delete"
+             label="Delete Element"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDeleteElement"
+             icon="icons/delete.gif" />
+         <action
+             name="Copy"
+             label="copy Object"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenCopyElement"
+             icon="icons/copy.gif" />
+         <action
+             name="Rotate"
+             label="Rotate Object"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenRotateElement"
+             icon="icons/rotate.gif" />
+         <action
+             name="Flip"
+             label="Flip Object"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenFlipDrawingElement"
+             icon="icons/flip.gif" />
+         <action
+             name="Delete Point"
+             label="Delete Point"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDeletePoint"
+             icon="icons/delpoint.gif" />     
+         <action
+             name="Delete Part"
+             label="Delete Part"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDeletePart"
+             icon="icons/partdel.gif" />
+        <action
+             name="Delete Obj"
+             label="Delete Obj"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDeleteObj"
+             icon="icons/del_obj.gif" />
+         <action
+             name="Delete All"
+             label="Delete All"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDeleteAll"
+             icon="icons/delall.gif" />
+         <action
+             name="Undo"
+             label="Undo last change"
+             commandId="gov.noaa.nws.ncep.ui.pgen.undo"
+             alwaysVisible="true"
+             icon="icons/undo.gif" />
+         <action
+             name="Redo"
+             label="Redo last undo change"
+             commandId="gov.noaa.nws.ncep.ui.pgen.undo"
+             alwaysVisible="true"
+             icon="icons/redo.gif" />
+         <action
+             name="Extrap"
+             label="Extrapolate an object"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenExtrapTool"
+             icon="icons/extrap.gif" />
+         <action
+             name="Interp"
+             label="Interpolate between two objects"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenInterpTool"
+             icon="icons/interp.gif" />
+         <action
+             name="Filter"
+             label="Filter"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenFilterTool"
+             icon="icons/filter.gif" />
+         <action
+             name="From"
+             label="From"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenFromTool"
+             icon="icons/from.gif" />
+         <action
+             name="Cycle"
+             label="Cycle selection"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenCycleTool"
+             icon="icons/cycle.gif" />
+         <action
+             name="Add Point"
+             label="Add Point to Nearest Segment"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenAddPoint"
+             icon="icons/addpoint.gif" />     
+         <action
+             name="Add Point Alt"
+             label="Add Point to Desired Segment"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenAddPointAlt"
+             icon="icons/addpointalt.gif" />     
+         <action
+             name="Distance"
+             label="Distance Options"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDistance"
+             icon="icons/distance.gif" />     
+
+         <class
+             name="Front"
+             label="Front"
+             icon="icons/front.gif" />
+         <class
+             name="Combo"
+             label="Combo Symbol"
+             icon="icons/combsymb.gif" />
+         <class
+             name="Symbol"
+             label="Symbol"            
+             icon="icons/symbol.gif" />
+         <class
+             name="Any"
+             label="Any"
+             icon="icons/any.gif" />
+         <class
+             name="Track"
+             label="Track"
+             icon="icons/track.gif" />
+         <class
+             name="Prod"
+             label="Prod"
+             icon="icons/prod.gif" />
+         <class
+             name="Text"
+             label="Text"
+             icon="icons/text.gif" />
+         <class
+             name="SIGMET"
+             label="SIGMET"
+             icon="icons/sigmet.gif" />
+         <class
+             name="Lines"
+             label="Lines"
+             icon="icons/line.gif" />
+         <class
+             name="Vector"
+             label="Vector"
+             icon="icons/vector.gif" />
+         <class
+             name="Arc"
+             label="Arc"
+             icon="icons/circle.gif" />
+         <class
+             name="Marker"
+             label="Marker"
+             icon="icons/marker.gif" />
+  <!--
+         <class
+             name="List"
+             label="List"
+             icon="icons/list.gif" />
+   -->
+   
+         <class
+             name="MET"
+             label="MET"
+             icon="icons/met.gif" />
+             
+        <object
+             name="COLD_FRONT"
+             label="Cold Front"
+             className="Front"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/coldfnt.gif" />
+         <object
+             name="COLD_FRONT_FORM"
+             label="Cold Front Frontogenesis"
+             className="Front"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/cold_forming.gif" />
+         <object
+             name="COLD_FRONT_DISS"
+             label="Cold Front Frontolysis"
+             className="Front"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/cold_diss.gif" />
+         <object
+             name="WARM_FRONT"
+             label="Warm Front"
+             className="Front"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/warmfnt.gif" />
+         <object
+             name="WARM_FRONT_FORM"
+             label="Warm Front Frontogenesis"
+             className="Front"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/warm_forming.gif" />
+         <object
+             name="WARM_FRONT_DISS"
+             label="Warm Front Frontolysis"
+             className="Front"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/warm_diss.gif" />
+         <object
+             name="STATIONARY_FRONT"
+             label="Stationary Front at the surface"
+             className="Front"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/statfnt.gif" />
+         <object
+             name="STATIONARY_FRONT_FORM"
+             label="Sattionary Front Frontogenesis"
+             className="Front"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/stat_forming.gif" />
+         <object
+             name="STATIONARY_FRONT_DISS"
+             label="Stationary Front Frontolysis"
+             className="Front"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/stat_diss.gif" />             
+         <object
+             name="OCCLUDED_FRONT"
+             label="Occluded Front at the surface"
+             className="Front"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/occlfnt.gif" />
+         <object
+             name="OCCLUDED_FRONT_FORM"
+             label="Occluded Front Frontogenesis"
+             className="Front"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/occl_forming.gif" />
+         <object
+             name="OCCLUDED_FRONT_DISS"
+             label="Occluded Front Frontolysis"
+             className="Front"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/occl_diss.gif" />	
+         <object
+             name="TROF"
+             label="TROF"
+             className="Front"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/troffnt.gif" />
+         <object
+             name="TROPICAL_TROF"
+             label="Tropical TROF"
+             className="Front"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/trptfnt.gif" />
+         <object
+             name="DRY_LINE"
+             label="Dry-Line"
+             className="Front"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/dryline.gif" />  
+         <object
+             name="INSTABILITY"
+             label="Instability (Squall) Line"
+             className="Front"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/squall.gif" />  
+         <object
+             name="PRESENT_WX_061|PRESENT_WX_051"
+             label="Rain/Drizzle"
+             className="Combo"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/csymb01.gif" />
+         <object
+             name="PRESENT_WX_061|PRESENT_WX_063"
+             label="Rain/Moderate rain"
+             className="Combo"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/csymb13.gif" />
+         <object
+             name="PRESENT_WX_061|PRESENT_WX_080"
+             label="Rain/Slight rain shower"
+             className="Combo"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/csymb02.gif" />
+         <object
+             name="PRESENT_WX_061|PRESENT_WX_095"
+             label="Rain/Thunderstorm with rain"
+             className="Combo"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/csymb21.gif" />
+         <object
+             name="PRESENT_WX_063|PRESENT_WX_065"
+             label="Moderate rain/Heavy rain"
+             className="Combo"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/csymb12.gif" />
+         <object
+             name="PRESENT_WX_063|PRESENT_WX_080"
+             label="Moderate rain/Slight rain shower"
+             className="Combo"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/csymb11.gif" />
+         <object
+             name="PRESENT_WX_063|PRESENT_WX_095"
+             label="Moderate rain/Thunderstorm with rain"
+             className="Combo"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/csymb15.gif" />
+         <object
+             name="PRESENT_WX_065|PRESENT_WX_080"
+             label="Heavy rain/Slight rain shower"
+             className="Combo"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/csymb14.gif" />
+         <object
+             name="PRESENT_WX_065|PRESENT_WX_095"
+             label="Heavy rain/Thunderstorm with rain"
+             className="Combo"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/csymb16.gif" />
+         <object
+             name="PRESENT_WX_051|PRESENT_WX_056"
+             label="Drizzle/Slight freezing drizzle"
+             className="Combo"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/csymb08.gif" />
+         <object
+             name="PRESENT_WX_061|PRESENT_WX_056"
+             label="Rain/Slight freezing drizzle"
+             className="Combo"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/csymb10.gif" />
+         <object
+             name="PRESENT_WX_061|PRESENT_WX_066"
+             label="Rain/Slight freezing rain"
+             className="Combo"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/csymb26.gif" />
+         <object
+             name="PRESENT_WX_061|PRESENT_WX_071"
+             label="Rain/Snow"
+             className="Combo"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/csymb04.gif" />
+         <object
+             name="PRESENT_WX_071|PRESENT_WX_073"
+             label="Snow/Moderate snow"
+             className="Combo"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/csymb18.gif" />
+         <object
+             name="PRESENT_WX_073|PRESENT_WX_075"
+             label="Moderate snow/Heavy snow"
+             className="Combo"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/csymb19.gif" />
+         <object
+             name="PRESENT_WX_071|PRESENT_WX_085"
+             label="Snow/Slight snow showers"
+             className="Combo"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/csymb03.gif" />
+         <object
+             name="PRESENT_WX_073|PRESENT_WX_085"
+             label="Moderate snow/Slight snow showers"
+             className="Combo"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/csymb17.gif" />
+         <object
+             name="PRESENT_WX_075|PRESENT_WX_085"
+             label="Heavy snow/Slight snow showers"
+             className="Combo"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/csymb25.gif" />
+         <object
+             name="PRESENT_WX_071|PRESENT_WX_105"
+             label="Snow/Thunderstorm with snow"
+             className="Combo"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/csymb23.gif" />
+         <object
+             name="PRESENT_WX_073|PRESENT_WX_105"
+             label="Moderate snow/Thunderstorm with snow"
+             className="Combo"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/csymb20.gif" />
+         <object
+             name="PRESENT_WX_075|PRESENT_WX_105"
+             label="Heavy snow/Thunderstorm with snow"
+             className="Combo"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/csymb24.gif" />
+         <object
+             name="PRESENT_WX_080|PRESENT_WX_095"
+             label="Slight rain shower/Thunderstorm with rain"
+             className="Combo"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/csymb22.gif" />
+         <object
+             name="PRESENT_WX_080|PRESENT_WX_085"
+             label="Slight rain shower/Slight snow shower"
+             className="Combo"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/csymb05.gif" />
+         <object
+             name="PRESENT_WX_061|PRESENT_WX_079"
+             label="Rain/Ice pellets"
+             className="Combo"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/csymb27.gif" />
+         <object
+             name="PRESENT_WX_079|PRESENT_WX_066"
+             label="Ice pellets/Slight freezing rain"
+             className="Combo"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/csymb06.gif" />
+         <object
+             name="PRESENT_WX_071|PRESENT_WX_079"
+             label="Snow/Ice pellets"
+             className="Combo"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/csymb28.gif" />
+
+          <object
+             name="PLUS_SIGN"
+             label="Plus Sign"
+             className="Marker"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/marker1.gif" />    
+         <object
+             name="OCTAGON"
+             label="Octagon"
+             className="Marker"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/marker2.gif" />
+         <object
+             name="TRIANGLE"
+             label="Triangle"
+             className="Marker"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/marker3.gif" />  
+         <object
+             name="BOX"
+             label="Box"
+             className="Marker"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/marker4.gif" />
+         <object
+             name="SMALL_X"
+             label="Small X"
+             className="Marker"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/marker5.gif" />
+        <object
+             name="Z_WITH_BAR"
+             label="Z"
+             className="Marker"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/marker9.gif" />
+        <object
+             name="X_WITH_TOP_BAR"
+             label="Bar X"
+             className="Marker"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/marker8.gif" />
+        <object
+             name="DIAMOND"
+             label="Diamond"
+             className="Marker"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/marker6.gif" />
+        <object
+             name="UP_ARROW"
+             label="Up Arrow"
+             className="Marker"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/marker7.gif" />
+         <object
+             name="Y"
+             label="Y"
+             className="Marker"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/marker10.gif" />  
+          <object
+             name="BOX_WITH_DIAGONALS"
+             label="Box X"
+             className="Marker"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/marker11.gif" />  
+          <object
+             name="ASTERISK"
+             label="Asterisk"
+             className="Marker"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/marker12.gif" />
+          <object
+             name="HOURGLASS_X"
+             label="Hourglass"
+             className="Marker"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/marker13.gif" />
+          <object
+             name="STAR"
+             label="Star"
+             className="Marker"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/marker14.gif" />  
+          <object
+             name="DOT"
+             label="Dot"
+             className="Marker"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym03.gif" />
+          <object
+             name="LARGE_X"
+             label="Large X"
+             className="Marker"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/marker16.gif" />  
+          <object
+             name="FILLED_OCTAGON"
+             label="Filled Octagon"
+             className="Marker"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/marker17.gif" />  
+          <object
+             name="FILLED_TRIANGLE"
+             label="Filled Triangle"
+             className="Marker"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/marker18.gif" />
+          <object
+             name="FILLED_BOX"
+             label="Filled Box"
+             className="Marker"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/marker19.gif" />   
+          <object
+             name="FILLED_DIAMOND"
+             label="Filled Diamond"
+             className="Marker"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/marker20.gif" />
+          <object
+             name="FILLED_STAR"
+             label="Filled Star"
+             className="Marker"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/marker21.gif" />  
+          <object
+             name="MINUS_SIGN"
+             label="Minus Sign"
+             className="Marker"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/marker22.gif" />
+                      
+          <object
+             name="FILLED_HIGH_PRESSURE_H"
+             label="High pressure H (filled)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym12.gif" />             
+         <object
+             name="FILLED_LOW_PRESSURE_L"
+             label="Low pressure L (filled)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym13.gif" />  
+         <object
+             name="HIGH_PRESSURE_H"
+             label="High pressure H (filled)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym10.gif" />             
+         <object
+             name="LOW_PRESSURE_L"
+             label="Low pressure L (filled)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym11.gif" />         
+         <object
+             name="SQUARE"
+             label="Square (outline)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym00.gif" />             
+         <object
+             name="FILLED_SQUARE"
+             label="Square (filled)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym01.gif" />
+         <object
+             name="CIRCLE"
+             label="Circle (outline)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym02.gif" />             
+         <object
+             name="FILLED_CIRCLE"
+             label="Circle (filled)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym03.gif" />
+         <object
+             name="TRIANGLE_SPCL"
+             label="Triangle (outline)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym04.gif" />             
+         <object
+             name="FILLED_TRIANGLE_SPCL"
+             label="Triangle (filled)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym05.gif" />
+         <object
+             name="DIAMOND_SPCL"
+             label="Diamond (outline)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym06.gif" />             
+         <object
+             name="FILLED_DIAMOND_SPCL"
+             label="Diamond (filled)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym07.gif" />
+         <object
+             name="STAR_SPCL"
+             label="Star (outline)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym08.gif" />             
+         <object
+             name="FILLED_STAR_SPCL"
+             label="Star (filled)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym09.gif" />
+         <object
+             name="SINGLE_BRACKET"
+             label="Single bracket"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym14.gif" />             
+         <object
+             name="BOTTOM_HALF_OF_BRACKET"
+             label="Bottom half of bracket"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym15.gif" />
+         <object
+             name="TOP_HALF_OF_BRACKET"
+             label="Top half of bracket"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym16.gif" />                       
+         <object
+             name="LEFT_ADJUSTED_VERTICAL_BAR"
+             label="Left-adjusted vertical bar"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym17.gif" />
+         <object
+             name="RIGHT_ADJUSTED_VERTICAL_BAR"
+             label="Right-adjusted vertical bar"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym18.gif" />             
+         <object
+             name="BRACKET_WITH_ONE_CIRCLE"
+             label="Bracket with one circle"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym19.gif" />
+         <object
+             name="BRACKET_WITH_TWO_CIRCLES"
+             label="Bracket with two circles"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym20.gif" />             
+         <object
+             name="BRACKET_WITH_ONE_ASTERISK"
+             label="Bracket with one asterisk"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym21.gif" />
+         <object
+             name="BRACKET_WITH_TWO_ASTERISKS"
+             label="Bracket with two asterisks"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym22.gif" />             
+         <object
+             name="BRACKET_WITH_ONE_TRIANGLE"
+             label="Bracket with one triangle"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym23.gif" />
+         <object
+             name="BRACKET_WITH_TWO_TRIANGLES"
+             label="Bracket with two triangles"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym24.gif" /> 
+         <object
+             name="TROPICAL_STORM_NH"
+             label="Tropical Storm (Northern Hemisphere)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym25.gif" />
+         <object
+             name="HURRICANE_NH"
+             label="Hurricane (Northern Hemisphere)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym26.gif" />
+         <object
+             name="TROPICAL_STORM_SH"
+             label="Tropical Storm (Southern Hemisphere)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym27.gif" />
+         <object
+             name="HURRICANE_SH"
+             label="Hurricane (Southern Hemisphere)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym28.gif" />
+         <object
+             name="TRIANGLE_WITH_ANTENNA"
+             label="Triangle with antenna"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym29.gif" />
+         <object
+             name="SIDEWAYS_S"
+             label="Sideways S"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym30.gif" />
+         <object
+             name="SLASH"
+             label="Slash"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym31.gif" />            
+         <object
+             name="STORM_CENTER"
+             label="Storm Center"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym32.gif" />    
+         <object
+             name="TROPICAL_DEPRESSION"
+             label="Tropical Depression"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym33.gif" /> 
+         <object
+             name="TROPICAL_CYCLONE"
+             label="Tropical Cyclone"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym34.gif" /> 
+          <object
+             name="FLAME"
+             label="Flame"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym35.gif" /> 
+         <object
+             name="X_CROSS"
+             label="X Cross"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym36.gif" /> 
+          <object
+             name="LOW_X_OUTLINE"
+             label="LowX (outline)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym37.gif" /> 
+          <object
+             name="LOW_X_FILLED"
+             label="LowX (filled)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym38.gif" /> 
+         <object
+             name="TROPICAL_STORM_NH_WPAC"
+             label="Tropical Storm NH"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym39.gif" /> 
+          <object
+             name="TROPICAL_STORM_SH_WPAC"
+             label="Tropical Storm SH"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym40.gif" /> 
+         <object
+             name="NUCLEAR_FALLOUT"
+             label="Nuclear Fallout"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym41.gif" /> 
+          <object
+             name="LETTER_A"
+             label="Letter A"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym42.gif" />
+          <object
+             name="LETTER_A_FILLED"
+             label="Letter A filled"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym43.gif" /> 
+          <object
+             name="LETTER_C"
+             label="Letter C"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym44.gif" />
+          <object
+             name="LETTER_C_FILLED"
+             label="Letter C filled"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym45.gif" />
+          <object
+             name="LETTER_X"
+             label="Letter X"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym46.gif" />
+          <object
+             name="LETTER_X_FILLED"
+             label="Letter X filled"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym47.gif" />
+         <object
+             name="LETTER_N"
+             label="Letter N"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym48.gif" />
+         <object
+             name="LETTER_N_FILLED"
+             label="Letter N filled"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym49.gif" />
+        <object
+             name="30_KT_BARB"
+             label="Thirty knot wind barb"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym50.gif" />  
+         <object
+             name="MT_WAVE"
+             label="Mountain Wave"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym51.gif" />
+         <object
+             name="MT_OBSC"
+             label="MT_OBSC"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym52.gif" />
+         <object
+             name="SFC_WND_20K"
+             label="SFC_WND_20K"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym53.gif" />
+         <object
+             name="SFC_WND_30K"
+             label="SFC_WND_30K"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym54.gif" />   
+         <object
+             name="LETTER_B"
+             label="Letter B"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym55.gif" />
+         <object
+             name="LETTER_B_FILLED"
+             label="Letter B filled"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/spsym56.gif" />
+         <object
+             name="UP_ARROW_SPCL"
+             label="Up Arrow Symbol"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/arrow_up.gif" />
+         <object
+             name="DOWN_ARROW_SPCL"
+             label="Down Arrow Symbol"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/arrow_down.gif" />
+                 
+         <object
+             name="PRESENT_WX_000"
+             label="Cloud development not observed during past hour"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym000.gif" />
+          <object
+             name="PRESENT_WX_001"
+             label="Clouds dissolving during last hour"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym001.gif" />
+          <object
+             name="PRESENT_WX_002"
+             label="State of sky unchanged during last hour"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym002.gif" />                          
+         <object
+             name="PRESENT_WX_003"
+             label="Clouds developing during last hour"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym003.gif" />                         
+         <object
+             name="PRESENT_WX_004"
+             label="Visibility reduced by smoke"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym004.gif" />  
+         <object
+             name="PRESENT_WX_005"
+             label="Haze"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym005.gif" />
+         <object
+             name="PRESENT_WX_006"
+             label="Widespread dust in suspension in air"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym006.gif" />  
+         <object
+             name="PRESENT_WX_007"
+             label="Dust or sand raised by wind"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym007.gif" /> 
+         <object
+             name="PRESENT_WX_008"
+             label="Dust devil(s)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym008.gif" />   
+         <object
+             name="PRESENT_WX_009"
+             label="Dust or sand storm within sight or at station during past hour"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym009.gif" /> 
+         <object
+             name="PRESENT_WX_010"
+             label="Light Fog"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym010.gif" />
+         <object
+             name="PRESENT_WX_011"
+             label="Patches of shallow fog"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym011.gif" />  
+         <object
+             name="PRESENT_WX_012"
+             label="Continuous shallow fog"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym012.gif" />
+         <object
+             name="PRESENT_WX_013"
+             label="Lightning visible, no thunder heard"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym013.gif" />                 
+         <object
+             name="PRESENT_WX_014"
+             label="Precipitation within sight, but not reaching ground"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym014.gif" />
+         <object
+             name="PRESENT_WX_015"
+             label="Precipitation within sight, reaching ground at distant station"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym015.gif" />
+         <object
+             name="PRESENT_WX_016"
+             label="Precipitation reaching ground near station"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym016.gif" />
+         <object
+             name="PRESENT_WX_017"
+             label="Thunder heard, but no precipitation at station"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym017.gif" />    
+         <object
+             name="PRESENT_WX_018"
+             label="Squall(s) within sight last hour"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym018.gif" />
+          <object
+             name="PRESENT_WX_019"
+             label="Funnel cloud(s) within sight during last hour"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym019.gif" />
+          <object
+             name="PRESENT_WX_020"
+             label="Drizzle during past hour but not at observation time"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym020.gif" />                          
+         <object
+             name="PRESENT_WX_021"
+             label="Rain during past hour but not at observation time"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym021.gif" />                         
+         <object
+             name="PRESENT_WX_022"
+             label="Snow during past hour but not at observation time"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym022.gif" />  
+         <object
+             name="PRESENT_WX_023"
+             label="Rain and snow during past hour but not at observation time"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym023.gif" />
+         <object
+             name="PRESENT_WX_024"
+             label="Freezing rain during past hour but not at observation time"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym024.gif" />  
+         <object
+             name="PRESENT_WX_025"
+             label="Rain showers during past hour but not at observation time"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym025.gif" /> 
+         <object
+             name="PRESENT_WX_026"
+             label="Snow showers during past hour but not at observation time"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym026.gif" />   
+         <object
+             name="PRESENT_WX_027"
+             label="Hail and/or rain showers during past hour but not at obs. time"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym027.gif" /> 
+         <object
+             name="PRESENT_WX_028"
+             label="Fog during past hour, but not at obs time"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym028.gif" />
+         <object
+             name="PRESENT_WX_029"
+             label="Thunderstorm, no precip at observation time"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym029.gif" />  
+         <object
+             name="PRESENT_WX_030"
+             label="Slight or moderate dust or sand storm decreasing"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym030.gif" />
+         <object
+             name="PRESENT_WX_031"
+             label="Slight or moderate dust or sand storm"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym031.gif" />                 
+         <object
+             name="PRESENT_WX_032"
+             label="Slight or moderate dust or sand storm increasing"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym032.gif" />
+         <object
+             name="PRESENT_WX_033"
+             label="Severe dust or sand storm decreasing"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym033.gif" />
+         <object
+             name="PRESENT_WX_034"
+             label="Severe dust or sand storm"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym034.gif" />
+         <object
+             name="PRESENT_WX_035"
+             label="Severe dust or sand storm increasing"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym035.gif" />
+         <object
+             name="PRESENT_WX_036"
+             label="Slight or moderate drifting snow, generally low height"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym036.gif" />
+         <object
+             name="PRESENT_WX_037"
+             label="Heavy drifting snow, generally low height"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym037.gif" />
+         <object
+             name="PRESENT_WX_038"
+             label="Slight or moderate drifting snow, generally high height"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym038.gif" />
+         <object
+             name="PRESENT_WX_039"
+             label="Heavy drifting snow, generally high"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym039.gif" />  
+         <object
+             name="PRESENT_WX_040"
+             label="Fog at distance"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym040.gif" />
+         <object
+             name="PRESENT_WX_041"
+             label="Fog in patches"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym041.gif" />                 
+         <object
+             name="PRESENT_WX_042"
+             label="Fog, sky discernible, fog getting thinner"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym042.gif" />
+         <object
+             name="PRESENT_WX_043"
+             label="Fog, sky not discernible, fog getting thinner"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym043.gif" />
+         <object
+             name="PRESENT_WX_044"
+             label="Fog, sky discernible"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym044.gif" />
+         <object
+             name="PRESENT_WX_045"
+             label="Fog, Sky not discernible"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym045.gif" />
+         <object
+             name="PRESENT_WX_046"
+             label="Fog getting thicker, sky discernible"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym046.gif" />
+         <object
+             name="PRESENT_WX_047"
+             label="Fog getting thicker, sky not discernible"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym047.gif" />
+         <object
+             name="PRESENT_WX_048"
+             label="Fog depositing rime, sky discernible"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym048.gif" />
+         <object
+             name="PRESENT_WX_049"
+             label="Fog depositing rime, sky not discernible"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym049.gif" />  
+         <object
+             name="PRESENT_WX_050"
+             label="Intermittent drizzle"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym050.gif" />
+         <object
+             name="PRESENT_WX_051"
+             label="Continuous drizzle, slight at observation time"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym051.gif" />                 
+         <object
+             name="PRESENT_WX_052"
+             label="Intermittent drizzle, slight at observation time"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym052.gif" />
+         <object
+             name="PRESENT_WX_053"
+             label="Continuous drizzle, moderate as observation time"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym053.gif" />
+         <object
+             name="PRESENT_WX_054"
+             label="Intermittent drizzle, thick at observation time"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym054.gif" />
+         <object
+             name="PRESENT_WX_055"
+             label="Continuous drizzle, thick at observation time"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym055.gif" />
+         <object
+             name="PRESENT_WX_056"
+             label="Slight freezing drizzle"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym056.gif" />
+         <object
+             name="PRESENT_WX_057"
+             label="Moderate freezing drizzle"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym057.gif" />
+         <object
+             name="PRESENT_WX_058"
+             label="Slight drizzle and rain"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym058.gif" />
+         <object
+             name="PRESENT_WX_059"
+             label="Moderate drizzle and rain"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym059.gif" />  
+         <object
+             name="PRESENT_WX_060"
+             label="Intermittent light rain"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym060.gif" />
+         <object
+             name="PRESENT_WX_061"
+             label="Continuous rain"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym061.gif" />                 
+         <object
+             name="PRESENT_WX_062"
+             label="Intermittent moderate rain"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym062.gif" />
+         <object
+             name="PRESENT_WX_063"
+             label="Continuous moderate rain"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym063.gif" />
+         <object
+             name="PRESENT_WX_064"
+             label="Intermittent heavy rain"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym064.gif" />
+         <object
+             name="PRESENT_WX_065"
+             label="Continuous heavy rain"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym065.gif" />
+         <object
+             name="PRESENT_WX_066"
+             label="Slight freezing rain"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym066.gif" />
+         <object
+             name="PRESENT_WX_067"
+             label="Moderate or heavy freezing rain"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym067.gif" />
+         <object
+             name="PRESENT_WX_068"
+             label="Rain or drizzle and snow, slight"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym068.gif" />
+         <object
+             name="PRESENT_WX_069"
+             label="Rain mixed with snow, moderate or heavy"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym069.gif" />  
+         <object
+             name="PRESENT_WX_070"
+             label="Intermittent light snow fall"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym070.gif" />
+         <object
+             name="PRESENT_WX_071"
+             label="Continuous Light Snow"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym071.gif" />                 
+         <object
+             name="PRESENT_WX_072"
+             label="Intermittent moderate snow"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym072.gif" />
+         <object
+             name="PRESENT_WX_073"
+             label="Moderate Snow"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym073.gif" />
+         <object
+             name="PRESENT_WX_074"
+             label="Intermittent heavy snow fall"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym074.gif" />
+         <object
+             name="PRESENT_WX_075"
+             label="Continuous Heavy Snow"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym075.gif" />
+         <object
+             name="PRESENT_WX_076"
+             label="Ice needles"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym076.gif" />
+         <object
+             name="PRESENT_WX_077"
+             label="Granular snow"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym077.gif" />
+         <object
+             name="PRESENT_WX_078"
+             label="Isolated star-like snow crystals"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym078.gif" />
+         <object
+             name="PRESENT_WX_079"
+             label="Ice pellets"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym079.gif" />  
+         <object
+             name="PRESENT_WX_080"
+             label="Slight rain shower"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym080.gif" />
+         <object
+             name="PRESENT_WX_081"
+             label="Moderate or heavy rain showers"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym081.gif" />                 
+         <object
+             name="PRESENT_WX_082"
+             label="Violent rain showers"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym082.gif" />
+         <object
+             name="PRESENT_WX_083"
+             label="Slight showers of rain and snow mixed"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym083.gif" />
+         <object
+             name="PRESENT_WX_084"
+             label="Moderate or heavy showers of rain and snow mixed"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym084.gif" />
+         <object
+             name="PRESENT_WX_085"
+             label="Slight Snow Showers"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym085.gif" />
+         <object
+             name="PRESENT_WX_086"
+             label="Moderate or heavy snow showers"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym086.gif" />
+         <object
+             name="PRESENT_WX_087"
+             label="Slight hail showers"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym087.gif" />
+         <object
+             name="PRESENT_WX_088"
+             label="Moderate Hail Showers"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym088.gif" />
+         <object
+             name="PRESENT_WX_089"
+             label="Slight Shower of Hail"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym089.gif" />  
+         <object
+             name="PRESENT_WX_090"
+             label="Moderate or heavy showers of hail mixed with rain or snow"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym090.gif" />
+         <object
+             name="PRESENT_WX_091"
+             label="Slight rain with thunderstorms during past hour"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym091.gif" />                 
+         <object
+             name="PRESENT_WX_092"
+             label="Moderate or heavy rain with thunderstorm during past hour"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym092.gif" />
+         <object
+             name="PRESENT_WX_093"
+             label="Slight hail at observation time, thunderstorm during past hour"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym093.gif" />
+         <object
+             name="PRESENT_WX_094"
+             label="Heavy rain at observation time thunderstorm during past hour"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym094.gif" />
+         <object
+             name="PRESENT_WX_095"
+             label="Slight or mod thinderstorm with rain"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym095.gif" />
+         <object
+             name="PRESENT_WX_096"
+             label="Slight or mod thunderstorm with hail at observation time"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym096.gif" />
+         <object
+             name="PRESENT_WX_097"
+             label="Heavy thunderstorm without hail and rain at observation time"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym097.gif" />
+         <object
+             name="PRESENT_WX_098"
+             label="Thunderstorm combined with dust or sandstorm"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym098.gif" />
+         <object
+             name="PRESENT_WX_099"
+             label="Heavy thunderstorm with hail at observation time"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym099.gif" />  
+         <object
+             name="PRESENT_WX_103"
+             label="Slight snow at observation time, thunderstorm during past hour"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym103.gif" />
+         <object
+             name="PRESENT_WX_104"
+             label="Heavy snow at observation time, thunderstorm during past hour"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym104.gif" />                 
+         <object
+             name="PRESENT_WX_105"
+             label="Slight or Mod Thunderstorm with Snow"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym105.gif" />
+         <object
+             name="PRESENT_WX_107"
+             label="Heavy thunderstorm without hail and snow at observation time"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym106.gif" />
+         <object
+             name="PRESENT_WX_201"
+             label="Volcanic activity"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym201.gif" />
+         <object
+             name="PRESENT_WX_202"
+             label="Sea spray"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym202.gif" />
+         <object
+             name="PRESENT_WX_203"
+             label="Unknown precipitation from an automatic station"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/wxsym203.gif" />
+             
+         <object
+             name="ICING_00"
+             label="No Icing"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/ice00.gif" /> 
+         <object
+             name="ICING_01"
+             label="Trace Icing"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/ice01.gif" /> 
+         <object
+             name="ICING_02"
+             label="Trace to Light Icing"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/ice02.gif" /> 
+         <object
+             name="ICING_03"
+             label="Light Icing"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/ice03.gif" /> 
+         <object
+             name="ICING_04"
+             label="Light to Moderate Icing"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/ice04.gif" /> 
+         <object
+             name="ICING_05"
+             label="Moderate Icing"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/ice05.gif" /> 
+         <object
+             name="ICING_06"
+             label="Moderate to Heavy Icing"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/ice06.gif" /> 
+         <object
+             name="ICING_07"
+             label="Heavy to Severe Icing"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/ice07.gif" /> 
+         <object
+             name="ICING_08"
+             label="Severe Icing"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/ice08.gif" /> 
+         <object
+             name="ICING_09"
+             label="Light Superstructure Icing"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/ice09.gif" />         
+         <object
+             name="ICING_10"
+             label="Heavy Superstructure Icing"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/ice10.gif" />
+        
+         <object
+             name="PAST_WX_03"
+             label="Blowing sand or snow"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/pstwx03.gif" />  
+         <object
+             name="PAST_WX_04"
+             label="Fog"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/pstwx04.gif" /> 
+         <object
+             name="PAST_WX_05"
+             label="Drizzle"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/pstwx05.gif" /> 
+         <object
+             name="PAST_WX_06"
+             label="Snow"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/pstwx06.gif" /> 
+         <object
+             name="PAST_WX_07"
+             label="Shower"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/pstwx07.gif" /> 
+         <object
+             name="PAST_WX_08"
+             label="Thunderstorm"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/pstwx08.gif" /> 
+         <object
+             name="PAST_WX_09"
+             label="Thunderstorm"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/pstwx09.gif" /> 
+          
+         <object
+             name="CLOUD_TYPE_01"
+             label="L1 Clouds: Cumulus (Cu) with little vertical extent"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/cloud01.gif" />  
+         <object
+             name="CLOUD_TYPE_02"
+             label="L2 Clouds: Cumulus (Cu) of moderate/strong development"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/cloud02.gif" /> 
+         <object
+             name="CLOUD_TYPE_03"
+             label="L3 Clouds: Cumulonimbus (Cb) without anvil"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/cloud03.gif" /> 
+         <object
+             name="CLOUD_TYPE_04"
+             label="L4 Clouds: Stratocumulus (Sc) from spreading out of Cumulus (Cu)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/cloud04.gif" /> 
+         <object
+             name="CLOUD_TYPE_05"
+             label="L5 Clouds: Stratocumulus (Sc) not from spreading out of Cumulus (Cu)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/cloud05.gif" /> 
+         <object
+             name="CLOUD_TYPE_06"
+             label="L6 Clouds: Stratus (St)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/cloud06.gif" /> 
+         <object
+             name="CLOUD_TYPE_07"
+             label="L7 Clouds: Stratus fractus (StFra) and/or Cumulus fractus (CuFra) of bad weather"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/cloud07.gif" />
+         <object
+             name="CLOUD_TYPE_08"
+             label="L8 Clouds: Cumulus (Cu) and Stratocumulus (Sc) at different heights"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/cloud08.gif" />  
+         <object
+             name="CLOUD_TYPE_09"
+             label="L9 Clouds: Cumulonimbus (Cb) with anvil"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/cloud09.gif" /> 
+         <object
+             name="CLOUD_TYPE_11"
+             label="M1 Clouds: Thin altostratus (As)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/cloud11.gif" /> 
+         <object
+             name="CLOUD_TYPE_12"
+             label="M2 Clouds: Thick altostratus (As) or Nimbostratus (Ns)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/cloud12.gif" /> 
+         <object
+             name="CLOUD_TYPE_13"
+             label="M3 Clouds: Semi-transparent Altocumulus (Ac)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/cloud13.gif" /> 
+         <object
+             name="CLOUD_TYPE_14"
+             label="L4 Clouds: Stratocumulus (Sc) from spreading out of Cumulus (Cu)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/cloud14.gif" /> 
+         <object
+             name="CLOUD_TYPE_15"
+             label="M5 Clouds: Altocumulus (Ac) progressively invading the sky"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/cloud15.gif" />  
+         <object
+             name="CLOUD_TYPE_16"
+             label="M6 Clouds: Altocumulus (Ac) from spreading out of Cumulus (Cu)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/cloud16.gif" /> 
+         <object
+             name="CLOUD_TYPE_17"
+             label="M7 Clouds: Altocumulus (Ac) in Layers or with As or Ns"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/cloud17.gif" /> 
+         <object
+             name="CLOUD_TYPE_18"
+             label="M8 Clouds: Altocumulus (Ac) with tufts or sproutings"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/cloud18.gif" /> 
+         <object
+             name="CLOUD_TYPE_19"
+             label="M9 Clouds: Altocumulus (Ac) of a chaotic sky"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/cloud19.gif" /> 
+         <object
+             name="CLOUD_TYPE_21"
+             label="H1 Clouds: Filaments of Cirrus (Ci)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/cloud21.gif" /> 
+         <object
+             name="CLOUD_TYPE_22"
+             label="H2 Clouds: Dense Cirrus (Ci)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/cloud22.gif" />
+         <object
+             name="CLOUD_TYPE_23"
+             label="H3 Clouds: Dense cirrus (Ci) from Cumulonimbus (Cb)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/cloud23.gif" />  
+         <object
+             name="CLOUD_TYPE_24"
+             label="H4 Clouds: Cirrus (Ci) progressively invading the sky"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/cloud24.gif" /> 
+         <object
+             name="CLOUD_TYPE_25"
+             label="H5 Clouds: Cirrostratus (Cs) increasing but below 45° elevation"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/cloud25.gif" /> 
+         <object
+             name="CLOUD_TYPE_26"
+             label="H6 Clouds: Cirrostratus (Cs) increasing and above 45° elevation"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/cloud26.gif" /> 
+         <object
+             name="CLOUD_TYPE_27"
+             label="H7 Clouds: Cirrostratus (Cs) covering the whole sky"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/cloud27.gif" /> 
+         <object
+             name="CLOUD_TYPE_28"
+             label="H8 Clouds: Cirrostratus (Cs) not invading or covering the sky"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/cloud28.gif" /> 
+         <object
+             name="CLOUD_TYPE_29"
+             label="H9 Clouds: Cirrocumulus (Cc)"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/cloud29.gif" />          
+  
+         <object
+             name="PRESSURE_TENDENCY_00"
+             label="Rising then falling"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/ptend00.gif" />
+         <object
+             name="PRESSURE_TENDENCY_01"
+             label="Rising then steady"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/ptend01.gif" />
+         <object
+             name="PRESSURE_TENDENCY_02"
+             label="Rising steadily"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/ptend02.gif" />
+         <object
+             name="PRESSURE_TENDENCY_03"
+             label="Falling or steady then rising"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/ptend03.gif" />
+         <object
+             name="PRESSURE_TENDENCY_04"
+             label="Steady"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/ptend04.gif" />
+         <object
+             name="PRESSURE_TENDENCY_05"
+             label="Falling then rising"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/ptend05.gif" />
+         <object
+             name="PRESSURE_TENDENCY_06"
+             label="Falling then steady"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/ptend06.gif" />
+         <object
+             name="PRESSURE_TENDENCY_07"
+             label="Falling steadily"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/ptend07.gif" />
+         <object
+             name="PRESSURE_TENDENCY_08"
+             label="Steady or rising then falling"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/ptend08.gif" />
+
+         <object
+             name="SKY_COVER_00"
+             label="No cloud"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/sky00.gif" />
+         <object
+             name="SKY_COVER_01"
+             label="One-tenth or less"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/sky01.gif" />
+         <object
+             name="SKY_COVER_02"
+             label="Two-tenths to three-tenths"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/sky02.gif" />
+         <object
+             name="SKY_COVER_03"
+             label="Four-tenths"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/sky03.gif" />
+         <object
+             name="SKY_COVER_04"
+             label="Five-tenths"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/sky04.gif" />
+         <object
+             name="SKY_COVER_05"
+             label="Six-tenths"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/sky05.gif" />
+         <object
+             name="SKY_COVER_06"
+             label="Seven-tenths to eight-tenths"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/sky06.gif" />
+         <object
+             name="SKY_COVER_07"
+             label="Nine-tenths or overcast with opening"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/sky07.gif" />
+         <object
+             name="SKY_COVER_08"
+             label="Completely overcast"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/sky08.gif" />
+         <object
+             name="SKY_COVER_09"
+             label="Sky obscured"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/sky09.gif" />
+         <object
+             name="SKY_COVER_10"
+             label="Missing cloud"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/sky10.gif" />
+ 
+         <object
+             name="TURBULENCE_0"
+             label="No Turbulence"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/turb00.gif" />
+         <object
+             name="TURBULENCE_1"
+             label="Light Turbulence"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/turb01.gif" />
+         <object
+             name="TURBULENCE_2"
+             label="Light Turbulence"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/turb02.gif" />
+         <object
+             name="TURBULENCE_3"
+             label="Light to Moderate Turbulence"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/turb03.gif" />
+         <object
+             name="TURBULENCE_4"
+             label="Moderate Turbulence"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/turb04.gif" />
+         <object
+             name="TURBULENCE_5"
+             label="Moderate to Severe Turbulence"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/turb05.gif" />
+         <object
+             name="TURBULENCE_6"
+             label="Severe Turbulence"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/turb06.gif" />
+         <object
+             name="TURBULENCE_7"
+             label="Extreme Turbulence"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/turb07.gif" />
+         <object
+             name="TURBULENCE_8"
+             label="Extreme Turbulence"
+             className="Symbol"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
+             icon="icons/turb08.gif" />
+                                      
+         <object
+             name="STORM_TRACK"
+             label="Storm Track"
+             className="Track"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/trkstorm.gif" />
+         <object
+             name="PROD_AIRMET"
+             label="Airmet Format"
+             className="Prod"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenGfaFormatTool"
+             icon="icons/airmet.gif" />
+         <object
+             name="LINE_SOLID"
+             label="Solid Line"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/cntr.gif" />
+         <object
+             name="POINTED_ARROW"
+             label="Line with open arrow head"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/spln4.gif" />
+	 	 <object
+             name="FILLED_ARROW"
+             label="Line with closed arrow head"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/spln6.gif" />
+         <object
+             name="LINE_DASHED_2"
+             label="Dotted Line"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/dsline10.gif" />
+         <object
+             name="LINE_DASHED_3"
+             label="Short Dashed"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/dsline2.gif" />
+          <object
+             name="LINE_DASHED_4"
+             label="Medium Dashed"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/dsline3.gif" />
+          <object
+             name="LINE_DASHED_5"
+             label="Long Dash Short Dash"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/dsline4.gif" />
+          <object
+             name="LINE_DASHED_6"
+             label="Long Dashed"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/dsline5.gif" />
+             
+           <object
+             name="LINE_DASHED_7"
+             label="Long Dash Three Short Dashes"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/dsline6.gif" />
+         <object
+             name="LINE_DASHED_8"
+             label="Long Dash Dot"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/dsline7.gif" />
+         <object
+             name="LINE_DASHED_9"
+             label="Medium Dash Dot Dot Dot"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/dsline8.gif" />
+         <object
+             name="LINE_DASHED_10"
+             label="Long Dash Dot Dot"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/dsline9.gif" />
+         <object
+             name="DASHED_ARROW"
+             label="Dashed Line with open arrow head"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/spln20.gif" />
+         <object
+             name="DASHED_ARROW_FILLED"
+             label="Dashed Line with filled arrow head"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/spln21.gif" />
+         <object
+             name="BALL_CHAIN"
+             label="Ball-and-Chain"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/spln1.gif" />
+         <object
+             name="ZIGZAG"
+             label="ZigZag"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/spln2.gif" />
+         <object
+             name="SCALLOPED"
+             label="Scallop"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/spln3.gif" />
+         <object
+             name="ANGLED_TICKS_ALT"
+             label="Alternating Angled Ticks"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/spln5.gif" />
+         <object
+             name="FILLED_CIRCLES"
+             label="Filled Circle"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/spln9.gif" />
+         <object
+             name="LINE_WITH_CARETS"
+             label="Line-Caret-Line"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/spln17.gif" />
+         <object
+             name="LINE_CARET_LINE"
+             label="Line-Caret-Line with spaces"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/spln18.gif" />
+         <object
+             name="SINE_CURVE"
+             label="Sine Curve"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/spln19.gif" />
+         <object
+             name="BOX_CIRCLE"
+             label="Box-Circle"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/spln7.gif" />
+         <object
+             name="FILL_OPEN_BOX"
+             label="Filled Box-Open Box with filled arrow head"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/spln13.gif" />
+         <object
+             name="LINE_X_LINE"
+             label="Line-X-Line"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/spln12.gif" />
+  		 <object
+             name="LINE_XX_LINE"
+             label="Line-2Xs-Line"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/spln8.gif" />
+         <object
+             name="FILL_CIRCLE_X"
+             label="Filled Circle-X"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/spln14.gif" />
+         <object
+             name="BOX_X"
+             label="Box-X"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/spln15.gif" />
+         <object
+             name="LINE_CIRCLE_ARROW"
+             label="Line-Circle-Line with filled arrow head"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/spln16.gif" />
+         <object
+             name="DOUBLE_LINE"
+             label="Double Line"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/spln23.gif" />
+         <object
+             name="ZZZ_LINE"
+             label="Z-Line"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/spln26.gif" />
+         <object
+             name="TICK_MARKS"
+             label="Tick Mark"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/spln11.gif" />
+         <object
+             name="STREAM_LINE"
+             label="Streamline-like"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/spln22.gif" />  
+		 <object
+             name="LINE_FILLED_CIRCLE_ARROW"
+             label="Line-Filled-Circle-Line with filled arrow head"
+             className="Lines"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/spln10.gif" />
+                       
+          <object
+             name="General Text"
+             label="General Text"
+             className="Text"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenTextDraw"
+             icon="icons/textgen.gif" />           
+          <object
+             name="AVIATION_TEXT"
+             label="Aviation Text"
+             className="Text"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenAvnTextDraw"
+             icon="icons/avntext.png" />  
+          <!--object
+             name="Freezing Level Text"
+             label="Freezing Level Text"
+             className="Text"
+             commandId="com.raytheon.viz.ui.actions.notImplemented"
+             icon="icons/textfrzlvl.gif" />  
+          <object
+             name="Cloud Text"
+             label="Cloud Text"
+             className="Text"
+             commandId="com.raytheon.viz.ui.actions.notImplemented"
+             icon="icons/textcloud.gif" />  
+          <object
+             name="Icing Text"
+             label="Icing Text"
+             className="Text"
+             commandId="com.raytheon.viz.ui.actions.notImplemented"
+             icon="icons/texticng.gif" /-->  
+          <object
+             name="MID_LEVEL_CLOUD"
+             label="Mid Level Cloud Text"
+             className="Text"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenAvnTextDraw"
+             icon="icons/textmcloud.gif" />  
+                                           
+         <object
+             name="Circle"
+             label="Circle"
+             className="Arc"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDualDraw"
+             icon="icons/cirsolid.gif" />
+         <object
+             name="Arrow"
+             label="Arrow"
+             className="Vector"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenVectorDraw"
+             icon="icons/windarrw.gif" />
+         <object
+             name="Barb"
+             label="Barb"
+             className="Vector"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenVectorDraw"
+             icon="icons/windbarb.gif" />
+         <object
+             name="Directional"
+             label="Directional"
+             className="Vector"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenVectorDraw"
+             icon="icons/darr.gif" />
+         <object
+             name="Hash"
+             label="Hash"
+             className="Vector"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenVectorDraw"
+             icon="icons/hash.gif" />
+             
+         <object
+             name="JET"
+             label="JET"
+             className="MET"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenJetDraw"
+             icon="icons/jet.gif" />
+         <object
+             name="TCA"
+             label="TCA"
+             className="MET"
+             commandId="gov.noaa.nws.ncep.ui.pgen.tca"
+             icon="icons/tca.gif" />
+         <object
+             name="GFA"
+             label="GFA"
+             className="MET"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenGfaDraw"
+             icon="icons/gfa.gif" />
+          <object
+             name="Contours"
+             label="Contours"
+             className="MET"
+             commandId="gov.noaa.nws.ncep.ui.pgen.contours"
+             icon="icons/cntr.gif" />
+          <object
+             name="Outlook"
+             label="Outlook"
+             className="MET"
+             commandId="gov.noaa.nws.ncep.ui.pgen.outlookDraw"
+             icon="icons/outlook.gif" />
+          <object
+             name="WatchBox"
+             label="WatchBox"
+             className="MET"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenWatchBoxDraw"
+             icon="icons/wbprll.gif" />
+          <object
+             name="Cloud"
+             label="Cloud"
+             className="MET"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenLabeledLineDraw"
+             icon="icons/spln3.gif" />
+           <object
+             name="Turbulence"
+             label="Turbulence"
+             className="MET"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenLabeledLineDraw"
+             icon="icons/textturb.gif" />         
+          <object
+             name="INTL_SIGMET"
+             label="INTL_SIGMET"
+             className="SIGMET"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/sigintl.gif" />
+          <object
+             name="CONV_SIGMET"
+             label="CONV_SIGMET"
+             className="SIGMET"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/sigconv.gif" />
+		  <object
+             name="AIRM_SIGMET"
+             label="AIRM_SIGMET"
+             className="SIGMET"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/airmet.gif" />               
+          <object
+             name="NCON_SIGMET"
+             label="NCON_SIGMET"
+             className="SIGMET"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/nconsig.gif" />
+          <object
+             name="OUTL_SIGMET"
+             label="OUTL_SIGMET"
+             className="SIGMET"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/outlook.gif" />
+          <object
+             name="CCFP_SIGMET"
+             label="CCFP_SIGMET"
+             className="SIGMET"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenLabeledLineDraw"
+             icon="icons/sigccf.gif" />
+          <object
+             name="VOLC_SIGMET"
+             label="VOLC_SIGMET"
+             className="SIGMET"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenVolCreate"
+             icon="icons/sigvol.gif" />
+          <object 
+             name="VACL_SIGMET"
+             label="VACL_SIGMET"
+             className="SIGMET"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
+             icon="icons/sigvac.gif" />   
+   </extension>
+   
+      <extension
+         point="org.eclipse.ui.preferencePages">    
+      <page
+            class="gov.noaa.nws.ncep.ui.pgen.NcepPreferences"
+            id="org.eclipse.jface.Prerences"
+            name="NCEP">
+      </page>   
+      <page
+            class="gov.noaa.nws.ncep.ui.pgen.PgenPreferences"
+            id="gov.noaa.nws.ncep.ui.pgen.PgenPreferences"
+            name="PGEN"
+            category="org.eclipse.jface.Prerences">
+      </page> 
+   </extension>
+      <extension
+            point="gov.noaa.nws.ncep.viz.localization.localizationData">
+         <singleLocalizationValue
+               name="g2g_Grphgd"
+               location="pgen"
+               fileName="grphgd.tbl">
+         </singleLocalizationValue>
+         <singleLocalizationValue
+               name="outlookType"
+               location="pgen"
+               fileName="outlooktype.xml">
+         </singleLocalizationValue>
+         <singleLocalizationValue
+               name="outlookTimes"
+               location="pgen"
+               fileName="outlooktimes.xml">
+         </singleLocalizationValue>
+         <singleLocalizationValue
+               name="outlookSettings"
+               location="pgen"
+               fileName="outlooksettings.xml">
+         </singleLocalizationValue>
+         <singleLocalizationValue
+               fileName="red_cross.png"
+               location="pgen"
+               name="redCrossImageFile">
+         </singleLocalizationValue>
+         <singleLocalizationValue
+               fileName="contoursInfo.xml"
+               location="pgen"
+               name="contoursInfo">
+         </singleLocalizationValue>
+         <singleLocalizationValue
+               fileName="product.xsd"
+               location="pgen"
+               name="Pgen_Product_Schema">
+         </singleLocalizationValue>
+         <singleLocalizationValue
+               fileName="productTypes.xml"
+               location="pgen"
+               name="Pgen_Product_Types">
+         </singleLocalizationValue>
+         <singleLocalizationValue
+               fileName="mt_obsc_states.xml"
+               location="pgen"
+               name="mtObscStates">
+         </singleLocalizationValue>
+         <singleLocalizationValue
+               fileName="pgenFileOrganizer.xml"
+               location="pgen"
+               name="pgenFileOrganizer">
+         </singleLocalizationValue>
+      </extension>
+   <extension
+      point="org.eclipse.ui.bindings"
+      id="gov.noaa.nws.ncep.ui.pgen.pgenKeyBinding"
+      name="PGEN Hot Key Binding">
+               <!-- Hot Keys for the PGEN context-->
+         
+         <key
+                commandId="gov.noaa.nws.ncep.ui.pgen.undo"
+                contextId="gov.noaa.nws.ncep.ui.pgen.pgenContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M1+U">
+                <parameter  id="action" value="Undo" />
+         </key>         
+
+         <key
+                commandId="gov.noaa.nws.ncep.ui.pgen.undo"
+                contextId="gov.noaa.nws.ncep.ui.pgen.pgenContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M1+R">
+                <parameter  id="action" value="Redo" />
+         </key>  
+         <!-- Hot keys to activate layers 1-10-->
+         <key
+                commandId="gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringHotKeyCommand"
+                contextId="gov.noaa.nws.ncep.ui.pgen.pgenContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M1+1">
+                <parameter  id="layerIndex" value="1" />
+         </key>         
+         <key
+                commandId="gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringHotKeyCommand"
+                contextId="gov.noaa.nws.ncep.ui.pgen.pgenContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M1+2">
+                <parameter  id="layerIndex" value="2" />
+         </key>         
+         <key
+                commandId="gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringHotKeyCommand"
+                contextId="gov.noaa.nws.ncep.ui.pgen.pgenContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M1+3">
+                <parameter  id="layerIndex" value="3" />
+         </key>         
+         <key
+                commandId="gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringHotKeyCommand"
+                contextId="gov.noaa.nws.ncep.ui.pgen.pgenContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M1+4">
+                <parameter  id="layerIndex" value="4" />
+         </key>         
+         <key
+                commandId="gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringHotKeyCommand"
+                contextId="gov.noaa.nws.ncep.ui.pgen.pgenContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M1+5">
+                <parameter  id="layerIndex" value="5" />
+         </key>         
+         <key
+                commandId="gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringHotKeyCommand"
+                contextId="gov.noaa.nws.ncep.ui.pgen.pgenContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M1+6">
+                <parameter  id="layerIndex" value="6" />
+         </key>  
+
+         <key
+                commandId="gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringHotKeyCommand"
+                contextId="gov.noaa.nws.ncep.ui.pgen.pgenContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M1+7">
+                <parameter  id="layerIndex" value="7" />
+         </key>         
+         <key
+                commandId="gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringHotKeyCommand"
+                contextId="gov.noaa.nws.ncep.ui.pgen.pgenContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M1+8">
+                <parameter  id="layerIndex" value="8" />
+         </key>         
+         <key
+                commandId="gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringHotKeyCommand"
+                contextId="gov.noaa.nws.ncep.ui.pgen.pgenContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M1+9">
+                <parameter  id="layerIndex" value="9" />
+         </key>  
+         <key
+                commandId="gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringHotKeyCommand"
+                contextId="gov.noaa.nws.ncep.ui.pgen.pgenContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M1+0">
+                <parameter  id="layerIndex" value="10" />
+         </key>  
+         <!-- Hot keys to activate layers 11-20-->
+                  <key
+                commandId="gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringHotKeyCommand"
+                contextId="gov.noaa.nws.ncep.ui.pgen.pgenContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M1+M2+1">
+                <parameter  id="layerIndex" value="11" />
+         </key>         
+         <key
+                commandId="gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringHotKeyCommand"
+                contextId="gov.noaa.nws.ncep.ui.pgen.pgenContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M1+M2+2">
+                <parameter  id="layerIndex" value="12" />
+         </key>         
+         <key
+                commandId="gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringHotKeyCommand"
+                contextId="gov.noaa.nws.ncep.ui.pgen.pgenContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M1+M2+3">
+                <parameter  id="layerIndex" value="13" />
+         </key>         
+         <key
+                commandId="gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringHotKeyCommand"
+                contextId="gov.noaa.nws.ncep.ui.pgen.pgenContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M1+M2+4">
+                <parameter  id="layerIndex" value="14" />
+         </key>         
+         <key
+                commandId="gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringHotKeyCommand"
+                contextId="gov.noaa.nws.ncep.ui.pgen.pgenContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M1+M2+5">
+                <parameter  id="layerIndex" value="15" />
+         </key>         
+         <key
+                commandId="gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringHotKeyCommand"
+                contextId="gov.noaa.nws.ncep.ui.pgen.pgenContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M1+M2+6">
+                <parameter  id="layerIndex" value="16" />
+         </key>  
+
+         <key
+                commandId="gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringHotKeyCommand"
+                contextId="gov.noaa.nws.ncep.ui.pgen.pgenContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M1+M2+7">
+                <parameter  id="layerIndex" value="17" />
+         </key>         
+         <key
+                commandId="gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringHotKeyCommand"
+                contextId="gov.noaa.nws.ncep.ui.pgen.pgenContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M1+M2+8">
+                <parameter  id="layerIndex" value="18" />
+         </key>         
+         <key
+                commandId="gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringHotKeyCommand"
+                contextId="gov.noaa.nws.ncep.ui.pgen.pgenContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M1+M2+9">
+                <parameter  id="layerIndex" value="19" />
+         </key>  
+         <key
+                commandId="gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringHotKeyCommand"
+                contextId="gov.noaa.nws.ncep.ui.pgen.pgenContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M1+M2+0">
+                <parameter  id="layerIndex" value="20" />
+         </key> 
+
+   </extension>
+</plugin>

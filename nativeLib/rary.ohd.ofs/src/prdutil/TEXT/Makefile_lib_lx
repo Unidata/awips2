@@ -1,0 +1,56 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-prdutil library file
+#
+#  cmt: File made on Wed Aug  6 12:52:15 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libprdutil_t.a:  \
+     $(LIB)/libprdutil_t.a(pckdtc.o)  \
+     $(LIB)/libprdutil_t.a(pcknic.o)  \
+     $(LIB)/libprdutil_t.a(pdftcr.o)  \
+     $(LIB)/libprdutil_t.a(pdtscr.o)  \
+     $(LIB)/libprdutil_t.a(pedits.o)  \
+     $(LIB)/libprdutil_t.a(pixacc.o)  \
+     $(LIB)/libprdutil_t.a(pmovdt.o)  \
+     $(LIB)/libprdutil_t.a(prcnts.o)  \
+     $(LIB)/libprdutil_t.a(prdctf.o)  \
+     $(LIB)/libprdutil_t.a(prdcts.o)  \
+     $(LIB)/libprdutil_t.a(prdctt.o)  \
+     $(LIB)/libprdutil_t.a(prdshf.o)  \
+     $(LIB)/libprdutil_t.a(prutmain.o)  \
+     $(LIB)/libprdutil_t.a(ptdatf.o)  \
+     $(LIB)/libprdutil_t.a(ptindx.o)  \
+     $(LIB)/libprdutil_t.a(ptsall.o)  \
+     $(LIB)/libprdutil_t.a(ptsdat.o)  \
+     $(LIB)/libprdutil_t.a(ptshcs.o)  \
+     $(LIB)/libprdutil_t.a(ptsrdg.o)  \
+     $(LIB)/libprdutil_t.a(ptsrec.o)  \
+     $(LIB)/libprdutil_t.a(uprimo_prdu.o)
+

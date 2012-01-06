@@ -1,0 +1,26 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Mosaic Plug-in
+Bundle-SymbolicName: gov.noaa.nws.ncep.edex.plugin.mosaic
+Bundle-Version: 1.0.0.qualifier
+Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Bundle-Vendor: NOAA/NWS/NCEP/NCO
+Require-Bundle: com.raytheon.edex.common,
+ com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
+ org.eclipse.core.runtime,
+ org.apache.commons.logging,
+ org.geotools,
+ javax.measure,
+ com.raytheon.edex.uengine,
+ com.raytheon.uf.common.localization,
+ javax.persistence,
+ gov.noaa.nws.ncep.edex.common;bundle-version="1.0.0"
+Bundle-ActivationPolicy: lazy
+Export-Package: gov.noaa.nws.ncep.edex.plugin.mosaic.decoder,
+ gov.noaa.nws.ncep.edex.plugin.mosaic.common,
+ gov.noaa.nws.ncep.edex.plugin.mosaic.common.dao,
+ gov.noaa.nws.ncep.edex.plugin.mosaic.util.level3,
+ gov.noaa.nws.ncep.edex.plugin.mosaic.uengine,
+ gov.noaa.nws.ncep.edex.plugin.mosaic.util
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: org.junit

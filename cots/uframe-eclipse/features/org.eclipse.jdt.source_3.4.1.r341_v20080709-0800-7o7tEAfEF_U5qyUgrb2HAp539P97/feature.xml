@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature id="org.eclipse.jdt.source" version="3.4.1.r341_v20080709-0800-7o7tEAfEF_U5qyUgrb2HAp539P97" label="%featureName" provider-name="%providerName" image="eclipse_update_120.jpg"    >
+	<description >
+		%description
+	</description>
+	<license url="%licenseURL">
+		%license
+	</license>
+	<url>
+		<update url="http://download.eclipse.org/eclipse/updates/3.4" label="%updateSiteName"/>
+		<discovery url="http://download.eclipse.org/eclipse/updates/3.4" label="%updateSiteName"/>
+	</url>
+	<plugin id="org.eclipse.jdt.doc.isv" version="3.4.1.r341_v20080716-0800"     unpack="false"/>
+	<plugin id="org.junit.source" version="3.8.2.v20080602-1318"     unpack="false"/>
+	<plugin id="org.eclipse.jdt.source" version="3.4.1.r341_v20080709-0800"     unpack="false"/>
+	<plugin id="org.eclipse.ant.ui.source" version="3.3.0.v20080529"     unpack="false"/>
+	<plugin id="org.eclipse.jdt.apt.core.source" version="3.3.101.R34x_v20080902-1220"     unpack="false"/>
+	<plugin id="org.eclipse.jdt.apt.ui.source" version="3.3.100.v20080407-1345"     unpack="false"/>
+	<plugin id="org.eclipse.jdt.apt.pluggable.core.source" version="1.0.100.v20080407-1345"     unpack="false"/>
+	<plugin id="org.eclipse.jdt.compiler.apt.source" version="1.0.100.v20080513-1235"     unpack="false"/>
+	<plugin id="org.eclipse.jdt.compiler.tool.source" version="1.0.100.v_883_R34x"     unpack="false"/>
+	<plugin id="org.eclipse.jdt.core.source" version="3.4.2.v_883_R34x"     unpack="false"/>
+	<plugin id="org.eclipse.jdt.core.manipulation.source" version="1.2.0.v20080603-2000"     unpack="false"/>
+	<plugin id="org.eclipse.jdt.debug.ui.source" version="3.3.1.v20080730_r341"     unpack="false"/>
+	<plugin id="org.eclipse.jdt.debug.source" version="3.4.0.v20080604"     unpack="false"/>
+	<plugin id="org.eclipse.jdt.junit.source" version="3.4.0.v20080603-2000"     unpack="false"/>
+	<plugin id="org.eclipse.jdt.junit.runtime.source" version="3.3.0.v20080603-2000"     unpack="false"/>
+	<plugin id="org.eclipse.jdt.junit4.runtime.source" version="1.0.200.v20080603-2000"     unpack="false"/>
+	<plugin id="org.eclipse.jdt.launching.source" version="3.4.1.v20080729_r341"     unpack="false"/>
+	<plugin id="org.eclipse.jdt.ui.source" version="3.4.1.r341_v20080827-1100"     unpack="false"/>
+	<plugin id="org.junit4.source" version="4.3.1"     unpack="false"/>
+	<plugin id="org.eclipse.jdt.launching.macosx.source" version="3.1.100.v20080422" os="macosx"  ws="carbon"  unpack="false"/>
+</feature>

@@ -1,0 +1,1 @@
+The dictionary may also have a special “otherwise” entry. If the key we are seeking is not found, this value will be used.  In this case we want to use the “…then” string as a connector for long phrases EXCEPT for Wx and Sky.

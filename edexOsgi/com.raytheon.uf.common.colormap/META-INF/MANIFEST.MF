@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Colormap Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.colormap
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.uf.common.colormap
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
+Import-Package: com.raytheon.uf.common.serialization

@@ -1,0 +1,82 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-fcinit_fldwav library file
+#
+#  cmt: File made on Wed Aug  6 12:48:44 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libfcinit_fldwav_t.a:  \
+     $(LIB)/libfcinit_fldwav_t.a(calxs55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(chan55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(check55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(compk55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(cox55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(first55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(frict55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(frictl55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(frictr55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(icin55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(initcm55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(intpxs55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(lvin55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(metrc55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(oldval55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(opncrs55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(pin55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(ppbrg55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(ppdam55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(prc55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(preflp55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(prp55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(puc55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(pudam55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(rdclxs55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(rdrch55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(rdstat55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(read255.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(read355.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(read455.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(readn55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(reda55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(redbrg55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(reddam55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(redhyd55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(redic55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(redres55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(redrvr55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(reno55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(rhnws55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(routyp55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(sect55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(sectf55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(sinc55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(slope55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(tab55.o)  \
+     $(LIB)/libfcinit_fldwav_t.a(wyqmet55.o)
+

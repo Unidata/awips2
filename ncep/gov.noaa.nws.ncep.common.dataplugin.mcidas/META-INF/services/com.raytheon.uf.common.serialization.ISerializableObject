@@ -1,0 +1,5 @@
+gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasRecord
+gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasMapCoverage
+gov.noaa.nws.ncep.common.dataplugin.mcidas.fixed.McidasSatelliteName
+gov.noaa.nws.ncep.common.dataplugin.mcidas.fixed.McidasImageType
+gov.noaa.nws.ncep.common.dataplugin.mcidas.fixed.McidasAreaName

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ 
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+ 
+   http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+ 
+-->
+
+<!DOCTYPE module PUBLIC "-//Puppy Crawl//DTD Check Configuration 1.1//EN" "http://www.puppycrawl.com/dtds/configuration_1_1.dtd">
+<module name="Checker">
+    <!-- Checks package.html defined for all packages. -->
+    <module name="PackageHtml"/>
+
+    <module name="TreeWalker">
+
+        <!-- Whitespace conventions. -->
+        <module name="TabCharacter"/>
+
+        <!-- License conventions. Checks that the license is included in every file. -->
+        <module name="Header">
+            <property name="headerFile" value="${checkstyle.header.file}"/>
+        </module>
+
+        <!-- Coding style conventions. -->
+        <module name="com.puppycrawl.tools.checkstyle.checks.coding.PackageDeclarationCheck">
+            <property name="severity" value="error"/>
+        </module>
+        
+        <!-- These rules ensure that everything is javadoc'ed. -->
+        <!--
+        <module name="RequiredRegexp">
+            <property name="format" value="&lt;table id=&quot;crc&quot;&gt;&lt;caption&gt;CRC Card&lt;/caption&gt;"/>
+        </module>
+        -->
+
+        <module name="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocTypeCheck">
+            <property name="excludeScope" value="nothing"/>
+            <property name="scope" value="private"/>
+            <property name="severity" value="error"/>
+            <property name="tokens" value="CLASS_DEF, INTERFACE_DEF"/>
+            <property name="allowMissingParamTags" value="true"/>
+        </module>
+        
+        <module name="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocVariableCheck">
+            <property name="excludeScope" value="nothing"/>
+            <property name="scope" value="private"/>
+            <property name="severity" value="error"/>
+        </module>
+        
+        <module name="com.puppycrawl.tools.checkstyle.checks.javadoc.JavadocMethodCheck">
+            <property name="allowMissingParamTags" value="false"/>
+            <property name="allowMissingReturnTag" value="false"/>
+            <property name="allowMissingThrowsTags" value="false"/>
+            <property name="allowThrowsTagsForSubclasses" value="false"/>
+            <property name="allowUndeclaredRTE" value="true"/>
+            <property name="allowMissingJavadoc" value="false"/>
+            <property name="allowMissingPropertyJavadoc" value="true"/>
+            <property name="excludeScope" value="nothing"/>
+            <property name="scope" value="private"/>
+            <property name="severity" value="error"/>
+            <property name="tokens" value="METHOD_DEF, CTOR_DEF"/>
+        </module>
+        
+        <module name="JavadocStyle">
+            <property name="scope" value="private"/>
+            <property name="checkHtml" value="false"/>
+            <property name="checkFirstSentence" value="true"/>
+            <property name="checkEmptyJavadoc" value="true"/>
+        </module>
+        
+        <!-- These rules enforce the conventions for the naming of variables. -->        
+        <!--
+        <module name="com.puppycrawl.tools.checkstyle.checks.naming.ConstantNameCheck">
+            <property name="format" value="^log$|^[A-Z](_?[A-Z0-9]+)*$"/>
+            <property name="severity" value="error"/>
+        </module>
+        
+        <module name="com.puppycrawl.tools.checkstyle.checks.naming.LocalFinalVariableNameCheck">
+            <property name="format" value="^[a-z][a-zA-Z0-9_]*$"/>
+            <property name="severity" value="error"/>
+        </module>
+        
+        <module name="com.puppycrawl.tools.checkstyle.checks.naming.LocalVariableNameCheck">
+            <property name="format" value="^[a-z][a-zA-Z0-9_]*$"/>
+            <property name="severity" value="error"/>
+        </module>
+        
+        <module name="com.puppycrawl.tools.checkstyle.checks.naming.MemberNameCheck">
+            <property name="applyToPackage" value="true"/>
+            <property name="applyToPrivate" value="true"/>
+            <property name="applyToProtected" value="true"/>
+            <property name="applyToPublic" value="true"/>
+            <property name="format" value="^[a-z][a-zA-Z0-9_]*$"/>
+            <property name="severity" value="error"/>
+        </module>
+        
+        <module name="com.puppycrawl.tools.checkstyle.checks.naming.MethodNameCheck">
+            <property name="format" value="^[a-z][a-zA-Z0-9_]*$"/>
+            <property name="severity" value="error"/>
+        </module>
+        
+        <module name="com.puppycrawl.tools.checkstyle.checks.naming.PackageNameCheck">
+            <property name="format" value="^[a-z]+(\.[a-zA-Z_][a-zA-Z0-9_]*)*$"/>
+            <property name="severity" value="error"/>
+        </module>
+        
+        <module name="com.puppycrawl.tools.checkstyle.checks.naming.ParameterNameCheck">
+            <property name="format" value="^[a-z][a-zA-Z0-9_]*$"/>
+            <property name="severity" value="error"/>
+        </module>
+        
+        <module name="com.puppycrawl.tools.checkstyle.checks.naming.StaticVariableNameCheck">
+            <property name="format" value="^[a-z][a-zA-Z0-9_]*$"/>
+            <property name="severity" value="error"/>
+        </module>
+        
+        <module name="com.puppycrawl.tools.checkstyle.checks.naming.TypeNameCheck">
+            <property name="format" value="^[A-Z][a-zA-Z0-9_]*$"/>
+            <property name="severity" value="error"/>
+            <property name="tokens" value="CLASS_DEF, INTERFACE_DEF"/>
+        </module>
+        -->
+    </module>
+</module>

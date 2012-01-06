@@ -1,0 +1,291 @@
+/**
+ * 
+ * FfgRecord
+ * 
+ * This java class performs the mapping to the database tables for FFG.
+ *  
+ * <pre>
+ * SOFTWARE HISTORY
+ *
+ * Date         Ticket#         Engineer    Description
+ * ------------ ----------      ----------- --------------------------
+ * 08/2008      14				T. Lee     	Initial coding
+ * 12/2008		14				T. Lee		Initialized variable
+ * 03/2009		14				T. Lee		Migration to TO10
+ * 07/2009		14				T. Lee		Migration to TO11
+ * </pre>
+ *
+ * @author T.Lee
+ * @version 1.0
+ */
+
+package gov.noaa.nws.ncep.common.dataplugin.ffg;
+
+import java.util.Calendar;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.IDecoderGettable;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import gov.noaa.nws.ncep.common.dataplugin.ffg.FfgPrecip;
+
+@Entity
+@Table(name = "ffg", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)
+@DynamicSerialize
+
+public class FfgRecord extends PluginDataObject {
+    private static final long serialVersionUID = 1L;
+    
+    /** Report type */
+    @Column(length=32)
+    @XmlElement
+    @DynamicSerializeElement   
+    private String reportType;
+
+    /** FFG AWIPS identifier */
+    @Column(length=32)
+    @DataURI(position=1)
+    @XmlElement
+    @DynamicSerializeElement
+    private String awipsID;
+    
+    /** Bulletin insurance time */
+    @Column
+    @XmlElement
+    @DynamicSerializeElement
+    private Calendar issueTime;
+
+    /** Station ID */
+    @Column(length=32)
+    @XmlElement
+    @DynamicSerializeElement
+    private String issueOffice;
+
+    /** Designator BBB */
+    @Column(length=8)
+    @XmlElement
+    @DynamicSerializeElement
+    private String designatorBBB;
+
+    /** Bulletin messages */
+    @Column(length=10000)
+    @XmlElement
+    @DynamicSerializeElement
+    private String bullMessage;
+    
+    /** Mass News Disseminator (MND) */
+    @Column(length=72)
+    @XmlElement
+    @DynamicSerializeElement
+    private String mndTime;
+
+    /** WMO header */
+    @Column(length=32)
+    @XmlElement
+    @DynamicSerializeElement
+    private String wmoHeader;
+	
+    /** FFG precipitation */
+    @DynamicSerializeElement
+    @XmlElement
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "parentID", fetch = FetchType.EAGER)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+	private Set<FfgPrecip> ffgP = new HashSet<FfgPrecip>();
+	
+    /**
+     * Default Constructor
+     */
+    public FfgRecord() {
+    	awipsID = "";
+    	issueTime = null;
+    	issueOffice = "";
+    	wmoHeader = "";
+    	mndTime = "";
+    	bullMessage = "";
+    }
+
+    /**
+     * Constructs a FFG record from a dataURI
+     * 
+     * @param uri: The dataURI
+     */
+    public FfgRecord(String uri) {
+    	super(uri);
+    }
+		
+    @Override
+    public IDecoderGettable getDecoderGettable() {
+	// TODO Auto-generated method stub
+    	return null;
+    }
+    
+    /** 
+     * Return the reportType 
+     */
+    public String getReportType() {
+        return reportType;
+    }
+
+    /**
+     * @param reportType the report type to set 
+     */
+    public void setReportType(String reportType) {
+        this.reportType = reportType;
+    }
+    
+    /**
+     * @return the awipsID
+     */
+    public String getAwipsID() {
+    	return awipsID;
+    }
+
+    /**
+     * @param awipsID the AWIPS identifier to set
+     */
+    public void setAwipsID(String awipsID) {
+    	this.awipsID = awipsID;
+    }
+
+    /**
+     * @return the issueTime
+     */
+    public Calendar getIssueTime() {
+    	return issueTime;
+    }
+
+    /**
+     * @param issueTime the issueTime to set
+     */
+    public void setIssueTime(Calendar issueTime) {
+    	this.issueTime = issueTime;
+    }
+
+    /**
+     * @return the issueOffice
+     */
+    public String getIssueOffice() {
+    	return issueOffice;
+    }
+
+    /**
+     * @param issueOffice the issueOffice to set
+     */
+    public void setIssueOffice(String issueOffice) {
+    	this.issueOffice = issueOffice;
+    }
+
+    /**
+     * @return the wmoHeader
+     */
+    public String getWmoHeader() {
+    	return wmoHeader;
+    }
+
+    /**
+     * @param wmoHeader the wmoHeader to set
+     */
+    public void setWmoHeader(String wmoHeader) {
+    	this.wmoHeader = wmoHeader;
+    }
+
+    /**
+     * @return designatorBBB
+     */
+    public String getDesignatorBBB() {
+    	return designatorBBB;
+    }
+
+    /**
+     * @param designatorBBB the designatorBBB to set
+     */
+    public void setDesignatorBBB(String designatorBBB) {
+    	this.designatorBBB = designatorBBB;
+    }
+    
+    /**
+     * @return the bullMessage
+     */
+    public String getBullMessage() {
+    	return bullMessage;
+    }  
+    
+    /**
+     * @param bullMessage the bullMessage to set
+     */
+    public void setBullMessage(String bullMessage) {
+    	this.bullMessage = bullMessage;
+    }
+ 
+    /**
+     * @return the MndTime
+     */
+    public String getMndTime() {
+    	return mndTime;
+    }
+
+    /**
+     * @param mndTime the mndTime to set
+     */
+    public void setMndTime(String mndTime) {
+    	this.mndTime = mndTime;
+    }
+	
+    /**
+     * @return the set of precipitation (ffgP)
+     */
+    public Set<FfgPrecip> getFfgP() {
+    	return ffgP;
+    }
+
+    /**
+     * @param ffgP the set of precipitation to set
+     */
+    public void setFfgP(Set<FfgPrecip> ffgP ) {
+    	this.ffgP = ffgP;
+    }
+
+    /**
+     * Add FfgPrecip to set
+     */
+    public void addPrecip(FfgPrecip precip){
+    	ffgP.add(precip);
+    	precip.setParentID (this);
+    }    
+
+    /**
+     * Override existing set method to modify any
+     * classes that use the dataURI as a foreign key
+     */
+    @Override
+    public void setIdentifier(Object dataURI) {
+    	
+    	this.identifier = dataURI;
+    	if (this.getFfgP() != null && this.getFfgP().size() > 0) {
+    		for (Iterator<FfgPrecip> iter = this.getFfgP().iterator(); iter.hasNext();) {
+    			FfgPrecip fp = iter.next();
+    			fp.setParentID(this);
+    		}
+    	}
+    }
+}

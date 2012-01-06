@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<PlotModel svgTemplate="standardPlotModel_gfsxmosStandard.svg" category="GFSXMOS" name="minanom">
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="12" paramName="MARK">
+        <Position>MC</Position>
+        <Color red="255" green="255" blue="255"/>  <!-- GEMPAK#31 -->
+    </PlotModelElement>
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="12" paramName="STID">
+        <Position>LC</Position>
+        <Color red="255" green="228" blue="220"/>  <!-- GEMPAK#01 -->
+    </PlotModelElement>
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="12" paramName="TNTF">
+        <Position>LL</Position>  <!-- was position 15 in legacy table -->
+        <Color red="0" green="255" blue="255"/>  <!-- GEMPAK#06 -->
+    </PlotModelElement>
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="12" paramName="TNAF">
+        <Position>LR</Position>  <!-- was position 17 in legacy table -->
+        <Color red="30" green="144" blue="255"/>  <!-- GEMPAK#25 -->
+    </PlotModelElement>
+</PlotModel>

@@ -1,0 +1,23 @@
+!
+! Restore File : 250mb_vorticity_pw
+!
+! Log:
+! D.W.Plummer/NCEP	 2/97	Initial creation
+! D.W.Plummer/NCEP	 8/97	Added FILTER parameter and changed TEXT value
+!
+GLEVEL=0    !0    !250 !250 !250 !0
+GVCORD=none !none !PRES!pres!pres!none
+SCALE=0              !0        !5         !5         !-1
+GDPFUN=quo(pwtr;25.4)//pw!pw    !avor(obs)!avor(obs)!sm5s(hght)!kntv(wnd@850%PRES)
+TYPE=c                 !c/f   !c        !c        ! c        !b
+CINT=0.25/0.25/0.5     !0.25/0.75/6.0 !3/6      !0;3      !12
+LINE=22///2!32//2/2              !25/5/2/2  !6/1/3     !20/1/3/1
+FINT=!0.5;1.0;1.5;2.0
+FLINE=!0;23;22;30;14
+HILO=!!2;6/X;N/10-99;10-99       !             !
+HLSYM=
+WIND=9/.8/2/112
+TITLE=1/-1/~ 250mb HGHT, VORTICITY, PW AND 850 WIND (KTS)!0
+COLORS=2                                                                       
+MARKER=2                                                                       
+GRDLBL=5                                                                       

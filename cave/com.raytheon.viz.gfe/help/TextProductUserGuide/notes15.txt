@@ -1,0 +1,4 @@
+The Core Products required by the NWS have a more complex file structure to facilitate support and to help organize the overrides to the baseline functionality.  Instead of a single Local file, the regional and local overrides are distributed throughout several files.
+
+The Site version of the formatter can be activated by setting the "displayName" in the Site Definition file.  The product will then be displayed and run from the Local Formatter Dialog.
+

@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: JMS Pooling Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.jms
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Vendor: Raytheon
+Require-Bundle: javax.jms,
+ com.raytheon.uf.common.status
+Export-Package: com.raytheon.uf.common.jms
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

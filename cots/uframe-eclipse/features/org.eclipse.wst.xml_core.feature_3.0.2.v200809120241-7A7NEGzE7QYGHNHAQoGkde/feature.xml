@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.eclipse.wst.xml_core.feature"
+      label="%featureName"
+      version="3.0.2.v200809120241-7A7NEGzE7QYGHNHAQoGkde"
+      provider-name="%providerName">
+
+   <description>
+      %description
+   </description>
+
+   <copyright>
+      %copyright
+   </copyright>
+
+   <license url="%licenseURL">
+      %license
+   </license>
+
+   <url>
+      <update label="%updateSiteName" url="http://download.eclipse.org/webtools/updates/"/>
+   </url>
+
+   <requires>
+      <import feature="org.eclipse.platform" version="3.4.0"/>
+      <import feature="org.eclipse.emf.common" version="2.4.0"/>
+      <import feature="org.eclipse.emf.ecore" version="2.4.0"/>
+      <import feature="org.eclipse.xsd" version="2.4.0"/>
+   </requires>
+
+   <plugin
+         id="javax.xml"
+         download-size="190"
+         install-size="190"
+         version="1.3.4.v200806030440"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.xml.resolver"
+         download-size="96"
+         install-size="96"
+         version="1.2.0.v200806030312"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.xml.serializer"
+         download-size="270"
+         install-size="270"
+         version="2.7.1.v200806030322"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.xerces"
+         download-size="1200"
+         install-size="1200"
+         version="2.9.0.v200805270400"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.wst.standard.schemas"
+         download-size="0"
+         install-size="0"
+         version="1.0.102.v200807220733"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.wst.xml.core"
+         download-size="0"
+         install-size="0"
+         version="1.1.305.v200809120354"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.wst.dtd.core"
+         download-size="0"
+         install-size="0"
+         version="1.1.200.v200805140200"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.wst.xsd.core"
+         download-size="0"
+         install-size="0"
+         version="1.1.301.v200807240448"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.wst.sse.core"
+         download-size="0"
+         install-size="0"
+         version="1.1.302.v200808260045"
+         unpack="false"/>
+
+</feature>

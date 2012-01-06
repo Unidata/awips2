@@ -1,0 +1,1 @@
+float ffconv(unsigned char);

@@ -1,0 +1,5 @@
+C                                           *--> FROM SCOMMON.STYPAX
+C   AREA TYPES COMMON BLOCK
+      COMMON /STYPAX/ MATYPE,ATYPE(8)
+      CHARACTER*4 ATYPE
+C

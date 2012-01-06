@@ -1,0 +1,11 @@
+# See https://svn.apache.org/repos/asf/incubator/qpid/trunk/qpid/bin/verify
+py=$PYTHON/request-response
+
+client_java(){
+java -Dlog4j.configuration=$LOG4J -cp "$CLASSPATH" org.apache.qpid.example.jmsexample.requestResponse.Client
+}
+
+background "Request server running" $py/server.py
+clients client_java
+kill %%
+outputs "client_java.out | remove_uuid" "$py/server.py.out | remove_uuid"

@@ -1,0 +1,509 @@
+#
+# HEADER SECTION TEMPLATES
+#
+name: rvs
+# RIVER STATEMENT
+formats: T_HEADER
+varlist: <CurDate>
+#
+# phrasestr:WBCRVSWBC
+# phrasestr:TTAA00 KLWX DDHHMM
+phrasestr:<UGCListZ>
+phrasestr:
+phrasestr:HYDROLOGIC STATEMENT
+phrasestr:NATIONAL WEATHER SERVICE BALTIMORE MD/WASHINGTON DC
+phrasestr:<CurDate>
+#
+#
+#
+name: rvs_daily_fcst
+# DAILY RIVER FORECAST
+formats: T_HEADER
+varlist: <CurDate>
+#
+# phrasestr:WBCRVSWBC
+# phrasestr:TTAA00 KLWX DDHHMM
+phrasestr:<UGCListZ>
+phrasestr:
+phrasestr:RIVER STATEMENT - DAILY FORECAST
+phrasestr:NATIONAL WEATHER SERVICE BALTIMORE MD/WASHINGTON DC
+phrasestr:<CurDate>
+#
+#
+#
+name: rva_river_stages
+# ROUTINE RIVER STAGES
+formats: T_HEADER
+varlist: <CurDate>
+#
+# phrasestr:WBCRVAWBC
+# phrasestr:TTAA00 KLWX DDHHMM
+phrasestr:<UGCListZ>
+phrasestr:
+phrasestr:HYDROLOGIC SUMMARY
+phrasestr:NATIONAL WEATHER SERVICE BOSTON MA
+phrasestr:<CurDate>
+#
+#
+#
+name: fls
+#  FLOOD STATEMENT
+formats: T_HEADER
+varlist: <CurDate>
+#
+# phrasestr:WBCFLSWBC
+# phrasestr:TTAA00 KLWX DDHHMM
+phrasestr:<UGCListC>
+phrasestr:
+phrasestr:FLOOD STATEMENT
+phrasestr:ISSUANCE NUMBER <IssuanceNumber>
+phrasestr:NATIONAL WEATHER SERVICE BOSTON MA
+phrasestr:<CurDate>
+#
+#
+#
+name: flt
+#  TERMINATING FLOOD STATEMENT
+formats: T_HEADER
+varlist: <CurDate>
+#
+# phrasestr:WBCFLSWBC
+# phrasestr:TTAA00 KLWX DDHHMM
+#phrasestr:<UGCListC>
+phrasestr:
+phrasestr:FLOOD STATEMENT
+phrasestr:NATIONAL WEATHER SERVICE BOSTON MA
+phrasestr:<CurDate>
+#phrasestr:ISSUANCE NUMBER <IssuanceNumber>
+phrasestr:
+#phrasestr:* THIS PRODUCT TERMINATES PREVIOUSLY ISSUED FLOOD STATEMENT *
+#
+#
+#
+name: flw
+#  FLOOD WARNING
+formats: T_HEADER
+varlist: <CurDate>
+#
+# phrasestr:WBCFLWWBC
+# phrasestr:TTAA00 KLWX DDHHMM
+phrasestr:<UGCListC>
+phrasestr:
+phrasestr:BULLETIN - IMMEDIATE BROADCAST REQUESTED
+phrasestr:FLOOD WARNING
+phrasestr:NATIONAL WEATHER SERVICE BOSTON MA
+phrasestr:ISSUANCE NUMBER <IssuanceNumber>
+phrasestr:<CurDate>
+#
+#
+#
+name: test
+formats: T_HEADER
+varlist: <CurDate>
+phrasestr:RIVER STATEMENT
+phrasestr:NATIONAL WEATHER SERVICE BOSTON MA
+phrasestr:
+phrasestr: TEST...RIVER STATEMENT...TEST
+#
+#phrasestr:TEST HEADER SECTION
+#phrasestr:Prodid   = <ProdId>
+#phrasestr:CurDate  = <CurDate>
+#phrasestr:Clist = <UGCListC>
+#phrasestr:Zlist = <UGCListZ>
+#phrasestr:Countylist = <CountyList>
+#phrasestr:Riverlist  = <RiverList>
+#phrasestr:IssuanceNumber = <IssuanceNumber>
+#
+#
+#
+name: hyd
+formats: T_HEADER
+varlist:<CurDate>
+#
+phrasestr:DCZ001-WVZ048>055-MDZ001>007-009>011-013-014-016>018-
+phrasestr:VAZ021-025>031-038>042-051-WVZ048>055-
+phrasestr:
+phrasestr:PRECIPITATION AND TEMPERATURE SUMMARY
+phrasestr:NATIONAL WEATHER SERVICE BOSTON MA
+phrasestr:<CurDate>
+#
+#
+#
+name: NWR_rva
+formats: T_HEADER
+varlist: <CurDate>
+#
+phrasestr:DCZ001-WVC048>055-MDZ001>007-009>011-013-014-016>18- <Date>1800-
+#
+name: stp
+formats: T_HEADER
+varlist:<CurDate>
+#
+phrasestr:DCZ001-WVZ048>055-MDZ001>007-009>011-013-014-016>018
+phrasestr:
+phrasestr:PRECIPITATION AND TEMPERATURE SUMMARY
+phrasestr:NATIONAL WEATHER SERVICE BOSTON MA
+phrasestr:<CurDate>
+#
+#
+#
+name: pns
+formats: T_HEADER
+varlist:<CurDate>
+#
+phrasestr:<UGCListZ>
+phrasestr:
+phrasestr:PUBLIC INFORMATION STATEMENT
+phrasestr:NATIONAL WEATHER SERVICE BOSTON MA
+phrasestr:<CurDate>
+#
+#
+#
+name: hym
+formats: T_HEADER
+varlist:<CurDate>
+#
+phrasestr:<UGCListZ>
+phrasestr:
+phrasestr:MONTHLY RAINFALL SUMMARY
+phrasestr:NATIONAL WEATHER SERVICE BOSTON MA
+phrasestr:<CurDate>
+#
+#
+#
+name: wrk
+formats: T_HEADER
+varlist:<CurDate>
+#
+phrasestr:RIVER STAGES...NWR SCRIPT
+phrasestr:NATIONAL WEATHER SERVICE BOSTON MA
+phrasestr:<CurDate>
+#
+#
+#
+name: rvm
+formats: T_HEADER
+varlist:<CurDate>
+#
+phrasestr:MISCELLANEOUS HYDROLOGIC INFORMATION
+phrasestr:NATIONAL WEATHER SERVICE BOSTON MA
+phrasestr:<CurDate>
+#
+#
+#
+name: precip
+formats: T_HEADER
+varlist:<CurDate>
+#
+phrasestr:<UGCListZ>
+phrasestr:
+phrasestr:MISCELLANEOUS HYDROLOGIC INFORMATION
+phrasestr:NATIONAL WEATHER SERVICE BOSTON MA
+phrasestr:<CurDate>
+#
+#
+#
+name:  PHI_daily_rvs
+formats: T_HEADER
+varlist:<CurDate>
+#
+phrasestr:<UGCListZ>
+phrasestr:
+phrasestr:RIVER STATEMENT
+phrasestr:NATIONAL WEATHER SERVICE MT HOLLY NJ
+phrasestr:ISSUED BY NWS BOSTON MA
+phrasestr:<CurDate>
+#
+#
+#
+name: PHI_flw
+formats: T_HEADER
+varlist:<CurDate>
+#
+phrasestr:<UGCListC>
+phrasestr:
+phrasestr:BULLETIN - IMMEDIATE BROADCAST REQUESTED
+phrasestr:FLOOD WARNING
+phrasestr:NATIONAL WEATHER SERVICE MT HOLLY NJ
+phrasestr:ISSUED BY NWS BOSTON MA
+phrasestr:<CurDate>
+#
+#
+#
+name: PHI_fls
+formats: T_HEADER
+varlist:<CurDate>
+#
+phrasestr:<UGCListC>
+phrasestr:
+phrasestr:FLOOD STATEMENT
+phrasestr:NATIONAL WEATHER SERVICE MT HOLLY NJ
+phrasestr:ISSUED BY NWS BOSTON MA
+phrasestr:<CurDate>
+#
+#
+#
+name: PHI-flt
+formatss: T_HEADER
+varlist:<CurDate>
+#
+phrasestr:<UGCListC>
+phrasestr:
+phrasestr:FLOOD STATEMENT
+phrasestr:NATIONAL WEATHER SERVICE MT HOLLY NJ
+phrasestr:ISSUED BY NWS NGTON
+phrasestr:<CurDate>
+#
+#
+#
+name: RNK_daily_rvs
+formats: T_HEADER
+varlist:<CurDate>
+#
+phrasestr:<UGCListZ>
+phrasestr:
+phrasestr:RIVER STATEMENT
+phrasestr:NATIONAL WEATHER SERVICE BLACKSBURG VA
+phrasestr:ISSUED BY NWS BOSTON MA
+phrasestr:<CurDate>
+#
+#
+#
+name: RNK_flw
+formats: T_HEADER
+varlist:<CurDate>
+#
+phrasestr:<UGCListC>
+phrasestr:
+phrasestr:BULLETIN - IMMEDIATE BROADCAST REQUESTED
+phrasestr:FLOOD WARNING
+phrasestr:NATIONAL WEATHER SERVICE BLACKSBURG VA
+phrasestr:ISSUED BY NWS BOSTON MA
+phrasestr:<CurDate>
+#
+#
+#
+name:RNK_fls
+formats: T_HEADER
+varlist:<CurDate>
+#
+phrasestr:<UGCListC>
+phrasestr:
+phrasestr:FLOOD STATEMENT
+phrasestr:NATIONAL WEATHER SERVICE BLACKSBURG VA
+phrasestr:ISSUED BY BOSTON MA
+phrasestr:<CurDate>
+#
+#
+#
+name:RNK_flt
+formats: T_HEADER
+varlist:<CurDate>
+#
+phrasestr:<UGCListC>
+phrasestr:
+phrasestr:FLOOD STATEMENT
+phrasestr:NATIONAL WEATHER SERVICE BLACKSBURG VA
+phrasestr:ISSUED BY NWS BOSTON MA
+phrasestr:<CurDate>
+#
+#
+#
+name:AKQ_daily_rvs
+formats: T_HEADER
+varlist:<CurDate>
+#
+phrasestr:<UGCListZ>
+phrasestr:
+phrasestr:RIVER STATEMENT
+phrasestr:NATIONAL WEATHER SERVICE WAKEFIELD VA
+phrasestr:ISSUED BY NWS BOSTON MA
+phrasestr:<CurDate>
+#
+#
+#
+#
+name:AKQ_flw
+formats:T_HEADER
+varlist:<CurDate>
+#
+phrasestr:<UGCListC>
+phrasestr:
+phrasestr:BULLETIN - IMMEDIATE BROADCAST REQUESTED
+phrasestr:FLOOD WARNING
+phrasestr:NATIONAL WEATHER SERVICE WAKEFIELD VA
+phrasestr:ISSUED BY NWS BOSTON MA
+phrasestr:<CurDate>
+#
+#
+#
+name:AKQ_fls
+formats: T_HEADER
+varlist:<CurDate>
+#
+phrasestr:<UGCListC>
+phrasestr:
+phrasestr:FLOOD STATEMENT
+phrasestr:NATIONAL WEATHER SERVICE WAKEFIELD VA
+phrasestr:ISSUED BY NWS BOSTON MA
+phrasestr:<CurDate>
+#
+#
+#
+name:AKQ_flt
+formats: T_HEADER
+varlist:<CurDate>
+#
+phrasestr:<UGCListC>
+phrasestr:
+phrasestr:FLOOD STATEMENT
+phrasestr:NATIONAL WEATHER SERVCIE WAKEFIELD VA
+phrasestr:ISSUED BY NWS BOSTON MA
+phrasestr:<CurDate>
+#
+#
+#
+name:rvd
+#RIVER AND LAKE SUMMARY
+formats: T_HEADER
+varlist:<CurDate>
+#
+phrasestr:DCZ001-MDZ001-004-013-WVZ051-052-054-VAZ025>031-038>040-042-052-054>056-<UGCListZ>
+phrasestr:
+phrasestr:DAILY RIVER AND LAKE SUMMARY
+phrasestr:NATIONAL WEATHER SERVICE BOSTON MA
+phrasestr:<CurDate>
+#
+#
+#
+name:PHI_rvd
+formats: T_HEADER
+varlist:<CurDate>
+#
+phrasestr:<UGCListZ>
+phrasestr:
+phrasestr:DAILY RIVER AND LAKE SUMMARY
+phrasestr:NATIONAL WEATHER SERVICE MT HOLLY NJ
+phrasestr:ISSUED BY NWS BOSTON MA
+phrasestr:<CurDate>
+#
+#
+#
+name:AKQ_rvd
+formats: T_HEADER
+varlist:<CurDate>
+#
+phrasestr:<UGCListZ>
+phrasestr:
+phrasestr:DAILY RIVER AND LAKE SUMMARY
+phrasestr:NATIONAL WEATHER SERVICE WAKEFIELD VA
+phrasestr:ISSUED BY NWS BOSTON MA
+phrasestr:<CurDate>
+#
+#
+#
+name:RNK_rvd
+formats: T_HEADER
+varlist:<CurDate>
+#
+phrasestr:<UGCListZ>
+phrasestr:
+phrasestr:DAILY RIVER AND LAKE SUMMARY
+phrasestr:NATIONAL WEATHER SERVICE BLACKSBURG VA
+phrasestr:ISSUED BY NWS BOSTON MA
+phrasestr:<CurDate>
+#
+#
+#
+name:EAX_FFS
+formats: T_HEADER
+varlist: <CurDate>
+#
+phrasestr:<UGCListC>
+phrasestr:
+phrasestr:FLASH FLOOD STATEMENT
+phrasestr:NATIONAL WEATHER SERVICE BOSTON MA
+phrasestr:<CurDate>
+#
+#
+name:EAX_FFW
+formats: T_HEADER
+varlist: <CurDate>
+#
+phrasestr:<UGCListC>
+phrasestr:
+phrasestr:BULLETIN - EAS ACTIVATION REQUESTED
+phrasestr:FLASH FLOOD WARNING
+phrasestr:NATIONAL WEATHER SERVICE BOSTON MA
+phrasestr:<CurDate>
+#
+#
+name: rtp_am_shef
+formats: T_HEADER
+varlist: <CurDate>
+phrasestr: MORNING TEMPERATURE AND PRECIPITATION SUMMARY
+phrasestr: NATIONAL WEATHER SERVICE BOSTON MA
+phrasestr: <CurDate>
+#
+#
+name: test_flw
+formats: T_HEADER
+varlist: <CurDate>
+#
+phrasestr:TEST ... FLOOD WARNING ... TEST
+phrasestr:NATIONAL WEATHER SERVICE MYOFFICE
+phrasestr:<CurDate>
+#
+phrasestr:|| ... THIS MESSAGE IS FOR TEST PURPOSES ONLY ...
+phrasestr:|| ... THERE IS NO FLOODING OCCURRING ...
+#
+#
+name: test_fls
+formats: T_HEADER
+varlist: <CurDate>
+#
+phrasestr:TEST ... FLOOD WARNING ... TEST
+phrasestr:NATIONAL WEATHER SERVICE MYOFFICE
+phrasestr:<CurDate>
+#
+phrasestr:|| ... THIS MESSAGE IS FOR TEST PURPOSES ONLY ...
+phrasestr:|| ... THERE IS NO FLOODING OCCURRING ...
+#
+name: flw_vtec
+#  HEADER FOR VTEC FLOOD WARNING
+formats: T_HEADER
+varlist: <CurDate>
+#
+phrasestr:BULLETIN - IMMEDIATE BROADCAST REQUESTED
+phrasestr:FLOOD WARNING
+phrasestr:NATIONAL WEATHER SERVICE (city, state)
+phrasestr:<CurDate>
+#
+name: fls_vtec
+#  HEADER FOR VTEC FLOOD STATEMENT
+formats: T_HEADER
+varlist: <CurDate>
+#
+phrasestr:FLOOD STATEMENT
+phrasestr:NATIONAL WEATHER SERVICE (city, state)
+phrasestr:<CurDate>
+#
+name: ffa_vtec
+#  HEADER FOR VTEC FLOOD WATCH
+formats: T_HEADER
+varlist: <CurDate>
+#
+phrasestr:URGENT - IMMEDIATE BROADCAST REQUESTED
+phrasestr:FLOOD WATCH
+phrasestr:NATIONAL WEATHER SERVICE (city, state)
+phrasestr:<CurDate>
+#
+name: fls_advisory_vtec
+#  HEADER FOR VTEC FLOOD ADVISORY
+formats: T_HEADER
+varlist: <CurDate>
+#
+phrasestr:FLOOD ADVISORY
+phrasestr:NATIONAL WEATHER SERVICE (city, state)
+phrasestr:<CurDate>
+#

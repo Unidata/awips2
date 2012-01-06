@@ -1,0 +1,144 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-shared_esp library file
+#
+#  cmt: File made on Wed Aug  6 12:55:44 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU -DUSE_XM_MWMUTIL_H -DUSE_XGPM -Wall -Wno-unused-variable -Wno-comment
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+INSERTS_CC   = -I/usr/include/informix/esql/  \
+               -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .c .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+.c.a:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libshared_esp_t.a:  \
+     $(LIB)/libshared_esp_t.a(eacdrv.o)  \
+     $(LIB)/libshared_esp_t.a(eactim.o)  \
+     $(LIB)/libshared_esp_t.a(eadj.o)  \
+     $(LIB)/libshared_esp_t.a(eanlyz.o)  \
+     $(LIB)/libshared_esp_t.a(eblnpp.o)  \
+     $(LIB)/libshared_esp_t.a(ecalbf.o)  \
+     $(LIB)/libshared_esp_t.a(ecardf.o)  \
+     $(LIB)/libshared_esp_t.a(ecdfni.o)  \
+     $(LIB)/libshared_esp_t.a(echkts.o)  \
+     $(LIB)/libshared_esp_t.a(ecnv.o)  \
+     $(LIB)/libshared_esp_t.a(ecobck.o)  \
+     $(LIB)/libshared_esp_t.a(econvt.o)  \
+     $(LIB)/libshared_esp_t.a(ecord.o)  \
+     $(LIB)/libshared_esp_t.a(ecosav.o)  \
+     $(LIB)/libshared_esp_t.a(edelsg.o)  \
+     $(LIB)/libshared_esp_t.a(edex01.o)  \
+     $(LIB)/libshared_esp_t.a(edex02.o)  \
+     $(LIB)/libshared_esp_t.a(edflti.o)  \
+     $(LIB)/libshared_esp_t.a(edis.o)  \
+     $(LIB)/libshared_esp_t.a(edsdrv.o)  \
+     $(LIB)/libshared_esp_t.a(edspa.o)  \
+     $(LIB)/libshared_esp_t.a(efaze0.o)  \
+     $(LIB)/libshared_esp_t.a(efaze1.o)  \
+     $(LIB)/libshared_esp_t.a(efaze2.o)  \
+     $(LIB)/libshared_esp_t.a(efclst.o)  \
+     $(LIB)/libshared_esp_t.a(efndsg.o)  \
+     $(LIB)/libshared_esp_t.a(efnore.o)  \
+     $(LIB)/libshared_esp_t.a(efreq.o)  \
+     $(LIB)/libshared_esp_t.a(egex01.o)  \
+     $(LIB)/libshared_esp_t.a(egex02.o)  \
+     $(LIB)/libshared_esp_t.a(egoplt.o)  \
+     $(LIB)/libshared_esp_t.a(ehead1.o)  \
+     $(LIB)/libshared_esp_t.a(ehead2.o)  \
+     $(LIB)/libshared_esp_t.a(ehead.o)  \
+     $(LIB)/libshared_esp_t.a(eilsgo.o)  \
+     $(LIB)/libshared_esp_t.a(eiluvo.o)  \
+     $(LIB)/libshared_esp_t.a(eipos.o)  \
+     $(LIB)/libshared_esp_t.a(eltfit.o)  \
+     $(LIB)/libshared_esp_t.a(emfcmnd.o)  \
+     $(LIB)/libshared_esp_t.a(eminmx.o)  \
+     $(LIB)/libshared_esp_t.a(emnx.o)  \
+     $(LIB)/libshared_esp_t.a(emods.o)  \
+     $(LIB)/libshared_esp_t.a(emom2.o)  \
+     $(LIB)/libshared_esp_t.a(emom3.o)  \
+     $(LIB)/libshared_esp_t.a(empfit.o)  \
+     $(LIB)/libshared_esp_t.a(enfit.o)  \
+     $(LIB)/libshared_esp_t.a(epg.o)  \
+     $(LIB)/libshared_esp_t.a(eplot.o)  \
+     $(LIB)/libshared_esp_t.a(epp.o)  \
+     $(LIB)/libshared_esp_t.a(eppg.o)  \
+     $(LIB)/libshared_esp_t.a(erddfl.o)  \
+     $(LIB)/libshared_esp_t.a(eread1.o)  \
+     $(LIB)/libshared_esp_t.a(eread.o)  \
+     $(LIB)/libshared_esp_t.a(eseta.o)  \
+     $(LIB)/libshared_esp_t.a(esetft.o)  \
+     $(LIB)/libshared_esp_t.a(esetsm.o)  \
+     $(LIB)/libshared_esp_t.a(esginf.o)  \
+     $(LIB)/libshared_esp_t.a(eshft.o)  \
+     $(LIB)/libshared_esp_t.a(esincr.o)  \
+     $(LIB)/libshared_esp_t.a(espex.o)  \
+     $(LIB)/libshared_esp_t.a(esprdf.o)  \
+     $(LIB)/libshared_esp_t.a(essarr.o)  \
+     $(LIB)/libshared_esp_t.a(establ.o)  \
+     $(LIB)/libshared_esp_t.a(ests.o)  \
+     $(LIB)/libshared_esp_t.a(esymb.o)  \
+     $(LIB)/libshared_esp_t.a(etitle.o)  \
+     $(LIB)/libshared_esp_t.a(etmchk.o)  \
+     $(LIB)/libshared_esp_t.a(etmex.o)  \
+     $(LIB)/libshared_esp_t.a(etran.o)  \
+     $(LIB)/libshared_esp_t.a(etrani.o)  \
+     $(LIB)/libshared_esp_t.a(etsrd.o)  \
+     $(LIB)/libshared_esp_t.a(etswt.o)  \
+     $(LIB)/libshared_esp_t.a(evac01.o)  \
+     $(LIB)/libshared_esp_t.a(evac02.o)  \
+     $(LIB)/libshared_esp_t.a(evac03.o)  \
+     $(LIB)/libshared_esp_t.a(evac04.o)  \
+     $(LIB)/libshared_esp_t.a(evac05.o)  \
+     $(LIB)/libshared_esp_t.a(evac06.o)  \
+     $(LIB)/libshared_esp_t.a(evac07.o)  \
+     $(LIB)/libshared_esp_t.a(evac08.o)  \
+     $(LIB)/libshared_esp_t.a(ewtdfl.o)  \
+     $(LIB)/libshared_esp_t.a(ewtinf.o)  \
+     $(LIB)/libshared_esp_t.a(fargck.o)  \
+     $(LIB)/libshared_esp_t.a(fcargs.o)  \
+     $(LIB)/libshared_esp_t.a(filsgo.o)  \
+     $(LIB)/libshared_esp_t.a(cln_file.o)  \
+     $(LIB)/libshared_esp_t.a(ecopy.o)
+

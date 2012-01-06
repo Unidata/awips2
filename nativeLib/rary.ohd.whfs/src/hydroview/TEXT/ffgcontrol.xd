@@ -1,0 +1,998 @@
+module 'XApplication'
+version = 47;
+xdesigned = 1;
+applicationName = 'XApplication';
+sourceDirectory = '/fs/shared/home/lawrence/hmap_mpe/src/';
+generateNameC = * 'ffgcontrol.c';
+generateNameCMainProgram = 'ffgcontrol.c';
+generateNameExterns = * 'ffgcontrol.h';
+generateCHeaderFile = 'ffgcontrol.h';
+generateNameMakefile = 'Makefile';
+generateMask = 4390924;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 1;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+javaUnselectedFiles = '';
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'ffg_displayControlDS' : XmDialogShell {
+	arguments {
+	name = 'ffg_displayControlDS';
+	lastGenName = 'ffg_displayControlDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_ffg_displayControlDS (Widget parent)
+';
+	XmNwidth = 250;
+	XmNheight = 790;
+	XmNallowShellResize = false;
+	XmNminWidth = 250;
+	XmNminHeight = 790;
+	XmNmaxWidth = 250;
+	XmNmaxHeight = 790;
+	XmNbaseWidth = 250;
+	XmNbaseHeight = 790;
+	};
+object 'ffg_displayControlFO' : XmForm {
+	arguments {
+	name = 'ffg_displayControlFO';
+	was_selected = true;
+	lastGenName = 'ffg_displayControlFO';
+	XmNwidth = 250;
+	XmNheight = 790;
+	XmNdialogTitle = 'Flash Flood Guidance';
+	XmNresizePolicy = 0;
+	XmNautoUnmanage = false;
+	XmNnoResize = true;
+	};
+object 'id_typeLB' : XmLabel {
+	arguments {
+	name = 'id_typeLB';
+	lastGenName = 'id_typeLB';
+	XmNlabelString = 'Id';
+	};
+};
+object 'durHrDataLB' : XmLabel {
+	arguments {
+	name = 'durHrDataLB';
+	lastGenName = 'durHrDataLB';
+	XmNlabelString = 'DurHr';
+	};
+};
+object 'timeDataLB' : XmLabel {
+	arguments {
+	name = 'timeDataLB';
+	lastGenName = 'timeDataLB';
+	XmNlabelString = 'Time(Z)';
+	};
+};
+object 'ffg_closeDisplayPB' : XmPushButton {
+	arguments {
+	name = 'ffg_closeDisplayPB';
+	lastGenName = 'ffg_closeDisplayPB';
+	XmNlabelString = 'Close';
+	};
+};
+object 'ffg_productsSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'ffg_productsSL';
+	};
+abstract object 'ffg_productsHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'ffg_productsHSB';
+	};
+};
+abstract object 'ffg_productsVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'ffg_productsVSB';
+	};
+};
+abstract object 'ffg_productsLI' : XmList {
+	arguments {
+	lastGenName = 'ffg_productsLI';
+	};
+};
+};
+object 'ffg_legendFrameFR' : XmFrame {
+	arguments {
+	name = 'ffg_legendFrameFR';
+	lastGenName = 'ffg_legendFrameFR';
+	};
+object 'ffg_legendFormFO' : XmForm {
+	arguments {
+	name = 'ffg_legendFormFO';
+	lastGenName = 'ffg_legendFormFO';
+	};
+object 'ffg_legendDA' : XmDrawingArea {
+	arguments {
+	name = 'ffg_legendDA';
+	lastGenName = 'ffg_legendDA';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -210;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -220;
+	XmNtopAttachment = 1 0 0;
+    };
+    };
+};
+object 'ffg_legendFL' : XmLabel {
+	arguments {
+	name = 'ffg_legendFL';
+	lastGenName = 'ffg_legendFL';
+	XmNchildType = 2;
+	XmNlabelString = 'Color Legend';
+	};
+};
+};
+object 'ffg_clearDisplayPB' : XmPushButton {
+	arguments {
+	name = 'ffg_clearDisplayPB';
+	lastGenName = 'ffg_clearDisplayPB';
+	generateResName = true;
+	XmNwidth = 60;
+	XmNheight = 30;
+	XmNlabelString = 'Clear';
+	};
+};
+object 'ffg_modeLB' : XmLabel {
+	arguments {
+	name = 'ffg_modeLB';
+	lastGenName = 'ffg_modeLB';
+	XmNlabelString = 'FFG Mode:';
+	};
+};
+object 'ffg_modeRB' : XmRadioBox {
+	arguments {
+	name = 'ffg_modeRB';
+	lastGenName = 'ffg_modeRB';
+	XmNorientation = 2;
+	XmNradioAlwaysOne = true;
+	};
+object 'ffg_gridTB' : XmToggleButton GADGET {
+	arguments {
+	name = 'ffg_gridTB';
+	lastGenName = 'ffg_gridTB';
+	XmNlabelString = 'Gridded';
+	XmNindicatorOn = true;
+	};
+};
+object 'ffg_arealTB' : XmToggleButton GADGET {
+	arguments {
+	name = 'ffg_arealTB';
+	lastGenName = 'ffg_arealTB';
+	XmNlabelString = 'Areal';
+	};
+};
+};
+object 'ffg_selectDisplayPB' : XmPushButton {
+	arguments {
+	name = 'ffg_selectDisplayPB';
+	lastGenName = 'ffg_selectDisplayPB';
+	generateResName = true;
+	XmNwidth = 60;
+	XmNheight = 30;
+	XmNlabelString = 'Select';
+	};
+};
+object 'ffg_grid_optionsFR' : XmFrame {
+	arguments {
+	name = 'ffg_grid_optionsFR';
+	lastGenName = 'ffg_grid_optionsFR';
+	};
+object 'ffg_griddedFO' : XmForm {
+	arguments {
+	name = 'ffg_griddedFO';
+	lastGenName = 'ffg_griddedFO';
+	};
+object 'ffg_gridIdOM' : XmOptionMenu {
+	arguments {
+	name = 'ffg_gridIdOM';
+	lastGenName = 'ffg_gridIdOM';
+	};
+abstract object 'ffg_gridIdLB' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'ffg_gridIdLB';
+	XmNlabelString = 'Id:';
+	};
+};
+abstract object 'ffg_gridIdCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'ffg_gridIdCB';
+	XmNwidth = 92;
+	XmNheight = 27;
+	XmNlabelString = 'All';
+	};
+object 'ffg_gridIdPDM' : XmPulldownMenu {
+	arguments {
+	name = 'ffg_gridIdPDM';
+	lastGenName = 'ffg_gridIdPDM';
+	};
+object 'ffg_gridIdAll' : XmPushButton {
+	arguments {
+	name = 'ffg_gridIdAll';
+	lastGenName = 'ffg_gridIdAll';
+	generateResName = true;
+	XmNwidth = 63;
+	XmNlabelString = 'All';
+	XmNalignment = 1;
+	XmNrecomputeSize = false;
+	};
+};
+object 'ffg_gridIdLoc1PB' : XmPushButton {
+	arguments {
+	name = 'ffg_gridIdLoc1PB';
+	lastGenName = 'ffg_gridIdLoc1PB';
+	generateResName = true;
+	XmNwidth = 63;
+	XmNheight = 22;
+	XmNlabelString = 'ABRFC';
+	XmNalignment = 1;
+	XmNrecomputeSize = false;
+	};
+};
+object 'ffg_gridIdLoc2PB' : XmPushButton {
+	arguments {
+	name = 'ffg_gridIdLoc2PB';
+	lastGenName = 'ffg_gridIdLoc2PB';
+	generateResName = true;
+	XmNwidth = 63;
+	XmNheight = 22;
+	XmNlabelString = 'AKRFC';
+	XmNalignment = 1;
+	XmNrecomputeSize = false;
+	};
+};
+object 'ffg_gridIdLoc3PB' : XmPushButton {
+	arguments {
+	name = 'ffg_gridIdLoc3PB';
+	lastGenName = 'ffg_gridIdLoc3PB';
+	generateResName = true;
+	XmNwidth = 63;
+	XmNheight = 22;
+	XmNlabelString = 'CBRFC';
+	XmNalignment = 1;
+	XmNrecomputeSize = false;
+	};
+};
+object 'ffg_gridIdLoc4PB' : XmPushButton {
+	arguments {
+	name = 'ffg_gridIdLoc4PB';
+	lastGenName = 'ffg_gridIdLoc4PB';
+	generateResName = true;
+	XmNwidth = 63;
+	XmNheight = 22;
+	XmNlabelString = 'CNRFC';
+	XmNalignment = 1;
+	XmNrecomputeSize = false;
+	};
+};
+object 'ffg_gridIdLoc5PB' : XmPushButton {
+	arguments {
+	name = 'ffg_gridIdLoc5PB';
+	lastGenName = 'ffg_gridIdLoc5PB';
+	generateResName = true;
+	XmNwidth = 63;
+	XmNheight = 22;
+	XmNlabelString = 'LMRFC';
+	XmNalignment = 1;
+	XmNrecomputeSize = false;
+	};
+};
+object 'ffg_gridIdLoc6PB' : XmPushButton {
+	arguments {
+	name = 'ffg_gridIdLoc6PB';
+	lastGenName = 'ffg_gridIdLoc6PB';
+	generateResName = true;
+	XmNwidth = 63;
+	XmNheight = 22;
+	XmNlabelString = 'MARFC';
+	XmNalignment = 1;
+	XmNrecomputeSize = false;
+	};
+};
+object 'ffg_gridIdLoc7PB' : XmPushButton {
+	arguments {
+	name = 'ffg_gridIdLoc7PB';
+	lastGenName = 'ffg_gridIdLoc7PB';
+	generateResName = true;
+	XmNwidth = 63;
+	XmNheight = 22;
+	XmNlabelString = 'MBRFC';
+	XmNalignment = 1;
+	XmNrecomputeSize = false;
+	};
+};
+object 'ffg_gridIdLoc9PB' : XmPushButton {
+	arguments {
+	name = 'ffg_gridIdLoc9PB';
+	lastGenName = 'ffg_gridIdLoc9PB';
+	generateResName = true;
+	XmNwidth = 63;
+	XmNheight = 22;
+	XmNlabelString = 'NCRFC';
+	XmNalignment = 1;
+	XmNrecomputeSize = false;
+	};
+};
+object 'ffg_gridIdLoc8PB' : XmPushButton {
+	arguments {
+	name = 'ffg_gridIdLoc8PB';
+	lastGenName = 'ffg_gridIdLoc8PB';
+	generateResName = true;
+	XmNwidth = 63;
+	XmNheight = 22;
+	XmNlabelString = 'NERFC';
+	XmNalignment = 1;
+	};
+};
+object 'ffg_gridIdLoc10PB' : XmPushButton {
+	arguments {
+	name = 'ffg_gridIdLoc10PB';
+	lastGenName = 'ffg_gridIdLoc10PB';
+	generateResName = true;
+	XmNwidth = 63;
+	XmNheight = 22;
+	XmNlabelString = 'NWRFC';
+	XmNalignment = 1;
+	XmNrecomputeSize = false;
+	};
+};
+object 'ffg_gridIdLoc11PB' : XmPushButton {
+	arguments {
+	name = 'ffg_gridIdLoc11PB';
+	lastGenName = 'ffg_gridIdLoc11PB';
+	generateResName = true;
+	XmNwidth = 63;
+	XmNheight = 22;
+	XmNlabelString = 'OHRFC';
+	XmNalignment = 1;
+	XmNrecomputeSize = false;
+	};
+};
+object 'ffg_gridIdLoc12PB' : XmPushButton {
+	arguments {
+	name = 'ffg_gridIdLoc12PB';
+	lastGenName = 'ffg_gridIdLoc12PB';
+	generateResName = true;
+	XmNwidth = 63;
+	XmNheight = 22;
+	XmNlabelString = 'SERFC';
+	XmNalignment = 1;
+	XmNrecomputeSize = false;
+	};
+};
+object 'ffg_gridIdLoc13PB' : XmPushButton {
+	arguments {
+	name = 'ffg_gridIdLoc13PB';
+	lastGenName = 'ffg_gridIdLoc13PB';
+	generateResName = true;
+	XmNwidth = 63;
+	XmNheight = 22;
+	XmNlabelString = 'WGRFC';
+	XmNalignment = 1;
+	XmNrecomputeSize = false;
+	};
+};
+};
+};
+};
+object 'ffg_gridDurOM' : XmOptionMenu {
+	arguments {
+	name = 'ffg_gridDurOM';
+	lastGenName = 'ffg_gridDurOM';
+	};
+abstract object 'ffg_gridDurLB' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'ffg_gridDurLB';
+	XmNlabelString = 'Dur:';
+	};
+};
+abstract object 'ffg_gridDurCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'ffg_gridDurCB';
+	XmNwidth = 92;
+	XmNheight = 27;
+	XmNlabelString = 'All';
+	};
+object 'ffg_gridDurPDM' : XmPulldownMenu {
+	arguments {
+	name = 'ffg_gridDurPDM';
+	lastGenName = 'ffg_gridDurPDM';
+	};
+object 'ffg_gridDurAllPB' : XmPushButton {
+	arguments {
+	name = 'ffg_gridDurAllPB';
+	lastGenName = 'ffg_gridDurAllPB';
+	generateResName = true;
+	XmNwidth = 63;
+	XmNheight = 22;
+	XmNlabelString = 'All';
+	XmNalignment = 1;
+	XmNrecomputeSize = false;
+	};
+};
+object 'ffg_gridDur1PB' : XmPushButton {
+	arguments {
+	name = 'ffg_gridDur1PB';
+	lastGenName = 'ffg_gridDur1PB';
+	generateResName = true;
+	XmNwidth = 63;
+	XmNheight = 22;
+	XmNlabelString = '1hr';
+	XmNalignment = 1;
+	XmNrecomputeSize = false;
+	};
+};
+object 'ffg_gridDur3PB' : XmPushButton {
+	arguments {
+	name = 'ffg_gridDur3PB';
+	lastGenName = 'ffg_gridDur3PB';
+	generateResName = true;
+	XmNwidth = 63;
+	XmNheight = 22;
+	XmNlabelString = '3hr';
+	XmNalignment = 1;
+	XmNrecomputeSize = false;
+	};
+};
+object 'ffg_gridDur6PB' : XmPushButton {
+	arguments {
+	name = 'ffg_gridDur6PB';
+	lastGenName = 'ffg_gridDur6PB';
+	generateResName = true;
+	XmNwidth = 63;
+	XmNheight = 22;
+	XmNlabelString = '6hr';
+	XmNalignment = 1;
+	XmNrecomputeSize = false;
+	};
+};
+object 'ffg_gridDur12PB' : XmPushButton {
+	arguments {
+	name = 'ffg_gridDur12PB';
+	lastGenName = 'ffg_gridDur12PB';
+	generateResName = true;
+	XmNwidth = 63;
+	XmNheight = 22;
+	XmNlabelString = '12hr';
+	XmNalignment = 1;
+	XmNrecomputeSize = false;
+	};
+};
+object 'ffg_gridDur24PB' : XmPushButton {
+	arguments {
+	name = 'ffg_gridDur24PB';
+	lastGenName = 'ffg_gridDur24PB';
+	generateResName = true;
+	XmNwidth = 63;
+	XmNheight = 22;
+	XmNlabelString = '24hr';
+	XmNalignment = 1;
+	XmNrecomputeSize = false;
+	};
+};
+};
+};
+};
+object 'ffg_gridAreaOM' : XmOptionMenu {
+	arguments {
+	name = 'ffg_gridAreaOM';
+	lastGenName = 'ffg_gridAreaOM';
+	XmNwidth = 199;
+	XmNheight = 39;
+	};
+abstract object 'ffg_gridAreaLA' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'ffg_gridAreaLA';
+	XmNwidth = 77;
+	XmNheight = 27;
+	XmNlabelString = 'FFG Area:';
+	XmNrecomputeSize = false;
+	};
+};
+abstract object 'ffg_gridAreaCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'ffg_gridAreaCB';
+	XmNwidth = 102;
+	XmNheight = 27;
+	XmNlabelString = 'WFO';
+	};
+object 'ffg_gridAreaPDM' : XmPulldownMenu {
+	arguments {
+	name = 'ffg_gridAreaPDM';
+	lastGenName = 'ffg_gridAreaPDM';
+	};
+object 'ffg_gridWfoPB' : XmPushButton {
+	arguments {
+	name = 'ffg_gridWfoPB';
+	lastGenName = 'ffg_gridWfoPB';
+	generateResName = true;
+	XmNwidth = 63;
+	XmNheight = 22;
+	XmNlabelString = 'WFO';
+	XmNalignment = 1;
+	XmNrecomputeSize = false;
+	};
+};
+object 'ffg_gridRfcPB' : XmPushButton {
+	arguments {
+	name = 'ffg_gridRfcPB';
+	lastGenName = 'ffg_gridRfcPB';
+	generateResName = true;
+	XmNwidth = 63;
+	XmNheight = 22;
+	XmNlabelString = 'RFC';
+	XmNalignment = 1;
+	XmNrecomputeSize = false;
+	};
+};
+};
+};
+};
+object 'ffg_optionsLB' : XmLabel {
+	arguments {
+	name = 'ffg_optionsLB';
+	lastGenName = 'ffg_optionsLB';
+	XmNlabelString = 'Gridded FFG Options';
+	};
+};
+object 'ffg_gridDisplayOM' : XmOptionMenu {
+	arguments {
+	name = 'ffg_gridDisplayOM';
+	lastGenName = 'ffg_gridDisplayOM';
+	};
+abstract object 'ffg_gridDisplayLA' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'ffg_gridDisplayLA';
+	XmNlabelString = 'Display As:';
+	};
+};
+abstract object 'ffg_gridDisplayCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'ffg_gridDisplayCB';
+	XmNlabelString = 'Grid';
+	};
+object 'ffg_gridDisplayPDM' : XmPulldownMenu {
+	arguments {
+	name = 'ffg_gridDisplayPDM';
+	lastGenName = 'ffg_gridDisplayPDM';
+	};
+object 'ffg_gridGridPB' : XmPushButton {
+	arguments {
+	name = 'ffg_gridGridPB';
+	lastGenName = 'ffg_gridGridPB';
+	XmNlabelString = 'Grid';
+	XmNalignment = 1;
+	};
+};
+object 'ffg_gridBasinPB' : XmPushButton {
+	arguments {
+	name = 'ffg_gridBasinPB';
+	lastGenName = 'ffg_gridBasinPB';
+	XmNlabelString = 'Basin';
+	XmNalignment = 1;
+	};
+};
+};
+};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 1;
+	XmNbottomAttachment = 2 0 -102;
+	XmNtopAttachment = 1 0 67;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 2 0 -137;
+	XmNtopAttachment = 1 0 103;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 1;
+	XmNbottomAttachment = 2 0 -65;
+	XmNtopAttachment = 1 0 26;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 1;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 3;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 137;
+    };
+    };
+};
+};
+object 'ffg_areal_optionsFR' : XmFrame {
+	arguments {
+	name = 'ffg_areal_optionsFR';
+	lastGenName = 'ffg_areal_optionsFR';
+	};
+object 'ffg_arealFO' : XmForm {
+	arguments {
+	name = 'ffg_arealFO';
+	lastGenName = 'ffg_arealFO';
+	XmNwidth = 183;
+	XmNheight = 100;
+	};
+object 'ffg_arealDurOM' : XmOptionMenu {
+	arguments {
+	name = 'ffg_arealDurOM';
+	lastGenName = 'ffg_arealDurOM';
+	};
+abstract object 'ffg_arealDurLB' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'ffg_arealDurLB';
+	generateResName = true;
+	XmNwidth = 33;
+	XmNlabelString = 'Dur:';
+	};
+};
+abstract object 'ffg_arealDurCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'ffg_arealDurCB';
+	XmNwidth = 92;
+	XmNheight = 27;
+	XmNlabelString = 'All';
+	XmNalignment = 1;
+	XmNrecomputeSize = true;
+	};
+object 'ffg_arealDurPDM' : XmPulldownMenu {
+	arguments {
+	name = 'ffg_arealDurPDM';
+	lastGenName = 'ffg_arealDurPDM';
+	};
+object 'ffg_arealDurAllPB' : XmPushButton {
+	arguments {
+	name = 'ffg_arealDurAllPB';
+	lastGenName = 'ffg_arealDurAllPB';
+	generateResName = true;
+	XmNwidth = 63;
+	XmNheight = 25;
+	XmNlabelString = 'All';
+	XmNalignment = 1;
+	XmNrecomputeSize = false;
+	};
+};
+object 'ffg_arealDur1PB' : XmPushButton {
+	arguments {
+	name = 'ffg_arealDur1PB';
+	lastGenName = 'ffg_arealDur1PB';
+	generateResName = true;
+	XmNwidth = 63;
+	XmNheight = 25;
+	XmNlabelString = '1hr';
+	XmNalignment = 1;
+	XmNrecomputeSize = false;
+	};
+};
+object 'ffg_arealDur3PB' : XmPushButton {
+	arguments {
+	name = 'ffg_arealDur3PB';
+	lastGenName = 'ffg_arealDur3PB';
+	generateResName = true;
+	XmNwidth = 63;
+	XmNheight = 25;
+	XmNlabelString = '3hr';
+	XmNalignment = 1;
+	XmNrecomputeSize = false;
+	};
+};
+object 'ffg_arealDur6PB' : XmPushButton {
+	arguments {
+	name = 'ffg_arealDur6PB';
+	lastGenName = 'ffg_arealDur6PB';
+	generateResName = true;
+	XmNwidth = 63;
+	XmNheight = 25;
+	XmNlabelString = '6hr';
+	XmNalignment = 1;
+	XmNrecomputeSize = false;
+	};
+};
+object 'ffg_arealDur12PB' : XmPushButton {
+	arguments {
+	name = 'ffg_arealDur12PB';
+	lastGenName = 'ffg_arealDur12PB';
+	generateResName = true;
+	XmNwidth = 63;
+	XmNheight = 25;
+	XmNlabelString = '12hr';
+	XmNalignment = 1;
+	XmNrecomputeSize = false;
+	};
+};
+object 'ffg_arealDur24PB' : XmPushButton {
+	arguments {
+	name = 'ffg_arealDur24PB';
+	lastGenName = 'ffg_arealDur24PB';
+	generateResName = true;
+	XmNwidth = 63;
+	XmNheight = 25;
+	XmNlabelString = '24hr';
+	XmNalignment = 1;
+	XmNrecomputeSize = false;
+	};
+};
+};
+};
+};
+object 'ffg_arealTopDA' : XmDrawingArea {
+	arguments {
+	name = 'ffg_arealTopDA';
+	lastGenName = 'ffg_arealTopDA';
+	};
+};
+object 'ffg_arealBotDA' : XmDrawingArea {
+	arguments {
+	name = 'ffg_arealBotDA';
+	lastGenName = 'ffg_arealBotDA';
+	};
+};
+object 'ffg_arealTypeOM' : XmOptionMenu {
+	arguments {
+	name = 'ffg_arealTypeOM';
+	lastGenName = 'ffg_arealTypeOM';
+	XmNwidth = 180;
+	XmNheight = 33;
+	XmNentryVerticalAlignment = 1;
+	};
+abstract object 'ffg_arealTypeLB' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'ffg_arealTypeLB';
+	generateResName = true;
+	XmNwidth = 47;
+	XmNheight = 29;
+	XmNlabelString = 'Areal Type:';
+	XmNalignment = 1;
+	};
+};
+abstract object 'ffg_arealTypeCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'ffg_arealTypeCB';
+	XmNx = 90;
+	XmNy = 3;
+	XmNwidth = 92;
+	XmNheight = 25;
+	XmNlabelString = 'All';
+	XmNalignment = 1;
+	XmNrecomputeSize = true;
+	};
+object 'ffg_arealTypePDM' : XmPulldownMenu {
+	arguments {
+	name = 'ffg_arealTypePDM';
+	lastGenName = 'ffg_arealTypePDM';
+	};
+object 'ffg_arealAllPB' : XmPushButton {
+	arguments {
+	name = 'ffg_arealAllPB';
+	lastGenName = 'ffg_arealAllPB';
+	XmNlabelString = 'All';
+	XmNalignment = 1;
+	};
+};
+object 'ffg_arealBasinPB' : XmPushButton {
+	arguments {
+	name = 'ffg_arealBasinPB';
+	lastGenName = 'ffg_arealBasinPB';
+	generateResName = true;
+	XmNwidth = 63;
+	XmNheight = 25;
+	XmNlabelString = 'Basin';
+	XmNalignment = 1;
+	XmNrecomputeSize = false;
+	};
+};
+object 'ffg_arealCountyPB' : XmPushButton {
+	arguments {
+	name = 'ffg_arealCountyPB';
+	lastGenName = 'ffg_arealCountyPB';
+	generateResName = true;
+	XmNwidth = 63;
+	XmNheight = 25;
+	XmNlabelString = 'County';
+	XmNalignment = 1;
+	XmNrecomputeSize = false;
+	};
+};
+object 'ffg_arealZonePB' : XmPushButton {
+	arguments {
+	name = 'ffg_arealZonePB';
+	lastGenName = 'ffg_arealZonePB';
+	XmNlabelString = 'Zone';
+	XmNalignment = 1;
+	};
+};
+};
+};
+};
+object 'ffg_arealLB' : XmLabel {
+	arguments {
+	name = 'ffg_arealLB';
+	lastGenName = 'ffg_arealLB';
+	XmNlabelString = 'Areal FFG Options';
+	};
+};
+object 'ffg_arealValTB' : XmToggleButton {
+	arguments {
+	name = 'ffg_arealValTB';
+	lastGenName = 'ffg_arealValTB';
+	XmNlabelString = 'Values';
+	};
+};
+object 'ffg_arealIdTB' : XmToggleButton {
+	arguments {
+	name = 'ffg_arealIdTB';
+	lastGenName = 'ffg_arealIdTB';
+	XmNlabelString = 'Ids';
+	};
+};
+object 'ffg_arealDisplayLA' : XmLabel {
+	arguments {
+	name = 'ffg_arealDisplayLA';
+	lastGenName = 'ffg_arealDisplayLA';
+	XmNlabelString = 'Display:';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -165;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 2 0 -124;
+	XmNtopAttachment = 1 0 86;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -126;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 2 0 -38;
+	XmNtopAttachment = 1 0 24;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -121;
+	XmNleftAttachment = 1 0 1;
+	XmNbottomAttachment = 2 0 -145;
+	XmNtopAttachment = 1 0 131;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -195;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 2 0 -80;
+	XmNtopAttachment = 1 0 42;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 0;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -169;
+	XmNleftAttachment = 1 0 94;
+	XmNbottomAttachment = 2 0 -177;
+	XmNtopAttachment = 1 0 148;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 179;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 148;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 7;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 151;
+    };
+    };
+};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -66;
+	XmNleftAttachment = 1 0 26;
+	XmNbottomAttachment = 2 0 -69;
+	XmNtopAttachment = 1 0 44;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -155;
+	XmNleftAttachment = 1 0 90;
+	XmNbottomAttachment = 2 0 -69;
+	XmNtopAttachment = 1 0 44;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -233;
+	XmNleftAttachment = 1 0 173;
+	XmNbottomAttachment = 2 0 -69;
+	XmNtopAttachment = 1 0 44;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -160;
+	XmNleftAttachment = 1 0 98;
+	XmNbottomAttachment = 2 0 -765;
+	XmNtopAttachment = 1 0 734;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -238;
+	XmNleftAttachment = 1 0 12;
+	XmNbottomAttachment = 2 0 -242;
+	XmNtopAttachment = 1 0 73;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -236;
+	XmNleftAttachment = 1 0 14;
+	XmNbottomAttachment = 2 0 -724;
+	XmNtopAttachment = 1 0 474;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 162;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 248;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 1;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 11;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -247;
+	XmNleftAttachment = 1 0 84;
+	XmNbottomAttachment = 2 0 -36;
+	XmNtopAttachment = 1 0 4;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 28;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 249;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -247;
+	XmNleftAttachment = 1 0 7;
+	XmNbottomAttachment = 2 0 -464;
+	XmNtopAttachment = 1 0 281;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -245;
+	XmNleftAttachment = 1 0 8;
+	XmNbottomAttachment = 2 0 -463;
+	XmNtopAttachment = 1 0 281;
+    };
+    };
+};
+};
+end module;

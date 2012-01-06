@@ -1,0 +1,903 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-34smp i686) [Netscape]">
+  <title>gfeConfig - Weather Element Configuration</title>
+</head>
+<body bgcolor="#ffffff">
+<div class="Body">
+<div style="text-align: center;"></div>
+<div class="3Heading">
+<div style="text-align: center;"></div>
+<h2 style="text-align: center;">GFE/ifpIMAGE Configuration File<br>
+Weather Element Configuration</h2>
+<br>
+&nbsp;
+<table nosave="" border="1" cols="4" width="100%">
+  <tbody>
+    <tr>
+      <td>
+      <center><b>GFE Configuration Item</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to GFE</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to ifpIMAGE</b></center>
+      </td>
+      <td>
+      <center><b>Notes</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#GenericGraphicColors">Generic Graphic Colors</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#SpecificWeatherElementGraphicColor">Specific
+Weather Element
+Graphic Color</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#SpecificGraphicLineWidthsforaWeatherElement">Specific
+Weather
+Element Line Widths</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#SpecificGraphicLinePatternsforaWeatherElement">Specific
+Weather
+Element Line Patterns</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#SpecificFontOffsetsforaWeatherElement">Specific
+Weather Element
+Font Offsets</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#SpecificDensitiesforaWeatherElement">Specific
+Weather Element
+Densities</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#TemporalEditorPaneSize">Temporal Editor Pane Size</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#ContourValues">Contour Values and Intervals</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#DeltaValues">Delta Values</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#FuzzValues">Fuzz Values</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#WeatherElementVisualTypes">Weather Element Visual
+Types</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#BoundedAreaLabelBoundaryVisibility">Bounded Area
+Label/Boundary
+Visibility</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#WindBarbandWindArrowDefaultSizes">Wind Barb and
+Arrow Default
+Sizes</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#WindArrowScaling">Wind Arrow Scaling</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#SampleFormatsforVectorData">Sample Formats for
+Vector Data</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#DefaultValues">Default Values (for
+CreateFromScratch)</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<blockquote>
+</blockquote>
+<hr style="width: 100%; height: 2px;">
+<h4><br>
+</h4>
+<h4><a name="GenericGraphicColors"></a><font size="+1">Generic Graphic
+Colors</font></h4>
+The list of generic colors defines set of graphic colors that will be
+assigned
+to the graphics, unless overridden by specific graphical colors.&nbsp;
+If the user loads too many weather elements such that this list is
+exhausted,
+the GFE will recycle the list and use the colors again.&nbsp; An
+additional
+set of colors is automatically added.
+<p><b><tt>Generic_colors = ['Green', 'Coral', 'Cyan', 'Wheat',
+'Yellow',
+'Violet', 'DarkKhaki', 'OrangeRed', 'DodgerBlue2', 'SpringGreen',
+'IndianRed',
+'CadetBlue1', 'NavajoWhite', 'LightGoldenrod1', 'Plum1',
+'LemonChiffon3',
+'LightSalmon', 'SlateGray3', 'DarkSeaGreen2', 'LemonChiffon',
+'LightCyan2',
+'Seashell', 'MediumPurple', 'Thistle1', 'RosyBrown3']</tt></b>
+<br>
+&nbsp;
+</p>
+<h4><a name="SpecificWeatherElementGraphicColor"></a><font size="+1">Specific
+Weather Element Graphic Color</font></h4>
+The user may set up specific colors for a parameter.&nbsp; These colors
+are only suggestions.&nbsp; The GFE will make every attempt to use
+these
+colors for the weather element.&nbsp; In the case that the color is
+already
+in use, the GFE will assign a color from the Generic_colors list.&nbsp;
+The format of the specific color entries is the
+weatherElementName_graphicColor.&nbsp;
+For those weather elements that are not surface-based, the format is
+weatherElementName_level_graphicColor.
+<p><b><tt>T_graphicColor = 'green'</tt></b>
+<br>
+<b><tt>Wx_graphicColor = 'White'</tt></b>
+<br>
+&nbsp;
+</p>
+<h4><a name="SpecificGraphicLineWidthsforaWeatherElement"></a><font
+ size="+1">Specific
+Graphic Line Widths for a Weather Element</font></h4>
+The default line width of any weather element can be specified in the
+configuration
+file.&nbsp; Valid numbers are zero and up. You can always change the
+line
+width interactively during a GFE session.&nbsp; If not specified, then
+the line width is assumed to be zero. The format of the entry is
+weatherElementName_lineWidth
+= width.&nbsp;&nbsp;&nbsp; For those weather elements that are not
+surface-based,
+the format is weatherElementName_level_lineWidth.&nbsp; The larger the
+number , the wider the line.&nbsp;&nbsp; Do not include a decimal
+point.&nbsp;
+The line width affects the following visualizations:
+<blockquote><li>Bounded Area outlines (weather)</li>
+  <li>Contour Lines (scalar)</li>
+  <li>Wind Barb and Wind Arrow Lines (vector)</li>
+</blockquote>
+<b><tt>T_lineWidth = 1</tt></b>
+<br>
+&nbsp;
+<h4><a name="SpecificGraphicLinePatternsforaWeatherElement"></a><font
+ size="+1">Specific
+Graphic Line Patterns for a Weather Element</font></h4>
+The default line pattern can be varied for each weather element.&nbsp;
+If not specified, then the line pattern is assumed to be solid.&nbsp;
+There
+are currently four line patterns supported in the GFE. The possible
+strings
+are "SOLID", "DASHED", "DOTTED", "DASHED_DOTTED". The format of the
+entry
+is weatherElementName_linePattern = "PatternName".&nbsp;&nbsp; For
+those
+weather elements that are not surface-based, the format is
+weatherElementName_level_linePattern.&nbsp;
+The line pattern affects the following visualizations:
+<blockquote><li>Bounded Area outlines (weather)</li>
+  <li>Contour Lines (scalar)</li>
+  <li>Wind Barb and Wind Arrow Lines (vector)</li>
+</blockquote>
+<b><tt>T_linePattern = "SOLID"</tt></b>
+<br>
+&nbsp;
+<h4><a name="SpecificFontOffsetsforaWeatherElement"></a><font size="+1">Specific
+Font Offsets for a Weather Element</font></h4>
+The font used for a specific weather element display is based on three
+things:
+<blockquote><li>The definition of TextFont*, which defines the standard
+fonts used in
+the
+GFE.</li>
+  <li>The optional definition of display type fonts, which defines
+which of
+the
+standard fonts should be used for this particular type of display
+(e.g.,
+Contour_font).</li>
+  <li>The optional font offset, which adds or subtracts an offset size
+from
+the
+calculations derived in the first two steps.</li>
+</blockquote>
+The font offsets affect the following visualizations:
+<blockquote><li>Bounded Area labels (weather)</li>
+  <li>Contour labels (scalar)</li>
+  <li>Wind Arrows and Wind Barbs (vector)</li>
+</blockquote>
+The font offsets are used differently for wind arrows and wind
+barbs.&nbsp;
+Obviously these visualizations do not have text associated with
+them.&nbsp;
+Specifying a positive number for font offsets will result in a larger
+(e.g.,
+longer) wind barb or arrow.&nbsp; Specifying a negative number for the
+font offset will result in a smaller wind barb or arrow.
+<p>The font offset (called magnification on the GFE menus) allows the
+default
+font size to be increased or decreased on a per-parameter basis.&nbsp;
+Note that for wind arrows/barbs, the fontOffset controls the size of
+the
+wind arrows/barbs.&nbsp; Numbers can range from -2 through +2. Format
+is
+parmName_fontOffset.&nbsp;&nbsp; For those weather elements that are
+not
+surface-based, the format is weatherElementName_level_fontOffset. Do
+not
+include a decimal point after these entries.
+</p>
+<p><b><tt>T_fontOffset = 0</tt></b>
+<br>
+&nbsp;
+</p>
+<h4><a name="SpecificDensitiesforaWeatherElement"></a><font size="+1">Specific
+Densities for a Weather Element</font></h4>
+The density control of the weather element works differently, depending
+upon the data type.&nbsp; For scalar contoured data, the density
+control
+modifies the set of contours to show more or less of them.&nbsp; For
+vector
+wind barbs or arrows, the density control controls the packing
+algorithm
+to show more or less of them.&nbsp; Density does not affect the display
+of weather-type data. The default is zero. Typical values can range
+from
+-2 through +2.&nbsp; You can use values outside of this range if
+desired.&nbsp;
+Format is parmName_density.&nbsp;&nbsp;&nbsp; For those weather
+elements
+that are not surface-based, the format is
+weatherElementName_level_density.
+Do not include a decimal point after these entries.
+<p><b><tt>T_density = 0</tt></b>
+<br>
+&nbsp;
+</p>
+<h4><a name="TemporalEditorPaneSize"></a><font size="+1">Temporal
+Editor Pane
+Size</font></h4>
+The user has the ability of controlling the initial size of temporal
+editor
+panes based on the weather element first loaded into a pane.&nbsp; If
+not
+specified, the default is 150 pixels in height.&nbsp; The format of
+this
+entry is the weatherElementName_temporalDataPaneSize.&nbsp;&nbsp; For
+those
+weather elements that are not surface-based, the format is
+weatherElementName_level_temporalDataPaneSize.
+<p><b><tt>Wx_temporalDataPaneSize = 200</tt></b>
+<br>
+&nbsp;
+</p>
+<h4><a name="ContourValues"></a><font size="+1">Contour Values and
+Intervals</font></h4>
+There are two ways to define contour values, either by specifying a
+complete
+set of values, or by specifying a single interval.&nbsp; If both
+methods
+are defined, then the contour values will be used, thus overriding the
+defined contour interval. If neither is defined, then the GFE uses an
+algorithm
+with linear contour intervals.&nbsp; The values will be with a 1, 2, or
+5 unit, such as 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, etc. The algorithm
+continues
+to add more values until there are around 30 of them.&nbsp; This works
+well on some weather elements and very poorly on others.&nbsp; The
+format
+is parmName_optionname, but for non-surface based elements, the format
+is parmName_level_optionname.
+<h5><font size="+0">Explicit Contour Values</font></h5>
+If the user wishes to specify explicit contour values for a weather
+element,
+the format is weatherElementName_contourValues with a list of contour
+values.
+QPF is normally defined in the configuration file since small values
+are
+very important and the typical contour interval does not show enough
+resolution
+at low values.
+<p>Contour value specification is ignored for vector and weather-type
+weather
+elements.
+</p>
+<p><b><tt>QPF_contourValues = [0.01, 0.05, 0.10, 0.15, 0.20, 0.25,
+0.30,
+0.40, 0.50,</tt></b>
+<br>
+<b><tt>&nbsp; 0.60, 0.7, 0.8, 0.9, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2,
+2.4, 2.6, 2.8,</tt></b>
+<br>
+<b><tt>&nbsp; 3.0, 3.2, 3.4, 3.6, 3.8, 4.0, 4.2, 4.4, 4.6, 4.8, 5.0]</tt></b>
+</p>
+<h5><font size="+0">Contour Interval</font></h5>
+The user may also specify a contour interval for a weather
+element.&nbsp;
+The format is weatherElementName_contourInterval with a single number.
+If not defined, then contour values are automatically computed.
+<p><b><tt>Sky_contourInterval = 10.0</tt></b>
+<br>
+<b><tt>PoP_contourInterval = 10.0</tt></b>
+<br>
+<b><tt>MinT_contourInterval = 5.0</tt></b>
+<br>
+<b><tt>MaxT_contourInterval = 5.0</tt></b>
+<br>
+<b><tt>T_contourInterval = 5.0</tt></b>
+<br>
+<b><tt>Td_contourInterval = 5.0</tt></b>
+<br>
+&nbsp;
+</p>
+<h4><a name="DeltaValues"></a><font size="+1">Delta Values</font></h4>
+Delta values are weather element specific.&nbsp; If not defined, it
+defaults
+to the minimum precision (e.g., 1 degree for temperature, 0.01" for
+QPF).
+The delta value is used for the Adjust Up and Adjust Down smart tools.
+These may be reset through the GFE GUI.&nbsp; Delta values are ignored
+for the weather type of weather element. Format is parmName_deltaValue
+= value.&nbsp;&nbsp; For those weather elements that are not
+surface-based,
+the format is weatherElementName_level_deltaValue.&nbsp; Be sure to
+include
+a decimal point.
+<p><b><tt>FzLevel_deltaValue = 100.0</tt></b>
+<br>
+&nbsp;
+</p>
+<h4><a name="FuzzValues"></a><font size="+1">Fuzz Values</font></h4>
+Fuzz values are weather element specific.&nbsp; If not defined, it
+defaults
+to 1/100 of the parameter's range. A fuzz value is used when the user
+selects
+the "select homogenous area" on the spatial editor.&nbsp; It is used to
+determine all grid points that are contiguous that are "close to" the
+selected
+point and then uses that set as the new edit area.&nbsp; These may be
+reset
+through the GFE GUI.&nbsp; Fuzz values are ignored for the weather type
+of weather element.
+<p>For example, if the fuzz is 2.0 degrees for Temperature and you
+click
+on 40 degrees, then all points between 38 and 42 will be selected as
+long
+as they are contiguous to the click point. Format is parmName_fuzzValue
+= value.&nbsp;&nbsp; For those weather elements that are not
+surface-based,
+the format is weatherElementName_level_fuzzValue.
+</p>
+<p><b><tt>T_fuzzValue = 10.0</tt></b>
+<br>
+&nbsp;
+</p>
+<h4><a name="WeatherElementVisualTypes"></a><font size="+1">Weather
+Element Visual
+Types</font></h4>
+Visual types define the spatial and temporal visualization types for
+the
+different data types (scalar, vector, and weather).&nbsp; The following
+table illustrates the possible values for each editor and data type.
+The
+user may choose any of the choices.<br>
+<br>
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td>
+      <center><b>Editor Type</b></center>
+      </td>
+      <td>
+      <center><b>Data Type</b></center>
+      </td>
+      <td>
+      <center><b>Available Visual Types (Image Mode)</b></center>
+      </td>
+      <td>
+      <center><b>Available Visual Types (Graphic Mode)</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td>Spatial</td>
+      <td>Scalar</td>
+      <td>Image, Contour</td>
+      <td>Contour</td>
+    </tr>
+    <tr>
+      <td>Spatial</td>
+      <td>Vector</td>
+      <td>Image, WindBarb, WindArrow</td>
+      <td>WindBarb, WindArrow</td>
+    </tr>
+    <tr>
+      <td>Spatial</td>
+      <td>Weather</td>
+      <td>Image, BoundedArea</td>
+      <td>BoundedArea</td>
+    </tr>
+    <tr>
+      <td>Spatial</td>
+      <td>Discrete</td>
+      <td>Image, BoundedArea</td>
+      <td>BoundedArea</td>
+    </tr>
+    <tr>
+      <td>Temporal</td>
+      <td>Scalar</td>
+      <td>TEColorBar, TEColorRangeBar, TimeBar, RangeBar</td>
+      <td>TimeBar, RangeBar</td>
+    </tr>
+    <tr>
+      <td>Temporal</td>
+      <td>Vector</td>
+      <td>TEColorBar, TEColorRangeBar, TimeBar, WindBarb, WindArrow,
+RangeBar</td>
+      <td>TimeBar, WindBarb, WindArrow, RangeBar</td>
+    </tr>
+    <tr>
+      <td>Temporal</td>
+      <td>Weather</td>
+      <td>TEColorBar</td>
+      <td>&lt;none&gt;</td>
+    </tr>
+    <tr>
+      <td>Temporal</td>
+      <td>Discrete</td>
+      <td>TEColorBar</td>
+      <td>&lt;none&gt;</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+The format of the entry is shown in the following table, where
+"we" is the weather element name:<br>
+<br>
+<table nosave="" border="1" cols="3" width="100%">
+  <tbody>
+    <tr>
+      <td>
+      <center><b>Editor Type</b></center>
+      </td>
+      <td>
+      <center><b>Visual Mode</b></center>
+      </td>
+      <td>
+      <center><b>Entry Format</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td>Spatial</td>
+      <td>Image</td>
+      <td>we_spatialImageType</td>
+    </tr>
+    <tr>
+      <td>Spatial</td>
+      <td>Graphic</td>
+      <td>we_spatialGraphicType</td>
+    </tr>
+    <tr>
+      <td>Temporal</td>
+      <td>Image</td>
+      <td>we_temporalImageType</td>
+    </tr>
+    <tr>
+      <td>Temporal</td>
+      <td>Graphic</td>
+      <td>we_temporalGraphicType</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+If not defined in this configuration file, the GFE software
+defaults to the following visualizations:<br>
+<br>
+<table nosave="" border="1" cols="4" width="100%">
+  <tbody>
+    <tr>
+      <td>
+      <center><b>Editor Type</b></center>
+      </td>
+      <td>
+      <center><b>Data Type</b></center>
+      </td>
+      <td>
+      <center><b>Image Mode Defaults</b></center>
+      </td>
+      <td>
+      <center><b>Graphic Mode Defaults</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td>Spatial</td>
+      <td>Scalar</td>
+      <td>Image</td>
+      <td>Contour</td>
+    </tr>
+    <tr>
+      <td>Spatial</td>
+      <td>Vector</td>
+      <td>Image, WindBarb</td>
+      <td>WindBarb</td>
+    </tr>
+    <tr>
+      <td>Spatial</td>
+      <td>Weather</td>
+      <td>Image</td>
+      <td>BoundedArea</td>
+    </tr>
+    <tr>
+      <td>Spatial</td>
+      <td>Discrete</td>
+      <td>Image</td>
+      <td>BoundedArea</td>
+    </tr>
+    <tr>
+      <td>Temporal</td>
+      <td>Scalar</td>
+      <td>TEColorBar</td>
+      <td>TimeBar</td>
+    </tr>
+    <tr>
+      <td>Temporal</td>
+      <td>Vector</td>
+      <td>TEColorBar, WindBarb</td>
+      <td>TimeBar, WindBarb</td>
+    </tr>
+    <tr>
+      <td>Temporal</td>
+      <td>Weather</td>
+      <td>TEColorBar</td>
+      <td>&lt;none&gt;</td>
+    </tr>
+    <tr>
+      <td>Temporal</td>
+      <td>Discrete</td>
+      <td>TEColorBar</td>
+      <td>&lt;none&gt;</td>
+    </tr>
+  </tbody>
+</table>
+For example, the weather parameter may be viewed as a bounded
+area and an image. For the image type, you may choose both image and
+bounded
+area. For the graphic type, you may choose only bounded area. By
+default
+if not specified, the graphic types for the spatial editor are contour,
+wind barb, and bounded area for scalar, vector, and weather data. The
+image
+types for the spatial editor are image, image and wind barb, and image
+for the scalar, vector, and weather data. For the temporal editor, the
+graphic types are time bar, wind barb, and time bar and the image types
+are color bar, color bar and wind barb, and color bar. Format is:
+parmName_editorImageType
+= [ types ] or parmName_editorGraphicType = [ types ] where 'editor' is
+replaced with spatial or temporal.
+<p><b><tt>Wind_spatialGraphicType = ["WindArrow"].</tt></b>
+<br>
+<b><tt>Wx_spatialImageType = [ "Image", "BoundedArea" ]</tt></b> <br>
+</p>
+<p>&nbsp;
+</p>
+<h4><a name="BoundedAreaLabelBoundaryVisibility"></a><font size="+1">Bounded
+Area Label/Boundary Visibility</font></h4>
+The user may turn on/off the boundary and the text labels for the
+boundary
+area visual.&nbsp; The default value is both are on.&nbsp; Allowable
+values
+are yes and no, or 1 and 0.
+<p><b><tt>BoundedArea_Labels = yes</tt></b>
+<br>
+<b><tt>BoundedArea_Boundary = yes</tt></b> <br>
+</p>
+<p>&nbsp;
+</p>
+<h4><a name="WindBarbandWindArrowDefaultSizes"></a><font size="+1">Wind
+Barb
+and Wind Arrow Default Sizes</font></h4>
+The default wind barb and wind arrow sizes may be specified in the GFE
+configuration file. If not specified, they default to 60 pixels in
+length.
+The user may specify the default overall, or may specify the size for
+each
+weather element.
+<p><b><tt>WindArrowDefaultSize = 60</tt></b>
+<br>
+<b><tt>WindBarbDefaultSize = 60<br>
+<br>
+</tt></b></p>
+<p>The entry format for a particular weather element definition of
+arrow
+or barb size is parmName_windArrowDefaultSize and
+parmName_windBarbDefaultSize.&nbsp;
+For non-surface based weather elements, the format is
+parmName_level_windBarbDefaultSize.
+</p>
+<p><b><tt>Wind_windArrowDefaultSize = 60</tt></b>
+<br>
+<b><tt>Wind_windBarbDefaultSize = 60</tt></b> <br>
+</p>
+<p>&nbsp;
+</p>
+<h4><a name="WindArrowScaling"></a><font size="+1">Wind Arrow Scaling</font></h4>
+The length of the wind arrows is porportionate to the percentage of the
+magnitude to the maximum allowable magnitude. The user may specify
+whether
+this is a linear or a logrithmetic formula for each vector weather
+element.
+The format of these entries is parmName_arrowScaling.&nbsp; (For
+non-surface
+based elements, the format is parmName_level_arrowScaling.)&nbsp; The
+value
+given must be greater than 0.&nbsp; Values greater than 1 will result
+in
+an almost linear assignment of magnitudes to length.&nbsp; Values
+approaching
+zero will result in an emphasis of the values near the weather
+element's
+minimum possible value.&nbsp; If 0.00 is specified for the entry, or
+the
+entry is omitted, then linear scaling of magnitude to distance is used.
+<p>The following table illustrates the percent of the maximum length of
+the arrow that is used for the first 50% of the weather element's range.</p>
+<table nosave="" border="1" cols="2" width="300">
+  <tbody>
+    <tr nosave="">
+      <td nosave="">
+      <center><b>Factor Value</b></center>
+      </td>
+      <td>
+      <center><b>Percent of the maximum distance used for a 50% of the
+maximum
+possible value.</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      <center>1.0</center>
+      </td>
+      <td>
+      <center>58%</center>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      <center>0.5</center>
+      </td>
+      <td>
+      <center>62%</center>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      <center>0.1</center>
+      </td>
+      <td>
+      <center>75%</center>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      <center>0.05</center>
+      </td>
+      <td>
+      <center>78%</center>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      <center>0.01</center>
+      </td>
+      <td>
+      <center>85%</center>
+      </td>
+    </tr>
+  </tbody>
+</table>
+&nbsp;
+<br>
+For example, if Wind ranges from 0 to 50 knots and the arrow maximum
+size is 100 pixels, then a wind of 25 knots will appear 85 pixels in
+length
+if the factor value is 0.01.
+<br>
+&nbsp;
+<p><b><tt>Wind_arrowScaling = 0.03</tt></b> <br>
+</p>
+<p>&nbsp;
+</p>
+<h4><a name="SampleFormatsforVectorData"></a><font size="+1">Sample
+Formats for
+Vector Data</font></h4>
+The sample format for vector data may be adjusted to one of four
+formats.&nbsp;
+The format affects the samples on the spatial and temporal editors, the
+color bar pick-up value on the spatial editor, and the set value dialog
+for vector.
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td>
+      <center><b>Format</b></center>
+      </td>
+      <td>
+      <center><b>Description</b></center>
+      </td>
+      <td>
+      <center><b>Example</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td>ddff</td>
+      <td>Direction is indicated by a 2-digit number and ranges from
+01-36.&nbsp;
+00 is reserved for calm winds.&nbsp; The magnitude is truncated to the
+nearest unit value and displayed.&nbsp;</td>
+      <td>0000 for calm, 3645 for wind from the North at 45.</td>
+    </tr>
+    <tr>
+      <td>d/f</td>
+      <td>Direction is indicated in degrees with up to three digits
+(0-359).&nbsp;
+The magnitude is rounded to the precision value of the weather
+element.&nbsp;</td>
+      <td>0/0 for calm, 45/10.5 for NE wind at 10.5.</td>
+    </tr>
+    <tr>
+      <td>8pt</td>
+      <td>Direction is indicated by a compass direction (N, NE, E, SE,
+S, SW,
+W, NE).&nbsp; Magnitude is rounded to the precision value of the
+weather
+element.</td>
+      <td>"calm" for calm, NE5 for NE wind at 5.</td>
+    </tr>
+    <tr>
+      <td>16pt</td>
+      <td>Direction is indicated by a compass direction (N, NNE, NE,
+ENE, E,
+ESE, SE, SSE, S, SSW, SE, WSW, W, NNW, NW, NNW).&nbsp; Magnitude is
+rounded
+to the precision value of the weather element.</td>
+      <td>"calm" for calm, NNE15 for a NNE wind at 15.</td>
+    </tr>
+  </tbody>
+</table>
+The user may specify an overall format which applies to all
+vector weather elements, or may specify a specific format for an
+individual
+vector weather element.
+<br>
+&nbsp;
+<p>The user may specify the default sample format for vector weather
+elements.
+If not specified, then the format is "ddff". The user may specify a
+format
+for all vector elements, or can specify the format for a particular
+weather
+element.&nbsp; The four possible formats are "ddff", "8pt", "16pt", and
+"d/f". The configuration entry for the default sample format for all
+vector
+elements is WindFormat = "type".&nbsp; The entry format to define the
+format
+for a specific entry is parmName_windFormat = "type".&nbsp; For
+non-surface
+based elements, the format is parmName_level_windFormat.
+</p>
+<p><b><tt>WindFormat = "ddff"</tt></b>
+<br>
+<b><tt>Swell_windFormat = "8pt"<br>
+<br>
+</tt></b></p>
+<h4>
+<a name="DefaultValues"></a><font size="+1">Default Values (for Create
+From Scratch)</font></h4>
+The default values for SCALAR, VECTOR, WEATHER, and DISCRETE may be
+specified on a per-weather element basis. By default, the SCALAR has
+the weather element's minimum value, the VECTOR element has a magnitude
+and direction of 0, the WEATHER element has &lt;NoWx&gt;, and DISCRETE
+has
+the first defined discrete key. This default may be changed through
+the configuration file using a format of wename_defaultValue for
+SCALAR,
+WEATHER, and DISCRETE, and wename_magDefaultValue and
+wename_dirDefaultValue
+for VECTOR. For non-surface based elements, the format is changed with
+the wename being replaced with the weatherElementName_levelName.
+<p>The SCALAR and VECTOR values are floats; the WEATHER and DISCRETE
+values
+are strings, as shown in the following examples, which are listed in
+SCALAR, VECTOR, WEATHER, and DISCRETE order:
+</p>
+<p><b><tt>T_defaultValue = 32.0</tt></b>
+<br>
+<b><tt>Wind_SFC_magDefaultValue = 10.0</tt></b>
+<br>
+<b><tt>Wind_SFC_dirDefaultValue = 90.0</tt></b>
+<br>
+<b><tt>Wx_defaultValue =
+"&lt;NoCov&gt;:&lt;NoWx&gt;:&lt;NoInten&gt;:&lt;NoVis&gt;:"</tt></b>
+<br>
+<b><tt>Headlines_defaultValue = "&lt;None&gt;"</tt></b> <br>
+</p>
+<hr style="width: 100%; height: 2px;">
+<p>&nbsp;
+</p>
+<div class="Body">
+<center><tt><a href="GFESuite.html">Back To TOC</a></tt></center>
+</div>
+</div>
+</body>
+</html>

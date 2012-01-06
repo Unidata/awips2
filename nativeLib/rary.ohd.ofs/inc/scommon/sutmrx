@@ -1,0 +1,4 @@
+C                                           *--> FROM SCOMMON.SUTMRX
+C  CPU TIME COMMON BLOCK
+      COMMON /SUTMRX/ ITMAUT,ITMELA,ITMTOT,ITMUNT,ITMRUN
+C

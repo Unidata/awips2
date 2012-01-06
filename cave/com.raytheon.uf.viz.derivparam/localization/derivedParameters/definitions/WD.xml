@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<DerivedParameter abbreviation="WD" name="Wind directionn" unit="deg">
+    <Method name="RaobParam" models="bufrua">
+    	<Field abbreviation="Raob"/>
+    	<ConstantField value="5"/>
+    </Method>
+        <Method name="Interp" levels="S,MB" models="acarssounding bufrua">
+    	<Field abbreviation="WD" level="Station"/>
+    	<Field abbreviation="P" level="Station"/>
+    	<Field abbreviation="numLevels" level="Station"/>
+    	<Field abbreviation="MB"/>
+    	<ConstantField value="50"/>
+    </Method>
+    <Method name="Interp" levels="S,TILT" models="bufrua">
+    	<Field abbreviation="WD" level="Station"/>
+    	<Field abbreviation="GH" level="Station"/>
+    	<Field abbreviation="numLevels" level="Station"/>
+    	<Field abbreviation="GH"/>
+    	<ConstantField value="1000"/>
+    </Method>
+    <Method levels="Surface" name="Alias" models="bufrmosLAMP obs">
+        <Field abbreviation="windDir" level="Station"/>
+    </Method>
+    <Method name="Alias" levels="Surface">
+    	<Field abbreviation="WD" level="10FHAG"/>
+    </Method>
+    <Method name="Alias" levels="BLyr">
+    	<Field abbreviation="WD" level="0BLD"/>
+    </Method>
+    <Method name="Direction">
+    	<Field abbreviation="uW"/>
+    	<Field abbreviation="vW"/>
+    </Method>
+    <Method name="Alias" levels="Surface">
+    	<Field abbreviation="MaxWindSpeed" level="Station"/>
+    </Method>
+    <Method name="Alias" models="profiler" levels="Surface">
+    	<Field abbreviation="windDirSfc" level="Station"/>
+    </Method>
+</DerivedParameter>

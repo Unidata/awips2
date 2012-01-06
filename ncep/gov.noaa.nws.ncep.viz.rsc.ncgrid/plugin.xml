@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="com.raytheon.uf.viz.core.resource">
+      <resource
+            class="gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc.NcgridResource"
+            name="ModelFcstGridContours"
+            recordClass="gov.noaa.nws.ncep.common.dataplugin.ncgrib.NcgribRecord"
+            renderingOrderId="CONTOUR"
+            resourceType="PLAN_VIEW"/>
+      <!--resource
+            class="gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc.NcgridVectorResource"
+            name="NC-Grid Contours"
+            renderingOrderId="CONTOUR"
+            resourceType="PLAN_VIEW"/-->
+   </extension>
+  
+   <extension
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceAttribute">
+      
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="type"
+            defaultValue="c"
+            ncResourceName="ModelFcstGridContours">
+      </nc-resourceAttribute>
+      
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="gvcord"
+            defaultValue="press"
+            ncResourceName="ModelFcstGridContours">
+      </nc-resourceAttribute>
+      
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="glevel"
+            defaultValue="500"
+            ncResourceName="ModelFcstGridContours">
+      </nc-resourceAttribute>
+      
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="gdpfun"
+            defaultValue=""
+            ncResourceName="ModelFcstGridContours">
+      </nc-resourceAttribute>
+      
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="scale"
+            defaultValue="0"
+            ncResourceName="ModelFcstGridContours">
+      </nc-resourceAttribute>
+      
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="colors"
+            defaultValue="3"
+            ncResourceName="ModelFcstGridContours">
+      </nc-resourceAttribute>
+      
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="marker"
+            defaultValue="2"
+            ncResourceName="ModelFcstGridContours">
+      </nc-resourceAttribute>
+      
+      <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="grdlbl"
+            defaultValue="1"
+            ncResourceName="ModelFcstGridContours">
+      </nc-resourceAttribute>
+      
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="cint"
+            defaultValue="2"
+            ncResourceName="ModelFcstGridContours">
+">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="lineAttributes"
+            defaultValue="8/1/2"
+            ncResourceName="ModelFcstGridContours">
+      </nc-resourceAttribute>
+      
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="fint"
+            defaultValue=""
+            ncResourceName="ModelFcstGridContours">
+      </nc-resourceAttribute>
+      
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="fline"
+            defaultValue=""
+            ncResourceName="ModelFcstGridContours">
+      </nc-resourceAttribute>
+      
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="title"
+            defaultValue=""
+            ncResourceName="ModelFcstGridContours">
+      </nc-resourceAttribute>
+      
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="wind"
+            defaultValue="18/1/1"
+            ncResourceName="ModelFcstGridContours">
+      </nc-resourceAttribute>
+
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="hilo"
+            defaultValue=""
+            ncResourceName="ModelFcstGridContours">
+      </nc-resourceAttribute>
+            
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="hlsym"
+            defaultValue=""
+            ncResourceName="ModelFcstGridContours">
+      </nc-resourceAttribute>
+                  
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="type"
+            defaultValue="c"
+            ncResourceName="EnsembleFcstGridContours">
+      </nc-resourceAttribute>
+      
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="gvcord"
+            defaultValue="press"
+            ncResourceName="EnsembleFcstGridContours">
+      </nc-resourceAttribute>
+      
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="glevel"
+            defaultValue="500"
+            ncResourceName="EnsembleFcstGridContours">
+      </nc-resourceAttribute>
+      
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="gdpfun"
+            defaultValue=""
+            ncResourceName="EnsembleFcstGridContours">
+      </nc-resourceAttribute>
+      
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="scale"
+            defaultValue="0"
+            ncResourceName="EnsembleFcstGridContours">
+      </nc-resourceAttribute>
+      
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="colors"
+            defaultValue="3"
+            ncResourceName="EnsembleFcstGridContours">
+      </nc-resourceAttribute>
+      
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="marker"
+            defaultValue="2"
+            ncResourceName="EnsembleFcstGridContours">
+      </nc-resourceAttribute>
+      
+      <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="grdlbl"
+            defaultValue="1"
+            ncResourceName="EnsembleFcstGridContours">
+      </nc-resourceAttribute>
+      
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="cint"
+            defaultValue="2"
+            ncResourceName="EnsembleFcstGridContours">
+">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="lineAttributes"
+            defaultValue="8/1/2"
+            ncResourceName="EnsembleFcstGridContours">
+      </nc-resourceAttribute>
+      
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="fint"
+            defaultValue=""
+            ncResourceName="EnsembleFcstGridContours">
+      </nc-resourceAttribute>
+      
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="fline"
+            defaultValue=""
+            ncResourceName="EnsembleFcstGridContours">
+      </nc-resourceAttribute>
+      
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="title"
+            defaultValue=""
+            ncResourceName="EnsembleFcstGridContours">
+      </nc-resourceAttribute>
+      
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="wind"
+            defaultValue="18/1/1"
+            ncResourceName="EnsembleFcstGridContours">
+      </nc-resourceAttribute>
+      
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="hilo"
+            defaultValue=""
+            ncResourceName="EnsembleFcstGridContours">
+      </nc-resourceAttribute>
+      
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="hlsym"
+            defaultValue=""
+            ncResourceName="EnsembleFcstGridContours">
+      </nc-resourceAttribute>
+      
+       <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="gdfile"
+            defaultValue=""
+            ncResourceName="EnsembleFcstGridContours">
+      </nc-resourceAttribute>
+      
+   </extension>
+   <extension
+         point="gov.noaa.nws.ncep.viz.resources.NC-Resource">
+      <nc-resource
+            class="gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc.NcgridResourceData"
+            editDialogClass="gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc.EditGridAttributesDialog"
+            name="ModelFcstGridContours">
+      </nc-resource>
+      
+      <nc-resource
+            class="gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc.NcgridResourceData"
+            editDialogClass="gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc.EditEnsembleAttributesDialog"
+            name="EnsembleFcstGridContours">
+      </nc-resource>
+   </extension>
+   
+   <extension
+         point="gov.noaa.nws.ncep.viz.localization.localizationData">
+      <singleLocalizationValue
+            name="ensembleTable"
+            location="grid"
+            fileName="ensemble_models.tbl">
+      </singleLocalizationValue>
+   </extension>
+
+</plugin>   

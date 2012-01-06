@@ -1,0 +1,4 @@
+com.raytheon.uf.viz.ui.menus.xml.IncludeMenuItem
+com.raytheon.uf.viz.ui.menus.xml.MenuContributionFile
+com.raytheon.uf.viz.ui.menus.xml.PlaceholderMenuContribution
+com.raytheon.uf.viz.ui.menus.xml.SeparatorMenuContribution

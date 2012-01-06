@@ -1,0 +1,24 @@
+
+<bundle>
+<mapDescriptor>
+<resourcePair>
+ <resource name="TopoResource">
+  <properties>
+   <value field="contrast">1.0</value>
+   <value field="brightness">1.0</value>
+   <value field="interpolationState">true</value>
+   <value field="colorMap">COLORMAP { topo }</value>
+   <value field="colorMapMin">0.0</value>
+   <value field="colorMapMax">3000.0</value>
+  </properties>
+ </resource>
+  <resourceProperties>
+   <isVisible>true</isVisible>
+   <opacity>1.0</opacity>
+   <isLabeled>false</isLabeled>
+   <isHoverOn>false</isHoverOn>
+  </resourceProperties>
+</resourcePair>
+</mapDescriptor>
+</bundle>
+ 

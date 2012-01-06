@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:output method = "text"/>
+
+<!--
+        Outlook.xlt
+                - generate outlook product 
+
+        Change Log:
+
+        B. Yin/Chugach  04/10   Initial Coding
+-->
+
+<xsl:variable name="newline"><xsl:text>
+ </xsl:text></xsl:variable>
+
+  <xsl:template match="Outlook">
+  	<xsl:value-of select="$newline"/>
+        <xsl:value-of select="@days"/>
+	<xsl:value-of select="$newline"/>
+        <xsl:value-of select="@forecaster"/>
+	<xsl:value-of select="$newline"/>
+	
+  	<xsl:value-of select="substring(@issueTime,9,2)"/>
+        <xsl:value-of select="substring(@issueTime,12,2)"/>
+        <xsl:value-of select="substring(@issueTime,15,2)"/>
+	<xsl:text>Z - </xsl:text>
+  	<xsl:value-of select="substring(@expTime,9,2)"/>
+        <xsl:value-of select="substring(@expTime,12,2)"/>
+        <xsl:value-of select="substring(@expTime,15,2)"/>
+	<xsl:text>Z</xsl:text>
+	<xsl:value-of select="$newline"/>
+
+     	<xsl:call-template name="fmtLines">
+               <xsl:with-param name="lines" select="@lineInfo"/>
+        </xsl:call-template>
+
+  </xsl:template>
+
+  <xsl:template name="fmtLines">
+        <xsl:param name="lines"/>
+            <xsl:if test="contains($lines, 'new_line') ">
+		<xsl:value-of select="substring-before($lines,'new_line')"/>
+	 	<xsl:value-of select="$newline"/>
+     		<xsl:call-template name="fmtLines">
+                      <xsl:with-param name="lines" select="substring-after($lines,'new_line')"/>
+                </xsl:call-template>
+	    </xsl:if>
+  </xsl:template>
+
+</xsl:stylesheet>
+  

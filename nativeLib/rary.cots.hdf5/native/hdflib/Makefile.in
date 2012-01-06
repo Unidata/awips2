@@ -1,0 +1,62 @@
+
+#/****************************************************************************
+ #* NCSA HDF                                                                 *
+ #* National Comptational Science Alliance                                   *
+ #* University of Illinois at Urbana-Champaign                               *
+ #* 605 E. Springfield, Champaign IL 61820                                   *
+ #*                                                                          *
+ #* For conditions of distribution and use, see the accompanying             *
+ #* hdf-java/COPYING file.                                                   *
+ #*                                                                          *
+ #****************************************************************************/
+
+
+CC = @CC@ @COPT@
+RM = @RM@
+
+HDFINC = @HDF4INC@
+HDFLIB = @HDF4LIB@
+JAVAINC1=@JAVAINC@
+JAVAINC2=@JAVAINC2@
+
+LIBDIR=../../lib/@JAVATARG@
+ZLIB=@ZLIB@
+JPEGLIB=@JPEGLIB@
+SZLIB=@SZLIB@
+
+# Flags passed to the C compiler.  Leave these alone.
+
+LD=@LD@
+LDOPT=@LDOPT@
+LLEXT=@LLEXT@
+SLEXT=@SLEXT@
+JSLEXT=@JSLEXT@
+
+COPT=@COPT@
+
+CFLAGS = $(DEFS) -I. -I$(JAVAINC1) -I$(JAVAINC2) -I$(HDFINC)
+
+# Be sure to add -lbsd if compiling in a SYSV environment
+LIBS =  $(HDFLIB)/libmfhdf.$(LLEXT) $(HDFLIB)/libdf.$(LLEXT) $(SZLIB) $(ZLIB) $(JPEGLIB) -lm
+
+# Macro def: object filename used
+OBJECTS =  hdfstructsutil.o \
+	hdfImp.o hdfvgroupImp.o hdfvdataImp.o hdfsdsImp.o hdfanImp.o \
+	hdfdfanImp.o hdfdfsdImp.o hdfr24Imp.o hdfdfpalImp.o hdfr8Imp.o \
+	hdfgrImp.o hdfheImp.o hdfdfuImp.o \
+	hdfhxImp.o hdfvfImp.o hdfvhImp.o hdfvqImp.o hdfvsqImp.o \
+	hdfexceptionImp.o \
+	hdfdfcompImp.o \
+	hdfnativeImp.o 
+
+# make depends on the files specified in the objects macro defination
+all:  libjhdf
+
+hdflib: libjhdf
+
+libjhdf: $(OBJECTS) 
+	-mkdir -p $(LIBDIR);
+	$(LD) $(LDOPT) -o $(LIBDIR)/libjhdf.$(JSLEXT) $(LDOPT2) $(OBJECTS) $(LIBS)
+
+clean:
+	$(RM) -f *.o so_locations $(LIBDIR)/libjhdf.$(JSLEXT)

@@ -1,0 +1,191 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="org.eclipse.ecf.presence.bot">
+<annotation>
+      <appInfo>
+         <meta.schema plugin="org.eclipse.ecf.presence.bot" id="chatRoomRobot" name="Chat Room Robot"/>
+      </appInfo>
+      <documentation>
+         This extension point allows implementers to define a chat room bot.
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <complexType>
+         <sequence minOccurs="1" maxOccurs="unbounded">
+            <element ref="chatRoomRobot"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appInfo>
+                  <meta.attribute translatable="true"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="chatRoomRobot">
+      <annotation>
+         <documentation>
+            The chatRoomRobot extension point.
+         </documentation>
+      </annotation>
+      <complexType>
+         <sequence>
+            <element ref="chatRooms" minOccurs="1" maxOccurs="unbounded"/>
+         </sequence>
+         <attribute name="id" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The required id for the chat room robot.  This must be a unique value relative to all other robots.  For message handlers that are to use this robot, they must provide a chatrobotid that matches this value.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="containerFactoryName" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The required container factory name.  This should be the container factory name for a given protocol.  For example, for the built in ECF IRC provider the value is &lt;b&gt;ecf.irc.irclib&lt;/b&gt;.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="connectId" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The connect ID for connecting to the given container.  For example, for IRC the expected ID syntax of the connect ID is
+&lt;pre&gt;
+irc://username@host[:port]
+
+for example:  irc://slewis2_@irc.freenode.net
+&lt;/pre&gt;
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="connectPassword" type="string">
+            <annotation>
+               <documentation>
+                  An optional connect password.  If a password is required to connect to the given container then an appropriate value must be provided.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  An optional name for the bot.
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="chatRooms">
+      <complexType>
+         <attribute name="name" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The name of the chat room that the robot should join.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="password" type="string">
+            <annotation>
+               <documentation>
+                  The password required to join the chat room.
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="since"/>
+      </appInfo>
+      <documentation>
+         1.0.0 milestone 6
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="examples"/>
+      </appInfo>
+      <documentation>
+         &lt;pre&gt;
+   &lt;extension
+         point=&quot;org.eclipse.ecf.presence.bot.chatRoomRobot&quot;&gt;
+      &lt;chatRoomRobot
+            connectId=&quot;irc://slewis2_@irc.freenode.net&quot;
+            containerFactoryName=&quot;ecf.irc.irclib&quot;
+            id=&quot;org.eclipse.ecf.presence.bot.defaultbot&quot;&gt;
+          &lt;chatRooms
+                name=&quot;#eclipse-ecf&quot;&gt;
+          &lt;/chatRooms&gt;
+          &lt;chatRooms
+                name=&quot;#secret-channel&quot;
+                password=&quot;secret-password&quot;&gt;
+          &lt;/chatRooms&gt;
+      &lt;/chatRoomRobot&gt;
+   &lt;/extension&gt;
+&lt;/pre&gt;
+
+Note that to have the chatRoomRobot receive chat room messages and process them, that the chatRoomMessageHandler should also be defined 
+using the id for the chatRoomRobot given above.  For example:
+
+&lt;pre&gt;
+   &lt;extension
+         point=&quot;org.eclipse.ecf.presence.bot.chatRoomMessageHandler&quot;&gt;
+      &lt;handler
+            chatRoomRobotId=&quot;org.eclipse.ecf.presence.bot.defaultbot&quot;
+            class=&quot;org.eclipse.ecf.presence.bot.DefaultChatRoomMessageHandler&quot;&gt;
+      &lt;/handler&gt;
+   &lt;/extension&gt;
+&lt;/pre&gt;
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="apiInfo"/>
+      </appInfo>
+      <documentation>
+         See the API information for the chatRoomMessageHandler
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="implementation"/>
+      </appInfo>
+      <documentation>
+         No supplied implementation.
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="copyright"/>
+      </appInfo>
+      <documentation>
+         Copyright (c) 2007 IBM Corporation and others.  All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+      </documentation>
+   </annotation>
+
+</schema>

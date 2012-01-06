@@ -1,0 +1,283 @@
+<!-- Special Marine Warning configuration -->
+<warngenConfig>
+<!-- Customized by        Phil Kurimski WFO DTX 13 April 2011 
+                          Evan Bookbinder   09-16-2011 OB11.0.8-8
+Added Volcano Information Phil Kurimski 23 Sept 2011
+-->
+
+ <!-- Config distance/speed units -->
+ <unitDistance>nmi</unitDistance>
+ <unitSpeed>kn</unitSpeed>
+
+ <!-- Maps to load on template selection. Refer to 'Maps' menu in CAVE. 
+ 	The various menu items are also the different maps
+ 	that can be loaded with each template. -->
+ <maps>
+  <map>Coastal Marine Zones</map>
+ </maps>
+
+
+ <!-- Followups: VTEC actions of allowable followups when this template is selected 
+	Each followup will become available when the appropriate time range permits.
+ -->
+ <followups>
+  <followup>NEW</followup>
+  <followup>COR</followup>
+ </followups>
+ 
+ <!-- Phensigs: The list of phenomena and significance combinations that this template applies to -->
+ <phensigs>
+   <phensig>MA.W</phensig>
+ </phensigs>
+ 
+  <!-- Enables/disables user from selecting the Restart button the GUI -->
+ <enableRestart>true</enableRestart>
+ 
+  <!-- Enable/disables the system to lock text based on various patterns -->
+ <autoLockText>true</autoLockText>
+ 
+  <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
+ 	included with the warning product include torWatches and/or svrWatches, 
+ 	respectively. Please refer to 'includedWatchAreaBuffer' in <areaConfig/>. -->
+ <includedWatches>
+  <includedWatch>torWatches</includedWatch>
+  <includedWatch>svrWatches</includedWatch>
+ </includedWatches>
+ 
+ <!-- durations: the list of possible durations of the warning -->
+ <defaultDuration>30</defaultDuration>
+ <durations>
+  <duration>10</duration>
+  <duration>15</duration>
+  <duration>20</duration>
+  <duration>25</duration>
+  <duration>30</duration>
+  <duration>40</duration>
+  <duration>45</duration>
+  <duration>60</duration>
+  <duration>90</duration>
+  <duration>120</duration>
+ </durations>
+ 
+<!-- Customized several sections in bullet section including:
+ 	Placed Basis Section at the top to come in line with SVR templates
+	Added Satellite Imagery to Basis Section
+	Removed Severe and Strong T-storm selections with Thunderstorm in Event Type Section
+		Thunderstorm Severity will be determined by selections in Threat Section
+	Added Shower...Cloud and Front to Event Type Section
+	Added a Threat Section with selections for Wind...Hail and Waterspouts 
+        Changed the CTA Bullet names for easier parsing in the vm file 
+        Added Special Event option to Pathcast section
+        Placed CTA section at the bottom to come in line with SVR templates -->
+<bulletActionGroups>
+<bulletActionGroup action="NEW" phen="MA" sig="W">
+ <bullets>
+  <!-- Added Volcano Information. Sites can comment out if they wish. -->
+  <bullet bulletText="  *****BASIS SECTION*****...(Choose 1) " bulletType="title"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="group5" bulletDefault="true" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED"/>
+  <bullet bulletName="marineSpotter" bulletText="Marine weather spotters reported" bulletGroup="group5" parseString="MARINE WEATHER SPOTTERS REPORTED"/>
+  <bullet bulletName="mariner" bulletText="Mariner reported" bulletGroup="group5" parseString="A MARINER REPORTED"/>
+  <bullet bulletName="public" bulletText="Public reported" bulletGroup="group5" parseString="THE PUBLIC REPORTED"/>
+  <bullet bulletName="satellite" bulletText="Satellite imagery indicated" bulletGroup="group5" parseString="SATELLITE IMAGERY INDICATED"/>
+  <bullet bulletName="pilot" bulletText="Pilot reported" bulletGroup="group5" parseString="A PILOT REPORTED"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="  ****EVENT TYPE SECTION****...(Choose 1) " bulletType="title"/>
+  <bullet bulletName="thunderstorm" bulletText="Thunderstorm" bulletGroup="group1" bulletDefault="true" parseString="THUNDERSTORM"/>
+  <bullet bulletName="shower" bulletText="Shower" bulletGroup="group1" parseString="SHOWER"/>
+  <bullet bulletName="cloud" bulletText="Cloud" bulletGroup="group1" parseString="CLOUD"/>
+  <bullet bulletName="front" bulletText="Front" bulletGroup="group1" parseString="FRONT"/>
+  <bullet bulletName="volcano" bulletText="Volcano" bulletGroup="group1" parseString="VOLCANO"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="  ****THREAT SECTION****..." bulletType="title"/>
+  <bullet bulletText="  ****Wind Section****...(Choose 1 if applicable) " bulletType="title"/>
+  <bullet bulletName="34ktWind" bulletText="Strong winds 34 knots or greater" bulletGroup="group2" bulletDefault="true" parseString="STRONG WINDS 34 KNOTS OR GREATER"/>
+  <bullet bulletName="40ktWind" bulletText="Strong winds to 40 knots" bulletGroup="group2" parseString="STRONG WINDS TO 40 KNOTS"/>
+  <bullet bulletName="40ktplusWind" bulletText="Strong winds to nearly 50 knots" bulletGroup="group2" parseString="STRONG WINDS TO NEARLY 50 KNOTS"/>
+  <bullet bulletName="50ktWind" bulletText="Dangerous winds in excess of 50 knots" bulletGroup="group2" parseString="DANGEROUS WINDS IN EXCESS OF 50 KNOTS"/>
+  <bullet bulletName="65ktWind" bulletText="Dangerous winds in excess of 65 knots" bulletGroup="group2" parseString="DANGEROUS WINDS IN EXCESS OF 65 KNOTS"/>
+  <bullet bulletText="  ****Hail Section****...(Choose 1 if applicable) " bulletType="title"/>
+  <bullet bulletName="smallHail" bulletText="Small Hail" bulletGroup="group3" parseString="SMALL HAIL"/>
+  <bullet bulletName="largeHail" bulletText="Large Hail" bulletGroup="group3" parseString="LARGE HAIL"/>
+  <bullet bulletName="destructiveHail" bulletText="Large Destructive Hail" bulletGroup="group3" parseString="LARGE DESTRUCTIVE HAIL"/>
+  <bullet bulletText="  ****Waterspout Section****...(Choose 1 if applicable) " bulletType="title"/>
+  <bullet bulletName="sightedSpout" bulletText="Waterspouts sighted" bulletGroup="group4" parseString="PRODUCING WATERSPOUT"/>
+  <bullet bulletName="possibleSpout" bulletText="Waterspouts possible" bulletGroup="group4" parseString="CAPABLE WATERSPOUT"/>
+  <bullet bulletText="  ****Volcano Section****...(Choose 1 if applicable) " bulletType="title"/>
+  <bullet bulletName="ashfall" bulletText="Ashfall" parseString="ASHFALL"/>
+  <bullet bulletName="debrisFlow" bulletText="Lahar/Debris flow" parseString="DEBRIS FLOW"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="*********** Optional Pathcast Section **********" bulletType="title"/>
+  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="toggle4" bulletDefault="true" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listoflocations" bulletText="Select for a list of locations" bulletGroup="toggle4" parseString="LOCATIONS IMPACTED INCLUDE..."/>
+  <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText=" ****** CALLS TO ACTION (CHOOSE 1 OR MORE) ****** " bulletType="title"/>
+  <bullet bulletName="genericCTA" bulletText="as thunderstorms move over the water.." parseString="AS THUNDERSTORMS MOVE OVER THE WATER..."/>
+  <bullet bulletName="gustyWindsCTA" bulletText="mariners can expect gusty winds.." parseString="MARINERS CAN EXPECT GUSTY WINDS...HIGH WAVES..."/>
+  <bullet bulletName="nonThunderstormCTA" bulletText="non thunderstorm winds - mariners can expect gusty winds.." parseString="MARINERS CAN EXPECT GUSTY WINDS...AND INCREASING WAVES"/>
+  <bullet bulletName="waterspoutCTA" bulletText="thunderstorms can produce waterspouts" parseString="THUNDERSTORMS CAN PRODUCE SUDDEN WATERSPOUTS"/>
+  <bullet bulletName="lightningCTA" bulletText="frequent lightning" parseString="FREQUENT LIGHTNING IS OCCURRING WITH THIS STORM"/>
+  <bullet bulletName="reportCTA" bulletText="report severe wx" parseString="REPORT SEVERE WEATHER TO THE COAST GUARD OR NEAREST LAW ENFORCEMENT AGENCY"/>
+ </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="COR" phen="MA" sig="W">
+ <bullets>
+  <!-- Added Volcano Information. Sites can comment out if they wish. -->
+  <bullet bulletText="*** CORRECTED PRODUCT. CLICK CREATE TEXT ***" bulletType="title"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="  *****BASIS SECTION*****...(Choose 1) " bulletType="title"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="group5" bulletDefault="true" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED"/>
+  <bullet bulletName="marineSpotter" bulletText="Marine weather spotters reported" bulletGroup="group5" parseString="MARINE WEATHER SPOTTERS REPORTED"/>
+  <bullet bulletName="mariner" bulletText="Mariner reported" bulletGroup="group5" parseString="A MARINER REPORTED"/>
+  <bullet bulletName="public" bulletText="Public reported" bulletGroup="group5" parseString="THE PUBLIC REPORTED"/>
+  <bullet bulletName="satellite" bulletText="Satellite imagery indicated" bulletGroup="group5" parseString="SATELLITE IMAGERY INDICATED"/>
+  <bullet bulletName="pilot" bulletText="Pilot reported" bulletGroup="group5" parseString="A PILOT REPORTED"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="  ****EVENT TYPE SECTION****...(Choose 1) " bulletType="title"/>
+  <bullet bulletName="thunderstorm" bulletText="Thunderstorm" bulletGroup="group1" bulletDefault="true" parseString="THUNDERSTORM"/>
+  <bullet bulletName="shower" bulletText="Shower" bulletGroup="group1" parseString="SHOWER"/>
+  <bullet bulletName="cloud" bulletText="Cloud" bulletGroup="group1" parseString="CLOUD"/>
+  <bullet bulletName="front" bulletText="Front" bulletGroup="group1" parseString="FRONT"/>
+  <bullet bulletName="volcano" bulletText="Volcano" bulletGroup="group1" parseString="VOLCANO"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="  ****THREAT SECTION****..." bulletType="title"/>
+  <bullet bulletText="  ****Wind Section****...(Choose 1 if applicable) " bulletType="title"/>
+  <bullet bulletName="34ktWind" bulletText="Strong winds 34 knots or greater" bulletGroup="group2" bulletDefault="true" parseString="STRONG WINDS 34 KNOTS OR GREATER"/>
+  <bullet bulletName="40ktWind" bulletText="Strong winds to 40 knots" bulletGroup="group2" parseString="STRONG WINDS TO 40 KNOTS"/>
+  <bullet bulletName="40ktplusWind" bulletText="Strong winds to nearly 50 knots" bulletGroup="group2" parseString="STRONG WINDS TO NEARLY 50 KNOTS"/>
+  <bullet bulletName="50ktWind" bulletText="Dangerous winds in excess of 50 knots" bulletGroup="group2" parseString="DANGEROUS WINDS IN EXCESS OF 50 KNOTS"/>
+  <bullet bulletName="65ktWind" bulletText="Dangerous winds in excess of 65 knots" bulletGroup="group2" parseString="DANGEROUS WINDS IN EXCESS OF 65 KNOTS"/>
+  <bullet bulletText="  ****Hail Section****...(Choose 1 if applicable) " bulletType="title"/>
+  <bullet bulletName="smallHail" bulletText="Small Hail" bulletGroup="group3" parseString="SMALL HAIL"/>
+  <bullet bulletName="largeHail" bulletText="Large Hail" bulletGroup="group3" parseString="LARGE HAIL"/>
+  <bullet bulletName="destructiveHail" bulletText="Large Destructive Hail" bulletGroup="group3" parseString="LARGE DESTRUCTIVE HAIL"/>
+  <bullet bulletText="  ****Waterspout Section****...(Choose 1 if applicable) " bulletType="title"/>
+  <bullet bulletName="sightedSpout" bulletText="Waterspouts sighted" bulletGroup="group4" parseString="PRODUCING WATERSPOUT"/>
+  <bullet bulletName="possibleSpout" bulletText="Waterspouts possible" bulletGroup="group4" parseString="CAPABLE WATERSPOUT"/>
+  <bullet bulletText="  ****Volcano Section****...(Choose 1 if applicable) " bulletType="title"/>
+  <bullet bulletName="ashfall" bulletText="Ashfall" parseString="ASHFALL"/>
+  <bullet bulletName="debrisFlow" bulletText="Lahar/Debris flow" parseString="DEBRIS FLOW"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="*********** Optional Pathcast Section **********" bulletType="title"/>
+  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="toggle4" bulletDefault="true" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listoflocations" bulletText="Select for a list of locations" bulletGroup="toggle4" parseString="LOCATIONS IMPACTED INCLUDE..."/>
+  <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText=" ****** CALLS TO ACTION (CHOOSE 1 OR MORE) ****** " bulletType="title"/>
+  <bullet bulletName="genericCTA" bulletText="as thunderstorms move over the water.." parseString="AS THUNDERSTORMS MOVE OVER THE WATER..."/>
+  <bullet bulletName="gustyWindsCTA" bulletText="mariners can expect gusty winds.." parseString="MARINERS CAN EXPECT GUSTY WINDS...HIGH WAVES..."/>
+  <bullet bulletName="nonThunderstormCTA" bulletText="non thunderstorm winds - mariners can expect gusty winds.." parseString="MARINERS CAN EXPECT GUSTY WINDS...AND INCREASING WAVES"/>
+  <bullet bulletName="waterspoutCTA" bulletText="thunderstorms can produce waterspouts" parseString="THUNDERSTORMS CAN PRODUCE SUDDEN WATERSPOUTS"/>
+  <bullet bulletName="lightningCTA" bulletText="frequent lightning" parseString="FREQUENT LIGHTNING IS OCCURRING WITH THIS STORM"/>
+  <bullet bulletName="reportCTA" bulletText="report severe wx" parseString="REPORT SEVERE WEATHER TO THE COAST GUARD OR NEAREST LAW ENFORCEMENT AGENCY"/>
+ </bullets>
+</bulletActionGroup>
+</bulletActionGroups>
+
+ <areaConfig>
+  <inclusionPercent>0.00</inclusionPercent>
+  <inclusionAndOr>AND</inclusionAndOr>
+  <inclusionArea>0</inclusionArea>
+  <areaField>NAME</areaField>
+  <parentAreaField>NAME</parentAreaField>
+  <areaNotationField>NAME</areaNotationField>
+  <areaNotationTranslationFile>states.txt</areaNotationTranslationFile>
+  <fipsField>ID</fipsField>
+  <pointField>NAME</pointField>
+  <sortBy>
+  	<sort>Name</sort>
+  </sortBy>
+  <pointFilter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1" constraintType="EQUALS" />
+ 		</mapping>
+  </pointFilter>
+  <includedWatchAreaBuffer>25</includedWatchAreaBuffer>
+ </areaConfig>
+
+
+ <pointSource variable="closestPoints">
+ 	<pointField>NAME</pointField>
+ 	<searchMethod>POINTS</searchMethod>
+ 	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1,2" constraintType="IN" />
+ 		</mapping>
+ 	</filter>
+ 	<maxResults>1</maxResults>
+ 	<distanceThreshold>100</distanceThreshold>
+ 	<sortBy>
+ 		<sort>distance</sort>
+  		<sort>WARNGENLEV</sort>
+  	</sortBy>
+ </pointSource>
+ 
+ <pointSource variable="otherClosestPoints">
+ 	<pointField>NAME</pointField>
+ 	<searchMethod>POINTS</searchMethod>
+ 	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1,2" constraintType="IN" />
+ 		</mapping>
+ 	</filter>
+ 	<maxResults>5</maxResults>
+ 	<distanceThreshold>100</distanceThreshold>
+ 	<sortBy>
+ 		<sort>distance</sort>
+  		<sort>WARNGENLEV</sort>
+  	</sortBy>
+ </pointSource>
+ 
+ <pathcastConfig>
+  <withinPolygon>true</withinPolygon>
+  <distanceThreshold>20.0</distanceThreshold>
+  <interval>5</interval>
+  <delta>5</delta>
+  <maxResults>4</maxResults>
+  <maxGroup>8</maxGroup>
+  <pointField>Name</pointField>
+  <areaField>Name</areaField>
+  <parentAreaField>Name</parentAreaField>
+  <areaNotationField>Name</areaNotationField>
+  <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+  <sortBy>
+  	<sort>distance</sort>
+  </sortBy>
+ </pathcastConfig>
+ 
+ <pointSource variable="locationList">
+ 	<pointField>NAME</pointField>
+ 	<searchMethod>TRACK</searchMethod>
+ 	<withinPolygon>true</withinPolygon>
+ 	<maxResults>20</maxResults>
+ 	<distanceThreshold>20</distanceThreshold>
+ 	<sortBy>
+  		<sort>distance</sort>
+  	</sortBy>  	
+ </pointSource>
+ 
+  <pointSource variable="otherPoints">
+ 	<pointField>NAME</pointField>
+ 	<searchMethod>TRACK</searchMethod>
+ 	<withinPolygon>true</withinPolygon>
+ 	<maxResults>10</maxResults>
+ 	<distanceThreshold>20</distanceThreshold>
+ 	<sortBy>
+  		<sort>distance</sort>
+  	</sortBy>
+	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="3" constraintType="EQUALS" />
+ 		</mapping>
+  	</filter>
+ </pointSource>
+ 
+ <geospatialConfig>
+  <pointSource>MarineSites</pointSource>
+  <areaSource>MarineZones</areaSource>
+  <parentAreaSource>MarineZones</parentAreaSource>
+  <timezoneSource>TIMEZONES</timezoneSource>
+  <timezoneField>TIME_ZONE</timezoneField>
+ </geospatialConfig>
+ 
+</warngenConfig>

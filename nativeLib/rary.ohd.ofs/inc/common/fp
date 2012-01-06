@@ -1,0 +1,4 @@
+C                                           *--> FROM COMMON.FP
+C  FORECAST COMPONENT PARAMETRIC DATA
+      COMMON /FP/ MP,P(500000)
+C

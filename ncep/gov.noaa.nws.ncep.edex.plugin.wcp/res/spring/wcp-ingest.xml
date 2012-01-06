@@ -1,0 +1,65 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+
+	<bean id="wcpDecoder" class="gov.noaa.nws.ncep.edex.plugin.wcp.decoder.WcpDecoder">
+		<constructor-arg ref="wcpPluginName" />
+	</bean>
+
+	<bean id="wcpSeparator" class="gov.noaa.nws.ncep.edex.plugin.wcp.decoder.WcpSeparator" />
+
+	<bean id="wcpDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="wcp" />
+		<constructor-arg value="jms-dist:queue:Ingest.wcp" />
+	</bean>
+
+    <bean id="wcpCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="wcp-camel"/>
+  	</bean> 
+
+	<camelContext id="wcp-camel" xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+		<endpoint id="wcpFileEndpoint"
+			uri="file:${edex.home}/data/sbn/wcp?noop=true&amp;idempotent=false" />
+
+		<route id="wcpFileConsumerRoute"> <from ref="wcpFileEndpoint" /> <bean 
+			ref="fileToString" /> <setHeader headerName="pluginName"> <constant>wcp</constant> 
+			</setHeader> <to uri="jms-generic:queue:Ingest.wcp" /> </route>
+			
+		<!-- Begin wcp routes -->
+		<route id="wcpIngestRoute">
+			<from uri="jms-generic:queue:Ingest.wcp" />
+			<setHeader headerName="pluginName">
+				<constant>wcp</constant>
+			</setHeader>
+			<doTry>
+				<pipeline>
+					<bean ref="stringToFile" />
+					<split streaming="true">
+						<method bean="wcpSeparator" method="separate" />
+						<doTry>
+							<pipeline>
+								<bean ref="wcpDecoder" method="decode" />
+								<to uri="directvm:indexAlert" />
+							</pipeline>
+							<doCatch>
+								<exception>java.lang.Throwable</exception>
+								<to uri="log:wcp?level=ERROR&amp;showBody=false" />
+							</doCatch>
+						</doTry>
+					</split>
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:airmet?level=ERROR&amp;showBody=false" />
+				</doCatch>
+			</doTry>
+		</route>
+	</camelContext>
+</beans>

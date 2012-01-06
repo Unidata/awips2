@@ -1,0 +1,252 @@
+C MODULE NFUTR
+C-----------------------------------------------------------------------
+C
+C  ROUTINE TO CREATE MAPX TIME SERIES DATA FOR THE FUTURE PERIOD.
+C
+      SUBROUTINE NFUTR (MAPXCO,IFUT,MX,NHRS,JHOUR,JHREND,NXA,NMXFL,
+     &   LBUF,BUF,LWKBUF,IWKBUF,IFUT2,ICHKID)
+C
+C-----------------------------------------------------
+C
+C  IF FUTURE PRECIP IS TO BE INCLUDED IN THE MAPX TIME SERIES, IT IS
+C  READ IN FROM THE FMAP DATABASE AND APPENDED TO THE END OF THE MAPX
+C  HOURLY TIME SERIES.  THE MULTI-HOURLY FMAP VALUES ARE EVENLY DIVIDED
+C  INTO HOURLY PERIODS.  IF THE HOUR OF THE LATEST MAPX OBSERVATIONS
+C  FALLS IN THE MIDDLE OF A MULTI-HOUR PERIOD COVERED BY FMAP VALUES,
+C  THE OBSERVED MAPX RAINFALL FOR THAT PERIOD IS SUBTRACTED FROM THE
+C  FORECASTED RAINFALL FOR EACH BASIN AND ANY REMAINING FORECASTED RAIN
+C  IS EVENLY DISTRIBUTED OVER THE REMAINING HOURS FOR THAT MULTI-HOUR
+C  PERIOD.
+C
+C   WRITTEN BY R.SHEDD (HRL) NOVEMBER 1990
+C   2/97  Updated to prorate future rainfall for partial periods
+C
+C-----------------------------------------------------
+C
+      CHARACTER*4 DTYPE,UNITS
+      CHARACTER*8 OLDOPN,AREAID,FMAPID
+      PARAMETER (LBUF1=100)
+      DIMENSION BUF1(LBUF1)
+      PARAMETER (LBUFM=24)
+      DIMENSION BUFM(LBUFM)
+      PARAMETER (LBUF3=500)
+      DIMENSION BUF3(LBUF3)
+      REAL MAPXCO(NMXFL),BUF(LBUF)
+      INTEGER IFUT(MX-NMXFL),IFUT2(MX-NMXFL)
+C
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/fctime'
+      INCLUDE 'common/fctim2'
+      INCLUDE 'common/pudbug'
+      INCLUDE 'prdcommon/pdatas'
+      INCLUDE 'prdcommon/pmaxdm'
+      COMMON/NFUT/IFUTR
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_mapx/RCS/nfutr.f,v $
+     . $',                                                             '
+     .$Id: nfutr.f,v 1.5 1999/07/06 15:52:32 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      IOPNUM=-1
+      CALL FSTWHR ('NFUTR   ',IOPNUM,OLDOPN,IOLDOP)
+C
+      IF (IPTRCE.GE.1) WRITE (IOPDBG,*) 'ENTER NFUTR'
+C
+      IBUG=0
+      ICPBUG=0
+      ITOTCP=1
+      IF (IPBUG('NFTR').EQ.1) IBUG=1
+      IF (IPBUG('NCPU').EQ.1) ICPBUG=1
+C
+      RMISS=-999.0
+      UNITS='MM'
+C
+      IF (IFUTR.EQ.0) THEN
+C     FUTPRECP=0 - FILL WITH MISSING
+         CALL UMEMST (RMISS,BUF,NHRS)
+         DO 10 IAREA=1,NXA
+            CALL UMEMOV (MAPXCO(3*IAREA-2),AREAID,2)
+            IF (IBUG.EQ.1) WRITE (IOPDBG,*) 'AREAID=',AREAID
+            JHRST=JHOUR+NHOPDB+1
+            DTYPE='MAPX'
+            ICALL=0
+            IREC=0
+            IF (IBUG.EQ.1) WRITE (IOPDBG,100) NHRS,AREAID,JHOUR
+            CALL WPRDD (AREAID,DTYPE,JHRST,1,NHRS,UNITS,NHRS,LBUF,BUF,
+     &         JHRST,ICALL,LWKBUF,IWKBUF,IREC,ISTAT)
+            IF (ISTAT.NE.0) THEN
+               IF (ISTAT.EQ.2.OR.ISTAT.EQ.7) THEN
+                  WRITE (IPR,121) DTYPE,AREAID
+                  CALL WARN
+                  ELSE
+                     WRITE (IPR,123) DTYPE,AREAID,ISTAT
+                     CALL ERROR
+                  ENDIF
+               ENDIF
+10          CONTINUE
+         GO TO 80
+         ENDIF
+C
+C  FUTPRECP=1 - FILL WITH FUTURE MAP
+C
+C  PROCESS EACH AREA
+C
+      IPTR=0
+      L=MX-NMXFL
+C
+      DO 70 IAREA=1,NXA
+         CALL UMEMOV (MAPXCO(3*IAREA-2),AREAID,2)
+         IF (IBUG.EQ.1) WRITE (IOPDBG,*) 'AREAID=',AREAID
+C     CHECK IF AREA TO BE PROCESSED
+         IF (ICHKID.EQ.1) THEN
+            IF (AREAID.NE.'SOHN3MER') THEN
+               WRITE (IPR,*) '**NOTE** AREA ',AREAID,
+     &            'WILL NOT BE PROCESSED.'
+               GO TO 70
+               ELSE
+                  WRITE (IPR,*) '**NOTE** PROCESSING AREA ',AREAID,'.'
+               ENDIF
+            ENDIF
+C     READ MAPX PARAMETRIC RECORD
+         DTYPE='MAPX'
+         CALL RPPREC (AREAID,DTYPE,IPTR,LBUF3,BUF3,NFILL,IPTRNX,ISTAT)
+         IPTR=IPTRNX
+         CALL UMEMOV (BUF3(12),FMAPID,2)
+C     GET TIME INTERVAL OF FMAP TIME SERIES
+         IF (IBUG.EQ.1) WRITE (IOPDBG,*) 'FMAPID=',FMAPID
+         DTYPE='MAP'
+         CALL RPRDFH (FMAPID,DTYPE,L-NFILL-22,IFUT(1),NUMX,
+     &      IFUT(NFILL+23),ISTAT)
+         ISTEP=IFUT(2)
+C     FIND THE PREVIOUS SYNOPTIC 6-HOUR TIME JUST PRIOR TO LSTCMPDY.
+C     IX IS THE NUMBER OF HOURS OF OBS. MAPX DATA WHICH IS AVAILABLE
+C     SINCE THE MOST RECENT SYNOPTIC TIME
+         IX=MOD(JHOUR,ISTEP)
+         JHOURSYN=JHOUR-IX
+         IF (MOD(JHREND,ISTEP).EQ.0) GO TO 20
+            JHREND=JHREND+ISTEP-MOD(JHREND,ISTEP)
+            IF (IBUG.EQ.1) WRITE (IOPDBG,130) JHREND
+C     FIND THE NUMBER OF ISTEP-HOURLY PERIODS OF FMAP DATA THAT IS
+C     NEEDED TO COVER THE FUTURE PERIOD OF THIS RUN
+20       NUM=(JHREND-JHOURSYN)/ISTEP
+         JHRST=JHOURSYN+NHOPDB+ISTEP
+C     READ FMAP TIME SERIES DATA
+         DTYPE='MAP'
+         CALL RPRDDF (FMAPID,DTYPE,JHRST,ISTEP,NUM,UNITS,RMISS,
+     &      LBUF1,BUF1,L-NFILL,IFUT(NFILL+1),ISTAT)
+         IF (ISTAT.NE.0) THEN
+            WRITE (IPR,150) 'FMAP',FMAPID,'RPRDD',ISTAT
+            CALL WARN
+            ENDIF
+C     CONVERT FMAP TIME SERIES TO HOURLY VALUES
+         DO 30 I=1,NUM
+            DO 30 K=1,ISTEP
+               J=(I-1)*ISTEP+K
+               BUF(J)=BUF1(I)/ISTEP
+               IF (BUF1(I).GE.0.0) GO TO 30
+                  JDA=(JHOURSYN+J)/24+1
+                  JHR=MOD(JHOURSYN+J,24)
+                  CALL MDYH1 (JDA,JHR,JM,JD,JY,JH,0,0,CODE)
+                  WRITE (IPR,140) AREAID,JM,JD,JY,JH,CODE
+                  CALL WARN
+                  J=J-1
+                  GO TO 40
+30          CONTINUE
+40       NHRTMP=MIN0(J-IX,NHRS)
+         IF (NHRTMP.LT.0) NHRTMP=0
+C     TIME DISTRIBUTE THE REMAINING HOURLY FMAP VALUES THAT ARE NOT
+C     OVERLAID BY OBSERVED MAPX DATA IN THE MIDDLE OF A SYNOPTIC PERIOD.
+C     FIRST, READ THE MAPX TIME SERIES FOR THE OVERLAP TIME PERIOD FOR
+C     THIS BASIN.
+         IF (IX.NE.0.AND.J.GT.0) THEN
+            JHRST=JHOURSYN+NHOPDB+1
+            DTYPE='MAPX'
+            CALL RPRDD (AREAID,DTYPE,JHRST,1,IX,UNITS,RMISS,
+     &         LBUFM,BUFM,IFPTR,LWKBUF,IFUT2,ISTAT)
+            IF (ISTAT.NE.0) THEN
+               WRITE (IPR,150) DTYPE,AREAID,'RPRDD',ISTAT
+               CALL WARN
+               ELSE
+                  SUMMAPX=0.
+                  DO 50 IC=1,IX
+                     SUMMAPX=SUMMAPX+BUFM(IC)
+50                   CONTINUE
+C              SUBTRACT THE SUMMED MAPX FOR THE PARTIAL PERIOD FROM
+C              THE 6-HOUR FMAP WHICH COVERS THAT SAME 6-HOUR PERIOD
+                  DIFF=BUF1(1)-SUMMAPX
+                  IF (DIFF.LT.0.) DIFF=0.
+                  DO 60 IHR=1,ISTEP
+                     IF (IHR.GT.IX) THEN
+                        BUF(IHR)=DIFF/(ISTEP-IX)
+                        ELSE
+                           BUF(IHR)=RMISS
+                        ENDIF
+60                   CONTINUE
+               ENDIF
+            ENDIF
+         IF (IBUG.EQ.1) WRITE (IOPDBG,110) (BUF(I),I=1,J)
+C     WRITE FUTURE VALUES TO MAPX TIME SERIES
+         JHRST=JHOUR+NHOPDB+1
+         DTYPE='MAPX'
+         ITIME=1
+         ICALL=0
+         IREC=0
+         IF (IBUG.EQ.1) THEN
+            WRITE (IOPDBG,*)
+     &         ' AREAID=',AREAID,
+     &         ' DTYPE=',DTYPE,
+     &         ' JHRST=',JHRST,
+     &         ' NHRTMP=',NHRTMP,
+     &         ' '
+            ENDIF
+         CALL WPRDD (AREAID,DTYPE,JHRST,ITIME,NHRTMP,UNITS,NHRTMP,
+     &      LBUF,BUF(IX+1),JHRST,ICALL,LWKBUF,IWKBUF,IREC,ISTAT)
+         IF (IBUG.EQ.1) WRITE (IOPDBG,120) ISTAT
+         IF (ISTAT.NE.0) THEN
+            IF (ISTAT.EQ.2.OR.ISTAT.EQ.7) THEN
+               WRITE (IPR,121) DTYPE,AREAID
+               CALL WARN
+               ELSE
+                  WRITE (IPR,123) DTYPE,AREAID,ISTAT
+                  CALL ERROR
+               ENDIF
+            ENDIF
+         IF (ICPBUG.GT.0) THEN
+            CALL URTIMR (LAPSCP,ITOTCP)
+            CPLAPS=FLOAT(LAPSCP)/100.
+            WRITE (IOPDBG,90) AREAID,CPLAPS
+            ENDIF
+70       CONTINUE
+C
+80    CALL FSTWHR (OLDOPN,IOLDOP,OLDOPN,IOLDOP)
+C
+      IF (IPTRCE.GE.1) WRITE (IOPDBG,*) 'EXIT NFUTR'
+C
+      RETURN
+C
+90    FORMAT (' PRD WRITTEN FOR FUTURE DATA FOR AREA ',A,
+     &   ' - ',
+     &   'CPU TIME USED = ',F7.2,' SECONDS')
+121   FORMAT('0**WARNING** IN NFUTR - ',A,' TIME SERIES FOR AREA ',A,
+     & ' COULD NOT ALL BE WRITTEN TO THE PDB - TRUNCATED AT THE END.')
+123   FORMAT ('0**ERROR** IN NFUTR - ',A,' TIME SERIES FOR AREA ',A,
+     & ' COULD NOT BE WRITTEN TO THE PDB. WPRDD STATUS CODE = ',I2)
+100   FORMAT (' ',I2,' HOURS OF MISSING FUTURE DATA FOR AREA ',A,
+     &   ' STARTING AT HOUR ',I6)
+110   FORMAT (1X,6(F7.2,2X))
+120   FORMAT (' RETURN FROM WPRDD - ISTAT=',I3,'.')
+125   FORMAT ('0**ERROR** WRITING TO PROCESSED DATA BASE ',
+     &   'FOR AREA ',A,'. WPRDD STATUS CODE = ',I2)
+130   FORMAT (' END HOUR FOR RPRDDF CHANGED TO ',I6)
+140   FORMAT ('0**WARNING** NO FUTURE DATA AVAILABLE FOR AREA ',A,
+     &      ' STARTING AT ',I2.2,'/',I2.2,'/',I4,'-',I2.2,A4,'. ' /
+     &   13X,'MAPX TIME SERIES WILL BE TRUNCATED TO THIS TIME.')
+150   FORMAT ('0**WARNING** ',A,' TIME SERIES DATA NOT SUCCESSFULLY ',
+     &   'READ FOR AREA ',A,'. ',A,' STATUS CODE = ',I2)
+
+      END

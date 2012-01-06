@@ -1,0 +1,539 @@
+C MEMBER FSVS43
+C-----------------------------------------------------------------------
+C
+C                             LAST UPDATE: 05/23/97 BY ERB
+C
+C
+C @PROCESS LVL(77)
+C
+      SUBROUTINE FSVS43(SEGID,ND,MXD,JDAYS,IHRS,ISFG,P,MP,T,MT,NXD,
+     1   NXOLDP,IOTIME,IFLUSH,LINE,IBUG,ITITLE)
+C
+C     THIS SUBROUTINE STORES CARRYOVER VALUES AND SELECTED PARAMETERS
+C     FOR THE SNOW-43 OPERATION.  VALUES FOR EACH SEGMENT
+C     ARE READ FROM FILES IN AN ORDER TO MINIMIZE DISK
+C     ACCESSES AND STORED IN THE D ARRAY.  THE D ARRAY
+C     VALUES ARE PRINTED AS REQUIRED BY CALLING FPRS43.
+C
+C  MODIFIED FROM FSVSNW CODE ORIGINALLY WRITTEN BY GEORGE SMITH,
+C    BY RUSS ERB, HRL, MAY 1997
+C
+C     THE SNOW-43 INFORMATION IS STORED IN THE D ARRAY BY
+C       SEGMENT. THE INFORMATION STORED FOR EACH SEGMENT IS AS FOLLOWS.
+C
+C     POSITION               CONTENTS
+C       1-2               SEGMENT IDENTIFIER
+C        3                NUMBER OF SNOW-43 OPERATIONS IN THE SEGMENT.
+C        4                IF SPECIAL FGROUP, LOCATION OF CARRYOVER
+C                           DATES IN THE OLDP ARRAY.
+C                          OTHERWISE=0
+C        5                NUMBER OF VALUES IN C ARRAY FOR SEGMENT
+C        6                IWOCRY--CARRYOVER WORD OFFSET
+C       7-8               CARRYOVER GROUP NAME
+C       9-13              SEGMENT DESCRIPTION
+C       REST              FOR EACH SNOW-43 OPERATION THE FOLLOWING
+C                           IS STORED.
+C                           1-2   OPERATION NAME
+C                           3-9   PARAMETERS(PLWHC,SCF,SI,PXTEMP,
+C                                   MFMAX,MFMIN,UADJ)
+C                           10    LOCATION OF CARRYOVER IN C ARRAY.
+C                           11    IDTP - TIME STEP OF PX T.S.
+C                           12-20 AREAL DEPLETION CURVE (VALUES 2-10)
+C                           21+   FOR EACH CARRYOVER DATE 7 VALUES
+C                                  PER DATE ARE STORED (CURRENT WE,
+C                                  AREAL COVER, MAX WE, ADADJ,
+C                                  HEAT DEFICIT, TEMP INDEX, FRAC LIQ)
+C
+C     VALUES ARE ALL STORED IN UNITS TO BE DISPLAYED.
+C     FOR SPECIAL FGROUP, NOTHING IS STORED FOR DATES FOR
+C     WHICH THERE IS NO CARRYOVER (JULIAN DATE OF CARRYOVER
+C     IS LE ZERO IN OLDP ARRAY).  MISSING VALUE(-999.0) STORED
+C     WHEN CARRYOVER CAN NOT BE READ.
+C
+C     SI, IDTP, AND THE ADC ARE USED WHEN COMPUTING CARRYOVER.
+C     IDTP AND ADC ARE STORED SO THEY DO NOT NEED TO BE REREAD
+C     FROM THE PARAMETER FILE FOR OTHER THAN THE 1ST DATE OF CO.
+C.......................................
+      INTEGER T(MT),OLDP
+      DIMENSION SEGID(2),JDAYS(MXD),IHRS(MXD),P(MP),IOTIME(3,1)
+      DIMENSION SEGN(2),ADC(11),INCSGX(20),CGIDX(2),SEGNIX(2)
+C
+C     COMMON BLOCKS
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/fd'
+      INCLUDE 'common/oldp'
+      INCLUDE 'common/fengmt'
+      INCLUDE 'common/oldt'
+      INCLUDE 'common/fc'
+      COMMON/FCSEGN/IRSEG,SEGNID(2),IUPSEG(2,5),IDNSEG(2,2),IPREC,
+     1 IWOCRY,IFGID(2),CGID(2),SGDSCR(5),ICRDTE(5),MINDT,XLAT,XLONG,
+     2 NCA,NDA,NT,NTS,NPA,NCOPS,INCSEG(20),IDEFSG,IEREC,OPEN(2)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_printops/RCS/fsvs43.f,v $
+     . $',                                                             '
+     .$Id: fsvs43.f,v 1.1 1997/06/24 19:53:16 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C     DATA STATEMENT
+      DATA SC/2HC /
+C.......................................
+C     CHECK TRACE LEVEL--TRACE LEVEL=2.
+      IF(ITRACE.GE.2) WRITE(IODBUG,10)
+10    FORMAT(1H0,17H** FSVS43 ENTERED)
+C.......................................
+C     INITIAL VALUES.
+      NP=7
+      NC=7
+C.......................................
+C     PRINTOUT VALUES IN D ARRAY IF IFLUSH=1.
+      IF(IFLUSH.EQ.1) GO TO 80
+C.......................................
+C     CHECK T ARRAY TO FIND NUMBER OF SNOW-43 OPERATIONS IN SEGMENT.
+      NSNO=0
+      LOCT=1
+20    IF(T(LOCT).NE.31) GO TO 30
+      NSNO=NSNO+1
+C
+C  STORE IN OLDT ARRAY THE LOCATION IN T ARRAY OF ALL SNOW-43 OPERS
+C
+      OLDT(NSNO)=LOCT
+30    IF(T(LOCT).EQ.-1) GO TO 40
+      LOCT=T(LOCT+1)
+      IF(LOCT.GT.MT) GO TO 40
+      GO TO 20
+C     IF NO SNOW-43 OPERATIONS-RETURN
+40    IF(NSNO.EQ.0) GO TO 440
+C.......................................
+C     CHECK IF SPACE IS AVAILABLE TO STORE VALUES FOR THIS
+C       SEGMENT.  IF NOT, PRINT AND THEN STORE.
+      LEFT=MD-NXD+1
+      NEED=13+NSNO*(13+NP+ND*NC)
+      IF(ISFG.EQ.1) NEEDOP=2*ND
+      IF(NEED.LE.LEFT) GO TO 50
+      GO TO 60
+50    IF(ISFG.EQ.0) GO TO 300
+      LEFT=MOLDP-NXOLDP+1
+      IF(NEEDOP.LE.LEFT) GO TO 300
+C.......................................
+C
+C  STORE SOME INFO IN /FCSEGN/ CB FOR CURRENT SEGMENT PASSED
+C  FROM FPROPS BEFORE STARTING LOOP TO FILL D ARRAY WITH OTHER
+C  CARRYOVER DATES.
+C
+60    SEGNIX(1)=SEGNID(1)
+      SEGNIX(2)=SEGNID(2)
+      IWOCRX=IWOCRY
+      CGIDX(1)=CGID(1)
+      CGIDX(2)=CGID(2)
+      NCAX=NCA
+      DO 70 IX=1,5
+70    INCSGX(IX)=INCSEG(IX)
+C
+C.......................................
+C     READ CARRYOVER AND STORE CARRYOVER FOR REMAINING DATES
+C       BEFORE PRINTING VALUES IN THE D ARRAY.
+80    IF(ND.EQ.1) GO TO 260
+C
+C     CHECK FOR DEBUG
+      IF(IBUG.EQ.0) GO TO 120
+      WRITE(IODBUG,90)SEGID,IWOCRY,NCA,CGID,SEGNID
+90    FORMAT('0 ABOUT TO BEGIN READING CARRYOVER FOR OTHER ',
+     1 'THAN 1ST DATE'/,5X,'SEGID=',2A4,', IWOCRY=',I9,', NCA=',I5,
+     2 ', CGID=',2A4,', SEGNID=',2A4)
+      LD=NXD-1
+      WRITE(IODBUG,100)(D(I),I=1,LD)
+100   FORMAT(1H ,15F8.2)
+      IF (ISFG.EQ.0) GO TO 120
+      LD=NXOLDP-1
+      WRITE(IODBUG,110)(OLDP(I),I=1,LD)
+110   FORMAT(1H ,12(I7,I3))
+C
+C     BEGIN DATE LOOP
+C
+C****************************************************************
+C****************************************************************
+C
+C  STORE CO IN D ARRAY FOR OTHER THAT 1ST CO DATE WANTED
+C
+120   DO 250 I=2,ND
+      LD=1
+C
+C     SEGMENT INFORMATION
+130   SEGN(1)=D(LD)
+      SEGN(2)=D(LD+1)
+      NSNW=D(LD+2)
+      LP=D(LD+3)
+      SEGNID(1)=SEGN(1)
+      SEGNID(2)=SEGN(2)
+      NCA=D(LD+4)
+      IWOCRY=D(LD+5)
+      CGID(1)=D(LD+6)
+      CGID(2)=D(LD+7)
+      DO 140 J=1,20
+140   INCSEG(J)=1
+C
+C     GET CARRYOVER DATE
+      IF(ISFG.EQ.1) GO TO 150
+      JD=JDAYS(I)
+      IH=IHRS(I)
+      GO TO 160
+150   J=LP+(I-1)*2
+      JD=OLDP(J)
+      IF(JD.LE.0) GO TO 240
+      IH=OLDP(J+1)
+C
+C     READ C ARRAY.
+160   CALL FGETCO (SEGN,JD,IH,C,MC,'ERROR',IERR)
+      IF(IBUG.GT.0)WRITE(IODBUG,170)SEGN,JD,IH,IERR,IWOCRY,NCA
+170   FORMAT(' READING CARRYOVER FOR SEGMENT ',2A4,', DAY-HR=',
+     1 I10,'-',I2,', IERR=',I5,', IWOCRY =',I9,', NCA=',I5)
+      IF ((IBUG.EQ.2).AND.(IERR.EQ.0)) CALL FDMPA(SC,C,MC)
+C     STORE VALUES FOR EACH OPERATION
+C
+C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+C
+      DO 230 N=1,NSNW
+C
+C  GET LOCATION OF P() FOR THIS OPERATION
+C
+      LOCT=OLDT(N)
+C
+C  LPO IS STARTING LOCATION OF SECOND PORTION OF THE
+C  P ARRAY FOR THE CURRENT OPERATION
+C
+      LPO=T(LOCT+2)
+      LPOM=LPO-1
+      K=LD+13+(N-1)*(13+NP+ND*NC)
+      L=K+2+NP+1+1+9+(I-1)*NC - 1
+C
+C  K POINTS TO START OF INFO IN D ARRAY FOR NTH SNOW-43 OPERATION
+C    IN THIS SEGMENT.
+C  L POINTS TO START OF ACTUAL CO VALUES FOR ITH DATE
+C    FOR CURRENT (NTH) OPERATION (MINUS 1).
+C  I IS DATES INDEX --- DO 130 LOOP *********
+C  N IS OPERATIONS INDEX --- DO 125 LOOP ++++++++++
+C
+      IF(IERR.EQ.0) GO TO 190
+      DO 180 J=1,NC
+180   D(L+J)=-999.0
+      GO TO 230
+C
+C  LC IS LOCATION OF CO IN C ARRAY FOR CURRENT (NTH) OPERATION.
+C
+190   LC=D(K+2+NP)
+C
+C  CURRENT WE
+C
+C  IDTP IS THE TIME STEP OF THE PRECIP TIME SERIES.
+C
+      IDTP=D(K+2+NP+1)
+      NNN=5/IDTP + 2
+      CURWE=C(LC)+C(LC+2)+C(LC+8)
+      DO 200 III=1,NNN
+200   CURWE=CURWE+C(LC+9+III)
+      D(L+1)=CURWE
+      IF(METRIC.EQ.0)D(L+1)=CURWE/25.4
+C
+C  AREAL COVER
+C
+      AESC=0.0
+      IF(C(LC).EQ.0.0)GO TO 220
+C
+      SI=D(K+2+2)
+C
+C  ADC IS THE AREAL DEPLETION CURVE
+C
+      ADC(1)=0.05
+      DO 210 IX=1,9
+210   ADC(1+IX)=D(K+2+NP+1+IX)
+      ADC(11)=1.0
+C
+      CALL AESC19(C(LC),C(LC+2),C(LC+4),C(LC+5),C(LC+6),C(LC+7),
+     1  SI,ADC,C(LC+9),AESC)
+C
+220   D(L+2)=AESC
+C
+C  MAXIMUM WE
+C
+      D(L+3)=C(LC+4)
+      IF(METRIC.EQ.0)D(L+3)=C(LC+4)/25.4
+C
+C  AEADJ
+C
+      D(L+4)=C(LC+9)
+C
+C  HEAT DEFICIT
+C
+      D(L+5)=C(LC+1)
+      IF(METRIC.EQ.0)D(L+5)=C(LC+1)/25.4
+C
+C  TEMPERATURE INDEX
+C
+      D(L+6)=C(LC+3)
+      IF(METRIC.EQ.0)D(L+6)=32.0+C(LC+3)*1.8
+C
+C  FRACTION LIQUID
+C
+      D(L+7)=0.0
+      IF(C(LC).GT.0.01)D(L+7)=C(LC+2)/C(LC)
+C
+230   CONTINUE
+C
+C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+C+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+C
+C     CHECK FOR LAST SEGMENT
+240   LD=LD+13+NSNW*(13+NP+ND*NC)
+      IF(LD.GE.NXD) GO TO 250
+      GO TO 130
+250   CONTINUE
+C
+C****************************************************************
+C****************************************************************
+C
+C.......................................
+C     CHECK FOR DEBUG
+260   IF(IBUG.EQ.0) GO TO 270
+      LD=NXD-1
+      WRITE(IODBUG,100)(D(I),I=1,LD)
+C.......................................
+C     PRINT VALUES STORED IN THE D ARRAY
+C
+C>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+C
+270   CALL FPRS43(NXD,D,MD,OLDP,MOLDP,IOTIME,ISFG,LINE,ND,NP,NC,ITITLE)
+C
+C>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+C
+C     IF IFLUSH=1, RETURN--NO MORE TO STORE.
+      IF(IFLUSH.EQ.1) GO TO 440
+C.......................................
+C
+C  HAVE PRINTED INFO CURRENTLY IN D ARRAY. RESET D AND OLDP POINTERS
+C  AND STORE INFO FOR SEGMENT READ BEFORE PRINTING BEGAN.
+C
+C     RESET NEXT D AND OLDP POINTERS BEFORE STORING MORE VALUES.
+      NXD=1
+      NXOLDP=1
+C
+C  PUT INFO BACK INTO /FCSEGN/ CB VARIABLES ABOUT SEGMENT PASSED
+C  FROM FPROPS.
+C
+      SEGNID(1)=SEGNIX(1)
+      SEGNID(2)=SEGNIX(2)
+      IWOCRY=IWOCRX
+      CGID(1)=CGIDX(1)
+      CGID(2)=CGIDX(2)
+      NCA=NCAX
+      DO 280 IX=1,5
+280   INCSEG(IX)=INCSGX(IX)
+C.......................................
+C
+      IF(IBUG.GT.0)WRITE(IODBUG,290)SEGID,IWOCRY,NCA,CGID,SEGNID
+290   FORMAT(' FINISHED PRINTING ONE BATCH OF CARRYOVER, NOW ',
+     1 'STORE INFO FOR SEGMENT READ BEFORE PRINTING'/
+     2 5X,'SEGID=',2A4,', IWOCRY=',I9,', NCA=',I5,
+     3 ', CGID=',2A4,', SEGNID=',2A4)
+C
+C     STORE PARAMETERS AND FIRST CARRYOVER DATE FOR THE SEGMENT
+C       IN THE D ARRAY.
+C     IF SPECIAL FGROUP STORE CARRYDATES FOR THE SEGMENT IN OLDP
+C        (INTEGER ARRAY)
+300   IF(ISFG.EQ.0) GO TO 320
+      DO 310 I=1,ND
+      J=NXOLDP+(I-1)*2
+      OLDP(J)=JDAYS(I)
+      OLDP(J+1)=IHRS(I)
+310   CONTINUE
+C.......................................
+C     FILL D ARRAY WITH GENERAL INFRO., SELECTED PARAMETERS, AND
+C       CARRYOVER FOR THE FIRST DATE FOR EACH SNOW-43
+C        OPERATION WITHIN THE SEGMENT.
+320   LD=NXD
+C
+C     STORE SEGMENT INFRO.
+      D(LD)=SEGID(1)
+      D(LD+1)=SEGID(2)
+      D(LD+2)=NSNO+0.01
+      D(LD+3)=0.01
+      IF(ISFG.EQ.1)D(LD+3)=NXOLDP+0.01
+      D(LD+4)=NCA+0.01
+      D(LD+5)=IWOCRY+0.01
+      D(LD+6)=CGID(1)
+      D(LD+7)=CGID(2)
+      DO 330 I=1,5
+330   D(LD+7+I)=SGDSCR(I)
+C
+C     STORE INFRO. FOR EACH SNOW-43 OPERATION AND CO FOR 1ST DATE
+C       WANTED.  CO FOR OTHER DATES WILL BE FILLED IN DO LOOP 130
+C       JUST BEFORE THEY ARE PRINTED.
+C
+      DO 410 N=1,NSNO
+      LD=NXD+13+(N-1)*(13+NP+ND*NC)
+      LOCT=OLDT(N)
+      LPO=T(LOCT+2)
+      LPOM=LPO-1
+C
+C     STORE OPERATION NAME.
+      D(LD)=P(LPO-5)
+      D(LD+1)=P(LPO-4)
+      LPM=P(LPO+24)
+      LPM=LPO+LPM-2
+C
+C     STORE PARAMETERS IN UNITS TO BE PRINTED.
+C
+C  PLWHC
+C
+      D(LD+2)=P(LPM+12)
+C
+C  SCF
+C
+      D(LD+3)=P(LPM+3)
+C
+C  SI
+C
+      D(LD+4)=P(LPM+7)
+      IF(METRIC.EQ.0)D(LD+4)=P(LPM+7)/25.4
+      SI=D(LD+4)
+C
+C  PXTEMP
+C
+      D(LD+5)=P(LPM+11)
+      IF(METRIC.EQ.0)D(LD+5)=32.0+P(LPM+11)*1.8
+C
+C  MFMAX
+C
+      D(LD+6)=P(LPM+4)
+      IF(METRIC.EQ.0)D(LD+6)=P(LPM+4)/(25.4*1.8)
+C
+C  MFMIN
+C
+      D(LD+7)=P(LPM+5)
+      IF(METRIC.EQ.0)D(LD+7)=P(LPM+5)/(25.4*1.8)
+C
+C  UADJ
+C
+      D(LD+8)=P(LPM+6)
+      IF(METRIC.EQ.0)D(LD+8)=P(LPM+6)*33.864/25.4
+C
+C     STORE LOCATION OF CARRYOVER IN C ARRAY FOR THE OPERATION.
+      LC=T(LOCT+3)
+      LD=LD+NP+2
+      D(LD)=LC+0.01
+C
+C  STORE IDTP
+C
+      IDTP=P(LPOM+10)
+      D(LD+1)=IDTP+0.01
+      LD=LD+1
+C
+C  STORE AREAL DEPLETION CURVE (MIDDLE 9 VALUES)
+C
+      IXX=P(LPOM+26) + LPO
+      DO 340 IX=1,9
+      ADC(1+IX)=P(IXX-2+IX)
+340   D(LD+IX)=ADC(1+IX)
+      LD=LD+9
+C
+C     IF CARRYOVER NOT AVAILABLE FOR FIRST DATE FOR SPECIAL
+C       FGROUP, GO TO NEXT SNOW-43 OPERATION
+      IF(ISFG.EQ.0) GO TO 350
+      IF(JDAYS(1).LE.0) GO TO 410
+C
+C     READ CARRYOVER FOR FIRST DATE IF FIRST SNOW-43 OPERATION
+350   IF(N.NE.1) GO TO 360
+      CALL FGETCO (SEGID,JDAYS(1),IHRS(1),C,MC,'ERROR',IERR)
+      IF(IBUG.GT.0)WRITE(IODBUG,170)SEGID,JDAYS(1),IHRS(1),IERR,
+     1 IWOCRY,NCA
+      IF ((IBUG.EQ.2).AND.(IERR.EQ.0)) CALL FDMPA(SC,C,MC)
+C
+C     STORE CARRYOVER VALUES
+C
+360   IF(IERR.EQ.0)GO TO 380
+C  CARRYOVER COULD NOT BE READ
+      DO 370 I=1,NC
+370   D(LD+I)=-999.0
+      GO TO 410
+C
+C  STORE CARRYOVER READ.
+C
+C  CURRENT WE
+C
+C  NOTE THAT IDTP WAS COMPUTED ABOVE
+C
+380   NNN=5/IDTP + 2
+      CURWE=C(LC)+C(LC+2)+C(LC+8)
+      DO 390 III=1,NNN
+390   CURWE=CURWE+C(LC+9+III)
+      D(LD+1)=CURWE
+      IF(METRIC.EQ.0)D(LD+1)=CURWE/25.4
+C
+C  AREAL COVER
+C
+      AESC=0.0
+      IF(C(LC).EQ.0.0)GO TO 400
+C
+      ADC(1)=0.05
+C
+C  NOTE THAT VALUES 2-10 OF ADC AND VALUE OF SI WERE FILLED IN ABOVE
+C
+      ADC(11)=1.0
+C
+      CALL AESC19(C(LC),C(LC+2),C(LC+4),C(LC+5),C(LC+6),C(LC+7),
+     1  SI,ADC,C(LC+9),AESC)
+C
+400   D(LD+2)=AESC
+C
+C  MAXIMUM WE
+C
+      D(LD+3)=C(LC+4)
+      IF(METRIC.EQ.0)D(LD+3)=C(LC+4)/25.4
+C
+C  AEADJ
+C
+      D(LD+4)=C(LC+9)
+C
+C  HEAT DEFICIT
+C
+      D(LD+5)=C(LC+1)
+      IF(METRIC.EQ.0)D(LD+5)=C(LC+1)/25.4
+C
+C  TEMPERATURE INDEX
+C
+      D(LD+6)=C(LC+3)
+      IF(METRIC.EQ.0)D(LD+6)=32.0+C(LC+3)*1.8
+C
+C  FRACTION LIQUID
+C
+      D(LD+7)=0.0
+      IF(C(LC).GT.0.01)D(LD+7)=C(LC+2)/C(LC)
+C
+410   CONTINUE
+C.......................................
+C     CHECK FOR DEBUG
+      IF(IBUG.EQ.0) GO TO 430
+      WRITE(IODBUG,420)SEGID,NSNO,(OLDT(I),I=1,NSNO)
+420   FORMAT(1H0,20HFSVS43 DEBUG--SEGID=,2A4,1X,5HNSNO=,I2,1X,
+     1  7HLOCT'S=,20I4)
+      LD=NXD+NEED-1
+      WRITE(IODBUG,100)(D(I),I=NXD,LD)
+      IF(ISFG.NE.1) GO TO 430
+      LD=NXOLDP+NEEDOP-1
+      WRITE(IODBUG,110)(OLDP(I),I=NXOLDP,LD)
+C.......................................
+C     UPDATE D AND OLDP ARRAY LOCATIONS BEFORE GOING TO NEXT SEGMENT
+430   NXD=NXD+NEED
+      IF(ISFG.EQ.1) NXOLDP=NXOLDP+NEEDOP
+C.......................................
+C     EXIT SUBROUTINE
+440   IF(ITRACE.GE.2) WRITE(IODBUG,450)
+450   FORMAT(1HO,14H** EXIT FSVS43)
+C.......................................
+      RETURN
+      END

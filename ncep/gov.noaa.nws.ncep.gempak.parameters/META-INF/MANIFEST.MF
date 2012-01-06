@@ -1,0 +1,36 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Option Plug-in
+Bundle-SymbolicName: gov.noaa.nws.ncep.gempak.parameters;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: gov.noaa.nws.ncep.gempak.parameters.Activator
+Require-Bundle: org.eclipse.ui;bundle-version="3.4.1",
+ org.eclipse.core.runtime,
+ org.apache.commons.lang;bundle-version="2.3.0",
+ javax.measure;bundle-version="1.0.0",
+ com.raytheon.uf.viz.core;bundle-version="1.11.31"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: gov.noaa.nws.ncep.viz.common.ui,
+ gov.noaa.nws.ncep.viz.common.ui.color,
+ gov.noaa.nws.ncep.viz.localization.impl,
+ org.junit
+Export-Package: gov.noaa.nws.ncep.gempak.parameters,
+ gov.noaa.nws.ncep.gempak.parameters.categorymap,
+ gov.noaa.nws.ncep.gempak.parameters.colors,
+ gov.noaa.nws.ncep.gempak.parameters.contourinterval,
+ gov.noaa.nws.ncep.gempak.parameters.discrete,
+ gov.noaa.nws.ncep.gempak.parameters.dlines,
+ gov.noaa.nws.ncep.gempak.parameters.gridlimits,
+ gov.noaa.nws.ncep.gempak.parameters.hilo,
+ gov.noaa.nws.ncep.gempak.parameters.hlsym,
+ gov.noaa.nws.ncep.gempak.parameters.infill,
+ gov.noaa.nws.ncep.gempak.parameters.inline,
+ gov.noaa.nws.ncep.gempak.parameters.intext,
+ gov.noaa.nws.ncep.gempak.parameters.line,
+ gov.noaa.nws.ncep.gempak.parameters.marker,
+ gov.noaa.nws.ncep.gempak.parameters.marshaller.garea,
+ gov.noaa.nws.ncep.gempak.parameters.marshaller.garea.station,
+ gov.noaa.nws.ncep.gempak.parameters.title,
+ gov.noaa.nws.ncep.gempak.parameters.util
+Bundle-ClassPath: ., jna.jar

@@ -1,0 +1,56 @@
+\connect ncep
+
+CREATE PROCEDURAL LANGUAGE plpgsql;
+
+-- create bounds schema
+DROP SCHEMA IF EXISTS bounds CASCADE;
+CREATE SCHEMA bounds AUTHORIZATION awips;
+--GRANT USAGE ON SCHEMA bounds TO PUBLIC;
+
+--create config schema
+DROP SCHEMA IF EXISTS config CASCADE;
+CREATE SCHEMA config AUTHORIZATION awips;
+
+--create ncgrib schema
+--DROP SCHEMA IF EXISTS ncgrib CASCADE;
+--CREATE SCHEMA ncgrib AUTHORIZATION awips;
+
+-- create luts schema
+-- DROP SCHEMA IF EXISTS luts CASCADE;
+--CREATE SCHEMA luts;
+-- GRANT USAGE ON SCHEMA luts TO PUBLIC;
+
+-- create nmap schema
+-- DROP SCHEMA IF EXISTS nmaps CASCADE;
+-- CREATE SCHEMA nmaps;
+-- GRANT USAGE ON SCHEMA nmaps TO PUBLIC;
+
+-- create nwx schema
+ DROP SCHEMA IF EXISTS nwx CASCADE;
+ CREATE SCHEMA nwx;
+-- GRANT USAGE ON SCHEMA nwx TO PUBLIC;
+
+-- create pack schema
+-- DROP SCHEMA IF EXISTS pack CASCADE;
+-- CREATE SCHEMA pack;
+-- GRANT USAGE on SCHEMA pack TO PUBLIC;
+
+-- create rad schema
+-- DROP SCHEMA IF EXISTS rad CASCADE;
+-- CREATE SCHEMA rad;
+-- GRANT USAGE on SCHEMA rad TO PUBLIC;
+
+-- create sat SCHEMA
+DROP SCHEMA IF EXISTS sat CASCADE;
+CREATE SCHEMA sat AUTHORIZATION awips;
+-- GRANT USAGE on SCHEMA sat TO PUBLIC;
+
+-- create stns schema
+DROP SCHEMA IF EXISTS stns CASCADE;
+CREATE SCHEMA stns AUTHORIZATION awips;
+-- GRANT USAGE ON SCHEMA stns TO PUBLIC;
+
+-- create txtprd schema
+-- DROP SCHEMA IF EXISTS txtprd CASCADE;
+-- CREATE SCHEMA txtprd;
+-- GRANT USAGE ON SCHEMA txtprd TO PUBLIC;

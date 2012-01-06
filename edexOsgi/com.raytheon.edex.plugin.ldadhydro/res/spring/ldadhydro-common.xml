@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+	<bean id="hydroPluginName" class="java.lang.String">
+		<constructor-arg type="java.lang.String" value="ldadhydro" />
+	</bean>
+	<bean id="hydroProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+		<property name="pluginName" value="ldadhydro" />
+		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.ldadhydro" />
+		<property name="dao" value="com.raytheon.edex.plugin.ldadhydro.dao.LdadHydroDao" />
+		<property name="record"	value="com.raytheon.uf.common.dataplugin.ldadhydro.HydroLdadRecord" />
+	</bean>
+
+	<bean id="hydroDecoder" class="com.raytheon.edex.plugin.ldadhydro.dao.HydroDecoder">
+		<constructor-arg ref="hydroPluginName" />
+	</bean>
+	<bean factory-bean="pluginRegistry" factory-method="register">
+		<constructor-arg ref="hydroPluginName" />
+		<constructor-arg ref="hydroProperties" />
+	</bean>
+
+</beans>

@@ -1,0 +1,63 @@
+#########
+## SPS ##
+#########
+##
+${WMOId} ${vtecOffice} 000000 ${BBBId}
+SPS${siteId}
+#if(${specialCorText})
+${specialCorText}
+#else
+#if(${productClass}=="T")
+TEST...SPECIAL WEATHER STATEMENT...TEST##
+#else
+SPECIAL WEATHER STATEMENT##
+#end
+
+NATIONAL WEATHER SERVICE ${officeShort}
+#backupText(${backupSite})
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+ 
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+ 
+#end
+
+${ugcline}
+#set($countyStateabbr = "")
+#foreach (${area} in ${areas})
+   #set($countyStateabbr = "${countyStateabbr}${area.name} ${area.stateabbr}-")
+#end
+${countyStateabbr}
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+
+!** ENTER INFORMATION HERE **!
+
+
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
+
+#end
+
+## #headline(${officeLoc}, ${backupSite})
+#############
+## WATCHES ##
+#############
+#if(${list.contains($includedWatches, "torWatches")})
+#inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
+#end
+#if(${list.contains($includedWatches, "svrWatches")})
+#insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
+#end
+
+
+#printcoords(${areaPoly}, ${list})
+
+
+$$
+
+!**NAME/INITIALS**!
+#end

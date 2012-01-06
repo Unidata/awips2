@@ -1,0 +1,17 @@
+.TH qman-jmx
+.SH NAME
+qman-jmx is a Management bridge that exposes one (or several) Qpid broker domain model as MBeans that are accessible through the Java Management Extensions (JMX). Once you run qman you need to start a JMX Console such as JConsole to browse the MBeans exposed by Q-Man.
+.SH SYNOPSIS
+qman
+.SH DESCRIPTION
+For more information on customizing qman-jmx for your own environment please read http://cwiki.apache.org/confluence/display/qpid/Qman+Tool
+.SH Configuration
+.SS Classpath
+By default qman jars will be loaded from /usr/share/java. If you want to load from an alternative location you could specify it using QPID_LIB_PATH var.
+.SS Config file
+qman can be configured to connect to one or more brokers at startup by adding brokers in 
+.I /etc/qman-config.xml
+If you want to load qman with qman-config.xml from a different location, you can specify it using QPID_CONFIG_FILE var.
+.SS log4j configuration
+qman expects qman.log4j file to be in the classpath. By default it will be put in 
+.I /usr/share/java
