@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Common Plug-in
+Bundle-SymbolicName: gov.noaa.nws.ncep.edex.common
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization 
+Export-Package: gov.noaa.nws.ncep.edex.common.dao,
+ gov.noaa.nws.ncep.edex.common.dataRecords,
+ gov.noaa.nws.ncep.edex.common.sounding,
+ gov.noaa.nws.ncep.edex.common.stationTables,
+ gov.noaa.nws.ncep.edex.locations,
+ gov.noaa.nws.ncep.edex.tools.decoder,
+ gov.noaa.nws.ncep.edex.util
+Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.11.12",
+ com.raytheon.uf.edex.decodertools;bundle-version="1.11.16",
+ com.raytheon.uf.common.localization;bundle-version="1.11.16",
+ org.apache.commons.logging;bundle-version="1.0.4",
+ com.raytheon.edex.common;bundle-version="1.11.16",
+ org.geotools;bundle-version="2.5.8",
+ com.facebook.thrift,
+ javax.persistence;bundle-version="1.0.0",
+ com.raytheon.uf.common.serialization.comm;bundle-version="1.11.31"
+Import-Package: gov.noaa.nws.ncep.common.tools,
+ org.eclipse.core.runtime;version="3.4.0"

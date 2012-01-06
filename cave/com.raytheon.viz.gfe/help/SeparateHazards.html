@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>SeparateHazards Procedure</title>
+</head>
+<body>
+<h1 style="text-align: center;">SeparateHazards</h1>
+<h2 style="text-align: center;">A Procedure for Separating the Hazard
+grid into individual hazard elements</h2>
+<br>
+<a href="#methodology">Methodology</a><br>
+<a href="#howitworks">How It Works</a><br>
+<hr style="width: 100%; height: 2px;">
+<h2><a name="methodology"></a>Methodology</h2>
+<br>
+<big>The SeparateHazards procedure takes each individual hazard from
+the Hazards grid, and splits it into individual temporary hazards grid.
+In complex
+situations, this allows the forecaster to modify a single hazard,
+without
+disturbing the actual Hazard grid. Once modified, the forecaster uses <a
+ href="MergeHazards.html">MergeHazards</a> to composite the individual,
+temporary hazard grids back into the Hazard grid.<br>
+<br>
+In the following example, a Winter Storm Warning (WS.W) exists with a
+combined Wind Chill Advisory (WC.Y). The forecaster would like to
+extend the
+period of the Wind Chill Advisory, without affecting the Winter Storm
+Warning.<br>
+<br>
+<img style="width: 666px; height: 603px;"
+ alt="Combined Hazards Separate Hazards"
+ src="images/SeperateHazardsInit.png"><br>
+<br>
+First, the forecaster selects SeparateHazards from the Hazards Menu.<br>
+<br>
+<img style="width: 286px; height: 300px;" alt="Separate Hazards Menu"
+ src="images/SeparateHazardsMenu.png">&nbsp;<br>
+</big><br>
+<big>This tool provides no user feedback, it simply breaks the Hazard
+grid from the forecast database into it's individual elements. During
+the time that the
+forecaster has the elements separated, the Hazard grid remains locked,
+to prevent others from
+affecting the same grids.<br>
+<br>
+The temporary grids will be named in the format: <br>
+<br>
+"haz<span style="color: rgb(0, 0, 1);"><span
+ style="color: rgb(255, 0, 0);">VTECWithoutDot</span><span
+ style="color: rgb(0, 0, 153);">optionalETN" <span
+ style="color: rgb(0, 0, 0);">(ie., hazWSW1). Notice in the example
+below, the Hazard grid has been separated into a hazWCY and hazWSW grid.<br>
+</span></span></span></big><br>
+<img style="width: 443px; height: 666px;" alt="Initial Temp Grids"
+ src="images/SeparateHazardTemp1.png"><br>
+<br>
+<big>To modify only the Wind Chill Advisory, the forecast would either
+use the <a href="MakeHazard.html">MakeHazards</a> tool, or standard
+GFE editing tools like pencil, or stretching of grids to add
+or remove zones and change the start or end time of the Wind Chill
+Advisory. Notice in the example
+below, the southwest portion of the Wind Chill Advisory has been
+removed, and the advisory for the
+northeast has been extended, as evidenced by the length of the hazWCY
+grid.<br>
+<br>
+<img style="width: 444px; height: 663px;" alt="Modifed Temp Grid"
+ src="images/SeparateHazardsTemp2.png"><br>
+<br>
+Finally, the forecaster runs the <a href="MergeHazards.html">MergeHazards</a>
+tool to recombine the temporary Hazard grids back into the actual
+Hazards grid. Notice that the changed Wind Chill Advisory has
+now been merged with the unchanged Winter Storm Watch.<br>
+<br>
+<img style="width: 561px; height: 510px;" alt="Recombined Hazards"
+ src="images/SeparateHazardsRecombined.png"><br>
+<br>
+</big>
+<hr style="width: 100%; height: 2px;"><a name="howitworks"></a><br>
+<h2>How It Works</h2>
+The SeparateHazards procedure looks at the Hazards grids inventory and
+contents and separates each hazard into its own weather element.&nbsp;
+The software ensures that the grids haven't already been separated and
+then before proceding will lock the entire Hazards weather
+element.&nbsp;&nbsp; While your Hazards grids have been separated, no
+other forecaster will be able to edit the Hazards grid.<br>
+<br>
+The weather elements created as temporary grids and cannot be saved to
+the ifpServer. <br>
+<br>
+<big></big>
+</body>
+</html>

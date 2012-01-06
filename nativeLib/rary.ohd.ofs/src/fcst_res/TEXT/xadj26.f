@@ -1,0 +1,298 @@
+C MEMBER XADJ26
+C  (from old member FCXADJ26)
+C
+C @PROCESS LVL(77)
+C DESC ADJUST INST. Q SO THAT DAILY VOLUMES MATCH OBSERVED DAILY VOLUMES
+C.......................................................................
+C                             LAST UPDATE: 06/14/95.11:55:52 BY $WC30KH
+C
+      SUBROUTINE XADJ26(QS,SQMD,QMD,IBQM,IEQM,IBSQ,IESQ,TOL,
+     1CADJ,LASTOB,ITSQ,IHRX,LHRX,D,LOBSQO,IDTQO,IERD)
+C.......................................................................
+C  SUBROUTINE XADJ26 ADJUSTS SIMULATED INSTANTANEOUS DISCHARGE
+C  SO THAT THE RESULTING MEAN DAILY VOLUMES ARE WITHIN THE SPECIFIED
+C  TOLERANCE LIMITS OF THE OBSERVED MEAN DAILY VOLUMES.
+C.......................................................................
+C  PROGRAMMED BY KAY KROUSE    MARCH 1980
+C   SLIGHT MODS MADE FOR RES-SNGL (COMPUTE IF VALUE IS MISSING
+C   RATHER THAN HAVE ARRAY INDICATING IT) - JOE OSTROWSKI - OCT 1983
+C.......................................................................
+C
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/exg26'
+      INCLUDE 'common/resv26'
+      INCLUDE 'common/fdbug'
+      DIMENSION QS(*),SQMD(*),QMD(*),CADJ(*),D(*),IERD(*)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_res/RCS/xadj26.f,v $
+     . $',                                                             '
+     .$Id: xadj26.f,v 1.5 2005/02/22 13:52:22 hsu Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      IF (IBUG.GE.1) WRITE(IODBUG,1600)
+ 1600 FORMAT('   *** ENTER XADJ26 ***')
+      INCOMP=0
+      DO 50 I=1,31
+  50  IERD(I)=0
+      IF (IBUG.LE.1) GO TO 60
+      IF (LOBSQO.EQ.0) GO TO 55
+      WRITE(IODBUG,1620)
+ 1620 FORMAT(/10X,'** OBSERVED INSTANTAEOUS DISCHARGES **')
+ 1650 FORMAT(1X,8F10.1)
+      WRITE(IODBUG,1650) (D(LOBSQO+I-1),I=IBSQ,IESQ)
+  55  WRITE(IODBUG,1640)
+ 1640 FORMAT(/10X,'** MEAN DAILY DISCHARGES **')
+      WRITE(IODBUG,1650) (QMD(I),I=IBQM,IEQM)
+C
+C  COMPUTE MDQ VALUES FROM THE SIMULATED DISCHARGES
+C
+ 60   ITER=0
+      NINT=IDTQO/ITSQ
+      NP=24/ITSQ
+      NC=IHRX/ITSQ
+ 70   CONTINUE
+ 71   NEC=0
+      NB=1
+      NE=NB+NP-1
+      LASTOB=0
+      K=0
+      IERMX=1
+      ERMX=0.0
+      DO 100 I=IBQM,IEQM
+      IF((I.EQ.IEQM).AND.(LHRX.LT.24))GO TO 100
+      IF(LOBSQO.EQ.0) GO TO 881
+      DO 880 J=NB,NE
+      LO=LOBSQO+J-NC-1
+      IF(IFMSNG(D(LO)).EQ.1) GO TO 881
+ 880  CONTINUE
+      GO TO 95
+ 881  CONTINUE
+      SUM=0.0
+      DO 80 J=NB,NE
+      IF(J.LT.NC) GO TO 72
+      IF(J.EQ.NC) GO TO 74
+      K=IBSQ+J-NC-1
+      X=QS(K)
+      Y=QS(K+1)
+      GO TO 75
+ 72   X=CADJ(J)
+      Y=CADJ(J+1)
+      GO TO 75
+ 74   L=J
+      X=CADJ(L)
+      Y=QS(IBSQ)
+ 75   IF(LOBSQO.EQ.0 .OR. IERD(I).EQ.1) GO TO 76
+      IF(MOD(J,NINT).NE.0) GO TO 76
+      LO=LOBSQO+J-NC-1
+      IF(K.GE.1 .AND. IFMSNG(D(LO)).EQ.0) X=D(LO)
+      IF(IFMSNG(D(LO+1)).EQ.0) Y=D(LO+1)
+ 76   SUM=SUM+(X+Y)*0.5
+ 80   CONTINUE
+      LASTOB=K+1
+      SQMDI=SUM/NP
+      SQMD(I)=SQMDI
+      QMDI=QMD(I)
+      IF(IFMSNG(QMDI).EQ.1) GO TO 95
+      IF(ABS(SQMDI).LT..001 .OR. ABS(QMDI).LT.0.001) GO TO 92
+C
+C  IS DIFFERENCE WITHIN TOLERANCE?
+C
+      ER=ABS((SQMDI-QMDI)/QMDI)
+      IF(ER.GE.ERMX) THEN
+        IERMX=I
+        ERMX=ER
+      ENDIF
+      RTOL=TOL
+      IF(I.EQ.IBQM)RTOL=TOL+((NC-1.)/(NP+1.))*TOL
+      IF(ER.GT.RTOL) NEC=1
+      GO TO 95
+ 92   IF(ITER.EQ.0) NEC=1
+ 95   NB=NE+1
+      NE=NB+NP-1
+ 100  CONTINUE
+      IF (IBUG.LE.1) GO TO 96
+      WRITE(IODBUG,1690) ITER,IERMX,SQMD(IERMX),QMD(IERMX)
+ 1690 FORMAT(/5X,' ITER= ',I2,
+     & '  MAX. DAILY OUTFLOW DIFF. OCCURED AT DAY ',I3,
+     & '  ADJUSTED= ',F10.1,'  OBSERVED= ',F10.1)
+      WRITE(IODBUG,1630)
+ 1630 FORMAT(10X,'** ADJUSTED INSTANTAEOUS DISCHARGES **')
+      WRITE(IODBUG,1650) (QS(I),I=IBSQ,IESQ)
+      WRITE(IODBUG,1660)
+ 1660 FORMAT(10X,'** MEAN ADJUSTED DAILY DISCHARGES **')
+      WRITE(IODBUG,1650) (SQMD(I),I=IBQM,IEQM)
+      WRITE(IODBUG,1640)
+      WRITE(IODBUG,1650) (QMD(I),I=IBQM,IEQM)
+ 96   CONTINUE
+
+C.......................................................................
+C
+C  IF NEC=1, BEGIN ADJUSTMENT PROCESS--SIMULATED VALUES ARE
+C  ADJUSTED BY RATIO OF QMD TO SQMD.
+C
+      IF(NEC.EQ.0) GO TO 170
+      NB=1
+      NE=NB+NP
+      NCDUM=NC
+      IF(NCDUM.LE.1) NCDUM=1
+      QMID=CADJ(NCDUM)
+      DO 150 I=IBQM,IEQM
+      ISIM=0
+      SQMDI=SQMD(I)
+      QMDI=QMD(I)
+      IF(IFMSNG(QMDI).EQ.1) GO TO 140
+      IF((I.EQ.IEQM).AND.(LHRX.LT.24))GO TO 150
+      IF(SQMDI.LT..001 .OR. QMDI.LT.0.001)GO TO 301
+      RATIO=QMDI/SQMDI
+      IF(RATIO.LE.0.000001) RATIO=0.000001
+      IF(RATIO.GE.10.0) RATIO=10.0
+      DO 120 J=NB,NE
+      IF(J.LE.NC) GO TO 120
+      K=IBSQ+J-NC-1
+      IF(ABS(QS(K)).LE.0.01) QS(K)=0.0
+      IF(J.EQ.NB) GO TO 105
+      IF(J.EQ.NE) GO TO 110
+      QS(K)=QS(K)*RATIO
+      GO TO 120
+ 105  QS(K)=((QS(K)*RATIO)+QMID)/2.
+      GO TO 120
+ 110  QMID=QS(K)*RATIO
+      IF(I.EQ.IEQM) QS(K)=QS(K)*RATIO
+ 120  CONTINUE
+      GO TO 145
+ 301  CONTINUE
+      IF(QMDI.LE.0.0) THEN
+        QMDI=0.0
+        QMID=0.0
+      END IF
+      DO 320 J=NB,NE
+      IF(J.LE.NC) GO TO 320
+      K=IBSQ+J-NC-1
+      IF(J.EQ.NB .AND. NB.GT.1) GO TO 305
+      IF(J.EQ.NE) GO TO 310
+      QS(K)=QMDI
+      GO TO 320
+ 305  QS(K)=(QMDI+QMID)/2.
+      GO TO 320
+ 310  QMID=QMDI
+      IF(I.EQ.IEQM) QS(K)=QMDI
+ 320  CONTINUE
+      GO TO 145
+ 140  KB=IBSQ+NB-NC-1
+      QS(KB)=(QMID+QS(KB))/2.
+      KE=IBSQ+NE-NC-1
+      QMID=QS(KE)
+ 145  IF(LOBSQO.EQ.0 .OR. IERD(I).EQ.1) GO TO 148
+      DO 146 J=NB,NE
+      IF(MOD(J,NINT).NE.0) GO TO 146
+      K=IBSQ+J-NC-1
+      IF(K.LE.0) GO TO 146
+      LO=LOBSQO+J-NC-1
+      IF(IFMSNG(D(LO)).EQ.1) GO TO 146
+      IF(J.EQ.NE) GO TO 144
+      QS(K)=D(LO)
+      GO TO 146
+ 144  CONTINUE
+      IF(I.EQ.IEQM) QS(K)=D(LO)
+C144  IP1=I+1
+C     IF(IP1.GE.IEQM) GO TO 146
+C     IF(IERD(IP1).EQ.1) GO TO 146
+C     QMID=D(LO)
+ 146  CONTINUE
+ 148  NB=NE
+      NE=NB+NP
+ 150  CONTINUE
+      IF(LOBSQO.EQ.0 .OR. IERD(I).EQ.1) GO TO 155
+      LO=LOBSQO+NB-NC-1
+      IF(IFMSNG(D(LO)).EQ.0) QS(K)=D(LO)
+ 155  CONTINUE
+C
+C  RE-COMPUTE SQMD VALUES
+C
+      IF(ITER.GE.15) GO TO 160
+      ITER=ITER+1
+      GO TO 70
+ 160  WRITE(IPR,905)
+ 905  FORMAT(1H0,10X,103H**WARNING** ADJUSTMENTS WERE STOPPED AFTER 15
+     1ITERATIONS-ERROR WAS NOT REDUCED TO THE TOLERANCE LEVEL.)
+      CALL WARN
+ 170  IF(INCOMP.EQ.1) GO TO 190
+      IF(LOBSQO.EQ.0) GO TO 190
+      NB=1
+      NE=NB+NP-1
+      LASTOB=0
+      K=0
+      DO 500 I=IBQM,IEQM
+      IF(IFMSNG(QMD(I)).GT.0) GO TO 595
+      IF((I.EQ.IEQM).AND.(LHRX.LT.24))GO TO 500
+      SUM=0.0
+      DO 580 J=NB,NE
+      IF(J.LT.NC) GO TO 572
+      IF(J.EQ.NC) GO TO 574
+      K=IBSQ+J-NC-1
+      X=QS(K)
+      Y=QS(K+1)
+      GO TO 575
+ 572  X=CADJ(J)
+      Y=CADJ(J+1)
+      GO TO 575
+ 574  L=J
+      X=CADJ(L)
+      Y=QS(IBSQ)
+ 575  IF(LOBSQO.EQ.0) GO TO 576
+      IF(MOD(J,NINT).NE.0) GO TO 576
+      LO=LOBSQO+J-NC-1
+      IF(K.GE.1 .AND. IFMSNG(D(LO)).EQ.0) X=D(LO)
+      IF(IFMSNG(D(LO+1)).EQ.0) Y=D(LO+1)
+ 576  SUM=SUM+(X+Y)*0.5
+ 580  CONTINUE
+      LASTOB=K+1
+      SQMDI=SUM/NP
+      IF(ABS(SQMDI).LT..01) SQMDI=0.01
+      SQMD(I)=SQMDI
+      QMDI=QMD(I)
+      IF(ABS(QMDI).LT..01) QMDI=0.01
+C
+C  IS DIFFERENCE WITHIN TOLERANCE?
+C
+      ER=ABS((SQMDI-QMDI)/QMDI)
+      RTOL=TOL
+      IF(I.EQ.IBQM)RTOL=TOL+((NC-1.)/(NP+1.))*TOL
+      IF(ER.LE.RTOL) GO TO 595
+      IF(LOBSQO.EQ.0) GO TO 585
+      DO 680 J=NB,NE
+      LO=LOBSQO+J-NC-1
+      IF(IFMSNG(D(LO)).EQ.1) GO TO 585
+ 680  CONTINUE
+      GO TO 595
+ 585  INCOMP=1
+      IERD(I)=1
+      WRITE(IPR,906) I,SQMDI,QMDI
+ 906  FORMAT(10X,'OBSERVED INSTANTANEOUS VS MEAN DAILY INCOMPATIBLE ',
+     & 'AT DAY ',I2,' ADJUSTED (CMSD)= ',F10.1,
+     & ' OBSERVED (CMSD)= ',F10.1)
+ 595  NB=NE+1
+      NE=NB+NP-1
+ 500  CONTINUE
+      IF(INCOMP.EQ.0) GO TO 190
+      WRITE(IODBUG,1660)
+      WRITE(IODBUG,1650) (SQMD(I),I=IBQM,IEQM)
+      WRITE(IPR,907)
+ 907  FORMAT(/10X,'**WARNING** ',
+     & 'OBSERVED INSTANTANEOUS DISCHARGE WILL BE REVISED ',
+     & 'TO CONSERVE OBSERVED DAILY VOLUME.')
+      CALL WARN
+      GO TO 60
+C
+ 190  CONTINUE
+C
+      IF (IBUG.GE.1) WRITE(IODBUG,1699)
+ 1699 FORMAT('    *** EXIT XADJ26 ***')
+C
+      RETURN
+      END

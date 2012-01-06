@@ -1,0 +1,123 @@
+#!/bin/ksh
+# process_shef_msg
+# 
+# version: April 12, 2000 for Bld 5.0
+#
+# usage: process_shef_msg filename subject_string msgtype
+#
+# where the arguments are provided via the mhs receive process
+# and are translated from the mhs args %ENCLOSE(1) %SUBJECT %MSGTYPE
+#
+# This script is invoked via the message handling service (MHS) mechanisms.
+# It is called when a shef-encoded product file from a remote (i.e. nonlocal)
+# office is received at the local WFO.  This script copies the file to the
+# local directory used as input to the shefdecode application.
+#
+# mhs places the incoming file in the directory:
+#	/data/x400/mhs/msg/hydro
+# this script copies the file into the directory:
+#	/data/fxa/ispan/hydro
+# if archiving is enabled, this script also copies the file into the directory:
+#       /data/fxa/ispan/hydro_adbs/
+#
+
+
+# define the following via environment variables:
+# WHFS_UTIL_LOG_DIR
+# WHFS_PRODUCT_DIR
+# WHFS_BIN_DIR
+
+# This allows you to run this script from outside of ./standard/bin
+RUN_FROM_DIR=`dirname $0`
+
+# set up SOME environment variables for WHFS applications
+. $RUN_FROM_DIR/../../set_hydro_env
+export ARCHIVE_ENABLE=$(get_apps_defaults archive_enable)
+export ARCHIVE_SHEFDATA_DIR=$(get_apps_defaults archive_shefdata_dir)
+export WHFS_UTIL_LOG_DIR=$(get_apps_defaults whfs_util_log_dir)
+export WHFS_PRODUCT_DIR=$(get_apps_defaults whfs_product_dir)
+export WHFS_BIN_DIR=$(get_apps_defaults whfs_bin_dir)
+
+
+#
+#
+FILENAME=$1
+SUBJECT=$2
+MSGTYPE=$3
+#
+LOGFILE=$WHFS_UTIL_LOG_DIR/process_shef_msg.log
+TMPFILE=$WHFS_UTIL_LOG_DIR/process_shef_msg.tmp
+#
+#
+# save only the latest events in the log file
+#
+tail -1200 $LOGFILE > $TMPFILE
+mv $TMPFILE $LOGFILE
+#
+#
+# log this event
+#
+Dte=`date -u`
+echo "----" >> $LOGFILE
+echo Processing file: $FILENAME at $Dte >> $LOGFILE
+echo Subject: $SUBJECT    Msgtype: $MSGTYPE >> $LOGFILE
+#
+#
+# setup the AWIPS environment
+#
+. $FXA_HOME/readenv.sh
+#
+#
+# use a shell function to extract the argument from the subject line
+# the subject string is a quoted string with the a descriptive term,
+# followed by a space, followed by the product identifier.
+#
+parseSubject()
+{
+DESCRIP=$1
+PRODUCTID=$2
+return
+}
+#
+# get the product id from the subject
+#
+parseSubject $SUBJECT
+#
+#
+# define the current date time info. use MPER to avoid SCCS conflict.
+# use this info to define the new file name
+#
+MPER="%M"
+DATESTR=`date -u +%m%d`
+TIMESTR=`date -u +%H$MPER%S`
+COPYNAME=$WHFS_PRODUCT_DIR/$PRODUCTID.$DATESTR.$TIMESTR
+#
+#
+# strip off extra carriage returns added by message handling by sender
+#
+cat $FILENAME | /bin/tr -d '\015' > $COPYNAME
+#
+# send a copy of the product to the text database
+# after determining the equivalent AFOS id required by textdb
+#
+AFOSID=`$WHFS_BIN_DIR/awips2afos.ksh $PRODUCTID`
+echo Writing $COPYNAME to textdb as $AFOSID  >> $LOGFILE
+/awips/fxa/bin/textdb -w $AFOSID  < $COPYNAME >> $LOGFILE  2>&1
+#
+#
+# copy the file into the RFC archive directory if archiving is enabled
+#
+if [ "$ARCHIVE_ENABLE" = "ON" ]
+then
+   echo Copying $COPYNAME to RFC archive input directory >> $LOGFILE
+   cp -f $COPYNAME $ARCHIVE_SHEFDATA_DIR >> $LOGFILE  2>&1
+fi
+#
+#
+# move the file to the shef input directory.
+#
+echo Moving $COPYNAME to input shef directory >> $LOGFILE
+mv -f  $COPYNAME  /data/fxa/ispan/hydro >> $LOGFILE  2>&1
+#
+#
+#

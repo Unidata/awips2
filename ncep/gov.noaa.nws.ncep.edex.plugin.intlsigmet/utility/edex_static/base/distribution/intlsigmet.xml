@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<requestPatterns xmlns:ns2="group">
+    <regex>^W[CSV]PA(0[1-9]|1[1-3]) PHFO.*</regex>
+    <regex>^W[CSV]NT(0[1-9]|1[1-3]) KKCI.*</regex>
+    <regex>^WAAK4[789] PAWU.*</regex>
+    <regex>^W[CSV]PN0[1-6] KKCI.*</regex>
+</requestPatterns>

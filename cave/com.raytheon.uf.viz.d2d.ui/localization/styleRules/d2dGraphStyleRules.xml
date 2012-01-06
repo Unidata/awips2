@@ -1,0 +1,501 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<styleRuleset>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GH</parameter>
+     <parameter>GHxSM</parameter>
+     <parameter>zAGL</parameter>
+     <parameter>MSG</parameter>
+     <parameter>dGH12</parameter>
+     <parameter>GH_avg</parameter>
+     <parameter>GH_std</parameter>
+  </paramLevelMatches>
+  <graphStyle>
+     <displayUnits>dam</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>GH</parameter>
+     <parameter>GHxSM</parameter>
+     <parameter>Topo</parameter>
+     <singleLevel units="SURFACE" />
+  </paramLevelMatches>
+  <graphStyle>
+     <displayUnits>m</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>T</parameter>     
+     <parameter>TV</parameter>
+     <parameter>TxSM</parameter>
+     <parameter>DpT</parameter>
+     <parameter>TW</parameter>
+     <parameter>TQIND</parameter>
+     <parameter>T_avg</parameter>     
+     <parameter>T_std</parameter>     
+  </paramLevelMatches>
+  <graphStyle>
+     <displayUnits>C</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>T</parameter>     
+     <parameter>TV</parameter>
+     <parameter>TxSM</parameter>
+     <parameter>DpT</parameter>
+     <parameter>TW</parameter>
+     <parameter>Hidx</parameter>
+     <parameter>T_avg</parameter>
+     <parameter>T_std</parameter>
+     <parameter>MnT_std</parameter>
+     <parameter>MnT_avg</parameter>
+     <parameter>MxT_std</parameter>
+     <parameter>MxT_avg</parameter>
+     <parameter>MnT</parameter>
+     <parameter>MxT</parameter>
+     <parameter>MnT3hr</parameter>
+     <parameter>MxT3hr</parameter>
+     <parameter>MnT6hr</parameter>
+     <parameter>MxT6hr</parameter>
+     <singleLevel units="SURFACE" />
+     <singleLevel units="MB_AGL" />
+  </paramLevelMatches>
+  <graphStyle>
+     <displayUnits>F</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>DpD</parameter>
+  </paramLevelMatches>
+  <graphStyle>
+     <displayUnits label="C">K</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>DpD</parameter>     
+     <singleLevel units="SURFACE" />
+     <singleLevel units="MB_AGL" />
+  </paramLevelMatches>
+  <graphStyle>
+     <displayUnits label="F">°R</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>dZ</parameter>     
+  </paramLevelMatches>
+  <graphStyle>
+     <displayUnits>m</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>PoT</parameter>
+     <parameter>EPT</parameter>
+     <parameter>EPTs</parameter>
+  </paramLevelMatches>
+  <graphStyle>
+     <displayUnits>K</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>wSp_avg</parameter>
+     <parameter>wSp_std</parameter>
+     <parameter>Wind</parameter>
+     <parameter>wSp</parameter>
+     <parameter>WGS</parameter>
+     <parameter>CorfM</parameter>
+     <parameter>Corf</parameter>
+     <parameter>BlkMag</parameter>
+     <parameter>CumShr</parameter>
+     <parameter>RRV</parameter>
+     <parameter>g2gsh</parameter>
+  </paramLevelMatches>
+  <graphStyle>
+     <displayUnits>kts</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>WD</parameter>
+  </paramLevelMatches>
+  <graphStyle>
+     <displayUnits>°</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>RH</parameter>
+     <parameter>SCP</parameter>
+     <parameter>CCp</parameter>
+  </paramLevelMatches>
+  <graphStyle>
+     <displayUnits>%</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>PVV</parameter>
+     <parameter>NetIO</parameter>
+  </paramLevelMatches>
+  <graphStyle>
+     <displayUnits label="-ubar/s">(Pa/s)*-0.1</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>PAdv</parameter>
+  </paramLevelMatches>
+  <graphStyle>
+     <displayUnits label="ubar/s">(Pa/s)*0.1</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>DpDt</parameter>
+  </paramLevelMatches>
+  <graphStyle>
+     <displayUnits label="-ubar/s">(Pa/s)*-0.1</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>wDiv</parameter>
+     <parameter>Tdef</parameter>
+     <parameter>PIVA</parameter>
+  </paramLevelMatches>
+  <graphStyle>
+     <displayUnits label="/1e5s">/s*1.0E5</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>AV</parameter>
+     <parameter>RV</parameter>     
+     <parameter>geoVort</parameter>
+  </paramLevelMatches>
+  <graphStyle>
+     <displayUnits label="/1e5s">/s*1.0E5</displayUnits> 
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>    
+     <parameter>VAdv</parameter>     
+     <parameter>dVAdv</parameter> 
+  </paramLevelMatches>
+  <graphStyle>
+     <displayUnits label="/1e9s">/s*1.0E9</displayUnits> 
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>    
+     <parameter>TAdv</parameter>        
+     <parameter>PoTA</parameter>
+     <parameter>EPTA</parameter>
+  </paramLevelMatches>
+  <graphStyle>
+     <displayUnits label="C/12hr">K/h*12</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>    
+     <parameter>EPTC</parameter>       
+  </paramLevelMatches>
+  <graphStyle>
+     <displayUnits label="C/hr">K/(h*-1)</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>    
+     <parameter>MCon</parameter>     
+     </paramLevelMatches>
+    <graphStyle>
+    	<displayUnits label="g/Kg/12hr">(g/kg)/h*12</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+    <parameter>MAdv</parameter>
+  </paramLevelMatches>
+  <graphStyle>
+    <displayUnits label="g/Kg/12hr">(g/kg)/h*12</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+    <parameter>P</parameter>
+    <parameter>CPr</parameter>
+    <parameter>CPrD</parameter>
+    <parameter>msl-P</parameter>
+    <parameter>Alti</parameter>
+    <parameter>PT3</parameter>
+    <parameter>msl-P_avg</parameter>
+    <parameter>msl-P_std</parameter>
+  </paramLevelMatches>
+  <graphStyle>
+    <displayUnits>mb</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>pVeq</parameter>
+     <parameter>pV</parameter> 
+  </paramLevelMatches>
+  <graphStyle>
+  	 <displayUnits label="PVU">K/hPa/s*1.0E-5</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>    
+     <parameter>SHx</parameter>
+     <parameter>mixRat</parameter>
+     </paramLevelMatches>
+  <graphStyle>
+     <displayUnits>g/kg</displayUnits>  
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+     <parameter>St-Pr</parameter>  
+     <parameter>CP</parameter>     
+     <parameter>TP</parameter>     
+     <parameter>TP3hr</parameter>     
+     <parameter>TP6hr</parameter>
+     <parameter>TP12hr</parameter>
+     <parameter>TP24hr</parameter>
+     <parameter>TP36hr</parameter>
+     <parameter>TP48hr</parameter>
+     <parameter>TPrun</parameter>
+	 <parameter>SPAcc</parameter>
+	 <parameter>PW</parameter>
+	 <parameter>SAcc</parameter>  
+     <parameter>SSAcc</parameter>     
+     <parameter>SA3hr</parameter>     
+     <parameter>SA6hr</parameter>
+     <parameter>SA12hr</parameter>
+     <parameter>SA24hr</parameter>
+     <parameter>SA36hr</parameter>
+     <parameter>SA48hr</parameter>
+     <parameter>SArun</parameter>
+     <parameter>TP_avg</parameter>
+     <parameter>TPrun_avg</parameter>
+     <parameter>TP_std</parameter>
+     <parameter>TPrun_std</parameter>
+     <parameter>TP_ECMWF</parameter>
+     <parameter>TP_ECMWF12hr</parameter>
+  </paramLevelMatches>
+  <graphStyle>
+     <displayUnits>in</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+	<parameter>SLI</parameter>
+	<parameter>BLI</parameter>
+	<parameter>LI</parameter>
+	<parameter>shWlt</parameter>
+  </paramLevelMatches>
+  <graphStyle>
+    <displayUnits label="C">K</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+	<parameter>gamma</parameter>
+  </paramLevelMatches>
+  <graphStyle>
+    <displayUnits label='C/km'>K/km</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+	<parameter>gammaE</parameter>
+  </paramLevelMatches>
+  <graphStyle>
+    <displayUnits>K/km</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+	<parameter>qDiv</parameter>
+	<parameter>fnD</parameter>
+	<parameter>fsD</parameter>
+  </paramLevelMatches>
+  <graphStyle>
+    <displayUnits label="K/m^2/1e16s">K/(m^2/s)*1.0E16</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+	<parameter>fGen</parameter>
+  </paramLevelMatches>
+  <graphStyle>
+    <displayUnits label="K^2/m^2/1e15s">K^2/(m^2/s)*1.0E15</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+	<parameter>TKE</parameter>
+	<parameter>NBE</parameter>
+	<parameter>PBE</parameter>
+	<parameter>cCape</parameter>
+	<parameter>cCin</parameter>
+	<parameter>loCape</parameter>
+	<parameter>muCape</parameter>
+  </paramLevelMatches>
+  <graphStyle>
+    <displayUnits>J/kg</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+	<parameter>Vis</parameter>
+  </paramLevelMatches>
+  <graphStyle>
+    <displayUnits>mi</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+	<parameter>RR</parameter>
+  </paramLevelMatches>
+  <graphStyle>
+    <displayUnits>dBZ</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+	<parameter>ILW</parameter>
+  </paramLevelMatches>
+  <graphStyle>
+    <displayUnits>kg/m^2</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+	<parameter>CW</parameter>
+	<parameter>CIce</parameter>
+	<parameter>HyC</parameter>
+	<parameter>ClCond</parameter>
+  </paramLevelMatches>
+  <graphStyle>
+    <displayUnits>g/m^3</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+	<parameter>Mmag</parameter>
+  </paramLevelMatches>
+  <graphStyle>
+    <displayUnits label="ktsg/Kg">kts·g/kg</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+	<parameter>ShrMag</parameter>
+	<parameter>CumNrm</parameter>
+  </paramLevelMatches>
+  <graphStyle>
+    <displayUnits>kts/km</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+	<parameter>TotQi</parameter>
+  </paramLevelMatches>
+  <graphStyle>
+    <displayUnits label="gmb/KgK">g·hPa/(kg·K)</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+	<parameter>MSFmi</parameter>
+  </paramLevelMatches>
+  <graphStyle>
+    <displayUnits label="mbm/Ks">g·hPa·m/(kg·K·s)*5.0E-4</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+	<parameter>MSFDi</parameter>
+  </paramLevelMatches>
+  <graphStyle>
+    <displayUnits label="gubarm/KgKs^2">(g*hPa*m)/(kg*K*s^2)*5.0E2</displayUnits>
+  </graphStyle>
+</styleRule>
+
+<styleRule>
+  <paramLevelMatches>
+	<parameter>diam</parameter>
+  </paramLevelMatches>
+  <graphStyle>
+    <displayUnits>km</displayUnits>
+  </graphStyle>
+</styleRule>
+
+</styleRuleset>

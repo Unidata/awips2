@@ -1,0 +1,2 @@
+If a vector direction is progressive and magnitudes are similar, use only the first and last sub-phrases.  
+

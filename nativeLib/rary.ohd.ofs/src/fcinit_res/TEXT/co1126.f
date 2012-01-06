@@ -1,0 +1,432 @@
+C MEMBER CO1126
+C  (from old member FCCO1126)
+C
+      SUBROUTINE CO1126(WORK,IUSEW,LEFTW,NC11,
+     .                  LENDSU,JDEST,IERR)
+C---------------------------------------------------------------------
+C  SUBROUTINE TO READ AND INTERPRET PARAMETER INPUT FOR S/U #11
+C    INDUCED SURCHARGE SCHEME
+C---------------------------------------------------------------------
+C  JTOSTROWSKI - HRL - DECEMBER 1983
+C----------------------------------------------------------------
+C
+      INCLUDE 'common/comn26'
+C
+C
+      INCLUDE 'common/err26'
+C
+C
+      INCLUDE 'common/fld26'
+C
+C
+      INCLUDE 'common/read26'
+C
+C
+      INCLUDE 'common/suid26'
+C
+C
+      INCLUDE 'common/suin26'
+C
+C
+      INCLUDE 'common/suky26'
+C
+C
+      INCLUDE 'common/warn26'
+C
+      DIMENSION INPUT(2,7),LINPUT(7),IC(7),
+     . WORK(1),OK(7)
+      LOGICAL ENDFND,ALLOK,OK
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_res/RCS/co1126.f,v $
+     . $',                                                             '
+     .$Id: co1126.f,v 1.1 1995/09/17 18:51:24 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      DATA INPUT/4HBACK,4HQI  ,4HBACK,4HPOOL,4HTEND,4HENCY,
+     .           4HMAXE,4HL   ,4HQMAX,4HEL  ,4HQMAX,4H    ,
+     .           4HSTEP,4H    /
+      DATA LINPUT/2,2,2,2,2,1,1/
+      DATA NINPUT/7/
+      DATA NDINPU/2/
+C
+C
+C  INITIALIZE LOCAL VARIABLES AND COUNTERS
+C
+      NC11 = 0
+      ALLOK = .TRUE.
+      BQI = COQIN
+      BPOOL = COEL0
+      TNDCY = -999.0
+      ELMAX = -999.0
+      QMAXEL = -999.0
+      QMAX = -999.0
+      STEP = -999.0
+C
+      DO 1 I=1,7
+      OK(I) = .TRUE.
+      IC(I) = 0
+    1 CONTINUE
+C
+C  NOW PROCESS INPUT UP TO 'ENDC'.
+C
+      IERR = 0
+C
+C  CO FOUND, LOOKING FOR ENDC
+C
+      LPOS = LSPEC + NCARD + 1
+      LASTCD = LENDSU
+      IBLOCK = 1
+C
+    5 IF (NCARD .LT. LASTCD) GO TO 8
+           CALL STRN26(59,1,SUKYWD(1,11),3)
+           IERR = 99
+           GO TO 9
+    8 NUMFLD = 0
+      CALL UFLD26(NUMFLD,IERF)
+      IF(IERF .GT. 0 ) GO TO 9000
+      NUMWD = (LEN -1)/4 + 1
+      IDEST = IKEY26(CHAR,NUMWD,SUKYWD,LSUKEY,NSUKEY,NDSUKY)
+      IF (IDEST.EQ.0) GO TO 5
+C
+C  IDEST = 11 IS FOR ENDC
+C
+      IF (IDEST.EQ.11.OR.IDEST.EQ.12) GO TO 9
+          CALL STRN26(59,1,SUKYWD(1,11),3)
+          JDEST = IDEST
+          IERR = 89
+    9 LENDC = NCARD
+C
+C  ENDC CARD OR TS OR PARMS FOUND AT LENDC,
+C  ALSO ERR RECOVERY IF NEITHER ONE OF THEM FOUND.
+C
+C
+      IBLOCK = 2
+      CALL POSN26(MUNI26,LPOS)
+      NCARD = LPOS - LSPEC -1
+C
+   10 CONTINUE
+      NUMFLD = 0
+      CALL UFLD26(NUMFLD,IERF)
+      IF(IERF .GT. 0) GO TO 9000
+      NUMWD = (LEN -1)/4 + 1
+      IDEST = IKEY26(CHAR,NUMWD,INPUT,LINPUT,NINPUT,NDINPU)
+      IF(IDEST .GT. 0) GO TO 50
+      IF(NCARD .GE. LENDC) GO TO 900
+C
+C  NO VALID KEYWORD FOUND
+C
+      CALL STER26(1,1)
+      ALLOK = .FALSE.
+      GO TO 10
+C
+C  NOW SEND CONTROL TO PROPER LOCATION FOR PROCESSING EXPECTED INPUT
+C
+   50 CONTINUE
+      GO TO (100,200,300,400,500,600,700) , IDEST
+C
+C-----------------------------------------------------------------------
+C  'BACKQI' FOUND.
+C
+  100 CONTINUE
+      IC(1) = IC(1) + 1
+      IF (IC(1).GT.1) CALL STER26(39,1)
+C
+      OK(1) = .FALSE.
+      NUMFLD = -2
+      CALL UFLD26(NUMFLD,IERF)
+      IF (IERF.GT.1) GO TO 9000
+      IF (IERF.EQ.1) GO TO 195
+C
+      IF (ITYPE.LE.1) GO TO 110
+C
+      CALL STER26(4,1)
+      GO TO 10
+C
+C  MUST BE POSITIVE VALUE
+C
+  110 CONTINUE
+      IF (REAL .GE. 0.00) GO TO 120
+C
+      CALL STER26(61,1)
+      GO TO 10
+C
+C  CONVERT TO METRIC
+C
+  120 CONTINUE
+      BQI = REAL/CONVLT
+C
+C  CURVE IS DEFINED OK
+C
+  195 CONTINUE
+      OK(1) = .TRUE.
+      GO TO 10
+C
+C-----------------------------------------------------------------
+C  'BACKPOOL' KEYWORD FOUND.
+C
+  200 CONTINUE
+C
+      IC(2) = IC(2) + 1
+      IF (IC(2).GT.1) CALL STER26(39,1)
+C
+C  READ NEXT FIELD. LOOKING FOR REAL POSITIVE VALUE.
+C
+      OK(2) = .FALSE.
+      NUMFLD= -2
+      CALL UFLD26(NUMFLD,IERF)
+      IF(IERF.GT.1)GO TO 9000
+      IF (IERF .EQ. 1) GO TO 250
+C
+      IF(ITYPE.LE.1)GO TO 220
+      CALL STER26(4,1)
+      GO TO 10
+C
+  220 CONTINUE
+      IF(REAL.GE.0.0)GO TO 230
+      CALL STER26(61,1)
+      GO TO 10
+C
+C  SEE IF VALUE IS WITHIN BOUNDS OF THE ELVSSTOR CURVE.
+C
+  230 CONTINUE
+      BPOOL = REAL/CONVL
+      CALL ELST26(BPOOL,1,IERST)
+      IF(IERST.EQ.0)GO TO 250
+      GO TO 10
+C
+C  EVERYTHING IS OK
+C
+  250 CONTINUE
+      OK(2) = .TRUE.
+      GO TO 10
+C-------------------------------------------------------------------
+C  'TENDENCY' IS KEYWORD EXPECTED.
+C
+ 300  CONTINUE
+      IC(3)=IC(3) + 1
+      IF(IC(3).GT.1)CALL STER26(39,1)
+C
+C  READ NEXT FIELD. LOOKING FOR REAL VALUE.
+C
+      OK(3) = .FALSE.
+      NUMFLD= -2
+      CALL UFLD26(NUMFLD,IERF)
+      IF(IERF.GT.1)GO TO 9000
+      IF (IERF.EQ.1) GO TO 350
+C
+      IF(ITYPE.LE.1)GO TO 310
+      CALL STER26(4,1)
+      GO TO 10
+C
+C  CONVERT TO METRIC
+C
+  310 CONTINUE
+      TNDCY = REAL/CONVL
+C
+C  EVERYTHING IS OK
+C
+ 350  CONTINUE
+      OK(3)= .TRUE.
+      GO TO 10
+C-------------------------------------------------------------------
+C  'MAXEL' IS KEYWORD EXPECTED.
+C
+ 400  CONTINUE
+      IC(4)=IC(4) + 1
+      IF(IC(4).GT.1)CALL STER26(39,1)
+C
+C  READ NEXT FIELD. LOOKING FOR REAL POSITIVE VALUE.
+C
+      OK(4) = .FALSE.
+      NUMFLD= -2
+      CALL UFLD26(NUMFLD,IERF)
+      IF(IERF.GT.1)GO TO 9000
+      IF (IERF.EQ.1) GO TO 450
+C
+      IF(ITYPE.LE.1)GO TO 420
+      CALL STER26(4,1)
+      GO TO 10
+C
+  420 CONTINUE
+      IF(REAL.GE.0.0)GO TO 430
+      CALL STER26(61,1)
+      GO TO 10
+C
+C  SEE IF VALUE IS WITHIN BOUNDS OF THE ELVSSTOR CURVE.
+C
+  430 CONTINUE
+      ELMAX = REAL/CONVL
+      CALL ELST26(ELMAX,1,IERST)
+      IF(IERST.EQ.0)GO TO 450
+      GO TO 10
+C
+C  EVERYTHING IS OK
+C
+ 450  CONTINUE
+      OK(4)= .TRUE.
+      GO TO 10
+C
+C-----------------------------------------------------------------------
+C  'QMAXEL' IS NEXT.
+C
+  500 CONTINUE
+      IC(5) = IC(5) + 1
+      IF(IC(5).GT.1)CALL STER26(39,1)
+C
+C  LOOKING FOR A REAL POSITIVE NUMBER
+C
+      OK(5) = .FALSE.
+      NUMFLD = -2
+      CALL UFLD26(NUMFLD,IERF)
+      IF(IERF.GT.1)GO TO 9000
+      IF (IERF.EQ.1) GO TO 550
+C
+C  SEE IF VALUE IS REAL AND POSITIVE
+C
+      IF(ITYPE.LE.1)GO TO 520
+      CALL STER26(4,1)
+      GO TO 10
+C
+  520 CONTINUE
+      IF(REAL.GE.0.0)GO TO 530
+      CALL STER26(61,1)
+      GO TO 10
+C
+C  CONVERT TO METRIC
+C
+  530 CONTINUE
+      QMAXEL = REAL/CONVLT
+C
+C  EVERYTHING IS OK
+C
+  550 CONTINUE
+      OK(5) = .TRUE.
+      GO TO 10
+C
+C----------------------------------------------------------------
+C  'QMAX' FOUND. GET NEXT FIELD. MUST BE REAL VALUE AND .GT. ZERO
+C
+  600 CONTINUE
+      IC(6) = IC(6) + 1
+      IF (IC(6).GT.1) CALL STER26(39,1)
+C
+C  REAL VALUE MUST HAVE BEEN INPUT
+C
+      OK(6) = .FALSE.
+      NUMFLD = -2
+      CALL UFLD26(NUMFLD,IERF)
+      IF (IERF.GT.1) GO TO 9000
+      IF (IERF.EQ.1) GO TO 650
+C
+      IF (ITYPE.LE.1) GO TO 610
+C
+      CALL STER26(4,1)
+      GO TO 10
+C
+C  SEE IF VALUE IS POSITIVE
+C
+  610 CONTINUE
+      IF (REAL.GE.0.00) GO TO 620
+C
+      CALL STER26(61,1)
+      GO TO 10
+C
+C  STORE VALUE FOR LATER TRANSFER
+C
+  620 CONTINUE
+      QMAX = REAL/CONVLT
+C
+C  EVERYTHING IS OK
+C
+  650 CONTINUE
+      OK(6) = .TRUE.
+      GO TO 10
+C
+C-----------------------------------------------------------------
+C  'STEP' KEYWORD EXPECTED. IF FOUND, GET NEXT FIELD ON CARD
+C   IF NOT FOUND, STORE VALUES IN WORK USING DEFAULT
+C
+  700 CONTINUE
+C
+      IC(7) = IC(7) + 1
+      IF (IC(7).GT.1) CALL STER26(39,1)
+C
+C  AN INTEGER VALUE ( OR A NULL FIELD) MUST FOLLOW
+C
+      OK(7) = .FALSE.
+      NUMFLD = -2
+      CALL UFLD26(NUMFLD,IERF)
+      IF (IERF.GT.1) GO TO 9000
+      IF (IERF.EQ.1) GO TO 750
+C
+      IF (ITYPE.EQ.0) GO TO 720
+      CALL STER26(5,1)
+      GO TO 10
+C
+  720 CONTINUE
+C
+C  STEP MUST BE .GE. ZERO
+C
+      IF (INTEGR.GE.0) GO TO 730
+C
+      CALL STER26(95,1)
+      GO TO 10
+C
+  730 CONTINUE
+      BLEND = INTEGR + 0.01
+C
+C  EVERYTHING IS OK
+C
+  750 CONTINUE
+      OK(7) = .TRUE.
+      GO TO 10
+C
+C--------------------------------------------------------------------
+C  END OF INPUT. STORE VALUES IN WORK ARRAY IF EVERYTHING WAS ENTERED
+C  WITHOUT ERROR.
+C
+  900 CONTINUE
+C
+      DO 910 I=1,7
+      IF (.NOT.OK(I)) GO TO 9999
+  910 CONTINUE
+      IF (.NOT.ALLOK) GO TO 9999
+C
+C  STORE ALL CARRYOVER VALUES, EITHER THOSE INPUT OR DEFAULT VALUES.
+C
+      CALL FLWK26(WORK,IUSEW,LEFTW,BQI,501)
+      CALL FLWK26(WORK,IUSEW,LEFTW,BPOOL,501)
+      CALL FLWK26(WORK,IUSEW,LEFTW,TNDCY,501)
+      CALL FLWK26(WORK,IUSEW,LEFTW,ELMAX,501)
+      CALL FLWK26(WORK,IUSEW,LEFTW,QMAXEL,501)
+      CALL FLWK26(WORK,IUSEW,LEFTW,QMAX,501)
+      CALL FLWK26(WORK,IUSEW,LEFTW,STEP,501)
+C
+      NC11 = 7
+C
+      GO TO 9999
+C
+C-----------------------------------------------------------------
+C
+C  ERROR IN UFLD26
+C
+ 9000 CONTINUE
+      IF (IERF.EQ.1) CALL STER26(19,1)
+      IF (IERF.EQ.2) CALL STER26(20,1)
+      IF (IERF.EQ.3) CALL STER26(21,1)
+      IF (IERF.EQ.4) CALL STER26( 1,1)
+C
+      IF (NCARD.GE.LASTCD) GO TO 9100
+      IF (IBLOCK.EQ.1)  GO TO 5
+      IF (IBLOCK.EQ.2)  GO TO 10
+C
+ 9100 USEDUP = .TRUE.
+C
+ 9999 CONTINUE
+      RETURN
+      END

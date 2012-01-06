@@ -1,0 +1,128 @@
+#  ============================================================================
+#  pgm: Makefile_obj_lx .. makefile to update the pproc-gen_areal_ffg object files
+#
+#  cmt: File made on Wed Aug  6 13:00:31 EDT 2008 by user "dsa"
+#  ============================================================================
+ 
+OBJ = /fs/hseb/ob83/ohd/pproc/obj/gen_areal_ffg/TEXT
+
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU -DUSE_XM_MWMUTIL_H -DUSE_XGPM -Wall -Wno-unused-variable -Wno-comment
+
+INSERTS      = -I/fs/hseb/ob83/ohd/whfs_lib/inc/general  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/dbms  \
+               -I/fs/hseb/ob83/ohd/whfs_lib/inc/gui  \
+               -I/fs/hseb/ob83/ohd/ffg/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc/netcdf_inc  \
+	       -I/usr/local/netcdf/include  \
+               -I/fs/hseb/ob83/ohd/pproc_lib/inc  \
+               -I/fs/hseb/ob83/ohd/pproc/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc/messenger_inc
+
+INSERTS_CC   = -I/usr/include/informix/esql/  \
+               -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .c .h .o
+
+.c.o:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && chmod 664 ${*F}.o  \
+	   && echo "o - ${*F}.o" \
+	   || echo "e - ${*F}"
+	@echo "--------------------------------"
+
+objects:  \
+     $(OBJ)/check_RFC_ffg_files.o  \
+     $(OBJ)/compute_avg_ffg.o  \
+     $(OBJ)/create_ffg_mosaic.o  \
+     $(OBJ)/create_mos_filename.o  \
+     $(OBJ)/ffconv.o  \
+     $(OBJ)/get_current_time.o  \
+     $(OBJ)/get_hsa.o  \
+     $(OBJ)/get_last_run_time.o  \
+     $(OBJ)/get_site_dimensions.o  \
+     $(OBJ)/main_gen_areal_ffg.o  \
+     $(OBJ)/parse_durations.o  \
+     $(OBJ)/parse_rfc_names.o  \
+     $(OBJ)/process_areas.o  \
+     $(OBJ)/select_ffg_file.o  \
+     $(OBJ)/writeContingency.o  \
+     $(OBJ)/writePerfLog.o
+
+$(OBJ)/check_RFC_ffg_files.o: check_RFC_ffg_files.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/compute_avg_ffg.o: compute_avg_ffg.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/create_ffg_mosaic.o: create_ffg_mosaic.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/create_mos_filename.o: create_mos_filename.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/ffconv.o: ffconv.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/get_current_time.o: get_current_time.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/get_hsa.o: get_hsa.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/get_last_run_time.o: get_last_run_time.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/get_site_dimensions.o: get_site_dimensions.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/main_gen_areal_ffg.o: main_gen_areal_ffg.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/parse_durations.o: parse_durations.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/parse_rfc_names.o: parse_rfc_names.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/process_areas.o: process_areas.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/select_ffg_file.o: select_ffg_file.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/writeContingency.o: writeContingency.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+$(OBJ)/writePerfLog.o: writePerfLog.c
+	@make -k -f ./Makefile_obj_lx ${@F}
+	@-[ -f ${@F} ] && mv ${@F} $(OBJ) || :
+
+

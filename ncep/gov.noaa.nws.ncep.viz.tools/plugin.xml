@@ -1,0 +1,517 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+      
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+          id="gov.noaa.nws.ncep.ui.actions.ImagePropertiesAction"
+          name="Image Properties">
+      </command>
+      <command
+          id="gov.noaa.nws.ncep.viz.ui.actions.LoopManagement"
+          name="Loop Management">
+      </command>
+      <command
+      	  categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.viz.ui.actions.loopForward"
+          name="Loop Forward">
+      </command>
+      <command
+      	  categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.viz.ui.actions.loopBackward"
+          name="Loop Backward">
+      </command>
+      <command
+      	  categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.viz.ui.actions.rock"
+          name="Loop Rock">
+      </command>
+      <command
+            id="gov.noaa.nws.ncep.viz.ui.actions.frameTool"
+            name="Generic Frame Change Tool">
+         <commandParameter
+               id="mode"
+               name="mode"
+               optional="false">
+         </commandParameter>
+         <commandParameter
+               id="operation"
+               name="operation"
+               optional="false">
+         </commandParameter>
+      </command>
+      <command
+          id="gov.noaa.nws.ncep.viz.ui.actions.LogosAction"
+          name="Logos">
+      </command>
+      <command
+          id="gov.noaa.nws.ncep.viz.ui.actions.CursorAction"
+          name="Cursor">
+      </command>
+      <command
+          id="gov.noaa.nws.ncep.ui.actions.aodt.operational"
+          name="AODT Operational">
+      </command>
+      <!--command
+          id="gov.noaa.nws.ncep.ui.actions.aodt.experimental"
+          name="AODT Experimental">
+      </command-->
+      <command
+            id="gov.noaa.nws.ncep.viz.ui.actions.createCustomProjection"
+            name="Create Custom Projection">
+      </command>
+      <command
+            categoryId="com.raytheon.viz.ui.modalTool"
+            id="gov.noaa.nws.ncep.viz.tools.pan"
+            name="NC_Pan">
+      </command>
+      <command
+            categoryId="com.raytheon.viz.ui.modalTool"
+            id="gov.noaa.nws.ncep.viz.tools.zoom"
+            name="NC_Zoom">
+      </command>
+      <command
+            categoryId="com.raytheon.viz.ui.modalTool"
+            id="gov.noaa.nws.ncep.viz.tools.unzoom"
+            name="NC_Unzoom">
+      </command>
+      <command
+            id="gov.noaa.nws.ncep.viz.ui.locatorOptsDflts"
+            name="Locator Options Defaults">
+      </command>
+      <command
+            id="gov.noaa.nws.ncep.viz.ui.newMapEditor"
+            name="New Display">
+           <commandParameter
+           	   id="promptForName"
+               name="promptForName"
+               value="true">
+           </commandParameter>            
+      </command>
+      <command
+            id="gov.noaa.nws.ncep.viz.ui.options.SyncPanes"
+            name="geoSynchronizePanes">
+      </command>
+      <command
+          id="gov.noaa.nws.ncep.viz.plotModelMngr"
+          name="Plot Model Manager">
+      </command>
+      <command
+            id="gov.noaa.nws.ncep.viz.colorMapEditor"
+            name="Colormap editor">
+      </command>
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.viz.ui.actions.clearData"
+          name="Wipe Results">
+      </command >
+            <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.viz.ui.actions.hideFrames"
+          name="Hide Loop">
+      </command>
+      <command
+           id="gov.noaa.nws.ncep.viz.tools.hotKeys.tabNavigation"
+           name="Hot-key For Navigating Tabs">
+           <commandParameter
+                id="keyNum"
+                name="keyNum">
+           </commandParameter>
+      </command>
+      <command
+          categoryId="com.raytheon.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.viz.ui.actions.hideFrames"
+          name="Hide Loop">
+      </command>
+      <command
+          id="gov.noaa.nws.ncep.viz.ui.actions.BadFrameAction"
+          name="Bad Frame">
+      </command>
+   </extension>
+      
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="gov.noaa.nws.ncep.viz.tools.autoUpdate.AutoUpdateAction"
+            commandId="gov.noaa.nws.ncep.viz.ui.autoUpdate">
+      </handler>
+      <handler
+            class="gov.noaa.nws.ncep.viz.tools.imageProperties.ImagePropertiesAction"
+            commandId="gov.noaa.nws.ncep.ui.actions.ImagePropertiesAction">
+      </handler>
+      <handler
+            class="gov.noaa.nws.ncep.viz.tools.loopManagement.LoopManagementAction"
+            commandId="gov.noaa.nws.ncep.viz.ui.actions.LoopManagement">
+      </handler>
+      <handler
+               class="gov.noaa.nws.ncep.viz.tools.loopManagement.LoopForwardAction"
+               commandId="gov.noaa.nws.ncep.viz.ui.actions.loopForward">
+      </handler>
+      <handler
+               class="gov.noaa.nws.ncep.viz.tools.loopManagement.LoopBackwardAction"
+               commandId="gov.noaa.nws.ncep.viz.ui.actions.loopBackward">
+      </handler>   
+      <handler
+               class="gov.noaa.nws.ncep.viz.tools.loopManagement.LoopRockAction"
+               commandId="gov.noaa.nws.ncep.viz.ui.actions.rock">
+      </handler>
+      <handler
+               class="gov.noaa.nws.ncep.viz.tools.loopManagement.CombinedFrameTool"
+               commandId="gov.noaa.nws.ncep.viz.ui.actions.frameTool">
+      </handler>
+      <handler
+               class="gov.noaa.nws.ncep.viz.tools.logos.LogosDisplayAction"
+               commandId="gov.noaa.nws.ncep.viz.ui.actions.LogosAction">
+      </handler>
+      <handler
+               class="gov.noaa.nws.ncep.viz.tools.cursor.CursorSelectAction"
+               commandId="gov.noaa.nws.ncep.viz.ui.actions.CursorAction">
+      </handler>
+      <handler
+               class="gov.noaa.nws.ncep.viz.tools.aodt.ui.AODTAction"
+               commandId="gov.noaa.nws.ncep.ui.actions.aodt.operational">
+      </handler>
+      <!--handler
+               class="gov.noaa.nws.ncep.viz.tools.aodt.ui.AODTAction"
+               commandId="gov.noaa.nws.ncep.ui.actions.aodt.experimental">
+      </handler-->
+      <handler
+            class="gov.noaa.nws.ncep.viz.tools.panZoom.NcPanTool"
+            commandId="gov.noaa.nws.ncep.viz.tools.pan">
+      </handler>
+      <handler
+            class="gov.noaa.nws.ncep.viz.tools.panZoom.NcZoomTool"
+            commandId="gov.noaa.nws.ncep.viz.tools.zoom">
+      </handler>
+      <handler
+            class="gov.noaa.nws.ncep.viz.tools.panZoom.NcUnzoomTool"
+            commandId="gov.noaa.nws.ncep.viz.tools.unzoom">
+      </handler>
+      <handler
+            class="gov.noaa.nws.ncep.viz.tools.predefinedArea.PredefinedAreaAction"
+            commandId="gov.noaa.nws.ncep.viz.ui.actions.loadPredefinedArea">
+      </handler>      
+      <handler
+            class="gov.noaa.nws.ncep.viz.tools.predefinedArea.SatelliteAreaAction"
+            commandId="gov.noaa.nws.ncep.viz.ui.actions.loadSatelliteArea">
+      </handler>      
+      <handler
+            class="gov.noaa.nws.ncep.viz.tools.customProjection.CreateCustomProjectionHandler"
+            commandId="gov.noaa.nws.ncep.viz.ui.actions.createCustomProjection">
+      </handler>
+      <handler
+            class="gov.noaa.nws.ncep.viz.tools.locatorOptions.LocatorOptionsAction"
+            commandId="gov.noaa.nws.ncep.viz.ui.locatorOptsDflts">
+      </handler>
+      <handler
+            class="gov.noaa.nws.ncep.viz.tools.newEditors.NewDisplayAction"
+            commandId="gov.noaa.nws.ncep.viz.ui.newMapEditor">
+      </handler>
+      <handler
+            class="gov.noaa.nws.ncep.viz.tools.syncPanes.SyncPanesOptionAction"
+            commandId="gov.noaa.nws.ncep.viz.ui.options.SyncPanes">
+      </handler>
+      <handler
+            class="gov.noaa.nws.ncep.viz.tools.plotModelMngr.PlotModelMngrAction"
+            commandId="gov.noaa.nws.ncep.viz.plotModelMngr">
+      </handler>
+      <handler
+            class="gov.noaa.nws.ncep.viz.tools.colorMapEditor.ColormapEditAction"
+            commandId="gov.noaa.nws.ncep.viz.colorMapEditor">
+      </handler>
+       
+      <handler
+            class="gov.noaa.nws.ncep.viz.tools.wipe.WipeResultsAction"
+            commandId="gov.noaa.nws.ncep.viz.ui.actions.clearData">
+      </handler>
+      <handler
+            class="gov.noaa.nws.ncep.viz.tools.hideLoop.HideLoopAction"
+            commandId="gov.noaa.nws.ncep.viz.ui.actions.hideFrames">
+      </handler>
+       
+       <handler
+               class="gov.noaa.nws.ncep.viz.tools.hotKeys.NCHotKeyHandler"
+               commandId="gov.noaa.nws.ncep.viz.tools.hotKeys.tabNavigation">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.viz.tools.frame.BadFrameAction"
+            commandId="gov.noaa.nws.ncep.viz.ui.actions.BadFrameAction">
+       </handler>
+   </extension>
+   <extension
+         point="gov.noaa.nws.ncep.viz.localization.localizationData">
+      <singleLocalizationValue
+            name="cursorRefTable"
+            location="cursor"
+            fileName="cursorref_tbl.xml">
+      </singleLocalizationValue>
+      <singleLocalizationValue
+            name="cursorTypeTable"
+            location="cursor"
+            fileName="cursorType.tbl">
+      </singleLocalizationValue>
+      <singleLocalizationValue
+            name="dwellRateTable"
+            location="loop"
+            fileName="loop_speed.tbl">
+      </singleLocalizationValue>
+      <singleLocalizationValue
+            name="logoTable"
+            location="logo"
+            fileName="logos.tbl">
+      </singleLocalizationValue>
+      <singleLocalizationValue
+            fileName="geog.xml"
+            location="resources/projection"
+            name="projectionResourcesGeogXmlFile">
+      </singleLocalizationValue>
+      <singleLocalizationValue
+            fileName="sfstns.xml"
+            location="resources/projection"
+            name="projectionResourcesSfstnsXmlFile">
+      </singleLocalizationValue>
+   </extension>
+   <!-- Hot Keys-->
+      <extension
+         point="org.eclipse.ui.bindings"
+         id="gov.noaa.nws.ncep.viz.ui.NcPerspective.bindings"
+          >
+       <scheme 
+            id="gov.noaa.nws.ncep.viz.ui.NCPerspective.scheme"
+            name="NcPerspective Key Binding Scheme"
+            /> 
+            <!-- Turn off Raytheon's keybinding in the National Centers context-->
+            <key
+            commandId=""
+            contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+            schemeId="com.raytheon.viz.ui.awips.scheme"
+            sequence="BACKSPACE">
+          </key>
+          <key
+            commandId=""
+            contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+            schemeId="com.raytheon.viz.ui.awips.scheme"
+            sequence="F12">
+         </key>          
+         <!-- Turn off the default keybinding in the National Centers context-->
+         <key
+                commandId=""
+                contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+                schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+                sequence="F10">
+         </key>         
+
+         <key
+                commandId=""
+                contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+                schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+                sequence="F12">
+         </key>
+         
+<!-- Hot key '-' on the keyboard, steps 1 frame backwards and also halts any ongoing frame looping -->
+         <key
+                commandId="gov.noaa.nws.ncep.viz.ui.actions.frameTool"
+                contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+                schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+                sequence="-">
+                <parameter id="mode" value="TIME_ONLY"/>
+                <parameter id="operation" value="PREVIOUS"/>
+         </key>
+
+<!-- Hot key '=' on the keyboard, steps 1 frame forwards and also halts any ongoing frame looping -->
+         <key
+                commandId="gov.noaa.nws.ncep.viz.ui.actions.frameTool"
+                contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+                schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+                sequence="=">
+                <parameter id="mode" value="TIME_ONLY"/>
+                <parameter id="operation" value="NEXT"/>
+         </key>
+
+<!-- Hot key 'l'  (L) on the keyboard, starts forward frame looping -->
+         <key
+                commandId="gov.noaa.nws.ncep.viz.ui.actions.loopForward"
+                contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+                schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+                sequence="L">
+         </key>
+                <!-- Hot keys from F1 though F10 activate tabs 1 through 10 respectively
+                      Hot keys <Shift + F1> through <Shift + F10> activate tabs 11 through 20 respectively-->
+         <key
+                commandId="gov.noaa.nws.ncep.viz.tools.hotKeys.tabNavigation"
+                contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="F1">
+                          <parameter id="keyNum" value="1"/>
+         </key>
+         
+         <key
+                commandId="gov.noaa.nws.ncep.viz.tools.hotKeys.tabNavigation"
+                contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="F2">
+                          <parameter id="keyNum" value="2"/>
+         </key>         
+
+         <key
+                commandId="gov.noaa.nws.ncep.viz.tools.hotKeys.tabNavigation"
+                contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="F3">
+                          <parameter id="keyNum" value="3"/>
+         </key>         
+
+         <key
+                commandId="gov.noaa.nws.ncep.viz.tools.hotKeys.tabNavigation"
+                contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="F4">
+                          <parameter id="keyNum" value="4"/>
+         </key>
+         
+         <key
+                commandId="gov.noaa.nws.ncep.viz.tools.hotKeys.tabNavigation"
+                contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="F5">
+                          <parameter id="keyNum" value="5"/>
+         </key>         
+
+         <key
+                commandId="gov.noaa.nws.ncep.viz.tools.hotKeys.tabNavigation"
+                contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="F6">
+                          <parameter id="keyNum" value="6"/>
+         </key>   
+         
+         <key
+                commandId="gov.noaa.nws.ncep.viz.tools.hotKeys.tabNavigation"
+                contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="F7">
+                          <parameter id="keyNum" value="7"/>
+         </key>
+         
+         <key
+                commandId="gov.noaa.nws.ncep.viz.tools.hotKeys.tabNavigation"
+                contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="F8">
+                          <parameter id="keyNum" value="8"/>
+         </key>         
+
+         <key
+                commandId="gov.noaa.nws.ncep.viz.tools.hotKeys.tabNavigation"
+                contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="F9">
+                          <parameter id="keyNum" value="9"/>
+         </key>            
+
+         <key
+                commandId=""
+                contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+                schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+                sequence="F10">
+         </key>
+         
+         <key
+                commandId="gov.noaa.nws.ncep.viz.tools.hotKeys.tabNavigation"
+                contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="F10">
+                          <parameter id="keyNum" value="10"/>
+         </key>
+         
+         <key
+                commandId="gov.noaa.nws.ncep.viz.tools.hotKeys.tabNavigation"
+                contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M2+F1">
+                          <parameter id="keyNum" value="11"/>
+         </key>         
+
+         <key
+                commandId="gov.noaa.nws.ncep.viz.tools.hotKeys.tabNavigation"
+                contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M2+F2">
+                          <parameter id="keyNum" value="12"/>
+         </key>            
+
+         <key
+                commandId="gov.noaa.nws.ncep.viz.tools.hotKeys.tabNavigation"
+                contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M2+F3">
+                          <parameter id="keyNum" value="13"/>
+         </key>         
+
+         <key
+                commandId="gov.noaa.nws.ncep.viz.tools.hotKeys.tabNavigation"
+                contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M2+F4">
+                          <parameter id="keyNum" value="14"/>
+         </key>      
+         
+         <key
+                commandId="gov.noaa.nws.ncep.viz.tools.hotKeys.tabNavigation"
+                contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M2+F5">
+                          <parameter id="keyNum" value="15"/>
+         </key>         
+
+         <key
+                commandId="gov.noaa.nws.ncep.viz.tools.hotKeys.tabNavigation"
+                contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M2+F6">
+                          <parameter id="keyNum" value="16"/>
+         </key>               
+         
+         <key
+                commandId="gov.noaa.nws.ncep.viz.tools.hotKeys.tabNavigation"
+                contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M2+F7">
+                          <parameter id="keyNum" value="17"/>
+         </key>         
+
+         <key
+                commandId="gov.noaa.nws.ncep.viz.tools.hotKeys.tabNavigation"
+                contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M2+F8">
+                          <parameter id="keyNum" value="18"/>
+         </key>               
+         
+         <key
+                commandId="gov.noaa.nws.ncep.viz.tools.hotKeys.tabNavigation"
+                contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M2+F9">
+                          <parameter id="keyNum" value="19"/>
+         </key>         
+
+         <key
+                commandId="gov.noaa.nws.ncep.viz.tools.hotKeys.tabNavigation"
+                contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="M2+F10">
+                          <parameter id="keyNum" value="20"/>
+         </key>               
+    
+    <!-- hot key to toggle auto update for the active tab-->
+             <key
+                commandId="gov.noaa.nws.ncep.viz.ui.autoUpdate"
+                contextId="gov.noaa.nws.ncep.viz.ui.display.NCMapContext"
+                schemeId="com.raytheon.viz.ui.awips.scheme"
+                sequence="A">
+         </key> 
+         
+   </extension>
+</plugin>

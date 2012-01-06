@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-SymbolicName: org.eclipse.equinox.launcher.carbon.macosx;single
+ ton:=true
+Bundle-ManifestVersion: 2
+Bundle-Localization: launcher.carbon.macosx
+Bundle-Name: %pluginName
+Eclipse-PlatformFilter: (& (osgi.ws=carbon) (osgi.os=macosx) (|(osgi.a
+ rch=x86)(osgi.arch=ppc)) )
+Bundle-Version: 1.0.101.R34x_v20080731
+Fragment-Host: org.eclipse.equinox.launcher;bundle-version="[1.0.0,1.1
+ .0)"
+Bundle-Vendor: %providerName
+
+Name: eclipse_1115.so
+SHA1-Digest: RRLhb5Prci79GCZFsylKadyPBvM=
+
+Name: about.html
+SHA1-Digest: a9lDHrGuLPkvHBUhsqWU+V2mhPw=
+
+Name: META-INF/eclipse.inf
+SHA1-Digest: KyT9FF7C7t86NoBoa2kZT3ZJBfw=
+
+Name: launcher.carbon.macosx.properties
+SHA1-Digest: L4VSSU2M0KAWyhCp8QBLMsnC6Jk=
+

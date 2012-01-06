@@ -1,0 +1,241 @@
+C MEMBER SUDALC
+C-----------------------------------------------------------------------
+C
+C @PROCESS LVL(77)
+C
+C DESC ROUTINE TO CHECK WHICH DATA BASES ALLOCATED AND PRINT MESSAGES
+C
+      SUBROUTINE SUDALC (IDSYS,IDUPRM,IDHCL,IDPPD,IDPPP,IDPRD,
+     *   IDFC,IDSASM,IDGOES,IDFMM,NUMMSG,ISTAT)
+C
+C
+      CHARACTER*8 TYPMSG
+C
+      INCLUDE 'uio'
+      INCLUDE 'scommon/sudbgx'
+      INCLUDE 'scommon/suddsx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/shared_s/RCS/sudalc.f,v $
+     . $',                                                             '
+     .$Id: sudalc.f,v 1.1 1995/09/17 19:21:41 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,115)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG('SYS ')
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,120) IDSYS,IDUPRM,IDHCL,IDPPD,IDPPP,IDPRD,
+     *      IDFC,IDSASM,IDGOES,IDFMM,NUMMSG
+         CALL SULINE (IOSDBG,1)
+         WRITE (IOSDBG,130) IDBALC
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      ISTAT=0
+      NUMERR=0
+      NUMWRN=0
+      INDMSG=NUMMSG
+      IF (INDMSG.GE.0) TYPMSG='ERROR'
+      IF (INDMSG.EQ.-1) TYPMSG='WARNING'
+      IF (INDMSG.EQ.-2) TYPMSG='NOTE'
+      IF (INDMSG.EQ.-3) TYPMSG='NONE'
+      CALL ULENTH (TYPMSG,LEN(TYPMSG),LMSG)
+C
+C  CHECK IF DATA FILE ALLOCATED COMMON BLOCK FILLED
+      IF (IDBFIL.EQ.0) CALL SUDDST (IERR)
+C
+      IF (IDBFIL.EQ.0) THEN
+         IF (TYPMSG.EQ.'NONE') TYPMSG='NOTE'
+         WRITE (LP,140) TYPMSG(1:LMSG)
+         IF (INDMSG.GE.0) CALL SUERRS (LP,2,NUMERR)
+         IF (INDMSG.EQ.-1) CALL SUWRNS (LP,2,NUMWRN)
+         IF (INDMSG.EQ.-2) CALL SULINE (LP,2)
+         IF (INDMSG.EQ.-3) CALL SULINE (LP,2)
+         ISTAT=1
+         GO TO 110
+         ENDIF
+C
+      IF (IDSYS.EQ.0) GO TO 20
+C
+C  CHECK IF SYSTEM DATA SET ALLOCATED
+      IF (IDBALC(1).LE.0) THEN
+         IF (TYPMSG.NE.'NONE') THEN
+            WRITE (LP,150) TYPMSG(1:LMSG),'SYSTEM DATASET'
+            IF (INDMSG.GE.0) CALL SUERRS (LP,2,NUMERR)
+            IF (INDMSG.EQ.-1) CALL SUWRNS (LP,2,NUMWRN)
+            IF (INDMSG.EQ.-2) CALL SULINE (LP,2)
+            ENDIF
+         IDSYS=0
+         ISTAT=2
+         ENDIF
+C
+20    IF (IDUPRM.EQ.0) GO TO 30
+C
+C  CHECK IF USER PARAMETER DATA SET ALLOCATED
+      IF (IDBALC(2).LE.0) THEN
+         IF (TYPMSG.NE.'NONE') THEN
+            WRITE (LP,150) TYPMSG(1:LMSG),'USER PARAMETER DATASET'
+            IF (INDMSG.GE.0) CALL SUERRS (LP,2,NUMERR)
+            IF (INDMSG.EQ.-1) CALL SUWRNS (LP,2,NUMWRN)
+            IF (INDMSG.EQ.-2) CALL SULINE (LP,2)
+            ENDIF
+         IDUPRM=0
+         ISTAT=2
+         ENDIF
+C
+30    IF (IDHCL.EQ.0) GO TO 40
+C
+C  CHECK IF HYDROLOGIC COMMAND LANGUAGE DATA BASE ALLOCATED
+      IF (IDBALC(3).LE.0) THEN
+         IF (TYPMSG.NE.'NONE') THEN
+            WRITE (LP,150) TYPMSG(1:LMSG),
+     *         'HYDROLOGIC COMMAND LANGUAGE DATA BASE'
+            IF (INDMSG.GE.0) CALL SUERRS (LP,2,NUMERR)
+            IF (INDMSG.EQ.-1) CALL SUWRNS (LP,2,NUMWRN)
+            IF (INDMSG.EQ.-2) CALL SULINE (LP,2)
+            ENDIF
+         IDHCL=0
+         ISTAT=2
+         ENDIF
+C
+40    IF (IDPPD.EQ.0) GO TO 50
+C
+C  CHECK IF PREPROCESSOR DATA FILES ALLOCATED
+      IF (IDBALC(4).LE.0) THEN
+         IF (TYPMSG.NE.'NONE') THEN
+            WRITE (LP,150) TYPMSG(1:LMSG),'PREPROCESSOR DATA BASE'
+            IF (INDMSG.GE.0) CALL SUERRS (LP,2,NUMERR)
+            IF (INDMSG.EQ.-1) CALL SUWRNS (LP,2,NUMWRN)
+            IF (INDMSG.EQ.-2) CALL SULINE (LP,2)
+            ENDIF
+         IDPPD=0
+         ISTAT=2
+         ENDIF
+C
+50    IF (IDPPP.EQ.0) GO TO 60
+C
+C  CHECK IF PREPROCESSOR PARAMETRIC DATA FILES ALLOCATED
+      IF (IDBALC(5).LE.0) THEN
+         IF (TYPMSG.NE.'NONE') THEN
+            WRITE (LP,150) TYPMSG(1:LMSG),
+     *         'PREPROCESOR PARAMETRIC DATA BASE'
+            IF (INDMSG.GE.0) CALL SUERRS (LP,2,NUMERR)
+            IF (INDMSG.EQ.-1) CALL SUWRNS (LP,2,NUMWRN)
+            IF (INDMSG.EQ.-2) CALL SULINE (LP,2)
+            ENDIF
+         IDPPP=0
+         ISTAT=2
+         ENDIF
+C
+60    IF (IDPRD.EQ.0) GO TO 70
+C
+C  CHECK IF PROCESSED DATA FILES ALLOCATED
+      IF (IDBALC(6).LE.0) THEN
+         IF (TYPMSG.NE.'NONE') THEN
+            WRITE (LP,150) TYPMSG(1:LMSG),'PROCESSED DATA BASE'
+            IF (INDMSG.GE.0) CALL SUERRS (LP,2,NUMERR)
+            IF (INDMSG.EQ.-1) CALL SUWRNS (LP,2,NUMWRN)
+            IF (INDMSG.EQ.-2) CALL SULINE (LP,2)
+            ENDIF
+         IDPRD=0
+         ISTAT=2
+         ENDIF
+C
+70    IF (IDFC.EQ.0) GO TO 80
+C
+C  CHECK IF FORECAST FILES ALLOCATED
+      IF (IDBALC(7).LE.0) THEN
+         IF (TYPMSG.NE.'NONE') THEN
+            WRITE (LP,150) TYPMSG(1:LMSG),'FORECAST COMPONENT DATA BASE'
+            IF (INDMSG.GE.0) CALL SUERRS (LP,2,NUMERR)
+            IF (INDMSG.EQ.-1) CALL SUWRNS (LP,2,NUMWRN)
+            IF (INDMSG.EQ.-2) CALL SULINE (LP,2)
+            ENDIF
+         IDFC=0
+         ISTAT=2
+         ENDIF
+C
+80    IF (IDSASM.EQ.0) GO TO 90
+C
+C  CHECK IF SASM DATA BASE ALLOCATED
+      IF (IDBALC(8).LE.0) THEN
+         IF (TYPMSG.NE.'NONE') THEN
+            WRITE (LP,150) TYPMSG(1:LMSG),'SASM DATA FILES'
+            IF (INDMSG.GE.0) CALL SUERRS (LP,2,NUMERR)
+            IF (INDMSG.EQ.-1) CALL SUWRNS (LP,2,NUMWRN)
+            IF (INDMSG.EQ.-2) CALL SULINE (LP,2)
+            ENDIF
+         IDSASM=0
+         ISTAT=2
+         ENDIF
+C
+90    IF (IDGOES.EQ.0) GO TO 100
+C
+C  CHECK IF GOES DATA BASE ALLOCATED
+      IF (IDBALC(9).LE.0) THEN
+         IF (TYPMSG.NE.'NONE') THEN
+            WRITE (LP,150) TYPMSG(1:LMSG),'GOES DATA FILES'
+            IF (INDMSG.GE.0) CALL SUERRS (LP,2,NUMERR)
+            IF (INDMSG.EQ.-1) CALL SUWRNS (LP,2,NUMWRN)
+            IF (INDMSG.EQ.-2) CALL SULINE (LP,2)
+            ENDIF
+         IDGOES=0
+         ISTAT=2
+         ENDIF
+C
+100   IF (IDFMM.EQ.0) GO TO 110
+C
+C  CHECK IF FMM DATA BASE ALLOCATED
+      IF (IDBALC(10).LE.0) THEN
+         IF (TYPMSG.NE.'NONE') THEN
+            WRITE (LP,150) TYPMSG(1:LMSG),'FMM DATA FILES'
+            IF (INDMSG.GE.0) CALL SUERRS (LP,2,NUMERR)
+            IF (INDMSG.EQ.-1) CALL SUWRNS (LP,2,NUMWRN)
+            IF (INDMSG.EQ.-2) CALL SULINE (LP,2)
+            ENDIF
+         IDFMM=0
+         ISTAT=2
+         ENDIF
+C
+110   IF (INDMSG.GE.0) NUMMSG=NUMERR
+      IF (INDMSG.EQ.-1) NUMMSG=NUMWRN
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,120) IDSYS,IDUPRM,IDHCL,IDPPD,IDPPP,IDPRD,
+     *      IDFC,IDSASM,IDGOES,IDFMM,NUMMSG
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,160)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      RETURN
+C
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+115   FORMAT (' *** ENTER SUDALC')
+120   FORMAT (' IDSYS=',I2,3X,'IDUPRM=',I2,3X,'IDHCL=',I2,3X,
+     *   'IDPPD=',I2,3X,'IDPPP=',I2,3X,'IDPRD=',I2,3X,
+     *   'IDFC=',I2,3X,'IDSASM=',I2,3X,'IDGOES=',I2,3X,
+     *   'IDFMM=',I2,3X,'NUMMSG=',I2)
+130   FORMAT (' IDBALC=',10(I2,1X))
+140   FORMAT ('0*** ',A,' - FILE STATUS INFORMATION NOT AVAILABLE. ',
+     *   'COMMON BLOCK IS NOT FILLED.')
+150   FORMAT ('0*** ',A,' - ',A,' NOT ALLOCATED.')
+160   FORMAT (' *** EXIT SUDALC')
+C
+      END

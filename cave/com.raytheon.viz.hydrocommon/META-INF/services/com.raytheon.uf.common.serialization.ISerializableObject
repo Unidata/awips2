@@ -1,0 +1,8 @@
+com.raytheon.viz.hydrocommon.resource.RadarRingOverlayResourceData
+com.raytheon.viz.hydrocommon.resource.HRAPOverlayResourceData
+com.raytheon.viz.hydrocommon.colorscalemgr.ColorDataClassXML
+com.raytheon.viz.hydrocommon.colorscalemgr.ColorThresholdXML
+com.raytheon.viz.hydrocommon.colorscalemgr.DefaultColorScaleXML
+com.raytheon.viz.hydrocommon.resource.FFGGridResourceData
+com.raytheon.viz.hydrocommon.resource.FFGGridLoadProperties
+com.raytheon.viz.hydrocommon.resource.XmrgResourceData

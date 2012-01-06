@@ -1,0 +1,2156 @@
+<html><head><title>GlueGen Manual</title></head><body>
+
+<h1>GlueGen Manual</h1>
+
+<h2> Table of Contents </h2>
+
+<a href="#Chapter1">Chapter 1</a> - Introduction
+<ul>
+<li> <a href="#SecIntroduction">Introduction</a>
+</li><li> <a href="#SecStructure">Structure of the Generated Glue Code</a>
+</li><li> <a href="#SecUnique">Unique Features</a>
+</li><li> <a href="#SecBackground">Background and Design Principles</a>
+</li></ul>
+
+<a href="#Chapter2">Chapter 2</a> - Using GlueGen
+<ul>
+<li> <a href="#SecAcquiring">Acquiring and Building GlueGen</a>
+  <ul>
+  <li> <a href="#SecCommon">Common Build Problems</a>
+  </li></ul>
+</li><li> <a href="#SecBasic">Basic Operation</a>
+</li><li> <a href="#SecAnt">Running GlueGen as an Ant Task</a>
+</li><li> <a href="#SecPCPP">PCPP</a>
+</li><li> <a href="#SecError">Error Reporting</a>
+</li><li> <a href="#SecStub">Stub Headers</a>
+</li><li> <a href="#Sec32">32- and 64-bit Considerations</a>
+</li><li> <a href="#SecOpaque">Opaque Directives</a>
+</li><li> <a href="#SecSubstitution">Argument Name Substitution</a>
+</li><li> <a href="#SecConfiguration">Configuration File Directives</a>
+  <ul>
+  <li> <a href="#SecJavaEmitter">JavaEmitter Configuration</a>
+  </li><li> <a href="#SecProcAddressEmitter">ProcAddressEmitter Configuration</a>
+  </li></ul>
+</li></ul>
+
+<a href="#Chapter3">Chapter 3</a> - Configuration File Examples<br>
+<ul>
+<li> <a href="#SecSimplest">Simplest possible example</a>
+</li><li> <a href="#SecArrays">Arrays and buffers</a>
+</li><li> <a href="#SecString">String handling</a>
+</li><li> <a href="#SecMemory">Memory allocation</a>
+</li><li> <a href="#SecStructs">Ingoing and outgoing structs</a>
+</li><li> <a href="#SecStructArrays">Returned arrays of structs</a>
+</li><li> <a href="#SecPointerArrays">Returned arrays of pointers</a>
+</li></ul>
+
+<h2> <a name="Chapter1">Chapter 1 - Introduction</a> </h2>
+
+<h3> <a name="SecIntroduction">Introduction</a> </h3>
+
+<p>
+
+GlueGen is a tool which automatically generates the Java and JNI code
+necessary to call C libraries. It reads as input ANSI C header files
+and separate configuration files which provide control over many
+aspects of the glue code generation. GlueGen uses a complete ANSI C
+parser and an internal representation (IR) capable of representing all
+C types to represent the APIs for which it generates interfaces. It
+has the ability to perform significant transformations on the IR
+before glue code emission. GlueGen is currently powerful enough to
+bind even low-level APIs such as the Java Native Interface (JNI) and
+the AWT Native Interface (JAWT) back up to the Java programming
+language.
+
+</p>
+<p>
+
+GlueGen is currently used to generate the JOGL interface to the OpenGL
+3D graphics API and the JOAL interface to the OpenAL audio library. In
+the case of JOGL, GlueGen is used not only to bind OpenGL to Java, but
+also the low-level windowing system APIs on the Windows, X11 and Mac
+OS X platforms. The implementation of the JOGL library is thereby
+written in the Java programming language rather than in C, which has
+offered considerable advantages during the development of the library.
+
+</p>
+<p>
+
+GlueGen is designed in modular form and can be extended to alter the
+glue code emission style or to generate interface code for other
+languages than Java.
+
+</p>
+<p>
+
+This manual describes how to use GlueGen to bind new C libraries to
+the Java programming language.
+
+</p><h3> <a name="SecStructure">Structure of the Generated Glue Code</a> </h3>
+
+<p>
+
+GlueGen supports two basic styles of glue code generation: everything
+in one class, or a separate interface and implementing class. The
+first mode, "AllStatic", exposes the underlying C functions as a set
+of static Java methods in a concrete class. This is a straightforward
+binding mechanism, but has the disadvantage of tying users to a
+concrete class (which may or may not be a problem) and makes it more
+difficult to support certain kinds of call-through-function-pointer
+semantics required by certain C APIs. The second mode,
+"InterfaceAndImpl", exposes the C functions as methods in an interface
+and emits the implementation of that interface into a separate class
+and package. The implementing class is not intended to be in the
+public API; this more strongly separates the user from the
+implementation of the API. Additionally, because it is necessary to
+hold an instance of the implementing class in order to access the
+underlying C routines, it is easier to support situations where
+call-through-function-pointer semantics must be followed, in
+particular where those function pointers might change from instance to
+instance.
+
+</p>
+<p>
+
+The generated glue code follows some basic rules in binding C APIs to
+Java:
+
+</p><ul>
+
+<li> C primitive types are exposed as the corresponding Java primitive
+     type.
+
+</li><li> Pointers to typed C primitives (<code>int*</code>,
+     <code>float*</code>) are bound to java.nio Buffer subclasses
+     (<code>IntBuffer</code>, <code>FloatBuffer</code>) and optionally
+     to Java arrays (<code>int[]</code>, <code>float[]</code>).
+
+  <ul>
+
+  <li> If a C function takes such a pointer as an outgoing argument,
+       two method overloadings will generally be produced; one which
+       accepts a Buffer, and one which accepts a primitive array plus
+       an integer offset argument. The variant taking a Buffer may
+       accept either a "direct" NIO Buffer or a non-direct one
+       (wrapping a Java array). The exception is when such a routine
+       is specified by the <a href="#NioDirectOnly">NioDirectOnly</a>
+       directive to keep a persistent pointer to the passed storage,
+       in which case only the Buffer variant will be generated, and
+       will only accept a direct Buffer as argument.
+
+  </li><li> If a C function returns such a pointer as its result, it will
+       be exposed as the corresponding Buffer type. In this case it is
+       also typically necessary to specify to GlueGen via the <a href="#ReturnValueCapacity">ReturnValueCapacity</a> directive
+       the number of addressable elements in the resulting array.
+
+  </li></ul>
+
+</li><li> Pointers to <code>void*</code> are bound to java.nio.Buffer.
+
+  <ul>
+
+  <li> By default any C function accepting a <code>void*</code>
+       argument will allow either a direct or non-direct java.nio
+       Buffer to be passed as argument. If the <a href="#NioDirectOnly">NioDirectOnly</a> directive is specified,
+       however, only a direct Buffer will be accepted.
+
+  </li><li> Similar rules for <code>void*</code> return values apply to
+       those for pointers to typed primitives.
+
+  </li></ul>
+
+</li><li> To avoid an explosion in the number of generated methods, if a
+     particular API accepts more than one typed primitive pointer
+     argument, only two overloadings continue to be produced: one
+     accepting all arrays as arguments and one accepting all Buffers
+     as arguments. When calling the variant accepting Buffers, all of
+     the Buffers passed in a particular call must be either direct or
+     non-direct. Mixing of direct and non-direct Buffers in a given
+     function call is not supported.
+
+</li><li> When a java.nio Buffer is passed from Java to C, the position of
+     the Buffer is taken into account. The resulting pointer passed to
+     C is equal to the base address of the Buffer plus the position
+     scaled appropriately for the size of the primitive elements in
+     the Buffer. This feature is called "auto-slicing", as it mimics
+     the behavior of calling Buffer.slice() without the overhead of
+     explicit object creation.
+
+</li><li> Pointers to constant <code>char*</code> may be bound to
+     java.lang.String using the <a href="#ArgumentIsString">ArgumentIsString</a> or <a href="#ReturnsString">ReturnsString</a> directives.
+
+</li><li> <code>#define</code> statements in header files mapping names to
+     constant values are exposed as public static final constant
+     values in either the generated interface or AllStatic class.
+
+</li><li> C structs encountered during the glue code generation process and
+     referenced by the C functions are exposed as Java classes of the
+     same name (typically the name to which the struct is typedefed).
+     Each primitive field in the struct is exposed as two methods; a
+     getter, which accepts no arguments, and a setter, which accepts
+     as argument a primitive value of the type of the field. Static
+     factory methods are exposed allowing allocation of these structs
+     from Java code. The backing storage for these Java classes is a
+     direct java.nio Buffer. GlueGen fully supports returning of
+     pointers to C structs up to Java.
+
+</li></ul>
+
+<h3><a name="SecUnique">Unique Features</a></h3>
+
+GlueGen contains several unique features making it both a powerful and
+easy-to-use tool.
+
+<ul>
+
+<li> C structs are exposed as Java classes. The generated code for
+     these classes supports both 32-bit and 64-bit platforms.
+
+</li><li> C structs containing function pointers are exposed as Java
+     classes with methods. This makes it easy to interact with
+     low-level C APIs such as the AWT Native Interface (JAWT) from the
+     Java programming language level.
+
+  <ul>
+
+  <li> In this context, GlueGen automatically detects which argument
+       to the various function pointers indicates the "this" pointer,
+       hiding it at the Java level and passing it automatically.
+
+  </li><li> GlueGen offers automatic handling of JNI-specific data types
+       such as <code>JNIEnv*</code> and <code>jobject</code>. The tool
+       understands that the <code>JNIEnv*</code> argument is implicit
+       and that <code>jobject</code> maps to java.lang.Object at the
+       Java programming language level. While this is most useful when
+       binding JDK-internal APIs such as the JAWT to Java, there may
+       be other JNI libraries which expose C functions taking these
+       data types, and GlueGen can very easily bind to them.
+
+  </li></ul>
+
+</li></ul>
+
+<h3><a name="SecBackground">Background and Design Principles</a></h3>
+
+<p>
+
+This section provides motivation for the design of the GlueGen tool
+and is not necessary to understand how to use the tool.
+
+</p>
+<p>
+
+There are many tools available for assisting in the autogeneration of
+foreign function interfaces for various high-level languages. Only a
+few examples include <a href="http://alumni.media.mit.edu/%7Ekbrussel/Header2Scheme/">Header2Scheme</a>,
+an early tool allowing binding of a limited subset of C++ to the
+Scheme programming language; <a href="http://www.swig.org/">SWIG</a>,
+a tool released at roughly the same time as Header2Scheme which by now
+supports binding C and C++ libraries to a variety of scripting
+languages; <a href="http://www.jniwrapper.com/">JNIWrapper</a>, a
+commercial tool automating the binding of C APIs to Java; and <a href="http://www.noodleglue.org/noodleglue/noodleglue.html">NoodleGlue</a>,
+a recently-released tool automating the binding of C++ APIs to
+Java. Other language-specific tools such as Perl's XS, Boost.Python
+and many others exist.
+
+</p>
+<p>
+
+GlueGen was designed with a few key principles in mind. The most
+fundamental was to support binding of the lowest-level APIs on a given
+platform up to the Java programming language. The intended goal, in
+the context of the JOGL project, was to allow subsets of the Win32 and
+X11 APIs to be exposed to Java, and to use those APIs to write the
+behind-the-scenes OpenGL context creation and management code in Java
+instead of C. This informed several other design goals:
+
+</p><ul>
+
+<li> Avoid touching the C headers as much as possible. This makes it
+     easier to upgrade to a more recent version of the C API just by
+     copying in a new set of headers.
+
+</li><li> Avoid touching the generated glue code completely.
+
+</li><li> Avoid having to hand-write a lot of generated glue code. Instead,
+     handle many complex constructs automatically and provide
+     sufficient control over the glue code generation to avoid having
+     to handwrite certain native methods where one or two lines of
+     tweaking would suffice.
+
+</li><li> Support all C constructs in the parser and intermediate
+     representation. The rationale is that it is acceptable to cut
+     corners in the number of constructs supported in the Java
+     binding, but not whether the tool can internally represent it in
+     its C type system. This design goal implies starting with
+     complete a ANSI C parser coupled with a complete C type system.
+
+</li><li> As the tool is targetting the Java programming language, build
+     the tool in the Java programming language.
+
+</li></ul>
+
+In order to make the problem more tractable, support for binding C++
+to the Java programming language was not considered. C++ adds many
+constructs over ANSI C which make it much more difficult to reason
+about and to find a useful subset to support binding to Java.
+Additionally, it seems that there are relatively few C++-specific
+libraries in general use which could be usefully bound to Java,
+although this may be a matter of opinion.
+
+<p></p>
+<p>
+
+GlueGen was designed with the Java programming language in mind, but
+is not necessarily restricted to generating glue code for the Java
+language. The tool is divided into separate parse and code generation
+phases, and the internal representation is fairly easy to iterate
+over. The core driver of GlueGen may therefore be useful in producing
+other tools which autogenerate foreign function interfaces to C
+libraries for other languages.
+
+</p>
+
+<h2> <a name="Chapter2">Chapter 2 - Using GlueGen</a> </h2>
+
+<h3><a name="SecAcquiring">Acquiring and Building GlueGen</a></h3>
+
+The source code for GlueGen may be obtained via CVS:
+
+<pre>  cvs -d :pserver:guest@cvs.dev.java.net:/cvs co gluegen
+</pre>
+
+To build GlueGen, first download the ANTLR jar file from <a href="http://antlr.org/">antlr.org</a>. Currently GlueGen is only
+compatible with ANTLR releases up to 2.7.x and does not work with
+ANTLR 3.x. (NOTE: do not place the ANTLR jar file in the Extensions
+directory of the JRE or JDK, as this will cause the build to fail.)
+Next, copy <code>make/gluegen.properties</code> from the GlueGen
+workspace to your home directory (pointed to by the Java system
+property <code>user.home</code>; on Windows this is
+e.g. <code>C:\Documents and Settings\username</code>). Edit the copy
+of gluegen.properties in your home directory to point the
+<code>antlr.jar</code> property to the location of the ANTLR jar file
+on your local disk. Finally, cd to the <code>make/</code> subdirectory
+and type "ant". Ant 1.6.x or later is required.
+
+<h4><a name="SecCommon">Common Build Problems</a></h4>
+
+<p>
+
+</p><dl>
+<dt> <strong>CharScanner; panic: ClassNotFoundException: com.sun.gluegen.cgram.CToken</strong>
+</dt><dd> This occurs because ANTLR was dropped into the Extensions
+     directory of the JRE/JDK. On Windows and Linux, delete any ANTLR
+     jars from jre/lib/ext, and on Mac OS X, delete them from
+     /Library/Java/Extensions. Use the antlr.jar property in the
+     build.xml to point to a JRE-external location of this jar file.
+</dd></dl>
+
+<p></p>
+
+<h3><a name="SecBasic">Basic Operation</a></h3>
+
+<p>
+
+GlueGen can be run either as an executable jar file (<code>java -jar
+gluegen.jar</code>; note that antlr.jar must be in the same directory
+as gluegen.jar in order for this invocation to work) or from within
+Ant as described in the following section. When run from the command
+line, GlueGen accepts four kinds of command-line arguments:
+
+</p><ul>
+<li> -I<em>dir</em> (optional) adds <em>dir</em> to the include path.
+     Similarly to a C compiler or preprocessor, GlueGen scans a set of
+     directories to locate header files it encounters in
+     <code>#include</code> directives. Unlike most C preprocessors,
+     however, GlueGen has no default include path, so it is typically
+     necessary to supply at least one <code>-I</code> option on the
+     command line in order to handle any <code>#include</code>
+     directives in the file being parsed.
+
+</li><li> -E<em>emitterClassName</em> (optional) uses
+     <em>emitterClassName</em> as the fully-qualified name of the
+     emitter class which will be used by GlueGen to generate the glue
+     code. The emitter class must implement the
+     <code>com.sun.gluegen.GlueEmitter</code> interface. If this
+     option is not specified, a
+     <code>com.sun.gluegen.JavaEmitter</code> will be used by default.
+
+</li><li> -C<em>cfgFile</em> adds <em>cfgFile</em> to the list of
+     configuration files used to set up the chosen emitter. This is
+     the means by which a large number of options are passed in to the
+     GlueGen tool and to the emitter in particular. Configuration
+     files are discussed more in the following section.
+
+</li><li> [ filename | - ] selects the file or standard input from which
+     GlueGen should read the C header file for which glue code should
+     be generated. This must be the last command-line argument, and
+     only one filename argument is supported. To cause multiple header
+     files to be parsed, write a small .c file #including the multiple
+     headers and point GlueGen at the .c file.
+</li></ul>
+
+<h3><a name="SecAnt">Running GlueGen as an Ant Task</a></h3>
+
+<p>
+
+GlueGen can also be invoked as a subtask within Ant. In order to do
+so, a path element should be defined as follows:
+
+</p><pre>  &lt;path id="gluegen.classpath"&gt;
+    &lt;pathelement location="${gluegen.jar}" /&gt;
+    &lt;pathelement location="${antlr.jar}" /&gt;
+  &lt;/path&gt;
+</pre>
+
+where the <code>gluegen.jar</code> and <code>antlr.jar</code>
+properties point to the respective jar files. A taskdef defining the
+GlueGen task should then be specified as follows:
+
+<pre> &lt;taskdef name="gluegen"
+      classname="com.sun.gluegen.ant.GlueGenTask"
+      classpathref="gluegen.classpath" /&gt;
+</pre>
+
+At this point GlueGen may be invoked as follows:
+
+<pre>  &lt;gluegen src="[header to parse]" 
+           config="[configuration file]"
+           includeRefid="[dirset for include path]"
+           emitter="com.sun.gluegen.JavaEmitter"&gt;
+    &lt;classpath refid="gluegen.classpath" /&gt;
+  &lt;/gluegen&gt;
+</pre>
+
+Please see the <a href="http://jogl.dev.java.net/">JOGL</a> and <a href="http://joal.dev.java.net/">JOAL</a> build.xml files for
+concrete, though non-trivial, examples of how to invoke GlueGen via
+Ant.
+
+<h3><a name="SecPCPP">PCPP</a></h3>
+
+<p>
+
+GlueGen contains and uses a minimal C preprocessor called the "Pseudo
+C Pre-Processor", or PCPP. A slightly specialized C preprocessor is
+required for correct glue code generation with most libraries.
+Constant values intended for use by end users are defined in many C
+libraries' headers using <code>#define</code>s rather than constant
+int declarations, and if the header is processed by a full C
+preprocessor then the #define statements will be stripped become
+unavailable for processing by the glue code generator.
+
+</p>
+<p>
+
+PCPP is largely an invisible part of the glue code generation process;
+however, it has certain limitations which make it difficult to parse
+certain header files. First, it does not support macro evaluation in
+any form, so if a header relies on macro evaluation in order to
+generate code, PCPP will fail. It is possible that PCPP may fail
+silently in this situation, causing GlueGen to simply not produce code
+for the associated constructs. If GlueGen's output is not as expected
+and there is heavy use of the C preprocessor in the header, run PCPP
+against the header directly (PCPP takes simply the -I and filename
+arguments accepted by GlueGen) and examine the output.
+
+</p>
+<p>
+
+Second, PCPP contains only limited support for <code>#if</code>
+clauses. Generally speaking, its handling of <code>#if defined(foo) ||
+defined(bar)</code> constructs is limited to approximately what is
+required to handle the OpenGL header files. If the header being parsed
+relies on moderately complicated expressions being evaluated by the C
+preprocessor, check the output from PCPP and ensure it is as expected.
+
+</p>
+<p>
+
+Contributions to PCPP would be especially welcome. It would be very
+desirable to turn it into a full-blown C preprocessor with simply the
+option of passing through #define statements unchanged.
+
+</p>
+
+<h3><a name="SecError">Error Reporting</a></h3>
+
+<p>
+
+Error reporting by GlueGen's parser is currently less than ideal.
+Because PCPP makes <code>#include</code> directives disappear
+completely with respect to the C parser (it appears that the
+<code>#line</code> directives it emits are not being consumed properly
+-- an area which needs more investigation), the line numbers reported
+in parse failures are incorrect in all but the simplest cases. This
+makes it difficult to determine in exactly what header file and on
+exactly what construct the C parser failed.
+
+</p>
+<p>
+
+Fortunately, there is a relatively simple workaround. PCPP can be run
+with all of the same -I arguments passed to GlueGen and the result
+piped to a new .c file. GlueGen can then be invoked on that .c file
+(now containing no <code>#include</code> directives) and the line
+numbers on any parse failures will be correct.
+
+</p>
+
+<h3><a name="SecStub">Stub Headers</a></h3>
+
+<p>
+
+As much as is possible, GlueGen is intended to operate on unmodified C
+header files, so that it is easy to upgrade the given C API being
+bound to Java simply by dropping in a new set of header files.
+However, most C headers contain references to standard headers like
+<code>stdio.h</code>, and if this header is parsed by GlueGen, the
+tool will automatically attempt to generate Java entry points for such
+routines as <code>fread</code> and <code>fwrite</code>, among others.
+It is impractical to exclude these APIs on a case by case basis.
+Therefore, the suggested technique to avoid polluting the binding with
+these APIs is to "stub out" the headers.
+
+</p>
+<p>
+
+GlueGen searches the include path for headers in the order the include
+directories were specified to the tool. Placing another directory in
+front of the one in which the bulk of the headers are found allows,
+for example, an alternative <code>stdio.h</code> to be inserted which
+contains few or no declarations but which satisfies the need of the
+dependent header to find such a file.
+
+</p>
+<p>
+
+GlueGen uses a complete ANSI and GNU C parser written by John Mitchell
+and Monty Zukowski from the set of grammars available for the ANTLR
+tool by Terrence Parr. As a complete C parser, this grammar requires
+all data types encountered during the parse to be fully defined. Often
+a particular header will be included by another one in order to pick
+up data type declarations rather than API declarations. Stubbing out
+the header with a smaller one providing a "fake" type declaration is a
+useful technique for avoiding the binding of unnecessary APIs during
+the glue code process.
+
+</p>
+<p>
+
+Here's an example from the JOGL glue code generation process. The
+<code>glext.h</code> header defining OpenGL extensions references
+<code>stddef.h</code> in order to pick up the <code>ptrdiff_t</code>
+data type. We choose to not include the real stddef.h but instead to
+swap in a stub header. The contents of this header are therefore as
+follows:
+
+</p><pre>  #if defined(_WIN64)
+    typedef __int64 ptrdiff_t;
+  #elif defined(__ia64__) || defined(__x86_64__)
+    typedef long int ptrdiff_t;
+  #else
+    typedef int ptrdiff_t;
+  #endif
+</pre>
+
+This causes the ptrdiff_t data type to be defined appropriately for
+the current architecture. It will be referenced during the glue code
+generation and cause a Java value of the appropriate type (int or
+long) to be used to represent it.
+
+<p></p>
+<p>
+
+This is not the best example because it involves a data type which
+changes size between 32- and 64-bit platforms, and there are otner
+considerations to take into account in these situations (see the
+section <a href="#Sec32">32- and 64-bit considerations</a>). Here's
+another example, again from the JOGL source tree. JOGL binds the AWT
+Native Interface, or JAWT, up to the Java programming language so that
+the low-level code which binds OpenGL contexts to Windows device
+contexts may be written in Java. The JDK's <code>jawt_md.h</code> on
+the Windows platform includes <code>windows.h</code> to pick up the
+definitions of data types such as <code>HWND</code> (window handle)
+and <code>HDC</code> (handle to device context). However, it is
+undesirable to try to parse the real <code>windows.h</code> just to
+pick up these typedefs; not only does this header contain thousands of
+unneeded APIs, but it also uses certain macro constructs not supported
+by GlueGen's <a href="#SecPCPP">minimal C preprocessor</a>. To avoid
+these problems, a "stub" <code>windows.h</code> header is placed in
+GlueGen's include path containing only the necessary typedefs:
+
+</p><pre>  typedef struct _handle*     HANDLE;
+  typedef HANDLE              HDC;
+  typedef HANDLE              HWND;
+</pre>
+
+Note that it is essential that the type being specified to GlueGen is
+compatible at least in semantics with the real definition of the
+HANDLE typedef in the real <code>windows.h</code>, so that during
+compilation of GlueGen's autogenerated C code, when the real
+<code>windows.h</code> is referenced by the C compiler, the
+autogenerated code will compile correctly.
+
+<p></p>
+<p>
+
+This example is not really complete as it also requires <a href="#Sec32">consideration of the size of data types on 32- and
+64-bit platforms</a> as well as a discussion of how certain <a href="#SecOpaque">opaque data types</a> are described to GlueGen and
+exposed in its autogenerated APIs. Nonetheless, it illustrates at a
+basic level why using a stub header is necessary and useful in certain
+situations.
+
+</p>
+
+<h3><a name="Sec32">32- and 64-bit Considerations</a></h3>
+
+<p>
+
+When binding C functions to the Java programming language, it is
+important that the resulting Java code support execution on a 64-bit
+platform if the associated native methods are compiled appropriately.
+In other words, the public Java API should not change if the
+underlying C data types change to another data model such as LP64 (in
+which longs and pointers become 64-bit).
+
+</p>
+<p>
+
+GlueGen internally maintains two descriptions of the underlying C data
+model: one for 32-bit architectures and one for 64-bit architectures.
+These machine descriptions are used when deciding the mapping between
+integral C types such as int and long and the corresponding Java
+types, as well as when laying out C structs for access by the Java
+language. For each autogenerated C struct accessor, both a 32-bit and
+64-bit variant are generated behind the scenes, ensuring that the
+resulting Java code will run correctly on both 32-bit and 64-bit
+architectures.
+
+</p>
+<p>
+
+When generating the main class containing the bulk of the method
+bindings, GlueGen uses the 64-bit machine description to map C data
+types to Java data types. This ensures that the resulting code will
+run properly on 64-bit platforms. Note that it also generally means
+that C <code>long</code>s will be mapped to Java <code>long</code>s,
+since an LP64 data model is assumed.
+
+</p>
+<p>
+
+If <a href="#SecOpaque">Opaque directives</a> are used to cause a
+given C integer or pointer data type to be mapped directly to a Java
+primitive type, care should be taken to make sure that the Java
+primitive type is wide enough to hold all of the data even on 64-bit
+platforms. Even if the data type is defined in the header file as
+being only a 32-bit C integer, if there is a chance that on a 64-bit
+platform the same header may define the data type as a 64-bit C
+integer or long, the Opaque directive should map the C type to a Java
+long.
+
+</p>
+
+<h3><a name="SecOpaque">Opaque Directives</a></h3>
+
+<p>
+
+Complex header files may contain declarations for certain data types
+that are either too complex for GlueGen to handle or unnecessarily
+complex from the standpoint of glue code generation. In these
+situations a stub header may be used to declare a suitably compatible
+typedef for the data type. An <a href="#Opaque">Opaque</a> directive
+can be used to map the resulting typedef to a Java primitive type if
+it is undesirable to expose it as a full-blown Java wrapper class.
+
+</p>
+<p>
+
+GlueGen hashes all typedefs internally down to their underlying
+primitive type. (This is probably not really correct according to the
+C type system, but is correct enough from a glue code generation
+standpoint, where if the types are compatible they are considered
+equivalent.) This means that if the parser encounters
+
+</p><pre>  typedef void* LPVOID;
+</pre>
+
+then an Opaque directive stating
+
+<pre>  Opaque long LPVOID
+</pre>
+
+will cause all <code>void*</code> or <code>LPVOID</code> arguments in
+the API to be mapped to Java longs, which is almost never desirable.
+Unfortunately, it is not currently possible to distinguish between the
+LPVOID typedef and the underlying <code>void*</code> data type in this
+situation.
+
+<p></p>
+<p>
+
+A similar problem occurs for other data types for which Opaque
+directives may be desired. For example, a Windows HANDLE equates to a
+typedef to <code>void*</code>, but performing this typedef in a stub
+header and then adding the Opaque directive
+
+</p><pre>  Opaque long HANDLE
+</pre>
+
+will cause all void* arguments to be exposed as Java longs instead of
+Buffers, which is again undesirable. Attempting to work around the
+problem by typedef'ing HANDLE to an integral type, as in:
+
+<pre>  typedef long HANDLE;
+</pre>
+
+may itself have problems, because GlueGen will assume the two integral
+types are compatible and not perform any intermediate casts between
+HANDLE and jlong in the autogenerated C code. (When casting between a
+pointer type and a JNI integral type such as jlong in C code, GlueGen
+automatically inserts casts to convert the pointer first to an
+"intptr_t" and then to the appropriate JNI type, in order to silence
+compiler warnings and/or errors.)
+
+<p></p>
+<p>
+
+What is desired is to produce a new type name distinct from all others
+but still compatible with the pointer semantics of the original type.
+Then an Opaque directive can be used to map the new type name to, for
+example, a Java long.
+
+</p>
+<p>
+
+To implement this in the context of the HANDLE example, the following
+typedef may be inserted into the stub header:
+
+</p><pre>  typedef struct _handle*     HANDLE;
+</pre>
+
+This uses a pointer to an anonymous struct name to produce a new
+pointer type. This is legal ANSI C and is supported by GlueGen's
+parser without having seen a declaration for "struct _handle".
+Subsequently, an Opaque directive can be used to map the HANDLE data
+type to a Java long:
+
+<pre>  Opaque long HANDLE
+</pre>
+
+Now HANDLEs are exposed to Java as longs as desired. A similar
+technique is used to expose XIDs on the X11 platform as Java longs.
+
+<p></p>
+
+
+<h3><a name="SecSubstitution">Argument Name Substitution</a></h3>
+
+<p>
+
+Certain configuration file directives allow the insertion of Java or C
+code at various places in the generated glue code, to both eliminate
+the need to hand-edit the generated glue code as well as to minimize
+the hand-writing of glue code, which sidesteps the GlueGen process. In
+some situations the inserted code may reference incoming arguments to
+compute some value or perform some operation. Examples of directives
+supporting this substitution include <a href="#ReturnValueCapacity">ReturnValueCapacity</a> and <a href="#ReturnedArrayLength">ReturnedArrayLength</a>.
+
+</p>
+<p>
+
+The expressions in these directives may contain Java MessageFormat
+expressions like <code>{0}</code> which refer to the incoming argument
+names to the function. <code>{0}</code> refers to the first incoming
+argument.
+
+</p>
+<p>
+
+Strongly-typed C primitive pointers such as <code>int*</code>, which
+ordinarily expand to overloaded Java methods taking
+e.g. <code>int[]</code> as well as <code>IntBuffer</code>, present a
+problem. The expansion to <code>int[] arr</code> also generates an
+<code>int arr_offset</code> argument to be able to pass a pointer into
+the middle of the array down to C. To allow the same MessageFormat
+expression to be used for both cases, the subsitution that occurs when
+such a primitive array is referenced is the string <code>arr,
+arr_offset</code>; in other words, the subtituted string contains a
+comma. This construct may be used in the following way: the code being
+manually inserted may itself contain a method call taking
+e.g. <code>{3}</code> (the incoming argument index of the primitive
+array or buffer). The user should supply two overloaded versions of
+this method, one taking a strongly-typed Buffer and one taking e.g. an
+<code>int[] arr</code> and <code>int arr_offset</code> argument. The
+implementation of <code>RangeCheck</code>s for primitive arrays and
+strongly-typed buffers uses this construct.
+
+</p>
+<p>
+
+It should be noted that in the autogenerated C code the offset
+argument is expressed in bytes while at the Java level it is expressed
+in elements. Most uses of GlueGen will probably not have to refer to
+the primitive array arguments in C code so this slight confusion
+should be minor.
+
+</p>
+
+
+<h3><a name="SecConfiguration">Configuration File Directives</a></h3>
+
+<p>
+
+In addition to the C headers, GlueGen requires a certain amount of
+metadata in the form of configuration files in order to produce its
+glue code. There are three basic reasons for this: first, GlueGen must
+be informed into which Java classes the C methods are to be bound;
+second, there are many configuration options for the generated glue
+code, and passing them all on the command line is infeasible; and
+third, there are ambiguities in many constructs in the C programming
+language which must be resolved before a Java binding can be produced.
+
+</p>
+<p>
+
+The contents of the configuration file are dependent on the class of
+emitter specified to GlueGen. Currently there are three built-in
+emitter classes: JavaEmitter, which produces a basic, static Java
+binding of C functions; ProcAddressEmitter, which extends JavaEmitter
+by calling the underlying C functions through function pointers,
+resulting in more dynamic behavior and supporting C APIs with optional
+functionality; and GLEmitter, which specializes ProcAddressEmitter to
+support some OpenGL-specific constructs. The GLEmitter will be ignored
+in this manual as it is specialized for JOGL and provides very little
+additional functionality beyond the ProcAddressEmitter. The
+JavaEmitter and ProcAddressEmitter support many options in their
+configuration files. As the ProcAddressEmitter is a subclass of
+JavaEmitter, all of the constructs in the JavaEmitter's configuration
+files are also legal in the ProcAddressEmitter's configuration files.
+
+</p>
+<p>
+
+The configuration files have a very simple line-by-line structure, and
+are parsed by a very rudimentary, hand-written parser. Each
+non-whitespace and non-comment line (note: comment lines begin with
+'#') contains a directive like <code>Package</code>,
+<code>Style</code> or <code>JavaClass</code> followed by arguments to
+that directive. There are a certain set of directives that are
+required for any code generation; others are optional and their
+omission results in some default behavior. Directives are
+case-insensitive.
+
+</p>
+<p>
+
+The following is an exhaustive list of the options currently supported
+by each of these emitters' configuration files. It is difficult to see
+exactly how to use the tool based simply on these descriptions, so the
+<a href="#Chapter3">examples</a> may be more helpful in seeing exactly
+how to structure a configuration file for proper glue code generation.
+
+</p>
+
+
+<h4><a name="SecJavaEmitter">JavaEmitter Configuration</a></h4>
+
+<p>
+
+Note that only a very few of the following directives are specified as
+being "required" rather than "optional"; these indicate the minimal
+directives needed for a valid configuration file to begin to get glue
+code to be produced. In general, these are <a href="#Package">Package</a>, <a href="#ImplPackage">ImplPackage</a>,
+<a href="#JavaClass">JavaClass</a>, <a href="#ImplJavaClass">ImplJavaClass</a>, and <a href="#Style">Style</a>. Other directives such as <a href="#NioDirectOnly">NioDirectOnly</a> are required in some
+circumstances for the glue code to be correct, and some such as <a href="#ReturnedArrayLength">ReturnedArrayLength</a>, <a href="#ReturnValueCapacity">ReturnValueCapacity</a>, and <a href="#ReturnValueLength">ReturnValueLength</a> should be specified in
+some situations in order for certain return values to be useful at the
+Java level.
+
+</p>
+<p>
+
+The following directives are specified in alphabetical order, although
+this is not necessarily the best semantic order.
+
+</p>
+
+<dl>
+
+
+<dt><strong><a name="AccessControl">AccessControl</a></strong>
+</dt><dd> Syntax: <code>AccessControl [method name] [ PUBLIC | PROTECTED |
+PRIVATE | PACKAGE_PRIVATE ]</code> <br>
+
+(optional) Controls the access control of a certain Java method
+corresponding to a C function. The access control of all APIs defaults
+to public. This is useful when using the C binding of a particular
+function only as one implementation strategy of the real public API
+and using <a href="#CustomJavaCode">CustomJavaCode</a> to write the
+exposed API. In this case is most useful in conjunction with <a href="#RenameJavaMethod">RenameJavaMethod</a>.
+
+
+</dd><dt><strong><a name="ArgumentIsString">ArgumentIsString</a></strong>
+</dt><dd> Syntax: <code>ArgumentIsString [function name]
+[indices...]</code> where the first argument index is 0 <br>
+
+(optional) For a C function with one or more outgoing
+<code>char*</code> (or compatible data type) arguments, indicates that
+those arguments are semantically null-terminated C strings rather than
+arbitrary arrays of bytes. The generated glue code will be modified to
+emit those arguments as java.lang.String objects rather than
+<code>byte[]</code> or <code>ByteBuffer</code>.
+
+
+</dd><dt><strong><a name="ClassJavadoc">ClassJavadoc</a></strong>
+</dt><dd> Syntax: <code>ClassJavadoc [class name] [code...]</code> <br>
+
+(optional) Causes the specified line of code to be emitted in the
+appropriate place in the generated code to become the per-class
+Javadoc for the specified class. By default GlueGen produces no
+Javadoc for its generated classes, so this is the mechanism by which a
+user can emit Javadoc for these classes. The specified Javadoc
+undergoes no transformation by GlueGen, so the initial
+<code>/**</code> and trailing <code>*/</code> must be included in the
+correct place. Each line of Javadoc is emitted in the order
+encountered during parsing of the configuration files.
+
+
+</dd><dt><strong><a name="CustomCCode">CustomCCode</a></strong>
+</dt><dd>Syntax: <code>CustomCCode [code...]</code> <br>
+
+(optional) Causes the specified line of C code to be emitted into the
+generated native code for the implementing class. Currently there is
+no way (and no real need) to be able to emit custom C code into any
+other generated .c file, so the class name in the <a href="#CustomJavaCode">CustomJavaCode</a> directive is omitted.
+
+
+</dd><dt><strong><a name="CustomJavaCode">CustomJavaCode</a></strong>
+</dt><dd>Syntax: <code>CustomJavaCode [class name] [code...]</code> <br>
+
+(optional) Causes the specified line of Java code to be emitted into
+the specified generated Java class. Can be used to emit code into any
+generated class: the public interface, the implementing class, the
+sole concrete class (in the case of the AllStatic <a href="#Style">Style</a>), or any of the Java classes corresponding to
+referenced C structs in the parsed headers. This usage is somewhat
+verbose, and the <a href="#IncludeAs">IncludeAs</a> directive provides
+a more concise way of including large bodies of Java code into the
+generated code.
+
+
+</dd><dt><strong><a name="EmitStruct">EmitStruct</a></strong>
+</dt><dd>Syntax: <code>EmitStruct [C struct type name]</code> <br>
+
+(optional) Forces a Java class to be emitted for the specified C
+struct. Normally only those structs referenced directly by the parsed
+C APIs have corresponding Java classes emitted. 
+
+
+</dd><dt><strong><a name="GlueGenRuntimePackage">GlueGenRuntimePackage</a></strong>
+</dt><dd>Syntax: <code>GlueGenRuntimePackage [package name, like com.sun.gluegen.runtime]</code> <br>
+
+(optional) Changes the package in which the generated glue code
+expects to find its run-time helper classes (like BufferFactory, CPU,
+StructAccessor). Defaults to <code>com.sun.gluegen.runtime</code> (no
+quotes). This is useful if you want to bundle the runtime classes in
+your application without the possibility of interfering with other
+versions elsewhere in the system.
+
+
+</dd><dt><strong><a name="Extends">Extends</a></strong>
+</dt><dd>Syntax: <code>Extends [Java interface name] [interface name to
+extend] </code> <br>
+
+(optional) Causes the specified autogenerated Java interface to
+declare that it extends another one. This directive may only be
+applied to autogenerated interfaces, not concrete classes. For
+concrete classes, use the <a href="#Implements">Implements</a>
+directive.
+
+
+</dd><dt><strong><a name="HierarchicalNativeOutput">HierarchicalNativeOutput</a></strong>
+</dt><dd>Syntax: <code>HierarchicalNativeOutput true</code> <br>
+
+(optional) If "true", makes subdirectories for the generated native
+code matching the package names of the associated classes. This is
+typically not needed (or desired, as it complicates the compilation
+process for this native code) and defaults to false.
+
+
+</dd><dt><strong><a name="Ignore">Ignore</a></strong>
+</dt><dd> Syntax: <code>Ignore [regexp]</code> <br>
+
+(optional) Ignores one or more functions or data types matching the
+regexp argument which are encountered during parsing of the C
+headers. By default GlueGen will emit all encountered C functions as
+well as Java classes corresponding to all C structs referenced by
+those functions. Related directives are <a href="#IgnoreNot">IgnoreNot</a>, <a href="#Unignore">Unignore</a> and
+<a href="#EmitStruct">EmitStruct</a>.
+
+
+</dd><dt><strong><a name="IgnoreField">IgnoreField</a></strong>
+</dt><dd> Syntax: <code>IgnoreField [struct type name] [field name]</code>
+<br>
+
+(optional) Causes the specified field of the specified struct type
+to be ignored during code generation, typically because it is too
+complex for GlueGen to handle. 
+
+
+</dd><dt><strong><a name="IgnoreNot">IgnoreNot</a></strong>
+</dt><dd> Syntax: see <a href="#Ignore">Ignore</a>.
+
+(optional) Similar to the <a href="#Ignore">Ignore</a> directive, but
+evaluates the negation of the passed regexp when deciding whether to
+ignore the given function or data type. The <a href="#Unignore">Unignore</a> mechanism may be used with IgnoreNot as
+well. NOTE: the IgnoreNot mechanism may ultimately turn out to be
+superfluous; the authors do not have sufficient experience with
+regular expressions to know whether general negation of a regexp is
+possible. Feedback in this area would be appreciated.
+
+
+</dd><dt><strong><a name="Implements">Implements</a></strong>
+</dt><dd> Syntax: <code>Implements [Java class name] [interface name to
+implement]</code> <br>
+
+(optional) Causes the specified autogenerated Java concrete class to
+declare that it implements the specified interface. This directive may
+only be applied to autogenerated concrete classes, not interfaces. For
+interfaces, use the <a href="#Extends">Extends</a> directive.
+
+
+</dd><dt><strong><a name="ImplJavaClass">ImplJavaClass</a></strong>
+</dt><dd> Syntax: <code>ImplJavaClass [class name]</code> <br>
+
+(optional) Specifies the name of the typically non-public,
+implementation Java class which contains the concrete Java and native
+methods for the glue code. If the emission style is AllStatic, there
+is no distinction between the public and implementation class and
+ImplJavaClass should not be specified. Otherwise, if the ImplJavaClass
+is unspecified, it defaults to the JavaClass name plus "Impl". (If
+both are unspecified in this configuration, an error is reported.) See
+also <a href="#JavaClass">JavaClass</a>.
+
+
+</dd><dt><strong><a name="ImplPackage">ImplPackage</a></strong>
+</dt><dd> Syntax: <code>ImplPackage [package name]</code> <br>
+
+(optional) Specifies the package name into which the implementing
+class containing the concrete Java and native methods will be emitted,
+assuming an emission style of InterfaceAndImpl or ImplOnly. If
+AllStatic, there is no separate implementing class from the public
+interface. If the emission style is not AllStatic and the ImplPackage
+is not specified, it defaults to the Package plus ".impl". See also <a href="#Package">Package</a>.
+
+
+</dd><dt><strong><a name="Import">Import</a></strong>
+</dt><dd>Syntax: <code>Import [package name]</code> (no trailing semicolon)
+<br>
+
+(optional) Adds an import statement at the top of each generated Java
+source file.
+
+
+</dd><dt><strong><a name="Include">Include</a></strong>
+</dt><dd> Syntax: <code>Include [filename]</code> <br>
+
+(optional) Causes another configuration file to be read at the current
+point in parsing the current configuration file. The filename argument
+may be either absolute or relative; in the latter case it is specified
+relative to the location of the current configuration file.
+
+
+</dd><dt><strong><a name="IncludeAs">IncludeAs</a></strong>
+</dt><dd>Syntax: <code>IncludeAs [prefix tokens] [filename]</code> <br>
+
+(optional) Similar to the <a href="#Include">Include</a> directive,
+but prepends the specified prefix tokens on to every line of the file
+to be read.  The last token parsed is the name of the file to be
+read. This allows, for example, <a href="#CustomJavaCode">CustomJavaCode</a> to be stored as Java source
+rather than in the configuration file; in this example the
+configuration file might contain <code>IncludeAs CustomJavaCode
+MyClass MyClass-CustomJavaCode.java</code>.
+
+
+</dd><dt><strong><a name="JavaClass">JavaClass</a></strong>
+</dt><dd> Syntax: <code>JavaClass [class name]</code> <br>
+
+(optional / required) Specifies the name of the public,
+non-implementation Java class or interface into which the glue code
+will be generated. If the emission style is not ImplOnly, the
+JavaClass directive is required. See also <a href="#ImplJavaClass">ImplJavaClass</a>.
+
+
+</dd><dt><strong><a name="JavaEpilogue">JavaEpilogue</a></strong>
+</dt><dd>Syntax: <code>JavaEpilogue [C function name] [code...]</code> <br>
+
+(optional) Adds the specified code as an epilogue in the Java method
+for the specified C function; this code is run after the underlying C
+function has been called via the native method but before any result
+is returned. As in the <a href="#ReturnedArrayLength">ReturnedArrayLength</a> and other
+directives, <a href="#SecSubstitution">argument name
+substitution</a> is performed on MessageFormat expressions in the
+specified code. See also <a href="#JavaPrologue">JavaPrologue</a>.
+
+
+</dd><dt><strong><a name="JavaOutputDir">JavaOutputDir</a></strong>
+</dt><dd> Syntax: <code>JavaOutputDir [directory name]</code> <br>
+
+(optional) Specifies the root directory into which the emitted
+Java code will be produced. Subdirectories for the packages of the
+associated Java classes will be automatically created. If unspecified,
+defaults to the current working directory.
+
+
+</dd><dt><strong><a name="JavaPrologue">JavaPrologue</a></strong>
+</dt><dd> Syntax: <code>JavaPrologue [C function name] [code...]</code>
+<br>
+
+(optional) Adds the specified code as a prologue in the Java method
+for the specified C function; this code is run before the underlying C
+function is called via the native method. As in the <a href="#ReturnedArrayLength">ReturnedArrayLength</a> and other
+directives, <a href="#SecSubstitution">argument name
+substitution</a> is performed on MessageFormat expressions in the
+specified code. See also <a href="#JavaEpilogue">JavaEpilogue</a>.
+
+
+</dd><dt><strong><a name="ManuallyImplement">ManuallyImplement</a></strong>
+</dt><dd> Syntax: <code>ManuallyImplement [function name]</code> <br>
+
+(optional) Indicates to GlueGen to not produce a method into the
+implementing class for the specified C function; the user must provide
+one via the <a href="#CustomJavaCode">CustomJavaCode</a> directive. If
+the emission style is InterfaceAndImpl or InterfaceOnly, a public
+method will still be generated for the specified function.
+
+
+</dd><dt><strong><a name="NativeOutputDir">NativeOutputDir</a></strong>
+</dt><dd> Syntax: <code>NativeOutputDir [directory name]</code> <br>
+
+(optional) Specifies the root directory into which the emitted JNI
+code will be produced. If unspecified, defaults to the current working
+directory. See also <a href="#HierarchicalNativeOutput">HierarchicalNativeOutput</a>.
+
+
+</dd><dt><strong><a name="NioDirectOnly">NioDirectOnly</a></strong>
+</dt><dd> Syntax: <code>NioDirectOnly [function name]</code> <br>
+
+(required when necessary) When passing a pointer down to a C API, it
+is semantically undefined whether the underlying C code expects to
+treat that pointer as a persistent pointer, living past the point of
+return of the function call, or whether the pointer is used only
+during the duration of the function call. For APIs taking C primitive
+pointers such as <code>void*</code>, <code>float*</code>, etc.,
+GlueGen will typically generate up to two overloaded Java methods, one
+taking a <code>Buffer</code> or <code>Buffer</code> subclass such as
+<code>FloatBuffer</code>, and one taking a primitive array such as
+<code>float[]</code>. (In the case of <code>void*</code> outgoing
+arguments, GlueGen produces only one variant taking a Buffer.)
+Normally the generated glue code accepts either a "direct" or
+non-"direct" buffer (according to the New I/O APIs) as argument.
+However, if the semantics of the C function are that it either expects
+to hold on to this pointer past the point of the function call, or if
+it can block while holding on to the pointer, the
+<code>NioDirectOnly</code> directive <strong>must</strong> be
+specified for this C function in order for the generated glue code to
+be correct. Failing to observe this requirement may cause JVM hangs or
+crashes.
+
+
+</dd><dt><strong><a name="Opaque">Opaque</a></strong>
+</dt><dd> Syntax: <code>Opaque [Java primitive data type] [C data
+type]</code> <br>
+
+(optional) Causes a particular C data type to be exposed in opaque
+form as a Java primitive type. This is most useful for certain pointer
+types for which it is not desired to generate full Java classes but
+instead expose them to Java as e.g. <code>long</code>s. It is also
+useful for forcing certain integral C data types to be exposed as e.g.
+<code>long</code> to Java to ensure 64-bit cleanliness of the
+generated glue code. See the <a href="#Chapter3">examples</a>. The C
+data type may be a multiple-level pointer type; for example
+<code>Opaque long void**</code>. Note that it is not currently
+supported to make a given data type opaque for just a few functions;
+the Opaque directive currently applies to all C functions in the
+headers being parsed.  This means that sweeping Opaque declarations
+like <code>Opaque long void*</code> will likely have unforseen and
+undesirable consequences.
+
+
+</dd><dt><strong><a name="Package">Package</a></strong>
+</dt><dd> Syntax: <code>Package [package name]</code> (no trailing
+semicolon) <br>
+
+(optional / required) Specifies the package into which the public
+interface or class for the autogenerated glue code will be
+generated. Required whenever the emission style is not ImplOnly. See
+also <a href="#ImplPackage">ImplPackage</a>.
+
+
+</dd><dt><strong><a name="RangeCheck">RangeCheck</a></strong>
+</dt><dd> Syntax: <code>RangeCheck [C function name] [argument number]
+[expression]</code> <br>
+
+(optional) Causes a range check to be performed on the specified array
+or Buffer argument of the specified autogenerated Java method.  This
+range check ensures, for example, that a certain number of elements
+are remaining in the passed Buffer, knowing that the underlying C API
+will access no more than that number of elements. For range checks
+that should be expressed in terms of a number of bytes rather than a
+number of elements, see the <a href="#RangeCheckBytes">RangeCheckBytes</a> directive. As in the <a href="#ReturnedArrayLength">ReturnedArrayLength</a> and other
+directives, <a href="#SecSubstitution">argument name substitution</a>
+is performed on MessageFormat expressions.
+
+
+</dd><dt><strong><a name="RangeCheckBytes">RangeCheckBytes</a></strong>
+</dt><dd> Syntax: <code>RangeCheckBytes [C function name] [argument number]
+[expression]</code> <br>
+
+(optional) Same as the <a href="#RangeCheck">RangeCheck</a> directive,
+but the specified expression is treated as a minimum number of bytes
+remaining rather than a minimum number of elements remaining. This
+directive may not be used with primitive arrays.
+
+
+</dd><dt><strong><a name="RenameJavaMethod">RenameJavaMethod</a></strong>
+</dt><dd> Syntax: <code>RenameJavaMethod [from name] [to name]</code> <br>
+
+(optional) Causes the specified C function to be emitted under a
+different name in the Java binding. This is most useful in conjunction
+with the <a href="#AccessControl">AccessControl</a> directive when the
+C function being bound to Java is only one potential implementation of
+the public API, or when a considerable amount of Java-side custom code
+is desired to wrap the underlying C native method entry point.
+
+
+</dd><dt><strong><a name="RenameJavaType">RenameJavaType</a></strong>
+</dt><dd> Syntax: <code>RenameJavaType [from name] [to name]</code> <br>
+
+(optional) Causes the specified C struct to be exposed as a Java class
+under a different name. This only applies to autogenerated classes
+corresponding to C structs encountered during glue code generation;
+full control is provided over the name of the top-level classes
+associated with the set of C functions via the <a href="#JavaClass">JavaClass</a> and <a href="#ImplJavaClass">ImplJavaClass</a> directives.
+
+
+</dd><dt><strong><a name="ReturnedArrayLength">ReturnedArrayLength</a></strong>
+</dt><dd> Syntax: <code>ReturnedArrayLength [C function name]
+[expression]</code> where <code>expression</code> is a legal Java
+expression with MessageFormat specifiers such as "{0}". These
+specifiers will be replaced in the generated glue code with the
+incoming argument names where the first argument to the method is
+numbered 0. See the section on <a href="#SecSubstitution"> argument
+name substitution</a>.<br>
+
+(optional) For a function returning a compound C pointer type such as
+an <code>XVisualInfo*</code>, indicates that the returned pointer is
+to be treated as an array and specifies the length of the returned
+array as a function of the arguments passed to the function. Note that
+this directive differs subtly from <a href="#ReturnValueCapacity">ReturnValueCapacity</a> and
+ReturnValueLength. It is also sometimes most useful in conjunction
+with the <a href="#TemporaryCVariableDeclaration">TemporaryCVariableDeclaration</a>
+and TemporaryCVariableAssignment directives.
+
+
+</dd><dt><strong><a name="ReturnsString">ReturnsString</a></strong>
+</dt><dd> Syntax: <code>ReturnsString [function name]</code> <br>
+
+(optional) Indicates that the specified C function which returns a
+<code>char*</code> or compatible type actually returns a
+null-terminated C string which should be exposed as a
+java.lang.String. NOTE: currently does not properly handle the case
+where this storage needs to be freed by the end user. In these
+situations the data should be returned as a direct ByteBuffer, the
+ByteBuffer converted to a String using custom Java code, and the
+ByteBuffer freed manually using another function bound to Java.
+
+</dd><dt><strong><a name="ReturnValueCapacity">ReturnValueCapacity</a></strong>
+</dt><dd> Syntax: <code>ReturnValueCapacity [C function name]
+[expression]</code> <br>
+
+(optional) Specifies the capacity of a java.nio <code>Buffer</code> or
+subclass wrapping a C primitive pointer such as <code>char*</code> or
+<code>float*</code> being returned from a C function. Typically
+necessary in order to properly use such pointer return results from
+Java. As in the <a href="#ReturnedArrayLength">ReturnedArrayLength</a>
+directive, <a href="#SecSubstitution">argument name substitution</a>
+is performed on MessageFormat expressions.
+
+
+</dd><dt><strong><a name="ReturnValueLength">ReturnValueLength</a></strong>
+</dt><dd> Syntax: <code>ReturnValueLength [C function name]
+[expression]</code> <br>
+
+(optional) Specifies the length of a returned array of pointers,
+typically to C structs, from a C function. This differs from the <a href="#ReturnedArrayLength">ReturnedArrayLength</a> directive in the
+pointer indirection to the array elements. The <a href="#ReturnedArrayLength">ReturnedArrayLength</a> directive handles
+slicing up of a linear array of structs, while the ReturnValueLength
+directive handles boxing of individual elements of the array (which
+are pointers) in to the Java class which wraps that C struct type. See
+the <a href="#Chapter3">examples</a> for a concrete example of usage.
+As in the <a href="#ReturnedArrayLength">ReturnedArrayLength</a>
+directive, <a href="#SecSubstitution">argument name substitution</a>
+is performed on MessageFormat expressions.
+
+
+</dd><dt><strong><a name="RuntimeExceptionType">RuntimeExceptionType</a></strong>
+</dt><dd> Syntax: <code>RuntimeExceptionType [class name]</code> <br>
+
+(optional) Specifies the class name of the exception type which should
+be thrown when run-time related exceptions occur in the generated glue
+code, for example if a non-direct Buffer is passed to a method for
+which <a href="#NioDirectOnly">NioDirectOnly</a> was
+specified. Defaults to <code>RuntimeException</code>.
+
+
+</dd><dt><strong><a name="StructPackage">StructPackage</a></strong>
+</dt><dd> Syntax: <code>StructPackage [C struct type name] [package
+name]</code>. Package name contains no trailing semicolon. <br>
+
+(optional) Indicates that the specified Java class corresponding to
+the specified C struct should be placed in the specified package.  By
+default, these autogenerated Java classes corresponding to C structs
+are placed in the main package (that defined by <a href="#PackageName">PackageName</a>).
+
+
+</dd><dt><strong><a name="Style">Style</a></strong>
+</dt><dd> Syntax: <code> Style [ AllStatic | InterfaceAndImpl |
+InterfaceOnly | ImplOnly ] </code> <br>
+
+(optional) Defines how the Java API for the parsed C headers is
+structured. If AllStatic, one concrete Java class will be generated
+containing static methods corresponding to the C entry points. If
+InterfaceAndImpl, a public Java interface will be generated into the
+<a href="#Package">Package</a> with non-static methods corresponding
+to the C functions, and an "implementation" concrete Java class
+implementing this interface will be generated into the <a href="#ImplPackage">ImplPackage</a>. If InterfaceOnly, the
+InterfaceAndImpl code generation style will be followed, but only the
+interface will be generated. If ImplOnly, the InterfaceAndImpl code
+generation style will be followed, but only the concrete implementing
+class will be generated. The latter two options are useful when
+generating a public API in which certain operations are unimplemented
+on certain platforms; platform-specific implementation classes can be
+generated which implement or leave unimplemented various parts of the
+API.
+
+
+</dd><dt><strong><a name="TemporaryCVariableAssignment">TemporaryCVariableAssignment</a></strong>
+</dt><dd> Syntax: <code>TemporaryCVariableAssignment [C function name]
+[code...]</code> <br>
+
+(optional) Inserts a C variable assignment declared using the <a href="#TemporaryCVariableDeclaration">TemporaryCVariableDeclaration</a>
+directive in to the body of a particular autogenerated native
+method. The assignment is performed immediately after the call to the
+underlying C function completes.  This is typically used in
+conjunction with the <a href="#ReturnValueCapacity">ReturnValueCapacity</a> or <a href="#ReturnValueLength">ReturnValueLength</a> directives to capture
+the size of a returned C buffer or array of pointers. See the <a href="#Chapter3">examples</a> for a concrete example of usage of this
+directive. Note that unlike, for example, the <a href="#ReturnedArrayLength">ReturnedArrayLength</a> directive, no
+substitution is performed on the supplied code, so the user must
+typically have previously looked at the generated code and seen what
+work needed to be done and variables needed to be examined at exactly
+that line.
+
+
+</dd><dt><strong><a name="TemporaryCVariableDeclaration">TemporaryCVariableDeclaration</a></strong>
+</dt><dd> Syntax: <code>TemporaryCVariableDeclaration [C function name]
+[code...]</code> <br>
+
+(optional) Inserts a C variable declaration in to the body of a
+particular autogenerated native method. This is typically used in
+conjunction with the <a href="#TemporaryCVariableAssignment">TemporaryCVariableAssignment</a>
+and <a href="#ReturnValueCapacity">ReturnValueCapacity</a> or <a href="#ReturnValueLength">ReturnValueLength</a> directives to capture
+the size of a returned C buffer or array of pointers. See the <a href="#Chapter3">examples</a> for a concrete example of usage of this
+directive.
+
+
+</dd><dt><strong><a name="Unignore">Unignore</a></strong>
+</dt><dd> Syntax: <code>Unignore [regexp]</code> <br>
+
+(optional) Removes a previously-defined <a href="#Ignore">Ignore</a>
+directive.  This is useful when one configuration file includes
+another and wishes to disable some of the Ignores previously
+specified.
+
+
+</dd><dt><strong><a name="Unimplemented">Unimplemented</a></strong>
+</dt><dd> Syntax: <code>Unimplemented [regexp]</code> <br>
+
+(optional) Causes the binding for the functions matching the passed
+regexp to have bodies generated which throw the stated <a href="#RuntimeExceptionType">RuntimeExceptionType</a> indicating that
+this function is unimplemented.  This is most useful when an API
+contains certain functions that are not supported on all platforms and
+there are multiple implementing classes being generated, one per
+platform.
+
+
+</dd></dl>
+
+<h4><a name="SecProcAddressEmitter">ProcAddressEmitter Configuration</a></h4>
+
+<p>
+
+The ProcAddressEmitter is a subclass of the core JavaEmitter which
+knows how to call C functions through function pointers. In
+particular, the ProcAddressEmitter detects certain constructs in C
+header files which imply that the APIs are intended to be called
+through function pointers, and generates the glue code appropriately
+to support that.
+
+</p>
+<p>
+
+The ProcAddressEmitter detects pairs of functions and function pointer
+typedefs in a set of header files. If it finds a matching pair, it
+converts the glue code emission style for that API to look for the
+function to call in an autogenerated table called a ProcAddressTable
+rather than linking the autogenerated JNI code directly to the
+function. It then changes the calling convention of the underlying
+native method to pass the function pointer from Java down to C, where
+the call-through-function-pointer is performed.
+
+</p>
+<p>
+
+The ProcAddressEmitter discovers the function and function pointer
+pairs by being informed of the mapping between their names by the
+user. In the OpenGL and OpenAL libraries, there are fairly simple
+mappings between the functions and function pointers. For example, in
+the OpenGL <code>glext.h</code> header file, one may find the
+following pair:
+
+</p><pre>  GLAPI void APIENTRY glFogCoordf (GLfloat);
+...
+  typedef void (APIENTRYP PFNGLFOGCOORDFPROC) (GLfloat coord);
+</pre>
+
+Therefore the mapping rule between the function name and the function
+pointer typedef for the OpenGL extension header file is "PFN +
+Uppercase(funcname) + PROC". Similarly, in the OpenAL 1.1 header
+files, one may find the following pair:
+
+<pre>  AL_API void AL_APIENTRY alEnable( ALenum capability );
+...
+  typedef void           (AL_APIENTRY *LPALENABLE)( ALenum capability );
+</pre>
+
+Therefore the mapping rule between the function name and the function
+pointer typedef for the OpenAL header files is "LP +
+Uppercase(funcname)".
+
+<p></p>
+<p>
+
+These are the two principal function pointer-based APIs toward which
+the GlueGen tool has currently been applied. It may turn out to be
+that this simple mapping heuristic is insufficient, in which case it
+will need to be extended in a future version of the GlueGen tool.
+
+</p>
+<p>
+
+Note that it is currently the case that in order for the
+ProcAddressEmitter to notice that a given function should be called
+through a function pointer, it must see both the function prototype as
+well as the function pointer typedef. Some headers, in particular the
+OpenAL headers, have their <code>#ifdefs</code> structured in such a
+way that either the declaration or the typedef is visible, but not
+both simultaneously. Because the <a href="#SecPCPP">PCPP</a> C
+preprocessor GlueGen uses obeys <code>#ifdefs</code>, it is in a
+situation like this that the headers would have to be modified to
+allow GlueGen to see both declarations.
+
+</p>
+<p>
+
+The following directives are specified in alphabetical order, although
+this is not necessarily the best semantic order. The
+ProcAddressEmitter also accepts all of the directives supported by the
+JavaEmitter. The required directives are <a href="#GetProcAddressTableExpr">GetProcAddressTableExpr</a> and <a href="#ProcAddressNameExpr">ProcAddressNameExpr</a>.
+
+</p>
+
+<dl>
+
+<dt><strong><a name="EmitProcAddressTable">EmitProcAddressTable</a></strong>
+</dt><dd> Syntax: <code>EmitProcAddressTable [true | false]</code> <br>
+
+(optional) Indicates whether to emit the ProcAddressTable during glue
+code generation. Defaults to false.
+
+
+</dd><dt><strong><a name="ForceProcAddressGen">ForceProcAddressGen</a></strong>
+</dt><dd> Syntax: <code>ForceProcAddressGen [function name]</code> <br>
+
+(optional) Indicates that a ProcAddressTable entry should be produced
+for the specified function even though it does not have an associated
+function pointer typedef in the header. This directive does not
+currently cause the autogenerated Java and C code to change to
+call-through-function-pointer style, which should probably be
+considered a bug. (FIXME)
+
+
+</dd><dt><strong><a name="GetProcAddressTableExpr">GetProcAddressTableExpr</a></strong>
+</dt><dd> Syntax: <code>GetProcAddressTableExpr [expression]</code> <br>
+
+(required) Defines the Java code snippet used by the generated glue
+code to fetch the ProcAddressTable containing the function pointers
+for the current API. It is up to the user to decide where to store the
+ProcAddressTable. Common places for it include in an instance field of
+the implementing class, in an associated object with which there is a
+one-to-one mapping, or in a static field of another class accessed by
+a static method. In the JOGL project, for example, each GLImpl
+instance has an associated GLContext in an instance field called
+"_context", so the associated directive is
+<code>GetProcAddressTableExpr _context.getGLProcAddressTable()</code>.
+In the JOAL project, the ProcAddressTables are currently held in a
+separate class accessed via static methods, so one of the associated
+directives is <code>GetProcAddressTableExpr
+ALProcAddressLookup.getALCProcAddressTable()</code>.
+
+
+</dd><dt><strong><a name="ProcAddressNameExpr">ProcAddressNameExpr</a></strong>
+</dt><dd> Syntax: <code>ProcAddressNameExpr [expression]</code> <br>
+
+(required) Defines the mapping from function name to function pointer
+typedef to be able to properly identify this function as needing
+call-through-function-pointer semantics. The supplied expression uses
+a set of simple commands to describe certain operations on the
+function name:
+
+<ul>
+<li> <code>$UpperCase(arg)</code> converts the argument to
+     uppercase. "UpperCase" is case-insensitive.
+</li><li> <code>$LowerCase(arg)</code> converts the argument to
+     lowercase. "LowerCase" is case-insensitive.
+</li><li> <code>{0}</code> represents the name of the function.
+</li><li> Any other string represents a constant string.
+</li><li> Concatenation is implicit.
+</li></ul>
+
+The corresponding ProcAddressNameExpr for the OpenGL extension
+functions as described at the start of this section is <code>PFN
+$UPPERCASE({0}) PROC</code>. The ProcAddressNameExpr for the OpenAL
+functions as described at the start of this section is <code>LP
+$UPPERCASE({0})</code>.
+
+
+</dd><dt><strong><a name="ProcAddressTableClassName">ProcAddressTableClassName</a></strong>
+</dt><dd> Syntax: <code>ProcAddressTableClassName [class name]</code> <br>
+
+(optional) Specifies the class name into which the table containing
+the function pointers will be emitted. Defaults to "ProcAddressTable".
+
+
+</dd><dt><strong><a name="ProcAddressTablePackage">ProcAddressTablePackage</a></strong>
+</dt><dd> Syntax: <code>ProcAddressTablePackage [package name] (no
+trailing semicolon)</code> <br>
+
+(optional) Specifies the package into which to produce the
+ProcAddressTable for the current set of APIs. Defaults to the
+implementation package specified by the <a href="#ImplPackage">ImplPackage</a> directive.
+
+
+</dd><dt><strong><a name="SkipProcAddressGen">SkipProcAddressGen</a></strong>
+</dt><dd> Syntax: <code>SkipProcAddressGen [function name]</code> <br>
+
+(optional) Indicates that the default behavior of
+call-through-function-pointer should be skipped for this function
+despite the fact that it has an associated function pointer typedef in
+the header.
+
+</dd></dl>
+
+<h2> <a name="Chapter3">Chapter 3 - Configuration File Examples</a> </h2>
+
+<h3><a name="SecSimplest">Simplest possible example</a></h3>
+
+Files:
+<ul>
+<li> <a href="https://gluegen.dev.java.net/nonav/source/browse/*checkout*/gluegen/doc/manual/example1/function.c">function.c</a>
+</li><li> <a href="https://gluegen.dev.java.net/nonav/source/browse/*checkout*/gluegen/doc/manual/example1/function.h">function.h</a>
+</li><li> <a href="https://gluegen.dev.java.net/nonav/source/browse/*checkout*/gluegen/doc/manual/example1/function.cfg">function.cfg</a>
+</li><li> <a href="https://gluegen.dev.java.net/nonav/source/browse/*checkout*/gluegen/doc/manual/example1/gen.sh">gen.sh</a>
+</li></ul>
+
+<p> This example shows the simplest possible usage of GlueGen; a
+single routine taking as arguments and returning only primitive
+types. The signature of the C function we are interested in binding is
+</p>
+
+<pre>  int one_plus(int a);
+</pre>
+
+<p> To bind this function to Java, we only need a configuration file
+with very basic settings, indicating the style of glue code emission,
+the package and class into which the glue code will be generated, and
+the output directories for the Java and native code. The contents of
+the configuration file are as follows: </p>
+
+<pre>  Package testfunction
+  Style AllStatic
+  JavaClass TestFunction
+  JavaOutputDir   gensrc/java
+  NativeOutputDir gensrc/native
+</pre>
+
+<p> GlueGen can then be invoked with approximately the following
+command line: </p>
+
+<pre>  java -cp gluegen.jar:antlr.jar com.sun.gluegen.GlueGen \
+    -I. -Ecom.sun.gluegen.JavaEmitter -Cfunction.cfg function.h
+</pre>
+
+<p> The resulting Java and native code needs to be compiled, and the
+application needs to load the native library for the Java binding
+before attempting to invoke the native method by calling
+<code>System.load()</code> or <code>System.loadLibrary()</code>. </p>
+
+<h3><a name="SecArrays">Arrays and buffers</a></h3>
+
+Files:
+<ul>
+<li> <a href="https://gluegen.dev.java.net/nonav/source/browse/*checkout*/gluegen/doc/manual/example2/function.c">function.c</a>
+</li><li> <a href="https://gluegen.dev.java.net/nonav/source/browse/*checkout*/gluegen/doc/manual/example2/function.h">function.h</a>
+</li><li> <a href="https://gluegen.dev.java.net/nonav/source/browse/*checkout*/gluegen/doc/manual/example2/function.cfg">function.cfg</a>
+</li><li> <a href="https://gluegen.dev.java.net/nonav/source/browse/*checkout*/gluegen/doc/manual/example2/gen.sh">gen.sh</a>
+</li></ul>
+
+<p> This example shows how C primitive arrays are bound to Java. The
+header file contains three functions to bind: </p>
+
+<pre>  float process_data(float* data, int n);
+  void set_global_data(float* data);
+  float process_global_data(int n);
+</pre>
+
+<p> The semantics of <code>process_data</code> are that it takes in a
+pointer to a set of primitive <code>float</code> values and the number
+of elements in the array and performs some operation on them,
+returning a floating-point value as the result. Afterward the passed
+data is no longer referenced. </p>
+
+<p> <code>set_global_data</code>, on the other hand, takes a pointer
+to the data and stores it persistently in the C code.
+<code>process_global_data</code> then accepts as argument the number
+of elements to process from the previously-set global data, performs
+this processing and returns a result. The global data may be accessed
+again afterward. As an example, these kinds of semantics are used in
+certain places in the OpenGL API. </p>
+
+<p> From a Java binding standpoint, <code>process_data</code> may
+accept data stored either inside the Java heap (in the form of a
+<code>float[]</code> or non-direct <code>FloatBuffer</code>) or
+outside the Java heap (in the form of a direct
+<code>FloatBuffer</code>), because it does not access the data after
+the function call has completed and therefore would not be affected if
+garbage collection moved the data after the function call was
+complete. However, <code>set_global_data</code> can cause the passed
+data to be accessed after the function call is complete, if
+<code>process_global_data</code> is called. Therefore the data passed
+to <code>set_global_data</code> may not reside in the Java
+garbage-collected heap, but must reside outside the heap in the form
+of a direct <code>FloatBuffer</code>. </p>
+
+<p> It is straightforward to take into account these differences in
+semantics in the configuration file using the <a href="#NioDirectOnly">NioDirectOnly</a> directive: </p>
+
+<pre>  # The semantics of set_global_data imply that
+  # only direct Buffers are legal
+  NioDirectOnly set_global_data
+</pre>
+
+<p> Note the differences in the generated Java-side overloadings for
+the two functions: </p>
+
+<pre>  public static void process_data(java.nio.FloatBuffer data, int n) {...}
+  public static void process_data(float[] data, int data_offset, int n) {...}
+  public static void set_global_data(java.nio.FloatBuffer data) {...}
+</pre>
+
+<p> No overloading is produced for <code>set_global_data</code> taking
+a <code>float[]</code>, as it can not handle data residing in the Java
+heap. Further, the generated glue code will verify that any
+<code>FloatBuffer</code> passed to this routine is direct, throwing a
+<code>RuntimeException</code> if not. The type of the exception thrown
+in this and other cases may be changed with the <a href="#RuntimeExceptionType">RuntimeExceptionType</a> directive.
+
+</p><h3><a name="SecString">String handling</a></h3>
+
+Files:
+<ul>
+<li> <a href="https://gluegen.dev.java.net/nonav/source/browse/*checkout*/gluegen/doc/manual/example3/function.h">function.h</a>
+</li><li> <a href="https://gluegen.dev.java.net/nonav/source/browse/*checkout*/gluegen/doc/manual/example3/function.cfg">function.cfg</a>
+</li><li> <a href="https://gluegen.dev.java.net/nonav/source/browse/*checkout*/gluegen/doc/manual/example3/gen.sh">gen.sh</a>
+</li></ul>
+
+<p> This example shows how to pass and return C strings. The functions
+involved are a bit contrived, as nobody would ever need to bind the C
+library's string handling routines to Java, but they do illustrate
+situations in which Java strings might need to be passed to C and C
+strings returned to Java. As an example, both styles of function are
+present in the OpenGL and OpenAL APIs. </p>
+
+<p> The included source code exposes two functions to Java: </p>
+
+<pre>  size_t strlen(const char* str);
+  char*  strstr(const char* str1, const char* str2);
+</pre>
+
+<p> Note that we might just as easily parse the C standard library's
+<code>string.h</code> header file to pick up these function
+declarations. However for the purposes of this example it is easier to
+extract just the functions we need. </p>
+
+<p> Note that the <a href="https://gluegen.dev.java.net/nonav/source/browse/*checkout*/gluegen/doc/manual/example3/function.h">function.h</a> header
+file contains a typedef for <code>size_t</code>. This is needed
+because GlueGen does not inherently know about this data type. An
+equivalent data type for the purposes of this example is
+<code>int</code>, so we choose to tell GlueGen to use that data type
+in place of <code>size_t</code> while generating glue code. </p>
+
+<p> The following directive in the configuration file tells GlueGen
+that <code>strlen</code> takes a string as argument 0 (the first
+argument): </p>
+
+<pre>  ArgumentIsString strlen 0
+</pre>
+
+<p> The following directive tells GlueGen that <code>strstr</code>
+takes two strings as its arguments: </p>
+
+<pre>  ArgumentIsString strstr 0 1
+</pre>
+
+<p> Finally, the following directive tells GlueGen that
+<code>strstr</code> returns a string instead of an array of bytes:
+</p>
+
+<pre>  ReturnsString strstr
+</pre>
+
+<p> We also use the <a href="#CustomCCode">CustomCCode</a> directive
+to cause the <code>string.h</code> header file to be #included in the
+generated glue code: </p>
+
+<pre>  CustomCCode /* Include string.h header */
+  CustomCCode #include &lt;string.h&gt;
+</pre>
+
+<p> Now the bindings of these two functions to Java look as expected:
+</p><p>
+
+</p><pre>  public static native int strlen(java.lang.String str);
+  public static native java.lang.String strstr(java.lang.String str1,
+                                               java.lang.String str2);
+</pre>
+
+Note that the <a href="#ReturnsString">ReturnsString</a> directive
+does not currently correctly handle the case where the
+<code>char*</code> returned from C needs to be explicitly freed. As an
+example, a binding of the C function <code>strdup</code> using a
+ReturnsString directive would cause a C heap memory leak.
+
+<h3><a name="SecMemory">Memory allocation</a></h3>
+
+Files:
+<ul>
+<li> <a href="https://gluegen.dev.java.net/nonav/source/browse/*checkout*/gluegen/doc/manual/example4/function.c">function.c</a>
+</li><li> <a href="https://gluegen.dev.java.net/nonav/source/browse/*checkout*/gluegen/doc/manual/example4/function.h">function.h</a>
+</li><li> <a href="https://gluegen.dev.java.net/nonav/source/browse/*checkout*/gluegen/doc/manual/example4/function.cfg">function.cfg</a>
+</li><li> <a href="https://gluegen.dev.java.net/nonav/source/browse/*checkout*/gluegen/doc/manual/example4/gen.sh">gen.sh</a>
+</li></ul>
+
+<p> This example shows how memory allocation is handled when binding C
+to Java. It gives the example of a custom memory allocator being bound
+to Java; this is a construct that at least at one point was present in
+OpenGL in the NV_vertex_array_range extension. </p>
+
+<p> The two functions we are exposing to Java are as follows: </p>
+<pre>  void* custom_allocate(int num_bytes);
+  void  custom_free(void* data);
+</pre>
+
+<p> The Java-side return type of <code>custom_allocate</code> will
+necessarily be a <code>ByteBuffer</code>, as that is the only useful
+way of interacting with arbitrary memory produced by C. The question
+is how to inform the glue code generator of the size of the returned
+sequence of memory. The semantics of <code>custom_allocate</code> are
+obvious to the programmer; the incoming <code>num_bytes</code>
+argument specifies the amount of returned memory. We tell GlueGen this
+fact using the <a href="#ReturnValueCapacity">ReturnValueCapacity</a>
+directive: </p>
+
+<pre>  # The length of the returned ByteBuffer from custom_allocate is
+  # specified as the argument
+  ReturnValueCapacity custom_allocate {0}
+</pre>
+
+<p> Note that we name incoming argument 0 with the MessageFormat
+specifier "{0}" rather than the explicit name of the parameter
+("num_bytes") for generality, in case the header file is changed
+later. </p>
+
+<p> Because <code>custom_free</code> will only ever receive Buffers
+produced by custom_allocate, we use the <a href="#NioDirectOnly">NioDirectOnly</a> directive to prevent
+accidental usage with the wrong kind of Buffer: </p>
+
+<pre>  # custom_free will only ever receive a direct Buffer
+  NioDirectOnly custom_free
+</pre>
+
+<p> The generated Java APIs for these functions are as follows: </p>
+
+<pre>  public static java.nio.ByteBuffer custom_allocate(int num_bytes) {...}
+  public static void custom_free(java.nio.Buffer data) {...}
+</pre>
+
+<h3><a name="SecStructs">Ingoing and outgoing structs</a></h3>
+
+Files:
+<ul>
+<li> <a href="https://gluegen.dev.java.net/nonav/source/browse/*checkout*/gluegen/doc/manual/example5/function.c">function.c</a>
+</li><li> <a href="https://gluegen.dev.java.net/nonav/source/browse/*checkout*/gluegen/doc/manual/example5/function.h">function.h</a>
+</li><li> <a href="https://gluegen.dev.java.net/nonav/source/browse/*checkout*/gluegen/doc/manual/example5/function.cfg">function.cfg</a>
+</li><li> <a href="https://gluegen.dev.java.net/nonav/source/browse/*checkout*/gluegen/doc/manual/example5/gen.sh">gen.sh</a>
+</li></ul>
+
+<p> This example shows how GlueGen provides access to C structs and
+supports both passing them to and returning them from C functions. The
+header file defines a sample data structure that might describe the
+bit depth of a given screen: </p>
+
+<pre>  typedef struct {
+    int redBits;
+    int greenBits;
+    int blueBits;
+  } ScreenInfo;
+</pre>
+
+<p> Two functions are defined which take and return this data type:
+</p>
+
+<pre>  ScreenInfo* default_screen_depth();
+  void set_screen_depth(ScreenInfo* info);
+</pre>
+
+<p> The semantics of <code>default_screen_depth()</code> are that it
+returns a pointer to some static storage which does not need to be
+freed, which describes the default screen depth.
+<code>set_screen_depth()</code> is a hypothetical function which would
+take a newly-allocated <code>ScreenInfo</code> and cause the primary
+display to switch to the specified bit depth. </p>
+
+<p> The only additional information we need to tell GlueGen, beyond
+that in the header file, is how much storage is returned from
+<code>default_screen_depth()</code>. Note the semantic ambiguity,
+where it might return a pointer to a single <code>ScreenInfo</code> or
+a pointer to an array of <code>ScreenInfo</code>s. We tell GlueGen
+that the return value is a single value with the <a href="#ReturnValueCapacity">ReturnValueCapacity</a> directive,
+similarly to the <a href="#SecMemory">memory allocation</a> example
+above: </p>
+
+<pre>  # Tell GlueGen that default_screen_depth() returns a pointer to a
+  # single ScreenInfo
+  ReturnValueCapacity default_screen_depth sizeof(ScreenInfo)
+</pre>
+
+<p> Note that if <code>default_screen_depth</code> had returned
+newly-allocated storage, it would be up to the user to expose a
+<code>free()</code> function to Java and call it when necessary. </p>
+
+<p> GlueGen automatically generates a Java-side
+<code>ScreenInfo</code> class which supports not only access to any
+such objects returned from C, but also allocation of new
+<code>ScreenInfo</code> structs which can be passed (persistently)
+down to C. The Java API for the ScreenInfo class looks like this: </p>
+
+<pre>  public abstract class ScreenInfo {
+    public static ScreenInfo create();
+    public abstract ScreenInfo redBits(int val);
+    public abstract int redBits();
+    ...
+  }
+</pre>
+
+<p> The <code>create()</code> method allocates a new ScreenInfo struct
+which may be passed, even persistently, out to C. Its C-heap storage
+will be automatically reclaimed when the Java-side ScreenInfo object
+is no longer reachable, as it is backed by a direct New I/O
+<code>ByteBuffer</code>. The fields of the struct are exposed as
+methods which supply both getters and setters. </p>
+
+<h3><a name="SecStructArrays">Returned arrays of structs</a></h3>
+
+Files:
+<ul>
+<li> <a href="https://gluegen.dev.java.net/nonav/source/browse/*checkout*/gluegen/doc/manual/example6/function.h">function.h</a>
+</li><li> <a href="https://gluegen.dev.java.net/nonav/source/browse/*checkout*/gluegen/doc/manual/example6/function.cfg">function.cfg</a>
+</li><li> <a href="https://gluegen.dev.java.net/nonav/source/browse/*checkout*/gluegen/doc/manual/example6/gen.sh">gen.sh</a>
+</li></ul>
+
+<p> This example, taken from JOGL's X11 binding, illustrates how to
+return an array of structs from C to Java. The
+<code>XGetVisualInfo</code> function from the X library has the
+following signature: </p>
+
+<pre>  XVisualInfo *XGetVisualInfo(
+      Display*     display,
+      long         vinfo_mask,
+      XVisualInfo* vinfo_template,
+      int*         nitems_return
+  );
+</pre>
+
+<p> Note that the <code>XVisualInfo</code> data structure itself
+contains many elements, including a pointer to the current visual. We
+use the following trick in the header file to cause GlueGen to treat
+the <code>Display*</code> in the above signature as well as the
+<code>Visual*</code> in the <code>XVisualInfo</code> as opaque
+pointers: </p>
+
+<pre>  typedef struct {}     Display;
+  typedef struct {}     Visual;
+  typedef unsigned long VisualID;
+  
+  typedef struct {
+    Visual *visual;
+    VisualID visualid;
+    int screen;
+    int depth;
+    int c_class; /* C++ */
+    unsigned long red_mask;
+    unsigned long green_mask;
+    unsigned long blue_mask;
+    int colormap_size;
+    int bits_per_rgb;
+  } XVisualInfo;
+</pre>
+
+<p> <code>XGetVisualInfo</code> returns all of the available pixel
+formats in the form of <code>XVisualInfo</code>s which match a given
+template. <code>display</code> is the current connection to the X
+server. <code>vinfo_mask</code> indicates which fields from the
+template to match against. <code>vinfo_template</code> is a partially
+filled-in <code>XVisualInfo</code> specifying the characteristics to
+match. <code>nitems_return</code> is a pointer to an integer
+indicating how many <code>XVisualInfo</code>s were returned. The
+return value, rather than being a pointer to a single
+<code>XVisualInfo</code>, is a pointer to the start of an array of
+<code>XVisualInfo</code> data structures. </p>
+
+<p> There are two basic steps to being able to return this array
+properly to Java using GlueGen. The first is creating a direct
+ByteBuffer of the appropriate size in the autogenerated JNI code. The
+second is slicing up this ByteBuffer appropriately in order to return
+an <code>XVisualInfo[]</code> at the Java level. </p>
+
+<p> In the autogenerated JNI code, after the call to
+<code>XGetVisualInfo</code> is made, the outgoing
+<code>nitems_return</code> value points to the number of elements in
+the returned array, which indicates the size of the direct ByteBuffer
+which would need to wrap these elements. However, if we look at the
+implementation of one of the generated glue code variants for this
+method (specifically, the one taking an <code>int[]</code> as the
+third argument), we can see a problem in trying to access this value
+in the C code: </p>
+
+<pre>JNIEXPORT jobject JNICALL 
+Java_testfunction_TestFunction_XGetVisualInfo1__Ljava_nio_ByteBuffer_2JLjava_nio_ByteBuffer_2Ljava_lang_Object_2I(
+  JNIEnv *env, jclass _unused, jobject arg0, jlong arg1, jobject arg2, jobject arg3, jint arg3_byte_offset) {
+  ...
+  int * _ptr3 = NULL;
+  ...
+  if (arg3 != NULL) {
+    _ptr3 = (int *) (((char*) (*env)-&gt;GetPrimitiveArrayCritical(env, arg3, NULL)) + arg3_byte_offset);
+  }
+  _res = XGetVisualInfo((Display *) _ptr0, (long) arg1, (XVisualInfo *) _ptr2, (int *) _ptr3);
+  if (arg3 != NULL) {
+    (*env)-&gt;ReleasePrimitiveArrayCritical(env, arg3, _ptr3, 0);
+  }
+  if (_res == NULL) return NULL;
+  return (*env)-&gt;NewDirectByteBuffer(env, _res,  ??? What to put here ???);
+}
+</pre>
+
+<p> Note that at the point of the statement "What to put here?" the
+pointer to the storage of the <code>int[]</code>, <code>_ptr3</code>,
+has already been released via
+<code>ReleasePrimitiveArrayCritical</code>. This means that it may not
+be referenced at the point needed in the code. </p>
+
+<p> To solve this problem we use the <a href="#TemporaryCVariableDeclaration">TemporaryCVariableDeclaration</a>
+and <a href="#TemporaryCVariableAssignment">TemporaryCVariableAssignment</a>
+directives. We want to declare a persistent integer variable down in
+the C code and assign the returned array length to that variable
+before the primitive array is released. While in order to do this we
+unfortunately need to know something about the structure of the
+autogenerated JNI code, at least we don't have to hand-edit it
+afterward. We add the following directives to the configuration file: </p>
+
+<pre>  # Get returned array's capacity from XGetVisualInfo to be correct
+  TemporaryCVariableDeclaration XGetVisualInfo   int count;
+  TemporaryCVariableAssignment  XGetVisualInfo   count = _ptr3[0];
+</pre>
+
+<p> Now in the autogenerated JNI code the variable "count" will
+contain the number of elements in the returned array. We can then
+reference this variable in a <a href="#ReturnValueCapacity">ReturnValueCapacity</a> directive: </p>
+
+<pre>  ReturnValueCapacity XGetVisualInfo   count * sizeof(XVisualInfo)
+</pre>
+
+<p> At this point the <code>XGetVisualInfo</code> binding will return
+a Java-side <code>XVisualInfo</code> object whose backing ByteBuffer
+is the correct size. We now have to inform GlueGen that the underlying
+ByteBuffer represents not a single <code>XGetVisualInfo</code> struct,
+but an array of them, using the <a href="#ReturnedArrayLength">ReturnedArrayLength</a> directive. This
+conversion is performed on the Java side of the autogenerated code.
+Here, the first element of either the passed <code>IntBuffer</code> or
+<code>int[]</code> contains the number of elements in the returned
+array. (Alternatively, we could examine the length of the ByteBuffer
+returned from C to Java and divide by
+<code>XVisualInfo.size()</code>.) Because there are two overloadings
+produced by GlueGen for this method, if we reference the
+<code>nitems_return</code> argument in a <a href="#ReturnedArrayLength">ReturnedArrayLength</a> directive, we need
+to handle not only the differing data types properly
+(<code>IntBuffer</code> vs. <code>int[]</code>), but also the fact
+that both the integer array and its offset value are substituted for
+any reference to the fourth argument. </p>
+
+<p> To solve this problem, we define a pair of private helper
+functions whose purpose is to handle this overloading. </p>
+
+<pre>  CustomJavaCode TestFunction  private static int getFirstElement(IntBuffer buf) {
+  CustomJavaCode TestFunction    return buf.get(buf.position());
+  CustomJavaCode TestFunction  }
+  CustomJavaCode TestFunction  private static int getFirstElement(int[] arr,
+  CustomJavaCode TestFunction                                     int offset) {
+  CustomJavaCode TestFunction    return arr[offset];
+  CustomJavaCode TestFunction  }
+</pre>
+
+<p> Now we can simply write for the returned array length: </p>
+
+<pre>  ReturnedArrayLength XGetVisualInfo  getFirstElement({3})
+</pre>
+
+<p> That's all that is necessary. GlueGen will then produce the
+following Java-side overloadings for this function: </p>
+
+<pre>  public static XVisualInfo[] XGetVisualInfo(Display arg0,
+                                             long arg1,
+                                             XVisualInfo arg2,
+                                             java.nio.IntBuffer arg3);
+  public static XVisualInfo[] XGetVisualInfo(Display arg0,
+                                             long arg1,
+                                             XVisualInfo arg2,
+                                             int[] arg3, int arg3_offset);
+</pre>
+
+<p> As it happens, we don't really need the Display and Visual data
+structures to be produced; they can be treated as <code>long</code>s
+on the Java side. Therefore we can add the following directives to the
+configuration file: </p>
+
+<pre>  # We don't need the Display and Visual data structures to be
+  # explicitly exposed
+  Opaque long Display *
+  Opaque long Visual *
+  # Ignore the empty Display and Visual data structures (though made
+  # opaque, the references from XVisualInfo and elsewhere are still
+  # traversed)
+  Ignore Display
+  Ignore Visual
+</pre>
+
+<p> The final generated Java API is the following: </p>
+
+<pre>  public static XVisualInfo[] XGetVisualInfo(long arg0,
+                                             long arg1,
+                                             XVisualInfo arg2,
+                                             java.nio.IntBuffer arg3);
+  public static XVisualInfo[] XGetVisualInfo(long arg0,
+                                             long arg1,
+                                             XVisualInfo arg2,
+                                             int[] arg3, int arg3_offset);
+</pre>
+
+<h3><a name="SecPointerArrays">Returned arrays of pointers</a></h3>
+
+Files:
+<ul>
+<li> <a href="https://gluegen.dev.java.net/nonav/source/browse/*checkout*/gluegen/doc/manual/example7/function.h">function.h</a>
+</li><li> <a href="https://gluegen.dev.java.net/nonav/source/browse/*checkout*/gluegen/doc/manual/example7/function.cfg">function.cfg</a>
+</li><li> <a href="https://gluegen.dev.java.net/nonav/source/browse/*checkout*/gluegen/doc/manual/example7/gen.sh">gen.sh</a>
+</li></ul>
+
+<p> As with the <a href="#SecStructArrays">example above</a>, this
+example is taken from JOGL's X11 binding. Here we show how to expose
+to Java a C routine returning an array of pointers to a data
+structure. </p>
+
+<p> The declaration of the function we are binding is as follows: </p>
+
+<pre>  typedef struct __GLXFBConfigRec *GLXFBConfig;
+
+  GLXFBConfig *glXChooseFBConfig( Display *dpy, int screen,
+                                  const int *attribList, int *nitems );
+</pre>
+
+<p> This function is used during allocation of a hardware-accelerated
+off-screen surface ("pbuffer") on X11 platforms; its exact meaning is
+not important. The semantics of the arguments and return value are as
+follows. As in the <a href="#SecStructArrays">previous example</a>, it
+accepts a connection to the current X display as one argument. The
+screen of this display is the second argument. The
+<code>attribList</code> is a zero-terminated list of integer
+attributes; because it is zero-terminated, the length of this list is
+not passed to the function. As in the previous example, the
+<code>nitems</code> argument points to an integer into which the
+number of returned <code>GLXFBConfig</code> objects is placed. The
+return value is an array of <code>GLXFBConfig</code> objects. </p>
+
+<p> Because the <code>GLXFBConfig</code> data type is typedefed as a
+pointer to an opaque (undefined) struct, the construct
+<code>GLXFBConfig*</code> is implicitly a "pointer-to-pointer" type.
+GlueGen automatically assumes this is convertible to a Java-side array
+of accessors to structs. The only configuration necessary is to tell
+GlueGen the length of this array. </p>
+
+<p> As in the previous example, we use the <a href="#TemporaryCVariableDeclaration">TemporaryCVariableDeclaration</a>
+and <a href="#TemporaryCVariableAssignment">TemporaryCVariableAssignment</a>
+directives to capture the length of the returned array: </p>
+
+TemporaryCVariableDeclaration glXChooseFBConfig     int count;
+TemporaryCVariableAssignment  glXChooseFBConfig     count = _ptr3[0];
+
+<p> The structure of the generated glue code for the return value is
+subtly different than in the previous example. The question in this
+case is not whether the return value is a pointer to a single object
+vs. a pointer to an array of objects; it is what the length of the
+returned array is, since we already know that the return type is
+pointer-to-pointer and is therefore an array. We use the <a href="#ReturnValueLength">ReturnValueLength</a> directive for this
+case: </p>
+
+<pre>  ReturnValueLength glXChooseFBConfig   count
+</pre>
+
+We add similar Opaque directives to the previous example to yield the
+resulting Java bindings for this function:
+
+<pre>  public static GLXFBConfig[] glXChooseFBConfig(long dpy,
+                                                int screen,
+                                                java.nio.IntBuffer attribList,
+                                                java.nio.IntBuffer nitems);
+  public static GLXFBConfig[] glXChooseFBConfig(long dpy,
+                                                int screen,
+                                                int[] attribList, int attribList_offset,
+                                                int[] nitems, int nitems_offset);
+</pre>
+
+Note that because the GLXFBConfig data type is returned as an element
+of an array, we can not use the Opaque directive to erase this data
+type to <code>long</code> as we did with the <code>Display</code> data
+type.
+
+
+</body></html>

@@ -1,0 +1,109 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="com.raytheon.uf.viz.core" xmlns="http://www.w3.org/2001/XMLSchema">
+<annotation>
+      <appinfo>
+         <meta.schema plugin="com.raytheon.uf.viz.core" id="scriptTemplate" name="Script Template Extension"/>
+      </appinfo>
+      <documentation>
+         Defines an extension to register script generation capability
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <annotation>
+         <appinfo>
+            <meta.element />
+         </appinfo>
+      </annotation>
+      <complexType>
+         <sequence>
+            <element ref="scriptTemplate" minOccurs="1" maxOccurs="unbounded"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="scriptTemplate">
+      <annotation>
+         <documentation>
+            The script template defines how a uEngine script is generated for a particular plugin.
+
+scriptLibrary should be populated if the standard script template is to be used.
+
+If custom script generation is desired, scriptTemplateFile can be set to a custom velocity template file.
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="pluginName" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The name of the plugin (e.g. &apos;plugin-satellite&apos;)
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="scriptLibrary" type="string">
+            <annotation>
+               <documentation>
+                  The script library to be used (e.g. ObsRequest)
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="scriptTemplateFile" type="string">
+            <annotation>
+               <documentation>
+                  The template file to use, otherwise null if standard template should be used.
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="resource"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="since"/>
+      </appinfo>
+      <documentation>
+         2008
+      </documentation>
+   </annotation>
+
+
+
+   <annotation>
+      <appinfo>
+         <meta.section type="implementation"/>
+      </appinfo>
+      <documentation>
+         [
+      </documentation>
+   </annotation>
+
+
+</schema>

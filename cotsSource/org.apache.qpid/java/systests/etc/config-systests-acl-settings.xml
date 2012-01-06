@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+ -
+ - Licensed to the Apache Software Foundation (ASF) under one
+ - or more contributor license agreements.  See the NOTICE file
+ - distributed with this work for additional information
+ - regarding copyright ownership.  The ASF licenses this file
+ - to you under the Apache License, Version 2.0 (the
+ - "License"); you may not use this file except in compliance
+ - with the License.  You may obtain a copy of the License at
+ -
+ -   http://www.apache.org/licenses/LICENSE-2.0
+ -
+ - Unless required by applicable law or agreed to in writing,
+ - software distributed under the License is distributed on an
+ - "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ - KIND, either express or implied.  See the License for the
+ - specific language governing permissions and limitations
+ - under the License.
+ -
+ -->
+<broker>
+
+    <virtualhosts>
+
+        <virtualhost>
+            <name>test</name>
+            <test>
+                <queues>
+                    <exchange>amq.direct</exchange>
+                    <!-- 4Mb -->
+                    <maximumQueueDepth>4235264</maximumQueueDepth>
+                    <!-- 2Mb -->
+                    <maximumMessageSize>2117632</maximumMessageSize>
+                    <!-- 10 mins -->
+                    <maximumMessageAge>600000</maximumMessageAge>
+                </queues>
+
+
+                <security>
+                    <access>
+                        <class>org.apache.qpid.server.security.access.plugins.SimpleXML</class>
+                    </access>
+                    <access_control_list>
+                        <!-- This section grants pubish rights to an exchange + routing key pair -->
+                        <publish>
+                            <exchanges>
+                                <exchange>
+                                    <name>amq.direct</name>
+                                    <routing_keys>
+
+                                        <!-- Allow clients to publish requests -->
+                                        <routing_key>
+                                            <value>example.RequestQueue</value>
+                                            <users>
+                                                <user>client</user>
+                                            </users>
+                                        </routing_key>
+
+                                        <!-- Allow the processor to respond to a client on their Temporary Topic -->
+                                        <routing_key>
+                                            <value>tmp_*</value>
+                                            <users>
+                                                <user>server</user>
+                                            </users>
+                                        </routing_key>
+                                        <routing_key>
+                                            <value>TempQueue*</value>
+                                            <users>
+                                                <user>server</user>
+                                            </users>
+                                        </routing_key>
+                                    </routing_keys>
+
+                                </exchange>
+                            </exchanges>
+                        </publish>
+
+                        <!-- This section grants users the ability to consume from the broker -->
+                        <consume>
+                            <queues>
+                                <temporary>
+                                    <users>
+                                        <user>client</user>
+                                    </users>
+                                </temporary>
+
+                                <!-- Only allow the server to consume from the Request Queue-->
+                                <queue>
+                                    <name>example.RequestQueue</name>
+                                    <users>
+                                        <user>server</user>
+                                    </users>
+                                </queue>
+
+
+                            </queues>
+                        </consume>
+
+                        <!-- This section grants users the ability to create queues and exchanges -->
+                        <create>
+                            <queues>
+                                <temporary>
+                                    <users>
+                                        <user>client</user>
+                                    </users>
+                                </temporary>
+
+                                <!-- Allow clients to create queue on this exchange-->
+                                <queue>
+                                    <exchanges>                                    
+                                        <exchange>
+                                            <name>amq.direct</name>
+                                            <users>
+                                                <user>client</user>
+                                            </users>
+                                        </exchange>
+                                    </exchanges>
+                                </queue>
+                                <!-- Allow the server to create the Request Queue-->
+                                <queue>
+                                    <name>example.RequestQueue</name>
+                                    <users>
+                                        <user>server</user>
+                                    </users>
+                                </queue>
+
+                            </queues>
+                        </create>
+
+
+                    </access_control_list>
+
+                </security>
+            </test>
+        </virtualhost>
+
+        <virtualhost>
+            <name>test2</name>
+            <test2>
+                <security>
+                    <access>
+                        <class>org.apache.qpid.server.security.access.plugins.SimpleXML</class>
+                    </access>
+                    
+                    <access_control_list>
+                        <!-- This section grants specific users full permissions to all artifacts in this virtualhost -->
+                        <access>
+                            <users>
+                                <user>guest</user>
+                            </users>
+                        </access>
+                    </access_control_list>
+                </security>
+            </test2>
+        </virtualhost>
+    </virtualhosts>
+</broker>
+
+

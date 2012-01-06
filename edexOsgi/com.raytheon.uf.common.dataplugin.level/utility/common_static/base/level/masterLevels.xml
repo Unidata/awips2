@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<masterLevelContainer>
+    <masterLevel name="MB" type="DEC" unitString="hPa" description="Isobaric Surface" />
+    <masterLevel name="LYRMB" type="MB" unitString="" description="Layer between two Isobaric Surfaces" />
+    <masterLevel name="K" type="INC" unitString="K" description="Isentropic (theta) level - Potential Temperature" />
+    <masterLevel name="LYRK" type="INC" unitString="K" description="Layer between two Isentropic (theta) levels" />
+    <masterLevel name="Ke" type="INC" unitString="K" description="Isentropic (theta-E) level - Equivalent Potential Temperature" />
+    <masterLevel name="LYRKe" type="INC" unitString="K" description="Layer between two Isentropic (theta-E) levels" />
+    <masterLevel name="TMPL" type="INC" unitString="K" description="Isothermal Level" />
+    <masterLevel name="KFT" type="INC" unitString="ft" description="Height in feet" />
+    <masterLevel name="SFC" type="" unitString="" description="Ground or Water Surface" />
+    <masterLevel name="TROP" type="" unitString="" description="Tropopause level" />
+    <masterLevel name="BL" type="INC" unitString="hPa" description="Boundary Layer" />
+    <masterLevel name="MSL" type="" unitString="" description="Mean Sea Level" />
+    <masterLevel name="FRZ" type="" unitString="" description="Freezing level" />
+    <masterLevel name="MAXW" type="" unitString="" description="Maximum Wind Speed Level" />
+    <masterLevel name="FHAG" type="INC" unitString="m" description="Fixed Height Above Ground" />
+    <masterLevel name="LYRSIG" type="SIG" unitString="" description="Layer between two Sigma levels" />
+    <masterLevel name="SIG" type="INC" unitString="" description="Sigma level" />
+    <masterLevel name="FH" type="INC" unitString="m" description="Fixed Height level" />
+    <masterLevel name="BLS" type="DEC" unitString="m" description="Depth Below Land Surface level" />
+    <masterLevel name="SL" type="" unitString="" description="" />
+    <masterLevel name="EA" type="" unitString="" description="Entire Atmosphere as a single layer" />
+    <masterLevel name="VPT" type="INC" unitString="" description="Virtual Potential Temperature level" />
+    <masterLevel name="LYRFHAG" type="FHAG" unitString="" description="Layer between two Fixed Heights Above Ground" />
+    <masterLevel name="LYRBL" type="BL" unitString="" description="Layer between two levels at specified pressure differences" />
+    <masterLevel name="MEPT" type="" unitString="" description="Maximum Equivalent Potential Temperature Level" />
+    <masterLevel name="HTFL" type="" unitString="" description="Highest Tropospheric Freezing Level" />
+    <masterLevel name="EL" type="" unitString="" description="Equilibrium Level" />
+    <masterLevel name="CBL" type="" unitString="" description="Cloud Base Level" />
+    <masterLevel name="CTL" type="" unitString="" description="Cloud Top Level" />
+    <masterLevel name="CCTL" type="" unitString="" description="Convective Cloud Top Level" />
+    <masterLevel name="TW0" type="" unitString="" description="Wet Bulb Zero" />
+    <masterLevel name="LCL" type="" unitString="" description="Lifting Condensation Level" />
+    <masterLevel name="CCL" type="" unitString="" description="Convective Condensation Level" />
+    <masterLevel name="CLG" type="" unitString="" description="Cloud Ceiling Level" />
+    <masterLevel name="ETOP" type="" unitString="" description="Echo Top" />
+    <masterLevel name="-K" type="INC" unitString="" description="Cloud decks" />
+    <masterLevel name="PBL" type="INC" unitString="" description="Fractional Depth within planetary boundary layer" />
+    <masterLevel name="MAXSH" type="" unitString="" description="Maximum shear level" />
+    <masterLevel name="PV" type="INC" unitString="K * m^2/kg*s * 1000000" description="Potential Vorticity" />
+    <masterLevel name="LCBL" type="" unitString="" description="Low Cloud Base Level" />
+    <masterLevel name="MCBL" type="" unitString="" description="Middle Cloud Base Level" />
+    <masterLevel name="HCBL" type="" unitString="" description="High Cloud Base Level" />
+    <masterLevel name="HYB" type="INC" unitString="" description="Hybrid Level" />
+    <masterLevel name="BLD" type="INC" unitString="" description="Boundary Layer Depth" />
+    <masterLevel name="TILT" type="INC" unitString="" description="Radar Elevation Angle" />
+    <masterLevel name="OSEQD" type="INC" unitString="" description="Ordered Sequence of Data" />
+    <masterLevel name="MAXCAPE" type="" unitString="" description="Maximum CAPE level" />
+    <masterLevel name="TEMP" type="DEC" unitString="K" description="Temperature level" />
+    <masterLevel name="WBZ" type="INC" unitString="" description="Lowest level of the wet bulb zero" />
+    <masterLevel name="ADCL" type="" unitString="" description="Level of adiabatic Condensation Lifted from the Surface" />
+    <masterLevel name="NTAT" type="" unitString="" description="Nomial Top of the Atmosphere" />
+    <masterLevel name="SEAB" type="" unitString="" description="Sea Bottom" />
+    <masterLevel name="CB" type="" unitString="" description="Cumulonimbus Base" />
+    <masterLevel name="CT" type="" unitString="" description="Cumulonimbus Top" />
+    <masterLevel name="ETA" type="" unitString="" description="Eta Level" />
+    <masterLevel name="MLD" type="DEC" unitString="m" description="Mixed Layer Depth" />
+    <masterLevel name="BSS" type="DEC" unitString="m" description="Depth Below Sea Level" />
+    <masterLevel name="EOCN" type="" unitString="" description="Entire Ocean" />
+    <masterLevel name="LCY" type="" unitString="" description="Low Cloud Layer" />
+    <masterLevel name="MCY" type="" unitString="" description="Middle Cloud Layer" />
+    <masterLevel name="HCY" type="" unitString="" description="High Cloud Layer" />
+    <masterLevel name="TCY" type="" unitString="" description="Top Cloud Layer" />
+    <masterLevel name="UNKNOWN" type="" unitString="" description="Unknown Level" />
+    <masterLevel name="Dflt" type="" unitString="" description="Default Level" />
+</masterLevelContainer>

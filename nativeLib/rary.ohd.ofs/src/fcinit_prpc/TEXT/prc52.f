@@ -1,0 +1,122 @@
+C MEMBER PRC52
+C-----------------------------------------------------------------------
+C
+C@PROCESS LVL(77)
+C
+      SUBROUTINE PRC52 (P,C)
+
+C     THIS IS THE PRINT CARRYOVER ROUTINE FOR SSARR SUMMING POINT
+
+C     THIS ROUTINE ORIGINALLY WRITTEN BY 
+C        RAY FUKUNAGA - NWRFC   JULY 1995     
+
+C     POSITION     CONTENTS OF P ARRAY
+C      1           VERSION NUMBER OF OPERATION
+C      2-19        DESCRIPTION - TITLE
+C     20           # OF INPUT TIME SERIES TO SUM
+
+C     21-22        BEGIN INTERVAL OUTPUT TIME SERIES IDENTIFIER
+C     23           BEGIN INTERVAL OUTPUT TIME SERIES DATA TYPE CODE
+C     24           BEGIN INTERVAL OUTPUT TIME SERIES TIME INTEVAL
+C    
+C     25-26        END INTERVAL OUTPUT TIME SERIES IDENTIFIER
+C     27           END INTERVAL OUTPUT TIME SERIES DATA TYPE CODE
+C     28           END INTERVAL OUTPUT TIME SERIES TIME INTERVAL
+
+C     FOR EACH INPUT TIME SERIES TO BE SUMMED
+C     29-30        INPUT TIME SERIES IDENTIFIER
+C     31           INPUT TIME SERIES DATA TYPE CODE
+C     32           INPUT TIME SERIES TIME INTERVAL
+C     33           CARRYOVER FLAG
+C                  = 'CARY', FROM CARRYOVER ARRAY
+C                  = 'FLAT', SET EQUAL TO SECOND ELEMENT
+C                  = '    ', SET EQUAL TO ZERO
+C                  = 'VALU', READ IN FROM INPUT
+
+C     THEREFORE THE NUMBER OF ELEMENTS REQUIRED IN THE P ARRAY IS
+C        28 +
+C         5 * NUMBER OF INPUT TIME SERIES TO BE SUMMED
+
+C     POSITION     CONTENTS OF C ARRAY
+C      1+      INITIAL BEGIN INCREMENT INFLOW FOR EACH INPUT TIME SERIES
+C              IF INPUT TIME SERIES IS AN END INCREMENT TIME SERIES,
+C                 VALUE SET TO ZERO
+C              ELSE, IF INPUT TS IS A BEGIN INCREMENT TIME SERIES,
+C                 VALUE IS SET DEPENDING ON THE CARRYOVER FLAG
+
+C        1         2         3         4         5         6         7
+C23456789012345678901234567890123456789012345678901234567890123456789012
+C        SSARR SUMMING POINT - VERSION XXXX
+C        SUM OF 3 TIME SERIES - 1 BEGIN AND 1 END AND 1 SINGLE T.S.
+C
+C        NUMBER OF INFLOW TIME SERIES TO BE SUMMED =    3
+C        ------------------------------------------------
+C
+C        1         2         3         4         5         6         7
+C23456789012345678901234567890123456789012345678901234567890123456789012
+C                                                    TIME    CARRYOVER
+C                                     ID     CODE  INTERVAL     FLAG
+C        BEGIN OUTFLOW TIME SERIES XXXXXXXX  XXXX     XX
+C        END   OUTFLOW TIME SERIES XXXXXXXX  XXXX     XX
+C
+C        INPUT TIME SERIES
+C    XXX END   INFLOW TIME SERIES  XXXXXXXX  XXXX     XX
+C    XXX BEGIN INFLOW TIME SERIES  XXXXXXXX  XXXX     XX
+C    XXX END   INFLOW TIME SERIES  XXXXXXXX  XXXX     XX        XXXX
+C
+C        CARRYOVER VALUES
+C         TIME       CARRYOVER
+C        SERIES        VALUE
+C         XXX        XXXXXXX.XX
+
+      DIMENSION P(*),C(*)
+      REAL         PREAL
+      CHARACTER*4  PCHAR
+      EQUIVALENCE (PREAL,PCHAR)
+
+C     COMMON BLOCKS
+
+      COMMON/FDBUG/IODBUG,ITRACE,IDBALL,NDEBUG,IDEBUG(20)
+      COMMON/IONUM/IN,IPR,IPU
+      COMMON/FCONIT/IVALUE
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_prpc/RCS/prc52.f,v $
+     . $',                                                             '
+     .$Id: prc52.f,v 1.1 1996/03/21 14:30:41 page Exp $
+     . $' /
+C    ===================================================================
+C
+
+      CALL FPRBUG ('PRC52   ',1,52,IBUG)
+
+      IF (IBUG.EQ.1) WRITE(IODBUG,FMT='(//,''PRC52: ENTERED:'')')
+      NTS = NINT(P(20))
+      IF (IBUG.EQ.1) WRITE(IODBUG,60) NTS
+  60  FORMAT('PRC52: NTS: ', I6)
+
+      WRITE(IPR,6002) 
+ 6002 FORMAT(///10X,'CARRYOVER VALUES',/,
+     +       10X,' TIME       CARRYOVER',/,
+     +       10X,'SERIES        VALUE')
+
+      DO 100 I=1,NTS
+         
+         PREAL = P(5*I+28)
+         IF (PCHAR .EQ. 'FLAT') THEN
+            WRITE(IPR,6001) I,PCHAR
+ 6001       FORMAT(11X,I3,6X,A)
+         ELSE
+            WRITE(IPR,6003) I,C(I) 
+ 6003       FORMAT(11X,I3,6X,F10.2)
+         ENDIF
+
+ 100  CONTINUE               
+
+      IF (ITRACE.GE.1) WRITE(IODBUG,90)
+ 90   FORMAT('PRC52:  EXITED:')
+
+      RETURN
+      END

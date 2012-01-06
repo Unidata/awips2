@@ -1,0 +1,82 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the calb-calb_stubs library file
+#
+#  cmt: File made on Thu Oct 26 14:47:37 EDT 2006 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob81/ohd/calb/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob81/ohd/calb/inc  \
+               -I/fs/hseb/ob81/ohd/ofs/inc  \
+               -I/fs/hseb/ob81/ohd/util/inc  \
+               -I/fs/hseb/ob81/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libcalb_stubs_t.a:  \
+     $(LIB)/libcalb_stubs_t.a(calb_ex64.o)  \
+     $(LIB)/libcalb_stubs_t.a(chekrc.o)  \
+     $(LIB)/libcalb_stubs_t.a(espts.o)  \
+     $(LIB)/libcalb_stubs_t.a(etsdef.o)  \
+     $(LIB)/libcalb_stubs_t.a(ex21.o)  \
+     $(LIB)/libcalb_stubs_t.a(ex22.o)  \
+     $(LIB)/libcalb_stubs_t.a(ex23.o)  \
+     $(LIB)/libcalb_stubs_t.a(ex27.o)  \
+     $(LIB)/libcalb_stubs_t.a(ex28.o)  \
+     $(LIB)/libcalb_stubs_t.a(ex32.o)  \
+     $(LIB)/libcalb_stubs_t.a(ex37.o)  \
+     $(LIB)/libcalb_stubs_t.a(ex3.o)  \
+     $(LIB)/libcalb_stubs_t.a(ex50.o)  \
+     $(LIB)/libcalb_stubs_t.a(fpdbio.o)  \
+     $(LIB)/libcalb_stubs_t.a(pin21.o)  \
+     $(LIB)/libcalb_stubs_t.a(pin22.o)  \
+     $(LIB)/libcalb_stubs_t.a(pin23.o)  \
+     $(LIB)/libcalb_stubs_t.a(pin27.o)  \
+     $(LIB)/libcalb_stubs_t.a(pin28.o)  \
+     $(LIB)/libcalb_stubs_t.a(pin32.o)  \
+     $(LIB)/libcalb_stubs_t.a(pin37.o)  \
+     $(LIB)/libcalb_stubs_t.a(pin3.o)  \
+     $(LIB)/libcalb_stubs_t.a(pin50.o)  \
+     $(LIB)/libcalb_stubs_t.a(prc21.o)  \
+     $(LIB)/libcalb_stubs_t.a(prc22.o)  \
+     $(LIB)/libcalb_stubs_t.a(prc23.o)  \
+     $(LIB)/libcalb_stubs_t.a(prc28.o)  \
+     $(LIB)/libcalb_stubs_t.a(prc3.o)  \
+     $(LIB)/libcalb_stubs_t.a(prp21.o)  \
+     $(LIB)/libcalb_stubs_t.a(prp22.o)  \
+     $(LIB)/libcalb_stubs_t.a(prp23.o)  \
+     $(LIB)/libcalb_stubs_t.a(prp27.o)  \
+     $(LIB)/libcalb_stubs_t.a(prp28.o)  \
+     $(LIB)/libcalb_stubs_t.a(prp37.o)  \
+     $(LIB)/libcalb_stubs_t.a(prp3.o)  \
+     $(LIB)/libcalb_stubs_t.a(snstan.o)  \
+     $(LIB)/libcalb_stubs_t.a(subs3.o)  \
+     $(LIB)/libcalb_stubs_t.a(suend.o)  \
+     $(LIB)/libcalb_stubs_t.a(tab21.o)  \
+     $(LIB)/libcalb_stubs_t.a(tab22.o)  \
+     $(LIB)/libcalb_stubs_t.a(tab27.o)  \
+     $(LIB)/libcalb_stubs_t.a(tab28.o)  \
+     $(LIB)/libcalb_stubs_t.a(tab37.o)  \
+     $(LIB)/libcalb_stubs_t.a(tab3.o)  \
+     $(LIB)/libcalb_stubs_t.a(uprimc.o)  \
+     $(LIB)/libcalb_stubs_t.a(wpppco.o)  \
+     $(LIB)/libcalb_stubs_t.a(wrst32.o)
+

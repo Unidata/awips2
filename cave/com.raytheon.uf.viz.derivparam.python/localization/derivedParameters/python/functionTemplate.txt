@@ -1,0 +1,18 @@
+#
+# New derived parameter
+#   
+#
+#    
+#    SOFTWARE HISTORY
+#    
+#    Date            Engineer       Description
+#    ------------    -----------    --------------------------
+#    %s                   Initial Creation.
+#    
+# 
+#
+
+import numpy
+
+def execute(%s):
+    print "New derived parameter"

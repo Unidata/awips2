@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<DerivedParameter unit="K" name="Temperature" abbreviation="T" xmlns:ns2="group">
+	<Method models="modelsounding" levels="Surface" name="Alias">
+        <Field level="Station" abbreviation="temp2"/>
+    </Method>
+    <Method models="bufrua" name="RaobParam">
+        <Field abbreviation="Raob"/>
+        <ConstantField value="3.0"/>
+    </Method>
+    <Method models="acarssounding bufrua" levels="S,MB" name="Interp">
+        <Field level="Station" abbreviation="T"/>
+        <Field level="Station" abbreviation="P"/>
+        <Field level="Station" abbreviation="numLevels"/>
+        <Field abbreviation="MB"/>
+        <ConstantField value="50.0"/>
+    </Method>
+    <Method models="bufrua" levels="S,TILT" name="Interp">
+        <Field level="Station" abbreviation="T"/>
+        <Field level="Station" abbreviation="GH"/>
+        <Field level="Station" abbreviation="numLevels"/>
+        <Field abbreviation="GH"/>
+        <ConstantField value="1000.0"/>
+    </Method>
+    <Method levels="S,TEMP" name="Alias">
+        <Field abbreviation="TEMP"/>
+    </Method>
+    <Method name="Temperature">
+        <Field abbreviation="P"/>
+        <Field abbreviation="PoT"/>
+    </Method>
+    <Method name="Temperature">
+        <Field abbreviation="P"/>
+        <Field abbreviation="VPT"/>
+        <Field abbreviation="SHx"/>
+    </Method>
+    <Method levels="925MB" name="Average">
+        <Field level="950MB" abbreviation="T"/>
+        <Field level="900MB" abbreviation="T"/>
+    </Method>
+    <Method levels="Surface" name="Alias">
+        <Field level="Station" abbreviation="temperature"/>
+    </Method>
+    <Method levels="Surface" name="Alias">
+        <Field level="2FHAG" abbreviation="T"/>
+    </Method>
+    <Method models="mesoEta212" levels="2FHAG" name="Import">
+        <Field level="2FHAG" model="mesoEta215" abbreviation="T"/>
+    </Method>
+    <Method levels="S,K,Ke,TROP" name="Slice">
+        <Field level="3D" abbreviation="T"/>
+        <Field abbreviation="P"/>
+        <ConstantField value="-2.0"/>
+    </Method>
+    <Method models="MSAS" levels="500MB" name="Import">
+        <Field level="500MB" model="RUC" abbreviation="T"/>
+    </Method>
+    <Method models="MSAS" levels="500MB" name="Import">
+        <Field level="500MB" model="ETA207" abbreviation="T"/>
+    </Method>
+    <Method models="MSAS" levels="500MB" name="Import">
+        <Field level="500MB" model="GFS213" abbreviation="T"/>
+    </Method>
+    <Method models="Metar" levels="500MB" name="Import">
+        <Field level="500MB" model="RUC" abbreviation="T"/>
+    </Method>
+    <Method models="Ldad" levels="500MB" name="Import">
+        <Field level="500MB" model="RUC" abbreviation="T"/>
+    </Method>
+    <Method levels="S,TILT" name="Slice">
+        <Field level="3D" abbreviation="T"/>
+        <Field abbreviation="P"/>
+        <ConstantField value="-1.0"/>
+    </Method>
+    <Method models="modelsounding" levels="MB" name="Interp">
+        <Field level="Station" abbreviation="temperature"/>
+        <Field unit="hPa" level="Station" abbreviation="pressure"/>
+        <Field level="Station" abbreviation="numProfLvls"/>
+        <Field abbreviation="P"/>
+        <ConstantField value="50.0"/>
+    </Method>
+    <Method name="T.execute1">
+        <Field abbreviation="temperature"/>
+        <Field abbreviation="tempFromTenths"/>
+    </Method>
+    <Method name="T.execute2">
+        <Field abbreviation="temperature"/>
+        <Field abbreviation="temp2"/>
+    </Method>
+    <Method levels="Surface" name="T.execute3">
+        <Field level="Station" abbreviation="temperature"/>
+        <Field level="Station" abbreviation="tempFromTenths"/>
+    </Method>
+        <!-- TODO this should be an auto-generated average however 
+         auto-generated averages are currently pulling in kftAgl levels -->
+    <Method name="Average" levels="3-6kmAgl">
+        <Field abbreviation="T" level="3kmAgl"/>
+        <Field abbreviation="T" level="3.5kmAgl"/>
+        <Field abbreviation="T" level="4kmAgl"/>
+        <Field abbreviation="T" level="4.5kmAgl"/>
+        <Field abbreviation="T" level="5kmAgl"/>
+        <Field abbreviation="T" level="5.5kmAgl"/>
+        <Field abbreviation="T" level="6kmAgl"/>
+    </Method>
+</DerivedParameter>

@@ -1,0 +1,1 @@
+All Smart Text Products follow a standard format.  This provides consistency among the products which makes them easier to understand, customize, and support.

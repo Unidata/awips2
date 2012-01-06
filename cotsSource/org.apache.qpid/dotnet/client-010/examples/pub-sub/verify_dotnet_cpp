@@ -1,0 +1,11 @@
+# See https://svn.apache.org/repos/asf/incubator/qpid/trunk/qpid/bin/verify
+cpp=$CPP/pub-sub
+
+pubsub_producer_dotnet()
+{
+mono $DOTNET_EXAMPLES/example-pub-sub-Publisher.exe localhost 5672
+}
+
+background "Listening" $cpp/topic_listener
+clients pubsub_producer_dotnet 
+outputs  pubsub_producer_dotnet.out  "$cpp/topic_listener.out | remove_uuid | sort" 

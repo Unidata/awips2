@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:import href="wrapText.xlt"/>
+<xsl:output method = "text"/>
+<xsl:variable name="newline"><xsl:text>
+ </xsl:text></xsl:variable>
+
+<!--
+        getCoastalWaters.xlt
+                - generate the coastal waters in the watch are in the input state.
+
+        Change Log:
+
+        B. Yin/Chugach  05/10   Initial Coding
+-->
+
+  <xsl:template name="getCoastalWaters">
+	 <xsl:param name="state"/>
+
+	 <xsl:for-each select="/Products/Product/Layer/DrawableElement/DECollection/DrawableElement/WatchBox/Counties[substring(.,8,2) = $state]">
+          	<xsl:value-of select="$newline"/>
+		<!-- get the county string -->
+                <xsl:variable name="zonestr" select="substring(.,52)"/>
+                <xsl:call-template name="wrapText">
+                        <xsl:with-param name="str" select="$zonestr"/>
+                        <xsl:with-param name="charPerLine" select="65"/>
+                        <xsl:with-param name="sep" select="' '"/>
+                </xsl:call-template>
+
+          	<xsl:value-of select="$newline"/>
+        </xsl:for-each>
+  </xsl:template>
+</xsl:stylesheet>

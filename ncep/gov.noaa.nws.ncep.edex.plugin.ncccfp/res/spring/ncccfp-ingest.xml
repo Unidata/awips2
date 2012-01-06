@@ -1,0 +1,69 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="ncccfpDecoder" class="gov.noaa.nws.ncep.edex.plugin.ncccfp.decoder.NcccfpDecoder">
+ 		<constructor-arg ref="ncccfpPluginName"/>
+	</bean>
+	<bean id="ncccfpSeparator" class="gov.noaa.nws.ncep.edex.plugin.ncccfp.decoder.NcccfpSeparator" />
+
+	<bean id="ncccfpDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="ncccfp" />
+		<constructor-arg value="jms-dist:queue:Ingest.ncccfp" />
+	</bean>
+
+	<bean id="ncccfpCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="ncccfp-camel"/>
+  	</bean> 
+
+	<camelContext id="ncccfp-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+
+		<endpoint id="ncccfpFileEndpoint" uri="file:${edex.home}/data/sbn/ncccfp?noop=true&amp;idempotent=false" />
+
+		<route id="ncccfpFileConsumerRoute">
+			<from ref="ncccfpFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+				<constant>ncccfp</constant>
+			</setHeader>
+			<to uri="jms-generic:queue:Ingest.ncccfp" />
+		</route>
+
+		<!-- Begin Ncccfp routes -->
+		<route id="ncccfpIngestRoute">
+			<from uri="jms-generic:queue:Ingest.ncccfp" />
+			<setHeader headerName="pluginName">
+				<constant>ncccfp</constant>
+			</setHeader>
+			<doTry>
+				<pipeline>
+					<bean ref="stringToFile" />
+					<split streaming="true">
+						<method bean="ncccfpSeparator" method="separate" />
+						<doTry>
+							<pipeline>
+								<bean ref="ncccfpDecoder" method="decode" />
+								<to uri="directvm:indexAlert" />
+							</pipeline>
+							<doCatch>
+								<exception>java.lang.Throwable</exception>
+								<to uri="log:ncccfp?level=ERROR&amp;showBody=false" />
+							</doCatch>
+						</doTry>
+					</split>
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:ncccfp?level=ERROR&amp;showBody=false" />
+				</doCatch>
+			</doTry>
+		</route>
+	</camelContext>
+</beans>

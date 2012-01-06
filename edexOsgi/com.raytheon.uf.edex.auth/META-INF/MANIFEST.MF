@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Auth Plug-in
+Bundle-SymbolicName: com.raytheon.uf.edex.auth
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.11.31",
+ com.raytheon.uf.common.serialization.comm;bundle-version="1.11.31",
+ com.raytheon.uf.common.auth;bundle-version="1.0.0",
+ com.raytheon.edex.common;bundle-version="1.11.31",
+ com.raytheon.uf.common.status;bundle-version="1.11.31"
+Export-Package: com.raytheon.uf.edex.auth,
+ com.raytheon.uf.edex.auth.authentication,
+ com.raytheon.uf.edex.auth.req,
+ com.raytheon.uf.edex.auth.resp,
+ com.raytheon.uf.edex.auth.roles
+Import-Package: com.raytheon.uf.common.localization

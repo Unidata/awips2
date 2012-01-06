@@ -1,0 +1,444 @@
+module 'XApplication'
+version = 48;
+xdesigned = 1;
+applicationName = 'XApplication';
+generateNameC = * './lwstmt.c';
+generateNameExterns = * './lwstmt.h';
+generateNameResDB = * './lwstmt.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+motifFlavour = 2;
+generateMask = 39256293;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+javaVersion = 2;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'lwstmtDS' : XmDialogShell {
+	arguments {
+	name = 'lwstmtDS';
+	lastGenName = 'lwstmtDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_lwstmtDS (Widget parent)
+';
+	XmNwidth = 670;
+	XmNheight = 585;
+	XmNallowShellResize = true;
+	XmNtitle = 'Low Water Statement';
+	XmNminWidth = 670;
+	XmNminHeight = 585;
+	XmNmaxWidth = 670;
+	XmNmaxHeight = 585;
+	};
+object 'lwstmtFM' : XmForm {
+	arguments {
+	name = 'lwstmtFM';
+	lastGenName = 'lwstmtFM';
+	XmNwidth = 670;
+	XmNheight = 585;
+	XmNautoUnmanage = false;
+	};
+object 'lwstmtSLB' : XmScrolledList {
+	arguments {
+	name = 'contactSLB';
+	lastGenName = 'lwstmtSLB';
+	XmNwidth = 650;
+	XmNheight = 150;
+	};
+abstract object 'lwstmt_horizSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'lwstmt_horizSB';
+	};
+};
+abstract object 'lwstmt_vertSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'lwstmt_vertSB';
+	};
+};
+abstract object 'lwstmtLB' : XmList {
+	arguments {
+	name = 'lwstmtLB';
+	lastGenName = 'lwstmtLB';
+	XmNlistSizePolicy = XmCONSTANT;
+	};
+};
+};
+object 'lwstmt_infoFrm' : XmFrame {
+	arguments {
+	name = 'lwstmt_infoFrm';
+	lastGenName = 'lwstmt_infoFrm';
+	};
+object 'lwstmt_infoFM' : XmForm {
+	arguments {
+	name = 'lwstmt_infoFM';
+	was_selected = true;
+	lastGenName = 'lwstmt_infoFM';
+	};
+object 'lwvalLbl' : XmLabel {
+	arguments {
+	lastGenName = 'lwvalLbl';
+	XmNlabelString = 'Lower Limit:';
+	};
+};
+object 'lwvalTxt' : XmText {
+	arguments {
+	name = 'lwvalTxt';
+	lastGenName = 'lwvalTxt';
+	XmNmaxLength = 24;
+	XmNcolumns = 11;
+	};
+};
+object 'upvalLbl' : XmLabel {
+	arguments {
+	name = 'upvalLbl';
+	lastGenName = 'upvalLbl';
+	XmNlabelString = 'Upper Limit:';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'upvalTxt' : XmText {
+	arguments {
+	name = 'upvalTxt';
+	lastGenName = 'upvalTxt';
+	XmNmaxLength = 255;
+	XmNcolumns = 10;
+	XmNwordWrap = true;
+	XmNeditMode = XmMULTI_LINE_EDIT;
+	XmNrows = 1;
+	};
+};
+object 'crtrankLbl' : XmLabel {
+	arguments {
+	name = 'crtrankLbl';
+	lastGenName = 'crtrankLbl';
+	XmNlabelString = 'Order:';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'crtrankTxt' : XmText {
+	arguments {
+	name = 'crtrankTxt';
+	lastGenName = 'crtrankTxt';
+	XmNmaxLength = 18;
+	XmNcolumns = 4;
+	};
+};
+object 'crtLbl' : XmLabel {
+	arguments {
+	lastGenName = 'crtLbl';
+	XmNlabelString = 'Criteria:';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'crtTxt' : XmText {
+	arguments {
+	lastGenName = 'crtTxt';
+	XmNmaxLength = 255;
+	XmNwordWrap = true;
+	XmNeditMode = XmMULTI_LINE_EDIT;
+	};
+};
+object 'srcLbl' : XmLabel {
+	arguments {
+	name = 'srcLbl';
+	lastGenName = 'srcLbl';
+	XmNlabelString = 'Source:';
+	};
+};
+object 'srcTxt' : XmText {
+	arguments {
+	lastGenName = 'srcTxt';
+	XmNmaxLength = 255;
+	XmNwordWrap = true;
+	XmNeditMode = XmMULTI_LINE_EDIT;
+	};
+};
+object 'stmtLbl' : XmLabel {
+	arguments {
+	name = 'stmtLbl';
+	lastGenName = 'stmtLbl';
+	XmNlabelString = 'Statement:';
+	};
+};
+object 'stmtTxt' : XmText {
+	arguments {
+	lastGenName = 'stmtTxt';
+	XmNmaxLength = 200;
+	XmNwordWrap = true;
+	XmNeditMode = XmMULTI_LINE_EDIT;
+	};
+};
+object 'peLbl' : XmLabel {
+	arguments {
+	lastGenName = 'peLbl';
+	XmNlabelString = 'Physical Element:';
+	};
+};
+object 'peTxt' : XmText {
+	arguments {
+	lastGenName = 'peTxt';
+	XmNmaxLength = 2;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -96;
+	XmNleftAttachment = 1 0 6;
+	XmNbottomAttachment = 2 0 -36;
+	XmNtopAttachment = 1 0 3;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -189;
+	XmNleftAttachment = 1 0 96;
+	XmNbottomAttachment = 2 0 -36;
+	XmNtopAttachment = 1 0 3;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -279;
+	XmNleftAttachment = 1 0 198;
+	XmNbottomAttachment = 2 0 -39;
+	XmNtopAttachment = 1 0 3;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -363;
+	XmNleftAttachment = 1 0 279;
+	XmNbottomAttachment = 2 0 -35;
+	XmNtopAttachment = 1 0 3;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -603;
+	XmNleftAttachment = 1 0 555;
+	XmNbottomAttachment = 2 0 -37;
+	XmNtopAttachment = 1 0 3;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -647;
+	XmNleftAttachment = 1 0 603;
+	XmNbottomAttachment = 2 0 -39;
+	XmNtopAttachment = 1 0 6;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -81;
+	XmNleftAttachment = 1 0 9;
+	XmNbottomAttachment = 2 0 -71;
+	XmNtopAttachment = 1 0 39;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -638;
+	XmNleftAttachment = 1 0 96;
+	XmNbottomAttachment = 2 0 -116;
+	XmNtopAttachment = 1 0 39;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -74;
+	XmNleftAttachment = 1 0 2;
+	XmNbottomAttachment = 2 0 -150;
+	XmNtopAttachment = 1 0 122;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -636;
+	XmNleftAttachment = 1 0 96;
+	XmNbottomAttachment = 2 0 -198;
+	XmNtopAttachment = 1 0 123;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -86;
+	XmNleftAttachment = 1 0 6;
+	XmNbottomAttachment = 2 0 -223;
+	XmNtopAttachment = 1 0 195;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -636;
+	XmNleftAttachment = 1 0 96;
+	XmNbottomAttachment = 2 0 -282;
+	XmNtopAttachment = 1 0 204;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -496;
+	XmNleftAttachment = 1 0 372;
+	XmNbottomAttachment = 2 0 -37;
+	XmNtopAttachment = 1 0 3;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -543;
+	XmNleftAttachment = 1 0 495;
+	XmNbottomAttachment = 2 0 -37;
+	XmNtopAttachment = 1 0 3;
+    };
+    };
+};
+object 'lwstmt_infoLbl' : XmLabel {
+	arguments {
+	name = 'lwstmt_infoLbl';
+	lastGenName = 'lwstmt_infoLbl';
+	XmNframeChildType = XmFRAME_TITLE_CHILD;
+	XmNlabelString = 'Information';
+	};
+};
+};
+object 'lwstmtSP' : XmSeparator {
+	arguments {
+	lastGenName = 'lwstmtSP';
+	};
+};
+object 'lwstmtokPB' : XmPushButton {
+	arguments {
+	name = 'lwstmtokPB';
+	lastGenName = 'lwstmtokPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Ok';
+	};
+};
+object 'lwstmtapplyPB' : XmPushButton {
+	arguments {
+	name = 'lwstmtapplyPB';
+	lastGenName = 'lwstmtapplyPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Apply';
+	};
+};
+object 'lwstmtcancelPB' : XmPushButton {
+	arguments {
+	name = 'lwstmtcancelPB';
+	lastGenName = 'lwstmtcancelPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Close';
+	};
+};
+object 'lwstmtnewPB' : XmPushButton {
+	arguments {
+	name = 'lwstmtnewPB';
+	lastGenName = 'lwstmtnewPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'New';
+	};
+};
+object 'lwstmtdelPB' : XmPushButton {
+	arguments {
+	name = 'lwstmtdelPB';
+	lastGenName = 'lwstmtdelPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Delete';
+	};
+};
+object 'lwstmt_lwvalLbl' : XmLabel {
+	arguments {
+	name = 'lwstmt_lwvalLbl';
+	lastGenName = 'lwstmt_lwvalLbl';
+	XmNlabelString = 'Lower Limit';
+	};
+};
+object 'lwstmt_upvalLbl' : XmLabel {
+	arguments {
+	name = 'lwstmt_upvalLbl';
+	lastGenName = 'lwstmt_upvalLbl';
+	XmNlabelString = 'Upper Limit';
+	};
+};
+object 'lwstmt_crtrankLbl' : XmLabel {
+	arguments {
+	lastGenName = 'lwstmt_crtrankLbl';
+	XmNlabelString = 'Order';
+	};
+};
+object 'lwstmt_peLbl' : XmLabel {
+	arguments {
+	lastGenName = 'lwstmt_peLbl';
+	XmNlabelString = 'Physical Element';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -660;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -185;
+	XmNtopAttachment = 1 0 35;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -666;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -513;
+	XmNtopAttachment = 1 0 195;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -666;
+	XmNleftAttachment = 1 0 6;
+	XmNbottomAttachment = 2 0 -535;
+	XmNtopAttachment = 1 0 519;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 9;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 540;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 150;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 540;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -360;
+	XmNleftAttachment = 1 0 285;
+	XmNbottomAttachment = 2 0 -576;
+	XmNtopAttachment = 1 0 540;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 430;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 6 0;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 575;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 6 0;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -106;
+	XmNleftAttachment = 1 0 18;
+	XmNbottomAttachment = 2 0 -32;
+	XmNtopAttachment = 1 0 3;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -201;
+	XmNleftAttachment = 1 0 117;
+	XmNbottomAttachment = 2 0 -31;
+	XmNtopAttachment = 1 0 3;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -429;
+	XmNleftAttachment = 1 0 372;
+	XmNbottomAttachment = 2 0 -33;
+	XmNtopAttachment = 1 0 3;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -354;
+	XmNleftAttachment = 1 0 219;
+	XmNbottomAttachment = 2 0 -33;
+	XmNtopAttachment = 1 0 3;
+    };
+    };
+};
+};
+end module;

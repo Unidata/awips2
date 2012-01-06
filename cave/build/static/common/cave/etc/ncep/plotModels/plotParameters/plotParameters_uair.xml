@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PlotParameters xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+             xsi:noNamespaceSchemaLocation="plotParameters.xsd">
+<!-- 
+	A List of plot data parameters and their properties.
+ 		
+                TEMPERATURE
+
+        TMPC - Temperature in Celsius
+        TMPF - Temperature in Fahrenheit
+
+ 		        MOISTURE 
+
+        DWPC - Dewpoint in Celsius
+        DWPF - Dewpoint in Fahrenheit
+ 		
+ 		       PRESSURE AND ALTIMETER
+
+        PMSL - Mean sea level pressure in millibars
+        PTND - Complete pressure tendency with symbol
+        
+ 		          WIND
+
+        BRBK - Wind barb (knots)
+        GUST - Wind gust in knots
+ 		
+ 				  CLOUD
+ 				  
+ 		SKYC - Sky coverage symbol
+ 		
+ 		
+ 	         STATION VARIABLES
+
+        STID - Character station identifier
+        
+        
+                 WEATHER
+
+        WSYM - Present weather symbol
+        
+        		MISCELLANEOUS
+        		
+        VSBK - Visibility in kilometers
+ -->  
+  
+	<!-- STATION VARIABLES -->
+    <Parameter  name="STID" plotMode="text" plotParam="staName"/>
+    <Parameter  name="STNM" plotMode="text" plotParam="wmoStaNum" plotFormat="%5.0f"/>
+    
+    <!-- HIGHT -->
+    <Parameter  name="STDZ" plotMode="text" plotParam="htMan" plotUnit="m" plotFormat="%3.0f"/>
+    <Parameter  name="HGHT" plotMode="text" plotParam="htMan" plotUnit="m" plotFormat="%3.0f"/>
+    
+    <!-- TEMPRETURE -->
+   <!--  <Parameter  name="TMPF" plotMode="text" plotParam="tempreture" plotUnit="°F" plotFormat="%3.0f"/> -->
+    <Parameter  name="TMPC" plotMode="text" plotParam="tpMan" plotUnit="°C" plotFormat="%3.0f"/> 
+    <Parameter  name="THTE" plotMode="text" plotParam="tpTrop" plotUnit="K" plotFormat="%3.0f"/> 
+    
+    <!-- MOISTURE -->
+    <Parameter  name="DWPC" plotMode="text" plotParam="tdMan" plotUnit="°C" plotFormat="%3.0f"/>
+    <Parameter  name="DPDC" plotMode="text" plotParam="tdMan" plotUnit="°C" plotFormat="%3.0f"/>
+    <Parameter  name="RELH" plotMode="text" plotParam="" plotUnit="%"/>
+    <Parameter  name="MIXR" plotMode="text" plotParam="" plotUnit="g/kg"/>
+    
+    <!-- PRESSURE -->
+    <Parameter  name="PRES" plotMode="text" plotParam="prMan" plotUnit="hPa" plotFormat="%3.0f"/>
+    
+	<!-- WIND -->
+	<Parameter  name="BRBK" plotMode="barb" class="barb" plotParam="wsMan,wdMan" plotUnit="kts" plotLookupTable="wx_symbol_trans.txt"  transform="rotate(0,0,0)"/>
+	<Parameter  name="BRBM" plotMode="barb" plotParam="wsMan,wdMan" plotUnit="m/s" />     
+	   
+ 	<Parameter  name="PSYM" plotMode="text" plotParam=""/>
+    
+</PlotParameters>

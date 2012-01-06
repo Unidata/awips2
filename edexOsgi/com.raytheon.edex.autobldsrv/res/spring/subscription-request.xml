@@ -1,0 +1,20 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="subscription" class="com.raytheon.edex.services.SubscribeManager"/>
+	<camelContext id="subscription-camel" 
+	              xmlns="http://camel.apache.org/schema/spring" 
+	              errorHandlerRef="errorHandler">
+		<!-- SubscriptionSrv routes -->
+		<route id="subscriptionHTTP">
+			<from uri="jetty:http://0.0.0.0:9581/services/subscribe?disableStreamCache=true" />
+			<bean ref="subscription" method="processRequest"/>
+			<bean ref="serializationUtil" method="marshalToXml" />
+		</route>
+	</camelContext>
+ </beans>

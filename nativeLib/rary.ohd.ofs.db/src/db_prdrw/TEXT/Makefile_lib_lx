@@ -1,0 +1,77 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-db_prdrw library file
+#
+#  cmt: File made on Wed Aug  6 12:48:31 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libdb_prdrw_t.a:  \
+     $(LIB)/libdb_prdrw_t.a(iprdmd.o)  \
+     $(LIB)/libdb_prdrw_t.a(iprdmf.o)  \
+     $(LIB)/libdb_prdrw_t.a(iprdmr.o)  \
+     $(LIB)/libdb_prdrw_t.a(iprdwc.o)  \
+     $(LIB)/libdb_prdrw_t.a(pcicrm.o)  \
+     $(LIB)/libdb_prdrw_t.a(pckdlt.o)  \
+     $(LIB)/libdb_prdrw_t.a(pfdfid.o)  \
+     $(LIB)/libdb_prdrw_t.a(pfdtic.o)  \
+     $(LIB)/libdb_prdrw_t.a(pfdtyp.o)  \
+     $(LIB)/libdb_prdrw_t.a(pfftyp.o)  \
+     $(LIB)/libdb_prdrw_t.a(pgetlu.o)  \
+     $(LIB)/libdb_prdrw_t.a(pgetts.o)  \
+     $(LIB)/libdb_prdrw_t.a(pgtsic.o)  \
+     $(LIB)/libdb_prdrw_t.a(pgtsil.o)  \
+     $(LIB)/libdb_prdrw_t.a(pmovts.o)  \
+     $(LIB)/libdb_prdrw_t.a(ppikof.o)  \
+     $(LIB)/libdb_prdrw_t.a(pptsic.o)  \
+     $(LIB)/libdb_prdrw_t.a(pputts.o)  \
+     $(LIB)/libdb_prdrw_t.a(prgtix.o)  \
+     $(LIB)/libdb_prdrw_t.a(pserch.o)  \
+     $(LIB)/libdb_prdrw_t.a(rpdbci.o)  \
+     $(LIB)/libdb_prdrw_t.a(rprdd.o)  \
+     $(LIB)/libdb_prdrw_t.a(rprddf.o)  \
+     $(LIB)/libdb_prdrw_t.a(rprddt.o)  \
+     $(LIB)/libdb_prdrw_t.a(rprd.o)  \
+     $(LIB)/libdb_prdrw_t.a(rprdf.o)  \
+     $(LIB)/libdb_prdrw_t.a(rprdfh.o)  \
+     $(LIB)/libdb_prdrw_t.a(rprdh.o)  \
+     $(LIB)/libdb_prdrw_t.a(rprdht.o)  \
+     $(LIB)/libdb_prdrw_t.a(rprdt.o)  \
+     $(LIB)/libdb_prdrw_t.a(rtsrcd.o)  \
+     $(LIB)/libdb_prdrw_t.a(wpdbco.o)  \
+     $(LIB)/libdb_prdrw_t.a(wprdc.o)  \
+     $(LIB)/libdb_prdrw_t.a(wprdcf.o)  \
+     $(LIB)/libdb_prdrw_t.a(wprdct.o)  \
+     $(LIB)/libdb_prdrw_t.a(wprdd.o)  \
+     $(LIB)/libdb_prdrw_t.a(wprddf.o)  \
+     $(LIB)/libdb_prdrw_t.a(wprdds.o)  \
+     $(LIB)/libdb_prdrw_t.a(wprdel.o)  \
+     $(LIB)/libdb_prdrw_t.a(wprdfh.o)  \
+     $(LIB)/libdb_prdrw_t.a(wprdh.o)  \
+     $(LIB)/libdb_prdrw_t.a(wtsrcd.o)
+

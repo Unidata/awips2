@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: RCM Library Plug-in
+Bundle-SymbolicName: com.raytheon.rcm.lib
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Vendor: Raytheon
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: com.raytheon.rcm.alertreq,
+ com.raytheon.rcm.config,
+ com.raytheon.rcm.config.awips1,
+ com.raytheon.rcm.event,
+ com.raytheon.rcm.message,
+ com.raytheon.rcm.mqsrvr,
+ com.raytheon.rcm.products,
+ com.raytheon.rcm.request,
+ com.raytheon.rcm.rmr

@@ -1,0 +1,489 @@
+C MODULE SFURRS
+C-----------------------------------------------------------------------
+C
+C ROUTINE TO DEFINE USER RRS PARAMETERS.
+C
+      SUBROUTINE SFURRS (LARRAY,ARRAY,DISP,NFLD,IRUNCK,ISTAT)
+C
+      CHARACTER*4 DISP,TDISP,TYPE
+      CHARACTER*20 CHAR/' '/,CHK/' '/
+C
+      DIMENSION ARRAY(LARRAY)
+      DIMENSION UNUSED(2)
+C
+      INCLUDE 'uio'
+      INCLUDE 'scommon/sudbgx'
+      INCLUDE 'scommon/surrsx'
+      INCLUDE 'scommon/sudtrx'
+      INCLUDE 'scommon/sworkx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppinit_define/RCS/sfurrs.f,v $
+     . $',                                                             '
+     .$Id: sfurrs.f,v 1.2 1998/04/07 15:16:21 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,270)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG('DEFN')
+C
+      ISTAT=0
+C
+      LCHAR=LEN(CHAR)/4
+      LCHK=LEN(CHK)/4
+C
+      MAXDAY=60
+      MAXOBS=500
+C
+      NXTFLD=1
+      NUMERR=0
+      NUMWRN=0
+      NTYER1=0
+      NTYER2=0
+      ILPFND=0
+      IRPFND=0
+      ISTRT=-1
+      NUMFLD=0
+C
+C  CHECK NUMBER OF LINES LEFT ON PAGE
+      IF (ISLEFT(10).GT.0) CALL SUPAGE
+C
+C  PRINT CARD
+      CALL SUPCRD
+C
+C  PRINT HEADER LINE
+      WRITE (LP,290)
+      CALL SULINE (LP,2)
+      WRITE (LP,280)
+      CALL SULINE (LP,2)
+C
+C  PRINT OPTIONS
+      TDISP=DISP
+      WRITE (LP,310) TDISP
+      CALL SULINE (LP,2)
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK IF PREPROCESSOR PARAMETRIC DATA BASE ALLOCATED
+      IDPPP=1
+      CALL SUDALC (0,0,0,0,IDPPP,0,0,0,0,0,NUMERR,IERR)
+      IF (IERR.GT.0) THEN
+         WRITE (LP,320)
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 20
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  READ URRS PARAMETER RECORD
+      IPRERR=0
+      INCLUDE 'scommon/callsrurrs'
+C
+C  PARAMETERS EXIST AND DISP IS NEW
+      IF (IERR.EQ.0) THEN
+         IF (TDISP.EQ.'NEW') THEN
+            WRITE (LP,330)
+            CALL SUERRS (LP,2,NUMERR)
+            ENDIF
+         IF (LDEBUG.GT.0) THEN
+C        PRINT URRS PARAMETERS
+            INCLUDE 'scommon/callspurrs'
+            ENDIF
+         GO TO 10
+         ENDIF
+C
+C  PARAMETERS DO NOT EXIST AND DISP IS OLD
+      IF (IERR.GT.0.AND.TDISP.EQ.'OLD') THEN
+         WRITE (LP,340)
+         CALL SUWRNS (LP,2,NUMWRN)
+         TDISP='NEW'
+         ENDIF
+C
+10    NTYPCD=0
+      IURRSX=0
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  SET VALUE FOR MISSING PARAMETER
+20    UNUSD=-999.
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+      IF (IURFIL.GT.0) GO TO 30
+C
+C  READ DATA TYPE INFORMATION
+      CALL UDTRRS (MURTYP,NURTYP,RRSCD,ICLASS,NPROBS,UMISS,UNTIN,
+     *   UNTOUT,DISTRB,LFIELD,NUMDEC,CHKMIN,CHKMAX,IERR)
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,360) NURTYP
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      IF (IERR.GT.0) THEN
+         WRITE (LP,350) IERR
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 30
+         ENDIF
+C
+      IURFIL=1
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK FIELDS FOR DEFINE USER URRS OPTIONS
+30    INULL=0
+      CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPE,NREP,INTEGR,REAL,
+     *   LCHAR,CHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,IERR)
+      IF (LDEBUG.GT.0) THEN
+         CALL UPRFLD (NFLD,ISTRT,LENGTH,ITYPE,NREP,INTEGR,REAL,
+     *      LCHAR,CHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,IERR)
+         ENDIF
+C
+C  CHECK FOR NULL FIELD
+      IF (IERR.EQ.1) THEN
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,390) NFLD
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+         INULL=1
+         GO TO 50
+         ENDIF
+C
+C  CHECK FOR END OF INPUT
+      IF (NFLD.EQ.-1) GO TO 240
+C
+C  CHECK FOR PAIRED PARENTHESES
+      CALL SUPFND (ILPFND,IRPFND,NFLD,0)
+      IF (LLPAR.GT.0) ILPFND=1
+      IF (LRPAR.GT.0) IRPFND=1
+C
+C  CHECK FOR COMMAND
+      IF (LATSGN.EQ.1) GO TO 220
+C
+C  CHECK FOR PARENTHESIS IN FIELD
+      IF (LLPAR.GT.0) CALL UFPACK (LCHK,CHK,ISTRT,1,LLPAR-1,IERR)
+      IF (LLPAR.EQ.0) CALL UFPACK (LCHK,CHK,ISTRT,1,LENGTH,IERR)
+C
+C  CHECK FOR END OF INPUT
+      IF (CHK.EQ.'/') GO TO 240
+C
+C  IF FIRST FIELD, CONTENTS HAS BEEN CHECK FOR KEYWORD
+      IF (NUMFLD.EQ.0) GO TO 50
+C
+C  CHECK FOR KEYWORD
+      CALL SUIDCK ('DEFN',CHK,NFLD,0,IKEYWD,IRETRN)
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,400) CHK
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      IF (IRETRN.EQ.2) THEN
+         IF (TDISP.EQ.'NEW'.AND.NXTFLD.NE.2) THEN
+            WRITE (LP,410) CHK(1:LENSTR(CHK))
+            CALL SUERRS (LP,2,NUMERR)
+            GO TO 220
+            ENDIF
+         GO TO 240
+         ENDIF
+C
+C  PRINT CARD
+50    IF (NUMFLD.GT.0.AND.NFLD.EQ.1) CALL SUPCRD
+C
+      NUMFLD=NUMFLD+1
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,300) NUMFLD,NXTFLD,NUMERR
+         CALL SULINE (LP,1)
+         ENDIF
+      GO TO (60,70,160,190),NXTFLD
+C
+C  INVALID FIELD
+      WRITE (LP,370) NXTFLD
+      CALL SUERRS (LP,2,NUMERR)
+      GO TO 30
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK PARAMETER TYPE
+C
+60    IF (CHK.NE.'URRS') THEN
+         WRITE (LP,440) CHK
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 30
+         ENDIF
+      TYPE=CHK
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,380) TYPE
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      NXTFLD=2
+      GO TO 30
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  DATA TYPE CODE
+C
+70    IF (INULL.EQ.1) THEN
+         WRITE (LP,420) NFLD
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 150
+         ENDIF
+      IF (ITYPE.NE.2) THEN
+         WRITE (LP,450) NUMFLD,NFLD
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 150
+         ENDIF
+      MAXCHR=4
+      IF (LENGTH.GT.MAXCHR) THEN
+         WRITE (LP,510) LENGTH,MAXCHR,MAXCHR
+         CALL SUWRNS (LP,2,NUMWRN)
+         ENDIF
+      CALL SUBSTR (CHAR,1,MAXCHR,CODE,1)
+C
+      IF (IURFIL.EQ.0) GO TO 100
+C
+C  CHECK FOR VALID CODE
+      DO 80 I=1,NURTYP
+         IF (CODE.EQ.RRSCD(I)) GO TO 100
+80       CONTINUE
+         WRITE (LP,470) CODE
+         CALL SUERRS (LP,2,NUMERR)
+         NTYER1=NTYER1+1
+         IF (NTYER1.EQ.1) THEN
+            ISPTR=0
+            CALL SUSORT (1,NURTYP,RRSCD,SWORK,ISPTR,IERR)
+            WRITE (LP,480)
+            CALL SULINE (LP,1)
+            DO 90 I=1,NURTYP
+               WRITE (LP,490) SWORK(I)
+               CALL SULINE (LP,1)
+90             CONTINUE
+            ENDIF
+         GO TO 150
+C
+C  CHECK IF TYPE CURRENTLY DEFINED
+100   ILURRS=0
+      IF (TDISP.EQ.'NEW') GO TO 120
+         DO 110 I=1,NTYPCD
+            IF (CODE.NE.TYPCD(I)) GO TO 110
+            WRITE (LP,520) CODE
+            CALL SULINE (LP,2)
+            ILURRS=I
+            GO TO 150
+110      CONTINUE
+C
+C  CHECK IF TYPE ALREADY SPECIFIED
+120   IF (NTYPCD.EQ.0) GO TO 140
+         DO 130 I=1,NTYPCD
+            IF (CODE.NE.TYPCD(I)) GO TO 130
+               WRITE (LP,500) CODE
+               CALL SUWRNS (LP,2,NUMWRN)
+               GO TO 150
+130         CONTINUE
+C
+140   IF (NTYPCD+1.GT.MTYPCD) THEN
+         NTYER2=NTYER2+1
+         IF (NTYER2.EQ.1) THEN
+            WRITE (LP,525) MTYPCD
+            CALL SUERRS (LP,2,NUMERR)
+            GO TO 150
+         ENDIF
+         ENDIF
+      NTYPCD=NTYPCD+1
+      ILURRS=NTYPCD
+      TYPCD(NTYPCD)=CODE
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,530) TYPCD(NTYPCD)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+150   NXTFLD=3
+      GO TO 30
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  MINIMUM DAYS TO BE RETAINED ON PPDB
+C
+160   IF (INULL.EQ.1) THEN
+         IF (TDISP.EQ.'OLD') GO TO 180
+         INTEGR=MAXDAY
+         WRITE (LP,430) NUMFLD,INTEGR
+         CALL SULINE (LP,2)
+         GO TO 170
+         ENDIF
+      IF (ITYPE.NE.0) THEN
+         WRITE (LP,460) NUMFLD,NFLD
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 180
+         ENDIF
+C
+170   MNDAY(ILURRS)=INTEGR
+      IF (MNDAY(ILURRS).GE.1.AND.MNDAY(ILURRS).LE.MAXDAY) THEN
+         ELSE
+            WRITE (LP,540) MNDAY(ILURRS),MAXDAY
+            CALL SUERRS (LP,2,NUMERR)
+            GO TO 180
+        ENDIF
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,550) MNDAY(ILURRS)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+180   NXTFLD=4
+      GO TO 30
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  TYPICAL NUMBER OF OBSERVATIONS
+C
+190   IF (INULL.EQ.1) THEN
+         IF (TDISP.EQ.'OLD') GO TO 210
+         INTEGR=MAXOBS
+         WRITE (LP,430) NUMFLD,INTEGR
+         CALL SULINE (LP,2)
+         GO TO 200
+         ENDIF
+      IF (ITYPE.NE.0) THEN
+         WRITE (LP,460) NUMFLD,NFLD
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 210
+         ENDIF
+C
+200   NMOBS(ILURRS)=INTEGR
+      IF (NMOBS(ILURRS).GE.1.AND.NMOBS(ILURRS).LE.MAXOBS) THEN
+         ELSE
+            WRITE (LP,560) NMOBS(ILURRS),MAXOBS
+            CALL SUERRS (LP,2,NUMERR)
+            GO TO 210
+            ENDIF
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,570) NMOBS(ILURRS)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+210   NXTFLD=2
+      GO TO 30
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  MAXIMUM FIELDS PROCESSED BUT NO KEYWORD FOUND - SEARCH FOR
+C  NEXT KEYWORD
+C
+220   ISTRT=-1
+230   CALL UFIELD (NFLD,ISTRT,LENGTH,ITYPE,NREP,INTEGR,REAL,
+     *   LCHAR,CHAR,LLPAR,LRPAR,LASK,LATSGN,LAMPS,LEQUAL,IERR)
+      IF (LATSGN.EQ.1) GO TO 240
+      IF (LLPAR.GT.0) CALL UFPACK (LCHK,CHK,ISTRT,1,LLPAR-1,IERR)
+      IF (LLPAR.EQ.0) CALL UFPACK (LCHK,CHK,ISTRT,1,LENGTH,IERR)
+      IF (CHK.EQ.'/') GO TO 240
+      CALL SUIDCK ('DEFN',CHK,NFLD,0,IKEYWD,IRETRN)
+      IF (IRETRN.NE.2) THEN
+         WRITE (LP,590) NFLD,CHAR(1:LENSTR(CHAR))
+         CALL SUWRNS (LP,2,NUMWRN)
+         GO TO 230
+         ENDIF
+C
+C  CHECK NUMBER OF FIELDS PROCESSED
+240   IF (NUMFLD.GT.2) GO TO 250
+         WRITE (LP,600)
+         CALL SULINE (LP,2)
+         GO TO 260
+C
+C  CHECK IF RUNCHECK OPTION SPECIFIED
+250   IF (IRUNCK.EQ.1) GO TO 260
+C
+C  WRITE PARAMETERS IF NO ERRORS ENCOUNTERED
+      IF (NUMERR.GT.0) THEN
+         WRITE (LP,580) NUMERR
+         CALL SULINE (LP,2)
+         ISTAT=1
+         GO TO 260
+         ENDIF
+C
+C  WRITE PARAMETERS TO FILE
+      IVURRS=1
+      CALL SWURRS (IVURRS,UNUSD,NTYPCD,TYPCD,MNDAY,NMOBS,
+     *   LARRAY,ARRAY,TDISP,IERR)
+      IF (IERR.GT.0) GO TO 260
+C
+C  READ PARAMETERS
+      IPRERR=1
+      INCLUDE 'scommon/callsrurrs'
+      IF (IERR.GT.0) GO TO 260
+C
+C  PRINT PARAMETERS
+      INCLUDE 'scommon/callspurrs'
+C
+260   IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,610)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+270   FORMAT (' *** ENTER SFURRS')
+280   FORMAT ('0*--> DEFINE USER RRS PARAMETERS')
+290   FORMAT (1H )
+300   FORMAT (' NUMFLD=',I2,3X,'MAXFLD=',I2,3X,'NUMERR=',I2)
+310   FORMAT ('0DEFINE OPTIONS IN EFFECT :  DISP=',A)
+320   FORMAT ('0*** ERROR - PREPROCESSOR PARAMETRIC DATA BASE FILES ',
+     *   'ARE NOT ALLOCATED. INPUT DATA WILL BE CHECKED FOR ERRORS.')
+330   FORMAT ('0*** ERROR - DISPOSITION OF NEW WAS SPECIFIED FOR ',
+     *   'URRS PARAMETERS BUT PARAMETERS ALREADY EXIST.')
+340   FORMAT ('0*** WARNING - URRS PARAMETER RECORD DOES NOT EXIST.',
+     *   ' DISP ASSUMED TO BE NEW.')
+350   FORMAT ('0*** ERROR - DATA TYPE FILE NOT SUCCESSFULLY ',
+     *   'READ. STATUS CODE RETURNED FROM UDTRRS = ',I2)
+360   FORMAT (' UDTRRS CALLED : NURTYP=',I2)
+370   FORMAT ('0*** ERROR - FIELD ',I2,' EXCEEDS MAXIMUM ALLOWABLE ',
+     *   'FIELDS (4).')
+380   FORMAT (' PARAMETER TYPE IS ',A)
+390   FORMAT (' *** NOTE - BLANK STRING FOUND IN FIELD ',I2)
+400   FORMAT (' INPUT FIELD = ',A)
+410   FORMAT ('0*** NOTE - THE KEYWORD  ',A,'  WAS FOUND WHEN ',
+     *   'ANOTHER URRS FIELD WAS EXPECTED.')
+420   FORMAT ('0*** ERROR - NO VALUE FOUND FOR REQUIRED FIELD ',I2,'.')
+430   FORMAT ('0*** NOTE - NO VALUE FOUND FOR REQUIRED FIELD ',I2,
+     *   '. DEFAULT VALUE (',I8,') WILL BE USED.')
+440   FORMAT ('0*** ERROR - INVALID USER PARAMETER TYPE : ',A)
+450   FORMAT ('0*** ERROR - CHARACTER DATA EXPECTED IN INPUT ',
+     *   'FIELD ',I2,' (CARD FIELD ',I2,').')
+460   FORMAT ('0*** ERROR - INTEGER DATA EXPECTED IN INPUT ',
+     *   'FIELD ',I2,' (CARD FIELD ',I2,').')
+470   FORMAT ('0*** ERROR - INVALID DATA TYPE CODE : ',A4)
+480   FORMAT (T14,'- VALID DATA TYPE CODES -')
+490   FORMAT (20X,A4)
+500   FORMAT ('0*** WARNING - DATA TYPE CODE ',A4,' HAS ALREADY BEEN ',
+     *   'SPECIFIED.')
+510   FORMAT ('0*** WARNING - NUMBER OF CHARACTERS IN DATA TYPE (',
+     *   I2,') EXCEEDS ',I2,'. NAME SET TO FIRST ',I2,' CHARACTERS.')
+520   FORMAT ('0*** NOTE - DATA TYPE CODE  ',A4,'  IS ALREADY ',
+     *   'DEFINED.')
+525   FORMAT ('0*** ERROR - MAXIMUM NUMBER OF DATA TYPES THAT CAN BE ',
+     *   'PROCESSED (',I2,') EXCEEDED.')
+530   FORMAT (' DATA TYPE SET TO ',A)
+540   FORMAT ('0*** ERROR - MINIMUM DAYS TO BE RETAINED ON PPDB (',I4,
+     *   ') MUST BE GREATER THAN OR EQUAL TO 0 AND LESS THAN ',I2,'.')
+550   FORMAT (' MINIMUM DAYS TO BE RETAINED SET TO ',I4)
+560   FORMAT ('0*** ERROR - MAXIMUM OBSERVATIONS TO BE RETAINED ON ',
+     *   'THE PPDB (',I4,') MUST BE GREATER THAN 0 AND LESS THAN ',
+     *   'OR EQUAL TO ',I3,'.')
+570   FORMAT (' TYPICAL NUMBER OF OBSERVATIONS SET TO ',I3)
+580   FORMAT ('0*** NOTE - URRS PARAMETERS NOT WRITTEN ',
+     *   'BECAUSE ',I2,' ERRORS ENCOUNTERED.')
+590   FORMAT ('0*** WARNING - CONTENTS OF FIELD ',I2,' IS NOT A ',
+     *   'KEYWORD : ',A)
+600   FORMAT ('0*** NOTE - NO PARAMETER VALUES FOUND.')
+610   FORMAT (' *** EXIT SFURRS')
+C
+      END

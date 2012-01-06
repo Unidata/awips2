@@ -1,0 +1,15 @@
+
+<WEGroup name="Marine">
+ <WEItem parmID="WindGust_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="IceAmount_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="Wind_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="Wx_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="Sky_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="WaveHeight_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="WindWaveHgt_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="Swell_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="Swell2_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="Period_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="Period2_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+ <WEItem parmID="Hazards_SFC:SITE_GRID__Fcst_00000000_0000" relativeCycleNumber="-1"/>
+</WEGroup>

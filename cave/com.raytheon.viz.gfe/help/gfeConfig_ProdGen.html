@@ -1,0 +1,331 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-31smp i686) [Netscape]">
+  <title>gfeConfig - Product Generation Scripts</title>
+</head>
+<body style="background-color: rgb(255, 255, 255);">
+<div class="Body">
+<div class="3Heading">
+<h2 style="text-align: center;">GFE/ifpIMAGE Configuration File<br>
+Product Generation Scripts</h2>
+Product generation scripts are defined in this portion of the
+configuration file. These entries define the contents of the product
+generation
+menu that is available from the Products pull-down menu.&nbsp;&nbsp;
+This
+area can be used for much more than the product generation
+programs.&nbsp;
+It is basically a list of menu entry items and scripts to be
+executed.&nbsp;
+There is a set of "known" keywords which are replaced by their
+appropriate
+value.&nbsp; For example, {host} is replaced with the server host name.
+<p>It is expected that sites will override the product generation
+scripts
+using a local gfe configuration override.&nbsp; Refer to the <a
+ href="gfeConfiguration.html"><!--disable indexer-->gfe
+configuration guide</a> for details on how to override the gfe
+configuration
+file.&nbsp; The standard supplied gfe configuration file contains
+examples
+of product generation, and sites will normally want to define entries
+specific
+to their site.</p>
+</div>
+<div class="3Heading">&nbsp;
+<br>
+&nbsp;
+<table nosave="" border="1" cols="4" width="100%">
+  <tbody>
+    <tr>
+      <td>
+      <center><b>GFE Configuration Item</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to GFE</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to <a href="ifpIMAGE.html"><!--disable indexer-->ifpIMAGE</a></b></center>
+      </td>
+      <td>
+      <center><b>Notes</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#Format">Format</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#AutomaticVariables">Automatic Variables</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#Dialogs">Dialogs</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#NamedVariables">Named Variables</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#RadioandCheckbuttonVariables">Radio and Check
+Button Variables</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#EditAreasandGroups">Edit Areas and Groups</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#MultipleCommandLineScripts">Multiple Command Line
+Scripts</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#Examples">Examples</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#ProductGenerationGroupOrdering">Product Generation
+Group
+Ordering</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<blockquote> </blockquote>
+<hr style="width: 100%; height: 2px;">
+<h4><br>
+</h4>
+<h4><a name="Format"></a><font size="+1">Format</font></h4>
+Each script entry is a text string of the form: <b><tt>"&lt;entry
+name&gt;:
+" + "&lt;command line script&gt; &amp; "</tt></b> where: <b><tt>&lt;Entry
+Name&gt;</tt></b> will appear in the Product Generation menu, <b><tt>&lt;command
+line script&gt;</tt></b> is the command line that will be submitted
+when the
+script is chosen. <br>
+&nbsp;
+<h4><a name="AutomaticVariables"></a><font size="+1">Automatic
+Variables</font></h4>
+The following variables can be used in scripts and the GFE will fill in
+the appropriate information before executing the script:
+<blockquote><li> <b><tt>{host}</tt></b> - the database server
+hostname or IP
+address</li>
+  <li> <b><tt>{port}</tt></b> - the database server RPC port number</li>
+  <li> <b><tt>{site}</tt></b> - the site identifier, e.g., BOU</li>
+  <li> <b><tt>{productDB}</tt></b> - product database.&nbsp; This is
+the
+official
+database if it exists. Otherwise it is the mutable (Fcst) database.</li>
+  <li> <b><tt>{SEstart}</tt></b> - start of the spatial editor
+time.&nbsp; Note
+all times are in the format of yyyymmdd_hhmm.</li>
+  <li> <b><tt>{SEend}</tt></b> - always {SEstart} plus 1 second.</li>
+  <li> <b><tt>{SelectedStart}</tt></b> - start of the selected time
+range</li>
+  <li> <b><tt>{SelectedEnd}</tt></b> - end of the selected time range</li>
+  <li> <b><tt>{time}</tt></b> - current local time in the format of
+yyyymmdd_hhmm</li>
+  <li> <b><tt>{ztime}</tt></b> - current zulu time in the format of
+yyyymmdd_hhmm</li>
+  <li> <b><tt>{module: &lt;module name&gt;}</tt></b> - the correct
+path
+of the module
+will be substituted in the command line.&nbsp; The module must have a
+.py
+extension.</li>
+  <li> <b><tt>{home}</tt></b> - is replaced with the top-level
+GFESuite
+directory path. It is important to use this variable rather than
+hard-coding
+values. The scripts may be run either locally or remotely, and the
+directory
+structure may differ. </li>
+  <li> <b><tt>{prddir}</tt></b> - is replaced with the GFESuite
+directory path to the products directory. It is important to use this
+variable rather than hard-coding
+values. The scripts may be run either locally or remotely, and the
+directory
+structure may differ. </li>
+</blockquote>
+<h4> <a name="Dialogs"></a><font size="+1">Dialogs</font></h4>
+If the following variables are used in a script, a dialog will appear
+for
+the user to make selections from a simple GUI before the script is
+executed:
+<blockquote><li> <b><tt>{parmsMutable} - </tt></b>list of weather
+elements in the
+Forecast
+database is displayed for selection</li>
+  <li> <b><tt>{parms} - </tt></b>list of weather elements is
+displayed
+for selection</li>
+  <li> <b><tt>{refsets} - </tt></b>list of named edit areas is
+displayed for selection</li>
+  <li> <b><tt>{maps} - </tt></b>list of known map identifiers is
+displayed for
+selection</li>
+  <li> <b><tt>{databases} - </tt></b>list of known databases is
+displayed for
+selection</li>
+  <li> <b><tt>{output file} - </tt></b>allows user to enter an
+output
+filename</li>
+  <li> <b><tt>{output directory} - </tt></b>allows user to enter an
+output directory
+name</li>
+  <li> <b><tt>{startTime} - </tt></b>allows the user to enter a
+starting time</li>
+  <li> <b><tt>{endTime} - </tt></b>allows the user to enter an
+ending
+time</li>
+</blockquote>
+<h4> <a name="NamedVariables"></a><font size="+1">Named Variables</font></h4>
+To have the user prompted for a named variable, use the following in
+your
+script:
+<blockquote>
+  <blockquote><b><tt>{entry: &lt;name of variable&gt;: &lt;default
+value&gt;}</tt></b></blockquote>
+</blockquote>
+For example, to have the user prompted for "width" use:&nbsp; <b><tt>{entry:
+width: 350}</tt></b> in your script. <br>
+&nbsp;
+<h4><a name="RadioandCheckbuttonVariables"></a><font size="+1">Radio
+and Check
+Button Variables</font></h4>
+To have the user prompted for a list of radiobutton variables, use:
+<p><b><tt>{entryButtons: &lt;name of variable&gt;: &lt;list of values
+separated
+by commas&gt;}</tt></b> <br>
+<b><tt>{entryButtons: ReportType: GeneralGIF,CustomizedGIF}</tt></b> </p>
+<p>To have the user prompted for a list of checkbutton variables,
+use: </p>
+<p><b><tt>{entryChecks: &lt;name of variable&gt;: &lt;list of values
+separated
+by commas&gt;}</tt></b> <br>
+<b><tt>{entryChecks: EditAreas: Area1,Area2,Area3}</tt></b> <br>
+&nbsp; </p>
+<h4><a name="EditAreasandGroups"></a><font size="+1">Edit Areas and
+Groups</font></h4>
+If the name of the entryButtons or entryChecks is "EditAreas", the
+system
+will accept edit area OR edit area group names. The system will check
+for
+groups and will automatically expand them to the appropriate areas.
+<p><b><tt>{entryChecks: EditAreas: Group1,Group2,Area1,Area2,Area3}</tt></b>
+<br>
+<b><tt>{entryButtons: EditAreas: Group1,Group2,Area1}</tt></b> <br>
+&nbsp; </p>
+<h4><a name="MultipleCommandLineScripts"></a><font size="+1">Multiple
+Command
+Line Scripts</font></h4>
+Scripts with Multiple Command Lines are allowed. To string multiple
+command
+lines together, use the following format for your command line script:
+<p><b><tt>"csh -c (&lt;command line 1&gt;; &lt;command line 2&gt;;
+&lt;command
+line 3&gt;) &amp;"<br>
+</tt></b></p>
+<p><b><tt><br>
+</tt></b> </p>
+<h4><a name="Examples"></a><font size="+1">Examples</font></h4>
+The following section is an excerpt from the gfe configuration file
+showing
+various combinations of product generation scripts.&nbsp; Product
+Generation
+Scripts are executed via the Product Generation menu on the GFE. <b><i>Please
+define TextProducts through the DefineTextProducts dialog (Product
+Generation
+Menu) within the GFE.</i></b>
+<p><b><tt>Scripts = [</tt></b> <br>
+<b><tt>&nbsp;&nbsp;&nbsp; "Png Images...:" +</tt></b> <br>
+<b><tt>&nbsp;&nbsp;&nbsp; "ifpIMAGE -c {entry:ConfigFile:gfeConfig}
+-o " + GFESUITE_IMAGE + " &amp;",</tt></b> </p>
+<p><b><tt>## to view the various <a
+ href="ifpIMAGE.html#RunningifpIMAGE">ifpIMAGE
+option switches</a></tt></b> </p>
+<p><b><tt>&nbsp;&nbsp;&nbsp; "Send Images to Website:" +</tt></b> <br>
+<b><tt>&nbsp;&nbsp;&nbsp; "&lt;your command line goes here to run
+your
+script",</tt></b> </p>
+<p><b><tt>&nbsp;&nbsp;&nbsp; "General Ascii Grids...: " + "ifpAG -h
+{host}
+-r {port} -o " +</tt></b> <br>
+<b><tt>&nbsp;&nbsp;&nbsp;&nbsp; GFESUITE_AG+ "/{time}.ag -d
+{productDB}
+&amp;",</tt></b> </p>
+<p><b><tt>&nbsp;&nbsp;&nbsp; "Customized Ascii Grids...:" +</tt></b> <br>
+<b><tt>&nbsp;&nbsp;&nbsp; "ifpAG -h {host} -r {port} -o " +
+GFESUITE_AG
++ "/{time}.cag -d</tt></b> <br>
+<b><tt>&nbsp;&nbsp;&nbsp; {productDB} " +</tt></b> <br>
+<b><tt>&nbsp;&nbsp;&nbsp; "-p {parmsMutable} -s {SelectedStart} -e
+{SelectedEnd} &amp; ",</tt></b> </p>
+<p><b><tt>&nbsp;&nbsp;&nbsp; "Customized Grib...: " +</tt></b> <br>
+<b><tt>&nbsp;&nbsp;&nbsp; "runIFPGrib -d {productDB} -o " +
+GFESUITE_GRIB
++</tt></b> <br>
+<b><tt>&nbsp;&nbsp;&nbsp; "/{entry: OutputFile: out.grib} " +</tt></b> <br>
+<b><tt>&nbsp;&nbsp;&nbsp; "-w {parmsMutable} -s {SelectedStart} -e
+{SelectedEnd} &amp; "]</tt></b> <br>
+&nbsp; <br>
+&nbsp; </p>
+<p><a name="ProductGenerationGroupOrdering"></a><b><font size="+1">Product
+Generation Group Ordering</font></b> </p>
+<p>To provide an order for the products generated , list an order
+preference
+in the list variable 'ProductList'.&nbsp; Any products not listed in
+'ProductList',
+will be listed at the bottom of the Product Generation menu in
+alphabetical
+order. </p>
+<p><b><tt>ProductList = ["Png Images", "Ascii Grids", "YourProducts"]</tt></b>
+<br>
+&nbsp; <br>
+&nbsp;
+<br>
+</p>
+<hr style="width: 100%; height: 2px;">
+<p><br>
+</p>
+<div class="Body">
+<center><tt>&nbsp;<a href="GFESuite.html">Back To TOC</a></tt></center>
+</div>
+</div>
+</body>
+</html>

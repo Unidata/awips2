@@ -1,0 +1,5 @@
+! The OverlayGroup bundle file is basically hardcoded
+! for the geopolitical overlay since there isn't a nice 
+! way for us to substitute a variable list of tableNames
+! 
+mapName=Geo-Political

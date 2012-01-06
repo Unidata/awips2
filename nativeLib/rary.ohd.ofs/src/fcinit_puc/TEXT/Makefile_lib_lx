@@ -1,0 +1,96 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-fcinit_puc library file
+#
+#  cmt: File made on Wed Aug  6 12:49:17 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libfcinit_puc_t.a:  \
+     $(LIB)/libfcinit_puc_t.a(ffpuin.o)  \
+     $(LIB)/libfcinit_puc_t.a(ffpurl.o)  \
+     $(LIB)/libfcinit_puc_t.a(fgpuc1.o)  \
+     $(LIB)/libfcinit_puc_t.a(floc26.o)  \
+     $(LIB)/libfcinit_puc_t.a(fpcv26.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc10.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc11.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc12.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc13.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc14.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc15.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc18.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc19.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc1.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc20.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc21.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc22.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc23.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc24.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc25.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc26.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc27.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc29.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc2.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc30.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc31.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc32.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc33.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc34.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc35.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc36.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc37.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc38.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc39.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc41.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc42.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc43.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc44.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc45.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc46.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc48.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc4.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc50.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc51.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc52.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc53.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc54.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc56.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc57.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc59.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc60.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc61.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc62.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc63.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc64.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc6.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc7.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc8.o)  \
+     $(LIB)/libfcinit_puc_t.a(puc9.o)  \
+     $(LIB)/libfcinit_puc_t.a(tsv24.o)  \
+     $(LIB)/libfcinit_puc_t.a(tsv54.o)
+

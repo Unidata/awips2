@@ -1,0 +1,10 @@
+# See https://svn.apache.org/repos/asf/incubator/qpid/trunk/qpid/bin/verify
+py=$PYTHON/pubsub
+
+topic_publisher_java(){
+java -Dlog4j.configuration=$LOG4J -cp "$CLASSPATH" org.apache.qpid.example.jmsexample.pubsub.Publisher
+}
+
+background "Queues created" $py/topic_subscriber.py
+clients topic_publisher_java
+outputs ./topic_publisher_java.out "$py/topic_subscriber.py.out | remove_uuid | sort"

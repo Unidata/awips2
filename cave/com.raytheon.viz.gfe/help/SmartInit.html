@@ -1,0 +1,949 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta content="text/html; charset=iso-8859-1"
+ http-equiv="Content-Type">
+  <meta
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-34smp i686) [Netscape]"
+ name="GENERATOR">
+  <title>Smart Initialization Configuration and User's Guide</title>
+</head>
+<body alink="#ff0000" vlink="#551a8b" link="#0000ee" bgcolor="#ffffff"
+ text="#000000">
+<h1>
+Smart Initialization Configuration and User's Guide</h1>
+April 7, 2004<br>
+<p>This document describes how smart initialization works, and how it
+can
+be extended and modified.
+<br>
+&nbsp;
+</p>
+<h2>Table of Contents</h2>
+<a href="#HowSmartInitializationWorks">How Smart Initialization Works</a>
+<br>
+<a href="#Wherearethefiles">Where are the files that control smart
+initialization?</a>
+<br>
+<a href="#BasicFileStructure">Basic File Structure</a>
+<br>
+<a href="#Workingwith">Working with SCALAR, VECTOR, WEATHER, and
+DISCRETE
+data</a>
+<br>
+<a href="#ModifyinganExistingAlgorithm">Modifying an Existing Algorithm</a>
+<br>
+<a href="#AddingNewAlgorithms">Adding New Algorithms</a>
+<br>
+<a href="#AddingNewModels">Adding New Models</a>
+<br>
+<a href="#CommandLine">Running Smart Initialization from the Command
+Line</a>
+<br>
+<a href="#Examples">Examples of Complete Smart Initalization Files</a>
+<br>
+<a href="#Exercises">Exercises</a>
+<p></p>
+<hr width="100%">
+<h2><a name="HowSmartInitializationWorks"></a>How Smart Initialization
+Works</h2>
+Smart initialization is closely coupled with the ifpServer.&nbsp; The
+ifpServer
+is aware of D2D model data changes and therefore knows when IFP data
+grids
+can be created.&nbsp; Whenever the ifpServer first starts, or new D2D
+model
+data is detected (which occurs frequently - less than 5 minute
+intervals), the server will
+examine
+the serverConfig/localConfig configuration file for the INITMODULES
+definition.&nbsp;
+If it finds a match with the updated D2D model, then it will spawn a
+process
+to run smart initialization for that model.
+<p>When a smart initialization process is started, it will run a
+particular
+class file, either one that has been supplied with the release, or one
+you have added.&nbsp; The software will examine all of the functions
+within
+that class looking for function names that begin with calc***.&nbsp;
+These
+functions define the output weather element, e.g., calcT will derive T,
+and also the dependencies.&nbsp; The dependencies are determined from
+the
+argument list for each function.
+</p>
+<p>The smart initialization software then figures out the dependencies
+for all of the calc*** functions and will determine what must run
+first,
+second, third, etc.&nbsp; This is done automatically and the programmer
+need not be concerned about it.&nbsp; The software also examines the
+inventory
+for the dependent grids and the inventory for the output grids to
+determine
+if the output grid is already present and no calculations are needed,
+or
+whether the output grid needs to be created by running the algorithms.
+</p>
+<p>When all the possible dependencies and algorithms have run, the
+process
+exits until the next D2D model update.
+</p>
+<p>Smart Initialization algorithms are written in a simple, intuitive
+language
+called Python and its extension, Numerical Python. The following
+sections
+assume that you have knowledge of Python&nbsp; which is covered in the
+<a href="Python.html">GFESuite
+Python Tutorial and Programming Guidelines</a>.
+<br>
+</p>
+<hr width="100%">
+<h2><a name="Wherearethefiles"></a>Where are the files that control
+smart initialization?</h2>
+The standard smart initialization files that are supplied with the
+release
+are installed into your <i>release</i>/etc/BASE/smartInit directory.&nbsp; No
+modifications
+should be made to any of the files in the BASE directory.
+User-customized
+files are installed into the <i>release</i>/etc/SITE directory.&nbsp;
+These
+SITE&nbsp; files are not overwritten during installs and upgrades.
+<br>
+<hr width="100%">
+<h2><a name="BasicFileStructure"></a>Basic File Structure</h2>
+The basic structure of a smart initialization file contains a header
+that
+is simliar to:
+<p><tt>from Init import *</tt>
+</p>
+<p><tt>class <i>model</i>Forecaster(<i>derivedFrom</i>Forecaster):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; def __init__(self):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <i>derivedFrom</i>Forecaster.__init__(self,
+"<i>sourceDb</i>", "<i>destDb</i>")</tt>
+</p>
+<p>This is basically defining a new class called "<i>model</i>Forecaster",
+which is derived from "<i>derivedFrom</i>Forecaster".&nbsp; The
+__init__
+function is the constructor to the class, which calls the base class
+(class
+it has been defined from)&nbsp; with three arguments, self, "sourceDb",
+and "destDb".&nbsp; The source db is the name of the D2D database, such
+as NAM80, NAM40, NAM12, NGM80, RUC80, GFS40, gfsLR.&nbsp; The
+destination database is the name of the
+output
+database, such as NAM12, GFS40, NAM_V.&nbsp; If there is an underscore
+in
+the destination database, then the format is the
+modelname_optionaltype.
+</p>
+<p>A complete example of the header is shown below:
+</p>
+<p><tt>from Init import *</tt>
+</p>
+<p><tt>class NAM12Forecaster(Forecaster):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; def __init__(self):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Forecaster.__init__(self,
+"NAM12", "NAM12")</tt>
+<br>
+&nbsp;
+</p>
+<p>There usually is a function called levels() which define a set of
+vertical
+pressure levels which are used when accessing cube data from the
+models.&nbsp;
+The levels() return a list of level values to use.&nbsp; Make sure that
+the levels you specify are actually available in the model. A complete
+example is shown below:
+</p>
+<p>&nbsp;<tt>&nbsp;&nbsp; def levels(self):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return ["MB950",
+"MB900","MB850","MB800","MB750",</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"MB700","MB650","MB600","MB550", "MB500",</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"MB450", "MB400", "MB350"]</tt>
+</p>
+<p>Following the levels() function are the set of functions with a
+particular
+name.&nbsp; The calculation functions <b><font color="#000099">MUST
+ALL
+BEGIN WITH calc</font></b> in their name.&nbsp; That is how smart
+initialization
+can determine what to run.&nbsp; It basically runs all calc***
+functions
+that are defined.&nbsp; The remainder of the name of the function after
+"calc" is the parameter name to create.&nbsp; For example, if RH is
+your
+weather element name, the name of the function to calculate RH would be
+calcRH(). The typical format for a calc function is shown below, this
+one
+calculates surface temperature from the eta model:
+</p>
+<p><tt>&nbsp;&nbsp;&nbsp; def calcT(self, t_FHAG2, t_BL3060, p_SFC,
+stopo,
+topo):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dpdz = 287.04 * t_FHAG2
+/ (p_SFC / 100 * 9.8) # meters / millibar</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # 45milibars is halfway
+between 30 and 60</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dpdz = dpdz * 45 #
+meters
+between p_SFC and t_BL3060</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lapse = (t_FHAG2 -
+t_BL3060)
+/ dpdz # degrees / meter</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lapse = clip(lapse,
+lapse, 0.012)</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t = t_FHAG2 + lapse
+* (stopo - topo)</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return self.KtoF(t)</tt>
+<br>
+&nbsp;
+</p>
+<p>Here is the same function with more details:
+</p>
+<p>The following grids from the D2D model database are passed into this
+routine, 2 meter temperatures, the boundary layer temperatures from the
+30-60 hPa levels, the surface pressure in Pascals, surface topography
+from
+the model, and the high resolution topographical data.
+</p>
+<p><tt>&nbsp;&nbsp;&nbsp; def calcT(self, t_FHAG2, t_BL3060, p_SFC,
+stopo,
+topo):</tt>
+</p>
+<p>We begin to calculate the lapse rate, but first we need to determine
+the number of meters between the surface and 30-60 hPa level.
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dpdz = 287.04 * t_FHAG2
+/ (p_SFC / 100 * 9.8) # meters / millibar</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # 45milibars is halfway
+between 30 and 60</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dpdz = dpdz * 45 #
+meters
+between p_SFC and t_BL3060</tt>
+</p>
+<p>The lapse rate can now be calculated:
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lapse = (t_FHAG2 -
+t_BL3060)
+/ dpdz # degrees / meter</tt>
+</p>
+<p>We ensure that the lapse rate can't get too steep
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lapse = clip(lapse,
+lapse, 0.012)</tt>
+</p>
+<p>We calculate the surface temperature, which is the model 2m
+temperature
+modified by the lapse rate and the difference between the model surface
+and the real surface elevation.
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; t = t_FHAG2 + lapse
+* (stopo - topo)</tt>
+</p>
+<p>We perform unit conversion and return.
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return self.KtoF(t)</tt>
+</p>
+<p>The name of the function is always calc***&nbsp;where *** is the
+weather
+element name and level.&nbsp; If you are creating weather elements for
+surface data then the weather element name by itself is
+sufficient.&nbsp;
+If you are creating weather elements for upper air or non-surface data,
+then the name of the calc function is:&nbsp;&nbsp;calc***_***, such as
+calcWind_3K() for the Wind at 3000 feet.
+</p>
+<p>Note the argument list for the calc*** functions.&nbsp; The first
+argument
+is always self.&nbsp; The remainder of the arguments represent gridded
+data.&nbsp; The format of the specification can be one of the following
+formats:
+<br>
+&nbsp;
+<table nosave="" width="100%" border="1">
+  <tbody>
+    <tr>
+      <td><b>Format</b></td>
+      <td><b>Example</b></td>
+      <td><b>Purpose</b></td>
+    </tr>
+    <tr>
+      <td>EditAreaName</td>
+      <td>Colorado</td>
+      <td>The name of an editArea. It is probably best to use polygon
+edit areas
+instead of queries (untested with queries). The value of the paramater,
+in this case Colorado, will be a boolean grid suitable for use as a
+mask
+for numeric functions.</td>
+    </tr>
+    <tr>
+      <td>parmName_level</td>
+      <td>t_FHAG2</td>
+      <td>Refers to a single grid for the parmName and the level.&nbsp;
+The example
+accesses the temperature grid from the model that is at the FHAG2
+(fixed
+height above ground 2m level)</td>
+    </tr>
+    <tr>
+      <td>parmName_c</td>
+      <td>rh_c</td>
+      <td>Refers to a cube of data for the parmName. The "_c" indicates
+the cube.&nbsp;
+The number of layers in the cube depend upon the levels() function
+contents.&nbsp;
+For example, if the levels() contain: <br>
+      <tt>&nbsp; def levels(self):</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return ["MB950",
+"MB900","MB850","MB800","MB750",</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"MB700","MB650","MB600","MB550", "MB500",</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"MB450", "MB400", "MB350"]</tt> <br>
+then the cube will contain 13 levels.&nbsp; Access of individual levels
+can be done using indexing within the function.</td>
+    </tr>
+    <tr>
+      <td>topo</td>
+      <td>topo</td>
+      <td>Refers to the high-resolution surface topography field,&nbsp;
+in units
+of meters above MSL.</td>
+    </tr>
+    <tr>
+      <td>stopo</td>
+      <td>stopo</td>
+      <td>Refers to the model topography field, in units of meters
+above MSL.</td>
+    </tr>
+    <tr>
+      <td>ctime</td>
+      <td>ctime</td>
+      <td>Time from the source database grid currently being
+calculated, as a
+time range tuple (startTime, endTime), in seconds since January 1, 1970
+at 0000z.</td>
+    </tr>
+    <tr>
+      <td>mtime</td>
+      <td>mtime</td>
+      <td>Time in the destination database grid currently being
+calculated, as
+a time range tuple (startTime, endTime), in seconds since January 1,
+1970
+at 0000z.</td>
+    </tr>
+    <tr>
+      <td>stime</td>
+      <td>stime</td>
+      <td>Number of seconds from the model basetime currently being
+calculated,
+in seconds since the model analysis time.</td>
+    </tr>
+    <tr>
+      <td>parmName</td>
+      <td>FzLevel</td>
+      <td>Refers to the weather element in the OUTPUT database, not the
+INPUT
+D2D database.</td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<p>You can place additional functions (e.g., utility) functions
+anywhere
+in the file after the constructor (__init__) and before the tail end of
+the file.&nbsp;&nbsp; An example of a utility function could be one to
+calculate Td from T and RH as shown below:
+</p>
+<p><tt>&nbsp;&nbsp; def getTd(self, t, rh):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # input/output in
+degrees
+K.</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; desat = clip(t, 0,
+373.15)</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; desat = where(less(t,
+173.15), 3.777647e-05, t)</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; desat = exp(26.660820
+- desat * 0.0091379024 - 6106.3960 / desat)</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; desat = desat * rh /
+100.0</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; desat = 26.66082 -
+log(desat)</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; td = (desat -
+sqrt(desat*desat-223.1986))/0.0182758048</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; td = where(greater(td,
+t), t, td)</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return td</tt>
+</p>
+<p>The tail end of the file contains a definition of main() and must be
+similar to that below:
+</p>
+<p><tt>def main():</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; <i>model</i>Forecaster().run()</tt>
+</p>
+<p><tt>if __name__ == "__main__":</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; main()</tt>
+<br>
+&nbsp;
+</p>
+<p>Here is an example of a real tail to the file. The name of the class
+within the main() function must match the name of the class you have
+defined
+in the header:
+</p>
+<p><tt>def main():</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; NAM12Forecaster().run()</tt>
+</p>
+<p><tt>if __name__ == "__main__":</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; main()</tt>
+<br>
+&nbsp;
+</p>
+<h2>
+<hr width="100%"><a name="Workingwith"></a>Working with SCALAR, VECTOR,
+WEATHER, and DISCRETE Data</h2>
+This section describes accessing scalar, vector, and weather data
+through
+numerical python.
+<h3>SCALAR</h3>
+<p><br>
+When passing in a weather element that is scalar, you will either
+get a grid, or a cube.&nbsp;&nbsp; The grid is a numeric 2-d grid
+(x,y),
+the cube is a numeric 3-d grid (z,x,y).
+<br>
+&nbsp;
+</p>
+<h3>VECTOR</h3>
+For a single vector grid (single level), you get a tuple.&nbsp; The
+first
+element is a grid of magnitude, the second is a grid of
+direction.&nbsp;&nbsp;
+To access the magnitude grid, use this syntax: <tt>wind_SFC[0]</tt>,
+and
+for direction, use this syntax: <tt>wind_SFC[1]</tt>.&nbsp;&nbsp; Once
+you access either the magnitude or direction grid, they are treated
+like
+a scalar grid.
+<p>There are several "utility" functions in Init.py (located in your
+release/etc/BASE/smartInit
+directory) that can help you when working with vector data. The <tt>self._getUV(
+mag, dir)</tt> call will convert a magnitude/direction grids into a
+returned
+tuple of u and v.&nbsp; The u component is [0] and the v component is
+[1].&nbsp;
+The <tt>self._getMD(u,v)</tt> function converts a grid in u and v
+components
+into a tuple of magnitude and direction.&nbsp; The magnitude component
+is [0] and the direction component is [1].
+<br>
+&nbsp;
+</p>
+<h3>WEATHER</h3>
+Weather is much more complicated and can be a big performance problem.
+A tuple is provided.&nbsp; The first element is a grid, which contains
+the indexes into the key. The second element is a sequence of all of
+the
+keys.&nbsp;&nbsp; The keys are the ugly strings associated with a
+WeatherKey.&nbsp;
+To access the grid:
+<p><tt>Wx[0]</tt>
+</p>
+<p>To access the sequence, use:
+</p>
+<p><tt>Wx[1]</tt>
+</p>
+<p>To access a particular entry in the sequence, use:
+</p>
+<p><tt>Wx[1][3]</tt>, would give your the 4th key.
+</p>
+<p>Normally you don't access the weather grid in your calculations, but
+if you need to, you have generally created a weather grid first.&nbsp;
+In smart initialization, we know all of the possible weather keys that
+can be created and set up a table with those keys, then we simply poke
+in the correct index for the key.&nbsp; This is much more efficient
+than
+searching the keys for each grid point.
+<br>
+&nbsp;
+</p>
+<h3>DICRETE</h3>
+Discrete is much more complicated than the simple scalar and vector
+case,
+and like weather, can be a big performance problem. A tuple is
+provided.&nbsp;
+The first element is a grid, which contains the indexes into the key.
+The
+second element is a sequence of all of the keys.&nbsp;&nbsp; The keys
+are
+the discrete key values associated with the weather element.&nbsp; To
+access
+the grid:
+<p><tt>DK[0]</tt>
+</p>
+<p>To access the sequence, use:
+</p>
+<p><tt>DK[1]</tt>
+</p>
+<p>To access a particular entry in the sequence, use:
+</p>
+<p><tt>DK[1][3]</tt>, would give your the 4th key.
+</p>
+<p>Normally you don't access the discrete grid in your calculations,
+but
+if you need to, you have generally created a discrete grid first.&nbsp;
+In smart initialization, we know all of the possible discrete keys that
+can be created and set up a table with those keys, then we simply poke
+in the correct index for the key.&nbsp; This is much more efficient
+than
+searching the keys for each grid point.
+</p>
+<h2>
+<hr width="100%"></h2>
+<h2>
+<a name="ModifyinganExistingAlgorithm"></a>Modifying an Existing
+Algorithm</h2>
+The basic procedure to modify an existing algorithm is shown below:
+<ul>
+  <li>Create a new file in <i>release</i>/etc/SITE which should be
+named
+similarily,
+but not identical to, the class in which you are modifying.&nbsp; For
+example,
+if you are modifying the NAM12 model intiialization, which is stored in
+NAM12.py,
+perhaps you should name your new file MyNAM12.py to indicate that this
+is
+your eta.</li>
+  <li>The format of the file should be standard as shown in the <a
+ href="#BasicFileStructure">Basic
+File Structure section</a> above.&nbsp;&nbsp; In particular, it needs
+to
+include the following items:</li>
+  <ul>
+    <li>the header, which is set to inherit the file you are inheriting
+from</li>
+    <li>the levels() function, but only if you are changing it</li>
+    <li>a replacement, named the same, of the function you are
+modifying.&nbsp;
+You may want to copy this function (not ALL functions -- just this one)
+into this file from the original file and then edit it.</li>
+    <li>the tail, which includes the main() and the final if __name__
+statements</li>
+  </ul>
+  <li>Modify (create first if necessary) your server <a
+ href="localConfig.html#InitializationModules">localConfig.py
+file to override the INITMODULES</a> section of the serverConfig.py.</li>
+</ul>
+Here is an example of overriding the NAM12 derivation of Snow
+Amount.&nbsp;
+The original NAM12.py file contains the following information (only
+part
+of the file is shown).&nbsp; The snow amount function calculates the
+snow
+ratio which varies depending upon temperature, and then assigns the
+snow
+amount based on the snow ratio and QPF where the snow level (freezing
+level
+- 1000
+<p><tt>from Init import *</tt>
+</p>
+<p><tt>class NAM12Forecaster(Forecaster):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; def __init__(self):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Forecaster.__init__(self,
+"NAM12", "NAM12")</tt>
+</p>
+<p><tt>&nbsp;&nbsp;&nbsp; def levels(self):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return ["MB950",
+"MB900","MB850","MB800","MB750",</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"MB700","MB650","MB600","MB550", "MB500",</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"MB450", "MB400", "MB350"]</tt>
+</p>
+<p><tt>&nbsp;&nbsp;&nbsp; def calcSnowAmt(self, T, FzLevel, QPF, topo):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; m1 = less(T, 9)</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; m2 = greater_equal(T,
+30)</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; snowr = T * -0.5 + 22.5</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; snowr = where(m1, 20,
+snowr)</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; snowr = where(m2, 0,
+snowr)</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; snowamt =
+where(less_equal(FzLevel
+- 1000, topo*3.048), snowr * QPF, 0)</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return snowamt</tt>
+</p>
+<p><tt>def main():</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; NAM12Forecaster().run()</tt>
+</p>
+<p><tt>if __name__ == "__main__":</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; main()</tt>
+</p>
+<p>Here is the derived MyNAM12 file that overrides the calcSnowAmt()
+function:
+</p>
+<p><tt>from NAM12 import *</tt>
+</p>
+<p>c<tt>lass MyNAM12Forecaster(NAM12Forecaster):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; def __init__(self):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+NAM12Forecaster.__init__(self)</tt>
+</p>
+<p><tt>&nbsp;&nbsp;&nbsp; def calcSnowAmt(self, T, QPF):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; m2 = less_equal(T, 32)</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; snowamt = where(m2,
+10.0 * QPF, 0)</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return snowamt</tt>
+</p>
+<p><tt>def main():</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; MyNAM12Forecaster().run()</tt>
+</p>
+<p><tt>if __name__ == "__main__":</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; main()</tt>
+</p>
+<p>The algorithm was changed to have a fixed 10:1 snow ratio anytime
+the
+temperature is below 32.&nbsp; The freezing level is no longer used in
+this revision.&nbsp; Of course you can completely rewrite the
+algorithm,
+use different arguments, etc.&nbsp; Note that the name of the function,
+calcSnowAmt() in this case is identical to to the name in the original
+file.&nbsp; This is important!
+<br>
+</p>
+<hr width="100%">
+<h2><a name="AddingNewAlgorithms"></a>Adding New Algorithms</h2>
+Adding a new algorithm is just about the same as <a
+ href="#ModifyinganExistingAlgorithm">Modifying
+An Existing Algorithm</a>.&nbsp; You will do the similar steps:
+<ul>
+  <li>Create a new file in <i>release</i>/etc/SITE which should be
+named
+similarily,
+but not identical to, the class in which you want to add a new
+algorithm.&nbsp;
+For example, if you are adding to the NAM model intiialization, which
+is
+stored in NAM.py, perhaps you should name your new file MyNAM.py to
+indicate
+that this is your eta.</li>
+  <li>The format of the file should be standard as shown in the <a
+ href="#BasicFileStructure">Basic
+File Structure section</a> above.&nbsp;&nbsp; In particular, it needs
+to
+include the following items:</li>
+  <ul>
+    <li>the header, which is set to inherit the file you are
+interheiting from</li>
+    <li>the tail, which includes the main() and the final if __name__
+statements</li>
+  </ul>
+  <li>Add your new function into the newly created file.</li>
+  <li>Modify (create first if necessary) your server <a
+ href="localConfig.html#InitializationModules">localConfig.py
+file to override the INITMODULES</a> section of the serverConfig.py.</li>
+  <li>Modify (create first if necessary) your server <a
+ href="localConfig.html#AddinganewWeatherElement">localConfig.py
+file to add the new weather elements</a> for which you want the
+initialization
+to populate.</li>
+</ul>
+Here is an example of a MyNAM12.py initialization file that creates a
+new
+weather element called RH for the NAM model.&nbsp; It does nothing more
+than taking the model RH FHAG2 field and storing it into the NAM12 RH
+weather
+element, after ensuring that the field ranges between 0 and 100%:
+<p><tt>from NAM12 import *</tt>
+</p>
+<p><tt>class MyNAM12Forecaster(NAM12Forecaster):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; def __init__(self):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+NAM12Forecaster.__init__(self)</tt>
+</p>
+<p><tt>&nbsp;&nbsp;&nbsp; def calcRH(self, rh_FHAG2):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return clip(rh_FHAG2,
+0, 100)</tt>
+</p>
+<p><tt>def main():</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; MyNAM12Forecaster().run()</tt>
+</p>
+<p><tt>if __name__ == "__main__":</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; main()</tt>
+<br>
+&nbsp;
+</p>
+<p></p>
+<hr width="100%">
+<h2><a name="AddingNewModels"></a>Adding New Models</h2>
+Adding new models, and all of the algorithms to derive the elements
+isn't
+much different from <a href="#AddingNewAlgorithms">Adding New
+Algorithms</a>
+or <a href="#ModifyinganExistingAlgorithm">Modifying an Existing
+Algorithm</a>.
+The basic steps are:
+<ul>
+  <li>Create a new file in <i>release</i>/etc/SITE which should be
+named
+appropriately
+(and not the same name as any file in <i>release</i>/etc/BASE/smartInit) For
+example,
+if you are going to create a GWW model initialization, then the name
+should
+probably be GWW.py.</li>
+  <li>The format of the file should be standard as shown in the <a
+ href="#BasicFileStructure">Basic
+File Structure section</a> above.&nbsp;&nbsp; In particular, it needs
+to
+include the following items:</li>
+  <ul>
+    <li>the header, which is set to inherit the file you are
+interheiting from</li>
+    <li>the levels() function, which you don't need if you aren't
+accessing any
+D2D-cube data.</li>
+    <li>all of the calc*** functions that are required to create each
+of your
+weather
+elements.</li>
+    <li>the tail, which includes the main() and the final if __name__
+statements</li>
+  </ul>
+  <li>Modify (create first if necessary) your server <a
+ href="localConfig.html#InitializationModules">localConfig.py
+file to override the INITMODULES</a> section of the serverConfig.py.</li>
+  <li>Modify (create first if necessary) you server <a
+ href="localConfig.html#AddinganewDatabase">localConfig.py
+file to define a new database</a> and all of the weather elements
+associated
+with the database.</li>
+</ul>
+Here is a complete example of creating WaveHeight and Surface Wind from
+the GWW model.&nbsp; .&nbsp; The wave height logic catches values that
+are very high and assumes that they are missing data and resets them to
+zero height.&nbsp; There is also a conversion from meters to
+feet.&nbsp;
+The wind logic also catches values that are very high and assumes that
+they are missing data and resets the winds to calm.&nbsp; There is also
+a conversion from meters/second to knots.:
+<p><tt>from Init import *</tt>
+<br>
+<tt>class GWWForecaster(Forecaster):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; def __init__(self):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Forecaster.__init__(self,
+"GWW", "GWW")</tt>
+</p>
+<p><tt>&nbsp;&nbsp;&nbsp; def calcWaveHeight(self, htsgw_SFC):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; grid =
+where(greater(htsgw_SFC,
+50), 0.0, htsgw_SFC/3.048)</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return clip(grid, 0,
+100)</tt>
+</p>
+<p><tt>&nbsp;&nbsp;&nbsp; def calcWind(self, wind_SFC):</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mag =
+where(greater(wind_SFC[0],
+50), 0, wind_SFC[0]*1.94)</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dir =
+where(greater(wind_SFC[0],
+50), 0, wind_SFC[1])</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dir = clip(dir, 0, 359.5)</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return (mag, dir)</tt>
+</p>
+<p><tt>def main():</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; GWWForecaster().run()</tt>
+</p>
+<p><tt>if __name__ == "__main__":</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp; main()</tt>
+<br>
+&nbsp;
+</p>
+<p></p>
+<hr width="100%">
+<h2><a name="CommandLine"></a>Running Smart Initialization from the
+Command
+Line</h2>
+Normally you don't need to run smart initialization from the command
+line.&nbsp;
+Smart initialization is automatically started by the ifpServer when new
+D2D model data arrives.
+<p>In the event that you do want to run smart initialization from the
+command
+line, which you probably would when you are developing new algorithms,
+here is the proper syntax:
+</p>
+<p><tt>ifpInit [-h host] [-p port] [-t modelTime] [-a]&nbsp;
+algorithmFile</tt>
+<br>
+&nbsp;
+<br>
+&nbsp;
+<table nosave="" width="100%" border="1">
+  <tbody>
+    <tr>
+      <td><b>Switch</b></td>
+      <td><b>Optional?</b></td>
+      <td><b>Purpose</b></td>
+    </tr>
+    <tr>
+      <td>-h host</td>
+      <td>yes</td>
+      <td>Defines the host upon which the ifpServer is running.&nbsp;
+Normally
+this switch is not needed and the software will determine where the
+ifpServer
+is running.</td>
+    </tr>
+    <tr>
+      <td>-p port</td>
+      <td>yes</td>
+      <td>Defines the RPC port upon which the ifpServer is
+running.&nbsp; Normally
+this switch is not needed and the software will determine where the
+ifpServer
+is running.</td>
+    </tr>
+    <tr>
+      <td>-t modelTime</td>
+      <td>yes</td>
+      <td>Specifies the model run time in the format of
+yyyymmdd_hhmm.&nbsp;
+If not specified, then run using the latest model data.&nbsp;</td>
+    </tr>
+    <tr>
+      <td>-a</td>
+      <td>yes</td>
+      <td>Specifies to create all of the possible data grids, which
+will overwrite
+existing previously calculated grids.&nbsp; Normally by default, only
+those
+grids that haven't yet been created will be attempted to be calculated.</td>
+    </tr>
+    <tr>
+      <td>algorithmFile</td>
+      <td>no</td>
+      <td>Mandatory argument specifying the name of the smart
+initialization
+module, such as NAM12, or MyNAM12.</td>
+    </tr>
+  </tbody>
+</table>
+<font color="#3366ff">Note: The -h and -p switches are predefined to
+match your GFESuite installation, such that they will point to the
+ifpServer
+specified on installation.&nbsp; Thus the -h and -p switches are not
+necessary
+for normal running of this program.&nbsp; However, if you wish to
+connect
+to a different server, then you will need to specify the -h and -p
+switches.&nbsp;</font><font color="#3366ff">&nbsp; If environment
+variables ${CDSHOST} or
+${CDSPORT} are defined, then the default server and port will be
+determined from the environment variables, unless overridden with the
+user specified -h and -p switches.</font><br>
+&nbsp;
+</p>
+<p></p>
+<hr width="100%">
+<h2><a name="Examples"></a>Examples of Complete Smart Initalization
+Files</h2>
+<p><br>
+Here is an <a href="EXAMPLESmartInit_NAM.py">example of the NAM12.py
+smart initialization file</a> that is provided (or similar to what is
+provided).
+</p>
+<p>Here is an <a href="EXAMPLESmartInit_MyNAM.py">example of a
+modification
+to the NAM12.py called MyNAM12.py</a> which modifies the snow amount
+calculation,
+and adds the surface relative humidity field.
+</p>
+<p>Here is an <a href="EXAMPLESmartInit_NewModel.py">example of adding
+a new model, the GWW model</a>, to calculate wave height and wind.
+</p>
+<p></p>
+<hr width="100%">
+<h2><a name="Exercises"></a>Exercises</h2>
+Several smart initialization exercises are available <a
+ href="SmartInitExercises.html">here</a>.
+<br>
+&nbsp;
+</body>
+</html>

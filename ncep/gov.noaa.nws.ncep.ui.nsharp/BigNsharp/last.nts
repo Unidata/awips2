@@ -1,0 +1,9 @@
+SNFILE  /NAWIPS/nadata2/model/pfcst/eta_00020812.snd_1                                                                                  
+AREA    @oun                                                                                                                            
+DATTIM  000208/1200                                                                                                                     
+SNPARM  PRES;HGHT;TEMP;DWPT;DRCT;SPED;OMEG                                                                                              
+STNDEX                                                                                                                                  
+LEVELS  all                                                                                                                             
+VCOORD  PRES                                                                                                                            
+OUTPUT  T                                                                                                                               
+MRGDAT  YES                                                                                                                             

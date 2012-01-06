@@ -1,0 +1,4 @@
+C                                           *--> FROM URCOMMON.URCDTA
+C  REORDER PROGRAM ERROR FLAG
+      COMMON /URCDTA/ IWURFL,LURDUM(5)
+C

@@ -1,0 +1,154 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]">
+  <title>gfeConfig - Graphical Hardware Configuration</title>
+</head>
+<body style="background-color: rgb(255, 255, 255);">
+<div class="Body">
+<div class="3Heading">
+<h2 style="text-align: center;">GFE/ifpIMAGE Configuration File<br>
+Graphical Hardware Configuration</h2>
+The GFE is intended to run on a host of platforms.&nbsp; Some
+of these platforms contain graphical hardware accelerators.&nbsp; The
+GFE
+will attempt to take advantage of the hardware accelerators by using
+24-bit
+plane visuals, double-buffering extensions, bitmaps, and overlay
+planes.&nbsp;
+This section also controls some of the font sizes that are used in the
+GFE.</div>
+<div class="3Heading">&nbsp;
+<table nosave="" border="1" cols="4" width="100%">
+  <tbody>
+    <tr>
+      <td>
+      <center><b>GFE Configuration Item</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to GFE</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to <a href="ifpIMAGE.html"><!--disable indexer-->ifpIMAGE</a></b></center>
+      </td>
+      <td>
+      <center><b>Notes</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#UseBitmaps">Use Bitmaps&nbsp;</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#Fonts">Fonts</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td>Fonts for ifpIMAGE are not tailorable.&nbsp; There are five
+fixed sizes.</td>
+    </tr>
+    <tr>
+      <td><a href="#BackgroundColorforDrawingPanes">Background Color
+for Drawing
+Panes</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#Geometry">Initial GFE&nbsp;Geometry</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<blockquote> </blockquote>
+<hr style="width: 100%; height: 2px;">
+<h4><br>
+</h4>
+<a name="UseBitmaps"></a><font size="+1">Use Bitmaps</font>
+The useBitmaps indicate whether bit maps will be used for graphics
+performance.
+Some PC X servers do not implement a bitmap stipple fill in hardware.
+This
+can make the default rendering mode of maps (and other bitmaps) slow.
+If
+you suspect this might be the case, then set the following to 0.
+<p><b><tt>useBitmaps = 1</tt></b> <br>
+&nbsp; </p>
+<h4><a name="Fonts"></a><font size="+1">Fonts</font></h4>
+The fonts used by the GFE can be controlled.&nbsp; For alignment
+purposes
+the fonts should be non-proportional. There are five sizes of text
+fonts
+used in the GFE which are identified from 0 through 4 to
+increase/decrease
+the size of the text.
+<p>The TextFont* entries are used by the various editors and
+visualizations,
+in other words, everything else on the gfe. They should be ordered from
+smallest font to largest font and be all from one font family.&nbsp;
+The
+GFE software is coded to use specific entries.&nbsp; If you don't like
+the defaults, they can be changed <a
+ href="gfeConfig.html#GFEComponentFontSizes">elsewhere
+in the configuration file</a>. </p>
+<p><b><tt>TextFont0 =&nbsp;
+"-b&amp;h-lucidatypewriter-bold-*-sans-10-*"</tt></b> <br>
+<b><tt>TextFont1 =&nbsp; "-b&amp;h-lucidatypewriter-bold-*-sans-12-*"</tt></b>
+<br>
+<b><tt>TextFont2 =&nbsp; "-b&amp;h-lucidatypewriter-bold-*-sans-14-*"</tt></b>
+<br>
+<b><tt>TextFont3 =&nbsp; "-b&amp;h-lucidatypewriter-bold-*-sans-18-*"</tt></b>
+<br>
+<b><tt>TextFont4 =&nbsp; "-b&amp;h-lucidatypewriter-bold-*-sans-24-*"</tt></b>
+<br>
+&nbsp; </p>
+<h4><a name="BackgroundColorforDrawingPanes"></a><font size="+1">Background
+Color
+for Drawing Panes</font></h4>
+The color which will be used as the background for all of the display
+panes
+may be specified.&nbsp; If you change this entry, you may also want to
+change the <a
+ href="gfeConfig_Samp.html#SampleLatitude/LongitudeandPlusSignColor">sample
+colors</a> and <a href="gfeConfig_Samp.html#ImageLegendColor">image
+legend
+colors</a> to prevent conflicts.
+<p><b><tt>bgColor = "black"</tt></b> <br>
+&nbsp; </p>
+<h4><a name="Geometry"></a><font size="+1">Initial GFE&nbsp;Geometry</font></h4>
+The initial GFE&nbsp;geometry may be specified using the geometry
+identifier.&nbsp;
+The height and width of the initial GFE may be specified.&nbsp; The
+default
+is that the GFE will occupy 90% of the available space on the
+screen.&nbsp;
+This can be a problem for multiple-headed displays, since the GFE may
+initially
+be displayed across the two graphic heads.&nbsp; The format of the
+geometry
+is the standard X&nbsp;format, thus the initial location may also be
+specified,
+as in the second example.&nbsp; Refer to the X manuals for details on
+the
+geometry specification: &lt;&gt;<b><tt>geometry = '800x600'</tt></b> <br>
+<b><tt>-or-</tt></b> <br>
+<b><tt>geometry = '800x600+200+150'</tt></b> <br>
+&nbsp; <br>
+<hr style="width: 100%; height: 2px;">&nbsp;
+<div class="Body">
+<center><tt><a href="GFESuite.html">Back To TOC</a></tt></center>
+</div>
+</div>
+</body>
+</html>

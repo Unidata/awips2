@@ -1,0 +1,5 @@
+gov.noaa.nws.ncep.common.dataplugin.h5uair.H5UairRecord
+gov.noaa.nws.ncep.common.dataplugin.h5uair.H5ObsLevels
+gov.noaa.nws.ncep.common.dataplugin.h5uair.H5Tropopause
+gov.noaa.nws.ncep.common.dataplugin.h5uair.H5MaxWind
+gov.noaa.nws.ncep.common.dataplugin.h5uair.H5LiftedIndex

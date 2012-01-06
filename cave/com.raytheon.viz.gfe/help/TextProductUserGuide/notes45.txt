@@ -1,0 +1,3 @@
+After the “generateProduct” method, each of the sub-methods appears.  This is the “meat” of the product where its unique format is created.
+
+Note that the methods and variables in the Standard file are prefixed with an underscore. For example, “_getVariables”, “_areaList”, etc. It is imperative that all files inheriting from the Text Product infrastructure adhere to this rule to avoid inadvertent name conflicts with the library methods. 

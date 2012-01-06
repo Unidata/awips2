@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature id="org.eclipse.help.source" version="1.0.1.R34x_v20080827-7r7xEIxEI6Zu5nEqN7M3UBpglaat" label="%featureName" provider-name="%providerName"     >
+	<description >
+		%description
+	</description>
+	<copyright >
+		%copyright
+	</copyright>
+	<license url="%licenseURL">
+		%license
+	</license>
+	<url>
+		<update url="http://download.eclipse.org/eclipse/updates/3.4" label="%updateSiteName"/>
+		<discovery url="http://download.eclipse.org/eclipse/updates/3.4" label="%updateSiteName"/>
+	</url>
+	<includes id="org.eclipse.rcp.source" version="3.4.100.r341_v20080814-989JESIEdAciFYfkZZsBfSwQ2341"/>
+	<plugin id="org.eclipse.equinox.http.jetty.source" version="1.1.0.v20080425"     unpack="false"/>
+	<plugin id="org.eclipse.equinox.http.registry.source" version="1.0.100.v20080427-0830"     unpack="false"/>
+	<plugin id="org.eclipse.equinox.http.servlet.source" version="1.0.100.v20080427-0830"     unpack="false"/>
+	<plugin id="org.eclipse.equinox.jsp.jasper.source" version="1.0.100.v20080427-0830"     unpack="false"/>
+	<plugin id="org.eclipse.equinox.jsp.jasper.registry.source" version="1.0.0.v20080427-0830"     unpack="false"/>
+	<plugin id="org.eclipse.help.base.source" version="3.3.101.M20080728_34x"     unpack="false"/>
+	<plugin id="org.eclipse.help.ui.source" version="3.3.101.M20080715_34x"     unpack="false"/>
+	<plugin id="org.eclipse.help.webapp.source" version="3.3.101.M20080805_34x"     unpack="false"/>
+	<plugin id="org.eclipse.ui.forms.source" version="3.3.101.v20080708_34x"     unpack="false"/>
+	<plugin id="org.eclipse.osgi.services.source" version="3.1.200.v20071203"     unpack="false"/>
+	<plugin id="org.eclipse.core.variables.source" version="3.2.100.v20080529-1300"     unpack="false"/>
+	<plugin id="org.eclipse.ant.core.source" version="3.2.0.v20080529"     unpack="false"/>
+	<plugin id="org.eclipse.core.runtime.compatibility.source" version="3.2.0.v20071008"     unpack="false"/>
+	<plugin id="org.eclipse.core.runtime.compatibility.registry.source" version="3.2.200.v20080610"     unpack="false"/>
+</feature>
