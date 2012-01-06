@@ -1,0 +1,87 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="jms-satellite" class="org.apache.camel.component.jms.JmsComponent">
+        <constructor-arg ref="jmsIngestSatelliteConfig" />
+		<property name="taskExecutor" ref="satelliteThreadPool" />		
+	</bean>
+	<bean id="jmsIngestSatelliteConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+			factory-bean="jmsConfig" factory-method="copy" />
+	<bean id="satelliteThreadPool"
+		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="1" />
+		<property name="maxPoolSize" value="1" />
+	</bean>
+
+	<bean id="satelliteDecoder" class="com.raytheon.edex.plugin.satellite.SatelliteDecoder">
+		<property name="dao" ref="satelliteDao" />
+	</bean>
+	
+	<bean id="satelliteDao" class="com.raytheon.edex.plugin.satellite.dao.SatelliteDao">
+		<constructor-arg ref="satellitePluginName" />
+	</bean>
+	
+	<bean id="satDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="satellite" />
+		<constructor-arg value="jms-dist:queue:Ingest.Satellite" />
+	</bean>
+
+    <bean id="satCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="sat-camel"/>
+  	</bean>
+  	
+  	<bean id="satNotifyTransform"
+		class="com.raytheon.edex.plugin.satellite.notify.SatelliteNotifyTransform" />
+
+	<camelContext id="sat-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+		<!--
+		<endpoint id="satFileEndpoint" uri="file:${edex.home}/data/sbn/sat?noop=true&amp;idempotent=false" />
+
+		<route id="satFileConsumerRoute">
+			<from ref="satFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+				<constant>satellite</constant>
+			</setHeader>
+			<to uri="jms-generic:queue:Ingest.Satellite" />
+		</route>
+		-->
+
+		<!-- Begin Sat routes -->
+		<route id="satIngestRoute">
+			<from uri="jms-satellite:queue:Ingest.Satellite?destinationResolver=#qpidDurableResolver" />
+			<setHeader headerName="pluginName">
+				<constant>satellite</constant>
+			</setHeader>
+			<doTry>
+				<pipeline>
+					<bean ref="stringToFile" />
+					<bean ref="satelliteDecoder" method="decode" />
+					<multicast parallelProcessing="false">
+						<to uri="directvm:persistIndexAlert" />
+						<to uri="vm:satNotify" />
+					</multicast>
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:sat?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
+		</route>
+
+		<route id="satNotification">
+			<from uri="vm:satNotify" />
+			<bean ref="satNotifyTransform" method="transformToMessages" />
+			<bean ref="serializationUtil" method="transformToThrift" />
+			<to uri="jms-generic:queue:satNotification" />
+		</route>
+	</camelContext>
+</beans>

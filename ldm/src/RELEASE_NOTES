@@ -1,0 +1,7 @@
+Added user-configurable checking of the accuracy of the system clock to almost
+every ldmadmin(1) command.
+
+Add ability to accumulate LDM metrics and display them as time-series
+plots.
+
+Improved the vetting procedure for new client connections.

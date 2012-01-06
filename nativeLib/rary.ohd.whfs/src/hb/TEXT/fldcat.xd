@@ -1,0 +1,273 @@
+module 'Hb'
+version = 47;
+xdesigned = 1;
+applicationName = 'Hb';
+sourceDirectory = './';
+generateNameC = * './fldcat.c';
+generateNameExterns = * './fldcat.h';
+generateNameResDB = * './fldcat.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+generateMask = 39256301;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'fdatDS' : XmDialogShell {
+	arguments {
+	name = 'fdatDS';
+	lastGenName = 'fdatDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_fdatDS (Widget parent)
+';
+	XmNwidth = 305;
+	XmNheight = 235;
+	XmNallowShellResize = true;
+	XmNtitle = 'Flood Category';
+	XmNminWidth = 305;
+	XmNminHeight = 235;
+	XmNmaxWidth = 305;
+	XmNmaxHeight = 235;
+	};
+object 'fdatFM' : XmForm {
+	arguments {
+	name = 'fdatFM';
+	lastGenName = 'fdatFM';
+	XmNwidth = 305;
+	XmNheight = 235;
+	XmNautoUnmanage = false;
+	};
+object 'fdstgFrm' : XmFrame {
+	arguments {
+	name = 'fdstgFrm';
+	lastGenName = 'fdstgFrm';
+	};
+object 'fldstgFM' : XmForm {
+	arguments {
+	name = 'fldstgFM';
+	lastGenName = 'fldstgFM';
+	};
+object 'fcat1stageLbl' : XmLabel {
+	arguments {
+	name = 'fcat1Lbl';
+	lastGenName = 'fcat1Lbl';
+	XmNlabelString = 'Minor:';
+	XmNalignment = 2;
+	};
+};
+object 'fcat1stageTxt' : XmText {
+	arguments {
+	name = 'fcat1Txt';
+	lastGenName = 'fcat1Txt';
+	XmNmaxLength = 5;
+	XmNcolumns = 6;
+	};
+};
+object 'fcat2stageLbl' : XmLabel {
+	arguments {
+	name = 'fcat2Lbl';
+	lastGenName = 'fcat2Lbl';
+	XmNlabelString = 'Moderate:';
+	XmNalignment = 2;
+	};
+};
+object 'fcat2stageTxt' : XmText {
+	arguments {
+	name = 'fcat2Txt';
+	lastGenName = 'fcat2Txt';
+	XmNmaxLength = 5;
+	XmNcolumns = 6;
+	};
+};
+object 'fcat3stageLbl' : XmLabel {
+	arguments {
+	name = 'fcat3Lbl';
+	lastGenName = 'fcat3Lbl';
+	XmNlabelString = 'Major:';
+	XmNalignment = 2;
+	};
+};
+object 'fcat3stageTxt' : XmText {
+	arguments {
+	name = 'fcat3Txt';
+	lastGenName = 'fcat3Txt';
+	XmNmaxLength = 5;
+	XmNcolumns = 6;
+	};
+};
+object 'fcatstageLA' : XmLabel {
+	arguments {
+	lastGenName = 'label5';
+	XmNlabelString = 'Stage';
+	};
+};
+object 'fcatflowLA' : XmLabel {
+	arguments {
+	lastGenName = 'label6';
+	XmNlabelString = 'Discharge';
+	};
+};
+object 'fcat3flowTxt' : XmText {
+	arguments {
+	lastGenName = 'text6';
+	XmNmaxLength = 8;
+	};
+};
+object 'fcat2flowTxt' : XmText {
+	arguments {
+	lastGenName = 'text7';
+	XmNmaxLength = 8;
+	};
+};
+object 'fcat1flowTxt' : XmText {
+	arguments {
+	lastGenName = 'text8';
+	XmNmaxLength = 8;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -90;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -140;
+	XmNtopAttachment = 1 0 115;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -165;
+	XmNleftAttachment = 1 0 90;
+	XmNbottomAttachment = 2 0 -145;
+	XmNtopAttachment = 1 0 110;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -90;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -100;
+	XmNtopAttachment = 1 0 75;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -165;
+	XmNleftAttachment = 1 0 90;
+	XmNbottomAttachment = 2 0 -105;
+	XmNtopAttachment = 1 0 70;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -90;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -65;
+	XmNtopAttachment = 1 0 40;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -165;
+	XmNleftAttachment = 1 0 90;
+	XmNbottomAttachment = 2 0 -65;
+	XmNtopAttachment = 1 0 30;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -165;
+	XmNleftAttachment = 1 0 90;
+	XmNbottomAttachment = 2 0 -30;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -285;
+	XmNleftAttachment = 1 0 175;
+	XmNbottomAttachment = 2 0 -30;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -285;
+	XmNleftAttachment = 1 0 175;
+	XmNbottomAttachment = 2 0 -65;
+	XmNtopAttachment = 1 0 30;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -285;
+	XmNleftAttachment = 1 0 175;
+	XmNbottomAttachment = 2 0 -105;
+	XmNtopAttachment = 1 0 70;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -285;
+	XmNleftAttachment = 1 0 175;
+	XmNbottomAttachment = 2 0 -145;
+	XmNtopAttachment = 1 0 110;
+    };
+    };
+};
+object 'fldstgLbl' : XmLabel {
+	arguments {
+	name = 'fldstgLbl';
+	lastGenName = 'fldstgLbl';
+	XmNchildType = 2;
+	XmNlabelString = 'Categories';
+	};
+};
+};
+object 'fdokPB' : XmPushButton {
+	arguments {
+	name = 'fdokPB';
+	lastGenName = 'fdokPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Ok';
+	};
+};
+object 'fdclosePB' : XmPushButton {
+	arguments {
+	name = 'fdclosePB';
+	lastGenName = 'fdclosePB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Cancel';
+	};
+};
+object 'fddelPB' : XmPushButton {
+	arguments {
+	name = 'fddelPB';
+	was_selected = true;
+	lastGenName = 'fddelPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Delete';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -300;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -180;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 3 0;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 110;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 1 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 210;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 4 3 0;
+    };
+    };
+};
+};
+end module;

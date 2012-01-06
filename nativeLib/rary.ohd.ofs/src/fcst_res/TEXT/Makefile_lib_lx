@@ -1,0 +1,141 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-fcst_res library file
+#
+#  cmt: File made on Wed Aug  6 12:50:54 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libfcst_res_t.a:  \
+     $(LIB)/libfcst_res_t.a(arul26.o)  \
+     $(LIB)/libfcst_res_t.a(beta26.o)  \
+     $(LIB)/libfcst_res_t.a(ckst26.o)  \
+     $(LIB)/libfcst_res_t.a(conv26.o)  \
+     $(LIB)/libfcst_res_t.a(edst26.o)  \
+     $(LIB)/libfcst_res_t.a(erul26.o)  \
+     $(LIB)/libfcst_res_t.a(ev3c26.o)  \
+     $(LIB)/libfcst_res_t.a(evaa26.o)  \
+     $(LIB)/libfcst_res_t.a(evab26.o)  \
+     $(LIB)/libfcst_res_t.a(evac26.o)  \
+     $(LIB)/libfcst_res_t.a(evsq26.o)  \
+     $(LIB)/libfcst_res_t.a(ex26.o)  \
+     $(LIB)/libfcst_res_t.a(f3wayx.o)  \
+     $(LIB)/libfcst_res_t.a(f3wayy.o)  \
+     $(LIB)/libfcst_res_t.a(f3wayz.o)  \
+     $(LIB)/libfcst_res_t.a(fill26.o)  \
+     $(LIB)/libfcst_res_t.a(flsh26.o)  \
+     $(LIB)/libfcst_res_t.a(frac26.o)  \
+     $(LIB)/libfcst_res_t.a(gofl26.o)  \
+     $(LIB)/libfcst_res_t.a(ichk26.o)  \
+     $(LIB)/libfcst_res_t.a(itrp26.o)  \
+     $(LIB)/libfcst_res_t.a(leap26.o)  \
+     $(LIB)/libfcst_res_t.a(math26.o)  \
+     $(LIB)/libfcst_res_t.a(mtwt26.o)  \
+     $(LIB)/libfcst_res_t.a(nduc26.o)  \
+     $(LIB)/libfcst_res_t.a(obsv26.o)  \
+     $(LIB)/libfcst_res_t.a(osoh26.o)  \
+     $(LIB)/libfcst_res_t.a(over26.o)  \
+     $(LIB)/libfcst_res_t.a(pasn26.o)  \
+     $(LIB)/libfcst_res_t.a(prdh26.o)  \
+     $(LIB)/libfcst_res_t.a(prdq26.o)  \
+     $(LIB)/libfcst_res_t.a(prel26.o)  \
+     $(LIB)/libfcst_res_t.a(preq26.o)  \
+     $(LIB)/libfcst_res_t.a(qgen26.o)  \
+     $(LIB)/libfcst_res_t.a(qmin26.o)  \
+     $(LIB)/libfcst_res_t.a(rchk26.o)  \
+     $(LIB)/libfcst_res_t.a(rule26.o)  \
+     $(LIB)/libfcst_res_t.a(rute26.o)  \
+     $(LIB)/libfcst_res_t.a(sumn26.o)  \
+     $(LIB)/libfcst_res_t.a(sumo26.o)  \
+     $(LIB)/libfcst_res_t.a(surc26.o)  \
+     $(LIB)/libfcst_res_t.a(usmn26.o)  \
+     $(LIB)/libfcst_res_t.a(x17b26.o)  \
+     $(LIB)/libfcst_res_t.a(x17e26.o)  \
+     $(LIB)/libfcst_res_t.a(x17i26.o)  \
+     $(LIB)/libfcst_res_t.a(x17m26.o)  \
+     $(LIB)/libfcst_res_t.a(x17n26.o)  \
+     $(LIB)/libfcst_res_t.a(x17s26.o)  \
+     $(LIB)/libfcst_res_t.a(xadi26.o)  \
+     $(LIB)/libfcst_res_t.a(xadj26.o)  \
+     $(LIB)/libfcst_res_t.a(xado26.o)  \
+     $(LIB)/libfcst_res_t.a(xcma26.o)  \
+     $(LIB)/libfcst_res_t.a(xcmq26.o)  \
+     $(LIB)/libfcst_res_t.a(xcou26.o)  \
+     $(LIB)/libfcst_res_t.a(xctq26.o)  \
+     $(LIB)/libfcst_res_t.a(xdco26.o)  \
+     $(LIB)/libfcst_res_t.a(xdo26.o)  \
+     $(LIB)/libfcst_res_t.a(xdol26.o)  \
+     $(LIB)/libfcst_res_t.a(xfmq26.o)  \
+     $(LIB)/libfcst_res_t.a(xfru26.o)  \
+     $(LIB)/libfcst_res_t.a(xftq26.o)  \
+     $(LIB)/libfcst_res_t.a(xgcv26.o)  \
+     $(LIB)/libfcst_res_t.a(xif26.o)  \
+     $(LIB)/libfcst_res_t.a(xifg26.o)  \
+     $(LIB)/libfcst_res_t.a(xinq26.o)  \
+     $(LIB)/libfcst_res_t.a(xm126.o)  \
+     $(LIB)/libfcst_res_t.a(xmax26.o)  \
+     $(LIB)/libfcst_res_t.a(xnit26.o)  \
+     $(LIB)/libfcst_res_t.a(xout26.o)  \
+     $(LIB)/libfcst_res_t.a(xpop26.o)  \
+     $(LIB)/libfcst_res_t.a(xpre26.o)  \
+     $(LIB)/libfcst_res_t.a(xptr26.o)  \
+     $(LIB)/libfcst_res_t.a(xpus26.o)  \
+     $(LIB)/libfcst_res_t.a(xqt26.o)  \
+     $(LIB)/libfcst_res_t.a(xrcl26.o)  \
+     $(LIB)/libfcst_res_t.a(xrev26.o)  \
+     $(LIB)/libfcst_res_t.a(xrin26.o)  \
+     $(LIB)/libfcst_res_t.a(xs0126.o)  \
+     $(LIB)/libfcst_res_t.a(xs0226.o)  \
+     $(LIB)/libfcst_res_t.a(xs0326.o)  \
+     $(LIB)/libfcst_res_t.a(xs0426.o)  \
+     $(LIB)/libfcst_res_t.a(xs0526.o)  \
+     $(LIB)/libfcst_res_t.a(xs0626.o)  \
+     $(LIB)/libfcst_res_t.a(xs0726.o)  \
+     $(LIB)/libfcst_res_t.a(xs0826.o)  \
+     $(LIB)/libfcst_res_t.a(xs0926.o)  \
+     $(LIB)/libfcst_res_t.a(xs1026.o)  \
+     $(LIB)/libfcst_res_t.a(xs1126.o)  \
+     $(LIB)/libfcst_res_t.a(xs1226.o)  \
+     $(LIB)/libfcst_res_t.a(xs1326.o)  \
+     $(LIB)/libfcst_res_t.a(xs2626.o)  \
+     $(LIB)/libfcst_res_t.a(xs2726.o)  \
+     $(LIB)/libfcst_res_t.a(xsmo26.o)  \
+     $(LIB)/libfcst_res_t.a(xsoh26.o)  \
+     $(LIB)/libfcst_res_t.a(xsrt26.o)  \
+     $(LIB)/libfcst_res_t.a(xtss26.o)  \
+     $(LIB)/libfcst_res_t.a(xu1426.o)  \
+     $(LIB)/libfcst_res_t.a(xu1526.o)  \
+     $(LIB)/libfcst_res_t.a(xu1626.o)  \
+     $(LIB)/libfcst_res_t.a(xu1726.o)  \
+     $(LIB)/libfcst_res_t.a(xu1826.o)  \
+     $(LIB)/libfcst_res_t.a(xu2026.o)  \
+     $(LIB)/libfcst_res_t.a(xu2126.o)  \
+     $(LIB)/libfcst_res_t.a(xu2226.o)  \
+     $(LIB)/libfcst_res_t.a(xu2326.o)  \
+     $(LIB)/libfcst_res_t.a(xu2426.o)
+

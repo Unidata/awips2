@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %plugin.name
+Bundle-SymbolicName: org.eclipse.ecf.examples.updatesite.client;singleton:=true
+Bundle-Version: 1.0.100.qualifier
+Bundle-Activator: org.eclipse.ecf.internal.examples.updatesite.client.Activator
+Bundle-Vendor: %plugin.provider
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.ecf.discovery,
+ org.eclipse.ecf.discovery.ui,
+ org.eclipse.update.ui,
+ org.eclipse.ui
+Bundle-RequiredExecutionEnvironment: J2SE-1.4
+Eclipse-LazyStart: true
+Export-Package: org.eclipse.ecf.internal.examples.updatesite.client;x-internal:=true
+Bundle-ActivationPolicy: lazy

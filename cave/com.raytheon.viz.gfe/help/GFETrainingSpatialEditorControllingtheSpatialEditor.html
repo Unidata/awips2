@@ -1,0 +1,438 @@
+<html>
+<title>GFESuite Documentation - Controlling the Spatial Editor</title>
+<body>
+<h1 align=center>Controlling The Spatial Editor</h1>
+<p>
+<br>
+<a href="#SpatialEditorLegends">Spatial Editor Legends</a>
+<br>
+<a href="#LegendPop-upMenu">Legend Pop-Up Menu</a>
+<br>
+<a href="#TogglingtheLegends">Toggling the Legends</a>
+<br>
+<a href="#MapBackgroundOptions">Map Background Options</a>
+<br>
+<a href="#ChangingSEDisplayUsingLegends">Changing the Spatial Editor
+Display Using the Legends</a>
+<br>
+<a href="#ToggleGridVisibility">Toggle Grid Visibility</a>
+
+<br>
+<a href="#ToggleGridEditState">Toggle Grid Edit State</a>
+<br>
+<a href="#ChangingSEDisplayusingGridMgr">Changing the Spatial Editor
+Display Using the Grid Manager</a>
+<br>
+<a href="#MakingaGridVisible">Making&nbsp; a Grid Visible and Editable
+with the Grid Manager</a>
+<br>
+<a href="#ZoomingtheSpatialDisplay">Zooming (Enlarging) the Spatial
+Display</a>
+<br>
+<a href="#AshortcutforZooming">A Shortcut for Zooming</a>
+
+<br>
+<a href="#PanningtheSpatialDisplay">Panning the Spatial Display</a>
+<br>
+<a href="#Topography">Topography</a>
+</p>
+<hr width="100%">
+<a name="ControllingtheSpatialEditor"></a>Controlling the Spatial Editor</h1>
+<div class="Body">The Spatial Editor is controlled from the Spatial
+Editor
+legends, Grid Manager, Time Scale or the Button Bar, depending on what
+part of the display you wish to change. First we cover animation, then
+discuss how to make weather elements visible and editable with Spatial
+editor legends or the Grid Manager. Finally we talk about Edit Areas
+before
+moving on to the edit tool exercises.</div>
+<br>
+<h3 class="2Heading"><a name="SpatialEditorLegends"></a>Spatial Editor
+Legends</h3>
+<div class="Body">The figure below is a snapshot of the Spatial Editor
+legends located in the lowest portion of the display. Not only do
+legends
+control the Spatial Editor, but they also convey information about the
+data current displayed in the Spatial Editor.</div>
+<div class="Body"><img nosave="" src="images/SELegend.gif" height="90"
+ width="589"></div>
+<div class="Body">&nbsp;
+<br>
+Much like the AWIPS display, the Spatial editor legends tell you which
+weather elements are loaded, which are displayed (and not displayed),
+which
+weather element is displayed as an image and which is currently
+editable.
+We discuss each state below.</div>
+
+<div class="Body">&nbsp;
+<br>
+<b>Not Displayed</b> - Weather elements that are not currently visible
+in the Spatial Editor are displayed in gray. If no grid occurs at the
+Spatial
+editor time, the legend date and time are replaced by "&lt;No Grid&gt;".</div>
+<div class="Body">&nbsp;
+<br>
+<b>Displayed as a Graphic</b> - Weather elements that are currently
+displayed as a graphic (contours) are indicated by a legend whose color
+matches that of the graphic.</div>
+<div class="Body">&nbsp;
+<br>
+<b>Displayed as an Image</b> - If a weather element is displayed as
+an image in the spatial editor, its corresponding legend is white in
+color.
+Only one weather element may be displayed as an image at a time. When
+you
+display a particular weather element as an image, any element
+previously
+displayed as an image will be displayed as a graphic.</div>
+
+<div class="Body">&nbsp;
+<br>
+<b>Editable</b> - Any time a weather element is editable, the
+characters
+"(edit)" appear immediately to the left of the legend.</div>
+<div class="Body">In addition to its color, the legend text tells you
+much
+about the grid(s) currently displayed in the Spatial Editor. Below we
+list
+an example and explain each part.</div>
+<div class="header">&nbsp;
+<br>
+<b>(edit) T Fcst (BOU) 1H Fri 12Z 02-Jun-00</b></div>
+<div class="Body">&nbsp;
+<br>
+<b>(edit)</b> - This weather element is the editable weather element.
+When edit operations are executed, the element is modified.</div>
+
+<div class="Body"><b>T</b> - The weather element identifier. In this
+example,
+it refers to Temperature.</div>
+<div class="Body"><b>SFC Fcst</b> - The name of the database. In this
+case
+it is the forecast database. Other choice may include: NAM, MRF, AVN,
+NGM,
+and LAPS.&nbsp; For D2D grids, the name may include the level as well
+(e.g.,
+500mb).</div>
+<div class="Body"><b>(BOU)</b> - WFO over which this grid is valid.
+<br>
+<b>(F)</b> - units of this weather element. In this case degress F.</div>
+
+<div class="Body"><b>1H</b> - Number of hours this grid is valid. In
+this
+example the grid is valid for one hour.</div>
+<div class="Body"><b>Fri</b> - The day of the week.</div>
+<div class="Body"><b>18Z 02-Jun-00</b> - Start time of the grid (hour
+(GMT),
+day of the month, month and year.
+<p>For persistent grids, i.e., grids that have no associated valid
+time,
+the word "Persistent" is shown in the spatial editor legend.&nbsp;
+Although
+Topography is a persistent grid, it will not contain the "Persistent"
+label.
+<br>
+&nbsp;
+</p>
+
+<h1><a name="LegendPop-upMenu"></a>Legend Pop-up Menu</h1>
+Much like the D2D display system, the GFE Spatial Editor Legends
+provide
+many option for controlling the display.&nbsp;&nbsp; To display the
+pop-up
+menu, move the cursor over any legend and press MB3. The options
+available
+on the legend pop-up menu include appearance items, control items, and
+grid operations. Examples of the appearance items are changing the
+color
+table, graphic color, line width and style, setting the contour values,
+density, and magnification. Examples of the control items are unloading
+the weather element, displaying the weather element as an image or
+graphic,
+and setting the display attributes in image and graphic mode.&nbsp; The
+grid operations are nearly identical to those options available via the
+MB3 popup over the Grid Manager and include items such as deleting the
+grid, fragmenting it, assigning values, and copy/paste operations.
+<p>More information is available on the legend pop-ups in the <a
+ href="Button3Popups.html#Legend">Button
+3 Popups Reference Guide</a> .
+<br>
+&nbsp;</p>
+</div>
+<h3 class="2Heading">
+<a name="TogglingtheLegends"></a>Toggling the Legends</h3>
+
+<div class="Body">By default, the legends display information about the
+grids that are currently loaded. But the legends can be toggled off to
+remove clutter from the display. To learn how to toggle the legends,
+perform
+the next exercise. Before you begin, select a time in the Grid Manager
+so that a grid is visible in the Spatial Editor and make sure one of
+the
+map backgrounds is displayed.</div>
+<div class="Step-First">
+<ol>
+  <li>Move the cursor into the Spatial Editor (away from the legends)
+and
+press
+and hold MB3.</li>
+  <li>A pop-up menu will appear displaying a list of choices. From this
+list
+select <b>Legends-&gt;Hide</b>.</li>
+</ol>
+The grid data legends will disappear from the display.&nbsp; To display
+them again select <b>Legends-&gt;Show All Weather Elements</b> from
+the MB3
+pop-up over the Spatial Editor display.</div>
+
+<div class="Body">&nbsp;
+<br>
+The map background graphics may be toggled on and off as well.&nbsp;
+By default, map background graphic legends are not displayed.&nbsp; You
+can display them by pressing MB3 over the Spatial Editor display and
+selecting
+<b>Legends-&gt;Show
+Map</b>.&nbsp; Note that either the Weather Element legends or the Map
+Background legends may be displayed at any given time, but not both.
+<p>There are several other options available when toggling the
+legends.&nbsp;
+You can choose to just display the Fcst weather elements, or just the
+active
+weather element.
+<br>
+&nbsp;
+
+</p>
+<p><a name="MapBackgroundOptions"></a><b><font size="+1">Map Background
+Options</font></b>
+</p>
+<p>Once you toggle the map legends so that they are displayed you may
+change
+the map color or unload the map via a MB3 pop-up menu.&nbsp; To access
+these options, move the cursor over one of the map legends and press
+and
+hold MB3.&nbsp; Options available include changing the graphic color,
+line
+width, style, and unloading the map background.&nbsp; More information
+is available on the legend pop-ups in the <a
+ href="Button3Popups.html#Legend">Button
+3 Popups Reference Guide</a> .
+<br>
+&nbsp;</p>
+</div>
+
+<h3 class="2Heading">
+<a name="ChangingSEDisplayUsingLegends"></a>Changing the Spatial Editor
+Display using the Legends</h3>
+<div class="Body">Modifying the look of the Spatial editor display
+works
+very much like the AWIPS. The table below describes functions
+implemented
+by the legends (in the normal Grid display mode).</div>
+<br>
+&nbsp;
+<table border="1">
+  <caption>&nbsp;</caption> <tbody>
+    <tr>
+      <th>
+      <div class="CellHeading">Action</div>
+
+      </th>
+      <th>
+      <div class="CellHeading">Function</div>
+      </th>
+    </tr>
+    <tr>
+      <td>
+      <div class="CellBody">MB1 click</div>
+
+      </td>
+      <td>
+      <div class="CellBody">Toggle visibility</div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      <div class="CellBody">MB2 click</div>
+
+      </td>
+      <td>
+      <div class="CellBody">Toggle Edit state</div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3 class="3Heading">
+<a name="ToggleGridVisibility"></a>Toggle Grid Visibility</h3>
+
+<div class="Body">Clicking MB1 on the legend will toggle a weather
+element's
+visibility. If it was visible before the click, it will be made
+invisible.
+If the weather element was invisible it will be made visible. Note that
+the Spatial Editor Time must be set such that a grid's valid period
+must
+intersect it.
+<blockquote><li class="4Heading"> <b>Purpose:</b> To make a grid
+visible or invisible</li>
+</blockquote>
+</div>
+<div class="Step-First">
+<ol>
+  <li>Make sure that there is a weather element loaded and that the
+Spatial
+Editor
+time is set so that it overlaps a grid.</li>
+  <li>Click MB1 on the weather element's legend.</li>
+</ol>
+
+</div>
+<h3 class="3Heading">
+<a name="ToggleGridEditState"></a>Toggle Grid Edit State</h3>
+<div class="Body">If you wish to edit a grid, you must first make the
+grid
+editable. To make the grid editable, simply click MB2 over the legend.
+Anytime a weather element is editable, the letters "(edit)" appear
+immediately
+to the left of the legend. Note that your grid may be displayed as an
+image
+if the "Image on Edit" mode is enabled.
+<blockquote><li class="4Heading"> <b>Purpose:</b> To make a grid
+editable</li>
+</blockquote>
+</div>
+<div class="Step-First">
+<ol>
+  <li>As in the previous exercise, make sure that there is a weather
+element
+loaded and that the Spatial Editor time is set so that it overlaps a
+grid.</li>
+
+  <li>Make the weather element visible by clicking MB1, if it is not
+already
+visible.</li>
+  <li>Click MB2 on the weather element editable.</li>
+</ol>
+</div>
+<div class="Body">You should see the letters "(edit)" appear to the
+left
+of the legend. This indicates that the weather element is now ready to
+edit. Note that if the displayed grid is not editable, because is
+locked
+by another user or that it is a read-only model grid, the "(edit)"
+string
+will not appear, since the GFE will not allow you edit grids in those
+states.</div>
+<h3 class="2Heading">
+<a name="ChangingSEDisplayusingGridMgr"></a>Changing the Spatial Editor
+Display using the Grid Manager</h3>
+<div class="Body">In the Grid Manager section we discussed that fact
+that
+the Grid Manager tool allows you to set the time displayed in the
+Spatial
+Editor and make grid editable. So we briefly switch back to the Grid
+Manager
+to explain how it is used to control the Spatial Editor.</div>
+<h3 class="2Heading">
+<a name="MakingaGridVisible"></a>Making a Grid Visible and Editable
+with
+the Grid Manager</h3>
+
+<ul>
+  <li class="4Heading"> <b>Purpose:</b> Identify a grid to edit</li>
+</ul>
+<div class="Step-First">
+<ol>
+  <li>Locate a grid and click MB1 over the grid block in the Grid
+Manager.</li>
+</ol>
+</div>
+<div class="Body">Note that the grid is now visible in the Spatial
+Editor
+and is now in edit mode. Any Spatial Editor operation executed will be
+applied to this grid. Cases where this operation will not work include
+immutable weather elements such as those derived from model data and
+grid
+that are locked by another user of the forecast database.</div>
+
+<h3 class="2Heading">
+<a name="ZoomingtheSpatialDisplay"></a>Zooming (enlarging) the Spatial
+Display</h3>
+<div class="Body">The Spatial Editor display can be zoomed or enlarged
+at any time using the MB3 pop-up menu. When this menu is displayed, you
+are given a choice of zoom factors that represent the width of the
+display
+in kilometers. Selecting one of these choices will cause the display to
+zoom to that size centered wherever you pressed MB3.
+<blockquote><li class="4Heading"> <b>Purpose:</b> To make the larger
+or smaller in order to see more
+or less
+detail.</li>
+</blockquote>
+</div>
+<div class="Step-First">
+<ol>
+  <li>From the Spatial editor display, press and hold down MB3. A
+pop-up menu
+will appear containing the "Zoom" menu item</li>
+  <li>Move the cursor to this "Zoom" menu item until another cascading
+menu
+of
+numbers appears.</li>
+
+  <li>Move the mouse cursor over one of the choices in the middle of
+the
+number
+list and release MB3.</li>
+</ol>
+</div>
+<div class="Body">You should see the display zoom in and enlarge the
+size
+of the data and map backgrounds. Repeat the last exercise and select
+the
+highest value in the list to zoom out to full view.</div>
+<div class="Body">
+<h1><a name="AshortcutforZooming"></a><b>A shortcut for Zooming</b></h1>
+Another, faster way to zoom the Spatial Editor display is to press the
+SHIFT key on the keyboard and click MB2 to zoom in and MB1 to zoom out.
+Zooming in always uses the clicked point as the new center of the
+display.
+<h3 class="2Heading"><a name="PanningtheSpatialDisplay"></a>Panning the
+Spatial Display</h3>
+Panning the display works similarly. While holding down the SHIFT key,
+MB1 or MB2 drags will pan the display in the same direction, just like
+the D2D display. Note that if you move the cursor outside the Spatial
+Editor
+display area, the pan operation stops. To continue panning, you will
+need
+to reposition the cursor, press SHIFT, and drag MB1 or MB2 again.</div>
+<h3 class="2Heading">
+<a name="Topography"></a>Topography</h3>
+
+<div class="Body">The GFE includes topography as a special weather
+element.
+Topography can be displayed with any other weather element, except that
+it cannot be edited. To load topography into the GFE, perform the
+exercise
+below.
+<blockquote><li>Purpose: To load and display topography data</li>
+</blockquote>
+</div>
+<div class="Step-First">
+<ol>
+  <li>From the main menu, select Maps -&gt;Topography.</li>
+</ol>
+</div>
+<div class="Body">You should now see an image that represents the
+topography
+over your county warning area. The image is generated from a terrain
+database
+and mapped to your office's projection and domain. While you cannot
+edit
+topography data, it can be used to identify edit areas based on
+elevation.
+We will discuss more about defining edit areas based on gridded values
+in the next section.
+</body>
+</html>

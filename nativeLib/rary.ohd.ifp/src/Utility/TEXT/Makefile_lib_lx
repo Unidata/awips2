@@ -1,0 +1,96 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ifp-Utility library file
+#
+#  cmt: File made on Thu Oct 26 14:49:09 EDT 2006 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob81/ohd/ifp/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU
+
+INSERTS      = -I/fs/hseb/ob81/ohd/ifp/inc  \
+               -I/fs/hseb/ob81/ohd/ofs/inc  \
+               -I/fs/hseb/ob81/ohd/util/inc  \
+               -I/fs/hseb/ob81/ohd/calb/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+INSERTS_CC   = -I/usr/X11R6/include  \
+               -I/usr/include/pgsql  \
+               -I/usr/include/pgsql/informix/esql  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .c .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+.c.a:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libUtility_t.a:  \
+     $(LIB)/libUtility_t.a(close_all_open_files.o)  \
+     $(LIB)/libUtility_t.a(upchkd_wrapper.o)  \
+     $(LIB)/libUtility_t.a(write_params.o)  \
+     $(LIB)/libUtility_t.a(checkInputTSMsgAllow.o)  \
+     $(LIB)/libUtility_t.a(checkOperInSegment.o)  \
+     $(LIB)/libUtility_t.a(chkdot.o)  \
+     $(LIB)/libUtility_t.a(chkdsh.o)  \
+     $(LIB)/libUtility_t.a(creatOpTable.o)  \
+     $(LIB)/libUtility_t.a(GetBestCOFile.o)  \
+     $(LIB)/libUtility_t.a(getDHMSettingsForIFP.o)  \
+     $(LIB)/libUtility_t.a(getfgroupid.o)  \
+     $(LIB)/libUtility_t.a(GetNonuniversalTechs.o)  \
+     $(LIB)/libUtility_t.a(get_nts_mods_available_atom.o)  \
+     $(LIB)/libUtility_t.a(get_plot_num.o)  \
+     $(LIB)/libUtility_t.a(get_rerun_plot_num_atom.o)  \
+     $(LIB)/libUtility_t.a(get_save_gif_atom.o)  \
+     $(LIB)/libUtility_t.a(get_scale.o)  \
+     $(LIB)/libUtility_t.a(GetSegmentNameFromProperty.o)  \
+     $(LIB)/libUtility_t.a(get_show_mods_viewer_atom.o)  \
+     $(LIB)/libUtility_t.a(GetUniversalTechs.o)  \
+     $(LIB)/libUtility_t.a(pad_blanks.o)  \
+     $(LIB)/libUtility_t.a(post_curseg.o)  \
+     $(LIB)/libUtility_t.a(post_first_plot_atom.o)  \
+     $(LIB)/libUtility_t.a(post_gif_done_atom.o)  \
+     $(LIB)/libUtility_t.a(post_no_Tulsa_plot_atom.o)  \
+     $(LIB)/libUtility_t.a(post_nts_mods_available_atom.o)  \
+     $(LIB)/libUtility_t.a(post_nwsrfs_eventloop_atom.o)  \
+     $(LIB)/libUtility_t.a(post_rerun_plot_num_atom.o)  \
+     $(LIB)/libUtility_t.a(post_rundates.o)  \
+     $(LIB)/libUtility_t.a(post_save_gif_atom.o)  \
+     $(LIB)/libUtility_t.a(post_show_mods_viewer_atom.o)  \
+     $(LIB)/libUtility_t.a(post_start_ifp_atom.o)  \
+     $(LIB)/libUtility_t.a(put_next_in_current.o)  \
+     $(LIB)/libUtility_t.a(put_upstream_in_current.o)  \
+     $(LIB)/libUtility_t.a(set_end_date_atom.o)  \
+     $(LIB)/libUtility_t.a(set_show_mods_viewer.o)  \
+     $(LIB)/libUtility_t.a(set_start_date_atom.o)  \
+     $(LIB)/libUtility_t.a(turn_autorepeat_on.o)  \
+     $(LIB)/libUtility_t.a(wait_for_next_segment_atom.o)
+

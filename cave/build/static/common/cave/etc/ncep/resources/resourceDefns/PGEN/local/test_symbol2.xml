@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Products xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Product name="Default" type="Default" forecaster="Default" center="Default" onOff="true" useFile="true" filePath="./" fileName="/usr1/jwu/to11dr11/eclipse/ncep/base/resources/obs_and_analysis_rscs/PGEN/Local/test_symbol2_Default.xml">
+        <Layer name="Default" onOff="true" monoColor="false" filled="false">
+            <Color red="255" green="255" blue="0" alpha="255"/>
+            <DrawableElement>
+                <Contours collectionName="Contours" pgenCategory="MET" pgenType="Contours" parm="HGMT" level="1000" time="2010-07-01T09:30:40.631Z" cint="10/0/100">
+                    <DECollection collectionName="ContourLine">
+                        <DrawableElement>
+                            <Line pgenCategory="Lines" lineWidth="5.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" pgenType="LINE_SOLID">
+                                <Color red="255" green="0" blue="255" alpha="255"/>
+                                <Color red="255" green="0" blue="255" alpha="255"/>
+                                <Point Lat="47.79641991447101" Lon="-122.36654745486013"/>
+                                <Point Lat="40.262350879609556" Lon="-105.63713488310593"/>
+                                <Point Lat="38.2839060772852" Lon="-83.56776081489993"/>
+                                <Point Lat="45.74890948418204" Lon="-69.79242619247454"/>
+                            </Line>
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="18.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="true" outline="false" yOffset="0" xOffset="0">
+                                <Color red="255" green="0" blue="255" alpha="255"/>
+                                <Point Lat="38.884874781866685" Lon="-95.0827907289079"/>
+                                <textLine>0.0</textLine>
+                            </Text>
+                        </DrawableElement>
+                    </DECollection>
+                    <DECollection collectionName="ContourLine">
+                        <DrawableElement>
+                            <Line pgenCategory="Lines" lineWidth="5.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" pgenType="LINE_SOLID">
+                                <Color red="255" green="0" blue="255" alpha="255"/>
+                                <Color red="255" green="0" blue="255" alpha="255"/>
+                                <Point Lat="39.220091864166456" Lon="-121.11761636550843"/>
+                                <Point Lat="35.97935044916359" Lon="-112.24556955958674"/>
+                                <Point Lat="35.25347420030902" Lon="-98.17923844184868"/>
+                                <Point Lat="34.47077578354852" Lon="-86.52481779678769"/>
+                                <Point Lat="35.548887299758334" Lon="-76.50861873018755"/>
+                                <Point Lat="36.67039122616628" Lon="-69.83556020725787"/>
+                            </Line>
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="18.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="true" outline="false" yOffset="0" xOffset="0">
+                                <Color red="255" green="0" blue="255" alpha="255"/>
+                                <Point Lat="35.021384279292924" Lon="-95.34621053072392"/>
+                                <textLine>20</textLine>
+                            </Text>
+                        </DrawableElement>
+                    </DECollection>
+                    <DECollection collectionName="ContourMinmax">
+                        <DrawableElement>
+                            <Symbol pgenCategory="Symbols" pgenType="HIGH_PRESSURE_H" lineWidth="2.0" sizeScale="2.0" clear="true">
+                                <Color red="0" green="255" blue="0" alpha="255"/>
+                                <Point Lat="44.37340377716123" Lon="-95.42414405483086"/>
+                            </Symbol>
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="18.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="true" outline="false" yOffset="0" xOffset="0">
+                                <Color red="255" green="0" blue="255" alpha="255"/>
+                                <Point Lat="41.87340377716123" Lon="-95.42414405483086"/>
+                                <textLine>-100</textLine>
+                            </Text>
+                        </DrawableElement>
+                    </DECollection>
+                    <DECollection collectionName="ContourMinmax">
+                        <DrawableElement>
+                            <Symbol pgenCategory="Symbol" pgenType="HIGH_PRESSURE_H" lineWidth="2.0" sizeScale="2.0" clear="true">
+                                <Color red="0" green="255" blue="0" alpha="255"/>
+                                <Point Lat="29.898145637426758" Lon="-96.47991852040357"/>
+                            </Symbol>
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="18.0" fontName="Courier" style="ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="true" outline="false" yOffset="0" xOffset="0">
+                                <Color red="255" green="0" blue="255" alpha="255"/>
+                                <Point Lat="27.398145637426758" Lon="-96.47991852040357"/>
+                                <textLine>100</textLine>
+                            </Text>
+                        </DrawableElement>
+                    </DECollection>
+                </Contours>
+            </DrawableElement>
+        </Layer>
+    </Product>
+</Products>

@@ -1,0 +1,553 @@
+#!/bin/bash
+# base path to save capture data to, will create subdirectory for each workstation
+basePath="/data/fxa/cave"
+
+# the grep string to find the cave processes
+grepString="(/awips2/cave/cave|/usr/local/viz/cave)"
+
+edexGrepString="edex.run.mode="
+
+# the remote servers to grab top on.  Use to get general state of server
+REMOTE_SERVERS_TO_CHECK="dx1f dx3 dx4"
+
+# Flags to control what data capure grabs, to enable flag must be YES, anything else will be considered off.
+RUN_JSTACK="Y"
+RUN_JMAP="Y"
+MOVE_ALL_HS_ERR_PID="Y"
+# For remote top you must have ssh keys setup to allow automatic login, otherwise password prompt will get sent to log file and script will never exit
+GRAB_REMOTE_TOP="Y"
+GRAB_CAVE_AND_ALERTVIZ_LOGS="Y"
+EDEX_MODE="N"
+FORCE="N"
+TGZ_OUTPUT="Y"
+RUN_VERSIONS="Y"
+ACCCUM="N"
+
+cavePid=""
+edexProcCount=0
+
+# print usage message
+usage() {
+   echo "Script for capturing information about cave/edex and general server health."
+   echo 
+   echo "Following options allowed"
+   echo -e "-p {PID}\t\tdefault none"
+   echo "  Run capture for a specific PID, crash information will not be captured.  Defaults to none and runs against all pids found."
+   echo
+   echo -e "-g {grep string}\tdefault [$grepString]"
+   echo "  The grep string used to find the processes"
+   echo
+   echo -e "-s {y/n}\t\tdefault [$RUN_JSTACK]"
+   echo "  Run jstack to grab the thread stack information"
+   echo
+   echo -e "-d {y/n}\t\tdefault [$RUN_JMAP]"
+   echo "  Run jmap to grab the head dump information"
+   echo
+   echo -e "-f {y/n}\t\tdefault [$FORCE]"
+   echo "  Force a jstack/jmap by default"
+   echo
+   echo -e "-m {y/n}\t\tdefault [$MOVE_ALL_HS_ERR_PID]"
+   echo "  Captures all hs_err_pid's found"
+   echo
+   echo -e "-l {y/n}\t\tdefault [$GRAB_CAVE_AND_ALERTVIZ_LOGS]"
+   echo "  Captures the cave and alertviz logs.  If run for a specific pid the only cave log captured will be for that pid"
+   echo
+   echo -e "-t {y/n}\t\tdefault [$GRAB_REMOTE_TOP]"
+   echo "  Captures top information from servers, auto login must be enabled"
+   echo
+   echo -e "-c \"{host names}\"\tdefault [$REMOTE_SERVERS_TO_CHECK]"
+   echo "  The servers to grab top information from, make sure list is quoted and space delimited"
+   echo
+   echo -e "-r \"Reason for capture\""
+   echo "  The reason for capture, so popup will not be shown"
+   echo
+   echo -e "-z {y/n}\t\tdefault [$TGZ_OUTPUT]"
+   echo "  Tar and gzip the captured data"
+   echo
+   echo -e "-e {request/ingest/ingestGrib/ingestDat}"
+   echo "  Run edex mode and grab information about the jvm passed.  May be used multiple times to grab data about multiple jvms"
+   echo
+   echo -e "-v {y/n}\t\tdefault [$RUN_VERSIONS]"
+   echo "  Grab version information"
+   echo
+   echo -e "-h"
+   echo "  Display this usage statement"
+   exit 0
+}
+
+# ensure directory is created and has write permissions
+checkDir() {
+   dir="$1"
+   if [ ! -d "$dir" ]; then
+      mkdir -p $dir
+      if [ ! -d "$dir" ]; then
+         message="Unable to create capture data directory\n$dir"
+         zenity --error --no-wrap --title="Capture Failed" --text="$message" > /dev/null 2>&1 &
+
+         echo -e "Capture failed: $message"
+         exit 1
+      fi
+   fi
+
+   if [ ! -w "$dir" ]; then
+      message="Do not have write permissions to capture data directory\n$dir"
+      zenity --error --no-wrap --title="Capture Failed" --text="$message" > /dev/null 2>&1 &
+
+      echo -e "Capture failed: $message"
+      exit 1
+   fi
+}
+
+checkYes() {
+   local __resultvar="$1"
+   if [ $2 == "YES" -o $2 == "Y" -o $2 == "yes" -o $2 == "y" ]; then
+     eval $__resultvar="y"
+   else
+     eval $__resultvar="n"
+   fi
+}
+
+# runs ssh command to grab top on a remote server, requires auto login to be setup
+grabRemoteTop() {
+   if [ "$GRAB_REMOTE_TOP" == "y" ]; then
+      echo "Capturing top on remote servers"
+      for server in ${REMOTE_SERVERS_TO_CHECK};
+      do
+         t1=`date "+%Y%m%d %H:%M:%S"`
+         echo "${t1}: Capturing top for $server" >> $processFile
+         out_file="${dataPath}/top_$server.log"
+         ssh $server "export COLUMNS=160; top -b -c -n1" >> $out_file 2>&1 &
+      done
+   fi
+}
+
+checkForProcsAsOtherUsers() {
+   if [ ! -z "$procs" ]; then
+      numMyProcs=`echo "$myProcs" | wc -l`
+      numProcs=`echo "$procs" | wc -l`
+
+      if [ "$numMyProcs" -ne "$numProcs" ]; then
+         notMyProcs=`echo "$procs" | grep -v $user`
+
+         # preserve IFS and set it to line feed only
+         PREV_IFS=$IFS
+         IFS=$'\n'
+         usersFound=0
+
+         for proc in $notMyProcs
+         do
+            procUser=`echo $proc | awk '{print $1}'`
+
+            count=0
+            found=0
+
+            while [ "$count" -lt "$usersFound" ]; do
+               if [ "${procUsers[$count]}" == "$procUser" ]; then
+                  found=1
+               fi
+               let "count+=1"
+            done
+
+            if [ "$found" -eq "0" ]; then
+               procUsers[$usersFound]="$procUser"
+               let "usersFound+=1"
+            fi
+         done
+
+         # restore IFS
+         IFS=$PREV_IFS
+
+         message="Processes found running as other users, please run capture as:\n"
+         count=0
+         while [ "$count" -lt "$usersFound" ]; do
+            message="${message}\n${procUsers[$count]}"
+            let "count+=1"
+         done
+
+         zenity --info --no-wrap --title="!!! Capture Must Be Rerun !!!" --text="$message" > /dev/null 2>&1 &
+         echo -e "Capture Must Be Rerun:\n$message\n"
+      fi
+   fi
+}
+
+# gets the reason for running capture
+reasonForCapture() {
+   if [ -z "$reason" ]; then
+      reason=`zenity --list --title "Reason for Running Capture " --width 300 --height 260 --text "Select reason for running capture\n" --radiolist --column "Cause" --column "Reason" --editable  TRUE "Received Out of Memory Error" FALSE "Cave slow down" FALSE "Cave unresponsive/froze" FALSE "Cave crashed" FALSE "Other"`
+      rerun=0
+
+      if [ -z "$reason" ]; then
+         rerun=1
+      elif [ "$reason" == "Other" ]; then
+         rerun=1
+      fi
+
+      if [ "$rerun" -eq "1" ]; then
+         reason=`zenity --text-info --title "Please Enter Reason for Running Capture" --editable --width 400 --height 250`
+      fi
+   fi
+
+   echo $reason >> ${dataPath}/capture_reason.log
+}
+
+# runs jstack in background
+runJstack() {
+   local pid="$1"
+   shift 1
+   local options=$@
+   local prePath="${dataPath}/pid_${pid}_"
+   local t1=`date "+%Y%m%d %H:%M:%S"`
+   local cmd="/awips2/java/bin/jstack $options $pid"
+   echo "${t1}: Running command: ${cmd} >> ${prePath}jstack.log 2>&1 &" >> $processFile
+   if [ "$ACCUM" = "y" ]; then
+      echo >> ${prePath}jstack.log
+      echo >> ${prePath}jstack.log
+      echo "Running for $t1" >> ${prePath}jstack.log
+   fi
+   $cmd >> ${prePath}jstack.log 2>&1 &
+}
+
+# runs jmap in background
+runJmap() {
+   local pid=$1
+   shift 1
+   local options=$@
+   local prePath="${dataPath}/pid_${pid}_"
+   local t1=`date "+%Y%m%d %H:%M:%S"`
+   if [ "$ACCUM" = "y" ]; then
+      # accum needs to change hprof by date
+      local t2=`date "+%Y%m%d_%H%M%S"`
+      local cmd="/awips2/java/bin/jmap -dump:format=b,file=${prePath}dump_${t2}.hprof $options $pid"
+   else
+      local cmd="/awips2/java/bin/jmap -dump:format=b,file=${prePath}dump.hprof $options $pid"
+   fi
+   echo "${t1}: Running command: $cmd >> ${prePath}dump.log 2>&1 &" >> $processFile
+   $cmd >> ${prePath}dump.log 2>&1 &
+}
+
+# runs versions.sh to grab version info
+runVersions() {
+   local t1=`date "+%Y%m%d %H:%M:%S"`
+   local cmd="/awips2/cave/versions.sh"
+   echo "${t1}: Running command: $cmd >> ${dataPath}/versions.log 2>&1" >> $processFile
+   $cmd >> ${dataPath}/versions.log 2>&1
+}
+
+# parse command line
+while [ ! -z "$1" ]; do
+   arg=$1
+   shift 1
+
+   case $arg in
+      -p) cavePid="$1"; shift 1;;
+      -g) grepString="$1"; shift 1;;
+      -r) REMOTE_SERVERS_TO_CHECK="$1"; shift 1;;
+      -s) RUN_JSTACK="$1"; shift 1;;
+      -d) RUN_JMAP="$1"; shift 1;;
+      -f) FORCE="$1"; shift 1;;
+      -m) MOVE_ALL_HS_ERR_PID="$1"; shift 1;;
+      -t) GRAB_REMOTE_TOP="$1"; shift 1;;
+      -l) GRAB_CAVE_AND_ALERTVIZ_LOGS="$1"; shift 1;;
+      -z) TGZ_OUTPUT="$1"; shift 1;;
+      -e) EDEX_MODE="Y"; edexProcs[$edexProcCount]="$1"; shift 1; let "edexProcCount+=1";;
+      -a) ACCUM="$1"; shift 1;;
+      -h|*) usage;;
+   esac
+done
+
+# validate inputs
+checkYes RUN_JSTACK $RUN_JSTACK
+checkYes RUN_JMAP $RUN_JMAP
+checkYes FORCE $FORCE
+checkYes MOVE_ALL_HS_ERR_PID $MOVE_ALL_HS_ERR_PID
+checkYes GRAB_REMOTE_TOP $GRAB_REMOTE_TOP
+checkYes GRAB_CAVE_AND_ALERTVIZ_LOGS $GRAB_CAVE_AND_ALERTVIZ_LOGS
+checkYes EDEX_MODE $EDEX_MODE
+checkYes TGZ_OUTPUT $TGZ_OUTPUT
+checkYes ACCCUM $ACCCUM
+checkYes RUN_VERSIONS $RUN_VERSIONS
+
+# if PID mode don't grab other hs_err_pids
+if [ ! -z $cavePid ]; then
+   MOVE_ALL_HS_ERR_PID="n"
+fi
+
+# if accum don't tgz
+if [ "$ACCUM" == "y" ]; then
+   TGZ_OUTPUT="n"
+   RUN_VERSIONS="n"
+fi
+
+if [ "$EDEX_MODE" == "y" ]; then
+   reason="n"
+   GRAB_CAVE_AND_ALERTVIZ_LOGS="n"
+   MOVE_ALL_HS_ERR_PID="n"
+   GRAB_REMOTE_TOP="n"
+fi
+
+umask 0002
+
+checkDir $basePath
+
+user=`whoami`
+
+hostName=`hostname -s`
+fullHostName=`hostname`
+# remove the -testBed items
+strippedHostName=${hostName%-}
+hostPath="${basePath}/${hostName}"
+
+checkDir $hostPath
+
+curTime=`date +%Y%m%d_%H%M%S`
+curDir=`pwd`
+
+if [ "${ACCUM}" == "y" ]; then
+   curDay=`date +%Y%m%d`
+   dataPath="${hostPath}/captureData_${curDay}"
+else
+   dataPath="${hostPath}/captureData_${curTime}"
+fi
+
+checkDir $dataPath
+
+cd $dataPath
+processFile=${dataPath}/capture_info.log
+export COLUMNS=160
+top -b -c -n1 >> "${dataPath}/top_$hostName.log"
+
+if [ "$ACCUM" == "y" ]; then
+   echo "" >> "${dataPath}/top_$hostName.log"
+   echo "" >> "${dataPath}/top_$hostName.log"
+fi
+
+
+if [ "$EDEX_MODE" == "y" ]; then
+   grepString="$edexGrepString("
+   count=0
+   
+   while [ "$count" -lt "$edexProcCount" ]; do
+      if [ "$count" -ne "0" ]; then
+         grepString="${grepString}|"
+      fi
+
+      grepString="${grepString}${edexProcs[$count]}"
+      let "count+=1"
+   done
+
+   grepString="${grepString}) "
+fi
+
+procs=`ps -ef | grep -E "$grepString" | grep -v "grep"`
+
+if [ ! -z "$cavePid" ]; then
+   # limit cave procs to the requested PID
+   echo "Running in PID mode, only requesting for pid $cavePid" >> $processFile
+   procs=`echo "$procs" | grep "$cavePid"`
+fi
+
+myProcs=`echo "$procs" | grep "$user"`
+
+echo "${procs}" >> $processFile
+echo "" >> $processFile
+echo "" >> $processFile
+
+checkForProcsAsOtherUsers
+
+# get reason for running capture
+if [ "$reason" != "n" ]; then
+   reasonForCapture &
+fi
+
+if [ ! -z "${myProcs}" ]; then
+   t1=`date "+%Y%m%d %H:%M:%S"`
+   echo "Processes found for user $user, capturing data to $dataPath"
+   echo "${t1}: Processes found for user $user, capturing data to $dataPath" >> $processFile
+   echo "" >> $processFile
+   numProcs=`echo "$myProcs" | wc -l`
+
+   # preserve IFS and set it to line feed only
+   PREV_IFS=$IFS
+   IFS=$'\n'
+   count=0
+
+   # grab the pids for future use
+   for proc in $myProcs
+   do
+      pids[$count]=`echo "$proc" | awk '{print $2}'`
+      let "count+=1"
+   done
+   IFS=$PREV_IFS
+
+   # doing each item in its own loop so we can grab all data for a given type at once
+
+   # grab all jstacks
+   if [ "${RUN_JSTACK}" == "y" ]; then
+      if [ ! -z ${cavePid} ]; then
+         echo "Capturing thread stack for pid $cavePid"
+      else 
+         echo "Capturing all process thread stacks"
+      fi
+
+      count=0
+      while [ "$count" -lt "$numProcs" ]; do
+         if [ "$FORCE" == "y" ]; then
+            runJstack ${pids[$count]} -l -F
+         else
+            runJstack ${pids[$count]} -l
+         fi
+         bPids[$count]=$!
+         let "count+=1"
+      done
+
+      count=0
+      while [ "$count" -lt "$numProcs" ]; do
+         wait ${bPids[$count]}
+         if [ "$?" != "0" ]; then
+            t1=`date "+%Y%m%d %H:%M:%S"`
+            echo "${t1}: jstack for ${pids[$count]} failed to connect, rerunning with -F" >> $processFile
+            runJstack ${pids[$count]} -l -F
+         fi
+         let "count+=1"
+      done
+   fi
+
+   grabRemoteTop
+
+   # grab all jmaps
+   if [ "$RUN_JMAP" == "y" ]; then
+      if [ ! -z ${cavePid} ]; then
+         echo "Capturing process heap dump for pid $cavePid"
+      else 
+         echo "Capturing all Heap Dumps"
+      fi
+
+      count=0
+      while [ "$count" -lt "$numProcs" ]; do
+         if [ "$FORCE" == "y" ]; then
+            runJmap ${pids[$count]} -F
+         else
+            runJmap ${pids[$count]}
+         fi
+         bPids[$count]=$!
+         let "count+=1"
+      done
+
+      count=0
+      while [ "$count" -lt "$numProcs" ]; do
+         wait ${bPids[$count]}
+         if [ "$?" != "0" ]; then
+            t1=`date "+%Y%m%d %H:%M:%S"`
+            echo "${t1}: jmap for ${pids[$count]} failed to connect, rerunning with -F" >> $processFile
+            runJmap ${pids[$count]} -F
+         fi
+         let "count+=1"
+      done
+   fi
+else
+   t1=`date "+%Y%m%d %H:%M:%S"`
+   echo "*** NO processes found for user $user, capturing limited data to $dataPath"
+   echo "${t1}: NO processes found for $user" >> $processFile
+   echo "" >> $processFile
+
+   grabRemoteTop
+fi
+
+# move all hs_err_pid from user's home directory to capture directory
+if [ "${MOVE_ALL_HS_ERR_PID}" == "y" ]; then
+   numErrFiles=`ls ${HOME}/hs_err_pid* 2> /dev/null | wc -l`
+   t1=`date "+%Y%m%d %H:%M:%S"`
+
+   if [ "${numErrFiles}" == "0" ]; then
+      echo "*** NO hs_err_pid files to capture"
+      echo "${t1}: No hs_err_pid files to capture" >> $processFile
+   else
+      echo "Capturing ${numErrFiles} hs_err_pids"
+      echo "${t1}: Capturing ${numErrFiles} hs_err_pids" >> $processFile
+      mv ${HOME}/hs_err_pid* ${dataPath}
+   fi
+
+   echo "" >> $processFile
+fi
+
+# Grab the cave console logs for the last 24 hours as well as the current alertviz database, if pid mode only grab cave for that pid
+if [ "${GRAB_CAVE_AND_ALERTVIZ_LOGS}" == "y" ]; then
+   dir="${HOME}/caveData/logs/${hostName}"
+   if [ ! -d $dir ]; then
+      dir="${HOME}/caveData/logs/${strippedHostName}"
+      if [ ! -d $dir ]; then
+         dir="${HOME}/caveData/logs/${fullHostName}"
+      fi
+   fi
+
+   t1=`date "+%Y%m%d %H:%M:%S"`
+   if [ -d $dir ]; then
+      echo "Capturing alertviz logs"
+      echo "${t1}: Capturing alertviz logs" >> $processFile
+      mkdir ${dataPath}/alertVizDatabase
+      cp -r $dir ${dataPath}/alertVizDatabase
+   else
+      echo "*** NO alertviz logs to capture"
+      echo "${t1}: *** Can't find alertviz logs to capture" >> $processFile
+      echo "" >> $processFile
+   fi
+
+   dir="${HOME}/caveData/logs/consoleLogs/${hostName}"
+   if [ ! -d $dir ]; then
+      dir="${HOME}/caveData/logs/consoleLogs/${strippedHostName}"
+      if [ ! -d $dir ]; then
+         dir="${HOME}/caveData/logs/consoleLogs/${fullHostName}"
+      fi
+   fi
+
+   t1=`date "+%Y%m%d %H:%M:%S"`
+   # grab any logs written to in last 2 hours, or pid mode only that log
+   if [ -d $dir ]; then
+      echo "Capturing cave logs"
+      echo "${t1}: Capturing cave logs" >> $processFile
+      mkdir -p ${dataPath}/consoleLogs
+      if [ ! -z ${cavePid} ]; then
+         find $dir  -type f -name "*${cavePid}*" -exec cp {} ${dataPath}/consoleLogs \;
+      else
+         find $dir  -type f -mmin -120 -exec cp {} ${dataPath}/consoleLogs \;
+      fi
+   else
+      echo "*** NO cave logs to capture"
+      echo "${t1}: *** Can't find cave logs to capture" >> $processFile
+      echo "" >> $processFile
+   fi
+fi
+
+# grab the version information
+if [ "$RUN_VERSIONS" == "y" ]; then
+   runVersions
+fi
+
+# wait for any backgrounded processes by this script to finish
+wait
+
+message=""
+
+# tar/gz the output
+if [ "${TGZ_OUTPUT}" == "y" ]; then
+   echo "Tar/zipping captured data"
+   if [ ! -z ${cavePid} ]; then
+      tgzFile="${hostPath}/captureData_${curTime}_pid_${cavePid}.tgz"
+   else
+      tgzFile="${hostPath}/captureData_${curTime}.tgz"
+   fi
+
+   cd ..
+   tar -czf $tgzFile --remove-files captureData_${curTime}
+   rm -rf ${dataPath}
+   message="Data captured to $tgzFile"
+else
+   message="Data captured to ${dataPath}"
+fi
+
+zenity --info --no-wrap --title="Capture Done" --text="$message" > /dev/null 2>&1 &
+echo
+echo $message
+
+cd $curDir
+

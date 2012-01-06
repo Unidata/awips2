@@ -1,0 +1,33 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="satellitePluginName" class="java.lang.String">
+		<constructor-arg type="java.lang.String" value="satellite" />
+	</bean>
+
+	<bean id="satelliteProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+		<property name="pluginName" ref="satellitePluginName" />
+		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.satellite" />
+		<property name="dao" value="com.raytheon.edex.plugin.satellite.dao.SatelliteDao" />
+		<property name="record" value="com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord" />
+	</bean>
+	
+	<bean id="satelliteRegistered" factory-bean="pluginRegistry" factory-method="register">
+		<constructor-arg value="satellite"/>
+		<constructor-arg ref="satelliteProperties"/>
+	</bean>
+
+    <!-- Register the edex specific database tables -->
+	<bean id="satelliteEdexDbPluginProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
+		<property name="pluginFQN" value="com.raytheon.edex.plugin.satellite" />
+		<property name="database" value="metadata" />
+	</bean>
+	<bean id="satelliteEdexDbRegistered" factory-bean="dbPluginRegistry" factory-method="register"
+				depends-on="satelliteRegistered">
+		<constructor-arg value="com.raytheon.edex.plugin.satellite"/>
+		<constructor-arg ref="satelliteEdexDbPluginProperties"/>
+	</bean>
+</beans>

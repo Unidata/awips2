@@ -1,0 +1,64 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="jms-satellite-mcidas" class="org.apache.camel.component.jms.JmsComponent">
+        <constructor-arg ref="jmsIngestSatelliteMcidasConfig" />
+		<property name="taskExecutor" ref="satelliteMcidasThreadPool" />		
+	</bean>
+	<bean id="jmsIngestSatelliteMcidasConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+			factory-bean="jmsConfig" factory-method="copy" />
+	<bean id="satelliteMcidasThreadPool"
+		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="1" />
+		<property name="maxPoolSize" value="1" />
+	</bean>
+
+	<bean id="satelliteMcidasDecoder" class="com.raytheon.uf.edex.plugin.satellite.mcidas.McidasSatelliteDecoder">
+		<property name="dao" ref="satelliteMcidasDao" />
+	</bean>
+	
+	<!-- sat plugin has one but we don't want to be dep on the satellite-ingest beans... -->
+	<bean id="satelliteMcidasDao" class="com.raytheon.edex.plugin.satellite.dao.SatelliteDao"
+		depends-on="satelliteRegistered">
+		<constructor-arg ref="satellitePluginName" />
+	</bean>
+	
+	<bean id="satMcidasDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="satellite.mcidas" />
+		<constructor-arg value="jms-dist:queue:Ingest.Satellite.Mcidas" />
+	</bean>
+
+    <bean id="satMcidasCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="sat-mcidas-camel"/>
+  	</bean>  
+
+	<camelContext id="sat-mcidas-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+
+		<!-- Begin McIDAS Sat routes -->
+		<route id="satMcidasIngestRoute">
+			<from uri="jms-satellite-mcidas:queue:Ingest.Satellite.Mcidas?destinationResolver=#qpidDurableResolver" />
+			<setHeader headerName="pluginName">
+				<constant>satellite-mcidas</constant>
+			</setHeader>
+			<doTry>
+				<pipeline>
+					<bean ref="stringToFile" />
+					<bean ref="satelliteMcidasDecoder" method="decode" />
+					<to uri="directvm:persistIndexAlert" />
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:sat?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
+		</route>
+	</camelContext>
+</beans>

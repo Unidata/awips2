@@ -1,0 +1,63 @@
+package ohd.hseb.pdc_pp;
+
+import java.util.Comparator;
+
+public class RegularObsTimeSeriesComparator implements Comparator
+{
+
+    public int compare(Object object1, Object object2)
+    {
+        RegularObsTimeSeries ts1 = (RegularObsTimeSeries) object1;
+        RegularObsTimeSeries ts2 = (RegularObsTimeSeries) object2;
+        
+        RegularObsTimeSeriesDescriptor desc1 = ts1.getDescriptor();
+        RegularObsTimeSeriesDescriptor desc2 = ts2.getDescriptor();
+        RegularObsTimeSeriesDescriptor first = null;
+        RegularObsTimeSeriesDescriptor second = null;
+        
+        String header = "RegularObsTimeSeriesComparator.compare(): ";
+       
+        
+        int returnValue = desc1.toString().compareTo(desc2.toString());
+        
+        
+        
+        if  (
+               (desc1.getLid().equals("WETO2") || desc1.getLid().equals("ALXO2")) && 
+               (desc2.getLid().equals(desc1.getLid()) )
+            )
+        {
+            //System.out.println(header + "desc1 = :" + desc1.toString() + ":");
+            //System.out.println(header + "desc2 = :" + desc2.toString() + ":\n");    
+            
+            
+            if (returnValue < 0)
+            {
+                first = desc1;
+                second = desc2;
+              //  System.out.println(header + first.toString() + " comes before " + second.toString());
+            }
+            else if (returnValue > 0)
+            {
+                first = desc2;
+                second = desc1;
+            //    System.out.println(header + first.toString() + " comes before " + second.toString());
+            }
+            else
+            {  
+                System.out.println(header + " equals " ); 
+            }
+               
+            System.out.println(header + "first = :" + first.toString() + ":");
+            System.out.println(header + "second = :" + second.toString() + ":\n");    
+           
+          
+            
+        }
+        
+        return returnValue;
+    }
+
+    
+    
+}

@@ -1,0 +1,73 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+       
+	
+	<bean id="h5uairDecoder" class="gov.noaa.nws.ncep.edex.plugin.h5uair.decoder.H5UairDecoder">
+		<constructor-arg ref="h5uairPluginName"/>
+	</bean>
+
+    <bean id="h5uairToPointData" class="gov.noaa.nws.ncep.common.dataplugin.h5uair.dao.H5UairToPointData" />
+		
+	<bean id="h5uairSeparator" class="gov.noaa.nws.ncep.edex.plugin.h5uair.decoder.H5UairSeparator" />
+
+	<bean id="h5uairDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="h5uair" />
+		<constructor-arg value="jms-dist:queue:Ingest.h5uair" />
+	</bean>
+
+	<bean id="h5uairCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="h5uair-camel"/>
+  	</bean>
+  	
+	<camelContext id="h5uair-camel" xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+		<endpoint id="h5uairFileEndpoint" uri="file:${edex.home}/data/sbn/h5uair?noop=true&amp;idempotent=false"/>
+
+		<!-- Begin h5Uair routes -->
+		<route id="h5uairFileConsumerRoute">
+			<from ref="h5uairFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+				<constant>h5uair</constant>
+			</setHeader>
+			<!-- chin to uri="jms-generic:queue:Ingest.AlphaNumeric" /-->
+			<to uri="jms-generic:queue:Ingest.h5uair" />
+		</route>
+
+		<route id="h5uairIngestRoute">
+			<!-- chin from uri="directvm:h5uairIngest" /-->
+			<from uri="jms-generic:queue:Ingest.h5uair" />
+			<setHeader headerName="pluginName">
+				<constant>h5uair</constant>
+			</setHeader>
+									<bean ref="stringToFile" />			
+			
+			<split streaming="true">
+				<method bean="h5uairSeparator" method="separate" />
+				<doTry>
+					<pipeline>
+					
+						<bean ref="h5uairDecoder" method="decode" />
+						<!-- Add next line for h5 version  /-->
+						<bean ref="h5uairToPointData" method="toPointData" />
+						<!--to uri="directvm:indexAlert" /-->
+						<to uri="directvm:persistIndexAlert" />
+					</pipeline>
+					<doCatch>
+						<exception>java.lang.Throwable</exception>
+						<to uri="log:h5uair?level=ERROR&amp;showBody=false" />
+					</doCatch>
+				</doTry>
+			</split>
+			<!--<bean ref="processUtil" method="delete" /> -->
+		</route>
+	</camelContext>
+</beans>

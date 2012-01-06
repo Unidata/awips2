@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Persistence Plug-in
+Bundle-SymbolicName: javax.persistence
+Bundle-Version: 1.0.0.qualifier
+Export-Package: javax.persistence,
+ javax.persistence.spi
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ClassPath: hibernate-jpa-2.0-api-1.0.0.Final.jar

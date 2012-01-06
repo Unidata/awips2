@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta content="text/html; charset=iso-8859-1"
+ http-equiv="Content-Type">
+  <meta
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]"
+ name="GENERATOR">
+  <title>gfeConfig - Main Page</title>
+</head>
+<body style="background-color: rgb(255, 255, 255);">
+<div class="Body">
+<center>
+<h2><b><font size="+2">GFE/ifpIMAGE Configuration
+File<br>
+</font></b><b><font size="+2">System Time Range Configuration<br>
+</font></b></h2>
+</center>
+<blockquote><br>
+The system time range configuration defines the range of the temporal
+editor
+and grid manager in time.&nbsp; If no grids are present in any of the
+weather
+elements, then the temporal editor and grid manager will use the
+default
+starting and ending times based on the current system time.&nbsp; Units
+are in hours For example, if the beforeCurrentTime is set to 48 (2
+days)
+and the afterCurrentTime is set to 168 (7 days), then the grid manager
+scroll limits will be 2 days in the past and 7 days into the future.
+  <p>The actual scollable limits are modified if there are grids and/or
+locks
+present. The scrollable limits will be expanded by the inventory of
+grids
+and the occurance of locks (for the mutable database). </p>
+  <p>These varables are applicable to the GFE configuration file only. </p>
+  <p><b><tt>SystemTimeRange_beforeCurrentTime = 48</tt></b> <br>
+  <b><tt>SystemTimeRange_afterCurrentTime = 168</tt></b> </p>
+</blockquote>
+<br>
+<hr style="width: 100%; height: 2px;">&nbsp;
+<div class="Body">&nbsp;
+<center>
+<p><tt>&nbsp;<a href="GFESuite.html">Back To Top</a><a
+ href="#TableofContents"></a></tt></p>
+</center>
+</div>
+</div>
+</body>
+</html>

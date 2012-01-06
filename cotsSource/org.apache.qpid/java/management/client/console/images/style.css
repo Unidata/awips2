@@ -1,0 +1,202 @@
+/*
+ * 
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * 
+ */
+
+body 
+{
+	margin-left: 0px;
+	margin-top: 0px;
+	margin-right: 0px;
+	margin-bottom: 0px;
+}
+
+tr th	{
+		padding: 4px 8px 4px 8px;
+		background: #5E7796;
+		border: 1px solid #CCC;
+		color:#b8ce83;
+		font-size: smaller;
+}
+
+fieldset 
+{
+	font-size: xx-small;
+}
+
+#header
+{
+	width:1024px;
+}
+
+#content
+{
+	width:1024px;
+}
+
+#contenttext
+{
+	float:left; width:824px; 
+	background-color:#FFFFFF; 
+	border-left:solid 1px #999999; border-right:solid 1px #999999; 
+	border-bottom:solid 1px #999999; border-top:dotted 1px #CCCCCC; 
+	min-height:360px;
+}
+
+#asf-header 
+{
+	float:left; 
+	width:1007px; 
+	height:110px; 
+	background-color:#FFFFFF; 
+	border-right:solid 1px #999999;
+	border-left:solid 1px #999999;
+}
+
+#pagetitle
+{
+	position:relative; 
+	float:left; 
+	width:1024px; 
+	height:110px; 
+	background-color:#FFFFFF; 
+}
+
+#title
+{
+	position:absolute; 
+	right:20px; 
+	bottom:0px; 
+	width:1008px;
+}
+
+#menu
+{
+	float:left; width: 190px; margin: 0 0 0 -7px;
+}
+
+.panel{
+	padding:12px;
+	margin: 5px;
+	padding:10px;
+}
+
+.bodytext {
+	font: 0.7em Tahoma, sans-serif;
+	color: #666666;
+}
+
+.titletext {
+	font: 0.7em Tahoma, sans-serif;
+	font-size:36px;
+	font-weight:bold;
+	color: #CCCCCC;
+}
+
+.orangelogotext {
+	font: 0.7em Tahoma, sans-serif;
+	font-size:36px;
+	font-weight:bold;
+	color:#FF9900;
+}
+.orangetitle {
+	font: 0.7em Tahoma, sans-serif;
+	font-size:24px;
+	font-weight:bold;
+	color:#FF9900;
+}
+
+.bluetitle {
+	font: 0.7em Tahoma, sans-serif;
+	font-size:24px;
+	font-weight:bold;
+	color:#369;
+}
+
+#linksmenu a{
+	float:right;
+	width:183px;
+	height:20px;
+	background-color:#5E7796;
+	border-left:solid 1px #FFFFFF;
+	border-bottom:solid 1px #FFFFFF;
+	font: 0.7em Tahoma, sans-serif;
+	font-size: 11px;
+	font-weight:bold;
+	color: #FFFFFF;
+	text-decoration:none;
+	padding-top:5px;
+}
+#linksmenu a:hover
+{
+	background-color:#336;
+}
+
+
+#wsdmmenu
+{
+	float:left;
+	position: relative;
+	width: 600px;
+	font-size:75%;
+	margin: 0 0 0px 5px;
+	line-height:normal;
+}
+
+#wsdmmenu ul 
+{
+	margin:0;
+	padding:0px 0px 0 0px;
+	list-style: none;
+}
+
+#wsdmmenu li 
+{
+	display:inline;
+	margin:0;
+	padding:0;
+}
+
+#wsdmmenu a {
+	float:left;
+	background: url(menuleft.gif) no-repeat left top;
+	margin:0;
+	padding:0 0 0 4px;
+	text-decoration:none;
+}
+
+#wsdmmenu a span {
+	float:left;
+	display:block;
+	background: url(menuright.gif) no-repeat right top;
+	padding:5px 15px 4px 6px;
+	color:#888;
+}
+
+#wsdmmenu a span {float:none;}
+
+#wsdmmenu a:hover 
+{
+	background-position:0% -42px;
+}
+
+#wsdmmenu a:hover span 
+{
+	background-position:100% -42px;
+}

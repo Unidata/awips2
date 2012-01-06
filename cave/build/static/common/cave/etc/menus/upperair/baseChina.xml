@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Nenjiang (50557)" id="raobNenjiang"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="50557"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Yichun (50774)" id="raobYichun"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="50774"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Mudanjiang (54094)" id="raobMudanjiang"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="54094"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Tongliao (54135)" id="raobTongliao"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="54135"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Yanji (54292)" id="raobYanji"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="54292"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Jinzhou (54337)" id="raobJinzhou"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="54337"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Dandong (54497)" id="raobDandong"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="54497"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Chengshantou (54776)" id="raobChengshantou"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="54776"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Sheyang (58150)" id="raobSheyang"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="58150"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Dachen Island (58666)" id="raobDachenIsland"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="58666"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Hangchou (ZSHC)" id="raobHangchou"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="58457"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Qingdao (ZSQD)" id="raobQingdao"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="54857"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Shanghai (ZSSS)" id="raobShanghai"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="58362"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Changchun (ZYCC)" id="raobChangchun"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="54161"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Harbin (ZYHB)" id="raobHarbin"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="50953"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Qiqihar (ZYQQ)" id="raobQiqihar"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="50745"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Dalian (ZYTL)" id="raobDalian"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="54662"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Shenyang (ZYYY)" id="raobShenyang"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="54342"/>
+	    </contribute>
+</menuTemplate>

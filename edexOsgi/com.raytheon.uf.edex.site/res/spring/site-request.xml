@@ -1,0 +1,39 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+  
+    <bean id="ValidateConfigRequestHandler"
+        class="com.raytheon.uf.edex.site.handlers.ValidateConfigRequestHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.site.requests.ValidateConfigRequest" />
+        <constructor-arg ref="ValidateConfigRequestHandler" />
+    </bean>
+  
+    <bean id="activateSiteHandler"
+        class="com.raytheon.uf.edex.site.handlers.ActivateSiteHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.site.requests.ActivateSiteRequest" />
+        <constructor-arg ref="activateSiteHandler" />
+    </bean>
+  
+    <bean id="deactivateSiteHandler"
+        class="com.raytheon.uf.edex.site.handlers.DeactivateSiteHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.site.requests.DeactivateSiteRequest" />
+        <constructor-arg ref="deactivateSiteHandler" />
+    </bean>
+  
+    <bean id="getActiveSitesHandler"
+        class="com.raytheon.uf.edex.site.handlers.GetActiveSitesHandler" />
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.site.requests.GetActiveSitesRequest" />
+        <constructor-arg ref="getActiveSitesHandler" />
+    </bean>
+  
+</beans>
+  

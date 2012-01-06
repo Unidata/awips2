@@ -1,0 +1,67 @@
+#!/usr/bin/env python
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+import os, re, sys
+
+ann = re.compile(r"([ \t]*)@([_a-zA-Z][_a-zA-Z0-9]*)([ \t\n\r]+def[ \t]+)([_a-zA-Z][_a-zA-Z0-9]*)")
+line = re.compile(r"\n([ \t]*)[^ \t\n#]+")
+
+if len(sys.argv) == 2:
+  major, minor = [int(p) for p in sys.argv[1].split(".")]
+elif len(sys.argv) == 1:
+  major, minor = sys.version_info[0:2]
+else:
+  print "usage: %s [ version ] < input.py > output.py" % sys.argv[0]
+  sys.exit(-1)
+
+if major <= 2 and minor <= 3:
+  def process(input):
+    output = ""
+    pos = 0
+    while True:
+      m = ann.search(input, pos)
+      if m:
+        indent, decorator, idef, function = m.groups()
+        output += input[pos:m.start()]
+        output += "%s#@%s%s%s" % (indent, decorator, idef, function)
+        pos = m.end()
+
+        subst = "\n%s%s = %s(%s)\n" % (indent, function, decorator, function)
+        npos = pos
+        while True:
+          n = line.search(input, npos)
+          if not n:
+            input += subst
+            break
+          if len(n.group(1)) <= len(indent):
+            idx = n.start()
+            input = input[:idx] + subst + input[idx:]
+            break
+          npos = n.end()
+      else:
+        break
+
+    output += input[pos:]
+    return output
+else:
+  def process(input):
+    return input
+
+sys.stdout.write(process(sys.stdin.read()))

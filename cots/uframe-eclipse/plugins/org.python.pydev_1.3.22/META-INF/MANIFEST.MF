@@ -1,0 +1,60 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.7.0
+Created-By: 11.0-b12 (Sun Microsystems Inc.)
+Bundle-ManifestVersion: 2
+Bundle-Name: Pydev - Python Development Environment
+Bundle-SymbolicName: org.python.pydev; singleton:=true
+Bundle-Version: 1.3.22
+Bundle-ClassPath: pydev.jar,retroweaver-rt.jar
+Bundle-Activator: org.python.pydev.plugin.PydevPlugin
+Bundle-Vendor: Fabio Zadrozny / Aleks Totic
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.ui,org.eclipse.ui.ide,org.eclipse.core.run
+ time,org.eclipse.core.resources,org.eclipse.jface.text,org.eclipse.ui
+ .editors,org.eclipse.ui.views,org.eclipse.ui.workbench.texteditor,org
+ .eclipse.debug.core,org.eclipse.core.variables,org.eclipse.jdt.launch
+ ing;resolution:=optional,org.python.pydev.ast,org.python.pydev.parser
+ ,org.python.pydev.core,org.eclipse.search,org.eclipse.debug.ui,org.ec
+ lipse.ui.console,org.python.pydev.jython,org.eclipse.ltk.core.refacto
+ ring,org.eclipse.ltk.ui.refactoring,org.eclipse.ui.navigator,org.ecli
+ pse.ui.navigator.resources,org.eclipse.core.filesystem,org.eclipse.co
+ re.expressions,org.junit;resolution:=optional,org.eclipse.jdt.core;re
+ solution:=optional,org.eclipse.jdt.ui;resolution:=optional
+Eclipse-LazyStart: true
+Export-Package: org.python.copiedfromeclipsesrc,org.python.pydev.build
+ er,org.python.pydev.builder.pycremover,org.python.pydev.builder.pylin
+ t,org.python.pydev.builder.todo,org.python.pydev.codingstd,org.python
+ .pydev.dltk.console,org.python.pydev.dltk.console.ui,org.python.pydev
+ .dltk.console.ui.internal,org.python.pydev.dltk.console.ui.internal.a
+ ctions,org.python.pydev.dltk.console.ui.internal.fromeclipse,org.pyth
+ on.pydev.eclipseresourcestubs,org.python.pydev.editor,org.python.pyde
+ v.editor.actions,org.python.pydev.editor.actions.codefolding,org.pyth
+ on.pydev.editor.actions.refactoring,org.python.pydev.editor.autoedit,
+ org.python.pydev.editor.codecompletion,org.python.pydev.editor.codeco
+ mpletion.revisited,org.python.pydev.editor.codecompletion.revisited.j
+ avaintegration,org.python.pydev.editor.codecompletion.revisited.jytho
+ n,org.python.pydev.editor.codecompletion.revisited.modules,org.python
+ .pydev.editor.codecompletion.revisited.visitors,org.python.pydev.edit
+ or.codecompletion.shell,org.python.pydev.editor.codecompletion.templa
+ tes,org.python.pydev.editor.codefolding,org.python.pydev.editor.comme
+ ntblocks,org.python.pydev.editor.correctionassist,org.python.pydev.ed
+ itor.correctionassist.docstrings,org.python.pydev.editor.correctionas
+ sist.heuristics,org.python.pydev.editor.hover,org.python.pydev.editor
+ .hyperlink,org.python.pydev.editor.model,org.python.pydev.editor.part
+ itioner,org.python.pydev.editor.refactoring,org.python.pydev.editor.r
+ efactoring.ui,org.python.pydev.editor.scripting,org.python.pydev.edit
+ or.simpleassist,org.python.pydev.editor.templates,org.python.pydev.ed
+ itorinput,org.python.pydev.navigator,org.python.pydev.navigator.actio
+ ns,org.python.pydev.navigator.actions.copied,org.python.pydev.navigat
+ or.elements,org.python.pydev.navigator.filters,org.python.pydev.navig
+ ator.properties,org.python.pydev.navigator.sorter,org.python.pydev.na
+ vigator.ui,org.python.pydev.outline,org.python.pydev.plugin,org.pytho
+ n.pydev.plugin.nature,org.python.pydev.pyunit,org.python.pydev.runner
+ s,org.python.pydev.tree,org.python.pydev.ui,org.python.pydev.ui.actio
+ ns.container,org.python.pydev.ui.actions.project,org.python.pydev.ui.
+ dialogs,org.python.pydev.ui.editors,org.python.pydev.ui.filetypes,org
+ .python.pydev.ui.importsconf,org.python.pydev.ui.interpreters,org.pyt
+ hon.pydev.ui.perspective,org.python.pydev.ui.pythonpathconf,org.pytho
+ n.pydev.ui.wizards.files,org.python.pydev.ui.wizards.project,org.pyth
+ on.pydev.utils,org.python.pydev.views
+

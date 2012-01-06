@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Alertviz
+Bundle-SymbolicName: com.raytheon.uf.common.alertviz
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: org.eclipse.core.runtime,
+ com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
+ com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: com.raytheon.uf.common.alertviz
+Import-Package: com.raytheon.uf.common.message

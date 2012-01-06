@@ -1,0 +1,472 @@
+<?php
+include ("../../../links.php"); 
+include ("../../../includes/header.html"); 
+?>
+
+<fieldset><h1>NCSA Java HDF5 Interface (JHI5) Design</h1></fieldset>
+<p>
+<h3>1. Overview</h3>
+
+<p>The <b>Java HDF5 Interface (JHI5)</b> is a Java package (<b>ncsa.hdf.hdf5lib</b>)
+that ``wraps'' the NCSA HDF-5 library. For general information about
+HDF5 file format and library, please see: <a href="/HDF5/">/HDF5/</a>.
+The JHI5 may be used by any Java application that needs to access HDF5
+files. This product cannot be used in most network browsers because it
+accesses the local disk using native code.
+<p><b><i>What it is</i></b>
+<p>A central part of the JHI5 is the Java class <b><i>ncsa.hdf.hdf5lib.H5</i></b>.
+The H5<i> </i>class calls the standard (<i>i.e.</i>, `native' code) HDF5
+library, with native methods for most of the HDF5 functions. In general,
+there is one native method call for each function in the HDF-5 API, with
+similar arguments. Consult the HDF-5 reference manual for details
+of the C API. (<a href="/HDF5/doc/RM_H5Front.html">/HDF5/doc/RM_H5Front.html</a>)
+<p>The Java HDF5 Interface consists of Java classes and dynamically linked
+native libraries. The Java classes declare native methods, and the library
+contains C functions which implement the native methods. The C functions
+call the standard HDF5 library, which is linked as part of the same library
+on most platforms. The Java HDF-5 Interface also translates between
+Java and C arrays, and converts error codes from the HDF-5 C library to
+Java Exceptions.
+<p><b><i>Intended purpose</i></b>
+<p>The Java HDF5 Interface is intended to be the standard interface to
+access the HDF-5 library from Java programs. The JHI5 is a foundation upon
+which application classes can be built. All classes that use this interface
+package should interoperate easily on any platform that has HDF5 installed.
+<p>It is likely that most Java programs will not want to directly call
+the HDF5 library. More likely, data will be represented by Java classes
+that meet the needs of the application. These classes can implement methods
+to store and retrieve data from HDF5 files using the Java HDF5 library.
+<p>It is important to note that, unlike serialized Java objects, files
+written with the JHI5 are completely compatible with HDF-5 files in any
+language. Using the JHI5, Java programs can exchange data with
+C, C++, and Fortran programs.
+<p><b><i>What It Isn't</i></b>
+<p>It is extremely important to emphasize that <i>this product is <b>not</b>
+a pure Java implementation of the HDF5 library.</i> The JHI5 calls the
+same HDF5 library that is used by C or FORTRAN programs.
+<p>The JHI5 is <i>not</i> a high level model of data or storage.
+The JHI5 is the Java interface to the HDF-5 library API. High level
+object models implemented in Java will use the JHI5 to store and retrieve
+objects using HDF-5.
+<p>The JHI5 is <i>not</i> a persistent object store for Java objects.
+It would be possible to implement n object store with the JHI5, but the
+interface does not provide any special support for storing and retrieving
+Java objects.
+<h3>
+2. How to use the JHI5</h3>
+<b><i>How it works</i></b>
+<p>The JHI5 is used to call the HDF-5 library. The Java application
+will make essentially the same calls as a C program. The HDF-5 library
+is accessed through the Java class <b><i>ncsa.hdf.hdf5lib.H5</i></b>.
+<p>For example, the HDF5 library had the function <b>H5Fopen</b> to open
+an HDF5 file. The Java interface is the class <b><i>ncsa.hdf.hdf5lib.H5</i></b>,
+which has a method:
+<blockquote>
+<pre><b>public native int H5Fopen(String name, int flags, int access_id)
+ throws HDF5LibraryException, NullPointerException;</b></pre>
+</blockquote>
+The native method is implemented in C using the <a href="http://java.sun.com/javase/6/docs/technotes/guides/jni/index.html">Java
+Native Method Interface </a>(JNI). The native method implementation is
+written something like the following:
+<blockquote>
+<pre><b>JNIEXPORT jint JNICALL Java_ncsa_hdf_hdf5lib_H5_H5Fopen
+ (JNIEnv *env, jclass class, jstring name, jint flags, jint access_id)
+{
+ hid_t status;
+ char* file;
+ jboolean isCopy;
+
+ if (name == NULL) {
+ /* exception -- bad argument? */
+ nullArgument( env,"H5Fopen: name is NULL");
+ return -1;
+ }
+
+ file = (char *)(*env)->GetStringUTFChars(env,name,&amp;isCopy);
+ if (file == NULL) {
+ /* exception -- out of memory? */
+ JNIFatalError( env,"H5Fopen: file name not pinned");
+ return -1;
+ }
+ status = H5Fopen(file, (unsigned) flags, (hid_t) access_id );
+
+ (*env)->ReleaseStringUTFChars(env,name,file);
+ if (status &lt; 0) {
+ /* throw exception */
+ libraryError(env);
+ }
+ return (jint)status;
+}</b></pre>
+</blockquote>
+Note that this C function calls the HDF5 library and returns the result
+appropriately.
+<p>Essentially, there is one native method for each HDF5 entry point (but
+please read "<a href="#DOESNT WORK">What does not work</a>", below), which
+are compiled with the HDF5 library into a dynamically loaded library (<b><i>libhdf5</i></b>).
+Note that, while the Java classes may be used on any platform without recompilation,
+the JHI5 C library must be built for each platform.
+<p><b><i>How to call it</i></b>
+<p>To call the HDF5 `<b><i>H5Fopen</i></b>' function, a Java program must
+import the package '<b><i>ncsa.hdf.hdf5lib.*'</i></b>, and invoke the '<b><i>H5Fopen</i></b>'
+method. The Java program would look something like this:
+<blockquote>
+<pre><b>import ncsa.hdf.hdf5lib.*;
+
+ /* ... */
+
+ try { // access an HDF-5 file using the HDF-5 library
+ file = H5.H5Fopen("myFile.h5",
+ HDF5Constants.H5F_ACC_RDWR,
+ HDF5Constants.H5P_DEFAULT);
+ } catch (HDF5Exception ex) {
+ System.err.println(e);
+ }
+ /* ... */</b></pre>
+</blockquote>
+The <b>H5</b> class automatically loads the native method implementations
+and the HDF5 library itself.
+<p><b><i>Parameter passing conventions</i></b>
+<p>The Java HDF5 interface follows the HDF5 C interface as closely as possible.
+However, Java does not support pass-by-reference parameters, so all parameters
+that must be returned to the caller require special treatment for Java.
+In general, such parameters are passed as elements of an array. For example,
+to return an integer parameter, the Java native method would be declared
+to use and integer array. For instance, the C function
+<pre> <b>void foo( int inVar /* IN */, int *outVar /* OUT */ )</b></pre>
+would be implemented in the JHI5 as:
+<pre> <b>native void foo( int inVar, int []outVar )</b></pre>
+where the value of '<i>outVar</i>' would be returned as '<i>outVar[0]</i>'.
+<p><b><i>Data conversion and copying</i></b>
+<p>The Java HDF5 Interface translates data between C data types and Java
+data types. For instance, when a Java program reads a two dimensional array
+of floating point numbers (<b>float [][]</b>), the HDF5 native library
+actually returns an array of bytes. The Java HDF5 Interface converts this
+to the correct Java object, and returns that to the calling program. This
+process uses the Java Core Reflection package to discover
+the dimensions and type of the array, and then calls native code routines
+to convert the bytes from native (C) order to the correct Java object(s).
+<p>The Java program can read and write multidimensional arrays of Java
+numeric types, there is no need for the calling program to convert the
+Java data types. This data conversion clearly adds overhead to the
+program, and for that reason some programs may prefer to manage this conversion.
+In this case, the Java program itself may convert data to and from an array
+of
+<b>byte</b>, which is passed directly to HDF-5.
+<br>
+<blockquote>
+<pre><b>// the following call will read data from the HDF-5 file into the
+// Java array of Float, converting from C into the appropriate Java
+// objects.</b></pre>
+
+<pre><b>Float[][] myData = new Float[100][200];</b></pre>
+
+<pre><b>H5.H5Dread( dataset, memtype, memspace, filespace, myData );</b></pre>
+</blockquote>
+
+<p><br>The automatic conversion provided by the Java HDF-5 Interface assures
+correct interoperability with any HDF-5 file from any language. If
+the application program manages the conversion itself, the application
+must be responsible for assuring that the bytes written will produce the
+results expected when read by a C program.
+<p>Some types of data must be used with care. Please see the "<a href="#MAY NOT WORK">What
+may not work</a>", below.
+<p><b><i>HDF-5 Constants</i></b>
+<p>The HDF-5 API defines a set of constants and enumerated values.
+Most of these values are available to Java programs via the class <b><i>HDF5Constants</i></b>.
+In the example above, the parameters for the <b><i>H5Fopen()</i></b> call
+include two numeric values, <b><i>HDFConstants.H5F_ACC_RDWR</i></b> and
+<b><i>HDF5Constants.H5P_DEFAULT</i></b>.
+As would be expected, these numbers correspond to the C constants <b><i>H5F_ACC_RDWR</i></b>
+and <b><i>H5P_DEFAULT</i></b>.
+<p>The HDF-5 API defines a set of values that describe number types and
+sizes, such as <i>H5T_NATIVE_INT</i> and <i>h5size_t</i>. These values
+are determined at run time by the HDF-5 C library. To support these
+constants, the Java class <b><i>HDF5CDataTypes</i></b> looks up the values
+when initiated. The values can be accessed as public variables of
+the Java class, such as:
+<pre> <b>int data_type = HDF5CDataTypes.JH5T_NATIVE_INT;</b></pre>
+The Java application uses both types of constants the same way, the only
+difference is that the <b><i>HDF5CDataTypes</i></b> may have different
+values on different platforms.
+<p><b><i>Error handling</i></b>
+<p>The HDF5 error API (<a href="/HDF5/doc/RM_H5E.html">H5E</a>)
+manages the behavior of the error stack in the HDF-5 library. This
+API is omitted from the JHI5. Instead, errors are converted into
+Java exceptions. This is totally different from the C interface, but is
+very natural for Java programming.
+<p>The exceptions of the JHI5 are organized as sub-classes of the class
+<b><i>HDF5Exception</i></b>.
+There are two subclasses of <b><i>HDF5Exception:</i></b> <b><i>HDF5LibraryException</i></b>
+and <b><i>HDF5JavaException</i></b>. The sub-classes of the former
+represent errors from the HDF-5 C library, while sub-classes of the latter
+represent errors in the JHI5 wrapper and support code.
+<p>The super-class <b><i>HDF5LibraryException</i></b> implements the method
+'<b><i>printStackTrace()</i></b>', which prints out the HDF-5 error stack
+as described in the HDF-5 C API <b><i>H5Eprint()</i></b>, followed by the
+standard Java stack trace.<i></i> This may be used by Java exception
+handlers to print out the complete error stack.
+<p>For more information about JHI5 exceptions see, <a href="exceptions.html">Exceptions</a>.
+<h3>
+3. What definitely works</h3>
+The JHI5 Interface supports the writing and reading of multi-dimensional
+arrays of numbers. Any Java number type can be used (both intrinsic
+and object types, i.e., both <b>float</b> and <b>Float</b>), and <b>Strings.
+</b>The
+Java HDF5 Interface must translate data between C data types and Java data
+types and vice versa. For instance, when a Java program reads a two dimensional
+array of floating point numbers (<b>float [][]</b>), the HDF5 native library
+actually returns an array of bytes in C order. The Java HDF5 Interface
+converts this to the correct Java object(s), and returns the Java object
+to the calling program. Similarly, the Java program will pass an
+array of Java numbers, which is converted to an array of bytes in correct
+C order, and then passed to HDF-5.
+<p>This process uses the Java Core Reflection
+package
+to discover the shape and type of the array, and then calls native code
+routines to convert the bytes from native (C) order to the correct Java
+object(s). This data conversion is invisible to the calling program,
+and assures complete data compatibility with other languages. Obviously,
+there may be a performance penalty imposed by this data manipulation, which
+will depend on the platform and the implementation of the Java Virtual
+Machine.
+<p>The JHI5 supports creating HDF-5 files, creating HDF-5 Groups, Datasets,
+Datatypes, and Dataspaces. Attributes can be created for Groups and
+Datasets. Similarly, objects can be accessed from any HDF-5 file.
+<p>The JHI5 also supports creating and accessing of arrays of compound
+data types (i.e., structured records of heterogeneous data type).
+Java objects and HDF-5 Compound Datatypes are not completely compatible,
+but it is usually possible to map between them on a case by case basis.
+See "<a href="#MAY NOT WORK">What may not work</a>", below and <a href="compound.html">Using
+Compound Datatypes</a>.
+<p>The JHI5 supports reading and writing selections, including hyperslabs,
+repeated blocks (strides), and point selections. These work as expected
+for Java arrays of any dimension and any number type. HDF-5 "chunking"
+works as expected. Compression can be used, providing that the appropriate
+compression libraries are linked with the HDF-5 library. (See "<a href="#MAY NOT WORK">What
+may not work</a>", below.)
+<h3>
+<a NAME="DOESNT WORK"></a>4. What does not work</h3>
+The current implementation of the Java HDF5 interface provides most of
+the functions of the HDF-5 library. However, some features of HDF-5
+could not be supported for Java.
+<p><b><i>C function arguments</i></b>
+<p>Several HDF-5 APIs require pointers to functions as parameters, through
+which the user application passes a code to be called by the HDF-5 library.
+This feature cannot be used by Java programs, and are omitted from the
+JHI5. In a few cases, we have provided alternative methods to provide
+important missing functions.
+<p>The following HDF5 library calls are not implemented in Java because
+they use function parameters:
+<ol>
+<li>
+<i>H5Aiterate</i></li>
+
+<li>
+<i>H5E: All Error Interface Functions</i></li>
+
+<li>
+<i>H5Giterate</i></li>
+
+<li>
+<i>H5Zregister</i></li>
+
+<li>
+<i>H5T: application defined type conversion</i></li>
+
+<li>
+<i>H5Tset_overflow</i></li>
+
+<li>
+<i>H5Tget_overflow</i></li>
+
+<li>
+<i>H5Tregister</i></li>
+
+<li>
+<i>H5Tunregister</i></li>
+</ol>
+Of these routines, the most important missing feature is <b><i>H5Giterate,
+</i></b>which
+is the only mechanism for discovering the objects in an HDF-5 file. This
+function is replaced by the utility functions, <b><i>H5Gn_members</i></b>
+and <b><i>H5Gget_obj_info_idx, </i></b>which may be called from C, Fortran,
+or Java. These are descibed in <a href="iterator.html">Navigating HDF-5
+Groups with the Iterator</a>.
+<p>The HDF-5 library supports extensions to add new compression schemes.
+GZIP is provided as a standard part of the HDF-5 library, but other compression
+methods may also be linked and used. To use a compression method,
+a C program must "register" it with the library, passing a pointer to the
+"driver" which implements the compression scheme.
+<p>In the current implementation of the Java HDF Interface, there is no
+way to "register" compression libraries from a Java program. The
+consequence of this is that, in the event that data is compressed by a
+C program with an alternative compression scheme, a Java program will not
+be able to access that data.
+<p><b><i>Parallel APIs</i></b>
+<p>The HDF-5 parallel APIs are not implemented in the JHI5. Precisely how
+MPI-IO can and should be used form Java applications is still under study.
+The parallel API includes:
+<ol>
+<li>
+<i>H5Pset_mpi</i></li>
+
+<li>
+<i>H5Pget_mpi</i></li>
+
+<li>
+<i>H5Pset_xfer</i></li>
+
+<li>
+<i>H5Pget_xfer</i></li>
+</ol>
+
+<p />
+<b><i>Variable Length Array</i></b>
+<p>The HDF-5 Variable Length APIs are not fully supported by
+the JHI5. It is not clear how to implement these features in Java
+programs. The following functions are not implemented:
+<ol>
+<li>
+<i>H5Dvlen_reclaim</i></li>
+
+<li>
+<i>H5Pset_vlen_mem_manager</i></li>
+
+<li>
+<i>H5Pget_vlen_mem_manager</i></li>
+
+</ol>
+
+<p />
+
+<b><i>Fill Value</i></b>
+<p>The HDF-5 properties to control fill values are not implemented.
+The functions are:
+<ol>
+<li>
+<i>H5Pget_fill_value</i></li>
+
+<li>
+<i>H5Pset_fill_value</i></li>
+</ol>
+
+<h3>
+<a NAME="MAY NOT WORK"></a>5. Warnings: What May or May Not
+Work</h3>
+The HDF-5 library very general and flexible, and the library is correspondingly
+complex. The Java HDF5 Interface provides the key features of the
+HDF-5 library, but some features are only partially supported, or must
+be used with care.
+<p><b><i>Strings</i></b>
+<p>Java stores strings as objects, representing the string as a variable
+length of Unicode characters. In the initial releases, HDF-5 supports
+strings as fixed or variable length arrays of characters, and understands
+how C and Fortran store strings. Additional support for strings,
+including Unicode may be appear in later versions of the HDF-5 format and
+library.
+<p>The JHI5 attempts to map Java <b>String</b> objects to and from HDF-5
+strings by converting to and from C strings (zero terminated arrays of
+ASCII charters). For most purposes, this works as expected.
+However, it should be realized that it is possible to write Java <b>Strings</b>
+to HDF-5 in many ways--e.g., as zero-terminated arrays, as zero padded
+arrays, as arrays of 16-bit Unicode characters, etc. These may or
+may not be easy for a reader to realize that it is intended to be read
+as a <b>String</b>, or what handling may be required. In any case, strings
+written by other languages may require careful processing in order to construct
+the appropriate Java <b>String</b>. For instance, strings written
+from Fortran will typically be fixed length arrays of ASCII, padded with
+zeros. These can be read into a Java <b>String</b> object, and the
+padding can be removed by the '<i>trim()</i>' method.
+<p>As a general rule, users are advised to use care when reading and writing
+strings.
+<p><b><i>User Defined Datatypes</i></b>
+<p>The HDF-5 format and library allows applications to define almost any
+kind and combination of numerical data types. For instance, user
+programs can control the byte order, number of bits (e.g., 5-bit integers),
+and the layout of floating point numbers. The JHI5 fully supports
+these features, allowing the definition and discovery of such user defined
+datatypes. However, the Java language only supports a few standard
+number types, and it is up to the Java application programmer to create
+appropriate object types to represent user defined datatypes, and to convert
+between the stored representation and whatever Java objects are implemented.
+<p><b><i>Data Types</i></b>
+<p>HDF-5 allows programs to specify the storage format of data when it
+is written to disk and when it is read from disk to memory, and handles
+conversions as needed. The Java language itself specifies a single
+standard layout for numeric data, which may be different from the "native"
+machine formats. however, the Java Native Interface
+converts between the 'native' machine layout and Java. For example,
+the JNI routine <i>GetFloatArrayElements</i> converts a Java <b>float[]</b>
+object to an appropriate C array of floats, copying and transforming the
+data if necessary. (See the <a href="...">JNI</a> documentation.)
+<p>As a consequence, Java programs are always writing and reading native
+C data to and from the HDF-5 library. This means that the datatypes
+<b><i>'H5T_NATIVE_*'
+</i></b>work
+essentially the same as for a C program on the same platform.
+<p>Programmers should be aware that when data is read (written) the Java
+HDF-5 Interface, it may actually be transformed twice: the JNI may
+swap the bytes from Java to native C (native C to Java), and then the HDF-5
+library may swap the bytes again from native C to the specified storage
+order (storage to C). The HDF-5 library may also convert the data,
+e.g., from <b>short</b> to <b>int</b> or <b>int</b> to <b>float, </b>when
+such a transformation is specified. This can be confusing because
+while the layout of the Java numbers is the same on all platforms, the
+HDF5 Datatype is specifying the relationship between the native values
+and the HDF-5 file, which depends on the platform.
+<p>Fortunately, in most cases the datatypes for C can be used in Java to
+get the correct results. E.g., data from a Java Integer can be written
+as <b><i>'H5T_STD_32BE'</i></b>, and read back as <b><i>'H5T_NATIVE_INT'</i></b>.
+This will give correct results on all platforms in either C or Java.
+The one exception to this is Java <b>Long</b> and <b>long </b>integers.
+These are defined to be 64-bit integers in Java, but may be different sizes
+on different C environments--in fact, a 'long' is often 32-bits long.
+The HDF-5 type <b><i>'H5T_NATIVE_LONG'</i></b> refers to the size and byte
+order of a '<b>long</b>' according to the C compiler used at the time the
+library is compiled, which is typically 32-bits.
+<p>To correctly read and write Java long or Long data, the HDF-5 data type
+must be <b>H5T_STD_64BE</b> or <b>H5T_STD_64LE</b>, i.e., 64-bit big endian
+or little endian. Either may be selected, but an appropriate byte
+order must be specified to read the data correctly. However, in the
+current implementation this data cannot be read with a the C type <b>H5T_NATIVE_LONG</b>.
+To read on a platform with the same byte order, the data must be read with
+the same H5T type. To read on a platform with a different byte order,
+the data must be read with the opposite byte order.
+<br>In general, <i>64-bit data should be used with caution, and results
+checked carefully to make sure that data is correct</i>.
+<h4>
+<i>Compound data types</i></h4>
+The HDF-5 format and library support complex structured data types, including
+arrays of "compound data types", i.e., arrays of structured records.
+Compound data is stored as packed arrays of bytes, as C stores 'struct'
+data. The Java language does not use a flat memory model; data--including
+arrays--are stored as objects. An array of Java objects is not necessarily
+stored as a contiguous block of storage, and contains information besides
+the content of the variables. For these reasons, it is very difficult
+to automatically map between HDF-5 compound data types and Java objects.
+<p>The JHI5 supports defining, writing, and reading compound data in HDF-5
+files through two mechanisms. First, an array of compound data can
+be read or written as appropriately packed arrays of bytes. A Java
+application may create an array of bytes of the appropriate size, fill
+it with data to match the intended layout (i.e., as a C struct would be
+laid out), and pass that to the HDF-5 library. Data may be read similarly,
+and the Java application must interpret the bytes to create the intended
+Java objects. <i>In this case, it is up to the Java programmer to
+create the correct bytes which correspond to how the C compiler would lay
+out the structure in memory.</i>
+<p>Alternatively, data may be written and read by individual 'elements',
+i.e., by the fields of the compound data type. For example, for an
+HDF-5 compound data type with one 'int' and one 'float' element, the 'int'
+data dan be read into a Java array of <b>ints</b>, and the float element
+can be read into a second array of Java <b>floats</b>.
+<p>See "<a href="compound.html">Using Compound Datatypes</a>" for a detailed
+example.
+
+
+<p>
+
+<?php
+include ("../../../includes/footer.html"); 
+?>
+
+

@@ -1,0 +1,21 @@
+
+<toc label="Extension Points">
+<topic label="org.eclipse.ecf.containerFactory" href="html/reference/extension-points/org_eclipse_ecf_containerFactory.html"/>
+<topic label="org.eclipse.ecf.identity.namespace" href="html/reference/extension-points/org_eclipse_ecf_identity_namespace.html"/>
+<topic label="org.eclipse.ecf.discovery.ui.serviceAccessHandler" href="html/reference/extension-points/org_eclipse_ecf_discovery_ui_serviceAccessHandler.html"/>
+<topic label="org.eclipse.ecf.presence.bot.chatRoomMessageHandler" href="html/reference/extension-points/org_eclipse_ecf_presence_bot_chatRoomMessageHandler.html"/>
+<topic label="org.eclipse.ecf.presence.bot.chatRoomRobot" href="html/reference/extension-points/org_eclipse_ecf_presence_bot_chatRoomRobot.html"/>
+<topic label="org.eclipse.ecf.presence.bot.imMessageHandler" href="html/reference/extension-points/org_eclipse_ecf_presence_bot_imMessageHandler.html"/>
+<topic label="org.eclipse.ecf.presence.bot.imRobot" href="html/reference/extension-points/org_eclipse_ecf_presence_bot_imRobot.html"/>
+<topic label="org.eclipse.ecf.presence.ui.rosterViewerDropTarget" href="html/reference/extension-points/org_eclipse_ecf_presence_ui_rosterViewerDropTarget.html"/>
+<topic label="org.eclipse.ecf.provider.filetransfer.retrieveFileTransferFactory" href="html/reference/extension-points/org_eclipse_ecf_provider_filetransfer_retrieveFileTransferProtocolFactory.html"/>
+<topic label="org.eclipse.ecf.provider.filetransfer.sendFileTransferFactory" href="html/reference/extension-points/org_eclipse_ecf_provider_filetransfer_sendFileTransferProtocolFactory.html"/>
+<topic label="org.eclipse.ecf.provider.filetransfer.browseFileTransferFactory" href="html/reference/extension-points/org_eclipse_ecf_provider_filetransfer_browseFileTransferProtocolFactory.html"/>
+<topic label="org.eclipse.ecf.server.generic.configuration" href="html/reference/extension-points/org_eclipse_ecf_server_generic_configuration.html"/>
+<topic label="org.eclipse.ecf.sharedobject.sharedObjectFactory" href="html/reference/extension-points/org_eclipse_ecf_sharedobject_sharedObjectFactory.html"/>
+<topic label="org.eclipse.ecf.start" href="html/reference/extension-points/org_eclipse_ecf_start.html"/>
+<topic label="org.eclipse.ecf.ui.configurationWizards" href="html/reference/extension-points/org_eclipse_ecf_ui_configurationWizards.html"/>
+<topic label="org.eclipse.ecf.ui.connectWizards" href="html/reference/extension-points/org_eclipse_ecf_ui_connectWizards.html"/>
+<topic label="org.eclipse.ecf.ui.configurationWizards" href="html/reference/extension-points/org_eclipse_ecf_presence_ui_rosterViewerDropTarget.html"/>
+
+</toc>

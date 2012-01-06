@@ -1,0 +1,215 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>GFESuite Documentation - Identifying ISC Discrepancies</title>
+</head>
+<body>
+<h2 class="1Heading"><a name="Discrepancies"></a>Identifying Intersite
+Discrepancies</h2>
+The following procedure and tools allow the forecaster to view
+discrepancies
+between the local forecast and those from other sites. It is important
+to note that this method is presented only as a beginning to this
+complex
+problem and is offered not as a solution, but, rather, as a way to
+begin
+the conversation between developers and forecasters about how to
+utilize
+our computer power to accomplish intersite coordination. The exercises
+will familiarize you with the procedure and tools and show you how to
+run
+them. We hope that this will serve as a launching point for feedback
+and
+brainstorming.
+<p>In order to perform these exercises, you should have familiarity
+with
+creating and running Smart Tools and Procedures. See the <a
+ href="SmartTools.html">Smart
+Tools Training Guide.<!-- Leave this comment for formatting purposes -->
+</a>
+</p>
+<p>
+<a href="#Procedure">Intersite Coordination Procedure</a>
+<br>
+&nbsp;&nbsp; <a href="#Ex1">Exercise
+Discrepancy-1
+-- Examining the "Swath" Edit Area</a>
+<br>
+&nbsp;&nbsp; <a href="#Ex2">Exercise
+Discrepancy-2
+-- Running the ISC_Discrepancies Procedure</a>
+<br>
+<a href="#Tools">Intersite Coordination Tools</a>
+<br>
+&nbsp;&nbsp; <a href="#Ex3">Exercise
+Discrepancy-3
+-- Running the ISC Tools</a>
+<br>
+<a href="#ModifyingIntersiteCoordinationProcedureandTools">Modifying
+Intersite Coordination Procedure and Tools</a>
+<br>
+</p>
+<hr width="100%">
+<h3 class="2Heading"><a name="Procedure"></a>Intersite Coordination
+Procedure</h3>
+<h4 class="3Heading">
+<a name="Ex1"></a>Exercise Discrepancy-1 -- Examining the "Swath" Edit
+Area</h4>
+<div class="Body">In this exercise, we will examine the "swath" edit
+area
+set up by the server around the CWA. You can think of a "swath" as a
+donut-shaped
+object around the border of the CWA/Marine Zones. This is the area in
+which
+we will be checking for discrepancies.</div>
+<ol>
+  <div class="Body">&nbsp; <li>Select Main Menu--&gt;Edit
+Areas--&gt;ISC--&gt;ISC_Tool_Area.</li>
+  <li>Make sure the automatically generated area is satisfactory to
+you. If
+you
+want to make minor modifications, do so, and then re-save the area
+under
+the same name, "ISC_Tool_Area."</li>
+  </div>
+</ol>
+<h5 class="3Heading">
+Example of the ISC_Tool_Area Swath:</h5>
+<h4 class="3Heading">
+<img nosave="" src="images/isc5.jpg" height="366" width="600"></h4>
+&nbsp;
+<h4 class="3Heading"><a name="Ex2"></a>Exercise Discrepancy-2 --
+Running the ISC_Discrepancies
+Procedure</h4>
+<div class="Body"><a name="pgfId=1012253"></a>In this exercise, we will
+run the ISC_Discrepancies procedure to see how it works.</div>
+<ol>
+  <div class="Body">&nbsp; <li>Select Main
+Menu--&gt;Consistency--&gt;ISC_Discrepancies. A
+dialog will appear
+allowing you to choose Weather Elements and a Time Range. Initially,
+simply
+select Run/Dismiss.</li>
+  <li>You will see grids highlighted in red where discrepancies were
+found.
+Make
+sure you are in ISC Mode by clicking the ISC Mode button on the button
+bar. Examine the highlighted grids to see if the discrepancies are
+apparent.</li>
+  <li>To turn off the highlights, select Main
+Menu--&gt;Consistency--&gt;Clear All
+Highlights.</li>
+  </div>
+</ol>
+<h5 class="2Heading">
+<font size="+0">ISC Discrepancy Dialog</font></h5>
+<div class="2Heading"><img nosave="" src="images/isc6.jpg" height="400"
+ width="292"></div>
+<div class="2Heading">&nbsp;
+<p><font size="+0">After running the ISC Discrepancies Procedure, grids
+that exceed
+the
+NDFD discrepancy threshold are highlighted in red or orange in the Grid
+Manager:</font>
+<br>
+&nbsp;</p>
+</div>
+<div class="2Heading"><img nosave="" src="images/isc7.jpg" height="434"
+ width="773"></div>
+<br>
+&nbsp;
+<br>
+&nbsp;
+<h3 class="2Heading"><a name="Tools"></a>Intersite Coordination Tools</h3>
+There are four tools to help identify discrepancies:
+<ol>
+  <li>Show_ISC_Highlights -- highlights grids that are discrepant. This
+is
+the
+tool called by the ISC_Discrepancies Procedure.</li>
+  <li>Show_ISC_Grid -- creates a discrepancy grid to be viewed from the
+Grid
+Manager.</li>
+  <li>Show_ISC_Area -- creates an edit area identifying where
+discrepancies
+were
+found.</li>
+  <li>Show_ISC_Info -- creates a dialog containing information about
+each segment (e.g., border) and how "discrepant" each border is.<br>
+  </li>
+</ol>
+Note: These tools are baselined versions of <a href="ShowISC.html">Tim
+Barker's (BOI SOO) set
+of ISC tools</a>.&nbsp; <br>
+<br>
+These tools can be run as any other smart tool. In addition, they are
+automatically added to the Grid Manager popup menu and thus are easily
+accessible.<br>
+<h4 class="3Heading"><a name="Ex3"></a>Exercise Discrepancy-3 --
+Running the ISC Tools.</h4>
+<ol>
+  <li>From a grid in the Grid Manager, select
+B3--&gt;Show_ISC_Highlights. If
+discrepancies
+are found, the grid will be highlighted in red. When you have found a
+grid
+with discrepancies, run the B3--&gt;Show_ISC_Area tool. This will
+display
+an edit area in which discrepancies were found.</li>
+  <li>Run the B3--&gt;Show_ISC_Grid tool. This will display a grid of
+the
+discrepancy
+values. The new weather element that was created is a temporary
+element.
+It will appear in the Spatial Editor legend as well as the Weather
+Element
+Browser. However, it is not saved in the server, so if you unload it or
+shut-down the GFE, it will be gone. Try unloading the temporary element
+from the legend.</li>
+  <li>You can clear the highlight on the grid by selecting
+B3--&gt;Clear
+Highlight.</li>
+  <li>Run the B3--&gt;Show_ISC_Info tool. This will display a dialog
+containing statistics about each border. =<br>
+  </li>
+</ol>
+<p>
+This is the ISC grid that we will examine using the ISC tools.&nbsp;
+Note that the BOU CWA temperatures are higher than the adjacent CYS and
+GLD temperatures:
+<br>
+<img nosave="" src="images/isc8.jpg" height="636" width="1108"><br>
+&nbsp;
+</p>
+<p>This is the discrepancy area created by the Show_ISC_Area
+tool.&nbsp;
+It highlights those locations in the isc swath where discrepancies were
+found:
+</p>
+<p><img nosave="" src="images/isc10.jpg" height="585" width="1109"></p>
+<p>This is the resulting discrepancy grid after running the
+Show_ISC_Grid
+tool:
+</p>
+<h4 class="3Heading"><img nosave="" src="images/isc11.jpg" height="588"
+ width="1108"></h4>
+<br>
+<h3><a name="ModifyingIntersiteCoordinationProcedureandTools"></a>Modifying
+Intersite Coordination Procedure and Tools</h3>
+The Intersite Coordination Procedure and Tools are based on the
+ISC_Utility
+and the ISC_Utility_Local files which can be found in the Edit Action
+Dialog
+Utilities window.&nbsp; You can override the default settings in the
+ISC_Utility_Local
+file.&nbsp; Do not change the ISC_Utility file itself as this may be
+updated
+in future releases.&nbsp; For more information on Utilities, see the <a
+ href="SmartTools.html#Util">Smart
+Tool Training Guide Utilities Section.</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+The ISC_Utility_Local file allows you to override various items within
+the ISC_Utility file. See the documentation in these files for more
+information.<br>
+<br>
+</body>
+</html>

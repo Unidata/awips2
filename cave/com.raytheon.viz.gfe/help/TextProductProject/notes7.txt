@@ -1,0 +1,3 @@
+We could have chance of rain and fog in the morning then chance of rain in the afternoon and the formatters have to smart enough to see that there is a chance of rain all day and fog only in the morning.
+
+

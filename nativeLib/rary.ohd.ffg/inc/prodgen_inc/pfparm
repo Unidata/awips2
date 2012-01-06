@@ -1,0 +1,5 @@
+      character*3 peunit
+      character*5 pets
+      common /pfparm/ irrtyp,ivopt,mxel,ncorr,ncosn,peunit,pets(20),
+     +                nwid(20),ndec(20)
+      

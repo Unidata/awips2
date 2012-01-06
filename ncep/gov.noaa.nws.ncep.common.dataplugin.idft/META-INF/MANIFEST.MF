@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Idft Plug-in
+Bundle-SymbolicName: gov.noaa.nws.ncep.common.dataplugin.idft
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: NOAA/NWS/NCEP/NCO/SIB
+Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: gov.noaa.nws.ncep.common.dataplugin.idft,
+ gov.noaa.nws.ncep.common.dataplugin.idft.dao
+Import-Package: com.raytheon.edex.db.dao,
+ com.raytheon.edex.exception,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.dataplugin.annotations,
+ com.raytheon.uf.common.serialization.annotations,
+ gov.noaa.nws.ncep.common.tools,
+ gov.noaa.nws.ncep.edex.common.dao
+Require-Bundle: com.raytheon.edex.common;bundle-version="1.11.31",
+ javax.persistence;bundle-version="1.0.0",
+ gov.noaa.nws.ncep.common;bundle-version="1.0.0",
+ org.apache.commons.logging;bundle-version="1.0.4"

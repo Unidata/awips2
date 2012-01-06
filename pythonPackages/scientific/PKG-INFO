@@ -1,0 +1,17 @@
+Metadata-Version: 1.0
+Name: ScientificPython
+Version: 2.8
+Summary: Various Python modules for scientific computing
+Home-page: http://dirac.cnrs-orleans.fr/ScientificPython/
+Author: Konrad Hinsen
+Author-email: hinsen@cnrs-orleans.fr
+License: CeCILL
+Description: ScientificPython is a collection of Python modules that are useful
+        for scientific computing. In this collection you will find modules
+        that cover basic geometry (vectors, tensors, transformations, vector
+        and tensor fields), quaternions, automatic derivatives, (linear)
+        interpolation, polynomials, elementary statistics, nonlinear
+        least-squares fits, unit calculations, Fortran-compatible text
+        formatting, 3D visualization via VRML, and two Tk widgets for simple
+        line plots and 3D wireframe models.
+Platform: UNKNOWN

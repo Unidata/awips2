@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Pypies Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.pypies
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
+Import-Package: com.raytheon.edex.util,
+ com.raytheon.uf.common.comm,
+ com.raytheon.uf.common.datastorage,
+ com.raytheon.uf.common.datastorage.records,
+ com.raytheon.uf.common.util,
+ com.raytheon.uf.common.util.cache
+Require-Bundle: com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.status
+Export-Package: com.raytheon.uf.common.pypies,
+ com.raytheon.uf.common.pypies.request,
+ com.raytheon.uf.common.pypies.response

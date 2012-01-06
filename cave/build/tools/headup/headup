@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+# if you link to this script, make sure to use a symbolic link
+script_dir=$(dirname $(readlink -f $0))
+
+$script_dir/Source/HeaderUpdater.py -f $script_dir/DefaultFileTypes "$@"

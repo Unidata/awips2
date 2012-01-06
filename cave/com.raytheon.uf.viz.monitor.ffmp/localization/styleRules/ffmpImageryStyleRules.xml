@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+
+<!-- 
+ADDING NEW QPE COLOR MAPS:
+When adding an additional qpe style rules to use custom color maps, the name of the color map
+and the style rule parameter and defaultColormap tags must match the color map name.
+
+Parsing is used and naming the color map files require certain rules to be followed.
+
+Rule #1: The color map should have qpe plus the time at which the color map should be used.
+Rule #2: If the time is a zero decimal then only the whole number is used:
+         Example:  if the hour is 6 then the name should be qpe6 NOT qpe6.0  
+
+VALID COLOR MAP NAMES:
+qpe.cmap
+qpe4.cmap
+qpe4.5.cmap
+qpe6.cmap
+qpe12.cmap
+
+*** INVALID COLOR MAP NAMES: ***
+qpe_4_5.cmap
+qpe.4.5.cmap
+qpe4.0.cmap
+
+Here are relationship example between the style rules and color maps:
+
+<parameter>  <defaultColormap>  colormap      comment
+=======================================================================================
+qpe          ffmp/qpe           qpe.cmap      Color map used for times >= 0.0
+qpe6         ffmp/qpe6          qpe6.cmap     Color map used for times >= 6.0
+qpe12        ffmp/qpe12         qpe12.cmap    Color map used for times >= 12.0
+
+Adding a new color map to be used for hour 4.5 would have the following:
+
+qpe4.5       ffmp/qpe4.5        qpe4.5.cmap   Color map used for times >= 4.50
+
+Adding a new color map to be used for hour 4.00 would have the following:
+
+qpe4         ffmp/qpe4          qpe4.cmap     Color map used for times >= 4.00
+
+Here is an example style rule for 4.5 hours.  Note the changes to the <parameter>
+and <defaultColormap> tags.  This entry will map to a qpe4.5.cmap that needs to
+be put in localization.
+
+<styleRule>
+		<paramLevelMatches>
+			<parameter>qpe4.5</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+		    <displayUnits>in</displayUnits>
+			<defaultColormap>ffmp/qpe4.5</defaultColormap>
+			<dataMapping>
+		    	<entry displayValue='-9999.0' pixelValue='0' label='' />
+			    <entry displayValue='0.0' pixelValue='15'/>
+				<entry displayValue='0.1' pixelValue='31'/>
+				<entry displayValue='0.25' pixelValue='47'/>
+				<entry displayValue='0.5' pixelValue='63'/>
+				<entry displayValue='0.75' pixelValue='79'/>
+				<entry displayValue='1.0' pixelValue='95'/>
+				<entry displayValue='1.25' pixelValue='111'/>
+				<entry displayValue='1.75' pixelValue='127'/>
+				<entry displayValue='2.0' pixelValue='143'/>
+				<entry displayValue='2.5' pixelValue='159'/>
+				<entry displayValue='3.0' pixelValue='175'/>
+				<entry displayValue='4.0' pixelValue='191'/>
+				<entry displayValue='6.0' pixelValue='207'/>
+				<entry displayValue='8.0' pixelValue='223'/>
+				<entry displayValue='10.0' pixelValue='240'/>
+				<entry displayValue='9999.0' pixelValue='255' label='' />
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+ -->
+    
+<styleRuleset>
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>qpe</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+		    <displayUnits>in</displayUnits>
+			<defaultColormap>ffmp/qpe</defaultColormap>
+ 			<dataMapping>
+			    <entry displayValue='-9999.0' pixelValue='0' label='' />
+			    <entry displayValue='0.0' pixelValue='15'/>
+				<entry displayValue='0.1' pixelValue='31'/>
+				<entry displayValue='0.2' pixelValue='47'/>
+				<entry displayValue='0.4' pixelValue='63'/>
+				<entry displayValue='0.6' pixelValue='79'/>
+				<entry displayValue='0.8' pixelValue='95'/>
+				<entry displayValue='1.0' pixelValue='111'/>
+				<entry displayValue='1.25' pixelValue='127'/>
+				<entry displayValue='1.5' pixelValue='143'/>
+				<entry displayValue='1.75' pixelValue='159'/>
+				<entry displayValue='2.0' pixelValue='175'/>
+				<entry displayValue='2.5' pixelValue='191'/>
+				<entry displayValue='3.0' pixelValue='207'/>
+				<entry displayValue='4.0' pixelValue='223'/>
+				<entry displayValue='5.0' pixelValue='240'/>
+				<entry displayValue='9999.0' pixelValue='255' label='' />
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+		
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>qpe6</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+		    <displayUnits>in</displayUnits>
+			<defaultColormap>ffmp/qpe6</defaultColormap>
+			<dataMapping>
+		    	<entry displayValue='-9999.0' pixelValue='0' label='' />
+			    <entry displayValue='0.0' pixelValue='15'/>
+				<entry displayValue='0.1' pixelValue='31'/>
+				<entry displayValue='0.25' pixelValue='47'/>
+				<entry displayValue='0.5' pixelValue='63'/>
+				<entry displayValue='0.75' pixelValue='79'/>
+				<entry displayValue='1.0' pixelValue='95'/>
+				<entry displayValue='1.25' pixelValue='111'/>
+				<entry displayValue='1.75' pixelValue='127'/>
+				<entry displayValue='2.0' pixelValue='143'/>
+				<entry displayValue='2.5' pixelValue='159'/>
+				<entry displayValue='3.0' pixelValue='175'/>
+				<entry displayValue='4.0' pixelValue='191'/>
+				<entry displayValue='6.0' pixelValue='207'/>
+				<entry displayValue='8.0' pixelValue='223'/>
+				<entry displayValue='10.0' pixelValue='240'/>
+				<entry displayValue='9999.0' pixelValue='255' label='' />
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+		
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>qpe12</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+		    <displayUnits>in</displayUnits>
+			<defaultColormap>ffmp/qpe12</defaultColormap>
+			<dataMapping>
+	    		<entry displayValue='-9999.0' pixelValue='0' label='' />
+			    <entry displayValue='0.0' pixelValue='15'/>
+				<entry displayValue='0.3' pixelValue='31'/>
+				<entry displayValue='0.6' pixelValue='47'/>
+				<entry displayValue='1.0' pixelValue='63'/>
+				<entry displayValue='1.5' pixelValue='79'/>
+				<entry displayValue='2.0' pixelValue='95'/>
+				<entry displayValue='2.5' pixelValue='111'/>
+				<entry displayValue='3.0' pixelValue='127'/>
+				<entry displayValue='4.0' pixelValue='143'/>
+				<entry displayValue='5.0' pixelValue='159'/>
+				<entry displayValue='6.0' pixelValue='175'/>
+				<entry displayValue='8.0' pixelValue='191'/>
+				<entry displayValue='10.0' pixelValue='207'/>
+				<entry displayValue='12.0' pixelValue='223'/>
+				<entry displayValue='15.0' pixelValue='240'/>
+				<entry displayValue='9999.0' pixelValue='255' label='' />
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+		
+    <styleRule>
+		<paramLevelMatches>
+			<parameter>rate</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+		    <displayUnits>in/hr</displayUnits>
+			<defaultColormap>ffmp/rate</defaultColormap>
+			<dataMapping>
+			    <entry displayValue='-9999.0' pixelValue='0' label='' />
+			    <entry displayValue='0.0' pixelValue='15'/>
+				<entry displayValue='0.1' pixelValue='31'/>
+				<entry displayValue='0.2' pixelValue='47'/>
+				<entry displayValue='0.4' pixelValue='63'/>
+				<entry displayValue='0.6' pixelValue='79'/>
+				<entry displayValue='0.8' pixelValue='95'/>
+				<entry displayValue='1.0' pixelValue='111'/>
+				<entry displayValue='1.25' pixelValue='127'/>
+				<entry displayValue='1.5' pixelValue='143'/>
+				<entry displayValue='1.75' pixelValue='159'/>
+				<entry displayValue='2.0' pixelValue='175'/>
+				<entry displayValue='3.0' pixelValue='191'/>
+				<entry displayValue='4.0' pixelValue='207'/>
+				<entry displayValue='5.0' pixelValue='223'/>
+				<entry displayValue='6.0' pixelValue='240'/>
+				<entry displayValue='9999.0' pixelValue='255' label='' />
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+	
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>ratio</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+		    <displayUnits>%</displayUnits>
+			<defaultColormap>ffmp/ratio</defaultColormap>
+			<dataMapping>
+			    <entry displayValue='-9999.0' pixelValue='0' label=''/>
+			    <entry displayValue='0.0' pixelValue='15'/>
+				<entry displayValue='10.0' pixelValue='31'/>
+				<entry displayValue='20.0' pixelValue='47'/>
+				<entry displayValue='30.0' pixelValue='63'/>
+				<entry displayValue='40.0' pixelValue='79'/>
+				<entry displayValue='50.0' pixelValue='95'/>
+				<entry displayValue='60.0' pixelValue='111'/>
+				<entry displayValue='70.0' pixelValue='127'/>
+				<entry displayValue='75.0' pixelValue='143'/>
+				<entry displayValue='80.0' pixelValue='159'/>
+				<entry displayValue='85.0' pixelValue='175'/>
+				<entry displayValue='90.0' pixelValue='191'/>
+				<entry displayValue='95.0' pixelValue='207'/>
+				<entry displayValue='100.0' pixelValue='223'/>
+				<entry displayValue='200.0' pixelValue='240'/>
+				<entry displayValue='9999.0' pixelValue='255' label=''/>
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+	
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>diff</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+		    <displayUnits>in</displayUnits>
+			<defaultColormap>ffmp/diff</defaultColormap>
+			<dataMapping>
+			    <entry displayValue='-999' pixelValue='0' label=''/>
+			    <entry displayValue='-7' pixelValue='15'/>
+				<entry displayValue='-6' pixelValue='31'/>
+				<entry displayValue='-5' pixelValue='47'/>
+				<entry displayValue='-4' pixelValue='63'/>
+				<entry displayValue='-3' pixelValue='79'/>
+				<entry displayValue='-2' pixelValue='95'/>
+				<entry displayValue='-1' pixelValue='111'/>
+				<entry displayValue='0'  pixelValue='127'/>
+				<entry displayValue='1'  pixelValue='143'/>
+				<entry displayValue='2'  pixelValue='159'/>
+				<entry displayValue='3'  pixelValue='175'/>
+				<entry displayValue='4'  pixelValue='191'/>
+				<entry displayValue='5'  pixelValue='207'/>
+				<entry displayValue='6'  pixelValue='223'/>
+				<entry displayValue='7'  pixelValue='240'/>
+				<entry displayValue='999' pixelValue='255' label=''/>
+			</dataMapping> 
+		</imageStyle>
+	</styleRule>
+	
+	<styleRule>
+		<paramLevelMatches>
+			<parameter>guidance</parameter>
+		</paramLevelMatches>
+		<imageStyle>
+		    <displayUnits>in</displayUnits>
+			<defaultColormap>Grid/gridded data</defaultColormap>
+			<dataMapping>
+			    <entry displayValue='0.0' pixelValue='0'/>
+				<entry displayValue='1.0' pixelValue='17'/>
+				<entry displayValue='2.0' pixelValue='35'/>
+				<entry displayValue='3.0' pixelValue='52'/>
+				<entry displayValue='4.0' pixelValue='69'/>
+				<entry displayValue='5.0' pixelValue='86'/>
+				<entry displayValue='6.0' pixelValue='102'/>
+				<entry displayValue='7.0' pixelValue='119'/>
+				<entry displayValue='8.0' pixelValue='136'/>
+				<entry displayValue='9.0' pixelValue='153'/>
+				<entry displayValue='10.0' pixelValue='169'/>
+				<entry displayValue='11.0' pixelValue='186'/>
+				<entry displayValue='12.0' pixelValue='204'/>
+				<entry displayValue='13.0' pixelValue='220'/>
+				<entry displayValue='15.0' pixelValue='255'/>
+			</dataMapping>
+		</imageStyle>
+	</styleRule>
+	
+</styleRuleset>	

@@ -1,0 +1,195 @@
+C MODULE SMFCRT
+C-----------------------------------------------------------------------
+C
+C  ROUTINE FOR OUTPUTTING CARD IMAGES FOR FILECRAT PROGRAM
+C
+      SUBROUTINE SMFCRT (ISTAT)
+C
+      DIMENSION NDSTRK(99),CARD(20)
+      DIMENSION KPRDTS(5),KFCFIL(10)
+C
+      INCLUDE 'uiox'
+      INCLUDE 'upagex'
+      INCLUDE 'scommon/sudbgx'
+      INCLUDE 'hclcommon/hunits'
+      INCLUDE 'pdbcommon/pdunts'
+      INCLUDE 'pppcommon/ppunts'
+      INCLUDE 'prdcommon/punits'
+      INCLUDE 'common/fcunit'
+C
+      EQUIVALENCE (KPRDTS(1),KMAPTS)
+      EQUIVALENCE (KFCFIL(1),KFCGD)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppinit_dump/RCS/smfcrt.f,v $
+     . $',                                                             '
+     .$Id: smfcrt.f,v 1.2 2001/06/13 14:02:48 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,*) 'ENTER SMFCRT'
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG('DUMP')
+C
+      ISTAT=0
+C
+C  SET INDICATOR TO USE FORECAST COMPONENT DATASETS
+      IUSFC=1
+C
+C  SET INDICATOR TO NOT PRINT DDNAME TABLE
+      IPRTBL=1
+C
+C  SET INDICATOR TO OUTPUT JCL CARD IMAGES
+      IPUJCL=1
+C
+C  SET INDICATOR TO RETURN NUMBER OF TRACKS FOR EACH UNIT
+      NDSTRK(1)=1
+C
+C  OUTPUT JCL CARDS AND RETURN NUMBER OF TRACKS FOR EACH UNIT
+      CALL SMFCR2 (IUSFC,IPRTBL,IPUJCL,NDSTRK,DSUNIT,IERR)
+C
+C  PRINT DISK UNIT TYPE
+      WRITE (LP,120) DSUNIT
+C
+C  PRINT NUMBER OF TRACKS FOR EACH UNIT
+      WRITE (LP,110)
+      CALL SULINE (LP,1)
+      DO 10 I=1,99
+         IF (NDSTRK(I).EQ.0) GO TO 10
+            WRITE (LP,130) I,NDSTRK(I)
+            CALL SULINE (LP,1)
+10       CONTINUE
+C
+C  SET INDICATOR TO PRINT NOTES IF DATA BASE NOT ALLOCATED
+      INDMSG=-2
+      IDUPRM=0
+      IDHCL=0
+      IDCLB=0
+      IDPPD=0
+      IDPPP=0
+      IDPRD=0
+      IDFC=0
+      IDESP=0
+C
+C  CHECK WHICH FILE ARE ALLOCATED
+      IDCLB=-1
+      CALL SUDACK (INDMSG,IDUPRM,IDHCL,IDCLB,IDPPD,IDPPP,IDPRD,
+     *   IDFC,IDESP,IERR)
+C
+      MAXCHR=4
+      NSPACE=1
+      ITYPE=3
+      NCHECK=0
+C
+C  INITIALIZE CARD ARRAY
+      CALL UREPET (' ',CARD,20*4)
+C
+C  PUNCH USER NAME
+      NPOS=1
+      CALL UTOCRD (ICDPUN,NPOS,'USER',4,NSPACE,CARD,ITYPE,NCHECK,
+     *             LNUM,IERR)
+      CALL UTOCRD (ICDPUN,NPOS,PUSRID,8,NSPACE,CARD,ITYPE,NCHECK,
+     *             LNUM,IERR)
+      CALL UPNCRD (ICDPUN,CARD)
+C
+C  PUNCH DISK UNIT TYPE
+      NPOS=1
+      CALL UTOCRD (ICDPUN,NPOS,'UNIT',4,NSPACE,CARD,ITYPE,NCHECK,
+     *             LNUM,IERR)
+      CALL UTOCRD (ICDPUN,NPOS,DSUNIT,4,NSPACE,CARD,ITYPE,NCHECK,
+     *             LNUM,IERR)
+      CALL UPNCRD (ICDPUN,CARD)
+C
+C  PREPROCESSOR DATA BASE
+      IF (IDPPD.EQ.0) GO TO 30
+         NPOS=1
+         CALL UTOCRD (ICDPUN,NPOS,'PDB',3,NSPACE,CARD,ITYPE,NCHECK,
+     *      LNUM,IERR)
+         CALL UPNCRD (ICDPUN,CARD)
+         NPOS=1
+         CALL UTOCRD (ICDPUN,NPOS,'TRACKS',6,NSPACE,CARD,ITYPE,NCHECK,
+     *      LNUM,IERR)
+         DO 20 I=1,5
+            IUNIT=KPDDDF(I)
+            IF (NDSTRK(IUNIT).EQ.0) GO TO 20
+               CALL UINTCH (NDSTRK(IUNIT),MAXCHR,CHAR,LFILL,IERR)
+               CALL UTOCRD (ICDPUN,NPOS,CHAR,MAXCHR,NSPACE,CARD,ITYPE,
+     *            NCHECK,LNUM,IERR)
+20          CONTINUE
+         CALL UPNCRD (ICDPUN,CARD)
+C
+C  PARAMETRIC DATA BASE
+30    IF (IDPPP.EQ.0) GO TO 50
+         NPOS=1
+         CALL UTOCRD (ICDPUN,NPOS,'PPP',3,NSPACE,CARD,ITYPE,NCHECK,
+     *      LNUM,IERR)
+         CALL UPNCRD (ICDPUN,CARD)
+         NPOS=1
+         CALL UTOCRD (ICDPUN,NPOS,'TRACKS',6,NSPACE,CARD,ITYPE,NCHECK,
+     *      LNUM,IERR)
+         DO 40 I=1,5
+            IUNIT=KPPRMU(I)
+            IF (NDSTRK(IUNIT).EQ.0) GO TO 40
+               CALL UINTCH (NDSTRK(IUNIT),MAXCHR,CHAR,LFILL,IERR)
+               CALL UTOCRD (ICDPUN,NPOS,CHAR,MAXCHR,NSPACE,CARD,ITYPE,
+     *            NCHECK,LNUM,IERR)
+40          CONTINUE
+         CALL UPNCRD (ICDPUN,CARD)
+C
+C  PROCESSED DATA BASE
+50    IF (IDPRD.EQ.0) GO TO 70
+         NPOS=1
+         CALL UTOCRD (ICDPUN,NPOS,'PDB',3,NSPACE,CARD,ITYPE,NCHECK,
+     *      LNUM,IERR)
+         CALL UPNCRD (ICDPUN,CARD)
+         NPOS=1
+         CALL UTOCRD (ICDPUN,NPOS,'TRACKS',6,NSPACE,CARD,ITYPE,NCHECK,
+     *      LNUM,IERR)
+         DO 60 I=1,5
+            IUNIT=KPRDTS(I)
+            IF (NDSTRK(IUNIT).EQ.0) GO TO 60
+               CALL UINTCH (NDSTRK(IUNIT),MAXCHR,CHAR,LFILL,IERR)
+               CALL UTOCRD (ICDPUN,NPOS,CHAR,MAXCHR,NSPACE,CARD,ITYPE,
+     *            NCHECK,LNUM,IERR)
+60          CONTINUE
+         CALL UPNCRD (ICDPUN,CARD)
+C
+C  FORECAST COMPONENT DATA BASE
+70    IF (IDFC.EQ.0) GO TO 90
+         NPOS=1
+         CALL UTOCRD (ICDPUN,NPOS,'FC ',3,NSPACE,CARD,ITYPE,NCHECK,
+     *      LNUM,IERR)
+         CALL UPNCRD (ICDPUN,CARD)
+         NPOS=1
+         CALL UTOCRD (ICDPUN,NPOS,'TRACKS',6,NSPACE,CARD,ITYPE,NCHECK,
+     *      LNUM,IERR)
+         DO 80 I=1,10
+            IUNIT=KFCFIL(I)
+            IF (NDSTRK(IUNIT).EQ.0) GO TO 80
+               CALL UINTCH (NDSTRK(IUNIT),MAXCHR,CHAR,LFILL,IERR)
+               CALL UTOCRD (ICDPUN,NPOS,CHAR,MAXCHR,NSPACE,CARD,ITYPE,
+     *            NCHECK,LNUM,IERR)
+80          CONTINUE
+         CALL UPNCRD (ICDPUN,CARD)
+C
+90    IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,*) 'EXIT SMFCRT'
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+110   FORMAT (' ')
+120   FORMAT ('0*** NOTE - DISK UNIT TYPE IS ',A4,'.')
+130   FORMAT (' NUMBER OF TRACKS FOR UNIT ',I2,' = ',I3)
+C
+      END

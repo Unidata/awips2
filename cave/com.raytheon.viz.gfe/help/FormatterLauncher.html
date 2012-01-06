@@ -1,0 +1,1486 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>Formatter Launcher User's Guide</title>
+</head>
+<body>
+<h1 style="text-align: center;">Formatter Launcher User's Guide</h1>
+<div style="text-align: center;">May 12, 2006<br>
+</div>
+<br>
+<br>
+The Formatter Launcher Dialog is used to define zone groupings, queue
+formatters for execution, monitor their progress, display and edit the
+final product, and send the product to AWIPS for transmission.<br>
+<br>
+<div style="text-align: center;"><img alt=""
+ src="images/FormatterLauncher.png"><br>
+</div>
+<br>
+<h2>Table of Contents</h2>
+<br>
+<a href="#Components">Components</a><br>
+<a href="#ZoneCombiner">Zone Combiner</a><br>
+<a href="#ProductEditor">Product Editor</a><br>
+<a href="#OutputLog">Output Log</a><br>
+<br>
+<hr style="width: 100%; height: 2px;">
+<h2><br>
+</h2>
+<h2><a name="Components"></a>Components</h2>
+The Formatter Launcher consists of the main menu bar, product tabs and
+product canvas area, and status bar.<br>
+<div style="text-align: center;"><img alt="Components"
+ src="images/FormatterLauncher1.png"><br>
+</div>
+<br>
+<br>
+<h3>Main Menu Bar</h3>
+<h4>Products</h4>
+The products menu permits selection of the products to appear in the
+panes.&nbsp;&nbsp; The menu is divided into "Site-level" products, then
+Hazard and&nbsp; Civil Emergency, then Baseline, Regional, and Hazard
+backup product configurations, and then the Product Editor / Make
+Correction
+tab.&nbsp;&nbsp;
+Each selection will
+open a new tab.&nbsp; The Product Editor / Make Correction tab brings
+up an
+empty editor, allowing for loading existing products from the AWIPS
+text database and making corrections to a product. <br>
+<br>
+<h4>Data Source</h4>
+The data source menu allows the forecaster to change the source
+database for all products to one of the four options:&nbsp; Official,
+Fcst, ISC, or Default.&nbsp; The Default setting uses the database
+definition contained within each formatter to determine which database
+should be used as a data source.<br>
+<br>
+The default data source is configured within each
+formatter's definition section as one of the following:<br>
+<div style="margin-left: 40px;"><span
+ style="font-weight: bold; font-family: monospace;">Definition['database']
+= "Official"</span><br
+ style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">Definition['database']
+= "Fcst"</span><br style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">Definition['database']
+= "ISC"<br>
+</span></div>
+<br>
+Note in <a href="GFEStartup.html#special">GFE PRACTICE mode</a>, the
+only Data Source is the Practice Forecast database; in <a
+ href="GFEStartup.html#special">GFE TEST mode</a>, the only Data Source
+is the Test Forecast database.<br>
+<h4>Processor</h4>
+Formatters execute either on the ifpServer platform or the local
+platform.&nbsp; Better performance for the local GFE and faster
+formatter execution should be realized when the processor is set to
+"Server".&nbsp; This item is not configurable on a per-product
+basis.&nbsp; The default is "Server".&nbsp; Setting the item to "Local"
+will run the formatters locally.&nbsp;&nbsp; The default may be changed
+through the gfe configuration entry <a
+ href="gfeConfig_formatterLauncher.html#Processor">FormatterLauncherDialog_Processor</a>.<br>
+<br>
+<br>
+<h4>Issued By</h4>
+The Issued By option brings up a dialog allowing the forecaster to
+enter his/her site identifier (3-letters).&nbsp; The entry is only used
+when the site is performing service backup for another
+site.&nbsp;&nbsp; Defining an "Issued By" entry will result in the
+generated products containing the Issued By statement in the product
+header.<br>
+<br>
+<h4>Help</h4>
+The Help menu simply provides a color legend for the Product Tabs. <br>
+<br>
+<h3><span style="font-weight: bold;">Product Tabs</span></h3>
+<h3><span style="font-weight: bold; font-family: monospace;"></span></h3>
+<span style="font-weight: bold; font-family: monospace;"></span>There
+is a product tab for each selected entry in the Products
+Selector.&nbsp; Clicking on one of the tabs will then display that
+product's Product Canvas Area.&nbsp; The Product Canvas Area contains
+the zone combiner (if applicable), editor window, output log, and
+several other controls.&nbsp; The color state of the buttons indicate
+whether the product is queued, running, or finished as shown below:<br>
+<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top; font-weight: bold;">Tab Color<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Meaning<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Gray<br>
+      </td>
+      <td style="vertical-align: top;">Product has not been requested
+to be started, or has been reset to the initial state (due to
+conflicts).<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Yellow<br>
+      </td>
+      <td style="vertical-align: top;">Product is queued for execution
+and is pending.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Pink<br>
+      </td>
+      <td style="vertical-align: top;">Product is currently running.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Green<br>
+      </td>
+      <td style="vertical-align: top;">Product has finished and is
+ready to be edited if needed.&nbsp; Also used to indicate a Draft has
+been loaded and is ready to be edited if needed.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Red<br>
+      </td>
+      <td style="vertical-align: top;">Product has failed or has been
+aborted.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Blue<br>
+      </td>
+      <td style="vertical-align: top;">Product has been transmitted and
+editor is now locked.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<h3><span style="font-weight: bold;"><span style="font-weight: bold;">Product
+Canvas Area</span></span></h3>
+The Product Canvas Area appears for each product that has been
+selected.&nbsp; Use the Product Tabs to display the specific Product
+Canvas Area of interest.&nbsp; The Product Canvas consists of a control
+panel and the canvas area.&nbsp;&nbsp; Depending upon the state of the
+product, some of the controls are dimmed and not accessible.<br>
+<br>
+<img alt="Controls" src="images/FormatterLauncher2.png"><br>
+The controls perform the following functions:<br>
+<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;"><img alt=""
+ src="images/gfepmunuon.gif" style="width: 48px; height: 48px;"><br>
+      </td>
+      <td style="vertical-align: top;">Zone Combiner<br>
+      </td>
+      <td style="vertical-align: top;">When selected, the zone combiner
+will appear in the Product Canvas Area.&nbsp; This button is dimmed if
+the product doesn't support zone combinations, or while the formatter
+is currently running.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><img alt=""
+ src="images/gfeedit.gif" style="width: 44px; height: 44px;"><br>
+      </td>
+      <td style="vertical-align: top;">Product Editor<br>
+      </td>
+      <td style="vertical-align: top;">When selected, the product
+editor will appear in the Product Canvas Area.&nbsp; Initially, this
+pane is blank.&nbsp; When the product has finished generation, the
+contents of the generated product will appear in the canvas.&nbsp; This
+button is dimmed until the formatter has completed.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><img alt=""
+ src="images/gfeterm.gif" style="width: 44px; height: 44px;"><br>
+      </td>
+      <td style="vertical-align: top;">Output Log<br>
+      </td>
+      <td style="vertical-align: top;">When selected, the output from
+the formatter execution will appear in the Product Canvas Area.&nbsp;
+Initially this pane is blank.&nbsp; Only when the formatter has
+completed, will the output log button be undimmed and the contents
+available.&nbsp; If you wish to monitor the progress of a formatter
+during its execution, please use the <a
+ href="MainMenuDialogs.html#ProcessMonitorDialog">Process Monitor</a>. <br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><img alt="Load Draft"
+ src="images/loadDraft.gif" style="width: 44px; height: 44px;"><br>
+      </td>
+      <td style="vertical-align: top;">Load Draft<br>
+      </td>
+      <td style="vertical-align: top;">When selected, the Formatter
+Launcher is switched to the product editor and the saved draft for the
+product is loaded.&nbsp;&nbsp; If there isn't a saved draft, then a
+message will be displayed to the forecaster indicating that no draft
+exists.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><img alt=""
+ src="images/gferun.gif" style="width: 44px; height: 44px;"><br>
+      </td>
+      <td style="vertical-align: top;">Run Formatter<br>
+      </td>
+      <td style="vertical-align: top;">This button will queue the
+formatter for execution.&nbsp;&nbsp; Once it is queued, the button will
+be dimmed until the product is completed.&nbsp; Queuing a product will
+cause the zone combiner, product editor, and output log buttons to be
+dimmed.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><img alt=""
+ src="images/gfecancel.gif" style="width: 48px; height: 48px;"><br>
+      </td>
+      <td style="vertical-align: top;">Stop Formatter<br>
+      </td>
+      <td style="vertical-align: top;">This button is available during
+the execution of a formatter.&nbsp; If selected, the formatter will be
+aborted.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><img alt=""
+ src="images/gfestop.gif" style="width: 48px; height: 48px;"><br>
+      </td>
+      <td style="vertical-align: top;">Close Tab<br>
+      </td>
+      <td style="vertical-align: top;">This button will close the tab
+and ABORT any running formatter.&nbsp; Use this button only after the
+formatter is complete and you have stored or sent the product, or data
+loss will occur.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<br>
+If the GFE is started in PRACTICE mode, an additional Formatting button
+is
+available as shown below.&nbsp; The button only affects the product in
+that tab, and no other tabs.&nbsp; The selection must be made before
+the Run Formatter button is pressed:<br>
+<div style="text-align: center;"><img alt="Toolbar in Practice mode"
+ src="images/FormatterLauncher18.png"><br>
+</div>
+<br>
+The Formatting button defaults to the <a href="VTEC.html#EnablingVTEC">VTECMessageType</a>
+definition for the product, but the user may change it depending upon
+the task at hand.&nbsp;&nbsp; Here are the available options:<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td
+ style="vertical-align: top; font-weight: bold; text-align: center;">Option<br>
+      </td>
+      <td
+ style="vertical-align: top; font-weight: bold; text-align: center;">Meaning<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Normal: NoVTEC<br>
+      </td>
+      <td style="vertical-align: top;">Product will be formatted
+normally (no test wording), and will not contain VTEC.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Normal: O-Vtec<br>
+      </td>
+      <td style="vertical-align: top;">Product will be formatted
+normally (no test wording), and will contain Operational VTEC (O-code).<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Normal: E-Vtec<br>
+      </td>
+      <td style="vertical-align: top;">Product will be formatted
+normally (no test wording), and will contain Experimental VTEC (E-code).<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Normal: X-Vtec<br>
+      </td>
+      <td style="vertical-align: top;">Product will be formatted
+normally (no test wording), and will containg Experimental in an
+Operational Product VTEC (X-code).<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Test: NoVTEC<br>
+      </td>
+      <td style="vertical-align: top;">Product will be formatted with
+test wording, and will not contain VTEC.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Test: T-Vtec<br>
+      </td>
+      <td style="vertical-align: top;">Product will be formatted with
+test wording and will contain Test VTEC (T-code).<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<br>
+More details on the output log, zone combiner, and product editor are
+found later in this document.<br>
+<br>
+<h3>Status Bar</h3>
+The bar is used to relay important messages to the forecaster.&nbsp;
+The status bar is used for displaying routine (as green), significant
+(as yellow), alert (as orange), and urgent (as red) messages.&nbsp; A
+partial list of
+messages is shown in
+the table below:<br>
+<br>
+<table style="text-align: left; width: 100%;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top; font-weight: bold;">Message
+Contents<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Significance<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Description<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Formatters Queued: [prod1,
+prod2, prod3]<br>
+      </td>
+      <td style="vertical-align: top;">Regular<br>
+      </td>
+      <td style="vertical-align: top;">Indicates that formatters have
+been queued for execution.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Map <span
+ style="font-style: italic;">mapname</span> not available<br>
+      </td>
+      <td style="vertical-align: top;">Urgent<br>
+      </td>
+      <td style="vertical-align: top;">Indicates that the zone combiner
+could not find or load the map background required by the zone
+combiner.&nbsp; The map background is defined in the
+Definition['mapNameForCombinations'] of each product formatter needing
+combinations. No zone combinations may be changed for the product.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Bad format in Combo file: <span
+ style="font-style: italic;">combofilename</span><br>
+      </td>
+      <td style="vertical-align: top;">Significant<br>
+      </td>
+      <td style="vertical-align: top;">The user has attempted to load a
+previously saved combinations file from the Combo Sets -&gt; Load menu,
+and the format of the combinations file is corrupted. The zone combiner
+may still be used, but the current set of combinations is cleared.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Combo file has python syntax
+errors: <span style="font-style: italic;">combofilename</span><br>
+      </td>
+      <td style="vertical-align: top;">Significant<br>
+      </td>
+      <td style="vertical-align: top;">The product's combination file
+was retrieved from the ifpServer, but could not be decoded.&nbsp; The
+zone combiner may still be used, but the current set of combinations is
+cleared.</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Combo file is not in combo
+format: <span style="font-style: italic;">combofilename</span><br>
+      </td>
+      <td style="vertical-align: top;">Significant<br>
+      </td>
+      <td style="vertical-align: top;">The retrieved combination file
+(from the ifpServer) was not in the correct format, i.e., not a list of
+tuples containing a list of zones and a label.&nbsp; The zone combiner
+may still be used, but the current set of combinations is cleared.</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Combinations file saved: <span
+ style="font-style: italic;">combofilename</span><br>
+      </td>
+      <td style="vertical-align: top;">Regular<br>
+      </td>
+      <td style="vertical-align: top;">Indicates that a combinations
+file was saved.&nbsp; If a GFE red banner appears, then there may have
+been a problem with the save.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Missing Color file or errors in
+Color file<br>
+      </td>
+      <td style="vertical-align: top;">Significant<br>
+      </td>
+      <td style="vertical-align: top;">The color file for the zone
+combiner was not found or there were errors in the color file.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Removed Unknown Edit Areas: [<span
+ style="font-style: italic;">ea1, ea2, ea3...</span>]<br>
+      </td>
+      <td style="vertical-align: top;">Significant<br>
+      </td>
+      <td style="vertical-align: top;">Informs the user that the
+combinations file contained zones that were not in the map background
+assigned to the product, and thus these names have been removed from
+the combinations file.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Missing zones have been added [<span
+ style="font-style: italic;">ea1, ea2, ea3...</span>]<br>
+      </td>
+      <td style="vertical-align: top;">Regular<br>
+      </td>
+      <td style="vertical-align: top;">Zones identified on the map
+background but not included in the combinations file have been added to
+the combinations file as individual zones, i.e., not combined.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<hr style="width: 100%; height: 2px;">
+<h2><a name="ZoneCombiner"></a>Zone Combiner</h2>
+The Zone Combiner is used to view and modify the set of combined zones
+for the product.&nbsp; Not all products support zone selection.&nbsp;
+In the case of a product that doesn't support a zone selection, the
+zone combiner selection button is dimmed.&nbsp; The Zone Combiner
+contains a menu bar, the canvas depicting the zones, and a label
+containing the product name and combinations filename, and the Apply
+Zone Combo button.<br>
+<br>
+Unlike most configuration files throughout GFESuite which adhere to the
+BASE/SITE/User concept,&nbsp; the Zone Combiner color table, saved
+combination sets, and saved combination files are shared among all
+users.<br>
+<br>
+<div style="text-align: center;"><img alt="FormatterLauncher"
+ src="images/FormatterLauncher3.png"><br>
+</div>
+<br>
+<h3>Zone Combiner Menus</h3>
+<h2><span style="font-weight: bold;"><span style="font-weight: bold;"></span></span></h2>
+<h4>Combo Sets</h4>
+The combo sets menu contains three entries as shown in the following
+table:<br>
+<table style="text-align: left; width: 100%;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">Save...<br>
+      </td>
+      <td style="vertical-align: top;">Brings up the SaveComboSets
+Dialog allowing the user to save the current set of combinations for
+later retrieval.&nbsp; Only those combinations that apply to the
+current map background are displayed.&nbsp; The user can select an
+existing name (to overwrite a combo) or type in a new name.&nbsp;
+Pressing "Save" will save the combinations.<br>
+      </td>
+      <td style="vertical-align: top;"><img
+ style="width: 262px; height: 316px;" alt=""
+ src="images/DialogSaveCombos.jpg"></td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Load<br>
+      </td>
+      <td style="vertical-align: top;">Loads in a saved set of
+combinations.&nbsp; Another menu will be displayed showing the list of
+saved combinations.<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Delete<br>
+      </td>
+      <td style="vertical-align: top;">Brings up the DeleteComboSets
+Dialog allowing the user to delete saved sets of combinations.&nbsp;
+Only those combinations that apply to the current map background are
+displayed.&nbsp; The user can select an existing name from the list and
+then press "Delete" to delete the combination.<br>
+      </td>
+      <td style="vertical-align: top;"><img alt=""
+ src="images/DialogDeleteCombo.jpg"></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+Combinations are available based on the base map background in use for
+each formatter.&nbsp; Each formatter requiring zone combinations
+contains a definition defining the map background.&nbsp; An example is:
+<span style="font-weight: bold; font-family: monospace;">Definition["mapNameForCombinations"]
+= "Zones_BOU"</span> . If the definition is missing, then zone
+combinations may not be changed for the product.<br>
+<br>
+The Combo Sets menu entry is dimmed if there are no combinations being
+shown in the zone combiner.<br>
+<br>
+<br>
+<h4>Combo Actions</h4>
+The Combo Actions menu controls the Zone Combiner and provides commonly
+used actions, such as clear.<br>
+<br>
+<table style="text-align: left; width: 100%;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">Clear<br>
+      </td>
+      <td style="vertical-align: top;" rowspan="1" colspan="2">Removes
+all zone combinations from the zone combiner.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Revert<br>
+      </td>
+      <td style="vertical-align: top;" rowspan="1" colspan="2">Reverts
+the zone combinations to the last saved (e.g., last applied)
+combination setup.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Examine/Clear Groups...<br>
+      </td>
+      <td style="vertical-align: top;">Brings up a dialog which is used
+to clear zone groupings.&nbsp; This dialog can also be used to examine
+the currently defined set of zone groupings.<br>
+      </td>
+      <td style="vertical-align: top;"><img
+ style="width: 436px; height: 306px;" alt=""
+ src="images/DialogExamineCombo.jpg"></td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Shuffle Groups...<br>
+      </td>
+      <td style="vertical-align: top;">Brings up a dialog which is used
+to shuffle (move the order) of groups.&nbsp;&nbsp; Multiple selections
+may be made and the group will move top/down together.&nbsp; The Up and
+Down buttons move the selection one step at a time.&nbsp; The Top and
+Bottom move the selection to the top or bottom of the groups.<br>
+      </td>
+      <td style="vertical-align: top;"><img
+ src="images/DialogZoneShuffle.jpg" alt=""><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<br>
+<br>
+The Combo Actions menu is dimmed if there are no combinations being
+shown in the zone combiner.<br>
+<br>
+<h4>Combo Options</h4>
+The Combo Options menu provides display and execution options for the
+Zone Combiner, as shown in the following table:<br>
+<br>
+<table style="text-align: left; width: 100%;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">Include All Zones<br>
+      </td>
+      <td style="vertical-align: top;" rowspan="1" colspan="2">If
+include all zones is selected, then all zones will be part of the
+combinations file.&nbsp; If Include All Zones is off, then zones that
+are not part of a specific combination will be stand alone, or will be
+indicated as not included.&nbsp; Generating a product with some zones
+that aren't included will result in a product that does not represent
+all of the zones.&nbsp; Toggling Include All Zones on will take all
+zones that were previously not included and place them as individual
+zones.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Label Zones<br>
+      </td>
+      <td style="vertical-align: top;" rowspan="1" colspan="2">If Label
+Zones is selected, then the zone label identifiers will be placed for
+each zone on the map background.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Label Zone Groups<br>
+      </td>
+      <td colspan="2" rowspan="1" style="vertical-align: top;">If Label
+Zone Groups is selected, then the zone grouping numbers will appear on
+the map background.&nbsp; Zone groups are counted from 1.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><a name="ZoneColors"></a>Zone
+Colors...<br>
+      </td>
+      <td style="vertical-align: top;">The Zone Colors... selection
+brings up the Zone Color Table Editor.&nbsp; There is only one color
+map for all products, and the size of the color map depends upon the
+maximum number of zones that have been color-edited.&nbsp; The color
+editor works simlarily to the other <a href="ColorDialogs.html">Color
+Table Editors in the GFE</a>.&nbsp;&nbsp; Pressing "Apply" will change
+the color mapping of the Zone Combiner as well as save the new color
+table to the ifpServer.<br>
+      </td>
+      <td style="vertical-align: top;"><img
+ style="width: 410px; height: 398px;" alt=""
+ src="images/DialogComboColors.jpg"></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+The Combo Options menu entry is dimmed if there are no combinations
+being shown in the zone combiner.<br>
+<br>
+<h4>Zoom</h4>
+The map background in the zone combiner may be zoomed.&nbsp; The scroll
+bars around the map are used to pan the display.&nbsp;&nbsp; The
+options on the zoom menu control the amount of zooming, from "No Zoom"
+to various zoom factors.<br>
+<br>
+<br>
+<h3>Zone Combiner Canvas</h3>
+<br>
+The canvas is the drawing area of the zone combiner.&nbsp;&nbsp;
+Through a series of clicks and drags, the set of zone combinations may
+be edited.<br>
+<br>
+The canvas may be resized.&nbsp;&nbsp; Its initial size is configurable
+through the gfe configuration file.&nbsp;&nbsp; By default, the zone
+combiner dialog is about 80% the height and width of the display.<br>
+<br>
+<h4>Drawing a New Combination</h4>
+Using MB1, press over a zone that is "grayed-out" which represents an
+individual zone, and drag through that zone into zones you wish to be
+part of the same combination.&nbsp;&nbsp; The "zone color" is chosen
+automatically for you.&nbsp; You can change the zone colors if desired
+through the <a href="FormatterLauncher.html#ZoneColors">Zone Colors....</a>
+menu entry.<br>
+<br>
+<h4>Picking Up a Zone Combination</h4>
+A MB2 click over a zone will "pick-up" that zone's configuration.&nbsp;
+This is useful for adding another zone to a combination or changing the
+existing configuration of a zone to that which was "picked-up".<br>
+<br>
+<h4>Adding Another Zone to a Combination - Contiguous</h4>
+Using MB1, press over the zone which you want to extend.&nbsp; Drag
+through the new zones (whether they are already assigned or not doesn't
+matter).&nbsp; As you drag through the zones, they become part of the
+same combination.<br>
+<br>
+<h4>Adding Another Zone to a Combination - Non-Contiguous</h4>
+MB2 click over a zone in the combination you wish to extend to pick up
+its value. MB1 click over the zone you wish to add.&nbsp; You may need
+to MB1 click more than once.<br>
+<br>
+<h4>Toggling Zones</h4>
+MB1 clicks will toggle a zone from the combination, to a new group, and
+to "off" or non-included zone.&nbsp;&nbsp; If the "Include
+All Zones" is selected, then the clicks will toggle between the
+combination and a new group.<br>
+<br>
+<h3>Apply Zone Combo <br>
+</h3>
+This button is enabled when the zone combination has been modified but
+not saved.&nbsp; Press this button to save the zone combination to the
+server.<br>
+<br>
+<h3><br>
+</h3>
+<h3>Proper Formatter and Configuration Setup</h3>
+<br>
+The zone combiner requires certain Definition section items to be set
+up in each formatter.&nbsp;&nbsp; It also requires <a
+ href="mapConfig.html">map backgrounds</a> to be configured properly in
+the ifpServer.<br>
+<br>
+<h4>Definition section of product<br>
+</h4>
+<br>
+<table style="text-align: left; width: 100%;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">Definition['mapNameForCombinations']
+= "Zones_PBZ"<br>
+      </td>
+      <td style="vertical-align: top;">Mandatory<br>
+      </td>
+      <td style="vertical-align: top;">Defines the map background used
+for this product's zone combinations.&nbsp;&nbsp; All edit areas in the
+combinations file must match the map backgrounds's attribute&nbsp;
+"EDITAREANAME"'s values.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Definition['defaultEditAreas'] =
+"combinations Name"<br>
+      </td>
+      <td style="vertical-align: top;">Mandatory<br>
+      </td>
+      <td style="vertical-align: top;">Defines the combinations file to
+be used for this product.&nbsp; If default edit areas is not a
+combinations file, i.e., it is a list of edit areas, then the zone
+combiner will not be available.&nbsp; <br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Definition['singleComboOnly'] = 1<br>
+      </td>
+      <td style="vertical-align: top;">Optional<br>
+      </td>
+      <td style="vertical-align: top;">If this definition is set to 1,
+then the zone combiner will only allow ONE combination.&nbsp; Some
+products are intentionally restricted for this capability.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Definition['subDomainUGCs'] =
+["ugc1", "ugc2", "ugc3"]<br>
+      </td>
+      <td style="vertical-align: top;">Optional<br>
+      </td>
+      <td style="vertical-align: top;">Limits the zone combinations to
+just those zones listed in the subDomainUGCs entry.&nbsp; This is
+normally only used for those sites whose domain is split into several
+products.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+Note: the combinations file must be read-write in the server in order
+for the user to modify the zone combinations.&nbsp; If a combinations
+file is marked read-only, then the zone combiner will not be displayed.<br>
+<br>
+<h4>Map Configuration in ifpServer<br>
+</h4>
+The map background configuration defines the editAreaName for certain
+map backgrounds.&nbsp; If this attribute is defined, then edit areas
+will be automatically generated for the map background, based on the
+attributes specified.&nbsp; The Zone Combiner uses the edit area names
+associated with each shape in the map background to map combination
+edit area names to map background names.&nbsp;&nbsp; If your
+combinations file uses other names, then the zone combiner will reject
+those names and start out with an empty set of zone combinations.<br>
+<br>
+<br>
+<br>
+<br>
+<hr style="width: 100%; height: 2px;">
+<h2><a name="ProductEditor"></a>Product Editor</h2>
+The Product Editor is used to display the finished product to the
+forecaster, and then allows the forecaster to edit, save to a file,
+save as a draft, store, and
+transmit it..&nbsp; It consists of a menu bar, the text editor,
+and to save a draft and transmit the product.<br>
+<br>
+Some fields in the product editor may appear in a different color
+(default is blue).&nbsp; These fields are "Locked" and cannot be edited
+by the forecaster.&nbsp;&nbsp; NWS policy requires quality control on
+the UGC, VTEC, and other components of the product thus requires that
+the forecaster not be
+able to edit that field.&nbsp; Some fields may appear in another color
+(default is red).&nbsp; These fields are "framing codes" and indicate
+to the forecaster that the text within the framing codes and the
+framing code deliminators must be edited/removed by the forecaster.<br>
+<br>
+A special entry on the Products menu called "Product Editor / Make
+Correction" brings up
+a blank slate. You can load files from the AWIPS Text Database, text
+file on disk, type an original product, or make a correction to an
+existing product.<br>
+<br>
+<div style="text-align: center;"><img alt="FL"
+ src="images/FormatterLauncher4.png"
+ style="width: 776px; height: 674px;"><br>
+</div>
+<br>
+<h3>Menu Bar</h3>
+<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td colspan="1" rowspan="8" style="vertical-align: top;">File<br>
+      </td>
+      <td style="vertical-align: top;">Save File...<br>
+      </td>
+      <td style="vertical-align: top;">Brings up a file chooser to
+allow the user to save the contents of the
+text buffer to a disk file.&nbsp; The default location is defined in
+the
+Definition['outputFile'] part of the formatter.</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Store...<br>
+      </td>
+      <td style="vertical-align: top;">Brings up an entry field
+containing the 8 or 9-letter PIL (Product Inventory List) that will
+be used to store the product into the AWIPS text database.&nbsp;
+The default pil is defined in the Definition['textdbPil'] part
+of the formatter. <b>Use with caution:</b> Saving to the text
+database will cause triggers for that PIL if they have been
+defined.&nbsp; This button is colored Blue when in practice mode and
+the product won't get stored to the AWIPS text database.&nbsp; Normally
+the button is gray.<br>
+      <img alt="Store" src="images/StoreDialog.png"><br>
+The user can change the AWIPS Product ID if necessary,
+and then presses the "Store" button to store the product.&nbsp;
+The Store Countdown timer counts down from 5 seconds giving the user
+the chance to abort the store operation.&nbsp; If the operation
+is not aborted, the product will be stored into the AWIPS text
+database. <b>Use with caution:</b>
+Saving to the text database will cause
+triggers
+for that PIL if they have been defined. If the store was not
+successful, then an error dialog is raised which
+contains the traceback on the store failure. <br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Transmit...<br>
+      </td>
+      <td style="vertical-align: top;">Brings up an entry field
+containing the 9 or 10-letter AWIPS WAN PIL
+(Product Inventory List) that will be used to transmit the product onto
+the AWIPS WAN.&nbsp; The product is also stored into the text database
+during this operation.&nbsp; The default pil is defined in the
+Definition['awipsWANPil'] part of the formatter.&nbsp; This button is
+colored RED if live transmission is enabled and colored BLUE if live
+transmission is disabled due to practice mode. <br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Print<br>
+      </td>
+      <td style="vertical-align: top;">Sends the contents of the editor
+to the lpr command.&nbsp; This should cause the contents of the editor
+to be printed.&nbsp; However, the lpr command must be configured at the
+system level for this to work.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Load Draft<br>
+      </td>
+      <td style="vertical-align: top;">This option only appears for
+product tabs.&nbsp; It retreives a previously saved draft and places it
+into the product editor for editing.&nbsp; If there is no previously
+saved draft, a message is displayed to the forecaster.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Save Draft<br>
+      </td>
+      <td style="vertical-align: top;">This option only appears for
+product tabs.&nbsp; It saves the current text in the editor along with
+the product definition for later callup with Load Draft.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Open File<br>
+      </td>
+      <td style="vertical-align: top;">This option only appears for the
+"Product Editor"tab.&nbsp; It allows you to bring any local file into
+the text editor. Products brought into this window are set to routine
+products with an option to set them to Corrected, Updated, Delayed, or
+Resend mode through the "Type" pulldown menu choice at the bottom of
+the Formatter Launcher window. <br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Load Product / Make Correction<br>
+      </td>
+      <td style="vertical-align: top;">This option only appears for the
+"Product Editor" tab.&nbsp; It allows you to specify a pil, then
+retrieves the product from the AWIPS text database and loads it into
+the editor.&nbsp; The editor is placed into Resend mode automatically
+when selecting this option. Typing in the product changes the mode to
+Corrected automatically.<br>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="1" rowspan="9" style="vertical-align: top;">Edit<br>
+      </td>
+      <td style="vertical-align: top;">Undo<br>
+      </td>
+      <td style="vertical-align: top;">Undoes the last edit operation.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Redo<br>
+      </td>
+      <td style="vertical-align: top;">Undoes the Undo.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Cut<br>
+      </td>
+      <td style="vertical-align: top;">Cuts the selected text from the
+buffer and saves it temporarily for pasting.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Copy<br>
+      </td>
+      <td style="vertical-align: top;">Copies the selected text and
+saves it temporarily for pasting.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Paste<br>
+      </td>
+      <td style="vertical-align: top;">Pastes the Cut or Copied text at
+the cursor location.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Find...<br>
+      </td>
+      <td style="vertical-align: top;">Brings up the Find dialog,
+allowing the user to find words.&nbsp; There are many options
+available, such as backwards and forwards searches, regular expression
+or exact searches, ignoring case, starting at the start, end, or at the
+cursor position. <img alt="" src="images/FormatterLauncher5.png"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Replace...<br>
+      </td>
+      <td style="vertical-align: top;">Brings up the Replace dialog,
+allowing the user to find and replace words. Various options are
+available to find and replace forwards, backwards, using regular
+expressions or exact matches, and starting at the beginning, end, or
+cursor location.<br>
+&nbsp;<img alt="" src="images/FormatterLauncher6.png"
+ style="width: 378px; height: 180px;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Spell Check...<br>
+      </td>
+      <td style="vertical-align: top;">Brings up the spell
+checker.&nbsp; As each mispelled word is found, suggestions are
+provided and the user can choose the suggestion or type in the correct
+spelling.&nbsp; Capabilities are provided to add a word to your
+personal dictionary, or to ignore the mispelling.<br>
+      <img alt="" src="images/FormatterLauncher7.png"><br>
+      <br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Wrap Selected<br>
+      </td>
+      <td style="vertical-align: top;">Rewraps the selected portion of
+the product based on the wrap length.&nbsp; You probably will want to
+wrap paragraph by paragraph rather than selecting the entire
+text.&nbsp; The Product Editor does understand certain types of
+paragraphs, such as blank lines denoting paragraphs and ".xxx..."
+syntax such as ".TONIGHT..." as paragraphs.<br>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="1" rowspan="2" style="vertical-align: top;">Options<br>
+      </td>
+      <td style="vertical-align: top;">Auto Wrap<br>
+      </td>
+      <td style="vertical-align: top;">Enables/disables automatic
+wrapping while typing.&nbsp; The default value may be set through the
+gfe configuration file on a per-pil basis.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Wrap Length<br>
+      </td>
+      <td style="vertical-align: top;">Specifies the wrap length. <br>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="1" rowspan="2" style="vertical-align: top;">CallToActions<br>
+      </td>
+      <td style="vertical-align: top;">Hazard...<br>
+      </td>
+      <td style="vertical-align: top;">Based on the editor insertion
+point which defines the segment, brings up the possible set of call to
+action statements for the VTEC hazards identified within the
+segment.&nbsp;&nbsp; The user selects a call to action and the text is
+inserted at the insertion point in the editor.&nbsp; Call to action
+statements are configurable through the CallToActions
+TextUtility.&nbsp; If the cursor is not in a segment that has VTEC
+hazards, then the Call To Actions dialog will be empty.&nbsp; The text
+appearing in the dialog is either the actual Call To Action text or a
+descriptive string, depending upon the Call To Action entry format.<br>
+      <img alt="CallToActions" src="images/CallToActions.png"
+ style="width: 356px; height: 334px;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Product...<br>
+      </td>
+      <td style="vertical-align: top;">Based on the editor insertion
+point, brings
+up the set of product-specific call to action statements.&nbsp;&nbsp;
+The user
+selects a call to action and
+the text is inserted at the insertion point in the editor. <br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Generic...<br>
+      </td>
+      <td style="vertical-align: top;">Based on the editor insertion
+point, brings
+up the set of generic call to action statements.&nbsp;&nbsp; The user
+selects a call to action and
+the text is inserted at the insertion point in the editor. Call to
+action statements are configurable through the CallToActions
+TextUtility.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Help<br>
+      </td>
+      <td style="vertical-align: top;">Tab Color Key...<br>
+      </td>
+      <td style="vertical-align: top;">Displays the various Product Tab
+colors and their meaning.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<br>
+<h3>Text Window</h3>
+The Text Window is the text editor.&nbsp; Clicking on a location will
+set the cursor position to that location. Typing will then insert
+characters at that point.&nbsp;&nbsp; Dragging over text will select
+the text, which then can be used in cut/copy/paste operations.<br>
+<br>
+The WMOID block, headlines, and UGC blocks cannot be edited and appear
+in a different color
+(configurable through the GFE configuration file).&nbsp; The UGC block
+consists of the UGC codes, any VTEC lines, the list of zone names, the
+list of city names, and the date-time group.<br>
+<br>
+A MB3 popup menu is available that duplicates the functions found on
+the menu bar.<br>
+<h3>Buttons</h3>
+There are usually three buttons available: Save File..., Store, and
+Transmit.&nbsp; During <a href="GFEStartup.html#special">GFE Practice
+mode</a>, the buttons are labeled the same, but have a different
+appearance.<br>
+<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">Save Draft<br>
+      </td>
+      <td style="vertical-align: top;">Saves the current text and
+product definition to the ifpServer.&nbsp;&nbsp; The name of the file
+is based on the Definition['awipsWANPil'].&nbsp;&nbsp; This allows
+other workstations to access the text/product to continue edits.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Transmit<br>
+      </td>
+      <td style="vertical-align: top;">Brings up an Transmit Dialog
+containing the 9 or 10-letter AWIPS WAN PIL (Product Inventory List)
+that will be used to transmit the product onto the AWIPS WAN.&nbsp; The
+product is also stored into the text database during this
+operation.&nbsp; The default pil is defined in the
+Definition['awipsWANPil'] part of the formatter.&nbsp; If live
+transmission is enabled, then this button is RED.&nbsp; If live
+transmission is disabled, as in PRACTICE mode, then this button is
+BLUE.
+In practice mode, this action emulates the normal sending out of the
+product via the AWIPS WAN, the receipt of the product via the SBN, and
+the running of the VTEC Decoder. &nbsp; </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><img alt=""
+ src="images/checkmark.jpg" style="width: 50px; height: 47px;"><br>
+      </td>
+      <td style="vertical-align: top;">The Check button will rescan the
+text in the product editor.&nbsp; It searches for framing codes and
+rehighlights the framing section ("red" is the default color). It
+updates the transmission time in the WMOID header block and each UGC
+block.&nbsp; It rescans the headlines.&nbsp; It checks the VTEC times
+and updates those to the current time.&nbsp; It also checks for invalid
+products, which can occur in situations when the ending VTEC time is
+earlier than the present time.&nbsp; If the VTEC is determined to be
+invalid, then the editor is disabled and a red banner message is
+displayed.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Type<br>
+      </td>
+      <td style="vertical-align: top;">This pulldown menu provides the
+type of the product.&nbsp; Changing the product to AAA, AAB, or AAC
+will result in the "UPDATED" wording to be appended to the product's
+MND header.&nbsp; Changing the product to RRA, RRB, or RRC results in
+the "DELAYED" wording to be appended to the product's MND header.&nbsp;
+Changing the product to "res" indicates this is a retransmission, no
+"bbb" field is included in the WMO line, but the MND header will
+contain "RESENT".&nbsp; "rou" indicates a normal
+type of product.&nbsp;&nbsp; When the editor is put into Correction
+Mode,
+only the CCA, CCB, and CCC options are available and the MND header is
+appended with CORRECTED.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Product Expiration Time<br>
+      </td>
+      <td style="vertical-align: top;">The user may adjust the product
+expiration time in the segments by changing the selectors in 15 minute
+increments.&nbsp; The interval plus the calculated expiration time is
+shown on the interface.&nbsp;&nbsp; Each segment will receive the
+earlier of the specified time, 1 hour if a segment only contains a CAN
+VTEC code, or the end of any event.<span
+ style="font-weight: bold; color: rgb(255, 0, 0);"></span><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<br>
+<h3>Transmit Dialog</h3>
+The Transmit Dialog is presented when the user chooses the "Transmit"
+button.&nbsp; The user can change the AWIPS Product ID if necessary,
+and
+then presses the "Store" button to store the product.&nbsp;&nbsp; The
+Transmit
+Countdown timer counts down from 5 seconds giving the user the chance
+to abort the transmit operation.&nbsp;&nbsp; If the operation is not
+aborted, the
+product will be transmited to the AWIPS WAN.<br>
+<br>
+<div style="text-align: center;"><img alt="TransmitDialog"
+ src="images/TransmitDialog.png" style="width: 464px; height: 242px;"><br>
+</div>
+<br>
+If the transmit was not successful, then an error dialog is raised
+which contains the traceback on the transmit failure.<br>
+<br>
+<br>
+<h3>Changes to Product when Transmitting, Storing, or Saving</h3>
+Whenever products are transmitted, stored, or saved, certain
+modifications are made to the product text (Except as noted for
+Corrections below):<br>
+<ul>
+  <li>The issuance time in the CI header is updated to the present time.</li>
+  <li>The descriptive text indicating the issuance time, such as 400 AM
+MST THU DEC 25 2004, is updated to the present time.</li>
+  <li>The product purge times for each segment are updated.</li>
+  <li>VTEC codes that have an explicit starting time that is now in the
+past, are updated to the present time.</li>
+</ul>
+For Corrections (from the Product Editor tab):<br>
+<ul>
+  <li>The MND time stamp remains unchanged.</li>
+  <li>The product purge times for each segment are updated.</li>
+  <li>VTEC codes that have an explicit starting time that is now in the
+past, are updated to the present time.</li>
+</ul>
+In addition, other checks are made:<br>
+<ul>
+  <li>If any VTEC string ending time is now earlier than the present
+time, the operation is aborted and the product is invalidated.</li>
+  <li>If a VTEC notification is received that your WFO has updated some
+of the VTEC strings in the product, usually by running and transmitting
+another product in the office, then the operation is aborted and the
+product is invalidated.</li>
+  <li>All text is changed to Upper Case, per the 10-1701 product
+directive.<br>
+  </li>
+</ul>
+If the product is invalidated, you can still save the text to a
+temporary file or Save Draft,&nbsp; but will be unable to transmit it
+or store
+it.&nbsp;&nbsp; You will need to regenerate the product.<br>
+<br>
+Once a product is transmitted, you can no longer transmit the same
+product.&nbsp; Instead you need to re-run the
+formatter.<br>
+<br>
+<h3>Locked Out Fields and Editing Headlines</h3>
+Due to NWS Quality Control rules, the CI, MND, VTEC lines, UGC lines,
+Zone and City Names, Issuance Date Lines, and Headlines are locked and
+cannot be edited by the forecaster.<br>
+<br>
+Headlines do allow additional phrasing to be added at the end of each
+Headline.&nbsp; This is to accomondate specific phrases such as "ABOVE
+9000 FEET".&nbsp;&nbsp; The text must be added right before the "..."
+or "TEST..." in the headline.&nbsp;&nbsp; Your additional headlines, or
+added words to existing headlines should not contain any of the
+following words, or your headline will lock. <br>
+<br>
+The words that should NOT be used in local headlines or added phrases
+to headlines are:<br>
+<ul>
+  <li>AFTERNOON</li>
+  <li>CANCELLED</li>
+  <li>EFFECT</li>
+  <li>EXPIRED</li>
+  <li>EVENING</li>
+  <li>FRIDAY</li>
+  <li>MONDAY</li>
+  <li>MORNING</li>
+  <li>NIGHT</li>
+  <li>SATURDAY</li>
+  <li>SUNDAY</li>
+  <li>THURSDAY</li>
+  <li>TODAY</li>
+  <li>TONIGHT</li>
+  <li>TUESDAY</li>
+  <li>WEDNESDAY</li>
+  <li>IS FOR TEST PURPOSES ONLY<br>
+  </li>
+</ul>
+<ul>
+</ul>
+<br>
+This example illustrates adding words to the end of the headline.&nbsp;
+The blue text is locked and cannot be edited.&nbsp; The black text is
+editable.&nbsp; The cursor was placed right before the "..." and the
+user typed <span style="font-weight: bold;">ABOVE 9000 FEET</span>.<br>
+<br>
+<div style="text-align: center;"><img alt=""
+ src="images/FormatterLauncher15.png"
+ style="width: 720px; height: 442px;"><br>
+</div>
+<br>
+It is important to realize that some headlines that are edited by the
+user will lock and thus not be correctable.&nbsp;&nbsp; If the
+forecaster uses different words that what is expected the software will
+not be able to distinguish the words from the non-editable portion of
+the headline.<br>
+<br>
+Automatic word wrap is disabled in the headlines for technical reasons
+and thus the forecaster will need to provide the appropriate word
+wrapping.<br>
+<br>
+<a NAME=UsingDraft></a>
+<h3>Using Load Draft and Save Draft</h3>
+The Load Draft / Save Draft feature provides several benefits:<br>
+<ul>
+  <li>Provides a quick way to save a copy of the current product "just
+in case" a system problem or editing mistake is made.</li>
+  <li>Provides a way for one forecaster to edit part of the product,
+and then hand off the product to another forecaster for review or
+further editing.<br>
+  </li>
+</ul>
+The saved draft is put into the ifpServer TEXT/DRAFT directory and is
+named via the Definition['awipsWANpil'] contained in the product
+definition.&nbsp; The saved information consists of the product text
+and the product definition.&nbsp; The product definition contains
+important attributes for the product, such as line length and segment
+expiration time characteristics.&nbsp;&nbsp; The ifpServer monitors
+incoming VTEC notifications and compares them to the contents of the
+draft products and invalidates the draft products if there is a match;
+this prevents the loading of a draft that might contain invalid VTEC
+and then transmitting a product with invalid VTEC.&nbsp; Loading a
+draft that has been invalidated will result in the editor being
+disabled and a message indicating that there is a possibility of
+invalid VTEC so the product must be regenerated.<br>
+<br>
+Once the draft is saved, the same forecaster or different forecasters
+may load the draft into their product editor.&nbsp;&nbsp; Loading a
+draft is accomplished by selecting Products -&gt; XXX in the Formatter
+Launcher, where XXX is the product name, to create the product
+pane.&nbsp; Then the forecaster clicks on the Load Draft (<img
+ alt="LoadDraft" src="images/loadDraft.gif"
+ style="width: 22px; height: 22px;">) button and the previously saved
+text and its product definition are loaded into the editor.<br>
+<br>
+The forecaster than continues to edit the product until it is ready for
+transmission.<br>
+<br>
+Drafts are automatically purged from the server when the segment
+expiration time has been reached.<br>
+<br>
+<span style="color: rgb(51, 102, 255);">NOTE: Due to VTEC QC
+requirements, and the calculations of segment expiration times, it is
+NOT recommended to use the Save File... and Open File..., nor Store...
+and Load Product... capabilities to faciliate multiple forecasters
+editing the product.&nbsp; The VTEC QC will be bypassed and the segment
+expiration times may be miscalculated since the product definition will
+not be reinstated from the plain text that was previously saved.</span><br>
+<h3>Making Corrections - from the Product Editor tab<br>
+</h3>
+The Product Editor has a correction mode.&nbsp;&nbsp; Correction mode
+is entered automatically when a user opens the "Product Editor" tab on
+the Formatter Launcher and then uses the "Load Product" option.&nbsp;
+This option loads a product from the AWIPS Text Database.&nbsp;&nbsp;
+If the user modifies the headline, such as in the following example,
+the VTEC action codes for the segment will change to "COR" and the MND
+product header will have "...CORRECTED" appended.&nbsp; The "Type"
+field in the editor is automatically set to "CCA".&nbsp; The user can
+change this to "CCB" or "CCC" if necessary.<br>
+<br>
+<br>
+<div style="text-align: center;"><img alt=""
+ src="images/FormatterLauncher16.png">&nbsp;<br>
+</div>
+<br>
+<br>
+Note that using the "Open File" option or no option at all, i.e., blank
+editor, will not put the editor into correction mode.<br>
+<br>
+<br>
+<h3>Resent, Updated, Delayed Products<br>
+</h3>
+The "Type" selector at the bottom of the product editor allows the user
+to specify the type of the product as shown below:<br>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top; font-weight: bold;">Type Field<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Meaning<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">rou<br>
+      </td>
+      <td style="vertical-align: top;">Routine product, no additional
+words added to the MND header.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">res<br>
+      </td>
+      <td style="vertical-align: top;">Product that has been
+resent.&nbsp; The word RESENT is added to the MND header.&nbsp; This is
+only available from the "blank" product editor tab.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">AAA...<br>
+      </td>
+      <td style="vertical-align: top;">Updated product.&nbsp; The word
+UPDATED is added to the MND header.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">RRR...<br>
+      </td>
+      <td style="vertical-align: top;">Delayed product.&nbsp; The word
+DELAYED is added to the MND header.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">CCC...<br>
+      </td>
+      <td style="vertical-align: top;">Corrected product.&nbsp; In the
+blank Product Editor with a loaded product from
+the AWIPS text database, the word CORRECTED is added to the MND header
+and changes made to any segment text will result in the corresponding
+VTEC lines to indicate a "COR" action.&nbsp; This is only available
+from the "blank" product editor.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<br>
+<h3>Adding the Update Reason Field</h3>
+Some products require adding a reason for the update or
+correction.&nbsp;&nbsp;
+The user can insert a new line, which will be unlocked, between the UGC
+block and the headline.&nbsp; The cursor is placed between the UGC
+block
+and any headline and then the text is added.&nbsp; Be sure to follow
+polices and leave a blank line between the UGC block, the update
+reason,
+and the headline.<br>
+<br>
+<div style="text-align: center;"><img alt=""
+ src="images/FormatterLauncher17.png"><br>
+</div>
+<h3>Framing Codes</h3>
+Some of the product formatters and Call To Action statements may
+contain "Framing Codes".&nbsp; These codes are highlighted in 'red' by
+default in the Product Editor. &nbsp; The product will not be able to
+be saved to a file, stored, or transmitted if there are framing codes
+present in the product.&nbsp; An example of a product with framing
+codes is shown below; the user must remove the frame codes prior to
+attempting to save the product.&nbsp;&nbsp; The software only checks
+for pairs of framing codes; i.e., if a single framing code is left in
+the editor, it may be transmitted.<br>
+<br>
+In the example below, locked text is shown in blue, and framing code
+text is shown in red:<br>
+<br>
+<div style="text-align: center;"><img alt=""
+ src="images/FormatterLauncher14.png"
+ style="width: 608px; height: 250px;"><br>
+<br>
+<br>
+</div>
+<h3>Simulated Transmit</h3>
+If the GFE is brought up in PRACTICE mode,&nbsp; then the Store and
+Transmit are simulated.&nbsp; The dialogs appear different and state
+that the simulated store/transmit operations.&nbsp; The dialogs look
+like:<br>
+<img alt="" src="images/FormatterLauncher10.png"
+ style="width: 460px; height: 219px;"><img alt=""
+ src="images/FormatterLauncher11.png"
+ style="width: 462px; height: 238px;"><br>
+<br>
+<br>
+In PRACTICE mode, the Store operation writes the product to the
+GFESuite products/PRACTICE directory as a time-stamped and pil-stamped
+file.&nbsp; The first three characters of the AWIPS product id are
+ignored.&nbsp;&nbsp; The Transmit operation in practice mode writes the
+product to the GFESuite products/PRACTICE directory in the same manner
+as the Store operation, and then runs the VTEC Decoder on the product
+to simulate sending the product on the WAN and re-receiving
+it.&nbsp;&nbsp;&nbsp;&nbsp; The <a href="VTEC.html">operational VTEC
+active table</a> is not used during practice mode, instead a special
+active table called PRACTICE is used.<br>
+<br>
+<div style="text-align: center;"><br>
+</div>
+<br>
+<hr style="width: 100%; height: 2px;">
+<h2><a name="OutputLog"></a>Output Log</h2>
+The Output Log is available after the product has finished.&nbsp; It
+contains the log and print statement output from the formatter
+run.&nbsp; It can be used to look for errors that may have
+occurred.&nbsp; A Save As... button is available to allow the contents
+to be saved to file for later use.<br>
+<br>
+<img alt="" src="images/FormatterLauncher8.png"><br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+</body>
+</html>

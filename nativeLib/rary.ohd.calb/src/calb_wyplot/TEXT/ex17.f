@@ -1,0 +1,260 @@
+c$pragma c icpi17
+C$PRAGMA C (ICP17)
+C MEMBER EX17
+C  (from old member MCEX17)
+C
+      SUBROUTINE EX17(PO,CO,LPLOTQ,LPX,PX,LRO,ROC,LSM,SM,ORD,ORDI,
+     1   LSYM,PSYM,DPX,D,MD)
+C.......................................
+C     THIS IS THE EXECUTION SUBROUTINE FOR THE 'WY-PLOT ' OPERATION.
+C.......................................
+C     SUBROUTINE INITIALLY WRITTEN BY...
+C      ERIC ANDERSON - HRL   APRIL  1980
+      DIMENSION D(MD)
+      DIMENSION PX(1),ROC(1),SM(1),DPX(1)
+      DIMENSION PO(1),CO(1),LPLOTQ(1),ORD(10),ORDI(1),LSYM(1),PSYM(1)
+      DIMENSION UNIT(4),UNITS(4,3),SCALE(10),CMO(12),ENGUNT(4,3),PXUT(2)
+      DIMENSION LASTDA(12)
+C
+C     COMMON BLOCKS
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/fctime'
+      INCLUDE 'common/fnopr'
+      INCLUDE 'common/fengmt'
+      INCLUDE 'common/where'
+      COMMON/OUTCTL/IOUTYP
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/calb/src/calb_wyplot/RCS/ex17.f,v $
+     . $',                                                             '
+     .$Id: ex17.f,v 1.4 2002/02/11 13:29:02 michaelo Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C     DATA STATEMENTS
+      DATA UNITS/4HMM -,4H SEM,4HI LO,4HG   ,4HCMSD,4H    ,4H    ,
+     14H    ,4H(CMS,4HD/SQ,4H.KM),4H*100/
+      DATA ENGUNT/4HINCH,4HES-S,4HEMI ,4HLOG ,4HCFSD,4H    ,4H    ,
+     14H    ,4HCFSD,4H/SQ.,4HMI. ,4H    /
+      DATA PXUT/4H(IN),4H(MM)/
+      DATA CMO/3HJAN,3HFEB,3HMAR,3HAPR,3HMAY,3HJUN,3HJUL,3HAUG,3HSEP,
+     13HOCT,3HNOV,3HDEC/
+      DATA BLANK,DOT/1H ,1H./
+      DATA LASTDA/31,28,31,30,31,30,31,31,30,31,30,31/
+C.......................................
+C     TRACE LEVEL=1, NO DEBUG OUTPUT.
+      IF(ITRACE.GE.1) WRITE(IODBUG,900)
+  900 FORMAT(1H0,15H** EX17 ENTERED)
+C.......................................
+C     RETURN IMMEDIATELY IF PRINTER OUTPUT NOT ALLOWED.
+      IF(NOPROT.EQ.1) RETURN
+C.......................................
+C     CONTROL VARIABLES.
+      NPLOT=PO(6)
+      I=PO(10)
+      IDT=PO(I+3)
+      LSMI=PO(12)
+      IF (LSM.GT.0) SMTYPE=PO(LSMI+2)
+C
+C     DETERMINE CURRENT MONTH.
+      CALL MDYH1(LDA,LHR,MONTH,LD,KYEAR,IX,NOUTZ,NOUTDS,TZCODE)
+C.......................................
+C     PASS NEEDED VALUES TO GRAPHICS INTERFACE ROUTINE
+      IF(IOUTYP.EQ.0) GO TO 89
+C     ONLY PASS PARAMETRIC DATA ONCE
+      IF(IDA.NE.IDARUN) GO TO 85
+      AREA = PO(8)
+      PMAX=PO(9)
+      CALL ICPI17(OPNAME, NPLOT, LPLOTQ, LPX, IDT, AREA, PMAX, PO(15) )
+   85 CALL ICP17 (OPNAME, MONTH, KYEAR, NPLOT, LPLOTQ, D, LPX, PX, IDT)
+   89 IF((NOPROT.EQ.1).OR.(IOUTYP.EQ.2)) RETURN
+C.......................................
+C     WRITE DATA TO SCRATCH DISK AND STORE MONTHLY TOTALS OF
+C        DISCHARGE IN CO().
+      LWY=PO(13)
+      NPMO=PO(14)
+      MOWY=MONTH+3
+      IF(MOWY.GT.12) MOWY=MOWY-12
+C
+C     DETERMINE FIRST RECORD FOR THIS MONTH.
+      NREC=LWY+(MOWY-1)*NPMO
+      CALL WTWY17(MOWY,NREC,NPLOT,CO,LPLOTQ,D,MD,LPX,IDT,PX,DPX,LRO,
+     1   ROC,LSM,SM)
+C     NOTE..IF LPX.GT.0--IDT NOW=24 (DAILY VALUES ON SCRATCH FILE).
+C.......................................
+C     CHECK IF PLOT SHOULD BE GENERATED THIS MONTH.
+      IF((MONTH.EQ.9).OR.(LDA.EQ.LDARUN)) GO TO 100
+      RETURN
+C.......................................
+C     PRINT WATER YEAR PLOT
+C     CHECK IF THIS IS THE LAST YEAR OF THE RUN.
+  100 LASTYR=0
+      IF(LDA.EQ.LDARUN) LASTYR=1
+C
+C     DETERMINE CURRENT WATER YEAR.
+      KWY=KYEAR
+      IF(MONTH.GT.9) KWY=KWY+1
+C
+C     CHECK IF RUN BEGAN THIS WATER YEAR.
+      IHOUR=IHRRUN
+      IF (IHOUR.EQ.0) IHOUR=1
+      CALL MDYH1(IDARUN,IHOUR,IMO,ID,IYEAR,IX,NOUTZ,NOUTDS,TZCODE)
+      IWY=IYEAR
+      IF(IMO.GT.9) IWY=IWY+1
+      IF(IWY.EQ.KWY) GO TO 105
+      IMO=10
+      ID=1
+C.......................................
+C     CONTROL VARIABLES FOR PLOTTING.
+  105 AREA=PO(8)
+      PMAX=PO(9)
+      IS=PO(7)
+      DO 106 N=1,NPLOT
+      I=21+(N-1)*7
+  106 PSYM(N)=PO(I)
+      IF((IS.EQ.2).AND.(METRIC.EQ.0)) PMAX=PMAX*35.0
+      DO 107 I=1,4
+      IF(METRIC.EQ.0) GO TO 108
+      UNIT(I)=UNITS(I,IS)
+      GO TO 107
+  108 UNIT(I)=ENGUNT(I,IS)
+  107 CONTINUE
+C.......................................
+C     PRINT HEADING FOR PLOT.
+      WRITE(IPR,901) KWY,(PO(I),I=1,5),AREA,UNIT
+  901 FORMAT(1H1,10HWATER YEAR, 1X,I4,3X,24HMEAN DAILY FLOW PLOT FOR,1X,
+     15A4,5X,5HAREA=,F9.1,1X,5HSQ.KM,5X,9HUNITS ARE,1X,4A4)
+      WRITE(IPR,902) PXUT(METRIC+1)
+  902 FORMAT(1H ,93X,24HPCN=PRECIP. OR RAIN+MELT,1X,A4)
+      IF(LRO.GT.0) WRITE(IPR,903) PXUT(METRIC+1)
+  903 FORMAT(1H ,93X,29HINFW=RUNOFF OR CHANNEL INFLOW,1X,A4)
+      WRITE(IPR,904)
+  904 FORMAT(1H ,10X,4HNUM.,3X,9HT.S. I.D.,3X,4HTYPE,6X,4HNAME,
+     16X,3HSYM)
+      DO 109 N=1,NPLOT
+      LOC=15+(N-1)*7
+      LV=LOC+6
+      WRITE(IPR,905) N,(PO(I),I=LOC,LV)
+  905 FORMAT(1H ,10X,I3,5X,2A4,3X,A4,2X,3A4,3X,A1)
+  109 CONTINUE
+C.......................................
+C     PRINT STREAMFLOW VOLUME SUMMARY.
+      CALL VSUM17(NPLOT,AREA,CO,CMO)
+C.......................................
+C     SET UP SCALE FOR PLOT.
+      IF(IS.GT.1) GO TO 155
+C     SEMI-LOG PLOT.
+      IF (METRIC.EQ.0) GO TO 154
+C     METRIC UNITS -- MM.
+      SCALE(1)=0.01
+      SCALE(2)=0.1
+      SCALE(3)=1.0
+      SCALE(4)=10.
+      SCALE(5)=100.
+      CONV=1.0/(0.011574*AREA)
+      BASE=ALOG(0.001)
+      GO TO 153
+C     ENGLISH UNITS -- INCHES.
+  154 SCALE(1)=0.001
+      SCALE(2)=0.01
+      SCALE(3)=0.1
+      SCALE(4)=1.0
+      SCALE(5)=10.
+      CONV=1.0/(0.011574*25.4*AREA)
+      BASE=ALOG(0.0001)
+  153 CYCLE=5.0
+      IF (LRO.GT.0) BASE=BASE+(ALOG(10.0)*0.5)
+      PMAX=BASE+ALOG(10.0)*CYCLE
+      GO TO 165
+  155 IF (IS.GT.2) GO TO 160
+C
+C     ARITHMETRIC SCALE
+      DO 156 I=1,10
+      F=I
+  156 SCALE(I)=F*0.1*PMAX
+      BASE=0.0
+      CONV=1.0
+      IF (METRIC.EQ.0) CONV=35.3147
+      GO TO 165
+C
+C     MODIFIED ARITHMETRIC SCALE.
+  160 CYCLE=PMAX/6.0
+      DO 161 I=1,5
+      F=I
+  161 SCALE(I)=F*0.2*CYCLE
+      F=CYCLE
+      DO 162 I=6,10
+      F=F+CYCLE
+  162 SCALE(I)=F
+      BASE=0.0
+      CONV=100.0/AREA
+      IF (METRIC.EQ.0) CONV=35.3147*2.59/AREA
+C.......................................
+C     INITIALIZE PLOT VALUES.
+  165 LIMIT=101
+      IF(LRO.GT.0) LIMIT=81
+      IF(LSM.GT.0) LMD=LIMIT-25
+      DO 166 I=1,100
+  166 ORD(I)=BLANK
+      DO 167 I=1,101,10
+  167 ORD(I)=DOT
+      WRITE(IPR,907)
+  907 FORMAT(1H0)
+C
+C     PRINT RUNOFF COMPONENTS TITLE IF NEEDED.
+      IF(LRO.EQ.0) GO TO 169
+      WRITE(IPR,906)
+  906 FORMAT(1H ,111X,17HRUNOFF COMPONENTS,/115X,11H% OF TOTAL.)
+C.......................................
+C     BEGIN MAIN MONTHLY PLOTTING LOOP.
+  169 KMO=IMO
+      KYR=KWY
+      IF(KMO.GT.9)KYR=KYR-1
+      MN=1
+      IEND=0
+C
+C     DETERMINE FIRST AND LAST DAY OF CURRENT MONTH.
+  170 IDAY=1
+      LDAY=LASTDA(KMO)
+      IF((KMO.EQ.2).AND.((KWY/4)*4.EQ.KWY)) LDAY=LDAY+1
+      IF((KWY.EQ.IWY).AND.(KMO.EQ.IMO)) IDAY=ID
+      IF((LASTYR.EQ.1).AND.(KMO.EQ.MONTH)) LDAY=LD
+C
+C     READ DATA FROM SCRATCH FILE.
+      MOWY=KMO+3
+      IF(MOWY.GT.12) MOWY=MOWY-12
+      NREC=LWY+(MOWY-1)*NPMO
+      CALL RDWY17(NREC,NPLOT,LPLOTQ,D,MD,LPX,DPX,LRO,ROC,LSM,SM,IDAY,
+     1   LDAY)
+C
+C     PRINT SCALE IF MN=1
+      IF(MN.EQ.1) CALL SCAL17(IS,LRO,LSM,SMTYPE,KMO,KYR,MN,SCALE,CMO)
+C
+C     PLOT FLOW.
+      CALL PLMO17(NPLOT,IDAY,LDAY,CONV,IS,CYCLE,BASE,PMAX,LIMIT,LMD,ORD,
+     1   ORDI,LSYM,PSYM,LPLOTQ,LPX,DPX,LRO,ROC,LSM,SM,D,MD)
+      IF(KMO.NE.MONTH) GO TO 180
+      MN=2
+      IEND=1
+C
+C     PRINT SOIL-MOISTURE HEADING IF NEEDED.
+  180 IF((LSM.GT.0).AND.(MN.EQ.2)) CALL SCAL17(IS,LRO,LSM,SMTYPE,KMO,
+     1  KYR,MN,SCALE,CMO)
+      IF(IEND.EQ.1) GO TO 190
+      IF (MN.EQ.1) GO TO 181
+      MN=1
+      GO TO 182
+  181 MN=2
+  182 KMO=KMO+1
+      IF(KMO.LT.13)GO TO 170
+      KMO=1
+      KYR=KYR+1
+      GO TO 170
+C.......................................
+  190 CONTINUE
+      RETURN
+      END

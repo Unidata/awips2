@@ -1,0 +1,45 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the util-new_alt library file
+#
+#  cmt: File made on Wed Aug  6 12:57:00 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/util/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/ofs/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libnew_alt_t.a:  \
+     $(LIB)/libnew_alt_t.a(uffind.o)  \
+     $(LIB)/libnew_alt_t.a(ufiel2.o)  \
+     $(LIB)/libnew_alt_t.a(ufield.o)  \
+     $(LIB)/libnew_alt_t.a(ufinfx.o)  \
+     $(LIB)/libnew_alt_t.a(ufldrd.o)  \
+     $(LIB)/libnew_alt_t.a(ufldst.o)  \
+     $(LIB)/libnew_alt_t.a(ufpack.o)  \
+     $(LIB)/libnew_alt_t.a(ufrlfx.o)  \
+     $(LIB)/libnew_alt_t.a(ugtfld.o)  \
+     $(LIB)/libnew_alt_t.a(upackn.o)  \
+     $(LIB)/libnew_alt_t.a(uprcrd.o)  \
+     $(LIB)/libnew_alt_t.a(uprfld.o)
+

@@ -1,0 +1,18 @@
+p, table, td, th {  font-family: arial, helvetica, geneva; font-size: 10pt}
+pre {  font-family: "Courier New", Courier, mono; font-size: 10pt}
+h2 { font-family: arial, helvetica, geneva; font-size: 18pt; font-weight: bold ; line-height: 14px}
+code {  font-family: "Courier New", Courier, mono; font-size: 10pt}
+sup {  font-family: arial,helvetica,geneva; font-size: 10px}
+h3 {  font-family: arial, helvetica, geneva; font-size: 14pt; font-weight: bold}
+li {  font-family: arial, helvetica, geneva; font-size: 10pt}
+h1 {  font-family: arial, helvetica, geneva; font-size: 28px; font-weight: bold}
+body {  font-family: arial, helvetica, geneva; font-size: 10pt; clip:   rect(   ); margin-top: 5mm; margin-left: 3mm}
+.indextop { font-size: x-large;; font-family: Verdana, Arial, Helvetica, sans-serif; font-weight: bold}
+.indexsub { font-size: xx-small;; font-family: Arial, Helvetica, sans-serif; color: #8080FF}
+a.bar:link {  text-decoration: none; color: #FFFFFF}
+a.bar:visited {  color: #FFFFFF; text-decoration: none}
+a.bar:hover {  color: #FFFFFF; text-decoration: underline}
+a.bar {  color: #FFFFFF}
+.jump { font-size: smaller;; font-family: Arial, Helvetica, sans-serif; color: #8080FF ; font-style: normal; text-decoration: none}
+.jump:link { font-size: smaller;; font-family: Arial, Helvetica, sans-serif; color: #8080FF; text-decoration: none}
+.jump:hover { font-size: smaller;; font-family: Arial, Helvetica, sans-serif; color: #0000FF; text-decoration: underline; font-style: normal}

@@ -1,0 +1,22 @@
+
+<mapDescriptor>
+ <resource class="com.raytheon.viz.shapefile.rsc.ShapefileResource">
+  <properties>
+   <value field="name">US States</value>
+   <value field="filename">S_14jl05/s_14jl05.shp</value>
+   <value field="labelFields">NAME</value>
+   <value field="regularPolygon">false</value>
+   <value field="outlineDrawn">true</value>
+   <value field="color">RGB {255, 255, 255}</value>
+   <value field="outlineWidth">0</value>
+   <value field="outlineOn">true</value>
+  </properties>
+  <resourceProperties>
+   <isVisible>true</isVisible>
+   <opacity>1.0</opacity>
+   <isLabeled>false</isLabeled>
+   <isHoverOn>false</isHoverOn>
+   <isMapLayer>true</isMapLayer>
+  </resourceProperties>
+ </resource>
+</mapDescriptor>

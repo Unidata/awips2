@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+   <extension
+         point="gov.noaa.nws.ncep.viz.resources.NC-Resource">
+      <nc-resource
+            class="gov.noaa.nws.ncep.viz.rsc.plotdata.rsc.PlotResourceData"
+            editDialogClass="gov.noaa.nws.ncep.viz.rsc.plotdata.rsc.EditPlotDataAttrsDialog"
+            name="PlotData">
+      </nc-resource>
+   </extension>
+   <extension
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceAttribute">
+      <nc-resourceAttribute
+            attributeClass="PlotModel"
+            attributeName="plotModel"
+            ncResourceName="PlotData">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="levelKey"
+            ncResourceName="PlotData">
+      </nc-resourceAttribute>
+   </extension>
+   <!--
+   <extension
+         point="gov.noaa.nws.ncep.viz.localization.localizationData">
+      <singleLocalizationValue
+            name="plotParametersMappingTable"
+            location="plotModels"
+            fileName="plotParametersMappingTable.txt">
+      </singleLocalizationValue>
+   </extension>
+   -->
+</plugin>

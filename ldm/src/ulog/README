@@ -1,0 +1,92 @@
+$Id: README,v 1.12 2003/03/21 19:30:22 steve Exp $
+
+The ulog routines allow you to route log messages directly to a file
+or to syslogd, switchable at run time. If you are going to send the
+data to syslogd, you should configure it. Read the manual pages for
+syslog(3), syslogd(8), and syslog.conf(5). Also logger(1) if your system
+has it.
+
+Configuring syslog.
+
+It is highly recommended that you use syslogd for logging.
+This allows you to close and rename the logfile on a daily or hourly
+basis and avoid filling up the filesystem with logs.
+
+ulog.h defines the "facility" used by the ldm programs, LOG_LDM,
+as LOG_LOCAL0. The examples below assume you are using this default.
+(If you need to use a different facility, becasue for example
+LOG_LOCAL0 is already used on your campus for some other purpose, see
+the note below on how to change the default.)
+
+Add a line like the following to /etc/syslog.conf. Use a logfile path
+name appropriate to your system setup. The white space between "debug" and
+"/var" _must_ be a tab.
+
+# entry for ldm logging
+local0.debug	/var/data/ldm/ldmd.log
+
+For this to take effect, 
+	date > /var/data/ldm/ldmd.log
+	hupsyslog
+
+where `hupsyslog' comes with this package and sends a HUP signal to
+the syslog daemon.  `hupsyslog', needs to be installed `setuid root'. You will 
+NEED to be root to do this, type `make install_setuids'. You do NOT need to 
+have root privilege for any other part of the install. If you cannot get root 
+privilege, hupsylog will not have permission to send the HUP signal and
+the logs will not be rotated.
+
+Test with the following csh script:
+
+% foreach level (err warning notice info)
+? echo $level | logger -i -t test -p local0.$level
+? end
+
+Your logfile should have some lines sort of like this:
+Jul 24 02:49:28 zeppo test[26767]: err
+Jul 24 02:49:28 zeppo test[26769]: warning
+Jul 24 02:49:28 zeppo test[26771]: notice
+Jul 24 02:49:28 zeppo test[26773]: info
+
+Add a line like this to the crontab file of the LDM, setup (using 'crontab -e'):
+
+# Shift LDM log files once a day, 17 Z local is 0 zulu.
+#
+00 17 * * * bin/ldmping -l /dev/null -h zero && bin/newlog logs/ldmd.log 24 && bin/hupsyslog
+
+OR
+
+# Shift LDM log files once an hour at 30 minutes past. ldmstats needs the logs
+# rotated once an hour.
+#
+30 * * * * bin/ldmping -l /dev/null -h zero && bin/newlog logs/ldmd.log 24 && bin/hupsyslog
+
+NOTE:
+
+i)     The ldmping is executed first, because if it fails, the logs
+        are not rotated and the error information is saved in
+        ldmd.log.
+        
+ii)    The newlog script rotates the log and it has two parameters:
+        the logfile with the relative path (required) and the number of
+        files to save (optional). This configuration saves 24 files.
+        The default is 8 files.
+
+ 
+iii)    hupsyslog is executed, it sends a kill HUP signal to syslog so
+        syslog writes to the new ldmd.log file.
+
+Note:  If instead you need to use LOG_LOCAL1 instead of LOG_LOCAL0,
+for example, you will need to do the following:
+  1.  Set the environment variable ULOG_FACILITY_OVERRIDE to `1' in
+      the startup file for the ldm user, for example in the .cshrc file
+         setenv ULOG_FACILITY_OVERRIDE 1
+  2.  Edit the script ../scour/scour consistently, changing `local0'
+      to `local1'.
+  3.  Use `local0' instead of `local1' in /etc/syslog.conf and in the
+      testing above.
+  4.  Edit the installed "ldmadmin" script: set the "$logFacility" variable.
+
+There is auxiliary information in the Installation Section of the Site
+Manager's Guide.
+

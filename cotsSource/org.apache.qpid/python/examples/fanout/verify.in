@@ -1,0 +1,27 @@
+==== fanout_producer.py.out
+==== fanout_consumer.py.out | remove_uuid
+Subscribed to queue 
+message 0
+message 1
+message 2
+message 3
+message 4
+message 5
+message 6
+message 7
+message 8
+message 9
+That's all, folks!
+==== fanout_consumer.pyX.out | remove_uuid
+Subscribed to queue 
+message 0
+message 1
+message 2
+message 3
+message 4
+message 5
+message 6
+message 7
+message 8
+message 9
+That's all, folks!
