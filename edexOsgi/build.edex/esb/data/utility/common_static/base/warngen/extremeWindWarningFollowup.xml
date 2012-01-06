@@ -1,0 +1,211 @@
+<!-- Extreme Wind Warning followup configuration 
+      MODIFIED EVAN BOOKBINDER 09-16-2011 OB11.0.8-8
+      EVAN BOOKBINDER WFO EAX 11-4-2011 removed bulletDefaults that prevented auto selection
+-->
+<warngenConfig>
+
+ <!-- Config distance/speed units -->
+ <unitDistance>mi</unitDistance>
+ <unitSpeed>mph</unitSpeed>
+
+ <!-- Maps to load on template selection. Refer to 'Maps' menu in CAVE. 
+ 	The various menu items are also the different maps
+ 	that can be loaded with each template. -->
+ <maps>
+  <map>County Names</map>
+  <map>County Warning Areas</map>
+ </maps>
+
+ <!-- Followups: VTEC actions of allowable followups when this template is selected 
+	Each followup will become available when the appropriate time range permits.
+ -->
+ <followups>
+  <followup>COR</followup>
+  <followup>CON</followup>
+  <followup>CAN</followup>
+  <followup>EXP</followup>
+ </followups>
+ 
+ <!-- Phensigs: The list of phenomena and significance combinations that this template applies to -->
+ <phensigs>
+   <phensig>EW.W</phensig>
+ </phensigs>
+ 
+  <!-- Enables/disables user from selecting the Restart button the GUI -->
+ <enableRestart>false</enableRestart>
+ 
+ <!-- Enable/disables the system to lock text based on various patterns -->
+ <autoLockText>true</autoLockText>
+ 
+  <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
+ 	included with the warning product include torWatches and/or svrWatches, 
+ 	respectively. Please refer to 'includedWatchAreaBuffer' in <areaConfig/>. -->
+ <includedWatches>
+  <includedWatch>torWatches</includedWatch>
+  <includedWatch>svrWatches</includedWatch>
+ </includedWatches>
+ 
+ <!-- durations: the list of possible durations of the svs -->
+ <!-- THIS REALLY SERVES NO PURPOSE BUT WILL CRASH WARNGEN IF REMVOED -->
+ <defaultDuration>30</defaultDuration>
+ <durations>
+  <duration>30</duration>
+ </durations>
+ 
+<bulletActionGroups>
+<bulletActionGroup>
+ <bullets>
+  <bullet bulletText="*********** SELECT A FOLLOWUP **********" bulletType="title"/>
+ </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="CAN" phen="EW" sig="W">
+ <bullets>
+  <bullet bulletText="*********** CAN SELECTED **********" bulletType="title"/>
+ </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="EXP" phen="EW" sig="W">
+ <bullets>
+  <bullet bulletText="*********** EXP SELECTED **********" bulletType="title"/>
+ </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="CON" phen="EW" sig="W">
+ <bullets>
+  <bullet bulletName="var1" bulletText="convective winds" bulletGroup="group1" parseString="ASSOCIATED WITH A BROAD AREA OF INTENSE THUNDERSTORMS"/>
+  <bullet bulletName="var2" bulletText="non-hurricane winds" bulletGroup="group1" parseString="ASSOCIATED WITH AN INTENSE LOW PRESSURE AREA"/>
+  <bullet bulletName="var3" bulletText="downslope winds" bulletGroup="group1" parseString="ASSOCIATED WITH A DOWNSLOPE WINDSTORM"/>
+  <bullet bulletText="***** BASIS FOR WARNING (CHOOSE 1) ******" bulletType="title"/>
+  <bullet bulletName="basis1" bulletText="Doppler radar indicated" bulletGroup="group2" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED"/>
+  <bullet bulletName="basis2" bulletText="surface observations indicated..." bulletGroup="group2" parseString="SURFACE OBSERVATIONS INDICATED EXTREME WINDS"/>
+  <bullet bulletName="basis3" bulletText="maritime observations indicated..." bulletGroup="group2" parseString="MARITIME OBSERVATIONS INDICATED EXTREME WINDS"/>
+  <bullet bulletName="basis4" bulletText="spotters indicated..." bulletGroup="group2" parseString="TRAINED WEATHER SPOTTERS REPORTED EXTREME WINDS"/>
+  <bullet bulletName="basis5" bulletText="radar and surface observations..." bulletGroup="group2" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR AND SURFACE OBSERVATIONS"/>
+  <bullet bulletName="basis6" bulletText="radar and maritime observations..." bulletGroup="group2" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR AND MARITIME OBSERVATIONS"/>
+  <bullet bulletName="basis7" bulletText="radar and spotters..." bulletGroup="group2" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR AND TRAINED WEATHER SPOTTERS"/>
+  <bullet bulletText="*********** CALL TO ACTIONS (CHOOSE 1 OR MORE) **********" bulletType="title"/>
+  <bullet bulletName="cta1" bulletText="Specific wind values" parseString="WIDESPREAD DESTRUCTIVE WINDS OF"/>
+  <bullet bulletName="cta2" bulletText="CTA - Take cover now" parseString="TAKE COVER NOW!"/>
+  <bullet bulletName="cta3" bulletText="CTA - Safe places to be" parseString="THE SAFEST PLACE TO BE DURING"/>
+  <bullet bulletText="*********** Pathcast? **********" bulletType="title"/>
+  <bullet bulletName="pathcast" bulletText="select for pathcast" bulletGroup="toggle4" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listofcities" bulletText="select for a list of cities" bulletGroup="toggle4" parseString="LOCATIONS IMPACTED INCLUDE..."/>
+ </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="COR" phen="EW" sig="W">
+ <bullets>
+   <bullet bulletText="**** CORRECTED PRODUCT. CLICK CREATE TEXT ****" bulletType="title"/>
+ </bullets>
+</bulletActionGroup>
+</bulletActionGroups>
+
+ <areaConfig>
+  <inclusionPercent>0.00</inclusionPercent>
+  <inclusionAndOr>AND</inclusionAndOr>
+  <inclusionArea>0</inclusionArea>
+  <areaField>COUNTYNAME</areaField>
+  <parentAreaField>NAME</parentAreaField>
+  <areaNotationField>STATE</areaNotationField>
+  <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+  <fipsField>FIPS</fipsField>
+  <pointField>NAME</pointField>
+  <sortBy>
+  	<sort>parent</sort>
+  </sortBy>
+  <pointFilter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1" constraintType="EQUALS" />
+ 		</mapping>
+  </pointFilter>
+  <includedWatchAreaBuffer>25</includedWatchAreaBuffer>
+ </areaConfig>
+ 
+ <pointSource variable="closestPoints">
+ 	<pointField>NAME</pointField>
+ 	<searchMethod>POINTS</searchMethod>
+ 	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1,2" constraintType="IN" />
+ 		</mapping>
+ 	</filter>
+ 	<maxResults>1</maxResults>
+ 	<distanceThreshold>50</distanceThreshold>
+ 	<sortBy>
+ 		<sort>distance</sort>
+  		<sort>warngenlev</sort>
+  		<sort>population</sort>
+  	</sortBy>
+ </pointSource>
+ 
+ <pointSource variable="otherClosestPoints">
+ 	<pointField>NAME</pointField>
+ 	<searchMethod>POINTS</searchMethod>
+ 	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1,2" constraintType="IN" />
+ 		</mapping>
+ 	</filter>
+ 	<maxResults>5</maxResults>
+ 	<distanceThreshold>100</distanceThreshold>
+ 	<sortBy>
+ 		<sort>distance</sort>
+  		<sort>warngenlev</sort>
+  		<sort>population</sort>
+  	</sortBy>
+ </pointSource>
+ 
+ <pathcastConfig>
+  <withinPolygon>true</withinPolygon>
+  <distanceThreshold>8.0</distanceThreshold>
+  <interval>5</interval>
+  <delta>5</delta>
+  <maxResults>4</maxResults>
+  <maxGroup>8</maxGroup>
+  <pointField>Name</pointField>
+  <areaField>COUNTYNAME</areaField>
+  <parentAreaField>STATE</parentAreaField>
+  <areaNotationField>STATE</areaNotationField>
+  <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+  <sortBy>
+  	<sort>distance</sort>
+  </sortBy>
+ </pathcastConfig>
+ 
+   <pointSource variable="cityList">
+ 	<pointField>NAME</pointField>
+ 	<searchMethod>TRACK</searchMethod>
+ 	<withinPolygon>true</withinPolygon>
+ 	<maxResults>20</maxResults>
+ 	<distanceThreshold>10</distanceThreshold>
+ 	<sortBy>
+  		<sort>warngenlev</sort>
+  		<sort>population</sort>
+  	</sortBy>
+ </pointSource>
+ 
+  <pointSource variable="otherPoints">
+ 	<pointField>NAME</pointField>
+ 	<searchMethod>TRACK</searchMethod>
+ 	<withinPolygon>true</withinPolygon>
+ 	<maxResults>10</maxResults>
+ 	<distanceThreshold>10</distanceThreshold>
+ 	<sortBy>
+  		<sort>distance</sort>
+  	</sortBy>
+	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="3" constraintType="EQUALS" />
+ 		</mapping>
+  	</filter>
+ </pointSource>
+ 
+
+ <geospatialConfig>
+  <pointSource>City</pointSource>
+  <areaSource>County</areaSource>
+  <parentAreaSource>States</parentAreaSource>
+  <timezoneSource>TIMEZONES</timezoneSource>
+  <timezoneField>TIME_ZONE</timezoneField>
+ </geospatialConfig>
+ 
+ <include file="milemarkers.xml"/>
+ 
+</warngenConfig>

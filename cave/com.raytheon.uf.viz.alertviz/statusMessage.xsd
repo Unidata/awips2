@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<!-- 
+  HISTORY
+  Date         Ticket#    Engineer    Description
+  ------------ ---------- ----------- --------------------------
+  Sep 30, 2008            chammack    Initial creation
+  
+-->
+
+<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="statusMessage" type="statusMessage"/>
+
+  <xs:complexType name="statusMessage">
+    <xs:sequence>
+      <xs:element name="message" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="details" type="xs:string" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+    <xs:attribute name="sourceKey" type="xs:string"/>
+    <xs:attribute name="category" type="xs:string"/>
+    <xs:attribute name="priority" type="priority"/>
+    <xs:attribute name="machine" type="xs:string"/>
+    <xs:attribute name="eventTime" type="xs:dateTime"/>
+    <xs:attribute name="pk" type="xs:int" use="optional"/>
+  </xs:complexType>
+
+  <xs:simpleType name="priority">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="CRITICAL"/>
+      <xs:enumeration value="SIGNIFICANT"/>
+      <xs:enumeration value="PROBLEM"/>
+      <xs:enumeration value="EVENTA"/>
+      <xs:enumeration value="EVENTB"/>
+      <xs:enumeration value="VERBOSE"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>
+

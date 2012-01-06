@@ -1,0 +1,530 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-31smp i686) [Netscape]">
+  <title>gfeConfig - User Interface Configuration</title>
+</head>
+<body bgcolor="#ffffff">
+<div class="Body">
+<div style="text-align: center;"></div>
+<div class="3Heading">
+<h2 style="text-align: center;">GFE/ifpIMAGE Configuration File<br>
+User Interface Configuration<br>
+</h2>
+</div>
+<div class="3Heading">
+<blockquote><br>
+&nbsp;
+  <table nosave="" border="1" cols="4" width="100%">
+    <tbody>
+      <tr>
+        <td>
+        <center><b>GFE Configuration Item</b></center>
+        </td>
+        <td>
+        <center><b>Applicable to GFE</b></center>
+        </td>
+        <td>
+        <center><b>Applicable to ifpIMAGE</b></center>
+        </td>
+        <td>
+        <center><b>Notes</b></center>
+        </td>
+      </tr>
+      <tr>
+        <td><a href="#AvailableFillPatternsandLinePatterns">Available
+Fill Patterns
+and Line Patterns</a></td>
+        <td>YES</td>
+        <td>YES</td>
+        <td><br>
+        </td>
+      </tr>
+      <tr>
+        <td><a href="#SelectedColorandPattern">Selected Color and
+Pattern</a></td>
+        <td>YES</td>
+        <td>NO</td>
+        <td><br>
+        </td>
+      </tr>
+      <tr>
+        <td><a href="#TimeScaleLinesColorandPattern">Time Scale Lines
+Color and
+Pattern</a></td>
+        <td>YES</td>
+        <td>NO</td>
+        <td><br>
+        </td>
+      </tr>
+      <tr>
+        <td><a href="#EditorTimeLineColor,Pattern,andWidth">Editor Time
+Line Color,
+Pattern, and Width</a></td>
+        <td>YES</td>
+        <td>NO</td>
+        <td><br>
+        </td>
+      </tr>
+      <tr>
+        <td><a href="#CurrentSystemTimeIndicatorColor">Current System
+Time Indicator
+Color</a></td>
+        <td>YES</td>
+        <td>NO</td>
+        <td><br>
+        </td>
+      </tr>
+      <tr>
+        <td><a href="#LockColorsandPatterns">Lock Colors and Patterns</a></td>
+        <td>YES</td>
+        <td>NO</td>
+        <td><br>
+        </td>
+      </tr>
+      <tr>
+        <td><a href="#TimeBlockColors">Time Block Colors</a></td>
+        <td>YES</td>
+        <td>NO</td>
+        <td><br>
+        </td>
+      </tr>
+      <tr>
+        <td><a href="#EditAreaColors">Edit Area Color and Border Width</a></td>
+        <td>YES</td>
+        <td>NO</td>
+        <td><br>
+        </td>
+      </tr>
+      <tr>
+        <td><a href="#InitialWidthofGridManager">Initial Width of Grid
+Manager</a></td>
+        <td>YES</td>
+        <td>NO</td>
+        <td><br>
+        </td>
+      </tr>
+      <tr>
+        <td><a href="#InitialLegendMode">Initial Legend Mode</a></td>
+        <td>YES</td>
+        <td>NO</td>
+        <td><br>
+        </td>
+      </tr>
+      <tr>
+        <td style="vertical-align: top;"><a
+ href="#InitialGridManagerMode">Initial Grid Manager Mode</a><br>
+        </td>
+        <td style="vertical-align: top;">YES<br>
+        </td>
+        <td style="vertical-align: top;">NO<br>
+        </td>
+        <td style="vertical-align: top;"><br>
+        </td>
+      </tr>
+      <tr>
+        <td><a href="#NumberofQuickSetButtons">Number of Quick Set
+Buttons</a></td>
+        <td>YES</td>
+        <td>NO</td>
+        <td><br>
+        </td>
+      </tr>
+      <tr>
+        <td><a href="#StatusBarCharacteristics">Status Bar
+Characteristics</a></td>
+        <td>YES</td>
+        <td>NO</td>
+        <td><br>
+        </td>
+      </tr>
+      <tr>
+        <td><a href="#MenuItemLimitPriortoCascade">Menu Item Limit
+Prior to Cascade</a></td>
+        <td>YES</td>
+        <td>YES</td>
+        <td><br>
+        </td>
+      </tr>
+      <tr>
+        <td><a href="#OfficeDomainExpansion">Office Domain Expansion</a></td>
+        <td>YES</td>
+        <td>YES</td>
+        <td><br>
+        </td>
+      </tr>
+      <tr>
+        <td><a href="#LocationofEditActionDialog">Location of Edit
+Action Dialog</a></td>
+        <td>YES</td>
+        <td>NO</td>
+        <td><br>
+        </td>
+      </tr>
+      <tr>
+        <td><a href="#InitialLayoutofGridManagerandTemporalEditor">Initial
+Layout
+of Grid Manager and Temporal Editor</a></td>
+        <td>YES</td>
+        <td>NO</td>
+        <td><br>
+        </td>
+      </tr>
+      <tr>
+        <td><a href="#TemporalEditorWeatherElements">Temporal Editor
+Weather Elements</a></td>
+        <td>YES</td>
+        <td>NO</td>
+        <td><br>
+        </td>
+      </tr>
+      <tr>
+        <td style="vertical-align: top;"><a
+ href="gfeConfig_UI.html#LastSaved">Grid
+Manager Last Saved, Modified, Published, and Sent Colors and Times</a></td>
+        <td style="vertical-align: top;">YES<br>
+        </td>
+        <td style="vertical-align: top;">NO<br>
+        </td>
+        <td style="vertical-align: top;"><br>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</blockquote>
+</div>
+<blockquote> </blockquote>
+<hr style="width: 100%; height: 2px;">
+<h4><br>
+</h4>
+<h4><a name="AvailableFillPatternsandLinePatterns"></a><font size="+1">Available
+Fill Patterns and Line Patterns</font></h4>
+The colors may be specified as a known X-lib color, or as a '#rrggbb'
+color.&nbsp;
+There are only a few allowed fill patterns and line patterns that may
+be
+used. If additional patterns are designed, you will need to contact the
+developers. The available fill patterns are:
+<blockquote><li>WHOLE</li>
+  <li>WIDE</li>
+  <li>SCATTERED</li>
+  <li>WIDE_SCATTERED</li>
+  <li>ISOLATED</li>
+  <li>TRANS_25PC_45DEG</li>
+  <li>TRANS_25PC_135DEG</li>
+  <li>SELECTED_AREA</li>
+  <li>DUALCURVE</li>
+  <li>CURVE</li>
+  <li>VERTICAL</li>
+  <li>CROSS</li>
+  <li>HORIZONTAL</li>
+  <li>BIGCROSS</li>
+</blockquote>
+You can see <a href="FillPatterns.html">examples of the fill patterns
+here</a>.
+<p>The available line patterns are: </p>
+<blockquote><li>SOLID</li>
+  <li>DASHED</li>
+  <li>DOTTED</li>
+  <li>DASHED_DOTTED</li>
+</blockquote>
+<h4> <a name="SelectedColorandPattern"></a><font size="+1">Selected
+Color
+and
+Pattern</font></h4>
+Defines the color and pattern used in the Grid Manager to indicate a
+time
+selection.
+<p><b><tt>Selected_color = 'LightSkyBlue'</tt></b> <br>
+<b><tt>Selected_fillPattern = 'TRANS_25PC_45DEG'</tt></b> <br>
+</p>
+<p>&nbsp;<br>
+&nbsp; </p>
+<h4><a name="TimeScaleLinesColorandPattern"></a><font size="+1">Time
+Scale Lines
+Color and Pattern</font></h4>
+Defines the color and pattern of the time scale lines in the Grid
+Manager
+and Temporal Editor.
+<p><b><tt>TimeScaleLines_color = 'Blue'</tt></b> <br>
+<b><tt>TimeScaleLines_pattern = 'DOTTED'</tt></b> <br>
+</p>
+<p>&nbsp;<br>
+&nbsp; </p>
+<h4><a name="EditorTimeLineColor,Pattern,andWidth"></a><font size="+1">Editor
+Time Line Color, Pattern, and Width</font></h4>
+Defines the color, width, and pattern used for the editor time line
+that
+runs through the Grid Manager and Temporal Editor.
+<p><b><tt>EditorTimeLine_color = 'Yellow'</tt></b> <br>
+<b><tt>EditorTimeLine_width = 2</tt></b> <br>
+<b><tt>EditorTimeLine_pattern = 'DOTTED'</tt></b> <br>
+</p>
+<p>&nbsp;<br>
+&nbsp; </p>
+<h4><a name="CurrentSystemTimeIndicatorColor"></a><font size="+1">Current
+System
+Time Indicator Color</font></h4>
+Defines the color used by the Grid Manager to indicate the current
+system
+time.
+<p><b><tt>CurrentSystemTime_color = 'Green'</tt></b> <br>
+</p>
+<p>&nbsp;<br>
+&nbsp; </p>
+<h4><a name="LockColorsandPatterns"></a><font size="+1">Lock Colors
+and Patterns</font></h4>
+Defines the colors used in the Grid Manager to indicate that a time
+period
+is locked by you, or by another person.
+<p><b><tt>LockedByMe_color = 'forestgreen'</tt></b> <br>
+<b><tt>LockedByMe_pattern = 'WHOLE'</tt></b> <br>
+<b><tt>LockedByOther_color = 'tomato2'</tt></b> <br>
+<b><tt>LockedByOther_pattern = 'WHOLE'</tt></b><br>
+<br>
+&nbsp;<br>
+</p>
+<h4><a name="TimeBlockColors"></a><font size="+1">Time Block Colors</font></h4>
+Defines the visible and active colors used in the Grid Manager to
+indicate
+when a grid block is either visible and/or active.
+<p><b><tt>TimeBlockVisible_color = 'Yellow3'</tt></b> <br>
+<b><tt>TimeBlockActive_color = 'Yellow'</tt></b> <br>
+<b><tt>TimeBlockInvisible_color = 'Gray75'</tt></b> <br>
+<b><tt>TimeBlockPreview_color = 'Cyan'</tt></b> <br>
+</p>
+<p>&nbsp;<br>
+&nbsp; </p>
+<h4><a name="EditAreaColors"></a><font size="+1">Edit Area Color and
+Border Width</font></h4>
+Defines the color and border width used to indicate the Edit Area on
+the
+spatial editor.
+<p><b><tt>ReferenceSet_color = 'Gray80'</tt></b> <br>
+<b><tt>ReferenceSet_width = 0</tt></b> <br>
+</p>
+<p>&nbsp;<br>
+&nbsp; </p>
+<h4><a name="InitialWidthofGridManager"></a><font size="+1">Initial
+Width of
+Grid Manager</font></h4>
+The initial width of the grid manager when starting the GFE is
+specified
+in pixels.&nbsp; This number may be adjusted as an office
+desires.&nbsp;
+It is not recommended to go above 600 since there would be display
+problems
+on laptop computers.
+<p>Defines the initial horizontial size of the grid manager when
+first
+starting the GFE in pixels. </p>
+<p><b><tt>TimeScale_horizSize = 350</tt></b> <br>
+</p>
+<p>&nbsp;<br>
+&nbsp; </p>
+<h4><a name="InitialLegendMode"></a><font size="+1">Initial Legend
+Mode</font></h4>
+The legend mode, upon startup, may be specified as 'GRIDS', 'MUTABLE',
+'ACTIVE', 'MAPS', or 'SETIME'.&nbsp; The default mode is 'GRIDS'.&nbsp;
+'GRIDS' shows all grids in the legend; 'MUTABLE' shows changed weather
+elements; 'ACTIVE' shows actively displayed weather elements; 'MAPS'
+shows
+maps; and 'SETIME' shows the spatial editor time.
+<p>Note that while running the GFE, you can change the legend mode
+with
+a MB3 (over the grid)-&gt;Legends-&gt;'Hide', 'Show Fcst Weather
+Elements', 'Show
+Active Weather Elements' or 'Show Map'. </p>
+<p><b><tt>LegendMode = 'GRIDS'</tt></b> <br>
+</p>
+<p>&nbsp;</p>
+<h4><a name="InitialGridManagerMode"></a><font size="+1">Initial Grid
+Manager Mode</font></h4>
+The initial Grid Manager mode, upon startup, may be specified as
+'Normal', 'History', 'Saved', 'Modified', 'Published', or 'Sent'.&nbsp;
+In 'Normal' mode, the Grid Manager shows all grid blocks as "gray",
+except for those which are displayed or active in the spatial
+editor.&nbsp; In 'History' mode, the Grid Manager color-codes each grid
+block to indicate its data source and whether it has been
+modified.&nbsp; 'Saved' mode color codes the blocks based on the last
+time the grid was saved.&nbsp; 'Modified' mode color codes the blocks
+based on the last time the grid was modified.&nbsp;&nbsp; 'Published'
+color codes the blocks based on the last published time.&nbsp; 'Sent'
+color codes the blocks based on the last time the grid was sent via
+Intersite Coordination.<br>
+<p>Note that while running the GFE, you can change the grid manager
+mode through the <a href="Toolbar.html#GridManagerMode">Toolbar's Grid
+Manager Mode</a> button.&nbsp;<br>
+</p>
+<b><tt>InitialGMDisplayMode = 'Normal'<br>
+<br>
+</tt></b>
+<h4><a name="NumberofQuickSetButtons"></a><font size="+1">Number of
+Quick Set
+Buttons</font></h4>
+The number of quick set buttons may be defined by the user.&nbsp; At
+present
+there is a limit of 7.&nbsp; Entering a number greater than 7 will
+result
+in only 7 quick set buttons being displayed.
+<p><b><tt>QuickSetButtons = 4</tt></b> <br>
+</p>
+<p>&nbsp;<br>
+&nbsp; </p>
+<h4><a name="StatusBarCharacteristics"></a><font size="+1">Status Bar
+Characteristics</font></h4>
+The status bar appears on the bottom of the GFE.&nbsp; The user may
+control
+when the new message indicator blinks on the arrival of a new message
+by
+adjusting the StatusTimeout entry.&nbsp; The values are in 0.001ths of
+a second. The number of messages kept in the message buffer may be
+specified
+in MessageLimit.
+<p><b><tt>StatusTimeout = 30000</tt></b> <br>
+<b><tt>MessageLimit = 20</tt></b> <br>
+</p>
+<p>&nbsp;<br>
+&nbsp; </p>
+<p><a name="MenuItemLimitPriortoCascade"></a><b><font size="+1">Menu
+Item
+Limit Prior to Cascade</font></b> </p>
+<p>Sets the maximum number of menu items before any menu will cascade
+with
+a 'More &gt;'. Do not place a decimal point after the number. </p>
+<p><b><tt>MaxMenuItemsBeforeCascade = 30</tt></b> <br>
+</p>
+<p>&nbsp;<br>
+&nbsp; </p>
+<h4><a name="OfficeDomainExpansion"></a><font size="+1">Office Domain
+Expansion</font></h4>
+The office domain is calculated from the domains of all weather
+elements
+that are loaded into the GFE.&nbsp; The actual domain displayed on the
+GFE spatial editor may be expanded in order to provide "white space"
+around
+the grid.&nbsp; The percentage of expansion is defined via four
+different
+Office_Domain_expand variables.&nbsp; By default, the percentage is 10%
+in each of the four directions. Note that these values are not
+absolute,
+just hints.&nbsp; The aspect ratio of the GFE spatial editor will take
+these numbers into account, but may not use the exact values.
+<p><b><tt>OfficeDomain_expandLeft = 10</tt></b> <br>
+<b><tt>OfficeDomain_expandRight = 10</tt></b> <br>
+<b><tt>OfficeDomain_expandTop = 10</tt></b> <br>
+<b><tt>OfficeDomain_expandBottom = 10</tt></b> <br>
+</p>
+<p>&nbsp;<br>
+&nbsp; </p>
+<h4><a name="LocationofEditActionDialog"></a><font size="+1">Location
+of Edit
+Action Dialog</font></h4>
+The initial location of the edit action dialog can be set.&nbsp; The
+location
+is in absolute screen coordinates with (0,0) in the upper left of the
+display
+(not relative to the GFE window).&nbsp; To view the Edit Action Dialog
+in lower left corner, set Ycoord to 600.
+<p><b><tt>EditActionDialog_Xcoord = 99</tt></b> <br>
+<b><tt>EditActionDialog_Ycoord = 74</tt></b> <br>
+</p>
+<p>&nbsp;<br>
+&nbsp; </p>
+<h4><a name="InitialLayoutofGridManagerandTemporalEditor"></a><font
+ size="+1">Initial
+Layout of Grid Manager and Temporal Editor</font></h4>
+The user can control whether the GFE initially comes up in horizontial
+or vertical mode.&nbsp; By default, the temporal editor and grid
+manager
+are placed above the spatial editor. The user will either specify
+"OnTop",
+which is the default, or "OnLeft".
+<p><b><tt>GM_TE_Layout = "OnTop"</tt></b> <br>
+</p>
+<p>&nbsp;<br>
+&nbsp; </p>
+<p><a name="TemporalEditorWeatherElements"></a><b><font size="+1">Temporal
+Editor Weather Elements</font></b> </p>
+<p>Default setting for temporal editor weather elements.&nbsp;
+Choices
+are 'ALL' ,&nbsp; all weather elements are displayed in the temporal
+editor,
+'ALL_NOISC' ,&nbsp; all weather elements except for ISC (intersite
+coordination
+elements) are displayed in the temporal editor, 'MUTABLE' (default),
+just
+the mutable weather elements (e.g., Fcst) are displayed in the temporal
+editor,&nbsp; 'ACTIVE', just the single active weather element is
+displayed
+in the temporal editor, and 'VISIBLE', all visible elements in the grid
+manager are also displayed in the temporal editor. </p>
+<p><b><tt>TemporalEditorWEMode = "MUTABLE"</tt></b> <br>
+</p>
+<p><br>
+</p>
+<b><font size="+1"><a name="LastSaved"></a>Grid
+Manager Last Saved, Published, Sent, and Modified Configuration<br>
+</font></b>
+<p>This section is used to configure the
+grid manager colors and times when the Grid Manager mode is in one of
+the "<a href="GFETrainingGridMgr.html#LastDisplayMode">Last Display
+Modes</a>".&nbsp; The entries are parallel lists of colors and
+times.&nbsp; If the last save, modified, published, sendISC time is
+less than the given time (in minutes), then that color is used to
+display the box.&nbsp;&nbsp; The default if the last xxx time is
+greater than the final "minutes" in the list, is Gray75.</p>
+<span style="font-weight: bold; font-family: monospace;">Modified_minutes
+=
+[60, 180, 360, 720, 1440, 2880 ]</span><br
+ style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">Modified_colors
+= ["#0bc71e", "#60c7b8", "#417fc7", "#e17c10",</span><br
+ style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">&nbsp;
+"#ebdf00", "#e11a00"]</span><br
+ style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span><br style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">Saved_minutes
+= [60, 180, 360, 720, 1440, 2880 ]</span><br
+ style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">Saved_colors =
+["#0bc71e", "#60c7b8", "#417fc7", "#e17c10",</span><br
+ style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">&nbsp;
+"#ebdf00", "#e11a00"]</span><br
+ style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span><br style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">Published_minutes
+= [60, 180, 360, 720, 1440, 2880 ]</span><br
+ style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">Published_colors
+= ["#0bc71e", "#60c7b8", "#417fc7", "#e17c10",</span><br
+ style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">&nbsp;
+"#ebdf00", "#e11a00"]</span><br
+ style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span><br style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">Sent_minutes =
+[60, 120, 180, 240, 300, 360]</span><br
+ style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">Sent_colors =
+["#0bc71e", "#60c7b8", "#417fc7", "#e17c10",</span><br
+ style="font-weight: bold; font-family: monospace;">
+<span style="font-weight: bold; font-family: monospace;">&nbsp;
+"#ebdf00", "#e11a00"]</span><br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<div class="Body">
+<center><tt>&nbsp;<a href="GFESuite.html">Back To TOC</a></tt></center>
+</div>
+</div>
+</body>
+</html>

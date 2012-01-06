@@ -1,0 +1,68 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+  
+  
+	<bean id="nctextDecoder" class="gov.noaa.nws.ncep.edex.plugin.nctext.decoder.NctextFileNameGenerator">
+	<!-- bean id="nctextDecoderSbn" class="gov.noaa.nws.ncep.edex.plugin.nctext.decoder.NctextDecoder"-->
+		<property name="pluginName" value="nctext" />
+		
+	</bean>
+	<bean id="nctextDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="nctext" />
+		<constructor-arg value="jms-dist:queue:ingest.nctext" />
+	</bean>
+	
+    <bean id="nctextCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="nctext-camel"/>
+  	</bean> 
+	
+	<camelContext id="nctext-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+		
+		<endpoint id="nctextFileEndpoint" uri="file:${edex.home}/data/sbn/nctext?noop=true&amp;idempotent=false" />		
+		<route id="nctextFileConsumerRoute">
+			<from ref="nctextFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+				<constant>nctext</constant>
+			</setHeader>
+			<to uri="jms-generic:queue:ingest.nctext" />
+		</route>
+
+		 
+		<route id="nctextIngestRoute">
+			<from uri="jms-generic:queue:ingest.nctext" />
+			<setHeader headerName="pluginName">
+                <constant>nctext</constant>
+            </setHeader>
+			<bean ref="stringToFile" />
+			<doTry>
+				<pipeline>
+					<bean ref="nctextDecoder" method="renameAndDecodeFile" />
+					<!-- bean ref="nctextDecoderSbn" method="decodeTextInputFile" /-->
+					<multicast>
+						<!-- to uri="activemq:queue:watchwarn" /-->
+						<to uri="directvm:persistIndexAlert" />
+					</multicast>
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:warning?level=INFO&amp;showBody=false" />
+				</doCatch>
+			</doTry>
+			
+		</route>
+		
+	</camelContext>
+
+  
+</beans>

@@ -1,0 +1,297 @@
+package gov.noaa.nws.ncep.viz.tools.imageProperties;
+
+import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NCPaneManager;
+
+import java.util.ArrayList;
+
+import org.eclipse.jface.action.ContributionItem;
+import org.eclipse.jface.action.StatusLineLayoutData;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Scale;
+
+import com.raytheon.uf.viz.core.IDisplayPane;
+import com.raytheon.uf.viz.core.IDisplayPaneContainer;
+import com.raytheon.uf.viz.core.IVizEditorChangedListener;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
+import com.raytheon.viz.ui.VizWorkbenchManager;
+import com.raytheon.viz.ui.editor.ISelectedPanesChangedListener;
+
+/**
+ * 
+ * Contribution item added to the status bar which displays the image fading information.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 11/5/2009    183        qzhou      Initial created. 
+ * 12/15/2009              G. Hull    display and pane listeners.
+ * 10/04/2010   289        Archana    Added FadeHotKeyListener
+ * 03/07/2011   R1G2-9     G. Hull    implement IVizEditorChangedListener, 
+ *                                    editor no longer passed from Pane Changed Listener
+ *                       
+ * </pre>
+ * 
+ * @author Q. Zhou
+ * @version 1
+ */
+public class FadeDisplay extends ContributionItem implements IVizEditorChangedListener {
+
+    private FadeHotKeyListener fadeKeyListener = null;
+	private Composite comp;
+	private Scale scale; // = null;
+	private Button btn0;// = null;
+	private Button btn50;// = null;   
+	private Font font = new Font(Display.getCurrent(), "Monospace", 10,
+			SWT.NORMAL);
+	private ArrayList<AbstractNatlCntrsResource<?,?>> imageResources=null;
+	private NCMapEditor activeDisp = null;
+	
+    private ISelectedPanesChangedListener paneListener = new ISelectedPanesChangedListener() {
+
+        @Override
+        public void selectedPanesChanged(String id, IDisplayPane[] seldPanes) {
+            if (!id.equals(NCPaneManager.NC_PANE_SELECT_ACTION)) {
+                return;
+            } else if (seldPanes == null || seldPanes.length <= 0) {
+                return;
+            }
+
+            updateFadeDisplay();
+        }
+    };
+
+	/**
+	 * Constructor
+	 */
+	public FadeDisplay() {
+		super();
+		imageResources = new ArrayList<AbstractNatlCntrsResource<?, ?>>();
+		if(fadeKeyListener == null){
+			fadeKeyListener = new FadeHotKeyListener();
+		}
+	}
+
+	/**
+	 * Populates the scale and buttons on the bottom bar
+	 */
+	@Override
+	public void fill(Composite parent) {
+		//Shell fadeShell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+
+		comp = new Composite(parent, SWT.NONE);
+		comp.setSize(200, 55);
+		GridLayout gl = new GridLayout(3, false);
+		gl.marginTop = 0;
+		gl.verticalSpacing = 0;
+		comp.setLayout(gl);
+
+        StatusLineLayoutData slLayoutData = new StatusLineLayoutData();
+//      slLayoutData.heightHint = 30;
+//      slLayoutData.widthHint = 300;
+        comp.setLayoutData( slLayoutData );
+
+        /*
+		 * Add to the bottom bar
+		 */
+		btn0 = new Button(comp, SWT.PUSH);
+		btn50 = new Button(comp, SWT.PUSH);
+		scale = new Scale(comp, SWT.NONE);
+
+				
+		btn0.setLayoutData(new GridData(25, 25));
+		btn0.setText("0");
+		btn0.setFont(font);
+
+		btn0.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				for( AbstractNatlCntrsResource<?,?> rsc : imageResources ) {
+					ImagingCapability imgCap = rsc.getCapability(ImagingCapability.class);
+					imgCap.setBrightness(0);
+				}
+				scale.setSelection(0);
+				activeDisp.refresh();				
+			}
+		});
+
+
+		btn50.setLayoutData(new GridData(25, 25));
+		btn50.setText("N");
+		btn50.setFont(font);
+		btn50.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				for( AbstractNatlCntrsResource<?,?> rsc : imageResources ) {
+					ImagingCapability imgCap = rsc.getCapability(ImagingCapability.class);
+					imgCap.setBrightness(100 / 100.0f);
+				}
+				scale.setSelection(100);
+				activeDisp.refresh();				
+			}
+		});
+
+		scale.setLayoutData(new GridData(160, SWT.DEFAULT));
+		scale.setMinimum(0);
+		scale.setMaximum(200);
+		scale.setIncrement(1);
+		scale.setPageIncrement(5);
+		scale.setSelection(50);
+
+		scale.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				
+				if (imageResources != null && imageResources.size() > 0) {
+					ImagingCapability imgCap = imageResources.get(0)
+							.getCapability(ImagingCapability.class);
+					imgCap.setBrightness(scale.getSelection() / 100.0f);
+				}
+				activeDisp.refresh();
+			}
+		});
+		scale.setEnabled( false );    		
+		btn0.setEnabled( false );
+		btn50.setEnabled( false );
+		scale.setSelection( 0 );
+
+		// add an EditorChangedListener
+		VizWorkbenchManager.getInstance().addListener(this);
+		
+		update(); 
+	}
+
+	public void editorChanged(IDisplayPaneContainer container) {
+		
+		if( activeDisp != null ) {
+			activeDisp.removeSelectedPaneChangedListener( paneListener );
+		}
+		
+		if( container instanceof NCMapEditor ) {			
+			activeDisp = (NCMapEditor)container;
+			activeDisp.addSelectedPaneChangedListener( paneListener );
+			
+			scale.setEnabled( false );			
+			btn0.setEnabled( false );
+			btn50.setEnabled( false );
+		}
+		else {
+			activeDisp = null;
+			scale.setEnabled( false );			
+			btn0.setEnabled( false );
+			btn50.setEnabled( false );
+		}
+		
+		updateFadeDisplay();
+	}
+
+	/**
+	 * The display or selected pane has changed so get the new imageResources 
+	 * and update the widgets with  
+	 * 
+	 * @return
+	 */
+	private void updateFadeDisplay() { // 
+//		NCMapEditor ed = NmapUiUtils.getActiveNatlCntrsEditor();
+		 
+		// if the editor has changed then add a pane listener on this editor and remove
+		// the old one.
+	// if( ed != activeDisp ) {
+		
+//		if( activeDisp != null ) {
+//			activeDisp.removeSelectedPaneChangedListener( paneListener );
+//		}
+//		//	activeDisp = ed;
+//    		activeDisp.addSelectedPaneChangedListener( paneListener );
+//    	}
+		if( activeDisp == null ) {
+			return;
+		}
+
+    	IDisplayPane[] seldPanes = activeDisp.getSelectedPanes();
+    	
+    	imageResources.clear();
+    	
+    	for( IDisplayPane pane : seldPanes ) {
+    		ResourceList rscList = pane.getDescriptor().getResourceList();
+       
+            for( ResourcePair rp : rscList ) {
+            	if( !rp.getProperties().isSystemResource() &&
+            		rp.getResource().getCapabilities().hasCapability( ImagingCapability.class )) {
+            		imageResources.add( (AbstractNatlCntrsResource<?, ?>)rp.getResource() );            		
+            	}
+            }
+    	}
+
+    	// the scale will only work with one resource but the buttons will 
+    	// work with multiple resources.
+		scale.setEnabled( (imageResources.size() == 1) );
+		
+		btn0.setEnabled( (imageResources.size() >= 1) );
+		btn50.setEnabled( (imageResources.size() >= 1) );
+
+		// load the widget with the current value from the image resource or 0 if disabled
+    	if( scale.isEnabled() ) {
+    		ImagingCapability imgCap = imageResources.get(0).getCapability(ImagingCapability.class);     		
+    		scale.setSelection( (int) (imgCap.getBrightness() * 100.0f) );
+    	}
+    	else {
+    		scale.setSelection( 0 );
+    	}
+	}
+	
+	@Override
+	public void update(){
+
+		updateFadeDisplay();
+	}
+
+	
+	
+     @Override
+    public void dispose() {
+        super.dispose();
+     // add an EditorChangedListener
+        VizWorkbenchManager.getInstance().removeListener(this);
+    }
+
+
+
+    private class FadeHotKeyListener extends KeyAdapter{
+		@Override
+		public void keyPressed(KeyEvent e) {
+                     //no-op
+		}
+
+       @Override
+		public void keyReleased(KeyEvent e) {
+			if(e.keyCode == 'I' || e.keyCode == 'i' ){
+                if(scale.getSelection() > 0){
+               	 scale.setSelection(0);
+                } else  if(scale.getSelection() == 0){
+               	 scale.setSelection(100);
+                }
+
+			}else if(e.keyCode == 'F' || e.keyCode == 'f' ){
+				 scale.setSelection(100);
+			}
+			
+			 scale.notifyListeners(SWT.Selection, new Event());
+       }
+		
+	}
+}

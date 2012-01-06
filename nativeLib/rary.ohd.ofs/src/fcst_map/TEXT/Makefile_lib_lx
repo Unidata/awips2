@@ -1,0 +1,77 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-fcst_map library file
+#
+#  cmt: File made on Wed Aug  6 12:50:27 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libfcst_map_t.a:  \
+     $(LIB)/libfcst_map_t.a(agpolr.o)  \
+     $(LIB)/libfcst_map_t.a(fun009.o)  \
+     $(LIB)/libfcst_map_t.a(xareas.o)  \
+     $(LIB)/libfcst_map_t.a(xchar.o)  \
+     $(LIB)/libfcst_map_t.a(xckcpu.o)  \
+     $(LIB)/libfcst_map_t.a(xcmbnm.o)  \
+     $(LIB)/libfcst_map_t.a(xcntrl.o)  \
+     $(LIB)/libfcst_map_t.a(xdmpcb.o)  \
+     $(LIB)/libfcst_map_t.a(xdppsr.o)  \
+     $(LIB)/libfcst_map_t.a(xest24.o)  \
+     $(LIB)/libfcst_map_t.a(xest6.o)  \
+     $(LIB)/libfcst_map_t.a(xestd2.o)  \
+     $(LIB)/libfcst_map_t.a(xgtopt.o)  \
+     $(LIB)/libfcst_map_t.a(xgtsys.o)  \
+     $(LIB)/libfcst_map_t.a(xmap24.o)  \
+     $(LIB)/libfcst_map_t.a(xmap6.o)  \
+     $(LIB)/libfcst_map_t.a(xmap.o)  \
+     $(LIB)/libfcst_map_t.a(xmapmr.o)  \
+     $(LIB)/libfcst_map_t.a(xmdral.o)  \
+     $(LIB)/libfcst_map_t.a(xmdrcv.o)  \
+     $(LIB)/libfcst_map_t.a(xmdrpk.o)  \
+     $(LIB)/libfcst_map_t.a(xmdrpl.o)  \
+     $(LIB)/libfcst_map_t.a(xmdrpr.o)  \
+     $(LIB)/libfcst_map_t.a(xmdrrf.o)  \
+     $(LIB)/libfcst_map_t.a(xmplot.o)  \
+     $(LIB)/libfcst_map_t.a(xnorm.o)  \
+     $(LIB)/libfcst_map_t.a(xnrmd2.o)  \
+     $(LIB)/libfcst_map_t.a(xolist.o)  \
+     $(LIB)/libfcst_map_t.a(xonept.o)  \
+     $(LIB)/libfcst_map_t.a(xplt24.o)  \
+     $(LIB)/libfcst_map_t.a(xppchk.o)  \
+     $(LIB)/libfcst_map_t.a(xppest.o)  \
+     $(LIB)/libfcst_map_t.a(xppmdr.o)  \
+     $(LIB)/libfcst_map_t.a(xprt24.o)  \
+     $(LIB)/libfcst_map_t.a(xprt6.o)  \
+     $(LIB)/libfcst_map_t.a(xsgfwt.o)  \
+     $(LIB)/libfcst_map_t.a(xspace.o)  \
+     $(LIB)/libfcst_map_t.a(xstpos.o)  \
+     $(LIB)/libfcst_map_t.a(xtemp.o)  \
+     $(LIB)/libfcst_map_t.a(xtimck.o)  \
+     $(LIB)/libfcst_map_t.a(xtitle.o)  \
+     $(LIB)/libfcst_map_t.a(xtmpvl.o)
+

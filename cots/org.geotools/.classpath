@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry exported="true" kind="lib" path="common-2.2.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="jdom-1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="commons-beanutils-1.7.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="commons-codec-1.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="commons-collections-3.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="commons-dbcp-1.2.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="commons-jxpath-1.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="commons-lang-2.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="commons-pool-1.5.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="jts-1.10.jar" sourcepath="jts-1.10.zip"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="lib" path="geoapi-2.3-M1.jar"/>
+	<classpathentry exported="true" kind="lib" path="geoapi-pending-2.3-M1.jar"/>
+	<classpathentry exported="true" kind="lib" path="gt-api-2.6.4.jar" sourcepath="gt-api-2.6.4-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="gt-coverage-2.6.4.jar" sourcepath="gt-coverage-2.6.4-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="gt-epsg-wkt-2.6.4.jar" sourcepath="gt-epsg-wkt-2.6.4-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="gt-geotiff-2.6.4.jar" sourcepath="gt-geotiff-2.6.4-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="gt-graph-2.6.4.jar" sourcepath="gt-graph-2.6.4-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="gt-gtopo30-2.6.4.jar" sourcepath="gt-gtopo30-2.6.4-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="gt-image-2.6.4.jar" sourcepath="gt-image-2.6.4-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="gt-main-2.6.4.jar" sourcepath="geotools-2.6.4-sources.zip"/>
+	<classpathentry exported="true" kind="lib" path="gt-metadata-2.6.4.jar" sourcepath="gt-metadata-2.6.4-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="gt-referencing-2.6.4.jar" sourcepath="gt-referencing-2.6.4-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="gt-referencing3D-2.6.4.jar" sourcepath="gt-referencing3D-2.6.4-sources-.jar"/>
+	<classpathentry exported="true" kind="lib" path="gt-shapefile-2.6.4.jar" sourcepath="gt-shapefile-2.6.4-sources.zip"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

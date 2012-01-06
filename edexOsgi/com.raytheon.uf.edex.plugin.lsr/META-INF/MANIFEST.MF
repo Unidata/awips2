@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Lsr Plug-in
+Bundle-SymbolicName: com.raytheon.uf.edex.plugin.lsr
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.raytheon.uf.common.dataplugin.lsr;bundle-version="1.0.0",
+ com.raytheon.edex.common;bundle-version="1.11.1",
+ com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
+ com.raytheon.uf.common.pointdata;bundle-version="1.11.8",
+ com.raytheon.uf.edex.pointdata;bundle-version="1.11.8",
+ org.apache.commons.logging;bundle-version="1.0.4",
+ org.geotools,
+ javax.persistence,
+ javax.measure

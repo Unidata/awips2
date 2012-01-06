@@ -1,0 +1,11 @@
+c.......................................................................
+      common /paths/ ffglvl,ofslvl,arpa,basnpa,carypa,ffoppa,gffpa,
+     +               gropa,grpppa,hdwpa,igpmpa,outpa,prodpa,rcpa,tspa,
+     +               txtpa,usrpa,wsuppa,langpa, 
+     +               lffgl,lofsl,lar,lbasn,lcary,lffop,lgff,lgro,lhdw,
+     +               lgpm,lout,lprod,lgrpp,lrc,lts,ltxt,lusr,
+     +               lwsup,llang
+c
+      character*128 ffglvl,ofslvl,arpa,basnpa,carypa,ffoppa,gffpa,
+     +              gropa,grpppa,hdwpa,igpmpa,outpa,prodpa,rcpa,tspa,
+     +              txtpa,usrpa,wsuppa,langpa

@@ -1,0 +1,31 @@
+#!/bin/ksh
+# run_nc2grib
+
+# This allows you to call this script from outside of ./precip_proc/bin
+RUN_FROM_DIR=`dirname $0`
+
+# set up SOME environment variables for WHFS applications
+. $RUN_FROM_DIR/../../set_hydro_env
+#export NC2GRIB_LOG_DIR=$(get_apps_defaults pproc_util_log_dir)
+export PPROC_LOCAL_BIN=$(get_apps_defaults pproc_local_bin)
+export PPROC_BIN=$(get_apps_defaults pproc_bin)
+export WHFS_BIN_DIR=$(get_apps_defaults whfs_bin_dir)
+
+# Create error log file name
+logname=NC2GRIB_`date -u +error.%Y%m%d%H%M%S`
+errorlog=$NC2GRIB_LOG_DIR/$logname
+
+#
+# Run nc2grib with parameters specified
+# Delete error log if empty
+#
+
+runso rary.ohd.pproc nc2grib_main $@  2>>$errorlog
+echo nc2grib error log located at: $errorlog
+if [[ ! -s $errorlog ]]
+  then
+     rm -f $errorlog
+  fi
+  
+exit $?
+#exit 0

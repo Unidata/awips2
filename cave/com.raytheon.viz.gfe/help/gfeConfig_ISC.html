@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-34smp i686) [Netscape]">
+  <title>gfeConfig - Intersite Coordination</title>
+</head>
+<body style="background-color: rgb(255, 255, 255);">
+<div class="Body">
+<div class="3Heading">
+<h2 style="text-align: center;">GFE/ifpIMAGE Configuration File<br>
+Intersite Coordination</h2>
+<table nosave="" border="1" cols="4" width="100%">
+  <tbody>
+    <tr>
+      <td>
+      <center><b>GFE Configuration Item</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to GFE</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to <a href="ifpIMAGE.html"><!--disable indexer-->ifpIMAGE</a></b></center>
+      </td>
+      <td>
+      <center><b>Notes</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#PreselectedSendISCDialogWeatherElementGroup">Preselected
+Send ISC Dialog Weather Element Group</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#SendISCDialogTimesConfiguration">Send ISC Dialog
+DialogTimes Configuration</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#LimitingTimes">Limiting Times of Sending Grids</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#LimitingWE">Limiting Weather Elements to Send</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<blockquote>
+</blockquote>
+<hr style="width: 100%; height: 2px;">
+<h4><br>
+</h4>
+<p><a name="PreselectedSendISCDialogWeatherElementGroup"></a><b><font
+ size="+1">Preselected
+Send ISC Dialog Weather Element Group</font></b>
+</p>
+<p>The weather elements in the&nbsp; group named in this entry will be
+highlighted upon initial startup of the Send ISC Dialog.&nbsp; The
+default
+is that none is specified, so that the currently loaded weather
+elements
+are selected.
+</p>
+<p><b><tt>SendISCGridDialogInitialWEGroup = "Public"</tt></b>
+<br>
+&nbsp;
+<br>
+&nbsp;
+</p>
+<h4><a name="SendISCDialogTimesConfiguration"></a><font size="+1">Send
+ISC Dialog
+Times Configuration</font></h4>
+The list of entries that appear on the <a
+ href="MainMenuDialogs.html#SendISCDialog">Send
+ISC Dialog</a>
+are listed in this field.&nbsp; The entries must be valid
+<a href="GFEMainMenu.html#DefineSelectTimeRanges...">user-defined
+Time Ranges</a> or they will be ignored.
+<p><b><tt>SendISCTimes = ['Day 3', 'Day 5']</tt></b>
+<br>
+&nbsp;
+</p>
+<h4><a name="LimitingTimes"></a><font size="+1">Limiting the Times of
+Grids to
+Send</font></h4>
+By default, the sending of ISC grids is not limited to any time range,
+other than what is specified on the <a
+ href="MainMenuDialogs.html#PublishToOfficialDialog">Publish
+Dialog</a> or <a href="MainMenuDialogs.html#SendISCDialog">Send ISC
+Dialog</a>.&nbsp;
+To save on processing and communication traffic, the time range may be
+trimmed by specifying the following two configuration items.&nbsp;
+These
+items are in hours from the current time.&nbsp; For example, if you
+wanted
+to make sure that no grids were sent from the past and no grids past 7
+days, the configuration entries would be:
+<p><b><tt>ISC_sendLimitBeforeCurrentTime = 0</tt></b>
+<br>
+<b><tt>ISC_sendLimitAfterCurrentTime = 7*24</tt></b>
+<br>
+&nbsp;
+</p>
+<h4><a name="LimitingWE"></a><font size="+1">Limiting the Weather
+Elements to
+Send</font></h4>
+By default, the sending of ISC grids is not limited by weather element.  
+Sites request what elements they wish.
+To save on processing and communication traffic, the weather elements may be
+trimmed by specifying an "ISC_neverSendParms" entry.&nbsp; Even if the
+user selects these weather elements for sending, they will not be sent.
+<p><b><tt>ISC_neverSendParms = ['T', 'Td']<br>
+</tt></b></p>
+<hr style="width: 100%; height: 2px;">
+<p><b><tt><br>
+</tt></b></p>
+<div class="Body">
+<center><tt><a href="GFESuite.html">Back To TOC</a></tt></center>
+</div>
+</div>
+</body>
+</html>

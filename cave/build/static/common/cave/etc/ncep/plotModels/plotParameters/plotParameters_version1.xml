@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PlotParameters xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+             xsi:noNamespaceSchemaLocation="plotParameters.xsd">
+<!-- 
+	A List of plot data parameters and their properties.
+ 		
+                TEMPERATURE
+
+        TMPC - Temperature in Celsius
+        TMPF - Temperature in Fahrenheit
+
+ 		        MOISTURE 
+
+        DWPC - Dewpoint in Celsius
+        DWPF - Dewpoint in Fahrenheit
+ 		
+ 		       PRESSURE AND ALTIMETER
+
+        PMSL - Mean sea level pressure in millibars
+        PTND - Complete pressure tendency with symbol
+        
+ 		          WIND
+
+        BRBK - Wind barb (knots)
+        GUST - Wind gust in knots
+ 		
+ 				  CLOUD
+ 				  
+ 		SKYC - Sky coverage symbol
+ 		
+ 		
+ 	         STATION VARIABLES
+
+        STID - Character station identifier
+        
+        
+                 WEATHER
+
+        WSYM - Present weather symbol
+        
+        		MISCELLANEOUS
+        		
+        VSBK - Visibility in kilometers
+ -->  
+  
+    <!-- TEMPERTURE -->         
+	<Parameter  name="TMPF" plotMode="text" plotParam="T"     plotUnit="°F" plotFormat="%3.0f"/>
+	<Parameter  name="TMPC" plotMode="text" plotParam="T"     plotUnit="°C" plotFormat="%3.0f"/>
+	<Parameter  name="DWPF" plotMode="text" plotParam="DpT"   plotUnit="°F" plotFormat="%3.0f"/>
+	<Parameter  name="DWPC" plotMode="text" plotParam="DpT"   plotUnit="°C" plotFormat="%3.0f"/>
+	
+	<!-- PRESSURE AND ALTIMETER-->
+	<Parameter  name="PMSL" plotMode="text" plotParam="PMSL"   plotUnit="daPa"    plotFormat="%5.0f" plotTrim="2"/>
+	<Parameter  name="P03C" plotMode="text" plotParam="PCHNG"  plotFormat="%5.0f" plotTrim="2"/>
+	
+	<!-- STATION VARIABLES -->
+    <Parameter  name="STID" plotMode="text" plotParam="STA"/>
+    
+    <!-- CLOUD -->
+	<Parameter  name="SKYC" plotMode="table" class="special" plotParam="SCV" plotLookupTable="cloud_chars.txt" plotFunctionTable="cloud_select.txt" />   
+	
+	<!-- WIND -->
+	<Parameter  name="BRBK" plotMode="barb" class="barb" plotParam="WS,WD" plotLookupTable="wx_symbol_trans.txt"  transform="rotate(0,0,0)"/>
+	<Parameter  name="GUST" plotMode="text" plotParam="WGS" plotUnit="kts" plotFormat="%3.0f"/>     
+	    
+	    
+	<!-- WEATHER -->    
+    <Parameter  name="WSYM" plotMode="table" class="weather" plotParam="WX"  transform="rotate(0,0,0)" plotLookupTable="wx_symbol_trans.txt"/>
+    
+    <!-- MISCELLANEOUS -->
+    <Parameter  name="VSBK" plotMode="text" plotParam="VIS" plotUnit="kmi" />
+ 	
+     
+
+</PlotParameters>

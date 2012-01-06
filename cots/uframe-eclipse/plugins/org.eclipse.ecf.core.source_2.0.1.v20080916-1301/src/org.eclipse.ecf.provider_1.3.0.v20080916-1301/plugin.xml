@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.1"?>
+<plugin>
+   <extension
+         point="org.eclipse.ecf.containerFactory">
+      <containerFactory
+            class="org.eclipse.ecf.provider.generic.GenericContainerInstantiator"
+            description="Generic Server Container Instantiator"
+            name="ecf.generic.server"
+            server="true">
+      </containerFactory>
+   </extension>
+   <extension
+         point="org.eclipse.ecf.containerFactory">
+      <containerFactory
+            class="org.eclipse.ecf.provider.generic.GenericContainerInstantiator"
+            description="ECF Generic"
+            hidden="true"
+            name="ecf.generic.client">
+      </containerFactory>
+   </extension>
+</plugin>

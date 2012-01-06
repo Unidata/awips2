@@ -1,0 +1,4 @@
+C                                           *--> FROM SCOMMON.SURUNX
+C  RUN INFORMATION COMMON BLOCK
+      COMMON /SURUNX/ NDCCMD,NDCCRD,NRDADD,NUMCMD
+C

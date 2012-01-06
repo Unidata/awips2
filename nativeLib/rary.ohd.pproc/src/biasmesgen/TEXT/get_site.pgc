@@ -1,0 +1,48 @@
+#include <string.h>
+#include "bias_table.h"
+#include "mesg_hdr.h"
+
+void get_site()
+
+/*
+
+   function to read site identifier and site number from admin table
+
+   calling routine:  main
+
+*/
+
+{
+
+   
+   EXEC SQL BEGIN DECLARE SECTION;
+      short int nnum;
+      char ssite[4];
+   EXEC SQL END DECLARE SECTION;
+
+   /*------------------------------------*/
+   /*   get record from Admin table      */
+   /*   there is only 1 record in table  */
+   /*------------------------------------*/
+
+   EXEC SQL select hsa, hsa_num
+            into :ssite, :nnum
+            from Admin;
+
+   if(sqlca.sqlcode != 0)
+   {
+      printf("PostgreSQL error %s attempting select from Admin table\n",
+              sqlca.sqlstate);
+      printf("\nexecution stopping\n");
+      exit(1);
+   }
+
+   /*------------------------------------------------------*/
+   /*   site number is placed in MesgHdr structure         */
+   /*   site identifier is placed in biastable structure   */
+   /*------------------------------------------------------*/
+
+   MesgHdr.src_id = nnum;
+   strcpy(biastable.site_id,ssite);
+
+}

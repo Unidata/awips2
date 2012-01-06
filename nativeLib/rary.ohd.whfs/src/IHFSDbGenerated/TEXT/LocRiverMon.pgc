@@ -1,0 +1,600 @@
+/* This is a view record ! */
+/*
+    File: LocRiverMon.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:34 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "LocRiverMon.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct LocRiverMon_t
+{
+    char		lid[9];
+    char		name[51];
+    char		county[21];
+    char		state[3];
+    char		hsa[4];
+    char		stream[33];
+    double		bankfull;
+    double		action_stage;
+    double		flood_stage;
+    double		flood_flow;
+    double		action_flow;
+    char		primary_pe[3];
+    char		proximity[7];
+    char		reach[81];
+    double		mile;
+    double		minor;
+    double		moderate;
+    double		major;
+
+    int		ind_lid;
+    int		ind_name;
+    int		ind_county;
+    int		ind_state;
+    int		ind_hsa;
+    int		ind_stream;
+    int		ind_bankfull;
+    int		ind_action_stage;
+    int		ind_flood_stage;
+    int		ind_flood_flow;
+    int		ind_action_flow;
+    int		ind_primary_pe;
+    int		ind_proximity;
+    int		ind_reach;
+    int		ind_mile;
+    int		ind_minor;
+    int		ind_moderate;
+    int		ind_major;
+} LocRiverMon_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+LocRiverMon * GetLocRiverMon(const char * where)
+{
+
+    LocRiverMon * listPtr = NULL;
+    LocRiverMon * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM LocRiverMon ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct LocRiverMon_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetLocRiverMon() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetLocRiverMon() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetLocRiverMon() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.lid:dbs.ind_lid, :dbs.name:dbs.ind_name, 
+    :dbs.county:dbs.ind_county, :dbs.state:dbs.ind_state, 
+    :dbs.hsa:dbs.ind_hsa, :dbs.stream:dbs.ind_stream, 
+    :dbs.bankfull:dbs.ind_bankfull, :dbs.action_stage:dbs.ind_action_stage, 
+    :dbs.flood_stage:dbs.ind_flood_stage, :dbs.flood_flow:dbs.ind_flood_flow, 
+    :dbs.action_flow:dbs.ind_action_flow, :dbs.primary_pe:dbs.ind_primary_pe, 
+    :dbs.proximity:dbs.ind_proximity, :dbs.reach:dbs.ind_reach, 
+    :dbs.mile:dbs.ind_mile, :dbs.minor:dbs.ind_minor, 
+    :dbs.moderate:dbs.ind_moderate, :dbs.major:dbs.ind_major    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetLocRiverMon() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (LocRiverMon *) malloc(sizeof(LocRiverMon))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+            setNullIfIndicated(dbs.ind_lid, CHAR, structPtr->lid);
+
+            strcpy(structPtr->name, dbs.name);
+            setNullIfIndicated(dbs.ind_name, CHAR, structPtr->name);
+
+            strcpy(structPtr->county, dbs.county);
+            setNullIfIndicated(dbs.ind_county, CHAR, structPtr->county);
+
+            strcpy(structPtr->state, dbs.state);
+            setNullIfIndicated(dbs.ind_state, CHAR, structPtr->state);
+
+            strcpy(structPtr->hsa, dbs.hsa);
+            setNullIfIndicated(dbs.ind_hsa, CHAR, structPtr->hsa);
+
+            strcpy(structPtr->stream, dbs.stream);
+            setNullIfIndicated(dbs.ind_stream, CHAR, structPtr->stream);
+
+            structPtr->bankfull = dbs.bankfull;
+            setNullIfIndicated(dbs.ind_bankfull, DOUBLE, &structPtr->bankfull);
+
+            structPtr->action_stage = dbs.action_stage;
+            setNullIfIndicated(dbs.ind_action_stage, DOUBLE, &structPtr->action_stage);
+
+            structPtr->flood_stage = dbs.flood_stage;
+            setNullIfIndicated(dbs.ind_flood_stage, DOUBLE, &structPtr->flood_stage);
+
+            structPtr->flood_flow = dbs.flood_flow;
+            setNullIfIndicated(dbs.ind_flood_flow, DOUBLE, &structPtr->flood_flow);
+
+            structPtr->action_flow = dbs.action_flow;
+            setNullIfIndicated(dbs.ind_action_flow, DOUBLE, &structPtr->action_flow);
+
+            strcpy(structPtr->primary_pe, dbs.primary_pe);
+            setNullIfIndicated(dbs.ind_primary_pe, CHAR, structPtr->primary_pe);
+
+            strcpy(structPtr->proximity, dbs.proximity);
+            setNullIfIndicated(dbs.ind_proximity, CHAR, structPtr->proximity);
+
+            strcpy(structPtr->reach, dbs.reach);
+            setNullIfIndicated(dbs.ind_reach, CHAR, structPtr->reach);
+
+            structPtr->mile = dbs.mile;
+            setNullIfIndicated(dbs.ind_mile, DOUBLE, &structPtr->mile);
+
+            structPtr->minor = dbs.minor;
+            setNullIfIndicated(dbs.ind_minor, DOUBLE, &structPtr->minor);
+
+            structPtr->moderate = dbs.moderate;
+            setNullIfIndicated(dbs.ind_moderate, DOUBLE, &structPtr->moderate);
+
+            structPtr->major = dbs.major;
+            setNullIfIndicated(dbs.ind_major, DOUBLE, &structPtr->major);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.lid:dbs.ind_lid, :dbs.name:dbs.ind_name, 
+        :dbs.county:dbs.ind_county, :dbs.state:dbs.ind_state, 
+        :dbs.hsa:dbs.ind_hsa, :dbs.stream:dbs.ind_stream, 
+        :dbs.bankfull:dbs.ind_bankfull, :dbs.action_stage:dbs.ind_action_stage, 
+        :dbs.flood_stage:dbs.ind_flood_stage, :dbs.flood_flow:dbs.ind_flood_flow, 
+        :dbs.action_flow:dbs.ind_action_flow, :dbs.primary_pe:dbs.ind_primary_pe, 
+        :dbs.proximity:dbs.ind_proximity, :dbs.reach:dbs.ind_reach, 
+        :dbs.mile:dbs.ind_mile, :dbs.minor:dbs.ind_minor, 
+        :dbs.moderate:dbs.ind_moderate, :dbs.major:dbs.ind_major        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetLocRiverMon() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+LocRiverMon * SelectLocRiverMon(const char * where)
+{
+
+    LocRiverMon * listPtr = NULL;
+    LocRiverMon * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM LocRiverMon ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct LocRiverMon_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectLocRiverMon() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectLocRiverMon() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectLocRiverMon() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.lid:dbs.ind_lid, :dbs.name:dbs.ind_name, 
+    :dbs.county:dbs.ind_county, :dbs.state:dbs.ind_state, 
+    :dbs.hsa:dbs.ind_hsa, :dbs.stream:dbs.ind_stream, 
+    :dbs.bankfull:dbs.ind_bankfull, :dbs.action_stage:dbs.ind_action_stage, 
+    :dbs.flood_stage:dbs.ind_flood_stage, :dbs.flood_flow:dbs.ind_flood_flow, 
+    :dbs.action_flow:dbs.ind_action_flow, :dbs.primary_pe:dbs.ind_primary_pe, 
+    :dbs.proximity:dbs.ind_proximity, :dbs.reach:dbs.ind_reach, 
+    :dbs.mile:dbs.ind_mile, :dbs.minor:dbs.ind_minor, 
+    :dbs.moderate:dbs.ind_moderate, :dbs.major:dbs.ind_major    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectLocRiverMon() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (LocRiverMon *) malloc(sizeof(LocRiverMon))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+            setNullIfIndicated(dbs.ind_lid, CHAR, structPtr->lid);
+
+            strcpy(structPtr->name, dbs.name);
+            setNullIfIndicated(dbs.ind_name, CHAR, structPtr->name);
+
+            strcpy(structPtr->county, dbs.county);
+            setNullIfIndicated(dbs.ind_county, CHAR, structPtr->county);
+
+            strcpy(structPtr->state, dbs.state);
+            setNullIfIndicated(dbs.ind_state, CHAR, structPtr->state);
+
+            strcpy(structPtr->hsa, dbs.hsa);
+            setNullIfIndicated(dbs.ind_hsa, CHAR, structPtr->hsa);
+
+            strcpy(structPtr->stream, dbs.stream);
+            setNullIfIndicated(dbs.ind_stream, CHAR, structPtr->stream);
+
+            structPtr->bankfull = dbs.bankfull;
+            setNullIfIndicated(dbs.ind_bankfull, DOUBLE, &structPtr->bankfull);
+
+            structPtr->action_stage = dbs.action_stage;
+            setNullIfIndicated(dbs.ind_action_stage, DOUBLE, &structPtr->action_stage);
+
+            structPtr->flood_stage = dbs.flood_stage;
+            setNullIfIndicated(dbs.ind_flood_stage, DOUBLE, &structPtr->flood_stage);
+
+            structPtr->flood_flow = dbs.flood_flow;
+            setNullIfIndicated(dbs.ind_flood_flow, DOUBLE, &structPtr->flood_flow);
+
+            structPtr->action_flow = dbs.action_flow;
+            setNullIfIndicated(dbs.ind_action_flow, DOUBLE, &structPtr->action_flow);
+
+            strcpy(structPtr->primary_pe, dbs.primary_pe);
+            setNullIfIndicated(dbs.ind_primary_pe, CHAR, structPtr->primary_pe);
+
+            strcpy(structPtr->proximity, dbs.proximity);
+            setNullIfIndicated(dbs.ind_proximity, CHAR, structPtr->proximity);
+
+            strcpy(structPtr->reach, dbs.reach);
+            setNullIfIndicated(dbs.ind_reach, CHAR, structPtr->reach);
+
+            structPtr->mile = dbs.mile;
+            setNullIfIndicated(dbs.ind_mile, DOUBLE, &structPtr->mile);
+
+            structPtr->minor = dbs.minor;
+            setNullIfIndicated(dbs.ind_minor, DOUBLE, &structPtr->minor);
+
+            structPtr->moderate = dbs.moderate;
+            setNullIfIndicated(dbs.ind_moderate, DOUBLE, &structPtr->moderate);
+
+            structPtr->major = dbs.major;
+            setNullIfIndicated(dbs.ind_major, DOUBLE, &structPtr->major);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.lid:dbs.ind_lid, :dbs.name:dbs.ind_name, 
+        :dbs.county:dbs.ind_county, :dbs.state:dbs.ind_state, 
+        :dbs.hsa:dbs.ind_hsa, :dbs.stream:dbs.ind_stream, 
+        :dbs.bankfull:dbs.ind_bankfull, :dbs.action_stage:dbs.ind_action_stage, 
+        :dbs.flood_stage:dbs.ind_flood_stage, :dbs.flood_flow:dbs.ind_flood_flow, 
+        :dbs.action_flow:dbs.ind_action_flow, :dbs.primary_pe:dbs.ind_primary_pe, 
+        :dbs.proximity:dbs.ind_proximity, :dbs.reach:dbs.ind_reach, 
+        :dbs.mile:dbs.ind_mile, :dbs.minor:dbs.ind_minor, 
+        :dbs.moderate:dbs.ind_moderate, :dbs.major:dbs.ind_major        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectLocRiverMon() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectLocRiverMonCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM LocRiverMon ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountLocRiverMon() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountLocRiverMon() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountLocRiverMon() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountLocRiverMon() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeLocRiverMon( LocRiverMon * structPtr)
+{
+    LocRiverMon* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( LocRiverMon * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetLocRiverMonDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetLocRiverMonErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

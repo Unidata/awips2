@@ -1,0 +1,4 @@
+C                                           *--> FROM COMMON.FCCGD1
+      COMMON/FCCGD1/CGIDC(2),ITDEF(5),NFG,MINDTC,CGNAME(5),ICODAY(20),
+     .  ICOTIM(20),LUPDAY(20),LUPTIM(20),IPC(20)
+C

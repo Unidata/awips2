@@ -1,0 +1,549 @@
+C MODULE SFPDCR
+C-----------------------------------------------------------------------
+C
+C  ROUTINE TO CREATE OR CHANGE A STATION IN PREPROCESSOR DATA BASE.
+C
+      SUBROUTINE SFPDCR (STDISP,PDDISP,PRPARM,STAID,NBRSTA,NPSTAN,
+     *   ICSTAN,NGPS,GPS,NGPSN,
+     *   DLYTYP,NDLYTP,
+     *   INPCPN,IPPROC,PCPNCF,MDRBOX,IPCHAR,
+     *   ITYOBS,TEMPCF,IPMMMT,
+     *   RRSTYP,NRRSTP,NVLPOB,NUMOBS,MNODAY,
+     *   IPARM,IPPPTR,
+     *   IPPP24,IPPPVR,IPTM24,IPTAVR,IPTF24,IPEA24,
+     *   LARRAY,ARRAY,NSTERR,NSTWRN,IDEERR,ISTAT)
+C
+C
+      CHARACTER*4 STDISP,PDDISP
+      CHARACTER*4 GPS(NGPS),XTYP
+      CHARACTER*4 DLYTYP(NDLYTP),RRSTYP(NRRSTP)
+      PARAMETER (MPDTMP=30)
+      CHARACTER*4 PDTMP(MPDTMP)
+      CHARACTER*8 STAID,TYPMSG
+C
+      DIMENSION ARRAY(LARRAY)
+      DIMENSION NVLPOB(NRRSTP),MNODAY(NRRSTP),NUMOBS(NRRSTP)
+      DIMENSION IPARM(3),IPPPTR(3)
+      DIMENSION PCPNCF(2)
+      DIMENSION TEMPCF(2)
+C
+C  PREPROCESSOR DATA BASE READ/WRITE ARRAYS
+      PARAMETER (MADDTP=25,MDELTP=25)
+      CHARACTER*4 ADDTP(MADDTP),DELTP(MDELTP)
+C     MPNTRS=MADTYP+MDELTP
+      PARAMETER (MPNTRS=50)
+      DIMENSION IPNTRS(MPNTRS)
+C
+      INCLUDE 'uiox'
+      INCLUDE 'scommon/sudbgx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppinit_define/RCS/sfpdcr.f,v $
+     . $',                                                             '
+     .$Id: sfpdcr.f,v 1.3 2002/02/11 21:01:13 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,*) 'ENTER SFPDCR'
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG('DEFN')
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,220) STAID,STDISP,NGPSN,LARRAY
+         CALL SULINE (IOSDBG,1)
+         WRITE (IOSDBG,230) IPPROC,IPCHAR,ITYOBS,IPMMMT
+         CALL SULINE (IOSDBG,1)
+         WRITE (IOSDBG,235) (IPARM(I),I=1,NGPS)
+         CALL SULINE (IOSDBG,1)
+         WRITE (IOSDBG,240) NGPS,(GPS(I),I=1,NGPS)
+         CALL SULINE (IOSDBG,1)
+         WRITE (IOSDBG,250) NDLYTP,(DLYTYP(I),I=1,NDLYTP)
+         CALL SULINE (IOSDBG,1)
+         WRITE (IOSDBG,260) NRRSTP
+         CALL SULINE (IOSDBG,1)
+         IF (NRRSTP.GT.0) THEN
+            DO 10 I=1,NRRSTP
+               WRITE (IOSDBG,270) I,RRSTYP(I),
+     *            NVLPOB(I),NUMOBS(I),MNODAY(I)
+               CALL SULINE (IOSDBG,1)
+10             CONTINUE
+            ENDIF
+         ENDIF
+C
+      ISTAT=0
+C
+      NUMERR=0
+      NUMWRN=0
+C 
+C  SET INDICATOR IF PREPROCESSOR DATA BASE TO BE ENQUED
+      IPDENQ=0
+C
+C  SET INDICATOR TO NOT SET PP24 AND TM24 POINTERS NEGATIVE FOR
+C  SYNTHETIC STATIONS
+      IPNEG=0
+C
+C  CHECK IF PREPROCESSOR DATA BASE ALLOCATED
+      IDPPD=1
+      CALL SUDALC (0,0,0,IDPPD,0,0,0,0,0,0,NUMERR,IERR)
+C
+C  CHECK FOR VALID DISPOSITION
+      IF (STDISP.EQ.'OLD'.OR.STDISP.EQ.'NEW'.OR.STDISP.EQ.'DELT') THEN
+         ELSE
+            WRITE (LP,280) STDISP
+            CALL SUERRS (LP,2,NUMERR)
+            ISTAT=1
+            GO TO 200
+            ENDIF
+C
+      PDDISP=STDISP
+C
+C  CHECK IF STATION IS BEING DELETED
+      IF (PDDISP.EQ.'DELT') GO TO 40
+C
+C  CHECK IF TO ENQUEUE PREPROCESSOR DATA BASE
+      IF (IPDENQ.EQ.-1) THEN
+         WRITE (LP,*) ' '
+         CALL SULINE (LP,1)
+         CALL PDENDQ ('ENQ',IERR)
+         IF (IERR.EQ.0) THEN
+            CALL SULINE (LP,1)
+            IPDENQ=1
+            ELSE
+               WRITE (LP,290)
+               CALL SUERRS (LP,2,NUMERR)
+               ISTAT=1
+               GO TO 200
+            ENDIF
+         ENDIF
+C
+C  OPEN PREPROCESSOR DATA BASE
+      CALL SUDOPN (1,'PPD ',IERR)
+      IF (IERR.GT.0) GO TO 200
+C
+C  CHECK IF STATION EXISTS IN PREPROCESSOR DATA BASE
+      IDTYPE=0
+      NUMBER=0
+      CALL RPDID (STAID,NUMBER,IDTYPE,IERR)
+      IF (IERR.GT.0) THEN
+         IF (IERR.NE.1) THEN
+            WRITE (LP,300) IERR
+            CALL SUERRS (LP,2,NUMERR)
+            GO TO 20
+            ENDIF
+         IF (PDDISP.EQ.'NEW') GO TO 30
+            PDDISP='NEW'
+            WRITE (LP,310) STAID,PDDISP
+            CALL SULINE (LP,2)
+            GO TO 30
+         ENDIF
+20    IF (PDDISP.EQ.'OLD') GO TO 30
+         IF (ICSTAN.NE.0) THEN
+            WRITE (LP,320) STAID,PDDISP
+            CALL SUERRS (LP,2,NUMERR)
+            ISTAT=1
+            GO TO 200
+            ENDIF
+         PDDISP='OLD'
+         WRITE (LP,330) STAID,PDDISP
+         CALL SULINE (LP,2)
+         GO TO 40
+C
+C  CHECK IF STATION IS COMPLETE
+30    IF (ICSTAN.EQ.0) GO TO 40
+C
+C  CHECK IF STATION EXISTS BUT STATUS IS INCOMPLETE
+      IF (PDDISP.EQ.'OLD') THEN
+         PDDISP='NEW'
+         WRITE (LP,340) STAID,PDDISP
+         CALL SULINE (LP,2)
+         ENDIF
+C
+C  SET WHICH DATA GROUPS SPECIFIED
+40    IPCPN=0
+      ITEMP=0
+      IPE=0
+      IRRS=0
+      CALL UMEMST (0,IPPPTR,3)
+      DO 50 IGPS=1,NGPS
+         IF (GPS(IGPS).EQ.'PCPN') THEN
+            IPCPN=1
+            IPPPTR(1)=IPARM(IGPS)
+            ENDIF
+         IF (GPS(IGPS).EQ.'TEMP') THEN
+            ITEMP=1
+            IPPPTR(2)=IPARM(IGPS)
+            ENDIF
+         IF (GPS(IGPS).EQ.'PE') THEN
+            IPE=1
+            IPPPTR(3)=IPARM(IGPS)
+            ENDIF
+         IF (GPS(IGPS).EQ.'RRS') IRRS=1
+50       CONTINUE
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+      IPCPCR=-999
+      IF (IPCPN.EQ.1) THEN
+C     ENCODE PRECIPITATION CORRECTION FACTORS
+         IF (INPCPN.NE.0) THEN
+            IPCPCR=PCPNCF(1)*2000+.5
+            IF (PCPNCF(2).NE.-999.) IPCPCR=IPCPCR+PCPNCF(2)*20+.5
+            IF (IPPROC.EQ.1) IPCPCR=-1*IPCPCR
+            IF (LDEBUG.GT.0) THEN
+               WRITE (IOSDBG,390) IPCPCR,PCPNCF
+               CALL SULINE (IOSDBG,1)
+               ENDIF
+            ENDIF
+         ENDIF
+C
+C  CHECK IF ERRORS ENCOUNTERED
+      IF (NUMERR.GT.0) THEN
+         IF (PDDISP.EQ.'NEW') THEN
+            WRITE (LP,350) STAID,'CREATED',NUMERR
+            CALL SULINE (LP,2)
+            ENDIF
+         IF (PDDISP.NE.'NEW') THEN
+            WRITE (LP,350) STAID,'CHANGED',NUMERR
+            CALL SULINE (LP,2)
+            ENDIF
+         ISTAT=1
+         GO TO 200
+         ENDIF
+C
+C  CHECK IF ERRORS ENCOUNTERED CREATING STATION IN DATA ENTRY CONTROL
+C  FILES
+      IF (IDEERR.GT.0) THEN
+         IF (PDDISP.EQ.'NEW') THEN
+            WRITE (LP,370) STAID,'CREATED'
+            CALL SULINE (LP,2)
+            ENDIF
+         IF (PDDISP.NE.'NEW') THEN
+            WRITE (LP,370) STAID,'CHANGED'
+            CALL SULINE (LP,2)
+            ENDIF
+         ISTAT=1
+         GO TO 200
+         ENDIF
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,400) NPSTAN,IPPPTR,IPCHAR,MDRBOX,IPCPCR,IPMMMT,
+     *      TEMPCF
+         TYPMSG='NOTE'
+         CALL SUGTPT ('PP24',LARRAY,ARRAY,LPFILL,TYPMSG,IERR)
+         IF (IERR.EQ.0) CALL SUDPTR ('PP24',ARRAY,LPFILL)
+         CALL SUGTPT ('PPVR',LARRAY,ARRAY,LPFILL,TYPMSG,IERR)
+         IF (IERR.EQ.0) CALL SUDPTR ('PPVR',ARRAY,LPFILL)
+         CALL SUGTPT ('TM24',LARRAY,ARRAY,LPFILL,TYPMSG,IERR)
+         IF (IERR.EQ.0) CALL SUDPTR ('TM24',ARRAY,LPFILL)
+         CALL SUGTPT ('TAVR',LARRAY,ARRAY,LPFILL,TYPMSG,IERR)
+         IF (IERR.EQ.0) CALL SUDPTR ('TAVR',ARRAY,LPFILL)
+         CALL SUGTPT ('TF24',LARRAY,ARRAY,LPFILL,TYPMSG,IERR)
+         IF (IERR.EQ.0) CALL SUDPTR ('TF24',ARRAY,LPFILL)
+         CALL SUGTPT ('EA24',LARRAY,ARRAY,LPFILL,TYPMSG,IERR)
+         IF (IERR.EQ.0) CALL SUDPTR ('EA24',ARRAY,LPFILL)
+         ENDIF
+C
+      IF (PDDISP.EQ.'OLD'.OR.PDDISP.EQ.'DELT') GO TO 150
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CREATE STATION
+C
+      CALL WPDCR (STAID,NBRSTA,
+     *   NDLYTP,DLYTYP,NPSTAN,IPPPTR,IPCHAR,MDRBOX,IPCPCR,IPMMMT,TEMPCF,
+     *   NRRSTP,RRSTYP,NVLPOB,NUMOBS,MNODAY,
+     *   IPNTRS,IERR)
+      IF (IERR.GT.0) THEN
+         CALL SWPDST ('WPDCR',STAID,NBRSTA,NDLYTP,DLYTYP,
+     *        NRRSTP,RRSTYP,IPNTRS,NUMERR,IERR)
+         IF (IERR.EQ.6.OR.
+     *       IERR.EQ.9.OR.
+     *       IERR.EQ.10.OR.
+     *       IERR.EQ.11.OR.
+     *       IERR.EQ.12) GO TO 80
+         IF (IERR.EQ.3) THEN
+            NUM=NDLYTP+NRRSTP
+            DO 70 I=1,NUM
+               IF (IPNTRS(I).NE.-2) GO TO 200
+70             CONTINUE
+            ENDIF
+         ISTAT=1
+         GO TO 200
+         ENDIF
+C
+80    IF (LDEBUG.GT.0) THEN
+         NPNTRS=NDLYTP+NRRSTP
+         WRITE (IOSDBG,410) NPNTRS,(IPNTRS(I),I=1,NPNTRS)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+      WRITE (LP,420) STAID,'CREATED'
+      CALL SULINE (LP,2)
+      CALL SUDWRT (1,'PPD ',IERR)
+C
+      IF (NDLYTP.GT.0) THEN
+         NDLY=0
+         DO 90 I=1,NDLYTP
+            IF (IPNTRS(I).GT.0) NDLY=NDLY+1
+90          CONTINUE
+         IF (NDLY.GT.0) THEN
+            NPDTMP=0
+            DO 100 I=1,NDLYTP
+               IF (IPNTRS(I).LE.0) GO TO 100
+                  NPDTMP=NPDTMP+1
+                  IF (NPDTMP.GT.MPDTMP) THEN
+                     WRITE (LP,425) 'DLY',MPDTMP
+                     CALL SUWRNS (LP,2,NUMERR)
+                     GO TO 105
+                     ENDIF
+                  PDTMP(NPDTMP)=DLYTYP(I)
+100            CONTINUE
+105         NUM=NPDTMP
+            NPER=10
+            IF (NUM.GT.NPER) NUM=NPER
+            WRITE (LP,430) 'DLY',(PDTMP(I),I=1,NUM)
+            CALL SULINE (LP,2)
+            IF (NPDTMP.GT.NPER) THEN
+               NTIME=(NPDTMP-NPER)/NPER
+               IF (MOD(NPDTMP,NPER).NE.0) NTIME=NTIME+1
+               NUM1=NPER+1
+               NUM2=NPER*2
+               DO 110 J=1,NTIME
+                  IF (NUM2.GT.NPDTMP) NUM2=NPDTMP
+                  WRITE (LP,440) (PDTMP(I),I=NUM1,NUM2)
+                  CALL SULINE (LP,1)
+                  NUM1=NUM1+NPER
+                  NUM2=NUM2+NPER
+110               CONTINUE
+               ENDIF
+            ENDIF
+         ENDIF
+C
+      IF (NRRSTP.GT.0) THEN
+         NRRS=0
+         DO 120 I=1,NRRSTP
+            J=NDLYTP+I
+            IF (IPNTRS(J).NE.-1) GO TO 120
+               NRRS=NRRS+1
+120         CONTINUE
+         IF (NRRS.GT.0) THEN
+            NPDTMP=0
+            DO 130 I=1,NRRSTP
+               J=NDLYTP+I
+               IF (IPNTRS(J).NE.-1) GO TO 130
+                  NPDTMP=NPDTMP+1
+                  IF (NPDTMP.GT.MPDTMP) THEN
+                     WRITE (LP,425) 'RRS',MPDTMP
+                     CALL SUWRNS (LP,2,NUMERR)
+                     GO TO 135
+                     ENDIF
+                  PDTMP(NPDTMP)=RRSTYP(I)
+130            CONTINUE
+135         NUM=NPDTMP
+            NPER=10
+            IF (NUM.GT.NPER) NUM=NPER
+            WRITE (LP,430) 'RRS',(PDTMP(I),I=1,NUM)
+            CALL SULINE (LP,2)
+            IF (NPDTMP.GT.NPER) THEN
+               NTIME=(NPDTMP-NPER)/NPER
+               IF (MOD(NPDTMP,NPER).NE.0) NTIME=NTIME+1
+               NUM1=NPER+1
+               NUM2=NPER*2
+               DO 140 J=1,NTIME
+                  IF (NUM2.GT.NPDTMP) NUM2=NPDTMP
+                  WRITE (LP,440) (PDTMP(I),I=NUM1,NUM2)
+                  CALL SULINE (LP,1)
+                  NUM1=NUM1+NPER
+                  NUM2=NUM2+NPER
+140               CONTINUE
+               ENDIF
+            ENDIF
+         ENDIF
+C
+      GO TO 180
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHANGE STATION
+C
+150   IF (PDDISP.EQ.'OLD'.AND.NGPSN.EQ.0) GO TO 200
+C
+      CALL WPDC (STAID,NBRSTA,
+     *   NDLYTP,DLYTYP,NPSTAN,IPPPTR,IPCHAR,MDRBOX,IPCPCR,IPMMMT,TEMPCF,
+     *   NRRSTP,RRSTYP,NVLPOB,NUMOBS,MNODAY,
+     *   IPNTRS,MADDTP,ADDTP,NADDTP,MDELTP,DELTP,NDELTP,IERR)
+      IF (IERR.GT.0) THEN
+         CALL SWPDST ('WPDC',STAID,NBRSTA,NDLYTP,DLYTYP,
+     *     NRRSTP,RRSTYP,IPNTRS,NUMERR,IERR)
+         IF (IERR.EQ.16) GO TO 200
+         IF (IERR.NE.4) THEN
+            ISTAT=1
+            GO TO 200
+            ENDIF
+         ENDIF
+C
+      WRITE (LP,420) STAID,'CHANGED'
+      CALL SULINE (LP,2)
+C      
+      CALL SUDWRT (1,'PPD ',IERR)
+C
+      IF (NADDTP.GT.0) THEN
+         NUM=NADDTP
+         NPER=10
+         IF (NUM.GT.NPER) NUM=NPER
+         WRITE (LP,450) (ADDTP(I),I=1,NUM)
+         CALL SULINE (LP,2)
+         IF (NADDTP.GT.NPER) THEN
+            NTIME=(NADDTP-NPER)/NPER
+            IF (MOD(NADDTP,NPER).NE.0) NTIME=NTIME+1
+            NUM1=NPER+1
+            NUM2=NPER*2
+            DO 160 J=1,NTIME
+               IF (NUM2.GT.NADDTP) NUM2=NADDTP
+               WRITE (LP,460) (ADDTP(I),I=NUM1,NUM2)
+               CALL SULINE (LP,1)
+               NUM1=NUM1+NPER
+               NUM2=NUM2+NPER
+160            CONTINUE
+            ENDIF
+         ENDIF
+C
+      IF (NDELTP.GT.0) THEN
+         NUM=NDELTP
+         NPER=10
+         IF (NUM.GT.NPER) NUM=NPER
+         WRITE (LP,470) (DELTP(I),I=1,NUM)
+         CALL SULINE (LP,2)
+         IF (NRRSTP.GT.NPER) THEN
+            NTIME=(NDELTP-NPER)/NPER
+            IF (MOD(NDELTP,NPER).NE.0) NTIME=NTIME+1
+            NUM1=NPER+1
+            NUM2=NPER*2
+            DO 170 J=1,NTIME
+               IF (NUM2.GT.NDELTP) NUM2=NDELTP
+               WRITE (LP,460) (DELTP(I),I=NUM1,NUM2)
+               CALL SULINE (LP,1)
+               NUM1=NUM1+NPER
+               NUM2=NUM2+NPER
+170            CONTINUE
+            ENDIF
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+180   IF (LDEBUG.GT.0) THEN
+         TYPMSG='NOTE'
+         CALL SUGTPT ('PP24',LARRAY,ARRAY,LPFILL,TYPMSG,IERR)
+         IF (IERR.EQ.0) CALL SUDPTR ('PP24',ARRAY,LPFILL)
+         CALL SUGTPT ('PPVR',LARRAY,ARRAY,LPFILL,TYPMSG,IERR)
+         IF (IERR.EQ.0) CALL SUDPTR ('PPVR',ARRAY,LPFILL)
+         CALL SUGTPT ('TM24',LARRAY,ARRAY,LPFILL,TYPMSG,IERR)
+         IF (IERR.EQ.0) CALL SUDPTR ('TM24',ARRAY,LPFILL)
+         CALL SUGTPT ('TAVR',LARRAY,ARRAY,LPFILL,TYPMSG,IERR)
+         IF (IERR.EQ.0) CALL SUDPTR ('TAVR',ARRAY,LPFILL)
+         CALL SUGTPT ('TF24',LARRAY,ARRAY,LPFILL,TYPMSG,IERR)
+         IF (IERR.EQ.0) CALL SUDPTR ('TF24',ARRAY,LPFILL)
+         CALL SUGTPT ('EA24',LARRAY,ARRAY,LPFILL,TYPMSG,IERR)
+         IF (IERR.EQ.0) CALL SUDPTR ('EA24',ARRAY,LPFILL)
+         ENDIF
+C
+C  SET PREPROCESSOR DATA BASE POINTERS
+      IPPP24=0
+      IPPPVR=0
+      IPTM24=0
+      IPTAVR=0
+      IPTF24=0
+      IPEA24=0
+      DO 190 I=1,NDLYTP
+         XTYP=DLYTYP(I)
+         IF (XTYP.EQ.'PP24') IPPP24=IPNTRS(I)
+         IF (XTYP.EQ.'PP06'.OR.XTYP.EQ.'PP03'.OR.XTYP.EQ.'PP01')
+     *      IPPPVR=IPNTRS(I)
+         IF (XTYP.EQ.'TM24') IPTM24=IPNTRS(I)
+         IF (XTYP.EQ.'TA06'.OR.XTYP.EQ.'TA03'.OR.XTYP.EQ.'TA01')
+     *      IPTAVR=IPNTRS(I)
+         IF (XTYP.EQ.'TF24') IPTF24=IPNTRS(I)
+         IF (XTYP.EQ.'EA24') IPEA24=IPNTRS(I)
+190      CONTINUE
+C
+C  CHECK IF SYNTHETIC PCPN STATION
+      IF (IPNEG.EQ.1.AND.IPPROC.EQ.2) IPPP24=-1*IPPP24
+C
+C  CHECK IF SYNTHETIC TEMP STATION
+      IF (IPNEG.EQ.1.AND.ITYOBS.EQ.4) IPTM24=-1*IPTM24
+C
+200   NSTERR=NSTERR+NUMERR
+      NSTWRN=NSTWRN+NUMWRN
+C
+C  CHECK IF TO DEQ PREPROCESSOR DATA BASE
+      IF (IPDENQ.EQ.1) THEN
+C     CLOSE PREPROCESSOR DATA BASE
+         CALL SUDCLS (IERR)
+C     DEQUEUE PREPROCESSOR DATA BASE
+         CALL PDENDQ ('DEQ',IERR)
+         IF (IERR.EQ.0) CALL SULINE (LP,1)
+         WRITE (LP,*) ' '
+         CALL SULINE (LP,1)
+         ENDIF
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,*) 'EXIT SFPDCR'
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+220   FORMAT (' STAID=',A,3X,'STDISP=',A,3X,'NGPSN=',I2,3X,
+     *   'LARRAY=',I5)
+230   FORMAT (' IPPROC=',I2,3X,'IPCHAR=',I2,3X,'ITYOBS=',I2,3X,
+     *   'IPMMMT=',I2)
+235   FORMAT (' IPARM=',5(I5,1X))
+240   FORMAT (' NGPS=',I2,3X,'GPS=',5(A,1X))
+250   FORMAT (' NDLYTP=',I2,3X,'DLYTYP=',5(A,1X))
+260   FORMAT (' NRRSTP=',I2)
+270   FORMAT (' I=',I2,3X,'RRSTYP=',A,3X,
+     *   'NVLPOB=',I2,3X,'NUMOBS=',I3,3X,'MNODAY=',I3)
+280   FORMAT ('0*** ERROR - IN SFPDCR - INVALID DISPOSITION : ',A)
+290   FORMAT ('0*** ERROR - IN SFPDCR - ENQUING PREPROCESSOR DATA ',
+     *   'BASE.')
+300   FORMAT ('0*** ERROR - IN SFPDCR - STATUS CODE FROM ROUTINE ',
+     *   'RPDID NOT RECOGNIZED : ',I5)
+310   FORMAT ('0*** NOTE - STATION ',A,' DOES NOT EXIST IN THE ',
+     *   'PREPROCESSOR DATA BASE. DISP ASSUMED TO BE ',A,'.')
+320   FORMAT ('0*** ERROR - STATION ',A,' EXISTS IN THE ',
+     *   'PREPROCESSOR DATA BASE BUT DISP IS ',A,'.')
+330   FORMAT ('0*** NOTE - STATION ',A,' EXISTS IN THE ',
+     *   'PREPROCESSOR DATA BASE. DISP ASSUMED TO BE ',A,'.')
+340   FORMAT ('0*** NOTE - STATION ',A,' EXISTS BUT IS NOT COMPLETE.',
+     *   ' DISP ASSUMED TO BE ',A,' FOR WRITING TO THE PREPROCESSOR ',
+     *   'BASE.')
+350   FORMAT ('0*** NOTE - STATION ',A,' NOT ',A,' IN THE ',
+     *   'PREPROCESSOR DATA BASE BECAUSE ',I2,' ERRORS ENCOUNTERED.')
+370   FORMAT ('0*** NOTE - STATION ',A,' NOT ',A,' IN THE ',
+     *   'PREPROCESSOR DATA BASE BECAUSE DATA ENTRY CONTROL FILES ',
+     *   'NOT SUCCESSFULLY UPDATED.')
+390   FORMAT (' ENCODED PCPNCF SET TO : ',I5,' (PCPNCF(1)=',F7.2,1X,
+     *   '(2)=',F7.2,')')
+400   FORMAT (' NPSTAN=',I4,3X,'IPPPTR=',3(I3,1X),3X,'IPCHAR=',I3,3X,
+     *   'MDRBOX=',I4,3X,'IPCPCR=',I5,3X,'IPMMMT=',I4,3X,
+     *   'TEMPCF=',2(F7.2,1X))
+410   FORMAT (' NPNTRS=',I2,3X,'IPNTRS=',20(I4,1X))
+420   FORMAT ('0*** NOTE - STATION ',A,' SUCCESSFULLY ',A,' IN ',
+     *   'THE PREPROCESSOR DATA BASE.')
+425   FORMAT ('0*** WARNING - MAXIMUM NUMBER OF ',A,' DATA TYPES ',
+     *   'THAT CAN BE STORED IN ARRAY PDTMP (',I2,') EXCEEDED.')
+430   FORMAT (T13,A,' DATA TYPES : ',10(A,2X))
+440   FORMAT (T30,20(A4,2X))
+450   FORMAT (T13,'DATA TYPES ADDED   : ',10(A4,2X))
+460   FORMAT (T34,20(A4,2X))
+470   FORMAT (T13,'DATA TYPES DELETED : ',10(A4,2X))
+C
+      END

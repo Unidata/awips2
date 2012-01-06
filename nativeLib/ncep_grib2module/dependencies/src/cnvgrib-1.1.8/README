@@ -1,0 +1,56 @@
+                                                           Mar 24, 2008
+                                                           W/NP11:SAG
+
+cnvgrib utility.
+
+This command line utility program converts every GRIB
+message in the input file from one GRIB edition to another.
+It currently converts GRIB1 to GRIB2, and GRIB2 to GRIB1
+using WMO master tables as well as various NCEP local tables.
+
+The cnvgrib utility requires both the w3lib and g2lib
+libraries.
+
+We have added support for PNG and JPEG2000 image compression
+algorithms within the GRIB2 standard.  If you would like
+this converter to be able to utilize these new GRIB2 Templates,
+then the g2lib must be compiled with this support enabled.
+The README file included with the "g2lib" library 
+describes how to compile that library to support PNG and
+JPEG2000, and it also lists the external libraries that
+are required.  These libraries, if desired, will have to linked 
+in when creating the cnvgrib executable.
+
+
+
+Usage: cnvgrib [-h] {-g12|-g21|-g22} [-m|-m0] [-nv]
+               [{-p0|-p2|-p31|-p32|-p40|-p41}]  ingribfile   outgribfile
+  
+
+Usage: cnvgrib  -h  For helps and shows all options
+
+
+cnvgrib:  version cnvgrib-1.1.7  
+  
+Must use one of the following options:
+   -g12     converts GRIB1 to GRIB2
+   -g21     converts GRIB2 to GRIB1
+   -g22     converts GRIB2 to GRIB2  (used to change packing option)
+  
+Optional packing options: (for use with  -g12 and -g22 only)
+   -p0      simple packing
+   -p2      complex packing
+   -p31     complex pack with 1st order diffs
+   -p32     complex pack with 2nd order diffs
+   -p40     JPEG2000 encoding
+   -p41     PNG encoding
+  
+Other Optional options: 
+   -nv      Do not combine U, V wind components
+  
+   Use missing value management instead of bitmap
+   (ONLY valid with Complex Packing options: -p2, -p31 or -p32 )
+  
+   -m      Primary missing values included within the data values
+   -m0     No explicit missing values included within the data values
+

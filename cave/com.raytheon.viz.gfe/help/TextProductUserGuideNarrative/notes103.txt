@@ -1,0 +1,2 @@
+Thus, the "getStats" method can be used to access statistics from the dictionary for a particular weather element.  "getStats" returns None if there is no entry, so wordMethods should always check for this case.
+

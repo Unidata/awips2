@@ -1,0 +1,245 @@
+<!--
+ -
+ - Licensed to the Apache Software Foundation (ASF) under one
+ - or more contributor license agreements.  See the NOTICE file
+ - distributed with this work for additional information
+ - regarding copyright ownership.  The ASF licenses this file
+ - to you under the Apache License, Version 2.0 (the
+ - "License"); you may not use this file except in compliance
+ - with the License.  You may obtain a copy of the License at
+ - 
+ -   http://www.apache.org/licenses/LICENSE-2.0
+ - 
+ - Unless required by applicable law or agreed to in writing,
+ - software distributed under the License is distributed on an
+ - "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ - KIND, either express or implied.  See the License for the
+ - specific language governing permissions and limitations
+ - under the License.
+ -
+ -->
+<project name="AMQ Java" default="build">
+
+  <import file="common.xml"/>
+
+  <property name="modules.core"       value="junit-toolkit common management/common broker client tools"/>
+  <property name="modules.examples"   value="client/example"/>
+  <property name="modules.tests"      value="systests perftests integrationtests testkit"/>
+  <property name="modules.management" value="management/client management/eclipse-plugin management/agent management/console"/>
+  <property name="modules.plugin"     value="broker-plugins"/>
+  <property name="modules.management.tools" value="management/tools/qpid-cli"/>
+  <property name="modules"            value="${modules.core}
+  ${modules.plugin} ${modules.examples}
+  ${modules.management} ${modules.management.tools} ${modules.tests}"/>
+
+  <property name="qpid.jar"           location="${build.lib}/qpid-all.jar"/>
+  <basename property="qpid.jar.name"  file="${qpid.jar}"/>
+
+  <property name="resources"     value="${project.root}/resources"/>
+
+  <map property="release.excludes" value="${modules}">
+    <globmapper from="*" to="*/\*\*"/>
+  </map>
+
+  <property name="release.zip"          location="${release}/${project.namever}-java.zip"/>
+  <property name="release.tar"          location="${release}/${project.namever}-java.tar"/>
+  <property name="release.tgz"          location="${release}/${project.namever}-java.tar.gz"/>
+  <property name="release.bz2"          location="${release}/${project.namever}-java.tar.bz2"/>
+
+  <macrodef name="iterate">
+    <attribute name="target"/>
+    <attribute name="modules" default="${modules}"/>
+    <element name="elements" implicit="true" optional="true"/>
+    <sequential>
+      <subant target="@{target}" antfile="build.xml">
+        <filelist dir="." files="@{modules}"/>
+        <elements/>
+      </subant>
+    </sequential>
+  </macrodef>
+
+  <target name="pom" description="generate poms">
+    <iterate target="pom"/>
+  </target>
+
+  <target name="compile" description="compile sources">
+    <iterate target="compile"/>
+  </target>
+
+  <target name="compile-tests" description="compile unit tests">
+    <iterate target="compile-tests"/>
+  </target>
+
+  <target name="test" description="execute tests">
+
+    <delete file="${build.failed}"/>
+
+    <iterate target="test">
+      <property name="test.failures.ignore" value="true"/>
+    </iterate>
+
+    <condition property="failed">
+      <available file="${build.failed}"/>
+    </condition>
+
+    <fail if="failed" message="TEST SUITE FAILED"/>
+
+  </target>
+
+  <target name="jar" description="create module jars">
+    <iterate target="jar"/>
+  </target>
+
+  <target name="jar-tests" description="create unit test jars">
+    <iterate target="jar-tests"/>
+  </target>
+
+  <target name="libs" description="copy dependencies into build tree">
+    <iterate target="libs"/>
+  </target>
+
+  <target name="doc" description="generate api-doc">
+    <iterate target="doc"/>
+  </target>
+
+  <target name="bundle" description="create OSGi bundles">
+    <iterate target="bundle"/>
+  </target>
+  
+  <target name="release-bin" description="build a binary release artifact" depends="build,bundle">
+      <iterate  target="release-bin"/>
+  </target>
+
+
+  <target name="check-manifest">
+    <uptodate property="manifest.done" targetfile="${qpid.jar}">
+      <srcfiles dir="${build.lib}" includes="**/*.jar" excludes="**/${qpid.jar.name}"/>
+    </uptodate>
+  </target>
+
+  <target name="manifest" depends="check-manifest" unless="manifest.done">
+    <path id="class.path">
+      <fileset dir="${build.lib}" >
+        <include name="*.jar"/>
+        <exclude name="${qpid.jar.name}"/>
+      </fileset>
+    </path>
+    <pathconvert property="qpid.jar.classpath" pathsep=" " dirsep="/">
+      <path refid="class.path"/>
+      <globmapper from="${build.lib}${file.separator}*" to="*"/>
+    </pathconvert>
+
+    <jar destfile="${qpid.jar}">
+      <manifest>
+        <attribute name="Class-Path" value="${qpid.jar.classpath}"/>
+      </manifest>
+      <metainf dir="${project.root}/resources/"/>
+    </jar>
+
+    <touch file="${qpid.jar}"/>
+  </target>
+
+  <target name="build" description="build the project">
+    <iterate target="build"/>
+    <antcall target="manifest"/>
+  </target>
+
+  <target name="prepare">
+    <mkdir dir="${release}"/>
+  </target>
+
+  <target name="zip" depends="build,prepare" description="build release archive">
+    <zip destfile="${release.zip}">
+      <zipfileset dir="${build}" prefix="${project.namever}" filemode="755">
+        <include name="bin/*"/>
+	<exclude name="bin/*.txt"/>
+      </zipfileset>
+
+      <zipfileset dir="${build}" prefix="${project.namever}" filemode="644">
+        <include name="bin/*.txt"/>
+      </zipfileset>
+
+      <zipfileset dir="${build}" prefix="${project.namever}" excludes="${release.excludes}" filemode="644" dirmode="755">
+        <exclude name="bin/**"/>
+	<exclude name="scratch/**"/>
+      </zipfileset>
+
+      <zipfileset dir="${resources}" prefix="${project.namever}" filemode="644"/>
+    </zip>
+  </target>
+
+  <target name="tar" depends="zip" description="build release archive">
+    <tar destfile="${release.tar}" longfile="gnu" >
+      <zipfileset src="${release.zip}"/>
+    </tar>
+  </target>
+
+  <target name="gzip" depends="tar" description="build release archive">
+    <gzip src="${release.tar}" destfile="${release.tgz}"/>
+  </target>
+
+  <target name="bzip2" depends="tar" description="build release archive">
+    <bzip2 src="${release.tar}" destfile="${release.bz2}"/>
+  </target>
+
+  <target name="release" depends="zip,gzip" description="build all release archives except .bz2"/>
+
+  <target name="release-all" depends="zip,gzip,bzip2" description="build all release archives"/>
+
+
+  <target name="clean" description="remove build and release artifacts">
+    <iterate target="clean"/>
+    <delete dir="${build}"/>
+    <delete dir="${release}"/>
+    <delete dir="${tasks.classes}"/>
+  </target>
+
+  <target name="coverage-report" description="generate coverage report" depends="cobertura-init">
+    <cobertura-merge datafile="${build.coveragereport}/cobertura.ser">
+      <!-- merge all module coverage reports -->
+      <fileset dir="${build}">
+        <include name="**/*.ser"/>
+      </fileset>
+    </cobertura-merge>
+    <cobertura-report format="html"
+                      destdir="${build.coveragereport}"
+		      datafile="${build.coveragereport}/cobertura.ser"
+		      >
+      <fileset dir="${project.root}/common/src/main/java" includes="**/*.java" />
+      <fileset dir="${project.root}/build/scratch/common/src" includes="**/*.java" />
+      <fileset dir="${project.root}/broker/src/main/java" includes="**/*.java" />
+      <fileset dir="${project.root}/build/scratch/broker/src" includes="**/*.java" />
+      <fileset dir="${project.root}/client/src/main/java" includes="**/*.java" />
+      <fileset dir="${project.root}/build/scratch/client/src" includes="**/*.java" />
+    </cobertura-report>
+  </target>
+
+  <target name="instrument" description="instrument for artifacts">
+    <iterate target="instrument"/>
+  </target>
+  
+  <target name="cover-test" description="run tests and generate coverage information" depends="build">
+    <iterate target="cover-test" modules="broker client common"/>
+  </target>
+
+  <target name="test-interop" depends="build,compile-tests"
+      description="run JMS examples against the corresponding c++ and python examples">
+      <property name="qpid.src.home" location=".."/> 
+      <echo-prop name="qpid.src.home"/>
+      <exec executable="/bin/sh" failonerror="true">
+         <env key="QPID_SRC_HOME" value="${qpid.src.home}"/>
+         <arg value="-c"/>
+         <arg value="${project.root}/client/example/bin/verify_all"/>
+      </exec>
+  </target>
+
+  <target name="testkit" depends="build,compile-tests">
+    <jython path="${mllib.dir}">
+      <args>
+        <arg value="${mllib.dir}/qpid-python-test"/>
+        <arg value="-m ${basedir}/testkit/testkit"/>
+      </args>
+    </jython>
+  </target>
+
+</project>

@@ -1,0 +1,205 @@
+#################
+################################################################
+## EXTREME WIND WARNING TEMPLATE                              ##
+## (SLIGHTLY) MODIFIED BY TOM BIRCHARD - WFO HFO              ##
+## VERSION AWIPS II 1.0 -- 15-APRIL-2011   
+##          MODIFIED EVAN BOOKBINDER  09-16-2011 OB11.0.8-8     ##
+##          EVAN BOOKBINDER   WFO EAX 11-04-2011 OB11.9-3 (DRs) ##
+##                                                              ##
+##################################################################
+## EWW PRODUCT ##
+#################
+##
+${WMOId} ${vtecOffice} 000000 ${BBBId}
+EWW${siteId}
+#if(${specialCorText})
+${specialCorText}
+#else
+${ugcline}
+/${productClass}.${action}.${vtecOffice}.EW.W.${etn}.${dateUtil.format(${start}, ${timeFormat.ymdthmz})}-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
+
+BULLETIN - EAS ACTIVATION REQUESTED
+#if(${productClass}=="T")
+TEST...EXTREME WIND WARNING...TEST##
+#else
+EXTREME WIND WARNING##
+#end
+
+NATIONAL WEATHER SERVICE ${officeShort}
+#backupText(${backupSite})
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+#headline(${officeLoc}, ${backupSite})
+
+* ##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+EXTREME WIND WARNING FOR THE ONSET OF SUSTAINED WINDS OF 115 MPH OR GREATER FOR...
+#foreach (${area} in ${areas}) 
+  ##
+#if(${area.partOfArea})
+#areaFormat(${area.partOfArea} true false) ##
+#end
+${area.name} ${area.areaNotation} IN #areaFormat(${area.partOfParentRegion} true false) ${area.parentRegion}...
+#end
+#*
+#if(${list.size($area.points)} > 1)
+     THIS INCLUDES THE CITIES OF... #foreach (${city} in ${area.points})${city}... #end
+#elseif(${list.size($area.points)} > 0)  
+     THIS INCLUDES THE CITY OF ${list.get(${area.points},0)}
+#end
+#end
+*#
+* ##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone})
+
+#set($reportType1 = "ASSOCIATED WITH THE EYEWALL OF HURRICANE !**name**!...WERE MOVING ONSHORE")
+#set($reportType = "EXTREME WINDS")
+#set($reportType2 = "THE HURRICANE EYEWALL WAS")
+##
+#if(${list.contains($bullets, "var1")})
+#set($reportType1 = "ASSOCIATED WITH A BROAD AREA OF INTENSE THUNDERSTORMS...LOCATED")
+#set($reportType = "EXTREME WINDS WERE OCCURING")
+#set($reportType2 = "THIS AREA OF THUNDERSTORM WINDS WAS")
+#end
+##
+#if(${list.contains($bullets, "var2")})
+#set($reportType1 = "ASSOCIATED WITH AN INTENSE LOW PRESSURE AREA...LOCATED")
+#set($reportType = "EXTREME WINDS WERE OCCURING")
+#set($reportType2 = "THIS INTENSE LOW PRESSURE SYSTEM WAS")
+#end
+##
+#if(${list.contains($bullets, "var3")})
+#set($reportType1 = "ASSOCIATED WITH A DOWNSLOPE WINDSTORM...LOCATED")
+#set($reportType = "EXTREME WINDS WERE OCCURING")
+#set($reportType2 = "THIS AREA OF DOWNSLOPE WINDS WAS")
+#end
+##
+#if(${list.contains($bullets, "basis1")})
+#set($reportType = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED EXTREME WINDS")
+#end
+##
+#if(${list.contains($bullets, "basis2")})
+#set($reportType = "SURFACE OBSERVATIONS INDICATED EXTREME WINDS")
+#end
+##
+#if(${list.contains($bullets, "basis3")})
+#set($reportType = "MARITIME OBSERVATIONS INDICATED EXTREME WINDS")
+#end
+##
+#if(${list.contains($bullets, "basis4")})
+#set($reportType = "TRAINED WEATHER SPOTTERS REPORTED EXTREME WINDS")
+#end
+##
+#if(${list.contains($bullets, "basis5")})
+#set($reportType = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND SURFACE OBSERVATIONS INDICATED EXTREME WINDS")
+#end
+##
+#if(${list.contains($bullets, "basis6")})
+#set($reportType = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND MARITIME OBSERVATIONS INDICATED EXTREME WINDS")
+#end
+##
+#if(${list.contains($bullets, "basis7")})
+#set($reportType = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND TRAINED WEATHER SPOTTERS REPORTED EXTREME WINDS")
+#end
+##
+## Storm current location description
+
+* ##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+AT ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}...${reportType}...${reportType1} ##
+#handleClosestPoints($list, $closestPoints, $otherClosestPoints, $stormType, "NEAR", 6, "MILES")
+#if($movementSpeed < 3 || ${stationary})
+. ${reportType2} NEARLY STATIONARY.
+#else
+...MOVING #direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} MPH.
+#end
+
+#set ($phenomena = "EXTREME WINDS") 
+#set ($warningType = "WARNING") 
+#if(${list.contains($bullets, "pathcast")})
+* ##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#pathCast("${phenomena} WILL BE NEAR..." ${phenomena} ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+
+#elseif(${list.contains($bullets, "listofcities")})
+* ##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#### THE THIRD ARGUMENT IS A NUMBER SPECIFYING THE NUMBER OF COLUMNS TO OUTPUT THE CITIES LIST IN
+#### 0 IS A ... SEPARATED LIST, 1 IS ONE PER LINE, >1 IS A COLUMN FORMAT
+#### IF YOU USE SOMETHING OTHER THAN "LOCATIONS IMPACTED INCLUDE" LEAD IN BELOW, MAKE SURE THE
+#### ACCOMPANYING XML FILE PARSE STRING IS CHANGED TO MATCH!
+#locationsList("LOCATIONS IMPACTED INCLUDE..." ${phenomena} 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+
+#end
+##############################################
+###### mile markers ##############
+##############################################
+#parse("milemarkers.vm")
+#####################
+## CALL TO ACTIONS ##
+#####################
+#if(${list.contains($bullets, "cta1")} || ${list.contains($bullets, "cta2")} || ${list.contains($bullets, "cta3")})
+PRECAUTIONARY/PREPAREDNESS ACTIONS...
+
+#end
+#if(${list.contains($bullets, "cta1")})
+WIDESPREAD DESTRUCTIVE WINDS OF !** **! TO !** **! MPH WILL SPREAD ACROSS ##
+#foreach (${area} in ${areas})
+ ${area.name} ${area.areaNotation}...##
+#end
+PRODUCING SWATHS OF TORNADO-LIKE DAMAGE.
+
+#end
+#if(${list.contains($bullets, "cta2")})
+TAKE COVER NOW! TREAT THESE IMMINENT EXTREME WINDS AS IF A TORNADO WAS APPROACHING AND MOVE IMMEDIATELY TO THE SAFE ROOM IN YOUR SHELTER. TAKE ACTION NOW TO PROTECT YOUR LIFE!
+
+#end
+#if(${list.contains($bullets, "cta3")})
+THE SAFEST PLACE TO BE DURING A MAJOR LANDFALLING HURRICANE IS IN A REINFORCED INTERIOR ROOM AWAY FROM WINDOWS. GET UNDER A TABLE OR OTHER PIECE OF STURDY FURNITURE. USE MATTRESSES...BLANKETS OR PILLOWS TO COVER YOUR HEAD AND BODY. REMAIN IN PLACE THROUGH THE PASSAGE OF THESE LIFE THREATENING CONDITIONS.
+
+#end
+#############
+## WATCHES ##
+#############
+#if(${list.contains($includedWatches, "torWatches")})
+#inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
+#end
+#if(${list.contains($includedWatches, "svrWatches")})
+#insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
+#end
+&&
+
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
+
+#end
+#printcoords(${areaPoly}, ${list})
+
+TIME...MOT...LOC ##
+${dateUtil.format(${event}, ${timeFormat.time})}Z ##
+${mathUtil.round(${movementDirection})}DEG ##
+${mathUtil.round(${movementInKnots})}KT ##
+#foreach(${eventCoord} in ${eventLocation})
+#llFormat(${eventCoord.y}) #llFormat(${eventCoord.x}) ##
+#end
+
+
+$$
+
+!**NAME/INITIALS**!
+#end

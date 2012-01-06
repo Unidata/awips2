@@ -1,0 +1,328 @@
+." $Id: ldmadmin.1,v 1.11.20.5.2.11 2009/07/23 23:19:02 steve Exp $
+.TH LDMADMIN 1 "$Date: 2009/07/23 23:19:02 $"
+.SH NAME
+ldmadmin \- Administrative script for the Unidata Local Data Manager
+.SH SYNOPSIS
+.HP
+.ft B
+ldmadmin
+.nh
+\fIcommand\fP
+\%[\fIoptions\fP]
+\%[\fILDM_conf_file\fP]
+.hy
+.ft
+.SH DESCRIPTION
+.PP
+This program provides a high-level use interface to the Unidata Local
+Data Manager (LDM) system.  
+For most applications, it should be invoked instead of the individual
+programs that comprise the LDM system.
+.PP
+In the following, \fIprefix\fP stands for the root of the LDM installation
+(e.g. \fB/usr/local/ldm\fP)
+which contains the installation subdirectories
+\fBbin/\fP, \fBetc/\fP, etc.
+.SH COMMANDS
+.TP
+.BI "start [-vx] [-m " maxLatency "] [-o " offset "] [-q " queue_path "] [" LDM_conf_file ]
+Start a new LDM system, using \fILDM_conf_file\fP as the LDM configuration-file.
+Exits 0 if the LDM system starts successfully.
+This command will ensure that the product queue exists before starting.
+It also verifies that no other LDM system is already running.  A file,
+\fBldmd.pid\fP is created containing the PID of the parent LDM server.
+By default the LDM log files are rotated.  To change this behavior set the
+\fB$log_rotate\fP variable in the \fPldmadmin\fP(1) configuration-file to 0.
+.TP
+.B stop
+Halts the LDM system by sending a SIGTERM to the PID of the LDM
+parent.
+.TP
+.BI "restart [-vx] [-m " maxLatency "] [-o " offset "] [-q " queue_path "] [" LDM_conf_file ]
+Equivalent to the shell command
+.sp
+.RS
+.RS
+.B ldmadmin stop && ldmadmin start ...
+.RE
+.RE
+.TP
+.BI "mkqueue [-vx] [-c] [-f] [-q " queue_path "] [-s " size "]
+Creates a new product queue.  Unless \fI-c\fP is specified, \fImkqueue\fP
+will fail if the product queue already exists.
+\fI-f\fP (fast) makes the 
+queue quickly and might not actually allocate any space on the disk (this
+option requires support from the operating-system).
+.TP
+.BI "delqueue [-q " queue_path "]
+Deletes an existing product queue.
+.TP
+.BI "mksurfqueue [-vx] [-c] [-f] [-q " queue_path "] [-s " size "]
+Creates a new product queue for use with \fBpqsurf\fP.  Unless \fI-c\fP is
+specified, \fImksurfqueue\fP will fail if product queue already exists. 
+\fI-f\fP (fast) makes the 
+queue quickly and might not actually allocate any space on the disk (this
+option requires support from the operating-system).
+.TP
+.BI "delsurfqueue [-q "queue_path "]
+Deletes an existing \fBpqsurf\fP product queue.
+.TP
+.BI "newlog [-n " numlogs "] [-l " logfile "]
+Shift the log files.  Retain the last \fInumlogs\fP files.
+Old log files have a numbered suffix (e.g. \fBldmd.log.7\fP).
+If a log file
+with a suffix equal to \fInumlogs\fP exists, then it will be removed.
+All other suffixes will be increased by one.
+The current log file will have \fB.1\fP appended to it's name.
+.TP
+.B scour
+Remove old decoded-data files as specifified in the \fBscour\fP
+configuration file, \fIprefix\fP\fB/etc/scour.conf\fP.
+The user associated with the LDM system should periodically invoke this
+action from their \fBcrontab\fP file.  For example, the following entry
+.sp
+.RS
+.RS +4
+0 1,4,7,10,13,16,19,22 * * * bin/ldmadmin scour >/dev/null 2>&1
+.RE
+.sp
+would remove old data files every three hours (and not send mail to the
+user).
+.RE
+.TP
+.B isrunning
+Returns 1 if the parent LDM server is running.  As other processes may
+not be running, it is possible that \fIisrunning\fP will return 1 even
+if the LDM system is only partially running.
+.TP
+.B status
+This command is not yet implemented.
+.TP
+.BI "watch [-f " feedset "]
+Runs \fBpqutil\fP with the watch command on the LDM product queue.
+Control-D will terminate the pqutil program.
+.TP
+.B config
+List the configuration that the LDM is currently using.
+.TP
+.B log
+Performs a \fBmore\fP on the LDM logfile, \fBprefix/logs/ldmd.log\fP.
+.TP
+.B tail
+Performs a \fBtail -f\fP on the LDM logfile, \fBprefix/logs/ldmd.log\fP.
+.TP
+.B pqactcheck
+Check pqact.conf file(s) for errors.
+Status messages are written to the standard-output stream.
+.TP
+.B queuecheck
+Check LDM queue for errors.
+Status messages are written to the standard-output stream.
+.TP
+.B checktime
+Just checks the system clock.
+.TP
+.B printmetrics
+Prints LDM performance metrics to the standard output stream.  The
+following, non-standard utilities must be installed in order for this
+command to work: \fItop\fP(1), \fIvmstat\fP(1), \fIuptime\fP(1),
+and \fInetstat\fP(1).
+
+In order, the metrics are:
+.RS +4
+.TP
+.B time
+The time when the metrics snapshot was taken.  The format is YYYYMMDD.hhmmss.
+.TP
+.B load_1
+The 1-minute load average.
+.TP
+.B load_5
+The 5-minute load average.
+.TP
+.B load_15
+The 15-minute load average.
+.TP
+.B local_ports
+The number of connections to the local LDM port.  Such connections are
+either due to a remote downstream LDM requesting data or from a remote
+upstream LDM sending data as permitted by an ACCEPT entry in the LDM
+configuration-file.
+.TP
+.B remote_ports
+The number of connections to remote LDM ports.  Such connections are
+either due to a local downstream LDM receiving data from a remote
+upstream LDM or from a local downstream LDM asking the upstream LDM
+server if the associated upstream LDM is still alive.
+.TP
+.B queue_age
+The age of the oldest data-product in the product-queue in seconds.
+.TP
+.B queue_count
+The number of data-products in the product-queue.
+.TP
+.B queue_bytes
+The number of bytes used in the product-queue.
+.TP
+.B %user
+The percent of CPU time in user mode.
+.TP
+.B %system
+The percent of CPU time in system mode.
+.TP
+.B %idle
+The percent of CPU time in idle mode.
+.TP
+.B %I/O
+The percent of CPU time in waiting on I/O.
+.TP
+.B used_mem
+The amount of used physical memory in bytes.
+.TP
+.B free_mem
+The amount of free physical memory in bytes.
+.TP
+.B used_swap
+The amount of used swap space in bytes.
+.TP
+.B free_swap
+The amount of free swap space in bytes.
+.TP
+.B context_switches
+The number of CPU context switches per second.
+.RE
+.TP
+.B addmetrics
+Appends a line of metrics to the file defined by the \fB$metrics_file\fP
+variable in the \fIldmadmin\fP configuration-file.  See the
+\fIprintmetrics\fP command.
+.TP
+.BI "plotmetrics [-b " begin "] [-e " end "]"
+Plots time-series of the LDM performance metrics from the metrics files
+defined by the \fB$metrics_files\fP
+variable in the \fIldmadmin\fP configuration-file.  See the
+\fIaddmetrics\fP command.
+.TP
+.B newmetrics
+Rotates the metrics files defined by the \fB$metrics_file\fP
+variable in the \fIldmadmin\fP configuration-file.  Keeps the number of
+files defined by the \fB$num_metrics\fP
+variable in the \fIldmadmin\fP configuration-file.  See the
+\fIprintmetrics\fP command.
+.TP
+.B usage
+Display an \fIldmadmin\fP usage message.
+.SH OPTIONS
+.TP
+.BI "-b " begin
+Begin time for metrics plots as YYYYMMDD[.hh[mm[ss]]].
+.TP
+.BI "-C " conf_file
+Use \fIconf_file\fP as the \fBldmadmin\fP(1) configuration-file.  The default
+is \fBprefix/etc/ldmadmin-pl.conf\fP.  The position of this option in the 
+command-line is significant: values specified in the configuration-file will
+override those specified by previous options and will be overridden by 
+subsequent options.
+.TP
+.B -c
+Remove an existing product queue
+.TP
+.BI "-e " end
+End time for metrics plots as YYYYMMDD[.hh[mm[ss]]].
+.TP
+.BI "-f " feedset
+Feedset to use with the watch command.  Default is \fBANY\fP.
+.TP
+.B -f
+Creates the queue quickly -- possibly without allocating any space
+.TP
+.BI "-l " logfile
+Name of the logfile to use.  Default is \fBprefix/logs/ldmd.log\fP.
+.TP
+.BI "-m " maxLatency
+The maximum latency, in seconds, to use when requesting data.
+If the \fB-o\fP option is not specified, then
+the \fIfrom\fP time of a data-request will be the more recent of the
+current time minus the maximum latency and the time of the most recent,
+matching data-product in the product-queue.
+The value must be greater than 0.
+The default is specified by the \fB$max_latency\fP variable in the
+\fIldmadmin\fP configuration-file (typically 3600 seconds).
+.TP
+.BI "-n " numlogs
+Number of logs files to rotate.  Default is 4 logs.
+.TP
+.BI "-o " offset
+The temporal offset, in seconds, to use when requesting data.
+If specified, then
+the \fIfrom\fP time of a data-request will be the 
+current time minus this offset
+(it will not be adjusted by matching data-products in the product-queue).
+The value must be greater than 0 and less than the maximum latency.
+The default is specified by the \fB$offset\fP variable in the
+\fIldmadmin\fP configuration-file (typically 3600 seconds).
+.TP
+.BI "-P " port
+The default port to use rather than the default port that was set when 
+the package was built.  The well-known LDM port is 388.
+.TP
+.BI "-p " file
+The \fIpqact\fP configuration-file that the \fBpqactcheck\fP command will use.
+.TP
+.BI "-q " queue_path
+Specify a product queue path.  Default is \fBprefix/data/ldm.pq\fP for the
+LDM and \fBprefix/data/pqsurf.pq\fP for \fBpqsurf\fP.
+.TP
+.BI "-s " size
+Specify a product queue size in bytes.  Default is 20MBytes for the LDM and
+2MBytes for \fBpqsurf\fP.
+.TP
+.BI "-t " hours
+Number of hours to apply to the \fIcheck\fP command.  Default is 24 hours.
+.TP
+.B -v
+Turn on verbose logging mode.
+.TP
+.B -x
+Turn on debug logging mode.
+.SH LDM_CONF_FILE
+.TP
+.BI LDM_conf_file
+Which LDM configuration-file file to inspect.  Default is
+\fBprefix/etc/ldmd.conf\fP.
+.SH FILES
+.TP
+.IB prefix /etc/ldmd.conf
+Default LDM configuration file.
+.TP
+.IB prefix /data/ldm.pq
+Default pathname of the LDM product queue.
+.TP
+.IB prefix /logs/ldmd.log
+Default pathname of the (current) LDM log file.
+.SH "SEE ALSO"
+.PP
+.BR ldmd (1),
+.BR scour (1),
+.BR more (1),
+.BR ulog (3),
+.BR crontab (1),
+.BR syslogd (8),
+WWW URL \fBhttp://www.unidata.ucar.edu/software/ldm/\fP.
+.SH SUPPORT
+.PP
+If you have problems with this program, then you should first examine the 
+LDM email archive for similar problems and how they were solved.
+The email archive is available via the following World Wide Web URL:
+.sp
+.RS
+\fBhttp://www.unidata.ucar.edu/software/ldm/\fP
+.RE
+.sp
+If this does not suffice \fBand\fP your site is a member of the Unidata 
+program, then send an inquiry via email -- together will all relevant 
+information -- to
+.sp
+.RS
+\fBsupport-ldm@unidata.ucar.edu\fP
+.RE

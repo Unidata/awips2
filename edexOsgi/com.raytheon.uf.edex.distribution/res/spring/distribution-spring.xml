@@ -1,0 +1,82 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+  
+  	<bean id="distributionSrv" class="com.raytheon.uf.edex.distribution.DistributionSrv" />
+  	<bean id="handleoupDistributionSrv" class="com.raytheon.uf.edex.distribution.DistributionSrv" />
+  	<bean id="radarserverDistributionSrv" class="com.raytheon.uf.edex.distribution.DistributionSrv" /> 
+
+	<bean id="jms-dist" class="org.apache.camel.component.jms.JmsComponent">
+        <constructor-arg ref="jmsIngestDistConfig" />
+		<property name="taskExecutor" ref="distributionThreadPool" />		
+	</bean>
+	<bean id="jmsIngestDistConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+			factory-bean="jmsConfig" factory-method="copy">
+	</bean>
+
+	<bean id="distributionThreadPool"
+		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="7" />
+		<property name="maxPoolSize" value="7" />
+	</bean>
+
+    <camelContext id="distro"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler"
+        autoStartup="false">
+        
+        <endpoint id="refreshDistributionCron" uri="quartz://refreshDist/refreshDistRoute/?cron=${distribution.cron}"/>        
+        
+		<route id="distribution">
+            <from uri="jms-dist:queue:external.dropbox?concurrentConsumers=5&amp;maxConcurrentConsumers=5&amp;destinationResolver=#qpidDurableResolver" />
+            <doTry>
+		    	<bean ref="distributionSrv" method="route" />
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:distribution?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                </doCatch>
+            </doTry>
+        </route>
+        
+        <route id="handleoupDistribution">
+            <from uri="jms-dist:queue:handleoup.dropbox?destinationResolver=#qpidDurableResolver" />
+            <doTry>
+		    	<bean ref="handleoupDistributionSrv" method="route" />
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:distribution?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                </doCatch>
+            </doTry>
+        </route>
+        
+        <route id="radarserverDistribution">
+            <from uri="jms-dist:queue:radarserver.dropbox?destinationResolver=#qpidDurableResolver" />
+            <doTry>
+		    	<bean ref="radarserverDistributionSrv" method="route" />
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:distribution?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                </doCatch>
+            </doTry>
+        </route>
+        
+        <route id="refreshDistributionPatterns">
+			<from uri="refreshDistributionCron" />
+			<doTry>
+				<bean ref="distributionSrv" method="refresh" />
+				<bean ref="handleoupDistributionSrv" method="refresh" />
+				<bean ref="radarserverDistributionSrv" method="refresh" />
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:refreshDistribution?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
+		</route>
+    </camelContext>
+	<bean factory-bean="contextManager"
+		factory-method="register">
+		<constructor-arg ref="distro"/>
+  	</bean>
+</beans>

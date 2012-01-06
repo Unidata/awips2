@@ -1,0 +1,23 @@
+!
+! Restore File : 200mb_wnd
+!
+! Log:
+! J.W. Carr/HPC 	 4/98	Initial creation
+! T. Lee/GSC		 6/99	Changed contour SKIP = 0
+!
+GLEVEL=200                                                                     
+GVCORD=PRES                                                                    
+SCALE=0                       !0
+GDPFUN=knts(mag(wnd))          !kntv(wnd)
+TYPE=c/f                     !b
+CINT=30;50;70;90;110;130;150           
+LINE=27/5/2/1  
+FINT=70;90;110;130;150                                                       
+FLINE=0;25;24;29;7;15                                                         
+HILO=
+HLSYM=
+WIND=0                       !18//1                                                             
+TITLE=5/-2/~ @ ISOTACHS AND WIND (KTS)|~@ WIND!        
+COLORS=2                                                                       
+MARKER=2                                                                       
+GRDLBL=5                                                                       

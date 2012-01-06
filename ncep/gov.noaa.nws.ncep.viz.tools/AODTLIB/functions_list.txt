@@ -1,0 +1,925 @@
+ELF Header:
+  Magic:   7f 45 4c 46 01 01 01 00 00 00 00 00 00 00 00 00 
+  Class:                             ELF32
+  Data:                              2's complement, little endian
+  Version:                           1 (current)
+  OS/ABI:                            UNIX - System V
+  ABI Version:                       0
+  Type:                              DYN (Shared object file)
+  Machine:                           Intel 80386
+  Version:                           0x1
+  Entry point address:               0x2c70
+  Start of program headers:          52 (bytes into file)
+  Start of section headers:          237776 (bytes into file)
+  Flags:                             0x0
+  Size of this header:               52 (bytes)
+  Size of program headers:           32 (bytes)
+  Number of program headers:         4
+  Size of section headers:           40 (bytes)
+  Number of section headers:         35
+  Section header string table index: 32
+
+Section Headers:
+  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
+  [ 0]                   NULL            00000000 000000 000000 00      0   0  0
+  [ 1] .gnu.hash         GNU_HASH        000000b4 0000b4 000548 04   A  2   0  4
+  [ 2] .dynsym           DYNSYM          000005fc 0005fc 000cd0 10   A  3   1  4
+  [ 3] .dynstr           STRTAB          000012cc 0012cc 000c68 00   A  0   0  1
+  [ 4] .gnu.version      VERSYM          00001f34 001f34 00019a 02   A  2   0  2
+  [ 5] .gnu.version_r    VERNEED         000020d0 0020d0 000040 00   A  3   1  4
+  [ 6] .rel.dyn          REL             00002110 002110 000158 08   A  2   0  4
+  [ 7] .rel.plt          REL             00002268 002268 000348 08   A  2   9  4
+  [ 8] .init             PROGBITS        000025b0 0025b0 000017 00  AX  0   0  4
+  [ 9] .plt              PROGBITS        000025c8 0025c8 0006a0 04  AX  0   0  4
+  [10] .text             PROGBITS        00002c70 002c70 0181b4 00  AX  0   0 16
+  [11] .fini             PROGBITS        0001ae24 01ae24 00001c 00  AX  0   0  4
+  [12] .rodata           PROGBITS        0001ae40 01ae40 002a6b 00   A  0   0 32
+  [13] .eh_frame         PROGBITS        0001d8ac 01d8ac 000004 00   A  0   0  4
+  [14] .ctors            PROGBITS        0001e000 01e000 000008 00  WA  0   0  4
+  [15] .dtors            PROGBITS        0001e008 01e008 000008 00  WA  0   0  4
+  [16] .jcr              PROGBITS        0001e010 01e010 000004 00  WA  0   0  4
+  [17] .data.rel.ro      PROGBITS        0001e014 01e014 000004 00  WA  0   0  4
+  [18] .dynamic          DYNAMIC         0001e018 01e018 0000c8 08  WA  3   0  4
+  [19] .got              PROGBITS        0001e0e0 01e0e0 0000a8 04  WA  0   0  4
+  [20] .got.plt          PROGBITS        0001e188 01e188 0001b0 04  WA  0   0  4
+  [21] .data             PROGBITS        0001e340 01e340 000728 00  WA  0   0 32
+  [22] .bss              NOBITS          0001ea80 01ea68 0002c4 00  WA  0   0 32
+  [23] .comment          PROGBITS        00000000 01ea68 0008a0 00      0   0  1
+  [24] .debug_aranges    PROGBITS        00000000 01f308 000580 00      0   0  1
+  [25] .debug_pubnames   PROGBITS        00000000 01f888 0010f0 00      0   0  1
+  [26] .debug_info       PROGBITS        00000000 020978 012366 00      0   0  1
+  [27] .debug_abbrev     PROGBITS        00000000 032cde 001c2d 00      0   0  1
+  [28] .debug_line       PROGBITS        00000000 03490b 002cba 00      0   0  1
+  [29] .debug_frame      PROGBITS        00000000 0375c8 0010e8 00      0   0  4
+  [30] .debug_str        PROGBITS        00000000 0386b0 000417 00      0   0  1
+  [31] .debug_loc        PROGBITS        00000000 038ac7 0014cc 00      0   0  1
+  [32] .shstrtab         STRTAB          00000000 039f93 00013a 00      0   0  1
+  [33] .symtab           SYMTAB          00000000 03a648 001810 10     34 181  4
+  [34] .strtab           STRTAB          00000000 03be58 00133a 00      0   0  1
+Key to Flags:
+  W (write), A (alloc), X (execute), M (merge), S (strings)
+  I (info), L (link order), G (group), x (unknown)
+  O (extra OS processing required) o (OS specific), p (processor specific)
+
+There are no section groups in this file.
+
+Program Headers:
+  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
+  LOAD           0x000000 0x00000000 0x00000000 0x1d8b0 0x1d8b0 R E 0x1000
+  LOAD           0x01e000 0x0001e000 0x0001e000 0x00a68 0x00d44 RW  0x1000
+  DYNAMIC        0x01e018 0x0001e018 0x0001e018 0x000c8 0x000c8 RW  0x4
+  GNU_STACK      0x000000 0x00000000 0x00000000 0x00000 0x00000 RW  0x4
+
+ Section to Segment mapping:
+  Segment Sections...
+   00     .gnu.hash .dynsym .dynstr .gnu.version .gnu.version_r .rel.dyn .rel.plt .init .plt .text .fini .rodata .eh_frame 
+   01     .ctors .dtors .jcr .data.rel.ro .dynamic .got .got.plt .data .bss 
+   02     .dynamic 
+   03     
+
+Dynamic section at offset 0x1e018 contains 21 entries:
+  Tag        Type                         Name/Value
+ 0x00000001 (NEEDED)                     Shared library: [libc.so.6]
+ 0x0000000e (SONAME)                     Library soname: [libaodtv64.so]
+ 0x0000000c (INIT)                       0x25b0
+ 0x0000000d (FINI)                       0x1ae24
+ 0x6ffffef5 (GNU_HASH)                   0xb4
+ 0x00000005 (STRTAB)                     0x12cc
+ 0x00000006 (SYMTAB)                     0x5fc
+ 0x0000000a (STRSZ)                      3176 (bytes)
+ 0x0000000b (SYMENT)                     16 (bytes)
+ 0x00000003 (PLTGOT)                     0x1e188
+ 0x00000002 (PLTRELSZ)                   840 (bytes)
+ 0x00000014 (PLTREL)                     REL
+ 0x00000017 (JMPREL)                     0x2268
+ 0x00000011 (REL)                        0x2110
+ 0x00000012 (RELSZ)                      344 (bytes)
+ 0x00000013 (RELENT)                     8 (bytes)
+ 0x6ffffffe (VERNEED)                    0x20d0
+ 0x6fffffff (VERNEEDNUM)                 1
+ 0x6ffffff0 (VERSYM)                     0x1f34
+ 0x6ffffffa (RELCOUNT)                   1
+ 0x00000000 (NULL)                       0x0
+
+Relocation section '.rel.dyn' at offset 0x2110 contains 43 entries:
+ Offset     Info    Type            Sym.Value  Sym. Name
+0001e014  00000008 R_386_RELATIVE   
+0001e0e0  0000ad06 R_386_GLOB_DAT    0001eb40   osstr_v64
+0001e0e4  00005d06 R_386_GLOB_DAT    0001e3c4   kend_v64
+0001e0e8  0000b206 R_386_GLOB_DAT    0001eb44   diagnostics_v64
+0001e0ec  00004806 R_386_GLOB_DAT    0001ea40   ebd_v64
+0001e0f0  00003e06 R_386_GLOB_DAT    0001eb48   starttime_v64
+0001e0f4  00003606 R_386_GLOB_DAT    0001eb60   spiralband_v64
+0001e0f8  00000306 R_386_GLOB_DAT    00000000   __gmon_start__
+0001e0fc  00000406 R_386_GLOB_DAT    00000000   _Jv_RegisterClasses
+0001e100  00002f06 R_386_GLOB_DAT    0001ec88   fixfile_v64
+0001e104  0000c506 R_386_GLOB_DAT    0001ec8c   ostartstr_v64
+0001e108  00007206 R_386_GLOB_DAT    0001ec90   tcircfirst_v64
+0001e10c  0000b706 R_386_GLOB_DAT    0001ec94   odthistoryfirst_v64
+0001e110  00009206 R_386_GLOB_DAT    0001e3d4   kres_v64
+0001e114  0000b406 R_386_GLOB_DAT    0001e4f8   cbasin_v64
+0001e118  0000a706 R_386_GLOB_DAT    0001e3d0   keyerA_v64
+0001e11c  00002206 R_386_GLOB_DAT    0001e560   tno_v64
+0001e120  00002d06 R_386_GLOB_DAT    0001ec98   hfile_v64
+0001e124  0000b806 R_386_GLOB_DAT    0001eb30   recordnum
+0001e128  0000a906 R_386_GLOB_DAT    0001e3e0   eyetype_v64
+0001e12c  00007506 R_386_GLOB_DAT    0001eca0   idomain_v64
+0001e130  0000c106 R_386_GLOB_DAT    0001e6a0   pres_v64
+0001e134  00005906 R_386_GLOB_DAT    0001eca4   odtcurrent_v64
+0001e138  00008b06 R_386_GLOB_DAT    0001e520   cmon_v64
+0001e13c  0000a106 R_386_GLOB_DAT    0001ecac   ixdomain_v64
+0001e140  00002406 R_386_GLOB_DAT    0001ecb0   areadata_v64
+0001e144  00007406 R_386_GLOB_DAT    0001ecb4   ifixtype_v64
+0001e148  00003f06 R_386_GLOB_DAT    0001e3c0   kstart_v64
+0001e14c  0000a306 R_386_GLOB_DAT    0001e3cc   keyerM_v64
+0001e150  0000b006 R_386_GLOB_DAT    0001ecbc   atcftype_v64
+0001e154  0000b106 R_386_GLOB_DAT    0001eaa0   dis_vars
+0001e158  00003906 R_386_GLOB_DAT    0001eac0   remap_vars
+0001e15c  0000bd06 R_386_GLOB_DAT    0001ecc0   oland_v64
+0001e160  00005406 R_386_GLOB_DAT    0001eb00   tiff_vars
+0001e164  00007106 R_386_GLOB_DAT    0001ece0   fcsttime_v64
+0001e168  00005206 R_386_GLOB_DAT    0001ed08   osearch_v64
+0001e16c  00002706 R_386_GLOB_DAT    0001ed0c   fcstlon_v64
+0001e170  00002506 R_386_GLOB_DAT    0001ed20   endtime_v64
+0001e174  00008006 R_386_GLOB_DAT    0001ed30   fcstlat_v64
+0001e178  00004906 R_386_GLOB_DAT    0001e480   cloudtype_v64
+0001e17c  00002b06 R_386_GLOB_DAT    0001e900   wind_v64
+0001e180  00002106 R_386_GLOB_DAT    00000000   __cxa_finalize
+0001e184  00007006 R_386_GLOB_DAT    0001eb2c   areadataRM
+
+Relocation section '.rel.plt' at offset 0x2268 contains 105 entries:
+ Offset     Info    Type            Sym.Value  Sym. Name
+0001e194  00009507 R_386_JUMP_SLOT   0000cc59   aodtv64_ptotno
+0001e198  00003b07 R_386_JUMP_SLOT   00013a04   aodtv64_Tnofinal
+0001e19c  00000107 R_386_JUMP_SLOT   00000000   sprintf
+0001e1a0  00003c07 R_386_JUMP_SLOT   0000817b   aodtv64_gradient
+0001e1a4  00002907 R_386_JUMP_SLOT   00017b47   aodtv64_listforecast
+0001e1a8  00004b07 R_386_JUMP_SLOT   0000b92c   aodtv64_fft
+0001e1ac  00000207 R_386_JUMP_SLOT   00000000   sqrt
+0001e1b0  00002a07 R_386_JUMP_SLOT   00011795   aodtv64_Tnoraw
+0001e1b4  0000b907 R_386_JUMP_SLOT   00008d91   aodtv64_inds2laloFloat
+0001e1b8  0000b507 R_386_JUMP_SLOT   00018dbe   aodtv64_classify
+0001e1bc  00003d07 R_386_JUMP_SLOT   0001139d   aodtv64_datetime
+0001e1c0  00003307 R_386_JUMP_SLOT   000115b4   aodtv64_calcintensity
+0001e1c4  0000b307 R_386_JUMP_SLOT   00003ec2   aodtv64_calcScores
+0001e1c8  00000307 R_386_JUMP_SLOT   00000000   __gmon_start__
+0001e1cc  0000c607 R_386_JUMP_SLOT   0000ace4   aodtv64_findpoint
+0001e1d0  00000507 R_386_JUMP_SLOT   00000000   strchr
+0001e1d4  00000607 R_386_JUMP_SLOT   00000000   calloc
+0001e1d8  00000707 R_386_JUMP_SLOT   00000000   strncpy
+0001e1dc  0000a407 R_386_JUMP_SLOT   0000d768   aodtv64_idmyyd
+0001e1e0  00004107 R_386_JUMP_SLOT   00007331   aodtv64_polint
+0001e1e4  00004e07 R_386_JUMP_SLOT   0000ed8c   aodtv64_readhistoryfil
+0001e1e8  00000807 R_386_JUMP_SLOT   00000000   fgets
+0001e1ec  00000907 R_386_JUMP_SLOT   00000000   memset
+0001e1f0  00007f07 R_386_JUMP_SLOT   00006eff   aodtv64_laplacian
+0001e1f4  00007907 R_386_JUMP_SLOT   000066d0   aodtv64_logspiral
+0001e1f8  00006207 R_386_JUMP_SLOT   0000f9ac   aodtv64_deletehistoryr
+0001e1fc  00000a07 R_386_JUMP_SLOT   00000000   tan
+0001e200  00008607 R_386_JUMP_SLOT   00013c69   aodtv64_CIno
+0001e204  00004c07 R_386_JUMP_SLOT   0000d1cd   aodtv64_distance2
+0001e208  0000af07 R_386_JUMP_SLOT   00005dcf   aodtv64_pickfinallocat
+0001e20c  0000aa07 R_386_JUMP_SLOT   0000b521   aodtv64_calccloudtemp
+0001e210  00002c07 R_386_JUMP_SLOT   000097d3   aodtv64_umap
+0001e214  00000b07 R_386_JUMP_SLOT   00000000   free
+0001e218  0000c807 R_386_JUMP_SLOT   0000c84d   aodtv64_calctime
+0001e21c  00009f07 R_386_JUMP_SLOT   0000dd47   aodtv64_initcurrent
+0001e220  00000c07 R_386_JUMP_SLOT   00000000   asin
+0001e224  00007d07 R_386_JUMP_SLOT   0000b6ec   aodtv64_readcirc
+0001e228  00008a07 R_386_JUMP_SLOT   0001a574   aodtv64_fminx
+0001e22c  00008707 R_386_JUMP_SLOT   0001ac58   aodtv64_readtopo
+0001e230  00004207 R_386_JUMP_SLOT   0000d982   aodtv64_sattypes
+0001e234  00008e07 R_386_JUMP_SLOT   00008f7e   aodtv64_remapdata
+0001e238  00000d07 R_386_JUMP_SLOT   00000000   fseek
+0001e23c  00000e07 R_386_JUMP_SLOT   00000000   fclose
+0001e240  00009107 R_386_JUMP_SLOT   0001a5d5   aodtv64_fmaxx
+0001e244  00000f07 R_386_JUMP_SLOT   00000000   log
+0001e248  00007807 R_386_JUMP_SLOT   00009860   aodtv64_domap
+0001e24c  00006d07 R_386_JUMP_SLOT   000092a5   aodtv64_determinedest
+0001e250  00001007 R_386_JUMP_SLOT   00000000   memcpy
+0001e254  00003a07 R_386_JUMP_SLOT   00014779   aodtv64_tieflag
+0001e258  00001107 R_386_JUMP_SLOT   00000000   fopen
+0001e25c  0000ab07 R_386_JUMP_SLOT   0000b47e   aodtv64_calceyetemp
+0001e260  00006307 R_386_JUMP_SLOT   00009668   aodtv64_corner
+0001e264  00006507 R_386_JUMP_SLOT   000075e9   aodtv64_spiralCenterLo
+0001e268  00001207 R_386_JUMP_SLOT   00000000   strcpy
+0001e26c  00009607 R_386_JUMP_SLOT   0000d84e   aodtv64_yddmy
+0001e270  00001307 R_386_JUMP_SLOT   00000000   printf
+0001e274  00003707 R_386_JUMP_SLOT   0000ceee   aodtv64_distance
+0001e278  0000bc07 R_386_JUMP_SLOT   0000f55c   aodtv64_writehistoryfi
+0001e27c  00001407 R_386_JUMP_SLOT   00000000   atan
+0001e280  00004d07 R_386_JUMP_SLOT   0000f2a0   aodtv64_inserthistoryr
+0001e284  00006407 R_386_JUMP_SLOT   00016a00   aodtv64_lldms
+0001e288  00009707 R_386_JUMP_SLOT   00003214   aodtv64_automode2
+0001e28c  0000c907 R_386_JUMP_SLOT   00019e77   aodtv64_eyeshearcalc
+0001e290  00006807 R_386_JUMP_SLOT   0001a4bd   aodtv64_xxsort
+0001e294  00005e07 R_386_JUMP_SLOT   0000c42c   aodtv64_slopecal
+0001e298  00004707 R_386_JUMP_SLOT   0000441b   aodtv64_findRingScore
+0001e29c  00006607 R_386_JUMP_SLOT   000090da   aodtv64_init
+0001e2a0  00007307 R_386_JUMP_SLOT   00008cd7   aodtv64_lalo2indsFloat
+0001e2a4  00007a07 R_386_JUMP_SLOT   0000bbd5   aodtv64_dfft
+0001e2a8  00001507 R_386_JUMP_SLOT   00000000   fprintf
+0001e2ac  00005b07 R_386_JUMP_SLOT   0000d62b   aodtv64_calcskew
+0001e2b0  0000c307 R_386_JUMP_SLOT   000082db   aodtv64_ringFit
+0001e2b4  00001607 R_386_JUMP_SLOT   00000000   strncat
+0001e2b8  00001707 R_386_JUMP_SLOT   00000000   malloc
+0001e2bc  00008907 R_386_JUMP_SLOT   00018158   aodtv64_calcscene
+0001e2c0  00008207 R_386_JUMP_SLOT   0000cd86   aodtv64_cmonth2julian
+0001e2c4  00007c07 R_386_JUMP_SLOT   00016ae2   aodtv64_msg
+0001e2c8  00008f07 R_386_JUMP_SLOT   0000ce36   aodtv64_julian2cmonth
+0001e2cc  00002607 R_386_JUMP_SLOT   00008e2a   aodtv64_circleFilt
+0001e2d0  00001807 R_386_JUMP_SLOT   00000000   acos
+0001e2d4  00005c07 R_386_JUMP_SLOT   0000fb37   aodtv64_listhistory
+0001e2d8  00002307 R_386_JUMP_SLOT   00004692   aodtv64_readforecast
+0001e2dc  00006e07 R_386_JUMP_SLOT   00014b9c   aodtv64_textscreenoutp
+0001e2e0  00003207 R_386_JUMP_SLOT   0000baf6   aodtv64_cmplx_abs
+0001e2e4  00001907 R_386_JUMP_SLOT   00000000   exp
+0001e2e8  00001a07 R_386_JUMP_SLOT   00000000   sin
+0001e2ec  00001b07 R_386_JUMP_SLOT   00000000   strcat
+0001e2f0  00007b07 R_386_JUMP_SLOT   000112b8   aodtv64_commenthistory
+0001e2f4  00008d07 R_386_JUMP_SLOT   00014221   aodtv64_latbias
+0001e2f8  00004307 R_386_JUMP_SLOT   00014550   aodtv64_TIEmodel
+0001e2fc  00009407 R_386_JUMP_SLOT   00002fbc   aodtv64_automode1
+0001e300  00001c07 R_386_JUMP_SLOT   00000000   pow
+0001e304  00008307 R_386_JUMP_SLOT   0000cb2c   aodtv64_ptovmax
+0001e308  00001d07 R_386_JUMP_SLOT   00000000   sscanf
+0001e30c  00001e07 R_386_JUMP_SLOT   00000000   strncmp
+0001e310  00004407 R_386_JUMP_SLOT   00014313   aodtv64_scenesearch
+0001e314  0000a207 R_386_JUMP_SLOT   0001a638   aodtv64_rmw
+0001e318  00001f07 R_386_JUMP_SLOT   00000000   fread
+0001e31c  0000c007 R_386_JUMP_SLOT   0000b254   aodtv64_gettemps
+0001e320  00003507 R_386_JUMP_SLOT   00009092   aodtv64_uinit
+0001e324  00002007 R_386_JUMP_SLOT   00000000   cos
+0001e328  00004f07 R_386_JUMP_SLOT   0000d55f   aodtv64_atoif
+0001e32c  00006b07 R_386_JUMP_SLOT   0000db60   aodtv64_oceanbasin
+0001e330  00002107 R_386_JUMP_SLOT   00000000   __cxa_finalize
+0001e334  00006c07 R_386_JUMP_SLOT   0000c9c8   aodtv64_getpwval
+
+There are no unwind sections in this file.
+
+Symbol table '.dynsym' contains 205 entries:
+   Num:    Value  Size Type    Bind   Vis      Ndx Name
+     0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND 
+     1: 00000000    52 FUNC    GLOBAL DEFAULT  UND sprintf@GLIBC_2.0 (2)
+     2: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND sqrt
+     3: 00000000     0 NOTYPE  WEAK   DEFAULT  UND __gmon_start__
+     4: 00000000     0 NOTYPE  WEAK   DEFAULT  UND _Jv_RegisterClasses
+     5: 00000000   359 FUNC    GLOBAL DEFAULT  UND strchr@GLIBC_2.0 (2)
+     6: 00000000   828 FUNC    GLOBAL DEFAULT  UND calloc@GLIBC_2.0 (2)
+     7: 00000000   167 FUNC    GLOBAL DEFAULT  UND strncpy@GLIBC_2.0 (2)
+     8: 00000000   369 FUNC    GLOBAL DEFAULT  UND fgets@GLIBC_2.0 (2)
+     9: 00000000    67 FUNC    GLOBAL DEFAULT  UND memset@GLIBC_2.0 (2)
+    10: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND tan
+    11: 00000000   433 FUNC    GLOBAL DEFAULT  UND free@GLIBC_2.0 (2)
+    12: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND asin
+    13: 00000000   250 FUNC    GLOBAL DEFAULT  UND fseek@GLIBC_2.0 (2)
+    14: 00000000   488 FUNC    GLOBAL DEFAULT  UND fclose@GLIBC_2.1 (3)
+    15: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND log
+    16: 00000000    39 FUNC    GLOBAL DEFAULT  UND memcpy@GLIBC_2.0 (2)
+    17: 00000000    50 FUNC    GLOBAL DEFAULT  UND fopen@GLIBC_2.1 (3)
+    18: 00000000    34 FUNC    GLOBAL DEFAULT  UND strcpy@GLIBC_2.0 (2)
+    19: 00000000    57 FUNC    GLOBAL DEFAULT  UND printf@GLIBC_2.0 (2)
+    20: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND atan
+    21: 00000000    36 FUNC    GLOBAL DEFAULT  UND fprintf@GLIBC_2.0 (2)
+    22: 00000000   170 FUNC    GLOBAL DEFAULT  UND strncat@GLIBC_2.0 (2)
+    23: 00000000   451 FUNC    GLOBAL DEFAULT  UND malloc@GLIBC_2.0 (2)
+    24: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND acos
+    25: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND exp
+    26: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND sin
+    27: 00000000   426 FUNC    GLOBAL DEFAULT  UND strcat@GLIBC_2.0 (2)
+    28: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND pow
+    29: 00000000    52 FUNC    GLOBAL DEFAULT  UND sscanf@GLIBC_2.0 (2)
+    30: 00000000   247 FUNC    GLOBAL DEFAULT  UND strncmp@GLIBC_2.0 (2)
+    31: 00000000   280 FUNC    GLOBAL DEFAULT  UND fread@GLIBC_2.0 (2)
+    32: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND cos
+    33: 00000000   346 FUNC    WEAK   DEFAULT  UND __cxa_finalize@GLIBC_2.1.3 (4)
+    34: 0001e560   292 OBJECT  GLOBAL DEFAULT   21 tno_v64
+    35: 00004692  5949 FUNC    GLOBAL DEFAULT   10 aodtv64_readforecast
+    36: 0001ecb0     4 OBJECT  GLOBAL DEFAULT   22 areadata_v64
+    37: 0001ed20     8 OBJECT  GLOBAL DEFAULT   22 endtime_v64
+    38: 00008e2a   340 FUNC    GLOBAL DEFAULT   10 aodtv64_circleFilt
+    39: 0001ed0c    20 OBJECT  GLOBAL DEFAULT   22 fcstlon_v64
+    40: 0001e3c8     4 OBJECT  GLOBAL DEFAULT   21 kenda_v64
+    41: 00017b47   908 FUNC    GLOBAL DEFAULT   10 aodtv64_listforecast
+    42: 00011795  8815 FUNC    GLOBAL DEFAULT   10 aodtv64_Tnoraw
+    43: 0001e900   292 OBJECT  GLOBAL DEFAULT   21 wind_v64
+    44: 000097d3   141 FUNC    GLOBAL DEFAULT   10 aodtv64_umap
+    45: 0001ec98     4 OBJECT  GLOBAL DEFAULT   22 hfile_v64
+    46: 0000ea34   140 FUNC    GLOBAL DEFAULT   10 aodtv64_historybullfmt
+    47: 0001ec88     4 OBJECT  GLOBAL DEFAULT   22 fixfile_v64
+    48: 0001abd8    35 FUNC    GLOBAL DEFAULT   10 aodtv64_scenetype
+    49: 0000e4df    62 FUNC    GLOBAL DEFAULT   10 aodtv64_setIRimageinfo
+    50: 0000baf6   223 FUNC    GLOBAL DEFAULT   10 aodtv64_cmplx_abs
+    51: 000115b4   481 FUNC    GLOBAL DEFAULT   10 aodtv64_calcintensity
+    52: 000025b0     0 FUNC    GLOBAL DEFAULT    8 _init
+    53: 00009092    72 FUNC    GLOBAL DEFAULT   10 aodtv64_uinit
+    54: 0001eb60   296 OBJECT  GLOBAL DEFAULT   22 spiralband_v64
+    55: 0000ceee   735 FUNC    GLOBAL DEFAULT   10 aodtv64_distance
+    56: 0000e6e3    43 FUNC    GLOBAL DEFAULT   10 aodtv64_setmiscoptions
+    57: 0001eac0    40 OBJECT  GLOBAL DEFAULT   22 remap_vars
+    58: 00014779   323 FUNC    GLOBAL DEFAULT   10 aodtv64_tieflag
+    59: 00013a04   613 FUNC    GLOBAL DEFAULT   10 aodtv64_Tnofinal
+    60: 0000817b   352 FUNC    GLOBAL DEFAULT   10 aodtv64_gradient
+    61: 0001139d   398 FUNC    GLOBAL DEFAULT   10 aodtv64_datetime
+    62: 0001eb48     8 OBJECT  GLOBAL DEFAULT   22 starttime_v64
+    63: 0001e3c0     4 OBJECT  GLOBAL DEFAULT   21 kstart_v64
+    64: 0000e0f7   159 FUNC    GLOBAL DEFAULT   10 aodtv64_setdomain
+    65: 00007331   696 FUNC    GLOBAL DEFAULT   10 aodtv64_polint
+    66: 0000d982   478 FUNC    GLOBAL DEFAULT   10 aodtv64_sattypes
+    67: 00014550   233 FUNC    GLOBAL DEFAULT   10 aodtv64_TIEmodel
+    68: 00014313   573 FUNC    GLOBAL DEFAULT   10 aodtv64_scenesearch
+    69: 000148bc   302 FUNC    GLOBAL DEFAULT   10 aodtv64_loadIRimage
+    70: 00011564    42 FUNC    GLOBAL DEFAULT   10 aodtv64_initialize
+    71: 0000441b   631 FUNC    GLOBAL DEFAULT   10 aodtv64_findRingScore
+    72: 0001ea40    40 OBJECT  GLOBAL DEFAULT   21 ebd_v64
+    73: 0001e480   120 OBJECT  GLOBAL DEFAULT   21 cloudtype_v64
+    74: 0001152c    56 FUNC    GLOBAL DEFAULT   10 aodtv64_historywritefile
+    75: 0000b92c   458 FUNC    GLOBAL DEFAULT   10 aodtv64_fft
+    76: 0000d1cd   914 FUNC    GLOBAL DEFAULT   10 aodtv64_distance2
+    77: 0000f2a0   700 FUNC    GLOBAL DEFAULT   10 aodtv64_inserthistoryrec
+    78: 0000ed8c  1300 FUNC    GLOBAL DEFAULT   10 aodtv64_readhistoryfile
+    79: 0000d55f   204 FUNC    GLOBAL DEFAULT   10 aodtv64_atoif
+    80: 0000b8fc    46 FUNC    GLOBAL DEFAULT   10 aodtv64_seteyecloudtemp
+    81: 000149ec   429 FUNC    GLOBAL DEFAULT   10 aodtv64_qmessage
+    82: 0001ed08     4 OBJECT  GLOBAL DEFAULT   22 osearch_v64
+    83: 0001eca8     4 OBJECT  GLOBAL DEFAULT   22 arfd_v64
+    84: 0001eb00    44 OBJECT  GLOBAL DEFAULT   22 tiff_vars
+    85: 00002f10    79 FUNC    GLOBAL DEFAULT   10 aodtv64_runautomode1
+    86: 0000e328   123 FUNC    GLOBAL DEFAULT   10 aodtv64_gethistoryfile
+    87: 00002f60    92 FUNC    GLOBAL DEFAULT   10 aodtv64_runautomode2
+    88: 0000e710    85 FUNC    GLOBAL DEFAULT   10 aodtv64_getscenetypes
+    89: 0001eca4     4 OBJECT  GLOBAL DEFAULT   22 odtcurrent_v64
+    90: 0000b18c    61 FUNC    GLOBAL DEFAULT   10 aodtv64_bulletinoutput2
+    91: 0000d62b   317 FUNC    GLOBAL DEFAULT   10 aodtv64_calcskew
+    92: 0000fb37  6017 FUNC    GLOBAL DEFAULT   10 aodtv64_listhistory
+    93: 0001e3c4     4 OBJECT  GLOBAL DEFAULT   21 kend_v64
+    94: 0000c42c  1057 FUNC    GLOBAL DEFAULT   10 aodtv64_slopecal
+    95: 0000b1cc   136 FUNC    GLOBAL DEFAULT   10 aodtv64_bulletinoutput
+    96: 0000e92f   165 FUNC    GLOBAL DEFAULT   10 aodtv64_settopovalue
+    97: 0000e268   190 FUNC    GLOBAL DEFAULT   10 aodtv64_setforecastfile
+    98: 0000f9ac   395 FUNC    GLOBAL DEFAULT   10 aodtv64_deletehistoryrec
+    99: 00009668   363 FUNC    GLOBAL DEFAULT   10 aodtv64_corner
+   100: 00016a00   226 FUNC    GLOBAL DEFAULT   10 aodtv64_lldms
+   101: 000075e9  2962 FUNC    GLOBAL DEFAULT   10 aodtv64_spiralCenterLowRe
+   102: 000090da   459 FUNC    GLOBAL DEFAULT   10 aodtv64_init
+   103: 0000ca5a   210 FUNC    GLOBAL DEFAULT   10 aodtv64_PWlandsea
+   104: 0001a4bd   183 FUNC    GLOBAL DEFAULT   10 aodtv64_xxsort
+   105: 0000eb9c   150 FUNC    GLOBAL DEFAULT   10 aodtv64_historylistfmt
+   106: 0001ea68     0 NOTYPE  GLOBAL DEFAULT  ABS __bss_start
+   107: 0000db60   487 FUNC    GLOBAL DEFAULT   10 aodtv64_oceanbasin
+   108: 0000c9c8   146 FUNC    GLOBAL DEFAULT   10 aodtv64_getpwval
+   109: 000092a5   963 FUNC    GLOBAL DEFAULT   10 aodtv64_determinedest
+   110: 00014b9c  7780 FUNC    GLOBAL DEFAULT   10 aodtv64_textscreenoutput
+   111: 0001abfc    89 FUNC    GLOBAL DEFAULT   10 aodtv64_setdatetime
+   112: 0001eb2c     4 OBJECT  GLOBAL DEFAULT   22 areadataRM
+   113: 0001ece0    40 OBJECT  GLOBAL DEFAULT   22 fcsttime_v64
+   114: 0001ec90     4 OBJECT  GLOBAL DEFAULT   22 tcircfirst_v64
+   115: 00008cd7   186 FUNC    GLOBAL DEFAULT   10 aodtv64_lalo2indsFloat
+   116: 0001ecb4     4 OBJECT  GLOBAL DEFAULT   22 ifixtype_v64
+   117: 0001eca0     4 OBJECT  GLOBAL DEFAULT   22 idomain_v64
+   118: 0001ecb8     4 OBJECT  GLOBAL DEFAULT   22 override_v64
+   119: 0000e7ff   141 FUNC    GLOBAL DEFAULT   10 aodtv64_setsstvalue
+   120: 00009860  5252 FUNC    GLOBAL DEFAULT   10 aodtv64_domap
+   121: 000066d0  2095 FUNC    GLOBAL DEFAULT   10 aodtv64_logspiral
+   122: 0000bbd5  1763 FUNC    GLOBAL DEFAULT   10 aodtv64_dfft
+   123: 000112b8   229 FUNC    GLOBAL DEFAULT   10 aodtv64_commenthistoryrec
+   124: 00016ae2  4197 FUNC    GLOBAL DEFAULT   10 aodtv64_msg
+   125: 0000b6ec   432 FUNC    GLOBAL DEFAULT   10 aodtv64_readcirc
+   126: 0001ed2c     4 OBJECT  GLOBAL DEFAULT   22 oautomode_v64
+   127: 00006eff  1074 FUNC    GLOBAL DEFAULT   10 aodtv64_laplacian
+   128: 0001ed30    20 OBJECT  GLOBAL DEFAULT   22 fcstlat_v64
+   129: 00019c2d   586 FUNC    GLOBAL DEFAULT   10 aodtv64_classifyredo
+   130: 0000cd86   176 FUNC    GLOBAL DEFAULT   10 aodtv64_cmonth2julian
+   131: 0000cb2c   301 FUNC    GLOBAL DEFAULT   10 aodtv64_ptovmax
+   132: 0000e7b4    75 FUNC    GLOBAL DEFAULT   10 aodtv64_getsstvalue
+   133: 0000c2b8   372 FUNC    GLOBAL DEFAULT   10 aodtv64_freememory
+   134: 00013c69  1464 FUNC    GLOBAL DEFAULT   10 aodtv64_CIno
+   135: 0001ac58   323 FUNC    GLOBAL DEFAULT   10 aodtv64_readtopo
+   136: 0001ed28     4 OBJECT  GLOBAL DEFAULT   22 olist_v64
+   137: 00018158  3174 FUNC    GLOBAL DEFAULT   10 aodtv64_calcscene
+   138: 0001a574    97 FUNC    GLOBAL DEFAULT   10 aodtv64_fminx
+   139: 0001e520    48 OBJECT  GLOBAL DEFAULT   21 cmon_v64
+   140: 0000e5e5   205 FUNC    GLOBAL DEFAULT   10 aodtv64_setlocation
+   141: 00014221   242 FUNC    GLOBAL DEFAULT   10 aodtv64_latbias
+   142: 00008f7e   276 FUNC    GLOBAL DEFAULT   10 aodtv64_remapdata
+   143: 0000ce36   184 FUNC    GLOBAL DEFAULT   10 aodtv64_julian2cmonth
+   144: 0000e420   191 FUNC    GLOBAL DEFAULT   10 aodtv64_getIRimageinfo
+   145: 0001a5d5    99 FUNC    GLOBAL DEFAULT   10 aodtv64_fmaxx
+   146: 0001e3d4     4 OBJECT  GLOBAL DEFAULT   21 kres_v64
+   147: 0001ed44     0 NOTYPE  GLOBAL DEFAULT  ABS _end
+   148: 00002fbc   600 FUNC    GLOBAL DEFAULT   10 aodtv64_automode1
+   149: 0000cc59   301 FUNC    GLOBAL DEFAULT   10 aodtv64_ptotno
+   150: 0000d84e   308 FUNC    GLOBAL DEFAULT   10 aodtv64_yddmy
+   151: 00003214  3246 FUNC    GLOBAL DEFAULT   10 aodtv64_automode2
+   152: 0000e6b4    47 FUNC    GLOBAL DEFAULT   10 aodtv64_getmiscoptions
+   153: 0000eb50    73 FUNC    GLOBAL DEFAULT   10 aodtv64_historyrecordinse
+   154: 0001ae24     0 FUNC    GLOBAL DEFAULT   11 _fini
+   155: 0000e520   197 FUNC    GLOBAL DEFAULT   10 aodtv64_getlocation
+   156: 0000b89c    94 FUNC    GLOBAL DEFAULT   10 aodtv64_qdiagnostics
+   157: 0000e8e8    71 FUNC    GLOBAL DEFAULT   10 aodtv64_gettopovalue
+   158: 0000e3a3   124 FUNC    GLOBAL DEFAULT   10 aodtv64_sethistoryfile
+   159: 0000dd47   880 FUNC    GLOBAL DEFAULT   10 aodtv64_initcurrent
+   160: 0001ea68     0 NOTYPE  GLOBAL DEFAULT  ABS _edata
+   161: 0001ecac     4 OBJECT  GLOBAL DEFAULT   22 ixdomain_v64
+   162: 0001a638  1437 FUNC    GLOBAL DEFAULT   10 aodtv64_rmw
+   163: 0001e3cc     4 OBJECT  GLOBAL DEFAULT   21 keyerM_v64
+   164: 0000d768   230 FUNC    GLOBAL DEFAULT   10 aodtv64_idmyyd
+   165: 00011590    35 FUNC    GLOBAL DEFAULT   10 aodtv64_intensity
+   166: 00017ed4   159 FUNC    GLOBAL DEFAULT   10 aodtv64_readtopofile
+   167: 0001e3d0     4 OBJECT  GLOBAL DEFAULT   21 keyerA_v64
+   168: 0000ec34   343 FUNC    GLOBAL DEFAULT   10 aodtv64_historygetnextrec
+   169: 0001e3e0   140 OBJECT  GLOBAL DEFAULT   21 eyetype_v64
+   170: 0000b521   459 FUNC    GLOBAL DEFAULT   10 aodtv64_calccloudtemp
+   171: 0000b47e   163 FUNC    GLOBAL DEFAULT   10 aodtv64_calceyetemp
+   172: 0000e765    77 FUNC    GLOBAL DEFAULT   10 aodtv64_setscenetypes
+   173: 0001eb40     4 OBJECT  GLOBAL DEFAULT   22 osstr_v64
+   174: 0000e198   208 FUNC    GLOBAL DEFAULT   10 aodtv64_getforecastfile
+   175: 00005dcf  2305 FUNC    GLOBAL DEFAULT   10 aodtv64_pickfinallocation
+   176: 0001ecbc     4 OBJECT  GLOBAL DEFAULT   22 atcftype_v64
+   177: 0001eaa0    16 OBJECT  GLOBAL DEFAULT   22 dis_vars
+   178: 0001eb44     4 OBJECT  GLOBAL DEFAULT   22 diagnostics_v64
+   179: 00003ec2  1369 FUNC    GLOBAL DEFAULT   10 aodtv64_calcScores
+   180: 0001e4f8    18 OBJECT  GLOBAL DEFAULT   21 cbasin_v64
+   181: 00018dbe  3695 FUNC    GLOBAL DEFAULT   10 aodtv64_classify
+   182: 0000eac0    80 FUNC    GLOBAL DEFAULT   10 aodtv64_historyaddcomment
+   183: 0001ec94     4 OBJECT  GLOBAL DEFAULT   22 odthistoryfirst_v64
+   184: 0001eb30     4 OBJECT  GLOBAL DEFAULT   22 recordnum
+   185: 00008d91   153 FUNC    GLOBAL DEFAULT   10 aodtv64_inds2laloFloat
+   186: 0001ec9c     4 OBJECT  GLOBAL DEFAULT   22 odt_v64
+   187: 0000e9d4    93 FUNC    GLOBAL DEFAULT   10 aodtv64_getversion
+   188: 0000f55c  1104 FUNC    GLOBAL DEFAULT   10 aodtv64_writehistoryfile
+   189: 0001ecc0     4 OBJECT  GLOBAL DEFAULT   22 oland_v64
+   190: 0000e0b8    63 FUNC    GLOBAL DEFAULT   10 aodtv64_getdomain
+   191: 0000e8bb    43 FUNC    GLOBAL DEFAULT   10 aodtv64_setstartstr
+   192: 0000b254   554 FUNC    GLOBAL DEFAULT   10 aodtv64_gettemps
+   193: 0001e6a0   584 OBJECT  GLOBAL DEFAULT   21 pres_v64
+   194: 0000eb10    64 FUNC    GLOBAL DEFAULT   10 aodtv64_historydeleterec
+   195: 000082db  2556 FUNC    GLOBAL DEFAULT   10 aodtv64_ringFit
+   196: 00002d5c   436 FUNC    GLOBAL DEFAULT   10 aodtv64_atcfoutputfile
+   197: 0001ec8c     4 OBJECT  GLOBAL DEFAULT   22 ostartstr_v64
+   198: 0000ace4  1185 FUNC    GLOBAL DEFAULT   10 aodtv64_findpoint
+   199: 00014639   320 FUNC    GLOBAL DEFAULT   10 aodtv64_maxtnoval
+   200: 0000c84d   379 FUNC    GLOBAL DEFAULT   10 aodtv64_calctime
+   201: 00019e77  1606 FUNC    GLOBAL DEFAULT   10 aodtv64_eyeshearcalc
+   202: 0001ad9c    77 FUNC    GLOBAL DEFAULT   10 aodtv64_getwarmeyetemploc
+   203: 0000e88c    47 FUNC    GLOBAL DEFAULT   10 aodtv64_getstartstr
+   204: 00017f74   483 FUNC    GLOBAL DEFAULT   10 aodtv64_scenemap
+
+Symbol table '.symtab' contains 385 entries:
+   Num:    Value  Size Type    Bind   Vis      Ndx Name
+     0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND 
+     1: 000000b4     0 SECTION LOCAL  DEFAULT    1 
+     2: 000005fc     0 SECTION LOCAL  DEFAULT    2 
+     3: 000012cc     0 SECTION LOCAL  DEFAULT    3 
+     4: 00001f34     0 SECTION LOCAL  DEFAULT    4 
+     5: 000020d0     0 SECTION LOCAL  DEFAULT    5 
+     6: 00002110     0 SECTION LOCAL  DEFAULT    6 
+     7: 00002268     0 SECTION LOCAL  DEFAULT    7 
+     8: 000025b0     0 SECTION LOCAL  DEFAULT    8 
+     9: 000025c8     0 SECTION LOCAL  DEFAULT    9 
+    10: 00002c70     0 SECTION LOCAL  DEFAULT   10 
+    11: 0001ae24     0 SECTION LOCAL  DEFAULT   11 
+    12: 0001ae40     0 SECTION LOCAL  DEFAULT   12 
+    13: 0001d8ac     0 SECTION LOCAL  DEFAULT   13 
+    14: 0001e000     0 SECTION LOCAL  DEFAULT   14 
+    15: 0001e008     0 SECTION LOCAL  DEFAULT   15 
+    16: 0001e010     0 SECTION LOCAL  DEFAULT   16 
+    17: 0001e014     0 SECTION LOCAL  DEFAULT   17 
+    18: 0001e018     0 SECTION LOCAL  DEFAULT   18 
+    19: 0001e0e0     0 SECTION LOCAL  DEFAULT   19 
+    20: 0001e188     0 SECTION LOCAL  DEFAULT   20 
+    21: 0001e340     0 SECTION LOCAL  DEFAULT   21 
+    22: 0001ea80     0 SECTION LOCAL  DEFAULT   22 
+    23: 00000000     0 SECTION LOCAL  DEFAULT   23 
+    24: 00000000     0 SECTION LOCAL  DEFAULT   24 
+    25: 00000000     0 SECTION LOCAL  DEFAULT   25 
+    26: 00000000     0 SECTION LOCAL  DEFAULT   26 
+    27: 00000000     0 SECTION LOCAL  DEFAULT   27 
+    28: 00000000     0 SECTION LOCAL  DEFAULT   28 
+    29: 00000000     0 SECTION LOCAL  DEFAULT   29 
+    30: 00000000     0 SECTION LOCAL  DEFAULT   30 
+    31: 00000000     0 SECTION LOCAL  DEFAULT   31 
+    32: 00002c70     0 FUNC    LOCAL  DEFAULT   10 call_gmon_start
+    33: 00000000     0 FILE    LOCAL  DEFAULT  ABS crtstuff.c
+    34: 0001e000     0 OBJECT  LOCAL  DEFAULT   14 __CTOR_LIST__
+    35: 0001e008     0 OBJECT  LOCAL  DEFAULT   15 __DTOR_LIST__
+    36: 0001e010     0 OBJECT  LOCAL  DEFAULT   16 __JCR_LIST__
+    37: 0001ea80     4 OBJECT  LOCAL  DEFAULT   22 dtor_idx.5793
+    38: 0001ea84     1 OBJECT  LOCAL  DEFAULT   22 completed.5791
+    39: 00002ca0     0 FUNC    LOCAL  DEFAULT   10 __do_global_dtors_aux
+    40: 00002d20     0 FUNC    LOCAL  DEFAULT   10 frame_dummy
+    41: 00000000     0 FILE    LOCAL  DEFAULT  ABS crtstuff.c
+    42: 0001e004     0 OBJECT  LOCAL  DEFAULT   14 __CTOR_END__
+    43: 0001d8ac     0 OBJECT  LOCAL  DEFAULT   13 __FRAME_END__
+    44: 0001e010     0 OBJECT  LOCAL  DEFAULT   16 __JCR_END__
+    45: 0001adf0     0 FUNC    LOCAL  DEFAULT   10 __do_global_ctors_aux
+    46: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtatcfoutputfile.c
+    47: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtautomode1.c
+    48: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtautomode2.c
+    49: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtauto.c
+    50: 0001e340    32 OBJECT  LOCAL  DEFAULT   21 je2.7872
+    51: 0001e360    32 OBJECT  LOCAL  DEFAULT   21 je1.7871
+    52: 0001e380    32 OBJECT  LOCAL  DEFAULT   21 jl2.7870
+    53: 0001e3a0    32 OBJECT  LOCAL  DEFAULT   21 jl1.7869
+    54: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtbulletinoutput2.c
+    55: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtbulletinoutput.c
+    56: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtdata.c
+    57: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtdiagnostics.c
+    58: 00000000     0 FILE    LOCAL  DEFAULT  ABS odteyecloudtemp.c
+    59: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtfft.c
+    60: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtfreememory.c
+    61: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtfuncs.c
+    62: 0001b1a0   104 OBJECT  LOCAL  DEFAULT   12 C.58.4771
+    63: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtgsdomain.c
+    64: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtgsforecastfile.c
+    65: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtgshistory.c
+    66: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtgsIRimage.c
+    67: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtgslocation.c
+    68: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtgsmiscopts.c
+    69: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtgsscenetypes.c
+    70: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtgssstvalue.c
+    71: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtgsstartstr.c
+    72: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtgstopovalue.c
+    73: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtgsversion.c
+    74: 00000000     0 FILE    LOCAL  DEFAULT  ABS odthistorybullfmt.c
+    75: 00000000     0 FILE    LOCAL  DEFAULT  ABS odthistorycomment.c
+    76: 00000000     0 FILE    LOCAL  DEFAULT  ABS odthistorydelete.c
+    77: 00000000     0 FILE    LOCAL  DEFAULT  ABS odthistoryinsertrec.c
+    78: 00000000     0 FILE    LOCAL  DEFAULT  ABS odthistorylistfmt.c
+    79: 00000000     0 FILE    LOCAL  DEFAULT  ABS odthistorynextrec.c
+    80: 00000000     0 FILE    LOCAL  DEFAULT  ABS odthistory.c
+    81: 0001b400   300 OBJECT  LOCAL  DEFAULT   12 C.54.4469
+    82: 00000000     0 FILE    LOCAL  DEFAULT  ABS odthistorywrite.c
+    83: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtinitialize.c
+    84: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtintensityest.c
+    85: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtintensity.c
+    86: 0001b960   120 OBJECT  LOCAL  DEFAULT   12 C.30.4219
+    87: 0001b9e0    80 OBJECT  LOCAL  DEFAULT   12 C.29.4218
+    88: 0001ba40    80 OBJECT  LOCAL  DEFAULT   12 C.28.4217
+    89: 0001baa0    80 OBJECT  LOCAL  DEFAULT   12 C.27.4216
+    90: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtloadIRimage.c
+    91: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtmessages.c
+    92: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtoutput.c
+    93: 0001bc60   300 OBJECT  LOCAL  DEFAULT   12 C.0.4125
+    94: 00017261     0 NOTYPE  LOCAL  DEFAULT   10 .L90
+    95: 00017aea     0 NOTYPE  LOCAL  DEFAULT   10 .L89
+    96: 000171fb     0 NOTYPE  LOCAL  DEFAULT   10 .L91
+    97: 000171ab     0 NOTYPE  LOCAL  DEFAULT   10 .L92
+    98: 00017169     0 NOTYPE  LOCAL  DEFAULT   10 .L93
+    99: 00017148     0 NOTYPE  LOCAL  DEFAULT   10 .L94
+   100: 00017127     0 NOTYPE  LOCAL  DEFAULT   10 .L95
+   101: 00017102     0 NOTYPE  LOCAL  DEFAULT   10 .L96
+   102: 000170bf     0 NOTYPE  LOCAL  DEFAULT   10 .L97
+   103: 0001709a     0 NOTYPE  LOCAL  DEFAULT   10 .L98
+   104: 00017079     0 NOTYPE  LOCAL  DEFAULT   10 .L99
+   105: 00017058     0 NOTYPE  LOCAL  DEFAULT   10 .L100
+   106: 00017037     0 NOTYPE  LOCAL  DEFAULT   10 .L101
+   107: 00016fed     0 NOTYPE  LOCAL  DEFAULT   10 .L102
+   108: 00016fae     0 NOTYPE  LOCAL  DEFAULT   10 .L103
+   109: 00016f8d     0 NOTYPE  LOCAL  DEFAULT   10 .L104
+   110: 00016f6c     0 NOTYPE  LOCAL  DEFAULT   10 .L105
+   111: 00016f4b     0 NOTYPE  LOCAL  DEFAULT   10 .L106
+   112: 00016eea     0 NOTYPE  LOCAL  DEFAULT   10 .L107
+   113: 00016e82     0 NOTYPE  LOCAL  DEFAULT   10 .L108
+   114: 00016e61     0 NOTYPE  LOCAL  DEFAULT   10 .L109
+   115: 00016e40     0 NOTYPE  LOCAL  DEFAULT   10 .L110
+   116: 00016e1f     0 NOTYPE  LOCAL  DEFAULT   10 .L111
+   117: 00016dfe     0 NOTYPE  LOCAL  DEFAULT   10 .L112
+   118: 00016ddd     0 NOTYPE  LOCAL  DEFAULT   10 .L113
+   119: 00016dbc     0 NOTYPE  LOCAL  DEFAULT   10 .L114
+   120: 00016d9b     0 NOTYPE  LOCAL  DEFAULT   10 .L115
+   121: 00016d7a     0 NOTYPE  LOCAL  DEFAULT   10 .L116
+   122: 00016d59     0 NOTYPE  LOCAL  DEFAULT   10 .L117
+   123: 00016d38     0 NOTYPE  LOCAL  DEFAULT   10 .L118
+   124: 00016d17     0 NOTYPE  LOCAL  DEFAULT   10 .L119
+   125: 00017283     0 NOTYPE  LOCAL  DEFAULT   10 .L120
+   126: 000172cf     0 NOTYPE  LOCAL  DEFAULT   10 .L121
+   127: 00017311     0 NOTYPE  LOCAL  DEFAULT   10 .L122
+   128: 00017332     0 NOTYPE  LOCAL  DEFAULT   10 .L123
+   129: 00017353     0 NOTYPE  LOCAL  DEFAULT   10 .L124
+   130: 00017374     0 NOTYPE  LOCAL  DEFAULT   10 .L125
+   131: 00017395     0 NOTYPE  LOCAL  DEFAULT   10 .L126
+   132: 000173b6     0 NOTYPE  LOCAL  DEFAULT   10 .L127
+   133: 000173d7     0 NOTYPE  LOCAL  DEFAULT   10 .L128
+   134: 00017401     0 NOTYPE  LOCAL  DEFAULT   10 .L129
+   135: 0001742b     0 NOTYPE  LOCAL  DEFAULT   10 .L130
+   136: 00017462     0 NOTYPE  LOCAL  DEFAULT   10 .L131
+   137: 00017499     0 NOTYPE  LOCAL  DEFAULT   10 .L132
+   138: 00017507     0 NOTYPE  LOCAL  DEFAULT   10 .L133
+   139: 00017538     0 NOTYPE  LOCAL  DEFAULT   10 .L134
+   140: 00017569     0 NOTYPE  LOCAL  DEFAULT   10 .L135
+   141: 0001759a     0 NOTYPE  LOCAL  DEFAULT   10 .L136
+   142: 000175c4     0 NOTYPE  LOCAL  DEFAULT   10 .L137
+   143: 00017611     0 NOTYPE  LOCAL  DEFAULT   10 .L138
+   144: 00017639     0 NOTYPE  LOCAL  DEFAULT   10 .L139
+   145: 00017661     0 NOTYPE  LOCAL  DEFAULT   10 .L140
+   146: 00017682     0 NOTYPE  LOCAL  DEFAULT   10 .L141
+   147: 000176a3     0 NOTYPE  LOCAL  DEFAULT   10 .L142
+   148: 000176cb     0 NOTYPE  LOCAL  DEFAULT   10 .L143
+   149: 000176f3     0 NOTYPE  LOCAL  DEFAULT   10 .L144
+   150: 0001771b     0 NOTYPE  LOCAL  DEFAULT   10 .L145
+   151: 00017743     0 NOTYPE  LOCAL  DEFAULT   10 .L146
+   152: 00017785     0 NOTYPE  LOCAL  DEFAULT   10 .L147
+   153: 000177b8     0 NOTYPE  LOCAL  DEFAULT   10 .L148
+   154: 000177eb     0 NOTYPE  LOCAL  DEFAULT   10 .L149
+   155: 0001780c     0 NOTYPE  LOCAL  DEFAULT   10 .L150
+   156: 00017845     0 NOTYPE  LOCAL  DEFAULT   10 .L151
+   157: 00017884     0 NOTYPE  LOCAL  DEFAULT   10 .L152
+   158: 000178c2     0 NOTYPE  LOCAL  DEFAULT   10 .L153
+   159: 0001790f     0 NOTYPE  LOCAL  DEFAULT   10 .L154
+   160: 0001795b     0 NOTYPE  LOCAL  DEFAULT   10 .L155
+   161: 0001797c     0 NOTYPE  LOCAL  DEFAULT   10 .L156
+   162: 000179a1     0 NOTYPE  LOCAL  DEFAULT   10 .L157
+   163: 000179c6     0 NOTYPE  LOCAL  DEFAULT   10 .L158
+   164: 00017a39     0 NOTYPE  LOCAL  DEFAULT   10 .L159
+   165: 00017a51     0 NOTYPE  LOCAL  DEFAULT   10 .L160
+   166: 00017ab4     0 NOTYPE  LOCAL  DEFAULT   10 .L161
+   167: 00017ad6     0 NOTYPE  LOCAL  DEFAULT   10 .L162
+   168: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtreadtopofile.c
+   169: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtscenemap.c
+   170: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtscene.c
+   171: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtscenetype.c
+   172: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtsetdatetime.c
+   173: 00000000     0 FILE    LOCAL  DEFAULT  ABS odttopo.c
+   174: 00000000     0 FILE    LOCAL  DEFAULT  ABS odtwarmeyetemp.c
+   175: 0001e188     0 OBJECT  LOCAL  HIDDEN  ABS _GLOBAL_OFFSET_TABLE_
+   176: 0001e014     0 OBJECT  LOCAL  HIDDEN   17 __dso_handle
+   177: 0001e00c     0 OBJECT  LOCAL  HIDDEN   15 __DTOR_END__
+   178: 0000b185     0 FUNC    LOCAL  HIDDEN   10 __i686.get_pc_thunk.cx
+   179: 00002d57     0 FUNC    LOCAL  HIDDEN   10 __i686.get_pc_thunk.bx
+   180: 0001e018     0 OBJECT  LOCAL  HIDDEN  ABS _DYNAMIC
+   181: 0000ea34   140 FUNC    GLOBAL DEFAULT   10 aodtv64_historybullfmt
+   182: 0001e3c8     4 OBJECT  GLOBAL DEFAULT   21 kenda_v64
+   183: 0000cc59   301 FUNC    GLOBAL DEFAULT   10 aodtv64_ptotno
+   184: 00013a04   613 FUNC    GLOBAL DEFAULT   10 aodtv64_Tnofinal
+   185: 0001eb40     4 OBJECT  GLOBAL DEFAULT   22 osstr_v64
+   186: 00000000    52 FUNC    GLOBAL DEFAULT  UND sprintf@@GLIBC_2.0
+   187: 0000b1cc   136 FUNC    GLOBAL DEFAULT   10 aodtv64_bulletinoutput
+   188: 0001e3c4     4 OBJECT  GLOBAL DEFAULT   21 kend_v64
+   189: 0000817b   352 FUNC    GLOBAL DEFAULT   10 aodtv64_gradient
+   190: 00017b47   908 FUNC    GLOBAL DEFAULT   10 aodtv64_listforecast
+   191: 0000b92c   458 FUNC    GLOBAL DEFAULT   10 aodtv64_fft
+   192: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND sqrt
+   193: 00011795  8815 FUNC    GLOBAL DEFAULT   10 aodtv64_Tnoraw
+   194: 00008d91   153 FUNC    GLOBAL DEFAULT   10 aodtv64_inds2laloFloat
+   195: 00018dbe  3695 FUNC    GLOBAL DEFAULT   10 aodtv64_classify
+   196: 0000e88c    47 FUNC    GLOBAL DEFAULT   10 aodtv64_getstartstr
+   197: 0001eb44     4 OBJECT  GLOBAL DEFAULT   22 diagnostics_v64
+   198: 0001139d   398 FUNC    GLOBAL DEFAULT   10 aodtv64_datetime
+   199: 000115b4   481 FUNC    GLOBAL DEFAULT   10 aodtv64_calcintensity
+   200: 0001ea40    40 OBJECT  GLOBAL DEFAULT   21 ebd_v64
+   201: 0001eb48     8 OBJECT  GLOBAL DEFAULT   22 starttime_v64
+   202: 0001eb60   296 OBJECT  GLOBAL DEFAULT   22 spiralband_v64
+   203: 0000eb50    73 FUNC    GLOBAL DEFAULT   10 aodtv64_historyrecordinse
+   204: 00003ec2  1369 FUNC    GLOBAL DEFAULT   10 aodtv64_calcScores
+   205: 0000e328   123 FUNC    GLOBAL DEFAULT   10 aodtv64_gethistoryfile
+   206: 00000000     0 NOTYPE  WEAK   DEFAULT  UND __gmon_start__
+   207: 00000000     0 NOTYPE  WEAK   DEFAULT  UND _Jv_RegisterClasses
+   208: 0001ec88     4 OBJECT  GLOBAL DEFAULT   22 fixfile_v64
+   209: 0001ec8c     4 OBJECT  GLOBAL DEFAULT   22 ostartstr_v64
+   210: 0000e8e8    71 FUNC    GLOBAL DEFAULT   10 aodtv64_gettopovalue
+   211: 0001ec90     4 OBJECT  GLOBAL DEFAULT   22 tcircfirst_v64
+   212: 0000ace4  1185 FUNC    GLOBAL DEFAULT   10 aodtv64_findpoint
+   213: 0000e710    85 FUNC    GLOBAL DEFAULT   10 aodtv64_getscenetypes
+   214: 00000000   359 FUNC    GLOBAL DEFAULT  UND strchr@@GLIBC_2.0
+   215: 0001ae24     0 FUNC    GLOBAL DEFAULT   11 _fini
+   216: 00000000   828 FUNC    GLOBAL DEFAULT  UND calloc@@GLIBC_2.0
+   217: 00000000   167 FUNC    GLOBAL DEFAULT  UND strncpy@@GLIBC_2.0
+   218: 0000d768   230 FUNC    GLOBAL DEFAULT   10 aodtv64_idmyyd
+   219: 0001ec94     4 OBJECT  GLOBAL DEFAULT   22 odthistoryfirst_v64
+   220: 0000e3a3   124 FUNC    GLOBAL DEFAULT   10 aodtv64_sethistoryfile
+   221: 0001e3d4     4 OBJECT  GLOBAL DEFAULT   21 kres_v64
+   222: 00007331   696 FUNC    GLOBAL DEFAULT   10 aodtv64_polint
+   223: 0000ed8c  1300 FUNC    GLOBAL DEFAULT   10 aodtv64_readhistoryfile
+   224: 00000000   369 FUNC    GLOBAL DEFAULT  UND fgets@@GLIBC_2.0
+   225: 0001e4f8    18 OBJECT  GLOBAL DEFAULT   21 cbasin_v64
+   226: 00000000    67 FUNC    GLOBAL DEFAULT  UND memset@@GLIBC_2.0
+   227: 0001e3d0     4 OBJECT  GLOBAL DEFAULT   21 keyerA_v64
+   228: 0001e560   292 OBJECT  GLOBAL DEFAULT   21 tno_v64
+   229: 00006eff  1074 FUNC    GLOBAL DEFAULT   10 aodtv64_laplacian
+   230: 00014639   320 FUNC    GLOBAL DEFAULT   10 aodtv64_maxtnoval
+   231: 000066d0  2095 FUNC    GLOBAL DEFAULT   10 aodtv64_logspiral
+   232: 0000f9ac   395 FUNC    GLOBAL DEFAULT   10 aodtv64_deletehistoryrec
+   233: 0000e7b4    75 FUNC    GLOBAL DEFAULT   10 aodtv64_getsstvalue
+   234: 0000e520   197 FUNC    GLOBAL DEFAULT   10 aodtv64_getlocation
+   235: 0001ec98     4 OBJECT  GLOBAL DEFAULT   22 hfile_v64
+   236: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND tan
+   237: 0001ec9c     4 OBJECT  GLOBAL DEFAULT   22 odt_v64
+   238: 00013c69  1464 FUNC    GLOBAL DEFAULT   10 aodtv64_CIno
+   239: 0000d1cd   914 FUNC    GLOBAL DEFAULT   10 aodtv64_distance2
+   240: 00005dcf  2305 FUNC    GLOBAL DEFAULT   10 aodtv64_pickfinallocation
+   241: 0001eb30     4 OBJECT  GLOBAL DEFAULT   22 recordnum
+   242: 0001e3e0   140 OBJECT  GLOBAL DEFAULT   21 eyetype_v64
+   243: 0001eca0     4 OBJECT  GLOBAL DEFAULT   22 idomain_v64
+   244: 0000b521   459 FUNC    GLOBAL DEFAULT   10 aodtv64_calccloudtemp
+   245: 0001e6a0   584 OBJECT  GLOBAL DEFAULT   21 pres_v64
+   246: 000097d3   141 FUNC    GLOBAL DEFAULT   10 aodtv64_umap
+   247: 00000000   433 FUNC    GLOBAL DEFAULT  UND free@@GLIBC_2.0
+   248: 0000c84d   379 FUNC    GLOBAL DEFAULT   10 aodtv64_calctime
+   249: 0001eca4     4 OBJECT  GLOBAL DEFAULT   22 odtcurrent_v64
+   250: 0000dd47   880 FUNC    GLOBAL DEFAULT   10 aodtv64_initcurrent
+   251: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND asin
+   252: 0000b6ec   432 FUNC    GLOBAL DEFAULT   10 aodtv64_readcirc
+   253: 0001a574    97 FUNC    GLOBAL DEFAULT   10 aodtv64_fminx
+   254: 0001ac58   323 FUNC    GLOBAL DEFAULT   10 aodtv64_readtopo
+   255: 0001abd8    35 FUNC    GLOBAL DEFAULT   10 aodtv64_scenetype
+   256: 0000e420   191 FUNC    GLOBAL DEFAULT   10 aodtv64_getIRimageinfo
+   257: 0000d982   478 FUNC    GLOBAL DEFAULT   10 aodtv64_sattypes
+   258: 00008f7e   276 FUNC    GLOBAL DEFAULT   10 aodtv64_remapdata
+   259: 00000000   250 FUNC    GLOBAL DEFAULT  UND fseek@@GLIBC_2.0
+   260: 0000e4df    62 FUNC    GLOBAL DEFAULT   10 aodtv64_setIRimageinfo
+   261: 0001e520    48 OBJECT  GLOBAL DEFAULT   21 cmon_v64
+   262: 0000e268   190 FUNC    GLOBAL DEFAULT   10 aodtv64_setforecastfile
+   263: 00000000   488 FUNC    GLOBAL DEFAULT  UND fclose@@GLIBC_2.1
+   264: 0000c2b8   372 FUNC    GLOBAL DEFAULT   10 aodtv64_freememory
+   265: 000149ec   429 FUNC    GLOBAL DEFAULT   10 aodtv64_qmessage
+   266: 00002d5c   436 FUNC    GLOBAL DEFAULT   10 aodtv64_atcfoutputfile
+   267: 0001a5d5    99 FUNC    GLOBAL DEFAULT   10 aodtv64_fmaxx
+   268: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND log
+   269: 0001eca8     4 OBJECT  GLOBAL DEFAULT   22 arfd_v64
+   270: 00009860  5252 FUNC    GLOBAL DEFAULT   10 aodtv64_domap
+   271: 000092a5   963 FUNC    GLOBAL DEFAULT   10 aodtv64_determinedest
+   272: 0001ecac     4 OBJECT  GLOBAL DEFAULT   22 ixdomain_v64
+   273: 00000000    39 FUNC    GLOBAL DEFAULT  UND memcpy@@GLIBC_2.0
+   274: 00014779   323 FUNC    GLOBAL DEFAULT   10 aodtv64_tieflag
+   275: 00000000    50 FUNC    GLOBAL DEFAULT  UND fopen@@GLIBC_2.1
+   276: 0000b47e   163 FUNC    GLOBAL DEFAULT   10 aodtv64_calceyetemp
+   277: 0001ecb0     4 OBJECT  GLOBAL DEFAULT   22 areadata_v64
+   278: 000148bc   302 FUNC    GLOBAL DEFAULT   10 aodtv64_loadIRimage
+   279: 00009668   363 FUNC    GLOBAL DEFAULT   10 aodtv64_corner
+   280: 0001ecb4     4 OBJECT  GLOBAL DEFAULT   22 ifixtype_v64
+   281: 0001e3c0     4 OBJECT  GLOBAL DEFAULT   21 kstart_v64
+   282: 0001e3cc     4 OBJECT  GLOBAL DEFAULT   21 keyerM_v64
+   283: 000075e9  2962 FUNC    GLOBAL DEFAULT   10 aodtv64_spiralCenterLowRe
+   284: 00000000    34 FUNC    GLOBAL DEFAULT  UND strcpy@@GLIBC_2.0
+   285: 0000d84e   308 FUNC    GLOBAL DEFAULT   10 aodtv64_yddmy
+   286: 00000000    57 FUNC    GLOBAL DEFAULT  UND printf@@GLIBC_2.0
+   287: 0001ecb8     4 OBJECT  GLOBAL DEFAULT   22 override_v64
+   288: 0000ceee   735 FUNC    GLOBAL DEFAULT   10 aodtv64_distance
+   289: 0000f55c  1104 FUNC    GLOBAL DEFAULT   10 aodtv64_writehistoryfile
+   290: 0001ecbc     4 OBJECT  GLOBAL DEFAULT   22 atcftype_v64
+   291: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND atan
+   292: 0000f2a0   700 FUNC    GLOBAL DEFAULT   10 aodtv64_inserthistoryrec
+   293: 00016a00   226 FUNC    GLOBAL DEFAULT   10 aodtv64_lldms
+   294: 0000e5e5   205 FUNC    GLOBAL DEFAULT   10 aodtv64_setlocation
+   295: 00003214  3246 FUNC    GLOBAL DEFAULT   10 aodtv64_automode2
+   296: 0000e0f7   159 FUNC    GLOBAL DEFAULT   10 aodtv64_setdomain
+   297: 00019e77  1606 FUNC    GLOBAL DEFAULT   10 aodtv64_eyeshearcalc
+   298: 00011564    42 FUNC    GLOBAL DEFAULT   10 aodtv64_initialize
+   299: 0001eaa0    16 OBJECT  GLOBAL DEFAULT   22 dis_vars
+   300: 0001a4bd   183 FUNC    GLOBAL DEFAULT   10 aodtv64_xxsort
+   301: 0000ec34   343 FUNC    GLOBAL DEFAULT   10 aodtv64_historygetnextrec
+   302: 0000e0b8    63 FUNC    GLOBAL DEFAULT   10 aodtv64_getdomain
+   303: 0001eac0    40 OBJECT  GLOBAL DEFAULT   22 remap_vars
+   304: 0000c42c  1057 FUNC    GLOBAL DEFAULT   10 aodtv64_slopecal
+   305: 0000441b   631 FUNC    GLOBAL DEFAULT   10 aodtv64_findRingScore
+   306: 000090da   459 FUNC    GLOBAL DEFAULT   10 aodtv64_init
+   307: 00008cd7   186 FUNC    GLOBAL DEFAULT   10 aodtv64_lalo2indsFloat
+   308: 0001ecc0     4 OBJECT  GLOBAL DEFAULT   22 oland_v64
+   309: 0000eb9c   150 FUNC    GLOBAL DEFAULT   10 aodtv64_historylistfmt
+   310: 0000e92f   165 FUNC    GLOBAL DEFAULT   10 aodtv64_settopovalue
+   311: 0000bbd5  1763 FUNC    GLOBAL DEFAULT   10 aodtv64_dfft
+   312: 00000000    36 FUNC    GLOBAL DEFAULT  UND fprintf@@GLIBC_2.0
+   313: 0000d62b   317 FUNC    GLOBAL DEFAULT   10 aodtv64_calcskew
+   314: 000082db  2556 FUNC    GLOBAL DEFAULT   10 aodtv64_ringFit
+   315: 0000eac0    80 FUNC    GLOBAL DEFAULT   10 aodtv64_historyaddcomment
+   316: 00000000   170 FUNC    GLOBAL DEFAULT  UND strncat@@GLIBC_2.0
+   317: 0000e765    77 FUNC    GLOBAL DEFAULT   10 aodtv64_setscenetypes
+   318: 00002f60    92 FUNC    GLOBAL DEFAULT   10 aodtv64_runautomode2
+   319: 0001ea68     0 NOTYPE  GLOBAL DEFAULT  ABS __bss_start
+   320: 00000000   451 FUNC    GLOBAL DEFAULT  UND malloc@@GLIBC_2.0
+   321: 0001eb00    44 OBJECT  GLOBAL DEFAULT   22 tiff_vars
+   322: 0000b89c    94 FUNC    GLOBAL DEFAULT   10 aodtv64_qdiagnostics
+   323: 00018158  3174 FUNC    GLOBAL DEFAULT   10 aodtv64_calcscene
+   324: 0001152c    56 FUNC    GLOBAL DEFAULT   10 aodtv64_historywritefile
+   325: 0000b8fc    46 FUNC    GLOBAL DEFAULT   10 aodtv64_seteyecloudtemp
+   326: 0000cd86   176 FUNC    GLOBAL DEFAULT   10 aodtv64_cmonth2julian
+   327: 00016ae2  4197 FUNC    GLOBAL DEFAULT   10 aodtv64_msg
+   328: 0000ce36   184 FUNC    GLOBAL DEFAULT   10 aodtv64_julian2cmonth
+   329: 0000e7ff   141 FUNC    GLOBAL DEFAULT   10 aodtv64_setsstvalue
+   330: 0001ece0    40 OBJECT  GLOBAL DEFAULT   22 fcsttime_v64
+   331: 00008e2a   340 FUNC    GLOBAL DEFAULT   10 aodtv64_circleFilt
+   332: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND acos
+   333: 0001ed08     4 OBJECT  GLOBAL DEFAULT   22 osearch_v64
+   334: 0000fb37  6017 FUNC    GLOBAL DEFAULT   10 aodtv64_listhistory
+   335: 0001ed0c    20 OBJECT  GLOBAL DEFAULT   22 fcstlon_v64
+   336: 00004692  5949 FUNC    GLOBAL DEFAULT   10 aodtv64_readforecast
+   337: 00014b9c  7780 FUNC    GLOBAL DEFAULT   10 aodtv64_textscreenoutput
+   338: 0000baf6   223 FUNC    GLOBAL DEFAULT   10 aodtv64_cmplx_abs
+   339: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND exp
+   340: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND sin
+   341: 00017f74   483 FUNC    GLOBAL DEFAULT   10 aodtv64_scenemap
+   342: 0001ed20     8 OBJECT  GLOBAL DEFAULT   22 endtime_v64
+   343: 00000000   426 FUNC    GLOBAL DEFAULT  UND strcat@@GLIBC_2.0
+   344: 0001ed28     4 OBJECT  GLOBAL DEFAULT   22 olist_v64
+   345: 0001ed2c     4 OBJECT  GLOBAL DEFAULT   22 oautomode_v64
+   346: 0001ed30    20 OBJECT  GLOBAL DEFAULT   22 fcstlat_v64
+   347: 0001ed44     0 NOTYPE  GLOBAL DEFAULT  ABS _end
+   348: 000112b8   229 FUNC    GLOBAL DEFAULT   10 aodtv64_commenthistoryrec
+   349: 00014221   242 FUNC    GLOBAL DEFAULT   10 aodtv64_latbias
+   350: 0000e9d4    93 FUNC    GLOBAL DEFAULT   10 aodtv64_getversion
+   351: 0000e6e3    43 FUNC    GLOBAL DEFAULT   10 aodtv64_setmiscoptions
+   352: 00014550   233 FUNC    GLOBAL DEFAULT   10 aodtv64_TIEmodel
+   353: 00002fbc   600 FUNC    GLOBAL DEFAULT   10 aodtv64_automode1
+   354: 00011590    35 FUNC    GLOBAL DEFAULT   10 aodtv64_intensity
+   355: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND pow
+   356: 0000cb2c   301 FUNC    GLOBAL DEFAULT   10 aodtv64_ptovmax
+   357: 00000000    52 FUNC    GLOBAL DEFAULT  UND sscanf@@GLIBC_2.0
+   358: 00000000   247 FUNC    GLOBAL DEFAULT  UND strncmp@@GLIBC_2.0
+   359: 00017ed4   159 FUNC    GLOBAL DEFAULT   10 aodtv64_readtopofile
+   360: 0001e480   120 OBJECT  GLOBAL DEFAULT   21 cloudtype_v64
+   361: 00019c2d   586 FUNC    GLOBAL DEFAULT   10 aodtv64_classifyredo
+   362: 0000e198   208 FUNC    GLOBAL DEFAULT   10 aodtv64_getforecastfile
+   363: 0001ad9c    77 FUNC    GLOBAL DEFAULT   10 aodtv64_getwarmeyetemploc
+   364: 0000eb10    64 FUNC    GLOBAL DEFAULT   10 aodtv64_historydeleterec
+   365: 00014313   573 FUNC    GLOBAL DEFAULT   10 aodtv64_scenesearch
+   366: 0001a638  1437 FUNC    GLOBAL DEFAULT   10 aodtv64_rmw
+   367: 00000000   280 FUNC    GLOBAL DEFAULT  UND fread@@GLIBC_2.0
+   368: 0000e8bb    43 FUNC    GLOBAL DEFAULT   10 aodtv64_setstartstr
+   369: 0000b254   554 FUNC    GLOBAL DEFAULT   10 aodtv64_gettemps
+   370: 0001ea68     0 NOTYPE  GLOBAL DEFAULT  ABS _edata
+   371: 0001e900   292 OBJECT  GLOBAL DEFAULT   21 wind_v64
+   372: 00009092    72 FUNC    GLOBAL DEFAULT   10 aodtv64_uinit
+   373: 00002f10    79 FUNC    GLOBAL DEFAULT   10 aodtv64_runautomode1
+   374: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND cos
+   375: 0000d55f   204 FUNC    GLOBAL DEFAULT   10 aodtv64_atoif
+   376: 0000db60   487 FUNC    GLOBAL DEFAULT   10 aodtv64_oceanbasin
+   377: 0000ca5a   210 FUNC    GLOBAL DEFAULT   10 aodtv64_PWlandsea
+   378: 00000000   346 FUNC    WEAK   DEFAULT  UND __cxa_finalize@@GLIBC_2.1
+   379: 0000b18c    61 FUNC    GLOBAL DEFAULT   10 aodtv64_bulletinoutput2
+   380: 0001abfc    89 FUNC    GLOBAL DEFAULT   10 aodtv64_setdatetime
+   381: 0000c9c8   146 FUNC    GLOBAL DEFAULT   10 aodtv64_getpwval
+   382: 0000e6b4    47 FUNC    GLOBAL DEFAULT   10 aodtv64_getmiscoptions
+   383: 0001eb2c     4 OBJECT  GLOBAL DEFAULT   22 areadataRM
+   384: 000025b0     0 FUNC    GLOBAL DEFAULT    8 _init
+
+Histogram for `.gnu.hash' bucket list length (total of 131 buckets):
+ Length  Number     % of total  Coverage
+      0  33         ( 25.2%)
+      1  46         ( 35.1%)     26.9%
+      2  36         ( 27.5%)     69.0%
+      3  12         (  9.2%)     90.1%
+      4  3          (  2.3%)     97.1%
+      5  1          (  0.8%)    100.0%
+
+Version symbols section '.gnu.version' contains 205 entries:
+ Addr: 0000000000001f34  Offset: 0x001f34  Link: 2 (.dynsym)
+  000:   0 (*local*)       2 (GLIBC_2.0)     0 (*local*)       0 (*local*)    
+  004:   0 (*local*)       2 (GLIBC_2.0)     2 (GLIBC_2.0)     2 (GLIBC_2.0)  
+  008:   2 (GLIBC_2.0)     2 (GLIBC_2.0)     0 (*local*)       2 (GLIBC_2.0)  
+  00c:   0 (*local*)       2 (GLIBC_2.0)     3 (GLIBC_2.1)     0 (*local*)    
+  010:   2 (GLIBC_2.0)     3 (GLIBC_2.1)     2 (GLIBC_2.0)     2 (GLIBC_2.0)  
+  014:   0 (*local*)       2 (GLIBC_2.0)     2 (GLIBC_2.0)     2 (GLIBC_2.0)  
+  018:   0 (*local*)       0 (*local*)       0 (*local*)       2 (GLIBC_2.0)  
+  01c:   0 (*local*)       2 (GLIBC_2.0)     2 (GLIBC_2.0)     2 (GLIBC_2.0)  
+  020:   0 (*local*)       4 (GLIBC_2.1.3)   1 (*global*)      1 (*global*)   
+  024:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  028:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  02c:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  030:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  034:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  038:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  03c:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  040:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  044:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  048:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  04c:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  050:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  054:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  058:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  05c:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  060:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  064:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  068:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  06c:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  070:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  074:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  078:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  07c:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  080:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  084:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  088:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  08c:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  090:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  094:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  098:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  09c:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  0a0:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  0a4:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  0a8:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  0ac:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  0b0:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  0b4:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  0b8:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  0bc:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  0c0:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  0c4:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  0c8:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  0cc:   1 (*global*)   
+
+Version needs section '.gnu.version_r' contains 1 entries:
+ Addr: 0x00000000000020d0  Offset: 0x0020d0  Link to section: 3 (.dynstr)
+  000000: Version: 1  File: libc.so.6  Cnt: 3
+  0x0010:   Name: GLIBC_2.1.3  Flags: none  Version: 4
+  0x0020:   Name: GLIBC_2.1  Flags: none  Version: 3
+  0x0030:   Name: GLIBC_2.0  Flags: none  Version: 2

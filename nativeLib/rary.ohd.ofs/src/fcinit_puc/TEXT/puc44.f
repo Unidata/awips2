@@ -1,0 +1,149 @@
+C MEMBER PUC44
+C  (from old member FCPUC44)
+C-----------------------------------------------------------------------
+C
+C                             LAST UPDATE: 05/08/95.11:00:05 BY $WC30RE
+C
+C @PROCESS LVL(77)
+C
+      SUBROUTINE PUC44 (P,C)
+
+C     THIS IS THE CARD PUNCH ROUTINE FOR SSARR ROUTING.
+
+C     THIS ROUTINE ORIGINALLY WRITTEN BY
+C        RAY FUKUNAGA - NWRFC   NOV 1994
+
+C     POSITION     CONTENTS OF P ARRAY
+C      1           VERSION NUMBER OF OPERATION
+C      2-19        GENERAL NAME OR TITLE
+
+C     USED TO CONSERVE INFLOW HYDROGRAPH VOLUME
+C     20-21        START INFLOW TIME SERIES IDENTIFIER
+C     22           START INFLOW DATA TYPE CODE 
+
+C     INFLOW HYDROGRAPH
+C     23-24        END INFLOW TIME SERIES IDENTIFIER
+C     25           END INFLOW DATA TYPE CODE 
+
+C     USED TO CONSERVE ROUTED HYDROGRAPH VOLUME
+C     26-27        START OUTFLOW TIME SERIES IDENTIFIER
+C     28           START OUTFLOW DATA TYPE CODE 
+
+C     ROUTED OUTFLOW HYDROGRAPH
+C     29-30        END OUTFLOW TIME SERIES IDENTIFIER
+C     31           END OUTFLOW DATA TYPE CODE 
+
+C     32           1 OR 2 INFLOW TIME SERIES SPECIFIED FLAG
+C                  = 1, ONLY THE END INFLOW TIME SERIES IS SPECIFIED
+C                  = 2, BOTH THE START AND END INFLOW TIME SERIES ARE
+C                       SPECIFIED
+C     33           1 OR 2 OUTFLOW TIME SERIES SPECIFIED FLAG
+C                  = 1, ONLY THE END OUTFLOW TIME SERIES IS SPECIFIED
+C                  = 2, BOTH THE START AND END OUTFLOW TIME SERIES ARE
+C                       SPECIFIED
+C     34           NUMBER OF ROUTING PHASES (MUST BE > 0)
+C     35           N VALUE OF KTS/Q**N COMPUTATION
+C                  IF N=0, THE TIME OF STORAGE IS EXTRACTED FROM THE
+C                           DISCHARGE-TIME OF STORAGE TABLE
+C     36           KTS VALUE IN HOURS IF N IS NONZERO
+C     37           THE NUMBER OF POINTS ON THE DISCHARGE-TIME OF
+C                  STORAGE TABLE IF N=0 (=0 IF N IS NONZERO)
+C     38           COMPUTATIONAL TIME INTERVAL (HOURS)
+C     39+          THE POINTS OF THE DISCHARGE-TIME OF STORAGE TABLE
+C
+C     THEREFORE THE NUMBER OF ELEMENTS REQUIRED IN THE P ARRAY IS
+C        38 +
+C         2 * NUMBER OF POINTS OF THE DISCHARGE-TIME OF STORAGE TABLE
+
+C     POSITION     CONTENTS OF C ARRAY
+C      1           INITIAL START INFLOW, IF ONLY END INFLOW TIME SERIES
+C                  IS SPECIFIED
+C      2+          PHASE FLOW VALUES FROM REACH
+
+
+      DIMENSION P(*),C(*)
+
+      INTEGER      PINT1,PINT2,PINT3
+      REAL         PREAL(19)
+      CHARACTER*4  PCHAR(19)
+      EQUIVALENCE (PREAL(1),PCHAR(1))
+
+C     COMMON BLOCKS
+
+      COMMON/FDBUG/IODBUG,ITRACE,IDBALL,NDEBUG,IDEBUG(20)
+      COMMON/IONUM/IN,IPR,IPU
+      COMMON/PUDFLT/IPDFLT
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_puc/RCS/puc44.f,v $
+     . $',                                                             '
+     .$Id: puc44.f,v 1.3 2003/10/21 10:53:23 lwu Exp $
+     . $' /
+C    ===================================================================
+C
+
+      DATA ZERO / 0./
+
+CLW   CALL FPRBUG ('PUC44   ',1,44,1)
+      CALL FPRBUG ('PUC44   ',1,44,0)
+
+C     CARD 1 USER SUPPLIED INFORMATION
+        DO 23 II=2,19
+   23   PREAL(II) = P(II)
+      WRITE(IPU,500) (PCHAR(II),II=2,19)
+ 500  FORMAT(18A4)
+
+C     CARD 2 TIME SERIES INFORMATION
+        II = 0
+        DO 24 JJ=20,31
+        II = II+1
+   24   PREAL(II) = P(JJ)
+      WRITE(IPU,501) (PCHAR(II),II=1,12)
+ 501  FORMAT(4(2A4,1X,A4,1X))
+
+C     CARD 3 CARRYOVER INPUT, ROUTING CHARS, ETC
+        PINT1 = P(34)
+        PREAL(1) = P(35)
+        PREAL(2) = P(36)
+        PINT2 = P(37)
+        PINT3 = P(38)
+      WRITE(IPU,502) PINT1,PREAL(1),PREAL(2),PINT2,PINT3
+ 502  FORMAT(I4,F10.1,1X,F10.1,1X,I4,1X,I4)
+
+C     CARD 4 IF N VALUE IS 0
+      IF (P(35) .EQ. 0.) THEN
+         DO 2000 I=1,NINT(P(37))
+ 2000    WRITE(IPU,507) P(I*2+37),P(I*2+38)
+ 507     FORMAT(F10.1,1X,F10.2)
+      ENDIF
+
+C     CARD 5 IF #TS=1
+      PINT1 = P(32)
+      IF (PINT1.EQ.1) THEN
+	 IF (IPDFLT.EQ.0) THEN
+	    WRITE(IPU,508) C(1)
+ 508        FORMAT(F10.2)
+         ELSE
+	    WRITE(IPU,508) ZERO
+         ENDIF
+      ENDIF
+
+C     CARD 6, PHASES
+      IF (IPDFLT.EQ.0) THEN
+         IF (PINT1.EQ.1) THEN
+            WRITE(IPU,509) (C(IC),IC=2,NINT(P(34))+1)
+ 509        FORMAT((F10.2))
+         ELSE
+            WRITE(IPU,509) (C(IC),IC=1,NINT(P(34)))
+         ENDIF
+      ELSE
+	 WRITE(IPU,509) (ZERO,IC=1,NINT(P(34)))
+      ENDIF
+
+      IF (ITRACE.GE.1) WRITE(IODBUG,90)
+ 90   FORMAT('PUC44:  EXITED:')
+
+      RETURN
+      END

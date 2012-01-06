@@ -1,0 +1,2 @@
+In this case, the method will be called with the "tree" and "node" arguments at run-time which allows us to create the Local Effect definition on-the-fly and perhaps base it on the current edit area or component.
+

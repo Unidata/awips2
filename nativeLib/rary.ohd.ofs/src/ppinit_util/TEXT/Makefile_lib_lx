@@ -1,0 +1,77 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-ppinit_util library file
+#
+#  cmt: File made on Wed Aug  6 12:52:08 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libppinit_util_t.a:  \
+     $(LIB)/libppinit_util_t.a(sucdeg.o)  \
+     $(LIB)/libppinit_util_t.a(sucmd2.o)  \
+     $(LIB)/libppinit_util_t.a(sucmds.o)  \
+     $(LIB)/libppinit_util_t.a(sudack.o)  \
+     $(LIB)/libppinit_util_t.a(sudcdu.o)  \
+     $(LIB)/libppinit_util_t.a(sudmdd.o)  \
+     $(LIB)/libppinit_util_t.a(sudrvr.o)  \
+     $(LIB)/libppinit_util_t.a(sufprt.o)  \
+     $(LIB)/libppinit_util_t.a(sugmdr.o)  \
+     $(LIB)/libppinit_util_t.a(sugtbx.o)  \
+     $(LIB)/libppinit_util_t.a(sugtds.o)  \
+     $(LIB)/libppinit_util_t.a(sugtfc.o)  \
+     $(LIB)/libppinit_util_t.a(sugtid.o)  \
+     $(LIB)/libppinit_util_t.a(sugtnf.o)  \
+     $(LIB)/libppinit_util_t.a(sugtor.o)  \
+     $(LIB)/libppinit_util_t.a(sugtrr.o)  \
+     $(LIB)/libppinit_util_t.a(sugtts.o)  \
+     $(LIB)/libppinit_util_t.a(sugtur.o)  \
+     $(LIB)/libppinit_util_t.a(sui2i4.o)  \
+     $(LIB)/libppinit_util_t.a(sui4i2.o)  \
+     $(LIB)/libppinit_util_t.a(suidf1.o)  \
+     $(LIB)/libppinit_util_t.a(suidf2.o)  \
+     $(LIB)/libppinit_util_t.a(suinit.o)  \
+     $(LIB)/libppinit_util_t.a(sunewp.o)  \
+     $(LIB)/libppinit_util_t.a(suntwk.o)  \
+     $(LIB)/libppinit_util_t.a(suoput.o)  \
+     $(LIB)/libppinit_util_t.a(supcds.o)  \
+     $(LIB)/libppinit_util_t.a(supfnd.o)  \
+     $(LIB)/libppinit_util_t.a(supppn.o)  \
+     $(LIB)/libppinit_util_t.a(suprdw.o)  \
+     $(LIB)/libppinit_util_t.a(surcds.o)  \
+     $(LIB)/libppinit_util_t.a(surcrd.o)  \
+     $(LIB)/libppinit_util_t.a(surgck.o)  \
+     $(LIB)/libppinit_util_t.a(surid2.o)  \
+     $(LIB)/libppinit_util_t.a(surids.o)  \
+     $(LIB)/libppinit_util_t.a(suseqn.o)  \
+     $(LIB)/libppinit_util_t.a(susor2.o)  \
+     $(LIB)/libppinit_util_t.a(suspck.o)  \
+     $(LIB)/libppinit_util_t.a(susrfl.o)  \
+     $(LIB)/libppinit_util_t.a(susrnm.o)  \
+     $(LIB)/libppinit_util_t.a(suwlog.o)  \
+     $(LIB)/libppinit_util_t.a(suwtor.o)
+

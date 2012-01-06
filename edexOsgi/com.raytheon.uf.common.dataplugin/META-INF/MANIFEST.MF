@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Dataplugin Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
+Import-Package: com.raytheon.uf.common.time,
+ com.raytheon.uf.common.time.util,
+ javax.measure.unit,
+ javax.persistence,
+ org.apache.commons.beanutils,
+ org.hibernate.annotations
+Export-Package: com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.dataplugin.annotations,
+ com.raytheon.uf.common.dataplugin.convert,
+ com.raytheon.uf.common.dataplugin.defaults,
+ com.raytheon.uf.common.dataplugin.persist,
+ com.raytheon.uf.common.dataplugin.request
+Require-Bundle: com.raytheon.uf.common.localization;bundle-version="1.12.1174",
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.serialization.comm

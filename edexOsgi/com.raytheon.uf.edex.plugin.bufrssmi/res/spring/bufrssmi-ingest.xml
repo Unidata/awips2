@@ -1,0 +1,65 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="bufrssmiDecoder" class="com.raytheon.uf.edex.plugin.bufrssmi.SSMIDecoder">
+        <constructor-arg ref="bufrssmiPluginName" />
+    </bean>
+
+   <!-- Filter out all southern hemisphere data -->
+   <bean id="ssmiSHFilter" class="com.raytheon.uf.edex.decodertools.core.filterimpl.PluginDataObjectFilter">
+        <constructor-arg type="java.lang.String" value="pointssmi_filters.xml" />
+        <constructor-arg type="java.lang.String" value="BASE" />
+   </bean>
+
+    <bean id="bufrssmiDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg ref="bufrssmiPluginName" />
+		<constructor-arg value="jms-dist:queue:Ingest.bufrssmi?destinationResolver=#qpidDurableResolver" />
+	</bean>
+
+	<bean id="bufrssmiCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="bufrssmi-camel"/>
+  	</bean> 
+
+    <camelContext id="bufrssmi-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler"
+        autoStartup="false">
+        <!--
+        <endpoint id="bufrssmiFileEndpoint" uri="file:${edex.home}/data/sbn/bufrssmi?noop=true&amp;idempotent=false" />
+
+        <route id="bufrssmiFileConsumerRoute">
+            <from ref="bufrssmiFileEndpoint" />
+            <bean ref="fileToString" />
+            <setHeader headerName="pluginName">
+                <constant>bufrssmi</constant>
+            </setHeader>
+            <to uri="jms-generic:queue:Ingest.bufrssmi" />
+        </route>
+        -->
+
+        <!-- Begin bufrssmi routes -->
+        <route id="bufrssmiIngestRoute">
+            <from uri="jms-generic:queue:Ingest.bufrssmi?destinationResolver=#qpidDurableResolver" />
+            <setHeader headerName="pluginName">
+                <constant>bufrssmi</constant>
+            </setHeader>
+            <doTry>
+                <pipeline>
+		            <bean ref="stringToFile" />
+                    <bean ref="bufrssmiDecoder" method="decode" />
+                    <bean ref="ssmiSHFilter" method="filter" />
+                    <to uri="directvm:persistIndexAlert" />
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:bufrssmi?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+</beans>

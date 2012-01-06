@@ -1,0 +1,94 @@
+." $Id: pqcreate.1,v 1.5.20.5.2.2 2009/06/18 16:15:20 steve Exp $
+.TH PQCREATE 1 "$Date: 2009/06/18 16:15:20 $"
+.SH NAME
+pqcreate - program to create a Unidata LDM product queue
+.SH SYNOPSIS
+.HP
+.ft B
+pqcreate
+.nh
+\%[-v]
+\%[-c]
+\%[-s\ \fIsize\fP]
+\%[-S\ \fInproducts\fP]
+\%[-q\ \fIpqfname\fP]
+.hy
+.ft
+.SH DESCRIPTION
+.LP
+This program creates a LDM product queue (see \fBpq\fP(3)).  A
+product queue is currently implemented as a memory-mapped file, and hence
+should be created on a disk local to the host on which programs sharing the
+product queue will be run.  The current release of the queue software
+does not allow the queue to grow, so this program must be used to create
+a (fixed size) queue of adequate size prior to running any of the LDM programs.
+.LP
+The current queue implementation file format has 3 parts, a fixed size
+header, a data section, and a control or index section. The size of the
+data section is specified by the \fB-s\fP option. The index section is
+parameterized by the number of product "slots" available. This is set by
+the \fB-S\fP option.
+.SH OPTIONS
+.TP
+.B -v
+Verbose output.  A line is output on queue creation that confirms the queue
+of the specified size was successfully created.  The default is not to
+output such a message.
+.TP
+.BI "-c "
+Used to clobber an existing product queue with the same pathname, if it
+already exists, before creating a new product queue.  If this option is not
+specified, the program will exit with an error message when requested to
+create a product queue that already exists.  If processes that insert data
+into a product queue are terminated ungracefully (for example as the result
+of a system crash), the leftover queue may be corrupt and hence should be
+clobbered when the LDM is restarted.
+.TP
+.BI \-s " size"
+Specifies the requested size, in bytes, of the data portion of the product 
+queue.
+This "option" is required.
+If the last character of \fIsize\fP is a (case insensitive) `K', `M', or G',
+then the preceeding numeric value specifies
+kilobytes, megabytes, or gigabytes, respectively.
+A larger product queue can hold more or
+larger data products and hence deal with longer network outages to
+downstream data sinks or with slow decoders.
+The actual size of the 
+data portion of the product queue might be slightly greater than the requested
+size for performance reasons.
+.TP
+.BI \-S " nproducts"
+This option specifies the number of product slots available in the index
+section of the queue file. If unspecified, it defaults to \fIsize\fP/4096,
+eg, one slot for each 4096 bytes of data.
+.TP
+.BI \-q " pqfname"
+The name of the product queue file.  The default is \fBdata/ldm.pq\fP
+relative to the installation point, which is typically \fB/usr/local/ldm\fP.
+This should specify a local file, not a remotely mounted file.
+.TP
+.BI "-f "
+Fast option, to create a product queue quickly without allocating all
+the disk blocks it requires.  This creates a sparse file with mostly
+zero blocks that occupy no space on disk until they are written.  This
+is not the default because it permits creating a product queue larger
+than the available disk space, or larger than the space that will be
+available at some later time.
+This option should only be used if you know there will be enough disk space
+for the product queue when it is full.
+
+.SH EXAMPLE
+
+The following invocation will create a product queue of 50 Mbytes in
+\fB/usr/local/ldm/data/ldm.pq\fP:
+
+.RS +4
+  pqcreate -s 50M -q /usr/local/ldm/data/ldm.pq
+.RE
+.SH "SEE ALSO"
+.LP
+.BR ldmd (1),
+.BR ldmadmin (1),
+.BR pq (3),
+WWW URL \fBhttp://www.unidata.ucar.edu/software/ldm/\fP.

@@ -1,0 +1,149 @@
+C MEMBER FCKTSX
+C  (from old member FCFCKTSX)
+C
+      SUBROUTINE FCKTSX(TS,MTS,NFOUND,MD,LD,IERR)
+C.......................................
+C     SCANS TS ARRAY TO MAKE SURE ALL NECESSARY TIME SERIES
+C        EXISTS ON THE APPROPRIATE EXTERNAL FILE.
+C.......................................
+C     WRITTEN BY ERIC ANDERSON - HRL  JUNE 1981
+C     UPDATED FOR STATUS OF 3 RETURNED FROM RPRDH BY
+C        GEORGE F SMITH - HRL MARCH 1986
+C.......................................
+      DIMENSION TS(MTS)
+      DIMENSION EXTLOC(16),SNAME(2),IHEAD(22),POPN(2),TSID(2)
+      DIMENSION XBUF(1),FTSID(2)
+C
+C     COMMON BLOCKS
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/where'
+      INCLUDE 'common/fprog'
+      INCLUDE 'prdcommon/pdatas'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_top/RCS/fcktsx.f,v $
+     . $',                                                             '
+     .$Id: fcktsx.f,v 1.1 1995/09/17 18:54:19 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C     DATA STATEMENTS.
+      DATA SNAME/4HFCKT,4HSX  /
+      DATA FPDB,IBUG/4HFPDB,4HFGDF/
+      DATA STS/2HTS/
+      DATA CALB/4HCALB/
+C.......................................
+C     TRACE LEVEL=1
+      IF(ITRACE.GE.1) WRITE(IODBUG,900)
+  900 FORMAT(1H0,17H** FCKTSX ENTERED)
+C.......................................
+C     CHECK FOR DEBUG OUTPUT
+      IF(IFBUG(IBUG).EQ.1) GO TO 90
+      GO TO 101
+   90 CALL FDMPA(STS,TS,MTS)
+C.......................................
+C     INITIAL VALUES
+  101 LTS=1
+      NFOUND=0
+      LWMAX=0
+      MAXX=1
+      LD=0
+      IERR=0
+      POPN(1)=OPNAME(1)
+      POPN(2)=OPNAME(2)
+      OPNAME(1)=SNAME(1)
+      OPNAME(2)=SNAME(2)
+      IOPNUM=0
+C.......................................
+C     BEGIN SCAN OF TS ARRAY.
+  100 NCTS=TS(LTS)
+      IF(NCTS.EQ.0) GO TO 195
+      IDT=TS(LTS+5)
+      NPDT=TS(LTS+6)
+      LD=LD+(24/IDT)*NPDT*NDD
+      IF(NCTS.EQ.4) GO TO 190
+      FILEID=TS(LTS+9)
+      IF(FILEID.NE.FPDB) GO TO 120
+C.......................................
+C     VERSION 5.0 PROCESSED DATA BASE
+      NUMEXT=TS(LTS+11)
+      DO 105 I=1,NUMEXT
+  105 EXTLOC(I)=TS(LTS+11+I)
+      CALL RPRDH(EXTLOC(1),EXTLOC(3),MAXX,IHEAD,NX,XBUF,FTSID,IER)
+      IF ((IER.EQ.0).OR.(IER.EQ.2)) GO TO 110
+      IF(IER.EQ.1)WRITE(IPR,901)(EXTLOC(I),I=1,3)
+  901 FORMAT(1H0,10X,22H**ERROR** TIME SERIES(,2A4,2H--,A4,
+     146H),  DOES NOT EXIST ON THE PROCESSED DATA BASE.)
+      IF(IER.EQ.3)WRITE(IPR,920)(EXTLOC(I),I=1,3)
+ 920  FORMAT(1H0,10X,'**ERROR** TIME SERIES(',2A4,'--',A4,
+     1 '),  DOES NOT MATCH THE ID AND TYPE FOUND IN THE ',
+     2 'PROCESSED DATA BASE.')
+      CALL ERROR
+      NFOUND=1
+      GO TO 190
+C
+C     EXISTS ON PDB-CHECK TIME INTERVAL AND COMPUTE WORK SPACE.
+  110 ITX=IHEAD(2)
+      MAXDAY=IPRDMD(EXTLOC(3))
+      LWORK=((((24/ITX)*NPDT *MAXDAY+22+NX-1)/LRECLT)+1)*LRECLT
+      IF (LWORK.GT.LWMAX) LWMAX=LWORK
+      IF(NCTS.GT.1) GO TO 115
+C
+C     INPUT TIME SERIES.
+      IF(MOD(IDT,ITX).EQ.0) GO TO 190
+      TSID(1)=TS(LTS+2)
+      TSID(2)=TS(LTS+3)
+      DTYPE=TS(LTS+4)
+      WRITE(IPR,902)TSID,DTYPE,IDT,ITX,(EXTLOC(I),I=1,3)
+  902 FORMAT(1H0,10X,44H**ERROR** THE TIME INTERVAL FOR TIME SERIES(,
+     12A4,2H--,A4,I3,1X,29HHRS) IS NOT A MULTIPLE OF THE,1X,
+     214HTIME INTERVAL(,I3,1X,4HHRS),/16X,23HOF THE PDB TIME SERIES(,
+     32A4,2H--,A4,40H).  IT MUST BE FOR AN INPUT TIME SERIES.)
+      CALL ERROR
+      NFOUND=1
+      GO TO 190
+C
+C     OUTPUT AND UPDATE TIME SERIES.
+  115 IF(IDT.EQ.ITX) GO TO 190
+      TSID(1)=TS(LTS+2)
+      TSID(2)=TS(LTS+3)
+      DTYPE=TS(LTS+4)
+      WRITE(IPR,903) TSID,DTYPE,IDT,ITX,(EXTLOC(I),I=1,3)
+  903 FORMAT(1H0,10X,44H**ERROR** THE TIME INTERVAL FOR TIME SERIES(,
+     12A4,2H--,A4,I3,1X,39HHRS) IS NOT EQUAL TO THE TIME INTERVAL(,
+     2I3,1X,4HHRS),/16X,23HOF THE PDB TIME SERIES(,2A4,2H--,A4,
+     351H).  IT MUST BE FOR AN OUTPUT OR UPDATE TIME SERIES.)
+      CALL ERROR
+      NFOUND=1
+      GO TO 190
+C.......................................
+C     OTHER DATA BASES
+  120 IF(FILEID.EQ.CALB) GO TO 190
+      WRITE(IPR,904)FILEID
+  904 FORMAT(1H0,10X,20H**ERROR** FILE TYPE=,2A4,1X,
+     123HNOT INCLUDED IN FCKTSX.)
+      CALL ERROR
+      NFOUND=1
+C.......................................
+C     INCREMENT TO THE NEXT TIME SERIES.
+  190 LTS=TS(LTS+1)
+      IF(LTS.LE.MTS) GO TO 100
+C     CHECK SIZE OF D ARRAY.
+  195 LD=LD+LWMAX
+      IF (LD.LE.MD) GO TO 196
+      WRITE(IPR,905) LWMAX,LD,MD
+  905 FORMAT (1H0,10X,39H**ERROR** PDB R/W WORK BUFFER NOW NEEDS,I5,
+     11X,72HSPACES DUE TO TIME SERIES THAT WERE DEFINED AFTER THE SEGMEN
+     2T DEFINITION,/16X,I5,1X,45HSPACES ARE NOW ALLOCATED TO THE D ARRAY
+     3, ONLY,I5,1X,14HARE AVAILABLE.)
+      CALL ERROR
+      IERR=1
+  196 OPNAME(1)=POPN(1)
+      OPNAME(2)=POPN(2)
+C.......................................
+      RETURN
+      END

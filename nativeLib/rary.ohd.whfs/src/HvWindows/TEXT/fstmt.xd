@@ -1,0 +1,731 @@
+module '*Hb'
+version = 48;
+xdesigned = 1;
+applicationName = '*Hb';
+generateNameC = * './fstmt.c';
+generateNameExterns = * './fstmt.h';
+generateNameResDB = * './fstmt.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+motifFlavour = 2;
+generateMask = 39256301;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+javaVersion = 2;
+/* group data */
+groupIndex 1;
+groups {
+	group0(0) {
+		public fstmtFM;
+	};
+};
+/* end group data */
+object '3' : XmDialogShell {
+	arguments {
+	lastGenName = 'shell3';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_shell3 (Widget parent)
+';
+	XmNallowShellResize = true;
+	};
+};
+object '2' : XmDialogShell {
+	arguments {
+	lastGenName = 'shell2';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_shell2 (Widget parent)
+';
+	XmNallowShellResize = true;
+	};
+};
+object 'fstmtDS' : XmDialogShell {
+	arguments {
+	name = 'fstmtDS';
+	lastGenName = 'fstmtDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_fstmtDS (Widget parent)
+';
+	XmNwidth = 805;
+	XmNheight = 650;
+	XmNallowShellResize = true;
+	XmNtitle = 'Impact Statement';
+	XmNminWidth = 805;
+	XmNminHeight = 650;
+	XmNmaxWidth = 805;
+	XmNmaxHeight = 650;
+	XmNbaseWidth = 805;
+	XmNbaseHeight = 650;
+	};
+object 'fstmtFM' : XmForm {
+	arguments {
+	name = 'fstmtFM';
+	lastGenName = 'fstmtFM';
+	XmNwidth = 805;
+	XmNheight = 650;
+	XmNautoUnmanage = false;
+	};
+object 'fdstmtFrm' : XmFrame {
+	arguments {
+	name = 'fdstmtFrm';
+	lastGenName = 'fdstmtFrm';
+	};
+object 'fdstmtFM' : XmForm {
+	arguments {
+	name = 'fdstmtFM';
+	lastGenName = 'fdstmtFM';
+	XmNwidth = 781;
+	XmNheight = 133;
+	};
+object 'fdstmtRB' : XmRadioBox {
+	arguments {
+	name = 'fdstmtRB';
+	lastGenName = 'fdstmtRB';
+	XmNorientation = XmVERTICAL;
+	XmNpacking = XmPACK_COLUMN;
+	};
+object 'fdriseTB' : XmToggleButton GADGET {
+	arguments {
+	name = 'fdriseTB';
+	lastGenName = 'fdriseTB';
+	XmNlabelString = 'Rising';
+	XmNset = XmSET;
+	};
+};
+object 'fdfallTB' : XmToggleButton GADGET {
+	arguments {
+	name = 'fdfallTB';
+	lastGenName = 'fdfallTB';
+	XmNlabelString = 'Falling';
+	};
+};
+};
+object 'fdbeginTxt' : XmText {
+	arguments {
+	name = 'fdbeginTxt';
+	lastGenName = 'fdbeginTxt';
+	XmNmaxLength = 2;
+	XmNcolumns = 4;
+	};
+};
+object 'fdendTxt' : XmText {
+	arguments {
+	name = 'fdendTxt';
+	lastGenName = 'fdendTxt';
+	XmNmaxLength = 2;
+	XmNcolumns = 4;
+	};
+};
+object 'fsstageLbl' : XmLabel {
+	arguments {
+	name = 'fsstageLbl';
+	lastGenName = 'fsstageLbl';
+	XmNlabelString = 'Impact Value:';
+	};
+};
+object 'fsstageTxt' : XmText {
+	arguments {
+	name = 'fsstageTxt';
+	lastGenName = 'fsstageTxt';
+	XmNmaxLength = 8;
+	XmNcolumns = 10;
+	XmNwordWrap = false;
+	};
+};
+object 'imppeLbl' : XmLabel {
+	arguments {
+	name = 'imppeLbl';
+	lastGenName = 'imppeLbl';
+	XmNlabelString = 'Impact PE:';
+	};
+};
+object 'imppeTxt' : XmText {
+	arguments {
+	name = 'imppeTxt';
+	was_selected = true;
+	lastGenName = 'imppeTxt';
+	XmNmaxLength = 2;
+	};
+};
+object 'fsbegOM' : XmOptionMenu {
+	arguments {
+	name = 'fsbegOM';
+	lastGenName = 'fsbegOM';
+	};
+abstract object 'fsbegOMLbl' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'fsbegOMLbl';
+	XmNlabelString = 'Begin (Seasonal): ';
+	};
+};
+abstract object 'fsbegCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'fsbegCB';
+	};
+object 'fsbegPDM' : XmPulldownMenu {
+	arguments {
+	name = 'fsbegPDM';
+	lastGenName = 'fsbegPDM';
+	};
+object 'fsbjanPB' : XmPushButton {
+	arguments {
+	name = 'fsbjanPB';
+	lastGenName = 'fsbjanPB';
+	XmNlabelString = 'January';
+	};
+};
+object 'fsbfebPB' : XmPushButton {
+	arguments {
+	name = 'fsbfebPB';
+	lastGenName = 'fsbfebPB';
+	XmNlabelString = 'February';
+	};
+};
+object 'fsbmarPB' : XmPushButton {
+	arguments {
+	name = 'fsbmarPB';
+	lastGenName = 'fsbmarPB';
+	XmNlabelString = 'March';
+	};
+};
+object 'fsbaprPB' : XmPushButton {
+	arguments {
+	name = 'fsbaprPB';
+	lastGenName = 'fsbaprPB';
+	XmNlabelString = 'April';
+	};
+};
+object 'fsbmayPB' : XmPushButton {
+	arguments {
+	name = 'fsbmayPB';
+	lastGenName = 'fsbmayPB';
+	XmNlabelString = 'May';
+	};
+};
+object 'fsbjunPB' : XmPushButton {
+	arguments {
+	name = 'fsbjunPB';
+	lastGenName = 'fsbjunPB';
+	XmNlabelString = 'June';
+	};
+};
+object 'fsbjulPB' : XmPushButton {
+	arguments {
+	name = 'fsbjulPB';
+	lastGenName = 'fsbjulPB';
+	XmNlabelString = 'July';
+	};
+};
+object 'fsbaugPB' : XmPushButton {
+	arguments {
+	name = 'fsbaugPB';
+	lastGenName = 'fsbaugPB';
+	XmNlabelString = 'August';
+	};
+};
+object 'fsbsepPB' : XmPushButton {
+	arguments {
+	name = 'fsbsepPB';
+	lastGenName = 'fsbsepPB';
+	XmNlabelString = 'September';
+	};
+};
+object 'fsboctPB' : XmPushButton {
+	arguments {
+	name = 'fsboctPB';
+	lastGenName = 'fsboctPB';
+	XmNlabelString = 'October';
+	};
+};
+object 'fsbnovPB' : XmPushButton {
+	arguments {
+	name = 'fsbnovPB';
+	lastGenName = 'fsbnovPB';
+	XmNlabelString = 'November';
+	};
+};
+object 'fsbdecPB' : XmPushButton {
+	arguments {
+	name = 'fsbdecPB';
+	lastGenName = 'fsbdecPB';
+	XmNlabelString = 'December';
+	};
+};
+};
+};
+};
+object 'fsendOM' : XmOptionMenu {
+	arguments {
+	name = 'fsendOM';
+	lastGenName = 'fsendOM';
+	};
+abstract object 'fsendOMLbl' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'fsendOMLbl';
+	XmNlabelString = 'End (Seasonal): ';
+	};
+};
+abstract object 'fsendCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'fsendCB';
+	};
+object 'fsendPDM' : XmPulldownMenu {
+	arguments {
+	name = 'fsendPDM';
+	lastGenName = 'fsendPDM';
+	};
+object 'fsejanPB' : XmPushButton {
+	arguments {
+	name = 'fsejanPB';
+	lastGenName = 'fsejanPB';
+	XmNlabelString = 'January';
+	};
+};
+object 'fsefebPB' : XmPushButton {
+	arguments {
+	name = 'fsefebPB';
+	lastGenName = 'fsefebPB';
+	XmNlabelString = 'February';
+	};
+};
+object 'fsemarPB' : XmPushButton {
+	arguments {
+	name = 'fsemarPB';
+	lastGenName = 'fsemarPB';
+	XmNlabelString = 'March';
+	};
+};
+object 'fseaprPB' : XmPushButton {
+	arguments {
+	name = 'fseaprPB';
+	lastGenName = 'fseaprPB';
+	XmNlabelString = 'April';
+	};
+};
+object 'fsemayPB' : XmPushButton {
+	arguments {
+	name = 'fsemayPB';
+	lastGenName = 'fsemayPB';
+	XmNlabelString = 'May';
+	};
+};
+object 'fsejunPB' : XmPushButton {
+	arguments {
+	name = 'fsejunPB';
+	lastGenName = 'fsejunPB';
+	XmNlabelString = 'June';
+	};
+};
+object 'fsejulPB' : XmPushButton {
+	arguments {
+	name = 'fsejulPB';
+	lastGenName = 'fsejulPB';
+	XmNlabelString = 'July';
+	};
+};
+object 'fseaugPB' : XmPushButton {
+	arguments {
+	name = 'fseaugPB';
+	lastGenName = 'fseaugPB';
+	XmNlabelString = 'August';
+	};
+};
+object 'fsesepPB' : XmPushButton {
+	arguments {
+	name = 'fsesepPB';
+	lastGenName = 'fsesepPB';
+	XmNlabelString = 'September';
+	};
+};
+object 'fseoctPB' : XmPushButton {
+	arguments {
+	name = 'fseoctPB';
+	lastGenName = 'fseoctPB';
+	XmNlabelString = 'October';
+	};
+};
+object 'fsenovPB' : XmPushButton {
+	arguments {
+	name = 'fsenovPB';
+	lastGenName = 'fsenovPB';
+	XmNlabelString = 'November';
+	};
+};
+object 'fsedecPB' : XmPushButton {
+	arguments {
+	name = 'fsedecPB';
+	lastGenName = 'fsedecPB';
+	XmNlabelString = 'December';
+	};
+};
+};
+};
+};
+object 'fstendcyLbl' : XmLabel {
+	arguments {
+	name = 'fstendcyLbl';
+	lastGenName = 'fstendcyLbl';
+	XmNlabelString = 'Tendency:';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 128;
+	XmNbottomAttachment = 1 0 10;
+	XmNtopAttachment = 3 5 5;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 15;
+	XmNleftAttachment = 1 0 724;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 15;
+	XmNleftAttachment = 1 0 724;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 52;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -132;
+	XmNleftAttachment = 1 0 32;
+	XmNbottomAttachment = 2 0 -40;
+	XmNtopAttachment = 1 0 12;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -221;
+	XmNleftAttachment = 1 0 135;
+	XmNbottomAttachment = 2 0 -42;
+	XmNtopAttachment = 1 0 12;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -312;
+	XmNleftAttachment = 1 0 236;
+	XmNbottomAttachment = 2 0 -40;
+	XmNtopAttachment = 1 0 12;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -396;
+	XmNleftAttachment = 1 0 318;
+	XmNbottomAttachment = 2 0 -45;
+	XmNtopAttachment = 1 0 6;
+    };
+    attachment {
+	XmNrightAttachment = 3 2 15;
+	XmNleftAttachment = 1 0 425;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 440;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 52;
+    };
+    attachment {
+	XmNrightAttachment = 3 1 10;
+	XmNleftAttachment = 1 0 30;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 58;
+    };
+    };
+};
+object 'fsstmtLbl' : XmLabel {
+	arguments {
+	name = 'fsstmtLbl';
+	lastGenName = 'fsstmtLbl';
+	XmNframeChildType = XmFRAME_TITLE_CHILD;
+	XmNlabelString = 'Characteristics';
+	};
+};
+};
+object 'fsokPB' : XmPushButton {
+	arguments {
+	name = 'fsokPB';
+	lastGenName = 'fsokPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Ok';
+	};
+};
+object 'fsapplyPB' : XmPushButton {
+	arguments {
+	name = 'fsapplyPB';
+	lastGenName = 'fsapplyPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Apply';
+	};
+};
+object 'fsclsPB' : XmPushButton {
+	arguments {
+	name = 'fsclsPB';
+	lastGenName = 'fsclsPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Cancel';
+	};
+};
+object 'fsnewPB' : XmPushButton {
+	arguments {
+	name = 'fsnewPB';
+	lastGenName = 'fsnewPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'New';
+	};
+};
+object 'fsdeletePB' : XmPushButton {
+	arguments {
+	name = 'fsdeletePB';
+	lastGenName = 'fsdeletePB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Delete';
+	};
+};
+object 'fsprintPB' : XmPushButton {
+	arguments {
+	lastGenName = 'fsprintPB';
+	generateResName = true;
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Print All';
+	};
+};
+object 'fssavePB' : XmPushButton {
+	arguments {
+	name = 'fssavePB';
+	lastGenName = 'fssavePB';
+	generateResName = true;
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Save to File';
+	};
+};
+object 'fsinfoLbl' : XmLabel {
+	arguments {
+	name = 'fsinfoLbl';
+	lastGenName = 'fsinfoLbl';
+	XmNlabelString = 'Impact Value';
+	};
+};
+object 'fspeLbl' : XmLabel {
+	arguments {
+	name = 'fspeLbl';
+	lastGenName = 'fspeLbl';
+	XmNlabelString = 'Impact PE';
+	};
+};
+object 'fdstgSLB' : XmScrolledList {
+	arguments {
+	name = 'fdstgSLB';
+	lastGenName = 'fdstgSLB';
+	XmNwidth = 785;
+	};
+abstract object 'fstmt_horizSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'fstmt_horizSB';
+	XmNmappedWhenManaged = false;
+	};
+};
+abstract object 'fstmt_vertSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'fstmt_vertSB';
+	};
+};
+abstract object 'stgLB' : XmList {
+	arguments {
+	name = 'stgLB';
+	lastGenName = 'stgLB';
+	XmNwidth = 785;
+	XmNheight = 139;
+	XmNvisibleItemCount = 7;
+	XmNlistSizePolicy = XmCONSTANT;
+	XmNscrollBarDisplayPolicy = XmAS_NEEDED;
+	};
+};
+};
+object 'fsbeginLb1' : XmLabel {
+	arguments {
+	name = 'fsbeginLb1';
+	lastGenName = 'fsbeginLb1';
+	XmNlabelString = 'Begin:';
+	};
+};
+object 'fsendtopLbl' : XmLabel {
+	arguments {
+	name = 'fsendtopLbl';
+	lastGenName = 'fsendtopLbl';
+	XmNlabelString = 'End:';
+	};
+};
+object 'fstendLbl' : XmLabel {
+	arguments {
+	name = 'fstendLbl';
+	lastGenName = 'fstendLbl';
+	XmNlabelString = 'Tendency:';
+	};
+};
+object 'fsimpactFrm' : XmFrame {
+	arguments {
+	name = 'fsimpactFrm';
+	lastGenName = 'fsimpactFrm';
+	};
+object 'fsimpactFM' : XmForm {
+	arguments {
+	name = 'fsimpactFM';
+	lastGenName = 'fsimpactFM';
+	};
+object 'fdstmtTxt' : XmText {
+	arguments {
+	name = 'fdstmtTxt';
+	lastGenName = 'fdstmtTxt';
+	XmNmaxLength = 510;
+	XmNcolumns = 106;
+	XmNwordWrap = true;
+	XmNeditMode = XmMULTI_LINE_EDIT;
+	XmNrows = 9;
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 1 0 10;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 1 0 10;
+	XmNtopAttachment = 1 0;
+    };
+    };
+};
+object 'fsimpactLbl' : XmLabel {
+	arguments {
+	name = 'fsimpactLbl';
+	lastGenName = 'fsimpactLbl';
+	XmNframeChildType = XmFRAME_TITLE_CHILD;
+	XmNlabelString = 'Impact';
+	};
+};
+};
+object 'fstmtSP' : XmSeparator {
+	arguments {
+	name = 'fstmtSP';
+	lastGenName = 'fstmtSP';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 1 0 10;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 11 20;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 20;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 605;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 120;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 605;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -305;
+	XmNleftAttachment = 1 0 220;
+	XmNbottomAttachment = 2 0 -640;
+	XmNtopAttachment = 1 0 605;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 320;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 605;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 420;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 605;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 565;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 605;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -785;
+	XmNleftAttachment = 1 0 670;
+	XmNbottomAttachment = 2 0 -640;
+	XmNtopAttachment = 1 0 605;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -116;
+	XmNleftAttachment = 1 0 16;
+	XmNbottomAttachment = 2 0 -40;
+	XmNtopAttachment = 1 0 12;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -234;
+	XmNleftAttachment = 1 0 150;
+	XmNbottomAttachment = 2 0 -39;
+	XmNtopAttachment = 1 0 15;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 10;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 42;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 340;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 20;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 436;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 20;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 631;
+	XmNbottomAttachment = 4 13 0;
+	XmNtopAttachment = 1 0 13;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 10;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 3 1 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -797;
+	XmNleftAttachment = 1 0 4;
+	XmNbottomAttachment = 2 0 -589;
+	XmNtopAttachment = 3 15 10;
+    };
+    };
+};
+};
+end module;

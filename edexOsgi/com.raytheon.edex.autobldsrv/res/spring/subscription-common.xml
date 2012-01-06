@@ -1,0 +1,53 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="subscriptionDao" class="com.raytheon.edex.subscription.dao.SubscriptionDAO">
+       <property name="subscriptionNotifyURI" value="jms-generic:topic:subscription.notify"/>
+    </bean>
+
+	<!-- define the bean that handles ldad watch/warn script handling -->
+	<bean id="ldadScriptRunner" class="com.raytheon.edex.services.ScriptRunner">
+		<property name="type" value="ldad" />
+	</bean>
+    <bean id="subscriptionDbPluginProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
+		<property name="pluginFQN" value="com.raytheon.edex.autobldsrv" />
+		<property name="database" value="metadata" />
+	</bean>
+	<bean id="subscriptionDbRegistered" factory-bean="dbPluginRegistry" factory-method="register"
+				depends-on="metadataTxManager">
+		<constructor-arg value="com.raytheon.edex.autobldsrv"/>
+		<constructor-arg ref="subscriptionDbPluginProperties"/>
+	</bean>	
+	<camelContext id="subscription-common-camel" 
+	              xmlns="http://camel.apache.org/schema/spring"
+                  errorHandlerRef="errorHandler">
+		<route id="subscriptionNotify">
+           <from uri="jms-generic:topic:subscription.notify"/>
+		   <doTry>
+		   	   <bean ref="subscriptionDao" method="updateCache" />
+		   	   <doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:subscription?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+		   	   </doCatch>
+		   </doTry>
+		</route>
+                  
+		<!-- LDAD (watch/warn) triggered script runner, internal use only -->
+		<route id="ldadWatchWarnDirect">
+			<from uri="directvm:ldadWatchWarnDirect"/>
+		   <doTry>
+		   	   <bean ref="ldadScriptRunner" method="runScripts" />
+		   	   <doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:subscription?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+		   	   </doCatch>
+		   </doTry>
+		</route>
+
+	</camelContext>
+</beans>

@@ -1,0 +1,86 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="gfeProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+		<property name="pluginName" value="gfe" />
+		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.gfe" />
+		<property name="dao" value="com.raytheon.edex.plugin.gfe.db.dao.GFEDao" />
+		<property name="record"
+			value="com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord" />
+		<property name="initializer"
+			value="com.raytheon.edex.plugin.gfe.GfePluginInitializer" />
+	</bean>
+	
+	<bean id="gfeDbPluginProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
+		<property name="pluginFQN" value="com.raytheon.edex.plugin.gfe" />
+		<property name="database" value="metadata" />
+	</bean>
+
+	<bean id="gfeRegistered" factory-bean="pluginRegistry" factory-method="register"
+		depends-on="gribRegistered, textRegistered">
+		<constructor-arg value="gfe" />
+		<constructor-arg ref="gfeProperties" />
+	</bean>
+	
+	<bean id="gfeDbRegistered" factory-bean="dbPluginRegistry" factory-method="register"
+				depends-on="gfeRegistered">
+		<constructor-arg value="com.raytheon.edex.plugin.gfe"/>
+		<constructor-arg ref="gfeDbPluginProperties"/>
+	</bean>
+
+	<bean id="gfeSiteActivation" class="com.raytheon.edex.plugin.gfe.config.GFESiteActivation"
+		factory-method="getInstance">
+	</bean>
+
+	<bean factory-bean="siteAwareRegistry" factory-method="register">
+		<constructor-arg ref="gfeSiteActivation" />
+	</bean>
+
+	<bean id="parmIdFilter"
+		class="com.raytheon.edex.plugin.gfe.cache.d2dparms.D2DParmIdFilter" />
+	<bean id="gfeNotifyFilter"
+		class="com.raytheon.edex.plugin.gfe.server.notify.GfeNotificationFilter" />
+
+	<bean id="d2dParmIdCache"
+		class="com.raytheon.edex.plugin.gfe.cache.d2dparms.D2DParmIdCache"
+		factory-method="getInstance" />
+
+	<camelContext id="gfe-common-camel" xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+
+		<route id="gfeParmIdCacheListenerEndpoint">
+			<from uri="jms-generic:topic:gfeGribNotification?concurrentConsumers=1" />
+			<doTry>
+				<bean ref="serializationUtil" method="transformFromThrift" />
+				<bean ref="parmIdFilter" method="updateParmIdCache" />
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:paramIdCache?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
+		</route>
+
+		<route id="gfeNotify">
+			<from uri="vm:edex.gfeNotification?size=5000" />
+            <doTry>
+			    <filter>
+				    <method bean="gfeNotifyFilter" method="isGfeNotification" />
+				    <bean ref="serializationUtil" method="transformToThrift" />
+				    <to uri="jms-generic:topic:edex.alerts.gfe" />
+			    </filter>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:gfeNotify?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                </doCatch>
+            </doTry>
+		</route>
+
+		<route id="rebuildD2DCache">
+			<from uri="jms-generic:topic:rebuildD2DCache" />
+			<bean ref="d2dParmIdCache" method="buildCache" />
+		</route>
+	</camelContext>
+</beans>

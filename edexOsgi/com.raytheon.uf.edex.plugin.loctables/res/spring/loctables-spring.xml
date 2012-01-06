@@ -1,0 +1,51 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="loctablesPluginName" class="java.lang.String" depends-on="ndmProc">
+        <constructor-arg type="java.lang.String" value="loctables" />
+    </bean>
+
+    <bean id="loctablesProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+        <property name="pluginName" ref="loctablesPluginName" />
+    </bean>
+    
+    <bean factory-bean="pluginRegistry" factory-method="register">
+        <constructor-arg value="loctables"/>
+        <constructor-arg ref="loctablesProperties"/>
+    </bean>
+
+    <bean id="loctablesIngest" class="com.raytheon.uf.edex.plugin.loctables.ingest.LocationTablesIngest">
+        <constructor-arg ref="loctablesPluginName" />
+        <constructor-arg ref="ndmProc" />
+    </bean>
+
+    <bean id="loctablesDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg ref="loctablesPluginName" />
+        <constructor-arg value="jms-dist:queue:Ingest.loctables" />
+    </bean>
+
+    <camelContext id="loctables-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
+
+        <!-- Begin loctables routes -->
+        <route id="loctablesIngestRoute">
+            <from uri="jms-generic:queue:Ingest.loctables?destinationResolver=#qpidDurableResolver" />
+            <setHeader headerName="pluginName">
+                <constant>loctables</constant>
+            </setHeader>
+            <doTry>
+                <bean ref="loctablesIngest" method="processFile" />
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:loctables?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+    </camelContext>
+</beans>

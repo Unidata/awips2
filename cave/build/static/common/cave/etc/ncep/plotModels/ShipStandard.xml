@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<PlotModel svgTemplate="standardPlotModel_shipStandard.svg" category="SHIP" name="standard">
+    <PlotModelElement textStyle="Normal" textFont="Helvetica" textSize="12" paramName="TMPF">
+        <Position>UL</Position>
+        <Color red="255" green="0" blue="0"/>
+    </PlotModelElement>
+    <PlotModelElement symbolSize="1" paramName="WSYM">
+        <Position>ML</Position>
+        <Color red="255" green="0" blue="255"/>
+    </PlotModelElement>
+    <PlotModelElement textStyle="Normal" textFont="Helvetica" textSize="12" paramName="DWPF">
+        <Position>LL</Position>
+        <Color red="0" green="255" blue="0"/>
+    </PlotModelElement>
+    <PlotModelElement symbolSize="1" paramName="SKYC">
+        <Position>MC</Position>
+        <Color red="135" green="206" blue="255"/>
+    </PlotModelElement>
+    <PlotModelElement symbolSize="1" paramName="BRBK">
+        <Position>WD</Position>
+        <Color red="135" green="206" blue="255"/>
+    </PlotModelElement>
+    <PlotModelElement textStyle="Normal" textFont="Helvetica" textSize="12" paramName="DWPC">
+        <Position>UR</Position>
+        <Color red="65" green="105" blue="225"/>
+    </PlotModelElement>
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="12" paramName="TMPC">
+        <Position>MR</Position>
+        <Color red="238" green="238" blue="0"/>
+    </PlotModelElement>
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="12" paramName="WSYM">
+        <Position>LR</Position>
+        <Color red="205" green="133" blue="0"/>
+    </PlotModelElement>    
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="12" paramName="STID">
+        <Position>TC</Position>
+        <Color red="205" green="133" blue="0"/>
+    </PlotModelElement>
+    <PlotModelElement symbolSize="1" textStyle="Normal" textFont="Helvetica" textSize="12" paramName="GUST">
+        <Position>BC</Position>
+        <Color red="0" green="238" blue="238"/>
+    </PlotModelElement>
+</PlotModel>

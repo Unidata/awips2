@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Scd Plug-in
+Bundle-SymbolicName: gov.noaa.nws.ncep.common.dataplugin.scd
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ com.raytheon.uf.common.datastorage;bundle-version="1.11.31",
+ org.springframework;bundle-version="2.5.6",
+ gov.noaa.nws.ncep.edex.common;bundle-version="1.0.0",
+ com.raytheon.uf.edex.database;bundle-version="1.0.0",
+ com.raytheon.edex.common;bundle-version="1.12.1174"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: com.raytheon.edex.exception,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.dataplugin.annotations,
+ com.raytheon.uf.common.serialization.annotations,
+ gov.noaa.nws.ncep.common.tools,
+ javax.persistence
+Export-Package: gov.noaa.nws.ncep.common.dataplugin.scd,
+ gov.noaa.nws.ncep.common.dataplugin.scd.dao

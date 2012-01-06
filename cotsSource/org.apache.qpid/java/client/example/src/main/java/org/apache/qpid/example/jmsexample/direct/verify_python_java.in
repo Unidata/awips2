@@ -1,0 +1,20 @@
+==== declare_queues.py.out
+==== direct_producer.py.out
+==== direct_consumer_java.out
+Consumer: Setting an ExceptionListener on the connection as sample uses a MessageConsumer
+Consumer: Creating a non-transacted, auto-acknowledged session
+Consumer: Creating a MessageConsumer
+Consumer: Starting connection so MessageConsumer can receive messages
+Consumer: Received  message:  message 0
+Consumer: Received  message:  message 1
+Consumer: Received  message:  message 2
+Consumer: Received  message:  message 3
+Consumer: Received  message:  message 4
+Consumer: Received  message:  message 5
+Consumer: Received  message:  message 6
+Consumer: Received  message:  message 7
+Consumer: Received  message:  message 8
+Consumer: Received  message:  message 9
+Consumer: Received final message That's all, folks!
+Consumer: Closing connection
+Consumer: Closing JNDI context

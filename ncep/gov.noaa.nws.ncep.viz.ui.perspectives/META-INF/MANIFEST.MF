@@ -1,0 +1,28 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Perspectives Plug-in
+Bundle-SymbolicName: gov.noaa.nws.ncep.viz.ui.perspectives;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: gov.noaa.nws.ncep.viz.ui.perspectives.Activator
+Eclipse-RegisterBuddy: com.raytheon.uf.viz.core, com.raytheon.viz.core, com.raytheon.viz.ui
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.geotools,
+ com.raytheon.viz.core;bundle-version="1.11.7",
+ com.raytheon.viz.ui;bundle-version="1.11.7",
+ gov.noaa.nws.ncep.viz.ui.display;bundle-version="1.0.0",
+ gov.noaa.nws.ncep.viz.localization;bundle-version="1.0.0",
+ gov.noaa.nws.ncep.viz.resources,
+ gov.noaa.nws.ncep.viz.common;bundle-version="1.0.0",
+ gov.noaa.nws.ncep.ui.pgen;bundle-version="1.0.0",
+ gov.noaa.nws.ncep.viz.tools;bundle-version="1.0.0",
+ gov.noaa.nws.ncep.viz.overlays;bundle-version="1.0.0",
+ com.raytheon.viz.alerts,
+ com.raytheon.uf.common.dataplugin.satellite;bundle-version="1.0.0",
+ com.raytheon.uf.viz.application;bundle-version="1.0.0"
+Eclipse-LazyStart: true
+Export-Package: gov.noaa.nws.ncep.viz.ui.perspectives;uses:="org.eclipse.ui,org.eclipse.ui.plugin,org.osgi.framework"
+Import-Package: com.raytheon.viz.alerts.observers,
+ gov.noaa.nws.ncep.viz.resourceManager,
+ gov.noaa.nws.ncep.viz.resources,
+ gov.noaa.nws.ncep.viz.rsc.satellite.units

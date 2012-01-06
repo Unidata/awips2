@@ -1,0 +1,25 @@
+#!/bin/bash
+if [ ${#AWIPS_HOME} = 0 ]
+then
+        path_to_script=`readlink -f $0`
+		export AWIPS_HOME=$(dirname $(dirname $(dirname $(dirname  $path_to_script))))
+fi
+
+# $1=failed site
+SITE_CAPS=`echo ${1}|tr [a-z] [A-Z]`
+
+. ${AWIPS_HOME}/GFESuite/ServiceBackup/configuration/svcbu.env
+
+LAUNCH_SCRIPT=${AWIPS_HOME}/GFESuite/ServiceBackup/.launch_cave.sh
+
+log_msg "Creating GFE launch script for ${SITE_CAPS} at ${LAUNCH_SCRIPT}"
+log_msg "CAVE location: ${CAVE_LAUNCH_SCRIPT}"
+
+echo "#!/bin/bash">${LAUNCH_SCRIPT}
+echo "${CAVE_LAUNCH_SCRIPT} -site ${SITE_CAPS} -perspective GFE -server ec:9581/services" >> ${LAUNCH_SCRIPT}
+chmod +x ${LAUNCH_SCRIPT}
+
+SITE_LOWER=`echo ${AW_SITE_IDENTIFIER}|tr [a-z] [A-Z]`
+echo  $SITE_LOWER > $SCRIPTS_DIR/siteID.txt
+
+log_msg "GFE launch script created for ${SITE_CAPS}"

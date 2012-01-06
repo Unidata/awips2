@@ -1,0 +1,206 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-34smp i686) [Netscape]">
+  <title>gfeConfig - Discrete Color Algorithm Configuration</title>
+</head>
+<body style="background-color: rgb(255, 255, 255);">
+<div class="Body">
+<div class="3Heading">
+<h2 style="text-align: center;">GFE/ifpIMAGE Configuration File<br>
+Discrete Color Algorithm Configuration</h2>
+The discrete color algorithm is very simple in the case of
+non-overlapping
+discrete configuration.&nbsp; It simply uses a color table in much the
+same way as SCALAR and VECTOR use color tables.&nbsp; The algorithm
+becomes
+more complicated when the discrete element contains overlapping
+information.</div>
+<div class="3Heading">&nbsp;
+<table nosave="" border="1" cols="4" width="100%">
+  <tbody>
+    <tr>
+      <td>
+      <center><b>GFE Configuration Item</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to GFE</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to <a href="ifpIMAGE.html"><!--disable indexer-->ifpIMAGE</a></b></center>
+      </td>
+      <td>
+      <center><b>Notes</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#DiscreteOverlapPatterns">Discrete Overlap Patterns</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#DiscreteComplexColor">Discrete Complex Color</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#DiscreteComplexPattern">Discrete Complex Pattern</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<hr style="width: 100%; height: 2px;">
+<h3><a name="DiscreteColorAlgorithm"></a>Discrete Color Algorithm
+&nbsp;
+</h3>
+<table nosave="" border="1" cols="3" width="100%">
+  <tbody>
+    <tr>
+      <td><b>Number of Discrete Keys at a Grid Point</b></td>
+      <td><b>Fill Pattern</b></td>
+      <td><b>Color</b></td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>No fill pattern</td>
+      <td>As specified by the Color Table that is assigned to the
+discrete weather
+element.</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>The 1st element (priority-order) is drawn as a solid.&nbsp;
+The 2nd
+element is drawn using the first entry in <a
+ href="#DiscreteOverlapPatterns">Discrete
+Overlap Patterns</a>.</td>
+      <td>Each element is drawn as specified in the Color Table that is
+assigned
+to the discrete weather element.&nbsp; For example, if the discrete key
+is "A^B" and A is assigned red and B is assigned blue, then there will
+be a solid red area with a patterned blue.</td>
+    </tr>
+    <tr>
+      <td>3...n+1 (where n is the number of patterns identified in the <a
+ href="#DiscreteOverlapPatterns">Discrete
+Overlap Patterns</a>)</td>
+      <td>The 1st element is drawn as a solid.&nbsp; The remaining
+elements are
+drawn with each of the entries in the <a
+ href="#DiscreteOverlapPatterns">Discrete
+Overlap Patterns</a>.</td>
+      <td>Each element is drawn as specified in the Color Table that is
+assigned
+to the discrete weather element.&nbsp;</td>
+    </tr>
+    <tr>
+      <td>n+2...&nbsp;&nbsp; (where n is the number of patterns
+identified in
+the <a href="#DiscreteOverlapPatterns">Discrete Overlap Patterns</a>)</td>
+      <td>The pattern for all elements is as shown in the <a
+ href="#DiscreteComplexPattern">Discrete
+Complex Pattern</a> entry.</td>
+      <td>The color for all elements is as shown in the <a
+ href="#DiscreteComplexColor">Discrete
+Complex Color</a> entry.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<h3><br>
+</h3>
+<h3><a name="DiscreteOverlapPatterns"></a>Discrete Overlap Pattern</h3>
+The Discrete Overlap Pattern entry defines the set of patterns to use
+for
+overlapping discrete fields where an overlap occurs.&nbsp;&nbsp; The
+number
+of patterns indicate the number of overlaps that will be made visually
+before the Discrete Complex Pattern and Discrete Overlap Pattern is
+used.
+<p><b><tt>DiscreteOverlapPatterns = ['TRANS_25PC_45DEG',
+'TRANS_25PC_135DEG',
+'CROSS']</tt></b>
+</p>
+<p>The available fill patterns are:
+</p>
+<blockquote><li>
+WHOLE</li>
+  <li>WIDE</li>
+  <li>SCATTERED</li>
+  <li>WIDE_SCATTERED</li>
+  <li>ISOLATED</li>
+  <li>TRANS_25PC_45DEG</li>
+  <li>TRANS_25PC_135DEG</li>
+  <li>SELECTED_AREA</li>
+  <li>DUALCURVE</li>
+  <li>CURVE</li>
+  <li>VERTICAL</li>
+  <li>CROSS</li>
+  <li>HORIZONTAL</li>
+</blockquote>
+You can view <a href="FillPatterns.html">examples of these fill
+patterns
+here</a>.
+<br>
+&nbsp;
+<br>
+&nbsp;
+<h3><a name="DiscreteComplexColor"></a>Discrete Complex Color</h3>
+The Discrete Complex Color is used when there are many overlapping
+discrete
+values at a grid point and the list of <a
+ href="#DiscreteOverlapPatterns">Discrete
+Overlap Patterns</a> has been exhausted.
+<p><b><tt>DiscreteComplexColor = 'red'</tt></b>
+<br>
+&nbsp;
+<br>
+&nbsp;
+</p>
+<h3><a name="DiscreteComplexPattern"></a>Discrete Complex Pattern</h3>
+The Discrete Complex Pattern is used when there are many overlapping
+discrete
+values at a grid point and the list of <a
+ href="#DiscreteOverlapPatterns">Discrete
+Overlap Patterns</a> has been exhausted.
+<p><b><tt>DiscreteComplexPattern = 'DUALCURVE'</tt></b>
+</p>
+<p>The available fill patterns are:
+</p>
+<blockquote><li>
+WHOLE</li>
+  <li>WIDE</li>
+  <li>SCATTERED</li>
+  <li>WIDE_SCATTERED</li>
+  <li>ISOLATED</li>
+  <li>TRANS_25PC_45DEG</li>
+  <li>TRANS_25PC_135DEG</li>
+  <li>SELECTED_AREA</li>
+  <li>DUALCURVE</li>
+  <li>CURVE</li>
+  <li>VERTICAL</li>
+  <li>CROSS</li>
+  <li>HORIZONTAL</li>
+</blockquote>
+You can view <a href="FillPatterns.html">examples of these fill
+patterns
+here</a>.<br>
+<br>
+<hr style="width: 100%; height: 2px;">
+<div style="text-align: center;"><br>
+<a href="GFESuite.html">Return to Top</a><br>
+</div>
+<div class="Body">&nbsp;</div>
+</div>
+</body>
+</html>

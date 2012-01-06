@@ -1,0 +1,99 @@
+# Makefile for building HDF5 JNI interface for Windows.
+# 
+# Author: Peter Cao
+#           The HDF Group
+#           Dec 30, 2008
+#
+# Notes: 
+#   To comiple the source code, run 'nmake -f nt_makefile'
+#   You may have add your VS studio bin path to your system path, e.g.
+#   set path=%path";"C:\Program Files\Microsoft Visual Studio 8\VC\bin"
+#
+
+JAVAHOME=D:\Java\jdk1.6.0_01
+HDF5INC=G:\HDF\lib\hdf5182\include
+HDF5LIB=G:\HDF\lib\hdf5182\lib\hdf5.lib
+SZLIB=G:\HDF\lib_external\szip20-win-xpnet-enc\lib\szlib.lib
+ZLIB=G:\HDF\lib_external\zlib-121-windows\lib\zlib.lib
+
+#####################################################################
+#      Do not change below this line unless you know what you do    #
+#####################################################################
+
+CC=cl.exe
+LINKER = link.exe
+
+CFLAGS = \
+/I $(HDF5INC) /I $(JAVAHOME)"\include" /I $(JAVAHOME)"\include\win32" \
+/D H5_USE_16_API /D "_MBCS" /U "__cplusplus" \
+/D "_CRT_SECURE_NO_WARNINGS" /D "_LARGEFILE_SOURCE" \
+/nologo /W3 /EHsc /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /FD /c /TP \
+
+LINKFLAG=/nologo /dll /incremental:no /machine:i386 
+
+OBJECTS=exceptionImp.obj h5aImp.obj h5Constants.obj h5dImp.obj h5fImp.obj \
+        h5gImp.obj h5iImp.obj h5Imp.obj h5pImp.obj h5rImp.obj h5sImp.obj \
+        h5tImp.obj h5util.obj h5zImp.obj nativeData.obj 
+
+MSDEV_LIBS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib \
+advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib \
+/NODEFAULTLIB:"MSVCRT" /NODEFAULTLIB:"LIBC.LIB"
+
+all: $(OBJECTS)
+	$(LINKER) /OUT:"jhdf5.dll" $(LINKFLAG) $(OBJECTS) $(HDF5LIB) $(SZLIB) $(ZLIB) $(MSDEV_LIBS)
+
+exceptionImp.obj: exceptionImp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+h5aImp.obj: h5aImp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+h5Constants.obj: h5Constants.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+h5dImp.obj: h5dImp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+h5fImp.obj: h5fImp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+h5gImp.obj: h5gImp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+h5iImp.obj: h5iImp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+h5Imp.obj: h5Imp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+h5pImp.obj: h5pImp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+h5rImp.obj: h5rImp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+h5sImp.obj: h5sImp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+h5tImp.obj: h5tImp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+h5util.obj: h5util.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+h5zImp.obj: h5zImp.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+nativeData.obj: nativeData.c
+	$(CC) $(CFLAGS) /Fo$@ $?
+
+clean:
+	@del *.dll
+	@del *.lib
+	@del *.obj
+	@del *.idb
+	@del *.pdb
+	@del *.ilk
+	@del *.pdb
+	@del *.exp
+
