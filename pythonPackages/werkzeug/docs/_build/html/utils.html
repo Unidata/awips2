@@ -1,0 +1,944 @@
+
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Werkzeug Documentation</title>
+    <link rel="stylesheet" href="_static/style.css" type="text/css">
+    <link rel="stylesheet" href="_static/print.css" type="text/css" media="print">
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css">
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:   '#',
+        VERSION:    '0.6.1'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/interface.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/werkzeug.js"></script>
+    <link rel="contents" title="Global table of contents" href="contents.html">
+    <link rel="index" title="Global index" href="genindex.html">
+    <link rel="search" title="Search" href="search.html">
+    <link rel="top" title="Werkzeug v0.6.1 documentation" href="index.html">
+    <link rel="next" title="Mini Templates" href="templates.html">
+    <link rel="prev" title="Data Structures" href="datastructures.html">
+    
+  </head>
+  <body>
+    <div class="page">
+      <div class="header">
+        <h1 class="heading"><a href="index.html"
+          title="back to the documentation overview"><span>Werkzeug</span></a></h1>
+      </div>
+      <ul class="navigation">
+        <li class="indexlink"><a href="index.html">Overview</a></li>
+        <li><a href="datastructures.html">&laquo; Data Structures</a></li>
+        <li class="active"><a href="#">Utilities</a></li>
+        <li><a href="templates.html">Mini Templates &raquo;</a></li>
+      </ul>
+      <div class="body">
+        <div id="toc">
+          <h3>Table Of Contents</h3>
+          <div class="inner"><ul>
+<li><a class="reference external" href="#">Utilities</a><ul>
+<li><a class="reference external" href="#url-helpers">URL Helpers</a></li>
+<li><a class="reference external" href="#html-helpers">HTML Helpers</a></li>
+<li><a class="reference external" href="#general-helpers">General Helpers</a></li>
+<li><a class="reference external" href="#security-helpers">Security Helpers</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+        
+  <div class="section" id="module-werkzeug">
+<span id="utilities"></span><h1>Utilities<a class="headerlink" href="#module-werkzeug" title="Permalink to this headline">¶</a></h1>
+<p>You can import all these objects directly from <a class="reference external" href="wsgi.html#module-werkzeug"><tt class="xref py py-mod docutils literal"><span class="pre">werkzeug</span></tt></a>.</p>
+<div class="section" id="url-helpers">
+<h2>URL Helpers<a class="headerlink" href="#url-helpers" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="werkzeug.Href">
+<em class="property">class </em><tt class="descclassname">werkzeug.</tt><tt class="descname">Href</tt><big>(</big><em>base='./'</em>, <em>charset='utf-8'</em>, <em>sort=False</em>, <em>key=None</em><big>)</big><a class="headerlink" href="#werkzeug.Href" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements a callable that constructs URLs with the given base. The
+function can be called with any number of positional and keyword
+arguments which than are used to assemble the URL.  Works with URLs
+and posix paths.</p>
+<p>Positional arguments are appended as individual segments to
+the path of the URL:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">href</span> <span class="o">=</span> <span class="n">Href</span><span class="p">(</span><span class="s">&#39;/foo&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">href</span><span class="p">(</span><span class="s">&#39;bar&#39;</span><span class="p">,</span> <span class="mi">23</span><span class="p">)</span>
+<span class="go">&#39;/foo/bar/23&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">href</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">,</span> <span class="n">bar</span><span class="o">=</span><span class="mi">23</span><span class="p">)</span>
+<span class="go">&#39;/foo/foo?bar=23&#39;</span>
+</pre></div>
+</div>
+<p>If any of the arguments (positional or keyword) evaluates to <cite>None</cite> it
+will be skipped.  If no keyword arguments are given the last argument
+can be a <a title="(in Python v2.7)" class="reference external" href="http://docs.python.org/dev/library/stdtypes.html#dict"><tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt></a> or <a title="werkzeug.MultiDict" class="reference external" href="datastructures.html#werkzeug.MultiDict"><tt class="xref py py-class docutils literal"><span class="pre">MultiDict</span></tt></a> (or any other dict subclass),
+otherwise the keyword arguments are used for the query parameters, cutting
+off the first trailing underscore of the parameter name:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">href</span><span class="p">(</span><span class="n">is_</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="go">&#39;/foo?is=42&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">href</span><span class="p">({</span><span class="s">&#39;foo&#39;</span><span class="p">:</span> <span class="s">&#39;bar&#39;</span><span class="p">})</span>
+<span class="go">&#39;/foo?foo=bar&#39;</span>
+</pre></div>
+</div>
+<p>Combining of both methods is not allowed:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">href</span><span class="p">({</span><span class="s">&#39;foo&#39;</span><span class="p">:</span> <span class="s">&#39;bar&#39;</span><span class="p">},</span> <span class="n">bar</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+  <span class="c">...</span>
+<span class="nc">TypeError</span>: <span class="n-Identifier">keyword arguments and query-dicts can&#39;t be combined</span>
+</pre></div>
+</div>
+<p>Accessing attributes on the href object creates a new href object with
+the attribute name as prefix:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">bar_href</span> <span class="o">=</span> <span class="n">href</span><span class="o">.</span><span class="n">bar</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bar_href</span><span class="p">(</span><span class="s">&quot;blub&quot;</span><span class="p">)</span>
+<span class="go">&#39;/foo/bar/blub&#39;</span>
+</pre></div>
+</div>
+<p>If <cite>sort</cite> is set to <cite>True</cite> the items are sorted by <cite>key</cite> or the default
+sorting algorithm:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">href</span> <span class="o">=</span> <span class="n">Href</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">href</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">&#39;/?a=1&amp;b=2&amp;c=3&#39;</span>
+</pre></div>
+</div>
+<p class="versionadded">
+<span class="versionmodified">New in version 0.5: </span><cite>sort</cite> and <cite>key</cite> were added.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="werkzeug.url_decode">
+<tt class="descclassname">werkzeug.</tt><tt class="descname">url_decode</tt><big>(</big><em>s</em>, <em>charset='utf-8'</em>, <em>decode_keys=False</em>, <em>include_empty=True</em>, <em>errors='ignore'</em>, <em>separator='&amp;'</em>, <em>cls=None</em><big>)</big><a class="headerlink" href="#werkzeug.url_decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse a querystring and return it as <a title="werkzeug.MultiDict" class="reference external" href="datastructures.html#werkzeug.MultiDict"><tt class="xref py py-class docutils literal"><span class="pre">MultiDict</span></tt></a>.  Per default
+only values are decoded into unicode strings.  If <cite>decode_keys</cite> is set to
+<cite>True</cite> the same will happen for keys.</p>
+<p>Per default a missing value for a key will default to an empty key.  If
+you don&#8217;t want that behavior you can set <cite>include_empty</cite> to <cite>False</cite>.</p>
+<p>Per default encoding errors are ignored.  If you want a different behavior
+you can set <cite>errors</cite> to <tt class="docutils literal"><span class="pre">'replace'</span></tt> or <tt class="docutils literal"><span class="pre">'strict'</span></tt>.  In strict mode a
+<cite>HTTPUnicodeError</cite> is raised.</p>
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 0.5: </span>In previous versions &#8220;;&#8221; and &#8220;&amp;&#8221; could be used for url decoding.
+This changed in 0.5 where only &#8220;&amp;&#8221; is supported.  If you want to
+use &#8220;;&#8221; instead a different <cite>separator</cite> can be provided.<p>The <cite>cls</cite> parameter was added.</p>
+</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>s</strong> &#8211; a string with the query string to decode.</li>
+<li><strong>charset</strong> &#8211; the charset of the query string.</li>
+<li><strong>decode_keys</strong> &#8211; set to <cite>True</cite> if you want the keys to be decoded
+as well.</li>
+<li><strong>include_empty</strong> &#8211; Set to <cite>False</cite> if you don&#8217;t want empty values to
+appear in the dict.</li>
+<li><strong>errors</strong> &#8211; the decoding error behavior.</li>
+<li><strong>separator</strong> &#8211; the pair separator to be used, defaults to <tt class="docutils literal"><span class="pre">&amp;</span></tt></li>
+<li><strong>cls</strong> &#8211; an optional dict class to use.  If this is not specified
+or <cite>None</cite> the default <a title="werkzeug.MultiDict" class="reference external" href="datastructures.html#werkzeug.MultiDict"><tt class="xref py py-class docutils literal"><span class="pre">MultiDict</span></tt></a> is used.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="werkzeug.url_encode">
+<tt class="descclassname">werkzeug.</tt><tt class="descname">url_encode</tt><big>(</big><em>obj</em>, <em>charset='utf-8'</em>, <em>encode_keys=False</em>, <em>sort=False</em>, <em>key=None</em>, <em>separator='&amp;'</em><big>)</big><a class="headerlink" href="#werkzeug.url_encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>URL encode a dict/<cite>MultiDict</cite>.  If a value is <cite>None</cite> it will not appear
+in the result string.  Per default only values are encoded into the target
+charset strings.  If <cite>encode_keys</cite> is set to <tt class="xref docutils literal"><span class="pre">True</span></tt> unicode keys are
+supported too.</p>
+<p>If <cite>sort</cite> is set to <cite>True</cite> the items are sorted by <cite>key</cite> or the default
+sorting algorithm.</p>
+<p class="versionadded">
+<span class="versionmodified">New in version 0.5: </span><cite>sort</cite>, <cite>key</cite>, and <cite>separator</cite> were added.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>obj</strong> &#8211; the object to encode into a query string.</li>
+<li><strong>charset</strong> &#8211; the charset of the query string.</li>
+<li><strong>encode_keys</strong> &#8211; set to <cite>True</cite> if you have unicode keys.</li>
+<li><strong>sort</strong> &#8211; set to <cite>True</cite> if you want parameters to be sorted by <cite>key</cite>.</li>
+<li><strong>separator</strong> &#8211; the separator to be used for the pairs.</li>
+<li><strong>key</strong> &#8211; an optional function to be used for sorting.  For more details
+check out the <a title="(in Python v2.7)" class="reference external" href="http://docs.python.org/dev/library/functions.html#sorted"><tt class="xref py py-func docutils literal"><span class="pre">sorted()</span></tt></a> documentation.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="werkzeug.url_quote">
+<tt class="descclassname">werkzeug.</tt><tt class="descname">url_quote</tt><big>(</big><em>s</em>, <em>charset='utf-8'</em>, <em>safe='/:'</em><big>)</big><a class="headerlink" href="#werkzeug.url_quote" title="Permalink to this definition">¶</a></dt>
+<dd><p>URL encode a single string with a given encoding.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>s</strong> &#8211; the string to quote.</li>
+<li><strong>charset</strong> &#8211; the charset to be used.</li>
+<li><strong>safe</strong> &#8211; an optional sequence of safe characters.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="werkzeug.url_quote_plus">
+<tt class="descclassname">werkzeug.</tt><tt class="descname">url_quote_plus</tt><big>(</big><em>s</em>, <em>charset='utf-8'</em>, <em>safe=''</em><big>)</big><a class="headerlink" href="#werkzeug.url_quote_plus" title="Permalink to this definition">¶</a></dt>
+<dd><p>URL encode a single string with the given encoding and convert
+whitespace to &#8220;+&#8221;.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>s</strong> &#8211; the string to quote.</li>
+<li><strong>charset</strong> &#8211; the charset to be used.</li>
+<li><strong>safe</strong> &#8211; an optional sequence of safe characters.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="werkzeug.url_unquote">
+<tt class="descclassname">werkzeug.</tt><tt class="descname">url_unquote</tt><big>(</big><em>s</em>, <em>charset='utf-8'</em>, <em>errors='ignore'</em><big>)</big><a class="headerlink" href="#werkzeug.url_unquote" title="Permalink to this definition">¶</a></dt>
+<dd><p>URL decode a single string with a given decoding.</p>
+<p>Per default encoding errors are ignored.  If you want a different behavior
+you can set <cite>errors</cite> to <tt class="docutils literal"><span class="pre">'replace'</span></tt> or <tt class="docutils literal"><span class="pre">'strict'</span></tt>.  In strict mode a
+<cite>HTTPUnicodeError</cite> is raised.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>s</strong> &#8211; the string to unquote.</li>
+<li><strong>charset</strong> &#8211; the charset to be used.</li>
+<li><strong>errors</strong> &#8211; the error handling for the charset decoding.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="werkzeug.url_unquote_plus">
+<tt class="descclassname">werkzeug.</tt><tt class="descname">url_unquote_plus</tt><big>(</big><em>s</em>, <em>charset='utf-8'</em>, <em>errors='ignore'</em><big>)</big><a class="headerlink" href="#werkzeug.url_unquote_plus" title="Permalink to this definition">¶</a></dt>
+<dd><p>URL decode a single string with the given decoding and decode
+a &#8220;+&#8221; to whitespace.</p>
+<p>Per default encoding errors are ignored.  If you want a different behavior
+you can set <cite>errors</cite> to <tt class="docutils literal"><span class="pre">'replace'</span></tt> or <tt class="docutils literal"><span class="pre">'strict'</span></tt>.  In strict mode a
+<cite>HTTPUnicodeError</cite> is raised.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>s</strong> &#8211; the string to unquote.</li>
+<li><strong>charset</strong> &#8211; the charset to be used.</li>
+<li><strong>errors</strong> &#8211; the error handling for the charset decoding.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="werkzeug.url_fix">
+<tt class="descclassname">werkzeug.</tt><tt class="descname">url_fix</tt><big>(</big><em>s</em>, <em>charset='utf-8'</em><big>)</big><a class="headerlink" href="#werkzeug.url_fix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sometimes you get an URL by a user that just isn&#8217;t a real URL because
+it contains unsafe characters like &#8216; &#8216; and so on.  This function can fix
+some of the problems in a similar way browsers handle data entered by the
+user:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">url_fix</span><span class="p">(</span><span class="s">u&#39;http://de.wikipedia.org/wiki/Elf (Begriffskl</span><span class="se">\xe4</span><span class="s">rung)&#39;</span><span class="p">)</span>
+<span class="go">&#39;http://de.wikipedia.org/wiki/Elf%20%28Begriffskl%C3%A4rung%29&#39;</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>s</strong> &#8211; the string with the URL to fix.</li>
+<li><strong>charset</strong> &#8211; The target charset for the URL if the url was given as
+unicode string.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="werkzeug.uri_to_iri">
+<tt class="descclassname">werkzeug.</tt><tt class="descname">uri_to_iri</tt><big>(</big><em>uri</em>, <em>charset='utf-8'</em>, <em>errors='ignore'</em><big>)</big><a class="headerlink" href="#werkzeug.uri_to_iri" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a URI in a given charset to a IRI.</p>
+<p>Examples for URI versus IRI</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">uri_to_iri</span><span class="p">(</span><span class="s">&#39;http://xn--n3h.net/&#39;</span><span class="p">)</span>
+<span class="go">u&#39;http://\u2603.net/&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">uri_to_iri</span><span class="p">(</span><span class="s">&#39;http://%C3%BCser:p%C3%A4ssword@xn--n3h.net/p%C3%A5th&#39;</span><span class="p">)</span>
+<span class="go">u&#39;http://\xfcser:p\xe4ssword@\u2603.net/p\xe5th&#39;</span>
+</pre></div>
+</div>
+<p>Query strings are left unchanged:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">uri_to_iri</span><span class="p">(</span><span class="s">&#39;/?foo=24&amp;x=</span><span class="si">%26%</span><span class="s">2f&#39;</span><span class="p">)</span>
+<span class="go">u&#39;/?foo=24&amp;x=%26%2f&#39;</span>
+</pre></div>
+</div>
+<p class="versionadded">
+<span class="versionmodified">New in version 0.6.</span></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>uri</strong> &#8211; the URI to convert</li>
+<li><strong>charset</strong> &#8211; the charset of the URI</li>
+<li><strong>errors</strong> &#8211; the error handling on decode</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="werkzeug.iri_to_uri">
+<tt class="descclassname">werkzeug.</tt><tt class="descname">iri_to_uri</tt><big>(</big><em>iri</em>, <em>charset='utf-8'</em><big>)</big><a class="headerlink" href="#werkzeug.iri_to_uri" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts any unicode based IRI to an acceptable ASCII URI.  Werkzeug
+always uses utf-8 URLs internally because this is what browsers and HTTP
+do as well.  In some places where it accepts an URL it also accepts a
+unicode IRI and converts it into a URI.</p>
+<p>Examples for IRI versus URI:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">iri_to_uri</span><span class="p">(</span><span class="s">u&#39;http://☃.net/&#39;</span><span class="p">)</span>
+<span class="go">&#39;http://xn--n3h.net/&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">iri_to_uri</span><span class="p">(</span><span class="s">u&#39;http://üser:pässword@☃.net/påth&#39;</span><span class="p">)</span>
+<span class="go">&#39;http://%C3%BCser:p%C3%A4ssword@xn--n3h.net/p%C3%A5th&#39;</span>
+</pre></div>
+</div>
+<p class="versionadded">
+<span class="versionmodified">New in version 0.6.</span></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>iri</strong> &#8211; the iri to convert</li>
+<li><strong>charset</strong> &#8211; the charset for the URI</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="werkzeug.extract_path_info">
+<tt class="descclassname">werkzeug.</tt><tt class="descname">extract_path_info</tt><big>(</big><em>environ_or_baseurl</em>, <em>path_or_url</em>, <em>charset='utf-8'</em>, <em>errors='ignore'</em>, <em>collapse_http_schemes=True</em><big>)</big><a class="headerlink" href="#werkzeug.extract_path_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts the path info from the given URL (or WSGI environment) and
+path.  The path info returned is a unicode string, not a bytestring
+suitable for a WSGI environment.  The URLs might also be IRIs.</p>
+<p>If the path info could not be determined, <cite>None</cite> is returned.</p>
+<p>Some examples:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">extract_path_info</span><span class="p">(</span><span class="s">&#39;http://example.com/app&#39;</span><span class="p">,</span> <span class="s">&#39;/app/hello&#39;</span><span class="p">)</span>
+<span class="go">u&#39;/hello&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">extract_path_info</span><span class="p">(</span><span class="s">&#39;http://example.com/app&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                  <span class="s">&#39;https://example.com/app/hello&#39;</span><span class="p">)</span>
+<span class="go">u&#39;/hello&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">extract_path_info</span><span class="p">(</span><span class="s">&#39;http://example.com/app&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                  <span class="s">&#39;https://example.com/app/hello&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                  <span class="n">collapse_http_schemes</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">None</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>Instead of providing a base URL you can also pass a WSGI environment.</p>
+<p class="versionadded">
+<span class="versionmodified">New in version 0.6.</span></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>environ_or_baseurl</strong> &#8211; a WSGI environment dict, a base URL or
+base IRI.  This is the root of the
+application.</li>
+<li><strong>path_or_url</strong> &#8211; an absolute path from the server root, a
+relative path (in which case it&#8217;s the path info)
+or a full URL.  Also accepts IRIs and unicode
+parameters.</li>
+<li><strong>charset</strong> &#8211; the charset for byte data in URLs</li>
+<li><strong>errors</strong> &#8211; the error handling on decode</li>
+<li><strong>collapse_http_schemes</strong> &#8211; if set to <cite>False</cite> the algorithm does
+not assume that http and https on the
+same server point to the same
+resource.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="html-helpers">
+<h2>HTML Helpers<a class="headerlink" href="#html-helpers" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="werkzeug.HTMLBuilder">
+<em class="property">class </em><tt class="descclassname">werkzeug.</tt><tt class="descname">HTMLBuilder</tt><big>(</big><em>dialect</em><big>)</big><a class="headerlink" href="#werkzeug.HTMLBuilder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper object for HTML generation.</p>
+<p>Per default there are two instances of that class.  The <cite>html</cite> one, and
+the <cite>xhtml</cite> one for those two dialects.  The class uses keyword parameters
+and positional parameters to generate small snippets of HTML.</p>
+<p>Keyword parameters are converted to XML/SGML attributes, positional
+arguments are used as children.  Because Python accepts positional
+arguments before keyword arguments it&#8217;s a good idea to use a list with the
+star-syntax for some children:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">html</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="n">class_</span><span class="o">=</span><span class="s">&#39;foo&#39;</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="n">html</span><span class="o">.</span><span class="n">a</span><span class="p">(</span><span class="s">&#39;foo&#39;</span><span class="p">,</span> <span class="n">href</span><span class="o">=</span><span class="s">&#39;foo.html&#39;</span><span class="p">),</span> <span class="s">&#39; &#39;</span><span class="p">,</span>
+<span class="gp">... </span>                       <span class="n">html</span><span class="o">.</span><span class="n">a</span><span class="p">(</span><span class="s">&#39;bar&#39;</span><span class="p">,</span> <span class="n">href</span><span class="o">=</span><span class="s">&#39;bar.html&#39;</span><span class="p">)])</span>
+<span class="go">u&#39;&lt;p class=&quot;foo&quot;&gt;&lt;a href=&quot;foo.html&quot;&gt;foo&lt;/a&gt; &lt;a href=&quot;bar.html&quot;&gt;bar&lt;/a&gt;&lt;/p&gt;&#39;</span>
+</pre></div>
+</div>
+<p>This class works around some browser limitations and can not be used for
+arbitrary SGML/XML generation.  For that purpose lxml and similar
+libraries exist.</p>
+<p>Calling the builder escapes the string passed:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">html</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="n">html</span><span class="p">(</span><span class="s">&quot;&lt;foo&gt;&quot;</span><span class="p">))</span>
+<span class="go">u&#39;&lt;p&gt;&amp;lt;foo&amp;gt;&lt;/p&gt;&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="werkzeug.escape">
+<tt class="descclassname">werkzeug.</tt><tt class="descname">escape</tt><big>(</big><em>s</em>, <em>quote=False</em><big>)</big><a class="headerlink" href="#werkzeug.escape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace special characters &#8220;&amp;&#8221;, &#8220;&lt;&#8221; and &#8220;&gt;&#8221; to HTML-safe sequences.  If
+the optional flag <cite>quote</cite> is <cite>True</cite>, the quotation mark character (&#8220;) is
+also translated.</p>
+<p>There is a special handling for <cite>None</cite> which escapes to an empty string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>s</strong> &#8211; the string to escape.</li>
+<li><strong>quote</strong> &#8211; set to true to also escape double quotes.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="werkzeug.unescape">
+<tt class="descclassname">werkzeug.</tt><tt class="descname">unescape</tt><big>(</big><em>s</em><big>)</big><a class="headerlink" href="#werkzeug.unescape" title="Permalink to this definition">¶</a></dt>
+<dd><p>The reverse function of <cite>escape</cite>.  This unescapes all the HTML
+entities, not only the XML entities inserted by <cite>escape</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>s</strong> &#8211; the string to unescape.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="general-helpers">
+<h2>General Helpers<a class="headerlink" href="#general-helpers" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="werkzeug.UserAgent">
+<em class="property">class </em><tt class="descclassname">werkzeug.</tt><tt class="descname">UserAgent</tt><big>(</big><em>environ_or_string</em><big>)</big><a class="headerlink" href="#werkzeug.UserAgent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a user agent.  Pass it a WSGI environment or a user agent
+string and you can inspect some of the details from the user agent
+string via the attributes.  The following attributes exist:</p>
+<dl class="attribute">
+<dt id="werkzeug.UserAgent.string">
+<tt class="descname">string</tt><a class="headerlink" href="#werkzeug.UserAgent.string" title="Permalink to this definition">¶</a></dt>
+<dd>the raw user agent string</dd></dl>
+
+<dl class="attribute">
+<dt id="werkzeug.UserAgent.platform">
+<tt class="descname">platform</tt><a class="headerlink" href="#werkzeug.UserAgent.platform" title="Permalink to this definition">¶</a></dt>
+<dd><p>the browser platform.  The following platforms are currently
+recognized:</p>
+<ul class="simple">
+<li><cite>aix</cite></li>
+<li><cite>amiga</cite></li>
+<li><cite>android</cite></li>
+<li><cite>bsd</cite></li>
+<li><cite>hpux</cite></li>
+<li><cite>iphone</cite></li>
+<li><cite>irix</cite></li>
+<li><cite>linux</cite></li>
+<li><cite>macos</cite></li>
+<li><cite>sco</cite></li>
+<li><cite>solaris</cite></li>
+<li><cite>wii</cite></li>
+<li><cite>windows</cite></li>
+</ul>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="werkzeug.UserAgent.browser">
+<tt class="descname">browser</tt><a class="headerlink" href="#werkzeug.UserAgent.browser" title="Permalink to this definition">¶</a></dt>
+<dd><p>the name of the browser.  The following browsers are currently
+recognized:</p>
+<ul class="simple">
+<li><cite>aol</cite> *</li>
+<li><cite>ask</cite> *</li>
+<li><cite>camino</cite></li>
+<li><cite>chrome</cite></li>
+<li><cite>firefox</cite></li>
+<li><cite>galeon</cite></li>
+<li><cite>google</cite> *</li>
+<li><cite>kmeleon</cite></li>
+<li><cite>konqueror</cite></li>
+<li><cite>links</cite></li>
+<li><cite>lynx</cite></li>
+<li><cite>msie</cite></li>
+<li><cite>msn</cite></li>
+<li><cite>netscape</cite></li>
+<li><cite>opera</cite></li>
+<li><cite>safari</cite></li>
+<li><cite>seamonkey</cite></li>
+<li><cite>webkit</cite></li>
+<li><cite>yahoo</cite> *</li>
+</ul>
+<p>(Browsers maked with a star (<tt class="docutils literal"><span class="pre">*</span></tt>) are crawlers.)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="werkzeug.UserAgent.version">
+<tt class="descname">version</tt><a class="headerlink" href="#werkzeug.UserAgent.version" title="Permalink to this definition">¶</a></dt>
+<dd>the version of the browser</dd></dl>
+
+<dl class="attribute">
+<dt id="werkzeug.UserAgent.language">
+<tt class="descname">language</tt><a class="headerlink" href="#werkzeug.UserAgent.language" title="Permalink to this definition">¶</a></dt>
+<dd>the language of the browser</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="werkzeug.cached_property">
+<em class="property">class </em><tt class="descclassname">werkzeug.</tt><tt class="descname">cached_property</tt><big>(</big><em>func</em>, <em>name=None</em>, <em>doc=None</em>, <em>writeable=False</em><big>)</big><a class="headerlink" href="#werkzeug.cached_property" title="Permalink to this definition">¶</a></dt>
+<dd><p>A decorator that converts a function into a lazy property.  The
+function wrapped is called the first time to retrieve the result
+and then that calculated result is used the next time you access
+the value:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span> <span class="nf">foo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># calculate something important here</span>
+        <span class="k">return</span> <span class="mi">42</span>
+</pre></div>
+</div>
+<p>The class has to have a <cite>__dict__</cite> in order for this property to
+work.</p>
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 0.6: </span>the <cite>writeable</cite> attribute and parameter was deprecated.  If a
+cached property is writeable or not has to be documented now.
+For performance reasons the implementation does not honor the
+writeable setting and will always make the property writeable.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="werkzeug.environ_property">
+<em class="property">class </em><tt class="descclassname">werkzeug.</tt><tt class="descname">environ_property</tt><big>(</big><em>name</em>, <em>default=None</em>, <em>load_func=None</em>, <em>dump_func=None</em>, <em>read_only=None</em>, <em>doc=None</em><big>)</big><a class="headerlink" href="#werkzeug.environ_property" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maps request attributes to environment variables. This works not only
+for the Werzeug request object, but also any other class with an
+environ attribute:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Test</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">environ</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">}</span>
+<span class="gp">... </span>    <span class="n">test</span> <span class="o">=</span> <span class="n">environ_property</span><span class="p">(</span><span class="s">&#39;key&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">var</span> <span class="o">=</span> <span class="n">Test</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">var</span><span class="o">.</span><span class="n">test</span>
+<span class="go">&#39;value&#39;</span>
+</pre></div>
+</div>
+<p>If you pass it a second value it&#8217;s used as default if the key does not
+exist, the third one can be a converter that takes a value and converts
+it.  If it raises <tt class="xref py py-exc docutils literal"><span class="pre">ValueError</span></tt> or <tt class="xref py py-exc docutils literal"><span class="pre">TypeError</span></tt> the default value
+is used. If no default value is provided <cite>None</cite> is used.</p>
+<p>Per default the property is read only.  You have to explicitly enable it
+by passing <tt class="docutils literal"><span class="pre">read_only=False</span></tt> to the constructor.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="werkzeug.header_property">
+<em class="property">class </em><tt class="descclassname">werkzeug.</tt><tt class="descname">header_property</tt><big>(</big><em>name</em>, <em>default=None</em>, <em>load_func=None</em>, <em>dump_func=None</em>, <em>read_only=None</em>, <em>doc=None</em><big>)</big><a class="headerlink" href="#werkzeug.header_property" title="Permalink to this definition">¶</a></dt>
+<dd>Like <cite>environ_property</cite> but for headers.</dd></dl>
+
+<dl class="function">
+<dt id="werkzeug.parse_cookie">
+<tt class="descclassname">werkzeug.</tt><tt class="descname">parse_cookie</tt><big>(</big><em>header</em>, <em>charset='utf-8'</em>, <em>errors='ignore'</em>, <em>cls=None</em><big>)</big><a class="headerlink" href="#werkzeug.parse_cookie" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse a cookie.  Either from a string or WSGI environ.</p>
+<p>Per default encoding errors are ignored.  If you want a different behavior
+you can set <cite>errors</cite> to <tt class="docutils literal"><span class="pre">'replace'</span></tt> or <tt class="docutils literal"><span class="pre">'strict'</span></tt>.  In strict mode a
+<tt class="xref py py-exc docutils literal"><span class="pre">HTTPUnicodeError</span></tt> is raised.</p>
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 0.5: </span>This function now returns a <a title="werkzeug.TypeConversionDict" class="reference external" href="datastructures.html#werkzeug.TypeConversionDict"><tt class="xref py py-class docutils literal"><span class="pre">TypeConversionDict</span></tt></a> instead of a
+regular dict.  The <cite>cls</cite> parameter was added.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>header</strong> &#8211; the header to be used to parse the cookie.  Alternatively
+this can be a WSGI environment.</li>
+<li><strong>charset</strong> &#8211; the charset for the cookie values.</li>
+<li><strong>errors</strong> &#8211; the error behavior for the charset decoding.</li>
+<li><strong>cls</strong> &#8211; an optional dict class to use.  If this is not specified
+or <cite>None</cite> the default <a title="werkzeug.TypeConversionDict" class="reference external" href="datastructures.html#werkzeug.TypeConversionDict"><tt class="xref py py-class docutils literal"><span class="pre">TypeConversionDict</span></tt></a> is
+used.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="werkzeug.dump_cookie">
+<tt class="descclassname">werkzeug.</tt><tt class="descname">dump_cookie</tt><big>(</big><em>key</em>, <em>value=''</em>, <em>max_age=None</em>, <em>expires=None</em>, <em>path='/'</em>, <em>domain=None</em>, <em>secure=None</em>, <em>httponly=False</em>, <em>charset='utf-8'</em>, <em>sync_expires=True</em><big>)</big><a class="headerlink" href="#werkzeug.dump_cookie" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a new Set-Cookie header without the <tt class="docutils literal"><span class="pre">Set-Cookie</span></tt> prefix
+The parameters are the same as in the cookie Morsel object in the
+Python standard library but it accepts unicode data, too.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>max_age</strong> &#8211; should be a number of seconds, or <cite>None</cite> (default) if
+the cookie should last only as long as the client&#8217;s
+browser session.  Additionally <cite>timedelta</cite> objects
+are accepted, too.</li>
+<li><strong>expires</strong> &#8211; should be a <cite>datetime</cite> object or unix timestamp.</li>
+<li><strong>path</strong> &#8211; limits the cookie to a given path, per default it will
+span the whole domain.</li>
+<li><strong>domain</strong> &#8211; Use this if you want to set a cross-domain cookie. For
+example, <tt class="docutils literal"><span class="pre">domain=&quot;.example.com&quot;</span></tt> will set a cookie
+that is readable by the domain <tt class="docutils literal"><span class="pre">www.example.com</span></tt>,
+<tt class="docutils literal"><span class="pre">foo.example.com</span></tt> etc. Otherwise, a cookie will only
+be readable by the domain that set it.</li>
+<li><strong>secure</strong> &#8211; The cookie will only be available via HTTPS</li>
+<li><strong>httponly</strong> &#8211; disallow JavaScript to access the cookie.  This is an
+extension to the cookie standard and probably not
+supported by all browsers.</li>
+<li><strong>charset</strong> &#8211; the encoding for unicode values.</li>
+<li><strong>sync_expires</strong> &#8211; automatically set expires if max_age is defined
+but expires not.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="werkzeug.redirect">
+<tt class="descclassname">werkzeug.</tt><tt class="descname">redirect</tt><big>(</big><em>location</em>, <em>code=302</em><big>)</big><a class="headerlink" href="#werkzeug.redirect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a response object (a WSGI application) that, if called,
+redirects the client to the target location.  Supported codes are 301,
+302, 303, 305, and 307.  300 is not supported because it&#8217;s not a real
+redirect and 304 because it&#8217;s the answer for a request with a request
+with defined If-Modified-Since headers.</p>
+<p class="versionadded">
+<span class="versionmodified">New in version 0.6: </span>The location can now be a unicode string that is encoded using
+the <a title="werkzeug.iri_to_uri" class="reference internal" href="#werkzeug.iri_to_uri"><tt class="xref py py-func docutils literal"><span class="pre">iri_to_uri()</span></tt></a> function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>location</strong> &#8211; the location the response should redirect to.</li>
+<li><strong>code</strong> &#8211; the redirect status code.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="werkzeug.append_slash_redirect">
+<tt class="descclassname">werkzeug.</tt><tt class="descname">append_slash_redirect</tt><big>(</big><em>environ</em>, <em>code=301</em><big>)</big><a class="headerlink" href="#werkzeug.append_slash_redirect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Redirect to the same URL but with a slash appended.  The behavior
+of this function is undefined if the path ends with a slash already.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>environ</strong> &#8211; the WSGI environment for the request that triggers
+the redirect.</li>
+<li><strong>code</strong> &#8211; the status code for the redirect.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="werkzeug.import_string">
+<tt class="descclassname">werkzeug.</tt><tt class="descname">import_string</tt><big>(</big><em>import_name</em>, <em>silent=False</em><big>)</big><a class="headerlink" href="#werkzeug.import_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Imports an object based on a string.  This is useful if you want to
+use import paths as endpoints or something similar.  An import path can
+be specified either in dotted notation (<tt class="docutils literal"><span class="pre">xml.sax.saxutils.escape</span></tt>)
+or with a colon as object delimiter (<tt class="docutils literal"><span class="pre">xml.sax.saxutils:escape</span></tt>).</p>
+<p>If <cite>silent</cite> is True the return value will be <cite>None</cite> if the import fails.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>import_name</strong> &#8211; the dotted name for the object to import.</li>
+<li><strong>silent</strong> &#8211; if set to <cite>True</cite> import errors are ignored and
+<cite>None</cite> is returned instead.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">imported object</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="werkzeug.find_modules">
+<tt class="descclassname">werkzeug.</tt><tt class="descname">find_modules</tt><big>(</big><em>import_path</em>, <em>include_packages=False</em>, <em>recursive=False</em><big>)</big><a class="headerlink" href="#werkzeug.find_modules" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find all the modules below a package.  This can be useful to
+automatically import all views / controllers so that their metaclasses /
+function decorators have a chance to register themselves on the
+application.</p>
+<p>Packages are not returned unless <cite>include_packages</cite> is <cite>True</cite>.  This can
+also recursively list modules but in that case it will import all the
+packages to get the correct load path of that module.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>import_name</strong> &#8211; the dotted name for the package to find child modules.</li>
+<li><strong>include_packages</strong> &#8211; set to <cite>True</cite> if packages should be returned, too.</li>
+<li><strong>recursive</strong> &#8211; set to <cite>True</cite> if recursion should happen.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">generator</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="werkzeug.validate_arguments">
+<tt class="descclassname">werkzeug.</tt><tt class="descname">validate_arguments</tt><big>(</big><em>func</em>, <em>args</em>, <em>kwargs</em>, <em>drop_extra=True</em><big>)</big><a class="headerlink" href="#werkzeug.validate_arguments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the function accepts the arguments and keyword arguments.
+Returns a new <tt class="docutils literal"><span class="pre">(args,</span> <span class="pre">kwargs)</span></tt> tuple that can safely be passed to
+the function without causing a <cite>TypeError</cite> because the function signature
+is incompatible.  If <cite>drop_extra</cite> is set to <cite>True</cite> (which is the default)
+any extra positional or keyword arguments are dropped automatically.</p>
+<p>The exception raised provides three attributes:</p>
+<dl class="docutils">
+<dt><cite>missing</cite></dt>
+<dd>A set of argument names that the function expected but where
+missing.</dd>
+<dt><cite>extra</cite></dt>
+<dd>A dict of keyword arguments that the function can not handle but
+where provided.</dd>
+<dt><cite>extra_positional</cite></dt>
+<dd>A list of values that where given by positional argument but the
+function cannot accept.</dd>
+</dl>
+<p>This can be useful for decorators that forward user submitted data to
+a view function:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">werkzeug</span> <span class="kn">import</span> <span class="n">ArgumentValidationError</span><span class="p">,</span> <span class="n">validate_arguments</span>
+
+<span class="k">def</span> <span class="nf">sanitize</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">proxy</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">validate_arguments</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="p">(</span><span class="n">request</span><span class="p">,),</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ArgumentValidationError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">BadRequest</span><span class="p">(</span><span class="s">&#39;The browser failed to transmit all &#39;</span>
+                             <span class="s">&#39;the data expected.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">proxy</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>func</strong> &#8211; the function the validation is performed against.</li>
+<li><strong>args</strong> &#8211; a tuple of positional arguments.</li>
+<li><strong>kwargs</strong> &#8211; a dict of keyword arguments.</li>
+<li><strong>drop_extra</strong> &#8211; set to <cite>False</cite> if you don&#8217;t want extra arguments
+to be silently dropped.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">tuple in the form <tt class="docutils literal"><span class="pre">(args,</span> <span class="pre">kwargs)</span></tt>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="werkzeug.secure_filename">
+<tt class="descclassname">werkzeug.</tt><tt class="descname">secure_filename</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#werkzeug.secure_filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pass it a filename and it will return a secure version of it.  This
+filename can then safely be stored on a regular file system and passed
+to <a title="(in Python v2.7)" class="reference external" href="http://docs.python.org/dev/library/os.path.html#os.path.join"><tt class="xref py py-func docutils literal"><span class="pre">os.path.join()</span></tt></a>.  The filename returned is an ASCII only string
+for maximum portability.</p>
+<p>On windows system the function also makes sure that the file is not
+named after one of the special device files.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">secure_filename</span><span class="p">(</span><span class="s">&quot;My cool movie.mov&quot;</span><span class="p">)</span>
+<span class="go">&#39;My_cool_movie.mov&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">secure_filename</span><span class="p">(</span><span class="s">&quot;../../../etc/passwd&quot;</span><span class="p">)</span>
+<span class="go">&#39;etc_passwd&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">secure_filename</span><span class="p">(</span><span class="s">u&#39;i contain cool </span><span class="se">\xfc</span><span class="s">ml</span><span class="se">\xe4</span><span class="s">uts.txt&#39;</span><span class="p">)</span>
+<span class="go">&#39;i_contain_cool_umlauts.txt&#39;</span>
+</pre></div>
+</div>
+<p>The function might return an empty filename.  It&#8217;s your responsibility
+to ensure that the filename is unique and that you generate random
+filename if the function returned an empty one.</p>
+<p class="versionadded">
+<span class="versionmodified">New in version 0.5.</span></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>filename</strong> &#8211; the filename to secure</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="werkzeug.bind_arguments">
+<tt class="descclassname">werkzeug.</tt><tt class="descname">bind_arguments</tt><big>(</big><em>func</em>, <em>args</em>, <em>kwargs</em><big>)</big><a class="headerlink" href="#werkzeug.bind_arguments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bind the arguments provided into a dict.  When passed a function,
+a tuple of arguments and a dict of keyword arguments <cite>bind_arguments</cite>
+returns a dict of names as the function would see it.  This can be useful
+to implement a cache decorator that uses the function arguments to build
+the cache key based on the values of the arguments.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>func</strong> &#8211; the function the arguments should be bound for.</li>
+<li><strong>args</strong> &#8211; tuple of positional arguments.</li>
+<li><strong>kwargs</strong> &#8211; a dict of keyword arguments.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a <a title="(in Python v2.7)" class="reference external" href="http://docs.python.org/dev/library/stdtypes.html#dict"><tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt></a> of bound keyword arguments.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="security-helpers">
+<h2>Security Helpers<a class="headerlink" href="#security-helpers" title="Permalink to this headline">¶</a></h2>
+<p class="versionadded">
+<span class="versionmodified">New in version 0.6.1.</span></p>
+<dl class="function">
+<dt id="werkzeug.generate_password_hash">
+<tt class="descclassname">werkzeug.</tt><tt class="descname">generate_password_hash</tt><big>(</big><em>password</em>, <em>method='sha1'</em>, <em>salt_length=8</em><big>)</big><a class="headerlink" href="#werkzeug.generate_password_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hash a password with the given method and salt with with a string of
+the given length.  The format of the string returned includes the method
+that was used so that <a title="werkzeug.check_password_hash" class="reference internal" href="#werkzeug.check_password_hash"><tt class="xref py py-func docutils literal"><span class="pre">check_password_hash()</span></tt></a> can check the hash.</p>
+<p>The format for the hashed string looks like this:</p>
+<div class="highlight-python"><pre>method$salt$hash</pre>
+</div>
+<p>This method can <strong>not</strong> generate unsalted passwords but it is possible
+to set the method to plain to enforce plaintext passwords.  If a salt
+is used, hmac is used internally to salt the password.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>password</strong> &#8211; the password to hash</li>
+<li><strong>method</strong> &#8211; the hash method to use (<tt class="docutils literal"><span class="pre">'md5'</span></tt> or <tt class="docutils literal"><span class="pre">'sha1'</span></tt>)</li>
+<li><strong>salt_length</strong> &#8211; the lengt of the salt in letters</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="werkzeug.check_password_hash">
+<tt class="descclassname">werkzeug.</tt><tt class="descname">check_password_hash</tt><big>(</big><em>pwhash</em>, <em>password</em><big>)</big><a class="headerlink" href="#werkzeug.check_password_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>check a password against a given salted and hashed password value.
+In order to support unsalted legacy passwords this method supports
+plain text passwords, md5 and sha1 hashes (both salted and unsalted).</p>
+<p>Returns <cite>True</cite> if the password matched, <cite>False</cite> otherwise.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>pwhash</strong> &#8211; a hashed string like returned by
+<a title="werkzeug.generate_password_hash" class="reference internal" href="#werkzeug.generate_password_hash"><tt class="xref py py-func docutils literal"><span class="pre">generate_password_hash()</span></tt></a></li>
+<li><strong>password</strong> &#8211; the plaintext password to compare against the hash</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+        <div style="clear: both"></div>
+      </div>
+      <div class="footer">
+        © Copyright 2008 by the <a href="http://pocoo.org/">Pocoo Team</a>,
+        documentation generated by <a href="http://sphinx.pocoo.org/">Sphinx</a>
+      </div>
+    </div>
+  </body>
+</html>

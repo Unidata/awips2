@@ -1,0 +1,4 @@
+C                                           *--> FROM UCOMMON.UFREEI
+      COMMON/UFREEI/ NFIELD,IFTYPE(40),IFCNT(40),IFSTRT(40),IFSTOP(40),
+     *               IBUF(80),KOUNT
+C

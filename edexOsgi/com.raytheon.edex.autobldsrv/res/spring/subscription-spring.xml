@@ -1,0 +1,65 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<!-- define the bean that handles Quartz scheduled script running -->
+	<bean id="timerScriptRunner" class="com.raytheon.edex.services.ScriptRunner" >
+		<property name="type" value="timer" />
+	</bean>
+	
+	<!-- define the bean that handles data arrival script running -->
+	<!--
+	<bean id="dataScriptRunner" class="com.raytheon.edex.services.ScriptRunner">
+		<property name="type" value="data" />
+	</bean>
+	-->
+	<camelContext id="subscription-camel" 
+	              xmlns="http://camel.apache.org/schema/spring"
+                  errorHandlerRef="errorHandler">
+
+		<!-- Refer to edex.xml for name/location of properties file -->
+		<endpoint id="runnerCron" uri="quartz://runner/runnerScheduled/?cron=${subscription.cron}"/>
+
+		<!-- Quartz Timer triggered script runner -->
+		<route id="runnerScheduled">
+			<from uri="runnerCron" />
+			<doTry>
+				<bean ref="timerScriptRunner" method="runScripts" />
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:subscription?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
+		</route>
+
+		<!-- Data Arrival triggered script runner -->
+		<!--
+		<route id="dataArrival">
+			<from uri="jms-generic:queue:subscriptions" />
+			<doTry>
+				<bean ref="dataScriptRunner" method="runScripts" />
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:subscription?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
+		</route>
+	    -->
+
+		<!-- LDAD (watch/warn) triggered script runner -->
+		<route id="ldadWatchWarn">
+		   <from uri="jms-generic:queue:watchwarn?destinationResolver=#qpidDurableResolver"/>
+		   <doTry>
+		   	   <bean ref="ldadScriptRunner" method="runScripts" />
+		   	   <doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:subscription?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+		   	   </doCatch>
+		   </doTry>
+		</route>
+	</camelContext>
+</beans>

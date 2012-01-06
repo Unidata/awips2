@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Level Plug-in
+Bundle-SymbolicName: com.raytheon.uf.edex.plugin.level
+Bundle-Version: 1.12.1174.qualifier
+Eclipse-RegisterBuddy:  com.raytheon.edex.common, com.raytheon.uf.common.dataplugin.level
+Bundle-Vendor: Raytheon
+Require-Bundle: com.raytheon.edex.common,
+ javax.measure,
+ javax.persistence,
+ org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.apache.commons.lang,
+ org.apache.commons.logging,
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.dataplugin.level,
+ com.raytheon.uf.common.serialization.comm
+Export-Package: com.raytheon.uf.edex.plugin.level.adapter,
+ com.raytheon.uf.edex.plugin.level.dao
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

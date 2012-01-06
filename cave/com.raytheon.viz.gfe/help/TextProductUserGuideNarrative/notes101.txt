@@ -1,0 +1,5 @@
+Given a node and a text string of words, the setWords method first sets the "words" attribute for the given sub-phrase node: 
+&nbsp;&nbsp;&nbsp;&nbsp;     node.set(.words., words)
+
+Then it returns the "self.DONE()" flag so that the word method will not be called again.  IT IS VERY IMPORTANT that a word method always return the "self.DONE()" flag. If it does not, an infinite loop could occur.  We will look at this more closely in the Trouble-shooting section.
+

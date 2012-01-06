@@ -1,0 +1,1425 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.8 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]">
+  <title>Text Products Reference</title>
+<!--link REL="STYLESHEET" HREF="TextFormatter.html"-->
+</head>
+<body bgcolor="#ffffff">
+WFO Site InformationWFO Site InformationWFO Site Information
+<center>
+<h1><a name="ProductSet-upand"></a>Product Set-up and Customization</h1>
+</center>
+&nbsp; <a href="#ServerTemplates">ifpServer Product Configuration</a> <br>
+&nbsp; <a href="#QuickStartProductSet">Quick Start Product Set up</a> <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a
+ href="#TABULAR_-TYPE_PRODUCTS_">Tabular Products</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a
+ href="#NARRATIVE-TYPE_PRODUCTS">Narrative Products</a><br>
+&nbsp; <a href="#Hazard_Products">Hazard Products</a><br>
+&nbsp; <a href="#Special_Statements">Statements</a><br>
+&nbsp; <a href="#ProductCustomization">Product Customization</a> <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#CustomizingNarrative">Customizing
+Narrative Phrases</a> <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a
+ href="#ExampleCustomizing">Example: Customizing a Narrative Phrase</a>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a
+ href="#ConfigurableIssuance--">Narrative Definition and Configurable
+Issuance -- "def issuance_list"</a> <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a
+ href="#Post-ProcessingNarrativePhrases">Post-Processing Narrative
+Phrases</a> <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#AllowedHazards">AllowedHazards</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a
+ href="#HazardKey">HazardKey</a><br>
+&nbsp; <a href="#WFOSITE">WFO Site Information</a><br>
+<hr>
+<h2> <a name="ServerTemplates"></a>ifpServer Product Configuration</h2>
+The GFESuite set of product formatters are delivered to the field as
+templates, which are then expanded upon installation. The installation
+converts the templates into the Baseline, Region, and local (site)
+versions
+of the formatters. The installation also will fill in the templated
+information,
+such as the WFO name, city, and state, and the product PIL, WMOID, and
+AWIPS database pil and transmission pil.
+<p>This automatic configuration
+is based on the afos2awips.txt pil/wmoid table. If there are errors in
+this table, then the products will not be correctly configured. To
+correct
+the templates after making changes to afos2awips.txt, you can rerun the
+template expansion scripts. Refer to the <a
+ href="ConfigureTextProducts.html">configureTextProduct User Guide</a>
+for more details.
+</p>
+<p>Some sites will have multiple entries in their afos2awips.txt table
+for
+a particular product, e.g., ZFP. The configuration script takes this
+into
+account and will automatically generate formatters for each entry
+found.
+</p>
+<p></p>
+<h2> <a name="QuickStartProductSet"></a>Quick Start Product Set Up</h2>
+This section gives step-by-step instructions to get a product set-up
+and running.&nbsp; The following section <a
+ href="#ProductCustomization">"Product
+Customization Guide"</a> gives instructions on configuring the product
+and customizing it to your local site.
+<ul>
+  <li> <b>Login to the GFE from a terminal window under a new user ID,
+e.g. TextTest</b>.&nbsp; From a terminal window in the /release/bin
+directory, type ./runGFE.&nbsp; Login as a new user ID such as
+TextTest.
+You will use this ID to set up new products and test them.&nbsp; When
+you are satisfied with a product, you may move it to your SITE
+directory.&nbsp; NOTE: If you have GFESuite text products running from
+IFPS 15 or prior versions, you will need to transition them to IFPS 16
+before running operationally.&nbsp; Please see the section on <a
+ href="#Backward">Upgrades and Backward Compatibility</a>.</li>
+  <li> <b>Create Edit Areas.&nbsp;</b> Create edit areas named
+"area1",
+"area2", and "area3".&nbsp;&nbsp; Some products are set up to run with
+these "defaultEditAreas" as noted in the table below.&nbsp; Other
+products run with a set of edit area Combinations which can be set up
+through the <a href="FormatterLauncher.html">Formatter Launcher Dialog</a>.</li>
+  <li><b>Locate the product you wish to set up.&nbsp; </b>From the GFE
+Main Menu, select "Define Text Products" .&nbsp; Locate the "Standard"
+file for the product you wish to set up in the table below:</li>
+</ul>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a
+ name="TABULAR_-TYPE_PRODUCTS_"></a><b>TABULAR
+-TYPE PRODUCTS</b> <br>
+<center>
+<table nosave="" border="1" cols="4" width="70%">
+  <caption>
+  <center></center>
+  <br>
+  </caption><tbody>
+  </tbody> <tbody>
+    <tr>
+      <td style="font-weight: bold;">&nbsp;Product</td>
+      <td style="font-weight: bold;">Standard File<br>
+(Text Products Window)<br>
+      </td>
+      <td style="font-weight: bold;">Site Definition File <br>
+Site Overrides File<br>
+(Text Utilities Window)<br>
+      <br>
+OR Local file <br>
+(Text Products Window)<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Regional
+Overrides File<br>
+(Text Utilities Window)<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Edit Areas<br>
+      </td>
+      <td style="font-weight: bold;">Additional Set-up Info&nbsp;</td>
+    </tr>
+    <tr>
+      <td>CCF</td>
+      <td>CCF</td>
+      <td>CCF_&lt;site&gt;_Definition<br>
+CCF_&lt;site&gt;_Overrides<br>
+      </td>
+      <td style="vertical-align: top;">CCF_&lt;region&gt;_Overrides</td>
+      <td style="vertical-align: top;">"defaultEditAreas" <br>
+      </td>
+      <td>Edit Areas Needed: Typically point edit areas are required
+for each entry to you wish to generate the product for.</td>
+    </tr>
+    <tr>
+      <td>SFT</td>
+      <td>SFT</td>
+      <td>SFT_&lt;site&gt;_Definition<br>
+SFT_&lt;site&gt;_Overrides<br>
+      </td>
+      <td style="vertical-align: top;">SFT_&lt;region&gt;_Overrides</td>
+      <td style="vertical-align: top;">"defaultEditAreas"</td>
+      <td>Edit Areas Needed: Typically point edit areas are required
+for each entry to you wish to generate the product for. </td>
+    </tr>
+    <tr>
+      <td>AFM</td>
+      <td>PFM</td>
+      <td>AFM_&lt;site&gt;_Definition<br>
+AFM_&lt;site&gt;_Overrides<br>
+      </td>
+      <td style="vertical-align: top;">AFM_&lt;region&gt;_Overrides</td>
+      <td style="vertical-align: top;">Combinations<br>
+      </td>
+      <td>See Standard product file for details.</td>
+    </tr>
+    <tr>
+      <td>PFM</td>
+      <td>PFM</td>
+      <td>PFM_&lt;site&gt;_Definition<br>
+PFM_&lt;site&gt;_Overrides&nbsp;</td>
+      <td style="vertical-align: top;">PFM_&lt;region&gt;_Overrides&nbsp;</td>
+      <td style="vertical-align: top;">"defaultEditAreas"</td>
+      <td>Edit Areas Needed: Typically point edit areas are required
+for each entry to you wish to generate the product for. </td>
+    </tr>
+    <tr>
+      <td>MVF</td>
+      <td>MVF</td>
+      <td>MVF_&lt;site&gt;_Definition <br>
+MVF_&lt;site&gt;_Overrides<br>
+      </td>
+      <td style="vertical-align: top;">MVF_&lt;region&gt;_Overrides</td>
+      <td style="vertical-align: top;">"defaultEditAreas"</td>
+      <td>Edit Areas Needed: Typically point edit areas are required
+for each entry to you wish to generate the product for. </td>
+    </tr>
+    <tr>
+      <td>FWF Tabular</td>
+      <td>FWFTable</td>
+      <td>FWFTable_&lt;site&gt;_Definition <br>
+FWFTable_&lt;site&gt;_Overrides<br>
+      </td>
+      <td style="vertical-align: top;">FWFTable_&lt;region&gt;_Overrides</td>
+      <td style="vertical-align: top;">Combinations<br>
+      </td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td>FWM</td>
+      <td>FWM</td>
+      <td>FWM_&lt;site&gt;_Definition<br>
+FWM_&lt;site&gt;_Overrides&nbsp;</td>
+      <td style="vertical-align: top;">FWM_&lt;region&gt;_Overrides</td>
+      <td style="vertical-align: top;">"defaultEditAreas"</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;"><br>
+AFD</td>
+      <td style="vertical-align: top;">AFD</td>
+      <td style="vertical-align: top;">AFD_&lt;site&gt;_Definition<br>
+AFD_&lt;site&gt;_Overrides </td>
+      <td style="vertical-align: top;">AFD_&lt;region&gt;_Overrides</td>
+      <td style="vertical-align: top;">Combinations</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</center>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a
+ name="NARRATIVE-TYPE_PRODUCTS"></a><b>NARRATIVE-TYPE
+PRODUCTS</b> </p>
+<center>
+<table nosave="" border="1" cols="4" width="70%">
+  <caption>
+  <center></center>
+  <br>
+  </caption><tbody>
+  </tbody> <tbody>
+    <tr>
+      <td>&nbsp;<span style="font-weight: bold;">Product</span></td>
+      <td><span style="font-weight: bold;">Standard File</span><br
+ style="font-weight: bold;">
+      <span style="font-weight: bold;">(Text Products Window)</span><br>
+      </td>
+      <td><span style="font-weight: bold;">Site Definition File</span><br
+ style="font-weight: bold;">
+      <span style="font-weight: bold;">Site Overrides File</span><br
+ style="font-weight: bold;">
+      <span style="font-weight: bold;">(Text Utilities Window)</span><br
+ style="font-weight: bold;">
+      <br style="font-weight: bold;">
+      <span style="font-weight: bold;">OR Local file </span><br
+ style="font-weight: bold;">
+      <span style="font-weight: bold;">(Text Products Window)</span><br>
+      </td>
+      <td style="vertical-align: top;"><span style="font-weight: bold;">Regional
+Overrides File</span><br style="font-weight: bold;">
+      <span style="font-weight: bold;">(Text Utilities Window)</span><br>
+      </td>
+      <td style="vertical-align: top;"><span style="font-weight: bold;">Edit
+Areas</span><br>
+      </td>
+      <td style="font-weight: bold;">Additional Set-up Info&nbsp;</td>
+    </tr>
+    <tr>
+      <td>ZFP</td>
+      <td>AreaFcst</td>
+      <td>ZFP_&lt;site&gt;_Definition<br>
+ZFP_&lt;site&gt;_Overrides<br>
+      </td>
+      <td style="vertical-align: top;">ZFP_&lt;region&gt;_Overrides</td>
+      <td style="vertical-align: top;">Combinations<br>
+      </td>
+      <td><br>
+      </td>
+    </tr>
+    <tr nosave="">
+      <td>SAF</td>
+      <td>AreaFcst</td>
+      <td nosave="">SAF_&lt;site&gt;_Definition<br>
+SAF_&lt;site&gt;_Overrides<br>
+      </td>
+      <td style="vertical-align: top;">SAF_&lt;region&gt;_Overrides</td>
+      <td style="vertical-align: top;">"defaultEditAreas"</td>
+      <td>Also inherits from ZFP Site Definitions and Overrides so that
+those settings and customizations will carry over to the SAF.<br>
+      <br>
+Also inherits from SAF_Overrides<br>
+      </td>
+    </tr>
+    <tr>
+      <td>CWF</td>
+      <td>CWF</td>
+      <td>CWF_&lt;site&gt;_Definition<br>
+CWF_&lt;site&gt;_Overrides<br>
+      </td>
+      <td style="vertical-align: top;">CWF_&lt;region&gt;_Overrides</td>
+      <td style="vertical-align: top;">Combinations<br>
+      </td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td>CWF_Pacific</td>
+      <td>CWF_Pacific</td>
+      <td>CWF_Pacific_&lt;site&gt;_Definition<br>
+CWF_Pacific_&lt;site&gt;_Overrides<br>
+      </td>
+      <td style="vertical-align: top;">CWF_Pacific_&lt;region&gt;_Overrides</td>
+      <td style="vertical-align: top;">Combinations</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td>GLF</td>
+      <td>GLF</td>
+      <td>GLF_&lt;site&gt;_Definition<br>
+GLF_&lt;site&gt;_Overrides<br>
+      </td>
+      <td style="vertical-align: top;">GLF_&lt;region&gt;_Overrides</td>
+      <td style="vertical-align: top;">"defaultEditAreas"</td>
+      <td>Many special edit areas needed.&nbsp;
+      <p>See Standard GLF product file for more details.&nbsp; <br>
+&nbsp;</p>
+      </td>
+    </tr>
+    <tr nosave="">
+      <td>NSH</td>
+      <td>NSH</td>
+      <td>NSH_&lt;site&gt;_Definition<br>
+NSH_&lt;site&gt;_Overrides<br>
+      </td>
+      <td style="vertical-align: top;">NSH_&lt;region&gt;_Overrides</td>
+      <td style="vertical-align: top;">Combinations</td>
+      <td nosave=""><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">OFF<br>
+      </td>
+      <td style="vertical-align: top;">OFF<br>
+      </td>
+      <td style="vertical-align: top;">OFF_&lt;site&gt;_Definition<br>
+OFF_&lt;site&gt;_Overrides<br>
+      </td>
+      <td style="vertical-align: top;">OFF_&lt;region&gt;_Overrides<br>
+      </td>
+      <td style="vertical-align: top;">Combinations<br>
+      </td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td>FWF</td>
+      <td>FWF</td>
+      <td>FWF_&lt;site&gt;_Definition<br>
+FWF_&lt;site&gt;_Overrides<br>
+      </td>
+      <td style="vertical-align: top;">FWF_&lt;region&gt;_Overrides</td>
+      <td style="vertical-align: top;">Combination</td>
+      <td>
+      <p><br>
+&nbsp;</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">FWS<br>
+      </td>
+      <td style="vertical-align: top;">FWF<br>
+      </td>
+      <td style="vertical-align: top;">FWS_&lt;site&gt;_Definition<br>
+FWS_&lt;site&gt;_Overrides</td>
+      <td style="vertical-align: top;">FWS_&lt;region&gt;_Overrides</td>
+      <td style="vertical-align: top;">Lat/Lon point<br>
+      </td>
+      <td style="vertical-align: top;">Also inherits from FWS_Overrides.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</center>
+<ul>
+  <li> <b>Open the Standard product file for viewing.&nbsp; </b>Press
+MB3 over the name of the standard file and choose, "View".</li>
+  <li> <b>Create Data and Publish to Official Database.&nbsp; </b>Locate
+the documentation section in the standard file for "Weather Elements
+Required."&nbsp; Create data for these weather elements and then, from
+the Products Menu, choose "Publish to Official."</li>
+  <li> <b>Run your product.&nbsp;</b> From the "Products" menu, select
+"Formatter Launcher"&nbsp; The <a href="FormatterLauncher.html">Formatter
+Launcher Dialog</a> will appear listing the
+products.&nbsp; Select the name of the product, which brings up a new
+tab. &nbsp;If the product
+runs with Combinations of edit areas, a map will appear and you may use
+the Zone Combiner portion of the dialog to set up desired
+combinations. &nbsp; Choose "Run" to start the formatter.</li>
+  <li> <b>Make dialog selections.</b>&nbsp; Some products will display
+a dialog for user input.&nbsp; Make appropriate selections and choose
+OK.</li>
+  <li> <b>Output will appear</b> in the Formatter Launcher Dialog and
+you
+can modify, save, and/or transmit it.</li>
+  <li> <b>If you have any problems</b>, refer to the <a
+ href="#TroubleShooting">Troubleshooting Guide </a>below.</li>
+  <li style="font-weight: bold;">Review AreaDictionary. <span
+ style="font-weight: normal;">The "AreaDictionary" is located in the
+"TextUtilities" window of the Define Text Products Dialog. This file is
+automatically generated and contains information about the zones,
+counties and cities for your site. This information is documented at
+the beginning of the file. Be sure and review the generated file and,
+if necessary, use MB3 "Modify" to make changes.</span></li>
+  <li style="font-weight: bold;"><span style="font-weight: normal;"><span
+ style="font-weight: bold;">Set up Customized Edit Areas</span>.&nbsp;
+For those products that use "defaultEditAreas", modify the Site
+Definition file with appropriate edit areas customized for your site.<br>
+    </span></li>
+  <li><span style="font-weight: bold;">Run the Baseline, Regional, and
+Site Products.</span></li>
+  <li><b>Deactivating Products: If products appear in the Formatter
+Launcher which your site does not want to use, you can deactivate them
+as follows: </b>Open the Site Definition File OR Local product file
+and set
+the
+"displayName.&nbsp; Press MB3 over the Site Definition File OR
+Local file (see
+table above) and choose "Modify".&nbsp; Set the "displayName"
+Definition
+entry. &nbsp;This is the name that will appear in the Formatter
+Launcher
+Dialog. <br>
+  </li>
+</ul>
+<h2><a name="Hazard_Products"></a>Hazard Products</h2>
+The following Hazard Products are installed automatically.&nbsp; To run
+them:&nbsp; From the Formatter Launcher, choose
+Products--&gt;Hazards.&nbsp; <br>
+<br>
+<table style="text-align: left; width: 100%;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;"><span style="font-weight: bold;">Product</span><br>
+      </td>
+      <td style="vertical-align: top;"><span style="font-weight: bold;">Standard
+File</span><br>
+      </td>
+      <td style="vertical-align: top;"><span style="font-weight: bold;">Local
+File</span><br>
+      </td>
+      <td style="vertical-align: top;"><span style="font-weight: bold;">Edit
+Areas</span><br>
+      </td>
+      <td style="vertical-align: top;"><span style="font-weight: bold;">Additional
+Info</span><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ADR<br>
+      </td>
+      <td style="vertical-align: top;">CivilEmerg<br>
+(Inherits from GenericReport)<br>
+      </td>
+      <td style="vertical-align: top;">CivilEmerg_ADR_Local</td>
+      <td style="vertical-align: top;">Combinations</td>
+      <td style="vertical-align: top;">Does not use any gridded
+data.&nbsp; Zone combiner is used to define area of product.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">AVA<br>
+      </td>
+      <td style="vertical-align: top;">CivilEmerg<br>
+(Inherits from GenericReport)</td>
+      <td style="vertical-align: top;">CivilEmerg_AVA_Local</td>
+      <td style="vertical-align: top;">Combinations</td>
+      <td style="vertical-align: top;">Does not use any gridded
+data.&nbsp; Zone combiner is used to define area of product. </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">AVW<br>
+      </td>
+      <td style="vertical-align: top;">CivilEmerg<br>
+(Inherits from GenericReport)</td>
+      <td style="vertical-align: top;">CivilEmerg_AVW_Local</td>
+      <td style="vertical-align: top;">Combinations</td>
+      <td style="vertical-align: top;">Does not use any gridded
+data.&nbsp; Zone combiner is used to define area of product. </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">CAE<br>
+      </td>
+      <td style="vertical-align: top;">CivilEmerg<br>
+(Inherits from GenericReport)</td>
+      <td style="vertical-align: top;">CivilEmerg_CAE_Local</td>
+      <td style="vertical-align: top;">Combinations</td>
+      <td style="vertical-align: top;">Does not use any gridded
+data.&nbsp; Zone combiner is used to define area of product. </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">CDW<br>
+      </td>
+      <td style="vertical-align: top;">CivilEmerg<br>
+(Inherits from GenericReport)</td>
+      <td style="vertical-align: top;">CivilEmerg_CDW_Local</td>
+      <td style="vertical-align: top;">Combinations</td>
+      <td style="vertical-align: top;">Does not use any gridded
+data.&nbsp; Zone combiner is used to define area of product. </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">CEM<br>
+      </td>
+      <td style="vertical-align: top;">CivilEmerg<br>
+(Inherits from GenericReport)</td>
+      <td style="vertical-align: top;">CivilEmerg_CEM_Local</td>
+      <td style="vertical-align: top;">Combinations</td>
+      <td style="vertical-align: top;">Does not use any gridded
+data.&nbsp; Zone combiner is used to define area of product.&nbsp; <br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">CFW<br>
+      </td>
+      <td style="vertical-align: top;">Hazard_CFW<br>
+(Inherits from GenericHazard) </td>
+      <td style="vertical-align: top;">Hazard_CFW_Local<br>
+      </td>
+      <td style="vertical-align: top;">Automatically determined<br>
+      </td>
+      <td style="vertical-align: top;">Uses the Hazards grid. </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">EQR<br>
+      </td>
+      <td style="vertical-align: top;">CivilEmerg<br>
+(Inherits from GenericReport)</td>
+      <td style="vertical-align: top;">CivilEmerg_EQR_Local</td>
+      <td style="vertical-align: top;">Combinations<br>
+      </td>
+      <td style="vertical-align: top;">Does not use any gridded
+data.&nbsp; Zone combiner is used to define area of product. </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">EQW<br>
+      </td>
+      <td style="vertical-align: top;">CivilEmerg<br>
+(Inherits from GenericReport) </td>
+      <td style="vertical-align: top;">CivilEmerg_EQW_Local<br>
+      </td>
+      <td style="vertical-align: top;">Combinations<br>
+      </td>
+      <td style="vertical-align: top;">Does not use any gridded
+data.&nbsp; Zone combiner is used to define area of product.</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">EVI<br>
+      </td>
+      <td style="vertical-align: top;">CivilEmerg<br>
+(Inherits from GenericReport)</td>
+      <td style="vertical-align: top;">CivilEmerg_EVI_Local</td>
+      <td style="vertical-align: top;">Combinations</td>
+      <td style="vertical-align: top;">Does not use any gridded
+data.&nbsp; Zone combiner is used to define area of product. </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">FFA<br>
+      </td>
+      <td style="vertical-align: top;">Hazard_FFA<br>
+(Inherits from GenericHazard) </td>
+      <td style="vertical-align: top;">Hazard_FFA_Local<br>
+      </td>
+      <td style="vertical-align: top;">Automatically determined<br>
+      </td>
+      <td style="vertical-align: top;">A dialog is displayed when this
+formatter is started to allow the forecaster to select the flood reason
+for the required H-VTEC line.
+      <p>Can be configured for either ZONES or FIPS UGCs.<br>
+      </p>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">FRW<br>
+      </td>
+      <td style="vertical-align: top;">CivilEmerg<br>
+(Inherits from GenericReport)</td>
+      <td style="vertical-align: top;">CivilEmerg_FRW_Local</td>
+      <td style="vertical-align: top;">Combinations</td>
+      <td style="vertical-align: top;">Does not use any gridded
+data.&nbsp; Zone combiner is used to define area of product. </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">HLS<br>
+      </td>
+      <td style="vertical-align: top;">Hazard_HLS<br>
+(Inherits from GenericReport)</td>
+      <td style="vertical-align: top;">Hazard_HLS_Local<br>
+      </td>
+      <td style="vertical-align: top;">Combinations<br>
+      </td>
+      <td style="vertical-align: top;">Does not use any gridded
+data.&nbsp; Zone combiner is used to define area of product.</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">HMW<br>
+      </td>
+      <td style="vertical-align: top;">CivilEmerg<br>
+(Inherits from GenericReport)</td>
+      <td style="vertical-align: top;">CivilEmerg_HMW_Local</td>
+      <td style="vertical-align: top;">Combinations</td>
+      <td style="vertical-align: top;">Does not use any gridded
+data.&nbsp; Zone combiner is used to define area of product. </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">HWO</td>
+      <td style="vertical-align: top;">Hazard_HWO<br>
+(Inherits from GenericReport)</td>
+      <td style="vertical-align: top;">Hazard_HWO_Local</td>
+      <td style="vertical-align: top;">Combinations</td>
+      <td style="vertical-align: top;">Does not use any gridded
+data.&nbsp; Zone combiner is used to define area of product. </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">LAE<br>
+      </td>
+      <td style="vertical-align: top;">CivilEmerg<br>
+(Inherits from GenericReport)</td>
+      <td style="vertical-align: top;">CivilEmerg_LAE_Local</td>
+      <td style="vertical-align: top;">Combinations</td>
+      <td style="vertical-align: top;">Does not use any gridded
+data.&nbsp; Zone combiner is used to define area of product. </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">LEW<br>
+      </td>
+      <td style="vertical-align: top;">CivilEmerg<br>
+(Inherits from GenericReport)</td>
+      <td style="vertical-align: top;">CivilEmerg_LEW_Local</td>
+      <td style="vertical-align: top;">Combinations</td>
+      <td style="vertical-align: top;">Does not use any gridded
+data.&nbsp; Zone combiner is used to define area of product. </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">MWS<br>
+      </td>
+      <td style="vertical-align: top;">Hazard_MWS<br>
+(Inherits from GenericHazard) </td>
+      <td style="vertical-align: top;">Hazard_MWS_Local<br>
+      </td>
+      <td style="vertical-align: top;">Automatically determined</td>
+      <td style="vertical-align: top;">Uses the Hazards grid.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">NPW<br>
+      </td>
+      <td style="vertical-align: top;">Hazard_NPW<br>
+(Inherits from GenericHazard)</td>
+      <td style="vertical-align: top;">Hazard_NPW_Local<br>
+      </td>
+      <td style="vertical-align: top;">Automatically determined</td>
+      <td style="vertical-align: top;">Uses the Hazards grid.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">NUW<br>
+      </td>
+      <td style="vertical-align: top;">CivilEmerg<br>
+(Inherits from GenericReport)</td>
+      <td style="vertical-align: top;">CivilEmerg_NUW_Local</td>
+      <td style="vertical-align: top;">Combinations</td>
+      <td style="vertical-align: top;">Does not use any gridded
+data.&nbsp; Zone combiner is used to define area of product. </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">RFW<br>
+      </td>
+      <td style="vertical-align: top;">Hazard_RFW<br>
+(Inherits from GenericHazard)</td>
+      <td style="vertical-align: top;">Hazard_RFW_Local<br>
+      </td>
+      <td style="vertical-align: top;">Automatically determined</td>
+      <td style="vertical-align: top;">Uses the Hazards grid.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">RHW<br>
+      </td>
+      <td style="vertical-align: top;">CivilEmerg<br>
+(Inherits from GenericReport)</td>
+      <td style="vertical-align: top;">CivilEmerg_RHW_Local</td>
+      <td style="vertical-align: top;">Combinations</td>
+      <td style="vertical-align: top;">Does not use any gridded
+data.&nbsp; Zone combiner is used to define area of product. </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">SPW<br>
+      </td>
+      <td style="vertical-align: top;">CivilEmerg<br>
+(Inherits from GenericReport)</td>
+      <td style="vertical-align: top;">CivilEmerg_SPW_Local</td>
+      <td style="vertical-align: top;">Combinations</td>
+      <td style="vertical-align: top;">Does not use any gridded
+data.&nbsp; Zone combiner is used to define area of product. </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">TOE<br>
+      </td>
+      <td style="vertical-align: top;">CivilEmerg<br>
+(Inherits from GenericReport)</td>
+      <td style="vertical-align: top;">CivilEmerg_TOE_Local</td>
+      <td style="vertical-align: top;">Combinations</td>
+      <td style="vertical-align: top;">Does not use any gridded
+data.&nbsp; Zone combiner is used to define area of product. </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">VOW<br>
+      </td>
+      <td style="vertical-align: top;">CivilEmerg<br>
+(Inherits from GenericReport)</td>
+      <td style="vertical-align: top;">CivilEmerg_VOW_Local</td>
+      <td style="vertical-align: top;">Combinations</td>
+      <td style="vertical-align: top;">Does not use any gridded
+data.&nbsp; Zone combiner is used to define area of product. </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">WCN<br>
+      </td>
+      <td style="vertical-align: top;">Hazard_WCN<br>
+(Inherits from GenericHazard)</td>
+      <td style="vertical-align: top;">Hazard_WCN_Local<br>
+      </td>
+      <td style="vertical-align: top;">Automatically determined</td>
+      <td style="vertical-align: top;">Uses the Hazards grid. </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">WSW<br>
+      </td>
+      <td style="vertical-align: top;">Hazard_WSW<br>
+(Inherits from GenericHazard)</td>
+      <td style="vertical-align: top;">Hazard_WSW_Local<br>
+      </td>
+      <td style="vertical-align: top;">Automatically determined</td>
+      <td style="vertical-align: top;">Uses the Hazards grid. </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<br>
+<h2><a name="Special_Statements"></a>Statements</h2>
+<table style="width: 100%; text-align: left;" border="1" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;"><span style="font-weight: bold;">Product</span><br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Standard File<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Local File<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">EditAreas<br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">Additional
+Info<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">ESF<br>
+      </td>
+      <td style="vertical-align: top;">GenericReport<br>
+      </td>
+      <td style="vertical-align: top;">ESF_Local<br>
+      </td>
+      <td style="vertical-align: top;">Combinations<br>
+      </td>
+      <td style="vertical-align: top;">Can be configured to use either
+FIPS or ZONE codes.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">NOW<br>
+      </td>
+      <td style="vertical-align: top;">GenericReport</td>
+      <td style="vertical-align: top;">NOW_Local<br>
+      </td>
+      <td style="vertical-align: top;">Combinations</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">PNS<br>
+      </td>
+      <td style="vertical-align: top;">GenericReport</td>
+      <td style="vertical-align: top;">PNS_Local<br>
+      </td>
+      <td style="vertical-align: top;">Combinations</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">RFD<br>
+      </td>
+      <td style="vertical-align: top;">GenericReport</td>
+      <td style="vertical-align: top;">RFD_Local<br>
+      </td>
+      <td style="vertical-align: top;">Combinations</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">SPS<br>
+      </td>
+      <td style="vertical-align: top;">GenericReport</td>
+      <td style="vertical-align: top;">SPS_Local<br>
+      </td>
+      <td style="vertical-align: top;">Combinations</td>
+      <td style="vertical-align: top;"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<h2> <a name="ProductCustomization"></a>Product Customization</h2>
+<a name="CustomizingNarrative"></a><b>Customizing Narrative Phrases</b>
+<p><a name="ExampleCustomizing"></a><b>Example: Customizing a Phrase</b>
+</p>
+<p>The "wind_withGusts_phrase" produces phrases such as: </p>
+<p>WINDS NORTHEAST 10 TO 20 KNOTS WITH GUSTS TO AROUND 70 KNOTS VEERING
+SOUTHEAST 5 TO 15 KNOTS WITH GUSTS AROUND 25 KNOTS IN THE EARLY
+MORNING. </p>
+<p>When we find this phrase in the <a href="#WINDANDWINDGUST">Wind and
+WindGust Text Rules section </a>, we see that it can be customized in
+various ways.&nbsp; If we want to change the descriptor from "WINDS" to
+"WIND", we need to override the <i><font color="#993366">phrase_descriptor_dict</font></i>&nbsp;
+for "Wind".&nbsp; <font color="#000000">First, we look to see if it is
+already overridden in the Standard File, AreaFcst, which we
+open in the Text Products window of the Define Text Products dialog. We
+can issue a "find" command to see if it is there. It is not, so next we
+look in the ConfigVariables utility from the Text Utilities window
+and&nbsp; issue a "find" command.&nbsp; </font><font color="#cc0000">NOTE</font><font
+ color="#000000">:
+The ConfigVariables Utility is "Read-Only", so
+you cannot change the method in that file. You MUST copy it into your
+Overrides file, and in that location, you can change the value which
+will
+override or supercede the value found in the library
+module.&nbsp;&nbsp; <br>
+</font></p>
+<p>We notice that the <i><font color="#993366">phrase_descriptor_dict</font></i>
+is very lengthy.&nbsp; We do not have to repeat the entire method.
+Instead, we can use the dictionary as a starting
+point and simply change any entries that are relevant to us as follows:
+</p>
+<blockquote><font color="#006600">def phrase_descriptor_dict(self,
+tree, node):</font> <br>
+  <font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dict
+= TextRules.TextRules.phrase_descriptor_dict(self, tree, node)</font> <br>
+  <font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+dict["Wind"] = "wind"</font> <br>
+  <font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return dict</font></blockquote>
+Notice that our descriptor entry can be in lower case.&nbsp; All
+formatters work in lower case to construct the phrase.&nbsp; It is
+converted to upper case near the end of processing.&nbsp;&nbsp;<br>
+<p>If we want to report knots as "KTS" instead of "KNOTS", we will
+override the <i><font color="#993366">units_descriptor_dict </font></i>for
+"kt" as follows in the "Overriding Thresholds and Variables" section of
+our Overrides file: </p>
+<blockquote>&nbsp; <font color="#006600">def
+units_descriptor_dict(self, tree, node):</font> <br>
+  <font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dict
+= TextRules.TextRules.units_descriptor_dict(self, tree, node)</font> <br>
+  <font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+unitsDict = dict["units"]</font> <br>
+  <font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+unitsDict["kt"] = "kts"</font> <br>
+  <font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return dict</font></blockquote>
+The wind_withGusts_phrase reports gusts if they are 10 knots greater
+than the maximum wind speed.&nbsp; Suppose we would like to suppress
+reporting gusts unless they are at least 15 knots greater than the
+maximum wind speed.&nbsp; The table for the
+"public_windRange_withGusts_phrase" lists a method called <i><font
+ color="#993366">gust_wind_difference_threshold.&nbsp;</font></i><font
+ color="#000000"> We can locate it in the VectorRelatedPhrases module
+and copy and paste it into our Overrides file:</font><font
+ color="#000000"></font>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#006600">def
+gust_wind_difference_threshold(self, tree, node):</font> <br>
+<font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# Difference between gust and max wind below which gusts are not
+mentioned</font> <br>
+<font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# Units are in mph or knots depending on the current product</font> <br>
+<font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return 15</font> </p>
+<p><a name="ConfigurableIssuance--"></a><b><font color="#000000">Narrative
+Definition and Configurable Issuance -- issuance_list</font></b> </p>
+<p><font color="#000000">Narrative products are composed of a
+"narrative" which contains a series of "component" phrase
+products.&nbsp;&nbsp; This is used to construct a "narrative" type of
+product of the form:</font> </p>
+<p><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </font><font
+ color="#006600">{</font> <br>
+<font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"type": "narrative",</font> <br>
+<font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"narrativeDef":&nbsp; [(&lt;componentName&gt;, &lt;number of
+hours&gt;), ...],</font> <br>
+<font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"methodList": [self.assembleChildWords"],</font> <br>
+<font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# optional:</font> <br>
+<font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"priorPeriod": &lt;number of hours&gt;,&nbsp;&nbsp; # Number of hours
+for sampling prior to forecast. Used for</font> <br>
+<font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# first period trends</font> <br>
+<font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</font>
+</p>
+<p>For example: </p>
+<p><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </font><font
+ color="#006600">{</font> <br>
+<font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"type": "narrative",</font> <br>
+<font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"narrativeDef":&nbsp; [("Period_1", 12), ("Period_2_3", 12),
+("Period_2_3, 12)],</font> <br>
+<font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"methodList": [self.assembleChildWords"],</font> <br>
+<font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# optional:</font> <br>
+<font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"priorPeriod": 24,&nbsp;&nbsp; # Number of hours for sampling prior to
+forecast. Used for</font> <br>
+<font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# first period trends</font> <br>
+<font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</font>
+</p>
+<p><font color="#000000">Note that you may define a "Phantom" period
+during which no phrases will be generated.&nbsp; It will act as a
+placeholder advancing your time periods:</font> </p>
+<p><font color="#000000">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </font><font
+ color="#006600">"narrativeDef": {</font> <br>
+<font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Period", "period1"),</font> <br>
+<font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Period", 12), ("Period", 12),</font> <br>
+<font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("LaterPeriod", 12), ("LaterPeriod", 12), ("LaterPeriod", 12),</font> <br>
+<font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Phantom", 6), ("Extended", 24), ("Extended", 24), ("Extended", 24)</font>
+<br>
+<font color="#006600">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}</font> </p>
+<p><font color="#000000">You can customize the issuance times and the
+series of components by overriding the </font><i><font color="#993366">_issuance_list</font></i><font
+ color="#000000"> method, which returns information about the issuance
+times you want for your product.&nbsp; The </font><i><font
+ color="#993366">issuance_list</font></i><font color="#000000">, is
+found in the Standard file for narrative-type products.</font> </p>
+<p><font color="#006600">&nbsp;</font><font color="#000000">For each
+issuance time we must give the following information:</font> </p>
+<ul>
+  <li> <font color="#000000">description -- text to appear in the
+startUp dialog for the product.</font></li>
+  <li> <font color="#000000">startHour, endHour -- start and end hours
+for the first period.&nbsp; These times are relative to self.DAY() and
+self.NIGHT() which default to 6 and 18, respectively.&nbsp; The
+startHour or endHour can be specified as "issuanceHour".</font></li>
+  <li> <font color="#000000">expirationHour -- hour when the product
+expires in local time (it is converted to UGC for the header)</font></li>
+  <li> <font color="#000000">period1 Label&nbsp; -- the label for the
+first period. e.g. ".TODAY...", ".REST OF TODAY..."</font></li>
+  <li> <font color="#000000">period1 lateNight phrase -- phrase to use
+if the hours of 3am to 6am must be qualified e.g. "Partly cloudy<i> in
+the early morning</i>."</font></li>
+  <li> <font color="#000000">period1 lateDay phrase -- phrase to use
+if
+the hours of 3pm to 6pm must be qualified e.g. "Partly cloudy<i> in the
+early evening</i>."</font></li>
+  <li> <font color="#000000">todayFlag -- if 1, "TODAY" and "TONIGHT"
+phrasing will be used in subsequent periods, otherwise, weekday wording
+will apply.</font></li>
+  <li> <font color="#000000">narrative&nbsp; definition -- component
+and time period pairs</font></li>
+</ul>
+<font color="#000000">To understand how this works, here is an example
+of an issuance list for the ZFP (AreaFcst Standard product):</font>
+<p><font color="#006600">&nbsp;&nbsp; def _10_503_issuance_list(self,
+argDict):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; narrativeDefAM = [<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Period_1",
+"period1"),&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Period_2_3", 12), ("Period_2_3", 12), <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Period_4_5", 12), ("Period_4_5", 12), <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Period_6_14", 12), ("Period_6_14", 12), ("Period_6_14", 12),
+("Period_6_14", 12), <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Period_6_14", 12), ("Period_6_14", 12), ("Period_6_14", 12),
+("Period_6_14", 12), <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; narrativeDefPM = [<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Period_1", "period1"),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Period_2_3", 12), ("Period_2_3", 12), <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Period_4_5", 12), ("Period_4_5", 12), <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Period_6_14", 12), ("Period_6_14", 12), ("Period_6_14", 12),
+("Period_6_14", 12), <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Period_6_14", 12), ("Period_6_14", 12), ("Period_6_14", 12),
+("Period_6_14", 12), <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Period_6_14", 12),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return [<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Morning", self.DAY(), self.NIGHT(), self.NIGHT(),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+".TODAY...", "early in the morning", "late in the afternoon",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1, narrativeDefAM), <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Morning with Pre-1st Period", self.DAY()-2, self.NIGHT(),
+self.NIGHT(),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+".TODAY...", "early in the morning", "late in the afternoon",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1, narrativeDefAM), <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Morning Update", "issuanceHour", self.NIGHT(), self.NIGHT(),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+".REST OF TODAY...", "early in the morning", "late in the afternoon",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1, narrativeDefAM), <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Afternoon Update", "issuanceHour", self.NIGHT(), self.NIGHT(),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+".REST OF TODAY...", "early in the morning","late in the afternoon",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1, narrativeDefAM), <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp; End times are tomorrow:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Afternoon", self.NIGHT(), 24 + self.DAY(), 24 + self.DAY(),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+".TONIGHT...", "late in the night", "early in the evening",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1, narrativeDefPM), <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Afternoon with Pre-1st Period", self.NIGHT()-2, 24 + self.DAY(), 24 +
+self.DAY(),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+".TONIGHT...", "late in the night", "early in the evening",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1, narrativeDefPM), <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Evening Update", "issuanceHour", 24 + self.DAY(), 24 + self.DAY(),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+".REST OF TONIGHT...", "early in the morning","early in the evening",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1, narrativeDefPM),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+For the early morning update, this produces:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+REST OF TONIGHT:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+MONDAY<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+MONDAY NIGHT<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Early Morning Update", "issuanceHour", self.DAY(), self.DAY(),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+".REST OF TONIGHT...", "early in the morning","late in the afternoon",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0, narrativeDefPM), <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+Alternative<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+For the early morning update, this produces:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+EARLY THIS MORNING:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+TODAY<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+TONIGHT<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#("Evening Update", "issuanceHour", 24 + self.DAY(), 24 + self.DAY(),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+".REST OF TONIGHT...", "late in the night", "early in the evening",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # 1,
+narrativeDefPM), <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#("Early Morning Update", "issuanceHour", self.DAY(), self.DAY(),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+".EARLY THIS MORNING...", "early in the morning", "late in the
+afternoon",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # 1,
+narrativeDefPM), <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ]</font></p>
+<p><font color="#006600"><br>
+</font> NOTE:&nbsp; Any variables that begin with a "self._" should be
+encased in a "try" block.&nbsp; This is because the "_issuance_list" is
+accessed and examined once BEFORE the product is actually run in order
+to set up the input dialog.&nbsp; During this first examination, the
+variables are not yet initialized.&nbsp; As an example, here is the
+issuance_list from the FWF:<br>
+</p>
+<p>&nbsp;&nbsp;&nbsp; <span style="color: rgb(0, 102, 0);">def
+_issuance_list(self, argDict):</span><br style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+narrativeDefAM = [</span><br style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("FirePeriod", "period1"),</span><br style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("FirePeriod", 12), ("FirePeriod", 12),</span><br
+ style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+]</span><br style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+narrativeDefPM = [</span><br style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("FirePeriod", "period1"),</span><br style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("FirePeriod", 12), ("FirePeriod", 12), ("FirePeriod", 12)</span><br
+ style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+]</span><br style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+extended = [</span><br style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("FireExtendedShortTerm", 24), ("FireExtendedShortTerm", 24),</span><br
+ style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("FireExtendedShortTerm", 24), </span><br
+ style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("FireExtended", 24), ("FireExtended", 24),&nbsp; </span><br
+ style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+]</span><br style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span style="color: rgb(204, 0, 0);">try:</span></span><br
+ style="color: rgb(204, 0, 0);">
+<span style="color: rgb(204, 0, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if self._individualExtended == 1:</span><br
+ style="color: rgb(204, 0, 0);">
+<span style="color: rgb(204, 0, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if self._extendedLabel == 1:</span><br style="color: rgb(204, 0, 0);">
+<span style="color: rgb(204, 0, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+narrativeDefAM.append(("ExtendedLabel",0))</span><br
+ style="color: rgb(204, 0, 0);">
+<span style="color: rgb(204, 0, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+narrativeDefPM.append(("ExtendedLabel",0))</span><br
+ style="color: rgb(204, 0, 0);">
+<span style="color: rgb(204, 0, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+narrativeDefAM = narrativeDefAM + extended</span><br
+ style="color: rgb(204, 0, 0);">
+<span style="color: rgb(204, 0, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+narrativeDefPM = narrativeDefPM + extended</span><br
+ style="color: rgb(204, 0, 0);">
+<span style="color: rgb(204, 0, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+except:</span><br style="color: rgb(204, 0, 0);">
+<span style="color: rgb(204, 0, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+pass</span><br style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span><br style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return [</span><br style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Morning", self.DAY(), self.NIGHT(), self.NIGHT(),</span><br
+ style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+".TODAY...", "early in the morning", "late in the afternoon",</span><br
+ style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1, narrativeDefAM), </span><br style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Morning Update", "issuanceHour", self.NIGHT(), self.NIGHT(),</span><br
+ style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+".REST OF TODAY...", "early in the morning", "late in the afternoon",</span><br
+ style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1, narrativeDefAM), </span><br style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Afternoon Update", "issuanceHour", self.NIGHT(), self.NIGHT(),</span><br
+ style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+".REST OF TODAY...", "early in the morning","late in the afternoon",</span><br
+ style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1, narrativeDefAM), </span><br style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp; End times are tomorrow:</span><br style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Afternoon", self.NIGHT(), 24 + self.DAY(), 24 + self.DAY(),</span><br
+ style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+".TONIGHT...", "late in the night", "early in the evening",</span><br
+ style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1, narrativeDefPM), </span><br style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Evening Update", "issuanceHour", 24 + self.DAY(), 24 + self.DAY(),</span><br
+ style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+".REST OF TONIGHT...", "late in the night","early in the evening",</span><br
+ style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1, narrativeDefPM),</span><br style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# For the early morning update, this produces:</span><br
+ style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# REST OF TONIGHT:</span><br style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# MONDAY</span><br style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# MONDAY NIGHT</span><br style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Early Morning Update", "issuanceHour", self.DAY(), self.DAY(),</span><br
+ style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+".REST OF TONIGHT...", "early in the morning","late in the afternoon",</span><br
+ style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0, narrativeDefPM), </span><br style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# Alternative</span><br style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# For the early morning update, this produces:</span><br
+ style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# EARLY THIS MORNING:</span><br style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# TODAY</span><br style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# TONIGHT</span><br style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#("Evening Update", "issuanceHour", 24 + self.DAY(), 24 + self.DAY(),</span><br
+ style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# ".REST OF TONIGHT...", "late in the night", "early in the evening",</span><br
+ style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# 1, narrativeDefPM), </span><br style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#("Early Morning Update", "issuanceHour", self.DAY(), self.DAY(),</span><br
+ style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# ".EARLY THIS MORNING...", "early in the morning", "late in the
+afternoon",</span><br style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# 1, narrativeDefPM), </span><br style="color: rgb(0, 102, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+]</span><br>
+&nbsp; </p>
+<p><a name="Post-ProcessingNarrativePhrases"></a><b><font
+ color="#000000">Post-Processing Narrative Phrases</font></b> </p>
+<p><font color="#000000">Although, it is not encouraged, there will be
+times that you will want to post-process phrases to clean up
+undesirable
+wording.</font> </p>
+<p>A "postProcessPhrase" hook is available&nbsp; for most
+phrases.&nbsp;&nbsp; This&nbsp; allows you to do string replacement
+and/or abbreviations.&nbsp;&nbsp; Here is the default method from the
+PhraseBuilder module.&nbsp; You may copy it into your Overrides file
+and add
+additional replacements: </p>
+<p><font color="#663366">&nbsp;&nbsp;&nbsp; def postProcessPhrase(self,
+tree, node):</font> <br>
+<font color="#663366">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; words
+= node.get("words")</font> <br>
+<font color="#663366">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if
+words is not None:</font> <br>
+<font color="#663366">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+words = words.replace("rain showers and thunderstorms", "showers and
+thunderstorms")</font> <br>
+<font color="#663366">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return self.setWords(node, words)</font> <br>
+</p>
+<span style="font-weight: bold;"><a name="AllowedHazards"></a>AllowedHazards</span><br>
+<br>
+Every product that includes Headline phrases also contains a method
+that controls which Hazards are mentioned.&nbsp; This method can be
+overridden so that you have control over which weather hazards
+(Warnings, Advisories, and Watches) appear in each product.&nbsp; An
+example of this method appears below.<br>
+<br>
+<br style="color: rgb(0, 153, 0);">
+<span style="color: rgb(0, 102, 0);">&nbsp;&nbsp;&nbsp; def
+allowedHazards(self):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; allActions = ["NEW", "EXA",
+"EXB", "EXT", "UPG", "CAN", "CON", "EXP"]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; marineActions = ["NEW",
+"EXA", "EXB", "EXT", "CON"]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return [<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+('HF.W', marineActions, 'Marine'),&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+HURRICANE FORCE WIND WARNING<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+('SR.W', marineActions,&nbsp; 'Marine'),&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# STORM WARNING<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+('GL.W', marineActions, 'Marine'),&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # GALE
+WARNING<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+('BW.Y', marineActions, 'Marine'), &nbsp; &nbsp;&nbsp; # BRISK WIND
+ADVISORY <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+('UP.W', allActions,
+'IceAccr'),&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# HEAVY FREEZING SPRAY WARNING<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+('TO.A', allActions,
+'Convective'),&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # TORNADO WATCH<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+('SV.A', allActions,
+'Convective'),&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # SEVERE
+THUNDERSTORM WATCH<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+('UP.Y', allActions,
+'IceAccr'),&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# HEAVY FREEZING SPRAY ADVISORY<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+('AF.Y', allActions,
+'Ashfall'),&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# VOLCANIC ASHFALL ADVISORY<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+('FG.Y', allActions,
+'Fog'),&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# DENSE FOG ADVISORY<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+('SM.Y', allActions,
+'Smoke'),&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# DENSE SMOKE ADVISORY<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+('LO.Y', allActions,
+'LowWater'),&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # LOW
+WATER ADVISORY<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+('SmCrftExCau'),&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# Local headline<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ]<br>
+</span><br>
+In this example, we show all of the possible components of the
+allowedHazards list.&nbsp; This list not only controls which Headlines
+appear in each product, but also which VTEC strings appear in the
+product as well. <br>
+<br>
+Each line in the allowedHazards list can contain up to three parts: the
+key for the hazard, the VTEC actions that are allowed for that hazard,
+and a category for the hazard.&nbsp; The only part that is mandatory is
+the hazard key.&nbsp;
+Usually this key corresponds to a VTEC code, but locally-defined
+hazards may be defined as well (See the last entry.) .&nbsp; The action
+list and the category are optional.&nbsp;&nbsp; The category field can
+be used to group hazards.&nbsp; If more than one hazard in a group is
+found, only the highest priority hazard is reported, where priority is
+defined by the order of appearance in the list.&nbsp; In the example
+above, if&nbsp; both a Storm Warning (SR.W) and Gale Warninng (GL.W)
+were found in the grids, only the Storm Warning would be
+reported.&nbsp;&nbsp; By the same token, you can have multiple hazards
+in an area by assigning different categories to each hazard.<br>
+<br>
+<span style="font-weight: bold;"><a name="HazardKey"></a>Hazard Key</span><br>
+<br>
+The HazardKey is the key that appears in the serverConfig file and
+hence in the GFE display when you edit the Hazard grid.&nbsp; There are
+two types of hazard keys, VTEC, and locally-defined.&nbsp; VTEC hazard
+keys follow a particular format and are pre-defined for you in the
+VTECTable. However you may also define local hazards as well.&nbsp; The
+last entry in the above example of the allowedHazards list is a
+locally-defined hazard.&nbsp; In this example, it is "<span
+ style="color: rgb(0, 102, 0);">SmCrftExCau</span>" which is an
+abreviation for "Small Craft Exercise Caution".&nbsp; To include a
+locally-defined hazard all you need to do is list it all by itself in
+the allowedHazards list. Once your localConfig is set up properly you
+will see this hazard appear (generally at the end of the list of
+hazards) and you can define a Hazard grid that contains this
+particulare Hazard.&nbsp; Once defined in a grid, this hazard will
+automatically appear in the product as long as the same hazardKey
+appears in the allowedHazards list as in the example above.<br>
+<br>
+VTEC hazard keys are slightly more complicated.&nbsp; The presence of
+the key in allowedHazards list is not the only piece of information
+necessary for the hazard to appear in the product.&nbsp; You must also
+defined the list of VTEC "action codes" as well.&nbsp; This action code
+list defines which type of VTEC code can appear in your product.&nbsp;
+For convenience, we include a list including all possible VTEC codes,
+as well as a list of codes that apply to the Marine-type
+products.&nbsp; In general, you will want to include all of the VTEC
+action codes for every VTEC hazard.&nbsp; In some cases, however, you
+may want to limit the set of actions codes in each product.&nbsp; <br>
+<br>
+<hr style="width: 100%; height: 2px;">
+<h2><a name="WFOSITE"></a>WFO Site Information</h2>
+WFO site information is stored in a TextUtility named SiteCFG.&nbsp;
+This module is loaded using<br>
+the familiar BASE, SITE paradigm.&nbsp; Note that a user other than
+BASE or SITE should not override<br>
+this file.&nbsp; The file contains a dictionary which holds information
+used to configure text products<br>
+from the BASE template files.&nbsp; It also is used by the formatter
+launcher to find the name of<br>
+the backup site.<br>
+<br>
+A sample of this dictionary look like the following:<br>
+<br>
+SiteInfo= {<br>
+&nbsp; 'ABQ': {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'region': 'SR',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'fullStationID':
+'KABQ',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'wfoCityState':
+'ALBUQUERQUE NM',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'wfoCity':
+'ALBUQUERQUE',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'state': 'NEW MEXICO',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+}<br>
+<br>
+&nbsp; The key is a WFO site id.&nbsp; This file can be overridden by
+the SITE user to modify any desired<br>
+entries.&nbsp; Again, it is undefined bahavior (anything can happen)
+for any other user other than<br>
+SITE to modify this file.<br>
+<br>
+<span style="font-weight: bold;"></span><br>
+</body>
+</html>

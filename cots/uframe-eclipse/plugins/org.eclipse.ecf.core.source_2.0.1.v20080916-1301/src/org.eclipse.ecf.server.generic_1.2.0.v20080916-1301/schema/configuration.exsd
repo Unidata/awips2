@@ -1,0 +1,165 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="org.eclipse.ecf.server.generic">
+<annotation>
+      <appInfo>
+         <meta.schema plugin="org.eclipse.ecf.server.generic" id="configuration" name="ECF Generic Server Configuration"/>
+      </appInfo>
+      <documentation>
+         This extension point allows ECF generic server instances to be configured via extension point definition.
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <complexType>
+         <sequence>
+            <element ref="connector" minOccurs="1" maxOccurs="unbounded"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appInfo>
+                  <meta.attribute translatable="true"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="connector">
+      <annotation>
+         <documentation>
+            A connector defines the port and other information for an ECF generic server to receive connection requests from clients.
+         </documentation>
+      </annotation>
+      <complexType>
+         <sequence>
+            <element ref="group" minOccurs="1" maxOccurs="unbounded"/>
+         </sequence>
+         <attribute name="hostname" type="string">
+            <annotation>
+               <documentation>
+                  Defines the hostname expected in the server ID...e.g. &quot;localhost&quot;.  If not specified, default is &quot;localhost&quot;.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="port" type="string">
+            <annotation>
+               <documentation>
+                  The port (e.g. 3282) for the connector to listen on.  If not specified, is set to 3282.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="keepAlive" type="string">
+            <annotation>
+               <documentation>
+                  The timeout associated with the ECF generic server failure detector (in ms).  If not specified, defaults to 30000 (30 seconds).
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="discovery" type="boolean">
+            <annotation>
+               <documentation>
+                  The discovery flag determines if the given service is published for discovery via the IDiscoveryService
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="group">
+      <annotation>
+         <documentation>
+            A specific named group for the parent connector.  e.g. &apos;server&apos; in ecftcp://localhost:3282/server
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="name" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The name for the group in the ID: e.g. &apos;server&apos; in ecftcp://localhost:3282/server
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="since"/>
+      </appInfo>
+      <documentation>
+         1.0.0
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="examples"/>
+      </appInfo>
+      <documentation>
+         The following is an example use of the org.eclipse.ecf.server.generic.configration extension point:
+
+&lt;pre&gt;
+   &lt;extension
+         point=&quot;org.eclipse.ecf.server.generic.configuration&quot;&gt;
+      &lt;connector
+            hostname=&quot;localhost&quot;
+            keepAlive=&quot;30000&quot;
+            port=&quot;3282&quot;&gt;
+         &lt;group
+               name=&quot;server&quot;&gt;
+         &lt;/group&gt;
+      &lt;/connector&gt;
+   &lt;/extension&gt;
+&lt;/pre&gt;
+
+Produces a server with groupID:  ecftcp://localhost:3333/groupName
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="apiInfo"/>
+      </appInfo>
+      <documentation>
+         No public programmatic API
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="implementation"/>
+      </appInfo>
+      <documentation>
+         
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="copyright"/>
+      </appInfo>
+      <documentation>
+         Copyright (c) 2004 Composent, Inc. and others.
+All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html.  Contributors:  Composent, Inc. - initial API and implementation
+      </documentation>
+   </annotation>
+
+</schema>

@@ -1,0 +1,62 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the util-util_api library file
+#
+#  cmt: File made on Wed Aug  6 12:57:10 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/util/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+CXX      = /usr/bin/g++ -Wno-deprecated
+CXXOPTIM =
+CXXFLAGS = $(CXXOPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU
+
+INSERTS      = -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/ofs/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+INSERTS_CXX  = -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/include/informix/esql/  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .cxx .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+.cxx.a:
+	@echo "-------------------------------- $<"
+	@-$(CXX) $(CXXFLAGS) $(INSERTS_CXX) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libutil_api_t.a:  \
+     $(LIB)/libutil_api_t.a(endnlz.o)  \
+     $(LIB)/libutil_api_t.a(endzro.o)  \
+     $(LIB)/libutil_api_t.a(enterrtnf.o)  \
+     $(LIB)/libutil_api_t.a(initmsgf.o)  \
+     $(LIB)/libutil_api_t.a(leavertnf.o)  \
+     $(LIB)/libutil_api_t.a(messgbd.o)  \
+     $(LIB)/libutil_api_t.a(writemsgf.o)  \
+     $(LIB)/libutil_api_t.a(Messenger.o)  \
+     $(LIB)/libutil_api_t.a(SubRoutineInfo.o)  \
+     $(LIB)/libutil_api_t.a(SubRoutineStack.o)
+

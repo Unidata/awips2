@@ -1,0 +1,7 @@
+ver: 0.6.0
+
+Bundle-SymbolicName: qpid-client
+Bundle-Version: ${ver}
+Export-Package: *;version=${ver}
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+

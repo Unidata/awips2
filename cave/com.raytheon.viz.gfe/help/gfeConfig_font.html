@@ -1,0 +1,263 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta content="text/html; charset=iso-8859-1"
+ http-equiv="Content-Type">
+  <meta
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]"
+ name="GENERATOR">
+  <title>gfeConfig - Main Page</title>
+</head>
+<body style="background-color: rgb(255, 255, 255);">
+<div class="Body">
+<center><b><font size="+2">GFE/ifpIMAGE Configuration
+File<br>
+GFE Font Sizes<br>
+</font></b></center>
+<br>
+<br>
+The fonts for the GFE and <a href="ifpIMAGE.html"><!--disable indexer-->ifpIMAGE</a>
+programs
+can be overridden from their defaults by enabling entries in this
+section
+of the configuration file.&nbsp; If you want to change fonts for the
+display
+of a particular weather element, such as contour label size, refer to
+the <a href="gfeConfig_WE.html#SpecificFontOffsetsforaWeatherElement">weather
+element font specifier section.<!--disable indexer--></a>
+<p>The numbers used in this section refer to the five fonts (numbered
+0
+through 4). </p>
+<p>You can change the font sizes for the following components in the
+GFE
+and ifpIMAGE: </p>
+<blockquote><li>Spatial Editor Color Bar Scale font (for scalar and
+vector-type
+elements)</li>
+  <li>Spatial Editor Color Bar Label font (for weather-type elements)</li>
+  <li>Spatial Editor Color Bar Pickup Value font</li>
+  <li>Spatial Editor Legend font</li>
+  <li>Temporal Editor Data Selector font</li>
+  <li>Temporal Editor Sample font</li>
+  <li>Spatial Editor Sample font</li>
+  <li>Spatial Editor Marker font</li>
+  <li>Grid Manager weather element identifier font</li>
+  <li>Grid Manager source identifier (single character within a grid
+block)
+font</li>
+  <li>Time Scale font</li>
+  <li>Pickup Value Dialog label font (for scalar and vector-type
+elements)</li>
+  <li>Pickup Value Dialog pickup value font</li>
+</blockquote>
+The format for all of the entires is componentName_font = fontSize,
+where
+fontSize is a number from 0 through 4.&nbsp; The number identifies the
+font (TextFont0 through TextFont4) to use for the writing of text to
+the
+display.
+<p>The following table defines the various components, their entries,
+and
+the software default. <br>
+&nbsp;</p>
+<br>
+<table nosave="" border="1" width="100%">
+  <caption>&nbsp; <br>
+  </caption><tbody>
+  </tbody><tbody>
+  </tbody> <tbody>
+    <tr>
+      <td>
+      <center><b>Component</b></center>
+      </td>
+      <td>
+      <center><b>Config Entry Name</b></center>
+      </td>
+      <td>
+      <center><b>Software Default</b></center>
+      </td>
+      <td>
+      <center><b>Notes</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td>Spatial Editor Color Bar Scale Font (scalar and vector)</td>
+      <td>ColorBarScale_font</td>
+      <td>1</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td>Spatial Editor Color Bar Scale Font (weather)</td>
+      <td>ColorBarWxLabel_font</td>
+      <td>2</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td>Spatial Editor Color Bar Pickup Value Indicator</td>
+      <td>ColorBarPickUp_font</td>
+      <td>3</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td>Spatial Editor Legend</td>
+      <td>SELegend_font</td>
+      <td>3</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td>Spatial Editor Samples</td>
+      <td>SESample_font</td>
+      <td>2</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td>Spatial Editor Marker</td>
+      <td>SEMarker_font</td>
+      <td>3</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td>Temporal Editor Data Selector (weather element name)</td>
+      <td>TEDataSelector_font</td>
+      <td>1</td>
+      <td>For best results, use fontSizes 0-3</td>
+    </tr>
+    <tr>
+      <td>Temporal Editor Sample Font (used in the display of the data
+values)</td>
+      <td>TESample_font</td>
+      <td>1</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td>Grid Manager Weather Element identifier</td>
+      <td>TimeBlockLabel_font</td>
+      <td>3</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td>Grid Manager Grid Source font</td>
+      <td>TimeBlockSource_font</td>
+      <td>1</td>
+      <td>For best results, use fontSizes 0-1</td>
+    </tr>
+    <tr>
+      <td>Time Scale (scale labels)</td>
+      <td>TimeScale_font</td>
+      <td>2</td>
+      <td>For best results, use fontSizes 0-3</td>
+    </tr>
+    <tr>
+      <td>Pickup Value Dialog label (scalar and vector)</td>
+      <td>SetValueContLabel_font</td>
+      <td>2</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td>Pickup Value Dialog pickup value label</td>
+      <td>SetValuePickUp_font</td>
+      <td>3</td>
+      <td><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<blockquote>&nbsp; <br>
+</blockquote>
+<b><tt>ColorBarScale_font = 1</tt></b> <br>
+<b><tt>ColorBarWxLabel_font = 2</tt></b> <br>
+<b><tt>ColorBarPickUp_font = 3</tt></b> <br>
+<b><tt>SESample_font = 2</tt></b> <br>
+<b><tt>SEMarker_font = 3</tt></b> <br>
+<b><tt>SELegend_font = 3</tt></b> <br>
+<b><tt>TEDataSelector_font = 1</tt></b> <br>
+<b><tt>TESample_font = 1</tt></b> <br>
+<b><tt>TimeBlockLabel_font = 3</tt></b> <br>
+<b><tt>TimeBlockSource_font = 1</tt></b> <br>
+<b><tt>TimeScale_font = 2</tt></b> <br>
+<b><tt>SetValueContLabel_font = 2</tt></b> <br>
+<b><tt>SetValuePickUp_font = 3</tt></b>
+<p>The default fonts used for the display of meteorological data can
+also
+be set in the configuration file. The user can control the fonts used
+in
+the following types of displays: </p>
+<blockquote><li>bounded area visualization of weather</li>
+  <li>map background labels</li>
+  <li>contour labeling</li>
+  <li>contour tool "white" lines labeling</li>
+</blockquote>
+The format for all of the entires is displayType_font = fontSize, where
+fontSize is a number from 0 through 4.&nbsp; The number identifies the
+font (TextFont0 through TextFont4) to use for the writing of text to
+the
+display.
+<p>The following table defines the various display types, their
+entries,
+and the software default. <br>
+&nbsp;</p>
+<br>
+<table nosave="" border="1" width="100%">
+  <caption>&nbsp; <br>
+  </caption><tbody>
+  </tbody><tbody>
+  </tbody> <tbody>
+    <tr>
+      <td>
+      <center><b>Display Type</b></center>
+      </td>
+      <td>
+      <center><b>Config Entry Name</b></center>
+      </td>
+      <td>
+      <center><b>Software Default</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td>Bounded Area labels (weather)</td>
+      <td>BoundedArea_font</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>Contour labels (scalar)</td>
+      <td>Contour_font</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>Contour Tool "White" lines labeling</td>
+      <td>Cline_font</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>Map Background labels</td>
+      <td>Map_font</td>
+      <td>2</td>
+    </tr>
+  </tbody>
+</table>
+<blockquote>&nbsp; <br>
+</blockquote>
+<b><tt>BoundedArea_font = 2</tt></b> <br>
+<b><tt>Cline_font = 2</tt></b> <br>
+<b><tt>Map_font = 2</tt></b> <br>
+<b><tt>Contour_font = 2</tt></b><br>
+<br>
+&nbsp;
+<hr style="width: 100%; height: 2px;">
+<div class="Body">&nbsp;
+<center>
+<p><tt>&nbsp;<a href="GFESuite.html">Back To Top</a></tt></p>
+</center>
+</div>
+</div>
+</body>
+</html>

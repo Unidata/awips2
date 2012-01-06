@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: CAVE log4j properties configuration
+Bundle-SymbolicName: gov.noaa.nws.ncep.common.log4j.config
+Bundle-Version: 1.0.0.qualifier
+Fragment-Host: org.apache.log4j;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

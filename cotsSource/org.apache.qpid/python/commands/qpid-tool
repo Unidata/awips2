@@ -1,0 +1,197 @@
+#!/usr/bin/env python
+
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+import os
+import getopt
+import sys
+import socket
+from cmd                 import Cmd
+from qpid.connection     import ConnectionFailed, Timeout
+from qpid.managementdata import ManagementData
+from shlex               import split
+from qpid.disp           import Display
+from qpid.peer           import Closed
+
+class Mcli (Cmd):
+  """ Management Command Interpreter """
+
+  def __init__ (self, dataObject, dispObject):
+    Cmd.__init__ (self)
+    self.dataObject = dataObject
+    self.dispObject = dispObject
+    self.dataObject.setCli (self)
+    self.prompt = "qpid: "
+    
+  def emptyline (self):
+    pass
+
+  def setPromptMessage (self, p):
+    if p == None:
+      self.prompt = "qpid: "
+    else:
+      self.prompt = "qpid[%s]: " % p
+
+  def do_help (self, data):
+    print "Management Tool for QPID"
+    print
+    print "Commands:"
+    print "    list                            - Print summary of existing objects by class"
+    print "    list <className>                - Print list of objects of the specified class"
+    print "    list <className> active         - Print list of non-deleted objects of the specified class"
+    print "    show <className>                - Print contents of all objects of specified class"
+    print "    show <className> active         - Print contents of all non-deleted objects of specified class"
+    print "    show <list-of-IDs>              - Print contents of one or more objects (infer className)"
+    print "    show <className> <list-of-IDs>  - Print contents of one or more objects"
+    print "        list is space-separated, ranges may be specified (i.e. 1004-1010)"
+    print "    call <ID> <methodName> [<args>] - Invoke a method on an object"
+    print "    schema                          - Print summary of object classes seen on the target"
+    print "    schema <className>              - Print details of an object class"
+    print "    set time-format short           - Select short timestamp format (default)"
+    print "    set time-format long            - Select long timestamp format"
+    print "    id [<ID>]                       - Display translations of display object ids"
+    print "    quit or ^D                      - Exit the program"
+    print
+
+  def complete_set (self, text, line, begidx, endidx):
+    """ Command completion for the 'set' command """
+    tokens = split (line)
+    if len (tokens) < 2:
+      return ["time-format "]
+    elif tokens[1] == "time-format":
+      if len (tokens) == 2:
+        return ["long", "short"]
+      elif len (tokens) == 3:
+        if "long".find (text) == 0:
+          return ["long"]
+        elif "short".find (text) == 0:
+          return ["short"]
+    elif "time-format".find (text) == 0:
+      return ["time-format "]
+    return []
+
+  def do_set (self, data):
+    tokens = split (data)
+    try:
+      if tokens[0] == "time-format":
+        self.dispObject.do_setTimeFormat (tokens[1])
+    except:
+      pass
+
+  def do_id (self, data):
+    self.dataObject.do_id(data)
+
+  def complete_schema (self, text, line, begidx, endidx):
+    tokens = split (line)
+    if len (tokens) > 2:
+      return []
+    return self.dataObject.classCompletions (text)
+
+  def do_schema (self, data):
+    self.dataObject.do_schema (data)
+
+  def complete_list (self, text, line, begidx, endidx):
+    tokens = split (line)
+    if len (tokens) > 2:
+      return []
+    return self.dataObject.classCompletions (text)
+
+  def do_list (self, data):
+    self.dataObject.do_list (data)
+
+  def do_show (self, data):
+    self.dataObject.do_show (data)
+
+  def do_call (self, data):
+    try:
+      self.dataObject.do_call (data)
+    except ValueError, e:
+      print "ValueError:", e
+
+  def do_EOF (self, data):
+    print "quit"
+    try:
+      self.dataObject.do_exit ()
+    except:
+      pass
+    return True
+
+  def do_quit (self, data):
+    try:
+      self.dataObject.do_exit ()
+    except:
+      pass
+    return True
+
+  def postcmd (self, stop, line):
+    return stop
+
+  def postloop (self):
+    print "Exiting..."
+    self.dataObject.close ()
+
+def Usage ():
+  print "Usage:  qpid-tool [[<username>/<password>@]<target-host>[:<tcp-port>]]"
+  print
+  sys.exit (1)
+
+#=========================================================
+# Main Program
+#=========================================================
+
+# Get host name and port if specified on the command line
+cargs = sys.argv[1:]
+_host = "localhost"
+
+if len (cargs) > 0:
+  _host = cargs[0]
+
+if _host[0] == '-':
+  Usage()
+
+disp = Display ()
+
+# Attempt to make a connection to the target broker
+try:
+  data = ManagementData (disp, _host)
+except socket.error, e:
+  print "Socket Error (%s):" % _host, e[1]
+  sys.exit (1)
+except IOError, e:
+  print "IOError: %d - %s: %s" % (e.errno, e.strerror, e.filename)
+  sys.exit (1)
+except ConnectionFailed, e:
+  print "Connect Failed %d - %s" % (e[0], e[1])
+  sys.exit(1)
+except Exception, e:
+  if str(e).find ("Exchange not found") != -1:
+    print "Management not enabled on broker:  Use '-m yes' option on broker startup."
+  else:
+    print "Failed: %s - %s" % (e.__class__.__name__, e)
+  sys.exit(1)
+
+# Instantiate the CLI interpreter and launch it.
+cli = Mcli (data, disp)
+print ("Management Tool for QPID")
+try:
+  cli.cmdloop ()
+except Closed, e:
+  print "Connection to Broker Lost:", e
+  sys.exit (1)

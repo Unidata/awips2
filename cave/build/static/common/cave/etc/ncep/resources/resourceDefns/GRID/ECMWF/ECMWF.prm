@@ -1,0 +1,3 @@
+GDFILE=ECMWF25
+pluginName=ncgrib
+eventName=%

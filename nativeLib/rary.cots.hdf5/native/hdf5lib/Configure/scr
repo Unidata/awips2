@@ -1,0 +1,17 @@
+BEGIN { 
+print "#include <stdio.h>"
+print "#include <hdf5.h>"
+print
+print "main()"
+print "{"
+print "\t\/\* AUTOMATICALY GENERATE CONSTANTS */"
+print "\t\/\* paste into HDFConstants.java */"
+print 
+print "\tprintf(\"\t\/\*AUTOMATICALLY GENERATED CONSTANTS\*\/ \\n\");"
+}
+{print "\tprintf(\"\tfinal static public int "$1" = %d;\\n\", (int)"$1");"}
+END{
+print ""
+print "\treturn 0;"
+print "}"
+}

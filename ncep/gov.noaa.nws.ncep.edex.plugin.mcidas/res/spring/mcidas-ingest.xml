@@ -1,0 +1,65 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+  
+    <bean id="mcidasDao" class="gov.noaa.nws.ncep.common.dataplugin.mcidas.dao.McidasDao">
+		<constructor-arg ref="mcidasPluginName" />
+	</bean>	
+	
+	<bean id="mcidasDecoder" class="gov.noaa.nws.ncep.edex.plugin.mcidas.decoder.McidasDecoder">
+		<property name="dao" ref="mcidasDao" />
+	</bean>
+	
+	<!-- bean id="mcidasRegistry" class=" com.raytheon.uf.edex.esb.camel.BasicThreadPoolRouter"
+		factory-method="getInstance" depends-on="alphaNumericDatatypePool">
+		<constructor-arg><value>AlphaNumeric</value></constructor-arg>
+		<constructor-arg><value>mcidas</value></constructor-arg>
+		<constructor-arg><value>directvm:mcidasIngest</value></constructor-arg>
+	</bean-->
+
+    <bean id="mcidasRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="mcidas" />
+		<constructor-arg value="jms-dist:queue:Ingest.mcidas" />
+	</bean>
+
+	<bean id="mcidasCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="mcidas-camel"/>
+  	</bean> 
+	
+	<camelContext id="mcidas-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+		<endpoint id="mcidasFileEndpoint" uri="file:${edex.home}/data/sbn/mcidas?noop=true&amp;idempotent=false"/>
+
+		<!-- Begin McIDAS routes -->
+		<route id="mcidasFileConsumerRoute">
+			<from ref="mcidasFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+				<constant>mcidas</constant>
+			</setHeader>
+			<to uri="jms-generic:queue:Ingest.mcidas" />
+		</route>
+		
+		<route id="mcidasIngestRoute">
+			<from uri="jms-generic:queue:Ingest.mcidas" />
+			<doTry>
+				<pipeline>
+					<bean ref="stringToFile" />
+					<bean ref="mcidasDecoder" method="decode" />
+					<to uri="directvm:persistIndexAlert" />
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:mcidas?level=ERROR&amp;showBody=false" />
+				</doCatch>
+			</doTry>
+		</route>
+	</camelContext>
+</beans>

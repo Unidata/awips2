@@ -1,0 +1,1269 @@
+/*
+ * gov.noaa.nws.ncep.ui.pgen.PgenUtil
+ * 
+ * 15 December 2008
+ *
+ * This code has been developed by the NCEP/SIB for use in the AWIPS2 system.
+ */
+
+package gov.noaa.nws.ncep.ui.pgen;
+
+import gov.noaa.nws.ncep.ui.pgen.contours.Contours;
+import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
+import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
+import gov.noaa.nws.ncep.ui.pgen.elements.Line;
+import gov.noaa.nws.ncep.ui.pgen.elements.Outlook;
+import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
+import gov.noaa.nws.ncep.ui.pgen.elements.labeledLines.Label;
+import gov.noaa.nws.ncep.ui.pgen.elements.labeledLines.LabeledLine;
+import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
+import gov.noaa.nws.ncep.ui.pgen.graphToGrid.CoordinateTransform;
+import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
+import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResourceData;
+import gov.noaa.nws.ncep.ui.pgen.tca.TCAElement;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+
+import java.io.File;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.HashMap;
+
+import org.eclipse.core.commands.Command;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.commands.ICommandService;
+import org.geotools.geometry.jts.JTS;
+import org.opengis.referencing.operation.MathTransform;
+
+import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.viz.core.IDisplayPane;
+import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
+import com.raytheon.uf.viz.core.map.IMapDescriptor;
+import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.viz.ui.EditorUtil;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Polygon;
+
+/**
+ * Utilities for PGEN
+ * 
+ * <pre>
+ * 
+ *    SOFTWARE HISTORY
+ *   
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 
+ * 04/22/09       #99       Greg Hull     Moved some methods to NmapUiUtils
+ * 05/15/09		  #116		B. Yin		  Added validateLatLonTextField
+ * 05/15/09		  #116		B. Yin		  Added text/symbol drawing mode methods 
+ * 08/03/09		  #116		B. Yin		  changed validateLatLonTextField 
+ * 											to	validateNumberTextField
+ * 09/30/09       #169      Greg Hull     NCMapEditor
+ * 10/15/09		  #160		G. Zhang	  INTL Sigmet LatLonPre/Post pend
+ * 12/10/09		  #167		J. Wu	  	  Added contours drawing method
+ * 05/04/10		  #267		B.	Yin		  Added a method to load 'SetCont' tool for outlook
+ * 03/10		  #223		M.Laryukhin	  Added Gfa
+ * 04/10		  #165		G.Zhang		  Modified LatLonPre/Post pend formatting
+ * 07/10		  #215		J. Wu		  Added calendarToGempakDattim()
+ * 09/10		  #63		J. Wu		  Added CURRENT_WORKING_DIRCTORY
+ * 09/10		  #304		B. Yin		  Added a method to load a tool editing LabeledLine
+ * 10/10          #310      %. Gilbert    Added PgenMode
+ * 02/11		  #405		J. Wu		  Set CURRENT_WORKING_DIRCTORY to user-defined directory
+ * 										    in the PGEN preference page
+ * 03/11		  			J. Wu		  Added getSphPolyArea() && getPolyArea()
+ * 05/11		  			J. Wu		  Added methods to setup/covert between lat/lon
+ * 											and a custom coordinate.
+ * </pre>
+ * 
+ * @author 
+ * @version 1
+ */
+public class PgenUtil {
+	
+	/**
+	 * SINGLE mode is used to display and interact with the same PGEN data on every Editor, while
+	 * MULTIPLE mode allows users to have a separate PGEN instance in each Editor.
+	 * @author sgilbert
+	 *
+	 */
+	public static enum PgenMode { SINGLE, MULTIPLE };
+	
+	private static PgenResourceData rscData = null;
+
+	/*
+	 *  A computational coordinate system allowing conversion between lat/lon and
+	 *  a customized 800x600 grid coordinate via PgenPreference (projection, garea).
+	 */
+	private static CoordinateTransform coordTrans = null;
+	
+	/*
+	 *  Pgen Palette view ID is also defined in plugin.xml.
+	 */
+	public static final String VIEW_ID = "gov.noaa.nws.ncep.ui.PGEN";
+	
+	/*
+	 * Statute miles to meters
+	 */
+	public static final float SM2M = 1609.34f;
+	
+	/*
+	 * Nautical miles to meters
+	 */
+	public static final float NM2M = 1852.0f;
+	
+	/*
+	 * Prefix and postfix for PGEN temporary recovery files.
+	 */
+	public static final String RECOVERY_PREFIX = "pgen_session.";
+	public static final String RECOVERY_POSTFIX = ".tmp";
+	
+	/*
+	 * Format string patterns for Lat/Lon Pre/Postpend
+	 */
+	public static final String FOUR_ZERO = "0000";
+	public static final String FIVE_ZERO = "00000";
+
+    /**
+     * Check the given editor for a PgenResource. If editor is null then the current Nmap Editor is used. If found, return it.
+     * @param editor
+     * @return reference to a PgenResource
+     */
+    public static final PgenResource findPgenResource(NCMapEditor editor) {
+    	return (PgenResource)NmapUiUtils.findResource( PgenResource.class, editor );
+    }
+
+    /**
+     * Check the given display pane for a PgenResource. If found, return it.
+     * @param pane
+     * @return reference to a PgenResource
+     */
+    public static final PgenResource findPgenResourceInPane(IDisplayPane pane) {
+		
+    	if( pane == null ) return null;
+
+		ResourceList rscList = pane.getDescriptor().getResourceList();
+
+		for( ResourcePair rp : rscList ) {
+			AbstractVizResource<?,?> rsc = rp.getResource();
+
+			if( rsc.getClass() == PgenResource.class ) {
+				return (PgenResource)rsc;
+			}
+		}
+
+		return null;
+    }
+
+	/**
+	 * set current ModalTool to  Selecting mode
+	 */   
+    public static final void setSelectingMode() {
+        IEditorPart part = EditorUtil.getActiveEditor();
+        ICommandService service = (ICommandService) part.getSite().getService( ICommandService.class );
+        Command cmd = service.getCommand("gov.noaa.nws.ncep.ui.pgen.rsc.PgenSelect");
+
+        if (cmd != null) {
+        	
+        	try {        		
+        		HashMap<String, Object> params = new HashMap<String, Object>();
+        		params.put("editor", part);
+        		ExecutionEvent exec = new ExecutionEvent(cmd, params, null, null);
+
+        		cmd.executeWithChecks(exec);
+
+        	} catch (Exception e) {
+        		
+        		e.printStackTrace();
+        	}
+        }
+    }
+  
+    /**
+     * Set the drawing mode to symbol. 
+     * When drawing a symbol with a text, this method is called after the text is finished
+     * to return to the symbol-drawing mode. 
+     * @param symbolType
+     */
+    public static final void setDrawingSymbolMode(String symbolCat, String symbolType, 
+    						boolean usePrevColor, AbstractDrawableComponent adc) {
+        IEditorPart part = EditorUtil.getActiveEditor();
+        ICommandService service = (ICommandService) part.getSite().getService( ICommandService.class );
+        Command cmd = service.getCommand("gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw");
+
+        if (cmd != null) {
+        	
+        	try {        		
+        		HashMap<String, Object> params = new HashMap<String, Object>();
+        		params.put("editor", part);
+				params.put("name", symbolType);
+				params.put("className", symbolCat);
+				params.put("usePrevColor", new Boolean(usePrevColor).toString());
+
+        		ExecutionEvent exec = new ExecutionEvent(cmd, params, adc, null);
+
+        		cmd.executeWithChecks(exec);
+
+        	} catch (Exception e) {
+        		
+        		e.printStackTrace();
+        	}
+        }
+    }
+    
+    /**
+     * Set the drawing mode to general text.
+     * @param addLabel	- whether to add the text to a symbol
+     * @param symbolType	- used to return to the symbol-drawing mode
+     * @param useSymbolColor	- whether to use symbol's color
+     */
+    public static final void setDrawingTextMode(boolean addLabel, boolean usePrevColor, String defaultTxt, 
+    		AbstractDrawableComponent adc) {
+        IEditorPart part = EditorUtil.getActiveEditor();
+        ICommandService service = (ICommandService) part.getSite().getService( ICommandService.class );
+        Command cmd = service.getCommand("gov.noaa.nws.ncep.ui.pgen.rsc.PgenTextDraw");
+
+        if (cmd != null) {
+        	
+        	try {        		
+        		HashMap<String, Object> params = new HashMap<String, Object>();
+        		params.put("editor", part);
+				params.put("name", "General Text");
+				params.put("className", "Text");
+				params.put("addLabel", new Boolean(addLabel).toString());
+				params.put("usePrevColor", new Boolean(usePrevColor).toString());
+				params.put("defaultTxt", defaultTxt);
+
+        		ExecutionEvent exec = new ExecutionEvent(cmd, params, adc, null);
+
+        		cmd.executeWithChecks(exec);
+
+        	} catch (Exception e) {
+        		
+        		e.printStackTrace();
+        	}
+        }
+    }
+    
+    /**
+     * Set the drawing mode to drawing the Gfa text.
+     * 
+     * @param lastUsedGfa
+     */
+    public static final void setDrawingGfaTextMode(Gfa lastUsedGfa) {
+		IEditorPart part = EditorUtil.getActiveEditor();
+		ICommandService service = (ICommandService) part.getSite().getService(ICommandService.class);
+		Command cmd = service.getCommand("gov.noaa.nws.ncep.ui.pgen.rsc.PgenGfaDraw");
+
+		if (cmd != null) {
+
+			try {
+				HashMap<String, Object> params = new HashMap<String, Object>();
+				params.put("editor", part);
+				params.put("name", "Gfa");
+				params.put("className", "MET");
+				StringBuilder sb = new StringBuilder("");
+				
+				for (String s : lastUsedGfa.getString()) {
+					sb.append(s).append(",,"); // ,, delimited
+				}
+				if (lastUsedGfa.getString() != null && lastUsedGfa.getString().length > 0) {
+					sb.setLength(sb.length() - 2);
+				}
+				params.put("startGfaText", "true");
+				params.put("lastUsedGfa", lastUsedGfa);
+
+				ExecutionEvent exec = new ExecutionEvent(cmd, params, null, null);
+
+				cmd.executeWithChecks(exec);
+
+			} catch (Exception e) {
+
+				e.printStackTrace();
+			}
+		}
+	}
+    
+    /**
+     * Set the drawing mode to watch status line.
+     */
+    public static final void setDrawingStatusLineMode(WatchBox wb) {
+        IEditorPart part = EditorUtil.getActiveEditor();
+        ICommandService service = (ICommandService) part.getSite().getService( ICommandService.class );
+        Command cmd = service.getCommand("gov.noaa.nws.ncep.ui.pgen.rsc.PgenWatchStatusLineDraw");
+
+        if (cmd != null) {
+        	
+        	try {        		
+        		HashMap<String, Object> params = new HashMap<String, Object>();
+        		params.put("editor", part);
+				params.put("name", "STATUS_LINE");
+				params.put("className", "Watch");
+
+        		ExecutionEvent exec = new ExecutionEvent(cmd, params, wb, null);
+
+        		cmd.executeWithChecks(exec);
+
+        	} catch (Exception e) {
+        		
+        		e.printStackTrace();
+        	}
+        }
+    }
+    
+    /**
+     * Set the drawing mode to watch status line.
+     */
+    public static final void setDrawingFrontMode(Line front) {
+        IEditorPart part = EditorUtil.getActiveEditor();
+        ICommandService service = (ICommandService) part.getSite().getService( ICommandService.class );
+        Command cmd = service.getCommand("gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw");
+
+        if (cmd != null) {
+        	
+        	try {        		
+        		HashMap<String, Object> params = new HashMap<String, Object>();
+        		params.put("editor", part);
+				params.put("name", front.getPgenType());
+				params.put("className", front.getPgenCategory());
+
+        		ExecutionEvent exec = new ExecutionEvent(cmd, params, front, null);
+
+        		cmd.executeWithChecks(exec);
+
+        	} catch (Exception e) {
+        		
+        		e.printStackTrace();
+        	}
+        }
+    }
+    
+    /**
+     * Load the 'Set continue Line' tool for outlooks.
+     */
+    public static final void loadOutlookSetContTool(Outlook otlk) {
+        IEditorPart part = EditorUtil.getActiveEditor();
+        ICommandService service = (ICommandService) part.getSite().getService( ICommandService.class );
+        Command cmd = service.getCommand("gov.noaa.nws.ncep.ui.pgen.rsc.PgenOutlookSetCont");
+
+        if (cmd != null) {
+        	
+        	try {        		
+        		HashMap<String, Object> params = new HashMap<String, Object>();
+        		params.put("editor", part);
+				params.put("name", "Outlook");
+				params.put("className", "");
+		
+        		ExecutionEvent exec = new ExecutionEvent(cmd, params, otlk, null);
+
+        		cmd.executeWithChecks(exec);
+
+        	} catch (Exception e) {
+        		
+        		e.printStackTrace();
+        	}
+        }
+    }
+    
+    /**
+     * Load the TCA drawing tool. 
+     * @param de TCAElement to load into the TcaAttrDlg when the tool is loaded
+     */
+    public static final void loadTCATool( DrawableElement de) {
+        IEditorPart part = EditorUtil.getActiveEditor();
+        ICommandService service = (ICommandService) part.getSite().getService( ICommandService.class );
+        Command cmd = service.getCommand("gov.noaa.nws.ncep.ui.pgen.tca");
+
+        if (cmd != null && de instanceof TCAElement) {
+        	
+        	try {        		
+        		HashMap<String, Object> params = new HashMap<String, Object>();
+        		params.put("editor", part);
+				params.put("name", de.getPgenType() );
+				params.put("className", de.getPgenCategory());
+				
+        		ExecutionEvent exec = new ExecutionEvent(cmd, params, de, null);
+
+        		cmd.executeWithChecks(exec);
+
+        	} catch (Exception e) {
+        		
+        		e.printStackTrace();
+        	}
+        }
+    }
+    
+    /**
+     * Load the watch box modifying tool. 
+     * @param de WatchBox to load when the tool is loaded
+     */
+    public static final void loadWatchBoxModifyTool( DrawableElement de) {
+        IEditorPart part = EditorUtil.getActiveEditor();
+        ICommandService service = (ICommandService) part.getSite().getService( ICommandService.class );
+        Command cmd = service.getCommand("gov.noaa.nws.ncep.ui.pgen.rsc.PgenWatchBoxModify");
+
+        if (cmd != null && de instanceof WatchBox) {
+        	
+        	try {        		
+        		HashMap<String, Object> params = new HashMap<String, Object>();
+        		params.put("editor", part);
+				params.put("name", de.getPgenType() );
+				params.put("className", de.getPgenCategory());
+				
+        		ExecutionEvent exec = new ExecutionEvent(cmd, params, de, null);
+
+        		cmd.executeWithChecks(exec);
+
+        	} catch (Exception e) {
+        		
+        		e.printStackTrace();
+        	}
+        }
+    }
+    
+    /**
+     * Load the LabeledLine modifying tool. 
+     * @param ll - LabeledLine to edit when the tool is loaded
+     */
+    public static final void loadLabeledLineModifyTool( LabeledLine ll ) {
+        IEditorPart part = EditorUtil.getActiveEditor();
+        ICommandService service = (ICommandService) part.getSite().getService( ICommandService.class );
+        Command cmd = service.getCommand("gov.noaa.nws.ncep.ui.pgen.rsc.PgenLabeledLineModify");
+
+        if (cmd != null ) {
+        	
+        	try {        		
+        		HashMap<String, Object> params = new HashMap<String, Object>();
+        		params.put("editor", part);
+				params.put("name", ll.getPgenType() );
+				params.put("className", ll.getPgenCategory());
+				
+				if("CCFP_SIGMET".equals(ll.getPgenType()) ){ 
+					params.put("type", ((gov.noaa.nws.ncep.ui.pgen.sigmet.Ccfp)ll).getSigmet().getType() ); 
+				}
+				
+        		ExecutionEvent exec = new ExecutionEvent(cmd, params, ll, null);
+
+        		cmd.executeWithChecks(exec);
+
+        	} catch (Exception e) {
+        		
+        		e.printStackTrace();
+        	}
+        }
+    }
+    
+    /**
+     * Load the outlook drawing tool. 
+     */
+    public static final void loadOutlookDrawingTool() {
+        IEditorPart part = EditorUtil.getActiveEditor();
+        ICommandService service = (ICommandService) part.getSite().getService( ICommandService.class );
+        Command cmd = service.getCommand("gov.noaa.nws.ncep.ui.pgen.outlookDraw");
+
+        if (cmd != null ) {
+        	
+        	try {        		
+        		HashMap<String, Object> params = new HashMap<String, Object>();
+        		params.put("editor", part);
+				params.put("name", "Outlook" );
+				params.put("className", "");
+				
+        		ExecutionEvent exec = new ExecutionEvent(cmd, params, null, null);
+
+        		cmd.executeWithChecks(exec);
+
+        	} catch (Exception e) {
+        		
+        		e.printStackTrace();
+        	}
+        }
+    }  
+    
+    /**
+     * Create a new PgenResource and add it to the current editor.
+     * @return the PgenResource
+     */
+    public static final PgenResource createNewResource() {
+
+    	PgenResource drawingLayer = null;
+        NCMapEditor editor = NmapUiUtils.getActiveNatlCntrsEditor();
+        if(editor != null){
+        	try {	                
+        		switch ( getPgenMode() ) {
+        		case SINGLE:
+        			/*
+        			 * Use existing (or new) PgenResourceData to construct new Resources to
+        			 * add to each Pane's ResourceList
+        			 */
+        			if ( rscData == null ) {
+        				rscData = new PgenResourceData();
+        			}
+        			for ( IDisplayPane pane : editor.getDisplayPanes() ) {
+        				IDescriptor idesc = pane.getDescriptor();
+        				if ( idesc.getResourceList().size() > 0 ) {
+        					drawingLayer = rscData.construct(new LoadProperties(), idesc);
+        					//System.out.println("NEW pgen resource: "+drawingLayer);
+        					idesc.getResourceList().add( drawingLayer );
+        					idesc.getResourceList().addPreRemoveListener( drawingLayer );
+        					drawingLayer.init( pane.getTarget());
+        				}
+        			}
+        			break;
+        		case MULTIPLE:
+        			/*
+        			 * Add a new PgenResourceData and Resource to active Pane's ResourceList
+        			 */
+        			IMapDescriptor desc = (IMapDescriptor) editor.getActiveDisplayPane().getRenderableDisplay().getDescriptor();
+        			drawingLayer = new PgenResourceData().construct(new LoadProperties(), desc);
+        			desc.getResourceList().add( drawingLayer );
+        			desc.getResourceList().addPreRemoveListener( drawingLayer );
+        			drawingLayer.init( editor.getActiveDisplayPane().getTarget());
+        			break;
+        		}
+
+        	} catch (Exception e) {
+        		e.printStackTrace();           
+        	}
+        }
+        return drawingLayer;
+    }
+    
+    /*
+	 *  Refresh the PGEN drawing editor.
+	 */   
+    public static final void refresh() {    	
+    	if( NmapUiUtils.getActiveNatlCntrsEditor() != null )
+    		NmapUiUtils.getActiveNatlCntrsEditor().refresh();   
+    }
+
+    /**
+     * This method checks if the content in a text filed is a valid double. It 
+     * should be called in a verify-listener of the text field.   
+     * 
+     * @param event - Event that activates the listener.
+     * @return 	- true if the text is a valid double.
+     */
+    public static final boolean validateNumberTextField( Event event ){
+    	
+    	boolean valid = false;
+    	
+    	/*
+    	 * Only validate text field 
+    	 */
+    	if ( event.widget instanceof Text ){
+    	
+    		Text latLonText = (Text)event.widget;		
+    		StringBuffer str = new StringBuffer(latLonText.getText());
+    		
+    		// if the event is from key press, insert the text,
+    		// otherwise, replace the text
+    		if ( event.keyCode != 0 ){
+    			str.insert(event.start,event.text);
+    		}
+    		
+          	try {
+        		 Double.valueOf( new String(str) );
+        		 valid = true;
+        	 }
+        	 catch (NumberFormatException e){
+        		 valid = false;
+        	 }
+        	 
+        	 /*
+        	  * The first character can be '-' or '.'
+        	  */
+        	 if ( !valid && ((( event.start == 0 ) && (event.character =='-' || event.character == '.' ) )||
+						 (( str.length() == 1) && (str.charAt(0)=='-' || str.charAt(0)=='.')))){
+        		 	valid= true;
+        	 }
+        	 else if ( valid && 
+					( event.character == 'd' || event.character == 'D' ||
+					  event.character == 'f' || event.character == 'F' ||
+					  event.character == 'e' || event.character == 'E' )) {
+        		 /*
+        		  * 'D/d', 'F/f', and 'E/e' can be in or at the end of a Java number, but we
+        		  * do not want them in lat/lon 
+        		  */
+        		 valid = false;
+        	 }
+    	}
+		
+		return valid;
+		
+    }
+    
+	public static boolean validatePositiveInteger( VerifyEvent ve ) {
+		
+		boolean stat = false;
+		
+		if ( ve.widget instanceof Text ) {
+			Text advnum = (Text)ve.widget;
+    		StringBuffer str = new StringBuffer(advnum.getText());
+    		str.replace(ve.start, ve.end, ve.text);
+
+    		if ( str.toString().isEmpty() ) return true;
+    		
+    		try {
+    			if  ( Integer.parseInt(str.toString()) > 0 ) return true;
+    		}
+    		catch ( NumberFormatException nfe ) {
+    			return false;
+    		}
+    		
+    		return false;
+		}
+		
+		return stat;
+	} 
+	/**
+	 * Converts an array of lat/lons to pixel coordinates
+	 * @param pts An array of points in lat/lon coordinates
+	 * @param mapDescriptor Descriptoer to use for world to pixel transform
+	 * @return The array of points in pixel coordinates
+	 */
+	public static final double[][] latlonToPixel( Coordinate[] pts, IMapDescriptor mapDescriptor ) {
+		double[] point = new double[3];
+		double[][] pixels = new double[pts.length][3];
+
+		for ( int i=0; i< pts.length; i++ ) {
+			point[0] = pts[i].x;
+			point[1] = pts[i].y;
+			point[2] = 0.0;
+			pixels[i] = mapDescriptor.worldToPixel(point);
+		}
+		
+		return pixels;
+	}
+	
+	/**
+	 * Gets the current site id from the localization Manager
+	 * @return
+	 */
+	public static String getCurrentOffice() {
+		
+        String wfo = LocalizationManager.getInstance().getCurrentSite();
+		if ( wfo.equalsIgnoreCase("none") || wfo.isEmpty() ) wfo = new String("KNHC");
+
+		return wfo;
+	}
+	
+	/**
+	 * Converts an array of lat/lons to text; the format is "N","S","E", and/or "W" prepended
+	 * @param coors An array of points in lat/lon coordinates	 
+	 * @return The String showing lat/lons in text string
+	 */	
+	public static final String getLatLonStringPrepend(Coordinate[] coors, boolean isLineTypeArea){
+    	String twoSpace = gov.noaa.nws.ncep.ui.pgen.attrDialog.SigmetAttrDlg.LINE_SEPERATER;
+    	StringBuilder result = new StringBuilder();
+    	for(Coordinate coor : coors){  		
+    		
+    		result.append(coor.y>=0 ? 'N':'S');      		
+    		int y = (int)Math.abs(coor.y*100);  
+    		result.append( new DecimalFormat(FOUR_ZERO).format(y) );
+    		
+    		result.append(coor.x>=0 ? 'E':'W');    		
+    		int x = (int)Math.abs(coor.x*100);
+    		result.append( new DecimalFormat(FIVE_ZERO).format(x) ); 
+    		
+    		result.append(twoSpace);
+    	}    
+    	if( isLineTypeArea )result.append(result.toString().split(twoSpace)[0]);
+    	return result.toString();
+	}
+	
+	/**
+	 * Converts an array of lat/lons to text; the format is "N","S","E", and/or "W" postpended
+	 * @param coors An array of points in lat/lon coordinates	 
+	 * @return The String showing lat/lons in text string
+	 */	
+	public static final String getLatLonStringPostpend(Coordinate[] coors, boolean isLineTypeArea){
+    	String twoSpace = gov.noaa.nws.ncep.ui.pgen.attrDialog.SigmetAttrDlg.LINE_SEPERATER;
+    	StringBuilder result = new StringBuilder();
+    	for(Coordinate coor : coors){  		    		
+    		
+    		int y = (int)Math.abs(coor.y*100);	
+    		result.append( new DecimalFormat(FOUR_ZERO).format(y) ); 
+    		result.append(coor.y>=0 ? 'N':'S');    		
+    		
+    		int x = (int)Math.abs(coor.x*100);
+    		result.append( new DecimalFormat(FIVE_ZERO).format(x) ); 
+    		result.append(coor.x>=0 ? 'E':'W');
+    		
+    		result.append(twoSpace);
+    	}    
+    	if( isLineTypeArea )result.append(result.toString().split(twoSpace)[0]);
+    	return result.toString();
+	}
+	
+    /**
+     * Load the Contours drawing tool. 
+     * @param de Contours to load into the ContoursAttrDlg when the tool is loaded
+     */
+    public static final void loadContoursTool( Contours de ) {
+        IEditorPart part = EditorUtil.getActiveEditor();
+        ICommandService service = (ICommandService) part.getSite().getService( ICommandService.class );
+        Command cmd = service.getCommand("gov.noaa.nws.ncep.ui.pgen.contours");
+                
+        if ( cmd != null ) {
+        	
+        	try {        		
+        		HashMap<String, Object> params = new HashMap<String, Object>();
+        		params.put("editor", part);
+				
+        		if ( de != null ) {
+        		    params.put("name", de.getPgenType() );
+				    params.put("className", de.getPgenCategory());
+        		}
+        		else {
+        		    params.put("name", "Contours" );
+				    params.put("className", "MET" );       			
+        		}
+				
+        		ExecutionEvent exec = new ExecutionEvent(cmd, params, de, null);
+
+        		cmd.executeWithChecks(exec);
+
+        	} catch (Exception e) {
+        		
+        		e.printStackTrace();
+        	}
+        }
+    }
+       
+	/**
+	 *  Trigger the selecting tool with a selected element. 
+	 */   
+    public static final void setSelectingMode( AbstractDrawableComponent de ) {
+        IEditorPart part = EditorUtil.getActiveEditor();
+        ICommandService service = (ICommandService) part.getSite().getService( ICommandService.class );
+        Command cmd = service.getCommand("gov.noaa.nws.ncep.ui.pgen.rsc.PgenSelect");
+
+        if ( cmd != null ) {
+        	
+        	try {        		
+        		HashMap<String, Object> params = new HashMap<String, Object>();
+        		params.put("editor", part);
+        		ExecutionEvent exec = new ExecutionEvent(cmd, params, de, null);
+
+        		cmd.executeWithChecks(exec);
+
+        	} catch (Exception e) {
+        		
+        		e.printStackTrace();
+        	}
+        }
+    }
+
+    /**
+     * Returns the name of the directory that holds PGEN recovery files
+     * @return
+     */
+    public static String getTempWorkDir() {
+    	IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
+    	return prefs.getString(PgenPreferences.P_RECOVERY_DIR);
+    }
+    
+    /**
+     *
+     * @return
+     */
+    public static PgenMode getPgenMode() {
+		IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
+		String name = prefs.getString(PgenPreferences.P_PGEN_MODE);
+		PgenMode mode = PgenMode.valueOf(name);
+    	return mode;
+    }
+	
+    /**
+     * Indicates whether PGEN layers should be linked with the editor
+     */
+    public static boolean doesLayerLink() {
+    	IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
+		return prefs.getBoolean(PgenPreferences.P_LAYER_LINK);
+    }
+    
+	/*
+	 * Checks to see if a file exists.  If so, pop up a dialog asking for permission
+	 * to overwrite the file.
+	 */
+	public static boolean checkFileStatus(String filename) {
+
+		boolean canWrite = false;
+		File f = new File(filename);
+		
+		if ( f.exists() ) {
+			// display confirmation dialog
+			String msg = "File " + filename + " already exists. Overwrite?";
+			MessageDialog confirmDlg = new MessageDialog( 
+					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
+					"Confirm", null, msg,
+					MessageDialog.QUESTION, new String[]{"OK", "Cancel"}, 0);
+			confirmDlg.open();
+
+			if ( confirmDlg.getReturnCode() == MessageDialog.OK ) {
+				canWrite = true;
+			}
+		} else {
+			canWrite = true;
+		}
+
+        return canWrite;
+	}	
+	
+    /**
+     * Convert a java.util.Calendar to a GEMPAK date/time string
+     * @return
+     */
+    public static String calendarToGempakDattim( Calendar jdattim ) {
+    	
+    	String gDattim = null;
+    	
+    	if ( jdattim  != null ) {
+            
+    		String gstr = "";
+    		           
+    		int year = jdattim.get(Calendar.YEAR);
+    		gstr += year - year/100 * 100;
+    		
+    		int month = jdattim.get(Calendar.MONTH) + 1;
+    		if ( month < 10 ) {
+    			gstr += "0";
+    		}
+    		gstr += month;
+    		
+    		int day = jdattim.get(Calendar.DAY_OF_MONTH);
+    		if ( day < 10 ) {
+    			gstr += "0";
+    		}
+    		gstr += day;
+   		
+    		gstr += "/";
+    		
+    		int hour = jdattim.get(Calendar.HOUR_OF_DAY);
+    		if ( hour < 10 ) {
+    			gstr += "0";
+    		}
+    		gstr += hour;
+    		
+    		int minute = jdattim.get(Calendar.MINUTE);
+    		if ( minute < 10 ) {
+    			gstr += "0";
+    		}
+    		gstr += minute;
+    		  		
+    		gDattim = new String( gstr );
+    	}
+    	
+    	return gDattim;
+    	
+    }
+	
+        
+    /**
+	 * The current working directory may be changed in eclipse.sh or cave.sh, so it 
+	 * may not be the directory where you are running them.  To get around, We save 
+	 * and export it as "CURRENT_WORKING_DIRECTORY".
+	 * 
+	 * Set to a user-defined directory in PGEN preference.
+	 */
+//   public static String CURRENT_WORKING_DIRECTORY = System.getenv( "CURRENT_WORKING_DIRECTORY" );
+     public static String CURRENT_WORKING_DIRECTORY = System.getProperty("user.home");
+     
+     public static String getWorkingDirectory() {
+ 	 	return Activator.getDefault().getPreferenceStore().getString( PgenPreferences.P_WORKING_DIR );
+     }
+     
+    /**
+     * This function merges two labels of the input LabeledLine(ll) that are 
+     * at the same location(loc) into one label(one text with several arrowed lines)/
+     * @param ll	- LabeledLine
+     * @param loc	- Location
+     * @param me	- map editor
+     */
+	static public void mergeLabels(LabeledLine ll, Coordinate loc, NCMapEditor mapEditor ){
+		
+		//label at location loc.
+		Label testLbl = null;
+		
+		//label close to testLbl
+		Label mergeLbl = null;
+		
+		//translate lat/lon to screen coordinate
+		double scnLoc[] = mapEditor.translateInverseClick( loc );
+
+		//search for the closest two labels at loc
+		for ( Label lbl : ll.getLabels() ){
+			if ( Math.abs(lbl.getSpe().getLocation().x - loc.x) < 0.0001 &&
+					Math.abs(lbl.getSpe().getLocation().y - loc.y) < 0.0001 ) {
+				
+				//get the label at loc
+				testLbl = lbl;
+			}
+			else {
+				
+				//calculate distance from lbl to scnLoc
+				double scnPt[] = mapEditor.translateInverseClick(lbl.getSpe().getLocation());
+				double dist = Math.sqrt( (scnLoc[0]-scnPt[0]) * (scnLoc[0]-scnPt[0]) 
+										+(scnLoc[1]-scnPt[1]) * (scnLoc[1]-scnPt[1]) );
+				
+				if ( dist < 20 ){  	// 20 is the screen distance.
+									// a label in this range(<10) is considered as being at the same location 
+					mergeLbl = lbl;
+				}
+			}
+		}		 
+	
+		//add all arrow lines of one label to the other label and remove the second label
+		if ( testLbl != null && mergeLbl != null ){
+			for ( Line ln :mergeLbl.getArrows()) {
+				testLbl.addArrow(ln);
+				ln.removePoint(0);
+				ln.addPoint(0, testLbl.getSpe().getLocation());
+			}
+			ll.remove(mergeLbl);
+		}
+	}
+	
+    /**
+     * Removes the current PgenResourceData object
+     */
+	public static void resetResourceData() {
+		rscData = null;
+	}	
+    
+	/**
+     * Retrieve the last used tool
+	public static AbstractModalTool getLastUsedTool() {
+		
+		AbstractModalTool lastTool = null;
+		
+		AbstractVizPerspectiveManager mgr = VizPerspectiveListener
+                                               .getCurrentPerspectiveManager();
+        if ( mgr != null) {
+            lastTool = mgr.getToolManager().getLastModalTool();
+        }
+        
+        return lastTool;
+	}	
+     */
+	
+	
+	/**
+	 * This function computes the area of a spherical polygon on the earth
+	 *                                                      				
+	 * Note: The ANSI C code is adapted and modified from the article
+	 *       "Computing the Area of a Spherical Polygon" 
+	 *       by Robert D. Miller, 							
+	 *       in "Graphics Gems IV", Academic Press, 1994.
+	 *														
+     * @param 		pts[]	polygon points in map coordinates	
+     * @return		area	area in unit of square nautical miles.
+	 */
+	public static double getSphPolyArea ( Coordinate ptsin[] )	
+	{
+		
+		final double HalfPi = 1.5707963267948966192313,
+					 Degree = 57.295779513082320876798,	// degrees per radian
+					 M2NM = 5.4e-4F,					// meter to nautical mile
+					 RADIUS = 6371200.0F,				// earth radius
+					 GDIFFD= 0.000001;
+
+		int  	jj, kk;
+		double	Lam1, Lam2, Beta1, Beta2, CosB1, CosB2, HavA;
+		double	T, A, B, C, S, sum, excess;    
+
+		/*---------------------------------------------------------------------*/
+
+		int npts = ptsin.length;
+		double[] tmplat = new double[ npts];
+		double[] tmplon = new double[ npts];
+        
+		
+		/*
+		 *  Convert from degrees to radians and save into local arrays
+		 */
+		for ( jj = 0; jj < npts; jj++ ) {
+		    tmplat[jj] = ptsin[jj].y / Degree;
+		    tmplon[jj] = ptsin[jj].x / Degree;	
+		}
+		
+
+		/*
+		 *  Calculate the area in spherical degrees.
+		 */
+		sum = 0;
+		Lam2 = 0.0;
+		Beta2 = 0.0;
+		CosB2 = 0.0;
+		for ( jj = 0; jj < npts; jj++ )
+		{
+			kk = jj + 1;
+			if ( jj == 0 ) {
+				Lam1= (double)tmplon[jj];	Beta1= (double)tmplat[jj];
+				Lam2= (double)tmplon[jj+1];	Beta2= (double)tmplat[jj+1];
+				CosB1= Math.cos(Beta1);		CosB2= Math.cos(Beta2);
+			}
+			else {
+				kk = (jj+1) % (npts);
+				Lam1= Lam2;			Beta1= Beta2;
+				Lam2= (double)tmplon[kk];	Beta2= (double)tmplat[kk];
+				CosB1= CosB2;		CosB2= Math.cos(Beta2);
+			}
+
+			if ( !(Math.abs(Lam1-Lam2) < GDIFFD) ) {
+				
+				double a = ( 1.0 - Math.cos(Beta2-Beta1) ) / 2.0;
+				double b = ( 1.0 - Math.cos(Lam2-Lam1) ) / 2.0;
+				HavA = a + CosB1*CosB2*b;
+
+				A = 2 * Math.asin ( Math.sqrt ( HavA ) );
+				B = HalfPi - Beta2;
+				C = HalfPi - Beta1;
+				S = 0.5 * ( A + B + C );
+				T = Math.tan(S/2) * Math.tan((S-A)/2) * Math.tan((S-B)/2) * Math.tan((S-C)/2);
+
+				excess = Math.abs ( 4 * Math.atan ( Math.sqrt ( Math.abs(T) ) ) ) * Degree;
+				if ( Lam2 < Lam1 ) excess = -excess;
+
+				sum = sum + excess;
+			}	
+		}
+
+		double area = Math.abs ( sum );    
+
+		/*
+		 *  Convert into "square nautical miles".
+		 */
+		double radius = RADIUS*M2NM;	/* The Earth's radius in nautical miles*/
+        		
+		area *= ( (radius) * (radius) / Degree );
+
+		return area;
+	}
+		
+	/**
+	 * This function computes the area of polygon on the earth.
+     * @param 		poly	polygon in map coordinates		
+     * @return		area	area in unit of square nautical miles.
+	 */
+	public static double getSphPolyArea ( Polygon poly )	
+	{		
+		double extnl_area = getSphPolyArea( poly.getExteriorRing().getCoordinates() );
+		
+		double intnl_area = 0.0;
+		for ( int nn = 0; nn < poly.getNumInteriorRing(); nn++ ) {		
+		   intnl_area += getSphPolyArea( poly.getInteriorRingN( nn ).getCoordinates() );
+			System.out.println( "internal??" );
+		}
+		
+		return ( extnl_area - intnl_area );
+	}
+
+	/**
+	 * This function computes the area of a geometry on the earth.
+     * @param 		geom	geometry in map coordinate.		
+     * @return		area	area in unit of square nautical miles.
+	 */
+	public static double getSphPolyArea ( Geometry geom )	
+	{		
+		double area = 0.0;
+		if ( geom instanceof Polygon ) {
+			area = getSphPolyArea( (Polygon)geom );
+		} 
+		else if ( geom instanceof MultiPolygon ) {
+			MultiPolygon mp = (MultiPolygon)geom;
+			for( int nn = 0; nn <  mp.getNumGeometries(); nn++ ) {
+				area += getSphPolyArea( (Polygon)mp.getGeometryN( nn ) );
+			}
+		}
+
+		return area;
+	}
+	
+	/**
+	 * This function computes the area of polygon in grid coordinate.
+	 * 
+	 * Note: the input is assumed to be in grid coordinate.
+	 * 
+     * @param 		poly	polygon in grid coordinates		
+     * @return		area	area in unit of square nautical miles.
+	 */
+	public static double getSphPolyAreaInGrid ( Polygon poly )	
+	{		
+		
+		Coordinate[] ring = poly.getExteriorRing().getCoordinates();
+		Coordinate[] ringInMap = gridToLatlon( ring );
+		double extnl_area = getSphPolyArea( ringInMap );
+				
+		double intnl_area = 0.0;
+		for ( int nn = 0; nn < poly.getNumInteriorRing(); nn++ ) {		
+		    ring = poly.getInteriorRingN( nn ).getCoordinates();
+		    ringInMap = gridToLatlon( ring );
+			intnl_area += getSphPolyArea( ring );
+		}
+		
+		return ( extnl_area - intnl_area );
+	}
+	
+	/**
+	 * This function computes the area of a geometry on the earth.
+     * @param 		geom	geometry in GRID coordinate.		
+     * @return		area	area in unit of square nautical miles.
+	 */
+	public static double getSphPolyAreaInGrid ( Geometry geom )	
+	{		
+		double area = 0.0;
+		if ( geom instanceof Polygon ) {
+			area = getSphPolyAreaInGrid( (Polygon)geom );
+		} else if ( geom instanceof MultiPolygon ) {
+			MultiPolygon mp = (MultiPolygon)geom;
+			for( int nn = 0; nn <  mp.getNumGeometries(); nn++ ) {
+				area += getSphPolyAreaInGrid( (Polygon)mp.getGeometryN( nn ) );
+			}
+		}
+
+		return area;
+	}
+
+	
+	/**
+	 * This function computes the area of polygon on the earth but requires
+	 * to build a local projection and math transform 
+     * Note:  it may throw exception for invalid polygon.
+	 * 
+     * @param 		poly	polygon in map coordinates		
+     * @return		area	area in unit of square nautical miles.
+	 */
+	public static double getPolyArea ( Polygon poly )	
+	{		
+        double area = 0.0;
+		try {
+            org.opengis.referencing.crs.ProjectedCRS localProjectionCRS = MapUtil
+                .constructStereographic(MapUtil.AWIPS_EARTH_RADIUS,
+                MapUtil.AWIPS_EARTH_RADIUS, poly.getCentroid()
+                        .getY(), poly.getCentroid().getX());
+            MathTransform mt;
+            mt = MapUtil.getTransformFromLatLon(localProjectionCRS);
+            Geometry newIntersectInLocalProj = JTS.transform(poly,mt);
+            double areaInMeters = newIntersectInLocalProj.getArea();
+            
+            area = areaInMeters / PgenUtil.NM2M / PgenUtil.NM2M;
+            
+		} catch (Exception e) {
+            e.printStackTrace();
+        }
+		
+		return area;
+	}
+    
+	/**
+     * Returns projection for PGEN computational coordinate
+     * @return
+     */
+    public static String getPgenCompCoordProj() {
+    	IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
+    	String coordStr = prefs.getString( PgenPreferences.P_COMP_COORD );
+		String[] s = coordStr.split( "\\|" );
+		return s[ 0 ];
+    }
+
+    /**
+     * Returns GRAEA for PGEN computational coordinate
+     * @return
+     */
+    public static String getPgenCompCoordGarea() {
+    	IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
+    	String coordStr = prefs.getString( PgenPreferences.P_COMP_COORD );
+		String[] s = coordStr.split( "\\|" );
+    	return s[ 1 ];
+    }
+    
+    /**
+     * Returns a custom CoordinateTransform for use.
+     * @return
+     */
+    public static CoordinateTransform getCompCoord() {
+    	
+    	if ( coordTrans == null ||
+    		 !coordTrans.getProjection().equals( getPgenCompCoordProj() ) ||
+  	         !coordTrans.getGarea().equals( getPgenCompCoordGarea() ) ) {
+    		
+  		    coordTrans = new CoordinateTransform( getPgenCompCoordProj(),
+		                                  getPgenCompCoordGarea(), 800, 600 );
+    	}
+   	
+    	return coordTrans;
+    	
+    }
+   
+	
+	/**
+	 * Convert a set of lat/lon points into a custom grid coordinate.
+	 * 
+	 * @param lonlat	points to be converted
+	 * @return 
+	 */
+	public static Coordinate[] latlonToGrid( Coordinate[] lonlat ) {               
+        
+		return getCompCoord().worldToGrid( lonlat );
+	}
+
+	/**
+	 * Convert a set of points in a custom grid coordinate to lat/lon points.
+	 * 
+	 * @param lonlat	points to be converted
+	 * @return 
+	 */
+	public  static Coordinate[] gridToLatlon( Coordinate[] gridpts ) {               
+        
+		return getCompCoord().gridToWorld( gridpts );
+	}
+
+	/**
+	 * Convert a list of lat/lon points into a custom grid coordinate.
+	 * 
+	 * @param lonlat	points to be converted
+	 * @return 
+	 */
+	public static ArrayList<Coordinate> latlonToGrid( ArrayList<Coordinate> lonlat ) {               
+        
+		Coordinate[] aa = new Coordinate[ lonlat.size() ];
+		
+		aa = PgenUtil.latlonToGrid( lonlat.toArray( aa ) );
+				
+		return new ArrayList<Coordinate>( Arrays.asList( aa ) );
+	}
+
+	/**
+	 * Convert a list of points in a custom grid coordinate to lat/lon points.
+	 * 
+	 * @param lonlat	points to be converted
+	 * @return 
+	 */
+	public static ArrayList<Coordinate> gridToLatlon( ArrayList<Coordinate> gridpts ) {               
+        
+		Coordinate[] aa = new Coordinate[ gridpts.size() ];
+		
+		aa = PgenUtil.gridToLatlon( gridpts.toArray( aa ) );
+				
+		return new ArrayList<Coordinate>( Arrays.asList( aa ) );
+		
+	}
+
+}

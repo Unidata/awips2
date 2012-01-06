@@ -1,0 +1,437 @@
+# ROUNDUP SUBSECTION TEMPLATES
+# ----------------------------
+#
+#
+#
+name: rvs_default
+formats: T_HHW  T_HHW
+varlist: <ObsTime> <MaxFcstTime>
+condition: ( <NumObsStg> GT 0 )
+phrasestr:For the <River> <Proximity> <IdName>, the latest stage is <ObsStg> feet at <ObsTime>.
+condition: ( <NumObsStg> EQ 0 )
+phrasestr:For the <River> <Proximity> <IdName>, no observed stage is available.
+varlist: <ObsStg,+3.0>
+formats: F6.3
+condition: ( <ObsStg,+0.3> GT 3.0 )
+phrasestr:The current observed stage plus 3.0 is <ObsStg,+3.0>, which is greater than 3.0
+condition: ( <SPGM3,HG,0,RP,Z,LATEST,MATH+5.0> GT 5.0 )
+phrasestr:The latest observed stage with dur 0, ts RP, extreme Z, plus 5.0 is <SPGM3,HG,0,RP,Z,LATEST,MATH+5.0>, which is greater than 5.0
+#
+name: default
+formats: T_HHW  T_HHW T_HHW T_HHW T_HHW T_HHW T_HHW
+varlist: <ObsTime> <MaxFcstTime> <ObsRiseFSTime> <ObsFallFSTime> &
+<FcstRiseFSTime> <FcstFallFSTime> <FcstCrestTime>
+condition: ( <ObsCat> EQ 0 )
+phrasestr:For the <River> <Proximity> <IdName>, the latest stage is &
+<ObsStg> feet at <ObsTime>.
+condition: ( <ObsCat> GT 0 )
+phrasestr:For the <River> <Proximity> <IdName>, <ObsCatName> flooding &
+is occuring, with a stage of <ObsStg> feet measured at <ObsTime>.
+condition: ( <NumObsStg> EQ 0 )
+phrasestr:For the <River> <Proximity> <IdName>, no observed stage is available.
+#
+condition: ( <MaxFcstCat> EQ 0 )
+phrasestr:No flooding is forecasted.
+condition: ( ( <NumObsStg> EQ 0  ) AND ( <MaxFcstStg> NE MISSING ) )
+phrasestr:The maximum stage forecasted is <MaxFcstStg> at<MaxFcstTime>.
+condition: ( ( <MaxFcstCat> GT 0 ) AND ( <MaxFcstStg> GT <ObsStg> ) AND &
+( <FcstFSDeparture> GT 0 ) )
+phrasestr:<MaxFcstCatName> flooding is forecast, with a maximum stage of &
+<MaxFcstStg> feet at <MaxFcstTime>, which is <FcstFSDeparture> feet above &
+flood stage.
+condition: ( ( <MaxFcstCat> GT 0 ) AND ( <MaxFcstStg> GT <ObsStg> ) AND &
+( <FcstFSDeparture> EQ 0 ) )
+phrasestr:<MaxFcstCatName> flooding is forecasted, with a maximum stage of &
+<MaxFcstStg> feet at <MaxFcstTime>, which is equal to the flood stage.
+condition: ( ( <MaxFcstCat> GT 0 ) AND ( <MaxFcstStg> GT <ObsStg> ) AND &
+( <FcstFSDeparture> LT 0 ) )
+phrasestr:<MaxFcstCatName> flooding is forecasted, with a maximum stage of &
+<MaxFcstStg> feet at <MaxFcstTime>.
+#
+condition: ( <ObsRiseFSTime> NE MISSING )
+phrasestr: The stage exceeded the flood stage of <FldStg> feet at <ObsRiseFSTime>.
+#condition: ( <ObsFallFSTime> NE MISSING )
+#phrasestr:The stage fell below the flood stage of <FldStg> feet at <ObsFallFSTime>.
+condition: ( <FcstRiseFSTime> NE MISSING )
+phrasestr:The stage will rise above the flood stage of <FldStg> feet &
+at <FcstRiseFSTime>.
+condition: ( <FcstFallFSTime> NE MISSING )
+phrasestr:The stage will fall below flood stage at <FcstFallFSTime>.
+#
+#condition: ( <FcstCrestStg> GT <FldStg> )
+#phrasestr: The stage will crest around <FcstCrestStg> feet at <FcstCrestTime>.
+condition: TRUE
+phrasestr:<FcstTrend>.
+#
+#
+#
+name: teste19
+#name: bigtest
+# TEMPLATE TO TEST E19 DATA RETRIEVAL W/O IMPACT OR CREST STUFF
+condition: TRUE
+phrasestr:Dump of data for Id, IdName = <Id> <IdName>...
+condition: TRUE
+phrasestr:River = <River>...Proximity = <Proximity>...
+condition: TRUE
+phrasestr:County = <County>...
+condition: TRUE
+phrasestr:Reach = <Reach>...
+condition: TRUE
+phrasestr:FldStg = <FldStg>...Bankfull  = <BankStg>...Warning Stage = <WStg>...
+condition: TRUE
+phrasestr:CatVals= <MinCatVal> <ModCatVal> <MajCatVal> <RecCatVal>...
+#
+#
+#
+name: teststage
+# TEMPLATE TO TEST THE STAGE DATA RETRIEVAL
+formats: T_HHW  T_HHW
+varlist: <ObsTime> <MaxFcstTime>
+condition: TRUE
+phrasestr:IdName = <IdName>...
+condition: TRUE
+phrasestr:Numobs, fcst stage = <NumObsStg> <NumFcstStg>
+condition: TRUE
+phrasestr:ObsStage, Cat#, Name, Time = <ObsStg> <ObsCat> <ObsCatName> &
+<ObsTime>...
+condition: TRUE
+phrasestr:MaxFcstStg, Cat#, Name, Time = <MaxFcstStg> <MaxFcstCat> &
+<MaxFcstCatName> <MaxFcstTime>...
+condition: TRUE
+phrasestr:OMFVal, Cat#, Name = <OMFVal> <OMFCat> <OMFMaxCatName>...
+condition: TRUE
+phrasestr:MaxObsStg24, 06 = <MaxObsStg24>  <MaxObsStg06>...
+condition: TRUE
+phrasestr: ObsRise, Fall FSTime = <ObsRiseFSTime> <ObsFallFSTime>...
+condition: TRUE
+phrasestr: FcstRise, Fall FSTime = <FcstRiseFSTime> <FcstFallFSTime>...
+condition: TRUE
+phrasestr: Obs Crest Stg,Time = <ObsCrestStg> <ObsCrestTime>...
+condition: TRUE
+phrasestr: Fcst Crest Stg,Time = <FcstCrestStg> <FcstCrestTime>...
+condition: TRUE
+phrasestr: ObsA/FcstA FS Depart = <ObsFSDepartureA> <FcstFSDepartureA>...
+condition: TRUE
+phrasestr: Metric = <WOOR1,TA,0,RZ,Z,LATEST,MET>
+condition: TRUE
+phrasestr: English = <WOOR1,TA,0,RZ,Z,LATEST>
+#
+name: testtime
+# TEMPLATE TO TEST THE TIME FORMATSTAGE DATA RETRIEVAL
+formats: T_AWH  T_AWH
+varlist: <ObsTime> <MaxFcstTime>
+condition: TRUE
+phrasestr:IdName = <IdName>...
+condition: TRUE
+phrasestr:Obs Stage/CatName/Time = <ObsStg> <ObsCatName> <ObsTime>...
+condition: TRUE
+phrasestr:MaxFcst Stg/CatName/Time = <MaxFcstStg> <MaxFcstCatName> &
+<MaxFcstTime>...
+#ROUNDUP SUBSECTION TEMPLATES - Event based product such as
+#Flood Warning, Follow-up Flood Warning, Flood Watch for forecast point,
+#and Flood Advisory for forecast point.
+#
+name: flw_fls_vtec
+formats:T_WWA T_WWA T_HHW T_HHW T_HHW T_HHW T_HHW
+varlist:<EventBeginTime> <EventEndTime> <ObsTime> <FcstRiseFSTime> &
+<MaxFcstTime> <FcstFallFSTime>
+condition: TRUE
+phrasestr:(optional)...Headline
+condition: TRUE
+phrasestr:
+###for new event
+condition: ( <Action> SEQ "NEW" )
+phrasestr:THE NATIONAL WEATHER SERVICE IN <OfficeName> HAS ISSUED A
+condition: ( <Action> SEQ "NEW" )
+bulletstr: FLOOD WARNING FOR
+condition: ( <Action> SEQ "NEW" )
+phrasestr: <River> <Proximity> <IdName>
+condition: ( <Action> SEQ "NEW" )
+bulletstr: FROM <EventBeginTime> until <EventEndTime>
+condition: ( <Action> SEQ "NEW" )
+bulletstr: AT <ObsTime> THE STAGE WAS... <ObsStage> <StgFlowUnits>
+condition: ( <Action> SEQ "NEW" )
+bulletstr: <MaxFcstCatName> FLOODING IS FORECAST
+condition: ( <Action> SEQ "NEW" )
+bulletstr: FLOOD STAGE IS...<FldStg> <StgFlowUnits>
+condition: ( <Action> SEQ "NEW" )
+bulletstr: FORECAST...FLOOD STAGE WILL BE REACHED AT <FcstRiseFSTime>. &
+MAXIMUM STAGE WILL BE <MaxFcstStg> <StgFlowUnits> AT <MaxFcstTime>. FLOOD &
+STAGE WILL FALL BELOW FLOOD STAGE AT <FcstFallFSTime>.
+condition: ( <Action> SEQ "NEW" )
+bulletstr: (optional)...
+condition: TRUE
+phrasestr:
+#
+#for cancelled event
+condition: ( <Action> SEQ "CAN" )
+phrasestr:THE FLOOD WARNING IS CANCELLED FOR
+condition: ( <Action> SEQ "CAN" )
+phrasestr: <River> <Proximity> <IdName>
+condition: ( <Action> SEQ "CAN" )
+bulletstr: AT <ObsTime> THE STAGE WAS... <ObsStage> <StgFlowUnits>
+condition: ( <Action> SEQ "CAN" )
+bulletstr: FLOOD STAGE IS...<FldStg> <StgFlowUnits>
+condition: ( <Action> SEQ "CAN" )
+bulletstr: FELL BELOW FLOOD STAGE AT <ObsFallFSTime>
+condition: ( <Action> SEQ "CAN" )
+bulletstr: (optional)...
+condition: TRUE
+phrasestr:
+#
+#for continued event
+condition: ( <Action> SEQ "CON" )
+phrasestr:THE FLOOD WARNING CONTINUES FOR
+condition: ( <Action> SEQ "CON" )
+phrasestr: <River> <Proximity> <IdName>
+condition: ( <Action> SEQ "CON" )
+bulletstr: UNTIL <EventEndTime>
+condition: ( <Action> SEQ "CON" )
+bulletstr: AT <ObsTime> THE STAGE WAS... <ObsStage> <StgFlowUnits>
+condition: ( <Action> SEQ "CON" )
+bulletstr: <MaxFcstCatName> FLOODING IS FORECAST
+condition: ( <Action> SEQ "CON" )
+bulletstr: FLOOD STAGE IS...<FldStg> <StgFlowUnits>
+condition: ( <Action> SEQ "CON" )
+bulletstr: FORECAST...MAXIMUM STAGE WILL BE <MaxFcstStg> <StgFlowUnits> AT <MaxFcstTime>.
+condition: ( <Action> SEQ "CON" )
+bulletstr: (optional)...
+condition: TRUE
+phrasestr:
+#
+#for extended event
+condition: ( <Action> SEQ "EXT" )
+phrasestr:THE FLOOD WARNING CONTINUES FOR
+condition: ( <Action> SEQ "EXT" )
+phrasestr: <River> <Proximity> <IdName>
+condition: ( <Action> SEQ "EXT" )
+bulletstr: UNTIL <EventEndTime>
+condition: ( <Action> SEQ "EXT" )
+bulletstr: AT <ObsTime> THE STAGE WAS... <ObsStage> <StgFlowUnits>
+condition: ( <Action> SEQ "EXT" )
+bulletstr: <MaxFcstCatName> FLOODING IS FORECAST
+condition: ( <Action> SEQ "EXT" )
+bulletstr: FLOOD STAGE IS...<FldStg> <StgFlowUnits>
+condition: ( <Action> SEQ "EXT" )
+bulletstr: FORECAST...MAXIMUM STAGE WILL BE <MaxFcstStg> <StgFlowUnits> AT <MaxFcstTime>.
+condition: ( <Action> SEQ "EXT" )
+bulletstr: (optional)...
+condition: TRUE
+phrasestr:
+#
+#for expired event
+condition: ( <Action> SEQ "EXP" )
+phrasestr:THE FLOOD WARNING HAS EXPIRED FOR
+condition: ( <Action> SEQ "EXP" )
+phrasestr: <River> <Proximity> <IdName>
+condition: ( <Action> SEQ "EXP" )
+bulletstr: AT <ObsTime> THE STAGE WAS... <ObsStage> <StgFlowUnits>
+condition: ( <Action> SEQ "EXP" )
+bulletstr: FLOOD STAGE IS...<FldStg> <StgFlowUnits>
+condition: ( <Action> SEQ "EXP" )
+bulletstr: FELL BELOW FLOOD STAGE AT <ObsFallFSTime>
+condition: ( <Action> SEQ "EXP" )
+bulletstr: (optional)...
+condition: TRUE
+phrasestr:
+#
+name: ffa_vtec
+formats:T_WWA T_WWA T_HHW T_HHW T_HHW T_HHW T_HHW
+varlist:<EventBeginTime> <EventEndTime> <ObsTime> <FcstRiseFSTime> &
+<MaxFcstTime> <FcstFallFSTime>
+condition: TRUE
+phrasestr:
+###for new event
+condition: ( <Action> SEQ "NEW" )
+phrasestr: (optional...Headline...)
+condition: ( <Action> SEQ "NEW" )
+phrasestr:THE NATIONAL WEATHER SERVICE IN <OfficeName> HAS ISSUED A
+condition: ( <Action> SEQ "NEW" )
+bulletstr: FLOOD WATCH FOR
+condition: ( <Action> SEQ "NEW" )
+phrasestr: <River> <Proximity> <IdName>
+condition: ( <Action> SEQ "NEW" )
+bulletstr: FROM <EventBeginTime> until <EventEndTime>
+condition: ( <Action> SEQ "NEW" )
+bulletstr: AT <ObsTime> THE STAGE WAS... <ObsStage> <StgFlowUnits>
+condition: ( <Action> SEQ "NEW" )
+bulletstr: <MaxFcstCatName> FLOODING IS FORECAST
+condition: ( <Action> SEQ "NEW" )
+bulletstr: FLOOD STAGE IS...<FldStg> <StgFlowUnits>
+condition: ( <Action> SEQ "NEW" )
+bulletstr: FORECAST...FLOOD STAGE WILL BE REACHED AT <FcstRiseFSTime>. &
+MAXIMUM STAGE WILL BE <MaxFcstStg> <StgFlowUnits> AT <MaxFcstTime>. FLOOD &
+STAGE WILL FALL BELOW FLOOD STAGE AT <FcstFallFSTime>.
+condition: ( <Action> SEQ "NEW" )
+bulletstr: (optional)...
+condition: TRUE
+phrasestr:
+#
+#for cancelled event
+condition: ( <Action> SEQ "CAN" )
+phrasestr:THE FLOOD WATCH IS CANCELLED FOR
+condition: ( <Action> SEQ "CAN" )
+phrasestr: <River> <Proximity> <IdName>
+condition: ( <Action> SEQ "CAN" )
+bulletstr: AT <ObsTime> THE STAGE WAS... <ObsStage> <StgFlowUnits>
+condition: ( <Action> SEQ "CAN" )
+bulletstr: FLOOD STAGE IS...<FldStg> <StgFlowUnits>
+condition: ( <Action> SEQ "CAN" )
+bulletstr: (optional)...
+condition: TRUE
+phrasestr:
+#
+#for continued event
+condition: ( <Action> SEQ "CON" )
+phrasestr:THE FLOOD WATCH CONTINUES FOR
+condition: ( <Action> SEQ "CON" )
+phrasestr: <River> <Proximity> <IdName>
+condition: ( <Action> SEQ "CON" )
+bulletstr: UNTIL <EventEndTime>
+condition: ( <Action> SEQ "CON" )
+bulletstr: AT <ObsTime> THE STAGE WAS... <ObsStage> <StgFlowUnits>
+condition: ( <Action> SEQ "CON" )
+bulletstr: <MaxFcstCatName> FLOODING IS FORECAST
+condition: ( <Action> SEQ "CON" )
+bulletstr: FLOOD STAGE IS...<FldStg> <StgFlowUnits>
+condition: ( <Action> SEQ "CON" )
+bulletstr: FORECAST...MAXIMUM STAGE WILL BE <MaxFcstStg> <StgFlowUnits> AT <MaxFcstTime>.
+condition: ( <Action> SEQ "CON" )
+bulletstr: (optional)...
+condition: TRUE
+phrasestr:
+#
+#for extended event
+condition: ( <Action> SEQ "EXT" )
+phrasestr:THE FLOOD WATCH IS EXTENDED FOR
+condition: ( <Action> SEQ "EXT" )
+phrasestr: <River> <Proximity> <IdName>
+condition: ( <Action> SEQ "EXT" )
+bulletstr: UNTIL <EventEndTime>
+condition: ( <Action> SEQ "EXT" )
+bulletstr: AT <ObsTime> THE STAGE WAS... <ObsStage> <StgFlowUnits>
+condition: ( <Action> SEQ "EXT" )
+bulletstr: <MaxFcstCatName> FLOODING IS FORECAST
+condition: ( <Action> SEQ "EXT" )
+bulletstr: FLOOD STAGE IS...<FldStg> <StgFlowUnits>
+condition: ( <Action> SEQ "EXT" )
+bulletstr: FORECAST...MAXIMUM STAGE WILL BE <MaxFcstStg> <StgFlowUnits> AT <MaxFcstTime>.
+condition: ( <Action> SEQ "EXT" )
+bulletstr: (optional)...
+condition: TRUE
+phrasestr:
+#
+#for expired event
+condition: ( <Action> SEQ "EXP" )
+phrasestr:THE FLOOD WATCH HAS EXPIRED FOR
+condition: ( <Action> SEQ "EXP" )
+phrasestr: <River> <Proximity> <IdName>
+condition: ( <Action> SEQ "EXP" )
+bulletstr: AT <ObsTime> THE STAGE WAS... <ObsStage> <StgFlowUnits>
+condition: ( <Action> SEQ "EXP" )
+bulletstr: FLOOD STAGE IS...<FldStg> <StgFlowUnits>
+condition: ( <Action> SEQ "EXP" )
+bulletstr: (optional)...
+condition: TRUE
+phrasestr:
+#
+#
+name: fls_advisory_vtec
+formats:T_WWA T_WWA T_HHW T_HHW T_HHW T_HHW T_HHW
+varlist:<EventBeginTime> <EventEndTime> <ObsTime> <FcstRiseFSTime> &
+<MaxFcstTime> <FcstFallFSTime>
+condition: TRUE
+phrasestr:
+###for new event
+condition: ( <Action> SEQ "NEW" )
+phrasestr: (optional...Headline...)
+condition: ( <Action> SEQ "NEW" )
+phrasestr:THE NATIONAL WEATHER SERVICE IN <OfficeName> HAS ISSUED A
+condition: ( <Action> SEQ "NEW" )
+bulletstr: FLOOD ADVISORY FOR
+condition: ( <Action> SEQ "NEW" )
+phrasestr: <River> <Proximity> <IdName>
+condition: ( <Action> SEQ "NEW" )
+bulletstr: FROM <EventBeginTime> until <EventEndTime>
+condition: ( <Action> SEQ "NEW" )
+bulletstr: AT <ObsTime> THE STAGE WAS... <ObsStage> <StgFlowUnits>
+condition: ( <Action> SEQ "NEW" )
+bulletstr: <MaxFcstCatName> FLOODING IS FORECAST
+condition: ( <Action> SEQ "NEW" )
+bulletstr: FLOOD STAGE IS...<FldStg> <StgFlowUnits>
+condition: ( <Action> SEQ "NEW" )
+bulletstr: FORECAST...FLOOD STAGE WILL BE REACHED AT <FcstRiseFSTime>. &
+MAXIMUM STAGE WILL BE <MaxFcstStg> <StgFlowUnits> AT <MaxFcstTime>. FLOOD &
+STAGE WILL FALL BELOW FLOOD STAGE AT <FcstFallFSTime>.
+condition: ( <Action> SEQ "NEW" )
+bulletstr: (optional)...
+condition: TRUE
+phrasestr:
+#
+#for cancelled event
+condition: ( <Action> SEQ "CAN" )
+phrasestr:THE FLOOD ADVISORY IS CANCELLED FOR
+condition: ( <Action> SEQ "CAN" )
+phrasestr: <River> <Proximity> <IdName>
+condition: ( <Action> SEQ "CAN" )
+bulletstr: AT <ObsTime> THE STAGE WAS... <ObsStage> <StgFlowUnits>
+condition: ( <Action> SEQ "CAN" )
+bulletstr: FLOOD STAGE IS...<FldStg> <StgFlowUnits>
+condition: ( <Action> SEQ "CAN" )
+bulletstr: (optional)...
+condition: TRUE
+phrasestr:
+#
+#for continued event
+condition: ( <Action> SEQ "CON" )
+phrasestr:THE FLOOD ADVISORY CONTINUES FOR
+condition: ( <Action> SEQ "CON" )
+phrasestr: <River> <Proximity> <IdName>
+condition: ( <Action> SEQ "CON" )
+bulletstr: UNTIL <EventEndTime>
+condition: ( <Action> SEQ "CON" )
+bulletstr: AT <ObsTime> THE STAGE WAS... <ObsStage> <StgFlowUnits>
+condition: ( <Action> SEQ "CON" )
+bulletstr: <MaxFcstCatName> FLOODING IS FORECAST
+condition: ( <Action> SEQ "CON" )
+bulletstr: FLOOD STAGE IS...<FldStg> <StgFlowUnits>
+condition: ( <Action> SEQ "CON" )
+bulletstr: FORECAST...MAXIMUM STAGE WILL BE <MaxFcstStg> <StgFlowUnits> AT <MaxFcstTime>.
+condition: ( <Action> SEQ "CON" )
+bulletstr: (optional)...
+condition: TRUE
+phrasestr:
+#
+#for extended event
+condition: ( <Action> SEQ "EXT" )
+phrasestr:THE FLOOD ADVISORY IS EXTENDED FOR
+condition: ( <Action> SEQ "EXT" )
+phrasestr: <River> <Proximity> <IdName>
+condition: ( <Action> SEQ "EXT" )
+bulletstr: UNTIL <EventEndTime>
+condition: ( <Action> SEQ "EXT" )
+bulletstr: AT <ObsTime> THE STAGE WAS... <ObsStage> <StgFlowUnits>
+condition: ( <Action> SEQ "EXT" )
+bulletstr: <MaxFcstCatName> FLOODING IS FORECAST
+condition: ( <Action> SEQ "EXT" )
+bulletstr: FLOOD STAGE IS...<FldStg> <StgFlowUnits>
+condition: ( <Action> SEQ "EXT" )
+bulletstr: FORECAST...MAXIMUM STAGE WILL BE <MaxFcstStg> <StgFlowUnits> AT <MaxFcstTime>.
+condition: ( <Action> SEQ "EXT" )
+bulletstr: (optional)...
+condition: TRUE
+phrasestr:
+#
+#for expired event
+condition: ( <Action> SEQ "EXP" )
+phrasestr:THE FLOOD ADVISORY HAS EXPIRED FOR
+condition: ( <Action> SEQ "EXP" )
+phrasestr: <River> <Proximity> <IdName>
+condition: ( <Action> SEQ "EXP" )
+bulletstr: AT <ObsTime> THE STAGE WAS... <ObsStage> <StgFlowUnits>
+condition: ( <Action> SEQ "EXP" )
+bulletstr: FLOOD STAGE IS...<FldStg> <StgFlowUnits>
+condition: ( <Action> SEQ "EXP" )
+bulletstr: (optional)...
+condition: TRUE
+phrasestr:

@@ -1,0 +1,86 @@
+'\"
+'\" $HEADER$
+.TH LDMFAIL 1 "$Date: 2009/06/18 16:20:11 $"
+.SH NAME
+ldmfail - monitor local ldm and upstream feed sites, performing failover if
+necessary.
+.SH "UNIX SYNOPSIS"
+\fBldmfail \fB\-p primary_host \fB\-f failover_host
+.SH DESCRIPTION
+
+This perl script monitors the state of both the local LDM server and its
+upstream primary and failover sites.  If the local LDM is not running, email
+is sent to the specified mail recipients.  By default no restart is attempted
+and the script exits.  If the restart flag is set, then a restart is tried.
+If the restart is successful, the script continues, otherwise email is sent
+and the script exits.
+.LP
+After the LDM is verified to be running, the script then checks the current
+ldmd.conf file to see whether the LDM is connected to its primary upstream
+host, or its failover upstream host.  If the LDM is connected to the primary
+host, that host is checked using ldmping(1).  If the primary host is
+unreachable, the failover host is checked.  If that host is unreachable,
+email is sent and the script exits.  If the failover host is available, then
+the LDM server is stopped, a new ldmd.conf file is moved into place, the
+LDM server is restarted and email is sent.
+.LP
+If the LDM is connected to the failover host, then the primary host is
+checked.  If that host is reachable, then the LDM server is stopped, the
+original ldmd.conf file is moved into place, the LDM server is restarted and
+email is sent.  If the primary host is unreachable, the script exits with no
+action taken.
+.LP
+There are two ldmd.conf files that must be created to be used with this
+script.  Both should be identical, other than the request line for the
+upstream feed host.  The file for the primary site should be named
+ldmd.hostname, where hostname is the fully qualified hostname of the upstream
+primary host.  The file for the failover site should be named the same way,
+where hostname is the fully qualified hostname of the upstream failover host.
+Both files should reside in the LDMHOME/etc directory.
+.LP
+Prior to running the ldmfail(1) script, make sure you edit the script and
+make any necessary changes to the configuration section at the beginning.
+This section is self documenting.
+.LP
+.SH OPTIONS 
+.TP 8
+.BI \-p " primary_host"
+This argument must be present and specifies the LDM server's primary upstream
+host.  The hostname is used to build the ldmd.conf file name of the file that
+should be copied to ldmd.conf when switching from the failover back to the
+primary.
+.TP 8
+.BI \-f " failover_host"
+This argument must be present and specifies the LDM server's failover
+upstream host.  The hostname is used to build the ldmd.conf file name of the
+file that should be copied to ldmd.conf when failing over from the primary to
+the failover host.
+.SH EXAMPLE
+Typically, the ldmfail script should be run from cron every 20 minutes.  A
+typical crontab entry is:
+
+.RS +4
+10,30,50 * * * * bin/ldmfail -p primary.foo.edu -f failover.bar.edu > /dev/null 2>&1 /dev/null
+.RE
+.SH FILES
+.LP
+.BR LDMHOME/etc/ldmd.conf
+.BR LDMHOME/etc/ldmd.<primary_host>
+.BR LDMHOME/etc/ldmd.<failover_host>
+.I "Unidata LDM: Site Manages Guide"
+.SH SUPPORT
+.LP
+If you have problems with this program, then you should first examine the
+LDM email archive for similar problems and how they were solved.
+The email archive is available via the following World Wide Web URL:
+.sp
+.RS
+\fBhttp://www.unidata.ucar.edu/software/ldm/\fP
+.RE
+.sp
+If this does not suffice and your site is a member of the Unidata
+program, then send an inquiry via email -- together will all relevant
+information -- to
+.sp
+.RS
+\fBsupport@unidata.ucar.edu\fP

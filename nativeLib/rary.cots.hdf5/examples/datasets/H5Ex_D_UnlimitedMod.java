@@ -1,0 +1,374 @@
+/************************************************************
+
+  This example shows how to create and extend an unlimited
+  dataset.  The program first writes integers to a dataset
+  with dataspace dimensions of DIM_XxDIM_Y, then closes the
+  file.  Next, it reopens the file, reads back the data,
+  outputs it to the screen, extends the dataset, and writes
+  new data to the entire extended dataset.  Finally it
+  reopens the file again, reads back the data, and utputs it
+  to the screen.
+
+  This file is intended for use with HDF5 Library verion 1.6
+
+ ************************************************************/
+package datasets;
+
+import ncsa.hdf.hdf5lib.H5;
+import ncsa.hdf.hdf5lib.HDF5Constants;
+
+public class H5Ex_D_UnlimitedMod {
+	private static String FILENAME = "h5ex_d_unlimmod.h5";
+	private static String DATASETNAME = "DS1";
+	private static final int DIM_X = 4;
+	private static final int DIM_Y = 7;
+	private static final int EDIM_X = 6;
+	private static final int EDIM_Y = 10;
+	private static final int CHUNK_X = 4;
+	private static final int CHUNK_Y = 4;
+	private static final int RANK = 2;
+	private static final int NDIMS = 2;
+
+	private static void writeUnlimited() {
+		int file_id = -1;
+		int dcpl_id = -1;
+		int dataspace_id = -1;
+		int dataset_id = -1;
+		long[] dims = { DIM_X, DIM_Y };
+		long[] chunk_dims = { CHUNK_X, CHUNK_Y };
+		long[] maxdims = { HDF5Constants.H5S_UNLIMITED, HDF5Constants.H5S_UNLIMITED };
+		int[][] dset_data = new int[DIM_X][DIM_Y];
+
+		// Initialize the dataset.
+		for (int indx = 0; indx < DIM_X; indx++)
+			for (int jndx = 0; jndx < DIM_Y; jndx++)
+				dset_data[indx][jndx] = indx * jndx - jndx;
+
+		// Create a new file using default properties.
+		try {
+			file_id = H5.H5Fcreate(FILENAME, HDF5Constants.H5F_ACC_TRUNC,
+					HDF5Constants.H5P_DEFAULT, HDF5Constants.H5P_DEFAULT);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// Create dataspace with unlimited dimensions.
+		try {
+			dataspace_id = H5.H5Screate_simple(RANK, dims, maxdims);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// Create the dataset creation property list.
+		try {
+			dcpl_id = H5.H5Pcreate(HDF5Constants.H5P_DATASET_CREATE);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// Set the chunk size.
+		try {
+			if (dcpl_id >= 0)
+				H5.H5Pset_chunk(dcpl_id, NDIMS, chunk_dims);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// Create the unlimited dataset.
+		try {
+			if ((file_id >= 0) && (dataspace_id >= 0) && (dcpl_id >= 0))
+				dataset_id = H5.H5Dcreate(file_id, DATASETNAME,
+						HDF5Constants.H5T_STD_I32LE, dataspace_id, dcpl_id);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// Write the data to the dataset.
+		try {
+			if (dataset_id >= 0)
+				H5.H5Dwrite(dataset_id, HDF5Constants.H5T_NATIVE_INT,
+						HDF5Constants.H5S_ALL, HDF5Constants.H5S_ALL,
+						HDF5Constants.H5P_DEFAULT, dset_data);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// End access to the dataset and release resources used by it.
+		try {
+			if (dataset_id >= 0)
+				H5.H5Dclose(dataset_id);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			if (dataspace_id >= 0)
+				H5.H5Sclose(dataspace_id);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			if (dcpl_id >= 0)
+				H5.H5Pclose(dcpl_id);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// Close the file.
+		try {
+			if (file_id >= 0)
+				H5.H5Fclose(file_id);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void extendUnlimited() {
+		int file_id = -1;
+		int dataspace_id = -1;
+		int dataset_id = -1;
+		long[] dims = { DIM_X, DIM_Y };
+		long[] extdims = { EDIM_X, EDIM_Y };
+		int[][] dset_data;
+		int[][] extend_dset_data = new int[EDIM_X][EDIM_Y];
+
+		// Open an existing file.
+		try {
+			file_id = H5.H5Fopen(FILENAME, HDF5Constants.H5F_ACC_RDWR,
+					HDF5Constants.H5P_DEFAULT);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// Open an existing dataset.
+		try {
+			if (file_id >= 0)
+				dataset_id = H5.H5Dopen(file_id, DATASETNAME);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// Get dataspace and allocate memory for read buffer. This is a
+		// two dimensional dataset so the dynamic allocation must be done
+		// in steps.
+		try {
+			if (dataset_id >= 0)
+				dataspace_id = H5.H5Dget_space(dataset_id);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			if (dataspace_id >= 0)
+				H5.H5Sget_simple_extent_dims(dataspace_id, dims, null);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// Allocate array of pointers to rows.
+		dset_data = new int[(int) dims[0]][(int) dims[1]];
+
+		// Read the data using the default properties.
+		try {
+			if (dataset_id >= 0)
+				H5.H5Dread(dataset_id, HDF5Constants.H5T_NATIVE_INT,
+						HDF5Constants.H5S_ALL, HDF5Constants.H5S_ALL,
+						HDF5Constants.H5P_DEFAULT, dset_data);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// Output the data to the screen.
+		System.out.println("Dataset before extension:");
+		for (int indx = 0; indx < DIM_X; indx++) {
+			System.out.print(" [ ");
+			for (int jndx = 0; jndx < DIM_Y; jndx++)
+				System.out.print(dset_data[indx][jndx] + " ");
+			System.out.println("]");
+		}
+		System.out.println();
+
+		try {
+			if (dataspace_id >= 0)
+				H5.H5Sclose(dataspace_id);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// Extend the dataset.
+		try {
+			if (dataset_id >= 0)
+				H5.H5Dextend(dataset_id, extdims);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// Retrieve the dataspace for the newly extended dataset.
+		try {
+			if (dataset_id >= 0)
+				dataspace_id = H5.H5Dget_space(dataset_id);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// Initialize data for writing to the extended dataset.
+		for (int indx = 0; indx < EDIM_X; indx++)
+			for (int jndx = 0; jndx < EDIM_Y; jndx++)
+				extend_dset_data[indx][jndx] = jndx;
+
+		// Write the data tto the extended dataset.
+		try {
+			if ((dataspace_id >= 0) && (dataset_id >= 0))
+				H5.H5Dwrite(dataset_id, HDF5Constants.H5T_NATIVE_INT,
+						HDF5Constants.H5S_ALL, dataspace_id, HDF5Constants.H5P_DEFAULT,
+						extend_dset_data);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// End access to the dataset and release resources used by it.
+		try {
+			if (dataset_id >= 0)
+				H5.H5Dclose(dataset_id);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			if (dataspace_id >= 0)
+				H5.H5Sclose(dataspace_id);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// Close the file.
+		try {
+			if (file_id >= 0)
+				H5.H5Fclose(file_id);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void readUnlimited() {
+		int file_id = -1;
+		int dataspace_id = -1;
+		int dataset_id = -1;
+		long[] dims = { DIM_X, DIM_Y };
+		int[][] dset_data;
+
+		// Open an existing file.
+		try {
+			file_id = H5.H5Fopen(FILENAME, HDF5Constants.H5F_ACC_RDONLY,
+					HDF5Constants.H5P_DEFAULT);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// Open an existing dataset.
+		try {
+			if (file_id >= 0)
+				dataset_id = H5.H5Dopen(file_id, DATASETNAME);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// Get dataspace and allocate memory for the read buffer as before.
+		try {
+			if (dataset_id >= 0)
+				dataspace_id = H5.H5Dget_space(dataset_id);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			if (dataspace_id >= 0)
+				H5.H5Sget_simple_extent_dims(dataspace_id, dims, null);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		// Allocate array of pointers to rows.
+		dset_data = new int[(int) dims[0]][(int) dims[1]];
+
+		// Read the data using the default properties.
+		try {
+			if (dataset_id >= 0)
+				H5.H5Dread(dataset_id, HDF5Constants.H5T_NATIVE_INT,
+						HDF5Constants.H5S_ALL, HDF5Constants.H5S_ALL,
+						HDF5Constants.H5P_DEFAULT, dset_data);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// Output the data to the screen.
+		System.out.println("Dataset after extension:");
+		for (int indx = 0; indx < dims[0]; indx++) {
+			System.out.print(" [ ");
+			for (int jndx = 0; jndx < dims[1]; jndx++)
+				System.out.print(dset_data[indx][jndx] + " ");
+			System.out.println("]");
+		}
+		System.out.println();
+
+		// End access to the dataset and release resources used by it.
+		try {
+			if (dataset_id >= 0)
+				H5.H5Dclose(dataset_id);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			if (dataspace_id >= 0)
+				H5.H5Sclose(dataspace_id);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// Close the file.
+		try {
+			if (file_id >= 0)
+				H5.H5Fclose(file_id);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void main(String[] args) {
+		H5Ex_D_UnlimitedMod.writeUnlimited();
+		H5Ex_D_UnlimitedMod.extendUnlimited();
+		H5Ex_D_UnlimitedMod.readUnlimited();
+	}
+
+}

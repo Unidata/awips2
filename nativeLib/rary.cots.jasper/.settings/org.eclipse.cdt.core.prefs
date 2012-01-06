@@ -1,0 +1,4 @@
+#Sun Mar 07 14:51:50 CST 2010
+eclipse.preferences.version=1
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1995602780=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?>\n<environment append\="true" appendContributed\="true">\n<variable delimiter\=";" name\="INSTALL_TO" operation\="replace" value\="${ConfigName}"/>\n</environment>\n
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.1995602780.1155347710=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?>\n<environment append\="true" appendContributed\="true">\n<variable delimiter\=";" name\="CC" operation\="replace" value\="gcc -m32 -Wl,--hash-style\=sysv"/>\n<variable delimiter\=";" name\="LD" operation\="replace" value\="ld -melf_i386 --hash-style\=sysv"/>\n<variable delimiter\=";" name\="INSTALL_TO" operation\="replace" value\="../build.native/i386-pc-linux-gnu"/>\n</environment>\n

@@ -1,0 +1,76 @@
+#!/bin/sh
+exe=$0
+while test -L "$exe"; do
+	exe=`readlink "$exe"`
+done
+bin_dir=`dirname "$exe"`
+bin_dir=`cd "$bin_dir";pwd`
+rs_home_dir=`cd "$bin_dir/..";pwd`
+
+props=com.raytheon.rcm
+
+lib_dir="$rs_home_dir/lib"
+cfg_dir="$rs_home_dir/data/config"
+cp=
+
+for jar in "$lib_dir"/*.jar; do
+	cp=$cp:$jar
+done
+
+cp="$cfg_dir/res:$cp"
+
+JAVA_INSTALL="/awips2/java"
+java=${JAVA_INSTALL}/bin/java
+decompress_products=yes
+
+config_file="$cfg_dir/start-config"
+. "$config_file" || { echo "could not read $config_file"; exit 1 ;}
+
+if test -n "$edex_endpoint_arg"; then
+	edex_endpoint_arg_2="-D$props.edexRadarEndpoint=$edex_endpoint_arg"
+fi	
+if test -z "$log_dir"; then
+	log_dir=$rs_home_dir/data/logs
+	echo "Writing logs at $log_dir"
+fi
+if test -n "$configuration_provider"; then
+	cfg_provider_arg_2="-D$props.server.RadarServer.configurationProviderClass=$configuration_provider"
+fi
+if test -n "$awips1_root"; then
+	awips1_root_arg_2="-D$props.awips1.resourceRoot=$awips1_root"
+fi
+if test -n "$awips1_site"; then
+	awips1_site_arg_2="-D$props.awips1.FXA_LOCAL_SITE=$awips1_site"
+fi
+if [ ! -f "$java" ]; then
+        echo "Java is not correct : $java"
+        exit
+fi
+
+if [ -f "$rs_home_dir/data/radarserver-pid" ]; then
+	pid=`cat $rs_home_dir/data/radarserver-pid`
+	echo "Radar Server already started at process $pid. Run stop before restarting."
+	exit 0
+fi
+
+# giving rw permissions to all users
+umask 000
+
+$java -cp "$cp" \
+ "-D$props.configDir=$cfg_dir" \
+ "-D$props.awips1.decompressRadarProducts=$decompress_products" \
+ "-D$props.logDir=$log_dir" \
+ "-Dlog4j.configuration=log4j.properties" \
+ "-Dqpid.dest_syntax=BURL" \
+ "-Dawips2_fxa=$awips2_fxa" \
+ $edex_endpoint_arg_2 \
+ $cfg_provider_arg_2 \
+ $awips1_root_arg_2 \
+ $awips1_site_arg_2 \
+ com.raytheon.rcm.mqsrvr.MQServer > /dev/null 2>&1 &
+
+pid=$!
+
+echo "RadarServer started at process $pid"
+echo "$pid" > "$rs_home_dir/data/radarserver-pid"
+

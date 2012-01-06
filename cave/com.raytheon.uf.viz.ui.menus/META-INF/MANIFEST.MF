@@ -1,0 +1,37 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Menus Plug-in
+Bundle-SymbolicName: com.raytheon.uf.viz.ui.menus;singleton:=true
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Activator: com.raytheon.uf.viz.ui.menus.Activator
+Bundle-Vendor: RAYTHEON
+Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.viz.volumebrowser
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.core.expressions,
+ com.raytheon.viz.ui,
+ org.geotools,
+ com.raytheon.uf.viz.core,
+ com.raytheon.uf.common.menus;bundle-version="1.0.0",
+ com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Import-Package: com.raytheon.edex.scriptfactory,
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.localization.exception,
+ com.raytheon.uf.common.localization.msgs,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.viz.core,
+ com.raytheon.uf.viz.core.comm,
+ com.raytheon.uf.viz.core.drawables,
+ com.raytheon.uf.viz.core.exception,
+ com.raytheon.uf.viz.core.map,
+ com.raytheon.uf.viz.core.procedures,
+ com.raytheon.uf.viz.core.rsc,
+ com.raytheon.uf.viz.core.rsc.capabilities,
+ com.raytheon.uf.viz.core.status
+Export-Package: com.raytheon.uf.viz.ui.menus,
+ com.raytheon.uf.viz.ui.menus.widgets,
+ com.raytheon.uf.viz.ui.menus.xml

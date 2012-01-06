@@ -1,0 +1,27 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Satellite Plug-in
+Bundle-SymbolicName: com.raytheon.edex.plugin.satellite
+Bundle-Version: 1.12.1174.qualifier
+Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Bundle-Vendor: RAYTHEON
+Require-Bundle: com.raytheon.edex.common,
+ com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
+ org.apache.commons.logging,
+ org.geotools,
+ javax.measure,
+ org.apache.commons.lang,
+ javax.persistence,
+ com.raytheon.uf.common.dataplugin.satellite;bundle-version="1.0.0"
+Export-Package: com.raytheon.edex.plugin.satellite,
+ com.raytheon.edex.plugin.satellite.dao,
+ com.raytheon.edex.plugin.satellite.notify,
+ com.raytheon.edex.util.satellite
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: com.raytheon.edex.uengine.tasks.query,
+ com.raytheon.uf.common.awipstools,
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.menus,
+ com.raytheon.uf.common.menus.xml,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.edex.awipstools

@@ -1,0 +1,25 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+        <bean id="h5scdPluginName" class="java.lang.String">
+                <constructor-arg type="java.lang.String" value="h5scd" />
+        </bean>
+
+        <bean id="h5scdProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+                <property name="pluginName" ref="h5scdPluginName" />
+                <property name="pluginFQN" value="gov.noaa.nws.ncep.common.dataplugin.h5scd" />
+                <property name="dao" value="gov.noaa.nws.ncep.common.dataplugin.h5scd.dao.H5ScdDao" />
+        <property name="record" value="gov.noaa.nws.ncep.common.dataplugin.h5scd.H5ScdRecord" />
+        </bean>
+
+        <bean factory-bean="pluginRegistry" factory-method="register">
+                <constructor-arg ref="h5scdPluginName" />
+                <constructor-arg ref="h5scdProperties" />
+        </bean>
+
+</beans>

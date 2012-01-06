@@ -1,0 +1,4 @@
+C                                           *--> FROM COMMON.READ51
+      COMMON/READ51/MUNI51,NCD51,LINFL,LUPB,LSAR,LTRP,LLWB,
+     & NINFL,NUPB,NSAR,NTRP,NLWB,LTITLE,LUNITS     
+C

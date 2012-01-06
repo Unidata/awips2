@@ -1,0 +1,50 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-fcst_stubs library file
+#
+#  cmt: File made on Wed Aug  6 12:51:18 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libfcst_stubs_t.a:  \
+     $(LIB)/libfcst_stubs_t.a(agalfa.o)  \
+     $(LIB)/libfcst_stubs_t.a(agutf.o)  \
+     $(LIB)/libfcst_stubs_t.a(ex16.o)  \
+     $(LIB)/libfcst_stubs_t.a(ex17.o)  \
+     $(LIB)/libfcst_stubs_t.a(ex22.o)  \
+     $(LIB)/libfcst_stubs_t.a(ex28.o)  \
+     $(LIB)/libfcst_stubs_t.a(ex37.o)  \
+     $(LIB)/libfcst_stubs_t.a(ex3.o)  \
+     $(LIB)/libfcst_stubs_t.a(ex40.o)  \
+     $(LIB)/libfcst_stubs_t.a(ex5.o)  \
+     $(LIB)/libfcst_stubs_t.a(fmdinp.o)  \
+     $(LIB)/libfcst_stubs_t.a(header.o)  \
+     $(LIB)/libfcst_stubs_t.a(locatx.o)  \
+     $(LIB)/libfcst_stubs_t.a(rdfile.o)  \
+     $(LIB)/libfcst_stubs_t.a(wtfile.o)
+

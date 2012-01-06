@@ -1,0 +1,1078 @@
+C MODULE URPORD
+C-----------------------------------------------------------------------
+C
+C  ROUTINE TO REORDER THE FOLLOWING DATA BASES:
+C     - PREPROCESSOR DATA BASE
+C     - PREPROCESSOR PARAMETRIC DATA BASE
+C     - PROCESSED DATA BASE
+C
+      SUBROUTINE URPORD (IINIT,IRVCMP,IFSLVL,
+     *   MP,P,MT,T,MTS,TS,
+     *   LWORK,IWORK,ISWORK,
+     *   INDSTA,NOVPRT,TXTLOG,LULOG,ISTAT)
+C
+      CHARACTER*(*) TXTLOG
+      CHARACTER*6 RTNNAM/' '/
+C
+      DIMENSION P(MP),T(MT),TS(MTS)
+      DIMENSION IWORK(LWORK)
+      DIMENSION KPRTSU(5),KUPRTU(5)
+C
+      INCLUDE 'uiox'
+      INCLUDE 'udebug'
+      INCLUDE 'ucommon/uordrx'
+      INCLUDE 'pdbcommon/pdunts'
+      INCLUDE 'pdbcommon/pdsifc'
+      INCLUDE 'pdbcommon/pdrrsc'
+      INCLUDE 'pppcommon/ppunts'
+      INCLUDE 'pppcommon/ppxctl'
+      INCLUDE 'pppcommon/ppdtdr'
+      INCLUDE 'prdcommon/punits'
+      INCLUDE 'prdcommon/pmaxdm'
+      INCLUDE 'prdcommon/pdftbl'
+      INCLUDE 'prdcommon/ptsctl'
+      INCLUDE 'scommon/suoptx'
+      INCLUDE 'urcommon/urunts'
+      INCLUDE 'urcommon/urcdta'
+      INCLUDE 'urcommon/urppdt'
+      INCLUDE 'urcommon/urrrsc'
+      INCLUDE 'urcommon/urxctl'
+      INCLUDE 'urcommon/urftbl'
+      INCLUDE 'urcommon/urmaxm'
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/errdat'
+C
+      EQUIVALENCE (KPRTSU(1),KMAPTS)
+      EQUIVALENCE (KUPRTU(1),KUMAPT)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/reorder/RCS/urpord.f,v $
+     . $',                                                             '
+     .$Id: urpord.f,v 1.13 2004/09/23 14:40:45 xfan Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      DATA ICHAR/4HCHAR/
+      DATA IMMMT/4HMMMT/
+      DATA INTWK/4HNTWK/
+C
+C
+      IF (IPDTR.GT.0.OR.IPPTR.GT.0) THEN
+         CALL SULINE (IOGDB,1)
+         WRITE (IOGDB,*) 'ENTER URPORD'
+         ENDIF
+C
+      IFLERR=0
+      IODBUG=LP
+      IOERR=LP
+C
+      LDEBUG=0
+C
+      ISTAT=0
+C
+      CALL SULINE (LP,2)
+      WRITE (LP,400) '0'
+      DO 10 I=1,NOVPRT
+         CALL SULINE (LP,0)
+         WRITE (LP,400) '+'
+10       CONTINUE
+      CALL SULINE (LP,1)
+      WRITE (LP,*)
+C
+      IAMORD=0
+C
+C  READ CONTROLS FOR PPD FILES
+      RTNNAM='RPPDCO'
+      CALL RPPDCO (IERR)
+      IF (IERR.NE.0) GO TO 320
+C
+C  READ PPD STATION INDEXES
+      IDXTYP=0
+      RTNNAM='RPDHSH'
+      CALL RPDHSH (IDXTYP,IERR)
+      IF (IERR.NE.0) GO TO 320
+C
+C  READ CONTROLS FOR PPP FILES
+      RTNNAM='RPPPCO'
+      CALL RPPPCO (IERR)
+      IF (IERR.NE.0) GO TO 320
+C
+C  READ CONTROLS FOR PRD FILES
+      RTNNAM='RPDBCI'
+      CALL RPDBCI (IERR)
+      IF (IERR.NE.0) GO TO 320
+C
+      CALL URDBUG
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK IF INIT OPTION SPECIFIED
+C
+      IF (IINIT.EQ.0) GO TO 40
+C
+      TXTLOG='FILE INITIALIZATION'
+      CALL URWLOG (' ',TXTLOG,'STARTED  ',' ',LULOG)
+      CALL SULINE (LP,2)
+      WRITE (LP,410) '0'
+      DO 20 I=1,NOVPRT
+         CALL SULINE (LP,0)
+         WRITE (LP,410) '+'
+20       CONTINUE
+      CALL SULINE (LP,1)
+      WRITE (LP,*)
+C
+C  IF 'INIT ZERO' SPECIFIED, READ CONTROLS FOR NEW FILES
+      IF (IINIT.NE.1) GO TO 30
+      IAMORD=1
+      RTNNAM='RPPDCO'
+      CALL RPPDCO (IERR)
+      IF (IERR.NE.0) GO TO 320
+      IDXTYP=0
+      RTNNAM='RPDHSH'
+      CALL RPDHSH (IDXTYP,IERR)
+      IF (IERR.NE.0) GO TO 320
+      RTNNAM='RPPPCO'
+      CALL RPPPCO (IERR)
+      IF (IERR.NE.0) GO TO 320
+      RTNNAM='RPDBCI'
+      CALL RPDBCI (IERR)
+      IF (IERR.NE.0) GO TO 320
+C
+      CALL URDBUG
+C
+C  INITIALIZE NEW FILES
+30    IXINIT=IINIT
+      IF (IXINIT.EQ.0) IXINIT=-1
+      CALL SULINE (LP,2)
+      WRITE (LP,420)
+      CALL URIPDB (IXINIT)
+      CALL URIPPP (IXINIT)
+      CALL URIPRD (IXINIT)
+      CALL UCLOSL
+C
+      CALL URDBUG
+C
+      CALL SULINE (LP,2)
+      WRITE (LP,430)
+C
+      CALL URWLOG (' ',TXTLOG,'COMPLETED',' ',LULOG)
+C
+      IF (ISNWPG(LP).EQ.0) CALL SUPAGE
+C
+C  IF 'INIT ZERO' SPECIFIED, DO NOT READ CONTROLS FOR NEW FILES
+40    IF (IINIT.EQ.1) GO TO 50
+C
+      IAMORD=1
+      RTNNAM='RPPPCO'
+      CALL RPPDCO (IERR)
+      IF (IERR.NE.0) GO TO 320
+      IDXTYP=0
+      RTNNAM='RPDHSH'
+      CALL RPDHSH (IDXTYP,IERR)
+      IF (IERR.NE.0) GO TO 320
+      RTNNAM='RPPPCO'
+      CALL RPPPCO (IERR)
+      IF (IERR.NE.0) GO TO 320
+      RTNNAM='RPDBCI'
+      CALL RPDBCI (IERR)
+      IF (IERR.NE.0) GO TO 320
+C
+      CALL URDBUG
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK IF STATUS TO BE PRINTED BEFORE REORDERING
+50    IF (INDSTA.EQ.0.OR.INDSTA.EQ.2) GO TO 70
+C
+C  PRINT STATUS OF FILES BEFORE REORDER
+      IF (ISNWPG(LP).EQ.0) CALL SUPAGE
+      TXTLOG='FILE STATUS BEFORE REORDERING'
+      CALL URWLOG (' ',TXTLOG,'STARTED  ',' ',LULOG)
+      CALL SULINE (LP,2)
+      WRITE (LP,450) '0'
+      DO 60 I=1,NOVPRT
+         CALL SULINE (LP,0)
+         WRITE (LP,450) '+'
+60       CONTINUE
+      CALL SULINE (LP,1)
+      WRITE (LP,*)
+C
+C  SET INDICATOR TO NOT PROCESS NEXT CARD FIELD
+      NFLD=-1
+C
+C  SET INDICATOR TO PRINT FILE STATUS MESSAGES
+      IFLCHK=1
+C
+C  SET INDICATOR TO PROCESS OLD FILES
+      IAMORD=0
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,*) 'IN URPORD AT START - IWURFL=',IWURFL
+         ENDIF
+C
+C  PRINT USERPARM FILE STATUS
+      CALL SULINE (LP,2)
+      WRITE (LP,460)
+      CALL SSUPRM (IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (LP,470) 'BEFORE'
+         CALL SUERRS (LP,2,-1)
+         IWURFL=IERR
+         ISTAT=1
+         ENDIF
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,*) 'IN URPORD AFTER SSUPRM - IWURFL=',IWURFL
+         ENDIF
+C
+C  PRINT PPD DATA BASE STATUS
+      CALL SULINE (LP,2)
+      WRITE (LP,460)
+      CALL SSPPD (LWORK,IWORK,IFSLVL,IFLCHK,IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (LP,470) 'BEFORE'
+         CALL SUERRS (LP,2,-1)
+         IWURFL=IERR
+         ISTAT=1
+         ENDIF
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,*) 'IN URPORD AFTER SSPPD - IWURFL=',IWURFL
+         ENDIF
+      IF (IFSLVL.GT.1) CALL SMPPDC (IERR)
+C
+C  PRINT PPP DATA BASE STATUS
+      CALL SULINE (LP,2)
+      WRITE (LP,460)
+      CALL SSPPP (LWORK,IWORK,IFSLVL,NFLD,IFLCHK,IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (LP,470) 'BEFORE'
+         CALL SUERRS (LP,2,-1)
+         IWURFL=IERR
+         ISTAT=1
+         ENDIF
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,*) 'IN URPORD AFTER SSPPP - IWURFL=',IWURFL
+         ENDIF
+C
+C  PRINT PRD DATA BASE STATUS
+      CALL SULINE (LP,2)
+      WRITE (LP,460)
+      CALL SSPRD (LWORK,IWORK,IFSLVL,NFLD,IFLCHK,IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (LP,470) 'BEFORE'
+         CALL SUERRS (LP,2,-1)
+         IWURFL=IERR
+         ISTAT=1
+         ENDIF
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,*) 'IN URPORD AFTER SSPRD - IWURFL=',IWURFL
+         ENDIF
+C
+      CALL SULINE (LP,2)
+      WRITE (LP,460)
+C
+      CALL URWLOG (' ',TXTLOG,'COMPLETED',' ',LULOG)
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK IF OLD DATA BASES ARE EMPTY
+C
+C  CHECK PREPROCESSOR DATA BASE
+70    IF (NPDSTA.EQ.0) THEN
+         WRITE (LP,480) 'PREPROCESSOR'
+         CALL SUWRNS (LP,2,-1)
+         IFLERR=-1
+         ENDIF
+C
+C  CHECK PREPROCESSOR PARAMETRIC DATA BASE
+      INDERR=0
+      DO 80 I=1,NMPTYP
+C     CHECK DATA TYPE
+         ITYPE=IPDTDR(1,I)
+         IF (IPPDB.GT.0) THEN
+            CALL SULINE (IOGDB,1)
+            WRITE (IOGDB,520) ITYPE
+            ENDIF
+         IF (ITYPE.EQ.IMMMT.OR.ITYPE.EQ.ICHAR.OR.ITYPE.EQ.INTWK)
+     *      GO TO 80
+            IF (IPPDB.GT.0) THEN
+               CALL SULINE (IOGDB,1)
+               WRITE (IOGDB,500) I,IPDTDR(1,I),IPDTDR(3,I)
+               ENDIF
+            IF (IPDTDR(3,I).GT.0) GO TO 90
+            INDERR=1
+80       CONTINUE
+C
+      IF (INDERR.GT.0) THEN
+         WRITE (LP,480) 'PARAMETRIC'
+         CALL SUWRNS (LP,2,-1)
+         IFLERR=-1
+         ENDIF
+C
+C  CHECK PROCESSED DATA BASE
+90    IORPRD=1
+      IF (NUMTMS.EQ.0) THEN
+         WRITE (LP,480) 'PROCESSED'
+         CALL SUWRNS (LP,2,-1)
+         IORPRD=0
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK IF NEW DATA BASES ARE EMPTY
+C
+C  CHECK PREPROCESSOR DATA BASE
+      IF (NUMSTA.GT.0) THEN
+         WRITE (LP,490) 'PREPROCESSOR'
+         CALL SUERRS (LP,2,-1)
+         IFLERR=1
+         ENDIF
+C
+C  CHECK PREPROCESSOR PARAMETRIC DATA BASE
+      INDERR=0
+      DO 100 I=1,NUMPTP
+         IF (IPPDB.GT.0) THEN
+            CALL SULINE (IOGDB,1)
+            WRITE (IOGDB,510) I,JPDTDR(1,I),JPDTDR(3,I)
+            ENDIF
+         IF (JPDTDR(3,I).EQ.0) GO TO 100
+C     CHECK DATA TYPE
+         ITYPE=JPDTDR(1,I)
+         IF (IPPDB.GT.0) THEN
+            CALL SULINE (IOGDB,1)
+            WRITE (IOGDB,520) ITYPE
+            ENDIF
+         IF (ITYPE.EQ.IMMMT.OR.ITYPE.EQ.ICHAR.OR.ITYPE.EQ.INTWK)
+     *      GO TO 100
+         INDERR=1
+100      CONTINUE
+      IF (INDERR.GT.0) THEN
+         WRITE (LP,490) 'PARAMETRIC'
+         CALL SUERRS (LP,2,-1)
+         IFLERR=1
+         ENDIF
+C
+C  CHECK PROCESSED DATA BASE
+      IF (NMTIMS.GT.0) THEN
+         WRITE (LP,490) 'PROCESSED'
+         CALL SUERRS (LP,2,-1)
+         ENDIF
+C
+C  CHECK IF ERROR FLAG SET
+      IF (IFLERR.NE.0) THEN
+         IF (IFLERR.EQ.1) THEN
+            WRITE (LP,530) 'ERROR','ERROR'
+            CALL SUERRS (LP,2,-1)
+            ENDIF
+         IF (IFLERR.EQ.-1) THEN
+            WRITE (LP,530) 'WARNING','WARNING'
+            CALL SUWRNS (LP,2,-1)
+            ENDIF
+         GO TO 290
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  REORDER DATA BASES
+C
+      IF (ISNWPG(LP).EQ.0) CALL SUPAGE
+      TXTLOG='FILE REORDERING'
+      CALL URWLOG (' ',TXTLOG,'STARTED  ',' ',LULOG)
+      CALL SULINE (LP,2)
+      WRITE (LP,540) '0'
+      DO 110 I=1,NOVPRT
+         CALL SULINE (LP,0)
+         WRITE (LP,540) '+'
+110      CONTINUE
+      CALL SULINE (LP,1)
+      WRITE (LP,*)
+C
+      MXWORK=0
+C
+      CALL URDBUG
+C
+C  REORDER STATION INDEX AND STATION INFORMATION RECORDS
+      CALL URCSIF (IERR)
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,*) 'IN URPORD AFTER URCSIF - IWURFL=',IWURFL
+         ENDIF
+C
+      CALL URDBUG
+C
+C  COPY DATA RECORDS IN THE PPD DAILY FILES
+      CALL URDDTA (LWORK,IWORK,IERR)
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,*) 'IN URPORD AFTER URDDTA - IWURFL=',IWURFL
+         ENDIF
+C
+      CALL URDBUG
+C
+C  COPY ALL GENL PARAMETER RECORDS
+      LW1=1500
+      LW2=25000
+      LW3=10000
+      LW4=5000
+      LW5=5000
+cfan
+cfan  HSD bug r24-72: When running reorder there is errors complain that:
+cfan      "IN URCPYR - ARRAY TO HOLD POINTERS FOR DATA TYPE PPVR TOO SMALL."
+cfan  Solution: Increase lw4 from 10000 to 12000 so LPPPVR in urcpyr.f
+cfan      will big enough to hold pointers for data type PPVR
+cfan
+cfan      LW3=12000   !cfan
+      LW3=20000   !cfan
+cfan
+      LP1=1
+      LP2=LP1+LW1
+      LP3=LP2+LW2/2
+      LP4=LP3+LW3/2
+      LP5=LP4+LW4/2
+      NDWORK=LP5+LW5/2-1
+      IF (NDWORK.GT.MXWORK) MXWORK=NDWORK
+      IF (NDWORK.GT.LWORK) THEN
+         WRITE (LP,580) NDWORK,LWORK
+         CALL SUERRS (LP,2,-1)
+         GO TO 120
+         ENDIF
+
+      CALL URCPYR ('GENL',LW1,IWORK(LP1),LW2,IWORK(LP2),
+     *   LW3,IWORK(LP3),LW4,IWORK(LP4),LW5,IWORK(LP5),IERR)
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,*) 'IN URPORD AFTER URCPYR - IWURFL=',IWURFL
+         ENDIF
+C
+      CALL URDBUG
+C
+C  REORDER 24 HOUR AND LESS THAN 24 HOUR PRECIPITATION
+120   LW1=25000
+      LW2=5000
+      LW3=2500
+      LW4=10000
+      LW5=1500
+cfan
+cfan  HSD bug r24-72: When running reorder there is errors complain that:
+cfan      "IN IN RPPREC - PARAMETER ARRAY TOO SMALL TO HOLD ENTIRE OPVR"
+cfan  Solution: Increase lw3 to 3000 and lw4 to 12000 in urcpyr.f
+cfan
+cfan      LW3=3000    !cfan
+cfan      LW4=12000   !cfan
+      LW3=5000    !cfan
+      LW4=20000   !cfan
+cfan
+
+      LP1=1
+      LP2=LP1+LW1/2
+      LP3=LP2+LW2/2
+      LP4=LP3+LW3/2
+      LP5=LP4+LW4/2
+      NDWORK=LP5+LW5-1
+      IF (NDWORK.GT.MXWORK) MXWORK=NDWORK
+      IF (IPDDB.EQ.0.AND.IPPDB.EQ.0) THEN
+         ELSE
+            CALL SULINE (IOGDB,1)
+            WRITE (IOGDB,550) LW1,LW2,LW3,LW4,LW5
+            CALL SULINE (IOGDB,1)
+            WRITE (IOGDB,560) LP1,LP2,LP3,LP4,LP5
+         ENDIF
+      IF (NDWORK.GT.LWORK) THEN
+         WRITE (LP,580) NDWORK,LWORK
+         CALL SUERRS (LP,2,-1)
+         GO TO 130
+         ENDIF
+
+      CALL UROP24 (LW1,IWORK(LP1),LW2,IWORK(LP2),LW3,IWORK(LP3),
+     *   LW4,IWORK(LP4),LW5,IWORK(LP5),IERR)
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,*) 'IN URPORD AFTER UROP24 - IWURFL=',IWURFL
+         ENDIF
+      IF (ISWORK.EQ.1) THEN
+         IPCT=100*NDWORK/LWORK
+         CALL SULINE (LP,2)
+         WRITE (LP,570) NDWORK,LWORK,IPCT
+         ENDIF
+C
+      CALL URDBUG
+C
+C  REORDER 24 HR TEMPERATURE RECORDS
+130   LW1=2000
+      LW2=10000
+      LW3=5000
+      LP1=1
+      LP2=LP1+LW1
+      LP3=LP2+LW2/2
+      NDWORK=LP3+LW3/2-1
+      IF (NDWORK.GT.MXWORK) MXWORK=NDWORK
+      IF (NDWORK.GT.LWORK) THEN
+         WRITE (LP,580) NDWORK,LWORK
+         CALL SUERRS (LP,2,-1)
+         GO TO 140
+         ENDIF
+      CALL UROT24 (LW1,IWORK(LP1),LW2,IWORK(LP2),LW3,IWORK(LP3),
+     *   IERR)
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,*) 'IN URPORD AFTER UROT24 - IWURFL=',IWURFL
+         ENDIF
+      IF (ISWORK.EQ.1) THEN
+         IPCT=100*NDWORK/LWORK
+         CALL SULINE (LP,2)
+         WRITE (LP,570) NDWORK,LWORK,IPCT
+         ENDIF
+C
+      CALL URDBUG
+C
+C  REORDER PE PARAMETER RECORDS FOR EA24 DATA
+140   LW1=1500
+      LW2=1200
+      LW3=1200
+      LP1=1
+      LP2=LP1+LW1
+      LP3=LP2+LW2/2
+      NDWORK=LP3+LW3/2-1
+      IF (NDWORK.GT.MXWORK) MXWORK=NDWORK
+      IF (NDWORK.GT.LWORK) THEN
+         WRITE (LP,580) NDWORK,LWORK
+         CALL SUERRS (LP,2,-1)
+         GO TO 150
+         ENDIF
+      CALL UROE24 (LW1,IWORK(LP1),LW2,IWORK(LP2),LW3,IWORK(LP3),
+     *   IERR)
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,*) 'IN URPORD AFTER UROE24 - IWURFL=',IWURFL
+         ENDIF
+      IF (ISWORK.EQ.1) THEN
+         IPCT=100*NDWORK/LWORK
+         CALL SULINE (LP,2)
+         WRITE (LP,570) NDWORK,LWORK,IPCT
+         ENDIF
+C
+      CALL URDBUG
+C
+C  REORDER RRS DATA AND PARAMETER RECORDS
+150   LW1=1500
+      LW2=2500
+      LW3=4000
+      LW4=4000
+      LP1=1
+      LP2=LP1+LW1
+      LP3=LP2+LW2
+      LP4=LP3+LW3/2
+      NDWORK=LP4+LW4/2-1
+      IF (NDWORK.GT.MXWORK) MXWORK=NDWORK
+      IF (NDWORK.GT.LWORK) THEN
+         WRITE (LP,580) NDWORK,LWORK
+         CALL SUERRS (LP,2,-1)
+         GO TO 160
+         ENDIF
+      CALL URCRRS (LW1,IWORK(LP1),LW2,IWORK(LP2),LW3,IWORK(LP3),
+     *   LW4,IWORK(LP4),IERR)
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,*) 'IN URPORD AFTER URCRRS - IWURFL=',IWURFL
+         ENDIF
+      IF (ISWORK.EQ.1) THEN
+         IPCT=100*NDWORK/LWORK
+         CALL SULINE (LP,2)
+         WRITE (LP,570) NDWORK,LWORK,IPCT
+         ENDIF
+C
+      CALL URDBUG
+C
+C  COPY REMAINING PARAMETER RECORDS FOR ANY PCPN, PE, TEMP AND RRS
+C  NOT ALPHABETICALLY ORDERED
+160   LW1=1500
+      LW2=2500
+      LW3=25000
+      LP1=1
+      LP2=LP1+LW1
+      LP3=LP2+LW2
+      NDWORK=LP3+LW3/2-1
+      IF (NDWORK.GT.MXWORK) MXWORK=NDWORK
+      IF (NDWORK.GT.LWORK) THEN
+         WRITE (LP,580) NDWORK,LWORK
+         CALL SUERRS (LP,2,-1)
+         GO TO 170
+         ENDIF
+      CALL URGENL (LW1,IWORK(LP1),LW2,IWORK(LP2),LW3,IWORK(LP3),IERR)
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,*) 'IN URPORD AFTER URGENL - IWURFL=',IWURFL
+         ENDIF
+      IF (ISWORK.EQ.1) THEN
+         IPCT=100*NDWORK/LWORK
+         CALL SULINE (LP,2)
+         WRITE (LP,570) NDWORK,LWORK,IPCT
+         ENDIF
+C
+      CALL URDBUG
+C
+C  COPY SPECIAL PARAMETER RECORDS
+170   CALL URCSPP (IERR)
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,*) 'IN URPORD AFTER URCSPP - IWURFL=',IWURFL
+         ENDIF
+C
+      CALL URDBUG
+C
+C  COPY REMAINING PARAMETER RECORDS
+      CALL URCPYA (LWORK,IWORK,IERR)
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,*) 'IN URPORD AFTER URCPYA - IWURFL=',IWURFL
+         ENDIF
+C
+      CALL URDBUG
+C
+C  COMPRESS DATA RECORDS IN THE PPD DAILY FILES
+      IF (IRVCMP.EQ.1) THEN
+         LW1=LWORK/4
+         LW2=LW1
+         LW3=LW1
+         LW4=LW1
+         LP1=1
+         LP2=LP1+LW1/2
+         LP3=LP2+LW2/2
+         LP4=LP3+LW3/2
+         NDWORK=(LP4+LW4/2-1)*2
+C      DO NOT SET SINCE ALWAYS 100% USED
+CCC         IF (NDWORK.GT.MXWORK) MXWORK=NDWORK
+         IF (NDWORK.GT.LWORK) THEN
+            WRITE (LP,580) NDWORK,LWORK
+            CALL SUERRS (LP,2,-1)
+            GO TO 180
+            ENDIF
+         IAMORD=1
+         CALL URVCMP (LW1,IWORK(LP1),NPNTRO,LW2,IWORK(LP2),
+     *      LW3,IWORK(LP3),NDATAO,LW4,IWORK(LP4),
+     *      IERR)
+         IF (LDEBUG.GT.0) THEN
+            WRITE (LP,*) 'IN URPORD AFTER URVCMP - IWURFL=',IWURFL
+            ENDIF
+         CALL URDBUG
+         IPRINT=0
+         IF (ISWORK.EQ.1) THEN
+C        DO NOT PRINT SINCE ALWAYS 100% USED
+CCC            IPCT=100*NDWORK/LWORK
+CCC            CALL SULINE (LP,2)
+CCC            WRITE (LP,570) NDWORK,LWORK,IPCT
+            IPCT=100*NPNTRO/LW1
+            CALL SULINE (LP,2)
+            WRITE (LP,575) NPNTRO,LW2,IPCT,'POINTER'
+            IPCT=100*NDATAO/LW2
+            CALL SULINE (LP,2)
+            WRITE (LP,575) NDATAO,LW2,IPCT,'DATA'
+            ENDIF
+         ENDIF
+C
+180   IF (IORPRD.EQ.0) GO TO 220
+C
+      WRITE (LP,581)
+      CALL SULINE (LP,2)
+C
+C  CHECK DATA TYPES IN OLD AND NEW DATA FILES
+      DO 182 I=1,NUMDTP
+         DO 181 J=1,NMTYPE
+            IF (DATFIL(1,I).EQ.IDATFL(1,J)) THEN
+C        CHECK NUMBER OF DAYS OF DATA
+               IF (DATFIL(4,I).NE.IDATFL(4,J)) THEN
+                  WRITE (LP,583) DATFIL(4,I),IDATFL(4,J),DATFIL(1,I)
+                  CALL SUWRNS (LP,2,-1)
+                  ENDIF
+               GO TO 182
+               ENDIF            
+181         CONTINUE
+         WRITE (LP,582) DATFIL(1,I)
+         CALL SUWRNS (LP,2,-1)
+182      CONTINUE
+C
+C  COPY TIME SERIES THAT ARE IN FORECAST COMPONENT CARRYOVER GROUPS
+C  (THE VALUE OF VARIABLES LW2 AND LW4 MUST BE THE SAME)
+      LW1=2500
+      LW2=10000
+      LW3=7500
+      LW4=10000
+cfan
+cfan  HSD bug r23-23: When running reorder there is errors complain
+cfan      that the work buffer is too small to write 1 hour ROCL TS
+cfan  Solution: Increase lw4 from 10000 to 12000 so LWKBUF in WPRDH.f
+cfan      will big enough to hold 1 hour ROCL TS
+cfan
+      lw2=12000   !cfan
+      lw4=12000   !cfan
+      LP1=1
+      LP2=LP1+LW1
+      LP3=LP2+LW2
+      LP4=LP3+LW3
+      NDWORK=LP4+LW4-1
+      IF (NDWORK.GT.MXWORK) MXWORK=NDWORK
+      IF (NDWORK.GT.LWORK) THEN
+         WRITE (LP,580) NDWORK,LWORK
+         CALL SUERRS (LP,2,-1)
+         GO TO 190
+         ENDIF
+      CALL URGTTS (LW1,IWORK(LP1),LW2,IWORK(LP2),LW3,IWORK(LP3),
+     *   LW4,IWORK(LP4),MP,P,MT,T,MTS,TS,IERR)
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,*) 'IN URPORD AFTER URGTTS - IWURFL=',IWURFL
+         ENDIF
+      IF (ISWORK.EQ.1) THEN
+         IPCT=100*NDWORK/LWORK
+         CALL SULINE (LP,2)
+         WRITE (LP,570) NDWORK,LWORK,IPCT
+         ENDIF
+C
+      CALL URDBUG
+C
+C  COPY TIME SERIES THAT ARE NOT IN FORECAST COMPONENT CARRYOVER GROUPS
+C  (THE VALUE OF VARIABLES LW1 AND LW3 MUST BE THE SAME)
+190   LW1=10000
+      LW2=7500
+      LW3=10000
+      LP1=1
+      LP2=LP1+LW1
+      LP3=LP2+LW2
+      NDWORK=LP3+LW3-1
+      IF (NDWORK.GT.MXWORK) MXWORK=NDWORK
+      IF (NDWORK.GT.LWORK) THEN
+         WRITE (LP,580) NDWORK,LWORK
+         CALL SUERRS (LP,2,-1)
+         GO TO 200
+         ENDIF
+      CALL URTSRD (LW1,IWORK(LP1),LW2,IWORK(LP2),LW3,IWORK(LP3),IERR)
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,*) 'IN URPORD AFTER URRDTS - IWURFL=',IWURFL
+         ENDIF
+      IF (ISWORK.EQ.1) THEN
+         IPCT=100*NDWORK/LWORK
+         CALL SULINE (LP,2)
+         WRITE (LP,570) NDWORK,LWORK,IPCT
+         ENDIF
+C
+      CALL URDBUG
+C
+C  COPY FORECAST COMPONENT TIME SERIES THAT ARE IN SEGMENTS NOT USED
+C  IN ANY CARRYOVER GROUP
+C  (THE VALUE OF VARIABLES LW1 AND LW3 MUST BE THE SAME)
+200   LW1=10000
+      LW2=7500
+      LW3=10000
+cfan
+cfan  HSD bug r23-23: When running reorder there is errors complain
+cfan      that the work buffer is too small to write 1 hour ROCL TS
+cfan  Solution: Increase lw3 from 10000 to 12000 so LWKBUF in WPRDH.f
+cfan      will big enough to hold 1 hour ROCL TS
+cfan
+      lw1=12000   !cfan
+      lw3=12000   !cfan
+      LP1=1
+      LP2=LP1+LW1
+      LP3=LP2+LW2
+      NDWORK=LP3+LW3-1
+      IF (NDWORK.GT.MXWORK) MXWORK=NDWORK
+      IF (NDWORK.GT.LWORK) THEN
+         WRITE (LP,580) NDWORK,LWORK
+         CALL SUERRS (LP,2,-1)
+         GO TO 210
+         ENDIF
+      CALL URGTFC (LW1,IWORK(LP1),LW2,IWORK(LP2),LW3,IWORK(LP3),
+     *   MP,P,MT,T,MTS,TS,IERR)
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,*) 'IN URPORD AFTER URGTFC - IWURFL=',IWURFL
+         ENDIF
+      IF (ISWORK.EQ.1) THEN
+         IPCT=100*NDWORK/LWORK
+         CALL SULINE (LP,2)
+         WRITE (LP,570) NDWORK,LWORK,IPCT
+         ENDIF
+C
+      CALL URDBUG
+C
+C  COPY MAPS, MAP, MAT AND MAPE PARAMETER RECORDS
+210   LW1=1500
+      LW2=1500
+      LP1=1
+      LP2=LP1+LW1
+      NDWORK=LP2+LW2-1
+      IF (NDWORK.GT.MXWORK) MXWORK=NDWORK
+      IF (NDWORK.GT.LWORK) THEN
+         WRITE (LP,580) NDWORK,LWORK
+         CALL SUERRS (LP,2,-1)
+         GO TO 220
+         ENDIF
+      CALL URAREA (LW1,IWORK(LP1),LW2,IWORK(LP2),IERR)
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,*) 'IN URPORD AFTER URAREA - IWURFL=',IWURFL
+         ENDIF
+      IF (ISWORK.EQ.1) THEN
+         IPCT=100*NDWORK/LWORK
+         CALL SULINE (LP,2)
+         WRITE (LP,570) NDWORK,LWORK,IPCT
+         ENDIF
+C
+      CALL URDBUG
+C
+C  PRINT WORK ARRAY USAGE INFORMATION
+220   IPCT=100*MXWORK/LWORK
+      IF (IPCT.GT.95) THEN
+         WRITE (LP,630) 'WARNING',MXWORK,LWORK,IPCT
+         CALL SUWRNS (LP,2,-1)
+         ELSE
+            CALL SULINE (LP,2)
+            WRITE (LP,630) 'NOTE',MXWORK,LWORK,IPCT
+         ENDIF
+C
+      IF (IORPRD.EQ.0) GO TO 240
+C
+C  CREATE COMPUTATIONAL ORDER PARAMETER RECORDS ON NEW FILES
+      IF (ISNWPG(LP).EQ.0) CALL SUPAGE
+      CALL SULINE (LP,2)
+      WRITE (LP,590) '0'
+      DO 230 I=1,NOVPRT
+         CALL SULINE (LP,0)
+         WRITE (LP,590) '+'
+230      CONTINUE
+      CALL SULINE (LP,1)
+      WRITE (LP,*)
+      CALL URORDR (LWORK,IWORK,IERR)
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,*) 'IN URPORD AFTER URORDR - IWURFL=',IWURFL
+         ENDIF
+C
+      CALL URDBUG
+C
+C  WRITE DATA BASE CONTROLS TO NEW FILES
+240   IAMORD=1
+C
+C  WRITE PPD INDEXES
+      IDXTYP=0
+      RTNNAM='WPDHSH'
+      CALL WPDHSH (IDXTYP,IERR)
+      IF (IERR.NE.0) GO TO 340
+C
+C  WRITE PPD CONTROL RECORDS
+      RTNNAM='WPPDCO'
+      CALL WPPDCO (IERR)
+      IF (IERR.NE.0) GO TO 340
+      CALL SULINE (LP,2)
+      WRITE (LP,600) 'PREPROCESSOR'
+C
+C  WRITE PPP CONTROL RECORDS
+      RTNNAM='WPPPCO'
+      CALL WPPPCO (IERR)
+      IF (IERR.NE.0) GO TO 340
+      CALL SULINE (LP,2)
+      WRITE (LP,600) 'PARAMETRIC  '
+C
+C  WRITE PRD CONTROL RECORDS
+      RTNNAM='WPDBCO'
+      CALL WPDBCO (IERR)
+      IF (IERR.NE.0) GO TO 340
+      CALL SULINE (LP,2)
+      WRITE (LP,600) 'PROCESSED   '
+C
+      CALL URDBUG
+C
+      CALL SULINE (LP,1)
+      WRITE (LP,*)
+      CALL SULINE (LP,2)
+      WRITE (LP,610) '0'
+      DO 250 I=1,NOVPRT
+         CALL SULINE (LP,0)
+         WRITE (LP,610) '+'
+250      CONTINUE
+      CALL SULINE (LP,1)
+      WRITE (LP,*)
+C
+      CALL URWLOG (' ',TXTLOG,'COMPLETED',' ',LULOG)
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  RESET UNITS IN PROCESSED DATA BASE DATA TYPE DIRECTORY FOR NEW FILES
+290   DO 300 I=1,5
+         TSCNTR(1,I)=TSCNTR(1,I)-KUPRDO
+300      CONTINUE
+C
+C  CHECK IF STATUS TO BE PRINTED AFTER REORDERING
+      IF (INDSTA.EQ.0.OR.INDSTA.EQ.1) GO TO 360
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  PRINT STATUS OF FILES AFTER REORDER
+C
+      IF (ISNWPG(LP).EQ.0) CALL SUPAGE
+      TXTLOG='FILE STATUS AFTER REORDERING'
+      CALL URWLOG (' ',TXTLOG,'STARTED  ',' ',LULOG)
+      CALL SULINE (LP,2)
+      WRITE (LP,620) '0'
+      DO 310 I=1,NOVPRT
+         CALL SULINE (LP,0)
+         WRITE (LP,620) '+'
+310      CONTINUE
+      CALL SULINE (LP,1)
+      WRITE (LP,*)
+C
+C  SET INDICATOR TO PROCESS NEW FILES
+      IAMORD=1
+C
+C  COPY CONTROLS
+      CALL URRDCN
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,*) 'IN URPORD AFTER URRDCN - IWURFL=',IWURFL
+         ENDIF
+C
+C  PRINT USERPARM FILE STATUS
+      CALL SULINE (LP,2)
+      WRITE (LP,460)
+      CALL SSUPRM (IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (LP,470) 'AFTER'
+         CALL SUERRS (LP,2,-1)
+         IWURFL=IERR
+         ISTAT=1
+         ENDIF
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,*) 'IN URPORD AFTER SSUPRM - IWURFL=',IWURFL
+         ENDIF
+C
+C  PRINT PPD DATA BASE STATUS
+      CALL SULINE (LP,2)
+      WRITE (LP,460)
+      CALL SSPPD (LWORK,IWORK,IFSLVL,IFLCHK,IERR)
+      IF (IERR.GT.0) THEN
+         WRITE (LP,470) 'AFTER'
+         CALL SUERRS (LP,2,-1)
+         IWURFL=IERR
+         ISTAT=1
+         ENDIF
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,*) 'IN URPORD AFTER SSPPD - IWURFL=',IWURFL
+         ENDIF
+      IF (IFSLVL.GT.1) CALL SMPPDC (IERR)
+C
+C  PRINT PPP DATA BASE STATUS
+      CALL SULINE (LP,2)
+      WRITE (LP,460)
+      CALL SSPPP (LWORK,IWORK,IFSLVL,NFLD,IFLCHK,IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (LP,470) 'AFTER'
+         CALL SUERRS (LP,2,-1)
+         IWURFL=IERR
+         ISTAT=1
+         ENDIF
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,*) 'IN URPORD AFTER SSPPP - IWURFL=',IWURFL
+         ENDIF
+C
+C  PRINT PRD DATA BASE STATUS
+      CALL SULINE (LP,2)
+      WRITE (LP,460)
+      CALL SSPRD (LWORK,IWORK,IFSLVL,NFLD,IFLCHK,IERR)
+      IF (IERR.NE.0) THEN
+         WRITE (LP,470) 'AFTER'
+         CALL SUERRS (LP,2,-1)
+         IWURFL=IERR
+         ISTAT=1
+         ENDIF
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,*) 'IN URPORD AFTER SSPRD - IWURFL=',IWURFL
+         ENDIF
+C
+      IAMORD=0
+C
+      CALL URWLOG (' ',TXTLOG,'COMPLETED',' ',LULOG)
+C
+      IF (IWURFL.EQ.0) THEN
+         CALL SULINE (LP,2)
+         WRITE (LP,640)
+         ENDIF
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (LP,*) 'IN URPORD AT END - IWURFL=',IWURFL
+         ENDIF
+C
+      GO TO 360
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  ERROR MESSAGES
+C
+320   WRITE (LP,650) 'READING',RTNNAM,IERR
+      CALL SUERRS (LP,2,-1)
+      ISTAT=1
+      IWURFL=1
+      GO TO 360
+C
+340   WRITE (LP,650) 'WRITING',RTNNAM,IERR
+      CALL SUERRS (LP,2,-1)
+      IWURFL=1
+      ISTAT=1
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+360   CALL SULINE (LP,1)
+      WRITE (LP,*)
+      CALL SULINE (LP,2)
+      WRITE (LP,660) '0'
+      DO 370 I=1,NOVPRT
+         CALL SULINE (LP,0)
+         WRITE (LP,660) '+'
+370      CONTINUE
+C
+      IF (IPDTR.GT.0.OR.IPPTR.GT.0) THEN
+         CALL SULINE (IOGDB,1)
+         WRITE (IOGDB,*) 'EXIT URPORD'
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+400   FORMAT (A,4('***  BEGIN PP REORDER  '),'***')
+410   FORMAT (A,4('***  INITIALIZE PP NEW FILES  '),'***')
+420   FORMAT ('0*** NOTE - BEGIN TO INITIALIZE PREPROCESSOR ',
+     *   'COMPONENT NEW FILES.')
+430   FORMAT ('0*** NOTE - PREPROCESSOR COMPONENT ',
+     *   'NEW FILES SUCCESSFULLY INITIALIZED.')
+450   FORMAT (A,3('***  PP STATUS BEFORE REORDERING  '),'***')
+460   FORMAT ('0',132('#'))
+470   FORMAT ('0*** ERROR - IN UPRORD - IN PRINTING STATUS ',A,
+     *   ' REORDERING FILES.')
+480   FORMAT ('0*** WARNING - IN URPORD - OLD ',A,
+     *   ' DATA FILES ARE EMPTY.')
+490   FORMAT ('0*** ERROR - IN URPORD - NEW ',A,
+     *   ' DATA FILES ARE NOT EMPTY.')
+500   FORMAT (' I=',I2,3X,'IPDTDR(1,I)=',A4,3X,'IPDTDR(3,I)=',I6)
+510   FORMAT (' I=',I2,3X,'JPDTDR(1,I)=',A4,3X,'JPDTDR(3,I)=',I6)
+520   FORMAT (' ITYPE=',A4)
+530   FORMAT ('0*** ',A,' - IN URPORD - DATA FILES WILL NOT BE ',
+     *   'REORDERED BECAUSE ',A,'S ENCOUNTERED.')
+540   FORMAT (A,4('***  BEGIN PP REORDERING  '),'***')
+550   FORMAT (' LW1=',I5,3X,'LW2=',I5,3X,'LW3=',I5,3X,
+     *   'LW4=',I5,3X,'LW5=',I5)
+560   FORMAT (' LP1=',I5,3X,'LP2=',I5,3X,'LP3=',I5,3X,
+     *   'LP4=',I5,3X,'LP5=',I5)
+570   FORMAT ('0*** NOTE - ',I6,' OF THE ',I6,' WORDS (',I3,'%) ',
+     *   'IN THE WORK ARRAY WERE USED.')
+575   FORMAT ('0*** NOTE - ',I6,' OF THE ',I6,' WORDS (',I3,'%) ',
+     *   'IN THE ',A,' WORK ARRAY WERE USED.')
+580   FORMAT ('0*** ERROR - IN URPORD - NUMBER OF ARRAY POSITIONS ',
+     *   '(',I6,') EXCEEDS DIMENSION OF WORK ARRAY (',I6,').')
+581   FORMAT ('0*** BEGIN TO PROCESS TIME SERIES DATA.')         
+582   FORMAT ('0*** WARNING - DATA TYPE ',A4,' ',
+     *   'FOUND IN OLD FILES BUT NOT IN NEW FILES.')         
+583   FORMAT ('0*** WARNING - MAXIMUM DAYS OF DATA IN OLD FILE (',I4,
+     *   ') DIFFERS FROM MAXIMUM DAYS OF DATA IN NEW FILE (',
+     *   I4,') FOR TYPE ',A4,'.')
+590   FORMAT (A,3('***  DETERMINE COMPUTATIONAL ORDER  '),'***')
+600   FORMAT ('0*** NOTE - ',A,
+     *   ' DATA BASE FILE CONTROL INFORMATION SUCCESSFULLY UPDATED.')
+610   FORMAT (A,4('***  END PP REORDERING  '),'***')
+620   FORMAT (A,3('***  PP STATUS AFTER REORDERING  '),'***')
+630   FORMAT ('0*** ',A,' - A MAXIMUM OF ',I6,' OF THE ',I6,
+     *   ' AVAILABLE WORDS (',I3,'%) IN THE WORK ARRAY WERE USED.')
+640   FORMAT ('0*** NOTE - THE PREPROCESSOR PARAMETRIC, PREPROCESSOR ',
+     *   'AND PROCESSED DATA BASES HAVE BEEN SUCCESSFULLY ',
+     *   'REORDERED.')
+650   FORMAT ('0*** ERROR - IN URPORD - ',A,' FILE CONTROL RECORDS. ',
+     *   'STATUS CODE FROM ROUTINE ',A,' IS ',I2,'.')
+660   FORMAT (A,4('***  END PP REORDER  '),'***')
+C
+      END

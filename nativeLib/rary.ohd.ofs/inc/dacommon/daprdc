@@ -1,0 +1,4 @@
+C                                           *--> FROM DACOMMON.DAPRDC
+C  ASAP CONTROL FILE, PRODUCT RECORDS
+      COMMON /DAPRDC/ MXPROD,IPRDRS(16,1557)
+C

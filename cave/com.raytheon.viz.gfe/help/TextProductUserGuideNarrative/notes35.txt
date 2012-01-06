@@ -1,0 +1,2 @@
+We can think of the narrative tree as a blackboard upon which we write data for other methods to examine and manipulate.  For example, the "wind_summary_words", "temp_words", and "wx_words" methods write their results on the blackboard.  The "pop_words" method uses the results to properly word the PoP phrase.  
+

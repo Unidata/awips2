@@ -1,0 +1,37 @@
+# ----------------------------------------------------------------------------
+# This software is in the public domain, furnished "as is", without technical
+# support, and with no warranty, express or implied, as to its usefulness for
+# any purpose.
+#
+# $itemName
+#
+# Author: $author
+# ----------------------------------------------------------------------------
+
+import SmartScript
+
+class $itemName(SmartScript.SmartScript):
+    def __init__(self, dbss, eaMgr, mdMode=None, toolType="numeric"):
+        SmartScript.SmartScript.__init__(self, dbss)
+        self.setUp(eaMgr, mdMode, toolType)
+
+    # Include your utility methods here
+    def _myMethod(self):
+        print "Executing myMethod"
+        return 10
+
+# To set up and use this utility:
+#
+#    import MyUtility
+#
+#    class Tool (SmartScript.SmartScript):
+#        def __init__(self, dbss):
+#            self._dbss = dbss
+#            SmartScript.SmartScript.__init__(self, dbss)
+#
+#        def preProcessTool(self):
+#            self._myUtility = MyUtility.MyUtility(self._dbss, self.eaMgr())
+#
+#        def execute(self):
+#            y = self._myUtility._myMethod()
+#

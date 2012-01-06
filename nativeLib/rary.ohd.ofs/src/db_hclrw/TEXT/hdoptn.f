@@ -1,0 +1,273 @@
+C MEMBER HDOPTN
+C  (from old member HCLDOPTN)
+C-----------------------------------------------------------------------
+C
+C                             LAST UPDATE: 04/04/95.09:47:04 BY $WC20SV
+C
+C @PROCESS LVL(77)
+C
+      SUBROUTINE HDOPTN (ISTAT)
+C
+C
+C          ROUTINE:  HDOPTN
+C
+C
+C             VERSION:  1.0.0
+C
+C                DATE:  8-17-81
+C
+C              AUTHOR:  SONJA R SIEGEL
+C                       DATA SCIENCES INC
+C***********************************************************************
+C
+C          DESCRIPTION:
+C
+C    THIS ROUTINE EXECUTES THE DEFINE OPTION COMMAND.
+C    IT PARSES THE CARDS MAKING UP THE OPTION (READ FROM TEMP FILE)
+C    DECODES THEM INTO OPTION FORMAT AND STORES THE INFORMATION
+C    IN THE DEFINITION FILE (LOCAL ONLY).  INCLUDES ARE CHECKED TO SEE
+C    IF THEY EXIST, ALSO TECHNIQUES.  MODS ARE COPIED AS IS.
+C
+C***********************************************************************
+C
+C          ARGUMENT LIST:
+C
+C         NAME    TYPE  I/O   DIM   DESCRIPTION
+C
+C       ISTAT      I     O     1    STATUS, 0=OK, 1=ERROR
+C
+C
+C***********************************************************************
+C
+C          COMMON:
+C
+      INCLUDE 'ufreei'
+      INCLUDE 'hclcommon/hword2'
+      INCLUDE 'udebug'
+      INCLUDE 'uio'
+      INCLUDE 'udatas'
+      INCLUDE 'hclcommon/hcomnd'
+C
+C***********************************************************************
+C
+C          DIMENSION AND TYPE DECLARATIONS:
+C
+      DIMENSION NAME(2),IOPTRC(600),ITEMP(2),IOBUF(400)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/db_hclrw/RCS/hdoptn.f,v $
+     . $',                                                             '
+     .$Id: hdoptn.f,v 1.1 1995/09/17 18:42:07 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C***********************************************************************
+C
+C          DATA:
+      DATA LMOD/4HMOD /
+C
+C
+C***********************************************************************
+C
+C
+      MOPTRC=600
+C
+C READ FIRST CARD
+C
+      ISTAT=0
+      MAXIOB=400
+      NNC=1
+      CALL HCARDR (NNC,ISTA)
+      IF (ISTA.NE.0) GO TO 260
+C
+C CARD INFO IS IN UFREEI
+C GET OPTION NAME AND OPTIONAL PASSWORD
+C
+      IFIELD=3
+      CALL HNMPSW(IFIELD,NAME,IPASS,ISTAT)
+C
+C SET UP OPTION RECORD
+C
+      CALL UMEMST (0,IOPTRC,MOPTRC)
+      IOPTRC(3)=4
+      CALL UMEMOV (NAME,IOPTRC(4),2)
+      IOPTRC(6)=IPASS
+      NXOPT=6
+C
+10    IF (IFIELD.LE.NFIELD) GO TO 30
+C
+C READ NEXT CARD FROM SAVED CARD FILE
+C
+20    IF (NNC.GE.NCARD) GO TO 220
+      NNC=NNC+1
+      CALL HCARDR (NNC,ISTA)
+      IF (ISTA.NE.0) GO TO 260
+      IFIELD=1
+C
+C LOOK FOR INCLUDE
+C
+30    CONTINUE
+      NXOPT=NXOPT+1
+      NXSAV=NXOPT
+      J=IFSTRT(IFIELD)
+      N=IFSTOP(IFIELD)-J+1
+C
+C LOOK FOR LEFT AND RIGHT PARENS (VALUE OF TECHNIQUE)
+C
+      ILP=0
+      IRP=0
+      CALL HFLPRN(J,IFSTOP(IFIELD),ILP)
+      IF (ILP.EQ.0) GO TO 60
+C LEFT PAREN FOUND AT ILP
+      N=ILP-J
+      CALL HFRPRN(J,IFSTOP(IFIELD),IRP)
+      IF (IRP.EQ.IFSTOP(IFIELD)) GO TO 50
+C MISSING RIGHT PAREN
+      CALL ULINE (LP,2)
+      WRITE (LP,40) IFIELD
+40    FORMAT ('0**ERROR** MISSING RIGHT PARENTHESES IN FIELD ',I2,'.')
+      ISTAT=1
+      GO TO 60
+C
+C FOUND RIGHT PAREN, DECREMENT FIELD
+C
+50    IFSTOP(IFIELD)=IFSTOP(IFIELD)-1
+60    CALL UMEMST (IBLNK,ITEMP,2)
+      IF (N.GT.8) N=8
+      CALL UPACK1 (IBUF(J),ITEMP,N)
+      CALL UNAMCP (ITEMP,LINCLD,IX)
+      IF (IX.NE.0) GO TO 100
+C
+C FOUND AN INCLUDE, GET THE RECORD
+C
+      IT=4
+      IFIELD=IFIELD+1
+      IF (IFIELD.LE.NFIELD) GO TO 80
+      CALL ULINE (LP,2)
+      WRITE (LP,70) IFIELD
+70    FORMAT ('0**ERROR** OPTION NAME EXPECTED IN FIELD ',I2,'.')
+      ISTAT=1
+      GO TO 20
+80    CONTINUE
+      J=IFSTRT(IFIELD)
+      N=IFSTOP(IFIELD)-J+1
+      CALL UMEMST (IBLNK,ITEMP,2)
+      IF (N.GT.8) N=8
+      CALL UPACK1 (IBUF(J),ITEMP,N)
+      CALL HGTRCD (IT,ITEMP,MAXIOB,IOBUF,ISTA)
+      IF (ISTA.EQ.0) GO TO 90
+      ISTAT=1
+      GO TO 20
+C
+C ENTER NAMED OPTION # (NEG)
+C
+90    IOPTRC(NXOPT)=-IOBUF(2)
+       GO TO 20
+C
+C NOT AN INCLUDE, TRY A MOD
+C
+100   IF (ITEMP(1).NE.LMOD) GO TO 130
+C
+C CHECK IDENTIFIERS
+C
+C LEAVE A ZERO WORD TO INDICATE MOD AND A ZZERO FOR NO IDS
+C
+      NXOPT=NXOPT+2
+      IF (NFIELD.EQ.1) GO TO 120
+      CALL ULINE (LP,2)
+      WRITE (LP,110)
+110   FORMAT ('0**WARNING** IN HDOPTN - IDENTIFIERS IGNORED ON MOD ',
+     *   'CARD.')
+       CALL WARN
+120   CONTINUE
+C
+C PUT IN CODE TO MOVE MOD CARDS HERE
+C
+      CALL HMODCD (NNC,IOPTRC,NXOPT,MOPTRC,ISTAT)
+      IF (ISTAT.NE.0) GO TO 20
+      IOPTRC(NXSAV)=NXOPT-NXSAV
+      GO TO 20
+C
+C  THIS IS A TECHNIQUE
+C
+130   IT=3
+      CALL HGTRCD (IT,ITEMP,MAXIOB,IOBUF,ISTA)
+      IF (ISTA.EQ.0) GO TO 150
+      CALL ULINE (LP,2)
+      WRITE (LP,140) ITEMP
+140   FORMAT ('0**ERROR** TECHNIQUE ',2A4,' NOT DEFINED')
+      ISTAT=1
+       GO TO 20
+C
+C SET UP TECHNIQUE
+C
+150   CONTINUE
+      NXOPT=NXOPT+1
+      IGL=1
+      IF (IOBUF(3).LT.0) IGL=-1
+      IOPTRC(NXOPT)=IOBUF(2)*IGL
+C
+C SET UP COUNTER IN CASE NO IDS OR ARGS
+C
+      IOPTRC(NXOPT+1)=1
+C
+C LOOK FOR Y,N OR INTEGER
+C
+      IF (IRP.NE.0) GO TO 160
+C
+C SAVE A WORD FOR TECH ON
+C
+      IFIELD=IFIELD+1
+      NXOPT=NXOPT+1
+      GO TO 170
+160   CALL HCKYNI(ILP,IFIELD,IOPTRC,NXOPT,ISTAT)
+C
+C CHECK IF TECHNIQUE IS UNIVERSAL
+C
+170   IF (IOBUF(7).EQ.0) GO TO 180
+C
+C LEAVE A ZERO WD FOR NO IDS
+C
+      NXOPT=NXOPT+1
+      GO TO 200
+180   CONTINUE
+      IF (IHCLDB.EQ.3) WRITE (IOGDB,190) IFIELD,NXOPT,NNC,
+     1      (IOPTRC(I),I=1,NXOPT)
+190   FORMAT (' CALLING HCKIDS FIELD,NXOPT,NNC=',3I4/1X,3I5,3A4,(10I5))
+      CALL HCKIDS(IFIELD,IOPTRC,NXOPT,NNC,ISTAT)
+200   CONTINUE
+      IF (IHCLDB.EQ.3) WRITE (IOGDB,210) IFIELD,NXOPT,NNC,
+     1               (IOPTRC(I),I=1,NXOPT)
+210   FORMAT (' CALLING HCKTAG FIELD,NXOPT,NNC=',3I3/1X,3I5,3A4,(10I5))
+      CALL HCKTAG(IOBUF,IFIELD,IOPTRC,NXOPT,NNC,ISTAT)
+C
+C FIGURE NUMBER OF WORDS IN OPTION
+C
+      IOPTRC(NXSAV)=NXOPT-NXSAV
+      GO TO 10
+220   CONTINUE
+C
+C ALL DONE
+C
+C SET LAST WORD TO ZERO TO INDICATE END
+C
+      IF (ISTAT.NE.0) GO TO 240
+      NXOPT=NXOPT+1
+      CALL HPTRCD (IOPTRC(3),NXOPT,IOPTRC,ISTAT)
+      IF (ISTAT.NE.0) GO TO 240
+      CALL ULINE (LP,2)
+      WRITE (LP,230) NAME
+230   FORMAT ('0**NOTE** OPTION ',2A4,' DEFINED.')
+      CALL HPOPTG (IOPTRC,IOBUF,MAXIOB)
+      GO TO 260
+C
+240   CALL ULINE (LP,2)
+      WRITE (LP,250) NAME
+250   FORMAT ('0**ERROR** OPTION ',2A4,' NOT DEFINED.')
+C
+260   RETURN
+C
+      END

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.eclipse.pde.p2"
+      label="%featureName"
+      version="1.0.0.v20080522-1--7w3119171503111"
+      provider-name="%providerName">
+
+   <description>
+      %description
+   </description>
+
+   <copyright>
+      %copyright
+   </copyright>
+
+   <license url="%licenseURL">
+      %license
+   </license>
+
+   <url>
+      <update label="%updateSiteName" url="http://download.eclipse.org/eclipse/updates/3.4"/>
+      <discovery label="%updateSiteName" url="http://download.eclipse.org/eclipse/updates/3.4"/>
+   </url>
+
+   <requires>
+      <import feature="org.eclipse.pde" version="3.4.0" match="compatible"/>
+   </requires>
+
+   <plugin
+         id="org.eclipse.pde.p2.ui"
+         download-size="0"
+         install-size="0"
+         version="1.0.0.v20080604-2000"
+         unpack="false"/>
+
+</feature>

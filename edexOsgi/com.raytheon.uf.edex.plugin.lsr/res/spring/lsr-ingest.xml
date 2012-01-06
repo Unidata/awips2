@@ -1,0 +1,60 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="lclstrmrptDecoder" class="com.raytheon.uf.edex.plugin.lsr.LSRDecoder">
+        <constructor-arg ref="lclstrmrptPluginName" />
+    </bean>
+
+    <bean id="lsrDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg ref="lclstrmrptPluginName" />
+		<constructor-arg value="jms-dist:queue:Ingest.lsr" />
+	</bean>
+
+	<bean id="lclstrmrptCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="lclstrmrpt-camel"/>
+  	</bean> 
+
+    <camelContext id="lclstrmrpt-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler"
+        autoStartup="false">
+        <!--
+        <endpoint id="lclstrmrptFileEndpoint" uri="file:${edex.home}/data/sbn/lsr?noop=true&amp;idempotent=false" />
+
+        <route id="lclstrmrptFileConsumerRoute">
+            <from ref="lclstrmrptFileEndpoint" />
+            <bean ref="fileToString" />
+            <setHeader headerName="pluginName">
+                <constant>lsr</constant>
+            </setHeader>
+            <to uri="jms-generic:queue:Ingest.lsr" />
+        </route>
+        -->
+
+        <!-- Begin lclstrmrpt routes -->
+        <route id="lclstrmrptIngestRoute">
+            <from uri="jms-generic:queue:Ingest.lsr?destinationResolver=#qpidDurableResolver" />
+            <setHeader headerName="pluginName">
+                <constant>lsr</constant>
+            </setHeader>
+            <pipeline>
+                <doTry>
+                    <pipeline>
+                        <bean ref="stringToFile" />
+                        <bean ref="lclstrmrptDecoder" method="decode" />
+                        <to uri="directvm:persistIndexAlert" />
+                    </pipeline>
+                    <doCatch>
+                        <exception>java.lang.Throwable</exception>
+                        <to uri="log:lclstrmrpt?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                    </doCatch>
+                </doTry>
+            </pipeline>
+        </route>
+    </camelContext>
+</beans>

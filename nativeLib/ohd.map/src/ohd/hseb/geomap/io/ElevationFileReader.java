@@ -1,0 +1,115 @@
+package ohd.hseb.geomap.io;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.StringTokenizer;
+
+import ohd.hseb.geomap.model.ElevationMap;
+import ohd.hseb.geomap.model.LatLonBounds;
+
+public class ElevationFileReader
+{
+    private BufferedReader _reader = null;
+    
+    // -------------------------------------------------------------------------------
+    
+    public ElevationFileReader(String filePath)
+    {
+        try
+        {
+            _reader = new BufferedReader(new FileReader(filePath));
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+    
+    // -------------------------------------------------------------------------------
+    
+    public ElevationMap read()
+    {    
+        ElevationMap map = null;
+        
+        try
+        {
+            String line = _reader.readLine();
+            
+            
+            map = readHeader(line);
+            
+            line = _reader.readLine();
+            readBody(line, map);
+            _reader.close();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        
+    
+        return map;
+    }
+    // -------------------------------------------------------------------------------
+    
+    // -------------------------------------------------------------------------------
+    public ElevationMap readHeader(String line) throws IOException
+    {
+        
+        String header = "ElevationFileReaderSlow.readHeader(): ";
+        StringTokenizer tokenizer = new StringTokenizer(line);
+        
+        double lat1 =  Double.parseDouble(tokenizer.nextToken());
+        double lon1 = Double.parseDouble(tokenizer.nextToken());
+        
+        // negate the longitude
+        lon1 *= -1;
+        
+        double latRange = Double.parseDouble(tokenizer.nextToken());
+        double lonRange = Double.parseDouble(tokenizer.nextToken());
+        
+        System.out.println(header + "lat1 = " + lat1 + " lon1 = " + lon1 + 
+                                     "latRange = " + latRange + "longRange = " + lonRange);
+        
+        double lat2 = lat1 - latRange;
+        double lon2 = lon1 + lonRange;
+        
+        double latResInArcMinutes = Double.parseDouble(tokenizer.nextToken());
+        double lonResInArcMinutes = Double.parseDouble(tokenizer.nextToken());
+        
+        LatLonBounds latLonBounds = new LatLonBounds(lat1, lat2, lon1, lon2);
+        
+        System.out.println(header + "lat lon bounds = " + latLonBounds);
+        
+        
+        double latResInDegrees = latResInArcMinutes/60.0;
+        double lonResInDegrees = lonResInArcMinutes/60.0;
+        
+        
+        ElevationMap map = new ElevationMap(latLonBounds, latResInDegrees, lonResInDegrees);
+           
+        return map;
+        
+    }
+    // -------------------------------------------------------------------------------
+    public void readBody(String line, ElevationMap map) throws IOException
+    {
+        StringTokenizer tokenizer = new StringTokenizer(line);                 
+        short elevation = 0;
+           
+        int rowCount = map.getRowCount();
+        int colCount = map.getColCount();
+      
+        for (int row = 0; row < rowCount; row++)
+        {
+            for (int col = 0; col < colCount; col++)
+            {
+                elevation = Short.parseShort(tokenizer.nextToken());
+                
+                map.setValue(row, col, elevation);
+            }
+         }
+    }
+    
+}

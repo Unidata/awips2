@@ -1,0 +1,73 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
+  http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+  
+  
+  	<bean id="uriAggregator" class="com.raytheon.uf.edex.esb.camel.DataUriAggregator" />
+  	<bean id="toDataURI" class="com.raytheon.uf.edex.esb.camel.ToDataURI" />
+  	
+  	<bean id="persist" class="com.raytheon.edex.services.PersistSrv" factory-method="getInstance"/>
+    <bean id="index" class="com.raytheon.edex.services.IndexSrv"/>        
+  
+    <bean id="persistCamelRegistered" factory-bean="contextManager"
+		factory-method="register">
+		<constructor-arg ref="persist-camel"/>
+  	</bean>
+  
+    <camelContext id="persist-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+      	
+      	<!-- Generic persist, index and alert route 
+        	 Intended for routes that need persisting to HDF5, 
+        	 Indexing and Alerting
+        -->
+        <route id="persistIndexAlert">
+        	<from uri="directvm:persistIndexAlert"/>
+        	<bean ref="persist" method="persist"/>
+            <bean ref="index" method="index"/>
+            <bean ref="toDataURI" method="toDataURI"/>
+            <bean ref="processUtil" method="log"/>
+            <to uri="vm:stageNotification"/> 
+        </route>
+        
+        <!-- Generic index and alert route 
+        	 Intended for routes that need Indexing and Alerting
+        -->
+        <route id="indexAlert">
+        	<from uri="directvm:indexAlert"/>
+            <bean ref="index" method="index"/>
+            <bean ref="toDataURI" method="toDataURI"/>
+            <bean ref="processUtil" method="log"/>
+            <to uri="vm:stageNotification"/> 
+        </route>
+        
+        <route id="notificationAggregation">
+        	<from uri="vm:stageNotification"/>
+   			<bean ref="uriAggregator" method="addDataUris" />
+        	<!--
+        	<multicast>
+        		<pipeline>
+        			<bean ref="uriAggregator" method="addDataUris" />
+        		</pipeline>
+        		<pipeline>
+        			<to uri="jms-generic:queue:subscriptions" />
+        		</pipeline>
+        	</multicast>
+        	-->
+        </route>
+        
+        <route id="notificationTimer">
+        	<from uri="timer://notificationTimer?fixedRate=true&amp;period=5000" />
+        	<filter>
+        	    <method bean="uriAggregator" method="hasUris" />
+        	    <bean ref="uriAggregator" method="sendQueuedUris" />
+        	    <bean ref="serializationUtil" method="transformToThrift" />
+        	    <to uri="jms-generic:topic:edex.alerts?timeToLive=60000&amp;deliveryPersistent=false"/>
+        	</filter>
+        </route>
+    </camelContext>
+ </beans>

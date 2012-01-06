@@ -1,0 +1,150 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ifp-Mods library file
+#
+#  cmt: File made on Thu Oct 26 14:49:00 EDT 2006 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob81/ohd/ifp/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU
+
+INSERTS      = -I/fs/hseb/ob81/ohd/ifp/inc  \
+               -I/fs/hseb/ob81/ohd/ofs/inc  \
+               -I/fs/hseb/ob81/ohd/util/inc  \
+               -I/fs/hseb/ob81/ohd/calb/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+INSERTS_CC   = -I/usr/X11R6/include  \
+               -I/usr/include/pgsql  \
+               -I/usr/include/pgsql/informix/esql  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .c .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+.c.a:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libMods_t.a:  \
+     $(LIB)/libMods_t.a(getsacco.o)  \
+     $(LIB)/libMods_t.a(ChangeTime.o)  \
+     $(LIB)/libMods_t.a(ConvertMonthToString.o)  \
+     $(LIB)/libMods_t.a(countLines.o)  \
+     $(LIB)/libMods_t.a(create_new_FGroup_file.o)  \
+     $(LIB)/libMods_t.a(fgroupmods.o)  \
+     $(LIB)/libMods_t.a(fileView.o)  \
+     $(LIB)/libMods_t.a(findrange.o)  \
+     $(LIB)/libMods_t.a(GetDate.o)  \
+     $(LIB)/libMods_t.a(getFilesize.o)  \
+     $(LIB)/libMods_t.a(getfname.o)  \
+     $(LIB)/libMods_t.a(getLastListDate.o)  \
+     $(LIB)/libMods_t.a(get_MDYH.o)  \
+     $(LIB)/libMods_t.a(getModEndDate.o)  \
+     $(LIB)/libMods_t.a(getModStartDate.o)  \
+     $(LIB)/libMods_t.a(getModValidDate.o)  \
+     $(LIB)/libMods_t.a(getOptionMenuSelection.o)  \
+     $(LIB)/libMods_t.a(getTZCode.o)  \
+     $(LIB)/libMods_t.a(HandleDatesCB.o)  \
+     $(LIB)/libMods_t.a(incrementModStartDate.o)  \
+     $(LIB)/libMods_t.a(load_fgroupmods_from_file_edit.o)  \
+     $(LIB)/libMods_t.a(load_mods_from_file_edit.o)  \
+     $(LIB)/libMods_t.a(load_new_mods_edit.o)  \
+     $(LIB)/libMods_t.a(load_ofs_mods_edit.o)  \
+     $(LIB)/libMods_t.a(low_level_io.o)  \
+     $(LIB)/libMods_t.a(MakeDates.o)  \
+     $(LIB)/libMods_t.a(make_date_string.o)  \
+     $(LIB)/libMods_t.a(makeFilePath.o)  \
+     $(LIB)/libMods_t.a(Mod_decode_single_field.o)  \
+     $(LIB)/libMods_t.a(Mods_addCallbacks.o)  \
+     $(LIB)/libMods_t.a(Mods_addValidInterfaceCallbacks.o)  \
+     $(LIB)/libMods_t.a(Mods_applyModDef.o)  \
+     $(LIB)/libMods_t.a(Mods_callbacks.o)  \
+     $(LIB)/libMods_t.a(Mods_checkModValue.o)  \
+     $(LIB)/libMods_t.a(Mods_createInterface.o)  \
+     $(LIB)/libMods_t.a(Mods_createMods.o)  \
+     $(LIB)/libMods_t.a(Mods_createPulldownChildren.o)  \
+     $(LIB)/libMods_t.a(Mods_dialogs.o)  \
+     $(LIB)/libMods_t.a(Mods_fillModArray.o)  \
+     $(LIB)/libMods_t.a(Mods_getModDefs.o)  \
+     $(LIB)/libMods_t.a(Mods_getModLimits.o)  \
+     $(LIB)/libMods_t.a(Mods_getModNames.o)  \
+     $(LIB)/libMods_t.a(Mods_getModOpNames.o)  \
+     $(LIB)/libMods_t.a(Mods_getOperModData.o)  \
+     $(LIB)/libMods_t.a(Mods_getOpersPerModSubs.o)  \
+     $(LIB)/libMods_t.a(Mods_getUnits.o)  \
+     $(LIB)/libMods_t.a(Mods_handleValueEntryCB.o)  \
+     $(LIB)/libMods_t.a(Mods_initializeInterface.o)  \
+     $(LIB)/libMods_t.a(Mods_initMenuStruct.o)  \
+     $(LIB)/libMods_t.a(Mods_initModDates.o)  \
+     $(LIB)/libMods_t.a(Mods_initOptionOpMenu.o)  \
+     $(LIB)/libMods_t.a(Mods_initValidInterfaceElements.o)  \
+     $(LIB)/libMods_t.a(Mods_mainWinPushBCallbacks.o)  \
+     $(LIB)/libMods_t.a(Mods_makeOpTSList.o)  \
+     $(LIB)/libMods_t.a(Mods_modMenuItemSelectionCB.o)  \
+     $(LIB)/libMods_t.a(Mods_modStrings.o)  \
+     $(LIB)/libMods_t.a(Mods_ntsmod.o)  \
+     $(LIB)/libMods_t.a(Mods_opMenuItemSelectionCB.o)  \
+     $(LIB)/libMods_t.a(Mods_range_list.o)  \
+     $(LIB)/libMods_t.a(Mods_removeValidInterfaceCallbacks.o)  \
+     $(LIB)/libMods_t.a(Mods_scaleChangeCB.o)  \
+     $(LIB)/libMods_t.a(Mods_setMenuItemsValid.o)  \
+     $(LIB)/libMods_t.a(Mods_setModInterfaceElements.o)  \
+     $(LIB)/libMods_t.a(Mods_setModMenuDefaultSelection.o)  \
+     $(LIB)/libMods_t.a(Mods_setQMeanCallbacks.o)  \
+     $(LIB)/libMods_t.a(Mods_setUserPreferences.o)  \
+     $(LIB)/libMods_t.a(Mods_showTSPlot.o)  \
+     $(LIB)/libMods_t.a(Mods_textFieldDatesAddCB.o)  \
+     $(LIB)/libMods_t.a(Mods_updateDialogs.o)  \
+     $(LIB)/libMods_t.a(mods_utils.o)  \
+     $(LIB)/libMods_t.a(Mods_viewerWinCallbacks.o)  \
+     $(LIB)/libMods_t.a(Mods_writeMods.o)  \
+     $(LIB)/libMods_t.a(Mod_text_parse.o)  \
+     $(LIB)/libMods_t.a(post_fgmod_files_updated_atom.o)  \
+     $(LIB)/libMods_t.a(post_mod_files_updated_atom.o)  \
+     $(LIB)/libMods_t.a(read_globalPrefs.o)  \
+     $(LIB)/libMods_t.a(reset_dates.o)  \
+     $(LIB)/libMods_t.a(sacco.o)  \
+     $(LIB)/libMods_t.a(save_fgroupmods_from_file_edit.o)  \
+     $(LIB)/libMods_t.a(save_mods_from_file_edit.o)  \
+     $(LIB)/libMods_t.a(save_ofs_mods_edit.o)  \
+     $(LIB)/libMods_t.a(show_fileView.o)  \
+     $(LIB)/libMods_t.a(show_mods.o)  \
+     $(LIB)/libMods_t.a(show_sacco.o)  \
+     $(LIB)/libMods_t.a(test_last_two_mods.o)  \
+     $(LIB)/libMods_t.a(TextFieldDisplayDate.o)  \
+     $(LIB)/libMods_t.a(undo_fgroupmods_from_file_edit.o)  \
+     $(LIB)/libMods_t.a(undo_mods_from_file_edit.o)  \
+     $(LIB)/libMods_t.a(undo_ofs_mods_edit.o)  \
+     $(LIB)/libMods_t.a(UpdateTextF.o)  \
+     $(LIB)/libMods_t.a(UpdateTime.o)  \
+     $(LIB)/libMods_t.a(valid_mods_for_oper.o)  \
+     $(LIB)/libMods_t.a(write_str_to_file.o)
+

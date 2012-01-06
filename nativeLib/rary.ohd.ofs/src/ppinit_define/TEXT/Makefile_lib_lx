@@ -1,0 +1,137 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the ofs-ppinit_define library file
+#
+#  cmt: File made on Wed Aug  6 12:51:36 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/ofs/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU -DUSE_XM_MWMUTIL_H -DUSE_XGPM -Wall -Wno-unused-variable -Wno-comment
+
+INSERTS      = -I/fs/hseb/ob83/ohd/ofs/inc  \
+               -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/calb/inc  \
+               -I/fs/hseb/ob83/ohd/ifp/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+INSERTS_CC   = -I/usr/include/informix/esql/  \
+               -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .c .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+.c.a:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libppinit_define_t.a:  \
+     $(LIB)/libppinit_define_t.a(sbarea.o)  \
+     $(LIB)/libppinit_define_t.a(sbbldseg.o)  \
+     $(LIB)/libppinit_define_t.a(sbbxck.o)  \
+     $(LIB)/libppinit_define_t.a(sbcntd.o)  \
+     $(LIB)/libppinit_define_t.a(sbcntr.o)  \
+     $(LIB)/libppinit_define_t.a(sbfctr.o)  \
+     $(LIB)/libppinit_define_t.a(sbfilter.o)  \
+     $(LIB)/libppinit_define_t.a(sbfmax.o)  \
+     $(LIB)/libppinit_define_t.a(sbfmin.o)  \
+     $(LIB)/libppinit_define_t.a(sbgrdf.o)  \
+     $(LIB)/libppinit_define_t.a(sbgrdl.o)  \
+     $(LIB)/libppinit_define_t.a(sbimax.o)  \
+     $(LIB)/libppinit_define_t.a(sbimin.o)  \
+     $(LIB)/libppinit_define_t.a(sbletr.o)  \
+     $(LIB)/libppinit_define_t.a(sbmdrs.o)  \
+     $(LIB)/libppinit_define_t.a(sbmdrv.o)  \
+     $(LIB)/libppinit_define_t.a(sbmdrw.o)  \
+     $(LIB)/libppinit_define_t.a(sbmnum.o)  \
+     $(LIB)/libppinit_define_t.a(sbnumm.o)  \
+     $(LIB)/libppinit_define_t.a(sbpair.o)  \
+     $(LIB)/libppinit_define_t.a(sbplot.o)  \
+     $(LIB)/libppinit_define_t.a(sbptck.o)  \
+     $(LIB)/libppinit_define_t.a(sbrtat.o)  \
+     $(LIB)/libppinit_define_t.a(sbsort.o)  \
+     $(LIB)/libppinit_define_t.a(sbsrtful.o)  \
+     $(LIB)/libppinit_define_t.a(sbtabl.o)  \
+     $(LIB)/libppinit_define_t.a(sbyneg.o)  \
+     $(LIB)/libppinit_define_t.a(sbypos.o)  \
+     $(LIB)/libppinit_define_t.a(sfadrv.o)  \
+     $(LIB)/libppinit_define_t.a(sfarea.o)  \
+     $(LIB)/libppinit_define_t.a(sfbasn.o)  \
+     $(LIB)/libppinit_define_t.a(sfbdrv.o)  \
+     $(LIB)/libppinit_define_t.a(sfdeck.o)  \
+     $(LIB)/libppinit_define_t.a(sfdecr.o)  \
+     $(LIB)/libppinit_define_t.a(sfdefn.o)  \
+     $(LIB)/libppinit_define_t.a(sffmap.o)  \
+     $(LIB)/libppinit_define_t.a(sfgbox.o)  \
+     $(LIB)/libppinit_define_t.a(sfgmdr.o)  \
+     $(LIB)/libppinit_define_t.a(sfgoes.o)  \
+     $(LIB)/libppinit_define_t.a(sfmap1.o)  \
+     $(LIB)/libppinit_define_t.a(sfmap2.o)  \
+     $(LIB)/libppinit_define_t.a(sfmap3.o)  \
+     $(LIB)/libppinit_define_t.a(sfmape.o)  \
+     $(LIB)/libppinit_define_t.a(sfmap.o)  \
+     $(LIB)/libppinit_define_t.a(sfmapx.o)  \
+     $(LIB)/libppinit_define_t.a(sfmaro.o)  \
+     $(LIB)/libppinit_define_t.a(sfmat.o)  \
+     $(LIB)/libppinit_define_t.a(sfpcpn.o)  \
+     $(LIB)/libppinit_define_t.a(sfpdck.o)  \
+     $(LIB)/libppinit_define_t.a(sfpdcr.o)  \
+     $(LIB)/libppinit_define_t.a(sfpech.o)  \
+     $(LIB)/libppinit_define_t.a(sfpe.o)  \
+     $(LIB)/libppinit_define_t.a(sfpowr.o)  \
+     $(LIB)/libppinit_define_t.a(sfppck.o)  \
+     $(LIB)/libppinit_define_t.a(sfprck.o)  \
+     $(LIB)/libppinit_define_t.a(sfquad.o)  \
+     $(LIB)/libppinit_define_t.a(sfradi.o)  \
+     $(LIB)/libppinit_define_t.a(sfrfro.o)  \
+     $(LIB)/libppinit_define_t.a(sfrgps.o)  \
+     $(LIB)/libppinit_define_t.a(sfrrs2.o)  \
+     $(LIB)/libppinit_define_t.a(sfrrsd.o)  \
+     $(LIB)/libppinit_define_t.a(sfrrs.o)  \
+     $(LIB)/libppinit_define_t.a(sfrrsm.o)  \
+     $(LIB)/libppinit_define_t.a(sfschk.o)  \
+     $(LIB)/libppinit_define_t.a(sfsrce.o)  \
+     $(LIB)/libppinit_define_t.a(sfsta.o)  \
+     $(LIB)/libppinit_define_t.a(sfstan.o)  \
+     $(LIB)/libppinit_define_t.a(sfstbn.o)  \
+     $(LIB)/libppinit_define_t.a(sftemp.o)  \
+     $(LIB)/libppinit_define_t.a(sftsck.o)  \
+     $(LIB)/libppinit_define_t.a(sfugnl.o)  \
+     $(LIB)/libppinit_define_t.a(sfuhrp.o)  \
+     $(LIB)/libppinit_define_t.a(sfullm.o)  \
+     $(LIB)/libppinit_define_t.a(sfumdr.o)  \
+     $(LIB)/libppinit_define_t.a(sfupwr.o)  \
+     $(LIB)/libppinit_define_t.a(sfurrs.o)  \
+     $(LIB)/libppinit_define_t.a(sfuser.o)  \
+     $(LIB)/libppinit_define_t.a(sfwght.o)  \
+     $(LIB)/libppinit_define_t.a(sbptnedg.o)  \
+     $(LIB)/libppinit_define_t.a(sbptnply.o)
+

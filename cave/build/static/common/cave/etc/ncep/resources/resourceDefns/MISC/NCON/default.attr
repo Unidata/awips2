@@ -1,0 +1,38 @@
+! Attributes for NonConvective Sigmet
+!
+color=RGB {155, 155, 155}
+! 
+icingEnable=true
+icingColor=RGB {0, 255, 0}
+icingLineWidth=2
+icingSymbolWidth=2
+icingSymbolSize=2
+turbulenceEnable=true
+turbulenceColor=RGB {30, 144, 255}
+turbulenceLineWidth=2
+turbulenceSymbolWidth=2
+turbulenceSymbolSize=2
+duststormEnable=true
+duststormColor=RGB {255, 215, 0}
+duststormLineWidth=2
+duststormSymbolWidth=2
+duststormSymbolSize=2
+volcanicAshEnable=true
+volcanicAshColor=RGB {255, 127, 0}
+volcanicAshLineWidth=2
+volcanicAshSymbolWidth=2
+volcanicAshSymbolSize=2
+symbolEnable=true
+timeEnable=true
+nameNumberEnable=true
+flightLevelEnable=true
+novemberEnable=true
+oscarEnable=true
+papaEnable=true
+quebecEnable=true
+romeoEnable=true
+uniformEnable=true
+victorEnable=true
+whiskeyEnable=true
+xrayEnable=true
+yankeeEnable=true

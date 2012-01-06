@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<?eclipse version="3.0"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.raytheon.viz.core.preferences.PerformancePreferences"
+            id="com.raytheon.viz.core.preferences.PerformancePreferences"
+            name="Performance"/>
+      <page
+            class="com.raytheon.viz.core.preferences.RenderingPreferences"
+            id="com.raytheon.viz.core.RenderingPreferences"
+            name="Rendering">
+      </page>  
+      <page
+            class="com.raytheon.viz.core.preferences.PathsPreferences"
+            id="com.raytheon.viz.core.PathsPreferences"
+            name="Paths">
+      </page>   
+      <page
+            class="com.raytheon.viz.core.preferences.DataDirPreference"
+            id="com.raytheon.viz.core.DataDirPreferences"
+            name="Share Directory"
+            category="com.raytheon.viz.core.PathsPreferences">
+      </page>     
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer class="com.raytheon.viz.core.preferences.PreferenceInitializer"/>
+   </extension>
+   <extension
+         point="com.raytheon.uf.viz.core.resource">
+      <resource
+            class="com.raytheon.viz.core.topo.TopoResource"
+            name="TopoResource"
+            renderingOrderId="MAP_IMAGE">
+      </resource>
+   </extension>
+   <extension
+         point="com.raytheon.uf.viz.core.descriptor">
+      <descriptor
+      		name="MapDescriptor"
+            class="com.raytheon.uf.viz.core.map.MapDescriptor"
+            editor="com.raytheon.viz.ui.glmap.GLMapEditor">
+      </descriptor>
+   </extension>
+
+   <extension
+         point="com.raytheon.uf.viz.core.renderingOrder">
+      <renderingOrder
+            id="MAP_IMAGE"
+            order="1000">
+      </renderingOrder>
+      <renderingOrder
+            id="IMAGE_WORLD"
+            order="2000">
+      </renderingOrder>
+      <renderingOrder
+            id="IMAGE_HEMISPHERE"
+            order="3000">
+      </renderingOrder>
+      <renderingOrder
+            id="IMAGE_CONTINENT"
+            order="4000">
+      </renderingOrder>
+      <renderingOrder
+            id="IMAGE_COUNTRY"
+            order="5000">
+      </renderingOrder>
+      <renderingOrder
+            id="IMAGE_REGION"
+            order="6000">
+      </renderingOrder>
+      <renderingOrder
+            id="IMAGE_LOCAL"
+            order="7000">
+      </renderingOrder>
+      <renderingOrder
+            id="MAP_OUTLINE"
+            order ="8000">
+      </renderingOrder>
+      <renderingOrder
+            id="CONTOUR"
+            order ="9000">
+      </renderingOrder>
+      <renderingOrder
+            id="PLOT"
+            order ="10000">
+      </renderingOrder>
+      <renderingOrder
+            id="ANNOTATION"
+            order="20000">
+      </renderingOrder>
+   </extension>
+   <extension
+         point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            class="com.raytheon.viz.core.mode.CaveModePropertyTester"
+            id="com.raytheon.viz.core.mode.CaveModePropertyTester"
+            namespace="com.raytheon.viz.core.mode"
+            properties="CAVEMode"
+            type="java.lang.Object">
+      </propertyTester>
+   </extension>
+</plugin>

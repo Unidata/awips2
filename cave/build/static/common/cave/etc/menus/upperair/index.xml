@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+	<!--
+		This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+		pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+		U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+		This_software_product_contains_export-restricted_data_whose
+		export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+		to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+		an_export_license_or_other_authorization.
+
+		Contractor_Name:________Raytheon_Company
+		Contractor_Address:_____6825_Pine_Street,_Suite_340
+		________________________Mail_Stop_B8
+		________________________Omaha,_NE_68106
+		________________________402.291.0100
+
+		See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+		further_licensing_information.
+	-->
+<menuContributionFile>
+
+	<include installTo="menu:upperAir?before=PROFILER" fileName="menus/upperair/baseUpperAir.xml" />
+	<include subMenu="Alaska NPN time-heigh" installTo="menu:upperAir?after=PROFILER" fileName="menus/upperair/baseAlaskaNPN.xml" />
+	<include subMenu="West NPN time-height" installTo="menu:upperAir?before=ProfilerMenuEnd"
+		fileName="menus/upperair/baseWestNPN.xml" />
+	<include subMenu="East NPN time-height" installTo="menu:upperAir?before=ProfilerMenuEnd"
+		fileName="menus/upperair/baseEastNPN.xml" />
+	<include installTo="menu:upperAir?before=ProfilerMenuEnd"
+		fileName="menus/upperair/baseNPNPlot.xml" />
+	<include installTo="menu:upperAir?after=RADAR" fileName="menus/upperair/baseRadar.xml" />
+	<include subMenu="PIREP plots" installTo="menu:upperAir?after=AIRCRAFT" fileName="menus/upperair/basePirep.xml" />
+	<include subMenu="MDCRS plots" installTo="menu:upperAir?before=AircraftMenuEnd"
+		fileName="menus/upperair/baseMDCRS.xml" />
+	<include installTo="menu:upperAir?before=AircraftMenuEnd"
+		fileName="menus/upperair/baseAviation.xml" />
+	<include installTo="menu:upperAir?after=RAOB" fileName="menus/upperair/baseRAOB.xml" />
+	<include installTo="menu:upperAir?before=RAOBMenuEnd" fileName="menus/upperair/baseAddedFeatures.xml" />
+	<include subMenu="US Western" installTo="menu:upperAir?before=RAOBMenuEnd" fileName="menus/upperair/baseUSWestern.xml" />
+	<include subMenu="US Central" installTo="menu:upperAir?before=RAOBMenuEnd" fileName="menus/upperair/baseUSCentral.xml" />
+	<include subMenu="US Eastern" installTo="menu:upperAir?before=RAOBMenuEnd" fileName="menus/upperair/baseUSEastern.xml" />
+	<include subMenu="Canada North" installTo="menu:upperAir?before=RAOBMenuEnd" fileName="menus/upperair/baseCanadaNorth.xml" />
+	<include subMenu="Canada Western" installTo="menu:upperAir?before=RAOBMenuEnd" fileName="menus/upperair/baseCanadaWestern.xml" />
+	<include subMenu="Canada Central" installTo="menu:upperAir?before=RAOBMenuEnd" fileName="menus/upperair/baseCanadaCentral.xml" />
+	<include subMenu="Canada Eastern" installTo="menu:upperAir?before=RAOBMenuEnd" fileName="menus/upperair/baseCanadaEastern.xml" />
+	<include subMenu="Mexico" installTo="menu:upperAir?before=RAOBMenuEnd" fileName="menus/upperair/baseMexico.xml" />
+	<include subMenu="Atlantic" installTo="menu:upperAir?before=RAOBMenuEnd" fileName="menus/upperair/baseAtlantic.xml" />
+	<include subMenu="Japan/South Asia" installTo="menu:upperAir?before=RAOBMenuEnd" fileName="menus/upperair/baseJapan.xml" />
+	<include subMenu="Australia" installTo="menu:upperAir?before=RAOBMenuEnd" fileName="menus/upperair/baseAustralia.xml" />
+	<include subMenu="China" installTo="menu:upperAir?before=RAOBMenuEnd" fileName="menus/upperair/baseChina.xml" />
+	<include subMenu="Russia" installTo="menu:upperAir?before=RAOBMenuEnd" fileName="menus/upperair/baseRussia.xml" />
+	<include subMenu="Pacific East" installTo="menu:upperAir?before=RAOBMenuEnd" fileName="menus/upperair/basePacificEast.xml" />
+	<include subMenu="Pacific West" installTo="menu:upperAir?before=RAOBMenuEnd" fileName="menus/upperair/basePacificWest.xml" />
+	<include subMenu="Alaska" installTo="menu:upperAir?before=RAOBMenuEnd" fileName="menus/upperair/baseAlaska.xml" />
+
+</menuContributionFile>

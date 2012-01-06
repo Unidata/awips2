@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<resourceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <resource>
+       <loadProperties xsi:type="gridLoadProperties"
+          displayType="CONTOUR" >
+                 <capabilities>
+                     <capability xsi:type="imagingCapability" interpolationState="false" brightness="1.0" contrast="1.0" alpha="1.0"/>
+                 </capabilities>
+             </loadProperties>
+       <properties isSystemResource="false" isBlinking="false"
+          isMapLayer="false" isHoverOn="false" 
+          isVisible="true" />
+       <resourceData xsi:type="NC-NcgridResourceData"
+          isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+
+          <frameSpan>${frameSpan}</frameSpan>
+          <dfltNumFrames>${dfltNumFrames}</dfltNumFrames>
+          <timeMatchMethod>${timeMatchMethod}</timeMatchMethod>       
+          <timelineGenMethod>${timelineGenMethod}</timelineGenMethod> 
+          <dfltTimeRange>${dfltTimeRange}</dfltTimeRange>
+          <lineAttributes>${LINE}</lineAttributes>
+						<cint>${CINT}</cint>
+						<type>${TYPE}</type>
+						<glevel>${GLEVEL}</glevel>
+						<gdfile>${GDFILE}</gdfile>
+						<gvcord>${GVCORD}</gvcord>
+						<gdpfun>${GDPFUN}</gdpfun>
+						<scale>${SCALE}</scale>
+						<title>${TITLE}</title>
+						<colors>${COLORS}</colors>
+						<marker>${MARKER}</marker>
+						<grdlbl>${GRDLBL}</grdlbl>
+						<fint>${FINT}</fint>
+						<fline>${FLINE}</fline>
+						<hilo>${HILO}</hilo>
+						<hlsym>${HLSYM}</hlsym>       
+						<wind>${WIND}</wind>
+          
+          
+          <metadataMap>
+             <mapping key="pluginName">
+                <constraint constraintValue="${pluginName}" constraintType="EQUALS" />
+             </mapping>
+             <!-- mapping key="modelInfo.modelName">
+                <constraint constraintValue="${GDFILE}" constraintType="EQUALS" />
+             </mapping-->
+             
+          </metadataMap>
+       </resourceData>
+    </resource>            
+</resourceGroup>  

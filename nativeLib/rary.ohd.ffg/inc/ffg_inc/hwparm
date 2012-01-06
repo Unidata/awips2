@@ -1,0 +1,6 @@
+      character*4 hdid,hdwtyp,desc,strnam,rcid,qtsid,dtcq,arid
+      common /hwparm/ hvers,hdid(2),hdwtyp,iuseh,desc(5),strnam(5),
+     +                rcid(2),hlat,hlon,hlath,hlonh,fsflow,upk(5),
+     +                nhdur,pcimpv,iqopth,iropth,lhffg,lqadj,lradj,
+     +                loar,lhcpd,hffg(5),taq(5),qtsid(2),dtcq,intq,
+     +                hinten(5),nars,wt(16),arid(2,16)

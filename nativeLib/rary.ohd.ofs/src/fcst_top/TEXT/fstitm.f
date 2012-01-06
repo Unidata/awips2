@@ -1,0 +1,122 @@
+C MEMBER FSTITM
+C  (from old member FCFSTITM)
+C
+C     DESC - SEE IF START DATE AND TIME OF RUN CORRESPONDS TO
+C     DESC - A DATE AND TIME CARRYOVER IS SAVED FOR.  IF NOT
+C     DESC - FIND THE CLOSEST DATE AFTER THE REQUESTED START TIME
+C     DESC - FOR WHICH CARRYOVER IS SAVED AND SET THAT AS THE START
+C     DESC - TIME.
+C
+C............................
+      SUBROUTINE FSTITM
+C............................
+C
+C     SUBROUTINE ORIGINALLY PROGRAMMED BY GEORGE F SMITH - HRL - 3/21/80
+C
+C....................................................................
+C
+      INCLUDE 'common/where'
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/fccgd'
+      INCLUDE 'common/fccgd1'
+      INCLUDE 'common/fcsegn'
+      INCLUDE 'common/fcsegc'
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/fctime'
+      INCLUDE 'common/fctim2'
+C
+      DIMENSION SBNAME(2),OLDOPN(2),IXDAY(20),IXTIM(20)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_top/RCS/fstitm.f,v $
+     . $',                                                             '
+     .$Id: fstitm.f,v 1.1 1995/09/17 19:08:27 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      DATA SBNAME/4HFSTI,4HTM  /
+      DATA IEQ,IGT/2HEQ,2HGT/,IBLNK/4H    /
+C
+C          WHERE
+C.................
+      IOLDOP=IOPNUM
+      IOPNUM=0
+      DO 5 I=1,2
+      OLDOPN(I)=OPNAME(I)
+    5 OPNAME(I)=SBNAME(I)
+C
+C          TRACE LEVEL = 1
+C....................
+      IF(ITRACE.GE.1)WRITE(IODBUG,900)
+  900 FORMAT(1H0,18H ** FSTITM ENTERED)
+C
+      IBUG=IFBUG(4HFSTI)
+C
+      IF(IBUG.EQ.1)WRITE(IODBUG,606)IDARUN,IHRRUN,NSLOTS,
+     1  (ICDAYC(J),ICHRC(J),IPC(J),INCSEG(J),J=1,NSLOTS)
+ 606  FORMAT(' --- IN SUBROUTINE FSTITM - IDARUN=',I11,', IHRRUN=',I11,
+     1 ', NSLOTS=',I3/5X,'ICDAYC',10X,'ICHRC',10X,'IPC',10X,'INCSEG'/
+     2 (1X,I10,3X,I11,2X,I11,4X,I11))
+C
+      I=0
+C
+      DO 10 J=1,NSLOTS
+C
+      IF(ICGID(1).EQ.IBLNK.AND.ICGID(2).EQ.IBLNK)GO TO 8
+      IF(MOD(IPC(J),2).EQ.0)GO TO 10
+    8 IF(INCSEG(J).EQ.0)GO TO 10
+C
+      CALL FDATCK(ICDAYC(J),ICHRC(J),IDARUN,IHRRUN,IEQ,ISW)
+C
+      IF(ISW.EQ.0)GO TO 20
+      GO TO 9999
+C
+   20 CALL FDATCK(ICDAYC(J),ICHRC(J),IDARUN,IHRRUN,IGT,ISW)
+C
+      IF(ISW.EQ.0)GO TO 10
+      I=I+1
+      IXDAY(I)=ICDAYC(J)
+      IXTIM(I)=ICHRC(J)
+C
+   10 CONTINUE
+C
+      IF(I.EQ.0)GO TO 40
+      GO TO 50
+C
+   40 WRITE(IPR,600)
+  600 FORMAT(1H0,10X,46H**ERROR** NO CARRYOVER DATES FOUND AFTER OR AT,
+     1   27H START DATE AND TIME OF RUN)
+C
+      CALL MDYH2(IDARUN,IHRRUN,IMON,IDAY,IYEAR,IHOUR,NZXX,NDXX,INPTZC)
+C
+      WRITE(IPR,602)IMON,IDAY,IYEAR,IHOUR,INPTZC
+  602 FORMAT(1H0,10X,18HTHE START DATE IS ,I2,1H/,I2,1H/,I4,1H-,
+     1  I2,A4)
+C
+      CALL ERROR
+      GO TO 9999
+C
+   50 CALL FCOBBL(IXDAY,IXTIM,I)
+C
+      IDARUN=IXDAY(1)
+      IHRRUN=IXTIM(1)
+C
+      CALL MDYH2(IDARUN,IHRRUN,IMON,IDAY,IYEAR,IHOUR,NZXX,NDXX,INPTZC)
+C
+      WRITE(IPR,601)IMON,IDAY,IYEAR,IHOUR,INPTZC
+  601 FORMAT(1H0,10X,48H**WARNING** THE STARTING DATE AND TIME HAVE BEEN
+     1, 12H CHANGED TO ,I2,01H/,I2,01H/,I4,01H ,I4,06H HOURS,1X,A4/
+     2      23X,56HTHIS CORRESPONDS TO THE CLOSEST CARRYOVER DATE AFTER
+     3THE,    26H THE REQUESTED START TIME.)
+C
+      CALL WARN
+C
+ 9999 IOPNUM=IOLDOP
+      OPNAME(1)=OLDOPN(1)
+      OPNAME(2)=OLDOPN(2)
+C
+      RETURN
+      END

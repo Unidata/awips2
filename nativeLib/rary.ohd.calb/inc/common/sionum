@@ -1,0 +1,31 @@
+C Common block:  ionum
+C -----------------------------------------------------------------------------
+C history:
+C
+C 1.0 (9-17-93)         This common block was implemented by Riverside
+C                       Technology, inc., in its version of MCP3 and other
+C                       NWSRFS programs to facilitate interactive execution of
+C                       NWSRFS programs.
+C -----------------------------------------------------------------------------
+C notes:        (1)     This common block describes the unit numbers for
+C                       standard input, standard output, and standard error.
+C                       The original NWSRFS code was executed in batch mode
+C                       where all input and output was handled with files.
+C                       However, in an interactive environment, there is a need
+C                       to read/write from/to "interactive" unit numbers.  These
+C                       are standard on most systems as standard input, output,
+C                       and error (output and error are often the same device
+C                       but different unit numbers).
+C               (2)     If deemed useful, this common block could be combined
+C                       with the "ionum" common block.
+C -----------------------------------------------------------------------------
+C variables:
+C
+C istdin        .... unit number for standard input
+C istdout       .... unit number for standard output
+C istderr       .... unit number for standard error
+C -----------------------------------------------------------------------------
+
+      integer           istdin, istdout, istderr
+
+      common / iostd /  istdin, istdout, istderr

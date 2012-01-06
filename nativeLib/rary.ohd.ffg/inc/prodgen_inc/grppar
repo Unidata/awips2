@@ -1,0 +1,3 @@
+      character*4 grpid,grptyp,apid
+      common /grppar/ gvers,grpid(2),grptyp,iuseg,
+     +                nopid,apid(2,60)

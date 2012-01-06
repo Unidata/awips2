@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.example.org/productType" xmlns:tns="http://www.example.org/productType" elementFormDefault="qualified">
+
+    <element name="ProductTypes">
+    	<complexType>
+    		<sequence>
+    			<element ref="tns:ProductType" maxOccurs="unbounded" minOccurs="0"></element>
+    		</sequence>
+    	</complexType>
+    </element>
+    
+    <element name="ProductType">
+    	<complexType>
+    		<sequence>
+    			<element ref="tns:PgenControls" maxOccurs="1"
+    				minOccurs="0">
+    			</element>
+    			<element ref="tns:PgenActions" maxOccurs="1"
+    				minOccurs="0">
+    			</element>
+    			<element ref="tns:PgenClass" maxOccurs="unbounded"
+    				minOccurs="0">
+    			</element>
+    			<element ref="tns:PgenLayer" maxOccurs="unbounded"
+    				minOccurs="0">
+    			</element>
+    			<element ref="tns:PgenSave" maxOccurs="1"
+    				minOccurs="0">
+    			</element>
+    			<element ref="tns:ProdType" maxOccurs="unbounded" 
+    				minOccurs="0"></element>
+    			<element name="PgenSettingsFile" type="string"></element>
+    		</sequence>
+    		<attribute name="Name" type="string"></attribute>
+    	</complexType>
+    </element>
+   
+    <element name="PgenActions">
+    	<complexType>
+    		<sequence>
+    			<element name="Name" type="string" maxOccurs="unbounded" minOccurs="0"></element>
+    		</sequence>
+    	</complexType>
+    </element>
+    
+    <element name="PgenControls">
+    	<complexType>
+    		<sequence>
+    			<element name="Name" type="string" maxOccurs="unbounded" minOccurs="0"></element>
+    		</sequence>
+    	</complexType>
+    </element>
+
+    <element name="PgenObjects">
+    	<complexType>
+    		<sequence>
+    			<element name="Name" type="string" maxOccurs="unbounded" minOccurs="0"></element>
+    		</sequence>
+    	</complexType>
+    </element>
+
+    <element name="PgenClass">
+    	<complexType>
+    		<sequence>
+    			<element ref="tns:PgenObjects" maxOccurs="1" minOccurs="0"></element>
+    		</sequence>
+    		<attribute name="Name" type="string"></attribute>
+    	</complexType>
+    </element>
+    
+    <element name="PgenLayer">
+    	<complexType>
+    		<sequence>
+    			<element ref="tns:Color"></element>
+    		</sequence>
+    		<attribute name="OutputFile" type="string"></attribute>
+            <attribute name="InputFile" type="string"></attribute>
+            <attribute name="Filled" type="boolean"></attribute>
+    		<attribute name="MonoColor" type="boolean"></attribute>
+            <attribute name="OnOff" type="boolean"></attribute>
+            <attribute name="Name" type="string"></attribute>
+        </complexType>
+    </element>
+            
+
+    <element name="Color">
+    	<complexType>
+    		<attribute name="alpha" type="tns:alphaType"
+    			use="optional">
+    		</attribute>
+    		<attribute name="green" type="tns:rgbType" use="required"></attribute>
+    		<attribute name="red" type="tns:rgbType" use="required"></attribute>
+    		<attribute name="blue" type="tns:rgbType" use="required"></attribute>
+    	</complexType>
+    </element>
+
+    <simpleType name="alphaType">
+    	<restriction base="int">
+    		<minInclusive value="0"></minInclusive>
+    		<maxInclusive value="255"></maxInclusive>
+    	</restriction>
+    </simpleType>
+
+    <simpleType name="rgbType">
+    	<restriction base="int">
+    		<minInclusive value="0"></minInclusive>
+    		<maxInclusive value="255"></maxInclusive>
+    	</restriction>
+    </simpleType>
+
+    <element name="PgenSave">
+    	<complexType>
+    		<attribute name="autoSaveFreq" type="int"></attribute>
+    		<attribute name="autoSave" type="boolean"></attribute>
+    		<attribute name="saveLayers" type="boolean"></attribute>
+    		<attribute name="outputFile" type="string"></attribute>
+    		<attribute name="inputFile" type="string"></attribute>
+    	</complexType>
+    </element>
+    
+ <element name="ProdType">
+	<complexType>
+		<attribute name="Type" type="string"></attribute>
+		<attribute name="Name" type="string"></attribute>
+		<attribute name="StyleSheetFile" type="string"></attribute>
+		<attribute name="OutputFile" type="string"></attribute>
+	</complexType>
+</element>
+    
+</schema>

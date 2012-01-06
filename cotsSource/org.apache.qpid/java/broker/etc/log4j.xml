@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ -
+ - Licensed to the Apache Software Foundation (ASF) under one
+ - or more contributor license agreements.  See the NOTICE file
+ - distributed with this work for additional information
+ - regarding copyright ownership.  The ASF licenses this file
+ - to you under the Apache License, Version 2.0 (the
+ - "License"); you may not use this file except in compliance
+ - with the License.  You may obtain a copy of the License at
+ -
+ -   http://www.apache.org/licenses/LICENSE-2.0
+ -
+ - Unless required by applicable law or agreed to in writing,
+ - software distributed under the License is distributed on an
+ - "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ - KIND, either express or implied.  See the License for the
+ - specific language governing permissions and limitations
+ - under the License.
+ -
+ --><!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="null" threshold="null">
+    <appender class="org.apache.log4j.QpidCompositeRollingAppender" name="ArchivingFileAppender">
+        <!-- Ensure that logs allways have the dateFormat set Default: TRUE-->
+        <param name="StaticLogFileName" value="true"/>
+	<param name="file" value="${QPID_WORK}/log/${logprefix}qpid${logsuffix}.log"/>
+	<!-- Style of rolling to use, by:
+	        File Size (1), 
+		Date(2), 
+		Both(3) - DEFAULT
+	   When Date (or Both) is enabled then the value of DatePattern will determine
+	   when the new file is made. e.g. a DatePattern of "'.'yyyy-MM-dd-HH-mm"
+	   which includes minutes will cause a new backup file to be made every minute.
+	 -->
+	<param name="RollingStyle" value="1"/>
+        <!-- Change the direction so newer files have bigger numbers -->
+        <!-- 
+	 negative means backups become <latest>,.0,.1,2,...,n	 	
+	 0 means backup name is date stampted and follow Positive number if DataPattern clashes.
+	 Positive means backup becomes <lastest,n,n-1,n-2,..0
+	 
+	 Default is negative.
+	 -->	 	 
+        <param name="CountDirection" value="0"/>
+        <!-- Use default 1MB -->
+        <param name="MaxFileSize" value="1MB"/>
+        <param name="DatePattern" value="'.'yyyy-MM-dd-HH-mm"/>
+        <!-- Unlimited number of backups : Default: 0, no backups, -1 infinite -->
+        <param name="MaxSizeRollBackups" value="-1"/>
+        <!-- Compress(gzip) the backup files default:FALSE-->
+        <param name="CompressBackupFiles" value="true"/>
+        <!-- Compress the backup files using a second thread  DEFAULT: FALSE-->
+        <param name="CompressAsync" value="true"/>
+        <!-- Backup Location : Default same dir as log file -->
+	<param name="backupFilesToPath" value="${QPID_WORK}/backup/log"/>
+
+
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %-5p [%t] %C{2} (%F:%L) - %m%n"/>
+        </layout>
+    </appender>
+
+    <appender class="org.apache.log4j.FileAppender" name="FileAppender">
+        <param name="File" value="${QPID_WORK}/log/${logprefix}qpid${logsuffix}.log"/>
+        <param name="Append" value="false"/>
+
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %-5p [%t] %C{2} (%F:%L) - %m%n"/>
+        </layout>
+    </appender>
+
+    <appender class="org.apache.log4j.ConsoleAppender" name="STDOUT">
+
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %-5p [%t] %C{2} (%F:%L) - %m%n"/>
+        </layout>
+    </appender>
+
+    <!-- Qpid.Broker log is a special log category used to log only useful broker startup details -->
+    <category additivity="true" name="Qpid.Broker">
+        <priority value="debug"/>
+        <appender-ref ref="STDOUT"/>
+    </category>
+
+    <category additivity="true" name="org.apache.qpid.server.queue.AMQQueueMBean">
+        <priority value="info"/>
+    </category>
+
+    <!-- Provide warnings to standard output -->
+    <category additivity="true" name="org.apache.qpid">
+        <priority value="warn"/>
+    </category>
+
+
+    <!-- Examples of additional logging settings -->
+    <!-- Used to generate extra debug. See debug.log4j.xml -->
+    
+    <!--<category additivity="true" name="org.apache.qpid.server.store">
+        <priority value="debug"/>
+    </category-->
+
+    <!-- Set the commons logging that the XML parser uses to WARN, it is very chatty at debug -->
+        <logger name="org.apache.commons">
+          <level value="WARN"/>
+        </logger>
+
+    <!-- Log all info events to file -->
+    <root>
+        <priority value="info"/>
+        <appender-ref ref="FileAppender"/>
+        <!--appender-ref ref="ArchivingFileAppender"/-->
+    </root>
+
+</log4j:configuration>

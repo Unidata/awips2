@@ -1,0 +1,965 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-34smp i686) [Netscape]">
+  <title>GFEMainMenu</title>
+</head>
+<body alink="#ff0000" bgcolor="#ffffff" link="#0000ee" text="#000000"
+ vlink="#551a8b">
+<h1>
+GFE Main Menu</h1>
+January 27, 2009<br>
+<br>
+This document describes the main menu of the GFE (Graphical Forecast
+Editor).
+<br>
+<img alt="main menu" src="images/mainMenu.jpg"
+ style="width: 870px; height: 28px;"><br>
+<hr width="100%">
+<h2>Table of Contents</h2>
+<a href="GFEMainMenu.html#GFEMenu">GFE</a>
+<br>
+&nbsp;&nbsp; <a href="GFEMainMenu.html#EditingPreferences">Editing
+Preferences</a>
+<br>
+&nbsp;&nbsp; <a href="GFEMainMenu.html#ViewingPreferences">Viewing
+Preferences</a>
+<br>
+&nbsp;&nbsp; <a href="GFEMainMenu.html#ShowWarnings">Show Warnings</a>
+<br>
+&nbsp;&nbsp; <a href="GFEMainMenu.html#BreakLock">Break Lock...</a>
+<br>
+&nbsp;&nbsp;&nbsp; <a href="#DeleteUsers">Delete Users....</a>
+<br>
+&nbsp;&nbsp; <a href="#DefineConfigandifpIMAGEFiles...">Define Config
+and ifpIMAGE Files...</a>
+<br>
+&nbsp;&nbsp; <a href="#DefineSmartTools...">Define Smart Tools...</a>
+<br>
+&nbsp;&nbsp; <a href="#DefineProcedures...">Define Procedures...</a>
+<br>
+&nbsp;&nbsp; <a href="#DefineTextProducts...">Define Text Products...</a>
+<br>
+&nbsp;&nbsp; <a href="#DefineSelectTimeRanges...">Define Time Ranges</a>
+<br>
+&nbsp;&nbsp; <a href="#ExitGFE">Exit GFE</a>
+<br>
+<a href="GFEMainMenu.html#WeatherElement">WeatherElement</a>
+<br>
+&nbsp;&nbsp; <a href="GFEMainMenu.html#WeatherElementGroups">Weather
+Element Groups</a>
+<br>
+&nbsp;&nbsp; <a href="GFEMainMenu.html#WeatherElementVolumeBrowser">Weather
+Element Browser...</a>
+<br>
+&nbsp;&nbsp; <a href="#ManageHiddenWeatherElements">Manage Hidden
+Weather Elements</a><br>
+<a href="GFEMainMenu.html#Populate">Populate</a>
+<br>
+&nbsp;&nbsp; <a href="#Procedures">Procedures (List of Procedures)</a>
+<br>
+&nbsp;&nbsp; <a href="GFEMainMenu.html#CopySelectedGridsFrom">Copy
+Selected Grids From...</a>
+<br>
+&nbsp;&nbsp; <a href="GFEMainMenu.html#CopyAllGridsFrom">Copy All
+Grids
+From...</a>
+<br>
+<a href="GFEMainMenu.html#Grids">Grids</a>
+<br>
+&nbsp;&nbsp; <a href="GFEMainMenu.html#Interpolate">Interpolate...</a>
+<br>
+&nbsp;&nbsp; <a href="GFEMainMenu.html#SplitGrids">Split Grids</a>
+<br>
+&nbsp;&nbsp; <a href="GFEMainMenu.html#FragmentGrids">Fragment Grids</a>
+<br>
+&nbsp;&nbsp; <a href="#CreateGridsFromScratch">Create Grids From
+Scratch</a>
+<br>
+&nbsp;&nbsp; <a href="GFEMainMenu.html#AssignDefaultValue">Assign
+Default
+Value</a>
+<br>
+&nbsp;&nbsp; <a href="#AssignDefaultValue">Assign PickUp Value</a>
+<br>
+&nbsp;&nbsp; <a href="GFEMainMenu.html#DeleteGrids">Delete Grids</a>
+<br>
+&nbsp;&nbsp; <a href="GFEMainMenu.html#SelectGridsByTime">Select Grids
+By Time</a>
+<br>
+&nbsp;&nbsp; <a href="#SelectAllWeatherElements">Select All Weather
+Elements</a>
+<br>
+&nbsp;&nbsp; <a href="GFEMainMenu.html#DeselectAll">Deselect All</a>
+<br>
+&nbsp;&nbsp; <a href="GFEMainMenu.html#TimeShift">Time Shift...</a>
+<br>
+&nbsp;&nbsp;&nbsp; <a href="GFEMainMenu.html#FindWeatherElement">Find
+Weather Element</a>
+<br>
+<a href="GFEMainMenu.html#Edit">Edit</a>
+<br>
+&nbsp;&nbsp; <a href="GFEMainMenu.html#UndoGridEdit">Undo Grid Edit</a>
+<br>
+&nbsp;&nbsp; <a href="GFEMainMenu.html#UndoEditArea">Undo Edit Area</a>
+<br>
+&nbsp;&nbsp; <a href="GFEMainMenu.html#ProceduresEdit">Procedures
+(List
+of procedures)</a>
+<br>
+&nbsp;&nbsp; <a href="GFEMainMenu.html#SaveForecast">Save Forecast...</a>
+<br>
+&nbsp;&nbsp; <a href="GFEMainMenu.html#RevertForecast">Revert
+Forecast...</a>
+<br>
+<a href="GFEMainMenu.html#Consistency">Consistency</a>
+<br>
+&nbsp;&nbsp; <a href="GFEMainMenu.html#ProceduresConsistency">Procedures
+(List of ISC Procedures)</a>
+<br>
+&nbsp;&nbsp; <a href="GFEMainMenu.html#ClearSelectedHighlights">Clear
+Selected Highlights</a>
+<br>
+&nbsp; <a href="GFEMainMenu.html#ClearAllHighlights">Clear All
+Highlights</a>
+<br>
+&nbsp; <a href="#SendIntersiteGrids">Send Intersite Grids</a><br>
+&nbsp;&nbsp; <a href="#ISCRequestReply">ISC Request/Reply</a><br>
+&nbsp; <a href="#ISCSendEnable">ISC Send Enable</a><br>
+<a href="#Products">Products</a><br>
+&nbsp;&nbsp; <a href="GFEMainMenu.html#PublishtoOfficial">Publish to
+Official...</a>
+<br>
+&nbsp;&nbsp; <a href="#localFormatter">Formatter Launcher...</a><br>
+&nbsp;&nbsp; <a href="#scripts">Scripts...</a><br>
+&nbsp;&nbsp; <a href="#ProcessMonitor">Process Monitor...</a><br>
+&nbsp;&nbsp; <a href="#GHGMonitor">GHG Monitor...</a><br>
+<a href="GFEMainMenu.html#Maps">Maps</a>
+<br>
+&nbsp;&nbsp; <a href="GFEMainMenu.html#Topography">Topography</a>
+<br>
+&nbsp;&nbsp; <a href="GFEMainMenu.html#Samples">Samples</a>
+<br>
+&nbsp;&nbsp;&nbsp; <a href="#ISCMarkers">ISC Markers</a>
+<br>
+&nbsp;&nbsp; <a href="GFEMainMenu.html#MapList">Map List</a>
+<br>
+<a href="GFEMainMenu.html#EditAreas">Edit Areas</a>
+<br>
+<a href="GFEMainMenu.html#EditAreas">Verify</a>
+<br>
+&nbsp;&nbsp;&nbsp; <a href="#DailyForecastCritique">Daily Forecast
+Critique</a>
+<br>
+&nbsp;&nbsp; <a href="GFEMainMenu.html#ProceduresVerify">Procedures</a>
+<br>
+<a href="#Hazards">Hazards</a><br>
+&nbsp;&nbsp; <a href="#HazardsProcedures">Procedures</a><br>
+<a href="#ResetPractice">Reset Practice</a><br>
+&nbsp;&nbsp;&nbsp; <a href="#ClearVTECPracticeTable">Clear VTEC
+Practice Table</a><br>
+&nbsp;&nbsp;&nbsp; <a href="#ClearFcstGrids%5C">Clear Fcst Grids</a><br>
+<a href="GFEMainMenu.html#Help">Help</a>
+<br>
+&nbsp;&nbsp; <a href="GFEMainMenu.html#OnlineTableofContents">Online
+Table Of Contents...</a>
+<br>
+&nbsp;&nbsp; <a href="GFEMainMenu.html#About">About...</a>
+<p></p>
+<hr width="100%">
+<h2><a name="GFEMenu"></a>GFE Menu</h2>
+<h3>
+<a name="EditingPreferences"></a>Editing Preferences</h3>
+<h4>
+<a name="MissingDataMode"></a>Missing Data Mode</h4>
+<div class="4Heading">The Missing Data Mode specifies how to handle
+missing
+data when running a Smart Tool. The options are:</div>
+<ul>
+  <li class="4Heading">Stop on Missing Data: The system stops execution
+of the Smart Tool if
+requested
+data is missing.</li>
+  <li class="4Heading">Skip on Missing Data: The system will skip grids
+for which there is
+missing
+data. A User Alert message will report which grids were skipped.</li>
+  <li class="4Heading">Create on Missing Data: The system will
+automatically interpolate grids
+to supply the missing grids. A User Alert message will report which
+grids
+were created through interpolation. Note that if a grid to be created
+is
+not between two existing grids, it will not be extrapolated. In this
+case,
+the grid being edited will be skipped. If the created grids are in the
+Fcst database, they will be added to the Fcst database. If running from
+the GFE, they can be optionally be saved by the user. If running in
+background
+mode, they will be automatically saved at the end of the procedure with
+all other edited grids. If the created grids are in a non-mutable
+database,
+they will not be added to the database and will be discarded after
+execution
+of the tool.</li>
+</ul>
+<h4>
+<a name="TemporalEditorMode:Relative"></a>Temporal Editor Mode: Relative</h4>
+Allows the user to choose the Temporal Editor Mode to be either
+Relative
+or Absolute. If the button is selected, the mode is Relative.
+Otherwise,
+the mode is Absolute. The default is as set for
+TemporalEditorAbsoluteEditMode
+in the gfe configuration file.
+<p>When performing an edit in the absolute mode, each point in the Edit
+Area will be set to the value indicated in the Temporal Editor. When
+performing
+an edit in the relative mode, each point in the Edit Area will be
+incremented
+or decremented by the magnitude of the edit in the Temporal Editor.
+</p>
+<h4><a name="VectorEditMode"></a>Vector Editor Mode</h4>
+Allows the user to control the component of the data to be modified
+when
+performing an Edit Action. The possible options are Magnitude Only,
+Direction
+Only, or Both. The default is as set for WindEditMode in the gfe
+configuration
+file.&nbsp; This may also be set from the <a
+ href="ButtonBarDialogs.html#VectorPickUpValueDialog">Vector
+PickUp Dialog</a>.
+<br>
+&nbsp;
+<h4><a name="SmoothingAlgorithm"></a>Smoothing Algorithm</h4>
+Allows the user to control the amount (area) of smoothing.&nbsp; The
+popup
+menu items reflect the smoothing influence by the number of grid
+cells.&nbsp;
+The Smoothing default value and the selection of values may be <a
+ href="gfeConfig_Algor.html#SmoothingAlgorithm">configured</a>
+in the gfe configuration file.
+<h4><a name="Weather:Combine"></a>Wx/Discrete: Combine</h4>
+Allows the user to control whether an edit action replaces the existing
+weather/discrete data or combines the new value with the existing
+weather/discrete
+data. If the button is selected, an edit action will combine
+weather/discrete
+data. Otherwise, the weather/discrete data will be replaced. The
+default
+is as set for WeatherDiscreteCombineMode in the gfe configuration
+file.&nbsp;
+The Weather Combine Mode may also be set from the <a
+ href="ButtonBarDialogs.html#WeatherPickUpValueDialog">Weather
+PickUp Dialog</a> and <a
+ href="ButtonBarDialogs.html#DiscretePickUpValueDialog">Discrete
+PickUp Dialog</a>.
+<h4><a name="SelectGridsWhenStepping"></a>Select Grids When Stepping</h4>
+Specifies whether the selection time range will track the spatial
+editor
+time when time stepping.&nbsp; Time stepping is accomplished using the
+<a href="Toolbar.html#StepBack">GFE
+toolbar stepping buttons</a> or the <a href="keys.html">keyboard
+shortcuts</a>.&nbsp;
+When this preference is enabled (i.e., yes), the selection time range
+will
+be set to:
+<ul>
+  <li>the one hour period surrounding the spatial editor time, if there
+is no
+active weather element, or</li>
+  <li>the time constraint box for the active weather element, if there
+is no
+grid that intersects the spatial editor time, or</li>
+  <li>the valid time of the grid for the active weather element that
+intersects
+the spatial editor time.</li>
+</ul>
+In addition, all weather elements except the active weather element
+will
+be deselected.
+<p>When this preference is disabled (i.e., no), the selection time
+range,
+and the set of selected weather elements will not change when using the
+<a href="Toolbar.html#StepBack">GFE
+toolbar step buttons</a> and
+<a href="keys.html">keyboard shortcuts</a>
+.
+</p>
+<h4><a name="AutoSaveInterval"></a>Auto Save...</h4>
+The Auto Save Interval entry brings up the <a
+ href="MainMenuDialogs.html#AutoSaveDialog">Auto
+Save Interval Dialog</a>. This dialog allows the user to enable or
+disable
+the automatic saving of modified weather elements.&nbsp; If enabled,
+then
+every few minutes all modified grids will be saved to the
+database.&nbsp;
+The interval may be changed from 1 minute to 60 minutes.
+<h4><a name="ContourServerSelection"></a>Contour Server Selection</h4>
+Allows the user to choose which algorithm is to be used for the
+conversion
+of contours into a gridded field by selecting one of the buttons. The
+default
+is as set for ContourServer in the gfe configuration file. We recommend
+that you try both methods and choose the one which works the best for
+you.
+<table border="1" width="100%">
+  <tbody>
+    <tr>
+      <td><b>Mode</b></td>
+      <td><b>Description</b></td>
+    </tr>
+    <tr>
+      <td>Contour Analyzer</td>
+      <td>The Contour Analyzer makes a grid from paints on contour
+lines, using
+a simple analysis technique similar to Barnes.</td>
+    </tr>
+    <tr>
+      <td>Internal SIRS Server</td>
+      <td>The Internal SIRS Server makes grids from contour lines
+using&nbsp;
+the TDL SIRS algorithm as written by FSL for the GFE.</td>
+    </tr>
+  </tbody>
+</table>
+<h4>
+<a name="InterpolateAlgorithm"></a>Interpolate Algorithm</h4>
+The Interpolate Algorithm entry brings up the <a
+ href="MainMenuDialogs.html#InterpolationAlgorithmDialog">Interpolation
+Algorithm Dialog</a>.&nbsp; This dialog allows the user to select the
+appropriate
+interpolation algorithm for each scalar weather element.
+<br>
+&nbsp;
+<h3><a name="ViewingPreferences"></a>Viewing Preferences</h3>
+<h4>
+<a name="QuickViewMode"></a>Quick View Mode</h4>
+Allows the user to set the behavior of the Spatial Editor when the
+pointer
+is moved over the Grid Manager. If the button is selected, the data
+displayed
+in the Spatial Editor is controlled by the cursor position over the
+Grid
+Manager (i.e. the Spatial Editor displays the grid under the cursor).
+Otherwise,
+the data displayed in the Spatial Editor does not change when the
+cursor
+is moved over the Grid Manager time blocks. The default is off.
+<h4><a name="ImageonEdit"></a>Image on Edit</h4>
+Allows the user to set the display mode of the of a grid made editable.
+If the button is selected, a grid made editable is automatically
+displayed
+as an image in the Spatial Editor. Otherwise, the display mode (Image
+versus
+Graphic) is not changed when a grid is made editable. The default is as
+set for ImageOnActiveSE in the gfe configuration file.
+<h4><a name="TemporalEditorOverlayMode"></a>Temporal Editor Overlay Mode</h4>
+Allows the user to control the loading of new Weather Elements into the
+Temporal Editor. If the button is selected, the Temporal Editor will
+attempt
+to overlay a newly loaded weather element with another weather element
+of identical units. Otherwise, each newly loaded weather element will
+have
+its own pane in the Temporal Editor. The default is as set for
+TemporalEditorOverlay
+in the gfe configuration file.
+<br>
+&nbsp;
+<h4><a name="TemporalEditorWeatherElementMode"></a>Temporal Editor
+Weather
+Element Mode</h4>
+This cascade menu permits choices of "All Weather Elements", "All
+Weather
+Elements w/o ISC", "Fcst Weather Elements",&nbsp; "Active Weather
+Element",
+and "Visible Elements Only".&nbsp; It controls the set of weather
+elements
+that appear in the temporal editor.&nbsp; Selection of "All Weather
+Elements"
+will mirror the weather elements that are loaded into the spatial
+editor.&nbsp;
+Selection of "All Weather Elements except ISC" will set the temporal
+editor
+to display all weather elements loaded into the spatial editor, except
+for any ISC elements. Selection of "Fcst Weather Elements" will mirror
+just those elements loaded into the spatial editor that are mutable,
+i.e.,
+from the Fcst database.&nbsp; Selection of the "Active Weather Element"
+will set the temporal editor to have only the active weather element to
+be displayed in the temporal editor. Selection of the "Visible Elements
+Only" will set the editor to only have the visible set of weather
+elements
+that are displayed in the Grid Manager.
+<h4><a name="TEStatisticsMode"></a>Temporal Editor Statistics Mode</h4>
+Brings up the <a href="MainMenuDialogs.html#TEStatisticsDialog">Temporal
+Editor Statistics Mode Dialog</a>, which permits the user to define the
+type of statistics that are presented with the range-style
+visualizations
+in the temporal editor.
+<br>
+&nbsp;
+<h4><a name="TimeScalePeriods"></a>Time Scale Periods...</h4>
+Brings up the <a
+ href="MainMenuDialogs.html#TimeScaleDisplayedPeriodsDialog">Time
+Scale Displayed Periods</a> Dialog, which permits the user to define
+which
+of the named selection time ranges are displayed on the Time
+Scale.&nbsp;
+The initial setting can also be defined in the gfe configuration file
+entry
+<a href="gfeConfig_Pref.html#TimeScaleDisplayedPeriods">Time
+Scale Periods</a>.
+<br>
+&nbsp;
+<br>
+&nbsp;
+<h4><a name="EditAreaAppearance"></a>Edit Area Appearance...</h4>
+Brings up the <a href="MainMenuDialogs.html#EditAreaAppearanceDialog">Edit
+Area Appearance Dialog</a>, which permits the user to define a color
+and
+a line width for the appearance of the edit area on the spatial
+editor.&nbsp;
+The initial setting can also be defined in the gfe configuration file
+entry
+<a href="gfeConfig_UI.html#EditAreaColors">Edit
+Area Color and Border Width.</a>
+<br>
+<br>
+<h4><a name="WxDiscreteDescription"></a>Wx/Discrete Show Description</h4>
+If Show Description is on, then the <a
+ href="ButtonBarDialogs.html#WeatherPickUpValueDialog">Weather Pick Up
+Value Dialog</a> and <a
+ href="ButtonBarDialogs.html#DiscretePickUpValueDialog">Discrete Pick
+Up Value Dialog</a> will contain additional descriptive information for
+each symbol.&nbsp;&nbsp; In addition to the two dialogs, the Spatial
+Editor Color Bar and Temporal Editor Data Pane's MB3 Popup Menu items <a
+ href="Button3Popups.html#SpatialEditorColorBarPopupMenu">Set Common
+Values To, Set Recent Values To..., and Set Session Values To...</a>
+also will contain the descriptive information. The default can be
+controlled through the <a href="gfeConfig_Zoom.html">GFE configuration
+file</a>.<br>
+<br>
+<h3><a name="ShowWarnings"></a>Show Warnings</h3>
+Allows the user to enable or disable the display of warning messages.
+If
+the button is selected for a particular warning message, the message is
+automatically displayed in the GFE.
+<p><b>Show Edit Action Time Range Warning</b>
+</p>
+<p>The Show Edit Action Time Range warning is displayed when the user
+attempts
+to edit data over a selected time range which
+<br>
+extends over more than one grid. Proceeding at this point will modify
+more than one grid.
+</p>
+<p><b>Show Empty Edit Area Warning</b>
+</p>
+<p>The Show Empty Edit Area warning is displayed when the user attempts
+to edit data without having selected an edit area. Proceeding at this
+point
+will modify data over the entire grid. The defaults are as set for
+ShowTimeRangeWarning
+and ShowEmptyEditAreaWarning in the gfe configuration file.
+<br>
+&nbsp;
+</p>
+<h3><a name="BreakLock"></a>Break Lock...</h3>
+Breaks the lock(s) created by a different user or during a previous
+session.
+The <a href="MainMenuDialogs.html#BreakLockDialog">Break Locks dialog</a>
+brings up the all of the lock(s) found in the mutable database and
+allows
+the user to select which lock(s) to break. Users are not required to
+select
+a time range prior to breaking locks.
+<br>
+&nbsp;
+<h3><a name="DeleteUsers"></a>Delete Users...</h3>
+The Delete Users... entry appears only if the GFE is logged on as
+SITE.&nbsp;
+Selecting this entry brings up the <a
+ href="MainMenuDialogs.html#DeleteUserDialog">Delete
+Users' Dialog</a> which allows the administrator to remove an user name
+from the <a href="GFEStartup.html">Start Up Dialog</a>.
+<h3><a name="DefineConfigandifpIMAGEFiles..."></a>Define Config and
+ifpIMAGE
+Files...</h3>
+Brings up the <a
+ href="MainMenuDialogs.html#DefineConfigAndIFPImageDialog">Define
+Configuration Dialog</a>, which is used to create, view, delete, and
+modify
+configuration files for the GFE and for ifpIMAGE.
+<h3><a name="DefineSmartTools..."></a>Define Smart Tools...</h3>
+Brings up the <a href="ButtonBarDialogs.html#EditActionsDialog">Edit
+Action
+Dialog </a>, which is used to create, view and execute smart tools.
+<h3><a name="DefineProcedures..."></a>Define Procedures...</h3>
+Brings up the <a href="MainMenuDialogs.html#DefineProceduresDialog">Define
+Procedures dialog</a> allowing the user to define procedures. A new
+procedure
+can be created or an existing one modified by pressing button 3 over
+the
+dialog and selecting new or modify. A template for defining procedures
+appears in a Python window.
+<h3><a name="DefineTextProducts..."></a>Define Text Products...</h3>
+Brings up the <a href="MainMenuDialogs.html#DefineTextProductsDialog">Define
+Text Products dialog</a> allowing the user to define text products. A
+new
+product can be created or an existing one modified by pressing button 3
+over the dialog and selecting new or modify. A template for defining
+the
+product appears in a Python window.
+<h3><a name="DefineSelectTimeRanges..."></a>Define Select Time Ranges</h3>
+<h4>
+Save Select Time Range...</h4>
+Brings up the
+<a href="MainMenuDialogs.html#SaveSelectionTRDialog">Save
+Selection Time Range dialog</a> allowing the user to define and save a
+selection time range relative to 0000LT today or 0000Z.
+<h4><a name="DeleteSelectTimeRanges"></a>Delete Select Time Range...</h4>
+Brings up the
+<a href="MainMenuDialogs.html#DeleteSelectionTRDialog">Delete
+Selection Time Range dialog</a> allowing the user to delete a selection
+time range.
+<h3><a name="ExitGFE"></a>Exit GFE</h3>
+Shuts down the gfe. The <a href="MainMenuDialogs.html#ExitGFEDialog">Exit
+GFE dialog</a> is brought up prior to shutting down if there are any
+modified
+and unsaved
+<br>
+weather element(s).
+<br>
+<hr width="100%">
+<h2><a name="WeatherElement"></a>Weather Element</h2>
+<h3>
+<a name="WeatherElementGroups"></a>Weather Element Groups</h3>
+Lists the Weather Element Groups available. Selecting a group loads it
+into the Grid Manager. A Weather Element Group can be saved (defined)
+in
+the Weather Element Browser, under the browser's File menu.
+Note that any unsaved (modified) weather elements will not be unloaded
+when you swich to another weather element group.<br>
+&nbsp;
+<h3><a name="WeatherElementVolumeBrowser"></a>Weather Element Browser...</h3>
+Brings up the <a href="MainMenuDialogs.html#WEBrowserDialog">Weather
+Element
+Browser dialog</a> which allows the user to load and unload Weather
+Elements.
+Weather Element Groups can also be saved, deleted,&nbsp; or loaded
+under
+the browser File menu. The dialog lower box highlights all the Weather
+Elements to be loaded. To deselect a highlighted Weather Element,
+simply
+click on it.<br>
+<br>
+<h3><a name="ManageHiddenWeatherElements"></a>Manage Hidden Weather
+Elements...</h3>
+Brings up the <a
+ href="MainMenuDialogs.html#ManageHiddenWeatherElements">Manage
+Hidden Weather Elements dialog</a> which allows the user to display or
+unload hidden weather elements.&nbsp; Hidden weather elements are those
+that are not seen in the Grid Manager, Spatial Editor, or Temporal
+Editor, but yet they exist.&nbsp; They are created as part of the Show
+Intersite Coordination and Virtual Parms, as well as temporary weather
+elements during smart tool execution.<br>
+<br>
+<p></p>
+<hr width="100%">
+<h2><a name="Populate"></a>Populate</h2>
+<h3>
+<a name="Procedures"></a>Procedures</h3>
+Lists the Procedures available. Selecting a procedure runs it.
+<h3><a name="CopySelectedGridsFrom"></a>Copy Selected Grids From...</h3>
+Brings up the <a
+ href="MainMenuDialogs.html#CopySelectedGridsFromDialog">Copy
+Selected Grids From dialog</a> allowing the user to select the model
+from
+which the data for the selected grids is to be copied.
+<h3><a name="CopyAllGridsFrom"></a>Copy All Grids From...</h3>
+Brings up the
+<a href="MainMenuDialogs.html#CopyAllGridsFromDialog">Copy
+All Grids From dialog</a> allowing the user to select the model from
+which
+the data for all loaded grids is to be copied.
+<br>
+<hr width="100%">
+<h2><a name="Grids"></a>Grids</h2>
+These menu items will be dimmed when the Temporal Editor is displayed
+since
+most operations apply to grids selected in the Grid Manager.
+<h3><a name="Interpolate"></a>Interpolate...</h3>
+Interpolates between two or more grids and adds additional grids. There
+are two methods of performing interpolation: By Gaps, and Based On
+Edited
+Data. The "By Gaps" feature replaces all gaps within the selected time
+range with multiple interpolated time blocks aligned with the split
+boundaries.
+The "Based On Edited Data" first clears all non-user edited blocks in
+the
+selected time range and then does an interpolate.&nbsp; The user may
+also
+select the interpolation interval and the interpolated grid's duration.
+The Interpolate button brings up the
+<a href="MainMenuDialogs.html#InterpolateDialog">Interpolation
+Dialog</a>. Refer to <a href="#InterpolateAlgorithm">Interpolation
+Algorithm</a>
+to details on choosing the interpolation algorithm.
+<br>
+&nbsp;
+<h3><a name="SplitGrids"></a>Split Grids</h3>
+Splits the selected grid block into two or more blocks. The block is
+split
+at the start and end boundaries of the selected time range.
+<h3><a name="FragmentGrids"></a>Fragment Grids</h3>
+Fragments the selected grid block into equal size grids. The size of
+the
+fragments is determined by the time constraint for the given grid.
+<h3><a name="CreateGridsFromScratch"></a>Create Grids From Scratch...</h3>
+The create grids from scratch entry brings up the <a
+ href="MainMenuDialogs.html#CreateFromScratchDialog">Create
+From Scratch Dialog</a>.&nbsp; The dialog allows for the creation of
+multiple
+grids over the selected time range.&nbsp; The user has control over the
+creation interval and duration of the grids. The value assigned to the
+created grids is either the default value, or the current pick-up
+value.
+<h3><a name="AssignDefaultValue"></a>Assign Default Value</h3>
+Assigns the default value to the selected grids. This function can be
+used
+to reset the value of a grid if the user wants to eliminate the
+modifications
+made to a grid and start over. The default value for a grid corresponds
+to the minimum value for the given weather element.
+<h3><a name="AssignPickUpValue"></a>Assign PickUp Value</h3>
+Assigns the current pickup value to the selected grids.&nbsp; All grid
+points within the selected grids will be set to the pickup value.&nbsp;
+The user should first ensure that the appropriate pickup value is set
+by
+using the <a href="GFETrainingSpatialEditor.html#ColorBar">color bar</a>
+or by using the <a href="ButtonBarDialogs.html#PickUpValueDialog">Pick
+Up Value dialog.</a>
+<h3><a name="DeleteGrids"></a>Delete Grids</h3>
+Deletes the selected grids in the Grid Manager.
+<h3><a name="SelectGridsByTime"></a>Select Grids By Time</h3>
+Lists the available Select Time Range(s). These time ranges can be
+defined
+in the Save Select Time Ranges under the Grids main menu. Selecting one
+of the Time Ranges listed sets the selected time range to it.
+<h3><a name="SelectAllWeatherElements"></a>Select All Weather Elements</h3>
+Selects all loaded weather elements in the Grid Manager.&nbsp; The
+grids
+selected also depends on the Selected Time Range.
+<h3><a name="DeselectAll"></a>Deselect All</h3>
+Deselects all selected grids for all selected weather elements.
+<h3><a name="TimeShift"></a>Time Shift...</h3>
+Brings up the
+<a href="MainMenuDialogs.html#TimeShiftDialog">Time Shift
+dialog</a> allowing the user to either move or copy a selected grid.
+The
+grids can be copied/moved either forward or backward. The default is
+set
+to move.
+<h3><a name="FindWeatherElement"></a>Find Weather Element</h3>
+Lists all the loaded weather elements. Selecting a weather element
+makes
+it visible in the Grid Manager or Temporal Editor. If the weather
+element
+is already visible, nothing is done.
+<br>
+<hr width="100%">
+<h2><a name="Edit"></a>Edit</h2>
+<h3>
+<a name="UndoGridEdit"></a>Undo Grid Edit</h3>
+Undoes the last edit performed on the editable grid. Only one Undo can
+be done. Doing a second Undo is equivalent to performing a Redo.
+<h3><a name="UndoEditArea"></a>Undo Edit Area</h3>
+Undoes the last Edit Area operation in the Spatial Editor.
+<h3><a name="ProceduresEdit"></a>Procedures</h3>
+Lists the Procedures available. Selecting a procedure runs it.
+<h3><a name="SaveForecast"></a>Save Forecast...</h3>
+Brings up the
+<a href="MainMenuDialogs.html#SaveForecastDialog">Save Forecast
+dialog</a> allowing the user to select which weather element(s) are to
+be saved to the Forecast database.
+<h3><a name="RevertForecast"></a>Revert Forecast...</h3>
+Brings up the
+<a href="MainMenuDialogs.html#RevertForecastDialog">Revert
+Forecast dialog</a> allowing the user to select which weather
+element(s)
+are to be reverted. A revert returns the data to the last saved state.
+<br>
+<hr width="100%">
+<h2><a name="Consistency"></a>Consistency</h2>
+<h3>
+</h3>
+<h3><a name="ProceduresConsistency"></a>Procedures</h3>
+Lists the Procedures available. Selecting a procedure runs it. A
+Intersite
+Coordination Procedure is set up to appear as a system defaults
+ISC_Disrepancies. For more information on these
+procedures
+see the <a href="ISC.html">Intersite Coordination Training Guide</a>.
+<h3><a name="ClearSelectedHighlights"></a>Clear Selected Highlights</h3>
+Clears the highlighting for grids in the Grid Manager over the selected
+time range.
+<h3><a name="ClearAllHighlights"></a>Clear All Highlights</h3>
+Clears all the highlighting for grids in the Grid Manager.<br>
+<br>
+<h3><a name="SendIntersiteGrids"></a>Send Intersite Grids</h3>
+Brings up the <a href="MainMenuDialogs.html#SendISCDialog">Send
+Intersite Grids Dialog</a> which allows the forecaster to specify grids
+to send via ISC.<br>
+<br>
+<h3> <a name="ISCRequestReply"> </a>ISC Request/Reply<br>
+</h3>
+Brings up the <a href="MainMenuDialogs.html#RequestISCDialog">Request
+Intersite Grids Dialog
+</a> allowing the user to freshen the ISC database by obtaining grids
+directly
+from other sites.<br>
+<br>
+<h3> <a name="ISCSendEnable"> </a>ISC Send Enable<br>
+</h3>
+Controls the state of the ISC Transmit capability for this
+client.&nbsp;&nbsp; If the ifpServer isn't configured for sending ISC,
+then this menu option will not be available.&nbsp;&nbsp; If configured,
+then the ISC Send Enable can be turned on or turned off through this
+menu item.&nbsp;&nbsp; A "traffic light" will appear in the lower right
+of the status bar showing the current configuration. <br>
+<br>
+In order for the GFE to send grid via ISC, the ISC Send Enable must be
+on, and the ISCxmt traffic light in the status bar appearing
+green.&nbsp;&nbsp; If the ISC Send Enable is off, then the GFE will not
+be able to send ISC grids even when the ifpServer is configured for
+sending grids on save.&nbsp; <br>
+<hr width="100%">
+<h2><a name="Products"></a>Products</h2>
+<h3>
+<a name="PublishtoOfficial"></a>Publish to Official...</h3>
+Brings up the
+<a href="MainMenuDialogs.html#PublishToOfficialDialog">Publish
+To Official dialog</a> allowing the user to choose the source, the
+weather
+element(s), and the time range to publish to the Official database. The
+data must be saved prior to attempting to publish it. The Official
+database
+is the one from which products will be generated. The dialog will also
+permit sending your grids to configured sites for intersite
+coordination.<br>
+<br>
+<h3><a name="localFormatter"></a>Formatter Launcher...</h3>
+Brings up the <a href="MainMenuDialogs.html#FormatterLauncher">Formatter
+Launcher dialog</a> allowing the user to choose the products to
+generate using the GFE Text Formatters. One or more of the listed
+products may be generated. The forecast
+must be published to the Official database prior to generating products
+(if the user wants the lastest modified forecast). Text formatters
+must be properly configured in order for entries to appear in this
+dialog.&nbsp;
+Refer to the <a href="TextFormatter.html">Text Formatter's User's Guide</a>
+for configuration information.<br>
+<h3><a name="scripts"></a>Scripts...</h3>
+Brings up the
+<a href="MainMenuDialogs.html#ScriptsDialog">Scripts dialog</a>
+allowing the user to choose the script to run. The <a
+ href="gfeConfig_ProdGen.html">Scripts entry in the gfe configuration
+file</a> define the entries that appear in the dialog. Depending upon
+the scripts entry, additional dialogs may
+appear allowing the user to specify the parameters.
+<br>
+<br>
+<h3><a name="ProcessMonitor"></a>Process Monitor...</h3>
+Brings up the <a href="MainMenuDialogs.html#ProcessMonitorDialog">Process
+Monitor Dialog</a> which shows the status of background processes. The
+Dialog allows the process queue to be viewed and manipulated.<br>
+<h3><a name="GHGMonitor"></a>GHG Monitor...</h3>
+Brings up the <a href="GHGMonitor.html">GHG Monitor
+</a> which allows the forecaster to view the list of current hazards
+in effect. <br>
+<hr width="100%">
+<h2><a name="Maps"></a>Maps</h2>
+<h3>
+<a name="Topography"></a>Topography</h3>
+Toggles the Topography grid on and off. Toggling the Topography grid
+off
+unloads it.
+<h3><a name="Samples"></a>Samples</h3>
+<h4>
+<a name="Load"></a>Load...</h4>
+Brings up the <a href="MainMenuDialogs.html#LoadSamplesDialog">Load
+Sample
+Set dialog</a> listing the sample sets available from the server.
+Selecting
+one of the sample sets loads it for display in the Spatial Editor. This
+dialog allows the user to add to, delete, or replace the previously
+loaded
+sample set(s).
+<h4><a name="Clear"></a>Clear</h4>
+Clears the sample set(s) currently displayed in the Spatial Editor.
+<h4><a name="Save"></a>Save...</h4>
+Brings up the
+<a href="MainMenuDialogs.html#SaveSamplesDialog">Save Sample
+Set dialog</a> allowing the user to save a new sample set.
+<h4><a name="Delete"></a>Delete...</h4>
+Brings up the
+<a href="MainMenuDialogs.html#DeleteSamplesDialog">Delete
+Sample Set dialog</a> allowing the user to delete an existing sample
+set.
+<h4><a name="DefinebyLat/Lon..."></a>Define by Lat/Lon...</h4>
+The Define by Latitude/Longitude entry brings up the <a
+ href="MainMenuDialogs.html#DefineSamplesviaLatitude/LongitudeDialog">Define
+Samples via Lat/Lon dialog</a> allowing the user to enter sample points
+by location.
+<h4><a name="ShowLat/Lon"></a>Show Lat/Lon</h4>
+If enabled, the latitude/longitude of the sample points, or roaming
+sample
+will be shown with the data values.&nbsp; The format is lat/lon. The
+bottommost
+entry is the latitude/longitude and is always painted in white.
+<br>
+&nbsp;
+<h4><a name="ShowISCUpdateTime"></a>Show ISC Update Time on Data Samples</h4>
+If enabled and in Intersite Coordination Mode or displaying ISC data,
+the
+number of hours since the last update for the underlying data will be
+displayed.
+Refer to the <a href="ISC.html">Intersite Coordination User's Guide</a>
+for more details.
+<h4><a name="ShowISCSiteID"></a>Show ISC Site ID on Data Samples</h4>
+If enabled and in Intersite Coordination Mode or displaying ISC data,
+the
+originating site for the underlying data will be displayed. Refer to
+the
+<a href="ISC.html">Intersite
+Coordination User's Guide</a> for more details.
+<br>
+&nbsp;
+<h4><a name="ShowISCOfficialDBSymbol"></a>Show ISC Official DB Symbol
+on Data
+Samples</h4>
+If enabled and in Intersite Coordination Mode or displaying ISC data, a
+"P" will be appended to the sample points for the underlying data that
+came from an Official (published) database. Refer to the <a
+ href="ISC.html">Intersite
+Coordination User's Guide</a> for more details.
+<br>
+&nbsp;
+<br>
+&nbsp;
+<br>
+&nbsp;
+<h3><a name="ISCMarkers"></a>ISC Markers</h3>
+<h4>
+<a name="ShowISCMarkers"></a>Show ISC Markers</h4>
+This control turns on and off the set of defined ISC Markers.&nbsp; ISC
+Markers are only visible when displaying ISC data or when in Intersite
+Coordination Mode. Refer to the <a href="ISC.html">Intersite
+Coordination
+User's Guide</a> for more details.
+<br>
+&nbsp;
+<h4><a name="ShowISCUpdateTimeMarker"></a>Show ISC Update Time on Marker</h4>
+If enabled and in Intersite Coordination Mode or displaying ISC data,
+the
+number of hours since the last update for the underlying data will be
+displayed.
+Markers are similar to sample points, except that no data values are
+shown.
+Refer to the <a href="ISC.html">Intersite Coordination User's Guide</a>
+for more details.
+<h4><a name="ShowISCSiteIDMarker"></a>Show ISC Site ID on Marker</h4>
+If enabled and in Intersite Coordination Mode or displaying ISC data,
+the
+originating site for the underlying data will be displayed. Markers are
+similar to sample points, except that no data values are shown. Refer
+to
+the
+<a href="ISC.html">Intersite Coordination User's Guide</a> for more
+details.
+<br>
+&nbsp;
+<h4><a name="ShowISCOfficialDBSymbolMarker"></a>Show ISC Official DB
+Symbol
+on Marker</h4>
+If enabled and in Intersite Coordination Mode or displaying ISC data, a
+"P" will be appended to the sample points for the underlying data that
+came from an Official (published) database. Markers are similar to
+sample
+points, except that no data values are shown. Refer to the <a
+ href="ISC.html">Intersite
+Coordination User's Guide</a> for more details.
+<br>
+&nbsp;
+<h3>&nbsp;<a name="MapList"></a>Map List</h3>
+Lists all the available maps. If the map button is checked on, the map
+is displayed. Clicking on a map that is already loaded will unload it
+and
+remove
+<br>
+if from the Spatial Editor display.
+<br>
+<hr width="100%">
+<h2><a name="EditAreas"></a>Edit Areas</h2>
+This menu lists the edit areas by Edit Area Group. To load an edit
+area,
+simply choose it from the cascading menu.&nbsp;
+<hr width="100%">
+<h2><a name="Verify"></a>Verify</h2>
+<h3>
+<a name="DailyForecastCritique"></a>Daily Forecast Critique</h3>
+The Daily Forecast Critique entry launches a new application which is
+used
+to display comparison information between observations and
+forecasts.&nbsp;
+For this to function appropriately, the Daily Forecast Critique package
+must be configured properly.&nbsp; Refer to the <a href="dfcUser.html">Daily
+Forecast Critique User's Guide</a> and <a href="dfcConfig.html">Daily
+Forecast
+Critique Configuration Guide</a> for more details.
+<h3><a name="ProceduresVerify"></a>Procedures</h3>
+Lists the Procedures available. Selecting a procedure runs it.<br>
+<br>
+<hr style="width: 100%; height: 2px;">
+<h2><a name="Hazards"></a>Hazards</h2>
+<h3><a name="HazardsProcedures"></a>Procedures</h3>
+Lists the Procedures available. Selecting a procedure runs it.&nbsp;
+The standard procedures provided under "Hazards" are used in creating
+the Hazards grid.&nbsp; These are MakeHazard, SeparateHazards,
+MergeHazards, PlotTPCEvents, and PlotSPCWatches.<br>
+<hr style="width: 100%; height: 2px;">
+<h2><a name="ResetPractice"></a>Reset Practice</h2>
+This menu only appears while in GFE Practice Mode.<br>
+<br>
+<h3><a name="ClearVTECPracticeTable"></a>Clear VTEC Practice Table</h3>
+This option is only available while in GFE Practice Mode.&nbsp; It
+immediately clears, i.e., empties, all entries in the VTEC active table
+used for PRACTICE mode.&nbsp;&nbsp; It does not affect the operational
+VTEC table.&nbsp;&nbsp; The primary use for this capability is to reset
+the VTEC active table to a known state.<br>
+<br>
+<h3><a name="ClearFcstGrids"></a>Clear Fcst Grids</h3>
+This option is only available while in GFE Practice Mode.&nbsp; It
+breaks all existing locks in the Prac_Fcst database and then removes
+all grids.&nbsp; It does not affect the operational Fcst database.<br>
+<br>
+<hr width="100%">
+<h2><a name="Help"></a>Help</h2>
+<h3>
+<a name="OnlineTableofContents"></a>Online Table Of Contents...</h3>
+Brings up a Netscape page with links to online help.
+<h3><a name="About"></a>About</h3>
+Brings up the <a href="MainMenuDialogs.html#AboutDialog">About
+Dialog</a>
+which lists general build and server information.
+<br>
+<hr width="100%">
+<br>
+<a href="GFESuite.html">Return to Table of Contents</a>
+</body>
+</html>

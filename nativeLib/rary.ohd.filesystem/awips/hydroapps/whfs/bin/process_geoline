@@ -1,0 +1,238 @@
+#!/bin/ksh
+#
+# process_geoline
+#
+# Bryon Lawrence          May 15, 2002                   OHD
+# Moria Shebsovich	  July 30, 2003			 OHD
+# Bryon Lawrence          November 20, 2003              OHD
+#                         - Added a log file, error diagnostics, and
+#                           extra documentation.
+# Bryon Lawrence          January 7, 2004                OHD
+#                         - Added redirection of standard error to standard
+#                           output for the calls to executables (load_geoline,
+#                           unload_geoline, convert_ascii_to_latlon, and 
+#                           sqlcmd).
+# Moria Shebsovich        October 18, 2004               OHD
+#                         - The script is modified to read geodata from the 
+#                           set of ascii files and create binary files.
+#                           The unload functionality was eliminated,
+#                           GeoLine table does not exist any more 
+#                           in the database. Now ascii files are the master 
+#                           files, they should be edited as needed. 
+#
+# This script is responsible for manipulating the geoline data sets. 
+# These data sets
+# can then be used to plot graphical overlays on an application such as
+# Hydromap.
+#
+# The script provides logic to create a set of binary files which can
+# be then displayed as overlays in a graphical application such as
+# Hydroview/MPE.
+#
+# The user has the option of modifying the geoline data to update the
+# appearance of the geological data that it represents. It could be done by 
+# editing an ascii formatted file.
+# The data can then be edited in a standard text
+# editor or loaded into a geographical data editor such as Arcview.  Once
+# updated, the binary file must be created.
+#
+#  The following files are created:
+#
+#  Geoline overlay       Data File             Binary File 
+#  ===============       =========             ===========
+#  Highways              hiways.dat            hiways_latlon.OS             
+#  Roads                 roads.dat             roads_latlon.OS
+#  Rivers                rivers.dat            rivers_latlon.OS
+#  Streams               streams.dat           streams_latlon.OS
+#
+# Useage:
+#
+# process_geoline -t -n filename
+#
+# Where -t indicates the type of the geoline data.
+#          Valid types:
+#          ROAD STREAM 
+#       -n indicates the geoline name options being used.
+#          Valid geoline names:
+#          RIVERS STREAMS HIWAYS ROADS
+#
+#       All options (-t,-n, filename) must be 
+#       supplied or this script will not run.
+#
+# Programs run from this script:
+#          convert_ascii_to_latlon
+#
+# Error Returns:
+#       This script will exit with a value of "0" upon successful completion.
+#       This script will exit with a value of "1" when an invalid combination
+#       of arguments has been passed to it.
+#       This script will exit with a value of "2" when it cannot find the
+#       filename containing the ascii data.
+#       This script will exit with a value of "3" when an invalid overlay
+#       type was passed into this routine.
+#
+# Assumptions:
+#       In order for this script to work the following must be true:
+#       1) set_hydro_env must be sourced before this script is run.
+#
+# Log Files:
+#       Two log files may be created, depending on the error return:
+#
+#       For error returns 1, 2, 3:  The log file will be process_geoline.log
+#       For error return 0: The log file will be 
+#       process_geoline_TYPE.log, where TYPE is the type of vector being
+#       processed, i.e. RIVERS, STREAMS, HIWAYS, or ROADS.
+#
+###############################################################################
+#
+
+#
+# Function which describes the correct useage of this script.
+useage ()
+{ 
+   printf "Useage: process_geoline -t(type)"
+   printf " -n(name_geoline) filename"
+   printf "\n        where -t is the type of the geoline being processed:"
+   printf "\n                 ROAD STREAM"
+   printf "\n        where -n is the geoline type name to distinguish" 
+   printf "\n                 between rivers and streams geoline type names" 
+   printf "\n        where filename is the name of the file containing the"
+   printf "\n                 ascii geoline data.\n"
+}
+
+#
+#  Initialize the variables that will contain the command line options.
+found=0
+name_geoline_found=0
+type_found=0
+
+valid_types="ROAD STREAM"
+
+#
+# Create the log directory.
+LOGNAME=$WHFS_UTIL_LOG_DIR/process_geoline.log
+rm -f $LOGNAME
+
+date=`date -u +"%A, %B %d, %Y %H:%M:%S"`
+
+echo "=====================================" | tee -a $LOGNAME
+echo "Starting process_geoline on $date ..." | tee -a $LOGNAME
+printf "Processing command line arguments.\n" | tee -a $LOGNAME
+printf "Logging to $LOGNAME.\n"
+
+# Test the supplied options to make sure that they are valid.
+while getopts t:n: name 2>/dev/null
+do
+   case $name in
+
+      n)  # This option specifies geoline names.
+          name_geoline=$OPTARG
+          name_geoline_found=1
+          ;;
+ 
+      t)
+          # This is the geoline type.
+          type=$OPTARG
+          type_found=1
+          ;;
+
+      ?)  printf "I am in default case\n"
+          useage | tee -a $LOGNAME
+          exit 1
+          ;;
+   esac
+
+done
+
+if [[ $OPTIND -le $# ]]
+then
+
+    # Shift the parameters to dispose of the ones we do not need.
+    while [ $OPTIND -gt 1 ]
+    do
+       (( OPTIND = OPTIND - 1 ))
+       shift
+    done
+
+    # Retrieve the filename.
+    filename=$1
+
+else
+
+    printf "Could not find the filename for the ascii geoline data.\n"
+    useage | tee -a $LOGNAME
+    exit 2
+
+fi
+
+# Test to determine if the type is valid.
+for i in $valid_types
+do
+
+   if [[ $type = $i ]]
+   then
+      found=1
+      break 
+   fi
+
+done
+
+if [ found -eq 0 ]
+then
+   
+   printf "The type $type supplied via the \"-t\" option is invalid.\n" \
+      | tee -a $LOGNAME
+   useage | tee -a $LOGNAME
+   exit 3
+
+fi 
+
+FINALNAME=$WHFS_UTIL_LOG_DIR/process_geoline_$name_geoline.log
+rm -f $FINALNAME
+
+
+   if [[ $type = "STREAM" && $name_geoline = "RIVERS" ]]
+   then
+
+       printf "Running $PPROC_BIN/convert_ascii_to_latlon$OS_SUFFIX\n" \
+              | tee -a $LOGNAME
+       printf "$filename rivers_latlon$OS_SUFFIX\n" | tee -a $LOGNAME
+       $PPROC_BIN/convert_ascii_to_latlon$OS_SUFFIX $filename \
+          rivers_latlon$OS_SUFFIX 2>&1 | tee -a $LOGNAME
+ 
+   elif [[ $type = "STREAM" && $name_geoline = "STREAMS" ]]
+   then
+
+       printf "Running $PPROC_BIN/convert_ascii_to_latlon$OS_SUFFIX\n" \
+              | tee -a $LOGNAME
+       printf "$filename streams_latlon$OS_SUFFIX\n" | tee -a $LOGNAME
+       $PPROC_BIN/convert_ascii_to_latlon$OS_SUFFIX $filename \
+          streams_latlon$OS_SUFFIX 2>&1 | tee -a $LOGNAME
+
+   elif [[ $type = "ROAD" && $name_geoline = "HIWAYS" ]]
+   then
+
+       printf "Running $PPROC_BIN/convert_ascii_to_latlon$OS_SUFFIX\n" \
+          | tee -a $LOGNAME
+       printf "$filename hiways_latlon$OS_SUFFIX\n" | tee -a $LOGNAME
+       $PPROC_BIN/convert_ascii_to_latlon$OS_SUFFIX $filename \
+          hiways_latlon$OS_SUFFIX 2>&1 | tee -a $LOGNAME
+   
+   elif [[ $type = "ROAD" && $name_geoline = "ROADS" ]]
+   then
+
+       printf "Running $PPROC_BIN/convert_ascii_to_latlon$OS_SUFFIX\n" \
+          | tee -a $LOGNAME
+       printf "$filename roads_latlon$OS_SUFFIX\n" | tee -a $LOGNAME
+       $PPROC_BIN/convert_ascii_to_latlon$OS_SUFFIX $filename \
+          roads_latlon$OS_SUFFIX 2>&1 | tee -a $LOGNAME
+   fi
+
+date=`date -u +"%A, %B %d, %Y %H:%M:%S"`
+printf "Process_geoline completed on $date\n" | tee -a $LOGNAME
+
+# Copy the running log file to the log file which contains the name of the
+# geoline vector in its title.
+mv $LOGNAME $FINALNAME
+
+exit 0
