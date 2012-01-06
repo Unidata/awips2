@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Thrift Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.serialization.comm
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Vendor: RAYTHEON
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
+Eclipse-BuddyPolicy: registered, ext, global
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: com.raytheon.uf.common.serialization.comm,
+ com.raytheon.uf.common.serialization.comm.response,
+ com.raytheon.uf.common.serialization.comm.util
+Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.11.12",
+ net.sf.cglib;bundle-version="2.1.3",
+ com.raytheon.uf.common.status

@@ -1,0 +1,335 @@
+C MODULE SNGP24
+C-----------------------------------------------------------------------
+C
+C  ROUTINE TO DEFINE GP24 PARAMETER RECORD FOR THE MARO FUNCTION.
+C
+      SUBROUTINE SNGP24 (ISORT,LARRAY,ARRAY,IUEND,ISTAT)
+C
+      CHARACTER*4 DISP,WDISP,TYPE
+      CHARACTER*8 TYPERR
+      INTEGER*2 IWORK(1),PP24SH(9),I2PTR,I2PP24
+C
+      DIMENSION ARRAY(LARRAY)
+      DIMENSION STAID(2),DESCRP(5)
+      DIMENSION UNUSED(2)
+C
+C
+      INCLUDE 'uio'
+      INCLUDE 'scommon/sudbgx'
+      INCLUDE 'scommon/sntwkx'
+      INCLUDE 'scommon/sworkx'
+      INCLUDE 'scommon/swrk2x'
+C
+      EQUIVALENCE (SWORK(1),IWORK(1))
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppinit_network/RCS/sngp24.f,v $
+     . $',                                                             '
+     .$Id: sngp24.f,v 1.2 1998/07/06 12:17:52 page Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,160)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG('GP24')
+C
+      ISTAT=0
+C
+C  SET VALUE FOR MISSING PARAMETER
+      UNSD=-999.
+C
+      NUMERR=0
+      NUMWRN=0
+C
+C  CHECK NUMBER OF LINES LEFT ON PAGE
+      IF (ISLEFT(5).GT.0) CALL SUPAGE
+C
+C  PRINT HEADER LINE
+      WRITE (LP,170)
+      CALL SULINE (LP,2)
+      WRITE (LP,180)
+      CALL SULINE (LP,2)
+C
+      ISHARE=0
+      NGP24=0
+C
+C  SET MAXIMUM NUMBER OF ENTRIES THAT CAN BE PROCESSED
+      MGP24=LSWORK*2/3*2
+      MSGP24=LSWORK*2/3
+C
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,210) LSWORK,MGP24,MSGP24
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK IF PREPROCESSOR PARAMETRIC DATA BASE ALLOCATED
+      IDPPP=1
+      CALL SUDALC (0,0,0,0,IDPPP,0,0,0,0,0,NUMERR,IERR)
+      IF (IERR.GT.0) THEN
+         WRITE (LP,190)
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 120
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK IF SUFFICIENT CPU TIME AVAILABLE
+      ICKRGN=0
+      ICKCPU=1
+      MINCPU=10
+      IPRERR=1
+      IPUNIT=LP
+      TYPERR='ERROR'
+      INCLUDE 'clugtres'
+      IF (IERR.GT.0) THEN
+         CALL SUFATL
+         IUEND=1
+         GO TO 150
+         ENDIF
+C
+C  GET SORTED LIST OF NAMES AND PREPROCESSOR PARAMETRIC DATA BASE
+C  POINTERS
+      CALL SNSORT (ISORT,LARRAY,ARRAY,IERR)
+      IF (IERR.GT.0) THEN
+         WRITE (LP,200)
+         CALL SUERRS (LP,2,NUMERR)
+         ISTAT=1
+         GO TO 150
+         ENDIF
+C
+C  CHECK IF GP24 PARAMETERS ALREADY EXIST
+      DISP='OLD'
+      IPRERR=0
+      CALL SRGP24 (IVGP24,MGP24,IWORK(1),MXGP24,
+     *   MSGP24,IWORK(MGP24+1),NSGP24,
+     *   UNUSED,LARRAY,ARRAY,IPRERR,IPTR,IPTRNX,IERR)
+      IF (IERR.GT.0) DISP='NEW'
+C
+C  CHECK MAXIMUM NUMBER OF STATIONS THAT CAN BE PROCESSED
+      IF (INWFIL.GT.MGP24) THEN
+         WRITE (LP,220) INWFIL,MGP24
+         CALL SUERRS (LP,2,NUMERR)
+         ISTAT=1
+         GO TO 120
+         ENDIF
+C
+C  GET NUMBER OF PP24 STATIONS DEFINED
+      JDAY=0
+      TYPE='PP24'
+      CALL SUDOPN (1,'PPD ',IERR)
+      CALL RPDFIL (TYPE,JDAY,LPFILL,LDFILL,IERR)
+      IF (IERR.GT.0) THEN
+         WRITE (LP,230) TYPE,IERR
+         CALL SUERRS (LP,2,NUMERR)
+         GO TO 120
+         ENDIF
+      MXGP24=LPFILL/5
+      IF (LDEBUG.GT.0) THEN
+         WRITE (IOSDBG,240) TYPE,LPFILL,MXGP24
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+C  INITIALIZE ARRAY
+      NUM=MXGP24*2
+      DO 10 I=1,NUM
+         IWORK(I)=0
+10       CONTINUE
+C
+      MSHARE=9
+      NUGTID=0
+C
+C  PROCESS ALL PP24 POINTERS
+      DO 110 I=1,MXGP24
+         I2PTR=(I-1)*5+1
+         NSHARE=0
+C     CHECK IF PP24 POINTER USED BY STATION
+         DO 20 J=1,INWFIL
+            I2PP24=PP24NW(J)
+            IF (I2PP24.LT.0) I2PP24=-I2PP24
+            IF (I2PP24.EQ.I2PTR) GO TO 30
+20          CONTINUE
+            GO TO 110
+C     CHECK IF STATION HAS GRID-POINT ADDRESS
+30       IPP24=J
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,250) IPP24,I2PTR,PP24NW(IPP24),GPANW(IPP24)
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+         IF (GPANW(IPP24).LE.0) GO TO 110
+         NGP24=NGP24+1
+         IWORK(I*2-1)=GPANW(IPP24)
+         NSHARE=NSHARE+1
+         I2PP24=PP24NW(IPP24)
+         IF (I2PP24.LT.0) I2PP24=-I2PP24
+         PP24SH(NSHARE)=I2PP24
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,260) NSHARE,GPANW(IPP24)
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+C     CHECK FOR STATIONS AT SAME GRID-POINT ADDRESS
+         DO 60 K=1,INWFIL
+            IF (K.EQ.IPP24) GO TO 60
+            IF (GPANW(K).NE.GPANW(IPP24)) GO TO 60
+               I2PP24=PP24NW(K)
+               IF (I2PP24.LT.0) I2PP24=-I2PP24
+               IF (I2PP24.EQ.0) THEN
+                  NUGTID=NUGTID+1
+                  I4VAL=GENLNW(K)
+                  CALL SUGTID (NUGTID,'GENL',I4VAL,STAID,
+     *               DESCRP,STATE,IPPCHR,LSWRK2,SWRK2,IERR)
+                  WRITE (LP,300) PP24NW(K),STAID
+                  CALL SUWRNS (LP,2,NUMWRN)
+                  GO TO 60
+                  ENDIF
+               NSHARE=NSHARE+1
+C           CHECK IF MAXIMUM NUMBER OF SHARED GRID-POINTS EXCEEDED
+               IF (NSHARE.LE.MSHARE) GO TO 50
+                  IF (NSHARE.GT.MSHARE+1) GO TO 60
+                     NUGTID=NUGTID+1
+                     I4VAL=GENLNW(J)
+                     CALL SUGTID (NUGTID,'GENL',I4VAL,STAID,
+     *                  DESCRP,STATE,IPPCHR,LSWRK2,SWRK2,IERR)
+                     WRITE (LP,270) MSHARE,GPANW(K),STAID
+                     CALL SUWRNS (LP,2,NUMWRN)
+                     WRITE (LP,280)
+                     CALL SULINE (LP,1)
+                     DO 40 J=1,INWFIL
+                        IF (K.EQ.J) GO TO 40
+                        IF (GPANW(K).NE.GPANW(J)) GO TO 40
+                        NUGTID=NUGTID+1
+                        I4VAL=GENLNW(J)
+                        CALL SUGTID (NUGTID,'GENL',I4VAL,STAID,
+     *                     DESCRP,STATE,IPPCHR,LSWRK2,SWRK2,IERR)
+                        WRITE (LP,290) STAID
+                        CALL SULINE (LP,1)
+40                      CONTINUE
+                     GO TO 60
+50             PP24SH(NSHARE)=I2PP24
+60          CONTINUE
+C     CHECK IF ANY STATIONS AT SAME GRID-POINT ADDRESS
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,310) NSHARE
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+         IF (NSHARE.GT.1) GO TO 70
+            IWORK(I*2)=1
+            GO TO 110
+C     CHECK IF PP24 POINTER OF FIRST STATION IS SMALLEST
+70       LSMALL=1
+         DO 80 N=2,NSHARE
+            IF (PP24SH(LSMALL).LE.PP24SH(N)) GO TO 80
+               LSMALL=N
+80          CONTINUE
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,320) LSMALL,
+     *         (PP24SH(N),N=1,NSHARE)
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+         IF (LSMALL.NE.1) GO TO 100
+C        FIRST STATION IN LIST HAS SMALLEST PP24 POINTER
+            IWORK(I*2)=(ISHARE+1)*10+NSHARE
+            DO 90 N=1,NSHARE
+               IWORK(MGP24+1+ISHARE)=PP24SH(N)/5+1
+               ISHARE=ISHARE+1
+90             CONTINUE
+            GO TO 110
+C     FIRST STATION IN LIST IS NOT SMALLEST PP24 POINTER
+100      ILOC=(PP24SH(LSMALL)/5+1)*2
+         IWORK(I*2)=-IWORK(ILOC)
+         IF (LDEBUG.GT.0) THEN
+            WRITE (IOSDBG,330) ILOC,IWORK(ILOC)
+            CALL SULINE (IOSDBG,1)
+            ENDIF
+110      CONTINUE
+C
+      WRITE (LP,340) NGP24
+      CALL SULINE (LP,2)
+C
+C  CHECK IF ERRORS ENCOUNTERED
+120   IF (NUMERR.EQ.0) GO TO 130
+         WRITE (LP,350) NUMERR
+         CALL SULINE (LP,2)
+         ISTAT=1
+         GO TO 150
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+130   IF (NGP24.EQ.0) GO TO 150
+C
+C  WRITE GP24 PARAMETERS TO FILE
+      IVGP24=1
+      WDISP=DISP
+      NSGP24=0
+      IF (ISHARE.GT.0) NSGP24=ISHARE
+      CALL SWGP24 (IVGP24,MXGP24,IWORK(1),NSGP24,IWORK(MGP24+1),
+     *   UNSD,LARRAY,ARRAY,IPTR,WDISP,IERR)
+      IF (IERR.EQ.0) GO TO 140
+         ISTAT=1
+         GO TO 150
+C
+140   IF (LDEBUG.EQ.0) GO TO 150
+C
+C  READ GP24 PARAMETERS
+      IPTR=0
+      IPRERR=1
+      CALL SRGP24 (IVGP24,MGP24,IWORK(1),MXGP24,
+     *   MSGP24,IWORK(MGP24+1),NSGP24,
+     *   UNUSED,LARRAY,ARRAY,IPRERR,IPTR,IPTRNX,IERR)
+      IF (IERR.GT.0) GO TO 150
+C
+C  PRINT GP24 PARAMETERS
+      CALL SPGP24 (IVGP24,MXGP24,IWORK(1),NSGP24,IWORK(MGP24+1),
+     *   UNUSED,IERR)
+C
+150   IF (ISTRCE.GT.0) THEN
+         WRITE (IOSDBG,360)
+         CALL SULINE (IOSDBG,1)
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+160   FORMAT (' *** ENTER SNGP24')
+170   FORMAT (' ')
+180   FORMAT ('0*--> CREATE GP24 PARAMETERS')
+190   FORMAT ('0*** ERROR - PREPROCESSOR PARAMETRIC DATA BASE FILES ',
+     *   'ARE NOT ALLOCATED. INPUT DATA WILL BE CHECKED FOR ERRORS.')
+200   FORMAT ('0*** ERROR - IN SNGP24 - SORTED LIST OF STATIONS NOT ',
+     *   'SUCCESSFULLY OBTAINED.')
+210   FORMAT (' LSWORK=',I5,3X,'MGP24=',I5,3X,'MSGP24=',I5)
+220   FORMAT ('0*** ERROR - NUMBER OF STATIONS IN NTWK COMMON BLOCK (',
+     *   I5,') EXCEEDS MAXIMUM NUMBER OF STATIONS THAT CAN BE ',
+     *   'PROCESSED (',I5,').')
+230   FORMAT ('0*** ERROR - RPDFIL CALLED FOR TYPE ',A4,
+     *   '. STATUS CODE=',I2)
+240   FORMAT (' TYPE=',A4,3X,'LPFILL=',I5,3X,'MXGP24=',I4)
+250   FORMAT (' IPP24=',I4,3X,'I2PTR=',I5,3X,'PP24NW(IPP24)=',I5,3X,
+     *   'GPANW(IPP24)=',I5)
+260   FORMAT (' NSHARE=',I2,3X,'GPANW(J)=',I4)
+270   FORMAT ('0*** WARNING - MAXIMUM NUMBER OF STATIONS THAT CAN ',
+     *   'SHARE THE SAME GPA (',I2,') EXCEEDED FOR ',
+     *   'GPA ',I4,'. STATION IDENTIFIER IS ',2A4,'.')
+280   FORMAT (T16,'OTHER STATIONS THAT SHARE THIS GPA:')
+290   FORMAT (T16,6X,2A4)
+300   FORMAT ('0*** WARNING - PP24 POINTER (',I4,') IS NOT GREATER ',
+     *   'THAN ZERO FOR STATION IDENTIFIER ',2A4,'.')
+310   FORMAT (' NSHARE=',I2)
+320   FORMAT (' LSMALL=',I2,3X,'PP24SH=',9(I5,1X))
+330   FORMAT (' ILOC=',I4,3X,'IWORK(ILOC)=',I4)
+340   FORMAT ('0*** NOTE - ',I4,' STATIONS WITH GRID-POINT ADDRESSES ',
+     *   'SUCCESSFULLY PROCESSED.')
+350   FORMAT ('0*** NOTE - GP24 PARAMETERS NOT WRITTEN BECAUSE ',I2,
+     *   ' ERRORS ENCOUNTERED.')
+360   FORMAT (' *** EXIT SNGP24')
+C
+      END

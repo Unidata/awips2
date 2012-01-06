@@ -1,0 +1,69 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+/*---------------------------------------------------------------*/
+/* This function checks if the table has an lid field.           */
+/* If the table has an lid field, then the function returns 1.   */
+/* If not, the function returns 0.                               */
+/*---------------------------------------------------------------*/
+
+int lid_in_table (char * table_name)
+{
+
+EXEC SQL BEGIN DECLARE SECTION;
+
+int rec_count;
+char queryBuffer[200];
+
+EXEC SQL END DECLARE SECTION;
+
+rec_count = 0;
+
+sprintf(queryBuffer,
+"SELECT count(*)"
+" FROM   pg_attribute a,"
+"        pg_class     c"
+" WHERE  c.relname = '%s'"
+" AND    c.oid = a.attrelid"
+" AND    a.attname = 'lid';"
+,table_name);
+
+EXEC SQL PREPARE tid FROM :queryBuffer;
+if(sqlca.sqlcode < 0)
+{
+   printf("ERROR attempting to prepare in lid_in_table routine - sqlcode = %s\n",sqlca.sqlstate);
+   return 0;
+}
+
+EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+if(sqlca.sqlcode < 0)
+{
+   printf("ERROR attempting to declare cursor in lid_in_table routine - sqlcode = %s\n",sqlca.sqlstate);
+   return 0;
+}
+
+EXEC SQL OPEN tcur1;
+if(sqlca.sqlcode < 0)
+{
+   printf("ERROR attempting to open cursor in lid_in_table routine - sqlcode = %s\n",sqlca.sqlstate);
+   return 0;
+}
+
+EXEC SQL FETCH tcur1 INTO :rec_count;
+if(sqlca.sqlcode < 0)
+{
+   printf("ERROR attempting to fetch cursor in lid_in_table routine - sqlcode = %s\n",sqlca.sqlstate);
+   return 0;
+}
+
+EXEC SQL CLOSE tcur1;
+if(sqlca.sqlcode < 0)
+{
+   printf("ERROR attempting to close cursor in lid_in_table routine - sqlcode = %s\n",sqlca.sqlstate);
+   return 0;
+}
+
+return rec_count;
+
+}

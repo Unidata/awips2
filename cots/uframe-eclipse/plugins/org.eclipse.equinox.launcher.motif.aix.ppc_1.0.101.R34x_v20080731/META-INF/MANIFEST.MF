@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-SymbolicName: org.eclipse.equinox.launcher.motif.aix.ppc;single
+ ton:=true
+Bundle-ManifestVersion: 2
+Bundle-Localization: launcher.motif.aix.ppc
+Bundle-Name: %pluginName
+Eclipse-PlatformFilter: (& (osgi.ws=motif) (osgi.os=aix) (osgi.arch=pp
+ c))
+Bundle-Version: 1.0.101.R34x_v20080731
+Fragment-Host: org.eclipse.equinox.launcher;bundle-version="[1.0.0,1.1
+ .0)"
+Bundle-Vendor: %providerName
+
+Name: eclipse_1115.so
+SHA1-Digest: tUrAmfNZEASav2P7J1fmKR67AMQ=
+
+Name: about.html
+SHA1-Digest: a9lDHrGuLPkvHBUhsqWU+V2mhPw=
+
+Name: META-INF/eclipse.inf
+SHA1-Digest: KyT9FF7C7t86NoBoa2kZT3ZJBfw=
+
+Name: launcher.motif.aix.ppc.properties
+SHA1-Digest: IYpfTIvt1T/NEAkDYYKPrPtpzPA=
+

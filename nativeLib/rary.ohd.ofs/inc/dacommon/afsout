@@ -1,0 +1,5 @@
+C                                           *--> FROM DACOMMON.AFSOUT
+C  ASAP MESSAGE SUMMARY AFOS PRODUCT IDS
+      COMMON /AFSOUT/ AFOUT,AFXXX
+      CHARACTER*1 AFOUT(9),AFXXX(3)
+C

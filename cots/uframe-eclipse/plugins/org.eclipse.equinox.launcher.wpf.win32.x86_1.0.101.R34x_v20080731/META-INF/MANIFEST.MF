@@ -1,0 +1,28 @@
+Manifest-Version: 1.0
+Bundle-SymbolicName: org.eclipse.equinox.launcher.wpf.win32.x86; singl
+ eton:=true
+Bundle-ManifestVersion: 2
+Bundle-Localization: launcher.wpf.win32.x86
+Bundle-Name: %pluginName
+Eclipse-PlatformFilter: (& (osgi.ws=wpf) (osgi.os=win32) (osgi.arch=x8
+ 6))
+Bundle-Version: 1.0.101.R34x_v20080731
+Fragment-Host: org.eclipse.equinox.launcher;bundle-version="[1.0.0,1.1
+ .0)"
+Bundle-Vendor: %providerName
+
+Name: launcher.wpf.win32.x86.properties
+SHA1-Digest: P4DvQuFAcVElx8jeMTeSjeOsS30=
+
+Name: com_1115.dll
+SHA1-Digest: ftghxwB433R9LI+HsXX9DnK4sAU=
+
+Name: about.html
+SHA1-Digest: a9lDHrGuLPkvHBUhsqWU+V2mhPw=
+
+Name: META-INF/eclipse.inf
+SHA1-Digest: KyT9FF7C7t86NoBoa2kZT3ZJBfw=
+
+Name: eclipse_1115.dll
+SHA1-Digest: BxI7nmB0NpMdKnd9gUP8q5+x1fc=
+

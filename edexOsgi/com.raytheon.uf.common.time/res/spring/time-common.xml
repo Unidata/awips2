@@ -1,0 +1,24 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="dataTimeConverterRegistered" class="com.raytheon.uf.common.dataplugin.convert.ConvertUtil" factory-method="registerConverter">
+  		<constructor-arg><bean class="com.raytheon.uf.common.time.util.DataTimeConverter"/></constructor-arg>
+  		<constructor-arg><value>com.raytheon.uf.common.time.DataTime</value></constructor-arg>
+	</bean>
+    
+    <bean id="calendarConverterRegistered" class="com.raytheon.uf.common.dataplugin.convert.ConvertUtil" factory-method="registerConverter">
+  		<constructor-arg><bean class="com.raytheon.uf.common.time.util.CalendarConverter"/></constructor-arg>
+  		<constructor-arg><value>java.util.Calendar</value></constructor-arg>  		  		
+	</bean>    	
+	
+	<bean id="dateConverterRegistered" class="com.raytheon.uf.common.dataplugin.convert.ConvertUtil" factory-method="registerConverter">
+  		<constructor-arg><bean class="com.raytheon.uf.common.time.util.DateConverter"/></constructor-arg>
+  		<constructor-arg><value>java.util.Date</value></constructor-arg>  		  		
+	</bean>  
+  
+    <bean id="commonTimeRegistered" class="java.lang.String" depends-on="dataTimeConverterRegistered, calendarConverterRegistered, dateConverterRegistered"/>
+  </beans>

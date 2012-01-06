@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="com.raytheon.uf.viz.localization.localizationpath">
+      <path
+            application="CAVE"
+            localizationType="CAVE_STATIC"
+            name="Menus"
+            value="menus"
+            recursive="true"
+            extensionFilter=".xml">
+      </path>
+   </extension>
+</plugin>

@@ -1,0 +1,72 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+       
+	
+	<bean id="atcfDecoder" class="gov.noaa.nws.ncep.edex.plugin.atcf.decoder.AtcfDecoder">
+		<constructor-arg ref="atcfPluginName"/>
+	</bean>
+		
+	<bean id="atcfSeparator" class="gov.noaa.nws.ncep.edex.plugin.atcf.decoder.AtcfSeparator" />
+
+<!-- archana <bean id="atcfRegistry" class=" com.raytheon.uf.edex.esb.camel.BasicThreadPoolRouter"
+		factory-method="getInstance" depends-on="alphaNumericDatatypePool">
+		<constructor-arg><value>AlphaNumeric</value></constructor-arg>
+		<constructor-arg><value>atcf</value></constructor-arg>
+		<constructor-arg><value>directvm:atcfIngest</value></constructor-arg>
+	</bean> -->	
+<!-- class=" com.raytheon.uf.edex.distribution.DistributionSrv" -->
+	<bean id="atcfDistRegistry" factory-bean="distributionSrv" 
+		factory-method="register">
+		<constructor-arg value="atcf" />
+		<!-- <constructor-arg value="jms-generic:queue:Ingest.AlphaNumeric" />  -->
+		<constructor-arg value="jms-dist:queue:Ingest.atcf" />
+	</bean>
+
+	<bean id="atcfCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="atcf-camel"/>
+  	</bean> 
+
+	<camelContext id="atcf-camel" xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+		<endpoint id="atcfFileEndpoint" uri="file:${edex.home}/data/sbn/atcf?noop=true&amp;idempotent=false"/>
+
+		<!-- Begin Atcf routes -->
+		<route id="atcfFileConsumerRoute">
+			<from ref="atcfFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+				<constant>atcf</constant>
+			</setHeader>
+			<to uri="jms-generic:queue:Ingest.atcf" />
+		</route>
+
+		<route id="atcfIngestRoute">
+			<from uri="jms-generic:queue:Ingest.atcf" />
+			<setHeader headerName="pluginName">
+				<constant>atcf</constant>
+			</setHeader>
+			<bean ref="stringToFile" />
+			<split streaming="true">
+				<method bean="atcfSeparator" method="separate" />
+				<doTry>
+					<pipeline>
+						<bean ref="atcfDecoder" method="decode" />
+						<to uri="directvm:indexAlert" />
+					</pipeline>
+					<doCatch>
+						<exception>java.lang.Throwable</exception>
+						<to uri="log:atcf?level=ERROR&amp;showBody=false" />
+					</doCatch>
+				</doTry>
+			</split>
+			<!--<bean ref="processUtil" method="delete" /> -->
+		</route>
+	</camelContext>
+</beans>

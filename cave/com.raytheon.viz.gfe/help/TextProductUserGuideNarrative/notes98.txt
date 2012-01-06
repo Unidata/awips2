@@ -1,0 +1,2 @@
+The areaLabel is set at the tree level initially, but any node can re-set it's areaLabel and that area will be used instead.  For example, if we want our wind phrase to apply to the ridges of the current area, we can re-set it to the intersection of the current area and Ridges as shown.  Of course, we must have set up an "intersectAreas" entry for Wind and Ridges in the product component definition.  The ability to change the areaLabel on-the-fly is very powerful allowing us to create not only local effects, but many other area-specific phrases.
+

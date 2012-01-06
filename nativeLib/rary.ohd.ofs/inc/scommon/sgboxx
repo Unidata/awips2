@@ -1,0 +1,5 @@
+C                                           *--> FROM SCOMMON.SGBOXX
+C  GRID BOX USAGE COMMON BLOCK
+      COMMON /SGBOXX/ IBXFIL,IGBOX(99),GBOXLT(99),GBOXLN(99),
+     *   IGBOXM(99)
+C

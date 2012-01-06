@@ -1,0 +1,241 @@
+#!/bin/ksh
+#
+# This script is normally started by or stopped from the DHRgather script
+# which runs via cron at set user time to check what precipitation cat
+# all the radars in a WFO or RFC AOR are in.
+# If any are in precip mode, the decoders and HPE field generator below
+# will start if they're not running.
+#
+# David T. Miller   RSIS    OHD/HSEB
+# October 30, 2007 
+    
+# This allows you to call this script from outside of ./bin
+RUN_FROM_DIR=`dirname $0`
+
+# set up SOME environment variables for AWIPS applications
+. $RUN_FROM_DIR/../../set_hydro_env
+export DSP_PROD_DIR=$(get_apps_defaults dsp_prod_dir)
+export DHR_PROD_DIR=$(get_apps_defaults dhr_prod_dir)
+export HPE_LOG_DIR=$(get_apps_defaults hpe_log_dir)
+export PPROC_BIN=$(get_apps_defaults pproc_bin)
+export DHR_LOG_DIR=$(get_apps_defaults dhr_log_dir)
+
+test -e $HPE_LOG_DIR/start_hpe_ctl
+FOUND=$?
+if test FOUND -eq 1
+then
+    touch $HPE_LOG_DIR/start_hpe_ctl
+fi
+
+#
+# define functions for checking for a stop file and
+# logging a message. note that for the
+# shell function "test", a true condition returns 0.
+
+checkHPEstop()
+{
+	STOP_DIR=$1
+	test -r $STOP_DIR/stop_hpe_process
+	FILES_FOUND=$?
+	if test $FILES_FOUND -eq 0
+	then
+	
+# delay stopping just to make sure that there really isn't any precip
+# for all radars within the CWFA
+# check the time for the file against the current time
+# if greater than 20 minutes then stop HPE
+	
+	     tnow=`date +%s`
+	     tfile=`date +%s -r $STOP_DIR/stop_hpe_process`
+	     agesecs=$(($tnow-$tfile))
+	     if [[ $agesecs -ge 1200 ]]
+	     then
+	          return 1
+             else
+	          echo "stop_hpe_process file found.  Will stop HPE after 1200 sec (20min) " >> $hpefnm
+	          echo "unless new precip occurs within that time.  Time elapsed = $agesecs seconds " \
+	          >> $STOP_DIR/processhpe_log
+	          return 2
+             fi
+	     
+	else
+		return 0
+	fi
+}
+
+checkDataRun()
+{
+	# Check to see if age on file is more than 20 minutes
+	     tnow=`date +%s`
+	     tfile=`date +%s -r $DHR_LOG_DIR/dhrgather_control`   #$HPE_LOG_DIR/start_hpe_log`
+	     agesecs=$(($tnow-$tfile))
+	     if [[ $agesecs -ge 1200 ]]
+	     then
+	          return 1
+         else
+	          return 2
+         fi
+}
+
+logHPEstop()
+{
+	LOG_FILE=$1
+	
+	DTZ=`date -u`
+	echo "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOG_FILE
+	echo "Terminating HPE processes."    >> $LOG_FILE
+	echo "Stopfile found at:" $DTZ >> $LOG_FILE
+	echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n" >> $LOG_FILE
+	
+	return 0
+}
+
+
+
+hpefnm=$HPE_LOG_DIR/processhpe_log
+hpetmp=$HPE_LOG_DIR/processhpe_tmp
+
+# Remove the stop file because either at least one radar has
+# indicated there's precip or this script was started manually.
+# Script will check if one has been entered after it starts.
+
+if [[ -r $HPE_LOG_DIR/stop_hpe_process ]]
+then
+   rm -f $HPE_LOG_DIR/stop_hpe_process
+fi
+
+# get the time lag variable to check against data files
+#
+
+TIMELAG=`get_apps_defaults hpe_timelag`
+
+#
+# enter an infinite loop.  for each pass thru main loop,
+# run the DHR and DSP decoders every minute.  Then check to 
+# see when the HPE field generator should be run according to 
+# the users frequency token.  Will do this until there's no more
+# precip in the WFO or RFC AOR and this script is stopped.
+# 
+
+Dte=`date -u`
+echo "" >> $hpefnm
+echo "HPE processing starting up " $Dte >> $hpefnm 
+echo "DHR and DSP decoders running every minute" >> $hpefnm
+
+let "loop_cnt=0"
+
+HPE_RUNFREQ=`get_apps_defaults hpe_runfreq`
+echo "HPE Run Frequency $HPE_RUNFREQ minutes " >> $hpefnm
+
+while true   
+do
+
+#
+# save log latest entries
+#
+
+   if [[ -s $hpefnm ]]
+   then
+      tail -1200 $hpefnm > $hpetmp
+      mv $hpetmp $hpefnm
+   fi
+      
+   checkHPEstop $HPE_LOG_DIR
+   STOP_FOUND=$?
+
+   if test STOP_FOUND -eq 1
+   then
+
+     echo "Elapsed time reached, stopping..." >> $hpefnm
+     
+
+# if there's no precip in area, remove the temp files
+# 
+     if [[ -d $DHR_PROD_DIR && -n "$DHR_PROD_DIR" ]]
+     then
+        echo "Removing temp DHR files in $DHR_PROD_DIR due to no rain " $Dte \
+	>> $hpefnm    
+        rm -f $DHR_PROD_DIR/*
+     else
+        echo "Attempted to remove files but " >> $hpefnm
+        echo "DHR PROD DIR $DHR_PROD_DIR invalid " $Dte >> $hpefnm
+     fi
+     
+     if [[ -d $DSP_PROD_DIR && -n "$DSP_PROD_DIR" ]]
+     then 
+        echo "Removing temp DSP files in $DSP_PROD_DIR due to no rain " $Dte >> $hpefnm   
+        rm -f $DSP_PROD_DIR/*
+     else
+        echo "Attempted to remove files but " >> $hpefnm
+        echo "DSP PROD DIR $DSP_PROD_DIR invalid " $Dte >> $hpefnm
+     fi   
+  
+     logHPEstop $hpefnm
+     exit 0
+   elif test STOP_FOUND -eq 2
+   then
+     echo "Stop condition not met, continuing..." >> $hpefnm
+   fi
+
+   checkDataRun $HPE_LOG_DIR
+   DATA_RUN=$?
+
+   if test DATA_RUN -eq 1
+     then
+        echo "No data received in 20 minutes, exiting. " `date -u` >> $hpefnm
+        exit 0
+   fi
+     
+   $PPROC_BIN/Run_DecodeDHR  
+   DHRDECODE_RUN=$?
+   if test $DHRDECODE_RUN -eq 0
+     then
+       echo "Finished running dhr decoders " `date -u` >> $hpefnm
+   fi
+   $PPROC_BIN/Run_DecodeDSP 
+   DSPDECODE_RUN=$?
+   if test $DSPDECODE_RUN -eq 0
+     then
+       echo "Finished running dsp decoders " `date -u` >> $hpefnm
+   fi
+   
+   sleep 60 
+  
+# Check to see if age on file is more than $HPE_RUNFREQ minutes
+         runfreq=$(($HPE_RUNFREQ * 60))
+	     tnow=`date +%s`
+	     tfile=`date +%s -r $HPE_LOG_DIR/start_hpe_ctl`
+	     agesecs=$(($tnow-$tfile))
+	     if [[ $agesecs -lt $runfreq ]]
+	     then
+	          let "loop_cnt=1"
+         else
+	          let "loop_cnt=2"
+         fi
+
+# checking every run allows the user to change this run frequency
+
+   if [[ loop_cnt -eq 2 ]]
+   then
+#
+# get the time lag variable again in case it has changed
+#
+
+      touch $HPE_LOG_DIR/start_hpe_ctl
+      echo "touching start_hpe_ctl file before starting hpe_fieldgen " $Dte >> $hpefnm
+      Dte=`date -u`
+      TIMELAG=`get_apps_defaults hpe_timelag`
+      echo "starting HPE field generator with time lag of $TIMELAG minutes " $Dte >> $hpefnm
+      $PPROC_BIN/run_hpe_fieldgen $TIMELAG
+
+      # checking every run allows the user to change this run frequency
+      HPE_RUNFREQ2=`get_apps_defaults hpe_runfreq`
+
+      if [[ $HPE_RUNFREQ -ne $HPE_RUNFREQ2 ]]
+      then
+          HPE_RUNFREQ=$HPE_RUNFREQ2
+          echo "HPE run freq changed to $HPE_RUNFREQ minutes " >> $hpefnm
+      fi
+   fi
+done
+exit 0

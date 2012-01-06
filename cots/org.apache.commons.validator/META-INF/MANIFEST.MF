@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Validator Plug-in
+Bundle-SymbolicName: org.apache.commons.validator
+Bundle-Version: 1.2.0
+Bundle-ClassPath: commons-validator-1.2.0.jar,
+ .
+Export-Package: org.apache.commons.validator,
+ org.apache.commons.validator.javascript,
+ org.apache.commons.validator.resources,
+ org.apache.commons.validator.util
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

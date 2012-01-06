@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	    <contribute xsi:type="titleItem" 
+			titleText="------ Track Summaries ------" id="TrackSummaryLine"/>
+		<contribute xsi:type="bundleItem" file="bundles/TrackSummaryPlot.xml" 
+               menuText="Atlantic" id="atlanticTrackSummary">
+	        <dataURI>/tcs/%/TCMAT%/%</dataURI>
+	        <substitute key="productType" value="TCMAT1,TCMAT2,TCMAT3,TCMAT4,TCMAT5"/>
+	        <substitute key="legend" value="Atlantic"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/TrackSummaryPlot.xml" 
+               menuText="E Pacific" id="easternPacificTrackSummary">
+	        <dataURI>/tcs/%/TCMEP%/%</dataURI>
+	        <substitute key="productType" value="TCMEP1,TCMEP2,TCMEP3,TCMEP4,TCMEP5"/>
+	        <substitute key="legend" value="E Pacific"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/TrackSummaryPlot.xml" 
+               menuText="W Pacific" id="westernPacificTrackSummary">
+	        <dataURI>/tcs/%/TCMWP%/%</dataURI>
+	        <substitute key="productType" value="TCMWP1,TCMWP2,TCMWP3,TCMWP4,TCMWP5,TCP"/>
+	        <substitute key="legend" value="W Pacific"/>
+	    </contribute>
+		<contribute xsi:type="subMenu" menuText="Hourly Forecasts">
+		    <contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"  
+	               menuText="AT1" id="AT1">
+		        <dataURI>/tcs/%/TCMAT1/%</dataURI> 
+		        <substitute key="productType" value="AT1"/>
+		    </contribute> 
+		    <contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"  
+	               menuText="AT2" id="AT2">
+		        <dataURI>/tcs/%/TCMAT2/%</dataURI> 
+		        <substitute key="productType" value="AT2"/>
+		    </contribute> 
+		    <contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"  
+	               menuText="AT3" id="AT3">
+		        <dataURI>/tcs/%/TCMAT3/%</dataURI> 
+		        <substitute key="productType" value="AT3"/>
+		    </contribute> 
+		    <contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"  
+	               menuText="AT4" id="AT4">
+		        <dataURI>/tcs/%/TCMAT4/%</dataURI> 
+		        <substitute key="productType" value="AT4"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"  
+	               menuText="AT5" id="AT5">
+		        <dataURI>/tcs/%/TCMAT5/%</dataURI> 
+		        <substitute key="productType" value="AT5"/>
+		    </contribute> 
+		    <contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"  
+	               menuText="EP1" id="EP1">
+		        <dataURI>/tcs/%/TCMEP1/%</dataURI> 
+		        <substitute key="productType" value="EP1"/>
+		    </contribute> 
+		    <contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"  
+	               menuText="EP2" id="EP2">
+		        <dataURI>/tcs/%/TCMEP2/%</dataURI> 
+		        <substitute key="productType" value="EP2"/>
+		    </contribute> 
+		    <contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"  
+	               menuText="EP3" id="EP3">
+		        <dataURI>/tcs/%/TCMEP3/%</dataURI> 
+		        <substitute key="productType" value="EP3"/>
+		    </contribute> 
+		    <contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"  
+	               menuText="EP4" id="EP4">
+		        <dataURI>/tcs/%/TCMEP4/%</dataURI> 
+		        <substitute key="productType" value="EP4"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"  
+	               menuText="EP5" id="EP5">
+		        <dataURI>/tcs/%/TCMEP5/%</dataURI> 
+		        <substitute key="productType" value="EP5"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"  
+	               menuText="CP1" id="CP1">
+		        <dataURI>/tcs/%/TCMCP1/%</dataURI> 
+		        <substitute key="productType" value="CP1"/>
+		    </contribute> 
+		    <contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"  
+	               menuText="CP2" id="CP2">
+		        <dataURI>/tcs/%/TCMCP2/%</dataURI> 
+		        <substitute key="productType" value="CP2"/>
+		    </contribute> 
+		    <contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"  
+	               menuText="CP3" id="CP3">
+		        <dataURI>/tcs/%/TCMCP3/%</dataURI> 
+		        <substitute key="productType" value="CP3"/>
+		    </contribute> 
+		    <contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"  
+	               menuText="CP4" id="CP4">
+		        <dataURI>/tcs/%/TCMCP4/%</dataURI> 
+		        <substitute key="productType" value="CP4"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"  
+	               menuText="CP5" id="CP5">
+		        <dataURI>/tcs/%/TCMCP5/%</dataURI> 
+		        <substitute key="productType" value="CP5"/>
+		    </contribute> 
+		    <contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"  
+	               menuText="WP1" id="WP1">
+		        <dataURI>/tcs/%/TCMWP1/%</dataURI> 
+		        <substitute key="productType" value="WP1"/>
+		    </contribute> 
+		    <contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"  
+	               menuText="WP2" id="WP2">
+		        <dataURI>/tcs/%/TCMWP2/%</dataURI> 
+		        <substitute key="productType" value="WP2"/>
+		    </contribute> 
+		    <contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"  
+	               menuText="WP3" id="WP3">
+		        <dataURI>/tcs/%/TCMWP3/%</dataURI> 
+		        <substitute key="productType" value="WP3"/>
+		    </contribute> 
+		    <contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"  
+	               menuText="WP4" id="WP4">
+		        <dataURI>/tcs/%/TCMWP4/%</dataURI> 
+		        <substitute key="productType" value="WP4"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"  
+	               menuText="WP5" id="WP5">
+		        <dataURI>/tcs/%/TCMWP5/%</dataURI> 
+		        <substitute key="productType" value="WP5"/>
+		    </contribute>
+		</contribute>
+		<contribute xsi:type="titleItem" 
+			titleText="------ Position Update ------" id="PositionUpdateLine"/>
+		<contribute xsi:type="bundleItem" file="bundles/PositionUpdatePlot.xml" 
+               menuText="Atlantic" id="atlanticPositionUpdate">
+	        <dataURI>/tcg/%/TCEAT%/%</dataURI>
+	        <substitute key="productType" value="TCEAT1,TCEAT2,TCEAT3,TCEAT4,TCEAT5"/>
+	        <substitute key="legend" value="Atlantic"/>    
+	    </contribute> 
+	    <contribute xsi:type="bundleItem" file="bundles/PositionUpdatePlot.xml"  
+               menuText="E Pacific" id="easternPacificPositionUpdate">
+	        <dataURI>/tcg/%/TCEEP%/%</dataURI> 
+	        <substitute key="productType" value="TCEEP1,TCEEP2,TCEEP3,TCEEP4,TCEEP5"/>
+	        <substitute key="legend" value="E Pacific"/>       
+	    </contribute> 
+	    <contribute xsi:type="bundleItem" file="bundles/PositionUpdatePlot.xml"  
+               menuText="C Pacific" id="centralPacificPositionUpdate">
+	        <dataURI>/tcg/%/TCECP%/%</dataURI>      
+	        <substitute key="productType" value="TCECP1,TCECP2,TCECP3,TCECP4,TCECP5"/>
+	        <substitute key="legend" value="C Pacific"/>  
+	    </contribute> 
+			
+		<contribute xsi:type="titleItem" 
+			titleText="------ Model Guidance ------" id="ModelGuidanceLine"/>
+		<contribute xsi:type="bundleItem" file="bundles/CHGHURGuidancePlot.xml" 
+               menuText="CHGHUR guidance" id="CHGHURguidance" useReferenceTime="true"> 
+	        <dataURI>/tcg/%/CHGHUR/%</dataURI>        
+	    </contribute> 
+	    <contribute xsi:type="bundleItem" file="bundles/CHGQLMGuidancePlot.xml" 
+               menuText="CHGQLM guidance" id="CHGQLMguidance" useReferenceTime="true">
+	        <dataURI>/tcg/%/CHGQLM/%</dataURI>        
+	    </contribute> 
+</menuTemplate>

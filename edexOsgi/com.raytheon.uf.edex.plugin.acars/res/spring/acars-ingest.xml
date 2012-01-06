@@ -1,0 +1,65 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="acarsDecoder" class="com.raytheon.uf.edex.plugin.acars.ACARSDecoder"  depends-on="acarsPluginName" >
+        <constructor-arg ref="acarsPluginName" />
+    </bean>
+
+	<bean id="acarsDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg ref="acarsPluginName" />
+		<constructor-arg value="jms-dist:queue:Ingest.acars?destinationResolver=#qpidDurableResolver" />
+	</bean>
+	
+	<bean id="acarsCamelRegistered" factory-bean="contextManager"
+		factory-method="register" 
+		depends-on="persistCamelRegistered, 
+		            acarsSoundingCamelRegistered">
+		<constructor-arg ref="acars-camel"/>
+  	</bean>  
+
+	<camelContext id="acars-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+		<!--
+		<endpoint id="acarsFileEndpoint" uri="file:${edex.home}/data/sbn/acars?noop=true&amp;idempotent=false" />
+
+		<route id="acarsFileConsumerRoute">
+			<from ref="acarsFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+				<constant>acars</constant>
+			</setHeader>
+			<to uri="jms-generic:queue:Ingest.acars" />
+		</route>
+        -->
+
+		<!-- Begin ACARS routes -->
+		<route id="acarsIngestRoute">
+			<from uri="jms-generic:queue:Ingest.acars?destinationResolver=#qpidDurableResolver" />
+			<setHeader headerName="pluginName">
+				<constant>acars</constant>
+			</setHeader>
+			<bean ref="stringToFile" />
+			<doTry>
+				<pipeline>
+					<bean ref="acarsDecoder" method="decode" />
+                    <multicast>
+                       <to uri="directvm:indexAlert" />
+                       <to uri="directvm:acarsSounding" />
+                    </multicast>
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:acars?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
+			<!-- bean ref="processUtil" method="delete" / -->
+		</route>
+
+	</camelContext>
+</beans>

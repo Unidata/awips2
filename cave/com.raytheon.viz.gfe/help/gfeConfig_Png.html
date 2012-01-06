@@ -1,0 +1,977 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-34smp i686) [Netscape]">
+  <title>gfeConfig - PNG Graphical Product Generation</title>
+</head>
+<body style="background-color: rgb(255, 255, 255);">
+<div class="Body">
+<div class="3Heading">
+<h2 style="text-align: center;">GFE/ifpIMAGE Configuration File<br>
+PNG Graphical Product Generation<br>
+</h2>
+<p>The GIF/PNG graphical product generation software uses the gfe
+configuration
+file to define the weather elements, clipping, colors, etc.&nbsp; Refer
+to the ifpIMAGE product generation guide for more details on how the
+configuration
+file is used.
+<br>
+&nbsp;
+<br>
+&nbsp;
+<table nosave="" border="1" cols="5" width="100%">
+  <tbody>
+    <tr>
+      <td>
+      <center><b>GFE Configuration Item</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to GFE</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to <a href="ifpIMAGE.html"><!--disable indexer-->ifpIMAGE</a></b></center>
+      </td>
+      <td>
+      <center><b>Notes</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#PNGLocalTimeLegend">PNG Local Time Legend</a></td>
+      <td>NO</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#PNGImageSize">PNG Image Size</a></td>
+      <td>NO</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#PNGWeatherElementtobeDisplayedasanImage">PNG
+Weather Element
+to be Displayed as an Image</a></td>
+      <td>NO</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#PNGImageSmoothing">PNG Image Data Smoothing and
+Smooth Clipping</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td>This is only applicable for scalar and vector weather
+elements.&nbsp;
+Do not enable this in a normal GFE configuration file since the
+performance
+of the GFE will be unacceptable.</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td><a href="#PNGListofWeatherElementsforDisplay">PNG Weather
+Elements
+to be Displayed</a></td>
+      <td>NO</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#PNGLegendDisplay">PNG Legend Display</a></td>
+      <td>NO</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#PNGLegendWeatherElementName">PNG Weather Element
+Name</a></td>
+      <td>NO</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#PngAlternateWeatherElementName">PNG Alternative
+Weather Element
+Name</a></td>
+      <td>NO</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#PNGLegendFormats">PNG Legend Formats</a></td>
+      <td>NO</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#PngFilenamePrefix">PNG Filename Prefix</a></td>
+      <td>NO</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#PngFilenameFormat">PNG Filename Format</a></td>
+      <td>NO</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#PngInterval">PNG Interval and Interval Offset</a></td>
+      <td>NO</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#PngfitToDataArea">PNG Fit To Data Area</a></td>
+      <td>NO</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#PngLogoandLogoString">PNG Logo and Logo String</a></td>
+      <td>NO</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#PngLegendLanguage">PNG Legend Language</a></td>
+      <td>NO</td>
+      <td>YES</td>
+      <td>Can use "french" and "spanish".</td>
+    </tr>
+    <tr>
+      <td><a href="#PngomitColorBar">PNG ColorBar Removal</a></td>
+      <td>NO</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#PNGZoomDisable">PNG Zoom Disable</a></td>
+      <td>NO</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#PngHistoryMask">PNG History Mask</a></td>
+      <td>NO</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#PngInfoFiles">PNG Info Files</a></td>
+      <td>NO</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#PngSnapshotTime">PNG Snapshot Time</a></td>
+      <td>NO</td>
+      <td>YES</td>
+      <td>Used typically with Png_interval.</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#PNGFileType">PNG File Type</a></td>
+      <td>NO</td>
+      <td>YES</td>
+      <td><br>
+      </td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#PNGJoinPolylines">PNG Join Polylines</a></td>
+      <td>NO</td>
+      <td>YES</td>
+      <td>Special use, usually not with .png file types.</td>
+      <td><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</p>
+</div>
+<blockquote>
+</blockquote>
+<hr style="width: 100%; height: 2px;">
+<h4><br>
+</h4>
+<h4><a name="PNGLocalTimeLegend"></a><font size="+1">PNG Local Time
+Legend</font></h4>
+The legends on the GFE are normally in GMT or ZULU time.&nbsp; The
+generated
+PNG imagery can contain legends in either GMT or local time.
+<p>Legends display mode 0 for UTC, 1 for local time. Do not include a
+decimal
+point after the number.
+</p>
+<p><b><tt>Png_localTime = 1</tt></b> <br>
+</p>
+<p>&nbsp;
+</p>
+<h4><a name="PNGImageSize"></a><font size="+1">PNG Image Size</font></h4>
+The image size in height and width can be defined for Png imagery. You
+only need to set one of these since the other will be automatically
+calculated
+to preserve the aspect ratio of your office domain.&nbsp; If both the
+height
+and width are set, the width will be used as the reference dimension.
+<p>You can set the height and width (in pixels) for the Png images. It
+is only necessary to set one of these, as the other will be calculated
+using the aspect ratio of your office domain. Do not include decimal
+points
+after the numbers. Both default to 400.
+</p>
+<p><b><tt>Png_height = 400</tt></b>
+<br>
+<b><tt>Png_width = 400</tt></b> <br>
+</p>
+<p>&nbsp;
+</p>
+<h4><a name="PNGWeatherElementtobeDisplayedasanImage"></a><font
+ size="+1">PNG
+Weather Element to be Displayed as an Image</font></h4>
+By default, all weather elements displayed in the GFE for graphical
+product
+generation are displayed as a graphic, e.g., contours for scalars, wind
+barbs or arrows for vectors, and bounded areas for weather. If the user
+wishes to display one of the weather elements as an image, then this
+entry
+must be set to the parameter name of the weather element.&nbsp; Only
+one
+weather element can be an image simultaneously.
+<p>If specified with the environment variable below, the weather
+element
+will be displayed as an image in the png. If nothing is specified here,
+then all weather elements will be displayed as a graphic. For
+non-surface
+based elements, the format is weatherElementName_level_image.
+</p>
+<p><b><tt>Png_image = 'T'</tt></b> <br>
+</p>
+<p><a name="PNGSmoothClipping"></a></p>
+<p><a name="PNGImageSmoothing"></a><b><font size="+1">PNG Image Data
+Smoothing
+and Smooth Clipping</font></b>
+</p>
+<p>Data Smoothing, and Smooth Clipping options are available for Png
+images.
+The Png_smoothImage indicates if the Png image displayed should be
+smoothed
+(1 = smoothing enabled, 0 = smoothing disabled).&nbsp; Note that
+smoothing
+will only apply to scalar and vector images.&nbsp; The Png_smoothClip
+(1
+= enabled, 0= disabled) provides smoothing clipping to the edit area
+mask
+defined in <a href="gfeConfig_DB.html#FilteredDataMask">display filter
+</a>.
+</p>
+<p><b><tt>Png_smoothImage = 0</tt></b>
+<br>
+<b><tt>Png_smoothClip = 0</tt></b>
+</p>
+<p>The following rules apply if both Png_smoothImage and Png_smoothClip
+are used.
+<br>
+&nbsp;
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td>
+      <center><b>DataType</b></center>
+      </td>
+      <td>
+      <center><b>Png_smoothImage</b></center>
+      </td>
+      <td>
+      <center><b>Png_smoothClip</b></center>
+      </td>
+      <td>
+      <center><b>Result</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      <center>SCALAR/VECTOR</center>
+      </td>
+      <td>
+      <center>0</center>
+      </td>
+      <td>
+      <center>0</center>
+      </td>
+      <td>No data smoothing, no smooth clipping</td>
+    </tr>
+    <tr>
+      <td>
+      <center>SCALAR/VECTOR</center>
+      </td>
+      <td>
+      <center>0</center>
+      </td>
+      <td>
+      <center>1</center>
+      </td>
+      <td>No data smoothing, clipped to the pixel level of the <a
+ href="gfeConfig_DB.html#FilteredDataMask">display
+filter </a>(mask) indicated, uses the nearest "grid box" for the data</td>
+    </tr>
+    <tr>
+      <td>
+      <center>SCALAR/VECTOR</center>
+      </td>
+      <td>
+      <center>1</center>
+      </td>
+      <td>
+      <center>0</center>
+      </td>
+      <td>Data smoothing, clipped to the pixel level of the <a
+ href="ifpIMAGE.html#CanImaskcertainareasofthe">display
+filter (</a>mask) indicated, uses bi-linear interpolation for the data
+values</td>
+    </tr>
+    <tr>
+      <td>
+      <center>SCALAR/VECTOR</center>
+      </td>
+      <td>
+      <center>1</center>
+      </td>
+      <td>
+      <center>1</center>
+      </td>
+      <td>Data smoothing, clipped to the pixel level of the <a
+ href="ifpIMAGE.html#CanImaskcertainareasofthe">display
+filter </a>(mask) indicated, uses bi-linear interpolation for the data
+values</td>
+    </tr>
+    <tr>
+      <td>
+      <center>WEATHER/DISCRETE</center>
+      </td>
+      <td>
+      <center>0</center>
+      </td>
+      <td>
+      <center>0</center>
+      </td>
+      <td>No data smoothing, no smooth clipping</td>
+    </tr>
+    <tr>
+      <td>
+      <center>WEATHER/DISCRETE</center>
+      </td>
+      <td>
+      <center>0</center>
+      </td>
+      <td>
+      <center>1</center>
+      </td>
+      <td>No data smoothing, clipped to the pixel level of the <a
+ href="ifpIMAGE.html#CanImaskcertainareasofthe">display
+filter</a> (mask) indicated, uses the nearest "grid box" for the data</td>
+    </tr>
+    <tr>
+      <td>
+      <center>WEATHER/DISCRETE</center>
+      </td>
+      <td>
+      <center>1</center>
+      </td>
+      <td>
+      <center>0</center>
+      </td>
+      <td>No data smoothing, no smooth clipping</td>
+    </tr>
+    <tr>
+      <td>
+      <center>WEATHER/DISCRETE</center>
+      </td>
+      <td>
+      <center>1</center>
+      </td>
+      <td>
+      <center>1</center>
+      </td>
+      <td>No data smoothing, clipped to the pixel level of the <a
+ href="ifpIMAGE.html#CanImaskcertainareasofthe">display
+filter</a> (mask) indicated, uses the nearest "grid box" for the data</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+&nbsp;
+<br>
+&nbsp;
+</p>
+<h4><a name="PNGListofWeatherElementsforDisplay"></a><font size="+1">PNG
+List
+of Weather Elements for Display</font></h4>
+The user can specify the list of weather elements to be displayed by
+specifying
+the Png_parms.&nbsp; This entry only applies to the ifpIMAGE program.
+<p>The format of each entry is a coded weather element identifier in
+the
+following format:
+<br>
+"parmName_level:optType_modelName seq". For example, to display the
+QPF surface field for the Official database, the entry would be:
+"QPF_SFC:_Official
+-1"
+</p>
+<p><b><tt>Png_parms = ['FzLevel_SFC:_Fcst -1', 'Sky_SFC:_Fcst -1',
+'QPF_SFC:_Fcst
+-1']</tt></b> <br>
+</p>
+<p>&nbsp;
+</p>
+<p><a name="PNGLegendDisplay"></a><b><font size="+1">PNG Legend Display</font></b>
+</p>
+<p>The legend that appears on the PNG image can be enabled or
+disabled.&nbsp;
+By default it is enabled.
+</p>
+<p>This variable allows the ability to turn on/off legends for the
+graphic
+generation.&nbsp; It applies only to graphic product generation and not
+the GFE.&nbsp; It defaults to 'on' if it is not specified.&nbsp; Do not
+include a decimal point after the number.
+</p>
+<p><b><tt>Png_legend = 1</tt></b> <br>
+</p>
+<p>&nbsp;
+</p>
+<h4><a name="PNGLegendWeatherElementName"></a><font size="+1">PNG
+Legend Weather
+Element Name</font></h4>
+By default, the weather element name placed on the legend of a PNG
+image
+is simply the 'SHORT'&nbsp; weather element name, such as "T" for
+temperature.&nbsp;
+The user can enable this option, which will instead use the long
+descriptive
+name for the weather element on the legend, such as "Temperature", or
+turn
+the name off completely.&nbsp; An alternative form of the weather
+element
+name can be used if the Png_wxname_AltName entries are used in
+conjunction
+with this entry and this entry is set to "ALT".&nbsp; If "ALT" is
+specified,
+and the corresponding Png_wxnamd_AltName is not found, then the short
+weather
+element name is used.
+<p>The applicable legend weather element name modes are 'SHORT' for
+weather
+element name,
+<br>
+LONG for weather element descriptive name,&nbsp; ALT for alternate,
+and OFF for no name.
+</p>
+<p><b><tt>Png_descriptiveWeName = 'SHORT'</tt></b> <br>
+</p>
+<p>&nbsp;
+</p>
+<h4><a name="PngAlternateWeatherElementName"></a><font size="+1">Png
+Alternate
+Weather Element Name</font></h4>
+The Png Alternative Weather Element Name is used to define your own
+weather
+element name legend for the Png images.&nbsp; For this feature to be
+enabled,
+you must set the Png_descriptiveName to ALT.
+<p>These entries define the weather element name to be displayed based
+on the weather element name (e.g., "T").&nbsp; The string format is
+Png_WxElem_AltName.
+(For non surface-based weather elements, the format is
+Png_WxElem_Level_AltName.)&nbsp;For
+example, Png_MaxT_AltName = "Highs" will display "Highs" for the Wx
+element
+name rather than "MaxT" or "Maximum Temperature".&nbsp; If it is not
+defined
+and 'ALT' is set, then the weather element name will be the 'SHORT'
+name.
+</p>
+<p><b><tt>Png_MaxT_AltName = "Highs"</tt></b> <br>
+</p>
+<p>&nbsp;
+</p>
+<h4><a name="PNGLegendFormats"></a><font size="+1">PNG Legend Formats</font></h4>
+The legend formats (for both Zulu mode and local time mode) may be
+controlled
+through the configuration file. The general ordering of each legend
+is:&nbsp;
+duration + startTime + endTime.&nbsp; Any of these may be disabled or
+enabled
+through the use of the format strings.&nbsp; By setting a format string
+to "", that value is not output.&nbsp; There are separate entries for
+the
+Zulu and Local Time legends.&nbsp; The formatting entries consist of a
+keyword prefixed with an '%'.&nbsp; The software will substitute the
+appropriate
+value in place of the %keyword in the format string.&nbsp; To add extra
+characters, such as spaces or some text (e.g., "to"), simply add those
+characters to the format.&nbsp;&nbsp;&nbsp; The following list
+specifies
+the acceptable formatting entries that are allowed:
+<br>
+&nbsp;
+<table nosave="" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td><tt>%</tt>a</td>
+      <td>Locale's abbreviated weekday name.</td>
+    </tr>
+    <tr>
+      <td>%A</td>
+      <td>Locale's full weekday name.</td>
+    </tr>
+    <tr>
+      <td>%b</td>
+      <td>Locale's abbreviated month name.</td>
+    </tr>
+    <tr>
+      <td>%B</td>
+      <td>Locale's full month name.</td>
+    </tr>
+    <tr>
+      <td>%c&nbsp;</td>
+      <td>Locale's appropriate date and time representation.</td>
+    </tr>
+    <tr>
+      <td>%C&nbsp;</td>
+      <td>The century number (the year divided by 100 and truncated to
+an integer)
+as a&nbsp;&nbsp; decimal number [00-99].</td>
+    </tr>
+    <tr>
+      <td>%d&nbsp;</td>
+      <td>Day of the month as a decimal number [01,31].</td>
+    </tr>
+    <tr>
+      <td>%D</td>
+      <td>Equivalent to the directive string %m/%d/%y.</td>
+    </tr>
+    <tr>
+      <td>%e&nbsp;</td>
+      <td>Day of the month as a decimal number [1,31], a single digit
+is preceded
+by a space.</td>
+    </tr>
+    <tr>
+      <td>%h&nbsp;</td>
+      <td>Equivalent to %b.</td>
+    </tr>
+    <tr>
+      <td>%H&nbsp;</td>
+      <td>Hour (24-hour clock) as a decimal number [00,23].</td>
+    </tr>
+    <tr>
+      <td>%I&nbsp;</td>
+      <td>Hour (12-hour clock) as a decimal number [01,12].</td>
+    </tr>
+    <tr>
+      <td>%j&nbsp;</td>
+      <td>Day of the year as a decimal number [001,366].</td>
+    </tr>
+    <tr>
+      <td>%m&nbsp;</td>
+      <td>Month as a decimal number [01,12].</td>
+    </tr>
+    <tr>
+      <td>%M&nbsp;</td>
+      <td>Minute as a decimal number [00,59].</td>
+    </tr>
+    <tr>
+      <td>%n&nbsp;</td>
+      <td>The New-line character.</td>
+    </tr>
+    <tr>
+      <td>%p&nbsp;</td>
+      <td>Locale's equivalent of either AM or PM.</td>
+    </tr>
+    <tr>
+      <td>%r&nbsp;</td>
+      <td>The time in AM and PM notation; in the POSIX locale this is
+equivalent
+to %I:%M:%S %p.</td>
+    </tr>
+    <tr>
+      <td>%R&nbsp;</td>
+      <td>The time in 24 hour notation (%H:%M).</td>
+    </tr>
+    <tr>
+      <td>%S&nbsp;</td>
+      <td>Second as a decimal number [00,61].</td>
+    </tr>
+    <tr>
+      <td>%t&nbsp;</td>
+      <td>The Tab character.</td>
+    </tr>
+    <tr>
+      <td>%T&nbsp;</td>
+      <td>The time in hours, minutes, and seconds (%H:%M:%S).</td>
+    </tr>
+    <tr>
+      <td>%u&nbsp;</td>
+      <td>The weekday as a decimal number [1(Monday),7].</td>
+    </tr>
+    <tr>
+      <td>%U&nbsp;</td>
+      <td>Week number of the year (Sunday as the first day of the week)
+as a
+decimal number [00,53].&nbsp; All days in a new year preceding the
+first
+Sunday are considered to be in week 0.</td>
+    </tr>
+    <tr>
+      <td>%V&nbsp;</td>
+      <td>The week number of the year (Monday as the first day of the
+week) as
+a decimal number [01,53].&nbsp; If the week containing January 1st has
+four or more days in the new&nbsp; year, then it is considered week 1;
+otherwise, it is week 53 of the previous year, and the next week is
+week
+1.</td>
+    </tr>
+    <tr>
+      <td>%w&nbsp;</td>
+      <td>Weekday as a decimal number [0(Sunday),6].</td>
+    </tr>
+    <tr>
+      <td>%W&nbsp;</td>
+      <td>Week number of the year (Monday as the first day of the week)
+as a
+decimal number [00,53].&nbsp; All days in a new&nbsp; year preceding
+the
+first Monday are considered to be in week 0.</td>
+    </tr>
+    <tr>
+      <td>%x&nbsp;</td>
+      <td>Locale's appropriate date representation.</td>
+    </tr>
+    <tr>
+      <td>%X&nbsp;</td>
+      <td>Locale's appropriate time representation.</td>
+    </tr>
+    <tr>
+      <td>%y&nbsp;</td>
+      <td>Year without century as a decimal number [00,99].</td>
+    </tr>
+    <tr>
+      <td>%Y&nbsp;</td>
+      <td>Year with century as a decimal number.</td>
+    </tr>
+    <tr>
+      <td>%Z&nbsp;</td>
+      <td>Time zone name (or by no characters if no time zone exists).</td>
+    </tr>
+    <tr>
+      <td>%%&nbsp;</td>
+      <td>The percent (%) character.</td>
+    </tr>
+  </tbody>
+</table>
+<p>In addition to the above list, there are special entries that
+are substituted: [UNITS] can be substituted for the units for the
+weather
+element. Be sure to include the braces. For example, if you wanted the
+local time string to be displayed like
+<b>Maximum Temperature&nbsp; (F)&nbsp;
+12 hours Ending Wed Mar 3, 2000 6:00 PM MST</b>, then the format
+strings
+would be set up to be:
+</p>
+<p><b><tt>Png_legendFormat_LT_dur = "([UNITS]) %H hours "</tt></b>
+<br>
+<b><tt>Png_legendFormat_LT_start = ""</tt></b>
+<br>
+<b><tt>Png_legendFormat_LT_end = "Ending %a %b %d, %Y&nbsp; %I:%M %p
+%Z"</tt></b>
+</p>
+<p>If the duration, start time, or ending time is not desired, then the
+entry should be set to "".&nbsp; Note that there are separate entries
+for
+Zulu and LocalTime.&nbsp; The duration formats
+<br>
+can use the %H (hours) %M (minutes) formats.
+</p>
+<p><b><tt>Png_legendFormat_Zulu_dur = ""</tt></b>
+<br>
+<b><tt>Png_legendFormat_Zulu_start = "%b %d %H%MZ to "</tt></b>
+<br>
+<b><tt>Png_legendFormat_Zulu_end = "%b %d %H%MZ"</tt></b>
+<br>
+<b><tt>Png_legendFormat_LT_dur = ""</tt></b>
+<br>
+<b><tt>Png_legendFormat_LT_start = "%b %d %I:%M %p %Z"</tt></b>
+<br>
+<b><tt>Png_legendFormat_LT_end = "%b %d %I:%M %p %Z"</tt></b>
+</p>
+<p>If <a href="#PngSnapshotTime">Png_snapshotTime</a> is enabled, then
+the single time depicted in the legend is the calculated snapshot time
+(typically based on <a href="#PngInterval">Png_interval</a> and <a
+ href="#PngInterval">Png_intervalOffset</a>).&nbsp;
+In this case, there are other legend format configuration file entries
+that are used:
+</p>
+<p><b><tt>Png_legendFormat_LT_snapshot = "%b %d %I:%M %p %Z"</tt></b>
+<br>
+<b><tt>Png_legendFormat_Zulu_snapshot = "%b %d %H%MZ"</tt></b>
+<br>
+&nbsp;
+</p>
+<h4><a name="PngFilenamePrefix"></a><font size="+1">Png Filename Prefix</font></h4>
+By default, the naming of the png files are <b>yyyymmdd_hhmm.png</b>.&nbsp;&nbsp;
+A prefix can be added to the name if desired using the
+Png_filenamePrefix
+item.&nbsp; For example, if you wanted the filenames to be of a form
+Wind_Sky_yyyymmdd_hhmm.png,
+you would set the following string in the gfe configuration file:
+<p><b><tt>Png_filenamePrefix = 'Wind_Sky_'</tt></b>
+</p>
+<p>The date/time string can also be changed to a base time and relative
+offset from the absolute time.&nbsp; See the <a href="ifpIMAGE.html">ifpIMAGE
+User's Manual</a> section on <a
+ href="ifpIMAGE.html#ChangingtheDateString">date/time
+string configuration</a>.
+<br>
+&nbsp;
+</p>
+<h4><a name="PngFilenameFormat"></a><font size="+1">Png Filename Format</font></h4>
+By default, the naming of the png files are yyyymmdd_hhmm.png.&nbsp;
+The
+date-time string may be changed to a user-specified format by using the
+Png_baseTimeFormat in the gfe configuration file.&nbsp; The possible
+set
+of values are those defined above in the legend format section.&nbsp;
+For
+example, if you wanted the filename format to only include the day and
+hour, then you could set the entry to:
+<p><b><tt>Png_baseTimeFormat = "%d%H"</tt></b>
+</p>
+<p>If the time of the file is 20010509_1800, then the filename would be
+0918.png.&nbsp; See the <a href="ifpIMAGE.html">ifpIMAGE User's Manual</a>
+section on <a href="ifpIMAGE.html#ChangingtheDateString">date/time
+string
+configuration</a>.
+<br>
+&nbsp;
+</p>
+<h4><a name="PngInterval"></a><font size="+1">Png Interval and
+IntervalOffset</font></h4>
+Images can be created at regular at intervals by setting an interval
+option
+in the ipfIMAGE configuration file.&nbsp;&nbsp; The interval starting
+time
+can be varied by setting an offset.
+<p>By default, png images are generated for each and every possible
+change
+in the generated grids.&nbsp; For example, if you are generating a grid
+for T and WaveHeight, and the T is a one hour grid and the WaveHeight a
+6 hour grid, that starts at the same time (e.g., 12z), two different
+images
+will be generated.&nbsp; The first will have T and WaveHeight together
+and will be time stamped to 12z; the second will just have WaveHeight
+and
+will be time stamped to 13z.&nbsp; This is identical behavior to
+running
+the GFE with multiple visible weather elements.
+</p>
+<p>You can override this behavior for the creation of the Png imagery
+by
+specifying an interval for which to generate imagery.&nbsp; The
+interval
+is specified in hours.&nbsp; Setting the value to 6 will generate grids
+at 00z, 06z, 12z, and 18z, assuming there is data available to generate
+the imagery.&nbsp; The configuration line to set the generation to
+every
+6 hours is shown below:
+</p>
+<p><b><tt>Png_interval = 6</tt></b>
+</p>
+<p>To generate images that begin at a starting time other than 00z, you
+can specify an interval offset using a configuration
+option.&nbsp;&nbsp;
+For example, specifying an interval offset of 1 and an interval of 6
+(i.e.,
+Png_interval = 6) will generate images at 01z,&nbsp; 07z, 13z and
+19z.&nbsp;&nbsp;
+The default for Png_intervalOffset is 0.
+</p>
+<p><b><tt>Png_intervalOffset = 1</tt></b>
+<br>
+&nbsp;
+</p>
+<h4><a name="PngfitToDataArea"></a><font size="+1">Png_fitToDataArea</font></h4>
+The Png_fitToDataArea works in conjunction with a <a
+ href="gfeConfig_nonWECol.html#InitialColorTableRange">fit
+to data algorithm</a>.&nbsp; If the user has specified a "All Grids
+over
+Area", or "Single Grid over Area", then the ifpIMAGE program needs to
+know
+which area is to be used.&nbsp; For the GFE, it is always the active
+edit
+area.&nbsp; For the ifpIMAGE, the concept of an active edit area does
+not
+exist.&nbsp; The format of the entry is simply the name of the edit
+area.
+<p><b><tt>Png_fitToDataArea = "BOU"</tt></b>
+<br>
+&nbsp;
+</p>
+<h4><a name="PngLogoandLogoString"></a><font size="+1">Png Logo and
+Logo String</font></h4>
+The ifpIMAGE program can automatically add to the bottom of each image
+the NOAA and NWS logos.&nbsp; The Png_logo entry enables the logo and
+the
+Png_logoString entry defines the text to appear between the two logos.
+<p>If Png_logo is set to 1, then a bar containing the noaa and nws
+logos
+will be inserted at the bottom of the image.
+</p>
+<p><b><tt>Png_logo = 0</tt></b>
+</p>
+<p>If Png_logo is enabled, then Png_logoString can be set to a string
+you
+would
+<br>
+like to have in the "logo bar".&nbsp; The string will be centered in
+the bar.
+</p>
+<p><b><tt>Png_logoString = ""</tt></b>
+<br>
+&nbsp;
+</p>
+<h4><a name="PngLegendLanguage"></a><font size="+1">Png Legend Language</font></h4>
+The Png_legendLanguage only affects the legends for the Png
+imagery.&nbsp;
+If english is desired, then do not use this option.&nbsp; If an
+alternate
+legend language is desired, then enter that here. Acceptable values
+those
+defined in the locale command (part of Unix).
+<br>
+Acceptable languages are "spanish" and "french".
+<p><b><tt>Png_legendLanguage = "spanish"</tt></b>
+<br>
+&nbsp;
+</p>
+<h4><a name="PngomitColorBar"></a><font size="+1">Png Color Bar Removal</font></h4>
+Setting Png_omitColorBar to 1, will omit the color bar in ifpImage
+<p><b><tt>Png_omitColorBar = 0</tt></b>
+<br>
+&nbsp;
+</p>
+<h4><a name="PNGZoomDisable"></a><font size="+1">Png Zoom Disable</font></h4>
+Setting Png_wholeDomain to 1 or yes, will disable the automatic zoom
+that
+occurs when your data is clipped to a smaller region.&nbsp; The default
+is zoom to the clipped data region.
+<p><b><tt>Png_wholeDomain = 0</tt></b>
+<br>
+&nbsp;
+</p>
+<h4><a name="PngHistoryMask"></a><font size="+1">Png History Mask</font></h4>
+Setting Png_historyMask to 1 or yes, will enables the display mask to
+follow
+the information contained in the Grid Data History of each grid.&nbsp;
+When set to 1, the grids will automatically be masked by the site
+information
+and the background color will be shown for those areas without data.
+<p><b><tt>Png_historyMask = 1</tt></b>
+<br>
+</p>
+<blockquote>
+  <p>&nbsp; </p>
+</blockquote>
+<h4><a name="PngInfoFiles"></a><font size="+1">Png Info Files</font></h4>
+Setting Png_infoFiles to 1 or yes, will enable the creation of the PNG
+info files along with the image PNG files.&nbsp; Setting Png_infoFiles
+to 0 or no will disable the creation of these files.&nbsp; The default
+is to create the Png info files.
+<br>
+&nbsp;
+<p><b><tt>Png_infoFiles = 1</tt></b>
+<br>
+&nbsp;
+</p>
+<h4><a name="PngSnapshotTime"></a><font size="+1">Png Snapshot Time</font></h4>
+Setting Png_snapshotTime to 1, will change the time displayed on the
+PNG
+images for each grid from the valid time of the grid, to the snapshot
+time.&nbsp;
+You can use the <a href="#PNGLegendFormats">legend formats</a> to
+control
+how the time is formatted.&nbsp; The snapshot time option is normally
+used
+with the <a href="#PngInterval">Png_interval</a> and <a
+ href="#PngInterval">Png_intervalOffset</a>
+options.&nbsp; Those options create images on a regular basis and thus
+are good candidates for displaying the time of the image, rather than
+the
+valid time of the grid.
+<br>
+&nbsp;
+<p><b><tt>Png_snapshotTime = 1</tt></b>
+<br>
+&nbsp;
+</p>
+<h4><a name="PNGFileType"></a><b><font size="+1">Png File Type</font></b></h4>
+Defines the type of files that ifpIMAGE will produce. The default is
+png.&nbsp;
+But you may also choose from the following list.&nbsp; Note that these
+are case sensitive and only png, svg, and gif have been really tested.
+[ 'png', 'pnm', 'gif', 'svg', 'ai', 'ps', 'cgm', 'fig', 'pcl', 'hpgl',
+'regis','tek', 'meta' ]
+<p><b><tt>Png_fileType = 'png'</tt></b>
+</p>
+<h4><a name="PNGJoinPolylines"></a><b><font size="+1">Png Join Polylines</font></b></h4>
+The Png_joinPolylines is a special use feature intended only for
+programs
+that use the output of ifpIMAGE for other purposes than for
+display.&nbsp;
+Setting this to 1 will cause ifpImage to render contours as polylines
+rather
+than line segments.&nbsp; You probably only want to do this for vector
+graphics like svg as this takes longer to do and will look no different
+with raster output like png.
+<p><b><tt>Png_joinPolylines = 0</tt></b>
+<br>
+</p>
+<hr style="width: 100%; height: 2px;">
+<p><br>
+</p>
+<blockquote>
+  <p>&nbsp;</p>
+</blockquote>
+<div class="Body">
+<center><tt>&nbsp;&nbsp;&nbsp;&nbsp; <a href="GFESuite.html">Back
+To TOC</a></tt></center>
+</div>
+</div>
+</body>
+</html>

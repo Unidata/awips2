@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Xdat Plug-in
+Bundle-SymbolicName: com.raytheon.viz.xdat;singleton:=true
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Activator: com.raytheon.viz.xdat.Activator
+Bundle-Vendor: Raytheon
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ com.raytheon.uf.viz.core,
+ com.raytheon.viz.ui,
+ com.raytheon.viz.hydrocommon;bundle-version="1.10.13",
+ org.postgres;bundle-version="1.0.0"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: com.raytheon.uf.common.ohd,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.common.util

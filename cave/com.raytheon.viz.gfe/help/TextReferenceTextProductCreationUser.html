@@ -1,0 +1,166 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.8 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]">
+  <title>Text Products Reference</title>
+<!--link REL="STYLESHEET" HREF="TextFormatter.html"-->
+</head>
+<body bgcolor="#ffffff">
+<center>
+<h1><a name="TextProductCreationUser"></a>Text Product Creation User
+Guide</h1></center><p>
+
+
+
+&nbsp; <a href="#Time_Display_Formats">Time Display Formats</a> 
+<hr>
+
+<h2 class="2Heading"> <a name="Time_Display_Formats"></a>Time Display
+Formats</h2>
+The display format for the time period in text or period labels for
+Simple Tabular products may be specified in the product Definition as
+"timePeriodFormat" or "periodLabelFormat",
+respectively.&nbsp;&nbsp;&nbsp; Also, Smart Text products have access
+to
+various TimeDescriptor methods such as "getCurrentTime" which use the
+same "formatting entries" shown below. The general form is a tuple
+containing the following:
+<p>(LTorZulu, durationFormat, startFormat, endFormat) </p>
+<p>&nbsp; If LTorZulu is set to "LT", the time period will be reported
+in local time instead of GMT. By setting a format string to "", that
+value is not output.&nbsp; The formatting entries consist of a keyword
+prefixed with an '%'.&nbsp; The software will substitute the
+appropriate
+value in place of the %keyword in the format string.&nbsp; To add extra
+characters, such as spaces or some text (e.g., "to"), simply add those
+characters to the format.&nbsp;&nbsp;&nbsp; For example, this
+timePeriodFormat: </p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "timePeriodFormat": ("LT", "%H hours
+", "%a %b %d, %Y %I:%M %p", " to %a %b %d, %Y %I:%M %p %Z"), </p>
+<p>will yield a time period display such as: </p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 12 hours Mon Apr 23, 2001
+06:00 AM to Mon Apr 23, 2001 06:00 PM MDT. </p>
+<p><span style="font-weight: bold;">Formatting Entries:</span>&nbsp;
+The following list specifies the acceptable formatting entries that are
+allowed: </p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%a&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Locale's abbreviated
+weekday name. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%A&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Locale's full weekday
+name. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%b&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Locale's abbreviated month
+name. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%B&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Locale's full month name. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%c&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Locale's appropriate date
+and time representation. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%C&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The century number (the
+year divided by 100 and truncated to an integer) as a decimal number
+[00-99]. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%d&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Day of the month as a
+decimal number [01,31]. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Equivalent to the
+directive
+string %m/%d/%y. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%e&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Day of the month as a
+decimal number [1,31]; a single <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+digit is preceded by a space. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%h&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Equivalent to %b. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%H&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Hour (24-hour clock) as a
+decimal number [00,23]. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%I&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Hour (12-hour clock) as a
+decimal number [01,12]. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%j&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Day of the year as a
+decimal number [001,366]. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%m&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Month as a decimal number
+[01,12]. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%M&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Minute as a decimal number
+[00,59]. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The New-line character. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%p&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Locale's equivalent of
+either AM or PM. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%r&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The time in AM and PM
+notation; in the POSIX locale this is equivalent to %I:%M:%S %p. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%R&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The time in 24 hour
+notation (%H:%M). <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%S&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Second as a decimal number
+[00,61]. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%t&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The Tab character. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%T&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The time in hours,
+minutes,
+and seconds (%H:%M:%S). <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%u&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The weekday as a decimal
+number [1(Monday),7]. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%U&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Week number of the year
+(Sunday as the first day of the week) as a decimal number
+[00,53].&nbsp;
+All days in a new year preceding the <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+first Sunday are considered to be in week 0. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%V&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The week number of the
+year
+(Monday as the first day of the week) as a decimal number
+[01,53].&nbsp;
+If the week containing January <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+1st has four or more days in the new&nbsp; year, then it is considered
+week 1; otherwise, it is week 53 of the previous year, and the next
+week
+is week 1. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%w&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Weekday as a decimal
+number
+[0(Sunday),6]. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%W&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Week number of the year
+(Monday as the first day of the week) as a decimal number
+[00,53].&nbsp;
+All days in a new&nbsp; year preceding <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+the first Monday are considered to be in week 0. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%x&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Locale's appropriate date
+representation. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%X&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Locale's appropriate time
+representation. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%y&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Year without century as a
+decimal number [00,99]. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%Y&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Year with century as a
+decimal number. <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%Z&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Time zone name (or by no
+characters if no time zone exists). <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+%%&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The percent (%) character.
+<br>
+&nbsp; </p>

@@ -1,0 +1,109 @@
+C MEMBER SROG24
+C-----------------------------------------------------------------------
+C
+C DESC WRITE GRID-POINT STATION ALPHABETICAL ORDER
+C
+      SUBROUTINE SROG24 (IPRERR,IVOG24,UNUSED,IORDER,MAXSTA,IPNTRS,
+     *     NUMSTA,LARRAY,ARRAY,ISTAT)
+C
+C
+      INTEGER*2 IPNTRS(1)
+      REAL XOG24/4HOG24/
+      REAL*8 BLNK8/8H        /
+C
+      DIMENSION UNUSED(1),ARRAY(LARRAY)
+C
+      INCLUDE 'uio'
+      INCLUDE 'scommon/sudbgx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppinit_read/RCS/srog24.f,v $
+     . $',                                                             '
+     .$Id: srog24.f,v 1.1 1995/09/17 19:14:57 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+      IF (ISTRCE.GT.0) WRITE (IOSDBG,70)
+      IF (ISTRCE.GT.0) CALL SULINE (IOSDBG,1)
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG(XOG24)
+C
+      ISTAT=0
+C
+C  READ PARAMETER RECORD
+      CALL SUDOPN (1,4HPPP ,IERR)
+      IPTR=0
+      CALL RPPREC (BLNK8,XOG24,IPTR,LARRAY,ARRAY,NFILL,IPTRNX,
+     *     IERR)
+      IF (IERR.EQ.0) GO TO 10
+         ISTAT=IERR
+         IF (IPRERR.EQ.0) GO TO 50
+            CALL SRPPST (BLNK8,XOG24,IPTR,LARRAY,NFILL,IPTRNX,ISTAT)
+            WRITE (LP,80)
+            CALL SUERRS (LP,2,-1)
+            GO TO 50
+C
+C  SET PARAMETER ARRAY VERSION NUMBER
+10    IVOG24=ARRAY(1)
+C
+C  SET INDICATOR HOW LIST WAS ORDERED
+      IORDER=ARRAY(2)
+C
+C  POSITIONS 3 AND 4 ARE UNUSED
+      UNUSED(1)=ARRAY(3)
+      UNUSED(2)=ARRAY(4)
+C
+C  SET NUMBER STATIONS IN LIST
+      NUMSTA=ARRAY(5)
+C
+      NPOS=5
+C
+      IF (NUMSTA.EQ.0) GO TO 50
+C
+C  CHECK FOR SUFFICIENT SPACE TO STORE POINTERS
+      IF (MAXSTA.GE.NUMSTA) GO TO 35
+         WRITE (LP,55) MAXSTA,NUMSTA
+         CALL SUERRS (LP,2,-1)
+         ISTAT=1
+         GO TO 50
+C
+C  SET GRID-POINT ADDRESS AND RECORD LOCATION OF PARAMETERS IN
+C  PARAMETRIC DATA BASE
+35    CALL SUBSTR (ARRAY(NPOS+1),1,NUMSTA*4,IPNTRS,1)
+      NPOS=NPOS+NUMSTA
+C
+      IF (LDEBUG.EQ.0) GO TO 50
+         WRITE (IOSDBG,60) NPOS,NFILL,IPTRNX,IVOG24
+         CALL SULINE (IOSDBG,1)
+         CALL SUPDMP (XOG24,4HREAL,0,NPOS,ARRAY,ARRAY)
+         CALL SUPDMP (XOG24,4HINT2,0,NPOS,ARRAY,ARRAY)
+C
+      IF (ISTAT.EQ.0) WRITE (LP,140)
+      IF (ISTAT.EQ.0) CALL SULINE (LP,2)
+      IF (ISTAT.GT.0) WRITE (LP,150)
+      IF (ISTAT.GT.0) CALL SULINE (LP,2)
+C
+50    IF (ISTRCE.GT.0) WRITE (IOSDBG,160)
+      IF (ISTRCE.GT.0) CALL SULINE (IOSDBG,1)
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+70    FORMAT (' *** ENTER SROG24')
+80    FORMAT ('0*** ERROR - IN SROG24 - UNSUCCESSFUL CALL TO RPPREC.')
+55    FORMAT ('0*** ERROR - IN SROG24 - POINTER ARRAY CAN HOLD ',I4,
+     *   'VALUES HOWEVER ',I4,' POINTERS ARE STORED IN PARAMETER ',
+     *   'ARRAY.')
+60    FORMAT (' NPOS=',I3,3X,'NFILL=',I3,3X,'IPTRNX=',I3,3X,
+     *   'IVOG24=',I3)
+140   FORMAT ('0*** NOTE - OG24 PARAMETERS SUCCESSFULLY READ.')
+150   FORMAT ('0*** NOTE - OG24 PARAMETERS NOT SUCCESSFULLY READ.')
+160   FORMAT (' *** EXIT SROG24')
+C
+      END

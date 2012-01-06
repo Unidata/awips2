@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DerivedParameter unit="K" name="Std Temperature" abbreviation="stdTemperature">
+    <Method name="StdMOS">
+        <Field abbreviation="QPF6hr_bestCat"/>
+        <Field abbreviation="temperature"/>
+    </Method>
+    <Method name="StdMOS">
+        <Field abbreviation="precipType"/>
+        <Field abbreviation="MRF_temp"/>
+    </Method>
+</DerivedParameter>

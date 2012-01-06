@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:import href="getIssueTime.xlt"/>
+<xsl:import href="getStateFullName.xlt"/>
+<xsl:import href="fmtAnchor.xlt"/>
+<xsl:import href="rmLeadingSpace.xlt"/>
+<xsl:import href="wrapText.xlt"/>
+<xsl:output method = "text"/>
+<xsl:variable name="newline"><xsl:text>
+ </xsl:text></xsl:variable>
+<xsl:variable name="tab"><xsl:text>&#x09;</xsl:text></xsl:variable>
+
+  <xsl:template match="WatchBox">
+	  <xsl:value-of select="$newline"/>
+          <xsl:text>WWUS20 KWNS </xsl:text>
+          <xsl:call-template name="getIssueTime"/>
+
+	  <xsl:value-of select="$newline"/>
+          <xsl:text>SEL</xsl:text>
+          <xsl:value-of select="@watchNumber"/>
+
+	  <xsl:value-of select="$newline"/>
+          <xsl:text> SPC WW </xsl:text>
+          <xsl:call-template name="getIssueTime"/>
+
+	  <xsl:value-of select="$newline"/>
+	  <xsl:for-each select="States">
+	  	<xsl:value-of select="."/>
+          	<xsl:text>Z000-</xsl:text>
+	  </xsl:for-each>
+          <xsl:value-of select="substring(@expTime,9,2)"/>
+          <xsl:value-of select="substring(@expTime,12,2)"/>
+          <xsl:value-of select="substring(@expTime,15,2)"/>
+          	<xsl:text>-</xsl:text>
+
+	  <xsl:value-of select="$newline"/>
+	  <xsl:value-of select="$newline"/>
+          <xsl:text>URGENT - IMMEDIATE BROADCAST REQUESTED</xsl:text>
+          <xsl:value-of select="@statesIncl"/>
+
+	  <xsl:value-of select="$newline"/>
+          <xsl:if test="@issueStatus = 'Test'">
+                <xsl:text>TEST...</xsl:text>
+          </xsl:if>
+          <xsl:value-of select="@watchType"/>
+          <xsl:text> WATCH NUMBER  </xsl:text>
+          <xsl:value-of select="@watchNumber"/>
+          <xsl:if test="@issueStatus = 'Test'">
+                <xsl:text>...TEST</xsl:text>
+          </xsl:if>
+
+	  <xsl:value-of select="$newline"/>
+          <xsl:text>NWS STORM PREDICTION CENTER NORMAN OK</xsl:text>
+
+	  <xsl:value-of select="$newline"/>
+          <xsl:value-of select="@issueTime"/>
+
+	  <xsl:value-of select="$newline"/>
+	  <xsl:value-of select="$newline"/>
+          <xsl:text>THE NWS STORM PREDICTION CENTER HAS ISSUED A</xsl:text>
+          <xsl:if test="@issueStatus = 'Test'">
+                <xsl:text>...TEST...</xsl:text>
+          </xsl:if>
+	  <xsl:value-of select="$newline"/>
+          <xsl:value-of select="@watchType"/>
+          <xsl:text> WATCH FOR PORTIONS OF </xsl:text>
+	  <xsl:value-of select="$newline"/>
+	  <xsl:value-of select="$newline"/>
+	  <xsl:for-each select="States">
+          	<xsl:text>    </xsl:text>
+		<xsl:call-template name="getStateFullName">
+			<xsl:with-param name="st" select="."/>
+		</xsl:call-template>
+	  	<xsl:value-of select="$newline"/>
+	  </xsl:for-each>
+	  <xsl:value-of select="$newline"/>
+
+	  <xsl:value-of select="$newline"/>
+          <xsl:text>EFFECTIVE </xsl:text>
+          <xsl:value-of select="@issueTime"/>
+          <xsl:text> UNTIL </xsl:text>
+          <xsl:value-of select="@expTime"/>
+
+	  <xsl:value-of select="$newline"/>
+	  <xsl:value-of select="$newline"/>
+          <xsl:text>TORNADOES...HAIL TO </xsl:text>
+        <xsl:value-of select="@hailSize"/>
+          <xsl:text> INCHES IN DIAMETER...THUNDERSTORM WIND</xsl:text>
+
+	<xsl:value-of select="$newline"/>
+        <xsl:text>GUSTS TO </xsl:text>
+        <xsl:value-of select="@gust * 1.15"/>
+        <xsl:text> MPH...AND DANGEROUS LIGHTNING ARE POSSIBLE IN THESE </xsl:text>
+
+	<xsl:value-of select="$newline"/>
+        <xsl:text>AREAS.</xsl:text>
+
+	<xsl:value-of select="$newline"/>
+	<xsl:value-of select="$newline"/>
+        <xsl:text>THE </xsl:text>
+          <xsl:if test="@issueStatus = 'Test'">
+                <xsl:text>TEST </xsl:text>
+          </xsl:if>
+
+	<xsl:text>TORNADO WATCH AREA IS APPROXIMATELY ALONG AND </xsl:text>
+        <xsl:value-of select="@halfWidthSm"/>
+        <xsl:text> STATUTE</xsl:text>
+	<xsl:value-of select="$newline"/>
+
+	<xsl:variable name="longLine">
+        	<xsl:text>MILES</xsl:text>
+          	<xsl:variable name="box"  select="@boxShape"/>
+          	<xsl:choose>
+                	<xsl:when test="contains($box, 'ESOL')"> EITH SIDE OF LINE </xsl:when>
+                	<xsl:when test="contains($box, 'NS')"> NORTH AND SOUTH OF LINE </xsl:when>
+                	<xsl:when test="contains($box, 'EW')"> EAST AND WEST OF LINE </xsl:when>
+          	</xsl:choose>
+
+        	<xsl:text>FROM </xsl:text>
+
+		<xsl:variable name="anc1">
+			<xsl:call-template name="rmLeadingSpace">
+				<xsl:with-param name="str" select="substring-before(@endPointAnc,'-')"/>
+			</xsl:call-template>
+		</xsl:variable>	
+		
+		<xsl:variable name="anc1a">
+        		<xsl:call-template name="fmtAnchor">
+				<xsl:with-param name="anchor" select="substring-before(@endPointAnc,'-')"/>
+			</xsl:call-template>
+		</xsl:variable>	
+
+		<xsl:value-of select="substring-before($anc1,' ')"/>
+        	<xsl:text> MILES </xsl:text>
+
+		<xsl:call-template name="getFullDir">
+			<xsl:with-param name="str" select="substring-before($anc1a,' ')"/>
+		</xsl:call-template>	
+        	<xsl:text> OF </xsl:text>
+
+		<xsl:for-each select="AnchorPoints">
+			<xsl:variable name="anchor1" select="."/>
+			<xsl:if test="position() = 1">
+				<xsl:value-of select="substring($anchor1,8)"/>
+        			<xsl:text> </xsl:text>
+				<xsl:call-template name="getStateFullName">
+					<xsl:with-param name="st" select="substring($anchor1,5,2)"/>
+				</xsl:call-template>	
+			</xsl:if>
+		</xsl:for-each>
+
+        	<xsl:text> TO </xsl:text>
+
+		<xsl:variable name="anc2">
+			<xsl:call-template name="rmLeadingSpace">
+				<xsl:with-param name="str" select="substring-after(@endPointAnc,'-')"/>
+			</xsl:call-template>
+		</xsl:variable>	
+		
+		<xsl:variable name="anc2a">
+        		<xsl:call-template name="fmtAnchor">
+				<xsl:with-param name="anchor" select="substring-before(@endPointAnc,'-')"/>
+			</xsl:call-template>
+		</xsl:variable>	
+
+		<xsl:value-of select="substring-before($anc2,' ')"/>
+        	<xsl:text> MILES </xsl:text>
+
+		<xsl:call-template name="getFullDir">
+			<xsl:with-param name="str" select="substring-before($anc2a,' ')"/>
+		</xsl:call-template>	
+        	<xsl:text> OF </xsl:text>
+
+		<xsl:for-each select="AnchorPoints">
+			<xsl:variable name="anchor2" select="."/>
+			<xsl:if test="position() = 2">
+				<xsl:value-of select="substring($anchor2,8)"/>
+        			<xsl:text> </xsl:text>
+				<xsl:call-template name="getStateFullName">
+					<xsl:with-param name="st" select="substring($anchor2,5,2)"/>
+				</xsl:call-template>	
+			</xsl:if>
+		</xsl:for-each>
+	
+        	<xsl:text>. FOR A COMPLETE </xsl:text>
+        	<xsl:text>DEPICTION OF THE WATCH SEE THE ASSOCIATED WATCH OUTLINE UPDATE</xsl:text>
+        	<xsl:text>(WOUS64 KWNS WOU</xsl:text>
+          	<xsl:value-of select="@watchNumber"/>
+	 <xsl:text>).</xsl:text>
+	</xsl:variable>
+
+	<xsl:call-template name="wrapText">
+		<xsl:with-param name="str" select="$longLine"/>
+		<xsl:with-param name="charPerLine" select="65"/>
+		<xsl:with-param name="sep" select="' '"/>
+	</xsl:call-template>
+
+	<xsl:value-of select="$newline"/>
+	<xsl:value-of select="$newline"/>
+        <xsl:text>REMEMBER...A TORNADO WATCH MEANS CONDITIONS ARE FAVORABLE FOR</xsl:text>
+	<xsl:value-of select="$newline"/>
+        <xsl:text>TORNADOES AND SEVERE THUNDERSTORMS IN AND CLOSE TO THE WATCH</xsl:text>
+	<xsl:value-of select="$newline"/>
+        <xsl:text>AREA. PERSONS IN THESE AREAS SHOULD BE ON THE LOOKOUT FOR</xsl:text>
+	<xsl:value-of select="$newline"/>
+        <xsl:text>THREATENING WEATHER CONDITIONS AND LISTEN FOR LATER STATEMENTS</xsl:text>
+	<xsl:value-of select="$newline"/>
+        <xsl:text>AND POSSIBLE WARNINGS.</xsl:text>
+	<xsl:value-of select="$newline"/>
+	<xsl:value-of select="$newline"/>
+        <xsl:text>DISCUSSION...</xsl:text>
+          <xsl:if test="@issueStatus = 'Test'">
+                <xsl:text>...THIS IS A TEST...THIS IS A TEST... </xsl:text>
+          </xsl:if>
+
+	<xsl:value-of select="$newline"/>
+	<xsl:value-of select="$newline"/>
+        <xsl:text>AVIATION...TORNADOES AND A FEW SEVERE THUNDERSTORMS WITH HAIL</xsl:text>
+	<xsl:value-of select="$newline"/>
+        <xsl:text>SURFACE AND ALOFT TO </xsl:text>
+        <xsl:value-of select="@hailSize"/>
+        <xsl:text> INCHES. EXTREME TURBULENCE AND SURFACE</xsl:text>
+	<xsl:value-of select="$newline"/>
+        <xsl:text>WIND GUSTS TO </xsl:text>
+        <xsl:value-of select="@gust"/>
+        <xsl:text> KNOTS. A FEW CUMULONIMBI WITH MAXIMUM TOPS TO</xsl:text>
+	<xsl:value-of select="$newline"/>
+        <xsl:value-of select="@top"/>
+        <xsl:text>. MEAN STORM MOTION VECTOR </xsl:text>
+        <xsl:value-of select="@moveDir"/>
+        <xsl:value-of select="@moveSpeed"/>
+
+	<xsl:value-of select="$newline"/>
+	<xsl:value-of select="$newline"/>
+        <xsl:text>...</xsl:text>
+        <xsl:value-of select="@forecaster"/>
+
+  </xsl:template>
+
+  <xsl:template name="getFullDir">
+	<xsl:param name="str"/>
+		<xsl:choose>
+			<xsl:when test="contains($str, 'NNE')">
+				<xsl:text>NORTH NORTHEAST</xsl:text>
+			</xsl:when>
+			<xsl:when test="contains($str, 'ENE')">
+				<xsl:text>EAST NORTHEAST</xsl:text>
+			</xsl:when>
+			<xsl:when test="contains($str, 'ESE')">
+				<xsl:text>EAST SOUTHEAST</xsl:text>
+			</xsl:when>
+			<xsl:when test="contains($str, 'SSE')">
+				<xsl:text>SOUTH SOUTHEAST</xsl:text>
+			</xsl:when>
+			<xsl:when test="contains($str, 'SSW')">
+				<xsl:text>SOUTH SOUTHWEST</xsl:text>
+			</xsl:when>
+			<xsl:when test="contains($str, 'WSW')">
+				<xsl:text>WEST SOUTHWEST</xsl:text>
+			</xsl:when>
+			<xsl:when test="contains($str, 'WNW')">
+				<xsl:text>WEST NORTHWEST</xsl:text>
+			</xsl:when>
+			<xsl:when test="contains($str, 'NNW')">
+				<xsl:text>NORTH NORTHWEST</xsl:text>
+			</xsl:when>
+			<xsl:when test="contains($str, 'NE')">
+				<xsl:text>NORTHEAST</xsl:text>
+			</xsl:when>
+			<xsl:when test="contains($str, 'SE')">
+				<xsl:text>SOUTHEAST</xsl:text>
+			</xsl:when>
+			<xsl:when test="contains($str, 'SW')">
+				<xsl:text>SOUTHWEST</xsl:text>
+			</xsl:when>
+			<xsl:when test="contains($str, 'NW')">
+				<xsl:text>NORTHWEST</xsl:text>
+			</xsl:when>
+			<xsl:when test="contains($str, 'W')">
+				<xsl:text>WEST</xsl:text>
+			</xsl:when>
+			<xsl:when test="contains($str, 'N')">
+				<xsl:text>NORTH</xsl:text>
+			</xsl:when>
+			<xsl:when test="contains($str, 'S')">
+				<xsl:text>SOUTH</xsl:text>
+			</xsl:when>
+			<xsl:when test="contains($str, 'E')">
+				<xsl:text>EAST</xsl:text>
+			</xsl:when>
+		</xsl:choose>
+  </xsl:template>
+</xsl:stylesheet>
+  

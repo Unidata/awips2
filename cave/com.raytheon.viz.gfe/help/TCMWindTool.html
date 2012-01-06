@@ -1,0 +1,341 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="CONTENT-TYPE" content="text/html; charset=utf-8">
+  <title>TCMWindTool</title>
+  <meta name="GENERATOR" content="OpenOffice.org 1.1.3  (Linux)">
+  <meta name="CREATED" content="20050510;9464500">
+  <meta name="CHANGED" content="20050706;12394400">
+  <style>
+	<!--
+		@page { size: 8.5in 11in; margin-right: 1.25in; margin-top: 1in; margin-bottom: 1in }
+		P { margin-bottom: 0.08in; direction: ltr; color: #000000; text-align: left; widows: 0; orphans: 0 }
+		P.western { font-family: "Nimbus Roman No9 L", "Times New Roman", serif; font-size: 12pt; so-language: en-US }
+		P.cjk { font-family: "Nimbus Sans L", "Arial"; font-size: 12pt; so-language:  }
+		P.ctl { font-family: "Tahoma", "Lucidasans"; font-size: 12pt; so-language:  }
+		P.ww-table-contents111-western { font-family: "Nimbus Roman No9 L", "Times New Roman", serif; font-size: 12pt; so-language: en-US }
+		P.ww-table-contents111-cjk { font-family: "Nimbus Sans L", "Arial"; font-size: 12pt; so-language:  }
+		P.ww-table-contents111-ctl { font-family: "Tahoma", "Lucidasans"; font-size: 12pt; so-language:  }
+		P.ww-table-heading111-western { font-family: "Nimbus Roman No9 L", "Times New Roman", serif; font-size: 12pt; so-language: en-US; font-style: italic; font-weight: bold; text-align: center }
+		P.ww-table-heading111-cjk { font-family: "Nimbus Sans L", "Arial"; font-size: 12pt; so-language: ; font-style: italic; font-weight: bold; text-align: center }
+		P.ww-table-heading111-ctl { font-family: "Tahoma", "Lucidasans"; font-size: 12pt; so-language: ; font-style: italic; font-weight: bold; text-align: center }
+	-->
+	</style>
+</head>
+<body dir="ltr" lang="de-DE" text="#000000">
+<p class="western" style="margin-bottom: 0in;" align="center"
+ lang="en-US">
+<font size="6"><b>TCMWind Tool</b></font></p>
+<h1>
+<font size="4"><b>Version 2.3</b></font></h1>
+<h1>
+<font size="4"><b>July 6, 2005</b></font></h1>
+<p class="western" style="margin-bottom: 0in;" align="center"
+ lang="en-US">
+<br>
+</p>
+<font size="3">The TCMWind tool was designed to read and decode the TCM
+text bulletin and create a sequence of wind grids based on the
+location and wind radii information. Forecasters can choose between
+the current forecast, NAM, or the GFS as background wind fields. The
+tool generates wind grids based on the local wind time constraints.
+For example, if a site configures the wind weather element such that
+there is a grid every hour, the tool will produce a wind grid every
+hour for the time span of the the TCM bulletin (usually 5 days).</font>
+<font size="3"></font>
+<h1><font size="5"><b>Running the Tool</b></font></h1>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+</p>
+<font size="3">To run the TCMWind tool, select from the GFE main menu, </font>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US"></p>
+<p class="western" style="margin-bottom: 0in;" align="center"
+ lang="en-US">
+</p>
+<h1><font size="3"><b>Populate-&gt;TCMWindTool. </b></font></h1>
+<p class="western" style="margin-bottom: 0in;" align="center"
+ lang="en-US"></p>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<br>
+</p>
+<font size="3">As soon as the tool starts, it displays a dialog that
+looks like Figure 1 below. Using this dialog you can indicate the
+TCM bulletin that should be decoded, the background wind field, the
+eye diameter, the 34-knot radius at 3, 4, and 5 days, and whether you
+want the tool to make wind grids over the selected time range only.
+Each of the options are described in more detail below.</font>
+<h1><font size="4"><b>Product to decode</b></font></h1>
+<font size="3">Each new tropical cyclone is assigned a slightly
+different product PIL. It is very important that you select the
+correct product name or the wrong TCM will be decoded and plotted. Use
+one of the first two columns of product PILs to select the
+appropriate product. One and only one selection is allowed. Any
+more or less than one will result in an error message in the form of
+a GFE yellow banner.</font>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US"><br>
+</p>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<img alt="TCMWind tool user interface" src="images/TCMWindToolUI.png"
+ name="Graphic1"
+ style="border: 0px solid ; width: 393px; height: 785px;" align="left"><br>
+</p>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<br>
+</p>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<br>
+</p>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<br>
+</p>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<br>
+</p>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<br>
+</p>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<br>
+</p>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<br>
+</p>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<br>
+</p>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<br>
+</p>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<br>
+</p>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<br>
+</p>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<br>
+</p>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<br>
+</p>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<br>
+</p>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<br>
+</p>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<br>
+</p>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<br>
+</p>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<br>
+</p>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<br>
+</p>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<br>
+</p>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<br>
+</p>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<br>
+</p>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<br>
+</p>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<br>
+</p>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<br>
+</p>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<br>
+</p>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<br>
+</p>
+<font size="3"><b><br>
+Figure 1 - Snapshot of the TCMWindTool interface</b></font>
+<p class="western" style="margin-left: 1in; margin-bottom: 0in;"
+ align="left" lang="en-US"><br>
+</p>
+<h1>
+<font size="4"><b>Background Model</b></font></h1>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<br>
+</p>
+<font size="3">This is where you select the background for your grid.
+The tool will do its best to match the time of the model (or Fcst)
+grid with the time of the cyclone. The background grid is blended
+with the cyclone wind field so that you have winds defined over your
+entire domain.</font>
+<h1><font size="4"><b>Eye Diameter</b></font></h1>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<br>
+</p>
+<font size="3">TPC will generally report an observed eye diameter in
+the TCM bulletin. This value is used to calculate the radius of
+maximum wind (RMW) using this equation:</font>
+<p class="western" style="margin-bottom: 0in;" align="center"
+ lang="en-US"> </p>
+<h3><font size="3"><b>RMW = (EyeDiameter / 2.0) + 8.0</b></font></h3>
+<p class="western" style="margin-bottom: 0in;" align="center"
+ lang="en-US"></p>
+<font size="3">The value for this radius of maximum wind is used
+throughout the 5-day forecast period. If you wish to override this
+TPC value, move the slider bar to the right. Any value greater than
+zero will be used by the tool. If you do not adjust this slider, the
+value used will be the same as found in the TCM bulletin.<br>
+<br>
+</font>
+<h1><font size="4"><b>34 knot radius at 3 days (4 days) (5 days)</b></font></h1>
+<font size="3">Beyond 72 hours, the TCM bulletin defines only a center
+location and maximum sustained wind at 24 hour intervals. To better
+define the spatial extent of the cyclone for the 3-5 day period,
+three sliders allow the forecasters to set the radius of the 34 knot
+wind threshold at 24 hour intervals. This is effectively the same as
+if the TCM bulletin defined 34 knot radii at these distances. To
+adjust the radii, simply move the slider to the desired value for
+each of the sliders.<br>
+<br>
+</font>
+<h1><font size="4"><b>Decrease Wind over Land by (%)</b></font></h1>
+Adjusting this slider will reduce the wind magnitude over areas where
+the elevation is greater than zero (above sea level). Note that the
+scale range is from -20% to +50%. Negative values will increase the
+wind magnitude by that amount over areas above sea level.<br>
+<br>
+&nbsp;<br>
+<font size="4"><b>Make Grid over Selected Time Only</b></font><br>
+<br>
+Selecting “Yes” for this option will produce grids only over a
+time range that you select in the grid manager. Selecting “No”
+will cause the tool to create grids for the entire forecast period of
+the TCM bulletin. De-selecting the grid manager time range will have
+the same effect as selecting “No”. If you have a time range
+selected and select “Yes” to “Make Grid Over Selected Time
+Only”, but your selected time does not intersect the valid time of
+the TCM bulletin, a yellow banner will display informing you that you
+selected a time outside the time period defined in the bulletin.
+<h1><big><font size="5"><big><b>The Algorithm</b></big></font></big></h1>
+The algorithm used to calculate the wind field is roughly a Rankine
+vortex. Wind values at specified radii are defined in the TCM bulletin.
+Wind values between these radii are interpolated using an exponential
+curve. An example of this curve using forecast data from the northeast
+quadrant of Hurricane Irene (17 Oct 1999) is shown in Figure 2 below.<br>
+<font face="Nimbus Roman No9 L, Times New Roman"><font size="3"><br>
+</font></font><br>
+<p style="margin-bottom: 0in;" align="left" lang="en-US"><img
+ alt="Rankine example" src="images/TCMWindToolRankine.png"
+ name="Graphic2"
+ style="border: 0px solid ; width: 516px; height: 537px;" align="left"><br>
+</p>
+<p class="western" style="margin-left: 1in; margin-bottom: 0in;"
+ align="left" lang="en-US">
+<font size="3"><b><br>
+</b></font></p>
+<p class="western" style="margin-left: 1in; margin-bottom: 0in;"
+ align="left" lang="en-US"><font size="3"><b><br>
+</b></font></p>
+<p class="western" style="margin-left: 1in; margin-bottom: 0in;"
+ align="left" lang="en-US"><font size="3"><b><br>
+</b></font></p>
+<p class="western" style="margin-left: 1in; margin-bottom: 0in;"
+ align="left" lang="en-US"><font size="3"><b><br>
+</b></font></p>
+<p class="western" style="margin-left: 1in; margin-bottom: 0in;"
+ align="left" lang="en-US"><font size="3"><b><br>
+</b></font></p>
+<p class="western" style="margin-left: 1in; margin-bottom: 0in;"
+ align="left" lang="en-US"><font size="3"><b><br>
+</b></font></p>
+<p class="western" style="margin-left: 1in; margin-bottom: 0in;"
+ align="left" lang="en-US"><font size="3"><b><br>
+</b></font></p>
+<p class="western" style="margin-left: 1in; margin-bottom: 0in;"
+ align="left" lang="en-US"><font size="3"><b><br>
+</b></font></p>
+<p class="western" style="margin-left: 1in; margin-bottom: 0in;"
+ align="left" lang="en-US"><font size="3"><b><br>
+</b></font></p>
+<p class="western" style="margin-left: 1in; margin-bottom: 0in;"
+ align="left" lang="en-US"><font size="3"><b><br>
+</b></font></p>
+<p class="western" style="margin-left: 1in; margin-bottom: 0in;"
+ align="left" lang="en-US"><font size="3"><b><br>
+</b></font></p>
+<p class="western" style="margin-left: 1in; margin-bottom: 0in;"
+ align="left" lang="en-US"><font size="3"><b><br>
+</b></font></p>
+<p class="western" style="margin-left: 1in; margin-bottom: 0in;"
+ align="left" lang="en-US"><font size="3"><b><br>
+</b></font></p>
+<p class="western" style="margin-left: 1in; margin-bottom: 0in;"
+ align="left" lang="en-US"><font size="3"><b><br>
+</b></font></p>
+<p class="western" style="margin-left: 1in; margin-bottom: 0in;"
+ align="left" lang="en-US"><font size="3"><b><br>
+</b></font></p>
+<p class="western" style="margin-left: 1in; margin-bottom: 0in;"
+ align="left" lang="en-US"><font size="3"><b><br>
+</b></font></p>
+<p class="western" style="margin-left: 1in; margin-bottom: 0in;"
+ align="left" lang="en-US"><font size="3"><b><br>
+</b></font></p>
+<font size="3"><b><br>
+Figure 2 – Example of Rankine vortex algorithm that
+interpolates wind speed as a function of distance fro the center.</b></font><br>
+<br>
+<br>
+This process is repeated for each quadrant, based on the specified
+radii in the TCM bulletin. This technique is used to calculate the
+winds from the RMW outward. A linear curve is used to calculate wind
+values from the RMW toward the center.<br>
+<h1><big><font face="Nimbus Roman No9 L, Times New Roman"><font size="4"><big><b>Wind
+Speed Caps</b></big></font></font></big></h1>
+Based on guidance from the TPC and the wind team, limitations on the
+magnitude of the wind are applied based on the forecast lead-time.
+These wind caps are documented in the table below.<br>
+<br>
+<span style="font-weight: bold;">Wind Caps for TCMWind Tool</span><br>
+<br>
+<table border="1" bordercolor="#000000" cellpadding="4" cellspacing="0"
+ width="577">
+  <col width="279"> <col width="280"> <thead> <tr valign="top">
+    <td width="279"> Forecast period </td>
+    <td width="280"> Maximum Allowed Wind Value </td>
+  </tr>
+  </thead> <tbody>
+    <tr valign="top">
+      <td width="279"> 0 – 24 hours </td>
+      <td width="280"> Maximum Sustained Wind </td>
+    </tr>
+    <tr valign="top">
+      <td width="279"> 25-72 hours </td>
+      <td width="280"> 100 knots </td>
+    </tr>
+    <tr valign="top">
+      <td width="279"> 73-120 hours </td>
+      <td width="280"> 64 knots </td>
+    </tr>
+  </tbody>
+</table>
+<p style="margin-bottom: 0in;" align="left" lang="en-US"><br>
+</p>
+<font size="3"><b>Table 1 – List of wind speed caps as a function of
+lead time.</b></font>
+<p class="western" style="margin-left: 1in; margin-bottom: 0in;"
+ align="left" lang="en-US"><br>
+</p>
+<p style="margin-bottom: 0in;" align="left" lang="en-US"><br>
+</p>
+<p class="western" style="margin-bottom: 0in;" align="left" lang="en-US">
+<br>
+</p>
+</body>
+</html>

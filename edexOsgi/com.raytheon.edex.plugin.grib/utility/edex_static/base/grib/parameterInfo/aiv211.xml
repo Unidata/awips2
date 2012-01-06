@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<gribParamInfo xmlns:ns2="group">
+	<valtimeMINUSreftime>
+		<fcst>0</fcst>
+		<fcst>3600</fcst>
+		<fcst>7200</fcst>
+		<fcst>10800</fcst>
+		<fcst>14400</fcst>
+		<fcst>18000</fcst>
+		<fcst>21600</fcst>
+		<fcst>25200</fcst>
+		<fcst>28800</fcst>
+		<fcst>32400</fcst>
+		<fcst>36000</fcst>
+		<fcst>39600</fcst>
+		<fcst>43200</fcst>
+	</valtimeMINUSreftime>
+	<gribParameterInfo xsi:type="parameterInfo"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<short_name>reftime</short_name>
+		<long_name>reference time</long_name>
+		<units>seconds since (1970-1-1 00:00:00.0)</units>
+		<fillValue>0.0</fillValue>
+		<n3D>0</n3D>
+	</gribParameterInfo>
+	<gribParameterInfo xsi:type="parameterInfo"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<short_name>staticCoriolis</short_name>
+		<long_name>Coriolis parameter</long_name>
+		<units>s^-1</units>
+		<fillValue>-99999.0</fillValue>
+		<n3D>0</n3D>
+	</gribParameterInfo>
+	<gribParameterInfo xsi:type="parameterInfo"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<short_name>valtimeMINUSreftime</short_name>
+		<units>seconds</units>
+		<fillValue>0.0</fillValue>
+		<n3D>0</n3D>
+	</gribParameterInfo>
+	<gribParameterInfo xsi:type="parameterInfo"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<short_name>staticSpacing</short_name>
+		<long_name>Grid spacing</long_name>
+		<units>m</units>
+		<fillValue>-99999.0</fillValue>
+		<n3D>0</n3D>
+	</gribParameterInfo>
+	<gribParameterInfo xsi:type="parameterInfo"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<short_name>ip</short_name>
+		<long_name>Icing Potential</long_name>
+		<units>none</units>
+		<udunits>none</udunits>
+		<uiname>IcePot</uiname>
+		<valid_range>0.0</valid_range>
+		<valid_range>4.0</valid_range>
+		<fillValue>-99999.0</fillValue>
+		<n3D>39</n3D>
+		<levels>MB 1050-100 by 25</levels>
+	</gribParameterInfo>
+</gribParamInfo>

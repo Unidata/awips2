@@ -1,0 +1,306 @@
+module 'Hb'
+version = 48;
+xdesigned = 1;
+applicationName = 'Hb';
+generateNameC = * 'setup.c';
+generateNameExterns = * 'setup.h';
+generateNameResDB = * 'setup.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+motifFlavour = 2;
+generateMask = 39256293;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+javaVersion = 2;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'rfieldsDS' : XmDialogShell {
+	arguments {
+	lastGenName = 'rfieldsDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_rfieldsDS (Widget parent)
+';
+	XmNallowShellResize = true;
+	XmNtitle =  * 'Reference Fields';
+	XmNminWidth =  * 634;
+	XmNminHeight =  * 330;
+	XmNmaxWidth =  * 634;
+	XmNmaxHeight =  * 330;
+	};
+object 'rfieldsFO' : XmForm {
+	arguments {
+	lastGenName = 'rfieldsFO';
+	XmNautoUnmanage = false;
+	};
+object 'rfieldsSE' : XmSeparator {
+	arguments {
+	lastGenName = 'rfieldsSE';
+	};
+};
+object 'rfields_okPB' : XmPushButton {
+	arguments {
+	lastGenName = 'rfields_okPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString =  * 'Ok';
+	};
+};
+object 'rfieldsOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'rfieldsOM';
+	};
+abstract object 'rfieldsLA' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'rfieldsLA';
+	XmNlabelString = 'Field:';
+	};
+};
+abstract object 'rfieldsCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'rfieldsCB';
+	XmNx = 41;
+	XmNy = 3;
+	XmNwidth = 216;
+	XmNheight = 52;
+	XmNlabelString = 'Reservoir Owner';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+object 'rfieldsPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'rfieldsPDM';
+	};
+object 'rownerPB' : XmPushButton {
+	arguments {
+	lastGenName = 'rownerPB';
+	XmNlabelString =  * 'Reservoir Owner';
+	};
+};
+object 'rtypePB' : XmPushButton {
+	arguments {
+	lastGenName = 'rtypePB';
+	XmNlabelString =  * 'Reservoir Type';
+	};
+};
+object 'coopCommsPB' : XmPushButton {
+	arguments {
+	lastGenName = 'coopCommsPB';
+	XmNlabelString =  * 'Coop Communications';
+	};
+};
+object 'coopRecipPB' : XmPushButton {
+	arguments {
+	lastGenName = 'coopRecipPB';
+	XmNlabelString =  * 'Coop Recipient';
+	};
+};
+object 'coopSponsPB' : XmPushButton {
+	arguments {
+	lastGenName = 'coopSponsPB';
+	XmNlabelString =  * 'Coop Sponsor';
+	};
+};
+object 'dcpOwnerPB' : XmPushButton {
+	arguments {
+	lastGenName = 'dcpOwnerPB';
+	XmNlabelString =  * 'DCP Owner';
+	};
+};
+object 'gageOwnerPB' : XmPushButton {
+	arguments {
+	lastGenName = 'gageOwnerPB';
+	XmNlabelString =  * 'Gage Owner';
+	};
+};
+object 'gageMaintPB' : XmPushButton {
+	arguments {
+	lastGenName = 'gageMaintPB';
+	XmNlabelString =  * 'Gage Maintainer';
+	};
+};
+object 'gageTypePB' : XmPushButton {
+	arguments {
+	lastGenName = 'gageTypePB';
+	XmNlabelString =  * 'Gage Type';
+	};
+};
+object 'hsaPB' : XmPushButton {
+	arguments {
+	lastGenName = 'hsaPB';
+	XmNlabelString =  * 'Hydro Service Area';
+	};
+};
+object 'netPB' : XmPushButton {
+	arguments {
+	lastGenName = 'netPB';
+	XmNlabelString =  * 'Networks';
+	};
+};
+object 'rfcPB' : XmPushButton {
+	arguments {
+	lastGenName = 'rfcPB';
+	XmNlabelString =  * 'River Forecast Center';
+	};
+};
+object 'townerPB' : XmPushButton {
+	arguments {
+	lastGenName = 'townerPB';
+	XmNlabelString =  * 'Telemetry Owner';
+	};
+};
+object 'tpayorPB' : XmPushButton {
+	arguments {
+	lastGenName = 'tpayorPB';
+	XmNlabelString =  * 'Telemetry Payor';
+	};
+};
+object 'ttypePB' : XmPushButton {
+	arguments {
+	lastGenName = 'ttypePB';
+	XmNlabelString =  * 'Telemetry Type';
+	};
+};
+object 'wfoPB' : XmPushButton {
+	arguments {
+	lastGenName = 'wfoPB';
+	XmNlabelString =  * 'Weather Forecast Ofc';
+	};
+};
+};
+};
+};
+object 'rfieldswkFO' : XmForm {
+	arguments {
+	lastGenName = 'rfieldswkFO';
+	};
+object 'rfields_addPB' : XmPushButton {
+	arguments {
+	lastGenName = 'rfields_addPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString =  * 'Add';
+	};
+};
+object 'rfields_updatePB' : XmPushButton {
+	arguments {
+	lastGenName = 'rfields_updatePB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString =  * 'Update';
+	};
+};
+object 'rfields_deletePB' : XmPushButton {
+	arguments {
+	lastGenName = 'rfields_deletePB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString =  * 'Delete';
+	};
+};
+object 'rfieldsTE' : XmText {
+	arguments {
+	lastGenName = 'rfieldsTE';
+	XmNmaxLength =  * 12;
+	XmNcolumns =  * 26;
+	};
+};
+object 'rfieldsSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'rfieldsSL';
+	XmNwidth = 200;
+	XmNheight =  * 161;
+	};
+abstract object 'rfieldsHB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'rfieldsHB';
+	};
+};
+abstract object 'rfieldsVB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'rfieldsVB';
+	};
+};
+abstract object 'rfieldsLI' : XmList {
+	arguments {
+	lastGenName = 'rfieldsLI';
+	XmNvisibleItemCount = 11;
+	XmNlistSizePolicy = XmRESIZE_IF_POSSIBLE;
+	};
+};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 30;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 90;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 145;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -295;
+	XmNleftAttachment = 1 0 95;
+	XmNbottomAttachment = 2 0 -245;
+	XmNtopAttachment = 1 0 205;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -295;
+	XmNleftAttachment = 1 0 95;
+	XmNbottomAttachment = 2 0 -200;
+	XmNtopAttachment = 1 0 10;
+    };
+    };
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -635;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 2 0 -285;
+	XmNtopAttachment = 1 0 275;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 275;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 290;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -302;
+	XmNleftAttachment = 1 0 9;
+	XmNbottomAttachment = 2 0 -151;
+	XmNtopAttachment = 1 0 17;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -630;
+	XmNleftAttachment = 1 0 330;
+	XmNbottomAttachment = 2 0 -265;
+	XmNtopAttachment = 1 0 10;
+    };
+    };
+};
+};
+end module;

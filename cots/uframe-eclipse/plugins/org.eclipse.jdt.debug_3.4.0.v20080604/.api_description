@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="JDI Debug Model" version="1.1">
+    <plugin id="org.eclipse.jdt.debug"/>
+    <package name="org.eclipse.jdt.debug.core">
+        <type implement="false" name="IJavaArray"/>
+        <type implement="false" name="IJavaArrayType"/>
+        <type implement="false" name="IJavaBreakpoint"/>
+        <type implement="false" name="IJavaClassObject"/>
+        <type implement="false" name="IJavaClassPrepareBreakpoint"/>
+        <type implement="false" name="IJavaClassType"/>
+        <type implement="false" name="IJavaDebugTarget"/>
+        <type implement="false" name="IJavaExceptionBreakpoint"/>
+        <type implement="false" name="IJavaFieldVariable"/>
+        <type implement="false" name="IJavaInterfaceType"/>
+        <type implement="false" name="IJavaLineBreakpoint"/>
+        <type implement="false" name="IJavaMethodBreakpoint"/>
+        <type implement="false" name="IJavaMethodEntryBreakpoint"/>
+        <type implement="false" name="IJavaModifiers"/>
+        <type implement="false" name="IJavaObject"/>
+        <type implement="false" name="IJavaPatternBreakpoint"/>
+        <type implement="false" name="IJavaPrimitiveValue"/>
+        <type implement="false" name="IJavaReferenceType"/>
+        <type implement="false" name="IJavaStackFrame"/>
+        <type implement="false" name="IJavaStratumLineBreakpoint"/>
+        <type implement="false" name="IJavaTargetPatternBreakpoint"/>
+        <type implement="false" name="IJavaThread"/>
+        <type implement="false" name="IJavaThreadGroup"/>
+        <type implement="false" name="IJavaType"/>
+        <type implement="false" name="IJavaValue"/>
+        <type implement="false" name="IJavaVariable"/>
+        <type implement="false" name="IJavaWatchpoint"/>
+        <type extend="false" instantiate="false" name="JDIDebugModel"/>
+    </package>
+    <package name="org.eclipse.jdt.debug.eval">
+        <type extend="false" instantiate="false" name="EvaluationManager"/>
+        <type implement="false" name="IAstEvaluationEngine"/>
+        <type implement="false" name="IClassFileEvaluationEngine"/>
+        <type implement="false" name="ICompiledExpression"/>
+        <type implement="false" name="IEvaluationEngine"/>
+        <type implement="false" name="IEvaluationResult"/>
+    </package>
+</component>

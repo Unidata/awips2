@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Measure Plug-in
+Bundle-SymbolicName: javax.measure
+Bundle-Version: 1.0.0.qualifier
+Bundle-ClassPath: jsr-275-1.0-beta-2.jar
+Export-Package: javax.measure,
+ javax.measure.converter,
+ javax.measure.quantity,
+ javax.measure.unit
+Bundle-Vendor: Raytheon-bundled OSS
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

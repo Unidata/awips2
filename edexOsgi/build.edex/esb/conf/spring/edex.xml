@@ -1,0 +1,353 @@
+
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
+  http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+  
+    <!-- specify the connection to the broker (qpid) -->
+    <!-- MaxPrefetch set at 0, due to DataPool routers getting messages backed up behind long running tasks -->
+    <bean id="amqConnectionFactory" class="org.apache.qpid.client.AMQConnectionFactory">
+       <constructor-arg type="java.lang.String" value="amqp://guest:guest@/edex?brokerlist='tcp://${broker.addr}?retries='9999'&amp;connecttimeout='5000'&amp;connectdelay='5000''&amp;maxprefetch='0'&amp;sync_publish='all'&amp;sync_ack='true'"/>
+    </bean>
+
+    <bean id="jmsPooledConnectionFactory" class="com.raytheon.uf.common.jms.JmsPooledConnectionFactory">
+       <constructor-arg ref="amqConnectionFactory"/>
+       <property name="provider" value="QPID"/>
+       <property name="reconnectInterval" value="5000"/>
+       <property name="sessionsPerConnection" value="1"/>
+       <!-- After session has been closed by thread keep it allocated for another 90 seconds in case thread needs it again -->
+       <property name="sessionHoldTime" value="90000"/>
+       <!-- Any resource that has been available in the pool for more than 1 minute will be closed -->
+       <property name="resourceRetention" value="60000"/>
+    </bean>
+ 
+    <bean id="genericThreadPool"
+		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="${jms.pool.min}" />
+		<property name="maxPoolSize" value="${jms.pool.max}" />
+		<property name="queueCapacity" value="0" />
+	</bean>
+
+    <bean id="jms-generic" class="org.apache.camel.component.jms.JmsComponent">
+       <constructor-arg ref="jmsGenericConfig" />
+       <property name="taskExecutor" ref="genericThreadPool" />
+	</bean>
+
+	<bean id="jmsGenericConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+			factory-bean="jmsConfig" factory-method="copy" />
+
+	<bean id="qpidNoDurableResolver" class="com.raytheon.uf.edex.esb.camel.spring.QpidDestinationNameResolver">
+	    <property name="queueNamePrefix" value="direct://amq.direct/"/>
+	    <property name="queueNamePostfix" value="?durable='false'"/>
+	</bean>
+
+	<bean id="qpidDurableResolver" class="com.raytheon.uf.edex.esb.camel.spring.QpidDestinationNameResolver">
+	    <property name="queueNamePrefix" value="direct://amq.direct/"/>
+	    <property name="queueNamePostfix" value="?durable='true'"/>
+	</bean>
+
+	<bean id="jmsConfig" class="org.apache.camel.component.jms.JmsConfiguration">
+		<property name="cacheLevelName" value="CACHE_CONSUMER"/>
+		<property name="recoveryInterval" value="1000"/>
+		<property name="requestTimeout" value="5000"/>
+
+		<!-- receiveTimeout is amount of time thread waits to receive a message before recycling -->
+		<property name="receiveTimeout" value="-1"/>
+		<property name="transacted" value="false"/>
+
+		<!-- force maxMessagesPerTask so that the threads don't keep disconnecting and reconnecting.
+		     This will keep a data-type attached to the initial thread it starts on -->
+		<property name="maxMessagesPerTask" value="-1"/>
+		<property name="listenerConnectionFactory" ref="jmsPooledConnectionFactory" />
+		<property name="templateConnectionFactory" ref="jmsPooledConnectionFactory" />
+		<property name="destinationResolver" ref="qpidNoDurableResolver"/>
+		<!--
+		<property name="transacted" value="true" />
+		<property name="acknowledgementModeName" value="TRANSACTED"/>
+		<property name="transactionManager" ref="jmsReceiveTransactionManager" />
+		-->
+	</bean>
+
+	<!--
+	<bean id="jmsReceiveTransactionManager" class="org.springframework.jms.connection.JmsTransactionManager">
+		<property name="connectionFactory" ref="amqConnectionFactory" />
+	</bean>
+
+	<bean id="PROPAGATION_REQUIRED" class="org.apache.camel.spring.spi.SpringTransactionPolicy">
+		<property name="transactionManager" ref="jmsReceiveTransactionManager" />
+		<property name="propagationBehaviorName" value="PROPAGATION_REQUIRED"/>
+	</bean>
+	-->
+	
+	<bean id="pypiesStoreProps" class="com.raytheon.uf.common.pypies.PypiesProperties">
+		<property name="address" value="${pypies.server}" />
+		<property name="maxConnections" value="${pypies.maxConnections}" />
+		<!-- value in milliseconds to allow socket to timeout, don't allow this to be zero, bad things could happen -->
+		<property name="socketTimeout" value="180000" />
+	</bean>
+	<bean id="pypiesDataStoreFactory" class="com.raytheon.uf.common.pypies.PyPiesDataStoreFactory">
+		<constructor-arg ref="pypiesStoreProps" />
+	</bean>
+	
+	<bean id="dataStoreFactory" class="com.raytheon.uf.common.datastorage.DataStoreFactory" factory-method="getInstance">
+		<!-- Get instance of DataStoreFactory and set underlying factory to use -->
+		<property name="underlyingFactory" ref="pypiesDataStoreFactory"/>
+	</bean>
+    
+  
+    <bean id="initialcorePropertyConfigurer"
+      class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="systemPropertiesModeName">
+           <value>SYSTEM_PROPERTIES_MODE_OVERRIDE</value>
+        </property>
+        <property name="searchSystemEnvironment">
+           <value type="boolean">true</value>
+        </property>
+        <property name="ignoreUnresolvablePlaceholders" value="true">
+        </property>
+    </bean>
+
+    <bean id="fileToString" class="com.raytheon.uf.edex.esb.camel.FileToString"/>
+    <bean id="processUtil" class="com.raytheon.uf.edex.esb.camel.ProcessUtil"/>
+    <bean id="setIngestHeaderFields" class="com.raytheon.uf.edex.esb.camel.SetIngestHeaderFields"/>
+    <bean id="uuidGenerator" class="com.raytheon.uf.edex.esb.camel.UUIDGenerator"/>
+    <bean id="messageUtil" class="com.raytheon.uf.edex.esb.camel.MessageProducer" />
+    <bean id="camelContextAdmin" class="com.raytheon.uf.edex.esb.camel.CamelContextAdmin" />
+    
+    <bean id="util" class="com.raytheon.uf.edex.core.EDEXUtil">
+    	<property name="messageProducer" ref="messageUtil" />
+    	<property name="contextAdmin" ref="camelContextAdmin" />
+    </bean>
+    
+    <bean id="initSystem" class="com.raytheon.edex.plugin.InitializerBean" />
+    <bean id="defaultPathProvider" class="com.raytheon.uf.common.dataplugin.persist.DefaultPathProvider"/>
+    
+    <!-- The pluginDefaults are the values that a data plugin will use for
+         some plugin properties if they are not specified in the individual
+         plugin's Spring XML configuration -->
+    <bean id="pluginDefaults" class="com.raytheon.uf.common.dataplugin.defaults.PluginPropertyDefaults">
+		<property name="database" value="metadata" />
+		<property name="initializer" value="com.raytheon.edex.plugin.DefaultPluginInitializer" />
+		<property name="dao" value="com.raytheon.edex.db.dao.DefaultPluginDao" />
+		<property name="initialRetentionTime" value="24" />
+		<property name="pathProvider" ref="defaultPathProvider"/>
+	</bean>  
+
+	<!--  This causes database tables to be initialized when a db plugin is registered -->
+    <bean id="schemaManager" class="com.raytheon.edex.db.purge.SchemaManager"
+    	factory-method="getInstance" />
+    <bean factory-bean="dbPluginRegistry" factory-method="addListener">
+    	<constructor-arg><ref bean="schemaManager"/></constructor-arg>
+    </bean>
+    <!-- This causes the data plugin's database tables to be created when a plugin is registered -->
+    <bean id="dbPluginRegistryListenerAdded" factory-bean="pluginRegistry" factory-method="addListener">
+    	<constructor-arg><ref bean="dbPluginRegistry"/></constructor-arg>
+    </bean>
+    <!-- This causes the data plugin's initializer to get called when a plugin
+         is registered -->
+    <bean id="pluginSetup" class="com.raytheon.edex.plugin.PluginInitialSetup" />
+    <bean factory-bean="pluginRegistry" factory-method="addListener" depends-on="dbPluginRegistryListenerAdded">
+    	<constructor-arg><ref bean="pluginSetup"/></constructor-arg>
+    </bean>
+    
+    <bean id="stringToFile" class="com.raytheon.uf.edex.esb.camel.StringToFile"/>       
+    
+    <bean id="errorHandler" class="org.apache.camel.builder.LoggingErrorHandlerBuilder"/>
+
+    <bean id="serializationUtil" class="com.raytheon.uf.common.serialization.SerializationUtil" />    
+
+	<bean id="pluginRegistry" class="com.raytheon.uf.edex.core.dataplugin.PluginRegistry" factory-method="getInstance"/>	
+	<bean id="dbPluginRegistry" class="com.raytheon.uf.edex.database.DatabasePluginRegistry" factory-method="getInstance"/>
+	
+	<bean id="siteAwareRegistry" class="com.raytheon.uf.edex.site.SiteAwareRegistry" factory-method="getInstance">
+	    <property name="routeId" value="siteActivationRoute"/>
+	</bean>
+	
+	<bean class="com.raytheon.uf.common.dataplugin.convert.ConvertUtil" factory-method="registerConverter">
+  		<constructor-arg><bean class="com.raytheon.uf.common.geospatial.util.JtsGeometryConverter"/></constructor-arg>
+  		<constructor-arg><value>com.vividsolutions.jts.geom.Geometry</value></constructor-arg>
+	</bean>
+	
+	<bean class="com.raytheon.uf.common.dataplugin.convert.ConvertUtil" factory-method="registerConverter">
+  		<constructor-arg><bean class="com.raytheon.uf.common.dataplugin.convert.UnitConverter"/></constructor-arg>
+  		<constructor-arg><value>javax.measure.unit.Unit</value></constructor-arg>
+	</bean>
+	
+	  <bean id="commonDbPluginProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
+		<property name="pluginFQN" value="com.raytheon.uf.edex.database" />
+		<property name="database" value="metadata" />
+		<property name="forceCheck" value="true" />
+	</bean>
+	<bean id="commonDbRegistered" factory-bean="dbPluginRegistry" factory-method="register"
+				depends-on="metadataTxManager">
+		<constructor-arg value="com.raytheon.uf.edex.database"/>
+		<constructor-arg ref="commonDbPluginProperties"/>
+	</bean>
+		
+	<bean id="CamelBeanParameterMappingStrategy"
+          class="com.raytheon.uf.edex.esb.camel.EDEXParameterMappingStrategy" />            
+
+    <!-- ContextManager to start camel context last. Ensures items such as distribution aren't started before all the listening routes are up -->
+	<bean id="contextManager"
+	    class="com.raytheon.uf.edex.esb.camel.context.ContextManager"
+		factory-method="getInstance">
+	</bean>
+
+	<!-- Clustered routes will start on a box if there has not been a lock for that route in the last 60 seconds.
+	     Anyone using the clustered routes should ensure that timeToLive on jms messages are at least 1 minute -->
+	<bean id="clusteredCamelContextMgr"
+	    class="com.raytheon.uf.edex.esb.camel.context.ClusteredContextManager"
+		factory-method="getInstance">
+		<property name="timeOutMillis" value="60000"/>
+	</bean>
+
+    <!-- Serialization Pool -->
+	<bean id="baosPool" class="com.raytheon.uf.common.util.ByteArrayOutputStreamPool" factory-method="getInstance">
+	   <property name="maxPoolSize" value="${ByteArrayOutputStreamPool.maxPoolSize}"/>
+	   <property name="initStreamSize" value="${ByteArrayOutputStreamPool.initStreamSize}"/>
+	   <property name="maxStreamSize" value="${ByteArrayOutputStreamPool.maxStreamSize}"/>
+	</bean>
+
+	<bean id="edexLocalizationObserver" class="com.raytheon.edex.utility.EDEXLocalizationNotificationObserver" factory-method="getInstance"/>
+
+	<bean id="siteActivateNotifyFilter"
+		class="com.raytheon.uf.common.site.notify.SiteActivateNotifyFilter" />
+	<bean id="siteActivationMonitor" class="com.raytheon.uf.edex.site.SiteActivationMonitor" factory-method="getInstance"/>
+    <!--
+    ** Lets deploy some Enterprise Integration Patterns inside the ActiveMQ Message Broker
+    ** For more details see
+    **
+    ** http://activemq.apache.org/enterprise-integration-patterns.html
+    -->
+    <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">                                                                
+
+		<!-- Route for edex to listen for utility updates -->
+		<route id="edexUtilityNotify">
+			<from uri="jms-generic:topic:edex.alerts.utility" />
+			<bean ref="edexLocalizationObserver" method="fileUpdated"/>
+		</route>
+       
+        <!-- Route to send alerts to alertviz -->
+		<route id="alertVizNotify">
+			<from uri="vm:edex.alertVizNotification" />
+			<bean ref="serializationUtil" method="transformToThrift" />
+			<to uri="jms-generic:topic:edex.alerts.msg?deliveryPersistent=false" />
+		</route>
+
+		<!-- Route to send text products to alarm/alert -->
+		<route id="alarmAlertNotify">
+			<from uri="vm:edex.alarmAlertNotification" />
+			<bean ref="serializationUtil" method="transformToThrift" />
+			<to uri="jms-generic:topic:edex.alarms.msg?deliveryPersistent=false" />
+		</route>
+
+        <route id="siteActivationRoute">
+        	<from uri="jms-generic:topic:siteActivation" />
+			<doTry>
+			    <bean ref="serializationUtil" method="transformFromThrift"/>
+				<bean ref="siteAwareRegistry" method="handleMessage" />
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:siteActivation?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
+        </route>
+        
+        <route id="siteActivateNotify">
+			<from uri="vm:edex.siteActivateNotification?size=5000" />
+			<filter>
+				<method bean="siteActivateNotifyFilter" method="isSiteActivateNotification" />
+				<bean ref="siteActivationMonitor" method="handleNotification"/>
+				<bean ref="serializationUtil" method="transformToThrift" />
+				<to uri="jms-generic:topic:edex.alerts.siteActivate" />
+			</filter>
+		</route>
+
+        <!-- Route to periodically close any unused jms resources that have been pooled -->
+        <route id="jmsPooledResourceChecker">
+		    <from uri="timer://jmsPooledResourceCheck?period=60s" />
+			<doTry>
+				<bean ref="jmsPooledConnectionFactory" method="checkPooledResources"/>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:jmsPooledResourceCheck?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
+		</route>
+    </camelContext>    
+    <camelContext
+        id="clusteredCamel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler"
+        autoStartup="false">                                                                
+        <route id="monitorClusteredContexts">
+			<from uri="timer://monitorClusterContexts?fixedRate=true&amp;period=20000"/>
+			<doTry>
+				<bean ref="clusteredCamelContextMgr" method="checkClusteredContexts" />
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:monitorClusteredContexts?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
+		</route>
+	</camelContext>
+	<bean factory-bean="contextManager"
+		factory-method="register">
+		<constructor-arg ref="clusteredCamel"/>
+  	</bean>
+
+    <!-- Uncomment to create a command agent to respond to message based admin commands on the ActiveMQ.Agent topic -->
+    <!--
+    <commandAgent xmlns="http://activemq.apache.org/schema/core" brokerUrl="vm://localhost"/>
+    -->
+	
+    <bean id="metadataDbSessionConfig" class="com.raytheon.uf.edex.database.DatabaseSessionConfiguration">
+        <property name="excludes">
+           <list>
+                <value>com.raytheon.uf.common.dataplugin.text</value>
+                <value>com.raytheon.edex.plugin.shef</value>
+           </list>
+        </property>
+    </bean>
+    <bean id="metadataSessionFactory"
+		class="com.raytheon.uf.edex.database.DatabaseSessionFactoryBean">
+		<property name="configLocation">
+			<value>file:///${edex.home}/conf/db/hibernateConfig/metadata/hibernate.cfg.xml</value>
+		</property>
+		<!-- >property name="dataSource"><ref bean="datasourceMetadata"/></property-->		
+		<property name="databaseSessionConfiguration" ref="metadataDbSessionConfig"/>
+	</bean>
+
+	<bean id="metadataTxManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="metadataSessionFactory" />
+	</bean>
+	
+	<bean id="mapsSessionFactory"
+		class="com.raytheon.uf.edex.database.DatabaseSessionFactoryBean">
+		<!--  no annotations to load, so no databaseSessionConfig -->
+		<property name="configLocation">
+			<value>file:///${edex.home}/conf/db/hibernateConfig/maps/hibernate.cfg.xml</value>
+		</property>
+	</bean>
+
+	<bean id="mapsTxManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="mapsSessionFactory" />
+	</bean>	
+
+   <!-- Redirect geotools log -->
+   <bean class="com.raytheon.uf.common.geospatial.LogRedirector" factory-method="getInstance"/>
+
+   <!-- Reference properties files -->
+   <bean id="projectPropertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	<property name="location">
+		<value>file:${edex.home}/conf/spring/project.properties</value>
+	</property>
+   </bean>
+</beans>

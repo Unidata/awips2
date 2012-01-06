@@ -1,0 +1,32 @@
+=========================================================================
+==  NOTICE file corresponding to the section 4 d of                    ==
+==  the Apache License, Version 2.0,                                   ==
+==  in this case for the Apache Ant distribution.                      ==
+=========================================================================
+
+Apache Qpid.NET
+Copyright 2006 The Apache Software Foundation
+
+This product includes software developed by
+The Apache Software Foundation (http://www.apache.org/).
+
+This product also includes software developed by:
+
+  - The SAXON XSLT Processor from Michael Kay distributed under the Mozilla
+    Public License v1.0, which is available for download at
+    http://saxon.sourceforge.net/
+
+  - The nunit library, Copyright © 2002 James W. Newkirk, Michael C. Two,
+    Alexei A. Vorontsov or Copyright © 2000-2002 Philip A. Craig. Available
+    under terms based on the zlib/libpng licence. Available from 
+    http://www.nunit.org/
+
+  - The Mentalis Security Library, Copyright © 2002-2006, , The Mentalis.org Team
+    under tterms based on the BSD license (http://www.mentalis.org/site/license.qpx).
+    Available from http://www.mentalis.org/soft/projects/seclib/
+
+This product includes software, Apache Log4Net
+(http://logging.apache.org/log4net)
+License: Apache 2.0 License  (http://www.apache.org/licenses/LICENSE-2.0)
+
+

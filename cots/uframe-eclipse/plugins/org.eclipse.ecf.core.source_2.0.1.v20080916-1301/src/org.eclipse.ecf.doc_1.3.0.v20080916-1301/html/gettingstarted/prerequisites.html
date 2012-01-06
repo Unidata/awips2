@@ -1,0 +1,43 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta name="copyright" content="Copyright (c) IBM Corporation and others 2000, 2007. This page is made available under license. For full details see the LEGAL in the documentation book that contains this page." >
+<meta http-equiv="Content-Language" content="en-us">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<link rel="STYLESHEET" href="../../book.css" charset="ISO-8859-1"
+	type="text/css">
+<style type="text/css">
+td {border-top: solid thin black;}
+img[alt] {background-color:#ffdddd;}
+tr {vertical-align: top;}
+</style>
+<title>System Requirements</title>
+<script language="JavaScript" type="text/javascript" src="PLUGINS_ROOT/org.eclipse.help/livehelp.js"> </script>
+</head>
+
+<body>
+<h1><img src="../../intro/css/images/ecf_intro.gif">Eclipse Communication Framework (ECF)</h1>
+<p>
+<h2>System Requirements</h2>
+<p>ECF plugins will be built in Java and will be portable to any
+platform supported by Eclipse. For components that might not run on
+Eclipse (e.g. servers), all ECF-created code will be built to depend
+only upon pure Java Standard Edition (1.4+). We also will look to
+support OSGI Foundation as a minimum runtime platform.</p>
+<p>You will need the following already installed on your machine:</p>
+<ul>
+  <li>Java version 1.4.2 or newer...1.5 or 1.6 OK also
+    <pre>java version "1.4.2_04"<br>Java(TM) 2 Runtime Environment, Standard Edition (build 1.4.2_04-b05)<br>Java HotSpot(TM) Client VM (build 1.4.2_04-b05, mixed model</pre>
+  </li>
+  <li> <a
+ href="http://download.eclipse.org/eclipse/downloads/">Eclipse version 3.3 or newer</a><br>
+    <br>
+Earlier Eclipse Platform versions will work with some of the ECF APIs, but we have not tested them.  Also, 
+we recently have taken advantage of the new UI features in 3.3 (tooltips improvements, menuContribution extension
+point, etc), and that's why we now depend upon version 3.3.  For ECF APIs (plugins/bundles that do <b>not</b>
+have *.ui in their bundle id), they generally support older runtime versions.  See the manifest.mf for each 
+plugin if you want to know the execution environment requirements for each bundle.<br>
+  </li>
+</ul>
+</body>
+</html>

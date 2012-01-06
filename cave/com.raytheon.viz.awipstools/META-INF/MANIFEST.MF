@@ -1,0 +1,38 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Awipstools Plug-in
+Bundle-SymbolicName: com.raytheon.viz.awipstools;singleton:=true
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Activator: com.raytheon.viz.awipstools.Activator
+Bundle-Vendor: Raytheon
+Eclipse-BuddyPolicy: registered, ext, global
+Eclipse-RegisterBuddy: org.apache.velocity, com.raytheon.viz.core, com.raytheon.edex, com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.ui,
+ com.raytheon.viz.core,
+ org.apache.commons.lang,
+ org.geotools,
+ com.raytheon.viz.ui.tools.map,
+ com.raytheon.viz.ui,
+ javax.measure,
+ com.raytheon.uf.common.pointdata,
+ javax.vecmath;bundle-version="1.3.1",
+ com.raytheon.uf.common.awipstools;bundle-version="1.12.1112",
+ com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1112",
+ com.raytheon.uf.viz.d2d.core,
+ com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0",
+ com.raytheon.uf.viz.core.maps;bundle-version="1.12.1174",
+ com.raytheon.uf.viz.d2d.ui
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.viz.awipstools,
+ com.raytheon.viz.awipstools.capabilities,
+ com.raytheon.viz.awipstools.capabilityInterfaces,
+ com.raytheon.viz.awipstools.common,
+ com.raytheon.viz.awipstools.common.stormtrack,
+ com.raytheon.viz.awipstools.ui.action,
+ com.raytheon.viz.awipstools.ui.display,
+ com.raytheon.viz.awipstools.ui.layer
+Import-Package: com.raytheon.uf.common.topo,
+ com.raytheon.uf.viz.d2d.core,
+ com.raytheon.uf.viz.d2d.ui.dialogs.procedures
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

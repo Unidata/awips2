@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry exported="true" kind="lib" path="activation.jar"/>
+	<classpathentry exported="true" kind="lib" path="bsf.jar"/>
+	<classpathentry exported="true" kind="lib" path="bsh-2.0b4.jar"/>
+	<classpathentry exported="true" kind="lib" path="ChartDirector.jar"/>
+	<classpathentry exported="true" kind="lib" path="fldat.jar"/>
+	<classpathentry exported="true" kind="lib" path="jcchart.jar"/>
+	<classpathentry exported="true" kind="lib" path="jdom.jar"/>
+	<classpathentry exported="true" kind="lib" path="junit.jar"/>
+	<classpathentry exported="true" kind="lib" path="mail-1.4.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="netcdfUI-2.2.22.jar"/>
+	<classpathentry exported="true" kind="lib" path="nlog4j-1.2.21.jar"/>
+	<classpathentry exported="true" kind="lib" path="org.eclipse.swt.gtk.linux.x86_3.4.1.v3452b.jar"/>
+	<classpathentry exported="true" kind="lib" path="org.eclipse.swt_3.4.2.v3452b.jar"/>
+	<classpathentry exported="true" kind="lib" path="postgresql-8.2-506.jdbc3.jar"/>
+	<classpathentry exported="true" kind="lib" path="rax_apps.jar"/>
+	<classpathentry exported="true" kind="lib" path="rfc_util.jar"/>
+	<classpathentry kind="output" path="classes"/>
+</classpath>

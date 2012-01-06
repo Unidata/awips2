@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DerivedParameter unit="mm" name="Snow Accum" abbreviation="SAcc" xmlns:ns2="group">
+    <Method name="Alias" levels="Surface" models="modelsounding">
+        <Field abbreviation="snowFall" level="Station"/>
+    </Method>
+    <Method name="LinTrans" dtime="true">
+        <Field timeShift="0" abbreviation="TP"/>
+        <Field timeShift="0" abbreviation="snoRatOv2"/>
+        <Field timeShift="0" abbreviation="TP"/>
+        <Field timeShift="-1" abbreviation="snoRatOv2"/>
+    </Method>
+    <Method name="Alias" models="LAPS">
+        <Field abbreviation="S1HR"/>
+    </Method>
+</DerivedParameter>

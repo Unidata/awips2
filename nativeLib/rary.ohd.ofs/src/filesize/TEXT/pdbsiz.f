@@ -1,0 +1,1033 @@
+C MEMBER PDBSIZ
+C  (from old member UZPDBSIZ)
+C-----------------------------------------------------------------------
+C
+C                             LAST UPDATE: 07/05/95.14:44:49 BY $WC20SV
+C
+C @PROCESS LVL(77)
+C
+      SUBROUTINE PDBSIZ (USER,XCMD,DCBDDN,DCBMBR,DSKUNT,MDSTRK,NDSTRK,
+     *   LDEBUG,LPUNCH,ISTAT)
+C
+C  ROUTINE TO COMPUTE THE NUMBER OF TRACKS FOR EACH OF THE NWSRFS
+C  FORECAST SYSTEM PROCESSED DATA BASE DATASETS
+C
+      CHARACTER*(*) USER,XCMD,DCBDDN,DCBMBR
+      CHARACTER*4 XTYPE
+      CHARACTER*8 XWORD
+      CHARACTER*7 XTEMP
+C
+C jgg following added by jto to fix bug r25-12 12/05
+      CHARACTER*8 CHAR
+      CHARACTER*80 LINE
+      CHARACTER DLIM
+      DATA DLIM/' '/
+      INTEGER CLEN
+C end of additions
+C
+C  THE FOLLOWING VARIABLES MUST HAVE THE SAME DIMENSION
+      CHARACTER*4 PDAILY(20)
+      CHARACTER*7 FNAME(20)/20*' '/
+      INTEGER LVALUE(20,3)/60*0/
+C
+      DIMENSION NDSTRK(MDSTRK)
+      DIMENSION NTOTRC(5)
+C
+      INCLUDE 'uio'
+      INCLUDE 'ufreei'
+      INCLUDE 'pdbcommon/pdunts'
+      INCLUDE 'pdbcommon/pdbdta'
+      INCLUDE 'pdbcommon/pddtdr'
+      INCLUDE 'pdbcommon/pdsifc'
+      INCLUDE 'pdbcommon/pdrrsc'
+      INCLUDE 'pdbcommon/pdtrrx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/filesize/RCS/pdbsiz.f,v $
+     . $',                                                             '
+     .$Id: pdbsiz.f,v 1.2 2006/05/09 13:13:43 jgofus Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      ISTAT=0
+C
+      ICDBEG=1
+      ICDEND=72
+      DDTRK=0.
+      RSTRK=0.
+      NTTRKS=0
+      NTREC=0
+      MDAILY=20
+      NDAILY=0
+      IFUT=1
+      MAXFUT=0
+C
+C  INITIALIZE LOCAL VARIABLES
+C
+      IX=0
+      IDF=0
+      IXX=0
+      IRSTRK=0
+      NUMDAY=0
+      MSTAS=0
+      NWPTRC=0
+      IFUNIT=0
+      IFRRS=0
+      IPRRS=0
+      MPSTA=0
+C
+      CALL UMEMST (0,NTOTRC,5)
+C
+C  PRINT CARD
+      CALL WPCARD (IBUF)
+C
+C  GET VALID RRS DATA TYPES
+      CALL PDTRRS (IERR)
+      IF (IERR.GT.0) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,530) 'PDTRRS',IERR
+         GO TO 330
+         ENDIF
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  PROCESS DAILY DATA TYPES
+C
+C  GET DCB FOR DAILY DATA FILE
+      CALL UFLDCB (DCBDDN,DCBMBR,'PDBDLY',LRECL,LBLOCK,IERR)
+      IF (IERR.GT.0) GO TO 330
+C
+C  SET DAILY DATA FILE LOGICAL RECORD LENGTH
+      LRCPDD=LRECL/4
+      LRCPD2=LRCPDD*2
+C
+C  GET NUMBER OF BLOCKS PER TRACK
+      IPRINT=2
+      CALL UDKBLK (' ',0,DSKUNT,LBLOCK,IPRINT,NBLKS,IPCT,IERR)
+      IF (IERR.GT.0) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,530) 'UDKBLK',IERR
+         GO TO 330
+         ENDIF
+      NPRBLK=LBLOCK/LRECL
+      TRKREC=NPRBLK*NBLKS
+C
+C  GET DAILY DATA TYPES AND MAXIMUM NUMBER OF DAYS
+20    CALL RPCARD (IBUF,IERR)
+      CALL ULINE (LP,1)
+      WRITE (LP,*) ' '
+      CALL WPCARD (IBUF)
+      IF (IERR.GT.0) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,530) 'RPCARD',IERR
+         GO TO 330
+         ENDIF
+C
+C  FIND FIELDS ON CARD
+      CALL UFREE (ICDBEG,ICDEND)
+C
+C  CHECK FOR BLANK CARD
+      IF (NFIELD.EQ.0) GO TO 20
+C
+      NFLD=1
+      NCHAR=IFSTOP(NFLD)-IFSTRT(NFLD)+1
+      XWORD=' '
+      CALL UPACK1 (IBUF(IFSTRT(NFLD)),XWORD,NCHAR)
+C
+C  CHECK FOR COMMENT
+      IF (XWORD.EQ.'$') GO TO 20
+C
+      IF (NFIELD.NE.3) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,360) 'DLYTYPES'
+         GO TO 30
+         ENDIF
+C
+      IF (NCHAR.NE.8) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,370) 'DLYTYPES'
+         GO TO 30
+         ENDIF
+C
+C  CHECK IF DLYTYPES CARD
+      IF (XWORD.NE.'DLYTYPES') THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,370) 'DLYTYPES'
+         GO TO 30
+         ENDIF
+      NFLD=2
+      NCHAR=IFSTOP(NFLD)-IFSTRT(NFLD)+1
+      IF (NCHAR.NE.7) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,370) 'MAXDAYS'
+         GO TO 30
+         ENDIF
+      XWORD=' '
+      CALL UPACK1 (IBUF(IFSTRT(NFLD)),XWORD,NCHAR)
+      IF (XWORD.NE.'MAXDAYS') THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,370) 'MAXDAYS'
+         GO TO 30
+         ENDIF
+      NFLD=3
+      IF (IFTYPE(NFLD).NE.1) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,380) NFLD
+         GO TO 30
+         ENDIF
+      CALL UNUMIC (IBUF,IFSTRT(3),IFSTOP(3),NUMDAY)
+C
+30    IFNEG=0
+C
+C  READ DAILY DATA TYPE AND MAXIMUM STATIONS
+40    CALL RPCARD (IBUF,IERR)
+      IF (IERR.GT.0) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,530) 'RPCARD',IERR
+         GO TO 330
+         ENDIF
+C
+C  FIND FIELDS ON CARD
+      CALL UFREE (ICDBEG,ICDEND)
+C
+C  CHECK FOR BLANK CARD
+      IF (NFIELD.EQ.0) GO TO 40
+C
+      IF (NFIELD.EQ.1) GO TO 180
+C
+C  PRINT CARD
+      CALL WPCARD (IBUF)
+      NFLD=1
+      NCHAR=IFSTOP(NFLD)-IFSTRT(NFLD)+1
+      IF (NCHAR.GT.4) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,390) 'DAILY'
+         GO TO 30
+         ENDIF
+      XWORD=' '
+      CALL UPACK1 (IBUF(IFSTRT(NFLD)),XWORD,NCHAR)
+C
+C  CHECK FOR COMMENT
+      IF (XWORD.EQ.'$') GO TO 30
+C
+C  CHECK NUMBER OF FIELDS ON CARD
+      IF (NFIELD.GE.2.AND.NFIELD.LE.5) THEN
+         ELSE
+            CALL UEROR (LP,1,-1)
+            WRITE (LP,360) 'DAILY DATA TYPE'
+            GO TO 30
+         ENDIF
+C
+C  CHECK IF MISCELLANEOUS SPACE BEING SPECIFIED
+      IF (XWORD.EQ.'MISC') THEN
+         XTYPE=XWORD
+         GO TO 50
+         ENDIF
+C
+      XTYPE=XWORD
+      IF (LDEBUG.GT.0) THEN
+         CALL ULINE (LP,1)
+         WRITE (LP,*) 'XTYPE=',XTYPE
+         ENDIF
+C
+C  CHECK IF DATA TYPE IS VALID
+      IX=IPDCDW(XTYPE)
+      IF (IX.EQ.0) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,390) 'DAILY'
+         GO TO 30
+         ENDIF
+      IF (NDAILY+1.GT.MDAILY) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,395) 'DAILY',MDAILY
+         GO TO 30
+         ENDIF
+      NDAILY=NDAILY+1
+      PDAILY(NDAILY)=XTYPE
+      IDF=IDDTDR(4,IX)
+      IF (IDF.GT.0) GO TO 50
+         IXX=-(IDF)
+         IDF=IDDTDR(4,IXX)
+         IFNEG=1
+50    NFLD=2
+      IF (IFTYPE(NFLD).NE.1) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,380) NFLD
+         GO TO 30
+         ENDIF
+      NFLD=2
+      CALL UNUMIC (IBUF,IFSTRT(NFLD),IFSTOP(NFLD),MAXSTA)
+      IF (XTYPE.NE.'MISC') LVALUE(NDAILY,1)=MAXSTA
+      IF (XTYPE.NE.'MISC') GO TO 60
+         NFLD=NFLD+1
+         GO TO 110
+60    IDDTDR(16,IX)=MAXSTA
+C
+C ACCOUNT FOR COUNTER WORD AT BEGINNING OF RECORD FOR
+C PG24 AND APIG.
+      IF (XTYPE.EQ.'APIG'.OR.XTYPE.EQ.'PG24')
+     *   IDDTDR(16,IX)=IDDTDR(16,IX)+1
+      IF (IFNEG.EQ.0) GO TO 70
+      IDDTDR(16,IXX)=MAXSTA
+      IDDTDR(16,IX)=0
+C
+C  IF TYPE IS PPST, MAXSTA IS NUMBER 6HR STAS MUST GET NUMBER 24 STAS
+70    IF (XTYPE.NE.'PPST') GO TO 80
+      NFLD=3
+      IF (IFTYPE(NFLD).NE.1) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,400)
+         GO TO 30
+         ENDIF
+      CALL UNUMIC (IBUF,IFSTRT(NFLD),IFSTOP(NFLD),MPPS24)
+      LVALUE(NDAILY,2)=MPPS24
+      IDDTDR(16,IX)=(MAXSTA*5+MPPS24*2)+1
+C
+C  CHECK FOR OPTIONAL FIELDS
+80    IF (NFIELD.EQ.NFLD) GO TO 130
+      NFLD=NFLD+1
+      IF (IFSTRT(NFLD).GT.IFSTOP(NFLD)) GO TO 100
+      IF (IFTYPE(NFLD).NE.1) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,380) NFLD
+         GO TO 30
+         ENDIF
+      CALL UNUMIC (IBUF,IFSTRT(NFLD),IFSTOP(NFLD),MAXDAY)
+      IF (XTYPE.EQ.'PPST') THEN
+         LVALUE(NDAILY,3)=MAXDAY
+         ELSE
+            LVALUE(NDAILY,2)=MAXDAY
+         ENDIF
+      IF (XTYPE.NE.'MISC') GO TO 90
+         NFLD=NFLD+1
+         GO TO 110
+90    IDDTDR(7,IX)=MAXDAY
+      IF (IFNEG.EQ.0) GO TO 110
+         IDDTDR(7,IXX)=MAXDAY
+         IDDTDR(7,IX)=0
+         GO TO 110
+100   IDDTDR(7,IX)=NUMDAY
+      IF (IFNEG.EQ.0) GO TO 110
+      IDDTDR(7,IXX)=NUMDAY
+      IDDTDR(7,IXX)=0
+C
+C  BLANK FIELD CHECK NEXT ONE
+110   IANS=0
+      IF (NFIELD.EQ.NFLD) GO TO 140
+      NFLD=NFLD+1
+C
+C  CHECK FILE NAME
+      NCHAR=IFSTOP(NFLD)-IFSTRT(NFLD)+1
+      IF (NCHAR.NE.7) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,410) NCHAR,NFLD
+         GO TO 30
+         ENDIF
+      XTEMP=' '
+      CALL UPACK1 (IBUF(IFSTRT(NFLD)),XTEMP,NCHAR)
+      XWORD=' '
+      CALL UPACK1 (IBUF(IFSTRT(NFLD)),XWORD,NCHAR-1)
+      IF (XWORD.NE.'PDBDLY') THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,420)
+         GO TO 30
+         ENDIF
+      CALL UINTFX (IANS,IFSTOP(NFLD),IFSTOP(NFLD),JERR)
+      IF (IANS.GE.1.AND.IANS.LE.5) THEN
+         FNAME(NDAILY)=XTEMP
+         GO TO 120
+         ENDIF
+      CALL UEROR (LP,1,-1)
+      WRITE (LP,420)
+      GO TO 30
+120   IF (XTYPE.EQ.'MISC') GO TO 170
+C
+C  IF RESETTING FILE, RESET IDF ALSO
+      IF (IFNEG.EQ.0) IDDTDR(4,IX)=IANS
+      IF (IFNEG.EQ.0) IDF=IANS
+130   IDDTDR(7,IX)=NUMDAY
+      IF (IFNEG.EQ.0) GO TO 140
+         IDDTDR(7,IXX)=NUMDAY
+         IDDTDR(7,IX)=0
+140   IF (XTYPE.NE.'TF24') GO TO 150
+C
+C  CALCULATE POINTER RECORDS FOR FUTURE TEMPERATURE TYPE
+      NWPTFT=IDDTDR(16,IX)*IDDTDR(5,IX)
+      IF (IFNEG.EQ.1) NWPTFT=IDDTDR(16,IXX)*IDDTDR(5,IXX)
+      NPTREC=IUNRCD(NWPTFT,LRCPD2)
+      NRECFT=(IDDTDR(7,IX)*4)+2
+      IF (IFNEG.EQ.1) NRECFT=(IDDTDR(7,IXX)*4)+2
+      NRECFS=IUNRCD(NRECFT,LRCPD2)
+      NPTREC=NPTREC+NRECFS
+      GO TO 160
+C
+C  CALCULATE NUMBER OF POINTER RECORDS FOR DAILY DATA TYPES
+150   NWPTRC=IDDTDR(16,IX)*IDDTDR(5,IX)
+      IF (IFNEG.EQ.1) NWPTRC=IDDTDR(16,IXX)*IDDTDR(5,IXX)
+C
+C  STRANGER REPORT DATA TYPE HAS ONLY ONE POINTER RECORD
+      IF (XTYPE.EQ.'PPSR') NWPTRC=IDDTDR(5,IX)
+      NPTREC=IUNRCD(NWPTRC,LRCPD2)
+C
+C  CALCULATE NUMBER OF DATA RECORDS FOR EACH DAILY DATA FILE
+160   NWDDRC=IDDTDR(16,IX)*IDDTDR(6,IX)
+      IF (IFNEG.EQ.1) NWDDRC=IDDTDR(16,IXX)*IDDTDR(6,IX)
+C
+C  ACCOUNT FOR THE ONE COUNTER WORD WITHIN A STRANGER REPORT RECORD
+      IF (XTYPE.EQ.'PPSR') NWDDRC=NWDDRC+1
+      NDLYRC=IUNRCD(NWDDRC,LRCPD2)
+      IF (LDEBUG.GT.0) THEN
+         CALL ULINE (LP,1)
+         WRITE (LP,*) 'NWPTRC=',NWPTRC,
+     *      ' NPTREC=',NPTREC,
+     *      ' NWDDRC=',NWDDRC,
+     *      ' NDLYRC=',NDLYRC,
+     *      ' IDF=',IDF
+         ENDIF
+C
+C  TOTAL RECORDS IN FILE
+      IF (IFNEG.EQ.1) IDDTDR(7,IX)=IDDTDR(7,IXX)
+      NREC=NDLYRC*IDDTDR(7,IX)+NPTREC
+      CALL ULINE (LP,1)
+      WRITE (LP,430) 'DAILY',XTYPE,NREC,IDF
+      NTOTRC(IDF)=NTOTRC(IDF)+NREC
+      GO TO 30
+C
+C  MISCELLANEOUS SPACE ALLOCATION
+170   IDF=IANS
+      NREC=NTOTRC(IDF)*(MAXSTA/100.)
+      NTOTRC(IDF)=NTOTRC(IDF)+NREC
+      CALL ULINE (LP,1)
+      WRITE (LP,440) NREC,IDF
+      GO TO 30
+C
+C  CALCULATE NUMBER OF TRACKS IN DAILY DATA FILE
+180   IPTRKS=0
+      DO 190 I=1,NMPPDF
+         IF (NTOTRC(I).EQ.0) GO TO 190
+         IF (LDEBUG.GT.0) THEN
+            WRITE (LP,*) 'I=',I,
+     *         ' NTOTRC(I)=',NTOTRC(I)
+            ENDIF
+         DDTRK=NTOTRC(I)
+         DDTRK=DDTRK/TRKREC
+         IDDTRK=DDTRK
+         IF ((DDTRK-IDDTRK).GT.0) IDDTRK=IDDTRK+1
+         NTTRKS=NTTRKS+IDDTRK
+         NDSTRK(KPDDDF(I))=IDDTRK
+         IPTRKS=IPTRKS+IDDTRK
+         CALL ULINE (LP,2)
+         WRITE (LP,450) I,KPDDDF(I),IDDTRK
+190      CONTINUE
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  PROCESS RRS DATA TYPES
+C
+C  GET DCB FOR RRS DATA FILE
+      CALL UFLDCB (DCBDDN,DCBMBR,'PDBRRS',LRECL,LBLOCK,IERR)
+      IF (IERR.GT.0) GO TO 330
+C
+C  SET RRS DATA FILE LOGICAL RECORD LENGTH
+      LRCPDR=LRECL/4
+C  GET NUMBER OF BLOCKS PER TRACK
+      IPRINT=2
+      CALL UDKBLK (' ',0,DSKUNT,LBLOCK,IPRINT,NBLKS,IPCT,IERR)
+      IF (IERR.GT.0) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,530) 'UDKBLK',IERR
+         GO TO 330
+         ENDIF
+      NPRBLK=LBLOCK/LRECL
+      TRKREC=NPRBLK*NBLKS
+C
+C  GET RRS TYPES CARD
+200   CALL ULINE (LP,1)
+      WRITE (LP,*) ' '
+      CALL WPCARD (IBUF)
+      NFLD=1
+      NCHAR=IFSTOP(NFLD)-IFSTRT(NFLD)+1
+      IF (NCHAR.NE.8) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,370) 'RRSTYPES'
+         GO TO 210
+         ENDIF
+      XWORD=' '
+      CALL UPACK1 (IBUF(IFSTRT(NFLD)),XWORD,NCHAR)
+C
+C  CHECK FOR COMMENT
+      IF (XWORD.EQ.'$') GO TO 200
+C
+C  CHECK FOR RRSTYPES CARD
+      IF (XWORD.NE.'RRSTYPES') THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,370) 'RRSTYPES'
+         ENDIF
+C
+C  READ RRS DATA TYPE, MAXIMUM STATIONS AND NUMBER OF OBSERVATIONS
+210   CALL RPCARD (IBUF,IERR)
+      IF (IERR.GT.0) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,530) 'RPCARD',IERR
+         GO TO 330
+         ENDIF
+C
+C  FIND FIELDS ON CARD
+      CALL UFREE (ICDBEG,ICDEND)
+C
+C  CHECK FOR BLANK CARD
+      IF (NFIELD.EQ.0) GO TO 210
+C
+      NFLD=1
+      NCHAR=IFSTOP(NFLD)-IFSTRT(NFLD)+1
+      XWORD=' '
+      CALL UPACK1 (IBUF(IFSTRT(NFLD)),XWORD,NCHAR)
+C
+C  CHECK FOR COMMENT
+      IF (XWORD.EQ.'$') GO TO 210
+C
+      IF (NCHAR.EQ.7) GO TO 250
+         CALL WPCARD (IBUF)
+         IF (NCHAR.GT.4) THEN
+            CALL UEROR (LP,1,-1)
+            WRITE (LP,390) 'RRS'
+            GO TO 260
+            ENDIF
+C
+      XTYPE=XWORD
+C
+C  CHECK IF MISCELLANEOUS SPACE BEING SPECIFIED
+      IF (XTYPE.NE.'MISC'.AND.NFIELD.EQ.3) GO TO 220
+      IF (XTYPE.EQ.'MISC'.AND.(NFIELD.EQ.2.OR.NFIELD.EQ.3)) GO TO 220
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,360) 'RRS DATA TYPE'
+         GO TO 260
+C
+C  CHECK IF VALID DATA TYPE
+220   IF (XTYPE.EQ.'MISC') GO TO 230
+         IX=IPDCKR(XTYPE)
+         IF (IX.EQ.0) THEN
+            CALL UEROR (LP,1,-1)
+            WRITE (LP,390) 'RRS'
+            GO TO 260
+            ENDIF
+C
+C  READ MAXIMUM STATIONS
+230   NFLD=2
+      IF (IFTYPE(NFLD).NE.1) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,380) NFLD
+         GO TO 260
+         ENDIF
+      CALL UNUMIC (IBUF,IFSTRT(NFLD),IFSTOP(NFLD),MRRSTA)
+      NFLD=3
+      IF (NFIELD.LT.NFLD) THEN
+         NTRSRC=NTREC*(MRRSTA/100.)
+         CALL ULINE (LP,1)
+         WRITE (LP,460) NTRSRC,'PDBRRS'
+         GO TO 240
+         ENDIF
+      IF (IFTYPE(NFLD).NE.1) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,380) NFLD
+         GO TO 260
+         ENDIF
+      CALL UNUMIC (IBUF,IFSTRT(NFLD),IFSTOP(NFLD),NUMOBV)
+C
+C  CALCULATE NUMBER OF RECS FOR EACH RRS DATA TYPE
+      NDTWD=NVALPO(IX)*NUMOBV+LHDRRS+NRSTAT
+      IF (LDEBUG.GT.0) THEN
+         CALL ULINE (LP,1)
+         WRITE (LP,*) 'IX=',IX,
+     *      'NVALPO(IX)=',NVALPO(IX),
+     *      'NUMOBV=',NUMOBV,
+     *      'LHDRRS=',LHDRRS,
+     *      'NRSTAT=',NRSTAT
+         ENDIF
+      NRRSRC=IUNRCD(NDTWD,LRCPDR)
+      IF (LDEBUG.GT.0) THEN
+         CALL ULINE (LP,1)
+         WRITE (LP,*) 'NRRSRC=',NRRSRC
+         ENDIF
+      NTRSRC=NRRSRC*MRRSTA
+      CALL ULINE (LP,1)
+      WRITE (LP,430) 'RRS  ',XTYPE,NTRSRC
+240   NTREC=NTREC+NTRSRC
+      IF (LDEBUG.GT.0) THEN
+         CALL ULINE (LP,1)
+         WRITE (LP,*) 'NTREC=',NTREC
+         ENDIF
+      GO TO 210
+C
+C  CALCULATE NUMBER OF TRACKS FOR THE RRS FILE
+250   RSTRK=NTREC/TRKREC
+      IRSTRK=RSTRK
+      IF (LDEBUG.GT.0) THEN
+         CALL ULINE (LP,1)
+         WRITE (LP,*) 'RSTRK=',RSTRK,
+     *      'IRSTRK=',IRSTRK
+         ENDIF
+      IF ((RSTRK-IRSTRK).GT.0) IRSTRK=IRSTRK+1
+      NTTRKS=NTTRKS+IRSTRK
+      NDSTRK(KPDRRS)=IRSTRK
+      IPRRS=IRSTRK
+      CALL ULINE (LP,2)
+      WRITE (LP,470) 'PDBRRS  ',KPDRRS,IRSTRK
+C
+C  GET RRSFREE CARD FOR FREEPOOL RECORDS
+260   CALL ULINE (LP,1)
+      WRITE (LP,*) ' '
+      CALL WPCARD (IBUF)
+C
+      NFLD=1
+      XWORD=' '
+      CALL UPACK1 (IBUF(IFSTRT(NFLD)),XWORD,NCHAR)
+      IF (XWORD.NE.'RRSFREE') THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,370) 'RRSFREE'
+         GO TO 280
+         ENDIF
+C
+C  GET FILE NAME FOR FREEPOOL RECORDS
+      NFLD=NFLD+1
+      NCHAR=IFSTOP(NFLD)-IFSTRT(NFLD)
+      IF (NCHAR.NE.6) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,410) NCHAR,NFLD
+         GO TO 280
+         ENDIF
+      XWORD=' '
+      CALL UPACK1 (IBUF(IFSTRT(NFLD)),XWORD,NCHAR)
+      IF (XWORD.NE.'PDBDLY') THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,480) 'RRSFREE'
+         GO TO 280
+         ENDIF
+      CALL UINTFX (IANS,IFSTOP(2),IFSTOP(2),JERR)
+      IF (IANS.GE.1.AND.IANS.LE.5) GO TO 270
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,480) 'RRSFREE'
+         GO TO 280
+270   LUFREE=IANS
+      CALL ULINE (LP,1)
+      WRITE (LP,490) XWORD,LUFREE
+C
+C  GET PERCENTAGE OF SPACE ALLOCATED FOR FREEPOOL RECORDS
+      NFLD=3
+      IF (IFTYPE(NFLD).NE.1) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,380) NFLD
+         GO TO 280
+         ENDIF
+      CALL UNUMIC (IBUF,IFSTRT(NFLD),IFSTOP(NFLD),IPERFP)
+      IFRRS=IPERFP
+      IF (LDEBUG.GT.0) THEN
+         CALL ULINE (LP,1)
+         WRITE (LP,*) 'IPERFP=',IPERFP
+         ENDIF
+C
+C  CALCULATE NUMBER OF FREEPOOL RECORDS
+      PERFP=IPERFP
+      IFPREC=(IRSTRK*TRKREC)*PERFP/100.0+.5
+      IF (LDEBUG.GT.0) THEN
+         CALL ULINE (LP,1)
+         WRITE (LP,*) 'IFPREC=',IFPREC
+         ENDIF
+C
+C  RESET NUMBER OF TRACKS FOR DATA FILE WITH FREEPOOL RECORDS
+      IDLYFP=NTOTRC(LUFREE)+IFPREC
+      IF (LDEBUG.GT.0) THEN
+         CALL ULINE (LP,1)
+         WRITE (LP,*) 'LUFREE=',LUFREE,
+     *      ' NTOTRC(LUFREE)=',NTOTRC(LUFREE),
+     *      ' IDLYFP=',IDLYFP
+         ENDIF
+      TDFPTK=IDLYFP/TRKREC
+      NDFPTK=TDFPTK
+      IF (LDEBUG.GT.0) THEN
+         CALL ULINE (LP,1)
+         WRITE (LP,*) 'NDFPTK=',NDFPTK,
+     *      ' TDFPTK=',TDFPTK
+         ENDIF
+      IF ((TDFPTK-NDFPTK).GT.0) NDFPTK=NDFPTK+1
+      NTRKS=NDFPTK-NTOTRC(LUFREE)/TRKREC+.5
+      NTTRKS=NTTRKS+NTRKS
+      NDSTRK(KPDDDF(LUFREE))=NDFPTK
+      IFUNIT=LUFREE
+      CALL ULINE (LP,2)
+      WRITE (LP,500) LUFREE,KPDDDF(LUFREE),NDFPTK
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  READ MAXIMUM STATIONS CARD
+C
+280   CALL RPCARD (IBUF,IERR)
+      CALL ULINE (LP,1)
+      WRITE (LP,*) ' '
+      CALL WPCARD (IBUF)
+      IF (IERR.GT.0) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,530) 'RPCARD',IERR
+         GO TO 290
+         ENDIF
+C
+C  FIND FIELDS ON CARD
+      CALL UFREE (ICDBEG,ICDEND)
+C
+C  CHECK FOR BLANK CARD
+      IF (NFIELD.EQ.0) GO TO 280
+C
+      NFLD=1
+      NCHAR=IFSTOP(NFLD)-IFSTRT(NFLD)+1
+      XWORD=' '
+      CALL UPACK1 (IBUF(IFSTRT(NFLD)),XWORD,NCHAR)
+C
+C  CHECK FOR COMMENT
+      IF (XWORD.EQ.'$') GO TO 280
+C
+      IF (NFIELD.NE.2) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,360) 'MAXSTA'
+         GO TO 290
+         ENDIF
+      IF (NCHAR.NE.6) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,370) 'MAXSTA'
+         GO TO 290
+         ENDIF
+      IF (XWORD.NE.'MAXSTA') THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,370) 'MAXSTA'
+         GO TO 290
+         ENDIF
+      NFLD=2
+      IF (IFTYPE(NFLD).NE.1) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,380) NFLD
+         GO TO 290
+         ENDIF
+      CALL UNUMIC (IBUF,IFSTRT(NFLD),IFSTOP(NFLD),MSTAS)
+      MPSTA=MSTAS
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  READ MAXIMUM NUMBER OF DAYS CARD OR 'END' CARD
+C
+290   CALL RPCARD (IBUF,IERR)
+      CALL ULINE (LP,1)
+      WRITE (LP,*) ' '
+      CALL WPCARD (IBUF)
+      IF (IERR.GT.0) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,530) 'RPCARD',IERR
+         GO TO 330
+         ENDIF
+C
+C  FIND FIELDS ON CARD
+      CALL UFREE (ICDBEG,ICDEND)
+C
+C  CHECK FOR BLANK CARD
+      IF (NFIELD.EQ.0) GO TO 290
+C
+      NFLD=1
+      NCHAR=IFSTOP(NFLD)-IFSTRT(NFLD)+1
+      XWORD=' '
+      CALL UPACK1 (IBUF(IFSTRT(NFLD)),XWORD,NCHAR)
+C
+C  CHECK FOR COMMENT AND 'END' CARD
+      IF (XWORD.EQ.'$') GO TO 290
+      IF (XWORD.EQ.'END') GO TO 300
+C
+      IF (NFIELD.NE.2) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,360) 'MAXFUT'
+         GO TO 330
+         ENDIF
+      IF (NCHAR.NE.6) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,370) 'MAXFUT'
+         GO TO 330
+         ENDIF
+      IF (XWORD.NE.'MAXFUT') THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,370) 'MAXFUT'
+         GO TO 330
+         ENDIF
+      NFLD=2
+      IF (IFTYPE(NFLD).NE.1) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,380) NFLD
+         GO TO 330
+         ENDIF
+      CALL UNUMIC (IBUF,IFSTRT(NFLD),IFSTOP(NFLD),MAXFUT)
+      GO TO 290
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CALCULATE NUMBER OF INDEX RECORDS
+C
+C  GET DCB FOR INDEX FILE
+300   CALL UFLDCB (DCBDDN,DCBMBR,'PDBINDEX',LRECL,LBLOCK,IERR)
+      IF (IERR.GT.0) GO TO 330
+C
+C  GET NUMBER OF BLOCKS PER TRACK
+      IPRINT=2
+      CALL UDKBLK (' ',0,DSKUNT,LBLOCK,IPRINT,NBLKS,IPCT,IERR)
+      IF (IERR.GT.0) THEN
+         CALL UEROR (LP,1,-1)
+         WRITE (LP,530) 'UDKBLK',IERR
+         GO TO 330
+         ENDIF
+      NPRBLK=LBLOCK/LRECL
+      TRKREC=NPRBLK*NBLKS
+C
+      NXREC=1+
+     *      IUNRCD(MAXDDF*4,LRCPDD)+
+     *      IUNRCD(MXDTYP*24,LRCPD2)+
+     *      IUNRCD(MSTAS*2,LRCPD2)+
+     *      IUNRCD(MSTAS*2,LRCPD2)+
+     *      MSTAS*2
+C
+C  CALCULATE NUMBER OF TRACKS FOR INDEX FILE
+      TRIDX=NXREC/TRKREC
+      NTRIDX=TRIDX
+      IF ((TRIDX-NTRIDX).GT.0) NTRIDX=NTRIDX+1
+      NTTRKS=NTTRKS+NTRIDX
+      NDSTRK(KPDSIF)=NTRIDX
+      CALL ULINE (LP,1)
+      WRITE (LP,*) ' '
+      CALL ULINE (LP,2)
+      WRITE (LP,470) 'PDBINDEX',KPDSIF,NTRIDX
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+C  CHECK IF ALL UNITS HAVE AT LEAST 1 TRACK ALLOCATED
+      DO 310 I=1,NMPPDF
+         IF (NDSTRK(KPDDDF(I)).GT.0) GO TO 310
+            NDSTRK(KPDDDF(I))=1
+            CALL ULINE (LP,2)
+            WRITE (LP,510) KPDDDF(I),NDSTRK(KPDDDF(I))
+310      CONTINUE
+      IF (NDSTRK(KPDRRS).EQ.0) THEN
+         NDSTRK(KPDRRS)=1
+         CALL ULINE (LP,2)
+         WRITE (LP,510) KPDRRS,NDSTRK(KPDRRS)
+         ENDIF
+C
+      CALL ULINE (LP,2)
+      WRITE (LP,520) NTTRKS
+      GO TO 340
+C
+330   ISTAT=1
+C
+C  PUNCH CARD IMAGES
+C
+340   IF (ISTAT.EQ.0) THEN
+         CALL ULINE (LPUNCH,4)
+C jgg following lines replaced by jto with below for bug r25-12
+C          WRITE (LPUNCH,540) XCMD,'INDEX',NTRIDX,'DLYFILES',NMPPDF
+C          CALL ULINE (LPUNCH,1)
+C          WRITE (LPUNCH,550) 'TRACKS',(NDSTRK(KPDDDF(I)),I=1,NMPPDF)
+C          CALL ULINE (LPUNCH,1)
+C          WRITE (LPUNCH,560) 'DLYTYPES','MAXDAYS',NUMDAY
+	 
+         WRITE (LPUNCH,570) ' '
+         WRITE (LPUNCH,570) XCMD
+
+         LINE=' INDEX'
+         CALL KKI2AP(NTRIDX,CHAR,CLEN)
+         CALL KKCONC(LINE,CHAR,DLIM)
+         WRITE (LPUNCH,570) LINE(1:LENSTR(LINE))
+         LINE=' DLYFILES'
+         CALL KKI2AP(NMPPDF,CHAR,CLEN)
+         CALL KKCONC(LINE,CHAR,DLIM)
+         WRITE (LPUNCH,570) LINE(1:LENSTR(LINE))
+
+         CALL ULINE (LPUNCH,1)
+         LINE=' TRACKS'
+         DO 95 I=1,NMPPDF
+           CALL KKI2AP(NDSTRK(KPDDDF(I)),CHAR,CLEN)
+           CALL KKCONC(LINE,CHAR,DLIM)
+   95      CONTINUE
+         WRITE (LPUNCH,570) LINE(1:LENSTR(LINE))
+
+         CALL ULINE (LPUNCH,1)
+         LINE=' DLYTYPES MAXDAYS'
+         CALL KKI2AP(NUMDAY,CHAR,CLEN)
+         CALL KKCONC(LINE,CHAR,DLIM)
+         WRITE (LPUNCH,570) LINE(1:LENSTR(LINE))
+C end of changes
+	 
+         DO 350 I=1,NDAILY
+            IF (LVALUE(I,2).EQ.0) THEN
+               CALL ULINE (LPUNCH,1)
+C jgg following lines replaced by jto with below for bug r25-12
+C                WRITE (LPUNCH,620) PDAILY(I),LVALUE(I,1)
+               LINE='   '//PDAILY(I)
+               CALL KKI2AP(LVALUE(I,1),CHAR,CLEN)
+               CALL KKCONC(LINE,CHAR,DLIM)
+               WRITE (LPUNCH,570) LINE(1:LENSTR(LINE))
+C end of changes
+               ENDIF
+            IF (LVALUE(I,2).NE.0.AND.LVALUE(I,3).EQ.0.AND.
+     *          FNAME(I).NE.' ') THEN
+               CALL ULINE (LPUNCH,1)
+C jgg following lines replaced by jto with below for bug r25-12
+C                WRITE (LPUNCH,620) PDAILY(I),LVALUE(I,1),LVALUE(I,2),
+C      *                            FNAME(I)
+	       
+               LINE='   '//PDAILY(I)
+               CALL KKI2AP(LVALUE(I,1),CHAR,CLEN)
+               CALL KKCONC(LINE,CHAR,DLIM)
+               CALL KKI2AP(LVALUE(I,2),CHAR,CLEN)
+               CALL KKCONC(LINE,CHAR,DLIM)
+               CALL KKCONC(LINE,FNAME(I),DLIM)
+               WRITE (LPUNCH,570) LINE(1:LENSTR(LINE))
+C end of changes
+               GO TO 350
+               ENDIF
+            IF (LVALUE(I,2).NE.0) THEN
+               IF (LVALUE(I,3).EQ.0) THEN
+                  CALL ULINE (LPUNCH,1)
+C jgg following lines replaced by jto with below for bug r25-12
+C                  WRITE (LPUNCH,620) PDAILY(I),LVALUE(I,1),LVALUE(I,2)
+                  LINE='   '//PDAILY(I)
+                  CALL KKI2AP(LVALUE(I,1),CHAR,CLEN)
+                  CALL KKCONC(LINE,CHAR,DLIM)
+                  CALL KKI2AP(LVALUE(I,2),CHAR,CLEN)
+                  CALL KKCONC(LINE,CHAR,DLIM)
+                  WRITE (LPUNCH,570) LINE(1:LENSTR(LINE))
+C end of changes
+                  ELSE
+                     CALL ULINE (LPUNCH,1)
+C jgg following lines replaced by jto with below for bug r25-12
+C                     WRITE (LPUNCH,600) PDAILY(I),LVALUE(I,1),
+C      *                   LVALUE(I,2),LVALUE(I,3),FNAME(I)
+ 		  
+                  LINE='   '//PDAILY(I)
+                  CALL KKI2AP(LVALUE(I,1),CHAR,CLEN)
+                  CALL KKCONC(LINE,CHAR,DLIM)
+                  CALL KKI2AP(LVALUE(I,2),CHAR,CLEN)
+                  CALL KKCONC(LINE,CHAR,DLIM)
+                  CALL KKI2AP(LVALUE(I,3),CHAR,CLEN)
+                  CALL KKCONC(LINE,CHAR,DLIM)
+                  CALL KKCONC(LINE,FNAME(I),DLIM)
+                  WRITE (LPUNCH,570) LINE(1:LENSTR(LINE))
+C end of changes
+                  ENDIF
+               ENDIF
+350         CONTINUE
+C jgg following lines removed by jto with below for bug r25-12
+C           IF (IFUNIT.LT.10) THEN
+C              CALL ULINE (LPUNCH,1)
+C              WRITE (LPUNCH,590) 'RRSTRACK',IPRRS,'PDBDLY',IFUNIT,IFRRS
+C              ELSE
+C                 CALL ULINE (LPUNCH,1)
+C                 WRITE (LPUNCH,610) 'RRSTRACK',IPRRS,'PDBDLY',IFUNIT,
+C      *             IFRRS
+C              ENDIF
+C end of lines removed
+
+          CALL ULINE (LPUNCH,1)
+C jgg following lines replaced by jto with below for bug r25-12
+C           WRITE (LPUNCH,570) 'MAXSTA',MPSTA
+         LINE=' RRSTRACK'
+         CALL KKI2AP(IPRRS,CHAR,CLEN)
+         CALL KKCONC(LINE,CHAR,DLIM)
+         CALL KKCONC(LINE,'PDBDLY',DLIM)
+         CALL KKI2AP(IFUNIT,CHAR,CLEN)
+         CALL KKCONC(LINE,CHAR,'')
+         CALL KKI2AP(IFRRS,CHAR,CLEN)
+         CALL KKCONC(LINE,CHAR,DLIM)
+         WRITE (LPUNCH,570) LINE(1:LENSTR(LINE))
+
+         CALL ULINE (LPUNCH,1)
+         LINE=' MAXSTA'
+         CALL KKI2AP(MPSTA,CHAR,CLEN)
+         CALL KKCONC(LINE,CHAR,DLIM)
+         WRITE (LPUNCH,570) LINE(1:LENSTR(LINE))
+C end of changes	 
+          IF (MAXFUT.EQ.0) THEN
+             CALL UWARN (LP,1,-1)
+             WRITE (LP,580)
+             CALL ULINE (LPUNCH,1)
+C jgg following line replaced by jto with below for bug r25-12
+C             WRITE (LPUNCH,550) 'MAXFUT',IFUT
+            LINE=' MAXFUT'
+            CALL KKI2AP(IFUT,CHAR,CLEN)
+            CALL KKCONC(LINE,CHAR,DLIM)
+            WRITE (LPUNCH,570) LINE(1:LENSTR(LINE))
+C end of changes
+             ELSE
+                CALL ULINE (LPUNCH,1)
+C jgg following line replaced by jto with below for bug r25-12
+C                 WRITE (LPUNCH,550) 'MAXFUT',MAXFUT
+            LINE=' MAXFUT'
+            CALL KKI2AP(MAXFUT,CHAR,CLEN)
+            CALL KKCONC(LINE,CHAR,DLIM)
+            WRITE (LPUNCH,570) LINE(1:LENSTR(LINE))
+C end of changes
+             ENDIF
+         CALL ULINE (LPUNCH,1)
+         WRITE (LPUNCH,570) 'END'
+         ENDIF
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+360   FORMAT ('+*** ERROR - INVALID NUMBER OF FIELDS ON ',A,' CARD.')
+370   FORMAT ('+*** ERROR - INVALID IDENTIFIER ON ',A,' CARD.')
+380   FORMAT ('+*** ERROR - FIELD ',I2,' MUST BE AN INTEGER.')
+390   FORMAT ('+*** ERROR - INVALID ',A,' DATA TYPE.')
+395   FORMAT ('+*** ERROR - MAXIMUM NUMBER OF ',A,' DATA TYPES ',
+     *   'THAT CAN BE PROCESSED (',I2,') EXCEEDED.')
+400   FORMAT ('+*** ERROR - DATA TYPE PPST MUST ALSO SPECIFY ',
+     *   'NUMBER OF 24 HOUR STATIONS.')
+410   FORMAT ('+*** ERROR - INVALID NUMBER OF CHARACTERS (',I2,') IN ',
+     *   'FILE NAME IN FIELD ',I2,'.')
+420   FORMAT ('+*** ERROR - INVALID FILE NAME FOR DAILY DATA TYPES.')
+430   FORMAT (17X,'RECORDS FOR ',A,' TYPE ',A,' = ',I5 :
+     *   '   (FILE PDBDLY',I1,')')
+440   FORMAT (17X,'*** NOTE - ',I6,' RECORDS ADDED TO FILE PDBDLY ',I1,
+     *   '.')
+C jgg following lines replaced by jto with below for bug r25-12
+C 450   FORMAT ('0',15X,'TRACKS FOR FILE PDBDLY',I1,'  UNIT ',I2.2,' = ',
+C      *   I3)
+450   FORMAT ('0',15X,'TRACKS FOR FILE PDBDLY',I1,'  UNIT ',I2.2,' = ',
+     *   I5)
+     
+460   FORMAT (17X,'*** NOTE - ',I6,' RECORDS ADDED TO FILE ',A,'.')
+C jgg following line replaced by jto with below for bug r25-12
+C 470   FORMAT ('0',15X,'TRACKS FOR FILE ',A,' UNIT ',I2.2,' = ',I3)
+470   FORMAT ('0',15X,'TRACKS FOR FILE ',A,' UNIT ',I2.2,' = ',I5)
+
+480   FORMAT ('+*** ERROR - INVALID FILE NAME ON ',A,' CARD.')
+490   FORMAT (T14,'RRS FREEPOOL RECORDS WILL BE STORED ON DAILY DATA',
+     *   ' FILE ',A,I1)
+500   FORMAT ('0',15X,'TRACKS FOR FILE PDBDLY',I1,'  UNIT ',I2.2,
+     *   ' RESET TO ',I5,' TO INCLUDE RRS FREEPOOL.')
+C jgg following line replaced by jto with below for bug r25-12
+C 510   FORMAT ('0*** NOTE - TRACKS FOR UNIT ',I2.2,' SET TO ',I3,'.')
+510   FORMAT ('0*** NOTE - TRACKS FOR UNIT ',I2.2,' SET TO ',I5,'.')
+C end of changes
+520   FORMAT ('0TOTAL TRACKS = ',I5)
+530   FORMAT ('+*** ERROR - ROUTINE ',A,' NOT SUCCESSFULLY CALLED. ',
+     *   'STATUS CODE=',I2)
+C jgg following lines replaced by jto with below for bug r25-12
+C 540   FORMAT (/ A / A,1X,I2 / A,I2)
+C 550   FORMAT (A,1X,10(I3,1X))
+C 560   FORMAT (A,1X,A,1X,I2)
+C 570   FORMAT (A,1X,I4)
+570   FORMAT (A)
+C end of changes
+580   FORMAT ('+*** WARNING - MAXFUT NOT SPECIFIED AND WILL ',
+     *        'BE SET TO 1.')
+C jgg following lines removed by jto with below for bug r25-12
+C 590   FORMAT (A,1X,I3,1X,A,I1,1X,I3)
+C 600   FORMAT (3X,A,1X,I5,1X,I3,1X,I3,1X,A)
+C 610   FORMAT (A,1X,I3,1X,A,I2,1X,I3)
+C 620   FORMAT (3X,A,1X,I5,1X,I3,1X,A)
+C
+      END

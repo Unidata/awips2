@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="Universal Welcome" version="1.1">
+    <plugin id="org.eclipse.ui.intro.universal"/>
+    <package name="org.eclipse.ui.intro.universal">
+        <type extend="false" instantiate="false" name="ExtensionFactory"/>
+    </package>
+</component>

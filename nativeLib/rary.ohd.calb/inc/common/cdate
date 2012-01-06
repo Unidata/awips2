@@ -1,0 +1,4 @@
+C                                           *--> FROM COMMON.CDATE
+      COMMON/CDATE/CDATE
+      CHARACTER*12 CDATE
+C

@@ -1,0 +1,138 @@
+C MEMBER RPN26
+C  (from old member FCRPN26)
+C
+C DESC FILLS IF SECTION OF WORK ARRAY WITH IF CLAUSES IN REVERSE POLISH
+C DESC NOTATION (INCLUDES SUBS POP26, PUSH26 AND RPNF26)
+C---------------------------------------------------------------------
+C
+      SUBROUTINE RPN26(WORK,IUSEW,LEFTW,NWDIF)
+C
+C---------------------------------------------------------------------
+C  ARGS:
+C    WORK - ARRAY IN WHICH TO STORE IF'S IN RPN
+C   IUSEW - NUMBER OF WORDS ALREADY USED IN WORK
+C   LEFTW - NUMBER OF WORDS REMAINING IN WORK
+C   NWDIF - NUMBER OF WORDS NEEDED TO STORE IF CLAUSE INFO IN WORK
+C
+C  THIS ROUTINE MUST ALSO REFILL POSITIONS IN WORK THAT POINT TO IF
+C  CLAUSES WITH NEW POINTERS. THE NEW ONES WILL REFER TO THE WORD IN
+C  THE IF SECTION OF WORK THAT THE CLAUSE STARTS ON.
+C
+C----------------------------------------------------------------------
+C
+C   OPERANDS HAVE VALUES > 500 OR < 0.0
+C   OPERATORS HAVE VALUES > 100.0 AND < 200.0.
+C
+C  OPERATORS AN CODE VALUES ARE:
+C     ^(0R **) = 199.01
+C     *        = 189.01
+C     /        = 188.01
+C     +        = 179.01
+C     -        = 178.01
+C     EQ       = 169.01
+C     NE       = 168.01
+C     LT       = 167.01
+C     GE       = 166.01
+C     LE       = 165.01
+C     GT       = 164.01
+C     NOT      = 159.01
+C     AND      = 149.01
+C     OR       = 139.01
+C     (        = 129.01
+C     )        = 119.01
+C
+C-----------------------------------------------------------------------
+C
+C  JTOSTROWSKI - HRL - MARCH 1983
+C----------------------------------------------------------------
+      INCLUDE 'common/ifcl26'
+      DIMENSION WORK(1),STACK(50)
+      LOGICAL MTYING
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcinit_res/RCS/rpn26.f,v $
+     . $',                                                             '
+     .$Id: rpn26.f,v 1.1 1995/09/17 18:52:41 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+C
+C  IF NO IFGROUPS HAVE BEEN ENTERED, JUST RETURN TO CALLING ROUTINE
+C
+       NWDIF = 1
+C
+C  STORE THE NUMBER OF IF GROUPS IN WORK ARRAY
+C
+      CLNUM = NIFCL + 0.01
+      CALL FLWK26(WORK,IUSEW,LEFTW,CLNUM,501)
+C
+      IF (NIFCL.LE.0) RETURN
+C
+      IPOS = 1
+      DO 500 J=1,NIFCL
+C
+C  RESERVE WORD IN WORK (TO BE REFILLED LATER WITH NO. OF WORDS IN
+C   THIS IF CLAUSE). SAVE POSITION FOR REFILL AND INCREMENT NO. OF
+C   WORDS NEEDED TO STORE ALL IF CLAUSES IN WORK ARRAY.
+C
+      CALL FLWK26(WORK,IUSEW,LEFTW,NWDIF,501)
+      NWDIF = NWDIF + 1
+      LOCLEN = IUSEW
+C
+C  REFILL POINTER IN WORK TO THE OFFSET OF THIS IF GROUP IN THE IF
+C  SECTION OF THE WORK ARRAY.
+C
+      REFPTR = - (NWDIF + 0.01)
+      CALL RFIL26(WORK,LPOSCL(J),REFPTR)
+C
+C  INITIALIZE VARIABLES FOR THIS IF CLAUSE
+C
+      NSTACK = 0
+      NRPN = 0
+      MTYING = .FALSE.
+C
+C  SET NO. OF WORDS TO BE READ FOR RPN ENCODING
+C
+      NEL = LENCL(J)
+C
+      DO 100 I=1,NEL
+      K = IPOS + I
+      LEVEL = CLAUSE(K)/10
+      IF (LEVEL.EQ.12) GO TO 50
+      IOPT = 0
+      IF (LEVEL .GE. 50 .OR. LEVEL .LE. 0) IOPT =-1
+      IF (LEVEL.GE.13.AND.LEVEL.LE.16) IOPT = 1
+      CALL RPNF26(IOPT,STACK,WORK,IUSEW,LEFTW,NSTACK,NRPN,CLAUSE(K),
+     .  LEVEL,MTYING)
+      GO TO 100
+C
+   50 CONTINUE
+      CALL PUSH26(STACK,CLAUSE(K),NSTACK)
+C
+  100 CONTINUE
+C
+C  PASSED THROUGH ALL ELEMENTS IN IF CLAUSE. NOW UNLOAD STACK DOWN
+C  TO THE LAST '('.
+C
+      LEVEL = -1
+      MTYING = .TRUE.
+      CALL RPNF26(1,STACK,WORK,IUSEW,LEFTW,NSTACK,NRPN,CLAUSE(K),LEVEL,
+     .MTYING)
+C
+C  UPDATE TOTAL IF STORAGE ACCOUNTING, REFILL RESERVED POSITION WITH
+C  LENGTH OF ENCODED IF CLAUSE, AND SET POSITION OF START OF NEXT IF
+C  CLAUSE
+C
+       NWDIF = NWDIF + NRPN
+       VAL = NRPN + 0.01
+      CALL RFIL26(WORK,LOCLEN,VAL)
+C
+      IPOS = CLAUSE(IPOS)
+C
+  500 CONTINUE
+      RETURN
+      END

@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-SymbolicName: org.eclipse.equinox.launcher.motif.hpux.ia64_32;s
+ ingleton:=true
+Bundle-ManifestVersion: 2
+Bundle-Localization: launcher.motif.hpux.ia64_32
+Bundle-Name: %pluginName
+Eclipse-PlatformFilter: (& (osgi.ws=motif) (osgi.os=hpux) (osgi.arch=i
+ a64_32) )
+Bundle-Version: 1.0.1.R34x_v20080731
+Fragment-Host: org.eclipse.equinox.launcher;bundle-version="[1.0.0,1.1
+ .0)"
+Bundle-Vendor: %providerName
+
+Name: eclipse_1115.so
+SHA1-Digest: kVde/E1S/Gq50iSHp6L8Kt6LZm0=
+
+Name: about.html
+SHA1-Digest: a9lDHrGuLPkvHBUhsqWU+V2mhPw=
+
+Name: META-INF/eclipse.inf
+SHA1-Digest: KyT9FF7C7t86NoBoa2kZT3ZJBfw=
+
+Name: launcher.motif.hpux.ia64_32.properties
+SHA1-Digest: vkUrovNiMZ/zutJ2g4VsOc7hrMQ=
+

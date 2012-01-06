@@ -1,0 +1,160 @@
+#!/usr/bin/env ruby
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+require 'pathname'
+require 'amqpgen'
+
+#
+# Run a set of code generation templates.
+#
+if ARGV.size < 3
+  puts <<EOS
+Usage: #{ARGV[0]} SRCDIR APIDIR SPEC.xml [ ... ] TEMPLATE.rb [ ... ]
+or:    #{ARGV[0]} SRCDIR APIDIR SPEC.xml [ ... ] all [ makefragment.mk | makefragment.cmake ]
+
+Parse all SPEC.xml files to create an AMQP model, run each TEMPLATE
+putting the resulting files under SRCDIR, public API files in APIdir.
+Prints a list of files generated to standard output.
+
+If SRCDIR and APIDIR are '-'  then just prints file list without generating files.
+EOS
+  exit 1
+end
+
+# Create array of specs by version
+def parse_specs(files)
+  lists=Hash.new { |h,k| h[k]=[] }
+  files.each { |f|
+    spec=AmqpRoot.new(File.new(f))
+    lists[spec.version] << spec
+  }
+  specs={}
+  lists.each_pair { |k,l|
+    specs[k] = l.size==1 ? l.first : AmqpRoot.new(*l.map { |s| s.xml})
+  }
+  return specs
+end
+
+gendir=File.dirname(__FILE__)
+
+# Run selected templates
+if ARGV.any? { |arg| arg=="all" }
+  templates=Dir["#{gendir}/*/*.rb"]
+else
+templates=ARGV.grep(/\.rb$/)
+  ARGV.each { |arg|
+    d=File.join gendir,arg
+    templates += Dir["#{d}/*.rb"] if File.directory? d
+  }
+end
+
+$outdir=[ ARGV[0], ARGV[1] ]
+$models=parse_specs(ARGV.grep(/\.xml$/))
+
+templates.each { |t|
+  ver=Pathname.new(t).dirname.basename.to_s.split('.')[-1]
+  $amqp=$models[ver]
+  if $amqp
+    load t
+  else
+    puts "Warning: skipping #{t}, no spec file for version #{ver}."
+  end
+}
+
+def cmake_continue(lines) lines.join(" \n    "); end
+def make_continue(lines) lines.join(" \\\n    "); end
+
+# Generate makefile
+makefile=ARGV.grep(/.mk$/)[0]
+cmakefile=ARGV.grep(/.cmake$/)[0]
+if cmakefile || makefile
+  srcdir,apidir=$outdir
+  dir=Dir.getwd
+  Dir.chdir File.dirname(__FILE__)
+  generator_files=Dir["**/*.rb"] << File.basename(__FILE__)
+  Dir.chdir dir
+  rgen_generator=generator_files.map{ |f| "$(rgen_dir)/#{f}" }
+  cmake_rgen_generator=generator_files.map{ |f| "${rgen_dir}/#{f}" }
+  rgen_srcs=GenFiles.get.map{ |f| "#{GenFiles.public_api?(f) ? apidir : srcdir}/#{f}" }
+  rgen_subdirs={}
+  rgen_srcs.each { |src|
+    if src.match(%r{(#{srcdir}|#{apidir})/qpid/([^/]+)/})
+      subdir=$2
+      rgen_subdirs[subdir] ||= []
+      rgen_subdirs[subdir] << src
+    end
+  }
+  if (makefile)
+    File.open(makefile, 'w') { |out|
+      out << <<EOS
+# Generated makefile fragment.
+# Including makefile defines $(rgen_dir) $(rgen_cmd) and $(specs).
+
+rgen_generator=#{make_continue rgen_generator}
+EOS
+      rgen_subdirs.each_key { |subdir|
+        out << "\nrgen_#{subdir}_srcs = #{make_continue(rgen_subdirs[subdir])}\n"
+      }
+      out << <<EOS
+rgen_srcs=#{make_continue rgen_srcs}
+
+# Header file install rules.
+EOS
+      ["amqp_0_10", "framing", "client/no_keyword","client", "broker"].each { |ns|
+        dir="qpid/#{ns}"
+        dir_ = dir.tr("/", "_")
+        regex=%r|#{dir}/[^/]+\.h$|
+        out << <<EOS
+#{dir_}dir = $(includedir)/#{dir}
+dist_#{dir_}_HEADERS = #{make_continue rgen_srcs.grep(regex)}
+
+EOS
+      } # each
+    }   # File makefile
+  end   # if (makefile)
+
+  if (cmakefile)
+    File.open(cmakefile, 'w') { |out|
+      out << <<EOS
+# Generated makefile fragment.
+# Including makefile defines ${rgen_dir} ${rgen_cmd} and ${specs}.
+
+set(rgen_generator #{cmake_continue cmake_rgen_generator})
+EOS
+      rgen_subdirs.each_key { |subdir|
+        out << "\nset(rgen_#{subdir}_srcs #{cmake_continue(rgen_subdirs[subdir])})\n"
+      }
+      out << <<EOS
+set(rgen_srcs #{cmake_continue rgen_srcs})
+
+# Header file install rules.
+EOS
+      ["amqp_0_10", "framing", "client/no_keyword","client", "broker"].each { |ns|
+        dir="qpid/#{ns}"
+        dir_ = dir.tr("/", "_")
+        regex=%r|#{dir}/[^/]+\.h$|
+        out << <<EOS
+set(#{dir_}dir  \${includedir}/#{dir})
+set(dist_#{dir_}_HEADERS #{cmake_continue rgen_srcs.grep(regex)})
+
+EOS
+      } # each
+    }   # File makefile
+  end   # if (makefile)
+end

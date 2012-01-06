@@ -1,0 +1,25 @@
+==== declare_queues.py.out
+==== headers_producer.py.out
+==== headers_consumer.py.out
+message(first) 0
+message(first) 1
+message(first) 2
+message(first) 3
+message(first) 4
+message(first) 5
+message(first) 6
+message(first) 7
+message(first) 8
+message(first) 9
+That's all, folks!
+message(second) 0
+message(second) 1
+message(second) 2
+message(second) 3
+message(second) 4
+message(second) 5
+message(second) 6
+message(second) 7
+message(second) 8
+message(second) 9
+That's all, folks!

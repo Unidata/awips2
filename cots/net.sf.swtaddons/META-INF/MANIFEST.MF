@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Swtaddons Plug-in
+Bundle-SymbolicName: net.sf.swtaddons
+Bundle-Version: 1.0.0.qualifier
+Export-Package: net.sf.swtaddons.autocomplete,
+ net.sf.swtaddons.autocomplete.combo,
+ net.sf.swtaddons.autocomplete.text
+Require-Bundle: org.eclipse.draw2d,
+ org.eclipse.emf.common.ui
+Bundle-ClassPath: net.sf.swtaddons_0.1.1_bin_src.jar,
+ .

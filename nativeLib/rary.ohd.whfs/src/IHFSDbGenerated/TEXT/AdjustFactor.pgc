@@ -1,0 +1,842 @@
+/*
+    File: AdjustFactor.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:16 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "AdjustFactor.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct AdjustFactor_t
+{
+    char		lid[9];
+    char		pe[3];
+    short		dur;
+    char		ts[3];
+    char		extremum[2];
+    double		divisor;
+    double		base;
+    double		multiplier;
+    double		adder;
+
+    int		ind_divisor;
+    int		ind_base;
+    int		ind_multiplier;
+    int		ind_adder;
+} AdjustFactor_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+AdjustFactor * GetAdjustFactor(const char * where)
+{
+
+    AdjustFactor * listPtr = NULL;
+    AdjustFactor * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM AdjustFactor ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct AdjustFactor_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetAdjustFactor() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetAdjustFactor() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetAdjustFactor() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.lid, :dbs.pe, 
+    :dbs.dur, :dbs.ts, 
+    :dbs.extremum, :dbs.divisor:dbs.ind_divisor, 
+    :dbs.base:dbs.ind_base, :dbs.multiplier:dbs.ind_multiplier, 
+    :dbs.adder:dbs.ind_adder    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetAdjustFactor() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (AdjustFactor *) malloc(sizeof(AdjustFactor))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->pe, dbs.pe);
+
+            structPtr->dur = dbs.dur;
+
+            strcpy(structPtr->ts, dbs.ts);
+
+            strcpy(structPtr->extremum, dbs.extremum);
+
+            structPtr->divisor = dbs.divisor;
+            setNullIfIndicated(dbs.ind_divisor, DOUBLE, &structPtr->divisor);
+
+            structPtr->base = dbs.base;
+            setNullIfIndicated(dbs.ind_base, DOUBLE, &structPtr->base);
+
+            structPtr->multiplier = dbs.multiplier;
+            setNullIfIndicated(dbs.ind_multiplier, DOUBLE, &structPtr->multiplier);
+
+            structPtr->adder = dbs.adder;
+            setNullIfIndicated(dbs.ind_adder, DOUBLE, &structPtr->adder);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.lid, :dbs.pe, 
+        :dbs.dur, :dbs.ts, 
+        :dbs.extremum, :dbs.divisor:dbs.ind_divisor, 
+        :dbs.base:dbs.ind_base, :dbs.multiplier:dbs.ind_multiplier, 
+        :dbs.adder:dbs.ind_adder        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetAdjustFactor() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+AdjustFactor * SelectAdjustFactor(const char * where)
+{
+
+    AdjustFactor * listPtr = NULL;
+    AdjustFactor * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM AdjustFactor ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct AdjustFactor_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectAdjustFactor() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectAdjustFactor() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectAdjustFactor() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.lid, :dbs.pe, 
+    :dbs.dur, :dbs.ts, 
+    :dbs.extremum, :dbs.divisor:dbs.ind_divisor, 
+    :dbs.base:dbs.ind_base, :dbs.multiplier:dbs.ind_multiplier, 
+    :dbs.adder:dbs.ind_adder    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectAdjustFactor() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (AdjustFactor *) malloc(sizeof(AdjustFactor))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->pe, dbs.pe);
+
+            structPtr->dur = dbs.dur;
+
+            strcpy(structPtr->ts, dbs.ts);
+
+            strcpy(structPtr->extremum, dbs.extremum);
+
+            structPtr->divisor = dbs.divisor;
+            setNullIfIndicated(dbs.ind_divisor, DOUBLE, &structPtr->divisor);
+
+            structPtr->base = dbs.base;
+            setNullIfIndicated(dbs.ind_base, DOUBLE, &structPtr->base);
+
+            structPtr->multiplier = dbs.multiplier;
+            setNullIfIndicated(dbs.ind_multiplier, DOUBLE, &structPtr->multiplier);
+
+            structPtr->adder = dbs.adder;
+            setNullIfIndicated(dbs.ind_adder, DOUBLE, &structPtr->adder);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.lid, :dbs.pe, 
+        :dbs.dur, :dbs.ts, 
+        :dbs.extremum, :dbs.divisor:dbs.ind_divisor, 
+        :dbs.base:dbs.ind_base, :dbs.multiplier:dbs.ind_multiplier, 
+        :dbs.adder:dbs.ind_adder        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectAdjustFactor() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectAdjustFactorCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM AdjustFactor ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountAdjustFactor() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountAdjustFactor() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountAdjustFactor() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountAdjustFactor() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutAdjustFactor(const AdjustFactor * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct AdjustFactor_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.pe, structPtr->pe);
+
+    dbs.dur = structPtr->dur;
+
+    strcpy(dbs.ts, structPtr->ts);
+
+    strcpy(dbs.extremum, structPtr->extremum);
+
+    dbs.divisor = structPtr->divisor;
+    dbs.ind_divisor = getIndicator(DOUBLE, (void *)&structPtr->divisor);
+
+    dbs.base = structPtr->base;
+    dbs.ind_base = getIndicator(DOUBLE, (void *)&structPtr->base);
+
+    dbs.multiplier = structPtr->multiplier;
+    dbs.ind_multiplier = getIndicator(DOUBLE, (void *)&structPtr->multiplier);
+
+    dbs.adder = structPtr->adder;
+    dbs.ind_adder = getIndicator(DOUBLE, (void *)&structPtr->adder);
+
+
+    EXEC SQL INSERT INTO AdjustFactor (lid,pe,
+        dur,ts,extremum,
+        divisor,base,multiplier,
+        adder        )
+        VALUES (
+         :dbs.lid, :dbs.pe, :dbs.dur,
+         :dbs.ts, :dbs.extremum, :dbs.divisor:dbs.ind_divisor,
+         :dbs.base:dbs.ind_base, :dbs.multiplier:dbs.ind_multiplier, :dbs.adder:dbs.ind_adder);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutAdjustFactor() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertAdjustFactor(const AdjustFactor * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct AdjustFactor_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.pe, structPtr->pe);
+
+    dbs.dur = structPtr->dur;
+
+    strcpy(dbs.ts, structPtr->ts);
+
+    strcpy(dbs.extremum, structPtr->extremum);
+
+    dbs.divisor = structPtr->divisor;
+    dbs.ind_divisor = getIndicator(DOUBLE, (void *)&structPtr->divisor);
+
+    dbs.base = structPtr->base;
+    dbs.ind_base = getIndicator(DOUBLE, (void *)&structPtr->base);
+
+    dbs.multiplier = structPtr->multiplier;
+    dbs.ind_multiplier = getIndicator(DOUBLE, (void *)&structPtr->multiplier);
+
+    dbs.adder = structPtr->adder;
+    dbs.ind_adder = getIndicator(DOUBLE, (void *)&structPtr->adder);
+
+
+    EXEC SQL INSERT INTO AdjustFactor (lid,pe,
+        dur,ts,extremum,
+        divisor,base,multiplier,
+        adder        )
+        VALUES (
+         :dbs.lid, :dbs.pe, :dbs.dur,
+         :dbs.ts, :dbs.extremum, :dbs.divisor:dbs.ind_divisor,
+         :dbs.base:dbs.ind_base, :dbs.multiplier:dbs.ind_multiplier, :dbs.adder:dbs.ind_adder);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertAdjustFactor() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateAdjustFactor(const AdjustFactor *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct AdjustFactor_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.pe, structPtr->pe);
+
+    dbs.dur = structPtr->dur;
+
+    strcpy(dbs.ts, structPtr->ts);
+
+    strcpy(dbs.extremum, structPtr->extremum);
+
+    dbs.divisor = structPtr->divisor;
+    dbs.ind_divisor = getIndicator(DOUBLE, (void *)&structPtr->divisor);
+
+    dbs.base = structPtr->base;
+    dbs.ind_base = getIndicator(DOUBLE, (void *)&structPtr->base);
+
+    dbs.multiplier = structPtr->multiplier;
+    dbs.ind_multiplier = getIndicator(DOUBLE, (void *)&structPtr->multiplier);
+
+    dbs.adder = structPtr->adder;
+    dbs.ind_adder = getIndicator(DOUBLE, (void *)&structPtr->adder);
+
+
+    sprintf(queryBuffer, " UPDATE AdjustFactor SET " );
+    strcat(queryBuffer, "lid = ? , pe = ? , dur = ? , ts = ? , extremum = ? ,     ");
+    strcat(queryBuffer, "divisor = ? , base = ? , multiplier = ? , adder = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateAdjustFactor() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.lid, :dbs.pe, :dbs.dur, :dbs.ts, :dbs.extremum,
+     :dbs.divisor:dbs.ind_divisor, :dbs.base:dbs.ind_base, :dbs.multiplier:dbs.ind_multiplier, :dbs.adder:dbs.ind_adder;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateAdjustFactor() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteAdjustFactor(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM AdjustFactor ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteAdjustFactor() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateAdjustFactorByRecord (const AdjustFactor * newStructPtr, const AdjustFactor * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetAdjustFactorPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateAdjustFactor(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateAdjustFactor(const AdjustFactor * structPtr)
+{
+    UpdateAdjustFactorByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertAdjustFactor(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueAdjustFactor(const AdjustFactor * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (AdjustFactorExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertAdjustFactor(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteAdjustFactorByRecord(const AdjustFactor * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetAdjustFactorPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteAdjustFactor(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool AdjustFactorExists(const AdjustFactor * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetAdjustFactorPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectAdjustFactorCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetAdjustFactorPrimaryKeyWhereString (const AdjustFactor * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE lid = '%s'  AND pe = '%s'  AND dur = %d  AND ts = '%s'  AND extremum = '%s' ",
+            structPtr->lid, structPtr->pe, structPtr->dur, structPtr->ts, structPtr->extremum);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeAdjustFactor( AdjustFactor * structPtr)
+{
+    AdjustFactor* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( AdjustFactor * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetAdjustFactorDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetAdjustFactorErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

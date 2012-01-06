@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Chat Room Robot</title>
+<style type="text/css">@import url("../../book.css");</style>
+<style type="text/css">@import url("../../schema.css");</style>
+</HEAD>
+<BODY>
+<H1 style="text-align:center">Chat Room Robot</H1>
+<p></p>
+<h6 class="CaptionFigColumn SchemaHeader">Identifier: </h6>org.eclipse.ecf.presence.bot.chatRoomRobot<p></p>
+<h6 class="CaptionFigColumn SchemaHeader">Since: </h6>1.0.0 milestone 6
+<p></p>
+
+<h6 class="CaptionFigColumn SchemaHeader">Description: </h6>This extension point allows implementers to define a chat room bot.<p></p>
+<h6 class="CaptionFigColumn SchemaHeader">Configuration Markup:</h6>
+<p></p>
+<p class="code SchemaDtd">&lt;!ELEMENT <a name="e.extension">extension</a> (<a href="#e.chatRoomRobot">chatRoomRobot</a>)+&gt;</p>
+<p class="code SchemaDtd">&lt;!ATTLIST extension</p>
+<p class="code SchemaDtdAttlist">point&nbsp;CDATA #REQUIRED<p class="code SchemaDtdAttlist">id&nbsp;&nbsp;&nbsp;&nbsp;CDATA #IMPLIED<p class="code SchemaDtdAttlist">name&nbsp;&nbsp;CDATA #IMPLIED&gt;</p>
+<p></p>
+<ul class="ConfigMarkupAttlistDesc">
+</ul>
+<br><p class="code SchemaDtd">&lt;!ELEMENT <a name="e.chatRoomRobot">chatRoomRobot</a> (<a href="#e.chatRooms">chatRooms</a>+)&gt;</p>
+<p class="code SchemaDtd">&lt;!ATTLIST chatRoomRobot</p>
+<p class="code SchemaDtdAttlist">id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CDATA #REQUIRED<p class="code SchemaDtdAttlist">containerFactoryName&nbsp;CDATA #REQUIRED<p class="code SchemaDtdAttlist">connectId&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CDATA #REQUIRED<p class="code SchemaDtdAttlist">connectPassword&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CDATA #IMPLIED<p class="code SchemaDtdAttlist">name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CDATA #IMPLIED&gt;</p>
+<p></p>
+<p class="ConfigMarkupElementDesc">
+The chatRoomRobot extension point.</p>
+<br>
+<ul class="ConfigMarkupAttlistDesc">
+<li><b>id</b> - The required id for the chat room robot.  This must be a unique value relative to all other robots.  For message handlers that are to use this robot, they must provide a chatrobotid that matches this value.</li>
+<li><b>containerFactoryName</b> - The required container factory name.  This should be the container factory name for a given protocol.  For example, for the built in ECF IRC provider the value is <b>ecf.irc.irclib</b>.</li>
+<li><b>connectId</b> - The connect ID for connecting to the given container.  For example, for IRC the expected ID syntax of the connect ID is
+<pre class="Example"><span class="code SchemaTag">
+irc://username@host[:port]
+
+for example:  irc://slewis2_@irc.freenode.net
+</span></pre></li>
+<li><b>connectPassword</b> - An optional connect password.  If a password is required to connect to the given container then an appropriate value must be provided.</li>
+<li><b>name</b> - An optional name for the bot.</li>
+</ul>
+<br><p class="code SchemaDtd">&lt;!ELEMENT <a name="e.chatRooms">chatRooms</a> EMPTY&gt;</p>
+<p class="code SchemaDtd">&lt;!ATTLIST chatRooms</p>
+<p class="code SchemaDtdAttlist">name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CDATA #REQUIRED<p class="code SchemaDtdAttlist">password&nbsp;CDATA #IMPLIED&gt;</p>
+<p></p>
+<ul class="ConfigMarkupAttlistDesc">
+<li><b>name</b> - The name of the chat room that the robot should join.</li>
+<li><b>password</b> - The password required to join the chat room.</li>
+</ul>
+<br><h6 class="CaptionFigColumn SchemaHeader">Examples: </h6><pre class="Example"><span class="code SchemaTag">
+   &lt;extension
+         point=</span><span class="code SchemaCstring">&quot;org.eclipse.ecf.presence.bot.chatRoomRobot&quot;</span><span class="code SchemaTag">&gt;
+      &lt;chatRoomRobot
+            connectId=</span><span class="code SchemaCstring">&quot;irc://slewis2_@irc.freenode.net&quot;</span><span class="code SchemaTag">
+            containerFactoryName=</span><span class="code SchemaCstring">&quot;ecf.irc.irclib&quot;</span><span class="code SchemaTag">
+            id=</span><span class="code SchemaCstring">&quot;org.eclipse.ecf.presence.bot.defaultbot&quot;</span><span class="code SchemaTag">&gt;
+          &lt;chatRooms
+                name=</span><span class="code SchemaCstring">&quot;#eclipse-ecf&quot;</span><span class="code SchemaTag">&gt;
+          &lt;/chatRooms&gt;
+          &lt;chatRooms
+                name=</span><span class="code SchemaCstring">&quot;#secret-channel&quot;</span><span class="code SchemaTag">
+                password=</span><span class="code SchemaCstring">&quot;secret-password&quot;</span><span class="code SchemaTag">&gt;
+          &lt;/chatRooms&gt;
+      &lt;/chatRoomRobot&gt;
+   &lt;/extension&gt;
+</span></pre>
+
+Note that to have the chatRoomRobot receive chat room messages and process them, that the chatRoomMessageHandler should also be defined 
+using the id for the chatRoomRobot given above.  For example:
+
+<pre class="Example"><span class="code SchemaTag">
+   &lt;extension
+         point=</span><span class="code SchemaCstring">&quot;org.eclipse.ecf.presence.bot.chatRoomMessageHandler&quot;</span><span class="code SchemaTag">&gt;
+      &lt;handler
+            chatRoomRobotId=</span><span class="code SchemaCstring">&quot;org.eclipse.ecf.presence.bot.defaultbot&quot;</span><span class="code SchemaTag">
+            class=</span><span class="code SchemaCstring">&quot;org.eclipse.ecf.presence.bot.DefaultChatRoomMessageHandler&quot;</span><span class="code SchemaTag">&gt;
+      &lt;/handler&gt;
+   &lt;/extension&gt;
+</span></pre>
+<p></p>
+
+<h6 class="CaptionFigColumn SchemaHeader">Supplied Implementation: </h6>No supplied implementation.
+<p></p>
+
+<br>
+<p class="note SchemaCopyright">
+Copyright (c) 2007 IBM Corporation and others.  All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+
+</p>
+</BODY>
+</HTML>

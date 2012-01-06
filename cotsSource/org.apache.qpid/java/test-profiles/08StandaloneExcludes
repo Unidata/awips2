@@ -1,0 +1,6 @@
+//======================================================================
+//Exclude the following from brokers defaulting to the 0-8 protocol
+//======================================================================
+
+// This test requires a broker capable of 0-8/9 and 0-10
+org.apache.qpid.test.client.message.JMSDestinationTest#testReceiveResend

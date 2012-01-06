@@ -1,0 +1,14 @@
+==== declare_queues.out
+==== direct_producer.out
+==== direct_listener_dotnet.out
+Message: Message 0
+Message: Message 1
+Message: Message 2
+Message: Message 3
+Message: Message 4
+Message: Message 5
+Message: Message 6
+Message: Message 7
+Message: Message 8
+Message: Message 9
+Message: That's all, folks!

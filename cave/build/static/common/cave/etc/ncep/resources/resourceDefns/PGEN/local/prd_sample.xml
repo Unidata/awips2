@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Products xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <Product name="Outlook" type="Default" forecaster="Default" center="Default" onOff="false" useFile="true" filePath="./" fileName="/usr1/jwu/to11dr11/eclipse/ncep/base/resources/resourceDefns/PGEN/local/prd_sample_Outlook.xml">
+        <Layer name="OUTLOOK" onOff="true" monoColor="false" filled="false">
+            <Color red="255" green="255" blue="0" alpha="255"/>
+            <DrawableElement/>
+        </Layer>
+        <Layer name="LABEL" onOff="true" monoColor="false" filled="false">
+            <Color red="255" green="255" blue="0" alpha="255"/>
+            <DrawableElement/>
+        </Layer>
+        <Layer name="HAILOTLK" onOff="true" monoColor="false" filled="false">
+            <Color red="255" green="255" blue="0" alpha="255"/>
+            <DrawableElement/>
+        </Layer>
+        <Layer name="ISO_BARS" onOff="true" monoColor="false" filled="false">
+            <Color red="255" green="255" blue="0" alpha="255"/>
+            <DrawableElement/>
+        </Layer>
+        <Layer name="PROB" onOff="true" monoColor="false" filled="false">
+            <Color red="255" green="255" blue="0" alpha="255"/>
+            <DrawableElement/>
+        </Layer>
+        <Layer name="ENH00" onOff="true" monoColor="false" filled="false">
+            <Color red="255" green="255" blue="0" alpha="255"/>
+            <DrawableElement/>
+        </Layer>
+    </Product>
+    <Product name="Watch" type="Default" forecaster="Default" center="Default" onOff="false" useFile="true" filePath="./" fileName="/usr1/jwu/to11dr11/eclipse/ncep/base/resources/resourceDefns/PGEN/local/prd_sample_Watch.xml">
+        <Layer name="WATCH1" onOff="true" monoColor="false" filled="false">
+            <Color red="255" green="255" blue="0" alpha="255"/>
+            <DrawableElement/>
+        </Layer>
+        <Layer name="WATCH2" onOff="true" monoColor="false" filled="false">
+            <Color red="255" green="255" blue="0" alpha="255"/>
+            <DrawableElement/>
+        </Layer>
+    </Product>
+    <Product name="GFA" type="Default" forecaster="Default" center="Default" onOff="true" useFile="true" filePath="./" fileName="/usr1/jwu/to11dr11/eclipse/ncep/base/resources/resourceDefns/PGEN/local/prd_sample_GFA.xml">
+        <Layer name="IFR" onOff="true" monoColor="false" filled="false">
+            <Color red="255" green="255" blue="0" alpha="255"/>
+            <DrawableElement/>
+        </Layer>
+        <Layer name="CLD" onOff="true" monoColor="false" filled="false">
+            <Color red="255" green="255" blue="0" alpha="255"/>
+            <DrawableElement/>
+        </Layer>
+        <Layer name="TURB" onOff="true" monoColor="false" filled="false">
+            <Color red="255" green="255" blue="0" alpha="255"/>
+            <DrawableElement/>
+        </Layer>
+    </Product>
+</Products>

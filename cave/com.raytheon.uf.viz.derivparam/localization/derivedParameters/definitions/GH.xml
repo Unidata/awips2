@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<DerivedParameter unit="m" name="Height" abbreviation="GH" xmlns:ns2="group">
+    <Method models="bufrua" name="RaobParam">
+        <Field abbreviation="Raob"/>
+        <ConstantField value="2.0"/>
+    </Method>
+    <Method models="acarssounding bufrua" levels="S,MB" name="Interp">
+        <Field level="Station" abbreviation="GH"/>
+        <Field level="Station" abbreviation="P"/>
+        <Field level="Station" abbreviation="numLevels"/>
+        <Field abbreviation="MB"/>
+        <ConstantField value="50.0"/>
+    </Method>
+    <Method levels="Surface" name="Supplement">
+        <Field abbreviation="Topo"/>
+    </Method>
+    <Method levels="Surface" name="Alias">
+        <Field level="Surface" abbreviation="Topo"/>
+    </Method>
+    <Method levels="S,FHAG" name="Add">
+        <Field level="Surface" abbreviation="Topo"/>
+        <Field abbreviation="FHAG"/>
+    </Method>
+    <Method levels="925MB" name="Average">
+        <Field level="950MB" abbreviation="GH"/>
+        <Field level="900MB" abbreviation="GH"/>
+    </Method>
+    <Method levels="925MB" name="Average">
+        <Field level="1000MB" abbreviation="GH"/>
+        <Field level="850MB" abbreviation="GH"/>
+    </Method>
+    <Method name="Test">
+        <Field abbreviation="GeH"/>
+        <ConstantField value="-1.0"/>
+        <ConstantField value="-99998.0"/>
+        <ConstantField value="1.0E10"/>
+        <ConstantField value="1.0E37"/>
+    </Method>
+    <Method levels="CloudBase" name="Test">
+        <Field level="Surface" abbreviation="CB"/>
+        <ConstantField value="-1.0"/>
+        <ConstantField value="-99998.0"/>
+        <ConstantField value="1.0E10"/>
+        <ConstantField value="1.0E37"/>
+    </Method>
+    <Method levels="CloudCeiling" name="Alias">
+        <Field level="Surface" abbreviation="CC"/>
+    </Method>
+    <Method levels="EchoTop" name="Alias">
+        <Field level="Surface" abbreviation="MRET"/>
+    </Method>
+    <Method models="ETA218" levels="500MB" name="Import">
+        <Field level="500MB" model="GFS212" abbreviation="GH"/>
+    </Method>
+    <Method models="bufrua" levels="S,TILT" name="HeightOf">
+        <Field level="Station" abbreviation="latitude"/>
+        <Field level="Station" abbreviation="longitude"/>
+    </Method>
+    <Method levels="S,TILT" name="Alias">
+        <Field abbreviation="TILT"/>
+    </Method>
+    <Method levels="S,TEMP,WetBulb0,MaxWind,MaxCape" name="Slice">
+        <Field level="3D" abbreviation="GH"/>
+        <Field abbreviation="P"/>
+        <ConstantField value="-1.0"/>
+    </Method>
+    <Method levels="S,K,Ke,TROP" name="Slice">
+        <Field level="3D" abbreviation="GH"/>
+        <Field abbreviation="P"/>
+        <ConstantField value="-2.0"/>
+    </Method>
+    <Method levels="LiftCondLvl" name="Add">
+        <Field abbreviation="zAGL"/>
+        <Field level="Surface" abbreviation="Topo"/>
+    </Method>
+    <Method levels="WetBulb0" name="Alias">
+        <Field level="0WBZ" abbreviation="GH"/>
+    </Method>
+    <Method models="radarVWP" levels="MB,S" name="HeightOf">
+        <Field level="Station" abbreviation="latitude"/>
+        <Field level="Station" abbreviation="longitude"/>
+    </Method>
+    <Method models="profiler" levels="MB,S" name="HeightOf">
+        <Field level="Station" abbreviation="latitude"/>
+        <Field level="Station" abbreviation="longitude"/>
+        <Field level="Station" abbreviation="validTime"/>
+    </Method>
+    <Method models="profiler" levels="Surface" name="Alias">
+        <Field abbreviation="elevation" level="Station"/>
+    </Method>
+    <Method models="profiler" levels="FHAG" name="Add">
+        <Field level="Station" abbreviation="elevation"/>
+        <Field abbreviation="FHAG"/>
+    </Method>
+    <Method models="radarVWP" levels="FHAG" name="Add">
+        <Field level="Station" abbreviation="staElev"/>
+        <Field abbreviation="FHAG"/>
+    </Method>
+    <Method name="GH.execute1">
+        <Field abbreviation="levels"/>
+        <Field abbreviation="staElev"/>
+    </Method>
+    <Method levels="Surface" name="Alias">
+        <Field level="Station" abbreviation="elevation"/>
+    </Method>
+    <Method levels="CloudCeiling" name="GH.execute3">
+        <Field level="Station" abbreviation="prCloud"/>
+        <Field level="Station" abbreviation="lowCld"/>
+        <Field level="Station" abbreviation="midCld"/>
+        <Field level="Station" abbreviation="hiCld"/>
+    </Method>
+    <Method levels="CloudCeiling" name="Add">
+        <Field level="Surface" abbreviation="CCag"/>
+        <Field level="Surface" abbreviation="GH"/>
+    </Method>
+</DerivedParameter>

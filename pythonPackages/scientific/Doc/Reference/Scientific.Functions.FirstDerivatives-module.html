@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Scientific.Functions.FirstDerivatives</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="Scientific-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://dirac.cnrs-orleans.fr/ScientificPython/">Scientific Python</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="Scientific-module.html">Package&nbsp;Scientific</a> ::
+        <a href="Scientific.Functions-module.html">Package&nbsp;Functions</a> ::
+        Module&nbsp;FirstDerivatives
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="Scientific.Functions.FirstDerivatives-module.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== MODULE DESCRIPTION ==================== -->
+<h1 class="epydoc">Module FirstDerivatives</h1><p class="nomargin-top"></p>
+<p>Automatic differentiation for functions with any number of 
+  variables</p>
+  <p>Instances of the class DerivVar represent the values of a function and
+  its partial <a name="index-derivatives"></a><i 
+  class="indexterm">derivatives</i> with respect to a list of variables. 
+  All common mathematical operations and functions are available for these 
+  numbers. There is no restriction on the type of the numbers fed into the 
+  code; it works for real and complex numbers as well as for any Python 
+  type that implements the necessary operations.</p>
+  <p>This module is as far as possible compatible with the n-th order 
+  derivatives module Derivatives. If only first-order derivatives are 
+  required, this module is faster than the general one.</p>
+  <p>Example:</p>
+<pre class="literalblock">
+ print sin(DerivVar(2))
+</pre>
+  <p>produces the output:</p>
+<pre class="literalblock">
+ (0.909297426826, [-0.416146836547])
+</pre>
+  <p>The first number is the value of sin(2); the number in the following 
+  list is the value of the derivative of sin(x) at x=2, i.e. cos(2).</p>
+  <p>When there is more than one variable, DerivVar must be called with an 
+  integer second argument that specifies the number of the variable.</p>
+  <p>Example:</p>
+<pre class="literalblock">
+   &gt;&gt;&gt;x = DerivVar(7., 0)
+   &gt;&gt;&gt;y = DerivVar(42., 1)
+   &gt;&gt;&gt;z = DerivVar(pi, 2)
+   &gt;&gt;&gt;print (sqrt(pow(x,2)+pow(y,2)+pow(z,2)))
+
+   produces the output
+
+   &gt;&gt;&gt;(42.6950770511, [0.163953328662, 0.98371997197, 0.0735820818365])
+</pre>
+  <p>The numbers in the list are the partial derivatives with respect to x,
+  y, and z, respectively.</p>
+  <p>Note: It doesn't make sense to use DerivVar with different values for 
+  the same variable index in one calculation, but there is no check for 
+  this. I.e.:</p>
+<pre class="literalblock">
+   &gt;&gt;&gt;print DerivVar(3, 0)+DerivVar(5, 0)
+
+   produces
+
+   &gt;&gt;&gt;(8, [2])
+</pre>
+  <p>but this result is meaningless.</p>
+
+<!-- ==================== CLASSES ==================== -->
+<a name="section-Classes"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td align="left" colspan="2" class="table-header">
+    <span class="table-header">Classes</span></td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="Scientific.Functions.FirstDerivatives.DerivVar-class.html" class="summary-name">DerivVar</a><br />
+      Numerical variable with automatic derivatives of first order
+    </td>
+  </tr>
+</table>
+<!-- ==================== FUNCTIONS ==================== -->
+<a name="section-Functions"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td align="left" colspan="2" class="table-header">
+    <span class="table-header">Functions</span></td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><a href="Scientific.Geometry.Vector-class.html" 
+      class="link">Scientific.Geometry.Vector</a></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.Functions.FirstDerivatives-module.html#DerivVector" class="summary-sig-name">DerivVector</a>(<span class="summary-sig-arg">x</span>,
+        <span class="summary-sig-arg">y</span>,
+        <span class="summary-sig-arg">z</span>,
+        <span class="summary-sig-arg">index</span>=<span class="summary-sig-default">0</span>)</span><br />
+      Returns:
+      a vector whose components are DerivVar objects</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">bool</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="Scientific.Functions.FirstDerivatives-module.html#isDerivVar" class="summary-sig-name">isDerivVar</a>(<span class="summary-sig-arg">x</span>)</span><br />
+      Returns:
+      True if x is a DerivVar object, False otherwise</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+</table>
+<!-- ==================== FUNCTION DETAILS ==================== -->
+<a name="section-FunctionDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td align="left" colspan="2" class="table-header">
+    <span class="table-header">Function Details</span></td>
+</tr>
+</table>
+<a name="DerivVector"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">DerivVector</span>(<span class="sig-arg">x</span>,
+        <span class="sig-arg">y</span>,
+        <span class="sig-arg">z</span>,
+        <span class="sig-arg">index</span>=<span class="sig-default">0</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>x</code></strong> (number) - x component of the vector</li>
+        <li><strong class="pname"><code>y</code></strong> (number) - y component of the vector</li>
+        <li><strong class="pname"><code>z</code></strong> (number) - z component of the vector</li>
+        <li><strong class="pname"><code>index</code></strong> (<code>int</code>) - the DerivVar index for the x component. The y and z components 
+          receive consecutive indices.</li>
+    </ul></dd>
+    <dt>Returns: <a href="Scientific.Geometry.Vector-class.html" 
+      class="link">Scientific.Geometry.Vector</a></dt>
+        <dd>a vector whose components are DerivVar objects</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="isDerivVar"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">isDerivVar</span>(<span class="sig-arg">x</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>x</code></strong> - an arbitrary object</li>
+    </ul></dd>
+    <dt>Returns: bool</dt>
+        <dd>True if x is a DerivVar object, False otherwise</dd>
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="Scientific-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://dirac.cnrs-orleans.fr/ScientificPython/">Scientific Python</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0 on Tue Oct 28 14:15:59 2008
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

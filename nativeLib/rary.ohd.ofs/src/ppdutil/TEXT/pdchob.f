@@ -1,0 +1,257 @@
+C MEMBER PDCHOB
+C  (from old member PDCHSPEC)
+C-----------------------------------------------------------------------
+C
+C @PROCESS LVL(77)
+C
+       SUBROUTINE PDCHOB (ISTAFL,ISTAT)
+C
+C          ROUTINE:  PDCHOB
+C
+C             VERSION:  1.0.0
+C
+C                DATE:  7-5-83
+C
+C              AUTHOR:  JANINE FRANZOI
+C                       DATA SCIENCES INC
+C                       8555 16TH ST, SILVER SPRING, MD 587-3700
+C***********************************************************************
+C
+C          DESCRIPTION:
+C
+C    THIS ROUTINE CHANGES THE TYPICAL NUMBER OF OBSERVATIONS FOR
+C    A SPECIFIED RRS DATA TYPE AND STATION.
+C
+C***********************************************************************
+C
+C          ARGUMENT LIST:
+C
+C         NAME    TYPE  I/O   DIM   DESCRIPTION
+C
+C        ISTAFL    I    I     1     STATION FLAG
+C                                      0=8-CHAR ID
+C                                      1=STATION NUMBER
+C        ISTAT     I    O     1     STATUS CODE
+C                                      0=NORMAL RETURN
+C                                      OTHER=ERROR
+C
+C***********************************************************************
+C
+C          COMMON:
+C
+      INCLUDE 'uio'
+      INCLUDE 'udebug'
+      INCLUDE 'ufreei'
+      INCLUDE 'udatas'
+      INCLUDE 'pdbcommon/pddtdr'
+      INCLUDE 'pdbcommon/pdbdta'
+      INCLUDE 'pdbcommon/pdrrsc'
+      INCLUDE 'pdbcommon/pdsifc'
+      INCLUDE 'pdbcommon/pdunts'
+      INCLUDE 'pdbcommon/pdi2max'
+C
+C***********************************************************************
+C
+C          DIMENSION AND TYPE DECLARATIONS:
+C
+      INTEGER*2 ISIBUF(128)
+C
+      DIMENSION IDSTA(2),IRRBUF(1000),IDEL(2)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppdutil/RCS/pdchob.f,v $
+     . $',                                                             '
+     .$Id: pdchob.f,v 1.2 2002/05/15 13:41:43 hank Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C***********************************************************************
+C
+C        DATA:
+C
+      DATA IDEL/4HDELE,4HTED /
+C
+C***********************************************************************
+C
+      ISTAT=0
+      LEN=128
+C
+C  DEBUG
+C
+      IF (IPDTR.EQ.1) WRITE (IOGDB,10)
+10    FORMAT (' *** ENTER PDCHOB ')
+      IDSTA(2)=IBLNK
+      IF=2
+      NUM=IFSTOP(IF)-IFSTRT(IF)+1
+      IF (NUM.GT.8) NUM=8
+      IF (IFTYPE(IF).EQ.1) GO TO 20
+      CALL UPACK1 (IBUF(IFSTRT(IF)),IDSTA,NUM)
+      GO TO 30
+20    CALL UNUMIC (IBUF,IFSTRT(IF),IFSTOP(IF),IDSTA)
+30    CONTINUE
+C
+C  GET RRS TYPE
+C
+      IF=IF+1
+      NUM=IFSTOP(IF)-IFSTRT(IF)+1
+      IF (NUM.GT.4) NUM=4
+      CALL UPACK1 (IBUF(IFSTRT(IF)),IRSTYP,NUM)
+C
+C  SEE IF VALID TYPE
+C
+      IRX=IPDCKR(IRSTYP)
+      IF (IRX.NE.0) GO TO 50
+      WRITE (LPE,40) IRSTYP
+40    FORMAT (' **ERROR** INVALID RRS TYPE ',A4,' NOT ON PPDB.')
+      GO TO 250
+50    CONTINUE
+C
+C  GET THE NEW OBS FOR THE STATION & TYPE
+C
+      IF=IF+1
+      IF (IFTYPE(IF).EQ.1) GO TO 70
+      WRITE (LPE,60) IF
+60    FORMAT (' **ERROR** FIELD ',I2,' IS NOT AN INTEGER')
+      GO TO 250
+70    CALL UNUMIC (IBUF,IFSTRT(IF),IFSTOP(IF),NOBS)
+80    CONTINUE
+C
+C  READ SIF RECORD FOR STATION
+C
+      IF (ISTAFL.EQ.1) GO TO 90
+      CALL PDFNDR (IDSTA,LEN,IFIND,ISIREC,ISIBUF,IFREE,ISTAT)
+      IF (ISTAT.NE.0) GO TO 230
+      GO TO 100
+90    CALL PDFNDI (IDSTA,LEN,IFIND,ISIREC,ISIBUF,IFREE,ISTAT)
+      IF (ISTAT.NE.0) GO TO 230
+100   CONTINUE
+C
+C  LOOK FOR RRS TYPE
+C
+      IF (IFIND.EQ.0) GO TO 230
+      J=11
+      NUM=ISIBUF(10)
+      DO 110 I=1,NUM
+      CALL UMEMOV (ISIBUF(J),IRRS,1)
+      IF (IRRS.EQ.IRSTYP) GO TO 130
+      J=J+3
+110   CONTINUE
+      WRITE (LPE,120) IRRS
+120   FORMAT (' **ERROR** RRS TYPE ',A4,' NOT FOUND IN THIS ',
+     *       'STATION.')
+      GO TO 250
+130   CONTINUE
+C
+C  READ THE RRS RECORD
+C
+      NREC=ISIBUF(J+2)
+      CALL RPDLRS (LWNEED,ISTAT)
+      IF (ISTAT.NE.0) GO TO 230
+      LRRBUF=LWNEED
+      CALL PDRRRR (NREC,LRCPDR,LRRBUF,IRRBUF,ISTAT)
+      IF (ISTAT.NE.0) GO TO 230
+      IF (IRRBUF(5).EQ.IRSTYP) GO TO 140
+      WRITE (LPE,120) IRSTYP
+      GO TO 250
+140   CONTINUE
+C
+C      CALCULATE HEADER AND # OF RECORDS
+C
+      NHEADW=LHDRRS+NRSTAT
+      NOLDRC=IUNRCD(IRRBUF(1),LRCPDR)
+C
+C  CHECK IF # OF OBSERVATIONS IS GREATER THAN THAT IN RECORD
+C
+      IF (NOBS.GT.IRRBUF(7)) GO TO 160
+      WRITE (LPE,150)
+150   FORMAT (' **ERROR** # OF OBSERVATIONS INPUT IS SMALLER THEN ',
+     *       ' NUMBER THAT IS PRESENTLY IN RECORD.')
+      GO TO 250
+160   CONTINUE
+C
+C  CALCULATE AMOUNT OF SPACE NEEDED FOR NEW # OF OBSERVATIONS
+C
+      NWRDS=IRRBUF(14)*NOBS+NHEADW
+      NRRECS=IUNRCD(NWRDS,LRCPDR)
+      IF (LXRRSR+NRRECS.LE.MXRRSF) GO TO 180
+      WRITE (LPE,170) IRSTYP,IRRBUF(2),IRRBUF(3)
+170   FORMAT (' **ERROR** NOT ENOUGH ROOM TO INCREASE THE NUMBER',
+     *       ' OF OBSERVATIONS FOR RRS TYPE ',A4,' IN STATION ',2A4)
+      GO TO 250
+180   CONTINUE
+C
+C  THERE IS ROOM SEE HOW MUCH
+C
+      NAVAIL=NRRECS*LRCPDR-NHEADW
+      NBS=NAVAIL/IRRBUF(14)
+      IF (NBS.LE.NOBS) GO TO 190
+C
+C  RESET # OF WORDS
+C
+      NWORDS=IRRBUF(14)*NOBS+NHEADW
+      IRRBUF(1)=NWORDS
+190   CONTINUE
+      IREC=LXRRSR+1
+CMGM  4/2002 IF IREC IS GREATER THEN I2MAX THEN CONVERT IREC TO A 
+C     NEGATIVE NUMBER TO STORE IN THE ISIBUF ARRAY (AN I2 ARRAY). 
+C     IF IREC IS GREATER THEN 2*I2MAX THEN YOU HAVE USED ALL POSITIVE 
+C     AND NEGATIVE NUMBERS IN THE ISIBUF ARRAY AND CAN NOT ADD ANY 
+C     MORE RRS RECORDS. 
+CMGM
+      IREC2=IREC
+      IF(IREC2.LT.2*I2MAX) GO TO 195
+      WRITE(LPE,191) IREC2,IRRBUF(2),IRRBUF(3)
+191   FORMAT(' **ERROR** CANNOT ADD RRS RECORDS. THE RRS RECORD NUMBER'
+     *       ,I5, 'IS GREATER THEN THE MAXIMUM ALLOWED. ERROR OCCURRED'
+     *       ' IN STATION ',2A4)
+      GO TO 250
+195   CONTINUE
+      IF(IREC2.GT.I2MAX)IREC2=IREC2-2*I2MAX
+CMGMend
+C
+C  REWRITE OLD RECORDS AT NEW LOCATION
+C
+      CALL WVLRCD (KPDRRS,IREC,NOLDRC,IRRBUF,LRCPDR,ISTAT)
+      LXRRSR=LXRRSR+NRRECS
+C
+C  RESET POINTER TO RECORD FOR THIS TYPE IN SIF
+C
+      N=ISIBUF(1)
+      ISIBUF(J+2)=IREC2
+      ISRCD=IUNRCD(N,LRCPDI)
+      CALL WVLRCD (KPDSIF,ISIREC,ISRCD,ISIBUF,LRCPDI,ISTAT)
+      IF (ISTAT.NE.0) GO TO 230
+C
+C  DELETE OLD RRS RECORD
+C
+      CALL UMEMOV (IDEL,IRRBUF(2),2)
+C
+C  RE-WRITE RRS RECORD TO FILE
+C
+      CALL PDWRRR (NREC,LRCPDR,IRRBUF,ISTAT)
+      IF (ISTAT.NE.0) GO TO 230
+200   CONTINUE
+C
+C  DEBUG AND RETURN
+C
+      IF (IPDTR.EQ.1.OR.IPDDB.EQ.1) WRITE (IOGDB,210) (IRRBUF(I),I=2,8)
+210   FORMAT (' PDCHOB EXECUTED. STAID=',2A4,'  STA#=',I6,2X,
+     *        'TYPE=',A4,'  MINDAY=',I2,'  MAXOBS=',I2,2X,
+     *        '# OF OBSERVATIONS=',I2)
+      WRITE (LP,220) IRSTYP,IRRBUF(2),IRRBUF(3)
+220   FORMAT (' NUMBER OF OBSERVATIONS RESET FOR TYPE ',A4,' IN STA',
+     *        'TION ',2A4)
+      GO TO 250
+230   CONTINUE
+C
+C  SYSTEM ERROR
+C
+      WRITE (LPE,240) ISTAT
+240   FORMAT (' **ERROR** IN PDCHOB - STATUS =',I2,' DAIO ERROR')
+C
+250   RETURN
+C
+      END

@@ -1,0 +1,885 @@
+/*
+    File: DamMaster.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:47 EDT 2008 using database dc_ob7empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "DamMaster.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct DamMaster_t
+{
+    char		nidid[11];
+    char		dam_name[66];
+    char		county[31];
+    char		river[31];
+    char		downstream_hazard[12];
+    double		max_storage;
+    char		hsa[4];
+    char		rfc[6];
+    double		latitude_dam;
+    double		longitude_dam;
+
+    int		ind_dam_name;
+    int		ind_county;
+    int		ind_river;
+    int		ind_downstream_hazard;
+    int		ind_max_storage;
+    int		ind_hsa;
+    int		ind_rfc;
+    int		ind_latitude_dam;
+    int		ind_longitude_dam;
+} DamMaster_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+DamMaster * GetDamMaster(const char * where)
+{
+
+    DamMaster * listPtr = NULL;
+    DamMaster * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM DamMaster ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DamMaster_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDamMaster() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDamMaster() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDamMaster() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.nidid, :dbs.dam_name:dbs.ind_dam_name, 
+    :dbs.county:dbs.ind_county, :dbs.river:dbs.ind_river, 
+    :dbs.downstream_hazard:dbs.ind_downstream_hazard, :dbs.max_storage:dbs.ind_max_storage, 
+    :dbs.hsa:dbs.ind_hsa, :dbs.rfc:dbs.ind_rfc, 
+    :dbs.latitude_dam:dbs.ind_latitude_dam, :dbs.longitude_dam:dbs.ind_longitude_dam    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetDamMaster() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (DamMaster *) malloc(sizeof(DamMaster))) != NULL)
+        {
+
+            strcpy(structPtr->nidid, dbs.nidid);
+
+            strcpy(structPtr->dam_name, dbs.dam_name);
+            setNullIfIndicated(dbs.ind_dam_name, CHAR, structPtr->dam_name);
+
+            strcpy(structPtr->county, dbs.county);
+            setNullIfIndicated(dbs.ind_county, CHAR, structPtr->county);
+
+            strcpy(structPtr->river, dbs.river);
+            setNullIfIndicated(dbs.ind_river, CHAR, structPtr->river);
+
+            strcpy(structPtr->downstream_hazard, dbs.downstream_hazard);
+            setNullIfIndicated(dbs.ind_downstream_hazard, CHAR, structPtr->downstream_hazard);
+
+            structPtr->max_storage = dbs.max_storage;
+            setNullIfIndicated(dbs.ind_max_storage, DOUBLE, &structPtr->max_storage);
+
+            strcpy(structPtr->hsa, dbs.hsa);
+            setNullIfIndicated(dbs.ind_hsa, CHAR, structPtr->hsa);
+
+            strcpy(structPtr->rfc, dbs.rfc);
+            setNullIfIndicated(dbs.ind_rfc, CHAR, structPtr->rfc);
+
+            structPtr->latitude_dam = dbs.latitude_dam;
+            setNullIfIndicated(dbs.ind_latitude_dam, DOUBLE, &structPtr->latitude_dam);
+
+            structPtr->longitude_dam = dbs.longitude_dam;
+            setNullIfIndicated(dbs.ind_longitude_dam, DOUBLE, &structPtr->longitude_dam);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.nidid, :dbs.dam_name:dbs.ind_dam_name, 
+        :dbs.county:dbs.ind_county, :dbs.river:dbs.ind_river, 
+        :dbs.downstream_hazard:dbs.ind_downstream_hazard, :dbs.max_storage:dbs.ind_max_storage, 
+        :dbs.hsa:dbs.ind_hsa, :dbs.rfc:dbs.ind_rfc, 
+        :dbs.latitude_dam:dbs.ind_latitude_dam, :dbs.longitude_dam:dbs.ind_longitude_dam        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetDamMaster() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+DamMaster * SelectDamMaster(const char * where)
+{
+
+    DamMaster * listPtr = NULL;
+    DamMaster * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM DamMaster ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DamMaster_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDamMaster() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDamMaster() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDamMaster() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.nidid, :dbs.dam_name:dbs.ind_dam_name, 
+    :dbs.county:dbs.ind_county, :dbs.river:dbs.ind_river, 
+    :dbs.downstream_hazard:dbs.ind_downstream_hazard, :dbs.max_storage:dbs.ind_max_storage, 
+    :dbs.hsa:dbs.ind_hsa, :dbs.rfc:dbs.ind_rfc, 
+    :dbs.latitude_dam:dbs.ind_latitude_dam, :dbs.longitude_dam:dbs.ind_longitude_dam    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectDamMaster() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (DamMaster *) malloc(sizeof(DamMaster))) != NULL)
+        {
+
+            strcpy(structPtr->nidid, dbs.nidid);
+
+            strcpy(structPtr->dam_name, dbs.dam_name);
+            setNullIfIndicated(dbs.ind_dam_name, CHAR, structPtr->dam_name);
+
+            strcpy(structPtr->county, dbs.county);
+            setNullIfIndicated(dbs.ind_county, CHAR, structPtr->county);
+
+            strcpy(structPtr->river, dbs.river);
+            setNullIfIndicated(dbs.ind_river, CHAR, structPtr->river);
+
+            strcpy(structPtr->downstream_hazard, dbs.downstream_hazard);
+            setNullIfIndicated(dbs.ind_downstream_hazard, CHAR, structPtr->downstream_hazard);
+
+            structPtr->max_storage = dbs.max_storage;
+            setNullIfIndicated(dbs.ind_max_storage, DOUBLE, &structPtr->max_storage);
+
+            strcpy(structPtr->hsa, dbs.hsa);
+            setNullIfIndicated(dbs.ind_hsa, CHAR, structPtr->hsa);
+
+            strcpy(structPtr->rfc, dbs.rfc);
+            setNullIfIndicated(dbs.ind_rfc, CHAR, structPtr->rfc);
+
+            structPtr->latitude_dam = dbs.latitude_dam;
+            setNullIfIndicated(dbs.ind_latitude_dam, DOUBLE, &structPtr->latitude_dam);
+
+            structPtr->longitude_dam = dbs.longitude_dam;
+            setNullIfIndicated(dbs.ind_longitude_dam, DOUBLE, &structPtr->longitude_dam);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.nidid, :dbs.dam_name:dbs.ind_dam_name, 
+        :dbs.county:dbs.ind_county, :dbs.river:dbs.ind_river, 
+        :dbs.downstream_hazard:dbs.ind_downstream_hazard, :dbs.max_storage:dbs.ind_max_storage, 
+        :dbs.hsa:dbs.ind_hsa, :dbs.rfc:dbs.ind_rfc, 
+        :dbs.latitude_dam:dbs.ind_latitude_dam, :dbs.longitude_dam:dbs.ind_longitude_dam        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectDamMaster() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectDamMasterCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM DamMaster ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDamMaster() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDamMaster() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDamMaster() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountDamMaster() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutDamMaster(const DamMaster * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DamMaster_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.nidid, structPtr->nidid);
+
+    strcpy(dbs.dam_name, structPtr->dam_name);
+    dbs.ind_dam_name = getIndicator(CHAR, (void *)structPtr->dam_name);
+
+    strcpy(dbs.county, structPtr->county);
+    dbs.ind_county = getIndicator(CHAR, (void *)structPtr->county);
+
+    strcpy(dbs.river, structPtr->river);
+    dbs.ind_river = getIndicator(CHAR, (void *)structPtr->river);
+
+    strcpy(dbs.downstream_hazard, structPtr->downstream_hazard);
+    dbs.ind_downstream_hazard = getIndicator(CHAR, (void *)structPtr->downstream_hazard);
+
+    dbs.max_storage = structPtr->max_storage;
+    dbs.ind_max_storage = getIndicator(DOUBLE, (void *)&structPtr->max_storage);
+
+    strcpy(dbs.hsa, structPtr->hsa);
+    dbs.ind_hsa = getIndicator(CHAR, (void *)structPtr->hsa);
+
+    strcpy(dbs.rfc, structPtr->rfc);
+    dbs.ind_rfc = getIndicator(CHAR, (void *)structPtr->rfc);
+
+    dbs.latitude_dam = structPtr->latitude_dam;
+    dbs.ind_latitude_dam = getIndicator(DOUBLE, (void *)&structPtr->latitude_dam);
+
+    dbs.longitude_dam = structPtr->longitude_dam;
+    dbs.ind_longitude_dam = getIndicator(DOUBLE, (void *)&structPtr->longitude_dam);
+
+
+    EXEC SQL INSERT INTO DamMaster (nidid,dam_name,
+        county,river,downstream_hazard,
+        max_storage,hsa,rfc,
+        latitude_dam,longitude_dam        )
+        VALUES (
+         :dbs.nidid, :dbs.dam_name:dbs.ind_dam_name, :dbs.county:dbs.ind_county,
+         :dbs.river:dbs.ind_river, :dbs.downstream_hazard:dbs.ind_downstream_hazard, :dbs.max_storage:dbs.ind_max_storage,
+         :dbs.hsa:dbs.ind_hsa, :dbs.rfc:dbs.ind_rfc, :dbs.latitude_dam:dbs.ind_latitude_dam,
+         :dbs.longitude_dam:dbs.ind_longitude_dam);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutDamMaster() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertDamMaster(const DamMaster * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DamMaster_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.nidid, structPtr->nidid);
+
+    strcpy(dbs.dam_name, structPtr->dam_name);
+    dbs.ind_dam_name = getIndicator(CHAR, (void *)structPtr->dam_name);
+
+    strcpy(dbs.county, structPtr->county);
+    dbs.ind_county = getIndicator(CHAR, (void *)structPtr->county);
+
+    strcpy(dbs.river, structPtr->river);
+    dbs.ind_river = getIndicator(CHAR, (void *)structPtr->river);
+
+    strcpy(dbs.downstream_hazard, structPtr->downstream_hazard);
+    dbs.ind_downstream_hazard = getIndicator(CHAR, (void *)structPtr->downstream_hazard);
+
+    dbs.max_storage = structPtr->max_storage;
+    dbs.ind_max_storage = getIndicator(DOUBLE, (void *)&structPtr->max_storage);
+
+    strcpy(dbs.hsa, structPtr->hsa);
+    dbs.ind_hsa = getIndicator(CHAR, (void *)structPtr->hsa);
+
+    strcpy(dbs.rfc, structPtr->rfc);
+    dbs.ind_rfc = getIndicator(CHAR, (void *)structPtr->rfc);
+
+    dbs.latitude_dam = structPtr->latitude_dam;
+    dbs.ind_latitude_dam = getIndicator(DOUBLE, (void *)&structPtr->latitude_dam);
+
+    dbs.longitude_dam = structPtr->longitude_dam;
+    dbs.ind_longitude_dam = getIndicator(DOUBLE, (void *)&structPtr->longitude_dam);
+
+
+    EXEC SQL INSERT INTO DamMaster (nidid,dam_name,
+        county,river,downstream_hazard,
+        max_storage,hsa,rfc,
+        latitude_dam,longitude_dam        )
+        VALUES (
+         :dbs.nidid, :dbs.dam_name:dbs.ind_dam_name, :dbs.county:dbs.ind_county,
+         :dbs.river:dbs.ind_river, :dbs.downstream_hazard:dbs.ind_downstream_hazard, :dbs.max_storage:dbs.ind_max_storage,
+         :dbs.hsa:dbs.ind_hsa, :dbs.rfc:dbs.ind_rfc, :dbs.latitude_dam:dbs.ind_latitude_dam,
+         :dbs.longitude_dam:dbs.ind_longitude_dam);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertDamMaster() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateDamMaster(const DamMaster *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct DamMaster_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.nidid, structPtr->nidid);
+
+    strcpy(dbs.dam_name, structPtr->dam_name);
+    dbs.ind_dam_name = getIndicator(CHAR, (void *)structPtr->dam_name);
+
+    strcpy(dbs.county, structPtr->county);
+    dbs.ind_county = getIndicator(CHAR, (void *)structPtr->county);
+
+    strcpy(dbs.river, structPtr->river);
+    dbs.ind_river = getIndicator(CHAR, (void *)structPtr->river);
+
+    strcpy(dbs.downstream_hazard, structPtr->downstream_hazard);
+    dbs.ind_downstream_hazard = getIndicator(CHAR, (void *)structPtr->downstream_hazard);
+
+    dbs.max_storage = structPtr->max_storage;
+    dbs.ind_max_storage = getIndicator(DOUBLE, (void *)&structPtr->max_storage);
+
+    strcpy(dbs.hsa, structPtr->hsa);
+    dbs.ind_hsa = getIndicator(CHAR, (void *)structPtr->hsa);
+
+    strcpy(dbs.rfc, structPtr->rfc);
+    dbs.ind_rfc = getIndicator(CHAR, (void *)structPtr->rfc);
+
+    dbs.latitude_dam = structPtr->latitude_dam;
+    dbs.ind_latitude_dam = getIndicator(DOUBLE, (void *)&structPtr->latitude_dam);
+
+    dbs.longitude_dam = structPtr->longitude_dam;
+    dbs.ind_longitude_dam = getIndicator(DOUBLE, (void *)&structPtr->longitude_dam);
+
+
+    sprintf(queryBuffer, " UPDATE DamMaster SET " );
+    strcat(queryBuffer, "nidid = ? , dam_name = ? , county = ? , river = ? , downstream_hazard = ? ,     ");
+    strcat(queryBuffer, "max_storage = ? , hsa = ? , rfc = ? , latitude_dam = ? , longitude_dam = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateDamMaster() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.nidid, :dbs.dam_name:dbs.ind_dam_name, :dbs.county:dbs.ind_county, :dbs.river:dbs.ind_river, :dbs.downstream_hazard:dbs.ind_downstream_hazard,
+     :dbs.max_storage:dbs.ind_max_storage, :dbs.hsa:dbs.ind_hsa, :dbs.rfc:dbs.ind_rfc, :dbs.latitude_dam:dbs.ind_latitude_dam, :dbs.longitude_dam:dbs.ind_longitude_dam;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateDamMaster() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteDamMaster(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM DamMaster ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteDamMaster() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateDamMasterByRecord (const DamMaster * newStructPtr, const DamMaster * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetDamMasterPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateDamMaster(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateDamMaster(const DamMaster * structPtr)
+{
+    UpdateDamMasterByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertDamMaster(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueDamMaster(const DamMaster * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (DamMasterExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertDamMaster(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteDamMasterByRecord(const DamMaster * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetDamMasterPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteDamMaster(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool DamMasterExists(const DamMaster * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetDamMasterPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectDamMasterCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetDamMasterPrimaryKeyWhereString (const DamMaster * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE nidid = '%s' ",
+            structPtr->nidid);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeDamMaster( DamMaster * structPtr)
+{
+    DamMaster* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( DamMaster * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetDamMasterDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetDamMasterErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+

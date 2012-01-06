@@ -1,0 +1,4 @@
+C                                           *--> FROM DACOMMON.IONUM
+C  ASAP I/O UNITS COMMON
+      COMMON /IONUM/ ICDR,IPR,INMCH,INMCC,IRFCC,IRFCP,IAFS,IDBG
+C

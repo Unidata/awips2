@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>ViewWCL Procedure</title>
+</head>
+<body>
+<div style="text-align: center;">
+<h1>ViewWCL</h1>
+<h2>Procedure for viewing the SPC proposed watches</h2>
+<big style="color: rgb(51, 51, 255);"><big><big><big><small
+ style="font-weight: bold;"><span style="color: rgb(0, 0, 0);"></span></small></big></big></big></big></div>
+<big style="color: rgb(51, 51, 255);"><big><big><big><small
+ style="font-weight: bold;"><span style="color: rgb(0, 0, 0);"></span></small></big></big></big></big><a
+ href="#methodology">Methodology</a><br>
+<a href="#howitworks">How It Works</a><br>
+<hr style="width: 100%; height: 2px;">
+<h2><a name="methodology"></a>Methodology</h2>
+<br>
+<big>The first step in the watch by county process occurs when the
+Storm Prediction Center issued a Watch Coordination List (WCL) product.
+This product
+outlines their first guess at what the watch should be, and is used a
+reference
+for the watch coordination conference call.<br>
+<br>
+In GFE, the display of WCL information is handled in a two step process.<br>
+<br>
+First, the WCL arrives internally, triggering a notification on all
+GFEs.<br>
+<br>
+<img alt="WCL Notification" src="images/WCLNotify.png"><br>
+<br>
+At that point, the forecast should select <span
+ style="font-weight: bold; font-style: italic;">ViewWCL</span> from the
+<span style="font-weight: bold; font-style: italic;">Hazards
+Menu.&nbsp;&nbsp; </span><span style="font-weight: bold;"><span
+ style="font-weight: bold;"><br>
+<br>
+<br>
+</span></span><span style="font-weight: bold; font-style: italic;"><br>
+<img style="width: 289px; height: 253px;" alt="View WCL Menu"
+ src="images/ViewWCLMenu.png"><br>
+<br>
+<br>
+</span>A dialog is displayed and the forecaster selects the appropriate
+bulletin. The dialog lists all of the WLCs received in the last six
+hours.<br>
+<br>
+<img alt="" src="images/ViewWCLChoice.png"><br>
+<br>
+When the procedure runs, it will create a temporary grid in GFE
+called <span style="font-weight: bold; font-style: italic;">ProposedWatches</span>.
+This grid has no bearing whatsoever on the actual Hazard grid, as it is
+for display and coordination only.<br>
+<br>
+<img style="width: 676px; height: 564px;" alt="WCL Grid"
+ src="images/WCLGrid.png"><br>
+<br>
+<span style="font-weight: bold;">The grid has eight labels. These are:</span><br>
+</big>
+<table style="width: 70%; text-align: left;" border="2" cellpadding="2"
+ cellspacing="2">
+  <tbody>
+    <tr>
+      <td>Key<br>
+      </td>
+      <td>Current Watch Type<br>
+      </td>
+      <td>Proposed Watch Type<br>
+      </td>
+    </tr>
+    <tr>
+      <td><span style="color: rgb(204, 0, 0);">SV.A</span><br>
+      </td>
+      <td>None<br>
+      </td>
+      <td>Severe Thunderstorm Watch<br>
+      </td>
+    </tr>
+    <tr>
+      <td><span style="color: rgb(204, 0, 0);">TO.A</span><br>
+      </td>
+      <td>None<br>
+      </td>
+      <td>Tornado Watch<br>
+      </td>
+    </tr>
+    <tr>
+      <td><span style="color: rgb(204, 0, 0);">sv.a</span><br>
+      </td>
+      <td>Severe Thunderstorm Watch<br>
+      </td>
+      <td>No Change<br>
+      </td>
+    </tr>
+    <tr>
+      <td><span style="color: rgb(204, 0, 0);">to.a</span><br>
+      </td>
+      <td>Tornado Watch<br>
+      </td>
+      <td>No Change<br>
+      </td>
+    </tr>
+    <tr>
+      <td><span style="color: rgb(204, 0, 0);">to-&gt;SV</span><br>
+      </td>
+      <td>Tornado Watch<br>
+      </td>
+      <td>Severe Thunderstorm Watch<br>
+      </td>
+    </tr>
+    <tr>
+      <td><span style="color: rgb(204, 0, 0);">sv-&gt;SV</span><br>
+      </td>
+      <td>Severe Thunderstorm Watch<br>
+      </td>
+      <td>Severe Thunderstorm Watch (New)<br>
+      </td>
+    </tr>
+    <tr>
+      <td><span style="color: rgb(204, 0, 0);">sv-&gt;TO</span><br>
+      </td>
+      <td>Severe Thunderstorm Watch<br>
+      </td>
+      <td>Tornado Watch<br>
+      </td>
+    </tr>
+    <tr>
+      <td><span style="color: rgb(204, 0, 0);">to-&gt;TO</span><br>
+      </td>
+      <td>Tornado Watch<br>
+      </td>
+      <td>Tornado Watch (New)<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<big>Here is an example of a WCL grid with two watches displayed. The
+brighter blue<br>
+region is the new (proposed) Severe Thunderstorm Watch. The darker red
+area to <br>
+the southeast is an existing Tornado Watch. The purple area between
+them are counties<br>
+which are currently under the Tornado Watch, but will be under the
+Severe Thunderstorm<br>
+Watch when it is issued.<br>
+<br>
+<img style="width: 507px; height: 483px;" alt="WCL Grid 2"
+ src="images/WCLGrid2.png"><br>
+<br>
+</big>
+<hr style="width: 100%; height: 2px;">
+<h2><a name="howitworks"></a>How It Works</h2>
+The ViewWCL procedure reads in saved data written into the ifpServer
+databases by the <a href="VTEC.html">VTEC Decoder</a>.&nbsp; The data
+contains the watch type, the ugc list of counties, the WCL issuance
+time, and the WCL expiration time.&nbsp; The procedure then filters the
+VTEC active table and extracts records that meet all of the following
+conditions:<br>
+<ul>
+  <li>Product PIL is "WCN"</li>
+  <li>Office ID is your own office id</li>
+  <li>Event ending time is later than the current time</li>
+  <li>The VTEC action code is not CAN or EXP.</li>
+</ul>
+The final steps are:<br>
+<ul>
+  <li>The procedure calculates the starting and ending time of the
+"to-be-created" grid by encompassing all events that were filtered,
+plus the issuance and expiration time.&nbsp; <br>
+  </li>
+  <li>Any existing ProposedWatches grids are removed from the GFE.</li>
+  <li>Comparisons are made between the proposed WCL watch and the
+active table information to determine the correct "category" for
+display.</li>
+  <li>The temporary ProposedWatches grid is created and displayed.</li>
+</ul>
+<br>
+<br>
+<big><br>
+<br>
+</big>
+</body>
+</html>

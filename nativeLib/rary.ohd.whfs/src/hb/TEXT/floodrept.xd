@@ -1,0 +1,626 @@
+module 'Hb'
+version = 48;
+xdesigned = 1;
+applicationName = 'Hb';
+generateNameC = * 'floodrept.c';
+generateNameExterns = * 'floodrept.h';
+generateNameResDB = * 'floodrept.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+generateNameMakefile = '/usr/apps/wfo/hybase/gui/';
+motifFlavour = 2;
+generateMask = 4390920;
+useMask = 1;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+javaVersion = 2;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'floodreptDS' : XmDialogShell {
+	arguments {
+	lastGenName = 'floodreptDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_floodreptDS (Widget parent)
+';
+	XmNwidth = 920;
+	XmNheight = 430;
+	XmNallowShellResize = true;
+	XmNtitle = 'Flood Report';
+	XmNminWidth = 1100;
+	XmNminHeight = 850;
+	XmNmaxWidth = 1100;
+	XmNmaxHeight = 850;
+	XmNdeleteResponse = XmDO_NOTHING;
+	};
+object 'floodreptFO' : XmForm {
+	arguments {
+	lastGenName = 'floodreptFO';
+	XmNheight = 870;
+	XmNautoUnmanage = false;
+	};
+object 'floodrept_axisDA' : XmDrawingArea {
+	arguments {
+	lastGenName = 'floodrept_axisDA';
+	XmNwidth = 75;
+	XmNheight = 487;
+	XmNbackground = color('black');
+	};
+};
+object 'floodrept_lidLA' : XmLabel {
+	arguments {
+	lastGenName = 'floodrept_lidLA';
+	XmNlabelString = 'Location: ';
+	};
+};
+object 'floodrept_stageLA' : XmLabel {
+	arguments {
+	lastGenName = 'floodrept_stageLA';
+	XmNlabelString = 'Stage:                                                                                    ';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'floodrept_mainSW' : XmScrolledWindow {
+	arguments {
+	lastGenName = 'floodrept_mainSW';
+	XmNwidth = 545;
+	XmNheight = 517;
+	XmNscrollingPolicy = XmAUTOMATIC;
+	};
+abstract object 'floodrept_mainHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'floodrept_mainHSB';
+	};
+};
+abstract object 'floodrept_mainVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'floodrept_mainVSB';
+	XmNmappedWhenManaged = false;
+	};
+};
+object 'floodrept_mainDA' : XmDrawingArea {
+	arguments {
+	lastGenName = 'floodrept_mainDA';
+	XmNwidth = 545;
+	XmNheight = 496;
+	XmNbackground = color('black');
+	};
+};
+};
+object 'floodreptOM' : XmOptionMenu {
+	arguments {
+	lastGenName = 'floodreptOM';
+	};
+abstract object 'floodrept_omLA' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	lastGenName = 'floodrept_omLA';
+	XmNlabelString = 'Reporting Period';
+	};
+};
+abstract object 'floodreptCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	lastGenName = 'floodreptCB';
+	};
+object 'floodreptPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'floodreptPDM';
+	};
+object 'fr_monPB' : XmPushButton {
+	arguments {
+	lastGenName = 'fr_monPB';
+	XmNlabelString = 'Month to Date';
+	};
+};
+object 'fr_yearPB' : XmPushButton {
+	arguments {
+	lastGenName = 'fr_yearPB';
+	XmNlabelString = 'Year to Date';
+	};
+};
+object 'fr_12monPB' : XmPushButton {
+	arguments {
+	lastGenName = 'fr_12monPB';
+	XmNlabelString = 'Last 12 Months';
+	};
+};
+object 'floodrept_omSE' : XmSeparator {
+	arguments {
+	lastGenName = 'floodrept_omSE';
+	};
+};
+object 'fr_janPB' : XmPushButton {
+	arguments {
+	lastGenName = 'fr_janPB';
+	XmNlabelString = 'January';
+	};
+};
+object 'fr_febPB' : XmPushButton {
+	arguments {
+	lastGenName = 'fr_febPB';
+	XmNlabelString = 'February';
+	};
+};
+object 'fr_marPB' : XmPushButton {
+	arguments {
+	lastGenName = 'fr_marPB';
+	XmNlabelString = 'March';
+	};
+};
+object 'fr_aprPB' : XmPushButton {
+	arguments {
+	lastGenName = 'fr_aprPB';
+	XmNlabelString = 'April';
+	};
+};
+object 'fr_mayPB' : XmPushButton {
+	arguments {
+	lastGenName = 'fr_mayPB';
+	XmNlabelString = 'May';
+	};
+};
+object 'fr_junPB' : XmPushButton {
+	arguments {
+	lastGenName = 'fr_junPB';
+	XmNlabelString = 'June';
+	};
+};
+object 'fr_julPB' : XmPushButton {
+	arguments {
+	lastGenName = 'fr_julPB';
+	XmNlabelString = 'July';
+	};
+};
+object 'fr_augPB' : XmPushButton {
+	arguments {
+	lastGenName = 'fr_augPB';
+	XmNlabelString = 'August';
+	};
+};
+object 'fr_sepPB' : XmPushButton {
+	arguments {
+	lastGenName = 'fr_sepPB';
+	XmNlabelString = 'September';
+	};
+};
+object 'fr_octPB' : XmPushButton {
+	arguments {
+	lastGenName = 'fr_octPB';
+	XmNlabelString = 'October';
+	};
+};
+object 'fr_novPB' : XmPushButton {
+	arguments {
+	lastGenName = 'fr_novPB';
+	XmNlabelString = 'November';
+	};
+};
+object 'fr_decPB' : XmPushButton {
+	arguments {
+	lastGenName = 'fr_decPB';
+	XmNlabelString = 'December';
+	};
+};
+};
+};
+};
+object 'fr_sep1SE' : XmSeparator {
+	arguments {
+	lastGenName = 'fr_sep1SE';
+	};
+};
+object 'floodreptSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'floodreptSL';
+	XmNscrollBarPlacement = XmBOTTOM_RIGHT;
+	};
+abstract object 'floodreptHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'floodreptHSB';
+	};
+};
+abstract object 'floodreptVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'floodreptVSB';
+	};
+};
+abstract object 'floodreptLI' : XmList {
+	arguments {
+	lastGenName = 'floodreptLI';
+	XmNvisibleItemCount = 19;
+	XmNautomaticSelection = XmAUTO_SELECT;
+	XmNselectionPolicy = XmBROWSE_SELECT;
+	XmNlistSizePolicy = XmRESIZE_IF_POSSIBLE;
+	XmNscrollBarDisplayPolicy = XmSTATIC;
+	};
+};
+};
+object 'fr_timesFR' : XmFrame {
+	arguments {
+	lastGenName = 'fr_timesFR';
+	};
+object 'fr_timesLA' : XmLabel {
+	arguments {
+	lastGenName = 'fr_timesLA';
+	XmNframeChildType = XmFRAME_TITLE_CHILD;
+	XmNlabelString = 'Details for Selected Event';
+	};
+};
+object 'fr_timesFO' : XmForm {
+	arguments {
+	lastGenName = 'fr_timesFO';
+	};
+object 'fr_aboveLA' : XmLabel {
+	arguments {
+	lastGenName = 'fr_aboveLA';
+	XmNlabelString = 'AboveFS:';
+	};
+};
+object 'fr_aboveTE' : XmText {
+	arguments {
+	lastGenName = 'fr_aboveTE';
+	XmNmaxLength = 20;
+	XmNcolumns = 37;
+	XmNeditable = false;
+	XmNcursorPositionVisible = false;
+	};
+};
+object 'fr_crestLA' : XmLabel {
+	arguments {
+	lastGenName = 'fr_crestLA';
+	XmNlabelString = 'Crest:';
+	};
+};
+object 'fr_crestTE' : XmText {
+	arguments {
+	lastGenName = 'fr_crestTE';
+	XmNmaxLength = 40;
+	XmNcolumns = 37;
+	XmNeditable = false;
+	XmNcursorPositionVisible = false;
+	XmNeditMode = XmMULTI_LINE_EDIT;
+	XmNrows = 3;
+	};
+};
+object 'fr_belowLA' : XmLabel {
+	arguments {
+	lastGenName = 'fr_belowLA';
+	XmNlabelString = 'BelowFS:';
+	};
+};
+object 'fr_belowTE' : XmText {
+	arguments {
+	lastGenName = 'fr_belowTE';
+	XmNmaxLength = 20;
+	XmNcolumns = 37;
+	XmNeditable = false;
+	XmNcursorPositionVisible = false;
+	};
+};
+object 'fr_insertPB' : XmPushButton {
+	arguments {
+	lastGenName = 'fr_insertPB';
+	generateResName = true;
+	XmNlabelString = 'Insert into
+Crest Table';
+	};
+};
+object 'fr_stagesSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'fr_stagesSL';
+	};
+abstract object 'fr_stagesHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'fr_stagesHSB';
+	};
+};
+abstract object 'fr_stagesVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'fr_stagesVSB';
+	};
+};
+abstract object 'fr_stagesLI' : XmList {
+	arguments {
+	lastGenName = 'fr_stagesLI';
+	XmNvisibleItemCount = 10;
+	XmNautomaticSelection = XmAUTO_SELECT;
+	XmNselectionPolicy = XmBROWSE_SELECT;
+	XmNlistSizePolicy = XmRESIZE_IF_POSSIBLE;
+	XmNscrollBarDisplayPolicy = XmAS_NEEDED;
+	};
+};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -90;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -45;
+	XmNtopAttachment = 1 0 20;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -370;
+	XmNleftAttachment = 1 0 95;
+	XmNbottomAttachment = 2 0 -45;
+	XmNtopAttachment = 1 0 10;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -90;
+	XmNleftAttachment = 1 0 35;
+	XmNbottomAttachment = 2 0 -105;
+	XmNtopAttachment = 1 0 80;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -369;
+	XmNleftAttachment = 1 0 94;
+	XmNbottomAttachment = 2 0 -123;
+	XmNtopAttachment = 1 0 53;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -90;
+	XmNleftAttachment = 1 0 15;
+	XmNbottomAttachment = 2 0 -170;
+	XmNtopAttachment = 1 0 145;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -370;
+	XmNleftAttachment = 1 0 95;
+	XmNbottomAttachment = 2 0 -170;
+	XmNtopAttachment = 1 0 135;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 896;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 66;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -882;
+	XmNleftAttachment = 1 0 537;
+	XmNbottomAttachment = 2 0 -175;
+	XmNtopAttachment = 1 0 5;
+    };
+    };
+};
+};
+object 'fr_sep2SE' : XmSeparator {
+	arguments {
+	lastGenName = 'fr_sep2SE';
+	};
+};
+object 'fr_okPB' : XmPushButton {
+	arguments {
+	lastGenName = 'fr_okPB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Close';
+	};
+};
+object 'fr_refreshPB' : XmPushButton {
+	arguments {
+	lastGenName = 'fr_refreshPB';
+	XmNwidth = 130;
+	XmNheight = 35;
+	XmNlabelString = 'Compute Latest Data';
+	};
+};
+object 'fr_deletePB' : XmPushButton {
+	arguments {
+	lastGenName = 'fr_deletePB';
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Delete Event';
+	};
+};
+object 'fr_exportPB' : XmPushButton {
+	arguments {
+	lastGenName = 'fr_exportPB';
+	XmNlabelString = 'Save Events to File...';
+	};
+};
+object 'fs_hsaLA' : XmLabel {
+	arguments {
+	lastGenName = 'fs_hsaLA';
+	XmNy = 45;
+	XmNlabelString = 'HSA';
+	};
+};
+object 'fr_hsaCBX' : XmDropDownList {
+	arguments {
+	lastGenName = 'fr_hsaCBX';
+	XmNcomboBoxType = XmDROP_DOWN_LIST;
+	XmNmatchBehavior = XmQUICK_NAVIGATE;
+	XmNpositionMode = XmONE_BASED;
+	};
+abstract object 'fr_hsaText' : XmTextField {
+	arguments {
+	name = 'Text';
+	lastGenName = 'fr_hsaText';
+	XmNeditable = true;
+	};
+};
+abstract object 'fr_hsaSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'fr_hsaSL';
+	};
+abstract object 'fr_hsaVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'fr_hsaVSB';
+	XmNprocessingDirection = XmMAX_ON_BOTTOM;
+	XmNeditable = true;
+	};
+};
+abstract object 'fr_hsaLI' : XmList {
+	arguments {
+	name = 'List';
+	lastGenName = 'fr_hsaLI';
+	XmNautomaticSelection = XmAUTO_SELECT;
+	XmNmatchBehavior = 1;
+	XmNselectionPolicy = XmBROWSE_SELECT;
+	XmNscrollBarDisplayPolicy = XmSTATIC;
+	};
+};
+};
+};
+object 'fr_LocationLA' : XmLabel {
+	arguments {
+	lastGenName = 'fr_LocationLA';
+	XmNlabelString = 'Location';
+	XmNalignment = XmALIGNMENT_BEGINNING;
+	};
+};
+object 'fr_crestStageLA' : XmLabel {
+	arguments {
+	name = 'fr_hdrLA2';
+	lastGenName = 'fr_crestStageLA';
+	XmNlabelString = 'Crest Stage';
+	XmNalignment = XmALIGNMENT_END;
+	};
+};
+object 'fr_floodStageLA' : XmLabel {
+	arguments {
+	lastGenName = 'fr_floodStageLA';
+	XmNlabelString = 'Flood Stage';
+	};
+};
+object 'fr_crestTimeLA' : XmLabel {
+	arguments {
+	lastGenName = 'fr_crestTimeLA';
+	XmNlabelString = 'Crest Time';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -595;
+	XmNleftAttachment = 1 0 535;
+	XmNbottomAttachment = 2 0 -511;
+	XmNtopAttachment = 4 4 3;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -590;
+	XmNleftAttachment = 1 0 435;
+	XmNbottomAttachment = 2 0 -30;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -1015;
+	XmNleftAttachment = 1 0 630;
+	XmNbottomAttachment = 2 0 -30;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 1 0 10;
+	XmNleftAttachment = 1 0 595;
+	XmNbottomAttachment = 2 0 -520;
+	XmNtopAttachment = 1 0 40;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -400;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -40;
+	XmNtopAttachment = 1 0 5;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -405;
+	XmNleftAttachment = 1 0 15;
+	XmNbottomAttachment = 2 0 -100;
+	XmNtopAttachment = 1 0 85;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -505;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -475;
+	XmNtopAttachment = 1 0 135;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -1025;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -740;
+	XmNtopAttachment = 1 0 535;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -1035;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -765;
+	XmNtopAttachment = 1 0 750;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -85;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 1 0 20;
+	XmNtopAttachment = 1 0 775;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -1025;
+	XmNleftAttachment = 1 0 845;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 775;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -400;
+	XmNleftAttachment = 1 0 225;
+	XmNbottomAttachment = 2 0 -525;
+	XmNtopAttachment = 1 0 490;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -190;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -525;
+	XmNtopAttachment = 1 0 490;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -45;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -70;
+	XmNtopAttachment = 1 0 45;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 75;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 45;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -100;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -130;
+	XmNtopAttachment = 1 0 105;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -300;
+	XmNleftAttachment = 1 0 220;
+	XmNbottomAttachment = 2 0 -135;
+	XmNtopAttachment = 1 0 110;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -495;
+	XmNleftAttachment = 1 0 420;
+	XmNbottomAttachment = 2 0 -135;
+	XmNtopAttachment = 1 0 110;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -395;
+	XmNleftAttachment = 1 0 305;
+	XmNbottomAttachment = 2 0 -135;
+	XmNtopAttachment = 1 0 110;
+    };
+    };
+};
+};
+end module;

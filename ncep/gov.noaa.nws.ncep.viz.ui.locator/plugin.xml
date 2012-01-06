@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   
+   <extension
+         point="com.raytheon.uf.viz.core.resource">
+      <resource
+            class="gov.noaa.nws.ncep.viz.ui.locator.resource.LocatorResource"
+            name="Locator"
+            renderingOrderId="MAP_OUTLINE">
+      </resource>   
+   </extension>
+   <extension
+         point="gov.noaa.nws.ncep.viz.resources.NC-Resource">
+      <nc-resource
+            class="gov.noaa.nws.ncep.viz.ui.locator.resource.LocatorResourceData"
+            editDialogClass="gov.noaa.nws.ncep.viz.ui.locator.LocatorEditDialog"
+            name="Locator">
+      </nc-resource>
+   </extension>
+   <extension
+         point="gov.noaa.nws.ncep.viz.localization.localizationData">
+      <singleLocalizationValue
+            name="locatorTable"
+            location="locator"
+            fileName="locator_tbl.xml">
+      </singleLocalizationValue>
+   </extension>
+   
+</plugin>
