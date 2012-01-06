@@ -1,0 +1,3 @@
+Thresholds and variables are named with suffixes to indicate the type of value returned. Most of these should be clear. We’ll look more closely at dictionaries and non-linear values.
+
+For a more complete list of naming convention suffixes, see: Naming Conventions section of the Text Product Reference Guide.

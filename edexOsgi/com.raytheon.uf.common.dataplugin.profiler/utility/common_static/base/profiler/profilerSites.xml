@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<profilers>
+  <!--
+     url reference = http://www.profiler.noaa.gov/npn/npnSiteLocationsAsText.jsp
+  -->
+  <site stationId="74630" profilerId="AZCN5" latitude="36.84" longitude="-107.91" elevation="1902" profilerName="Aztec NM" />
+  <site stationId="74662" profilerId="BLMM7" latitude="36.88" longitude="-89.97"  elevation="130"  profilerName="Bloomfield MO" />
+  <site stationId="74357" profilerId="BLRW3" latitude="43.22" longitude="-90.53"  elevation="226"  profilerName="Blue River WI" />
+  <site stationId="70197" profilerId="CENA2" latitude="65.5"  longitude="-144.68" elevation="259"  profilerName="Central AK" />
+  <site stationId="74550" profilerId="CNWM7" latitude="37.52" longitude="-92.7"   elevation="390"  profilerName="Conway MO" />
+  <site stationId="74752" profilerId="DQUA4" latitude="34.11" longitude="-94.29"  elevation="195"  profilerName="DeQueen, AR" />
+  <site stationId="74440" profilerId="FBYN1" latitude="40.08" longitude="-97.31"  elevation="433"  profilerName="Fairbury NE" />
+  <site stationId="74530" profilerId="GDAC2" latitude="37.77" longitude="-102.18" elevation="1155" profilerName="Granada CO" />
+  <site stationId="70268" profilerId="GNAA2" latitude="62.11" longitude="-145.97" elevation="564"  profilerName="Glennallen AK" />
+  <site stationId="74546" profilerId="HBRK1" latitude="38.31" longitude="-97.3"   elevation="447"  profilerName="Hillsboro KS" />
+  <site stationId="74541" profilerId="HVLK1" latitude="35.68" longitude="-95.86"  elevation="219"  profilerName="Haviland KS" />
+  <site stationId="74735" profilerId="JTNT2" latitude="37.65" longitude="-99.11"  elevation="648"  profilerName="Jayton TX" />
+  <site stationId="72246" profilerId="LDBT2" latitude="33.02" longitude="-100.98" elevation="707"  profilerName="Ledbetter TX" />
+  <site stationId="74648" profilerId="LMN02" latitude="30.09" longitude="-96.78"  elevation="124"  profilerName="Haskell OK" />
+  <site stationId="74647" profilerId="LMNO2" latitude="36.69" longitude="-97.48"  elevation="306"  profilerName="Lamont OK" />
+  <site stationId="74551" profilerId="LTHM7" latitude="39.58" longitude="-94.19"  elevation="297"  profilerName="Lathrop MO" />
+  <site stationId="74431" profilerId="MBWW4" latitude="41.9"  longitude="-106.19" elevation="1997" profilerName="Medicine Bow WY" />
+  <site stationId="74437" profilerId="MRRN1" latitude="42.91" longitude="-101.69" elevation="991"  profilerName="Merriman NE" />
+  <site stationId="74542" profilerId="NDSK1" latitude="37.3"  longitude="-95.6"   elevation="265"  profilerName="Neodesha KS" />
+  <site stationId="74445" profilerId="NLGN1" latitude="42.21" longitude="-97.79"  elevation="524"  profilerName="Neligh NE" />
+  <site stationId="74769" profilerId="OKOM6" latitude="34.09" longitude="-88.86"  elevation="125"  profilerName="Okolona MS" />
+  <site stationId="74750" profilerId="PATT2" latitude="31.78" longitude="-95.71"  elevation="119"  profilerName="Palestine TX" />
+  <site stationId="74533" profilerId="PLTC2" latitude="40.18" longitude="-104.73" elevation="1524" profilerName="Platteville CO" />
+  <site stationId="74649" profilerId="PRCO2" latitude="34.98" longitude="-97.52"  elevation="331"  profilerName="Purcell OK" />
+  <site stationId="74433" profilerId="RWDN1" latitude="40.09" longitude="-100.65" elevation="800"  profilerName="McCook NE" />
+  <site stationId="74449" profilerId="SLAI4" latitude="41.9"  longitude="-93.7"   elevation="315"  profilerName="Slater IA" />
+  <site stationId="74379" profilerId="SYCN6" latitude="43.12" longitude="-76.09"  elevation="122"  profilerName="Syracuse NY" />
+  <site stationId="74731" profilerId="TCUN5" latitude="35.08" longitude="-103.61" elevation="1241" profilerName="Tucumcari NM" />
+  <site stationId="70252" profilerId="TLKA2" latitude="62.31" longitude="-150.42" elevation="137"  profilerName="Talkeetna AK" />
+  <site StationId="74604" profilerId="VBGC1" latitude="-9999.0" longitude="-9999.0" elevation="-9999" profilerName="Vandenberg CA">
+     <comments>Site appears to be inactive</comments>
+  </site>
+  <site stationId="74640" profilerId="VCIO2" latitude="36.07" longitude="-99.22"  elevation="648"  profilerName="Vici OK" />
+  <site stationId="74341" profilerId="WDLM5" latitude="44.67" longitude="-95.45"  elevation="319"  profilerName="Wood Lake MN" />
+  <site stationId="74466" profilerId="WLCI3" latitude="40.81" longitude="-87.05"  elevation="212"  profilerName="Wolcott IN" />
+  <site stationId="74556" profilerId="WNCI2" latitude="39.66" longitude="-90.48"  elevation="170"  profilerName="Winchester IL" />
+  <site stationId="74753" profilerId="WNFL1" latitude="31.9"  longitude="-92.78"  elevation="93"   profilerName="Winfield LA" />
+  <site stationId="74629" profilerId="WSMN5" latitude="32.41" longitude="-106.35" elevation="1224" profilerName="White Sands NM" />
+</profilers>

@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.1"?>
+<plugin>
+   <extension
+         id="org.eclipse.ecf.example.collab.ui.ClientPreferencePage"
+         point="org.eclipse.ui.views">
+      <view
+            icon="icons/collaboration.gif"
+            class="org.eclipse.ecf.internal.example.collab.ui.LineChatView"
+            category="org.eclipse.ecf.ui.viewcategory"
+            name="Collaboration"
+            id="org.eclipse.ecf.internal.example.collab.ui.LineChatView"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            category="org.eclipse.ecf.ui.category"
+            class="org.eclipse.ecf.internal.example.collab.ui.ClientPreferencePage"
+            id="org.eclipse.ecf.example.collab.ui.preferences"
+            name="Collaboration">
+         <keywordReference
+               id="org.eclipse.ecf.example.collab.ui.keywords">
+         </keywordReference>
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.ui.keywords">
+      <keyword
+            id="org.eclipse.ecf.example.collab.ui.keywords"
+            label="collab chat ecf">
+      </keyword>
+   </extension>
+   <!--
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            category="org.eclipse.ecf.ui.category"
+            class="org.eclipse.ecf.internal.example.collab.start.AutoLoginPreferencePage"
+            name="Autologin"
+            id="org.eclipse.ecf.example.collab.ui.autologin"/>
+   </extension>
+
+   <extension id="org.eclipse.ecf.example.collab.sharedmarker" point="org.eclipse.core.resources.markers" name="ECF Marker">
+	   <persistent value="true"/>
+       <super type="org.eclipse.core.resources.problemmarker"/>
+	   <super type="org.eclipse.core.resources.textmarker"/>
+	   <attribute name="owner"/>
+   </extension>
+-->
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <viewerContribution
+            targetID="#TextRulerContext"
+            id="org.eclipse.ecf.texteditor.ruler.context.actions">
+         <action
+               label="Share Selection"
+               class="org.eclipse.ecf.internal.example.collab.actions.SetSharedEditorSelectionAction"
+               tooltip="Share Selection to Remotes"
+               menubarPath="additions"
+               id="org.eclipse.ecf.example.collab.ui.text.SetSharedEditorSelectionAction">
+         </action>
+      </viewerContribution>
+      <viewerContribution
+            targetID="#CompilationUnitRulerContext"
+            id="org.eclipse.ecf.javaeditor.ruler.context.actions">
+         <action
+               label="Share Selection"
+               tooltip="Share Selection to Remotes"
+               class="org.eclipse.ecf.internal.example.collab.actions.SetSharedEditorSelectionAction"
+               menubarPath="add"
+               id="org.eclipse.ecf.example.collab.ui.java.SetSharedEditorSelectionAction">
+         </action>
+       </viewerContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="org.eclipse.ecf.example.collab.ui.actionSet"
+            label="Communications"
+            visible="false">
+         <action
+               class="org.eclipse.ecf.internal.example.collab.actions.JoinGroupWizardAction"
+               icon="icons/collaboration.gif"
+               id="org.eclipse.ecf.example.collab.action2"
+               label="Connect Workspace to Collaboration Group..."
+               style="push"
+               toolbarPath="org.eclipse.ecf.ui.collaboration"
+               tooltip="Connect Workspace to Collaboration Group">
+         </action>
+         <action
+               class="org.eclipse.ecf.internal.ui.actions.SelectProviderAction"
+               icon="icons/messages.gif"
+               id="org.eclipse.ecf.example.collab.ui.connectAction"
+               label="%connectionToProvider.name"
+               style="pulldown"
+               toolbarPath="org.eclipse.ecf.ui.collaboration"
+               tooltip="%connectionToProvider.tooltip">
+         </action>
+      </actionSet>
+   </extension>
+   <!--
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="org.eclipse.ecf.example.collab.ui.SharedEditor"
+            default="false"
+            extensions="xml,txt,java"
+            icon="icons/contact_enabled.gif"
+            id="org.eclipse.ecf.example.collab.SharedEditor"
+            name="Shared Editor"/>
+   </extension>
+  -->
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.eclipse.ecf.ui.perspective.communications">
+         <actionSet
+               id="org.eclipse.ecf.example.collab.ui.actionSet">
+         </actionSet>
+         <view
+               id="org.eclipse.ecf.internal.example.collab.ui.LineChatView"
+               relationship="stack"
+               relative="org.eclipse.ui.views.ProblemView"
+               visible="true">
+         </view>
+         <view
+               id="org.eclipse.ecf.example.collab.discoveryview"
+               relationship="stack"
+               relative="org.eclipse.ui.views.ProblemView"
+               visible="true">
+         </view>
+      </perspectiveExtension>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
+      <hyperlinkDetector
+            activate="true"
+            class="org.eclipse.ecf.internal.example.collab.ui.hyperlink.ECFGenericHyperlinkDetector"
+            id="org.eclipse.ecf.example.collab.ui.hyperlink.ECFGenericHyperlinkDetector"
+            name="ECF Generic"
+            targetId="org.eclipse.ui.DefaultTextEditor">
+      </hyperlinkDetector>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="popup:#CompilationUnitEditorContext">
+         <dynamic
+               class="org.eclipse.ecf.internal.example.collab.EditorCompoundContributionItem"
+               id="org.eclipse.ecf.example.collab.compilationuniteditorcontribution">
+         </dynamic>
+      </menuContribution>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="popup:#TextEditorContext">
+         <dynamic
+               class="org.eclipse.ecf.internal.example.collab.EditorCompoundContributionItem"
+               id="org.eclipse.ecf.example.collab.texteditorcontribution">
+         </dynamic>
+      </menuContribution>
+   </extension>
+
+   <!-- wtp structured editors -->
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="popup:org.eclipse.wst.sse.ui.StructuredTextEditor.EditorContext?after=additions">
+         <dynamic
+               class="org.eclipse.ecf.internal.example.collab.EditorCompoundContributionItem"
+               id="org.eclipse.ecf.example.collab.structuredtexteditorcontribution">
+         </dynamic>
+      </menuContribution>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
+      <hyperlinkDetector
+            activate="true"
+            class="org.eclipse.ecf.internal.example.collab.ui.hyperlink.EclipseCollabHyperlinkDetector"
+            id="org.eclipse.ecf.internal.example.collab.ui.hyperlink.EclipseCollabHyperlinkDetector"
+            name="%ShareHyperlinkDetector"
+            targetId="org.eclipse.ui.DefaultTextEditor">
+      </hyperlinkDetector>
+   </extension>
+
+</plugin>

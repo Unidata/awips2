@@ -1,0 +1,404 @@
+/*****************************************************************
+   LoadUnique.pgc
+   
+   Implements a utility function to retrieve a linked list
+   containing the unique entries for a single column in the
+   specified table.
+   
+   Returns arg value of number of unique entries found, either 0 or > 0.
+   If returns number < 0, then indicates error.
+   
+   The unique field returned is a STRING type variable.
+   For date-time, the value is automatically converted to the
+   ANSI format.
+   
+   **************************************************************/
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <memory.h>
+
+#include "LoadUnique.h"
+
+#include "List.h"
+
+EXEC SQL INCLUDE sqlda;
+EXEC SQL INCLUDE sqltypes;
+
+
+
+/*--------------------------------------------------------------*/
+
+UniqueList * LoadUnique(const 	char 	*field,
+		        const 	char 	*table,
+		        const 	char 	*where,
+		    		int	*statuscnt)
+{
+   EXEC SQL BEGIN DECLARE SECTION;
+      char	sqlstmt[1024];
+      char	ustr[80];
+   EXEC SQL END DECLARE SECTION;
+   
+   char * pChar = NULL;
+   char * pDelimiterString = NULL;
+   char * pNewField = NULL;
+   const char * pString = NULL;
+
+   UniqueList		*spPtr;
+   UniqueList		*listPtr;
+   
+   int	cnt;
+   int	first = 1;
+   int length_concatenation_string;
+   int length_delimiter;
+   int length_field;
+   int length_new_field;
+   int num_char_to_alloc;
+   
+   /* initialize */
+   
+   spPtr = (UniqueList *) (NULL);
+
+   /* Parse the field looking for the concatentation symbol '||'.
+      If found, reformat the field string to contain a '|' so that
+      the fields can be later parsed. */
+   /* Get the length of the field string. */
+   length_field = strlen ( field );
+   length_new_field = length_field;
+   length_concatenation_string = strlen ( LOAD_UNIQUE_CONCATENATION_STRING );
+   length_delimiter = strlen ( LOAD_UNIQUE_DELIMITER );
+
+   /* Whatever the chosen delimiter string, it must be surrounded by 
+      single quotes for PostGres.  The size of 2 quotes is 2 char.  
+      Leave an extra character for a terminating '\0'. */
+   num_char_to_alloc = sizeof ( char ) * ( length_delimiter + 2 + 1 );
+   pDelimiterString = ( char * ) malloc ( num_char_to_alloc );
+
+   if ( pDelimiterString == NULL )
+   {
+      fprintf ( stderr,
+	        "LoadUnique: could not allocate %d bytes of memory for\n"
+                "the delimiter string.\n", num_char_to_alloc );
+      *statuscnt = -1;
+      return(spPtr);
+   }
+
+   memset ( pDelimiterString, '\0', num_char_to_alloc );
+   sprintf ( pDelimiterString, "'%s'", LOAD_UNIQUE_DELIMITER ); 
+   length_delimiter = num_char_to_alloc;
+
+   /* Count the number of '||' in the field. */
+   pChar = strstr ( field, LOAD_UNIQUE_CONCATENATION_STRING );
+
+   while ( pChar != NULL )
+   {
+      /* Compute how much longer the field string will have to be. */ 
+      length_new_field += length_concatenation_string +
+                          length_delimiter;
+      pChar += length_concatenation_string;
+      pChar = strstr ( pChar, LOAD_UNIQUE_CONCATENATION_STRING );
+   }
+
+   /* Add 1 for the terminating null. */
+   ++ length_new_field; 
+
+   pNewField = ( char * ) malloc ( sizeof ( char ) * length_new_field ); 
+
+   if ( pNewField == NULL )
+   {
+      fprintf ( stderr,
+	        "LoadUnique: could not allocate %d bytes of memory for\n"
+                "pNewField.\n", sizeof ( char ) * length_new_field );
+      *statuscnt = -1;
+
+      if ( pDelimiterString != NULL )
+      {
+         free ( pDelimiterString );
+         pDelimiterString = NULL;
+      }
+
+      return(spPtr);
+   }
+
+   memset ( pNewField, '\0', length_new_field );
+
+   /* Copy the field names, '||' symbols and '|' symbol. */
+   pString = field; 
+   pChar = strstr ( field, LOAD_UNIQUE_CONCATENATION_STRING ); 
+
+   while ( pChar != NULL )
+   {
+      pChar += length_concatenation_string;
+      strncat ( pNewField, pString, pChar - pString );
+      strcat ( pNewField , pDelimiterString );
+      strcat ( pNewField , LOAD_UNIQUE_CONCATENATION_STRING );
+      pString = pChar;
+      pChar = strstr ( pChar, LOAD_UNIQUE_CONCATENATION_STRING );
+   }
+
+   strcat ( pNewField, pString );
+   
+   /* build the SQL statement */
+   
+   sprintf(sqlstmt, " SELECT DISTINCT %s FROM %s %s ", pNewField, table, 
+           where);
+   
+   /* prepare the selection cursor */
+   EXEC SQL PREPARE selectid FROM :sqlstmt;
+   if (SQLCODE < 0)
+   {
+      fprintf(stderr,
+	      "LoadUnique: error in prepare statement (%ld)\n", SQLCODE);
+      *statuscnt = -1;
+
+      if ( pNewField != NULL )
+      {
+         free ( pNewField );
+         pNewField = NULL;
+      }
+
+      if ( pDelimiterString != NULL )
+      {
+         free ( pDelimiterString );
+         pDelimiterString = NULL;
+      }
+
+      return(spPtr);
+   }
+   
+   /* declare the selection cursor */
+   EXEC SQL DECLARE selectcur CURSOR WITH HOLD FOR selectid;
+   if (SQLCODE < 0)
+   {
+      fprintf(stderr,
+	      "LoadUnique: error in declare cursor (%ld)\n", SQLCODE);
+      *statuscnt = -2;
+
+      if ( pNewField != NULL )
+      {
+         free ( pNewField );
+         pNewField = NULL;
+      }
+
+      if ( pDelimiterString != NULL )
+      {
+         free ( pDelimiterString );
+         pDelimiterString = NULL;
+      }
+
+      return(spPtr);
+   }
+      
+   
+   /* open the cursor */
+   
+   EXEC SQL OPEN selectcur;
+   if (SQLCODE < 0)
+   {
+      fprintf(stderr,
+	      "LoadUnique: error in open cursor (%ld)\n", SQLCODE);
+      fprintf(stderr,
+	      "LoadUnique: error in open cursor (%s)\n", sqlca.sqlerrm.sqlerrmc);
+      fprintf(stderr,
+	      "LoadUnique: error in open cursor (%s)\n", sqlca.sqlstate);
+      fprintf(stderr, " table=%s:where=%s:sqlstmt=%s\n", table, where, sqlstmt);
+
+      if ( pNewField != NULL )
+      {
+         free ( pNewField );
+         pNewField = NULL;
+      }
+
+      if ( pDelimiterString != NULL )
+      {
+         free ( pDelimiterString );
+         pDelimiterString = NULL;
+      }
+
+      *statuscnt = -3;
+      return(spPtr);
+   }
+     
+   
+   /* retrieve the data */
+   
+   listPtr = 0;
+   cnt = 0;
+   memset(&ustr, '\0', sizeof(ustr));
+   
+   EXEC SQL FETCH selectcur INTO :ustr;
+   
+   while (SQLCODE == 0)
+   {
+      if ((spPtr = (UniqueList *)malloc(sizeof(UniqueList))) != NULL)
+      {
+	 strcpy(spPtr->uchar, ustr);
+      }
+      
+      else
+	 break;
+      
+      
+      if (first)
+      {
+	 listPtr = spPtr;
+	 ListInit(&listPtr->list);
+	 first = 0;
+      }
+      
+      
+      ListAdd(&listPtr->list, &spPtr->node);
+      cnt++;
+      
+      memset(&ustr, '\0', sizeof(ustr));
+      EXEC SQL FETCH selectcur INTO :ustr;
+   }
+   
+   
+   EXEC SQL CLOSE selectcur;
+
+   *statuscnt = cnt;   
+
+   if ( pNewField != NULL )
+   {
+      free ( pNewField );
+      pNewField = NULL;
+   }
+
+   if ( pDelimiterString != NULL )
+   {
+      free ( pDelimiterString );
+      pDelimiterString = NULL;
+   }
+
+   return(listPtr);
+}
+
+/*----------------------------------------------------------------*/
+/* Added this function to parse the output from LoadUnique in     */
+/* in the case where the user is selecting unique on concatenated */
+/* fields.                                                        */
+/*----------------------------------------------------------------*/
+char ** ParseUnique ( UniqueList * sp, int * num_fields )
+{
+   char * pBegin = NULL;
+   char * pChar = NULL;
+   char * pEnd = NULL;
+   char ** pFields = NULL;
+   int i;
+   int length_delimiter;
+   int length_unique_field;
+   int nfields = 1 ;
+   int string_length;
+
+   * num_fields = 0 ;
+
+   length_delimiter = strlen ( LOAD_UNIQUE_DELIMITER );
+   length_unique_field = strlen ( sp->uchar );
+
+   /* Look for the '|'  delimiter indicating the separation of field 
+      values.  */
+   pChar = strstr ( sp->uchar, LOAD_UNIQUE_DELIMITER ); 
+
+   while ( pChar != NULL )
+   {
+      nfields ++ ;      
+      pChar += length_delimiter; 
+      pChar = strstr ( pChar, LOAD_UNIQUE_DELIMITER );
+   }
+
+   pFields =  ( char ** ) malloc ( sizeof ( char * ) * ( nfields + 1 ) );
+
+   if ( pFields == NULL )
+   {
+      fprintf ( stderr, "ParseUnique: could not allocate %d bytes of\n"
+                        "memory for array of fields.\n", 
+                        sizeof ( char * ) * nfields );
+      return pFields ;
+   }
+
+   pBegin = sp->uchar;
+   pChar = pBegin;
+
+   for ( i = 0; i < nfields; ++i )
+   {
+      pChar = strstr ( pBegin, LOAD_UNIQUE_DELIMITER ); 
+
+      if ( pChar == NULL )
+      {
+         pEnd = sp->uchar + length_unique_field;
+      }
+      else
+      {
+         pEnd = pChar;
+      }
+
+      string_length = ( pEnd - pBegin ); 
+
+      pFields[i] = ( char * ) malloc ( sizeof ( char ) * string_length + 1 );
+
+      if ( pFields == NULL )
+      {
+          fprintf ( stderr, "ParseUnique: could not allocate %d bytes\n"
+                            "for element %d of the array of fields.\n",
+                            sizeof ( char ) * string_length, i );
+          FreeParseUnique ( pFields ) ; 
+          pFields = NULL;
+          return pFields;
+      }
+
+      memset ( pFields[i], '\0', string_length + 1 );
+      strncpy ( pFields[i], pBegin, string_length );  
+
+      if ( pChar != NULL ) pBegin = pEnd + 1 ;
+   } 
+
+   pFields [ nfields ] = NULL;  
+
+   * num_fields = nfields; 
+   return pFields ;
+}
+
+/*--------------------------------------------------------------*/
+
+
+void  FreeUnique(UniqueList *sp)
+{
+   UniqueList * sPtr = NULL ;
+   
+   if ( sp != NULL )
+   {
+      sPtr = ( UniqueList * ) ListFirst ( & sp->list ) ;
+
+      while ( sPtr != NULL ) 
+      {
+         sp = ( UniqueList * ) sPtr->node.next ;
+	 free ( sPtr ) ;
+         sPtr = sp ;
+      }      
+   }
+
+   return ;
+}
+
+/*--------------------------------------------------------------*/
+
+void FreeParseUnique ( char ** pFields )
+{
+   int i;
+   i = 0;
+
+   if ( pFields != NULL )
+   {
+      while ( pFields [ i ] != NULL )
+      {
+         free ( pFields [ i ] );
+         pFields [ i ] = NULL;
+         ++ i;
+      }
+
+      free ( pFields );
+   }
+}

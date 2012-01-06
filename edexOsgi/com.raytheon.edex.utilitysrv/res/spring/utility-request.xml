@@ -1,0 +1,46 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+  <bean id="utilitySrv" class="com.raytheon.edex.services.UtilitySrv"/>
+  <bean id="privilegedUtilityHandler" class="com.raytheon.edex.services.PrivilegedUtilityHandler"/>
+  <bean id="getServers" class="com.raytheon.edex.services.GetServersHandler"/>
+  <bean id="streamSrv" class="com.raytheon.edex.services.LocalizationStreamHandler"/>
+ 
+  <bean factory-bean="handlerRegistry" factory-method="register">
+  	<constructor-arg value="com.raytheon.uf.common.localization.msgs.UtilityRequestMessage"/>
+  	<constructor-arg ref="utilitySrv"/>
+  </bean>
+  <bean factory-bean="handlerRegistry" factory-method="register">
+  	<constructor-arg value="com.raytheon.uf.common.localization.msgs.PrivilegedUtilityRequestMessage"/>
+  	<constructor-arg ref="privilegedUtilityHandler"/>
+  </bean>
+  <bean factory-bean="handlerRegistry" factory-method="register">
+  	<constructor-arg value="com.raytheon.uf.common.localization.msgs.GetServersRequest"/>
+  	<constructor-arg ref="getServers"/>
+  </bean>
+  <bean factory-bean="handlerRegistry" factory-method="register">
+  	<constructor-arg value="com.raytheon.uf.common.localization.stream.LocalizationStreamPutRequest"/>
+  	<constructor-arg ref="streamSrv"/>
+  </bean>
+  
+  <bean factory-bean="handlerRegistry" factory-method="register">
+  	<constructor-arg value="com.raytheon.uf.common.localization.stream.LocalizationStreamGetRequest"/>
+  	<constructor-arg ref="streamSrv"/>
+  </bean>
+ 
+     <camelContext id="utility-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">    
+
+		<route id="utilityNotify">
+	    	<from uri="vm://utilityNotify" />
+            <bean ref="serializationUtil" method="transformToThrift" />	    	
+            <to uri="jms-generic:topic:edex.alerts.utility" />
+		</route>
+    
+    </camelContext>
+ 
+</beans>

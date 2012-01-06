@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Autobldsrv Plug-in
+Bundle-SymbolicName: com.raytheon.edex.autobldsrv
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Vendor: RAYTHEON
+Require-Bundle: com.raytheon.edex.common,
+ org.apache.commons.configuration,
+ com.raytheon.edex.uengine,
+ org.apache.commons.logging,
+ javax.persistence,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.edex.core,
+ com.raytheon.uf.edex.database
+Export-Package: com.raytheon.edex.services
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: com.raytheon.uf.common.message

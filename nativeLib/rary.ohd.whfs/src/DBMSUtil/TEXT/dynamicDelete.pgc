@@ -1,0 +1,65 @@
+/*
+Name:		dynamicDelete.ec
+
+Inputs:		char* cpSql -		SQL DELETE statement (preferably WITH 
+					where clause ;-) )
+
+Outputs:	long dynamicDelete -	0 		if rows are properly 
+							deleted
+
+					100		if no rows to delete
+
+					anything else	Informix error message 
+							(use finderr)
+					
+		long* lpDeleted -	# Rows deleted (check dynamicDelete 
+					first)
+
+Description:	Function for issuing SQL DELETE statements against Informix 
+		database.
+		
+		Note that the active database is implied, and must be 
+		previously selected prior to calling this routine.
+
+Author:		Phil Perucci
+
+Creation date:	1/30/97
+
+Modifications:
+
+Algorithm:	Trivial - see code.
+
+*/
+
+
+/*
+	Header files:
+*/
+#include <stdio.h>
+
+/*
+	Function:  dynamicDelete()
+*/
+long dynamicDelete(char* cpSql, long* lpDeleted)
+{
+	/*
+		Local storage
+	*/
+   	EXEC SQL BEGIN DECLARE SECTION;
+		char* SQL;
+	EXEC SQL END DECLARE SECTION;
+
+
+    	/*
+    		Execute SQL in one handy step.
+    		The "EXECUTE IMMEDIATE" performs "PREPARE",
+    		"EXECUTE" and "FREE" in one statement.
+    		Can't do this for "SELECT" statements...
+    	*/
+	SQL = cpSql;
+    	EXEC SQL EXECUTE IMMEDIATE :SQL;
+    	
+    	*lpDeleted = sqlca.sqlerrd[2];	/* Return rows deleted */
+    	return(SQLCODE);		/* Return result code */
+}
+

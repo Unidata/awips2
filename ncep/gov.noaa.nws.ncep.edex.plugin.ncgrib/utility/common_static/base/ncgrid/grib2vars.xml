@@ -1,0 +1,4697 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grib2varsList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="grib2vars.xsd">
+<!--This is grib2 vars control table-->
+     <grib2vars>
+          <g2varsid>1</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>0</pid>
+          <pdt>0</pdt>
+          <name>Temperature</name>
+          <units>K</units>
+          <gnam>TMPK</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>501</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>0</pid>
+          <pdt>1</pdt>
+          <name>Temperature</name>
+          <units>K</units>
+          <gnam>TMPK</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>3</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>0</pid>
+          <pdt>2</pdt>
+          <name>Ensemble Temperature</name>
+          <units>K</units>
+          <gnam>TMPK</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>2</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>0</pid>
+          <pdt>5</pdt>
+          <name>Temperature Prob</name>
+          <units>K</units>
+          <gnam>TMPK</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>0</pid>
+          <pdt>8</pdt>
+          <name>Temperature</name>
+          <units>K</units>
+          <gnam>TMPK--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>0</pid>
+          <pdt>11</pdt>
+          <name>Temperature</name>
+          <units>K</units>
+          <gnam>TMPK</gnam>
+          <scale>0</scale>
+          <missing>-9999.0</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>4</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>1</pid>
+          <pdt>0</pdt>
+          <name>Virtual Temperature</name>
+          <units>K</units>
+          <gnam>TVRK</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>5</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>2</pid>
+          <pdt>0</pdt>
+          <name>Potential Temperature</name>
+          <units>K</units>
+          <gnam>THTA</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>505</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>2</pid>
+          <pdt>1</pdt>
+          <name>Potential Temperature</name>
+          <units>K</units>
+          <gnam>THTA</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>6</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>3</pid>
+          <pdt>0</pdt>
+          <name>Equivalent Potential Temp</name>
+          <units>K</units>
+          <gnam>THTE</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>7</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>4</pid>
+          <pdt>8</pdt>
+          <name>Maximum Temperature</name>
+          <units>K</units>
+          <gnam>TMXK--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>507</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>4</pid>
+          <pdt>11</pdt>
+          <name>Maximum Temperature</name>
+          <units>K</units>
+          <gnam>TMXK</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>8</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>4</pid>
+          <pdt>12</pdt>
+          <name>Ensemble maximum Temp</name>
+          <units>K</units>
+          <gnam>TMXK</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>9</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>5</pid>
+          <pdt>8</pdt>
+          <name>Minimum Temperature</name>
+          <units>K</units>
+          <gnam>TMNK--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>509</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>5</pid>
+          <pdt>11</pdt>
+          <name>Minimum Temperature</name>
+          <units>K</units>
+          <gnam>TMNK</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>10</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>5</pid>
+          <pdt>12</pdt>
+          <name>Ensemble minimum Tem</name>
+          <units>K</units>
+          <gnam>TMNK</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>510</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>5</pid>
+          <pdt>11</pdt>
+          <name>Ensemble minimum Tem</name>
+          <units>K</units>
+          <gnam>TMNK</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>11</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>6</pid>
+          <pdt>0</pdt>
+          <name>Dew Point Temperature</name>
+          <units>K</units>
+          <gnam>DWPK</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>511</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>6</pid>
+          <pdt>1</pdt>
+          <name>Dew Point Temperature</name>
+          <units>K</units>
+          <gnam>DWPK</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>12</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>7</pid>
+          <pdt>0</pdt>
+          <name>Dew Point Depression</name>
+          <units>K</units>
+          <gnam>DPDK</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>13</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>8</pid>
+          <pdt>0</pdt>
+          <name>Lapse Rate</name>
+          <units>K m**-1</units>
+          <gnam>LAPS</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>14</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>9</pid>
+          <pdt>0</pdt>
+          <name>Temperature Anomaly</name>
+          <units>K</units>
+          <gnam>TMPKA</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>10</pid>
+          <pdt>0</pdt>
+          <name>Latent Heat Net Flux</name>
+          <units>W m**-2</units>
+          <gnam>FXLH</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>15</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>10</pid>
+          <pdt>8</pdt>
+          <name>Latent Heat Net Flux</name>
+          <units>W m**-2</units>
+          <gnam>FXLH--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>515</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>10</pid>
+          <pdt>11</pdt>
+          <name>Latent Heat Net Flux</name>
+          <units>W m**-2</units>
+          <gnam>FXLH</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>10</pid>
+          <pdt>12</pdt>
+          <name>Latent Heat Net Flux</name>
+          <units>W m**-2</units>
+          <gnam>FXLH</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>11</pid>
+          <pdt>0</pdt>
+          <name>Sensible Heat Net Flux</name>
+          <units>W m**-2</units>
+          <gnam>FXSH</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>16</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>11</pid>
+          <pdt>8</pdt>
+          <name>Sensible Heat Net Flux</name>
+          <units>W m**-2</units>
+          <gnam>FXSH--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>516</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>11</pid>
+          <pdt>11</pdt>
+          <name>Sensible Heat Net Flux</name>
+          <units>W m**-2</units>
+          <gnam>FXSH</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>11</pid>
+          <pdt>12</pdt>
+          <name>Sensible Heat Net Flux</name>
+          <units>W m**-2</units>
+          <gnam>FXSH</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>17</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>12</pid>
+          <pdt>0</pdt>
+          <name>Heat Index</name>
+          <units>K</units>
+          <gnam>HEAT</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>20</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>15</pid>
+          <pdt>0</pdt>
+          <name>Virtual Potential Temperature</name>
+          <units>K</units>
+          <gnam>VPTMP</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>21</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>0</pid>
+          <pdt>0</pdt>
+          <name>Specific Humidity</name>
+          <units>kg kg**-1</units>
+          <gnam>SPFH</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>0</pid>
+          <pdt>1</pdt>
+          <name>Specific Humidity</name>
+          <units>kg kg**-1</units>
+          <gnam>SPFH</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>22</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>1</pid>
+          <pdt>0</pdt>
+          <name>Relative Humidity</name>
+          <units>%</units>
+          <gnam>RELH</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>522</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>1</pid>
+          <pdt>1</pdt>
+          <name>Relative Humidity</name>
+          <units>%</units>
+          <gnam>RELH</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>1</pid>
+          <pdt>2</pdt>
+          <name>Relative Humidity</name>
+          <units>%</units>
+          <gnam>RELH</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>23</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>2</pid>
+          <pdt>0</pdt>
+          <name>Humidity Mixing Ratio</name>
+          <units>kg kg**-1</units>
+          <gnam>MIXR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>24</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>3</pid>
+          <pdt>0</pdt>
+          <name>Precipitable water</name>
+          <units>kg m**-2</units>
+          <gnam>PWTR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>524</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>3</pid>
+          <pdt>1</pdt>
+          <name>Precipitable water</name>
+          <units>kg m**-2</units>
+          <gnam>PWTR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>3</pid>
+          <pdt>2</pdt>
+          <name>Precipitable water</name>
+          <units>kg m**-2</units>
+          <gnam>PWTR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>25</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>4</pid>
+          <pdt>0</pdt>
+          <name>Vapour pressure</name>
+          <units>Pa</units>
+          <gnam>VAPR</gnam>
+          <scale>-2</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>26</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>5</pid>
+          <pdt>0</pdt>
+          <name>Saturation deficit</name>
+          <units>Pa</units>
+          <gnam>SATD</gnam>
+          <scale>-2</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>27</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>6</pid>
+          <pdt>0</pdt>
+          <name>Evaporation</name>
+          <units>kg m**-2</units>
+          <gnam>EVAP</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>27</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>6</pid>
+          <pdt>8</pdt>
+          <name>Evaporation</name>
+          <units>kg m**-2</units>
+          <gnam>EVAP--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>7</pid>
+          <pdt>0</pdt>
+          <name>Precipitation rate</name>
+          <units>kg m**-2 s**-1</units>
+          <gnam>PRATE</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>28</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>7</pid>
+          <pdt>8</pdt>
+          <name>Precipitation rate</name>
+          <units>kg m**-2 s**-1</units>
+          <gnam>PR--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>528</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>7</pid>
+          <pdt>11</pdt>
+          <name>Precipitation rate</name>
+          <units>kg m**-2 s**-1</units>
+          <gnam>PR--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+          <grib2vars>
+          <g2varsid>529</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>8</pid>
+          <pdt>11</pdt>
+          <name>Total Precipitation</name>
+          <units>kg m**-2</units>
+          <gnam>APCP</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>29</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>8</pid>
+          <pdt>8</pdt>
+          <name>Total precipitation</name>
+          <units>kg m**-2</units>
+          <gnam>P--M</gnam>
+          <scale>0</scale>
+          <missing>-0.01</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>8</pid>
+          <pdt>12</pdt>
+          <name>Total precipitation</name>
+          <units>kg m**-2</units>
+          <gnam>APCP</gnam>
+          <scale>0</scale>
+          <missing>-0.01</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>9</pid>
+          <pdt>0</pdt>
+          <name>Large scale precipitation</name>
+          <units>kg m**-2</units>
+          <gnam>NCPCP</gnam>
+          <scale>0</scale>
+          <missing>-0.01</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>31</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>9</pid>
+          <pdt>8</pdt>
+          <name>Large scale precipitation</name>
+          <units>kg m**-2</units>
+          <gnam>S--M</gnam>
+          <scale>0</scale>
+          <missing>-0.01</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>10</pid>
+          <pdt>0</pdt>
+          <name>Convective precipitation</name>
+          <units>kg m**-2</units>
+          <gnam>ACPCP</gnam>
+          <scale>0</scale>
+          <missing>-0.01</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>32</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>10</pid>
+          <pdt>8</pdt>
+          <name>Convective precipitation</name>
+          <units>kg m**-2</units>
+          <gnam>C--M</gnam>
+          <scale>0</scale>
+          <missing>-0.01</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>532</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>10</pid>
+          <pdt>11</pdt>
+          <name>Convective precipitation</name>
+          <units>kg m**-2</units>
+          <gnam>C--M</gnam>
+          <scale>0</scale>
+          <missing>-0.01</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>33</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>11</pid>
+          <pdt>0</pdt>
+          <name>Snow depth</name>
+          <units>m</units>
+          <gnam>SNDM</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>533</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>11</pid>
+          <pdt>1</pdt>
+          <name>Snow depth</name>
+          <units>m</units>
+          <gnam>SNDM</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>11</pid>
+          <pdt>2</pdt>
+          <name>Snow depth</name>
+          <units>m</units>
+          <gnam>SNDM</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>11</pid>
+          <pdt>8</pdt>
+          <name>Snow depth</name>
+          <units>m</units>
+          <gnam>SNDM--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>34</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>12</pid>
+          <pdt>8</pdt>
+          <name>Snowfall rate water equiv</name>
+          <units>kg m**-2 s**-1</units>
+          <gnam>SR--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>35</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>13</pid>
+          <pdt>0</pdt>
+          <name>Wat equiv of accum snow dep</name>
+          <units>kg m**-2</units>
+          <gnam>SWEM</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>535</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>13</pid>
+          <pdt>1</pdt>
+          <name>Wat equiv of accum snow dep</name>
+          <units>kg m**-2</units>
+          <gnam>SWEM</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>13</pid>
+          <pdt>2</pdt>
+          <name>Wat equiv of accum snow dep</name>
+          <units>kg m**-2</units>
+          <gnam>SWEM</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>13</pid>
+          <pdt>8</pdt>
+          <name>Wat equiv of accum snow dep</name>
+          <units>kg m**-2</units>
+          <gnam>SWEM--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>36</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>14</pid>
+          <pdt>0</pdt>
+          <name>Convective snow</name>
+          <units>kg m**-2</units>
+          <gnam>CSNO</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>37</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>15</pid>
+          <pdt>0</pdt>
+          <name>Large scale snow</name>
+          <units>kg m**-2</units>
+          <gnam>LSNO</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>38</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>15</pid>
+          <pdt>9</pdt>
+          <name>Large scale snow</name>
+          <units>kg m**-2</units>
+          <gnam>LSNO</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>39</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>16</pid>
+          <pdt>8</pdt>
+          <name>Snow melt</name>
+          <units>kg m**-2</units>
+          <gnam>N--M</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>45</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>22</pid>
+          <pdt>0</pdt>
+          <name>Cloud Mixing Ratio</name>
+          <units>kg kg**-1</units>
+          <gnam>CLWMR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>22</pid>
+          <pdt>1</pdt>
+          <name>Cloud Mixing Ratio</name>
+          <units>kg kg**-1</units>
+          <gnam>CLWMR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>46</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>23</pid>
+          <pdt>0</pdt>
+          <name>Ice water Mixing Ratio</name>
+          <units>kg kg**-1</units>
+          <gnam>ICMR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>47</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>24</pid>
+          <pdt>0</pdt>
+          <name>Rain Mixing Ratio</name>
+          <units>kg kg**-1</units>
+          <gnam>RWMR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>48</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>25</pid>
+          <pdt>0</pdt>
+          <name>Snow Mixing Ratio</name>
+          <units>kg kg**-1</units>
+          <gnam>SNMR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>27</pid>
+          <pdt>8</pdt>
+          <name>Maximum Relative Humidity</name>
+          <units>%</units>
+          <gnam>MAXRH--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>52</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>29</pid>
+          <pdt>8</pdt>
+          <name>Total Snowfall</name>
+          <units>m</units>
+          <gnam>SNOW</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>55</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>32</pid>
+          <pdt>0</pdt>
+          <name>Graupel (snow pellets)</name>
+          <units>kg kg**-1</units>
+          <gnam>GRLE</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>59</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>1</pid>
+          <pdt>2</pdt>
+          <name>Wind Speed</name>
+          <units>m s**-1</units>
+          <gnam>WIND</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>60</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>0</pid>
+          <pdt>0</pdt>
+          <name>Wind Direction</name>
+          <units>Degree true</units>
+          <gnam>DRCT</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>61</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>1</pid>
+          <pdt>0</pdt>
+          <name>Wind Speed</name>
+          <units>m s**-1</units>
+          <gnam>SPED</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>62</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>1</pid>
+          <pdt>5</pdt>
+          <name>Wind Speed</name>
+          <units>m s**-1</units>
+          <gnam>SPED</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>63</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>2</pid>
+          <pdt>0</pdt>
+          <name>u-component of wind</name>
+          <units>m s**-1</units>
+          <gnam>UREL</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>563</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>2</pid>
+          <pdt>1</pdt>
+          <name>u-component of wind</name>
+          <units>m s**-1</units>
+          <gnam>UREL</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>64</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>2</pid>
+          <pdt>2</pdt>
+          <name>Ensemble u-component of wind</name>
+          <units>m s**-1</units>
+          <gnam>UREL</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>65</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>3</pid>
+          <pdt>0</pdt>
+          <name>v-component of wind</name>
+          <units>m s**-1</units>
+          <gnam>VREL</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>565</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>3</pid>
+          <pdt>1</pdt>
+          <name>v-component of wind</name>
+          <units>m s**-1</units>
+          <gnam>VREL</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>66</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>3</pid>
+          <pdt>2</pdt>
+          <name>Ensemble v-component of wind</name>
+          <units>m s**-1</units>
+          <gnam>VREL</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>67</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>4</pid>
+          <pdt>0</pdt>
+          <name>Stream Function</name>
+          <units>m**2 s**-1</units>
+          <gnam>STRM</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>68</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>5</pid>
+          <pdt>0</pdt>
+          <name>Velocity Potential</name>
+          <units>m**2 s**-1</units>
+          <gnam>VPOT</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>69</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>6</pid>
+          <pdt>0</pdt>
+          <name>Montgomery Streamfunction</name>
+          <units>m**2 s**-2</units>
+          <gnam>PSYM</gnam>
+          <scale>-2</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>70</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>7</pid>
+          <pdt>0</pdt>
+          <name>Sigma co-ordinate vert vel</name>
+          <units>s**-1</units>
+          <gnam>SGCVV</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>71</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>8</pid>
+          <pdt>0</pdt>
+          <name>Vertical Velocity (Pressure)</name>
+          <units>Pa s**-1</units>
+          <gnam>OMEG</gnam>
+          <scale>-2</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>571</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>8</pid>
+          <pdt>1</pdt>
+          <name>Vertical Velocity (Pressure)</name>
+          <units>Pa s**-1</units>
+          <gnam>OMEG</gnam>
+          <scale>-2</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>8</pid>
+          <pdt>2</pdt>
+          <name>Vertical Velocity (Pressure)</name>
+          <units>Pa s**-1</units>
+          <gnam>OMEG</gnam>
+          <scale>-2</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>72</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>9</pid>
+          <pdt>0</pdt>
+          <name>Vertical Velocity (Geometric)</name>
+          <units>m s**-1</units>
+          <gnam>VVEL</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>73</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>10</pid>
+          <pdt>0</pdt>
+          <name>Absolute Vorticity</name>
+          <units>s**-1</units>
+          <gnam>AVOR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>573</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>10</pid>
+          <pdt>1</pdt>
+          <name>Absolute Vorticity</name>
+          <units>s**-1</units>
+          <gnam>AVOR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>74</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>11</pid>
+          <pdt>0</pdt>
+          <name>Absolute Divergence</name>
+          <units>s**-1</units>
+          <gnam>DIV</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>75</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>12</pid>
+          <pdt>0</pdt>
+          <name>Relative Vorticity</name>
+          <units>s**-1</units>
+          <gnam>VOR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>76</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>13</pid>
+          <pdt>0</pdt>
+          <name>Relative Divergence</name>
+          <units>s**-1</units>
+          <gnam>RDIV</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>77</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>14</pid>
+          <pdt>0</pdt>
+          <name>Potential Vorticity</name>
+          <units>K m**2 (kg s)**-1</units>
+          <gnam>PVORT</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>14</pid>
+          <pdt>1</pdt>
+          <name>Potential Vorticity</name>
+          <units>K m**2 (kg s)**-1</units>
+          <gnam>PVORT</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>78</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>15</pid>
+          <pdt>0</pdt>
+          <name>Vertical u-component shear</name>
+          <units>s**-1</units>
+          <gnam>USHR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>79</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>16</pid>
+          <pdt>0</pdt>
+          <name>Vertical v-component shear</name>
+          <units>s**-1</units>
+          <gnam>VSHR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>80</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>17</pid>
+          <pdt>0</pdt>
+          <name>Momentum Flux, u-component</name>
+          <units>N m**-2</units>
+          <gnam>URELFX</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>17</pid>
+          <pdt>8</pdt>
+          <name>Momentum Flux, U-Component</name>
+          <units>N m**-2</units>
+          <gnam>URFLFX--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>580</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>17</pid>
+          <pdt>11</pdt>
+          <name>Momentum Flux, u-component</name>
+          <units>N m**-2</units>
+          <gnam>URELFX</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>81</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>18</pid>
+          <pdt>0</pdt>
+          <name>Momentum Flux, v-component</name>
+          <units>N m**-2</units>
+          <gnam>VRELFX</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>18</pid>
+          <pdt>8</pdt>
+          <name>Momentum Flux, V-Component</name>
+          <units>N m**-2</units>
+          <gnam>VRELFX--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>581</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>18</pid>
+          <pdt>11</pdt>
+          <name>Momentum Flux, v-component</name>
+          <units>N m**-2</units>
+          <gnam>VRELFX</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>82</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>19</pid>
+          <pdt>0</pdt>
+          <name>Wind Mixing Energy</name>
+          <units>J</units>
+          <gnam>ENRG</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>83</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>20</pid>
+          <pdt>0</pdt>
+          <name>Boundary Layer Dissipation</name>
+          <units>W m**-2</units>
+          <gnam>BLDIS</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>85</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>22</pid>
+          <pdt>0</pdt>
+          <name>Wind Speed (gust)</name>
+          <units>m s**-1</units>
+          <gnam>GUST</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>22</pid>
+          <pdt>1</pdt>
+          <name>Wind Speed (gust)</name>
+          <units>m s**-1</units>
+          <gnam>GUST</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>90</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>0</pid>
+          <pdt>0</pdt>
+          <name>Pressure</name>
+          <units>Pa</units>
+          <gnam>PRES</gnam>
+          <scale>-2</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>590</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>0</pid>
+          <pdt>1</pdt>
+          <name>Pressure</name>
+          <units>Pa</units>
+          <gnam>PRES</gnam>
+          <scale>-2</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>91</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>0</pid>
+          <pdt>2</pdt>
+          <name>Ensemble Pressure</name>
+          <units>Pa</units>
+          <gnam>PRES</gnam>
+          <scale>-2</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>0</pid>
+          <pdt>8</pdt>
+          <name>Pressure</name>
+          <units>Pa</units>
+          <gnam>PRES--</gnam>
+          <scale>-2</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>0</pid>
+          <pdt>11</pdt>
+          <name>Pressure</name>
+          <units>Pa</units>
+          <gnam>PRES</gnam>
+          <scale>-2</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>92</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>1</pid>
+          <pdt>0</pdt>
+          <name>Pressure Reduced to MSL</name>
+          <units>Pa</units>
+          <gnam>PMSL</gnam>
+          <scale>-2</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>592</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>1</pid>
+          <pdt>1</pdt>
+          <name>Pressure Reduced to MSL</name>
+          <units>Pa</units>
+          <gnam>PMSL</gnam>
+          <scale>-2</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>93</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>1</pid>
+          <pdt>2</pdt>
+          <name>Ensemble MSLP</name>
+          <units>Pa</units>
+          <gnam>PMSL</gnam>
+          <scale>-2</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>94</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>2</pid>
+          <pdt>0</pdt>
+          <name>Pressure Tendency</name>
+          <units>Pa s**-1</units>
+          <gnam>PTND</gnam>
+          <scale>-2</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>95</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>3</pid>
+          <pdt>0</pdt>
+          <name>ICAO Standard Atm Ref Height</name>
+          <units>m</units>
+          <gnam>ICAHT</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>96</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>4</pid>
+          <pdt>0</pdt>
+          <name>Geopotential</name>
+          <units>m**2 s**-2</units>
+          <gnam>GP</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>97</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>5</pid>
+          <pdt>0</pdt>
+          <name>Geopotential Height</name>
+          <units>gpm</units>
+          <gnam>HGHT</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>597</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>5</pid>
+          <pdt>1</pdt>
+          <name>Geopotential Height</name>
+          <units>gpm</units>
+          <gnam>HGHT</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>5</pid>
+          <pdt>8</pdt>
+          <name>Geopotential Height</name>
+          <units>gpm</units>
+          <gnam>HGHT--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>98</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>5</pid>
+          <pdt>2</pdt>
+          <name>Ensemble Geopot. Height</name>
+          <units>gpm</units>
+          <gnam>HGHT</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>99</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>5</pid>
+          <pdt>5</pdt>
+          <name>Ensemble Geopot. Height</name>
+          <units>gpm</units>
+          <gnam>HGHT</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>100</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>6</pid>
+          <pdt>0</pdt>
+          <name>Geometrical Height</name>
+          <units>m</units>
+          <gnam>DIST</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>101</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>7</pid>
+          <pdt>0</pdt>
+          <name>Standard Deviation of Height</name>
+          <units>m</units>
+          <gnam>HGHTSD</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>102</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>8</pid>
+          <pdt>0</pdt>
+          <name>Pressure Anomaly</name>
+          <units>Pa</units>
+          <gnam>PRESA</gnam>
+          <scale>-2</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>103</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>9</pid>
+          <pdt>0</pdt>
+          <name>Geopotential Height Anomaly</name>
+          <units>gpm</units>
+          <gnam>HGHTA</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>603</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>9</pid>
+          <pdt>1</pdt>
+          <name>Geopotential Height Anomaly</name>
+          <units>gpm</units>
+          <gnam>HGHTA</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>104</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>10</pid>
+          <pdt>0</pdt>
+          <name>Density</name>
+          <units>kg m**-3</units>
+          <gnam>DNTY</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>110</g2varsid>
+          <discipline>0</discipline>
+          <category>4</category>
+          <pid>0</pid>
+          <pdt>0</pdt>
+          <name>Net Short-Wave Rad (sfc)</name>
+          <units>W m**-2</units>
+          <gnam>SNIR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>111</g2varsid>
+          <discipline>0</discipline>
+          <category>4</category>
+          <pid>1</pid>
+          <pdt>0</pdt>
+          <name>Net Short-Wave Rad (toa)</name>
+          <units>W m**-2</units>
+          <gnam>SWRT</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>114</g2varsid>
+          <discipline>0</discipline>
+          <category>4</category>
+          <pid>4</pid>
+          <pdt>0</pdt>
+          <name>Brightness Temperature</name>
+          <units>K</units>
+          <gnam>BRTMP</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>120</g2varsid>
+          <discipline>0</discipline>
+          <category>5</category>
+          <pid>0</pid>
+          <pdt>0</pdt>
+          <name>Net Long-Wave Rad (sfc)</name>
+          <units>W m**-2</units>
+          <gnam>SNOR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>121</g2varsid>
+          <discipline>0</discipline>
+          <category>5</category>
+          <pid>1</pid>
+          <pdt>0</pdt>
+          <name>Net Long-Wave Rad (toa)</name>
+          <units>W m**-2</units>
+          <gnam>LWRT</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>125</g2varsid>
+          <discipline>0</discipline>
+          <category>6</category>
+          <pid>0</pid>
+          <pdt>0</pdt>
+          <name>Cloud Ice</name>
+          <units>kg m**-2</units>
+          <gnam>CICE</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>126</g2varsid>
+          <discipline>0</discipline>
+          <category>6</category>
+          <pid>1</pid>
+          <pdt>0</pdt>
+          <name>Total Cloud Cover</name>
+          <units>%</units>
+          <gnam>CLD</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>6</category>
+          <pid>1</pid>
+          <pdt>1</pdt>
+          <name>Total Cloud Cover</name>
+          <units>%</units>
+          <gnam>CLD</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>6</category>
+          <pid>1</pid>
+          <pdt>8</pdt>
+          <name>Total Cloud Cover</name>
+          <units>%</units>
+          <gnam>CLD--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>6</category>
+          <pid>1</pid>
+          <pdt>11</pdt>
+          <name>Total Cloud Cover</name>
+          <units>%</units>
+          <gnam>CLD</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>6</category>
+          <pid>1</pid>
+          <pdt>12</pdt>
+          <name>Total Cloud Cover</name>
+          <units>%</units>
+          <gnam>CLD</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>127</g2varsid>
+          <discipline>0</discipline>
+          <category>6</category>
+          <pid>2</pid>
+          <pdt>0</pdt>
+          <name>Convective Cloud Cover</name>
+          <units>%</units>
+          <gnam>CCLD</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>6</category>
+          <pid>2</pid>
+          <pdt>8</pdt>
+          <name>Convective Cloud Cover</name>
+          <units>%</units>
+          <gnam>CCLD--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>128</g2varsid>
+          <discipline>0</discipline>
+          <category>6</category>
+          <pid>3</pid>
+          <pdt>0</pdt>
+          <name>Low Cloud Cover</name>
+          <units>%</units>
+          <gnam>CLDL</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>129</g2varsid>
+          <discipline>0</discipline>
+          <category>6</category>
+          <pid>4</pid>
+          <pdt>0</pdt>
+          <name>Medium Cloud Cover</name>
+          <units>%</units>
+          <gnam>CLDM</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>130</g2varsid>
+          <discipline>0</discipline>
+          <category>6</category>
+          <pid>5</pid>
+          <pdt>0</pdt>
+          <name>High Cloud Cover</name>
+          <units>%</units>
+          <gnam>CLDH</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>131</g2varsid>
+          <discipline>0</discipline>
+          <category>6</category>
+          <pid>6</pid>
+          <pdt>0</pdt>
+          <name>Cloud Water</name>
+          <units>kg m**-2</units>
+          <gnam>CWTR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>6</category>
+          <pid>6</pid>
+          <pdt>1</pdt>
+          <name>Cloud Water</name>
+          <units>kg m**-2</units>
+          <gnam>CWTR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>140</g2varsid>
+          <discipline>0</discipline>
+          <category>7</category>
+          <pid>0</pid>
+          <pdt>0</pdt>
+          <name>Parcel Lifted Index (500hPa)</name>
+          <units>K</units>
+          <gnam>LIFT</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>141</g2varsid>
+          <discipline>0</discipline>
+          <category>7</category>
+          <pid>0</pid>
+          <pdt>5</pdt>
+          <name>Parcel Lifted Index (500hPa)</name>
+          <units>K</units>
+          <gnam>LIFT</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>142</g2varsid>
+          <discipline>0</discipline>
+          <category>7</category>
+          <pid>1</pid>
+          <pdt>0</pdt>
+          <name>Best Lifted Index (500hPa)</name>
+          <units>K</units>
+          <gnam>LFT4</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>147</g2varsid>
+          <discipline>0</discipline>
+          <category>7</category>
+          <pid>6</pid>
+          <pdt>0</pdt>
+          <name>Conv Available Pot Energy</name>
+          <units>J K**-1</units>
+          <gnam>CAPE</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>647</g2varsid>
+          <discipline>0</discipline>
+          <category>7</category>
+          <pid>6</pid>
+          <pdt>1</pdt>
+          <name>Conv Available Pot Energy</name>
+          <units>J K**-1</units>
+          <gnam>CAPE</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>7</category>
+          <pid>6</pid>
+          <pdt>2</pdt>
+          <name>Conv Available Pot Energy</name>
+          <units>J K**-1</units>
+          <gnam>CAPE</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>148</g2varsid>
+          <discipline>0</discipline>
+          <category>7</category>
+          <pid>6</pid>
+          <pdt>5</pdt>
+          <name>Conv Available Pot Energy Prob</name>
+          <units>J K**-1</units>
+          <gnam>CAPE</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>149</g2varsid>
+          <discipline>0</discipline>
+          <category>7</category>
+          <pid>7</pid>
+          <pdt>0</pdt>
+          <name>Convective Inhibition</name>
+          <units>J K**-1</units>
+          <gnam>CINH</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>649</g2varsid>
+          <discipline>0</discipline>
+          <category>7</category>
+          <pid>7</pid>
+          <pdt>1</pdt>
+          <name>Convective Inhibition</name>
+          <units>J K**-1</units>
+          <gnam>CINH</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>7</category>
+          <pid>7</pid>
+          <pdt>2</pdt>
+          <name>Convective Inhibition</name>
+          <units>J K**-1</units>
+          <gnam>CINH</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>150</g2varsid>
+          <discipline>0</discipline>
+          <category>7</category>
+          <pid>7</pid>
+          <pdt>5</pdt>
+          <name>Convective Inhibition</name>
+          <units>J K**-1</units>
+          <gnam>CINH</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>151</g2varsid>
+          <discipline>0</discipline>
+          <category>7</category>
+          <pid>8</pid>
+          <pdt>0</pdt>
+          <name>Storm Relative Helicity</name>
+          <units>J K**-1</units>
+          <gnam>HLCY</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>7</category>
+          <pid>8</pid>
+          <pdt>1</pdt>
+          <name>Storm Relative Helicity</name>
+          <units>J K**-1</units>
+          <gnam>HLCY</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>152</g2varsid>
+          <discipline>0</discipline>
+          <category>7</category>
+          <pid>8</pid>
+          <pdt>5</pdt>
+          <name>Storm Relative Helicity</name>
+          <units>J K**-1</units>
+          <gnam>HLCY</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>155</g2varsid>
+          <discipline>0</discipline>
+          <category>14</category>
+          <pid>0</pid>
+          <pdt>0</pdt>
+          <name>Total ozone</name>
+          <units>Dobson units</units>
+          <gnam>TOZO</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>14</category>
+          <pid>0</pid>
+          <pdt>1</pdt>
+          <name>Total ozone</name>
+          <units>Dobson</units>
+          <gnam>TOZO</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>180</g2varsid>
+          <discipline>0</discipline>
+          <category>19</category>
+          <pid>0</pid>
+          <pdt>0</pdt>
+          <name>Visibility</name>
+          <units>m</units>
+          <gnam>VSBY</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>181</g2varsid>
+          <discipline>0</discipline>
+          <category>19</category>
+          <pid>0</pid>
+          <pdt>5</pdt>
+          <name>Visibility</name>
+          <units>m</units>
+          <gnam>VSBY</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>19</category>
+          <pid>1</pid>
+          <pdt>0</pdt>
+          <name>Albedo</name>
+          <units>%</units>
+          <gnam>ALBD</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>182</g2varsid>
+          <discipline>0</discipline>
+          <category>19</category>
+          <pid>1</pid>
+          <pdt>8</pdt>
+          <name>Albedo</name>
+          <units>%</units>
+          <gnam>ALBD--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>682</g2varsid>
+          <discipline>0</discipline>
+          <category>19</category>
+          <pid>1</pid>
+          <pdt>11</pdt>
+          <name>Albedo</name>
+          <units>%</units>
+          <gnam>ALBD</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>183</g2varsid>
+          <discipline>0</discipline>
+          <category>19</category>
+          <pid>2</pid>
+          <pdt>0</pdt>
+          <name>Thunderstorm probability</name>
+          <units>%</units>
+          <gnam>TSTM</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>184</g2varsid>
+          <discipline>0</discipline>
+          <category>19</category>
+          <pid>3</pid>
+          <pdt>0</pdt>
+          <name>Mixed layer depth</name>
+          <units>m</units>
+          <gnam>MIXL</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>192</g2varsid>
+          <discipline>0</discipline>
+          <category>19</category>
+          <pid>11</pid>
+          <pdt>0</pdt>
+          <name>Turbulent Kinetic Energy</name>
+          <units> J kg**-1</units>
+          <gnam>TKE</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>1</discipline>
+          <category>1</category>
+          <pid>2</pid>
+          <pdt>8</pdt>
+          <name>Percent Precipitation in a sub-</name>
+          <units>%</units>
+          <gnam>PPOSP--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>2</discipline>
+          <category>0</category>
+          <pid>0</pid>
+          <pdt>0</pdt>
+          <name>Land Cover (1=land, 0=sea)</name>
+          <units>Proportion</units>
+          <gnam>LAND</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>2</discipline>
+          <category>0</category>
+          <pid>0</pid>
+          <pdt>1</pdt>
+          <name>Land Cover (1=land, 0=sea)</name>
+          <units>Proportion</units>
+          <gnam>LAND</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>2</discipline>
+          <category>0</category>
+          <pid>1</pid>
+          <pdt>0</pdt>
+          <name>Surface Roughness</name>
+          <units>m</units>
+          <gnam>SFCR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>2</discipline>
+          <category>0</category>
+          <pid>2</pid>
+          <pdt>0</pdt>
+          <name>Soil Temperature</name>
+          <units>K</units>
+          <gnam>TSOIL</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>2</discipline>
+          <category>0</category>
+          <pid>3</pid>
+          <pdt>0</pdt>
+          <name>Soil Moisture Content</name>
+          <units>kg m**-2</units>
+          <gnam>SOILM</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>2</discipline>
+          <category>0</category>
+          <pid>4</pid>
+          <pdt>0</pdt>
+          <name>Vegetation</name>
+          <units>%</units>
+          <gnam>VEG</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>2</discipline>
+          <category>0</category>
+          <pid>5</pid>
+          <pdt>8</pdt>
+          <name>Water Runoff</name>
+          <units>kg m**-2</units>
+          <gnam>WATR--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>2</discipline>
+          <category>0</category>
+          <pid>5</pid>
+          <pdt>11</pdt>
+          <name>Water Runoff</name>
+          <units>kg m**-2</units>
+          <gnam>WATR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>2</discipline>
+          <category>3</category>
+          <pid>0</pid>
+          <pdt>0</pdt>
+          <name>Soil Type</name>
+          <units>-</units>
+          <gnam>SOTYP</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>200</g2varsid>
+          <discipline>10</discipline>
+          <category>0</category>
+          <pid>0</pid>
+          <pdt>0</pdt>
+          <name>Wave Spectra (1)</name>
+          <units>-</units>
+          <gnam>WVSP1</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>201</g2varsid>
+          <discipline>10</discipline>
+          <category>0</category>
+          <pid>1</pid>
+          <pdt>0</pdt>
+          <name>Wave Spectra (2)</name>
+          <units>-</units>
+          <gnam>WVSP2</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>202</g2varsid>
+          <discipline>10</discipline>
+          <category>0</category>
+          <pid>2</pid>
+          <pdt>0</pdt>
+          <name>Wave Spectra (3)</name>
+          <units>-</units>
+          <gnam>WVSP3</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>203</g2varsid>
+          <discipline>10</discipline>
+          <category>0</category>
+          <pid>3</pid>
+          <pdt>0</pdt>
+          <name>Sig Hght Comb Wind Waves + Swell</name>
+          <units>m</units>
+          <gnam>HTSGW</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>204</g2varsid>
+          <discipline>10</discipline>
+          <category>0</category>
+          <pid>4</pid>
+          <pdt>0</pdt>
+          <name>Direction of Wind Waves</name>
+          <units>Degree True</units>
+          <gnam>WVDIR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>205</g2varsid>
+          <discipline>10</discipline>
+          <category>0</category>
+          <pid>5</pid>
+          <pdt>0</pdt>
+          <name>Significant Height of Wind Waves</name>
+          <units>m</units>
+          <gnam>WVHGT</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>206</g2varsid>
+          <discipline>10</discipline>
+          <category>0</category>
+          <pid>6</pid>
+          <pdt>0</pdt>
+          <name>Mean Period of Wind Waves</name>
+          <units>s</units>
+          <gnam>WVPER</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>207</g2varsid>
+          <discipline>10</discipline>
+          <category>0</category>
+          <pid>7</pid>
+          <pdt>0</pdt>
+          <name>Direction of Swell Waves</name>
+          <units>Degree True</units>
+          <gnam>SWDIR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>208</g2varsid>
+          <discipline>10</discipline>
+          <category>0</category>
+          <pid>8</pid>
+          <pdt>0</pdt>
+          <name>Significant Hght of Swell Waves</name>
+          <units>m</units>
+          <gnam>SWELL</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>209</g2varsid>
+          <discipline>10</discipline>
+          <category>0</category>
+          <pid>9</pid>
+          <pdt>0</pdt>
+          <name>Mean Period of Swell Waves</name>
+          <units>s</units>
+          <gnam>SWPER</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>210</g2varsid>
+          <discipline>10</discipline>
+          <category>0</category>
+          <pid>10</pid>
+          <pdt>0</pdt>
+          <name>Primary Wave Direction</name>
+          <units>Degree True</units>
+          <gnam>DIRPW</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>211</g2varsid>
+          <discipline>10</discipline>
+          <category>0</category>
+          <pid>11</pid>
+          <pdt>0</pdt>
+          <name>Primary Wave Mean Period</name>
+          <units>s</units>
+          <gnam>PERPW</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>212</g2varsid>
+          <discipline>10</discipline>
+          <category>0</category>
+          <pid>12</pid>
+          <pdt>0</pdt>
+          <name>Secondary Wave Direction</name>
+          <units>Degree True</units>
+          <gnam>DIRSW</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>213</g2varsid>
+          <discipline>10</discipline>
+          <category>0</category>
+          <pid>13</pid>
+          <pdt>0</pdt>
+          <name>Secondary Wave Mean Period</name>
+          <units>s</units>
+          <gnam>PERSW</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>10</discipline>
+          <category>2</category>
+          <pid>0</pid>
+          <pdt>0</pdt>
+          <name>Ice Cover</name>
+          <units>Proportion</units>
+          <gnam>ICEC</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>10</discipline>
+          <category>2</category>
+          <pid>0</pid>
+          <pdt>1</pdt>
+          <name>Ice Cover</name>
+          <units>Proportion</units>
+          <gnam>ICEC</gnam>
+          <scale>0</scale>
+          <missing>-9999.0</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>10</discipline>
+          <category>2</category>
+          <pid>1</pid>
+          <pdt>0</pdt>
+          <name>Ice Thickness</name>
+          <units>m</units>
+          <gnam>ICETK</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>10</discipline>
+          <category>3</category>
+          <pid>0</pid>
+          <pdt>0</pdt>
+          <name>Water Temperature</name>
+          <units>K</units>
+          <gnam>WTMP</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>250</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>192</pid>
+          <pdt>0</pdt>
+          <name>Snow Phase Change Heat Flux</name>
+          <units>W m**-2</units>
+          <gnam>FXSN</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>750</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>192</pid>
+          <pdt>1</pdt>
+          <name>Snow Phase Change Heat Flux</name>
+          <units>W m**-2</units>
+          <gnam>FXSN</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>192</pid>
+          <pdt>8</pdt>
+          <name>Snow Phase Change Heat Flux</name>
+          <units>W m**-2</units>
+          <gnam>FXSN--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>195</pid>
+          <pdt>0</pdt>
+          <name>Large Scl Condensate Heating rat</name>
+          <units>K/s</units>
+          <gnam>LRGHR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>195</pid>
+          <pdt>8</pdt>
+          <name>Large Scl Condensate Heating rat</name>
+          <units>K/s</units>
+          <gnam>LRGHR--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>196</pid>
+          <pdt>0</pdt>
+          <name>Deep Convective Heating rate</name>
+          <units>K/s</units>
+          <gnam>CNVHR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>196</pid>
+          <pdt>8</pdt>
+          <name>Deep Convective Heating rate</name>
+          <units>K/s</units>
+          <gnam>CNVHR--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>0</category>
+          <pid>198</pid>
+          <pdt>0</pdt>
+          <name>Temperature Tendency By All Phys</name>
+          <units>K/s</units>
+          <gnam>TTDIA</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>56</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>192</pid>
+          <pdt>0</pdt>
+          <name>Weather</name>
+          <units>NA</units>
+          <gnam>WTHR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>556</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>192</pid>
+          <pdt>1</pdt>
+          <name>Weather</name>
+          <units>NA</units>
+          <gnam>WTHR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>251</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>192</pid>
+          <pdt>5</pdt>
+          <name>Categorical rain</name>
+          <units>0,1</units>
+          <gnam>WXTR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>252</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>192</pid>
+          <pdt>8</pdt>
+          <name>Categorical rain</name>
+          <units>0,1</units>
+          <gnam>WXTR--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>752</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>192</pid>
+          <pdt>11</pdt>
+          <name>Categorical rain</name>
+          <units>0,1</units>
+          <gnam>WXTR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>192</pid>
+          <pdt>12</pdt>
+          <name>Categorical rain</name>
+          <units>0,1</units>
+          <gnam>WXTR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>193</pid>
+          <pdt>0</pdt>
+          <name>Categorical freezing rain</name>
+          <units>0,1</units>
+          <gnam>WXTZ</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>253</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>193</pid>
+          <pdt>5</pdt>
+          <name>Categorical freezing rain</name>
+          <units>0,1</units>
+          <gnam>WXTZ</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>254</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>193</pid>
+          <pdt>8</pdt>
+          <name>Categorical freezing rain</name>
+          <units>0,1</units>
+          <gnam>WXTZ--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>193</pid>
+          <pdt>11</pdt>
+          <name>Categorical freezing rain</name>
+          <units>0,1</units>
+          <gnam>WXTZ</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>193</pid>
+          <pdt>12</pdt>
+          <name>Categorical freezing rain</name>
+          <units>0,1</units>
+          <gnam>WXTZ</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>194</pid>
+          <pdt>0</pdt>
+          <name>Categorical ice pellets</name>
+          <units>0,1</units>
+          <gnam>WXTP</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>255</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>194</pid>
+          <pdt>5</pdt>
+          <name>Categorical ice pellets</name>
+          <units>0,1</units>
+          <gnam>WXTP</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>256</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>194</pid>
+          <pdt>8</pdt>
+          <name>Categorical ice pellets</name>
+          <units>0,1</units>
+          <gnam>WXTP--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>194</pid>
+          <pdt>11</pdt>
+          <name>Categorical ice pellets</name>
+          <units>0,1</units>
+          <gnam>WXTP</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>194</pid>
+          <pdt>12</pdt>
+          <name>Categorical ice pellets</name>
+          <units>0,1</units>
+          <gnam>WXTP</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>195</pid>
+          <pdt>0</pdt>
+          <name>Categorical snow</name>
+          <units>0,1</units>
+          <gnam>WXTS</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>257</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>195</pid>
+          <pdt>5</pdt>
+          <name>Categorical snow</name>
+          <units>0,1</units>
+          <gnam>WXTS</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>258</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>195</pid>
+          <pdt>8</pdt>
+          <name>Categorical snow</name>
+          <units>0,1</units>
+          <gnam>WXTS--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>195</pid>
+          <pdt>11</pdt>
+          <name>Categorical snow</name>
+          <units>0,1</units>
+          <gnam>WXTS</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>195</pid>
+          <pdt>12</pdt>
+          <name>Categorical snow</name>
+          <units>0,1</units>
+          <gnam>WXTS</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>259</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>196</pid>
+          <pdt>0</pdt>
+          <name>Convective precip rate</name>
+          <units>kg m**-2 s**-1</units>
+          <gnam>CPR--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>196</pid>
+          <pdt>8</pdt>
+          <name>Convective Precipitation Rate</name>
+          <units>kg m**-2 s**-1</units>
+          <gnam>CPR--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>759</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>196</pid>
+          <pdt>11</pdt>
+          <name>Convective precip rate</name>
+          <units>kg m**-2 s**-1</units>
+          <gnam>CPR--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>260</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>197</pid>
+          <pdt>0</pdt>
+          <name>Horizontal moisture divergence</name>
+          <units>kg kg**-1 s**-1</units>
+          <gnam>MCNV</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>261</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>198</pid>
+          <pdt>0</pdt>
+          <name>Probability of precip, frozen</name>
+          <units>%</units>
+          <gnam>POPZ</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>198</pid>
+          <pdt>8</pdt>
+          <name>Minimum Relative Humidity</name>
+          <units>%</units>
+          <gnam>MINRH--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>262</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>199</pid>
+          <pdt>0</pdt>
+          <name>Potential evaporation</name>
+          <units>kg m**-2</units>
+          <gnam>PEVAP</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>199</pid>
+          <pdt>8</pdt>
+          <name>Potential evaporation</name>
+          <units>kg m**-2</units>
+          <gnam>PEVAP--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>263</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>200</pid>
+          <pdt>0</pdt>
+          <name>Potential evaporation rate</name>
+          <units>W/m**2</units>
+          <gnam>PEVP</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>200</pid>
+          <pdt>1</pdt>
+          <name>Potential evaporation rate</name>
+          <units>W/m**2</units>
+          <gnam>PEVP</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>264</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>201</pid>
+          <pdt>0</pdt>
+          <name>Snow cover</name>
+          <units>%</units>
+          <gnam>SCVR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>265</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>202</pid>
+          <pdt>0</pdt>
+          <name>Rain frctn of total liquid wtr</name>
+          <units>-</units>
+          <gnam>FRAIN</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>266</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>203</pid>
+          <pdt>0</pdt>
+          <name>Rime factor</name>
+          <units>-</units>
+          <gnam>FRIME</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>267</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>204</pid>
+          <pdt>0</pdt>
+          <name>Total column-integrated rain</name>
+          <units>kg/m**2</units>
+          <gnam>TCOLR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>268</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>205</pid>
+          <pdt>0</pdt>
+          <name>Total column-integrated snow</name>
+          <units>kg/m**2</units>
+          <gnam>TCOLS</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>269</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>206</pid>
+          <pdt>5</pdt>
+          <name>Total Icing Potential</name>
+          <units>NA</units>
+          <gnam>ICNG</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>207</pid>
+          <pdt>0</pdt>
+          <name>No concentration for iceparticle</name>
+          <units>NA</units>
+          <gnam>NCIP</gnam>
+          <scale>0</scale>
+          <missing>-9999.0</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>208</pid>
+          <pdt>0</pdt>
+          <name>Snow temperature</name>
+          <units>K</units>
+          <gnam>SNOT</gnam>
+          <scale>0</scale>
+          <missing>-9999.0</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>209</pid>
+          <pdt>0</pdt>
+          <name>Total column-integrated superco</name>
+          <units>kg/m**2</units>
+          <gnam>TCLSW</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>210</pid>
+          <pdt>0</pdt>
+          <name>Total column-intgrt melting ice</name>
+          <units>kg/m**2</units>
+          <gnam>TCOLM</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>1</category>
+          <pid>242</pid>
+          <pdt>0</pdt>
+          <name>Relative Humidity to Preci Water</name>
+          <units>%</units>
+          <gnam>RHPW</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>280</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>192</pid>
+          <pdt>0</pdt>
+          <name>Vertical speed shear</name>
+          <units>s**-1</units>
+          <gnam>VWSH</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>192</pid>
+          <pdt>1</pdt>
+          <name>Vertical speed shear</name>
+          <units>s**-1</units>
+          <gnam>VWSH</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>281</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>193</pid>
+          <pdt>0</pdt>
+          <name>Momentum flux</name>
+          <units>N m**-2</units>
+          <gnam>MFLX</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>193</pid>
+          <pdt>8</pdt>
+          <name>Momentum flux</name>
+          <units>N m**-2</units>
+          <gnam>MFLX--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>282</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>194</pid>
+          <pdt>0</pdt>
+          <name>U-component of storm motion</name>
+          <units>m/s</units>
+          <gnam>USTRM</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>283</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>195</pid>
+          <pdt>0</pdt>
+          <name>V-component of storm motion</name>
+          <units>m/s</units>
+          <gnam>VSTRM</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>284</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>196</pid>
+          <pdt>0</pdt>
+          <name>Drag coefficient</name>
+          <units>-</units>
+          <gnam>DRAG</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>285</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>197</pid>
+          <pdt>0</pdt>
+          <name>Friction velocity</name>
+          <units>m s**-1</units>
+          <gnam>FRCV</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>204</pid>
+          <pdt>0</pdt>
+          <name>Vertical Eddy Diffusiv Heat exch</name>
+          <units>m**2 s**-1</units>
+          <gnam>VEDH</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>222</pid>
+          <pdt>0</pdt>
+          <name>U Component of Hourly Maximum 10m Wind Speed</name>
+          <units>m/s</units>
+          <gnam>MAXUW</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>223</pid>
+          <pdt>0</pdt>
+          <name>V Component of Hourly Maximum 10m Wind Speed</name>
+          <units>m/s</units>
+          <gnam>MAXVW</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>290</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>192</pid>
+          <pdt>0</pdt>
+          <name>MSLP (ETA reduction)</name>
+          <units>Pa</units>
+          <gnam>EMSL</gnam>
+          <scale>-2</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>291</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>193</pid>
+          <pdt>0</pdt>
+          <name>5-wave geopotential height</name>
+          <units>gpm</units>
+          <gnam>HGHT5</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>193</pid>
+          <pdt>1</pdt>
+          <name>5-wave geopotential height</name>
+          <units>gpm</units>
+          <gnam>HGHT5</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>292</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>194</pid>
+          <pdt>0</pdt>
+          <name>Zonal flux of gravity wav stress</name>
+          <units>N/m**2</units>
+          <gnam>UGWD</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>194</pid>
+          <pdt>8</pdt>
+          <name>Zonal flux of gravity wav stress</name>
+          <units>N/m**2</units>
+          <gnam>UGWD--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>194</pid>
+          <pdt>11</pdt>
+          <name>Zonal flux of gravity wav stress</name>
+          <units>N/m**2</units>
+          <gnam>UGWD</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>293</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>195</pid>
+          <pdt>0</pdt>
+          <name>Meridional flux of grav wv strss</name>
+          <units>N/m**2</units>
+          <gnam>VGWD</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>195</pid>
+          <pdt>8</pdt>
+          <name>Meridional flux of grav wv strss</name>
+          <units>N/m**2</units>
+          <gnam>VGWD--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>195</pid>
+          <pdt>11</pdt>
+          <name>Meridional flux of grav wv strss</name>
+          <units>N/m**2</units>
+          <gnam>VGWD</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>294</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>196</pid>
+          <pdt>0</pdt>
+          <name>Planetary boundary layer hght</name>
+          <units>m</units>
+          <gnam>ZPBL</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>794</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>196</pid>
+          <pdt>1</pdt>
+          <name>Planetary boundary layer hght</name>
+          <units>m</units>
+          <gnam>ZPBL</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>295</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>197</pid>
+          <pdt>0</pdt>
+          <name>5-wave geopotention hght anomaly</name>
+          <units>gpm</units>
+          <gnam>WAVA5</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>795</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>197</pid>
+          <pdt>1</pdt>
+          <name>5-wave geopotention hght anomaly</name>
+          <units>gpm</units>
+          <gnam>WAVA5</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>198</pid>
+          <pdt>0</pdt>
+          <name>MSLP (MAPS System Reduction)</name>
+          <units>Pa</units>
+          <gnam>MSLMA</gnam>
+          <scale>-2</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>199</pid>
+          <pdt>0</pdt>
+          <name>3-hr pressure tendency (Std. ..)</name>
+          <units>Pa/s</units>
+          <gnam>TSLSA</gnam>
+          <scale>-2</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>200</pid>
+          <pdt>0</pdt>
+          <name>Pressure of lvl frm which parcel</name>
+          <units>Pa</units>
+          <gnam>PLPL</gnam>
+          <scale>-2</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>4</category>
+          <pid>192</pid>
+          <pdt>0</pdt>
+          <name>Downward short wave rad flux</name>
+          <units>W m**-2</units>
+          <gnam>SWRD</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>297</g2varsid>
+          <discipline>0</discipline>
+          <category>4</category>
+          <pid>192</pid>
+          <pdt>8</pdt>
+          <name>Downward short wave rad flux</name>
+          <units>W m**-2</units>
+          <gnam>SWRD--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>797</g2varsid>
+          <discipline>0</discipline>
+          <category>4</category>
+          <pid>192</pid>
+          <pdt>11</pdt>
+          <name>Downward short wave rad flux</name>
+          <units>W m**-2</units>
+          <gnam>SWRD</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>4</category>
+          <pid>192</pid>
+          <pdt>12</pdt>
+          <name>Downward short wave rad flux</name>
+          <units>W m**-2</units>
+          <gnam>SWRD</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>4</category>
+          <pid>193</pid>
+          <pdt>0</pdt>
+          <name>Upward short wave rad flux</name>
+          <units>W m**-2</units>
+          <gnam>SWRU</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>298</g2varsid>
+          <discipline>0</discipline>
+          <category>4</category>
+          <pid>193</pid>
+          <pdt>8</pdt>
+          <name>Upward short wave rad flux</name>
+          <units>W m**-2</units>
+          <gnam>SWRU--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>4</category>
+          <pid>193</pid>
+          <pdt>11</pdt>
+          <name>Upward short wave rad flux</name>
+          <units>W m**-2</units>
+          <gnam>SWRU</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>4</category>
+          <pid>193</pid>
+          <pdt>12</pdt>
+          <name>Upward short wave rad flux</name>
+          <units>W m**-2</units>
+          <gnam>SWRU</gnam>
+          <scale>0</scale>
+          <missing>-9999.0</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>4</category>
+          <pid>194</pid>
+          <pdt>8</pdt>
+          <name>UV-B downward solar flux</name>
+          <units>W/m**2</units>
+          <gnam>DUVB--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>4</category>
+          <pid>195</pid>
+          <pdt>8</pdt>
+          <name>Clear sky UV-B downward slr flux</name>
+          <units>W/m**2</units>
+          <gnam>CDUVB--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>4</category>
+          <pid>196</pid>
+          <pdt>0</pdt>
+          <name>Clear Sky Downward Solar Flux</name>
+          <units>W/m**2</units>
+          <gnam>CSDSF</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>4</category>
+          <pid>197</pid>
+          <pdt>0</pdt>
+          <name>Solar Radiative Heating Rate</name>
+          <units>K/s</units>
+          <gnam>SWHR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>5</category>
+          <pid>192</pid>
+          <pdt>0</pdt>
+          <name>Downward long wave rad flux</name>
+          <units>W m**-2</units>
+          <gnam>LWRD</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>300</g2varsid>
+          <discipline>0</discipline>
+          <category>5</category>
+          <pid>192</pid>
+          <pdt>8</pdt>
+          <name>Downward long wave rad flux</name>
+          <units>W m**-2</units>
+          <gnam>LWRD--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>800</g2varsid>
+          <discipline>0</discipline>
+          <category>5</category>
+          <pid>192</pid>
+          <pdt>11</pdt>
+          <name>Downward long wave rad flux</name>
+          <units>W m**-2</units>
+          <gnam>LWRD</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>5</category>
+          <pid>192</pid>
+          <pdt>12</pdt>
+          <name>Downward long wave rad flux</name>
+          <units>W m**-2</units>
+          <gnam>LWRD</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>5</category>
+          <pid>193</pid>
+          <pdt>0</pdt>
+          <name>Upward long wave rad flux</name>
+          <units>W m**-2</units>
+          <gnam>LWRU</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>301</g2varsid>
+          <discipline>0</discipline>
+          <category>5</category>
+          <pid>193</pid>
+          <pdt>8</pdt>
+          <name>Upward long wave rad flux</name>
+          <units>W m**-2</units>
+          <gnam>LWRU--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>5</category>
+          <pid>193</pid>
+          <pdt>11</pdt>
+          <name>Upward long wave rad flux</name>
+          <units>W m**-2</units>
+          <gnam>LWRU</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>5</category>
+          <pid>193</pid>
+          <pdt>12</pdt>
+          <name>Upward long wave rad flux</name>
+          <units>W m**-2</units>
+          <gnam>LWRU</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>5</category>
+          <pid>194</pid>
+          <pdt>0</pdt>
+          <name>Long-Wave Radiative Heating Rate</name>
+          <units>K/s</units>
+          <gnam>LWHR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>302</g2varsid>
+          <discipline>0</discipline>
+          <category>6</category>
+          <pid>192</pid>
+          <pdt>0</pdt>
+          <name>Amt of non-convective cloud</name>
+          <units>%</units>
+          <gnam>CLDA</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>6</category>
+          <pid>192</pid>
+          <pdt>8</pdt>
+          <name>Amt of non-convective cloud</name>
+          <units>%</units>
+          <gnam>CLDA--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>303</g2varsid>
+          <discipline>0</discipline>
+          <category>6</category>
+          <pid>193</pid>
+          <pdt>0</pdt>
+          <name>Cloud work function</name>
+          <units>J/kg</units>
+          <gnam>CWRK</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>6</category>
+          <pid>193</pid>
+          <pdt>8</pdt>
+          <name>Cloud work function</name>
+          <units>J/kg</units>
+          <gnam>CWRK--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>6</category>
+          <pid>193</pid>
+          <pdt>11</pdt>
+          <name>Cloud work function</name>
+          <units>J/kg</units>
+          <gnam>CWRK</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>304</g2varsid>
+          <discipline>0</discipline>
+          <category>6</category>
+          <pid>194</pid>
+          <pdt>0</pdt>
+          <name>Convective cloud efficiency</name>
+          <units>-</units>
+          <gnam>CUEFI</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>305</g2varsid>
+          <discipline>0</discipline>
+          <category>6</category>
+          <pid>195</pid>
+          <pdt>0</pdt>
+          <name>Total condensate</name>
+          <units>kg/kg</units>
+          <gnam>TCOND</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>306</g2varsid>
+          <discipline>0</discipline>
+          <category>6</category>
+          <pid>196</pid>
+          <pdt>0</pdt>
+          <name>Total column-integratd cloud wtr</name>
+          <units>kg/m**2</units>
+          <gnam>TCOLW</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>307</g2varsid>
+          <discipline>0</discipline>
+          <category>6</category>
+          <pid>197</pid>
+          <pdt>0</pdt>
+          <name>Total column-integratd cloud ice</name>
+          <units>kg/m**2</units>
+          <gnam>TCOLI</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>308</g2varsid>
+          <discipline>0</discipline>
+          <category>6</category>
+          <pid>198</pid>
+          <pdt>0</pdt>
+          <name>Total column-integrated condens</name>
+          <units>kg/m**2</units>
+          <gnam>TCOLC</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>309</g2varsid>
+          <discipline>0</discipline>
+          <category>6</category>
+          <pid>199</pid>
+          <pdt>0</pdt>
+          <name>Ice fraction of total condensate</name>
+          <units>-</units>
+          <gnam>FICE</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>6</category>
+          <pid>201</pid>
+          <pdt>0</pdt>
+          <name>Sunshine Duration</name>
+          <units>s</units>
+          <gnam>SUNSD</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>400</g2varsid>
+          <discipline>0</discipline>
+          <category>7</category>
+          <pid>192</pid>
+          <pdt>0</pdt>
+          <name>Surface lifted index</name>
+          <units>K</units>
+          <gnam>LIFT</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>7</category>
+          <pid>192</pid>
+          <pdt>1</pdt>
+          <name>Surface lifted index</name>
+          <units>K</units>
+          <gnam>LIFT</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>401</g2varsid>
+          <discipline>0</discipline>
+          <category>7</category>
+          <pid>193</pid>
+          <pdt>0</pdt>
+          <name>Best (4 layer) lifted index</name>
+          <units>K</units>
+          <gnam>LFT4</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>7</category>
+          <pid>193</pid>
+          <pdt>1</pdt>
+          <name>Best (4 layer) lifted index</name>
+          <units>K</units>
+          <gnam>LFT4</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>402</g2varsid>
+          <discipline>0</discipline>
+          <category>7</category>
+          <pid>194</pid>
+          <pdt>0</pdt>
+          <name>Richardson number</name>
+          <units>-</units>
+          <gnam>RICH</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>7</category>
+          <pid>197</pid>
+          <pdt>0</pdt>
+          <name>Updraft Helicity</name>
+          <units>m**2 s**-2</units>
+          <gnam>UPHL</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>410</g2varsid>
+          <discipline>0</discipline>
+          <category>14</category>
+          <pid>192</pid>
+          <pdt>0</pdt>
+          <name>Ozone mixing ratio</name>
+          <units>kg/kg</units>
+          <gnam>OZMR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>14</category>
+          <pid>192</pid>
+          <pdt>1</pdt>
+          <name>Ozone mixing ratio</name>
+          <units>kg/kg</units>
+          <gnam>OZMR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>411</g2varsid>
+          <discipline>0</discipline>
+          <category>14</category>
+          <pid>193</pid>
+          <pdt>0</pdt>
+          <name>Ozone concentration</name>
+          <units>ppb</units>
+          <gnam>OZCON</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>412</g2varsid>
+          <discipline>0</discipline>
+          <category>14</category>
+          <pid>193</pid>
+          <pdt>8</pdt>
+          <name>Ozone concentration</name>
+          <units>ppb</units>
+          <gnam>OZCON</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>413</g2varsid>
+          <discipline>0</discipline>
+          <category>14</category>
+          <pid>194</pid>
+          <pdt>0</pdt>
+          <name>Ozone concentration category</name>
+          <units>-</units>
+          <gnam>OZCAT</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>14</category>
+          <pid>200</pid>
+          <pdt>8</pdt>
+          <name>Ozone Daily Max from 1-h Average</name>
+          <units>ppbv</units>
+          <gnam>OZMAX1</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>14</category>
+          <pid>201</pid>
+          <pdt>8</pdt>
+          <name>Ozone Daily Max from 8-h Average</name>
+          <units>ppbv</units>
+          <gnam>OZMAX8</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>16</category>
+          <pid>195</pid>
+          <pdt>0</pdt>
+          <name>Reflectivity</name>
+          <units>dB</units>
+          <gnam>REFD</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>16</category>
+          <pid>196</pid>
+          <pdt>0</pdt>
+          <name>Composite reflectivity</name>
+          <units>dB</units>
+          <gnam>REFC</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>16</category>
+          <pid>197</pid>
+          <pdt>0</pdt>
+          <name>Echo Top</name>
+          <units>m</units>
+          <gnam>RETOP</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>17</category>
+          <pid>192</pid>
+          <pdt>0</pdt>
+          <name>Lightning</name>
+          <units>non-dim</units>
+          <gnam>LTNG</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>19</category>
+          <pid>7</pid>
+          <pdt>0</pdt>
+          <name>Icing</name>
+          <units>Table 4.207</units>
+          <gnam>ICI</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>19</category>
+          <pid>20</pid>
+          <pdt>0</pdt>
+          <name>Icing</name>
+          <units>%</units>
+          <gnam>ICIP</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>19</category>
+          <pid>23</pid>
+          <pdt>0</pdt>
+          <name>Supercooled Large Droplet (SLD) Probabilitysee note 1</name>
+          <units>%</units>
+          <gnam>SLDP</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>414</g2varsid>
+          <discipline>0</discipline>
+          <category>19</category>
+          <pid>192</pid>
+          <pdt>0</pdt>
+          <name>Maximum snow albedo</name>
+          <units>%</units>
+          <gnam>MXSALB</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>415</g2varsid>
+          <discipline>0</discipline>
+          <category>19</category>
+          <pid>193</pid>
+          <pdt>0</pdt>
+          <name>Snow-free albedo</name>
+          <units>%</units>
+          <gnam>SNFALB</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>19</category>
+          <pid>217</pid>
+          <pdt>0</pdt>
+          <name>Supercooled Large Droplet Icing</name>
+          <units>Table 4.207</units>
+          <gnam>SIPD</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>19</category>
+          <pid>219</pid>
+          <pdt>0</pdt>
+          <name>Turbulence Potential</name>
+          <units>NA</units>
+          <gnam>TURB</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>416</g2varsid>
+          <discipline>0</discipline>
+          <category>19</category>
+          <pid>219</pid>
+          <pdt>5</pdt>
+          <name>Turbulence Potential</name>
+          <units>NA</units>
+          <gnam>TURB</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>19</category>
+          <pid>233</pid>
+          <pdt>0</pdt>
+          <name>Icing Probability</name>
+          <units>%</units>
+          <gnam>ICPRB</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>19</category>
+          <pid>234</pid>
+          <pdt>0</pdt>
+          <name>Icing Severity</name>
+          <units>non-dim</units>
+          <gnam>ICSEV</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>417</g2varsid>
+          <discipline>0</discipline>
+          <category>191</category>
+          <pid>192</pid>
+          <pdt>0</pdt>
+          <name>Latitude (-90 to +90)</name>
+          <units>Degree</units>
+          <gnam>LATD</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>418</g2varsid>
+          <discipline>0</discipline>
+          <category>191</category>
+          <pid>193</pid>
+          <pdt>0</pdt>
+          <name>East longitude (0 to 360)</name>
+          <units>Degree</units>
+          <gnam>LOND</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>420</g2varsid>
+          <discipline>1</discipline>
+          <category>0</category>
+          <pid>192</pid>
+          <pdt>0</pdt>
+          <name>Baseflow-groundwater runoff</name>
+          <units>kg m**-2</units>
+          <gnam>BFGR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>1</discipline>
+          <category>0</category>
+          <pid>192</pid>
+          <pdt>8</pdt>
+          <name>Baseflow-groundwater runoff</name>
+          <units>kg m**-2</units>
+          <gnam>BFGR--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>421</g2varsid>
+          <discipline>1</discipline>
+          <category>0</category>
+          <pid>193</pid>
+          <pdt>0</pdt>
+          <name>Storm surface runoff</name>
+          <units>kg m**-2</units>
+          <gnam>R--M</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>1</discipline>
+          <category>0</category>
+          <pid>193</pid>
+          <pdt>8</pdt>
+          <name>Storm surface runoff</name>
+          <units>kg m**-2</units>
+          <gnam>R--M</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>921</g2varsid>
+          <discipline>1</discipline>
+          <category>0</category>
+          <pid>193</pid>
+          <pdt>11</pdt>
+          <name>Storm surface runoff</name>
+          <units>kg m**-2</units>
+          <gnam>R--M</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>1</discipline>
+          <category>1</category>
+          <pid>193</pid>
+          <pdt>0</pdt>
+          <name>Prob of Frozen Precipitation</name>
+          <units>%</units>
+          <gnam>CPOFP</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>422</g2varsid>
+          <discipline>1</discipline>
+          <category>1</category>
+          <pid>194</pid>
+          <pdt>8</pdt>
+          <name>Prob precip exceeding FFG</name>
+          <units>%</units>
+          <gnam>PEFG--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>922</g2varsid>
+          <discipline>1</discipline>
+          <category>1</category>
+          <pid>194</pid>
+          <pdt>11</pdt>
+          <name>Prob precip exceeding FFG</name>
+          <units>%</units>
+          <gnam>PEFG--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>1</discipline>
+          <category>1</category>
+          <pid>195</pid>
+          <pdt>8</pdt>
+          <name>Probability of Wetting Rain</name>
+          <units>%</units>
+          <gnam>CWR--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>430</g2varsid>
+          <discipline>2</discipline>
+          <category>0</category>
+          <pid>192</pid>
+          <pdt>0</pdt>
+          <name>Volumetric soil moisture content</name>
+          <units>fraction</units>
+          <gnam>SOIM</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>2</discipline>
+          <category>0</category>
+          <pid>192</pid>
+          <pdt>1</pdt>
+          <name>Volumetric soil moisture content</name>
+          <units>fraction</units>
+          <gnam>SOIM</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>2</discipline>
+          <category>0</category>
+          <pid>192</pid>
+          <pdt>2</pdt>
+          <name>Volumetric soil moisture content</name>
+          <units>fraction</units>
+          <gnam>SOIM</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>2</discipline>
+          <category>0</category>
+          <pid>193</pid>
+          <pdt>0</pdt>
+          <name>Ground heat flux</name>
+          <units>W m**-2</units>
+          <gnam>GHFX</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>431</g2varsid>
+          <discipline>2</discipline>
+          <category>0</category>
+          <pid>193</pid>
+          <pdt>8</pdt>
+          <name>Ground heat flux</name>
+          <units>W m**-2</units>
+          <gnam>GHFX--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>2</discipline>
+          <category>0</category>
+          <pid>193</pid>
+          <pdt>11</pdt>
+          <name>Ground heat flux</name>
+          <units>W m**-2</units>
+          <gnam>GHFX</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>432</g2varsid>
+          <discipline>2</discipline>
+          <category>0</category>
+          <pid>194</pid>
+          <pdt>0</pdt>
+          <name>Moisture availability</name>
+          <units>%</units>
+          <gnam>MSAV</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>433</g2varsid>
+          <discipline>2</discipline>
+          <category>0</category>
+          <pid>195</pid>
+          <pdt>0</pdt>
+          <name>Exchange coefficient</name>
+          <units>kg m**-3 m s**-1</units>
+          <gnam>SEXC</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>434</g2varsid>
+          <discipline>2</discipline>
+          <category>0</category>
+          <pid>196</pid>
+          <pdt>0</pdt>
+          <name>Plant canopy surface water</name>
+          <units>kg m**-2</units>
+          <gnam>CSH2O</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>435</g2varsid>
+          <discipline>2</discipline>
+          <category>0</category>
+          <pid>197</pid>
+          <pdt>0</pdt>
+          <name>Blackadar's mixing length</name>
+          <units>m</units>
+          <gnam>LBLACK</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>436</g2varsid>
+          <discipline>2</discipline>
+          <category>0</category>
+          <pid>198</pid>
+          <pdt>0</pdt>
+          <name>Vegetation type (SiB)</name>
+          <units>-</units>
+          <gnam>VGTYP</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>437</g2varsid>
+          <discipline>2</discipline>
+          <category>0</category>
+          <pid>199</pid>
+          <pdt>0</pdt>
+          <name>Canopy conductance</name>
+          <units>m/s</units>
+          <gnam>CCOND</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>438</g2varsid>
+          <discipline>2</discipline>
+          <category>0</category>
+          <pid>200</pid>
+          <pdt>0</pdt>
+          <name>Minimal stomatal resistance</name>
+          <units>s/m</units>
+          <gnam>RSMIN</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>439</g2varsid>
+          <discipline>2</discipline>
+          <category>0</category>
+          <pid>201</pid>
+          <pdt>0</pdt>
+          <name>Wilting point (0.0-1.0)</name>
+          <units>-</units>
+          <gnam>WILT</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>939</g2varsid>
+          <discipline>2</discipline>
+          <category>0</category>
+          <pid>201</pid>
+          <pdt>1</pdt>
+          <name>Wilting point (0.0-1.0)</name>
+          <units>-</units>
+          <gnam>WILT</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>440</g2varsid>
+          <discipline>2</discipline>
+          <category>0</category>
+          <pid>202</pid>
+          <pdt>0</pdt>
+          <name>Solar prm in canopy conduct(0-1)</name>
+          <units>-</units>
+          <gnam>RCS</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>441</g2varsid>
+          <discipline>2</discipline>
+          <category>0</category>
+          <pid>203</pid>
+          <pdt>0</pdt>
+          <name>Temp para in canopy conductance</name>
+          <units>-</units>
+          <gnam>RCT</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>442</g2varsid>
+          <discipline>2</discipline>
+          <category>0</category>
+          <pid>204</pid>
+          <pdt>0</pdt>
+          <name>Humidity para in canopy conduct</name>
+          <units>-</units>
+          <gnam>RCQ</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>443</g2varsid>
+          <discipline>2</discipline>
+          <category>0</category>
+          <pid>205</pid>
+          <pdt>0</pdt>
+          <name>Soil moist prm in canopy conduct</name>
+          <units>-</units>
+          <gnam>RCSOL</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>2</discipline>
+          <category>0</category>
+          <pid>206</pid>
+          <pdt>0</pdt>
+          <name>Rate of water dropng from canopy</name>
+          <units>-</units>
+          <gnam>RDRIP</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>2</discipline>
+          <category>0</category>
+          <pid>229</pid>
+          <pdt>0</pdt>
+          <name>Canopy water evaporation</name>
+          <units>W/m**2</units>
+          <gnam>EVCW</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>2</discipline>
+          <category>0</category>
+          <pid>230</pid>
+          <pdt>0</pdt>
+          <name>Transpiration</name>
+          <units>W/m**2</units>
+          <gnam>TRANS</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>450</g2varsid>
+          <discipline>2</discipline>
+          <category>3</category>
+          <pid>192</pid>
+          <pdt>0</pdt>
+          <name>Liquid vol soil moist (0.0-1.)</name>
+          <units>-</units>
+          <gnam>SOILL</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>451</g2varsid>
+          <discipline>2</discipline>
+          <category>3</category>
+          <pid>193</pid>
+          <pdt>0</pdt>
+          <name>No of soil layers in root zone</name>
+          <units>Index</units>
+          <gnam>RLYRS</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>452</g2varsid>
+          <discipline>2</discipline>
+          <category>3</category>
+          <pid>194</pid>
+          <pdt>0</pdt>
+          <name>Surface slope type</name>
+          <units>Index</units>
+          <gnam>SLTYP</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>453</g2varsid>
+          <discipline>2</discipline>
+          <category>3</category>
+          <pid>195</pid>
+          <pdt>0</pdt>
+          <name>Transpiration stress-onset(0.-1.</name>
+          <units>-</units>
+          <gnam>SMREF</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>454</g2varsid>
+          <discipline>2</discipline>
+          <category>3</category>
+          <pid>196</pid>
+          <pdt>0</pdt>
+          <name>Direct evaporation cease (0.-1.)</name>
+          <units>-</units>
+          <gnam>SMDRY</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>455</g2varsid>
+          <discipline>2</discipline>
+          <category>3</category>
+          <pid>197</pid>
+          <pdt>0</pdt>
+          <name>Soil porosity (0.0-1.0)</name>
+          <units>-</units>
+          <gnam>POROS</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>2</discipline>
+          <category>3</category>
+          <pid>198</pid>
+          <pdt>0</pdt>
+          <name>Direct evaporation from bare soi</name>
+          <units>W m**-2</units>
+          <gnam>EVBS</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>2</discipline>
+          <category>3</category>
+          <pid>199</pid>
+          <pdt>8</pdt>
+          <name>Land Surface Precipitation Accum</name>
+          <units>l kg m**-2</units>
+          <gnam>LSPA--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>2</discipline>
+          <category>3</category>
+          <pid>203</pid>
+          <pdt>0</pdt>
+          <name>Field Capacity</name>
+          <units>fraction</units>
+          <gnam>FLDCP</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>2</discipline>
+          <category>3</category>
+          <pid>203</pid>
+          <pdt>1</pdt>
+          <name>Field Capacity</name>
+          <units>fraction</units>
+          <gnam>FLDCP</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>3</discipline>
+          <category>192</category>
+          <pid>0</pid>
+          <pdt>0</pdt>
+          <name>SB Temperature for GOES 12, Ch 2</name>
+          <units>K</units>
+          <gnam>SBT122</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>3</discipline>
+          <category>192</category>
+          <pid>1</pid>
+          <pdt>0</pdt>
+          <name>SB Temperature for GOES 12, Ch 3</name>
+          <units>K</units>
+          <gnam>SBT123</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>3</discipline>
+          <category>192</category>
+          <pid>2</pid>
+          <pdt>0</pdt>
+          <name>SB Temperature for GOES 12, Ch 4</name>
+          <units>K</units>
+          <gnam>SBT124</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>3</discipline>
+          <category>192</category>
+          <pid>3</pid>
+          <pdt>0</pdt>
+          <name>SB Temperature for GOES 12, Ch 6</name>
+          <units>K</units>
+          <gnam>SBT126</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>460</g2varsid>
+          <discipline>10</discipline>
+          <category>0</category>
+          <pid>192</pid>
+          <pdt>0</pdt>
+          <name>Wave Steepness</name>
+          <units>-</units>
+          <gnam>WSTP</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+ </grib2varsList>

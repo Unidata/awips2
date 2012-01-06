@@ -1,0 +1,173 @@
+# ----------------- Resource file for RFCWide --------------------
+#
+
+*MPE.geometry:             880x950+50+50
+
+*XmList.fontList:                       -*-clean-*-r-*--16-*
+
+*stage3_sites_shell.geometry: 280x480+350+300
+
+*Adaptation_Parameter_viewer.geometry: 430x500+150+100
+
+*Supplemental_Data_viewer.geometry: 430x500+150+100
+
+*locator_shell.geometry: -20+20
+
+*pseudo_shell.geometry:  +400+100
+
+*gage_edit_shell.geometry: +80+80
+
+# edit_shell.geometry is used by edit multisensor field window
+*edit_shell.geometry:           670x695+270+270
+
+*gage_popup.geometry:     600x400+150+150
+
+*time_lapse_shell.geometry:     360x140+400+400
+*time_delay_shell.geometry:     360x140+400+400
+
+*time_delay_scale.width:               330
+*time_delay_scale.height:              55
+*time_delay_separator.y:               65
+*time_delay_ok.x:                       10
+*time_delay_cancel.x:                   125
+*time_delay_help.x:                     240
+
+*no_gage_shell.geometry:        250x200+400+400
+
+*rfcwide_dates_shell*foreground: black
+*rfcwide_dates_shell.geometry: 375x610+250+250
+*datetitle.y: 50
+
+*rc.topAttachment:       attach_position
+*rc.topPosition:         15
+*rc.bottomAttachment:    attach_none
+*text.recomputeSize:     FALSE
+*s1_w.topAttachment:     attach_form
+*ms_w.topAttachment:     attach_form
+*s1_w.leftAttachment:     attach_position
+*ms_w.leftAttachment:     attach_position
+*s1_w.leftPosition:       75
+*ms_w.leftPosition:       45
+*gage_edit_text.width:    90
+
+*gage_ok.x:               85
+*gage_ok.y:               140
+
+
+*stage3_main_form*leftAttachment:        attach_form
+*stage3_main_form*rightAttachment:        attach_form
+
+
+*rfcwide_legend.topAttachment:     attach_position
+*rfcwide_legend.topPosition:         90
+
+
+##  time lapse  ##
+
+*time_lapse_scale.width:                320
+*time_lapse_scale.height:               58
+*time_lapse_ok.x:                       40
+*time_lapse_cancel.x:                   140
+*time_lapse_help.x:                     240
+################################################################
+
+##  single site window  ##
+
+*rfcwide_ss_shell.geometry: 805x875
+
+*site_ID_label.foreground:              firebrick
+
+*date_label.foreground:              firebrick
+
+*field_type_label.foreground:           firebrick
+*field_type_label.borderWidth:          1
+
+*siibias_label.foreground:              firebrick
+*siibias_label.borderWidth:             1
+
+*sibias_label.foreground:              firebrick
+*sibias_label.borderWidth:             1
+#####################################################################
+
+
+*color_bar_frame.x:                     200
+*color_bar_canvas.width:                430
+*color_bar_canvas.height:               50
+
+! single gage display
+
+*gage_popup*topAttachment:      attach_position
+*gage_popup*bottomAttachment:   attach_position
+*gage_popup*leftAttachment:     attach_position
+*gage_popup*rightAttachment:    attach_position
+
+*gageid.topPosition:      5
+*gageid.bottomPosition:   20
+*gageid.leftPosition:     5
+*gageid.rightPosition:    25
+
+*gagevalue.topPosition:      25
+*gagevalue.bottomPosition:   40
+*gagevalue.leftPosition:     5
+*gagevalue.rightPosition:    25
+
+*gagerc.bottomPosition:   99
+*gagerc.leftPosition:     30
+*gagerc.rightPosition:    99
+
+*gage_edit.topPosition:      47
+*gage_edit.bottomPosition:   56
+*gage_edit.leftPosition:     5
+*gage_edit.rightPosition:    20
+
+*gage_quit.topPosition:      66
+*gage_quit.bottomPosition:   75
+*gage_quit.leftPosition:     5
+*gage_quit.rightPosition:    20
+
+*mosaic.marginHeight:      10
+*mosaic.marginWidth:       10
+
+*color_form*XmPushButton.width:   90
+*color_form*XmPushButton.height:  40
+*color_form*XmLabel.width:        140
+*color_form*XmLabel.recomputeSize: False
+*color_form*XmLabel.height:       40
+*color_shell.geometry:            720x760+100+100
+
+#   Online Help popup resources
+
+
+*scrolledText1.editable:        False
+*scrolledText1.background:      light blue
+*scrolledText1.fontList:        -adobe-helvetica-bold-r-normal--12-120-75-75-p-70-iso8859-1
+*textField1.fontList:           -adobe-helvetica-bold-r-normal--12-120-75-75-p-70-iso8859-1
+
+*scrolledList1.background:      light blue
+*textField1.background:         light blue
+
+*applicationShell1.title:                       Hmap/Mpe Help
+*applicationShell1*foreground:                  navy
+*applicationShell1*pushButton1.background:      gray
+*applicationShell1*pushButton2.background:      gray
+*applicationShell1*pushButton3.background:      gray
+*applicationShell1*form1.background:            gray
+*applicationShell1*separator1.background:       gray
+
+
+*scrolledList2foreground:       navy
+*scrolledList2.background:      light blue
+
+
+*messageBox1*foreground:  navy
+*messageBox1*background:  gray
+
+*Help_for_Help_button_popup*foreground: navy
+*Help_for_Help_button_popup*Background: gray
+
+*Help_for_Help_button_popup.title:    How to use Help
+
+*Help_for_Help_button.messageString:    \
+Obtain Help for individual topics by selecting a topic from the list\n\
+of items presented.\n\
+\n\

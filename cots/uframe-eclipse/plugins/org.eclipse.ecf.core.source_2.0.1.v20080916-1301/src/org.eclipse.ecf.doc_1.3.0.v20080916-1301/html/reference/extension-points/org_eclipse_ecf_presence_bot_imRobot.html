@@ -1,0 +1,77 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>IM Robot</title>
+<style type="text/css">@import url("../../book.css");</style>
+<style type="text/css">@import url("../../schema.css");</style>
+</HEAD>
+<BODY>
+<H1 style="text-align:center">IM Robot</H1>
+<p></p>
+<h6 class="CaptionFigColumn SchemaHeader">Identifier: </h6>org.eclipse.ecf.presence.bot.imRobot<p></p>
+<h6 class="CaptionFigColumn SchemaHeader">Since: </h6>1.0.0 milestone 6
+<p></p>
+
+<h6 class="CaptionFigColumn SchemaHeader">Description: </h6>This extension point allows implementers to define a im bot.<p></p>
+<h6 class="CaptionFigColumn SchemaHeader">Configuration Markup:</h6>
+<p></p>
+<p class="code SchemaDtd">&lt;!ELEMENT <a name="e.extension">extension</a> (<a href="#e.imRobot">imRobot</a>)+&gt;</p>
+<p class="code SchemaDtd">&lt;!ATTLIST extension</p>
+<p class="code SchemaDtdAttlist">point&nbsp;CDATA #REQUIRED<p class="code SchemaDtdAttlist">id&nbsp;&nbsp;&nbsp;&nbsp;CDATA #IMPLIED<p class="code SchemaDtdAttlist">name&nbsp;&nbsp;CDATA #IMPLIED&gt;</p>
+<p></p>
+<ul class="ConfigMarkupAttlistDesc">
+</ul>
+<br><p class="code SchemaDtd">&lt;!ELEMENT <a name="e.imRobot">imRobot</a> EMPTY&gt;</p>
+<p class="code SchemaDtd">&lt;!ATTLIST imRobot</p>
+<p class="code SchemaDtdAttlist">id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CDATA #REQUIRED<p class="code SchemaDtdAttlist">containerFactoryName&nbsp;CDATA #REQUIRED<p class="code SchemaDtdAttlist">connectId&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CDATA #REQUIRED<p class="code SchemaDtdAttlist">name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CDATA #IMPLIED<p class="code SchemaDtdAttlist">connectPassword&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CDATA #IMPLIED&gt;</p>
+<p></p>
+<p class="ConfigMarkupElementDesc">
+The imrobot extension point.</p>
+<br>
+<ul class="ConfigMarkupAttlistDesc">
+<li><b>id</b> - The required id for the im robot.  This must be a unique value relative to all other im robots.  For message handlers that are to use this robot, they must provide a imrobotid that matches this value.</li>
+<li><b>containerFactoryName</b> - The required container factory name.  This should be the container factory name for a given protocol.  For example, for the built in ECF IRC provider the value is <b>ecf.xmpp.smack</b>.</li>
+<li><b>connectId</b> - The connect ID for connecting to the given container.  For example, for XMPP the expected ID syntax of the connect ID is
+<pre class="Example"><span class="code SchemaTag">
+username@host[:port]
+
+for example:  slewis@ecf.eclipse.org
+</span></pre></li>
+<li><b>name</b> - An optional name for the bot.</li>
+<li><b>connectPassword</b> - An optional connect password.  If a password is required to connect to the given container then an appropriate value must be provided.</li>
+</ul>
+<br><h6 class="CaptionFigColumn SchemaHeader">Examples: </h6><pre class="Example"><span class="code SchemaTag">
+   &lt;extension
+         point=</span><span class="code SchemaCstring">&quot;org.eclipse.ecf.presence.bot.imRobot&quot;</span><span class="code SchemaTag">&gt;
+      &lt;imRobot
+            connectID=</span><span class="code SchemaCstring">&quot;slewis@ecf.eclipse.org&quot;</span><span class="code SchemaTag">
+            containerFactoryName=</span><span class="code SchemaCstring">&quot;ecf.xmpp.smack&quot;</span><span class="code SchemaTag">
+            id=</span><span class="code SchemaCstring">&quot;org.eclipse.ecf.presence.imbot.defaultbot&quot;</span><span class="code SchemaTag">/&gt;
+      &lt;/imRobot&gt;
+   &lt;/extension&gt;
+</span></pre>
+
+Note that to have the imrobot receive im messages and process them, that the immessagehandler should also be defined 
+using the id for the imrobot given above.  For example:
+
+<pre class="Example"><span class="code SchemaTag">
+   &lt;extension
+         point=</span><span class="code SchemaCstring">&quot;org.eclipse.ecf.presence.bot.immessagehandler&quot;</span><span class="code SchemaTag">&gt;
+      &lt;handler
+            imrobotid=</span><span class="code SchemaCstring">&quot;org.eclipse.ecf.presence.imbot.defaultbot&quot;</span><span class="code SchemaTag">
+            class=</span><span class="code SchemaCstring">&quot;org.eclipse.ecf.presence.imbot.DefaultIMMessageHandler&quot;</span><span class="code SchemaTag">&gt;
+      &lt;/handler&gt;
+   &lt;/extension&gt;
+</span></pre>
+<p></p>
+
+<h6 class="CaptionFigColumn SchemaHeader">Supplied Implementation: </h6>No supplied implementation.
+<p></p>
+
+<br>
+<p class="note SchemaCopyright">
+Copyright (c) 2007 IBM Corporation and others.  All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+
+</p>
+</BODY>
+</HTML>

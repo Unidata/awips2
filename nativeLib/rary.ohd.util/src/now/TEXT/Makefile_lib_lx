@@ -1,0 +1,104 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the util-now library file
+#
+#  cmt: File made on Wed Aug  6 12:57:01 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/util/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+CC       = /usr/bin/gcc
+COPTIM   =
+CFLAGS   = $(COPTIM) -fno-strict-aliasing -DUNIX -DGRTYPE_PS -DGRTYPE_XWIN -DLINX -DX1D -DTIMER -D__USE_GNU -DUSE_XM_MWMUTIL_H -DUSE_XGPM -Wall -Wno-unused-variable -Wno-comment
+
+INSERTS      = -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/ofs/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+INSERTS_CC   = -I/usr/include/informix/esql/  \
+               -I/usr/X11R6/include  \
+               -I/usr/include  \
+               -I/usr/lib/gcc/i386-redhat-linux/3.4.6/include  \
+               -I/usr/local/netcdf/include  \
+               -I/usr/local/jdk-1.5.0_04/include  \
+               -I/usr/local/jdk-1.5.0_04/include/linux  \
+               -I/usr/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .c .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+.c.a:
+	@echo "-------------------------------- $<"
+	@$(CC) $(CFLAGS) $(INSERTS_CC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@echo "--------------------------------"
+
+$(LIB)/libnow_t.a:  \
+     $(LIB)/libnow_t.a(free_ofs_lock.o)  \
+     $(LIB)/libnow_t.a(ftn_std_err.o)  \
+     $(LIB)/libnow_t.a(hfree_ofs_lock.o)  \
+     $(LIB)/libnow_t.a(hlockfiles.o)  \
+     $(LIB)/libnow_t.a(hmake_ofs_lock.o)  \
+     $(LIB)/libnow_t.a(hrelease_locks.o)  \
+     $(LIB)/libnow_t.a(hrequest_locks.o)  \
+     $(LIB)/libnow_t.a(hset_ofs_lock.o)  \
+     $(LIB)/libnow_t.a(hunlockfiles.o)  \
+     $(LIB)/libnow_t.a(ingrid.o)  \
+     $(LIB)/libnow_t.a(lockoff.o)  \
+     $(LIB)/libnow_t.a(lockon.o)  \
+     $(LIB)/libnow_t.a(make_ofs_lock.o)  \
+     $(LIB)/libnow_t.a(ofscln.o)  \
+     $(LIB)/libnow_t.a(pagrid.o)  \
+     $(LIB)/libnow_t.a(rdgrid.o)  \
+     $(LIB)/libnow_t.a(set_ofs_lock.o)  \
+     $(LIB)/libnow_t.a(udnxwd.o)  \
+     $(LIB)/libnow_t.a(udoe.o)  \
+     $(LIB)/libnow_t.a(udopen.o)  \
+     $(LIB)/libnow_t.a(upchkd.o)  \
+     $(LIB)/libnow_t.a(upcloa.o)  \
+     $(LIB)/libnow_t.a(upclos.o)  \
+     $(LIB)/libnow_t.a(updele.o)  \
+     $(LIB)/libnow_t.a(upexis.o)  \
+     $(LIB)/libnow_t.a(upfncu.o)  \
+     $(LIB)/libnow_t.a(upfngn.o)  \
+     $(LIB)/libnow_t.a(upfnin.o)  \
+     $(LIB)/libnow_t.a(upfnll.o)  \
+     $(LIB)/libnow_t.a(upfnls.o)  \
+     $(LIB)/libnow_t.a(uphomf.o)  \
+     $(LIB)/libnow_t.a(upinio.o)  \
+     $(LIB)/libnow_t.a(upnofi.o)  \
+     $(LIB)/libnow_t.a(upopen.o)  \
+     $(LIB)/libnow_t.a(uppfix.o)  \
+     $(LIB)/libnow_t.a(uppfx1.o)  \
+     $(LIB)/libnow_t.a(uppfx2.o)  \
+     $(LIB)/libnow_t.a(uprimc.o)  \
+     $(LIB)/libnow_t.a(uprimo.o)  \
+     $(LIB)/libnow_t.a(uprimr.o)  \
+     $(LIB)/libnow_t.a(uprimt.o)  \
+     $(LIB)/libnow_t.a(uprimw.o)  \
+     $(LIB)/libnow_t.a(upstae.o)  \
+     $(LIB)/libnow_t.a(upstat.o)  \
+     $(LIB)/libnow_t.a(upstop.o)  \
+     $(LIB)/libnow_t.a(urrpds.o)  \
+     $(LIB)/libnow_t.a(locks.o)  \
+     $(LIB)/libnow_t.a(ofsclean.o)  \
+     $(LIB)/libnow_t.a(upfsiz.o)
+

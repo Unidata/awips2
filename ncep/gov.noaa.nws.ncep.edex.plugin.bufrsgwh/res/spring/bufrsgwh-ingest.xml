@@ -1,0 +1,75 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="bufrsgwhDecoder"
+		class="gov.noaa.nws.ncep.edex.plugin.bufrsgwh.decoder.BufrSgwhDecoder">
+		<constructor-arg ref="bufrsgwhPluginName" />
+	</bean>
+
+	<bean id="bufrsgwhSeparator"
+		class="gov.noaa.nws.ncep.edex.plugin.bufrsgwh.decoder.BufrSgwhSeparator" />
+
+
+
+    <bean id="bufrsgwhDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg ref="bufrsgwhPluginName" />
+		<constructor-arg value="jms-dist:queue:Ingest.bufrsgwh" />
+	</bean>
+    
+	<bean id="bufrsgwhCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="bufrsgwh-camel"/>
+  	</bean>   
+    
+	<camelContext id="bufrsgwh-camel" 
+	              xmlns="http://camel.apache.org/schema/spring" 
+	              errorHandlerRef="errorHandler"
+	              autoStartup="false">
+		<endpoint id="bufrsgwhFileEndpoint" uri="file:${edex.home}/data/sbn/bufrsgwh?noop=true&amp;idempotent=false" />
+
+		<!-- Begin BufrSgwh routes -->
+		<route id="bufrsgwhFileConsumerRoute">
+			<from ref="bufrsgwhFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+				<constant>bufrsgwh</constant>
+			</setHeader>
+			<to uri="jms-generic:queue:Ingest.bufrsgwh" />
+		</route>
+
+		<route id="bufrsgwhIngestRoute">
+			<from uri="jms-generic:queue:Ingest.bufrsgwh" />
+			 <setHeader headerName="pluginName">
+                <constant>bufrsgwh</constant>
+            </setHeader>
+            <doTry>
+				<pipeline>
+			<bean ref="stringToFile" />
+			    <doTry>
+				    <pipeline>
+					    <bean ref="bufrsgwhDecoder" method="decode" />
+					    <!-- <to uri="directvm:indexAlert" /> -->
+					    <!-- *****profiler had instead***** -->
+					    <to uri="directvm:persistIndexAlert" />
+				    </pipeline>
+				    <doCatch>
+					    <exception>java.lang.Throwable</exception>
+					    <to uri="log:bufrsgwh?level=ERROR&amp;showBody=false" />
+				    </doCatch>
+			    </doTry>
+			<!-- <bean ref="processUtil" method="delete" / --> 
+			</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:bufrsgwh?level=ERROR&amp;showBody=false" />
+				</doCatch>
+			</doTry>
+		</route>
+	</camelContext>
+</beans>

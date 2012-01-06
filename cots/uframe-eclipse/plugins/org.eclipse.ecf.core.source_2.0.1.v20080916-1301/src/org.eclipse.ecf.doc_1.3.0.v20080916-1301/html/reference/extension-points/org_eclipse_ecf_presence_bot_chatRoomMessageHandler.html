@@ -1,0 +1,71 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Chat Room Message Handler</title>
+<style type="text/css">@import url("../../book.css");</style>
+<style type="text/css">@import url("../../schema.css");</style>
+</HEAD>
+<BODY>
+<H1 style="text-align:center">Chat Room Message Handler</H1>
+<p></p>
+<h6 class="CaptionFigColumn SchemaHeader">Identifier: </h6>org.eclipse.ecf.presence.bot.chatRoomMessageHandler<p></p>
+<h6 class="CaptionFigColumn SchemaHeader">Since: </h6>1.0.0 milestone 6
+<p></p>
+
+<h6 class="CaptionFigColumn SchemaHeader">Description: </h6>This extension point allows message handlers to be associated with a given chatroomrobot (via chatroomrobotid attribute).  Note that the chatroomrobotid must exist or the handler will not be called.<p></p>
+<h6 class="CaptionFigColumn SchemaHeader">Configuration Markup:</h6>
+<p></p>
+<p class="code SchemaDtd">&lt;!ELEMENT <a name="e.extension">extension</a> (<a href="#e.handler">handler</a>)+&gt;</p>
+<p class="code SchemaDtd">&lt;!ATTLIST extension</p>
+<p class="code SchemaDtdAttlist">point&nbsp;CDATA #REQUIRED<p class="code SchemaDtdAttlist">id&nbsp;&nbsp;&nbsp;&nbsp;CDATA #IMPLIED<p class="code SchemaDtdAttlist">name&nbsp;&nbsp;CDATA #IMPLIED&gt;</p>
+<p></p>
+<ul class="ConfigMarkupAttlistDesc">
+</ul>
+<br><p class="code SchemaDtd">&lt;!ELEMENT <a name="e.handler">handler</a> EMPTY&gt;</p>
+<p class="code SchemaDtd">&lt;!ATTLIST handler</p>
+<p class="code SchemaDtdAttlist">chatRoomRobotId&nbsp;&nbsp;CDATA #REQUIRED<p class="code SchemaDtdAttlist">filterExpression&nbsp;CDATA #IMPLIED<p class="code SchemaDtdAttlist">class&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CDATA #REQUIRED&gt;</p>
+<p></p>
+<p class="ConfigMarkupElementDesc">
+The chat room message handler</p>
+<br>
+<ul class="ConfigMarkupAttlistDesc">
+<li><b>chatRoomRobotId</b> - Required chatRoomRobotId.  The value of this field must match a chatRoomRobot id</li>
+<li><b>filterExpression</b> - Optional filter expression.  If filterexpression is provided, then chatroom messages will be filtered via given regular expression.  If match, then the handleChatRoomMessage method will be called.  If not matched, then the received message will be ignored.</li>
+<li><b>class</b> - The class of the message handler instance to create.  Must implement <b>org.eclipse.ecf.presence.bot.IChatRoomMessageHandler</b>.</li>
+</ul>
+<br><h6 class="CaptionFigColumn SchemaHeader">Examples: </h6><pre class="Example"><span class="code SchemaTag">
+   &lt;extension
+         point=</span><span class="code SchemaCstring">&quot;org.eclipse.ecf.presence.bot.chatRoomMessageHandler&quot;</span><span class="code SchemaTag">&gt;
+      &lt;handler
+            chatRoomRobotId=</span><span class="code SchemaCstring">&quot;org.eclipse.ecf.presence.bot.defaultbot&quot;</span><span class="code SchemaTag">
+            class=</span><span class="code SchemaCstring">&quot;org.eclipse.ecf.presence.bot.DefaultChatRoomMessageHandler&quot;</span><span class="code SchemaTag">&gt;
+      &lt;/handler&gt;
+   &lt;/extension&gt;
+</span></pre>
+
+Note that the given chatroomrobotid=<b>org.eclipse.ecf.presence.bot.defaultbot</b> must be previously defined via the chatroomrobot extension point.  Here is an example:
+
+<pre class="Example"><span class="code SchemaTag">
+   &lt;extension
+         point=</span><span class="code SchemaCstring">&quot;org.eclipse.ecf.presence.bot.chatRoomRobot&quot;</span><span class="code SchemaTag">&gt;
+      &lt;chatRoomRobot
+            chat
+            chatRoom=</span><span class="code SchemaCstring">&quot;#eclipse-ecf&quot;</span><span class="code SchemaTag">
+            connectId=</span><span class="code SchemaCstring">&quot;irc://slewis2_@irc.freenode.net&quot;</span><span class="code SchemaTag">
+            containerFactoryName=</span><span class="code SchemaCstring">&quot;ecf.irc.irclib&quot;</span><span class="code SchemaTag">
+            id=</span><span class="code SchemaCstring">&quot;org.eclipse.ecf.presence.bot.defaultbot&quot;</span><span class="code SchemaTag">&gt;
+      &lt;/chatRoomRobot&gt;
+   &lt;/extension&gt;
+</span></pre>
+<p></p>
+
+<h6 class="CaptionFigColumn SchemaHeader">Supplied Implementation: </h6>No supplied implementation.
+<p></p>
+
+<br>
+<p class="note SchemaCopyright">
+Copyright (c) 2007 IBM Corporation and others.  All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
+
+</p>
+</BODY>
+</HTML>

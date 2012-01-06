@@ -1,0 +1,2 @@
+The default Wx analysis method, “rankedWx”, returns the pre-dominant weather keys for the time period.
+The details of this algorithm can be found in the Text Reference Guide.

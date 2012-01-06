@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ====================================================================== 
+     Oct 5, 2009 11:26:05 AM                                                        
+
+     Update meteoLib.jni
+                   
+     jelkins                                                                
+     ====================================================================== -->
+<project name="project" default="default">
+    <description>
+            Update the so and the java from the files built through the native
+			library build system.
+    </description>
+
+    <target name="default" description="description">
+    	<fail message="This script is being updated by bkowal to be compatible with the 32-bit / 64-bit plugin split." />
+        <copy file="../build.native/i386-pc-linux-gnu/lib/libmeteoLib.so" tofile="./libmeteoLib.so"/>
+		<copy todir="./src">
+			<fileset dir="../rary.meteorological/i386-pc-linux-gnu.debug-sysv/gluegen/meteoLib_Java"/>
+		</copy>
+    </target>
+
+</project>

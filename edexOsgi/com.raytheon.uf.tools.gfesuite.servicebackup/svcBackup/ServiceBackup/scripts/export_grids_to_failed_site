@@ -1,0 +1,102 @@
+#!/bin/bash
+if [ ${#AWIPS_HOME} = 0 ]
+then
+        path_to_script=`readlink -f $0`
+		export AWIPS_HOME=$(dirname $(dirname $(dirname $(dirname  $path_to_script))))
+fi
+
+# $1 = Failed site
+# $2 = Primary site
+
+if [ $# -ne 2 ]
+then
+   log_msg "Incorrect number of arguments\nCorrect usage: export_grids_to_failed_site primary_site failed_site"
+   exit 1
+fi
+
+. ${AWIPS_HOME}/GFESuite/ServiceBackup/configuration/svcbu.env
+
+PRIMARY_SITE=`echo ${2} | tr '[A-Z]' '[a-z]'`
+PRIMARY_CAPS_SITE=`echo ${2} | tr [a-z] [A-Z]`
+export PRIMARY_SITE
+
+FAILED_SITE=`echo ${1} | tr '[A-Z]' '[a-z]'`
+FAILED_CAPS_SITE=`echo ${1} | tr [a-z] [A-Z]`
+export FAILED_SITE
+
+# Create the log file
+logdir=${IFPS_LOG}/`date +%Y%m%d`
+logfil=svcbu_export_bksite_grids_`date +%H%M`
+logfile=${logdir}/${logfil}
+[ ! -d ${logdir} ] && (umask 000;mkdir ${logdir})
+touch ${logdir}/${logfil}
+exec 1>${logdir}/${logfil} 2>&1
+
+# Check the status of the lock file to see if we are OK to proceed
+if [ -f ${LOCK_DIR}/${PRIMARY_SITE}exportBkSiteGrids ];
+then
+	log_msg Cannot export grids back to ${PRIMARY_CAPS_SITE}.  Export grids process already in progress!
+	exit 1
+fi
+
+touch ${LOCK_DIR}/${PRIMARY_SITE}exportBkSiteGrids
+
+#
+# If this is a non-wfo/non-rfc site, they may not have an edit area for clipping - handle it
+#
+if [ "$SVCBU_GRIDAREA" == "" ] ; then
+   SVCBU_MASK=""
+else
+   SVCBU_MASK="-m $SVCBU_GRIDAREA"
+fi
+
+log_msg Starting exporting grids...
+log_msg 0
+
+
+#Starting ifpnetCDF to pack the grids
+log_msg Running ifpnetCDF...
+log_msg 25
+${GFESUITE_BIN}/ifpnetCDF -o ${SVCBU_HOME}/${FAILED_SITE}Grd.netcdf -h $SVCBU_HOST -r $CDSPORT -d ${FAILED_CAPS_SITE}_GRID__Official_00000000_0000 -k -t -c ${SVCBU_MASK}
+if [ $? -ne 0 ]; then
+    log_msg "ERROR: ifpnetCDF failed."
+    rm -f ${LOCK_DIR}/${PRIMARY_SITE}exportBkSiteGrids
+    exit 1
+fi
+
+#
+log_msg Preparing package for msg_send.
+log_msg 60
+
+subj=${FAILED_SITE}Grd
+log_msg "The subject line of msg_send is $subj"
+
+#
+#calling msg_send to send the data to the failed site
+log_msg "Sending the gridded data to ${FAILED_CAPS_SITE}..."
+log_msg 90
+# We need to add another -c command in message hanlding system.
+# Send the grids to the failed site
+cd ${SVCBU_HOME}
+echo ${FAILED_SITE} > siteID.txt
+tar cf Grd.tar ${FAILED_SITE}Grd.netcdf.gz siteID.txt
+msgSendOutput=$($MSG_SEND_COMMAND -e ${SVCBU_HOME}/Grd.tar -a ${FAILED_CAPS_SITE} -s $subj -c 25)
+exitValue=$?
+if [ $exitValue -ne 0 ]
+then
+    log_msg "msg_send has failed to send ${logdir}/Grd.tar"
+    log_msg "msg_send FAILED with exit value $exitValue and the following error: $msgSendOutput"
+    rm -f ${SVCBU_HOME}/${FAILED_SITE}Grd.netcdf*
+    rm -f ${LOCK_DIR}/${PRIMARY_SITE}exportBkSiteGrids
+    exit 1
+fi
+log_msg Successfully sent message. MESSAGE ID: $msgSendOutput
+log_msg "Grids successfully exported"
+log_msg 100
+rm -f ${LOCK_DIR}/${PRIMARY_SITE}exportBkSiteGrids
+#delete the temporary netCDF file as well.
+rm -f ${SVCBU_HOME}/${FAILED_SITE}Grd.netcdf.*
+rm -f ${SVCBU_HOME}/Grd.tar
+log_msg "All done. Export Gridded data has completed" 
+exit 0
+

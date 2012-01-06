@@ -1,0 +1,15 @@
+# See https://svn.apache.org/repos/asf/incubator/qpid/trunk/qpid/bin/verify
+cpp=$CPP/direct
+
+direct_listener_dotnet()
+{
+mono $DOTNET_EXAMPLES/example-direct-Listener.exe localhost 5672
+}
+
+direct_producer_java()
+{
+java -Dlog4j.configuration=file://"$JAVA"/log4j.xml -cp "$CLASSPATH" org.apache.qpid.example.jmsexample.direct.Producer
+}
+
+clients $cpp/declare_queues  direct_producer_java direct_listener_dotnet
+outputs $cpp/declare_queues.out ./direct_producer_java.out ./direct_listener_dotnet.out 

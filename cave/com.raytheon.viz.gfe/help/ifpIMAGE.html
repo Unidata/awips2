@@ -1,0 +1,1957 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.9-34smp i686) [Netscape]">
+  <meta name="Author" content="Mark Mathewson">
+  <title>ifpIMAGE User's Manual</title>
+</head>
+<body bgcolor="#ffffff">
+<h1 class="Title">
+The ifpIMAGE User's Guide</h1>
+<div class="Title">July 23, 2003<br>
+</div>
+<div class="Title">
+<h2><a name="TableOfContents"></a>Table Of Contents</h2>
+<a href="#Overview">Overview</a>
+<br>
+<a href="#ConfiguringifpIMAGE">Configuring ifpIMAGE</a>
+<br>
+<a href="#RunningifpIMAGE">Running ifpIMAGE</a>
+<br>
+<a href="#CanItestmyconfiguration">Can I Test My Configuration?</a>
+<br>
+<a href="#SampleifpIMAGEConfigurationFile">Sample ifpIMAGE
+Configuration
+File</a>
+<br>
+<a href="#WxElementsGenerated">How Do I Control the Weather Elements
+to be Generated?</a>
+<br>
+<a href="#Ionlywantasingleimageperweatherelement,">I Only Want a Single
+Image Per Weather Element, How Do I Do This?</a>
+<br>
+<a href="#CanIProduceSmoothedImages">Can I produce smoothed images?</a>
+<br>
+<a href="#CanIProduceSmoothedClippedImages">Can I produce smooth,
+clipped images?</a>
+<br>
+<a href="#imageorgraphic">How Do I Control Whether a Weather Element
+is an Image or a Graphic?</a>
+<br>
+<a href="#overlay">Can I Overlay More Than One Weather Element?</a>
+<br>
+<a href="#CanIaddcontoursorwindbarbstomy">Can I Add Contours or Wind
+Barbs to My Image?</a>
+<br>
+<a href="#HowdoIchangethecolortable">How Do I Change the Color Table?</a>
+<br>
+<a href="#ColorBarLabeling">Can I Control the Color Bar Labeling on
+the Output PNG?</a>
+<br>
+<a href="#HowdoIchangethesizeoftheoutput">How Do I Change the Size
+of the Output PNG?</a>
+<br>
+<a href="#CanIcontrolthesizeoftheborderaroundthegrid">Can I Control
+the Size of the Border around the Grid?</a>
+<br>
+<a href="#CanIputsamplesonthe">Can I Put Samples on the Display?</a>
+<br>
+<a href="#CanImaskcertainareasofthe">Can I Mask Certain Areas of the
+Display?</a>
+<br>
+<a href="#HowdoIdefinethesetofmap">How Do I Define the Set of Map
+Backgrounds?</a>
+<br>
+<a href="#CanIchangetheappearanceofthemap">Can I Change the Appearance
+of the Map Backgrounds?</a>
+<br>
+<a href="#CanIchangetheappearanceofthegraphics">Can I Change the
+Appearance
+of the Graphics?</a>
+<br>
+<a href="#timerangeselection">Can I Specify the Time Range for Which
+to Generate PNGs?</a>
+<br>
+<a href="#wxcolortable">Can I Change the Appearance of the "Wx" Weather
+Element When Displayed as an Image?</a>
+<br>
+<a href="#ChangeWxSampleText">Can I change the Weather Sample Label
+Text to something more descriptive?</a>
+<br>
+<a href="#CanIdisablethecolorbar">Can I Disable the Color Bar?</a>
+<br>
+<a href="#WxAdditional">Can I Always Have a Standard Set of Wx Labels
+on the Color Bar?</a>
+<br>
+<a href="#CanIdisablethelegend">Can I Disable the Legend?</a>
+<br>
+<a href="#legendtimezone">Can I Change the Legend from Local Time to
+Zulu Time?</a>
+<br>
+<a href="#legendtimezone">Can I Switch Between the simple Weather
+Element
+Name and a more descriptive Name, or turn the name off completely?</a>
+<br>
+<a href="#CanIFormattheLegend">Can I Format The Legend?</a>
+<br>
+<a href="#CanIUseSnapshotTimestampsintheLegend">Can I Use Snapshot
+Timestamps in the Legend?</a>
+<br>
+<a href="#CanIChangetheBackgroundColor">Can I Change the Background
+Color?</a>
+<br>
+<a href="#CanIControltheOutputFilename">Can I Control the output
+filename?</a>
+<br>
+<a href="#Whatdoestheinfofilecontain">What does the "info" file
+contain?</a>
+<br>
+<a href="#logos">Can I add the NWS and NOAA logos?</a></div>
+<div class="Title">
+<hr width="100%"></div>
+<h2 class="Title">
+<a name="Overview"></a>Overview</h2>
+<div class="Title">The ifpIMAGE program is used to generate imagery of
+grids from the GFESuite.&nbsp; The program is really the GFE running in
+a special background mode in which the display is not written to the
+screen,
+but rather to a PNG image.&nbsp; Due to this architecture, virtually
+anything
+displayable on the GFE spatial editor, can be made into a PNG
+image.&nbsp;
+Some of the basic characteristics of the ifpIMAGE program are:</div>
+<ul>
+  <li class="Title">Zero or one weather elements can be displayed as an
+image;</li>
+  <li class="Title">Zero or more weather elements can be display as a
+graphic (e.g., wind
+barbs,
+wind arrow, contours);</li>
+  <li class="Title">There is one PNG image generated for each time step
+in the data;</li>
+  <li class="Title">Graphics and images may be overlaid;</li>
+  <li class="Title">Legends can be toggled off or on,&nbsp; and shown
+in local time format
+or zulu time format;</li>
+  <li class="Title">PNG sizes may be specified;</li>
+  <li class="Title">Color tables and ranges may be specified;</li>
+  <li class="Title">Sample sets may be specified;</li>
+  <li class="Title">The grids may be clipped to a particular geographic
+region;</li>
+  <li class="Title">The set of map backgrounds to be displayed may be
+specified; and</li>
+  <li class="Title">An "Info" file containing descriptive information
+about the grids
+displayed
+for each PNG image.</li>
+  <li class="Title">The NOAA and NWS logos can be placed on the PNG
+imagery.</li>
+</ul>
+<div class="Title"><img src="images/ifpIMAGEtop.png" nosave=""
+ height="700" width="700"></div>
+<div class="Title">&nbsp;
+<br>
+The configuration of the ifpIMAGE program is not done through command
+line switches.&nbsp; Instead it uses a GFE configuration file which is
+identical in format to the standard <a href="gfeConfiguration.html">gfe
+configuration file</a>.&nbsp; There are several command line switches
+that
+can be used to specify the configuration file to be used,&nbsp; the <a
+ href="baseSiteUserConcept.html">user
+name</a> (which defaults to SITE), and optionally the <a
+ href="#ChangingtheDateString">base
+time</a>.
+<br>
+&nbsp;</div>
+<div class="Title">When the ifpIMAGE program is executed, the program
+reads
+the specified configuration file, sets up the GFE in background mode,
+loads
+the specified data and generates images.&nbsp; By default, images are
+generated
+for all available grids for the given parameters.&nbsp; Each output PNG
+is named with a unique timestamp to help sort out the many PNG
+images.&nbsp;&nbsp;
+In addition, an "info" file is generated for each PNG which contains
+descriptive
+information about the PNG.</div>
+<div class="Title">
+<hr width="100%"></div>
+
+<div class="Title">&nbsp;</div>
+<div class="Title">
+<hr width="100%"></div>
+<h2 class="Title">
+<a name="ConfiguringifpIMAGE"></a>Configuring ifpIMAGE</h2>
+<div class="Title">ifpIMAGE is configured through a&nbsp; <a
+ href="gfeConfig.html">gfe
+configuration file</a>.&nbsp; These custom configuration files should
+be
+SITE-based, not USER-based since the ifpIMAGE is a product generation
+program
+for site use.&nbsp; <font color="#ff0000">It is not recommended that
+you
+use the standard gfe configuration file name for ifpIMAGE configuration
+files due to conflicts with the GFE.</font> More information about how
+the BASE, SITE, and USER configuration capability can be found in the <a
+ href="baseSiteUserConcept.html">Base,
+Site, and User Concept Guide</a>.
+<p><b><font color="#ff0000">NOTE: ifpIMAGE by default uses
+configuration
+files that are defined by the "SITE" user.&nbsp; If you log into the
+GFE
+as a user (not SITE), and then create a configuration file, then run
+the
+ifpIMAGE program, the ifpIMAGE probably will not generate any
+images.&nbsp;
+This is caused by storing the configuration file as a user and not
+SITE,
+and the ifpIMAGE program is looking for your configuration file in
+SITE.&nbsp;
+You can override this behavior using the -u switch to ifpIMAGE.</font></b>
+</p>
+<p>Creation of the ifpIMAGE configuration file is done through the GFE
+main menu item: <a
+ href="GFEMainMenu.html#DefineConfigandifpIMAGEFiles...">GFE-&gt;Define
+Config and ifpIMAGE Files menu entry</a>. Be sure to create/modify
+these
+files using the user login name of "SITE" to ensure that the custom
+configuration
+files end up in the SITE directory.
+</p>
+</div>
+<hr width="100%">
+<h2><a name="RunningifpIMAGE"></a>Running ifpIMAGE</h2>
+The command line options for ifpIMAGE are:
+<br>
+&nbsp;
+<table border="1" width="100%" nosave="">
+  <tbody>
+    <tr>
+      <td><b>Option</b></td>
+      <td><b>Optional</b></td>
+      <td><b>Meaning</b></td>
+    </tr>
+    <tr>
+      <td>-h hostname</td>
+      <td>NO (see note)</td>
+      <td>Name of the host on which the server is running</td>
+    </tr>
+    <tr>
+      <td>-p portnumber</td>
+      <td>NO (see note)</td>
+      <td>Port number for the server</td>
+    </tr>
+    <tr>
+      <td>-c configName</td>
+      <td>NO</td>
+      <td>Configuration filename</td>
+    </tr>
+    <tr>
+      <td>-u username</td>
+      <td>YES</td>
+      <td>UserName, defaults to "SITE"</td>
+    </tr>
+    <tr>
+      <td>-o outputDirName</td>
+      <td>NO (see note)</td>
+      <td>Name of output directory</td>
+    </tr>
+    <tr>
+      <td>-b baseTime</td>
+      <td>YES</td>
+      <td>Base time, used in determining filenames.&nbsp; Basetime is
+in the
+yyyymmdd_hhmm format.&nbsp; See the <a
+ href="#CanIControltheOutputFilename">filename
+naming section</a> of this document.&nbsp;</td>
+    </tr>
+    <tr>
+      <td>-s startTime</td>
+      <td>YES</td>
+      <td>Specifies the starting time range from which to generate PNG
+images.&nbsp;
+Format is in the yyyymmdd_hhmm format.&nbsp; Only images that have a
+time
+equal to or after this specified time will be generated.</td>
+    </tr>
+    <tr>
+      <td>-e endTime</td>
+      <td>YES</td>
+      <td>Specifies the ending time range from which to generate PNG
+images.&nbsp;
+Format is in the yyyymmdd_hhmm format.&nbsp; Only images that have a
+time
+before this specified time will be generated.</td>
+    </tr>
+    <tr>
+      <td>-t userDefinedTimeRange</td>
+      <td>YES</td>
+      <td>Specifies a user defined time range to be used to define the
+range
+of times from which images should be generated.&nbsp; Example is: -t
+"Day
+3". This will generate images for any grids that overlap the definition
+of "Day 3".&nbsp; Note that these definitions change at midnight local
+time or 0000z.</td>
+    </tr>
+  </tbody>
+</table>
+<p><font color="#3366ff">Note: When running ifpIMAGE in a normally
+configured
+system, the -h and -p switches are not needed since they will be
+brought
+in from your configured installation.&nbsp; The -o switch defaults to
+your
+release/products/IMAGE directory. If you want to connect to a different
+server than the configured ifpServer, then the -h and -p switches are
+needed.&nbsp;
+If the default destination isn't correct for your purpose, then you
+will
+need to specify an -o switch.</font>&nbsp;<font color="#3366ff">&nbsp;
+If environment variables ${CDSHOST} or
+${CDSPORT} are defined, then the default server and port will be
+determined from the environment variables, unless overridden with the
+user specified -h and -p switches.</font>
+</p>
+<hr width="100%">
+<h2><a name="CanItestmyconfiguration"></a>Can I Test My Configuration?</h2>
+Yes.&nbsp; You can&nbsp; test&nbsp; your configuration by running the
+GFE
+with the specified user and configuration filename.&nbsp; Then you can
+step frames or animate and the spatial editor will show you the
+expected
+results (e.g., colors and other appearance features).
+<p><b><font color="#ff0000">NOTE: ifpIMAGE by default uses
+configuration
+files that are defined by the "SITE" user.&nbsp; If you log into the
+GFE
+as a user (not SITE), and then create a configuration file, then run
+the
+ifpIMAGE program, the ifpIMAGE probably will not generate any
+images.&nbsp;
+This is caused by storing the configuration file as a user and not
+SITE,
+and the ifpIMAGE program is looking for your configuration file in
+SITE.&nbsp;
+You can override this behavior using the -u switch to ifpIMAGE.</font></b>
+<br>
+</p>
+<hr width="100%">
+<h2><a name="SampleifpIMAGEConfigurationFile"></a>Sample ifpIMAGE
+Configuration
+File</h2>
+The following <u>complete</u> configuration file uses the standard
+delivered
+gfe configuration file and overrides certain features.&nbsp; This
+configuration
+file does the following:
+<ul>
+  <li>creates PNGs of temperature and wind, with temperature as an
+image and
+wind as wind barbs</li>
+  <li>the PNG has a local time label on it</li>
+  <li>the temperature image color table ranges from 20 degrees to 90
+degrees,
+rather than the GFE default</li>
+  <li>has the States map background present</li>
+  <li>clips the data to the BOU WFO area, which is identified by a edit
+area
+called "BOU"</li>
+</ul>
+<a href="EXAMPLEimage.py">Example ifpIMAGE configuration file</a>
+<hr width="100%">
+<h2><a name="WxElementsGenerated"></a>How Do I Control the Weather
+Elements
+to be Generated?</h2>
+The user can control which weather elements should be generated.&nbsp;
+The weather elements that are generated on each PNG can be controlled
+directly
+through the gfe configuration file using the <a
+ href="gfeConfig_Png.html#PNGListofWeatherElementsforDisplay">Png_parms</a>
+entry.&nbsp; The GFE configuration file has an entry to specify the<a
+ href="gfeConfig_Png.html#PNGListofWeatherElementsforDisplay">
+set of png weather elements for display</a>.&nbsp; The entries are
+coded
+and the user is required to know the weather element name, its level,
+the
+database model name, its optional type, and the sequence number if
+model
+data is being presented.
+<p>Here are the steps to take:
+</p>
+<blockquote>1. Decide which weather elements you want overlaid on your
+PNG imagery. <br>
+2. Create a GFE configuration file that will be used to generate PNG
+imagery. Edit the gfe configuration file to define the <a
+ href="gfeConfig_Png.html#PNGListofWeatherElementsforDisplay">Png_parms
+entry</a>.</blockquote>
+Note that Topography is available for the png image by using the <a
+ href="gfeConfig_Png.html#PNGListofWeatherElementsforDisplay">Png_parms</a>
+entry and specifying "Topo".
+<p><a href="EXAMPLEimagePngParms.py">Example ifpIMAGE configuration file</a>
+<br>
+</p>
+<hr width="100%">
+<h2><a name="Ionlywantasingleimageperweatherelement,"></a>I Only Want a
+Single
+Image Per Weather Element, How Do I Do This?</h2>
+Your
+<a href="gfeConfig_Png.html#PNGWeatherElementtobeDisplayedasanImage">Png_parms</a>
+entry,&nbsp; should contain just one weather element.&nbsp; You will
+also
+want to modify the entry in the <a
+ href="gfeConfig_Png.html#PNGWeatherElementtobeDisplayedasanImage">GFE
+configuration file</a> to indicate the name of that element so it will
+display as an image.
+<p><img src="images/ifpIMAGESimple.png" nosave="" height="400"
+ width="400"></p>
+<p>The modifications to the GFE configuration file to make this an
+image
+are:
+</p>
+<p><tt><a
+ href="gfeConfig_Png.html#PNGWeatherElementtobeDisplayedasanImage">Png_image</a>
+= 'T'</tt>
+</p>
+<p><a href="gfeConfig_Png.html#PNGListofWeatherElementsforDisplay">Png_parms</a>
+has been defined to contain: <tt>'T_SFC:_Official -1'</tt>.
+</p>
+<p>If you wanted to make a set of temperature images, dew point images,
+and wind images, you will need three different GFE configuration files.
+</p>
+<p><a href="EXAMPLEimageSingleImage.py">Example ifpIMAGE configuration
+file</a>
+</p>
+<p></p>
+<hr width="100%"><br>
+<a name="CanIProduceSmoothedImages"></a><b><font size="+2">Can I
+Produce
+Smoothed Images?</font></b>
+<p>A smooth image can be produced via a configuration file change for a
+<font color="#ff0000">scalar
+or vector weather element only</font>:
+</p>
+<p><a href="gfeConfig_Png.html#PNGImageSmoothing">Png_smoothImage</a> =
+1 (smoothing enabled0
+<br>
+<a href="gfeConfig_Png.html#PNGImageSmoothing">Png_smoothImage</a>
+= 0 (smoothing disabled)
+</p>
+<p>Note that if you are <a href="#CanImaskcertainareasofthe">filtering
+the displayed data by site identifier or site plus weather element name</a>
+(e.g., BOU_mask = "CWA, BOU_T_mask = "BOU", T_mask = "BOU", or mask = "BOU"),&nbsp; your smoothed
+image
+will also be smooth, clipped.&nbsp;&nbsp;&nbsp; <a
+ href="#CanIProduceClippedImages">Click
+here for just smooth, clipping options.</a>
+<br>
+&nbsp;
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b><font size="+1">ipfIMAGE-noSmooth.png</font></b>
+<br>
+<img src="images/UnsmoothedImg.jpg" height="600" width="563"></p>
+<p><b><font size="+1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ifpIMAGE-Smooth.png</font></b>
+<br>
+<img src="images/SmoothImg.jpg" height="601" width="569"></p>
+<p><a href="EXAMPLEimageSmooth.py">Example ifpIMAGE configuration file</a>
+<br>
+</p>
+<hr width="100%"><a name="CanIProduceClippedImages"></a><br>
+<a name="CanIProduceSmoothedClippedImages"></a><b><font size="+2">Can
+I Produce Smoothed, Clipped Images?</font></b>
+<p>To produce a smooth, clipped area, as opposed to just providing a <a
+ href="#CanImaskcertainareasofthe">display
+filter or masking</a>, use:
+</p>
+<p><a href="gfeConfig_Png.html#PNGSmoothClipping">Png_smoothClip</a> =
+0
+</p>
+<p>The following rules apply if both Png_smoothImage and Png_smoothClip
+are used.
+<br>
+&nbsp;
+<table border="1" width="100%" nosave="">
+  <tbody>
+    <tr>
+      <td>
+      <center><b>DataType</b></center>
+      </td>
+      <td>
+      <center><b>Png_smoothImage</b></center>
+      </td>
+      <td>
+      <center><b>Png_smoothClip</b></center>
+      </td>
+      <td>
+      <center><b>Result</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      <center>SCALAR/VECTOR</center>
+      </td>
+      <td>
+      <center>0</center>
+      </td>
+      <td>
+      <center>0</center>
+      </td>
+      <td><a href="#CanImaskcertainareasofthe">No data smoothing, no
+smooth clipping</a></td>
+    </tr>
+    <tr>
+      <td>
+      <center>SCALAR/VECTOR</center>
+      </td>
+      <td>
+      <center>0</center>
+      </td>
+      <td>
+      <center>1</center>
+      </td>
+      <td><a href="#NoSmoothingClipped">No data smoothing, clipped</a>
+to the
+pixel level of the <a href="gfeConfig_DB.html#FilteredDataMask">display
+filter </a>(mask) indicated, uses the nearest "grid box" for the data</td>
+    </tr>
+    <tr>
+      <td>
+      <center>SCALAR/VECTOR</center>
+      </td>
+      <td>
+      <center>1</center>
+      </td>
+      <td>
+      <center>0</center>
+      </td>
+      <td><a href="#SmootedClipped">Data smoothing, clipped</a> to the
+pixel
+level of the <a href="#CanImaskcertainareasofthe">display filter (</a>mask)
+indicated, uses bi-linear interpolation for the data values</td>
+    </tr>
+    <tr>
+      <td>
+      <center>SCALAR/VECTOR</center>
+      </td>
+      <td>
+      <center>1</center>
+      </td>
+      <td>
+      <center>1</center>
+      </td>
+      <td><a href="#SmootedClipped">Data smoothing, clipped</a> to the
+pixel
+level of the <a href="#CanImaskcertainareasofthe">display filter </a>(mask)
+indicated, uses bi-linear interpolation for the data values</td>
+    </tr>
+    <tr>
+      <td>
+      <center>WEATHER/DISCRETE</center>
+      </td>
+      <td>
+      <center>0</center>
+      </td>
+      <td>
+      <center>0</center>
+      </td>
+      <td><a href="#CanImaskcertainareasofthe">No data smoothing, no
+smooth clipping</a></td>
+    </tr>
+    <tr>
+      <td>
+      <center>WEATHER/DISCRETE</center>
+      </td>
+      <td>
+      <center>0</center>
+      </td>
+      <td>
+      <center>1</center>
+      </td>
+      <td><a href="#NoSmoothingClippedWx">No data smoothing, clipped </a>to
+the
+pixel level of the <a href="#CanImaskcertainareasofthe">display filter</a>
+(mask) indicated, uses the nearest "grid box" for the data</td>
+    </tr>
+    <tr>
+      <td>
+      <center>WEATHER/DISCRETE</center>
+      </td>
+      <td>
+      <center>1</center>
+      </td>
+      <td>
+      <center>0</center>
+      </td>
+      <td><a href="#CanImaskcertainareasofthe">No data smoothing, no
+smooth clipping</a></td>
+    </tr>
+    <tr>
+      <td>
+      <center>WEATHER/DISCRETE</center>
+      </td>
+      <td>
+      <center>1</center>
+      </td>
+      <td>
+      <center>1</center>
+      </td>
+      <td><a href="#NoSmoothingClippedWx">No data smoothing, clipped</a>
+to the
+pixel level of the <a href="#CanImaskcertainareasofthe">display filter</a>
+(mask) indicated, uses the nearest "grid box" for the data</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+&nbsp;
+</p>
+<center>
+<p><img src="images/Smooth0Clip1.png" height="227" width="270"><img
+ src="images/Smooth1Clip1.png" height="227" width="270"><img
+ src="images/Smooth0Clip1Wx.png" height="240" width="270"></p>
+</center>
+<table border="0" width="100%" nosave="">
+  <tbody>
+    <tr>
+      <td>
+      <center><a name="NoSmoothingClipped"></a><b>No Smoothing,
+Clipped&nbsp;<a name="SmootedClipped"></a>Smooth,
+Clipped&nbsp;<a name="NoSmoothingClippedWx"></a>No Smoothing, Clipped,
+Wx</b></center>
+      </td>
+      <td>
+      <center>&nbsp;</center>
+      </td>
+      <td>
+      <center>&nbsp;</center>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p><a href="EXAMPLEimageSmoothClip.py">Example ifpIMAGE configuration
+file</a>
+<br>
+</p>
+<hr width="100%">
+<h2><a name="imageorgraphic"></a>How Do I Control Whether a Weather
+Element
+is an Image or a Graphic?</h2>
+By default, a weather element is displayed as a graphic.&nbsp; Only one
+weather element may be displayed as an image per configuration file.
+You
+can specify the name of this weather element through the <a
+ href="gfeConfig_Png.html#PNGWeatherElementtobeDisplayedasanImage">PNG
+image name field</a> in the gfe configuration file.
+<p>The following pictures illustrate the effect of denoting Sky to be
+an
+image or a graphic.
+</p>
+<p><img src="images/ifpIMAGESkyImage.png" nosave="" height="400"
+ width="400"><img src="images/ifpIMAGESkyGraphic.png" nosave=""
+ height="400" width="400"></p>
+<p>The modifications to the GFE configuration file to make alternate
+between
+a graphic and image are a single line:
+</p>
+<p><tt><a
+ href="gfeConfig_Png.html#PNGWeatherElementtobeDisplayedasanImage">Png_image</a>
+= 'Sky'</tt>
+</p>
+<p>If you want it a graphic, be sure not to include the line <a
+ href="gfeConfig_Png.html#PNGWeatherElementtobeDisplayedasanImage">Png_image</a>.
+</p>
+<p><a href="EXAMPLEimageSkyImage.py">Example ifpIMAGE configuration file</a>
+</p>
+<p></p>
+<hr width="100%">
+<h2><a name="overlay"></a>Can I Overlay More Than one Weather Element?</h2>
+You may overlay as many weather elements as you desire.&nbsp; This is
+accomplished
+by creating a weather element group with multiple entries through the
+use
+of the Weather Element Browser from the GFE.&nbsp; Alternatively, you
+can
+use the <a href="gfeConfig_Png.html#PNGListofWeatherElementsforDisplay">Png_parms
+field</a> to define the weather elements.&nbsp; Only one of the weather
+elements may be displayed as an image, which is specified in the <a
+ href="gfeConfig_Png.html#PNGWeatherElementtobeDisplayedasanImage">PNG
+image name field</a> in gfe configuration file.&nbsp; All of the other
+weather elements will be displayed as a graphic.
+<p><img src="images/ifpIMAGEOverlay.png" nosave="" height="400"
+ width="400"></p>
+<p>The type of graphic can be controlled through the <a
+ href="gfeConfig_WE.html#WeatherElementVisualTypes">visual
+type fields</a> in the gfe configuration file.
+</p>
+<p><a href="EXAMPLEimageOverlay.py">Example ifpIMAGE configuration file</a>
+<br>
+</p>
+<hr width="100%">
+<h2><a name="CanIaddcontoursorwindbarbstomy"></a>Can I Add Contours or
+Wind
+Barbs to My Image?</h2>
+If you want graphics on top of your image field for the same weather
+element,
+such as a temperature image with temperature contours overlaid, then
+you
+can control this through the <a
+ href="gfeConfig_WE.html#WeatherElementVisualTypes">visual
+type fields</a> in the gfe configuration file.&nbsp; For scalar data,
+you
+only can display graphics as contours.&nbsp; For wind data, you can
+display
+the graphic as wind barbs or wind arrows.&nbsp; For weather data, your
+only choice is bounded areas.&nbsp; You would make an entry in the
+categories
+of image and spatial editor for the <a
+ href="gfeConfig_WE.html#WeatherElementVisualTypes">visual
+type</a>.
+<p><img src="images/ifpIMAGESimple.png" nosave="" height="400"
+ width="400"><img src="images/ifpIMAGEImgCntr.png" nosave=""
+ height="400" width="400"></p>
+<p>The changes made to the configuration file consisted of modifying
+(or
+adding) a line that specifies that T (temperature) for the spatial
+editor
+image should include contours:
+</p>
+<p><i>from:</i><tt> T_spatialImageType = [ "Image" ]</tt>
+<br>
+<i>to:</i><tt> T_spatialImageType = [ "Image", "Contour" ]</tt>
+</p>
+<p><a href="EXAMPLEimageGraphicTypes.py">Example ifpIMAGE configuration
+file</a>
+</p>
+<h2>
+<hr width="100%"><a name="HowdoIchangethecolortable"></a>How Do I
+Change
+the Color Table?</h2>
+Color table mapping can be changed for scalar and vector weather
+elements.
+See the <a href="#wxcolortable">weather color table section</a> to
+change
+the color mapping for the Wx element.
+<p>The user can specify:
+</p>
+<blockquote>1.&nbsp; The <a
+ href="gfeConfig_nonWECol.html#WeatherElementDefaultColorTables">color
+table name</a> to be used for an individual weather element (e.g.,
+Linear).
+If not specified, then the color table is the default smooth rainbow
+spectrum.&nbsp;
+You can <a href="gfeConfig_nonWECol.html#DefaultColorTableSpectrum">change
+the characteristics</a> of this default rainbow spectrum. <br>
+2.&nbsp; The <a href="gfeConfig_nonWECol.html#InitialColorTableRange">color
+table range mapping</a> (e.g., minimum and maximum values).&nbsp; By
+default,
+the mapping is performed from the minimum possible value to the maximum
+possible value as defined in serverConfig.py. <br>
+3.&nbsp; Whether the color table mapping should be linear or
+logarithmic.&nbsp;
+The <a href="gfeConfig_nonWECol.html#LogrithmeticColorTables">logarithmic
+scaling factor</a> is specified in the gfe configuration file.</blockquote>
+A new color spectrum may be created in the GFE using the <a
+ href="ColorDialogs.html#ColorTableEditorDialog">Color
+Table Editor Dialog</a> , saved with a new filename and configured in
+ifpIMAGE.
+<p><a href="EXAMPLEimageColorTable.py">Example ifpIMAGE configuration
+file</a>
+</p>
+<h3>Defining the Color Table Name</h3>
+The following two images show the same data set, but with different
+color
+enhancement curves (e.g., color tables).
+<p><img src="images/ifpIMAGESimple.png" nosave="" height="400"
+ width="400"><img src="images/ifpIMAGEct.png" nosave="" height="400"
+ width="400"></p>
+<p>The changes made to the configuration file consisted of modifying
+(or
+adding) a line that specifies T's (temperature) color table:
+</p>
+<p><i>from:</i><tt> T_defaultColorTable="colorTable1"</tt>
+<br>
+<i>to:</i><tt> T_defaultColorTable="tColorTable"</tt>
+<br>
+&nbsp;
+</p>
+<h3>Changing the Color Table Range Mapping</h3>
+The user can also change the color table range mapping.&nbsp; The
+following
+two images show the same data set, with the same color enhancement
+curve,
+but mapped to different starting and ending values.
+<p><img src="images/ifpIMAGESimple.png" nosave="" height="400"
+ width="400"><img src="images/ifpIMAGEctR.png" nosave="" height="400"
+ width="400"></p>
+<p>The changes made to the configuration file consisted of modifying
+(or
+adding) two lines that specifies T's (temperature) color table value
+mapping:
+</p>
+<p><i>to:</i><tt> T_maxColorTableValue = 50.0</tt>
+<br>
+<i>to:</i><tt> T_minColorTableValue = 0.0</tt>
+<br>
+&nbsp;
+</p>
+<h3>Applying a Logarithmic Scaling Factor</h3>
+Most color table algorithms are linear.&nbsp; The user may change this
+to a logrithmetically-scaled mapping if desired.&nbsp; The following
+two
+images show the same data set with the same enhancement curve, but one
+has a linear and the other a logrithmetic scaling.&nbsp; Note that the
+color bar scale is still linear, but the number of colors assigned are
+squeezed into the lower ranges.
+<p><img src="images/ifpIMAGESimple.png" nosave="" height="400"
+ width="400"><img src="images/ifpIMAGEctLOG.png" nosave="" height="400"
+ width="400"><br>
+&nbsp;
+</p>
+<p>The changes made to the configuration file consisted of modifying
+(or
+adding) a line that specifies T's (temperature) color table should be
+mapped
+logrithmetically:
+</p>
+<p><i>to:</i><tt> T_LogFactor = 0.01</tt>
+<br>
+&nbsp;
+<br>
+&nbsp;
+</p>
+<h3>Using a Fit To Data Color Table Algorithm</h3>
+The user may specify that a color table be calculated using the <a
+ href="gfeConfig_nonWECol.html#InitialColorTableRange">"fit
+to data" algorithm</a>.&nbsp; The program will examine all of the grids
+associated with the weather element to calculate the minimum and
+maximum
+observed value. The color table spectrum is then mapped to these
+values.
+There are four different algorithms that can be used:
+<ul>
+  <li>All Grids</li>
+  <li>All Grids over Area</li>
+  <li>Single Grid</li>
+  <li>Single Grid over Area</li>
+</ul>
+If "All Grids" or "All Grids over Area" is specified, then all data
+grids
+for the weather element are examined to determine the color table
+mapping
+range. If "Single Grid" or "Single Grid over Area" is specified, then
+the
+fit to data algorithm is applied to each image, thereby resulting in
+different
+color tables for each image.&nbsp; The one of the algorithms, "... over
+Area", is specified, then the fit to data algorithms will only look at
+data contained within the edit area defined by <a
+ href="gfeConfig_Png.html#PngfitToDataArea">Png_fitToDataArea</a>.
+<p><img src="images/ifpIMAGE_base1.png" nosave="" height="400"
+ width="400"><img src="images/ifpIMAGE_fitToData.png" nosave=""
+ height="400" width="400"></p>
+<p>The changes made to the configuration file consisted of modifying
+(or
+adding) a line that specifies MaxT's (maximum temperature) color table
+should be mapped with the "fit to data" algorithm:
+</p>
+<p><i>to:</i><tt> MaxT_fitToDataColorTable = "All Grids"</tt>
+</p>
+<p>To change the algorithm to look at all grids, but only use data
+values
+contained in your CWA (e.g., CYS), then the following two entries would
+be needed.&nbsp; Note that the "... over Area" algorithm is generally
+only
+used when masking data.
+</p>
+<p><i>to:</i>
+<br>
+<tt>MaxT_fitToDataColorTable = "All Grids over Area"</tt>
+<br>
+<tt>Png_fitToDataArea = "CYS"</tt>
+</p>
+<p></p>
+<hr width="100%">
+<h2><a name="ColorBarLabeling"></a>Can I Control the Color Bar Labeling
+on
+the Output PNG?</h2>
+By default, the labels on the color bar are automatically calculated
+and
+plotted.&nbsp; The user can override the automatic set with a defined
+set
+through the <a
+ href="gfeConfig_nonWECol.html#ColorBarLabelSpecification">gfe
+configuration file's entry Color Bar Labels</a>.&nbsp; Tick marks and
+labels
+will be plotted only at those values specified.&nbsp; This option
+applies
+only to scalar and vector data.
+<p>To change the Maximum Temperature's color bar labels to 32, 40, 50,
+60, the following entry would be made in the gfe configuration file:
+</p>
+<p><i>add:</i>
+<br>
+<tt>MaxT_ColorBarLabels = [32.0, 40.0, 50.0, 60.0]</tt>
+<br>
+&nbsp;
+</p>
+<p></p>
+<hr width="100%">
+<h2><a name="HowdoIchangethesizeoftheoutput"></a>How Do I Change the
+Size of
+the Output PNG?</h2>
+The <a href="gfeConfig_Png.html#PNGImageSize">size of the output PNG</a>
+is specified in the gfe configuration file.&nbsp; You only need to
+specify
+the horizontal or the vertical since the other dimension is
+automatically
+calculated.
+<p>The following illustrates making the same data as a thumbnail
+(100x100)
+and large (600x600).
+<br>
+<img src="images/ifpIMAGEsmall.png" nosave="" height="100" width="100"><img
+ src="images/ifpIMAGElarge.png" nosave="" height="600" width="600"></p>
+<p>The changes made to the configuration file consisted of modifying
+the
+lines that specifies T's (temperature) color table should be mapped
+logrithmetically:
+</p>
+<p><i>for the small image:</i><tt> Png_height = 100</tt>
+<br>
+<i>for the large image:</i><tt> Png_height = 600</tt>
+</p>
+<p><a href="EXAMPLEimageSize.py">Example ifpIMAGE configuration file</a>
+<br>
+</p>
+<hr width="100%">
+<h2><a name="CanIcontrolthesizeoftheborderaroundthegrid"></a>Can I
+control
+the size of the border around the grid?</h2>
+The size of the border around the grid may be specified in each of the
+four directions as a percentage of the grid size.&nbsp; The entries are
+specified in the <a href="gfeConfig_UI.html#OfficeDomainExpansion">Office
+Domain expand section</a> of the configuration file.
+<p><img src="images/ifpIMAGE_base1.png" nosave="" height="400"
+ width="400"><img src="images/ifpIMAGE_domainExpand.png" nosave=""
+ height="400" width="466"></p>
+<p>The changes made to the configuration file consisted of modifying
+(or
+adding) several lines to adjust the size of the space around the grid:
+</p>
+<p><i>from:</i>
+<br>
+<tt>OfficeDomain_expandLeft = 10</tt>
+<br>
+<tt>OfficeDomain_expandRight = 10</tt>
+<br>
+<tt>OfficeDomain_expandTop = 10</tt>
+<br>
+<tt>OfficeDomain_expandBottom = 10</tt>
+<br>
+<i>to:</i>
+<br>
+<tt>OfficeDomain_expandLeft = 5</tt>
+<br>
+<tt>OfficeDomain_expandRight = 20</tt>
+<br>
+<tt>OfficeDomain_expandTop = 10</tt>
+<br>
+<tt>OfficeDomain_expandBottom = 30</tt>
+</p>
+<p><a href="EXAMPLEimageBorder.py">Example ifpIMAGE configuration file</a>
+</p>
+<p></p>
+<hr width="100%">
+<h2><a name="CanIputsamplesonthe"></a>Can I Put Samples on the Display?</h2>
+Samples may be put on the display.&nbsp; Note that if you have multiple
+weather elements displayed, then you will see multiple samples at each
+sample point.&nbsp; This can be changed through the <a
+ href="gfeConfig_Samp.html#LimitingSamplestoSpecificWeatherElements">Limiting
+Samples to Specific Weather Elements</a> entry. The set of samples is
+defined
+in a sample set.&nbsp; The name of that sample set is defined as the <a
+ href="gfeConfig_StartUp.html#DefaultSampleSets">default
+sample set</a> in the gfe configuration file.
+<p>If the samples are too small or too large, changes can be made
+through
+the <a href="gfeConfig.html#GFEComponentFontSizes">sample font entry</a>
+in the gfe configuration file. The illustration below shows samples for
+Temperature and Wind.&nbsp; The white entry matches the image,
+Wind;&nbsp;
+the green entries match the Temperature.
+</p>
+<p><img src="images/ifpIMAGEsamples.png" nosave="" height="400"
+ width="400"></p>
+<p>The procedure for adding samples to the PNG image is to create a
+sample
+set in the GFE and save it.&nbsp; Then modify the PNG configuration
+file
+to identify that sample set:
+</p>
+<p><tt>DefaultSamples = ['pngSamples']</tt>
+</p>
+<p>The <a href="gfeConfig_WE.html#SampleFormatsforVectorData">format
+of
+the samples for vector data</a> may also be changed to one of the
+following
+formats:
+</p>
+<ul>
+  <li>ddff</li>
+  <li>8pt compass direction</li>
+  <li>16pt compass direction</li>
+  <li>d/f</li>
+</ul>
+By default, samples are shadowed, i.e., double characters are written
+in
+the primary color and black to increase constrast on light-colored
+images.&nbsp;
+The sample shadowing may be turned off, if desired, through the gfe
+configuration
+file.&nbsp; Refer to the <a href="gfeConfig_Samp.html#SampleShadows">sample
+shadow configuration</a>.
+<p>The offset from the sample anchor point to the sample values may
+also
+be set.&nbsp; Refer to <a href="gfeConfig_Samp.html#SampleOffsets">Sample
+Label Offsets</a> in the gfe configuration documentation.
+</p>
+<p>By default, the values displayed at each sample point comprise
+values
+from all of the visual weather elements. For example, if T, Td, and
+Wind
+are visible, then each sample will display the values from T, Td, and
+Wind.&nbsp;
+You can change this behavior through the <a
+ href="gfeConfig_Samp.html#LimitingSamplestoSpecificWeatherElements">Limiting
+Samples to Specific Weather Elements</a> entry in the gfe configuration
+file.
+</p>
+<p>You may also change the color associated with a sample. The default
+is that the sample color will match the graphic color for that weather
+element.&nbsp; Use the <a
+ href="gfeConfig_Samp.html#AlternativeSampleColor">parmName_Sample_color</a>
+in the gfe configuration file to explictly set a color for the
+sample.&nbsp;
+For example, to change the sample color for Temperature (T) to green,
+do
+the following:
+</p>
+<p><i>add:</i>
+<br>
+<tt>T_Sample_color = "green"</tt>
+</p>
+<p><a href="EXAMPLEimageSamples.py">Example ifpIMAGE configuration file</a>
+<br>
+</p>
+<hr width="100%">
+<h2><a name="CanImaskcertainareasofthe"></a>Can I Mask Certain Areas of
+the
+Display?</h2>
+Masking or clipping is possible with ifpIMAGE.&nbsp; This is actually a
+feature that can be used with the GFE as well.&nbsp; The
+masking/clipping
+is defined using an edit area (or reference set).&nbsp; The <a
+ href="gfeConfig_DB.html#FilteredDataMask">mask
+field in the gfe configuration file</a> specifies the name of the edit
+area to be used as a mask.&nbsp; Note that the output graphic will
+automatically
+be zoomed in to this area.
+<p>The user can choose to mask all weather elements the same on the
+image,
+or choose to mask just certain ones.&nbsp; Refer the the <a
+ href="gfeConfig_DB.html#FilteredDataMask">mask
+field definition in gfe configuration file</a> for details.
+</p>
+<p><img src="images/ifpIMAGESimple.png" nosave="" height="400"
+ width="400"><img src="images/ifpIMAGEclipped.png" nosave=""
+ height="400" width="549"></p>
+<p>The changes made to the configuration file consisted of modifying
+(or
+adding) a line that specifies the clipping mask for the site (BOU in
+this
+case). (There are alternative forms available as well.)&nbsp; The edit area is "BOU":
+</p>
+<p><tt>BOU_mask = "BOU"</tt>
+</p>
+<p><a href="EXAMPLEimageMasking.py">Example ifpIMAGE configuration file</a>
+</p>
+<p>Note that when the user specifies a mask, that the ifpIMAGE display
+will automatically be zoomed in to show just that area.&nbsp; This
+feature
+may be disabled through the use of the <a
+ href="gfeConfig_Png.html#PNGZoomDisable">Png_wholeDomain</a>
+configuration item.
+</p>
+<p><a href="#CanIProduceSmoothedClippedImages">Smooth clipping</a> may
+be applied when using a mask.
+<br>
+</p>
+<hr width="100%">
+<h2><a name="HowdoIdefinethesetofmap"></a>How Do I Define the Set of
+Map Backgrounds?</h2>
+Zero or more map backgrounds may be shown on the output PNG.&nbsp; The
+<a href="gfeConfig_Map.html#DefaultMapBackgrounds">default
+map background names</a> are specified in the gfe configuration file.
+<p><img src="images/ifpIMAGESimple.png" nosave="" height="400"
+ width="400"><img src="images/ifpIMAGEaltmap.png" nosave="" height="400"
+ width="400"></p>
+<p>The changes made to the configuration file consisted of modifying
+the
+lines that the default map backgrounds:
+</p>
+<p><i>from:</i><tt> MapBackgrounds_default = ['States', 'CWA']</tt>
+<br>
+<i>to:</i><tt> MapBackgrounds_default = ['States', 'Counties']</tt>
+</p>
+<p><a href="EXAMPLEimageMaps.py">Example ifpIMAGE configuration file</a>
+<br>
+</p>
+<hr width="100%">
+<h2><a name="CanIchangetheappearanceofthemap"></a>Can I Change the
+Appearance
+of the Map Backgrounds?</h2>
+The appearance of the map backgrounds may be changed in various ways
+with
+each map background being separately configurable:
+<ul>
+  <li>All map backgrounds can be changed to the same color by changing
+the
+first
+entry in the available map background color entry in the gfe
+configuration
+file;</li>
+  <li> <a href="gfeConfig_Map.html#MapBackgroundColors">Individual
+colors</a>
+may be specified per map background; and</li>
+  <li>The map background <a
+ href="gfeConfig_Map.html#MapBackgroundLineWidths">line
+width</a> and <a href="gfeConfig_Map.html#MapBackgroundLinePatterns">line
+pattern</a> may be specified per each map background.</li>
+  <li>The <a href="gfeConfig_Map.html#MapBackgroundLabels">labels</a>
+for
+each
+map background may be selected from a list of available shapefile
+attributes.&nbsp;
+It is recommended that you start the GFE, load the appropriate map
+background,
+and explore the <a href="Button3Popups.html#Legend">MB3 over the Map
+Legends
+for the available shapefile attributes</a>.</li>
+</ul>
+<p><br>
+<img src="images/ifpIMAGESimple.png" nosave="" height="400" width="400"><img
+ src="images/ifpIMAGEmapcolor.png" nosave="" height="400" width="400"></p>
+<p>The changes made to the configuration file consisted of modifying or
+adding the following lines:
+</p>
+<p><tt>States_graphicColor = 'red'</tt>
+<br>
+<tt>States_lineWidth = 3</tt>
+<br>
+<tt>CWA_graphicColor = 'green'</tt>
+<br>
+<tt>CWA_linePattern = "DOTTED"</tt>
+</p>
+<p><a href="EXAMPLEimageMapAttr.py">Example ifpIMAGE configuration file</a>
+<br>
+</p>
+<hr width="100%">
+<h2><a name="CanIchangetheappearanceofthegraphics"></a>Can I Change the
+Appearance
+of the Graphics?</h2>
+You can control the following through the gfe configuration file:
+<ul>
+  <li> <a href="gfeConfig_WE.html#SpecificWeatherElementGraphicColor">color</a>,
+    <a
+ href="gfeConfig_WE.html#SpecificGraphicLineWidthsforaWeatherElement">line
+width</a>, and line patterns for each graphic. If you don't specify a
+specific
+graphic color, then the available set of colors will be allocated from
+the <a href="gfeConfig_WE.html#GenericGraphicColors">generic color list</a>.</li>
+  <li> <a href="gfeConfig_WE.html#WeatherElementVisualTypes">type of
+graphic</a>
+(e.g., contour, wind barb vs. wind arrow)</li>
+  <li>contour and bounded area label sizes, either <a
+ href="gfeConfig_WE.html#SpecificFontOffsetsforaWeatherElement">individually</a>
+by weather element name, or <a
+ href="gfeConfig.html#GFEComponentFontSizes">overall</a></li>
+  <li> <a
+ href="gfeConfig_WE.html#SpecificFontOffsetsforaWeatherElement">length</a>
+and <a href="gfeConfig_WE.html#WindBarbandWindArrowDefaultSizes">wind
+barb
+and arrow default sizes</a> of the wind barbs and arrows</li>
+  <li> <a href="gfeConfig_WE.html#WindArrowScaling">wind arrow
+scaling,
+linear
+vs. logrithmetic</a></li>
+  <li> <a href="gfeConfig_WE.html#SpecificDensitiesforaWeatherElement">density</a>
+- packing of the wind barbs and arrows</li>
+  <li> <a href="gfeConfig_WE.html#ContourValues">contour values</a>&nbsp;
+and <a href="gfeConfig_WE.html#ContourValues">contour
+intervals</a> for scalar products</li>
+  <li> <a href="gfeConfig_WE.html#SpecificDensitiesforaWeatherElement">density</a>
+- packing of the contours</li>
+  <li> <a href="gfeConfig_WE.html#WindBarbandWindArrowDefaultSizes">wind
+barb
+and arrow default sizes</a></li>
+</ul>
+<p><br>
+<img src="images/ifpIMAGEbaseG.png" nosave="" height="400" width="400"><img
+ src="images/ifpIMAGEadjG.png" nosave="" height="400" width="400"></p>
+<p>The following changes were made to the configuration file:
+</p>
+<p><tt>Contour_font = 4</tt>
+<br>
+<tt>T_graphicColor = 'blue'</tt>
+<br>
+<tt>Wind_graphicColor = 'red'</tt>
+<br>
+<tt>Wind_fontOffset = 2</tt>
+<br>
+<tt>Wind_density = 20</tt>
+<br>
+<tt>T_density = -2</tt>
+</p>
+<p><a href="EXAMPLEimageGraphicAtt.py">Example ifpIMAGE configuration
+file</a>
+<br>
+</p>
+<hr width="100%">
+<h2><a name="timerangeselection"></a>Can I Specify the Time Range for
+Which
+to Generate PNGs?</h2>
+There are three ways to specify the time range for which to generate
+PNGs.&nbsp;
+The first method specifies the creation of the images on a fixed
+interval,
+with or without an offset (i.e., a different starting time), rather
+than
+the default. The second method limits the creation of PNGs to within a
+specified time range.&nbsp; The third method uses a user-defined time
+range
+to determine the limit of creation.
+<br>
+&nbsp;
+<h3>Generating PNGs on a Regular Interval</h3>
+By default, ifpIMAGE automatically generates PNGs for every possible
+time
+step that results in a changed display of data.&nbsp; All of the
+possible
+permutations are considered when generating PNGs with differing valid
+times.
+The configuration items are <a href="gfeConfig_Png.html#PngInterval">Png_interval</a>
+and <a href="gfeConfig_Png.html#PngInterval">Png_intervalOffset</a>.
+<p>You can change this behavior and force ifpIMAGE to generate images
+at
+specific time intervals.&nbsp; These time intervals are specified in
+units
+of hours and will cover all grids from the beginning to the end of the
+database that match the hour interval.&nbsp; Note that you may also
+want
+to specify <a href="#CanIUseSnapshotTimestampsintheLegend">Png_snapshotTime</a>
+in order for the legends to indicate the interval time, rather than the
+grid valid time.
+</p>
+<p>For example, specifying an interval of 6 hours will always generate
+images for 00z, 06z, 12z, and 18z.&nbsp; The following changes would be
+made to the configuration file for an interval of 6 hours:
+</p>
+<p><tt>Png_interval = 6</tt>
+</p>
+<p>To generate images that begin at a starting time other than 00z, you
+can specify an interval offset using a configuration
+option.&nbsp;&nbsp;
+For example, specifying an interval offset of 1 and an interval of 6
+(i.e.,
+Png_interval = 6) will generate images at 01z,&nbsp; 07z, 13z and
+19z.&nbsp;
+The default for Png_intervalOffset is 0.
+</p>
+<p><tt>Png_intervalOffset = 1</tt>
+</p>
+<p><img src="images/IntOffset1Hr.png" height="385" width="400"><img
+ src="images/IntOffset7Hr.png" height="385" width="400"></p>
+<p><a href="EXAMPLEinterval.py">Example ifpIMAGE configuration file</a>
+</p>
+<p>Refer to the <a href="gfeConfig_Png.html#PngInterval">gfe
+configuration
+file documentation</a> for more details on the interval item.
+<br>
+&nbsp;
+</p>
+<h3>Specifying via the command line the start/end limits of generation</h3>
+The -s and -e switches on the command line can be used to limit the
+generation
+of PNG images.&nbsp; The format of the entries are YYYYMMDD_HHMM.&nbsp;
+If a grid of a PNG image falls within the <a href="#RunningifpIMAGE">starting
+and ending time range specified,</a> then the image will be generated.
+<br>
+&nbsp;
+<h3>Specifying via the command line a user-defined time range</h3>
+The -t switch on the command line specifies a <a
+ href="#RunningifpIMAGE">user-defined
+named time range.</a>&nbsp; If a grid of a PNG image falls within the
+calculated
+starting and ending time, then the image will be generated.
+<p></p>
+<hr width="100%">
+<h2><a name="wxcolortable"></a>Can I Change the Appearance of the "Wx"
+Weather
+Element When Displayed as an Image?</h2>
+The Wx weather element uses combinations of <a
+ href="gfeConfig_WECol.html#WeatherCoverageFillPatterns">fill
+patterns</a> and <a
+ href="gfeConfig_WECol.html#DefiningColorEntriesforWeatherTypesandIntensities">colors</a>
+to denote the weather. This can be controlled through the gfe
+configuration
+file.&nbsp; The <a href="gfeConfig_WECol.html#WeatherColorAlgorithm">weather
+image algorithm</a> is described in the gfe configuration file.
+<br>
+&nbsp;
+<p><img src="images/ifpIMAGEwx1.png" nosave="" height="400" width="400"><img
+ src="images/ifpIMAGEwx2.png" nosave="" height="400" width="400"></p>
+<p>The configuration file was modified to change the mapping from
+patterns
+to coverages, and from colors to weather types.&nbsp; The entries that
+were changed are highlighted for clarity.
+</p>
+<p><i>from:</i>
+<br>
+<tt>WeatherCoverage_names = ["Iso", "WSct", "Sct", "Num", "Wide",
+"Ocnl",
+"SChc",</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"Chc", "Lkly", "Def", "Patchy", "&lt;NoCov&gt;"]</tt>
+<br>
+<tt>WeatherCoverage_fillPatterns = ["OCNL", "WIDE_SCATTERED",</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"SCATTERED", "LKLY", <b>"WIDE"</b>, "OCNL",</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"WIDE_SCATTERED", "SCATTERED", "LKLY",</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"WIDE", "SCATTERED", "WHOLE"]</tt>
+<br>
+<tt>WeatherType_names = ["&lt;NoWx&gt;", "T", "A", "R", "RW", "L",
+"ZR",
+"ZL",</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"S", "SW", "IP", "F", "H", "BS", "K", "BD",</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"SA", "LC", "FR", "AT", "TRW"]</tt>
+<br>
+<tt>WeatherType_colors = ["brown", "red3", "DeepPink", <b>"ForestGreen"</b>,</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"ForestGreen", "CadetBlue1", "darkorange1",</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"goldenrod1", <b>"gray70"</b>, "Grey65", "plum1",</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"khaki4", "Gray75", "snow", "grey30", "Brown",</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"blue1", "coral1", "pale turquoise", "DeepPink",</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"red3"]</tt>
+</p>
+<p><i>to:</i>
+<br>
+<tt>WeatherCoverage_names = ["Iso", "WSct", "Sct", "Num", "Wide",
+"Ocnl",
+"SChc",</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"Chc", "Lkly", "Def", "Patchy", "&lt;NoCov&gt;"]</tt>
+<br>
+<tt>WeatherCoverage_fillPatterns = ["OCNL", "WIDE_SCATTERED",</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"SCATTERED", "LKLY", <b>"WHOLE"</b>, "OCNL",</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"WIDE_SCATTERED", "SCATTERED", "LKLY",</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"WIDE", "SCATTERED", "WHOLE"]</tt>
+<br>
+<tt>WeatherType_names = ["&lt;NoWx&gt;", "T", "A", "R", "RW", "L",
+"ZR",
+"ZL",</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"S", "SW", "IP", "F", "H", "BS", "K", "BD",</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"SA", "LC", "FR", "AT", "TRW"]</tt>
+<br>
+<tt>WeatherType_colors = ["brown", "red3", "DeepPink", <b>"Green"</b>,</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"ForestGreen", "CadetBlue1", "darkorange1",</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"goldenrod1", <b>"blue"</b>, "Grey65", "plum1",</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"khaki4", "Gray75", "snow", "grey30", "Brown",</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"blue1", "coral1", "pale turquoise", "DeepPink",</tt>
+<br>
+<tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"red3"]</tt>
+</p>
+<p><a href="EXAMPLEimageWx.py">Example ifpIMAGE configuration file</a>
+</p>
+<p></p>
+<hr width="100%">
+<h3><a name="ChangeWxSampleText"></a>Can I change the Weather Sample
+Label
+Text to something more descriptive?</h3>
+The Weather Sample label text may be changed to something more
+descriptive.&nbsp;
+You use the <a href="gfeConfig_Samp.html#UsingWxDescriptiveNames">AltWxSampleLabels_prettyWx</a>
+and <a href="gfeConfig_Samp.html#UsingWxDescriptiveNames">AltWxSampleLabels_label</a>
+entries in the configuration file.&nbsp; This is a simple string
+substitution.&nbsp;
+For example if you wanted to change several labels as shown in the
+following
+table:
+<br>
+&nbsp;
+<table border="1" width="100%" nosave="">
+  <tbody>
+    <tr>
+      <td><b>Pretty Wx String (plotted by default)</b></td>
+      <td><b>Desired Sample Label</b></td>
+    </tr>
+    <tr>
+      <td>Sct RW-</td>
+      <td>Rain Showers</td>
+    </tr>
+    <tr>
+      <td>Sct SW-</td>
+      <td>Snow Showers</td>
+    </tr>
+    <tr>
+      <td>Lkly S-</td>
+      <td>Snow</td>
+    </tr>
+    <tr>
+      <td>Wide S-</td>
+      <td>Snow</td>
+    </tr>
+    <tr>
+      <td>&lt;NoWx&gt;</td>
+      <td>(blank)</td>
+    </tr>
+  </tbody>
+</table>
+<p>then your entries in the configuration file would contain:
+</p>
+<p><tt>AltWxSampleLabels_prettyWx = ['Sct RW-', 'Sct SW-', 'Lkly S-',
+'Wide
+S-', '&lt;NoWx&gt;']</tt>
+<br>
+<tt>AltWxSampleLabels_label = ['Rain Showers', 'Rain Showers', 'Snow',
+'Snow', '']</tt>
+<br>
+</p>
+<hr width="100%">
+<h2><a name="CanIdisablethecolorbar"></a>Can I Disable the Color Bar?</h2>
+Yes.&nbsp; Use the <a href="gfeConfig_Png.html#PngomitColorBar">Png_omitColorBar</a>
+entry in the configuration file:
+<p><tt>Png_omitColorBar = 1</tt>
+</p>
+<p>You can control the <a href="gfeConfig.html#GFEComponentFontSizes">label
+sizes</a> on the color bar.
+<br>
+</p>
+<hr width="100%">
+<h2><a name="WxAdditional"></a>Can I Always Have a Standard Set of Wx
+Labels
+on the Color Bar?</h2>
+By default, the color bar for Wx consists of entries that are currently
+in the data.&nbsp; For example, if Snow and Rain are the only values
+present
+in the grid, then the color bar will only have entries of snow and rain
+on them.&nbsp; The user may specify a set of weather labels that will
+always
+appear in the color bar, regardless of the types of weather data in the
+grid. The configuration item is <a
+ href="gfeConfig_Samp.html#WxAdditional">Wx_AdditionalColorBarLabels</a>.
+<br>
+&nbsp;
+<p></p>
+<hr width="100%">
+<h2><a name="CanIdisablethelegend"></a>Can I Disable the Legend?</h2>
+Yes. The <a href="gfeConfig_Png.html#PNGLegendDisplay">legend
+visibility</a>
+can be controlled through the gfe configuration file.
+<p><img src="images/ifpIMAGESimple.png" nosave="" height="400"
+ width="400"><img src="images/ifpIMAGEnolegend.png" nosave=""
+ height="400" width="400"><br>
+&nbsp;
+</p>
+<p>The changes made to the configuration file consisted of modifying
+(or
+adding) a line that specifies T's (temperature) color table:
+</p>
+<p><i>from:</i><tt> Png_legend = 1</tt>
+<br>
+<i>to:&nbsp;&nbsp; </i><tt>Png_legend = 0</tt>
+</p>
+<p><a href="EXAMPLEimageLegend.py">Example ifpIMAGE configuration file</a>
+<br>
+</p>
+<hr width="100%">
+<h2><a name="legendtimezone"></a>Can I Change the Legend From Local
+Time to
+Zulu Time?</h2>
+Yes. The <a href="gfeConfig_Png.html#PNGLocalTimeLegend">legend time
+zone
+format</a> can be controlled through the gfe configuration file.
+<p><img src="images/ifpIMAGESimple.png" nosave="" height="400"
+ width="400"><img src="images/ifpIMAGElocaltz.png" nosave=""
+ height="400" width="400"></p>
+<p>The changes made to the configuration file consisted of modifying
+(or
+adding) a line that specifies T's (temperature) color table:
+</p>
+<p><i>from:</i><tt> Png_localTime = 0</tt>
+<br>
+<i>to:</i><tt> Png_localTime = 1</tt>
+</p>
+<p><a href="EXAMPLEimageLegendTime.py">Example ifpIMAGE configuration
+file</a>
+<br>
+</p>
+<hr width="100%">
+<h2>Can I Switch Between the simple Weather Element Name and a more
+descriptive
+Name, or turn the name off completely?</h2>
+Yes. There is an <a
+ href="gfeConfig_Png.html#PNGLegendWeatherElementName">option
+in the gfe configuration file</a> to specify whether the no name,
+simple,
+or more descriptive weather element name should be used in the legend.
+<p><img src="images/ifpIMAGE_base2.png" nosave="" height="500"
+ width="500"><img src="images/ifpIMAGE_longName.png" nosave=""
+ height="500" width="500"></p>
+<p>The changes made to the configuration file consisted of modifying
+(or
+adding) a line that enables this option:
+</p>
+<p><i>from:</i><tt> Png_descriptiveWeName = "SHORT"</tt>
+<br>
+<i>to:</i><tt> Png_descriptiveWeName = "LONG"</tt>
+</p>
+<p><a href="EXAMPLEimageLegendTitle.py">Example ifpIMAGE configuration
+file</a>
+</p>
+<p>You can also set <a
+ href="gfeConfig_Png.html#PngAlternateWeatherElementName">Png_descriptiveWeName</a>
+to "ALT" which lets you define your own weather element string.&nbsp;
+If
+you use "ALT", then you use the Png_wxelem_AltName to define the string
+you want to use, where wxelem is the name of the weather element.&nbsp;
+For example, to change the "Maximum Temperature" string to "High
+Temps",
+you would enter the following two strings:
+</p>
+<p><tt>Png_descriptiveWeName = "ALT"</tt>
+<br>
+<tt>Png_MaxT_AltName = "High Temps"</tt>
+</p>
+<p></p>
+<hr width="100%">
+<h2><a name="CanIFormattheLegend"></a>Can I Format the Legend?</h2>
+The legend may be formatted to include/exclude certain time and
+duration
+elements.&nbsp; Refer to the <a
+ href="gfeConfig_Png.html#PNGLegendFormats">gfe
+configuration documentation</a> for details on how it can be changed. A
+separate format string may be set for the duration, start time, and
+ending
+time for both the local time display and the Zulu time display.
+<p>The order of the legend is always the weather element name,
+duration,
+start time, and ending time.&nbsp; Any of the duration, start time and
+ending time may be omitted.
+</p>
+<p><img src="images/ifpIMAGE_legendFormat1.png" nosave="" height="500"
+ width="500"><img src="images/ifpIMAGE_legendFormat2.png" nosave=""
+ height="500" width="500"></p>
+<p><i>from:</i>
+<br>
+<tt>Png_legendFormat_LT_dur = ""</tt>
+<br>
+<tt>Png_legendFormat_LT_start = "%b %d %I:%M %p %Z to "</tt>
+<br>
+<tt>Png_legendFormat_LT_end = "%b %d %I:%M %p %Z"</tt>
+</p>
+<p><i>to:</i>
+<br>
+<tt>Png_legendFormat_LT_dur = "%H hours "</tt>
+<br>
+<tt>Png_legendFormat_LT_start = " "</tt>
+<br>
+<tt>Png_legendFormat_LT_end = "ending %a %b %d, %Y %I:%M %p"</tt>
+</p>
+<p>The units can be placed on the legend by including the special
+phrase
+"[UNITS]" in one of the legend format strings.&nbsp; For example, if
+you
+wanted the units to appear right before the duration in the above
+example,
+you would define the Png_legendFormat_LT_dur string to be:
+</p>
+<p><tt>Png_legendFormat_LT_dur = "([UNITS]) %H hours "</tt>
+</p>
+<p><a href="EXAMPLEimageLegendFormat.py">Example ifpIMAGE configuration
+file</a>
+<br>
+</p>
+<hr width="100%"><a name="CanIUseSnapshotTimestampsintheLegend"></a><b><font
+ size="+2">Can
+I Use Snapshot Timestamps in the Legend?</font></b>
+<br>
+&nbsp;
+<p><img src="images/snapshot.png" height="360" width="400"><br>
+&nbsp;
+<br>
+&nbsp;
+</p>
+<p>To indicate a snapshot time instead of the valid time of the grid,
+use
+the <a href="gfeConfig_Png.html#PngSnapshotTime">Png_snapshotTime</a>
+option.
+</p>
+<p><i>add:</i>
+<br>
+<tt>Png_snapshotTime = 1</tt>
+</p>
+<p>&nbsp;The default format of the snapshot Zulu time is
+"%b%d%H%MZ".&nbsp;
+To change this format
+</p>
+<p><i>add:</i>
+<br>
+<tt>Png_legendFormat_Zulu_snapshot = "%b%d%H%MZ"</tt>
+</p>
+<p>The default format of the snapshot itme if the Png_snapshotTime = 1
+and Png_localTime = 1 is "%d %b %I:%M %p% Z" .&nbsp; To change this
+format
+</p>
+<p><i>add:</i>
+<br>
+<tt>Png_legendFormat_LT_snapshot = "%I:%M %p %Z" (for example)</tt>
+<br>
+&nbsp;
+</p>
+<p>Refer to the <a href="gfeConfig_Png.html#PNGLegendFormats">gfe
+configuration
+documentation</a> for details on how formats can be changed.
+</p>
+<p><a href="EXAMPLEsnapshotTimeStamp.py">Example ifpIMAGE configuration
+file</a>
+<br>
+</p>
+<hr width="100%">
+<h3>Changing the Legend Language</h3>
+You can also change the default language associated with the
+legend.&nbsp;
+Normally it is in English, but can be changed to French or
+Spanish.&nbsp;
+Refer to the <a href="gfeConfig_Png.html#PngLegendLanguage">Png_legendLanguage</a>
+item in the gfe configuration file.&nbsp; For example, to have the
+date/time
+group formatted in Spanish, use the following in your configuration
+file:
+<p><i>add:</i>
+<br>
+<tt>Png_legendLanguage = "spanish"</tt>
+<br>
+&nbsp;
+</p>
+<h3>Changing the Legend Color</h3>
+Be default, the color of the legend matches the color of the
+graphic.&nbsp;
+You can override this behavior using the <a
+ href="gfeConfig_Samp.html#AlternativeLegendColor">parmName_Legend_color</a>
+entry in the configuration file.&nbsp; For example, to always have a
+red
+label for "T":
+<p><i>add:</i>
+<br>
+<tt>T_Legend_color = "red"</tt>
+<br>
+&nbsp;
+</p>
+<p></p>
+<hr width="100%">
+<h2><a name="CanIChangetheBackgroundColor"></a>Can I Change the
+Background
+Color?</h2>
+The background color of the PNG images may be changed.&nbsp; This is
+accomplished
+through the background color for drawing panes in the gfe configuration
+file.&nbsp; Note that additional entries will also need to be modified
+in the configuration file in some cases depending upon the color
+chosen.&nbsp;&nbsp;
+The legends normally write the image label in "white" and the samples
+are
+painted in "white".&nbsp; The entries for <a
+ href="gfeConfig_Samp.html#SampleLatitude/LongitudeandPlusSignColor">sample
+color</a> and <a href="gfeConfig_Samp.html#ImageLegendColor">image
+legend
+color</a> control these entries.&nbsp; The color of the labels for the
+colors bar can be controlled through the <a
+ href="gfeConfig_Samp.html#ColorBarTextColors">Color
+Bar Tick/Text Colors</a> entry.
+<p><img src="images/ifpIMAGE_base3.png" nosave="" height="400"
+ width="400"><img src="images/ifpIMAGE_bkg.png" nosave="" height="400"
+ width="400"></p>
+<p><i>from:</i>
+<br>
+<tt>bgColor = 'black'</tt>
+<br>
+<tt>ImageLegend_color = "white"</tt>
+</p>
+<p><i>to:</i>
+<br>
+<tt>bgColor = 'white'</tt>
+<br>
+<tt>ImageLegend_color = "blue"</tt>
+</p>
+<p><a href="EXAMPLEimageBackColor.py">Example ifpIMAGE configuration
+file</a>
+<br>
+&nbsp;
+<br>
+&nbsp;
+</p>
+<p></p>
+<hr width="100%">
+<h2><a name="CanIControltheOutputFilename"></a>Can I Control the
+Output Filename?</h2>
+The directory location for the output pngs is specified on the command
+line using the <b>-o</b> switch. By default, the output filename of
+the
+imagery is in the form of <b>yyyymmdd_hhmm.png</b>.&nbsp; This can be
+modified
+in several ways as described below.
+<br>
+&nbsp;
+<h3><a name="AddingaPrefixtotheFilename"></a>Adding a Prefix to the
+Filename</h3>
+The Png_filenamePrefix entry in the&nbsp; configuration file can be
+used
+to specify a prefix to the filename.&nbsp; Prefixes can be used to help
+catagorize the set of imagery that is created.&nbsp; For example, if
+you
+run ifpIMAGE twice with different configuration files to generate a set
+of Temperature images and Wind images, all of the images will end up in
+the same output directory, and may have the same name.&nbsp; By using
+the
+Png_filenamePrefix entry, you can assign prefixes for each ifpIMAGE
+configuration.
+<p>To prefix all of the filenames with "T_Official_", use the following
+entry in the&nbsp; configuration file:
+</p>
+<p><tt>Png_filenamePrefix = 'T_Official_'</tt>
+</p>
+<p>The result will be that all of the generated filenames will be in
+the
+form of <b>T_Official_yyyymmdd_hhmm.png</b>.
+</p>
+<p><a href="EXAMPLEimagePrefix.py">Example ifpIMAGE configuration file</a>
+<br>
+&nbsp;
+</p>
+<h3><a name="ChangingtheDateString"></a>Changing the Date String</h3>
+The date/time string defaults to the absolute time as determined by the
+grids contained within the image.&nbsp; The default format of the date
+string is <b>yyyymmdd_hhmm</b>.&nbsp; An alternative approach involves
+running the ifpIMAGE program with the <b>-b</b> command line switch
+followed
+by a base time specification.&nbsp; The base time specification is also
+in the standard <b>yyyymmdd_hhmm</b> format.
+<p>When the -b switch is given to ifpIMAGE, the date string is changed
+to this format:
+</p>
+<p><tt><i>basetime</i>_F<i>proj</i></tt>
+</p>
+<p>where basetime is that specified on the command line with the -b
+switch,
+and proj is calculated as the number of hours offset from the basetime
+for the valid time of the image.
+</p>
+<p>For example, if the basetime is specified as 20010313_1200, and the
+valid time of the image is 20010313_2100, then the png filename
+(assuming
+no prefix) will be:
+</p>
+<p><tt>20010313_1200_F9.png</tt>
+</p>
+<p>The Png_baseTimeFormat entry also allows you to change the
+formatting
+of the date string.&nbsp; This works with or without the -b command
+line
+switch.&nbsp; The base time format is in the identical format to the
+legend
+formatting strings.&nbsp;&nbsp; Refer to the <a
+ href="gfeConfig_Png.html#PNGLegendFormats">gfe
+configuration documentation</a> for the available options. For example,
+if you wanted the output filenames to only contain the forecast
+projection
+time, then you would run the ifpIMAGE with the -b switch and specifying
+the base time, and you would use the following syntax in the gfe
+configuration
+file:
+</p>
+<p><tt>Png_baseTimeFormat = ''</tt>
+</p>
+<p>If you wanted to include just the day of the week, then followed by
+the projection time, then use the -b switch, specify the base time, and
+use the following syntax in the gfe configuration file:
+</p>
+<p><tt>Png_baseTimeFormat = "%a_"</tt>
+</p>
+<p>which would produce filenames such as <b>Tue_18.png</b>.
+</p>
+<p>If you don't specify the -b switch, then the base time formatting is
+for the valid time of the grid.&nbsp; A format such as:
+</p>
+<p><tt>Png_baseTimeFormat = "%a_%H"</tt>
+</p>
+<p>would result in filenames such as: <b>Mon_18.png</b>, <b>Mon_21.png</b>,
+<b>Tue_00.png</b>,
+<b>Tue_03.png</b>.
+</p>
+<p></p>
+<hr width="100%">
+<h2><a name="Whatdoestheinfofilecontain"></a>What does the "info" file
+contain?</h2>
+An "info" file is generated for each "png" image.&nbsp; The "info" file
+contains descriptive information about the generated image.&nbsp; It
+includes
+the following information:
+<ul>
+  <li>valid time of grid</li>
+  <li>number of grids displayed</li>
+  <li>for each grid:</li>
+  <ul>
+    <li>weather element identifier, in the format of
+parmName:siteID_GRID_optType_model_modelTime</li>
+    <li>start time of the grid, in the format of yyyymmdd_hhmm</li>
+    <li>ending time of the grid, in the format of yyyymmdd_hhmm</li>
+    <li>color assigned to the grid, may be a RGB hexidecimal value or a
+color
+name.</li>
+    <li>display type of the grid, either IMAGE or GRAPHIC</li>
+  </ul>
+</ul>
+The color assigned to an IMAGE grid is not valid.
+<p>If an IMAGE is displayed as both an IMAGE and GRAPHIC (such as
+temperature
+image with contours), the info file will have two entries for that grid
+-- one IMAGE and one GRAPHIC.
+</p>
+<p>The form of the weather element identifier has the following
+attributes:
+<br>
+&nbsp;
+<table border="1" width="100%" nosave="">
+  <tbody>
+    <tr nosave="">
+      <td nosave="">Name</td>
+      <td>Description</td>
+      <td>Example</td>
+    </tr>
+    <tr>
+      <td>Weather Element Name</td>
+      <td>name of the weather element</td>
+      <td>T</td>
+    </tr>
+    <tr>
+      <td>Site identifier</td>
+      <td>site identifier for the database</td>
+      <td>BOU</td>
+    </tr>
+    <tr>
+      <td>Format</td>
+      <td>format of the weather element, always GRID</td>
+      <td>GRID</td>
+    </tr>
+    <tr>
+      <td>Optional database type</td>
+      <td>Optional database type for the database</td>
+      <td>''</td>
+    </tr>
+    <tr>
+      <td>Model</td>
+      <td>Model Name</td>
+      <td>Fcst</td>
+    </tr>
+    <tr>
+      <td>ModelTime</td>
+      <td>Valid time of the model, in form of yyyymmdd_hhmm</td>
+      <td>20010301_1200</td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<p>Each of the sections are separated by an underscore character,
+except
+for the weather element name, which is always followed by a colon (:).
+</p>
+<p><a href="EXAMPLEimageInfoFile.txt">Example "info" file</a>
+</p>
+<p></p>
+<hr width="100%">
+<h2><a name="logos"></a>Can I add the NWS and NOAA logos?</h2>
+The standard NWS and NOAA logos can be added to the bottom of your PNG
+imagery by toggling the <a
+ href="gfeConfig_Png.html#PngLogoandLogoString">Png_logo
+entry</a> in the configuration file.&nbsp; You can also define the text
+string that will appear between the two logos through the <a
+ href="gfeConfig_Png.html#PngLogoandLogoString">Png_logoString
+entry</a>.
+<p><img src="images/ifpIMAGENoLogo.png" nosave="" height="340"
+ width="350"><img src="images/ifpIMAGELogo.png" nosave="" height="394"
+ width="350"></p>
+<p>The above was accomplished by the following two statements in the
+configuration
+file:
+</p>
+<p><i>to:</i>
+<br>
+<tt>Png_logo = 1</tt>
+<br>
+<tt>Png_logoString = "NWS Timbuktoo"</tt>
+</p>
+<p><a href="EXAMPLEimageLogo.py">Example ifpIMAGE configuration file</a>
+</p>
+<p></p>
+<hr width="100%">
+<p><a href="GFESuite.html">Back to Main Documentation Page</a>
+<br>
+&nbsp;
+</p>
+</body>
+</html>

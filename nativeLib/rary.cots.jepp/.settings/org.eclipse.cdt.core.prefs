@@ -1,0 +1,3 @@
+#Sun Mar 07 15:38:21 CST 2010
+eclipse.preferences.version=1
+environment/project/preference.org.eclipse.cdt.managedbuilder.core.configurationDataProvider.2084433208=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?>\n<environment append\="true" appendContributed\="true">\n<variable delimiter\=";" name\="TARGET" operation\="append" value\="${ConfigName}"/>\n</environment>\n

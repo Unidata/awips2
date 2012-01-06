@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Dimensions_file_uploader
+Bundle-SymbolicName: ohd.dimensions_file_uploader
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: ohd.common;bundle-version="1.0.0",
+ ohd.lib;bundle-version="1.0.0"

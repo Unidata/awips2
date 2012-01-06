@@ -1,0 +1,333 @@
+# ----------------------------------------------------------------------------
+# This software is in the public domain, furnished "as is", without technical
+# support, and with no warranty, express or implied, as to its usefulness for
+# any purpose.
+#
+# ${itemName}.py
+#
+# Author: $author
+# ----------------------------------------------------------------------------
+
+########################################################################
+# Table Template
+#
+#   Type: table
+#   Edit Areas:  area1, area2
+#   To Run:
+#     Make sure you have Saved Data to the Fcst database
+#          and Published to the Official database.
+#     Select Products --> Generate Products.
+#     Choose product name.
+#     Click Run.
+
+########################################################################
+#Example Output:
+##
+##    MyProduct
+##
+##    Forecast for Today
+##             Sky (%)  Wind (mph)   Temp   Precip (%)  Weather
+##
+##    Area 1      42      NW 10       46         0
+##    Area 2      23      NW 10       45         0
+##
+##    Forecast for Tonight
+##             Sky (%)  Wind (mph)   Temp   Precip (%)  Weather
+##
+##    Area 1      49      NW  5       54         0
+##    Area 2      29      NW  5       53         0
+##
+##    Forecast for Tomorrow
+##             Sky (%)  Wind (mph)   Temp   Precip (%)  Weather
+##
+##    Area 1      43       W 10        4         0
+##    Area 2      18       W  5        0         0
+##
+########################################################################
+########################################################################
+#  Of the following entries, only the "type" and "elementList" are required.
+#  The others all have the defaults shown.
+########################################################################
+
+
+# Forecast Definition
+Definition =  {
+
+    ## General Set-Up
+
+      "type": "table",
+      "displayName": "${itemName}", # for Product Generation Menu
+      # if displayName == None or "None", this product will NOT
+      # appear on the Product Generation Menu. This way sub-products
+      # that are part of combinations do not clutter the menu.
+
+        # Output file for product results
+      "outputFile": "./${itemName}.txt",  # default output file
+      "runTimeOutputFile": "no",  # If yes, ask user at run time
+        # Append file for product results
+      #"appendFile": "./${itemName}.txt",
+      #"runTimeAppendFile": "no",  # If yes, ask user at run time
+
+      # If displayDialog title is set, the product output will be shown
+      #  with a Save button in a dialog.
+      # If displayDialog title is set to None, the product will be automatically
+      #  saved to a specified output or append file.
+      # If set, this will override the command line -g option.
+      #"displayDialog": "${itemName}",
+
+        # Language
+      "language": "english",  # default
+      "runTimeLanguage": "no",  # If yes, ask user at run time
+
+        # Line Length for resulting Product
+      "lineLength": 79,  # default
+      "runTimeLineLength": "no",  # If yes, ask user at run time
+
+        # Text to preceed and follow the text product.
+        # Remember to add spacing lines using backslash n.
+        # The variables:
+        #   %EditArea
+        #   %WeatherElement
+        #   %TimePeriod (actual raw time range)
+        #   %TimeRange (time range name, if available)
+        # can be included to be filled in with constant variables.
+        # For phrase and combo, only %EditArea, %TimePeriod, and %TimeRange
+        # can be filled in.
+      "beginningText": "${itemName} \n\n",
+      "endingText": "\n\n",
+      #"timePeriodMethod ": "timeRangeLabel",
+        # Format for labeling periods.
+        # If included, overrides timePeriodMethod.
+        # Format is of form: ( LT_OR_Zulu, durationFmt, startFmt, endFmt)
+        # See Text Product User Guide to see possible formats.
+        # "timePeriodFormat" :
+        #           ("Zulu", "", "%h %d %y %T GMT", "%h %d %y %T GMT"),
+
+        # If looping through edit areas or time ranges, you may
+        # specify a label to appear at the beginning and end of each loop.
+        # (See below for specifying edit areas and time ranges.)
+      "editAreaLoopBegText" :"Forecast for %EditArea\n",
+      "editAreaLoopEndText" :"\n",
+      "timeRangeLoopBegText":"Forecast for %TimeRange\n",
+      "timeRangeLoopEndText":"\n",
+
+    ## Edit Areas
+        # You may specify default Edit Areas over which the product will
+        # be run.
+        # Edit areas are given as (GFE name, Display Name) pairs.
+      "defaultEditAreas": [("area1", "Area 1"),
+                           ("area2", "Area 2"),
+                          ],
+        # Alternatively, you may specify areas by giving a
+        # (latitude, longitude, dimension) tuple.
+        # The dimension is in km and the area created is a
+        # square of the given dimension with the given lat/lon as center.
+        # Example:
+        #"defaultEditAreas"  : [
+        #         ((40.0, -105.0, 10),"AREA ONE"),
+        #         ((39.0, -104.0, 10),"AREA TWO"),
+        #         ],
+        #
+        # Alternatively, you may specify a Text Utility in which
+        #  to find a list of edit area Combinations over which
+        #  to run the product.
+        # Example:
+        #"defaultEditAreas"  : "Combinations",
+        #
+        # The formatter will look for a Text Utility in which there
+        # is a list of tuples of the form:
+        #   list of edit area names -- these areas are unioned together
+        #   label for the union of areas
+        # For example:
+        #
+        # Combinations = [
+        #          (["area1","area2"], "label1"),
+        #          (["area3","area4","area5"],"label2"),
+        #          ]
+        #
+        # If runTimeEditAreas is yes, ask user to choose from defaults
+        # at run time.
+      "runTimeEditAreas" : "yes",
+
+    ## Time Ranges
+        # You must specify default Time Ranges over which the product will
+        # be run.
+        # Time Ranges are named "Select Time Ranges" defined from the GFE.
+      "defaultRanges": [("Today"),
+                        ("Tonight"),
+                        ("Tomorrow"),
+                       ],
+        # If runTimeRanges is yes, ask user to choose from defaults
+        # at run time.
+      "runTimeRanges" : "yes",
+
+      # If looping through edit areas and time ranges, specify
+      # which is the outer loop
+      "outerLoop" : "EditArea",
+      
+
+    ## Table Layout
+        # A table is a combination of three variables:
+        #    edit areas, weather elements, and time periods
+        # One of these variables is held constant,
+        #    one is assigned to rows and the other to columns.
+
+      "constantVariable": "TimePeriod",
+      "rowVariable": "EditArea",
+      "columnVariable": "WeatherElement",
+
+        # Column justification can be Center (default), Left,
+        #  or Right
+      "columnJustification": "Center",
+
+        # Column width is determined by the label width, but you can specify a
+        # a minimumColumnWidth
+      "minimumColumnWidth": 8,
+
+    ## Weather Elements
+        #   elementList:   List of Weather Element tuples:
+        #     Weather Element Name
+        #     Weather Element Label
+        #        If you want the label to appear on multiple lines,
+        #        use vertical bars as separators e.g. Maximum|Temperature
+        #     Analysis method -- Method to produce statistics from the data
+        #     ReportAs Method -- Method to format the analyzed value(s)
+        #     DataType: Scalar or Vector or Weather
+        #     Rounding increment e.g. 5 = round final value to
+        #             nearest multiple of 5
+        #     Conversion method
+        #         e.g. "mphToKt" converts from mph to knots
+        #
+        # Note: If the Analysis Method or ReportAs Method is in quotes,
+        #   the method will be assumed to be in the TextRules or SampleAnalysis
+        #   libraries.
+        #   If the ReportAs method is not in quotes, it should be in your
+        #   Local file or a Utility.  If it has "self" as it's first argument,
+        #   it will have access to the TextRules library methods.
+        #
+        # If the weather element is the constant variable, only one
+        # should be given.
+
+        # Name     , Label    , Analysis Method , ReportAs Method ,
+        # DataType , Rounding , Conversion
+
+      "elementList": [
+                ("Sky", "Sky (%)",
+                 "avg", "singleValue",
+                 "Scalar", 1, None),
+                ("Wind","Wind (mph)",
+                 "vectorRange","avgValue",
+                 "Vector", 5, "ktToMph"),
+                ("T","Temp",
+                 "avg", "singleValue",
+                 "Scalar", 1, None),
+                ("PoP", "Precip (%)",
+                 "avg", "singleValue",
+                 "Scalar", 1, None),
+                ("Wx", "Weather",
+                 "dominantWx","short_weather_phrase",
+                 "Weather", 0, None),
+                #("Wx", "Weather",
+                # "weather_percentages","long_weather_phrase",
+                # "Weather", 0, None),
+                ("Hazards", "Hazard",
+                 "dominantDiscreteValue","discrete_value",
+                 "Discrete", 0, None),
+                #("Hazards", "Hazard",
+                # "discrete_percentages","long_discrete_phrase",
+                # "Discrete", 0, None),
+                 ],
+
+    ## Time Period (If rows or columns vary with TimePeriod
+        #   timePeriod: This is the interval in hours for sampling the data
+        #      e.g. every 3 hours.
+        #   (Can be floating point e.g. 1.5 hour TimePeriods)
+      "timePeriod": 3,
+        #   timeSpan: This is the amount of data to sample at each
+        #     interval.
+        #     If you want the data analyzed (e.g averaged) over the
+        #     entire period, the timeSpan should be set to "timePeriod".
+        #     If you only want data for the beginning of each timePeriod,
+        #     the timeSpan should be set to number of hours over which
+        #     to analyze the data e.g. 1 hour
+      "timeSpan": "timePeriod",
+      "runTimePeriod": "no",  # If yes, ask user at run time for period
+        # Method to label periods given a time range
+        #   periodLabel -- GMT time hourZ/day e.g. 15Z/4
+        #   localTimeLabel -- local time e.g. 6 AM
+        #   localRangeLabel -- local time range e.g. 6AM-9AM
+      "periodLabelMethod": "periodLabel",
+        # Format for labeling periods.
+        # If included, overrides periodLabelMethod.
+        # Format is of form: ( LT_OR_Zulu, durationFmt, startFmt, endFmt)
+        # See Text Product User Guide to see possible formats.
+        # "periodLabelFormat" : ("Zulu", "", "%HZ/%d", ""),
+
+    ## User-supplied Methods
+        #  These methods will be called by the system at points designated
+        #  below.  The method must appear BEFORE the table Definition
+        #  in this file.  For example:
+        #
+        #  def myMethod(table, userDict, argDict):
+        #      table = table.upper()
+        #      return table
+        #  Definition = {.....}
+        #
+        #   loopMethod: Method to be called for each row.
+        #     Such a method might keep ongoing statistics about table data
+        #     and/or modify the rowText.
+        #      Arguments: (rowText, rowLabel, rowEntries, userDict, argDict)
+        #              Returns: rowText (could be modified or not)
+        #       "rowText" is the text for the row.
+        #              NOTE: the row already has line feeds in it,
+        #              so if you modify it, take this into account.
+        #       "rowEntries" is a list of (colValue, value) tuples
+        #          describing the entries in this row.
+        #       "userDict" is a dictionary set up for user-defined
+        #          callback methods so they can keep ongoing data as
+        #          the table is being produced.
+        #          It is not modified by the TextFormatter code.
+      "loopMethod": None,
+
+        #   endMethod: Method to be called after table is complete.
+        #     Arguments: (table, userDict, argDict)
+        #     Returns: table (could be modified)
+        #        The table can be modified to report summary statistics
+        #        gathered in userDict.
+        #
+      "endMethod": None,
+    }
+
+        
+
+
+        #  Typical Analysis methods:
+        #  avg                    returns (value)
+        #  minmax                 returns (v1, v2)
+        #  vectorRange            returns (mag1, mag2, dir1, dir2)
+        #  vectorAvg              returns (mag, dir)
+        #  vectorRange            returns (mag1, mag2, dir1, dir2)
+        #  dominantWx             returns (subkeyList)
+        #  weather_percentages    returns (weatherKey, percentage) tuples
+        #  dominantDiscreteValue  returns (subkeyList) for Discrete
+        #  hourlyTemp             returns a list of hourly temperature values
+        #                         in tuples
+
+        #  Typical ReportAs methods:
+        #         singleValue --
+        #             needs one Analysis value :
+        #             reports single value
+        #         avgValue --
+        #             needs two Analysis values:
+        #             reports the average
+        #         range2Value --
+        #             needs two Analysis values :
+        #             reports range of 2 values
+        #         short_weather_phrase --
+        #             needs Analysis of dominantWx
+        #         long_weather_phrase --
+        #             needs Analysis of weather_percentages
+        #   NOTE: The ReportAs method must accept input which matches
+        #         the output of the analysis method.
+        #         In general, these methods handle both
+        #         Scalar and Vector data.

@@ -1,0 +1,157 @@
+module 'XApplication'
+version = 47;
+xdesigned = 1;
+applicationName = 'XApplication';
+generateNameC = * 'pointdata_table.c';
+generateNameCMainProgram = 'pointcontroltable.c';
+generateNameExterns = * 'pointdata_table.h';
+generateNameResDB = * 'pointdata_table.res';
+generateCHeaderFile = 'pointcontrol_table.h';
+generateNameMakefile = 'Makefile';
+generateMask = 39256301;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+javaUnselectedFiles = '';
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'pc_tableDS' : XmDialogShell {
+	arguments {
+	lastGenName = 'pc_tableDS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_pc_tableDS (Widget parent)
+';
+	XmNwidth = 750;
+	XmNheight = 600;
+	XmNallowShellResize = true;
+	XmNtitle = 'Point Data Tabular Display';
+	XmNminWidth = 750;
+	XmNminHeight = 600;
+	XmNmaxWidth = 750;
+	XmNmaxHeight = 600;
+	};
+object 'pc_tableFO' : XmForm {
+	arguments {
+	lastGenName = 'pc_tableFO';
+	XmNwidth = 750;
+	XmNautoUnmanage = false;
+	};
+object 'pc_tablelistLB' : XmLabel {
+	arguments {
+	was_selected = true;
+	lastGenName = 'pc_tablelistLB';
+	XmNlabelString = 'Station    Name                       Value  [Stg Flow]       Time               PE TS Dur Extr [Fld, Depart]';
+	XmNalignment = 0;
+	};
+};
+object 'pc_tableSL' : XmScrolledList {
+	arguments {
+	lastGenName = 'pc_tableSL';
+	XmNwidth = 550;
+	};
+abstract object 'pc_tableHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	lastGenName = 'pc_tableHSB';
+	};
+};
+abstract object 'pc_tableVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	lastGenName = 'pc_tableVSB';
+	};
+};
+abstract object 'pc_tableLS' : XmList {
+	arguments {
+	lastGenName = 'pc_tableLS';
+	XmNlistSizePolicy = 2;
+	};
+};
+};
+object 'pc_table_closePB' : XmPushButton {
+	arguments {
+	lastGenName = 'pc_table_closePB';
+	XmNlabelString = 'Close';
+	};
+};
+object 'pc_table_printPB' : XmPushButton {
+	arguments {
+	lastGenName = 'pc_table_printPB';
+	XmNlabelString = 'Print';
+	};
+};
+object 'pc_table_savePB' : XmPushButton {
+	arguments {
+	lastGenName = 'pc_table_savePB';
+	XmNlabelString = 'Save';
+	};
+};
+object 'pc_table_graphtsPB' : XmPushButton {
+	arguments {
+	lastGenName = 'pc_table_graphtsPB';
+	XmNlabelString = 'Time Series Graph';
+	};
+};
+object 'pc_table_tabtsPB' : XmPushButton {
+	arguments {
+	lastGenName = 'pc_table_tabtsPB';
+	XmNlabelString = 'Time Series Table';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -711;
+	XmNleftAttachment = 1 0 1;
+	XmNbottomAttachment = 2 0 -30;
+	XmNtopAttachment = 1 0 1;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -744;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 2 0 -521;
+	XmNtopAttachment = 1 0 31;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -495;
+	XmNleftAttachment = 1 0 390;
+	XmNbottomAttachment = 2 0 -595;
+	XmNtopAttachment = 1 0 565;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -315;
+	XmNleftAttachment = 1 0 225;
+	XmNbottomAttachment = 2 0 -560;
+	XmNtopAttachment = 1 0 530;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -315;
+	XmNleftAttachment = 1 0 225;
+	XmNbottomAttachment = 2 0 -595;
+	XmNtopAttachment = 1 0 565;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -175;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -560;
+	XmNtopAttachment = 1 0 530;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -175;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -595;
+	XmNtopAttachment = 1 0 565;
+    };
+    };
+};
+};
+end module;

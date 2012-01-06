@@ -1,0 +1,356 @@
+#$Id: ldatUnitsMap.txt 2009-09-28 slav Exp $
+#====================================================================================
+# LDAD FIELD UNITS
+#--------------------------------------------------
+# dataProvider	 		#   Typical data providers: CDoT, KDoT, UDFCD, etc.
+# homeWFO	
+# observationTime		#observationTime
+# SurfaceObsLocation location	#latitude, longitude, elevation, stationId "RALC2"
+# providerId	 		#*	"110" "FA6026DA" Data Provider station Id
+# stationName	 		#* "Ralston_Res" "BEN CREEK AIRSTRIP" ?????????????????
+# handbook5Id	 		#* 	""  ????????????????
+# stationType	 		#*	"STO" "RAWS" ????????????
+# reportTime	 		#* 1.247436157E9 time data was processed by the provider
+# receivedTime	 		#* time data was received - seconds since 1-1-1970
+# numericWMOid	 		# numeric WMO identification
+# dataPlatformType	 	#short -32767 moving (e.g. floating buoy or ship)
+# tempChangeTime	 	# time of temperature last change - seconds since 1970-1-1 00:00:00.0
+# rhChangeTime	 		# time of last relative humidity change 
+# stationPressChangeTime	#time of last station press change
+# pressChangeChar	 	#long_name = "character of pressure change"	
+# windDirChangeTime	 	#seconds since 1970-1-1 00:00:00.0
+# windSpeedChangeTime	
+# windGustChangeTime
+# skyCover	 		#char ref FMH-1
+# visibilityStatus	
+# totalCloudCover	 	# tenths
+# presWeather	 		#present weather ref FMH-1
+# lowLevelCloudType		#    lowLevelCloudType:long_name = "low level cloud type"	
+# midLevelCloudType		#    midLevelCloudType:long_name = "middle level cloud type"	
+# highLevelCloudType	  	#    highLevelCloudType:long_name = "high level cloud type"	
+# maxTempRecordPeriod	 	#    maxTempRecordPeriod:long_name = "maximum temperature recording period"	
+# minTempRecordPeriod	 	#    minTempRecordPeriod:long_name = "minimum temperature recording period"
+# precipType	 		#    precipType:long_name = "precipitation type"
+# timeSinceLastPcp	 	#seconds
+# solarRadChangeTime	 	#seconds since 1970-1-1 00:00:00.0
+# rawMessage
+# cloudBaseHeight	 	#    cloudBaseHeight:long_name  = "height of the lowest cloud layer"
+# precipIntensity	 	#    precipIntensity:long_name = "precipitation intensity"
+#----------------------------------------------------
+# ldad_mesonet VarName  stored units
+#--------------------------------------------------
+platformTrueDirection	degree_angle
+platformTrueSpeed	m*s^-1	
+wetBulbTemperature	K	
+stationPressure		Pa
+pressChange3Hour	Pa	
+windDirMin	 	degree_angle	
+windDirMax	 	degree_angle	
+skyLayerBase	 	m	
+visibility	 	m	
+maximumTemperature	K	
+minimumTemperature	K	
+precipAccum		mm
+solarRadiation	 	W*m^-2
+seaSurfaceTemp	 	K	
+wavePeriod	 	s	
+waveHeight	 	m	
+temperature	 	K	
+dewpoint		K	 
+relHumidity	 	%	
+windDir	 		degree_angle		
+windSpeed	 	m*s^-1	
+windGust		m*s^-1
+pressure	 	Pa	
+seaLevelPressure	Pa	
+altimeter		Pa
+precipRate	 	m*s^-1	
+fuelTemperature		K
+fuelMoisture		%
+soilTemperature		K
+soilMoisture		%
+#--------------------------------------------------
+#ldad_hydro VarName  stored units
+#--------------------------------------------------
+#voltageBattery		volt
+#waterConductance	umhos/cm
+#waterOxygen		mg/l
+#waterPH		ph
+#riverReportChangeTime
+belowSurface		m
+riverStage		m
+poolElevation		m
+tailwaterStage		m
+riverVelocity		kph
+riverInflow		m^3/s
+riverFlow		m^3/s
+computedOutflow		m^3/s
+waterTemperature 	K
+windSpeedPeak		m*s^-1
+precip5min		mm
+precip1hr		mm
+precip3hr		mm
+precip6hr		mm
+precip12hr		mm
+precip18hr		mm
+precip24hr		mm
+#--------------------------------------------------
+#ldad_manual VarName  stored units
+#--------------------------------------------------
+code10		mm
+#code11		mm
+#code12		mm
+#code13		mm
+#code14		mm
+#code15		mm
+#code16		mm
+#code17		mm
+#code18		mm
+#code19		h
+#code21		K
+#code22		K
+#code23		K
+#code24		K
+#code25		K
+#code26		K
+#code27		K
+#code28		K
+#code29		K
+#code30		h
+#code31		h
+#code32		K
+#code33		m
+#code34		m
+#code35		m
+#code36		m
+#code37		m
+#code38		m
+#code40		m
+#code43		m^3/s
+#code44		m^3/s
+#code45		m^3/s
+#code46		m^3/s
+#code47		m^3/s
+#code48		m^3/s
+#code49		m^3/s
+#code50		m^3/s
+#code52		m
+#code53		m
+#code54		m
+#code55		m
+#code56		m
+#code57		m
+#code58		m^3/s
+#code59		m^3/s
+#code60		m^3/s
+#code61		m^3/s
+#code62		m^3/s
+#code63		m^3/s
+#code64		m^3/s
+#code65		m^3
+#code66		m
+#code67		%
+#code68		m
+#code69		m
+#code70		m/m
+#code71		m
+#code73		%
+#code74		m
+#code75		m
+#code76		m
+#code78		m
+#code79		m
+#code83		m
+#code86		%
+#code87		m
+#code88		m*s^-1
+#code89		degree_angle
+#code90		h
+#code91		W*m^-2
+#code93		h
+#code94		K
+#code95		K
+#code96		m
+
+
+# ====================================================
+# UNITS OF THERMODYNAMIC TEMPERATURE 
+#
+#KELVIN		KELVIN
+#CELSIUS	KELVIN @ 273.15
+#RANKINE	KELVIN/1.8
+#FAHRENHEIT	RANKINE @ 459.67
+
+#C			CELSIUS	# `C' means `coulomb'
+Celsius			Celsius
+celsius			Celsius
+degree_centigrade	Celsius
+degC			Celsius
+degreeC			Celsius
+degree_C		Celsius
+degree_c		Celsius
+deg_C			Celsius
+deg_c			Celsius
+degK			K
+degreeK			K
+degree_K		K
+degree_k		K
+deg_K			K
+deg_k			K
+K			K
+degF			degree_fahrenheit
+degreeF			degree_fahrenheit
+degree_F		degree_fahrenheit
+degree_f		degree_fahrenheit
+deg_F			degree_fahrenheit
+deg_f			degree_fahrenheit
+F			degree_fahrenheit
+Fahrenheit		degree_fahrenheit
+fahrenheit		degree_fahrenheit
+#R			RANKINE	# `R' means `roentgen'
+degR			degree_rankine
+degreeR			degree_rankine
+degree_R		degree_rankine
+degree_r		degree_rankine
+deg_R			degree_rankine
+deg_r			degree_rankine
+Rankine		 	degree_rankine
+rankine		 	degree_rankine
+# -----------------------------------------
+#Relative humidity
+%			%
+# -----------------------------------------
+# UNITS OF LENGTH 
+#
+m			m
+metre		m
+# God help us!  There's an international foot and a US survey foot and
+# they're not the same!
+
+# International foot stuff:
+international_inch	in
+international_foot	ft
+international_feet	ft
+international_yard	yd
+international_mile	mi
+
+# Alias unspecified units to the international units: 
+inch	in
+foot	ft
+yard	yd
+mile	mi
+
+# The following should hold regardless:
+inches	in
+in	in
+feet	ft
+ft	ft
+yd	yd
+
+nmile	nmi
+nmi	nmi
+
+mm	mm
+
+# -----------------------------------------
+# UNITS OF TIME 
+#
+day		d
+hour		h
+minute		min
+s		s
+sec		s
+common_year	year
+d		d
+min		min
+hr		h
+h		h
+week		week
+year		year
+yr		year
+a		year
+month		month
+
+# -----------------------------------------
+# UNITS OF PLANE ANGLE
+#
+#rad			P radian		# `rad' means `grey'
+#circle			P 2 pi radian
+degree_angle	degree_angle
+angular_degree	degree_angle
+
+#turn			P circle
+degree		degree_angle
+degree_north	degree_angle
+degree_east	degree_angle
+degree_true	degree_angle
+arcdeg		degree_angle
+angular_minute	degree_angle/60
+angular_second	degree_angle/3600
+
+
+degrees_north	degree_angle
+degreeN		degree_angle
+degree_N	degree_angle
+degreesN	degree_angle
+degrees_N	degree_angle
+
+degrees_east	degree_angle
+degreeE		degree_angle
+degree_E	degree_angle
+degreesE	degree_angle
+degrees_E	degree_angle
+
+degrees_west    degree_angle
+degreeW         degree_angle
+degree_W        degree_angle
+degreesW        degree_angle
+degrees_W       degree_angle
+
+degrees_true	degree_angle
+degreeT		degree_angle
+degree_T	degree_angle
+degreesT	degree_angle
+degrees_T	degree_angle
+
+# -----------------------------------------
+# PRESSURE OR STRESS
+#
+bar			bar
+mB			bar/1000
+standard_atmosphere	atm
+technical_atmosphere	kg*cm^-2
+Pa			Pa
+inch_Hg			inHg
+inch_hg			inHg
+inHg			inHg
+in_Hg			inHg
+in_hg			inHg
+millimeter_Hg		mmHg
+mmHg			mmHg
+mm_Hg			mmHg
+mm_hg			mmHg
+torr			mmHg
+#at			S technical_atmosphere
+atmosphere		atm
+atm				atm
+
+# -----------------------------------------
+# VELOCITY (INCLUDES SPEED) 
+#
+#c			S 2.997925e+8 meter/sec
+knot			kn
+
+knot_international	kn
+international_knot	kn
+kt			kn
+m/s			m*s^-1
+mph			mph
+kph			m*1000*h^-1
+mps         m*s^-1
+iph         in*s^-1
+mmph        m*1000*s^-1
+
+# -----------------------------------------
+# SOLAR RADIATION
+W/meter2	W*m^-2

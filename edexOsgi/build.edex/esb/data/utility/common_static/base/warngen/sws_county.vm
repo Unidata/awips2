@@ -1,0 +1,100 @@
+## new template jfrederick tim feb 2011
+## sigwx alert for thunderstorms with wind and/or hail under
+## severe limits
+## county list needs to be sortable by state/parts of state/
+${WMOId} ${vtecOffice} 000000 ${BBBId}
+SPS${siteId}
+
+#if(${productClass}=="T")
+TEST...SPECIAL WEATHER STATEMENT...TEST
+#else
+SPECIAL WEATHER STATEMENT
+#end
+NATIONAL WEATHER SERVICE ${officeShort}
+#backupText(${backupSite})
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+<L>#foreach (${area} in ${areas})
+${area.name} ${area.stateabbr}-##
+#end
+</L>
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+
+THE NATIONAL WEATHER SERVICE IN ${officeLoc} HAS ISSUED A SPECIAL WEATHER STATEMENT EFFECTIVE ##
+#secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR #headlineLocList(${areas} true true true false).
+
+#if(${stormType} == "line")
+  #set ($type1 = "THUNDERSTORMS")
+#else
+  #set ($type1 = "A THUNDERSTORM")   
+#end
+#if(${list.contains($bullets, "doppler")})
+  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED ${type1} ")
+#end
+#if(${list.contains($bullets, "spotter")})
+  #set ($report = "AMATEUR RADIO WEATHER SPOTTERS REPORTED !** **!")
+#end
+#if(${list.contains($bullets, "public")})
+  #set ($report = "THE PUBLIC REPORTED !** **! ")
+#end
+
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+AT ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}...${report} ##
+#handleClosestPoints($list, $closestPoints, $otherClosestPoints, $stormType, "NEAR", 6, "MILES")
+#if($movementSpeed < 3 || ${stationary})
+. ${reportType2} NEARLY STATIONARY.
+#else
+...MOVING #direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} MPH.
+#end
+
+## calls to action
+#if(${list.contains($bullets, "streamflooding")})
+HEAVY RAINS MAY FLOOD LOW LYING AREAS SUCH AS DITCHES AND ##
+UNDERPASSES.  AVOID THESE AREAS AND DO NOT CROSS FLOODED ROADS ##
+AS THEY MAY BE WASHED OUT.  WATER LEVELS OF SMALL STREAMS AND ##
+RIVERS MAY ALSO RISE...THEREFORE SEEK HIGHER GROUND IF THREATENED ##
+BY FLOOD WATERS.
+
+#end
+#if(${list.contains($bullets, "intenselightning")})
+INTENSE LIGHTNING IS REPORTED WITH THIS STORM.  IF OUTDOORS...##
+STAY AWAY FROM ISOLATED HIGH OBJECTS SUCH AS TREES.  MOVE ##
+INDOORS IF POSSIBLE.  WHEN INDOORS...STAY AWAY FROM WINDOWS AND ##
+DOORS AND AVOID USING TELEPHONES UNLESS IT IS AN EMERGENCY.  ##
+TRY TO UNPLUG UNNECESSARY ELECTRICAL APPLIANCES BEFORE THE ##
+THUNDERSTORM APPROACHES.
+
+#end
+
+#############
+## WATCHES ##
+#############
+#if(${list.contains($includedWatches, "torWatches")})
+#inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
+#end
+#if(${list.contains($includedWatches, "svrWatches")})
+#insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
+#end
+
+########################
+## LAT/LON, TML, SIGN ##
+########################
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
+
+#end
+#printcoords(${areaPoly}, ${list})
+
+#tml(${start} ${movementDirection} ${movementInKnots} ${timeFormat} ${eventlocation})
+
+
+$$
+
+!**NAME/INITIALS**!

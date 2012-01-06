@@ -1,0 +1,64 @@
+C MEMBER GFPLDT
+C  (from old member PPGFPLDT)
+C
+      SUBROUTINE GFPLDT(CL1, CL2, NUMID, DESC1, DESC2, NUMDSC,
+     * IRAIN, PRECIP, JFLAG, IPGRID, JPGRID)
+C
+C.....THIS SUBROUTINE FILLS IN PARTS OF THE PRINT LINE WITH THE
+C.....APPROPRIATE STATION DATA (ID, DESCRIPTOR, FLAG, PRECIP, GRID
+C.....ADDRESS). THIS IS PRIMARILY USED IN THE PRECIP LIST PRINTOUT
+C.....ALGOROTHM OF NWSRFS VERSION 5.0.
+C
+C.....HERE ARE THE ARGUMENTS:
+C
+C.....CL1    - THE INPUT ID.
+C.....CL2    - THE OUTPUT ID.
+C.....NUMID  - NUMBER OF WORDS IN IXID AND JXID.
+C.....DESC1  - THE INPUT DESCRIPTOR.
+C.....DESC2  - THE OUTPUT DESCRIPTOR.
+C.....NUMDSC - NUMBER OF WORDS IN NAME AND JXDESC.
+C.....IRAIN  - THE INPUT PRECIP.
+C.....PRECIP - THE OUTPUT PRECIP.
+C.....JFLAG  - THE ESTIMATION FLAG.
+C.....IPGRID - THE INPUT GRID ADDRESS.
+C.....JPGRID - THE OUTPUT GRID ADDRESS.
+C
+C.....ORIGINALLY WRITTEN BY:
+C
+C.....JERRY M. NUNN       WGRFC FT. WORTH, TEXAS       DECEMBER 1986
+C
+      INTEGER*2 IRAIN, IPGRID
+      DIMENSION CL1(1), CL2(1), DESC1(1), DESC2(1)
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/fcst_maro/RCS/gfpldt.f,v $
+     . $',                                                             '
+     .$Id: gfpldt.f,v 1.1 1995/09/17 19:01:39 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C.....FILL IN THE CALL LETTERS AND IXDESC.
+C
+   50 DO 60 KP = 1, NUMID
+      CL2(KP) = CL1(KP)
+   60 CONTINUE
+C
+      DO 70 KP = 1, NUMDSC
+      DESC2(KP) = DESC1(KP)
+   70 CONTINUE
+C
+C.....GET THE PRECIP AMOUNT...ESTIMATION FLAG...AND GRID ADDRESS.
+C
+      JXRAIN  = IRAIN
+      IARAIN = IABS(JXRAIN)
+      CALL GFLAGS(JXRAIN, JFLAG)
+C
+      PRECIP  = IARAIN
+      PRECIP  = PRECIP/100.0 + 0.005
+      JPGRID = IPGRID
+C
+      RETURN
+      END

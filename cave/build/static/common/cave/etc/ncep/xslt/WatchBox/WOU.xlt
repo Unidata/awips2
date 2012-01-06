@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:import href="getIssueTime.xlt"/>
+<xsl:import href="getCountiesInState.xlt"/>
+<xsl:import href="getCoastalWaters.xlt"/>
+<xsl:import href="getStateLine.xlt"/>
+<xsl:import href="getStateFullName.xlt"/>
+<xsl:import href="wrapText.xlt"/>
+<xsl:output method = "text"/>
+
+<!--
+        WOU.xlt
+                - generate watch box WOU product 
+
+        Change Log:
+
+        B. Yin/Chugach  03/10   Initial Coding
+-->
+
+<xsl:variable name="newline"><xsl:text>
+ </xsl:text></xsl:variable>
+<xsl:variable name="tab"><xsl:text>&#x09;</xsl:text></xsl:variable>
+
+  <xsl:template match="WatchBox">
+	  <xsl:value-of select="$newline"/>
+          <xsl:text>WOUS64 KWNS </xsl:text>
+          <xsl:call-template name="getIssueTime"/>
+
+	  <xsl:value-of select="$newline"/>
+          <xsl:text>WOU</xsl:text>
+          <xsl:value-of select="@watchNumber"/>
+
+	  <xsl:value-of select="$newline"/>
+	  <xsl:value-of select="$newline"/>
+          <xsl:text>BULLETIN - IMMEDIATE BROADCAST REQUESTED</xsl:text>
+	  <xsl:value-of select="$newline"/>
+
+          <xsl:if test="@issueStatus = 'Test'">
+                <xsl:text>TEST...</xsl:text>
+          </xsl:if>
+
+          <xsl:text>TORNADO WATCH OUTLINE UPDATE FOR WT </xsl:text>
+          <xsl:value-of select="@watchNumber"/>
+          <xsl:if test="@issueStatus = 'Test'">
+                <xsl:text>...TEST</xsl:text>
+          </xsl:if>
+
+	  <xsl:value-of select="$newline"/>
+          <xsl:text>NWS STORM PREDICTION CENTER NORMAN OK</xsl:text>
+	  <xsl:value-of select="$newline"/>
+          <xsl:value-of select="@issueTime"/>
+
+	  <xsl:value-of select="$newline"/>
+	  <xsl:value-of select="$newline"/>
+          <xsl:text>TORNADO WATCH </xsl:text>
+          <xsl:value-of select="@watchNumber"/>
+          <xsl:text> IS IN EFFECT UNTIL </xsl:text>
+          <xsl:value-of select="@expTime"/>
+          <xsl:text> FOR THE </xsl:text>
+
+	  <xsl:value-of select="$newline"/>
+          <xsl:text> FOLLOWING LOCATIONS </xsl:text>
+
+	  <xsl:variable name="itime" select="@issueTime"/>
+	  <xsl:variable name="etime" select="@expTime"/>
+	  <xsl:variable name="wnumber" select="@watchNumber"/>
+
+	<!--generate contents for every state -->
+  	  <xsl:for-each select="States">
+	  	<xsl:value-of select="$newline"/>
+	  	<xsl:value-of select="$newline"/>
+
+		<xsl:variable name="longLine">
+			<xsl:call-template name="getStateLine">
+                       		<xsl:with-param name="state" select="."/>
+                	</xsl:call-template>
+               	</xsl:variable>
+
+		<xsl:call-template name="wrapText">
+			<xsl:with-param name="str" select="$longLine"/>
+			<xsl:with-param name="charPerLine" select="65"/>
+			<xsl:with-param name="sep" select="'-'"/>
+		</xsl:call-template>
+
+          	<xsl:value-of select="substring($etime,9,2)"/>
+          	<xsl:value-of select="substring($etime,12,2)"/>
+          	<xsl:value-of select="substring($etime,15,2)"/>
+	  	<xsl:value-of select="$newline"/>
+
+          	<xsl:text>/O.NEW.KWNS.TO.A.</xsl:text>
+		<xsl:call-template name="padZero">
+                      <xsl:with-param name="cnt" select="4 - string-length($wnumber)"/>
+                </xsl:call-template>
+	  	<xsl:value-of select="$wnumber"/>
+
+
+          	<xsl:text>.</xsl:text>
+          	<xsl:value-of select="substring($itime,3,2)"/>
+          	<xsl:value-of select="substring($itime,6,2)"/>
+          	<xsl:value-of select="substring($itime,9,2)"/>
+          	<xsl:text>T</xsl:text>
+          	<xsl:value-of select="substring($itime,12,2)"/>
+          	<xsl:value-of select="substring($itime,15,2)"/>
+          	<xsl:text>Z</xsl:text>
+          	<xsl:text>-</xsl:text>
+          	<xsl:value-of select="substring($etime,3,2)"/>
+          	<xsl:value-of select="substring($etime,6,2)"/>
+          	<xsl:value-of select="substring($etime,9,2)"/>
+          	<xsl:text>T</xsl:text>
+          	<xsl:value-of select="substring($etime,12,2)"/>
+          	<xsl:value-of select="substring($etime,15,2)"/>
+          	<xsl:text>Z</xsl:text>
+          	<xsl:text>/</xsl:text>
+
+	  	<xsl:value-of select="$newline"/>
+	  	<xsl:value-of select="$newline"/>
+
+		<xsl:variable name="stName">
+			<xsl:call-template name="getStateFullName">
+	  			<xsl:with-param name="st" select="."/>
+			</xsl:call-template>
+		</xsl:variable>
+
+		<xsl:choose>
+		  <xsl:when test="$stName='COASTAL WATERS'">
+          		<xsl:text>CW</xsl:text>
+	  		<xsl:value-of select="$newline"/>
+          		<xsl:text>. </xsl:text>
+
+			<xsl:text>ADJACENT COASTAL WATERS INCLUDED ARE </xsl:text>
+	  		<xsl:value-of select="$newline"/>
+			<xsl:call-template name="getCoastalWaters">
+                        	<xsl:with-param name="state" select="."/>
+                    	</xsl:call-template>
+		  </xsl:when>
+		  <xsl:otherwise>
+	  		<xsl:value-of select="."/>
+	  		<xsl:value-of select="$newline"/>
+          		<xsl:text>. </xsl:text>
+	  		<xsl:value-of select="$stName"/>
+
+			<xsl:choose>
+		  	   <xsl:when test="$stName='LOUISIANA'">
+				<xsl:text> PARISHES INCLUDED ARE </xsl:text>
+		  	   </xsl:when>
+		  	   <xsl:otherwise>
+				<xsl:text> COUNTIES INCLUDED ARE </xsl:text>
+		  	   </xsl:otherwise>
+			</xsl:choose>
+
+	  		<xsl:value-of select="$newline"/>
+	  		<xsl:value-of select="$newline"/>
+				<xsl:call-template name="getCountiesInState">
+                        		<xsl:with-param name="state" select="."/>
+                    		</xsl:call-template>
+	  		<xsl:value-of select="$newline"/>
+
+		  </xsl:otherwise>
+		</xsl:choose>
+
+          	<xsl:text>$$</xsl:text>
+           </xsl:for-each>
+
+	  <xsl:value-of select="$newline"/>
+	  <xsl:value-of select="$newline"/>
+	  <xsl:value-of select="$newline"/>
+          <xsl:text>ATTN...WFO...</xsl:text>
+	  <xsl:value-of select="@wfos"/>
+
+  </xsl:template>
+
+<!--
+	print zeros 
+	
+	parameter:
+		 cnt - number of zeros to print
+-->
+ <xsl:template name="padZero">
+        <xsl:param name="cnt"/>
+        <xsl:if test="$cnt > 0 ">
+              <xsl:text>0</xsl:text>
+              <xsl:call-template name="padZero">
+                         <xsl:with-param name="cnt" select="$cnt - 1"/>
+              </xsl:call-template>
+        </xsl:if>
+  </xsl:template>
+
+</xsl:stylesheet>
+  

@@ -1,0 +1,35 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Objectiveanalysis Plug-in
+Bundle-SymbolicName: com.raytheon.uf.viz.objectiveanalysis;singleton:=true
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Activator: com.raytheon.uf.viz.objectiveanalysis.Activator
+Bundle-Vendor: RAYTHEON
+Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ com.raytheon.uf.viz.core;bundle-version="1.11.17",
+ com.raytheon.uf.common.dataplugin;bundle-version="1.11.17",
+ com.raytheon.uf.common.time;bundle-version="1.11.17",
+ org.geotools;bundle-version="2.5.8",
+ com.raytheon.uf.common.geospatial;bundle-version="1.11.17",
+ com.raytheon.viz.pointdata;bundle-version="1.11.17",
+ com.raytheon.edex.common;bundle-version="1.11.17",
+ com.raytheon.uf.common.pointdata;bundle-version="1.11.17",
+ com.raytheon.edex.meteolib;bundle-version="1.11.17",
+ com.raytheon.viz.core;bundle-version="1.11.17",
+ javax.measure;bundle-version="1.0.0",
+ com.raytheon.uf.common.colormap;bundle-version="1.11.17",
+ com.raytheon.viz.grid;bundle-version="1.11.17",
+ com.raytheon.viz.core.contours;bundle-version="1.11.17",
+ com.raytheon.uf.viz.sounding;bundle-version="1.11.17",
+ com.raytheon.uf.common.dataplugin.bufrua;bundle-version="1.11.17"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.uf.viz.objectiveanalysis.rsc
+Import-Package: com.raytheon.uf.common.dataplugin.grib.spatial.projections,
+ com.raytheon.uf.common.dataplugin.level,
+ com.raytheon.uf.viz.derivparam.library,
+ com.raytheon.uf.viz.derivparam.tree,
+ com.raytheon.viz.ui,
+ com.raytheon.viz.ui.editor

@@ -1,0 +1,1 @@
+Despite all our efforts to combine sub-phrases based on statistics, we may still end up with identical words.  The "combineWords" method checks consecutive sub-phrases and combines any with identical wording. 

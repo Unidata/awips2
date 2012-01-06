@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry exported="true" kind="lib" path="externaljars/bsf.jar"/>
+	<classpathentry exported="true" kind="lib" path="externaljars/bsh-2.0b4.jar"/>
+	<classpathentry exported="true" kind="lib" path="externaljars/ChartDirector.jar"/>
+	<classpathentry exported="true" kind="lib" path="externaljars/fldat.jar"/>
+	<classpathentry exported="true" kind="lib" path="externaljars/ihfsdb.jar"/>
+	<classpathentry exported="true" kind="lib" path="externaljars/jcchart.jar"/>
+	<classpathentry exported="true" kind="lib" path="externaljars/jdom.jar"/>
+	<classpathentry exported="true" kind="lib" path="externaljars/junit.jar"/>
+	<classpathentry exported="true" kind="lib" path="externaljars/netcdfUI-2.2.22.jar"/>
+	<classpathentry exported="true" kind="lib" path="externaljars/postgresql-8.3-603.jdbc3.jar"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

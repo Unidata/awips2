@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="com.raytheon.uf.viz.xy.varheight.VarHeightEditor"
+            default="true"
+            icon="icons/varHeight.gif"  
+            id="com.raytheon.uf.viz.xy.varheight.VarHeightEditor"
+            name="Var Height">
+      </editor>
+      <editor
+            class="com.raytheon.uf.viz.xy.varheight.hodo.VarHeightHodoEditor"
+            default="true"
+            icon="icons/varHeight.gif"  
+            id="com.raytheon.uf.viz.xy.varheight.hodo.VarHeightHodoEditor"
+            name="Var Height With Hodograph">
+      </editor>
+   </extension>
+   <extension
+         point="com.raytheon.uf.viz.core.descriptor">
+      <descriptor
+      		name="VarHeightDescriptor"
+            class="com.raytheon.uf.viz.xy.varheight.display.VarHeightDescriptor"
+            editor="com.raytheon.uf.viz.xy.varheight.VarHeightEditor">
+      </descriptor>
+      <descriptor
+      		name="VarHeightHodoDescriptor"
+            class="com.raytheon.uf.viz.xy.varheight.hodo.VarHeightHodoDescriptor"
+            editor="com.raytheon.uf.viz.xy.varheight.hodo.VarHeightHodoEditor">
+      </descriptor>
+   </extension>
+   <extension-point id="com.raytheon.uf.viz.xy.varheight.varheightadapter" name="Var-Height Graph Adapter" schema="schema/com.raytheon.uf.viz.xy.varheight.varheightadapter.exsd"/>
+   <extension 
+         point="org.eclipse.ui.commands">
+         <command
+               id="com.raytheon.uf.viz.xy.height.setScale"
+               name="Set Scale">
+            <commandParameter
+                  id="scale"
+                  name="Scale"
+                  optional="false">
+            </commandParameter>
+         </command>
+   </extension>
+   <extension point="org.eclipse.ui.handlers">
+     <handler
+       class="com.raytheon.uf.viz.xy.varheight.util.ScaleHandler"
+       commandId="com.raytheon.uf.viz.xy.height.setScale">
+     </handler>
+   </extension>
+    <extension
+         point="org.eclipse.ui.menus">
+         <menuContribution
+               locationURI="menu:com.raytheon.viz.ui.scale">
+			<dynamic
+         		class="com.raytheon.uf.viz.xy.varheight.util.HeightScalePopulator"
+         		id="com.raytheon.uf.viz.xy.varheight.util.heightScalePopulator">
+			</dynamic>
+         </menuContribution>
+   </extension>
+</plugin>

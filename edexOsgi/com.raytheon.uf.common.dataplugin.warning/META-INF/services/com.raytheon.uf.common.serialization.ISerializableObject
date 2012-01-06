@@ -1,0 +1,8 @@
+com.raytheon.uf.common.dataplugin.warning.UGCZone
+com.raytheon.uf.common.dataplugin.warning.WarningRecord
+com.raytheon.uf.common.dataplugin.warning.PracticeWarningRecord
+com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration
+com.raytheon.uf.common.dataplugin.warning.config.DialogConfiguration
+com.raytheon.uf.common.dataplugin.warning.gis.GeospatialMetadata
+com.raytheon.uf.common.dataplugin.warning.gis.GeospatialTime
+com.raytheon.uf.common.dataplugin.warning.gis.GeospatialTimeSet

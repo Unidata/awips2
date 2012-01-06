@@ -1,0 +1,4 @@
+      character*4 areaid,artyp,bbid,adesc
+      common /arparm/ avers,areaid(2),artyp,iusea,adesc(5),bbid(2),
+     +                alat,alon,alath,alonh,laffg,kadurf,nadur,
+     +                aro(5),iropta,lacpd,affg(5)

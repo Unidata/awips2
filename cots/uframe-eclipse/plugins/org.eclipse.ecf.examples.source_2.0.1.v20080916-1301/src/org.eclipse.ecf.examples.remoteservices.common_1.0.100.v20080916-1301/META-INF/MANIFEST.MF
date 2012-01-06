@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %plugin.name
+Bundle-SymbolicName: org.eclipse.ecf.examples.remoteservices.common
+Bundle-Version: 1.0.100.qualifier
+Bundle-Activator: org.eclipse.ecf.internal.examples.remoteservices.common.Activator
+Bundle-Vendor: %plugin.provider
+Bundle-Localization: plugin
+Bundle-RequiredExecutionEnvironment: J2SE-1.4
+Import-Package: org.osgi.framework
+Eclipse-LazyStart: true
+Export-Package: org.eclipse.ecf.examples.remoteservices.common,
+ org.eclipse.ecf.internal.examples.remoteservices.common;x-internal:=true
+Bundle-ActivationPolicy: lazy

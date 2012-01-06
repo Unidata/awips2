@@ -1,0 +1,553 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+
+<?eclipse version="3.2"?>
+<plugin>
+   <extension-point id="contextualMenu" name="contextualMenu" schema="schema/contextualMenu.exsd"/>
+   <extension-point id="perspectiveManager" name="perspectiveManager" schema="schema/perspectiveManager.exsd"/>
+   <extension-point id="com.raytheon.uf.viz.ui.mouse.action" name="Mouse Preference" schema="schema/mousePreference.exsd"/>
+   
+   <extension
+         point="org.eclipse.ui.views">
+         
+      <category
+            id="com.raytheon.viz.ui"
+            name="Base Views"/>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.editorActions">
+      <editorContribution
+            id="com.raytheon.viz.ui.map.GLMapEditorContribution"
+            targetID="com.raytheon.viz.ui.glmap.GLMapEditor">
+      </editorContribution>
+   </extension>
+   <extension
+         point="com.raytheon.viz.ui.contextualMenu">
+      <contextualMenu
+            actionClass="com.raytheon.viz.ui.cmenu.ImagingAction"
+            capabilityClass="com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability"
+            name="Imaging"
+            sortID="5"/>
+      <contextualMenu
+            actionClass="com.raytheon.viz.ui.cmenu.ChangeColorAction"
+            capabilityClass="com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability"
+            name="Change Color"
+            sortID="10"/>
+      <contextualMenu
+            actionClass="com.raytheon.viz.ui.cmenu.ChangeColorMapAction"
+            capabilityClass="com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability"
+            name="ChangeColormap"
+            sortID="15"/>
+      <contextualMenu
+            actionClass="com.raytheon.viz.ui.cmenu.ColorEditDialogAction"
+            capabilityClass="com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability"
+            name="ColorEditDialog"
+            sortID="20">
+      </contextualMenu>
+      <contextualMenu
+            actionClass="com.raytheon.viz.ui.cmenu.RightClickSeparator"
+            name="100-------------"
+            sortID="100"/>
+      <contextualMenu
+            actionClass="com.raytheon.viz.ui.cmenu.RightClickSeparator"
+            name="200-------------"
+            sortID="200"/>
+      <contextualMenu
+            actionClass="com.raytheon.viz.ui.cmenu.RightClickSeparator"
+            name="300-------------"
+            sortID="300"/>
+      <contextualMenu
+            actionClass="com.raytheon.viz.ui.cmenu.RightClickSeparator"
+            name="400-------------"
+            sortID="400"/>
+      <contextualMenu
+            actionClass="com.raytheon.viz.ui.cmenu.RightClickSeparator"
+            name="500-------------"
+            sortID="500"/>
+      <contextualMenu
+            actionClass="com.raytheon.viz.ui.cmenu.ChangeLineStyleAction"
+            capabilityClass="com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability"
+            name="Change Line Style"
+            sortID="510"/>
+	  <contextualMenu
+         actionClass="com.raytheon.viz.ui.cmenu.ChangeLineWidthAction"
+         capabilityClass="com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability"
+         name="Change Line Width"
+         sortID="511"/>
+      <contextualMenu
+            actionClass="com.raytheon.viz.ui.cmenu.ChangePointStyleAction"
+            capabilityClass="com.raytheon.uf.viz.core.rsc.capabilities.PointCapability"
+            name="Change Point Style"
+            sortID="512">
+      </contextualMenu>
+      <contextualMenu
+         actionClass="com.raytheon.viz.ui.cmenu.ChangeMagnificationAction"
+         capabilityClass="com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability"
+         name="Change Magnification"
+         sortID="551"/>
+      <contextualMenu
+         actionClass="com.raytheon.viz.ui.cmenu.ChangeDensityAction"
+         capabilityClass="com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability"
+         name="Change Density"
+         sortID="552"/> 
+      <contextualMenu
+            actionClass="com.raytheon.viz.ui.cmenu.LabelAction"
+            capabilityClass="com.raytheon.uf.viz.core.rsc.capabilities.LabelableCapability"
+            name="Label"
+            sortID="520">
+      </contextualMenu>
+      <contextualMenu
+            actionClass="com.raytheon.viz.ui.cmenu.LabelOffsetAction"
+            capabilityClass="com.raytheon.uf.viz.core.rsc.capabilities.LabelableCapability"
+            name="Label Offset"
+            sortID="521">
+      </contextualMenu>
+      <contextualMenu
+            actionClass="com.raytheon.viz.ui.cmenu.ShadedAction"
+            capabilityClass="com.raytheon.uf.viz.core.rsc.capabilities.ShadeableCapability"
+            name="Shaded"
+            sortID="523">
+      </contextualMenu>
+      <contextualMenu
+            actionClass="com.raytheon.viz.ui.cmenu.RightClickSeparator"
+            name="600-------------"
+            sortID="600"/>
+      <contextualMenu
+            actionClass="com.raytheon.viz.ui.cmenu.RightClickSeparator"
+            name="700-------------"
+            sortID="700"/>
+      <contextualMenu
+            actionClass="com.raytheon.viz.ui.cmenu.RightClickSeparator"
+            name="800-------------"
+            sortID="800"/>
+      <contextualMenu
+            actionClass="com.raytheon.viz.ui.cmenu.MoveUpAction"
+            name="Move Up"
+            sortID="898"/>
+      <contextualMenu
+            actionClass="com.raytheon.viz.ui.cmenu.MoveDownAction"
+            name="Move Down"
+            sortID="899"/>
+      <contextualMenu
+            actionClass="com.raytheon.viz.ui.cmenu.RightClickSeparator"
+            name="900-------------"
+            sortID="900"/>
+     <contextualMenu
+         actionClass="com.raytheon.viz.ui.cmenu.ToggleEditableAction"
+         capabilityClass="com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability"
+         name="Editable"
+         sortID="901"/>
+      <contextualMenu
+            actionClass="com.raytheon.viz.ui.cmenu.EnableDisableAction"
+            name="Display Product"
+            sortID="998"/>
+      <contextualMenu
+            actionClass="com.raytheon.viz.ui.cmenu.RemoveResourceAction"
+            name="Unload"
+            sortID="999"/>
+   </extension>
+
+<extension
+      point="org.eclipse.ui.commands">
+	<category
+       id="com.raytheon.uf.viz.core.commandCategory"
+       name="Viz Core Commands">
+	</category>
+	<command
+           id="com.raytheon.viz.ui.clear"
+           categoryId="com.raytheon.uf.viz.core.commandCategory"
+     	   description="Clear the active editor"
+           name="Clear">
+    </command>
+    <command
+           categoryId="com.raytheon.viz.ui.modalTool"
+           id="pan"
+           name="Pan">
+    </command>
+    <command
+           id="com.raytheon.viz.ui.scalebutton"
+           name="Update Scale Button">
+    </command>
+    <command
+           id="com.raytheon.viz.ui.setScale"
+           name="Set Scale">
+       <commandParameter
+              id="scale"
+              name="Scale"
+              optional="false">
+       </commandParameter>
+    </command>
+	<command
+         id="com.raytheon.uf.viz.ui.actions.toggleToolbarHandler"
+         categoryId="com.raytheon.uf.viz.core.commandCategory"
+         description="Toggles the visibility of the tool/perspective bar"
+         name="Toogle Toolbar">
+   </command>
+   <command
+         id="com.raytheon.viz.ui.actions.printScreenAction"
+         categoryId="com.raytheon.uf.viz.core.commandCategory"
+         description="Print the currently active editor"
+         name="Print Screen">
+   </command>
+   <command
+         id="com.raytheon.viz.ui.newPage"
+         name="New Window">
+   </command>
+   <command
+         id="com.raytheon.viz.ui.actions.saveScreen"
+         categoryId="com.raytheon.uf.viz.core.commandCategory"
+      	 description="Save the current screen"
+         name="Save Screen">
+   </command>
+      <command
+            id="com.raytheon.viz.ui.actions.notImplemented"
+            name="Not Implemented">
+      </command>
+      <command
+            id="com.raytheon.viz.ui.actions.nullAction"
+            name="Null Action">
+      </command>
+      <command
+            id="com.raytheon.viz.ui.actions.titleAction"
+            name="Title Action">
+      </command>
+      <command
+            id="com.raytheon.viz.ui.actions.nullAction2"
+            name="Null Action2">
+      </command>
+      <command
+            id="com.raytheon.viz.ui.actions.setframes"
+            name="Set Frame Count">
+         <commandParameter
+               id="frameCount"
+               name="Frame Count"
+               optional="false">
+         </commandParameter>
+      </command>
+      <command
+            id="com.raytheon.viz.ui.actions.framesbutton"
+            name="Frames Button Updater">
+      </command>
+      <command
+            id="com.raytheon.viz.ui.actions.setmagnification"
+            name="Set Magnification">
+         <commandParameter
+               id="magnification"
+               name="Magnification"
+               optional="false">
+         </commandParameter>
+      </command>
+      <command
+            id="com.raytheon.viz.ui.actions.magnificationbutton"
+            name="Magnification Updater">
+      </command>
+      <command
+            id="com.raytheon.viz.ui.actions.setdensity"
+            name="Set Density">
+         <commandParameter
+               id="density"
+               name="density"
+               optional="false">
+         </commandParameter>
+      </command>
+      <command
+            id="com.raytheon.viz.ui.actions.densitybutton"
+            name="Density Updater">
+      </command>
+      <command
+            id="com.raytheon.viz.ui.saveBundle"
+            categoryId="com.raytheon.uf.viz.core.commandCategory"
+      	    description="Saves a bundle to the file system"
+            name="Save Bundle">
+      </command>
+      <command
+            id="com.raytheon.viz.ui.saveProcedure"
+            categoryId="com.raytheon.uf.viz.core.commandCategory"
+      	    description="Saves a procedure to the file system"
+            name="Save Procedure">
+      </command>
+      <command
+            id="com.raytheon.viz.ui.loadSerialized"
+            categoryId="com.raytheon.uf.viz.core.commandCategory"
+      	    description="Loads a saved editor or perspective state from the file system"
+            name="Load Procedure">
+      </command>
+      <command
+            id="com.raytheon.viz.ui.actions.training"
+            name="Training Mode: Archive">
+      </command>
+      <command
+            id="com.raytheon.viz.ui.actions.trainingPlayback"
+            name="Training Mode: Playback">
+      </command>
+      <category 
+            id="com.raytheon.viz.ui.modalTool"
+            name="Modal Tool">
+      </category>
+      <command
+            id="com.raytheon.viz.ui.createProjection"
+            categoryId="com.raytheon.uf.viz.core.commandCategory"
+      	    description="Command to create a new projection"
+            name="Create Projection">
+      </command>
+      <commandParameterType
+            converter="com.raytheon.viz.ui.parameter.converters.IntegerParameterValueConverter"
+            id="com.raytheon.viz.ui.parameter.Integer"
+            type="java.lang.Integer">
+      </commandParameterType>
+      <command
+            categoryId="com.raytheon.uf.viz.core.commandCategory"
+            description="Print the currently active editor in reverse"
+            id="com.raytheon.viz.ui.actions.printScreenReverseAction"
+            name="Print Screen Reverse">
+      </command>
+
+</extension>
+<extension
+      point="org.eclipse.ui.handlers">
+   <handler
+   		class="com.raytheon.viz.ui.actions.NewFourPanelEditor"
+   		commandId="com.raytheon.viz.ui.window.new4Editor">
+		<activeWhen>
+	 		<with
+	               variable="activeContexts">
+	            <iterate
+	                  operator="or">
+	               <equals
+	                     value="com.raytheon.viz.ui.context">
+	               </equals>
+	            </iterate>
+	         </with>
+ 		</activeWhen>
+   </handler>
+   <handler 
+ 		class="com.raytheon.viz.ui.actions.NewAbstractEditor"
+ 		commandId="org.eclipse.ui.window.newEditor">
+ 		<activeWhen>
+	 		<with
+	               variable="activeContexts">
+	            <iterate
+	                  operator="or">
+	               <equals
+	                     value="com.raytheon.viz.ui.context">
+	               </equals>
+	            </iterate>
+	         </with>
+ 		</activeWhen>
+   </handler>   
+   <handler
+         class="com.raytheon.viz.ui.actions.ToggleToolbarHandler"
+         commandId="com.raytheon.uf.viz.ui.actions.toggleToolbarHandler">
+   </handler>
+   <handler
+         class="com.raytheon.viz.ui.actions.PrintScreenAction"
+         commandId="com.raytheon.viz.ui.actions.printScreenAction">
+   </handler>
+   <handler
+         class="com.raytheon.viz.ui.actions.NewPageAction"
+         commandId="com.raytheon.viz.ui.newPage">
+   </handler>
+   <handler
+         class="com.raytheon.viz.ui.actions.SaveScreenAction"
+         commandId="com.raytheon.viz.ui.actions.saveScreen">
+   </handler>
+   <handler
+         class="com.raytheon.viz.ui.actions.NotImplementedAction"
+         commandId="com.raytheon.viz.ui.actions.notImplemented">
+   </handler>
+   <handler
+         class="com.raytheon.viz.ui.actions.NullAction"
+         commandId="com.raytheon.viz.ui.actions.nullAction">
+   </handler>
+   <handler
+         class="com.raytheon.viz.ui.actions.NullAction"
+         commandId="com.raytheon.viz.ui.actions.titleAction">
+         <enabledWhen>
+             <with
+                   variable="selection">
+                   <equals
+                         value="false">
+                   </equals>
+             </with>
+         </enabledWhen>
+   </handler>
+   <handler
+         class="com.raytheon.viz.ui.actions.NullAction2"
+         commandId="com.raytheon.viz.ui.actions.nullAction2">
+   </handler>
+   <handler
+         class="com.raytheon.viz.ui.actions.FramesHandler"
+         commandId="com.raytheon.viz.ui.actions.setframes">
+   </handler>
+   <handler
+         class="com.raytheon.viz.ui.actions.FramesButtonHandler"
+         commandId="com.raytheon.viz.ui.actions.framesbutton">
+   </handler>
+   <handler
+         class="com.raytheon.viz.ui.actions.SaveBundle"
+         commandId="com.raytheon.viz.ui.saveBundle">
+   </handler>
+   <handler
+         class="com.raytheon.viz.ui.actions.SaveProcedure"
+         commandId="com.raytheon.viz.ui.saveProcedure">
+   </handler>
+   <handler
+         class="com.raytheon.viz.ui.actions.LoadSerializedXml"
+         commandId="com.raytheon.viz.ui.loadSerialized">
+   </handler>
+   <handler
+         class="com.raytheon.viz.ui.actions.PrintScreenReverseAction"
+         commandId="com.raytheon.viz.ui.actions.printScreenReverseAction">
+   </handler>
+</extension>
+<extension
+      point="org.eclipse.ui.menus">
+   <menuContribution
+         locationURI="menu:file.new">
+      <command
+            commandId="com.raytheon.viz.ui.createProjection"
+            label="Map Projection..."
+            style="push">
+      </command>
+   </menuContribution>
+</extension>
+<extension
+      point="org.eclipse.ui.contexts">
+   <context
+         description="The Map Context"
+         id="com.raytheon.viz.ui.mapContext"
+         name="MapContext">
+   </context>
+   <context
+         description="The Looping Context"
+         id="com.raytheon.viz.ui.loopContext"
+         name="LoopContext">
+   </context>
+   <context
+         description="The General Context"
+         id="com.raytheon.viz.ui.context"
+         name="context">
+   </context>
+</extension>
+<extension
+      point="org.eclipse.ui.preferencePages">
+   <page
+         class="com.raytheon.viz.ui.input.preferences.MousePreferencePage"
+         id="com.raytheon.viz.ui.input.preferences.MousePreferencePage"
+         name="Mouse">
+   </page>
+</extension>
+<extension
+      point="org.eclipse.core.runtime.preferences">
+</extension>
+<extension
+      point="com.raytheon.uf.viz.ui.mouse.action">
+      <mouseAction 
+      	id="com.raytheon.viz.ui.input.pan"
+      	default="Left Drag,Middle Drag"
+      	description="Pan"
+      	eventOptions="Left Drag,Middle Drag"
+      	name="Panning" 
+      	category="Navigation">
+      </mouseAction>
+      <mouseAction 
+      	id="com.raytheon.viz.ui.input.zoomin"
+      	default="Scroll Forward,Middle Click"
+      	description="Zoom In"
+      	eventOptions="Long Left Click,Long Middle Click,Left Click,Middle Click,Right Click,Scroll Forward,Scroll Back"
+      	name="Zoom In" 
+      	category="Navigation">
+      </mouseAction>
+     <mouseAction 
+      	id="com.raytheon.viz.ui.input.zoomout"
+      	default="Scroll Back"
+      	description="Zoom out"
+      	eventOptions="Long Left Click,Long Middle Click,Left Click,Middle Click,Right Click,Scroll Forward,Scroll Back"
+      	name="Zoom Out" 
+      	category="Navigation">
+      </mouseAction>
+      <mouseAction 
+      	id="com.raytheon.viz.ui.input.inspect"
+      	description="Sample loaded resources"
+      	eventOptions="Left Click,Middle Click,Long Left Click,Long Middle Click"
+      	name="Sample" 
+      	category="Editor Action">
+      </mouseAction>
+      <mouseAction 
+      	id="com.raytheon.viz.ui.clear"
+      	description="Reset a map, removing all maps and resources"
+      	eventOptions="Left Click,Middle Click,Right Click,Scroll Forward,Scroll Back"
+      	name="Clear" 
+      	category="Editor Action">
+      </mouseAction>
+      <mouseAction 
+      	id="com.raytheon.viz.ui.input.resource.edit"
+      	default="Middle Click"
+      	description="Toggle Editable mode on editable resources"
+      	eventOptions="Left Click,Middle Click"
+      	name="Edit Resource" 
+      	category="Legend Interaction">
+      </mouseAction>
+      <mouseAction 
+      	id="com.raytheon.viz.ui.contextmenu"
+      	default="Long Right Click"
+      	description="Load Context Menu"
+      	eventOptions="Right Click,Long Right Click"
+      	name="Context Menu" 
+      	category="Editor Action">
+      </mouseAction>
+	</extension>
+  <extension
+       point="org.eclipse.core.expressions.definitions">
+      <definition
+            id="com.raytheon.viz.ui.inVizActionSet">
+         <with variable="activeContexts">
+         	<iterate operator="or">
+         		<equals value="com.raytheon.viz.ui.context">
+         		</equals>
+         	</iterate>
+         </with>
+      </definition>
+  </extension>
+	<extension
+	      point="com.raytheon.uf.viz.core.classContext">
+	      <classContext
+             class="com.raytheon.viz.ui.perspectives.AbstractCAVEPerspectiveManager">
+	          <contextId
+	                id="com.raytheon.viz.ui.context">
+	          </contextId>
+	          <contextId
+	                id="com.raytheon.viz.ui.loopContext">
+	          </contextId>
+	      </classContext>
+   </extension>
+   <extension
+       point="com.raytheon.uf.viz.localization.localizationpath">
+       <path
+          application="CAVE"
+          localizationType="CAVE_STATIC"
+          name="Color Maps"
+          value="colormaps" 
+          recursive="true">
+       </path>
+   </extension>
+</plugin>

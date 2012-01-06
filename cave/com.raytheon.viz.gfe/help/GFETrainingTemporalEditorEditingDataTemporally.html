@@ -1,0 +1,296 @@
+<html>
+<title>GFESuite Documentation - Editing Data Temporally</title>
+<body>
+<h1 align=center>Editing Data Temporally</h1>
+<br><a href="#EditingScalarDataTemporally">Editing Scalar Data Temporally</a>
+<br><a href="#EditingVectorDataTemporally">Editing Vector Data Temporally</a>
+<br><a href="#EditingWeatherDataTemporally">Editing Weather Data Temporally</a>
+<br><a href="#EditingDiscreteDataTemporally">Editing Discrete Data Temporally</a><!-- Leave this comment in for formatting purposes -->
+<hr width="100%">
+
+<h3 CLASS="2Heading">
+<a NAME="EditingScalarDataTemporally"></a>Editing Scalar Data Temporally</h3>
+
+<ul>
+<li CLASS="4Heading">
+<b>Purpose:</b> Modify a scalar grid values using the temporal editor</li>
+</ul>
+
+<div CLASS="Body">Before you begin: Set up your GFE so that the spatial
+and temporal editors are visible. Load T (temperature) via the Weather
+Element->Weather Element Browser... dialog.</div>
+
+<div CLASS="Step-First">
+<ol>
+<li>
+Make or find a temperature grid and display it as an image in the spatial
+editor.</li>
+
+<li>
+Clear the edit area by clicking MB1 on the Clear button.</li>
+
+<li>
+Use the Select Points tool to define an edit area the size of a few counties.</li>
+
+<li>
+Find the T (temperature) weather element in the temporal editor. Vertically
+stretch the size of the temporal editor pane so that there's plenty of
+room to see the time series display.</li>
+
+<li>
+In the temporal scale, located to the left of the time series display,
+click MB2 to zoom in until the minimum and maximum values are about 20
+degrees F apart.</li>
+
+<li>
+Find the data point in the time series that represents the grid displayed
+in the spatial editor. This point is identified by the dotted yellow line.</li>
+
+<li>
+Click MB1 about 10 degrees F above the data point. Note the change in the
+spatial editor display. All the points you identified in the spatial editor
+have been assigned the value you selected in the temporal editor.&nbsp;
+This is called the "absolute" mode for temporal editing.</li>
+
+<li>
+Initialize about 12 hours worth of temperature data from you favorite model.
+Use the interpolation facility (Grids->Interpolate) to fill in the gaps
+and get a smooth time-series curve.</li>
+
+<li>
+Back in the temporal editor pane, move the cursor to somewhere near left
+side of the time-series display. Move the cursor over one of the horizontal
+lines that display the temporal values and press and hold MB1 and slowly
+drag horizontally to define a new temperature curve. As you move the cursor
+to the next data point, it should snap to your cursor position. Each time
+this happens, you are modifying data in a different grid. Note that you
+MUST start the edit operation over one of the displayed values.&nbsp; Starting
+the operation in a gap will not modify any data.</li>
+
+<li>
+Release MB1.</li>
+
+<li>
+Step through your newly-modified grids using the Grid Manager or the Step
+Forward / Step Backwards buttons
+to see that you modified a series of grids with one edit operation.</li>
+</ol>
+</div>
+
+<div CLASS="Body">Repeat this exercise until you are comfortable using
+the Adjust Scalar temporal tool. This and all the temporal tools are capable
+of modifying a large quantity of data with only a few edit operations.
+Used properly, these tools can save you lots of time.</div>
+
+<h3 CLASS="2Heading">
+<a NAME="EditingVectorDataTemporally"></a>Editing Vector Data Temporally</h3>
+
+<ul>
+<li CLASS="4Heading">
+<b>Purpose:</b> Modify a vector grid values using the temporal editor</li>
+</ul>
+
+<div CLASS="Body">Before you begin: Set up your GFE so that the spatial
+and temporal editors are visible. Load Wind via the Weather Element->Weather
+Element Browser... dialog. Make sure that the GFE->Editing Preferences->Temporal
+Edit Mode: Relative is deselected..</div>
+
+<div CLASS="Step-First">
+<ol>
+<li>
+Make or find a Wind grid and display it as an image in the spatial editor.</li>
+
+<li>
+Set the Vector edit mode located main menu bar GFE->Editing Preferences->Vector
+Edit Mode->Both to edit both magnitude and direction.</li>
+
+<li>
+Use the Select Points tool to define an edit area the size of a few counties.</li>
+
+<li>
+Find the Wind weather element in the temporal editor. Vertically stretch
+the size of the temporal editor pane so that there's plenty of room to
+see the time series display.</li>
+
+<li>
+In the temporal scale, located to the left of the time series display,
+click MB2 to zoom in until the minimum and maximum values are about 20
+knots F apart. Clicking MB1 zooms out. Dragging MB1 pans the scale.</li>
+
+<li>
+Find the data point in the time series that represents the grid displayed
+in the spatial editor. This point is identified by the dotted yellow line.</li>
+
+<li>
+Click MB1 about 10 knots above the data point. Note the change in the spatial
+editor display. All the points you identified in the spatial editor have
+been assigned the value you selected in the temporal editor.</li>
+
+<li>
+Release MB1.</li>
+
+<li>
+Press and hold MB1 and move the cursor up or down to adjust the vector
+data point again. Note how the wind barb updates as you adjust the magnitude.</li>
+
+<li>
+Release MB1.</li>
+</ol>
+</div>
+
+<div CLASS="Body">If you're editing wind magnitude only, the vector adjust
+tool works just like the scalar adjust tool. It's when you edit the direction
+that things get interesting.</div>
+
+<ol>
+<li CLASS="Step">
+Press and hold down the Shift key on your keyboard.</li>
+
+<li CLASS="Step">
+Move the cursor over any wind data point, press and hold MB1 and adjust.
+Note that the wind direction is changing while the magnitude remains constant.&nbsp;
+The wind direction shifts from North clockwise and back to North as you
+move from the lower extreme of the temporal pane to the upper extreme of
+the temporal pane.</li>
+
+<li CLASS="Step">
+Release MB1.</li>
+</ol>
+
+<div CLASS="Body">This exercise demonstrates that with the Shift button
+up, the temporal adjust vector tool changes the magnitude. With the Shift
+button down, the tool changes the wind direction.</div>
+
+<h3 CLASS="2Heading">
+<a NAME="EditingWeatherDataTemporally"></a>Editing Weather Data Temporally</h3>
+
+<ul>
+<li CLASS="4Heading">
+<b>Purpose:</b> Modify a weather grid values using the temporal editor</li>
+</ul>
+
+<div CLASS="Body">Before you begin: Set up your GFE so that the spatial
+and temporal editors are visible. Load Wx via the Weather Element->Weather
+Element Browser... dialog. Make sure that the TE Edit Mode: Relative button
+is still deselected.</div>
+
+<div CLASS="Step-First">
+<ol>
+<li>
+Make or find a Wx grid and display it as an image in the spatial editor.</li>
+
+<li>
+Use the Select Points tool to define an edit area the size of a few counties.</li>
+
+<li>
+Find the Wx weather element in the temporal editor. Vertically stretch
+the size of the temporal editor pane so that there's plenty of room to
+see the time series display.</li>
+
+<li>
+In the Spatial Editor legend, select a pickup value by clicking MB2. You
+may need to invoke the <a href="ButtonBarDialogs.html#PickUpValueDialog">set
+value dialog</a> to add additional weather types.</li>
+
+<li>
+Find the data point in the time series that represents the grid displayed
+in the spatial editor. This point is identified by the dotted yellow line.</li>
+
+<li>
+Click MB1 on this data point in the Wx pane of the temporal editor. You
+should see the temporal editor paint the same color/pattern as you selected
+in the spatial editor legend. The spatial editor will show you that the
+area that you selected in Step 2 has been set to this new value. Even if
+there were multiple weather types displayed previously, when the MB1 action
+is executed, all grid points in the edit area will be set to the new value.</li>
+</ol>
+There are several other ways to change the data in the temporal editor
+for Wx.&nbsp; A MB3 popup menu over a data point in the time series will
+bring up a menu containing several items.&nbsp; The items that will edit
+the data are Set..., Set to Recent Value..., and Set to Common Value....&nbsp;
+The Set... brings up the <a href="TemporalEditorDialogs.html#SetWeatherDialog">Set
+Weather Dialog</a>.&nbsp; The Set to Recent Value brings up a cascade menu
+of recently set pickup values for weather, and the Set to Common Value...
+brings up a cascade menu of commonly set pickup values.&nbsp; Unlike the
+<a href="Button3Popups.html#SpatialEditorColorBarPopupMenu">color
+bar on the spatial editor</a>, these menu entries set not only the pickup
+value, but also modify the data.
+<p>The set of common weather values are site-configurable through the gfe
+configuration file's <a href="gfeConfig.html#WeatherCommonValueDefinitions">common
+weather values entry</a>.
+<br>&nbsp;</div>
+
+<div CLASS="Body">The temporal Set Value tool does not support drag operations
+as with the scalar and vector tools. Only MB1 clicks, or selection of a
+common value, recent value, or using the Set... will modify data in the
+Wx pane.
+<p>MB2 click on a weather value in the temporal editor display can also
+be used to set the pick-up value.
+<br>&nbsp;
+<h3 CLASS="2Heading">
+<a NAME="EditingDiscreteDataTemporally"></a>Editing Discrete Data Temporally</h3>
+
+<ul>
+<li CLASS="4Heading">
+<b>Purpose:</b> Modify a discrete grid values using the temporal editor</li>
+</ul>
+
+<div CLASS="Body">Before you begin: Set up your GFE so that the spatial
+and temporal editors are visible. Load Wx via the Weather Element->Weather
+Element Browser... dialog. Make sure that the TE Edit Mode: Relative button
+is still deselected.</div>
+
+<div CLASS="Step-First">
+<ol>
+<li>
+Make or find a DISCRETE grid, such as Headlines,&nbsp; and display it as
+an image in the spatial editor.</li>
+
+<li>
+Use the Select Points tool to define an edit area the size of a few counties.</li>
+
+<li>
+Find the DISCRETE weather element in the temporal editor. Vertically stretch
+the size of the temporal editor pane so that there's plenty of room to
+see the time series display.</li>
+
+<li>
+In the Spatial Editor legend, select a pickup value by clicking MB2. You
+may need to invoke the <a href="ButtonBarDialogs.html#PickUpValueDialog">set
+value dialog</a> to add additional discrete types for the weather element
+you have chosen.</li>
+
+<li>
+Find the data point in the time series that represents the grid displayed
+in the spatial editor. This point is identified by the dotted yellow line.</li>
+
+<li>
+Click MB1 on this data point in the Discrete pane of the temporal editor.
+You should see the temporal editor paint the same color/pattern as you
+selected in the spatial editor legend. The spatial editor will show you
+that the area that you selected in Step 2 has been set to this new value.</li>
+</ol>
+There are several other ways to change the data in the temporal editor
+for discrete weather elements.&nbsp; A MB3 popup menu over a data point
+in the time series will bring up a menu containing several items.&nbsp;
+The items that will edit the data are Set..., Set to Recent Value..., and
+Set to Common Value....&nbsp; The Set... brings up the <a href="TemporalEditorDialogs.html#SetDiscreteDialog">Set
+Discrete Dialog</a>.&nbsp; The Set to Recent Value brings up a cascade
+menu of recently set pickup values for weather, and the Set to Common Value...
+brings up a cascade menu of commonly set pickup values.&nbsp; Unlike the
+<a href="Button3Popups.html#SpatialEditorColorBarPopupMenu">color
+bar on the spatial editor</a>, these menu entries set not only the pickup
+value, but also modify the data.
+<p>The set of common discrete values are site-configurable through the
+gfe configuration file's <a href="gfeConfig.html#WeatherCommonValueDefinitions">common
+discrete values entry</a>.
+<br>&nbsp;</div>
+
+<div CLASS="Body">The temporal Set Value tool does not support drag operations
+as with the scalar and vector tools. Only MB1 clicks, or selection of a
+common value, recent value, or using the Set... will modify data in the
+pane containing the Discrete weather element.
+<p>MB2 click on a discrete value in the temporal editor display can also
+be used to set the pick-up value.</div>
+</body>
+</html>

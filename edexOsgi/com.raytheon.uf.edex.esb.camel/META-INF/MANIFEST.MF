@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Camel Plug-in
+Bundle-SymbolicName: com.raytheon.uf.edex.esb.camel
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Vendor: Raytheon
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: org.apache.camel;bundle-version="1.0.0",
+ javax.jms,
+ com.raytheon.edex.common;bundle-version="1.10.7",
+ org.apache.activemq;bundle-version="5.1.0",
+ org.apache.http;bundle-version="3.0.1",
+ com.raytheon.uf.common.localization;bundle-version="1.11.17",
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.edex.core,
+ org.apache.commons.logging,
+ javax.servlet
+Export-Package: com.raytheon.uf.edex.esb.camel,
+ com.raytheon.uf.edex.esb.camel.directvm
+Import-Package: com.raytheon.uf.common.message,
+ com.raytheon.uf.edex.database.cluster,
+ javax.persistence

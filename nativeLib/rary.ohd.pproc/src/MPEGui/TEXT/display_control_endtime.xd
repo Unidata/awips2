@@ -1,0 +1,145 @@
+module 'XApplication'
+version = 47;
+xdesigned = 1;
+applicationName = 'XApplication';
+sourceDirectory = '/fs/awips/whfs/dev/HP/whfs/source/utilfunc/mpe_gui/src/';
+generateNameC = * 'display_control_endtime.c';
+generateNameExterns = * 'display_control_endtime.h';
+generateCHeaderFile = 'display_control_endtime.h';
+generateMask = 4390924;
+useMask = 0;
+ansiC = 1;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 1;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+javaUnselectedFiles = '';
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'accum_endtimeControlDS' : XmDialogShell {
+	arguments {
+	name = 'accum_endtimeControlDS';
+	lastGenName = 'accum_intervalControlDS';
+	XmNallowShellResize = true;
+	XmNtitle = 'Accumulation Endtime';
+	XmNminWidth = 250;
+	XmNminHeight = 125;
+	XmNmaxWidth = 250;
+	XmNmaxHeight = 125;
+	XmNbaseWidth = 250;
+	XmNbaseHeight = 125;
+	};
+object 'accum_endtimeControlFO' : XmForm {
+	arguments {
+	name = 'accum_endtimeControlFO';
+	lastGenName = 'accum_intervalControlFO';
+	XmNwidth = 250;
+	XmNheight = 125;
+	XmNautoUnmanage = false;
+	};
+object 'accum_endtimeSC' : XmScale {
+	arguments {
+	name = 'accum_endtimeSC';
+	lastGenName = 'accum_intervalSC';
+	XmNshowValue = true;
+	XmNminimum = 0;
+	XmNmaximum = 23;
+	XmNvalue = 12;
+	XmNorientation = 2;
+	XmNprocessingDirection = 3;
+	};
+};
+object 'accum_endtimeLA' : XmLabel {
+	arguments {
+	name = 'accum_endtimeLA';
+	was_selected = true;
+	lastGenName = 'accum_intervalLA';
+	XmNlabelString = 'Accumulation Endtime';
+	};
+};
+object 'accum_endtimeSP' : XmSeparator {
+	arguments {
+	name = 'accum_endtimeSP';
+	lastGenName = 'accum_intervalSP';
+	};
+};
+object 'accum_endtimeOkPB' : XmPushButton {
+	arguments {
+	name = 'accum_endtimeOkPB';
+	lastGenName = 'accum_intervalOkPB';
+	generateResName = true;
+	XmNwidth = 65;
+	XmNheight = 30;
+	XmNlabelString = 'Ok';
+	};
+};
+object 'accum_endtimeCancelPB' : XmPushButton {
+	arguments {
+	name = 'accum_endtimeCancelPB';
+	lastGenName = 'accum_intervalCancelPB';
+	generateResName = true;
+	XmNx = 92;
+	XmNy = 87;
+	XmNwidth = 65;
+	XmNheight = 30;
+	XmNlabelString = 'Cancel';
+	};
+};
+object 'accum_endtimeHelpPB' : XmPushButton {
+	arguments {
+	name = 'accum_endtimeHelpPB';
+	lastGenName = 'accum_intervalHelpPB';
+	generateResName = true;
+	XmNwidth = 65;
+	XmNheight = 30;
+	XmNlabelString = 'Help';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -249;
+	XmNleftAttachment = 1 0 2;
+	XmNbottomAttachment = 2 0 -42;
+	XmNtopAttachment = 1 0 7;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 43;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -245;
+	XmNleftAttachment = 1 0 3;
+	XmNbottomAttachment = 2 0 -82;
+	XmNtopAttachment = 1 0 71;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 3;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 87;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 92;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 87;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 178;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 87;
+    };
+    };
+};
+};
+end module;

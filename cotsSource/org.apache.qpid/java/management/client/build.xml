@@ -1,0 +1,213 @@
+<!--
+ -
+ - Licensed to the Apache Software Foundation (ASF) under one
+ - or more contributor license agreements.  See the NOTICE file
+ - distributed with this work for additional information
+ - regarding copyright ownership.  The ASF licenses this file
+ - to you under the Apache License, Version 2.0 (the
+ - "License"); you may not use this file except in compliance
+ - with the License.  You may obtain a copy of the License at
+ - 
+ -   http://www.apache.org/licenses/LICENSE-2.0
+ - 
+ - Unless required by applicable law or agreed to in writing,
+ - software distributed under the License is distributed on an
+ - "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ - KIND, either express or implied.  See the License for the
+ - specific language governing permissions and limitations
+ - under the License.
+ -
+ -->
+<project name="QMan - Qpid JMX / WS-DM Adapter" default="build">
+
+    <property name="module.depends" value="client common"/>
+    <property name="module.test.depends" value="client common"/>
+	
+	<import file="../../module.xml"/>
+
+    <property name="build.root" value="${module.build}"/>
+    <property name="web.module" value="${module.build}${file.separator}wsdm-module"/>	
+    <property name="web-inf.folder" value="${web.module}${file.separator}WEB-INF"/>
+    <property name="classes.folder" value="${web-inf.folder}${file.separator}classes"/>
+	<property name="examples.folder" value="${module.build}${file.separator}examples"/>
+
+	<target name="release-bin-other">
+		<mkdir dir="${module.release}${file.separator}log"/>
+		<mkdir dir="${module.release}${file.separator}examples"/>
+		<mkdir dir="${module.release}${file.separator}examples${file.separator}sample_messages"/>
+	
+	</target>
+	
+    <target name="release-bin" depends="release-bin-tasks"/>
+    
+	<target name="resources-release" description="copy resources into module release">
+		<copy todir="${module.release}" failonerror="false" flatten="true">
+			<fileset dir="${resources}" excludes="META-INF">
+				<exclude name="META-INF"/>
+				<exclude name="README"/>
+			</fileset>
+			<fileset file="${module.build}${file.separator}README"/>
+	    </copy>
+	</target>
+
+	<target name="libs-release" description="copy dependencies into module release">
+	    <copy todir="${module.release}${file.separator}" failonerror="true" verbose="true">
+	    	<fileset dir="${build}" casesensitive="yes" includes="${module.libs}">
+	    		<not><filename name="**/*javassist*"/></not>	
+	    		<not><filename name="**/*xml-api*"/></not>	    		
+	    		<not><filename name="**/*xerces*"/></not>	    		
+	    		<not><filename name="**/*xalan*"/></not>	    		
+	    		<not><filename name="**/*wsdl*"/></not>	    		
+	    		<not><filename name="**/*muse*"/></not>
+	    		<not><filename name="**/*jsp*"/></not>
+		    		<not><filename name="**/*core-3.1.1.jar*"/></not>
+	    	</fileset>
+	    </copy>
+		<copy todir="${module.release}${file.separator}lib" failonerror="true">
+		    <fileset file="${module.jar}"/>
+		    <fileset dir="${build.lib}" includes="${module.depends.jars}"/>
+		</copy>
+		<mkdir dir="${module.release}${file.separator}app${file.separator}qman"/>
+		<copy todir="${module.release}${file.separator}app${file.separator}qman" failonerror="true">
+		    <fileset dir="${web.module}" includes="*/**"/>
+		</copy>
+		<mkdir dir="${module.release}${file.separator}examples"/>
+		<copy todir="${module.release}${file.separator}examples">
+			<fileset dir="${examples.folder}"/> 		
+		</copy>	
+	</target>
+	
+	<target name="prepare-wsdm-module">        
+        <mkdir dir="${web.module}"/>
+        <mkdir dir="${web-inf.folder}"/>
+    	<mkdir dir="${classes.folder}"/>
+        <copy file=".${file.separator}web.xml" todir="${web-inf.folder}" verbose="false"/>
+	 	<copy todir="${classes.folder}" verbose="false">
+        	<fileset dir="${module.classes}">            	
+				<include name="wsdl/**"/>
+            	<include name="muse.xml"/>
+            	<include name="router-entries/**"/>
+			</fileset>  
+		</copy>         
+        <copy todir="${web-inf.folder}">
+            <fileset dir="${build}" includes="${module.libs}">
+            	<exclude name="lib/jetty*.jar"/>
+                <exclude name="lib/start*.jar"/>                       
+            </fileset>
+        </copy>
+        <copy todir="${web-inf.folder}${file.separator}lib">
+            <fileset dir="${build}/lib">
+                <include name="qpid-client-*.jar"/>
+                <include name="qpid-common-*.jar"/>
+                <include name="qpid-management-client-*.jar"/>           
+            	<exclude name="qpid-client-example*.jar"/>
+            	<exclude name="qpid-client-tests*.jar"/>
+            	<exclude name="qpid-common-tests*.jar"/>
+                <exclude name="qpid-management-client-tests*.jar"/>           
+            </fileset>
+        </copy>
+        <copy todir="${web.module}">
+        	<fileset dir="${module.src}${file.separator}..${file.separator}..${file.separator}..${file.separator}console">            	
+				<include name="*/**"/>
+			</fileset>          	
+        </copy>	
+    </target> 
+	<target name="jar.manifest" depends="compile" if="module.manifest">
+		<jar destfile="${module.jar}" manifest="${module.manifest}">
+			<fileset dir="${module.classes}" casesensitive="yes">
+				<include name="**/**"/>
+            	<exclude name="wsdl/**"/>
+            	<exclude name="muse.xml"/>
+            	<exclude name="router-entries/**"/>
+			</fileset>
+		</jar>
+	</target>
+	<target name="jar.nomanifest" depends="compile" unless="module.manifest">
+		<jar destfile="${module.jar}">
+			<metainf dir="${project.root}${file.separator}resources/" />
+			<fileset dir="${module.classes}" casesensitive="yes">
+				<include name="**/**"/>
+            	<exclude name="wsdl/**"/>
+            	<exclude name="muse.xml"/>
+            	<exclude name="router-entries/**"/>
+	    	</fileset>
+		</jar>
+	</target>
+    <target name="postbuild" depends="prepare-wsdm-module,copy-examples-to-build,copy-README-to-build" description="Build WS-DM module"/>
+		
+	<path id="module.test.path">
+		<pathelement path="${module.test.classes}" />
+	    <path refid="module.test.libs"/>
+		<fileset dir="${build}/lib">
+	    	<include name="qpid-client-*.jar"/>
+	        <include name="qpid-common-*.jar"/>
+	        <include name="qpid-management-client-*.jar"/>           
+	        <exclude name="qpid-client-example*.jar"/>
+	        <exclude name="qpid-client-tests*.jar"/>
+	        <exclude name="qpid-common-tests*.jar"/>
+	        <exclude name="qpid-management-client-tests*.jar"/>           
+		</fileset> 
+	</path>
+	
+	<target name="copy-README-to-build">
+		<copy todir="${module.build}">
+			<fileset dir="${module.src}${file.separator}..${file.separator}..${file.separator}..">
+				<include name="README"/>				
+			</fileset>
+		</copy>			
+	</target>
+	
+	<target name="copy-examples-to-build">
+		<mkdir dir="${examples.folder}${file.separator}src"/>
+		<mkdir dir="${examples.folder}${file.separator}sample_messages"/>
+		<copy todir="${examples.folder}">
+			<fileset dir="${module.src}${file.separator}..${file.separator}..${file.separator}example">
+				<include name="README"/>				
+			</fileset>
+		</copy>		
+		<copy todir="${examples.folder}${file.separator}src">
+			<fileset dir="${module.src}${file.separator}..${file.separator}..${file.separator}example">
+				<include name="**/*.java"/>
+				<exclude name="**/*.out.*"/>
+			</fileset>
+		</copy>
+		<copy todir="${examples.folder}${file.separator}sample_messages">
+			<fileset dir="${module.src}${file.separator}..${file.separator}..${file.separator}example" >
+				<exclude name="**/*.java"/>
+				<exclude name="**/README"/>				
+				<include name="**/*.out.*"/>
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="test" depends="build,compile-tests" if="module.test.src.exists" unless="${dontruntest}" description="execute unit tests">
+		<delete file="${module.failed}"/>
+		<echo message="Using profile:${profile}" level="info"/>
+	     <junit fork="${test.fork}" maxmemory="1024M" reloading="no"
+			haltonfailure="${haltonfailure}" haltonerror="${haltonerror}"
+	        failureproperty="test.failures" printsummary="on" timeout="600000" >
+	        	
+			<jvmarg value="${jvm.args}"/>
+			<sysproperty key="qman.war" value="${web.module}"/>
+	    	
+			<formatter type="plain"/>
+			<formatter type="xml"/>
+
+			<classpath refid="module.test.path"/>
+
+			<batchtest fork="${test.fork}" todir="${module.results}">
+	        	<fileset dir="${module.test.src}" excludes="${module.test.excludes}">
+					<include name="**/${test}.java"/>	        		
+	        	</fileset>
+			</batchtest>
+		</junit>
+		<antcall target="touch-failed"/>
+		<condition property="failed">
+			<and>
+				<isfalse value="${test.failures.ignore}"/>
+				<available file="${module.failed}"/>
+			</and>
+		</condition>
+		<fail if="failed" message="TEST SUITE FAILED"/>
+	</target>
+</project>

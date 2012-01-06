@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<defaultColorScale xmlns:ns2="group">
+    <colorDataClass dbUseName="HEIGHT" useName="Height">
+        <threshold value="-9999.0" color="GRAY30"/>
+        <threshold value="-8888.0" color="DARKGREEN"/>
+        <threshold value="0.0" color="GREEN"/>
+        <threshold value="10.0" color="YELLOW"/>
+        <threshold value="20.0" color="RED"/>
+    </colorDataClass>
+    <colorDataClass dbUseName="PRECIP" useName="Precipitation">
+        <threshold value="-9999.0" color="GRAY30"/>
+        <threshold value="-8888.0" color="GRAY40"/>
+        <threshold value="0.0" color="GRAY40"/>
+        <threshold value="0.01" color="BLUE"/>
+        <threshold value="0.10" color="CYAN"/>
+        <threshold value="0.20" color="DARKGREEN"/>
+        <threshold value="0.30" color="GREEN"/>
+        <threshold value="0.40" color="GREENYELLOW"/>
+        <threshold value="0.50" color="YELLOW"/>
+        <threshold value="0.75" color="GOLD2"/>
+        <threshold value="1.00" color="DARKORANGE1"/>
+        <threshold value="1.25" color="RED"/>
+        <threshold value="1.50" color="RED3"/>
+        <threshold value="1.75" color="RED4"/>
+        <threshold value="2.00" color="MAGENTA1"/>
+        <threshold value="2.50" color="DARKORCHID"/>
+        <threshold value="3.00" color="WHITE"/>
+    </colorDataClass>
+    <colorDataClass dbUseName="FS_DEPARTURE" useName="Flood Stage Departure">
+        <threshold value="-9999.0" color="GRAY30"/>
+        <threshold value="-8888.0" color="GREEN"/>
+        <threshold value="-5.00" color="GREEN"/>
+        <threshold value="-2.50" color="GREENYELLOW"/>
+        <threshold value="-1.00" color="YELLOW"/>
+        <threshold value="0.00" color="ORANGE"/>
+        <threshold value="1.00" color="DARKORANGE1"/>
+        <threshold value="2.00" color="RED"/>
+        <threshold value="3.00" color="RED3"/>
+        <threshold value="4.00" color="RED4"/>
+        <threshold value="5.00" color="MAGENTA1"/>
+        <threshold value="10.00" color="WHITE"/>
+    </colorDataClass>
+    <colorDataClass dbUseName="PERCENT_FLOOD_Q" useName="Percent Flood Flow">
+        <threshold value="-9999.0" color="GRAY30"/>
+        <threshold value="-8888.0" color="GREEN"/>
+        <threshold value="10.00" color="GREEN"/>
+        <threshold value="50.00" color="GREENYELLOW"/>
+        <threshold value="75.00" color="YELLOW"/>
+        <threshold value="90.00" color="ORANGE"/>
+        <threshold value="95.00" color="DARKORANGE1"/>
+        <threshold value="100.00" color="RED"/>
+        <threshold value="105.00" color="RED3"/>
+        <threshold value="110.00" color="RED4"/>
+        <threshold value="120.00" color="MAGENTA1"/>
+    </colorDataClass>
+    <colorDataClass dbUseName="SWE" useName="Snow Water Equiv">
+        <threshold value="-9999.0" color="GRAY30"/>
+        <threshold value="-8888.0" color="GRAY40"/>
+        <threshold value="0.00" color="GRAY40"/>
+        <threshold value="1.00" color="BLUE"/>
+        <threshold value="2.00" color="CYAN"/>
+        <threshold value="3.00" color="DARKGREEN"/>
+        <threshold value="4.00" color="GREEN"/>
+        <threshold value="5.00" color="GREENYELLOW"/>
+        <threshold value="6.00" color="YELLOW"/>
+        <threshold value="7.00" color="GOLD2"/>
+        <threshold value="8.00" color="DARKORANGE1"/>
+        <threshold value="9.00" color="RED"/>
+        <threshold value="10.00" color="WHITE"/>
+    </colorDataClass>
+    <colorDataClass dbUseName="SWE-CHANGE" useName="SWE Change">
+        <threshold value="-9999.0" color="GRAY30"/>
+        <threshold value="-8888.0" color="GRAY40"/>
+        <threshold value="0.00" color="GRAY40"/>
+        <threshold value="0.25" color="BLUE"/>
+        <threshold value="0.50" color="CYAN"/>
+        <threshold value="0.75" color="DARKGREEN"/>
+        <threshold value="1.00" color="GREEN"/>
+        <threshold value="1.50" color="GREENYELLOW"/>
+        <threshold value="2.00" color="YELLOW"/>
+        <threshold value="2.50" color="GOLD2"/>
+        <threshold value="3.00" color="DARKORANGE1"/>
+        <threshold value="3.50" color="RED"/>
+        <threshold value="4.00" color="MAGENTA1"/>
+        <threshold value="4.50" color="DARKORCHID"/>
+        <threshold value="5.00" color="WHITE"/>
+    </colorDataClass>
+    <colorDataClass dbUseName="TEMPERATURE" useName="Temperature">
+        <threshold value="-9999.0" color="GRAY30"/>
+        <threshold value="-8888.0" color="GRAY40"/>
+        <threshold value="0.00" color="GRAY40"/>
+        <threshold value="10.00" color="BLUE"/>
+        <threshold value="20.00" color="CYAN"/>
+        <threshold value="30.00" color="DARKGREEN"/>
+        <threshold value="40.00" color="GREEN"/>
+        <threshold value="50.00" color="GREENYELLOW"/>
+        <threshold value="60.00" color="YELLOW"/>
+        <threshold value="70.00" color="GOLD2"/>
+        <threshold value="80.00" color="DARKORANGE1"/>
+        <threshold value="90.00" color="RED"/>
+        <threshold value="100.00" color="MAGENTA1"/>
+    </colorDataClass>
+    <colorDataClass dbUseName="TEMP-CHANGE" useName="Temp Change">
+        <threshold value="-9999.0" color="GRAY30"/>
+        <threshold value="-8888.0" color="GRAY40"/>
+        <threshold value="-20.00" color="GRAY40"/>
+        <threshold value="-15.00" color="BLUE"/>
+        <threshold value="-10.00" color="CYAN"/>
+        <threshold value="-7.50" color="DARKGREEN"/>
+        <threshold value="-5.00" color="GREEN"/>
+        <threshold value="0.00" color="GREENYELLOW"/>
+        <threshold value="5.00" color="YELLOW"/>
+        <threshold value="7.50" color="GOLD2"/>
+        <threshold value="10.00" color="DARKORANGE1"/>
+        <threshold value="15.00" color="RED"/>
+        <threshold value="20.00" color="MAGENTA1"/>
+    </colorDataClass>
+    <colorDataClass dbUseName="DEWPOINT" useName="Dewpoint">
+        <threshold value="-9999.0" color="GRAY30"/>
+        <threshold value="-8888.0" color="GRAY40"/>
+        <threshold value="0.00" color="GRAY40"/>
+        <threshold value="10.00" color="BLUE"/>
+        <threshold value="20.00" color="CYAN"/>
+        <threshold value="30.00" color="DARKGREEN"/>
+        <threshold value="40.00" color="GREEN"/>
+        <threshold value="50.00" color="GREENYELLOW"/>
+        <threshold value="60.00" color="YELLOW"/>
+        <threshold value="70.00" color="GOLD2"/>
+        <threshold value="80.00" color="DARKORANGE1"/>
+        <threshold value="90.00" color="RED"/>
+        <threshold value="100.00" color="MAGENTA1"/>
+    </colorDataClass>
+    <colorDataClass dbUseName="DEWPOINT-CHANGE" useName="Dewpoint Change">
+        <threshold value="-9999.0" color="GRAY30"/>
+        <threshold value="-8888.0" color="GRAY40"/>
+        <threshold value="-20.00" color="GRAY40"/>
+        <threshold value="-15.00" color="BLUE"/>
+        <threshold value="-10.00" color="CYAN"/>
+        <threshold value="-7.50" color="DARKGREEN"/>
+        <threshold value="-5.00" color="GREEN"/>
+        <threshold value="0.00" color="GREENYELLOW"/>
+        <threshold value="5.00" color="YELLOW"/>
+        <threshold value="7.50" color="GOLD2"/>
+        <threshold value="10.00" color="DARKORANGE1"/>
+        <threshold value="15.00" color="RED"/>
+        <threshold value="20.00" color="MAGENTA1"/>
+    </colorDataClass>
+    <colorDataClass dbUseName="REL-HUMIDITY" useName="Relative Humidity">
+        <threshold value="-9999.0" color="GRAY30"/>
+        <threshold value="-8888.0" color="GRAY40"/>
+        <threshold value="0.00" color="GRAY40"/>
+        <threshold value="10.00" color="BLUE"/>
+        <threshold value="20.00" color="CYAN"/>
+        <threshold value="30.00" color="DARKGREEN"/>
+        <threshold value="40.00" color="GREEN"/>
+        <threshold value="50.00" color="GREENYELLOW"/>
+        <threshold value="60.00" color="YELLOW"/>
+        <threshold value="70.00" color="GOLD2"/>
+        <threshold value="80.00" color="DARKORANGE1"/>
+        <threshold value="90.00" color="RED"/>
+        <threshold value="100.00" color="MAGENTA1"/>
+    </colorDataClass>
+    <colorDataClass dbUseName="WIND-SPEED" useName="Wind Speed">
+        <threshold value="-9999.0" color="GRAY30"/>
+        <threshold value="-8888.0" color="GRAY40"/>
+        <threshold value="0.00" color="GRAY40"/>
+        <threshold value="10.00" color="BLUE"/>
+        <threshold value="20.00" color="CYAN"/>
+        <threshold value="30.00" color="DARKGREEN"/>
+        <threshold value="40.00" color="GREEN"/>
+        <threshold value="50.00" color="GREENYELLOW"/>
+        <threshold value="60.00" color="YELLOW"/>
+        <threshold value="70.00" color="GOLD2"/>
+        <threshold value="80.00" color="DARKORANGE1"/>
+        <threshold value="90.00" color="RED"/>
+        <threshold value="100.00" color="MAGENTA1"/>
+    </colorDataClass>
+    <colorDataClass dbUseName="WIND-DIRECTION" useName="Wind Direction">
+        <threshold value="-9999.0" color="GRAY30"/>
+        <threshold value="-8888.0" color="YELLOW"/>
+        <threshold value="45.00" color="YELLOW"/>
+        <threshold value="90.00" color="ORANGE"/>
+        <threshold value="135.00" color="RED"/>
+        <threshold value="180.00" color="PURPLE"/>
+        <threshold value="225.00" color="BLUE"/>
+        <threshold value="270.00" color="SEAGREEN"/>
+        <threshold value="325.00" color="GREEN"/>
+        <threshold value="360.00" color="YELLOWGREEN"/>
+    </colorDataClass>
+</defaultColorScale>

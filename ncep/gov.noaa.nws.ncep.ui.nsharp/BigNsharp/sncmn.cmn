@@ -1,0 +1,47 @@
+C************************************************************************
+C SNCMN									*
+C*									*
+C* Sounding data common area.						*
+C**									*
+C* Log:									*
+C* M. desJardins/GSFC	 8/87						*
+C* M. desJardins/GSFC	 1/89	Added mdtype,isnlev for level types	*
+C* K. Brill/NMC		 8/93	Added KSTD2 for 8-char stn IDs		*
+C* D. Kidwell/NCEP	 2/01	Added paflg and pcflg for new parts     *
+C************************************************************************
+	CHARACTER	dttype*4, sttype*4, curtim*20, curstn*8
+	LOGICAL		timset, ftmset, stnset
+	LOGICAL		taflg, tbflg, pbflg, tcflg, tdflg, pdflg,
+     +			paflg, pcflg
+	LOGICAL		mrgtyp, manflg, dhdflg
+C------------------------------------------------------------------------
+	COMMON /SNCMN/	
+C! 	                        Type for date/time, station id
+     +			dttype (MMFILE), sttype (MMFILE),
+C!				 Location of date, time
+     +	                kdate  (MMFILE),    ktime  (MMFILE),
+     +	                kstid  (MMFILE),    kstnm  (MMFILE),
+     +                  kslat  (MMFILE),    kslon  (MMFILE),
+     +	                kselv  (MMFILE),    kstat  (MMFILE),
+     +	                kcoun  (MMFILE),    kstd2  (MMFILE),
+C!				Current row, column
+     +	                krow   (MMFILE),    kcol   (MMFILE),
+C!				Number of parameters
+     +	                kparm  (MMFILE),
+C!				SN_Sxxx, SN_Fxxx, SN_Txx subs set
+     +	                timset (MMFILE),    ftmset (MMFILE), 
+     +			stnset (MMFILE),
+C!				Current time, station id, number,
+C!				Merge type
+     + 	                curtim (MMFILE),    curstn (MMFILE),
+     +			icrstn (MMFILE,2),  mrgtyp (MMFILE),
+C!				Data present flags
+     +	                taflg  (MMFILE),    tbflg  (MMFILE), 
+     +	                pbflg  (MMFILE),    tcflg  (MMFILE),
+     +	                tdflg  (MMFILE),    pdflg  (MMFILE),
+     +	                paflg  (MMFILE),    pcflg  (MMFILE),
+C!				Mandatory flag, merge type
+     +			manflg (MMFILE),    imrtyp (MMFILE),
+C!				Station elevation, data hdr flag
+     +			shght  (MMFILE),    dhdflg (MMFILE),
+     +			mdtype (LLMXLV,MMFILE), isnlev (MMFILE)

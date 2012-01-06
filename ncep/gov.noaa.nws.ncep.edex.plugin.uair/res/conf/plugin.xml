@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- ==================================================================== -->
+<!-- Declares uair ingest properties                                      -->
+<!--                                                                      -->
+<!-- File History:                                                        -->
+<!--  Date:     Ticket     Engineer      Description                      -->
+<!--  ========= =========  ============  ==============================   -->
+<!--  20091216      210       L. Lin        Initial Creation              -->
+<!-- ==================================================================== -->
+<properties>
+	<Name>UAIR</Name>
+	<Plugin>true</Plugin>
+	<Database>metadata</Database>
+	<Record>gov.noaa.nws.ncep.common.dataplugin.uair.UairRecord</Record>
+	<Decoder>gov.noaa.nws.ncep.edex.plugin.uair.UairDecoder</Decoder>
+	<SEPARATOR>gov.noaa.nws.ncep.edex.plugin.uair.decoder.UairSeparator</SEPARATOR>
+	<Purger>com.raytheon.edex.db.purge.DefaultPurgerImpl</Purger>
+</properties>

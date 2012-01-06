@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.78 [en] (X11; U; Linux 2.4.9-13smp i686) [Netscape]">
+  <title>gfeConfig - Mutable Parameter and Viewable Database
+Configuration</title>
+</head>
+<body style="background-color: rgb(255, 255, 255);">
+<div class="Body">
+<div style="text-align: center;"></div>
+<h2 style="text-align: center;">GFESuite/ifpIMAGE Configuration File<br>
+Mutable Database and
+Viewable Database Configuration </h2>
+<h2><br>
+</h2>
+This section of the configuration file defines entries that affect the
+mutable database and viewable database configurations.
+<div class="3Heading">&nbsp;
+<table nosave="" border="1" cols="4" width="100%">
+  <tbody>
+    <tr>
+      <td>
+      <center><b>GFE Configuration Item</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to GFE</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to <a href="ifpIMAGE.html"><!--disable indexer-->ifpIMAGE</a></b></center>
+      </td>
+      <td>
+      <center><b>Notes</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#MutableDatabaseandViewableDatabase">Mutable Database</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td>Doesn't affect output PNGs</td>
+    </tr>
+    <tr>
+      <td><a href="#ViewableDatabaseTypes">Viewable Database Types</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td>Affect overall available set of types</td>
+    </tr>
+    <tr>
+      <td><a href="#FilteredDataMask">Filtered Data Mask</a></td>
+      <td>YES</td>
+      <td>YES</td>
+      <td>Normally only used for ifpIMAGE</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<blockquote> </blockquote>
+<hr style="width: 100%; height: 2px;">
+<h4><br>
+</h4>
+<h4><a name="MutableDatabaseandViewableDatabase"></a><font size="+1">Mutable
+Database Name</font></h4>
+The mutable database name is in a "type_model_time" format.&nbsp; There
+are several permutations of this format:
+<blockquote><li>_model</li>
+  <li>type_model</li>
+  <li>_model_time</li>
+  <li>type_model_time</li>
+</blockquote>
+Normally the mutable database name is set to "_Fcst" for the forecast
+database.&nbsp;
+It is unusual, except for testing, to set this field to a different
+value.
+<p>The "_model" format is used when the database does not have a
+specified
+type and a specific model time does not matter.&nbsp; Be sure to
+include
+the underscore character for this format. The "type_model" format is
+used
+when the database to be edited has a specified type (e.g., D2D for D2D
+models).
+The formats with the time are not normally used but are useful
+when you want to edit a specific database that is not a
+singleton.&nbsp;
+The format for the time string is yyyymmdd_hhmm.&nbsp; An example of
+the
+time string for November 8, 1999 at 1200z is 19991108_1200. </p>
+<p><b><tt>mutableModel = "_Fcst"</tt></b> <br>
+&nbsp; </p>
+<h4><a name="ViewableDatabaseTypes"></a><font size="+1">Viewable
+Database Types</font></h4>
+The "dbTypes"&nbsp; entry defines the database types that will be
+viewable
+by the GFE.&nbsp; Database types are defined in serverConfig.py for
+each
+database.&nbsp; Typically the databases derived from models, the
+forecast
+database, and the official database all share the same database
+type.&nbsp;
+Other databases, such as the D2D viewable models, are assigned
+different types.
+<p>The standard databases have a database type of '' (no
+value).&nbsp;
+This value must be included in the list of "dbTypes".&nbsp; D2D model
+databases have a type of "D2D".&nbsp; Virtual databases, such as those
+used for the Virtual ISC weather elements, have a type of "V". </p>
+<p>&nbsp;You may want to adjust this list to always exclude certain
+categories
+of databases from being displayed on the GFE.&nbsp; </p>
+<p><b><tt>dbTypes = ['', 'D2D', 'V']</tt></b> <br>
+&nbsp; </p>
+<h4><a name="FilteredDataMask"></a><font size="+1">Filtered Data Mask</font></h4>
+The GFE supports filtering of the displayed data by site identifier or
+site plus weather element name.&nbsp; The main purpose of this to to
+produce
+clipped graphical products (i.e., ifpIMAGE).&nbsp; For normal GFE
+operations,
+the entry should be commented out or non-existant. The displayed data
+is
+clipped by specifying an edit area, such as BOU_CWA.&nbsp; The GFE will
+access the edit area and then clip all spatially displayed data to this
+area.&nbsp; There are four formats of the entry, and the entries are
+searched for in this order: <br>
+<ul>
+  <li><i>siteID</i>_<i>weatherElementName</i>_mask, where <i>siteID</i>
+is the site identifier that is currently in use by the GFE, and
+weatherElementname is for specific clipping for a weather element, </li>
+  <li><i>siteID</i>_mask, where <i>siteID</i>
+is the site identifier that is currently in use by the GFE, </li>
+  <li><i>weatherElementName</i>_mask, where weatherElementname is for
+specific clipping for a weather element,</li>
+  <li>mask<br>
+  </li>
+</ul>
+<p><b><tt>BOU_Wind_mask = "BOU"</tt></b> <br>
+<b><tt>BOU_mask = "CWA"</tt></b> <br>
+<b><tt>Wind_mask = "CWA"</tt></b> <br>
+<b><tt>mask = "CWA"</tt></b> <br>
+&nbsp;
+<br>
+</p>
+<hr style="width: 100%; height: 2px;">
+<p><br>
+</p>
+<blockquote></blockquote>
+<div class="Body">
+<center><tt>&nbsp;<a href="gfeConfig.html#TableofContents">Back To TOC</a></tt></center>
+</div>
+</div>
+</body>
+</html>

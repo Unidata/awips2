@@ -1,0 +1,114 @@
+C MEMBER SRSTBN
+C-----------------------------------------------------------------------
+C
+C DESC WRITE GENERAL STATE BOUNDARY (STBN) PARAMETER RECORD
+C
+      SUBROUTINE SRSTBN (IVSTBN,UNUSED,MDRBND,STBNPT,
+     *   LARRAY,ARRAY,IPRERR,ISTAT)
+C
+C
+      DIMENSION ARRAY(LARRAY)
+      DIMENSION MDRBND(1),STBNPT(89,1),UNUSED(1)
+C
+      REAL XSTBN/4HSTBN/
+      REAL*8 BLNK8/8H        /
+C
+      INCLUDE 'uio'
+      INCLUDE 'scommon/sudbgx'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/ofs/src/ppinit_read/RCS/srstbn.f,v $
+     . $',                                                             '
+     .$Id: srstbn.f,v 1.1 1995/09/17 19:15:06 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+C
+      IF (ISTRCE.GT.0) WRITE (IOSDBG,40)
+      IF (ISTRCE.GT.0) CALL SULINE (IOSDBG,1)
+C
+C  SET DEBUG LEVEL
+      LDEBUG=ISBUG(XSTBN)
+C
+      IF (LDEBUG.GT.0) WRITE (IOSDBG,50) LARRAY
+      IF (LDEBUG.GT.0) CALL SULINE (IOSDBG,1)
+C
+      ISTAT=0
+C
+C  READ PARAMETER RECORD
+      CALL SUDOPN (1,4HPPP ,IERR)
+      IPTR=0
+      CALL RPPREC (BLNK8,XSTBN,IPTR,LARRAY,ARRAY,NFILL,IPTRNX,
+     *     IERR)
+      IF (IERR.EQ.0) GO TO 10
+         ISTAT=IERR
+         IF (IPRERR.EQ.0) GO TO 30
+            CALL SRPPST (BLNK8,XSTBN,IPTR,LARRAY,NFILL,IPTRNX,IERR)
+            WRITE (LP,90) IERR
+            CALL SUERRS (LP,2,-1)
+            GO TO 30
+C
+C  SET PARAMETER ARRAY VERSION NUMBER
+10    IVSTBN=ARRAY(1)
+C
+C  SET WESTERN MOST MDR COLUMN FOR WHICH STBN PARAMETERS DEFINED
+      MDRBND(1)=ARRAY(2)
+C
+C  SET NUMBER OF MDR COLUMNS
+      MDRBND(2)=ARRAY(3)
+C
+C  SET SOUTHERN MOST MDR ROW
+      MDRBND(3)=ARRAY(4)
+C
+C  SET NUMBER OF MDR ROWS
+      MDRBND(4)=ARRAY(5)
+C
+C  POSITIONS 6 AND 7 UNUSED
+      UNUSED(1)=ARRAY(6)
+      UNUSED(2)=ARRAY(7)
+C
+      NPOS=7
+C
+C  SET STATE BOUNDARY POINTS FOR MDR SUBSET
+      IC=MDRBND(1)
+      NCOL=MDRBND(2)
+      IR=MDRBND(3)
+      NROW=MDRBND(4)
+      DO 20 J=1,NROW
+         DO 20 I=1,NCOL
+            NPOS=NPOS+1
+            STBNPT(IR+NROW-J,I)=ARRAY(NPOS)
+20          CONTINUE
+C
+      IF (LDEBUG.GT.0.AND.ISTAT.EQ.0) WRITE (IOSDBG,110)
+      IF (LDEBUG.GT.0.AND.ISTAT.EQ.0) CALL SULINE (IOSDBG,1)
+      IF (LDEBUG.GT.0.AND.ISTAT.GT.0) WRITE (IOSDBG,120)
+      IF (LDEBUG.GT.0.AND.ISTAT.GT.0) CALL SULINE (IOSDBG,1)
+C
+30    IF (ISTRCE.GT.0) WRITE (IOSDBG,130)
+      IF (ISTRCE.GT.0) CALL SULINE (IOSDBG,1)
+C
+      RETURN
+C
+C- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+C
+40    FORMAT (' *** ENTER SRSTBN')
+50    FORMAT (' LARRAY=',I5)
+60    FORMAT (' NPOS=',I2)
+70    FORMAT (' MINLEN=',I4)
+80    FORMAT ('0*** ERROR - IN SRSTBN - NOT ENOUGH SPACE IN PARAMETER ',
+     *   'ARRAY: NUMBER OF WORDS IN PARAMETER ARRAY=',I4,3X,
+     *   'NUMBER OF WORDS NEEDED=',I4)
+90    FORMAT ('0*** ERROR - IN SRSTBN - UNSUCCESSFUL CALL TO RPPREC : ',
+     *   'STATUS CODE=',I2)
+100   FORMAT (' NPOS=',I4,3X,'NFILL=',I4,3X,'IPTRNX=',I3,3X,
+     *   'IVUGNL=',I2)
+110   FORMAT ('0*** NOTE - STBN PARAMETERS SUCCESSFULLY READ.')
+120   FORMAT ('0*** NOTE - STATE BOUNDARY PARAMETERS NOT SUCCESSFULLY ',
+     *     'READ.')
+130   FORMAT (' *** EXIT SRSTBN')
+C
+      END

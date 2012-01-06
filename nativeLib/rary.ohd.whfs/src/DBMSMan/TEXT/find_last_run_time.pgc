@@ -1,0 +1,33 @@
+#include <stdio.h>
+#include <string.h>
+
+void find_last_run_time(char *process, char str[22], long int *irc)
+
+/*
+
+   this function finds the last run time for the process name from the
+    PerfLog table
+  
+   calling function: main_ofsde, main_siipp
+
+*/
+
+{
+   EXEC SQL BEGIN DECLARE SECTION;
+      char process_name[11];
+      datetime year to second maxdttm;
+   EXEC SQL END DECLARE SECTION;
+
+   process_name[10] = '\0';
+   strcpy(process_name,process);
+
+   EXEC SQL select max(start_time)
+     into :maxdttm
+     from PerfLog     
+     where process=:process_name;
+
+   *irc = sqlca.sqlcode;
+   if(*irc == 0)
+      dttoasc(&maxdttm, str);
+
+}  /*  end find_last_run_time function  */

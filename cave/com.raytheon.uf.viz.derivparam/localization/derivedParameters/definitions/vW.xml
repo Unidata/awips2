@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<DerivedParameter unit="m/s" name="v Component of Wind" abbreviation="vW" xmlns:ns2="group">
+	<Method models="modelsounding" levels="Surface" name="Alias">
+        <Field level="Station" abbreviation="v10"/>
+    </Method>
+    <Method levels="Surface" name="Alias">
+        <Field level="10FHAG" abbreviation="vW"/>
+    </Method>
+    <Method levels="Surface" name="Alias">
+        <Field level="BLyr" abbreviation="vW"/>
+    </Method>
+    <Method models="mesoEta212" levels="Surface" name="Import">
+        <Field level="10FHAG" model="mesoEta215" abbreviation="vW"/>
+    </Method>
+    <Method levels="925MB" name="Average">
+        <Field level="950MB" abbreviation="vW"/>
+        <Field level="900MB" abbreviation="vW"/>
+    </Method>
+    <Method levels="S,K,Ke,TROP" name="Slice">
+        <Field level="3D" abbreviation="vW"/>
+        <Field abbreviation="P"/>
+        <ConstantField value="-2.0"/>
+    </Method>
+    <Method levels="S,TEMP,0.5kmAgl&gt;10kmAgl,TILT" name="Slice">
+        <Field level="3D" abbreviation="vW"/>
+        <Field abbreviation="P"/>
+        <ConstantField value="-1.0"/>
+    </Method>
+    <Method levels="0FHAG" name="Alias">
+        <Field level="Surface" abbreviation="vW"/>
+    </Method>
+    <Method models="radarVWP" levels="MB,FHAG" name="LinearInterp">
+        <Field level="Station" abbreviation="vwpV"/>
+        <Field level="Station" abbreviation="levels"/>
+        <Field level="Station" abbreviation="numLevels"/>
+        <Field unit="m*762/25" abbreviation="GH"/>
+        <ConstantField value="40.0"/>
+    </Method>
+    <Method models="profiler" levels="Station" name="QcFilter">
+        <Field abbreviation="vComponent"/>
+		<Field abbreviation="uvQualityCode"/>
+    </Method>
+    <Method models="profiler" levels="MB,FHAG" name="ColumnSample">
+        <Field level="Station" abbreviation="vW"/>
+        <Field level="Station" abbreviation="height"/>
+        <Field level="Station" abbreviation="numProfLvls"/>
+        <Field abbreviation="GH"/>
+        <Field abbreviation="vW" level="Surface"/>
+    	<Field abbreviation="GH" level="Surface"/>
+    </Method>
+    <Method models="modelsounding" levels="MB" name="Interp">
+        <Field level="Station" abbreviation="vComp"/>
+        <Field unit="hPa" level="Station" abbreviation="pressure"/>
+        <Field level="Station" abbreviation="numProfLvls"/>
+        <Field abbreviation="P"/>
+        <ConstantField value="50.0"/>
+    </Method>
+    <Method name="vW.execute1">
+        <Field abbreviation="vComp"/>
+        <Field abbreviation="v10"/>
+    </Method>
+    <Method levels="Surface" name="Alias">
+        <Field level="Station" abbreviation="vwind"/>
+    </Method>
+    <Method name="vW.execute3">
+        <Field abbreviation="vwpV"/>
+    </Method>
+    <Method name="Alias">
+        <Field abbreviation="vw"/>
+    </Method>
+    <Method name="V">
+        <Field abbreviation="wSp"/>
+		<Field abbreviation="WD"/>
+    </Method>
+</DerivedParameter>

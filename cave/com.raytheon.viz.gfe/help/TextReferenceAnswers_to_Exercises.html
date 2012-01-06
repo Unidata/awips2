@@ -1,0 +1,1395 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.8 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]">
+  <title>Text Products Reference</title>
+<!--link REL="STYLESHEET" HREF="TextFormatter.html"-->
+</head>
+<body bgcolor="#ffffff">
+<center><h1> <a name="Answers_to_Exercises"></a>Answers to Exercises</h1></center>
+
+<hr>
+
+
+
+
+<h2> <a name="Answer_to_Simple_Tabular_Product"></a>Answer to Simple
+Tabular Product Exercise 1</h2>
+########################################################################<br>
+# Table Definition <br>
+# <br>
+########################################################################<br>
+## EXAMPLE OUTPUT
+<p>##&nbsp;&nbsp;&nbsp; Exercise1 for Apr 02 02 13:00:00 GMT - Apr 03
+02 01:00:00 GMT. <br>
+## <br>
+##&nbsp;&nbsp;&nbsp; Edit Area&nbsp;&nbsp;&nbsp; QPF&nbsp;&nbsp;&nbsp;
+Precip (%)&nbsp; Wind (mph) <br>
+## <br>
+##&nbsp;&nbsp;&nbsp; Area
+1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+NW&nbsp; 0 <br>
+##&nbsp;&nbsp;&nbsp; Area
+2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+11&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+NE&nbsp; 5 <br>
+##&nbsp;&nbsp;&nbsp; Area
+3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+W 10 </p>
+<p>Definition = { <br>
+&nbsp;&nbsp;&nbsp;&nbsp; ## General Set-Up <br>
+&nbsp;&nbsp;&nbsp;&nbsp; "type": "table", <br>
+&nbsp;&nbsp;&nbsp;&nbsp; "displayName": "TextEx1", # for Product
+Generation Menu <br>
+&nbsp;&nbsp;&nbsp;&nbsp; "outputFile": "./Exercise1.txt", # default
+output file </p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; ## Table Layout <br>
+&nbsp;&nbsp;&nbsp;&nbsp; "constantVariable": "TimePeriod", <br>
+&nbsp;&nbsp;&nbsp;&nbsp; "rowVariable": "EditArea", <br>
+&nbsp;&nbsp;&nbsp;&nbsp; "columnVariable": "WeatherElement", <br>
+&nbsp;&nbsp;&nbsp;&nbsp; "beginningText": "Exercise1 for %TimePeriod.
+\n\n", <br>
+&nbsp;&nbsp;&nbsp;&nbsp; "endingText": " ", </p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; ## Edit Areas <br>
+&nbsp;&nbsp;&nbsp;&nbsp; "defaultEditAreas": [ <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("area1", "Area 1"), <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("area2", "Area 2"), <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("area3", "Area 3"), <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+], <br>
+&nbsp;&nbsp;&nbsp;&nbsp; "runTimeEditAreas" : "no", # if yes, ask user
+at run time <br>
+&nbsp;&nbsp;&nbsp;&nbsp; "areaType" : "Edit Area", # E.g. City, County,
+Basin, etc. </p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ## Time Ranges <br>
+&nbsp;&nbsp;&nbsp;&nbsp; "defaultRanges": ["Today"], <br>
+&nbsp;&nbsp;&nbsp;&nbsp; "runTimeRanges" : "no", # if yes, ask user at
+run time <br>
+&nbsp;&nbsp;&nbsp;&nbsp; ## Weather Elements <br>
+&nbsp;&nbsp;&nbsp;&nbsp; # Name , Label , Analysis Method , ReportAs
+Method , <br>
+&nbsp;&nbsp;&nbsp;&nbsp; # DataType , Rounding , Conversion </p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; "elementList": [ <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("QPF", "QPF", "avg", "singleValue", <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"Scalar", .01, None), </p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("PoP", "Precip (%)", "avg", "singleValue", <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"Scalar", 1, None), </p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Wind","Wind (mph)", "vectorRange", "avgValue", <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"Vector", 5,&nbsp; None), <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+], <br>
+} <br>
+&nbsp; </p>
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<div class="Code">
+<h2><a name="Answer_to_Simple_Tabular_Products_"></a>Answer to Simple
+Tabular Products Exercise 2</h2>
+<div class="Code">########################################################################<br>
+# Table Definition <br>
+# <br>
+########################################################################<br>
+## EXAMPLE OUTPUT
+<p>##&nbsp;&nbsp;&nbsp; Experimental Surface Temperature Guidance
+Product <br>
+## <br>
+##&nbsp;&nbsp;&nbsp; Edit Area&nbsp;&nbsp; 13Z/2&nbsp;&nbsp;
+16Z/2&nbsp;&nbsp; 19Z/2&nbsp;&nbsp; 22Z/2 <br>
+## <br>
+##&nbsp;&nbsp;&nbsp; Area
+1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+28&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+28&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+28&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 25 <br>
+##&nbsp;&nbsp;&nbsp; Area
+2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+30&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+31&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+31&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 27 <br>
+##&nbsp;&nbsp;&nbsp; Area
+3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+32&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+33&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+34&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 27 </p>
+<p>Definition = { <br>
+&nbsp;&nbsp;&nbsp;&nbsp; ## General Set-up <br>
+&nbsp;&nbsp;&nbsp; "type": "table", <br>
+&nbsp;&nbsp;&nbsp;&nbsp; "displayName": "TextEx2", # for Product
+Generation Menu <br>
+&nbsp;&nbsp;&nbsp;&nbsp; "outputFile": "./SurfaceTemp.txt", # default
+output file </p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; ## Table Layout <br>
+&nbsp;&nbsp;&nbsp;&nbsp; "constantVariable": "WeatherElement", <br>
+&nbsp;&nbsp;&nbsp;&nbsp; "rowVariable": "EditArea", <br>
+&nbsp;&nbsp;&nbsp;&nbsp; "columnVariable": "TimePeriod", <br>
+&nbsp;&nbsp;&nbsp;&nbsp; "beginningText": "Experimental Surface
+Temperature Guidance Product \n\n", <br>
+&nbsp;&nbsp;&nbsp;&nbsp; "endingText": "", </p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; ## Edit Areas <br>
+&nbsp;&nbsp;&nbsp;&nbsp; "defaultEditAreas" : [ <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("area1", "Area 1"), <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("area2", "Area 2"), <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("area3", "Area 3"), <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ], <br>
+&nbsp;&nbsp;&nbsp;&nbsp; "runTimeEditAreas" : "yes", # if yes, ask user
+at run time <br>
+&nbsp;&nbsp;&nbsp;&nbsp; "areaType" : "Edit Area", # E.g. City, County,
+Basin, etc. </p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ## Time Ranges <br>
+&nbsp;&nbsp;&nbsp;&nbsp; "defaultRanges": ["Today"], <br>
+&nbsp;&nbsp;&nbsp;&nbsp; "runTimeRanges" : "no", # if yes, ask user at
+run time </p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; ## Weather Elements <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"elementList": [ <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("T","Temp", "avg", "singleValue", <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"Scalar", 1,&nbsp; None), <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+], </p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; ## Time Period <br>
+&nbsp;&nbsp;&nbsp;&nbsp; "timePeriod": 3, <br>
+&nbsp;&nbsp;&nbsp;&nbsp; "runTimePeriod": "yes", # If yes, ask user at
+run time for period <br>
+&nbsp;&nbsp;&nbsp;&nbsp; } <br>
+</p>
+<p><br>
+<span style="font-weight: bold;"><a
+ name="Answer_to_Smart_Tabular_Exercise_2"></a>Answer to Smart Tabular
+Exercise 2<br>
+</span></p>
+<p>########################################################################<br>
+# SmartElementTable_Local<br>
+#<br>
+#&nbsp;&nbsp; Type: smart<br>
+#&nbsp;&nbsp; Local product:<br>
+#&nbsp;&nbsp;&nbsp;&nbsp; SmartElementTable_Local(type: smart)<br>
+#&nbsp;&nbsp; To customize this product for your site:<br>
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Set up SmartElementTable_Local (see
+template below)<br>
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; to override variables, definitions,
+thresholds, and methods<br>
+##<br>
+##########################################################################<br>
+import SmartElementTable<br>
+import string, time, re, os, types, copy, AFPS<br>
+<br>
+class TextProduct(SmartElementTable.TextProduct):<br>
+&nbsp;&nbsp;&nbsp; Definition =
+copy.deepcopy(SmartElementTable.TextProduct.Definition)<br>
+<br>
+&nbsp;&nbsp;&nbsp; Definition["displayName"] = "SmartElementTable"<br>
+&nbsp;&nbsp;&nbsp; #Definition["outputFile"] =
+"{prddir}/TEXT/SmartElementTable.txt"<br>
+&nbsp;&nbsp;&nbsp; #Definition["regionList"] = [<br>
+&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("area1","AREA 1"),<br>
+&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("area2","AREA 2"),<br>
+&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("area3","AREA 3"),<br>
+&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ],<br>
+&nbsp;&nbsp;&nbsp; #Definition["regionList"] = [<br>
+&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("/33",["AREA 1","AREA 2"]),<br>
+&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("/19",["AREA 3"])<br>
+&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ],<br>
+<br>
+&nbsp;&nbsp;&nbsp; Definition["elementList"] = ["Temp", "PoP",
+"Wind"]&nbsp; <br>
+&nbsp;&nbsp;&nbsp; #Definition["elementList"] = ["Temp", "PoP"] #
+Default <br>
+&nbsp;&nbsp;&nbsp; #Definition["elementList"] = ["Temp", "Humidity"] <br>
+&nbsp;&nbsp;&nbsp; #Definition["elementList"] = ["Temp", "Humidity",
+"PoP"] <br>
+&nbsp;&nbsp;&nbsp; #Definition["elementList"] = ["Temp", "PoP",
+"Humidity"] <br>
+&nbsp;&nbsp;&nbsp; #Definition["elementList"] = ["PoP", "Humidity",
+"Temp"] <br>
+&nbsp;&nbsp;&nbsp; #Definition["introLetters"] = ".&lt;"<br>
+<br>
+&nbsp;&nbsp;&nbsp; def __init__(self):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SmartElementTable.TextProduct.__init__(self)<br>
+<br>
+&nbsp;&nbsp;&nbsp; def _getAnalysisList(self):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return [<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("MinT",
+self.avg),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("MaxT",
+self.avg),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("MinRH",
+self.avg),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("MaxRH",
+self.avg),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("PoP",
+self.stdDevMaxAvg),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("Wind",
+self.vectorAvg),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ]<br>
+<br>
+&nbsp;&nbsp;&nbsp; def _titleDict(self):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"Temp":&nbsp;&nbsp;&nbsp; "TEMPERATURE",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"PoP":&nbsp;&nbsp;&nbsp;&nbsp; "PRECIPITATION",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"Humidity":"HUMIDITY",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"Wind":&nbsp;&nbsp;&nbsp; "WIND",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+<br>
+&nbsp;&nbsp;&nbsp; def _getWindValues(self, statList, argDict):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return a string of PoP values in
+the statList<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; wind = []<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; windStr = " "<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; index = 0<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for stats in statList:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; val =
+self._getWindValue(stats)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if index
+&lt; len(statList)-1:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+windStr = windStr&nbsp; + val + " "<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+windStr = windStr + val<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; index += 1<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; windStr = windStr + " "<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return windStr<br>
+<br>
+&nbsp;&nbsp;&nbsp; def _getWindValue(self, stats):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; wind = self.getStats(stats,"Wind")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if wind is None:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; val =
+"&nbsp;&nbsp;&nbsp; "<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mag, dir =
+wind<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mag =
+self.round(mag, "Nearest", 5)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; val =
+self.getVectorVal((mag,dir))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return val<br>
+<br>
+</p>
+<h2><a name="Answer_to_Smart_Tabular_Exercise_3"></a>Answer to Smart
+Tabular Exercise 3</h2>
+<p>#
+---------------------------------------------------------------------<br>
+# This software is in the public domain, furnished "as is", without<br>
+# technical&nbsp; support, and with no warranty, express or implied, as
+to<br>
+# its usefulness for any purpose.<br>
+#<br>
+# FWFTable_BOU_Overrides.TextUtility<br>
+#<br>
+#&nbsp; This file is used for WFO specific overrides of the FWFTable<br>
+#&nbsp; formatter.&nbsp; <br>
+#<br>
+#<br>
+# Methods:<br>
+#&nbsp;&nbsp; Overrides:<br>
+#<br>
+#&nbsp;&nbsp; Additions:<br>
+#<br>
+# ---------------------------------------------------------------------<br>
+<br>
+import string, time, re, os, types, copy, AFPS<br>
+import TextRules<br>
+<br>
+#**********************************************************************<br>
+# MAKE NO CHANGES HERE<br>
+# The minimum contents of this file are the following class definition<br>
+# and the __init__ method with only "pass" line in it.<br>
+<br>
+class FWFTable_BOU_Overrides:<br>
+&nbsp;&nbsp;&nbsp; def __init__(self):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pass<br>
+<br>
+# End MAKE NO CHANGES HERE<br>
+#**********************************************************************<br>
+&nbsp;&nbsp;&nbsp; # Make sure to indent methods inside the class
+statement.<br>
+&nbsp;&nbsp;&nbsp; #----- WFO BOU FWFTable Overrides -----<br>
+<br>
+&nbsp;&nbsp;&nbsp; # It is helpful to put a debug statement at the
+beginning of each<br>
+&nbsp;&nbsp;&nbsp; # method to help with trouble-shooting.<br>
+&nbsp;&nbsp;&nbsp; #def _method(self):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #self.debug_print("Debug:
+_method in FWFTable_CR_Overrides")<br>
+<br>
+&nbsp;&nbsp;&nbsp; # Example of Overriding a dictionary from TextRules<br>
+&nbsp;&nbsp;&nbsp; #def phrase_descriptor_dict(self, tree, node):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #dict =
+TextRules.TextRules.phrase_descriptor_dict(self, tree, node)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #dict["PoP"] = "chance of"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #return dict<br>
+<br>
+&nbsp;&nbsp;&nbsp; def _rowList(self):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # The rowList is controls
+what parameters go into the table.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # The list is a set of
+(label:method) pairs.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # You may change the label
+if you like.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # The order of the list
+determines the order of the rows in the table<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # so you may re-arrange the
+order if you like.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return [<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+Directive requirements<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+MODIFICATION: Changing order of Precip and Cloud cover<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#("CLOUD COVER", self._cloudCover_row),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#("PRECIP TYPE", self._precipType_row),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("PRECIP TYPE", self._precipType_row),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("CLOUD COVER", self._cloudCover_row),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("CHANCE PRECIP (%)", self._chancePrecip_row),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("TEMP (24H TREND)", self._tempWithTrend_row),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("RH
+% (24H TREND)",self._rhWithTrend_row),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+Use these if you do not want trends<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#("TEMP", self._temp_row),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#("RH %", self._rh_row),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("20FTWND-VAL/AM(MPH)", self._windValleyMph_row),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("20FTWND-RDG/PM(MPH)", self._windRidgeMph_row),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+Directive optional products<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("PRECIP AMOUNT", self._precipAmount_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("PRECIP DURATION", self._precipDuration_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("PRECIP BEGIN", self._precipBegin_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("PRECIP END", self._precipEnd_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("MIXING HGT(M-AGL/MSL)", self._mixHgtM_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("MIXING HGT(FT-AGL/MSL)", self._mixHgtFt_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("TRANSPORT WND (KTS)", self._transWindKts_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("TRANSPORT WND (M/S)", self._transWindMS_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("TRANSPORT WND (MPH)", self._transWindMph_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("VENT RATE (KT-FT)", self._ventRateKtFt_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("VENT RATE (M/S-M)", self._ventRate_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("DISPERSION", self._dispersion_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("DSI", self._dsi_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("SUNSHINE HOURS", self._sunHours_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+If you need Ceiling, uncomment the Ceiling line in _getAnalysisList<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("CEILING", self._ceiling_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("CWR", self._cwr_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("LAL", self._lal_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("HAINES INDEX", self._haines_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("RH RECOVERY", self._rhRecovery_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+If you need 500m Mix Hgt Temp, uncomment the MixHgt500<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+line in _getAnalysisList<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("MIX HGT 500", self._mixHgt500_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("STABILITY CLASS", self._stability_row),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ]<br>
+&nbsp;
+<br>
+&nbsp;&nbsp;&nbsp; def _getVariables(self, argDict):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Make argDict accessible<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.__argDict = argDict<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Get variables from
+VariableList<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self._definition =
+argDict["forecastDef"]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for key in
+self._definition.keys():<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; exec
+"self._" + key + "= self._definition[key]"<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; varDict = argDict["varDict"]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self._issuanceType =
+varDict["Issuance Type"]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self._productType =
+varDict["Forecast Product"]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Determine issue time<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self._issueTime =
+self.IFP().AbsTime.current()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Determine expiration time<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self._expirationTimeOffset =
+12<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self._expireTime =
+self._issueTime + self._expirationTimeOffset*3600<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #self._expireTime =
+time.strftime("%d%H%M",time.gmtime(expireTime))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Set up product-specific
+variables<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self._colWidth = 13<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if self._columnJustification
+== "l":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self._rowLabelWidth = 22<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self._rowLabelWidth = 24<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self._fixedValueWidth = 13<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self._analysisList =
+self._getAnalysisList()<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Calculate current times<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self._ddhhmmTime =
+self.getCurrentTime(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+argDict, "%d%H%M", shiftToLocal=0, stripLeading=0)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # MODIFICATION: Changing
+format of current time<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #self._timeLabel =
+self.getCurrentTime(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp; argDict,
+"%l%M %p %Z %a %b %e %Y", stripLeading=1)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self._timeLabel =
+self.getCurrentTime(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+argDict, "%b %e %Y %l%M %p %Z %a", stripLeading=1)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return None<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp; def _sky(self, statDict, timeRange, argList):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Return a sky value<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sky =
+self.getStats(statDict, "Sky")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; print "USING OVERRIDDEN SKY
+THRESHOLDS"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # MODIFICATION -- Changing
+sky thresholds<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if sky is None:<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+value = ""<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; elif&nbsp; sky &lt; 10:<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+value = "CLEAR"<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; elif sky &lt; 30:<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+value = "MCLEAR"<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; elif sky &lt;= 60:<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+value = "PCLDY"<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; elif sky &lt;= 80:<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+value = "MCLDY"<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else:<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+value = "CLOUDY"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if sky is None:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+value = ""<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; elif&nbsp; sky &lt; 15:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+value = "CLEAR"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; elif sky &lt; 40:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+value = "MCLEAR"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; elif sky &lt;= 70:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+value = "PCLDY"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; elif sky &lt;= 85:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+value = "MCLDY"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+value = "CLOUDY"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return value<br>
+&nbsp;<br>
+</p>
+<h2><a name="Answer_to_Smart_Tabular_Exercise_4"></a>Answer to Smart
+Tabular Exercise 4</h2>
+# ---------------------------------------------------------------------<br>
+# This software is in the public domain, furnished "as is", without<br>
+# technical&nbsp; support, and with no warranty, express or implied, as
+to<br>
+# its usefulness for any purpose.<br>
+#<br>
+# FWFTable_BOU_Definition.TextUtility<br>
+#<br>
+#&nbsp; This file sets up all the Product Definition overrides for the <br>
+#&nbsp; FWFTable formatter for a site. <br>
+#<br>
+# ---------------------------------------------------------------------<br>
+<br>
+#**********************************************************************<br>
+# MAKE NO CHANGES HERE<br>
+# The minimum content of this file is the following Definition statement<br>
+<br>
+Definition = {}<br>
+<br>
+# End MAKE NO CHANGES HERE<br>
+#**********************************************************************<br>
+#####################################################<br>
+# Override VariableList if desired<br>
+#<br>
+#VariableList = []<br>
+<br>
+#----- WFO BOU FWFTable Definition -----<br>
+# Definition Statements must start in column 1.<br>
+<br>
+# REQUIRED CONFIGURATION ITEMS <br>
+Definition['displayName'] = None<br>
+#Definition['displayName'] = "FWF_Tabular"<br>
+<br>
+Definition["defaultEditAreas"] = "Combinations_FWFTable_BOU"<br>
+Definition["mapNameForCombinations"] = "FireWxZones_BOU" # Map
+background for creating Combinations<br>
+<br>
+# MODIFICATION -- Added gustWindDifferenceThreshold<br>
+Definition["gustWindDifferenceThreshold"] = 15<br>
+<br>
+<br>
+# ---------------------------------------------------------------------<br>
+# This software is in the public domain, furnished "as is", without<br>
+# technical&nbsp; support, and with no warranty, express or implied, as
+to<br>
+# its usefulness for any purpose.<br>
+#<br>
+# FWFTable_BOU_Overrides.TextUtility<br>
+#<br>
+#&nbsp; This file is used for WFO specific overrides of the FWFTable<br>
+#&nbsp; formatter.&nbsp; <br>
+#<br>
+#<br>
+# Methods:<br>
+#&nbsp;&nbsp; Overrides:<br>
+#<br>
+#&nbsp;&nbsp; Additions:<br>
+#<br>
+# ---------------------------------------------------------------------<br>
+<br>
+import string, time, re, os, types, copy, AFPS<br>
+import TextRules<br>
+<br>
+#**********************************************************************<br>
+# MAKE NO CHANGES HERE<br>
+# The minimum contents of this file are the following class definition<br>
+# and the __init__ method with only "pass" line in it.<br>
+<br>
+class FWFTable_BOU_Overrides:<br>
+&nbsp;&nbsp;&nbsp; def __init__(self):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pass<br>
+<br>
+# End MAKE NO CHANGES HERE<br>
+#**********************************************************************<br>
+&nbsp;&nbsp;&nbsp; # Make sure to indent methods inside the class
+statement.<br>
+&nbsp;&nbsp;&nbsp; #----- WFO BOU FWFTable Overrides -----<br>
+<br>
+&nbsp;&nbsp;&nbsp; # It is helpful to put a debug statement at the
+beginning of each<br>
+&nbsp;&nbsp;&nbsp; # method to help with trouble-shooting.<br>
+&nbsp;&nbsp;&nbsp; #def _method(self):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #self.debug_print("Debug:
+_method in FWFTable_CR_Overrides")<br>
+<br>
+&nbsp;&nbsp;&nbsp; # Example of Overriding a dictionary from TextRules<br>
+&nbsp;&nbsp;&nbsp; #def phrase_descriptor_dict(self, tree, node):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #dict =
+TextRules.TextRules.phrase_descriptor_dict(self, tree, node)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #dict["PoP"] = "chance of"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #return dict<br>
+&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp; def _rowList(self):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # The rowList is controls
+what parameters go into the table.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # The list is a set of
+(label:method) pairs.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # You may change the label
+if you like.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # The order of the list
+determines the order of the rows in the table<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # so you may re-arrange the
+order if you like.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return [<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+Directive requirements<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("CLOUD COVER", self._cloudCover_row),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("PRECIP TYPE",
+self._precipType_row),&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("CHANCE PRECIP (%)", self._chancePrecip_row),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("TEMP (24H TREND)", self._tempWithTrend_row),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("RH
+% (24H TREND)",self._rhWithTrend_row),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+Use these if you do not want trends<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#("TEMP", self._temp_row),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#("RH %", self._rh_row),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("20FTWND-VAL/AM(MPH)", self._windValleyMph_row),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("20FTWND-RDG/PM(MPH)", self._windRidgeMph_row),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+Directive optional products<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+MODIFICATION -- Added Wind Gust row<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("WIND
+GUST",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self._windGust_row),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("PRECIP AMOUNT", self._precipAmount_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("PRECIP DURATION", self._precipDuration_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("PRECIP BEGIN", self._precipBegin_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("PRECIP END", self._precipEnd_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("MIXING HGT(M-AGL/MSL)", self._mixHgtM_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("MIXING HGT(FT-AGL/MSL)", self._mixHgtFt_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("TRANSPORT WND (KTS)", self._transWindKts_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("TRANSPORT WND (M/S)", self._transWindMS_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("TRANSPORT WND (MPH)", self._transWindMph_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("VENT RATE (KT-FT)", self._ventRateKtFt_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("VENT RATE (M/S-M)", self._ventRate_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("DISPERSION", self._dispersion_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("DSI", self._dsi_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("SUNSHINE HOURS", self._sunHours_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+If you need Ceiling, uncomment the Ceiling line in _getAnalysisList<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("CEILING", self._ceiling_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("CWR", self._cwr_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("LAL", self._lal_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("HAINES INDEX", self._haines_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("RH RECOVERY", self._rhRecovery_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+If you need 500m Mix Hgt Temp, uncomment the MixHgt500<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+line in _getAnalysisList<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("MIX HGT 500", self._mixHgt500_row),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("STABILITY CLASS", self._stability_row),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ]<br>
+<br>
+&nbsp;&nbsp;&nbsp; def _getAnalysisList(self):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return[<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("Sky",
+self.avg),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("PoP",
+self.stdDevMaxAvg),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("Wx",
+self.dominantWx, [12]),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("Wx",
+self.dominantWx, [0]),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("MaxT",
+self.minMax),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("MinT",
+self.minMax),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("T",
+self.minMax),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("Wind",
+self.vectorAvg, [6]),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("Wind20ft",
+self.vectorAvg, [6]),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("QPF",
+self.minMaxSum),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("MaxRH",
+self.minMax),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("MinRH",
+self.minMax),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("RH",
+self.minMax),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("MixHgt",
+self.minMax, [0]),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("TransWind",
+self.vectorAvg, [0]),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("VentRate",
+self.minMax, [0]), # aka "Dispersion" prior to RPP20<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("DSI",
+self.avg), <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("HrsOfSun",
+self.avg),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Uncomment the
+next line if you're carrying Cig Height<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #("Ceiling",
+self.minMax),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("CWR",
+self.stdDevMaxAvg),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("Haines",
+self.minMaxAvg),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("LAL",
+self.maximum),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("Ttrend",
+self.minMax),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("RHtrend",
+self.minMax),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("Stability",
+self.avg),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Uncomment the
+next line if you're carrying 500m mix height temp<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #("MixHgt500",
+self.avg),<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # MODIFICATION
+-- Added entries for Wind Gust<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("WindGust",
+self.minMax),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("Wind",
+self.vectorMinMax),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ("Wind20ft",
+self.vectorMinMax),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ]<br>
+<br>
+&nbsp;&nbsp;&nbsp; def _windGust_row(self, fcst, label, statList,
+priorStatDict):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fcst = fcst + self.makeRow(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+label, self._colWidth, self._timeRangeList, statList,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self._windGust, None, self._rowLabelWidth, self._fixedValueWidth, <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self._columnJustification)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return fcst<br>
+<br>
+&nbsp;&nbsp;&nbsp; def _windGust(self, statDict, timeRange, argList):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Use Wind20ft if available,
+otherwise adjust Wind<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Stats vectorAvg<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # See if there is any
+WindGust data<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; windGust =
+self.getStats(statDict, "WindGust")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if windGust is None:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return ""<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Get the wind information
+and adjust if using Wind instead<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # of Wind20ft<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; windStats =
+self.getStats(statDict,"Wind20ft__vectorMinMax")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if windStats is None:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+windStats = self.getStats(statDict,"Wind__vectorMinMax")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if
+windStats is None:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return ""<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mag,
+dir = windStats<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+maxWind = self.getValue(mag, "Max")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+maxWind = maxWind * self._windAdjustmentFactor<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+windStats = (maxWind, dir)<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Check the
+gustWindDifferenceThreshold<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mag, dir = windStats<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; maxWind = self.getValue(mag,
+"Max")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; maxGust =
+self.getValue(windGust, "Max")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if maxGust - maxWind &lt;=
+self._gustWindDifferenceThreshold:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return ""<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return self.getScalarVal(maxGust) <br>
+<br>
+<br>
+<a name="Answer_to_Phrase_Exercise_1"></a>Answer to Phrase Exercise 1<br>
+<br>
+# ---------------------------------------------------------------------<br>
+# This software is in the public domain, furnished "as is", without<br>
+# technical&nbsp; support, and with no warranty, express or implied, as
+to<br>
+# its usefulness for any purpose.<br>
+#<br>
+# ZFP_BOU_Overrides.TextUtility<br>
+#<br>
+#&nbsp; This file is used for WFO specific overrides of the ZFP<br>
+#&nbsp; formatter.&nbsp; <br>
+#<br>
+#<br>
+# Methods:<br>
+#&nbsp;&nbsp; Overrides:<br>
+#<br>
+#&nbsp;&nbsp; Additions:<br>
+#<br>
+# ---------------------------------------------------------------------<br>
+<br>
+import string, time, re, os, types, copy, AFPS<br>
+import TextRules<br>
+<br>
+#**********************************************************************<br>
+# MAKE NO CHANGES HERE<br>
+# The minimum contents of this file are the following class definition<br>
+# and the __init__ method with only "pass" line in it.<br>
+<br>
+class ZFP_BOU_Overrides:<br>
+&nbsp;&nbsp;&nbsp; def __init__(self):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pass<br>
+<br>
+# End MAKE NO CHANGES HERE<br>
+#**********************************************************************<br>
+&nbsp;&nbsp;&nbsp; # Make sure to indent methods inside the class
+statement.<br>
+&nbsp;&nbsp;&nbsp; #----- WFO BOU ZFP Overrides -----<br>
+<br>
+&nbsp;&nbsp;&nbsp; # It is helpful to put a debug statement at the
+beginning of each<br>
+&nbsp;&nbsp;&nbsp; # method to help with trouble-shooting.<br>
+&nbsp;&nbsp;&nbsp; #def _method(self):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #self.debug_print("Debug:
+_method in ZFP_CR_Overrides")<br>
+<br>
+&nbsp;&nbsp;&nbsp; # Example of Overriding a dictionary from TextRules<br>
+&nbsp;&nbsp;&nbsp; #def phrase_descriptor_dict(self, tree, node):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #dict =
+TextRules.TextRules.phrase_descriptor_dict(self, tree, node)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #dict["PoP"] = "chance of"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #return dict<br>
+&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp; def snow_words(self, tree, node):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Create phrase for snow
+accumulation"<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # First check if the pop
+threshold has been met.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # If not, then do not
+generate phrase.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; threshold =
+self.pop_snow_lower_threshold(tree, node)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lowPopFlag =
+self.lowPop_flag(tree, node, threshold)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if lowPopFlag == 1:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return self.setWords(node, "")<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Second, check to see if it
+is snowing based on a configurable<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # list called
+accumulatingWx. If not, then do not generate phrase.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; timeRange =
+node.getTimeRange()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; areaLabel =
+node.getAreaLabel()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; wxStats =&nbsp;
+tree.stats.get("Wx", timeRange, areaLabel, mergeMethod="List")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if wxStats is None:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return self.setWords(node, "")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; accumulatingWx = ['S', 'SW',
+'IP', 'IC']<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; accumulatingWxFlag = 0<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for rankList, tr in wxStats:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+subkeys = self.getSubkeys(rankList)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for
+subkey in subkeys:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if subkey.wxType() in accumulatingWx:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+accumulatingWxFlag = 1<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if accumulatingWxFlag == 0:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return self.setWords(node, "")<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Third, load in the SnowAmt
+statistics.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; threshold = 1<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; statDict = node.getStatDict()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; stats =
+self.getStats(statDict, "SnowAmt")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if stats is None:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return self.setWords(node, "") <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; min, max =
+self.getValue(stats, "MinMax")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Fourth, round accumulation
+and create accumulation strings.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if min%1 == 0:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; min
+= int(min)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+minStr = `min`<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+minStr = `int(min+0.5)`<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if max%1 == 0:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; max
+= int(max)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+maxStr = `max`<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+maxStr = `int(max+0.5)`<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #print "min, max", min, max,
+node.getTimeRange(), node.getAreaLabel()<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Finally, generate the snow
+accumulation phrase.&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if min == 0 and max == 0:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return self.setWords(node,"no")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; elif min &lt; 0.5 and max
+&lt; 0.5:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return self.setWords(node,"little or no")<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; outUnits =
+self.element_outUnits(tree, node, "SnowAmt", "SnowAmt")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unit =
+self.units_descriptor(tree, node,"unit", outUnits)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; units =
+self.units_descriptor(tree, node,"units", outUnits)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; min = int(min+0.5)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; max = int(max+0.5)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Single Value input<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if&nbsp; min == max:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+Handle case of 1 inch<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if
+min == 1:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+units = unit<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+value = "around " + minStr<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Range<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+value = "of " + minStr + "-" + maxStr<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+Handle case when lower value is 0<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if
+min == 0:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+value = "up to " + maxStr<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if
+max == 1:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+units = unit<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; snowPhrase = value + " " +
+units&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return self.setWords(node,
+snowPhrase)<br>
+<br>
+<a name="Answer_to_Phrase_Exercise_4_"></a>Answer to Phrase Exercise 4<br>
+<br>
+# ---------------------------------------------------------------------<br>
+# This software is in the public domain, furnished "as is", without<br>
+# technical&nbsp; support, and with no warranty, express or implied, as
+to<br>
+# its usefulness for any purpose.<br>
+#<br>
+# ZFP_BOU_Overrides.TextUtility<br>
+#<br>
+#&nbsp; This file is used for WFO specific overrides of the ZFP<br>
+#&nbsp; formatter.&nbsp; <br>
+#<br>
+#<br>
+# Methods:<br>
+#&nbsp;&nbsp; Overrides:<br>
+#<br>
+#&nbsp;&nbsp; Additions:<br>
+#<br>
+# ---------------------------------------------------------------------<br>
+<br>
+import string, time, re, os, types, copy, AFPS<br>
+import TextRules<br>
+<br>
+#**********************************************************************<br>
+# MAKE NO CHANGES HERE<br>
+# The minimum contents of this file are the following class definition<br>
+# and the __init__ method with only "pass" line in it.<br>
+<br>
+class ZFP_BOU_Overrides:<br>
+&nbsp;&nbsp;&nbsp; def __init__(self):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; pass<br>
+<br>
+# End MAKE NO CHANGES HERE<br>
+#**********************************************************************<br>
+&nbsp;&nbsp;&nbsp; # Make sure to indent methods inside the class
+statement.<br>
+&nbsp;&nbsp;&nbsp; #----- WFO BOU ZFP Overrides -----<br>
+<br>
+&nbsp;&nbsp;&nbsp; # It is helpful to put a debug statement at the
+beginning of each<br>
+&nbsp;&nbsp;&nbsp; # method to help with trouble-shooting.<br>
+&nbsp;&nbsp;&nbsp; #def _method(self):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #self.debug_print("Debug:
+_method in ZFP_CR_Overrides")<br>
+<br>
+&nbsp;&nbsp;&nbsp; # Example of Overriding a dictionary from TextRules<br>
+&nbsp;&nbsp;&nbsp; #def phrase_descriptor_dict(self, tree, node):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #dict =
+TextRules.TextRules.phrase_descriptor_dict(self, tree, node)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #dict["PoP"] = "chance of"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #return dict<br>
+&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp; def phrase_descriptor_dict(self, tree, node):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Descriptors for phrases<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dict =
+TextRules.TextRules.phrase_descriptor_dict(self, tree, node)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # This is the default.
+Triggers if ALL coverage terms are areal<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #dict["PoP"] =
+self.allAreal_or_chance_pop_descriptor,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Uncomment this line for
+invoking areal or chance pop descriptor<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp; Triggers
+if ANY coverage terms are areal<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #dict["PoP"] =
+self.areal_or_chance_pop_descriptor,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Uncomment this line to use
+"chance" descriptor in all cases<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #dict["PoP"] = "chance of"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; dict["QPF"] = "qualitative
+precipitation"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return dict<br>
+<br>
+<br>
+&nbsp;&nbsp;&nbsp; def qpf_phrase(self):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"setUpMethod": self.qpf_setUp,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"wordMethod": self.qpf_words,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"phraseMethods": self.standard_phraseMethods()&nbsp; <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+}&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp; def qpf_setUp(self, tree, node):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; elementInfoList =
+[self.ElementInfo("QPF", "List")]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.subPhraseSetUp(tree,
+node, elementInfoList,
+self.scalarConnector)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return self.DONE()<br>
+&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp; def qpf_words(self, tree, node) :<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Create phrase for QPF"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Wait for weather phrase to
+complete<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; statDict = node.getStatDict()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; qpf =
+self.getStats(statDict, "QPF")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if qpf is None:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return self.setWords(node, "")<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Analysis-driven<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; min, max =
+self.getValue(qpf, "MinMax")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; units =
+self.units_descriptor(tree, node, "units", "in")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; min = int(min)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; max = int(max)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; minStr = self.fformat(min,
+.01)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; maxStr = self.fformat(max,
+.01)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #print "min, max", min, max<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if min==max:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+words = minStr + " " + units<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+words =minStr + "-" + maxStr + " " + units<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return self.setWords(node,
+words)<br>
+<br>
+&nbsp;&nbsp;&nbsp; def Period_1(self):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; component =&nbsp; { <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"type": "component",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"methodList": [<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.orderPhrases,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.assemblePhrases,&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.wordWrap,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"analysisList": [<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#("MinT", self.avg),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#("MaxT", self.avg),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("MinT", self.stdDevMinMax),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("MaxT", self.stdDevMinMax),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("T", self.hourlyTemp),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("T", self.minMax),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Sky", self.median, [3]),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("PoP", self._PoP_analysisMethod("Period_1"), [3]),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("PoP", self.binnedPercent, [3]),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("SnowAmt", self.accumMinMax),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("StormTotalSnow", self.accumMinMax),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("IceAccum", self.accumMinMax),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("SnowLevel", self.avg),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Wind", self.vectorMedianRange, [6]),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Wind", self.vectorMinMax, [6]),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("WindGust", self.maximum, [6]),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("Wx", self.rankedWx, [3]),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("WindChill", self.minMax, [6]),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("HeatIndex", self.minMax, [6]),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("QPF", self.accumMinMax, [6]),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"phraseList":[<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.sky_phrase,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.skyPopWx_phrase,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.wind_summary,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.reportTrends,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.weather_phrase,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.severeWeather_phrase,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.heavyPrecip_phrase,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.visibility_phrase,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.snow_phrase,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.total_snow_phrase,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.snowLevel_phrase,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.iceAccumulation_phrase,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.highs_phrase,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.lows_phrase,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#self.highs_range_phrase,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#self.lows_range_phrase,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.temp_trends,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.wind_withGusts_phrase,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.lake_wind_phrase,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.popMax_phrase,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.windChill_phrase,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# Alternative<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#self.windBased_windChill_phrase,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.heatIndex_phrase,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.qpf_phrase,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+],<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"additionalAreas": [ <br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# Areas listed by weather element that will be<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# sampled and analysed.<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# E.g. used for reporting population centers for temperatures. <br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("MaxT", ["City1", "City2"]),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("MinT", ["City1", "City2"]),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+],<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"intersectAreas": [ <br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# Areas listed by weather element that will be<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# intersected with the current area then<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# sampled and analysed.&nbsp; <br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+# E.g. used in local effects methods.<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("MaxT", ["Mountains"]),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+("MinT", ["Valleys"]),<br>
+##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if self._arealSkyAnalysis:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+component["analysisList"].append(("Sky", self.binnedPercent, [6]))<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if self._useStormTotalSnow:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+phraseList = component["phraseList"]<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+index = phraseList.index(self.total_snow_phrase)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+phraseList[index] = self.stormTotalSnow_phrase<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+component["phraseList"] = phraseList<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return
+component&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <br>
+<p></p>

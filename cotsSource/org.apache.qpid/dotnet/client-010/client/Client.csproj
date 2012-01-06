@@ -1,0 +1,222 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{B911FFD7-754F-4735-A188-218D5065BE79}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>client</RootNamespace>
+    <AssemblyName>Qpid Client</AssemblyName>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>2.0</OldToolsVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\log4net\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="client\Client.cs" />
+    <Compile Include="client\ClientConnectionDelegate.cs" />
+    <Compile Include="client\ClientSession.cs" />
+    <Compile Include="client\ClientSessionDelegate.cs" />
+    <Compile Include="client\ErrorCode.cs" />
+    <Compile Include="client\IClient.cs" />
+    <Compile Include="client\IClientSession.cs" />
+    <Compile Include="client\IClosedListener.cs" />
+    <Compile Include="client\IMessage.cs" />
+    <Compile Include="client\Message.cs" />
+    <Compile Include="client\IMessageListener.cs" />
+    <Compile Include="generated\Acquired.cs" />
+    <Compile Include="generated\ConnectionClose.cs" />
+    <Compile Include="generated\ConnectionCloseCode.cs" />
+    <Compile Include="generated\ConnectionCloseOk.cs" />
+    <Compile Include="generated\ConnectionHeartbeat.cs" />
+    <Compile Include="generated\ConnectionOpen.cs" />
+    <Compile Include="generated\ConnectionOpenOk.cs" />
+    <Compile Include="generated\ConnectionRedirect.cs" />
+    <Compile Include="generated\ConnectionSecure.cs" />
+    <Compile Include="generated\ConnectionSecureOk.cs" />
+    <Compile Include="generated\ConnectionStart.cs" />
+    <Compile Include="generated\ConnectionStartOk.cs" />
+    <Compile Include="generated\ConnectionTune.cs" />
+    <Compile Include="generated\ConnectionTuneOk.cs" />
+    <Compile Include="generated\Constant.cs" />
+    <Compile Include="generated\DeliveryProperties.cs" />
+    <Compile Include="generated\DtxCommit.cs" />
+    <Compile Include="generated\DtxEnd.cs" />
+    <Compile Include="generated\DtxForget.cs" />
+    <Compile Include="generated\DtxGetTimeout.cs" />
+    <Compile Include="generated\DtxPrepare.cs" />
+    <Compile Include="generated\DtxRecover.cs" />
+    <Compile Include="generated\DtxRollback.cs" />
+    <Compile Include="generated\DtxSelect.cs" />
+    <Compile Include="generated\DtxSetTimeout.cs" />
+    <Compile Include="generated\DtxStart.cs" />
+    <Compile Include="generated\DtxXaStatus.cs" />
+    <Compile Include="generated\ExchangeBind.cs" />
+    <Compile Include="generated\ExchangeBound.cs" />
+    <Compile Include="generated\ExchangeBoundResult.cs" />
+    <Compile Include="generated\ExchangeDeclare.cs" />
+    <Compile Include="generated\ExchangeDelete.cs" />
+    <Compile Include="generated\ExchangeQuery.cs" />
+    <Compile Include="generated\ExchangeQueryResult.cs" />
+    <Compile Include="generated\ExchangeUnbind.cs" />
+    <Compile Include="generated\ExecutionErrorCode.cs" />
+    <Compile Include="generated\ExecutionException.cs" />
+    <Compile Include="generated\ExecutionResult.cs" />
+    <Compile Include="generated\ExecutionSync.cs" />
+    <Compile Include="generated\FileReturnCode.cs" />
+    <Compile Include="generated\FragmentProperties.cs" />
+    <Compile Include="generated\GetTimeoutResult.cs" />
+    <Compile Include="generated\IInvoker.cs" />
+    <Compile Include="generated\Invoker.cs" />
+    <Compile Include="generated\MessageAccept.cs" />
+    <Compile Include="generated\MessageAcceptMode.cs" />
+    <Compile Include="generated\MessageAcquire.cs" />
+    <Compile Include="generated\MessageAcquireMode.cs" />
+    <Compile Include="generated\MessageCancel.cs" />
+    <Compile Include="generated\MessageCreditUnit.cs" />
+    <Compile Include="generated\MessageDeliveryMode.cs" />
+    <Compile Include="generated\MessageDeliveryPriority.cs" />
+    <Compile Include="generated\MessageFlow.cs" />
+    <Compile Include="generated\MessageFlowMode.cs" />
+    <Compile Include="generated\MessageFlush.cs" />
+    <Compile Include="generated\MessageProperties.cs" />
+    <Compile Include="generated\MessageReject.cs" />
+    <Compile Include="generated\MessageRejectCode.cs" />
+    <Compile Include="generated\MessageRelease.cs" />
+    <Compile Include="generated\MessageResume.cs" />
+    <Compile Include="generated\MessageResumeResult.cs" />
+    <Compile Include="generated\MessageSetFlowMode.cs" />
+    <Compile Include="generated\MessageStop.cs" />
+    <Compile Include="generated\MessageSubscribe.cs" />
+    <Compile Include="generated\MessageTransfer.cs" />
+    <Compile Include="generated\MethodDelegate.cs" />
+    <Compile Include="generated\Option.cs" />
+    <Compile Include="generated\QueueDeclare.cs" />
+    <Compile Include="generated\QueueDelete.cs" />
+    <Compile Include="generated\QueuePurge.cs" />
+    <Compile Include="generated\QueueQuery.cs" />
+    <Compile Include="generated\QueueQueryResult.cs" />
+    <Compile Include="generated\RecoverResult.cs" />
+    <Compile Include="generated\ReplyTo.cs" />
+    <Compile Include="generated\SegmentType.cs" />
+    <Compile Include="generated\SessionAttach.cs" />
+    <Compile Include="generated\SessionAttached.cs" />
+    <Compile Include="generated\SessionCommandFragment.cs" />
+    <Compile Include="generated\SessionCommandPoint.cs" />
+    <Compile Include="generated\SessionCompleted.cs" />
+    <Compile Include="generated\SessionConfirmed.cs" />
+    <Compile Include="generated\SessionDetach.cs" />
+    <Compile Include="generated\SessionDetachCode.cs" />
+    <Compile Include="generated\SessionDetached.cs" />
+    <Compile Include="generated\SessionExpected.cs" />
+    <Compile Include="generated\SessionFlush.cs" />
+    <Compile Include="generated\SessionGap.cs" />
+    <Compile Include="generated\SessionHeader.cs" />
+    <Compile Include="generated\SessionKnownCompleted.cs" />
+    <Compile Include="generated\SessionRequestTimeout.cs" />
+    <Compile Include="generated\SessionTimeout.cs" />
+    <Compile Include="generated\StreamReturnCode.cs" />
+    <Compile Include="generated\StructFactory.cs" />
+    <Compile Include="generated\Track.cs" />
+    <Compile Include="generated\TxCommit.cs" />
+    <Compile Include="generated\TxRollback.cs" />
+    <Compile Include="generated\TxSelect.cs" />
+    <Compile Include="generated\Type.cs" />
+    <Compile Include="generated\XaResult.cs" />
+    <Compile Include="generated\Xid.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="transport\Binary.cs" />
+    <Compile Include="transport\IBinding.cs" />
+    <Compile Include="transport\Channel.cs" />
+    <Compile Include="transport\ChannelDelegate.cs" />
+    <Compile Include="transport\ClientDelegate.cs" />
+    <Compile Include="transport\codec\AbstractDecoder.cs" />
+    <Compile Include="transport\codec\AbstractEncoder.cs" />
+    <Compile Include="transport\codec\IDecoder.cs" />
+    <Compile Include="transport\codec\IEncodable.cs" />
+    <Compile Include="transport\codec\IEncoder.cs" />
+    <Compile Include="transport\codec\MSDecoder.cs" />
+    <Compile Include="transport\codec\MSEncoder.cs" />
+    <Compile Include="transport\Connection.cs" />
+    <Compile Include="transport\ConnectionDelegate.cs" />
+    <Compile Include="transport\exception\ConnectionException.cs" />
+    <Compile Include="transport\exception\ExceptionArgs.cs" />
+    <Compile Include="transport\exception\ProtocolVersionException.cs" />
+    <Compile Include="transport\exception\SessionClosedException.cs" />
+    <Compile Include="transport\exception\SessionException.cs" />
+    <Compile Include="transport\exception\TransportException.cs" />
+    <Compile Include="transport\Field.cs" />
+    <Compile Include="transport\IFuture.cs" />
+    <Compile Include="transport\Header.cs" />
+    <Compile Include="transport\ISession.cs" />
+    <Compile Include="transport\Method.cs" />
+    <Compile Include="transport\network\Assembler.cs" />
+    <Compile Include="transport\network\Disassembler.cs" />
+    <Compile Include="transport\network\Frame.cs" />
+    <Compile Include="transport\network\io\IIoSender.cs" />
+    <Compile Include="transport\network\InputHandler.cs" />
+    <Compile Include="transport\network\io\IIoTransport.cs" />
+    <Compile Include="transport\network\io\IoReceiver.cs" />
+    <Compile Include="transport\network\io\IoSender.cs" />
+    <Compile Include="transport\network\io\IoSSLTransport.cs" />
+    <Compile Include="transport\network\io\IoTransport.cs" />
+    <Compile Include="transport\network\INetworkDelegate.cs" />
+    <Compile Include="transport\network\INetworkEvent.cs" />
+    <Compile Include="transport\IProtocolDelegate.cs" />
+    <Compile Include="transport\ProtocolError.cs" />
+    <Compile Include="transport\IProtocolEvent.cs" />
+    <Compile Include="transport\ProtocolHeader.cs" />
+    <Compile Include="transport\Range.cs" />
+    <Compile Include="transport\RangeSet.cs" />
+    <Compile Include="transport\ReceivedPayload.cs" />
+    <Compile Include="transport\IReceiver.cs" />
+    <Compile Include="transport\ISender.cs" />
+    <Compile Include="transport\Session.cs" />
+    <Compile Include="transport\SessionDelegate.cs" />
+    <Compile Include="transport\Struct.cs" />
+    <Compile Include="transport\util\ByteEncoder.cs" />
+    <Compile Include="transport\util\CircularBuffer.cs" />
+    <Compile Include="transport\util\Functions.cs" />
+    <Compile Include="transport\util\Logger.cs" />
+    <Compile Include="transport\util\ResultFuture.cs" />
+    <Compile Include="transport\util\Serial.cs" />
+    <Compile Include="transport\util\UUID.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

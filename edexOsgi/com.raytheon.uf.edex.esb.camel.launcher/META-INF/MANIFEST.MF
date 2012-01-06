@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: ESB Launcher Plug-in
+Bundle-SymbolicName: com.raytheon.uf.edex.esb.camel.launcher
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Vendor: Raytheon
+Require-Bundle: org.apache.activemq
+Main-Class: com.raytheon.uf.edex.esb.Main
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

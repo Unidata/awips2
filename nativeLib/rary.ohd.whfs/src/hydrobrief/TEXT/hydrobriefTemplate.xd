@@ -1,0 +1,190 @@
+module 'XApplication'
+applicationName = 'XApplication';
+generateNameC = 'hydrobriefTemplate.c';
+generateNameExterns = 'hydrobriefTemplate.h';
+generateNameCPP = '/users/cag/exp/dialogtest/hydrobrief.cxx';
+generateNameCPPExterns = '/users/cag/exp/dialogtest/hydrobrief.hxx';
+generateNameResDB = 'hydrobriefTemplate.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+generateCPPHeaderFile = '';
+generateMask = 4390920;
+useMask = 1;
+ansiC = 0;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+value
+object 'shell' : XmDialogShell {
+	arguments {
+	XmNallowShellResize = true;
+	XmNtitle = 'HydroBrief';
+	XmNminWidth = 800;
+	XmNminHeight = 850;
+	XmNmaxWidth = 800;
+	XmNmaxHeight = 850;
+	};
+object 'form' : XmForm {
+	arguments {
+	XmNautoUnmanage = false;
+	};
+object 'streamSL' : XmScrolledList {
+	arguments {
+	};
+object 'streamHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	};
+};
+object 'streamVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	};
+};
+object 'streamLI' : XmList {
+	arguments {
+	XmNlistSizePolicy = 2;
+	};
+};
+};
+object 'streamListLA' : XmLabel {
+	arguments {
+	XmNlabelString = 'Stream List';
+	};
+};
+object 'closePB' : XmPushButton {
+	arguments {
+	XmNwidth = 85;
+	XmNheight = 35;
+	XmNlabelString = 'Close';
+	};
+};
+object 'optionFR' : XmFrame {
+	arguments {
+	};
+object 'optionFO' : XmForm {
+	arguments {
+	};
+object 'stageBasisOM' : XmOptionMenu {
+	arguments {
+	};
+object 'stageBasisOMLA' : XmLabel GADGET {
+	arguments {
+	name = 'OptionLabel';
+	XmNlabelString = 'Stage Basis:';
+	};
+};
+object 'stageBasisCB' : XmCascadeButton GADGET {
+	arguments {
+	name = 'OptionButton';
+	};
+object 'stageBasisPDM' : XmPulldownMenu {
+	arguments {
+	};
+object 'maxObsFcstPB' : XmPushButton {
+	arguments {
+	XmNlabelString = 'Max Obs/Fcst';
+	};
+};
+object 'obsPB' : XmPushButton {
+	arguments {
+	XmNlabelString = 'Observed';
+	};
+};
+object 'fcstPB' : XmPushButton {
+	arguments {
+	XmNlabelString = 'Forecast';
+	};
+};
+};
+};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 10;
+    };
+    };
+};
+object 'filterFrameLA' : XmLabel {
+	arguments {
+	XmNchildType = 2;
+	XmNlabelString = 'Options';
+	};
+};
+};
+object 'drawAreaFrameLA' : XmLabel {
+	arguments {
+	XmNlabelString = 'Stations ordered by river mile';
+	};
+};
+object 'drawingAreaSW' : XmScrolledWindow {
+	arguments {
+	XmNscrollingPolicy = 0;
+	};
+object 'drawingAreaHSB' : XmScrollBar {
+	arguments {
+	name = 'HorScrollBar';
+	};
+};
+object 'drawingAreaVSB' : XmScrollBar {
+	arguments {
+	name = 'VertScrollBar';
+	};
+};
+object 'briefDA' : XmDrawingArea {
+	arguments {
+	XmNbackground = color('Black');
+	};
+};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -375;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -320;
+	XmNtopAttachment = 1 0 50;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -100;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -50;
+	XmNtopAttachment = 1 0 25;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -440;
+	XmNleftAttachment = 1 0 350;
+	XmNbottomAttachment = 2 0 -840;
+	XmNtopAttachment = 1 0 810;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -790;
+	XmNleftAttachment = 1 0 385;
+	XmNbottomAttachment = 2 0 -320;
+	XmNtopAttachment = 1 0 50;
+    };
+    attachment {
+	XmNrightAttachment = 0 0 0;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 0 0 0;
+	XmNtopAttachment = 1 0 335;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -790;
+	XmNleftAttachment = 1 0 10;
+	XmNbottomAttachment = 2 0 -800;
+	XmNtopAttachment = 1 0 360;
+    };
+    };
+};
+};
+end module;

@@ -1,0 +1,867 @@
+/*
+    File: RpfFcstPoint.pgc
+    Author  : CDBGEN
+    Created : Wed Aug 06 12:34:29 EDT 2008 using database hd_ob83empty
+    Description: This .pgc file has an associated header file. 
+            and defines all functions and the table's INTERNAL record structure.
+*/
+
+#include "RpfFcstPoint.h"
+
+EXEC SQL include sqlda;
+EXEC SQL include sqltypes;
+EXEC SQL include sql3types;
+EXEC SQL include pgtypes_timestamp;
+EXEC SQL include pgtypes_date;
+EXEC SQL include pgtypes_interval;
+EXEC SQL include pgtypes_numeric;
+
+EXEC SQL BEGIN DECLARE SECTION;
+struct RpfFcstPoint_t
+{
+    char		lid[9];
+    char		group_id[9];
+    long		ordinal;
+    double		chg_threshold;
+    char		rec_type[4];
+    char		primary_back[4];
+    char		secondary_back[4];
+    long		backhrs;
+    long		forwardhrs;
+    double		adjustendhrs;
+
+    int		ind_ordinal;
+    int		ind_chg_threshold;
+    int		ind_rec_type;
+    int		ind_backhrs;
+    int		ind_forwardhrs;
+    int		ind_adjustendhrs;
+} RpfFcstPoint_rec;
+EXEC SQL END DECLARE SECTION;
+
+#define QUERY_LEN 9999
+static int errorLoggingOn = 1;
+
+static DbStatus dbStatus;
+
+
+/* ------------------------------------------------------------------------- */
+
+RpfFcstPoint * GetRpfFcstPoint(const char * where)
+{
+
+    RpfFcstPoint * listPtr = NULL;
+    RpfFcstPoint * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM RpfFcstPoint ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RpfFcstPoint_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRpfFcstPoint() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur1 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRpfFcstPoint() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur1;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRpfFcstPoint() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur1 INTO 
+    :dbs.lid, :dbs.group_id, 
+    :dbs.ordinal:dbs.ind_ordinal, :dbs.chg_threshold:dbs.ind_chg_threshold, 
+    :dbs.rec_type:dbs.ind_rec_type, :dbs.primary_back, 
+    :dbs.secondary_back, :dbs.backhrs:dbs.ind_backhrs, 
+    :dbs.forwardhrs:dbs.ind_forwardhrs, :dbs.adjustendhrs:dbs.ind_adjustendhrs    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "GetRpfFcstPoint() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (RpfFcstPoint *) malloc(sizeof(RpfFcstPoint))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->group_id, dbs.group_id);
+
+            structPtr->ordinal = dbs.ordinal;
+            setNullIfIndicated(dbs.ind_ordinal, INT, &structPtr->ordinal);
+
+            structPtr->chg_threshold = dbs.chg_threshold;
+            setNullIfIndicated(dbs.ind_chg_threshold, DOUBLE, &structPtr->chg_threshold);
+
+            strcpy(structPtr->rec_type, dbs.rec_type);
+            setNullIfIndicated(dbs.ind_rec_type, CHAR, structPtr->rec_type);
+
+            strcpy(structPtr->primary_back, dbs.primary_back);
+
+            strcpy(structPtr->secondary_back, dbs.secondary_back);
+
+            structPtr->backhrs = dbs.backhrs;
+            setNullIfIndicated(dbs.ind_backhrs, INT, &structPtr->backhrs);
+
+            structPtr->forwardhrs = dbs.forwardhrs;
+            setNullIfIndicated(dbs.ind_forwardhrs, INT, &structPtr->forwardhrs);
+
+            structPtr->adjustendhrs = dbs.adjustendhrs;
+            setNullIfIndicated(dbs.ind_adjustendhrs, DOUBLE, &structPtr->adjustendhrs);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur1 INTO 
+        :dbs.lid, :dbs.group_id, 
+        :dbs.ordinal:dbs.ind_ordinal, :dbs.chg_threshold:dbs.ind_chg_threshold, 
+        :dbs.rec_type:dbs.ind_rec_type, :dbs.primary_back, 
+        :dbs.secondary_back, :dbs.backhrs:dbs.ind_backhrs, 
+        :dbs.forwardhrs:dbs.ind_forwardhrs, :dbs.adjustendhrs:dbs.ind_adjustendhrs        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "GetRpfFcstPoint() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur1;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+RpfFcstPoint * SelectRpfFcstPoint(const char * where)
+{
+
+    RpfFcstPoint * listPtr = NULL;
+    RpfFcstPoint * structPtr = NULL;
+    char selectStatement[] = "SELECT * FROM RpfFcstPoint ";
+
+    int rowCount = 0;
+    int first = 1;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RpfFcstPoint_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRpfFcstPoint() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL DECLARE tcur2 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRpfFcstPoint() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    EXEC SQL OPEN tcur2;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRpfFcstPoint() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    listPtr = NULL;
+    memset(&dbs, '\0', sizeof(dbs));
+
+    EXEC SQL FETCH tcur2 INTO 
+    :dbs.lid, :dbs.group_id, 
+    :dbs.ordinal:dbs.ind_ordinal, :dbs.chg_threshold:dbs.ind_chg_threshold, 
+    :dbs.rec_type:dbs.ind_rec_type, :dbs.primary_back, 
+    :dbs.secondary_back, :dbs.backhrs:dbs.ind_backhrs, 
+    :dbs.forwardhrs:dbs.ind_forwardhrs, :dbs.adjustendhrs:dbs.ind_adjustendhrs    ;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectRpfFcstPoint() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (NULL);
+    }
+
+    while (SQLCODE == 0) 
+    {
+        rowCount++;
+        if ((structPtr = (RpfFcstPoint *) malloc(sizeof(RpfFcstPoint))) != NULL)
+        {
+
+            strcpy(structPtr->lid, dbs.lid);
+
+            strcpy(structPtr->group_id, dbs.group_id);
+
+            structPtr->ordinal = dbs.ordinal;
+            setNullIfIndicated(dbs.ind_ordinal, INT, &structPtr->ordinal);
+
+            structPtr->chg_threshold = dbs.chg_threshold;
+            setNullIfIndicated(dbs.ind_chg_threshold, DOUBLE, &structPtr->chg_threshold);
+
+            strcpy(structPtr->rec_type, dbs.rec_type);
+            setNullIfIndicated(dbs.ind_rec_type, CHAR, structPtr->rec_type);
+
+            strcpy(structPtr->primary_back, dbs.primary_back);
+
+            strcpy(structPtr->secondary_back, dbs.secondary_back);
+
+            structPtr->backhrs = dbs.backhrs;
+            setNullIfIndicated(dbs.ind_backhrs, INT, &structPtr->backhrs);
+
+            structPtr->forwardhrs = dbs.forwardhrs;
+            setNullIfIndicated(dbs.ind_forwardhrs, INT, &structPtr->forwardhrs);
+
+            structPtr->adjustendhrs = dbs.adjustendhrs;
+            setNullIfIndicated(dbs.ind_adjustendhrs, DOUBLE, &structPtr->adjustendhrs);
+
+
+        }
+        else
+        {
+            break;
+        }
+
+        if (first)
+        {
+            listPtr = structPtr;
+            ListInit(&listPtr->list);
+            first = 0;
+        }
+
+        ListAdd(&listPtr->list, &structPtr->node);
+        memset(&dbs, '\0', sizeof(dbs));
+
+        EXEC SQL FETCH tcur2 INTO 
+        :dbs.lid, :dbs.group_id, 
+        :dbs.ordinal:dbs.ind_ordinal, :dbs.chg_threshold:dbs.ind_chg_threshold, 
+        :dbs.rec_type:dbs.ind_rec_type, :dbs.primary_back, 
+        :dbs.secondary_back, :dbs.backhrs:dbs.ind_backhrs, 
+        :dbs.forwardhrs:dbs.ind_forwardhrs, :dbs.adjustendhrs:dbs.ind_adjustendhrs        ;
+
+        if (SQLCODE < 0)
+        {
+            if (errorLoggingOn)
+            {
+                fprintf(stderr, "SelectRpfFcstPoint() in Nth fetch section --- ERROR\n");
+                fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+                fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+                fflush(stderr);
+            }
+            initDbStatus(&dbStatus);
+            return (NULL);
+        }
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur2;
+    return(listPtr);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int SelectRpfFcstPointCount(const char * where)
+{
+
+    char selectStatement[] = "SELECT COUNT(*) FROM RpfFcstPoint ";
+
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    int rowCount = 0;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, SELECT);
+
+    strcpy(queryBuffer, selectStatement);
+
+    if ( ( where != NULL ) && ( * where != '\0' ) ) 
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE tid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRpfFcstPoint() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL DECLARE tcur3 CURSOR WITH HOLD FOR tid;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRpfFcstPoint() in Declare cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    EXEC SQL OPEN tcur3;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRpfFcstPoint() in Open cursor section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+
+    EXEC SQL FETCH tcur3 INTO :rowCount;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "SelectCountRpfFcstPoint() in Initial FETCH section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (-1);
+    }
+
+    initDbStatus(&dbStatus);
+    setDbStatusRowsAffected(&dbStatus, rowCount);
+
+    EXEC SQL CLOSE tcur3;
+    return(rowCount);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int PutRpfFcstPoint(const RpfFcstPoint * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RpfFcstPoint_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.group_id, structPtr->group_id);
+
+    dbs.ordinal = structPtr->ordinal;
+    dbs.ind_ordinal = getIndicator(INT, (void *)&structPtr->ordinal);
+
+    dbs.chg_threshold = structPtr->chg_threshold;
+    dbs.ind_chg_threshold = getIndicator(DOUBLE, (void *)&structPtr->chg_threshold);
+
+    strcpy(dbs.rec_type, structPtr->rec_type);
+    dbs.ind_rec_type = getIndicator(CHAR, (void *)structPtr->rec_type);
+
+    strcpy(dbs.primary_back, structPtr->primary_back);
+
+    strcpy(dbs.secondary_back, structPtr->secondary_back);
+
+    dbs.backhrs = structPtr->backhrs;
+    dbs.ind_backhrs = getIndicator(INT, (void *)&structPtr->backhrs);
+
+    dbs.forwardhrs = structPtr->forwardhrs;
+    dbs.ind_forwardhrs = getIndicator(INT, (void *)&structPtr->forwardhrs);
+
+    dbs.adjustendhrs = structPtr->adjustendhrs;
+    dbs.ind_adjustendhrs = getIndicator(DOUBLE, (void *)&structPtr->adjustendhrs);
+
+
+    EXEC SQL INSERT INTO RpfFcstPoint (lid,group_id,
+        ordinal,chg_threshold,rec_type,
+        primary_back,secondary_back,backhrs,
+        forwardhrs,adjustendhrs        )
+        VALUES (
+         :dbs.lid, :dbs.group_id, :dbs.ordinal:dbs.ind_ordinal,
+         :dbs.chg_threshold:dbs.ind_chg_threshold, :dbs.rec_type:dbs.ind_rec_type, :dbs.primary_back,
+         :dbs.secondary_back, :dbs.backhrs:dbs.ind_backhrs, :dbs.forwardhrs:dbs.ind_forwardhrs,
+         :dbs.adjustendhrs:dbs.ind_adjustendhrs);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "PutRpfFcstPoint() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertRpfFcstPoint(const RpfFcstPoint * structPtr)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RpfFcstPoint_t  dbs;
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, INSERT);
+
+    if (structPtr == NULL)
+    {
+        return(ERR_BAD_ARGS);
+    }
+
+    memset(&dbs, '\0', sizeof(dbs));
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.group_id, structPtr->group_id);
+
+    dbs.ordinal = structPtr->ordinal;
+    dbs.ind_ordinal = getIndicator(INT, (void *)&structPtr->ordinal);
+
+    dbs.chg_threshold = structPtr->chg_threshold;
+    dbs.ind_chg_threshold = getIndicator(DOUBLE, (void *)&structPtr->chg_threshold);
+
+    strcpy(dbs.rec_type, structPtr->rec_type);
+    dbs.ind_rec_type = getIndicator(CHAR, (void *)structPtr->rec_type);
+
+    strcpy(dbs.primary_back, structPtr->primary_back);
+
+    strcpy(dbs.secondary_back, structPtr->secondary_back);
+
+    dbs.backhrs = structPtr->backhrs;
+    dbs.ind_backhrs = getIndicator(INT, (void *)&structPtr->backhrs);
+
+    dbs.forwardhrs = structPtr->forwardhrs;
+    dbs.ind_forwardhrs = getIndicator(INT, (void *)&structPtr->forwardhrs);
+
+    dbs.adjustendhrs = structPtr->adjustendhrs;
+    dbs.ind_adjustendhrs = getIndicator(DOUBLE, (void *)&structPtr->adjustendhrs);
+
+
+    EXEC SQL INSERT INTO RpfFcstPoint (lid,group_id,
+        ordinal,chg_threshold,rec_type,
+        primary_back,secondary_back,backhrs,
+        forwardhrs,adjustendhrs        )
+        VALUES (
+         :dbs.lid, :dbs.group_id, :dbs.ordinal:dbs.ind_ordinal,
+         :dbs.chg_threshold:dbs.ind_chg_threshold, :dbs.rec_type:dbs.ind_rec_type, :dbs.primary_back,
+         :dbs.secondary_back, :dbs.backhrs:dbs.ind_backhrs, :dbs.forwardhrs:dbs.ind_forwardhrs,
+         :dbs.adjustendhrs:dbs.ind_adjustendhrs);
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "InsertRpfFcstPoint() in Insert section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return (SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateRpfFcstPoint(const RpfFcstPoint *structPtr, const char *where)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    struct RpfFcstPoint_t   dbs;
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    strcpy(dbs.lid, structPtr->lid);
+
+    strcpy(dbs.group_id, structPtr->group_id);
+
+    dbs.ordinal = structPtr->ordinal;
+    dbs.ind_ordinal = getIndicator(INT, (void *)&structPtr->ordinal);
+
+    dbs.chg_threshold = structPtr->chg_threshold;
+    dbs.ind_chg_threshold = getIndicator(DOUBLE, (void *)&structPtr->chg_threshold);
+
+    strcpy(dbs.rec_type, structPtr->rec_type);
+    dbs.ind_rec_type = getIndicator(CHAR, (void *)structPtr->rec_type);
+
+    strcpy(dbs.primary_back, structPtr->primary_back);
+
+    strcpy(dbs.secondary_back, structPtr->secondary_back);
+
+    dbs.backhrs = structPtr->backhrs;
+    dbs.ind_backhrs = getIndicator(INT, (void *)&structPtr->backhrs);
+
+    dbs.forwardhrs = structPtr->forwardhrs;
+    dbs.ind_forwardhrs = getIndicator(INT, (void *)&structPtr->forwardhrs);
+
+    dbs.adjustendhrs = structPtr->adjustendhrs;
+    dbs.ind_adjustendhrs = getIndicator(DOUBLE, (void *)&structPtr->adjustendhrs);
+
+
+    sprintf(queryBuffer, " UPDATE RpfFcstPoint SET " );
+    strcat(queryBuffer, "lid = ? , group_id = ? , ordinal = ? , chg_threshold = ? , rec_type = ? ,     ");
+    strcat(queryBuffer, "primary_back = ? , secondary_back = ? , backhrs = ? , forwardhrs = ? , adjustendhrs = ? ");
+
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+
+    EXEC SQL PREPARE uid FROM :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateRpfFcstPoint() in Prepare section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    EXEC SQL EXECUTE uid USING  :dbs.lid, :dbs.group_id, :dbs.ordinal:dbs.ind_ordinal, :dbs.chg_threshold:dbs.ind_chg_threshold, :dbs.rec_type:dbs.ind_rec_type,
+     :dbs.primary_back, :dbs.secondary_back, :dbs.backhrs:dbs.ind_backhrs, :dbs.forwardhrs:dbs.ind_forwardhrs, :dbs.adjustendhrs:dbs.ind_adjustendhrs;
+
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "UpdateRpfFcstPoint() in Execute section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteRpfFcstPoint(const char *where)
+{
+    char deleteStatement[] = "DELETE FROM RpfFcstPoint ";
+    EXEC SQL BEGIN DECLARE SECTION;
+
+    char queryBuffer[QUERY_LEN];
+
+    EXEC SQL END DECLARE SECTION;
+
+    strcpy(queryBuffer, deleteStatement);
+    if ( (where != NULL) && (*where != '\0'))
+    {
+        strcat(queryBuffer, where);
+    }
+    EXEC SQL EXECUTE IMMEDIATE :queryBuffer;
+    if (SQLCODE < 0)
+    {
+        if (errorLoggingOn)
+        {
+            fprintf(stderr, "DeleteRpfFcstPoint() in Execute Immediate section --- ERROR\n");
+            fprintf(stderr, "SQLCODE = (%ld) sql state = (%s)\n", SQLCODE, sqlca.sqlstate);
+            fprintf(stderr, "Error Message (%s)\n", sqlca.sqlerrm.sqlerrmc);
+            fflush(stderr);
+        }
+        initDbStatus(&dbStatus);
+        return(SQLCODE);
+    }
+
+    initDbStatus(&dbStatus);
+    return(ERR_OK);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int UpdateRpfFcstPointByRecord (const RpfFcstPoint * newStructPtr, const RpfFcstPoint * oldStructPtr)
+{
+    char whereClause[BUFSIZ];
+    GetRpfFcstPointPrimaryKeyWhereString(oldStructPtr, whereClause);
+    return (UpdateRpfFcstPoint(newStructPtr, whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertOrUpdateRpfFcstPoint(const RpfFcstPoint * structPtr)
+{
+    UpdateRpfFcstPointByRecord(structPtr, structPtr);
+    setDbStatusSqlCommand(&dbStatus, UPDATE);
+
+    if ( (SQLCODE < 0) || (SQLCODE == 100) )
+    {
+        InsertRpfFcstPoint(structPtr);
+        setDbStatusSqlCommand(&dbStatus, INSERT);
+    }
+
+    initDbStatus(&dbStatus);
+    return(SQLCODE);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int InsertIfUniqueRpfFcstPoint(const RpfFcstPoint * structPtr, bool *isUnique)
+{
+    int resultCode = 0;
+    if (RpfFcstPointExists(structPtr))
+    {
+        setDbStatusSqlCommand(&dbStatus, SELECT);
+        *isUnique = false;
+        resultCode = dbStatus.sql_code;
+    }
+    else
+    {
+        resultCode = dbStatus.sql_code;
+        if (resultCode == 0)
+        {
+            InsertRpfFcstPoint(structPtr);
+            setDbStatusSqlCommand(&dbStatus, INSERT);
+            *isUnique = true;
+            resultCode = dbStatus.sql_code;
+        }
+        else
+        {
+            *isUnique = false;
+        }
+    }
+    initDbStatus(&dbStatus);
+
+    return(resultCode);
+}
+
+/* ------------------------------------------------------------------------- */
+
+int DeleteRpfFcstPointByRecord(const RpfFcstPoint * structPtr)
+{
+    char whereClause[BUFSIZ];
+    GetRpfFcstPointPrimaryKeyWhereString(structPtr, whereClause);
+    return (DeleteRpfFcstPoint(whereClause));
+}
+
+/* ------------------------------------------------------------------------- */
+
+bool RpfFcstPointExists(const RpfFcstPoint * structPtr)
+{
+    int result = false;
+    int rowCount = 0;
+    char whereString[QUERY_LEN];
+
+    GetRpfFcstPointPrimaryKeyWhereString(structPtr, whereString);
+    rowCount = SelectRpfFcstPointCount(whereString);
+
+    if (rowCount > 0)
+    {
+        result = true;
+    }
+    else
+    {
+        result = false;
+    }
+
+    return(result);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void GetRpfFcstPointPrimaryKeyWhereString (const RpfFcstPoint * structPtr, char returnWhereString[] )
+{
+    sprintf(returnWhereString, "WHERE lid = '%s' ",
+            structPtr->lid);
+}
+
+/* ------------------------------------------------------------------------- */
+
+void FreeRpfFcstPoint( RpfFcstPoint * structPtr)
+{
+    RpfFcstPoint* nextPtr = NULL;
+
+    while (structPtr != NULL)
+    {
+        nextPtr = ( RpfFcstPoint * ) ListNext ( &structPtr->node );
+        free (structPtr);
+        structPtr = nextPtr;
+    }
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+
+DbStatus * GetRpfFcstPointDbStatus()
+{
+    return &dbStatus;
+}
+
+/* ------------------------------------------------------------------------- */
+
+void SetRpfFcstPointErrorLogging(int value)
+{
+    errorLoggingOn = value;
+    return;
+}
+
+
+/* ------------------------------------------------------------------------- */
+
