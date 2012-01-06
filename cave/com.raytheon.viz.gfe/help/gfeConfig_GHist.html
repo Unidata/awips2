@@ -1,0 +1,242 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.78 [en] (X11; U; Linux 2.4.9-13smp i686) [Netscape]">
+  <title>gfeConfig - Grid Manager Grid Data History Configuration</title>
+</head>
+<body style="background-color: rgb(255, 255, 255);">
+<div class="Body">
+<div class="3Heading">
+<h2 style="text-align: center;">GFE/ifpIMAGE Configuration File<br>
+Grid Manager Grid Data History Configuration</h2>
+The grid manager may be toggled into the history mode from the normal
+mode.&nbsp;
+The history mode will show the origin, source, and modified state of
+all
+of the grids using a series of colors and patterns.&nbsp; This section
+of the gfe configuration file permits tailorability of the display
+algorithm.&nbsp;
+Generally colors are used to indicate model source or and grid origin
+and
+patterns are used to indicate that the grid has been modified.
+<p>The basic color algorithm is as follows:
+</p>
+<ul>
+  <li>If the origin of the grid came from a model (e.g., populated),
+then the
+software looks for a configurable item denoting a color for that
+particular
+model (with the configuration item format being HistoryModelColor_<i>modelname</i>).&nbsp;
+If found, the grid block is painted that color.&nbsp;&nbsp; If the
+particular
+configuration item is not found for the model, then the color specified
+in the HistoryOriginColor_Populated is used.</li>
+  <li>If the origin of the grid did not come from a model, and hence is
+"Calculated",
+"Scratch", "Interpolated", or "Other", the color of the grid block is
+the
+color specified in HistoryOriginColor_<i>origintype</i>.&nbsp; If not
+defined,
+a gray color is used.</li>
+</ul>
+The basic pattern algorithm is as follows:
+<ul>
+  <li>If the grid has not been modified, then no fill pattern is used
+and the
+grid block is solid.&nbsp; A grid is modified whenever a grid edit
+operation
+is applied to the grid or if the grid has been time shifted.</li>
+  <li>If the grid has been modified by you, then the fill pattern will
+be
+that
+specified by HistoryUserModPattern_Me.&nbsp; <font color="#cc33cc">Note
+that a grid is treated as "modified by me" only for the duration of the
+current GFE session.&nbsp; Everytime the GFE is started, a new
+workstation
+identifier is assigned and the grid data history is tracked by
+workstation
+identifier.</font></li>
+  <li>If the grid has been modified by someone else, then the fill
+pattern
+will
+be that specified by HistoryUserModPattern_Other.</li>
+</ul>
+The text characters algorithm is as follows:
+<ul>
+  <li>If a grid is modified by me, the text contained in
+HistoryUserModText_Me
+is used.</li>
+  <li>If a grid has been modified by someone else, the text contained
+in
+HistoryUserModText_Other
+is used.</li>
+  <li>If a grid has not been modified, and has originated from a model,
+then:</li>
+  <ul>
+    <li>if a model-specific text string is provided, as a configuration
+item in
+the form of HistoryModelText_<i>modelname</i>, then those will be the
+characters
+used.</li>
+    <li>if a model-specific text string is not provided, then the
+configuration
+item HistoryOriginText_Populated is used to define the text string.</li>
+  </ul>
+If a grid has not been modified, and its origin is not a model, then
+the
+configuration item of the form HistoryOriginText_<i>originType</i> is
+used
+to define the text string.
+</ul>
+<table nosave="" border="1" cols="4" width="100%">
+  <tbody>
+    <tr>
+      <td>
+      <center><b>GFE Configuration Item</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to GFE</b></center>
+      </td>
+      <td>
+      <center><b>Applicable to <a href="ifpIMAGE.html"><!--disable indexer-->ifpIMAGE</a></b></center>
+      </td>
+      <td>
+      <center><b>Notes</b></center>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#ModifiedbyMeOtherTextandPatternConfiguration">Modified
+by
+Me/Other Text and Pattern Configuration</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#TextandColorConfigurationforOriginTypes">Text and
+Color Configuration
+for Origin Types</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="#TextandColorConfigurationforModelPopulatedGrids">Text
+and
+Color Configuration for Model Populated Grids</a></td>
+      <td>YES</td>
+      <td>NO</td>
+      <td><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<hr width="100%">
+<blockquote>
+  <h4><a name="ModifiedbyMeOtherTextandPatternConfiguration"></a><font
+ size="+1">Modified
+by Me/Other Text and Pattern Configuration</font></h4>
+The Grid Manager in history mode will indicate by text characters and
+patterns
+if the grid has been modified.&nbsp; The software can distinguish
+between
+modified by me, and modified by someone else.&nbsp; Note that the
+modified
+by me is only indicated for the duration of the current GFE session.
+The
+available fill patterns are: WHOLE, WIDE, SCATTERED, WIDE_SCATTERED,
+ISOLATED,
+TRANS_25PC_45DEG, TRANS_25PC_135DEG, SELECTED_AREA, DUALCURVE, CURVE,
+VERTICAL,
+CROSS, HORIZONTAL, BIGCROSS. You can see <a href="FillPatterns.html">examples
+of the fill patterns here</a>.
+  <p><b><tt>HistoryUserModText_Me = "m"&nbsp;&nbsp;&nbsp; #Text for
+modified
+by me</tt></b> <br>
+  <b><tt>HistoryUserModText_Other = "o"&nbsp;&nbsp;&nbsp;&nbsp; #Text
+for modified by other</tt></b> <br>
+  <b><tt>HistoryUserModPattern_Me = "TRANS_25PC_45DEG"&nbsp;&nbsp;
+#Pattern
+for mod by me</tt></b> <br>
+  <b><tt>HistoryUserModPattern_Other = "TRANS_25PC_135DEG"&nbsp;&nbsp;
+#Pattern for mod by other</tt></b> <br>
+&nbsp; </p>
+  <p><a name="TextandColorConfigurationforOriginTypes"></a><b><font
+ size="+1">Text
+and Color Configuration for Origin Types</font></b> </p>
+  <p>The text and color configuration for non-modified grids are
+defined
+in this section.&nbsp; Grids can have one of five origins: Populated,
+Calculated,
+Scratch, Interpolated, and Other.&nbsp; Populated grids are those
+generated
+by ifpInit and generally are copied into the Forecast database.&nbsp;
+Calculated
+grids are those created from contours. Scratch grids are the grid that
+were created from scratch. Interpolated grids are the grids that were
+created/modified
+from the interpolation technique.&nbsp; Other is a catch-all for all
+other
+potential sources of grids.&nbsp; Note that the user may also specify
+the
+specific color and text characters for populated data based on the
+modelname
+-- see the next section for information on this. </p>
+  <p><b><tt>HistoryOriginText_Populated = "P"</tt></b> <br>
+  <b><tt>HistoryOriginText_Calculated = "C"</tt></b> <br>
+  <b><tt>HistoryOriginText_Scratch = "S"</tt></b> <br>
+  <b><tt>HistoryOriginText_Interpolated = "I"</tt></b> <br>
+  <b><tt>HistoryOriginText_Other = "?"</tt></b> <br>
+  <b><tt>HistoryOriginColor_Populated = "wheat"</tt></b> <br>
+  <b><tt>HistoryOriginColor_Calculated = "red"</tt></b> <br>
+  <b><tt>HistoryOriginColor_Scratch = "magenta"</tt></b> <br>
+  <b><tt>HistoryOriginColor_Interpolated = "blue"</tt></b> <br>
+  <b><tt>HistoryOriginColor_Other = "gray75"</tt></b> <br>
+&nbsp; </p>
+  <p><a name="TextandColorConfigurationforModelPopulatedGrids"></a><b><font
+ size="+1">Text
+and Color Configuration for Model Populated Grids</font></b> </p>
+  <p>The color and text associated with Populated grids may be tailored
+for
+each model source.&nbsp; If an entry for a particular model is not
+found,
+then the text will default to that specified in
+HistoryOriginText_Populated
+and the color to that specified in HistoryOriginColor_Populated. The
+format
+for the text is HistoryModelText_<i>modelname</i> and the format for
+the
+color is HistoryModelColor_<i>modelname</i>. </p>
+  <p><b><tt>HistoryModelColor_MRF = '#30df10'</tt></b> <br>
+  <b><tt>HistoryModelColor_NGM = 'orange'</tt></b> <br>
+  <b><tt>HistoryModelColor_RUC = '#00ffff'</tt></b> <br>
+  <b><tt>HistoryModelColor_MOS = '#e6c8a1'</tt></b> <br>
+  <b><tt>HistoryModelColor_NAM = '#ffff52'</tt></b> <br>
+  <b><tt>HistoryModelColor_MesoNAM = '#ff99ff'</tt></b> <br>
+  <b><tt>HistoryModelColor_AVN = 'pink'</tt></b> <br>
+  <b><tt>HistoryModelText_MRF = 'MRF'</tt></b> <br>
+  <b><tt>HistoryModelText_NGM = 'NGM'</tt></b> <br>
+  <b><tt>HistoryModelText_RUC = 'RUC'</tt></b> <br>
+  <b><tt>HistoryModelText_MOS = 'MOS'</tt></b> <br>
+  <b><tt>HistoryModelText_NAM = 'NAM'</tt></b> <br>
+  <b><tt>HistoryModelText_MesoNAM = 'NAM'</tt></b> <br>
+  <b><tt>HistoryModelText_AVN = 'AVN'</tt></b> <br>
+&nbsp; <br>
+  </p>
+  <hr style="width: 100%; height: 2px;">
+  <p>&nbsp;</p>
+</blockquote>
+<div class="Body">
+<blockquote>
+  <center><tt><a href="GFESuite.html">Back To TOC</a></tt></center>
+</blockquote>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="com.raytheon.uf.viz.ncep.nsharp.feature"
+      label="NCEP NSharp Feature"
+      version="1.0.0.qualifier"
+      provider-name="RAYTHEON">
+
+   <description url="http://www.example.com/description">
+      [Enter Feature Description here.]
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      [Enter Copyright Description here.]
+   </copyright>
+
+   <license url="http://www.example.com/license">
+      [Enter License Description here.]
+   </license>
+
+   <requires>
+      <import feature="com.raytheon.uf.viz.cots.feature" version="1.0.0.qualifier"/>
+      <import feature="com.raytheon.uf.viz.eclipse.feature" version="1.0.0.qualifier"/>
+      <import feature="com.raytheon.uf.viz.common.core.feature" version="1.0.0.qualifier"/>
+      <import feature="com.raytheon.uf.viz.core.feature" version="1.0.0.qualifier"/>
+      <import feature="com.raytheon.uf.viz.ncep.core.feature" version="1.0.0.qualifier"/>
+      <import feature="com.raytheon.uf.viz.sounding.feature" version="1.0.0.qualifier"/>
+      <import feature="com.raytheon.uf.viz.displays.feature" version="1.0.0.qualifier"/>
+      <import feature="com.raytheon.uf.viz.ncep.displays.feature" version="1.0.0.qualifier"/>
+   </requires>
+
+   <plugin
+         id="gov.noaa.nws.ncep.ui.nsharp"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="true"/>
+         
+   <plugin
+         id="gov.noaa.nws.ncep.ui.nsharp.linux32"
+         os="linux"
+         arch="x86"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"/>
+         
+   <plugin
+         id="gov.noaa.nws.ncep.ui.nsharp.linux64"
+         os="linux"
+         arch="x86_64"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"/>
+         
+   <plugin
+         id="gov.noaa.nws.ncep.ui.nsharp.win32"
+         os="win32"
+         arch="x86"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"/>
+
+</feature>

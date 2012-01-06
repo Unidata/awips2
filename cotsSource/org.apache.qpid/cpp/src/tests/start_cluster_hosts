@@ -1,0 +1,70 @@
+#!/bin/sh
+
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+#
+# Start a cluster of brokers on local host, put the list of host port addresses
+# in cluster.ports
+#
+# Arguments: [-k] [-p port] HOST [HOST...]
+#  -p port to start broker on, can be 0. Actual ports recorded in cluster.addr.
+#  -k kill any qpidd processes owned by this user before starting.
+#
+# Start a broker on each named host. Name a host twice to start multiple brokers.
+#
+# You must be able to ssh to each host and be in group ais.
+# $QPIDD must be executable on each host.
+# Logs go to syslog on each host, with a unique prefix per broker.
+# 
+
+QPIDD=${QPIDD:-$PWD/../qpidd}
+LIBQPIDCLUSTER=${LIBQPIDCLUSTER:-$PWD/../.libs/cluster.so}
+NAME=$USER			# User name is default cluster name.
+RESTART=NO
+
+while getopts "kp:n:q:r" ARG ; do
+    case $ARG in
+	k) KILL=yes ;; 
+	p) PORT="$OPTARG" ;;
+	n) NAME=$OPTARG ;;
+	q) QPIDD=$OPTARG ;;
+	l) LIBQPIDCLUSTER=$OPTARG ;;
+	r) RESTART=yes ;;
+	*) echo "Error parsing options: $ARG"; exit 1 ;;
+    esac
+done
+shift `expr $OPTIND - 1`
+test -n "$PORT" && PORTOPT="-p $PORT"
+test "$KILL" = yes && KILL="$QPIDD --no-module-dir -q $PORTOPT ;"
+CLUSTER=${*:-$CLUSTER}		# Use args or env
+test -z "$CLUSTER" && { echo Must specify at least one host; exit 1; }
+
+
+OPTS="-d $PORTOPT --load-module $LIBQPIDCLUSTER --cluster-name=$NAME --no-data-dir --auth=no --log-to-syslog --log-enable=info+"
+
+num=0
+for h in $CLUSTER; do
+    num=`expr $num + 1`	      # Give a unique log prefix to each node.
+    cmd="$KILL $QPIDD $OPTS --log-prefix $num.$h"
+    out=`echo "$cmd" | ssh $h newgrp ais` || { echo == $h error: $out ; exit 1; }
+    if [ "$PORT" = 0 ] ; then p=$out; else p=$PORT; fi
+    echo "$h $p" 
+done
+

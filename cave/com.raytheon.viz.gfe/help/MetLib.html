@@ -1,0 +1,417 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>MetLib User Guide</title>
+</head>
+<body>
+<big style="font-weight: bold;"> </big>
+<h1 class="Title">MetLib User Guide</h1>
+April 8, 2004<br>
+<br>
+<h3 class="2Heading"> <a name="pgfId=1014058"></a>Contents</h3>
+<a href="#Introduction">Introduction</a><br>
+<a href="#Library_Methods">Library Methods</a><br>
+<a href="#Utility_Methods">Utility Methods</a><br>
+<a href="#Examples">Examples</a><br>
+<br>
+<h2><a name="Introduction"></a>Introduction</h2>
+
+<hr width="100%">
+MetLib, short for Metorological Library, is a collection of Numerical
+Python methods that perform meteorological operations on gridded data.
+With these tools, forecasters can create derived weather elements such
+as vorticity, termperature advection, or moisture convergence from
+within the SmartTool framework. &nbsp;These methods should help
+forecasters more easily inject science into the process of weather
+forecasting with the Graphical Forecast Editor.<br>
+<br>
+As this is the first version of this library, much work remains.
+&nbsp;But the library does contain the basic building blocks from which
+very complex yet meteorological techniques can be developed. &nbsp;As
+the library is used in the field and new additions requested, the
+library will continue to grow.<br>
+<br>
+<span style="font-weight: bold; color: rgb(255, 0, 0);">Currently the
+MetLib is a prototype and is experimental.&nbsp; Use at your own risk.</span><br
+ style="font-weight: bold; color: rgb(255, 0, 0);">
+<br>
+<h2><a name="Library_Methods"></a>Library Methods</h2>
+This section describes the list of MetLib methods.<br>
+<br>
+<p style="font-weight: bold;"><big>centeredDifference(grid, axis)<br>
+</big></p>
+<p style="font-weight: bold;"><big><small style="font-weight: normal;">The
+centeredDifference method calculates a partial derivative along the
+specified axis. &nbsp;It uses a centered differencing technique to
+calculate the difference in value at each grid point from its
+neighboring grid point. &nbsp;This method is not meant to be used in a
+SmartTool, but is documented here for completeness. &nbsp;See below for
+methods that use the centeredDifference method&nbsp; to calculate
+derivatives.</small></big></p>
+<big style="font-weight: bold;">d_dx(grid)<br>
+<br>
+</big>The d_dx method calculates a partial derivative along the x axis.
+&nbsp;For most grid projections this is also the west-east direction.
+&nbsp;The returned grid represents the gradient of the specified grid
+along the x-axis only. &nbsp;These values are not scaled to your
+particular GFE domain or grid size. &nbsp;To calculate a true gradient
+you will need to divide by a spacingGrid so that your grid spacing is
+taken into account.<big style="font-weight: bold;"><br>
+<br>
+d_dy(grid)<br>
+<br>
+</big>The d_dy method calculates a partial derivative along the y axis.
+&nbsp;For most grid projections this is also the north-south direction.
+&nbsp;The returned grid represents the gradient of the specified grid
+along the y-axis only. &nbsp;These values are not scaled to your
+particular GFE domain or grid size. &nbsp;To calculate a true gradient
+you will need to divide by a spacingGrid so that your particular grid
+spacing is taken into account.<br>
+<big style="font-weight: bold;"><br>
+</big><big style="font-weight: bold;">d_dz(grid)<br>
+<br>
+</big>The d_dz method calculates a partial derivative along the z axis.
+&nbsp;For most grid projections this is also the up-down direction.
+&nbsp;The returned grid represents the gradient of the specified grid
+along the z-axis only. &nbsp; Note that for this method to work
+properly you must specify a grid of at least 3-dimensions. &nbsp;If you
+specify a grid of smaller dimensions, an error will occur. &nbsp;Also
+note that to calculate a true vertical gradient, you must also divide
+the result from this method by the appropriate scaling factor.
+&nbsp;For example, if your gridded data has a vertical resolution of 25
+millibars, then you should divide the result by 25 mb.<br>
+<big style="font-weight: bold;"><br>
+</big><big style="font-weight: bold;">d_dt(grid)<br>
+<br>
+</big>The d_dt method calculates a partial derivative along the time
+axis. &nbsp;For this method to work properly, you must specify a
+4-dimensional grid. &nbsp; If a grid of fewer than 4 dimensions is
+specified, an error will be reported. &nbsp;Note that for GFE grids the
+time dimension is outer loop dimension. In all cases, you will need to
+construct your own 4-dimensional grid before calling this method.
+&nbsp;Standard GFE methods only return 3-dimensional grids at best.<big
+ style="font-weight: bold;"><br>
+<br>
+</big><big style="font-weight: bold;">gradient(scalarGrid)<br>
+<br>
+</big>The gradient method uses the d_dx and d_dy methods to calculate
+the horizontal vector gradient of a scalar grid. The result is returned
+as two grids, &nbsp;the dx-component and the dy-component. &nbsp;To
+display the gradient on the GFE, you must first convert the x and y
+components to a magnitude and direction (just like wind) and specify a
+grid of type VECTOR. &nbsp; This method is often referred to as the <big><span
+ style="font-weight: bold;">DEL</span></big> operator in many books and
+journals. &nbsp;The entire implementation appears below:<br>
+<br>
+<span style="font-weight: bold; color: rgb(51, 51, 255);">return
+(d_dx(grid), d_dy(grid))</span><br style="color: rgb(51, 51, 255);">
+<big style="font-weight: bold;"><br>
+</big><big style="font-weight: bold;">divergence(windGrid)<br>
+<br>
+</big><big><small>The divergence method calculates the horizontal
+divergence of the specified wind field. &nbsp;Note that the wind field
+must be specified in u and v components - NOT magnitude and direction.
+&nbsp;Use the SmartScript method MagDirToUV to convert magnitude and
+direction to u and v components. The implementation appears below:<br>
+<br>
+</small></big>&nbsp;&nbsp;&nbsp;<span style="font-weight: bold;"> <span
+ style="color: rgb(51, 51, 255);">u, v = Wind</span></span><br
+ style="font-weight: bold; color: rgb(51, 51, 255);">
+<span style="font-weight: bold; color: rgb(51, 51, 255);"></span><span
+ style="font-weight: bold; color: rgb(51, 51, 255);"> &nbsp; &nbsp;
+return d_dx(u) + d_dx(v)</span><br>
+<big style="font-weight: bold;"><br>
+</big><big style="font-weight: bold;">vorticity(windGrid)<br>
+<br>
+</big><big><small>The vorticity method calculates the vorticity of the
+specified wind field. &nbsp;Note that the wind field must be specified
+in u and v components - NOT magnitude and direction. &nbsp;Use the
+SmartScript method MagDirToUV to convert magnitude and direction to u
+and v components. The implementation appears below:<br>
+<br>
+</small></big>&nbsp;&nbsp;&nbsp;<span style="font-weight: bold;"> <span
+ style="color: rgb(51, 51, 255);">u, v = Wind</span></span><br
+ style="font-weight: bold; color: rgb(51, 51, 255);">
+<span style="font-weight: bold; color: rgb(51, 51, 255);">&nbsp;&nbsp;&nbsp;
+return d_dx(v) - d_dy(u)</span><br>
+<big style="font-weight: bold;"><br>
+</big><big style="font-weight: bold;">advection(windGrid, scalarGrid)<br>
+<br>
+</big>The advection method calculates the advection of the specified
+scalar grid by the specified wind grid. &nbsp;Notee that the wind grid
+must be specified as u and v components NOT as magnitude and direction.
+&nbsp;<big><small>Use the SmartScript method MagDirToUV to convert
+magnitude and direction to u and v components. The implementation
+appears below:</small></big><br>
+<big style="font-weight: bold;"><br>
+</big>&nbsp;&nbsp;&nbsp; <span
+ style="font-weight: bold; color: rgb(51, 51, 255);">return
+-dot(windGrid, gradient(scalarGrid))</span><br>
+<big style="font-weight: bold;"><br>
+</big><big style="font-weight: bold;">dot(vectorGrid1, vectorGrid2)<br>
+</big><br>
+The dot method calculates the dot product from the specified vector
+grids. &nbsp;Again note that both vector grids must be specified as u
+and v components NOT magnitude and direction. &nbsp;The implementation
+for dot appears below:<br>
+<br>
+&nbsp;&nbsp;&nbsp; <span
+ style="font-weight: bold; color: rgb(51, 51, 255);">return
+vectorGrid1[0] * vectorGrid2[0] + vectorGrid1[1] * vectorGrid2[1]</span><br>
+<h2><a name="Utility_Methods"></a>Utility Methods<br>
+</h2>
+The following methods provide grids that are often useful when making
+meteorological calculations.<br>
+<br>
+<big style="font-weight: bold;">getLatLonGrids(gridLoc)<br>
+<br>
+</big><big><small>The method getLatLonGrids returns a tuple of two
+grids, the first is the latitude at every grid point while the second
+is the longitude at every grid point.<br>
+<br>
+</small></big><big><small>Note that this method requires the
+gridLocationof the GFE. &nbsp;You can get&nbsp; this grid by including
+the following code:<br>
+<br>
+<span style="color: rgb(51, 51, 255); font-weight: bold;">gridLoc =
+self.getGridLoc()</span></small></big><br>
+<br>
+from within any SmartTool.<br>
+<big style="font-weight: bold;"><br>
+</big><big style="font-weight: bold;">makeSpacingGrid</big><big
+ style="font-weight: bold;">(gridLoc)</big><br>
+<big style="font-weight: bold;"><br>
+</big>The makeSpacingGrid method calculate the grid size at every grid
+point. &nbsp;For most typical GFE domains the value at every grid point
+is so close that using a constant value would likely work well.
+&nbsp;But for other projections, the distance between your grid points
+may vary enough that using this grid produces superior results. &nbsp;A
+note of caution: for conformal projections (like Grid211) the
+difference between the x-gridSize and the y-gridSize are virtuall
+identical. &nbsp;However for non-conformal projections, such as
+Mercator, you will want to use a different makeGridSpacing method that
+returns two grids, one for the x-gridSize and one for the y-gridSize.
+&nbsp;This method will be included in a future version of MetLib.<br>
+<big><small><br>
+Note that this method requires the gridLocationof the GFE. &nbsp;You
+can get&nbsp; this grid by including the following code:<br>
+<br>
+<span style="color: rgb(51, 51, 255); font-weight: bold;">gridLoc =
+self.getGridLoc()</span><br>
+<br>
+from within any SmartTool</small></big><br>
+<big style="font-weight: bold;"><br>
+</big><big style="font-weight: bold;">makeCoriolisGrid(latGrid)</big><br>
+<br>
+Occasionally, you may need the Coriolis accleration in your
+calculations. &nbsp;MakeCoriolisGrid returns a grid of Coriolis
+acceleration at each gid point. &nbsp;It uses the latitude grid from
+getLatLonGrids.<br>
+<br>
+Note that this methods requires a grid of latitude at each grid point.
+&nbsp;You can get this grid by including the following code:<br>
+<br>
+<span style="font-weight: bold; color: rgb(51, 51, 255);">latGrid,
+lonGrid = getLatLonGrids(self.getGridLoc())<br>
+<br>
+</span><span style="color: rgb(51, 51, 255);"><span
+ style="color: rgb(0, 0, 0);">from within any SmartTool.</span></span><br
+ style="color: rgb(0, 0, 0);">
+<br>
+<h2><a name="Examples"></a>Examples</h2>
+To use any of the MetLib methods, you will need to import the MetLib
+module, just like SmartScript. &nbsp;However, because it is a module
+and not part of the Tool class, you will not have to prepend "self." in
+front of every MetLib method. &nbsp;To import the MetLib module insert
+this line into your SmartTool:<br>
+<br>
+<span style="font-weight: bold; color: rgb(255, 0, 0);">from MetLib
+import *</span><br>
+<br>
+That import statement will grant you access to all of the methods
+documented above, without having to prepend "self." or "MetLib." in
+front of every MetLib method call.<br>
+<br>
+Note that in some of the tools that follow, there are examples that
+show you how to access the geographical information so that you can
+properly scale your calculations to the appropriate units. &nbsp;These
+examples use the GridTimeRange variable for simplicity in creating a
+new grid on the GFE that you can see. &nbsp;In cases where D2D data is
+accessed, you will need to select a timeRange that contains the
+specified D2D model grid in order for the tool to work. &nbsp;If you
+load the D2D grid that will be used in the tool, you will be able to
+precisely see when the grids are currently available and select the
+appropriate timeRange on the GFE.<br>
+<br>
+Below we list a few working SmartTools that use some of the MetLib
+methods.<br>
+<big style="font-weight: bold;"><br>
+</big>#
+----------------------------------------------------------------------------<br>
+ToolType = "numeric"<br>
+WeatherElementEdited = "variableElement"<br>
+from Numeric import *<br>
+<br>
+# Set up Class<br>
+import SmartScript<br>
+from MetLib import * &nbsp; <span style="color: rgb(255, 0, 0);">#
+Here's where MetLib is imported</span><br>
+<br>
+class Tool (SmartScript.SmartScript):<br>
+&nbsp;&nbsp;&nbsp; def __init__(self, dbss):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SmartScript.SmartScript.__init__(self, dbss)<br>
+<br>
+&nbsp;&nbsp;&nbsp; def execute(self, variableElement, GridTimeRange, T):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Test SmartTool illustrating
+MetLib methods"<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; grad = gradient(T) &nbsp;<span
+ style="color: rgb(255, 0, 0);"># calculate the temperature gridient<br>
+<br>
+</span>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span
+ style="color: rgb(255, 0, 0);"># display the gradient as a weather
+element created "on the fly"</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.createGrid("Fcst",
+"TempGradient", "VECTOR", grad, GridTimeRange,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+minAllowedValue=-10.0, maxAllowedValue=10.0)<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return variableElement<br>
+#
+----------------------------------------------------------------------------<br>
+<br>
+#
+----------------------------------------------------------------------------<br>
+ToolType = "numeric"<br>
+WeatherElementEdited = "variableElement"<br>
+from Numeric import *<br>
+<br>
+# Set up Class<br>
+import SmartScript<br>
+from MetLib import *<br>
+## For available commands, see SmartScript<br>
+<br>
+class Tool (SmartScript.SmartScript):<br>
+&nbsp;&nbsp;&nbsp; def __init__(self, dbss):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SmartScript.SmartScript.__init__(self, dbss)<br>
+<br>
+&nbsp;&nbsp;&nbsp; def execute(self, variableElement, GridTimeRange):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Test tool for MetLib
+methods"<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span
+ style="color: rgb(255, 0, 0);"># get the model's 500 mb&nbsp; wind
+grids</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; modelName = self.getSiteID()
++ "_D2D_GFS40"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; modelLevel = "MB500"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; modelWind =
+self.getGrids(modelName, "wind", modelLevel, GridTimeRange)<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span
+ style="color: rgb(255, 0, 0);"># get some geo info </span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; gridLoc = self.getGridLoc()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; latGrid, lonGrid =
+getLatLonGrids(gridLoc)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; spacingGrid =
+makeSpacingGrid(gridLoc)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; coriolisGrid =
+makeCoriolisGrid(latGrid)<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span
+ style="color: rgb(255, 0, 0);"># make the calculations and unit
+conversions and scaling</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; u, v =
+self.MagDirToUV(modelWind[0], modelWind[1])<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; vort = (vorticity((u, v)) +
+coriolisGrid)/ spacingGrid<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; vort = vort * 100000&nbsp; #
+scaling factor so display works better<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.createGrid("Fcst",
+"500MBVorticity", "SCALAR", vort, GridTimeRange,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+descriptiveName=None, timeConstraints=None,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+precision=1, minAllowedValue=-200,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+maxAllowedValue=200)<br>
+<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return variableElement<br>
+<br>
+#
+----------------------------------------------------------------------------<br>
+<br>
+#
+----------------------------------------------------------------------------<br>
+ToolType = "numeric"<br>
+WeatherElementEdited = "variableElement"<br>
+from Numeric import *<br>
+<br>
+# Set up Class<br>
+import SmartScript<br>
+from MetLib import *<br>
+## For available commands, see SmartScript<br>
+<br>
+class Tool (SmartScript.SmartScript):<br>
+&nbsp;&nbsp;&nbsp; def __init__(self, dbss):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+SmartScript.SmartScript.__init__(self, dbss)<br>
+<br>
+&nbsp;&nbsp;&nbsp; def execute(self, variableElement, GridTimeRange):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Test tool for MetLib
+methods"<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span
+ style="color: rgb(255, 0, 0);"># get the model's 500 mb temp and wind
+grids</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; modelName = self.getSiteID()
++ "_D2D_GFS40"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; modelLevel = "MB500"<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; modelWind =
+self.getGrids(modelName, "wind", modelLevel, GridTimeRange)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; modelT =
+self.getGrids(modelName, "t", modelLevel, GridTimeRange)<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span
+ style="color: rgb(255, 0, 0);"># get some geo info </span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; gridLoc = self.getGridLoc()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; latGrid, lonGrid =
+getLatLonGrids(gridLoc)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; spacingGrid =
+makeSpacingGrid(gridLoc)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; coriolisGrid =
+makeCoriolisGrid(latGrid)<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span
+ style="color: rgb(255, 0, 0);"># make the calculations and unit
+conversions</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; u, v =
+self.MagDirToUV(modelWind[0], modelWind[1])<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tAdvection = advection((u,
+v), modelT) / spacingGrid<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tAdvection = tAdvection *
+3600 * 12&nbsp; # convert to deg/12 hours<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tAdvection =
+clip(tAdvection, -200.0, 200.0)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.createGrid("Fcst",
+"Tadvection", "SCALAR", tAdvection, GridTimeRange,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+descriptiveName=None, timeConstraints=None,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+precision=1, minAllowedValue=-200,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+maxAllowedValue=200)<br>
+<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return variableElement<br>
+<br>
+#
+----------------------------------------------------------------------------<br>
+<br>
+</body>
+</html>

@@ -1,0 +1,81 @@
+                 ConnectWithBrokerExample 
+-------------------------------------------------------------------
+
+This example shows how to connect QMan with a broker using
+the adapter interface.
+
+Type enter to proceed...
+
+[CLIENT TRACE] SOAP envelope contents (outgoing):
+
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+    <soap:Header>
+        <wsa:To xmlns:wsa="http://www.w3.org/2005/08/addressing">http://romagazzarini:8080/qman/services/adapter</wsa:To>
+        <wsa:Action xmlns:wsa="http://www.w3.org/2005/08/addressing">http://amqp.apache.org/qpid/management/qman/Connect</wsa:Action>
+        <wsa:MessageID xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:48bf9a1b-f814-7391-b5cf-d163de4ac068</wsa:MessageID>
+        <wsa:From xmlns:wsa="http://www.w3.org/2005/08/addressing">
+            <wsa:Address>http://www.w3.org/2005/08/addressing/role/anonymous</wsa:Address>
+        </wsa:From>
+    </soap:Header>
+    <soap:Body>
+        <qman:Connect xmlns:qman="http://amqp.apache.org/qpid/management/qman">
+            <qman:host>sofia.gazzax.com</qman:host>
+            <qman:port>5672</qman:port>
+            <qman:username>test</qman:username>
+            <qman:password>a.gazzarini</qman:password>
+            <qman:virtualHost>p1ssw9rd</qman:virtualHost>
+            <qman:initialPoolCapacity>1</qman:initialPoolCapacity>
+            <qman:maxPoolCapacity>4</qman:maxPoolCapacity>
+            <qman:maxWaitTimeout>2000</qman:maxWaitTimeout>
+        </qman:Connect>
+    </soap:Body>
+</soap:Envelope>
+
+[CLIENT TRACE] SOAP envelope contents (incoming):
+
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+    <soap:Header>
+        <wsa:To xmlns:wsa="http://www.w3.org/2005/08/addressing">http://www.w3.org/2005/08/addressing/role/anonymous</wsa:To>
+        <wsa:Action xmlns:wsa="http://www.w3.org/2005/08/addressing">http://www.w3.org/2005/08/addressing/fault</wsa:Action>
+        <wsa:MessageID xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:220bfe54-d5f4-4a04-794c-0f5d99a64567</wsa:MessageID>
+        <wsa:RelatesTo RelationshipType="wsa:Reply" xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:48bf9a1b-f814-7391-b5cf-d163de4ac068</wsa:RelatesTo>
+        <wsa:From xmlns:wsa="http://www.w3.org/2005/08/addressing">
+            <wsa:Address>http://romagazzarini:8080/qman/services/adapter</wsa:Address>
+        </wsa:From>
+    </soap:Header>
+    <soap:Body>
+        <soap:Fault>
+            <soap:Code xmlns:qman="http://amqp.apache.org/qpid/management/qman">
+                <soap:Value>qman:QMan</soap:Value>
+            </soap:Code>
+            <soap:Reason>
+                <soap:Text>Unable to connect with the requested broker. Underlying exception message was null</soap:Text>
+            </soap:Reason>
+            <soap:Detail>
+                <qman:OperationInvocationFault xmlns:qman="http://amqp.apache.org/qpid/management/qman">
+                    <wsrf-bf:Timestamp xmlns:wsrf-bf="http://docs.oasis-open.org/wsrf/bf-2">2009-02-17T10:37:08+01:00</wsrf-bf:Timestamp>
+                    <wsrf-bf:OriginatorReference xmlns:wsrf-bf="http://docs.oasis-open.org/wsrf/bf-2">
+                        <wsa:ReferenceParameters xmlns:wsa="http://www.w3.org/2005/08/addressing"/>
+                        <wsa:Address xmlns:wsa="http://www.w3.org/2005/08/addressing">http://romagazzarini:8080/qman/services/adapter</wsa:Address>
+                    </wsrf-bf:OriginatorReference>
+                    <qman:host>sofia.gazzax.com</qman:host>
+                    <qman:port>5672</qman:port>
+                    <qman:username>test</qman:username>
+                    <qman:virtualHost>p1ssw9rd</qman:virtualHost>
+                </qman:OperationInvocationFault>
+            </soap:Detail>
+        </soap:Fault>
+    </soap:Body>
+</soap:Envelope>
+
+-----------------------EXAMPLE FAILURE-----------
+Not well-defined exception was detected while
+running the example.
+org.apache.muse.ws.addressing.soap.SoapFault: Unable to connect with the requested broker. Underlying exception message was null
+	at org.apache.muse.core.AbstractResourceClient.invoke(AbstractResourceClient.java:298)
+	at org.apache.muse.core.AbstractResourceClient.invoke(AbstractResourceClient.java:232)
+	at org.apache.muse.core.AbstractResourceClient.invoke(AbstractResourceClient.java:211)
+	at org.apache.qpid.management.example.ConnectWithBrokerExample.executeExample(ConnectWithBrokerExample.java:146)
+	at org.apache.qpid.management.example.ConnectWithBrokerExample.execute(ConnectWithBrokerExample.java:97)
+	at org.apache.qpid.management.example.ConnectWithBrokerExample.main(ConnectWithBrokerExample.java:201)
+--------------------------------------------------------

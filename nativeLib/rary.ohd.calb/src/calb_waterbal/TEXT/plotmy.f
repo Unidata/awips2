@@ -1,0 +1,111 @@
+C MEMBER PLOTMY
+C  (from old member MCEX40)
+C
+      SUBROUTINE PLOTMY(PO,CO,IMONTH,KYR,MONTH,KWY,IOPT1,IOPT2,LASTYR,IA
+     &PI)
+C***************************************
+C
+C     THIS SUBROUTINE GENERATES THE MULTI-YEAR WATER BALANCE SUMMARY
+C     DISPLAY FOR THE ENTIRE AREA. THIS DISPLAY CAN BE OPTIONALLY
+C     DISPLAYED ON A WATER YEAR BASIS.
+C
+C     THIS SUBROUTINE WAS INITIALLY WRITTEN BY:
+C     ROBERT M. HARPER      HRL        MAY 1991
+C***************************************
+C
+      DIMENSION PO(1),CO(1),SNAME(2)
+C
+      INCLUDE 'common/fdbug'
+      INCLUDE 'common/ionum'
+      INCLUDE 'common/calbrt'
+      INCLUDE 'common/fengmt'
+C
+C    ================================= RCS keyword statements ==========
+      CHARACTER*68     RCSKW1,RCSKW2
+      DATA             RCSKW1,RCSKW2 /                                 '
+     .$Source: /fs/hseb/ob72/rfc/calb/src/calb_waterbal/RCS/plotmy.f,v $
+     . $',                                                             '
+     .$Id: plotmy.f,v 1.2 1996/07/11 19:35:11 dws Exp $
+     . $' /
+C    ===================================================================
+C
+C
+      DATA SIMM/'MM  '/,ENGIN/'IN  '/
+      DATA SNAME/'PLOT','MY  '/
+C***************************************
+C
+C     TRACE LEVEL=1, NO DEBUG OUTPUT
+      IF(ITRACE .GE. 1) WRITE(IODBUG,900) SNAME
+  900 FORMAT(/,5X,'**  ',2A4,' ENTERED')
+C****************************************
+C
+C     DETERMINE UNITS
+      IF(METRIC .EQ. 0) GO TO 10
+      UNITS=SIMM
+      GO TO 20
+   10 UNITS=ENGIN
+   20 IF(IOPT1 .EQ. 0) GO TO 50
+C
+C     PRINT YEARLY WATER BALANCE SUMMARY
+      IF(IAPI .EQ. 0) GO TO 15
+      WRITE(IPR,915) (PO(I),I=2,6),IMONTH,KYR,MONTH,KWY,UNITS
+      GO TO 25
+   15 WRITE(IPR,910) (PO(I),I=2,6),IMONTH,KYR,MONTH,KWY,UNITS
+   25 IF(METRIC .EQ. 0) GO TO 70
+      WRITE(IPR,920) (CO(J),J=11,19)
+      GO TO 80
+C
+C     ENGLISH UNITS REQUESTED
+   70 DO 75 I=11,17
+        CO(I)=CO(I)/25.4
+   75 CONTINUE
+      WRITE(IPR,925) (CO(J),J=11,19)
+   80 IF(LASTYR .EQ. 0) GO TO 40
+      GO TO 50
+C
+C     PRINT MULTI-YEAR WATER BALANCE SUMMARY
+   50 IF(IOPT2 .EQ. 1) GO TO 30
+      WRITE(IPR,940) (PO(I),I=2,6),IMO,IYR,LMO,LYR,UNITS
+      GO TO 60
+   30 WRITE(IPR,930) (PO(I),I=2,6),IMO,IYR,LMO,LYR,UNITS
+   60 IF(METRIC .EQ. 0) GO TO 90
+      WRITE(IPR,920) (CO(J),J=1,9)
+      GO TO 100
+C
+C     ENGLISH UNITS REQUESTED
+   90 DO 95 I=1,7
+        CO(I)=CO(I)/25.4
+   95 CONTINUE
+      WRITE(IPR,925) (CO(J),J=1,9)
+  100 CONTINUE
+C***************************************
+C
+  910 FORMAT(1H1,/40X,'YEARLY WATER BALANCE SUMMARY FOR ',5A4,/19X,'BASE
+     &D ON THE PERIOD',2X,I2,'/',I4,'-',I2,'/',I4,10X,'VALUES EXPRESSED 
+     &ARE MEAN ANNUAL - UNITS ARE ',A4,//75X,'CHANGE',19X,'OBS',9X,'SIM'
+     &,/14X,'ET-DEMAND',3X,'ET-ACTUAL',5X,'PRECIP',7X,'SNOW',5X,'RAIN+ME
+     &LT',4X,'STORAGE',5X,'RECHARGE',5X,'RUNOFF',6X,'RUNOFF')
+C
+  915 FORMAT(////,40X,'YEARLY WATER BALANCE SUMMARY FOR ',5A4,/19X,'BASE
+     &D ON THE PERIOD',2X,I2,'/',I4,'-',I2,'/',I4,10X,'VALUES EXPRESSED
+     &ARE MEAN ANNUAL - UNITS ARE ',A4,//75X,'CHANGE',19X,'OBS',9X,'SIM'
+     &,/14X,'ET-DEMAND',3X,'ET-ACTUAL',5X,'PRECIP',7X,'SNOW',5X,'RAIN+ME
+     &LT',4X,'STORAGE',5X,'RECHARGE',5X,'RUNOFF',6X,'RUNOFF')
+C
+  920 FORMAT(10X,9(6X,F6.0))
+  925 FORMAT(9X,9(4X,F8.2))
+C
+  930 FORMAT(////38X,'MULTI-YEAR WATER BALANCE SUMMARY FOR ',5A4,/19X,'B
+     &ASED ON THE PERIOD',2X,I2,'/',I4,'-',I2,'/',I4,10X,'VALUES EXPRESS
+     &ED ARE MEAN ANNUAL - UNITS ARE ',A4,//75X,'CHANGE',19X,'OBS',9X,'S
+     &IM',/14X,'ET-DEMAND',3X,'ET-ACTUAL',5X,'PRECIP',7X,'SNOW',5X,'RAIN
+     &+MELT',4X,'STORAGE',5X,'RECHARGE',5X,'RUNOFF',6X,'RUNOFF')
+C
+  940 FORMAT(1H1,/38X,'MULTI-YEAR WATER BALANCE SUMMARY FOR ',5A4,/19X,'
+     &BASED ON THE PERIOD',2X,I2,'/',I4,'-',I2,'/',I4,10X,'VALUES EXPRES
+     &SED ARE MEAN ANNUAL - UNITS ARE ',A4,//75X,'CHANGE',19X,'OBS',9X,'
+     &SIM',/14X,'ET-DEMAND',3X,'ET-ACTUAL',5X,'PRECIP',7X,'SNOW',5X,'RAI
+     &N+MELT',4X,'STORAGE',5X,'RECHARGE',5X,'RUNOFF',6X,'RUNOFF')
+C
+   40 RETURN
+      END

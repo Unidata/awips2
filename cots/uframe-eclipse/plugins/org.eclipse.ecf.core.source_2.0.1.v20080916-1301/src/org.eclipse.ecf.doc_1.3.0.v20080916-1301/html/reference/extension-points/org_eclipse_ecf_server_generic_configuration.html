@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>ECF Generic Server Configuration</title>
+<style type="text/css">@import url("../../book.css");</style>
+<style type="text/css">@import url("../../schema.css");</style>
+</HEAD>
+<BODY>
+<H1 style="text-align:center">ECF Generic Server Configuration</H1>
+<p></p>
+<h6 class="CaptionFigColumn SchemaHeader">Identifier: </h6>org.eclipse.ecf.server.generic.configuration<p></p>
+<h6 class="CaptionFigColumn SchemaHeader">Since: </h6>1.0.0
+<p></p>
+
+<h6 class="CaptionFigColumn SchemaHeader">Description: </h6>This extension point allows ECF generic server instances to be configured via extension point definition.<p></p>
+<h6 class="CaptionFigColumn SchemaHeader">Configuration Markup:</h6>
+<p></p>
+<p class="code SchemaDtd">&lt;!ELEMENT <a name="e.extension">extension</a> (<a href="#e.connector">connector</a>+)&gt;</p>
+<p class="code SchemaDtd">&lt;!ATTLIST extension</p>
+<p class="code SchemaDtdAttlist">point&nbsp;CDATA #REQUIRED<p class="code SchemaDtdAttlist">id&nbsp;&nbsp;&nbsp;&nbsp;CDATA #IMPLIED<p class="code SchemaDtdAttlist">name&nbsp;&nbsp;CDATA #IMPLIED&gt;</p>
+<p></p>
+<ul class="ConfigMarkupAttlistDesc">
+</ul>
+<br><p class="code SchemaDtd">&lt;!ELEMENT <a name="e.connector">connector</a> (<a href="#e.group">group</a>+)&gt;</p>
+<p class="code SchemaDtd">&lt;!ATTLIST connector</p>
+<p class="code SchemaDtdAttlist">hostname&nbsp;&nbsp;CDATA #IMPLIED<p class="code SchemaDtdAttlist">port&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CDATA #IMPLIED<p class="code SchemaDtdAttlist">keepAlive&nbsp;CDATA #IMPLIED<p class="code SchemaDtdAttlist">discovery&nbsp;(true | false) &gt;</p>
+<p></p>
+<p class="ConfigMarkupElementDesc">
+A connector defines the port and other information for an ECF generic server to receive connection requests from clients.</p>
+<br>
+<ul class="ConfigMarkupAttlistDesc">
+<li><b>hostname</b> - Defines the hostname expected in the server ID...e.g. "localhost".  If not specified, default is "localhost".</li>
+<li><b>port</b> - The port (e.g. 3282) for the connector to listen on.  If not specified, is set to 3282.</li>
+<li><b>keepAlive</b> - The timeout associated with the ECF generic server failure detector (in ms).  If not specified, defaults to 30000 (30 seconds).</li>
+<li><b>discovery</b> - The discovery flag determines if the given service is published for discovery via the IDiscoveryService</li>
+</ul>
+<br><p class="code SchemaDtd">&lt;!ELEMENT <a name="e.group">group</a> EMPTY&gt;</p>
+<p class="code SchemaDtd">&lt;!ATTLIST group</p>
+<p class="code SchemaDtdAttlist">name&nbsp;CDATA #REQUIRED&gt;</p>
+<p></p>
+<p class="ConfigMarkupElementDesc">
+A specific named group for the parent connector.  e.g. 'server' in ecftcp://localhost:3282/server</p>
+<br>
+<ul class="ConfigMarkupAttlistDesc">
+<li><b>name</b> - The name for the group in the ID: e.g. 'server' in ecftcp://localhost:3282/server</li>
+</ul>
+<br><h6 class="CaptionFigColumn SchemaHeader">Examples: </h6>The following is an example use of the org.eclipse.ecf.server.generic.configration extension point:
+
+<pre class="Example"><span class="code SchemaTag">
+   &lt;extension
+         point=</span><span class="code SchemaCstring">&quot;org.eclipse.ecf.server.generic.configuration&quot;</span><span class="code SchemaTag">&gt;
+      &lt;connector
+            hostname=</span><span class="code SchemaCstring">&quot;localhost&quot;</span><span class="code SchemaTag">
+            keepAlive=</span><span class="code SchemaCstring">&quot;30000&quot;</span><span class="code SchemaTag">
+            port=</span><span class="code SchemaCstring">&quot;3282&quot;</span><span class="code SchemaTag">&gt;
+         &lt;group
+               name=</span><span class="code SchemaCstring">&quot;server&quot;</span><span class="code SchemaTag">&gt;
+         &lt;/group&gt;
+      &lt;/connector&gt;
+   &lt;/extension&gt;
+</span></pre>
+
+Produces a server with groupID:  ecftcp://localhost:3333/groupName
+<p></p>
+
+<br>
+<p class="note SchemaCopyright">
+Copyright (c) 2004 Composent, Inc. and others.
+All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html.  Contributors:  Composent, Inc. - initial API and implementation
+
+</p>
+</BODY>
+</HTML>

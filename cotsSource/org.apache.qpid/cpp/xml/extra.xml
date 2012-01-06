@@ -1,0 +1,926 @@
+<?xml version="1.0"?>
+<!--
+ -
+ - Licensed to the Apache Software Foundation (ASF) under one
+ - or more contributor license agreements.  See the NOTICE file
+ - distributed with this work for additional information
+ - regarding copyright ownership.  The ASF licenses this file
+ - to you under the Apache License, Version 2.0 (the
+ - "License"); you may not use this file except in compliance
+ - with the License.  You may obtain a copy of the License at
+ - 
+ -   http://www.apache.org/licenses/LICENSE-2.0
+ - 
+ - Unless required by applicable law or agreed to in writing,
+ - software distributed under the License is distributed on an
+ - "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ - KIND, either express or implied.  See the License for the
+ - specific language governing permissions and limitations
+ - under the License.
+ -
+ -->
+
+<amqp major="99" minor="0" port="5672">
+
+  <domain name="mediumstr" type="mediumstr" label="string with 16bit size field" />
+
+  <domain name="sequence-set" type="sequence-set" label="ranged set representation">
+    <doc>
+      Set of pairs of RFC-1982 numbers representing a discontinuous range. Each pair represents a
+      closed interval within the list.
+
+      For example, the set (1,3), (6,6), (8,9) represents the sequence 1,2,3,6,8,9.
+    </doc>
+  </domain>
+
+  <domain name="xid010">
+    <struct size="long" pack="short" type="1540">
+      <field name="format" domain="long" />
+      <field name="global-id" domain="shortstr" />
+      <field name="branch-id" domain="shortstr" />
+    </struct>
+  </domain>
+
+  <domain name="delivery-properties-010">
+    <struct size="long" pack="short" type="1025">
+      <field name="discard-unroutable" domain="bit" label="controls discard of unroutable messages"/>
+      <field name="immediate" domain="bit" label="Consider message unroutable if it cannot be
+        processed immediately"/>
+      <field name="redelivered" domain="bit" label="redelivery flag"/>
+      <field name="priority" domain="octet" label="message priority, 0 to 9"
+        required="true"/>
+      <field name="delivery-mode" domain="octet" label="message persistence requirement"
+        required="true"/>
+      <field name="ttl" domain="longlong" label="time to live in ms"/>
+      <field name="timestamp" domain="longlong" label="message timestamp"/>
+      <field name="expiration" domain="longlong" label="message expiration time"/>
+      <field name="exchange" domain="shortstr" label="originating exchange"/>
+      <field name="routing-key" domain="shortstr" label="message routing key"/>
+      <field name="resume-id" domain="mediumstr" label="global id for message transfer"/>
+      <field name="resume-ttl" domain="longlong" label="ttl in ms for interrupted message data"/>
+    </struct>
+  </domain>
+
+  <domain name="message-properties-010">
+    <struct size="long" pack="short" type="1027">
+      <field name="content-length" domain="longlong" label="length of the body segment in bytes"/>
+      <field name="message-id" domain="uuid" label="application message identifier"/>
+      <field name="correlation-id" domain="mediumstr" label="application correlation identifier"/>
+      <field name="reply-to" domain="reply-to" label="destination to reply to"/>
+      <field name="content-type" domain="shortstr" label="MIME content type"/>
+      <field name="content-encoding" domain="shortstr" label="MIME content encoding"/>
+      <field name="user-id" domain="mediumstr" label="creating user id"/>
+      <field name="app-id" domain="mediumstr" label="creating application id"/>
+      <field name="application-headers" domain="table" label="application specific headers table"/>
+    </struct>
+  </domain>
+
+<class name = "connection010" index = "1">
+
+<method name = "start" index="1">
+      <doc>new start method</doc>
+      <chassis name="client" implement="MUST" />
+
+      <response name="start-ok" />
+
+      <field name="server-properties" domain="table" label="server properties">
+            <doc>blah, blah</doc>
+      </field>
+
+      <field name="mechanisms" domain="array" label="available security mechanisms">
+            <doc>blah, blah</doc>
+      </field>
+
+      <field name="locales" domain="array" label="available message locales">
+      </field>
+
+</method>
+
+<method name = "start-ok" index="2">
+      <doc>new start-ok method</doc>
+      <chassis name="server" implement="MUST" />
+
+      <field name="client-properties" domain="table" label="server properties">
+            <doc>blah, blah</doc>
+      </field>
+
+      <field name="mechanism" domain="shortstr" label="chosen security mechanism">
+            <doc>blah, blah</doc>
+      </field>
+
+      <field name="response" domain="longstr" label="security response data">
+        <doc>blah blah</doc>
+      </field>
+
+      <field name="locale" domain="shortstr" label="chosen locale">
+            <doc>blah, blah</doc>
+      </field>
+
+</method>
+
+    <method name="secure" synchronous="1" index="3" label="security mechanism challenge">
+      <doc>
+        The SASL protocol works by exchanging challenges and responses until both peers have
+        received sufficient information to authenticate each other. This method challenges the
+        client to provide more information.
+      </doc>
+
+      <chassis name="client" implement="MUST" />
+
+      <response name="secure-ok" />
+
+      <field name="challenge" domain="longstr" label="security challenge data">
+        <doc>
+          Challenge information, a block of opaque binary data passed to the security mechanism.
+        </doc>
+      </field>
+    </method>
+
+    <!-- - Method: connection.secure-ok  - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <method name="secure-ok" synchronous="1" index="4" label="security mechanism response">
+      <doc>
+        This method attempts to authenticate, passing a block of SASL data for the security
+        mechanism at the server side.
+      </doc>
+
+      <chassis name="server" implement="MUST" />
+
+      <field name="response" domain="longstr" label="security response data">
+        <doc>
+          A block of opaque data passed to the security mechanism. The contents of this data are
+          defined by the SASL security mechanism.
+        </doc>
+        <assert check="notnull" />
+      </field>
+    </method>
+
+    <method name="tune" synchronous="1" index="5" label="propose connection tuning parameters">
+      <doc>
+        This method proposes a set of connection configuration values to the client. The client can
+        accept and/or adjust these.
+      </doc>
+
+      <chassis name="client" implement="MUST" />
+
+      <response name="tune-ok" />
+
+      <field name="channel-max" domain="short" label="proposed maximum channels">
+        <doc>
+          The maximum total number of channels that the server allows per connection. Zero means
+          that the server does not impose a fixed limit, but the number of allowed channels may be
+          limited by available server resources.
+        </doc>
+      </field>
+
+      <field name="frame-max" domain="short" label="proposed maximum frame size">
+        <doc>
+          The largest frame size that the server proposes for the connection. The client can
+          negotiate a lower value. Zero means that the server does not impose any specific limit but
+          may reject very large frames if it cannot allocate resources for them.
+        </doc>
+
+        <rule name="minimum">
+          <doc>
+            Until the frame-max has been negotiated, both peers MUST accept frames of up to
+            frame-min-size octets large, and the minimum negotiated value for frame-max is also
+            frame-min-size.
+          </doc>
+          <doc type="scenario">
+            Client connects to server and sends a large properties field, creating a frame of
+            frame-min-size octets. The server must accept this frame.
+          </doc>
+        </rule>
+      </field>
+
+      <field name="heartbeat-min" domain="short" label="desired heartbeat delay"/>
+      <field name="heartbeat-max" domain="short" label="desired heartbeat delay"/>
+    </method>
+
+    <!-- - Method: connection.tune-ok  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <method name="tune-ok" synchronous="1" index="6"
+      label="negotiate connection tuning parameters">
+      <doc>
+        This method sends the client's connection tuning parameters to the server. Certain fields
+        are negotiated, others provide capability information.
+      </doc>
+
+      <chassis name="server" implement="MUST" />
+
+      <field name="channel-max" domain="short" label="negotiated maximum channels">
+        <doc>
+          The maximum total number of channels that the client will use per connection.
+        </doc>
+
+        <rule name="upper-limit">
+          <doc>
+            If the client specifies a channel max that is higher than the value provided by the
+            server, the server MUST close the connection without attempting a negotiated close. The
+            server may report the error in some fashion to assist implementors.
+          </doc>
+        </rule>
+
+        <assert check="notnull" />
+        <assert check="le" value="channel-max" />
+      </field>
+
+      <field name="frame-max" domain="short" label="negotiated maximum frame size">
+        <doc>
+          The largest frame size that the client and server will use for the connection. Zero means
+          that the client does not impose any specific limit but may reject very large frames if it
+          cannot allocate resources for them. Note that the frame-max limit applies principally to
+          content frames, where large contents can be broken into frames of arbitrary size.
+        </doc>
+
+        <rule name="minimum">
+          <doc>
+            Until the frame-max has been negotiated, both peers MUST accept frames of up to
+            frame-min-size octets large, and the minimum negotiated value for frame-max is also
+            frame-min-size.
+          </doc>
+        </rule>
+
+        <rule name="upper-limit">
+          <doc>
+            If the client specifies a frame max that is higher than the value provided by the
+            server, the server MUST close the connection without attempting a negotiated close. The
+            server may report the error in some fashion to assist implementors.
+          </doc>
+        </rule>
+      </field>
+
+      <field name="heartbeat" domain="short" label="desired heartbeat delay">
+        <doc>
+          The delay, in seconds, of the connection heartbeat that the client wants. Zero means the
+          client does not want a heartbeat.
+        </doc>
+      </field>
+    </method>
+
+    <method name="open" synchronous="1" index="7" label="open connection to virtual host">
+      <doc>
+        This method opens a connection to a virtual host, which is a collection of resources, and
+        acts to separate multiple application domains within a server. The server may apply
+        arbitrary limits per virtual host, such as the number of each type of entity that may be
+        used, per connection and/or in total.
+      </doc>
+
+      <chassis name="server" implement="MUST" />
+
+      <response name="open-ok" />
+      <response name="redirect" />
+
+      <field name="virtual-host" domain="path" label="virtual host name">
+        <!-- TODO 0.82 - the entire vhost model needs review. This concept was prompted by the HTTP
+          vhost concept but does not fit very well into AMQP.  Currently we use the vhost as a 
+          "cluster identifier" which is inaccurate usage. /PH 2006/07/19
+        -->
+        <doc>
+          The name of the virtual host to work with.
+        </doc>
+
+        <rule name="separation">
+          <doc>
+            If the server supports multiple virtual hosts, it MUST enforce a full separation of
+            exchanges, queues, and all associated entities per virtual host. An application,
+            connected to a specific virtual host, MUST NOT be able to access resources of another
+            virtual host.
+          </doc>
+        </rule>
+
+        <rule name="security">
+          <doc>
+            The server SHOULD verify that the client has permission to access the specified virtual
+            host.
+          </doc>
+        </rule>
+        <assert check="regexp" value="^[a-zA-Z0-9/-_]+$" />
+      </field>
+
+      <field name="capabilities" domain="array" label="required capabilities">
+        <doc>
+          The client can specify zero or more capability names, delimited by spaces. The server can
+          use this string to how to process the client's connection request.
+        </doc>
+      </field>
+
+      <field name="insist" domain="bit" label="insist on connecting to server">
+        <doc>
+          In a configuration with multiple collaborating servers, the server may respond to a
+          Connection.Open method with a Connection.Redirect. The insist option tells the server that
+          the client is insisting on a connection to the specified server.
+        </doc>
+        <rule name="behaviour">
+          <doc>
+            When the client uses the insist option, the server MUST NOT respond with a
+            Connection.Redirect method. If it cannot accept the client's connection request it
+            should respond by closing the connection with a suitable reply code.
+          </doc>
+        </rule>
+      </field>
+    </method>
+
+    <method name="open-ok" synchronous="1" index="8" label="signal that connection is ready">
+      <doc>
+        This method signals to the client that the connection is ready for use.
+      </doc>
+
+      <chassis name="client" implement="MUST" />
+
+      <field name="known-hosts" domain="array" />
+    </method>
+
+    <method name="redirect" synchronous="1" index="9" label="redirects client to other server">
+      <doc>
+        This method redirects the client to another server, based on the requested virtual host
+        and/or capabilities.
+      </doc>
+
+      <rule name="usage">
+        <doc>
+          When getting the Connection.Redirect method, the client SHOULD reconnect to the host
+          specified, and if that host is not present, to any of the hosts specified in the
+          known-hosts list.
+        </doc>
+      </rule>
+
+      <chassis name="client" implement="MUST" />
+
+      <field name="host" domain="shortstr" label="server to connect to">
+        <doc>
+          Specifies the server to connect to. This is an IP address or a DNS name, optionally
+          followed by a colon and a port number. If no port number is specified, the client should
+          use the default port number for the protocol.
+        </doc>
+        <assert check="notnull" />
+      </field>
+
+      <field name="known-hosts" domain="array" />
+    </method>
+
+<method name = "heartbeat" index="10">
+      <doc>new start-ok method</doc>
+      <chassis name="server" implement="MUST" />
+</method>
+
+    <!-- - Method: connection.close  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <method name="close" synchronous="1" index="11" label="request a connection close">
+      <doc>
+        This method indicates that the sender wants to close the connection. This may be due to
+        internal conditions (e.g. a forced shut-down) or due to an error handling a specific method,
+        i.e. an exception. When a close is due to an exception, the sender provides the class and
+        method id of the method which caused the exception.
+      </doc>
+      <!-- TODO: The connection close mechanism needs to be reviewed from the ODF documentation and
+        better expressed as rules here. /PH 2006/07/20
+      -->
+
+      <rule name="stability">
+        <doc>
+          After sending this method any received method except the Close-OK method MUST be
+          discarded.
+        </doc>
+      </rule>
+
+      <chassis name="client" implement="MUST" />
+      <chassis name="server" implement="MUST" />
+
+      <response name="close-ok" />
+
+      <field name="reply-code" domain="reply-code" />
+      <field name="reply-text" domain="reply-text" />
+    </method>
+
+    <!-- - Method: connection.close-ok - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <method name="close-ok" synchronous="1" index="12" label="confirm a connection close">
+      <doc>
+        This method confirms a Connection.Close method and tells the recipient that it is safe to
+        release resources for the connection and close the socket.
+      </doc>
+
+      <rule name="reporting">
+        <doc>
+          A peer that detects a socket closure without having received a Close-Ok handshake method
+          SHOULD log the error.
+        </doc>
+      </rule>
+
+      <chassis name="client" implement="MUST" />
+      <chassis name="server" implement="MUST" />
+    </method>
+
+
+</class>
+
+
+
+<class name = "session010" index = "2">
+
+<method name = "attach" index="1">
+
+      <doc>blah, blah</doc>
+      <chassis name="client" implement="MUST" />
+      <chassis name="server" implement="MUST" />
+
+      <response name="start-ok" />
+
+      <field name="name" domain="mediumstr" label="blah">
+            <doc>blah, blah</doc>
+      </field>
+
+      <field name="force" domain="bit" label="blah">
+            <doc>blah, blah</doc>
+      </field>
+
+</method>
+
+<method name = "attached" index="2">
+      <doc>blah, blah</doc>
+      <chassis name="server" implement="MUST" />
+      <chassis name="client" implement="MUST" />
+
+      <field name="name" domain="mediumstr" label="blah">
+            <doc>blah, blah</doc>
+      </field>
+
+</method>
+
+<method name = "detach" index="3">
+
+      <doc>blah, blah</doc>
+      <chassis name="client" implement="MUST" />
+      <chassis name="server" implement="MUST" />
+
+      <response name="start-ok" />
+
+      <field name="name" domain="mediumstr" label="blah">
+            <doc>blah, blah</doc>
+      </field>
+
+</method>
+
+<method name = "detached" index="4">
+      <doc>blah, blah</doc>
+      <chassis name="server" implement="MUST" />
+      <chassis name="client" implement="MUST" />
+
+      <field name="name" domain="mediumstr" label="blah">
+            <doc>blah, blah</doc>
+      </field>
+
+
+      <field name="detach-code" domain="octet" label="blah">
+            <doc>blah, blah</doc>
+      </field>
+
+</method>
+
+<method name = "request-timeout" index="5">
+      <doc>blah, blah</doc>
+      <chassis name="server" implement="MUST" />
+      <chassis name="client" implement="MUST" />
+
+      <field name="timeout" domain="long" label="blah">
+            <doc>blah, blah</doc>
+      </field>
+</method>
+
+<method name = "timeout" index="6">
+      <doc>blah, blah</doc>
+      <chassis name="server" implement="MUST" />
+      <chassis name="client" implement="MUST" />
+
+      <field name="timeout" domain="long" label="blah">
+            <doc>blah, blah</doc>
+      </field>
+</method>
+
+
+<method name = "command-point" index="7">
+      <doc>blah, blah</doc>
+      <chassis name="server" implement="MUST" />
+      <chassis name="client" implement="MUST" />
+
+      <field name="command-id" domain="rfc1982-long" label="blah">
+            <doc>blah, blah</doc>
+      </field>
+
+
+      <field name="command-offset" domain="longlong" label="blah">
+            <doc>blah, blah</doc>
+      </field>
+</method>
+
+<method name = "expected" index="8">
+      <doc>blah, blah</doc>
+      <chassis name="server" implement="MUST" />
+      <chassis name="client" implement="MUST" />
+
+      <field name="commands" domain="sequence-set" label="blah">
+            <doc>blah, blah</doc>
+      </field>
+
+      <field name="fragments" domain="array" label="blah">
+            <doc>blah, blah</doc>
+      </field>
+</method>
+
+<method name = "confirmed" index="9">
+      <doc>blah, blah</doc>
+      <chassis name="server" implement="MUST" />
+      <chassis name="client" implement="MUST" />
+
+      <field name="commands" domain="sequence-set" label="blah">
+            <doc>blah, blah</doc>
+      </field>
+
+      <field name="fragments" domain="array" label="blah">
+            <doc>blah, blah</doc>
+      </field>
+</method>
+
+<method name = "completed" index="10">
+      <doc>blah, blah</doc>
+      <chassis name="server" implement="MUST" />
+      <chassis name="client" implement="MUST" />
+
+      <field name="commands" domain="sequence-set" label="blah">
+            <doc>blah, blah</doc>
+      </field>
+
+      <field name="timely-reply" domain="bit" label="blah">
+            <doc>blah, blah</doc>
+      </field>
+</method>
+
+<method name = "known-completed" index="11">
+      <doc>blah, blah</doc>
+      <chassis name="server" implement="MUST" />
+      <chassis name="client" implement="MUST" />
+
+      <field name="commands" domain="sequence-set" label="blah">
+            <doc>blah, blah</doc>
+      </field>
+</method>
+
+<method name = "flush" index="12">
+      <doc>blah, blah</doc>
+      <chassis name="server" implement="MUST" />
+      <chassis name="client" implement="MUST" />
+
+      <field name="expected" domain="bit" label="blah">
+            <doc>blah, blah</doc>
+      </field>
+      <field name="confirmed" domain="bit" label="blah">
+            <doc>blah, blah</doc>
+      </field>
+      <field name="completed" domain="bit" label="blah">
+            <doc>blah, blah</doc>
+      </field>
+</method>
+
+<method name = "gap" index="13">
+      <doc>blah, blah</doc>
+      <chassis name="server" implement="MUST" />
+      <chassis name="client" implement="MUST" />
+
+      <field name="commands" domain="sequence-set" label="blah">
+            <doc>blah, blah</doc>
+      </field>
+</method>
+
+</class>
+
+<class name="execution010" index="3">
+    <method name = "sync" index="1">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <chassis name="client" implement="MUST" />
+    </method>
+    <method name = "result" index="2">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <chassis name="client" implement="MUST" />
+        <field name="command-id" domain="command-id"/>
+        <field name="value" domain="long-struct"/>
+    </method>
+    <method name = "exception" index="3">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <chassis name="client" implement="MUST" />
+        <field name="error-code" domain="short"/>
+        <field name="command-id" domain="long"/>
+        <field name="class-code" domain="octet"/>
+        <field name="command-code" domain="octet"/>
+        <field name="field-index" domain="octet"/>
+        <field name="description" domain="mediumstr"/>
+        <field name="error-info" domain="table"/>
+    </method>
+</class>
+
+<class name="message010" index="4">
+    <doc>blah, blah</doc>
+    <method name = "transfer" content="1" index="1">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <chassis name="client" implement="MUST" />
+        <field name="destination" domain="shortstr"/>
+        <field name="accept-mode" domain="octet"/>
+        <field name="acquire-mode" domain="octet"/>
+    </method>
+    <method name = "accept" index="2">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <chassis name="client" implement="MUST" />
+        <field name="commands" domain="sequence-set"/>
+    </method>
+    <method name = "reject" index="3">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <chassis name="client" implement="MUST" />
+        <field name="commands" domain="sequence-set"/>
+        <field name="code" domain="short"/>
+        <field name="text" domain="shortstr"/>
+    </method>
+    <method name = "release" index="4">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <field name="commands" domain="sequence-set"/>
+        <field name="set-redelivered" domain="bit"/>
+    </method>
+    <method name = "acquire" index="5">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <field name="transfers" domain="sequence-set"/>
+        <result>
+            <struct size="long" type="4">
+                <field name="transfers" domain="sequence-set"/>
+            </struct>
+        </result>
+    </method>
+
+    <method name = "subscribe" index="7">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <field name="queue" domain="shortstr"/>
+        <field name="destination" domain="shortstr"/>
+        <field name="accept-mode" domain="octet"/>
+        <field name="acquire-mode" domain="octet"/>
+        <field name="exclusive" domain="bit"/>
+        <field name="resume-id" domain="mediumstr"/>
+        <field name="resume-ttl" domain="longlong"/>
+        <field name="arguments" domain="table"/>
+    </method>
+    <method name = "cancel" index="8">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <field name="destination" domain="shortstr"/>
+    </method>
+    <method name = "set-flow-mode" index="9">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <field name="destination" domain="shortstr"/>
+        <field name="flow-mode" domain="octet"/>
+    </method>
+    <method name = "flow" index="10">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <field name="destination" domain="shortstr"/>
+        <field name="unit" domain="octet"/>
+        <field name="value" domain="long"/>
+    </method>
+    <method name = "flush" index="11">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <field name="destination" domain="shortstr"/>
+    </method>
+    <method name = "stop" index="12">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <field name="destination" domain="shortstr"/>
+    </method>
+</class>
+
+<class name="tx010" index="5">
+    <doc>blah, blah</doc>
+    <method name = "select" index="1">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+    </method>
+    <method name = "commit" index="2">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+    </method>
+    <method name = "rollback" index="3">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+    </method>
+</class>
+
+<class name="dtx010" index="6">
+    <doc>blah, blah</doc>
+    <method name = "select" index="1">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+    </method>
+    <method name = "start" index="2">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <field name="xid" domain="xid010"/>
+        <field name="join" domain="bit"/>
+        <field name="resume" domain="bit"/>
+        <result>
+            <struct size="long" pack="short" type="1">
+                <field name="status" domain="short" />
+            </struct>
+        </result>
+    </method>
+    <method name = "end" index="3">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <field name="xid" domain="xid010"/>
+        <field name="fail" domain="bit"/>
+        <field name="suspend" domain="bit"/>
+        <result>
+            <struct size="long" pack="short" type="1">
+                <field name="status" domain="short" />
+            </struct>
+        </result>
+    </method>
+    <method name = "commit" index="4">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <field name="xid" domain="xid010"/>
+        <field name="one-phase" domain="bit"/>
+        <result>
+            <struct size="long" pack="short" type="1">
+                <field name="status" domain="short" />
+            </struct>
+        </result>
+    </method>
+    <method name = "forget" index="5">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <field name="xid" domain="xid010"/>
+    </method>
+    <method name = "get-timeout" index="6">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <field name="xid" domain="xid010"/>
+        <result>
+            <struct size="long" pack="short" type="2">
+                <field name="timeout" domain="long" />
+            </struct>
+        </result>
+    </method>
+    <method name = "prepare" index="7">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <field name="xid" domain="xid010"/>
+        <result>
+            <struct size="long" pack="short" type="1">
+                <field name="status" domain="short" />
+            </struct>
+        </result>
+    </method>
+    <method name = "recover" index="8">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <result>
+            <struct size="long" pack="short" type="3">
+                <field name="in-doubt" domain="array" />
+            </struct>
+        </result>
+    </method>
+    <method name = "rollback" index="9">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <field name="xid" domain="xid010"/>
+        <result>
+            <struct size="long" pack="short" type="1">
+                <field name="status" domain="short" />
+            </struct>
+        </result>
+    </method>
+    <method name = "set-timeout" index="10">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <field name="xid" domain="xid010"/>
+        <field name="timeout" domain="long"/>
+    </method>
+</class>
+
+<class name="exchange010" index="7">
+    <doc>blah, blah</doc>
+    <method name = "declare" index="1">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <field name="exchange" domain="shortstr"/>
+        <field name="type" domain="shortstr"/>
+        <field name="alternate-exchange" domain="shortstr"/>
+        <field name="passive" domain="bit"/>
+        <field name="durable" domain="bit"/>
+        <field name="auto-delete" domain="bit"/>
+        <field name="arguments" domain="table"/>
+    </method>
+    <method name = "delete" index="2">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <field name="exchange" domain="shortstr"/>
+        <field name="if-unused" domain="bit"/>
+    </method>
+    <method name = "query" index="3">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <field name="name" domain="shortstr"/>
+        <result>
+            <struct size="long" type="1">
+                <field name="type" domain="shortstr"/>
+                <field name="durable" domain="bit"/>
+                <field name="not-found" domain="bit"/>
+                <field name="arguments" domain="table"/>
+            </struct>
+        </result>
+    </method>
+    <method name = "bind" index="4">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <field name="queue" domain="shortstr"/>
+        <field name="exchange" domain="shortstr"/>
+        <field name="binding-key" domain="shortstr"/>
+        <field name="arguments" domain="table"/>
+    </method>
+    <method name = "unbind" index="5">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <field name="queue" domain="shortstr"/>
+        <field name="exchange" domain="shortstr"/>
+        <field name="binding-key" domain="shortstr"/>
+    </method>
+    <method name = "bound" index="6">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <field name="exchange" domain="shortstr"/>
+        <field name="queue" domain="shortstr"/>
+        <field name="binding-key" domain="shortstr"/>
+        <field name="arguments" domain="table"/>
+        <result>
+            <struct size="long" type="2">
+                <field name="exchange-not-found" domain="bit"/>
+                <field name="queue-not-found" domain="bit"/>
+                <field name="queue-not-matched" domain="bit"/>
+                <field name="key-not-matched" domain="bit"/>
+                <field name="arguments-not-matched" domain="bit"/>
+            </struct>
+        </result>
+    </method>
+</class>
+
+<class name="queue010" index="8">
+    <doc>blah, blah</doc>
+    <method name = "declare" index="1">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <field name="queue" domain="shortstr"/>
+        <field name="alternate-exchange" domain="shortstr"/>
+        <field name="passive" domain="bit"/>
+        <field name="durable" domain="bit"/>
+        <field name="exclusive" domain="bit"/>
+        <field name="auto-delete" domain="bit"/>
+        <field name="arguments" domain="table"/>
+    </method>
+    <method name = "delete" index="2">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <field name="queue" domain="shortstr"/>
+        <field name="if-unused" domain="bit"/>
+        <field name="if-empty" domain="bit"/>
+    </method>
+    <method name = "purge" index="3">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <field name="queue" domain="shortstr"/>
+    </method>
+    <method name = "query" index="4">
+        <doc>blah, blah</doc>
+        <chassis name="server" implement="MUST" />
+        <field name="queue" domain="shortstr"/>
+        <result>
+            <struct size="long" type="1">
+                <field name="name" domain="shortstr"/>
+                <field name="alternate-exchange" domain="shortstr"/>
+                <field name="durable" domain="bit"/>
+                <field name="exclusive" domain="bit"/>
+                <field name="auto-delete" domain="bit"/>
+                <field name="arguments" domain="table"/>
+                <field name="message-count" domain="long"/>
+                <field name="subscriber-count" domain="long"/>
+            </struct>
+        </result>
+    </method>
+</class>
+
+</amqp>

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Willis Island (94299)" id="raobWillis Island"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="94299"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Cloncurry (94335)" id="raobCloncurry"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="94335"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Giles (94461)" id="raobGiles"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="94461"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Moree (94527)" id="raobMoree"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="94527"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Esperance M.O. (94638)" id="raobEsperanceMO"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="94638"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Cobar M.O. (94711)" id="raobCobarMO"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="94711"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Halls Creek (AHHC)" id="raobHallsCreek"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="94212"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Alice Springs (YBAS)" id="raobAliceSprings"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="94326"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Brisbane Airport (YBBN)" id="raobBrisbaneAirport"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="94578"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Cairns M.O. (YBCS)" id="raobCalmsMO"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="94287"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Charleville (YBCV)" id="raobCharleville"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="94510"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Gladstone (YBGL)" id="raobGladstone"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="94380"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Longreach M.O. (YBLR)" id="raobLongreachMO"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="94346"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Mt. Isa Arpt (YBMA)" id="raobMtIsaArpt"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="94332"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Mackay M.O. (YBMK)" id="raobMackayMO"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="94367"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Townsville (YBTL)" id="raobTownsville"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="94294"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Tennant Creek (YDTC)" id="raobTennantCreek"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="94238"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Mildura (YMMI)" id="raobMildura"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="94693"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Adelaide Arpt. (YPAD)" id="raobAdelaideArpt"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="94672"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Broome M.O. (YPBR)" id="raobBroomeMO"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="94203"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Ceduna (YPCD)" id="raobCeduna"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="94653"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Darwin Airport (YPDN)" id="raobDarwinAirport"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="94120"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Forrest (YPFT)" id="raobForrest"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="94646"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Kalgoorlie (YPKG)" id="raobKalgoorlie"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="94637"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Woomera (YPWR)" id="raobWoomera"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="94659"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Coffs Harbour Arpt (YSCH)" id="raobCoffsHarbourArpt"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="94791"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Nowra (YSNW)" id="raobNowra"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="94750"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Sydney Arpt (YSSY)" id="raobSydney Arpt"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="94767"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/UpperAirRaob.xml" 
+	                menuText="Williamtown Aerodrome (YSWM)" id="raobWilliamtownAerodrome"
+	                editorType="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor">
+	        <substitute key="stationId" value="94776"/>
+	    </contribute>
+</menuTemplate>

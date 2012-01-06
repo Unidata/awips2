@@ -1,0 +1,4 @@
+C                                           *--> FROM COMMON.SARR51
+      COMMON/SARR51/IBUG,IDOFST,MINODT,
+     & IRES,NRES,NRUN,NS2,NTIM24,NUM,ITME(1)
+C

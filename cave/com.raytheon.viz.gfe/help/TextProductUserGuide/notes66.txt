@@ -1,0 +1,1 @@
+Here is a dictionary of phrase descriptors. Note that it is a typical Python dictionary with an entry for each weather element.  This dictionary is used by the TextRules phrase methods to begin phrases such as “Winds 20 knots” or “Wind chill readings 20 below zero.”

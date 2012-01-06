@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature id="org.eclipse.platform.source" version="3.4.1.r341_v20080731-9I96EiDElYevwz-p1bP5z-NlAaP7vtX6Utotqsu" label="%featureName" provider-name="%providerName" image="eclipse_update_120.jpg"    >
+	<description >
+		%description
+	</description>
+	<copyright >
+		%copyright
+	</copyright>
+	<license url="%licenseURL">
+		%license
+	</license>
+	<url>
+		<update url="http://download.eclipse.org/eclipse/updates/3.4" label="%updateSiteName"/>
+		<discovery url="http://download.eclipse.org/eclipse/updates/3.4" label="%updateSiteName"/>
+		<discovery url="http://download.eclipse.org/releases/ganymede" label="%secondaryUpdateSiteName"/>
+	</url>
+	<includes id="org.eclipse.help.source" version="1.0.1.R34x_v20080827-7r7xEIxEI6Zu5nEqN7M3UBpglaat"/>
+	<includes id="org.eclipse.equinox.p2.user.ui.source" version="1.0.1.r34x_v20080721-7d-7OEMsLAz-vTBJ-ZHQaF155CE" optional="true"/>
+	<plugin id="org.eclipse.platform.doc.isv" version="3.4.1.r341_v20080826"     unpack="false"/>
+	<plugin id="javax.servlet.source" version="2.4.0.v200806031604"     unpack="false"/>
+	<plugin id="javax.servlet.jsp.source" version="2.0.0.v200806031607"     unpack="false"/>
+	<plugin id="org.apache.jasper.source" version="5.5.17.v200806031609"     unpack="false"/>
+	<plugin id="org.apache.commons.el.source" version="1.0.0.v200806031608"     unpack="false"/>
+	<plugin id="org.apache.commons.logging.source" version="1.0.4.v20080605-1930"     unpack="false"/>
+	<plugin id="org.apache.ant.source" version="1.7.0.v200803061910"     unpack="false"/>
+	<plugin id="org.apache.lucene.source" version="1.9.1.v20080530-1600"     unpack="false"/>
+	<plugin id="org.apache.lucene.analysis.source" version="1.9.1.v20080530-1600"     unpack="false"/>
+	<plugin id="org.mortbay.jetty.source" version="5.1.14.v200806031611"     unpack="false"/>
+	<plugin id="org.eclipse.compare.source" version="3.4.0.I20080604"     unpack="false"/>
+	<plugin id="org.eclipse.core.filebuffers.source" version="3.4.0.v20080603-2000"     unpack="false"/>
+	<plugin id="org.eclipse.core.filesystem.source" version="1.2.0.v20080604-1400"     unpack="false"/>
+	<plugin id="org.eclipse.core.net.source" version="1.1.0.I20080604"     unpack="false"/>
+	<plugin id="org.eclipse.core.resources.source" version="3.4.1.R34x_v20080902"     unpack="false"/>
+	<plugin id="org.eclipse.core.resources.compatibility.source" version="3.4.0.v20080604-1400"     unpack="false"/>
+	<plugin id="org.eclipse.osgi.util.source" version="3.1.300.v20080303"     unpack="false"/>
+	<plugin id="org.eclipse.debug.core.source" version="3.4.0.v20080612"     unpack="false"/>
+	<plugin id="org.eclipse.debug.ui.source" version="3.4.1.v20080811_r341"     unpack="false"/>
+	<plugin id="org.eclipse.help.appserver.source" version="3.1.300.v20080507"     unpack="false"/>
+	<plugin id="org.eclipse.ltk.core.refactoring.source" version="3.4.1.r341_v20080716-0800"     unpack="false"/>
+	<plugin id="org.eclipse.ltk.ui.refactoring.source" version="3.4.1.r341_v20080716-0800"     unpack="false"/>
+	<plugin id="org.eclipse.platform.source" version="3.3.101.v200809111700"     unpack="false"/>
+	<plugin id="org.eclipse.search.source" version="3.4.1.r341_v20080813-0800"     unpack="false"/>
+	<plugin id="org.eclipse.team.core.source" version="3.4.1.r34x_20080827"     unpack="false"/>
+	<plugin id="org.eclipse.team.ui.source" version="3.4.1.r34x_20080827"     unpack="false"/>
+	<plugin id="org.eclipse.text.source" version="3.4.0.v20080605-1800"     unpack="false"/>
+	<plugin id="org.eclipse.jface.text.source" version="3.4.1.r341_v20080827-1100"     unpack="false"/>
+	<plugin id="org.eclipse.jsch.core.source" version="1.1.100.I20080604"     unpack="false"/>
+	<plugin id="org.eclipse.jsch.ui.source" version="1.1.100.I20080415"     unpack="false"/>
+	<plugin id="org.eclipse.ui.console.source" version="3.3.0.v20080529-1300"     unpack="false"/>
+	<plugin id="org.eclipse.ui.presentations.r21.source" version="3.2.100.I20080512-2000"     unpack="false"/>
+	<plugin id="org.eclipse.ui.intro.source" version="3.2.201.v20080702_34x"     unpack="false"/>
+	<plugin id="org.eclipse.ui.intro.universal.source" version="3.2.200.v20080508"     unpack="false"/>
+	<plugin id="org.eclipse.ui.cheatsheets.source" version="3.3.101.v20080702_34x"     unpack="false"/>
+	<plugin id="org.eclipse.ui.browser.source" version="3.2.201.v20080708_34x"     unpack="false"/>
+	<plugin id="org.eclipse.ui.navigator.source" version="3.3.101.M20080827-0800"     unpack="false"/>
+	<plugin id="org.eclipse.ui.navigator.resources.source" version="3.3.101.M20080910-0800"     unpack="false"/>
+	<plugin id="org.eclipse.ui.net.source" version="1.0.0.I20080605"     unpack="false"/>
+	<plugin id="org.eclipse.ui.workbench.texteditor.source" version="3.4.1.r341_v20080827-1100"     unpack="false"/>
+	<plugin id="org.eclipse.ui.views.source" version="3.3.0.I20080509-2000"     unpack="false"/>
+	<plugin id="org.eclipse.ui.editors.source" version="3.4.0.v20080603-2000"     unpack="false"/>
+	<plugin id="org.eclipse.ui.externaltools.source" version="3.2.0.v20080514-1542"     unpack="false"/>
+	<plugin id="org.eclipse.ui.ide.source" version="3.4.1.M20080903-2000"     unpack="false"/>
+	<plugin id="org.eclipse.ui.ide.application.source" version="1.0.0.I20080603-2000"     unpack="false"/>
+	<plugin id="org.eclipse.ui.win32.source" version="3.2.100.v20080408-0800"   ws="win32"  unpack="false"/>
+	<plugin id="org.eclipse.update.core.source" version="3.2.201.R34x_v20080714"     unpack="false"/>
+	<plugin id="org.eclipse.update.scheduler.source" version="3.2.100.v20080404"     unpack="false"/>
+	<plugin id="org.eclipse.update.ui.source" version="3.2.100.v20080318"     unpack="false"/>
+	<plugin id="org.eclipse.ui.workbench.compatibility.source" version="3.2.0.I20080509-2000"     unpack="false"/>
+	<plugin id="org.eclipse.update.core.linux.source" version="3.2.0.v20080422" os="linux"    unpack="false"/>
+	<plugin id="org.eclipse.update.core.win32.source" version="3.2.100.v20080107" os="win32"    unpack="false"/>
+	<plugin id="org.eclipse.ui.views.properties.tabbed.source" version="3.4.1.M20080730-0800"     unpack="false"/>
+	<plugin id="org.eclipse.equinox.security.source" version="1.0.1.R34x_v20080721"     unpack="false"/>
+	<plugin id="org.eclipse.equinox.security.ui.source" version="1.0.0.v20080603-1810"     unpack="false"/>
+	<plugin id="org.eclipse.equinox.security.win32.x86.source" version="1.0.0.v20080529-1600" os="win32" arch="x86"   unpack="false"/>
+	<plugin id="org.eclipse.equinox.security.macosx.source" version="1.0.0.v20080602-2000" os="macosx"    unpack="false"/>
+</feature>

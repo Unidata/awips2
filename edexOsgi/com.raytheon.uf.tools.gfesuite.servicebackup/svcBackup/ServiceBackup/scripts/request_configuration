@@ -1,0 +1,62 @@
+#!/bin/bash
+if [ ${#AWIPS_HOME} = 0 ]
+then
+        path_to_script=`readlink -f $0`
+		export AWIPS_HOME=$(dirname $(dirname $(dirname $(dirname  $path_to_script))))
+fi
+
+# $1 = Primary site
+# $2 = Failed site
+
+if [ $# -ne 2 ]
+then
+   log_msg "Incorrect number of arguments\nCorrect usage: request_configuration primary_site failed_site"
+   exit 1
+fi
+
+. ${AWIPS_HOME}/GFESuite/ServiceBackup/configuration/svcbu.env
+
+# Create the log file
+logdir=${IFPS_LOG}/`date +%Y%m%d`
+logfil=svcbu_request_configuration_`date +%H%M`
+logfile=${logdir}/${logfil}
+[ ! -d ${logdir} ] && (umask 000;mkdir ${logdir})
+touch ${logdir}/${logfil}
+exec 1>${logdir}/${logfil} 2>&1
+
+# Check the status of the lock file to see if we are OK to proceed
+if [ -f ${LOCK_DIR}/importConfiguration ];
+then
+	log_msg Cannot import configuration for $2.  Import configuration process already in progress!
+	exit 1
+fi
+
+touch ${LOCK_DIR}/importConfiguration
+
+log_msg Contacting central server to get configuration for ${2}
+log_msg 0
+
+if [ -n "${SVCBU_WMO_HEADER}" ]; then
+    msgSendOutput=$($MSG_SEND_COMMAND -a "DEFAULTNCF" -i ${SVCBU_WMO_HEADER} -s ${2}2 -c 21 -p 1)
+    exitValue=$?
+    if [ $exitValue -ne 0 ]; then
+		log_msg "msg_send failed while requesting configuration for ${CAPS_SITE}`date`"
+		rm -f ${LOCK_DIR}/importConfiguration
+		log_msg "msg_send FAILED with exit value $exitValue and the following error: $msgSendOutput"
+		exit 1
+    fi
+else
+    msgSendOutput=$($MSG_SEND_COMMAND -a "DEFAULTNCF" -s ${SITE}2 -c 21 -p 1)
+    exitValue=$?
+    if [ $exitValue -ne 0 ]; then
+		log_msg "msg_send failed while requesting configuration for ${2}`date`"
+		rm -f ${LOCK_DIR}/importConfiguration
+		log_msg "msg_send FAILED with exit value $exitValue and the following error: $msgSendOutput"
+		exit 1
+    fi
+fi
+
+log_msg Successfully sent message. MESSAGE ID: $msgSendOutput
+log_msg 30
+log_msg "Waiting to receive configuration..."
+exit 0

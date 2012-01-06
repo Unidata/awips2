@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            categoryId="com.raytheon.viz.ui.modalTool"
+            id="gov.noaa.nws.ncep.viz.actions.cloudHeight"
+            name="CloudHeight">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="gov.noaa.nws.ncep.viz.cloudHeight.ui.CloudHeightAction"
+            commandId="gov.noaa.nws.ncep.viz.actions.cloudHeight">
+      </handler>
+   </extension>
+   <extension
+         point="gov.noaa.nws.ncep.viz.localization.localizationData">
+      <singleLocalizationValue
+            name="soundingModelsTable"
+            location="cloud_height"
+            fileName="SoundingModels.xml">
+      </singleLocalizationValue>
+   </extension>
+
+</plugin>

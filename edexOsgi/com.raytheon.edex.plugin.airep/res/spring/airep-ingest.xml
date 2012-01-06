@@ -1,0 +1,71 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="airepDecoder" class="com.raytheon.edex.plugin.airep.AirepDecoder">
+        <constructor-arg ref="airepPluginName" />   
+    </bean>
+    
+	<bean id="airepSeparator" class="com.raytheon.edex.plugin.airep.AirepSeparator" />
+
+	<bean id="airepDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="airep" />
+		<constructor-arg value="jms-dist:queue:Ingest.airep" />
+	</bean>
+
+    <bean id="airepCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="airep-camel"/>
+  	</bean>
+
+	<camelContext id="airep-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+		<!--
+		<endpoint id="airepFileEndpoint" uri="file:${edex.home}/data/sbn/airep?noop=true&amp;idempotent=false" />
+
+		<route id="airepFileConsumerRoute">
+			<from ref="airepFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+				<constant>airep</constant>
+			</setHeader>
+			<to uri="jms-generic:queue:Ingest.airep" />
+		</route>
+		-->
+
+		<!-- Begin airep routes -->
+		<route id="airepIngestRoute">
+			<from uri="jms-generic:queue:Ingest.airep?destinationResolver=#qpidDurableResolver" />
+			<setHeader headerName="pluginName">
+				<constant>airep</constant>
+			</setHeader>
+			<doTry>
+				<pipeline>
+					<bean ref="stringToFile" />
+					<split streaming="true">
+						<method bean="airepSeparator" method="separate" />
+						<doTry>
+							<pipeline>
+								<bean ref="airepDecoder" method="decode" />
+								<to uri="directvm:indexAlert" />
+							</pipeline>
+							<doCatch>
+								<exception>java.lang.Throwable</exception>
+								<to uri="log:airep?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+							</doCatch>
+						</doTry>
+					</split>
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:airep?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
+		</route>
+	</camelContext>
+</beans>

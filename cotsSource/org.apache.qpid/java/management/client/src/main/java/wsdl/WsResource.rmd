@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<Definitions xmlns="http://docs.oasis-open.org/wsrf/rmd-1" >
+
+	<MetadataDescriptor xmlns:wsrl="http://docs.oasis-open.org/wsrf/rl-2" 
+                        xmlns:qman="http://amqp.apache.org/qpid/management/qman" name="QManWsResourceMetadata" 
+	                    interface="qman:QManWsResourcePortType" 
+	                    wsdlLocation="http://ws.apache.org/muse/test/wsrf QManWsResource.wsdl" >
+	                    
+		<Property name="wsrl:CurrentTime" modifiability="read-only" mutability="mutable" />
+		
+		<Property name="wsrl:TerminationTime" modifiability="read-only" mutability="mutable" />
+	</MetadataDescriptor>
+	
+</Definitions>

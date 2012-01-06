@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This_software_was_developed_and_/_or_modified_by_Raytheon_Company, pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government. 
+	U.S._EXPORT_CONTROLLED_TECHNICAL_DATA This_software_product_contains_export-restricted_data_whose 
+	export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires 
+	an_export_license_or_other_authorization. Contractor_Name:________Raytheon_Company 
+	Contractor_Address:_____6825_Pine_Street,_Suite_340 ________________________Mail_Stop_B8 
+	________________________Omaha,_NE_68106 ________________________402.291.0100 
+	See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for further_licensing_information. -->
+<Product-Selection-MenuItems>
+	<Source-Grid>DGEX</Source-Grid>
+	<Source-Grid>ENPwave</Source-Grid>
+	<Source-Grid>GFS40</Source-Grid>
+	<Source-Grid>GFS90</Source-Grid>
+	<Source-Grid>GFSensemble</Source-Grid>
+	<Source-Grid>GFSGuide</Source-Grid>
+	<Source-Grid>GriddedMOS</Source-Grid>
+	<Source-Grid>GWW</Source-Grid>
+	<Source-Grid>HPCGuide</Source-Grid>
+	<Source-Grid>LAMP</Source-Grid>
+	<Source-Grid>MSAS</Source-Grid>
+	<Source-Grid>NAM12</Source-Grid>
+	<Source-Grid>NAM40</Source-Grid>
+	<Source-Grid>NAM80</Source-Grid>
+	<Source-Grid>NAMWX</Source-Grid>
+	<Source-Grid>NGM80</Source-Grid>
+	<Source-Grid>NICIE</Source-Grid>
+	<Source-Grid>RUC80</Source-Grid>
+	<Source-Grid>TPC-HurWind</Source-Grid>
+	<Source-Grid>TPCWindProb</Source-Grid>
+	<Source-Grid>WNAwave</Source-Grid>
+	<Source-Grid>RTG_SST-Analysis</Source-Grid>
+	<Source-Other>DMD</Source-Other>
+	<Source-Other>GFSBufr</Source-Other>
+	<Source-Other>GoesBufr</Source-Other>
+	<Source-Other>Ldad</Source-Other>
+	<Source-Other>MDCRS</Source-Other>
+	<Source-Other>Metar</Source-Other>
+	<Source-Other>NAM Bufr</Source-Other>
+	<Source-Other>PoesBufr</Source-Other>
+	<Source-Other>Profiler</Source-Other>
+	<Source-Other>Raob</Source-Other>
+	<Source-Other>VWP</Source-Other>
+	<Field-Basic>Height</Field-Basic>
+	<Field-Basic>Thickness</Field-Basic>
+	<Field-Basic>Pressure</Field-Basic>
+	<Field-Basic>MSL Press</Field-Basic>
+	<Field-Basic>MSL Press(2)</Field-Basic>
+	<Field-Basic>Mont Strm Fun</Field-Basic>
+	<Field-Basic>12hr hgt chg</Field-Basic>
+	<Field-Basic>Model Terrain</Field-Basic>
+	<Field-Basic>Height AGL</Field-Basic>
+	<Field-Basic>t-5 Day Mean Hgt</Field-Basic>
+	<Field-Basic>t-2 Day Mean Hgt</Field-Basic>
+	<Field-Basic>5-Wave</Field-Basic>
+	<Field-Basic>Temperature</Field-Basic>
+	<Field-Basic>Pot Temp</Field-Basic>
+	<Field-Basic>Lapse Rate</Field-Basic>
+	<Field-Basic>ThetaE Lapse Rate</Field-Basic>
+	<Field-Basic>Vert Temp Chg</Field-Basic>
+	<Field-Basic>Virtual Temp</Field-Basic>
+	<Field-Basic>Equiv Pot Temp</Field-Basic>
+	<Field-Basic>Sat Equiv Pot Temp</Field-Basic>
+	<Field-Basic>Wet Bulb Temp</Field-Basic>
+	<Field-Basic>Rel Humidity</Field-Basic>
+	<Field-Basic>Dewpoint</Field-Basic>
+	<Field-Basic>Dewpoint Dep</Field-Basic>
+	<Field-Basic>Spec Humidity</Field-Basic>
+	<Field-Basic>Mixing Ratio</Field-Basic>
+	<Field-Basic>Cloud Pressure</Field-Basic>
+	<Field-Basic>Cond Pressure</Field-Basic>
+	<Field-Basic>Cond Pres Def</Field-Basic>
+	<Field-Basic>Moisture Flux</Field-Basic>
+	<Field-Basic>Moist Flux Mag</Field-Basic>
+	<Field-Basic>Wind</Field-Basic>
+	<Field-Basic>Wind Speed</Field-Basic>
+	<Field-Basic>Omega</Field-Basic>
+	<Field-Basic>Geometric Vert Velocity</Field-Basic>
+	<Field-Basic>Wind Gust</Field-Basic>
+	<Field-Basic>Gust Speed</Field-Basic>
+	<Field-Basic>Wind Direction</Field-Basic>
+	<Field-Basic>Shear</Field-Basic>
+	<Field-Basic>Strm Mot</Field-Basic>
+	<Field-Derived>Vorticity</Field-Derived>
+	<Field-Derived>Pot Vorticity</Field-Derived>
+	<Field-Derived>Divergence</Field-Derived>
+	<Field-Derived>Total Deformation</Field-Derived>
+	<Field-Derived>Deformation Vect</Field-Derived>
+	<Field-Derived>Temp Adv</Field-Derived>
+	<Field-Derived>Temperature</Field-Derived>
+	<Field-Derived>Moisture Adv</Field-Derived>
+	<Field-Derived>Moisture</Field-Derived>
+	<Field-Derived>Adiabatic Omega</Field-Derived>
+	<Field-Derived>Isentropic</Field-Derived>
+	<Field-Derived>Geostrophic Wind</Field-Derived>
+	<Field-Derived>Geostropic</Field-Derived>
+	<Field-Derived>Q Vectors</Field-Derived>
+	<Field-Derived>QG</Field-Derived>
+	<Field-Derived>Peterson Frontogen</Field-Derived>
+	<Field-Derived>Frontogenesis</Field-Derived>
+	<Field-SFC>MSL Press</Field-SFC>
+	<Field-SFC>Misc</Field-SFC>
+	<Field-SFC>Precipitation</Field-SFC>
+	<Field-SFC>Precip</Field-SFC>
+	<Field-SFC>Lifted Idx</Field-SFC>
+	<Field-SFC>Convective</Field-SFC>
+	<Field-SFC>Marine</Field-SFC>
+	<Field-SFC>LAMP</Field-SFC>
+	<Field-SFC>HPC Guidance</Field-SFC>
+	<Field-SFC>MDL MOS</Field-SFC>
+	<Field-SFC>TPC Guidance</Field-SFC>
+	<Field-SFC>Eta Weather</Field-SFC>
+	<Field-Other>Cloud Cover</Field-Other>
+	<Field-Other>Cloud Decks</Field-Other>
+	<Field-Other>Cloud Type</Field-Other>
+	<Field-Other>Cloud Liquid</Field-Other>
+	<Field-Other>Cloud Ice</Field-Other>
+	<Field-Other>Cloud Condensate</Field-Other>
+	<Field-Other>Precip Type</Field-Other>
+	<Field-Other>Precip Conc</Field-Other>
+	<Field-Other>Reflectivity</Field-Other>
+	<Field-Other>Radial Vel</Field-Other>
+	<Field-Other>Col Max Refl</Field-Other>
+	<Field-Other>Feature Strength</Field-Other>
+	<Field-Other>Feature Diameter</Field-Other>
+	<Field-Other>Shear Mag</Field-Other>
+	<Field-Other>Gate2Gate Shr</Field-Other>
+	<Field-Other>FeatMot</Field-Other>
+	<Field-Other>Divergence</Field-Other>
+	<Field-Other>Peak Power</Field-Other>
+	<Field-Other>Vert Var</Field-Other>
+	<Field-Other>Horz Var</Field-Other>
+	<Field-Other>Strom Rel Flow RM</Field-Other>
+	<Field-Other>Stm Rel Flow Mag RM</Field-Other>
+	<Field-Other>Storm Rel Flow LM</Field-Other>
+	<Field-Other>Stm Rel Flow Mag LM</Field-Other>
+	<Field-Ensemble>Height</Field-Ensemble>
+	<Field-Ensemble>Height Mean</Field-Ensemble>
+	<Field-Ensemble>Height Std Dev</Field-Ensemble>
+	<Field-Ensemble>Temp</Field-Ensemble>
+	<Field-Ensemble>Temp Mean</Field-Ensemble>
+	<Field-Ensemble>Temp Std Dev</Field-Ensemble>
+	<Field-Ensemble>RH</Field-Ensemble>
+	<Field-Ensemble>RH Mean</Field-Ensemble>
+	<Field-Ensemble>RH Std Dev</Field-Ensemble>
+	<Field-Ensemble>Wind</Field-Ensemble>
+	<Field-Ensemble>Wind Mean</Field-Ensemble>
+	<Field-Ensemble>Wind Speed Mean</Field-Ensemble>
+	<Field-Ensemble>Wind Speed Std Dev</Field-Ensemble>
+	<Field-Ensemble>MSLP</Field-Ensemble>
+	<Field-Ensemble>MSLP Mean</Field-Ensemble>
+	<Field-Ensemble>MSLP Std Dev</Field-Ensemble>
+	<Field-Ensemble>Precip</Field-Ensemble>
+	<Field-Ensemble>Precip Mean</Field-Ensemble>
+	<Field-Ensemble>Precip Std Dev</Field-Ensemble>
+	<Field-Ensemble>Accum Precip</Field-Ensemble>
+	<Field-Ensemble>Accum Precip Mean</Field-Ensemble>
+	<Field-Ensemble>Accum Precip Std Dev</Field-Ensemble>
+	<Field-Ensemble>Tmax</Field-Ensemble>
+	<Field-Ensemble>Tmax Mean</Field-Ensemble>
+	<Field-Ensemble>Tmax Std Dev</Field-Ensemble>
+	<Field-Ensemble>Tmin</Field-Ensemble>
+	<Field-Ensemble>Tmin Mean</Field-Ensemble>
+	<Field-Ensemble>Tmin Std Dev</Field-Ensemble>
+	<Planes-Pres>100 mb</Planes-Pres>
+	<Planes-Pres>150 mb</Planes-Pres>
+	<Planes-Pres>200 mb</Planes-Pres>
+	<Planes-Pres>250 mb</Planes-Pres>
+	<Planes-Pres>300 mb</Planes-Pres>
+	<Planes-Pres>400 mb</Planes-Pres>
+	<Planes-Pres>500 mb</Planes-Pres>
+	<Planes-Pres>700 mb</Planes-Pres>
+	<Planes-Pres>850 mb</Planes-Pres>
+	<Planes-Pres>925 mb</Planes-Pres>
+	<Planes-Pres>1000 mb</Planes-Pres>
+	<Planes-Pres>10-575 mb</Planes-Pres>
+	<Planes-Pres>600-1050 mb</Planes-Pres>
+	<Planes-Theta>250 K</Planes-Theta>
+	<Planes-Theta>255 K</Planes-Theta>
+	<Planes-Theta>260 K</Planes-Theta>
+	<Planes-Theta>265 K</Planes-Theta>
+	<Planes-Theta>270 K</Planes-Theta>
+	<Planes-Theta>275 K</Planes-Theta>
+	<Planes-Theta>280 K</Planes-Theta>
+	<Planes-Theta>285 K</Planes-Theta>
+	<Planes-Theta>290 K</Planes-Theta>
+	<Planes-Theta>295 K</Planes-Theta>
+	<Planes-Theta>300 K</Planes-Theta>
+	<Planes-Theta>305 K</Planes-Theta>
+	<Planes-Theta>310 K</Planes-Theta>
+	<Planes-Theta>315 K</Planes-Theta>
+	<Planes-Theta>320 K</Planes-Theta>
+	<Planes-Theta>325 K</Planes-Theta>
+	<Planes-Theta>330 K</Planes-Theta>
+	<Planes-Theta>335 K</Planes-Theta>
+	<Planes-Theta>340 K</Planes-Theta>
+	<Planes-Theta>345 K</Planes-Theta>
+	<Planes-Theta>350 K</Planes-Theta>
+	<Planes-Theta>315 Ke</Planes-Theta>
+	<Planes-Theta>320 Ke</Planes-Theta>
+	<Planes-Theta>325 Ke</Planes-Theta>
+	<Planes-Theta>330 Ke</Planes-Theta>
+	<Planes-Theta>335 Ke</Planes-Theta>
+	<Planes-Theta>340 Ke</Planes-Theta>
+	<Planes-Height>1500 m</Planes-Height>
+	<Planes-Height>6000 ft</Planes-Height>
+	<Planes-Height>9000 ft</Planes-Height>
+	<Planes-Height>12000 ft</Planes-Height>
+	<Planes-Height>1 km GL</Planes-Height>
+	<Planes-Height>2 km AGL</Planes-Height>
+	<Planes-Height>3 km AGL</Planes-Height>
+	<Planes-Height>4 km AGL</Planes-Height>
+	<Planes-Height>5 km AGL</Planes-Height>
+	<Planes-Height>6 km AGL</Planes-Height>
+	<Planes-Height>8 km AGL</Planes-Height>
+	<Planes-Height>10 km AGL</Planes-Height>
+	<Planes-Misc>Surface</Planes-Misc>
+	<Planes-Misc>FrzLvl</Planes-Misc>
+	<Planes-Misc>MaxWind</Planes-Misc>
+	<Planes-Misc>Trop</Planes-Misc>
+	<Planes-Misc>BL</Planes-Misc>
+	<Planes-Misc>30 AGL</Planes-Misc>
+	<Planes-Misc>60 AGL</Planes-Misc>
+	<Planes-Misc>90 AGL</Planes-Misc>
+	<Planes-Misc>120 AGL</Planes-Misc>
+	<Planes-Misc>150 AGL</Planes-Misc>
+	<Planes-Misc>Wet Bulb 0</Planes-Misc>
+	<Planes-Misc>Cloud Base</Planes-Misc>
+	<Planes-Misc>Low Cloud Base</Planes-Misc>
+	<Planes-Misc>Middle Cloud Base</Planes-Misc>
+	<Planes-Misc>High Cloud Base</Planes-Misc>
+	<Planes-Misc>Cloud Ceiling</Planes-Misc>
+	<Planes-Misc>Cloud Top</Planes-Misc>
+	<Planes-Misc>Conv Cloud Top</Planes-Misc>
+	<Planes-Misc>Lift Cond Level</Planes-Misc>
+	<Planes-Misc>Echo Top</Planes-Misc>
+	<Planes-Misc>Potential Vorticity 0.5</Planes-Misc>
+	<Planes-Misc>Potential Vorticity 1.0</Planes-Misc>
+	<Planes-Misc>Potential Vorticity 1.5</Planes-Misc>
+	<Planes-Misc>Potential Vorticity 2.0</Planes-Misc>
+	<Planes-Lyr>Layer</Planes-Lyr>
+	<Planes-Lyr>Lo Layer</Planes-Lyr>
+	<Planes-Lyr>Mid Layer</Planes-Lyr>
+	<Planes-Lyr>Hi Layer</Planes-Lyr>
+	<Planes-Lyr>300-200 mb</Planes-Lyr>
+	<Planes-Lyr>400-200 mb</Planes-Lyr>
+	<Planes-Lyr>500-100 mb</Planes-Lyr>
+	<Planes-Lyr>500-300 mb</Planes-Lyr>
+	<Planes-Lyr>700-300 mb</Planes-Lyr>
+	<Planes-Lyr>700-500 mb</Planes-Lyr>
+	<Planes-Lyr>850-300 mb</Planes-Lyr>
+	<Planes-Lyr>850-500 mb</Planes-Lyr>
+	<Planes-Lyr>850-700 mb</Planes-Lyr>
+	<Planes-Lyr>925-700 mb</Planes-Lyr>
+	<Planes-Lyr>925-850 mb</Planes-Lyr>
+	<Planes-Lyr>1000-500 mb</Planes-Lyr>
+	<Planes-Lyr>1000-700 mb</Planes-Lyr>
+	<Planes-Lyr>1000-850 mb</Planes-Lyr>
+	<Planes-Lyr>0-1 km AGL</Planes-Lyr>
+	<Planes-Lyr>0-2 km AGL</Planes-Lyr>
+	<Planes-Lyr>0-3 km AGL</Planes-Lyr>
+	<Planes-Lyr>0-4 km AGL</Planes-Lyr>
+	<Planes-Lyr>0-5 km AGL</Planes-Lyr>
+	<Planes-Lyr>0-6 km AGL</Planes-Lyr>
+	<Planes-Lyr>0-10 km AGL</Planes-Lyr>
+	<Planes-Lyr>3-6 km AGL</Planes-Lyr>
+	<Planes-Coord>All mb</Planes-Coord>
+	<Planes-Coord>All K</Planes-Coord>
+	<Field-Basic-Shear>Wind Shear</Field-Basic-Shear>
+	<Field-Basic-Shear>Shear Mag</Field-Basic-Shear>
+	<Field-Basic-Shear>Bulk Shear</Field-Basic-Shear>
+	<Field-Basic-Shear>Bulk Shear Mag</Field-Basic-Shear>
+	<Field-Basic-Shear>Cumulative Shr</Field-Basic-Shear>
+	<Field-Basic-Shear>Norm Cumu Shr</Field-Basic-Shear>
+	<Field-Deriv-Vort>Vorticity</Field-Deriv-Vort>
+	<Field-Deriv-Vort>Rel Vorticity</Field-Deriv-Vort>
+	<Field-Deriv-Vort>Vort Adv</Field-Deriv-Vort>
+	<Field-Deriv-Vort>Diff Vort Adv</Field-Deriv-Vort>
+	<Field-Deriv-Vort>Th Wind Vort Adv</Field-Deriv-Vort>
+	<Field-Deriv-Port>Pot Vorticity</Field-Deriv-Port>
+	<Field-Deriv-Port>Equiv Pot Vort</Field-Deriv-Port>
+	<Field-Deriv-Port>Sat Equiv Pot Vort</Field-Deriv-Port>
+	<Field-Deriv-Port>Geo Equiv Pot Vort</Field-Deriv-Port>
+	<Field-Deriv-Port>Sat Equiv Pot Vort</Field-Deriv-Port>
+	<Field-Deriv-Port>Pot Vort Adv</Field-Deriv-Port>
+	<Field-Deriv-Temp>Pot Temp Adv</Field-Deriv-Temp>
+	<Field-Deriv-Temp>Temp Gradient</Field-Deriv-Temp>
+	<Field-Deriv-Temp>Temp Grad Mag</Field-Deriv-Temp>
+	<Field-Deriv-Temp>Eq Pot Temp Adv</Field-Deriv-Temp>
+	<Field-Deriv-Temp>Eq Pot Temp Conv</Field-Deriv-Temp>
+	<Field-Deriv-Temp>Eq Pot Temp Grad</Field-Deriv-Temp>
+	<Field-Deriv-Temp>Eq Pot Temp Grad Mag</Field-Deriv-Temp>
+	<Field-Deriv-Moist>Moisture Flux Div</Field-Deriv-Moist>
+	<Field-Deriv-Moist>Moisture Flux</Field-Deriv-Moist>
+	<Field-Deriv-Moist>Moisture Flux Mag</Field-Deriv-Moist>
+	<Field-Deriv-Isent>Pres Adv</Field-Deriv-Isent>
+	<Field-Deriv-Isent> Local Press Deriv</Field-Deriv-Isent>
+	<Field-Deriv-Isent>dp/d Theta</Field-Deriv-Isent>
+	<Field-Deriv-Isent>Norm Total Moisture</Field-Deriv-Isent>
+	<Field-Deriv-Isent>Moisture Stab Flux</Field-Deriv-Isent>
+	<Field-Deriv-Isent>Moist Stab Flux Mag</Field-Deriv-Isent>
+	<Field-Deriv-Isent>Moist Stab Flux Div</Field-Deriv-Isent>
+	<Field-Deriv-GeoStrop>Geo Wind Speed</Field-Deriv-GeoStrop>
+	<Field-Deriv-GeoStrop>Geo Vort</Field-Deriv-GeoStrop>
+	<Field-Deriv-GeoStrop>Ageo Wind</Field-Deriv-GeoStrop>
+	<Field-Deriv-GeoStrop>Ageo Wind Speed</Field-Deriv-GeoStrop>
+	<Field-Deriv-GeoStrop>Thermal Wind</Field-Deriv-GeoStrop>
+	<Field-Deriv-GeoStrop>Th Wind Vort Adv</Field-Deriv-GeoStrop>
+	<Field-Deriv-GeoStrop>Geo Equiv Pot Vort</Field-Deriv-GeoStrop>
+	<Field-Deriv-GeoStrop>Sat Geo Equiv Pot Vort</Field-Deriv-GeoStrop>
+	<Field-Deriv-QG>Qn Vectors</Field-Deriv-QG>
+	<Field-Deriv-QG>Qs Vectors</Field-Deriv-QG>
+	<Field-Deriv-QG>Div Q</Field-Deriv-QG>
+	<Field-Deriv-QG>Qn Vec Div</Field-Deriv-QG>
+	<Field-Deriv-QG>Qs Vec Div</Field-Deriv-QG>
+	<Field-Deriv-QG>QG Frontogen</Field-Deriv-QG>
+	<Field-Deriv-Front>Frontogen Vecs</Field-Deriv-Front>
+	<Field-Deriv-Front>Fn Vectors</Field-Deriv-Front>
+	<Field-Deriv-Front>Fs Vectors</Field-Deriv-Front>
+	<Field-Deriv-Front>Frontogen Vecs Div</Field-Deriv-Front>
+	<Field-Deriv-Front>Fn Vec Div</Field-Deriv-Front>
+	<Field-Deriv-Front>Fs Vec Div</Field-Deriv-Front>
+	<Field-Deriv-Front>QG Frontogen</Field-Deriv-Front>
+	<Field-Sfc-Msl>MSL Press</Field-Sfc-Msl>
+	<Field-Sfc-Msl>MSL Press(2)</Field-Sfc-Msl>
+	<Field-Sfc-Msl>6hr MSLP Change</Field-Sfc-Msl>
+	<Field-Sfc-Msl>3hr MSLP Change</Field-Sfc-Msl>
+	<Field-Sfc-Msl>1hr MSLP Change</Field-Sfc-Msl>
+	<Field-Sfc-Msl>MSLP Grad Mag</Field-Sfc-Msl>
+	<Field-Sfc-Msl>MSLP Grad Vec</Field-Sfc-Msl>
+	<Field-Sfc-Misc>Model Terrain</Field-Sfc-Misc>
+	<Field-Sfc-Misc>Precipitable H2O</Field-Sfc-Misc>
+	<Field-Sfc-Misc>Int Liquid H2O</Field-Sfc-Misc>
+	<Field-Sfc-Misc>3hr Pres Chg</Field-Sfc-Misc>
+	<Field-Sfc-Precip>Precipitation</Field-Sfc-Precip>
+	<Field-Sfc-Precip>Stable Precip</Field-Sfc-Precip>
+	<Field-Sfc-Precip>Conv Precip</Field-Sfc-Precip>
+	<Field-Sfc-Precip>Storm Tot Precip</Field-Sfc-Precip>
+	<Field-Sfc-Precip>1hr Precip Analysis</Field-Sfc-Precip>
+	<Field-Sfc-Precip>3hr Precip Analysis</Field-Sfc-Precip>
+	<Field-Sfc-Precip>3hr Precip Accum</Field-Sfc-Precip>
+	<Field-Sfc-Precip>6hr Precip Accum</Field-Sfc-Precip>
+	<Field-Sfc-Precip>12hr Precip Accum</Field-Sfc-Precip>
+	<Field-Sfc-Precip>24hr Precip Accum</Field-Sfc-Precip>
+	<Field-Sfc-Precip>36hr Precip Accum</Field-Sfc-Precip>
+	<Field-Sfc-Precip>48hr Precip Accum</Field-Sfc-Precip>
+	<Field-Sfc-Precip>Run Precip Accum</Field-Sfc-Precip>
+	<Field-Sfc-Precip>Precip Type</Field-Sfc-Precip>
+	<Field-Sfc-Precip>3hr Snow Accum</Field-Sfc-Precip>
+	<Field-Sfc-Precip>6hr Snow Accum</Field-Sfc-Precip>
+	<Field-Sfc-Precip>12hr Snow Accum</Field-Sfc-Precip>
+	<Field-Sfc-Precip>24hr Snow Accum</Field-Sfc-Precip>
+	<Field-Sfc-Precip>36hr Snow Accum</Field-Sfc-Precip>
+	<Field-Sfc-Precip>48hr Snow Accum</Field-Sfc-Precip>
+	<Field-Sfc-Precip>Run Snow Accum</Field-Sfc-Precip>
+	<Field-Sfc-Precip>Storm Tot Snow</Field-Sfc-Precip>
+	<Field-Sfc-Precip>Snow Cover</Field-Sfc-Precip>
+	<Field-Sfc-Precip>3hr Water Equiv Snow Accum</Field-Sfc-Precip>
+	<Field-Sfc-Convect>Lifted Index</Field-Sfc-Convect>
+	<Field-Sfc-Convect>Best LI</Field-Sfc-Convect>
+	<Field-Sfc-Convect>Parcel LI</Field-Sfc-Convect>
+	<Field-Sfc-Convect>Computed LI</Field-Sfc-Convect>
+	<Field-Sfc-Convect>Sfc to * LI</Field-Sfc-Convect>
+	<Field-Sfc-Convect>Showalter Idx</Field-Sfc-Convect>
+	<Field-Sfc-Convect>Pos Buoy En</Field-Sfc-Convect>
+	<Field-Sfc-Convect>Neg Buoy En</Field-Sfc-Convect>
+	<Field-Sfc-Convect>Computed CAPE</Field-Sfc-Convect>
+	<Field-Sfc-Convect>Downdraft CAPE</Field-Sfc-Convect>
+	<Field-Sfc-Convect>MU CAPE</Field-Sfc-Convect>
+	<Field-Sfc-Convect>Low Lvl CAPE</Field-Sfc-Convect>
+	<Field-Sfc-Convect>Computed CIN</Field-Sfc-Convect>
+	<Field-Sfc-Convect>Total Totals</Field-Sfc-Convect>
+	<Field-Sfc-Convect>K Index</Field-Sfc-Convect>
+	<Field-Sfc-Convect>SWEAT Index</Field-Sfc-Convect>
+	<Field-Sfc-Convect>CO Svr Strm Idx</Field-Sfc-Convect>
+	<Field-Sfc-Convect>Helicity</Field-Sfc-Convect>
+	<Field-Sfc-Convect>Bulk Rich No</Field-Sfc-Convect>
+	<Field-Sfc-Convect>Bulk Rich No Shr</Field-Sfc-Convect>
+	<Field-Sfc-Convect>Hanes Index</Field-Sfc-Convect>
+	<Field-Sfc-Convect>Corfidi Vectors</Field-Sfc-Convect>
+	<Field-Sfc-Convect>Corfidi Vectors Mag</Field-Sfc-Convect>
+	<Field-Sfc-Convect>Corfidi Vec Fwd</Field-Sfc-Convect>
+	<Field-Sfc-Convect>Corfidi Vec Fwd Mag</Field-Sfc-Convect>
+	<Field-Sfc-Convect>Right Moving Supercell</Field-Sfc-Convect>
+	<Field-Sfc-Convect>Left Moving Supercell</Field-Sfc-Convect>
+	<Field-Sfc-Convect>Energy Helicity Idx</Field-Sfc-Convect>
+	<Field-Sfc-Convect>Vort Gen Parm</Field-Sfc-Convect>
+	<Field-Sfc-Convect>Conv Precip</Field-Sfc-Convect>
+	<Field-Sfc-Marine>Sig Wave Hgt</Field-Sfc-Marine>
+	<Field-Sfc-Marine>Wind Wave Dir</Field-Sfc-Marine>
+	<Field-Sfc-Marine>Wind Wave Pd</Field-Sfc-Marine>
+	<Field-Sfc-Marine>Wind Wave Len</Field-Sfc-Marine>
+	<Field-Sfc-Marine>Prim Wave Dir</Field-Sfc-Marine>
+	<Field-Sfc-Marine>Prim Wave Pd</Field-Sfc-Marine>
+	<Field-Sfc-Marine>2nd Wave Dir</Field-Sfc-Marine>
+	<Field-Sfc-Marine>2nd Wave Pd</Field-Sfc-Marine>
+	<Field-Sfc-Marine>Ice Cover</Field-Sfc-Marine>
+	<Field-Sfc-Marine>Ice growth rate</Field-Sfc-Marine>
+	<Field-Sfc-Lamp>Saturation Deficit</Field-Sfc-Lamp>
+	<Field-Sfc-Lamp>Mixing Ratio</Field-Sfc-Lamp>
+	<Field-Sfc-Lamp>Mixing Ratio Div</Field-Sfc-Lamp>
+	<Field-Sfc-Lamp>2 Hr Chg in Mixing Ratio</Field-Sfc-Lamp>
+	<Field-Sfc-Lamp>2 Hr Chg in Mixing Ratio Div</Field-Sfc-Lamp>
+	<Field-Sfc-Lamp>2 Hr Chg in SLP</Field-Sfc-Lamp>
+	<Field-Sfc-Hpc>Max Temp</Field-Sfc-Hpc>
+	<Field-Sfc-Hpc>Min Temp</Field-Sfc-Hpc>
+	<Field-Sfc-Hpc>POP</Field-Sfc-Hpc>
+	<Field-Sfc-Hpc>Total Cloud Cover</Field-Sfc-Hpc>
+	<Field-Sfc-MDL>Max Temp</Field-Sfc-MDL>
+	<Field-Sfc-MDL>Min Temp</Field-Sfc-MDL>
+	<Field-Sfc-MDL>POP 6hr</Field-Sfc-MDL>
+	<Field-Sfc-MDL>POP 12hr</Field-Sfc-MDL>
+	<Field-Sfc-MDL>Tstorm Prob 3hr</Field-Sfc-MDL>
+	<Field-Sfc-MDL>Tstorm Prob 6hr</Field-Sfc-MDL>
+	<Field-Sfc-MDL>Tstorm Prob 12hr</Field-Sfc-MDL>
+	<Field-Sfc-MDL>24hr Snowfall</Field-Sfc-MDL>
+	<Field-Sfc-Tpc>Prob34Knot</Field-Sfc-Tpc>
+	<Field-Sfc-Tpc>Prob50Knot</Field-Sfc-Tpc>
+	<Field-Sfc-Tpc>Prob64Knot</Field-Sfc-Tpc>
+	<Field-Sfc-Eta>Max Temp</Field-Sfc-Eta>
+	<Field-Sfc-Eta>Min Temp</Field-Sfc-Eta>
+	<Field-Sfc-Eta>POP</Field-Sfc-Eta>
+	<Field-Sfc-Eta>Tstorm Prob</Field-Sfc-Eta>
+	<Field-Sfc-Eta>Freezing Precip POP</Field-Sfc-Eta>
+	<Field-Sfc-Eta>Frozen Precip POP</Field-Sfc-Eta>
+	<Field-Sfc-Eta>Total Cloud Cover</Field-Sfc-Eta>
+	<Field-Sfc-Eta>Snow Depth</Field-Sfc-Eta>
+</Product-Selection-MenuItems>

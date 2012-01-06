@@ -1,0 +1,182 @@
+<html>
+<head> <title>AGC/ERDC HDFView PLUGIN Overview</title><head>
+<body>
+
+<h1><center>Data Management with HDF5 for Military Operations<br/>
+AGC/ERDC HDFView Prototype</center></h1>
+
+<br/><br/>
+<center>
+<table border="0">
+<tr>
+<td width="10%"></td>
+<td  bgcolor="#FFFFDD">
+<strong>This research effort is supported by the BAA project entitled 
+"Research on Data Management with HDF5 in Support of Military Operations".  The
+concept map prototype is a result of collaboration between The HDF Group and the AGC 
+(Army Geospatial Center) Engineer Research & Development Center (ERDC) Research Division.</strong>
+</td>
+<td width="10%"></td>
+</tr>
+</table> 
+</center>
+
+<hr>
+<ul>
+<li> <a href="#introduction">Introduction</a>
+<li> <a href="#install">Download and install the plugin</a>
+<li> <a href="#files">Testing files</a>
+<li> <a href="#browse">Browse through the map</a>
+<li> <a href="#edit">Add new node</a>
+</ul>
+
+<hr>
+
+<a name=introduction></a>
+<h2> 1. Introduction</h2>
+<p> 
+Military mission operations may involve massive data processing operations and deal with a great 
+variety of heterogeneity in the types of information. This section explains 
+an example use case of how the information could be conceiveably presented in HDF5. The use case is 
+concerned with capturing the structure and resources attached to a sample
+concept map. The concept map is an abstraction and representation of the 
+pattern and flows represented by the structure and content of a set of nodes and of 
+the resources associated with each node. There are three types of data 
+files associated with this concept map: the raw data, 
+the functional map file, and other heterogenous objects (in external files or 
+links).
+<p/>
+<table border="1">
+<caption align="bottom">Figure 1 -- The concept map shown in general HDFView (left) 
+and in ERDC plugin (right)</caption>
+<tr><td><img src="snapshot_compare.gif"></img></td></tr>
+</table>
+<p />
+The HDF5 concept map captures the structure of information (nodes) 
+and resources attached to each node.  The left part of Figure 1 is a snapshot 
+of the sample concept map shown in the default HDFView.
+<p />
+HDFView has a plugin capability that enables specialized graphical user 
+interfaces (GUIs) to be created to display a file's contents in a way that 
+corresponds to a particular application domain. Thus, an HDFView plugin 
+GUI can be implemented to display HDF5 data in alternative ways to show how data integration 
+is achieved, and also be adapted to perform simple data fusion operations. A 
+demonstration of these capabilities will help illustrate the results of this 
+study and in stimulating ideas for the next phase of work.
+<p>
+By opening the concept map, the ERDC plugin shows the concept map in a directed 
+graph format that represents a notional military decision making process. Instead of showing 
+a standard file based group structure as in figure 1 (left), the ERDC plugin shows the flow of 
+information and relationships among the data objects, shown in figure 1 (right). The 
+labeled shapes represent concepts and the arrows represent relationships (i.e. links) among 
+the concepts. This concept map depicts the top-level of a decision tree process, 
+where the shapes are icons representing associated resources that can take 
+many forms: images, documents, websites, videos, executable software, and etc.
+<p />
+In figure 1 (right), the rectangle, diamond, and circle shapes represent the groups 
+(or collections) of information. The leaf nodes at the bottom (oval shaped) 
+link to the datasets in the raw data file. For example, the bldg_footprint 
+node links to the dataset, "/Baltimore/Features/LIDAR/bldg_footprint". Other 
+leaf nodes connected by dashed arrows are the links to external files/objects. 
+<p/>
+Links to external files/objects are represented in attributes in the concept 
+map file. The links work in <MIME, URI> pairs. For example, <"MIME = 
+application/vnd.ms-excel ", "URI = Situation_Weather-XLS.xls"> pair indicates 
+that the URI is a link to an external Excel file. Table 1 shows all the links 
+of the OCOKA concept group.
+
+<p />
+<table border="1">
+<caption align="top">Table 1 -- External objects linked to OCOKA group</caption>
+<tr>
+<th>MIME</th>
+<th>URI</th>
+</tr>
+<tr>
+<td>MIME = application/vnd.ms-excel</td>
+<td>URI = Situation_Weather-XLS.xls</td>
+</tr>
+<tr>
+<td>MIME 2 = application/x-hdf</td>
+<td>URI 2 = ATO.h5#///Baltimore/Features/UTP/BTZones/residential</td>
+</tr>
+<tr>
+<td>MIME 3 = application/x-hdf</td>
+<td>URI 3 = URI 3 = URBAN_ATO.h5#///Baltimore/Features/LIDAR/bldg_footprint</td>
+</tr>
+</table> 
+
+<p />
+<a name=install></a>
+<h2> 2. Download and install the plugin</h2>
+<p> 
+The prebuilt binaries of the ERDC plugin will be distributed in a single 
+jar file. To use the plugin, follow the instructions below.
+
+<ol>
+<li> Download and install HDFView 2.5p1 or above from ftp://ftp.hdfgroup.org/HDF5/hdf-java/v25p3/
+<li> Drop the ERDC jar file, erdc.jar, at $HDFView_HOME/lib/ext
+<li> Open HDFView and select the erdc.TreeViewERDC and erdc.ImageViewERDC as the default TreeView and 
+     ImageView from "Tools" -> "User Options" -> "Default Module".
+<li> Restart HDFView
+</ol>
+
+<a name=files></a>
+<h2> 3. Testing files</h2>
+You will need the following files to run the plugin demonstration. All the files must be in the same directory.
+<ol>
+<li> concept_map_demo.h5 (10KB) - the concept map
+<li> URBAN_ATO.h5 (1.3GB) - the raw data
+<li> Recon_Immersive-Video.avi (9MB) - demo video file
+<li> Events_Intel-Report.pdf (224KB) - demo pdf file
+<li> Situation_Weather-XLS.xls (249KB) - demo Excel spreadsheet
+</ol>
+
+<a name=browse></a>
+<h2> 4. Browse through the concept map</h2>
+<p>
+After you open the concept map file, concept_map_demo.h5, you will see
+the map structure on the left side and the base image on the right side.
+<p>
+<table border="1">
+<caption align="bottom">Figure 2 -- Concept map shown in ERDC plugin</caption>
+<tr><td><img src="snapshot_plugin.gif"></img></td></tr>
+</table>
+
+
+<h3> Nodes and links</h3>
+<p>
+Internal nodes (green rectangle, orange diamond, and grey circle) represent
+groups in the concept map file. Links (solid or dashed) represent connections
+and/or associations amongst the objects.
+
+<p> 
+Right-mouse click on an internal node/link to show the information about the node/link.
+You can also drag the mouse to move nodes to a different location.
+
+<h3> Open data content</h3>
+<p>
+The bottom leaf nodes are linked to datasets in the raw data file, URBAN_ATO.h5.
+Right-mouse click on a leaf node to view the content of the dataset in table or image.
+
+<p>
+Right-mouse click external leaf nodes, such as video, excel, or pdf, to open the
+the content of the external file.
+
+<a name=edit></a>
+<h2> 5. Add a new node </h2>
+<p>
+To interactively create a new node (object), click on an icon in the toolbar and select a location where the 
+new item is to be added. 
+
+<p>
+Double click on the new object to change its name.
+Use the mouse-drag to move the new object to a different location.
+<p>
+
+<hr>
+
+<img src="hdf_logo.jpg">&#160;&#160;&#160;&#160;&#160;&#160;&#160;</img><img src="agc_logo.jpg"></img>
+
+</body>
+</html>

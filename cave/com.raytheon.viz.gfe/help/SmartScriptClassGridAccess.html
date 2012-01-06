@@ -1,0 +1,363 @@
+<html>
+<title>GFESuite Documentation - </title>
+<body>
+
+<h1><a name="GridAccess"></a>Grid Access Methods</h1>
+<p>
+<a href="#getGrids">getGrids</a>
+<br>
+<a href="#taperGrid">taperGrid</a>
+<br>
+<a href="#directionTaperGrid">directionTaperGrid</a>
+<br>
+<a href="#getValue">getValue (point-based only)</a>
+<br>
+<a href="#getComposite">getComposite (numeric only)</a>
+<br>
+<a href="#getGridInfo">getGridInfo</a>
+<br>
+<hr width="100%">
+
+<h2><a name="getGrids"></a>getGrids</h2>
+def getGrids(self, model, element, level, timeRange,
+mode="TimeWtAverage",
+noDataError=1, mostRecentModel=0):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Get the value(s) for the given model,
+element, and level
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # at the x, y coordinate and over the
+given timeRange.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # The resulting grid values can be
+accessed
+as follows:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # PoPGrid =
+self.getGrids("Fcst","PoP","SFC",
+GridTimeRange)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # popValue = PoPGrid[x][y]
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # where x and y are integer grid
+coordinates.
+<h2><a name="taperGrid"></a>taperGrid</h2>
+def taperGrid(self, editArea, taperFactor=5):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns a 2-D Grid of values between
+0-1 about the
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # given edit area.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # These values can be applied by smart
+tools to taper results.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Argument:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # editArea : must be of type
+AFPS.ReferenceData
+or None
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # (use editArea tool argument)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # taperFactor: If set to zero, will
+do Full Taper
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Example:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # def preProcessTool(self, editArea):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; taperGrid
+= self.getTaperGrid(editArea, 5)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # def execute(self, x, y):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; result = value
+* taperGrid[x][y]
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<h2><a name="directionTaperGrid"></a>directionTaperGrid</h2>
+def directionTaperGrid(self, editArea, direction):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns a 2-D Grid of values between
+0-1 within the
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # given edit area.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # E.g. if the Dir is W and x,y is
+half-way
+along the
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # W to E vector within the given edit
+area, the value of
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # directionTaperGrid at x,y will be
+.5
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # These values can be applied by smart
+tools to show
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # spatial progress across an edit area.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Argument:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # editArea : must be of type
+AFPS.ReferenceData
+or None
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # (use editArea tool argument)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # direction : 16 point text direction
+e.g. "NNW", "NW", etc.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Example:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # def preProcessTool(self, editArea):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; spaceProgress
+= self.directionTaperGrid(editArea, "NW")
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # def execute(self, x, y):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; result = value
+* spaceProgress[x][y]
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<h2><a name="getValue"></a>getValue (point-based only)</h2>
+def getValue(self, model, element, level, x, y, timeRange,
+mode="TimeWtAverage",
+noDataError=1, mostRecentModel=0):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Point-based tools only.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Get the value(s) for the given model,
+element, and level
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # at the x, y coordinate and over the
+given timeRange.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Examples:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Get the following arguments in your
+execute method:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # def execute(self, x, y, GridTimeRange,
+varDict):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Accessing values from the Fcst
+database:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # T = self.getValue("Fcst", "T", "SFC",
+x, y, GridTimeRange)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # PoP = self.getValue("Fcst", "PoP",
+"SFC", x,y, GridTimeRange,
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # noDataError=0)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # From an IFP model database:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # T = self.getValue("BOU__NAM_Oct3100",
+"T", "SFC",x,y,GridTimeRange)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # T = self.getValue("BOU__NAM", "T",
+"SFC",x,y,GridTimeRange)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Or, using a variable:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # VariableList = [("Model:" , "",
+"model")]
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # def execute(self, x, y, GridTimeRange,
+varDict):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # model = varDict["Model:"]
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # T = self.getValue(model, "T",
+"SFC",x,y,GridTimeRange)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # From D2D database:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # rh = self.getValue(
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # "BOU_D2D_ETA", "rh", "MB850", x, y,
+GridTimeRange)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # rh = self.getValue(
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # "BOU_D2D_ETA_Oct3100", "rh",
+"MB850",x,
+y, GridTimeRange)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Or, using a variable:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # VariableList = [("Model:" , "",
+"D2D_model")]
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # def execute(self, x, y, GridTimeRange,
+varDict):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # model = varDict["Model:"]
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # rh = self.getValue(model, "rh",
+"MB850",
+x, y, GridTimeRange)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<h2><a name="getComposite"></a>getComposite (numeric only)</h2>
+def getComposite(self, WEname, GridTimeRange, exactMatch=1):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Returns a composite grid
+consisting
+of the primary grid and any
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # corresponding ISC grid, blended
+together based on the mask information
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # derived from the Grid Data
+History.
+Primary grid must exist. Returns
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # the set of points that are valid
+in the output grid. (Note the output
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # grid consists of the primary
+grid and isc grid. Any "invalid" points,
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # indicate those areas that have
+no isc data and are outside the home
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # site's region. The returned
+grid will have the primary data in
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # the site's region.)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # A Python tuple is returned.
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # For Scalar elements, the tuple
+contains:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # a numeric grid of 1's and 0's
+where 1 indicates a valid point
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # a numeric grid of scalar values
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # For Vector elements, the tuple
+contains:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # a numeric grid of 1's and 0's
+where 1 indicates a valid point
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # a numeric grid of scalar values
+representing magnitude
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # a numeric grid of scalar values
+representing direction
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # For Weather elements, the tuple
+contains:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # a numeric grid of 1's and 0's
+where 1 indicates a valid point
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # a numeric grid of byte values
+representing the weather value
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # list of keys corresponding to
+the weather values
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # For example:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; isc
+= self.getComposite(WEname, GridTimeRange)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; if isc
+is None:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+self.noData()
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; # See
+if we are working with a Scalar or Vector element
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; wxType
+= variableElement_GridInfo.type()
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; if
+wxType
+== 0: # SCALAR
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+bits, values = isc
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp;&nbsp;&nbsp; elif
+wxType == 1: # VECTOR
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+bits, mag, dir = isc
+<br>
+&nbsp;
+<h2><a name="getGridInfo"></a>getGridInfo</h2>
+def getGridInfo(self, model, element, level, timeRange,
+mostRecentModel=0):
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp; Return a list of GridInfo
+objects
+for the given weather element and timeRange
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; #&nbsp;&nbsp; Example:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+timeRange = self.getTimeRange("Today")
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+infoList = self.getGridInfo("Fcst", "T", "SFC", timeRange)
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+for info in infoList:
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+print "grid", info.gridTime()

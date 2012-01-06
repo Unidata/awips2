@@ -1,0 +1,288 @@
+#################################################
+## MARINE WEATHER STATEMENT STANDALONE         ##
+## CREATED BY PHIL KURIMSKI - WFO DTX          ##
+## VERSION AWIPS II 1.0 -- FEB 24 2011  OB11.2 ##
+## VERSION AWIPS II 1.1 -- APR 14 2011  OB11.4 ##
+## VERSION AWIPS II 1.2 -- JUL 14 2011  OB11.7 ##
+## VERSION AWIPS II 1.3 -- SEP 22 2011  OB11.8 ##
+#################################################
+## Set null variables used in the template
+#########################################
+#set ($capable = "")
+#set ($hailType = "")
+#if(${productClass}=="O")
+#set($productClass = "X")
+#end
+${WMOId} ${vtecOffice} 000000 ${BBBId}
+MWS${siteId}
+#if(${specialCorText})
+${specialCorText}
+#else
+#if(${productClass}=="T")
+TEST...MARINE WEATHER STATEMENT...TEST
+#else
+MARINE WEATHER STATEMENT
+#end
+NATIONAL WEATHER SERVICE ${officeShort}
+#backupText(${backupSite})
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+
+######################################################################
+## Deleted VTEC and Marine Zone Name lines to come in line with NWS Directive 10-314
+######################################################################
+${ugcline}
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+#######################################################################
+## List of Event Types. Added several events such as Shower...Cloud and Front.
+## Removed line selections and determined line based on Track Type in GUI.
+#######################################################################
+## Assume head1 is selected.
+#set ($headerType = "STRONG THUNDERSTORM")
+#set ($eventType = "THUNDERSTORM")
+	#set ($reportLocation = "THIS THUNDERSTORM WAS LOCATED")
+	#if(${stormType} == "line")
+	#set ($reportLocation = "THESE THUNDERSTORMS WERE LOCATED")
+	#end
+#if(${list.contains($bullets, "shower")})
+	#set ($headerType = "SHOWER")
+	#set ($eventType = "SHOWER")
+	#set ($reportLocation = "THIS SHOWER WAS LOCATED")
+	#if(${stormType} == "line")
+	#set ($reportLocation = "THESE SHOWERS WERE LOCATED")
+	#end
+#end
+#if(${list.contains($bullets, "cloud")})
+	#set ($headerType = "CLOUD")
+	#set ($eventType = "CLOUD")
+	#set ($reportLocation = "THIS CLOUD FEATURE WAS LOCATED")
+#end
+#if(${list.contains($bullets, "front")})
+	#set ($headerType = "FRONT")
+	#set ($eventType = "FRONT")
+	#set ($reportLocation = "THIS FRONT WAS LOCATED")
+#end
+#######################################################################
+## Section to create line wording based on track type.
+#######################################################################
+#set ($stormline = "${headerType}")
+#set ($pathheader = "THE ${headerType}")
+#if(${stormType} == "line")
+	#set($stormline = "LINE OF ${headerType}S")
+	#set($pathheader = "${headerType}S")
+	#set($headerType = "A ${headerType}S")
+#end
+#######################################################################
+## Corrective coding to prevent the use of "Line of Fronts" in the Product
+#######################################################################
+#if(${eventType} == "FRONT")
+	#set($stormline = "${eventType}")
+	#set($pathheader = "THE ${eventType}")
+#end
+#if(${eventType} == "CLOUD")
+	#set($pathheader = "THE STRONG WINDS")
+#end
+#set ($threatType = "STRONG WINDS UP TO 33 KNOTS")
+#set ($headerType1 = "...STRONG WINDS EXPECTED...")
+#if(${list.contains($bullets, "approachHead")})
+#if(${eventType} == "THUNDERSTORM")
+	#set($headerType1 = "...${stormline} APPROACHING THE WATERS...")
+#else
+	#set($headerType1 = "...STRONG WINDS EXPECTED...")
+#end
+#end
+#if(${list.contains($bullets, "overHead")})
+#if (${eventType} == "THUNDERSTORM")
+	#set($headerType1 = "...${stormline} OVER THE WATERS...")
+#else
+	#set($headerType1 = "...STRONG WINDS EXPECTED...")
+#end
+#end
+#######################################################################
+## Added Hail Section
+#######################################################################
+#if(${list.contains($bullets, "smallHail")})
+	#set ($hailType = " AND SMALL HAIL")
+#end
+${headerType1}
+
+#######################################################################
+##  Added section to produce areas affected by statement
+#######################################################################
+THE AREAS AFFECTED INCLUDE...
+#######################################################################
+## Set the fipsstring variable to null for marine zone combinations
+#######################################################################
+##set ($fipsstring = "")
+#foreach (${area} in ${areas}) 
+  ${area.name}...
+#######################################################################
+## The following code will create a string of marine zone fips codes
+## which will be important in combining marine zones
+#######################################################################
+##set ($fipsstring = $fipsstring + $area.fips + "-")
+#end
+
+#*
+###################################################################################################
+## The following code is an example of how to combine marine zones for 3 continuous marine zones
+## Note you start out with the largest combination first then whittle it down until you only have
+## one zone left. You can do this as many times as you wish for as many combinations as you have.
+## Make sure you comment out the ${area.name}... line above to use the marine zone combination
+## If you have any questions contact: Phil Kurimski - WFO DTX
+###################################################################################################
+#set ($zonecombo = "")
+#if(($fipsstring.contains("AMZ154")) && ($fipsstring.contains("AMZ156")) && ($fipsstring.contains("AMZ152")))
+  #set ($zonecombo = "COASTAL WATERS FROM OREGON INLET TO CAPE LOOKOUT NC OUT 20 NM...")
+#elseif(($fipsstring.contains("AMZ154")) && ($fipsstring.contains("AMZ156")))
+  #set ($zonecombo = "COASTAL WATERS FROM CAPE HATTERAS TO CAPE LOOKOUT NC OUT 20 NM...")
+#elseif(($fipsstring.contains("AMZ152")) && ($fipsstring.contains("AMZ154")))
+  #set ($zonecombo = "COASTAL WATERS FROM OREGON INLET TO OCRACOKE INLET NC OUT 20 NM...")
+#elseif($fipsstring.contains("AMZ154"))
+  #set ($zonecombo = "COASTAL WATERS FROM CAPE HATTERAS TO OCRACOKE INLET NC OUT 20 NM...")
+#elseif($fipsstring.contains("AMZ156"))
+  #set ($zonecombo = "COASTAL WATERS FROM OCRACOKE INLET TO CAPE LOOKOUT NC OUT 20 NM...")
+#elseif($fipsstring.contains("AMZ152"))
+  #set ($zonecombo = "COASTAL WATERS FROM OREGON INLET TO CAPE HATTERAS NC OUT 20 NM...")
+#end
+
+$zonecombo
+*#
+
+#######################################################################
+## Basis section that incorporates line phenomena...capable vs producing
+## and threat based on selections above. Added Satellite Imagery to basis.
+#######################################################################
+#set ($report = "!** YOU DIDN'T SELECT A REPORTER **! ${threatType}")
+#if(${list.contains($bullets, "doppler")})
+  #set ($capable = "CAPABLE OF ")
+  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED A ${stormline}...${capable}PRODUCING ${threatType}${hailType}.")
+#end
+#if(${list.contains($bullets, "marineSpotter")})
+  #set ($report = "MARINE WEATHER SPOTTERS REPORTED A ${stormline}...${capable}PRODUCING ${threatType}${hailType}.") 
+#end
+#if(${list.contains($bullets, "mariner")})
+  #set ($report = "A MARINER REPORTED A ${stormline}...${capable}PRODUCING ${threatType}${hailType}.") 
+#end
+#if(${list.contains($bullets, "public")})
+  #set ($report = "THE PUBLIC REPORTED A ${stormline}...${capable}PRODUCING ${threatType}${hailType}.") 
+#end
+#if(${list.contains($bullets, "satellite")})
+  #set ($capable = "CAPABLE OF ")
+  #set ($report = "SATELLITE IMAGERY INDICATED A ${stormline}...${capable}PRODUCING ${threatType}${hailType}.")
+#end
+## Storm current location description
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+AT ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}...${report} ##
+${reportLocation} #handleClosestPoints($list, $closestPoints, $otherClosestPoints, $stormType, "OVER", 4, "NM")
+#if($movementSpeed < 3 || ${stationary})
+. ${reportType2} NEARLY STATIONARY.
+#else
+...MOVING #direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} KNOTS.
+#end
+
+#set ($warningType = "STATEMENT") 
+#if(${list.contains($bullets, "pathcast")})
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#pathCast("${pathheader} WILL BE NEAR..." ${pathheader} ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 1)
+
+#elseif(${list.contains($bullets, "listoflocations")})
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#### THE THIRD ARGUMENT IS A NUMBER SPECIFYING THE NUMBER OF COLUMNS TO OUTPUT THE CITIES LIST IN
+#### 0 IS A ... SEPARATED LIST, 1 IS ONE PER LINE, >1 IS A COLUMN FORMAT
+#### IF YOU USE SOMETHING OTHER THAN "LOCATIONS IMPACTED INCLUDE" LEAD IN BELOW, MAKE SURE THE
+#### ACCOMPANYING XML FILE PARSE STRING IS CHANGED TO MATCH!
+#locationsList("LOCATIONS IMPACTED INCLUDE..." ${pathheader} 0 ${locationList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 1)
+
+#end
+
+##############################################
+###### SPECIAL VENUE/EVENT CASE ##############
+##############################################
+
+#if(${list.contains($bullets, "specialEvent")})
+#if(${stormType} == "line")
+THOSE ATTENDING THE !**event/venue name or location**! ARE IN THE PATH OF THESE STORMS AND SHOULD PREPARE FOR IMMINENT DANGEROUS WEATHER CONDITIONS. SEEK SHELTER NOW.
+
+#else
+THOSE ATTENDING THE !**event/venue name or location**! ARE IN THE PATH OF THIS STORM AND SHOULD PREPARE FOR IMMINENT DANGEROUS WEATHER CONDITIONS. SEEK SHELTER NOW.
+
+#end
+#end
+#####################
+## CALL TO ACTIONS ##
+#####################
+#######################################################################
+## Check to see if we've selected any calls to action. In our .cfg file
+## we ended each CTA bullet ID with "CTA" for this reason as a 'trip'
+## Added CTA statements for the possibility of future SMW.
+#######################################################################
+#foreach ($bullet in $bullets)
+#if ($bullet.endsWith("CTA"))
+#set ($ctaSelected = "YES")
+#end
+#end
+
+#if (${ctaSelected} == "YES")
+PRECAUTIONARY/PREPAREDNESS ACTIONS...
+#end
+##
+
+#if(${list.contains($bullets, "genericCTA")})
+MARINERS CAN EXPECT GUSTY WINDS UP TO 33 KNOTS...LOCALLY HIGHER WAVES...AND LIGHTNING STRIKES. BOATERS SHOULD SEEK SAFE HARBOR IMMEDIATELY UNTIL THIS STORM PASSES.
+
+#end
+#if(${list.contains($bullets, "heavyRainCTA")})
+MARINERS CAN EXPECT GUSTY WINDS UP TO 33 KNOTS...LOCALLY HIGHER WAVES...LIGHTNING STRIKES...AND HEAVY DOWNPOURS. BOATERS SHOULD SEEK SAFE HARBOR IMMEDIATELY UNTIL THIS STORM PASSES.
+
+#end
+#if(${list.contains($bullets, "possibleSmwCTA")})
+THIS ${stormline} WILL LIKELY PRODUCE STRONG WINDS UP TO 33 KNOTS...AND COULD POSE A SERIOUS HAZARD FOR BOATERS. A SPECIAL MARINE WARNING MAY EVENTUALLY BE REQUIRED WHEN THIS STORM REACHES THE NEARSHORE WATERS. BOATERS SHOULD CONSIDER HEADING FOR SHORE BEFORE THE STORM ARRIVES.
+
+#end
+#if(${list.contains($bullets, "likelySmwCTA")})
+THIS ${stormline} WILL LIKELY PRODUCE STRONG WINDS IN EXCESS OF 34 KNOTS...AND IS LIKELY TO POSE A SERIOUS HAZARD FOR BOATERS. A SPECIAL MARINE WARNING WILL LIKELY BE REQUIRED WHEN THIS STORM REACHES THE NEARSHORE WATERS. BOATERS SHOULD CONSIDER HEADING FOR SHORE BEFORE THE STORM ARRIVES.
+
+#end
+#if(${list.contains($bullets, "lightningCTA")})
+INTENSE LIGHTNING IS OCCURRING WITH THIS STORM.  IF CAUGHT ON THE OPEN WATER STAY BELOW DECK IF POSSIBLE...KEEP AWAY FROM UNGROUNDED METAL OBJECTS.
+
+#end
+#if(${list.contains($bullets, "reportCTA")})
+REPORT SEVERE WEATHER TO THE COAST GUARD. THEY WILL RELAY YOUR REPORT TO THE NATIONAL WEATHER SERVICE FORECAST OFFICE.
+
+#end
+#if(${list.contains($bullets, "fogCTA")})
+DENSE FOG WAS REDUCING VISIBILITIES TO BELOW 1/4 MILE.  REDUCE YOUR SPEED...AND KEEP A LOOKOUT FOR OTHER VESSELS...BUOYS...AND BREAKWATERS.  KEEP YOUR NAVIGATION LIGHTS ON.  IF NOT EQUIPTED WITH RADAR...YOU SHOULD CONSIDER SEEKING SAFE HARBOR.
+
+#end
+#if (${ctaSelected} == "YES")
+&&
+#end
+
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
+
+#end
+
+#printcoords(${areaPoly}, ${list})
+
+
+$$
+
+!**NAME/INITIALS**!
+#end

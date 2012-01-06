@@ -1,0 +1,317 @@
+/*
+ * Created on 5/24/04 
+ * Last major change on 7/23/04
+*/
+ 
+package ohd.hseb.sshp.precip;
+
+
+import ohd.hseb.sshp.DataMgr;
+//import ohd.hseb.db.DbTimeHelper;
+import ohd.hseb.measurement.*;
+import ohd.hseb.util.AppsDefaults;
+import ohd.hseb.util.CodeTimer;
+import ohd.hseb.util.FileLogger;
+import ohd.hseb.util.Logger;
+
+
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+
+/**
+ * @author Chip Gobs
+ * This is the MAPPreprocessor for OB6.
+ * It reads each MPE QPE file only one time.
+ * It is the 3rd version of the MAPPreprocessor
+ * 
+ */
+public class MAPPreprocessor
+{
+    private static final String _className = "MAPPreprocessor";
+    private static final double _timeSeriesMissingValue = -9999.0;
+  
+    private DataMgr _dataMgr = null;
+    
+    private String _mpeQpeGridDirName = null;
+    
+    //private long _startTime = 0;
+    //private long _endTime = 0; 
+    private List _areaIdList = null;
+    
+    
+    private List _basinHrapHelperList  = null;
+    
+    private Logger _logger = null;
+        
+    // ----------------------------------------------------------------------------
+    
+    public MAPPreprocessor(DataMgr dataMgr, Logger logger)
+    {
+         _dataMgr = dataMgr;
+        _logger = logger;
+    
+        readAppsDefaults();
+ 
+        // load all the areas that are suitable for use as SSHP basins
+        _areaIdList = _dataMgr.loadAllSshpBasinIds();
+ 
+        //let the db manager add rows to ingest filter as needed
+        _dataMgr.saveMapRowsToIngestFilterAsNeeded(_areaIdList);
+            
+        //load the basinHrapHelpers and return them in a List
+        _basinHrapHelperList = getBasinHrapHelperList(_areaIdList);
+   
+          
+         return;
+    }
+    
+    // ----------------------------------------------------------------------------
+    
+    private void readAppsDefaults()
+    {
+        AppsDefaults ad = new AppsDefaults();
+        _mpeQpeGridDirName = ad.getToken("rfcwide_xmrg_dir");
+        if (_mpeQpeGridDirName == null)
+        {
+            _mpeQpeGridDirName = ad.getToken("rfcwide_xmrg_dir".toUpperCase());
+        }
+     
+    }
+ 
+    // ----------------------------------------------------------------------------
+    
+    public void preprocessAll()
+    {
+
+        String header = "MAPPreprocessor.preprocessAll():";
+        _logger.log("Beginning Preprocessing");
+        CodeTimer timer = new CodeTimer(_logger);
+
+        //find the latest posting time in the ArealObsPrecip table
+        long latestPostingTime = _dataMgr.getLatestObsTimeForMAPPreprocessor(); 
+        
+        // based on that latestPostingTime, find the times of all the newer Xmrg files from
+        // the locally-run MPE
+        List localFileTimeList = _dataMgr.getNewerXmrgFileTimeList(latestPostingTime);
+        
+        // create an Xmrg file reader
+        XmrgReader reader = new XmrgReader(_logger);
+            
+        SimpleDateFormat xmrgFileDateFormat = new SimpleDateFormat("'xmrg'MMddyyyyHH'z'");
+        xmrgFileDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+        
+        // for each re-run hour of input
+        for (int i = 0; i < localFileTimeList.size(); i++)
+        {
+            Long timeLong = (Long) localFileTimeList.get(i);
+            long time = timeLong.longValue();
+            
+            String gridFileName = xmrgFileDateFormat.format(new Date(time));
+            String fullGridPath = _mpeQpeGridDirName + "/" + gridFileName;
+                
+           // String timeString = DbTimeHelper.getDateTimeStringFromLongTime(time);            
+   
+     //       timer.start();
+            XmrgGrid grid = reader.loadGrid(time, fullGridPath);
+      //      timer.stop(header + "Reading the whole grid for time ="  + timeString + " took "); 
+
+
+            if (grid.isValid())
+            {
+               // _logger.log(header + "grid for time = " + timeString + " is VALID ");    
+                
+                // for each basin, process its data
+                for (int j = 0; j < _basinHrapHelperList.size(); j++)
+                {
+                    BasinHrapHelper basinHrapHelper = (BasinHrapHelper) _basinHrapHelperList.get(j);
+                
+                    preprocess(basinHrapHelper, grid);
+                }
+            }
+            else
+            {
+               // _logger.log(header + "grid for time = " + timeString + " is invalid");    
+            }
+        }    
+        
+        _logger.log("Preprocessing complete.");
+        
+        return;
+    } // preprocessAll
+  
+ 
+    // ----------------------------------------------------------------------------
+    
+    public void preprocess(BasinHrapHelper basinHrapHelper, XmrgGrid grid)
+    {
+       String areaId = basinHrapHelper.getBasinId(); 
+
+              
+     //  CodeTimer timer = new CodeTimer(_logger);
+     //  timer.start(); 
+       
+       Measurement mapMeasurement = getMAPMeasurementFromGrid(basinHrapHelper, grid);
+     
+      //  timer.stop("calculating the MAP from the grid took ");            
+
+     
+     
+      // _accumulatedSaveTimer.restart();
+       _dataMgr.saveMapMeasurement(areaId, mapMeasurement, grid.getTime(), _logger);
+     //  _accumulatedSaveTimer.stop("accumulated saving the MAP measurement to the database so far has taken ");            
+
+       return;
+
+    }
+    
+    // ----------------------------------------------------------------------------
+    private Measurement getMAPMeasurementFromGrid(BasinHrapHelper basinHrapHelper, XmrgGrid grid)
+    {
+        String header = "MAPPreprocessor.getMAPMeasurementFromGrid(): ";
+        MeasuringUnit precipUnit = MeasuringUnit.inches;
+        double mapValue = -1.0;
+        double binValue = 0;
+        double totalValue = 0;
+        int validValueCount = 0;
+        
+        // CHANGE 8/23/05    
+        _logger.log(header + " for basinId =  " + basinHrapHelper.getBasinId());
+        
+        int rowCount = basinHrapHelper.getRowCount();
+
+        boolean gridAccessProblem = false;
+
+        //for each row
+        for (int i = 0; (i < rowCount && !gridAccessProblem) ; i++)
+        {
+            int hrapRow = basinHrapHelper.getBasinHrapRow(i);
+            
+            // for each column
+            for (int hrapCol = basinHrapHelper.getBasinHrapBegColumn(i); 
+                       ( (hrapCol <= basinHrapHelper.getBasinHrapEndColumn(i)) && 
+                        (!gridAccessProblem));
+                    hrapCol++)
+            {
+                //yank out the bin value at that point
+                binValue = grid.getValue(hrapRow, hrapCol);
+                if (binValue >= 0.0)
+                {
+                    totalValue += binValue;
+                    validValueCount++;       
+                }
+                else if (binValue == XmrgGrid.OFF_GRID_VALUE)
+                {
+                    _logger.log(header + "Problem with basinId = " + basinHrapHelper.getBasinId() +
+                            " attempting to access out of bounds grid location row = " + 
+                            hrapRow + " and column = " + hrapCol + ".");
+                    gridAccessProblem = true;
+            
+                }
+            }           
+        }
+        
+        
+        // if some kind of failure occured
+        Measurement mapMeasurement = null;
+        if  ( (validValueCount < 1) || (gridAccessProblem) )
+        {
+            mapValue = _timeSeriesMissingValue;  
+            mapMeasurement = new Measurement(mapValue, precipUnit);
+            mapMeasurement.setIsMissing(true);  
+           // System.out.println(header + "for " + basinHrapHelper.getBasinId() + " totalValue = " + totalValue + " validValueCount = " + validValueCount);
+        }
+        else //success occured, so create a decent measurement
+        {   
+            //System.out.println(header + "for " + basinHrapHelper.getBasinId() + " totalValue = " + totalValue + " validValueCount = " + validValueCount);
+            mapValue = totalValue / validValueCount; 
+            if (mapValue < 0.005)
+            {
+                mapValue = 0.0;            
+            }
+            mapMeasurement = new Measurement(mapValue, precipUnit);   
+        }
+        
+         
+        
+        return mapMeasurement;   
+        
+    }  
+            
+    // ----------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------
+        
+    // ----------------------------------------------------------------------------
+    private List getBasinHrapHelperList(List areaIdList)
+    {
+        List basinHrapHelperList = new ArrayList();
+        for (int i = 0; i < areaIdList.size(); i++)
+        {
+            String areaId = (String ) areaIdList.get(i);
+            
+            BasinHrapHelper helper = _dataMgr.loadBasinHrapHelper(areaId);
+            
+            if (helper != null)
+            {
+                //_logger.log(helper.toString());
+ 
+                basinHrapHelperList.add(helper);
+            }
+        }    
+        
+        
+        return basinHrapHelperList;
+        
+    } 
+    // ----------------------------------------------------------------------------
+ 
+    public void finalize()
+    {
+        try
+        {
+            _dataMgr.disconnect();
+            _logger.close();    
+        }
+        catch (Throwable t)
+        {
+            System.err.println(t.getMessage());
+        }
+        
+       
+    }
+    // ----------------------------------------------------------------------------
+    
+    public static void main(String[] argArray)
+    {            
+         MAPPreprocessor preprocessor = null;
+         String baseConnectionString = argArray[0];
+ 
+         //initialize the logging
+         String logFileDir = argArray[1];
+         String logFilePath = logFileDir + "/" + _className + ".log";
+         Logger logger = new FileLogger(logFilePath, true, true);
+         
+         logger.log("Initializing " + _className);
+  
+         // start the clock on the timer
+         CodeTimer timer = new CodeTimer(logger);
+         timer.start();
+         
+         //initialize the database connection
+         DataMgr dataMgr = new DataMgr(baseConnectionString, logger);
+        
+         //create a new MAPPreprocessor instance and preprocess all the unprocessed
+         //XMRG files.
+         preprocessor = new MAPPreprocessor(dataMgr, logger);
+         preprocessor.preprocessAll();
+        
+         timer.stop("All of Processing for " + _className + " took ");    
+
+         preprocessor.finalize();
+         
+         return;
+    }            
+    // ----------------------------------------------------------------------------
+           
+} //MAPPreprocessor

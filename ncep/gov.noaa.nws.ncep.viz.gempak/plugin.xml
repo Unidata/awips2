@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="gov.noaa.nws.ncep.viz.localization.localizationData">
+         <singleLocalizationValue
+            fileName="datatype.tbl"
+            location="grid/A2DB"
+            name="datatypeTable">
+      </singleLocalizationValue>
+   </extension>
+
+</plugin>

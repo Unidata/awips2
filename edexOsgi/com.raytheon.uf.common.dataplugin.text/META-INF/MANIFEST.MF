@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Textdb Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.text
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
+Require-Bundle: com.raytheon.uf.common.serialization,
+ org.hibernate,
+ com.raytheon.uf.common.localization;bundle-version="1.12.1174",
+ com.raytheon.edex.common;bundle-version="1.12.1174"
+Import-Package: com.raytheon.uf.common.dataplugin.persist,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.serialization.annotations,
+ com.raytheon.uf.common.serialization.comm,
+ com.raytheon.uf.edex.wmo.message,
+ javax.persistence,
+ org.apache.commons.lang.builder
+Export-Package: com.raytheon.uf.common.dataplugin.text;uses:="com.raytheon.uf.common.dataplugin.text.db,com.raytheon.uf.common.serialization",
+ com.raytheon.uf.common.dataplugin.text.alarms,
+ com.raytheon.uf.common.dataplugin.text.db;uses:="com.raytheon.uf.common.dataplugin.persist,com.raytheon.uf.edex.wmo.message,com.raytheon.uf.common.serialization",
+ com.raytheon.uf.common.dataplugin.text.request;uses:="com.raytheon.uf.common.serialization.comm"
+

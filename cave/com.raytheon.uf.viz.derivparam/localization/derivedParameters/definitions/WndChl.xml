@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DerivedParameter unit="K" name="Wind Chill" abbreviation="WndChl" xmlns:ns2="group">
+    <Method name="WndChl">
+        <Field abbreviation="T"/>
+        <Field abbreviation="wSp"/>
+    </Method>
+</DerivedParameter>

@@ -1,0 +1,10 @@
+com.raytheon.uf.common.message.Body
+com.raytheon.uf.common.message.CatalogItem
+com.raytheon.uf.common.message.CatalogAttribute
+com.raytheon.uf.common.message.Header
+com.raytheon.uf.common.message.Message
+com.raytheon.uf.common.message.Property
+com.raytheon.uf.common.message.StatusMessage
+com.raytheon.uf.common.message.response.ResponseMessageCatalog
+com.raytheon.uf.common.message.response.ResponseMessageError
+com.raytheon.uf.common.message.response.ResponseMessageGeneric

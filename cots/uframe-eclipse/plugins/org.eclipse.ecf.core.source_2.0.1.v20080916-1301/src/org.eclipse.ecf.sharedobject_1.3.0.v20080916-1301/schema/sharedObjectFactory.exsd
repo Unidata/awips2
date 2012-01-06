@@ -1,0 +1,350 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="org.eclipse.ecf">
+<annotation>
+      <appInfo>
+         <meta.schema plugin="org.eclipse.ecf" id="sharedObjectFactory" name="ECF Shared Object Factory"/>
+      </appInfo>
+      <documentation>
+         ECF Shared Object Factory extension point (&lt;b&gt;org.eclipse.ecf.sharedObjectFactory&lt;/b&gt;.  This extension point allows implmenters to define an &lt;b&gt;org.eclipse.ecf.core.sharedobject.provider.ISharedObjectInstantiator&lt;/b&gt; that will be responsible for creating
+&lt;b&gt;org.eclipse.ecf.core.sharedobject.ISharedObject&lt;/b&gt; instances when requested by clients.  Here is the &lt;b&gt;ISharedObjectInstantiator&lt;/b&gt; that
+extensions must implement:
+
+&lt;pre&gt;
+public interface ISharedObjectInstantiator {
+	/**
+	 * Create instance of ISharedObject. This is the interface that plugin
+	 * implementations must implement for the sharedObjectFactory extension
+	 * point. The caller may optionally specify both argument types and
+	 * arguments that will be passed into this method (and therefore to the
+	 * provider implementation implementing this method). For example:
+	 * &lt;p&gt;
+	 * &lt;/p&gt;
+	 * &lt;p&gt;
+	 * &lt;b&gt;
+	 * SharedObjectFactory.getDefault().createSharedObject(&quot;foosharedobject&quot;,new
+	 * String [] { java.lang.String }, new Object { &quot;hello&quot; });&lt;/b&gt;
+	 * &lt;/p&gt;
+	 * &lt;p&gt;
+	 * &lt;/p&gt;
+	 * 
+	 * @param typeDescription
+	 *            the SharedObjectTypeDescription associated with the registered
+	 *            shared object provider implementation plugin
+	 * @param args
+	 *            arguments specified by the caller. May be null if no arguments
+	 *            are passed in by caller to
+	 *            SharedObjectFactory.getDefault().createSharedObject(...)
+	 * @return ISharedObject instance. The provider implementation must return a
+	 *         valid object implementing ISharedObject OR throw a
+	 *         SharedObjectCreateException
+	 * @throws SharedObjectCreateException
+	 *             if shared object instance cannot be created
+	 */
+	public ISharedObject createInstance(
+			SharedObjectTypeDescription typeDescription, Object[] args)
+			throws SharedObjectCreateException;
+}
+&lt;/pre&gt;
+
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <complexType>
+         <sequence>
+            <element ref="sharedObjectFactory" minOccurs="1" maxOccurs="unbounded"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="sharedObjectFactory">
+      <complexType>
+         <sequence>
+            <element ref="property" minOccurs="0" maxOccurs="unbounded"/>
+         </sequence>
+         <attribute name="class" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The fully qualified name of the class that implements the &lt;b&gt;org.eclipse.ecf.core.provider.ISharedObjectInstantiator&lt;/b&gt; interface.
+               </documentation>
+               <appInfo>
+                  <meta.attribute kind="java" basedOn="org.eclipse.ecf.core.sharedobject.provider.ISharedObjectInstantiator"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  An optional name for the extension.  If no name is explicitly provided by the extension, the sharedObjectFactory class name is used as the name.  Note that this name must &lt;b&gt;not&lt;/b&gt; conflict with any other name in the ECF SharedObjectFactory in order to be successfully registered.  Care should therefore be taken in selection of a name such that it does not conflict with other pre-existing names for this factory implementations
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="description" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="property">
+      <annotation>
+         <documentation>
+            Property (name,value) associated with SharedObjectTypeDescription
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="name" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The name of the property
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="value" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The value of the property
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="since"/>
+      </appInfo>
+      <documentation>
+         0.6.0
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="examples"/>
+      </appInfo>
+      <documentation>
+         Here&apos;s an example of an extension point declaration:
+
+&lt;pre&gt;
+   &lt;extension
+         point=&quot;org.eclipse.ecf.sharedobject.sharedObjectFactory&quot;&gt;
+      &lt;sharedObjectFactory
+            class=&quot;org.eclipse.ecf.tests.provider.TestSharedObjectInstantiator&quot;
+            name=&quot;ecf.test.sharedobjectfactory&quot;/&gt;
+   &lt;/extension&gt;
+&lt;/pre&gt;
+
+and the TestSharedObjectInstantiator is defined:
+
+&lt;pre&gt;
+public class TestSharedObjectInstantiator implements ISharedObjectInstantiator {
+
+	public ISharedObject createInstance(SharedObjectTypeDescription description, Object[] args) throws SharedObjectCreateException {
+		System.out.println(&quot;createInstance(&quot;+description+&quot;,&quot;+((args==null)?&quot;null&quot;:Arrays.asList(args).toString()));
+		return new TestSharedObject();
+	}
+}
+&lt;/pre&gt;
+
+&lt;h3&gt;Example Usage of Container by Clients&lt;/h3&gt;
+
+Clients may use the extension via calls such as:
+
+&lt;pre&gt;
+ISharedObject obj = SharedObjectFactory.getDefault().createSharedObject(&quot;ecf.test.sharedobjectfactory&quot;);
+&lt;/pre&gt;
+
+
+
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="apiInfo"/>
+      </appInfo>
+      <documentation>
+         The API for accessing the functionality provided via extensions is via &lt;b&gt;org.eclipse.ecf.core.sharedobject.SharedObjectFactory.getDefault()&lt;/b&gt; methods.  Specifically, the &lt;b&gt;org.eclipse.ecf.core.sharedobject.ISharedObjectFactory.createSharedObject()&lt;/b&gt; methods are to be used to create shared
+object instances, where extensions implement the actual shared object creation  
+
+Here is the &lt;b&gt;org.eclipse.ecf.core.sharedobject.ISharedObjectFactory&lt;/b&gt; contract implemented by the &lt;b&gt;org.eclipse.ecf.core.sharedobject.SharedObjectFactory&lt;/b&gt;:
+
+&lt;pre&gt;
+public interface ISharedObjectFactory {
+	/*
+	 * Add a SharedObjectTypeDescription to the set of known
+	 * SharedObjectTypeDescriptions.
+	 * 
+	 * @param scd the SharedObjectTypeDescription to add to this factory @return
+	 * SharedObjectTypeDescription the old description of the same name, null if
+	 * none found
+	 */
+	public SharedObjectTypeDescription addDescription(
+			SharedObjectTypeDescription description);
+
+	/**
+	 * Get a collection of the SharedObjectTypeDescriptions currently known to
+	 * this factory. This allows clients to query the factory to determine what
+	 * if any other SharedObjectTypeDescriptions are currently registered with
+	 * the factory, and if so, what they are.
+	 * 
+	 * @return List of SharedObjectTypeDescription instances. Will not be null.
+	 */
+	public List getDescriptions();
+
+	/**
+	 * Check to see if a given named description is already contained by this
+	 * factory
+	 * 
+	 * @param description
+	 *            the SharedObjectTypeDescription to look for
+	 * @return true if description is already known to factory, false otherwise
+	 */
+	public boolean containsDescription(SharedObjectTypeDescription description);
+
+	/**
+	 * Get the known SharedObjectTypeDescription given it&apos;s name.
+	 * 
+	 * @param name
+	 * @return SharedObjectTypeDescription found. Null if description not found.
+	 * @throws SharedObjectCreateException
+	 */
+	public SharedObjectTypeDescription getDescriptionByName(String name)
+			throws SharedObjectCreateException;
+
+	/**
+	 * Create ISharedObject instance. Given a SharedObjectTypeDescription
+	 * object, a String [] of argument types, and an Object [] of parameters,
+	 * this method will
+	 * &lt;p&gt;
+	 * &lt;ul&gt;
+	 * &lt;li&gt;lookup the known SharedObjectTypeDescriptions to find one of
+	 * matching name&lt;/li&gt;
+	 * &lt;li&gt;if found, will retrieve or create an ISharedObjectInstantiator for
+	 * that description&lt;/li&gt;
+	 * &lt;li&gt;Call the ISharedObjectInstantiator.createInstance method to return
+	 * an instance of ISharedObject&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 * 
+	 * @param typeDescription
+	 *            the SharedObjectTypeDescription to use to create the instance
+	 * @param args
+	 *            an Object [] of arguments passed to the createInstance method
+	 *            of the ISharedObjectInstantiator
+	 * @return a valid instance of ISharedObject. Will not be null.
+	 * @throws SharedObjectCreateException
+	 *             if shared object cannot be created
+	 */
+	public ISharedObject createSharedObject(
+			SharedObjectTypeDescription typeDescription, Object[] args)
+			throws SharedObjectCreateException;
+
+	/**
+	 * Create ISharedObject instance. Given a SharedObjectTypeDescription name,
+	 * this method will
+	 * &lt;p&gt;
+	 * &lt;ul&gt;
+	 * &lt;li&gt;lookup the known SharedObjectTypeDescriptions to find one of
+	 * matching name&lt;/li&gt;
+	 * &lt;li&gt;if found, will retrieve or create an ISharedObjectInstantiator for
+	 * that description&lt;/li&gt;
+	 * &lt;li&gt;Call the ISharedObjectInstantiator.createInstance method to return
+	 * an instance of ISharedObject&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 * 
+	 * @param descriptionName
+	 *            the SharedObjectTypeDescription name to lookup
+	 * @return a valid instance of ISharedObject. Will not be null.
+	 * @throws SharedObjectCreateException
+	 */
+	public ISharedObject createSharedObject(String descriptionName)
+			throws SharedObjectCreateException;
+
+	/**
+	 * Create ISharedObject instance. Given a SharedObjectTypeDescription name,
+	 * this method will
+	 * &lt;p&gt;
+	 * &lt;ul&gt;
+	 * &lt;li&gt;lookup the known SharedObjectTypeDescriptions to find one of
+	 * matching name&lt;/li&gt;
+	 * &lt;li&gt;if found, will retrieve or create an ISharedObjectInstantiator for
+	 * that description&lt;/li&gt;
+	 * &lt;li&gt;Call the ISharedObjectInstantiator.createInstance method to return
+	 * an instance of ISharedObject&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 * 
+	 * @param descriptionName
+	 *            the SharedObjectTypeDescription name to lookup
+	 * @param args
+	 *            the Object [] of arguments passed to the
+	 *            ISharedObjectInstantiator.createInstance method
+	 * @return a valid instance of IContainer. Will not be null.
+	 * @throws SharedObjectCreateException
+	 */
+	public ISharedObject createSharedObject(String descriptionName,
+			Object[] args) throws SharedObjectCreateException;
+
+	/**
+	 * Remove given description from set known to this factory.
+	 * 
+	 * @param scd
+	 *            the SharedObjectTypeDescription to remove
+	 * @return the removed SharedObjectTypeDescription, null if nothing removed
+	 */
+	public SharedObjectTypeDescription removeDescription(
+			SharedObjectTypeDescription scd);
+}
+&lt;/pre&gt;
+
+See the &quot;Examples&quot; page for an example usage of the extension point.
+
+
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="implementation"/>
+      </appInfo>
+      <documentation>
+         
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="copyright"/>
+      </appInfo>
+      <documentation>
+         Copyright (c) 2004 Composent, Inc. and others.
+All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html.  Contributors:  Composent, Inc. - initial API and implementation
+      </documentation>
+   </annotation>
+
+</schema>

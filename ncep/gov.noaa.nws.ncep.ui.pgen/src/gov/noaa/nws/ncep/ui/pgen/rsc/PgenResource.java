@@ -1,0 +1,1405 @@
+/*
+ * gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource
+ * 
+ * 25 November 2008
+ *
+ * This code has been developed by the NCEP/SIB for use in the AWIPS2 system.
+ */
+
+package gov.noaa.nws.ncep.ui.pgen.rsc;
+
+import gov.noaa.nws.ncep.ui.pgen.Activator;
+import gov.noaa.nws.ncep.ui.pgen.PgenPreferences;
+import gov.noaa.nws.ncep.ui.pgen.PgenSession;
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil.PgenMode;
+import gov.noaa.nws.ncep.ui.pgen.controls.PgenCommandManager;
+import gov.noaa.nws.ncep.ui.pgen.display.AbstractElementContainer;
+import gov.noaa.nws.ncep.ui.pgen.display.DefaultElementContainer;
+import gov.noaa.nws.ncep.ui.pgen.display.DisplayElementFactory;
+import gov.noaa.nws.ncep.ui.pgen.display.DisplayProperties;
+import gov.noaa.nws.ncep.ui.pgen.display.ElementContainerFactory;
+import gov.noaa.nws.ncep.ui.pgen.display.IDisplayable;
+import gov.noaa.nws.ncep.ui.pgen.display.ISymbolSet;
+import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
+import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
+import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
+import gov.noaa.nws.ncep.ui.pgen.elements.IJetTools;
+import gov.noaa.nws.ncep.ui.pgen.elements.Jet;
+import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
+import gov.noaa.nws.ncep.ui.pgen.elements.Line;
+import gov.noaa.nws.ncep.ui.pgen.elements.MultiPointElement;
+import gov.noaa.nws.ncep.ui.pgen.elements.Product;
+import gov.noaa.nws.ncep.ui.pgen.elements.SinglePointElement;
+import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
+import gov.noaa.nws.ncep.ui.pgen.elements.SymbolLocationSet;
+import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
+import gov.noaa.nws.ncep.ui.pgen.filter.AcceptFilter;
+import gov.noaa.nws.ncep.ui.pgen.filter.CategoryFilter;
+import gov.noaa.nws.ncep.ui.pgen.filter.ElementFilter;
+import gov.noaa.nws.ncep.ui.pgen.filter.ElementFilterCollection;
+import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
+import gov.noaa.nws.ncep.ui.pgen.productManage.ProductManageDialog;
+import gov.noaa.nws.ncep.ui.pgen.tca.TCAElement;
+import gov.noaa.nws.ncep.ui.pgen.tca.TropicalCycloneAdvisory;
+import gov.noaa.nws.ncep.ui.pgen.tools.PgenSnapJet;
+import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
+import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+
+import java.awt.Color;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.geotools.referencing.GeodeticCalculator;
+import org.geotools.referencing.datum.DefaultEllipsoid;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+
+import com.raytheon.uf.viz.core.IDisplayPaneContainer;
+import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.PixelExtent;
+import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.map.MapDescriptor;
+import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
+import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.CoordinateArrays;
+import com.vividsolutions.jts.geom.CoordinateList;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineSegment;
+import com.vividsolutions.jts.geom.Point;
+
+/**
+ * Implements a drawing layer for PGEN products.
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date       	Ticket#		Engineer	Description
+ * ------------	----------	-----------	--------------------------
+ * 02/09					B. Yin   	Initial Creation.
+ * 04/09					S. Gilbert  Added PgenCommand for undo/redo.
+ * 04/09		#88			J. Wu  		Added Text.
+ * 04/09		#89			J. Wu  		Added Arc.
+ * 05/09		#79			B. Yin		Added a List for points selected
+ * 05/09		#89			J. Wu  		Added Vector
+ * 06/09		#116		B. Yin		Use AbstractDrawableComponent
+ * 07/09		#131		J. Wu		Made all commands work only on active layer
+ * 07/09		#131		J. Wu		Drew layers in mono color & filled mode.
+ * 07/09		#131		J. Wu		Initialize product list when a PgenResource
+ * 										is created.
+ * 07/09		#141		J. Wu		Added "replaceElements"
+ * 08/09        #142		S. Gilbert  
+ * 09/09		#151		J. Wu		Added product management dialog
+ * 09/30/09     #169        Greg Hull   NCMapEditor
+ * 12/09		#167		J. Wu		Made getNearestElement work for a given DECollection
+ * 12/09		#267		B. Yin		Fixed the delObj bug
+ * 03/10		#223		M.Laryukhin	Added Gfa
+ * 04/10		#165		G.Zhang		Added the two setSelected( ) null arguments handling
+ * 03/10		#223		M.Laryukhin	Added Gfa
+ * 04/10		#165		G.Zhang		Added the two setSelected( ) null arguments handling
+ * 03/10		#265		B. Yin		Added filters for forecast hours
+ * 09/10		#290		B. Yin		Calculate distance from line segment
+ * 09/10		#151		J. Wu		Save product in LPF-style
+ * 10/10 		#310        S. Gilbert  Modified to support PGEN SINGLE mode
+ * 02/11		?			B. Yin		Select elements only in certain distance.
+ * 04/11		#?			B. Yin		Re-factor IAttribute
+ *
+ * </pre>
+ * 
+ * @author	B. Yin
+ */
+
+public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescriptor> 
+	implements RemoveListener, IResourceDataChanged {
+
+	//private final static org.apache.log4j.Logger log = 
+	//	org.apache.log4j.Logger.getLogger(PgenResource.class);
+	
+	/**
+	 * Ghost line for multi-point element.
+	 */
+    private AbstractDrawableComponent ghost = null;
+    
+    /*
+     * List of elements that should be displayed in "selected" mode
+     */
+    private List<AbstractDrawableComponent> elSelected = null;
+    
+    private ConcurrentHashMap<DrawableElement,AbstractElementContainer> displayMap;
+    
+    /*
+     * selected elements that should be displayed with a marker other than the default gray "DOT"
+     */
+    private HashMap<AbstractDrawableComponent,Symbol> selectedSymbol = null;
+  
+    private List<Integer> ptsSelectedIndex = null;
+    private Color ptsSelectedColor = null;
+    
+    private BufferedImage paneImage;
+    private boolean saveOnNextPaint = true;
+
+    //a collection of filters
+    private ElementFilterCollection filters;
+    
+    private CategoryFilter catFilter;
+    
+    private static final String resourceName = "PGEN Resource";
+    
+    /**
+     * Default constructor
+     */
+    protected PgenResource(PgenResourceData resourceData,
+			LoadProperties loadProperties) {
+		
+    	super(resourceData, loadProperties);
+		resourceData.addChangeListener(this);        // we want to know when PGEN objects change
+
+		elSelected = new ArrayList<AbstractDrawableComponent>();
+		selectedSymbol = new HashMap<AbstractDrawableComponent,Symbol>();
+		displayMap = new ConcurrentHashMap<DrawableElement,AbstractElementContainer>();
+		filters = new ElementFilterCollection();
+		setCatFilter(new CategoryFilter("any"));
+		
+		// Register this new resource with the Session
+		PgenSession.getInstance().setResource(this);
+		
+	}
+	
+	/**
+	 * Called when resource is disposed
+	 * @see com.raytheon.viz.core.rsc.IVizResource#dispose()
+	 */
+	@Override
+	public void disposeInternal() {
+		//System.out.println("PGEN Resource being disposed");
+		
+		// remove this PGEN Resource from the PGEN Session
+		if ( PgenSession.getInstance().getCurrentResource() == this ) PgenSession.getInstance().removeResource();
+
+		/*
+		 * release IDisplayable resources
+		 */
+		for ( AbstractElementContainer disp : displayMap.values() ) {
+			disp.dispose();
+		}
+		displayMap.clear();
+		
+		resourceData.removeChangeListener(this);
+		
+		closeDialogs();
+		
+	}
+
+	/**
+	 * Saves all elements in the productList in the resourceData to a given file
+	 * @param filename
+	 */
+    public void saveProducts(String filename) {
+    	
+    	if ( filename == null ) return;
+        
+        boolean multiSave = false;        
+        if ( getProductManageDlg() != null && getProductManageDlg().isOpen() ) {       		
+        	multiSave = getProductManageDlg().isMultiSave();
+        }
+        
+        resourceData.saveProducts(filename, multiSave);
+        
+    }
+    
+	/* (non-Javadoc)
+	 * @see com.raytheon.viz.core.rsc.IVizResource#getCoordinateReferenceSystem()
+	 */
+	public CoordinateReferenceSystem getCoordinateReferenceSystem() {
+		
+		if (descriptor == null)
+		        return null;
+
+		return descriptor.getCRS();
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see com.raytheon.viz.core.rsc.IVizResource#getName()
+	 */
+	@Override
+	public String getName() {
+		
+		return resourceName;
+		
+	}
+
+	/**
+	 * Gets the PgenResource's CommandManager
+	 * @return the commandMgr
+	 */
+	public PgenCommandManager getCommandMgr() {
+		return resourceData.getCommandMgr();
+	}
+
+	/* (non-Javadoc)
+	 * @see com.raytheon.viz.core.rsc.IVizResource#getShortName()
+	 */
+	public String getShortName() {	
+		
+		return null;
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see com.raytheon.viz.core.rsc.IVizResource#init(com.raytheon.viz.core.IGraphicsTarget)
+	 */
+	@Override
+	public void initInternal(IGraphicsTarget target) throws VizException {
+	
+	}
+
+	/* (non-Javadoc)
+	 * @see com.raytheon.viz.core.rsc.IVizResource#isApplicable(com.raytheon.viz.core.PixelExtent)
+	 */
+	public boolean isApplicable(PixelExtent extent) {
+		
+		return true;
+		
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#okToUnload()
+	 */
+	@Override
+	public boolean okToUnload() {
+		/*
+		 * Allow unloading of Resource only in MULTIPLE Mode
+		 */
+		if ( PgenUtil.getPgenMode() == PgenMode.SINGLE ) {
+			return false;
+		}
+		else {
+			return true;
+		}
+			
+	}
+
+	/* (non-Javadoc)
+	 * @see com.raytheon.viz.core.drawables.IRenderable#paint(com.raytheon.viz.core.IGraphicsTarget, com.raytheon.viz.core.drawables.PaintProperties)
+	 */
+	@Override
+	public void paintInternal(IGraphicsTarget target, PaintProperties paintProps)
+			throws VizException {
+	    IDisplayPaneContainer editor = getResourceContainer();
+		if( editor instanceof NCMapEditor ) {//&& ((NCMapEditor) editor).getApplicationName().equals("NA") ) {
+			DisplayElementFactory df = new DisplayElementFactory( target, descriptor);
+
+			drawProduct( target, paintProps );
+			if ( elSelected != null ) drawSelected( target, paintProps);
+			if ( ghost != null ) drawGhost( target, paintProps, df);
+
+			// Save current graphics target for possible future reminder
+			if ( saveOnNextPaint ) {
+				paneImage = target.screenshot();
+				saveOnNextPaint = false;
+			}
+		}
+		//lastTarget = target;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.raytheon.viz.core.rsc.capabilities.IProjectableResource#isProjectable(org.opengis.referencing.crs.CoordinateReferenceSystem)
+	 */
+	public boolean isProjectable(CoordinateReferenceSystem mapData) {
+
+		return true;
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see com.raytheon.viz.core.rsc.capabilities.IProjectableResource#project(org.opengis.referencing.crs.CoordinateReferenceSystem)
+	 */
+	@Override
+	public void project(CoordinateReferenceSystem mapData) throws VizException {
+		
+		//Snap jet when projection changes
+		for ( Product prod : resourceData.getProductList() ) {
+			for ( Layer layer : prod.getLayers() ) {
+
+				Iterator<AbstractDrawableComponent> iterator = layer.getComponentIterator();
+				while ( iterator.hasNext()){
+					AbstractDrawableComponent adc = iterator.next();
+					if( adc.getName().equalsIgnoreCase("jet")){
+						IJetTools snapTool = ((Jet)adc).getSnapTool();
+						if( snapTool != null ){
+
+							((PgenSnapJet)snapTool).setMapDescriptor(getDescriptor());
+							snapTool.snapJet((Jet)adc);
+
+						}
+					}
+				}
+			}		
+		}
+		
+		for ( AbstractElementContainer disp : displayMap.values() ) {
+			disp.setMapDescriptor(getDescriptor());
+		}
+		
+		return;
+	}
+	
+	/**
+	 * @param autoSaveFilename the autoSaveFilename to set
+	 */
+	public void setAutoSaveFilename(String autoSaveFilename) {
+		this.resourceData.setAutoSaveFilename(autoSaveFilename);
+	}
+
+	/**
+	 * @param autosave the autosave to set
+	 */
+	public void setAutosave(boolean autosave) {
+		this.resourceData.setAutosave(autosave);
+	}
+
+	/**
+	 * Loops through all products in the PGEN drawing layer draws the
+	 * display elements.    
+	 * @param target Graphic target from the paint() method.
+	 * @param paintProps Paint properties from the paint() method.
+	 */
+	private void drawProduct(IGraphicsTarget target, PaintProperties paintProps ) {
+
+		for ( Product prod : resourceData.getProductList() ) {
+			if (  prod.isOnOff() ) {
+			    for ( Layer layer : prod.getLayers() ) {
+					
+				    if ( layer.isOnOff() ) {
+                   
+				    	DisplayProperties dprops = new DisplayProperties();
+					    if ( layer != resourceData.getActiveLayer() ) {
+						    dprops.setLayerMonoColor( layer.isMonoColor() );
+						    dprops.setLayerColor( layer.getColor() );
+						    dprops.setLayerFilled( layer.isFilled() );
+					    }
+
+				        Iterator<DrawableElement> iterator = layer.createDEIterator();
+				        while ( iterator.hasNext()){    
+				        	DrawableElement el = iterator.next();
+				        	if ( filters.acceptOnce(el)){
+				        		if ( ! displayMap.containsKey(el) ) {
+				        			AbstractElementContainer container = ElementContainerFactory.createContainer(el, descriptor, target);
+				        			displayMap.put(el, container);
+				        		}
+				        		displayMap.get(el).draw(target, paintProps, dprops);
+				        	}
+					        
+				        }
+				
+				    }
+				}
+				
+			}		
+		}
+
+	}
+	
+	/**
+	 * Adds a product into the PGEN drawing layer.
+	 * @param prd The product being added.
+	 */
+	public void addProduct(Product prd) {
+		
+		resourceData.getProductList().add( prd );
+		
+	}
+	
+	/**
+	 * Sets the ghost line for the PGEN drawing layer.
+	 * @param ghost 
+	 */
+	public void setGhostLine(AbstractDrawableComponent ghost) {
+		
+		this.ghost = ghost;
+		
+	}
+	
+	/**
+	 * Removes the ghost line from the PGEN drawing layer.
+	 */
+	public void removeGhostLine() {
+		
+		this.ghost = null;
+		
+	}
+	
+	/**
+	 * Creates displayables for an element using an ElementContainer and call the 
+	 * displayables' draw() method to draw the element.
+	 * @param target		Graphic target
+	 * @param paintProps	Paint properties
+	 * @param df			Display element factory
+	 * @param el			Input drawable element
+	 */
+	private void drawElement( IGraphicsTarget target, PaintProperties paintProps,
+			DisplayElementFactory df, DrawableElement el ){
+		
+		AbstractElementContainer dispEl = null;
+		
+		dispEl = new DefaultElementContainer(el, descriptor, target);
+		dispEl.draw(target, paintProps, null);
+		dispEl.dispose();
+	}
+	
+	
+	/**
+	 * Finds the nearest element in the products to the input point.
+	 * @param point
+	 * @return	the nearest element
+	 */
+	public DrawableElement getNearestElement( Coordinate point ){
+		return getNearestElement( point, catFilter );
+		//return getNearestElement( point, new AcceptFilter() );
+	}
+		
+	/**
+	 * Finds the nearest element in the products to the input point.
+	 * @param point
+	 * @return	the nearest element
+	 */
+	public DrawableElement getNearestElement( Coordinate point, ElementFilter filter ){
+		
+		DrawableElement nearestElement = null;
+		double	minDistance = Double.MAX_VALUE;
+
+		GeodeticCalculator gc = new GeodeticCalculator(DefaultEllipsoid.WGS84);
+		
+		gc.setStartingGeographicPoint(point.x, point.y);
+						
+	    Iterator<DrawableElement> iterator = resourceData.getActiveLayer().createDEIterator();
+		while ( iterator.hasNext()){
+			DrawableElement element = iterator.next();
+			
+			if ( ! filter.accept(element) || !filters.acceptOnce(element)) continue;
+			if ( ! catFilter.accept(element)) continue;
+			
+			
+			double dist = getDistance(element, point);
+			if ( dist < minDistance ) {
+				
+				minDistance = dist;
+				nearestElement = element; 
+				
+			}
+	    }
+		
+		if ( minDistance < this.getMaxDistToSelect() ){
+			return nearestElement;
+		}
+		else return null;
+		
+	}
+	
+	/**
+	 * Finds the nearest component(DE/DECollection) in the products to the input point.
+	 * @param point
+	 * @return	the nearest component
+	 */	
+	public AbstractDrawableComponent getNearestComponent( Coordinate point ){
+		//return getNearestComponent( point, catFilter );
+		return getNearestComponent( point, new AcceptFilter(), false );
+	}
+	
+	/**
+	 * Finds the nearest component(DE/DECollection) in the products to the input point.
+	 * @param point
+	 * @return	the nearest component
+	 */	
+	public AbstractDrawableComponent getNearestComponent( Coordinate point, ElementFilter filter,
+			boolean applyCatFilter ){
+		
+		AbstractDrawableComponent nearestComponent = null;
+		double	minDistance = Double.MAX_VALUE;
+
+       	GeodeticCalculator gc = new GeodeticCalculator(descriptor.getCRS());
+       	
+		gc.setStartingGeographicPoint(point.x, point.y);
+						
+		Iterator<AbstractDrawableComponent> iterator = resourceData.getActiveLayer().getComponentIterator();
+				
+		while ( iterator.hasNext()){
+			AbstractDrawableComponent comp = iterator.next();
+					
+			if ( ! filter.accept(comp) || !filters.acceptOnce(comp)) continue;
+			if ( applyCatFilter ){
+				if ( !catFilter.accept(comp)) continue;
+			}
+
+			double dist = getDistance(comp, point);
+			
+				if ( dist < minDistance ) {
+
+					minDistance = dist;
+					nearestComponent = comp; 
+
+				}
+		}
+		
+		if ( minDistance < getMaxDistToSelect() )
+			return nearestComponent;
+		else return null;
+		
+	}
+	
+	private void drawSelected( IGraphicsTarget target, PaintProperties paintProps ){
+		
+		if ( !elSelected.isEmpty() ){ 
+			DisplayElementFactory df = new DisplayElementFactory( target, descriptor );	
+			List<IDisplayable> displayEls = new ArrayList<IDisplayable>();
+			HashMap<Symbol,CoordinateList> map = new HashMap<Symbol,CoordinateList>();
+
+			Symbol defaultSymbol = new Symbol( null, new Color[]{Color.lightGray},
+					2.5f, 7.5, false, null, "Marker", "DOT");
+			Symbol selectSymbol = new Symbol( null, new Color[]{getPtsSelectedColor()},
+					2.5f, 7.5, false, null, "Marker", "DOT");
+
+			CoordinateList defaultPts = new CoordinateList();
+			CoordinateList selectPts = new CoordinateList();
+
+			for ( AbstractDrawableComponent el : elSelected ){
+
+				if ( selectedSymbol.containsKey(el) ) {
+					Symbol currSym = selectedSymbol.get(el);
+					Coordinate[] pts = CoordinateArrays.toCoordinateArray(el.getPoints());
+					if ( map.containsKey(currSym) ) {
+						map.get(currSym).add(pts, true);
+					}
+					else {
+						map.put(currSym, new CoordinateList(pts) );
+					}
+				}
+				else {
+					for ( Coordinate point : el.getPoints() ){
+						int pointIdx = el.getPoints().indexOf(point);
+						if ( inSelectedIndex(pointIdx) ) {
+							selectPts.add(point, true);
+						}
+						else {
+							defaultPts.add(point, true);
+						}
+					}
+				}
+			}
+
+			if ( ! defaultPts.isEmpty() ) {
+				SymbolLocationSet symset = new SymbolLocationSet(defaultSymbol, defaultPts.toCoordinateArray());
+				displayEls.addAll( df.createDisplayElements( (ISymbolSet) symset, paintProps ) );
+			}
+			if ( ! selectPts.isEmpty() ) {
+				SymbolLocationSet symset = new SymbolLocationSet(selectSymbol, selectPts.toCoordinateArray());
+				displayEls.addAll( df.createDisplayElements( (ISymbolSet) symset, paintProps ) );
+			}
+			if ( ! map.isEmpty() ) {
+				for ( Symbol sym : map.keySet() ) {
+					SymbolLocationSet symset = new SymbolLocationSet(sym, map.get(sym).toCoordinateArray() );
+					displayEls.addAll( df.createDisplayElements( (ISymbolSet) symset, paintProps ) );
+				}
+			}
+
+			//drawElement( target, paintProps, df, symset );
+			for ( IDisplayable each : displayEls ) {
+				each.draw(target);
+				each.dispose();
+			}
+		}
+	}
+	
+	private boolean inSelectedIndex(int pointIdx) {
+		if ( ptsSelectedIndex != null && !ptsSelectedIndex.isEmpty()){
+			return ptsSelectedIndex.contains(new Integer(pointIdx));
+		}
+		return false;
+	}
+
+	/**
+	 * Draws handle bars on the selected elements.
+	 * Original version. creates new symbol for each selected point. This turns out
+	 * to be costly.  Use other drawSelected() instead
+	 * @param target
+	 * @param paintProps
+	private void drawSelected( IGraphicsTarget target, PaintProperties paintProps ){
+		
+		DisplayElementFactory df = new DisplayElementFactory( target, descriptor );	
+    	DrawableElementFactory def = new DrawableElementFactory();
+
+    	for ( AbstractDrawableComponent el : elSelected ){
+    		for ( Coordinate point : el.getPoints() ){
+
+    			Symbol elem;
+    			//
+    			// If the selected element is registered with a marker, use that marker/symbol
+    			// to display the element in selected mode
+    			//
+    			if ( selectedSymbol.containsKey(el) ) {    
+    				elem = selectedSymbol.get(el);
+    				elem.setLocation(point);
+    			}
+    			else {     // Otherwise, use default symbol 
+    				elem = (Symbol)def.create(DrawableType.SYMBOL, null, "Marker", "DOT", point, this.getActiveLayer());
+    				elem.setClear(false);
+    				elem.setLineWidth( 2.5f );
+    				elem.setSizeScale( 5.0 );
+    			}
+
+    			boolean gotColor = false;
+    			if ( ptsSelectedIndex != null && !ptsSelectedIndex.isEmpty()){
+    				for ( Integer idx : ptsSelectedIndex ){
+    					if ( el.getPoints().get(idx.intValue()) == point  ){
+    						//elem.setColors( new Color[]{Color.red,Color.black});
+    						elem.setColors( new Color[]{getPtsSelectedColor(),Color.black});
+    						gotColor = true;
+    						break;
+    					}
+    				}
+    			}
+
+    			if ( !gotColor && !selectedSymbol.containsKey(el) ){     // use default color
+    				elem.setColors( new Color[]{Color.lightGray,Color.black});
+    			}
+
+    			drawElement( target, paintProps, df, elem );
+
+    		}
+    	}
+	}
+	 */
+	
+	/**
+	 * Draw the ghost
+	 * @param target
+	 * @param paintProps
+	 * @param df
+	 */
+	private void drawGhost( IGraphicsTarget target, PaintProperties paintProps,
+			DisplayElementFactory df ){
+		
+		df.setLayerDisplayAttr( false, null, false );
+		
+		Iterator<DrawableElement> iterator = ghost.createDEIterator();
+		while ( iterator.hasNext()){    
+			drawElement( target, paintProps, df, iterator.next() );
+		}
+	}
+	
+	/**
+	 * Sets the selected element to the input element.
+	 * @param element
+	 */
+	public void setSelected( AbstractDrawableComponent comp ){
+		
+		elSelected.clear();
+		if(comp != null) elSelected.add(comp);
+		
+	}
+	
+	public void setSelected( List<AbstractDrawableComponent> adcList ){
+		
+		elSelected.clear();
+		if(adcList != null) elSelected.addAll(adcList);
+		
+	}
+	/**
+	 * add an ADC to the selected list.
+	 * @param adc
+	 */
+	public void addSelected( AbstractDrawableComponent adc ){
+		elSelected.add(adc);
+	}
+	
+	/**
+	 * add an ADC to the selected list.
+	 * @param adc
+	 */
+	public void addSelected( List<AbstractDrawableComponent> adcList ){
+		elSelected.addAll(adcList);
+	}
+	
+	/**
+	 * remove an ADC from the selected list.
+	 * @param adc
+	 */
+	public void removeSelected( AbstractDrawableComponent adc ){
+		if (elSelected.contains(adc)){
+			elSelected.remove(adc);
+			removeSelectedSymbol(adc);    // remove element from selected element/marker registry
+		}
+	}
+		
+	/**
+	 * Sets the selected element to null.
+	 */
+	public void removeSelected(){
+		
+		elSelected.clear();
+		clearSelectedSymbol();     // clear the selected element/marker registry
+		
+		removePtsSelected();
+		
+	}
+	
+	/**
+	 * Returns the selected element.
+	 * @return
+	 */
+	public DrawableElement getSelectedDE(){
+		
+		if ( elSelected.isEmpty() )
+			return null;
+		else
+			return elSelected.get(0).getPrimaryDE();
+		
+	}
+
+	/**
+	 * Returns the first item(DE or Collection) in the selected list.
+	 * @return
+	 */
+	public AbstractDrawableComponent getSelectedComp(){
+		
+		if ( elSelected.isEmpty() )
+			return null;
+		else
+			return elSelected.get(0);
+		
+	}	
+	
+	/*
+	 * returns the list of all selected elements
+	 */
+	public List<AbstractDrawableComponent> getAllSelected() {
+		return elSelected;
+	}
+	
+	/*
+	 *  Get the product list. 
+	 */
+	public List<Product> getProducts() {
+		
+		return resourceData.getProductList();
+		
+	}
+
+	/**
+	 * Replace one drawable element in the product list
+	 * with another drawable element.
+	 * @param old Element to replace
+	 * @param Element new drawable element
+	 */
+	public void replaceElement ( AbstractDrawableComponent old, AbstractDrawableComponent newde ) {
+		
+		/*
+		 * displose of resources held by old componenet
+		 */
+		resetADC(old);
+		
+		resourceData.replaceElement(old, newde);
+	}
+	
+	/**
+	 * Replace a set of drawable element in the active layer
+	 * with another set of drawable elements.
+	 * @param old 	Elements to replace
+	 * @param newde New drawable elements
+	 */
+	public void replaceElements ( List<AbstractDrawableComponent> old, List<AbstractDrawableComponent> newde ) {
+		
+		/*
+		 * release resources held by all the "old" DEs
+		 */
+		for (AbstractDrawableComponent adc : old ) {
+			resetADC(adc);
+		}
+		
+		resourceData.replaceElements(old, newde);
+	}
+	
+	/**
+	 *  Replace existing products with new products. 
+	 */
+	public void replaceProduct ( List<Product> prds ) {
+		
+		List<Product> productList = resourceData.getProductList();
+		
+ 		/*
+		 * reset/dispose elements in the displayMap
+		 */
+		for ( Product prod : productList ) {
+			for ( Layer layer : prod.getLayers() ) {
+				resetADC(layer);
+			}
+		}
+
+		resourceData.replaceProduct(prds);
+        
+	}	
+	
+	/**
+	 *  Append products to the existing products. 
+	 */
+	public void appendProduct( List<Product> prds ) {
+		
+		resourceData.appendProduct( prds );
+		
+	}
+	
+	/**
+	 *  Merge products with the existing products. 
+	 */
+	public void mergeProduct( List<Product> prds ) {
+		
+		resourceData.mergeProduct( prds );
+		
+	}
+	
+	/**
+	 * remove an element from the product list
+	 * @param de Element to be removed
+	 */
+	public void removeElement( AbstractDrawableComponent adc ){
+	
+        /*
+         * reset/dispose elements in the displayMap
+         */
+        resetADC(adc);
+
+	    resourceData.removeElement(adc);
+
+	}
+	
+	/**
+	 * remove all elements from the product list
+	 * @param de Element to be removed
+	 */
+	public void removeAllProducts(){
+    
+		/*
+         * reset/dispose elements in the displayMap
+         */
+		for ( Product prod : resourceData.getProductList() ) {
+			for ( Layer layer : prod.getLayers() ) {
+				resetADC(layer);
+			}
+		}
+		
+	    resourceData.removeAllProducts();
+		
+	}
+
+	/**
+	 * add a DrawableElement to the productList.
+	 * @param de The DrawableElement being added.
+	 */
+	public void addElement( AbstractDrawableComponent  de ) {
+		
+    	resourceData.addElement(de);
+	
+	}
+	
+	/**
+	 * add a List of DrawableElements to the productList.
+	 * @param elems List of DrawableElement being added.
+	 */
+	public void addElements( List<AbstractDrawableComponent>  elems ) {
+		
+    	resourceData.addElements(elems);
+		
+	}
+	
+	/**
+	 * Add the selected point 
+	 * @param ptIdx - index of the selected point
+	 */
+	public void addPtSelected( int ptIdx ){
+		
+		if ( ptsSelectedIndex == null ){
+			ptsSelectedIndex = new ArrayList<Integer>();
+		}
+		
+		ptsSelectedIndex.add( ptIdx );
+		
+	}
+	
+	/**
+	 * Clear the list of the selected points. 
+	 */
+	public void removePtsSelected(){
+		if ( ptsSelectedIndex != null && !ptsSelectedIndex.isEmpty() ){
+			ptsSelectedIndex.clear();
+		}
+	}
+	
+	/**
+	 * Returns the ptsSelectedColor, if it is set.  If not, returns RED by default
+	 * @return color
+	 */
+	public Color getPtsSelectedColor() {
+		if ( ptsSelectedColor == null )
+			return Color.red;
+		else
+			return ptsSelectedColor;
+	}
+	
+	public void setPtsSelectedColor(Color clr) {
+		ptsSelectedColor = clr;
+	}
+	
+	public void setDefaultPtsSelectedColor() {
+		ptsSelectedColor = null;
+	}
+	
+	/**
+	 * Delete the part between point 1 and point 2 from an muliti-point element
+	 * @param mpe	- multi-point element
+	 * @param pt1	- the first point of the deleting part
+	 * @param pt2 	- the second point of the deleting part
+	 */
+	public void deleteElementPart( Line mpe, Coordinate pt1, Coordinate pt2 ){
+		
+		/*
+		 * release resources currently held by mpe before it is modified
+		 */
+		resetADC(mpe);
+		
+    	resourceData.deleteElementPart(mpe, pt1, pt2);
+    	
+	}
+	
+	/**
+	 * Selects all elements with the input pgenType 
+	 * @param pgenType - Pgen type
+	 * @return - total elements selected
+	 */
+	public int selectObj( String pgenType ){
+
+		int total = 0;
+		elSelected.clear();
+		
+		Iterator<AbstractDrawableComponent> iterator = resourceData.getActiveLayer().getComponentIterator();
+						
+		while ( iterator.hasNext()){
+			AbstractDrawableComponent element = iterator.next();
+			String elType = element.getPgenType();
+			if ( elType != null && elType.equalsIgnoreCase( pgenType ) ){
+				elSelected.add(element);
+					total++;
+			}
+		}
+
+		return total;
+	}
+	
+	/**
+	 * Deletes all selected elements.
+	 */
+	public void deleteSelectedElements(){
+		
+    	resourceData.removeElements( elSelected );
+		
+	}
+	
+	/**
+	 * @param activeProduct the activeProduct to set
+	 */
+	public void setActiveProduct(Product activeProduct) {
+		resourceData.setActiveProduct( activeProduct );
+	}
+
+	/**
+	 * @return the activeProduct
+	 */
+	public Product getActiveProduct() {
+		return resourceData.getActiveProduct();
+	}
+
+	/**
+	 * @param activeLayer the activeLayer to set
+	 */
+	public void setActiveLayer(Layer activeLayer) {
+		resourceData.setActiveLayer( activeLayer ); 
+	}
+
+	/**
+	 * @return the activeLayer
+	 */
+	public Layer getActiveLayer() {
+		return resourceData.getActiveLayer();
+	}
+
+    /**
+     *  Activate layering control.
+     */
+    public void activateLayering() {	
+
+    	resourceData.activateLayering();
+
+    }
+
+	/**
+	 * remove all elements from the active layer
+	 * @param de Element to be removed
+	 */
+	public void removeAllActiveDEs() {
+
+		/*
+		 * release resources held by all DEs in the layer
+		 */
+		resetADC( resourceData.getActiveLayer() );
+		
+		resourceData.removeAllActiveDEs();
+	
+	}
+
+	/**
+	 * Add a specific marker to use when displaying this element in selected mode
+	 * @param adc The selected element
+	 * @param sym marker to display
+	 */
+	public void registerSelectedSymbol(AbstractDrawableComponent adc, Symbol sym) {
+		selectedSymbol.put(adc, sym);
+	}
+	
+
+
+	/**
+	 * Remove the special marker to use for this selected element.
+	 * @param adc the selected element
+	 */
+	public void removeSelectedSymbol(AbstractDrawableComponent adc) {
+		selectedSymbol.remove(adc);
+	}
+
+	/**
+	 * remove all elements from the selected element/marker registry
+	 */
+	public void clearSelectedSymbol() {
+		selectedSymbol.clear();
+	}
+
+	/**
+	 *  Start product management or layering if necessary.
+	 */
+	public void startProductManage () {
+
+		resourceData.startProductManage();
+
+	}
+
+	
+    /**
+     *  Activate product management.
+     */
+    public void activateProductManage() {	
+
+    	resourceData.activateProductManage();
+
+    }
+    
+    /**
+     *  Remove a product.
+     */
+    public void removeProduct( Product prd ) {	
+    	
+		/*
+         * reset/dispose elements in the displayMap
+         */
+    	for ( Layer layer : prd.getLayers() ) {
+    		resetADC(layer);
+    	}
+
+			resourceData.getProductList().remove( prd );
+    }
+ 
+    /**
+     *  Return the current product management dialog.
+     */
+	public ProductManageDialog getProductManageDlg() {
+		return resourceData.getProductManageDlg();
+	}
+	
+	/**
+	 * closes any 
+	 */
+	public void closeDialogs() {
+
+		resourceData.closeDialogs();
+		/*
+		if ( layeringControlDlg != null && layeringControlDlg.isOpen() ) {
+			layeringControlDlg.close();
+		}
+		
+    	if ( productManageDlg != null && productManageDlg.isOpen() )  {
+    		productManageDlg.close();
+    	}
+    	*/
+	}
+
+	/**
+	 * Releases the resources held by a DrawableElement
+	 * @param el
+	 */
+	public void resetElement(DrawableElement el) {
+
+		if ( displayMap.containsKey(el) ) {
+			displayMap.get(el).dispose();
+			displayMap.remove(el);
+		}
+	}
+	
+	/**
+	 * Releases the resources held by a DrawableComponent 
+	 * @param adc
+	 */
+	public void resetADC(AbstractDrawableComponent adc) {
+		
+        Iterator<DrawableElement> iterator = adc.createDEIterator();
+        while ( iterator.hasNext()){    
+        	DrawableElement el = iterator.next();
+        	resetElement(el);
+	    }
+	}
+	
+	/**
+	 * Finds the nearest element in the a DECollection to the input point.
+	 * @param   point
+	 * @return	the nearest element in the collection
+	 */
+	public DrawableElement getNearestElement( Coordinate point, DECollection dec ){
+		
+		DrawableElement nearestElement = null;
+		double	minDistance = Double.MAX_VALUE;
+
+	    Iterator<DrawableElement> iterator = dec.createDEIterator();
+		while ( iterator.hasNext()){
+			DrawableElement element = iterator.next();
+				
+			if ( filters.acceptOnce(element )){
+
+				double dist = getDistance(element, point);
+				if ( minDistance <  0 || dist < minDistance ) {
+
+					minDistance = dist;
+					nearestElement = element; 
+
+				}
+			}
+	    }
+		
+		return nearestElement;
+		
+	}
+
+    /**
+     * Invoked by Pane before resource is removed.
+     * Checks if changes need to be saved. 
+     */
+	@Override
+	public void notifyRemove(ResourcePair rp) throws VizException {
+
+		//System.out.println("PGEN Resource being notified");
+
+		if ( rp.getResource() == this ) {
+			/*
+			 * this resource is about to be removed, allow resourceData chance to clean up
+			 */
+			resourceData.cleanup(paneImage);
+		}
+
+	}
+    
+	/**
+	 * Get the filters
+	 * @return the filter collection in pgen resource
+	 */
+	public ElementFilterCollection getFilters(){
+		return filters;
+	}
+	
+	/**
+	 * Calculate the minimum screen distance from the input location 'loc'
+	 * to the input DrawableElement(or DECollection) 'adc'.
+	 * If adc is a MultiPointElement, distances are calculated from the input point 
+	 * to each line segments.
+	 * 
+	 * @param adc
+	 * @param loc
+	 * @return
+	 */
+	private double getDistance(AbstractDrawableComponent adc, Coordinate loc ){
+		
+		double minDist = Double.MAX_VALUE;
+		
+    	NCMapEditor mapEditor = NmapUiUtils.getActiveNatlCntrsEditor();       
+    	double [] locScreen = mapEditor.translateInverseClick(loc);
+    	
+		if ( adc instanceof SinglePointElement ) {
+			
+	    	double [] pt = mapEditor.translateInverseClick(((SinglePointElement)adc).getLocation());
+
+			Point ptScreen = new GeometryFactory().createPoint(new Coordinate(pt[0], pt[1]));
+			minDist = ptScreen.distance(new GeometryFactory().createPoint(new Coordinate(locScreen[0], locScreen[1])));
+		}
+		else if ( adc instanceof TCAElement ){
+			TCAElement tca = (TCAElement)adc;
+			double dist = Double.MAX_VALUE;
+			
+			for ( TropicalCycloneAdvisory advisory : tca.getAdvisories()){
+				for ( Coordinate[] coords : advisory.getSegment().getPaths() ) {
+					for ( int ii = 0; ii <  coords.length - 1; ii++ ) {
+				
+						dist = distanceFromLineSegment(loc, (Coordinate)coords[ii], (Coordinate)coords[ii+1]);
+						if ( dist < minDist ) {
+
+							minDist = dist;
+
+						}
+					}
+				}
+			}
+
+		}
+		else if ( adc instanceof Gfa ){
+			
+			Gfa gfa = (Gfa)adc;
+
+			//calculate distance from the text box
+	    	double [] pt = mapEditor.translateInverseClick(gfa.getGfaTextCoordinate());
+			Point ptScreen = new GeometryFactory().createPoint(new Coordinate(pt[0], pt[1]));
+			minDist = ptScreen.distance(new GeometryFactory().createPoint(new Coordinate(locScreen[0], locScreen[1])));
+			
+			double dist = Double.MAX_VALUE;
+
+			Object pts[] =  gfa.getPoints().toArray();
+
+			for ( int ii = 0; ii <  pts.length - 1; ii++ ) {
+
+				if ( ii == pts.length - 1){
+					if (gfa.isClosedLine() ){
+				  
+						dist = distanceFromLineSegment(loc, (Coordinate)pts[ii], (Coordinate)pts[0]);
+	
+					}
+					else {
+						break;
+					}
+				}
+				else {	
+				
+					dist = distanceFromLineSegment(loc, (Coordinate)pts[ii], (Coordinate)pts[ii+1]);
+
+				}
+
+				if ( dist < minDist ) {
+
+					minDist = dist;
+
+				}
+			}
+		}
+		else if ( adc instanceof MultiPointElement ){
+			
+			if( adc instanceof gov.noaa.nws.ncep.ui.pgen.sigmet.Sigmet && 			
+					"Isolated".equalsIgnoreCase(((gov.noaa.nws.ncep.ui.pgen.sigmet.Sigmet) adc).getType())){
+					
+						double [] pt = mapEditor.translateInverseClick(((gov.noaa.nws.ncep.ui.pgen.sigmet.Sigmet) adc).getLinePoints()[0]);
+						Point ptScreen = new GeometryFactory().createPoint(new Coordinate(pt[0], pt[1]));
+						minDist = ptScreen.distance(new GeometryFactory().createPoint(new Coordinate(locScreen[0], locScreen[1])));				
+					
+			}
+
+			MultiPointElement mpe = (MultiPointElement)adc;
+			
+			double dist = Double.MAX_VALUE;
+
+			Object pts[] =  mpe.getPoints().toArray();
+
+			for ( int ii = 0; ii <  pts.length; ii++ ) {
+
+				if ( ii == pts.length - 1){
+					if ((mpe instanceof Line && ((Line)mpe).isClosedLine()) || mpe instanceof WatchBox ){
+						
+						dist = distanceFromLineSegment(loc, (Coordinate)pts[ii], (Coordinate)pts[0]);
+
+					}
+					else {
+						break;
+					}
+				}
+				else {	
+					
+					dist = distanceFromLineSegment(loc, (Coordinate)pts[ii], (Coordinate)pts[ii+1]);
+
+				}
+
+				if ( dist < minDist ) {
+
+					minDist = dist;
+
+				}
+			}
+		}
+		else if ( adc instanceof DECollection){
+			Iterator<DrawableElement> it = ((DECollection)adc).createDEIterator();
+			while ( it.hasNext() ) {
+				double dist = getDistance(it.next(), loc);
+				if ( dist < minDist ) minDist = dist;
+			}
+		}
+		
+		return minDist;
+	}
+
+	/**
+	 * Caculate SCREEN distance from an input point to a line segment
+	 * The coordinate of the point and line are lat/lon.
+	 * @param loc - input point
+	 * @param startPt - start point of the line segment
+	 * @param endPt - end point of the line segment
+	 * @return
+	 */
+	public double distanceFromLineSegment( Coordinate loc, Coordinate startPt, Coordinate endPt ){
+		double dist = Double.MAX_VALUE;
+		
+	  	NCMapEditor mapEditor = NmapUiUtils.getActiveNatlCntrsEditor();       
+    	double [] locScreen = mapEditor.translateInverseClick(loc);
+    	
+    	double [] pt1 = mapEditor.translateInverseClick(startPt);
+    	double [] pt2 = mapEditor.translateInverseClick(endPt);
+    	LineSegment seg = new LineSegment( new Coordinate(pt1[0], pt1[1]), new Coordinate(pt2[0], pt2[1]) );
+    	
+    	dist = seg.distance(new Coordinate(locScreen[0], locScreen[1]));
+    	
+    	return dist;
+	}
+
+	@Override
+	public void resourceChanged(ChangeType type, Object object) {
+		saveOnNextPaint = true;
+	}
+
+	public void setCatFilter(CategoryFilter catFilter) {
+		this.catFilter = catFilter;
+	}
+	
+	private int getMaxDistToSelect(){
+		IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
+		int maxDist = prefs.getInt(PgenPreferences.P_MAX_DIST);  
+		if ( maxDist <= 0 ) maxDist = 30;
+ 		return maxDist;
+	}
+}
+

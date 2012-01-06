@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<requestPatterns xmlns:ns2="group">
+    <regex>^[YZ].[ABD-IMQRU-Z]... KWB.*</regex>
+    <regex>^YEI.[89]8 KWNH.*</regex>
+    <regex>^ZEX.98 KWNH.*</regex>
+    <regex>^H.[A-H]... ECMF.*</regex>
+    <regex>^H.[I-L]... EGRR.*</regex>
+    <regex>^H.[I-L]... KWBK.*</regex>
+    <regex>^H.X... KNWC.*</regex>
+    <regex>^O.[JMNQ]... KWBJ.*</regex>
+    <regex>^O.N... KWBM.*</regex>
+    <regex>^O.L... KWBI.*</regex>
+    <regex>^OEBA88 KNWC.*</regex>
+    <regex>^[YZ][UV]M.98 KNHC.*</regex>
+    <regex>^H[ET]QV[01][0-9] KWNC.*</regex>
+    <regex>^[LM].[ABDHMRSTU]... KWB.*</regex>
+    <regex>^[LM].M.98 KWNH.*</regex>
+    <regex>^[LM].E... KWBD.*</regex>
+    <regex>^L.U... KWBN.*</regex>
+    <regex>^L[AB]U[ABC].. KWNO.*</regex>
+    <regex>^L[UV]I... KWBJ.*</regex>
+    <regex>^[LM]DG... KNHC.*</regex>
+    <regex>^LJ[NP][NT]98 KWNM.*</regex>
+    <regex>^LJPZ98 KNHC.*</regex>
+    <regex>^ETWA88 KWBI.*</regex>
+    <regex>^LAMA98 KNES.*</regex>
+    <regex>^ZEGZ98.*</regex>
+    <regex>^ZETA98.*</regex>
+    <regex>^...... KWBX</regex>
+    <regex>HAXA00 KWBC</regex>
+    <regex>^YVW[ABCDGJM]..</regex>
+    <regex>^ZVW[ADGJM]..</regex>
+    <regex>^YAW[BCDGJM]..</regex>
+    <regex>^Y[IJ]XA..</regex>
+    <regex>^YA[WX]A..</regex>
+    <regex>^ZDIA98</regex>
+</requestPatterns>

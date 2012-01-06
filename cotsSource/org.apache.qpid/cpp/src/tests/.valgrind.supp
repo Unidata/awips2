@@ -1,0 +1,276 @@
+{
+   Leak in TCPConnector: https://bugzilla.redhat.com/show_bug.cgi?id=520600
+   Memcheck:Leak
+   fun:_vgrZU_libcZdsoZa_calloc
+   fun:_dl_allocate_tls
+   fun:*
+   fun:*
+   fun:*
+   fun:_ZN4qpid6client12TCPConnector7connectERKSsi
+}
+
+{
+   Leak in TCPConnector: https://bugzilla.redhat.com/show_bug.cgi?id=520600
+   Memcheck:Leak
+   fun:_vgrZU_libcZdsoZa_calloc
+   fun:_dl_allocate_tls
+   fun:*
+   fun:*
+   fun:_ZN4qpid6client12TCPConnector7connectERKSsi
+}
+
+{
+   Reported on FC5 and RHEL5 when md5 sasl libs are installed
+   Memcheck:Leak
+   fun:*
+   fun:_dl_map_object_from_fd
+   fun:_dl_map_object
+   fun:openaux
+   fun:_dl_catch_error
+   fun:_dl_map_object_deps
+   fun:dl_open_worker
+   fun:_dl_catch_error
+   fun:_dl_open
+   fun:dlopen_doit
+   fun:_dl_catch_error
+   fun:_dlerror_run
+   fun:*
+   fun:_sasl_get_plugin
+   fun:_sasl_load_plugins
+   fun:sasl_client_init
+}
+{
+   Benign leak in CPG - patched version.
+   Memcheck:Leak
+   fun:*
+   fun:openais_service_connect
+   fun:cpg_initialize
+}
+
+{
+   Benign error in libcpg.
+   Memcheck:Param
+   socketcall.sendmsg(msg.msg_iov[i])
+   obj:*/libpthread-2.5.so
+   obj:*/libcpg.so.2.0.0
+}
+
+{
+   Uninitialised value problem in _dl_relocate (F7, F8)
+   Memcheck:Cond
+   fun:_dl_relocate_object
+   fun:*dl_*
+}
+
+{
+   False "possibly leaked" in boost program_options - global std::string var.
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZNSs4_Rep9_S_createEjjRKSaIcE
+   obj:/usr/lib/libstdc++.so.6.0.8
+   fun:_ZNSsC1EPKcRKSaIcE
+   obj:/usr/lib/libboost_program_options.so.1.33.1
+}
+
+{
+   boost 103200 -- we think Boost is responsible for these leaks.
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN5boost15program_options??options_description*
+}
+
+{
+   boost 103200 -- we think Boost is responsible for these leaks.
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN5boost9unit_test9test_case*
+}
+
+{
+   boost 103200 -- we think Boost is responsible for these leaks.
+   Memcheck:Leak
+   fun:calloc
+   fun:_dlerror_run
+   fun:dlopen@@GLIBC_2.2.5
+   fun:_ZN4qpid3sys5Shlib4loadEPKc
+   fun:_Z9testShlibv
+   fun:_ZN5boost9unit_test9ut_detail17unit_test_monitor8functionEv
+   obj:/usr/lib64/libboost_unit_test_framework.so.1.32.0
+   fun:_ZN5boost17execution_monitor7executeEbi
+   fun:_ZN5boost9unit_test9ut_detail17unit_test_monitor21execute_and_translateEPNS0_9test_caseEMS3_FvvEi
+   fun:_ZN5boost9unit_test9test_case3runEv
+   fun:_ZN5boost9unit_test10test_suite6do_runEv
+   fun:_ZN5boost9unit_test9test_case3runEv
+   fun:main
+}
+
+{
+   boost 103200 -- we think Boost is responsible for these leaks.
+   Memcheck:Leak
+   fun:calloc
+   fun:_dl_allocate_tls
+   fun:pthread_create@@GLIBC_2.2.5
+   fun:_ZN4qpid6broker5Timer5startEv
+   fun:_ZN4qpid6broker5TimerC1Ev
+   fun:_ZN4qpid6broker10DtxManagerC1Ev
+   fun:_ZN4qpid6broker6BrokerC1ERKNS1_7OptionsE
+   fun:_ZN4qpid6broker6Broker6createERKNS1_7OptionsE
+   fun:_ZN15SessionFixtureTI15ProxyConnectionEC2Ev
+   fun:_Z14testQueueQueryv
+   fun:_ZN5boost9unit_test9ut_detail17unit_test_monitor8functionEv
+   obj:/usr/lib64/libboost_unit_test_framework.so.1.32.0
+   fun:_ZN5boost17execution_monitor7executeEbi
+   fun:_ZN5boost9unit_test9ut_detail17unit_test_monitor21execute_and_translateEPNS0_9test_caseEMS3_FvvEi
+   fun:_ZN5boost9unit_test9test_case3runEv
+   fun:_ZN5boost9unit_test10test_suite6do_runEv
+   fun:_ZN5boost9unit_test9test_case3runEv
+   fun:main
+}
+
+{
+   INVESTIGATE
+   Memcheck:Leak
+   fun:calloc
+   fun:_dl_allocate_tls
+   fun:pthread_create@@GLIBC_2.2.5
+   fun:_ZN4qpid6client9Connector4initEv
+   fun:_ZN4qpid6client14ConnectionImpl4openERKSsiS3_S3_S3_
+}
+
+{
+   INVESTIGATE
+   Memcheck:Param
+   write(buf)
+   obj:/lib64/tls/libc-2.3.4.so
+   fun:_ZNK4qpid3sys6Socket5writeEPKvm
+   fun:_ZN4qpid3sys8AsynchIO9writeableERNS0_14DispatchHandleE
+}
+
+{
+   "Conditional jump or move depends on uninitialised value(s)" from Xerces parser
+   Memcheck:Cond
+   fun:_ZN11xercesc_2_717XMLUTF8Transcoder13transcodeFromEPKhjPtjRjPh
+   fun:_ZN11xercesc_2_79XMLReader14xcodeMoreCharsEPtPhj
+   fun:_ZN11xercesc_2_79XMLReader17refreshCharBufferEv
+}
+
+{
+   boost 103200 -- mgoulish -- fix this, sometime
+   Memcheck:Leak
+   fun:*
+   fun:*
+   obj:*
+   fun:*
+   fun:_ZN4qpid34options_description_less_easy_initclEPKcPKN5boost15program_options14value_semanticES2_
+}  
+
+{
+   boost 103200 -- mgoulish -- fix this, sometime
+   Memcheck:Leak
+   fun:*
+   fun:*
+   fun:*
+   fun:_ZN4qpid34options_description_less_easy_initclEPKcPKN5boost15program_options14value_semanticES2_
+}
+
+{
+   INVESTIGATE
+   Memcheck:Param
+   socketcall.sendto(msg)
+   fun:send
+   fun:get_mapping
+   fun:__nscd_get_map_ref
+   fun:nscd_gethst_r
+   fun:__nscd_gethostbyname_r
+   fun:gethostbyname_r@@GLIBC_2.2.5
+   fun:gethostbyname
+   fun:_ZNK4qpid3sys6Socket7connectERKSsi
+}
+
+{
+   INVESTIGATE
+   Memcheck:Leak
+   fun:calloc
+   fun:_dl_allocate_tls
+   fun:pthread_create@@GLIBC_2.2.5
+   fun:_ZN4qpid6broker5Timer5startEv
+   fun:_ZN4qpid6broker5TimerC1Ev
+   fun:_ZN4qpid6broker10DtxManagerC1Ev
+   fun:_ZN4qpid6broker6BrokerC1ERKNS1_7OptionsE
+   fun:_ZN4qpid6broker6Broker6createERKNS1_7OptionsE
+   fun:_ZN20ClientSessionFixtureC1Ev
+   fun:_Z14testQueueQueryv
+   fun:_ZN5boost9unit_test9ut_detail17unit_test_monitor8functionEv
+   obj:/usr/lib64/libboost_unit_test_framework.so.1.32.0
+   fun:_ZN5boost17execution_monitor7executeEbi
+   fun:_ZN5boost9unit_test9ut_detail17unit_test_monitor21execute_and_translateEPNS0_9test_caseEMS3_FvvEi
+   fun:_ZN5boost9unit_test9test_case3runEv
+   fun:_ZN5boost9unit_test10test_suite6do_runEv
+   fun:_ZN5boost9unit_test9test_case3runEv
+   fun:main
+}
+
+{
+   INVESTIGATE
+   Memcheck:Leak
+   fun:calloc
+   fun:_dl_allocate_tls
+   fun:pthread_create@@GLIBC_2.2.5
+   fun:_ZN4qpid6client9Connector4initEv
+}
+
+{
+   MICK -- FIX
+   Memcheck:Leak
+   fun:_Znam
+   fun:_ZN4qpid7Options5parseEiPPcRKSsb
+}
+
+{
+   MICK -- FIX
+   Memcheck:Leak
+   fun:malloc
+   fun:strdup
+   fun:_ZN4qpid7Options5parseEiPPcRKSsb
+}
+
+{
+  CPG error - seems benign.
+   Memcheck:Param
+   socketcall.sendmsg(msg.msg_iov[i])
+   obj:*
+   obj:*/libcpg.so.2.0.0
+}
+
+{
+   Known leak in boost.thread 1.33.1. Wildcards for 64/32 bit diffs.
+   Memcheck:Leak
+   fun:*
+   obj:/usr/*/libboost_thread.so.1.33.1
+   fun:_ZN5boost6detail3tss3setEPv
+}
+
+{
+   Shows up on RHEL5: believed benign
+   Memcheck:Cond
+   fun:__strcpy_chk
+   fun:_sasl_load_plugins
+   fun:sasl_client_init
+}
+
+{
+   Seems like a use after delete issue in boost unit_test
+   Memcheck:Addr8
+   fun:_ZN5boost9unit_test14framework_implD1Ev
+   fun:exit
+   fun:(below main)
+}
+
+{
+   Seems like a use after delete issue in boost unit_test
+   Memcheck:Addr4
+   fun:_ZN5boost9unit_test14framework_implD1Ev
+   fun:exit
+   fun:(below main)
+}
+

@@ -1,0 +1,66 @@
+#  ============================================================================
+#  pgm: Makefile_lib_lx .. makefile to update the util-util_gen2 library file
+#
+#  cmt: File made on Wed Aug  6 12:57:16 EDT 2008 by user "dsa"
+#  ============================================================================
+
+LIB = /fs/hseb/ob83/ohd/util/lib
+
+ARFLAGS  = rv
+FC       = /fs/opt/pgi/linux86/bin/pgf90
+FOPTIM   = -g
+FFLAGS   = $(FOPTIM) -Mbackslash -Mpreprocess
+
+INSERTS      = -I/fs/hseb/ob83/ohd/util/inc  \
+               -I/fs/hseb/ob83/ohd/ofs/inc
+
+INSERTS_FC   = -I/fs/opt/pgi/linux86/include  \
+               -I../TEXT
+
+.SUFFIXES:
+.SUFFIXES:   .f .h .o .a
+
+.f.a:
+	@echo "-------------------------------- $<"
+	@$(FC) $(FFLAGS) $(INSERTS_FC) $(INSERTS) -c $< \
+	   && ar $(ARFLAGS) $@ $*.o \
+	   || echo "e - $*"
+	@rm -f $*.o
+	@[ -f ${*F}.stb ] && rm -f ${*F}.stb
+	@echo "--------------------------------"
+
+$(LIB)/libutil_gen2_t.a:  \
+     $(LIB)/libutil_gen2_t.a(error.o)  \
+     $(LIB)/libutil_gen2_t.a(errwrn.o)  \
+     $(LIB)/libutil_gen2_t.a(fopcdx.o)  \
+     $(LIB)/libutil_gen2_t.a(get_geo_coord.o)  \
+     $(LIB)/libutil_gen2_t.a(substr.o)  \
+     $(LIB)/libutil_gen2_t.a(ubegin.o)  \
+     $(LIB)/libutil_gen2_t.a(uckcmt.o)  \
+     $(LIB)/libutil_gen2_t.a(ucncat.o)  \
+     $(LIB)/libutil_gen2_t.a(ufa2f8.o)  \
+     $(LIB)/libutil_gen2_t.a(ufa2f.o)  \
+     $(LIB)/libutil_gen2_t.a(ufa2i.o)  \
+     $(LIB)/libutil_gen2_t.a(uff2a.o)  \
+     $(LIB)/libutil_gen2_t.a(ufi2a.o)  \
+     $(LIB)/libutil_gen2_t.a(ufi2az.o)  \
+     $(LIB)/libutil_gen2_t.a(ufibuf.o)  \
+     $(LIB)/libutil_gen2_t.a(ufixed.o)  \
+     $(LIB)/libutil_gen2_t.a(ufree.o)  \
+     $(LIB)/libutil_gen2_t.a(ufxddn.o)  \
+     $(LIB)/libutil_gen2_t.a(ugtprm.o)  \
+     $(LIB)/libutil_gen2_t.a(uincl2.o)  \
+     $(LIB)/libutil_gen2_t.a(uindex.o)  \
+     $(LIB)/libutil_gen2_t.a(uindxc.o)  \
+     $(LIB)/libutil_gen2_t.a(uintfx.o)  \
+     $(LIB)/libutil_gen2_t.a(ujlntc.o)  \
+     $(LIB)/libutil_gen2_t.a(uleftc.o)  \
+     $(LIB)/libutil_gen2_t.a(uprcr2.o)  \
+     $(LIB)/libutil_gen2_t.a(urelfx.o)  \
+     $(LIB)/libutil_gen2_t.a(urepet2.o)  \
+     $(LIB)/libutil_gen2_t.a(urepet.o)  \
+     $(LIB)/libutil_gen2_t.a(uround.o)  \
+     $(LIB)/libutil_gen2_t.a(uscan2.o)  \
+     $(LIB)/libutil_gen2_t.a(uscan.o)  \
+     $(LIB)/libutil_gen2_t.a(warn.o)
+

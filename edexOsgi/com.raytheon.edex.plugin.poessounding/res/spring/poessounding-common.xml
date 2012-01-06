@@ -1,0 +1,26 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="poessoundingPluginName" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="poessounding" />
+    </bean>
+
+	<bean id="poessoundingProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+		<property name="pluginName" ref="poessoundingPluginName" />
+		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.poessounding" />
+		<property name="dao" value="com.raytheon.edex.plugin.poessounding.dao.POESSoundingDAO" />
+		<property name="record" value="com.raytheon.uf.common.dataplugin.poessounding.POESSounding" />
+	</bean>
+	
+	<bean factory-bean="pluginRegistry" factory-method="register">
+		<constructor-arg value="poessounding"/>
+		<constructor-arg ref="poessoundingProperties"/>
+	</bean>
+
+
+</beans>

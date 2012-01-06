@@ -1,0 +1,149 @@
+
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Werkzeug Documentation</title>
+    <link rel="stylesheet" href="_static/style.css" type="text/css">
+    <link rel="stylesheet" href="_static/print.css" type="text/css" media="print">
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css">
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:   '#',
+        VERSION:    '0.6.1'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/interface.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/werkzeug.js"></script>
+    <link rel="contents" title="Global table of contents" href="contents.html">
+    <link rel="index" title="Global index" href="genindex.html">
+    <link rel="search" title="Search" href="search.html">
+    <link rel="top" title="Werkzeug v0.6.1 documentation" href="index.html">
+    <link rel="next" title="HTTP Exceptions" href="exceptions.html">
+    <link rel="prev" title="Context Locals" href="local.html">
+    
+  </head>
+  <body>
+    <div class="page">
+      <div class="header">
+        <h1 class="heading"><a href="index.html"
+          title="back to the documentation overview"><span>Werkzeug</span></a></h1>
+      </div>
+      <ul class="navigation">
+        <li class="indexlink"><a href="index.html">Overview</a></li>
+        <li><a href="local.html">&laquo; Context Locals</a></li>
+        <li class="active"><a href="#">Middlewares</a></li>
+        <li><a href="exceptions.html">HTTP Exceptions &raquo;</a></li>
+      </ul>
+      <div class="body">
+        
+  <div class="section" id="module-werkzeug">
+<span id="middlewares"></span><h1>Middlewares<a class="headerlink" href="#module-werkzeug" title="Permalink to this headline">¶</a></h1>
+<p>Middlewares wrap applications to dispatch between then or provide
+additional request handling.  Additionally to the middlewares documented
+here, there is also the <a title="werkzeug.DebuggedApplication" class="reference external" href="debug.html#werkzeug.DebuggedApplication"><tt class="xref py py-class docutils literal"><span class="pre">DebuggedApplication</span></tt></a> class that is
+implemented as a WSGI middleware.</p>
+<dl class="class">
+<dt id="werkzeug.SharedDataMiddleware">
+<em class="property">class </em><tt class="descclassname">werkzeug.</tt><tt class="descname">SharedDataMiddleware</tt><big>(</big><em>app</em>, <em>exports</em>, <em>disallow=None</em>, <em>cache=True</em>, <em>cache_timeout=43200</em>, <em>fallback_mimetype='text/plain'</em><big>)</big><a class="headerlink" href="#werkzeug.SharedDataMiddleware" title="Permalink to this definition">¶</a></dt>
+<dd><p>A WSGI middleware that provides static content for development
+environments or simple server setups. Usage is quite simple:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">werkzeug</span> <span class="kn">import</span> <span class="n">SharedDataMiddleware</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">SharedDataMiddleware</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s">&#39;/shared&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">),</span> <span class="s">&#39;shared&#39;</span><span class="p">)</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>The contents of the folder <tt class="docutils literal"><span class="pre">./shared</span></tt> will now be available on
+<tt class="docutils literal"><span class="pre">http://example.com/shared/</span></tt>.  This is pretty useful during development
+because a standalone media server is not required.  One can also mount
+files on the root folder and still continue to use the application because
+the shared data middleware forwards all unhandled requests to the
+application, even if the requests are below one of the shared folders.</p>
+<p>If <cite>pkg_resources</cite> is available you can also tell the middleware to serve
+files from package data:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span> <span class="o">=</span> <span class="n">SharedDataMiddleware</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s">&#39;/shared&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;myapplication&#39;</span><span class="p">,</span> <span class="s">&#39;shared_files&#39;</span><span class="p">)</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>This will then serve the <tt class="docutils literal"><span class="pre">shared_files</span></tt> folder in the <cite>myapplication</cite>
+Python package.</p>
+<p>The optional <cite>disallow</cite> parameter can be a list of <a title="(in Python v2.7)" class="reference external" href="http://docs.python.org/dev/library/fnmatch.html#fnmatch.fnmatch"><tt class="xref py py-func docutils literal"><span class="pre">fnmatch()</span></tt></a>
+rules for files that are not accessible from the web.  If <cite>cache</cite> is set to
+<cite>False</cite> no caching headers are sent.</p>
+<p>Currently the middleware does not support non ASCII filenames.  If the
+encoding on the file system happens to be the encoding of the URI it may
+work but this could also be by accident.  We strongly suggest using ASCII
+only file names for static files.</p>
+<p>The middleware will guess the mimetype using the Python <cite>mimetype</cite>
+module.  If it&#8217;s unable to figure out the charset it will fall back
+to <cite>fallback_mimetype</cite>.</p>
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 0.5: </span>The cache timeout is configurable now.</p>
+<p class="versionadded">
+<span class="versionmodified">New in version 0.6: </span>The <cite>fallback_mimetype</cite> parameter was added.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>app</strong> &#8211; the application to wrap.  If you don&#8217;t want to wrap an
+application you can pass it <tt class="xref py py-exc docutils literal"><span class="pre">NotFound</span></tt>.</li>
+<li><strong>exports</strong> &#8211; a dict of exported files and folders.</li>
+<li><strong>diallow</strong> &#8211; a list of <a title="(in Python v2.7)" class="reference external" href="http://docs.python.org/dev/library/fnmatch.html#fnmatch.fnmatch"><tt class="xref py py-func docutils literal"><span class="pre">fnmatch()</span></tt></a> rules.</li>
+<li><strong>fallback_mimetype</strong> &#8211; the fallback mimetype for unknown files.</li>
+<li><strong>cache</strong> &#8211; enable or disable caching headers.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name" colspan="2">Param cache_timeout:</th></tr>
+<tr><td>&nbsp;</td><td class="field-body"><p class="first last">the cache timeout in seconds for the headers.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="werkzeug.SharedDataMiddleware.is_allowed">
+<tt class="descname">is_allowed</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#werkzeug.SharedDataMiddleware.is_allowed" title="Permalink to this definition">¶</a></dt>
+<dd>Subclasses can override this method to disallow the access to
+certain files.  However by providing <cite>disallow</cite> in the constructor
+this method is overwritten.</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="werkzeug.DispatcherMiddleware">
+<em class="property">class </em><tt class="descclassname">werkzeug.</tt><tt class="descname">DispatcherMiddleware</tt><big>(</big><em>app</em>, <em>mounts=None</em><big>)</big><a class="headerlink" href="#werkzeug.DispatcherMiddleware" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allows one to mount middlewares or applications in a WSGI application.
+This is useful if you want to combine multiple WSGI applications:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span> <span class="o">=</span> <span class="n">DispatcherMiddleware</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s">&#39;/app2&#39;</span><span class="p">:</span>        <span class="n">app2</span><span class="p">,</span>
+    <span class="s">&#39;/app3&#39;</span><span class="p">:</span>        <span class="n">app3</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<p>Also there&#8217;s the …</p>
+<dl class="function">
+<dt id="werkzeug._easteregg">
+<tt class="descclassname">werkzeug.</tt><tt class="descname">_easteregg</tt><big>(</big><em>app</em><big>)</big><a class="headerlink" href="#werkzeug._easteregg" title="Permalink to this definition">¶</a></dt>
+<dd>Like the name says.  But who knows how it works?</dd></dl>
+
+</div>
+
+
+        <div style="clear: both"></div>
+      </div>
+      <div class="footer">
+        © Copyright 2008 by the <a href="http://pocoo.org/">Pocoo Team</a>,
+        documentation generated by <a href="http://sphinx.pocoo.org/">Sphinx</a>
+      </div>
+    </div>
+  </body>
+</html>

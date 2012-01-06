@@ -1,0 +1,62 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">	
+
+	<bean id="ldadprofilerPointData" class="com.raytheon.edex.plugin.ldadprofiler.common.LdadprofilerPointDataTransform"/>
+	
+    <bean id="ldadprofilerDecoder" class="com.raytheon.uf.edex.python.decoder.PythonDecoder">
+		<property name="pluginName" value="ldadprofiler" />
+		<property name="pluginFQN" value="com.raytheon.edex.plugin.ldadprofiler" />
+		<property name="moduleName" value="LdadprofilerDecoder" />
+		<property name="recordClassname"
+			value="com.raytheon.edex.plugin.ldadprofiler.common.ProfilerLdadObs" />
+	</bean>
+
+	<bean id="ldadprofilerDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="ldadprofiler" />
+		<constructor-arg value="jms-dist:queue:Ingest.ldadprofiler?destinationResolver=#qpidDurableResolver" />
+	</bean>
+    
+    <bean id="ldadprofilerCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="ldadprofiler-camel"/>
+  	</bean>
+    
+    <camelContext id="ldadprofiler-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler"
+        autoStartup="false">
+        <!--
+        <endpoint id="ldadprofilerFileEndpoint" uri="file:${edex.home}/data/sbn/ldadprofiler?noop=true" />
+
+        <route id="ldadprofilerFileConsumerRoute">
+            <from ref="ldadprofilerFileEndpoint" />
+            <bean ref="fileToString" />
+            <setHeader headerName="pluginName">
+                <constant>ldadprofiler</constant>
+            </setHeader>
+            <to uri="jms-generic:queue:Ingest.ldadprofiler" />
+        </route>
+ 		-->
+
+        <!-- Begin ldadprofiler routes -->
+        <route id="ldadprofilerIngestRoute">
+            <from uri="jms-generic:queue:Ingest.ldadprofiler?destinationResolver=#qpidDurableResolver" />
+            <doTry>
+	            <pipeline>
+                    <bean ref="stringToFile" />
+                    <bean ref="ldadprofilerDecoder" method="decode"/>
+                    <bean ref="ldadprofilerPointData" method="toPointData" />
+                    <to uri="directvm:persistIndexAlert" />
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:ldadprofiler?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+</beans>

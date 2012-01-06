@@ -1,0 +1,32 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Overlays Plug-in
+Bundle-SymbolicName: gov.noaa.nws.ncep.viz.overlays;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: gov.noaa.nws.ncep.viz.overlays.Activator
+Eclipse-BuddyPolicy: ext, registered, global
+Eclipse-RegisterBuddy: org.apache.velocity, com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.uf.common.status, com.raytheon.viz.ui, com.raytheon.viz.core, com.raytheon.uf.viz.core, com.raytheon.uf.common.serialization, gov.noaa.nws.ncep.viz.resources
+Require-Bundle: com.raytheon.viz.core,
+ com.raytheon.viz.ui,
+ org.apache.log4j;bundle-version="1.0.0",
+ org.apache.commons.lang,
+ org.eclipse.core.runtime,
+ org.eclipse.ui,
+ org.geotools,
+ gov.noaa.nws.ncep.viz.common;bundle-version="1.0.0",
+ gov.noaa.nws.ncep.viz.resources,
+ com.raytheon.viz.pointdata;bundle-version="1.11.7",
+ gov.noaa.nws.ncep.viz.ui.display;bundle-version="1.0.0",
+ gov.noaa.nws.ncep.ui.pgen;bundle-version="1.0.0",
+ gov.noaa.nws.ncep.viz.localization;bundle-version="1.0.0",
+ javax.measure
+Eclipse-LazyStart: true
+Export-Package: gov.noaa.nws.ncep.viz.overlays,
+ gov.noaa.nws.ncep.viz.overlays.dialogs,
+ gov.noaa.nws.ncep.viz.overlays.resources
+Import-Package: com.raytheon.uf.common.colormap,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.viz.core.maps,
+ javax.measure.converter
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+ 

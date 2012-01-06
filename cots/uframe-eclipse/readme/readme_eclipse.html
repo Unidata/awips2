@@ -1,0 +1,2227 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Eclipse Project Release Notes 3.4</title>
+</head>
+
+<body>
+
+<h1>Eclipse Project Release Notes</h1>
+<p>Release 3.4.0<br>
+  Last revised June 10, 2008</p>
+<p align="left"><strong>This software is OSI Certified Open Source Software.<br>
+OSI Certified is a certification mark of the Open Source Initiative.&nbsp;</strong></p>
+<blockquote>
+  <p align="left"><a href="#TargetOperatingEnvironments">1. Target Operating
+  Environments</a><br>
+  <a href="#Compatibility">2. Compatibility with Previous
+  Releases</a><br>
+  <a href="#Known Issues">3. Known Issues</a><br>
+  <a href="#Running Eclipse">4. Running Eclipse</a><br>
+  <a href="#Upgrading">5. Upgrading a Workspace from a Previous Release</a><br>
+  <a href="#Interoperability with Previous Releases">6. Interoperability with
+  Previous Releases</a><br>
+  </p>
+</blockquote>
+
+<h2>1. <a name="TargetOperatingEnvironments"></a>Target Operating Environments</h2>
+<p>In order to remain current, each Eclipse release targets reasonably current
+  operating environments. </p>
+<p>Most of the Eclipse SDK is &quot;pure&quot; Java code and has no direct dependence
+  on the underlying operating system. The chief dependence is therefore on the
+  Java Platform itself. Portions of the Eclipse SDK (including the RCP base,
+  SWT, OSGi and JDT core plug-ins) are targeted to specific classes of operating
+  environments, requiring their source code to only reference facilities available
+  in particular class libraries (e.g. J2ME Foundation 1.0, J2SE 1.3 and 1.4,
+  etc.). </p>
+<p> In general, the 3.4 release of the Eclipse Project is developed on a mix
+  of Java 1.4 and Java5 VMs. As such, the Eclipse Project SDK as a whole is targeted
+  at both 1.4 and Java5 VMs, with full functionality available for 1.4 level
+  development everywhere, and new Java5 specific capabilities available when
+  running on a Java5 VM. Similarly, in cases where support has been added for
+  Java6 specific features (e.g. JSR-199, JSR-269, etc.) Java6 VMs are required. </p>
+<p> <a href="#Appendix1">Appendix 1</a> contains a table that indicates the class
+  library level required for each plug-in. </p>
+<p>There are many different implementations of the Java Platform running atop
+  a variety of operating systems. We focus Eclipse SDK testing on a handful of
+  popular combinations of operating system and Java Platform; these are our <em>reference
+  platforms</em>. Eclipse undoubtedly runs fine in many operating environments
+  beyond the reference platforms we test, including those using Java6 VMs. However,
+  since we do not systematically test them we cannot vouch for them. Problems
+  encountered when running Eclipse on a non-reference platform that cannot be
+  recreated on any reference platform will be given lower priority than problems
+  with running Eclipse on a reference platform.</p>
+<p> The Eclipse SDK 3.4 is tested and validated on the following reference platforms</p>
+<center>
+  <table border="1" cellpadding="2" cellspacing="2" width="80%" summary="Eclipse Reference Platforms">
+    <tbody>
+      <tr align="center">
+        <td><b>Reference Platforms</b></td>
+      </tr>
+      <tr>
+        <td><b>Microsoft Windows Vista, x86-32, Win32</b> running (any of):
+          <ul>
+            <li>Sun Java 2 Standard Edition 5.0 Update 14 for Microsoft Windows</li>
+            <li>IBM 32-bit SDK for Windows, Java 2 Technology Edition 5.0, SR6b</li>
+            <li>BEA JRockit 27.4.0, for Microsoft Windows</li>
+          </ul></td>
+      </tr>
+      <tr>
+        <td><b>Microsoft Windows XP, x86-32, Win32</b> running (any of):
+          <ul>
+            <li>Sun Java 2 Standard Edition 6.0 Update 4 for Microsoft Windows</li>
+            <li>Sun Java 2 Standard Edition 5.0 Update 14 for Microsoft Windows</li>
+            <li>IBM 32-bit SDK for Windows, Java 2 Technology Edition 5.0, SR6b</li>
+            <li>BEA JRockit 27.4.0, for Microsoft Windows</li>
+            <li>Sun Java 2 Standard Edition 1.4.2_16 for Microsoft Windows</li>
+            <li>IBM 32-bit SDK for Windows, Java 2 Technology Edition 1.4.2 SR10</li>
+          </ul></td>
+      </tr>
+      <tr>
+        <td><b>Red Hat Enterprise Linux 5.0, x86-32, GTK</b> running (any of):
+          <ul>
+            <li>Sun Java 2 Standard Edition 5.0 Update 14 for Linux x86</li>
+            <li>IBM 32-bit SDK for Linux on Intel architecture, Java 2 Technology Edition 5.0, SR6b</li>
+            <li>BEA JRockit 27.4.0, for Linux x86</li>
+            <li>Sun Java 2 Standard Edition 1.4.2_16 for Linux x86</li>
+            <li>IBM 32-bit SDK for Linux on Intel architecture, Java 2 Technology Edition 1.4.2 SR10</li>
+          </ul></td>
+      </tr>
+      <tr>
+        <td><b>SUSE Linux Enterprise Server 10, x86-32, GTK</b> running (any
+          of):
+          <ul>
+            <li>Sun Java 2 Standard Edition 5.0 Update 14 for Linux x86</li>
+            <li>IBM 32-bit SDK for Linux on Intel architecture, Java 2 Technology Edition 5.0, SR6b</li>
+          </ul></td>
+      </tr>
+      <tr>
+        <td><b>Microsoft Windows Vista, x86-64, Win32</b> running (any of):
+          <ul>
+            <li>Sun Java 2 Standard Edition 5.0 Update 14 for Microsoft Windows (AMD64/EM64T)</li>
+            <li>IBM 64-bit SDK for Windows, Java 2 Technology Edition 5.0, SR6b</li>
+          </ul></td>
+      </tr>
+      <tr>
+        <td><b>Microsoft Windows XP Professional x64 Edition, x86-64, Win32</b> running (any of):
+          <ul>
+            <li>Sun Java 2 Standard Edition 5.0 Update 14 for Microsoft Windows (AMD64/EM64T)</li>
+            <li>IBM 64-bit SDK for Windows, Java 2 Technology Edition 5.0, SR6b</li>
+          </ul></td>
+      </tr>
+      <tr>
+        <td><b>Red Hat Enterprise Linux 4.0 update 2, x86-64, GTK</b> running:
+          <ul>
+            <li>Sun Java 2 Standard Edition 5.0 Update 14 for Linux x86_64</li>
+          </ul></td>
+      </tr>
+      <tr>
+        <td><b>Sun Solaris 10, SPARC, GTK</b> running:
+          <ul>
+            <li>Sun Java 2 Standard Edition 5.0 Update 14 for Solaris SPARC</li>
+          </ul></td>
+      </tr>
+      <tr>
+        <td><b>HP-UX 11i v2, ia64, Motif 2.1, GTK</b> running:
+          <ul>
+            <li>HP-UX Java 2 Standard Edition 5.0 Update 7 for Itanium</li>
+          </ul></td>
+      </tr>
+      <tr>
+        <td><b>IBM AIX 5.3, Power, Motif 2.1</b> running:
+          <ul>
+            <li>IBM 32-bit SDK, Java 2 Technology Edition 5.0, SR6b</li>
+          </ul></td>
+      </tr>
+      <tr>
+        <td><b>Red Hat Enterprise Linux 5.0, Power, GTK</b> running:
+          <ul>
+            <li>IBM 32-bit SDK for Linux on pSeries architecture, Java 2 Technology Edition 5.0, SR6b</li>
+          </ul></td>
+      </tr>
+      <tr>
+        <td><b>SUSE Linux Enterprise Server 10, Power, GTK</b> running:
+          <ul>
+            <li>IBM 32-bit SDK for Linux on pSeries architecture, Java 2 Technology Edition 5.0, SR6b</li>
+          </ul></td>
+      </tr>
+      <tr>
+        <td><b>Apple Mac OS X 10.5, Universal, Carbon</b> running:
+          <ul>
+            <li>Apple Java 2 Platform Standard Edition (J2SE) 5, service release 4</li>
+          </ul></td>
+      </tr>
+    </tbody>
+  </table>
+</center>
+<p>Because Java 1.4.2 and Java5 based platforms are used for most Eclipse development,
+  those platforms are listed here. Although there are teams doing some Java 6
+  based development we have not included specific Java6 VMs, since they have
+  not yet received the general level of testing we require. <i>We expect that
+  Eclipse will work fine on other current Java VMs running on window systems
+  supported by SWT, but can not flag these as reference platforms without significant
+  community support for testing them.</i></p>
+<p>Similarly, although untested, the Eclipse SDK should work fine on other OSes
+  that support the same window system. For Win32: NT, 2000, and Server 2003;
+  SWT HTML viewer requires Internet Explorer 5 (or higher). For GTK on other
+  Linux systems: version 2.2.1 of the GTK+ widget toolkit and associated libraries
+  (GLib, Pango); SWT HTML viewer requires Mozilla 1.4GTK2. For Motif on Linux
+  systems: Open Motif 2.1 (included); SWT HTML viewer requires Mozilla 1.4GTK2.</p>
+<p>SWT is also supported on the QNX Neutrino operating system, x86 processor,
+  Photon window system, and <a href="http://wiki.eclipse.org/J9">IBM J9&trade; VM</a>.
+  Eclipse 3.4 on Windows or Linux can be used to cross-develop QNX applications.
+  (Eclipse 3.4 is unavailable on QNX because there is currently no 1.5 J2SE for
+  QNX.)</p>
+<h4>Internationalization</h4>
+<p>The Eclipse SDK is designed as the basis for internationalized products. The
+  user interface elements provided by the Eclipse SDK components, including dialogs
+  and error messages, are externalized. The English strings are provided as the
+  default resource bundles.</p>
+<p>Latin-1 and DBCS locales are supported by the Eclipse SDK on all reference platforms;
+  BIDI locales are supported by the Eclipse SDK everywhere but on Motif.</p>
+<p>The Eclipse SDK supports GB 18030 (level 1), the Chinese code page standard,
+  on Windows XP and 2000, Linux/GTK and the Macintosh.</p>
+<p>German and Japanese locales are tested.</p>
+
+<h2>2. <a name="Compatibility"></a>Compatibility with Previous Releases</h2>
+<h3>Compatibility of Release 3.4 with 3.3</h3>
+<p>Eclipse 3.4 is compatible with Eclipse 3.3 (and, hence, with 3.2, 3.1
+  and 3.0).</p>
+<p> <strong>API Contract Compatibility:</strong> Eclipse SDK 3.4 is upwards
+  contract-compatible with Eclipse SDK 3.3 except in those areas noted in the <a href="http://dev.eclipse.org/viewcvs/index.cgi/%7Echeckout%7E/org.eclipse.platform.doc.isv/porting/eclipse_3_4_porting_guide.html" target="_top"> <em>Eclipse
+  3.4 Plug-in Migration Guide</em></a>. Programs that use affected APIs and extension
+  points need to be ported to Eclipse SDK 3.4 APIs. Downward contract compatibility
+  is not supported. There is no guarantee that compliance with Eclipse SDK 3.4
+  APIs would ensure compliance with Eclipse SDK 3.3 APIs. Refer to <a href="http://wiki.eclipse.org/index.php/Evolving_Java-based_APIs"> <em>Evolving
+  Java-based APIs</em> </a> for a discussion of the kinds of API changes that
+  maintain contract compatibility. </p>
+<p><strong>Binary (plug-in) Compatibility:</strong> Eclipse SDK 3.4 is upwards
+  binary-compatible with Eclipse SDK 3.3 except in those areas noted in the <a href="http://dev.eclipse.org/viewcvs/index.cgi/%7Echeckout%7E/org.eclipse.platform.doc.isv/porting/eclipse_3_4_porting_guide.html" target="_top"> <em>Eclipse
+  3.4 Plug-in Migration Guide</em></a>. Downward plug-in compatibility is not
+  supported. Plug-ins for Eclipse SDK 3.4 are not usable in Eclipse SDK 3.3.
+  Refer to <a href="http://wiki.eclipse.org/index.php/Evolving_Java-based_APIs"> <em>Evolving
+  Java-based APIs</em> </a> for a discussion of the kinds of API changes that
+  maintain binary compatibility. </p>
+<p><strong>Source Compatibility:</strong> Eclipse SDK 3.4 is upwards source-compatible
+  with Eclipse SDK 3.3 except in the areas noted in the <a href="http://dev.eclipse.org/viewcvs/index.cgi/%7Echeckout%7E/org.eclipse.platform.doc.isv/porting/eclipse_3_4_porting_guide.html" target="_top"> <em>Eclipse
+  3.4 Plug-in Migration Guide</em></a>. This means that source files written
+  to use Eclipse SDK 3.3 APIs might successfully compile and run against Eclipse
+  SDK 3.4 APIs, although this is not guaranteed. Downward source compatibility
+  is not supported. If source files use new Eclipse SDK APIs, they will not be
+  usable with an earlier version of the Eclipse SDK. </p>
+<p><strong>Workspace Compatibility:</strong> Eclipse SDK 3.4 is upwards
+  workspace-compatible with Eclipse SDK 3.3 unless noted. This means that workspaces
+  and projects created with Eclipse SDK 3.3, 3.2, 3.1 or 3.0 can be successfully
+  opened by Eclipse SDK 3.4 and upgraded to a 3.4 workspace. This includes both
+  hidden metadata, which is localized to a particular workspace, as well as metadata
+  files found within a workspace project (e.g., the .project file), which may
+  propagate between workspaces via file copying or team repositories. Individual
+  plug-ins developed for Eclipse SDK 3.4 should provide similar upwards compatibility
+  for their hidden and visible workspace metadata created by earlier versions;
+  3.4 plug-in developers are responsible for ensuring that their plug-ins recognize
+  3.3, 3.2, 3.1, 3.0, 2.1, and 2.0 metadata and process it appropriately. User
+  interface session state may be discarded when a workspace is upgraded. Downward
+  workspace compatibility is not supported. A workspace created (or opened) by
+  a product based on Eclipse 3.4 will be unusable with a product based an earlier
+  version of Eclipse. Visible metadata files created (or overwritten) by Eclipse
+  3.4 will generally be unusable with earlier versions of Eclipse. </p>
+<p><strong>Non-compliant usage of API's</strong>: All non-API methods and classes,
+  and certainly everything in a package with &quot;internal&quot; in its name,
+  are considered implementation details which may vary between operating environment
+  and are subject to change without notice. Client plug-ins that directly depend
+  on anything other than what is specified in the Eclipse SDK API are inherently
+  unsupportable and receive no guarantees about compatibility within a single
+  release much less with earlier releases. Refer to <a href="http://www.eclipse.org/articles/Article-API%20use/eclipse-api-usage-rules.html"> <em>How
+  to Use the Eclipse API</em> </a> for information about how to write compliant
+  plug-ins. </p>
+
+<h2>3. <a name="Known Issues"></a> Known Issues</h2>
+<blockquote>
+  <a href="I-General">
+  3.1 General problems</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp; <a href="#I-General-Startup">3.1.1 Startup</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp; <a href="#I-General-GCJ">3.1.2 GCJ</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp; <a href="#I-General-UNC">3.1.3 UNC Paths</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp; <a href="#I-General-64bitJava">3.1.4 64-bit Java HotSpot(TM) VM</a><br>
+  <a href="#I-Platform">3.2 Platform</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp; <a href="#I-Platform-Core">3.2.1 Core</a><br>
+
+  &nbsp;&nbsp;&nbsp;&nbsp; <a href="#I-Platform-Ant">3.2.2 Ant</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp; <a href="#I-Platform-User-Assistance">3.2.3 User Assistance</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp; <a href="#I-Platform-UI">3.2.4 UI</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp; <a href="#I-Platform-Text">3.2.5 Text</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp; <a href="#I-Platform-SWT">3.2.6 SWT</a><br>
+
+  &nbsp;&nbsp;&nbsp;&nbsp; <a href="#I-Platform-Team-CVS">3.2.7 Team and CVS</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp; <a href="#I-Platform-Install-Update">3.2.8  Install/Update</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp; <a href="#I-Platform-Debug">3.2.9 Debug</a><br>
+  &nbsp;&nbsp;&nbsp;&nbsp; <a href="#I-Platform-Compare">3.2.10 Compare</a><br>
+  <a href="#I-JDT">
+  3.3 Java development tools (JDT)</a><br>
+  <a href="#I-PDE">
+  3.4 Plug-in Development Environment (PDE)</a><br>
+
+</blockquote>
+<p>Note: Bug numbers refer to the Eclipse project bug database at <a href="http://dev.eclipse.org/bugs/">http://bugs.eclipse.org/bugs/</a></p>
+
+<h3>3.1 <a name="I-General">General problems</a></h3>
+<h3>3.1.1 <a name="I-General-Startup">General - Startup</a></h3>
+<h4>Installation/Configuration issues that can cause Eclipse to fail start</h4>
+<p>Here are some common problems that can cause Eclipse not to start:</p>
+<ul>
+  <li>As shown <a href="#TargetOperatingEnvironments">above</a>, Eclipse 3.4 requires 
+    at least a 1.4.2 VM. Perhaps an older version of the VM is being found in 
+    your path. To explicitly specify which VM to run with, use the Eclipse <tt>-vm</tt> 
+    command-line argument. (See also the <a href="#Running Eclipse">Running Eclipse</a> 
+    section below.)</li>
+  <li>
+    Running Eclipse on Gentoo Linux may result in the following error message:
+    <div style="margin-left: 40px;">
+<tt>* run-java-tool is not available for sun-jdk-1.6 on i686<br>* IMPORTANT: some Java tools are not available on some VMs on some architectures</tt>
+    </div>
+
+If this occurs, start Eclipse by specifying a -vm argument, either
+specify the path to a java vm or use: <tt>eclipse -vm `java-config</tt>
+--java` (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=176021">176021</a>)</li>
+<li>Eclipse must be installed to a clean directory and not installed over top of
+a previous installation. If you have done this then please re-install to a new
+directory. If your workspace is in a child directory of your old installation
+directory, then see the instructions below on "<a href="#upgrading">Upgrading Workspace from a
+Previous Release"</a>.</li>
+
+<li>Java sometimes has difficulty detecting whether a file system is writable. In
+particular, the method java.io.File.canWrite() appears to return true in
+unexpected cases (e.g., using Windows drive sharing where the share is a
+read-only Samba drive). The Eclipse runtime generally needs a writable
+configuration area and as a result of this problem, may erroneously detect the
+current configuration location as writable. The net result is that Eclipse will
+fail to start and depending on the circumstances, may fail to write a log file
+with any details. To work around this, we suggest users experiencing this
+problem set their configuration area explicitly using the <tt>-configuration</tt> command
+line argument. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=67719">67719</a>)</li>
+</ul>
+
+<h4><b>Invalid characters in install directory prevents Eclipse from starting</b></h4>
+<p>Eclipse will fail to launch if installed in a directory whose path
+contains certain invalid characters, including :%#&lt;&gt;&quot;!. The
+workaround is to install Eclipse in a directory whose path does not contain
+invalid characters. (bugs <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=3109">3109</a>
+and <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=17281">17281</a>)</p>
+
+<h4>Hanging during class loading when out of permanent generation memory</h4>
+<p>
+The Sun VM may hang indefinitely during class loading if it runs out of permanent
+generation memory.  This will cause CPU usage to stay at 100% until the process
+is ended.  See the section <a href="#Running Eclipse">Running Eclipse</a> for details
+on addressing this VM problem.
+</p>
+
+<h3>3.1.2 <a name="I-General-GCJ">General - GCJ</a></h3>
+<p>GCJ is an effort by the GCC team to provide an open source Java compiler and
+runtime environment to interpret Java bytecode. Unfortunately, the GCJ runtime
+environment is not an environment that is often tested on by Eclipse
+developers.</p>
+
+<p>The most common problems surrounding GCJ are:</p>
+<ul>
+<li>Eclipse does not start at all</li>
+<li>Eclipse throws a 'java.lang.ClassNotFoundException: org.eclipse.core.runtime.Plugin' that can be found in the logs (located in
+workspace/.metadata/.log)</li>
+</ul>
+
+<p>The workspace's log file is a good place to check to identify whether GCJ is
+being used or not. Every Eclipse log session should be prepended with
+information about the runtime environment that was used to run Eclipse. The log
+may include something like the following:</p>
+
+<code>java.fullversion=GNU libgcj 4.2.1 (Debian 4.2.1-5)</code>
+
+<p>If Eclipse does start, one can check which runtime environment is being used to
+run Eclipse by going to 'Help > About Eclipse SDK > Configuration Details'. The
+About Dialog itself can also provide other information, the build identifier
+can be of particular interest as it is tagged by some distributions. This allows the
+user to identify whether Eclipse was downloaded through the distribution's
+package management system or directly from the eclipse.org website.</p>
+
+Eg: <code>Build id: M20070212-1330 (Ubuntu version: 3.2.2-0ubuntu3)</code>
+
+<p>The two most common workarounds are:</p><ul>
+<li>download the Eclipse binary from eclipse.org directly</li>
+<li>run Eclipse using an alternate Java runtime environment</li></ul>
+
+<p>To download Eclipse, try one of the links below:</p><ul>
+<li><a href="http://www.eclipse.org/downloads/">http://www.eclipse.org/downloads/</a></li>
+<li><a href="http://download.eclipse.org/eclipse/downloads/">http://download.eclipse.org/eclipse/downloads/</a></li></ul>
+
+It is imperative that 64-bit builds are downloaded and used if a 64-bit Java
+runtime environment has been installed. Below are two sample tarball names of
+version 3.4.0 of the Eclipse SDK packaged for 32-bit and 64-bit processors.
+
+<pre>eclipse-SDK-3.4-linux-gtk.tar.gz (32-bit)
+eclipse-SDK-3.4-linux-gtk-x86_64.tar.gz (64-bit)</pre>
+
+<p>To run Eclipse with an alternate Java runtime environment, the path to the Java
+virtual machine's binary must be identified. With an Eclipse installation from
+the distribution, altering the $PATH variable to include the path to the
+alternate Java runtime environment is often not enough as the Eclipse that
+Linux distributions package often performs a scan internally to pick up GCJ by
+itself whilst ignoring what's on the $PATH. An example of the terminal's output
+is shown below:</p>
+
+<code>searching for compatible vm...<br>
+  testing /usr/lib/jvm/java-7-icedtea...not found<br>
+  testing /usr/lib/jvm/java-gcj...found</code>
+
+<p>Once the path to the virtual machine's binary has been identified, try running
+Eclipse with the following command:</p>
+
+<code>./eclipse -vm /path/to/jre/bin/java</code>
+
+<p>For an actual example, it might look something like the following:</p>
+
+<code>./eclipse -vm /usr/lib/jvm/sun-java-6/bin/java<br>
+./eclipse -vm /opt/sun-jdk-1.6.0.02/bin/java</code>
+
+<p>If this seems to solve the problem, it is likely that the problem really was
+related to the use of GCJ as the Java runtime for running Eclipse. The
+eclipse.ini file located within Eclipse's folder can be altered to
+automatically pass this argument to Eclipse at startup. An example of its
+content is presented below:</p>
+
+<code>-showsplash<br>
+org.eclipse.platform<br>
+--launcher.XXMaxPermSize<br>
+256m<br>
+-vm<br>
+/opt/sun-jdk-1.6.0.02/bin/java<br>
+-vmargs<br>
+-Xms40m<br>
+-Xmx512m</code>
+
+<p>Note that every argument must be on its own line. More information about the
+eclipse.ini file can be found at <a href="http://wiki.eclipse.org/Eclipse.ini">http://wiki.eclipse.org/Eclipse.ini</a>.</p>
+
+<p>If problems persists after downloading an installation of Eclipse from
+eclipse.org and using a supported Java runtime environment (a list of which may be found <a href="#TargetOperatingEnvironments">above</a>), 
+you can seek further assistance through the <a href="http://www.eclipse.org/newsgroups/">newsgroups</a>, 
+the IRC <a href="irc://irc.freenode.net/#eclipse">channel</a>, 
+and/or <a href="https://bugs.eclipse.org/bugs/">bugzilla</a>.
+</p>
+
+<h3>3.1.3 <a name="I-General-UNC">General - UNC Paths</a></h3>
+<p>Eclipse 3.4.0 does not properly handle installation in a directory using 
+Universal Naming Convention (UNC) paths. Limited uses of the platform will
+work in this environment, but there are known bugs with starting workspaces on
+a UNC location, or upgrading software installed in a UNC location
+(bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=235629">235629</a>,
+bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=207103">207103</a>).
+The platform is not well tested in such an environment.</p>
+
+<h3>3.1.3 <a name="I-General-64bitJava">General - 64-bit Java HotSpot(TM) VM</a></h3>
+<p>
+There is a known issue with the 64-bit Java HotSpot(TM) 1.6.0 VM compiler which causes eclipse to 
+crash (see Sun bug <a href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6614100">http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6614100</a>,
+and Eclipse bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=214092">214092</a>).
+The crash usually occurs within a VM CompilerThread when attempting to compile the method org.eclipse.core.internal.dtree.DataTreeNode.forwardDeltaWith.
+</p>
+
+<p>
+To work around the issue you can exclude the method org.eclipse.core.internal.dtree.DataTreeNode.forwardDeltaWith from being compiled with the following
+VM argument:
+</p>
+
+<code>
+-XX:CompileCommand=exclude,org/eclipse/core/internal/dtree/DataTreeNode,forwardDeltaWith
+</code>
+
+<p>
+This VM argument can be placed in the eclipse.ini file after the -vmargs line like the following:
+</p>
+
+<code>
+-startup<br>
+plugins\org.eclipse.equinox.launcher_1.0.100.v20080509-1800.jar<br>
+--launcher.library<br>
+plugins\org.eclipse.equinox.launcher.win32.win32.x86_1.0.100.v20080509-1800<br>
+-showsplash<br>
+org.eclipse.platform<br>
+--launcher.XXMaxPermSize<br>
+256m<br>
+-vmargs<br>
+-XX:CompileCommand=exclude,org/eclipse/core/internal/dtree/DataTreeNode,forwardDeltaWith<br>
+-Xms40m<br>
+-Xmx256m<br>
+</code>
+
+<p>
+There have been reports of other classes that cause the compiler to crash.  If all else fails you can 
+disable the compiler with the VM arg &quot;-Xint&quot;.
+</p>
+
+<h3>3.2 <a name="I-Platform">Platform</a></h3>
+
+<h3>3.2.1 <a name="I-Platform-Core">Platform - Core</a></h3>
+
+<h4>Installing plug-ins by unzipping them into the plugins directory</h4>
+<p>If you have installed new plug-ins and they aren't showing up when you run,
+then perhaps you unzipped them into your "plugins" directory and your
+configuration might need to be refreshed. This can be accomplished by starting
+Eclipse with the <tt>-clean</tt> command line argument.</p>
+
+<h4>XML files with UTF-8 byte order mark fail to have content type detected</h4>
+<p>Eclipse will fail to detect the proper content type for XML files that have a
+UTF-8 byte order mark if Crimson is the XML parser (as it is on Sun 1.4 JREs,
+but not on Sun 1.5 JREs). This
+problem will prevent actions normally available when files of the affected
+content types are selected from being presented to the user. The workaround is
+to ensure the default XML parser supports UTF-8 BOMs (such as Xerces does). (bug
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=67048">67048</a>)</p>
+<h4>No branding with old config.ini</h4>
+<p>If you have an old config.ini file and use it with a new Eclipse build, you
+may not get the correct product branding. This is because the id of the standard
+Eclipse product changed. Users in shared install scenarios may end up in this
+situation as previous builds of Eclipse automatically generated config.ini files
+in some cases. The work around is either to delete the local config.ini or
+update the eclipse.product line to read eclipse.product=org.eclipse.platform.ide.</p>
+
+<h4>Problems with
+classloaders in created threads</h4>
+<p>There is a known issue with trying to load classes from a newly-created
+thread using a class loader different from the plug-in class loader. The result
+will be a <code>ClassNotFoundException</code>. As a workaround, do the
+following:</p>
+<ol>
+  <li>Create a thread in which to run your code.</li>
+  <li>Send yourThread.setContextClassLoader(yourClassLoader); // you can find
+    your classloader by grabbing a class it loaded (YourPluginClass.class.getClassLoader())</li>
+  <li>Run your code in the newly created thread.</li>
+</ol>
+<p>If you set the context class loader for the current thread, you are
+competing with other users of the thread (all of Eclipse), so the results will
+be unpredictable. However, there should be no problem in practice provided you
+reset the context class loader back to its original value when your use in the
+current thread is&nbsp;complete. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=8907">8907</a>)</p>
+
+<h4>Deadlock creating executable
+extension in Plugin.startup</h4>
+<p>If <code>Plugin.startup</code> code is too complex and performs tasks such
+as creating an executable extension, a deadlock situation can be created. Only
+simple bookkeeping tasks should be performed in <code>Plugin.startup</code>
+code. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=5875">5875</a>)</p>
+<h4>Potential Problems Converting Plug-in Manifests</h4>
+<p>If your plug-in ships with a plug-in manifest and not an OSGi bundle manifest,
+is shipped as a JAR file, and contains a nested JAR file then there may be
+problems in the automatic generation of the bundle manifest file. The packages
+defined in the nested JAR may not be exported correctly in the <tt>Export-packages</tt>
+
+bundle manifest header. To work around this you should ship your plug-in with a
+bundle manifest. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=97689">97689</a>)</p>
+<h4>Location for Debug Options File on Mac OS</h4>
+<p>If you are running in debug mode on Mac OS, the default location for the
+.options file is inside the application bundle in the Eclipse.app/Contents/MacOS
+directory (like the eclipse.ini). (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=88782">88782</a>)</p>
+<h4>Configuration can become invalid when removing org.eclipse.update.configurator</h4>
+<p>When launching an Eclipse Application from within the Eclipse IDE it is possible
+to select the set of plug-ins that are included in the Eclipse Application. 
+Removing the org.eclipse.update.configurator plug-in from the set of plug-ins to
+an existing configuration can cause the configuration to become invalid.  This
+can result in extra plug-ins installed in the target application that are not
+resolved.  To work around this, after the org.eclipse.update.configurator
+plug-in has been removed, the target configuration area should be cleared before
+launching. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=85835">85835</a>)</p>
+
+<h4>Issues with JNI that use FindClass</h4>
+<p>
+There may be issues when using a JNI implementation that uses FindClass 
+in a function where the JNIEnv pointer is not available, such as in a C 
+callback (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=125250">125250</a>).  The reason is that FindClass, in this case, uses the application
+class loader to find the class.
+If the desired class is in the classpath used for the application classloader
+(e.g. defined by the VM argument -cp &lt;classpath&gt;), as it would typically be in 
+a stand-alone application, there is no problem.  However, under
+Eclipse, the application classloader does not have access to classes 
+contained in plug-ins.  Eclipse uses its own class loader to find classes 
+contained in plug-ins.
+</p>
+<p>
+The proper plug-in class loader is used by FindClass in JNI functions which are 
+passed the JNIEnv pointer, but not when you have to use AttachCurrentThread to get the 
+JNIEnv pointer.  In this case the application classloader is used.
+</p>
+<p>
+For example, the following will fail because AttachCurrentThread is used to 
+get the JNIEnv pointer:</p>
+<pre>
+static JavaVM* jvm;  // Global variable
+
+void myCallback(void) {
+    JNIEnv* env;
+    jvm->AttachCurrentThread((void**)&amp;env, NULL);
+    // Fails if some/class is not in the application classloader:
+    jclass cls = env->FindClass(&quot;some/class&quot;);
+    jmethodID methodID = env->GetMethodID(cls, &quot;methodName&quot;,
+      &quot;(Ljava/lang/String;)V or whatever signature&quot;);
+    env->CallVoidMethod(callback, methodID, ...);
+    jvm->DetachCurrentThread();
+  }
+}
+</pre>
+<p>
+A solution is to cache the method ID, for example:
+</p>
+<pre>
+static jmethodID mid;  // Global variable
+
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
+...
+  // Store the JavaVM pointer
+    jvm = vm;
+
+  // Find the class and store the method ID
+  // Will use the class loader that loaded the JNI library
+    jclass cls = env->FindClass(className&quot;some/class&quot;);
+    if(!cls) goto ERR;
+
+    mid = env->GetMethodID(cls, &quot;methodName&quot;,
+      &quot;(Ljava/lang/String;)V or whatever signature&quot;);
+    if(!mid) goto ERR;
+...
+}
+
+void myCallback(void) {
+    JNIEnv* env;
+    jvm->AttachCurrentThread((void**)&amp;env, NULL);
+    env->CallVoidMethod(callback, mid, ...);
+     // Handle error ...
+    jvm->DetachCurrentThread();
+  }
+}
+</pre>
+
+
+<h3>3.2.2 <a name="I-Platform-Ant">Platform - Ant</a></h3>
+<h4>UTF-8 encoded buildfiles with Byte Order Mark</h4>
+<p>UTF-8 encoded buildfiles with byte order marks will fail to be parsed correctly depending on the XML parser being used for the build. Therefore a valid buildfile will fail to build with an error message similar to: "BUILD FAILED: C:\workspace\bom.xml:1: Document root element is missing.". To succeed in building with these files, ensure to include Xerces jars on the Ant runtime classpath so that the Xerces parser is used to parse the XML. As well the context menu for these files in the Navigator or Package Explorer will not have the run shortcuts for Ant builds. (bug
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=67048">67048</a>)</p>
+<h4> Custom Ant tasks and Ant
+types must be separate from plug-in library JARs</h4>
+<p>Including the class files for custom Ant tasks or Ant types in the regular
+code JAR for your plug-in causes problems. These class files must be provided in
+a separate JAR that is contributed to the <code>org.eclipse.ant.core.antTasks</code>
+or <code>antTypes</code> extension point (and not declared as a library in the
+plug-in's manifest). This ensures that the Ant tasks and types are loaded by the
+special Ant class loader and not by a plug-in classloader. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=34466">34466</a>).</p>
+
+<h4> Concurrent Ant builds not supported</h4>
+<p>Eclipse can run Ant in the same JVM as the rest of Eclipse. Several aspects
+of Ant and its use of global Java resources (such as System.out and System.err),
+make it unsafe to run more than one Ant build concurrently in the same JVM. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=24129">24129</a>).</p>
+<h4> Running certain Ant tasks
+cause memory leakage</h4>
+<p>Certain Ant tasks are known to leak memory. Please see the bug report for
+details, patches, and possible workarounds. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=24448">24448</a>)</p>
+<h4> Tasks that require input
+lock up workspace</h4>
+
+<p>As with using Ant from the command line, prompts for input from the
+console is not handled. This is not the same as making use of the &lt;input&gt;
+task, which works correctly within Eclipse. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=21748">21748</a>)</p>
+<h4>&quot;version&quot; property is always set when running Ant in the same VM as Eclipse</h4>
+<p>The Xalan libraries set system properties including a version property. These get set as properties within the Ant build and therefore the "version" property cannot be set within an Ant buildfile due to the immutable nature of Ant properties. This property will always be set to "2.4.1" for Ant builds in the same VM as Eclipse. (bug
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=45717">45717</a>)</p>
+<h4>XDoclet support from within Eclipse</h4>
+
+<p>Since there are differences when running Ant from the commandline and within Eclipse, some extra steps may be needed to have XDoclet support function correctly within Eclipse. Problems may occur creating XDoclet subtasks. The workarounds and full discussion can be found in bug report. (bug
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=37070">37070</a>)</p>
+<h4>Ant Editor code completion based on Ant 1.6.1</h4>
+<p>Code completion provided by the Ant editor does not respect the user-specified version of org.eclipse.ant.core plug-in or ANT_HOME. Code completion proposals are mostly based on Ant 1.6.1 with some updates to Ant 1.6.5 (bug
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=30886">30886</a>)</p>
+<h4> Eclipse can hang due to implementation of the Ant &lt;property> task (Windows 9X
+only)</h4>
+<p>On Windows 9X, using:&lt;property environment="env"/> will cause Eclipse to hang if the build occurs in the same VM as Eclipse. Running the build in a separate VM will hang the build but not Eclipse.
+(bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=44196">44196</a>)</p>
+
+<h4> Setting build loggers not supported when debugging Ant builds</h4>
+<p>When debugging Ant builds within Eclipse, setting -logger as a program argument will be ignored.</p>
+
+<h4>Renaming an External Tool builder set to run during auto-build will cause errors</h4>
+<p>If you rename an existing external tool builder that is configured to run during auto-builds, you will get the following error:
+ Errors during build.
+      Errors running builder "Integrated External Tool Builder" on project
+      &lt;PROJECT_NAME&gt;.
+      The builder launch configuration could not be found.
+The workaround is to first disable the builder for auto-builds and then rename the builder.
+(bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=118294">118294</a>)</p>
+
+<h4>Slow typing/saving of the Ant editor with imports that define numerous macrodefs</h4>
+<p>The Ant editor is slow on saving with buildfiles that have &lt;import&gt; declarations of buildfiles that have numerous &lt;macrodef&gt;s.
+See bugs <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=92640">92640</a> and <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=125117">125117</a> for possible workarounds</p>
+
+<h4>Failure to run Ant builds on non-Windows platforms if Eclipse installed in location with spaces in the path</h4>
+<p>Due to a bug in Ant 1.7.0, Ant builds will fail with an IllegalArgumentException if the Eclipse installation is in a location with spaces in the path.
+Embedded usage of Ant builds, such as plug-in export will also fail.
+See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=187993">187993</a> for possible workarounds</p>
+
+<h3>3.2.3 <a name="I-Platform-User-Assistance">Platform - User Assistance</a></h3>
+<h4>Welcome page not displayed properly (Linux/Unix)</h4>
+<p>The default Welcome implementation is HTML-based and requires a supported browser
+in order to work. If no supported browser can be found, Welcome falls back to its
+Forms-based implementation, which has a different (simpler) appearance. Consult the
+<a href="http://www.eclipse.org/swt/faq.php#browserplatforms">SWT FAQ</a> for supported
+browsers and setting up your browser to work with eclipse.
+</p>
+
+<h4>Help browser tool bar buttons do not work for some documents</h4>
+<p>The Help browser's Print, Synchronize, and Bookmark buttons do not work for
+pages that are not actually installed with the product. However, you can always
+use the print command in the browser's context menu to print the page you're
+reading. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=44216">44216</a>)</p>
+<h4> Help documents not displayed
+in a browser or very slow document loading (Windows only)</h4>
+
+If your LAN settings are not properly configured for local host access, your
+Help browser might open to a blank page or display an HTTP error instead of a
+help page, or you may experience long delays when loading help documents. Your
+system administrator can configure your LAN settings so that help documents can
+be accessed from the local help server.
+<blockquote>
+  <ol>
+    <li>In the Control Panel, open <b>Internet Options</b>, select the <b>Connections</b>
+      tab and choose <b>LAN Settings</b>.</li>
+    <li>If your host was configured to use DHCP for IP assignment, make sure
+      that the &quot;Automatically detect settings&quot; check box is cleared.</li>
+    <li>If you use a proxy server, ensure that the &quot;Bypass proxy server
+      for local addresses&quot; is selected.</li>
+    <li>In &quot;Advanced&quot; settings for proxies, add
+      &quot;127.0.0.1;localhost&quot; to the &quot;Exceptions&quot; if these
+      addresses are not listed.</li>
+    <li>If you are using an automatic configuration script for proxy
+      settings, and are not sure that the script is correct, clear the &quot;Use
+      automatic configuration script&quot; check box.</li>
+
+  </ol>
+</blockquote>
+<p>If the above steps do not fix your problem, try changing the port and host
+properties on the <b>Help &gt; Help Server</b> preference page. In general,
+setting <code>host</code> to <code>localhost</code> or <code>127.0.0.1</code>
+
+should work. Also, especially when running a firewall, you may want to specify
+port 80 or some other firewall-friendly value. (bugs <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=7036">7036</a>,
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=9418">9418</a>, <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=11394">11394</a>)</p>
+<h4> Working disconnected from
+the network (Windows only)</h4>
+If you are experiencing problems when not connected to the network, you must
+install the loopback adapter from the Windows installation CD. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=831">831</a>)
+<h4> Using Internet Explorer in
+offline mode (Windows only)</h4>
+
+If you have been using Internet Explorer in Offline mode, when you access the
+help system you will get a message indicating that the web page you requested is
+not available offline or a blank page will display. Click <b>Connect</b> or
+deselect &quot;Work Offline&quot; in the Internet Explorer &quot;File&quot; menu
+to return the system behavior to normal.
+<h4>Help topics not highlighted in High Contrast mode (Windows only)</h4>
+<p>Windows High Contrast settings are not consistently picked up by Internet
+Explorer when they are set from the Accessibility Options utility as opposed to
+when they are set using the predefined schemes. On Windows XP, it is recommended
+to set High Contrast as follows: Right click the desktop, chose properties,
+select Windows Classic style from the Windows and buttons drop down on the
+Appearance tab, and choose your scheme (for example High Contrast Black) from
+Color Scheme drop down. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=28609">28609</a>)</p>
+<h4>Help browser displays a blank page</h4>
+
+<p>If you see a help launched with a blank page, and no errors displayed, it can
+be caused by a conflict between libraries in org.eclipse.tomcat plug-in and jars
+optionally installed in JRE jre/lib/ext directory. To fix the problem, ensure
+that the JRE used for running Eclipse does not contain any J2EE or Apache jars
+in the jre/lib/ext directory. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=63970">63970</a>)</p>
+
+<h3>3.2.4 <a name="I-Platform-UI">Platform - UI</a></h3>
+<h4>High contrast settings</h4>
+<p>Eclipse was tested for High Contrast using 1152 x 864 resolution in Windows
+XP High Contrast mode. You can select this mode by selecting Accessibility
+Options &gt; Display &gt; Use High Contrast from the Windows XP Control Panel
+menu.</p>
+<h4>Default text file encoding
+may be detected incorrectly (Windows XP/2000 only)</h4>
+
+<p><strong>Note</strong>: the bug report associated with this problem has been fixed. If you run Eclipse with JDK 1.5 or greater you should not have to use the workaround stated below any longer. However, the problem still exists when running Eclipse with JDK 1.4.x or lower, so in this case  the workaround is still required . </p>
+<p>The &quot;Text file encoding&quot; value displayed in the Preferences
+  dialog under &quot;Editors&quot; may be wrong on platforms running Windows XP
+(or 2000) when the user locale and system locale differ.&nbsp;</p>
+<p>Example of the manifestation of the bug: A Japanese user using Japanese
+Windows 2000 works in New York, United States. The user has selected English
+(United States) as the user locale. The &quot;Text file encoding&quot; value
+displayed by Eclipse is incorrect: &quot;Cp1252&quot; (English). It should
+display the system locale &quot;MS932&quot; (Japanese).</p>
+<p>Workaround: The user can modify the user locale so that user locale and
+system locale are identical. In the example above, this means the user should
+set Japanese as the user locale. Then restart Eclipse. The &quot;Text file
+encoding&quot; value will then be correct: &quot;MS932&quot; (Japanese).</p>
+
+<p>For Windows XP:</p>
+<ul>
+  <li>To check the system locale: Open the Control Panel. Go to Regional and
+    Language Options. Switch to the Advanced tab. The system locale is specified
+    in &quot;Language for non-Unicode programs&quot;.</li>
+  <li>To change the user locale: Open the Control Panel. Go to Regional and
+    Language Options. The user locale can be modified by changing the language
+    in &quot;Standards and formats&quot;.</li>
+</ul>
+<p>For Windows 2000:</p>
+<ul>
+  <li>To check the system locale: Open the Control Panel. Go to Regional
+    Options. Look up the items in the General tab, inside the &quot;Language
+    settings for the system&quot; group. The system locale is the item marked as
+    (Default).</li>
+  <li>To change the user locale: Open the Control Panel. Go to Regional
+    Options. The user locale can be modified by changing the location in
+    &quot;Settings for the current user&quot;.</li>
+
+</ul>
+<p>(bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=20641">20641</a>)</p>
+<h4> Dirty state not tracked
+properly for OLE documents (Windows only)</h4>
+<p>The dirty state for an OLE document is not updated properly. This causes
+Eclipse to prompt to save the contents of the editor when the document is
+closed, even if the contents have already been saved. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=2564">2564</a>)</p>
+<h4> OLE document crashes can
+cause Eclipse to also crash (Windows only)</h4>
+<p>If an OLE document crashes, Eclipse can crash, or the workbench menus can
+become inconsistent.</p>
+<h4>2.1 Presentation based workspaces incorrectly get new Min/Max behavior</h4>
+<p>
+Workspaces that are currently using the Eclipse 2.1 Presentation will incorrectly
+'inherit' the new min/max behavior when opened with 3.3.
+</p>
+<p>
+Workaround:</p>
+<ol>
+ <li>Go to the 'Preferences -> Appearance' page, change the current presentation to 'Default' and select apply</li>
+ <li>Change it back to the 2.1 Presentation, select 'OK' and 'Yes' to the restart prompt</li>
+</ol>
+When the workbench re-opens the old min/max behaviour will be restored.
+<h4>Toolbars only containing contributed controls exhibit display errors on Mac/Linux</h4>
+<p>
+Currently there is no way on the Max or Linux platforms to define the <b>height</b> for controls contributed to
+toolbars, nor will those platforms respect the size returned by the control's <code>computeSize</code> method. If you
+encounter this issue there is currently no truly viable workaround.
+(bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=183003">183003</a>)
+</p>
+
+
+<h3>3.2.5 <a name="I-Platform-Text">Platform - Text</a></h3>
+None.
+
+<h3>3.2.6 <a name="I-Platform-SWT">Platform - SWT</a></h3>
+<h4>Eclipse plug-in based on the SWT Browser throws exception</h4>
+<p>The SWT Browser widget uses a platform-specific web browser to render HTML.
+The org.eclipse.swt.SWTError exception (&quot;No more handles&quot;) is thrown
+on platforms that don't meet the requirements for running the Browser widget.
+Supported platforms and prerequisites are listed on the SWT FAQ item <a href="http://www.eclipse.org/swt/faq.php#browserplatforms">
+&quot;Which platforms support the SWT Browser?&quot;</a>.</p>
+
+<h4>Crash when using the file dialog (Windows XP with SP2 only)</h4>
+<p>With some versions of Synergy from Telelogic, Eclipse will crash when you try to open a file 
+dialog.  This is due to a problem with the CMExplorer.dll.  The workaround is to
+upgrade to Synergy 6.4 (or higher) or to run <code>regsvr32 /u CMExplorer.dll</code> and 
+reboot (note that this will disable Active CM).
+(bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=87798">87798</a>)</p>
+
+<h4>Opening File Dialog crashes eclipse (Vista only)</h4>
+<p>On Vista, launching eclipse using <code>-vmargs -Xmx[any size]</code> can crash eclipse when the FileDialog is opened.
+The workaround is to use the default heap size, i.e. do not use the <code>-Xmx</code> VM args.
+(bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=188317">188317</a>)</p>
+
+<h4>Internet Explorer sometimes freezes on PDF documents with Acrobat Reader 6 (Windows only)</h4>
+<p>With Acrobat Reader 6 or 7, some users have experienced an unresponsive user 
+interface for up to two minutes when closing a browser which is displaying a PDF document.
+The workaround is to disable displaying PDF in the browser. In Adobe Reader
+select Edit &gt; Preferences... &gt; Internet and uncheck 'Display PDF in browser'.
+(bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=56184">56184</a>)</p>
+
+<h4>Crash while editing text (Windows XP with SP2 only)</h4>
+<p>Some users who have installed Service Pack 2 on Windows XP have experienced
+crashes while using editors in Eclipse.  The workaround is to place a working version 
+of Windows\System32\USP10.DLL in the Eclipse startup directory or uninstall
+Service Pack 2.
+(bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=56390">56390</a>)</p>
+
+<h4>Input Method broken (Motif only)</h4>
+<p>Some versions of RedHat Linux such as Fedora Core 3 and Enterprise Linux WS 
+release 4 use a new technology called IIIM (Intranet/Internet Input Method
+Framework) to replace the old XIM (X input method).   When running on these 
+new systems, Eclipse will crash if you attempt to enter any DBCS character.  The 
+workaround is to use a XIM based input method such as chinput.  This problem 
+may be fixed in newer releases of RedHat.
+(bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=89722">89722</a>)</p>
+
+<h4>Eclipse does not start on Linux-Motif with Xinerama and a UTF-8 locale</h4>
+<p>The Linux-motif build of Eclipse does not launch properly when run on a 
+computer with Xinerama (provides support for dual head monitors) and a UTF-8 
+locale.  The workaround for this problem is to change the locale to a non-UTF-8 
+value, or to disable Xinerama.
+(bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=38843">38843</a>)
+</p>
+
+<h4>Eclipse hangs when pasting from an unresponsive application (GTK only)</h4>
+<p>If the application that is supplying the clipboard material is unresponsive,
+the paste operation hangs Eclipse for several minutes. This situation can be
+encountered when copying from an Eclipse target workbench, suspending the target
+workbench at a breakpoint and pasting into the hosting Eclipse workbench. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=44915">44915</a>)</p>
+
+<h4>Unable to drag data between applications in simplified Chinese locale (Motif only)</h4>
+<p>When configured for the simplified Chinese locale, it is not possible to
+drag data between applications running on the Motif window system. This is a
+known limitation of the Open Motif library. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=29777">29777</a>)</p>
+
+<h4>Crash when attempting to launch file browser (AIX Motif only)</h4>
+<p>There is a known AIX graphics bug affecting certain levels of AIX
+releases. Ensure that the AIX install includes the necessary service updates as
+described in the &quot;Install notes/requirements for Eclipse on AIX&quot;
+attachment to Eclipse bug report number <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=34524">34524</a>.</p>
+
+<h4>Available colors on 8-bit Linux (Linux only)</h4>
+<p>Typically, in Gnome Linux installs running with 8-bit visuals (i.e. 256
+color mode), before the Eclipse application is started there are no free colors.
+This may mean that Eclipse is unable to allocate the default widget background
+color, causing it to display a white background. The functionality, however, is
+otherwise unaffected.</p>
+
+<h4>IME-related crash (Linux Motif only)</h4>
+<p>When using Linux Motif and GB18030 IME &quot;chinput&quot;, Eclipse can
+crash if the IME client window is left open when the parent window is disposed.
+(bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=32045">32045</a>)</p>
+
+<h4>IME converstion problem (Solaris GTK only)</h4>
+<p>When typing Japanese text, the conversion to Kanji must be done one ideogram at
+a time. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=226636">226636</a>)</p>
+
+<h4>Using IBM J9 VM (Photon and AIX)</h4>
+<p>On QNX Photon and IBM AIX, the SWT library will not be found when running
+with an IBM J9 1.5 VM. This is a bug in the IBM J9 class library in version 1.5.
+You can workaround this problem by adding the SWT library directory to your
+LD_LIBRARY_PATH environment variable.</p>
+
+<h4> gtk_init_check and X11 socket failure when using the IBM 1.4.2 JRE (GTK only)</h4>
+<p>Under RHEL 3.1 with the IBM 1.4.2 JRE and a large number
+of plugins, Eclipse may fail to launch with an exception from
+<tt>gtk_init_check</tt> along with this error:</p>
+<pre>
+_X11TransSocketOpen: socket() failed for local
+_X11TransSocketOpenCOTSClient: Unable to open socket for local
+</pre>
+<p>A workaround is to set the environment variable <tt>JAVA_HIGH_ZIPFDS</tt> to
+a value of 500 before starting Eclipse. (bug
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=106396">106396</a>)</p>
+
+<h4>Key bindings can stop working on Debian (GTK+ only)</h4>
+<p>On some versions of Debian, Eclipse key bindings may stop working.  In this context
+the only way to make the key bindings work again is to restart Eclipse.
+</p><p>
+The problem is that a focus issue exists in GTK+ 2.6.7 and earlier, for which SWT has
+a workaround.  This workaround is incompatible with the GTK+ 2.6.7 fix, so a GTK+ version
+check is done at runtime to determine whether the workaround should be used or not.
+However, Debian backported the GTK+ focus fix into their libgtk+2.0 (2.6.4-2) package,
+so the SWT workaround and GTK+ fix are both incorrectly applied in this context.
+</p><p>
+To work around this problem, either get the Debian unstable version of GTK+, compile your
+own GTK+, or hack SWT's Shell.gtk_realize(int) and change the version that it checks.
+See SWT bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=107013">107013</a>
+and GTK+ bug <a href="http://bugzilla.gnome.org/show_bug.cgi?id=109246">109246</a>
+for more information.</p>
+
+<h4>Browser does not display applets (Windows and OS X)</h4>
+<p>The Browser widget cannot be used to display pages containing Java applets on Windows
+and OS X, as a result of crashes that occur when attempting to launch a second JVM for the
+applet that is in-process with the main process JVM.  The workaround for clients wishing
+to display web pages with Java applets is to launch an external web browser to do so with
+<code>org.eclipse.swt.program.Program</code> (see bugs
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=59506">59506</a> and
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=100622">100622</a>).</p>
+
+<h4>Eclipse hangs with earlier versions of Quicktime (Intel Mac OS X only)</h4>
+<p>Some users reported encountering system hangs while using Eclipse on Intel-based Macs.
+These hangs were traced to a problem in some versions of QuickTime, which has now been fixed.
+Therefore, Eclipse users on Intel-based Macs should use Quicktime's update facilities to ensure
+that their Quicktime version is at least 7.1.1. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=142892">142892</a>)
+</p>
+
+<h4>Typing in an editor crashes with IBM 1.5 VM (Linux GTK PPC only)</h4>
+<p>When running on the IBM Java 5.0 VM, Eclipse crashes while the user is typing in an editor.
+If using this VM you must disable the JIT with the -Xnojit vm argument to avoid the crashes
+(see bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=116730">116730</a>).
+The command line for launching Eclipse with this vm should be: <br>
+<code>eclipse -vmargs -Dosgi.locking=none -Xnojit</code>
+</p>
+
+<h4>Eclipse won't start (Linux GTK PPC only)</h4>
+<p>Eclipse fails to create a lock file with reason &quot;No locks available&quot;. 
+To launch eclipse you must disable file locking using the osgi.locking property.
+For example, you could launch eclipse as follows: <br>
+<code>eclipse -vmargs -Dosgi.locking=none</code>
+</p>
+
+<h4>SWT_AWT bridge doesn't work (Mac OSX only)</h4>
+<p>In order to use the SWT_AWT bridge on the Mac, OS X jre version 1.5.0 Release 5
+(or greater) must be used.
+</p>
+
+<h4>Eclipse printing is disabled or Eclipse hangs when opening editor (GTK only)</h4>
+<p>In order to print from eclipse on GTK, you need to have GTK+ version 2.10 or later.
+In addition, at least two print backends must exist on the machine: file and lpr.
+Assuming a that GTK was installed in /usr, the installed backends can be viewed at /usr/lib/gtk-2.0/2.10.0/printbackends.
+</p>
+
+<h4>SWT cannot be used with OS X JRE version 1.6 (Mac OSX only)</h4>
+<p>OS X JRE version 1.6 assumes that pointers have a size of 64 bits, but SWT's Carbon
+port only uses 32-bit pointers, so SWT and Eclipse cannot be used with OS X JRE version
+1.6.  The workaround is to use an earlier supported version of the OS X JRE.
+</p>
+
+<h4>Browser.setText() cannot be used with beta versions of Firefox 3.0/XULRunner 1.9</h4>
+<p>As a result of a late interface change in the Firefox 3.0/XULRunner 1.9 development stream,
+most beta versions of these applications cannot be used by the Browser if its <code>setText()</code>
+API is used.  This problem can be fixed by upgrading to the final release versions of these
+applications. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=235020">235020</a>)
+</p>
+
+<h4>Strings may be truncated or incorrectly wrapped on RHEL5 (Linux GTK only)</h4>
+<p>
+Strings on wrapping Controls may not appear correctly in some locales on RHEL5 as a result
+of a bug in Pango version 1.14.x.  This problem can be fixed by upgrading the installed
+Pango library to a version that is newer than 1.14.x.  (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=231951">231951</a>)
+</p>
+
+<h3>3.2.7 <a name="I-Platform-Team-CVS">Platform - Team - CVS</a></h3>
+<p>The following are known problems with the CVS repository provider only, and
+do not apply to other repository providers. Additional information on how to use
+CVS from Eclipse can be found in the <a href="http://dev.eclipse.org/viewcvs/index.cgi/~checkout~/platform-vcm-home/docs/online/cvs_features2.0/cvs-faq.html">Eclipse
+CVS FAQ</a>.</p>
+<h4> CVS server compatibility</h4>
+<p>The CVS plug-in parses messages returned from the CVS server. If the format
+of these messages is not as expected, some of the plug-in's functionality may be
+missing. The CVS plug-in is compatible with all stable 1.11.X builds of the CVS
+server, and should be compatible with future releases in that stream unless text
+message formats change (the last tested server was 1.11.22). As for the 1.12.X
+feature releases of CVS, the Eclipse CVS client has been tested with builds up
+to 1.12.13. However, future releases could easily break the Eclipse CVS client.
+Basic functionality, such as Checkout, Commit, and Update, should always work,
+but there may be problems with more advanced commands such as Synchronizing and
+Browsing the repository.</p>
+  
+<h4>SSH2 proxy settings lost upgrading to 3.3</h4>
+<p>CVS now uses the Platform proxy settings. As a result, any CVS proxy settings
+will be lost and must be re-entered on the General&gt;Network Connections preference 
+page. </p>
+<h4>Connection cannot be found after initially missing</h4>
+<p>If a connection initially fails due to a network problem, the connection may
+continue to fail even when the network problem is fixed. In order to establish
+the connection you must exit and restart Eclipse. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=9295">9295</a>)</p>
+<h4>&quot;Received broken pipe signal&quot; error from server</h4>
+<p>Eclipse sometimes performs multiple commands within a single connection to
+the server. This may cause problems with CVS servers that are running server
+scripts in response to certain commands. (bugs <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=23575">23575</a>
+and <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=23581">23581</a>)</p>
+
+<h4>&quot;Terminated with fatal signal 10&quot; error from server</h4>
+<p>There is a bug in the CVS server related to some compression levels. If you
+get this error, changing the compression level on the CVS preference page may
+help. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=15724">15724</a>)</p>
+<h4>&quot;Unknown response&quot; error using ext connection method</h4>
+<p>There are a few situations that can result in an &quot;Unknown response&quot;
+error messages when using the ext connection method. One situation involves
+using an external communications client (e.g. rsh or ssh) that adds CRs to the
+communications channel (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=21180">21180</a>).
+Another involves Eclipse not properly reading the stderr output of the external
+communications tool. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=11633">11633</a>)</p>
+
+<h4>A disabled CVS capability may not be auto-enabled in existing workspaces</h4>
+<p>New in 3.0 is the ability to disable capabilities and the CVS support in
+Eclipse can be disabled. However, for backwards compatibility the CVS capability
+is auto-enabled in existing workspaces that already contain CVS projects. The
+auto-enabling function may not run if the team support plugin is not loaded at
+startup. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=66977">66977</a>)</p>
+<h4>Builder output files may appear as changed</h4>
+<p>When folders containing build output are shared they may get improperly
+marked as dirty when build output is generated.</p>
+
+<h3>3.2.8 <a name="I-Platform-Install-Update">Platform - Install/Update</a></h3>
+<h4>Manually installing features and plug-ins on a FAT file system (Windows only)</h4>
+
+<p>When features and plug-ins are manually installed on top of an Eclipse-based
+ product install located on a FAT file system that has already been run at least 
+ once, the product must be explicitly restarted with -clean. That is,</p>
+<pre>eclipse.exe -clean
+</pre>
+
+<h4>Connecting to untrusted sites using https</h4>
+<p>You cannot install or update software from a site using https whose certificate
+is not chained to a trusted root certificate in your local certificate store. This typically
+means the server is using a self-signed certificate, or a certificate authenticated by
+an unknown third party.</p>
+
+<h4>Removing a link file does not uninstall the corresponding extension location</h4>
+<p>If you have an extension location in an Eclipse-based application that is connected
+to your configuration via a link file, the extension is not removed when the link is deleted.
+The workaround is to move or delete the extension location, and restart the platform
+with the -clean command line argument. You can then restore or move back the 
+extension location content to its original location (bug <A HREF="https://bugs.eclipse.org/bugs/show_bug.cgi?id=232094">232094</A>).
+</p>
+
+<p><B>Extension location is lost if the install path changes</B></p>
+<P>A previously configured extension location may be temporarily removed if the install is moved or mounted 
+under a different path. This only happens when the link file that configures the 
+extension location uses a relative path that points to a directory under the Eclipse 
+install. On a second startup using the same install path, the extension location 
+is added again (bug <A HREF="https://bugs.eclipse.org/bugs/show_bug.cgi?id=95403">95403</A>). <BR></P>
+
+<h3>3.2.9 <a name="I-Platform-Debug">Platform - Debug</a></h3>
+<p>None. (Known problems with the Java debugger appear below in the <a href="#I-JDT">JDT</a>
+section.)</p>
+
+<h3>3.2.10 <a name="I-Platform-Compare">Platform - Compare</a></h3>
+<p>None.</p>
+
+<h3>3.3 <a name="I-JDT">Java development tools (JDT)</a></h3>
+
+<h4>Multiple regions formatting in a given source snippet</h4>
+In version 3.4, the new API method <code>org.eclipse.jdt.core.formatter.CodeFormatter.format(int, String, IRegion[], int, String)</code>
+has been added to allow the formatting of several regions in a source snippet with a single pass.<br>
+Even if specified, this method does not currently accept comments of the following kinds:
+<ul>
+<li><code>org.eclipse.jdt.core.formatter.CodeFormatter#K_SINGLE_LINE_COMMENT</code></li>
+<li><code>org.eclipse.jdt.core.formatter.CodeFormatter#K_MULTI_LINE_COMMENT</code></li>
+<li><code>org.eclipse.jdt.core.formatter.CodeFormatter#K_JAVA_DOC</code></li>
+</ul>
+This will be fixed in a future release (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=233967">233967</a>).
+
+<h4>Searching for constant field references</h4>
+<p>Search does not find references to constant fields inside binaries because
+the Java Language Specification mandates that constant field values be inlined
+in the class file's byte codes, leaving no trace of a field reference.&nbsp;(bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=12044">12044</a>)</p>
+
+<h4> Cut, copy, paste not working
+for linked resources in views showing Java elements</h4>
+<p>The cut, copy, and paste actions do not work for linked files and folders
+appearing in views that show Java elements, including the Package Explorer. The
+workaround is to use these actions from the Navigator view instead. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=34568">34568</a>)</p>
+<h4> Java working sets not
+working correctly for elements from JRE system library container</h4>
+<p>Applying a working set consisting entirely of elements from the JRE System
+library container as a filter to the packages view might result in an empty
+Package Explorer. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=35395">35395</a>)</p>
+
+<h4>Cannot generate Javadoc for packages with GB18030 characters in the name</h4>
+<p>Most class libraries do not properly support the creation of a system
+process (via <code>java.lang.Runtime.exec(...)</code>) when the specified
+command line contains GB18030 characters. Since Javadoc is created using the
+Javadoc executable provided with the JDK, generating Javadoc fails if the
+package or class name contains GB18030 characters. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=32215">32215</a>)</p>
+
+<h4>Side effects of Step into Selection and Run to Line</h4>
+<p>The actions &quot;Step into Selection&quot; and &quot;Run to Line&quot;
+optimistically set breakpoints on the line the user has chosen to step into or
+run to. However, the debugger can not determine if or when execution will ever
+reach the chosen line. The breakpoints set by the underlying implementation are
+not visible to the user and can cause execution to suspend unexpectedly at a
+later time, when the associated line is actually executed. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=51507">51507</a>)</p>
+<h4>Default locale initialization incorrect</h4>
+<p>The default locale is generally initialized from the settings in the
+operating system when a target VM is launched. However, when using javaw.exe on
+JDK1.4.2, Windows XP, the default locale is incorrectly initialized to en_US, no
+matter what the operating system settings are. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=65945">65945</a>)</p>
+<h4>Suspend on uncaught exception overrides exception breakpoint location filters</h4>
+<p>Exception breakpoints can be configured with location filters (inclusive and 
+  exclusive). When an unchecked exception is configured to <b>not</b> suspend 
+  execution in a specific class, execution will still suspend when the user preference 
+  to suspend on uncaught exceptions is on. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=66770">66770</a>)</p>
+
+<h4>Running Java programs with non-Latin-1 characters in package or class names</h4>
+You get a <code>java.lang.NoClassDefFoundError</code> when running Java
+programs with non-Latin characters in the package or class names. The workaround
+is to package the class files as a JAR file and run the program out of the JAR
+and not from the file system directly. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=4181">4181</a>)
+
+<h4>Cannot run or debug class in
+a project with GB18030 characters in project name</h4>
+<p>Most class libraries do not properly support the creation of a system
+process (via <code>java.lang.Runtime.exec(...)</code>) when the specified
+command line contains GB18030 characters. This limitation means the debugger
+cannot launch applications when the command line it generates contains GB18030
+characters. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=32206">32206</a>)</p>
+<h4>Cannot detect installed JRE with GB18030 characters in path name</h4>
+<p>Automatic JRE detection fails when the JRE is stored in a directory
+containing GB18030 characters in its name. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=33844">33844</a>)</p>
+<h4> Unable to debug stack
+overflows</h4>
+
+<p>If a debug session suspends on a <code>java.lang.StackOverflowError</code>
+exception (due to an exception breakpoint), the debugger may not be able to
+retrieve any debug information from the target JVM. As well, the debugger may
+not be able to reliably interact with the target JVM past this point. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=19217">19217</a>)</p>
+<h4> Evaluation limitation</h4>
+<p>The debugger uses threads in the target JVM to perform evaluations (both
+explicit evaluations that the user requests, and implicit evaluations such as <code>toString()</code>
+invocations in the <b>Variables</b> view). The Java Debug Interface (JDI)
+requires that the thread in which an evaluation is performed be suspended by a
+user event (that is, a breakpoint or step request). Evaluations cannot be
+performed on threads suspended by the suspend action. As well, when a breakpoint
+is configured to suspend the JVM rather than just the individual thread, the
+threads which did not encounter the breakpoint are not in a valid state to
+perform an evaluation. When an evaluation is attempted in a thread that is not
+in a valid state to perform an evaluation, an error message will appear to the
+effect of &quot;Thread must be suspended by step or breakpoint to perform method
+invocation&quot;. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=34440">34440</a>)</p>
+
+<h4> Missing debug attributes</h4>
+The debugger requires that class files be compiled with debug attributes if
+it is to be able to display line numbers and local variables. Quite often, class
+libraries (for example, &quot;<code>rt.jar</code>&quot;) are compiled without
+complete debug attributes, and thus local variables and method arguments for
+those classes are not visible in the debugger.
+<h4> Using Hot Code Replace</h4>
+<p>Hot code replace is supported on JDK 1.4.x VMs, and IBM J9 VMs. The debugger
+will attempt to replace all class files that change in the workspace as the user
+edits and builds source code. However, hot code replace is limited to changes
+that a particular virtual machine implementation supports. For example, changes
+within existing methods may be supported, but the addition or removal of members
+may not be.</p>
+<p>Note that hot code replace and stepping on JDK 1.4.0 VMs was unreliable. The
+underlying VM problems were fixed in JDK 1.4.1, and later.</p>
+<h4> Scrapbook</h4>
+Setting a breakpoint inside a scrapbook page is not supported.
+
+<p>When a snippet is run in the scrapbook which directly or indirectly calls <code>System.exit(int)</code>,
+the evaluation cannot be completed, and will result in a stack trace for a <code>com.sun.jdi.VMDisconnectedException</code>
+being displayed in the scrapbook editor.</p>
+<p>Terminating a scrapbook page while it is performing an evaluation results
+in a <code>com.sun.jdi.VMDisconnectedException</code> being displayed in the
+scrapbook editor.</p>
+<h4> Debugging over slow
+connections</h4>
+A global Java debug preference specifies the debugger timeout, which is the
+maximum amount of time the debugger waits for a response from the target VM
+after making a request of that VM. Slow connections may require that this value
+be increased. The timeout value can be edited from the <b>Java &gt; Debug </b>preference
+page. Changing the timeout value only effects subsequently launched VM, not VMs
+that are already running.
+
+<h4> Updating of inspected values</h4>
+When inspecting the result of an evaluated expression in the debugger, it is
+important to note that the result displayed is the result of that expression at
+the time it was evaluated. For example, when inspecting a simple integer counter
+(primitive data type), the value displayed in the Expressions view is the value
+when the expression was evaluated. As the counter is changed in the running
+program, the inspected result will not change (since the view is not displaying
+the value bound to a variable - it is displaying the value of an expression, and
+the value of a primitive data type cannot change). However, if an expression
+results in an object, fields of that object will be updated in the inspector as
+they change in the running program (since the value bound to fields in an object
+can change).
+<h4> Stepping over native methods
+that perform I/O</h4>
+When the debugger steps over native methods that perform I/O to <code>System.out</code>
+or <code>System.err</code>, the output may not appear immediately unless the
+native performs a flush on the output buffer.
+<h4> VM and process termination
+running on IBM 1.3 JVM on Linux (Linux only)</h4>
+Terminating a launch, debug target, or system process associated with a debug
+target running on the IBM 1.3 JVM on the Linux platform does not work when the
+associated debug target has a suspended thread. To remove such debug targets
+from the debug UI, select <b>Terminate and Remove</b> from the debug view's
+pop-up menu (or use the shortcut &quot;delete&quot; key). Associated system
+processes in the OS may not be properly cleaned up. If a debug target has no
+suspended threads, termination works properly. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=1631">1631</a>)
+
+
+<h4> Memory View (Linux only)</h4>
+The feature to automatically load segments of memory while scrolling in the Memory
+view does not work on Linux. Instead the user must use the &quot;Next Page&quot; and &quot;Previous Page&quot; actions
+to manually load memory segments (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=74559">74559</a>)
+
+<h4>Java 6 Annotation Processing</h4>
+Java 6 annotation processors are supported in the batch compiler and in the IDE, with 
+some limitations. Java 6 processors are only executed during a build, not while editing (bug 
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=188558">188558</a>). Some methods
+in the processing API are unimplemented when compiling within the IDE, and will throw
+UnsupportedOperationException.
+
+<h3>3.4 <a name="I-PDE">Plug-in Development Environment (PDE)</a></h3>
+<h4>Feature manifest editor does not preserve all comments</h4>
+
+<p>When a non-source page of the feature manifest editor is used, PDE will convert
+changes back into XML by regenerating the file. Although the overall content and
+most of the comments are preserved, some comments may be lost. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=59502">59502</a>)</p>
+<h4>PDE will not unzip source zips of some plug-ins</h4>
+<p>In the plug-in import wizard, when you choose to import plug-ins as
+&quot;projects with source folders&quot;, PDE will not unzip the source for the
+org.apache.ant, org.eclipse.core.runtime.compatibility.registry, org.eclipse.osgi.util and org.eclipse.osgi.services. This is
+because the source ZIPs contains code that will not compile when unzipped as it
+requires additional JARs that are not part of the SDK. To avoid the creation of
+plug-in projects that won't compile, PDE will import these plug-ins as binary
+and attach source, so you would still be able to read the source, you just won't
+be able to modify it. Also, PDE will not unzip the source for the
+org.eclipse.swt plug-ins. In this case, it is because, when shipped, the swt
+code is spread across a plug-in and a fragment, and when unzipped, it will
+require circular dependencies between the plug-in and fragment projects. These
+circular dependencies are at minimum marked as warnings by the JDT compiler and
+may result in unpredictable build behavior. Therefore, PDE always imports
+org.eclipse.swt as binary with source attached. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=66314">66314</a>)</p>
+
+<h4>Emacs key bindings do not
+work in manifest editor fields</h4>
+<p>Non-default key bindings currently do not work in fields on non-source
+pages of the PDE manifest editors. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=19482">19482</a>)</p>
+<h4>Plug-in import wizard does
+not allow plug-ins of different versions to be imported</h4>
+<p>The Eclipse platform allows two plug-ins with the same ID but different
+versions to coexist if the only thing they contribute is run-time libraries.
+However, PDE cannot handle these plug-ins because it creates project names using
+plug-in IDs during binary project import. (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=18500">18500</a>)</p>
+<h4>Export of plug-in may silently drop classes</h4>
+<p>When exporting a plug-in using the plug-in, feature or product wizards, some classes
+might be dropped from the resulting archive if their fully qualified name is too long.
+This typical path limitation can be worked around by creating the jar of the problematic
+plug-in by using the Jar export wizard.
+(bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=97150">97150</a>)</p>
+
+<h4>Compilation errors when exporting projects not stored outside of the workspace</h4>
+<p>When exporting multiple plug-ins and one is stored outside of the workspace,
+compile errors occurs on export. To work around the problem, you can either export
+the plug-ins one by one, or change their location.
+(bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=98579">98579</a>)</p>
+
+<h4>Headless build needs to be run from a fully qualified path</h4>
+<p>When running a headless build using the scripts provided by pde build, the properties <code>builder</code> 
+and <code>buildDirectory</code> must refer to a fully qualified path.
+(bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=139554">139554</a>)
+</p>
+
+<h4>Target Platform only sees installed plug-ins</h4>
+<p>With the new p2 provisioning system in 3.4, PDE introduced a preference to control how target platforms are built. 
+By default, this preference is on if your target equals your host, otherwise it's off. When this preference is enabled, PDE attempts to
+read a target platform's configuration and build the target platform based in the target's list of installed plug-ins. If a configuration
+can't be found (a bundles.info or platform.xml file), PDE will simply manually scan the target directory and populate the target platform's
+list of plug-ins.
+(bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=226037">226037</a> and bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=225148">225148</a>)
+</p>
+
+<h4>Delta pack is not seen by PDE when installed</h4>
+<p>If you're using the delta pack, the target platform preference for building a target based on the target's installed plug-ins must be checked off.
+This is because a target's runtime configuration only contains plug-ins specific to the platform it's running on.
+(bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=230146">230146</a>)
+</p>
+
+<h2>4. <a name="Running Eclipse">Running Eclipse</a></h2>
+<p>After installing the Eclipse SDK in a directory, you can start the Workbench
+by running the Eclipse executable included with the release (you also need a 1.4.2
+JRE, not included with the Eclipse SDK). On Windows, the executable file is called <samp>eclipse.exe</samp>,
+and is located in the <code>eclipse</code> sub-directory of the install. If
+installed at <code>c:\eclipse-SDK-3.4-win32</code>, the executable is <code>c:\eclipse-SDK-3.4-win32\eclipse\eclipse.exe</code>.
+
+<b>Note:</b> Set-up on most other operating environments is analogous. Special
+instructions for Mac OS X are listed <a href="#macosx">below</a>.</p>
+
+<h3>Allocating enough memory and solving OutOfMemoryErrors</h3>
+<p>By default, Eclipse will allocate up to 256 megabytes of Java heap memory. This should
+be ample for all typical development tasks. However, depending on the JRE
+that you are running, the number of additional plug-ins you are using, and
+the number of files you will be working with, you could conceivably have to increase this amount. 
+Eclipse allows you to pass arguments directly to the Java VM using the
+<code>-vmargs</code> command line argument, which must follow all other Eclipse specific arguments.
+Thus, to increase the available heap memory, you would typically use:</p>
+<blockquote>
+  <p><code>eclipse -vmargs -Xmx&lt;memory size&gt;</code></p>
+</blockquote>
+<p>with the <code>&lt;memory size&gt;</code> value set to greater than
+&quot;256M&quot; (256 megabytes -- the default). 
+</p>
+<p>
+When using a Sun VM, you may also need to increase the size of the permanent
+generation memory.  The default maximum is 64 megabytes, but more may
+be needed depending on your plug-in configuration and use.  When the VM runs
+out of permanent generation memory, it may crash or hang during class loading.
+This failure is less common when using Sun JRE version 1.5.0_07 or greater.
+The maximum permanent generation size is increased using the -XX:MaxPermSize=&lt;memory size&gt; argument:</p>
+<blockquote>
+  <p><code>eclipse -vmargs -XX:MaxPermSize=&lt;memory size&gt;</code></p>
+</blockquote>
+<p>This argument may not be available for all VM versions and platforms; consult your VM documentation
+for more details.
+</p>
+<p>
+Note that setting memory sizes to be larger than the amount of available physical
+memory on your machine will cause Java to &quot;thrash&quot; as it copies objects
+back and forth to virtual memory, which will severely degrade your performance.
+</p>
+<h3>Selecting a workspace</h3>
+<p>When the Workbench is launched, the first thing you see is a 
+dialog that allows you to select where the workspace will be located. The
+workspace is the directory where your work will be stored.
+If you do not specify otherwise, Eclipse creates the workspace in your
+user directory.
+This workspace directory is used as the default content area for your projects
+as well as for holding any required metadata. For shared or multi-workspace
+installs you must explicitly specify the location for your workspace using the
+dialog (or via the &quot;<code>-data</code>&quot; command line argument).</p>
+<h3>Specifying the Java virtual machine</h3>
+<p>Here is a typical Eclipse command line:&nbsp;</p>
+
+<blockquote>
+  <p><code>eclipse -vm c:\jdk1.4.2\jre\bin\javaw</code></p>
+</blockquote>
+<p><i>Tip:</i> It's generally a good idea to explicitly specify which Java VM to
+use when running Eclipse. This is achieved with the &quot;<code>-vm</code>&quot;
+command line argument as illustrated above. If you don't use &quot;<code>-vm</code>&quot;,
+Eclipse will look on the O/S path. When you install other Java-based products,
+they may change your path and could result in a different Java VM being used
+when you next launch Eclipse.</p>
+<p>To create a Windows shortcut to an installed Eclipse:</p>
+<ol>
+  <li>Navigate to <code>eclipse.exe</code> in Windows Explorer and use Create
+    Shortcut on the content menu.</li>
+  <li>Select the shortcut and edit its Properties. In the Target: field append
+    the command line arguments.</li>
+</ol>
+<p>Opening this shortcut launches Eclipse. (You can drag the shortcut to the 
+Windows Desktop if you want to keep it in easy reach.)</p>
+
+<h3><a name="macosx">Mac OS X</a></h3>
+<p>On Mac OS X, you start Eclipse by double clicking the Eclipse application. If you need to 
+pass arguments to Eclipse, you'll have to edit the <code>eclipse.ini</code> file
+inside the Eclipse application bundle: select the Eclipse application bundle icon while holding down the Control Key.
+This will present you with a popup menu. Select &quot;Show Package Contents&quot; in the popup menu.
+Locate <code>eclipse.ini</code> file in the <code>Contents/MacOS</code> sub-folder and open it with your favorite text editor to edit the command line options.
+</p>
+
+<p>
+On MacOS X you can only launch a UI program more then once if you have separate
+copies of the program on disk. The reason for this behavior is that every UI
+application on Mac can open multiple documents, so typically there is no need
+to open a program twice. Since Eclipse cannot open more than one workspace, this means you have to make
+a copy of the Eclipse install if you want to open more then one workspace at
+the same time (bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=139319">139319</a>).
+</p>
+
+<p>If you need to launch Eclipse from the command line, you can use the symbolic link &quot;eclipse&quot; in the
+top-level eclipse folder. It refers to the eclipse executable inside the application bundle and takes
+the same arguments as &quot;eclipse.exe&quot; on other platforms. 
+</p>
+<p>On Mac OS X 10.4 and later, you may notice a slow down when working with significant
+numbers of resources if you allow Spotlight to index your workspace. To prevent this, start
+System Preferences, select the Spotlight icon, then the Privacy tab, then click the Add button
+(&quot;+&quot;) and find your workspace directory in the dialog that appears.</p>
+<h3><a name="SharedInstall">Shared Install</a></h3>
+<p>The startup speed of a shared install can be improved if proper cache information is stored in the shared 
+install area. To achieve this, after unzipping Eclipse distribution, run Eclipse once with the &quot;-initialize&quot; 
+option from an account that has a write access to the install directory.</p>
+<h2>5. <a name="Upgrading"></a>Upgrading Workspace from a Previous Release</h2>
+
+<h3>Users who don't use &quot;-data&quot;</h3>
+<p>If you weren't previously using &quot;-data&quot; to specify your workspace,
+follow these steps to upgrade:</p>
+
+<ol>
+  <li>Find the workspace directory used by your old version of Eclipse.
+    Typically this is located inside the directory in which Eclipse was
+    installed in a sub-directory called &quot;<code>workspace</code>&quot;. If
+    you are using a shortcut or script to launch Eclipse, then it will be under
+    the current working directory of that shortcut or script in a sub-directory
+    called &quot;workspace&quot;. For Windows users, this is specified by the
+    &quot;Start in:&quot; argument in your shortcut properties.</li>
+  <li>Copy this workspace directory to a new, empty location outside of any
+    Eclipse install directory.</li>
+  <li>Install the new version of Eclipse in a new location, separate from any
+    old version of Eclipse.</li>
+
+  <li>If you had installed additional features and plug-ins into your old
+    Eclipse, you should re-install them in the new Eclipse.</li>
+  <li>Start this new version of Eclipse and select
+    this location using the workspace chooser dialog at startup (or use &quot;<code>-data</code>&quot;
+    command line argument to pre-select the workspace location).</li>
+</ol>
+<h3>Users who do use &quot;-data&quot;</h3>
+<p>If you were previously using the &quot;<code>-data</code>&quot; argument to
+start Eclipse, your upgrade path is much easier:</p>
+
+<ol>
+  <li>Optionally copy your workspace directory to a new, empty location outside of any
+    Eclipse install directory as a backup.</li>
+  <li>Install the new version of Eclipse in a new location, separate from any
+    old versions of Eclipse.</li>
+  <li>If you had installed additional features and plug-ins into your old
+    Eclipse, you should re-install them in the new Eclipse.</li>
+  <li>Start this new version of Eclipse and select this location using the workspace chooser dialog at
+    startup (or use &quot;<code>-data</code>&quot;
+    command line argument to pre-select the workspace location).</li>
+</ol>
+<p><i>Note:</i> Copying your workspace is recommended because,
+after you've upgraded your workspace, you won't be able to use it
+again with an older version of Eclipse. If you ever want to go &quot;back in
+time&quot; to an earlier release, you will need that backup.</p>
+
+
+<h2>6. <a name="Interoperability with Previous Releases">Interoperability with
+Previous Releases</a></h2>
+<h3>6.1 Interoperability of Release 3.4 with previous releases</h3>
+<h4>Sharing projects between heterogeneous Eclipse 3.4 and 3.3</h4>
+<p>Special care is required when a project in a team repository is being loaded
+and operated on by developers using Eclipse-based products based on different
+feature or plug-in versions. The general problem is that the existence,
+contents, and interpretation of metadata files in the workspaces may be specific
+to a particular feature or plug-in version, and differ between versions. The
+workspace compatibility guarantees only cover cases where all developers upgrade
+their Eclipse workspaces in lock step. In those cases there should be no problem
+with shared metadata. However, when some developers are working in Eclipse 3.4
+while others are working in Eclipse 3.3, there are no such guarantees.
+This section provides advice for what to do and not to do. It addresses the
+specific issues with the Eclipse SDK.</p>
+
+<p>The typical failure mode is noticed by the 3.4 user. 3.4 metadata is lost
+when a 3.3 user saves changes and then commits the updated metadata files to the
+repository. Here's how things typically go awry:</p>
+<ul>
+  <li>A user working in Eclipse 3.4 creates or modifies a project in a way that
+    results in changes to a shared metadata file that rely on 3.4-specific
+    information. The user then commits the updated project files, including the
+    shared metadata file, to the shared repository.</li>
+  <li>Another user working in Eclipse 3.3 shares this project from the same
+    repository. The 3.4-specific information in the shared metadata file is not
+    understood by Eclipse 3.3, and is generally discarded or ignored without
+    warning. The user modifies the project in a way that results in changes to
+    the shared metadata file, causing the shared metadata file to be rewritten
+    without any of the 3.4-specific information. The user commits the updated
+    project files, including the shared metadata file, to the shared repository.
+    The user is generally unaware that shared information has just been lost as
+    a result of their actions.</li>
+  <li>A user working in Eclipse 3.4 picks up the changes to a project from the
+    shared repository, including the updated shared metadata file. The user may
+    be unaware that they have just taken a retrograde step until later when
+    things start to malfunction.</li>
+</ul>
+<p>Here are some things to watch out for when sharing projects between
+Eclipse 3.4 and Eclipse 3.1 or earlier:</p>
+<ul>
+  <li><b>Linked resources in the .project file</b><br>
+  Eclipse 3.4 supports creating linked resources at arbitrary depth within a project,
+  and supports creating linked resources referring to other file systems. Neither of
+  these scenarios are supported in Eclipse 3.1 or earlier.  If such linked resources
+  are created in 3.4, and the project is subsequently loaded into an Eclipse 3.1
+  or earlier workspace, these links will not be recognized.  Recommendation:
+  avoid creating links at arbitrary depth or to other file systems where project
+  compatibility with Eclipse 3.1 or earlier is required.</li>
+</ul>
+<h4>Using Eclipse 3.4 to develop plug-ins that work in Eclipse 3.3</h4>
+<p>It is also possible (and reasonable) to use Eclipse 3.4 to develop a plug-in 
+  intended to work in Eclipse 3.3 or earlier. Use the <b>Plug-in Development &gt; 
+  Target Platform </b>preference page to locate non-workspace plug-ins in an Eclipse 
+  3.3 install. This ensures that the code for your plug-in is being compiled and 
+  tested against Eclipse 3.3 APIs, extension points, and plug-ins. (The above 
+  list of concerns do not apply since they affect the layout and interpretation 
+  of files in the plug-in <i>project</i> but none affect the actual deployed form 
+  of the plug-in.)</p>
+
+<hr>
+<p>Sun, Solaris, Java and all Java-based trademarks are trademarks of Sun Microsystems, Inc.
+in the United States, other countries, or both.</p>
+<p>IBM is a trademark of International Business Machines Corporation in the
+United States, other countries, or both.</p>
+<p>Microsoft, Windows, Windows NT, Vista, and the Windows logo are trademarks of
+Microsoft Corporation in the United States, other countries, or both.</p>
+<p>Apple and Mac OS are trademarks of Apple Computer, Inc., registered in the
+U.S. and other countries.</p>
+<p>QNX, Neutrino, and Photon are trademarks or registered trademarks of QNX
+Software Systems Ltd.</p>
+<p>Other company, product, and service names may be trademarks or service marks
+of others.</p>
+<p>(c) Copyright IBM Corp. and others 2008</p>
+
+<h2><a name="Appendix1">Appendix 1: Execution Environment by Plug-in</a></h2>
+
+<p>In the table below, the "3.4 EE" ("3.4 Execution Environment") column
+indicates the minimum Java class library requirements of each plug-in
+for the 3.4 release, where the value is one of:</p>
+<table border="0" width="90%">
+  <tbody>
+    <tr>
+      <td align="center"><b>Entry</b></td>
+      <td align="left"><b>Meaning</b></td>
+    </tr>
+    <tr>
+      <td>
+      <div align="center"><strong>M1.0</strong></div>
+      </td>
+      <td>OSGi Minimum Execution Environment 1.0 - This is a subset of
+      the J2ME Foundation class libraries defined by OSGi to be the base
+      for framework implementations. See the OSGi specification for more
+      details.</td>
+    </tr>
+    <tr>
+      <td width="9%">
+      <div align="center"><strong>M1.1</strong></div>
+      </td>
+      <td width="91%">OSGi Minimum Execution Environment 1.1 - This is a
+      subset of the J2ME Foundation class libraries defined by OSGi to
+      be the base for framework implementations. See the OSGi
+      specification for more details.</td>
+    </tr>
+    <tr>
+      <td>
+      <div align="center"><strong>F1.0</strong></div>
+      </td>
+      <td>J2ME Foundation 1.0 - indicates that the plug-in can only be
+      run on Foundation 1.0 or greater. Note that with the exception of
+      some MicroEdition IO classes, Foundation 1.0 is a subset of J2SE
+      1.3.</td>
+    </tr>
+    <tr>
+      <td>
+      <div align="center"><strong>F1.1</strong></div>
+      </td>
+      <td>J2ME Foundation 1.1 - indicates that the plug-in can only be
+      run on Foundation 1.1 or greater. Note that with the exception of
+      some MicroEdition IO classes, Foundation 1.1 is a subset of J2SE
+      1.4.</td>
+    </tr>
+    <tr>
+      <td>
+      <div align="center"><strong>1.2</strong></div>
+      </td>
+      <td>J2SE 1.2 - indicates that the plug-in can only be run on JSE
+      1.2 or greater.</td>
+    </tr>
+    <tr>
+      <td>
+      <div align="center"><strong>1.3</strong></div>
+      </td>
+      <td>J2SE 1.3 - indicates that the plug-in can only be run on JSE
+      1.3 or greater.</td>
+    </tr>
+    <tr>
+      <td>
+      <div align="center"><strong>1.4</strong></div>
+      </td>
+      <td>J2SE 1.4 - indicates that the plug-in can only be run on JSE
+      1.4 or greater.</td>
+    </tr>
+    <tr>
+      <td>
+      <div align="center"><strong>1.4/1.5</strong></div>
+      </td>
+      <td>Indicates that the plug-in can run on JSE
+      1.4 or greater, but provides enhanced functionality when run on J2SE 5.0.</td>
+    </tr>
+    <tr>
+      <td>
+      <div align="center"><strong>1.5</strong></div>
+      </td>
+      <td>J2SE 5.0 - indicates that the plug-in can only be run on JSE
+      5.0 or greater.</td>
+    </tr>
+    <tr>
+      <td>
+      <div align="center"><strong>1.6</strong></div>
+      </td>
+      <td>J2SE 6.0 - indicates that the plug-in can only be run on JSE
+      6.0 or greater.</td>
+    </tr>
+    <tr>
+      <td align="center"><b>n/a</b></td>
+      <td>Not applicable (for example plug-ins that do not contain Java code)</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<b>Table of minimum execution environments by plug-in.</b> <br>
+<table border="1">
+  <tbody>
+    <tr>
+      <td width="290"><strong>Plug-in</strong></td>
+      <td width="60"><div align="center">
+
+          <p align="center"><b>3.4<br>
+            minimum<br>
+            execution<br>
+            environment </b></p>
+        </div></td>
+    </tr>
+    <tr>
+
+      <td>javax.servlet</td>
+      <td><div align="center">F1.0</div></td>
+    </tr>
+    <tr>
+      <td>javax.servlet.jsp</td>
+      <td><div align="center">F1.0</div></td>
+    </tr>
+
+    <tr>
+      <td>org.apache.ant</td>
+      <td><div align="center">1.2</div></td>
+    </tr>
+    <tr>
+      <td>org.apache.commons.el</td>
+      <td><div align="center">F1.0</div></td>
+
+    </tr>
+    <tr>
+      <td>org.apache.commons.logging</td>
+      <td><div align="center">F1.0</div></td>
+    </tr>
+    <tr>
+      <td>org.apache.jasper</td>
+
+      <td><div align="center">F1.0</div></td>
+    </tr>
+    <tr>
+      <td>org.apache.lucene</td>
+      <td><div align="center">n/a</div></td>
+    </tr>
+    <tr>
+
+      <td>org.eclipse.ant.core</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.ant.ui</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+
+    <tr>
+      <td>org.eclipse.compare</td>
+      <td><div align="center">n/a</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.core.boot</td>
+      <td><div align="center">F1.0</div></td>
+
+    </tr>
+    <tr>
+      <td>org.eclipse.core.commands</td>
+      <td><div align="center">F1.0</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.core.contenttype</td>
+
+      <td><div align="center">F1.0</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.core.expressions</td>
+      <td><div align="center">F1.0</div></td>
+    </tr>
+    <tr>
+
+      <td>org.eclipse.core.filebuffers</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.core.filesystem</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+
+    <tr>
+      <td>org.eclipse.core.jobs</td>
+      <td><div align="center">F1.0</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.core.net</td>
+      <td><div align="center">1.4</div></td>
+
+    </tr>
+    <tr>
+      <td>org.eclipse.core.resources</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.core.resources.compatibility</td>
+
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.core.runtime</td>
+      <td><div align="center">F1.0</div></td>
+    </tr>
+    <tr>
+
+      <td>org.eclipse.core.runtime.compatibility</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.core.runtime.compatibility.auth</td>
+      <td><div align="center">F1.0</div></td>
+    </tr>
+
+    <tr>
+      <td>org.eclipse.core.runtime.compatibility.registry</td>
+      <td><div align="center">F1.0</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.core.variables</td>
+      <td><div align="center">1.4</div></td>
+
+    </tr>
+    <tr>
+      <td>org.eclipse.debug.core</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.debug.ui</td>
+
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.equinox.app</td>
+      <td><div align="center">F1.0</div></td>
+    </tr>
+    <tr>
+
+      <td>org.eclipse.equinox.common</td>
+      <td><div align="center">F1.0</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.equinox.http.jetty</td>
+      <td><div align="center">F1.0</div></td>
+    </tr>
+
+    <tr>
+      <td>org.eclipse.equinox.http.servlet</td>
+      <td><div align="center">F1.0</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.equinox.http.registry</td>
+      <td><div align="center">F1.0</div></td>
+
+    </tr>
+    <tr>
+      <td>org.eclipse.equinox.jsp.jasper</td>
+      <td><div align="center">F1.0</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.equinox.jsp.jasper.registry</td>
+
+      <td><div align="center">F1.0</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.equinox.launcher</td>
+      <td><div align="center">F1.0</div></td>
+    </tr>
+    <tr>
+
+      <td>org.eclipse.equinox.preferences</td>
+      <td><div align="center">F1.0</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.equinox.registry</td>
+      <td><div align="center">F1.0</div></td>
+    </tr>
+
+    <tr>
+      <td>org.eclipse.help</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.help.appserver</td>
+      <td><div align="center">1.4</div></td>
+
+    </tr>
+    <tr>
+      <td>org.eclipse.help.base</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.help.ui</td>
+
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.help.webapp</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+
+    <tr>
+      <td>org.eclipse.jdt</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.jdt.apt.core</td>
+      <td><div align="center">1.5</div></td>
+
+    </tr>
+    <tr>
+      <td>org.eclipse.jdt.apt.ui</td>
+      <td><div align="center">1.5</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.jdt.compiler.apt</td>
+
+      <td><div align="center">1.6</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.jdt.compiler.tool</td>
+      <td><div align="center">1.6</div></td>
+    </tr>
+    <tr>
+
+      <td>org.eclipse.jdt.core</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.jdt.core.manipulation</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+
+    <tr>
+      <td>org.eclipse.jdt.debug</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.jdt.debug.ui</td>
+      <td><div align="center">1.4</div></td>
+
+    </tr>
+    <tr>
+      <td>org.eclipse.jdt.doc.isv</td>
+      <td><div align="center">n/a</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.jdt.doc.user</td>
+
+      <td><div align="center">n/a</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.jdt.junit</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+
+      <td>org.eclipse.jdt.junit.runtime</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.jdt.junit4.runtime</td>
+      <td><div align="center">1.5</div></td>
+    </tr>
+
+    <tr>
+      <td>org.eclipse.jdt.launching</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.jdt.source</td>
+      <td><div align="center">n/a</div></td>
+
+    </tr>
+    <tr>
+      <td>org.eclipse.jdt.ui</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.jface</td>
+
+      <td><div align="center">F1.0</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.jface.text</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+
+      <td>org.eclipse.jsch.core</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.jsch.ui</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+
+    <tr>
+      <td>org.eclipse.ltk.core.refactoring</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.ltk.ui.refactoring</td>
+      <td><div align="center">1.4</div></td>
+
+    </tr>
+    <tr>
+      <td>org.eclipse.osgi (system.bundle)</td>
+      <td><div align="center">M1.0</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.osgi.services</td>
+
+      <td><div align="center">M1.0</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.osgi.util</td>
+      <td><div align="center">M1.0</div></td>
+    </tr>
+    <tr>
+
+      <td>org.eclipse.pde</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.pde.build</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+
+    <tr>
+      <td>org.eclipse.pde.core</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.pde.doc.user</td>
+      <td><div align="center">n/a</div></td>
+
+    </tr>
+    <tr>
+      <td>org.eclipse.pde.junit.runtime</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.pde.runtime</td>
+
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.pde.source</td>
+      <td><div align="center">n/a</div></td>
+    </tr>
+    <tr>
+
+      <td>org.eclipse.pde.ui</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.pde.ui.templates</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+
+    <tr>
+      <td>org.eclipse.platform</td>
+      <td><div align="center">F1.0</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.platform.doc.isv</td>
+      <td><div align="center">n/a</div></td>
+
+    </tr>
+    <tr>
+      <td>org.eclipse.platform.doc.user</td>
+      <td><div align="center">n/a</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.platform.source</td>
+
+      <td><div align="center">n/a</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.platform.source.*</td>
+      <td><div align="center">n/a</div></td>
+    </tr>
+    <tr>
+
+      <td>org.eclipse.rcp</td>
+      <td><div align="center">F1.0</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.rcp.source</td>
+      <td><div align="center">n/a</div></td>
+    </tr>
+
+    <tr>
+      <td>org.eclipse.rcp.source.*</td>
+      <td><div align="center">n/a</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.sdk</td>
+      <td><div align="center">n/a</div></td>
+
+    </tr>
+    <tr>
+      <td>org.eclipse.search</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.swt</td>
+
+      <td bgcolor="#ffffff"><div align="center">M1.0</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.swt.*</td>
+      <td bgcolor="#ffffff"><div align="center">M1.0</div></td>
+    </tr>
+    <tr>
+
+      <td>org.eclipse.team.core</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.team.cvs.core</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+
+    <tr>
+      <td>org.eclipse.team.cvs.ssh</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.team.cvs.ssh2</td>
+      <td><div align="center">1.4</div></td>
+
+    </tr>
+    <tr>
+      <td>org.eclipse.team.cvs.ui</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.team.ui</td>
+
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.text</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+
+      <td>org.eclipse.tomcat</td>
+      <td><div align="center">n/a</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.ui</td>
+      <td><div align="center">F1.0</div></td>
+    </tr>
+
+    <tr>
+      <td>org.eclipse.ui.browser</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.ui.cheatsheets</td>
+      <td><div align="center">1.4</div></td>
+
+    </tr>
+    <tr>
+      <td>org.eclipse.ui.console</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.ui.editors</td>
+
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.ui.externaltools</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+
+      <td>org.eclipse.ui.forms</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.ui.ide</td>
+      <td><div align="center">1.4</div></td>
+
+    </tr>
+    <tr>
+      <td>org.eclipse.ui.intro</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.ui.intro.universal</td>
+
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.ui.navigator</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+
+      <td>org.eclipse.ui.navigator.resources</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.ui.net</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+
+    <tr>
+      <td>org.eclipse.ui.presentations.r21</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.ui.views</td>
+      <td><div align="center">1.4</div></td>
+
+    </tr>
+    <tr>
+      <td>org.eclipse.ui.win32</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.ui.workbench</td>
+
+      <td><div align="center">F1.0</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.ui.workbench.compatibility</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+
+      <td>org.eclipse.ui.workbench.texteditor</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.update.configurator</td>
+      <td bgcolor="#ffffff"><div align="center">F1.0</div></td>
+    </tr>
+
+    <tr>
+      <td>org.eclipse.update.core</td>
+      <td bgcolor="#ffffff"><div align="center">F1.0</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.update.core.linux</td>
+      <td bgcolor="#ffffff"><div align="center">F1.0</div></td>
+
+    </tr>
+    <tr>
+      <td>org.eclipse.update.core.win32</td>
+      <td bgcolor="#ffffff"><div align="center">F1.0</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.update.scheduler</td>
+
+      <td bgcolor="#ffffff"><div align="center">F1.0</div></td>
+    </tr>
+    <tr>
+      <td>org.eclipse.update.ui</td>
+      <td><div align="center">F1.0</div></td>
+    </tr>
+    <tr>
+
+      <td>org.junit (old)</td>
+      <td><div align="center">1.4</div></td>
+    </tr>
+    <tr>
+      <td>org.junit (JUnit4)</td>
+      <td><div align="center">1.5</div></td>
+    </tr>
+
+    <tr>
+      <td>org.mortbay.jetty</td>
+      <td><div align="center">F1.0</div></td>
+    </tr>
+  </tbody>
+</table>
+
+</body>
+</html>

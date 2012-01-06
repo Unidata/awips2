@@ -1,0 +1,15 @@
+==== declare_queues.py.out
+==== xml_producer.py.out
+<weather><station>Raleigh-Durham International Airport (KRDU)</station><wind_speed_mph>0</wind_speed_mph><temperature_f>30</temperature_f><dewpoint>35</dewpoint></weather>
+<weather><station>New Bern, Craven County Regional Airport (KEWN)</station><wind_speed_mph>2</wind_speed_mph><temperature_f>40</temperature_f><dewpoint>40</dewpoint></weather>
+<weather><station>Boone, Watauga County Hospital Heliport (KTNB)</station><wind_speed_mph>5</wind_speed_mph><temperature_f>50</temperature_f><dewpoint>45</dewpoint></weather>
+<weather><station>Hatteras, Mitchell Field (KHSE)</station><wind_speed_mph>10</wind_speed_mph><temperature_f>60</temperature_f><dewpoint>50</dewpoint></weather>
+<weather><station>Raleigh-Durham International Airport (KRDU)</station><wind_speed_mph>16</wind_speed_mph><temperature_f>70</temperature_f><dewpoint>35</dewpoint></weather>
+<weather><station>New Bern, Craven County Regional Airport (KEWN)</station><wind_speed_mph>22</wind_speed_mph><temperature_f>80</temperature_f><dewpoint>40</dewpoint></weather>
+<weather><station>Boone, Watauga County Hospital Heliport (KTNB)</station><wind_speed_mph>28</wind_speed_mph><temperature_f>90</temperature_f><dewpoint>45</dewpoint></weather>
+<weather><station>Hatteras, Mitchell Field (KHSE)</station><wind_speed_mph>35</wind_speed_mph><temperature_f>100</temperature_f><dewpoint>50</dewpoint></weather>
+<weather><station>Raleigh-Durham International Airport (KRDU)</station><wind_speed_mph>42</wind_speed_mph><temperature_f>30</temperature_f><dewpoint>35</dewpoint></weather>
+<weather><station>New Bern, Craven County Regional Airport (KEWN)</station><wind_speed_mph>51</wind_speed_mph><temperature_f>40</temperature_f><dewpoint>40</dewpoint></weather>
+==== xml_consumer.py.out
+<weather><station>Raleigh-Durham International Airport (KRDU)</station><wind_speed_mph>16</wind_speed_mph><temperature_f>70</temperature_f><dewpoint>35</dewpoint></weather>
+No more messages!

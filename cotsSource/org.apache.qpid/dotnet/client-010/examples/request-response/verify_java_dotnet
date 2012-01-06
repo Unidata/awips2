@@ -1,0 +1,15 @@
+# See https://svn.apache.org/repos/asf/incubator/qpid/trunk/qpid/bin/verify
+
+server_java()
+{
+java -Dlog4j.configuration=file://"$JAVA"/log4j.xml -cp "$CLASSPATH" org.apache.qpid.example.jmsexample.requestResponse.Server
+}
+
+client_dotnet()
+{
+mono $DOTNET_EXAMPLES/example-request-response-Client.exe localhost 5672
+}
+background "can receive messages" server_java
+clients client_dotnet
+kill %%
+outputs  "server_java.out | remove_uuid" ./client_dotnet.out

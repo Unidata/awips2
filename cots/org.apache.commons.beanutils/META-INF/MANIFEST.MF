@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Apache Commons Beanutils Plug-in
+Bundle-SymbolicName: org.apache.commons.beanutils
+Bundle-Version: 1.8.3
+Bundle-ClassPath: commons-beanutils-1.8.3.jar
+Export-Package: org.apache.commons.beanutils,
+ org.apache.commons.beanutils.converters,
+ org.apache.commons.beanutils.expression,
+ org.apache.commons.beanutils.locale,
+ org.apache.commons.beanutils.locale.converters
+Require-Bundle: org.apache.commons.collections,
+ org.apache.commons.logging
+Bundle-Vendor: Raytheon-bundled OSS
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

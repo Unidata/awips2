@@ -1,0 +1,195 @@
+." $Id: rtstats.1,v 1.3.16.1.2.5 2009/06/18 16:19:47 steve Exp $
+.TH RTSTATS 1 "$Date: 2009/06/18 16:19:47 $"
+.SH NAME
+rtstats - Generate time based statistics from an LDM product queue and transmit
+to a receiving host using LDM protocol.
+.SH SYNOPSIS
+.HP
+.ft B
+rtstats
+.nh
+\%[-v]
+\%[-x]
+\%[-h\ \fIremote host\fP]
+\%[-P\ \fIport\fP]
+\%[-l\ \fIlogfile\fP]
+\%[-d\ \fIlogdir\fP]
+\%[-f\ \fIfeedtype\fP]
+\%[-p\ \fIpattern\fP]
+\%[-q\ \fIqueue\fP]
+\%[-o\ \fIoffset\fP]
+\%[-i\ \fIinterval\fP]
+.hy
+.ft
+.SH DESCRIPTION
+.LP
+This program scans an LDM product queue (see \fBpq\fP(3)) and creates 
+products containing statistics about products being received.
+The products are generated for each incoming feedtype and are assigned 
+the EXP feedtype for transmission. Statistics are reported at 1 minute
+intervals as new data are being received.
+
+.B Rtstats
+is typically used in to accumlate data for monitoring the performance
+of a distributed LDM system. Statistics for various nodes in the system can 
+be compared to ascertain the performance of the network. This program is
+similar to \fBpqbinstats\fP(1) with the addition of the delivery of
+the statistics via LDM protocol to a specified host.
+
+A separate statistic product will be sent for each FEEDTYPE and LDM product origin.
+That is, each LDM product will be named as follows:
+
+.RS +4
+  rtstats-LDMVERSION/LDMHOST/FEEDTYPE/PRODUCT_ORIGIN
+.RE
+
+where LDMVERSION is the release number of the LDM distribution,
+LDMHOST is the machine where rtstats is running, FEEDTYPE is
+the class of the incoming data, and PRODUCT_ORIGIN is the assigned
+identifier denoting the original injection host of the data
+and upstream host identifier if available (LDM 5.2 and later).
+In addition to cumulative statistics for the individual feeds,
+the instantaneous product latency for the most recent product received 
+is provided. The arriving statistics may be processed through
+( \fBpqact\fP(1)).
+
+.SH REPORTED STATISTICS
+.TP
+Creation-time of most recent product
+.TP
+Product-queue insertion-time of most recent product
+.TP
+Receiving host (eg localhost id)
+.TP
+Feedtype
+.TP
+Origin host
+.TP
+Products received this hour
+.TP
+Bytes received this hour
+.TP
+Latency of most recent product
+.TP
+Average latency of products received this hour
+.TP
+Peak latency@min/sec past hour
+.TP
+Version of LDM running on localhost
+
+.SH OPTIONS
+.TP
+.B -v
+Verbose logging.  A line is emitted for every product in the queue whose
+feed type and identifier match the specified feedtype and pattern.  The
+emitted line contains the UTC date and time, the program name, the product
+ingest time, feedtype, sequence number, size in bytes, and the product
+identifier.
+.TP
+.B -x
+Debugging information is also emitted.
+.TP
+.BI "-h " remote
+Requests that the statistic products be delivered to the LDM  server on remote.
+Defaults to localhost if not specified.
+.TP
+.BI "-l " logfile
+The path name of a file to be used as the log file for the process.  The
+default is to use syslogd(8).
+.TP
+.BI "-d " logdir
+The path name of a directory that the process should change directory to
+before writing the stats file.
+.TP
+.BI \-f " feedtype"
+Reads from the product queue only products that have a feedtype that is a
+member of the \fIfeedtype\fP set.  The default is `ANY', specifying all
+feed types.  See \fBpqact\fP(1) for a list of basic feed types
+and the use of feedtype expressions to specify combinations of basic
+feed types.
+.TP
+.BI \-p " pattern"
+Reads from the product queue only products whose identifier
+matches the regular expression \fIpattern\fP.
+The default is `\fB.*\fP', specifying all products.
+.TP
+.BI "-q " queue
+The pathname of the data product queue.
+The default is \fBdata/ldm.pq\fP relative to the installation point,
+which is typically \fB/usr/local/ldm\fP. The compiled in default can
+be overridden by setting the environment variable \fBLDMPQFNAME\fP.
+.TP
+.BI \-i " interval"
+Polling interval, in seconds.  When the end of the queue is reached, the
+program sleeps and
+checks for new products in the product queue every \fIinterval\fP seconds.
+When
+.B rtstats
+is run in the same process group as the programs that insert products into
+the product queue, a signal informs
+.B rtstats
+and all other interested processes in the process group
+whenever a new product is available.
+In this case, the interval should be set so that polling timer rarely expires.
+The default interval is 15 seconds.
+.TP
+.BI \-o " offset"
+Offset time, in seconds.
+Begin reading products inserted into the product queue \fIoffset\fP
+seconds earlier than the current time.
+The default is to begin just after the time stamp of the oldest product
+in the queue at startup.
+.TP
+.BI \-p " port"
+Port on the remote system to which to connect.  The well-known LDM port is
+388.
+.SH SIGNALS
+.TP
+.BR SIGTERM
+Normal termination.
+.TP
+.B SIGUSR1
+Ignored.
+.TP
+.B SIGUSR2
+Toggle logging of verbose messages.
+
+.SH EXAMPLE
+The following line may be added to the ldmd.conf file to automatically
+start rtstats when the LDM is started and deliver statistics to
+the collection server at the Unidata Program Center.
+.RS +4
+  exec    "rtstats -h rtstats.unidata.ucar.edu"
+.RE
+
+.SH FILES
+.LP
+
+.SH "SEE ALSO"
+.LP
+.BR ldmd (1),
+.BR pqact (1),
+.BR pqcat (1),
+.BR pqbinstats (1),
+.BR ulog (3),
+.BR pq (3),
+.BR syslogd (8),
+WWW URL \fBhttp://www.unidata.ucar.edu/software/ldm/\fP.
+
+.SH SUPPORT
+.LP
+If you have problems with this program, then you should first examine the 
+LDM email archive for similar problems and how they were solved.
+The email archive is available via the following World Wide Web URL:
+.sp
+.RS
+\fBhttp://www.unidata.ucar.edu/software/ldm/\fP
+.RE
+.sp
+If this does not suffice and your site is a member of the Unidata 
+program, then send an inquiry via email -- together will all relevant 
+information -- to
+.sp
+.RS
+\fBsupport@unidata.ucar.edu\fP
+.RE

@@ -1,0 +1,13 @@
+pqsend.o: ../config/ldmconfig.h
+pqsend.o: ../misc/inetutil.h
+pqsend.o: ../misc/paths.h
+pqsend.o: ../pq/pq.h
+pqsend.o: ../protocol/atofeedt.h
+pqsend.o: ../protocol/h_clnt.h
+pqsend.o: ../protocol/ldm.h
+pqsend.o: ../protocol/ldm5_clnt.h
+pqsend.o: ../protocol/ldmprint.h
+pqsend.o: ../protocol/prod_class.h
+pqsend.o: ../protocol/timestamp.h
+pqsend.o: ../ulog/ulog.h
+pqsend.o: pqsend.c

@@ -1,0 +1,192 @@
+module 'Ldv'
+version = 47;
+xdesigned = 1;
+applicationName = 'Ldv';
+generateNameC = * './ldviewer.c';
+generateNameExterns = * './ldviewer.h';
+generateNameResDB = * './ldviewer.res';
+generateCPixmapFile = '';
+generateCHeaderFile = '';
+generateMask = 5701869;
+useMask = 0;
+ansiC = 0;
+generateNewMakefile = 1;
+generateMakeTemplate = 0;
+useCPixmaps = 0;
+useUILPixmaps = 0;
+useCHeaders = 0;
+useCUILHeaders = 0;
+CPPFlavour = 0;
+useCPPHeaders = 0;
+useCPPHeadersMFCWindows = 0;
+useCPPHeadersMFCMotif = 0;
+/* group data */
+groupIndex 0;
+/* end group data */
+object 'ldvAS' : XmDialogShell {
+	arguments {
+	was_selected = true;
+	lastGenName = 'ldvAS';
+	createPreludeStatus = 1;
+	preInstantiation = 'void create_ldvAS (display, app_name, app_argc, app_argv)Display *display;
+char *app_name;
+int app_argc;
+char **app_argv;
+';
+	XmNallowShellResize = true;
+	XmNtitle = 'Live Hydro Data Viewer';
+	XmNminWidth = 415;
+	XmNminHeight = 90;
+	XmNmaxWidth = 415;
+	XmNmaxHeight = 90;
+	XmNprimary = 1;
+	};
+object 'ldvFO' : XmForm {
+	arguments {
+	lastGenName = 'ldvFO';
+	XmNautoUnmanage = false;
+	};
+object 'ldvPDM' : XmMenuBar {
+	arguments {
+	lastGenName = 'ldvPDM';
+	};
+object 'ldv_fileCB' : XmCascadeButton {
+	arguments {
+	lastGenName = 'ldv_fileCB';
+	XmNx = 5;
+	XmNy = 5;
+	XmNlabelString = 'File';
+	};
+object 'ldv_filePDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'ldv_filePDM';
+	};
+object 'ldv_aboutPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ldv_aboutPB';
+	XmNlabelString = 'About...';
+	};
+};
+object 'ldv_exitPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ldv_exitPB';
+	XmNlabelString = 'Exit';
+	};
+};
+};
+};
+object 'ldv_overviewCB' : XmCascadeButton {
+	arguments {
+	lastGenName = 'ldv_overviewCB';
+	XmNlabelString = 'Overview';
+	XmNmnemonic = 'L';
+	};
+object 'ldv_overviewPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'ldv_overviewPDM';
+	};
+object 'ldv_synopticPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ldv_synopticPB';
+	XmNlabelString = 'Synoptic Data Viewer...';
+	};
+};
+object 'ldv_timeseriesPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ldv_timeseriesPB';
+	XmNlabelString = 'Time Series Viewer...';
+	};
+};
+};
+};
+object 'ldv_qcCB' : XmCascadeButton {
+	arguments {
+	lastGenName = 'ldv_qcCB';
+	XmNx = 134;
+	XmNy = 5;
+	XmNlabelString = 'QualityControl';
+	XmNmnemonic = 'R';
+	};
+object 'ldv_qcPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'ldv_qcPDM';
+	};
+object 'ldv_qbPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ldv_qbPB';
+	XmNlabelString = 'Questionable/Bad Data...';
+	};
+};
+object 'ldv_rejectedPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ldv_rejectedPB';
+	XmNlabelString = 'Rejected Data...';
+	};
+};
+};
+};
+object 'ldv_otherCB' : XmCascadeButton {
+	arguments {
+	lastGenName = 'ldv_otherCB';
+	XmNx = 253;
+	XmNy = 5;
+	XmNwidth = 66;
+	XmNheight = 15;
+	XmNlabelString = 'Other';
+	XmNmnemonic = 'H';
+	};
+object 'ldv_otherPDM' : XmPulldownMenu {
+	arguments {
+	lastGenName = 'ldv_otherPDM';
+	};
+object 'ldv_ppaPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ldv_ppaPB';
+	XmNlabelString = 'Point Precip Acccumulation...';
+	};
+};
+object 'ldv_alertalarmPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ldv_alertalarmPB';
+	XmNlabelString = 'Alert/Alarm...';
+	};
+};
+object 'ldv_stationstatPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ldv_stationstatPB';
+	XmNlabelString = 'Station Status/Latest Obs...';
+	};
+};
+object 'ldv_productsPB' : XmPushButton {
+	arguments {
+	lastGenName = 'ldv_productsPB';
+	XmNlabelString = 'Product Viewer...';
+	};
+};
+};
+};
+};
+object '5' : XmLabel {
+	arguments {
+	lastGenName = 'label5';
+	XmNlabelString = 'Select any of the pull-down menu
+options to view data in the Hydro Database';
+	};
+};
+    attachments {
+    attachment {
+	XmNrightAttachment = 2 0 -415;
+	XmNleftAttachment = 1 0 0;
+	XmNbottomAttachment = 2 0 -45;
+	XmNtopAttachment = 1 0 0;
+    };
+    attachment {
+	XmNrightAttachment = 2 0 -410;
+	XmNleftAttachment = 1 0 5;
+	XmNbottomAttachment = 2 0 -90;
+	XmNtopAttachment = 1 0 50;
+    };
+    };
+};
+};
+end module;

@@ -1,0 +1,2 @@
+It is automatically submitted to the Translator if the "language" in the Definition section is specified as anything other than "english".  The Translator has lengthy tables giving corresponding Spanish and French expressions.  They are simply substituted for the English expressions in the product.  There is additional code in the Translator for handling gender and noun-adjective ordering.  You may have to add entries to the Translator tables in order to successfully cover all the expressions in your product.
+

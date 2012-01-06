@@ -1,0 +1,189 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (X11; U; Linux 2.4.18-27.7.xsmp i686) [Netscape]">
+  <meta name="Author" content="Mark Mathewson">
+  <title>GFESuite Documentation</title>
+</head>
+<body style="background-color: rgb(255, 255, 255);">
+<center>
+<h1 class="3Heading">Smart Tools and Procedures<br>
+</h1>
+</center>
+<div class="3Heading">This section of the reference manual describes
+each of the baselined smart tools and procedures that are provided with
+the GFE.<br>
+<br>
+<a href="#methods">Hazard and Watch Methodology</a><br>
+<a href="#hazardprocs">Hazard Procedures</a><br>
+<a href="#isc">ISC Tools</a><br>
+<a href="#TropicalCycloneTools">Tropical Cyclone Tools</a><br>
+<a href="#WeatherElementIntegrityTools">Weather Element Integrity Tools</a><br>
+<br>
+<hr style="width: 100%; height: 2px;"><br>
+<br>
+<big><span style="color: rgb(204, 0, 0);"><span
+ style="font-weight: bold;"><a name="methods"></a>Hazard and Watch
+Methodology<br>
+</span></span></big>
+<table
+ style="width: 70%; text-align: left; background-color: rgb(33, 206, 211);"
+ border="2" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="background-color: rgb(33, 206, 211);"><a
+ href="Hazard_Methodology.html">Hazard Grid Methodology</a></td>
+      <td>This document describes the use
+of the GFE with the hazard procedures.&nbsp; It discusses the
+separation
+of hazards into temporary weather elements, making new hazards, and
+merging the hazards back into the Hazards grid. </td>
+    </tr>
+    <tr>
+      <td><a href="SPC_Watch_Methodology.html">SPC Watch Methodology</a></td>
+      <td>This document describes the use
+of the GFE with the SPC Watch techniques.&nbsp; It discusses the
+initial WCL coordination message, the receipt and plotting of the WOU,
+and the generation of the WCN using the GFE formatters.</td>
+    </tr>
+  </tbody>
+</table>
+<big><span style="color: rgb(204, 0, 0);"><span
+ style="font-weight: bold;"><br>
+<a name="hazardprocs"></a>Hazard Procedures<br>
+</span></span></big>
+<table
+ style="width: 70%; text-align: left; background-color: rgb(239, 208, 188);"
+ border="2" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td> <a href="PlotSPCWatches.html">PlotSPCWatches</a></td>
+      <td>This procedure is used to modify
+your Hazards grid based on the incoming WOU coordination message from
+the Storm Prediction Center. The user can choose which watches to add
+or remove.</td>
+    </tr>
+    <tr>
+      <td><a href="ViewWCL.html">ViewWCL</a></td>
+      <td><span style="text-decoration: underline;"></span>This
+procedure allows an office to view the WCL product, and use it for
+watch coordination with SPC.<br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="PlotTPCEvents.html">PlotTPCEvents</a></td>
+      <td>This procedure allows an office to plot tropical hazards as
+outlined in the TCV product issued by the Tropical Prediction Center.<br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="SeparateHazards.html">SeparateHazards</a></td>
+      <td>This procedure allows an office to separate Hazard grids into
+their individual elements, which is useful for editing in complex
+situations.<br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="MergeHazards.html">MergeHazards</a></td>
+      <td>This procedure allow separated hazard grids to be merged back
+into the forecast Hazard grid.<br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="MakeHazard.html">MakeHazard</a></td>
+      <td>This procedure is allows the creation and editing of all
+hazards in GFE.<br>
+      </td>
+    </tr>
+    <tr>
+      <td><a href="HazardRecovery.html">HazardRecovery</a></td>
+      <td>This procedure, only used in extreme situations, allows all
+hazards to be recovered from the internal VTEC active table. Used if
+Hazard grid becomes badly corrupted, and no official database exists. <br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<big><span style="color: rgb(204, 0, 0);"><span
+ style="font-weight: bold;"><br>
+<a name="isc"></a>ISC Tools<br>
+</span></span></big>
+<table
+ style="width: 70%; text-align: left; background-color: rgb(255, 204, 204);"
+ border="2" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td><a href="ShowISC.html">Show_ISC_Area<br>
+Show_ISC_Grid<br>
+Show_ISC_Info<br>
+Show_ISC_Highlights</a></td>
+      <td>This set of tools provide
+discrepancy checking for ISC grids.&nbsp; This set is the baseline
+version of Tim Barker's (SOO - BOI) set of ShowISC tools.</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<br>
+<span style="color: rgb(204, 0, 0); font-weight: bold;"><a
+ name="TropicalCycloneTools"></a>Tropical Cyclone Tools</span><br>
+<table style="text-align: left; width: 903px; height: 52px;" border="1"
+ cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td
+ style="vertical-align: top; background-color: rgb(51, 204, 255);"><a
+ href="TCMWindTool.html">TCMWindTool</a><br>
+      </td>
+      <td
+ style="vertical-align: top; background-color: rgb(51, 204, 255);">This
+procedure decodes a TCM bulletin and makes GFE wind grids derived from
+it.<br>
+      </td>
+    </tr>
+    <tr>
+      <td
+ style="vertical-align: top; background-color: rgb(51, 204, 255);"><a
+ href="GenerateCyclone.html">GenerateCyclone</a><br>
+      </td>
+      <td
+ style="vertical-align: top; background-color: rgb(51, 204, 255);">This
+procedure is intended to be used for Tropical Depressions, but can be
+used to make any cyclonic wind field.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<br style="color: rgb(204, 0, 0);">
+<span style="font-weight: bold; color: rgb(204, 0, 0);"><a
+ name="WeatherElementIntegrityTools"></a>Weather Element Integrity Tools</span><br>
+<table style="text-align: left; width: 930px; height: 28px;" border="1"
+ cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td
+ style="vertical-align: top; background-color: rgb(204, 102, 204);"><a
+ href="CheckTandTd.html">CheckTandTd</a> <br>
+      </td>
+      <td
+ style="vertical-align: top; background-color: rgb(204, 102, 204);">Check
+MinT, MaxT, T and Td to ensure inter-element integrity.&nbsp; Checks T
+against MinT and maxT and checks Td against T.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<hr width="100%">
+<p>&nbsp;<a href="GFESuite.html">Back To Top</a>
+<br>
+&nbsp;
+<br>
+&nbsp;</p>
+</div>
+</body>
+</html>

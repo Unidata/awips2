@@ -1,0 +1,26 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Modelsounding Plug-in
+Bundle-SymbolicName: com.raytheon.edex.plugin.modelsounding
+Bundle-Version: 1.12.1174.qualifier
+Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Bundle-Vendor: RAYTHEON
+Require-Bundle: com.raytheon.edex.common,
+ com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
+ com.raytheon.uf.common.localization,
+ org.geotools,
+ org.apache.commons.logging,
+ javax.persistence,
+ com.raytheon.uf.common.site;bundle-version="1.12.1174",
+ com.raytheon.uf.common.status;bundle-version="1.12.1174"
+Export-Package: com.raytheon.edex.plugin.modelsounding,
+ com.raytheon.edex.plugin.modelsounding.common,
+ com.raytheon.edex.plugin.modelsounding.dao,
+ com.raytheon.edex.plugin.modelsounding.decoder
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: com.raytheon.uf.common.geospatial.spi,
+ com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.common.pointdata.spatial,
+ com.raytheon.uf.common.pointdata.vadriver,
+ com.raytheon.uf.edex.pointdata
+

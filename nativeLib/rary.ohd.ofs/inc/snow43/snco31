@@ -1,0 +1,33 @@
+C..............................................
+C    COMMON BLOCK SNCO31
+C
+C    VARIABLE            DESCRIPTION
+C    --------            -----------
+C      we                Frozen water equivalent
+C      neghs             Negative heat storage
+C      liqw              Liquid water
+C      tindex            Temperature index
+C      accmax            Maximum accumulation this season
+C      sb                Minimum water equivalent since ACCMAX was set
+C      sbaesc            AESC associated with sb
+C      sbws              Upper limit of water equivalent on new snow line
+C      storge            Amount of excess liquid water in storage
+C      aeadj             Adjustment factor for areal extent of snow cover
+C      exlag             Lagged excess liquid water (array)
+C      aesc              Areal extent of snow-cover
+C      weliqw            WE + LIQW
+C      ai                Lesser of SI or ACCMAX
+C      p                 State error covariance matrix.
+C      nexlag            number of values in exlag
+C      icase             condition on areal depletion curve
+C..............................................
+C
+      real     we, neghs, liqw, tindex, accmax, sb,
+     1         sbaesc, sbws, storge, aeadj, exlag, 
+     2         aesc, weliqw, ai, p
+      integer  nexlag, icase
+C
+      common/snco31/we,neghs,liqw,tindex,accmax,sb,
+     1   sbaesc,sbws,storge,aeadj,nexlag,exlag(7),
+     2   aesc,weliqw,icase,ai,p(5,5)
+C

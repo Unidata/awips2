@@ -1,0 +1,117 @@
+<?php 
+include ("../../links.php"); 
+include ("../../includes/header.html"); 
+?>
+
+<fieldset>
+<h1><center>HDFView</center></h1>
+</fieldset>
+
+<hr>
+
+<table width="100%">
+  <tr>
+  <td valign="top">
+<b>HDFView</b> is a visual tool for browsing and editing HDF4 and HDF5 files.
+Using HDFView, you can
+<ul class="ul">
+<li>view a file hierarchy in a tree structure
+<li>create new file, add or delete groups and datasets
+<li>view and modify the content of a dataset
+<li>add, delete and modify attributes
+<li>replace I/O and GUI components such as table view, image view and metadata view
+</ul>
+
+<dl>
+  <dt><a href="UsersGuide/ug01introduction.html#ug01release">About This Release</a></dt>
+  <dd>- new features and major changes of the latest version</dd>
+  <dt><a href="UsersGuide/index.html">the User's Guide</a></dt>
+  <dd>- information on how to use the HDFView</dd>
+  <dt><a href="ModularGuide/index.html">the Module Guide</a> </dt>
+  <dd>- instruction on how to implement HDFView modules</dd>
+</dl>
+</td>
+
+<td align="right">
+  <img src="hdfview.gif"> 
+</td>
+
+</tr>
+</table>
+<hr>
+
+<?php include("../release.html"); ?> 
+  
+<hr>
+<a name="download_hdfview"><h3>Download</h3>
+
+<p />
+HDFView can be downloaded quickly from here. JRE1.6 is bundled in the 
+distribution. No additional software is needed to run HDFView. The HDFView 
+installer allows you to use other JRE installed in your system instead 
+of using the packed JRE.
+
+<ul class="ul">
+  <lh><b>32-bit distribution -- runs on 32-bit systems or 64-bit systems with 32-bit JRE</b></lh>
+  <li><a href="http://www.hdfgroup.org/ftp/HDF5/hdf-java/hdfview/hdfview_install_win32.exe">Windows</a> [44 MB]
+  <li><a href="http://www.hdfgroup.org/ftp/HDF5/hdf-java/hdfview/hdfview_install_linux32.bin">Linux</a> [49 MB] 
+  <li><a href="http://www.hdfgroup.org/ftp/HDF5/hdf-java/hdfview/hdfview_install_solaris32.bin">Solaris SPARC</a> [85 MB]
+  <li><a href="http://www.hdfgroup.org/ftp/HDF5/hdf-java/hdfview/hdfview_install_macosx_intel32.zip">Mac Intel</a> [8 MB]<strong>*</strong>
+</ul>
+
+<ul class="ul">
+  <lh><b>64-bit distribution -- runs on 64-bit systems with 64-bit JRE</b></lh>
+  <li><a href="http://www.hdfgroup.org/ftp/HDF5/hdf-java/hdfview/hdfview_install_linux64.bin">Linux x86</a> [63 MB] 
+  <li><a href="http://www.hdfgroup.org/ftp/HDF5/hdf-java/hdfview/hdfview_install_solaris64.bin">Solaris SPARC</a> 86 MB]
+   <li><a href="http://www.hdfgroup.org/ftp/HDF5/hdf-java/hdfview/hdfview_install_linux64ia.bin">Linux Itanium</a> [64 MB]
+  <li><a href="http://www.hdfgroup.org/ftp/HDF5/hdf-java/hdfview/hdfview_install_macosx_intel64.zip">Mac Intel</a> [8 MB]<strong>*</strong>
+</ul>
+
+<B>*</B> JRE is not needed for HDFView distribution for MacOS . 
+
+<p />
+An older release (<b>version 2.5</b>) is also available at <a href="http://www.hdfgroup.org/ftp/HDF5/hdf-java-2.5/hdfview/">
+http://www.hdfgroup.org/ftp/HDF5/hdf-java-2.5/hdfview/</a>
+
+<p />
+
+<hr>
+<p />
+<h3>Install/Run Instructions</H3>
+<ul class="ul">
+<li><B>Unix:</B>
+<p />
+  <ul class="ul">
+  <li>To install, type: &nbsp; <CODE>
+    sh ./hdfview_install_xxx.bin</CODE>
+  <li>To run,  type: &nbsp; <CODE>./hdfview</CODE>
+  </ul>
+<p />
+<li><B>Mac OS X:</B><p />
+<ul class="ul">
+  <li>To install, open <CODE>hdfview_install_macosx_xxx.zip</CODE>
+  <li>To run, {where_you_install_hdfview}/hdfview.sh <br>
+              or click on the HDFView Icon on the desktop
+
+  </ul>
+<p />
+<li><B>Windows:</B><p />
+<p />
+  <ul class="ul">
+  <li>To install, type: <CODE> hdfview_install_windows_xxx.exe </CODE>
+  <li>To run, select HDFView from the menu, <CODE>Start -> programs -> HDFView 2.x -> HDFView 2.x</CODE>
+  </ul>
+</ul>
+
+<hr>
+<H3>Documentation</H3>
+
+The HDFView User's Guide, accessible from the top of this page, contains
+detailed information on installing and using HDFView.  For further
+installation information,  please refer to
+<a href="UsersGuide/ug01introduction.html#ug01installation">Chapter 1.5</a>.
+<p />
+
+<?php 
+include ("../../includes/footer.html"); 
+?>

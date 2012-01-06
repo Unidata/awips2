@@ -1,0 +1,91 @@
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements. See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership. The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License. You may obtain a copy of the License at
+    -
+    http://www.apache.org/licenses/LICENSE-2.0
+    -
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied. See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<!-- This is an assembly descriptor that produces a distribution that contains all the
+     dependencies, with a manifest only jar that references them, required to run the 
+     tests of a maven project. 
+-->
+<assembly>
+    <id>all-test-deps</id>
+    <formats>
+        <format>tar.gz</format>
+        <format>zip</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>/</outputDirectory>
+            <unpack>false</unpack>
+            <scope>test</scope>
+        </dependencySet>
+    </dependencySets>
+    <fileSets>
+        <fileSet>
+            <directory>target/classes</directory>
+            <outputDirectory></outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>target/test-classes</directory>
+            <outputDirectory></outputDirectory>
+        </fileSet>
+
+        <!-- Include all the test scripts, both generated and hand-written. -->
+        <fileSet>
+            <directory>target</directory>
+            <outputDirectory></outputDirectory>
+            <includes>
+                <include>*.sh</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>etc/scripts</directory>
+            <outputDirectory></outputDirectory>
+            <includes>
+                <include>*.sh</include>
+            </includes>
+        </fileSet>
+
+        <!-- Include all jndi configurations needed to run the tests. -->
+        <fileSet>
+            <directory>etc/jndi</directory>
+            <outputDirectory></outputDirectory>
+            <includes>
+                <include>*.properties</include>
+            </includes>
+        </fileSet>
+
+        <!-- Include the build artifact. -->
+        <fileSet>
+            <directory>target</directory>
+            <outputDirectory></outputDirectory>
+            <includes>
+                <include>qpid-perftests-1.0-incubating-M2-SNAPSHOT.jar</include>
+            </includes>
+        </fileSet>
+
+        <!-- Include the manifest with classpath jar. -->
+        <fileSet>
+            <directory>target</directory>
+            <outputDirectory></outputDirectory>
+            <includes>
+                <include>qpid-perftests-${qpid.version}.jar</include>
+            </includes>
+        </fileSet>
+        
+    </fileSets>
+</assembly>

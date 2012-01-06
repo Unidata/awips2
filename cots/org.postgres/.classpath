@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry exported="true" kind="lib" path="postgresql-8.3-603.jdbc3.jar" sourcepath="org.postgressrc.zip"/>
+	<classpathentry exported="true" kind="lib" path="postgis.jar" sourcepath="org.postgressrc.zip"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

@@ -1,0 +1,105 @@
+<html>
+<title>GFESuite Documentation - Python Programming Guidelines</title>
+<body>
+<h1 align=center>
+<a NAME="Guidelines"></a>Programming Guidelines</h1>
+<div CLASS="2Heading">&nbsp;&nbsp;&nbsp; <a href="#StyleSuggestions">Style
+Suggestions</a></div>
+ 
+<div CLASS="2Heading">&nbsp;&nbsp;&nbsp; <a href="#Trouble-shootingIdeas">Trouble-shooting
+Ideas</a></div>
+<hr width="100%">
+
+<h2 align=center>
+<a NAME="StyleSuggestions"></a>Style Suggestions</h2>
+
+<ul>
+<li>
+Comment your code -- it really makes a difference, not only to others trying
+to understand your code, but to you when you're trying to debug it.</li>
+
+<li>
+Name your variables meaningfully.&nbsp; A variable named&nbsp; "threshold"
+versus "x" makes code much easier to read.</li>
+
+<li>
+Simple or Compound Statements</li>
+
+<br>There are many ways to write software.&nbsp; You can separate each
+step in a calculation on a separate line and assign it to variables, or
+you can combine everything on one line.&nbsp; It all amounts to readability.
+<p>Take this example of a compound statement, which computes a convective
+/ total precipitation ratio, then creates a boolean grid which is based
+on total precipitation from 0 to 0.02", and then creates a grid with ProbPrecip
+values if there is precipitation (precipMask) and the ratio (precipRatio)
+is less than 10%:
+<p><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; precipRatio = cp_SFC
+/ (tp_SFC + 0.0001)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; precipMask = logical_and(greater(tp_SFC,
+0.0), less(tp_SFC, 0.02*25.4))</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; grid = where(logical_and(precipMask,
+less(precipRatio, 0.1)), ProbPrecip, 0.0)</tt>
+<p>This same code fragment may be written in the following way. The precipRatio
+is the calculated cp/tp ratio; precipPositive is a boolean grid where tp
+> 0; precipLess2 is a boolean grid where tp &lt; 0.02" (which includes
+zero); precipBetweenZeroAnd2 is a boolean grid where tp > 0 and tp &lt;
+0.02"; precipRatioLess10 is a boolean grid where the precipRatio is less
+than 10%, precipRatioAndLowPrecip is a boolean grid where tp > 0 and less
+than 0.02", and where the cp/tp ratio is less than 0.1:
+<p><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; precipRatio = cp_SFC
+/ (tp_SFC + 0.0001)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; precipPositive = greater(tp_SFC,
+0.0)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; precipLess2 = less(tp_SFC,
+0.02*25.4)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; precipBetweenZeroAnd2
+= logical_and(precipPositive, precipLess2)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; precipRatioLess10 =
+less(precipRatio, 0.1)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; precipRatioAndLowPrecip
+= logical_and(precipRatioLess10, precipBetweenZeroAnd2)</tt>
+<br><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; grid = where(precipRatioAndLowPrecip,
+ProbPrecip, 0.0)</tt>
+<p>The second fragment, though longer, is composed of simpler statements
+and is easier to follow and read.&nbsp; Note also, that we have named the
+variables to reflect the concepts and improve readability.</ul>
+
+<h2 align=center>
+<a NAME="Trouble-shootingIdeas"></a>Trouble-shooting Ideas</h2>
+
+<ul>
+<li>
+&nbsp;Error Messages:&nbsp;&nbsp; Make sure you are running the GFE from
+a terminal window so that you will see any Python error messages that occur
+when you run your&nbsp; Smart&nbsp; Tool or Procedure. These messages will
+give line numbers and descriptions that help you trace the origin of the
+problem.</li>
+
+<li>
+&nbsp;Print Statements:&nbsp; Using the Python "print" statement within
+your Smart Tool or Procedure is one of the quickest ways to determine where
+a problem is occurring and what might be causing it.&nbsp; Simply interspersing
+"progress" statements such as the following throughout your tool can help:</li>
+</ul>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+print "Made it to this point"
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Here are some other
+example "print" statements:
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; print "myVariable
+=",&nbsp;&nbsp; myVariable
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # To print
+Python Numeric array information:
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; print&nbsp;&nbsp;
+"Dimensions of array T:",&nbsp; T.shape,&nbsp;&nbsp; "Value of T at point
+20, 20: ", T[20][20]
+<ul>
+<li>
+Simplify:&nbsp; If the problem is within a complicated method, simplify
+it by commenting out the code and gradually introducing pieces of it.&nbsp;
+Go back to something you know works and then start adding functionality
+to it.</li>
+</ul>
+</div>
+
+</body>
+</html>

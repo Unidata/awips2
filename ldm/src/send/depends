@@ -1,0 +1,13 @@
+ldmsend.o: ../config/ldmconfig.h
+ldmsend.o: ../misc/error.h
+ldmsend.o: ../misc/inetutil.h
+ldmsend.o: ../misc/rpcutil.h
+ldmsend.o: ../protocol/atofeedt.h
+ldmsend.o: ../protocol/ldm.h
+ldmsend.o: ../protocol/ldm_clnt.h
+ldmsend.o: ../protocol/ldmprint.h
+ldmsend.o: ../protocol/md5.h
+ldmsend.o: ../protocol/prod_class.h
+ldmsend.o: ../protocol/timestamp.h
+ldmsend.o: ../ulog/ulog.h
+ldmsend.o: ldmsend.c

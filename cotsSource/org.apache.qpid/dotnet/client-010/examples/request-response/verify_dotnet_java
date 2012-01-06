@@ -1,0 +1,16 @@
+# See https://svn.apache.org/repos/asf/incubator/qpid/trunk/qpid/bin/verify
+
+server_dotnet()
+{
+mono $DOTNET_EXAMPLES/example-request-response-Server.exe localhost 5672
+}
+
+client_java()
+{
+java -Dlog4j.configuration=file://"$JAVA"/log4j.xml -cp "$CLASSPATH" org.apache.qpid.example.jmsexample.requestResponse.Client
+}
+
+background "Waiting for requests" server_dotnet
+clients client_java
+kill %%
+outputs  ./server_dotnet.out  "client_java.out | remove_uuid"

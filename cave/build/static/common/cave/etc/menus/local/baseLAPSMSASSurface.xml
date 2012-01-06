@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="placeholder" menuText="Local Analyses/Statistical Guidance" id="header" />
+	
+	<contribute xsi:type="subMenu" menuText="LAPS">
+		<contribute xsi:type="placeholder" menuText="Basic fields" id="basicFields" />
+
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="MSL Pressure" id="mslp" useReferenceTime="true">
+			<substitute key="param" value="msl-P"/>
+			<substitute key="model" value="LAPS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="1500m Pressure" id="1500mp" useReferenceTime="true">
+			<substitute key="param" value="P"/>
+			<substitute key="levelName" value="FHAG"/>
+			<substitute key="levelOneVal" value="1500.0"/>
+			<substitute key="model" value="LAPS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Wind" id="wind" useReferenceTime="true">
+			<substitute key="param" value="Wind"/>
+			<substitute key="displayType" value="BARB"/>
+			<substitute key="model" value="LAPS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Temperature" id="temp" useReferenceTime="true">
+			<substitute key="param" value="T"/>
+			<substitute key="model" value="LAPS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Dewpoint" id="dewpoint" useReferenceTime="true">
+			<substitute key="param" value="DpT"/>
+			<substitute key="model" value="LAPS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Rel Humidity" id="rh" useReferenceTime="true">
+			<substitute key="param" value="RH"/>
+			<substitute key="model" value="LAPS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Pot Temp" id="pt" useReferenceTime="true">
+			<substitute key="param" value="PoT"/>
+			<substitute key="model" value="LAPS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Equiv Pot Temp" id="ept" useReferenceTime="true">
+			<substitute key="param" value="EPT"/>
+			<substitute key="model" value="LAPS"/>
+		</contribute>
+
+		<contribute xsi:type="separator" id="lapsBasicSeparator"/>
+		<contribute xsi:type="placeholder" menuText="Derived fields" id="derivedFields" />
+
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Lifted Index" id="li" useReferenceTime="true">
+			<substitute key="param" value="SLI"/>
+			<substitute key="model" value="LAPS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Computed LI" id="cli" useReferenceTime="true">
+			<substitute key="param" value="L-I"/>
+			<substitute key="model" value="LAPS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Moisture Flux Div" id="mfd" useReferenceTime="true">
+			<substitute key="param" value="MCon"/>
+			<substitute key="model" value="LAPS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Moisture Advection" id="ma" useReferenceTime="true">
+			<substitute key="param" value="MAdv"/>
+			<substitute key="model" value="LAPS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Temp Advection" id="ta" useReferenceTime="true">
+			<substitute key="param" value="TAdv"/>
+			<substitute key="model" value="LAPS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Theta-E Convergence" id="thc" useReferenceTime="true">
+			<substitute key="param" value="EPTC"/>
+			<substitute key="model" value="LAPS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Relative Vorticity" id="rv" useReferenceTime="true">
+			<substitute key="param" value="RV"/>
+			<substitute key="model" value="LAPS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="CSSI" id="cssi" useReferenceTime="true">
+			<substitute key="param" value="CSSI"/>
+			<substitute key="model" value="LAPS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="CAPE" id="cape" useReferenceTime="true">
+			<substitute key="param" value="PBE"/>
+			<substitute key="model" value="LAPS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="CIN" id="cin" useReferenceTime="true">
+			<substitute key="param" value="NBE"/>
+			<substitute key="model" value="LAPS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Helicity" id="heli" useReferenceTime="true">
+			<substitute key="param" value="Heli"/>
+			<substitute key="model" value="LAPS"/>
+		</contribute>
+
+		<contribute xsi:type="separator" id="lapsDerivedSeparator"/>
+		<contribute xsi:type="placeholder" menuText="Cloud/precip fields" id="cloudFields" />
+
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="1hr Precip" id="1hrp" useReferenceTime="true">
+			<substitute key="param" value="TP"/>
+			<substitute key="model" value="LAPS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Storm Total Precip" id="stp" useReferenceTime="true">
+			<substitute key="param" value="SPAcc"/>
+			<substitute key="model" value="LAPS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Precip Type" id="pt" useReferenceTime="true">
+			<substitute key="param" value="PTyp"/>
+			<substitute key="displayType" value="ICON"/>
+			<substitute key="model" value="LAPS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="1hr Snow" id="1hrs" useReferenceTime="true">
+			<substitute key="param" value="SAcc"/>
+			<substitute key="model" value="LAPS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Storm Total Snow" id="sts" useReferenceTime="true">
+			<substitute key="param" value="SSAcc"/>
+			<substitute key="model" value="LAPS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Snow Cover" id="sc" useReferenceTime="true">
+			<substitute key="param" value="SCP"/>
+			<substitute key="model" value="LAPS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Cloud Cover" id="cc" useReferenceTime="true">
+			<substitute key="param" value="CCP"/>
+			<substitute key="model" value="LAPS"/>
+		</contribute>
+
+	</contribute>
+	<contribute xsi:type="subMenu" menuText="MSAS (MAPS)">
+		<contribute xsi:type="placeholder" menuText="Analyses" id="msasHeader" />
+		
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="NWS MSL Pressure" id="nwsMslPressure" useReferenceTime="true">
+			<substitute key="param" value="msl-P"/>
+			<substitute key="model" value="MSAS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="MSAS MSL Pressure" id="msasMslPressure" useReferenceTime="true">
+			<substitute key="param" value="msl-P2"/>
+			<substitute key="model" value="MSAS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Altimeter" id="MSLSA" useReferenceTime="true">
+			<substitute key="param" value="Alti"/>
+			<substitute key="model" value="MSAS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="3hr Pressure Change" id="3hrPressureChange" useReferenceTime="true">
+			<substitute key="param" value="PT3"/>
+			<substitute key="model" value="MSAS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Wind Barbs" id="barbs" useReferenceTime="true">
+			<substitute key="param" value="Wind"/>
+			<substitute key="displayType" value="BARB"/>
+			<substitute key="model" value="MSAS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Temperature" id="temperature" useReferenceTime="true">
+			<substitute key="param" value="T"/>
+			<substitute key="model" value="MSAS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Dewpoint" id="dewpoint" useReferenceTime="true">
+			<substitute key="param" value="DpT"/>
+			<substitute key="model" value="MSAS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Dewpoint Depression" id="dewpointDepression" useReferenceTime="true">
+			<substitute key="param" value="DpD"/>
+			<substitute key="model" value="MSAS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Lifted Index" id="liftedIndex" useReferenceTime="true">
+			<substitute key="param" value="L-I"/>
+			<substitute key="model" value="MSAS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Moisture Flux Div" id="mfd" useReferenceTime="true">
+			<substitute key="param" value="MCon"/>
+			<substitute key="model" value="MSAS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Potential Temp" id="potentialTemp" useReferenceTime="true">
+			<substitute key="param" value="PoT"/>
+			<substitute key="model" value="MSAS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Equiv Pot Temp" id="ept" useReferenceTime="true">
+			<substitute key="param" value="EPT"/>
+			<substitute key="model" value="MSAS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Temp Advection" id="tempAdvection" useReferenceTime="true">
+			<substitute key="param" value="TAdv"/>
+			<substitute key="model" value="MSAS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Pot Temp Adv" id="potTempAdv" useReferenceTime="true">
+			<substitute key="param" value="PoTA"/>
+			<substitute key="model" value="MSAS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Eq Pot Temp Adv" id="eqPotTempAdv" useReferenceTime="true">
+			<substitute key="param" value="EPTA"/>
+			<substitute key="model" value="MSAS"/>
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/SingleGrib.xml"
+			menuText="Relative Vorticity" id="relVort" useReferenceTime="true">
+			<substitute key="param" value="RV"/>
+			<substitute key="model" value="MSAS"/>
+		</contribute>
+		
+		<contribute xsi:type="separator" id="msasGribObsSeparator"/>
+		<contribute xsi:type="placeholder" menuText="Observations" id="msasObsHeader" />
+		
+		<contribute xsi:type="subinclude" fileName="menus/obs/baseMSASObs.xml"/>
+	</contribute>
+</menuTemplate>

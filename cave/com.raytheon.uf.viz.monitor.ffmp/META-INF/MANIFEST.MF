@@ -1,0 +1,31 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Ffmp Plug-in
+Bundle-SymbolicName: com.raytheon.uf.viz.monitor.ffmp;singleton:=true
+Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core, com.raytheon.viz.ui, com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Activator: com.raytheon.uf.viz.monitor.ffmp.Activator
+Bundle-Vendor: RAYTHEON
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.geotools,
+ com.raytheon.uf.common.monitor;bundle-version="1.0.0",
+ com.raytheon.viz.core;bundle-version="1.10.13",
+ com.raytheon.viz.alerts;bundle-version="1.10.13",
+ com.raytheon.viz.ui;bundle-version="1.10.13",
+ com.raytheon.uf.viz.monitor;bundle-version="1.11.1",
+ com.raytheon.uf.common.dataplugin.ffmp;bundle-version="1.11.9",
+ org.apache.commons.lang;bundle-version="2.3.0",
+ com.raytheon.uf.viz.d2d.core;bundle-version="1.11.15",
+ com.raytheon.uf.viz.localization,
+ javax.measure;bundle-version="1.0.0",
+ com.raytheon.uf.common.ohd;bundle-version="1.12.1174"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Import-Package: com.raytheon.uf.common.colormap,
+ com.raytheon.uf.common.pointdata
+Export-Package: com.raytheon.uf.viz.monitor.ffmp,
+ com.raytheon.uf.viz.monitor.ffmp.ffti,
+ com.raytheon.uf.viz.monitor.ffmp.ui.listeners,
+ com.raytheon.uf.viz.monitor.ffmp.ui.rsc,
+ com.raytheon.uf.viz.monitor.ffmp.xml
