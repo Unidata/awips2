@@ -76,34 +76,14 @@ function buildRPM()
 
       return
    fi
-   if [ "${COMPONENT_DIR}" = "Installer.java-jrockit" ]; then
-      export BUILDROOT_DIR="${BUILDROOT_DIR}"
-      # Use the updated build method for the jrockit rpm.
-      rpmbuild -ba \
-         --target=i386 \
-         --define '_topdir %(echo ${RPM_TOP_DIR})' \
-         --define '_build_root %(echo ${BUILDROOT_DIR})' \
-         --define '_baseline_workspace %(echo ${WORKSPACE_DIR})' \
-         --buildroot ${BUILDROOT_DIR} \
-         ${COMPONENT_SPECS}
-
-      RC=$?
-      unset BUILDROOT_DIR
-      if [ ${RC} -ne 0 ]; then
-         echo "Unable To Build The RPM Defined In: ${COMPONENT_DIR}."
-         echo "Unable To Continue ... Terminating."
-         exit 1
-      fi
-
-      return
-   fi
-   
 
    export BUILDROOT_DIR="${BUILDROOT_DIR}"
    # Build The RPM.
    rpmbuild -ba --target=i386 \
       --define '_topdir %(echo ${RPM_TOP_DIR})' \
       --define '_build_root %(echo ${BUILDROOT_DIR})' \
+      --define '_component_version %(echo ${AWIPSII_VERSION})' \
+      --define '_component_release %(echo ${AWIPSII_RELEASE})' \
       --define '_baseline_workspace %(echo ${WORKSPACE_DIR})' \
       --buildroot ${BUILDROOT_DIR} \
       ${COMPONENT_SPECS}
@@ -190,7 +170,6 @@ buildRPM "Installer.aviation"
 buildRPM "Installer.cli"
 buildRPM "Installer.database"
 buildRPM "Installer.maps-database"
-#buildRPM "Installer.ncep-database"
 buildRPM "Installer.gfe.climo"
 buildRPM "Installer.topo"
 buildRPM "Installer.hydroapps"
