@@ -3,8 +3,8 @@
 #
 Name: awips2-edex-native
 Summary: AWIPS II Edex Native
-Version: 1.0.0
-Release: 1
+Version: %{_component_version}
+Release: %{_component_release}
 Group: AWIPSII
 BuildRoot: /tmp
 Prefix: /awips2
