@@ -3,8 +3,8 @@
 #
 Name: awips2-database-standalone-configuration
 Summary: AWIPS II Database Standalone Configuration
-Version: 1.0.0
-Release: 1
+Version: %{_component_version}
+Release: %{_component_release}
 Group: AWIPSII
 BuildRoot: /tmp
 URL: N/A
