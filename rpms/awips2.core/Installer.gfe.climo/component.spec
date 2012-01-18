@@ -3,8 +3,8 @@
 #
 Name: awips2-data.hdf5-gfe.climo
 Summary: AWIPS II gfe.climo Distribution
-Version: 1.0.0
-Release: 1
+Version: %{_component_version}
+Release: %{_component_release}
 Group: AWIPSII
 BuildRoot: /tmp
 Prefix: /awips2/edex
