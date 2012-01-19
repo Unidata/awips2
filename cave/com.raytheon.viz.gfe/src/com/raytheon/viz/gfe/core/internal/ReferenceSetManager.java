@@ -545,7 +545,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
             refDataCache.remove(add.getName());
         }
     }
-
+    
     /**
      * Constructor for ReferenceSet taking a pointer to the Data Manager
      * 
@@ -867,6 +867,9 @@ public class ReferenceSetManager implements IReferenceSetManager,
                             "Unable to save reference set", e));
             return false;
         }
+        
+        // cache it temporarily
+        refDataCache.put(refData.getId().getName(), refData);        
 
         return true;
     }

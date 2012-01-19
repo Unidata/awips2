@@ -854,7 +854,8 @@ MPEFieldGen_determine_dataset_triangle (DPOINTL * pnt,
       // load minimum amount of data into the contour array */
    c[numpnt].lon = pnt->lon;
    c[numpnt].lat = pnt->lat;
-   /* get a starting seed point */
+   /* get a starting seed point
+ */
    closest_point =
       get_seed_point (c, numpnt, closest_point, &recursion_array);
    /* free the work array */

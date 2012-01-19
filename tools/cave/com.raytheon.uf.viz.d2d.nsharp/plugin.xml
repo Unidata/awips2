@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="com.raytheon.uf.viz.core.descriptor">
+      <descriptor
+            class="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpDescriptor"
+            editor="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor"
+            name="com.raytheon.uf.viz.d2d.nsharp.D2DNSharpDescriptor">
+      </descriptor>
+   </extension>
+
+	<extension 
+         point="org.eclipse.ui.views">
+           <view 
+            category="com.raytheon.viz.ui"
+            allowMultiple="false"
+            restorable="true"
+            class="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPaletteWindow"
+            id="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPaletteWindow"
+            name="D2D NSHARP"/>
+   </extension> 
+
+<extension point="org.eclipse.ui.perspectiveExtensions">
+  <perspectiveExtension 
+	targetID="com.raytheon.uf.viz.d2d.ui.perspectives.D2D5Pane">
+    	<view id="com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpPaletteWindow"
+    		relative="org.eclipse.ui.editorss" 
+    		relationship="bottom"
+    		ratio="0.8"
+    		visible="false"/>	
+  </perspectiveExtension> 
+</extension>
+</plugin>

@@ -1,0 +1,4 @@
+! DbOverlay
+tableName=mapdata.highway
+labelField=name
+mapName=Highways
