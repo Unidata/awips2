@@ -1,0 +1,8 @@
+! Parameters and Attributes for the default FFG Resource
+!
+enablePositiveStrikes=true
+enableNegativeStrikes=true
+positiveSymbolSize=3
+negativeSymbolSize=3
+colorBar=@intensityColorBar.xml
+colorByIntensity=true

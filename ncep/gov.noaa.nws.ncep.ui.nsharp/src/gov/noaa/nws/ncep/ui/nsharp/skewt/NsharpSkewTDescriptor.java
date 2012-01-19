@@ -57,6 +57,7 @@ public class NsharpSkewTDescriptor extends GraphDescriptor {
         super.checkDrawTime(loopProperties);
     //handleDataTimeIndex is no longer available since 11.5
     //called from DrawCoordinatedPane 
+    //Chin: 11.11 note: it is now called from NsharpSkewTDisplay.paint() when animation is started.
     	//System.out.println("NsharpSkewTDescriptor checkDrawTime called ");
     	if (loopProperties == null || getFrames() == null) {
     		//System.out.println("NsharpSkewTDescriptor checkDrawTime called but jump ");

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:output method = "text"/>
+
+<!--
+	WatchText.xlt
+		- generate formatted Watch text	
+
+	Change Log:
+
+	B. Yin/Chugach	03/10	Initial Coding
+-->
+
+<xsl:variable name="newline"><xsl:text>
+ </xsl:text></xsl:variable>
+
+ <xsl:template match="WatchBox">
+
+	<xsl:value-of select="$newline"/>
+        <xsl:text>WATCH NUMBER:       </xsl:text>
+        <xsl:value-of select="@watchNumber"/>
+
+	<xsl:value-of select="$newline"/>
+        <xsl:text>TYPE:               </xsl:text>
+        <xsl:value-of select="@watchType"/>
+
+	<xsl:value-of select="$newline"/>
+        <xsl:text>PDS/NORMAL:         </xsl:text>
+        <xsl:value-of select="@severity"/>
+
+	<xsl:value-of select="$newline"/>
+        <xsl:text>ISSUE TIME:         </xsl:text>
+        <xsl:value-of select="@issueTime"/>
+
+	<xsl:value-of select="$newline"/>
+        <xsl:text>VALID TIME:         </xsl:text>
+        <xsl:value-of select="@issueTime"/>
+
+	<xsl:value-of select="$newline"/>
+        <xsl:text>EXPIRATION TIME:    </xsl:text>
+        <xsl:value-of select="@expTime"/>
+
+	<xsl:value-of select="$newline"/>
+        <xsl:text>ENDPOINT (ANC,sm):  </xsl:text>
+        <xsl:value-of select="@endPointAnc"/>
+
+	<xsl:value-of select="$newline"/>
+        <xsl:text>ENDPOINT (VOR,nm):  </xsl:text>
+        <xsl:value-of select="@endPointVor"/>
+
+	<xsl:value-of select="$newline"/>
+        <xsl:text>ATTRIB (ANC,sm):    </xsl:text>
+        <xsl:value-of select="@halfWidthSm"/>
+
+	<xsl:value-of select="$newline"/>
+        <xsl:text>ATTRIB (VOR,nm):    </xsl:text>
+        <xsl:value-of select="@halfWidthNm"/>
+
+	 <xsl:for-each select="Point">
+	  	<xsl:variable name="pos"  select="position()"/>
+	   	<xsl:if test="$pos = 2 or $pos = 4 or $pos = 6 or $pos = 8">
+	  		<xsl:value-of select="$newline"/>
+          		<xsl:text>WATCH CORNER POINT: </xsl:text>
+          		<xsl:value-of select="format-number(@Lat,'##.00')"/>
+          		<xsl:text>  </xsl:text>
+          		<xsl:value-of select="format-number(@Lon,'##.00')"/>
+            	</xsl:if>
+	</xsl:for-each>
+
+	<xsl:value-of select="$newline"/>
+        <xsl:text>HAIL SIZE (in):     </xsl:text>
+        <xsl:value-of select="@hailSize"/>
+
+	<xsl:value-of select="$newline"/>
+        <xsl:text>MAX GUSTS (kts):    </xsl:text>
+        <xsl:value-of select="@gust"/>
+
+	<xsl:value-of select="$newline"/>
+        <xsl:text>MAX TOPS (100s ft): </xsl:text>
+        <xsl:value-of select="@top"/>
+
+	<xsl:value-of select="$newline"/>
+        <xsl:text>MOTION (deg,kts):   </xsl:text>
+        <xsl:value-of select="@moveDir"/>
+        <xsl:text>  </xsl:text>
+        <xsl:value-of select="@moveSpeed"/>
+
+	<xsl:value-of select="$newline"/>
+        <xsl:text>TIME ZONE:          </xsl:text>
+        <xsl:value-of select="@timeZone"/>
+
+	<xsl:value-of select="$newline"/>
+        <xsl:text>REPL WATCH NUMBER:  </xsl:text>
+        <xsl:value-of select="@replWatch"/>
+
+	<xsl:value-of select="$newline"/>
+        <xsl:text>STATES INCLUDED:    </xsl:text>
+        <xsl:for-each select="States">
+		<xsl:value-of select="."/>
+		<xsl:text> </xsl:text>
+	</xsl:for-each>
+
+
+	<xsl:value-of select="$newline"/>
+        <xsl:text>STATUS:             </xsl:text>
+        <xsl:value-of select="@issueStatus"/>
+
+	<xsl:value-of select="$newline"/>
+        <xsl:text>FORECASTER:         </xsl:text>
+        <xsl:value-of select="@forecaster"/>
+
+	<xsl:value-of select="$newline"/>
+        <xsl:text>WATCH AREA (sq nm): </xsl:text>
+        <xsl:value-of select="@watchAreaNm"/>
+
+	<xsl:value-of select="$newline"/>
+        <xsl:text> UGC  State  County Name     Lat/Lon    FIPS   WFO</xsl:text>
+		<xsl:value-of select="$newline"/>
+	 <xsl:for-each select="Counties">
+		<xsl:value-of select="."/>
+		<xsl:value-of select="$newline"/>
+	</xsl:for-each>
+
+  </xsl:template>
+</xsl:stylesheet>
+  
