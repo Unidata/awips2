@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<svg width="80" height="80" 
+viewBox="0 0 80 80" 
+overflow="visible" 
+contentScriptType="text/python"
+xmlns="http://www.w3.org/2000/svg" 
+xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
+   <defs>
+<script type="text/python" plotDelegate="plotDelegate">
+
+from qcplot import QCReport
+
+class MsasWindQcPlotDelegate(PlotDelegate):
+    def __init__(self):
+        PlotDelegate.__init__(self)
+        self.report = QCReport(['uw', 'vw'],
+            ['uw', 'vw'],
+            None, None)        
+        
+    def getSampleText(self, rec):
+    	self.report.setPointDataView(rec)
+        sid = rec.getString("stationName")
+        self.report.setTitle(sid)
+        return self.report.title
+            
+plotDelegate = MsasWindQcPlotDelegate()
+
+</script>
+<style type="text/css">
+<![CDATA[
+        @font-face { font-family: "WindSymbolFont";
+                src: url(WindSymbols.svg#WindSymbols); }
+        @font-face { font-family: "StandardFont";
+                src: url(Standard.svg#Standard); }
+        @font-face { font-family: "WxSymbolFont";
+                src: url(WxSymbols.svg#WxSymbols); }
+        @font-face { font-family: "SpecialSymbolFont";
+                src: url(SpecialSymbols.svg#SpecialSymbols); }
+        text.barb
+            {
+                fill: none;
+                font-size: 1em;
+                font-size: 1em;
+                font-family: WindSymbolFont;
+            }
+        text.arrow
+            {
+                fill: none;
+                font-size: 1em;
+                font-size: 1em;
+                font-family: WindSymbolFont;
+            }
+        text.text
+            {
+                fill: none;
+                font-size: 1em;
+                stroke-width: 1px;
+                font-family: StandardFont;
+                font-size: 1em;
+            }
+        text.weather
+            {
+                fill: none;
+                font-size: 1em;
+                stroke-width: 1px;
+                font-family: WxSymbolFont;
+
+            }
+        text.special
+            {
+                fill: none;
+                font-size: 1em;
+                stroke-width: 1px;
+                font-size: 1em;
+                font-family: SpecialSymbolFont;
+            }
+]]>
+</style>
+
+<symbol overflow="visible" id="plotData" class="info">
+  <text id="extraParams" plotMode="null" class="text" plotParam="stationName,uw,uwQCA,uwQCR,uwDD,vw,vwQCA,vwQCR,vwDD" x="0" y="0" visibility="hidden">0</text>
+  <g id="windVaneText" plotMode="barb" plotParam="wSp,WD" plotUnit="kts" x="0" y="0" transform="rotate(0,0,0)">
+    <text id="windVaneText" class="arrow" x="0" y="0">0</text>
+    <text id="windArrowText" class="barb" x="0" y="0">arrow</text>
+  </g>
+</symbol>
+</defs>
+<use id="wind" x="40" y="40" width="80" height="80" visibility="visible" xlink:href="#plotData"/>
+</svg>

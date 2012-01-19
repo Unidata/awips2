@@ -60,7 +60,7 @@ public class NsharpSkewTMouseHandler extends InputHandlerDefaultImpl{//implement
 	}
 
     private Mode mode = Mode.CREATE;
-    private boolean cursorInSkewT = false;
+    private boolean cursorInSkewT = false, cursorInHodo=false;
     private double[] anchorPointxy;
     private NsharpBackgroundResource skewBkRsc;
     private MousePreferenceManager prefManager = MousePreferenceManager.getInstance();
@@ -153,13 +153,37 @@ public class NsharpSkewTMouseHandler extends InputHandlerDefaultImpl{//implement
         return false;
     }
 
+    private boolean shiftDown=false;
+    private boolean zDownWhileShiftDown=false;
+    private int KEY_Z= 122;
     @Override
     public boolean handleKeyDown(int keyCode) {
-        return false;
+    	//System.out.println("key down="+(char)keyCode+ " code ="+keyCode);
+    	if ((keyCode & SWT.SHIFT) != 0)  {
+            shiftDown = true;
+           // System.out.println("shift pressed");
+            return true;
+        } else if (shiftDown && keyCode == KEY_Z ) {
+        	zDownWhileShiftDown=true;
+        	 return true;
+        }
+    	return false;
     }
 
     @Override
     public boolean handleKeyUp(int keyCode) {
+    	//String s = "key up="+(char)keyCode;
+    	//System.out.println(s+ " code ="+keyCode);
+    	if (keyCode == SWT.SHIFT) {
+            shiftDown = false;
+            return true;
+        }else if (zDownWhileShiftDown && keyCode == KEY_Z ) {
+            //System.out.println("Shift+Z is entered");
+            zDownWhileShiftDown = false;
+            NsharpSkewTResource skewRsc = getDescriptor().getSkewtResource();
+            skewRsc.toggleCurseDisplay();
+            return true;
+        }
         return false;
     }
 
@@ -372,16 +396,7 @@ public class NsharpSkewTMouseHandler extends InputHandlerDefaultImpl{//implement
         		//always update coordinate C to SkewT editor
         		cursorInSkewT=true;
         		skewRsc.setCursorInSkewT(true,c);
-        		
-        		editor.refresh();
-        	}
-        	else {
-        		if(cursorInSkewT== true){
-        			cursorInSkewT=false;
-        			skewRsc.setCursorInSkewT(false,c);
-        		}
-        	}
-        	if (bkRsc.getSkewTBackground().contains(c) || bkRsc.getHodoBackground().contains(c)){
+        		skewRsc.setCursorInHodo(false);
         		try {
         			skewBkRsc.updateDynamicData(c);
         			editor.refresh();
@@ -391,6 +406,31 @@ public class NsharpSkewTMouseHandler extends InputHandlerDefaultImpl{//implement
         			e.printStackTrace();
         		}
         	}
+        	else if (bkRsc.getHodoBackground().contains(c)){
+        		//always update coordinate C to SkewT editor
+        		cursorInHodo=true;
+        		skewRsc.setCursorInHodo(true);
+        		skewRsc.setCursorInSkewT(false,c);
+        		try {
+        			skewBkRsc.updateDynamicData(c);
+        			editor.refresh();
+
+        		} catch (VizException e) {
+        			// TODO Auto-generated catch block
+        			e.printStackTrace();
+        		}
+        	}
+        	else {
+        		if(cursorInSkewT== true){
+        			cursorInSkewT=false;
+        			skewRsc.setCursorInSkewT(false,c);
+        		}
+        		if(cursorInHodo== true){
+        			cursorInHodo=false;
+        			skewRsc.setCursorInHodo(false);
+        		}
+        	}
+        	
 			
         }
         

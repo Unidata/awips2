@@ -1,0 +1,5 @@
+! DbOverlay
+dbName=ncep
+tableName=bounds.aschifiwo
+labelField=area
+mapName=ASCHIFIWO Boundaries
