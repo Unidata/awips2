@@ -21,6 +21,8 @@
  */
 package gov.noaa.nws.ncep.ui.nsharp.skewt.rsc;
 
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -36,6 +38,7 @@ import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
+
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpStationInfo;
@@ -87,7 +90,6 @@ import com.raytheon.viz.core.graphing.WGraphics;
 import com.raytheon.viz.core.graphing.WindBarbFactory;
 import com.sun.jna.ptr.FloatByReference;
 import com.vividsolutions.jts.geom.Coordinate;
-
 public class NsharpSkewTResource extends
     AbstractVizResource<AbstractResourceData, NsharpSkewTDescriptor> {
 	private NsharpSkewTDescriptor desc=null;
@@ -109,20 +111,43 @@ public class NsharpSkewTResource extends
 	private boolean interpolateIsOn = false;
 	private boolean compareIsOn = false;
 	private boolean editGraphOn=false;
+	private static int CURSER_FONT_INC_STEP = 3;
+	private static int CURSER_FONT_10 =10;
+	private static int CURSER_STRING_OFF =CURSER_FONT_10+ 5*CURSER_FONT_INC_STEP;
+	private int curseToggledFontLevel= CURSER_FONT_10; //0:default 1:large 2:turn off display
 	private IGraphicsTarget target=null;
 	private RGB wwTypeColor;
-	private boolean cursorInSkewT = false;
+	private boolean cursorInSkewT = false, cursorInHodo=false;
 	private Coordinate cursorCor;
 	private double currentZoomLevel=1;
 	private int currentCanvasBoundWidth= NsharpConstants.DEFAULT_CANVAS_WIDTH;
 	private int currentCanvasBoundHeight= NsharpConstants.DEFAULT_CANVAS_HEIGHT;
 	
+	public void toggleCurseDisplay() {
+		curseToggledFontLevel = curseToggledFontLevel + CURSER_FONT_INC_STEP;
+		if(curseToggledFontLevel > CURSER_STRING_OFF)
+			curseToggledFontLevel = CURSER_FONT_10;
+		NsharpSkewTEditor editor = NsharpSkewTEditor.getActiveNsharpEditor();
+		if (editor != null) {
+			editor.refresh();
+		}
+	}
+
 	public boolean isCompareIsOn() {
 		return compareIsOn;
 	}
+	
+	public boolean isOverlayIsOn() {
+		return overlayIsOn;
+	}
+
 	public void setCursorInSkewT(boolean cursorInSkewT, Coordinate c) {
 		this.cursorInSkewT = cursorInSkewT;
 		this.cursorCor = c;
+	}
+	public void setCursorInHodo(boolean cursorInHodo) {
+		this.cursorInHodo = cursorInHodo;
+		
 	}
 	public int getParcelLinesInPhysicalPanelNumber() {
 		return parcelLinesInPhysicalPanelNumber;
@@ -155,6 +180,10 @@ public class NsharpSkewTResource extends
 	public void setInterpolateIsOn(boolean interpolateIsOn) {
 		this.interpolateIsOn = interpolateIsOn;
 		
+	}
+	
+	public boolean isInterpolateIsOn() {
+		return interpolateIsOn;
 	}
 	public void setCompareIsOn(boolean compareIsOn) {
 		this.compareIsOn = compareIsOn;
@@ -967,7 +996,10 @@ public class NsharpSkewTResource extends
 		}
 
 		deepCopyDataMap(this.dataTimelineSndLysListMap,this.originalDataTimelineSndLysListMap);
-		
+		NsharpSkewTEditor editor = NsharpSkewTEditor.getActiveNsharpEditor();
+		if (editor != null) {
+			editor.refresh();
+		}
 		
 	}
 
@@ -983,7 +1015,9 @@ public class NsharpSkewTResource extends
 	}
 
 	public void setUserPickedStationId(Coordinate c) {
-		int index =((int)(c.y - NsharpConstants.STATION_ID_REC_Y_ORIG))/ NsharpConstants.CHAR_HEIGHT;
+		
+		int index =((int)(c.y - NsharpConstants.STATION_ID_REC_Y_ORIG-5))/ NsharpConstants.CHAR_HEIGHT;
+		//System.out.println("index="+index);
 		if( index  < stationIdList.size() ){
 			String picked = stationIdList.get(index).elementDescription;
 			switch(stationIdList.get(index).elementState) {
@@ -1613,6 +1647,13 @@ public class NsharpSkewTResource extends
     		stationIdList.clear();
     	if(intpSndLst!= null)
     		intpSndLst.clear();
+    	currentTextPage = 1;
+    	currentInsetPage = 1;
+    	currentParcel = NsharpNativeConstants.PARCELTYPE_MOST_UNSTABLE;
+    	currentParcelLayerPressure = NsharpNativeConstants.MU_LAYER;
+    	curTimeLinePage=1;
+    	totalTimeLinePage=1;
+
     }
 	@Override
 	protected void disposeInternal() {
@@ -1807,7 +1848,7 @@ public class NsharpSkewTResource extends
     			}
     			// dew point curve
     			if(configD.isDewp() == true && !compareIsOn){
-   				if(editGraphOn)
+    				if(editGraphOn)
     					plotPressureTempEditPoints(target, plotWorld, NsharpConstants.color_green, DEWPOINT_TYPE, this.soundingLys);
     			}
     			//plot wetbulb trace
@@ -1828,13 +1869,14 @@ public class NsharpSkewTResource extends
     			if(configD.isOmega() == true){
     				if(NsharpLoadDialog.getAccess()!= null && 
     						(NsharpLoadDialog.getAccess().getActiveLoadSoundingType()== NsharpLoadDialog.MODEL_SND ||
-    								NsharpLoadDialog.getAccess().getActiveLoadSoundingType()== NsharpLoadDialog.PFC_SND ))
+    								NsharpLoadDialog.getAccess().getActiveLoadSoundingType()== NsharpLoadDialog.PFC_SND )){
     					//plot omega
     					target.clearClippingPlane();
     					target.drawWireframeShape(omegaBkgShape, NsharpConstants.color_violet_red, commonLinewidth,
     							LineStyle.DASHED,font10);
     					target.drawWireframeShape(omegaRscShape, NsharpConstants.color_cyan, commonLinewidth,
     			                commonLineStyle,font10);
+    				}
     			}
     		}
     		else{
@@ -1859,13 +1901,14 @@ public class NsharpSkewTResource extends
     			}
     			if(NsharpLoadDialog.getAccess()!= null && 
     					(NsharpLoadDialog.getAccess().getActiveLoadSoundingType()== NsharpLoadDialog.MODEL_SND ||
-    							NsharpLoadDialog.getAccess().getActiveLoadSoundingType()== NsharpLoadDialog.PFC_SND ))
+    							NsharpLoadDialog.getAccess().getActiveLoadSoundingType()== NsharpLoadDialog.PFC_SND )){
     				//plot omega
     				target.clearClippingPlane();
     				target.drawWireframeShape(omegaBkgShape, NsharpConstants.color_violet_red, commonLinewidth,
 							LineStyle.DASHED,font10);
 					target.drawWireframeShape(omegaRscShape, NsharpConstants.color_cyan, commonLinewidth,
 			                commonLineStyle,font10);
+    			}
     		}
     		if(plotInteractiveTemp == true ){
     			plotNsharpInteractiveTemp( target,  zoomLevel,
@@ -1875,9 +1918,10 @@ public class NsharpSkewTResource extends
 
 
     		// Wind Barb
-    		if(!compareIsOn && !overlayIsOn)
-    			drawNsharpWindBarb(target, zoomLevel, plotWorld, NsharpConstants.color_yellow);
-
+    		if(!compareIsOn )//&& !overlayIsOn)
+    			drawNsharpWindBarb(target, zoomLevel, plotWorld, NsharpConstants.color_yellow, this.soundingLys, NsharpConstants.right - BARB_LENGTH);
+    		if(overlayIsOn == true && this.previousSoundingLys!=null)
+    			drawNsharpWindBarb(target, zoomLevel, plotWorld, NsharpConstants.color_violet, this.previousSoundingLys, NsharpConstants.right - BARB_LENGTH * 2.5);
     		//wind box background and wind
     		target.drawWireframeShape(windBoxBkgShape, NsharpConstants.color_white,
                     0.5F, LineStyle.DOTS, font10);
@@ -1915,13 +1959,15 @@ public class NsharpSkewTResource extends
     			
     			// draw cursor data
     			if(cursorInSkewT== true){
-    				drawNsharpSkewtCursorData(target);
+    				if(curseToggledFontLevel < CURSER_STRING_OFF)
+    					drawNsharpSkewtCursorData(target);
+    				//draw dynamic temp, theta, height     	    		
+        			drawNsharpSkewtDynamicData(target, zoomLevel, plotWorld);
+
     			}
     		}
 
-    		//draw dynamic temp, theta, height 
-    		drawNsharpSkewtDynamicData(target, zoomLevel, plotWorld);
-
+    		
     		drawNsharpDataFilelabel(target, zoomLevel, plotWorld);
     		
     		//plot HODO
@@ -1934,13 +1980,15 @@ public class NsharpSkewTResource extends
 				target.drawWireframeShape(shapeNColor.shape, shapeNColor.color, commonLinewidth*2,commonLineStyle,font10);
     		}
     		}
-    		if(editGraphOn)
+    		if(editGraphOn && !compareIsOn)
     			plotHodoEditPoints( target,plotWorld, NsharpConstants.color_white);
     		if(!compareIsOn){
     			plotNsharpHodoVectors(target, zoomLevel, plotWorld, null, false);
     		} 
-    		target.clearClippingPlane();
-    		drawHodoDynamicData(target, zoomLevel, plotWorld);
+    		if(cursorInHodo){
+    			target.clearClippingPlane();
+    			drawHodoDynamicData(target, zoomLevel, plotWorld);
+    		}
     		
     		//plot wind motion on top of HODO left upper corner   		
     		//TBD drawHodoWindMotionBox(target, bkRsc.getWindMotionBackground().getRectangle());
@@ -2041,11 +2089,87 @@ public class NsharpSkewTResource extends
     		target.drawLine(NsharpConstants.SRWINDS_REC_X_ORIG, NsharpConstants.SKEWT_REC_Y_ORIG+NsharpConstants.SKEWT_REC_HEIGHT, 0.0, 
     				NsharpConstants.DATA_TIMELINE_REC_X_ORIG, NsharpConstants.SKEWT_REC_Y_ORIG+NsharpConstants.SKEWT_REC_HEIGHT,
     				0.0, NsharpConstants.pressureColor, 1);
-
+    		
     	}
+    	
+    	
+    	/*
+    	 * Chin: 12/20/11 testing...should be removed later..
+    	 * 
+    	target.clearClippingPlane();
+    	
+		
+		target.drawShadedRect(new PixelExtent(10, 100, 10, 180), NsharpConstants.color_white, 1, null);
+		target.drawString(font11, "CAPE", 10, 10 , 0.0,
+	                TextStyle.NORMAL, NsharpConstants.color_black, HorizontalAlignment.LEFT,
+	                VerticalAlignment.TOP, null);
+    	if(compareIsOn){
+    		IExtent extent = paintProps.getView().getExtent();;//new PixelExtent(paintProps.getCanvasBounds());
+    		target.clearClippingPlane();
+			//target.setupClippingPlane(extent);
+    		double llX = extent.getMinX();
+    		double llY = extent.getMaxY();
+            double urX = extent.getMaxX();
+            double urY = extent.getMinY();
+            double ulX = extent.getMinX();
+            double ulY = extent.getMinY();
+            double lrX = extent.getMaxX();
+    		double lrY = extent.getMaxY();
+    		System.out.println("view llx=" + llX + " lly="+ llY+ " urX="+urX+ " urY="+urY+ " ulx=" + ulX + " uly="+ ulY+ " lrX="+lrX+ " lrY="+lrY);
+    		
+    		 BufferedImage paneImage = target.screenshot();
+    		 System.out.println("image x=" + paneImage.getMinX() + " y="+ paneImage.getMinY()+ " w="+paneImage.getWidth()+ " h="+paneImage.getHeight());
+    		
+    		 BufferedImage subpaneImage = crop(paneImage, 500,500);
+    		 System.out.println("subimage x=" + subpaneImage.getMinX() + " y="+ subpaneImage.getMinY()+ " w="+subpaneImage.getWidth()+ " h="+subpaneImage.getHeight());
+    		 //BufferedImage subpaneImage1 = paneImage.getScaledInstance(width, height, 2);
+    		 //Raster r = paneImage.getData();
+    		 
+    		 IImage pic = null;
+    	        try {
+    	        	
+    	        	pic = target.initializeRaster( new IODataPreparer(subpaneImage, "AAA", 0), null );
+    	        }
+    	        catch (Exception e) {
+    	        	System.out.println("SAG:IMAGE CREATION");
+    	        	e.printStackTrace();
+    	        	
+    	        }
+    		 double xRatio, yratio;
+    		 xRatio = (urX-ulX)/paneImage.getWidth();
+    		 yratio = (llY-ulY)/paneImage.getHeight();
+    		 //paneImage.getSubimage(x, y, w, h)
+    		//java.awt.Rectangle rect = new java.awt.Rectangle( 800,400,30,30);
+    		// Raster raster = paneImage.getData(rect);
+    		 Coordinate ul = new Coordinate(), ur= new Coordinate(), lr= new Coordinate(), ll= new Coordinate();
+    		 ul.x =100* xRatio; ul.y=20*yratio;
+    		 ur.x=ul.x+500*xRatio; ur.y=20*yratio;
+    		 ll.x=ul.x; ll.y=ul.y+500*yratio;
+    		 lr.x=ur.x; lr.y=ll.y;
+    		 System.out.println("ratioX="+xRatio+" coverage llx=" + ll.x + " lly="+ ll.y+ " urX="+ur.x+ " urY="+ur.y+ " ulx=" + ul.x + " uly="+ ul.y+ " lrX="+lr.x+ " lrY="+lr.y);
 
+    		 PixelCoverage cov = new PixelCoverage(ul, ur, lr, ll);
+    		target.drawRaster(pic, cov, paintProps);
+    		pic.dispose();
+    	}*/
     }
-
+    public static BufferedImage crop(BufferedImage src, int width, int height) {//throws IOException { 
+        int x = src.getWidth()/2 - width/2;
+        int y = src.getHeight()/2 - height/2;
+        
+        System.out.println("---" + src.getWidth() + " - " + src.getHeight() + " - " + x + " - " + y);
+        
+        BufferedImage clipping = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);//src.getType());  
+        Graphics2D area = (Graphics2D) clipping.getGraphics().create();  
+        //area.drawImage(src, 0, 0, clipping.getWidth(), clipping.getHeight(), x, y, x + clipping.getWidth(),  
+        //    y + clipping.getHeight(), null);
+        area.drawImage(src, 0, 0, clipping.getWidth(), clipping.getHeight(), 0, 0, x + clipping.getWidth(),  
+                y + clipping.getHeight(), null);
+        area.dispose(); 
+        
+        return clipping;
+    }  
+    
     @SuppressWarnings("deprecation")
 	private void drawHodoDynamicData(IGraphicsTarget target, double zoomLevel,
             WGraphics world) throws VizException {
@@ -2140,40 +2264,67 @@ public class NsharpSkewTResource extends
     }
     @SuppressWarnings("deprecation")
 	public void drawNsharpSkewtCursorData(IGraphicsTarget target) throws VizException{
+    	IFont myFont;
+    	myFont = target.initializeFont("Monospace", curseToggledFontLevel, null);
+    	
     	NsharpBackgroundResource bkRsc = descriptor.getSkewTBkGResource();
     	
     	WGraphics WGc = bkRsc.getSkewTBackground().getWorld();
     	Coordinate c = WxMath.reverseSkewTXY(WGc.unMap(cursorCor.x, cursorCor.y));
+    	//System.out.println("Cusrso.x="+cursorCor.x+" Cusrso.y="+cursorCor.y);
+    	//System.out.println("Skewt.x="+c.x+" Skewt.y="+c.y);
 		double p_mb = c.y;
+		double temp = c.x;
 		float htFt, htM, relh=-1;
-		String curStrFormat;
-		String curStr;
-		htM = nsharpNative.nsharpLib.agl(nsharpNative.nsharpLib.ihght((float)p_mb));
-		htFt= nsharpNative.nsharpLib.mtof(htM);
-		if (nsharpNative.nsharpLib.itemp((float)p_mb) > -9998.0 && nsharpNative.nsharpLib.idwpt((float)p_mb) > -9998.0){
-			FloatByReference parm= new FloatByReference(0);
-			relh= nsharpNative.nsharpLib.relh((float)p_mb, parm);
-			curStrFormat= "%4.0fmb  %5.0fft/%.0fm agl  %2.0f%%";
-			curStr = String.format(curStrFormat, p_mb,htFt,htM,relh);
-		}
-		else{
-			curStrFormat= "%4.0fmb  %5.0fft/%.0fm agl";
-			curStr = String.format(curStrFormat, p_mb,htFt,htM);
-		}
-		double y = WGc.mapY(WxMath.getSkewTXY(p_mb, 10).y);
-		target.drawString(font10,curStr, WGc.mapX(NsharpConstants.left)+10,
-				y, 0.0, TextStyle.NORMAL,
-				NsharpConstants.color_yellow, HorizontalAlignment.LEFT,
-				VerticalAlignment.MIDDLE, null);
+		String curStrFormat, curStrFormat1;
+		String curStr, curStr1, curStr2;
+		VerticalAlignment vAli;
+		HorizontalAlignment hAli;
 		
-		curStrFormat = "%4.1f/%4.1fC  %4.0f/%.0f kt";
-		curStr = String.format(curStrFormat, nsharpNative.nsharpLib.itemp((float)p_mb),
-				nsharpNative.nsharpLib.idwpt((float)p_mb), nsharpNative.nsharpLib.iwdir((float)p_mb),
-				nsharpNative.nsharpLib.iwspd((float)p_mb));
-		target.drawString(font10,curStr, WGc.mapX(NsharpConstants.right)-300,
-				y, 0.0, TextStyle.NORMAL,
-				NsharpConstants.color_yellow, HorizontalAlignment.LEFT,
-				VerticalAlignment.MIDDLE, null);
+		//if(curseToggled == false)
+		{
+			htM = nsharpNative.nsharpLib.agl(nsharpNative.nsharpLib.ihght((float)p_mb));
+			htFt= nsharpNative.nsharpLib.mtof(htM);
+			if (nsharpNative.nsharpLib.itemp((float)p_mb) > -9998.0 && nsharpNative.nsharpLib.idwpt((float)p_mb) > -9998.0){
+				FloatByReference parm= new FloatByReference(0);
+				relh= nsharpNative.nsharpLib.relh((float)p_mb, parm);
+				curStrFormat= "%4.0fmb  %5.0fft/%.0fm agl  %2.0f%%\n";
+				curStr = String.format(curStrFormat, p_mb,htFt,htM,relh);
+			}
+			else{
+				curStrFormat= "%4.0fmb  %5.0fft/%.0fm agl\n";
+				curStr = String.format(curStrFormat, p_mb,htFt,htM);
+			}
+			curStrFormat1 = "%4.1f %4.1f/%4.1f%cC  %4.0f/%.0f kt\n";
+			curStr1 = String.format(curStrFormat1,temp,  nsharpNative.nsharpLib.itemp((float)p_mb),
+					nsharpNative.nsharpLib.idwpt((float)p_mb),NsharpConstants.DEGREE_SYMBOL, nsharpNative.nsharpLib.iwdir((float)p_mb),
+					nsharpNative.nsharpLib.iwspd((float)p_mb));
+		}
+		//else
+		{
+			//String tempS= String.format("%5.1f%cC ",temp,NsharpConstants.DEGREE_SYMBOL);
+			curStr2 =bkRsc.getSThetaInK()+" "+bkRsc.getSWThetaInK()+" "+bkRsc.getSEThetaInK();
+			//float heightM = nsharpNative.nsharpLib.ihght((float)bkRsc.getDPressure());
+	    	//String sHeightM = String.format("%.0fm",heightM);
+	    	//String sHeightFt = String.format("%.0fft/",NsharpConstants.metersToFeet.convert(heightM));
+			//curStr = bkRsc.getSPressure()+ " "+ sHeightFt+sHeightM+"\n";
+		}
+		//Adjust string plotting position
+		if(cursorCor.x < NsharpConstants.SKEWT_REC_X_ORIG + 200){
+			hAli = HorizontalAlignment.LEFT;
+		} 
+		else if(cursorCor.x > NsharpConstants.SKEWT_VIEW_X_END - 200){
+			hAli = HorizontalAlignment.RIGHT;
+		}
+		else {
+			hAli = HorizontalAlignment.CENTER;
+		}
+		vAli = VerticalAlignment.BOTTOM;
+		target.drawString(myFont,curStr+curStr1+curStr2, cursorCor.x,
+				cursorCor.y, 0.0, TextStyle.NORMAL,
+				NsharpConstants.color_yellow, hAli,
+				vAli, null);
+		myFont.dispose();
     }
     
     /*
@@ -2473,7 +2624,7 @@ public class NsharpSkewTResource extends
         	String s = stationIdList.get(j).elementDescription;
         	
         	//System.out.println("stationId: "+ s);
-        	ly = ly +  25;
+        	ly = ly +  NsharpConstants.CHAR_HEIGHT;
 
         	//color = NsharpConstants.color_white;
         	
@@ -2591,8 +2742,8 @@ public class NsharpSkewTResource extends
         PixelExtent extent = new PixelExtent(rect);
         target.setupClippingPlane(extent);
         //System.out.println("drawNsharpDataTimelines picked stn info: "+ pickedStnInfoStr);
-        double x = NsharpConstants.DATA_TIMELINE_REC_X_ORIG + 5, x1 ;
-        double nextPageY = NsharpConstants.DATA_TIMELINE_REC_Y_ORIG + NsharpConstants.CHAR_HEIGHT;
+        double x = NsharpConstants.DATA_TIMELINE_REC_X_ORIG + 5;//, x1 ;
+        double nextPageY = NsharpConstants.DATA_TIMELINE_NEXT_PAGE_END;//DATA_TIMELINE_REC_Y_ORIG + NsharpConstants.CHAR_HEIGHT;
         RGB color = NsharpConstants.color_yellow;
         String s = "nextPage", s1;
         target.drawString(font10, s, x,
@@ -2637,35 +2788,40 @@ public class NsharpSkewTResource extends
         	String stok1, stok2, stok3;
         	StringTokenizer stoken = new StringTokenizer(s);
 			if(sortByStn){
-				stok1 = stoken.nextToken(); //stn name
-				s = stok1;
+				stok1 = stoken.nextToken(); //stn name, display upto 4 char
+				int nameLen= Math.min(4, stok1.length());
+				s = stok1.substring(0,nameLen);
 				stok2 = stoken.nextToken(); //day
 				stok2 = stok2.substring(2);
 				stok3 = stoken.nextToken(); //hour
 				s1 = stok2.concat(" "+stok3.substring(0, 2));
-				x1 = x +130;
+				//x1 = x +130;
+				
 			}
 			else{
 				stok3 = stoken.nextToken(); //stn name
-				s1 = stok3;
+				int nameLen= Math.min(4, stok3.length());
+				s1 = stok3.substring(0,nameLen);
 				stok1 = stoken.nextToken(); //day
 				stok1 = stok1.substring(2);
 				stok2 = stoken.nextToken(); //hour
 				s = stok1.concat(" "+stok2.substring(0, 2));
-				x1 = x+ 165;
+				
+				//x1 = x+ 165;
 			}
+			s= s+ " "+s1;
         	target.drawString(font10, s, x,
         			ly, 0.0,
         			IGraphicsTarget.TextStyle.NORMAL,
         			color,
         			HorizontalAlignment.LEFT,  
         			VerticalAlignment.BOTTOM, null);
-        	target.drawString(font10, s1, x1,
+        	/*target.drawString(font10, s1, x1,
         			ly, 0.0,
         			IGraphicsTarget.TextStyle.NORMAL,
         			color,
         			HorizontalAlignment.LEFT,  
-        			VerticalAlignment.BOTTOM, null);
+        			VerticalAlignment.BOTTOM, null);*/
         	
         	i++;
         	if (ly >= NsharpConstants.DATA_TIMELINE_NOTATION_Y_START-NsharpConstants.CHAR_HEIGHT)
@@ -2813,13 +2969,13 @@ public class NsharpSkewTResource extends
      * 
      */
     private void drawNsharpWindBarb(IGraphicsTarget target, double zoomLevel,
-            WGraphics world,  RGB icolor)throws VizException {
+            WGraphics world,  RGB icolor, List<NcSoundingLayer> sndLys, double xPosition)throws VizException {
         ArrayList<List<LineStroke>> windList = new ArrayList<List<LineStroke>>();
 
-        double windX = NsharpConstants.right - BARB_LENGTH;
+        double windX = xPosition;//NsharpConstants.right - BARB_LENGTH;
         float lastHeight = -999;
         double windY;
-        for (NcSoundingLayer layer : soundingLys) {
+        for (NcSoundingLayer layer : sndLys) {
             float pressure = layer.getPressure();
             float spd = layer.getWindSpeed();
             float dir = layer.getWindDirection();
@@ -4648,7 +4804,7 @@ public class NsharpSkewTResource extends
         //----- Plot Label ----- 
         dispX = vxMin + 50;
     	dispY =  vyMin+30;
-		double [] lblXy = { dispX+80, dispY};
+		double [] lblXy = { dispX+150, dispY};
 		thetaEHeightYRscShape.addLabel("Theta-E vs Height", lblXy);
 		// ----- Plot horizontal legend ----- 
 		
@@ -4703,7 +4859,7 @@ public class NsharpSkewTResource extends
            	
            	if((h != -(thetaEDispWidth/2))&&(h != (thetaEDispWidth/2)) ){
            		//draw scale with kelvin degree
-          		double [] lblXy1 = { dispX, dispY-20};
+          		double [] lblXy1 = { dispX+20, dispY-20};
         		thetaEHeightYRscShape.addLabel(String.valueOf(iThetaE+273), lblXy1);
            	}
         
@@ -4740,7 +4896,7 @@ public class NsharpSkewTResource extends
     		double [][] lines1 = {{dispX, dispY},{dispX+20,dispY}};
             thetaEHeightWRscShape.addLineSegment(lines1);
     		iPres = (((int)nsharpNative.nsharpLib.agl(nsharpNative.nsharpLib.ihght(pres)))/100)*100;
-    		double [] lblXy1 = { dispX+30, dispY};
+    		double [] lblXy1 = { dispX+40, dispY};
     		thetaEHeightYRscShape.addLabel(String.valueOf(iPres), lblXy1);
     	}
 		thetaEHeightYRscShape.compile();
@@ -4781,7 +4937,7 @@ public class NsharpSkewTResource extends
 		//target.drawString(font9, "Theta-E vs Pressure", dispX, dispY, 0.0,
          //       TextStyle.NORMAL, NsharpConstants.color_yellow, HorizontalAlignment.LEFT,
         //        VerticalAlignment.BOTTOM, null);
-		double [] lblXy = { dispX+90, dispY};
+		double [] lblXy = { dispX+ 150, dispY};
 		thetaEPressureYRscShape.addLabel("Theta-E vs Pressure", lblXy);
 		
 		//plot theta E difference
@@ -4846,7 +5002,7 @@ public class NsharpSkewTResource extends
             thetaEPressureWRscShape.addLineSegment(lines1);
            	if((h != -(thetaEDispWidth/2))&&(h != (thetaEDispWidth/2)) ){
            		//draw scale with kelvin degree
-           		double [] lblXy1= { dispX, dispY-20};
+           		double [] lblXy1= { dispX+20, dispY-20};
         		thetaEPressureYRscShape.addLabel(String.valueOf(iThetaE+273), lblXy1);
            	}
         
@@ -4891,7 +5047,7 @@ public class NsharpSkewTResource extends
     		dispY =  vyMin +(pres-500) * yScaleAdjustRatio ;
     		double [][] lines1 = {{dispX, dispY},{dispX+20,dispY}};
             thetaEPressureWRscShape.addLineSegment(lines1);
-            double [] lblXy1= { dispX+25, dispY};
+            double [] lblXy1= { dispX+40, dispY};
     		thetaEPressureYRscShape.addLabel(String.valueOf(pres), lblXy1);
     	}
 		thetaEPressureYRscShape.compile();

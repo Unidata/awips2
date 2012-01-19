@@ -18,11 +18,11 @@
        <constructor-arg ref="amqConnectionFactory"/>
        <property name="provider" value="QPID"/>
        <property name="reconnectInterval" value="5000"/>
-       <property name="sessionsPerConnection" value="1"/>
-       <!-- After session has been closed by thread keep it allocated for another 90 seconds in case thread needs it again -->
-       <property name="sessionHoldTime" value="90000"/>
+       <!-- After connection has been closed by thread keep it allocated for another 90 seconds in case thread needs it again -->
+       <property name="connectionHoldTime" value="90000"/>
        <!-- Any resource that has been available in the pool for more than 1 minute will be closed -->
        <property name="resourceRetention" value="60000"/>
+       <property name="maxSpareConnections" value="10"/>
     </bean>
  
     <bean id="genericThreadPool"
@@ -51,12 +51,12 @@
 	</bean>
 
 	<bean id="jmsConfig" class="org.apache.camel.component.jms.JmsConfiguration">
-		<property name="cacheLevelName" value="CACHE_CONSUMER"/>
+		<property name="cacheLevelName" value="CACHE_NONE"/>
 		<property name="recoveryInterval" value="1000"/>
 		<property name="requestTimeout" value="5000"/>
 
 		<!-- receiveTimeout is amount of time thread waits to receive a message before recycling -->
-		<property name="receiveTimeout" value="-1"/>
+		<property name="receiveTimeout" value="300000"/>
 		<property name="transacted" value="false"/>
 
 		<!-- force maxMessagesPerTask so that the threads don't keep disconnecting and reconnecting.

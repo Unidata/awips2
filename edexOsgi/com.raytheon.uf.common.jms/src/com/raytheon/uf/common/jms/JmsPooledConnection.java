@@ -19,13 +19,17 @@
  **/
 package com.raytheon.uf.common.jms;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionMetaData;
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
+import javax.jms.Session;
 
+import com.raytheon.uf.common.jms.wrapper.JmsConnectionWrapper;
+import com.raytheon.uf.common.jms.wrapper.JmsSessionWrapper;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -46,60 +50,86 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * @author rjpeter
  * @version 1.0
  */
-
 public class JmsPooledConnection implements ExceptionListener {
     private static final long ERROR_BROADCAST_INTERVAL = 30000;
 
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(JmsPooledConnection.class);
 
-    // Limit the number of sessions per connection?
     private JmsPooledConnectionFactory connFactory = null;
 
     private Connection conn = null;
 
-    private LinkedList<JmsPooledSession> sessions = new LinkedList<JmsPooledSession>();
+    // keeps track of number of creates vs. closes to know when it can be
+    // returned to the pool
+    List<JmsConnectionWrapper> references = new ArrayList<JmsConnectionWrapper>(
+            1);
 
-    private long connectionStartTime;
+    private Object stateLock = new Object();
 
-    private boolean connected = false;
+    private State state = State.InUse;
+
+    // technically can have multiple sessions to one connection and sessions can
+    // differ by transaction mode and acknowledgement mode, currently not
+    // supported
+    private JmsPooledSession session = null;
+
+    private AvailableJmsPooledObject<JmsPooledSession> availableSession = null;
+
+    private String key = null;
 
     private String clientId = null;
 
-    private int sessionCount = 0;
+    private long connectionStartTime = 0;
 
-    public JmsPooledConnection(JmsPooledConnectionFactory connFactory,
-            String clientId) {
+    private boolean exceptionOccurred = false;
+
+    private Throwable trappedExc;
+
+    public JmsPooledConnection(JmsPooledConnectionFactory connFactory) {
         this.connFactory = connFactory;
-        this.clientId = clientId;
+        this.clientId = null;
+        getConnection();
     }
 
-    /**
-     * Returns null if the connection has reached its session limit.
-     * 
-     * @see javax.jms.Connection#createSession(boolean, int)
-     */
-    public synchronized JmsPooledSession createSession(boolean transacted,
-            int acknowledgeMode) throws JMSException {
-        JmsPooledSession session = null;
+    public JmsSessionWrapper getSession(boolean transacted, int acknowledgeMode)
+            throws JMSException {
+        // pooled objects are always valid, the underlying object may not be
+        if (!isValid()) {
+            // throw exception
+            throw new IllegalStateException("Connection is closed");
+        }
 
-        if (sessionCount < connFactory.getSessionsPerConnection()) {
-            Connection conn = getConnection();
+        synchronized (this) {
+            // TODO: Add multiple session support
+            if (session != null) {
+                JmsSessionWrapper ref = session.createReference();
+                if (ref != null) {
+                    return ref;
+                } else {
+                    this.session.close();
+                    this.session = null;
+                }
+            }
+            if (availableSession != null) {
+                JmsPooledSession availSess = availableSession.getPooledObject();
+                synchronized (availSess.getStateLock()) {
+                    if (availSess.isValid()) {
+                        availSess.setState(State.InUse);
+                        session = availSess;
+                    } else {
+                        availSess.close();
+                    }
+                    availableSession = null;
+                }
+            }
 
-            synchronized (conn) {
+            if (session == null) {
                 session = new JmsPooledSession(this, conn.createSession(
                         transacted, acknowledgeMode));
             }
-
-            sessions.add(session);
-            sessionCount++;
-
-            if (sessionCount >= connFactory.getSessionsPerConnection()) {
-                connFactory.removeConnectionFromPool(this);
-            }
         }
-
-        return session;
+        return session.createReference();
     }
 
     /*
@@ -132,45 +162,105 @@ public class JmsPooledConnection implements ExceptionListener {
         statusHandler.handle(Priority.INFO, "Caught Exception on "
                 + connFactory.getProvider()
                 + " connection.  Closing connection", jmsExc);
-        disconnect();
+        close();
     }
 
-    private synchronized void disconnect() {
+    public void close() {
         // synchronize on the connection to avoid deadlock conditions in qpid
-        connected = false;
-        if (conn != null) {
-            try {
-                conn.stop();
-            } catch (Exception e) {
-                statusHandler.handle(Priority.INFO,
-                        "Failed to stop connection", e);
-            }
+        boolean canClose = false;
+        synchronized (stateLock) {
+            if (!State.Closed.equals(state)) {
+                canClose = true;
+                state = State.Closed;
 
-            try {
-                conn.close();
-            } catch (Exception e) {
-                statusHandler.handle(Priority.INFO,
-                        "Failed to close connection", e);
+                if (trappedExc != null) {
+                    statusHandler.handle(Priority.INFO,
+                            "Trapped internal exception", trappedExc);
+                }
             }
         }
-        conn = null;
 
-        while (!sessions.isEmpty()) {
-            sessions.remove().closeInternal();
+        if (canClose) {
+            synchronized (this) {
+                if (conn != null) {
+                    try {
+                        conn.stop();
+                    } catch (Exception e) {
+                        statusHandler.handle(Priority.INFO,
+                                "Failed to stop connection", e);
+                    }
+                }
+
+                synchronized (references) {
+                    for (JmsConnectionWrapper wrapper : references) {
+                        wrapper.closeInternal();
+                    }
+                    references.clear();
+                }
+
+                if (session != null) {
+                    session.close();
+                    session = null;
+                }
+
+                try {
+                    conn.close();
+                } catch (Exception e) {
+                    statusHandler.handle(Priority.INFO,
+                            "Failed to close connection", e);
+                }
+            }
+            conn = null;
+            connFactory.removeConnectionFromPool(this);
         }
-
-        if (sessionCount >= connFactory.getSessionsPerConnection()) {
-            connFactory.returnConnectionToPool(this);
-        }
-
-        sessionCount = 0;
     }
 
-    private Connection getConnection() {
+    /**
+     * Closing all resources that have been idle in the pool for more than
+     * resourceRetention millis.
+     * 
+     * @param resourceRetention
+     * @return
+     */
+    public int closeOldPooledResources(int resourceRetention) {
+        int count = 0;
+        JmsPooledSession sessionToCheck = null;
+        synchronized (stateLock) {
+            if (session != null) {
+                sessionToCheck = session;
+            }
+        }
+
+        if (sessionToCheck != null) {
+            count += sessionToCheck.closeOldPooledResources(resourceRetention);
+        }
+
+        synchronized (stateLock) {
+            if (availableSession != null) {
+                if (availableSession.expired(System.currentTimeMillis(),
+                        resourceRetention)) {
+                    availableSession.getPooledObject().close();
+                    count++;
+                    availableSession = null;
+                } else {
+                    sessionToCheck = availableSession.getPooledObject();
+                }
+            }
+        }
+
+        if (sessionToCheck != null) {
+            count += sessionToCheck.closeOldPooledResources(resourceRetention);
+        }
+
+        return count;
+    }
+
+    public Connection getConnection() {
         if (conn == null) {
             synchronized (this) {
                 if (conn == null) {
                     long exceptionLastHandled = 0;
+                    boolean connected = false;
                     while (!connected) {
                         Connection tmp = null;
                         try {
@@ -223,21 +313,18 @@ public class JmsPooledConnection implements ExceptionListener {
         return conn;
     }
 
-    public boolean isConnected() {
-        return connected;
-    }
-
     public long getConnectionStartTime() {
         return connectionStartTime;
     }
 
-    public void returnSessionToPool(JmsPooledSession sess) {
+    public boolean returnSessionToPool(JmsPooledSession sess) {
         boolean valid = false;
         if (sess.isValid()) {
             try {
                 // ensure transaction is complete
-                if (sess.getTransacted()) {
-                    sess.commit();
+                Session underlyingSession = sess.getSession();
+                if (underlyingSession.getTransacted()) {
+                    underlyingSession.commit();
                 }
                 valid = true;
             } catch (JMSException e) {
@@ -246,31 +333,178 @@ public class JmsPooledConnection implements ExceptionListener {
             }
         }
 
-        if (valid) {
-            connFactory.returnSessionToPool(sess);
-        } else {
+        if (!valid) {
             removeSession(sess);
+        } else {
+            synchronized (this) {
+                // should only be able to have 1 session
+                if (availableSession != null) {
+                    availableSession.getPooledObject().close();
+                    statusHandler
+                            .warn("Pooled session already existed for this connection, closing previous session");
+                }
+                availableSession = new AvailableJmsPooledObject<JmsPooledSession>(
+                        session);
+                session = null;
+            }
         }
+
+        return valid;
     }
 
     public void removeSession(JmsPooledSession sess) {
-        connFactory.removeSessionFromPool(sess);
-
         synchronized (this) {
-            if (sessions.remove(sess)) {
-                sessionCount--;
-
-                if (sessionCount == 0) {
-                    // all sessions have been closed, shut down connection
-                    connFactory.removeConnectionFromPool(this);
-                    sess.closeInternal();
-                    disconnect();
-                } else if (sessionCount == connFactory
-                        .getSessionsPerConnection() - 1) {
-                    connFactory.returnConnectionToPool(this);
-                    sess.closeInternal();
+            if (sess != null) {
+                if (this.session == sess) {
+                    this.session = null;
+                } else if (availableSession != null
+                        && availableSession.getPooledObject() == sess) {
+                    this.availableSession = null;
                 }
             }
         }
+    }
+
+    public JmsConnectionWrapper createReference() {
+        synchronized (stateLock) {
+            if (isValid(State.InUse, true)) {
+                JmsConnectionWrapper wrapper = new JmsConnectionWrapper(this);
+                references.add(wrapper);
+                return wrapper;
+            }
+        }
+
+        return null;
+    }
+
+    public boolean isValid() {
+        return isValid(State.Closed, false);
+    }
+
+    /**
+     * Verifies if an exception has occurred, the state is the desired state,
+     * and the underlying resource is still valid.
+     * 
+     * @param requiredState
+     * @param mustBeRequiredState
+     *            If true, current state must match requiredState for isValid to
+     *            be true. If false, current state must not be the
+     *            requiredState.
+     * @return
+     */
+    public boolean isValid(State requiredState, boolean mustBeRequiredState) {
+        boolean valid = false;
+        if (!exceptionOccurred) {
+            valid = state.equals(requiredState);
+            if (!mustBeRequiredState) {
+                valid = !valid;
+            }
+
+            if (valid) {
+                // check underlying resource
+                try {
+                    if (conn != null) {
+                        conn.getClientID();
+                    }
+                } catch (JMSException e) {
+                    // underlying connection has been closed
+                    valid = false;
+                }
+            }
+        }
+        return valid;
+    }
+
+    public int getReferenceCount() {
+        synchronized (references) {
+            return references.size();
+        }
+    }
+
+    public void removeReference(JmsConnectionWrapper wrapper) {
+        boolean returnToPool = false;
+        synchronized (stateLock) {
+            if (references.remove(wrapper) && references.isEmpty()
+                    && State.InUse.equals(state)) {
+                state = State.Available;
+                returnToPool = true;
+
+                // double check state of session, should be available
+                if (session != null) {
+                    statusHandler
+                            .warn("Connection marked available, but Session not Available.  Sessions state is: "
+                                    + session.getState());
+                    session.close();
+                    session = null;
+                }
+
+                if (availableSession != null) {
+                    JmsPooledSession availSess = availableSession
+                            .getPooledObject();
+                    if (availSess != null
+                            && !State.Available.equals(availSess.getState())) {
+                        statusHandler
+                                .warn("Connection marked available, but Session not Available.  Sessions state is: "
+                                        + availSess.getState());
+                        availSess.close();
+                        availableSession = null;
+                    }
+                }
+            }
+        }
+
+        boolean valid = isValid();
+        if (valid && returnToPool) {
+            valid = connFactory.returnConnectionToPool(this);
+        }
+
+        if (!valid) {
+            close();
+        }
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    /**
+     * @return the exceptionOccurred
+     */
+    public boolean isExceptionOccurred() {
+        return exceptionOccurred;
+    }
+
+    /**
+     * @param exceptionOccurred
+     *            the exceptionOccurred to set
+     */
+    public void setExceptionOccurred(boolean exceptionOccurred) {
+        this.exceptionOccurred = exceptionOccurred;
+    }
+
+    /**
+     * @return the state
+     */
+    public State getState() {
+        return state;
+    }
+
+    /**
+     * @param state
+     *            the state to set
+     */
+    public void setState(State state) {
+        this.state = state;
+    }
+
+    /**
+     * @return the stateLock
+     */
+    public Object getStateLock() {
+        return stateLock;
     }
 }

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<resourceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <resource>
+          <loadProperties loadWithoutData="true"></loadProperties>
+          <properties isSystemResource="false"
+              isBlinking="false" isMapLayer="false" isHoverOn="false"
+              isVisible="true" />
+          <resourceData xsi:type="IntlSigmetResourceData"
+                        isUpdatingOnMetadataOnly="false" 
+                        isRequeryNecessaryOnTimeMatch="false"> 
+                   <frameSpan>${frameSpan}</frameSpan>
+                  <dfltNumFrames>${dfltNumFrames}</dfltNumFrames>
+                   <dfltTimeRange>${dfltTimeRange}</dfltTimeRange>
+                   <timeMatchMethod>${timeMatchMethod}</timeMatchMethod>       
+                   <timelineGenMethod>${timelineGenMethod}</timelineGenMethod> 
+                   <legendName>International SIGMET</legendName> 
+                   <legendColor>${legendColor}</legendColor>   
+                   <thunderstormEnable>${thunderstormEnable}</thunderstormEnable>
+                   <thunderstormColor>${thunderstormColor}</thunderstormColor>
+                   <thunderstormLineWidth>${thunderstormLineWidth}</thunderstormLineWidth>
+                   <thunderstormSymbolWidth>${thunderstormSymbolWidth}</thunderstormSymbolWidth>
+                   <thunderstormSymbolSize>${thunderstormSymbolSize}</thunderstormSymbolSize>
+                   <turbulenceEnable>${turbulenceEnable}</turbulenceEnable>
+                   <turbulenceColor>${turbulenceColor}</turbulenceColor>
+                   <turbulenceLineWidth>${turbulenceLineWidth}</turbulenceLineWidth>
+                   <turbulenceSymbolWidth>${turbulenceSymbolWidth}</turbulenceSymbolWidth>
+                   <turbulenceSymbolSize>${turbulenceSymbolSize}</turbulenceSymbolSize> 
+                   <hurricaneEnable>${hurricaneEnable}</hurricaneEnable>
+                   <hurricaneColor>${hurricaneColor}</hurricaneColor>
+                   <hurricaneSymbolWidth>${hurricaneSymbolWidth}</hurricaneSymbolWidth>
+                   <hurricaneSymbolSize>${hurricaneSymbolSize}</hurricaneSymbolSize>
+                   <tropicalStormEnable>${tropicalStormEnable}</tropicalStormEnable>
+                   <tropicalStormColor>${tropicalStormColor}</tropicalStormColor>
+                   <tropicalStormSymbolWidth>${tropicalStormSymbolWidth}</tropicalStormSymbolWidth>
+                   <tropicalStormSymbolSize>${tropicalStormSymbolSize}</tropicalStormSymbolSize>                                        
+                   <tropicalDepressionEnable>${tropicalDepressionEnable}</tropicalDepressionEnable>
+                   <tropicalDepressionColor>${tropicalDepressionColor}</tropicalDepressionColor>
+                   <tropicalDepressionSymbolWidth>${tropicalDepressionSymbolWidth}</tropicalDepressionSymbolWidth>
+                   <tropicalDepressionSymbolSize>${tropicalDepressionSymbolSize}</tropicalDepressionSymbolSize>   
+                   <volcanicAshCloudEnable>${volcanicAshCloudEnable}</volcanicAshCloudEnable>
+                   <volcanicAshCloudColor>${volcanicAshCloudColor}</volcanicAshCloudColor>
+                   <volcanicAshCloudLineWidth>${volcanicAshCloudLineWidth}</volcanicAshCloudLineWidth>
+                   <volcanicAshCloudSymbolWidth>${volcanicAshCloudSymbolWidth}</volcanicAshCloudSymbolWidth>
+                   <volcanicAshCloudSymbolSize>${volcanicAshCloudSymbolSize}</volcanicAshCloudSymbolSize>
+                   <mountainWaveEnable>${mountainWaveEnable}</mountainWaveEnable>
+                   <mountainWaveColor>${mountainWaveColor}</mountainWaveColor>
+                   <mountainWaveLineWidth>${mountainWaveLineWidth}</mountainWaveLineWidth>
+                   <mountainWaveSymbolWidth>${mountainWaveSymbolWidth}</mountainWaveSymbolWidth>
+                   <mountainWaveSymbolSize>${mountainWaveSymbolSize}</mountainWaveSymbolSize>
+                   <tropicalCycloneEnable>${tropicalCycloneEnable}</tropicalCycloneEnable>
+                   <tropicalCycloneColor>${tropicalCycloneColor}</tropicalCycloneColor>
+                   <tropicalCycloneSymbolWidth>${tropicalCycloneSymbolWidth}</tropicalCycloneSymbolWidth>
+                   <tropicalCycloneSymbolSize>${tropicalCycloneSymbolSize}</tropicalCycloneSymbolSize>
+                   <squallLineEnable>${squallLineEnable}</squallLineEnable>
+                   <squallLineColor>${squallLineColor}</squallLineColor>
+                   <squallLineWidth>${squallLineWidth}</squallLineWidth>
+                   <squallLineSymbolWidth>${squallLineSymbolWidth}</squallLineSymbolWidth>
+                   <squallLineSymbolSize>${squallLineSymbolSize}</squallLineSymbolSize>
+                   <catEnable>${catEnable}</catEnable>
+                   <catColor>${catColor}</catColor>
+                   <catLineWidth>${catLineWidth}</catLineWidth>
+                   <catSymbolWidth>${catSymbolWidth}</catSymbolWidth>
+                   <catSymbolSize>${catSymbolSize}</catSymbolSize>
+                   <icingEnable>${icingEnable}</icingEnable>
+                   <icingColor>${icingColor}</icingColor>
+                   <icingLineWidth>${icingLineWidth}</icingLineWidth>
+                   <icingSymbolWidth>${icingSymbolWidth}</icingSymbolWidth>
+                   <icingSymbolSize>${icingSymbolSize}</icingSymbolSize>
+                   <hailEnable>${hailEnable}</hailEnable>
+                   <hailColor>${hailColor}</hailColor>
+                   <hailLineWidth>${hailLineWidth}</hailLineWidth>
+                   <hailSymbolWidth>${hailSymbolWidth}</hailSymbolWidth>
+                   <hailSymbolSize>${hailSymbolSize}</hailSymbolSize>
+                   <dustStormEnable>${dustStormEnable}</dustStormEnable>
+                   <dustStormColor>${dustStormColor}</dustStormColor>
+                   <dustStormLineWidth>${dustStormLineWidth}</dustStormLineWidth>
+                   <dustStormSymbolWidth>${dustStormSymbolWidth}</dustStormSymbolWidth>
+                   <dustStormSymbolSize>${dustStormSymbolSize}</dustStormSymbolSize>
+                   <sandStormEnable>${sandStormEnable}</sandStormEnable>
+                   <sandStormColor>${sandStormColor}</sandStormColor>
+                   <sandStormLineWidth>${sandStormLineWidth}</sandStormLineWidth>
+                   <sandStormSymbolWidth>${sandStormSymbolWidth}</sandStormSymbolWidth>
+                   <sandStormSymbolSize>${sandStormSymbolSize}</sandStormSymbolSize>
+                   <cumulonimbusEnable>${cumulonimbusEnable}</cumulonimbusEnable>
+                   <cumulonimbusColor>${cumulonimbusColor}</cumulonimbusColor>
+                   <cumulonimbusLineWidth>${cumulonimbusLineWidth}</cumulonimbusLineWidth>
+                   <cumulonimbusSymbolWidth>${cumulonimbusSymbolWidth}</cumulonimbusSymbolWidth>
+                   <cumulonimbusSymbolSize>${cumulonimbusSymbolSize}</cumulonimbusSymbolSize>
+                   <lowLevelWindShearEnable>${lowLevelWindShearEnable}</lowLevelWindShearEnable>
+                   <lowLevelWindShearColor>${lowLevelWindShearColor}</lowLevelWindShearColor>
+                   <lowLevelWindShearLineWidth>${lowLevelWindShearLineWidth}</lowLevelWindShearLineWidth>
+                   <lowLevelWindShearSymbolWidth>${lowLevelWindShearSymbolWidth}</lowLevelWindShearSymbolWidth>
+                   <lowLevelWindShearSymbolSize>${lowLevelWindShearSymbolSize}</lowLevelWindShearSymbolSize>
+                   <symbolEnable>${symbolEnable}</symbolEnable>
+                   <timeEnable>${timeEnable}</timeEnable>
+                   <nameOrNumberEnable>${nameOrNumberEnable}</nameOrNumberEnable>
+                   <motionEnable>${motionEnable}</motionEnable>
+                   <flightLevelEnable>${flightLevelEnable}</flightLevelEnable>
+                   <requestStyle>METADATA</requestStyle>
+             <metadataMap>
+               <mapping key="pluginName">
+                 <constraint constraintValue="intlsigmet" constraintType="EQUALS" />
+               </mapping>
+               <mapping key="reportType">
+                 <constraint constraintValue="intlsigmet" constraintType="EQUALS" />
+               </mapping>
+             </metadataMap>
+          </resourceData>
+        </resource>
+</resourceGroup>        

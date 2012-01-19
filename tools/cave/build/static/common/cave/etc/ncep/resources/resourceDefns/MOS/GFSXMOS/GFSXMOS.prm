@@ -1,0 +1,9 @@
+! Parameters for the default GFSXMOS Resource
+!
+plugin=bufrmos
+reportTypeKey=type
+reportTypeValue=AVN
+spiFile=MTR.spi
+legendString=GFSXMOS
+legend_color=RGB {0, 255, 0}
+levelKey=Surface
