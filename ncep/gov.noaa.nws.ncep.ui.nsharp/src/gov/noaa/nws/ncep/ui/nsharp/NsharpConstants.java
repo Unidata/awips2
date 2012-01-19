@@ -18,7 +18,8 @@ package gov.noaa.nws.ncep.ui.nsharp;
  * @author Chin Chen
  * @version 1.0
  */
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
+//import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+//import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.text.DecimalFormat;
 import javax.measure.converter.UnitConverter;
@@ -187,6 +188,7 @@ public class NsharpConstants {
     public static final int SKEWT_REC_Y_ORIG = 150;
     public static final int SKEWT_REC_WIDTH = 1000;
     public static final int SKEWT_REC_HEIGHT = 1002;
+    public static final int SKEWT_VIEW_X_END = SKEWT_REC_X_ORIG + SKEWT_REC_WIDTH;
     public static final int SKEWT_VIEW_Y_END = SKEWT_REC_Y_ORIG + SKEWT_REC_HEIGHT;
     public static final int DATAPANEL_REC_WIDTH = 750;
     public static final int DATAPANEL_REC_HEIGHT = 630;
@@ -268,7 +270,7 @@ public class NsharpConstants {
     public static final int DATA_TIMELINE_VIEW_X_END = DATA_TIMELINE_REC_X_ORIG+DATA_TIMELINE_REC_WIDTH;
     public static final int DATA_TIMELINE_VIEW_Y_END = DATA_TIMELINE_REC_Y_ORIG+DATA_TIMELINE_REC_HEIGHT;
     public static final int DATA_TIMELINE_NEXT_PAGE_END = DATA_TIMELINE_REC_Y_ORIG+ 30;
-    public static final int DATA_TIMELINE_NOTATION_Y_START = DATA_TIMELINE_VIEW_Y_END- 100;
+    public static final int DATA_TIMELINE_NOTATION_Y_START = DATA_TIMELINE_VIEW_Y_END;//- 100;
     public static final int DATA_TIMELINE_SORT_X_START = DATA_TIMELINE_REC_X_ORIG+(7*DATA_TIMELINE_REC_WIDTH/18);
     public static final int STATION_ID_REC_X_ORIG = DATA_TIMELINE_VIEW_X_END;
     public static final int STATION_ID_REC_Y_ORIG = DATA_TIMELINE_REC_Y_ORIG;
@@ -360,7 +362,7 @@ public class NsharpConstants {
     public static final int SRWINDVTRS_VIEW_X_END = SRWINDVTRS_REC_X_ORIG+SRWINDVTRS_REC_WIDTH;
     public static final int SRWINDVTRS_VIEW_Y_END = SRWINDVTRS_REC_Y_ORIG+SRWINDVTRS_REC_HEIGHT;
 
-    public static final int CHAR_HEIGHT = 23;
+    public static final int CHAR_HEIGHT = 25;
     //Dialog
     //public static final int dialogX = 300;
     public static int btnWidth = 120;
@@ -374,10 +376,12 @@ public class NsharpConstants {
 	public static int filelistHeight = 100;
 	public static int dsiplayPanelSize = 2;
 	
-	public static String getNlistFile() {
-		return LocalizationManager.getInstance().getFilename("nlist.txt"); 
-    }
-	public static String getSupFile() {
-		return LocalizationManager.getInstance().getFilename("sup.txt"); 
-    }
+//	public static String getNlistFile() {
+//		return NcPathManager.getInstance().getStaticFile( 
+//				  NcPathConstants.NSHARP_NLIST_FILE ).getAbsolutePath();
+//    }
+//	public static String getSupFile() {
+//		return NcPathManager.getInstance().getStaticFile( 
+//				  NcPathConstants.NSHARP_SUP_FILE ).getAbsolutePath();
+//    }
 }

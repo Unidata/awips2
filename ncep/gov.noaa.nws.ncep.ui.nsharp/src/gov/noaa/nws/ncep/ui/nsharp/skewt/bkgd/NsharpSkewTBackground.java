@@ -46,6 +46,7 @@ import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.common.sounding.WxMath;
+import com.raytheon.uf.common.sounding.util.SoundingPrefs;
 import com.raytheon.viz.core.graphing.WGraphics;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -366,15 +367,18 @@ public class NsharpSkewTBackground extends NsharpAbstractBackground implements
     	//line. add a virtual line. 
     	double [][] lines = {{0,0},{0,
 			0}};
+    	//get temperature offset from /awips2/edex/data/utility/common_static/base/sounding/soundingPrefs.xml
+    	int tempOffset=(int) SoundingPrefs.getSoundingPrefs().getTemperatureOffset();
+    	//System.out.println("Skew temp offset="+tempOffset);
         tempNumbersShape.addLineSegment(lines);
-		for (int i = 50; i > -40; i -= 10) {
+		for (int i = 50+tempOffset; i > -40+tempOffset; i -= 10) {
             Coordinate coorS = WxMath.getSkewTXY(1050, i);
             double startX1 = world.mapX(coorS.x);
             double startY1 = world.mapY(coorS.y);
             double [] lblXy = {startX1,startY1+20};
             tempNumbersShape.addLabel(Integer.toString(i), lblXy);
         }
-        for (int i = -30; i > -110; i -= 10) {
+        for (int i = -30+tempOffset; i > -110+tempOffset; i -= 10) {
             Coordinate coorEnd1 = WxMath.getSkewTXY(100, i);
 
             //System.out.println("X = "+ startX + " Y = "+ startY);

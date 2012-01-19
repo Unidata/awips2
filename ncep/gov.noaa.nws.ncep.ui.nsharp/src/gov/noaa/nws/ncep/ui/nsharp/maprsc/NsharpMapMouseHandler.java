@@ -576,7 +576,10 @@ using hdf5 obj lib
     									.getEditorNum());
     							skewRsc = renderableDisplay.getDescriptor().getSkewtResource();
     							skewRsc.addRsc(soundingLysLstMap, stnPtDataLineLst.get(0));
-    							
+    							mapEditor = NsharpMapResource.getMapEditor();
+    							if (mapEditor != null) {
+    								mapEditor.refresh();
+    							}
     						}
     						else
     						{	

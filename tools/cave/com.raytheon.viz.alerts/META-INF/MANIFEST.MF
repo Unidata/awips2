@@ -1,0 +1,23 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Alerts Plug-in
+Bundle-SymbolicName: com.raytheon.viz.alerts;singleton:=true
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Activator: com.raytheon.viz.alerts.Activator
+Bundle-Vendor: Raytheon
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ com.raytheon.viz.ui,
+ org.apache.commons.beanutils,
+ com.raytheon.viz.core,
+ org.geotools,
+ org.apache.activemq,
+ javax.jms;bundle-version="1.0.0"
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.viz.alerts,
+ com.raytheon.viz.alerts.jobs,
+ com.raytheon.viz.alerts.observers
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: com.raytheon.uf.common.message,
+ com.raytheon.uf.common.message.response
+
