@@ -1,0 +1,7 @@
+! Parameters and Attributes for the default FFG Resource
+!
+!legend_color=RGB {0,100,255}
+ffg_param=FF24
+colorBar=@ffgColorBar.xml
+displayValues=true
+symbolName=ASTERISK

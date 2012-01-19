@@ -172,7 +172,7 @@ public class ObservedSoundingDialogContents {
 		uairBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {   
 				sndTimeList.removeAll();
-				currentSndType = NcSoundingProfile.ObsSndType.H5UAIR;
+//				currentSndType = NcSoundingProfile.ObsSndType.NCUAIR;
 				createObsvdSndUairList();
 				//System.out.println("new obvSnd dialog uair btn");
 			}          		            	 	
@@ -254,9 +254,9 @@ public class ObservedSoundingDialogContents {
 					timeLimit = false;
 				
 				//refresh sounding list if file type is selected already
-				if(currentSndType== NcSoundingProfile.ObsSndType.H5UAIR || currentSndType == NcSoundingProfile.ObsSndType.UAIR|| currentSndType == NcSoundingProfile.ObsSndType.BUFRUA){
-					createObsvdSndUairList();
-				}
+//				if(currentSndType== NcSoundingProfile.ObsSndType.NCUAIR /*|| currentSndType == NcSoundingProfile.ObsSndType.UAIR*/|| currentSndType == NcSoundingProfile.ObsSndType.BUFRUA){
+//					createObsvdSndUairList();
+//				}
 					
 				
 			}          		            	 	
@@ -264,14 +264,14 @@ public class ObservedSoundingDialogContents {
 		rawBtn = new Button(parent, SWT.CHECK | SWT.BORDER);
 		rawBtn.setText("raw data");
 		rawBtn.setEnabled( true );
-		rawBtn.addListener( SWT.MouseUp, new Listener() {
-			public void handleEvent(Event event) {    
-				if(rawBtn.getSelection())
-					rawData  = true;
-				else
-					rawData = false;;
-			}          		            	 	
-		} );  
+//		rawBtn.addListener( SWT.MouseUp, new Listener() {
+//			public void handleEvent(Event event) {    
+//				if(rawBtn.getSelection())
+//					rawData  = true;
+//				else
+//					rawData = false;;
+//			}          		            	 	
+//		} );  
 		 //create file widget list 
 		sndTimeListGp = new Group(parent,SWT.SHADOW_ETCHED_IN);
 		sndTimeListGp.setText("Sounding Times:");

@@ -1,0 +1,8 @@
+bin/
+.metadata/
+ldm/Debug
+test-bin/
+testbin/
+testBin/
+bin-test/
+

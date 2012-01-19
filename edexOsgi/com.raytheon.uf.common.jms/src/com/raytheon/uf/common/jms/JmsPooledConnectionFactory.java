@@ -5,13 +5,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
-import javax.jms.Session;
 
+import com.raytheon.uf.common.jms.wrapper.JmsConnectionWrapper;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -61,34 +62,25 @@ public class JmsPooledConnectionFactory implements ConnectionFactory {
 
     private String provider = "QPID";
 
-    // TODO Limit number of sessions per pool, enable lookup so that threads
-    // that already have a connection/session will grab the same session
-    private LinkedList<JmsPooledConnection> pooledConns = new LinkedList<JmsPooledConnection>();
+    // connections in use, key is "threadId-threadName"
+    private Map<String, JmsPooledConnection> inUseConnections = new HashMap<String, JmsPooledConnection>();
+
+    // connections that were recently returned, key is "threadId-threadName"
+    private Map<String, AvailableJmsPooledObject<JmsPooledConnection>> pendingConnections = new HashMap<String, AvailableJmsPooledObject<JmsPooledConnection>>();
+
+    // connections that have been released from pendingConnections and are
+    // awaiting being closed.
+    private LinkedList<AvailableJmsPooledObject<JmsPooledConnection>> availableConnections = new LinkedList<AvailableJmsPooledObject<JmsPooledConnection>>();
+
+    private ConcurrentLinkedQueue<JmsPooledConnection> deadConnections = new ConcurrentLinkedQueue<JmsPooledConnection>();
 
     private int reconnectInterval = 30000;
 
-    private int sessionsPerConnection = 1;
-
-    private int sessionHoldTime = 120000;
+    private int connectionHoldTime = 120000;
 
     private int resourceRetention = 180000;
 
-    private int maxAvailableSessions = 10;
-
-    // TODO: Sessions need to be grouped by acknowledgement mode
-
-    // session in use, key is "threadId-threadName"
-    private HashMap<String, JmsPooledSession> inUseSessions = new HashMap<String, JmsPooledSession>(
-            128);
-
-    // sessions that were recently returned, key is "threadId-threadName"
-    private HashMap<String, AvailableJmsPooledObject<JmsPooledSession>> pendingSessions = new HashMap<String, AvailableJmsPooledObject<JmsPooledSession>>();
-
-    // sessions that have been released from pendingSessions and are awaiting
-    // being closed.
-    private LinkedList<AvailableJmsPooledObject<JmsPooledSession>> availableSessions = new LinkedList<AvailableJmsPooledObject<JmsPooledSession>>();
-
-    private ConcurrentLinkedQueue<JmsPooledSession> deadSessions = new ConcurrentLinkedQueue<JmsPooledSession>();
+    private int maxSpareConnections = 10;
 
     public JmsPooledConnectionFactory(ConnectionFactory factory) {
         this.connFactory = factory;
@@ -101,7 +93,101 @@ public class JmsPooledConnectionFactory implements ConnectionFactory {
      */
     @Override
     public Connection createConnection() throws JMSException {
-        return new JmsConnectionWrapper(this);
+        String threadKey = "" + Thread.currentThread().getId() + "-"
+                + Thread.currentThread().getName();
+        JmsPooledConnection conn = null;
+
+        synchronized (inUseConnections) {
+            conn = inUseConnections.get(threadKey);
+
+            if (conn != null) {
+                JmsConnectionWrapper ref = conn.createReference();
+                if (ref != null) {
+                    statusHandler
+                            .info(threadKey
+                                    + " already has a connection in use, returning previous connection thread, references="
+                                    + conn.getReferenceCount());
+                    return ref;
+                } else {
+                    deadConnections.add(conn);
+                    inUseConnections.remove(threadKey);
+                    conn = null;
+                }
+            }
+        }
+
+        AvailableJmsPooledObject<JmsPooledConnection> wrapper = null;
+
+        // check connections by Thread
+        synchronized (pendingConnections) {
+            wrapper = pendingConnections.remove(threadKey);
+        }
+
+        // was retrieved connection valid
+        if (wrapper != null) {
+            conn = wrapper.getPooledObject();
+            JmsConnectionWrapper ref = getConnectionWrapper(threadKey, conn);
+
+            if (ref != null) {
+                return ref;
+            } else {
+                deadConnections.add(conn);
+                conn = null;
+            }
+        }
+
+        // check available connections
+        boolean keepChecking = true;
+
+        while (keepChecking) {
+            synchronized (availableConnections) {
+                wrapper = availableConnections.poll();
+            }
+
+            if (wrapper != null) {
+                conn = wrapper.getPooledObject();
+            } else {
+                keepChecking = false;
+            }
+
+            if (conn != null) {
+                // was retrieved connection valid
+                JmsConnectionWrapper ref = getConnectionWrapper(threadKey, conn);
+
+                if (ref != null) {
+                    return ref;
+                } else {
+                    deadConnections.add(conn);
+                    conn = null;
+                }
+            }
+        }
+
+        // create new connection?
+        if (conn == null) {
+            conn = new JmsPooledConnection(this);
+        }
+
+        return getConnectionWrapper(threadKey, conn);
+    }
+
+    private JmsConnectionWrapper getConnectionWrapper(String threadKey,
+            JmsPooledConnection conn) {
+        synchronized (conn.getStateLock()) {
+            if (conn.isValid()) {
+                conn.setState(State.InUse);
+                JmsConnectionWrapper ref = conn.createReference();
+                if (ref != null) {
+                    conn.setKey(threadKey);
+                    synchronized (inUseConnections) {
+                        inUseConnections.put(threadKey, conn);
+                    }
+                    return ref;
+                }
+            }
+        }
+
+        return null;
     }
 
     protected Connection createInternalConnection() throws JMSException {
@@ -119,89 +205,6 @@ public class JmsPooledConnectionFactory implements ConnectionFactory {
             throws JMSException {
         throw new IllegalArgumentException(
                 "JmsPooledConnectionFactory not implemented for username/password connections");
-    }
-
-    public void returnSessionToPool(JmsPooledSession sess) {
-        String threadKey = sess.getThreadKey();
-        // should be able to remove from inUseSession directly, bullet proofing
-        // to check for leaks in logic
-        synchronized (inUseSessions) {
-            JmsPooledSession tmpSess = inUseSessions.get(threadKey);
-            if (tmpSess != null) {
-                if (tmpSess.equals(sess)) {
-                    inUseSessions.remove(threadKey);
-                } else {
-                    statusHandler
-                            .warn("JmsPooledSession was returned to pool and another session is already in use by the same thread.  May be a leak in the pooling logic");
-                }
-            } else {
-                statusHandler
-                        .warn("JmsPooledSession was returned to pool when it was no longer an active session.  May be a leak in the pooling logic");
-            }
-        }
-
-        // pending sessions shouldn't have an entry, bullet proofing to check
-        // for leaks in logic
-        AvailableJmsPooledObject<JmsPooledSession> prev = null;
-        synchronized (pendingSessions) {
-            prev = pendingSessions.put(sess.getThreadKey(),
-                    new AvailableJmsPooledObject<JmsPooledSession>(sess));
-        }
-
-        if (prev != null) {
-            statusHandler
-                    .warn("JmsPooledSession was returned to pool and another session already existed in pending state for this thread.  May be a leak in the pooling logic");
-
-            // shouldn't be possible unless multiple threads have the same name
-            // or one thread opened multiple sessions
-            prev.reset();
-            prev.getPooledObject().setInUse(false);
-            synchronized (availableSessions) {
-                availableSessions.add(prev);
-            }
-        }
-    }
-
-    public boolean removeSessionFromPool(JmsPooledSession sess) {
-        String threadKey = sess.getThreadKey();
-        boolean found = false;
-
-        synchronized (inUseSessions) {
-            JmsPooledSession tmpSess = inUseSessions.get(threadKey);
-            if (tmpSess != null) {
-                if (tmpSess.equals(sess)) {
-                    found = true;
-                    inUseSessions.remove(threadKey);
-                } else if (sess.isValid()) {
-                    statusHandler
-                            .info("JmsPooledSession is being removed from pool and another session already being used for this thread.  Increase pending time-out");
-                }
-            }
-        }
-
-        synchronized (pendingSessions) {
-            // pending session may not be this session in cases where
-            // multiple sessions where opened on a single thread
-            AvailableJmsPooledObject<JmsPooledSession> tmpSess = pendingSessions
-                    .get(threadKey);
-
-            if (tmpSess != null) {
-                JmsPooledSession pooledSess = tmpSess.getPooledObject();
-                if (sess.equals(pooledSess)) {
-                    found = true;
-                    pendingSessions.remove(threadKey);
-                } else if (sess.isValid()) {
-                    statusHandler
-                            .warn("JmsPooledSession is being removed from pool and another session ws already pending for this thread.  May be a leak in the pooling logic");
-                }
-            }
-        }
-
-        synchronized (availableSessions) {
-            found = availableSessions.remove(sess);
-        }
-
-        return found;
     }
 
     public String getProvider() {
@@ -228,222 +231,229 @@ public class JmsPooledConnectionFactory implements ConnectionFactory {
         this.reconnectInterval = reconnectInterval;
     }
 
-    public int getSessionsPerConnection() {
-        return sessionsPerConnection;
-    }
+    public void removeConnectionFromPool(JmsPooledConnection conn) {
+        String threadKey = conn.getKey();
+        boolean success = false;
 
-    public void setSessionsPerConnection(int sessionsPerConnection) {
-        this.sessionsPerConnection = sessionsPerConnection;
-    }
+        // remove it from inUseConnections if it was in use, theoretically could
+        // go by connection state, but may miss something due to threading
+        synchronized (inUseConnections) {
+            JmsPooledConnection inUse = inUseConnections.remove(threadKey);
 
-    public int getSessionHoldTime() {
-        return sessionHoldTime;
-    }
+            // make sure the one we removed is indeed this connection, 99%
+            // of time this is correct
+            success = inUse == conn;
 
-    public void setSessionHoldTime(int sessionHoldTime) {
-        this.sessionHoldTime = sessionHoldTime;
-    }
-
-    private JmsPooledConnection getConnectionFromPool(String clientId) {
-        JmsPooledConnection conn = null;
-
-        if (clientId == null) {
-            // grab next connection with less
-            synchronized (pooledConns) {
-                conn = pooledConns.peek();
+            if (success) {
+                // found conn, done
+                return;
+            } else {
+                // put the bad removal back in. Done this way instead of
+                // get/remove as 99% of time remove is correct, this
+                // really only here for bullet proofing code against bad
+                // use of pool
+                if (inUse != null) {
+                    inUseConnections.put(threadKey, inUse);
+                }
             }
+        }
 
-            if (conn == null) {
-                conn = new JmsPooledConnection(this, clientId);
-                synchronized (pooledConns) {
-                    pooledConns.add(conn);
+        // remove it from pendingConnections
+        AvailableJmsPooledObject<JmsPooledConnection> pooledObj = null;
+        synchronized (pendingConnections) {
+            pooledObj = pendingConnections.remove(threadKey);
+            if (pooledObj != null) {
+                if (pooledObj.getPooledObject() == conn) {
+                    // found conn, done
+                    return;
+                } else {
+                    pendingConnections.put(threadKey, pooledObj);
+                }
+            }
+        }
+
+        // remove it from availableConnections
+        synchronized (availableConnections) {
+            availableConnections.remove(conn);
+        }
+    }
+
+    public boolean returnConnectionToPool(JmsPooledConnection conn) {
+        boolean success = false;
+        String threadKey = conn.getKey();
+
+        synchronized (inUseConnections) {
+            JmsPooledConnection inUse = inUseConnections.remove(threadKey);
+
+            // make sure the one we removed is indeed this connection, 99%
+            // of time this is correct
+            success = inUse == conn;
+
+            if (!success) {
+                // put the bad removal back in. Done this way instead of
+                // get/remove as 99% of time remove is correct, this
+                // really only here for bullet proofing code against bad
+                // use of pool
+                if (inUse != null) {
+                    inUseConnections.put(threadKey, inUse);
+                    statusHandler
+                            .handle(Priority.INFO,
+                                    "Another connection already in use for this thread, not returning this connection to pool");
+                }
+            }
+        }
+
+        if (success && conn.isValid()) {
+            // only put it in the available pool if it was successfully
+            // remove from the inUse pool
+            AvailableJmsPooledObject<JmsPooledConnection> prev = null;
+            synchronized (pendingConnections) {
+                prev = pendingConnections
+                        .put(threadKey,
+                                new AvailableJmsPooledObject<JmsPooledConnection>(
+                                        conn));
+            }
+            if (prev != null) {
+                // there was a previous connection registered to
+                // this thread, move it to available
+                statusHandler
+                        .handle(Priority.WARN,
+                                "Another connection already pooled for this thread, moving previous connection to available");
+                prev.reset();
+                synchronized (availableConnections) {
+                    availableConnections.add(prev);
                 }
             }
         } else {
-            throw new IllegalArgumentException(
-                    "Client Id not supported with pooled connections");
+            success = false;
         }
 
-        return conn;
-    }
-
-    public void removeConnectionFromPool(JmsPooledConnection conn) {
-        synchronized (pooledConns) {
-            pooledConns.remove(conn);
-        }
-    }
-
-    public void returnConnectionToPool(JmsPooledConnection conn) {
-        synchronized (pooledConns) {
-            pooledConns.add(conn);
-        }
-    }
-
-    public Session createSession(String clientId, boolean transacted,
-            int acknowledgeMode) throws JMSException {
-        String threadKey = "" + Thread.currentThread().getId() + "-"
-                + Thread.currentThread().getName();
-        JmsPooledSession session = null;
-
-        synchronized (inUseSessions) {
-            session = inUseSessions.get(threadKey);
-
-            if (session != null) {
-                session.incSessionRefs();
-                statusHandler
-                        .info(threadKey
-                                + " already has session in use, returning previous session thread, references="
-                                + session.getSessionRefs());
-            }
-        }
-
-        if (session != null) {
-            return new JmsSessionWrapper(session);
-        }
-
-        // check sessions by Thread
-        synchronized (pendingSessions) {
-            AvailableJmsPooledObject<JmsPooledSession> wrapper = pendingSessions
-                    .remove(threadKey);
-
-            // was retrieved session valid
-            if (wrapper != null) {
-                session = wrapper.getPooledObject();
-
-                if (!session.isValid()) {
-                    deadSessions.add(session);
-                    session = null;
-                }
-            }
-        }
-
-        // check available sessions
-        if (session == null) {
-            synchronized (availableSessions) {
-                AvailableJmsPooledObject<JmsPooledSession> wrapper = availableSessions
-                        .poll();
-
-                if (wrapper != null) {
-                    session = wrapper.getPooledObject();
-                }
-
-                if (session != null) {
-                    // was retrieved session valid
-                    if (!session.isValid()) {
-                        deadSessions.add(session);
-                        session = null;
-                    }
-                }
-            }
-
-            // create new session
-            while (session == null) {
-                JmsPooledConnection conn = getConnectionFromPool(clientId);
-                session = conn.createSession(transacted, acknowledgeMode);
-            }
-
-            session.setThreadKey(threadKey);
-        }
-
-        synchronized (inUseSessions) {
-            session.incSessionRefs();
-            inUseSessions.put(threadKey, session);
-        }
-
-        return new JmsSessionWrapper(session);
+        return success;
     }
 
     public void checkPooledResources() {
         long curTime = System.currentTimeMillis();
-        List<AvailableJmsPooledObject<JmsPooledSession>> sessionsToProcess = new LinkedList<AvailableJmsPooledObject<JmsPooledSession>>();
-        int sessionsClosed = 0;
+        List<AvailableJmsPooledObject<JmsPooledConnection>> connectionsToProcess = new LinkedList<AvailableJmsPooledObject<JmsPooledConnection>>();
+        int connectionsClosed = 0;
 
-        // grab sessions to move from pending to available
-        synchronized (pendingSessions) {
-            Iterator<AvailableJmsPooledObject<JmsPooledSession>> iter = pendingSessions
+        // grab connections to move from pending to available
+        synchronized (pendingConnections) {
+            Iterator<AvailableJmsPooledObject<JmsPooledConnection>> iter = pendingConnections
                     .values().iterator();
             while (iter.hasNext()) {
-                AvailableJmsPooledObject<JmsPooledSession> wrapper = iter
+                AvailableJmsPooledObject<JmsPooledConnection> wrapper = iter
                         .next();
                 if (wrapper.expired(curTime, resourceRetention)) {
                     iter.remove();
-                    sessionsToProcess.add(wrapper);
+                    connectionsToProcess.add(wrapper);
                 }
             }
         }
 
-        for (AvailableJmsPooledObject<JmsPooledSession> wrapper : sessionsToProcess) {
+        for (AvailableJmsPooledObject<JmsPooledConnection> wrapper : connectionsToProcess) {
             wrapper.reset();
-            // putting to available pool, close down consumer/producer resources
-            JmsPooledSession sess = wrapper.getPooledObject();
-            sess.closePooledConsumersProducers();
-            sess.setInUse(false);
-            sess.setThreadKey(null);
+            // putting to available pool
+            JmsPooledConnection conn = wrapper.getPooledObject();
+            conn.setKey(null);
 
-            synchronized (availableSessions) {
-                availableSessions.add(wrapper);
+            synchronized (availableConnections) {
+                availableConnections.add(wrapper);
             }
         }
 
-        sessionsToProcess.clear();
+        connectionsToProcess.clear();
 
-        synchronized (availableSessions) {
-            Iterator<AvailableJmsPooledObject<JmsPooledSession>> iter = availableSessions
+        synchronized (availableConnections) {
+            Iterator<AvailableJmsPooledObject<JmsPooledConnection>> iter = availableConnections
                     .iterator();
             while (iter.hasNext()) {
-                AvailableJmsPooledObject<JmsPooledSession> wrapper = iter
+                AvailableJmsPooledObject<JmsPooledConnection> wrapper = iter
                         .next();
                 // available sessions added based on time, so oldest is front of
                 // queue
-                if (wrapper.expired(curTime, sessionHoldTime)
-                        || availableSessions.size() > maxAvailableSessions) {
-                    // not immediately closing session so that we minimize time
+                if (wrapper.expired(curTime, connectionHoldTime)
+                        || availableConnections.size() > maxSpareConnections) {
+                    // not immediately closing connection so that we minimize
+                    // time
                     // in sync block
-                    deadSessions.add(wrapper.getPooledObject());
+                    deadConnections.add(wrapper.getPooledObject());
                     iter.remove();
                 } else {
-                    // sessions ordered in reverse order
+                    // connections ordered in reverse order
                     break;
                 }
             }
 
         }
 
-        while (!deadSessions.isEmpty()) {
-            JmsPooledSession session = deadSessions.poll();
-            if (session != null) {
-                session.getConnection().removeSession(session);
-                sessionsClosed++;
+        while (!deadConnections.isEmpty()) {
+            JmsPooledConnection conn = deadConnections.poll();
+            if (conn != null) {
+                conn.close();
+                connectionsClosed++;
             }
         }
 
-        List<JmsPooledSession> sessionsToCheck = null;
-        synchronized (inUseSessions) {
-            sessionsToCheck = new ArrayList<JmsPooledSession>(
-                    inUseSessions.values());
+        List<JmsPooledConnection> connectionsToCheck = null;
+        synchronized (inUseConnections) {
+            connectionsToCheck = new ArrayList<JmsPooledConnection>(
+                    inUseConnections.values());
         }
-        int consumersProducersClosed = 0;
-        for (JmsPooledSession session : sessionsToCheck) {
-            consumersProducersClosed += session
+        int resourcesClosed = 0;
+        for (JmsPooledConnection conn : connectionsToCheck) {
+            resourcesClosed += conn.closeOldPooledResources(resourceRetention);
+        }
+
+        // close pooled resources on pending connections
+        synchronized (pendingConnections) {
+            connectionsToProcess = new ArrayList<AvailableJmsPooledObject<JmsPooledConnection>>(
+                    pendingConnections.values());
+        }
+        synchronized (availableConnections) {
+            connectionsToProcess.addAll(availableConnections);
+        }
+        for (AvailableJmsPooledObject<JmsPooledConnection> wrapper : connectionsToProcess) {
+            resourcesClosed += wrapper.getPooledObject()
                     .closeOldPooledResources(resourceRetention);
         }
 
-        // close pooled producers on pending sessions
-        synchronized (pendingSessions) {
-            sessionsToProcess = new ArrayList<AvailableJmsPooledObject<JmsPooledSession>>(
-                    pendingSessions.values());
-        }
-        for (AvailableJmsPooledObject<JmsPooledSession> wrapper : sessionsToProcess) {
-            consumersProducersClosed += wrapper.getPooledObject()
-                    .closeOldPooledResources(resourceRetention);
-        }
-
-        if (sessionsClosed > 0 || consumersProducersClosed > 0) {
-            statusHandler.handle(Priority.INFO,
-                    "Closed unused jms pooled resources: sessions closed: "
-                            + sessionsClosed + ", consumers/producers closed: "
-                            + consumersProducersClosed + ", total time "
+        if (connectionsClosed > 0 || resourcesClosed > 0) {
+            statusHandler.handle(
+                    Priority.INFO,
+                    "Closed unused jms pooled resources: connections closed: "
+                            + connectionsClosed + ", other resources closed: "
+                            + resourcesClosed + ", total time "
                             + (System.currentTimeMillis() - curTime));
         }
+    }
+
+    /**
+     * @return the connectionHoldTime
+     */
+    public int getConnectionHoldTime() {
+        return connectionHoldTime;
+    }
+
+    /**
+     * @param connectionHoldTime
+     *            the connectionHoldTime to set
+     */
+    public void setConnectionHoldTime(int connectionHoldTime) {
+        this.connectionHoldTime = connectionHoldTime;
+    }
+
+    /**
+     * @return the maxSpareConnections
+     */
+    public int getMaxSpareConnections() {
+        return maxSpareConnections;
+    }
+
+    /**
+     * @param maxSpareConnections
+     *            the maxSpareConnections to set
+     */
+    public void setMaxSpareConnections(int maxSpareConnections) {
+        this.maxSpareConnections = maxSpareConnections;
     }
 }

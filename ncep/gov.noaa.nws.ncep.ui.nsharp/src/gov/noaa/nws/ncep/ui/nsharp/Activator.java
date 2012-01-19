@@ -29,6 +29,8 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
+
+
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 
@@ -36,11 +38,11 @@ import com.raytheon.uf.common.status.UFStatus;
  * The activator class controls the plug-in life cycle
  */
 public class Activator extends AbstractUIPlugin {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(Activator.class);
-    
+
+	private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(Activator.class);
+	
 	// The plug-in ID
 	public static final String PLUGIN_ID = "gov.noaa.nws.ncep.ui.nsharp";
-	private static final String BIGNSHARP = "bignsharp";
 
 	// The shared instance
 	private static Activator plugin;
@@ -51,26 +53,23 @@ public class Activator extends AbstractUIPlugin {
 	public Activator() {
 	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
-     * )
-     */
-    public void start(BundleContext context) throws Exception {
-        super.start(context);
-        plugin = this;
-        try {
-            Bundle b = this.getBundle();
-            URL url = FileLocator.find(b, 
-            	new Path(System.mapLibraryName(BIGNSHARP)), null);
-            url = FileLocator.resolve(url);
-            System.load(url.getPath());
-        }catch (Throwable e) {
-            statusHandler.handle(UFStatus.Priority.WARN, "An Error occured loading nsharp libraries, nsharp will not work.", e);
-        }
-    }
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
+	 */
+	public void start(BundleContext context) throws Exception {
+		super.start(context);
+		plugin = this;
+		try {
+			Bundle b = this.getBundle();
+			URL url = FileLocator.find(b, new Path("libbignsharp.so"), null);
+			url = FileLocator.resolve(url);
+			System.load(url.getPath());
+		}catch (Throwable e) {
+			statusHandler.handle(UFStatus.Priority.WARN, "An Error occured loading nsharp libraries, nsharp will not work.", e);
+		}
+
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -111,7 +110,7 @@ public class Activator extends AbstractUIPlugin {
 
 			 } catch (IOException e) {
 
-				 System.out.println("Error open NSHARP build.properties file");
+				 System.out.println("Error open NSHARP build.properites file");
 
 			 }
 		 }
