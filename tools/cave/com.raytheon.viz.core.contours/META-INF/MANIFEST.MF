@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Contours Plug-in
+Bundle-SymbolicName: com.raytheon.viz.core.contours;singleton:=true
+Bundle-Version: 1.12.1174.qualifier
+Bundle-Activator: com.raytheon.viz.core.contours.Activator
+Bundle-Vendor: Raytheon
+Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.viz.ui
+Eclipse-BuddyPolicy: ext, global
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ com.raytheon.viz.core,
+ org.apache.commons.lang,
+ org.geotools,
+ javax.measure,
+ com.raytheon.viz.ui,
+ com.raytheon.edex.meteolib,
+ com.raytheon.viz.pointdata;bundle-version="1.10.13"
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.viz.core.contours,
+ com.raytheon.viz.core.contours.cmenu,
+ com.raytheon.viz.core.contours.rsc.displays,
+ com.raytheon.viz.core.contours.util
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

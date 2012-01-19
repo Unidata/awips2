@@ -1,0 +1,11 @@
+# BASIS SECTION TEMPLATES
+# -----------------------
+#
+name: system
+phrasestr:The current weather is dominated by a [...].
+phrasestr:This weather system will produce rainfall amounts ranging from [...].
+phrasestr:The extended outlook is for [...].
+#
+name: default
+phrasestr: ...insert basis section here!!!...
+#

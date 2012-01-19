@@ -58,14 +58,14 @@ DisposeListener, IPartListener{
 	private MessageBox mb ;
 	protected Button loadBtn, unloadBtn, overlayBtn,  interpBtn,  compareBtn, graphEditBtn;
 	private Shell shell;
-	private boolean overlayIsOn, compareIsOn;
-	protected boolean interpolateIsOn, editGraphOn;
+	private boolean overlayIsOn=false, compareIsOn=false;
+	protected boolean interpolateIsOn=false, editGraphOn=false;
 	private static String INTP_OFF = "  Interp(off)    ";
 	private static String INTP_ON = "  Interp(on)     ";
 	private static String COMP_OFF= "Compare(off)";
 	private static String COMP_ON= "Compare(on)  ";
-	private static String OVLY_OFF= "Overlay(off)  ";
-	private static String OVLY_ON= "Overlay(on)   ";
+	private static String OVLY_OFF= "Ovrlay2(off)";
+	private static String OVLY_ON= "Ovrlay2(on)";
 	protected static String EDIT_GRAPH_OFF= "EditGraph(off)";
 	protected static String EDIT_GRAPH_ON= "EditGraph(on) ";
 	private IWorkbenchPage page;
@@ -86,6 +86,7 @@ DisposeListener, IPartListener{
 	public NsharpPaletteWindow() {
 		super();
 		//nsharpPaletteWindow = this;
+		//System.out.println("NsharpPaletteWindow condtructed!!");
 		printHandle = NsharpPrintHandle.getPrintHandle();
 		shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();  
 
@@ -114,6 +115,17 @@ DisposeListener, IPartListener{
 		page = site.getPage();
 		page.addPartListener(this);
 
+		//Chin : to fix Ticket#11034::::
+		//get several control information back from SkewT resource, in the case that
+		//NsharpPaletteWindow view was disposed and re-constructed while SkewT resource is not.
+		//This case applied to D2D implementation. 
+		NsharpSkewTResource rsc = getSkewTRsc();
+		if(rsc!= null) {
+			interpolateIsOn = rsc.isInterpolateIsOn();
+			overlayIsOn = rsc.isOverlayIsOn();
+			compareIsOn = rsc.isCompareIsOn();
+			editGraphOn = rsc.isEditGraphOn();				
+		}
 
 	}
 
@@ -355,11 +367,18 @@ DisposeListener, IPartListener{
 				}
 			}          		            	 	
 		} );
-
+		
+		
 		// Push buttons for interpolate
 		interpBtn = new Button(textModeGp, SWT.PUSH);
-		interpBtn.setText(INTP_OFF);
-		interpBtn.setEnabled( true );
+		
+		interpBtn.setEnabled( true );		
+		if(interpolateIsOn) {
+			interpBtn.setText(INTP_ON);
+		}
+		else{
+			interpBtn.setText(INTP_OFF);
+		}
 		interpBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {  
 				shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(); 
@@ -393,12 +412,22 @@ DisposeListener, IPartListener{
 			}          		            	 	
 		} );
 
+		NsharpSkewTResource rsc = getSkewTRsc();
+		
 		// Push buttons for OVERLAY info
-		overlayBtn = new Button(textModeGp, SWT.PUSH);
-		overlayBtn.setText(OVLY_OFF);
-		overlayBtn.setEnabled( true );
-		//overlayBtn.setSize(btnWidth,pushbtnHeight);		
-		overlayIsOn = false;
+		overlayBtn = new Button(textModeGp, SWT.PUSH);	
+		if(overlayIsOn){
+			overlayBtn.setText(OVLY_ON);
+			overlayBtn.setEnabled( true );
+		}
+		else{
+			overlayBtn.setText(OVLY_OFF);
+			//comparison and overlay is mutual exclusive
+			if((rsc!= null) && (rsc.isCompareIsOn()))
+				overlayBtn.setEnabled( false );
+			else
+				overlayBtn.setEnabled( true );
+		}
 		overlayBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {           
 				shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(); 
@@ -426,10 +455,23 @@ DisposeListener, IPartListener{
 		} );
 		// Push buttons for OVERLAY info
 		compareBtn = new Button(textModeGp, SWT.PUSH);
-		compareBtn.setText(COMP_OFF);
-		compareBtn.setEnabled( true );
+		
+		if(compareIsOn){
+			compareBtn.setText(COMP_ON);
+			compareBtn.setEnabled( true );
+		}
+		else{
+			//comparison and overlay is mutual exclusive
+			compareBtn.setText(COMP_OFF);
+			if((rsc!= null) && (rsc.isOverlayIsOn()))
+				compareBtn.setEnabled( false );
+			else
+				compareBtn.setEnabled( true );
+		}
+		
+		
 		//compareBtn.setSize(btnWidth,pushbtnHeight);		
-		compareIsOn = false;
+		
 		compareBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {           
 				shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(); 
@@ -472,9 +514,13 @@ DisposeListener, IPartListener{
 		} ); 
 
 		graphEditBtn = new Button(textModeGp, SWT.PUSH);
-		graphEditBtn.setText(EDIT_GRAPH_OFF);
-		graphEditBtn.setEnabled( true );
-		editGraphOn = false;
+		graphEditBtn.setEnabled( true );		
+		if(editGraphOn) {
+			graphEditBtn.setText(EDIT_GRAPH_ON);
+		}
+		else{
+			graphEditBtn.setText(EDIT_GRAPH_OFF);
+		}
 		graphEditBtn.addListener( SWT.MouseUp, new Listener() {
 			public void handleEvent(Event event) {           
 				if(checkLoadedData()) {

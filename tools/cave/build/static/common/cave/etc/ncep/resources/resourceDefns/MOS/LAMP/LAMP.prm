@@ -1,0 +1,9 @@
+! Parameters for the default LAMP Resource
+!
+plugin=bufrmos
+reportTypeKey=type
+reportTypeValue=LAMP
+spiFile=MTR.spi
+legendString=LAMP
+legend_color=RGB {0, 255, 0}
+levelKey=Surface

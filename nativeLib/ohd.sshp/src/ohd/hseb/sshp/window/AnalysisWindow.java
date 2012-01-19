@@ -496,7 +496,8 @@ public class AnalysisWindow extends JFrame
     //  ------------------------------------------------------------
     private String getCenteredText(String origText)
     {
-        String centeredText = "<HTML><CENTER>" + origText +  "</CENTER></HTML>";       
+        String centeredText = "<HTML><CENTER>" + origText +  "</CENTER></HTML>";
+       
         return centeredText;     
     }
 //  ------------------------------------------------------------

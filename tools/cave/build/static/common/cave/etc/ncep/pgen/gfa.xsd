@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:element name="root">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" ref="hazard"/>
+                <xs:element maxOccurs="unbounded" ref="fcstHr"/>
+                <xs:element ref="tag"/>
+                <xs:element maxOccurs="unbounded" ref="desk"/>
+                <xs:element maxOccurs="unbounded" ref="issueType"/>
+                <xs:element ref="color"/>
+                <xs:element ref="displayText"/>
+                <xs:element ref="gfaOtlkgenRatio"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="hazard">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" ref="fzlText"/>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                    <xs:element ref="checkbox"/>
+                    <xs:element ref="dropdown"/>
+                    <xs:element ref="popup"/>
+                    <xs:element ref="text"/>
+                </xs:choice>
+            </xs:sequence>
+            <xs:attribute name="category" use="required" type="xs:NCName"/>
+            <xs:attribute name="format" type="xs:boolean"/>
+            <xs:attribute name="name" use="required" type="xs:NCName"/>
+            <xs:attribute name="other" use="required" type="xs:NCName"/>
+            <xs:attribute name="outlook" use="required" type="xs:NCName"/>
+            <xs:attribute name="smear" use="required" type="xs:NCName"/>
+            <xs:attribute name="snapshot" use="required" type="xs:NCName"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="fzlText">
+        <xs:complexType>
+            <xs:attribute name="characterLimit" type="xs:integer"/>
+            <xs:attribute name="characterType" type="xs:NCName"/>
+            <xs:attribute name="height" use="required" type="xs:integer"/>
+            <xs:attribute name="label" use="required"/>
+            <xs:attribute name="padWithZeros" use="required" type="xs:integer"/>
+            <xs:attribute name="scrollable" type="xs:boolean"/>
+            <xs:attribute name="width" use="required" type="xs:integer"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="dropdown">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" ref="value"/>
+            </xs:sequence>
+            <xs:attribute name="label" use="required"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="popup">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" ref="checkbox"/>
+            </xs:sequence>
+            <xs:attribute name="label" use="required"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="text">
+        <xs:complexType>
+            <xs:attribute name="category" type="xs:NCName"/>
+            <xs:attribute name="characterLimit" type="xs:integer"/>
+            <xs:attribute name="characterType" type="xs:NCName"/>
+            <xs:attribute name="editable" type="xs:boolean"/>
+            <xs:attribute name="height" use="required" type="xs:integer"/>
+            <xs:attribute name="label"/>
+            <xs:attribute name="padWithZeros" type="xs:integer"/>
+            <xs:attribute name="required" type="xs:boolean"/>
+            <xs:attribute name="scrollable" type="xs:boolean"/>
+            <xs:attribute name="type" use="required" type="xs:NCName"/>
+            <xs:attribute name="width" use="required" type="xs:integer"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="fcstHr">
+        <xs:complexType>
+            <xs:attribute name="linewidth" use="required" type="xs:integer"/>
+            <xs:attribute name="name" use="required"/>
+            <xs:attribute name="type" use="required" type="xs:NCName"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="tag">
+        <xs:complexType>
+            <xs:attribute name="name" use="required" type="xs:NCName"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="desk">
+        <xs:complexType>
+            <xs:attribute name="name" use="required" type="xs:NCName"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="issueType">
+        <xs:complexType>
+            <xs:attribute name="name" use="required" type="xs:NCName"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="color">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" ref="value"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="displayText">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" ref="value"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="gfaOtlkgenRatio" type="xs:decimal"/>
+    <xs:element name="checkbox">
+        <xs:complexType>
+            <xs:attribute name="checked" type="xs:boolean"/>
+            <xs:attribute name="label" use="required"/>
+            <xs:attribute name="type" type="xs:NCName"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="value">
+        <xs:complexType mixed="true">
+            <xs:attribute name="b" type="xs:integer"/>
+            <xs:attribute name="displayAs"/>
+            <xs:attribute name="g" type="xs:integer"/>
+            <xs:attribute name="hazard"/>
+            <xs:attribute name="name"/>
+            <xs:attribute name="originalText"/>
+            <xs:attribute name="r" type="xs:integer"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
