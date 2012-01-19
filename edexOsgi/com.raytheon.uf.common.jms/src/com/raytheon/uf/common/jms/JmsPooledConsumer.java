@@ -19,11 +19,14 @@
  **/
 package com.raytheon.uf.common.jms;
 
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.MessageConsumer;
+
+import com.raytheon.uf.common.jms.wrapper.JmsConsumerWrapper;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -45,159 +48,196 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * @version 1.0
  */
 
-public class JmsPooledConsumer implements MessageConsumer {
+public class JmsPooledConsumer {
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(JmsPooledConsumer.class);
 
     private final JmsPooledSession sess;
 
-    private final MessageConsumer consumer;
+    private final Destination destination;
+
+    private final String messageSelector;
+
+    private MessageConsumer consumer;
 
     private final String destKey;
 
     private boolean exceptionOccurred = false;
 
-    public JmsPooledConsumer(JmsPooledSession sess, MessageConsumer consumer,
-            String destKey) {
+    private Object stateLock = new Object();
+
+    private State state = State.InUse;
+
+    /**
+     * Technically a pooled consumer should only have 1 reference at a time.
+     * Bullet proofing in case 3rd party ever tries to get multiple consumers to
+     * the same destination.
+     */
+    private List<JmsConsumerWrapper> references = new ArrayList<JmsConsumerWrapper>(
+            1);
+
+    public JmsPooledConsumer(JmsPooledSession sess, String destKey,
+            Destination destination, String messageSelector) {
         this.sess = sess;
-        this.consumer = consumer;
         this.destKey = destKey;
+        this.destination = destination;
+        this.messageSelector = messageSelector;
     }
 
     public String getDestKey() {
         return destKey;
     }
 
+    public boolean isValid() {
+        return isValid(State.Closed, false);
+    }
+
+    /**
+     * Verifies if an exception has occurred, the state is the desired state,
+     * and the underlying resource is still valid.
+     * 
+     * @param requiredState
+     * @param mustBeRequiredState
+     *            If true, current state must match requiredState for isValid to
+     *            be true. If false, current state must not be the
+     *            requiredState.
+     * @return
+     */
+    public boolean isValid(State requiredState, boolean mustBeRequiredState) {
+        boolean valid = false;
+        if (!exceptionOccurred) {
+            valid = state.equals(requiredState);
+            if (!mustBeRequiredState) {
+                valid = !valid;
+            }
+
+            if (valid) {
+                // check underlying resource
+                if (consumer != null) {
+                    try {
+                        consumer.getMessageSelector();
+                    } catch (JMSException e) {
+                        // underlying consumer has been closed
+                        valid = false;
+                    }
+                }
+            }
+        }
+        return valid;
+    }
+
     public boolean isExceptionOccurred() {
         return exceptionOccurred;
     }
 
-    public void closeInternal() {
-        try {
-            consumer.close();
-        } catch (Throwable e) {
-            exceptionOccurred = true;
-            statusHandler.handle(Priority.INFO, "Failed to close consumer", e);
+    public void setExceptionOccurred(boolean exceptionOccurred) {
+        this.exceptionOccurred = exceptionOccurred;
+    }
+
+    /**
+     * Close down this pooled producer, closes the internal producer reference,
+     * and removes from session pool.
+     */
+    public void close() {
+        boolean close = false;
+
+        // only thing in sync block is setting close to prevent dead locking
+        // between manager and wrapper, general design principal on sync blocks
+        // is chained blocks only in a downward direction (i.e. a
+        synchronized (stateLock) {
+            if (!State.Closed.equals(state)) {
+                state = State.Closed;
+                close = true;
+
+                for (JmsConsumerWrapper wrapper : references) {
+                    wrapper.closeInternal();
+                }
+
+                references.clear();
+            }
+        }
+
+        if (close) {
+            if (consumer != null) {
+                try {
+                    consumer.close();
+                } catch (Throwable e) {
+                    statusHandler.handle(Priority.INFO,
+                            "Failed to close producer", e);
+                }
+                consumer = null;
+            }
+
+            sess.removeConsumerFromPool(this);
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.jms.MessageConsumer#close()
-     */
-    @Override
-    public void close() throws JMSException {
-        sess.returnConsumerToPool(this);
+    public JmsConsumerWrapper createReference() {
+        synchronized (stateLock) {
+            if (isValid(State.InUse, true)) {
+                JmsConsumerWrapper wrapper = new JmsConsumerWrapper(this);
+                references.add(wrapper);
+                return wrapper;
+            }
+        }
+
+        return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.jms.MessageConsumer#getMessageListener()
-     */
-    @Override
-    public MessageListener getMessageListener() throws JMSException {
-        try {
-            return consumer.getMessageListener();
-        } catch (Throwable e) {
-            exceptionOccurred = true;
-            JMSException exc = new JMSException(
-                    "Exception occurred on pooled consumer");
-            exc.initCause(e);
-            throw exc;
+    public void removeReference(JmsConsumerWrapper wrapper) {
+        boolean returnToPool = false;
+        synchronized (stateLock) {
+            if (references.remove(wrapper) && references.isEmpty()
+                    && State.InUse.equals(state)) {
+                returnToPool = true;
+            }
+        }
+
+        boolean valid = isValid();
+        if (valid && returnToPool) {
+            valid = sess.returnConsumerToPool(this);
+        }
+
+        if (!valid) {
+            close();
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.jms.MessageConsumer#getMessageSelector()
-     */
-    @Override
-    public String getMessageSelector() throws JMSException {
-        try {
-            return consumer.getMessageSelector();
-        } catch (Throwable e) {
-            exceptionOccurred = true;
-            JMSException exc = new JMSException(
-                    "Exception occurred on pooled consumer");
-            exc.initCause(e);
-            throw exc;
+    public MessageConsumer getConsumer() throws JMSException {
+        // TODO: allow this to automatically grab a new consumer if the current
+        // one fails, try up to 3 times so that we don't always drop messages on
+        // a single failure
+        if (consumer == null) {
+            synchronized (this) {
+                if (consumer == null) {
+                    consumer = sess.getSession().createConsumer(destination,
+                            messageSelector);
+                }
+            }
         }
+
+        return consumer;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.jms.MessageConsumer#receive()
+    /**
+     * @return the state
      */
-    @Override
-    public Message receive() throws JMSException {
-        try {
-            return consumer.receive();
-        } catch (Throwable e) {
-            exceptionOccurred = true;
-            JMSException exc = new JMSException(
-                    "Exception occurred on pooled consumer");
-            exc.initCause(e);
-            throw exc;
-        }
+    public State getState() {
+        return state;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.jms.MessageConsumer#receive(long)
+    /**
+     * @param state
+     *            the state to set
      */
-    @Override
-    public Message receive(long timeout) throws JMSException {
-        try {
-            return consumer.receive(timeout);
-        } catch (Throwable e) {
-            exceptionOccurred = true;
-            JMSException exc = new JMSException(
-                    "Exception occurred on pooled consumer");
-            exc.initCause(e);
-            throw exc;
-        }
+    public void setState(State state) {
+        this.state = state;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.jms.MessageConsumer#receiveNoWait()
+    /**
+     * @return the stateLock
      */
-    @Override
-    public Message receiveNoWait() throws JMSException {
-        try {
-            return consumer.receiveNoWait();
-        } catch (Throwable e) {
-            exceptionOccurred = true;
-            JMSException exc = new JMSException(
-                    "Exception occurred on pooled consumer");
-            exc.initCause(e);
-            throw exc;
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * javax.jms.MessageConsumer#setMessageListener(javax.jms.MessageListener)
-     */
-    @Override
-    public void setMessageListener(MessageListener listener)
-            throws JMSException {
-        try {
-            consumer.setMessageListener(listener);
-        } catch (Throwable e) {
-            exceptionOccurred = true;
-            JMSException exc = new JMSException(
-                    "Exception occurred on pooled consumer");
-            exc.initCause(e);
-            throw exc;
-        }
+    public Object getStateLock() {
+        return stateLock;
     }
 }

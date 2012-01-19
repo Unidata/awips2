@@ -1,0 +1,7 @@
+plugin=sfcobs
+reportTypeKey=reportType
+!reportTypeValue=1001
+spiFile=synoptic.spi
+!legendString=Surface Synoptic Obs
+legend_color=RGB {0, 80, 255}
+levelKey=Surface

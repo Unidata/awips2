@@ -102,7 +102,8 @@ typedef struct
   {
   long    other_dataset_tri_idx;  /* index of the triangle in the other dataset*/
                                   /* in which this CONTOUR datapoint resides*/
-  double  other_dataset_zval;     /* this is the z value of the other dataset calibrate_factor */      
+  double  other_dataset_zval;     /* this is the z value of the other dataset
+ calibrate_factor */      
   }P3_CALIBRATE_DATA;   
     	  
   
