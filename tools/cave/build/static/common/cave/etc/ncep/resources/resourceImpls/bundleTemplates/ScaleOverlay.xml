@@ -1,0 +1,19 @@
+<resourceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <resource>
+    <properties renderingOrderId="MAP_OUTLINE"></properties>
+    <resourceData xsi:type="NC-ScaleOverlayResourceData">
+      <legendColor>${legend_color}</legendColor>
+      <color>${color}</color>
+      <scaleModel>${scaleModel}</scaleModel>
+      <scalePosition>${scalePosition}</scalePosition>
+      <scaleUnit>${scaleUnit}</scaleUnit>
+      <scaleIntervalMode>${scaleIntervalMode}</scaleIntervalMode>
+      <scaleIntervalValue>${scaleIntervalValue}</scaleIntervalValue>
+      <scaleLatMode>${scaleLatMode}</scaleLatMode>
+      <scaleEffectiveLatitudeValue>${scaleEffectiveLatitudeValue}</scaleEffectiveLatitudeValue>
+      <scaleTextFont>${scaleTextFont}</scaleTextFont>
+      <scaleTextSize>${scaleTextSize}</scaleTextSize>
+      <scaleTextStyle>${scaleTextStyle}</scaleTextStyle>
+    </resourceData>
+  </resource>
+</resourceGroup>

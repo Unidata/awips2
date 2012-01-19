@@ -1,0 +1,5 @@
+! DbOverlay
+dbName=maps
+tableName=mapdata.county
+labelField=countyname
+mapName=US Counties

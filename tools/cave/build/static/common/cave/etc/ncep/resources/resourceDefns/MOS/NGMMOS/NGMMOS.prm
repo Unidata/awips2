@@ -1,0 +1,9 @@
+! Parameters for the default NGMMOS Resource
+!
+plugin=bufrmos
+reportTypeKey=type
+reportTypeValue=NGM
+spiFile=MTR.spi
+legendString=NGMMOS
+legend_color=RGB {0, 255, 0}
+levelKey=Surface
