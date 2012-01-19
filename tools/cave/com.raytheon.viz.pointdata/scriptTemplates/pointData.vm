@@ -1,0 +1,47 @@
+#if($mode == "select" || $mode == "select2d" || $mode == "selectSpecific" || $mode == "getParameters")
+import PointDataQuery
+dataRequest = PointDataQuery.PointDataQuery('${scriptMetadata.get("pluginName").constraintValue}')
+dataRequest.setRequestedParameters('${scriptMetadata.get("requestedParameters").constraintValue}')
+#foreach (${key} in ${scriptMetadata.keySet()})  
+#if(${key})
+#if(${key} != "pluginName" && ${key} != "requestedParameters" && ${key} != "restrictLevel" && ${key} != "restrictParameter")
+#set($constraint = $scriptMetadata.get($key))
+#if(${constraint.constraintType} == "IN")
+dataRequest.addConstraint("${key}", "${constraint.constraintValue}", "in")
+#elseif(${constraint.constraintType} == "LIKE")
+dataRequest.addConstraint("${key}", "${constraint.constraintValue}", "like")
+#elseif(${constraint.constraintType} == "BETWEEN")
+dataRequest.addConstraint("${key}", "${constraint.constraintValue}", "between")
+#elseif(${constraint.constraintType} == "GREATER_THAN")
+dataRequest.addConstraint("${key}", "${constraint.constraintValue}", ">")
+#elseif(${constraint.constraintType} == "GREATER_THAN_EQUALS")
+dataRequest.addConstraint("${key}", "${constraint.constraintValue}", ">=")
+#elseif(${constraint.constraintType} == "LESS_THAN_EQUALS")
+dataRequest.addConstraint("${key}", "${constraint.constraintValue}", "<=")
+#elseif(${constraint.constraintType} == "LESS_THAN")
+dataRequest.addConstraint("${key}", "${constraint.constraintValue}", "<")
+#elseif(${constraint.constraintType} == "NOT_EQUALS")
+dataRequest.addConstraint("${key}", "${constraint.constraintValue}", "!=")
+#elseif ($constraint.constraintType == "ILIKE")
+dataRequest.addConstraint("${key}", "${constraint.constraintValue}", "ilike")
+#else
+dataRequest.addConstraint("${key}", "${constraint.constraintValue}")
+#end
+#end
+#end
+#end
+#end
+
+#if($mode == "select2d")
+dataRequest.requestAllLevels()
+#elseif($mode == "selectSpecific")
+dataRequest.requestSpecificLevel('${scriptMetadata.get("restrictParameter").constraintValue}', '${scriptMetadata.get("restrictLevel").constraintValue}'))
+#end
+
+#if($mode == "getParameters")
+return dataRequest.getAvailableParameters()
+#else
+return dataRequest.execute()
+#end
+
+

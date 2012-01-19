@@ -1,0 +1,5 @@
+legend_color=RGB {200, 200, 200}
+colorMapName=lingray
+colorBar=@dfltMcidasColorBar.xml
+imageType=IR_10.8
+displayUnitStr=GenericPixel

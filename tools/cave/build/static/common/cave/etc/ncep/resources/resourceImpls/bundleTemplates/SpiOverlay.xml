@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<resourceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <resource>
+      <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+         <pdProps maxDisplayWidth="100000000" minDisplayWidth="0" />
+      </properties>
+      <resourceData xsi:type="NC-SPIResourceData">
+                <filename>${SpiFilename}</filename>
+                <mapName>${mapName}</mapName>
+                <legendColor>${legend_color}</legendColor>
+                <color>${color}</color>
+    		<markerState>${markerState}</markerState>
+    		<markerType>${markerType}</markerType>
+    		<markerSize>${markerSize}</markerSize>
+    		<markerWidth>${markerWidth}</markerWidth>
+    		<markerTextSize>${markerTextSize}</markerTextSize>
+            </resourceData>
+        </resource>
+</resourceGroup>
+
