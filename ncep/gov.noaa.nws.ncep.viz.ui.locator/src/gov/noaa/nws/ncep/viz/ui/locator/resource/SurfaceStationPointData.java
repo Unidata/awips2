@@ -171,8 +171,13 @@ public class SurfaceStationPointData {
 	}
 	public static Coordinate getStnCoordinate(String stnName){
 		Coordinate co = new Coordinate(DEFAULT_LATLON,DEFAULT_LATLON);
+		//Chin: station id length in sfstns table is 8 chars. It fills whole 8 chars with space after real station id.
+		// in order to make a successful query from user entered station id. We have to make sure using a 8 chars string
+		// with space stuffed at end.
+		String fixedLengthStnName = stnName + "        ";
+		fixedLengthStnName = fixedLengthStnName.substring(0, 8);
 		String query="Select latitude,longitude " +
-			"FROM stns.sfstns WHERE station_id = '"+stnName+"'";
+			"FROM stns.sfstns WHERE station_id = '"+fixedLengthStnName+"'";
 		
 		
 		List<Object[]> list = null;

@@ -1,0 +1,30 @@
+
+#if($mode == "select")
+include("TableRequest.js");
+var dataRequest = new TableRequest('${scriptMetadata.get("databasename").constraintValue}', 
+   '${scriptMetadata.get("classname").constraintValue}');
+dataRequest.setCount(${maxRecords});
+#foreach (${key} in ${scriptMetadata.keySet()})  
+#if(${key})
+#if(${key} != "pluginName" && ${key} != "databasename" && ${key} != "classname")
+#set($constraint = $scriptMetadata.get($key))
+#if(${constraint.constraintType} == "IN")
+dataRequest.addList("${key}", "${constraint.constraintValue}");
+#elseif(${constraint.constraintType} == "LIKE")
+dataRequest.addParameter("${key}", "${constraint.constraintValue}", "like");
+#else
+dataRequest.addParameter("${key}", "${constraint.constraintValue}");
+#end
+#end
+#end
+#end
+dataRequest.execute();
+#elseif($mode == "update")
+include("TableResponse.js");
+var product = $scriptMetadata.get("rowname").constraintValue;
+#set($classname = $scriptMetadata.get("classname").constraintValue)
+#set($databasename = $scriptMetadata.get("databasename").constraintValue)
+var dataResponse = new TableResponse('${databasename}', '${classname}', product.toString());
+dataResponse.execute();
+#end
+

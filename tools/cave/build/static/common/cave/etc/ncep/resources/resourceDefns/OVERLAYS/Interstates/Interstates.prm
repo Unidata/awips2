@@ -1,0 +1,5 @@
+! DbOverlay
+dbName=maps
+tableName=mapdata.interstate
+labelField=name
+mapName=Interstates

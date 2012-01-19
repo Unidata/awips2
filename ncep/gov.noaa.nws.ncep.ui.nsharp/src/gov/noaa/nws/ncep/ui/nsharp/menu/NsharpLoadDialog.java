@@ -285,8 +285,9 @@ public class NsharpLoadDialog extends Dialog {
         if (editor != null) {
         	NsharpSkewTResource rsc = editor.getNsharpSkewTDescriptor().getSkewtResource();
         	rsc.cleanUpRsc();
+        	editor.refresh();
         }
-		//System.out.println("createLoadContents calling setModal");
+		//System.out.println("createLoadContents called");
 		//NsharpMapModalTool.setModal();
 		//nsharpMapResource.
 		dialogParent = parent;
@@ -445,7 +446,7 @@ public class NsharpLoadDialog extends Dialog {
     
 
    public static NsharpLoadDialog getInstance( Shell parShell){
-		
+	   //System.out.println("getInstance called");
 		if ( INSTANCE == null ){
 			try {
 				INSTANCE = new NsharpLoadDialog( parShell );

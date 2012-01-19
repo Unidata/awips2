@@ -1,0 +1,3 @@
+! Parameter File for Resource PGEN/Local/prd_sample/default
+legendString=PGEN Product: prd_sample
+fileName=prd_sample.xml

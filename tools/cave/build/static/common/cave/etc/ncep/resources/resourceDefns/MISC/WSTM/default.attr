@@ -1,0 +1,19 @@
+! Attributes for WSTM
+wstmWarningEnable=true
+wstmWarningColor=RGB {255,0,0}
+wstmWarningLineWidth=3
+wstmWarningSymbolWidth=3
+wstmWarningSymbolSize=1.0
+wstmWatchEnable=true
+wstmWatchColor=RGB {255,127,0}
+wstmWatchLineWidth=3
+wstmWatchSymbolWidth=3
+wstmWatchSymbolSize=1.0
+wstmAdvisoryEnable=true
+wstmAdvisoryColor=RGB {255,255,0}
+wstmAdvisoryLineWidth=3
+wstmAdvisorySymbolWidth=3
+wstmAdvisorySymbolSize=1.0
+timeEnable=true
+zoneNameEnable=false
+outlineEnable=false
