@@ -358,9 +358,9 @@ AbstractVizResource<NsharpBkgResourceData, NsharpSkewTDescriptor> {
 
 				sPressure = String.format(
 						"%.0f mb",p_mb, NsharpConstants.THETA_SYMBOL);
-				sTemperatureC = String.format("%.0f%cC",
+				sTemperatureC = String.format("%4.1f%cC",
 						t_C, NsharpConstants.DEGREE_SYMBOL);
-				sTemperatureF = String.format("%.0f%cF",
+				sTemperatureF = String.format("%4.1f%cF",
 						t_F,NsharpConstants.DEGREE_SYMBOL);
 
 				sThetaInK = String.format("%c=%.0fK",

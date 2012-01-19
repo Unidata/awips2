@@ -1,0 +1,4 @@
+! DbOverlay
+tableName=mapdata.canada
+labelField=name
+mapName=Canada

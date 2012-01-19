@@ -184,6 +184,7 @@ public class NsharpSkewTEditor extends AbstractEditor implements AddListener,
         pane.addListener(SWT.MouseHover, inputManager);
         pane.addListener(SWT.MenuDetect, inputManager);
         pane.addListener(SWT.KeyUp, inputManager);
+        pane.addListener(SWT.KeyDown, inputManager);
         
     }
 

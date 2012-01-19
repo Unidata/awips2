@@ -1,0 +1,4 @@
+! DbOverlay
+tableName=mapdata.firewxaor
+labelField=name
+mapName=Fire Wx AOR
