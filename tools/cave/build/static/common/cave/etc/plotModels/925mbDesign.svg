@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<svg width="90" height="90" 
+viewBox="0 0 90 90" 
+overflow="visible" 
+xmlns="http://www.w3.org/2000/svg" 
+xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255, 255, 255);">
+   <defs>
+<style type="text/css">
+<![CDATA[
+        @font-face { font-family: "WindSymbolFont";
+                src: url(WindSymbols.svg#WindSymbols); }
+        @font-face { font-family: "StandardFont";
+                src: url(Standard.svg#Standard); }
+        @font-face { font-family: "WxSymbolFont";
+                src: url(WxSymbols.svg#WxSymbols); }
+        @font-face { font-family: "SpecialSymbolFont";
+                src: url(SpecialSymbols.svg#SpecialSymbols); }
+        text.barb
+            {
+                fill: none;
+                font-size: 1em;
+                font-size: 1em;
+                font-family: WindSymbolFont;
+            }
+        text.arrow
+            {
+                fill: none;
+                font-size: 1em;
+                font-size: 1em;
+                font-family: WindSymbolFont;
+            }
+        text.text
+            {
+                fill: none;
+                font-size: 1em;
+                stroke-width: 1px;
+                font-family: StandardFont;
+                font-size: 1em;
+            }
+        text.weather
+            {
+                fill: none;
+                font-size: 1em;
+                stroke-width: 1px;
+                font-family: WxSymbolFont;
+
+            }
+        text.special
+            {
+                fill: none;
+                font-size: 1em;
+                stroke-width: 1px;
+                font-size: 1em;
+                font-family: SpecialSymbolFont;
+            }
+]]>
+</style>
+
+<symbol overflow="visible" id="plotData" class="info">
+  <text id="tempText" plotMode="text" plotParam="T:PRESS=925" plotUnit="°C" plotFormat="%3.0f" style="text-anchor: end;" x="-10px" y="-10px">75</text>
+  <text id="dewpointText" plotMode="text" plotParam="DpT:PRESS=925" plotUnit="°C" plotFormat="%3.0f" style="text-anchor: end;" x="-10px" y="10px">75</text>
+  <g id="windVaneText" plotMode="barb" plotParam="WS:PRESS=925,WD:PRESS=925" plotUnit="kts" x="0" y="0" transform="rotate(0,0,0)">
+    <text id="windArrowText" class="barb" x="0" y="0">arrow</text>
+  </g>
+  <text id="gphText" plotMode="text" plotParam="GH:PRESS=925" plotUnit="dam" plotFormat="%4.0f" plotTrim="1" style="text-anchor: start;" x="10px" y="-10px">75</text>
+  <text id="idText" plotMode="text" plotParam="STA" style="text-anchor: start;" x="10px" y="10px">72558</text>
+</symbol>
+</defs>
+<use id="wind" x="45" y="45" width="90" height="90" visibility="visible" xlink:href="#plotData"/>
+</svg>

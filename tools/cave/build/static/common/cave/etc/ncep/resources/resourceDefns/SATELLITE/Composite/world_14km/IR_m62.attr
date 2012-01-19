@@ -1,0 +1,5 @@
+legend_color=RGB {200, 200, 200}
+colorMapName=m62
+colorBar=@dfltMcidasColorBar.xml
+imagetype=IR
+displayUnitStr=C

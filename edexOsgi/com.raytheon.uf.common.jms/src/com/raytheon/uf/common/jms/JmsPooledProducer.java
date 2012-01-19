@@ -19,17 +19,23 @@
  **/
 package com.raytheon.uf.common.jms;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.jms.Destination;
 import javax.jms.JMSException;
-import javax.jms.Message;
 import javax.jms.MessageProducer;
 
+import com.raytheon.uf.common.jms.wrapper.JmsProducerWrapper;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
- * TODO Add Description
+ * Synchronization Principle To prevent deadlocks: Chained sync blocks can only
+ * happen in a doward direction. A manager has a synchonized lock can make a
+ * call down to a wrapper, but not nice versa. Also a session inside a sync
+ * block can make a call down to a producer but not vice versa.
  * 
  * <pre>
  * 
@@ -45,327 +51,183 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * @version 1.0
  */
 
-public class JmsPooledProducer implements MessageProducer {
+public class JmsPooledProducer {
     private final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(JmsPooledConsumer.class);
+            .getHandler(JmsPooledProducer.class);
 
     private final JmsPooledSession sess;
 
-    private final MessageProducer producer;
+    private final Destination destination;
+
+    private MessageProducer producer;
 
     private final String destKey;
 
     private boolean exceptionOccurred = false;
 
-    public JmsPooledProducer(JmsPooledSession sess, MessageProducer producer,
-            String destKey) {
+    private Object stateLock = new Object();
+
+    private State state = State.InUse;
+
+    /**
+     * Technically a pooled producer should only have 1 reference at a time.
+     * Bullet proofing in case 3rd party ever tries to get multiple producers to
+     * the same destination.
+     */
+    private List<JmsProducerWrapper> references = new ArrayList<JmsProducerWrapper>(
+            1);
+
+    public JmsPooledProducer(JmsPooledSession sess, String destKey,
+            Destination destination) {
         this.sess = sess;
-        this.producer = producer;
         this.destKey = destKey;
+        this.destination = destination;
     }
 
     public String getDestKey() {
         return destKey;
     }
 
+    public boolean isValid() {
+        return isValid(State.Closed, false);
+    }
+
+    /**
+     * Verifies if an exception has occurred, the state is the desired state,
+     * and the underlying resource is still valid.
+     * 
+     * @param requiredState
+     * @param mustBeRequiredState
+     *            If true, current state must match requiredState for isValid to
+     *            be true. If false, current state must not be the
+     *            requiredState.
+     * @return
+     */
+    public boolean isValid(State requiredState, boolean mustBeRequiredState) {
+        boolean valid = false;
+        if (!exceptionOccurred) {
+            valid = state.equals(requiredState);
+            if (!mustBeRequiredState) {
+                valid = !valid;
+            }
+
+            if (valid) {
+                // check underlying resource
+                try {
+                    if (producer != null) {
+                        producer.getDeliveryMode();
+                    }
+                } catch (JMSException e) {
+                    // underlying producer has been closed
+                    valid = false;
+                }
+            }
+        }
+        return valid;
+    }
+
     public boolean isExceptionOccurred() {
         return exceptionOccurred;
     }
 
-    public void closeInternal() {
-        try {
-            producer.close();
-        } catch (Throwable e) {
-            statusHandler.handle(Priority.INFO, "Failed to close producer", e);
-            exceptionOccurred = true;
+    public void setExceptionOccurred(boolean exceptionOccurred) {
+        this.exceptionOccurred = exceptionOccurred;
+    }
+
+    /**
+     * Close down this pooled producer, closes the internal producer reference,
+     * and removes from session pool.
+     */
+    public void close() {
+        boolean close = false;
+
+        // only thing in sync block is setting close to prevent dead locking
+        // between manager and wrapper, general design principal on sync blocks
+        // is chained blocks only in a downward direction (i.e. a
+        synchronized (stateLock) {
+            if (!State.Closed.equals(state)) {
+                state = State.Closed;
+                close = true;
+
+                for (JmsProducerWrapper wrapper : references) {
+                    wrapper.closeInternal();
+                }
+
+                references.clear();
+            }
+        }
+
+        if (close) {
+            if (producer != null) {
+                try {
+                    producer.close();
+                } catch (Throwable e) {
+                    statusHandler.handle(Priority.INFO,
+                            "Failed to close producer", e);
+                }
+                producer = null;
+            }
+
+            sess.removeProducerFromPool(this);
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.jms.MessageProducer#close()
-     */
-    @Override
-    public void close() throws JMSException {
-        sess.returnProducerToPool(this);
+    public JmsProducerWrapper createReference() {
+        synchronized (stateLock) {
+            if (isValid(State.InUse, true)) {
+                JmsProducerWrapper wrapper = new JmsProducerWrapper(this);
+                references.add(wrapper);
+                return wrapper;
+            }
+        }
+
+        return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.jms.MessageProducer#getDeliveryMode()
-     */
-    @Override
-    public int getDeliveryMode() throws JMSException {
-        try {
-            return producer.getDeliveryMode();
-        } catch (Throwable e) {
-            exceptionOccurred = true;
-            JMSException exc = new JMSException(
-                    "Exception occurred on pooled producer");
-            exc.initCause(e);
-            throw exc;
+    public void removeReference(JmsProducerWrapper wrapper) {
+        boolean returnToPool = false;
+        synchronized (stateLock) {
+            if (references.remove(wrapper) && references.isEmpty()
+                    && State.InUse.equals(state)) {
+                state = State.Available;
+                returnToPool = true;
+            }
+        }
+
+        boolean valid = isValid();
+        if (valid && returnToPool) {
+            valid = sess.returnProducerToPool(this);
+        }
+
+        if (!valid) {
+            close();
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.jms.MessageProducer#getDestination()
-     */
-    @Override
-    public Destination getDestination() throws JMSException {
-        try {
-            return producer.getDestination();
-        } catch (Throwable e) {
-            exceptionOccurred = true;
-            JMSException exc = new JMSException(
-                    "Exception occurred on pooled producer");
-            exc.initCause(e);
-            throw exc;
+    public MessageProducer getProducer() throws JMSException {
+        // TODO: allow this to automatically grab a new producer if the current
+        // one fails, try up to 3 times so that we don't always drop messages on
+        // a single failure
+        if (producer == null) {
+            synchronized (this) {
+                if (producer == null) {
+                    producer = sess.getSession().createProducer(destination);
+                }
+            }
         }
+
+        return producer;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.jms.MessageProducer#getDisableMessageID()
-     */
-    @Override
-    public boolean getDisableMessageID() throws JMSException {
-        try {
-            return producer.getDisableMessageID();
-        } catch (Throwable e) {
-            exceptionOccurred = true;
-            JMSException exc = new JMSException(
-                    "Exception occurred on pooled producer");
-            exc.initCause(e);
-            throw exc;
-        }
+    public State getState() {
+        return this.state;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.jms.MessageProducer#getDisableMessageTimestamp()
-     */
-    @Override
-    public boolean getDisableMessageTimestamp() throws JMSException {
-        try {
-            return producer.getDisableMessageTimestamp();
-        } catch (Throwable e) {
-            exceptionOccurred = true;
-            JMSException exc = new JMSException(
-                    "Exception occurred on pooled producer");
-            exc.initCause(e);
-            throw exc;
-        }
+    public void setState(State state) {
+        this.state = state;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.jms.MessageProducer#getPriority()
-     */
-    @Override
-    public int getPriority() throws JMSException {
-        try {
-            return producer.getPriority();
-        } catch (Throwable e) {
-            exceptionOccurred = true;
-            JMSException exc = new JMSException(
-                    "Exception occurred on pooled producer");
-            exc.initCause(e);
-            throw exc;
-        }
+    public Object getStateLock() {
+        return stateLock;
     }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.jms.MessageProducer#getTimeToLive()
-     */
-    @Override
-    public long getTimeToLive() throws JMSException {
-        try {
-            return producer.getTimeToLive();
-        } catch (Throwable e) {
-            exceptionOccurred = true;
-            JMSException exc = new JMSException(
-                    "Exception occurred on pooled producer");
-            exc.initCause(e);
-            throw exc;
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.jms.MessageProducer#send(javax.jms.Message)
-     */
-    @Override
-    public void send(Message message) throws JMSException {
-        try {
-            producer.send(message);
-        } catch (Throwable e) {
-            exceptionOccurred = true;
-            JMSException exc = new JMSException(
-                    "Exception occurred on pooled producer");
-            exc.initCause(e);
-            throw exc;
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.jms.MessageProducer#send(javax.jms.Destination,
-     * javax.jms.Message)
-     */
-    @Override
-    public void send(Destination destination, Message message)
-            throws JMSException {
-        try {
-            producer.send(destination, message);
-        } catch (Throwable e) {
-            exceptionOccurred = true;
-            JMSException exc = new JMSException(
-                    "Exception occurred on pooled producer");
-            exc.initCause(e);
-            throw exc;
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.jms.MessageProducer#send(javax.jms.Message, int, int, long)
-     */
-    @Override
-    public void send(Message message, int deliveryMode, int priority,
-            long timeToLive) throws JMSException {
-        try {
-            producer.send(message, deliveryMode, priority, timeToLive);
-        } catch (Throwable e) {
-            exceptionOccurred = true;
-            JMSException exc = new JMSException(
-                    "Exception occurred on pooled producer");
-            exc.initCause(e);
-            throw exc;
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.jms.MessageProducer#send(javax.jms.Destination,
-     * javax.jms.Message, int, int, long)
-     */
-    @Override
-    public void send(Destination destination, Message message,
-            int deliveryMode, int priority, long timeToLive)
-            throws JMSException {
-        try {
-            producer.send(destination, message, deliveryMode, priority,
-                    timeToLive);
-        } catch (Throwable e) {
-            exceptionOccurred = true;
-            JMSException exc = new JMSException(
-                    "Exception occurred on pooled producer");
-            exc.initCause(e);
-            throw exc;
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.jms.MessageProducer#setDeliveryMode(int)
-     */
-    @Override
-    public void setDeliveryMode(int deliveryMode) throws JMSException {
-        try {
-            producer.setDeliveryMode(deliveryMode);
-        } catch (Throwable e) {
-            exceptionOccurred = true;
-            JMSException exc = new JMSException(
-                    "Exception occurred on pooled producer");
-            exc.initCause(e);
-            throw exc;
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.jms.MessageProducer#setDisableMessageID(boolean)
-     */
-    @Override
-    public void setDisableMessageID(boolean value) throws JMSException {
-        try {
-            producer.setDisableMessageID(value);
-        } catch (Throwable e) {
-            exceptionOccurred = true;
-            JMSException exc = new JMSException(
-                    "Exception occurred on pooled producer");
-            exc.initCause(e);
-            throw exc;
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.jms.MessageProducer#setDisableMessageTimestamp(boolean)
-     */
-    @Override
-    public void setDisableMessageTimestamp(boolean value) throws JMSException {
-        try {
-            producer.setDisableMessageTimestamp(value);
-        } catch (Throwable e) {
-            exceptionOccurred = true;
-            JMSException exc = new JMSException(
-                    "Exception occurred on pooled producer");
-            exc.initCause(e);
-            throw exc;
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.jms.MessageProducer#setPriority(int)
-     */
-    @Override
-    public void setPriority(int defaultPriority) throws JMSException {
-        try {
-            producer.setPriority(defaultPriority);
-        } catch (Throwable e) {
-            exceptionOccurred = true;
-            JMSException exc = new JMSException(
-                    "Exception occurred on pooled producer");
-            exc.initCause(e);
-            throw exc;
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see javax.jms.MessageProducer#setTimeToLive(long)
-     */
-    @Override
-    public void setTimeToLive(long timeToLive) throws JMSException {
-        try {
-            producer.setTimeToLive(timeToLive);
-        } catch (Throwable e) {
-            exceptionOccurred = true;
-            JMSException exc = new JMSException(
-                    "Exception occurred on pooled producer");
-            exc.initCause(e);
-            throw exc;
-        }
-    }
-
 }

@@ -1,0 +1,5 @@
+! DbOverlay
+dbName=ncep
+tableName=bounds.ascfaarea
+labelField=area
+mapName=ASCFAAREA Boundaries
