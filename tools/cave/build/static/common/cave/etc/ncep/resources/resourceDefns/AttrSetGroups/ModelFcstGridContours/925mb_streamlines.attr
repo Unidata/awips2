@@ -1,0 +1,22 @@
+!
+! Restore File : 925mb_streamlines
+!
+! Log:
+! J. Carr/HPC	 7/97	Initial creation
+!
+GLEVEL=925
+GVCORD=pres
+SCALE=0!0
+GDPFUN=mag(kntv(wnd))!kntv(wnd)
+TYPE=c/f!s
+CINT=5/15
+LINE=32/1/2/2! 6/1/2
+FINT=20;35;50;65
+FLINE=0;18;17;16;15
+HILO=
+HLSYM=
+WIND=bk0
+TITLE=1/-2/~ 925 MB STREAMLINES, WIND|~925 MB STMLNS!0
+COLORS=2
+MARKER=2
+GRDLBL=5

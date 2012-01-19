@@ -1,0 +1,24 @@
+!
+! Restore File : bl_2-meter_12hrmax_temp
+!
+! Log:
+! J. Carr/HPC         10/98   Initial Creation
+! J. Carr/HPC          5/99   Changed gdattim to cover the 7-8 day time range.
+!                             Modified skip and contur.
+!
+GLEVEL=2!2!2 
+GVCORD=hght!hght!hght
+SCALE=0
+GDPFUN=sm9s(add(mul((sub(tmxk12,273),1.8)32)!sm9s(add(mul((sub(tmxk12,273),1.8)32)
+TYPE=c
+CINT=5/-100/30 !5/35 
+LINE=6/1/2/1   !2/1/2/1
+FINT=
+FLINE=
+HILO=0
+HLSYM=0
+WIND=
+TITLE=1/-2/~ 2-METER 12-HR MAX TEMPERATURE (F)!0
+COLORS=2                                                                       
+MARKER=2                                                                       
+GRDLBL=5                                                                       

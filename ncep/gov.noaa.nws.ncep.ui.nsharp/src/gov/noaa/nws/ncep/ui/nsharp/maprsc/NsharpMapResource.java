@@ -44,7 +44,8 @@ import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.ui.EditorUtil;
 
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
+//import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+//import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.resources.manager.RbdBundle;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceBndlLoader;
 
@@ -123,7 +124,8 @@ public class NsharpMapResource  extends AbstractVizResource<NsharpMapResourceDat
 	}
 	private static void createMapEditor(){
 		// create an editor MapEditor
-		File rbdFile = LocalizationManager.getInstance().getLocalizationFile("defaultRBDFile");
+//		File rbdFile = NcPathManager.getInstance().getStaticFile( 
+//		         NcPathConstants.DFLT_RBD );
 		try {
 			IEditorPart ep = EditorUtil.getActiveEditor();
 	        if (ep instanceof NCMapEditor) {
@@ -131,10 +133,10 @@ public class NsharpMapResource  extends AbstractVizResource<NsharpMapResourceDat
 	        }else {
 	        	mapEditor = NmapUiUtils.createNatlCntrsEditor("BasicWX-US","NSHARP" );
 	        }
-			RbdBundle rbd = RbdBundle.unmarshalRBD( rbdFile, null );
-			rbd.setNcEditor((NCMapEditor) mapEditor );
+//			RbdBundle rbd = RbdBundle.unmarshalRBD( rbdFile, null );
+//			rbd.setNcEditor((NCMapEditor) mapEditor );
 			ResourceBndlLoader rbdLoader = new ResourceBndlLoader("DefaultMap");
-			rbdLoader.addRBD( rbd );
+//			rbdLoader.addRBD( rbd );
 			VizApp.runSync( rbdLoader );
 			//System.out.println("NsharpMapResource create editor "+ mapEditor.toString());
 		}

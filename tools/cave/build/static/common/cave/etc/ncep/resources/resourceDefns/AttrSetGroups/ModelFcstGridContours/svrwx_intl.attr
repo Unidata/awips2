@@ -1,0 +1,22 @@
+!
+! Restore File : svrwx_intl
+!
+! Log:
+! J. Carr/HPC	        10/98 	Initial creation
+!
+GLEVEL=700        !9950       !700   !700   !0      !700
+GVCORD=pres       !sgma       !pres  !pres  !none   !pres
+SCALE=0
+GDPFUN=sm9s(relh) !sm9s(dwpc)!sm9s(relh)!sm9s(tmpc)!pmsl!sm9s(relh)!kntv(wnd@9950%sgma)!kntv(wnd@700%pres)
+TYPE=c/f        !c/f       !c         !c         !c   !c         !b!a
+CINT=10;20;30;40!15;18;21;24;27;30;33;36;39!-5;50!3!4//1016!10;20;30;40
+LINE=10/1/2     !32/1/2/1                  !8/1/5!4/5/3!5//3!10/1/2
+FINT=0;50       !15;18;21;24;27
+FLINE=0;8;0      !0;23;22;30;14;2
+HILO=0!0!0!0!5/H#;L#/1080-2000;900-1012!0
+HLSYM=!!!!!1.5;1.5//22/3/hw!
+WIND=!!!!!!9/0.8/2/112!6/.3/2/221/.4
+TITLE=1/-2/~ BL DWPT AND WIND, 700mb TEMP, RH AND WND, PMSL!0
+COLORS=2
+MARKER=2
+GRDLBL=5
