@@ -23,6 +23,7 @@ package gov.noaa.nws.ncep.ui.nsharp.skewt;
 
 import gov.noaa.nws.ncep.ui.nsharp.NsharpConstants;
 import gov.noaa.nws.ncep.ui.nsharp.skewt.rsc.NsharpBkgResourceData;
+//import gov.noaa.nws.ncep.ui.nsharp.skewt.rsc.NsharpDataMagnifyResourceData;
 import gov.noaa.nws.ncep.ui.nsharp.skewt.rsc.NsharpSkewTResourceData;
 import gov.noaa.nws.ncep.viz.common.EditorManager;
 
@@ -135,7 +136,9 @@ public class NsharpSkewTDisplay extends AbstractRenderableDisplay {
 
         //Chin:: 11.5 changes, DrawCoordinatedPane() will call checkDrawTime(),
         // so we dont have to call it from here.
-        //descriptor.checkDrawTime(loopProperties);
+        //Chin: 11.11 change: however, DrawCoordinatedPane() does not  call checkDrawTime() any more
+        // since 11.11. So, to make looping work, we call it from here AGAIN. Any other good work from Raytheon.
+        descriptor.checkDrawTime(paintProps.getLoopProperties());
         
         drawTheData(target, paintProps);
     }
@@ -217,42 +220,30 @@ public class NsharpSkewTDisplay extends AbstractRenderableDisplay {
         resourcePair.setProperties(resourceProperties);
         // add it to the resource list.
         resourceList.add(resourcePair);
-    	/*
-    	//System.out.println("NsharpSkewTDisplay customizeResourceList called...desc="+ this.descriptor.toString());
-        if (resourceList.getResourcesByTypeAsType(NsharpSkewTResource.class).isEmpty()){
-        	NsharpSkewTResource skewRsc = NsharpSkewTResource.createSkewtResource();
-            ResourceProperties props1 = new ResourceProperties();
-            props1.setVisible(true);
-            props1.setMapLayer(true);
-          //Chin MERGE
-        	// bsteffen set this to system resource so it does not get serialized
-            props1.setSystemResource(true);
-           ResourcePair rp1 = new ResourcePair();
-            rp1.setResource(skewRsc);
-            rp1.setProperties(props1);
-            rp1.setLoadProperties(skewRsc.getLoadProperties());
-            resourceList.add(rp1);
-            //skewRsc.setDesc(getDescriptor());
-        }
-
-        if (resourceList.getResourcesByTypeAsType(NsharpBackgroundResource.class).isEmpty()){
-            LoadProperties loadProperties = new LoadProperties();
-            ColorableCapability colorable1 = new ColorableCapability();
-            colorable1.setColor(NsharpConstants.backgroundColor);
-            loadProperties.getCapabilities().addCapability(colorable1);
-            NsharpBackgroundResource bkgRsc = NsharpBackgroundResource.createSkewTBkGResource((NsharpSkewTDescriptor)this.descriptor);
-            ResourceProperties props = new ResourceProperties();
-            props.setVisible(true);
-            props.setMapLayer(true);
-            //Chin MERGE
-        	//bsteffen set this to system resource so it does not get serialized
-            props.setSystemResource(true);
-            ResourcePair rp = new ResourcePair();
-            rp.setResource(bkgRsc);
-            rp.setProperties(props);
-            rp.setLoadProperties(bkgRsc.getLoadProperties());
-            resourceList.add(rp);
-        }*/
+        
+        
+        //magnifying glass test
+        /*
+     // get a resource Data.
+        resourceData = new NsharpDataMagnifyResourceData();
+        // get a load properties
+        loadProperties = new LoadProperties();
+        colorableCapability = new ColorableCapability();
+        colorableCapability.setColor(NsharpConstants.backgroundColor);
+        loadProperties.getCapabilities().addCapability(colorableCapability);
+        // get some resource properties
+        resourceProperties = new ResourceProperties();
+        resourceProperties.setVisible(true);
+        resourceProperties.setMapLayer(true);
+        resourceProperties.setSystemResource(true);
+        // Make a resource pair
+        resourcePair = new ResourcePair();
+        resourcePair.setResourceData(resourceData);
+        resourcePair.setLoadProperties(loadProperties);
+        resourcePair.setProperties(resourceProperties);
+        // add it to the resource list.
+        resourceList.add(resourcePair);
+    	*/
     }
 
 }

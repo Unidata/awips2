@@ -515,7 +515,8 @@ public class  JDbGen
                 _indenter.incLevel();
                 writeLine("return " + columnName + ";" );
 
-                _indenter.decLevel();                writeLine("}\n");
+                _indenter.decLevel();
+                writeLine("}\n");
 
                 //create the setter
                 writeLine("public void set" + newName + "(" + javaDataType + " " + columnName + ")");
@@ -834,7 +835,8 @@ public class  JDbGen
             }
             else //regular table
             {
-                writeLine("public class " + tableName +"Table extends DbTable");            }
+                writeLine("public class " + tableName +"Table extends DbTable");
+            }
 
             writeLine("{");
         }
@@ -1195,7 +1197,8 @@ public class  JDbGen
             writeLine("//-----------------------------------------------------------------");
 
             _indenter.incLevel();
-            writeLine("public int delete(String where) throws SQLException");            writeLine("{");
+            writeLine("public int delete(String where) throws SQLException");
+            writeLine("{");
 
             _indenter.incLevel();
             writeLine("int returnCode=-999;\n");

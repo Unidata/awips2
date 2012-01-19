@@ -56,8 +56,10 @@ public class TimeSeriesEvent
     
     public String toString()
     {
-        String outString = "Event #" + this.getEventId() + ": " + this.getMessage() ;        
-        return outString;             
+        String outString = "Event #" + this.getEventId() + ": " + this.getMessage() ;
+        
+        return outString;
+             
     }
     
     

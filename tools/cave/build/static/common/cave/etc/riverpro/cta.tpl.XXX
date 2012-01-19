@@ -1,0 +1,53 @@
+# CALL-TO-ACTION SECTION TEMPLATES
+#---------------------------------
+#
+name: dollar_signs
+phrasestr:||$$
+#
+name: CTABANNER
+phrasestr:Call-to-action statements...
+#
+name: cardrive
+phrasestr:For your safety...Do not drive through flooded areas.
+#
+name: riverbanks
+phrasestr:Caution is urged when walking near riverbanks.
+#
+name: noaaradio
+phrasestr:Stay tuned to NOAA weather radio or local media for
+phrasestr: the latest on this situation.
+#
+name: laterproduct
+phrasestr: A followup product will be issued later this afternoon.
+#
+name: laststatement
+phrasestr:This will be the last statement issued for these sites
+phrasestr: for the recent flood event. If conditions change, more
+phrasestr: statements will be issued as needed.
+#
+name: drive
+phrasestr:Never attempt to drive through a flooded roadway...this is how most
+phrasestr:flood deaths result.
+#
+name: QPF
+phrasestr:River flood forecasts are based on forecast amounts of
+phrasestr: precipitation over the next 24 to 48 hours. If precipitation
+phrasestr: amounts are greater or less than anticipated...river
+phrasestr: forecasts will differ. Updated river flood statements or
+phrasestr: warnings will be issued when necessary.
+#
+name: nextstatement
+phrasestr: A followup statement will be issued in approximately 6 hours.
+#
+name: EAX_FF_1
+phrasestr:DO NOT DRIVE YOUR VEHIVLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY.
+phrasestr:  THE WATER DEPTH MAY BE TOO GREAT TO ALLOW YOUR CAR TO CROSS SAFELY.
+phrasestr:  VEHICLES CAUGHT IN RISING WATER SHOULD BE ABANDONED QUICKLY.  MOVE TO HIGHER GROUND.
+#
+name: EAX_FF_2
+phrasestr:|| ||A FLASH FLOOD WARNING MEANS THAT FLOODING IS IMMINENT OR OCCURRING.
+phrasestr:  IF YOU ARE IN THE WARNING AREA MOVE TO HIGHER GROUND IMMEDIATELY.
+phrasestr:  RESIDENTS LIVING ALONG STREAMS AND CREEKS SHOULD TAKE IMMEDIATE PRECAUTIONS TO PROTECT LIFE AND PROPERTY.
+#
+name:EAX_latlon_lid
+phrasestr:|| ||LAT...LON 3901 9456 3887 9439 3889 9426 3902 9413 3918 9432 || ||$$
