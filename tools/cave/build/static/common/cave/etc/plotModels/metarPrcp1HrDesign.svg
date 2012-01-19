@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<svg width="80" height="80" 
+viewBox="0 0 80 80" 
+overflow="visible" 
+xmlns="http://www.w3.org/2000/svg" 
+xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
+   <defs>
+<style type="text/css">
+<![CDATA[
+        @font-face { font-family: "StandardFont";
+                src: url(Standard.svg#Standard); }
+
+        text.text
+            {
+                fill: none;
+                font-size: 1em;
+                stroke-width: 1px;
+                font-family: StandardFont;
+                font-size: 1em;
+            } 
+]]>
+</style>
+
+<symbol overflow="visible" id="plotData" class="info">
+  <text id="sample" plotMode="sample" class="text" plotParam="stationName">0</text>
+  <text id="prcpText" plotMode="range" class="text" plotLookupTable="prcp_formats.txt" plotUnit="in" plotFormat="%6.2f" plotParam="precip1Hour" required="true" x="0" y="0">0</text>
+</symbol>
+</defs>
+<use id="wind" x="40" y="40" width="80" height="80" visibility="visible" xlink:href="#plotData"/>
+</svg>

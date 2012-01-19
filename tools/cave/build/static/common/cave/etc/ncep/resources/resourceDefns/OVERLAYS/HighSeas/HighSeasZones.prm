@@ -1,0 +1,5 @@
+! DbOverlay
+dbName=maps
+tableName=mapdata.highsea
+labelField=wfo
+mapName=High Seas Marine Zones

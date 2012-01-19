@@ -1,0 +1,18 @@
+!************************************************************************
+! ENSEMBLE_MODELS.TBL
+!
+! This table contains models to be selected in ensemble selection dialog.
+! The first column is the model name, second column holds the members
+! separated by semi-colons.
+!
+!**
+!Log:
+! M. Li		10/2010		created
+!************************************************************************
+!
+! MODEL			MEMBERS
+!
+gefs			gefs:01;gefs:03;gefs:05
+gfs
+nam104
+ruc80

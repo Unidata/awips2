@@ -78,6 +78,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 10, 2010 #4517      lvenable     Initial creation
+ * Dec 12, 2011 #11225     gzhang		Large font for FFG value,expiration time 
  * 
  * </pre>
  * 
@@ -260,6 +261,16 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction, IFFFGDa
     private LinkedHashMap<String, SrcDisplayDurationData> guidances;
     
     /**
+     * large Text Font
+     */
+    private Font largeTextFont;
+    
+    /**
+     * large Spinner Font
+     */
+    private Font largeSipnnerFont;
+    
+    /**
      * Constructor.
      * 
      * @param parentShell
@@ -290,6 +301,12 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction, IFFFGDa
         labelFont.dispose();
         listFont.dispose();
         statusFont.dispose();
+        
+        if(largeSipnnerFont != null) 	
+        	largeSipnnerFont.dispose();
+        
+        if(largeTextFont != null)		
+        	largeTextFont.dispose();
     }
 
     /*
@@ -526,7 +543,9 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction, IFFFGDa
         ffgValueTF = new Text(ffgExpireComp, SWT.BORDER);
         ffgValueTF.setLayoutData(gd);
         ffgValueTF.setText("1.0");
-
+        largeTextFont = getLargeFont(ffgValueTF);
+        ffgValueTF.setFont(largeTextFont);
+        
         Label expireLbl = new Label(ffgExpireComp, SWT.NONE);
         expireLbl.setText("Enter expiration time (hour): ");
 
@@ -536,7 +555,9 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction, IFFFGDa
         expireTimeSpnr.setMinimum(0);
         expireTimeSpnr.setMaximum(100000);
         expireTimeSpnr.setSelection(12);
-
+        largeSipnnerFont = getLargeFont(expireTimeSpnr);
+        expireTimeSpnr.setFont(largeSipnnerFont);
+        
         /*
          * CWA-Wide header
          */
@@ -2158,4 +2179,30 @@ public class FFFGDlg extends CaveSWTDialog implements ISourceCompAction, IFFFGDa
             }
         });
     }
+    
+    
+    /**
+     * FFFG GUI large font for:
+     * Text ffgValueTF and Spinner expireTimeSpnr.
+     * 
+     * @param ctrl: Control to change Font
+     * @return:		large Font
+     */
+	private Font getLargeFont(org.eclipse.swt.widgets.Control ctrl){
+				
+		if(ctrl == null)
+			return new Font(getDisplay(), new org.eclipse.swt.graphics.FontData());		
+		
+		Font font = ctrl.getFont();
+		org.eclipse.swt.graphics.FontData[] fontData = font.getFontData();
+				
+		for(int i=0; i<fontData.length; i++){
+			fontData[i].setStyle(SWT.BOLD);
+			fontData[i].setHeight(16);
+		}
+		
+		return new Font(getDisplay(), fontData);
+		
+	}
+	
 }

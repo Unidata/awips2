@@ -212,12 +212,12 @@ public class ModelSoundingDialogContents {
     			//code to this point means query result is not good
     			NsharpLoadDialog ldDia = NsharpLoadDialog.getAccess();
 				if(!stnQuery){
-					ldDia.setAndOpenMb("Sounding query with lat/lon ("+lat+"/"+lon+"): Returned\n But without vlaid data");
+					ldDia.setAndOpenMb("Sounding query with lat/lon ("+lat+"/"+lon+") at "+timeLine+": Returned\n But without vlaid data");
 				}
 				else{
-					ldDia.setAndOpenMb("Sounding query with stn "+ stnStr+ "at lat/lon ("+lat+"/"+lon+") Returned\n But without vlaid data");
+					ldDia.setAndOpenMb("Sounding query with stn "+ stnStr+ "at lat/lon ("+lat+"/"+lon+") at "+timeLine+": Returned\n But without vlaid data");
 				}
-				return;
+				//return;
     		}
     		else
     		{
@@ -225,19 +225,19 @@ public class ModelSoundingDialogContents {
     				System.out.println("mdlsoundingQueryByLatLon failed");
     				NsharpLoadDialog ldDia = NsharpLoadDialog.getAccess();
     				if(cube != null)
-    					ldDia.setAndOpenMb("Sounding query with lat/lon ("+lat+"/"+lon+") failed\nError status:"+ cube.getRtnStatus().toString());
+    					ldDia.setAndOpenMb("Sounding query with lat/lon ("+lat+"/"+lon+") at "+timeLine+": failed\nError status:"+ cube.getRtnStatus().toString());
     				else
-    					ldDia.setAndOpenMb("Sounding query with lat/lon ("+lat+"/"+lon+") failed\nError status: NULL returned");
+    					ldDia.setAndOpenMb("Sounding query with lat/lon ("+lat+"/"+lon+") at "+timeLine+": failed\nError status: NULL returned");
     			}
     			else{
     				System.out.println("mdlsoundingQueryByStn failed");
     				NsharpLoadDialog ldDia = NsharpLoadDialog.getAccess();
     				if(cube != null)
-    					ldDia.setAndOpenMb("Sounding query with stn "+ stnStr+ "at lat/lon ("+lat+"/"+lon+") failed\nError status:"+ cube.getRtnStatus().toString());
+    					ldDia.setAndOpenMb("Sounding query with stn "+ stnStr+ "at lat/lon ("+lat+"/"+lon+") at "+timeLine+": failed\nError status:"+ cube.getRtnStatus().toString());
     				else
-    					ldDia.setAndOpenMb("Sounding query with stn "+ stnStr+ "at lat/lon ("+lat+"/"+lon+") failed\nError status: NULL returned");
+    					ldDia.setAndOpenMb("Sounding query with stn "+ stnStr+ "at lat/lon ("+lat+"/"+lon+") at "+timeLine+": failed\nError status: NULL returned");
     			}
-    			return;
+    			//return;
     		}
     	}
         
@@ -505,11 +505,12 @@ public class ModelSoundingDialogContents {
 						}
 					} else if(currentLocType == LocationType.STATION){
 						//query station lat /lon
-						stnStr = textStr.toUpperCase(Locale.getDefault());
+						textStr = textStr.trim(); // user may start with a space before enter a station id
+						stnStr = textStr.toUpperCase(Locale.getDefault()); 
 						Coordinate co = SurfaceStationPointData.getStnCoordinate(stnStr);
 						lat = (float) co.y;
 						lon = (float) co.x;
-						System.out.println("user enter station ="+ stnStr+"= lat " + lat+ " lon " + lon);
+						//System.out.println("user enter station ="+ stnStr+" length="+ stnStr.length()+" lat " + lat+ " lon " + lon);
 						if(lat == SurfaceStationPointData.DEFAULT_LATLON){
 							//System.out.println("bad stn id entered =" + textStr);
 							ldDia.setAndOpenMb("Bad station id ("+textStr+") entered!\n"+GOOD_STN_STR);

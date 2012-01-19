@@ -1,0 +1,9 @@
+! Parameters for the default GFSMOS Resource
+!
+plugin=bufrmos
+reportTypeKey=type
+reportTypeValue=GFS
+spiFile=MTR.spi
+legendString=GFSMOS
+legend_color=RGB {0, 255, 0}
+levelKey=Surface

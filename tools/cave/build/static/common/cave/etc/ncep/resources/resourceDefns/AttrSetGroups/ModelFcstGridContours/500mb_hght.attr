@@ -1,0 +1,22 @@
+!
+! Restore File : 500mb_hght
+!
+! Log:
+! J. Carr/HPC   	 9/98	Initial creation
+!
+GLEVEL=500
+GVCORD=pres
+SCALE=-1
+GDPFUN=sm9s(hght)
+TYPE=c
+CINT=6
+LINE=5/1/2/1
+FINT=
+FLINE=
+HILO=
+HLSYM=
+WIND=
+TITLE=5/-1/~ @ HEIGHTS!0
+COLORS=2         
+MARKER=2        
+GRDLBL=5                                                                       
