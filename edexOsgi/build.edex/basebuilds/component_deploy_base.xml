@@ -34,11 +34,6 @@
 		<echo message="this is a base for other ant files, do not call directly" />
 	</target>
 
-	<uptodate property="bin.uptodate">
-		<srcfiles dir="${basedir}/${SRC.DIR}" includes="**/*.java" />
-		<mapper type="glob" from="**/*.java" to="${basedir}/${BIN.DIR}/**/*.class" />
-	</uptodate>
-
 	<target name="deploy" depends="util.deploy" >
                 <echo message="Basedir: ${basedir}"/>
                 <echo message="bin dir: ${BIN.DIR}"/>
@@ -49,7 +44,6 @@
 		<basename property="component.name" file="${basedir}"/>
 
 		<fail message="'dest.dir' property not set" unless="dest.dir" />
-		<fail message="Class files out of date, please build ${component.name}" unless="bin.uptodate" />
 
 		<echo message="Jarring ${component.name}" />
 		<echo message="Destination: ${dest.dir}" />
@@ -58,12 +52,24 @@
 		<antcall target="update.manifest"/>
 		
 		<mkdir dir="${dest.dir}" />
-		      <jar destfile="${dest.dir}/${component.name}.jar" manifest="${basedir}/META-INF/MANIFEST.MF">
-			     <fileset dir="${basedir}/${BIN.DIR}" includes="**/*.class" />
-			     <fileset dir="${basedir}" includes="${RES.DIR}/**/*" />
-			     <fileset dir="${basedir}" includes="META-INF/**/*" />
-			     <fileset dir="${basedir}" includes="*.py" />
-		      </jar>
+		<if>
+			<available file="${basedir}/${BIN.DIR}" type="dir" />
+			<then>
+				<jar destfile="${dest.dir}/${component.name}.jar" manifest="${basedir}/META-INF/MANIFEST.MF">
+					<fileset dir="${basedir}/${BIN.DIR}" includes="**/*.class" />
+					<fileset dir="${basedir}" includes="${RES.DIR}/**/*" />
+					<fileset dir="${basedir}" includes="META-INF/**/*" />
+					<fileset dir="${basedir}" includes="*.py" />
+				</jar>
+			</then>
+			<else>
+				<jar destfile="${dest.dir}/${component.name}.jar" manifest="${basedir}/META-INF/MANIFEST.MF">
+					<fileset dir="${basedir}" includes="${RES.DIR}/**/*" />
+					<fileset dir="${basedir}" includes="META-INF/**/*" />
+					<fileset dir="${basedir}" includes="*.py" />
+				</jar>
+			</else>
+		</if>
 		   	
 	</target>
 	
