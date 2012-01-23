@@ -191,7 +191,9 @@
         		update="true">
         		
             	<fileset dir="${buildDirectory}/../../static/common"
-            		excludes="cave/**" />        		
+            		excludes="cave/**" /> 
+            	<fileset dir="${buildDirectory}/../../static/win32.x86" 
+            		excludes="cave/**" />
         		
         	</zip>        	
         	
