@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual C++ Express 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "jep", "jep.vcproj", "{0A7DC650-4324-4E6B-8BFC-C36D8CEF335A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		py24-java15|Win32 = py24-java15|Win32
+		py24-java16|Win32 = py24-java16|Win32
+		py25-java15|Win32 = py25-java15|Win32
+		py25-java16|Win32 = py25-java16|Win32
+		py27-java16|Win32 = py27-java16|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0A7DC650-4324-4E6B-8BFC-C36D8CEF335A}.py24-java15|Win32.ActiveCfg = py24-java15|Win32
+		{0A7DC650-4324-4E6B-8BFC-C36D8CEF335A}.py24-java15|Win32.Build.0 = py24-java15|Win32
+		{0A7DC650-4324-4E6B-8BFC-C36D8CEF335A}.py24-java16|Win32.ActiveCfg = py24-java16|Win32
+		{0A7DC650-4324-4E6B-8BFC-C36D8CEF335A}.py24-java16|Win32.Build.0 = py24-java16|Win32
+		{0A7DC650-4324-4E6B-8BFC-C36D8CEF335A}.py25-java15|Win32.ActiveCfg = py25-java15|Win32
+		{0A7DC650-4324-4E6B-8BFC-C36D8CEF335A}.py25-java15|Win32.Build.0 = py25-java15|Win32
+		{0A7DC650-4324-4E6B-8BFC-C36D8CEF335A}.py25-java16|Win32.ActiveCfg = py25-java16|Win32
+		{0A7DC650-4324-4E6B-8BFC-C36D8CEF335A}.py25-java16|Win32.Build.0 = py25-java16|Win32
+		{0A7DC650-4324-4E6B-8BFC-C36D8CEF335A}.py27-java16|Win32.ActiveCfg = py27-java16|Win32
+		{0A7DC650-4324-4E6B-8BFC-C36D8CEF335A}.py27-java16|Win32.Build.0 = py27-java16|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
