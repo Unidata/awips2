@@ -24,28 +24,11 @@ prog="postmaster"
 
 # We will no longer be using hard-coded paths that need to be replaced.
 # Use rpm to find the paths that we need.
-JAVA_INSTALL=`rpm -q --queryformat '%{INSTALLPREFIX}\n' awips2-java`
-RC="$?"
-if [ ! "${RC}" = "0" ]; then
-   echo "ERROR: awips2-java Must Be Installed."
-   echo "Unable To Continue ... Terminating."
-   exit 1
-fi
-PYTHON_INSTALL=`rpm -q --queryformat '%{INSTALLPREFIX}\n' awips2-python`
-RC="$?"
-if [ ! "${RC}" = "0" ]; then
-   echo "ERROR: awips2-python Must Be Installed."
-   echo "Unable To Continue ... Terminating."
-   exit 1
-fi
-PSQL_INSTALL=`rpm -q --queryformat '%{INSTALLPREFIX}\n' awips2-psql`
-RC="$?"
-if [ ! "${RC}" = "0" ]; then
-   echo "ERROR: awips2-psql Must Be Installed."
-   echo "Unable To Continue ... Terminating."
-   exit 
-fi
-POSTGRESQL_INSTALL_ROOT=`rpm -q --queryformat '%{INSTALLPREFIX}\n' awips2-postgresql`
+JAVA_INSTALL="/awips2/java"
+PYTHON_INSTALL="/awips2/python"
+PSQL_INSTALL="/awips2/psql"
+
+POSTGRESQL_INSTALL_ROOT="/awips2"
 POSTGRESQL_INSTALL="${POSTGRESQL_INSTALL_ROOT}/postgresql"
 PGDATA_DIR="${POSTGRESQL_INSTALL_ROOT}/data"
 
