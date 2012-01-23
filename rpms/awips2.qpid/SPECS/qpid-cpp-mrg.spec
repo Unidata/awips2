@@ -91,7 +91,7 @@
 
 Name:           %{name}
 Version:        %{qpid_release}.%{qpid_svnrev}
-Release:        32%{?dist}
+Release:        33%{?dist}
 Summary:        Libraries for Qpid C++ client applications
 Group:          AWIPSII
 License:        ASL 2.0

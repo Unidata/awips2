@@ -74,7 +74,7 @@ start() {
 	    touch $pidfile
 	    chown awips:fxalpha $pidfile
             [ -x /sbin/restorecon ] && /sbin/restorecon $pidfile
-	    runuser - -s /bin/sh awips -c "$QPID_HOME/sbin/$prog --check > $pidfile"
+	    runuser - -s /bin/sh awips -c "$QPID_HOME/sbin/$prog --check --config $QPID_HOME/etc/qpidd.conf > $pidfile"
 
 	    echo "Creating durable queues"
 	    $queueCreatorScript
