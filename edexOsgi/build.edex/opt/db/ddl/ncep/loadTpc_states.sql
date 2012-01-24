@@ -1,4 +1,4 @@
-COPY stns.TPC_STATES (PKEY, ALPHA ,FIPS, NAME, STATE, COUNTRY, LAT, LON) FROM stdin with delimiter as ',';
+COPY stns.TPC_STATES (PKEY, ALPHA ,FIPS, NAME, STATE, COUNTRY, LATITUDE, LONGITUDE) FROM stdin with delimiter as ',';
 1,AL,1,Alabama,AL,US,32.5,-86.5
 2,AK,2,Alaska,AK,US,63,-150
 3,AZ,4,Arizona,AZ,US,34.5,-111
