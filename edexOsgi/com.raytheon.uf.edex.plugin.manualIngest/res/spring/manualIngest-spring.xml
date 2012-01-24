@@ -9,7 +9,7 @@
 		xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler" autoStartup="false">
 		<endpoint id="manualFileEndpoint"
-            uri="file:${edex.home}/data/manual?delete=true&amp;delay=5000&amp;maxMessagesPerPoll=1000&amp;exclusiveReadLockStrategy=#fileChangedStrategy" />
+            uri="file:${edex.home}/data/manual?delete=true&amp;delay=5000&amp;maxMessagesPerPoll=1000&amp;exclusiveReadLockStrategy=#fileChangedStrategy&amp;recursive=true" />
 		<endpoint id="ndmFileEndpoint"
             uri="file:${edex.home}/data/ndm?delete=true&amp;delay=5000&amp;maxMessagesPerPoll=1000&amp;exclusiveReadLockStrategy=#ndmFileChangedStrategy" />
 

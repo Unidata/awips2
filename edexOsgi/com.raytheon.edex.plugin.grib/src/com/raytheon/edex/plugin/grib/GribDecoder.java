@@ -34,7 +34,6 @@ import ucar.unidata.io.RandomAccessFile;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grib.GribRecord;
-import com.raytheon.uf.common.dataplugin.grib.StatusConstants;
 import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -109,7 +108,7 @@ public class GribDecoder {
                 // manual ingest endpoint
                 if (recordLengths.size() > 1) {
                     raf.seek(0);
-                    splitFile(file.getName(), raf, recordLengths);
+                    splitFile(file.getName(), raf, recordLengths, edition);
                     return new GribRecord[] {};
                 }
             }
@@ -165,7 +164,7 @@ public class GribDecoder {
      * @throws IOException
      */
     private void splitFile(String fileName, RandomAccessFile raf,
-            List<Long> sizes) throws IOException {
+            List<Long> sizes, int edition) throws IOException {
         FileOutputStream out = null;
         byte[] transfer = null;
         for (int i = 0; i < sizes.size(); i++) {
@@ -175,7 +174,7 @@ public class GribDecoder {
 
             try {
                 out = new FileOutputStream(System.getProperty("edex.home")
-                        + "/data/manual/" + fileName + "_record_" + (i + 1));
+                        + "/data/manual/grib/grib" + edition + "LargeSplit/" + fileName + "_record_" + (i + 1));
                 out.write(transfer);
                 out.close();
             } finally {
