@@ -12,6 +12,8 @@
  * 06/2009		128			T. Lee		Initial coding
  * 07/2009		128			T. Lee		Migrated to TO11
  * 11/2009		128			T. Lee		Migrated to TO11D6
+ * 09/2011      			Chin Chen   changed to improve purge performance and
+ * 										removed xml serialization as well
  * </pre>
  * 
  * @author T.Lee
@@ -22,23 +24,18 @@ package gov.noaa.nws.ncep.common.dataplugin.tcm;
 
 import java.util.Calendar;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;  
-import javax.xml.bind.annotation.XmlRootElement;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
@@ -49,8 +46,6 @@ import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
 @Entity
 @Table(name = "tcm", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 
 public class TcmRecord extends PluginDataObject {
@@ -59,122 +54,104 @@ public class TcmRecord extends PluginDataObject {
     
     /** Report type */
     @Column(length=32)
-    @XmlElement
     @DynamicSerializeElement   
     private String reportType;
 
     /** Storm name */
     @Column(length=32)
     @DataURI(position=2)
-    @XmlElement
     @DynamicSerializeElement
     private String stormName;
   
     /** Tropical storm basin */
     @Column(length=8)
     @DataURI(position=1)
-    @XmlElement
     @DynamicSerializeElement
     private String basin;
 
     /** Storm number */
     @Column(length=8)
     @DataURI(position=3)
-    @XmlElement
     @DynamicSerializeElement
     private String stormNumber;
     
     /** Advisory number */
     @Column(length=8)
     @DataURI(position=4)
-    @XmlElement
     @DynamicSerializeElement
     private String advisoryNumber;
      
     /** Correction flag */
     @Column
     @DataURI(position=5)
-    @XmlElement
     @DynamicSerializeElement
     private Boolean corr;
  
     /** Bulletin insurance time */
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private Calendar issueTime;
     
 	/** Storm observation time **/
 	@Column
-	@XmlElement
 	@DynamicSerializeElement
 	private Calendar obsTime;
 
     /** Storm type */
     @Column(length=32)
-    @XmlElement
     @DynamicSerializeElement
     private String stormType;
 
     /** Eye size */
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private Integer eyeSize;
 
     /** Minimum central pressure */
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private Integer centralPressure;
 
     /** Position accuracy */
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private Integer positionAccuracy;
 
     /** Twelve-foot wave height radii at the NE quadrant */
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private String ne12ft;
     
     /** Twelve-foot wave height radii at the SE quadrant */
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private String se12ft;
     
     /** Twelve-foot wave height radii at the SW quadrant */
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private String sw12ft;
     
     /** Twelve-foot wave height radii at the NW quadrant */
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private String nw12ft;
 
     /** Mass news disseminator (MND) */
     @Column(length=72)
-    @XmlElement
     @DynamicSerializeElement
     private String mndTime;
 
     /** Bulletin messages */
     @Column(length=8000)
-    @XmlElement
     @DynamicSerializeElement
     private String bullMessage;
 	
     /** TCM position and winds */
     @DynamicSerializeElement
-    @XmlElement
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "parentID", fetch = FetchType.EAGER)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinColumn(name = "parentID", nullable = false)
+    @Index(name = "tcmPosWinds_parentid_idex")
 	private Set<TcmPositionWinds> tcmPosWinds = new HashSet<TcmPositionWinds>();
 	
     /**
@@ -479,7 +456,7 @@ public class TcmRecord extends PluginDataObject {
      */
     public void addPosWinds(TcmPositionWinds poswinds){
     	tcmPosWinds.add(poswinds);
-    	poswinds.setParentID (this);
+    	
     }    
 
     /**
@@ -489,12 +466,7 @@ public class TcmRecord extends PluginDataObject {
     @Override
     public void setIdentifier(Object dataURI) {   	
     	this.identifier = dataURI;
-    	if (this.getTcmPosWinds() != null && this.getTcmPosWinds().size() > 0) {
-    		for (Iterator<TcmPositionWinds> iter = this.getTcmPosWinds().iterator(); iter.hasNext();) {
-    			TcmPositionWinds tpw = iter.next();
-    			tpw.setParentID(this);
-    		}
-    	}
+    	
     }
 
 	@Override
