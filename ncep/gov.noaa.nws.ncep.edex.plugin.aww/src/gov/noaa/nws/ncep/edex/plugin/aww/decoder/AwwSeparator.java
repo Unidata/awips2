@@ -62,17 +62,20 @@ public class AwwSeparator extends AbstractRecordSeparator {
      * 
      */
     public AwwSeparator() {
-        records = new ArrayList<String>();
+//    	System.out.println("============================== At the beginning of AwwSeparator constructor method"); 
+       records = new ArrayList<String>();
     }
 
     public static AwwSeparator separate(byte[] data, Headers headers) {
+//    	System.out.println("============================== At the beginning of separate method, input data[]="+new String(data)); 
         AwwSeparator ds = new AwwSeparator();
         ds.setData(data, headers);
         return ds;
     }
 
     public void setData(byte[] data, Headers headers) {
-        doSeparate(new String(data));
+//    	System.out.println("============================== At the beginning of setData method, input data[]="+new String(data)); 
+       doSeparate(new String(data));
         iterator = records.iterator();
     }
 
@@ -111,7 +114,7 @@ public class AwwSeparator extends AbstractRecordSeparator {
      */
     private void doSeparate(String message) {
         /* Regex used for separate the bulletins */
-
+//System.out.println("============================== At the beginning of doSeparate method, input message="+message); 
         try {
             pattern = Pattern.compile(BULLSEPARATOR);
             matcher = pattern.matcher(message);
@@ -122,7 +125,8 @@ public class AwwSeparator extends AbstractRecordSeparator {
              * "records"
              */
             while (matcher.find()) {
-                if (!records.contains(matcher.group())) {
+            	String matcherGroupString = matcher.group(); 
+                if (!records.contains(matcherGroupString)) {
                     records.add(matcher.group());
                 }
             }
@@ -130,8 +134,15 @@ public class AwwSeparator extends AbstractRecordSeparator {
             /*
              * Append the raw data file to the records.
              */
+//            System.out.println("########, before do reset on the string list, the original list content is:"); 
+//            displayStringList(records); 
             for (int i = 0; i < records.size(); i++) {
                 if (i < records.size() - 1) {
+//                	String modifiedString = "\n"
+//                        + message.substring(
+//                                message.indexOf(records.get(i)),
+//                                message.indexOf(records.get(i + 1)));
+//                	System.out.println("====, with i="+i+", the modifiedString="+modifiedString); 
                     records.set(
                             i,
                             "\n"
@@ -139,6 +150,10 @@ public class AwwSeparator extends AbstractRecordSeparator {
                                             message.indexOf(records.get(i)),
                                             message.indexOf(records.get(i + 1))));
                 } else {
+//                	String modifiedString = "\n"
+//                        + message.substring(message.indexOf(records
+//                                .get(i))); 
+//                	System.out.println("====*****, with i="+i+", the modifiedString="+modifiedString); 
                     records.set(
                             i,
                             "\n"
@@ -154,5 +169,13 @@ public class AwwSeparator extends AbstractRecordSeparator {
             theLogger.warn("No valid records found!");
         }
         return;
+    }
+    
+    private void displayStringList(List<String> stringList) {
+    	int index = 1; 
+    	for(String eachString : stringList) {
+    		System.out.println("=====, String Item No."+index+" ="+eachString); 
+    		index++; 
+    	}
     }
 }
