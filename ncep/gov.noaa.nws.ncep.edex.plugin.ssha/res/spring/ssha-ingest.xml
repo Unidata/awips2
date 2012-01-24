@@ -1,0 +1,67 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="sshaDecoder"
+		class="gov.noaa.nws.ncep.edex.plugin.ssha.decoder.SshaDecoder">
+		<constructor-arg ref="sshaPluginName" />
+	</bean>
+
+	<bean id="sshaSeparator"
+		class="gov.noaa.nws.ncep.edex.plugin.ssha.decoder.SshaSeparator" />
+
+	<bean id="sshaToPointData" class="gov.noaa.nws.ncep.common.dataplugin.ssha.dao.SshaPointDataTransform" />
+
+
+
+    <bean id="sshaDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg ref="sshaPluginName" />
+		<constructor-arg value="jms-dist:queue:Ingest.ssha" />
+	</bean>
+    
+	<bean id="sshaCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="ssha-camel"/>
+  	</bean>   
+    
+	<camelContext id="ssha-camel" 
+	              xmlns="http://camel.apache.org/schema/spring" 
+	              errorHandlerRef="errorHandler"
+	              autoStartup="false">
+		<endpoint id="sshaFileEndpoint" uri="file:${edex.home}/data/sbn/ssha?noop=true&amp;idempotent=false" />
+
+		<!-- Begin Ssha routes -->
+		<route id="sshaFileConsumerRoute">
+			<from ref="sshaFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+				<constant>ssha</constant>
+			</setHeader>
+			<to uri="jms-generic:queue:Ingest.ssha" />
+		</route>
+
+		<route id="sshaIngestRoute">
+			<from uri="jms-generic:queue:Ingest.ssha?destinationResolver=#qpidDurableResolver" />
+			<setHeader headerName="pluginName">
+				<constant>ssha</constant>
+			</setHeader>
+			<doTry>
+				<pipeline>
+					<bean ref="stringToFile" />
+					<bean ref="sshaDecoder" method="decode" />
+					<bean ref="sshaToPointData" method="toPointData" />
+					<to uri="directvm:persistIndexAlert" />		
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:ssha?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
+		</route>
+	</camelContext>
+</beans>
