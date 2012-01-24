@@ -37,6 +37,8 @@ import com.raytheon.uf.common.dataplugin.persist.IPersistable;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 4/24/09       1994        bphillip    Initial Creation
+ * 1/12/12                   xguo        Create new HDF5 file name
+ *                                       yyyy-MM-dd-HH-fhrs-ensNumber.h5
  * 
  * </pre>
  * 
@@ -46,7 +48,7 @@ import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 public class NcgribPathProvider extends DefaultPathProvider {
 
     private static final SimpleDateFormat gribHdf5FileNameFormat = new SimpleDateFormat(
-            "yyyy-MM-dd-HHmm");
+            "yyyy-MM-dd-HH");
     static {
         gribHdf5FileNameFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
@@ -102,11 +104,18 @@ public class NcgribPathProvider extends DefaultPathProvider {
         StringBuffer sb = new StringBuffer();
 
         Date refTime = pdo.getDataTime().getRefTime();
+        int fhrs = pdo.getDataTime().getFcstTime()/3600;
         String refTimeString = null;
         synchronized (gribHdf5FileNameFormat) {
             refTimeString = gribHdf5FileNameFormat.format(refTime);
         }
+        int pbNum = 0;
+        if ( pdo.getModelInfo().getPerturbationNumber() != null){
+        	pbNum = pdo.getModelInfo().getPerturbationNumber();
+        }
         sb.append(refTimeString);
+        sb.append(String.format("-%d", fhrs));
+        sb.append(String.format("-%d", pbNum));
         sb.append(".h5");
         return sb.toString();
     }
