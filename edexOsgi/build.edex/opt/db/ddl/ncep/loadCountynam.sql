@@ -1,4 +1,4 @@
-COPY stns.countynam(PKEY, STID, STNUM, NAME, STATE, COUNTRY, LAT, LON, WFO) FROM stdin with delimiter as ',';
+COPY stns.countynam(PKEY, STATION_ID, STATION_NUM, NAME, STATE, COUNTRY, LATITUDE, LONGITUDE, WFO) FROM stdin with delimiter as ',';
 1,Saipan,69110,Saipan,GU,US,15.19,145.76,GUM
 2,Northern,69085,Northern_Islands,GU,US,18.11,145.76,GUM
 3,Tinian,69120,Tinian,GU,US,15.01,145.63,GUM
