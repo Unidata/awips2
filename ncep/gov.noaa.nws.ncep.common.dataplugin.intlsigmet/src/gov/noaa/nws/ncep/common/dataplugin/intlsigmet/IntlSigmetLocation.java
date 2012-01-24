@@ -11,6 +11,8 @@
  * 05/2009		113				L. Lin		Initial creation	
  * 07/2009		113				L. Lin		Migration to TO11
  * 09/2009		113			    L. Lin		modify lat/lon float to latitude/longitude double
+ * 09/2011      				Chin Chen   changed to improve purge performance and
+ * 											removed xml serialization as well
  * 
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
@@ -24,12 +26,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -37,7 +34,6 @@ import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
 @Entity
 @Table(name="intlsigmet_location")
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class IntlSigmetLocation implements Serializable, ISerializableObject {
 
@@ -47,38 +43,29 @@ public class IntlSigmetLocation implements Serializable, ISerializableObject {
     @GeneratedValue
     private Integer recordId = null;
 	
-	// The intlsigmet record this object belongs to 
-	@ManyToOne
-    @JoinColumn(name="parentID", nullable=false)
-	private IntlSigmetRecord parentID;
-	
+		
 	// Collection of locations
     @Column(length=480)
-    @XmlElement
     @DynamicSerializeElement
 	private String locationLine;
 	
 	// Each location of an international sigmet forecast area
     @Column(length=48)
-    @XmlElement
     @DynamicSerializeElement
 	private String locationName;
     
     // Each latitude of an international sigmet forecast area
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private double latitude;
 
 	// Each longitude of an international sigmet forecast area
     @Column
-    @XmlElement
     @DynamicSerializeElement
 	private double longitude; 
     
 	// Index for the order of a complete location set
     @Column
-    @XmlElement
     @DynamicSerializeElement
 	private Integer index;
 			
@@ -101,20 +88,7 @@ public class IntlSigmetLocation implements Serializable, ISerializableObject {
 		return serialVersionUID;
 	}
 
-	/**
-	 * @return the parentID
-	 */
-	public IntlSigmetRecord getParentID() {
-		return parentID;
-	}
-
-	/**
-	 * @param parentID to set
-	 */
-	public void setParentID(IntlSigmetRecord parentID) {
-		this.parentID = parentID;
-	}
-
+	
 	/**
 	 * @return the index
 	 */
