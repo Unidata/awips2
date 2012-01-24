@@ -60,6 +60,7 @@ public class NcepDefaultPluginDao extends PluginDao {
 				
 				String queryString = "delete " + daoClass.getSimpleName()
 						+ " x";
+				logger.info("query..."+ queryString);
 				Query query = s.createQuery(queryString);
 				results = query.executeUpdate();
 				tx.commit();
@@ -77,22 +78,24 @@ public class NcepDefaultPluginDao extends PluginDao {
 		}
 		return results;
 	}
-	@Override
+	/*@Override
 	/**
 	 * Purges all data associated with the owning plugin based on criteria
 	 * specified by the owning plugin
 	 * 
 	 * @throws PluginException
 	 *             If problems occur while interacting with the data stores
-	 */
+	 *
 	public void purgeAllData() throws PluginException {
 		purgeAllTables();
+		
 		ArrayList<File> files = FileUtil.listFiles(new File(PLUGIN_HDF5_DIR),
 				new HDF5PluginFilenameFilter(pluginName), true);
 		for (File file : files) {
 			file.delete();
 		}
-	}
+	
+	}*/
 
 	@Override
 	protected IDataStore populateDataStore(IDataStore dataStore,
