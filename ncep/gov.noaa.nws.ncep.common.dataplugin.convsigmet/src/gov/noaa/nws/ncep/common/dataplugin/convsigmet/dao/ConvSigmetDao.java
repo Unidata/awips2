@@ -1,31 +1,14 @@
-/**
- * This software was developed and / or modified by Raytheon Company,
- * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
- * U.S. EXPORT CONTROLLED TECHNICAL DATA
- * This software product contains export-restricted data whose
- * export/transfer/disclosure is restricted by U.S. law. Dissemination
- * to non-U.S. persons whether in the United States or abroad requires
- * an export license or other authorization.
- * 
- * Contractor Name:        Raytheon Company
- * Contractor Address:     6825 Pine Street, Suite 340
- *                         Mail Stop B8
- *                         Omaha, NE 68106
- *                         402.291.0100
- * 
- * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
- * further licensing information.
- **/
 package gov.noaa.nws.ncep.common.dataplugin.convsigmet.dao;
 
 import gov.noaa.nws.ncep.common.dataplugin.convsigmet.ConvSigmetRecord;
-import gov.noaa.nws.ncep.edex.common.dao.NcepDefaultPluginDao;
 
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.PluginException;
+import com.raytheon.uf.common.dataplugin.persist.IPersistable;
+import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
+import com.raytheon.uf.edex.database.plugin.PluginDao;
 
 /**
  * TODO Add Description
@@ -36,6 +19,8 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 23, 2009            jkorman     Initial creation
+ * 09/2011      		   Chin Chen   changed to improve purge performance and
+ * 									   removed xml serialization as well
  * 
  * </pre>
  * 
@@ -43,7 +28,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * @version 1.0
  */
 
-public class ConvSigmetDao extends NcepDefaultPluginDao {
+public class ConvSigmetDao extends PluginDao {
 
     /**
      * Creates a new ReccoDao
@@ -92,4 +77,11 @@ public class ConvSigmetDao extends NcepDefaultPluginDao {
 
         return results;
     }
+
+	@Override
+	protected IDataStore populateDataStore(IDataStore dataStore,
+			IPersistable obj) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
