@@ -9,6 +9,8 @@
  * Date     	Author		Description
  * ------------	----------	-----------	--------------------------
  * 06/2009		Uma Josyula	Initial creation	
+ * 09/2011      Chin Chen   changed to improve purge performance and
+ * 							removed xml serialization as well
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
  */
@@ -21,12 +23,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -37,7 +34,6 @@ import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
 @Entity
 @Table(name="nonconvsigmet_location")
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class NonConvSigmetLocation implements Serializable, ISerializableObject {
 
@@ -46,38 +42,30 @@ public class NonConvSigmetLocation implements Serializable, ISerializableObject 
     @GeneratedValue
     private Integer recordId = null;
 	
-	// The nonconvsigmet record this object belongs to 
-	@ManyToOne
-    @JoinColumn(name="parentID", nullable=false)
-	private NonConvSigmetRecord parentID;
+	
 	
 	// Collection of locations
     @Column(length=120)
-    @XmlElement
     @DynamicSerializeElement
 	private String locationLine;
 	
 	// Each location of a nonconvective sigmet forecast area
     @Column(length=40)
-    @XmlElement
     @DynamicSerializeElement
 	private String location;
     
 	// Each latitude of a nonconvective sigmet forecast area
     @Column
-    @XmlElement
     @DynamicSerializeElement
 	private double latitude;
     
 	// Each longitude of a nonconvective sigmet forecast area
     @Column
-    @XmlElement
     @DynamicSerializeElement
 	private double longitude;   
 	
 	// Index for the order of a complete location set
     @Column
-    @XmlElement
     @DynamicSerializeElement
 	private Integer index;
 			
@@ -104,19 +92,7 @@ public class NonConvSigmetLocation implements Serializable, ISerializableObject 
 			this.recordId = recordId;
 		}
 
-		/**
-		 * @return the parentID
-		 */
-		public NonConvSigmetRecord getParentID() {
-			return parentID;
-		}	
 		
-		/**
-		 * @param parentID to set
-		 */
-		public void setParentID(NonConvSigmetRecord parentID) {
-			this.parentID = parentID;
-		}
 
 		/**
 		 * @return the locationLine
