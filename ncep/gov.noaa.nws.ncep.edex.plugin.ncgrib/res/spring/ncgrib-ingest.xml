@@ -19,8 +19,6 @@
 	</bean>
 	<bean id="jmsIngestNcgribConfig" class="org.apache.camel.component.jms.JmsConfiguration"
 			factory-bean="jmsConfig" factory-method="copy" >
-                <property name="listenerConnectionFactory" ref="jms2SessConnFactory" />
-                <property name="templateConnectionFactory" ref="jms2SessConnFactory" />
         </bean>
 	<bean id="ncgribThreadPool"
 		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
