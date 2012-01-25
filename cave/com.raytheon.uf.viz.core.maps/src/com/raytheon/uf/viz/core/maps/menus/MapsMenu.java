@@ -31,6 +31,7 @@ import org.eclipse.ui.menus.CommandContributionItemParameter;
 
 import com.raytheon.uf.viz.core.maps.MapStore;
 import com.raytheon.uf.viz.core.maps.MapStore.MapNode;
+import com.raytheon.uf.viz.ui.menus.widgets.tearoff.TearOffMenuListener;
 
 /**
  * TODO Add Description
@@ -50,6 +51,8 @@ import com.raytheon.uf.viz.core.maps.MapStore.MapNode;
 
 public class MapsMenu extends CompoundContributionItem {
 
+    boolean addTear = false;
+
     /*
      * (non-Javadoc)
      * 
@@ -65,6 +68,12 @@ public class MapsMenu extends CompoundContributionItem {
     private MenuManager createMenu(MapNode root) {
         MenuManager menuMgr = new MenuManager(root.getName());
         for (MapNode node : root.getSubTree()) {
+            if (addTear
+                    && com.raytheon.uf.viz.core.Activator.getDefault()
+                            .getPreferenceStore().getBoolean("tearoffmenus")) {
+                menuMgr.addMenuListener(new TearOffMenuListener(menuMgr));
+                addTear = false;
+            }
             if (node.getSubTree() == null) {
                 Map<String, String> parms = new HashMap<String, String>();
                 parms.put("mapName", node.getName());
@@ -80,6 +89,7 @@ public class MapsMenu extends CompoundContributionItem {
                                 null, true));
                 menuMgr.add(item);
             } else {
+                addTear = true;
                 menuMgr.add(createMenu(node));
             }
         }
