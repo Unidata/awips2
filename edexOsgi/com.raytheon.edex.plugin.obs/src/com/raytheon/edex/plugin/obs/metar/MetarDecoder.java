@@ -214,17 +214,14 @@ public class MetarDecoder extends AbstractDecoder {
         
         List<PluginDataObject> retVal = new ArrayList<PluginDataObject>();
 
-//        String fileName = null;
-//        if (headers != null) {
-//            fileName = (String) headers
-//                    .get(DecoderTools.INGEST_FILE_NAME);
-//        }
-        Calendar baseTime;
+        Calendar baseTime = TimeTools.getSystemCalendar();
         WMOHeader wmoHdr = sep.getWMOHeader();
-        if((wmoHdr != null)&&(wmoHdr.isValid())) {
-            baseTime = TimeTools.findDataTime(wmoHdr.getYYGGgg(), headers);
-        } else {
-            baseTime = TimeTools.getSystemCalendar();
+        if(TimeTools.allowArchive()) {
+            if((wmoHdr != null)&&(wmoHdr.isValid())) {
+                baseTime = TimeTools.findDataTime(wmoHdr.getYYGGgg(), headers);
+            } else {
+                logger.error("ARCHIVE MODE-No WMO Header found in file" + headers.get(WMOHeader.INGEST_FILE_NAME));
+            }
         }
         
         while (sep.hasNext()) {
@@ -326,6 +323,15 @@ public class MetarDecoder extends AbstractDecoder {
                 Calendar obsTime = record.getTimeObs();
                 if (obsTime != null) {
                     Calendar currTime = TimeTools.copy(baseTime);
+
+                    // Do this only for archive mode!!! Otherwise valid data will not pass if the WMO header
+                    // date/time is much less than the obstime. For instance
+                    //  WMO Header time = dd1200
+                    //  Observed   time = dd1235
+                    // To solve this will require greater precision in the file timestamp.
+                    if(TimeTools.allowArchive()) {
+                        currTime.add(Calendar.HOUR, 1);
+                    }
                     currTime.add(Calendar.MINUTE, METAR_FUTURE_LIMIT);
 
                     long diff = currTime.getTimeInMillis()
