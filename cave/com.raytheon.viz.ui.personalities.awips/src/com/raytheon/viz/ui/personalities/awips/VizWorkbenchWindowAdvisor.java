@@ -33,6 +33,7 @@ import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 
 import com.raytheon.uf.viz.ui.menus.DiscoverMenuContributions;
+import com.raytheon.uf.viz.ui.menus.widgets.tearoff.TearOffMenuListener;
 import com.raytheon.viz.ui.dialogs.ModeListener;
 import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
 import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
@@ -134,6 +135,12 @@ public class VizWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
         IPerspectiveDescriptor perspective = page.getPerspective();
         if (perspective != null) {
             listener.perspectiveActivated(page, perspective);
+        }
+
+        if (com.raytheon.uf.viz.core.Activator.getDefault()
+                .getPreferenceStore().getBoolean("tearoffmenus")) {
+            new TearOffMenuListener(VizActionBarAdvisor.getInstance(window)
+                    .getMenuManager());
         }
     }
 
