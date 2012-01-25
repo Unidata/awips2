@@ -70,6 +70,16 @@ public class TimeQueryHandler implements IRequestHandler<TimeQueryRequest> {
             map.remove("pluginName");
         }
 
+        // Simulated Date is the date set in the CAVE calling this
+        if (request.getSimDate() != null) {
+            RequestConstraint timeConstraint = new RequestConstraint();
+            timeConstraint.setConstraintType(ConstraintType.LESS_THAN);
+            timeConstraint
+                    .setConstraintValue(new DataTime(request.getSimDate())
+                            .toString());
+            map.put(REF_TIME, timeConstraint);
+        }
+
         String database = PluginFactory.getInstance().getDatabase(
                 request.getPluginName());
         String classname = PluginFactory.getInstance()
@@ -136,6 +146,7 @@ public class TimeQueryHandler implements IRequestHandler<TimeQueryRequest> {
                     constraint.getConstraintType().getOperand(), classname);
         }
 
+        //System.out.println("TimeQuery: " + query.createHQLQuery());
         return query;
     }
 
