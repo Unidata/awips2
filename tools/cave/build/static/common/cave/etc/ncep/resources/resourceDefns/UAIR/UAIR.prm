@@ -1,8 +1,0 @@
-! Parameters UAIR Plot Resource
-legendString=UAIR
-plugin=bufrua
-!,2021,2022,2030,2031,2032 other possible reportTypes
-reportTypeKey=reportType
-reportTypeValue=2020
-spiFile=MTR.spi
-legend_color=RGB {0, 255, 0}

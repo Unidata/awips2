@@ -1,9 +1,0 @@
-# Note:
-# The row of ranges must be in ascending order.
-r2s
-2.79374e+13 2.81374e+13 IR
-4.04405e+13 4.06405e+13 WV7.4u
-4.27571e+13 4.29571e+13 WV7.0u
-4.40176e+13 4.42176e+13 WV
-4.60538e+14 4.62538e+14 Vis
-7.67699e+13 7.69699e+13 IR3.9u
