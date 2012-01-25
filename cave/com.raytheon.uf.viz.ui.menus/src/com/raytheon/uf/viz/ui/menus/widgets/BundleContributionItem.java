@@ -215,6 +215,12 @@ public class BundleContributionItem extends ContributionItem {
 
         if (!performQuery) {
             widget.setText(menuText);
+
+            // notify things of menu update times
+            Event event = new Event();
+            event.data = widget;
+            event.widget = widget;
+            widget.notifyListeners(SWT.Modify, event);
             return;
         }
 
@@ -243,6 +249,12 @@ public class BundleContributionItem extends ContributionItem {
         String labelStr = this.menuText + " \t" + dateStr;
 
         widget.setText(labelStr);
+
+        // notify things of menu update times
+        Event event = new Event();
+        event.data = widget;
+        event.widget = widget;
+        widget.notifyListeners(SWT.Modify, event);
     }
 
     protected void updateTime(DataTime time, BinOffset offset) {
@@ -282,6 +294,7 @@ public class BundleContributionItem extends ContributionItem {
     private Listener getItemListener() {
         if (menuItemListener == null) {
             menuItemListener = new Listener() {
+                @Override
                 public void handleEvent(Event event) {
                     switch (event.type) {
                     case SWT.Dispose:
@@ -405,6 +418,7 @@ public class BundleContributionItem extends ContributionItem {
             this.offset = offset;
         }
 
+        @Override
         public void updateTime(DataTime time) {
             BundleContributionItem.this.updateTime(time, offset);
         }

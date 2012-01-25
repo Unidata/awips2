@@ -31,6 +31,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
 import org.eclipse.jface.action.IContributionItem;
+import org.eclipse.jface.action.IMenuListener;
 
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.menus.MenuSerialization;
@@ -64,9 +65,13 @@ import com.raytheon.uf.viz.ui.menus.widgets.SubmenuContributionItem;
  */
 
 public class IncludeMenuItem extends CommonIncludeMenuItem implements
-        IContribItemProvider, ISerializableObject {
+        IContribItemProvider, ISerializableObject, IVizMenuManager {
     static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(IncludeMenuItem.class);
+
+    private SubmenuContributionItem submenuCont = null;
+
+    private IMenuListener mListener = null;
 
     /*
      * (non-Javadoc)
@@ -81,8 +86,8 @@ public class IncludeMenuItem extends CommonIncludeMenuItem implements
             VariableSubstitution[] incomingSubs, Set<String> removalsIn)
             throws VizException {
         if (subMenuName != null) {
-            return new IContributionItem[] { new SubmenuContributionItem(
-                    incomingSubs, subMenuName, null, removalsIn) {
+            submenuCont = new SubmenuContributionItem(incomingSubs,
+                    subMenuName, null, removalsIn, mListener) {
 
                 @Override
                 protected synchronized IContributionItem[][] getContributionItems() {
@@ -97,7 +102,18 @@ public class IncludeMenuItem extends CommonIncludeMenuItem implements
                     }
                     return this.contributionItems;
                 }
-            } };
+
+                /*
+                 * (non-Javadoc)
+                 * 
+                 * @see org.eclipse.jface.action.MenuManager#getId()
+                 */
+                @Override
+                public String getId() {
+                    return subMenuName;
+                }
+            };
+            return new IContributionItem[] { submenuCont };
         }
         // return getAllContributionItems(items, incomingSubs, removalsIn);
         return new IContributionItem[] { new IncludeContributionItem(this,
@@ -141,7 +157,8 @@ public class IncludeMenuItem extends CommonIncludeMenuItem implements
                         continue;
 
                     if (amc == null) {
-                        System.out.println(c.getClass());
+                        System.out.println("There is no xml mapping for "
+                                + c.getClass());
                     }
                     IContributionItem[] contribItems = amc
                             .getContributionItems(c, combinedSub, removalsSet);
@@ -163,4 +180,19 @@ public class IncludeMenuItem extends CommonIncludeMenuItem implements
 
     }
 
+    @Override
+    public void addMenuListener(IMenuListener listener) {
+        mListener = listener;
+        // can't add it to the submenu if the submenu doesn't exist
+        if (submenuCont != null) {
+            submenuCont.addMenuListener(mListener);
+        }
+    }
+
+    @Override
+    public void removeMenuListener(IMenuListener listener) {
+        if (submenuCont != null) {
+            submenuCont.removeMenuListener(listener);
+        }
+    }
 }
