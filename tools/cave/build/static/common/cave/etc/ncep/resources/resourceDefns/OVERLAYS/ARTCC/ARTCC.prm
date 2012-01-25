@@ -1,5 +1,0 @@
-! DbOverlay
-dbName=ncep
-tableName=bounds.ascartcc
-labelField=area
-mapName=ARTCC Boundaries

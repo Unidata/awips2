@@ -1,9 +1,0 @@
-accum
-clear
-load
-readdb
-repeat
-run
-wait
-writedb
-
