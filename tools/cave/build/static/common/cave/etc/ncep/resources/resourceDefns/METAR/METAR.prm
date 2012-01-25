@@ -1,7 +1,0 @@
-plugin=obs
-reportTypeKey=reportType
-reportTypeValue=METAR
-spiFile=MTR.spi
-legendString=Metar
-legend_color=RGB {0, 255, 0}
-levelKey=Surface
