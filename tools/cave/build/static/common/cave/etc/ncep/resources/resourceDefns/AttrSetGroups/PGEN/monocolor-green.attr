@@ -1,7 +1,0 @@
-! Attributes for PGEN XML
-!
-legend_color=RGB {155, 155, 155}
-color=RGB {155, 155, 155}
-monoColorEnable=true
-monoColor=RGB {0, 255, 0}
-fillModeEnable=true
