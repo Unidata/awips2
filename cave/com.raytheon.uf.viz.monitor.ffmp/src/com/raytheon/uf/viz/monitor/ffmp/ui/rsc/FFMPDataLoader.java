@@ -39,6 +39,7 @@ import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.monitor.ffmp.FFMPMonitor;
@@ -474,7 +475,7 @@ public class FFMPDataLoader extends Thread {
 
         FFMPBasinData basinData = null;
 
-        if (file.exists()) {
+        if (file.exists() && SimulatedTime.getSystemTime().isRealTime()) {
 
             System.out.println("File path: " + file.getName());
 
