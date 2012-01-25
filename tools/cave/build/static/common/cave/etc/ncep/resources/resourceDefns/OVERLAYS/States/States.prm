@@ -1,4 +1,0 @@
-! DbOverlay
-tableName=mapdata.states
-labelField=name
-mapName=US State Borders
