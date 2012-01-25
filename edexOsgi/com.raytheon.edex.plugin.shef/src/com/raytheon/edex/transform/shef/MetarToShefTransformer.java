@@ -116,7 +116,7 @@ public class MetarToShefTransformer extends
                     String stnId = rec.getStationId();
                     place = 2;
                     StringBuilder sb = makeWMOHeader(openWMOMessage(0, 200),
-                            stnId, headers);
+                            stnId, headers, hdr);
                     place = 3;
 
                     startMessageLine(sb);
@@ -414,6 +414,14 @@ public class MetarToShefTransformer extends
         newobs = writeObs(newobs,sb.toString());
         
         System.out.println(newobs);
+     
+        Calendar c = TimeTools.getBaseCalendar(2011, 11, 30);
+        c.set(Calendar.HOUR_OF_DAY, 16);
+        c.set(Calendar.MINUTE, 21);
+        
+        
+        System.out.println(String.format(WMO_HEADER_FMT, "KOMA", c));
+       
         
     }
 }
