@@ -236,9 +236,9 @@ public class ACARSSounding {
         String msg = "attempting " + acftInfo.getTailNumber() + " ";
         String tailNumber = acftInfo.getTailNumber();
 
-        Calendar c = TimeTools.getSystemCalendar();
-        c.setTimeInMillis(acftInfo.getStartTime());
+        Calendar c = TimeTools.newCalendar(acftInfo.getStartTime());
         msg += String.format(ACARSSoundingTools.STD_TM_FMT,c);
+
         c.setTimeInMillis(acftInfo.getStopTime());
         msg += "->";
         msg += String.format(ACARSSoundingTools.STD_TM_FMT,c);
