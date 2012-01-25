@@ -1,4 +1,0 @@
-s2s
-default:ASCAT
-281:ASCAT
-282:ADEOS-II
