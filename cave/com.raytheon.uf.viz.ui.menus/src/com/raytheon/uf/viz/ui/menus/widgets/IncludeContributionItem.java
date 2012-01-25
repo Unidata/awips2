@@ -88,12 +88,13 @@ public class IncludeContributionItem extends ContributionItem {
         return items;
     }
 
+    @Override
     public void fill(Menu menu, int index) {
-        getContributionItems();
+        IContributionItem[] items = getContributionItems();
         if (index == -1) {
             index = menu.getItemCount();
         }
-        IContributionItem[] items = getContributionItems();
+         getContributionItems();
         for (int i = 0; i < items.length; i++) {
             IContributionItem item = items[i];
             int oldItemCount = menu.getItemCount();
@@ -106,12 +107,13 @@ public class IncludeContributionItem extends ContributionItem {
         }
     }
 
+    @Override
     public void fill(ToolBar toolbar, int index) {
-        getContributionItems();
+        IContributionItem[] items = getContributionItems();
         if (index == -1) {
             index = toolbar.getItemCount();
         }
-        IContributionItem[] items = getContributionItems();
+         getContributionItems();
         for (int i = 0; i < items.length; i++) {
             IContributionItem item = items[i];
             int oldItemCount = toolbar.getItemCount();
@@ -138,5 +140,4 @@ public class IncludeContributionItem extends ContributionItem {
             }
         }
     }
-
 }
