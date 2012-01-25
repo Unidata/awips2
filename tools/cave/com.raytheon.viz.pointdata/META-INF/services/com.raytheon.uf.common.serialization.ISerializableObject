@@ -1,8 +1,0 @@
-com.raytheon.viz.pointdata.rsc.AdaptivePlotResourceData
-com.raytheon.viz.pointdata.rsc.PlotResourceData
-com.raytheon.viz.pointdata.rsc.MetarPrecipResourceData
-com.raytheon.viz.pointdata.rsc.PlotBlendedResourceData
-com.raytheon.viz.pointdata.PlotAlertParser
-com.raytheon.viz.pointdata.rsc.retrieve.PointDataPlotInfoRetriever
-com.raytheon.viz.pointdata.rsc.retrieve.FullDataPlotInfoRetriever
-com.raytheon.viz.pointdata.rsc.retrieve.ScatterometerPlotInfoRetriever

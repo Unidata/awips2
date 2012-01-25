@@ -1,5 +1,0 @@
-! DbOverlay
-dbName=maps
-tableName=mapdata.lake
-labelField=name
-mapName=Lakes
