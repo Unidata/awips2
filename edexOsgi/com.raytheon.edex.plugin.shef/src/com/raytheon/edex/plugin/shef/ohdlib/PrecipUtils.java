@@ -45,8 +45,6 @@ public abstract class PrecipUtils {
 
     private static final char ZERO_OFFSET = '0';
     
-    private static final AppsDefaults APPS_DEFAULTS = AppsDefaults.getInstance();
-
     public static final int NUM_HOURLY_SLOTS = 24;
 
     public static final int NUM_6HOURLY_SLOTS = 4;
@@ -71,6 +69,7 @@ public abstract class PrecipUtils {
      * @param options
      */
     public static void get_precip_window(GagePPOptions options) {
+        AppsDefaults APPS_DEFAULTS = AppsDefaults.getInstance();
         options.setIntpc(APPS_DEFAULTS.getInt("intpc",10));
         options.setIntlppp(APPS_DEFAULTS.getInt("intlppp",10));
         options.setIntuppp(APPS_DEFAULTS.getInt("intuppp",10));
@@ -109,7 +108,7 @@ public abstract class PrecipUtils {
      * @return
      */
     public static float get_6hour_precip_window() {
-        return APPS_DEFAULTS.getFloat("intppq", 2.0f);
+        return AppsDefaults.getInstance().getFloat("intppq", 2.0f);
     }
     
     /**
@@ -771,7 +770,7 @@ public abstract class PrecipUtils {
              */
 
             /* Get the search window around local 7 AM. */
-            int local_7am_window = APPS_DEFAULTS.getInt("ppp_ppd_local_7am_window", 3);
+            int local_7am_window = AppsDefaults.getInstance().getInt("ppp_ppd_local_7am_window", 3);
 
             Calendar c = new GregorianCalendar(SHEFTimezone.GMT_TIMEZONE);
             c.setTime(time12z);
