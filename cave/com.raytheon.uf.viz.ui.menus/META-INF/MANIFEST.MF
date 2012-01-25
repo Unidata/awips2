@@ -34,4 +34,5 @@ Import-Package: com.raytheon.edex.scriptfactory,
  com.raytheon.uf.viz.core.status
 Export-Package: com.raytheon.uf.viz.ui.menus,
  com.raytheon.uf.viz.ui.menus.widgets,
+ com.raytheon.uf.viz.ui.menus.widgets.tearoff,
  com.raytheon.uf.viz.ui.menus.xml
