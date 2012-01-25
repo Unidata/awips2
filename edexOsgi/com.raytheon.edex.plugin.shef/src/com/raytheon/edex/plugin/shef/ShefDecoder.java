@@ -19,7 +19,6 @@
  **/
 package com.raytheon.edex.plugin.shef;
 
-import java.util.Calendar;
 import java.util.Date;
 
 import org.apache.commons.logging.Log;
@@ -34,7 +33,6 @@ import com.raytheon.edex.plugin.shef.database.PurgeText;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
  * Decoder implementation for SHEF data
@@ -91,6 +89,8 @@ public class ShefDecoder {
      * @return
      */
     public PluginDataObject[] decode(byte[] data, Headers headers) {
+        boolean archiveMode = AppsDefaults.getInstance().getBoolean("ALLOW_ARCHIVE_DATA",false);
+        
         String traceId = null;
 
         if (headers != null) {
@@ -108,8 +108,15 @@ public class ShefDecoder {
             separator = null;
         }
         if (separator != null) {
+            
             long startTime = System.currentTimeMillis();
-            Date postDate = getPostTime(startTime);
+
+            Date postDate = null;
+            if(archiveMode) {
+                postDate = getPostTime(separator.getWmoHeader().getHeaderDate().getTimeInMillis());
+            } else {
+                postDate = getPostTime(startTime);
+            }
 
             PostShef postShef = new PostShef(postDate);
             if(separator.hasNext()) {
@@ -181,10 +188,6 @@ public class ShefDecoder {
     private void doDecode(ShefSeparator separator, String traceId, PostShef postShef) {
         
         long startTime = System.currentTimeMillis();
-        long endTime;
-        
-        // Force time to nearest second.
-        long t = startTime - (startTime % 1000);
 
         AppsDefaults appDefaults = AppsDefaults.getInstance();
         boolean logSHEFOut = appDefaults.getBoolean("shef_out", false);
@@ -226,8 +229,7 @@ public class ShefDecoder {
             }
         } // while()
         if(dataProcessed) {
-            endTime = System.currentTimeMillis();
-            postShef.logStats(traceId, endTime - startTime);
+            postShef.logStats(traceId, System.currentTimeMillis() - startTime);
         }
     }
     
@@ -236,14 +238,15 @@ public class ShefDecoder {
      * @param startTime
      * @return
      */
-    private Date getPostTime(long startTime) {
+    private static Date getPostTime(long startTime) {
         // Force time to nearest second.
-        long t = startTime - (startTime % 1000);
-        return new Date(t);
+        return new Date(startTime - (startTime % 1000));
     }
     
     
-    
+    /*
+     * 
+     */
     public static final void main(String [] args) {
         
         long t = System.currentTimeMillis();
