@@ -23,6 +23,7 @@
 <httpServerAddress>http://localhost:9581/services</httpServerAddress>
 <dataDirectory>/awips2/edex/data/share</dataDirectory>
 <textureCardPreference>512</textureCardPreference>
+<tearoffmenus>true</tearoffmenus>
 <framesPerSecondPreference>25</framesPerSecondPreference>
 <tileBoundaries>false</tileBoundaries>
 <fontMagnification>1.0</fontMagnification>
