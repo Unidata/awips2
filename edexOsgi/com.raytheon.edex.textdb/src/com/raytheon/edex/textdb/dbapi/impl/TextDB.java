@@ -50,6 +50,7 @@ import com.raytheon.uf.common.message.Header;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
+import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.wmo.message.AFOSProductId;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
@@ -854,8 +855,14 @@ public class TextDB {
         }
 
         product.append(reportData);
-        long writeTime = System.currentTimeMillis();
-
+        
+        Long writeTime = new Long(System.currentTimeMillis());
+        if(TimeTools.allowArchive()) {
+            Calendar c = header.getHeaderDate();
+            writeTime = new Long(c.getTimeInMillis());
+            
+        }
+        
         StdTextProduct textProduct = (operationalMode ? new OperationalStdTextProduct()
                 : new PracticeStdTextProduct());
         textProduct.setWmoid(wmoid);
