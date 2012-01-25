@@ -1,5 +1,0 @@
-! DbOverlay
-dbName=ncep
-tableName=bounds.asctweb
-labelField=area
-mapName=ASCTWEB Boundaries
