@@ -169,10 +169,16 @@ public class WMOHeader {
                 }
                 YYGGgg = wmoHeader.substring(hdrIndex, hdrIndex + DTGROUP_SIZE);
                 parseDateTime(YYGGgg);
-                Calendar obsTime = TimeTools.findDataTime(YYGGgg, headers);
-                headerYear = obsTime.get(Calendar.YEAR);
-                headerMonth = obsTime.get(Calendar.MONTH) + 1;
-
+                headerDate = TimeTools.findDataTime(YYGGgg, headers);
+                // At this point headerDate will either be the current time (non-archive) or
+                // a time generated from the WMOHeader and filename dateStamp
+                
+                headerYear = headerDate.get(Calendar.YEAR);
+                headerMonth = headerDate.get(Calendar.MONTH) + 1;
+                headerDay = headerDate.get(Calendar.DAY_OF_MONTH);
+                headerHour = headerDate.get(Calendar.HOUR_OF_DAY);
+                headerMinute = headerDate.get(Calendar.MINUTE);
+                
                 hdrIndex += DTGROUP_SIZE;
 
                 // Everything else goes here for now. Leave it to the client to
@@ -346,10 +352,6 @@ public class WMOHeader {
      * @return the headerDate
      */
     public Calendar getHeaderDate() {
-        // Use lazy construction here.
-        if (headerDate == null) {
-            headerDate = createCalendarDate();
-        }
         return headerDate;
     }
 
@@ -402,53 +404,53 @@ public class WMOHeader {
         }
     }
 
-    /**
-     * Use the parsed date/time elements to create the Calendar date time info
-     * for this WMO header. The logic in this method allows the WMO header time
-     * to be set to the current day, the next day, or up to 25 days in the past.
-     * 
-     * @return A Calendar instance based on the current system date time.
-     */
-    private Calendar createCalendarDate() {
-        Calendar msgDate = null;
-        // check the internal data first
-        if ((headerDay > -1) && (headerHour > -1) && (headerMinute > -1)) {
-            Calendar currentClock = TimeTools.getSystemCalendar(headerYear,
-                    headerMonth, -1);
-
-            Calendar obsDate = null;
-            Calendar tTime = TimeTools.copyToNearestHour(currentClock);
-            // Set to the next day.
-            TimeTools.rollByDays(tTime, 1);
-
-            if (headerDay == currentClock.get(Calendar.DAY_OF_MONTH)) {
-                obsDate = TimeTools.copyToNearestHour(currentClock);
-                obsDate.set(Calendar.HOUR_OF_DAY, headerHour);
-                obsDate.set(Calendar.MINUTE, headerMinute);
-            } else if (headerDay == tTime.get(Calendar.DAY_OF_MONTH)) {
-                // Observation time is in the next day
-                obsDate = TimeTools.copyToNearestHour(tTime);
-                obsDate.set(Calendar.HOUR_OF_DAY, headerHour);
-                obsDate.set(Calendar.MINUTE, headerMinute);
-            } else {
-                tTime = TimeTools.copyToNearestHour(currentClock);
-                int i = 0;
-                while (i++ < 25) {
-                    // Go back a day
-                    TimeTools.rollByDays(tTime, -1);
-                    if (headerDay == tTime.get(Calendar.DAY_OF_MONTH)) {
-                        // Day values are equal, so this is it.
-                        obsDate = TimeTools.copyToNearestHour(tTime);
-                        obsDate.set(Calendar.HOUR_OF_DAY, headerHour);
-                        obsDate.set(Calendar.MINUTE, headerMinute);
-                        break;
-                    }
-                }
-            }
-            if (obsDate != null) {
-                msgDate = obsDate;
-            }
-        }
-        return msgDate;
-    }
+//    /**
+//     * Use the parsed date/time elements to create the Calendar date time info
+//     * for this WMO header. The logic in this method allows the WMO header time
+//     * to be set to the current day, the next day, or up to 25 days in the past.
+//     * 
+//     * @return A Calendar instance based on the current system date time.
+//     */
+//    private Calendar createCalendarDate() {
+//        Calendar msgDate = null;
+//        // check the internal data first
+//        if ((headerDay > -1) && (headerHour > -1) && (headerMinute > -1)) {
+//            Calendar currentClock = TimeTools.getSystemCalendar(headerYear,
+//                    headerMonth, headerDay);
+//
+//            Calendar obsDate = null;
+//            Calendar tTime = TimeTools.copyToNearestHour(currentClock);
+//            // Set to the next day.
+//            TimeTools.rollByDays(tTime, 1);
+//
+//            if (headerDay == currentClock.get(Calendar.DAY_OF_MONTH)) {
+//                obsDate = TimeTools.copyToNearestHour(currentClock);
+//                obsDate.set(Calendar.HOUR_OF_DAY, headerHour);
+//                obsDate.set(Calendar.MINUTE, headerMinute);
+//            } else if (headerDay == tTime.get(Calendar.DAY_OF_MONTH)) {
+//                // Observation time is in the next day
+//                obsDate = TimeTools.copyToNearestHour(tTime);
+//                obsDate.set(Calendar.HOUR_OF_DAY, headerHour);
+//                obsDate.set(Calendar.MINUTE, headerMinute);
+//            } else {
+//                tTime = TimeTools.copyToNearestHour(currentClock);
+//                int i = 0;
+//                while (i++ < 25) {
+//                    // Go back a day
+//                    TimeTools.rollByDays(tTime, -1);
+//                    if (headerDay == tTime.get(Calendar.DAY_OF_MONTH)) {
+//                        // Day values are equal, so this is it.
+//                        obsDate = TimeTools.copyToNearestHour(tTime);
+//                        obsDate.set(Calendar.HOUR_OF_DAY, headerHour);
+//                        obsDate.set(Calendar.MINUTE, headerMinute);
+//                        break;
+//                    }
+//                }
+//            }
+//            if (obsDate != null) {
+//                msgDate = obsDate;
+//            }
+//        }
+//        return msgDate;
+//    }
 }
