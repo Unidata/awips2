@@ -1,4 +1,0 @@
-GDFILE=GHM
-pluginName=ncgrib
-! this is overridden with dynamic resource selection
-eventName=%
