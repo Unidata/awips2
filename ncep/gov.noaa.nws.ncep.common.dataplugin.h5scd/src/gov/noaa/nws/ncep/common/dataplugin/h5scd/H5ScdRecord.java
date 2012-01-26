@@ -25,12 +25,10 @@
 
 package gov.noaa.nws.ncep.common.dataplugin.h5scd;
 
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
-import com.raytheon.uf.common.dataplugin.annotations.DataURI;  
+import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
+
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Temperature;
@@ -48,216 +46,221 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import com.raytheon.uf.common.dataplugin.persist.IPersistable;
+
+import com.raytheon.uf.common.dataplugin.IDecoderGettable;
+import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.pointdata.IPointData;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
 @Entity
 @Table(name = "h5scd", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
+public class H5ScdRecord extends PersistablePluginDataObject implements
+        ISpatialEnabled, IDecoderGettable, IPointData {
 
-public class H5ScdRecord extends PluginDataObject implements ISpatialEnabled, IDecoderGettable, IPointData, IPersistable {
+    private static final long serialVersionUID = 1L;
 
-	private static final long serialVersionUID = 1L;
-	
-	public static final Unit<Temperature> TDXC_UNIT = SI.CELSIUS;
-	
-	public static final Unit<Length> PRECIP_UNIT = NonSI.INCH;
-	
-	/** Report type */
-	@Transient
-	@XmlElement
-	@DynamicSerializeElement
-	private String reportType;
+    public static final Unit<Temperature> TDXC_UNIT = SI.CELSIUS;
 
-	/** Station ID */
-	@Column(length=32)
-	@DataURI(position=1)
-	@XmlElement
-	@DynamicSerializeElement
-	private String stationID;
+    public static final Unit<Length> PRECIP_UNIT = NonSI.INCH;
 
-	/** Bulletin correction */
-	@Column(length=8)
-	@DataURI(position=2)
-	@XmlElement
-	@DynamicSerializeElement
-	private String corIndicator;
+    /** Report type */
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    private String reportType;
 
-	/** Bulletin observation time */
-	@Transient
-	@XmlAttribute
-	@DynamicSerializeElement
-	private Calendar obsTime;
+    /** Station ID */
+    @Column(length = 32)
+    @DataURI(position = 1)
+    @XmlElement
+    @DynamicSerializeElement
+    private String stationID;
 
-	/** Bulletin issuance time */
-	@Column
-	@DataURI(position=3)
-	@XmlElement
-	@DynamicSerializeElement
-	private Calendar issueTime;
+    /** Bulletin correction */
+    @Column(length = 8)
+    @DataURI(position = 2)
+    @XmlElement
+    @DynamicSerializeElement
+    private String corIndicator;
 
-	/** Maximum 24h temperature in Celsius */
-	@Transient
-	@XmlElement
-	@DynamicSerializeElement
-	private float TDXC;
+    /** Bulletin observation time */
+    @Transient
+    @XmlAttribute
+    @DynamicSerializeElement
+    private Calendar obsTime;
 
-	/** Minimum 24h temperature in Celsius */
-	@Transient
-	@XmlElement
-	@DynamicSerializeElement
-	private float TDNC;
+    /** Bulletin issuance time */
+    @Column
+    @DataURI(position = 3)
+    @XmlElement
+    @DynamicSerializeElement
+    private Calendar issueTime;
 
-	/** Six hour accumulated precipitation in inches */
-	@Transient
-	@XmlElement
-	@DynamicSerializeElement
-	private float P06I;
+    /** Maximum 24h temperature in Celsius */
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    private float TDXC;
 
-	/** Twenty-four hour accumulated precipitation in inches */
-	@Transient
-	@XmlElement
-	@DynamicSerializeElement
-	private float P24I;
+    /** Minimum 24h temperature in Celsius */
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    private float TDNC;
 
-	/** Character weather phenomenon */
-	@Transient
-	@XmlElement
-	@DynamicSerializeElement
-	private String WTHR;
+    /** Six hour accumulated precipitation in inches */
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    private float P06I;
 
-	/** Snow depth */
-	@Transient
-	@XmlElement
-	@DynamicSerializeElement
-	private float SNOW;
+    /** Twenty-four hour accumulated precipitation in inches */
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    private float P24I;
 
-	/** New snow depth on the ground */
-	@Transient
-	@XmlElement
-	@DynamicSerializeElement
-	private float SNEW;
+    /** Character weather phenomenon */
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    private String WTHR;
 
-	/** Total snow depth in a Calendar day */
-	@Transient
-	@XmlElement
-	@DynamicSerializeElement
-	private float S24I;
+    /** Snow depth */
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    private float SNOW;
 
-	/** Water equivalent of snow */
-	@Transient
-	@XmlElement
-	@DynamicSerializeElement
-	private float WEQS;
+    /** New snow depth on the ground */
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    private float SNEW;
 
-	/** Duration of sunshine */
-	@Transient
-	@XmlElement
-	@DynamicSerializeElement
-	private int MSUN;
+    /** Total snow depth in a Calendar day */
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    private float S24I;
 
-	/** Low-level cloud genera from WMO Code 0513 */
-	@Transient
-	@XmlElement
-	@DynamicSerializeElement
-	private int CTYL;
+    /** Water equivalent of snow */
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    private float WEQS;
 
-	/** Mid-level cloud genera from WMO Code 0513 */
-	@Transient
-	@XmlElement
-	@DynamicSerializeElement
-	private int CTYM;
+    /** Duration of sunshine */
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    private int MSUN;
 
-	/** High-level cloud genera from WMO Code 0513 */
-	@Transient
-	@XmlElement
-	@DynamicSerializeElement
-	private int CTYH;
+    /** Low-level cloud genera from WMO Code 0513 */
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    private int CTYL;
 
-	/** Fraction of celestial dome covered by cloud from WMO Code 2700 */
-	@Transient
-	@XmlElement
-	@DynamicSerializeElement
-	private int CFRT;
+    /** Mid-level cloud genera from WMO Code 0513 */
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    private int CTYM;
 
-	/** Fraction of celestial dome covered by low or mid cloud from WMO Code 2700 */
-	@Transient
-	@XmlElement
-	@DynamicSerializeElement
-	private int CFRL;
+    /** High-level cloud genera from WMO Code 0513 */
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    private int CTYH;
 
-	/** Cloud base height from WMO Code 1600 */
-	@Transient
-	@XmlElement
-	@DynamicSerializeElement
-	private int CBAS;
+    /** Fraction of celestial dome covered by cloud from WMO Code 2700 */
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    private int CFRT;
 
-	/** Suspect time flag */
-	@Transient
-	@XmlElement
-	@DynamicSerializeElement
-	private String suspectTimeFlag;
+    /**
+     * Fraction of celestial dome covered by low or mid cloud from WMO Code 2700
+     */
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    private int CFRL;
 
-	/** Raw report */
-	@Transient
-	@XmlElement
-	@DynamicSerializeElement
-	private String report;
-	
-	@Embedded
-	private PointDataView pdv;
+    /** Cloud base height from WMO Code 1600 */
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    private int CBAS;
 
-	/**
-	 * Default constructor
-	 * 
-	 */
-	public H5ScdRecord(){
-		this.stationID = null;
-		this.issueTime = null;
-		this.corIndicator = "REG";
-		this.obsTime = null;
-		this.TDXC = IDecoderConstantsN.FLOAT_MISSING;
-		this.TDNC = IDecoderConstantsN.FLOAT_MISSING;
-		this.P06I = IDecoderConstantsN.FLOAT_MISSING;
-		this.P24I = IDecoderConstantsN.FLOAT_MISSING;
-		this.WTHR = "";
-		this.SNOW = IDecoderConstantsN.FLOAT_MISSING;
-		this.SNEW = IDecoderConstantsN.FLOAT_MISSING;
-		this.S24I = IDecoderConstantsN.FLOAT_MISSING;
-		this.WEQS = IDecoderConstantsN.FLOAT_MISSING;
-		this.MSUN = IDecoderConstantsN.INTEGER_MISSING;
-		this.CTYL = IDecoderConstantsN.INTEGER_MISSING;
-		this.CTYM = IDecoderConstantsN.INTEGER_MISSING;
-		this.CTYH = IDecoderConstantsN.INTEGER_MISSING;
-		this.CFRT = IDecoderConstantsN.INTEGER_MISSING;
-		this.CFRL = IDecoderConstantsN.INTEGER_MISSING;
-		this.CBAS = IDecoderConstantsN.INTEGER_MISSING;
-		this.suspectTimeFlag = "false";
-		this.report = "";
-	}
-	
-	/**
-	 * Constructs a SCD record from a dataURI
-	 * 
-	 * @param uri	The dataURI
-	 */
-	public H5ScdRecord(String uri) {
-		super(uri);
-	}
+    /** Suspect time flag */
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    private String suspectTimeFlag;
+
+    /** Raw report */
+    @Transient
+    @XmlElement
+    @DynamicSerializeElement
+    private String report;
+
+    @Embedded
+    private PointDataView pdv;
+
+    /**
+     * Default constructor
+     * 
+     */
+    public H5ScdRecord() {
+        this.stationID = null;
+        this.issueTime = null;
+        this.corIndicator = "REG";
+        this.obsTime = null;
+        this.TDXC = IDecoderConstantsN.FLOAT_MISSING;
+        this.TDNC = IDecoderConstantsN.FLOAT_MISSING;
+        this.P06I = IDecoderConstantsN.FLOAT_MISSING;
+        this.P24I = IDecoderConstantsN.FLOAT_MISSING;
+        this.WTHR = "";
+        this.SNOW = IDecoderConstantsN.FLOAT_MISSING;
+        this.SNEW = IDecoderConstantsN.FLOAT_MISSING;
+        this.S24I = IDecoderConstantsN.FLOAT_MISSING;
+        this.WEQS = IDecoderConstantsN.FLOAT_MISSING;
+        this.MSUN = IDecoderConstantsN.INTEGER_MISSING;
+        this.CTYL = IDecoderConstantsN.INTEGER_MISSING;
+        this.CTYM = IDecoderConstantsN.INTEGER_MISSING;
+        this.CTYH = IDecoderConstantsN.INTEGER_MISSING;
+        this.CFRT = IDecoderConstantsN.INTEGER_MISSING;
+        this.CFRL = IDecoderConstantsN.INTEGER_MISSING;
+        this.CBAS = IDecoderConstantsN.INTEGER_MISSING;
+        this.suspectTimeFlag = "false";
+        this.report = "";
+    }
+
+    /**
+     * Constructs a SCD record from a dataURI
+     * 
+     * @param uri
+     *            The dataURI
+     */
+    public H5ScdRecord(String uri) {
+        super(uri);
+    }
 
     @Override
     public IDecoderGettable getDecoderGettable() {
         return null;
     }
-    
+
     public String getReportType() {
         return reportType;
     }
@@ -265,200 +268,192 @@ public class H5ScdRecord extends PluginDataObject implements ISpatialEnabled, ID
     public void setReportType(String reportType) {
         this.reportType = reportType;
     }
-    
-	public String getStationID(){
-		return stationID;
-	}
 
-	public void setStationID(String stationID){
-		this.stationID=stationID;
-	}
-	public Calendar getIssueTime(){
-		return issueTime;
-	}
+    public String getStationID() {
+        return stationID;
+    }
 
-	public void setIssueTime(Calendar issueTime){
-		this.issueTime=issueTime;
-	}
-	public String getCorIndicator(){
-		return corIndicator;
-	}
+    public void setStationID(String stationID) {
+        this.stationID = stationID;
+    }
 
-	public void setCorIndicator(String corIndicator){
-		this.corIndicator=corIndicator;
-	}
-	public Calendar getObsTime(){
-		return obsTime;
-	}
+    public Calendar getIssueTime() {
+        return issueTime;
+    }
 
-	public void setObsTime(Calendar obsTime){
-		this.obsTime=obsTime;
-	}
-	public float getTDXC(){
-		return TDXC;
-	}
+    public void setIssueTime(Calendar issueTime) {
+        this.issueTime = issueTime;
+    }
 
-	public void setTDXC(float TDXC){
-		this.TDXC=TDXC;
-	}
-	public float getTDNC(){
-		return TDNC;
-	}
+    public String getCorIndicator() {
+        return corIndicator;
+    }
 
-	public void setTDNC(float TDNC){
-		this.TDNC=TDNC;
-	}
-	public float getP06I(){
-		return P06I;
-	}
+    public void setCorIndicator(String corIndicator) {
+        this.corIndicator = corIndicator;
+    }
 
-	public void setP06I(float P06I){
-		this.P06I=P06I;
-	}
-	public float getP24I(){
-		return P24I;
-	}
+    public Calendar getObsTime() {
+        return obsTime;
+    }
 
-	public void setP24I(float P24I){
-		this.P24I=P24I;
-	}
-	public String getWTHR(){
-		return WTHR;
-	}
+    public void setObsTime(Calendar obsTime) {
+        this.obsTime = obsTime;
+    }
 
-	public void setWTHR(String WTHR){
-		this.WTHR=WTHR;
-	}
-	public float getSNOW(){
-		return SNOW;
-	}
+    public float getTDXC() {
+        return TDXC;
+    }
 
-	public void setSNOW(float SNOW){
-		this.SNOW=SNOW;
-	}
-	public float getSNEW(){
-		return SNEW;
-	}
+    public void setTDXC(float TDXC) {
+        this.TDXC = TDXC;
+    }
 
-	public void setSNEW(float SNEW){
-		this.SNEW=SNEW;
-	}
-	public float getS24I(){
-		return S24I;
-	}
+    public float getTDNC() {
+        return TDNC;
+    }
 
-	public void setS24I(float S24I){
-		this.S24I=S24I;
-	}
-	public float getWEQS(){
-		return WEQS;
-	}
+    public void setTDNC(float TDNC) {
+        this.TDNC = TDNC;
+    }
 
-	public void setWEQS(float WEQS){
-		this.WEQS=WEQS;
-	}
-	public int getMSUN(){
-		return MSUN;
-	}
+    public float getP06I() {
+        return P06I;
+    }
 
-	public void setMSUN(int MSUN){
-		this.MSUN=MSUN;
-	}
-	public int getCTYL(){
-		return CTYL;
-	}
+    public void setP06I(float P06I) {
+        this.P06I = P06I;
+    }
 
-	public void setCTYL(int CTYL){
-		this.CTYL=CTYL;
-	}
-	public int getCTYM(){
-		return CTYM;
-	}
+    public float getP24I() {
+        return P24I;
+    }
 
-	public void setCTYM(int CTYM){
-		this.CTYM=CTYM;
-	}
-	public int getCTYH(){
-		return CTYH;
-	}
+    public void setP24I(float P24I) {
+        this.P24I = P24I;
+    }
 
-	public void setCTYH(int CTYH){
-		this.CTYH=CTYH;
-	}
-	public int getCFRT(){
-		return CFRT;
-	}
+    public String getWTHR() {
+        return WTHR;
+    }
 
-	public void setCFRT(int CFRT){
-		this.CFRT=CFRT;
-	}
-	public int getCFRL(){
-		return CFRL;
-	}
+    public void setWTHR(String WTHR) {
+        this.WTHR = WTHR;
+    }
 
-	public void setCFRL(int CFRL){
-		this.CFRL=CFRL;
-	}
-	public int getCBAS(){
-		return CBAS;
-	}
+    public float getSNOW() {
+        return SNOW;
+    }
 
-	public void setCBAS(int CBAS){
-		this.CBAS=CBAS;
-	}
+    public void setSNOW(float SNOW) {
+        this.SNOW = SNOW;
+    }
 
-	public String getReport() {
-		return report;
-	}
+    public float getSNEW() {
+        return SNEW;
+    }
 
-	public void setReport(String report) {
-		this.report = report;
-	}
-	
-	public String getSuspectTimeFlag() {
-		return suspectTimeFlag;
-	}
+    public void setSNEW(float SNEW) {
+        this.SNEW = SNEW;
+    }
 
-	public void setSuspectTimeFlag(String suspectTimeFlag) {
-		this.suspectTimeFlag = suspectTimeFlag;
-	}
+    public float getS24I() {
+        return S24I;
+    }
 
-	/**
-	 * Get the value and units of a named parameter within this observation.
-	 * 
-	 * @param paramName
-	 *            The name of the parameter value to retrieve.
-	 * @return An Amount with value and units. If the parameter is unknown, a
-	 *         null reference is returned.
-	 */
+    public void setS24I(float S24I) {
+        this.S24I = S24I;
+    }
 
-	@Override
-	public Date getPersistenceTime() {
-		return this.dataTime.getRefTime();
-	}
+    public float getWEQS() {
+        return WEQS;
+    }
 
-	@Override
-	public void setPersistenceTime(Date persistTime) {
-	}
+    public void setWEQS(float WEQS) {
+        this.WEQS = WEQS;
+    }
 
-	@Override
-	public Integer getHdfFileId() {
-		return null;
-	}
+    public int getMSUN() {
+        return MSUN;
+    }
 
-	@Override
-	public void setHdfFileId(Integer hdfFileId) {		
-	}
+    public void setMSUN(int MSUN) {
+        this.MSUN = MSUN;
+    }
+
+    public int getCTYL() {
+        return CTYL;
+    }
+
+    public void setCTYL(int CTYL) {
+        this.CTYL = CTYL;
+    }
+
+    public int getCTYM() {
+        return CTYM;
+    }
+
+    public void setCTYM(int CTYM) {
+        this.CTYM = CTYM;
+    }
+
+    public int getCTYH() {
+        return CTYH;
+    }
+
+    public void setCTYH(int CTYH) {
+        this.CTYH = CTYH;
+    }
+
+    public int getCFRT() {
+        return CFRT;
+    }
+
+    public void setCFRT(int CFRT) {
+        this.CFRT = CFRT;
+    }
+
+    public int getCFRL() {
+        return CFRL;
+    }
+
+    public void setCFRL(int CFRL) {
+        this.CFRL = CFRL;
+    }
+
+    public int getCBAS() {
+        return CBAS;
+    }
+
+    public void setCBAS(int CBAS) {
+        this.CBAS = CBAS;
+    }
+
+    public String getReport() {
+        return report;
+    }
+
+    public void setReport(String report) {
+        this.report = report;
+    }
+
+    public String getSuspectTimeFlag() {
+        return suspectTimeFlag;
+    }
+
+    public void setSuspectTimeFlag(String suspectTimeFlag) {
+        this.suspectTimeFlag = suspectTimeFlag;
+    }
 
     /*
      * (non-Javadoc)
      * 
      * @see com.raytheon.uf.common.pointdata.IPointData#getPointDataView()
      */
-	@Override
-	public PointDataView getPointDataView() {
-		return this.pdv;
-	}
+    @Override
+    public PointDataView getPointDataView() {
+        return this.pdv;
+    }
 
     /*
      * (non-Javadoc)
@@ -467,38 +462,38 @@ public class H5ScdRecord extends PluginDataObject implements ISpatialEnabled, ID
      * com.raytheon.uf.common.pointdata.IPointData#setPointDataView(com.raytheon
      * .uf.common.pointdata.PointDataView)
      */
-	@Override
-	public void setPointDataView(PointDataView pdv) {
-		this.pdv = pdv;		
-	}
+    @Override
+    public void setPointDataView(PointDataView pdv) {
+        this.pdv = pdv;
+    }
 
-	@Override
-	public Amount getValue(String paramName) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public Amount getValue(String paramName) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public Collection<Amount> getValues(String paramName) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public Collection<Amount> getValues(String paramName) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public String getString(String paramName) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getString(String paramName) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public String[] getStrings(String paramName) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String[] getStrings(String paramName) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public ISpatialObject getSpatialObject() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public ISpatialObject getSpatialObject() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }
