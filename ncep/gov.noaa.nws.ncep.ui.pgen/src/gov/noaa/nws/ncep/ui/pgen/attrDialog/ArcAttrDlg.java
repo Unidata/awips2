@@ -69,17 +69,17 @@ public class ArcAttrDlg  extends AttrDlg implements IArc{
     private Slider lineWidthSlider;
     private Text lineWidthText;
     
-    private Label axisRatioLbl;  
-    private Slider axisRatioSlider;   
-    private Text axisRatioText;
+    protected Label axisRatioLbl;  
+    protected Slider axisRatioSlider;   
+    protected Text axisRatioText;
     
-    private Label startAngleLbl;
-    private Slider startAngleSlider;   
-    private Text startAngleText;
+    protected Label startAngleLbl;
+    protected Slider startAngleSlider;   
+    protected Text startAngleText;
     
-    private Label endAngleLbl;
-    private Slider endAngleSlider;   
-    private Text endAngleText;  
+    protected Label endAngleLbl;
+    protected Slider endAngleSlider;   
+    protected Text endAngleText;  
     
     private Button chkBox[];
 
@@ -89,7 +89,7 @@ public class ArcAttrDlg  extends AttrDlg implements IArc{
 	 * @param parShell
 	 * @throws VizException
 	 */
-	private ArcAttrDlg(Shell parShell) throws VizException {
+	protected ArcAttrDlg(Shell parShell) throws VizException {
 		
         super(parShell);
        

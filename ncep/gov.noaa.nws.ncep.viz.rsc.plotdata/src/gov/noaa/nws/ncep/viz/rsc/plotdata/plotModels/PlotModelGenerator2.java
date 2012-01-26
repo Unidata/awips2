@@ -48,7 +48,9 @@ import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.pointdata.ParameterDescription;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
+import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.data.prep.IODataPreparer;
@@ -60,38 +62,36 @@ import com.raytheon.viz.pointdata.IPlotModelGeneratorCaller;
 import com.raytheon.viz.pointdata.PlotInfo;
 import com.raytheon.viz.pointdata.PointDataRequest;
 
-import gov.noaa.nws.ncep.viz.common.soundingQuery.NcSoundingQuery;
+import gov.noaa.nws.ncep.viz.common.soundingQuery.NcSoundingQuery2;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.parameters.PlotParameterDefn;
+import gov.noaa.nws.ncep.viz.rsc.plotdata.parameters.PlotParameterDefns;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.parameters.PlotParameterDefnsMngr;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.PlotModelFactory2.PlotElement;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.elements.PlotModel;
+import gov.noaa.nws.ncep.edex.common.metparameters.AbstractMetParameter;
+//import gov.noaa.nws.ncep.edex.common.metparameters.Amount;
+import gov.noaa.nws.ncep.edex.common.metparameters.MetParameterFactory;
+//import gov.noaa.nws.ncep.edex.common.metparameters.PressureLevel;
+//import gov.noaa.nws.ncep.edex.common.metparameters.RelativeHumidity;
+//import gov.noaa.nws.ncep.edex.common.metparameters.StationElevation;
+//import gov.noaa.nws.ncep.edex.common.metparameters.StationID;
+import gov.noaa.nws.ncep.edex.common.metparameters.Amount;
+import gov.noaa.nws.ncep.edex.common.metparameters.StationElevation;
+import gov.noaa.nws.ncep.edex.common.metparameters.StationID;
+import gov.noaa.nws.ncep.edex.common.metparameters.StationLatitude;
+import gov.noaa.nws.ncep.edex.common.metparameters.StationLongitude;
+//import gov.noaa.nws.ncep.edex.common.metparameters.StationName;
+import gov.noaa.nws.ncep.edex.common.metparameters.MetParameterFactory.NotDerivableException;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingCube;
-import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
-import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer.DataType;
+//import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
+//import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer.DataType;
+import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer2;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingProfile;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingCube.QueryStatus;
-import gov.noaa.nws.ncep.metParameters.parameterConversion.NcUnits;
-import gov.noaa.nws.ncep.metparameters.AbstractMetParameter;
-import gov.noaa.nws.ncep.metparameters.Amount;
-import gov.noaa.nws.ncep.metparameters.DewPointTemp;
-import gov.noaa.nws.ncep.metparameters.MetParameterFactory;
-import gov.noaa.nws.ncep.metparameters.MetParameterFactory.NotDerivableException;
-import gov.noaa.nws.ncep.metparameters.RelativeHumidity;
-import gov.noaa.nws.ncep.metparameters.StationElevation;
-import gov.noaa.nws.ncep.metparameters.StationID;
-import gov.noaa.nws.ncep.metparameters.StationLatitude;
-import gov.noaa.nws.ncep.metparameters.StationLongitude;
-import gov.noaa.nws.ncep.metparameters.StationName;
-import gov.noaa.nws.ncep.metparameters.AirTemperature;
-import gov.noaa.nws.ncep.metparameters.PressureLevel;
-import gov.noaa.nws.ncep.metparameters.HeightAboveSeaLevel;
-import gov.noaa.nws.ncep.metparameters.WindDirectionUComp;
-import gov.noaa.nws.ncep.metparameters.WindDirectionVComp;
-import gov.noaa.nws.ncep.metparameters.WindDirection;
-import gov.noaa.nws.ncep.metparameters.WindSpeed;
 
 import com.raytheon.uf.common.pointdata.PointDataDescription.Type;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.TimeRange;
 import com.vividsolutions.jts.geom.Coordinate;
 /**
  * A Eclipse Job thread that will listen for new stations on a queue and request
@@ -111,7 +111,18 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 07/26/2010   T285       qzhou       Modified run() for uair    
  * 05/26/2011   #441       ghull       use metParameters for non-uair data
  * 06/11/2011   #441       ghull       use NcSoundingQuery to get uair data
- * 
+ * 08/20/2011   #450       ghull       use PlotParameterDefns instead of PlotParameterDefnsMngr
+ * 09/07/2011   #294       ghull       setMissingDataSentinel for ncscd
+ * 09/14/2011   #457       sgurung     Renamed h5uair and h5scd to ncuair and ncscd
+ * 09/20/2011   #459       ghull       use new NcSoundingQuery2 for modelsoundings
+ * 10/05/2011   #465     archana      replaced instances of the individual met parameters with
+ *                                                         instances in the met parameters map in the NcSoundingLayer2 class.  
+ * 10/05/2011   #259       ghull       set missing sentinel from ParameterDescription, set dataTime in metParameters
+ * 10/17/2011   #          ghull       don't use slat,slon for ncuair
+ * 11/01/2011   #482       ghull       move S2N to PlotParameterDefn
+ * 11/01/2011   #482       ghull       move array lookup to setMetParamFromPDV
+ * 11/15/2011              bhebbard    ensure metParm units valid after query return
+ *
  * </pre>
  * 
  * @author brockwoo
@@ -120,8 +131,6 @@ import com.vividsolutions.jts.geom.Coordinate;
 public class PlotModelGenerator2 extends Job {
 
     private final ConcurrentLinkedQueue<PlotInfo> stationQueue;
-
-    private final PlotParameterDefnsMngr plotParamDefns;
     
     private final PlotModelFactory2 plotCreator;
 
@@ -158,7 +167,7 @@ public class PlotModelGenerator2 extends Job {
     // in the PlotModelFactory for the plotFunctionTable tag and now done with
     // the arrayIndex tag in the plotParameterDefn)
     // 
-    private HashMap<String, S2N> prioritySelectionsMap = null;
+    private HashMap<String, PlotParameterDefn> prioritySelectionsMap = null;
     
     // 
     private String latDbName = "latitude";
@@ -196,22 +205,17 @@ public class PlotModelGenerator2 extends Job {
         paramsToPlot = new HashMap<String,AbstractMetParameter>();        
         derivedParamsList = new ArrayList<AbstractMetParameter>();
         dbParamsMap = new HashMap<String,AbstractMetParameter>();
-        prioritySelectionsMap = new HashMap<String,S2N>();
+        prioritySelectionsMap = new HashMap<String,PlotParameterDefn>();
         
-        // TODO : if we change the h5uair decoder to decode the station
-        // location and elevation data like raytheon does then we won't 
-        // need to do this.
-        latDbName = (plugin.equals("h5uair") ? "SLAT" : "latitude" );
-        lonDbName = (plugin.equals("h5uair") ? "SLON" : "longitude" );
-
     	// get the parameter definitions for this plugin. 
     	// the definitions give the list of available nmap parameters as well
     	// as a mapping to the db param name an plot mode, units...
     	//    	
-        plotParamDefns = new PlotParameterDefnsMngr( plotModel.getPlugin() );
-
-        for( PlotParameterDefn plotPrmDefn : plotParamDefns.getPlotParamDefns() ) {
-        	
+        PlotParameterDefns plotPrmDefns = 
+        	  PlotParameterDefnsMngr.getInstance().getPlotParamDefns(  plotModel.getPlugin() );
+        
+        for( PlotParameterDefn plotPrmDefn : plotPrmDefns.getParameterDefns() ) { 
+        	 		
         	// if this is a 'vector' parameter (ie windBarb or arrow) then get the 2
         	// component metParameters and make sure they exist.
         	if( plotPrmDefn.isVectorParameter() ) {
@@ -232,7 +236,7 @@ public class PlotModelGenerator2 extends Job {
 //    					throw new VizException("Error plotting WindBarb or Arrow: Can't plot derived vector parameter "+vectParam );
 //    				}
     				// check that this metParam is
-    				if( plotParamDefns.getPlotParamDefnsForMetParam( vectParam ).isEmpty() ) {
+    				if( plotPrmDefns.getPlotParamDefnsForMetParam( vectParam ).isEmpty() ) {
     					throw new VizException("Error plotting WindBarb or Arrow : Can't find definition for component metParameter "+
     							vectParam );
     				}
@@ -274,11 +278,8 @@ public class PlotModelGenerator2 extends Job {
         				// array of values based on a priority. (ie for skyCover to
         				// determine the highest level of cloud cover at any level)
         				//
-        				if( plotPrmDefn.getPrioritySelectTable() != null ) {
-        					S2N priorSel = S2N.readS2NFile( 
-        							plotPrmDefn.getPrioritySelectTable() );
-        					prioritySelectionsMap.put( dbPrmName, priorSel );
-        				}
+        					prioritySelectionsMap.put( dbPrmName, plotPrmDefn );
+        				
         				// else TODO : check for arrayIndex 
         			}
         		}
@@ -286,12 +287,12 @@ public class PlotModelGenerator2 extends Job {
         }
         
         // if the station lat/long is not in the defns file, add them here since they
-        // are needed to plot the data
+        // are needed by the PlotModelFactory to plot the data
         //
         if( !dbParamsMap.containsKey( latDbName ) ) {
     		MetParameterFactory.getInstance().alias( StationLatitude.class.getSimpleName(), latDbName );    		    		
     		AbstractMetParameter latPrm = MetParameterFactory.getInstance().
-    							createParameter( StationLatitude.class.getSimpleName(), Unit.ONE );        			    		
+    							createParameter( StationLatitude.class.getSimpleName(), NonSI.DEGREE_ANGLE );        			    		
     		dbParamsMap.put( latDbName, latPrm );        
         }
         
@@ -299,7 +300,7 @@ public class PlotModelGenerator2 extends Job {
     		MetParameterFactory.getInstance().alias( StationLongitude.class.getSimpleName(), lonDbName );    		
     		
     		AbstractMetParameter longPrm = MetParameterFactory.getInstance().
-    							createParameter( StationLongitude.class.getSimpleName(), Unit.ONE );        			
+    							createParameter( StationLongitude.class.getSimpleName(), NonSI.DEGREE_ANGLE );        			
     		
     		dbParamsMap.put( lonDbName, longPrm );
         }
@@ -319,7 +320,7 @@ public class PlotModelGenerator2 extends Job {
         		
         	// get the dbParamName and determine if derived parameter
         	//
-        	PlotParameterDefn plotPrmDefn = plotParamDefns.getPlotParamDefn( pltPrmName );
+        	PlotParameterDefn plotPrmDefn = plotPrmDefns.getPlotParamDefn( pltPrmName );
         	
         	if( plotPrmDefn == null ) {
     			throw new VizException("Error creating plot metParameter "+ pltPrmName );
@@ -333,7 +334,7 @@ public class PlotModelGenerator2 extends Job {
 
         		for( String vectParam : vectParamNames ) {
         			// already sanity checked this...	
-        			PlotParameterDefn vectPrmDefn = plotParamDefns.getPlotParamDefnsForMetParam( vectParam ).get(0);
+        			PlotParameterDefn vectPrmDefn = plotPrmDefns.getPlotParamDefnsForMetParam( vectParam ).get(0);
         			addToParamsToPlot( vectPrmDefn );
         		}
         	}
@@ -342,8 +343,7 @@ public class PlotModelGenerator2 extends Job {
         	}        	
         }
         
-        plotCreator = new PlotModelFactory2( mapDescriptor, plotModel, 
-			     plotParamDefns, levelStr );
+        plotCreator = new PlotModelFactory2( mapDescriptor, plotModel, plotPrmDefns  );
     }
 
 	private void addToParamsToPlot( PlotParameterDefn plotPrmDefn ) {
@@ -446,10 +446,12 @@ public class PlotModelGenerator2 extends Job {
             
             // key is a formatted lat/lon string
             Map<String, PlotInfo> plotMap = new HashMap<String, PlotInfo>();
-            
+            Map<Integer, DataTime> timeMap = new HashMap<Integer, DataTime>();
+
             for( PlotInfo info : stationQueue ) {
                 plotMap.put( 
                 		formatLatLonKey(info.latitude, info.longitude ), info);
+                timeMap.put( info.id, info.dataTime);
                 stationQuery.add(info);            		
             }
             
@@ -461,9 +463,7 @@ public class PlotModelGenerator2 extends Job {
             // compute the set of params
             //            
             List<String> params = new ArrayList<String>();
-            params.add( latDbName ); // create MetParameter for dbParamsMap??
-            params.add( lonDbName );
-                        
+            
             // TODO : is there a way to just tell the request to get all the parameters???
             // OR, we can determine the list of all the base parameters needed to 
             // compute all the derived parameters. Or we can specify the parameters needed
@@ -474,6 +474,13 @@ public class PlotModelGenerator2 extends Job {
             // (seems reasonable though)
             for( String dbParam : dbParamsMap.keySet() ) { //plotParamDefns.getPlotParamDefns() ) {
             	params.add( dbParam );
+            }
+
+            if( !params.contains( latDbName ) ) {
+            	params.add( latDbName ); // create MetParameter for dbParamsMap??
+            }
+            if( !params.contains( lonDbName ) ) {
+            	params.add( lonDbName );
             }
 
             Map<String, RequestConstraint> map = new HashMap<String, RequestConstraint>();
@@ -519,7 +526,15 @@ public class PlotModelGenerator2 extends Job {
                                 params.toArray( new String[params.size()] ),
                                 null, map );
                     }
-                    
+
+                    // I think this happens when  the data has been purged
+                    //
+                    if (tempPdc == null) {
+                    	System.out.println("PointDataRequest failed to find point data for known station ids. "+
+                    					   "Has data been purged?");
+                        return Status.OK_STATUS;
+                    }
+
                     if (pdc == null) {
                         pdc = new PointDataContainer();
                         pdc.setAllocatedSz(tempPdc.getAllocatedSz());
@@ -555,9 +570,47 @@ public class PlotModelGenerator2 extends Job {
                 //
                 for( AbstractMetParameter metPrm : derivedParamsList ) {//derivedParamsMap.values() ) {
                 	metPrm.setValueToMissing();
+                	metPrm.setValidTime( null );
                 }
                 
-                for( AbstractMetParameter metPrm : dbParamsMap.values() ) {
+                for( String dbPrm : dbParamsMap.keySet() ) {
+                	AbstractMetParameter metPrm = dbParamsMap.get(dbPrm);
+                	metPrm.setValidTime( null );
+                	
+                	// get the fillValue from the parameterDescription and use it to set the missingValue
+                	// Sentinel for the metParameter
+                	try {
+                	ParameterDescription pDesc = pdc.getDescription(dbPrm);
+                    if( pDesc != null ) {                    	
+                    	if( pdv.getType( dbPrm ) == null ) {
+                    		continue;
+                    	}
+                    	if( pDesc.getFillValue() == null ) {
+                    		System.out.println("Sanity Check: ParameterDescription fill Value is null");
+                    		System.out.println("Update the DataStoreFactory.py and H5pyDataStore.py files");
+                    		continue;
+                    	}
+                    	switch( pdv.getType( dbPrm ) ) {
+                    	case FLOAT :
+                    		metPrm.setMissingDataSentinel( 
+                    				pDesc.getFillValue().floatValue() );
+                    		break;
+                    	case DOUBLE :
+                    		metPrm.setMissingDataSentinel( 
+                    				pDesc.getFillValue() );
+                    		break;
+                    	case INT :
+                    		metPrm.setMissingDataSentinel( 
+                    				pDesc.getFillValue().intValue() );
+                    		break;
+                    	case STRING :
+                    		break;
+                    	}
+                    } 
+                	} catch ( Exception e ) {
+                		System.out.println("param "+dbPrm +" not found.");
+                	}
+
                 	metPrm.setValueToMissing();
                 }
 
@@ -568,37 +621,13 @@ public class PlotModelGenerator2 extends Job {
                 	// find a metParam to hold the value for this dbParam 
                 	// 
                 	if( dbParamsMap.containsKey( dbParam ) ) { // id, lat, and longitude are not in the map.
-                		AbstractMetParameter metPrm = dbParamsMap.get( dbParam );
                 		
-                		Type pType = pdv.getType(dbParam);
+            			int dbid = pdv.getInt("id");
+            			DataTime dataTime = timeMap.get( dbid );
 
-                		// if this is an array then attempt to determine which 
-                		// value in the array to use to set the metParameter.
-                		//  
-                		if( pdv.getDimensions( dbParam ) > 1 ) {
+            			AbstractMetParameter metPrm = dbParamsMap.get( dbParam );
 
-                			// if there is a priority ranking for this parameter
-                			// 
-                			if( prioritySelectionsMap.containsKey( dbParam ) ) {
-                			
-                				// S2N only for string lookups
-                				if( metPrm.hasStringValue() ) {
-
-                					S2N priortySelection = prioritySelectionsMap.get( dbParam );
-
-                					String dbVals[] = pdv.getStringAllLevels( dbParam );
-
-                					String rankedValue = priortySelection.getRankedField( dbVals );
-
-                					metPrm.setStringValue( rankedValue );
-                				}
-                			}
-                			// TODO : implement arrayIndex (old plotIndex)
-                			//  else if( arrayIndex... )
-                		}
-                		else {
-                			setMetParamFromPDV( metPrm, pdv, dbParam );
-                		}
+            			setMetParamFromPDV( metPrm, pdv, dbParam, dataTime );
                 	}
                 }
                 
@@ -643,25 +672,7 @@ public class PlotModelGenerator2 extends Job {
     private IStatus plotUpperAirData() {
     	
     	while (stationQueue.size() > 0) {
-            List<PlotInfo> stationQuery = new ArrayList<PlotInfo>();
-            
-            // Get the SoundingType from the plugin.
-            // TODO : Why not just pass in the plugin instead of a 'SoundingType'
-            //
-            String soundingType=null;
-
-            if( plugin.equals("h5uair") ) {
-            	soundingType = "H5UAIR";
-            }
-            // TODO : fill these in when implementing the Fcst
-            else if( plugin.equals("???")) {
-            	soundingType = "RUC2SND";
-            }
-            else {
-            	System.out.println("Unable to determine SoundingType for plugin: "+plugin );
-            	continue;
-//            	throw new VizException("Unable to determine SoundingType for plugin: "+plugin );                	
-            }
+            List<PlotInfo> stationQuery = new ArrayList<PlotInfo>();            
 
             long beginTime = 0;
             long endTime   = Long.MAX_VALUE;
@@ -689,29 +700,70 @@ public class PlotModelGenerator2 extends Job {
 
             // TODO if this is an UpperAir FcstPlotResource then we will need to 
             // get the validTime and query for it. 
-            List<NcSoundingLayer> sndingLayers = new ArrayList<NcSoundingLayer>(0);
+    		NcSoundingQuery2 sndingQuery;
+			try {
+				sndingQuery = new NcSoundingQuery2( plugin, true, levelStr );
+			} catch (Exception e1) {
+            	System.out.println("Error creating NcSoundingQuery2: "+e1.getMessage() );
+            	return Status.CANCEL_STATUS;
+			}
+    		sndingQuery.setLatLonConstraints( latLonCoords );
+    		sndingQuery.setTimeRangeConstraint( 
+    				   new TimeRange( beginTime, endTime ) );
+    		
+    		// for modelsounding data we need to set the name of the model (ie the reportType)
+    		if( plugin.equals("modelsounding") ) {
+    			if( !constraintMap.containsKey( "reportType" ) ) {
+                	System.out.println("Error creating NcSoundingQuery2: missing modelName (reportType) for modelsounding plugin" );
+                	return Status.CANCEL_STATUS;
+    			}
+    			sndingQuery.setModelName(
+    					constraintMap.get("reportType" ).getConstraintValue() );
+    		}
+    		NcSoundingCube sndingCube = sndingQuery.query();
+    		
+    		//
+    		//TODO -- This shouldn't be necessary, given Amount.getUnit() should now heal itself
+    		//        from a null unit by using the String.  
+    		//        Repair the 'unit' in the met params, if damaged (as in, nulled) in transit.
+			//System.out.println("PlotModelGenerator2.plotUpperAirData() begin fixing returned data...");
+    		if( sndingCube != null && sndingCube.getRtnStatus() == QueryStatus.OK ) {
+    			for(NcSoundingProfile sndingProfile : sndingCube.getSoundingProfileList() ) {
+    				for(NcSoundingLayer2 sndingLayer : sndingProfile.getSoundingLyLst2()) {
+    					for(AbstractMetParameter metPrm : sndingLayer.getMetParamsMap().values()) {
+    						metPrm.syncUnits();
+    					}
+    				}
+    			}
+    		}
+			//System.out.println("PlotModelGenerator2.plotUpperAirData() done fixing returned data");
+    		//TODO -- End
+    		//
+    		
+//    		List<NcSoundingLayer> sndingLayers = new ArrayList<NcSoundingLayer>(0);
 
-            NcSoundingCube sndingCube = NcSoundingQuery.soundingQueryByLatLon(
-            		beginTime, endTime, latLonCoords, 
-            		soundingType, DataType.ALLDATA, true, levelStr );
+//            	sndingCube = NcSoundingQuery.soundingQueryByLatLon(
+//            		beginTime, endTime, latLonCoords, 
+//            		soundingType, DataType.ALLDATA, true, levelStr );
 
             if( sndingCube != null && sndingCube.getRtnStatus() == QueryStatus.OK ) {
                 // Has to be just one Layer.
             	for(NcSoundingProfile sndingProfile : sndingCube.getSoundingProfileList() ) {  
-                	if( sndingProfile.getSoundingLyLst().size() != 1 ) {
-                		System.out.println("Sanity Check : SoundingQuery return Profile with != 1 Layer " );
-                    	if( sndingProfile.getSoundingLyLst().isEmpty() ) {
+                	if( sndingProfile.getSoundingLyLst2().size() != 1 ) {
+//                		System.out.println("Sanity Check : SoundingQuery return Profile with != 1 Layer " );
+                    	if( sndingProfile.getSoundingLyLst2().isEmpty() ) {
                     		continue;
                     	}
                 	}
                 	
-                	NcSoundingLayer sndingLayer = sndingProfile.getSoundingLyLst().get(0);
+                	NcSoundingLayer2 sndingLayer = sndingProfile.getSoundingLyLst2().get(0);
 
 //                	if( sndingProfile.getStationLatitude() != -9999 || 
 //                	    sndingProfile.getStationLongitude() != -9999 ) {
 //                		System.out.println("Station latlon is "+ sndingProfile.getStationLatitude() +
 //                				"/"+ sndingProfile.getStationLongitude() );
 //                	}
+                	 Map<String, AbstractMetParameter>  soundingParamsMap=  sndingLayer.getMetParamsMap();
                 	
                     // set all the paramsToPlot values to missing. (All the  
                     // metParams in the paramsToPlot map are references into the
@@ -727,78 +779,48 @@ public class PlotModelGenerator2 extends Job {
                     for( AbstractMetParameter metPrm : dbParamsMap.values() ) {
                     	metPrm.setValueToMissing();
 
+                    	
                     	// TODO : the station lat/lon, elev, name and id should be set in the sounding profile
                     	// but currently isn't. So instead we will get the lat/lon and id from the DBQuery.
-                    	if( metPrm.getMetParamName().equals( StationLatitude.class.getSimpleName() ) ) {
-                            metPrm.setValue( new Amount( 
-                            		sndingProfile.getStationLatitude(), Unit.ONE ) );
+                    	String key = metPrm.getMetParamName();
+                    	
+                    	if ( soundingParamsMap.containsKey(key ) ){
+                    		if  ( metPrm.hasStringValue() )
+                    			metPrm.setStringValue(soundingParamsMap.get(key).getStringValue() );
+                    		else	
+                    			 metPrm.setValue(soundingParamsMap.get(key));
+                    		
+                    	}
+                    	else if( metPrm.getMetParamName().equals( StationLatitude.class.getSimpleName() ) ) {
+                    		metPrm.setValue( new Amount( 
+                    				sndingProfile.getStationLatitude(), NonSI.DEGREE_ANGLE ) );
                     	}
                     	else if( metPrm.getMetParamName().equals( StationLongitude.class.getSimpleName() ) ) {
-                            metPrm.setValue( new Amount( 
-                            		sndingProfile.getStationLongitude(), Unit.ONE ) );
+                    		metPrm.setValue( new Amount( 
+                    				sndingProfile.getStationLongitude(), NonSI.DEGREE_ANGLE ) );
                     	}
                     	else if( metPrm.getMetParamName().equals( StationElevation.class.getSimpleName() ) ) {
-//                            metPrm.setValue( new Amount( 
-//                            		sndingProfile.getStationElevation(), SI.METER ) );
+                    		//                      metPrm.setValue( new Amount( 
+                    		//                      		sndingProfile.getStationElevation(), SI.METER ) );
                     	}
                     	else if( metPrm.getMetParamName().equals( StationID.class.getSimpleName() ) ) {
-                    		if( sndingProfile.getStationId().isEmpty() ) {
+                    		if( !sndingProfile.getStationId().isEmpty() ) {
                     			metPrm.setStringValue( sndingProfile.getStationId() );
                     		}
                     		else {
                     			metPrm.setValueToMissing();
                     		}
-//                    		if( stnInfo.stationId != null && !stnInfo.stationId.isEmpty() ) {
-//                    			metPrm.setStringValue( stnInfo.stationId );
-//                    		}
+                    		//              		if( stnInfo.stationId != null && !stnInfo.stationId.isEmpty() ) {
+                    		//              			metPrm.setStringValue( stnInfo.stationId );
+                    		//              		}
                     	}
-                    	else if( metPrm.getMetParamName().equals( StationName.class.getSimpleName() ) ) {
-//                            metPrm.setStringValue( Integer.toString( sndingProfile.getStationNum() ) );
+                    	else{
+//                    		System.out.println("Sanity check: " + metPrm.getMetParamName() + " is not available in the sounding data");
                     	}
-                    	else if( metPrm.getMetParamName().equals( AirTemperature.class.getSimpleName() ) ) {
-                            metPrm.setValue( new Amount( 
-                            		sndingLayer.getTemperature(), SI.CELSIUS ) );
-                    	}
-                    	else if( metPrm.getMetParamName().equals( PressureLevel.class.getSimpleName() ) ) {
-                            metPrm.setValue( new Amount( 
-                            		sndingLayer.getPressure(), NcUnits.MILLIBAR ) );
-                    	}
-                    	else if( metPrm.getMetParamName().equals(  RelativeHumidity.class.getSimpleName() ) ) {
-                            metPrm.setValue( new Amount( 
-                            		sndingLayer.getRelativeHumidity(), Unit.ONE ) );
-                    	}
-                    	else if( metPrm.getMetParamName().equals( DewPointTemp.class.getSimpleName() ) ) {
-                            metPrm.setValue( new Amount( 
-                            		sndingLayer.getDewpoint(), SI.CELSIUS ) );
-                    	}
-                    	else if( metPrm.getMetParamName().equals( WindSpeed.class.getSimpleName() ) ) {
-                            metPrm.setValue( new Amount( 
-                            		sndingLayer.getWindSpeed(), NonSI.KNOT ) );
-                    	}
-                    	else if( metPrm.getMetParamName().equals( WindDirection.class.getSimpleName() ) ) {
-                            metPrm.setValue( new Amount( 
-                            		sndingLayer.getWindDirection(), NonSI.DEGREE_ANGLE ) );
-                    	}
-                    	else if( metPrm.getMetParamName().equals(  HeightAboveSeaLevel.class.getSimpleName() ) ) {
-                            metPrm.setValue( new Amount( 
-                            		sndingLayer.getGeoHeight(), SI.METER ) );
-                    	}
-                    	else if( metPrm.getMetParamName().equals(  WindDirectionUComp.class.getSimpleName() ) ) {
-                            metPrm.setValue( new Amount( 
-                            		sndingLayer.getWindU(), NonSI.KNOT ) );
-                    	}
-                    	else if( metPrm.getMetParamName().equals(  WindDirectionVComp.class.getSimpleName() ) ) {
-                            metPrm.setValue( new Amount( 
-                            		sndingLayer.getWindV(), NonSI.KNOT ) );
-                    	}
-      // TODO : for modelsoundings. what are the units?
+                    	// TODO : for modelsoundings. what are the units?
 //                    	else if( metPrm.getMetParamName().equals(   VerticalVelocity.class.getSimpleName() ) ) {
 //                            metPrm.setValue( new Amount( 
 //                            		sndingLayer.getOmega(),  ) );
-//                    	}
-//                    	else if( metPrm.getMetParamName().equals(  SpecificHumidity.class.getSimpleName() ) ) {
-//                            metPrm.setValue( new Amount( 
-//                            		sndingLayer.getSpecHumidity(), NonSI.  ) );
 //                    	}
                     }
                     
@@ -841,22 +863,118 @@ public class PlotModelGenerator2 extends Job {
         return Status.OK_STATUS;
     }
 
-    private void setMetParamFromPDV( AbstractMetParameter metPrm, PointDataView pdv, String dbParam) {
-		   Type pType = pdv.getType(dbParam);
+    private void setMetParamFromPDV( AbstractMetParameter metPrm, PointDataView pdv, String dbParam, DataTime dt) {
 
-		   if( metPrm.hasStringValue() && pType != Type.STRING ||
-				   !metPrm.hasStringValue() && pType == Type.STRING ) {
-			   System.out.println("type for DB parameter "+dbParam+" is not compatible with "+
-					   "metParameter "+metPrm.getClass().getSimpleName() );
-			   return;
+    	Type pType = pdv.getType(dbParam);
+
+    	metPrm.setValidTime( dt );
+
+		// check that the types match.
+//		if( !metPrm.hasStringValue() && pType == Type.STRING ||
+//			 metPrm.hasStringValue() && pType != Type.STRING ) {
+//			System.out.println("The metParameter ("+metPrm.getMetParamName()+
+//					") type and db param ("+dbParam+") type don't match. String != Number");
+//			metPrm.setValueToMissing();
+//			return;			
+//		}
+
+
+		// if this is an array then attempt to determine which 
+		// value in the array to use to set the metParameter.
+		//  
+		if( pdv.getDimensions( dbParam ) > 1 ) {
+
+			PlotParameterDefn pltPrmDefn = prioritySelectionsMap.get( dbParam );
+			if( pltPrmDefn == null ) {
+				return; // ?????
+			}
+
+			// if there is a priority ranking for this parameter
+			// 
+			if( pltPrmDefn.getPrioritySelector() != null ) {
+			
+				// S2N only for string lookups
+				if( metPrm.hasStringValue() ) {
+					String dbVals[] = pdv.getStringAllLevels( dbParam );
+					
+					String rankedValue = 
+						 pltPrmDefn.getPrioritySelector().getRankedField( dbVals );
+
+					metPrm.setStringValue( rankedValue );
+					return;
+				}
+				else {
+					System.out.println("Param "+dbParam+" must be a string to do a priority select from "+
+							"the array of values.");
+					metPrm.setValueToMissing();
+					return;
+				}
+			}
+
+			//  if no arrayIndex given, just get the first in the list
+			int arrayIndex = pltPrmDefn.getArrayIndex();
+			
+			if( pType == Type.STRING ) {				
+				String dbVals[] = pdv.getStringAllLevels( dbParam );
+//				System.out.print ( "values for "+dbParam );
+
+
+				if( arrayIndex >= dbVals.length ) {
+					metPrm.setValueToMissing();
+					return;			
+				}
+
+//				if( !dbVals[arrayIndex].isEmpty() ) {
+//					System.out.println( "index "+arrayIndex+ " is "  + dbVals[arrayIndex] );
+//				}
+
+				if( metPrm.hasStringValue() ) {
+					metPrm.setStringValue( dbVals[arrayIndex] );
+				}		
+				else { // parse a number from the string
+					metPrm.setValueFromString( dbVals[arrayIndex].toString(),  pdv.getUnit( dbParam ) );
+				}
+			}
+			else {
+				Number dbVals[] = pdv.getNumberAllLevels( dbParam );
+				
+				if( arrayIndex >= dbVals.length ) {
+					metPrm.setValueToMissing();
+					return;			
+				}
+
+				// TODO : should we allow this?
+				if( metPrm.hasStringValue() ) {
+					metPrm.setStringValue( dbVals[arrayIndex].toString() );
+				}
+				else {
+					metPrm.setValue( dbVals[arrayIndex],  pdv.getUnit( dbParam ) );					
+				}
+			}
+		}
+		else { // set the metParam
+    	
+		   if( metPrm.hasStringValue() ) {
+			   if( pType == Type.STRING ) {
+				   metPrm.setStringValue( pdv.getString( dbParam ) );				   
+			   }
+			   else {
+// This could really be a sanity-check??			   
+//			   	   System.out.println("DB parameter "+dbParam+" of type  is not compatible with "+
+//					   "metParameter "+metPrm.getClass().getSimpleName() );
+				   metPrm.setStringValue( pType.toString() );			   
+			   }
 		   }
-		   else if( metPrm.hasStringValue() ) {
-			   metPrm.setStringValue( pdv.getString( dbParam ) );                		   
+		   else { // metPrm is a number
+			   if( pType == Type.STRING ) {
+				   // parse a number from the string
+				   metPrm.setValueFromString( pdv.getString( dbParam ), pdv.getUnit( dbParam ) );
+			   }			   
+			   else {
+				   metPrm.setValue( pdv.getNumber( dbParam ),  pdv.getUnit( dbParam ) );
+			   }
 		   }
-		   else {
-			   metPrm.setValue( pdv.getNumber( dbParam ),
-					   pdv.getUnit( dbParam ) );
-		   }
+		}
     }
     
     private void setMapConstraints(Map<String, RequestConstraint> map){

@@ -10,7 +10,8 @@ package gov.noaa.nws.ncep.ui.pgen.graphToGrid;
 import gov.noaa.nws.ncep.viz.tools.customProjection.CustomProjectionServiceImpl;
 import gov.noaa.nws.ncep.viz.tools.customProjection.ICustomProjectionService;
 import gov.noaa.nws.ncep.gempak.parameters.marshaller.garea.GraphicsAreaCoordinates;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import org.apache.log4j.Logger;
 import org.geotools.coverage.grid.GeneralGridGeometry;
@@ -40,6 +41,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 03/10		#215		J. Wu   	Initial Creation.
+ * 07/11        #450        G. Hull     NcPathManager
  * 
  * </pre>
  * 
@@ -53,9 +55,11 @@ public class CoordinateTransform {
 	/*
 	 * Configure the two files in the extension
 	 */
-	private final String geogFilePath = LocalizationManager.getInstance().getFilename("projectionResourcesGeogXmlFile"); 
-	private final String stationFilePath = LocalizationManager.getInstance().getFilename("projectionResourcesSfstnsXmlFile"); 
-	
+	private final String geogFilePath = NcPathManager.getInstance().getStaticFile(
+			NcPathConstants.GEOG_TBL ).getAbsolutePath();
+	private final String stationFilePath =  NcPathManager.getInstance().getStaticFile(
+			NcPathConstants.SFSTNS_TBL ).getAbsolutePath();
+
     /*
      *	Max dimension for holding intersections defined in grphgd.cmn
      *  (this allows for 1000x1000 grid)
