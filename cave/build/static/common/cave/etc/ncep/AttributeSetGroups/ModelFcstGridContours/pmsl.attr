@@ -1,0 +1,22 @@
+!
+! Restore File : pmsl
+!
+! Log:
+! J. Carr/HPC		 9/98	Initial creation
+!
+GLEVEL=0
+GVCORD=none
+SCALE=0
+GDPFUN=sm5s(pmsl)
+TYPE=c
+CINT=4
+LINE=20//3
+FINT=
+FLINE=
+HILO=26;2/H#;L#/1018-1070;900-1012//30;30/y
+HLSYM=2;1.5//21//hw
+WIND=
+TITLE=5/-1/~ MEAN SEA LEVEL PRESSURE
+COLORS=2                                                                       
+MARKER=2                                                                       
+GRDLBL=5                                                                       
