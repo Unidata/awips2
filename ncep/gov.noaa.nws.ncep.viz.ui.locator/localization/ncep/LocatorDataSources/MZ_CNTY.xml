@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LocatorDataSource>
+    <sourceName>MZ_CNTY</sourceName>
+    <sourceType>BOUNDED_AREA</sourceType>
+    <dbName>ncep</dbName>
+    <dbTableName>bounds.mzcntybnds</dbTableName>
+	<dbFieldName>area</dbFieldName> 
+</LocatorDataSource>
