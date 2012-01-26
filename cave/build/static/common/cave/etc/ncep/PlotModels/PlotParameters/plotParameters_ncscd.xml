@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PlotParameterDefns>
+
+	<plugin>ncscd</plugin>
+
+<!--  WEQS - Water equivalent of snow on the ground in inches -->
+ <PlotParameterDefn  plotParamName="WEQS" metParamName="WaterEquivOfNewSnow"  
+                     dbParamName="WEQS"
+                     plotUnit="in" plotFormat="%2.2f"/>
+                     
+ <PlotParameterDefn  plotParamName="TDXC" metParamName="Max24HrTemp"  
+                     dbParamName="TDXC" plotUnit="°C" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="TDNC" metParamName="Min24HrTemp"  
+                     dbParamName="TDNC" plotUnit="°C" plotFormat="%3.0f"/>
+                     
+ <PlotParameterDefn  plotParamName="TDXF" metParamName="Max24HrTemp"  
+                     dbParamName="TDXC" plotUnit="°F" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="TDNF" metParamName="Min24HrTemp"  
+                     dbParamName="TDNC" plotUnit="°F" plotFormat="%3.0f"/>
+                 
+<!-- TODO : add the following CFRL CFRT CTYH CTYL CTYM  WTHR  -->    
+<!-- From NMAP CSYL CSYM CSYH -->
+                     
+<!-- CBAS - Cloud base height from WMO Code 1600 -->
+ <PlotParameterDefn  plotParamName="CBAS" metParamName="CloudBase1"  
+                     dbParamName="CBAS"
+                     plotUnit="m" plotFormat="%2d"/>
+                     
+ <PlotParameterDefn  plotParamName="MSUN" metParamName="SunshineDuration"  
+                     dbParamName="MSUN"
+                     plotUnit="min" plotFormat="%2d"/>
+
+
+
+ <PlotParameterDefn  plotParamName="P06I" metParamName="Precip06Hr"  
+                     dbParamName="P06I"
+                     plotUnit="in" plotFormat="%2.2f"/>
+ <PlotParameterDefn  plotParamName="P24I" metParamName="Precip24Hr"  
+                     dbParamName="P24I"
+                     plotUnit="in" plotFormat="%2.2f"/>
+<!--  24 Hr Snow ? 
+ <PlotParameterDefn  plotParamName="S24I" metParamName=""  
+                     dbParamName="S24I"
+                     plotUnit="in" plotFormat="%2d"/>
+ -->
+
+ <PlotParameterDefn  plotParamName="SNEW" metParamName="NewSnowAmount"  
+                     dbParamName="SNEW"
+                     plotUnit="in" plotFormat="%2.2f"/>
+
+ <PlotParameterDefn  plotParamName="SNOW" metParamName="SnowDepth"  
+                     dbParamName="SNOW"
+                     plotUnit="in" plotFormat="%2.2f"/>
+
+ <!-- WEATHER -->    
+  
+ <PlotParameterDefn  plotParamName="WSYM" metParamName="PresentWeather" 
+                     dbParamName="WTHR"
+                     plotMode="table" symbolFont="WxSymbolFont" 
+                     arrayIndex="0"
+                     plotLookupTable="wx_symbol_trans.txt"/>
+<!-- STATION VARIABLES -->
+	<PlotParameterDefn  plotParamName="STID" metParamName="StationID" plotMode="text" dbParamName="stationId"/>
+    
+<!--<PlotParameterDefn  plotParamName="STNM" metParamName="StationName" plotMode="text" deriveParams="all"   />  -->    
+        
+    <!-- Cross check if elevation refers only to station elevation -->
+    <PlotParameterDefn  plotParamName="SELV" metParamName="StationElevation" plotMode="text" dbParamName="elevation" plotUnit="m" plotFormat="%5.0f" /> 
+    <PlotParameterDefn  plotParamName="SLAT" metParamName="StationLatitude"  plotMode="text" dbParamName="latitude" plotUnit="°"   plotFormat="%.3f"  />
+    <PlotParameterDefn  plotParamName="SLON" metParamName="StationLongitude" plotMode="text" dbParamName="longitude" plotUnit="°"   plotFormat="%.3f"  />
+ 	
+</PlotParameterDefns>

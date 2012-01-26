@@ -1,0 +1,22 @@
+!
+! Restore File : precip_type
+!
+! Log:
+! J. Carr/HPC	 3/00	Initial creation
+!
+GLEVEL=0         !0         !0         !0
+GVCORD=none      !none      !none      !none
+SCALE=2         !2         !2         !2
+GDPFUN=sm5s(WXTr)!sm5s(WXTs)!sm5s(WXTp)!sm5s(WXTz)
+TYPE=f         !f         !f         !f
+LINE=0
+CINT=
+FINT=50;200    !50;200    !50;200    !50;200
+FLINE=0;23;23   !0;25;25   !0;30;30   !0;15;15
+HILO=0
+HLSYM=0
+WIND=9/0.7/2/112
+TITLE=1/-1/~ PCPN TYPE!0
+COLORS=2
+MARKER=2
+GRDLBL=5
