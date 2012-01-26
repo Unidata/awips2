@@ -20,7 +20,6 @@
 package com.raytheon.uf.common.dataplugin.cwa;
 
 import java.util.Calendar;
-import java.util.Date;
 
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -168,22 +167,6 @@ public class CWARecord extends PersistablePluginDataObject implements
     @Override
     public void setPointDataView(PointDataView pdv) {
         this.pdv = pdv;
-    }
-
-    /**
-     * 
-     * @return The time to use for persistence.
-     */
-    @Override
-    public Date getPersistenceTime() {
-        return dataTime.getRefTime();
-    }
-
-    /**
-     * @persistTime
-     */
-    @Override
-    public void setPersistenceTime(Date persistTime) {
     }
 
     @Override
