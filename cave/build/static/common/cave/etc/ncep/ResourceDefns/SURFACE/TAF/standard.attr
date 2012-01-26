@@ -1,0 +1,4 @@
+! Attributes for the TAF resource with "standard" plot model
+!
+plotModelName=standard
+plotDensity=10
