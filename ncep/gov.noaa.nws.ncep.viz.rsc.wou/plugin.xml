@@ -110,7 +110,8 @@
             attributeName="Watchxxx0SymbolColor"
             defaultValue="RGB {0, 255, 0}"
             ncResourceName="WOU">
-      </nc-resourceAttribute>      <nc-resourceAttribute
+      </nc-resourceAttribute>      
+      <nc-resourceAttribute
             attributeClass="Boolean"
             attributeName="Watchxxx1Enable"
             defaultValue="true"
@@ -230,7 +231,7 @@
             defaultValue="RGB {0, 255, 0}"
             ncResourceName="WOU">
       </nc-resourceAttribute>
-            <nc-resourceAttribute
+      <nc-resourceAttribute
             attributeClass="Boolean"
             attributeName="Watchxxx5Enable"
             defaultValue="true"
@@ -259,7 +260,8 @@
             attributeName="Watchxxx5SymbolColor"
             defaultValue="RGB {0, 255, 0}"
             ncResourceName="WOU">
-      </nc-resourceAttribute>      <nc-resourceAttribute
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
             attributeClass="Boolean"
             attributeName="Watchxxx6Enable"
             defaultValue="true"
@@ -428,13 +430,5 @@
             ncResourceName="WOU">
       </nc-resourceAttribute>
       </extension>
-   <extension
-         point="gov.noaa.nws.ncep.viz.localization.localizationData">
-      <singleLocalizationValue
-            fileName="county.xml"
-            location="stns"
-            name="countyStationFile">
-      </singleLocalizationValue>  
-   </extension>
 
 </plugin>

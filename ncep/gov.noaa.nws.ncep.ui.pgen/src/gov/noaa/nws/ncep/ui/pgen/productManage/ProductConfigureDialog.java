@@ -9,9 +9,14 @@ package gov.noaa.nws.ncep.ui.pgen.productManage;
 
 import java.awt.Color;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -43,6 +48,12 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
+import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenPreferences;
@@ -50,13 +61,13 @@ import gov.noaa.nws.ncep.ui.pgen.PgenSession;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.Activator;
 
-import gov.noaa.nws.ncep.ui.pgen.attrDialog.AttrSettings;
 import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
 
 import gov.noaa.nws.ncep.ui.pgen.palette.PgenPaletteWindow;
 import gov.noaa.nws.ncep.ui.pgen.productTypes.*;
 import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 /**
  * This class allows the user to configure and edit the product types.
@@ -70,6 +81,10 @@ import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
  * 10/10  		#215      	J. Wu 		Implemented Layer and Save tab. 
  * 12/10		#359		B. Yin		Added Pgen settings tab
  * 01/11		?			B. Yin		Modified Product tab
+ * 07/11        #450        G. Hull     NcPathManager. save to USER Context
+ * 09/11		#335		J. Wu		Added type/subtype/alias/file template
+ * 11/11		?			B. Yin		Put settings file in localization
+ * 01/12		TTR463		J. Wu		Creating new activity from existing ones
  * 
  * </pre>
  * 
@@ -84,7 +99,7 @@ public class ProductConfigureDialog extends ProductDialog {
     
     private final String[] cntlBtnNames = { "Ok", "Add", "Delete", "Close" };
     private final String[] cntlBtnTips = { "Save changes and exit", "Apply changes and continue", 
-    		                               "Delete current product type", "Ignore changes and exit" };
+    		                               "Delete current activity type", "Ignore changes and exit" };
     private final String[] typeTabNames = { "Palette", "Settings", "Layer", "Save", "Filter", 
     										"Share", "Clip", "Products" };
 	
@@ -97,16 +112,15 @@ public class ProductConfigureDialog extends ProductDialog {
 	private HashMap<String, Image> iconMap = null;    		  // map of all buttons on palette
 	private HashMap<String, Image> iconMapSelected = null;    // map of all buttons if selected
 	
-	private final int numColumns = 8;
+	private final int numColumns = 10;
 	private final int bgcolor = (0 * 65536 ) + ( 0 * 256 ) + 255;
 	private final int fgcolor = (255 * 65536 ) + ( 255 * 256 ) + 255;
 	
+	// save the LocalizationFile for the Context level
+	private static LocalizationFile prdTypesFile = null;
 	private ProductTypes prdTyps = null;
 	private List<ProdType> ptList = null; 
 	
-    private static String prdTypesTblLocal = System.getProperty("user.home");   
-    private static String prdTypesTblFileName = "productTypes.xml";
-    
     private Composite topComp = null;
     
     private TabFolder tabFolder = null;
@@ -120,15 +134,23 @@ public class ProductConfigureDialog extends ProductDialog {
     private Group objectGroup = null;
     private Composite controlBtnComp = null;      
     
+    private Group activityGrp = null;
     private Combo typeCombo = null;
     private Text typeText = null;
+
+    private Combo subtypeCombo = null;
+    private Text subtypeText = null;
+    private static String DEFAULT_SUBTYPE = "None";
+   
+    private Text aliasText = null;
 	
     private Button[] controlBtns = null;
     private Button[] actionBtns = null;
     private Button[] classChkBtns = null;       
     private Button[] classPushBtns = null;       
     private Button[] objectBtns = null; 
-    
+    private Button   allOnOffBtn = null; 
+   
     private Button[] dlgCntlBtn = null;
     
     private Text shapeFileTxt = null;
@@ -146,6 +168,8 @@ public class ProductConfigureDialog extends ProductDialog {
 //    private Text outputFileTxt = null;
     private Group layerTempGrp = null;
     private ArrayList<Button> layerNameBtns = null;
+    
+    private Text currentSettingsTxt = null;
     private Text settingsTxt = null;
     
     /*
@@ -166,6 +190,7 @@ public class ProductConfigureDialog extends ProductDialog {
      */
     private final Color defaultButtonColor = Color.lightGray;
     private final Color activeButtonColor = Color.green;
+    private final Color remindButtonColor = Color.yellow;
 	
     // Filter Hour buttons
 	private static String HOURS[] = {"0","0+", "3", "3+", "6","9","12","0-0","3-3","6-6","0-3","0-6","3-6","6-9",
@@ -213,7 +238,7 @@ public class ProductConfigureDialog extends ProductDialog {
      *  Sets the title of the dialog.
      */
     public void setTitle() {    	
-        shell.setText( "Configure Product Types" );        
+        shell.setText( "Configure Activity Types" );        
     }
     
     /**
@@ -235,7 +260,7 @@ public class ProductConfigureDialog extends ProductDialog {
      */
     public void setDefaultLocation( Shell parent ) {
         Point pt = parent.getLocation();
-        shell.setLocation( pt.x + 500,  pt.y + 150 );
+        shell.setLocation( pt.x + 500,  pt.y + 100 );
     }
     
     /**
@@ -261,22 +286,35 @@ public class ProductConfigureDialog extends ProductDialog {
     	topComp = new Composite( shell, SWT.NONE );
   	    GridLayout gl = new GridLayout( 1, false );
         topComp.setLayout( gl );
-        
-        
+
+        /*
+    	 * create main composite
+    	 */
+        activityGrp = new Group( topComp, SWT.SHADOW_IN );
+        activityGrp.setLayout( new GridLayout(1, false) );
+        activityGrp.setText( "Activity Identity" );
+               
     	/*
     	 * create product type composite
     	 */
-    	createTypeComp( topComp  );
+    	createTypeComp( activityGrp );
              
+        /*
+    	 * create main composite
+    	 */
+        Group configGrp = new Group( topComp, SWT.SHADOW_IN );
+        configGrp.setLayout( new GridLayout(1, false) );
+        configGrp.setText( "Activity Configuraton" );
+ 
     	/*
     	 * create tab folders/items
     	 */
-    	tabFolder = new TabFolder ( topComp, SWT.BORDER );
+    	tabFolder = new TabFolder ( configGrp, SWT.BORDER );
     	int ntabs = typeTabNames.length;
     	tabComposites = new Composite[ ntabs ];
     	
     	tabFolder.addSelectionListener(new SelectionListener() {
-            public void widgetSelected(SelectionEvent e) {                
+    		public void widgetSelected(SelectionEvent e) {                
                 editTabItems( tabFolder.getSelectionIndex() );
             }
 
@@ -341,10 +379,10 @@ public class ProductConfigureDialog extends ProductDialog {
      */
     private void editTabItems( int index ) {
             	
-        if ( index == 1 ) {
+        if ( index == 2 ) {
    		    editLayeringTab();
    	    }
-        else if ( index == 2 ){
+        else if ( index == 3 ) {
         	editSaveTab();
         }
             	
@@ -367,10 +405,17 @@ public class ProductConfigureDialog extends ProductDialog {
         for ( String str : controls ) {
             controlBtns[ ii ] = new Button( controlGroup, SWT.TOGGLE );
             controlBtns[ ii ].setData( str );
-            controlBtns[ ii ].setImage( iconMap.get( str ) );
             controlBtns[ ii ].setToolTipText( itemMap.get( str ).getAttribute("label") );
-            controlBtns[ ii ].setSelection( btnAlwaysOn( str ) );
-           
+            
+            if ( btnAlwaysOn( str ) ) {
+                controlBtns[ ii ].setSelection( true );
+                controlBtns[ ii ].setImage( iconMapSelected.get( str ) );
+            }
+            else {
+                controlBtns[ ii ].setSelection( false );
+                controlBtns[ ii ].setImage( iconMap.get( str ) );         	
+            }
+ 
             controlBtns[ ii ].addSelectionListener( new SelectionAdapter() {
                 public void widgetSelected(SelectionEvent event) {                           	
            	        
@@ -402,9 +447,16 @@ public class ProductConfigureDialog extends ProductDialog {
         for ( String str : actions ) {
          	actionBtns[ ii ] = new Button( actionGroup, SWT.TOGGLE );
        	    actionBtns[ ii ].setData( str );   
-            actionBtns[ ii ].setImage( iconMap.get( str ) );
             actionBtns[ ii ].setToolTipText( itemMap.get( str ).getAttribute("label") );
-            actionBtns[ ii ].setSelection( btnAlwaysOn( str ) );
+            
+            if ( btnAlwaysOn( str ) ) {
+                actionBtns[ ii ].setImage( iconMapSelected.get( str ) );           	
+                actionBtns[ ii ].setSelection( true );
+            }
+            else {
+                actionBtns[ ii ].setImage( iconMap.get( str ) );           	           	
+                actionBtns[ ii ].setSelection( false );
+            }
 
             actionBtns[ ii ].addSelectionListener( new SelectionAdapter() {
                 public void widgetSelected(SelectionEvent event) {                           	
@@ -430,7 +482,7 @@ public class ProductConfigureDialog extends ProductDialog {
         }
         
         classGroup = new Group( paletteComp, SWT.SHADOW_IN );
-        classGroup.setLayout( new GridLayout(numColumns/2 + 1, false) );
+        classGroup.setLayout( new GridLayout((numColumns+1)/2 + 1, false) );
         classGroup.setText( "Classes" );
         
         ii = 0;
@@ -463,30 +515,43 @@ public class ProductConfigureDialog extends ProductDialog {
                 	if ( classChkBtns[ which ].getSelection() ) {
                 	    classPushBtns[ which ].setEnabled( true );
                 	    classPushBtns[ which ].setImage( iconMapSelected.get( btnName ) );
+                    	createObjects( classPushBtns[ which ].getData().toString(), false );                	    
                 	}
                 	else {
                 		classPushBtns[ which ].setEnabled( false );
                 	    classPushBtns[ which ].setImage( iconMap.get( btnName ) );
                 	    
                 	    if ( objectGroup != null && 
-                	    	btnName.equals( objectGroup.getData().toString() ) ) {          	
-                        	
+                	    		btnName.equals( objectGroup.getData().toString() ) ) {          	
+
                 	    	createObjects( "None", true );
                 	    }
                 	    
-                	}               	
+                	}
+                	                	
                 }
             });
        	
         	
         	classPushBtns[ ii ] = new Button( subComp, SWT.TOGGLE );
-            classPushBtns[ ii ].setImage( iconMap.get( str ) );
             classPushBtns[ ii ].setToolTipText( itemMap.get( str ).getAttribute("label") );
             
             classPushBtns[ ii ].setSelection( btnAlwaysOn( str ) );
         	
             classPushBtns[ ii ].setData( str );        	
     		classPushBtns[ ii ].setEnabled( false );
+    		
+            if ( btnAlwaysOn( str ) ) {
+           		classPushBtns[ ii ].setEnabled( true );
+                classPushBtns[ ii ].setSelection( true );          	
+                classPushBtns[ ii ].setImage( iconMapSelected.get( str ) );
+            }
+            else {
+           		classPushBtns[ ii ].setEnabled( false );
+                classPushBtns[ ii ].setSelection( false );        	
+                classPushBtns[ ii ].setImage( iconMap.get( str ) );
+            }
+
     		
         	classPushBtns[ ii ].addSelectionListener( new SelectionAdapter() {
                 public void widgetSelected(SelectionEvent event) {                           	
@@ -506,36 +571,48 @@ public class ProductConfigureDialog extends ProductDialog {
      */
     static public ProductTypes loadProductTypes() {
     	
-		/*
-		 *  First Try to load from user's local directory; if not found, load from
-		 *  the base directory.
-		 */
 		ProductTypes ptyps = new ProductTypes();
 		
-		String ptypFileName = new String( prdTypesTblLocal );
-//        String 	currentWorkingDir = PgenUtil.CURRENT_WORKING_DIRECTORY;        
-        String 	currentWorkingDir = PgenUtil.getWorkingDirectory();        
-        if ( currentWorkingDir != null ) {
-        	ptypFileName = new String( currentWorkingDir );
-        }
+		prdTypesFile = NcPathManager.getInstance().getStaticLocalizationFile(
+				   NcPathConstants.PGEN_PRODUCT_TYPES );
 		
-    	String fullFileName = ptypFileName  + File.separator + prdTypesTblFileName;
-		File prdTypesFile = new File( fullFileName );
-						
-		if ( !( prdTypesFile.exists() && prdTypesFile.isFile() && prdTypesFile.canRead() ) ) {
-//			fullFileName = NmapCommon.getProductTypes();
-			fullFileName = LocalizationManager.getInstance().getFilename("Pgen_Product_Types");
-			prdTypesFile = new File( fullFileName );
-		}				
-		
-		if ( prdTypesFile.exists() && prdTypesFile.isFile() && prdTypesFile.canRead() ) {
-     	    ptyps = FileTools.readProductTypes( fullFileName );
+		if( prdTypesFile != null && prdTypesFile.getFile().exists() && 
+				prdTypesFile.getFile().canRead() ) {
+     	    ptyps = FileTools.readProductTypes( prdTypesFile.getFile().getAbsolutePath() );
 		}
 		
 		return ptyps;
       	
     }
 
+    /**
+     *  Load the "productTypes.xml" into a ProductTypes instance.
+     */
+    static public LinkedHashMap<String, ProductType> getProductTypes() {
+    	
+    	LinkedHashMap<String, ProductType> prdTypMap = new LinkedHashMap<String, ProductType>();
+    	ProductTypes ptyps = loadProductTypes();
+		
+        for ( ProductType ptype : ptyps.getProductType() ) {
+    		String skey;
+        	if ( ptype.getName() != null && ptype.getName().trim().length() > 0 ) {
+        	    skey = new String( ptype.getName() );
+        	}
+        	else {
+        		skey = new String( ptype.getType() );
+        		String subtyp = ptype.getSubtype();
+        		if ( subtyp != null && subtyp.trim().length() > 0 &&
+        			 !subtyp.equalsIgnoreCase( DEFAULT_SUBTYPE ) ) {
+        			skey = new String( ptype.getType() + "(" + subtyp + ")" );
+        		}
+        	}
+        	
+        	prdTypMap.put( skey,  ptype );
+    	}
+    			
+		return prdTypMap;
+      	
+    }
  
     /**
      *  Update the selections based on the product type.
@@ -543,7 +620,11 @@ public class ProductConfigureDialog extends ProductDialog {
     private void refreshPaletteSelections() { 
         
     	String type = typeCombo.getText();
-		ProductType curPrdTyp = getCurrentPrdTyp();
+		ProductType curPrdTyp = getCurrentPrdTyp();	
+		
+		if ( curPrdTyp == null ) {
+			return;
+		}
 		
         typeText.setText( type );
     	                      
@@ -600,13 +681,6 @@ public class ProductConfigureDialog extends ProductDialog {
     	}  
     	else {    		
    		
- /*   		for ( ProductType ptype:prdTyps.getProductType() ) {
-    			if ( ptype.getName().equalsIgnoreCase( type ) ) {
-    				curPrdTyp = ptype;
-    				break;
-    			}
-    		}
- */ 
     		if ( dlgCntlBtn[ 1 ] != null ) {
     			dlgCntlBtn[ 1 ].setText( "Apply");
     		}
@@ -615,8 +689,8 @@ public class ProductConfigureDialog extends ProductDialog {
    		
      		for ( Button btn : controlBtns ) {
             	String str = btn.getData().toString();
-     			if ( btnAlwaysOn( str ) || 
-     				curPrdTyp.getPgenControls().getName().contains( str ) ) {
+     			if ( btnAlwaysOn( str ) || (curPrdTyp.getPgenControls() != null &&
+     				curPrdTyp.getPgenControls().getName().contains( str ) ) ) {
             		btn.setSelection( true );;
                    	btn.setImage( iconMapSelected.get( str ) );
            	    }
@@ -628,8 +702,8 @@ public class ProductConfigureDialog extends ProductDialog {
      		
      		for ( Button btn : actionBtns ) {
             	String str = btn.getData().toString();          	
-     			if ( btnAlwaysOn( str ) || 
-     				curPrdTyp.getPgenActions().getName().contains( str ) ) {
+     			if ( btnAlwaysOn( str ) || (curPrdTyp.getPgenActions() != null &&
+     				curPrdTyp.getPgenActions().getName().contains( str ) ) ) {
             		btn.setSelection( true );;
                    	btn.setImage( iconMapSelected.get( str ) );
                 }
@@ -648,7 +722,8 @@ public class ProductConfigureDialog extends ProductDialog {
      			btn.setImage( iconMap.get( str ) );
      			
      			for ( PgenClass cls : curPrdTyp.getPgenClass() ) {
-     				if ( btnAlwaysOn( str ) || cls.getName().equalsIgnoreCase( str ) ) {
+     				if ( btnAlwaysOn( str ) || 
+     					 ( cls != null && cls.getName().equalsIgnoreCase( str ) ) ) {
      					classChkBtns[ ii ].setSelection( true );     					
     	     			btn.setEnabled( true ); 
     	     			btn.setImage( iconMapSelected.get( str ) );
@@ -674,14 +749,15 @@ public class ProductConfigureDialog extends ProductDialog {
     	if ( btnName.equalsIgnoreCase( cntlBtnNames[ 0 ] ) ) {
     		addNewProductType();  		  
     	}
-    	else if ( btnName.equalsIgnoreCase( cntlBtnNames[ 1 ] ) ) {  	      
+    	else if ( btnName.equalsIgnoreCase( cntlBtnNames[ 1 ] ) ||
+    			  btnName.equalsIgnoreCase( "Apply" ) ) {  	      
     		applyProductType();  
     	}
     	else if ( btnName.equalsIgnoreCase( cntlBtnNames[ 2 ] ) ) {
-    		deleteProductType();
+   		    deleteProductType();
     	}
     	else {   	      
-    		objectGroup = null;
+   		    objectGroup = null;
     		shell.dispose();
     		PgenSession.getInstance().getPgenPalette().resetPalette( null );
     	}  	  
@@ -694,9 +770,9 @@ public class ProductConfigureDialog extends ProductDialog {
     private void addNewProductType() {    	
         
     	if ( typeCombo.getText().equalsIgnoreCase( "new" ) && 
-    		( typeText.getText() == null || typeText.getText().trim().length() == 0 ) ) {    			 
+    		( typeText.getText() == null || typeText.getText().trim().length() == 0 ) ) {
     	}
-    	else {   	
+    	else {
     	    if ( updateProductTypes() ) {        
                 saveProductTypes();
     	    }
@@ -712,11 +788,13 @@ public class ProductConfigureDialog extends ProductDialog {
      *  Apply changes to a type and save.
      */
     private void applyProductType() {    	
-        if ( updateProductTypes() ) {                    	
+        
+        
+    	if ( updateProductTypes() ) {                    	
         	saveProductTypes();
 //        	dlgCntlBtn[1].setText( "Apply" );
         } 
-        
+
         refreshPaletteSelections();
         
     }
@@ -726,40 +804,96 @@ public class ProductConfigureDialog extends ProductDialog {
      */
     private void deleteProductType() { 
     	
-    	String type = typeCombo.getText();
-    	ProductType delType = null;
+    	ProductType delType = getCurrentPrdTyp();
+		int typeIdx = prdTyps.getProductType().indexOf( delType );
     	
-    	int typeIdx = -1;
-    	int ii = 0;
-        for ( ProductType ptype:prdTyps.getProductType() ) {
-    		if ( ptype.getName().equalsIgnoreCase( type ) ) {    			
-    			delType = ptype;
-    			typeIdx = ii;
-    			break;
-    		}
-    		
-    		ii++;
-    	}
-    		
-    	
-    	if ( delType != null ) {
-            
+    	if ( typeIdx >= 0  ) {
+        	           
         	MessageDialog confirmDlg = new MessageDialog( 
             		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
             		"Confirm Delete a Product Type", null, 
-            		"Are you sure you want to delete type " + delType.getName() + "?",
+            		"Are you sure you want to delete type " + findAlias( delType ) + "?",
             		MessageDialog.QUESTION, new String[]{"OK", "Cancel"}, 0);
             confirmDlg.open();
             
             if ( confirmDlg.getReturnCode() == MessageDialog.OK ) {
-       		    
-            	typeCombo.remove( delType.getName());
-            	       		       		
-            	prdTyps.getProductType().remove( delType );    		
+            	           	    
+            	prdTyps.getProductType().remove( delType );
     		    saveProductTypes();
-            	
-    		    typeCombo.select( Math.min(typeIdx, typeCombo.getItemCount() ) ); 
     		    
+    		    //delete settings table for the product type
+    		    try {
+    		    	String pdName = typeText.getText();
+    		    	String settings = getSettingFullPath(pdName);
+
+    		    	if ( !settings.equalsIgnoreCase("settings_tbl.xml")){ //don't delete the default file
+
+    		    		LocalizationContext userContext = NcPathManager.getInstance().getContext(
+    		    				LocalizationType.CAVE_STATIC, LocalizationLevel.USER );
+
+    		    		LocalizationFile lFile = NcPathManager.getInstance().getLocalizationFile( 
+    		    				userContext, settings);
+
+    		    		lFile.delete();
+    		    	}
+    		    }
+    		    catch ( Exception e ){
+    		    	e.printStackTrace();
+
+    		    }
+    		    
+    		    int typeAt = -1;
+    		    int jj = 0;
+    		    for ( String tp : typeCombo.getItems() ) {
+                    if ( tp.equals( delType.getType() ) ) {
+    		    		typeAt =  jj;
+    		    	}
+    		    	jj++;
+    		    }
+    		    
+           	    ArrayList<String> stypes = findSubtypes( delType.getType() );
+            	if ( stypes.size() == 0  ) {
+                	typeCombo.remove( delType.getType() );
+        		    
+                	int next = Math.min( typeAt, typeCombo.getItemCount() - 1 );
+        		    typeCombo.select( next );
+        		        
+        		    subtypeCombo.removeAll();
+        		    subtypeCombo.add( "New" );
+        		    ArrayList<String> sntypes = findSubtypes( typeCombo.getText() );
+        		    for ( String st : sntypes ) {
+        		    	subtypeCombo.add( st );
+        		    }
+        		    
+        		    if ( sntypes.size() > 0 ) {
+        		        subtypeCombo.select( 1 );
+        		        subtypeText.setText( subtypeCombo.getText() );
+       		        }
+        		    else {
+        		    	subtypeCombo.select( 0 );
+        		    }
+               	
+            	}
+            	else {
+            		
+        		    int subtypeAt = -1;
+            		String ss = delType.getSubtype();
+        		    jj = 0;
+        		    for ( String stp : subtypeCombo.getItems() ) {
+        		    	if ( stp.equals( ss ) ) {
+        		    		subtypeAt =  jj;
+        		    	}
+        		    	jj++;
+        		    }
+
+            		if ( ss != null && ss.trim().length() > 0  ) {
+            		    subtypeCombo.remove( delType.getSubtype() );
+            	    }
+                   	
+            		int next = Math.min( subtypeAt, subtypeCombo.getItemCount() - 1 );
+        		    subtypeCombo.select( next ); 
+            	}
+  		    
     		    switchProductType();
     		    
     		    shell.pack();
@@ -769,36 +903,74 @@ public class ProductConfigureDialog extends ProductDialog {
        
     	}
     	
-    	typeCombo.pack();
-    	typeCombo.getParent().pack();
-
+    	if ( prdTyps.getProductType().size() == 0 ) {
+    		typeText.setText("");
+    		subtypeText.setText("");
+    	}
     	
+    	typeCombo.pack();
+    	subtypeCombo.pack();
+    	typeCombo.getParent().pack();
+    	activityGrp.pack();
+     	
     } 
-    
     
     /**
      *  Save product types.
      */
     private void saveProductTypes() { 
 
-		String ptypFileName = new String( prdTypesTblLocal );
-//      String 	currentWorkingDir = PgenUtil.CURRENT_WORKING_DIRECTORY;        
-        String 	currentWorkingDir = PgenUtil.getWorkingDirectory();  
-        if ( currentWorkingDir != null ) {
-        	ptypFileName = new String( currentWorkingDir );
-        }
-		
-    	String fullFileName = ptypFileName  + File.separator + prdTypesTblFileName;
-    	
-//		fullFileName = LocalizationManager.getInstance().getFilename("Pgen_Product_Types");
- 
-/*		File getLocalizationFileDirectly( null,
-				"pgen",
-				String resourceLocalizationLevelStringValue,
-				"productTypes.xml" );
-*/		
-    	FileTools.write( fullFileName, prdTyps );
-   	
+    	// TODO : write code to check the context of the current productTypes and 
+    	// check if it is BASE/SITE/DESK and create a new USER context. (also copy over the 
+    	// localization type.)
+
+    	// create a USER Level Localization File. 
+    	//
+    	try {
+    		// NOTE: if the current file is not from the USER level then this will not prompt 
+    		// for a confirmation.
+    		//
+    		if( prdTypesFile.getContext().getLocalizationLevel() ==
+    			     LocalizationLevel.USER ) {
+    	    	MessageDialog confirmDlg = new MessageDialog( 
+    	    	           PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
+    	    	           "Confirm?", null, "The Product Types File Exists\n"+
+    	    	           "Do you want to overwrite it?",
+    	    	        	MessageDialog.WARNING, new String[]{"Yes", "No"}, 0);
+    	    	
+				if( confirmDlg.getReturnCode() == MessageDialog.CANCEL ) {
+					return;
+    	    	}
+    		}
+    		else {  // create a user-level context and create/get a new localization file
+
+    			LocalizationContext userContext = NcPathManager.getInstance().getContext(
+    					prdTypesFile.getContext().getLocalizationType(), 
+    					LocalizationLevel.USER );
+    			prdTypesFile = NcPathManager.getInstance().getLocalizationFile( 
+    					userContext, NcPathConstants.PGEN_PRODUCT_TYPES );
+    		}
+    		File ptypFile = prdTypesFile.getFile();
+    		
+    		if( ptypFile == null ) {
+    			throw new VizException( "Unable to create Localization File");
+    		}
+    		
+    		FileTools.write( ptypFile.getAbsolutePath(), prdTyps );
+    		
+    		try {
+    			prdTypesFile.save();
+			} catch (LocalizationOpFailedException e) {
+				throw new VizException( e );
+			}
+    	}
+    	catch (VizException ve ) {
+    		MessageDialog errDlg = new MessageDialog( 
+	    	           PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
+	    	           "Error", null, "Error saving Product Types.\n"+ve.getMessage(),
+	    	        	MessageDialog.ERROR, new String[]{"OK"}, 0);
+    		errDlg.open();
+    	}
     } 
   
     
@@ -806,35 +978,51 @@ public class ProductConfigureDialog extends ProductDialog {
      *  Update changes to the current product type.
      */
     private boolean updateProductTypes() {
-      	    	
+    	
     	ProductType pTyp = null; 	
         boolean validNewTypeName = true;
     	
-    	String curTypName = typeCombo.getText();
-		String inputName = typeText.getText();
-				
-		validNewTypeName = validatePrdTypName( curTypName, inputName );
+    	String typeCmbName = typeCombo.getText();
+		String typeInputName = typeText.getText();
+		
+		String subtypeCmbName = subtypeCombo.getText();
+		String subtypeInputName = subtypeText.getText();
+		
+		String aliasName = aliasText.getText();
+						
+		validNewTypeName = validatePrdTypName( typeCmbName, typeInputName, subtypeCmbName,
+											   subtypeInputName, aliasName );
+		
 		if (  validNewTypeName ) {
-																
+	     							
+			pTyp = findProductType( typeInputName, subtypeInputName );
 			int existingAt = -1;
-			
-			int ii = 0;
-			for ( ProductType stype : prdTyps.getProductType() ) {
-				if ( inputName.equalsIgnoreCase( stype.getName() ) ) {					
-					existingAt = ii;					
-					pTyp = stype;										
-					break;
+			if ( pTyp != null ) {  //edit an existing one
+			    existingAt = prdTyps.getProductType().indexOf( pTyp ) ;
+			}
+			else {  //copy from an existing one or start new
+				pTyp = copyProductType( findProductType( typeCmbName, subtypeCmbName ) );
+				if ( pTyp == null ) {
+					pTyp = new ProductType();
 				}
-				
-				ii++;
 			}
-    	    
-			if ( existingAt < 0 ) {
-				pTyp = new ProductType();				
-			}
-
-    	    pTyp.setName( new String( inputName ) );  
-    	    
+			           
+			//update type, subtype, and alias
+    	    pTyp.setType( new String( typeInputName ) );  
+		    if ( subtypeInputName != null && subtypeInputName.trim().length() > 0 ) {
+		    	pTyp.setSubtype( new String( subtypeInputName ) );
+		    }
+		    else {
+		    	pTyp.setSubtype( DEFAULT_SUBTYPE );
+		    }
+		    
+		    if ( aliasName != null && aliasName.trim().length() > 0 ) {
+		    	pTyp.setName( aliasName );
+		    }
+		    else {
+		    	pTyp.setName( "" );
+		    }
+   	    
 			if ( getCurrentTabName().equals("Palette") ) {
 				updatePalette( pTyp );
 			}
@@ -851,26 +1039,74 @@ public class ProductConfigureDialog extends ProductDialog {
 			}
 			else if ( getCurrentTabName().equalsIgnoreCase("Products") ){
 				pTyp.getProdType().clear();
-				if ( ptList != null ) pTyp.getProdType().addAll(ptList);
+				if ( ptList != null ) pTyp.getProdType().addAll( ptList );
 				if ( existingAt < 0 ) updatePalette( pTyp );
 			}
 			
     	    if ( existingAt < 0 ) {
+				    	    	
+    	    	ArrayList<String>  allTypes = findTypes();   	    	
     	    	prdTyps.getProductType().add( pTyp );
-    	    	typeCombo.add( inputName );
-    	    	
-    	    	typeCombo.pack();
-    	    	typeCombo.getParent().pack();
-    	    	
-    	    	typeCombo.select( typeCombo.getItemCount() - 1 );
+    	    	    	    	
+    	    	//Update type combo    	    	
+                if ( !allTypes.contains( typeInputName ) )  {
+                	
+                	typeCombo.add( typeInputName );
+                    typeCombo.pack();
+    	    		typeCombo.select( typeCombo.getItemCount() - 1 );
+    	    		
+    	    		//refresh subtypes for the new type.
+            		subtypeCombo.removeAll();
+            		subtypeCombo.add( "New" );            		
+            		ArrayList<String> stypes = findSubtypes( typeInputName );                    
+ 
+            		for ( String stp : stypes ) {
+    	    			subtypeCombo.add( stp );
+    	    		}
+                 
+            		int select= stypes.indexOf( pTyp.getSubtype() );
+            		select++;  //Considering "New" is always the first;
+            		
+           		    subtypeCombo.select( select );
+                    subtypeText.setText( subtypeCombo.getText() );
+                }
+                else { //add this new subtype to the existing one 
+                    
+                	int ii = 0;
+                	for ( String tp : typeCombo.getItems() ) {
+                		if ( tp.equals( typeInputName ) ) {
+                			typeCombo.select( ii );
+                			break;
+                		}
+                		ii++;
+                	}
+                	
+                	String subtype = pTyp.getSubtype();
+                    subtypeCombo.add( subtype );
+                    subtypeText.setText( subtype );
+
+                    subtypeCombo.pack();
+                    subtypeCombo.select( subtypeCombo.getItemCount() - 1 );
+                }
+               
+     	    	typeCombo.getParent().pack();
+     	    	
+    	    	//Set the PgenSave info.
+    	    	updateSaveInfo( pTyp );
+    	    	String fname = createDefaultOutputFile();
+    	    	pTyp.getPgenSave().setOutputFile( fname );
+       		    saveOutputTxt.setText( fname );
 
     	    }
     	    else {
     	    	prdTyps.getProductType().set( existingAt, pTyp ) ;	    	
-    	    } 
+    	    }
     	    
+    	    aliasText.setText( pTyp.getName() );
+    	    
+    	    activityGrp.pack();
+ 	    	   	    
     	}
- 
 		
 		return validNewTypeName;
     	
@@ -952,37 +1188,33 @@ public class ProductConfigureDialog extends ProductDialog {
             objectBtns = new Button[ objects.size() ]; 
         
             int ii = 0;
+            ProductType ptype = getCurrentPrdTyp();
             for ( String str : objects ) {       	
             	
                 objectBtns[ ii ] = new Button( objectGroup, SWT.TOGGLE );
                 objectBtns[ ii ].setData( str ); 
                 objectBtns[ ii ].setImage( iconMap.get( str ) );
                 objectBtns[ ii ].setSelection( btnAlwaysOn( str ) );
-            
+                           
                 objectBtns[ ii ].setToolTipText( itemMap.get( str ).getAttribute("label") );
-            
-                String type = typeCombo.getText();            
+                  
                 ArrayList<String>  objStr = new ArrayList<String>();
-                for ( ProductType ptype : prdTyps.getProductType() ) {
-                    if ( ptype.getName().equalsIgnoreCase( type ) ) {
-            		
-                        for ( PgenClass pclass : ptype.getPgenClass() ) {
-                            if ( pclass.getName().equalsIgnoreCase( className ) ) {
-                                for ( int kk = 0; kk < pclass.getPgenObjects().getName().size(); kk++ ) {
-                                    objStr.add( pclass.getPgenObjects().getName().get(kk) );
-                                }
-                            }
-                        }
-                        
-                        break;
-                    }
-                }
+                if ( ptype != null && ptype.getPgenClass() != null ) {            		
+                	for ( PgenClass pclass : ptype.getPgenClass() ) {
+                		if ( pclass.getName().equalsIgnoreCase( className ) ) {
+                			for ( int kk = 0; kk < pclass.getPgenObjects().getName().size(); kk++ ) {
+                				if ( pclass.getPgenObjects() != null ) {
+                				    objStr.add( pclass.getPgenObjects().getName().get(kk) );
+                				}
+                			}
+                		}
+                	}
+                }                               
             
-                if ( objStr != null ) {
-                    if ( objStr.size() == 0 || btnAlwaysOn( str ) || objStr.contains( str ) ) {
-                        objectBtns[ ii ].setSelection( true );
-                        objectBtns[ ii ].setImage( iconMapSelected.get( str ) );                    
-                    }
+                if ( objStr.contains( str ) ) {
+                	// if ( objStr.size() == 0 || btnAlwaysOn( str ) || objStr.contains( str ) ) {
+                	objectBtns[ ii ].setSelection( true );
+                	objectBtns[ ii ].setImage( iconMapSelected.get( str ) );                    
                 }
             
                 objectBtns[ ii ].addSelectionListener( new SelectionAdapter() {
@@ -1006,6 +1238,55 @@ public class ProductConfigureDialog extends ProductDialog {
 
                 ii++;
             }
+            
+            boolean allOff = true;
+            for ( Button btn : objectBtns ) {
+            	if ( btn.getSelection() == true ) {
+            		allOff = false;
+            		break;
+            	}
+            }
+            
+            allOnOffBtn = new Button( objectGroup, SWT.PUSH );
+            setButtonColor( allOnOffBtn, remindButtonColor );
+            
+            if ( allOff ) {
+                allOnOffBtn.setText( "ON "  );
+                allOnOffBtn.setToolTipText( "Select ALL Objects" );       
+                allOnOffBtn.setData( "ONN" );
+            }
+            else {
+                allOnOffBtn.setText( "OFF"  );
+                allOnOffBtn.setToolTipText( "Deselect ALL Objects" );       
+                allOnOffBtn.setData( "OFF" );            	
+            }
+            
+            allOnOffBtn.addSelectionListener( new SelectionAdapter() {
+            	public void widgetSelected(SelectionEvent event) {                           	
+            		String status = event.widget.getData().toString();
+            		if ( status.equalsIgnoreCase( "ONN" ) ) {
+            			allOnOffBtn.setText( "OFF"  );
+                        allOnOffBtn.setToolTipText( "Deselect ALL Objects" );       
+                        allOnOffBtn.setData( "OFF" );
+                        
+                        for ( Button btn : objectBtns ) {
+                            btn.setSelection( true );
+                            btn.setImage( iconMapSelected.get( btn.getData().toString() ) );                    
+                        }
+            		}
+            		else {
+                        allOnOffBtn.setText( "ON "  );
+                        allOnOffBtn.setToolTipText( "Select ALL Objects" );       
+                        allOnOffBtn.setData( "ONN" );         			           			
+                        
+                        for ( Button btn : objectBtns ) {
+                            btn.setSelection( false );
+                            btn.setImage( iconMap.get( btn.getData().toString() ) );                    
+                        }
+           		    }
+            	}
+            });           
+
 
         }
                 
@@ -1064,13 +1345,13 @@ public class ProductConfigureDialog extends ProductDialog {
         typeComp.setLayout( new GridLayout(3, false) );
     	
         Label typeLbl = new Label( typeComp, SWT.LEFT);
-        typeLbl.setText("Product Type:");
+        typeLbl.setText("Type:");
         
         typeCombo = new Combo( typeComp, SWT.DROP_DOWN | SWT.READ_ONLY );       
                
         typeCombo.add( "New" );        
-        for ( ProductType ptyp : prdTyps.getProductType() ) {
-        	typeCombo.add( ptyp.getName() );
+        for ( String st : findTypes() ) {
+            typeCombo.add( st );      
         }
                  
         typeCombo.addSelectionListener( new SelectionAdapter() {
@@ -1085,13 +1366,43 @@ public class ProductConfigureDialog extends ProductDialog {
         typeCombo.select( 0 );
         
         typeText = new Text( typeComp,  SWT.SINGLE | SWT.BORDER );                        
-        typeText.setLayoutData( new GridData( 100, 15 ) );
+        typeText.setLayoutData( new GridData( 150, 15 ) );
         typeText.setEditable( true );   
         typeText.setText( "" );
 
+        // Subtype
+        Label stypeLbl = new Label( typeComp, SWT.LEFT);
+        stypeLbl.setText("Subtype:");
+        
+        subtypeCombo = new Combo( typeComp, SWT.DROP_DOWN | SWT.READ_ONLY );       
+               
+        subtypeCombo.add( "New" );        
+                 
+        subtypeCombo.addSelectionListener( new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent event) {
+           	    switchProductSubtype();
+            }
+        });
+        
+        subtypeCombo.select( 0 );
+        
+        subtypeText = new Text( typeComp,  SWT.SINGLE | SWT.BORDER );                        
+        subtypeText.setLayoutData( new GridData( 150, 15 ) );
+        subtypeText.setEditable( true );   
+        subtypeText.setText( "" );
+
+        // Alias
+        Label aliasLbl = new Label( typeComp, SWT.LEFT);
+        aliasLbl.setText("Alias:");
+               
+        aliasText = new Text( typeComp,  SWT.SINGLE | SWT.BORDER );                        
+        aliasText.setLayoutData( new GridData( 90, 15 ) );
+        aliasText.setEditable( true );   
+        aliasText.setText( "" );
+       
     }
     
-    
+  
     /**
      *  Retrieve all controls, actions, classes, objects names and icons from PGEN palette.
      */
@@ -1158,22 +1469,14 @@ public class ProductConfigureDialog extends ProductDialog {
         }
         else {
         	
-        	String type = typeCombo.getText();
-        	ProductType ptype = null;
+        	ProductType ptype = getCurrentPrdTyp();
         	
-        	if ( type.equalsIgnoreCase("New") ) {       		
+        	if ( ptype == null ) {       		
         		objList = (ArrayList<String>)PgenSession.getInstance().getPgenPalette().getObjectNames( className );
         	}
-        	else {
-    			for ( ProductType stype : prdTyps.getProductType() ) {
-    				if ( type.equalsIgnoreCase( stype.getName() ) ) {   					    					
-    					ptype = stype;   										
-    					break;
-    				}
-    			}
-    			
+        	else {    			
 				PgenClass pclass = null;  				
-			    if ( ptype != null ) { 		
+			    if ( ptype != null && ptype.getPgenClass() != null ) { 		
 				    for ( PgenClass cls : ptype.getPgenClass() ) {
 					    if ( cls.getName().equalsIgnoreCase( className ) ) {   							
 						    pclass = cls;    							  												
@@ -1537,7 +1840,16 @@ public class ProductConfigureDialog extends ProductDialog {
 		GridLayout gly = new GridLayout( 1, false );
         gly.verticalSpacing = 10;
 		parent.setLayout( gly );
-               
+              		
+		Label currentSettingLbl = new Label( parent, SWT.NONE );
+		currentSettingLbl.setText( "Settings: ");
+
+		currentSettingsTxt = new Text( parent,  SWT.SINGLE | SWT.BORDER );
+		//currentSettingsTxt.setLayoutData( new RowData( 300, 15 ) );
+		currentSettingsTxt.setEditable( false );
+	    currentSettingsTxt.setText( "Localization\\NCP\\PGEN\\" + this.getCurrentSetting( typeText.getText()) );
+	    currentSettingsTxt.setEnabled(false);
+		
         Group prdComp = new Group( parent, SWT.NONE );
         RowLayout rl = new RowLayout( SWT.HORIZONTAL );
         rl.center = true;
@@ -1610,11 +1922,13 @@ public class ProductConfigureDialog extends ProductDialog {
         saveOutputTxt = new Text( nameComp,  SWT.SINGLE | SWT.BORDER );
         saveOutputTxt.setLayoutData( new GridData( 200, 15 ) );
         saveOutputTxt.setEditable( true );
-        saveOutputTxt.setText( "" );
         
+        saveOutputTxt.setText( createDefaultOutputFile() );
+
         Button nameBtn = new Button( nameComp, SWT.PUSH );
         nameBtn.setText( "Browse");
-        
+
+        /*
         nameBtn.addSelectionListener( new SelectionAdapter() {
             public void widgetSelected( SelectionEvent event ) {
  
@@ -1627,7 +1941,11 @@ public class ProductConfigureDialog extends ProductDialog {
              	
                 createFileText( saveOutputTxt, fileName );
             }
-        });      
+
+        }); 
+        */
+        
+        nameBtn.setEnabled( false );
  
         
         /*
@@ -1886,7 +2204,7 @@ public class ProductConfigureDialog extends ProductDialog {
 	    for ( Button btn : controlBtns ) {
 		
 		    if ( btn.getSelection() ) {
-			        pControls.getName().add( btn.getData().toString() );
+			    pControls.getName().add( btn.getData().toString() );
 		    }    		
 	    }
 	       	
@@ -1907,10 +2225,11 @@ public class ProductConfigureDialog extends ProductDialog {
 	
 	    // Get classes and objects	    	     	   	   	
 		int ii = 0;    	       	    
-		if ( ptyp.getPgenClass() != null ) {
+/*		if ( ptyp.getPgenClass() != null ) {
 			 ptyp.getPgenClass().clear();
 		}
-		
+*/		
+		ArrayList<PgenClass> pClassList = new ArrayList<PgenClass>();
 		for ( Button btn : classChkBtns ) {   		   		
 		    
 		    if ( btn.getSelection() ) {
@@ -1927,16 +2246,29 @@ public class ProductConfigureDialog extends ProductDialog {
 				    	pObj.getName().add( objStr );		    			
 				    }
     				
-					pClass.setPgenObjects( pObj );						
+					pClass.setPgenObjects( pObj );	
+					
+					pClassList.add( pClass );
+					
 				}
 				
-			    ptyp.getPgenClass().add( pClass );	
+//				pClassList.add( pClass );
+//			    ptyp.getPgenClass().add( pClass );	
 				   			        
 		    }
 		
 		    ii++;
 		
 	    }
+		
+		if ( ptyp.getPgenClass() != null ) {
+		     ptyp.getPgenClass().clear();
+	    }
+		
+		for ( PgenClass pcls : pClassList ) {
+			ptyp.getPgenClass().add( pcls );
+		}
+		
 	       		
 	}
 
@@ -1961,7 +2293,7 @@ public class ProductConfigureDialog extends ProductDialog {
 			int layerAt = -1;
 			int kk = 0;
 			for ( PgenLayer plyr : pLayers ) {
-				if ( plyr.getName().equals( inputName ) ) {		       
+				if ( plyr.getName().equals( inputName ) ) {
 					layerAt = kk;			        
 					break;
 				}
@@ -1986,12 +2318,11 @@ public class ProductConfigureDialog extends ProductDialog {
 			pgenlyr.setMonoColor( layerMonoBtn.getSelection());
 			pgenlyr.setName( inputName );
 			pgenlyr.setOnOff(layerOnOffBtn.getSelection() );
-//			pgenlyr.setInputFile( inputFileTxt.getText() );
-//			pgenlyr.setOutputFile( outputFileTxt.getText() );
 
 			//Add or replace using the new PgenLayer	    	     	   	   	    	       	        		    
 			ProductType oldType = getCurrentPrdTyp();
-			if ( oldType == null ||  ptyp.getName().equals( oldType.getName() ) ) {
+			if ( oldType == null || ( ptyp.getType().equals( oldType.getType() ) &&
+					                  ptyp.getSubtype().equals( oldType.getSubtype() ) ) ) {
 			    if ( layerAt >= 0 ) {
 				    ptyp.getPgenLayer().set( layerAt, pgenlyr );
 			    }
@@ -2043,8 +2374,11 @@ public class ProductConfigureDialog extends ProductDialog {
         boolean validNewLayerName = true;
         String msg = new String( "Layer name " );
     	       
-        if ( inputName == null || inputName.length() == 0 ) {		    
-       		return validNewLayerName;
+        if ( inputName == null || inputName.trim().length() == 0 ) {		    
+        	validNewLayerName = false;	
+        	msg = "Layer name cannot be empty.\n";      	
+        	
+//        	return validNewLayerName;
        	}
         else if ( inputName.equalsIgnoreCase( "New" )   ) {
         	validNewLayerName = false;	
@@ -2067,7 +2401,7 @@ public class ProductConfigureDialog extends ProductDialog {
 		if ( !validNewLayerName ) {
 	    	MessageDialog confirmDlg = new MessageDialog( 
     	           PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
-    	           "Confirm a new Type Name", null, msg + "Please specify another valid name.",
+    	           "Confirm a new Layer Name", null, msg + "Please specify another valid name.",
     	        	MessageDialog.WARNING, new String[]{"OK"}, 0);
     	        
     	    confirmDlg.open();   
@@ -2078,49 +2412,117 @@ public class ProductConfigureDialog extends ProductDialog {
 	}
 	
 	/**
-	 *  Validate the name for the product type.
+	 *  Validate the type/subtype/alias inputs for the product type.
 	 *  
-	 * @param curTypName
-	 * @param inputName 
-	 * @return current tab name  
+	 * @param typeName
+	 * @param typeInputName 
+	 * @param subtypeName
+	 * @param subtypeInputName 
+	 * @param alias Name 
+	 * 
+	 * @return boolean - if the type/subtype/alias are valid  
 	 */
-	private boolean validatePrdTypName( String curTypName, String inputName ) {
+	private boolean validatePrdTypName( String typeName, String typeInputName,
+										String subtypeName, String subtypeInputName,
+										String aliasName ) {
     			
-        boolean validNewTypeName = true;
-        String msg = new String( "Product type name " );
+        boolean isValid = true;
+        StringBuilder msg = new StringBuilder();
         
-        if ( inputName == null || inputName.length() == 0 ) {		    
-        	validNewTypeName = false;	
-        	msg += "cannot be blank.\n";
+        /*
+         * 1. Type cannot be null, empty, or any variations of "New".
+         * 2. Type cannot be duplicated.
+         * 3. Subtype cannot be any variations of "New" or duplcated within a Type.
+         * 4. Alias can be empty, but cannot be duplicated. It links to
+         *    a product type/subtype combo.  When it is null or empty, 
+         *    we will use "type[(subtype)]" as the alias (subtype presented
+         *    only if it is not null and empty.
+         */
+    	if ( typeInputName == null || typeInputName.trim().length() == 0 ) {		    
+    		isValid = false;	
+    		msg.append( "Activity type name cannot be blank.\n" );
+    	}
+    	else if ( typeInputName.equalsIgnoreCase( "New" )   ) {
+    		isValid = false;	
+    		msg.append( "Activity type name cannot be any variations of 'New'.\n" );      	
+    	} 
+    	else if ( subtypeInputName != null && subtypeInputName.trim().length() > 0 && 
+    			  subtypeInputName.equalsIgnoreCase( "New" ) ) {
+    		isValid = false;	
+    		msg.append( "Activity subtype name cannot be any variations of 'New'.\n" );      	    		
+    	}
+    	else if ( aliasName != null && aliasName.trim().length() > 0 ) {    		   	
+
+    		ProductType ityp = findProductType( typeInputName, subtypeInputName );
+    		for ( ProductType ptp : prdTyps.getProductType() ) {
+    			if  ( ityp == null && ptp.getName().equalsIgnoreCase( aliasName ) ) {
+    				
+    				msg.append( "Alias name '" + aliasName + "' has been used.\n" );
+    				isValid = false;
+    				break;
+   				
+    			}
+    		} 
+    	}
+    	
+        /*
+         * When creating a new activity (typeCombo = "New" or subtypeCombo = "New"),
+         * the new activity "typeInputText[subtypeInputText]" can not be the same as
+         * activity identified by "typeCombo".    
+         */
+        ProductType ptype = null;   	    
+        if ( isValid ) {
+        	if ( typeName.equalsIgnoreCase( "New" ) ||
+        		 subtypeName.equalsIgnoreCase( "New" )	) { 
+
+        		ptype = findProductType( typeInputName, subtypeInputName );
+       		    if ( ptype != null ) {       		
+               	    isValid = false;
+        			String aName = new String( typeInputName );
+        			if ( subtypeInputName != null && subtypeInputName.trim().length() > 0 ) {
+        				aName = new String( aName + "(" + subtypeInputName + ")" );
+        			}
+ 
+        			msg.append( "Activity name '" + aName + "' has been used.\n" );       			
+        		} 
+        	}
         }
-        else if ( inputName.equalsIgnoreCase( "New" )   ) {
-        	validNewTypeName = false;	
-        	msg = "cannot be any variations of 'New'.\n";      	
-        }
-        else {       	    			
-    		if ( !curTypName.equalsIgnoreCase( inputName ) ) {
-    	        
-    			for ( String stype : typeCombo.getItems() ) {
-   			        if  ( inputName.equalsIgnoreCase( stype ) ) {
- 	    			    msg = msg + "'" + inputName + "' has been used.\n";
-   			        	validNewTypeName = false;
-   					    break;
-     			    }
-   			    }
-    	    }
-        }
+        
+        /*
+         * When the activity identified by "typeText[subtypeText]" does not exist, we can 
+         * create a new activity from the one identified by "typeCombo[subtypeCombo]".
+         * 
+         * When the activity identified by "typeText[subtypeText]" exists and is the same 
+         * as the one identified by "typeCombo[subtypeCombo]", we can update this activity.
+         * 
+         * Otherwise, "typeText[subtypeText]" is an invalid activity combo.
+         * 
+         */
+        if ( isValid )  {
+        	ptype = findProductType( typeInputName, subtypeInputName );
+        	if ( ptype != null ) {
+        	    ProductType otype = findProductType( typeName, subtypeName );
+        	    if ( !(ptype.equals( otype )) ) {       		
+        			isValid = false;
+        			String aName = new String( typeInputName );
+        			if ( subtypeInputName != null && subtypeInputName.trim().length() > 0 ) {
+        				aName = new String( aName + "(" + subtypeInputName + ")" );
+        			}
+        			msg.append( "Activity name '" + aName + "' has been used.\n" );       	
+        	    }
+        	}
+        }   	   	
+    	
+        if ( !isValid ) {
+    		MessageDialog confirmDlg = new MessageDialog( 
+    				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
+    				"Confirm a new Type Name", null, msg + "Please specify another valid name.",
+    				MessageDialog.WARNING, new String[]{"OK"}, 0);
+
+    		confirmDlg.open();   
+    	}
 		
-	   			 		        		
-		if ( !validNewTypeName ) {
-	    	MessageDialog confirmDlg = new MessageDialog( 
-    	           PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
-    	           "Confirm a new Type Name", null, msg + "Please specify another valid name.",
-    	        	MessageDialog.WARNING, new String[]{"OK"}, 0);
-    	        
-    	    confirmDlg.open();   
-		}
-		
-		return validNewTypeName;
+		return isValid;
 
 	}
     
@@ -2173,15 +2575,10 @@ public class ProductConfigureDialog extends ProductDialog {
     private ProductType getCurrentPrdTyp() {
         
     	String curPrdtypeName = typeCombo.getText();
+    	String curPrdSubtypeName = subtypeCombo.getText();
+    	
+        ProductType curPrdType = findProductType( curPrdtypeName,  curPrdSubtypeName );
 
-        ProductType  curPrdType = null;
-    	for ( ProductType ptyp : prdTyps.getProductType() ) {
-        	if ( curPrdtypeName.equals( ptyp.getName() ) ) {
-        		curPrdType = ptyp;
-        		break;
-        	}        	
-        }
-    	    	
     	return curPrdType;
     }
     
@@ -2330,6 +2727,37 @@ public class ProductConfigureDialog extends ProductDialog {
 	 */
 	private void switchProductType() {				
    	    
+		if ( typeCombo.getSelectionIndex() == 0 ) { //"New"
+			typeText.setText( "" );
+		}
+		
+		//Update subtype menu
+        subtypeCombo.removeAll();        
+		
+        subtypeCombo.add( "New" );       
+		ArrayList<String> stypes = findSubtypes( typeCombo.getText() );
+		for ( String stp : stypes ) {
+			subtypeCombo.add( stp );
+		}
+		
+		subtypeCombo.pack();
+		if ( stypes.size() > 0 ) {
+		    subtypeCombo.select( 1 );
+			subtypeText.setText( subtypeCombo.getText() );
+		}
+		else {
+		    subtypeCombo.select( 0 );			
+		    subtypeText.setText( "" );			
+		}
+				
+		ProductType ctype = getCurrentPrdTyp();
+		if ( ctype != null && ctype.getName() != null ) {
+			aliasText.setText( ctype.getName() );
+		}
+		else {
+			aliasText.setText( "" );
+		}
+				
 		//Update palette selections from the new type
 		createObjects( "None", true );
     	refreshPaletteSelections();
@@ -2345,6 +2773,8 @@ public class ProductConfigureDialog extends ProductDialog {
 	    
 	    //update Product tab
 	    editProductsTab();
+	    
+	    activityGrp.pack();
     }
 	
 	/**
@@ -2441,16 +2871,22 @@ public class ProductConfigureDialog extends ProductDialog {
      *  Edit/Update the Save input GUI
      */    
     private void editSaveTab() {
-        
+   	           
         ProductType curPrdType = getCurrentPrdTyp();
-    	
+        
+        String tmpFile = createDefaultOutputFile();        
+        
         if ( curPrdType != null && curPrdType.getPgenSave() != null ) {
     		
         	PgenSave pSave = curPrdType.getPgenSave();
         	if (  pSave != null ) {
         	    String outFile = pSave.getOutputFile();
-        	    if ( outFile != null ) {
+       	        if ( outFile != null && outFile.length() > 7 &&
+       	        	 !outFile.substring(0, 7 ).equalsIgnoreCase( "Default") ) {
         		    saveOutputTxt.setText( outFile );
+        	    }
+        	    else {
+           		    saveOutputTxt.setText( tmpFile );
         	    }
         	
         	    saveIndividualLayerBtn.setSelection( pSave.isSaveLayers() );
@@ -2459,9 +2895,8 @@ public class ProductConfigureDialog extends ProductDialog {
 
         	}
         }
-        else {
-                
-        	saveOutputTxt.setText( "" );
+        else {               
+        	saveOutputTxt.setText( tmpFile );
 
         	saveIndividualLayerBtn.setSelection( false );
         	
@@ -2477,8 +2912,9 @@ public class ProductConfigureDialog extends ProductDialog {
     private void editSettingsTab() {
         
         ProductType curPrdType = getCurrentPrdTyp();
-    	
-        if ( curPrdType != null && curPrdType.getPgenSave() != null ) {
+	    currentSettingsTxt.setText( "Localization\\NCP\\PGEN\\" + this.getCurrentSetting( typeText.getText()) );
+        
+        if ( curPrdType != null && curPrdType.getPgenSettingsFile() != null ) {
     		
         	String settingsFile = curPrdType.getPgenSettingsFile();
         	if (  settingsFile != null ) {
@@ -2567,19 +3003,71 @@ public class ProductConfigureDialog extends ProductDialog {
 	 * @param ptyp
 	 */
 	private void updateSettings( ProductType ptyp ) {
+	
+		String pdName = typeText.getText(); 
+		if ( pdName == null || pdName.isEmpty() ){
+			return;
+		}
 		
 		//Update settings 	    	     	   	   	    	       	        		    
 	    String settingsFile = settingsTxt.getText();
 	    if ( settingsFile != null && !settingsFile.isEmpty()) {
-		    ptyp.setPgenSettingsFile( settingsFile );
-		    
-		    if (!AttrSettings.getInstance().loadPgenSettings(  settingsFile )){
+		    File sFile = new File(settingsFile);
+
+		    if ( !sFile.canRead() || FileTools.validate(settingsFile, null) ){
        			MessageDialog infoDlg = new MessageDialog( 
 						PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
-						"Warning", null, "Pgen settings file does not exist or is invalid!",
+						"Warning", null, "Pgen settings file " + settingsFile +" does not exist or is invalid!",
 						MessageDialog.WARNING, new String[]{"OK"}, 0);
 
 				infoDlg.open();
+		    }
+		    else {
+		    	ptyp.setPgenSettingsFile( "" );
+		    	
+		    	//put into localization
+			    LocalizationContext userContext = NcPathManager.getInstance().getContext(
+						LocalizationType.CAVE_STATIC, LocalizationLevel.USER );
+			    
+			    LocalizationFile lFile = NcPathManager.getInstance().getLocalizationFile( 
+			    		userContext, getSettingFullPath(pdName));
+			    
+			    //check file
+			    InputStream is;
+			    try {
+			    	is = new FileInputStream( sFile );
+
+			    	// Get the size of the file
+			    	long length = sFile.length();
+
+			    	// ensure that file is not larger than Integer.MAX_VALUE.
+			    	if (length > Integer.MAX_VALUE) {
+			    		return;
+			    	}
+
+			    	// Create the byte array to hold the data
+			    	byte[] bytes = new byte[(int)length];
+
+			    	// Read in the bytes
+			    	int offset = 0;
+			    	int numRead = 0;
+			    	while (offset < bytes.length
+			    			&& (numRead=is.read(bytes, offset, bytes.length-offset)) >= 0) {
+			    		offset += numRead;
+			    	}
+
+			    	lFile.write( bytes );
+
+			    } catch (FileNotFoundException e1) {
+			    	// TODO Auto-generated catch block
+			    	e1.printStackTrace();
+			    } catch (LocalizationException e) {
+			    	// TODO Auto-generated catch block
+			    	e.printStackTrace();
+			    } catch (IOException e) {
+			    	// TODO Auto-generated catch block
+			    	e.printStackTrace();
+			    }
 		    }
 	    }
 	}
@@ -2628,7 +3116,25 @@ public class ProductConfigureDialog extends ProductDialog {
 				while ( it.hasNext() ){
 					ProdType pt = it.next();
 					if ( pt.getName().equalsIgnoreCase(ptBtn.getText() )){
-						it.remove();
+						
+						try {
+							//remove style sheets
+							String xsltFile = ProdTypeDialog.getStyleSheetFileName( pt.getName());
+							if ( xsltFile != null && !xsltFile.isEmpty()){
+								LocalizationContext userContext = NcPathManager.getInstance().getContext(
+										LocalizationType.CAVE_STATIC, LocalizationLevel.USER );
+
+								LocalizationFile lFile = NcPathManager.getInstance().getLocalizationFile( 
+										userContext, xsltFile);
+
+								lFile.delete();
+							}
+						}
+						catch (Exception e ){
+							e.printStackTrace();
+						}
+    		    		
+    		    		it.remove();
 						break;
 					}
 				}
@@ -2646,4 +3152,339 @@ public class ProductConfigureDialog extends ProductDialog {
 		tabComposites[7].layout();
 		
 	}
+		
+	/*
+	 * Find a product type by a combo of type and subtype.
+	 */
+	private ProductType findProductType( String type,  String subtype ) {
+			
+		ProductType atyp = null;
+		String ss = null;
+		if ( subtype == null || subtype.trim().length() == 0  ) {
+			ss = new String( DEFAULT_SUBTYPE );
+		}
+		else {
+		    ss = new String( subtype );
+		}
+		
+		if ( type != null && type.trim().length() > 0 ) {
+			for ( ProductType stype : prdTyps.getProductType() ) {
+				if ( stype.getType().equals( type ) ) {
+					if ( stype.getSubtype().equals( ss ) ) {
+						atyp = stype;										
+						break;						
+					}
+				}
+			}
+		}
+				
+		return atyp;
+
+	}
+
+	/*
+	 * Find all major activity types defined
+	 * 
+	 * Note: an activity type can have 0 or more subtypes. 
+	 */
+	private ArrayList<String> findTypes() {
+		
+		ArrayList<String> types = new ArrayList<String>();
+	    for ( ProductType type : prdTyps.getProductType() ) {
+	    	if ( !types.contains( type.getType() ) ) {
+	    		types.add( type.getType() );
+	    	}
+	    }
+				
+		return types;
+
+	}
+
+	/*
+	 * Find all product subtypes defined for an activity
+	 * 
+	 * Note: an activity without "subtype" uses DEFAULT_SUBTYPE "none".
+	 */
+	private ArrayList<String> findSubtypes( String type ) {
+		
+		ArrayList<String> subtypes = new ArrayList<String>();
+		if ( type != null && type.trim().length() > 0 ) {
+			for ( ProductType stype : prdTyps.getProductType() ) {
+				if ( stype.getType().equals( type ) ) {
+					String stp = stype.getSubtype();
+					if ( stp != null && stp.trim().length() > 0 ) {
+					    subtypes.add( stype.getSubtype() );
+					}
+					else {
+						subtypes.add( DEFAULT_SUBTYPE );
+					}
+				}
+			}
+		}
+				
+		return subtypes;
+
+	}
+	
+	/*
+	 * Find alias for an activity type.
+	 */
+	private String findAlias( ProductType ptype ) {
+		String alias = null;
+		if ( ptype != null ) {
+		   alias = ptype.getName();
+		   if ( alias == null || alias.trim().length() == 0 ) {
+			   alias = new String( ptype.getType() );
+			   String stp = ptype.getSubtype();
+			   if ( stp != null && stp.trim().length() > 0 ) {
+				   alias = new String( alias + "(" + stp + ")" );
+			   }
+		   }
+		}
+		
+		return alias;
+		
+	}
+	
+	/**
+	 * Switch from one product subtype type to another.
+	 * 
+	 * @param 
+	 * @return 
+	 */
+	private void switchProductSubtype() {				
+   	    		
+		ProductType ctype = getCurrentPrdTyp();
+		
+		subtypeText.setText( "" );
+		if ( ctype != null && ctype.getSubtype() != null ) {
+			subtypeText.setText( ctype.getSubtype() );
+		}
+		else {
+			subtypeText.setText( "" );
+		}
+		
+		if ( ctype != null && ctype.getName() != null ) {
+			aliasText.setText( ctype.getName() );
+		}
+		else {
+			aliasText.setText( "" );
+		}
+				
+		//Update palette selections from the new subtype
+		createObjects( "None", true );
+    	refreshPaletteSelections();
+    	
+    	//Update layer definitions from the new subtype
+	    editLayeringTab();   
+    	
+	    //Update Save definitions from the new subtype
+	    editSaveTab();   
+
+		//update Pgen settings
+	    editSettingsTab();
+	    
+	    //update Product tab
+	    editProductsTab();
+    }
+	
+	/**
+	 * Create a default output file name in the following pattern.
+	 * 
+	 * type.[subtype].DDMMYYYY.HH.xml
+	 * 
+	 * @param 
+	 * @return 
+	 */
+	private String createDefaultOutputFile() {
+		
+		StringBuilder fname = new StringBuilder();
+		
+		ProductType ptype = getCurrentPrdTyp();
+		if ( ptype == null ) {
+			fname.append( "Default." );
+		}
+		else {
+			
+			fname.append( ptype.getType().replace( ' ', '_' ) + "." );
+			if ( ptype.getSubtype() != null && ptype.getSubtype().trim().length() > 0 &&
+				 !ptype.getSubtype().equalsIgnoreCase( DEFAULT_SUBTYPE ) )	 {
+				fname.append( ptype.getSubtype().replace( ' ', '_' ) + "." );				
+			}			
+		}
+
+		fname.append( "DDMMYYYY.HH.xml" );
+						
+		return fname.toString();
+	}
+	
+	/**
+	 * Get the full path of the setting file in localization.
+	 * @param prodType
+	 * @return
+	 */
+	static public String getSettingFullPath( String prodType ){
+		
+		return NcPathConstants.PGEN_ROOT + getSettingFileName( prodType );
+	}
+	
+	/**
+	 * Gets the name of the settings file(only file name, not full path)
+	 * @param prodType
+	 * @return
+	 */
+	static public String getSettingFileName( String prodType ){
+		String ret = "settings_tbl.xml";
+		if ( prodType == null || prodType.isEmpty() ) return ret;
+		
+		String pt = prodType.replaceAll(" ", "_");
+		
+		return "settings_tbl_" + pt + ".xml";
+	}
+	
+	/**
+	 * Gets the current settings file name and the localization level(Base/Site/Desk/User)
+	 * @param prodType
+	 * @return
+	 */
+	private String getCurrentSetting( String prodType ){
+		File settingsFile = NcPathManager.getInstance().getStaticFile( 
+				 getSettingFullPath( prodType));
+		
+		String fileName = "";
+		if ( settingsFile == null || !settingsFile.exists() ){
+			fileName = "settings_tbl.xml";
+			settingsFile = NcPathManager.getInstance().getStaticFile( 
+					NcPathConstants.PGEN_SETTINGS_TBL);
+		}
+		else {
+			fileName = getSettingFileName( prodType );
+		}
+		
+		String path = settingsFile.getAbsolutePath();
+		if ( path.contains( "user") ){
+			fileName += "(USER)";
+		}
+		else if ( path.contains( "desk") ){
+			fileName += "(DESK)";
+		}
+		else if ( path.contains( "site") ){
+			fileName += "(SITE)";
+		}
+		else {
+			fileName += "(Base)";
+		}
+		
+		return fileName;
+	}
+	
+	/**
+	 * Make a deep copy of a given activity type definition
+	 * @param prodType
+	 * @return
+	 */
+	private ProductType copyProductType( ProductType typeIn ){
+	    
+		if ( typeIn == null ) {
+			return null;
+		}
+		
+		ProductType outType = new ProductType();
+
+		outType.setName( nvl( typeIn.getName() ) );
+		
+		outType.setType( nvl( typeIn.getType() ) );
+		
+		outType.setSubtype( nvl( typeIn.getSubtype() ) );
+		
+		outType.setPgenSettingsFile( nvl( typeIn.getPgenSettingsFile() ) );
+		
+	    //Copy PgenActions
+		PgenActions pact = new PgenActions();
+		for ( String name : typeIn.getPgenActions().getName() ) {
+		    pact.getName().add( new String( name ) );
+		}
+		outType.setPgenActions( pact );
+
+	    //Copy PgenControls
+		PgenControls pcntl = new PgenControls();
+		for ( String name : typeIn.getPgenControls().getName() ) {
+		    pcntl.getName().add( new String( name )  );
+		}
+		outType.setPgenControls(  pcntl );		
+
+	    // Copy  List<PgenClass>		
+		for ( PgenClass pcs : typeIn.getPgenClass() ) {
+			PgenClass pcls = new PgenClass();
+		    pcls.setName( new String( pcs.getName() )  );
+
+		    PgenObjects pobj = new PgenObjects();
+		    
+		    for ( String obj : pcs.getPgenObjects().getName() ) {
+			    pobj.getName().add( new String( obj ) );		    	
+		    }
+		    
+		    pcls.setPgenObjects( pobj );
+		    
+			outType.getPgenClass().add( pcls );				    		    
+		}	
+		
+	    //Copy List<PgenLayer>
+		for ( PgenLayer plyr : typeIn.getPgenLayer() ) {
+			PgenLayer lyr = new PgenLayer();
+			gov.noaa.nws.ncep.ui.pgen.productTypes.Color clr = 
+				       new gov.noaa.nws.ncep.ui.pgen.productTypes.Color();
+			clr.setAlpha( plyr.getColor().getAlpha() );
+			clr.setBlue( plyr.getColor().getBlue() );
+			clr.setGreen( plyr.getColor().getGreen() );
+			clr.setRed( plyr.getColor().getRed() );
+			
+			lyr.setColor( clr );
+
+			lyr.setFilled( plyr.isFilled() );
+            
+			lyr.setInputFile( nvl( plyr.getInputFile() ) );
+			
+			lyr.setMonoColor( plyr.isMonoColor() );
+			
+			lyr.setName( nvl( plyr.getName() ) );
+			lyr.setOnOff( plyr.isOnOff() );
+			
+			lyr.setOutputFile( nvl( plyr.getOutputFile() ) );
+						
+			outType.getPgenLayer().add( lyr );	
+		}
+
+	    //Copy PgenSave
+		PgenSave psave = new PgenSave();
+		psave.setAutoSave( typeIn.getPgenSave().isAutoSave() );
+		psave.setAutoSaveFreq( typeIn.getPgenSave().getAutoSaveFreq() );		
+		psave.setInputFile( nvl( typeIn.getPgenSave().getInputFile() ) );
+	    psave.setOutputFile( nvl( typeIn.getPgenSave().getOutputFile() ) );			
+		psave.setSaveLayers( typeIn.getPgenSave().isAutoSave() );
+		
+		outType.setPgenSave( psave );
+		
+        //Copy List<ProdType>
+		for ( ProdType ptype : typeIn.getProdType() ) {
+		    ProdType ptp = new ProdType();
+		    ptp.setName( new String( ptype.getName() ) );
+	    	ptp.setOutputFile( nvl( ptype.getOutputFile() ) );
+	    	ptp.setStyleSheetFile( nvl( ptp.getStyleSheetFile() ) );		    		    
+		    ptp.setType( nvl( ptype.getType() ) );
+			
+		    outType.getProdType().add( ptp );
+		}
+		
+	    return outType;
+	}
+    
+	/*
+	 * Return a non-null new string
+	 */
+	private static String nvl(String value) {
+		return value == null ? "" : (new String( value ) );
+	}
+
+	
 }

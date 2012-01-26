@@ -12,8 +12,10 @@ package gov.noaa.nws.ncep.ui.pgen.attrDialog.vaaDialog;
 import gov.noaa.nws.ncep.ui.pgen.attrDialog.AttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.*;
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -53,6 +55,8 @@ import org.w3c.dom.NodeList;
  * Date       	Ticket#		Engineer	Description
  * ---------	--------	----------	--------------------------
  * 09/10		322			G. Zhang 	Initial Creation.  
+ * 07/11        #450        G. Hull     NcPathManager
+ *
  * </pre>
  * 
  * @author	gzhang
@@ -237,8 +241,10 @@ public class CcfpTimeDlg extends AttrDlg{
 		
 		//save CCFP xml file then apply style sheet to get text product
         String fileName = CcfpInfo.saveCcfpXmlFile(ccfpIssueTime, ccfpValidTime);        
-        String txtPrd = CcfpInfo.convertXml2Txt(fileName, NmapCommon.getCcfpXml2TxtFile());
-        
+        String txtPrd = CcfpInfo.convertXml2Txt( fileName, 
+				NcPathManager.getInstance().getStaticFile( 
+						NcPathConstants.PGEN_CCFP_XSLT).getAbsolutePath() );
+
         //close this dialog
         cancelPressed();
        
@@ -269,9 +275,11 @@ public class CcfpTimeDlg extends AttrDlg{
 		//String fileName = NmapCommon.getCcfpTimesXmlFile();
 
 		try {
-			String fileName = NmapCommon.getCcfpTimesXmlFile();
+			
+			File file = NcPathManager.getInstance().getStaticFile( 
+					   NcPathConstants.PGEN_CCFP_TIMES );
 			  DocumentBuilder builder = factory.newDocumentBuilder();
-			  doc = builder.parse( fileName);
+			  doc = builder.parse( file.getAbsoluteFile() );
 		} catch (Exception e) {  System.out.println("-----------"+e.getMessage());		} 
 		
 		NodeList nlist = doc.getElementsByTagNameNS("*", "*");		
