@@ -79,6 +79,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * June, 2010    164        M. Li     	Initial creation
+ * October,2011             X. Guo      Display grid point in GRID_CENTER
  * 
  * </pre>
  * 
@@ -107,8 +108,8 @@ public class GridPointValueDisplay implements IRenderable {
         this.descriptor = descriptor;
         this.gridGeometryOfGrid = MapUtil.getGridGeometry(gridLocation);
         this.gridDims = new int[] {
-                this.gridGeometryOfGrid.getGridRange().getSpan(0),
-                this.gridGeometryOfGrid.getGridRange().getSpan(1) };
+        		gridLocation.getNx(),
+        		gridLocation.getNy() };
         this.color = color;
     }
 
@@ -139,6 +140,7 @@ public class GridPointValueDisplay implements IRenderable {
     	int interv = (int) Math.log(interval0);
     	if (interv < 0 ) interv = 0;
     	if (interv > 5) interv = 5;
+    	interval0 = 1;
     	
     	for (int i = 0; i < gridDims[0]; i += interv + 1) {	
 

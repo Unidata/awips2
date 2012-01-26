@@ -183,12 +183,9 @@ public class LPIResourceData extends AbstractNatlCntrsResourceData
 
 	@Override
 	public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || obj instanceof LPIResourceData == false) {
-            return false;
-        }
+		if (!super.equals(obj)) {
+			return false;
+		}
         LPIResourceData other = (LPIResourceData) obj;
 		return filename.equals( other.filename );
 	}
