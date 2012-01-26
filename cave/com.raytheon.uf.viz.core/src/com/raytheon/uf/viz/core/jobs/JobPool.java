@@ -34,7 +34,7 @@ import org.eclipse.core.runtime.jobs.Job;
  * if you have dozens or hundreds of tasks that each take a short time. Creating
  * a job for each task can result in more threads than is useful. If you instead
  * use a JobPool it reduces the number of threads by limiting the number of
- * eclipse jobs that are created. For many tasks a JobPool may perform faster
+ * eclipse jobs tBhat are created. For many tasks a JobPool may perform faster
  * than using eclipse Jobs directly because thread creation and context
  * switching are reduced.
  * 
@@ -111,6 +111,18 @@ public class JobPool {
     public synchronized void cancel() {
         workQueue.clear();
         join();
+    }
+
+    /**
+     * Cancels the specified runnable. Returns true if the provided runnable was
+     * waiting to be run but now is now. Returns false if the provided runnable
+     * is already running or if it was not enqueued to begin with.
+     * 
+     * @param runnable
+     * @return
+     */
+    public synchronized boolean cancel(Runnable runnable) {
+        return workQueue.remove(runnable);
     }
 
     protected class PooledJob extends Job {
