@@ -2,9 +2,7 @@ package com.raytheon.uf.common.dataplugin.fssobs;
 
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.TimeZone;
 
 import javax.measure.quantity.Angle;
 import javax.measure.quantity.DataAmount;
@@ -45,13 +43,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 public class FSSObsRecord extends PersistablePluginDataObject implements
         ISpatialEnabled, IDecoderGettable, IPersistable, IPointData {
-    
+
     private static final long serialVersionUID = 1L;
-    
+
     public static final String PLUGIN_NAME = "fssobs";
-    
+
     private static final int MISSING = -9999;
-    
+
     // UNITS
 
     public static final Unit<Temperature> TEMPERATURE_UNIT = SI.CELSIUS;
@@ -67,14 +65,13 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     public static final Unit<Pressure> PRESSURE_UNIT = SI.HECTO(SI.PASCAL);
 
     public static final Unit<Length> PRECIP_UNIT = NonSI.INCH;
-    
+
     public static final Unit<Length> WAVE_UNIT = SI.METER;
 
     public static final Unit<Length> VISIBILITY_UNIT = NonSI.MILE;
 
     public static final Unit<DataAmount> CLOUD_COVER = NonSI.OCTET;
 
-    
     /** Metar specific parameter keys */
     public static final class ParameterKey {
         public static final String SFC_ALTIMETER = "SFC.PRESS.ALTIMETER";
@@ -89,23 +86,23 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     private static final HashMap<String, String> PARM_MAP = new HashMap<String, String>();
     static {
         PARM_MAP.put("NLAT", STA_LAT);
-		PARM_MAP.put("NLON", STA_LON);
-		PARM_MAP.put("rawMessage", "rawMessage");
+        PARM_MAP.put("NLON", STA_LON);
+        PARM_MAP.put("rawMessage", "rawMessage");
     }
-    
+
     /** is feature new **/
     @Transient
     @DynamicSerializeElement
     @XmlElement
     public boolean isNew = true;
-    
+
     // Current CWA (WFO)
     @Column
     @DataURI(position = 2)
     @DynamicSerializeElement
     @XmlElement(nillable = false)
     private String cwa;
-    
+
     // Monitor which should use this station record
     // fog = "fog"
     // safeseas = "ss"
@@ -121,27 +118,27 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     @XmlElement
     private String stnName;
-    
+
     /* From ============ObReport================= */
-    
+
     @XmlElement
     @DynamicSerializeElement
     @Column
     @DataURI(position = 1)
     protected String reportType;
- 
+
     @Embedded
     @DataURI(position = 3, embedded = true)
     @XmlElement
     @DynamicSerializeElement
     private SurfaceObsLocation location;
-    
+
     // Observing platform identifier (same as stationID)
     @Transient
     @XmlElement
     @DynamicSerializeElement
     private String platformId;
-    
+
     // Indicator of whether observing platform is stationary
     @Transient
     @DynamicSerializeElement
@@ -153,14 +150,14 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     @XmlElement
     private Calendar timeObs;
-      
+
     // Time of the observation to the nearest hour.
     @XmlElement
     @DynamicSerializeElement
     @Column
     private Calendar refHour;
-    
-     //Raw message
+
+    // Raw message
     @Transient
     @DynamicSerializeElement
     @XmlElement
@@ -171,12 +168,12 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     @XmlElement
     private float windSpeed = -9999;;
-    
+
     // Wind gust in knots
     @Transient
     @DynamicSerializeElement
     @XmlElement
-    private float windGust = -9999; ;
+    private float windGust = -9999;;
 
     // Observed maximum wind speed in knots
     @Transient
@@ -189,18 +186,18 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     @XmlElement
     private float windDir;
-    
+
     // Observed wind chill in Fahrenheit
     @Transient
     @DynamicSerializeElement
     @XmlElement
     private float windChill = -9999;
 
-	// Observed high resolution wave height in
-	@Transient
-	@DynamicSerializeElement
-	@XmlElement
-	private float highResWaveHeight = -9999;
+    // Observed high resolution wave height in
+    @Transient
+    @DynamicSerializeElement
+    @XmlElement
+    private float highResWaveHeight = -9999;
 
     // Observed wave steepness in seconds ??? None
     @Transient
@@ -213,8 +210,7 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     @XmlElement
     private float visibility = -9999;
-    
-    
+
     // Observed visibility in meters for Maritime obs.
     @Transient
     @DynamicSerializeElement
@@ -226,7 +222,7 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     @XmlElement
     private float temperature = -9999;
-    
+
     // in feet
     @Transient
     @XmlElement
@@ -239,13 +235,13 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     private Integer wavePeriod = -9999;
 
-    //in Azimuth degrees
+    // in Azimuth degrees
     @Transient
     @XmlElement
     @DynamicSerializeElement
     private Double primarySwellWaveDir = -9999.0;
 
-    //in seconds
+    // in seconds
     @Transient
     @XmlElement
     @DynamicSerializeElement
@@ -275,11 +271,11 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     private Double secondarySwellWaveHeight = -9999.0;
 
-//    // Pressure in inches of mercury 
-//    @Transient
-//    @DynamicSerializeElement
-//    @XmlElement
-//    private float pressure = -9999;
+    // // Pressure in inches of mercury
+    // @Transient
+    // @DynamicSerializeElement
+    // @XmlElement
+    // private float pressure = -9999;
 
     // Three-hour pressure change in thousandths of an inch of mercury ????
     @Transient
@@ -305,14 +301,14 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     @XmlElement
     private float seaSurfaceTemp = -9999f;
-    
+
     // the sea level pressure in hPa
     @XmlElement
     @DynamicSerializeElement
     @Transient
     private float seaLevelPress = -9999f;
-      
-	// Altimeter setting in mm Hg.
+
+    // Altimeter setting in mm Hg.
     @Transient
     @XmlElement
     @DynamicSerializeElement
@@ -354,7 +350,7 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     @XmlElement
     private String[] presWeather;
 
-    // Observed relative humidity in percent 
+    // Observed relative humidity in percent
     @Transient
     @DynamicSerializeElement
     @XmlElement
@@ -371,13 +367,12 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     @XmlElement
     private float dewpointDepr = -9999f;
-    
+
     @XmlElement
     @DynamicSerializeElement
     @Transient
     private String[] skyCover;
-    
-    
+
     @XmlElement
     @DynamicSerializeElement
     @Transient
@@ -386,7 +381,7 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     @Embedded
     private PointDataView pdv;
 
-   //----------------------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------
     public FSSObsRecord() {
     }
 
@@ -395,26 +390,9 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     }
 
     @Override
-    public Date getPersistenceTime() {
-        Calendar c = getInsertTime();
-        if (c == null)
-            return null;
-
-        return c.getTime();
-    }
-
-    @Override
-    public void setPersistenceTime(Date persistTime) {
-        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        c.setTime(persistTime);
-        setInsertTime(c);
-    }
-
-    @Override
     public IDecoderGettable getDecoderGettable() {
         return null;
     }
-
 
     @Override
     public Amount getValue(String paramName) {
@@ -434,8 +412,9 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
             a = new Amount(windGust, WIND_SPEED_UNIT);
         } else if (PRES_SLP.equals(pName) && (seaLevelPress != -9999f)) {
             a = new Amount(seaLevelPress, PRESSURE_UNIT);
-//        } else if (PRES_ALTSG.equals(pName) && (pressureAltimeter != -9999f)) {
-//            a = new Amount(pressureAltimeter, PRESSURE_UNIT);
+            // } else if (PRES_ALTSG.equals(pName) && (pressureAltimeter !=
+            // -9999f)) {
+            // a = new Amount(pressureAltimeter, PRESSURE_UNIT);
         } else if (STA_LAT.equals(pName)) {
             a = new Amount(this.getLatitude(), LOCATION_UNIT);
         } else if (STA_LON.equals(pName)) {
@@ -448,8 +427,9 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
             a = new Amount(primarySwellWavePeriod, WAVE_UNIT);
         } else if ("SWH".equals(pName)) {
             a = new Amount(primarySwellWaveHeight, WAVE_UNIT);
-//        } else if ("PCHNG".equals(pName) && pressChange3Hour != MISSING) {
-//            a = new Amount(pressChange3Hour, PRESSURE_UNIT);
+            // } else if ("PCHNG".equals(pName) && pressChange3Hour != MISSING)
+            // {
+            // a = new Amount(pressChange3Hour, PRESSURE_UNIT);
         } else if ("PKWND".equals(paramName) && maxWindSpeed != MISSING) {
             a = new Amount(maxWindSpeed, WIND_SPEED_UNIT);
         } else if ("SWS".equals(paramName) || "SWGS".equals(paramName)) {
@@ -476,7 +456,8 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * @param monitorUse the monitorUse to set
+     * @param monitorUse
+     *            the monitorUse to set
      */
     public void setMonitorUse(String monitorUse) {
         this.monitorUse = monitorUse;
@@ -511,7 +492,8 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * @param platformId the platformId to set
+     * @param platformId
+     *            the platformId to set
      */
     public void setPlatformId(String platformId) {
         this.platformId = platformId;
@@ -559,7 +541,7 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     public Integer getElevation() {
         return location.getElevation();
     }
-    
+
     /**
      * @return the isStationary
      */
@@ -616,12 +598,12 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
         return windChill;
     }
 
-//    /**
-//     * @return the highResWaveHeight
-//     */
-//    public float getHighResWaveHeight() {
-//        return highResWaveHeight;
-//    }
+    // /**
+    // * @return the highResWaveHeight
+    // */
+    // public float getHighResWaveHeight() {
+    // return highResWaveHeight;
+    // }
 
     /**
      * @return the waveSteepness
@@ -700,20 +682,20 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
         return secondarySwellWaveHeight;
     }
 
-//    /**
-//     * @return the pressure
-//     */
-//    public float getPressure() {
-//        return pressure;
-//    }
-//
-//
-//    /**
-//     * @return the pressChangeChar
-//     */
-//    public String getPressChangeChar() {
-//        return pressChangeChar;
-//    }
+    // /**
+    // * @return the pressure
+    // */
+    // public float getPressure() {
+    // return pressure;
+    // }
+    //
+    //
+    // /**
+    // * @return the pressChangeChar
+    // */
+    // public String getPressChangeChar() {
+    // return pressChangeChar;
+    // }
 
     /**
      * @return the dewpoint
@@ -737,7 +719,8 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * @param pressureAltimeter the pressureAltimeter to set
+     * @param pressureAltimeter
+     *            the pressureAltimeter to set
      */
     public void setPressureAltimeter(float pressureAltimeter) {
         this.pressureAltimeter = pressureAltimeter;
@@ -751,7 +734,8 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * @param pressChange3Hour the pressChange3Hour to set
+     * @param pressChange3Hour
+     *            the pressChange3Hour to set
      */
     public void setPressChange3Hour(float pressChange3Hour) {
         this.pressChange3Hour = pressChange3Hour;
@@ -800,7 +784,8 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * @param ceiling the ceiling to set
+     * @param ceiling
+     *            the ceiling to set
      */
     public void setCeiling(float ceiling) {
         this.ceiling = ceiling;
@@ -828,53 +813,60 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * @param isNew the isNew to set
+     * @param isNew
+     *            the isNew to set
      */
     public void setIsNew(boolean isNew) {
         this.isNew = isNew;
     }
 
     /**
-     * @param cwa the cwa to set
+     * @param cwa
+     *            the cwa to set
      */
     public void setCwa(String cwa) {
         this.cwa = cwa;
     }
 
     /**
-     * @param stnName the stnName to set
+     * @param stnName
+     *            the stnName to set
      */
     public void setStnName(String stnName) {
         this.stnName = stnName;
     }
 
     /**
-     * @param reportType the reportType to set
+     * @param reportType
+     *            the reportType to set
      */
     public void setReportType(String reportType) {
         this.reportType = reportType;
     }
 
     /**
-     * @param location the location to set
+     * @param location
+     *            the location to set
      */
     public void setLocation(SurfaceObsLocation location) {
         this.location = location;
     }
 
     /**
-     * @param isStationary the isStationary to set
+     * @param isStationary
+     *            the isStationary to set
      */
     public void setIsStationary(boolean isStationary) {
         this.isStationary = isStationary;
     }
-    
+
     public boolean getIsStationary() {
         return isStationary;
     }
 
     /**
-     * @param timeObs the timeObs to set
+     * @param timeObs
+     *            the timeObs to set
      */
     public void setTimeObs(Calendar timeObs) {
         this.timeObs = timeObs;
@@ -888,79 +880,88 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * @param refHour the refHour to set
+     * @param refHour
+     *            the refHour to set
      */
     public void setRefHour(Calendar refHour) {
         this.refHour = refHour;
     }
 
     /**
-     * @param rawMessage the rawMessage to set
+     * @param rawMessage
+     *            the rawMessage to set
      */
     public void setRawMessage(String rawMessage) {
         this.rawMessage = rawMessage;
     }
 
     /**
-     * @param windSpeed the windSpeed to set
+     * @param windSpeed
+     *            the windSpeed to set
      */
     public void setWindSpeed(float windSpeed) {
         this.windSpeed = windSpeed;
     }
 
     /**
-     * @param windGust the windGust to set
+     * @param windGust
+     *            the windGust to set
      */
     public void setWindGust(float windGust) {
         this.windGust = windGust;
     }
 
     /**
-     * @param maxWindSpeed the maxWindSpeed to set
+     * @param maxWindSpeed
+     *            the maxWindSpeed to set
      */
     public void setMaxWindSpeed(float maxWindSpeed) {
         this.maxWindSpeed = maxWindSpeed;
     }
 
     /**
-     * @param windDir the windDir to set
+     * @param windDir
+     *            the windDir to set
      */
     public void setWindDir(float windDir) {
         this.windDir = windDir;
     }
 
     /**
-     * @param windChill the windChill to set
+     * @param windChill
+     *            the windChill to set
      */
     public void setWindChill(float windChill) {
         this.windChill = windChill;
     }
 
-	public void setHighResWaveHeight(float highResWaveHeight) {
-		this.highResWaveHeight = highResWaveHeight;
-	}
+    public void setHighResWaveHeight(float highResWaveHeight) {
+        this.highResWaveHeight = highResWaveHeight;
+    }
 
-	public float getHighResWaveHeight() {
-		return highResWaveHeight;
-	}
+    public float getHighResWaveHeight() {
+        return highResWaveHeight;
+    }
 
-	/**
-	 * @param waveSteepness
-	 *            the waveSteepness to set
-	 */
+    /**
+     * @param waveSteepness
+     *            the waveSteepness to set
+     */
     public void setWaveSteepness(float waveSteepness) {
         this.waveSteepness = waveSteepness;
     }
 
     /**
-     * @param visibility the visibility to set
+     * @param visibility
+     *            the visibility to set
      */
     public void setVisibility(float visibility) {
         this.visibility = visibility;
     }
 
     /**
-     * @param horzVisibility the horzVisibility to set
+     * @param horzVisibility
+     *            the horzVisibility to set
      */
     public void setHorzVisibility(float horzVisibility) {
         this.horzVisibility = horzVisibility;
@@ -974,70 +975,80 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * @param temperature the temperature to set
+     * @param temperature
+     *            the temperature to set
      */
     public void setTemperature(float temperature) {
         this.temperature = temperature;
     }
 
     /**
-     * @param waveHeight the waveHeight to set
+     * @param waveHeight
+     *            the waveHeight to set
      */
     public void setWaveHeight(Double waveHeight) {
         this.waveHeight = waveHeight;
     }
 
     /**
-     * @param wavePeriod the wavePeriod to set
+     * @param wavePeriod
+     *            the wavePeriod to set
      */
     public void setWavePeriod(Integer wavePeriod) {
         this.wavePeriod = wavePeriod;
     }
 
     /**
-     * @param primarySwellWaveDir the primarySwellWaveDir to set
+     * @param primarySwellWaveDir
+     *            the primarySwellWaveDir to set
      */
     public void setPrimarySwellWaveDir(Double primarySwellWaveDir) {
         this.primarySwellWaveDir = primarySwellWaveDir;
     }
 
     /**
-     * @param primarySwellWavePeriod the primarySwellWavePeriod to set
+     * @param primarySwellWavePeriod
+     *            the primarySwellWavePeriod to set
      */
     public void setPrimarySwellWavePeriod(Integer primarySwellWavePeriod) {
         this.primarySwellWavePeriod = primarySwellWavePeriod;
     }
 
     /**
-     * @param primarySwellWaveHeight the primarySwellWaveHeight to set
+     * @param primarySwellWaveHeight
+     *            the primarySwellWaveHeight to set
      */
     public void setPrimarySwellWaveHeight(Double primarySwellWaveHeight) {
         this.primarySwellWaveHeight = primarySwellWaveHeight;
     }
 
     /**
-     * @param secondarySwellWaveDir the secondarySwellWaveDir to set
+     * @param secondarySwellWaveDir
+     *            the secondarySwellWaveDir to set
      */
     public void setSecondarySwellWaveDir(Double secondarySwellWaveDir) {
         this.secondarySwellWaveDir = secondarySwellWaveDir;
     }
 
     /**
-     * @param secondarySwellWavePeriod the secondarySwellWavePeriod to set
+     * @param secondarySwellWavePeriod
+     *            the secondarySwellWavePeriod to set
      */
     public void setSecondarySwellWavePeriod(Integer secondarySwellWavePeriod) {
         this.secondarySwellWavePeriod = secondarySwellWavePeriod;
     }
 
     /**
-     * @param secondarySwellWaveHeight the secondarySwellWaveHeight to set
+     * @param secondarySwellWaveHeight
+     *            the secondarySwellWaveHeight to set
      */
     public void setSecondarySwellWaveHeight(Double secondarySwellWaveHeight) {
         this.secondarySwellWaveHeight = secondarySwellWaveHeight;
     }
 
     /**
-     * @param pressChangeChar the pressChangeChar to set
+     * @param pressChangeChar
+     *            the pressChangeChar to set
      */
     public void setPressChangeChar(String pressChangeChar) {
         this.pressChangeChar = pressChangeChar;
@@ -1051,28 +1062,32 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * @param dewpoint the dewpoint to set
+     * @param dewpoint
+     *            the dewpoint to set
      */
     public void setDewpoint(float dewpoint) {
         this.dewpoint = dewpoint;
     }
 
     /**
-     * @param seaSurfaceTemp the seaSurfaceTemp to set
+     * @param seaSurfaceTemp
+     *            the seaSurfaceTemp to set
      */
     public void setSeaSurfaceTemp(float seaSurfaceTemp) {
         this.seaSurfaceTemp = seaSurfaceTemp;
     }
 
     /**
-     * @param seaLevelPress the seaLevelPress to set
+     * @param seaLevelPress
+     *            the seaLevelPress to set
      */
     public void setSeaLevelPress(float seaLevelPress) {
         this.seaLevelPress = seaLevelPress;
     }
 
     /**
-     * @param hourlyPrecip the hourlyPrecip to set
+     * @param hourlyPrecip
+     *            the hourlyPrecip to set
      */
     public void setHourlyPrecip(float hourlyPrecip) {
         this.hourlyPrecip = hourlyPrecip;
@@ -1086,42 +1101,48 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * @param snowDepth the snowDepth to set
+     * @param snowDepth
+     *            the snowDepth to set
      */
     public void setSnowDepth(float snowDepth) {
         this.snowDepth = snowDepth;
     }
 
     /**
-     * @param snincrHourly the snincrHourly to set
+     * @param snincrHourly
+     *            the snincrHourly to set
      */
     public void setSnincrHourly(float snincrHourly) {
         this.snincrHourly = snincrHourly;
     }
 
     /**
-     * @param snincrTotal the snincrTotal to set
+     * @param snincrTotal
+     *            the snincrTotal to set
      */
     public void setSnincrTotal(float snincrTotal) {
         this.snincrTotal = snincrTotal;
     }
 
     /**
-     * @param frostbiteTime the frostbiteTime to set
+     * @param frostbiteTime
+     *            the frostbiteTime to set
      */
     public void setFrostbiteTime(float frostbiteTime) {
         this.frostbiteTime = frostbiteTime;
     }
 
     /**
-     * @param relativeHumidity the relativeHumidity to set
+     * @param relativeHumidity
+     *            the relativeHumidity to set
      */
     public void setRelativeHumidity(float relativeHumidity) {
         this.relativeHumidity = relativeHumidity;
     }
 
     /**
-     * @param presWeather the presWeather to set
+     * @param presWeather
+     *            the presWeather to set
      */
     public void setPresWeather(String[] presWeather) {
         this.presWeather = presWeather;
@@ -1135,7 +1156,8 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * @param dewpointDepr the dewpointDepr to set
+     * @param dewpointDepr
+     *            the dewpointDepr to set
      */
     public void setDewpointDepr(float dewpointDepr) {
         this.dewpointDepr = dewpointDepr;
@@ -1149,14 +1171,16 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * @param skyCover the skyCover to set
+     * @param skyCover
+     *            the skyCover to set
      */
     public void setSkyCover(String[] skyCover) {
         this.skyCover = skyCover;
     }
 
     /**
-     * @param totCloudAmount the totCloudAmount to set
+     * @param totCloudAmount
+     *            the totCloudAmount to set
      */
     public void setTotCloudAmount(int totCloudAmount) {
         this.totCloudAmount = totCloudAmount;
@@ -1170,12 +1194,13 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * @param pdv the pdv to set
+     * @param pdv
+     *            the pdv to set
      */
     public void setPdv(PointDataView pdv) {
         this.pdv = pdv;
     }
-    
+
     @Override
     public Collection<Amount> getValues(String paramName) {
         return null;
@@ -1197,7 +1222,8 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * @param pdv the pdv to set
+     * @param pdv
+     *            the pdv to set
      */
     @Override
     public void setPointDataView(PointDataView pdv) {
@@ -1212,7 +1238,6 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
         return pdv;
     }
 
-
     /**
      * Used for debugging.
      */
@@ -1222,14 +1247,14 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
         sb.append("fssObsRec:\n\t");
         if (this != null) {
             sb.append(this.getDataURI() + "\n\t");
-            sb.append(this.getLocation().getStationId() + " ===> " + this.getStnName() + "\n\t");
+            sb.append(this.getLocation().getStationId() + " ===> "
+                    + this.getStnName() + "\n\t");
             sb.append("Latitude = " + this.getLocation().getLatitude() + "\n\t");
-            sb.append("Longitude = " + this.getLocation().getLongitude() + "\n\t");
+            sb.append("Longitude = " + this.getLocation().getLongitude()
+                    + "\n\t");
             sb.append(this.getReportType() + "\n\t");
-            sb.append("Visibility = " + this.getVisibility()
-                    + "\n\t");
-            sb.append("Temperature = " + this.getTemperature()
-                    + "\n\t");
+            sb.append("Visibility = " + this.getVisibility() + "\n\t");
+            sb.append("Temperature = " + this.getTemperature() + "\n\t");
             sb.append(this.getDataTime().getRefTime() + "\n");
         }
         return sb.toString();

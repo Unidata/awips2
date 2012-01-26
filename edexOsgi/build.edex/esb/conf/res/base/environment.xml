@@ -48,7 +48,7 @@
 	<svcBackupDir>${env:edex.home}/../GFESuite/</svcBackupDir>
 	<mhsData>/data/fxa/mhs</mhsData>
 	<requestTimeLogFilter>1000</requestTimeLogFilter>
-	<requestSizeLogFilter>8</requestSizeLogFilter>
+	<responseSizeLogFilter>8</responseSizeLogFilter>
 </properties>
 
 
