@@ -21,7 +21,6 @@ package com.raytheon.uf.common.dataplugin.bufrmthdw;
 
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -631,15 +630,6 @@ public class BufrMTHDWObs extends PersistablePluginDataObject implements
         this.pdv = pdv;
     }
 
-    @Override
-    public Date getPersistenceTime() {
-        return dataTime.getRefTime();
-    }
-
-    @Override
-    public void setPersistenceTime(Date persistTime) {
-    }
-
     /**
      * Returns the hashCode for this object. This implementation returns the
      * hashCode of the generated dataURI.
@@ -664,19 +654,23 @@ public class BufrMTHDWObs extends PersistablePluginDataObject implements
      */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         BufrMTHDWObs other = (BufrMTHDWObs) obj;
         if (getDataURI() == null) {
             if (other.getDataURI() != null) {
                 return false;
             }
-        } else if (!getDataURI().equals(other.getDataURI()))
+        } else if (!getDataURI().equals(other.getDataURI())) {
             return false;
+        }
         return true;
     }
 }
