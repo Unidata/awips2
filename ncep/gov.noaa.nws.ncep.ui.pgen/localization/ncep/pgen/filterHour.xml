@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  This xml file is to be used for filter to filt out the hours.
+  the 'prefix' attribute is used for the name of the output outlook file.  
+-->
+<root>
+	<filterHour name="HOUR" prefix="" >
+		<label text="0"/>
+		<label text="0+"/>
+		<label text="3"/>
+		<label text="3+"/>
+		<label text="6"/>
+		<label text="9"/>
+		<label text="12"/>
+		<label text="0-0"/>
+		<label text="3-3"/>
+		<label text="6-6"/>
+		<label text="0-3"/>
+		<label text="0-6"/>
+		<label text="3-6"/>
+		<label text="6-9"/>
+		<label text="6-12"/>
+		<label text="9-12"/>
+		<label text="AIRM"/>
+		<label text="OTLK"/>
+	</filterHour>
+</root>
