@@ -45,6 +45,7 @@ import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
  *  12/14/2009              B. Hebbard  Migrate to11d3->d6                                    
  *  10/01/10      #307      Greg Hull   implement processRecords and change to 
  *                                      process WCPData as the IRscDataObj
+ *  10/05/11                X. Guo      Make changes to display WCP
  *                                      
  * </pre>
  * 
@@ -57,8 +58,8 @@ public class WCPResource extends AbstractNatlCntrsResource<WCPResourceData, IMap
 
 	private WCPResourceData wcpResourceData;
 
-    private String sourceName;
-    private RGB color; // Resource legend color
+//    private String sourceName;
+//    private RGB color; // Resource legend color
     private IFont font;
     
     private class WcpRscDataObj implements IRscDataObject {
@@ -99,8 +100,11 @@ public class WCPResource extends AbstractNatlCntrsResource<WCPResourceData, IMap
 		    WcpRscDataObj existingWcpData = wcpDataMap.get( wcpRscData.watchNumber );
 
 		    // if watchNumber is not in the list or if the ref time is newer then add the data to the list
-		    if( existingWcpData == null ||
-		    		wcpRscData.issueTime.greaterThan( existingWcpData.issueTime ) ) {		    	
+		    if( existingWcpData == null ) {
+		    	wcpDataMap.put( wcpRscData.watchNumber, wcpRscData );
+		    }
+		    else if	 ( wcpRscData.issueTime.greaterThan( existingWcpData.issueTime ) ) {
+		    	wcpDataMap.remove(wcpRscData.watchNumber);
 		    	wcpDataMap.put( wcpRscData.watchNumber, wcpRscData );
 		    }
 
@@ -217,7 +221,8 @@ public class WCPResource extends AbstractNatlCntrsResource<WCPResourceData, IMap
 
     		// Draw watch boxes
     		double minLat = wcpData.lat[0];
-    		int minLatIndex = 0;
+    		double maxLat = wcpData.lat[0];
+    		int minLatIndex = 0,maxLatIndex = 0;
     		for(int i = 0; i < wcpData.numPnts;i++) {
     			double[] latLon1 = { wcpData.lon[i], wcpData.lat[i] }; 
     			double[] p1 = descriptor.worldToPixel( latLon1 );
@@ -234,10 +239,22 @@ public class WCPResource extends AbstractNatlCntrsResource<WCPResourceData, IMap
     				minLat = wcpData.lat[i];
     				minLatIndex = i;
     			}
+    			if ( maxLat < wcpData.lat[i] ) {
+    				maxLat = wcpData.lat[i];
+    				maxLatIndex = i;
+    			}
     		}
 
     		// Draw labels
-    		double[] labelLatLon = { wcpData.lon[minLatIndex], wcpData.lat[minLatIndex] }; 
+    		double lat = (wcpData.lat[minLatIndex] + wcpData.lat[maxLatIndex])/2;
+    		double lon = (wcpData.lon[minLatIndex] + wcpData.lon[maxLatIndex])/2;
+    		if ( wcpData.lon[maxLatIndex] > wcpData.lon[minLatIndex] ) {
+    			lon += 0.5;
+    		}
+    		else {
+    			lon -= 0.5;
+    		}
+    		double[] labelLatLon = { lon, lat }; 
     		double[] labelPix = descriptor.worldToPixel( labelLatLon );
     		if( labelPix != null ) { 
     			String[] text = new String[2];
@@ -258,13 +275,13 @@ public class WCPResource extends AbstractNatlCntrsResource<WCPResourceData, IMap
     			// Draw watch number label only
     			else if( !wcpResourceData.getTimeLabelEnable() && 
     					wcpResourceData.getWatchNumberLabelEnable() ) {
-    				text[1] = null;
+    				text[1] = "";
     			}
     			// Draw time label only
     			else if( wcpResourceData.getTimeLabelEnable() && 
     					!wcpResourceData.getWatchNumberLabelEnable() ) {
     				text[0] = text[1];
-    				text[1] = null;
+    				text[1] = "";
     			}
 
     			grphTarget.drawStrings(font, text,   
