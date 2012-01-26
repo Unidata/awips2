@@ -21,7 +21,6 @@ package com.raytheon.edex.plugin.redbook.common;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -37,7 +36,7 @@ import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
-import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
+import com.raytheon.uf.common.dataplugin.persist.ServerSpecificPersistablePluginDataObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.DataTime;
@@ -67,8 +66,8 @@ import com.raytheon.uf.common.time.DataTime;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class RedbookRecord extends PersistablePluginDataObject implements
-        IPersistable, Cloneable {
+public class RedbookRecord extends ServerSpecificPersistablePluginDataObject
+        implements IPersistable, Cloneable {
 
     private static final long serialVersionUID = 1L;
 
@@ -323,30 +322,6 @@ public class RedbookRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * 
-     */
-    @Override
-    public Date getPersistenceTime() {
-        Calendar c = getInsertTime();
-        if (c == null)
-            return null;
-
-        return c.getTime();
-    }
-
-    /**
-     * Set the time to be used for the persistence time for this object.
-     * 
-     * @param persistTime
-     *            The persistence time to be used.
-     */
-    public void setPersistenceTime(Date persistTime) {
-        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        c.setTime(persistTime);
-        setInsertTime(c);
-    }
-
-    /**
      * @return a mostly shallow copy of the RedbookRecord with the reference
      *         time set back one minute. Clears the id and dataURI fields of the
      *         copy.
@@ -362,10 +337,11 @@ public class RedbookRecord extends PersistablePluginDataObject implements
         other.dataURI = null;
 
         Date newRefTime = new Date(dataTime.getRefTime().getTime() - 60 * 1000);
-        if (dataTime.getUtilityFlags().contains(DataTime.FLAG.FCST_USED))
+        if (dataTime.getUtilityFlags().contains(DataTime.FLAG.FCST_USED)) {
             other.dataTime = new DataTime(newRefTime, dataTime.getFcstTime());
-        else
+        } else {
             other.dataTime = new DataTime(newRefTime);
+        }
 
         return other;
     }

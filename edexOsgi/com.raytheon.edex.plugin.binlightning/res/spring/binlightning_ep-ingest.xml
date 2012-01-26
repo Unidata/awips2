@@ -13,12 +13,12 @@
 		<constructor-arg value="jms-dist:queue:Ingest.binlightning?destinationResolver=#qpidDurableResolver" />
 	</bean>
 
-    <bean id="binlightningCamelRegistered" factory-bean="contextManager"
+	<bean id="binlightningCamelRegistered" factory-bean="clusteredCamelContextMgr"
 		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="binlightning-camel"/>
+		<constructor-arg ref="clusteredBinLightningRoutes" />
   	</bean>
 
-	<camelContext id="binlightning-camel"
+	<camelContext id="clusteredBinLightningRoutes"
 		xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler"
 		autoStartup="false">
