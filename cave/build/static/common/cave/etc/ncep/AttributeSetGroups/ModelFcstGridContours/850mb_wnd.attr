@@ -1,0 +1,22 @@
+!
+! Restore File : 850mb_wnd
+!
+! Log:
+! J.W. Carr/HPC 	 4/98	Initial creation
+!
+GLEVEL=850
+GVCORD=pres
+SCALE=0
+GDPFUN=kntv(wnd)
+TYPE=b
+CINT=
+LINE=
+FINT=
+FLINE=
+HILO=
+HLSYM=
+WIND=18/.8
+TITLE=5/-1/~ @ WIND!
+COLORS=2                                                                       
+MARKER=2                                                                       
+GRDLBL=5                                                                       

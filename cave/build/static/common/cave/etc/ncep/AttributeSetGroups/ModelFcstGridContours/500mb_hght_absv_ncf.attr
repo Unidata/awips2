@@ -1,0 +1,25 @@
+!
+! Restore File : 500mb_hght_absv_ncf
+!
+! Log:
+! D.W.Plummer/NCEP	 2/97	Initial creation
+! D.W.Plummer/NCEP	 8/97	Added FILTER parameter and changed TEXT value
+! T. Lee/GSC		 1/99	Fixed CINT for AVOR
+! J. Carr/HPC            7/99   Changed skip to a 0 and contur to a 2. Smoothed height.
+!
+GLEVEL=500
+GVCORD=pres
+SCALE=5                  !5             !-1
+GDPFUN=abs(avor(wnd))   !abs(avor(wnd))            !sm5s(hght)
+TYPE=c                  !c             !c
+CINT=2/10               !2/4/8         !6
+LINE=7/5/1/2            !29/5/1/2      !5/1/2/1
+FINT=
+FLINE=
+HILO=2;6/X;N/10-99;10-99!0 
+HLSYM=
+WIND=18/1/1
+TITLE=5/-1/~ @ HEIGHT AND ABS VORTICITY$!0
+COLORS=2         
+MARKER=2        
+GRDLBL=5                                                                       
