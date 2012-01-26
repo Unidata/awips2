@@ -1,0 +1,25 @@
+   <colorBar>
+       <showLabels>true</showLabels>
+       <drawToScale>true</drawToScale>
+       <orientation>Vertical</orientation>
+       <anchorLoc>UpperLeft</anchorLoc>
+       <length>0.4</length>
+       <width>15</width>
+       <numDecimals>1</numDecimals>
+       <IntervalValue>-INF</IntervalValue>
+       <IntervalValue>-50.0</IntervalValue>
+       <IntervalValue>-15.0</IntervalValue>
+       <IntervalValue>-0.1</IntervalValue>
+       <IntervalValue>0.1</IntervalValue>
+       <IntervalValue>15.0</IntervalValue>
+       <IntervalValue>50.0</IntervalValue>
+       <IntervalValue>INF</IntervalValue>
+
+       <IntervalColor>RGB {0, 0, 255}</IntervalColor>
+       <IntervalColor>RGB {40, 0, 210}</IntervalColor>
+       <IntervalColor>RGB {80, 0, 160}</IntervalColor>
+       <IntervalColor>RGB {120, 0, 120}</IntervalColor>
+       <IntervalColor>RGB {160, 0, 80}</IntervalColor>
+       <IntervalColor>RGB {210, 0, 40}</IntervalColor>
+       <IntervalColor>RGB {255, 0, 0}</IntervalColor>
+   </colorBar>

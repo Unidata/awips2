@@ -1,0 +1,7 @@
+! Attributes for the LTNG Resource - color indicating time since strike
+!
+enablePositiveStrikes=true
+enableNegativeStrikes=true
+positiveSymbolSize=3
+negativeSymbolSize=3
+colorBar=@dfltLtngColorBar.xml

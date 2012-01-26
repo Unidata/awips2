@@ -1,0 +1,22 @@
+!
+! Restore File : bl_2-meter_12hrmin_temp_c
+!
+! Log:
+! J. Carr/HPC         5/99   Initial Creation
+!
+GLEVEL=2!2!2 
+GVCORD=hght!hght!hght
+SCALE=0
+GDPFUN=sm9s(sub(tmnk12,273)!sm9s(sub(tmnk12,273)
+TYPE=c
+CINT=2/-100/0 !2/2 
+LINE=6/1/2/1   !2/1/2/1
+FINT=
+FLINE=
+HILO=0
+HLSYM=0
+WIND=
+TITLE=1/-2/~ 2-METER 12-HR MIN TEMPERATURE (C)!0
+COLORS=2                                                                       
+MARKER=2                                                                       
+GRDLBL=5                                                                       

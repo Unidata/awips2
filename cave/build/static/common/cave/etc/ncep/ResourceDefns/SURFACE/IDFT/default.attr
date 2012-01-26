@@ -1,0 +1,9 @@
+! Parameters and Attributes for the default IDFT Resource
+!
+symbolName=ASTERISK
+pointSize=2.0
+arrowLength=1.25
+arrowLineWidth=1.25
+pointColor=RGB {255, 0, 0}
+arrowColor=RGB {255, 215, 0}
+distanceColor=RGB {255, 215, 0}
