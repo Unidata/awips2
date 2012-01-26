@@ -37,7 +37,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 10/05/09      169        Greg Hull   integrate with NCMapEditor
  * 11/24/09                 Greg Hull   migrate to to11d6
  * 05/28/10      #281       Greg Hull   fix bug drawing seld point
- * 01/05/2011  #393    Archana       Added logic to find the nearest time-matched station
+ * 01/05/11      #393       Archana     Added logic to find the nearest time-matched station
+ * 09/21/11      #393       Archana     Changed the name of the table to ncuair 
+ *                                      and updated the field names in the query string  
  * </pre>
  * 
  * @version 1
@@ -63,7 +65,7 @@ public class CloudHeightResource extends AbstractVizResource<CloudHeightResource
     public Map<DataTime, List<StationData >> stationDataMap;
 	private final double DIST = 1.0;
 	private final String DATABASE = "metadata";
-	private final String UPPER_AIR_TABLE = "uair";  
+	private final String UPPER_AIR_TABLE = "ncuair";  
 	private final int TEN_MINUTES = 10; 
     private final int NUM_MINS_IN_ONE_HOUR = 60;
 	protected final double INVALID_DISTANCE = -1.0;
@@ -72,11 +74,11 @@ public class CloudHeightResource extends AbstractVizResource<CloudHeightResource
     public class  StationData{
         Coordinate stationCoordinate;
         String stationId;
-        String stationNumber;
+ //       String stationNumber;
         DataTime stationRefTime;
-        StationData(String stationId, String stationNumber, Coordinate stationCoordinate, DataTime  stationRefTime2){
+        StationData(String stationId,  Coordinate stationCoordinate, DataTime  stationRefTime2){
         	this.stationId = stationId;
-        	this.stationNumber = stationNumber;
+ //       	this.stationNumber = stationNumber;
         	this.stationCoordinate = stationCoordinate;
         	this.stationRefTime = stationRefTime2;
         }
@@ -137,7 +139,7 @@ public class CloudHeightResource extends AbstractVizResource<CloudHeightResource
     	if(stnLocs != null && stnLocs.length > 0 ) {
     		float zoomLevel = paintProps.getZoomLevel();
     		int d = (int)(200 * zoomLevel + 1.0);
-    		d = d;
+//    		d = d;
 
     		for( StationData sd : stnLocs ) {
     			double[] p1 = getDescriptor().worldToPixel(
@@ -190,8 +192,8 @@ public class CloudHeightResource extends AbstractVizResource<CloudHeightResource
     	StringBuilder queryString = new StringBuilder();
     	//TODO: pass the table name as one of the arguments to this method, if the station information is to be accessed
     	//from other tables like the BUFRUA. Or pass a different query string altogether, if the field names vary as well.
-    	queryString.append("select reftime, slat, slon, stationNumber, stationId from ");    	
-    	queryString.append(UPPER_AIR_TABLE);
+    	queryString.append("select reftime, latitude, longitude, stationId from ");    	
+     	queryString.append(UPPER_AIR_TABLE);
   		queryString.append(";");
   		try {
   			/*execute the query*/
@@ -199,20 +201,22 @@ public class CloudHeightResource extends AbstractVizResource<CloudHeightResource
   					DATABASE, QueryLanguage.SQL));
   			if(results != null && !results.isEmpty()){
   				for(Object[] eachObjectArray : results){
-  					if(eachObjectArray.length == 5){
+  					if(eachObjectArray.length == 4){
   						Calendar stationRefTime = Calendar.getInstance();
   						stationRefTime.setTime( (Date) eachObjectArray[0]);
   						DataTime stationTime = new DataTime(stationRefTime);
+//  						Float latitude = (Float)(eachObjectArray[1]);
+//  						Float longitude = (Float)(eachObjectArray[2]);
   						Double latitude = (Double)(eachObjectArray[1]);
-  						Double longitude = (Double)(eachObjectArray[2]);
+  						Double longitude = (Double)(eachObjectArray[2]);  						
   						/*Sanity check to avoid creating a StationData object with invalid coordinates*/
   						if ( (latitude.doubleValue() >= -90.0 && latitude.doubleValue() <= 90.0) 
   								&& (longitude.doubleValue() >= -180.0 && longitude.doubleValue() <= 180.0)) {
 							                 Coordinate stationCoordinate = new Coordinate(longitude.doubleValue(),
 									                                                                                 latitude.doubleValue());
-							String stationNumber = (String) (eachObjectArray[3]);
-							String stationId = (String) (eachObjectArray[4]);
-							StationData stationData = new StationData( stationId, stationNumber,stationCoordinate, stationTime);
+//							String stationNumber = (String) (eachObjectArray[3]);
+							String stationId = (String) (eachObjectArray[3]);
+							StationData stationData = new StationData( stationId, stationCoordinate, stationTime);
 							List<StationData> aListOfStationData = new ArrayList<CloudHeightResource.StationData>(0);
 							if (!this.stationDataMap.isEmpty() && this.stationDataMap.containsKey(stationTime)) {
 								aListOfStationData = this.stationDataMap.get(stationTime);
@@ -318,7 +322,7 @@ public class CloudHeightResource extends AbstractVizResource<CloudHeightResource
 //	    		 break;
 	    	 }
 	    	 else{
-	    		 //rest the timeToCompare to the original imageTime
+	    		 //reset the timeToCompare to the original imageTime
 	    		Calendar timeToCompareAgain = imageTime.getRefTimeAsCalendar();
 	    		//Check for a time in the past
 	    		timeToCompareAgain.add(Calendar.MINUTE, -offset); 

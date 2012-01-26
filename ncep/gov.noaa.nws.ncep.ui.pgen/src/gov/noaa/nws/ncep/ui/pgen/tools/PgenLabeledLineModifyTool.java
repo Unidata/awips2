@@ -41,6 +41,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 09/10			305		B. Yin   	Initial Creation.
+ * 12/11			?		B. Yin		Added open/close line functions
  * 
  * </pre>
  * 
@@ -156,7 +157,7 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements ILab
         			elSelected = drawingLayer.getNearestElement(click, labeledLine);
         		}
         		
-        		return true;
+        		return false;
         	}
         	//clean up
         	else if ( button == 3 ) {
@@ -263,7 +264,11 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements ILab
         	if ( button == 1 ){
         		//  Check if mouse is in geographic extent
         		Coordinate loc = mapEditor.translateClick(x, y);
-        		if ( loc == null ) {return false;}
+        		if ( loc == null || elSelected == null) return false;
+        		
+            	//make sure the click is close enough to the element
+            	if ( drawingLayer.getDistance(elSelected, loc) > 30 && !ptSelected2 ) return false;
+        		
         		ptSelected2 = true;
         		if ( elSelected != null ){
         			if ( elSelected.getParent() instanceof Label ){
@@ -344,7 +349,7 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements ILab
         		}
         	}
         	
-        	return false;
+        	return true;
 
         }
         
@@ -495,8 +500,8 @@ public class PgenLabeledLineModifyTool extends PgenSelectingTool implements ILab
 	}
 	
 	@Override
-	public void setDeleteHandler( boolean delLine, boolean flip ){
-		setHandler(new PgenLabeledLineDelHandler(mapEditor, drawingLayer, this, attrDlg, delLine, flip));
+	public void setDeleteHandler( boolean delLine, boolean flip, boolean openClose ){
+		setHandler(new PgenLabeledLineDelHandler(mapEditor, drawingLayer, this, attrDlg, delLine, flip, openClose));
 	}
 	
 
