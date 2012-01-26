@@ -5,4 +5,5 @@ test-bin/
 testbin/
 testBin/
 bin-test/
-
+.svn
+*.pyo
