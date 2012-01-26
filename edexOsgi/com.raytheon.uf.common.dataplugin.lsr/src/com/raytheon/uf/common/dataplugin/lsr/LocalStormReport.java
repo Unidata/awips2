@@ -21,7 +21,6 @@ package com.raytheon.uf.common.dataplugin.lsr;
 
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 
 import javax.measure.quantity.Angle;
 import javax.measure.quantity.DataAmount;
@@ -511,22 +510,6 @@ public class LocalStormReport extends PersistablePluginDataObject implements
     @Override
     public void setPointDataView(PointDataView pdv) {
         this.pdv = pdv;
-    }
-
-    /**
-     * 
-     * @return The time to use for persistence.
-     */
-    @Override
-    public Date getPersistenceTime() {
-        return dataTime.getRefTime();
-    }
-
-    /**
-     * @persistTime
-     */
-    @Override
-    public void setPersistenceTime(Date persistTime) {
     }
 
     @Override
