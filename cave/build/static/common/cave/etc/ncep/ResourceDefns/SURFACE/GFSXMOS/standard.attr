@@ -1,0 +1,4 @@
+! Attributes for the GFSXMOS resource with "standard" plot model
+!
+plotModelName=gfsxmos_standard
+plotDensity=10

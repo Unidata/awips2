@@ -1,0 +1,5 @@
+colorMapName=rad_eetops
+colorBar=@dfltRadarColorBar.xml
+! 1km Enhanced Echo Tops
+productCode=135
+elevationNumber=0
