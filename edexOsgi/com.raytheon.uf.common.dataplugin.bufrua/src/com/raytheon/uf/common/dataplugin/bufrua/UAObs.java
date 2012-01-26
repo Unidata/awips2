@@ -24,7 +24,6 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -102,19 +101,19 @@ public class UAObs extends PersistablePluginDataObject implements
             int compValue = 0;
             String wmoA = a.getWmoHeader();
             String wmoB = b.getWmoHeader();
-            
-            if(wmoA != null) {
-                if(wmoB != null) {
+
+            if (wmoA != null) {
+                if (wmoB != null) {
                     compValue = wmoA.compareTo(wmoB);
                 }
             }
-            if(compValue != 0) {
+            if (compValue != 0) {
                 compValue *= -1;
             }
             return compValue;
         }
     };
-    
+
     public static final Unit<Length> DISTANCE_UNIT = SI.METER;
 
     public static final Unit<Temperature> TEMPERATURE_UNIT = SI.KELVIN;
@@ -589,15 +588,6 @@ public class UAObs extends PersistablePluginDataObject implements
         this.pdv = pdv;
     }
 
-    @Override
-    public Date getPersistenceTime() {
-        return dataTime.getRefTime();
-    }
-
-    @Override
-    public void setPersistenceTime(Date persistTime) {
-    }
-
     /**
      * Get the value of a parameter that is represented as a String.
      * 
@@ -835,31 +825,36 @@ public class UAObs extends PersistablePluginDataObject implements
      */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         UAObs other = (UAObs) obj;
         if (getDataURI() == null) {
             if (other.getDataURI() != null) {
                 return false;
             }
-        } else if (!getDataURI().equals(other.getDataURI()))
+        } else if (!getDataURI().equals(other.getDataURI())) {
             return false;
+        }
         return true;
     }
 
     /**
-     * Returns a 
+     * Returns a
+     * 
      * @param obsList
      * @return
      */
     public static final List<UAObs> sortByCorrection(List<UAObs> obsList) {
-        
+
         // No need to sort for null, empty, or one item.
-        if((obsList != null) && (obsList.size() > 1)) {
+        if ((obsList != null) && (obsList.size() > 1)) {
             Collections.sort(obsList, getCorComparator());
         }
         return obsList;
@@ -868,14 +863,14 @@ public class UAObs extends PersistablePluginDataObject implements
     public static Comparator<UAObs> getCorComparator() {
         return corComparator;
     }
-    
-    
+
+    @Override
     public String toString() {
         return wmoHeader;
     }
-    
-    public static final void main(String [] args) {
-        
+
+    public static final void main(String[] args) {
+
         List<UAObs> obsList = new ArrayList<UAObs>();
         UAObs obsA = new UAObs();
         obsA.setWmoHeader("IUSZ42 KWBC 271845 CCA");
@@ -889,25 +884,18 @@ public class UAObs extends PersistablePluginDataObject implements
         obs = new UAObs();
         obs.setWmoHeader("IUSZ42 KWBC 271825 CCA");
         obsList.add(obs);
-        
+
         System.out.println(obsList);
         obsList = sortByCorrection(obsList);
         System.out.println(obsList);
-        
+
         int c = UAObs.getCorComparator().compare(obsA, obsB);
         System.out.println(c);
-        
-        
-        
-        
-        
-        UAObs test = new UAObs("/bufrua/2011-10-07_00:00:00.0/2022/null/IUSZ52_KWBC_070040/72634/44.90833/-84.71944");
-        
+
+        UAObs test = new UAObs(
+                "/bufrua/2011-10-07_00:00:00.0/2022/null/IUSZ52_KWBC_070040/72634/44.90833/-84.71944");
+
         System.out.println(test.dataURI);
-        
-        
-        
-        
-        
+
     }
 }

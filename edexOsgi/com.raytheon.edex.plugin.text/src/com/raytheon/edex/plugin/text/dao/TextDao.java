@@ -19,10 +19,19 @@
  **/
 package com.raytheon.edex.plugin.text.dao;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
 import com.raytheon.edex.db.dao.DefaultPluginDao;
+import com.raytheon.edex.textdb.dao.StdTextProductDao;
 import com.raytheon.edex.textdb.dbapi.impl.TextDB;
 import com.raytheon.uf.common.dataplugin.PluginException;
+import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
+import com.raytheon.uf.common.dataquery.db.QueryParam.QueryOperand;
+import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.purge.PurgeLogger;
+import com.raytheon.uf.edex.database.query.DatabaseQuery;
 
 /**
  * DAO for text products
@@ -55,9 +64,46 @@ public class TextDao extends DefaultPluginDao {
         // no op
     }
 
+    @Override
     public void purgeExpiredData() throws PluginException {
         int deletedRecords = TextDB.purgeStdTextProducts();
         PurgeLogger.logInfo("Purged " + deletedRecords + " items total.",
                 "text");
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<PersistableDataObject> getRecordsToArchive(
+            Calendar insertStartTime, Calendar insertEndTime)
+            throws DataAccessLayerException {
+        StdTextProductDao dao = new StdTextProductDao(true);
+        DatabaseQuery dbQuery = new DatabaseQuery(dao.getDaoClass());
+        dbQuery.addQueryParam("createtime", insertStartTime.getTimeInMillis(),
+                QueryOperand.GREATERTHANEQUALS);
+        dbQuery.addQueryParam("createtime", insertEndTime.getTimeInMillis(),
+                QueryOperand.LESSTHAN);
+        dbQuery.addOrder("createtime", true);
+
+        return (List<PersistableDataObject>) this.queryByCriteria(dbQuery);
+    }
+
+    @Override
+    public Date getMinInsertTime(String productKey)
+            throws DataAccessLayerException {
+        DatabaseQuery query = new DatabaseQuery(this.daoClass);
+        List<String[]> keys = this.getProductKeyParameters(productKey);
+        for (String[] key : keys) {
+            query.addQueryParam(key[0], key[1]);
+        }
+        query.addReturnedField("createime");
+        query.addOrder("createtime", true);
+        query.setMaxResults(1);
+        @SuppressWarnings("unchecked")
+        List<Long> result = (List<Long>) this.queryByCriteria(query);
+        if (result.isEmpty()) {
+            return null;
+        } else {
+            return new Date(result.get(0));
+        }
     }
 }

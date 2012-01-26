@@ -622,49 +622,62 @@ class H5pyDataStore(IDataStore.IDataStore):
         compression = request.getCompression()
         resp = RepackResponse()
         if os.path.exists(pth):
-            self.__recurseRepack(pth, compression, resp)
+            self.__recurseRepack(pth, request, resp)
         return resp
 
-    def __recurseRepack(self, pth, compression, resp):
+    def __recurseRepack(self, pth, req, resp):
         files = os.listdir(pth)
         for f in files:
             fullpath = pth + '/' + f
             if os.path.isdir(fullpath):
-                self.__recurseRepack(fullpath, compression, resp)
+                self.__recurseRepack(fullpath, req, resp)
             elif len(f) > 3 and f[-3:] == '.h5':
-                self.__doRepack(fullpath, resp, compression)
+                self.__doRepack(fullpath, req, resp)
     
-    def __doRepack(self, fullpath, response, compression='NONE'):
-        lock = None        
-        try:            
+    def __doRepack(self, fullpath, req, response):
+        lock = None
+        try:
             f, lock = self.__openFile(fullpath, 'a')
-            proceedWithRepack = True        
-            if 'lastRepacked' in f.attrs.keys():
-                lastRepacked = f.attrs['lastRepacked']
-                lastModified = os.stat(fullpath).st_mtime
-                if lastRepacked > lastModified:
-                    proceedWithRepack = False
+            proceedWithRepack = True
+            timestampCheck = req.getTimestampCheck()
+            if timestampCheck:
+                if timestampCheck in f.attrs.keys():
+                    lastRepacked = f.attrs[timestampCheck]
+                    lastModified = os.stat(fullpath).st_mtime
+                    if lastRepacked > lastModified:
+                        proceedWithRepack = False
             if proceedWithRepack:
                 # update repack time even if repack will fail, cause if it fails at
                 # this time there's no point in retrying.  put time in the near future
                 # cause the modified time will be after the repack and rename
-                f.attrs['lastRepacked'] = time.time() + 30
+                if timestampCheck:
+                    f.attrs[timestampCheck] = time.time() + 30
                 f.close()
                 
                 # call h5repack to repack the file
-                repackedFullPath = fullpath + '.repacked'
-                cmd = ['h5repack', '-f', compression, fullpath, repackedFullPath]
+                outDir = req.getOutputDir()
+                if outDir is None:
+                    repackedFullPath = fullpath + '.repacked'                    
+                else:
+                    repackedFullPath = fullpath.replace(req.getFilename(), outDir)
+                cmd = ['h5repack', '-f', req.getCompression(), fullpath, repackedFullPath]
                 ret = subprocess.call(cmd)
                 success = (ret == 0)
                 if success:
-                    # repack was successful, replace the old file
-                    os.remove(fullpath)
-                    os.rename(repackedFullPath, fullpath)
-                    os.chmod(fullpath, stat.S_IWUSR | stat.S_IWGRP | stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+                    # repack was successful, replace the old file if we did it in the
+                    # same directory, otherwise leave it alone
+                    if outDir is None:
+                        os.remove(fullpath)
+                        os.rename(repackedFullPath, fullpath)
+                        os.chmod(fullpath, stat.S_IWUSR | stat.S_IWGRP | stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
                 else:
                     # remove failed new file if there was one
                     if os.path.exists(repackedFullPath):
                         os.remove(repackedFullPath)
+                    if outDir is not None:
+                        # repack failed, but they wanted the data in a different
+                        # directory, so just copy the original data without the repack
+                        shutil.copy(fullpath, repackedFullPath)
                 
                 # update response
                 if success:

@@ -24,6 +24,8 @@ class RepackRequest(object):
 
     def __init__(self):
         self.compression = None
+        self.outputDir = None
+        self.timestampCheck = None
         self.filename = None
 
     def getCompression(self):
@@ -31,6 +33,18 @@ class RepackRequest(object):
 
     def setCompression(self, compression):
         self.compression = compression
+
+    def getOutputDir(self):
+        return self.outputDir
+
+    def setOutputDir(self, outputDir):
+        self.outputDir = outputDir
+
+    def getTimestampCheck(self):
+        return self.timestampCheck
+
+    def setTimestampCheck(self, timestampCheck):
+        self.timestampCheck = timestampCheck
 
     def getFilename(self):
         return self.filename
