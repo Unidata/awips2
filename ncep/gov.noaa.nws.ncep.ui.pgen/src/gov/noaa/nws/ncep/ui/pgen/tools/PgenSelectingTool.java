@@ -51,6 +51,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Vector;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
 import gov.noaa.nws.ncep.ui.pgen.elements.labeledLines.LabeledLine;
+import gov.noaa.nws.ncep.ui.pgen.elements.tcm.Tcm;
 import gov.noaa.nws.ncep.ui.pgen.filter.AcceptFilter;
 import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
 import gov.noaa.nws.ncep.ui.pgen.gfa.IGfa;
@@ -132,6 +133,9 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
      */
     @Override
     protected void activateTool( ) {
+    	
+    	if ( PgenSession.getInstance().getPgenPalette() == null ) return;
+    	
     	IEditorPart ep = EditorUtil.getActiveEditor();
         if (!(ep instanceof NCMapEditor) ){
             return;
@@ -188,10 +192,7 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
     
     @Override
     public void resetMouseHandler(){
-    	
-    	if ( attrDlg instanceof JetAttrDlg ){
-    		((JetAttrDlg)attrDlg).closeBarbDlg();
-    	}
+
     	setHandler( selectHandler);
     }
     
@@ -317,6 +318,7 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
      */
     public class PgenSelectHandler extends InputHandlerDefaultImpl {
  
+    	private boolean preempt;
     	/**
     	 * Attribute dialog for displaying track points info
     	 */
@@ -360,6 +362,8 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
          */
         @Override	   	
         public boolean handleMouseDown(int anX, int aY, int button) { 
+        	
+        	preempt = false;
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
         	if ( loc == null ) return false;
@@ -367,7 +371,10 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
         	if ( button == 1 ) {
 
         		// Return if an element or a point has been selected
-        		if ( ptSelected || drawingLayer.getSelectedDE() != null ) return true;
+        		if ( ptSelected || drawingLayer.getSelectedDE() != null ) {
+        			preempt = true;
+        			return false;
+        		}
         		        	
         		// Get the nearest element and set it as the selected element.
         		DrawableElement elSelected = drawingLayer.getNearestElement( loc );
@@ -375,9 +382,10 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
         		AbstractDrawableComponent adc = drawingLayer.getNearestComponent( loc, new AcceptFilter(), true );
         	//	AbstractDrawableComponent adc = drawingLayer.getNearestComponent( loc );
 
-        		if ( elSelected == null ) return true;
-        		
-                /*
+        		if ( elSelected == null ) return false;
+        		preempt = true;
+                
+        		/*
                  *  Get the PGEN type category and bring up the attribute dialog
                  */
         		String pgCategory = null;
@@ -388,7 +396,9 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
         		else if ( elSelected instanceof WatchBox ){
         			PgenUtil.loadWatchBoxModifyTool(elSelected);
         		}
-        		
+        		else if ( elSelected instanceof Tcm ){
+        			PgenUtil.loadTcmTool(elSelected);
+        		}
         		/*
         		 *  Select from within a given Contours or within the PgenResource 
         		 */
@@ -417,7 +427,7 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
         			        pgCategory = elSelected.getPgenCategory();
         			        pgenType = elSelected.getPgenType(); 
         			        if ( ((Jet)adc).getSnapTool() == null ){
-        			            ((Jet)adc).setSnapTool( new PgenSnapJet(drawingLayer.getDescriptor(), null));
+        			            ((Jet)adc).setSnapTool( new PgenSnapJet(drawingLayer.getDescriptor(), mapEditor, null));
         			        }
         			    }
        		        }
@@ -527,7 +537,7 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
                 		((JetAttrDlg)attrDlg).setJetDrawingTool(PgenSelectingTool.this);
                 		((JetAttrDlg)attrDlg).updateSegmentPane();
                 		if ( jet.getSnapTool() == null ){
-        					jet.setSnapTool( new PgenSnapJet(drawingLayer.getDescriptor(), (JetAttrDlg)attrDlg));
+        					jet.setSnapTool( new PgenSnapJet(drawingLayer.getDescriptor(), mapEditor, (JetAttrDlg)attrDlg));
         				}
                 	}	
                 	else if ( adc != null && attrDlg instanceof OutlookAttrDlg ){
@@ -555,7 +565,7 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
                 }
                  mapEditor.setFocus();
                  mapEditor.refresh();  
-                return false;
+                return preempt;
                 
             }
             else if ( button == 3 ) {
@@ -600,7 +610,7 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
          *      int, int)
          */
         @Override
-        public boolean handleMouseDownMove(int x, int y, int button) {
+        public boolean handleMouseDownMove(int x, int y, int button) { 
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(x, y);
         	if ( loc == null ) return false;
@@ -608,6 +618,9 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
         	DrawableElement tmpEl = drawingLayer.getSelectedDE();
         	       	
         	if( isUnmovable(tmpEl) ) return false;
+        	
+        	//make sure the click is close enough to the element
+        	if ( drawingLayer.getDistance(tmpEl, loc) > 30 && !ptSelected ) return false;
 
         	if ( tmpEl != null ) {
         		if (tmpEl instanceof SinglePointElement ){
@@ -722,11 +735,13 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
 
         				}
         			}
+        			
+        			return true;
         		}     	
         	}
 
-            return false;
-                
+            return preempt;
+         
         }
         
         /*
@@ -1132,7 +1147,7 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
     				cdlg.setNumOfLabels( ((ContourLine)pele).getNumOfLabels() ); 
     				cdlg.setClosed( ((ContourLine)pele).getLine().isClosedLine() );
         			cdlg.setContourLineType( ((ContourLine)pele).getLine().getPgenType() );
-   			}
+   			    }
     			else if ( pele instanceof ContourMinmax ) {
     				cdlg.setDrawingSymbol();
     				cdlg.setNumOfLabels( 1 );

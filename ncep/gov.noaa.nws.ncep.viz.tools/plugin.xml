@@ -13,17 +13,14 @@
           name="Loop Management">
       </command>
       <command
-      	  categoryId="com.raytheon.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.viz.ui.actions.loopForward"
           name="Loop Forward">
       </command>
       <command
-      	  categoryId="com.raytheon.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.viz.ui.actions.loopBackward"
           name="Loop Backward">
       </command>
       <command
-      	  categoryId="com.raytheon.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.viz.ui.actions.rock"
           name="Loop Rock">
       </command>
@@ -50,10 +47,12 @@
           name="Cursor">
       </command>
       <command
+      	  categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.actions.aodt.operational"
           name="AODT Operational">
       </command>
       <!--command
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.actions.aodt.experimental"
           name="AODT Experimental">
       </command-->
@@ -61,24 +60,24 @@
             id="gov.noaa.nws.ncep.viz.ui.actions.createCustomProjection"
             name="Create Custom Projection">
       </command>
+      <category 
+            id="gov.noaa.nws.ncep.viz.ui.modalTool.nav"
+            name="Modal Tool">
+      </category>
       <command
-            categoryId="com.raytheon.viz.ui.modalTool"
+            categoryId="gov.noaa.nws.ncep.viz.ui.modalTool.nav"
             id="gov.noaa.nws.ncep.viz.tools.pan"
             name="NC_Pan">
       </command>
       <command
-            categoryId="com.raytheon.viz.ui.modalTool"
+            categoryId="gov.noaa.nws.ncep.viz.ui.modalTool.nav"
             id="gov.noaa.nws.ncep.viz.tools.zoom"
             name="NC_Zoom">
       </command>
       <command
-            categoryId="com.raytheon.viz.ui.modalTool"
+            categoryId="gov.noaa.nws.ncep.viz.ui.modalTool.nav"
             id="gov.noaa.nws.ncep.viz.tools.unzoom"
             name="NC_Unzoom">
-      </command>
-      <command
-            id="gov.noaa.nws.ncep.viz.ui.locatorOptsDflts"
-            name="Locator Options Defaults">
       </command>
       <command
             id="gov.noaa.nws.ncep.viz.ui.newMapEditor"
@@ -102,12 +101,12 @@
             name="Colormap editor">
       </command>
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.viz.ui.actions.clearData"
           name="Wipe Results">
       </command >
             <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.viz.ui.actions.hideFrames"
           name="Hide Loop">
       </command>
@@ -120,7 +119,7 @@
            </commandParameter>
       </command>
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.viz.ui.actions.hideFrames"
           name="Hide Loop">
       </command>
@@ -201,10 +200,6 @@
             commandId="gov.noaa.nws.ncep.viz.ui.actions.createCustomProjection">
       </handler>
       <handler
-            class="gov.noaa.nws.ncep.viz.tools.locatorOptions.LocatorOptionsAction"
-            commandId="gov.noaa.nws.ncep.viz.ui.locatorOptsDflts">
-      </handler>
-      <handler
             class="gov.noaa.nws.ncep.viz.tools.newEditors.NewDisplayAction"
             commandId="gov.noaa.nws.ncep.viz.ui.newMapEditor">
       </handler>
@@ -238,39 +233,6 @@
             class="gov.noaa.nws.ncep.viz.tools.frame.BadFrameAction"
             commandId="gov.noaa.nws.ncep.viz.ui.actions.BadFrameAction">
        </handler>
-   </extension>
-   <extension
-         point="gov.noaa.nws.ncep.viz.localization.localizationData">
-      <singleLocalizationValue
-            name="cursorRefTable"
-            location="cursor"
-            fileName="cursorref_tbl.xml">
-      </singleLocalizationValue>
-      <singleLocalizationValue
-            name="cursorTypeTable"
-            location="cursor"
-            fileName="cursorType.tbl">
-      </singleLocalizationValue>
-      <singleLocalizationValue
-            name="dwellRateTable"
-            location="loop"
-            fileName="loop_speed.tbl">
-      </singleLocalizationValue>
-      <singleLocalizationValue
-            name="logoTable"
-            location="logo"
-            fileName="logos.tbl">
-      </singleLocalizationValue>
-      <singleLocalizationValue
-            fileName="geog.xml"
-            location="resources/projection"
-            name="projectionResourcesGeogXmlFile">
-      </singleLocalizationValue>
-      <singleLocalizationValue
-            fileName="sfstns.xml"
-            location="resources/projection"
-            name="projectionResourcesSfstnsXmlFile">
-      </singleLocalizationValue>
    </extension>
    <!-- Hot Keys-->
       <extension
@@ -514,4 +476,39 @@
          </key> 
          
    </extension>
+   
+      <extension
+          point="com.raytheon.uf.viz.localization.localizationpath">
+       	<path
+             application="NCEP"
+             localizationType="CAVE_STATIC"
+             name="Cursors"
+             recursive="true"
+             value="ncep/Cursors"
+	         extensionFilter=".xml,.png">
+       </path>
+      </extension>
+      <extension
+          point="com.raytheon.uf.viz.localization.localizationpath">
+       	<path
+             application="NCEP"
+             localizationType="CAVE_STATIC"
+             name="Logos"
+             recursive="true"
+             value="ncep/Logos"
+	         extensionFilter=".tbl,.gif">
+       </path>
+      </extension>
+      <extension
+          point="com.raytheon.uf.viz.localization.localizationpath">
+       	<path
+             application="NCEP"
+             localizationType="CAVE_STATIC"
+             name="Animation Controls"
+             recursive="true"
+             value="ncep/LoopControls"
+	         extensionFilter=".tbl">
+       </path>
+      </extension>
+   
 </plugin>
