@@ -252,14 +252,25 @@ public interface IDataStore extends ISerializableObject {
             FileNotFoundException;
 
     /**
-     * Repacks all hdf5 files of a certain plugin that haven't been repacked
+     * Recursively repacks all files of a certain directory. Presumes that the
+     * IDataStore instance is tied to a directory, not a specific file.
      * 
-     * @param dirName
-     *            the name of the directory to scan for files to repack
      * @param compression
      *            the type of compression to repack with
+     * @param outputDir
+     *            the output directory to put the repacked files, or null if the
+     *            same dir. If the same dir is used, it will delete the original
+     *            file.
+     * @param timestampCheck
+     *            if not null, the attribute to check on the file for a
+     *            timestamp of the last time this particular action was run.
+     *            e.g. "lastRepacked" or "lastArchived". if set, this attribute
+     *            will be set on the file when the request is made, and then
+     *            future requests for the same file will check this attribute
+     *            and if the file has not been modified since last run, the file
+     *            will be skipped.
      */
-    public void repack(String dirName, Compression compression)
-            throws StorageException;
+    public void repack(Compression compression, String outputDir,
+            String timestampCheck) throws StorageException;
 
 }
