@@ -39,6 +39,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
  * 03/04/10     #226        Greg Hull       special case for PGEN resource 
  * 03/17/10     #259        Greg Hull       add '@' parameter processing 
  * 08/23/10     #273        Greg Hull       isVisible()
+ * 11/17/11     #518        Greg Hull       set dfltFrameTimes (GDATTIM)
  *   
  * </pre>
  * 
@@ -54,10 +55,6 @@ public class ResourceFactory {
 		private INatlCntrsResourceData rscData = null; 
 		private ResourcePair rscPair = null;
 
-//		// 
-//		public ResourceSelectionUnused( String fullRscName ) throws VizException {
-//		}
-//
 		// called when loading an existing RBD into the dialog and we need to get the attribute values
 		// from the edited RBD instead of the original attrSet file.
 		protected ResourceSelection( ResourcePair rp ) throws VizException {
@@ -135,7 +132,7 @@ public class ResourceFactory {
 			return rscData;
 		}		
 	}
-
+	
 	public static ResourceSelection createResource( ResourcePair rscPair ) throws VizException {		
 		return new ResourceSelection( rscPair );
 	}
@@ -145,6 +142,9 @@ public class ResourceFactory {
 		File bndlFile = ResourceDefnsMngr.getInstance().getRscBundleTemplateFile( rscName.getRscType() );
 		HashMap< String, String > rscParams = ResourceDefnsMngr.getInstance().getAllResourceParameters( rscName );		
 		
+		// exception on bad syntax...
+		String dfltFrameTimes = ResourceDefnsMngr.getInstance().getDefaultFrameTimesSelections( rscName );
+
 		String bundleStr = null;
 		try {
 			FileReader fr = new FileReader(bndlFile);
@@ -187,13 +187,18 @@ public class ResourceFactory {
 				INatlCntrsResourceData rscData = 
 					   (INatlCntrsResourceData) rscPair.getResourceData();	
 				rscData.setResourceName( rscName );
+				
+				if( dfltFrameTimes != null &&
+					rscData instanceof AbstractNatlCntrsRequestableResourceData ) {
+					
+					((AbstractNatlCntrsRequestableResourceData)rscData).setDfltFrameTimes(dfltFrameTimes);
+				}
 
 				ResourceSelection rscSelection = new ResourceSelection( rscPair );
-				
 				return rscSelection;				
 			}
 		} catch (Exception e) {
-			throw new VizException("Error unmarshalling Resource: "+e.getMessage(), e);
+			throw new VizException("Error unmarshalling Resource: "+e.getMessage()+"("+e.getCause()+")", e);
 		}
 		
 		return null;
