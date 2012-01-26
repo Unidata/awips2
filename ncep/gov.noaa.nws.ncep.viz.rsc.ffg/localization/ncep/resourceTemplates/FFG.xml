@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<resourceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <resource>
+      <loadProperties loadWithoutData="true"
+         overlayMatchTolerance="1">
+         <resourceType>PLAN_VIEW</resourceType>
+      </loadProperties>
+      <properties isSystemResource="false" isBlinking="false"
+         isMapLayer="false" isHoverOn="false" isVisible="true">
+      </properties>
+      <resourceData xsi:type="NC-FFGResourceData"
+         isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="false">
+         <metadataMap>
+            <mapping key="pluginName">
+               <constraint constraintValue="ffg" constraintType="EQUALS" />
+            </mapping>
+            <mapping key="reportType">
+               <constraint constraintValue="FFG" constraintType="EQUALS" />
+            </mapping>
+         </metadataMap>
+         <timeMatchMethod>${timeMatchMethod}</timeMatchMethod>       
+         <timelineGenMethod>${timelineGenMethod}</timelineGenMethod> 
+         <frameSpan>${frameSpan}</frameSpan>
+         <dfltNumFrames>${dfltNumFrames}</dfltNumFrames>
+         <dfltTimeRange>${dfltTimeRange}</dfltTimeRange>
+         <legendColor>${legend_color}</legendColor>
+         <ffgParam>${ffg_param}</ffgParam>
+         <displayValues>${displayValues}</displayValues>
+         <symbolName>${symbolName}</symbolName>
+         ${colorBar}
+         <requestStyle>METADATA</requestStyle>
+
+      </resourceData>
+   </resource>
+</resourceGroup>

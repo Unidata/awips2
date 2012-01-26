@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<linePatternList>
+    <patternEntry>
+        <patternId>DOUBLE_LINE</patternId>
+        <linePattern hasArrowHead="false" name="Double Line">
+            <patternSegment reverseSide="false" offsetSize="2" numberInArc="0" colorLocation="0" type="DOUBLE_LINE" length="1.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>LINE_FILLED_CIRCLE_ARROW</patternId>
+        <linePattern arrowHeadType="FILLED" hasArrowHead="true" name="Line-Filled-Circle-Line with filled arrow head">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="8" colorLocation="0" type="CIRCLE_FILLED" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>FILLED_CIRCLES</patternId>
+        <linePattern hasArrowHead="false" name="Filled Circle">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="8" colorLocation="0" type="CIRCLE_FILLED" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="2.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>LINE_XX_LINE</patternId>
+        <linePattern hasArrowHead="false" name="Line-2Xs-Line">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="2.0"/>
+            <patternSegment reverseSide="false" offsetSize="2" numberInArc="0" colorLocation="0" type="X_PATTERN" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="2.0"/>
+            <patternSegment reverseSide="false" offsetSize="2" numberInArc="0" colorLocation="0" type="X_PATTERN" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="2.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>INSTABILITY</patternId>
+        <linePattern hasArrowHead="false" name="Instability (Squall) Line">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="8.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="2.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="8" colorLocation="0" type="CIRCLE_FILLED" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="2.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="8" colorLocation="0" type="CIRCLE_FILLED" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="2.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="8.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>ZZZ_LINE</patternId>
+        <linePattern hasArrowHead="false" name="Z-Line">
+            <patternSegment reverseSide="false" offsetSize="2" numberInArc="0" colorLocation="0" type="Z_PATTERN" length="8.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>STATIONARY_FRONT_DISS</patternId>
+        <linePattern hasArrowHead="false" name="Stationary Front Frontolysis">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="true" offsetSize="0" numberInArc="8" colorLocation="0" type="ARC_180_DEGREE_FILLED" length="8.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="8.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="1" type="LINE" length="8.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="1" type="BLANK" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="1" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="2" colorLocation="1" type="ARC_180_DEGREE_FILLED" length="8.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="1" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="1" type="BLANK" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="1" type="LINE" length="8.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="8.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="4.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>LINE_DASHED_4</patternId>
+        <linePattern hasArrowHead="false" name="Medium Dashed">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="4.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>LINE_DASHED_3</patternId>
+        <linePattern hasArrowHead="false" name="Short Dashed">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="2.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="3.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>LINE_DASHED_6</patternId>
+        <linePattern hasArrowHead="false" name="Long Dashed">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="5.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="2.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>LINE_DASHED_5</patternId>
+        <linePattern hasArrowHead="false" name="Long Dash Short Dash">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="6.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="3.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="2.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="3.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>LINE_DASHED_8</patternId>
+        <linePattern hasArrowHead="false" name="Long Dash Dot">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="8.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="0.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="8" colorLocation="0" type="CIRCLE_FILLED" length="0.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="0.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>LINE_DASHED_7</patternId>
+        <linePattern hasArrowHead="false" name="Long Dash Three Short Dashes">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="8.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="3.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="2.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="3.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="2.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="3.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="2.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="3.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>LINE_DASHED_9</patternId>
+        <linePattern hasArrowHead="false" name="Medium Dash Dot Dot Dot">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="6.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="0.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="8" colorLocation="0" type="CIRCLE_FILLED" length="0.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="0.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="8" colorLocation="0" type="CIRCLE_FILLED" length="0.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="0.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="8" colorLocation="0" type="CIRCLE_FILLED" length="0.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="0.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>TROPICAL_TROF</patternId>
+        <linePattern hasArrowHead="false" name="Tropical TROF"/>
+    </patternEntry>
+    <patternEntry>
+        <patternId>LINE_DASHED_10</patternId>
+        <linePattern hasArrowHead="false" name="Long Dash Dot Dot">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="15.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="0.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="8" colorLocation="0" type="CIRCLE_FILLED" length="0.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="0.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="8" colorLocation="0" type="CIRCLE_FILLED" length="0.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="0.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>STATIONARY_FRONT</patternId>
+        <linePattern hasArrowHead="false" name="Stationary Front at the surface">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="true" offsetSize="0" numberInArc="8" colorLocation="0" type="ARC_180_DEGREE_FILLED" length="8.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="1" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="2" colorLocation="1" type="ARC_180_DEGREE_FILLED" length="8.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="1" type="LINE" length="4.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>TROF</patternId>
+        <linePattern hasArrowHead="false" name="TROF">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="12.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="4.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>LINE_DASHED_2</patternId>
+        <linePattern hasArrowHead="false" name="Dotted Line">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="0.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="8" colorLocation="0" type="CIRCLE_FILLED" length="0.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>DASHED_ARROW</patternId>
+        <linePattern arrowHeadType="OPEN" hasArrowHead="true" name="Dashed Line with open arrow head">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="8.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="6.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="8.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>OCCLUDED_FRONT_FORM</patternId>
+        <linePattern hasArrowHead="false" name="Occluded Front Frontogenesis">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="2" colorLocation="0" type="ARC_180_DEGREE_FILLED" length="8.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="8" colorLocation="0" type="ARC_180_DEGREE_FILLED" length="8.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="4.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>FILL_OPEN_BOX</patternId>
+        <linePattern arrowHeadType="FILLED" hasArrowHead="true" name="Filled Box-Open Box with filled arrow head">
+            <patternSegment reverseSide="false" offsetSize="2" numberInArc="0" colorLocation="0" type="BOX_FILLED" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="2" numberInArc="0" colorLocation="0" type="BOX" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="2" numberInArc="0" colorLocation="0" type="BOX_FILLED" length="4.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>COLD_FRONT_FORM</patternId>
+        <linePattern hasArrowHead="false" name="Cold Front Frontogenesis">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="2" colorLocation="0" type="ARC_180_DEGREE_FILLED" length="8.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="4.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>BALL_CHAIN</patternId>
+        <linePattern hasArrowHead="false" name="Ball-and-Chain">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="2.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="8" colorLocation="0" type="CIRCLE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="2.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>LINE_WITH_CARETS</patternId>
+        <linePattern hasArrowHead="false" name="Line-Caret-Line">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="2" colorLocation="0" type="ARC_270_DEGREE_WITH_LINE" length="6.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>OCCLUDED_FRONT</patternId>
+        <linePattern hasArrowHead="false" name="Occluded Front at the surface">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="2" colorLocation="0" type="ARC_180_DEGREE_FILLED" length="8.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="8" colorLocation="0" type="ARC_180_DEGREE_FILLED" length="8.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>COLD_FRONT</patternId>
+        <linePattern hasArrowHead="false" name="Cold Front at the surface">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="2" colorLocation="0" type="ARC_180_DEGREE_FILLED" length="8.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>LINE_X_LINE</patternId>
+        <linePattern hasArrowHead="false" name="Line-X-Line">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="2.0"/>
+            <patternSegment reverseSide="false" offsetSize="2" numberInArc="0" colorLocation="0" type="X_PATTERN" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="2.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>POINTED_ARROW</patternId>
+        <linePattern arrowHeadType="OPEN" hasArrowHead="true" name="Line with open arrow head"/>
+    </patternEntry>
+    <patternEntry>
+        <patternId>BOX_CIRCLE</patternId>
+        <linePattern hasArrowHead="false" name="Box-Circle">
+            <patternSegment reverseSide="false" offsetSize="2" numberInArc="0" colorLocation="0" type="BOX" length="8.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="2.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="8" colorLocation="0" type="CIRCLE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="2.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>BOX_X</patternId>
+        <linePattern hasArrowHead="false" name="Box-X">
+            <patternSegment reverseSide="false" offsetSize="2" numberInArc="0" colorLocation="0" type="BOX" length="8.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="2.0"/>
+            <patternSegment reverseSide="false" offsetSize="2" numberInArc="0" colorLocation="0" type="X_PATTERN" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="2.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>OCCLUDED_FRONT_DISS</patternId>
+        <linePattern hasArrowHead="false" name="Occluded Front Frontolysis">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="2" colorLocation="0" type="ARC_180_DEGREE_FILLED" length="8.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="16.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="8" colorLocation="0" type="ARC_180_DEGREE_FILLED" length="8.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="16.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="4.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>FILL_CIRCLE_X</patternId>
+        <linePattern hasArrowHead="false" name="Filled Circle-X">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="8" colorLocation="0" type="CIRCLE_FILLED" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="2.0"/>
+            <patternSegment reverseSide="false" offsetSize="2" numberInArc="0" colorLocation="0" type="X_PATTERN" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="2.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>WARM_FRONT_DISS</patternId>
+        <linePattern hasArrowHead="false" name="Warm Front Frontolysis">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="8" colorLocation="0" type="ARC_180_DEGREE_FILLED" length="8.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="16.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="4.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>COLD_FRONT_DISS</patternId>
+        <linePattern hasArrowHead="false" name="Cold Front Frontolysis">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="2" colorLocation="0" type="ARC_180_DEGREE_FILLED" length="8.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="16.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="4.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>ZIGZAG</patternId>
+        <linePattern hasArrowHead="false" name="ZigZag">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="2" colorLocation="0" type="ARC_180_DEGREE" length="8.0"/>
+            <patternSegment reverseSide="true" offsetSize="0" numberInArc="2" colorLocation="0" type="ARC_180_DEGREE" length="8.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>WARM_FRONT</patternId>
+        <linePattern hasArrowHead="false" name="Warm Front at the surface">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="8" colorLocation="0" type="ARC_180_DEGREE_FILLED" length="8.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>SINE_CURVE</patternId>
+        <linePattern hasArrowHead="false" name="Sine Curve">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="8" colorLocation="0" type="ARC_180_DEGREE" length="8.0"/>
+            <patternSegment reverseSide="true" offsetSize="0" numberInArc="8" colorLocation="0" type="ARC_180_DEGREE" length="8.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>SCALLOPED</patternId>
+        <linePattern hasArrowHead="false" name="Scallop">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="8" colorLocation="0" type="ARC_180_DEGREE" length="8.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>STATIONARY_FRONT_FORM</patternId>
+        <linePattern hasArrowHead="false" name="Stationary Front Frontogenesis">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="true" offsetSize="0" numberInArc="8" colorLocation="0" type="ARC_180_DEGREE_FILLED" length="8.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="1" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="2" colorLocation="1" type="ARC_180_DEGREE_FILLED" length="8.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="1" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="4.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>LINE_SOLID</patternId>
+        <linePattern hasArrowHead="false" name="Solid Line"/>
+    </patternEntry>
+    <patternEntry>
+        <patternId>STORM_TRACK</patternId>
+        <linePattern hasArrowHead="false" name="Storm Track"/>
+    </patternEntry>
+    <patternEntry>
+        <patternId>STREAM_LINE</patternId>
+        <linePattern hasArrowHead="false" name="Streamline-like">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="12.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="2" colorLocation="0" type="ARROW_HEAD" length="8.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>WARM_FRONT_FORM</patternId>
+        <linePattern hasArrowHead="false" name="Warm Front Frontogenesis">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="8" colorLocation="0" type="ARC_180_DEGREE_FILLED" length="8.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="4.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>LINE_CIRCLE_ARROW</patternId>
+        <linePattern arrowHeadType="FILLED" hasArrowHead="true" name="Line-Circle-Line with filled arrow head">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="8" colorLocation="0" type="CIRCLE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>FILLED_ARROW</patternId>
+        <linePattern arrowHeadType="FILLED" hasArrowHead="true" name="Line with closed arrow head"/>
+    </patternEntry>
+    <patternEntry>
+        <patternId>ANGLED_TICKS_ALT</patternId>
+        <linePattern hasArrowHead="false" name="Alternating Angled Ticks">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="1" colorLocation="0" type="ARC_90_DEGREE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="8.0"/>
+            <patternSegment reverseSide="true" offsetSize="0" numberInArc="1" colorLocation="0" type="ARC_90_DEGREE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>LINE_CARET_LINE</patternId>
+        <linePattern hasArrowHead="false" name="Line-Caret-Line with spaces">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="2.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="2" colorLocation="0" type="ARC_270_DEGREE" length="6.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="2.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="4.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>DRY_LINE</patternId>
+        <linePattern hasArrowHead="false" name="Dry-Line">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="8" colorLocation="0" type="ARC_180_DEGREE_CLOSED" length="8.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>DASHED_ARROW_FILLED</patternId>
+        <linePattern arrowHeadType="FILLED" hasArrowHead="true" name="Dashed Line with filled arrow head">
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="8.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="BLANK" length="6.0"/>
+            <patternSegment reverseSide="false" offsetSize="0" numberInArc="0" colorLocation="0" type="LINE" length="8.0"/>
+        </linePattern>
+    </patternEntry>
+    <patternEntry>
+        <patternId>TICK_MARKS</patternId>
+        <linePattern hasArrowHead="false" name="Tick Mark">
+            <patternSegment reverseSide="false" offsetSize="2" numberInArc="0" colorLocation="0" type="TICK" length="8.0"/>
+        </linePattern>
+    </patternEntry>
+</linePatternList>
