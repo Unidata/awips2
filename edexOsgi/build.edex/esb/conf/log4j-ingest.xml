@@ -52,10 +52,21 @@
       </layout> 
    </appender> 
    
-      <!-- Purge log --> 
+   <!-- Purge log --> 
    <appender name="PurgeLog" class="org.apache.log4j.rolling.RollingFileAppender">
       <rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
          <param name="FileNamePattern" value="${edex.home}/logs/edex-${edex.run.mode}-purge-%d{yyyyMMdd}.log"/>
+      </rollingPolicy> 
+
+      <layout class="org.apache.log4j.PatternLayout"> 
+         <param name="ConversionPattern" value="%-5p %d [%t] %c{1}: %m%n"/> 
+      </layout> 
+   </appender> 
+   
+   <!-- Archive log --> 
+   <appender name="ArchiveLog" class="org.apache.log4j.rolling.RollingFileAppender">
+      <rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
+         <param name="FileNamePattern" value="${edex.home}/logs/edex-${edex.run.mode}-archive-%d{yyyyMMdd}.log"/>
       </rollingPolicy> 
 
       <layout class="org.apache.log4j.PatternLayout"> 
@@ -217,6 +228,11 @@
    <logger name="com.raytheon.edex.textdb.dao.StdTextProductDao.PurgeLogger" additivity="false">
    		<level value="INFO"/>
    		<appender-ref ref="PurgeLog"/>
+   </logger>
+   
+   <logger name="com.raytheon.uf.edex.maintenance.archive" additivity="false">
+   		<level value="INFO"/>
+   		<appender-ref ref="ArchiveLog"/>
    </logger>
 
    <logger name="RouteFailedLog" additivity="false">

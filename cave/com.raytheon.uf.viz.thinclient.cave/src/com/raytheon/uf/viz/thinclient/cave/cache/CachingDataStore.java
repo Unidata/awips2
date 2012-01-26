@@ -383,9 +383,9 @@ public class CachingDataStore implements IDataStore {
      * com.raytheon.uf.common.datastorage.StorageProperties.Compression)
      */
     @Override
-    public void repack(String dirName, Compression compression)
-            throws StorageException {
-        delegate.repack(dirName, compression);
+    public void repack(Compression compression, String outputDir,
+            String timestampCheck) throws StorageException {
+        delegate.repack(compression, outputDir, timestampCheck);
     }
 
 }
