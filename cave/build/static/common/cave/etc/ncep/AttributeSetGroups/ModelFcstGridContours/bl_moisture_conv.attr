@@ -1,0 +1,23 @@
+!
+! Restore File : bl_moisture_conv
+!
+! Log:
+! D.W.Plummer/NCEP	 2/97	Initial creation
+! D.W.Plummer/NCEP	 8/97	Added FILTER
+!
+GLEVEL=0
+GVCORD=none
+SCALE=7 ! 0
+GDPFUN=sdiv(mixr;wnd%SGMA@9950)! kntv(wnd%sgma@9950)
+TYPE=c/f                     ! b
+CINT=1
+LINE=32
+FINT=-8;-6;-4;-2
+FLINE=2;16;24;3;0
+HILO=0
+HLSYM=0
+WIND=9/0.8/2/112
+TITLE=1/-1/~ 40m AGL MOISTURE CONVERGENCE AND WIND (KTS)!0
+COLORS=2                                  
+MARKER=2                                 
+GRDLBL=5                               
