@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<!-- Copied from ccfp.tbl 
+
+ This table specifies the CCFP issue and valid time hours that appear in the
+ "CCFP" GUI when generating a CCFP text product. 
+
+ The table format is as follows.  Each row contains an issue time followed
+ by one or more valid times separated by semi-colons, ';'.  The time is
+ specified as HH for hours from 00 to 23.  The maximum number of issue 
+ times and the maximum number of valid times per issue time is 20.
+
+ -->
+ 
+<CcfpTimes>
+	<Time issue="1500" valid1="1700" valid2="1900" valid3="2100" />
+	<Time issue="1900" valid1="2100" valid2="2300" valid3="0100" />
+	<Time issue="2300" valid1="0100" valid2="0300" valid3="0500" />
+	<Time issue="0300" valid1="0500" valid2="0700" />
+</CcfpTimes>
