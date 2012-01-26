@@ -12,6 +12,7 @@ import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -23,6 +24,8 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
+import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 
 
 /**
@@ -39,7 +42,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 01/26/11                 Greg Hull    don't set the dialog size.
  * 02/16/11       #408      Greg Hull    Change shell to Modeless and have hotkey 
  *                                       bring to the front.
- *                                       
+ * 11/07/11                 Chin Chen    fixed a null pointer exception bug                                      
  * </pre>
  * 
  * @author 
@@ -49,9 +52,9 @@ public class ResourceManagerDialog extends Dialog {
 
 	private RscBundleDisplayMngr rbd_mngr;
 	
-    private Shell  shell;
+    private static Shell  shell;
     private String dlgTitle;
-    private boolean isOpen = false;
+    private static boolean isOpen = false;
 
 	private TabFolder mngrTabFolder = null;
 
@@ -64,6 +67,9 @@ public class ResourceManagerDialog extends Dialog {
     protected  ManageResourceControl manageRscCntrl = null;
 
     protected ManageMultiSPFControl manageMultiSPFControl; 
+    
+    private Point prevSize = new Point( 750, 860 );
+    private Point prevLocation = new Point(0,0);
     
     public ResourceManagerDialog(Shell parShell, String title,
     		          RscBundleDisplayMngr mngr, String mode )   throws VizException {
@@ -78,7 +84,8 @@ public class ResourceManagerDialog extends Dialog {
     	mainLayout.marginHeight = 1;
     	mainLayout.marginWidth = 1;
     	shell.setLayout(mainLayout);
-    	shell.setLocation( parShell.getLocation().x, 0);
+    	prevLocation = new Point( parShell.getLocation().x, 0);
+//    	shell.setLocation( parShell.getLocation().x, 0);
     	    	
     	mngrTabFolder = new TabFolder( shell, SWT.NONE );
     	GridData gd = new GridData();
@@ -135,8 +142,7 @@ public class ResourceManagerDialog extends Dialog {
     	closeBtn.setLayoutData( gd );
     	closeBtn.addSelectionListener(new SelectionAdapter() {
        		public void widgetSelected( SelectionEvent ev ) {
-       			// if there is a preview editor up then close it
-       			shell.dispose();
+       			close();
        		}
         });
     	
@@ -194,9 +200,17 @@ public class ResourceManagerDialog extends Dialog {
     	Shell parent = getParent();
     	Display display = parent.getDisplay();
 
+    	shell.setSize( prevSize );
+    	shell.setLocation( prevLocation );
     	shell.open();
-
+    	
     	isOpen = true;
+    	
+//    	AbstractVizPerspectiveManager pMngr = VizPerspectiveListener.getInstance().getActivePerspectiveManager();
+//
+//    	if( pMngr instanceof NCPerspectiveManager ) {
+//    		
+//    	}
     	
     	while( !shell.isDisposed() ) {
     		if( !display.readAndDispatch() ) {
@@ -204,9 +218,23 @@ public class ResourceManagerDialog extends Dialog {
     		}
     	}
 
+//    	prevSize = shell.getSize(); 
+//    	prevLocation = shell.getLocation();
+    	
     	isOpen = false;
     	
     	return null;
+    }
+    
+    
+    public static void close() {
+    	// if there is a preview editor up then close it
+    	if(shell!=null){
+    		if( !shell.isDisposed() ) {
+    			shell.dispose();	
+    		}
+    	}
+    	isOpen = false;
     }
     
     public void setActiveTab( String mode ) {

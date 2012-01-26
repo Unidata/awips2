@@ -20,6 +20,20 @@
 
 package gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels;
 
+import gov.noaa.nws.ncep.edex.common.metparameters.AbstractMetParameter;
+import gov.noaa.nws.ncep.edex.common.metparameters.Amount;
+import gov.noaa.nws.ncep.edex.common.metparameters.StationLatitude;
+import gov.noaa.nws.ncep.edex.common.metparameters.StationLongitude;
+import gov.noaa.nws.ncep.edex.common.metparameters.WindDirection;
+import gov.noaa.nws.ncep.edex.common.metparameters.WindSpeed;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
+import gov.noaa.nws.ncep.viz.rsc.plotdata.parameters.PlotParameterDefn;
+import gov.noaa.nws.ncep.viz.rsc.plotdata.parameters.PlotParameterDefns;
+import gov.noaa.nws.ncep.viz.rsc.plotdata.parameters.PlotParameterDefnsMngr;
+import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.elements.PlotModel;
+import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.elements.PlotModelElement;
+
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -27,14 +41,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.text.ParseException;
 import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Formatter;
 import java.util.HashMap;
 import java.util.List;
-import java.util.TimeZone;
-import java.util.TreeMap;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.quantity.Angle;
@@ -48,28 +57,14 @@ import org.apache.batik.bridge.UserAgentAdapter;
 import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
 import org.apache.batik.gvt.GraphicsNode;
 import org.apache.batik.util.XMLResourceDescriptor;
-import org.eclipse.swt.graphics.RGB;
 import org.geotools.referencing.GeodeticCalculator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
-import com.vividsolutions.jts.geom.Coordinate;
-
-import gov.noaa.nws.ncep.metparameters.AbstractMetParameter;
-import gov.noaa.nws.ncep.metparameters.Amount;
-import gov.noaa.nws.ncep.metparameters.StationLatitude;
-import gov.noaa.nws.ncep.metparameters.StationLongitude;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationResourcePathConstants;
-import gov.noaa.nws.ncep.viz.rsc.plotdata.parameters.PlotParameterDefn;
-import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.elements.PlotModel;
-import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.elements.PlotModelElement;
-import gov.noaa.nws.ncep.viz.rsc.plotdata.parameters.PlotParameterDefnsMngr;
 
 /**
  * A singleton that will create a plot model texture based on a passed in
@@ -96,6 +91,9 @@ import gov.noaa.nws.ncep.viz.rsc.plotdata.parameters.PlotParameterDefnsMngr;
  * 05/20/2011     #441     ghull       move plotFunctionTable to PlotModelGenerator
  * 06/02/2011     #441     ghull       remove class attr since it is for style sheets which we don't
  *                                     want to use. Specify symbolFont explicitly instead of setting from class.
+ * 07/29/2011     #450     ghull       NcPathManager; pass PlotParameterDefns instead of the PlotParameterDefnsMngr
+ * 11/11/2011              ghull       fix for wind barbs
+ *
  * 
  * </pre>
  * 
@@ -144,8 +142,6 @@ public class PlotModelFactory2 {
     }
 
     private PlotModel plotModel = null;
-    
-    private String levelKey = "";
     
     public PlotModel getPlotModel() {
 		return plotModel;
@@ -344,9 +340,7 @@ public class PlotModelFactory2 {
     }
 
     public PlotModelFactory2( IMapDescriptor mapDescriptor, PlotModel pltMdl, 
-    		PlotParameterDefnsMngr plotParamDefns, 
-    		String levelKey) {
-    	this.levelKey = levelKey;
+    		PlotParameterDefns plotParamDefns) {
     	
     	if( pltMdl == null ) {
     		System.out.println("PlotModelFactory: Using default PlotModel.");
@@ -364,8 +358,9 @@ public class PlotModelFactory2 {
         String parser = XMLResourceDescriptor.getXMLParserClassName();
         SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
         try {
-        	File svgFile = LocalizationManager.getInstance().getLocalizationFileDirectly(
-        			LocalizationResourcePathConstants.PLOTMODELS_DIR, plotModel.getSvgTemplate());
+        	File svgFile = 
+        		NcPathManager.getInstance().getStaticFile( 
+        				NcPathConstants.PLOT_MODELS_DIR + File.separator + plotModel.getSvgTemplate() );
             document = f.createDocument( svgFile.toURI().toString() );
         } catch( MalformedURLException e1) {
             e1.printStackTrace();
@@ -502,18 +497,8 @@ public class PlotModelFactory2 {
                								pme.getColor().getBlue()+")";
  
                 String fontFamily = prmDefn.getSymbolFont();
-                
-//                if (prmDefn.getPlotMode()
-//                		//domElement.getAttribute(CLASS_ATTRIBUTE).equals("barb") ) { 
-//                		//domElement.getAttribute(CLASS_ATTRIBUTE).equals("arrow")) {
-//                	fontFamily = "WindSymbolFont";
-//                }
-//                else if (domElement.getAttribute(CLASS_ATTRIBUTE).equals("weather")) {
-//                	fontFamily = "WxSymbolFont";
-//                }
-//                else if (domElement.getAttribute(CLASS_ATTRIBUTE).equals("special")) {
-//                	fontFamily = "SpecialSymbolFont";
-//                }
+
+                // TODO : adjust the position of symbol parameters to align them correctly 
                 
                 if( prmDefn.getPlotMode().equals("text" ) ) {                
                 	style = style + "stroke: "+color+";fill:"+color
@@ -720,24 +705,16 @@ public class PlotModelFactory2 {
     		HashMap<String,AbstractMetParameter> metParams ) {
     	
     	double[] stationLoc = {0,0};
-    	
-    	// TODO : rm this when using Vertical Sounding
-//    	if( levelKey != null ) {
-//    		Coordinate latlon = getCoordinate(stationData);
-//    		stationLoc[0] = latlon.x;
-//        	stationLoc[1] = latlon.y;
-//    	}
-//    	else {
-    		if( !metParams.containsKey( StationLatitude.class.getSimpleName() ) ||
+
+    	if( !metParams.containsKey( StationLatitude.class.getSimpleName() ) ||
     			!metParams.containsKey( StationLongitude.class.getSimpleName() ) ) {
-    			return null;
-    		}
-    		AbstractMetParameter latLonPrm = metParams.get( StationLongitude.class.getSimpleName() );    		
-    		stationLoc[0] = latLonPrm.getValueAs( Unit.ONE ).doubleValue(); 
-    		
-    		latLonPrm = metParams.get( StationLatitude.class.getSimpleName() );    		
-    		stationLoc[1] = latLonPrm.getValueAs( Unit.ONE ).doubleValue(); 
-//    	}
+    		return null;
+    	}
+    	AbstractMetParameter latLonPrm = metParams.get( StationLongitude.class.getSimpleName() );    		
+    	stationLoc[0] = latLonPrm.getValueAs( NonSI.DEGREE_ANGLE ).doubleValue(); 
+
+    	latLonPrm = metParams.get( StationLatitude.class.getSimpleName() );    		
+    	stationLoc[1] = latLonPrm.getValueAs( NonSI.DEGREE_ANGLE ).doubleValue(); 
     	
     	double[] stationPixelLoc = this.mapDescriptor.worldToPixel(stationLoc);
 
@@ -750,12 +727,6 @@ public class PlotModelFactory2 {
     		this.gc.setDestinationGeographicPoint(newWorldLoc[0], newWorldLoc[1]);
     	}
     
-//    	if (levelKey != null) {
-//    		Number[] prMand = stationData.getNumberAllLevels("prMan"); 
-//    		if (prMand == null)
-//    			return null;
-//    	}
-	   
     	try {
     		boolean discard = false;
     		for( PlotElement pltMdlElmt : this.plotElements ) {
@@ -907,62 +878,63 @@ public class PlotModelFactory2 {
     		AbstractMetParameter metParam2,
             PlotElement element) throws VizException{
 
-        if( !metParam1.hasValidValue() || !metParam2.hasValidValue() ) {
-            if( element.winds.barbElement != null) {
-                element.winds.barbNode.setNodeValue(" ");
-            }
-            if( element.winds.arrowElement != null ) {
-                element.winds.arrowNode.setNodeValue(" ");
-            }
-            return false;
-        }
-
-        // the units in the element are for the windSpeed and not the direction.        
-        Number windSpeed; 
-        Number windDir; 
-        
-
+    	AbstractMetParameter windSpeed, windDir;
+    	
         if( metParam1 instanceof Angle ) {
-        	windDir   = metParam1.getValueAs( NonSI.DEGREE_ANGLE ); 
-        	windSpeed = metParam2.getValueAs( element.getUnit() ); 
+        	windDir   = metParam1; 
+        	windSpeed = metParam2;  
         }
         else if( metParam2 instanceof Angle ) {
-        	windDir   = metParam2.getValueAs( NonSI.DEGREE_ANGLE ); 
-        	windSpeed = metParam1.getValueAs( element.getUnit() );         	
+        	windDir   = metParam2; 
+        	windSpeed = metParam1;         	
         }
 		else {
 			element.displayMode = DisplayMode.NULL;
 			throw new VizException("The barb plotElement must specify a direction parameter." );
 		}
-		
-        double dWindDir   = windDir.doubleValue() - this.gc.getAzimuth();
-        double cWindSpeed = windSpeed.doubleValue();
+
+        if( element.winds.barbElement == null ||
+        	element.winds.barbNode == null ) { // sanity check
+			element.displayMode = DisplayMode.NULL;
+			throw new VizException("Error with the plotModelTemplate. wind barb element is missing?" );
+        }
+        
+        // Currently not implementing plotMissingData flag which 
+        // will plot an 'm' for missing data.
+        if( !windDir.hasValidValue() || 
+        	!windSpeed.hasValidValue() ) {
+
+        	element.winds.barbElement.removeAttribute("transform");
+        	element.winds.barbNode.setNodeValue(" ");
+            
+        	if( element.winds.arrowElement != null ) {
+                element.winds.arrowNode.setNodeValue(" ");
+            }
+            return false;
+        }
+
+        // the units in the element are for the windSpeed and not the direction.        		
+        double dWindDir = windDir.getValueAs( NonSI.DEGREE_ANGLE ).doubleValue() 
+        						- this.gc.getAzimuth();
+        double cWindSpeed = windSpeed.getValueAs( element.getUnit() ).doubleValue();
         
         Double cWindSpeedThresh = 
         	new Amount( 3.0, NonSI.KNOT ).getValueAs( element.getUnit() ).doubleValue();
-        
-        if( element.winds.barbElement != null ) {
-        	if( cWindSpeed == -9999.0 && plotMissingData) {
-        		element.winds.barbElement.removeAttribute("transform");
-        		element.winds.barbNode.setNodeValue("m");
-        	} 
-        	else if( cWindSpeed >= 0 && cWindSpeed < cWindSpeedThresh ) {
-        		element.winds.barbElement.removeAttribute("transform");
-        		element.winds.barbNode.setNodeValue("0");
-        	} 
-        	else if( cWindSpeed >= cWindSpeedThresh && 
-        			   dWindDir != -9999.0) {
-        		int iWindSpeed = this.windNormalizer(cWindSpeed);
-        		element.winds.barbElement.setAttribute("transform", "rotate("
-        				+ dWindDir + ",0,0)");
-        		element.winds.barbNode.setNodeValue( Integer.toString(iWindSpeed) );
-        	} else {
-        		element.winds.barbElement.removeAttribute("transform");
-        		element.winds.barbNode.setNodeValue(" ");
-        	}
-        }
 
-        renderArrow( windSpeed, windDir, element.getUnit(), element );
+        if( cWindSpeed >= 0 && cWindSpeed < cWindSpeedThresh ) {
+        	element.winds.barbElement.removeAttribute("transform");
+        	element.winds.barbNode.setNodeValue("0");
+        } 
+        else if( cWindSpeed >= cWindSpeedThresh ) {
+        	int iWindSpeed = this.windNormalizer(cWindSpeed);
+        	element.winds.barbElement.setAttribute("transform", "rotate("
+        			+ dWindDir + ",0,0)");
+        	element.winds.barbNode.setNodeValue( Integer.toString(iWindSpeed) );
+        } 
+
+        renderArrow( windSpeed.getValueAs( element.getUnit() ),
+        			 windDir.getValueAs( NonSI.DEGREE_ANGLE ),
+        			 element.getUnit(), element );
 
         return true;
     }
@@ -972,6 +944,7 @@ public class PlotModelFactory2 {
     private void renderArrow( Number magnitude, Number direction,
             Unit<?> speedUnit, // units of the magnitude 
             PlotElement element) throws VizException {
+    	
         double dDir = -9999.0;
         double cMag = -9999.0;
         if (element.getUnit() != null && magnitude != null) {
