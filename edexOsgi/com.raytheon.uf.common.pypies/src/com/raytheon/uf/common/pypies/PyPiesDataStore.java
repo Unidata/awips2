@@ -374,11 +374,13 @@ public class PyPiesDataStore implements IDataStore {
     }
 
     @Override
-    public void repack(String dirName, Compression compression)
-            throws StorageException {
+    public void repack(Compression compression, String outputDir,
+            String timestampCheck) throws StorageException {
         RepackRequest req = new RepackRequest();
-        req.setFilename(dirName);
+        req.setFilename(this.filename);
         req.setCompression(compression);
+        req.setOutputDir(outputDir);
+        req.setTimestampCheck(timestampCheck);
         RepackResponse resp = (RepackResponse) sendRequest(req);
         // TODO do we really want to make this an exception?
         // reasoning is if the repack fails for some reason, the original file

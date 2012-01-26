@@ -20,8 +20,6 @@
 package com.raytheon.uf.common.dataplugin.binlightning;
 
 import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -37,7 +35,7 @@ import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LightningStrikePoint;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
-import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
+import com.raytheon.uf.common.dataplugin.persist.ServerSpecificPersistablePluginDataObject;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
@@ -80,8 +78,8 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
 @XmlRootElement
 @DynamicSerialize
 @XmlAccessorType(XmlAccessType.NONE)
-public class BinLightningRecord extends PersistablePluginDataObject implements
-        IPersistable {
+public class BinLightningRecord extends
+        ServerSpecificPersistablePluginDataObject implements IPersistable {
 
     /** Serializable id * */
     private static final long serialVersionUID = 1L;
@@ -188,33 +186,6 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
     // }
 
     /**
-     * Get the time to use for persisting this data.
-     * 
-     * @return The persistence time for this data. Returns null if either start
-     *         or stop time are not valid.
-     */
-    @Override
-    public Date getPersistenceTime() {
-        Calendar c = getInsertTime();
-        if (c == null)
-            return null;
-
-        return c.getTime();
-    }
-
-    /**
-     * Set the time to be used for the persistence time for this object.
-     * 
-     * @param persistTime
-     *            The persistence time to be used.
-     */
-    public void setPersistenceTime(Date persistTime) {
-        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        c.setTime(persistTime);
-        setInsertTime(c);
-    }
-
-    /**
      * Track the current persistence time for the data set.
      */
     @SuppressWarnings("unused")
@@ -239,8 +210,8 @@ public class BinLightningRecord extends PersistablePluginDataObject implements
         if (insertIndex < obsTimes.length) {
             long t1 = startTimeMillis;
 
-            Calendar c = TimeTools.getBaseCalendar(strike.getYear(), strike
-                    .getMonth(), strike.getDay());
+            Calendar c = TimeTools.getBaseCalendar(strike.getYear(),
+                    strike.getMonth(), strike.getDay());
 
             c.set(Calendar.HOUR_OF_DAY, strike.getHour());
             c.set(Calendar.MINUTE, strike.getMinute());
