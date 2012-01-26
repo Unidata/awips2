@@ -20,10 +20,8 @@
 package com.raytheon.uf.common.dataplugin.scan;
 
 import java.io.ByteArrayInputStream;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Set;
-import java.util.TimeZone;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -39,8 +37,7 @@ import org.geotools.coverage.grid.GridGeometry2D;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
-import com.raytheon.uf.common.dataplugin.persist.IPersistable;
-import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
+import com.raytheon.uf.common.dataplugin.persist.ServerSpecificPersistablePluginDataObject;
 import com.raytheon.uf.common.dataplugin.scan.data.ModelData;
 import com.raytheon.uf.common.dataplugin.scan.data.ScanTableData;
 import com.raytheon.uf.common.dataplugin.scan.data.SoundingData;
@@ -75,8 +72,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class ScanRecord extends PersistablePluginDataObject implements
-        IPersistable {
+public class ScanRecord extends ServerSpecificPersistablePluginDataObject {
 
     /**
      * 
@@ -130,22 +126,6 @@ public class ScanRecord extends PersistablePluginDataObject implements
     public IDecoderGettable getDecoderGettable() {
         // TODO Auto-generated method stub
         return null;
-    }
-
-    @Override
-    public Date getPersistenceTime() {
-        Calendar c = getInsertTime();
-        if (c == null)
-            return null;
-
-        return c.getTime();
-    }
-
-    @Override
-    public void setPersistenceTime(Date persistTime) {
-        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        c.setTime(persistTime);
-        setInsertTime(c);
     }
 
     /**
