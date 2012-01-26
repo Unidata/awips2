@@ -18,12 +18,12 @@
 
 package gov.noaa.nws.ncep.common.dataplugin.h5uair;
 
-import java.util.Date;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -35,14 +35,14 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
+
+import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
-import com.raytheon.uf.common.dataplugin.persist.IPersistable;
+import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.pointdata.IPointData;
 import com.raytheon.uf.common.pointdata.PointDataView;
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -51,12 +51,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class H5UairRecord extends PluginDataObject implements ISpatialEnabled, 
-		IDecoderGettable, IPointData, IPersistable {
+public class H5UairRecord extends PersistablePluginDataObject implements
+        ISpatialEnabled, IDecoderGettable, IPointData {
 
-	private static final long serialVersionUID = 1L;
-	public static final String PLUGIN_NAME = "h5uair";
-    
+    private static final long serialVersionUID = 1L;
+
+    public static final String PLUGIN_NAME = "h5uair";
+
     // Time of the UTC
     @DataURI(position = 4)
     @Column
@@ -76,7 +77,7 @@ public class H5UairRecord extends PluginDataObject implements ISpatialEnabled,
     @XmlAttribute
     @DynamicSerializeElement
     private String stid;
-    
+
     // Issue time for the bulletin
     @Column
     @XmlElement
@@ -88,28 +89,28 @@ public class H5UairRecord extends PluginDataObject implements ISpatialEnabled,
     @XmlElement
     @DynamicSerializeElement
     private Calendar obsTime;
-    
+
     // Synoptic time for the bulletin
     // Time of the observation to the nearest hour.
     @Column
     @XmlElement
     @DynamicSerializeElement
     private Calendar synopticTime;
-    
+
     // Type of data such as TTAA/BB/CC/DD or PP...
     @DataURI(position = 3)
     @Column
     @XmlElement
     @DynamicSerializeElement
     private String dataType;
-    
+
     // Correction indicator from wmo header
     @DataURI(position = 5)
     @Column
     @XmlAttribute
     @DynamicSerializeElement
     private String corr;
-   
+
     // Text of the WMO header
     @Column
     @XmlAttribute
@@ -152,55 +153,54 @@ public class H5UairRecord extends PluginDataObject implements ISpatialEnabled,
     @XmlAttribute
     @DynamicSerializeElement
     private String bullMessage;
-    
-    /** 
-	 * Uair observation levels  
-	 */
-	@DynamicSerializeElement
-	@XmlElement
-	@Transient
-	private Set<H5ObsLevels> obsLevels = new HashSet<H5ObsLevels>();
 
-	/** 
-	 * Uair tropopause data 
-	 */
-	@DynamicSerializeElement
-	@XmlElement
-	@Transient
-	private Set<H5Tropopause> tropopause = new HashSet<H5Tropopause>();
+    /**
+     * Uair observation levels
+     */
+    @DynamicSerializeElement
+    @XmlElement
+    @Transient
+    private Set<H5ObsLevels> obsLevels = new HashSet<H5ObsLevels>();
 
-	/** 
-	 * Uair maxwind data 
-	 */
-	@DynamicSerializeElement
-	@XmlElement
-	@Transient
-	private Set<H5MaxWind> maxwind = new HashSet<H5MaxWind>();
+    /**
+     * Uair tropopause data
+     */
+    @DynamicSerializeElement
+    @XmlElement
+    @Transient
+    private Set<H5Tropopause> tropopause = new HashSet<H5Tropopause>();
 
-	/** 
-	 * Uair lifted index data 
-	 */
-	@DynamicSerializeElement
-	@XmlElement
-	@Transient
-	private Set<H5LiftedIndex> liftedindex = new HashSet<H5LiftedIndex>();
-	
-	@Embedded 
-	private PointDataView pdv;
-	private Integer hdfFileId;
+    /**
+     * Uair maxwind data
+     */
+    @DynamicSerializeElement
+    @XmlElement
+    @Transient
+    private Set<H5MaxWind> maxwind = new HashSet<H5MaxWind>();
+
+    /**
+     * Uair lifted index data
+     */
+    @DynamicSerializeElement
+    @XmlElement
+    @Transient
+    private Set<H5LiftedIndex> liftedindex = new HashSet<H5LiftedIndex>();
+
+    @Embedded
+    private PointDataView pdv;
 
     /**
      * Empty constructor.
      */
     public H5UairRecord() {
-    	this.nil=false;
-    	this.stnum="";
-    	this.wmoHeader="";
-    	this.stid="";
-    	this.corr="";
-    	this.dataType="";
+        this.nil = false;
+        this.stnum = "";
+        this.wmoHeader = "";
+        this.stid = "";
+        this.corr = "";
+        this.dataType = "";
     }
-    
+
     /**
      * Constructor for DataURI construction through base class. This is used by
      * the notification service.
@@ -268,239 +268,246 @@ public class H5UairRecord extends PluginDataObject implements ISpatialEnabled,
     }
 
     public String getStnum() {
-		return stnum;
-	}
+        return stnum;
+    }
 
-	public void setStnum(String stnum) {
-		this.stnum = stnum;
-	}
+    public void setStnum(String stnum) {
+        this.stnum = stnum;
+    }
 
-	public double getSlat() {
-		return slat;
-	}
+    public double getSlat() {
+        return slat;
+    }
 
-	public void setSlat(float slat) {
-		this.slat = slat;
-	}
+    public void setSlat(float slat) {
+        this.slat = slat;
+    }
 
-	public double getSlon() {
-		return slon;
-	}
+    public double getSlon() {
+        return slon;
+    }
 
-	public void setSlon(float slon) {
-		this.slon = slon;
-	}
+    public void setSlon(float slon) {
+        this.slon = slon;
+    }
 
-	public double getSelv() {
-		return selv;
-	}
+    public double getSelv() {
+        return selv;
+    }
 
-	public void setSelv(float selv) {
-		this.selv = selv;
-	}
+    public void setSelv(float selv) {
+        this.selv = selv;
+    }
 
-	public Calendar getObsTime() {
-		return obsTime;
-	}
+    public Calendar getObsTime() {
+        return obsTime;
+    }
 
-	public void setObsTime(Calendar obsTime) {
-		this.obsTime = obsTime;
-	}
+    public void setObsTime(Calendar obsTime) {
+        this.obsTime = obsTime;
+    }
 
-	public Calendar getSynopticTime() {
-		return synopticTime;
-	}
+    public Calendar getSynopticTime() {
+        return synopticTime;
+    }
 
-	public void setSynopticTime(Calendar synopticTime) {
-		this.synopticTime = synopticTime;
-	}
+    public void setSynopticTime(Calendar synopticTime) {
+        this.synopticTime = synopticTime;
+    }
 
-	public String getBullMessage() {
-		return bullMessage;
-	}
+    public String getBullMessage() {
+        return bullMessage;
+    }
 
-	public void setBullMessage(String bullMessage) {
-		this.bullMessage = bullMessage;
-	}
+    public void setBullMessage(String bullMessage) {
+        this.bullMessage = bullMessage;
+    }
 
-	public Calendar getIssueTime() {
-		return issueTime;
-	}
+    public Calendar getIssueTime() {
+        return issueTime;
+    }
 
-	public void setIssueTime(Calendar issueTime) {
-		this.issueTime = issueTime;
-	}
+    public void setIssueTime(Calendar issueTime) {
+        this.issueTime = issueTime;
+    }
 
-	public String getDataType() {
-		return dataType;
-	}
+    public String getDataType() {
+        return dataType;
+    }
 
-	public void setDataType(String dataType) {
-		this.dataType = dataType;
-	}
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
 
-	public int getUTC() {
-		return UTC;
-	}
+    public int getUTC() {
+        return UTC;
+    }
 
-	public void setUTC(int utc) {
-		UTC = utc;
-	}
+    public void setUTC(int utc) {
+        UTC = utc;
+    }
 
-	public Boolean getNil() {
-		return nil;
-	}
+    public Boolean getNil() {
+        return nil;
+    }
 
-	public void setNil(Boolean nil) {
-		this.nil = nil;
-	}
+    public void setNil(Boolean nil) {
+        this.nil = nil;
+    }
 
-	public String getStid() {
-		return stid;
-	}
+    public String getStid() {
+        return stid;
+    }
 
-	public void setStid(String stid) {
-		this.stid = stid;
-	}
+    public void setStid(String stid) {
+        this.stid = stid;
+    }
 
-	@Override
-	public IDecoderGettable getDecoderGettable() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-    
-	/**
-	 * @return the set of uair observation levels
-	 */
-	public Set<H5ObsLevels> getObsLevels() {
-		return obsLevels;
-	}
+    @Override
+    public IDecoderGettable getDecoderGettable() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	/**
-	 * @param uair observation levels to set
-	 */
-	public void setObsLevels(Set<H5ObsLevels> uairLevel) {
-		this.obsLevels = uairLevel;
-	}
+    /**
+     * @return the set of uair observation levels
+     */
+    public Set<H5ObsLevels> getObsLevels() {
+        return obsLevels;
+    }
 
-	/**
-	 * @param add uair observation levels to set
-	 */
-	public void addObsLevels(H5ObsLevels plevel){
-		obsLevels.add(plevel);
-		plevel.setParentID(this);
-	}
+    /**
+     * @param uair
+     *            observation levels to set
+     */
+    public void setObsLevels(Set<H5ObsLevels> uairLevel) {
+        this.obsLevels = uairLevel;
+    }
 
-	/**
-	 * @return the set of uair observation levels
-	 */
-	public Set<H5Tropopause> getTropopause() {
-		return tropopause;
-	}
+    /**
+     * @param add
+     *            uair observation levels to set
+     */
+    public void addObsLevels(H5ObsLevels plevel) {
+        obsLevels.add(plevel);
+        plevel.setParentID(this);
+    }
 
-	/**
-	 * @param uair observation levels to set
-	 */
-	public void setTropopause(Set<H5Tropopause> trop) {
-		this.tropopause = trop;
-	}
+    /**
+     * @return the set of uair observation levels
+     */
+    public Set<H5Tropopause> getTropopause() {
+        return tropopause;
+    }
 
-	/**
-	 * @param add uair observation levels to set
-	 */
-	public void addTropopause(H5Tropopause trop){
-		tropopause.add(trop);
-		trop.setParentID(this);
-	}
+    /**
+     * @param uair
+     *            observation levels to set
+     */
+    public void setTropopause(Set<H5Tropopause> trop) {
+        this.tropopause = trop;
+    }
 
-	/**
-	 * @return the set of uair maximum wind
-	 */
-	public Set<H5MaxWind> getMaxWind() {
-		return maxwind;
-	}
+    /**
+     * @param add
+     *            uair observation levels to set
+     */
+    public void addTropopause(H5Tropopause trop) {
+        tropopause.add(trop);
+        trop.setParentID(this);
+    }
 
-	/**
-	 * @param uair maximum wind to set
-	 */
-	public void setMaxWind(Set<H5MaxWind> mwind) {
-		this.maxwind = mwind;
-	}
+    /**
+     * @return the set of uair maximum wind
+     */
+    public Set<H5MaxWind> getMaxWind() {
+        return maxwind;
+    }
 
-	/**
-	 * @param add uair maximum wind to set
-	 */
-	public void addMaxWind(H5MaxWind mwind){
-		maxwind.add(mwind);
-		mwind.setParentID(this);
-	}
+    /**
+     * @param uair
+     *            maximum wind to set
+     */
+    public void setMaxWind(Set<H5MaxWind> mwind) {
+        this.maxwind = mwind;
+    }
 
-	/**
-	 * @return the set of uair lifted index
-	 */
-	public Set<H5LiftedIndex> getLiftedIndex() {
-		return liftedindex;
-	}
+    /**
+     * @param add
+     *            uair maximum wind to set
+     */
+    public void addMaxWind(H5MaxWind mwind) {
+        maxwind.add(mwind);
+        mwind.setParentID(this);
+    }
 
-	/**
-	 * @param uair lifted index to set
-	 */
-	public void setLiftedIndex(Set<H5LiftedIndex> li) {
-		this.liftedindex = li;
-	}
+    /**
+     * @return the set of uair lifted index
+     */
+    public Set<H5LiftedIndex> getLiftedIndex() {
+        return liftedindex;
+    }
 
-	/**
-	 * @param add uair lifted index to set
-	 */
-	public void addLiftedIndex(H5LiftedIndex li){
-		liftedindex.add(li);
-		li.setParentID(this);
-	}
+    /**
+     * @param uair
+     *            lifted index to set
+     */
+    public void setLiftedIndex(Set<H5LiftedIndex> li) {
+        this.liftedindex = li;
+    }
 
-	/**
-	 * Override existing set method to modify any
-	 * classes that use the dataURI as a foreign key
-	 */
-	@Override
-	public void setIdentifier(Object dataURI)
-	{
+    /**
+     * @param add
+     *            uair lifted index to set
+     */
+    public void addLiftedIndex(H5LiftedIndex li) {
+        liftedindex.add(li);
+        li.setParentID(this);
+    }
 
-		this.identifier = dataURI;
+    /**
+     * Override existing set method to modify any classes that use the dataURI
+     * as a foreign key
+     */
+    @Override
+    public void setIdentifier(Object dataURI) {
 
-		if(this.getObsLevels() != null && this.getObsLevels().size() > 0)
-		{
-			for (Iterator<H5ObsLevels> iter = this.getObsLevels().iterator(); iter.hasNext();) {
-				H5ObsLevels level = iter.next();
-				level.setParentID(this);
-			}
-		}
+        this.identifier = dataURI;
 
-		if(this.getTropopause() != null && this.getTropopause().size() > 0)
-		{
-			for (Iterator<H5Tropopause> iter = this.getTropopause().iterator(); iter.hasNext();) {
-				H5Tropopause trop = iter.next();
-				trop.setParentID(this);
-			}
-		}
+        if (this.getObsLevels() != null && this.getObsLevels().size() > 0) {
+            for (Iterator<H5ObsLevels> iter = this.getObsLevels().iterator(); iter
+                    .hasNext();) {
+                H5ObsLevels level = iter.next();
+                level.setParentID(this);
+            }
+        }
 
-		if(this.getMaxWind() != null && this.getMaxWind().size() > 0)
-		{
-			for (Iterator<H5MaxWind> iter = this.getMaxWind().iterator(); iter.hasNext();) {
-				H5MaxWind mwind = iter.next();
-				mwind.setParentID(this);
-			}
-		}
+        if (this.getTropopause() != null && this.getTropopause().size() > 0) {
+            for (Iterator<H5Tropopause> iter = this.getTropopause().iterator(); iter
+                    .hasNext();) {
+                H5Tropopause trop = iter.next();
+                trop.setParentID(this);
+            }
+        }
 
-		if(this.getLiftedIndex() != null && this.getLiftedIndex().size() > 0)
-		{
-			for (Iterator<H5LiftedIndex> iter = this.getLiftedIndex().iterator(); iter.hasNext();) {
-				H5LiftedIndex li = iter.next();
-				li.setParentID(this);
-			}
-		}
+        if (this.getMaxWind() != null && this.getMaxWind().size() > 0) {
+            for (Iterator<H5MaxWind> iter = this.getMaxWind().iterator(); iter
+                    .hasNext();) {
+                H5MaxWind mwind = iter.next();
+                mwind.setParentID(this);
+            }
+        }
 
-	}
-	
+        if (this.getLiftedIndex() != null && this.getLiftedIndex().size() > 0) {
+            for (Iterator<H5LiftedIndex> iter = this.getLiftedIndex()
+                    .iterator(); iter.hasNext();) {
+                H5LiftedIndex li = iter.next();
+                li.setParentID(this);
+            }
+        }
+
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -524,55 +531,32 @@ public class H5UairRecord extends PluginDataObject implements ISpatialEnabled,
     }
 
     @Override
-    public Integer getHdfFileId() {
+    public Amount getValue(String paramName) {
+        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public Date getPersistenceTime() {
-//        return this.dataTime.getRefTime();
-    	return null;
+    public Collection<Amount> getValues(String paramName) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override
-
-    public void setHdfFileId(Integer hdfFileId) {
-    	this.hdfFileId = hdfFileId;
+    public String getString(String paramName) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
-	@Override
-	public void setPersistenceTime(Date persistTime) {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public String[] getStrings(String paramName) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public Amount getValue(String paramName) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Collection<Amount> getValues(String paramName) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getString(String paramName) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String[] getStrings(String paramName) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public ISpatialObject getSpatialObject() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public ISpatialObject getSpatialObject() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }
