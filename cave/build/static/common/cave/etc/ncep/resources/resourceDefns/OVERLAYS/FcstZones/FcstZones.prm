@@ -1,4 +1,0 @@
-! DbOverlay
-tableName=mapdata.zone
-labelField=name
-mapName=Forecast Zones
