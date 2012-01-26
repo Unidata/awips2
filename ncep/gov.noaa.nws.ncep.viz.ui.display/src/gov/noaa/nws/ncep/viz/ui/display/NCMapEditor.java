@@ -24,7 +24,7 @@ import java.util.HashMap;
 
 import gov.noaa.nws.ncep.viz.common.AbstractNcEditor;
 import gov.noaa.nws.ncep.viz.common.EditorManager;
-import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor.IFrameChangedListener;
+//import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor.IFrameChangedListener;
 import gov.noaa.nws.ncep.viz.ui.display.NCPaneManager.PaneLayout;
 
 import org.eclipse.core.commands.Command;
@@ -44,6 +44,10 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 
 import com.raytheon.uf.viz.core.IDisplayPane;
+import com.raytheon.uf.viz.core.IDisplayPaneContainer;
+import com.raytheon.uf.viz.core.IVizEditorChangedListener;
+import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.drawables.IDescriptor.IFrameChangedListener;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.viz.ui.editor.VizMultiPaneEditor;
@@ -85,6 +89,8 @@ import com.raytheon.viz.ui.panes.PaneManager;
  * 04/26/11       #416         M. Gao      fix a potential bug in on dealing with parsing String to Int in the method setDisplayName(...) method
  * 06/22/11    migration       ghull       add back @Override of isDirty to prevent dirty editors.
  * 07/15/11                    C Chen      add implements AbstractNcEditor. fix looping buttons not coordinated issue
+ * 11/11/11                    ghull       remove frameChangeListener from all descriptors
+ * 12/02/11       #571         ghull       check for activePage in refreshGUIElements and in dispose()
  * </pre>
  * 
  * @author chammack
@@ -92,7 +98,7 @@ import com.raytheon.viz.ui.panes.PaneManager;
  */
 // bsteffen changed to VizMultiPaneEditor
 // public class NCMapEditor extends AbstractMultiPaneEditor { //GLMapEditor {
-public class NCMapEditor extends VizMultiPaneEditor implements AbstractNcEditor{ // GLMapEditor {
+public class NCMapEditor extends VizMultiPaneEditor implements AbstractNcEditor {
 
     /** The activated context, else null if not activated. */
     // protected IContextActivation contextActivation;
@@ -217,16 +223,20 @@ public class NCMapEditor extends VizMultiPaneEditor implements AbstractNcEditor{
             service.refreshElements(toolbarID, null);
         }
 
-        SubStatusLineManager bar = (SubStatusLineManager) PlatformUI
-                .getWorkbench().getActiveWorkbenchWindow().getActivePage()
-                .getActiveEditor().getEditorSite().getActionBars()
-                .getStatusLineManager();
+        // the IVizEditorChangedListener will trigger on a close editor which can 
+        // happen on exit. In this case there is no active page
+        IWorkbenchPage actPage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+        
+        if( actPage != null && actPage.getActiveEditor() != null ) {
 
-        IContributionItem items[] = bar.getParent().getItems();
-        for (IContributionItem it : items) {
-            it.update();
+        	SubStatusLineManager bar = (SubStatusLineManager) actPage.getActiveEditor().
+        	     getEditorSite().getActionBars().getStatusLineManager();
+
+        	IContributionItem items[] = bar.getParent().getItems();
+        	for (IContributionItem it : items) {
+        		it.update();
+        	}
         }
-
     }
 
     public void setDisplayName(String dispName) {
@@ -287,7 +297,13 @@ public class NCMapEditor extends VizMultiPaneEditor implements AbstractNcEditor{
 		
 		EditorManager.unregisterEditorNumber(editorNum);
 		super.dispose();
-			//this.getSite().getWorkbenchWindow().removePerspectiveListener(listener);
+
+        IWorkbenchPage actPage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+        
+        // if this is null then we are exiting
+        if( actPage == null ) {
+        	return;
+        }
 				
 		IWorkbenchPage page = this.getSite().getPage();
 
@@ -318,7 +334,6 @@ public class NCMapEditor extends VizMultiPaneEditor implements AbstractNcEditor{
 				e.printStackTrace();
 			}			
 		}
-
 	}
 
 
@@ -330,7 +345,6 @@ public class NCMapEditor extends VizMultiPaneEditor implements AbstractNcEditor{
         // //System.out.println("NCMapEditor display name "+ this.displayName +
         // " edNum " + this.editorNum);
         EditorManager.registerEditorNumber(editorNum);
-
     }
 
     // Use the array of displayPanes stored in the EditorInput
@@ -416,20 +430,27 @@ public class NCMapEditor extends VizMultiPaneEditor implements AbstractNcEditor{
         }
     }
 
+    // Currently this just sets the listener for 1 (the active) pane.
+    // This works now because all panes have the same timeline and this 
+    // is used just for the FramdeDataDisplay. 
+    // TODO : if each pane will need to be notified for a frameChange then 
+    // we will need to change this to add the listener to all descriptors.
+    // 
     public void addFrameChangedListener(IFrameChangedListener lstnr) {
         ((NCMapDescriptor) this.getActiveDisplayPane().getDescriptor())
                 .addFrameChangedListener(lstnr);
     }
 
-    public boolean removeFrameChangedListener(IFrameChangedListener lstnr) {
-        NCMapDescriptor descriptor = ((NCMapDescriptor) this
-                .getActiveDisplayPane().getDescriptor());
-        if (descriptor != null && (!descriptor.isListenerSetEmpty())) {
-            return descriptor.removeFrameChangedListener(lstnr);
-        } else {
-            return false;
-        }
+    // remove from all descriptors
+    public void removeFrameChangedListener(IFrameChangedListener lstnr) {
 
+    	for( IDisplayPane pane : getDisplayPanes() ) {    		
+    		IDescriptor descriptor = pane.getDescriptor();
+
+    		if( descriptor != null ) {
+    			descriptor.removeFrameChangedListener( lstnr );
+    		}
+        } 
     }
 
     //

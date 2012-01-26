@@ -213,13 +213,21 @@ public class ProductDialog extends Dialog {
     	if ( ptyp != null ) {
     	    
     		btnList = new ArrayList<String>();    	
-    	
-    	    btnList.addAll( ptyp.getPgenControls().getName() );
-    	    btnList.addAll( ptyp.getPgenActions().getName() );    	    	
+    	    
+    		if ( ptyp.getPgenControls() != null ) {
+    	        btnList.addAll( ptyp.getPgenControls().getName() );
+    		}
+    		
+    		if ( ptyp.getPgenActions() != null ) {
+    	        btnList.addAll( ptyp.getPgenActions().getName() );  
+    		}
     	
     	    for ( PgenClass cls : ptyp.getPgenClass() ) {
     		    btnList.add( cls.getName() );
-    			btnList.addAll( cls.getPgenObjects().getName() );
+    			
+    		    if ( cls != null && cls.getPgenObjects() != null ) {
+    		        btnList.addAll( cls.getPgenObjects().getName() );
+    		    }
     	    }
     	}
     	
@@ -230,10 +238,10 @@ public class ProductDialog extends Dialog {
      *  Reset the PGEN palette based on the settings of a product type.
      */
     public void refreshPgenPalette( ProductType ptyp ) {
-    	PgenSession.getInstance().getPgenPalette().resetPalette( getButtonList( ptyp) ); 
+    	if ( PgenSession.getInstance().getPgenPalette() != null )
+    	    PgenSession.getInstance().getPgenPalette().resetPalette( getButtonList( ptyp) ); 
     }
-     
-   
+        
    
 }
 

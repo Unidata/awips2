@@ -36,15 +36,16 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
-import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.geom.PixelCoordinate;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
+import com.raytheon.uf.viz.core.rsc.GenericResourceData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -64,6 +65,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 14 Jul 2010  235C       B. Hebbard  Use common NC ColorBar
  * 14 Jan 2011  235D       B. Hebbard  Add density select; performance enhancement via new PGEN aggregate vector display
  * 03 Feb 2011  235E       B. Hebbard  Add support for ambiguity variants
+ * 16 Nov 2011             B. Hebbard  Fix excess rowCount increment in paintFrame()
  * 
  * </pre>
  * 
@@ -84,12 +86,10 @@ public class NcscatResource extends
     private Unit<?> windSpeedUnits = NonSI.KNOT;
 
     protected ColorBarResource cbar1Resource;
-
-    protected ResourcePair cbar1RscPair;
+    protected ResourcePair     cbar1RscPair;
 
     protected ColorBarResource cbar2Resource;
-
-    protected ResourcePair cbar2RscPair;
+    protected ResourcePair     cbar2RscPair;
 
     private class FrameData extends AbstractFrameData {
         ArrayList<NcscatRowData> frameRows = new ArrayList<NcscatRowData>();
@@ -99,9 +99,8 @@ public class NcscatResource extends
             frameRows = new ArrayList<NcscatRowData>();
         }
 
-        @Override
-        public boolean updateFrameData(IRscDataObject rscDataObj) {
-            PluginDataObject pdo = ((DfltRecordRscDataObj) rscDataObj).getPDO();
+        public boolean updateFrameData(IRscDataObject rscDataObj ) {
+        	PluginDataObject pdo = ((DfltRecordRscDataObj)rscDataObj).getPDO();
 
             NcscatRecord nsRecord = (NcscatRecord) pdo;
 
@@ -113,8 +112,7 @@ public class NcscatResource extends
             }
 
             else {
-                // ...convert into point data suitable for paint, grouped by
-                // rows...
+                // ...convert into point data suitable for paint, grouped by rows...
                 ArrayList<NcscatRowData> rowsDataFromPdo = processHDF5Data(hdf5Data);
                 // ...and add to existing row data for this frame
                 frameRows.addAll(rowsDataFromPdo);
@@ -151,10 +149,8 @@ public class NcscatResource extends
 
         private ArrayList<NcscatRowData> processHDF5Data(byte[] hdf5Msg) {
 
-            // Note: This code lifted from NcscatProcessing.processHDFData,
-            // modified
-            // to (1) return point data in structures already optimized for
-            // paint()
+            // Note: This code lifted from NcscatProcessing.processHDFData, modified
+            // to (1) return point data in structures already optimized for paint()
             // and (2) preserve intermediate organization by rows. Some further
             // optimization may be desirable. (TODO)
 
@@ -170,10 +166,10 @@ public class NcscatResource extends
             byteBuffer.put(hdf5Msg, 0, hdf5Msg.length);
 
             while (ji < hdf5Msg.length) {
-                day = byteBuffer.getShort(byteNumber);
+                day  = byteBuffer.getShort(byteNumber);
                 hour = byteBuffer.getShort(byteNumber + 2);
-                min = byteBuffer.getShort(byteNumber + 4);
-                sec = byteBuffer.getShort(byteNumber + 6);
+                min  = byteBuffer.getShort(byteNumber + 4);
+                sec  = byteBuffer.getShort(byteNumber + 6);
                 ji += 8;
                 byteNumber += 8;
                 Calendar startTime = Calendar.getInstance();
@@ -201,10 +197,8 @@ public class NcscatResource extends
                     // sPointObj.setIb3(byteBuffer.getShort(j+16));
                     byteNumber += bytesPerPoint;
                     // returnList.add(sPointObj);
-                    // Above code put things into a NcscatPoint (common with
-                    // decoder);
-                    // now convert to a NcscatPointData (local class) optimized
-                    // for
+                    // Above code put things into a NcscatPoint (common with decoder);
+                    // now convert to a NcscatPointData (local class) optimized for
                     // display via paint(), and add to the row
                     rowData.points.add(new NcscatPointData(sPointObj));
                     // sPointObj
@@ -226,22 +220,15 @@ public class NcscatResource extends
     // Structure containing displayable information for a
     // singpointData.rainQcFlag && ncscatResourceData.use2ndColorForRainEnablele
     // displayable element -- that is, a single point observation.
-
+    
     private class NcscatPointData {
-        Coordinate location; // lat/lon of this point
-
-        float direction; // "from" direction in bulletin
-
-        float speed; // in knots
-
-        boolean rainQcFlag; // is point marked 'rain' or 'QC fail'?
-
-        boolean highWindSpeedFlag; // is point marked 'high wind speed'?
-
-        boolean lowWindSpeedFlag; // is point marked 'low wind speed'?
-
-        boolean availRedunFlag; // is point marked 'some data unavailable' or
-                                // 'redundant'?
+        Coordinate location;        // lat/lon of this point
+        float direction;            // "from" direction in bulletin
+        float speed;                // in knots
+        boolean rainQcFlag;         // is point marked 'rain' or 'QC fail'?
+        boolean highWindSpeedFlag;  // is point marked 'high wind speed'?
+        boolean lowWindSpeedFlag;   // is point marked 'low wind speed'?
+        boolean availRedunFlag;     // is point marked 'some data unavailable' or 'redundant'?
 
         // Constructor to convert an existing NcscatPoint (common to decoder)
         // into a NcscatPointData (local class here), in which things are
@@ -250,70 +237,50 @@ public class NcscatResource extends
 
         public NcscatPointData(NcscatPoint point) {
             location = new Coordinate(point.getLon() / 100.0,
-                    point.getLat() / 100.0);
+                                      point.getLat() / 100.0);
             // TODO: Probably OK to leave as is, but...
-            if (location.x > 180.0f)
-                location.x -= 360.0f; // strange way of coding longitude values
-            if (location.x < -180.0f)
-                location.x += 360.0f; // strange way of coding longitude values
+            if (location.x >  180.0f)  //  deal with possible...
+                location.x -= 360.0f;
+            if (location.x < -180.0f)  //  ...novel longitude coding
+                location.x += 360.0f;
             direction = point.getIdr() / 100.0f;
             if (ncscatMode.isWindFrom()) {
                 direction = direction > 180.0f ? // reverse direction sense
-                direction - 180.0f
-                        : direction + 180.0f;
+                            direction - 180.0f
+                          : direction + 180.0f;
             }
             speed = point.getIsp() / 100.0f;
-            speed *= (3600.0f / 1852.0f); // m/s --> kt //TODO: Use Unit
-                                          // conversions...?
+            speed *= (3600.0f / 1852.0f); // m/s --> kt //TODO: Use Unit conversions...?
             switch (ncscatMode) {
             case QUIKSCAT:
             case QUIKSCAT_HI:
                 // TODO:?? if ((point.getIql() & 0xFFC0) != 0x0000) {
                 // for QuikSCAT only, if ANY of bits 0-9 on...
-                // speed = -9999.9f; // ...then do not plot, regardless of user
-                // settings
+                // speed = -9999.9f; // ...then do not plot, regardless of user settings
                 // could break; but let's set the flags below anyway...
                 // }
-                rainQcFlag = (point.getIql() & 0x0008) != 0x0008 && // bit 12 ==
-                                                                    // 0 AND
-                        (point.getIql() & 0x0004) == 0x0004; // bit 13 == 1 rain
-                highWindSpeedFlag = (point.getIql() & 0x0020) == 0x0020; // bit
-                                                                         // 10
-                                                                         // == 1
-                lowWindSpeedFlag = (point.getIql() & 0x0010) == 0x0010; // bit
-                                                                        // 11 ==
-                                                                        // 1
-                availRedunFlag = (point.getIql() & 0x0002) == 0x0002; // bit 14
-                                                                      // == 1
-                                                                      // availability
+                rainQcFlag =        (point.getIql() & 0x0008) != 0x0008 &&  // bit 12 == 0 AND
+                                    (point.getIql() & 0x0004) == 0x0004;    // bit 13 == 1   rain
+                highWindSpeedFlag = (point.getIql() & 0x0020) == 0x0020;    // bit 10 == 1
+                lowWindSpeedFlag =  (point.getIql() & 0x0010) == 0x0010;    // bit 11 == 1
+                availRedunFlag =    (point.getIql() & 0x0002) == 0x0002;    // bit 14 == 1   availability
                 break;
             case ASCAT:
             case ASCAT_HI:
             case EXASCT:
             case EXASCT_HI:
-                // qcFlag = (point.getIql() & 0x0800) == 0x0800; // bit 5 == 1
-                // rainQcFlag = (point.getIql() & 0x0008) != 0x0008 && // bit 12
-                // == 0 AND
-                // (point.getIql() & 0x0004) == 0x0004; // bit 13 == 1
-                rainQcFlag = (point.getIql() & 0x0800) == 0x0800; // bit 5 == 1
-                highWindSpeedFlag = (point.getIql() & 0x0020) == 0x0020; // bit
-                                                                         // 10
-                                                                         // == 1
-                lowWindSpeedFlag = (point.getIql() & 0x0010) == 0x0010; // bit
-                                                                        // 11 ==
-                                                                        // 1
-                // availabilityFlag = (point.getIql() & 0x0002) == 0x0002; //
-                // bit 14 == 1
-                // redundancyFlag = (point.getIql() & 0x0001) == 0x0001; // bit
-                // 15 == 1
-                availRedunFlag = (point.getIql() & 0x0001) == 0x0001; // bit 15
-                                                                      // == 1
-                                                                      // redundancy
+                // qcFlag     = (point.getIql() & 0x0800) == 0x0800;        // bit  5 == 1
+                // rainQcFlag = (point.getIql() & 0x0008) != 0x0008 &&      // bit 12 == 0 AND
+                // (point.getIql() & 0x0004) == 0x0004;                     // bit 13 == 1
+                rainQcFlag = (point.getIql() & 0x0800) == 0x0800;           // bit  5 == 1
+                highWindSpeedFlag = (point.getIql() & 0x0020) == 0x0020;    // bit 10 == 1
+                lowWindSpeedFlag = (point.getIql() & 0x0010) == 0x0010;     // bit 11 == 1
+                // availabilityFlag = (point.getIql() & 0x0002) == 0x0002;  // bit 14 == 1
+                // redundancyFlag = (point.getIql() & 0x0001) == 0x0001;    // bit 15 == 1
+                availRedunFlag = (point.getIql() & 0x0001) == 0x0001;       // bit 15 == 1   redundancy
                 break;
             case WSCAT:
-                rainQcFlag = (point.getIql() & 0x8001) == 0x8001; // bits 0 AND
-                                                                  // 15 == 1
-                                                                  // rain
+                rainQcFlag = (point.getIql() & 0x8001) == 0x8001;           // bits 0 AND 15 == 1   rain
                 highWindSpeedFlag = false;
                 lowWindSpeedFlag = false;
                 availRedunFlag = false;
@@ -330,8 +297,7 @@ public class NcscatResource extends
 
     // Structure grouping displayable information for a single row element
     private class NcscatRowData {
-        Calendar rowTime; // timestamp on this row
-
+        Calendar rowTime;                  // timestamp on this row
         ArrayList<NcscatPointData> points; // individual points in row
 
         public NcscatRowData(Calendar rowTime) {
@@ -354,15 +320,13 @@ public class NcscatResource extends
     public NcscatResource(NcscatResourceData resourceData,
             LoadProperties loadProperties) throws VizException {
         super(resourceData, loadProperties);
-        ncscatResourceData = resourceData;
+        ncscatResourceData = (NcscatResourceData) resourceData;
     }
 
-    @Override
     protected AbstractFrameData createNewFrame(DataTime frameTime, int timeInt) {
-        return new FrameData(frameTime, timeInt);
+        return (AbstractFrameData) new FrameData(frameTime, timeInt);
     }
 
-    @Override
     public void initResource(IGraphicsTarget grphTarget) throws VizException {
         font = grphTarget.initializeFont("Monospace", 14,
                 new IFont.Style[] { IFont.Style.BOLD });
@@ -370,35 +334,29 @@ public class NcscatResource extends
         ncscatResourceData.setNcscatMode();
         ncscatMode = ncscatResourceData.getNcscatMode();
         queryRecords();
-        // create a system resource for the colorBar and add it to the resource
-        // list.
-        //
-        cbar1RscPair = ResourcePair
-                .constructSystemResourcePair(new ColorBarResourceData(
-                        ncscatResourceData.getColorBar1()));
+    	// create a system resource for the colorBar and add it to the resource list.
+    	//
+        cbar1RscPair  = ResourcePair.constructSystemResourcePair( 
+		           new ColorBarResourceData( ncscatResourceData.getColorBar1() ) );
 
-        getDescriptor().getResourceList().add(cbar1RscPair);
-        getDescriptor().getResourceList().instantiateResources(getDescriptor(),
-                true);
+        getDescriptor().getResourceList().add( cbar1RscPair );
+        getDescriptor().getResourceList().instantiateResources( getDescriptor(), true );
 
         cbar1Resource = (ColorBarResource) cbar1RscPair.getResource();
+        
+        cbar2RscPair  = ResourcePair.constructSystemResourcePair( 
+		           new ColorBarResourceData( ncscatResourceData.getColorBar2() ) );
 
-        cbar2RscPair = ResourcePair
-                .constructSystemResourcePair(new ColorBarResourceData(
-                        ncscatResourceData.getColorBar2()));
-
-        getDescriptor().getResourceList().add(cbar2RscPair);
-        getDescriptor().getResourceList().instantiateResources(getDescriptor(),
-                true);
+        getDescriptor().getResourceList().add( cbar2RscPair );
+        getDescriptor().getResourceList().instantiateResources( getDescriptor(), true );
 
         cbar2Resource = (ColorBarResource) cbar2RscPair.getResource();
-
-        if (!ncscatResourceData.use2ndColorForRainEnable) {
-            getDescriptor().getResourceList().remove(cbar2RscPair);
+        
+        if( !ncscatResourceData.use2ndColorForRainEnable ) {
+            getDescriptor().getResourceList().remove( cbar2RscPair );
         }
     }
 
-    @Override
     public void paintFrame(AbstractFrameData frameData, IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
 
@@ -449,48 +407,36 @@ public class NcscatResource extends
         double direction = 0.0;
 
         // ...or option-dependent values invariant across all points
-        float lineWidth = (float) (ncscatResourceData.arrowWidth * 1.0); // tune
-                                                                         // to
-                                                                         // match
-                                                                         // NMAP
-        double sizeScale = ncscatResourceData.arrowSize * 0.135; // tune to
-                                                                 // match NMAP
-        double arrowHeadSize = ncscatResourceData.headSize * 0.2; // tune to
-                                                                  // match NMAP
-        double rainQcCircleRadiusPixels = ncscatResourceData.arrowSize
-                / screenToWorldRatio * 0.46; // tune to match NMAP
+        float lineWidth = (float) (ncscatResourceData.arrowWidth * 1.0); // tune to match NMAP
+        double sizeScale = ncscatResourceData.arrowSize * 0.135;         // tune to match NMAP
+        double arrowHeadSize = ncscatResourceData.headSize * 0.2;        // tune to match NMAP
+        double rainQcCircleRadiusPixels = ncscatResourceData.arrowSize / screenToWorldRatio * 0.46; // tune to match NMAP
 
         // Arrow type
         String pgenCategory = "Vector";
         String pgenType = ncscatResourceData.arrowStyle.getPgenType();
         VectorType vc = ncscatResourceData.arrowStyle.getVectorType();
-        boolean directionOnly = ncscatResourceData.arrowStyle
-                .getDirectionOnly();
+        boolean directionOnly = ncscatResourceData.arrowStyle.getDirectionOnly();
 
-        // TODO: Unify this with above. For now, do some arrow-style-specific
-        // fine tuning...
+        // TODO:  Unify this with above.  For now, do some arrow-style-specific fine tuning...
         switch (ncscatResourceData.arrowStyle) {
         case DIRECTIONAL_ARROW:
         case REGULAR_ARROW:
-            sizeScale *= 1.5;
-            break;
+        	sizeScale *= 1.5;
+        	break;
         }
 
         // User tells us how many rows -- and points within each row -- to
         // *skip* in between ones that get displayed; add one to get full
         // cycle interval...
         int interval = ncscatResourceData.skipEnable ? ncscatResourceData.skipValue + 1
-                // ...OR if skip option not selected, auto-compute interval
-                // (>=1) based on
-                // zoom and user-specified density (i.e., selectable progressive
-                // disclosure)
-                : Math.max(
-                        (int) (50 / screenToWorldRatio / ncscatResourceData.densityValue),
-                        1);
-        // System.out.println("interval = " + interval);
-        // /System.out.println("S:W = " + screenToWorldRatio +
-        // / " interval = " + interval +
-        // / " density = " + ncscatResourceData.densityValue);
+        // ...OR if skip option not selected, auto-compute interval (1<=x<=6) based on
+        // zoom and user-specified density (i.e., selectable progressive disclosure)
+        		       : Math.max(Math.min((int) (50 / screenToWorldRatio / ncscatResourceData.densityValue), 6), 1);
+        ///System.out.println("interval = " + interval);
+        ///System.out.println("S:W = " + screenToWorldRatio +
+        ///		           " interval = " + interval +
+        ///		           " density = " + ncscatResourceData.densityValue);
         int lastTimestampedMinute = -99; // flag so we only timestamp each
                                          // minute once
 
@@ -501,10 +447,10 @@ public class NcscatResource extends
         // Loop over ROWS in the satellite track...
 
         for (int rowCount = 0; rowCount < frameRows.size(); rowCount++) {
+        	
+        	NcscatRowData rowData = frameRows.get(rowCount);
 
-            NcscatRowData rowData = frameRows.get(rowCount);
-
-            boolean displayRow = (rowCount++ % interval == 0);
+            boolean displayRow = (rowCount % interval == 0);
 
             // Loop over POINTS in this row...
 
@@ -522,12 +468,12 @@ public class NcscatResource extends
 
                 // Display point if consistent with skip interval, data flags,
                 // and user options...
-                NcscatPointData pointData = rowData.points.get(pointCount);
-                if ((!pointData.availRedunFlag || ncscatResourceData.availabilityFlagEnable)
-                        && (!pointData.rainQcFlag || ncscatResourceData.rainFlagEnable)
-                        && (!pointData.highWindSpeedFlag || ncscatResourceData.highWindSpeedEnable)
-                        && (!pointData.lowWindSpeedFlag || ncscatResourceData.lowWindSpeedEnable)
-                        && pointData.speed > 0.0f) {
+            	NcscatPointData pointData = rowData.points.get(pointCount);
+                if ((!pointData.availRedunFlag    || ncscatResourceData.availabilityFlagEnable)
+                 && (!pointData.rainQcFlag        || ncscatResourceData.rainFlagEnable)
+                 && (!pointData.highWindSpeedFlag || ncscatResourceData.highWindSpeedEnable)
+                 && (!pointData.lowWindSpeedFlag  || ncscatResourceData.lowWindSpeedEnable)
+                 && pointData.speed > 0.0f) {
                     location = pointData.location;
                     double[] locLatLon = { location.x, location.y };
                     double[] locPix = this.descriptor.worldToPixel(locLatLon);
@@ -539,10 +485,9 @@ public class NcscatResource extends
                             direction = pointData.direction;
                             ColorBar colorBarToUse = pointData.rainQcFlag
                                     && ncscatResourceData.use2ndColorForRainEnable ? colorBar2
-                                    : colorBar1;
+                                                                                   : colorBar1;
                             color = getColorForSpeed(speed, colorBarToUse);
-                            colors = new Color[] { new Color(color.red,
-                                    color.green, color.blue) };
+                            colors = new Color[] { new Color(color.red, color.green, color.blue) };
                             windVectors.add(new Vector(null, colors, lineWidth,
                                     sizeScale, clear, location, vc, speed,
                                     direction, arrowHeadSize, directionOnly,
@@ -552,10 +497,8 @@ public class NcscatResource extends
                                 PixelCoordinate pixelLoc = new PixelCoordinate(
                                         descriptor.worldToPixel(new double[] {
                                                 location.x, location.y }));
-                                target.drawCircle(pixelLoc.getX(),
-                                        pixelLoc.getY(), pixelLoc.getZ(),
-                                        rainQcCircleRadiusPixels, color,
-                                        lineWidth);
+                                target.drawCircle(pixelLoc.getX(), pixelLoc.getY(), pixelLoc.getZ(),
+                                                  rainQcCircleRadiusPixels, color, lineWidth);
                             }
                         }
                         if (locPix[0] > maxXOfRow) {
@@ -586,14 +529,13 @@ public class NcscatResource extends
                 // IF any point of that row is within visible range.
                 // (Note: *Not* the same as the first row with visible point
                 // within that minute.)
-                lastTimestampedMinute = minuteOfDay; // Been here; done this
+                lastTimestampedMinute = minuteOfDay;  // Been here; done this
                 if (maxXOfRow - minXOfRow <= 2000
                         && // TODO: Find a better way to prevent wraparound
-                           // Visible?
+                        // Visible?
                         correctedExtent.contains(minXOfRow, yAtMinXOfRow)
                         && correctedExtent.contains(maxXOfRow, yAtMaxXOfRow)) {
-                    // Draw line across track -- or as much as is currently
-                    // visible...
+                    // Draw line across track -- or as much as is currently visible...
                     target.drawLine(minXOfRow, yAtMinXOfRow, 0.0, maxXOfRow,
                             yAtMaxXOfRow, 0.0,
                             ncscatResourceData.timeStampColor,
@@ -620,13 +562,12 @@ public class NcscatResource extends
         // Display wind vectors for all points
 
         DisplayElementFactory df = new DisplayElementFactory(target, descriptor);
-        ArrayList<IDisplayable> displayEls = df.createDisplayElements(
-                windVectors, paintProps);
+        ArrayList<IDisplayable> displayEls = df.createDisplayElements(windVectors, paintProps);
         for (IDisplayable each : displayEls) {
             each.draw(target);
             each.dispose();
         }
-
+                
     }
 
     private RGB getColorForSpeed(double speed, ColorBar colorBar) {
@@ -638,45 +579,40 @@ public class NcscatResource extends
         return new RGB(255, 0, 0);
     }
 
-    @Override
     public void disposeInternal() {
         // if( font != null ) {
         // font.dispose();
         // }
-        getDescriptor().getResourceList().remove(cbar1RscPair);
-        getDescriptor().getResourceList().remove(cbar2RscPair);
+		getDescriptor().getResourceList().remove( cbar1RscPair );
+		getDescriptor().getResourceList().remove( cbar2RscPair );
     }
 
-    @Override
     public void resourceAttrsModified() {
         // update the colorbarPainters with possibly new colorbars
-        boolean isCbar2Enabled = (getDescriptor().getResourceList().indexOf(
-                cbar2RscPair) != -1);
-        //
-        if (ncscatResourceData.use2ndColorForRainEnable && !isCbar2Enabled) {
-            cbar2RscPair = ResourcePair
-                    .constructSystemResourcePair(new ColorBarResourceData(
-                            ncscatResourceData.getColorBar2()));
+        boolean isCbar2Enabled = 
+        	(getDescriptor().getResourceList().indexOf( cbar2RscPair ) != -1 );
+        // 
+        if( ncscatResourceData.use2ndColorForRainEnable && !isCbar2Enabled ) {
+            cbar2RscPair  = ResourcePair.constructSystemResourcePair( 
+ 		           new ColorBarResourceData( ncscatResourceData.getColorBar2() ) );
 
-            getDescriptor().getResourceList().add(cbar2RscPair);
-            getDescriptor().getResourceList().instantiateResources(
-                    getDescriptor(), true);
+            getDescriptor().getResourceList().add( cbar2RscPair );
+            getDescriptor().getResourceList().instantiateResources( getDescriptor(), true );
 
             cbar2Resource = (ColorBarResource) cbar2RscPair.getResource();
-        } else if (!ncscatResourceData.use2ndColorForRainEnable
-                && isCbar2Enabled) {
-            // this will cause the ResourceCatalog to dispose of the resource so
-            // we will
-            // need to create a new one here.
-            getDescriptor().getResourceList().remove(cbar2RscPair);
-            cbar2RscPair = null;
-            cbar2Resource = null;
+        }
+        else if( !ncscatResourceData.use2ndColorForRainEnable && isCbar2Enabled ) {
+        	// this will cause the ResourceCatalog to dispose of the resource so we will
+        	// need to create a new one here.
+        	getDescriptor().getResourceList().remove( cbar2RscPair );
+        	cbar2RscPair = null;
+        	cbar2Resource = null;
         }
 
         cbar1Resource.setColorBar(ncscatResourceData.getColorBar1());
-
-        if (cbar2Resource != null) {
-            cbar2Resource.setColorBar(ncscatResourceData.getColorBar2());
+        
+        if( cbar2Resource != null ) {
+        	cbar2Resource.setColorBar(ncscatResourceData.getColorBar2());
         }
     }
 }
