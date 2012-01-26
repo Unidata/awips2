@@ -91,7 +91,7 @@
                                 <mapName>Canada</mapName>
                                 <table>mapdata.canada</table>
                                 <geomField>the_geom</geomField>
-                                <labelField>name_en</labelField>
+                                <labelField>name</labelField>
                                 <color>RGB {255, 228, 220}</color>
                                 <lineWidth>1</lineWidth>
                                 <lineStyle>SOLID</lineStyle>
