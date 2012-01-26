@@ -1,0 +1,4 @@
+! Attributes for the NGMMOS resource with "mxmn12hrpop" plot model
+!
+plotModelName=mxmn12hrpop
+plotDensity=10
