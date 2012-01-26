@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<resourceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <resource>
+          <loadProperties loadWithoutData="true"></loadProperties>
+          <properties isSystemResource="false" isBlinking="false"
+            isMapLayer="false" isHoverOn="false" isVisible="true" />
+          <resourceData xsi:type="NC-WouResourceData"
+            isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="false">
+            <frameSpan>${frameSpan}</frameSpan>
+            <dfltNumFrames>${dfltNumFrames}</dfltNumFrames>
+            <dfltTimeRange>${dfltTimeRange}</dfltTimeRange>
+            <timeMatchMethod>${timeMatchMethod}</timeMatchMethod>
+            <timelineGenMethod>${timelineGenMethod}</timelineGenMethod> 
+            <sourceName>WOU</sourceName>
+            <color>${color}</color>
+            <thunderstormEnable>${thunderstormEnable}</thunderstormEnable>
+            <thunderstormColor>${thunderstormColor}</thunderstormColor>
+            <thunderstormSymbolWidth>${thunderstormSymbolWidth}</thunderstormSymbolWidth>
+            <thunderstormSymbolSize>${thunderstormSymbolSize}</thunderstormSymbolSize>
+            <thunderstormSymbolColor>${thunderstormSymbolColor}</thunderstormSymbolColor>
+            <tornadoEnable>${tornadoEnable}</tornadoEnable>
+            <tornadoColor>${tornadoColor}</tornadoColor>
+            <tornadoSymbolWidth>${tornadoSymbolWidth}</tornadoSymbolWidth>
+            <tornadoSymbolSize>${tornadoSymbolSize}</tornadoSymbolSize>
+            <tornadoSymbolColor>${tornadoSymbolColor}</tornadoSymbolColor>
+            <Watchxxx0Enable>${Watchxxx0Enable}</Watchxxx0Enable>
+            <Watchxxx0Color>${Watchxxx0Color}</Watchxxx0Color>
+            <Watchxxx0SymbolWidth>${Watchxxx0SymbolWidth}</Watchxxx0SymbolWidth>
+            <Watchxxx0SymbolSize>${Watchxxx0SymbolSize}</Watchxxx0SymbolSize>
+            <Watchxxx0SymbolColor>${Watchxxx0SymbolColor}</Watchxxx0SymbolColor>
+            <Watchxxx1Enable>${Watchxxx1Enable}</Watchxxx1Enable>
+            <Watchxxx1Color>${Watchxxx1Color}</Watchxxx1Color>
+            <Watchxxx1SymbolWidth>${Watchxxx1SymbolWidth}</Watchxxx1SymbolWidth>
+            <Watchxxx1SymbolSize>${Watchxxx1SymbolSize}</Watchxxx1SymbolSize>
+            <Watchxxx1SymbolColor>${Watchxxx1SymbolColor}</Watchxxx1SymbolColor>
+            <Watchxxx2Enable>${Watchxxx2Enable}</Watchxxx2Enable>
+            <Watchxxx2Color>${Watchxxx2Color}</Watchxxx2Color>
+            <Watchxxx2SymbolWidth>${Watchxxx2SymbolWidth}</Watchxxx2SymbolWidth>
+            <Watchxxx2SymbolSize>${Watchxxx2SymbolSize}</Watchxxx2SymbolSize>
+            <Watchxxx2SymbolColor>${Watchxxx2SymbolColor}</Watchxxx2SymbolColor>
+            <Watchxxx3Enable>${Watchxxx3Enable}</Watchxxx3Enable>
+            <Watchxxx3Color>${Watchxxx3Color}</Watchxxx3Color>
+            <Watchxxx3SymbolWidth>${Watchxxx3SymbolWidth}</Watchxxx3SymbolWidth>
+            <Watchxxx3SymbolSize>${Watchxxx3SymbolSize}</Watchxxx3SymbolSize>
+            <Watchxxx3SymbolColor>${Watchxxx3SymbolColor}</Watchxxx3SymbolColor>
+            <Watchxxx4Enable>${Watchxxx4Enable}</Watchxxx4Enable>
+            <Watchxxx4Color>${Watchxxx4Color}</Watchxxx4Color>
+            <Watchxxx4SymbolWidth>${Watchxxx4SymbolWidth}</Watchxxx4SymbolWidth>
+            <Watchxxx4SymbolSize>${Watchxxx4SymbolSize}</Watchxxx4SymbolSize>
+            <Watchxxx4SymbolColor>${Watchxxx4SymbolColor}</Watchxxx4SymbolColor>
+            <Watchxxx5Enable>${Watchxxx5Enable}</Watchxxx5Enable>
+            <Watchxxx5Color>${Watchxxx5Color}</Watchxxx5Color>
+            <Watchxxx5SymbolWidth>${Watchxxx5SymbolWidth}</Watchxxx5SymbolWidth>
+            <Watchxxx5SymbolSize>${Watchxxx5SymbolSize}</Watchxxx5SymbolSize>
+            <Watchxxx5SymbolColor>${Watchxxx5SymbolColor}</Watchxxx5SymbolColor>
+            <Watchxxx6Enable>${Watchxxx6Enable}</Watchxxx6Enable>
+            <Watchxxx6Color>${Watchxxx6Color}</Watchxxx6Color>
+            <Watchxxx6SymbolWidth>${Watchxxx6SymbolWidth}</Watchxxx6SymbolWidth>
+            <Watchxxx6SymbolSize>${Watchxxx6SymbolSize}</Watchxxx6SymbolSize>
+            <Watchxxx6SymbolColor>${Watchxxx6SymbolColor}</Watchxxx6SymbolColor>
+            <Watchxxx7Enable>${Watchxxx7Enable}</Watchxxx7Enable>
+            <Watchxxx7Color>${Watchxxx7Color}</Watchxxx7Color>
+            <Watchxxx7SymbolWidth>${Watchxxx7SymbolWidth}</Watchxxx7SymbolWidth>
+            <Watchxxx7SymbolSize>${Watchxxx7SymbolSize}</Watchxxx7SymbolSize>
+            <Watchxxx7SymbolColor>${Watchxxx7SymbolColor}</Watchxxx7SymbolColor>
+            <Watchxxx8Enable>${Watchxxx8Enable}</Watchxxx8Enable>
+            <Watchxxx8Color>${Watchxxx8Color}</Watchxxx8Color>
+            <Watchxxx8SymbolWidth>${Watchxxx8SymbolWidth}</Watchxxx8SymbolWidth>
+            <Watchxxx8SymbolSize>${Watchxxx8SymbolSize}</Watchxxx8SymbolSize>
+            <Watchxxx8SymbolColor>${Watchxxx8SymbolColor}</Watchxxx8SymbolColor>
+            <Watchxxx9Enable>${Watchxxx9Enable}</Watchxxx9Enable>
+            <Watchxxx9Color>${Watchxxx9Color}</Watchxxx9Color>
+            <Watchxxx9SymbolWidth>${Watchxxx9SymbolWidth}</Watchxxx9SymbolWidth>
+            <Watchxxx9SymbolSize>${Watchxxx9SymbolSize}</Watchxxx9SymbolSize>
+            <Watchxxx9SymbolColor>${Watchxxx9SymbolColor}</Watchxxx9SymbolColor>
+            <watchBoxTimeEnable>${watchBoxTimeEnable}</watchBoxTimeEnable>
+            <watchBoxLabelEnable>${watchBoxLabelEnable}</watchBoxLabelEnable>
+            <watchBoxNumberEnable>${watchBoxNumberEnable}</watchBoxNumberEnable>
+            <colorCodeEnable>${colorCodeEnable}</colorCodeEnable>
+            <watchBoxMarkerEnable>${watchBoxMarkerEnable}</watchBoxMarkerEnable>
+            <watchBoxOutlineEnable>${watchBoxOutlineEnable}</watchBoxOutlineEnable>
+            <watchBoxFillEnable>${watchBoxFillEnable}</watchBoxFillEnable>
+            <watchBoxUnionEnable>${watchBoxUnionEnable}</watchBoxUnionEnable>
+            <requestStyle>METADATA</requestStyle>
+            <metadataMap>
+              <mapping key="pluginName">
+                <constraint constraintValue="aww" constraintType="EQUALS" />
+              </mapping>
+              <mapping key="reportType">
+                <constraint constraintValue="SEVERE_THUNDERSTORM_WATCH,TORNADO_WATCH_OUTLINE_UPDATE" constraintType="IN" />
+              </mapping>
+            </metadataMap>
+          </resourceData>
+        </resource>
+</resourceGroup>
+

@@ -1,0 +1,65 @@
+!
+! QPF.TBL
+!
+! This table contains the "restore" information for the QPF NMAP
+! graph-to-grid processing.
+! 
+! See the table "grphgd.tbl" for the current list and explanation of all
+! valid PARAMETERs and their VALUEs.
+! 
+! 
+!!
+! Log:
+! D.W.Plummer/NCEP	 3/00	
+! D.W.Plummer/NCEP	 5/00	Added FINT, FLINE and CLRBAR
+! D.W.Plummer/NCEP	 8/00	Remove "| ATL" from CPYFIL parameter
+! F. J. Yen/NCEP  	 1/08	Added KEYLINE and OLKDAY
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!
+!PARAMETER	VALUE
+!
+VGF_TEMPLATE	qpf_PPPP_YYYYMMDDHHfFFF.vgf
+!
+GDOUTF          PPPP_YYYYMMDDHHfFFF.grd
+!
+CNTRFL          PPPP_YYYYMMDDHHfFFF.info
+!
+PATH      	.
+!
+GVCORD		none
+!
+GLEVEL		0
+!
+GGLIMS		-30;-30||-30
+!
+KEYCOL		
+!
+KEYLINE		
+!
+OLKDAY		 	
+!
+MAXGRD		10
+!
+HISTGRD		YES
+!
+GFUNC		HGMT
+! Specify either CPYFIL  - OR - 
+CPYFIL		
+! the combination PROJ, GRDAREA, KXKY and ANLYSS
+PROJ		CED
+GRDAREA		US
+KXKY		63;28
+ANLYSS
+!
+!
+! The following are used to contour/display the grid once it has been created
+!
+CINT		-20;-10;0;10;20;30;40;50;60;70
+!
+LINE		31/1/4
+!
+FINT            -20;-10;0;10;20;30;40;50;60;70     
+!
+FLINE           0;21-30;14-20;5
+!
+CLRBAR		1

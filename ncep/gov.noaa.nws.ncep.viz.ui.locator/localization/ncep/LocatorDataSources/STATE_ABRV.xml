@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LocatorDataSource>
+    <sourceName>STATE_ABRV</sourceName>
+    <sourceType>BOUNDED_AREA</sourceType>
+    <dbName>ncep</dbName>
+    <dbTableName>bounds.statebnds</dbTableName>
+	<dbFieldName>state</dbFieldName> 
+</LocatorDataSource>
