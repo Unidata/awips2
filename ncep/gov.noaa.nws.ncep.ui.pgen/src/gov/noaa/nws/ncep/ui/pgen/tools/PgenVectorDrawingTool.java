@@ -212,6 +212,11 @@ public class PgenVectorDrawingTool extends AbstractPgenDrawingTool {
         	
         }
 
+		@Override
+		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
+			return true;
+		}
+
     }
     
 }

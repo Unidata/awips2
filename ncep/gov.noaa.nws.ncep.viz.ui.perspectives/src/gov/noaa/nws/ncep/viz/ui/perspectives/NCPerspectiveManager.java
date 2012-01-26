@@ -1,46 +1,46 @@
 package gov.noaa.nws.ncep.viz.ui.perspectives;
 
+import gov.noaa.nws.ncep.viz.common.AbstractNcEditor;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
-import gov.noaa.nws.ncep.viz.resources.manager.NmapResourceUtils;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
+import gov.noaa.nws.ncep.viz.resources.manager.SpfsManager;
 import gov.noaa.nws.ncep.viz.resources.manager.RbdBundle;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceBndlLoader;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefnsMngr;
+import gov.noaa.nws.ncep.viz.rsc.satellite.units.NcSatelliteUnits;
+import gov.noaa.nws.ncep.viz.tools.frame.FrameDataDisplay;
 import gov.noaa.nws.ncep.viz.tools.imageProperties.FadeDisplay;
+import gov.noaa.nws.ncep.viz.tools.pgenFileName.PgenFileNameDisplay;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
-//import gov.noaa.nws.ncep.viz.ui.locator.LocatorDisplay;
+import gov.noaa.nws.ncep.viz.gempak.grid.inv.NcInventory;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.action.ContributionItem;
-import org.eclipse.jface.action.IContributionItem;
-import org.eclipse.jface.action.StatusLineManager;
 import org.eclipse.swt.SWT;
 
 import com.raytheon.uf.common.dataplugin.satellite.units.SatelliteUnits;
-import com.raytheon.uf.viz.application.ProgramArguments;
-import com.raytheon.uf.viz.core.IDisplayPane;
+import com.raytheon.uf.viz.core.IDisplayPaneContainer;
+import com.raytheon.uf.viz.core.IVizEditorChangedListener;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.application.ProgramArguments;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
-
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
+import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.input.InputAdapter;
 import com.raytheon.viz.ui.perspectives.AbstractCAVEPerspectiveManager;
 import com.vividsolutions.jts.geom.Coordinate;
-
-import gov.noaa.nws.ncep.viz.rsc.satellite.units.NcSatelliteUnits;
-
-import gov.noaa.nws.ncep.viz.tools.frame.FrameDataDisplay;
-
+import gov.noaa.nws.ncep.viz.resourceManager.ui.ResourceManagerDialog;
 /**
  * Manages the life cycle of the National Centers Perspectives
  * 
@@ -67,6 +67,11 @@ import gov.noaa.nws.ncep.viz.tools.frame.FrameDataDisplay;
  * 03/22/11   r1g2-9        G. Hull    extend AbstractCAVEPerspectiveManager
  * 06/07/11     #445        X. Guo     Data Manager Performance Improvements
  *                                     Initialize Data resources
+ * 07/28/2011    450        G. Hull    NcPathManager
+ * 10/25/2011   #467        G. Hull    close the ResourceManager on deactivate/close
+ * 10/26/2011               X. Guo     Init ncgrib inventory
+ * 11/22/2011   #514        G. Hull    add an IVizEditorChangedListener to update the GUI when the editor changes
+ * 12/13/2011               J. Wu      Added PGEN file name display
  * 
  * </pre>
  * 
@@ -80,11 +85,35 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
     public static final String NC_PERSPECTIVE = NmapCommon.NatlCntrsPerspectiveID;
            
     private int currentRscIndex = 0;
+    
+    private boolean gridInventoryInited = false;
 
+    private IVizEditorChangedListener displayChangeListener=null;
+    
 	@Override
 	protected void open() {
 		
-		
+		/*
+		 * TODO
+		 * this is probably will need to be re-worked
+		 */
+		if ( !gridInventoryInited ) {
+			long t0 = System.currentTimeMillis();
+			NcInventory.getInstance().initInventory();
+			long t1 = System.currentTimeMillis();
+			System.out.println("NcGridInventory Init took: " + (t1-t0));
+			gridInventoryInited = true;
+		}
+
+		displayChangeListener = new IVizEditorChangedListener() {			
+			@Override
+			public void editorChanged(IDisplayPaneContainer container) {
+				if( container instanceof AbstractNcEditor ) {
+					((AbstractNcEditor)container).refreshGUIElements();
+				}
+			}
+		};
+				
         ProductAlertObserver.addObserver(null, new NcAutoUpdater());
 
         // NatlCntrs uses a different equation to compute the Temperature values from
@@ -95,69 +124,72 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
         
         // Load either the default RBD or RBDs in the command line spf
         //
-        File rbdFiles[] = new File[1];
-        rbdFiles[0] = LocalizationManager.getInstance().getLocalizationFile("defaultRBDFile");
+		ArrayList<RbdBundle> rbdsToLoad = new ArrayList<RbdBundle>();
 
         String spfName = ProgramArguments.getInstance().getString("-spf");
 
         if( spfName != null && !spfName.isEmpty() ) {
+        	String[] grpAndSpf = spfName.split( File.separator );
 
         	// the name of the spf should include a group name
         	// TODO : check that there is a group and if not use a default.
-        	if( spfName.indexOf(File.separator) < 0 ) {
-        		System.out.println("The -spf argument is specified without an spf group.");
+        	if( grpAndSpf.length != 2 ) {
+        		System.out.println("The -spf argument is specified without an spf group (ex spfGroupName/spfName.");
         		// load the default rbd...
         	}
         	else {
-        		File spfDir = new File( NmapResourceUtils.getSpfGroupsDir()+File.separator+spfName );
-        		ArrayList<RbdBundle> rbdLoadSels = new ArrayList<RbdBundle>();
-
-        		if( !spfDir.exists() || !spfDir.isDirectory() ) {
-        			System.out.println("The -spf argument is specified with an unknown spf: "+ spfName );
-        			// load the default rbd...
+        		
+        		try {
+        			rbdsToLoad = 
+        				SpfsManager.getInstance().getRbdsFromSpf( 
+        						grpAndSpf[0], grpAndSpf[1], 
+        						true ); // resolve Latest Cycle times
         		}
-        		else {
-        			File tmpFiles[] = spfDir.listFiles(
-        					NmapCommon.createFileFilter( new String[]{".xml"} ));	
-        			if( tmpFiles == null || tmpFiles.length == 0 ) {
-        				System.out.println("The -spf argument is specified with an empty spf: "+ spfName );
-            			// load the default rbd...
-        			}
-        			else { 
-        				rbdFiles = tmpFiles;
-        			}
-        			// validate the rbds by unmarshalling them??
-        			//RbdBundle rbd = RbdBundle.unmarshalRBD( rbdFile, null );
+        		catch( VizException e ) {
+        			System.out.println("The -spf argument is specified with an unknown spf: "+ spfName );
         		}
         	}
         }
-
-        // loop thru the rbds and load them into a new editor.
-        for( File rbdFile : rbdFiles ) {
+        
+        if( rbdsToLoad.isEmpty() ) {
         	try {
-        		RbdBundle rbd = RbdBundle.unmarshalRBD( rbdFile, null );
+        		File rbdFile = NcPathManager.getInstance().getStaticFile( 
+        				NcPathConstants.DFLT_RBD );
+        		RbdBundle dfltRbd = RbdBundle.unmarshalRBD( rbdFile, null );
+        		dfltRbd.resolveLatestCycleTimes();// shouldn't need this but just in case
+        		rbdsToLoad.add( dfltRbd );
         		
-        		NCMapEditor editor = NmapUiUtils.createNatlCntrsEditor( rbd.getRbdName() );
-        		rbd.setNcEditor( editor );
-        		
-        		ResourceBndlLoader rbdLoader = new ResourceBndlLoader( "Loading RBD: "+rbd.getRbdName() );
-        		
-        		rbdLoader.addRBD( rbd );
-        		VizApp.runAsync( rbdLoader );
         	}
         	catch ( Exception ve ) {
         		System.out.println("Could not load rbd: " + ve.getMessage());
         		ve.printStackTrace();
-        	}       
+        	}
         }
+
+        // loop thru the rbds and load them into a new editor.
+        for(  RbdBundle rbd: rbdsToLoad ) {
+
+        	NCMapEditor editor = NmapUiUtils.createNatlCntrsEditor( rbd.getRbdName() );
+        	rbd.setNcEditor( editor );
+
+        	ResourceBndlLoader rbdLoader = new ResourceBndlLoader( "Loading RBD: "+rbd.getRbdName() );
+
+        	rbdLoader.addRBD( rbd );
+        	VizApp.runAsync( rbdLoader );
+        }
+        
 //      xguo,06/02/11. To enhance the system performance, move 
 //      data resource query to here to initialize Data Resource instance.
         try {
-	    	ResourceDefnsMngr rscDefnMngr = ResourceDefnsMngr.getInstance();
-	    	rscDefnMngr.generateDynamicResources();
+        	long lt = System.currentTimeMillis();
+        	
+ 	    	ResourceDefnsMngr.getInstance().generateDynamicResources();
+ 	    	
+ 	    	long ltime= System.currentTimeMillis();
+            System.out.println("Generate Dynamic Resources  " + (ltime-lt) + "ms");
+            
 	    } catch( VizException el ) {
-			    System.out.println("Could not initialize NC-Data resources: " + el.getMessage());
-        		el.printStackTrace();
+	    	System.out.println("Could not initialize NC-Data resources: " + el.getMessage());
 	    }
 	}
 	
@@ -165,6 +197,10 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
     public void activate() {
 		super.activate();
 		
+		// add an EditorChangedListener
+		VizWorkbenchManager.getInstance().addListener( displayChangeListener );
+
+
 // Experiment.
 //        statusLine.setErrorMessage("Status Line ERROR MSG B");
 //        statusLine.setMessage("Status Line MESSAGE B");
@@ -179,7 +215,14 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
     public void deactivate() {
 		super.deactivate();
 		
+		VizWorkbenchManager.getInstance().removeListener( displayChangeListener );
+
         SatelliteUnits.register();
+        
+        // would rather do this another way, preferably by having
+        // ResourceManagerDialog extend CaveSWTDialog (do this later) or 
+        // by implementing a perspective closed listener (cyclical dependency problem)
+        ResourceManagerDialog.close();
     }
 	
 
@@ -188,9 +231,8 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
         List<ContributionItem> stsLineDisplays = new ArrayList<ContributionItem>();
 // in reverse order
         stsLineDisplays.add( new FadeDisplay() );
+        stsLineDisplays.add( PgenFileNameDisplay.getInstance() );
         stsLineDisplays.add( FrameDataDisplay.createInstance() );
-  //      stsLineDisplays.add( new LocatorDisplay("LocatorDisplay") ); 
-        //stsLineDisplays.add( new TimeDisplay() );
         
         return stsLineDisplays;
     }
@@ -200,6 +242,10 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
     public void close() {
 		super.close();
 		
+		VizWorkbenchManager.getInstance().removeListener( displayChangeListener );
+		displayChangeListener = null;
+		
+        ResourceManagerDialog.close();
 	}
 	
     /*

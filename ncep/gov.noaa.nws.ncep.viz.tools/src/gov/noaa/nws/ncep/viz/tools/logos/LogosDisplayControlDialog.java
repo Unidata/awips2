@@ -1,15 +1,17 @@
 package gov.noaa.nws.ncep.viz.tools.logos;
 
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationResourcePathConstants;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.tools.logos.LogoInfo.LogoEntry;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -30,6 +32,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
@@ -45,19 +48,16 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
  * ------------ ---------- ----------- --------------------------
  * June 2009  	105        M. Li    	Initial creation. 
  * Nov  2009               G. Hull      migrate to to11d6
+ * July 2011    #450       G. Hull      get Logos from Localization.
+ * 
  * </pre>
  * 
  * @author mli
  * @version 1.0
  * 
  */
-
-
 public class LogosDisplayControlDialog extends Dialog {
 
-	/**
-     * Dialog shell.
-     */
     private Shell shell;
 	
     Display display; 
@@ -183,13 +183,14 @@ public class LogosDisplayControlDialog extends Dialog {
         for (int i = 0; i < logoList.size(); i++) {
         	
         	// Logo Image label
-        	/*
-        	 * comment out by M. Gao
-        	 */
-//        	String logofile = LocalizationManager.getInstance().getFilename("logosImageDir") + File.separator
-//        		+ logoList.get(i).getImageFile();
-        	String logofileName = LocalizationManager.getInstance().getLocalizationFileNameDirectly(LocalizationResourcePathConstants.LOGO_IMAGES_DIR,
-        			logoList.get(i).getImageFile()); 
+			File logoTblFile = NcPathManager.getInstance().getStaticFile( 
+					NcPathConstants.LOGOS_TBL ); // from ext point. logoTable" ) );
+			if( logoTblFile == null || !logoTblFile.exists() ) {
+				System.out.println("Unable to find logos table:");
+				return;
+			}
+			
+			String logofileName = logoList.get(i).getImageFile(); 
         	Label imageLabel = new Label(comp, SWT.NONE);
         	Image image = new Image(display, logofileName);
         	
@@ -375,9 +376,22 @@ public class LogosDisplayControlDialog extends Dialog {
     
     private void readLogoTable() {
     	if (logoList == null) {
-    		logoInfo = new LogoInfo(LocalizationManager.getInstance().getFilename("logoTable"));
+    	
     		try {
-    			if (logoInfo.readTable()) {
+    			File logoTblFile = NcPathManager.getInstance().getStaticFile( 
+    					NcPathConstants.LOGOS_TBL );
+    			if( logoTblFile == null || !logoTblFile.exists() ) {
+    				throw new FileNotFoundException( NcPathConstants.LOGOS_TBL );
+    			}
+
+    			// get a list of all the available image files.
+    			//
+    			Map<String,LocalizationFile> logoLclFiles = NcPathManager.getInstance().listFiles( 
+    					NcPathConstants.LOGOS_DIR, new String[]{".gif"}, true, true );
+
+    			logoInfo = new LogoInfo( logoTblFile );
+
+    			if (logoInfo.readTable( logoLclFiles)) {
     				logoList = new ArrayList<LogoEntry>();
     				logoList = logoInfo.getLogoList();
     			}

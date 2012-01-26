@@ -16,10 +16,13 @@ import java.util.List;
 
 //import gov.noaa.nws.ncep.ui.display.InputHandlerDefaultImpl;
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.attrDialog.AttrDlgFactory;
+import gov.noaa.nws.ncep.ui.pgen.attrDialog.FrontAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.attrDialog.SymbolAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.attrDialog.WatchBoxAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
+import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElementFactory;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableType;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
@@ -138,6 +141,8 @@ public class PgenMultiSelectTool extends AbstractPgenDrawingTool {
 				drawingLayer.removeGhostLine();
 				drawingLayer.removeSelected();
 				mapEditor.refresh();
+
+				PgenUtil.setSelectingMode();
 
 				return false;
 
@@ -313,11 +318,20 @@ public class PgenMultiSelectTool extends AbstractPgenDrawingTool {
 					else if ( attrDlg instanceof WatchBoxAttrDlg ){
 						((WatchBoxAttrDlg)attrDlg).enableShapeBtn(false);
 						((WatchBoxAttrDlg)attrDlg).enableDspBtn(false);
-					}	
-		
-			    	
+					}
+					else if ( attrDlg instanceof FrontAttrDlg ){
+						//for fronts with two color buttons 
+						for ( AbstractDrawableComponent adc : drawingLayer.getAllSelected()){
+							if ( adc instanceof DrawableElement ) {
+								if (((DrawableElement)adc).getColors().length > 1) {
+									((FrontAttrDlg)attrDlg).setColor( new Color[]{Color.green,Color.green});
+								}
+							}
+							
+						}
+					}
 				}
-
+				
 			}
 //           System.out.println("From handleMouseUp()");
 			mapEditor.setFocus();

@@ -1,7 +1,7 @@
 package gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels;
 
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationResourcePathConstants;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -9,8 +9,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
-
-import com.raytheon.uf.common.localization.PathManagerFactory;
 
 public class S2N {
 
@@ -56,8 +54,9 @@ public class S2N {
     public static S2N readS2NFile(String s2nFilename) {
         BufferedReader input = null;
         S2N lookup = new S2N(s2nFilename);
-//      File s2nFile = PathManagerFactory.getPathManager().getStaticFile(  S2N.plotmodelDir + File.separator + s2nFilename);        
-        File s2nFile = LocalizationManager.getInstance().getLocalizationFileDirectly(	LocalizationResourcePathConstants.PLOTMODELPARAMETERS_DIR,	s2nFilename);
+        
+        File s2nFile = NcPathManager.getInstance().getStaticFile(
+        		NcPathConstants.PLOT_PARAMETERS_DIR+File.separator + s2nFilename);
 
         int counter = 0;
         int highestValue = -1;
