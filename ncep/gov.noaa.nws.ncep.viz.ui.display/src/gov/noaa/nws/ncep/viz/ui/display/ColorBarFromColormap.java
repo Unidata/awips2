@@ -1,27 +1,19 @@
 package gov.noaa.nws.ncep.viz.ui.display;
 
-import java.io.File;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
-
 import javax.measure.unit.Unit;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.viz.core.exception.VizException;
 
-import gov.noaa.nws.ncep.viz.common.ColorMapUtil;
 import gov.noaa.nws.ncep.viz.common.RGBColorAdapter;
 import gov.noaa.nws.ncep.viz.common.IntegerListAdapter;
 
@@ -33,7 +25,8 @@ import gov.noaa.nws.ncep.viz.common.IntegerListAdapter;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 04/14/10      #259        Greg Hull    Initial Creation.
- * 
+ * 10/25/11      #463        qzhou        Added equals()
+ * 12/06/11                  qzhou        Modified equals and added hashCode
  * </pre>
  * 
  * @author ghull
@@ -419,4 +412,103 @@ public class ColorBarFromColormap implements IColorBar, ISerializableObject {
 	public void setWidthInPixels(Integer w) {
 		widthInPixels = w;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((anchorLoc == null) ? 0 : anchorLoc.hashCode());
+		result = prime * result
+				+ ((colorMap == null) ? 0 : colorMap.hashCode());
+		result = prime
+				* result
+				+ ((colorMapModified == null) ? 0 : colorMapModified.hashCode());
+		result = prime * result + ((colors == null) ? 0 : colors.hashCode());
+		result = prime * result
+				+ ((dataUnits == null) ? 0 : dataUnits.hashCode());
+		result = prime * result
+				+ ((labelColor == null) ? 0 : labelColor.hashCode());
+		result = prime * result
+				+ ((labeledPixels == null) ? 0 : labeledPixels.hashCode());
+		result = prime * result
+				+ ((lengthAsRatio == null) ? 0 : lengthAsRatio.hashCode());
+		result = prime * result
+				+ ((orientation == null) ? 0 : orientation.hashCode());
+		result = prime * result
+				+ ((pixelRGBs == null) ? 0 : pixelRGBs.hashCode());
+		result = prime * result
+				+ ((showLabels == null) ? 0 : showLabels.hashCode());
+		result = prime * result
+				+ ((widthInPixels == null) ? 0 : widthInPixels.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof ColorBarFromColormap))
+			return false;
+		
+		ColorBarFromColormap other = (ColorBarFromColormap) obj;
+		if (anchorLoc != other.anchorLoc)
+			return false;
+		if (colorMap == null) {
+			if (other.colorMap != null)
+				return false;
+		} else if (!colorMap.equals(other.colorMap))
+			return false;
+		if (colorMapModified == null) {
+			if (other.colorMapModified != null)
+				return false;
+		} else if (!colorMapModified.equals(other.colorMapModified))
+			return false;
+		if (colors == null) {
+			if (other.colors != null)
+				return false;
+		} else if (!colors.equals(other.colors))
+			return false;
+		if (dataUnits == null) {
+			if (other.dataUnits != null)
+				return false;
+		} else if (!dataUnits.equals(other.dataUnits))
+			return false;
+		if (labelColor == null) {
+			if (other.labelColor != null)
+				return false;
+		} else if (!labelColor.equals(other.labelColor))
+			return false;
+		if (labeledPixels == null) {
+			if (other.labeledPixels != null)
+				return false;
+		} else if (!labeledPixels.equals(other.labeledPixels))
+			return false;
+		if (lengthAsRatio == null) {
+			if (other.lengthAsRatio != null)
+				return false;
+		} else if (!lengthAsRatio.equals(other.lengthAsRatio))
+			return false;
+		if (orientation != other.orientation)
+			return false;
+		if (pixelRGBs == null) {
+			if (other.pixelRGBs != null)
+				return false;
+		} else if (!pixelRGBs.equals(other.pixelRGBs))
+			return false;
+		if (showLabels == null) {
+			if (other.showLabels != null)
+				return false;
+		} else if (!showLabels.equals(other.showLabels))
+			return false;
+		if (widthInPixels == null) {
+			if (other.widthInPixels != null)
+				return false;
+		} else if (!widthInPixels.equals(other.widthInPixels))
+			return false;
+		return true;
+	}
+
 }
