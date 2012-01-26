@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<resourceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <resource>
+          <loadProperties loadWithoutData="true"></loadProperties>
+          <properties isSystemResource="false"
+              isBlinking="false" isMapLayer="false" isHoverOn="false"
+              isVisible="true" />
+          <resourceData xsi:type="NC-NcscatResourceData"
+                        isUpdatingOnMetadataOnly="false" 
+                        isRequeryNecessaryOnTimeMatch="false"> 
+             <frameSpan>${frameSpan}</frameSpan>
+             <dfltNumFrames>${dfltNumFrames}</dfltNumFrames>
+             <dfltTimeRange>${dfltTimeRange}</dfltTimeRange>
+             <timeMatchMethod>${timeMatchMethod}</timeMatchMethod>
+<!--         <scatMode>$ {scatMode}</scatMode>   -->
+             <timelineGenMethod>${timelineGenMethod}</timelineGenMethod> 
+             <legendColor>${legend_color}</legendColor>
+             <color>${color}</color>
+             <skipEnable>${skipEnable}</skipEnable>
+             <skipValue>${skipValue}</skipValue>
+             <densityValue>${densityValue}</densityValue>
+             <timeStampEnable>${timeStampEnable}</timeStampEnable>
+             <timeStampColor>${timeStampColor}</timeStampColor>
+             <timeStampInterval>${timeStampInterval}</timeStampInterval>
+             <timeStampLineWidth>${timeStampLineWidth}</timeStampLineWidth>
+             <arrowStyle>${arrowStyle}</arrowStyle>
+             <arrowWidth>${arrowWidth}</arrowWidth>
+             <arrowSize>${arrowSize}</arrowSize>
+             <headSize>${headSize}</headSize>
+	     ${colorBar1}
+	     ${colorBar2}
+             <highWindSpeedEnable>${highWindSpeedEnable}</highWindSpeedEnable>
+             <lowWindSpeedEnable>${lowWindSpeedEnable}</lowWindSpeedEnable>
+             <rainFlagEnable>${rainFlagEnable}</rainFlagEnable>
+             <availabilityFlagEnable>${availabilityFlagEnable}</availabilityFlagEnable>
+             <use2ndColorForRainEnable>${use2ndColorForRainEnable}</use2ndColorForRainEnable>
+             <plotCirclesForRainEnable>${plotCirclesForRainEnable}</plotCirclesForRainEnable>
+             <requestStyle>METADATA</requestStyle>
+             <metadataMap> 
+               <mapping key="pluginName">
+                 <constraint constraintValue="ncscat" constraintType="EQUALS" />
+               </mapping>
+               <mapping key="reportType">
+                 <constraint constraintValue="${reportType}" constraintType="EQUALS" />
+               </mapping>
+             </metadataMap>             
+          </resourceData>
+        </resource>
+</resourceGroup>
