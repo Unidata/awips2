@@ -70,6 +70,10 @@ public class ProductType {
     protected List<ProdType> prodType;
     @XmlElement(name = "PgenSettingsFile", required = true)
     protected String pgenSettingsFile;
+    @XmlAttribute(name = "Subtype")
+    protected String subtype;
+    @XmlAttribute(name = "Type")
+    protected String type;
     @XmlAttribute(name = "Name")
     protected String name;
 
@@ -255,7 +259,7 @@ public class ProductType {
     public void setPgenSettingsFile(String value) {
         this.pgenSettingsFile = value;
     }
-
+    
     /**
      * Gets the value of the name property.
      * 
@@ -272,12 +276,59 @@ public class ProductType {
      * Sets the value of the name property.
      * 
      * @param value
-     *     allowed object is
+     *     allowed object isname
      *     {@link String }
      *     
      */
     public void setName(String value) {
         this.name = value;
     }
+    
+    /**
+     * Gets the value of the type property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getType() {
+        return type;
+    }
 
+    /**
+     * Sets the value of the type property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setType(String value) {
+        this.type = value;
+    }
+
+    /**
+     * Gets the value of the subtype property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getSubtype() {
+        return subtype;
+    }
+
+    /**
+     * Sets the value of the subtype property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setSubtype(String value) {
+        this.subtype = value;
+    }
 }

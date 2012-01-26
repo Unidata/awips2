@@ -82,6 +82,7 @@ public class PgenCopyElement extends AbstractPgenTool {
      */
     public class PgenCopyHandler extends InputHandlerDefaultImpl {
     	
+    	private boolean preempt;
     	private OperationFilter copyFilter= new OperationFilter( Operation.COPY_MOVE ); ;
     	
     	//DrawableElement elSelected = null;
@@ -98,6 +99,8 @@ public class PgenCopyElement extends AbstractPgenTool {
          */
         @Override	   	
         public boolean handleMouseDown(int anX, int aY, int button) {
+        	
+        	preempt = false;
         	
            	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
@@ -117,10 +120,10 @@ public class PgenCopyElement extends AbstractPgenTool {
         			}
 
         			drawingLayer.setSelected( nadc );
-        			
+        			if ( nadc != null ) preempt = true;
         			mapEditor.refresh();
         		}
-                return true;
+                return preempt;
                 
             }
             else if ( button == 3 ) {
@@ -167,6 +170,7 @@ public class PgenCopyElement extends AbstractPgenTool {
 
     		if ( elSelected != null ) {
 
+    			preempt = true;
     			// start to copy if the click is near any points of the selected el.
     			for ( Coordinate elPoint : elSelected.getPoints() ){
     				
@@ -240,7 +244,7 @@ public class PgenCopyElement extends AbstractPgenTool {
 
     		}
 
-            return false;
+            return preempt;
                 
         }
 
