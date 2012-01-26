@@ -22,7 +22,6 @@ package com.raytheon.uf.common.dataplugin.ldadhydro;
 
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 
 import javax.measure.quantity.Angle;
@@ -45,9 +44,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
+import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.pointdata.IPointData;
 import com.raytheon.uf.common.pointdata.PointDataView;
@@ -77,7 +76,7 @@ import com.vividsolutions.jts.geom.Geometry;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class HydroLdadRecord extends PluginDataObject implements
+public class HydroLdadRecord extends PersistablePluginDataObject implements
         ISpatialEnabled, IDecoderGettable, IPointData, IPersistable {
 
     private static final long serialVersionUID = 1L;
@@ -1118,6 +1117,7 @@ public class HydroLdadRecord extends PluginDataObject implements
         return reportTime;
     }
 
+    @Override
     public void setPointDataView(PointDataView pdv) {
         this.pdv = pdv;
 
@@ -1126,30 +1126,8 @@ public class HydroLdadRecord extends PluginDataObject implements
     /**
      * @return the pdv
      */
+    @Override
     public PointDataView getPointDataView() {
         return this.pdv;
-    }
-
-    @Override
-    public Integer getHdfFileId() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Date getPersistenceTime() {
-        return this.dataTime.getRefTime();
-    }
-
-    @Override
-    public void setHdfFileId(Integer hdfFileId) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void setPersistenceTime(Date persistTime) {
-        // TODO Auto-generated method stub
-
     }
 }
