@@ -43,8 +43,12 @@ public class LogosDisplayAction extends AbstractHandler {
          * Pop up Seek result window
          */
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+        id = null;
 		if (id == null) id = new LogosDisplayControlDialog(shell);
-		if (!(id.isOpen())) id.open();
+		if (!(id.isOpen())) {
+			
+			id.open();
+		}
         mapEditor.refresh();
 		
         return null;
