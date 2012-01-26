@@ -48,6 +48,8 @@ import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
 import gov.noaa.nws.ncep.ui.pgen.file.Products;
 import gov.noaa.nws.ncep.viz.common.dbQuery.NcDirectDbQuery;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 /**
  * Implementation of Pgen  watch box element.
  * 
@@ -62,6 +64,8 @@ import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
  * 04/11		?			B. Yin		handle counties that belongs to more than one WFOs
  * 04/11		?			B. Yin		Use Geometry instead of MultiPolygon for county shapes
  * 04/11		#?			B. Yin		Re-factor IAttribute
+ * 07/11        #450        G. Hull     NcPathManager
+ * 
  * </pre>
  * 
  * @author	B. Yin
@@ -247,7 +251,10 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
 		
 		if ( anchorTbl == null ){
 			
-			anchorTbl = new StationTable(NmapCommon.getSPCAnchorFile());
+			anchorTbl = new StationTable(
+					NcPathManager.getInstance().getStaticFile( 
+							NcPathConstants.PGEN_SPC_ANCHOR_TBL).getAbsolutePath() );
+
 		}
 		
 		return anchorTbl;
@@ -346,7 +353,9 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
 	public Station getNearestVor(Coordinate loc ){
 		
 		if ( vorTbl == null ){
-			vorTbl = new StationTable(NmapCommon.getVorFile());
+			vorTbl = new StationTable(
+					NcPathManager.getInstance().getStaticFile( 
+							NcPathConstants.PGEN_SPC_ANCHOR_TBL).getAbsolutePath() );
 		}
 		
 		return vorTbl.getNearestStation(loc);
@@ -1136,7 +1145,13 @@ public class WatchBox extends MultiPointElement implements IWatchBox{
 		
     	for ( Station stn : anchorList ){
     		gc.setDestinationGeographicPoint(stn.getLongitude(), stn.getLatitude());
-    		dist = gc.getOrthodromicDistance();
+    		
+    		try {
+    			dist = gc.getOrthodromicDistance();
+    		}
+    		catch ( Exception e ){
+    			dist = Double.MAX_VALUE;
+    		}
     		
     		if ( minDist < 0 || dist < minDist ){
     			minDist = dist;

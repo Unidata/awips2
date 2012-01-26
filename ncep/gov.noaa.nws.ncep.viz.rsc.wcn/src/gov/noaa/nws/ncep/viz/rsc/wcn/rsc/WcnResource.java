@@ -3,7 +3,6 @@ package gov.noaa.nws.ncep.viz.rsc.wcn.rsc;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collection;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -37,7 +36,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import gov.noaa.nws.ncep.ui.pgen.display.DisplayElementFactory;
 import gov.noaa.nws.ncep.ui.pgen.display.IDisplayable;
 import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 
 
@@ -63,6 +63,7 @@ import com.vividsolutions.jts.io.WKBReader;
 import gov.noaa.nws.ncep.edex.common.stationTables.IStationField;
 import gov.noaa.nws.ncep.edex.common.stationTables.Station;
 import gov.noaa.nws.ncep.edex.common.stationTables.StationTable;
+import gov.noaa.nws.ncep.common.dataplugin.aww.AwwFips;
 import gov.noaa.nws.ncep.common.dataplugin.aww.AwwRecord;
 import gov.noaa.nws.ncep.common.dataplugin.aww.AwwUgc;
 import gov.noaa.nws.ncep.common.dataplugin.aww.AwwVtec;
@@ -77,6 +78,7 @@ import gov.noaa.nws.ncep.common.dataplugin.aww.AwwVtec;
  * 10/01/10       #307     Greg Hull    implement processRecords and change to 
  *                                      process WcnData as the IRscDataObj
  * 01/10/11					Uma Josyula	 Made changes to preprocess update and event date
+ * 07/28/11       #450      Greg Hull    NcPathManager                                     
  * 
  * </pre>
  * 
@@ -93,7 +95,7 @@ implements     INatlCntrsResource, IStationField {
 	private List<WcnRscDataObj> modifyList ;
 
 
-	private class WcnRscDataObj implements IRscDataObject  {
+	public class WcnRscDataObj implements IRscDataObject  {
 		String 				datauri;       //used as a key string
 		DataTime        	issueTime;     //  issue time from bulletin
 		DataTime        	eventTime;    
@@ -104,7 +106,7 @@ implements     INatlCntrsResource, IStationField {
 		float[]      		countyLon;
 
 		List<LatLonPoint>	countyPoints;
-		List<String>		countyUgc,countyNames,stateNames;     //To get all the counties 
+		List<String>		countyUgc,countyNames,stateNames, countyFips = new ArrayList<String>();//T456: fips     //To get all the counties 
 		String 				eventType;
 
 		String         		watchNumber;   //  watch number to be displayed
@@ -116,11 +118,11 @@ implements     INatlCntrsResource, IStationField {
 		String 				evProductClass;
 		String				evSignificance;
 		
-		
-		@Override
-		public DataTime getDataTime() {
-			return eventTime;
-		}
+		boolean 			isCounty;//T456
+		RGB color = new RGB (155, 155, 155);//T456
+		public String getKey(){ return getWcnRscDataObjKey(this);}
+			
+		@Override public DataTime getDataTime() {  return eventTime;  }
 	}
 
 
@@ -151,11 +153,11 @@ implements     INatlCntrsResource, IStationField {
 		}
 	}
 
-	public WcnResource( WcnResourceData rscData, 
-			LoadProperties loadProperties ) throws VizException {
-		super(rscData, loadProperties);
-		wcnRscData = (WcnResourceData) resourceData;	
-		modifyList = new ArrayList<WcnRscDataObj>();
+	public WcnResource( WcnResourceData rscData,LoadProperties loadProperties ) throws VizException { 
+		super(rscData, loadProperties);	
+		wcnRscData = (WcnResourceData) resourceData;
+		modifyList = new ArrayList<WcnRscDataObj>();	
+		addRDChangedListener();//T456
 	}
 
 
@@ -196,7 +198,7 @@ implements     INatlCntrsResource, IStationField {
 					else if (awwRecord.getBullMessage().contains("TORNADO")){
 						wcnStatusData.reportType="TORNADO";
 					}
-
+if( ! (wcnStatusData.isCounty=isCountyUgs(awwugcs)) ) setMarineZonesFips(awwugcs.getAwwFIPS(),wcnStatusData);//T456
 
 					String ugcline = awwugcs.getUgc();//get the ugc line to find the counties
 					if(ugcline!=null && ugcline!=""){
@@ -289,7 +291,7 @@ implements     INatlCntrsResource, IStationField {
 		wdata.stateNames =new ArrayList<String>();
 		wdata.countyLat= new float[wdata.countyUgc.size()];
 		wdata.countyLon= new float[wdata.countyUgc.size()];
-
+		
 		try{
 			int i=0;
 			for (Iterator<String> iterator = wdata.countyUgc.iterator(); iterator.hasNext();) {
@@ -301,7 +303,7 @@ implements     INatlCntrsResource, IStationField {
 					wdata.stateNames.add(station.getState());
 					wdata.countyLat[i]=station.getLatitude();
 					wdata.countyLon[i]=station.getLongitude();
-					i++;
+					i++;	if( wdata.isCounty ){ String s=station.getStnnum();	wdata.countyFips.add(s.length()==4?"0"+s:s); }//T456 AwwUgc.getAwwFIPS
 				}
 			}
 		}
@@ -351,7 +353,9 @@ implements     INatlCntrsResource, IStationField {
 	
 	public void initResource(IGraphicsTarget grphTarget) throws VizException {
 		font = grphTarget.initializeFont("Monospace", 14, new IFont.Style[] { IFont.Style.BOLD });
-		stationTable = new StationTable( LocalizationManager.getInstance().getFilename("countyStationFileName") );
+		stationTable = new StationTable(
+				NcPathManager.getInstance().getStaticFile( 
+						NcPathConstants.COUNTY_STN_TBL ).getAbsolutePath() );
 		HashMap<String, RequestConstraint> metadataMap =new HashMap<String, RequestConstraint>(resourceData.getMetadataMap());
 		metadataMap.put("reportType",new RequestConstraint("WATCH_COUNTY_NOTIFICATION"));
 		resourceData.setMetadataMap(metadataMap);
@@ -368,10 +372,10 @@ implements     INatlCntrsResource, IStationField {
 		if( paintProps == null ) {
 			return;
 		}
-
+if( areaChangeFlag ){ areaChangeFlag = false; postProcessFrameUpdate(); }//T456: dispose old outlineShape? TODO	
 		FrameData currFrameData = (FrameData) frameData;
 
-		RGB color = new RGB (155, 155, 155);
+//		RGB color = new RGB (155, 155, 155);
 		RGB symbolColor = new RGB (155, 155, 155);
 		LineStyle lineStyle = LineStyle.SOLID;
 		int symbolWidth = 2;
@@ -516,9 +520,9 @@ implements     INatlCntrsResource, IStationField {
 						System.out.println("error at line 392 "+e);
 					}
 				}
-				if (wcnRscData.getWatchBoxFillEnable()){
-					drawCountyOutline(wcnData,target,symbolColor,symbolWidth,lineStyle,paintProps,1);
-
+				if (wcnRscData.getWatchBoxFillEnable()){if( ! color.equals(wcnData.color) ){ postProcessFrameUpdate(); wcnData.color=color;}
+//					drawCountyOutline(wcnData,target,symbolColor,symbolWidth,lineStyle,paintProps,1);
+drawCountyOutline2(wcnData,target,symbolColor,symbolWidth,lineStyle,paintProps,1);
 					if(!wcnRscData.getWatchBoxUnionEnable()) {
 						drawTimeLabelWatchNumber(wcnData,target,color);
 					}//only if watchbox unionenable is false                              
@@ -550,12 +554,12 @@ implements     INatlCntrsResource, IStationField {
 								HorizontalAlignment.LEFT, 
 								VerticalAlignment.MIDDLE );
 					}
-
-					drawCountyOutline(wcnData,target,color,symbolWidth,lineStyle,paintProps,2);
+drawCountyOutline2(wcnData,target,color,symbolWidth,lineStyle,paintProps,2);					
+//					drawCountyOutline(wcnData,target,color,symbolWidth,lineStyle,paintProps,2);
 				}
 				else if(wcnRscData.getWatchBoxOutlineEnable() ){
-
-					drawCountyOutline(wcnData,target,color,symbolWidth,lineStyle,paintProps,0);
+drawCountyOutline2(wcnData,target,color,symbolWidth,lineStyle,paintProps,0);//T456
+//					drawCountyOutline(wcnData,target,color,symbolWidth,lineStyle,paintProps,0);
 				}
 
 				if(((wcnRscData.getWatchBoxTimeEnable()||wcnRscData.getWatchBoxLabelEnable()||wcnRscData.getWatchBoxNumberEnable())
@@ -704,4 +708,337 @@ implements     INatlCntrsResource, IStationField {
 			System.out.println("wcnResource.java at Line 427"+e);
 		}
 	}
+	
+//---------------------------------------------------------------T456:
+	
+	//for pre-query the database 
+	private WcnCountyQueryResult queryResult;
+	
+	//for storing result of pre-calculation
+	private IWireframeShape outlineShape;
+	
+	//for storing result of pre-calculation of union
+	private IWireframeShape newUnionShape;
+	
+	//for storing result of pre-calculation of shade
+	private IShadedShape shadedShape;
+	
+	//for pre-calculate the IWiredframeShape
+	private CountyResultJob crJob = new CountyResultJob("");
+	
+	//if it is 1st round in the loop then draw outline since it pre-calculated for all zones
+	private boolean isFirstRound = true;
+	
+	//Area change flag
+	private boolean areaChangeFlag = false;
+	
+	private static java.util.logging.Logger logger = 
+					java.util.logging.Logger.getLogger("gov.noaa.nws.ncep.viz.rsc.ffa.rsc.WcnResource");
+	
+	
+	private RGB color = new RGB (155, 155, 155);
+	
+	
+	
+	
+	class CountyResultJob  extends org.eclipse.core.runtime.jobs.Job{
+		
+		private java.util.Map<String,Result> keyResultMap = new java.util.concurrent.ConcurrentHashMap<String,Result>();
+		private java.util.Map<String,Result> keyShadeMap =  new java.util.concurrent.ConcurrentHashMap<String,Result>();
+		private java.util.Map<String,Result> keyUnionMap =  new java.util.concurrent.ConcurrentHashMap<String,Result>();
+		
+		private IGraphicsTarget target;
+    	private IMapDescriptor descriptor;
+    	private RGB symbolColor = new RGB (155, 155, 155);
+//    	private RGB color = new RGB (155, 155, 155);
+    	
+        public class Result {
+        	
+            public IWireframeShape outlineShape;
+            public IWireframeShape newUnionShape;
+            public IShadedShape shadedShape;
+            
+            public java.util.Map<Object, RGB> colorMap;
+
+            private Result(IWireframeShape outlineShape,IWireframeShape nuShape,
+                     			IShadedShape shadedShape,java.util.Map<Object, RGB> colorMap){
+            	
+            	this.outlineShape = outlineShape;   
+            	this.shadedShape = shadedShape;
+            	this.newUnionShape = nuShape;
+                this.colorMap = colorMap;
+            }
+        }
+
+		public CountyResultJob(String name) {
+			super(name);			
+		}
+		
+		public void setRequest(IGraphicsTarget target, IMapDescriptor descriptor,
+        		String query, boolean labeled, boolean shaded, java.util.Map<Object, RGB> colorMap){
+			
+			this.target = target;
+			this.descriptor = descriptor;					
+			this.run(null);//this.schedule();
+			
+    	}
+		
+		@Override
+		protected org.eclipse.core.runtime.IStatus run(org.eclipse.core.runtime.IProgressMonitor monitor){
+			
+			for(AbstractFrameData afd : frameDataMap.values())	{
+				
+				FrameData fd = (FrameData)afd;								
+			
+				for(WcnRscDataObj wrdo : fd.wcnDataMap.values()){	
+					
+					Collection<Geometry> gw = new ArrayList<Geometry>(), gu = new ArrayList<Geometry>();					
+										
+					for(int i=0; i<wrdo.countyFips.size(); i++){
+						
+						//another loop handles multiple rows in maps mapdata.county table						
+						for(ArrayList<Object[]> results : queryResult.getStateCountyResult2(wrdo.countyFips.get(i))){								
+				    	
+					    	if(results==null) continue;					
+						
+					    	WKBReader wkbReader = new WKBReader();
+							for (Object[] result : results) {
+								int k = 0;
+								
+								byte[] wkb1=(byte[]) result[k];
+								
+								MultiPolygon countyGeo = null;
+								try{										
+									countyGeo= (MultiPolygon)wkbReader.read(wkb1);
+									if ( countyGeo != null && countyGeo.isValid() && ( ! countyGeo.isEmpty())){																					
+gu.add((MultiPolygon)countyGeo.clone());	gw.add(countyGeo);																			
+									}
+								}catch (Exception e) {	logger.info("__Error: "+e.getMessage());	}						
+							}					
+						}					
+					}
+					if(gw.size() == 0) 
+						continue;	
+					else 
+						//keyResultMap.put(wrdo.getKey(),	new Result(getEachWrdoShape(gw),null,null,null));
+						setEachWrdoShape(wrdo,gw,gu);
+				}
+				
+			}			
+			
+			return org.eclipse.core.runtime.Status.OK_STATUS;
+		}
+		
+    	public /*IWireframeShape*/void setEachWrdoShape(WcnRscDataObj wrdo,Collection<Geometry> gw,Collection<Geometry> gu){
+	    	
+	    	IWireframeShape newOutlineShape = target.createWireframeShape(false, descriptor, 0.0f);
+	    	IWireframeShape newUnionShape = target.createWireframeShape(false, descriptor, 0.0f);
+			IShadedShape newShadedShape = target.createShadedShape(false, descriptor, true);
+			
+			JTSCompiler jtsCompiler = new JTSCompiler(newShadedShape,newOutlineShape, descriptor, PointStyle.CROSS);
+			JTSCompiler jcu = new JTSCompiler(null,newUnionShape, descriptor, PointStyle.CROSS);
+			
+			com.vividsolutions.jts.geom.GeometryCollection gColl=
+				(com.vividsolutions.jts.geom.GeometryCollection) new com.vividsolutions.jts.geom.GeometryFactory().buildGeometry( gw );
+			
+			com.vividsolutions.jts.geom.GeometryCollection gCollu=
+				(com.vividsolutions.jts.geom.GeometryCollection) new com.vividsolutions.jts.geom.GeometryFactory().buildGeometry( gu );
+
+			try{	
+				gColl.normalize();
+				gCollu.normalize();
+				
+				jtsCompiler.handle(gColl, color);				
+				jcu.handle(gCollu.union(),color);
+				
+				newOutlineShape.compile();	
+				newUnionShape.compile();
+				newShadedShape.compile();
+				
+			}catch (Exception e) {	logger.info("_____Error: "+e.getMessage());	}
+			
+			String key = wrdo.getKey();
+			keyResultMap.put(key, new Result(newOutlineShape,null,null,null));
+			keyShadeMap.put(key, new Result(null,null,newShadedShape,null));
+	    	keyUnionMap.put(key, new Result(null,newUnionShape,null,null));
+	    	
+//	    	return newOutlineShape;
+	    }
+		
+	}
+	
+    private void drawCountyOutline2(WcnRscDataObj wData, IGraphicsTarget target, RGB color, int outlineWidth, 
+			  LineStyle lineStyle, PaintProperties paintProps, int drawOutlineOrShadedshapeorUnion){
+  	
+    	String key = wData.getKey();
+	  	CountyResultJob.Result result = crJob.keyResultMap.get(key);
+	  	CountyResultJob.Result resultShaded = crJob.keyShadeMap.get(key);
+	  	CountyResultJob.Result resultU = crJob.keyUnionMap.get(key);
+	  	
+	  	if (result != null) {	  		
+	  		outlineShape = result.outlineShape; 	  	  
+	  	}else 	  		return;
+	  	
+	  	
+    	if (resultShaded != null) {    					 
+    		shadedShape = resultShaded.shadedShape;	    		   
+    	}else     		return;
+    	
+    	
+		if (resultU != null) {			
+			newUnionShape = resultU.newUnionShape;			
+		}else			return;
+		
+		
+		if (shadedShape != null && shadedShape.isDrawable() && drawOutlineOrShadedshapeorUnion==1){	
+			try{
+				target.drawShadedShape(shadedShape,  paintProps.getAlpha());   	
+			}catch (VizException e) {	logger.info("VizException in drawCountyOutline2() of WcnResource");	}
+		}
+		
+	  	if (outlineShape != null && outlineShape.isDrawable()  && drawOutlineOrShadedshapeorUnion==0){
+	  		try{
+	  			target.drawWireframeShape(outlineShape,  color,outlineWidth,lineStyle );
+	  		} catch (VizException e) {	logger.info("VizException in drawCountyOutline2() of WcnResource");	}
+	
+	  	} else if (outlineShape == null){
+			
+			//target.setNeedsRefresh(true);
+	  	}
+	  	
+	  	if( newUnionShape != null && newUnionShape.isDrawable() && drawOutlineOrShadedshapeorUnion==2)   
+	  		try{
+				target.drawWireframeShape(newUnionShape,  color,outlineWidth,lineStyle ); 
+	  		}catch (VizException e) {	logger.info("VizException in drawCountyOutline2() of WcnResource");	}
+  }
+	
+	/**
+	 *  called in the constructor.
+	 */
+	private void addRDChangedListener(){
+		com.raytheon.viz.ui.editor.AbstractEditor editor = gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils.getActiveNatlCntrsEditor();
+		editor.addRenderableDisplayChangedListener(this.new WcnDCListener());
+	}
+	
+    /**
+	 * change the flag so outlineShape can be re-calculated
+	 */
+	private class WcnDCListener implements com.raytheon.uf.viz.core.IRenderableDisplayChangedListener{
+
+		@Override
+		public void renderableDisplayChanged(com.raytheon.uf.viz.core.IDisplayPane pane,
+				com.raytheon.uf.viz.core.drawables.IRenderableDisplay newRenderableDisplay, DisplayChangeType type) {
+			
+			areaChangeFlag = true;
+			
+		}
+		
+	}
+	
+    /**
+     * avoid null pointers exception in super class  
+     */
+    @Override
+	protected long getDataTimeMs(IRscDataObject rscDataObj) {
+		//			long dataTimeMs = rscDataObj.getDataTime().getValidTime().getTime().getTime();
+		if(rscDataObj == null)
+			return 0;
+		
+    	java.util.Calendar validTimeInCalendar = null; 
+		DataTime dataTime = rscDataObj.getDataTime(); 
+		if(dataTime != null) {
+			validTimeInCalendar = dataTime.getValidTime(); 
+			
+		} else {
+			logger.info("===== find IRscDataObject rscDataObj.getDataTime() return NULL!!!"); 
+		}
+		long dataTimeInMs = 0; 
+		if(validTimeInCalendar != null)
+			dataTimeInMs = validTimeInCalendar.getTimeInMillis(); 
+		return dataTimeInMs; 
+	}
+    
+    public String getWcnRscDataObjKey(WcnRscDataObj w){
+    	
+    	StringBuilder sb = new StringBuilder(w.evOfficeId);
+    	
+    	sb.append(w.evTrack).append(w.evPhenomena).append(w.evSignificance).append(w.eventType);
+    	
+    	for(String s : w.countyFips) sb.append(s);//TODO: is this necessary?
+    	
+    	return sb.toString();    	
+    }
+    
+    @Override
+	protected boolean postProcessFrameUpdate() {
+    	
+    	gov.noaa.nws.ncep.viz.ui.display.NCMapEditor ncme = 
+    				gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils.getActiveNatlCntrsEditor();
+    	
+    	crJob.setRequest(ncme.getActiveDisplayPane().getTarget(), descriptor, null, false, false, null); 
+    	
+    	return true;
+    }
+    
+	@Override
+	public void queryRecords() throws VizException {
+		
+		HashMap<String, com.raytheon.uf.common.dataquery.requests.RequestConstraint> queryList = 
+			new HashMap<String, com.raytheon.uf.common.dataquery.requests.RequestConstraint>(resourceData.getMetadataMap());
+		
+		com.raytheon.uf.viz.core.catalog.LayerProperty prop = new com.raytheon.uf.viz.core.catalog.LayerProperty();
+		prop.setDesiredProduct(com.raytheon.uf.viz.core.rsc.ResourceType.PLAN_VIEW);
+		prop.setEntryQueryParameters(queryList, false);
+		prop.setNumberOfImages(15000); // TODO: max # records ?? should we cap
+										// this ?
+		
+		String script = null;
+		script = com.raytheon.uf.viz.core.catalog.ScriptCreator.createScript(prop);
+		
+		if (script == null)
+			return;
+
+		Object[] pdoList = com.raytheon.uf.viz.core.comm.Connector.getInstance().connect(script, null, 60000);
+		
+		queryResult = new WcnCountyQueryResult();
+
+		for (Object pdo : pdoList) {
+			for( IRscDataObject dataObject : processRecord( pdo ) )	{	
+				newRscDataObjsQueue.add(dataObject);
+				
+				queryResult.buildQueryPart2(dataObject);
+			}
+		}
+		
+		queryResult.populateMap();
+	}
+
+	public void setMarineZonesFips(Set<AwwFips> awwFipsSet , WcnRscDataObj wrdo){
+		
+		if(awwFipsSet!=null && wrdo!=null)			
+			for(AwwFips eachAwwFips : awwFipsSet) 				
+				wrdo.countyFips.add(eachAwwFips.getFips()); 			
+					
+	}
+	
+	public boolean isCountyUgs(AwwUgc au){
+		Set<AwwFips> awwFipsSet = au.getAwwFIPS();
+		
+		if(awwFipsSet == null) 
+			return false;
+		else {
+			
+			for(AwwFips eachAwwFips : awwFipsSet) {
+				
+				String eachFips = eachAwwFips.getFips(); 
+				
+				if(eachFips==null || eachFips.isEmpty() || eachFips.length()!=6) 
+					return false;
+				
+				return 'C'==eachFips.charAt(2);
+			}
+		}
+		
+		return false;
+	}	
 }

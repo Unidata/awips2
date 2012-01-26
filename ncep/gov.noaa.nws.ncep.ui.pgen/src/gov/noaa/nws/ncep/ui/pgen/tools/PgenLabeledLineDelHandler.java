@@ -32,6 +32,8 @@ import com.vividsolutions.jts.geom.Point;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 09/10		#304		B. Yin   	Initial Creation.
+ * 12/11		?			B. Yin		Added open/close functions.
+ * 										should change the name of this class?
  *
  * </pre>
  * 
@@ -53,6 +55,7 @@ public class PgenLabeledLineDelHandler extends InputHandlerDefaultImpl {
 	
 	//flip flag
 	private boolean flip;
+	private boolean openClose;
 	
 	//the line working on
 	private LabeledLine labeledLine;
@@ -65,7 +68,7 @@ public class PgenLabeledLineDelHandler extends InputHandlerDefaultImpl {
 	 * @param dlg
 	 */
 	public PgenLabeledLineDelHandler(NCMapEditor mapEditor, PgenResource drawingLayer,
-			ILabeledLine prevTool, AttrDlg dlg, boolean delLine, boolean flip ){
+			ILabeledLine prevTool, AttrDlg dlg, boolean delLine, boolean flip, boolean openClose ){
 		this.mapEditor= mapEditor;
 		this.drawingLayer = drawingLayer;
 		this.prevTool = prevTool;
@@ -73,6 +76,7 @@ public class PgenLabeledLineDelHandler extends InputHandlerDefaultImpl {
 		this.labeledLine = prevTool.getLabeledLine();
 		this.delLine = delLine;
 		this.flip = flip;
+		this.openClose = openClose;
 	}
 	
     /*
@@ -102,6 +106,20 @@ public class PgenLabeledLineDelHandler extends InputHandlerDefaultImpl {
     				//flip
     				if ( adc instanceof Line ){
     					Line newLn = (Line)PgenToolUtils.createReversedDrawableElement((Line)adc);
+    					newll.remove(adc);
+    					newll.add(newLn);
+    				}
+    				else return false;
+    			}
+    			else if ( openClose ){
+    				if ( adc instanceof Line ){
+    					Line newLn = (Line)(adc.copy());
+    					if ( newLn.isClosedLine() ){
+    						newLn.setClosed(false);
+    					}
+    					else {
+    						newLn.setClosed(true);
+    					}
     					newll.remove(adc);
     					newll.add(newLn);
     				}
@@ -141,7 +159,12 @@ public class PgenLabeledLineDelHandler extends InputHandlerDefaultImpl {
     	
     }
 
-    /**
+    @Override
+	public boolean handleMouseDownMove(int x, int y, int mouseButton) {
+		return true;
+	}
+
+	/**
      * get nearest line or label(depends on delLine flag) 
      * in the input labeled line
      * @param loc
