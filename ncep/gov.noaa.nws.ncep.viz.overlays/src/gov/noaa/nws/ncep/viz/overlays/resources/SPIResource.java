@@ -11,7 +11,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
@@ -25,10 +24,8 @@ import com.raytheon.viz.pointdata.StaticPlotInfoPV.SPIEntry;
 import com.vividsolutions.jts.geom.Coordinate;
 
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationConstants;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationResourcePathConstants;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.overlays.IPointOverlayResourceData.MarkerState;
 import gov.noaa.nws.ncep.ui.pgen.display.DisplayElementFactory;
 import gov.noaa.nws.ncep.ui.pgen.display.IDisplayable;
@@ -54,6 +51,8 @@ import gov.noaa.nws.ncep.ui.pgen.elements.SymbolLocationSet;
  *    8/05/09                   M. Gao		integrate with TO 11
  *    8/07/09                   Greg Hull   rm commented out or unused code
  *    12/1/2009                 ghull       to11d6 : Reference ncep data directory
+ *    07/28/2011    450         ghull       NcPathManager
+ *    
  * </pre>
  * 
  * @author bphillip
@@ -102,18 +101,9 @@ public class SPIResource extends AbstractVizResource<SPIResourceData, MapDescrip
 	public void initInternal(IGraphicsTarget target) throws VizException {
         File file = new File(this.resourceData.getFilename());
         if (!file.isAbsolute()) {
-			/*
-			 * Start of M. Gao's change
-			 */
-//			file = new File(
-//				LocalizationManager.getInstance().getLocalizationFileDirectoryName(
-//					LocalizationResourcePathConstants.OVERLAY_DATA_DIR,
-//					   LocalizationConstants.LOCALIZATION_BASE_LEVEL) + 
-//					      File.separator + file);
-			file = LocalizationManager.getInstance().reloadingResourceInfo(LocalizationResourcePathConstants.OVERLAY_DATA_DIR, this.resourceData.getFilename());
-			/*
-			 * End of M. Gao's change
-			 */
+			file = NcPathManager.getInstance().getStaticFile( 
+					NcPathConstants.BASEMAPS_DIR+File.separator+this.resourceData.getFilename());
+
         }
 
 		entries = StaticPlotInfoPV.readStaticPlotInfoPV(

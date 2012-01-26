@@ -15,6 +15,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Jet;
 import gov.noaa.nws.ncep.ui.pgen.elements.Outlook;
 import gov.noaa.nws.ncep.ui.pgen.elements.Text;
 import gov.noaa.nws.ncep.ui.pgen.elements.labeledLines.LabeledLine;
+import gov.noaa.nws.ncep.ui.pgen.elements.tcm.Tcm;
 import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
 import gov.noaa.nws.ncep.ui.pgen.tca.TCAElement;
 
@@ -73,7 +74,8 @@ public class CategoryFilter implements ElementFilter {
 				return true;
 			}
 			else if ( adc instanceof Gfa ||
-					  adc instanceof TCAElement ){
+					  adc instanceof TCAElement ||
+					  adc instanceof Tcm ){
 				return true;
 			}
 			

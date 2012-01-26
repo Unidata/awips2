@@ -77,7 +77,7 @@ public class McidasSatResource extends AbstractSatelliteResource
 
     String getDataUnitsFromRecord( PluginDataObject pdo ) {
     	// TODO: workaround until the units is put into the DB.
-    	return (isCloudHeightCompatible() ? "IRPixel" : "" );
+    	return (isCloudHeightCompatible() ? "IRPixel" : "BRIT" );
     	//"";//((McidasRecord)pdo).getUnits();
     }
     

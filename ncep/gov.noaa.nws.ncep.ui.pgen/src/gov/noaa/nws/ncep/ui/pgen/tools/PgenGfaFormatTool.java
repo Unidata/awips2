@@ -115,6 +115,11 @@ public class PgenGfaFormatTool extends AbstractPgenDrawingTool {
 				return false;
 			}
 		}
+
+		@Override
+		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
+			return true;
+		}
 	}
 
 	
