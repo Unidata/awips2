@@ -45,6 +45,7 @@ import com.raytheon.uf.viz.core.level.LevelMapping;
 import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 import com.raytheon.uf.viz.core.level.LevelUtilities;
 import com.raytheon.uf.viz.derivparam.inv.AbstractInventory;
+import com.raytheon.viz.volumebrowser.vbui.DataListsProdTableComp.DataSelection;
 import com.raytheon.viz.volumebrowser.vbui.MenuItemManager;
 import com.raytheon.viz.volumebrowser.vbui.SelectedData;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
@@ -172,6 +173,7 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
             while (levelStr != null) {
                 // Convert levels into planes.
                 Level level = LevelFactory.getInstance().getLevel(levelStr);
+
                 if (levels3D.contains(level)) {
                     for (String plane : get3DPlanes(sourcesToProcess)) {
                         request.addAvailablePlane(plane);
@@ -181,10 +183,13 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
                         + level.getMasterLevel().getName());
                 LevelMapping lm = LevelMappingFactory.getInstance()
                         .getLevelMappingForLevel(level);
+
                 if (lm != null) {
                     request.addAvailablePlane(lm.getKey());
                 }
+
                 levelStr = levelQueue.poll();
+
             }
             if (request.isCanceled()) {
                 Thread thread = inventoryJob.getThread();
@@ -233,7 +238,10 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
         } catch (InterruptedException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
-        return new ArrayList<String>(returnQueue);
+        List<String> result = new ArrayList<String>(returnQueue);
+        result.retainAll(MenuItemManager.getInstance()
+                .getMapOfKeys(DataSelection.SOURCES).keySet());
+        return result;
     }
 
     public List<String> getSupportedSources() {
@@ -267,6 +275,7 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
                 if (plane.startsWith("spatial-")) {
                     levels = LevelUtilities.getOrderedSetOfStandardLevels(plane
                             .replace("spatial-", ""));
+
                 } else {
                     LevelMapping lm = lmf.getLevelMappingForKey(plane);
                     if (lm != null) {
