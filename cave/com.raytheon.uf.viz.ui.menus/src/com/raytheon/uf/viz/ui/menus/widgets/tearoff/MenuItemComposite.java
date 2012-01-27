@@ -181,7 +181,6 @@ public class MenuItemComposite extends Composite {
 
 						@Override
 						public IStatus runInUIThread(IProgressMonitor monitor) {
-							System.out.println("runInUIThread");
 							if (menu == null || menu.isDisposed()) {
 								for (MenuItem item : topLevelMenu.getItems()) {
 									if (item.getMenu() != null) {
@@ -192,10 +191,6 @@ public class MenuItemComposite extends Composite {
 											event.type = SWT.Show;
 											list.handleEvent(event);
 										}
-										System.out.println("getShell() : "
-												+ getShell().getText());
-										System.out.println("item : "
-												+ item.getText());
 										if (getShell().getText().equals(
 												item.getText())) {
 											menu = item.getMenu();
@@ -211,7 +206,7 @@ public class MenuItemComposite extends Composite {
 							}
 							if (parent.getChildren().length > 0) {
 								for (int i = start; i < menu.getItemCount(); i++) {
-									MenuItemComposite mic = (MenuItemComposite) parent
+									final MenuItemComposite mic = (MenuItemComposite) parent
 											.getChildren()[i - start];
 									if (mic.item.isDisposed()) {
 										mic.item = menu.getItem(i);
@@ -227,8 +222,17 @@ public class MenuItemComposite extends Composite {
 											list.handleEvent(e);
 										}
 									}
+									mic.item.addSelectionListener(new SelectionAdapter() {
+										public void widgetSelected(
+												SelectionEvent e) {
+											if (e.widget.equals(mic.item)) {
+												// setSelection(true);
+											}
+										};
+									});
 								}
 							}
+
 							return Status.OK_STATUS;
 						}
 					};
@@ -512,21 +516,13 @@ public class MenuItemComposite extends Composite {
 								if (!parent.equals(mic)) {
 									((Button) mic.firstItem)
 											.setSelection(false);
-									parent.item.setSelection(false);
 								} else {
 									((Button) mic.firstItem).setSelection(true);
-									parent.item.setSelection(true);
 								}
 							}
 						} catch (NullPointerException e1) {
 							e1.printStackTrace();
 						}
-						mic.item.addSelectionListener(new SelectionAdapter() {
-							@Override
-							public void widgetSelected(SelectionEvent e) {
-								mic.item.setSelection(true);
-							}
-						});
 					}
 				}
 			}
