@@ -108,7 +108,7 @@ public class TearOffMenuDialog extends CaveSWTDialog {
         // go through menu items and build MenuItemComposite for each item,
         // which handles all the selection and color of the "MenuItem" in the
         // dialog
-        int radioGroups = 0;
+        int radioGroup = 0;
         for (int i = 0; i < items.length; i++) {
             int labelStyle = SWT.NONE;
             if (items[i] == null) {
@@ -119,9 +119,9 @@ public class TearOffMenuDialog extends CaveSWTDialog {
                     SWT.NONE);
 
             if (items[i].getStyle() == SWT.RADIO) {
-                comp.setData("radioGroup", radioGroups);
+                comp.setData("radioGroup", radioGroup);
             } else {
-                radioGroups++;
+                radioGroup++;
             }
 
             GridLayout layout = new GridLayout(2, false);
