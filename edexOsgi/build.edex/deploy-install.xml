@@ -98,6 +98,15 @@
 				</if>
 			</sequential>
 		</for>
+		
+		<if>
+			<available file="${basedir}/tmp" type="dir" />
+			<then>
+				<delete quiet="true" includeemptydirs="true">
+					<fileset dir="${basedir}/tmp" />
+				</delete>
+			</then>
+		</if>
 	</target>
 	
 	<target name="cleanup">
