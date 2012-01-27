@@ -158,7 +158,7 @@ public abstract class AbstractGLColorMapDataFormat {
      */
     protected Buffer handleBufferSizing(GLColorMapData data, Buffer buffer,
             int[] dimensions) {
-        int sliceWidth = dimensions[0];
+        int sliceWidth = dimensions[0] * getValuesPerPixel();
         int sliceHeight = dimensions[1];
         int paddedSliceWidth = getAlignedWidth(sliceWidth);
 
@@ -169,7 +169,7 @@ public abstract class AbstractGLColorMapDataFormat {
                 // Im not sure what shape this data is in, so just panic.
                 throw new IllegalStateException("Buffer is wrong size("
                         + totalDataSize + ") for data dimensions(" + sliceWidth
-                        + "x" + sliceWidth + ")");
+                        + "x" + sliceHeight + ")");
             }
 
             Buffer newBuffer = getCopybackBuffer(data);
