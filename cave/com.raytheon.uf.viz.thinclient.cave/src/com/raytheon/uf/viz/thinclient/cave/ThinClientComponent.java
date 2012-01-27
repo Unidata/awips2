@@ -33,7 +33,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.thinclient.Activator;
 import com.raytheon.uf.viz.thinclient.IThinClientComponent;
-import com.raytheon.uf.viz.thinclient.JMSConnectivityManager;
 import com.raytheon.uf.viz.thinclient.StatsJob;
 import com.raytheon.uf.viz.thinclient.ThinClientNotificationManagerJob;
 import com.raytheon.uf.viz.thinclient.cache.ThinClientCacheManager;
@@ -47,6 +46,9 @@ import com.raytheon.uf.viz.thinclient.localization.LocalizationCachePersistence;
 import com.raytheon.uf.viz.thinclient.localization.ThinClientLocalizationInitializer;
 import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
 import com.raytheon.uf.viz.thinclient.refresh.TimedRefresher;
+import com.raytheon.viz.alerts.jobs.AutoUpdater;
+import com.raytheon.viz.alerts.jobs.MenuUpdater;
+import com.raytheon.viz.alerts.observers.ProductAlertObserver;
 import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
 import com.raytheon.viz.ui.personalities.awips.CAVE;
 
@@ -94,8 +96,6 @@ public class ThinClientComponent extends CAVE implements IThinClientComponent {
         store.addPropertyChangeListener(new TimedRefresher(
                 new MenuTimeRefreshTask(),
                 ThinClientPreferenceConstants.P_MENU_TIME_REFRESH_INTERVAL));
-        // Initialize JMS connectivity manager
-        store.addPropertyChangeListener(new JMSConnectivityManager());
 
         // Start network statistics
         statsJob = new StatsJob();
@@ -164,8 +164,9 @@ public class ThinClientComponent extends CAVE implements IThinClientComponent {
      */
     @Override
     protected void initializeObservers() {
-        // Do not register observers, will be preferenced based
         ThinClientNotificationManagerJob.getInstance();
+        ProductAlertObserver.addObserver(null, new MenuUpdater());
+        ProductAlertObserver.addObserver(null, new AutoUpdater());
     }
 
     public void stopComponent() {
