@@ -134,18 +134,18 @@ public class MenuItemComposite extends Composite {
 				secondItem.setLayoutData(gd);
 			}
 			// check boxes
-			else if (item.getStyle() == SWT.CHECK) {
-				// if (item.getStyle() == SWT.CHECK) {
-				firstItem = new Button(this, SWT.CHECK);
-				((Button) firstItem).setSelection(item.getSelection());
-				GridData gd = new GridData(18, 18);
-				firstItem.setLayoutData(gd);
-
-				secondItem = new Label(this, labelStyle);
-				((Label) secondItem).setText(labels[0]);
-				gd = new GridData(SWT.LEFT, SWT.CENTER, true, true);
-				secondItem.setLayoutData(gd);
-			}
+//			else if (item.getStyle() == SWT.CHECK) {
+//				// if (item.getStyle() == SWT.CHECK) {
+//				firstItem = new Button(this, SWT.CHECK);
+//				((Button) firstItem).setSelection(item.getSelection());
+//				GridData gd = new GridData(18, 18);
+//				firstItem.setLayoutData(gd);
+//
+//				secondItem = new Label(this, labelStyle);
+//				((Label) secondItem).setText(labels[0]);
+//				gd = new GridData(SWT.LEFT, SWT.CENTER, true, true);
+//				secondItem.setLayoutData(gd);
+//			}
 			// submenus (with arrows)
 			else if (item.getStyle() == SWT.CASCADE) {
 				firstItem = new Label(this, SWT.PUSH);
