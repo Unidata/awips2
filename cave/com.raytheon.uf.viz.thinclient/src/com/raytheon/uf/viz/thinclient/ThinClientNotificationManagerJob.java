@@ -23,7 +23,15 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 
+import com.raytheon.uf.common.localization.msgs.GetServersRequest;
+import com.raytheon.uf.common.localization.msgs.GetServersResponse;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
 
 /**
@@ -45,10 +53,12 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
 
 public class ThinClientNotificationManagerJob extends NotificationManagerJob
         implements IPropertyChangeListener {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ThinClientNotificationManagerJob.class, "ThinClient");
 
     private static ThinClientNotificationManagerJob instance;
 
-    private boolean disableJMS = true;
+    private Boolean disableJMS;
 
     public static synchronized ThinClientNotificationManagerJob getInstance() {
         if (instance == null) {
@@ -71,7 +81,7 @@ public class ThinClientNotificationManagerJob extends NotificationManagerJob
 
     @Override
     protected void connect(boolean notifyError) {
-        if (disableJMS) {
+        if (disableJMS == null || disableJMS) {
             return;
         } else {
             super.connect(notifyError);
@@ -84,8 +94,20 @@ public class ThinClientNotificationManagerJob extends NotificationManagerJob
                 .getProperty())) {
             disableJMS = Boolean.valueOf(String.valueOf(event.getNewValue()));
             if (disableJMS) {
-                // TODO disconnect;
+                disconnect(true);
             } else {
+                if (VizApp.getJmsServer() == null) {
+                    GetServersRequest req = new GetServersRequest();
+                    GetServersResponse resp;
+                    try {
+                        resp = (GetServersResponse) ThriftClient
+                                .sendLocalizationRequest(req);
+                        VizApp.setJmsServer(resp.getJmsServer());
+                    } catch (VizException e) {
+                        statusHandler.handle(Priority.PROBLEM,
+                                e.getLocalizedMessage(), e);
+                    }
+                }
                 connect(true);
             }
         }
