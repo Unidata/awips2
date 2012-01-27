@@ -199,7 +199,7 @@ public class GLGeometryPainter {
      */
     private static void drawArrays(GL gl, int mode, int first, int count)
             throws VizException {
-        if (first > -1 && count > 0 && (first + count < getMaxVertices(gl))) {
+        if (first > -1 && count > 0) {
             gl.glDrawArrays(mode, first, count);
         } else {
             throw new VizException(
@@ -220,12 +220,4 @@ public class GLGeometryPainter {
         }
     }
 
-    private static int getMaxVertices(GL gl) {
-        if (maxVertices < 0) {
-            IntBuffer ib = IntBuffer.allocate(1);
-            gl.glGetIntegerv(GL.GL_MAX_ELEMENTS_VERTICES, ib);
-            maxVertices = ib.get(0);
-        }
-        return maxVertices;
-    }
 }
