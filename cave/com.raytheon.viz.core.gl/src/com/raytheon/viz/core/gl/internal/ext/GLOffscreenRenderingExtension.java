@@ -121,7 +121,7 @@ public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
                         }, parameters);
             } else {
                 image = cmapExt.initializeRaster(new GLOffscreenDataCallback(
-                        buffer, dimensions), null);
+                        buffer, dimensions), parameters);
             }
             if (!checkedLuminance) {
                 checkedLuminance = true;
@@ -132,7 +132,7 @@ public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
                     // assume we don't support luminance
                     supportsLuminance = false;
                     // Reconstruct image
-                    image = constructOffscreenImage(dataType, dimensions);
+                    image = constructOffscreenImage(dataType, dimensions, parameters);
                 }
             }
             return image;
@@ -176,19 +176,6 @@ public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
                 @Override
                 public int getTextureInternalFormat() {
                     return GL.GL_RGB8;
-                }
-
-                /*
-                 * (non-Javadoc)
-                 * 
-                 * @see com.raytheon.viz.core.gl.dataprep.GLByteDataFormat#
-                 * getCopybackBuffer(java.awt.Rectangle)
-                 */
-                @Override
-                public Buffer getCopybackBuffer(GLColorMapData data) {
-                    int width = getAlignedWidth(data.getDimensionSize(0)) * 3;
-                    int height = data.getDimensionSize(1) * 3;
-                    return ByteBuffer.allocate(height * width);
                 }
 
                 /*
