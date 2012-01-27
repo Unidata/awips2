@@ -152,6 +152,7 @@ public class GridInventory extends AbstractInventory implements
         for (Map<String, RequestConstraint> constraints : constraintsToTry) {
             evaluateRequestConstraints(constraints);
         }
+
     }
 
     private DataTree getTreeFromEdex() {
@@ -349,6 +350,7 @@ public class GridInventory extends AbstractInventory implements
      * @param newGridTree
      */
     private void initAliasModels(DataTree newGridTree) {
+        Set<String> allAliasModels = new HashSet<String>();
         sourceAliases.clear();
         GribModelLookup lookup = GribModelLookup.getInstance();
         for (String modelName : newGridTree.getSources()) {
@@ -357,6 +359,8 @@ public class GridInventory extends AbstractInventory implements
                 SourceNode source = newGridTree.getSourceNode(modelName);
                 SourceNode dest = newGridTree.getSourceNode(model.getAlias());
                 if (source != null && dest != null) {
+                    allAliasModels.add(source.getValue());
+                    allAliasModels.add(dest.getValue());
                     List<String> aliases = sourceAliases.get(dest.getValue());
                     if (aliases == null) {
                         aliases = new ArrayList<String>();
@@ -367,28 +371,29 @@ public class GridInventory extends AbstractInventory implements
                 }
             }
         }
-        for (Entry<String, List<String>> aliases : sourceAliases.entrySet()) {
-            Collections.sort(aliases.getValue(), new Comparator<String>() {
+        // Requesting coverages all at once is more efficient
+        try {
+            final Map<String, GridCoverage> coverages = CoverageUtils
+                    .getInstance().getCoverages(allAliasModels);
 
-                @Override
-                public int compare(String model1, String model2) {
-                    try {
-                        GridCoverage coverage1 = CoverageUtils.getInstance()
-                                .getCoverage(model1);
+            for (Entry<String, List<String>> aliases : sourceAliases.entrySet()) {
+                Collections.sort(aliases.getValue(), new Comparator<String>() {
+
+                    @Override
+                    public int compare(String model1, String model2) {
+                        GridCoverage coverage1 = coverages.get(model1);
                         Integer res1 = coverage1.getNx() * coverage1.getNy();
-                        GridCoverage coverage2 = CoverageUtils.getInstance()
-                                .getCoverage(model2);
+                        GridCoverage coverage2 = coverages.get(model2);
                         Integer res2 = coverage2.getNx() * coverage2.getNy();
                         return res2.compareTo(res1);
-                    } catch (VizException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                "Unable to create model aliases, problems with "
-                                        + model1 + " and " + model2, e);
-                        return 0;
                     }
-                }
 
-            });
+                });
+            }
+        } catch (VizException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to create model aliases", e);
+            return;
         }
     }
 
@@ -449,6 +454,28 @@ public class GridInventory extends AbstractInventory implements
 
     public List<Integer> getPerts(Map<String, RequestConstraint> query)
             throws VizException {
+        RequestConstraint nameRC = query.get(MODEL_NAME_QUERY);
+        if (nameRC == null) {
+            // Only bother grabbing nodes with perts
+            nameRC = new RequestConstraint(null, ConstraintType.IN);
+            nameRC.setConstraintValueList(modelsWithPerts
+                    .toArray(new String[0]));
+            query = new HashMap<String, RequestConstraint>(query);
+            query.put(MODEL_NAME_QUERY, nameRC);
+        } else {
+            boolean hasPerts = false;
+            for (String modelName : modelsWithPerts) {
+                if (nameRC.evaluate(modelName)) {
+                    hasPerts = true;
+                    break;
+                }
+            }
+            // If this query is not valid for any models with perts then it has
+            // no perts, don't bother with a query.
+            if (!hasPerts) {
+                return Collections.emptyList();
+            }
+        }
         Set<Integer> perts = new HashSet<Integer>();
         for (AbstractRequestableLevelNode node : evaluateRequestConstraints(query)) {
             perts.addAll(getPerts(node));
@@ -459,7 +486,6 @@ public class GridInventory extends AbstractInventory implements
 
     protected static List<Integer> getPerts(AbstractRequestableLevelNode node)
             throws VizException {
-
         if (node instanceof GribRequestableLevelNode) {
             GribRequestableLevelNode gNode = (GribRequestableLevelNode) node;
             if (gNode.getPerts() != null) {
