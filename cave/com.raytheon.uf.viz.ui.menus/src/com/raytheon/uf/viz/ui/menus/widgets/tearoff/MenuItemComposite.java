@@ -26,6 +26,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseTrackAdapter;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -134,18 +136,18 @@ public class MenuItemComposite extends Composite {
 				secondItem.setLayoutData(gd);
 			}
 			// check boxes
-//			else if (item.getStyle() == SWT.CHECK) {
-//				// if (item.getStyle() == SWT.CHECK) {
-//				firstItem = new Button(this, SWT.CHECK);
-//				((Button) firstItem).setSelection(item.getSelection());
-//				GridData gd = new GridData(18, 18);
-//				firstItem.setLayoutData(gd);
-//
-//				secondItem = new Label(this, labelStyle);
-//				((Label) secondItem).setText(labels[0]);
-//				gd = new GridData(SWT.LEFT, SWT.CENTER, true, true);
-//				secondItem.setLayoutData(gd);
-//			}
+			// else if (item.getStyle() == SWT.CHECK) {
+			// // if (item.getStyle() == SWT.CHECK) {
+			// firstItem = new Button(this, SWT.CHECK);
+			// ((Button) firstItem).setSelection(item.getSelection());
+			// GridData gd = new GridData(18, 18);
+			// firstItem.setLayoutData(gd);
+			//
+			// secondItem = new Label(this, labelStyle);
+			// ((Label) secondItem).setText(labels[0]);
+			// gd = new GridData(SWT.LEFT, SWT.CENTER, true, true);
+			// secondItem.setLayoutData(gd);
+			// }
 			// submenus (with arrows)
 			else if (item.getStyle() == SWT.CASCADE) {
 				firstItem = new Label(this, SWT.PUSH);
@@ -170,69 +172,71 @@ public class MenuItemComposite extends Composite {
 
 				createUpdateListener(this);
 				item.addListener(SWT.Modify, updateListener);
-
-				showListener = new Listener() {
-					@Override
-					public void handleEvent(final Event event) {
-						job = new UIJob(Display.getCurrent(),
-								"Regenerate Tear Off Menus") {
-
-							@Override
-							public IStatus runInUIThread(
-									IProgressMonitor monitor) {
-								if (menu == null || menu.isDisposed()) {
-									for (MenuItem item : topLevelMenu
-											.getItems()) {
-										if (item.getMenu() != null) {
-											for (Listener list : item.getMenu()
-													.getListeners(SWT.Show)) {
-												Event event = new Event();
-												event.widget = item;
-												event.type = SWT.Show;
-												list.handleEvent(event);
-											}
-											if (getShell().getText().equals(
-													item.getText())) {
-												menu = item.getMenu();
-												break;
-											}
-										}
-									}
-								}
-
-								int start = 0;
-								if (menu.getItemCount() != parent.getChildren().length) {
-									start = 1;
-								}
-								if (parent.getChildren().length > 0) {
-									for (int i = start; i < menu.getItemCount(); i++) {
-										MenuItemComposite mic = (MenuItemComposite) parent
-												.getChildren()[i - start];
-										if (mic.item.isDisposed()) {
-											mic.item = menu.getItem(i);
-											createUpdateListener(mic);
-											mic.item.addListener(SWT.Modify,
-													updateListener);
-
-											for (Listener list : mic.item
-													.getListeners(SWT.Modify)) {
-												Event e = new Event();
-												e.type = SWT.Modify;
-												e.data = mic.item;
-												list.handleEvent(e);
-											}
-										}
-									}
-								}
-								return Status.OK_STATUS;
-							}
-						};
-						job.schedule();
-					}
-				};
-				item.getParent().addListener(SWT.Show, showListener);
-				topLevelMenu.addListener(SWT.Show, showListener);
 			}
+			showListener = new Listener() {
+				@Override
+				public void handleEvent(final Event event) {
+					job = new UIJob(Display.getCurrent(),
+							"Regenerate Tear Off Menus") {
+
+						@Override
+						public IStatus runInUIThread(IProgressMonitor monitor) {
+							System.out.println("runInUIThread");
+							if (menu == null || menu.isDisposed()) {
+								for (MenuItem item : topLevelMenu.getItems()) {
+									if (item.getMenu() != null) {
+										for (Listener list : item.getMenu()
+												.getListeners(SWT.Show)) {
+											Event event = new Event();
+											event.widget = item;
+											event.type = SWT.Show;
+											list.handleEvent(event);
+										}
+										System.out.println("getShell() : "
+												+ getShell().getText());
+										System.out.println("item : "
+												+ item.getText());
+										if (getShell().getText().equals(
+												item.getText())) {
+											menu = item.getMenu();
+											break;
+										}
+									}
+								}
+							}
+
+							int start = 0;
+							if (menu.getItemCount() != parent.getChildren().length) {
+								start = 1;
+							}
+							if (parent.getChildren().length > 0) {
+								for (int i = start; i < menu.getItemCount(); i++) {
+									MenuItemComposite mic = (MenuItemComposite) parent
+											.getChildren()[i - start];
+									if (mic.item.isDisposed()) {
+										mic.item = menu.getItem(i);
+										createUpdateListener(mic);
+										mic.item.addListener(SWT.Modify,
+												updateListener);
+
+										for (Listener list : mic.item
+												.getListeners(SWT.Modify)) {
+											Event e = new Event();
+											e.type = SWT.Modify;
+											e.data = mic.item;
+											list.handleEvent(e);
+										}
+									}
+								}
+							}
+							return Status.OK_STATUS;
+						}
+					};
+					job.schedule();
+				}
+			};
+			item.getParent().addListener(SWT.Show, showListener);
+			topLevelMenu.addListener(SWT.Show, showListener);
 
 			if (item.isEnabled()) {
 				// add the listeners to both the first and the second
@@ -480,7 +484,8 @@ public class MenuItemComposite extends Composite {
 				// handles the check boxes, if clicking the check box
 				// need to not do this (because SWT does it already)
 				// otherwise do it
-				if (firstItem instanceof Button) {
+				if (firstItem instanceof Button
+						&& firstItem.getStyle() == SWT.CHECK) {
 					if (e.widget != firstItem) {
 						((Button) firstItem).setSelection(!((Button) firstItem)
 								.getSelection());
@@ -488,23 +493,40 @@ public class MenuItemComposite extends Composite {
 				}
 
 				for (int i = 0; i < parent.getChildren().length; i++) {
-					MenuItemComposite mic = (MenuItemComposite) parent
+					final MenuItemComposite mic = (MenuItemComposite) parent
 							.getChildren()[i];
-					if (item.getStyle() == SWT.RADIO) {
+					if (mic.item.getStyle() == SWT.RADIO) {
 						try {
-							if (((Control) e.widget).getParent()
-									.getData("radioGroup")
-									.equals(mic.getData("radioGroup"))) {
-								if (!((Control) e.widget).getParent().equals(
-										mic)) {
+							MenuItemComposite parent = null;
+							// check whether a Label is clicked or a
+							// MenuItemComposite
+							if (e.widget instanceof MenuItemComposite) {
+								parent = (MenuItemComposite) e.widget;
+							} else {
+								parent = (MenuItemComposite) ((Control) e.widget)
+										.getParent();
+							}
+							// check that the radio groups match
+							if (mic.getData("radioGroup").equals(
+									parent.getData("radioGroup"))) {
+								if (!parent.equals(mic)) {
 									((Button) mic.firstItem)
 											.setSelection(false);
+									parent.item.setSelection(false);
 								} else {
 									((Button) mic.firstItem).setSelection(true);
+									parent.item.setSelection(true);
 								}
 							}
 						} catch (NullPointerException e1) {
+							e1.printStackTrace();
 						}
+						mic.item.addSelectionListener(new SelectionAdapter() {
+							@Override
+							public void widgetSelected(SelectionEvent e) {
+								mic.item.setSelection(true);
+							}
+						});
 					}
 				}
 			}
