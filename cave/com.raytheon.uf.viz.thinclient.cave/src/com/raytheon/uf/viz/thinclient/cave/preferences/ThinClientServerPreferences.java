@@ -23,6 +23,7 @@ package com.raytheon.uf.viz.thinclient.cave.preferences;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.StringFieldEditor;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -30,7 +31,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.IWorkbench;
 
 import com.raytheon.uf.viz.core.comm.ConnectivityManager;
 import com.raytheon.uf.viz.core.comm.ConnectivityManager.ConnectivityResult;
@@ -56,9 +56,13 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  */
 public class ThinClientServerPreferences extends FieldEditorPreferencePage {
 
+    private BooleanFieldEditor useProxies;
+
     private StringFieldEditor pypiesServer;
 
     private StringFieldEditor servicesServer;
+
+    private StringFieldEditor serverDataDir;
 
     private Button connectivityButton;
 
@@ -68,6 +72,7 @@ public class ThinClientServerPreferences extends FieldEditorPreferencePage {
     public ThinClientServerPreferences() {
         super(GRID);
         setPreferenceStore(Activator.getDefault().getPreferenceStore());
+        setTitle("Thin Client Servers");
         setDescription("Thin Client Servers (changes require a restart)");
     }
 
@@ -80,50 +85,12 @@ public class ThinClientServerPreferences extends FieldEditorPreferencePage {
      */
     @Override
     protected void createFieldEditors() {
-        createServerEditors();
-    }
 
-    private void setProxiesEnabled(boolean enabled) {
-        servicesServer.setEnabled(enabled, connectivityButton.getParent());
-        pypiesServer.setEnabled(enabled, connectivityButton.getParent());
-        connectivityButton.setEnabled(enabled);
-    }
-
-    /**
-     * Create the server field editors
-     */
-    private void createServerEditors() {
-        // TODO: Hook in complete disabling of JMS
-        addField(new BooleanFieldEditor(
-                ThinClientPreferenceConstants.P_DISABLE_JMS, "Disable JMS",
-                getFieldEditorParent()));
-
-        // TODO: Hook in proxy setting via dialogs and disabling setting of
-        // proxy servers when use proxies is false
-        BooleanFieldEditor useProxyServers = new BooleanFieldEditor(
+        useProxies = new BooleanFieldEditor(
                 ThinClientPreferenceConstants.P_USE_PROXIES,
-                "&Use Proxy Servers", getFieldEditorParent()) {
+                "&Use Proxy Servers", getFieldEditorParent());
 
-            @Override
-            protected void valueChanged(boolean oldValue, boolean newValue) {
-                super.valueChanged(oldValue, newValue);
-                setProxiesEnabled(newValue);
-            }
-
-            @Override
-            protected void doLoad() {
-                super.doLoad();
-                setProxiesEnabled(getBooleanValue());
-            }
-
-            @Override
-            protected void doLoadDefault() {
-                super.doLoadDefault();
-                setProxiesEnabled(getBooleanValue());
-            }
-
-        };
-        addField(useProxyServers);
+        addField(useProxies);
 
         servicesServer = new StringFieldEditor(
                 ThinClientPreferenceConstants.P_SERVICES_PROXY,
@@ -137,9 +104,11 @@ public class ThinClientServerPreferences extends FieldEditorPreferencePage {
         pypiesServer.setErrorMessage("Cannot connect to Pypies server");
         addField(pypiesServer);
 
-        addField(new StringFieldEditor(
+        serverDataDir = new StringFieldEditor(
                 ThinClientPreferenceConstants.P_SERVER_DATA_DIR,
-                "&Server Data Dir: ", getFieldEditorParent()));
+                "&Server Data Dir: ", getFieldEditorParent());
+
+        addField(serverDataDir);
 
         addConnectivityButton();
     }
@@ -152,7 +121,7 @@ public class ThinClientServerPreferences extends FieldEditorPreferencePage {
         GridData gd = new GridData(SWT.RIGHT, SWT.TOP, false, true);
         gd.horizontalSpan = 2;
         connectivityButton.setLayoutData(gd);
-        connectivityButton.setText("Check Servers");
+        connectivityButton.setText("&Check Servers");
         connectivityButton.addSelectionListener(new SelectionAdapter() {
 
             @Override
@@ -213,14 +182,24 @@ public class ThinClientServerPreferences extends FieldEditorPreferencePage {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
-     */
-    public void init(IWorkbench workbench) {
+    @Override
+    public void propertyChange(PropertyChangeEvent event) {
+        super.propertyChange(event);
+        this.updateEnabledFields();
+    }
 
+    @Override
+    protected void checkState() {
+        super.checkState();
+        this.updateEnabledFields();
+    }
+
+    private void updateEnabledFields() {
+        boolean useProxies = this.useProxies.getBooleanValue();
+        servicesServer.setEnabled(useProxies, connectivityButton.getParent());
+        pypiesServer.setEnabled(useProxies, connectivityButton.getParent());
+        serverDataDir.setEnabled(useProxies, connectivityButton.getParent());
+        connectivityButton.setEnabled(useProxies);
     }
 
 }
