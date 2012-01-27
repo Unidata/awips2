@@ -181,6 +181,7 @@ public class GribDataCatalog extends AbstractInventoryDataCatalog {
                 List<Level> selectedLevels = new ArrayList<Level>(lmf
                         .getLevelMappingForKey(catalogEntry.selectedPlanesKey)
                         .getLevels());
+
                 RequestConstraint masterRC = new RequestConstraint(null,
                         ConstraintType.IN);
                 RequestConstraint oneRC = new RequestConstraint(null,
@@ -353,19 +354,19 @@ public class GribDataCatalog extends AbstractInventoryDataCatalog {
      */
     @Override
     protected Collection<? extends Level> get3DLevels() {
+        ArrayList<Level> all = new ArrayList<Level>();
         NavigableSet<Level> tilts = LevelUtilities
                 .getOrderedSetOfStandardLevels("TILT");
-        NavigableSet<Level> pres = LevelUtilities
-                .getOrderedSetOfStandardLevels("MB");
-        NavigableSet<Level> theta = LevelUtilities
-                .getOrderedSetOfStandardLevels("K");
-        ArrayList<Level> all = new ArrayList<Level>();
-        if (pres != null) {
-            all.addAll(pres);
-        }
         if (tilts != null) {
             all.addAll(tilts);
         }
+        NavigableSet<Level> pres = LevelUtilities
+                .getOrderedSetOfStandardLevels("MB");
+        if (pres != null) {
+            all.addAll(pres);
+        }
+        NavigableSet<Level> theta = LevelUtilities
+                .getOrderedSetOfStandardLevels("K");
         if (theta != null) {
             all.addAll(theta);
         }
@@ -409,11 +410,20 @@ public class GribDataCatalog extends AbstractInventoryDataCatalog {
                 && lons.isEmpty()) {
             return null;
         }
+        List<String> sources = getSupportedSourcesInternal();
+        Map<String, GridCoverage> coverages = new HashMap<String, GridCoverage>();
+        try {
+            coverages = CoverageUtils.getInstance().getCoverages(sources);
+        } catch (VizException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
         Set<String> fileredSources = new HashSet<String>();
-        for (String source : getSupportedSourcesInternal()) {
+        for (String source : sources) {
             try {
-                GridCoverage coverage = CoverageUtils.getInstance()
-                        .getCoverage(source);
+                GridCoverage coverage = coverages.get(source);
+                if (coverage == null) {
+                    coverage = CoverageUtils.getInstance().getCoverage(source);
+                }
                 if (coverage == null) {
                     fileredSources.add(source);
                     continue;
@@ -489,11 +499,19 @@ public class GribDataCatalog extends AbstractInventoryDataCatalog {
             return results;
         }
         ToolsDataManager tdm = ToolsDataManager.getInstance();
+        Map<String, GridCoverage> coverages = new HashMap<String, GridCoverage>();
+        try {
+            coverages = CoverageUtils.getInstance().getCoverages(sources);
+        } catch (VizException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
         Set<String> validPlanes = new HashSet<String>(sources.size());
         for (String source : sources) {
             try {
-                GridCoverage coverage = CoverageUtils.getInstance()
-                        .getCoverage(source);
+                GridCoverage coverage = coverages.get(source);
+                if (coverage == null) {
+                    coverage = CoverageUtils.getInstance().getCoverage(source);
+                }
                 if (coverage == null) {
                     Set<String> results = new HashSet<String>();
                     results.addAll(MenuItemManager.getInstance()
