@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.alertviz.ui.dialogs;
 import java.io.File;
 import java.io.FileNotFoundException;
 
+import org.eclipse.equinox.app.IApplication;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MenuDetectEvent;
@@ -90,6 +91,7 @@ import com.raytheon.uf.viz.core.VizApp;
  *                                     changed.
  * 03 May 2011  9101       cjeanbap    Pass a clone object into AlertVizPython class.
  * 31 May 2011  8058       cjeanbap    Kill sound based on TextMsgBox id.
+ * 17 Jan 2012  27         rferrel     Refactored to allow override of createTrayMenuItems
  * </pre>
  * 
  * @author lvenable
@@ -102,7 +104,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
     /**
      * Dialog shell.
      */
-    private Shell shell;
+    protected Shell shell;
 
     /**
      * The display control.
@@ -132,7 +134,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
     /**
      * A pop-up menu for the tray item.
      */
-    private Menu trayItemMenu;
+    protected Menu trayItemMenu;
 
     /**
      * Show alert visualization menu item.
@@ -212,13 +214,15 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
     /**
      * Is this running as a standalone application
      */
-    private final boolean runningStandalone;
+    protected final boolean runningStandalone;
 
     private Rectangle prevLocation = null;
 
     private ConfigContext configContext;
 
     private Configuration prevConfigFile;
+    
+    private Integer exitStatus = IApplication.EXIT_OK;
 
     /**
      * Constructor.
@@ -381,7 +385,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
     /**
      * Create the tray menu items.
      */
-    private void createTrayMenuItems() {
+    protected void createTrayMenuItems() {
 
         showAlertDialogMI = new MenuItem(trayItemMenu, SWT.CHECK);
         showAlertDialogMI.setText("Show Alert Dialog");
@@ -810,6 +814,10 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
         }
     }
 
+    public Integer getExitStatus() {
+    	return exitStatus;
+    }
+    
     /**
      * This is the button click event for the alertPopupDialog. This function is
      * called when "Hide Dialog" is clicked.
@@ -825,9 +833,13 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
     @Override
     public void restart() {
         if (runningStandalone) {
-            // exit with an error code. alertViz.sh will then
-            // restart AlertViz
-            System.exit(1);
+        	// Must use EXIT_RELAUNCH. EXIT_RESTART causes the
+        	// executable to do a restart without returning to
+        	// the shell/bat script. This fails. Any other value
+        	// such as Integer(1) the executable attempts to bring
+        	// up an error screen before exiting with the error code.
+        	exitStatus = IApplication.EXIT_RELAUNCH;
+        	display.dispose();
         }
     }
 
