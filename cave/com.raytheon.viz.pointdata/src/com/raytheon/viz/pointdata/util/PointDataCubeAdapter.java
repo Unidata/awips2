@@ -37,6 +37,9 @@ import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.RecordFactory;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
@@ -49,7 +52,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
 import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
 import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode.Dependency;
@@ -76,6 +78,8 @@ import com.raytheon.viz.pointdata.PointDataRequest;
  */
 
 public class PointDataCubeAdapter implements IDataCubeAdapter {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(PointDataCubeAdapter.class);
 
     public static String PLUGIN_NAME = PointDataInventory.PLUGIN_NAME;
 
@@ -87,8 +91,6 @@ public class PointDataCubeAdapter implements IDataCubeAdapter {
             "bufrmosNGM" };
 
     protected AbstractPointDataInventory inventory;
-
-    protected Map<String, DerivParamDesc> derParLibrary;
 
     /*
      * (non-Javadoc)
@@ -112,6 +114,9 @@ public class PointDataCubeAdapter implements IDataCubeAdapter {
      */
     @Override
     public Object getInventory() {
+        if (inventory == null) {
+            initInventory();
+        }
         return this.inventory;
     }
 
@@ -301,12 +306,17 @@ public class PointDataCubeAdapter implements IDataCubeAdapter {
      */
     @Override
     public void initInventory() {
-        derParLibrary = DerivedParameterGenerator.getDerParLibrary();
         if (inventory == null) {
             PointDataInventory pointInventory = new PointDataInventory(
                     Arrays.asList(supportedPlugins));
-            pointInventory.initTree(derParLibrary);
-            this.inventory = pointInventory;
+            try {
+                pointInventory.initTree(DerivedParameterGenerator
+                        .getDerParLibrary());
+                this.inventory = pointInventory;
+            } catch (VizException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
         }
     }
 
