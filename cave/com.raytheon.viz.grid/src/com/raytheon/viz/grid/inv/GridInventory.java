@@ -131,7 +131,8 @@ public class GridInventory extends AbstractInventory implements
     private List<Map<String, RequestConstraint>> failedRequests = new ArrayList<Map<String, RequestConstraint>>();
 
     @Override
-    public void initTree(Map<String, DerivParamDesc> derParLibrary) {
+    public void initTree(Map<String, DerivParamDesc> derParLibrary)
+            throws VizException {
         super.initTree(derParLibrary);
         if (updater == null) {
             updater = new GridUpdater(this);
@@ -144,32 +145,28 @@ public class GridInventory extends AbstractInventory implements
     }
 
     public void reinitTree() {
-        initTree(derParLibrary);
-        // reprocess all failed requests to see if data has become available.
-        List<Map<String, RequestConstraint>> constraintsToTry = this.failedRequests;
-        this.failedRequests = new ArrayList<Map<String, RequestConstraint>>(
-                failedRequests.size());
-        for (Map<String, RequestConstraint> constraints : constraintsToTry) {
-            evaluateRequestConstraints(constraints);
+        try {
+            initTree(derParLibrary);
+            // reprocess all failed requests to see if data has become
+            // available.
+            List<Map<String, RequestConstraint>> constraintsToTry = this.failedRequests;
+            this.failedRequests = new ArrayList<Map<String, RequestConstraint>>(
+                    failedRequests.size());
+            for (Map<String, RequestConstraint> constraints : constraintsToTry) {
+                evaluateRequestConstraints(constraints);
+            }
+        } catch (VizException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
-
     }
 
-    private DataTree getTreeFromEdex() {
+    private DataTree getTreeFromEdex() throws VizException {
         String request = "from com.raytheon.edex.uengine.tasks.grib import GridCatalog\n"
                 + "from com.raytheon.uf.common.message.response import ResponseMessageGeneric\n"
                 + "test = GridCatalog()\n"
                 + "return ResponseMessageGeneric(test.execute())";
         Object[] tree = null;
-        try {
-            tree = Connector.getInstance().connect(request, null, 60000);
-        } catch (VizCommunicationException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error communicating with server.", e);
-        } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error occurred while retrieving grid tree.", e);
-        }
+        tree = Connector.getInstance().connect(request, null, 60000);
         if (tree != null) {
             return (DataTree) tree[0];
         }
@@ -266,7 +263,7 @@ public class GridInventory extends AbstractInventory implements
         return null;
     }
 
-    protected DataTree createBaseTree() {
+    protected DataTree createBaseTree() throws VizException {
         DataTree newTree = getTreeFromEdex();
         if (newTree == null) {
             return newTree;
@@ -639,7 +636,8 @@ public class GridInventory extends AbstractInventory implements
 
     @Override
     protected LevelNode getCubeNode(SourceNode sNode, DerivParamField field,
-            Deque<StackEntry> stack, Set<StackEntry> nodata) {
+            Deque<StackEntry> stack, Set<StackEntry> nodata)
+            throws VizCommunicationException {
         StackEntry se = new StackEntry(sNode.getValue(), field.getParam(),
                 Long.MIN_VALUE);
         if (stack.contains(se)) {
@@ -654,8 +652,14 @@ public class GridInventory extends AbstractInventory implements
         String masterLevelName = get3DMasterLevel(sNode.getValue());
         boolean isRadar = sNode.getValue().equals(RadarAdapter.RADAR_SOURCE);
 
-        NavigableSet<Level> levels = LevelUtilities
-                .getOrderedSetOfStandardLevels(masterLevelName);
+        NavigableSet<Level> levels = null;
+        try {
+            levels = LevelUtilities
+                    .getOrderedSetOfStandardLevels(masterLevelName);
+        } catch (VizCommunicationException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+            return null;
+        }
         List<CubeLevel<AbstractRequestableLevelNode, AbstractRequestableLevelNode>> cubeLevels = new ArrayList<CubeLevel<AbstractRequestableLevelNode, AbstractRequestableLevelNode>>(
                 levels.size());
 
