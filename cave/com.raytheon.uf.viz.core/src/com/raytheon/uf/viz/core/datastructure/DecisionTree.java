@@ -383,7 +383,7 @@ public class DecisionTree<T> {
     }
 
     protected List<DataPair> getDataPairs() {
-        return dataPairs;
+        return new ArrayList<DecisionTree<T>.DataPair>(dataPairs);
     }
 
     private static double calcEntropy(int numExamples, Integer[] values) {
