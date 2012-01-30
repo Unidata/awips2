@@ -398,7 +398,7 @@ public class RedbookUpperAirResource extends
                 float lon = pdv.getFloat(RedbookUpperAirDecoder.P_LONGITUDE);
                 PlotData pd = new PlotData();
                 pd.addData(pdv);
-                BufferedImage bImage = pmf.getStationPlot(pd, -1, lat, lon);
+                BufferedImage bImage = pmf.getStationPlot(pd, lat, lon);
                 IImage image = null;
                 if (bImage != null)
                     image = target.initializeRaster(new IODataPreparer(bImage,
