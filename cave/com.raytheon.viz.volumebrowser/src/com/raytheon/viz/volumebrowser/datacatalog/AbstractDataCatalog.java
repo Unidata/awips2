@@ -33,6 +33,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.level.LevelMapping;
 import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 import com.raytheon.uf.viz.core.level.LevelUtilities;
@@ -344,15 +345,25 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
 
         String planesKey = catalogEntry.getSelectedData().getPlanesKey();
 
-        LevelMappingFactory lmf = LevelMappingFactory.getInstance();
         Collection<Level> levels = Collections.emptyList();
         if (planesKey.startsWith("spatial-")) {
-            levels = LevelUtilities.getOrderedSetOfStandardLevels(planesKey
-                    .replace("spatial-", ""));
+            try {
+                levels = LevelUtilities.getOrderedSetOfStandardLevels(planesKey
+                        .replace("spatial-", ""));
+            } catch (VizCommunicationException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
         } else {
-            LevelMapping lm = lmf.getLevelMappingForKey(planesKey);
-            if (lm != null) {
-                levels = lm.getLevels();
+            try {
+                LevelMappingFactory lmf = LevelMappingFactory.getInstance();
+                LevelMapping lm = lmf.getLevelMappingForKey(planesKey);
+                if (lm != null) {
+                    levels = lm.getLevels();
+                }
+            } catch (VizCommunicationException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
             }
         }
         ParamLevelMatchCriteria match = new ParamLevelMatchCriteria();
