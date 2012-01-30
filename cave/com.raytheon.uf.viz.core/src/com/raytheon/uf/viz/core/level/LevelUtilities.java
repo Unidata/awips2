@@ -29,10 +29,12 @@ import java.util.TreeSet;
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
 
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.level.CompareType;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
+import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 
 /**
  * Level utilities
@@ -62,14 +64,24 @@ public class LevelUtilities {
         }
     }
 
-    public static boolean isPressureLevel(long levelId) {
-        return isPressureLevel(LevelFactory.getInstance().getLevel(levelId)
-                .getMasterLevel());
+    public static boolean isPressureLevel(long levelId)
+            throws VizCommunicationException {
+        try {
+            return isPressureLevel(LevelFactory.getInstance().getLevel(levelId)
+                    .getMasterLevel());
+        } catch (CommunicationException e) {
+            throw new VizCommunicationException(e);
+        }
     }
 
-    public static boolean isPressureLevel(String masterLevelName) {
-        return isPressureLevel(LevelFactory.getInstance().getMasterLevel(
-                masterLevelName));
+    public static boolean isPressureLevel(String masterLevelName)
+            throws VizCommunicationException {
+        try {
+            return isPressureLevel(LevelFactory.getInstance().getMasterLevel(
+                    masterLevelName));
+        } catch (CommunicationException e) {
+            throw new VizCommunicationException(e);
+        }
     }
 
     public static boolean isPressureLevel(Level level) {
@@ -89,9 +101,10 @@ public class LevelUtilities {
      * 
      * @param masterLevelName
      * @return
+     * @throws CommunicationException
      */
     public synchronized static NavigableSet<Level> getOrderedSetOfStandardLevels(
-            String masterLevelName) {
+            String masterLevelName) throws VizCommunicationException {
         if (masterLevelToOrderedSet == null) {
             Comparator<Level> levelComparator = new Comparator<Level>() {
 
@@ -108,7 +121,7 @@ public class LevelUtilities {
                 }
 
             };
-            masterLevelToOrderedSet = new HashMap<String, NavigableSet<Level>>();
+            Map<String, NavigableSet<Level>> masterLevelToOrderedSet = new HashMap<String, NavigableSet<Level>>();
             for (Level level : LevelMappingFactory.getInstance().getAllLevels()) {
                 NavigableSet<Level> levels = masterLevelToOrderedSet.get(level
                         .getMasterLevel().getName());
@@ -118,12 +131,18 @@ public class LevelUtilities {
                             .getName(), levels);
                 }
                 if (level.isRangeLevel()) {
-                    levels.add(level.getUpperLevel());
-                    levels.add(level.getLowerLevel());
+
+                    try {
+                        levels.add(level.getUpperLevel());
+                        levels.add(level.getLowerLevel());
+                    } catch (CommunicationException e) {
+                        throw new VizCommunicationException(e);
+                    }
                 } else {
                     levels.add(level);
                 }
             }
+            LevelUtilities.masterLevelToOrderedSet = masterLevelToOrderedSet;
         }
         return masterLevelToOrderedSet.get(masterLevelName);
 

@@ -53,6 +53,7 @@ import com.raytheon.edex.util.Util;
 import com.raytheon.edex.util.grib.Grib1TableMap;
 import com.raytheon.edex.util.grib.GribParamTranslator;
 import com.raytheon.edex.util.grib.GribTableLookup;
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.grib.GribModel;
 import com.raytheon.uf.common.dataplugin.grib.GribRecord;
@@ -1225,10 +1226,12 @@ public class Grib1Decoder extends AbstractDecoder {
      *            The level two scale factor
      * @param value2
      *            The level two value
+     * @throws GribException
      */
     private void getLevelInfo(GribModel model, int centerID, int subcenterID,
             float levelOneNumber, float scaleFactor1, float value1,
-            float levelTwoNumber, float scaleFactor2, float value2) {
+            float levelTwoNumber, float scaleFactor2, float value2)
+            throws GribException {
         String levelName = null;
         String levelUnit = null;
         double levelOneValue = Level.getInvalidLevelValue();
@@ -1281,9 +1284,13 @@ public class Grib1Decoder extends AbstractDecoder {
             levelOneValue = 0.0;
             levelTwoValue = Level.getInvalidLevelValue();
         }
-        Level level = LevelFactory.getInstance().getLevel(levelName,
-                levelOneValue, levelTwoValue, levelUnit);
-        model.setLevel(level);
+        try {
+            Level level = LevelFactory.getInstance().getLevel(levelName,
+                    levelOneValue, levelTwoValue, levelUnit);
+            model.setLevel(level);
+        } catch (CommunicationException e) {
+            throw new GribException("Error requesting levels", e);
+        }
     }
 
     /**
