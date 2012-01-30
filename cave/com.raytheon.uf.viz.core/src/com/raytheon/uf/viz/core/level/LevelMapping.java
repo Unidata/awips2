@@ -31,6 +31,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 
 /**
  * Class defines a mapping from a display level to one or more database levels.
@@ -45,7 +46,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * 11/01/2007    #518      S.Manoj     Initial version
  * 11/16/2009    #3120     rjpeter     Modifed to better integrate with level framework.
  * 11/21/2009    #3576     rjpeter     Added group
- *
+ * 
  * &#064;author smanoj
  * @version 1.0
  */
@@ -118,12 +119,13 @@ public class LevelMapping implements ISerializableObject {
         this.databaseLevels = databaseLevels;
     }
 
-    public List<Level> getLevels() {
+    public List<Level> getLevels() throws VizCommunicationException {
         if (levelList == null) {
-            levelList = new ArrayList<Level>();
+            List<Level> levelList = new ArrayList<Level>();
             for (DatabaseLevelMapping mapping : databaseLevels) {
                 levelList.addAll(mapping.getLevels());
             }
+            this.levelList = levelList;
         }
 
         return levelList;
