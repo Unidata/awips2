@@ -20,23 +20,11 @@
 package com.raytheon.uf.viz.thinclient.cave.refresh;
 
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.AbstractTimeMatcher;
-import com.raytheon.uf.viz.core.IDisplayPane;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.thinclient.Activator;
 import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
 import com.raytheon.uf.viz.thinclient.refresh.TimedRefresher.RefreshTimerTask;
 import com.raytheon.viz.alerts.jobs.AutoUpdater;
-import com.raytheon.viz.ui.editor.AbstractEditor;
-import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
-import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 
 /**
  * Timer task responsible for refreshing IEditorParts that implement
@@ -59,11 +47,6 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 
 public class DataRefreshTask implements RefreshTimerTask {
 
-    private IUFStatusHandler statusHandler = UFStatus
-            .getHandler(DataRefreshTask.class);
-
-    private AutoUpdater autoUpdater = new AutoUpdater();
-
     /*
      * (non-Javadoc)
      * 
@@ -72,48 +55,9 @@ public class DataRefreshTask implements RefreshTimerTask {
     @Override
     public void run() {
         IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-        if (!store.getBoolean(ThinClientPreferenceConstants.P_DISABLE_JMS)) {
-            return;
-        }
-        // For every window open, redo time matching on every descriptor on
-        // every editor for the window. A bit D2D specific, but it is how the
-        // AutoUpdater works which is what we are mimicking.
-        for (IWorkbenchWindow window : PlatformUI.getWorkbench()
-                .getWorkbenchWindows()) {
-            // Find listener for window
-            VizPerspectiveListener listener = VizPerspectiveListener
-                    .getInstance(window);
-            if (listener != null) {
-                // Find active perspective manager for listener
-                AbstractVizPerspectiveManager manager = listener
-                        .getActivePerspectiveManager();
-                if (manager != null) {
-                    // Process each editor
-                    for (AbstractEditor editor : manager
-                            .getPerspectiveEditors()) {
-                        for (IDisplayPane pane : editor.getDisplayPanes()) {
-                            // Get the time matcher
-                            AbstractTimeMatcher atm = pane.getDescriptor()
-                                    .getTimeMatcher();
-                            if (atm != null) {
-                                try {
-                                    // Redo time matching. This will trigger
-                                    // updates and removal of old data
-                                    AbstractVizResource<?, ?> tmb = atm
-                                            .getTimeMatchBasis();
-                                    if (tmb != null) {
-                                        atm.redoTimeMatching(tmb);
-                                    }
-                                    atm.redoTimeMatching(pane.getDescriptor());
-                                } catch (VizException e) {
-                                    statusHandler.handle(Priority.PROBLEM,
-                                            e.getLocalizedMessage(), e);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+        if (store.getBoolean(ThinClientPreferenceConstants.P_DISABLE_JMS)) {
+            new AutoUpdater().alertArrived(ThinClientDataUpdateTree
+                    .getInstance().updateAllData());
         }
     }
 
