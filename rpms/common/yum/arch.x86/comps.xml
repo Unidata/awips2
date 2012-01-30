@@ -111,6 +111,7 @@
          <packagereq type="default">awips2-cave-viz-ncep-core</packagereq>
          <packagereq type="default">awips2-cave-viz-ncep-dataplugins</packagereq>
          <packagereq type="default">awips2-cave-viz-ncep-displays</packagereq>
+         <packagereq type="default">awips2-cave-viz-ncep-nsharp</packagereq>
          <packagereq type="default">awips2-cave-viz-ncep-perspective</packagereq>
          <packagereq type="default">awips2-cave-viz-radar</packagereq>
          <packagereq type="default">awips2-cave-viz-satellite</packagereq>
@@ -424,6 +425,7 @@
 		 <packagereq type="default">awips2-cave-viz-ncep-core</packagereq>
 		 <packagereq type="default">awips2-cave-viz-ncep-dataplugins</packagereq>
 		 <packagereq type="default">awips2-cave-viz-ncep-displays</packagereq>
+		 <packagereq type="default">awips2-cave-viz-ncep-nsharp</packagereq>
 		 <packagereq type="default">awips2-cave-viz-ncep-perspective</packagereq>
 		 <packagereq type="default">awips2-cave-viz-radar</packagereq>
 		 <packagereq type="default">awips2-cave-viz-satellite</packagereq>
