@@ -123,7 +123,7 @@ public class PlotResource2 extends
     private JobPool frameRetrievalPool = new JobPool("Retrieving plot frame",
             8, true);
 
-    private TreeMap<Integer, String> rawMessageMap = new TreeMap<Integer, String>();
+    private TreeMap<String, String> rawMessageMap = new TreeMap<String, String>();
 
     private class FrameRetriever implements Runnable {
 
@@ -342,7 +342,8 @@ public class PlotResource2 extends
                     }
                     boolean dup = false;
                     for (int i = 0; i < existingStation.info.length; i++) {
-                        if (existingStation.info[i].id.equals(plot.id)) {
+                        if (existingStation.info[i].dataURI
+                                .equals(plot.dataURI)) {
                             // existingStation.info[i] = plot;
                             dup = true;
                             break;
@@ -501,15 +502,15 @@ public class PlotResource2 extends
             }
 
             if (inspectPlot != null) {
-                int id = inspectPlot[0].id;
-                if (rawMessageMap.containsKey(id)) {
-                    if (rawMessageMap.get(id) != null) {
-                        message = rawMessageMap.get(id);
+                String dataURI = inspectPlot[0].dataURI;
+                if (rawMessageMap.containsKey(dataURI)) {
+                    if (rawMessageMap.get(dataURI) != null) {
+                        message = rawMessageMap.get(dataURI);
                     }
                 } else {
                     message = "Generating...";
                     synchronized (rawMessageMap) {
-                        rawMessageMap.put(id, message);
+                        rawMessageMap.put(dataURI, message);
                     }
                     List<PlotInfo[]> list = new ArrayList<PlotInfo[]>();
                     list.add(inspectPlot);
@@ -711,9 +712,9 @@ public class PlotResource2 extends
     }
 
     @Override
-    public void messageGenerated(int id, String message) {
+    public void messageGenerated(String dataURI, String message) {
         synchronized (rawMessageMap) {
-            rawMessageMap.put(id, message);
+            rawMessageMap.put(dataURI, message);
         }
         issueRefresh();
     }

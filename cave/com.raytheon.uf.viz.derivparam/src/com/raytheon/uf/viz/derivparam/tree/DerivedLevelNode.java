@@ -65,6 +65,8 @@ import com.raytheon.uf.viz.derivparam.library.IDerivParamField;
 
 public class DerivedLevelNode extends AbstractDerivedLevelNode {
 
+    private static final int TIME_QUERY_CACHE_TIME = 30000;
+
     private Map<IDerivParamField, AbstractRequestableData> fieldStaticData = null;
 
     private Map<DerivParamField, AbstractRequestableLevelNode> fields = null;
@@ -74,6 +76,8 @@ public class DerivedLevelNode extends AbstractDerivedLevelNode {
      * it can be used to correlate times when requesting data.
      */
     private Map<DerivParamField, Set<DataTime>> timeCache = null;
+
+    private long lastTimeQuery = 0;
 
     private int dt;
 
@@ -149,6 +153,7 @@ public class DerivedLevelNode extends AbstractDerivedLevelNode {
             Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
             Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
             throws VizException {
+        this.lastTimeQuery = System.currentTimeMillis();
         Map<DerivParamField, Set<DataTime>> timeCache = new HashMap<DerivParamField, Set<DataTime>>();
         // We have a derived parameter for the requested grid
         Set<DataTime> availableDataTimes = null;
@@ -277,7 +282,9 @@ public class DerivedLevelNode extends AbstractDerivedLevelNode {
             int timeOut,
             Map<AbstractRequestableLevelNode, List<AbstractRequestableData>> cache)
             throws VizException {
-        if (this.timeCache == null) {
+        if (this.timeCache == null
+                || this.lastTimeQuery + TIME_QUERY_CACHE_TIME < System
+                        .currentTimeMillis()) {
             this.timeQuery(false);
         }
 
