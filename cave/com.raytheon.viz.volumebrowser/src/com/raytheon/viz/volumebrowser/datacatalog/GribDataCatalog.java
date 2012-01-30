@@ -21,6 +21,7 @@ package com.raytheon.viz.volumebrowser.datacatalog;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -43,6 +44,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 import com.raytheon.uf.viz.core.level.LevelUtilities;
@@ -177,11 +179,16 @@ public class GribDataCatalog extends AbstractInventoryDataCatalog {
                                 .getInvalidLevelValueAsString()));
             } else {
                 // Get all possible levels for the selected levels
-                LevelMappingFactory lmf = LevelMappingFactory.getInstance();
-                List<Level> selectedLevels = new ArrayList<Level>(lmf
-                        .getLevelMappingForKey(catalogEntry.selectedPlanesKey)
-                        .getLevels());
-
+                List<Level> selectedLevels = Collections.emptyList();
+                try {
+                    LevelMappingFactory lmf = LevelMappingFactory.getInstance();
+                    selectedLevels = new ArrayList<Level>(lmf
+                            .getLevelMappingForKey(
+                                    catalogEntry.selectedPlanesKey).getLevels());
+                } catch (VizCommunicationException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
+                }
                 RequestConstraint masterRC = new RequestConstraint(null,
                         ConstraintType.IN);
                 RequestConstraint oneRC = new RequestConstraint(null,
@@ -355,21 +362,34 @@ public class GribDataCatalog extends AbstractInventoryDataCatalog {
     @Override
     protected Collection<? extends Level> get3DLevels() {
         ArrayList<Level> all = new ArrayList<Level>();
-        NavigableSet<Level> tilts = LevelUtilities
-                .getOrderedSetOfStandardLevels("TILT");
-        if (tilts != null) {
-            all.addAll(tilts);
+        try {
+            NavigableSet<Level> tilts = LevelUtilities
+                    .getOrderedSetOfStandardLevels("TILT");
+            if (tilts != null) {
+                all.addAll(tilts);
+            }
+        } catch (VizCommunicationException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
-        NavigableSet<Level> pres = LevelUtilities
-                .getOrderedSetOfStandardLevels("MB");
-        if (pres != null) {
-            all.addAll(pres);
+        try {
+            NavigableSet<Level> pres = LevelUtilities
+                    .getOrderedSetOfStandardLevels("MB");
+            if (pres != null) {
+                all.addAll(pres);
+            }
+        } catch (VizCommunicationException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
-        NavigableSet<Level> theta = LevelUtilities
-                .getOrderedSetOfStandardLevels("K");
-        if (theta != null) {
-            all.addAll(theta);
+        try {
+            NavigableSet<Level> theta = LevelUtilities
+                    .getOrderedSetOfStandardLevels("K");
+            if (theta != null) {
+                all.addAll(theta);
+            }
+        } catch (VizCommunicationException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
+
         return all;
     }
 
