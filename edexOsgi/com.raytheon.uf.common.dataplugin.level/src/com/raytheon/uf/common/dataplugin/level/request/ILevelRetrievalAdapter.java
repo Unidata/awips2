@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.common.dataplugin.level.request;
 
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelContainer;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
@@ -39,16 +40,21 @@ import com.raytheon.uf.common.dataplugin.level.MasterLevelContainer;
  * @version 1.0
  */
 public interface ILevelRetrievalAdapter {
-    public abstract Level getLevel(GetLevelRequest request);
+    public abstract Level getLevel(GetLevelRequest request)
+            throws CommunicationException;
 
-    public abstract Level getLevel(GetLevelByIdRequest request);
+    public abstract Level getLevel(GetLevelByIdRequest request)
+            throws CommunicationException;
 
-    public abstract MasterLevel getMasterLevel(GetMasterLevelRequest request);
+    public abstract MasterLevel getMasterLevel(GetMasterLevelRequest request)
+            throws CommunicationException;
 
     public abstract LevelContainer getAllLevelsForMasterLevel(
-            GetAllLevelsForMasterLevelRequest request);
+            GetAllLevelsForMasterLevelRequest request)
+            throws CommunicationException;
 
-    public abstract LevelContainer getAllLevels();
+    public abstract LevelContainer getAllLevels() throws CommunicationException;
 
-    public abstract MasterLevelContainer getAllMasterLevels();
+    public abstract MasterLevelContainer getAllMasterLevels()
+            throws CommunicationException;
 }
