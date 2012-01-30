@@ -48,7 +48,6 @@ public class RadarPlotInfoRetriever extends AbstractDbPlotInfoRetriever {
 
     @Override
     protected void addColumns(DbQuery dq) {
-        dq.addColumn("id");
         dq.addColumn("location.lat");
         dq.addColumn("location.lon");
         dq.addColumn("icao");
@@ -59,15 +58,14 @@ public class RadarPlotInfoRetriever extends AbstractDbPlotInfoRetriever {
     @Override
     protected PlotInfo getPlotInfo(Object[] data) {
         PlotInfo stationInfo = new PlotInfo();
-        stationInfo.id = (Integer) data[0];
-        stationInfo.latitude = ((Float) data[1]).doubleValue();
-        stationInfo.longitude = ((Float) data[2]).doubleValue();
-        stationInfo.stationId = (String) data[3];
+        stationInfo.latitude = ((Float) data[0]).doubleValue();
+        stationInfo.longitude = ((Float) data[1]).doubleValue();
+        stationInfo.stationId = (String) data[2];
         if (stationInfo.stationId == null) {
-            stationInfo.stationId = "" + data[1] + "#" + data[2];
+            stationInfo.stationId = "" + data[0] + "#" + data[1];
         }
-        stationInfo.dataTime = (DataTime) data[4];
-        stationInfo.dataURI = (String) data[5];
+        stationInfo.dataTime = (DataTime) data[3];
+        stationInfo.dataURI = (String) data[4];
 
         return stationInfo;
     }
