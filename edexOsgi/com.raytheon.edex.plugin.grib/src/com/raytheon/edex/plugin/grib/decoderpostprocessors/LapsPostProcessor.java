@@ -21,6 +21,7 @@
 package com.raytheon.edex.plugin.grib.decoderpostprocessors;
 
 import com.raytheon.edex.plugin.grib.util.GribModelCache;
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.grib.GribModel;
 import com.raytheon.uf.common.dataplugin.grib.GribRecord;
 import com.raytheon.uf.common.dataplugin.grib.exception.GribException;
@@ -62,9 +63,13 @@ public class LapsPostProcessor implements IDecoderPostProcessor {
         GribModel gribModel = record.getModelInfo();
         boolean modelInfoModified = false;
         if (levelName.equals(FHAG)) {
-            Level sfcLevel = LevelFactory.getInstance().getLevel(SFC, 0);
-            gribModel.setLevel(sfcLevel);
-            modelInfoModified = true;
+            try {
+                Level sfcLevel = LevelFactory.getInstance().getLevel(SFC, 0);
+                gribModel.setLevel(sfcLevel);
+                modelInfoModified = true;
+            } catch (CommunicationException e) {
+                throw new GribException("Error modifying LAPS records.", e);
+            }
         }
 
         if (gribModel.getParameterAbbreviation().equals(PMSL)) {
