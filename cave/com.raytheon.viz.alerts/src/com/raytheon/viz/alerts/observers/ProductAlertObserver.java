@@ -299,20 +299,16 @@ public class ProductAlertObserver implements INotificationObserver {
             if ((payLoad instanceof DataURINotificationMessage)
                     || (CAVEMode.getMode().equals(CAVEMode.PRACTICE) && payLoad instanceof PracticeDataURINotificationMessage)) {
                 String[] dataURIs = null;
-                int[] ids = null;
                 if (payLoad instanceof DataURINotificationMessage) {
                     DataURINotificationMessage uriMsg = (DataURINotificationMessage) payLoad;
                     dataURIs = uriMsg.getDataURIs();
-                    ids = uriMsg.getIds();
                 } else {
                     PracticeDataURINotificationMessage uriMsg = (PracticeDataURINotificationMessage) payLoad;
                     dataURIs = uriMsg.getDataURIs();
-                    ids = uriMsg.getIds();
                 }
                 for (int i = 0; i < dataURIs.length; ++i) {
                     String str = dataURIs[i];
-                    Integer id = ids[i];
-                    processDataURI(str, id);
+                    processDataURI(str);
                 }
 
                 startWrappers();
@@ -338,12 +334,12 @@ public class ProductAlertObserver implements INotificationObserver {
 
     public static void processDerivedAlerts(Collection<String> datauris) {
         for (String datauri : datauris) {
-            getInstance().processDataURI(datauri, 0);
+            getInstance().processDataURI(datauri);
         }
         getInstance().startWrappers();
     }
 
-    private void processDataURI(String datauri, int id) {
+    private void processDataURI(String datauri) {
         if (datauri == null)
             return;
         try {
@@ -363,7 +359,6 @@ public class ProductAlertObserver implements INotificationObserver {
             }
 
             AlertMessage am = new AlertMessage();
-            am.id = id;
             am.dataURI = datauri;
             am.decodedAlert = Collections.unmodifiableMap(attribs);
             List<IAlertObserver> obsList = observers.get(NO_FILTER_CONSTANT);
