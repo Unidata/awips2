@@ -27,18 +27,20 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.style.level.SingleLevel;
 import com.raytheon.uf.viz.core.style.level.Level.LevelType;
+import com.raytheon.uf.viz.core.style.level.SingleLevel;
 
 /**
  * Resource Data for Objective Analysis
@@ -161,8 +163,8 @@ public class OAResourceData extends AbstractRequestableResourceData {
             throw new UnsupportedOperationException("Unsupported level for OA "
                     + levelKey);
         }
-        level.setValue(Double.parseDouble(levelKey.substring(0, levelKey
-                .length() - 2)));
+        level.setValue(Double.parseDouble(levelKey.substring(0,
+                levelKey.length() - 2)));
         return level;
     }
 
@@ -194,7 +196,12 @@ public class OAResourceData extends AbstractRequestableResourceData {
         DataTime[] times = super.getAvailableTimes();
         if (this.levelKey.equals(ALL_TILTS)) {
             LevelFactory factory = LevelFactory.getInstance();
-            MasterLevel ml = factory.getMasterLevel("TILT");
+            MasterLevel ml;
+            try {
+                ml = factory.getMasterLevel("TILT");
+            } catch (CommunicationException e) {
+                throw new VizCommunicationException(e);
+            }
             Set<Level> allLevels = LevelMappingFactory.getInstance()
                     .getAllLevels();
             List<Level> levels = new ArrayList<Level>();
