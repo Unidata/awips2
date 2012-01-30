@@ -31,7 +31,6 @@
          <packagereq type="default">awips2-edex-text</packagereq>
          <packagereq type="default">awips2-edex-shapefiles</packagereq>
          <packagereq type="default">awips2-edex-configuration</packagereq>
-         <packagereq type="default">awips2-edex-ncep-nsharp</packagereq>
          <packagereq type="default">awips2-edex-npp</packagereq>
          <packagereq type="default">awips2-edex-ncep</packagereq>
          <packagereq type="default">awips2-gfesuite-server</packagereq>
@@ -112,7 +111,6 @@
          <packagereq type="default">awips2-cave-viz-ncep-core</packagereq>
          <packagereq type="default">awips2-cave-viz-ncep-dataplugins</packagereq>
          <packagereq type="default">awips2-cave-viz-ncep-displays</packagereq>
-         <packagereq type="default">awips2-cave-viz-ncep-nsharp</packagereq>
          <packagereq type="default">awips2-cave-viz-ncep-perspective</packagereq>
          <packagereq type="default">awips2-cave-viz-radar</packagereq>
          <packagereq type="default">awips2-cave-viz-satellite</packagereq>
@@ -181,7 +179,6 @@
          <packagereq type="default">awips2-edex-shapefiles</packagereq>
          <packagereq type="default">awips2-edex-text</packagereq>
          <packagereq type="default">awips2-edex-ncep</packagereq>
-         <packagereq type="default">awips2-edex-ncep-nsharp</packagereq>
          <packagereq type="default">awips2-edex-npp</packagereq>
          <packagereq type="default">awips2-gfesuite-server</packagereq>
 
@@ -427,7 +424,6 @@
 		 <packagereq type="default">awips2-cave-viz-ncep-core</packagereq>
 		 <packagereq type="default">awips2-cave-viz-ncep-dataplugins</packagereq>
 		 <packagereq type="default">awips2-cave-viz-ncep-displays</packagereq>
-		 <packagereq type="default">awips2-cave-viz-ncep-nsharp</packagereq>
 		 <packagereq type="default">awips2-cave-viz-ncep-perspective</packagereq>
 		 <packagereq type="default">awips2-cave-viz-radar</packagereq>
 		 <packagereq type="default">awips2-cave-viz-satellite</packagereq>
