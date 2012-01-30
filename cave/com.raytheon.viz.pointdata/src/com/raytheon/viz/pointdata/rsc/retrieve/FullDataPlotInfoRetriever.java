@@ -57,9 +57,6 @@ public class FullDataPlotInfoRetriever extends AbstractPlotInfoRetriever {
     private String parameters;
 
     @XmlAttribute
-    private String id = "id";
-
-    @XmlAttribute
     private String stationId = null;
 
     @XmlAttribute
@@ -77,7 +74,6 @@ public class FullDataPlotInfoRetriever extends AbstractPlotInfoRetriever {
     private String[] getParameters() {
         List<String> parameters = new ArrayList<String>();
         parameters.addAll(Arrays.asList(this.parameters.split(",")));
-        parameters.add(id);
         if (stationId != null) {
             parameters.add(stationId);
         }
@@ -86,7 +82,6 @@ public class FullDataPlotInfoRetriever extends AbstractPlotInfoRetriever {
         parameters.add(validTime);
         if (fcstTime != null) {
             parameters.add(fcstTime);
-            ;
         }
         parameters.add("dataURI");
         return parameters.toArray(new String[0]);
@@ -122,7 +117,6 @@ public class FullDataPlotInfoRetriever extends AbstractPlotInfoRetriever {
                     PointDataView pdv = pdc.readRandom(uriCounter);
                     PlotInfo info = new PlotInfo();
                     info.pdv.addData(pdv);
-                    info.id = pdv.getInt(id);
                     if (stationId != null) {
                         info.stationId = pdv.getString(stationId);
                     }
