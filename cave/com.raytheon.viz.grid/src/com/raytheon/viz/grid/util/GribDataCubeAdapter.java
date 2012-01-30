@@ -56,6 +56,9 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
@@ -65,7 +68,6 @@ import com.raytheon.uf.viz.core.datastructure.VizDataCubeException;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
 import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
 import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode.Dependency;
@@ -89,12 +91,12 @@ import com.raytheon.viz.grid.record.RequestableDataRecord;
  * @version 1.0
  */
 public class GribDataCubeAdapter implements IDataCubeAdapter {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(GribDataCubeAdapter.class);
 
     private static final String DERIVED = "DERIVED";
 
     private GridInventory gridInventory;
-
-    private Map<String, DerivParamDesc> derParLibrary;
 
     protected void getTimeQuery(
             AbstractRequestableLevelNode req,
@@ -293,17 +295,33 @@ public class GribDataCubeAdapter implements IDataCubeAdapter {
 
     @Override
     public void initInventory() {
-        derParLibrary = DerivedParameterGenerator.getDerParLibrary();
         if (gridInventory == null) {
             GridInventory gridInventory = new GridInventory();
-            gridInventory.initTree(derParLibrary);
-            this.gridInventory = gridInventory;
+            try {
+                gridInventory.initTree(DerivedParameterGenerator
+                        .getDerParLibrary());
+                this.gridInventory = gridInventory;
+            } catch (VizException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
         }
 
     }
 
     @Override
     public Object getInventory() {
+        if (gridInventory == null) {
+            GridInventory gridInventory = new GridInventory();
+            try {
+                gridInventory.initTree(DerivedParameterGenerator
+                        .getDerParLibrary());
+                this.gridInventory = gridInventory;
+            } catch (VizException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
+        }
         return gridInventory;
     }
 
