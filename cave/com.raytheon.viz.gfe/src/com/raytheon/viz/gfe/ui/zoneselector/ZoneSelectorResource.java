@@ -60,7 +60,6 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.maps.rsc.AbstractDbMapResourceData.ColumnDefinition;
-import com.raytheon.uf.viz.core.maps.rsc.MapQueryCache;
 import com.raytheon.uf.viz.core.maps.rsc.DbMapResource;
 import com.raytheon.uf.viz.core.maps.rsc.DbMapResourceData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
@@ -203,7 +202,7 @@ public class ZoneSelectorResource extends DbMapResource {
 
                     // System.out.println(req.query);
                     // long t0 = System.currentTimeMillis();
-                    QueryResult mappedResult = MapQueryCache
+                    QueryResult mappedResult = DirectDbQuery
                             .executeMappedQuery(req.query, "maps",
                                     QueryLanguage.SQL);
 
@@ -984,7 +983,6 @@ public class ZoneSelectorResource extends DbMapResource {
         return zoneNames;
     }
 
-    @Override
     protected String getGeospatialConstraint(String geometryField, Envelope env) {
         StringBuilder constraint = new StringBuilder();
 
