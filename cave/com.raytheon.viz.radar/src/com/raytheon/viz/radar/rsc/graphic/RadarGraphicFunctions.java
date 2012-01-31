@@ -847,7 +847,7 @@ public class RadarGraphicFunctions {
 
     private static Document loadSVG(String plotModelFile) throws VizException {
         Document document = null;
-        document = docMap.get(plotModelFile);
+        // document = docMap.get(plotModelFile);
         if (document == null) {
 
             String parser = XMLResourceDescriptor.getXMLParserClassName();
