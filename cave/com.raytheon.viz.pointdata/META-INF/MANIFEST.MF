@@ -22,6 +22,7 @@ Require-Bundle: org.apache.batik,
  com.raytheon.uf.common.pointdata;bundle-version="1.12.1174"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.pointdata,
+ com.raytheon.viz.pointdata.drawables,
  com.raytheon.viz.pointdata.rsc,
  com.raytheon.viz.pointdata.rsc.retrieve,
  com.raytheon.viz.pointdata.util
