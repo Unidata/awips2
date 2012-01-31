@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.core.maps.rsc;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -29,7 +28,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelExtent;
-import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
@@ -152,25 +150,10 @@ public abstract class AbstractDbMapResource<T extends AbstractDbMapResourceData,
      */
     public List<String> getLabelFields() {
         if (this.labelFields == null) {
-            List<String> labelFields = new ArrayList<String>();
             try {
-                int p = resourceData.getTable().indexOf('.');
-                String schema = resourceData.getTable().substring(0, p);
-                String table = resourceData.getTable().substring(p + 1);
-
-                StringBuilder query = new StringBuilder(
-                        "SELECT column_name FROM information_schema.columns WHERE table_schema = '");
-                query.append(schema);
-                query.append("' AND table_name='");
-                query.append(table);
-                query.append("' AND udt_name != 'geometry' ORDER BY ordinal_position;");
-                List<Object[]> results = MapQueryCache.executeQuery(
-                        query.toString(), "maps", QueryLanguage.SQL);
-
-                for (Object[] obj : results) {
-                    labelFields.add(obj[0].toString());
-                }
-
+                this.labelFields = DbMapQueryFactory.getMapQuery(
+                        resourceData.getTable(), resourceData.getGeomField())
+                        .getColumnNamesWithoutGeometries();
                 ColumnDefinition[] columns = resourceData.getColumns();
                 if (columns != null) {
                     for (ColumnDefinition col : columns) {
@@ -181,7 +164,6 @@ public abstract class AbstractDbMapResource<T extends AbstractDbMapResourceData,
                 statusHandler.handle(Priority.PROBLEM,
                         "Error querying available label fields", e);
             }
-            this.labelFields = labelFields;
         }
         return this.labelFields;
     }
