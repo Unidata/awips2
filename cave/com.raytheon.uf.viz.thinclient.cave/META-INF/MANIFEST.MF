@@ -17,6 +17,10 @@ Require-Bundle: com.raytheon.uf.viz.core,
 Import-Package: com.raytheon.uf.common.comm,
  com.raytheon.uf.common.datastorage,
  com.raytheon.uf.viz.core.maps.rsc,
+ com.vividsolutions.jts.geom,
+ com.vividsolutions.jts.index.strtree,
+ com.vividsolutions.jts.io,
  javax.jms
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.uf.viz.thinclient.cave.cache.map
