@@ -128,7 +128,8 @@ public class TimeTools {
 
     /**
      * Get a calendar that expresses the current system time based from specified
-     * date information if the 
+     * date information only if the archive flag is set. Otherwise the current
+     * system time is returned. 
      * @param year Year to set.
      * @param month
      * @param day
@@ -503,7 +504,7 @@ public class TimeTools {
      * @return Is the month valid?
      */
     public static final boolean isValidMonth(int month) {
-        return ((month > -1)&&(month <= 12));
+        return ((month > 0)&&(month <= 12));
     }
 
     /**
