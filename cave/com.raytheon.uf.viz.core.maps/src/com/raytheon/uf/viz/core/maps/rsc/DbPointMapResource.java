@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.core.maps.rsc;
 import java.awt.geom.Rectangle2D;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
@@ -32,6 +33,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 
+import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.pointdata.vadriver.VA_Advanced;
@@ -45,7 +47,6 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.PointStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.PixelExtent;
-import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
@@ -158,18 +159,19 @@ public class DbPointMapResource extends
         private class Request {
             DbPointMapResource rsc;
 
-            boolean labeled;
+            String labelField;
 
-            boolean useGoodness;
+            String goodnessField;
 
-            String query;
+            Envelope env;
 
-            Request(DbPointMapResource rsc, String query, boolean labeled,
-                    boolean useGoodness) {
+            public Request(DbPointMapResource rsc, String labelField,
+                    String goodnessField, Envelope env) {
+                super();
                 this.rsc = rsc;
-                this.query = query;
-                this.labeled = labeled;
-                this.useGoodness = useGoodness;
+                this.labelField = labelField;
+                this.goodnessField = goodnessField;
+                this.env = env;
             }
 
         }
@@ -200,11 +202,12 @@ public class DbPointMapResource extends
         }
 
         public void request(IGraphicsTarget target, DbPointMapResource rsc,
-                String query, boolean labeled, boolean useGoodness) {
+                Envelope envelope, String labelField, String goodnessField) {
             if (requestQueue.size() == QUEUE_LIMIT) {
                 requestQueue.poll();
             }
-            requestQueue.add(new Request(rsc, query, labeled, useGoodness));
+            requestQueue.add(new Request(rsc, labelField, goodnessField,
+                    envelope));
 
             this.cancel();
             this.schedule();
@@ -226,10 +229,37 @@ public class DbPointMapResource extends
             while (req != null) {
                 Result result = new Result();
                 try {
-                    System.out.println(req.query);
                     long t0 = System.currentTimeMillis();
-                    List<Object[]> results = MapQueryCache.executeQuery(
-                            req.query, "maps", QueryLanguage.SQL);
+                    List<String> columns = new ArrayList<String>();
+                    if (req.labelField != null) {
+                        columns.add(req.labelField);
+                    }
+                    if (req.goodnessField != null
+                            && req.goodnessField != req.labelField) {
+                        columns.add(req.goodnessField);
+                    }
+                    if (resourceData.getColumns() != null) {
+                        for (ColumnDefinition column : resourceData
+                                .getColumns()) {
+                            if (columns.contains(column.getName())) {
+                                columns.remove(column.getName());
+                            }
+                            columns.add(column.toString());
+                        }
+                    }
+                    columns.add("AsBinary(" + resourceData.getGeomField()
+                            + ") as " + resourceData.getGeomField());
+
+                    List<String> constraints = null;
+                    if (resourceData.getConstraints() != null) {
+                        constraints = Arrays.asList(resourceData
+                                .getConstraints());
+                    }
+
+                    QueryResult results = DbMapQueryFactory.getMapQuery(
+                            resourceData.getTable(),
+                            resourceData.getGeomField()).queryWithinEnvelope(
+                            req.env, columns, constraints);
 
                     long t1 = System.currentTimeMillis();
                     System.out.println("Maps DB query took: " + (t1 - t0)
@@ -238,41 +268,48 @@ public class DbPointMapResource extends
                     List<LabelNode> newLabels = new ArrayList<LabelNode>();
 
                     WKBReader wkbReader = new WKBReader();
-                    for (Object[] r : results) {
+                    for (int c = 0; c < results.getResultCount(); c++) {
                         if (canceled) {
                             canceled = false;
                             result = null;
                             // System.out.println("MapQueryJob Canceled.");
                             return Status.CANCEL_STATUS;
                         }
-                        int i = 0;
                         Geometry g = null;
-                        if (r[i] instanceof byte[]) {
-                            byte[] wkb = (byte[]) r[i++];
+                        Object geomObj = results.getRowColumnValue(c,
+                                resourceData.getGeomField());
+                        if (geomObj instanceof byte[]) {
+                            byte[] wkb = (byte[]) geomObj;
                             g = wkbReader.read(wkb);
                         } else {
                             statusHandler.handle(Priority.ERROR,
                                     "Expected byte[] received "
-                                            + r[i].getClass().getName() + ": "
-                                            + r[i].toString() + "\n  query=\""
-                                            + req.query + "\"");
+                                            + geomObj.getClass().getName()
+                                            + ": " + geomObj.toString()
+                                            + "\n  query=\"" + req.env + "\"");
                         }
 
                         if (g != null) {
                             String label = "";
-                            if (req.labeled && r[i] != null) {
-                                if (r[i] instanceof BigDecimal) {
-                                    label = Double.toString(((Number) r[i++])
+                            if (req.labelField != null
+                                    && results.getRowColumnValue(c,
+                                            req.labelField) != null) {
+                                Object r = results.getRowColumnValue(c,
+                                        req.labelField);
+                                if (r instanceof BigDecimal) {
+                                    label = Double.toString(((Number) r)
                                             .doubleValue());
                                 } else {
-                                    label = r[i++].toString();
+                                    label = r.toString();
                                 }
                             }
                             LabelNode node = new LabelNode(label,
                                     g.getCentroid());
 
-                            if (req.useGoodness) {
-                                node.setGoodness(((Number) r[i++]).intValue());
+                            if (req.goodnessField != null) {
+                                node.setGoodness(((Number) results
+                                        .getRowColumnValue(c, req.goodnessField))
+                                        .intValue());
                             }
                             newLabels.add(node);
                         }
@@ -293,7 +330,7 @@ public class DbPointMapResource extends
                     }
                     Double[] distances;
 
-                    if (req.useGoodness) {
+                    if (req.goodnessField != null) {
                         distances = distanceCalc.getVaAdvanced(coords,
                                 goodness, dst);
                     } else {
@@ -358,7 +395,7 @@ public class DbPointMapResource extends
         queryJob = new MapQueryJob();
     }
 
-    private String buildQuery(IGraphicsTarget target, PixelExtent extent)
+    private void requestData(IGraphicsTarget target, PixelExtent extent)
             throws VizException {
 
         Envelope env = null;
@@ -370,62 +407,13 @@ public class DbPointMapResource extends
         } catch (Exception e) {
             throw new VizException("Error transforming extent", e);
         }
-        // System.out.println(env);
-
-        String geometryField = resourceData.getGeomField();
-
-        // create the geospatial constraint from the envelope
-        String geoConstraint = String.format(
-                "%s && ST_SetSrid('BOX3D(%f %f, %f %f)'::box3d,4326)",
-                geometryField, env.getMinX(), env.getMinY(), env.getMaxX(),
-                env.getMaxY());
-
-        // get the geometry field
-        StringBuilder query = new StringBuilder("SELECT AsBinary(");
-        query.append(geometryField);
-        query.append(")");
 
         // add the label field
         String labelField = getCapability(LabelableCapability.class)
                 .getLabelField();
-        if (labelField != null) {
-            query.append(", ");
-            query.append(labelField);
-        }
 
-        // add the goodness field
-        if (resourceData.getGoodnessField() != null) {
-            query.append(", ");
-            query.append(resourceData.getGoodnessField());
-        }
-
-        // add any additional columns
-        if (resourceData.getColumns() != null) {
-            for (ColumnDefinition column : resourceData.getColumns()) {
-                query.append(", ");
-                query.append(column);
-            }
-        }
-
-        // add the geometry table
-        query.append(" FROM ");
-        query.append(resourceData.getTable());
-
-        // add the geo constraint
-        query.append(" WHERE ");
-        query.append(geoConstraint);
-
-        // add any addtional constraints
-        if (resourceData.getConstraints() != null) {
-            for (String constraint : resourceData.getConstraints()) {
-                query.append(" AND ");
-                query.append(constraint);
-            }
-        }
-
-        query.append(';');
-
-        return query.toString();
+        queryJob.request(target, this, env, labelField,
+                resourceData.getGoodnessField());
     }
 
     @Override
@@ -454,9 +442,7 @@ public class DbPointMapResource extends
                         clipToProjExtent(screenExtent).getEnvelope())) {
             if (!paintProps.isZooming()) {
                 PixelExtent expandedExtent = getExpandedExtent(screenExtent);
-                String query = buildQuery(aTarget, expandedExtent);
-                queryJob.request(aTarget, this, query, isLabeled,
-                        resourceData.getGoodnessField() != null);
+                requestData(aTarget, expandedExtent);
                 lastExtent = expandedExtent;
                 lastLabelField = labelField;
             }
