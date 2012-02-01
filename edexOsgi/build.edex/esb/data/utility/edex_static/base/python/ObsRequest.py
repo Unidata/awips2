@@ -62,7 +62,7 @@ class ObsRequest(PointDataQuery.PointDataQuery):
         self._pdq.setParameters(MetarPointDataTransform.ALL_PARAMS_LIST)        
         self.queryResults = self._pdq.execute()
         if self.queryResults is None:
-            self.makeNullResponse()
+            return self.makeNullResponse()
         else:
             records = MetarPointDataTransform.toMetarRecords(self.queryResults)
             size = len(records)
