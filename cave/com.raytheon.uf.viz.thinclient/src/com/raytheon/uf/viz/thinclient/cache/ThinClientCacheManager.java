@@ -63,6 +63,9 @@ public class ThinClientCacheManager implements IPropertyChangeListener {
         // We'll always store the cache data to the file system
         long t0 = System.currentTimeMillis();
         File thinClientCacheDir = this.thinClientCacheDir;
+        if (!thinClientCacheDir.exists()) {
+            thinClientCacheDir.mkdirs();
+        }
         for (AbstractCachePersistance persistance : persistors) {
             String fileName = persistance.getFileName();
             File cacheFile = new File(thinClientCacheDir, fileName);
@@ -71,6 +74,8 @@ public class ThinClientCacheManager implements IPropertyChangeListener {
             } catch (Throwable t) {
                 t.printStackTrace();
             }
+            cacheFile.setReadable(true, false);
+            cacheFile.setWritable(true, false);
         }
         System.out.println("Time to store thin client caches: "
                 + (System.currentTimeMillis() - t0) + "ms");
