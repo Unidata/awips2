@@ -33,7 +33,10 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.services.IServiceLocator;
 
+import com.raytheon.uf.viz.core.ContextManager;
 import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
@@ -157,6 +160,37 @@ public class TearOffMenuDialog extends CaveSWTDialog {
                 close();
             }
         });
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#opened()
+     */
+    @Override
+    protected void opened() {
+        final IServiceLocator locator = PlatformUI.getWorkbench();
+
+        Listener activate = new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                ContextManager.getInstance(locator).activateContexts(
+                        perspectiveManager);
+            }
+        };
+        Listener deactivate = new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                ContextManager.getInstance(locator).deactivateContexts(
+                        perspectiveManager);
+            }
+        };
+
+        addListener(SWT.Activate, activate);
+        addListener(SWT.Deactivate, deactivate);
+        addListener(SWT.Close, deactivate);
+
+        activate.handleEvent(new Event());
     }
 
     @Override
