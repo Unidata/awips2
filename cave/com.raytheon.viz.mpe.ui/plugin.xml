@@ -1610,6 +1610,8 @@
 	      point="com.raytheon.uf.viz.core.classContext">
 	      <classContext
              class="com.raytheon.viz.mpe.ui.perspective.MPEPerspectiveManager">
+              <contextId id="com.raytheon.viz.MPEActionSet">
+	          </contextId>
 	          <contextId id="com.raytheon.viz.mpe.ui.MPE">
 	          </contextId>
 	          <contextId id="com.raytheon.viz.ui.tools.nav.zoom">
