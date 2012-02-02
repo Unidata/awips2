@@ -31,7 +31,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
 import org.eclipse.jface.action.IContributionItem;
-import org.eclipse.jface.action.IMenuListener;
 
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.menus.MenuSerialization;
@@ -45,7 +44,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.ui.menus.DiscoverMenuContributions;
-import com.raytheon.uf.viz.ui.menus.widgets.IncludeContributionItem;
 import com.raytheon.uf.viz.ui.menus.widgets.SubmenuContributionItem;
 
 /**
@@ -65,13 +63,11 @@ import com.raytheon.uf.viz.ui.menus.widgets.SubmenuContributionItem;
  */
 
 public class IncludeMenuItem extends CommonIncludeMenuItem implements
-        IContribItemProvider, ISerializableObject, IVizMenuManager {
+        IContribItemProvider, ISerializableObject {
     static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(IncludeMenuItem.class);
 
     private SubmenuContributionItem submenuCont = null;
-
-    private IMenuListener mListener = null;
 
     /*
      * (non-Javadoc)
@@ -87,7 +83,7 @@ public class IncludeMenuItem extends CommonIncludeMenuItem implements
             throws VizException {
         if (subMenuName != null) {
             submenuCont = new SubmenuContributionItem(incomingSubs,
-                    subMenuName, null, removalsIn, mListener) {
+                    subMenuName, null, removalsIn) {
 
                 @Override
                 protected synchronized IContributionItem[][] getContributionItems() {
@@ -115,9 +111,7 @@ public class IncludeMenuItem extends CommonIncludeMenuItem implements
             };
             return new IContributionItem[] { submenuCont };
         }
-        // return getAllContributionItems(items, incomingSubs, removalsIn);
-        return new IContributionItem[] { new IncludeContributionItem(this,
-                items, incomingSubs, removalsIn) };
+        return getAllContributionItems(items, incomingSubs, removalsIn);
     }
 
     public IContributionItem[] getAllContributionItems(
@@ -178,21 +172,5 @@ public class IncludeMenuItem extends CommonIncludeMenuItem implements
                     + fileName, e);
         }
 
-    }
-
-    @Override
-    public void addMenuListener(IMenuListener listener) {
-        mListener = listener;
-        // can't add it to the submenu if the submenu doesn't exist
-        if (submenuCont != null) {
-            submenuCont.addMenuListener(mListener);
-        }
-    }
-
-    @Override
-    public void removeMenuListener(IMenuListener listener) {
-        if (submenuCont != null) {
-            submenuCont.removeMenuListener(listener);
-        }
     }
 }

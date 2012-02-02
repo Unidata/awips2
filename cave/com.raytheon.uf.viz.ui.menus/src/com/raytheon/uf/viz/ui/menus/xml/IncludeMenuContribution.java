@@ -60,8 +60,6 @@ import com.raytheon.uf.viz.ui.menus.widgets.SubmenuContributionItem;
 public class IncludeMenuContribution extends
         AbstractMenuContributionItem<CommonIncludeMenuContribution> {
 
-    private SubmenuContributionItem submenuCont = null;
-
     @Override
     public IContributionItem[] getContributionItems(
             CommonAbstractMenuContribution items, VariableSubstitution[] subs,
@@ -73,10 +71,9 @@ public class IncludeMenuContribution extends
             newItem.id = item.id;
             newItem.substitutions = item.substitutions;
             newItem.suppressErrors = item.suppressErrors;
-            submenuCont = new SubmenuContributionItem(subs, item.subMenuName,
-                    new CommonAbstractMenuContribution[] { newItem }, removals,
-                    null);
-            return new IContributionItem[] { submenuCont };
+            return new IContributionItem[] { new SubmenuContributionItem(subs,
+                    item.subMenuName,
+                    new CommonAbstractMenuContribution[] { newItem }, removals) };
         }
         return getContributionItemsInternal(items, subs, removals);
     }
