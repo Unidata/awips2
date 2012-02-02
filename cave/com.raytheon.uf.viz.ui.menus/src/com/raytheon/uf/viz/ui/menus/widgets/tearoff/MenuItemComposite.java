@@ -134,6 +134,31 @@ public class MenuItemComposite extends Composite {
                 ((Label) secondItem).setText(labels[0]);
                 gd = new GridData(SWT.LEFT, SWT.CENTER, true, true);
                 secondItem.setLayoutData(gd);
+                item.addSelectionListener(new SelectionAdapter() {
+                    @Override
+                    public void widgetSelected(SelectionEvent e) {
+                        if (e.widget instanceof MenuItem) {
+                            // check that the radio groups match
+                            for (Control comp : firstItem.getParent()
+                                    .getParent().getChildren()) {
+                                MenuItemComposite composite = (MenuItemComposite) comp;
+                                if (composite.item.getText().equals(
+                                        ((MenuItem) e.widget).getText())) {
+                                    if (composite.firstItem instanceof Button) {
+                                        ((Button) composite.firstItem)
+                                                .setSelection(composite.item
+                                                        .getSelection());
+                                    }
+                                } else {
+                                    if (composite.firstItem instanceof Button) {
+                                        ((Button) composite.firstItem)
+                                                .setSelection(false);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
             }
             // check boxes
             // else if (item.getStyle() == SWT.CHECK) {
@@ -181,9 +206,15 @@ public class MenuItemComposite extends Composite {
 
                         @Override
                         public IStatus runInUIThread(IProgressMonitor monitor) {
+                            if (parent == null || parent.isDisposed()
+                                    || parent.getShell() == null
+                                    || parent.getShell().isDisposed()) {
+                                return Status.CANCEL_STATUS;
+                            }
                             if (menu == null || menu.isDisposed()) {
                                 for (MenuItem item : topLevelMenu.getItems()) {
                                     if (item.getMenu() != null) {
+                                        ;
                                         for (Listener list : item.getMenu()
                                                 .getListeners(SWT.Show)) {
                                             Event event = new Event();
@@ -424,6 +455,7 @@ public class MenuItemComposite extends Composite {
                 // if the menu has been opened, then the items need to
                 // be regenerated if there is a submenu, then add the
                 // ability to show it
+                // TODO, actually need to keep them in sync
                 if (item == null || item.isDisposed()) {
                     int start = 0;
                     if (menu.getItemCount() != parent.getChildren().length) {
@@ -507,9 +539,11 @@ public class MenuItemComposite extends Composite {
                             if (mic.getData("radioGroup").equals(
                                     parent.getData("radioGroup"))) {
                                 if (!parent.equals(mic)) {
+                                    item.setSelection(false);
                                     ((Button) mic.firstItem)
                                             .setSelection(false);
                                 } else {
+                                    item.setSelection(true);
                                     ((Button) mic.firstItem).setSelection(true);
                                 }
                             }
@@ -541,7 +575,9 @@ public class MenuItemComposite extends Composite {
             item.getParent().removeListener(SWT.Show, showListener);
             topLevelMenu.removeListener(SWT.Show, showListener);
         }
-        firstItem.dispose();
+        if (firstItem != null) {
+            firstItem.dispose();
+        }
         if (secondItem != null) {
             secondItem.dispose();
         }
