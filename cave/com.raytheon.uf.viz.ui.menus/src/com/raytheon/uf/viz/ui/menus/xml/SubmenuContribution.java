@@ -23,14 +23,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.jface.action.IContributionItem;
-import org.eclipse.jface.action.IMenuListener;
 
 import com.raytheon.uf.common.menus.xml.CommonAbstractMenuContribution;
 import com.raytheon.uf.common.menus.xml.CommonSubmenuContribution;
 import com.raytheon.uf.common.menus.xml.VariableSubstitution;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.ui.menus.widgets.SubmenuContributionItem;
-import com.raytheon.uf.viz.ui.menus.widgets.tearoff.TearOffMenuListener;
 
 /**
  * Describes a submenu contribution
@@ -48,12 +46,7 @@ import com.raytheon.uf.viz.ui.menus.widgets.tearoff.TearOffMenuListener;
  * @version 1.0
  */
 public class SubmenuContribution extends
-        AbstractMenuContributionItem<CommonSubmenuContribution> implements
-        IVizMenuManager {
-
-    private SubmenuContributionItem submenuCont = null;
-
-    private IMenuListener mListener = null;
+        AbstractMenuContributionItem<CommonSubmenuContribution> {
 
     /*
      * (non-Javadoc)
@@ -71,25 +64,8 @@ public class SubmenuContribution extends
         if (removals.contains(item.id))
             return new IContributionItem[0];
 
-        submenuCont = new SubmenuContributionItem(subs, item.menuText,
-                item.contributions, new HashSet<String>(), mListener);
-        // adding tear off listener, seems out of place, but must be done
-        if (mListener == null
-                && com.raytheon.uf.viz.core.Activator.getDefault()
-                        .getPreferenceStore().getBoolean("tearoffmenus")) {
-            mListener = new TearOffMenuListener(submenuCont);
-            submenuCont.addMenuListener(mListener);
-        }
-        return new IContributionItem[] { submenuCont };
+        return new IContributionItem[] { new SubmenuContributionItem(subs,
+                item.menuText, item.contributions, new HashSet<String>()) };
     }
 
-    @Override
-    public void addMenuListener(IMenuListener listener) {
-        mListener = listener;
-    }
-
-    @Override
-    public void removeMenuListener(IMenuListener listener) {
-        submenuCont.removeMenuListener(listener);
-    }
 }
