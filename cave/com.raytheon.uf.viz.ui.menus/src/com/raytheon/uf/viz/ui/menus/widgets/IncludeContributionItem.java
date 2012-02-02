@@ -94,7 +94,7 @@ public class IncludeContributionItem extends ContributionItem {
         if (index == -1) {
             index = menu.getItemCount();
         }
-         getContributionItems();
+        getContributionItems();
         for (int i = 0; i < items.length; i++) {
             IContributionItem item = items[i];
             int oldItemCount = menu.getItemCount();
@@ -113,7 +113,7 @@ public class IncludeContributionItem extends ContributionItem {
         if (index == -1) {
             index = toolbar.getItemCount();
         }
-         getContributionItems();
+        getContributionItems();
         for (int i = 0; i < items.length; i++) {
             IContributionItem item = items[i];
             int oldItemCount = toolbar.getItemCount();
@@ -129,6 +129,16 @@ public class IncludeContributionItem extends ContributionItem {
     @Override
     public boolean isDynamic() {
         return true;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.jface.action.ContributionItem#isDirty()
+     */
+    @Override
+    public boolean isDirty() {
+        return false;
     }
 
     @Override
