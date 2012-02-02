@@ -20,6 +20,7 @@
 package com.raytheon.viz.volumebrowser.vbui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jface.action.IContributionItem;
@@ -32,8 +33,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.menus.IMenuService;
-
-import com.raytheon.uf.viz.ui.menus.widgets.IncludeContributionItem;
 
 /**
  * 
@@ -149,21 +148,6 @@ public class MultiToolbar extends Composite {
         ms.populateContributionManager(tbm, location);
     }
 
-    private List<IContributionItem> getContributionItems(
-            IContributionItem[] items) {
-        List<IContributionItem> list = new ArrayList<IContributionItem>();
-        for (IContributionItem item : items) {
-            if (item instanceof IncludeContributionItem) {
-                IncludeContributionItem includeItem = (IncludeContributionItem) item;
-                list.addAll(getContributionItems(includeItem
-                        .getContributionItems()));
-            } else {
-                list.add(item);
-            }
-        }
-        return list;
-    }
-
     /**
      * split into multiple bars, this is probably why you are using this class.
      * 
@@ -173,7 +157,7 @@ public class MultiToolbar extends Composite {
         this.numBars = numBars;
         List<IContributionItem> items = new ArrayList<IContributionItem>();
         for (ToolBarManager tbm : tbms) {
-            items.addAll(getContributionItems(tbm.getItems()));
+            items.addAll(Arrays.asList(tbm.getItems()));
         }
         disposeToolbars();
         splitContruibutionItems(items, numBars);
