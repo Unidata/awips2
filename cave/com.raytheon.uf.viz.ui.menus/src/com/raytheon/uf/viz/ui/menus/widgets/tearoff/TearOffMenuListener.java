@@ -37,8 +37,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
-import com.raytheon.uf.viz.ui.menus.xml.IVizMenuManager;
-
 /**
  * TODO Add Description
  * 
@@ -72,6 +70,7 @@ public class TearOffMenuListener implements IMenuListener2 {
      */
     @Override
     public void menuAboutToShow(final IMenuManager manager) {
+        // new Exception().printStackTrace();
         register(manager.getItems(), this);
         if (openDialogs.contains(manager) == false) {
             // No open dialog for this menu, add tear off button
@@ -86,8 +85,8 @@ public class TearOffMenuListener implements IMenuListener2 {
      */
     @Override
     public void menuAboutToHide(IMenuManager manager) {
-        unregister(manager.getItems(), this);
         manager.remove(ID);
+        unregister(manager.getItems(), this);
     }
 
     public static void register(IContributionItem[] items,
@@ -95,8 +94,6 @@ public class TearOffMenuListener implements IMenuListener2 {
         for (IContributionItem item : items) {
             if (item instanceof IMenuManager) {
                 ((IMenuManager) item).addMenuListener(listener);
-            } else if (item instanceof IVizMenuManager) {
-                ((IVizMenuManager) item).addMenuListener(listener);
             }
         }
     }
@@ -105,9 +102,7 @@ public class TearOffMenuListener implements IMenuListener2 {
             IMenuListener listener) {
         for (IContributionItem item : items) {
             if (item instanceof IMenuManager) {
-                // ((IMenuManager) item).removeMenuListener(listener);
-            } else if (item instanceof IVizMenuManager) {
-                ((IVizMenuManager) item).removeMenuListener(listener);
+                ((IMenuManager) item).removeMenuListener(listener);
             }
         }
     }
@@ -182,9 +177,12 @@ public class TearOffMenuListener implements IMenuListener2 {
                 @Override
                 public void handleEvent(Event event) {
                     openDialogs.remove(manager);
+                    manager.remove(ID);
+                    unregister(manager.getItems(), TearOffMenuListener.this);
                 }
             });
             openDialogs.add(manager);
+            register(manager.getItems(), TearOffMenuListener.this);
             dialog.open();
         }
 
