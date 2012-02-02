@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jface.action.IContributionItem;
-import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.swt.widgets.Menu;
 
@@ -79,14 +78,11 @@ public class SubmenuContributionItem extends MenuManager {
      */
     public SubmenuContributionItem(VariableSubstitution[] includeSubstitutions,
             String name, CommonAbstractMenuContribution[] ci,
-            Set<String> removals, IMenuListener menuListener) {
+            Set<String> removals) {
         super(processNameSubstitution(includeSubstitutions, name));
         this.subs = includeSubstitutions;
         this.contribs = ci;
         this.removals = removals;
-        if (menuListener != null) {
-            this.addMenuListener(menuListener);
-        }
     }
 
     private static String processNameSubstitution(
