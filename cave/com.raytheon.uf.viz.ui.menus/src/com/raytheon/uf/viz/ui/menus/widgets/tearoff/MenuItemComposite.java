@@ -213,17 +213,22 @@ public class MenuItemComposite extends Composite {
                             }
                             if (menu == null || menu.isDisposed()) {
                                 for (MenuItem item : topLevelMenu.getItems()) {
+
                                     if (item.getMenu() != null) {
-                                        ;
                                         for (Listener list : item.getMenu()
                                                 .getListeners(SWT.Show)) {
-                                            Event event = new Event();
-                                            event.widget = item;
-                                            event.type = SWT.Show;
-                                            list.handleEvent(event);
+                                            try {
+                                                Event event = new Event();
+                                                event.widget = topLevelMenu;
+                                                event.type = SWT.Show;
+                                                list.handleEvent(event);
+                                            } catch (Exception e) {
+                                                // do nothing
+                                            }
                                         }
                                         if (getShell().getText().equals(
-                                                item.getText())) {
+                                                item.getText().replaceAll("&",
+                                                        ""))) {
                                             menu = item.getMenu();
                                             break;
                                         }
@@ -232,6 +237,11 @@ public class MenuItemComposite extends Composite {
                             }
 
                             int start = 0;
+                            if (menu == null || menu.isDisposed()
+                                    || parent == null || parent.isDisposed()
+                                    || parent.getChildren() == null) {
+                                return Status.CANCEL_STATUS;
+                            }
                             if (menu.getItemCount() != parent.getChildren().length) {
                                 start = (menu.getItemCount() - parent
                                         .getChildren().length);
@@ -254,6 +264,28 @@ public class MenuItemComposite extends Composite {
                                             list.handleEvent(e);
                                         }
                                     }
+
+                                    mic.item.addSelectionListener(new SelectionAdapter() {
+                                        public void widgetSelected(
+                                                SelectionEvent e) {
+                                            if (e.widget instanceof MenuItem) {
+                                                if (mic.item.getText().equals(
+                                                        ((MenuItem) e.widget)
+                                                                .getText())) {
+                                                    if (mic.firstItem instanceof Button) {
+                                                        ((Button) mic.firstItem)
+                                                                .setSelection(mic.item
+                                                                        .getSelection());
+                                                    } else {
+                                                        if (mic.firstItem instanceof Button) {
+                                                            ((Button) mic.firstItem)
+                                                                    .setSelection(false);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    });
                                 }
                             }
 
@@ -445,7 +477,8 @@ public class MenuItemComposite extends Composite {
                                 event.type = SWT.Show;
                                 list.handleEvent(event);
                             }
-                            if (getShell().getText().equals(item.getText())) {
+                            if (getShell().getText().equals(
+                                    item.getText().replaceAll("&", ""))) {
                                 menu = item.getMenu();
                                 break;
                             }
@@ -538,12 +571,16 @@ public class MenuItemComposite extends Composite {
                             // check that the radio groups match
                             if (mic.getData("radioGroup").equals(
                                     parent.getData("radioGroup"))) {
-                                if (!parent.equals(mic)) {
-                                    item.setSelection(false);
+                                if (!parent.item
+                                        .getText()
+                                        .replaceAll("&", "")
+                                        .equals(mic.item.getText().replaceAll(
+                                                "&", ""))) {
+                                    mic.item.setSelection(false);
                                     ((Button) mic.firstItem)
                                             .setSelection(false);
                                 } else {
-                                    item.setSelection(true);
+                                    mic.item.setSelection(true);
                                     ((Button) mic.firstItem).setSelection(true);
                                 }
                             }
