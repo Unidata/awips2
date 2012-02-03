@@ -147,6 +147,14 @@ public class TearOffMenuListener implements IMenuListener2 {
             String filled = "- - - - - - TEAR-OFF : "
                     + parent.getParentItem().getText() + " - - - - - -";
             // String filled = "-" * bytes.length
+
+            // safety, not wanting to be permanent, making sure only one shows
+            // up
+            for (MenuItem item : menu.getItems()) {
+                if (item.getText().contains("TEAR-OFF")) {
+                    return;
+                }
+            }
             new ActionContributionItem(new TearOffAction(filled, manager,
                     items, menu)).fill(parent, 0);
         }
