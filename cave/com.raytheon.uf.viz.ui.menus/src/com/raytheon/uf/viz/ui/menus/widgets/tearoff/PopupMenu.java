@@ -28,6 +28,9 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.viz.ui.EditorUtil;
+import com.raytheon.viz.ui.editor.AbstractEditor;
+
 /**
  * The popup menu for when items are populated out of the TearOffMenuDialog
  * 
@@ -81,6 +84,13 @@ public class PopupMenu {
             for (Listener list : menItem.getListeners(SWT.Selection)) {
                 mItem.addListener(SWT.Selection, list);
             }
+
+            mItem.addListener(SWT.Selection, new Listener() {
+                @Override
+                public void handleEvent(Event event) {
+                    ((AbstractEditor) EditorUtil.getActiveEditor()).refresh();
+                }
+            });
 
             // a show listener, so when the menu is shown (in cave) it updates
             // the time in the tear off submenu
@@ -205,10 +215,14 @@ public class PopupMenu {
         // showing the menu in cave (won't actually show), but executes all the
         // listeners to build the menus (since they are built on-demand)
         for (Listener list : item.getMenu().getListeners(SWT.Show)) {
-            Event event = new Event();
-            event.widget = item;
-            event.type = SWT.Show;
-            list.handleEvent(event);
+            try {
+                Event event = new Event();
+                event.widget = item;
+                event.type = SWT.Show;
+                list.handleEvent(event);
+            } catch (Exception e) {
+                // do nothing
+            }
         }
 
         addPopupMenu(item, shell, y);

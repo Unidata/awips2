@@ -22,6 +22,8 @@ package com.raytheon.viz.hydrocommon.actions;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.ui.handlers.HandlerUtil;
+import org.eclipse.ui.handlers.RadioState;
 
 import com.raytheon.viz.hydrocommon.HydroDisplayManager;
 
@@ -47,6 +49,9 @@ public class FontAction extends AbstractHandler {
     public Object execute(ExecutionEvent event) throws ExecutionException {
         HydroDisplayManager manager = HydroDisplayManager.getInstance();
         manager.setFontSize(Integer.parseInt(event.getParameter("size")));
+
+        String newVal = event.getParameter(RadioState.PARAMETER_ID);
+        HandlerUtil.updateRadioState(event.getCommand(), newVal);
 
         return null;
     }
