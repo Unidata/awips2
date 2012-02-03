@@ -130,7 +130,7 @@ public class SubmenuContributionItem extends MenuManager {
 
     @Override
     public boolean isVisible() {
-        return true;
+        return visible;
     }
 
     // call getContributionItems using the getContributionItems JobPool.
