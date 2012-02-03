@@ -19,17 +19,18 @@
  **/
 package com.raytheon.uf.common.dataplugin.persist;
 
-import javax.persistence.Column;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
 import javax.persistence.Entity;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
  * Provides an abstract implementation of plugindataobject with clustered file
@@ -56,11 +57,6 @@ public abstract class PersistablePluginDataObject extends PluginDataObject
 
     private static final long serialVersionUID = 1L;
 
-    @Column
-    @XmlAttribute
-    @DynamicSerializeElement
-    private Integer hdfFileId;
-
     /**
      * Constructor
      */
@@ -80,15 +76,44 @@ public abstract class PersistablePluginDataObject extends PluginDataObject
      * 
      * @see com.raytheon.edex.plugin.IPersistable#getHdfFileId()
      */
+    @Override
     public Integer getHdfFileId() {
-        return hdfFileId;
+        return null;
     }
 
     /**
      * @param hdfFileId
      *            the hdfFileId to set
      */
+    @Override
     public void setHdfFileId(Integer hdfFileId) {
-        this.hdfFileId = hdfFileId;
+    }
+
+    /**
+     * Set the time to be used for the persistence time for this object.
+     * 
+     * @param persistTime
+     *            The persistence time to be used.
+     */
+    @Override
+    public void setPersistenceTime(Date persistTime) {
+        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        c.setTime(persistTime);
+        setInsertTime(c);
+    }
+
+    /**
+     * Get the time to use for persisting this data.
+     * 
+     * @return The persistence time for this data.
+     */
+    @Override
+    public Date getPersistenceTime() {
+        Calendar c = getInsertTime();
+        if (c == null) {
+            return null;
+        }
+
+        return c.getTime();
     }
 }
