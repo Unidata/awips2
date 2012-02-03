@@ -21,7 +21,6 @@ package com.raytheon.edex.plugin.modelsounding.common;
 
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -894,15 +893,4 @@ public class SoundingSite extends PersistablePluginDataObject implements
     public void setPointDataView(PointDataView pdv) {
         this.pdv = pdv;
     }
-
-    @Override
-    public Date getPersistenceTime() {
-        return this.dataTime.getRefTime();
-    }
-
-    @Override
-    public void setPersistenceTime(Date persistTime) {
-
-    }
-
 }

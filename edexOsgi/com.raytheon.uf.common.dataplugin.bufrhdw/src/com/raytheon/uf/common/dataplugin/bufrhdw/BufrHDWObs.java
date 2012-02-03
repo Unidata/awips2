@@ -21,7 +21,6 @@ package com.raytheon.uf.common.dataplugin.bufrhdw;
 
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -631,18 +630,10 @@ public class BufrHDWObs extends PersistablePluginDataObject implements
         this.pdv = pdv;
     }
 
-    @Override
-    public Date getPersistenceTime() {
-        return dataTime.getRefTime();
-    }
-
-    @Override
-    public void setPersistenceTime(Date persistTime) {
-    }
-
     /**
-     * Returns the hashCode for this object. This implementation
-     * returns the hashCode of the generated dataURI.
+     * Returns the hashCode for this object. This implementation returns the
+     * hashCode of the generated dataURI.
+     * 
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -655,26 +646,31 @@ public class BufrHDWObs extends PersistablePluginDataObject implements
     }
 
     /**
-     * Checks if this record is equal to another by checking the
-     * generated dataURI.
-     * @param obj 
+     * Checks if this record is equal to another by checking the generated
+     * dataURI.
+     * 
+     * @param obj
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         BufrHDWObs other = (BufrHDWObs) obj;
         if (getDataURI() == null) {
             if (other.getDataURI() != null) {
                 return false;
             }
-        } else if (!getDataURI().equals(other.getDataURI()))
+        } else if (!getDataURI().equals(other.getDataURI())) {
             return false;
+        }
         return true;
     }
 }
