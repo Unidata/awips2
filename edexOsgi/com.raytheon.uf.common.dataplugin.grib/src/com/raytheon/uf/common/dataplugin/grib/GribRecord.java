@@ -22,8 +22,6 @@ package com.raytheon.uf.common.dataplugin.grib;
 
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -240,22 +238,6 @@ public class GribRecord extends PersistablePluginDataObject implements
     @Override
     public IDecoderGettable getDecoderGettable() {
         return null;
-    }
-
-    @Override
-    public Date getPersistenceTime() {
-        Calendar c = getInsertTime();
-        if (c == null)
-            return null;
-
-        return c.getTime();
-    }
-
-    @Override
-    public void setPersistenceTime(Date persistTime) {
-        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        c.setTime(persistTime);
-        setInsertTime(c);
     }
 
     @Override
@@ -493,6 +475,7 @@ public class GribRecord extends PersistablePluginDataObject implements
         this.resCompFlags = resCompFlags;
     }
 
+    @Override
     public void setId(int id) {
         this.id = id;
     }
@@ -523,12 +506,15 @@ public class GribRecord extends PersistablePluginDataObject implements
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         GribRecord other = (GribRecord) obj;
         if (!this.dataTime.getRefTimeAsCalendar().equals(
                 other.getDataTime().getRefTimeAsCalendar())) {
@@ -541,42 +527,59 @@ public class GribRecord extends PersistablePluginDataObject implements
             return false;
         }
 
-        if (gridVersion != other.gridVersion)
+        if (gridVersion != other.gridVersion) {
             return false;
-        if (!Arrays.equals(hybridCoordList, other.hybridCoordList))
+        }
+        if (!Arrays.equals(hybridCoordList, other.hybridCoordList)) {
             return false;
-        if (hybridGrid != other.hybridGrid)
+        }
+        if (hybridGrid != other.hybridGrid) {
             return false;
-        if (isVector != other.isVector)
+        }
+        if (isVector != other.isVector) {
             return false;
-        if (!Arrays.equals(localSection, other.localSection))
+        }
+        if (!Arrays.equals(localSection, other.localSection)) {
             return false;
-        if (localSectionUsed != other.localSectionUsed)
+        }
+        if (localSectionUsed != other.localSectionUsed) {
             return false;
-        if (localTableVersion != other.localTableVersion)
+        }
+        if (localTableVersion != other.localTableVersion) {
             return false;
-        if (masterTableVersion != other.masterTableVersion)
+        }
+        if (masterTableVersion != other.masterTableVersion) {
             return false;
+        }
         if (modelInfo == null) {
-            if (other.modelInfo != null)
+            if (other.modelInfo != null) {
                 return false;
-        } else if (!modelInfo.equals(other.modelInfo))
+            }
+        } else if (!modelInfo.equals(other.modelInfo)) {
             return false;
-        if (processedDataType != other.processedDataType)
+        }
+        if (processedDataType != other.processedDataType) {
             return false;
-        if (productionStatus != other.productionStatus)
+        }
+        if (productionStatus != other.productionStatus) {
             return false;
-        if (refTimeSignificance != other.refTimeSignificance)
+        }
+        if (refTimeSignificance != other.refTimeSignificance) {
             return false;
+        }
         if (resCompFlags == null) {
-            if (other.resCompFlags != null)
+            if (other.resCompFlags != null) {
                 return false;
-        } else if (!resCompFlags.equals(other.resCompFlags))
+            }
+        } else if (!resCompFlags.equals(other.resCompFlags)) {
             return false;
-        if (thinnedGrid != other.thinnedGrid)
+        }
+        if (thinnedGrid != other.thinnedGrid) {
             return false;
-        if (!Arrays.equals(thinnedPts, other.thinnedPts))
+        }
+        if (!Arrays.equals(thinnedPts, other.thinnedPts)) {
             return false;
+        }
         return true;
     }
 
