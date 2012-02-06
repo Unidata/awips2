@@ -20,6 +20,8 @@
 
 package com.raytheon.uf.viz.thinclient.cave.preferences;
 
+import java.io.File;
+
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.DirectoryFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
@@ -71,6 +73,15 @@ public class ThinClientCachePreferences extends FieldEditorPreferencePage {
     @Override
     protected void createFieldEditors() {
         // Add cache directory preference
+        if (getPreferenceStore().isDefault(
+                ThinClientPreferenceConstants.P_CACHE_DIR)) {
+            // If they are using the default directory we will create it before
+            // making a field editor because the field editor is considered
+            // invalid if it is refering to a directory which does not exist and
+            // the default should be considered valid.
+            new File(getPreferenceStore().getString(
+                    ThinClientPreferenceConstants.P_CACHE_DIR)).mkdirs();
+        }
         addField(new DirectoryFieldEditor(
                 ThinClientPreferenceConstants.P_CACHE_DIR, "&Cache Directory",
                 getFieldEditorParent()));
