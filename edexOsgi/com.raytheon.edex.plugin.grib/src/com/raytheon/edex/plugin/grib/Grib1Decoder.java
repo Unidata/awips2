@@ -1308,7 +1308,7 @@ public class Grib1Decoder extends AbstractDecoder {
             lon = lon % 360;
         }
 
-        if (lon > 180) {
+        if (lon >= 180) {
             lon = (180 - lon % 180) * -1;
         } else if (lon < -180) {
             lon = (180 - (-lon % 180));
