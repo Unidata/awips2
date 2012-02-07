@@ -26,6 +26,8 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.handlers.RadioState;
 
 import com.raytheon.viz.hydrocommon.HydroDisplayManager;
+import com.raytheon.viz.ui.EditorUtil;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
  * TODO Add Description
@@ -52,6 +54,9 @@ public class FontAction extends AbstractHandler {
 
         String newVal = event.getParameter(RadioState.PARAMETER_ID);
         HandlerUtil.updateRadioState(event.getCommand(), newVal);
+        if (EditorUtil.getActiveEditor() != null) {
+            ((AbstractEditor) EditorUtil.getActiveEditor()).refresh();
+        }
 
         return null;
     }
