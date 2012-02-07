@@ -19,15 +19,19 @@
  **/
 package com.raytheon.uf.viz.ui.menus.widgets.tearoff;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MenuEvent;
+import org.eclipse.swt.events.MenuListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -41,10 +45,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.ui.progress.UIJob;
-
-import com.raytheon.viz.ui.EditorUtil;
-import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
  * Holds the information for all the menu items in the dialog
@@ -63,7 +63,9 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * @version 1.0
  */
 
-public class MenuItemComposite extends Composite {
+public class MenuItemComposite extends Composite implements MenuListener {
+
+    private boolean separator = false;
 
     private Control firstItem;
 
@@ -78,15 +80,11 @@ public class MenuItemComposite extends Composite {
 
     private Listener updateListener = null;
 
-    private Listener showListener = null;
+    private SelectionListener radioListener = null;
 
-    private Menu menu = null;
+    private List<String> myPath;
 
-    private Composite parent = null;
-
-    private Menu topLevelMenu = null;
-
-    private UIJob job = null;
+    private Menu topMostParent;
 
     /**
      * @param parent
@@ -94,7 +92,6 @@ public class MenuItemComposite extends Composite {
      */
     public MenuItemComposite(Composite parent, int style) {
         super(parent, style);
-        this.parent = parent;
     }
 
     // creates both labels and ties them together
@@ -103,21 +100,27 @@ public class MenuItemComposite extends Composite {
             return;
         }
 
-        // going to hold the menu around so that if the cave menu gets opened
-        // again (when the items get disposed), we will be able to go back in
-        // and get the items from the menu and rebuild in the background
-        menu = it.getParent();
+        myPath = new ArrayList<String>();
 
-        topLevelMenu = menu;
-        while (topLevelMenu.getParentMenu() != null
-                && topLevelMenu.getParentMenu().getParentMenu() != null) {
-            topLevelMenu = topLevelMenu.getParentMenu();
-        }
+        // Build the menu path to the MenuItem from highest menu level
+        Menu parent = it.getParent();
+        MenuItem toAdd = it;
+        do {
+            myPath.add(toAdd.getText());
+            toAdd = parent.getParentItem();
+            topMostParent = parent;
+            parent = parent.getParentMenu();
+        } while (parent.getParentMenu() != null);
 
+        Collections.reverse(myPath);
+
+        topMostParent.addMenuListener(this);
         item = it;
+
         String[] labels = item.getText().split("\t");
         // handle for a separator menu item
         if (item.getStyle() == SWT.SEPARATOR) {
+            separator = true;
             firstItem = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL);
             GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
             gd.horizontalSpan = 2;
@@ -134,47 +137,8 @@ public class MenuItemComposite extends Composite {
                 ((Label) secondItem).setText(labels[0]);
                 gd = new GridData(SWT.LEFT, SWT.CENTER, true, true);
                 secondItem.setLayoutData(gd);
-                item.addSelectionListener(new SelectionAdapter() {
-                    @Override
-                    public void widgetSelected(SelectionEvent e) {
-                        if (e.widget instanceof MenuItem) {
-                            // check that the radio groups match
-                            for (Control comp : firstItem.getParent()
-                                    .getParent().getChildren()) {
-                                MenuItemComposite composite = (MenuItemComposite) comp;
-                                if (composite.item.getText().equals(
-                                        ((MenuItem) e.widget).getText())) {
-                                    if (composite.firstItem instanceof Button) {
-                                        ((Button) composite.firstItem)
-                                                .setSelection(composite.item
-                                                        .getSelection());
-                                    }
-                                } else {
-                                    if (composite.firstItem instanceof Button) {
-                                        ((Button) composite.firstItem)
-                                                .setSelection(false);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-            // check boxes
-            // else if (item.getStyle() == SWT.CHECK) {
-            // // if (item.getStyle() == SWT.CHECK) {
-            // firstItem = new Button(this, SWT.CHECK);
-            // ((Button) firstItem).setSelection(item.getSelection());
-            // GridData gd = new GridData(18, 18);
-            // firstItem.setLayoutData(gd);
-            //
-            // secondItem = new Label(this, labelStyle);
-            // ((Label) secondItem).setText(labels[0]);
-            // gd = new GridData(SWT.LEFT, SWT.CENTER, true, true);
-            // secondItem.setLayoutData(gd);
-            // }
-            // submenus (with arrows)
-            else if (item.getStyle() == SWT.CASCADE) {
+                createRadioListener();
+            } else if (item.getStyle() == SWT.CASCADE) {
                 firstItem = new Label(this, SWT.PUSH);
                 firstItem.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT,
                         true, false));
@@ -195,108 +159,9 @@ public class MenuItemComposite extends Composite {
                     ((Label) secondItem).setText(labels[1]);
                 }
 
-                createUpdateListener(this);
-                item.addListener(SWT.Modify, updateListener);
+                // Create and add text update listener
+                createUpdateListener();
             }
-            showListener = new Listener() {
-                @Override
-                public void handleEvent(final Event event) {
-                    job = new UIJob(Display.getCurrent(),
-                            "Regenerate Tear Off Menus") {
-
-                        @Override
-                        public IStatus runInUIThread(IProgressMonitor monitor) {
-                            if (parent == null || parent.isDisposed()
-                                    || parent.getShell() == null
-                                    || parent.getShell().isDisposed()) {
-                                return Status.CANCEL_STATUS;
-                            }
-                            if (menu == null || menu.isDisposed()) {
-                                for (MenuItem item : topLevelMenu.getItems()) {
-
-                                    if (item.getMenu() != null) {
-                                        for (Listener list : item.getMenu()
-                                                .getListeners(SWT.Show)) {
-                                            try {
-                                                Event event = new Event();
-                                                event.widget = topLevelMenu;
-                                                event.type = SWT.Show;
-                                                list.handleEvent(event);
-                                            } catch (Exception e) {
-                                                // do nothing
-                                            }
-                                        }
-                                        if (getShell().getText().equals(
-                                                item.getText().replaceAll("&",
-                                                        ""))) {
-                                            menu = item.getMenu();
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-
-                            int start = 0;
-                            if (menu == null || menu.isDisposed()
-                                    || parent == null || parent.isDisposed()
-                                    || parent.getChildren() == null) {
-                                return Status.CANCEL_STATUS;
-                            }
-                            if (menu.getItemCount() != parent.getChildren().length) {
-                                start = (menu.getItemCount() - parent
-                                        .getChildren().length);
-                            }
-                            if (parent.getChildren().length > 0) {
-                                for (int i = start; i < menu.getItemCount(); i++) {
-                                    final MenuItemComposite mic = (MenuItemComposite) parent
-                                            .getChildren()[i - start];
-                                    if (mic.item.isDisposed()) {
-                                        mic.item = menu.getItem(i);
-                                        createUpdateListener(mic);
-                                        mic.item.addListener(SWT.Modify,
-                                                updateListener);
-
-                                        for (Listener list : mic.item
-                                                .getListeners(SWT.Modify)) {
-                                            Event e = new Event();
-                                            e.type = SWT.Modify;
-                                            e.data = mic.item;
-                                            list.handleEvent(e);
-                                        }
-                                    }
-
-                                    mic.item.addSelectionListener(new SelectionAdapter() {
-                                        public void widgetSelected(
-                                                SelectionEvent e) {
-                                            if (e.widget instanceof MenuItem) {
-                                                if (mic.item.getText().equals(
-                                                        ((MenuItem) e.widget)
-                                                                .getText())) {
-                                                    if (mic.firstItem instanceof Button) {
-                                                        ((Button) mic.firstItem)
-                                                                .setSelection(mic.item
-                                                                        .getSelection());
-                                                    } else {
-                                                        if (mic.firstItem instanceof Button) {
-                                                            ((Button) mic.firstItem)
-                                                                    .setSelection(false);
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    });
-                                }
-                            }
-
-                            return Status.OK_STATUS;
-                        }
-                    };
-                    job.schedule();
-                }
-            };
-            item.getParent().addListener(SWT.Show, showListener);
-            topLevelMenu.addListener(SWT.Show, showListener);
 
             if (item.isEnabled()) {
                 // add the listeners to both the first and the second
@@ -316,21 +181,66 @@ public class MenuItemComposite extends Composite {
                         SWT.COLOR_DARK_GRAY));
             }
         }
+
+        addItemListeners();
     }
 
-    protected void createUpdateListener(final MenuItemComposite mic) {
+    /**
+     * 
+     */
+    private void addItemListeners() {
+        if (updateListener != null) {
+            item.addListener(SWT.Modify, updateListener);
+        }
+        if (radioListener != null) {
+            item.addSelectionListener(radioListener);
+        }
+    }
+
+    /**
+     * 
+     */
+    private void createRadioListener() {
+        radioListener = new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                if (e.widget instanceof MenuItem) {
+                    // check that the radio groups match
+                    for (Control comp : firstItem.getParent().getParent()
+                            .getChildren()) {
+                        MenuItemComposite composite = (MenuItemComposite) comp;
+                        if (composite.item.getText().equals(
+                                ((MenuItem) e.widget).getText())) {
+                            if (composite.firstItem instanceof Button) {
+                                ((Button) composite.firstItem)
+                                        .setSelection(composite.item
+                                                .getSelection());
+                            }
+                        } else {
+                            if (composite.firstItem instanceof Button) {
+                                ((Button) composite.firstItem)
+                                        .setSelection(false);
+                            }
+                        }
+                    }
+                }
+            }
+        };
+    }
+
+    protected void createUpdateListener() {
         updateListener = new Listener() {
             @Override
             public void handleEvent(Event event) {
-                if (mic.secondItem != null && !mic.secondItem.isDisposed()) {
-                    if (mic.item == event.data) {
+                if (secondItem != null && !secondItem.isDisposed()) {
+                    if (item == event.data) {
                         if (((MenuItem) event.data).getText().split("\t").length > 1) {
-                            ((Label) mic.secondItem)
+                            ((Label) secondItem)
                                     .setText(((MenuItem) event.data).getText()
                                             .split("\t")[1]);
                             // don't want to make the times go off the
                             // screen
-                            mic.layout();
+                            layout();
                         }
                     }
                 }
@@ -407,7 +317,7 @@ public class MenuItemComposite extends Composite {
         gc.fillPolygon(polyArray);
     }
 
-    private void addMenu(MenuItem item, int y) {
+    private void createSubMenu(MenuItem item, int y) {
         PopupMenu men = new PopupMenu();
         men.addSubmenus(item, this.getShell(), y);
     }
@@ -467,62 +377,16 @@ public class MenuItemComposite extends Composite {
         MouseAdapter mouseAdapter = new MouseAdapter() {
             @Override
             public void mouseDown(MouseEvent e) {
-                if (menu == null || menu.isDisposed()) {
-                    for (MenuItem item : topLevelMenu.getItems()) {
-                        if (item.getMenu() != null) {
-                            for (Listener list : item.getMenu().getListeners(
-                                    SWT.Show)) {
-                                Event event = new Event();
-                                event.widget = item;
-                                event.type = SWT.Show;
-                                list.handleEvent(event);
-                            }
-                            if (getShell().getText().equals(
-                                    item.getText().replaceAll("&", ""))) {
-                                menu = item.getMenu();
-                                break;
-                            }
-                        }
-                    }
-                }
-                // if the menu has been opened, then the items need to
-                // be regenerated if there is a submenu, then add the
-                // ability to show it
-                // TODO, actually need to keep them in sync
-                if (item == null || item.isDisposed()) {
-                    int start = 0;
-                    if (menu.getItemCount() != parent.getChildren().length) {
-                        start = 1;
-                    }
-                    for (int i = start; i < menu.getItemCount(); i++) {
-                        MenuItemComposite mic = (MenuItemComposite) parent
-                                .getChildren()[i - start];
-                        if (mic.item.isDisposed()) {
-                            mic.item = menu.getItem(i);
-                            createUpdateListener(mic);
-                            mic.item.addListener(SWT.Modify, updateListener);
-
-                            for (Listener list : mic.item
-                                    .getListeners(SWT.Modify)) {
-                                Event ev = new Event();
-                                ev.type = SWT.Modify;
-                                ev.data = mic.item;
-                                list.handleEvent(ev);
-                            }
-                        }
-                    }
-                }
-
                 if (item.getMenu() != null) {
-                    // get the y offset based on the location of the
-                    // click
+                    // This is item opens a submenu, get the y offset based on
+                    // the location of the click
                     int y = 0;
                     if (e.widget instanceof MenuItemComposite) {
                         y = ((Control) e.widget).getLocation().y;
                     } else {
                         y = ((Control) e.widget).getParent().getLocation().y;
                     }
-                    addMenu(item, y);
+                    createSubMenu(item, y);
                     return;
                 }
 
@@ -536,12 +400,9 @@ public class MenuItemComposite extends Composite {
                     list.handleEvent(event);
                 }
 
-                // for commands that do not refresh the editor, menus worked
-                // since the display was covered by the editor and when the menu
-                // went away a refresh was forced... this doesn't happen with
-                // tear-offs that are in the main dialog, since nothing about
-                // the display changes, so we must force a refresh on the editor
-                ((AbstractEditor) EditorUtil.getActiveEditor()).refresh();
+                if (isDisposed()) {
+                    return;
+                }
 
                 // handles the check boxes, if clicking the check box
                 // need to not do this (because SWT does it already)
@@ -554,10 +415,12 @@ public class MenuItemComposite extends Composite {
                     }
                 }
 
-                for (int i = 0; i < parent.getChildren().length; i++) {
-                    final MenuItemComposite mic = (MenuItemComposite) parent
-                            .getChildren()[i];
-                    if (mic.item.getStyle() == SWT.RADIO) {
+                // Handle radio selection changing...
+                Control[] siblings = getParent().getChildren();
+                for (int i = 0; i < siblings.length; i++) {
+                    final MenuItemComposite mic = (MenuItemComposite) siblings[i];
+                    if (mic.separator == false
+                            && mic.item.getStyle() == SWT.RADIO) {
                         try {
                             MenuItemComposite parent = null;
                             // check whether a Label is clicked or a
@@ -595,7 +458,6 @@ public class MenuItemComposite extends Composite {
     }
 
     @Override
-    // TODO XXX make sure we don't leak anything here
     public void dispose() {
         if (arrow != null) {
             arrow.dispose();
@@ -604,27 +466,20 @@ public class MenuItemComposite extends Composite {
             highlightedArrow.dispose();
         }
 
-        if (updateListener != null && !item.isDisposed()) {
-            item.removeListener(SWT.Modify, updateListener);
+        if (item != null) {
+            if (updateListener != null && !item.isDisposed()) {
+                item.removeListener(SWT.Modify, updateListener);
+            }
+
+            if (radioListener != null && !item.isDisposed()) {
+                item.removeSelectionListener(radioListener);
+            }
         }
-        if (showListener != null && !item.isDisposed()
-                && !item.getParent().isDisposed()) {
-            item.getParent().removeListener(SWT.Show, showListener);
-            topLevelMenu.removeListener(SWT.Show, showListener);
+
+        if (topMostParent != null) {
+            topMostParent.removeMenuListener(this);
         }
-        if (firstItem != null) {
-            firstItem.dispose();
-        }
-        if (secondItem != null) {
-            secondItem.dispose();
-        }
-        if (job != null) {
-            job.cancel();
-        }
-        updateListener = null;
-        showListener = null;
-        parent.dispose();
-        item.dispose();
+
         super.dispose();
     }
 
@@ -632,5 +487,69 @@ public class MenuItemComposite extends Composite {
         if (firstItem instanceof Button) {
             ((Button) firstItem).setSelection(selection);
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.swt.events.MenuListener#menuHidden(org.eclipse.swt.events
+     * .MenuEvent)
+     */
+    @Override
+    public void menuHidden(MenuEvent e) {
+        if (item.isDisposed() == false) {
+            return;
+        }
+
+        // At some point we may need to check against the index as well but that
+        // is difficult because we don't know if the tear off menu item will/was
+        // in the menu when we were created/now so our index could be off by one
+        // very easily making it unreliable
+        Menu menu = topMostParent;
+        MenuItem myItem = null;
+        String last = myPath.get(myPath.size() - 1);
+        for (String path : myPath) {
+            if (menu != null) {
+                MenuItem[] items = menu.getItems();
+                for (int i = 0; i < items.length; ++i) {
+                    MenuItem item = items[i];
+                    if (path.equals(item.getText())) {
+                        if (path == last) {
+                            myItem = item;
+                        } else {
+                            menu = item.getMenu();
+
+                            if (menu != null && menu.getItemCount() == 0) {
+                                // Have to manually fill menu
+                                for (Listener listener : menu
+                                        .getListeners(SWT.Show)) {
+                                    Event event = new Event();
+                                    event.type = SWT.Show;
+                                    event.widget = menu;
+                                    listener.handleEvent(event);
+                                }
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        if (myItem != null && myItem.isDisposed() == false) {
+            item = myItem;
+            addItemListeners();
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.swt.events.MenuListener#menuShown(org.eclipse.swt.events.
+     * MenuEvent)
+     */
+    @Override
+    public void menuShown(MenuEvent e) {
     }
 }

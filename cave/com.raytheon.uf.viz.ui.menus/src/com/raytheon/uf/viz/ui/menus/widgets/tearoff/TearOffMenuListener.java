@@ -30,7 +30,9 @@ import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuListener2;
 import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
@@ -38,7 +40,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
 /**
- * TODO Add Description
+ * Menu listener that adds item to menu which will open dialog which is the menu
  * 
  * <pre>
  * 
@@ -56,9 +58,30 @@ import org.eclipse.swt.widgets.MenuItem;
 
 public class TearOffMenuListener implements IMenuListener2 {
 
-    private List<IMenuManager> openDialogs = new ArrayList<IMenuManager>();
+    private List<Object> openDialogs = new ArrayList<Object>();
 
-    private static final String ID = "tearOffMenuItem";
+    private static final String ID = "tearOffMenuContributionItem";
+
+    private static final String ACTION_ID = "tearOffMenuAction";
+
+    public static final String TEAROFF_PREFERENCE_ID = "tearoffmenus";
+
+    private static boolean enabled;
+    static {
+        final IPreferenceStore store = com.raytheon.uf.viz.core.Activator
+                .getDefault().getPreferenceStore();
+        enabled = store.getBoolean(TEAROFF_PREFERENCE_ID);
+        store.addPropertyChangeListener(new IPropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent event) {
+                enabled = store.getBoolean(TEAROFF_PREFERENCE_ID);
+            }
+        });
+    }
+
+    public TearOffMenuListener() {
+
+    }
 
     public TearOffMenuListener(IMenuManager mgr) {
         register(mgr.getItems(), this);
@@ -70,12 +93,16 @@ public class TearOffMenuListener implements IMenuListener2 {
      */
     @Override
     public void menuAboutToShow(final IMenuManager manager) {
-        // new Exception().printStackTrace();
         register(manager.getItems(), this);
-        if (openDialogs.contains(manager) == false) {
-            // No open dialog for this menu, add tear off button
-            MenuItem[] menuItems = ((MenuManager) manager).getMenu().getItems();
-            manager.add(new TearOffContributionItem(manager, menuItems));
+        if (openDialogs.contains(getKey(manager)) == false) {
+            // We need to add our item to be first so we need to remove others
+            // then add ourself
+            IContributionItem[] items = manager.getItems();
+            manager.removeAll();
+            manager.add(new TearOffContributionItem(manager));
+            for (IContributionItem item : items) {
+                manager.add(item);
+            }
         }
     }
 
@@ -85,8 +112,11 @@ public class TearOffMenuListener implements IMenuListener2 {
      */
     @Override
     public void menuAboutToHide(IMenuManager manager) {
-        manager.remove(ID);
-        unregister(manager.getItems(), this);
+        if (openDialogs.contains(getKey(manager)) == false) {
+            manager.remove(ID);
+            manager.remove(ACTION_ID);
+            unregister(manager.getItems(), this);
+        }
     }
 
     public static void register(IContributionItem[] items,
@@ -107,21 +137,24 @@ public class TearOffMenuListener implements IMenuListener2 {
         }
     }
 
+    private static Object getKey(IMenuManager manager) {
+        Object key = manager;
+        if (manager.getId() != null) {
+            key = manager.getId();
+        }
+        return key;
+    }
+
     private class TearOffContributionItem extends ContributionItem {
 
-        private Menu menu;
-
         private IMenuManager manager;
-
-        private MenuItem[] items;
 
         /**
          * @param action
          */
-        public TearOffContributionItem(IMenuManager manager, MenuItem[] items) {
+        public TearOffContributionItem(IMenuManager manager) {
             super(ID);
             this.manager = manager;
-            this.items = items;
         }
 
         /*
@@ -132,8 +165,7 @@ public class TearOffMenuListener implements IMenuListener2 {
          * swt.widgets.Menu, int)
          */
         @Override
-        public void fill(Menu parent, int index) {
-            this.menu = parent;
+        public void fill(Menu menu, int index) {
             String longest = "";
             for (MenuItem item : menu.getItems()) {
                 String check = item.getText();
@@ -145,19 +177,23 @@ public class TearOffMenuListener implements IMenuListener2 {
             Arrays.fill(bytes, (byte) '|');
             // String filled = new String(bytes);
             String filled = "- - - - - - TEAR-OFF : "
-                    + parent.getParentItem().getText() + " - - - - - -";
+                    + menu.getParentItem().getText() + " - - - - - -";
             // String filled = "-" * bytes.length
 
-            // safety, not wanting to be permanent, making sure only one shows
-            // up
-            for (MenuItem item : menu.getItems()) {
-                if (item.getText().contains("TEAR-OFF")) {
-                    return;
-                }
-            }
-            new ActionContributionItem(new TearOffAction(filled, manager,
-                    items, menu)).fill(parent, 0);
+            new ActionContributionItem(new TearOffAction(filled, manager, menu))
+                    .fill(menu, index);
         }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see org.eclipse.jface.action.ContributionItem#isVisible()
+         */
+        @Override
+        public boolean isVisible() {
+            return super.isVisible() && enabled;
+        }
+
     }
 
     private class TearOffAction extends Action {
@@ -166,8 +202,7 @@ public class TearOffMenuListener implements IMenuListener2 {
 
         private Menu menu;
 
-        private TearOffAction(String text, final IMenuManager manager,
-                final MenuItem[] items, Menu menu) {
+        private TearOffAction(String text, final IMenuManager manager, Menu menu) {
             super(text);
             this.manager = manager;
             this.menu = menu;
@@ -184,12 +219,13 @@ public class TearOffMenuListener implements IMenuListener2 {
             dialog.addListener(SWT.Dispose, new Listener() {
                 @Override
                 public void handleEvent(Event event) {
-                    openDialogs.remove(manager);
+                    openDialogs.remove(getKey(manager));
                     manager.remove(ID);
+                    manager.remove(ACTION_ID);
                     unregister(manager.getItems(), TearOffMenuListener.this);
                 }
             });
-            openDialogs.add(manager);
+            openDialogs.add(getKey(manager));
             register(manager.getItems(), TearOffMenuListener.this);
             dialog.open();
         }
@@ -201,7 +237,7 @@ public class TearOffMenuListener implements IMenuListener2 {
          */
         @Override
         public String getId() {
-            return ID;
+            return ACTION_ID;
         }
     }
 }
