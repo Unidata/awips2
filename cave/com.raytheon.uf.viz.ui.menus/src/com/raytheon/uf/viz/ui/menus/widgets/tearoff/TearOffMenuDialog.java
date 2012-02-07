@@ -158,8 +158,10 @@ public class TearOffMenuDialog extends CaveSWTDialog {
         Listener deactivate = new Listener() {
             @Override
             public void handleEvent(Event event) {
-                ContextManager.getInstance(locator).deactivateContexts(
-                        perspectiveManager);
+                if (Display.getCurrent().getActiveShell() == getShell()) {
+                    ContextManager.getInstance(locator).deactivateContexts(
+                            perspectiveManager);
+                }
             }
         };
 
