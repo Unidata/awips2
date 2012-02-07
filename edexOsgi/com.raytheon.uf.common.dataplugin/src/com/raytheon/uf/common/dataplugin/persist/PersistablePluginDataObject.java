@@ -23,14 +23,17 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
  * Provides an abstract implementation of plugindataobject with clustered file
@@ -57,6 +60,11 @@ public abstract class PersistablePluginDataObject extends PluginDataObject
 
     private static final long serialVersionUID = 1L;
 
+    @Column
+    @XmlAttribute
+    @DynamicSerializeElement
+    private Integer hdfFileId;
+
     /**
      * Constructor
      */
@@ -76,17 +84,16 @@ public abstract class PersistablePluginDataObject extends PluginDataObject
      * 
      * @see com.raytheon.edex.plugin.IPersistable#getHdfFileId()
      */
-    @Override
     public Integer getHdfFileId() {
-        return null;
+        return hdfFileId;
     }
 
     /**
      * @param hdfFileId
      *            the hdfFileId to set
      */
-    @Override
     public void setHdfFileId(Integer hdfFileId) {
+        this.hdfFileId = hdfFileId;
     }
 
     /**
