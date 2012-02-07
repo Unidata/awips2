@@ -22,16 +22,15 @@ package com.raytheon.uf.viz.core.maps.menus;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.jface.action.IContributionItem;
+import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.actions.CompoundContributionItem;
 import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
 
 import com.raytheon.uf.viz.core.maps.MapStore;
 import com.raytheon.uf.viz.core.maps.MapStore.MapNode;
-import com.raytheon.uf.viz.ui.menus.widgets.tearoff.TearOffMenuListener;
+import com.raytheon.uf.viz.ui.menus.widgets.AbstractTearOffableCompoundContributionItem;
 
 /**
  * TODO Add Description
@@ -49,31 +48,33 @@ import com.raytheon.uf.viz.ui.menus.widgets.tearoff.TearOffMenuListener;
  * @version 1.0
  */
 
-public class MapsMenu extends CompoundContributionItem {
+public class MapsMenu extends AbstractTearOffableCompoundContributionItem {
+
+    /**
+     * @param text
+     * @param id
+     */
+    public MapsMenu() {
+        super("Maps", MapsMenu.class.getName());
+    }
 
     boolean addTear = false;
 
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * org.eclipse.ui.actions.CompoundContributionItem#getContributionItems()
+     * @see com.raytheon.uf.viz.ui.menus.widgets.
+     * AbstractTearOffableCompoundContributionItem
+     * #addContributionItems(org.eclipse.jface.action.IMenuManager)
      */
     @Override
-    protected IContributionItem[] getContributionItems() {
+    protected void addContributionItems(IMenuManager manager) {
         MapNode node = MapStore.getMapTree();
-        return createMenu(node).getItems();
+        createMenu(manager, node);
     }
 
-    private MenuManager createMenu(MapNode root) {
-        MenuManager menuMgr = new MenuManager(root.getName());
+    private void createMenu(IMenuManager manager, MapNode root) {
         for (MapNode node : root.getSubTree()) {
-            if (addTear
-                    && com.raytheon.uf.viz.core.Activator.getDefault()
-                            .getPreferenceStore().getBoolean("tearoffmenus")) {
-                menuMgr.addMenuListener(new TearOffMenuListener(menuMgr));
-                addTear = false;
-            }
             if (node.getSubTree() == null) {
                 Map<String, String> parms = new HashMap<String, String>();
                 parms.put("mapName", node.getName());
@@ -87,12 +88,13 @@ public class MapsMenu extends CompoundContributionItem {
                                 parms, null, null, null, node.getName(), null,
                                 null, CommandContributionItem.STYLE_CHECK,
                                 null, true));
-                menuMgr.add(item);
+                manager.add(item);
             } else {
-                addTear = true;
-                menuMgr.add(createMenu(node));
+                IMenuManager subMenu = new MenuManager(node.getName(),
+                        manager.getId() + "." + node.getName());
+                createMenu(subMenu, node);
+                manager.add(subMenu);
             }
         }
-        return menuMgr;
     }
 }
