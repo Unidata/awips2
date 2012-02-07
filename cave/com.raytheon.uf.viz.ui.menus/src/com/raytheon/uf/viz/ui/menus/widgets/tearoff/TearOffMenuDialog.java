@@ -21,7 +21,7 @@ package com.raytheon.uf.viz.ui.menus.widgets.tearoff;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -31,7 +31,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.services.IServiceLocator;
@@ -59,11 +58,11 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 public class TearOffMenuDialog extends CaveSWTDialog {
 
-    private MenuItem[] items = null;
+    private MenuItem[] items;
 
-    private ScrolledComposite scrolledComp = null;
+    private ScrolledComposite scrolledComp;
 
-    private Composite fullComp = null;
+    private Composite fullComp;
 
     /**
      * @param parentShell
@@ -72,13 +71,10 @@ public class TearOffMenuDialog extends CaveSWTDialog {
         super(VizWorkbenchManager.getInstance().getCurrentWindow().getShell(),
                 SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
         String text = menu.getParentItem().getText();
+        this.items = menu.getItems();
 
         // handle for the & that makes key bindings
-        if (text.contains("&")) {
-            text = text.replace("&", "");
-        }
-        setText(text);
-        this.items = menu.getItems();
+        setText(text.replace("&", ""));
     }
 
     @Override
@@ -97,31 +93,15 @@ public class TearOffMenuDialog extends CaveSWTDialog {
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         fullComp.setLayoutData(gd);
 
-        // remove the first menu item which is the tear off item, so that it
-        // doesn't accidentally appear anywhere else
-        MenuItem[] preparedItems = new MenuItem[items.length - 1];
-        for (int i = 1; i < items.length; i++) {
-            preparedItems[i - 1] = items[i];
-        }
-        items = preparedItems;
-
-        // TODO, handle radio items, probably in here to keep track of what
-        // radio items are selected so that they can be deselected
-
         // go through menu items and build MenuItemComposite for each item,
         // which handles all the selection and color of the "MenuItem" in the
         // dialog
         int radioGroup = 0;
-        for (int i = 0; i < items.length; i++) {
-            int labelStyle = SWT.NONE;
-            if (items[i] == null) {
-                labelStyle = SWT.SEPARATOR | SWT.HORIZONTAL;
-            }
+        for (int i = 1; i < items.length; i++) {
+            MenuItem item = items[i];
+            MenuItemComposite comp = new MenuItemComposite(fullComp, SWT.NONE);
 
-            final MenuItemComposite comp = new MenuItemComposite(fullComp,
-                    SWT.NONE);
-
-            if (items[i].getStyle() == SWT.RADIO) {
+            if (item.getStyle() == SWT.RADIO) {
                 comp.setData("radioGroup", radioGroup);
             } else {
                 radioGroup++;
@@ -135,7 +115,7 @@ public class TearOffMenuDialog extends CaveSWTDialog {
             comp.setLayoutData(gd);
 
             // add the labels to the dialog with each of the MenuItems
-            comp.addLabels(items[i], labelStyle);
+            comp.addLabels(item, SWT.NONE);
         }
         scrolledComp.setContent(fullComp);
         scrolledComp.setExpandHorizontal(true);
@@ -144,13 +124,10 @@ public class TearOffMenuDialog extends CaveSWTDialog {
 
         shell.setMinimumSize(150, fullComp.getSize().y);
         shell.pack();
-        // sets the location based on the current shell size (after it is
-        // packed)
-        Monitor primary = Display.getCurrent().getPrimaryMonitor();
-        Rectangle monitorBounds = primary.getBounds();
-        Rectangle shellBounds = shell.getBounds();
-        int x = (monitorBounds.width / 2) - (shellBounds.width / 2);
-        int y = (monitorBounds.height / 2) - (shellBounds.height / 2);
+        Point point = Display.getCurrent().getCursorLocation();
+        int offset = shell.getBounds().width / 2;
+        int x = point.x - offset;
+        int y = point.y;
         shell.setLocation(x, y);
 
         // close the dialog on perspective change
@@ -200,4 +177,5 @@ public class TearOffMenuDialog extends CaveSWTDialog {
         }
         super.disposed();
     }
+
 }
