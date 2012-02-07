@@ -70,7 +70,8 @@ public class TearOffPreferencePage extends FieldEditorPreferencePage implements
      */
     @Override
     protected void createFieldEditors() {
-        BooleanFieldEditor editor = new BooleanFieldEditor("tearoffmenus",
+        BooleanFieldEditor editor = new BooleanFieldEditor(
+                TearOffMenuListener.TEAROFF_PREFERENCE_ID,
                 "Enable Tear-Off Menus (requires restart)",
                 getFieldEditorParent());
         addField(editor);
