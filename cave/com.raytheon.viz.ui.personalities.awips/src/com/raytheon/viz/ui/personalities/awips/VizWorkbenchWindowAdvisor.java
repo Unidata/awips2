@@ -137,11 +137,8 @@ public class VizWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
             listener.perspectiveActivated(page, perspective);
         }
 
-        if (com.raytheon.uf.viz.core.Activator.getDefault()
-                .getPreferenceStore().getBoolean("tearoffmenus")) {
-            new TearOffMenuListener(VizActionBarAdvisor.getInstance(window)
-                    .getMenuManager());
-        }
+        new TearOffMenuListener(VizActionBarAdvisor.getInstance(window)
+                .getMenuManager());
     }
 
     /*
