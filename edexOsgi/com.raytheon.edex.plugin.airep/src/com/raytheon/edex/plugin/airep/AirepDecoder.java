@@ -22,6 +22,7 @@ package com.raytheon.edex.plugin.airep;
 import java.util.Calendar;
 import java.util.Map;
 
+import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.edex.plugin.airep.decoder.AIREPWeather;
@@ -46,7 +47,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  *   }
  * </code>
  * 
- * 
+ *
  * <pre>
  * 
  * SOFTWARE HISTORY
@@ -89,7 +90,7 @@ public class AirepDecoder extends AbstractDecoder {
      * @throws DecoderException
      *             Thrown if no data is available.
      */
-    public PluginDataObject[] decode(AirepDecoderInput input)
+    public PluginDataObject[] decode(AirepDecoderInput input, Headers header)
             throws DecoderException {
 
         PluginDataObject[] reports = null;
@@ -100,9 +101,14 @@ public class AirepDecoder extends AbstractDecoder {
         try {
             // traceId = getTraceId(hdrMap);
             logger.debug(traceId + "- AirepDecoder.decode()");
-
-            report = populateRecord(new AirepParser(input.report,
-                    input.wmoHeader), input.wmoHeader);
+            WMOHeader wmoHeader = input.wmoHeader;
+            if(wmoHeader != null) {
+                Calendar refTime = TimeTools.findDataTime(
+                        wmoHeader.getYYGGgg(), header);
+                if(refTime != null) {
+                    report = populateRecord(new AirepParser(input.report, refTime));
+                }
+            }
             if (report != null) {
                 report.setTraceId(traceId);
                 report.setPluginName(PLUGIN_NAME);
@@ -130,7 +136,7 @@ public class AirepDecoder extends AbstractDecoder {
      *            The reccon parser that contains the decoded data.
      * @return The populated record.
      */
-    private AirepRecord populateRecord(AirepParser parser, WMOHeader wmoHeader) {
+    private AirepRecord populateRecord(AirepParser parser) {
 
         AirepRecord record = null;
         AircraftObsLocation location = null;
