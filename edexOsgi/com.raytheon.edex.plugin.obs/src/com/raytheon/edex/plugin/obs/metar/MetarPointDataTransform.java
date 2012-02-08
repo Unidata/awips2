@@ -456,9 +456,7 @@ public class MetarPointDataTransform {
         mr.setPkWndSpd(pdv.getNumber(PK_WND_SPD).intValue());
         long t = pdv.getNumber(PK_WND_TIME).longValue();
         if (t >= 0) {
-            Calendar c = TimeTools.getSystemCalendar();
-            c.setTimeInMillis(t);
-            mr.setPkWndTime(c);
+            mr.setPkWndTime(TimeTools.newCalendar(t));
         }
 
         return mr;
