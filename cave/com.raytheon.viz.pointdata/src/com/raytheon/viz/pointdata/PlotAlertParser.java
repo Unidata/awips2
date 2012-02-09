@@ -54,7 +54,7 @@ public class PlotAlertParser extends AbstractAlertMessageParser {
         Double lat = (Double) message.decodedAlert.get("location.latitude");
         Double lon = (Double) message.decodedAlert.get("location.longitude");
         DataTime dataTime = (DataTime) message.decodedAlert.get("dataTime");
-        return new PlotInfo(message.id, stationId, lat, lon, dataTime,
+        return new PlotInfo(stationId, lat, lon, dataTime,
                 message.dataURI);
     }
 }

@@ -182,6 +182,7 @@ public class ThinClientURICatalog extends URICatalog implements
                 }
             }
         }
+        rebuildTree();
     }
 
     @Override
@@ -192,11 +193,13 @@ public class ThinClientURICatalog extends URICatalog implements
     }
 
     public void requeryAllMenuTimes() {
-        Map<Map<String, RequestConstraint>, List<IURIRefreshCallback>> map = new HashMap<Map<String, RequestConstraint>, List<IURIRefreshCallback>>();
-        for (DataPair pair : getDataPairs()) {
-            map.put(pair.metadata, pair.data);
+        if (enableMenuTimes) {
+            Map<Map<String, RequestConstraint>, List<IURIRefreshCallback>> map = new HashMap<Map<String, RequestConstraint>, List<IURIRefreshCallback>>();
+            for (DataPair pair : getDataPairs()) {
+                map.put(pair.metadata, pair.data);
+            }
+            queryMenuTimes(map, null, false);
         }
-        queryMenuTimes(map, null, false);
     }
 
 }
