@@ -131,7 +131,8 @@ public class GridInventory extends AbstractInventory implements
     private List<Map<String, RequestConstraint>> failedRequests = new ArrayList<Map<String, RequestConstraint>>();
 
     @Override
-    public void initTree(Map<String, DerivParamDesc> derParLibrary) {
+    public void initTree(Map<String, DerivParamDesc> derParLibrary)
+            throws VizException {
         super.initTree(derParLibrary);
         if (updater == null) {
             updater = new GridUpdater(this);
@@ -144,31 +145,28 @@ public class GridInventory extends AbstractInventory implements
     }
 
     public void reinitTree() {
-        initTree(derParLibrary);
-        // reprocess all failed requests to see if data has become available.
-        List<Map<String, RequestConstraint>> constraintsToTry = this.failedRequests;
-        this.failedRequests = new ArrayList<Map<String, RequestConstraint>>(
-                failedRequests.size());
-        for (Map<String, RequestConstraint> constraints : constraintsToTry) {
-            evaluateRequestConstraints(constraints);
+        try {
+            initTree(derParLibrary);
+            // reprocess all failed requests to see if data has become
+            // available.
+            List<Map<String, RequestConstraint>> constraintsToTry = this.failedRequests;
+            this.failedRequests = new ArrayList<Map<String, RequestConstraint>>(
+                    failedRequests.size());
+            for (Map<String, RequestConstraint> constraints : constraintsToTry) {
+                evaluateRequestConstraints(constraints);
+            }
+        } catch (VizException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
     }
 
-    private DataTree getTreeFromEdex() {
+    private DataTree getTreeFromEdex() throws VizException {
         String request = "from com.raytheon.edex.uengine.tasks.grib import GridCatalog\n"
                 + "from com.raytheon.uf.common.message.response import ResponseMessageGeneric\n"
                 + "test = GridCatalog()\n"
                 + "return ResponseMessageGeneric(test.execute())";
         Object[] tree = null;
-        try {
-            tree = Connector.getInstance().connect(request, null, 60000);
-        } catch (VizCommunicationException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error communicating with server.", e);
-        } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error occurred while retrieving grid tree.", e);
-        }
+        tree = Connector.getInstance().connect(request, null, 60000);
         if (tree != null) {
             return (DataTree) tree[0];
         }
@@ -265,7 +263,7 @@ public class GridInventory extends AbstractInventory implements
         return null;
     }
 
-    protected DataTree createBaseTree() {
+    protected DataTree createBaseTree() throws VizException {
         DataTree newTree = getTreeFromEdex();
         if (newTree == null) {
             return newTree;
@@ -349,6 +347,7 @@ public class GridInventory extends AbstractInventory implements
      * @param newGridTree
      */
     private void initAliasModels(DataTree newGridTree) {
+        Set<String> allAliasModels = new HashSet<String>();
         sourceAliases.clear();
         GribModelLookup lookup = GribModelLookup.getInstance();
         for (String modelName : newGridTree.getSources()) {
@@ -357,6 +356,8 @@ public class GridInventory extends AbstractInventory implements
                 SourceNode source = newGridTree.getSourceNode(modelName);
                 SourceNode dest = newGridTree.getSourceNode(model.getAlias());
                 if (source != null && dest != null) {
+                    allAliasModels.add(source.getValue());
+                    allAliasModels.add(dest.getValue());
                     List<String> aliases = sourceAliases.get(dest.getValue());
                     if (aliases == null) {
                         aliases = new ArrayList<String>();
@@ -367,28 +368,29 @@ public class GridInventory extends AbstractInventory implements
                 }
             }
         }
-        for (Entry<String, List<String>> aliases : sourceAliases.entrySet()) {
-            Collections.sort(aliases.getValue(), new Comparator<String>() {
+        // Requesting coverages all at once is more efficient
+        try {
+            final Map<String, GridCoverage> coverages = CoverageUtils
+                    .getInstance().getCoverages(allAliasModels);
 
-                @Override
-                public int compare(String model1, String model2) {
-                    try {
-                        GridCoverage coverage1 = CoverageUtils.getInstance()
-                                .getCoverage(model1);
+            for (Entry<String, List<String>> aliases : sourceAliases.entrySet()) {
+                Collections.sort(aliases.getValue(), new Comparator<String>() {
+
+                    @Override
+                    public int compare(String model1, String model2) {
+                        GridCoverage coverage1 = coverages.get(model1);
                         Integer res1 = coverage1.getNx() * coverage1.getNy();
-                        GridCoverage coverage2 = CoverageUtils.getInstance()
-                                .getCoverage(model2);
+                        GridCoverage coverage2 = coverages.get(model2);
                         Integer res2 = coverage2.getNx() * coverage2.getNy();
                         return res2.compareTo(res1);
-                    } catch (VizException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                "Unable to create model aliases, problems with "
-                                        + model1 + " and " + model2, e);
-                        return 0;
                     }
-                }
 
-            });
+                });
+            }
+        } catch (VizException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to create model aliases", e);
+            return;
         }
     }
 
@@ -449,6 +451,28 @@ public class GridInventory extends AbstractInventory implements
 
     public List<Integer> getPerts(Map<String, RequestConstraint> query)
             throws VizException {
+        RequestConstraint nameRC = query.get(MODEL_NAME_QUERY);
+        if (nameRC == null) {
+            // Only bother grabbing nodes with perts
+            nameRC = new RequestConstraint(null, ConstraintType.IN);
+            nameRC.setConstraintValueList(modelsWithPerts
+                    .toArray(new String[0]));
+            query = new HashMap<String, RequestConstraint>(query);
+            query.put(MODEL_NAME_QUERY, nameRC);
+        } else {
+            boolean hasPerts = false;
+            for (String modelName : modelsWithPerts) {
+                if (nameRC.evaluate(modelName)) {
+                    hasPerts = true;
+                    break;
+                }
+            }
+            // If this query is not valid for any models with perts then it has
+            // no perts, don't bother with a query.
+            if (!hasPerts) {
+                return Collections.emptyList();
+            }
+        }
         Set<Integer> perts = new HashSet<Integer>();
         for (AbstractRequestableLevelNode node : evaluateRequestConstraints(query)) {
             perts.addAll(getPerts(node));
@@ -459,7 +483,6 @@ public class GridInventory extends AbstractInventory implements
 
     protected static List<Integer> getPerts(AbstractRequestableLevelNode node)
             throws VizException {
-
         if (node instanceof GribRequestableLevelNode) {
             GribRequestableLevelNode gNode = (GribRequestableLevelNode) node;
             if (gNode.getPerts() != null) {
@@ -613,7 +636,8 @@ public class GridInventory extends AbstractInventory implements
 
     @Override
     protected LevelNode getCubeNode(SourceNode sNode, DerivParamField field,
-            Deque<StackEntry> stack, Set<StackEntry> nodata) {
+            Deque<StackEntry> stack, Set<StackEntry> nodata)
+            throws VizCommunicationException {
         StackEntry se = new StackEntry(sNode.getValue(), field.getParam(),
                 Long.MIN_VALUE);
         if (stack.contains(se)) {
@@ -628,8 +652,14 @@ public class GridInventory extends AbstractInventory implements
         String masterLevelName = get3DMasterLevel(sNode.getValue());
         boolean isRadar = sNode.getValue().equals(RadarAdapter.RADAR_SOURCE);
 
-        NavigableSet<Level> levels = LevelUtilities
-                .getOrderedSetOfStandardLevels(masterLevelName);
+        NavigableSet<Level> levels = null;
+        try {
+            levels = LevelUtilities
+                    .getOrderedSetOfStandardLevels(masterLevelName);
+        } catch (VizCommunicationException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+            return null;
+        }
         List<CubeLevel<AbstractRequestableLevelNode, AbstractRequestableLevelNode>> cubeLevels = new ArrayList<CubeLevel<AbstractRequestableLevelNode, AbstractRequestableLevelNode>>(
                 levels.size());
 

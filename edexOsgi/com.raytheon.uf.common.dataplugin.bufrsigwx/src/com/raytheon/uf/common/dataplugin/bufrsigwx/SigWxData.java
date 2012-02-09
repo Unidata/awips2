@@ -20,7 +20,6 @@
 package com.raytheon.uf.common.dataplugin.bufrsigwx;
 
 import java.util.Collection;
-import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -291,15 +290,6 @@ public class SigWxData extends PersistablePluginDataObject implements
     @Override
     public void setPointDataView(PointDataView pdv) {
         this.pdv = pdv;
-    }
-
-    @Override
-    public Date getPersistenceTime() {
-        return dataTime.getRefTime();
-    }
-
-    @Override
-    public void setPersistenceTime(Date persistTime) {
     }
 
     /**

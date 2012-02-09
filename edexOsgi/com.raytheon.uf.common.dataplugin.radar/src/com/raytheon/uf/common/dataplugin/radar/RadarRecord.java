@@ -23,14 +23,12 @@ package com.raytheon.uf.common.dataplugin.radar;
 import java.awt.geom.Point2D;
 import java.text.ParsePosition;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.Vector;
 
 import javax.measure.unit.Unit;
@@ -53,7 +51,6 @@ import org.opengis.referencing.crs.ProjectedCRS;
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IHDFFilePathProvider;
-import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.dataplugin.radar.RadarDataPoint.RadarProductType;
 import com.raytheon.uf.common.dataplugin.radar.level3.AlertAdaptationParameters;
@@ -128,7 +125,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class RadarRecord extends PersistablePluginDataObject implements
-        IPersistable, ISpatialEnabled, IRadarRecord {
+        ISpatialEnabled, IRadarRecord {
 
     private static final long serialVersionUID = 1L;
 
@@ -403,33 +400,6 @@ public class RadarRecord extends PersistablePluginDataObject implements
     @Override
     public RadarStation getSpatialObject() {
         return location;
-    }
-
-    /**
-     * Get the time to use for persisting this data.
-     * 
-     * @return The persistence time for this data.
-     */
-    @Override
-    public Date getPersistenceTime() {
-        Calendar c = getInsertTime();
-        if (c == null)
-            return null;
-
-        return c.getTime();
-    }
-
-    /**
-     * Set the time to be used for the persistence time for this object.
-     * 
-     * @param persistTime
-     *            The persistence time to be used.
-     */
-    @Override
-    public void setPersistenceTime(Date persistTime) {
-        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        c.setTime(persistTime);
-        setInsertTime(c);
     }
 
     /**

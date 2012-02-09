@@ -40,6 +40,7 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.printing.PrintDialog;
 import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.printing.PrinterData;
@@ -167,10 +168,16 @@ public class NsharpPrintHandle {
 			Rectangle trim = printer.computeTrim(0, 0, 0, 0);
 			Point dpi = printer.getDPI();
 			
-			leftMargin = dpi.x + trim.x; // one inch from left side of paper
-			rightMargin = clientArea.width - dpi.x + trim.x + trim.width; // one inch from right side of paper
-			topMargin = dpi.y + trim.y; // one inch from top edge of paper
-			bottomMargin = clientArea.height - dpi.y + trim.y + trim.height; // one inch from bottom edge of paper
+			float dpiScaleX = dpi.x/72f;
+			float dpiScaleY = dpi.y/72f;
+			
+			Transform transform = new Transform(printer);
+			transform.scale(dpiScaleX, dpiScaleY);
+			
+			leftMargin = 72 + trim.x; // one inch from left side of paper
+			rightMargin = clientArea.width - 72 + trim.x + trim.width; // one inch from right side of paper
+			topMargin = 72 + trim.y; // one inch from top edge of paper
+			bottomMargin = clientArea.height - 72 + trim.y + trim.height; // one inch from bottom edge of paper
 			//System.out.println("leftMargin="+leftMargin+"rightMargin="+rightMargin+"topMargin"+topMargin+"bottomMargin"+bottomMargin);
 			//leftMargin=54rightMargin=521topMargin54bottomMargin701
 			/* Create a buffer for computing tab width. */
@@ -181,7 +188,9 @@ public class NsharpPrintHandle {
 			
 			/* Create printer GC, and create and set the printer font & foreground color. */
 			gc = new GC(printer);
-			printerFont = new Font(printer, "Courier", 5, SWT.NORMAL);
+			int fontSize = (int) Math.round(5/dpiScaleY);
+			fontSize = Math.max(1, fontSize);
+			printerFont = new Font(printer, "Courier", fontSize, SWT.NORMAL);
 			gc.setFont(printerFont);
 			tabWidth = gc.stringExtent(tabs).x;
 			lineHeight = gc.getFontMetrics().getHeight();
@@ -192,7 +201,7 @@ public class NsharpPrintHandle {
 			rgb = new RGB(255,255,255);//white
 			printerBackgroundColor = new Color(printer, rgb);
 			gc.setBackground(printerBackgroundColor);
-
+			gc.setTransform(transform);
 			printer.startPage();
 			// Print SkewT square
 			gc.drawRectangle(leftMargin+SKEWT_X_ORIG, topMargin, SKEWT_WIDTH, SKEWT_HEIGHT);
@@ -322,6 +331,7 @@ public class NsharpPrintHandle {
 			printerFont.dispose();
 			printerForegroundColor.dispose();
 			printerBackgroundColor.dispose();
+			transform.dispose();
 			gc.dispose();
 		}
 	}
