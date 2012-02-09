@@ -183,8 +183,12 @@ public class DrawCoordinatedPane implements Comparable<DrawCoordinatedPane> {
                         && pane.isVisible());
             }
 
-            for (VizDisplayPane pane : displayPanes) {
-                pane.drawEnd();
+            if (actualDraw || loopProperties.isShouldDraw()) {
+                for (VizDisplayPane pane : displayPanes) {
+                    if (pane.isVisible()) {
+                        pane.drawEnd();
+                    }
+                }
             }
 
             // System.out.println("Time to draw = "
