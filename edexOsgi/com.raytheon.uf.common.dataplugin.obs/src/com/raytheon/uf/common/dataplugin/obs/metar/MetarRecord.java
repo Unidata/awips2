@@ -23,7 +23,6 @@ package com.raytheon.uf.common.dataplugin.obs.metar;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -52,11 +51,10 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.obs.metar.util.SkyCover;
 import com.raytheon.uf.common.dataplugin.obs.metar.util.WeatherCondition;
-import com.raytheon.uf.common.dataplugin.persist.IPersistable;
+import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.pointdata.IPointData;
 import com.raytheon.uf.common.pointdata.PointDataView;
@@ -95,8 +93,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class MetarRecord extends PluginDataObject implements ISpatialEnabled,
-        IDecoderGettable, IPointData, IPersistable {
+public class MetarRecord extends PersistablePluginDataObject implements
+        ISpatialEnabled, IDecoderGettable, IPointData {
 
     public static final String PLUGIN_NAME = "obs";
 
@@ -166,18 +164,18 @@ public class MetarRecord extends PluginDataObject implements ISpatialEnabled,
 
         public static final String PRECIPITATION_24HR = "TP24hr";
 
-//        public static final String SNOW_DEPTH = "snow";
-//
-//        public static final String SNOW_WATER = "weqs";
-//        
-//        public static final String SNOWFALL6_HOUR = "TP24hr";
-//        
-//        public static final String SUNSHINE = "msun";
-//        
-//        public static final String TEMP_MAX_6HOUR = "t6xc";
-//
-//        public static final String TEMP_MIN_6HOUR = "t6nc";
-        
+        // public static final String SNOW_DEPTH = "snow";
+        //
+        // public static final String SNOW_WATER = "weqs";
+        //
+        // public static final String SNOWFALL6_HOUR = "TP24hr";
+        //
+        // public static final String SUNSHINE = "msun";
+        //
+        // public static final String TEMP_MAX_6HOUR = "t6xc";
+        //
+        // public static final String TEMP_MIN_6HOUR = "t6nc";
+
         private String value;
 
         /**
@@ -252,7 +250,7 @@ public class MetarRecord extends PluginDataObject implements ISpatialEnabled,
     @DynamicSerializeElement
     @Transient
     private String wmoHeader;
-    
+
     /** Nominal Time extracted from WMO header * */
     @XmlElement
     @DynamicSerializeElement
@@ -481,7 +479,6 @@ public class MetarRecord extends PluginDataObject implements ISpatialEnabled,
     @Transient
     private int sunshine = -9999;
 
-    
     @XmlElement
     @DynamicSerializeElement
     @Column
@@ -937,8 +934,9 @@ public class MetarRecord extends PluginDataObject implements ISpatialEnabled,
      * @return the timeObs
      */
     public Calendar getTimeObs() {
-        if (this.dataTime == null)
+        if (this.dataTime == null) {
             return null;
+        }
         return this.dataTime.getRefTimeAsCalendar();
     }
 
@@ -1035,7 +1033,7 @@ public class MetarRecord extends PluginDataObject implements ISpatialEnabled,
     public void setRefHour(Calendar refHour) {
         this.refHour = refHour;
     }
-    
+
     /**
      * @return the snowDepth
      */
@@ -1044,12 +1042,13 @@ public class MetarRecord extends PluginDataObject implements ISpatialEnabled,
     }
 
     /**
-     * @param snowDepth the snowDepth to set
+     * @param snowDepth
+     *            the snowDepth to set
      */
     public void setSnowDepth(int snowDepth) {
         this.snowDepth = snowDepth;
     }
-    
+
     /**
      * @return the snowFall_6Hours
      */
@@ -1058,7 +1057,8 @@ public class MetarRecord extends PluginDataObject implements ISpatialEnabled,
     }
 
     /**
-     * @param snowFall_6Hours the snowFall_6Hours to set
+     * @param snowFall_6Hours
+     *            the snowFall_6Hours to set
      */
     public void setSnowFall_6Hours(float snowFall_6Hours) {
         this.snowFall_6Hours = snowFall_6Hours;
@@ -1072,7 +1072,8 @@ public class MetarRecord extends PluginDataObject implements ISpatialEnabled,
     }
 
     /**
-     * @param sunshine the sunshine to set
+     * @param sunshine
+     *            the sunshine to set
      */
     public void setSunshine(int sunshine) {
         this.sunshine = sunshine;
@@ -1086,7 +1087,8 @@ public class MetarRecord extends PluginDataObject implements ISpatialEnabled,
     }
 
     /**
-     * @param snowWater the snowWater to set
+     * @param snowWater
+     *            the snowWater to set
      */
     public void setSnowWater(float snowWater) {
         this.snowWater = snowWater;
@@ -1615,7 +1617,7 @@ public class MetarRecord extends PluginDataObject implements ISpatialEnabled,
     public String getWmoHeader() {
         return wmoHeader;
     }
-    
+
     /**
      * 
      * @param header
@@ -1623,7 +1625,7 @@ public class MetarRecord extends PluginDataObject implements ISpatialEnabled,
     public void setWmoHeader(String header) {
         wmoHeader = header;
     }
-    
+
     @Override
     public void setMessageData(Object message) {
         this.messageData = message;
@@ -1679,28 +1681,7 @@ public class MetarRecord extends PluginDataObject implements ISpatialEnabled,
         this.pdv = pdv;
     }
 
-    @Override
-    public Integer getHdfFileId() {
-        return null;
-    }
-
-    @Override
-    public Date getPersistenceTime() {
-        return this.dataTime.getRefTime();
-    }
-
-    @Override
-    public void setHdfFileId(Integer hdfFileId) {
-
-    }
-
-    @Override
-    public void setPersistenceTime(Date persistTime) {
-
-    }
-
     public static Set<String> getAvailableParameters() {
         return PARM_MAP.keySet();
     }
-
 }

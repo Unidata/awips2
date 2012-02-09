@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.raytheon.edex.util.Util;
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.grib.GribModel;
 import com.raytheon.uf.common.dataplugin.grib.GribRecord;
@@ -215,11 +216,18 @@ public class GridUpdater implements IAlertObserver {
             }
             GribMapKey updateKey = new GribMapKey(alert.decodedAlert);
             GribTimeCache.getInstance().clearTimes(updateKey);
-            Level level = LevelFactory.getInstance().getLevel(
-                    updateKey.masterLevel, updateKey.levelone,
-                    updateKey.leveltwo);
-            LevelNode lNode = inventory.getNode(updateKey.modelName,
-                    updateKey.parameter, level);
+            LevelNode lNode = null;
+            try {
+                Level level = LevelFactory.getInstance().getLevel(
+                        updateKey.masterLevel, updateKey.levelone,
+                        updateKey.leveltwo);
+                lNode = inventory.getNode(updateKey.modelName,
+                        updateKey.parameter, level);
+            } catch (CommunicationException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
+
             if (lNode == null) {
                 inventory.reinitTree();
                 // System.out.println(alert.dataURI);
