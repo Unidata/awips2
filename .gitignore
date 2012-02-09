@@ -8,3 +8,5 @@ bin-test/
 
 /Installer.rpm
 /Installer.rpm
+
+*.pyo
