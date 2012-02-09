@@ -20,7 +20,7 @@
 
 # File auto-generated against equivalent DynamicSerialize Java class
 
-class RepackResponse(object):
+class FileActionResponse(object):
 
     def __init__(self):
         self.successfulFiles = None
@@ -37,4 +37,3 @@ class RepackResponse(object):
 
     def setFailedFiles(self, failedFiles):
         self.failedFiles = failedFiles
-
