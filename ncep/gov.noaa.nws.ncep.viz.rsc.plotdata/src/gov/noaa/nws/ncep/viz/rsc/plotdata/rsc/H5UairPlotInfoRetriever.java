@@ -30,7 +30,7 @@ public class H5UairPlotInfoRetriever extends PointDataPlotInfoRetriever {
 
 	@Override
 	protected void addColumns(DbQuery dq) {
-        dq.addColumn("id");
+        dq.addColumn("dataURI");
         dq.addColumn("slat");
         dq.addColumn("slon");
         dq.addColumn("stid");
@@ -41,7 +41,7 @@ public class H5UairPlotInfoRetriever extends PointDataPlotInfoRetriever {
     @Override
     protected PlotInfo getPlotInfo(Object[] data) {
         PlotInfo stationInfo = new PlotInfo();
-        stationInfo.id = (Integer) data[0];
+        stationInfo.dataURI = (String) data[0];
         stationInfo.latitude = ((Float)data[1]).doubleValue();
         stationInfo.longitude = ((Float)data[2]).doubleValue();
         stationInfo.stationId = (String)data[3];

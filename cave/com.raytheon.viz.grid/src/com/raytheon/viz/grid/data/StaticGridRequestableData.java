@@ -21,6 +21,7 @@ package com.raytheon.viz.grid.data;
 
 import javax.measure.unit.SI;
 
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
 import com.raytheon.uf.common.dataplugin.grib.util.GribModelLookup;
 import com.raytheon.uf.common.dataplugin.grib.util.GridModel;
@@ -29,6 +30,9 @@ import com.raytheon.uf.common.dataplugin.grib.util.StaticGridDataType;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.raytheon.viz.grid.util.CoverageUtils;
@@ -51,6 +55,9 @@ import com.raytheon.viz.grid.util.SliceUtil;
  */
 
 public class StaticGridRequestableData extends AbstractRequestableData {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(StaticGridRequestableData.class);
+
     private StaticGridDataType dataType;
 
     public StaticGridRequestableData(StaticGridDataType dataType, String source) {
@@ -63,7 +70,11 @@ public class StaticGridRequestableData extends AbstractRequestableData {
         } else {
             this.unit = SI.METER;
         }
-        this.level = LevelFactory.getInstance().getLevel("SFC", 0.0);
+        try {
+            this.level = LevelFactory.getInstance().getLevel("SFC", 0.0);
+        } catch (CommunicationException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
     }
 
     /*
@@ -107,13 +118,11 @@ public class StaticGridRequestableData extends AbstractRequestableData {
                 break;
             }
         }
-        if (arg == null) {
-            return rval;
-        } else if (arg instanceof Request) {
+        if (arg instanceof Request) {
             return SliceUtil.slice(rval, (Request) arg);
+        } else {
+            return rval;
         }
-        throw new VizException(this.getClass().getSimpleName()
-                + " cannot process request of type: "
-                + arg.getClass().getSimpleName());
+
     }
 }
