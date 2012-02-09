@@ -9,6 +9,7 @@ Require-Bundle: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.dataplugin.level,
  com.raytheon.uf.edex.plugin.level
 Import-Package: com.raytheon.edex.db.dao,
+ com.raytheon.uf.common.comm,
  com.raytheon.uf.common.serialization.comm,
  com.raytheon.uf.edex.database.plugin,
  org.apache.commons.logging,
