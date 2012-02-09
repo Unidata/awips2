@@ -51,7 +51,7 @@ import com.raytheon.uf.edex.maintenance.archive.config.DataArchiveConfig;
  * @version 1.0
  */
 
-public class DataStoreArchiver implements IPluginArchiver {
+public class DataStoreArchiver {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DataStoreArchiver.class);
@@ -67,19 +67,22 @@ public class DataStoreArchiver implements IPluginArchiver {
         this.compression = Compression.valueOf(compression);
     }
 
-    @Override
-    public void archivePlugin(String pluginName, String archiveDir,
+    public void archiveFiles(String[] hdf5Files, String archiveDir,
             DataArchiveConfig conf) {
-        String dirToArchive = hdf5Dir + File.separator + pluginName;
-        IDataStore ds = DataStoreFactory.getDataStore(new File(dirToArchive));
-        String outputDir = archiveDir + File.separator + pluginName;
-        statusHandler.info("Archiving " + dirToArchive);
+        for (String hdf5File : hdf5Files) {
+            IDataStore ds = DataStoreFactory.getDataStore(new File(hdf5File));
+            String outputDir = archiveDir; // + dirs of hdf5 file
 
-        try {
-            ds.repack(compression, outputDir, "lastArchived");
-        } catch (StorageException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage());
+            try {
+                // data must be older than 30 minutes, and no older than hours
+                // to keep hours need to lookup plugin and see if compression
+                // matches, or embed in configuration the compression level on
+                // archive, but would still need to lookup plugin
+                ds.copy(outputDir, compression, "lastArchived", 1800000,
+                        conf.getHoursToKeep() * 60000 + 1800000);
+            } catch (StorageException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage());
+            }
         }
-
     }
 }
