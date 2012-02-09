@@ -257,10 +257,20 @@ public interface IDataStore extends ISerializableObject {
      * 
      * @param compression
      *            the type of compression to repack with
+     */
+    public void repack(Compression compression) throws StorageException;
+
+    /**
+     * Recursively copies all files of a certain directory. If compression is
+     * specified the file will be repacked to the specified compression.
+     * Presumes that the IDataStore instance is tied to a directory, not a
+     * specific file.
+     * 
      * @param outputDir
-     *            the output directory to put the repacked files, or null if the
-     *            same dir. If the same dir is used, it will delete the original
-     *            file.
+     *            the output directory to put the copied files
+     * @param compression
+     *            If specified will repack the output file with a given
+     *            compression
      * @param timestampCheck
      *            if not null, the attribute to check on the file for a
      *            timestamp of the last time this particular action was run.
@@ -269,8 +279,18 @@ public interface IDataStore extends ISerializableObject {
      *            future requests for the same file will check this attribute
      *            and if the file has not been modified since last run, the file
      *            will be skipped.
+     * @param minMillisSinceLastChange
+     *            if greater than 0, the last modified time on the file cannot
+     *            be within minMillisSinceLastChange from current time. This is
+     *            used to not repack files that have changed within a recent
+     *            threshold.
+     * @param maxMillisSinceLastChange
+     *            if greater than 0, the last modified time on the file must be
+     *            within maxMillisSinceLastChange from current time. This is
+     *            used to ignore files that have not changed within a recent
+     *            threshold.
      */
-    public void repack(Compression compression, String outputDir,
-            String timestampCheck) throws StorageException;
-
+    public void copy(String outputDir, Compression compression,
+            String timestampCheck, int minMillisSinceLastChange,
+            int maxMillisSinceLastChange) throws StorageException;
 }
