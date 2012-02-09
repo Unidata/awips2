@@ -16,7 +16,8 @@ Require-Bundle: org.eclipse.ui,
  org.apache.commons.lang;bundle-version="2.3.0",
  com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
  com.raytheon.uf.viz.productbrowser;bundle-version="1.12.1152",
- com.raytheon.uf.viz.core.rsc;bundle-version="1.0.0"
+ com.raytheon.uf.viz.core.rsc;bundle-version="1.0.0",
+ com.raytheon.uf.viz.ui.menus;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: com.raytheon.uf.viz.core
