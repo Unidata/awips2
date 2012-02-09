@@ -20,7 +20,6 @@
 package com.raytheon.uf.common.dataplugin.poessounding;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -329,28 +328,4 @@ public class POESSounding extends PersistablePluginDataObject implements
     public void setPointDataView(PointDataView pdv) {
         this.pdv = pdv;
     }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.dataplugin.persist.IPersistable#getPersistenceTime
-     * ()
-     */
-    @Override
-    public Date getPersistenceTime() {
-        return this.dataTime.getRefTime();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.dataplugin.persist.IPersistable#setPersistenceTime
-     * (java.util.Calendar)
-     */
-    @Override
-    public void setPersistenceTime(Date persistTime) {
-    }
-
 }
