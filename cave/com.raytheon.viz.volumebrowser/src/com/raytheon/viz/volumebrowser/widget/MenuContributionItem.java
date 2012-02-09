@@ -39,6 +39,8 @@ public class MenuContributionItem extends ContributionItem {
 
     protected MenuContribution menuContribution;
 
+    protected Image image;
+
     public MenuContributionItem(MenuContribution contribution) {
         this.menuContribution = contribution;
     }
@@ -131,11 +133,18 @@ public class MenuContributionItem extends ContributionItem {
             widget.dispose();
             widget = null;
         }
+        if (image != null) {
+            image.dispose();
+            image = null;
+        }
     }
 
     public void markDataAvailable(boolean available) {
         if (available == true) {
-            createMenuImage();
+            if (image == null) {
+                createMenuImage();
+            }
+            widget.setImage(image);
         } else {
             widget.setImage(null);
         }
@@ -145,16 +154,12 @@ public class MenuContributionItem extends ContributionItem {
         int imgWidth = 10;
         int imgHeight = 10;
 
-        Image menuImg = new Image(widget.getDisplay(), imgWidth, imgHeight);
+        image = new Image(widget.getDisplay(), imgWidth, imgHeight);
 
-        GC gc = new GC(menuImg);
+        GC gc = new GC(image);
         drawImage(gc, imgWidth, imgHeight);
 
         gc.dispose();
-
-        widget.setImage(menuImg);
-
-        menuImg.dispose();
     }
 
     private void drawImage(GC gc, int imgWidth, int imgHeight) {

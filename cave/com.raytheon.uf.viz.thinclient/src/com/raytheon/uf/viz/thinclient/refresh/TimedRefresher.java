@@ -92,7 +92,12 @@ public class TimedRefresher implements IPropertyChangeListener {
                     @Override
                     protected IStatus run(IProgressMonitor monitor) {
                         startOfLastRun = System.currentTimeMillis();
-                        refreshTask.run();
+                        try {
+                            refreshTask.run();
+                        } catch (RuntimeException e) {
+                            reschedule();
+                            throw e;
+                        }
                         reschedule();
                         return Status.OK_STATUS;
                     }

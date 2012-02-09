@@ -34,6 +34,7 @@ import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengis.referencing.operation.MathTransform;
 
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
@@ -309,7 +310,12 @@ public class RadarAdapter {
      * @param level
      */
     private void initTopoParam(SourceNode modelNameNode) {
-        Level sfc = LevelFactory.getInstance().getLevel("SFC", 0.0);
+        Level sfc = null;
+        try {
+            sfc = LevelFactory.getInstance().getLevel("SFC", 0.0);
+        } catch (CommunicationException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
         DerivParamDesc topo = new DerivParamDesc();
         topo.setAbbreviation("Topo");
         topo.setName("Topography");

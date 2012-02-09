@@ -28,10 +28,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.level.CompareType;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
+import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.level.LevelMapping;
 import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 
@@ -72,7 +74,7 @@ public class ValidLevelGenerator {
     }
 
     public Set<Level> generateLevels(String validLevelsString)
-            throws IllegalArgumentException {
+            throws IllegalArgumentException, VizCommunicationException {
         masterLevels = new HashMap<MasterLevel, Set<Level>>();
         validLevels = new HashSet<Level>();
         masterLevelsHandled = new HashSet<MasterLevel>();
@@ -121,7 +123,11 @@ public class ValidLevelGenerator {
 
             if (tokensToProcess.size() > 0) {
                 for (String token : tokensToProcess) {
-                    processLevelToken(token);
+                    try {
+                        processLevelToken(token);
+                    } catch (CommunicationException e) {
+                        throw new VizCommunicationException(e);
+                    }
                 }
             } else {
                 for (Set<Level> levels : masterLevels.values()) {
@@ -133,7 +139,8 @@ public class ValidLevelGenerator {
         return validLevels;
     }
 
-    private void processLevelToken(String token) {
+    private void processLevelToken(String token)
+            throws VizCommunicationException, CommunicationException {
         boolean negate = token.charAt(0) == '!';
         int rangeIndex = token.indexOf('>');
 
@@ -318,7 +325,8 @@ public class ValidLevelGenerator {
         }
     }
 
-    private Type determineType(String token) {
+    private Type determineType(String token) throws CommunicationException,
+            VizCommunicationException {
         Type rval = null;
         LevelMapping mapping = lmf.getLevelMappingForKey(token);
 
