@@ -57,10 +57,6 @@ class SfcObsRequest(PointDataQuery.PointDataQuery):
         
     def setOrderByList(self,orderList,ascending,className=None):
         self._pdq.setSortBy(orderList, ascending,className)
-        
-    def makeNullResponse(self):        
-        response = ArrayList()
-        return response
 
     def execute(self):
         print "SfcObsRequest.py"
@@ -68,7 +64,7 @@ class SfcObsRequest(PointDataQuery.PointDataQuery):
         self._pdq.setParameters(SfcObsPointDataTransform.MAN_PARAMS_LIST)        
         self.queryResults = self._pdq.execute()
         if self.queryResults is None:
-            self.makeNullResponse()
+            return self.makeNullResponse()
         else:
             print "performing transform"
             records = SfcObsPointDataTransform.toSfcObsRecords(self.queryResults)
