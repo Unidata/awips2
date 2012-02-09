@@ -19,7 +19,16 @@
  **/
 package com.raytheon.uf.viz.thinclient.alertviz;
 
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.MessageBox;
+
+import com.raytheon.uf.viz.alertviz.ui.dialogs.AlertVisualization;
 import com.raytheon.uf.viz.product.alertviz.AlertVizApplication;
+import com.raytheon.uf.viz.thinclient.Activator;
 import com.raytheon.uf.viz.thinclient.IThinClientComponent;
 import com.raytheon.uf.viz.thinclient.StatsJob;
 import com.raytheon.uf.viz.thinclient.ThinClientNotificationManagerJob;
@@ -37,6 +46,7 @@ import com.raytheon.uf.viz.thinclient.localization.ThinClientLocalizationInitial
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 29, 2011            mschenke     Initial creation
+ * Jan 12, 2012  27        rferrel      Added exit option
  * 
  * </pre>
  * 
@@ -53,7 +63,8 @@ public class ThinAlertVizComponent extends AlertVizApplication implements
 
     @Override
     public Object startComponent(String componentName) throws Exception {
-        // Start network statistics
+    	Activator.getDefault().setComponent(this);
+    	// Start network statistics
         statsJob = new StatsJob();
         statsJob.schedule();
         return super.startComponent(componentName);
@@ -82,4 +93,31 @@ public class ThinAlertVizComponent extends AlertVizApplication implements
         ThinClientNotificationManagerJob.getInstance();
     }
 
+    protected AlertVisualization createAlertVisualization(
+    		boolean runningStandalone, final Display display) {
+    	return new AlertVisualization(runningStandalone, display) {
+    		
+    		@Override
+    		protected void createTrayMenuItems() {
+    			super.createTrayMenuItems();
+    			if (!runningStandalone) {
+    				new MenuItem(trayItemMenu, SWT.SEPARATOR);
+    			}
+    			MenuItem exitMI = new MenuItem(trayItemMenu, SWT.NONE);
+    			exitMI.setText("Exit...");
+    			exitMI.addSelectionListener(new SelectionAdapter() {
+    				 @Override
+    				 public void widgetSelected(SelectionEvent event) {
+    					 MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION
+    							 | SWT.YES | SWT.NO);
+    					 mb.setText("Confirm Exit");
+    					 mb.setMessage("Any unsaved changes will be lost.\n Are you sure you want to exit?");
+    					 if (mb.open() == SWT.YES) {
+    						 display.dispose();
+    					 }
+    				 }
+    			});
+    		}
+    	};
+    }
 }
