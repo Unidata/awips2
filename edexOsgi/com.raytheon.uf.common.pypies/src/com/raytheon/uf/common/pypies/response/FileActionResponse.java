@@ -40,7 +40,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 
 @DynamicSerialize
-public class RepackResponse {
+public class FileActionResponse {
 
     @DynamicSerializeElement
     private String[] successfulFiles;
