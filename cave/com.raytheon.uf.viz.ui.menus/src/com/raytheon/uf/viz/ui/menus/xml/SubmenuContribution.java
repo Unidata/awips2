@@ -64,9 +64,8 @@ public class SubmenuContribution extends
         if (removals.contains(item.id))
             return new IContributionItem[0];
 
-        final SubmenuContributionItem smci = new SubmenuContributionItem(subs,
-                item.menuText, item.contributions, new HashSet<String>());
-        return new IContributionItem[] { smci };
+        return new IContributionItem[] { new SubmenuContributionItem(subs,
+                item.menuText, item.contributions, new HashSet<String>()) };
     }
 
 }
