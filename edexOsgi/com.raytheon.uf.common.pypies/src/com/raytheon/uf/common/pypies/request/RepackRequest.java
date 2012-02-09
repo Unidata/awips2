@@ -46,34 +46,12 @@ public class RepackRequest extends AbstractRequest {
     @DynamicSerializeElement
     private Compression compression;
 
-    @DynamicSerializeElement
-    private String outputDir;
-
-    @DynamicSerializeElement
-    private String timestampCheck;
-
     public Compression getCompression() {
         return compression;
     }
 
     public void setCompression(Compression compression) {
         this.compression = compression;
-    }
-
-    public String getOutputDir() {
-        return outputDir;
-    }
-
-    public void setOutputDir(String outputDir) {
-        this.outputDir = outputDir;
-    }
-
-    public String getTimestampCheck() {
-        return timestampCheck;
-    }
-
-    public void setTimestampCheck(String timestampCheck) {
-        this.timestampCheck = timestampCheck;
     }
 
 }
