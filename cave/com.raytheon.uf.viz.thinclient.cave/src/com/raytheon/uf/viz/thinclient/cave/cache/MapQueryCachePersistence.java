@@ -21,8 +21,8 @@ package com.raytheon.uf.viz.thinclient.cave.cache;
 
 import java.io.File;
 
-import com.raytheon.uf.viz.core.maps.rsc.MapQueryCache;
 import com.raytheon.uf.viz.thinclient.cache.AbstractCachePersistance;
+import com.raytheon.uf.viz.thinclient.cave.cache.map.CacheDbMapQueryFactory;
 import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
 
 /**
@@ -57,7 +57,8 @@ public class MapQueryCachePersistence extends AbstractCachePersistance {
      */
     @Override
     public void store(File cacheFile) {
-        MapQueryCache.storeCache(cacheFile);
+        CacheDbMapQueryFactory.storeCache(cacheFile);
+        // MapQueryCache.storeCache(cacheFile);
     }
 
     /*
@@ -69,7 +70,8 @@ public class MapQueryCachePersistence extends AbstractCachePersistance {
      */
     @Override
     public void restore(File cacheFile) {
-        MapQueryCache.restoreCache(cacheFile);
+        CacheDbMapQueryFactory.restoreCache(cacheFile);
+        // MapQueryCache.restoreCache(cacheFile);
 
     }
 
@@ -81,7 +83,7 @@ public class MapQueryCachePersistence extends AbstractCachePersistance {
      */
     @Override
     protected void enable() {
-        MapQueryCache.setCaching(true);
+        CacheDbMapQueryFactory.setEnableCaching(true);
     }
 
     /*
@@ -92,7 +94,7 @@ public class MapQueryCachePersistence extends AbstractCachePersistance {
      */
     @Override
     protected void disable() {
-        MapQueryCache.setCaching(false);
+        CacheDbMapQueryFactory.setEnableCaching(false);
     }
 
 }

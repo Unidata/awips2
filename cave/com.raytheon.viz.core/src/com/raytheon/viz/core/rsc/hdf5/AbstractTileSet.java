@@ -99,8 +99,8 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
 
     protected static final double LEVEL_CHANGE_THRESHOLD = 2.0;
 
-    protected static final JobPool tileCreationPool = new JobPool("tileset",
-            10, true);
+    protected static final JobPool tileCreationPool = new JobPool(
+            "Creating Image Tiles", 10, false);
 
     /**
      * Deprecated, use DrawableImage and use target.drawImages(...)
@@ -411,7 +411,16 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
 
     }
 
-    protected void createTilesWithinExtent(int lvl, IExtent extent,
+    /**
+     * returns true if new tiles were requested, false if it is done loading.
+     * 
+     * @param lvl
+     * @param extent
+     * @param target
+     * @return
+     * @throws VizException
+     */
+    protected boolean createTilesWithinExtent(int lvl, IExtent extent,
             IGraphicsTarget target) throws VizException {
         List<Point> tilesToCreate = new ArrayList<Point>();
 
@@ -443,6 +452,7 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
             }
         }
         startCreateTileJobs(lvl, target, tilesToCreate);
+        return !tilesToCreate.isEmpty();
     }
 
     // this is in a seperate method so that subclasses can merge requests if it
@@ -485,8 +495,13 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
         ImageTile[][] tiles = tileSet.getTileGrid(lvl);
 
         if (depth == 0) {
-            createTilesWithinExtent(lvl, paintProps.getView().getExtent()
-                    .intersection(paintProps.getClippingPane()), target);
+            if (!createTilesWithinExtent(lvl, paintProps.getView().getExtent()
+                    .intersection(paintProps.getClippingPane()), target)) {
+                for (CreateTileJob job : jobMap.values()) {
+                    tileCreationPool.cancel(job);
+                }
+                jobMap.clear();
+            }
         }
 
         for (int i = 0; i < tiles.length; i++) {
@@ -674,6 +689,9 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
             tileSet.dispose();
         }
         imageMap.clear();
+        for (CreateTileJob job : jobMap.values()) {
+            tileCreationPool.cancel(job);
+        }
     }
 
     public void init(IGraphicsTarget target) throws VizException {
