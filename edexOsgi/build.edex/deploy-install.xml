@@ -43,7 +43,9 @@
 		<echo message="BUILD TIME   = ${build.time}" />
 		<echo message="BUILD SYSTEM = ${build.system}" />
 
-                <equals arg1="${installer}" arg2="false" />
+                <if>
+                	<equals arg1="${installer}" arg2="false" />
+			<then>
 			<!-- Ensure the git working directory has been set. -->
 			<if>
 				<equals arg1="${git.working.dir}" arg2="" />
@@ -63,6 +65,7 @@
 					<fail message="The specified git working directory does not exist." />
 				</else>
 			</if>
+			</then>
 		</if>
 		
 		<var name="projects.dirs" 
