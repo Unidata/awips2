@@ -19,9 +19,12 @@
  **/
 package com.raytheon.uf.viz.thinclient.cave.refresh;
 
+import org.eclipse.jface.preference.IPreferenceStore;
+
+import com.raytheon.uf.viz.thinclient.Activator;
+import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
 import com.raytheon.uf.viz.thinclient.refresh.TimedRefresher.RefreshTimerTask;
 import com.raytheon.viz.alerts.jobs.MenuUpdater;
-import com.raytheon.viz.alerts.observers.ProductAlertObserver;
 
 /**
  * Timer task that is responsible for requerying menu times
@@ -51,6 +54,10 @@ public class MenuTimeRefreshTask implements RefreshTimerTask {
      */
     @Override
     public void run() {
+        IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+        if (!store.getBoolean(ThinClientPreferenceConstants.P_DISABLE_JMS)) {
+            return;
+        }
         ThinClientURICatalog.getInstance().requeryAllMenuTimes();
 
     }
@@ -64,7 +71,7 @@ public class MenuTimeRefreshTask implements RefreshTimerTask {
      */
     @Override
     public void scheduled() {
-        ProductAlertObserver.removeObserver(null, menuUpdater);
+
     }
 
     /*
@@ -76,7 +83,7 @@ public class MenuTimeRefreshTask implements RefreshTimerTask {
      */
     @Override
     public void stopped() {
-        ProductAlertObserver.addObserver(null, menuUpdater);
+
     }
 
 }
