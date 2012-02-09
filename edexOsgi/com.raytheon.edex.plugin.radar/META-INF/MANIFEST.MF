@@ -21,7 +21,8 @@ Export-Package: com.raytheon.edex.plugin.radar,
  com.raytheon.edex.plugin.radar.level2,
  com.raytheon.edex.uengine.tasks.radar
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.raytheon.uf.common.menus,
+Import-Package: com.raytheon.uf.common.comm,
+ com.raytheon.uf.common.menus,
  com.raytheon.uf.common.menus.xml,
  com.raytheon.uf.common.site.ingest,
  org.apache.commons.logging,

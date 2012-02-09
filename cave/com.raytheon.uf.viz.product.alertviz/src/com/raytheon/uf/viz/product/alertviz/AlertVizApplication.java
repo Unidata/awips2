@@ -54,6 +54,7 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 29, 2008 #1433      chammack    Initial creation
+ * Jan 12, 2012 #27        rferrel     Added createAlertVisualization
  * </pre>
  * 
  * @author chammack
@@ -126,7 +127,7 @@ public class AlertVizApplication implements IStandaloneComponent {
         }
 
         // Job is not running on port, launch UI.
-        AlertVisualization av = new AlertVisualization(true, display);
+        AlertVisualization av = createAlertVisualization(true, display);
         Throwable t = null;
         try {
             while (!display.isDisposed()) {
@@ -152,13 +153,17 @@ public class AlertVizApplication implements IStandaloneComponent {
             display.dispose();
             if (t != null) {
                 // Killed because of error, set exit status to non zero value
-                System.exit(1);
+            	return IApplication.EXIT_RELAUNCH;
             }
         }
 
-        return IApplication.EXIT_OK;
+        return av.getExitStatus();
     }
-
+    
+    protected AlertVisualization createAlertVisualization(
+    		boolean runningStandalone, final Display display) {
+    	return new AlertVisualization(runningStandalone, display);	
+    }
     protected void initializeObservers() {
         CAVELocalizationNotificationObserver.register();
     }
