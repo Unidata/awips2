@@ -41,10 +41,15 @@ import com.raytheon.uf.common.dataplugin.persist.DefaultPathProvider;
 import com.raytheon.uf.common.dataplugin.persist.IHDFFilePathProvider;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
+import com.raytheon.uf.common.datastorage.DataStoreFactory;
+import com.raytheon.uf.common.datastorage.IDataStore;
+import com.raytheon.uf.common.datastorage.StorageException;
+import com.raytheon.uf.common.datastorage.StorageProperties.Compression;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
@@ -145,6 +150,8 @@ public class DatabaseArchiver implements IPluginArchiver {
                 return false;
             }
 
+            List<String> datastoreFilesToArchive = new ArrayList<String>();
+
             startTime = determineStartTime(pluginName, ct.getExtraInfo(),
                     runTime, dao, conf);
             Calendar endTime = determineEndTime(startTime, runTime);
@@ -154,16 +161,67 @@ public class DatabaseArchiver implements IPluginArchiver {
                 Map<String, List<PersistableDataObject>> pdosToSave = getPdosByFile(
                         pluginName, dao, pdoMap, startTime, endTime);
 
-                if (pdosToSave != null && pdosToSave.size() > 0) {
+                if (pdosToSave != null && !pdosToSave.isEmpty()) {
                     savePdoMap(pluginName, archivePath, pdosToSave);
+                    for (Map.Entry<String, List<PersistableDataObject>> entry : pdosToSave
+                            .entrySet()) {
+                        List<PersistableDataObject> pdoList = entry.getValue();
+                        if (pdoList != null && !pdoList.isEmpty()
+                                && pdoList.get(0) instanceof IPersistable) {
+                            datastoreFilesToArchive.add(entry.getKey());
+                        }
+                    }
                 }
 
                 startTime = endTime;
                 endTime = determineEndTime(startTime, runTime);
             }
 
-            if (pdoMap != null && pdoMap.size() > 0) {
+            if (pdoMap != null && !pdoMap.isEmpty()) {
                 savePdoMap(pluginName, archivePath, pdoMap);
+            }
+
+            if (!datastoreFilesToArchive.isEmpty()) {
+                Compression compRequired = Compression.LZF;
+
+                PluginProperties props = PluginRegistry.getInstance()
+                        .getRegisteredObject(pluginName);
+
+                if (props != null && props.getCompression() != null) {
+                    if (compRequired.equals(Compression.valueOf(props
+                            .getCompression()))) {
+                        // if plugin is already compressed to the correct level,
+                        // no additional compression required
+                        compRequired = null;
+                    }
+                }
+
+                for (String dataStoreFile : datastoreFilesToArchive) {
+                    IDataStore ds = DataStoreFactory.getDataStore(new File(
+                            FileUtil.join(PluginDao.HDF5_DIR, pluginName,
+                                    dataStoreFile)));
+                    int pathSep = dataStoreFile.lastIndexOf(File.separatorChar);
+                    String outputDir = (pathSep > 0 ? FileUtil.join(
+                            archivePath, pluginName,
+                            dataStoreFile.substring(0, pathSep)) : FileUtil
+                            .join(archivePath, pluginName, dataStoreFile));
+
+                    try {
+                        // data must be older than 30 minutes, and no older than
+                        // hours
+                        // to keep hours need to lookup plugin and see if
+                        // compression
+                        // matches, or embed in configuration the compression
+                        // level on
+                        // archive, but would still need to lookup plugin
+                        ds.copy(outputDir, compRequired, "lastArchived",
+                                1800000,
+                                conf.getHoursToKeep() * 60000 + 1800000);
+                    } catch (StorageException e) {
+                        statusHandler.handle(Priority.PROBLEM,
+                                e.getLocalizedMessage());
+                    }
+                }
             }
 
             // set last archive time to startTime
@@ -212,7 +270,7 @@ public class DatabaseArchiver implements IPluginArchiver {
                 endTime);
 
         Set<String> newFileEntries = new HashSet<String>();
-        if (pdos != null && pdos.size() > 0) {
+        if (pdos != null && !pdos.isEmpty()) {
             if (pdos.get(0) instanceof IPersistable) {
                 IHDFFilePathProvider pathProvider = dao.pathProvider;
 
@@ -291,11 +349,8 @@ public class DatabaseArchiver implements IPluginArchiver {
                     + File.separator + entry.getKey();
 
             // remove .h5
-            int index = path.lastIndexOf('.');
-            if (index > 0 && path.length() - index < 5) {
-                // ensure its end of string in case extension is
-                // dropped/changed
-                path = path.substring(0, index);
+            if (path.endsWith(".h5")) {
+                path = path.substring(0, path.length() - 3);
             }
 
             path += ".bin.gz";
@@ -329,7 +384,7 @@ public class DatabaseArchiver implements IPluginArchiver {
         Calendar startTime = null;
 
         // get previous run time
-        if (extraInfo != null && extraInfo.length() > 0) {
+        if (extraInfo != null && !extraInfo.isEmpty()) {
             try {
                 Date prevDate = DATE_FORMAT.parse(extraInfo);
 
