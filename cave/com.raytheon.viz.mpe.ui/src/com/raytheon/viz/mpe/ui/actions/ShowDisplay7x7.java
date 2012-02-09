@@ -27,7 +27,6 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.commands.IElementUpdater;
-import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.menus.UIElement;
 
 import com.raytheon.uf.viz.core.IDisplayPane;
@@ -55,8 +54,9 @@ public class ShowDisplay7x7 extends AbstractHandler implements IElementUpdater {
 
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
-        if (activeEditor instanceof IDisplayPaneContainer) {
+        IEditorPart activeEditor = (IEditorPart) EditorUtil
+                .getActiveEditorAs(IDisplayPaneContainer.class);
+        if (activeEditor != null) {
             IDisplayPane first = ((IDisplayPaneContainer) activeEditor)
                     .getDisplayPanes()[0];
             List<MPEGageResource> rscs = first.getDescriptor()
