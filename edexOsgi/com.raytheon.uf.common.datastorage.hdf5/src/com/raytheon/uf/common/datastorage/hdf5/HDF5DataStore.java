@@ -1960,8 +1960,14 @@ public class HDF5DataStore implements IDataStore {
     }
 
     @Override
-    public void repack(Compression compression, String outputDir,
-            String timestampCheck) throws StorageException {
+    public void repack(Compression compression) throws StorageException {
+        throw new StorageException("Operation not supported", null);
+    }
+
+    @Override
+    public void copy(String outputDir, Compression compression,
+            String timestampCheck, int minMillisSinceLastChange,
+            int maxMillisSinceLastChange) throws StorageException {
         throw new StorageException("Operation not supported", null);
     }
 }
