@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.core.level;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelContainer;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
@@ -37,6 +38,7 @@ import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 
@@ -45,11 +47,14 @@ public class LevelRetrievalAdapter implements ILevelRetrievalAdapter {
             .getHandler(LevelRetrievalAdapter.class);
 
     @Override
-    public Level getLevel(GetLevelRequest request) {
+    public Level getLevel(GetLevelRequest request)
+            throws CommunicationException {
         Level rval = null;
 
         try {
             rval = (Level) ThriftClient.sendRequest(request);
+        } catch (VizCommunicationException e) {
+            throw new CommunicationException(e);
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error occurred retrieving level information from server.",
@@ -60,11 +65,14 @@ public class LevelRetrievalAdapter implements ILevelRetrievalAdapter {
     }
 
     @Override
-    public Level getLevel(GetLevelByIdRequest request) {
+    public Level getLevel(GetLevelByIdRequest request)
+            throws CommunicationException {
         Level rval = null;
 
         try {
             rval = (Level) ThriftClient.sendRequest(request);
+        } catch (VizCommunicationException e) {
+            throw new CommunicationException(e);
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error occurred retrieving level information from server.",
@@ -75,10 +83,13 @@ public class LevelRetrievalAdapter implements ILevelRetrievalAdapter {
     }
 
     @Override
-    public MasterLevel getMasterLevel(GetMasterLevelRequest request) {
+    public MasterLevel getMasterLevel(GetMasterLevelRequest request)
+            throws CommunicationException {
         MasterLevel rval = null;
         try {
             rval = (MasterLevel) ThriftClient.sendRequest(request);
+        } catch (VizCommunicationException e) {
+            throw new CommunicationException(e);
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error occurred retrieving level information from server.",
@@ -89,10 +100,13 @@ public class LevelRetrievalAdapter implements ILevelRetrievalAdapter {
 
     @Override
     public LevelContainer getAllLevelsForMasterLevel(
-            GetAllLevelsForMasterLevelRequest request) {
+            GetAllLevelsForMasterLevelRequest request)
+            throws CommunicationException {
         LevelContainer rval = null;
         try {
             rval = (LevelContainer) ThriftClient.sendRequest(request);
+        } catch (VizCommunicationException e) {
+            throw new CommunicationException(e);
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error occurred retrieving level information from server.",
@@ -102,7 +116,7 @@ public class LevelRetrievalAdapter implements ILevelRetrievalAdapter {
     }
 
     @Override
-    public LevelContainer getAllLevels() {
+    public LevelContainer getAllLevels() throws CommunicationException {
         LevelContainer rval = null;
         DbQueryRequest query = new DbQueryRequest();
         query.setConstraints(new HashMap<String, RequestConstraint>());
@@ -114,6 +128,8 @@ public class LevelRetrievalAdapter implements ILevelRetrievalAdapter {
             for (Map<String, Object> result : resp.getResults()) {
                 rval.add((Level) result.get(null));
             }
+        } catch (VizCommunicationException e) {
+            throw new CommunicationException(e);
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error occurred retrieving level information from server.",
@@ -123,7 +139,8 @@ public class LevelRetrievalAdapter implements ILevelRetrievalAdapter {
     }
 
     @Override
-    public MasterLevelContainer getAllMasterLevels() {
+    public MasterLevelContainer getAllMasterLevels()
+            throws CommunicationException {
         MasterLevelContainer rval = null;
         DbQueryRequest query = new DbQueryRequest();
         query.setConstraints(new HashMap<String, RequestConstraint>());
@@ -135,6 +152,8 @@ public class LevelRetrievalAdapter implements ILevelRetrievalAdapter {
             for (Map<String, Object> result : resp.getResults()) {
                 rval.add((MasterLevel) result.get(null));
             }
+        } catch (VizCommunicationException e) {
+            throw new CommunicationException(e);
         } catch (VizException e) {
             statusHandler
                     .handle(Priority.PROBLEM,

@@ -90,7 +90,7 @@ public class PlotModelGeneratorJob extends Job {
             try {
                 PlotInfo[] infos = taskQueue.poll();
                 BufferedImage bImage = plotCreator.getStationPlot(infos[0].pdv,
-                        infos[0].id, infos[0].latitude, infos[0].longitude);
+                        infos[0].latitude, infos[0].longitude);
                 IImage image = null;
                 if (bImage != null) {
                     if (imageCache.containsKey(bImage)) {
