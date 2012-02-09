@@ -130,7 +130,7 @@ public class SaveScreenAction extends AbstractScreenCaptureAction {
         String frameMode = arg0.getParameter("frameSelection");
 
         if (frameMode == null || frameMode.equalsIgnoreCase("current")) {
-            BufferedImage bi = editor.screenshot();
+            BufferedImage bi = captureCurrentFrames(editor);
 
             try {
                 writer.setOutput(new FileImageOutputStream(new File(path)));
