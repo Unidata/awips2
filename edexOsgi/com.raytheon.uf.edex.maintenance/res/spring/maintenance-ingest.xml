@@ -23,9 +23,11 @@
 		<constructor-arg ref="databaseArchiver"/>
 	</bean>
 
+ <!-- Need to register with databaseArchiver for archiving associated data store
     <bean id="datastoreArchiverRegistered" factory-bean="dataArchiver" factory-method="registerPluginArchiver">
 		<constructor-arg ref="dataStoreArchiver"/>
 	</bean>	
+ -->
 
 	<camelContext id="clusteredMaintenanceContext" xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler" autoStartup="false">
