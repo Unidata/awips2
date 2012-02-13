@@ -96,6 +96,10 @@
                   id="import"
                   label="Import">
             </menu>
+            <menu
+                  id="export"
+                  label="Export">
+            </menu>
             <menu id="displaysState"
                   label="Load/Save Displays">
                <command
@@ -112,37 +116,6 @@
                      commandId="com.raytheon.viz.ui.loadSerialized"
                      label="Load Displays..."
                      style="push">
-               </command>
-			<separator
-                  name="afterSerialized"
-                  visible="true">
-            </separator>
-               <command
-                     commandId="com.raytheon.viz.ui.actions.printScreenAction"
-                     label="Print Screen"
-                     style="push">
-                     <parameter
-                           name="frameSelection"
-                           value="current">
-                     </parameter>
-               </command>
-               <command
-                     commandId="com.raytheon.viz.ui.actions.saveScreen"
-                     label="Capture Current Frame"
-                     style="push">
-                     <parameter
-                           name="frameSelection"
-                           value="current">
-                     </parameter>
-               </command>
-               <command
-                     commandId="com.raytheon.viz.ui.actions.saveScreen"
-                     label="Capture All Frames"
-                     style="push">
-                     <parameter
-                           name="frameSelection"
-                           value="all">
-                     </parameter>
                </command>
             </menu>
             <separator
