@@ -2,8 +2,6 @@
 REM This script will compile a Windows version of the gridslice library.
 REM In order to compile the gridslice library, you will need to have
 REM Microsoft Visual C++ 2008 installed and the AWIPS II Runtime Environment.
-REM This script assumes that Microsoft Visual Studio has been installed in the
-REM standard location - in the Program Files directory.
 REM
 REM This script should work on both a 32-bit and a 64-bit Windows 7 
 REM installation.
@@ -11,9 +9,8 @@ REM installation.
 
 SET CONTAINING_DIR=%~dp0
 
-REM Determine what our architecture is.
 SET REG_EXE=
-SET PROGRAM_FILES_DIR=
+REM Determine what our architecture is.
 IF "%PROCESSOR_ARCHITECTURE%" == "AMD64" (
    GOTO OS_64_BIT
 ) ELSE (
@@ -21,41 +18,53 @@ IF "%PROCESSOR_ARCHITECTURE%" == "AMD64" (
       GOTO OS_32_BIT
    ) ELSE (
       echo "ERROR: Unrecognized Architecture."
-      PAUSE
+      PAUSE && EXIT 1
    )
 )
 
-REM Set the Program Files location based on the architecture.
 :OS_32_BIT
-   SET PROGRAM_FILES_DIR=%ProgramFiles%
    SET REG_EXE=C:\Windows\System32\reg.exe
    GOTO ARCH_KNOWN
 :OS_64_BIT
-   SET PROGRAM_FILES_DIR=%ProgramFiles(x86)%
    SET REG_EXE=C:\Windows\SysWOW64\reg.exe
    GOTO ARCH_KNOWN
 :ARCH_KNOWN
 
-REM Determine where AWIPS II Python has been installed.
+SET MVC_VERSION=9.0
+REM TODO: Update so that we could also potentially use the full version of
+REM       Visual Studio C++ 2008 if it is available.
 SET A2_PYTHON_REG="HKLM\Software\Raytheon\Runtime Environment\AWIPS II Python"
+SET MVC_REG="HKLM\Software\Microsoft\VCExpress\%MVC_VERSION%\Setup\VC"
+
 %REG_EXE% QUERY %A2_PYTHON_REG% /v PythonInstallDirectory > NUL 2>&1
 IF ERRORLEVEL 1 (
    echo ENVIRONMENT ERROR - Unable to find AWIPS II Python.
    PAUSE && EXIT 1
 )
+%REG_EXE% QUERY %MVC_REG% /v ProductDir > NUL 2>&1
+IF ERRORLEVEL 1 (
+   echo ENVIRONMENT ERROR - Unable to find Visual C++ 2008 Express.
+   PAUSE && EXIT 1
+)
+
+REM Determine where AWIPS II Python has been installed.
 FOR /F "tokens=2* delims=	 " %%A IN (
    '%REG_EXE% QUERY %A2_PYTHON_REG% /v PythonInstallDirectory'
 ) DO (
    SET PythonInstallDirectory=%%B
 )
 
-REM Visual Studio 2008 is Version 9.0 of Microsoft Visual Studio.
-SET MVS_VERSION=Microsoft Visual Studio 9.0
+REM Determine where Microsoft Visual C++ 2008 Express has been installed.
+FOR /F "tokens=2* delims=	 " %%A IN (
+	'%REG_EXE% QUERY %MVC_REG% /v ProductDir'
+) DO (
+	SET VCPlusPlusProductDir=%%B
+)
 
 REM Use the MS Visual Studion vcvarsall.bat utility to prepare
 REM the environment for this build.
 REM Until further notice, we assume the build is 32-bit.
-cd "%PROGRAM_FILES_DIR%\%MVS_VERSION%\VC"
+cd "%VCPlusPlusProductDir%"
 CALL vcvarsall.bat x86
 IF NOT ERRORLEVEL 0 (
    echo ERROR: Unable to prepare the environment.
@@ -72,7 +81,7 @@ cl.exe /LD "%CONTAINING_DIR%..\sliceConvert.c" ^
    /link/out:gridslice.pyd /EXPORT:initgridslice
 if ERRORLEVEL 1 (
    echo ERROR: The gridslice compile has failed.
-   PAUSE
+   PAUSE && EXIT 1
 )
 
 REM Move the build artifacts to the build directory.
