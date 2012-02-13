@@ -439,6 +439,54 @@
             style="push">
       </command>
    </menuContribution>
+   <menuContribution
+         locationURI="menu:import">
+      <command
+             commandId="com.raytheon.viz.ui.loadSerialized"
+             label="Displays..."
+             style="push">
+       </command>
+   </menuContribution>
+   <menuContribution
+         locationURI="menu:export">
+      <command
+             commandId="com.raytheon.viz.ui.saveBundle"
+             label="Editor Display..."
+             style="push">
+       </command>
+       <command
+             commandId="com.raytheon.viz.ui.saveProcedure"
+             label="Perspective Displays..."
+             style="push">
+       </command>
+       <command
+             commandId="com.raytheon.viz.ui.actions.saveScreen"
+             label="Capture Current Frame"
+             style="push">
+             <parameter
+                   name="frameSelection"
+                   value="current">
+             </parameter>
+       </command>
+       <command
+             commandId="com.raytheon.viz.ui.actions.saveScreen"
+             label="Capture All Frames"
+             style="push">
+             <parameter
+                   name="frameSelection"
+                   value="all">
+             </parameter>
+       </command>
+       <command
+             commandId="com.raytheon.viz.ui.actions.printScreenAction"
+             label="Print Screen"
+             style="push">
+             <parameter
+                   name="frameSelection"
+                   value="current">
+             </parameter>
+       </command>
+   </menuContribution>
 </extension>
 <extension
       point="org.eclipse.ui.contexts">
