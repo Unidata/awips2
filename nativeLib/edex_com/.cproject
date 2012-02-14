@@ -67,6 +67,7 @@
 								</option>
 								<option id="gnu.cpp.link.option.paths.1136584520" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="/usr/local/lib"/>
+									<listOptionValue builtIn="false" value="/awips2/notification/lib"/>
 									<listOptionValue builtIn="false" value="/usr/kerberos/lib"/>
 									<listOptionValue builtIn="false" value="/awips2/qpid/lib"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/org.apache.thrift/lib}&quot;"/>
