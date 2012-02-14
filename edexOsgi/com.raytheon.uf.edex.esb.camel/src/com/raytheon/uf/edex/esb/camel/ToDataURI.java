@@ -42,13 +42,13 @@ public class ToDataURI {
     public String[] toDataURI(PluginDataObject[] pdo) {
         String[] strs = new String[pdo.length];
         for (int i = 0; i < strs.length; i++) {
-            strs[i] = pdo[i].getDataURI() + '/' + pdo[i].getId();
+            strs[i] = pdo[i].getDataURI();
         }
 
         return strs;
     }
 
     public String toDataURI(PluginDataObject pdo) {
-        return pdo.getDataURI() + '/' + pdo.getId();
+        return pdo.getDataURI();
     }
 }
