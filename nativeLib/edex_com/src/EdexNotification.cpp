@@ -47,7 +47,7 @@ EdexNotification::EdexNotification(const string & brokerURI) {
 	this->brokerURI = brokerURI;
 	this->isConnected = false;
 	this->listSize = 0;
-	this->mess = new DataURINotificationMessage();
+	this->mess = new com_raytheon_edex_msg_DataURINotificationMessage();
 	this->timeout = false;
 	this->timeoutLength = 999999;
 	this->subman = NULL;
