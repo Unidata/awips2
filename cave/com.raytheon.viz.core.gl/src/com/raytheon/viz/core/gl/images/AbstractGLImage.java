@@ -188,10 +188,14 @@ public abstract class AbstractGLImage implements IImage {
 
     public void usaAsFrameBuffer() throws VizException {
         GL gl = theTarget.getGl();
-        if (fbo != -1 && rbuf != -1) {
+        if (fbo != -1) {
             gl.glBindFramebufferEXT(GL.GL_FRAMEBUFFER_EXT, fbo);
             gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-            gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+            if (rbuf != -1) {
+                gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+            } else {
+                gl.glClear(GL.GL_COLOR_BUFFER_BIT);
+            }
             return;
         }
         gl.glBindTexture(getTextureStorageType(), 0);
@@ -201,18 +205,19 @@ public abstract class AbstractGLImage implements IImage {
         fbo = ids[0];
         gl.glBindFramebufferEXT(GL.GL_FRAMEBUFFER_EXT, fbo);
 
-        // Generate and bind a render buffer for the depth component
-        gl.glGenRenderbuffersEXT(1, ids, 0);
-        rbuf = ids[0];
-        gl.glBindRenderbufferEXT(GL.GL_RENDERBUFFER_EXT, rbuf);
-        gl.glRenderbufferStorageEXT(GL.GL_RENDERBUFFER_EXT,
-                GL.GL_DEPTH_COMPONENT, getWidth(), getHeight());
-        gl.glBindRenderbufferEXT(GL.GL_RENDERBUFFER_EXT, 0);
+        if (gl.glIsEnabled(GL.GL_DEPTH_TEST)) {
+            // Generate and bind a render buffer for the depth component
+            gl.glGenRenderbuffersEXT(1, ids, 0);
+            rbuf = ids[0];
+            gl.glBindRenderbufferEXT(GL.GL_RENDERBUFFER_EXT, rbuf);
+            gl.glRenderbufferStorageEXT(GL.GL_RENDERBUFFER_EXT,
+                    GL.GL_DEPTH_COMPONENT, getWidth(), getHeight());
+            gl.glBindRenderbufferEXT(GL.GL_RENDERBUFFER_EXT, 0);
 
-        // Attach render buffer to depth of fbo
-        gl.glFramebufferRenderbufferEXT(GL.GL_FRAMEBUFFER_EXT,
-                GL.GL_DEPTH_ATTACHMENT_EXT, GL.GL_RENDERBUFFER_EXT, rbuf);
-
+            // Attach render buffer to depth of fbo
+            gl.glFramebufferRenderbufferEXT(GL.GL_FRAMEBUFFER_EXT,
+                    GL.GL_DEPTH_ATTACHMENT_EXT, GL.GL_RENDERBUFFER_EXT, rbuf);
+        }
         // Attach texture to color attachement on fbo
         gl.glFramebufferTexture2DEXT(GL.GL_FRAMEBUFFER_EXT,
                 GL.GL_COLOR_ATTACHMENT0_EXT, getTextureStorageType(),
