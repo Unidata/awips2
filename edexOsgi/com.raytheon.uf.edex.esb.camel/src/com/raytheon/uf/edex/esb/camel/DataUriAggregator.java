@@ -44,8 +44,6 @@ public class DataUriAggregator {
 
     private List<String> dataUris = new ArrayList<String>();
 
-    private List<Integer> ids = new ArrayList<Integer>();
-
     /**
      * Add data uris to the queue
      * 
@@ -55,11 +53,7 @@ public class DataUriAggregator {
         synchronized (this) {
             for (String uri : uris) {
                 if (uri != null) {
-                    int idx = uri.lastIndexOf('/');
-                    Integer id = Integer.valueOf(uri.substring(idx + 1));
-                    uri = uri.substring(0, idx);
                     dataUris.add(uri);
-                    ids.add(id);
                 }
             }
         }
@@ -73,7 +67,7 @@ public class DataUriAggregator {
      */
     public boolean hasUris(Object obj) {
         synchronized (this) {
-            return dataUris.size() > 0 || ids.size() > 0;
+            return dataUris.size() > 0;
         }
     }
 
@@ -85,16 +79,9 @@ public class DataUriAggregator {
     public DataURINotificationMessage sendQueuedUris() {
         synchronized (this) {
             String[] uris = dataUris.toArray(new String[dataUris.size()]);
-            int[] ids = new int[this.ids.size()];
-            int idx = 0;
-            for (Integer i : this.ids) {
-                ids[idx++] = i.intValue();
-            }
             dataUris.clear();
-            this.ids.clear();
             DataURINotificationMessage msg = new DataURINotificationMessage();
             msg.setDataURIs(uris);
-            msg.setIds(ids);
             return msg;
         }
     }
@@ -107,16 +94,9 @@ public class DataUriAggregator {
     public PracticeDataURINotificationMessage sendPracticeQueuedUris() {
         synchronized (this) {
             String[] uris = dataUris.toArray(new String[dataUris.size()]);
-            int[] ids = new int[this.ids.size()];
-            int idx = 0;
-            for (Integer i : this.ids) {
-                ids[idx++] = i.intValue();
-            }
             dataUris.clear();
-            this.ids.clear();
             PracticeDataURINotificationMessage msg = new PracticeDataURINotificationMessage();
             msg.setDataURIs(uris);
-            msg.setIds(ids);
             return msg;
         }
     }
