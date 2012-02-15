@@ -24,7 +24,7 @@
 			>
 			<Tool
 				Name="VCNMakeTool"
-				BuildCommandLine="cd $(InputDir)..\&#x0D;&#x0A;CALL build.bat"
+				BuildCommandLine="CALL gridslice.bat"
 				ReBuildCommandLine=""
 				CleanCommandLine="cd $(InputDir)..\&#x0D;&#x0A;IF EXIST build (&#x0D;&#x0A;   DEL /Q build\*&#x0D;&#x0A;   RMDIR build&#x0D;&#x0A;)"
 				Output=""
@@ -81,6 +81,10 @@
 			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
+			<File
+				RelativePath=".\gridslice.bat"
+				>
+			</File>
 			<File
 				RelativePath="..\..\gridslice.c"
 				>
