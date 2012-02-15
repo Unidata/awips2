@@ -1,8 +1,0 @@
-! Parameters and Attributes for the default LTNG Resource
-!
-enablePositiveStrikes=true
-enableNegativeStrikes=true
-positiveSymbolSize=3
-negativeSymbolSize=3
-colorBar=@dfltLtngColorBar.xml
-colorByIntensity=false
