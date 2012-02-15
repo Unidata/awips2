@@ -19,6 +19,12 @@
  **/
 package com.raytheon.uf.viz.thinclient.cave;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.xml.bind.JAXBException;
 
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -30,6 +36,7 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.localization.BundleScanner;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.thinclient.Activator;
 import com.raytheon.uf.viz.thinclient.IThinClientComponent;
@@ -105,11 +112,23 @@ public class ThinClientComponent extends CAVE implements IThinClientComponent {
         Activator.getDefault().setComponent(this);
 
         ThinClientURICatalog.getInstance();
+        List<String> pluginBlacklist = new ArrayList<String>();
+        File blacklistFile = BundleScanner.searchInBundle(
+                com.raytheon.uf.viz.thinclient.cave.Activator.PLUGIN_ID, "",
+                "ThinClientPluginBlacklist.txt");
+        if (blacklistFile != null && blacklistFile.exists()) {
+            BufferedReader reader = new BufferedReader(new FileReader(
+                    blacklistFile));
+            String line = null;
+            while (null != (line = reader.readLine())) {
+                pluginBlacklist.add(line.trim());
+            }
+        }
         try {
             for (Bundle b : Activator.getDefault().getContext().getBundles()) {
-                if ("com.raytheon.viz.warngen".equals(b.getSymbolicName())) {
+                if (pluginBlacklist.contains(b.getSymbolicName())) {
+                    b.stop();
                     b.uninstall();
-                    break;
                 }
             }
         } catch (Throwable t) {
