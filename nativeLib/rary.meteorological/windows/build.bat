@@ -1,6 +1,6 @@
 @echo OFF
-REM This script will compile a Windows version of the gridslice library.
-REM In order to compile the jep library, you will need to have
+REM This script will compile a Windows version of the meteolib library.
+REM In order to compile the meteolib library, you will need to have
 REM MSBuild 4.0 installed and the AWIPS II Runtime Environment.
 REM
 REM This script should work on both a 32-bit and a 64-bit Windows 7 
@@ -47,9 +47,9 @@ pushd . > NUL 2>&1
 cd %CONTAINING_DIR%
 %MSBuildToolsPath%MSBuild.exe ^
 	/p:Platform=win32 ^
-	project\gridslice.sln
+	project\meteolib.sln
 if ERRORLEVEL 1 (
-   echo ERROR: The gridslice compile has failed.
+   echo ERROR: The meteolib compile has failed.
    PAUSE && EXIT 1
 )
 
@@ -57,5 +57,5 @@ popd > NUL 2>&1
 
 echo.
 echo.
-echo The gridslice compile was successful.
+echo The meteolib compile was successful.
 PAUSE
