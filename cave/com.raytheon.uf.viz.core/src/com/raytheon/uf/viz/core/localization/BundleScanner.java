@@ -107,7 +107,7 @@ public class BundleScanner {
             String pathToLookFor, Map<String, Bundle> toSearch) {
         File file = null;
         Bundle b = toSearch.get(bundleToSearch);
-        if (b != null) {
+        if (b != null && b.getState() != Bundle.UNINSTALLED) {
             URL url = FileLocator.find(b, new Path(basePath + File.separator
                     + pathToLookFor), null);
             if (url != null) {
