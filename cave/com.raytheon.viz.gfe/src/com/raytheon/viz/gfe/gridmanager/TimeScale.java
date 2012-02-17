@@ -26,6 +26,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -48,11 +51,11 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.menus.CommandContributionItem;
 import org.eclipse.ui.menus.CommandContributionItemParameter;
+import org.eclipse.ui.progress.UIJob;
 
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.RGBColors;
-import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.GFEServerException;
@@ -79,7 +82,7 @@ import com.raytheon.viz.gfe.ui.SelectTRMenu;
  * @version 1.0
  */
 
-public class TimeScale extends Canvas implements IMessageClient, Runnable {
+public class TimeScale extends Canvas implements IMessageClient {
     private static final int MINOR_TICK = 5;
 
     private static final int MAJOR_TICK = 10;
@@ -107,6 +110,32 @@ public class TimeScale extends Canvas implements IMessageClient, Runnable {
         }
     }
 
+    private class RepaintJob extends UIJob {
+
+        public RepaintJob() {
+            super("TimeScaleRepaintJob");
+            setSystem(true);
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * org.eclipse.ui.progress.UIJob#runInUIThread(org.eclipse.core.runtime
+         * .IProgressMonitor)
+         */
+        @Override
+        public IStatus runInUIThread(IProgressMonitor monitor) {
+
+            if (!TimeScale.this.isDisposed()) {
+                TimeScale.this.redraw();
+            }
+
+            return Status.OK_STATUS;
+        }
+
+    }
+
     private final GridManager gridManager;
 
     private String[] displayedPeriods;
@@ -125,10 +154,13 @@ public class TimeScale extends Canvas implements IMessageClient, Runnable {
 
     private MenuManager menuMgr;
 
+    private RepaintJob repaintJob;
+
     @SuppressWarnings("unchecked")
     TimeScale(final Composite aParent, final GridManager aGridManager) {
         super(aParent, SWT.NONE);
         gridManager = aGridManager;
+        repaintJob = new RepaintJob();
 
         displayedPeriods = TimeScaleDisplayedPeriodsPreference
                 .getTimeScaleDisplayedPeriods();
@@ -513,18 +545,7 @@ public class TimeScale extends Canvas implements IMessageClient, Runnable {
      * 
      */
     private void refresh() {
-        if (this.getDisplay().getThread() == Thread.currentThread()) {
-            run();
-        } else {
-            VizApp.runAsync(this);
-        }
-    }
-
-    @Override
-    public void run() {
-        if (!isDisposed()) {
-            redraw();
-        }
+        this.repaintJob.schedule();
     }
 
     @Override
