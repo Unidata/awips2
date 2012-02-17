@@ -51,7 +51,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.RGBColors;
-import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.FillPatterns;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEPreference;
@@ -96,7 +95,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         IGridVisibilityChangedListener, IActivatedParmChangedListener,
         IGridDataChangedListener, ISelectionTimeRangeChangedListener,
         IParameterSelectionChangedListener, ILockTableChangedListener,
-        IParmIDChangedListener, DisposeListener, Runnable
+        IParmIDChangedListener, DisposeListener
 
 {
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -309,6 +308,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         this.canvas.addDisposeListener(this);
     }
 
+    @Override
     public void widgetDisposed(DisposeEvent e) {
         this.dispose();
     }
@@ -1339,20 +1339,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
     }
 
     public void redraw() {
-        if (this.display.getThread() == Thread.currentThread()) {
-            run();
-        } else {
-            VizApp.runAsync(this);
-        }
-    }
-
-    @Override
-    public void run() {
-        if (!canvas.isDisposed()) {
-            Rectangle bounds = getBounds();
-            canvas.redraw(bounds.x, bounds.y, bounds.width, bounds.height, true);
-            // this.redrawCount++;
-        }
+        canvas.markDirty(getBounds());
     }
 
     /**
