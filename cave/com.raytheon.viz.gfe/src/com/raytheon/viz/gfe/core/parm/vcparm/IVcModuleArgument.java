@@ -17,9 +17,12 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.gfe.smarttool.script;
+package com.raytheon.viz.gfe.core.parm.vcparm;
 
-import com.raytheon.uf.viz.core.jobs.IRequestCompleteListener;
+import java.util.Collection;
+
+import jep.Jep;
+import jep.JepException;
 
 /**
  * TODO Add Description
@@ -27,35 +30,19 @@ import com.raytheon.uf.viz.core.jobs.IRequestCompleteListener;
  * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 23, 2010            njensen     Initial creation
+ * Jan 12, 2012            dgilling     Initial creation
  * 
  * </pre>
  * 
- * @author njensen
+ * @author dgilling
  * @version 1.0
  */
 
-public class SmartToolFinishedListener implements
-        IRequestCompleteListener<Object> {
+public interface IVcModuleArgument {
 
-    private boolean done = false;
-
-    private Object result;
-
-    @Override
-    public void requestComplete(Object result) {
-        done = true;
-        this.result = result;
-    }
-
-    public boolean isDone() {
-        return done;
-    }
-
-    public Object getResult() {
-        return result;
-    }
+    public Collection<String> evaluateArgument(final Jep instance, String argName) throws JepException;
 
 }

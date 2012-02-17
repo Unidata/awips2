@@ -155,9 +155,7 @@ public class SmartToolJob extends AbstractQueueJob<SmartToolRequest> {
                                         ea.getRefSet(), ea.getTimeRange(),
                                         request.getVarDict(), ea
                                                 .getMissingDataMode(), monitor);
-                                if (request.getListener() != null) {
-                                    request.getListener().requestComplete(null);
-                                }
+                                request.requestComplete(null);
                                 pjResult = Status.OK_STATUS;
 
                             } catch (SmartToolException e) {
@@ -184,14 +182,14 @@ public class SmartToolJob extends AbstractQueueJob<SmartToolRequest> {
                 } catch (SmartToolException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Error running tool ", e);
-                    if (req != null && req.getListener() != null) {
-                        req.getListener().requestComplete(e);
+                    if (req != null) {
+                        req.requestComplete(e);
                     }
                 } catch (Throwable t) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Error running tool ", t);
-                    if (req != null && req.getListener() != null) {
-                        req.getListener().requestComplete(t);
+                    if (req != null) {
+                        req.requestComplete(t);
                     }
                 } finally {
                     if (req != null && req.getPreview() != null) {
