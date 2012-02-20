@@ -163,10 +163,17 @@
             <key>PPKA01</key>
             <value><name>gfs  00hr MSLP *</name></value>
         </entry>
-
         <entry>
             <key>PEIK98</key>
             <value><name>Day 3 QPF - Time Proj 60-72Hrs</name></value>
+        </entry>
+        <entry>
+            <key>PEIY96</key>
+            <value><name>8-14 Day Precip Hazards </name></value>
+        </entry>
+        <entry>
+            <key>PEIY97</key>
+            <value><name>3-7 Day Precip Hazards</name></value>
         </entry>
         <entry>
             <key>PLQI51</key>
@@ -175,7 +182,7 @@
         <entry>
             <key>PEIY50</key>
             <value><name>3-10 Day Threat Assess Precip</name></value>
-        </entry>
+        </entry> 
         <entry>
             <key>PYMA70</key>
             <value><name>700mb UA plot</name></value>
@@ -244,6 +251,14 @@
             <key>PTNR98</key>
             <value><name>6-10 Day Maximum Heat Index Outlook</name></value>
         </entry>      
+		<entry>
+            <key>PTIY96</key>
+            <value><name>8-14 Temp/Wind Hazards</name></value>
+        </entry>      
+ 		<entry>
+            <key>PTIY97</key>
+            <value><name>3-7 Day Temp/Wind Hazards</name></value>
+        </entry>      
         <entry>
             <key>PNWA68</key>
             <value><name>redbook graphic</name></value>
@@ -264,7 +279,6 @@
             <key>PYAA98</key>
             <value><name>Sfc Frontal Analysis</name></value>
         </entry>
- 
         <entry>
             <key>PTAT00</key>
             <value><name>8-14 Day Heat Index &gt;=95F</name></value>
@@ -277,13 +291,18 @@
             <key>PPAM89</key>
             <value><name>96Hr North Atlantic Fronts/Pressure/Winds FCST</name></value>
         </entry>
-
         <entry>
             <key>PYAA89</key>
             <value><name>N Atlantic Surface Anal</name></value>
         </entry>
-
-
+        <entry>
+            <key>PYIY96</key>
+            <value><name>8-14 Day Soil/Wildfire Hazards</name></value>
+        </entry>
+        <entry>
+            <key>PYIY97</key>
+            <value><name>3-7 Day Soil/Wildfire Hazards</name></value>
+        </entry>
         <entry>
             <key>PSBD25</key>
             <value><name>Day 3 Prob .25+&quot; Ice</name></value>
@@ -342,7 +361,6 @@
             <key>PYMA25</key>
             <value><name>250mb UA plot</name></value>
         </entry>
-
         <entry>
             <key>POWA31</key>
             <value><name>redbook graphic</name></value>
@@ -358,8 +376,7 @@
         <entry>
             <key>PEIW01,PEIW02,PEIW03,PEIW04,PEIW05,PEIW06,PEIW07,PEIW08,PEIW09,PEIW10,PEIW11,PEIW12,PEIW13</key>
             <value><name>90 Day Seasonal Precip Outlook</name></value>            
-        </entry>
-      
+        </entry>      
         <entry>
             <key>PTIW01,PTIW02,PTIW03,PTIW04,PTIW05,PTIW06,PTIW07,PTIW08,PTIW09,PTIW10,PTIW11,PTIW12,PTIW13</key>
             <value><name>90 Day Seasonal Temp Outlook</name></value>            
