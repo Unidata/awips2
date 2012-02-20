@@ -146,8 +146,8 @@ public class ProcedureJob extends AbstractQueueJob<ProcedureRequest> {
                         if (request != null) {
                             python.processFileUpdates();
                             processRequest(request);
-                            if (request.getListener() != null) {
-                                request.getListener().requestComplete(null);
+                            if (request != null) {
+                                request.requestComplete(null);
                             }
                         } else if (expireJob
                                 && ((instanceMap.get(dataMgr).size() > maxJobs) || (System
@@ -158,8 +158,8 @@ public class ProcedureJob extends AbstractQueueJob<ProcedureRequest> {
                     } catch (Throwable t) {
                         statusHandler.handle(Priority.PROBLEM,
                                 "Error running tool ", t);
-                        if (request != null && request.getListener() != null) {
-                            request.getListener().requestComplete(t);
+                        if (request != null) {
+                            request.requestComplete(t);
                         }
                     } finally {
                         request = null;
