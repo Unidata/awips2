@@ -84,6 +84,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 04/14/2010   4734        mhuang      Corrected StdTextProduct import 
  *                                       dependency
  * 06/28/2010   4639        cjeanbap    Allow user to create a new text product.
+ * 
+ * 01/26/2012   14468       D.Friedman  Fix initial BBB field selection.
  * </pre>
  * 
  * @author lvenable
@@ -258,32 +260,10 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
 
         // Create the message/indicator group combo box.
         gd = new GridData(70, SWT.DEFAULT);
-        bbbCboBx = new Combo(wmoIdComp, SWT.DROP_DOWN);
+        bbbCboBx = new Combo(wmoIdComp, SWT.DROP_DOWN|SWT.READ_ONLY);
         bbbCboBx.setItems(BBB_LIST);
         bbbCboBx.select(3);
         bbbCboBx.setLayoutData(gd);
-        bbbCboBx.addVerifyListener(new VerifyListener() {
-
-            @Override
-            public void verifyText(VerifyEvent e) {
-                if (e.text.length() == 3) {
-                    if (e.start != 0 || e.end != 0) {
-                        e.doit = false;
-                    } else {
-                        e.doit = false;
-                        for (String s : BBB_LIST) {
-                            if (s.equalsIgnoreCase(e.text)) {
-                                e.doit = true;
-                                e.text = s;
-                                break;
-                            }
-                        }
-                    }
-                } else if (e.text.length() != 0) {
-                    e.doit = false;
-                }
-            }
-        });
 
         bbbCboBx.addFocusListener(new FocusListener() {
 
@@ -304,31 +284,10 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
 
         // Create the message/indicator version group combo box.
         gd = new GridData(70, SWT.DEFAULT);
-        bbbVerCboBx = new Combo(wmoIdComp, SWT.DROP_DOWN);
+        bbbVerCboBx = new Combo(wmoIdComp, SWT.DROP_DOWN|SWT.READ_ONLY);
         bbbVerCboBx.setItems(CHAR_LIST);
         bbbVerCboBx.select(0);
         bbbVerCboBx.setLayoutData(gd);
-
-        bbbVerCboBx.addVerifyListener(new VerifyListener() {
-
-            @Override
-            public void verifyText(VerifyEvent e) {
-                e.text = e.text.trim().toUpperCase();
-                if (e.text.length() > 1) {
-                    e.doit = false;
-                } else if (e.text.length() == 1 && (e.start != 0 || e.end != 0)) {
-                    e.doit = false;
-                } else if (e.text.length() == 1) {
-                    e.doit = false;
-                    for (String s : CHAR_LIST) {
-                        if (s.equals(e.text)) {
-                            e.doit = true;
-                            break;
-                        }
-                    }
-                }
-            }
-        });
 
         bbbVerCboBx.addFocusListener(new FocusListener() {
 
