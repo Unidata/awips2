@@ -408,6 +408,42 @@
             </value>
         </entry>
         <entry>
+            <key>PEIY96</key>
+            <value  prd="86400" ofs="43200">
+            <fcstHR>336</fcstHR>
+            </value>
+        </entry>
+        <entry>
+            <key>PEIY97</key>
+            <value  prd="86400" ofs="43200">
+            <fcstHR>168</fcstHR>
+            </value>
+        </entry>
+         <entry>
+            <key>PTIY96</key>
+            <value  prd="86400" ofs="43200">
+            <fcstHR>336</fcstHR>
+            </value>
+        </entry>
+        <entry>
+            <key>PTIY97</key>
+            <value  prd="86400" ofs="43200">
+            <fcstHR>168</fcstHR>
+            </value>
+        </entry>
+         <entry>
+            <key>PYIY96</key>
+            <value  prd="86400" ofs="43200">
+            <fcstHR>336</fcstHR>
+            </value>
+        </entry>
+        <entry>
+            <key>PYIY97</key>
+            <value  prd="86400" ofs="43200">
+            <fcstHR>168</fcstHR>
+            </value>
+        </entry>
+        <entry>
             <key>PEIK98</key>
             <value>
             <fcstHR>72</fcstHR>

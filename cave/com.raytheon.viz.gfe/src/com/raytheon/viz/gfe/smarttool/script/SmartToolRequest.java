@@ -19,6 +19,8 @@
  **/
 package com.raytheon.viz.gfe.smarttool.script;
 
+import java.util.concurrent.Semaphore;
+
 import com.raytheon.uf.viz.core.jobs.QueueJobRequest;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.smarttool.PreviewInfo;
@@ -45,9 +47,22 @@ public class SmartToolRequest extends QueueJobRequest<Object> {
 
     private String varDict;
 
-    private SmartToolFinishedListener listener;
-
     private PreviewInfo preview;
+
+    private Semaphore completedSemaphore;
+
+    private Object result;
+
+    public SmartToolRequest() {
+        super();
+
+        completedSemaphore = new Semaphore(1);
+        try {
+            completedSemaphore.acquire();
+        } catch (InterruptedException e) {
+            // don't care
+        }
+    }
 
     public Parm getInputParm() {
         return inputParm;
@@ -65,14 +80,6 @@ public class SmartToolRequest extends QueueJobRequest<Object> {
         this.varDict = varDict;
     }
 
-    public SmartToolFinishedListener getListener() {
-        return listener;
-    }
-
-    public void setListener(SmartToolFinishedListener listener) {
-        this.listener = listener;
-    }
-
     public PreviewInfo getPreview() {
         return preview;
     }
@@ -81,4 +88,20 @@ public class SmartToolRequest extends QueueJobRequest<Object> {
         this.preview = preview;
     }
 
+    public void requestComplete(Object result) {
+        this.result = result;
+        completedSemaphore.release();
+    }
+
+    public Object getResult() {
+        try {
+            completedSemaphore.acquire();
+            return result;
+        } catch (InterruptedException e) {
+            return e;
+        } finally {
+            completedSemaphore.release();
+
+        }
+    }
 }
