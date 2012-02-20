@@ -34,6 +34,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.runtime.ListenerList;
+
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID.DataType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
@@ -53,6 +55,7 @@ import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.common.util.RWLArrayList;
+import com.raytheon.uf.viz.core.jobs.JobPool;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEServerException;
@@ -71,7 +74,7 @@ import com.raytheon.viz.gfe.core.msgs.Message;
 import com.raytheon.viz.gfe.core.msgs.ShowISCGridsMsg;
 import com.raytheon.viz.gfe.core.parm.ABVParmID;
 import com.raytheon.viz.gfe.core.parm.Parm;
-import com.raytheon.viz.gfe.core.parm.VCModule;
+import com.raytheon.viz.gfe.core.parm.vcparm.VCModule;
 
 /**
  * Implements common parm manager functionality shared between concrete and mock
@@ -89,6 +92,8 @@ import com.raytheon.viz.gfe.core.parm.VCModule;
  * @version 1.0
  */
 public abstract class AbstractParmManager implements IParmManager {
+
+    private static final int NOTIFICATION_THREADS = 4;
 
     protected class ParmIDVis {
         private ParmID pid;
@@ -196,17 +201,17 @@ public abstract class AbstractParmManager implements IParmManager {
     // virtual parm definitions (modulename = key)
     protected List<VCModule> vcModules;
 
-    protected List<IAvailableSourcesChangedListener> availableSourcesListeners;
+    protected ListenerList availableSourcesListeners;
 
-    protected List<IDisplayedParmListChangedListener> displayedParmListListeners;
+    protected ListenerList displayedParmListListeners;
 
-    protected List<INewModelAvailableListener> newModelListeners;
+    protected ListenerList newModelListeners;
 
-    protected List<IParmIDChangedListener> parmIdChangedListeners;
+    protected ListenerList parmIdChangedListeners;
 
-    protected List<IParmListChangedListener> parmListChangedListeners;
+    protected ListenerList parmListChangedListeners;
 
-    protected List<ISystemTimeRangeChangedListener> systemTimeRangeChangedListeners;
+    protected ListenerList systemTimeRangeChangedListeners;
 
     protected TimeRange systemTimeRange;
 
@@ -230,15 +235,19 @@ public abstract class AbstractParmManager implements IParmManager {
 
     private AbstractGFENotificationObserver<SiteActivationNotification> siteActivationListener;
 
+    private ISCParmInitJob iscInit;
+
+    private JobPool notificationPool;
+
     protected AbstractParmManager(final DataManager dataManager) {
         this.dataManager = dataManager;
         this.parms = new RWLArrayList<Parm>();
-        this.displayedParmListListeners = new ArrayList<IDisplayedParmListChangedListener>();
-        this.parmListChangedListeners = new ArrayList<IParmListChangedListener>();
-        this.systemTimeRangeChangedListeners = new ArrayList<ISystemTimeRangeChangedListener>();
-        this.availableSourcesListeners = new ArrayList<IAvailableSourcesChangedListener>();
-        this.newModelListeners = new ArrayList<INewModelAvailableListener>();
-        this.parmIdChangedListeners = new ArrayList<IParmIDChangedListener>();
+        this.displayedParmListListeners = new ListenerList();
+        this.parmListChangedListeners = new ListenerList();
+        this.systemTimeRangeChangedListeners = new ListenerList();
+        this.availableSourcesListeners = new ListenerList();
+        this.newModelListeners = new ListenerList();
+        this.parmIdChangedListeners = new ListenerList();
 
         // Get virtual parm definitions
         vcModules = initVirtualCalcParmDefinitions();
@@ -364,6 +373,9 @@ public abstract class AbstractParmManager implements IParmManager {
         dataManager.getNotificationRouter().addObserver(
                 this.siteActivationListener);
 
+        notificationPool = new JobPool("Parm Manager notification job",
+                NOTIFICATION_THREADS, true);
+
     }
 
     /*
@@ -384,6 +396,16 @@ public abstract class AbstractParmManager implements IParmManager {
 
         dataManager.getNotificationRouter().removeObserver(
                 this.siteActivationListener);
+
+        for (VCModule module : vcModules) {
+            module.dispose();
+        }
+
+        if (iscInit != null) {
+            iscInit.cancel();
+        }
+
+        notificationPool.cancel();
     }
 
     protected DatabaseID decodeDbString(final String string) {
@@ -1126,8 +1148,10 @@ public abstract class AbstractParmManager implements IParmManager {
         }
         setParms(addParms, deletions);
 
-        ISCParmInitJob iscInit = new ISCParmInitJob(dataManager,
-                getDisplayedParms());
+        if (iscInit != null) {
+            iscInit.cancel();
+        }
+        iscInit = new ISCParmInitJob(dataManager, getDisplayedParms());
         iscInit.schedule();
 
         return;
@@ -1390,10 +1414,20 @@ public abstract class AbstractParmManager implements IParmManager {
      * @param deletes
      *            parms that were deleted
      */
-    protected void fireDisplayedParmListChanged(Parm[] parms, Parm[] adds,
-            Parm[] deletes) {
-        for (IDisplayedParmListChangedListener listener : this.displayedParmListListeners) {
-            listener.displayedParmListChanged(parms, deletes, adds);
+    protected void fireDisplayedParmListChanged(final Parm[] parms,
+            final Parm[] adds, final Parm[] deletes) {
+        for (Object listener : this.displayedParmListListeners.getListeners()) {
+            final IDisplayedParmListChangedListener casted = (IDisplayedParmListChangedListener) listener;
+
+            Runnable notTask = new Runnable() {
+
+                @Override
+                public void run() {
+                    casted.displayedParmListChanged(parms, deletes, adds);
+                }
+            };
+
+            notificationPool.schedule(notTask);
         }
     }
 
@@ -1405,9 +1439,18 @@ public abstract class AbstractParmManager implements IParmManager {
      * @param newParmId
      *            The new ParmID associated with parm.
      */
-    protected void fireParmIDChanged(Parm parm, ParmID newParmId) {
-        for (IParmIDChangedListener listener : this.parmIdChangedListeners) {
-            listener.parmIDChanged(parm, newParmId);
+    protected void fireParmIDChanged(final Parm parm, final ParmID newParmId) {
+        for (Object listener : this.parmIdChangedListeners.getListeners()) {
+            final IParmIDChangedListener casted = (IParmIDChangedListener) listener;
+
+            Runnable notTask = new Runnable() {
+
+                @Override
+                public void run() {
+                    casted.parmIDChanged(parm, newParmId);
+                }
+            };
+            notificationPool.schedule(notTask);
         }
     }
 
@@ -1421,9 +1464,19 @@ public abstract class AbstractParmManager implements IParmManager {
      * @param deletes
      *            parms that were deleted
      */
-    protected void fireParmListChanged(Parm[] parms, Parm[] adds, Parm[] deletes) {
-        for (IParmListChangedListener listener : this.parmListChangedListeners) {
-            listener.parmListChanged(parms, deletes, adds);
+    protected void fireParmListChanged(final Parm[] parms, final Parm[] adds,
+            final Parm[] deletes) {
+        for (Object listener : this.parmListChangedListeners.getListeners()) {
+            final IParmListChangedListener casted = (IParmListChangedListener) listener;
+
+            Runnable notTask = new Runnable() {
+
+                @Override
+                public void run() {
+                    casted.parmListChanged(parms, deletes, adds);
+                }
+            };
+            notificationPool.schedule(notTask);
         }
     }
 
@@ -1433,9 +1486,19 @@ public abstract class AbstractParmManager implements IParmManager {
      * @param systemTimeRange
      *            new system time range
      */
-    protected void fireSystemTimeRangeChanged(TimeRange systemTimeRange) {
-        for (ISystemTimeRangeChangedListener listener : this.systemTimeRangeChangedListeners) {
-            listener.systemTimeRangeChanged(systemTimeRange);
+    protected void fireSystemTimeRangeChanged(final TimeRange systemTimeRange) {
+        for (Object listener : this.systemTimeRangeChangedListeners
+                .getListeners()) {
+            final ISystemTimeRangeChangedListener casted = (ISystemTimeRangeChangedListener) listener;
+
+            Runnable notTask = new Runnable() {
+
+                @Override
+                public void run() {
+                    casted.systemTimeRangeChanged(systemTimeRange);
+                }
+            };
+            notificationPool.schedule(notTask);
         }
     }
 
@@ -1449,10 +1512,22 @@ public abstract class AbstractParmManager implements IParmManager {
      * @param additions
      *            The items added to the inventory
      */
-    protected void fireAvailableSourcesChanged(List<DatabaseID> inventory,
-            List<DatabaseID> deletions, List<DatabaseID> additions) {
-        for (IAvailableSourcesChangedListener listener : this.availableSourcesListeners) {
-            listener.availableSourcesChanged(inventory, deletions, additions);
+    protected void fireAvailableSourcesChanged(
+            final List<DatabaseID> inventory, final List<DatabaseID> deletions,
+            final List<DatabaseID> additions) {
+        for (Object listener : this.availableSourcesListeners.getListeners()) {
+            final IAvailableSourcesChangedListener casted = (IAvailableSourcesChangedListener) listener;
+
+            Runnable notTask = new Runnable() {
+
+                @Override
+                public void run() {
+                    casted.availableSourcesChanged(inventory, deletions,
+                            additions);
+                }
+            };
+
+            notificationPool.schedule(notTask);
         }
     }
 
@@ -1462,9 +1537,18 @@ public abstract class AbstractParmManager implements IParmManager {
      * @param additions
      *            The DatabaseID of the newly-available model
      */
-    protected void fireNewModelAvailable(DatabaseID newModel) {
-        for (INewModelAvailableListener listener : this.newModelListeners) {
-            listener.newModelAvailable(newModel);
+    protected void fireNewModelAvailable(final DatabaseID newModel) {
+        for (Object listener : this.newModelListeners.getListeners()) {
+            final INewModelAvailableListener casted = (INewModelAvailableListener) listener;
+
+            Runnable notTask = new Runnable() {
+
+                @Override
+                public void run() {
+                    casted.newModelAvailable(newModel);
+                }
+            };
+            notificationPool.schedule(notTask);
         }
     }
 
@@ -1862,6 +1946,7 @@ public abstract class AbstractParmManager implements IParmManager {
         deleteParm(tempParms.toArray(new Parm[tempParms.size()]));
     }
 
+    @Override
     public ParmID fromExpression(String expression) {
         return new ABVParmID(this).parse(expression);
     }
@@ -1917,5 +2002,10 @@ public abstract class AbstractParmManager implements IParmManager {
         }
 
         return -1;
+    }
+
+    @Override
+    public JobPool getNotificationPool() {
+        return notificationPool;
     }
 }
