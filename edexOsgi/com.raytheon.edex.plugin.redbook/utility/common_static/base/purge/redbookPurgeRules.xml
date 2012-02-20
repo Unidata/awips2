@@ -689,6 +689,48 @@
 	<rule>
 		<id>
 			<pluginName>redbook</pluginName>
+			<key>wmoTTAAii=PEIY97</key>
+		</id>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<id>
+			<pluginName>redbook</pluginName>
+			<key>wmoTTAAii=PTIY97</key>
+		</id>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<id>
+			<pluginName>redbook</pluginName>
+			<key>wmoTTAAii=PYIY97</key>
+		</id>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<id>
+			<pluginName>redbook</pluginName>
+			<key>wmoTTAAii=PEIY96</key>
+		</id>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<id>
+			<pluginName>redbook</pluginName>
+			<key>wmoTTAAii=PTIY96</key>
+		</id>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<id>
+			<pluginName>redbook</pluginName>
+			<key>wmoTTAAii=PYIY96</key>
+		</id>
+		<versionsToKeep>2</versionsToKeep>
+	</rule>
+	<rule>
+		<id>
+			<pluginName>redbook</pluginName>
 			<key>wmoTTAAii=PTAT90</key>
 		</id>
 		<versionsToKeep>2</versionsToKeep>

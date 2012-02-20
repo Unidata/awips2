@@ -453,18 +453,20 @@ public class JmsPooledSession {
                         "Trapped internal exception", trappedExc);
             }
 
+            closePooledConsumersProducers();
+
+            // need to close down all wrappers
+            for (JmsSessionWrapper wrapper : references) {
+                wrapper.closeInternal();
+            }
+
+            references.clear();
+
+            conn.removeSession(this);
+
             // synchronize on the connection to avoid deadlock conditions in
             // qpid
             synchronized (conn) {
-                closePooledConsumersProducers();
-
-                // need to close down all wrappers
-                for (JmsSessionWrapper wrapper : references) {
-                    wrapper.closeInternal();
-                }
-
-                references.clear();
-
                 try {
                     sess.close();
                 } catch (Exception e) {
