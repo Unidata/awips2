@@ -44,6 +44,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Slider;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
+import org.eclipse.ui.progress.UIJob;
 
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
@@ -140,7 +141,7 @@ public class GridManager implements IGridManager {
     /**
      * Job to update the time display
      */
-    private static class UpdateJob extends Job {
+    private static class UpdateJob extends UIJob {
 
         public UpdateJob() {
             super("GridManagerUpdate");
@@ -154,22 +155,15 @@ public class GridManager implements IGridManager {
          * IProgressMonitor)
          */
         @Override
-        protected IStatus run(IProgressMonitor monitor) {
+        public IStatus runInUIThread(IProgressMonitor monitor) {
             // if any displays are active
-            if (activeList.size() > 0) {
+            if (!activeList.isEmpty()) {
                 // update the state of all active displays
-                Display.getDefault().syncExec(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        for (GridManager gm : activeList) {
-                            gm.redraw();
-                        }
-                    }
-
-                });
-
-                this.schedule(60000);
+                for (GridManager gm : activeList) {
+                    gm.redraw();
+                }
+                long t = System.currentTimeMillis() % 60000;
+                this.schedule(60000 - t);
             }
 
             return Status.OK_STATUS;
@@ -347,6 +341,7 @@ public class GridManager implements IGridManager {
         return widthIncrement;
     }
 
+    @Override
     public void expandTimeScale() {
         if (widthIncrement < GridManagerUtil.SECONDS_PER_PIXEL.length - 1) {
             widthIncrement++;
@@ -355,6 +350,7 @@ public class GridManager implements IGridManager {
         }
     }
 
+    @Override
     public void contractTimeScale() {
         if (widthIncrement > 0) {
             widthIncrement--;
@@ -642,6 +638,7 @@ public class GridManager implements IGridManager {
      * 
      * @see com.raytheon.viz.gfe.gridmanager2.IGridManager#redraw()
      */
+    @Override
     public void redraw() {
         if (!parent.isDisposed()) {
             timeScale.redraw();
@@ -793,6 +790,7 @@ public class GridManager implements IGridManager {
     /**
      * @return the lockSelectionTRtoTimeStep
      */
+    @Override
     public boolean isLockSelectionTRtoTimeStep() {
         return lockSelectionTRtoTimeStep;
     }
@@ -801,6 +799,7 @@ public class GridManager implements IGridManager {
      * @param lockSelectionTRtoTimeStep
      *            the lockSelectionTRtoTimeStep to set
      */
+    @Override
     public void setLockSelectionTRtoTimeStep(boolean lockSelectionTRtoTimeStep) {
         this.lockSelectionTRtoTimeStep = lockSelectionTRtoTimeStep;
 
