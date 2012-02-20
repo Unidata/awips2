@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.monitor.scan.commondialogs;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.TreeMap;
@@ -50,6 +51,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 10, 2010            lvenable     Initial creation
+ * Dec 23, 2011	13608	   mgamazay		Updated populateIdentCombo so the drop down menu
+ * 										shows the current feature ident instead of being blank.
  * 
  * </pre>
  * 
@@ -291,11 +294,19 @@ public class TimeHeightDlg extends CaveSWTDialog implements ITimeHeightInfo {
      * Populate the ident combo control.
      */
     private void populateIdentCombo() {
-        for (String str : identArray) {
-            identCbo.add(str);
+        
+        if ( Arrays.asList(identArray).contains(ident) ) {
+        	for (String str : identArray) {
+                identCbo.add(str);
+            }
+        	identCbo.select(identCbo.indexOf(ident));
         }
-
-        identCbo.select(identCbo.indexOf(ident));
+        
+        else {
+        	identCbo.add(ident);
+        	identCbo.select(identCbo.indexOf(ident));
+        }
+        
     }
 
     /**
