@@ -20,7 +20,6 @@
 package com.raytheon.viz.core.gl;
 
 import javax.media.opengl.GL;
-import javax.media.opengl.GLContext;
 import javax.media.opengl.glu.GLU;
 
 import org.eclipse.swt.graphics.Rectangle;
@@ -53,6 +52,12 @@ public interface IGLTarget extends IGraphicsTarget {
      * @return
      */
     public abstract boolean makeContextCurrent();
+
+    /**
+     * 
+     * @return
+     */
+    public abstract void releaseContext();
 
     /**
      * Get the modle view matrix settings
@@ -100,21 +105,6 @@ public interface IGLTarget extends IGraphicsTarget {
      * @return the bounds for the target pane.
      */
     public abstract Rectangle getBounds();
-
-    /**
-     * Get the gl context
-     * 
-     * @return
-     */
-    public abstract GLContext getContext();
-
-    /**
-     * Dispose luminance texture
-     * 
-     * @param id
-     * @param pboID
-     */
-    public abstract void disposeLuminanceTexture(int id, int pboID);
 
     /**
      * Dispose a vbo
@@ -186,4 +176,5 @@ public interface IGLTarget extends IGraphicsTarget {
      * Checks the glError state and does a UFStatus message
      */
     public abstract void handleError(int errorid);
+
 }
