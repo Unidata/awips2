@@ -506,6 +506,7 @@ public class DataManager {
     private void dispose() {
         selectTimeRangeManager.dispose();
         refManager.dispose();
+        parmManager.dispose();
         autoSaveJob.dispose();
         autoSaveJob = null;
 

@@ -109,14 +109,12 @@ public class JmsConnectionWrapper implements Connection {
      */
     @Override
     public void close() throws JMSException {
-        synchronized (this) {
-            if (closeInternal()) {
-                // remove this wrapper from the manager
-                mgr.removeReference(this);
+        if (closeInternal()) {
+            // remove this wrapper from the manager
+            mgr.removeReference(this);
 
-                if (exceptionOccurred) {
-                    mgr.close();
-                }
+            if (exceptionOccurred) {
+                mgr.close();
             }
         }
     }
