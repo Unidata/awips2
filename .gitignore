@@ -5,8 +5,8 @@ test-bin/
 testbin/
 testBin/
 bin-test/
-
-/Installer.rpm
-/Installer.rpm
+*.class
+*.pyo
+*.o
 
 *.pyo
