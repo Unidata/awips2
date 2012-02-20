@@ -51,7 +51,7 @@ import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.parm.DbParm;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.core.parm.ParmDisplayAttributes.VisMode;
-import com.raytheon.viz.gfe.core.parm.VCModule;
+import com.raytheon.viz.gfe.core.parm.vcparm.VCModule;
 import com.raytheon.viz.gfe.core.parm.VCParm;
 import com.raytheon.viz.gfe.core.parm.VParm;
 import com.raytheon.viz.gfe.types.MutableInteger;
