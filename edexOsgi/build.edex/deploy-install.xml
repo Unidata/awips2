@@ -43,25 +43,30 @@
 		<echo message="BUILD TIME   = ${build.time}" />
 		<echo message="BUILD SYSTEM = ${build.system}" />
 
-		<!-- Ensure the git working directory has been set. -->
-		<if>
-			<equals arg1="${git.working.dir}" arg2="" />
-			<then>
-				<fail 
-					message="The git working directory has not been specified: use -Dgit.working.dir=" />
+                <if>
+			<equals arg1="${installer}" arg2="false" />
+			<then> 
+				<!-- Ensure the git working directory has been set. -->
+				<if>
+					<equals arg1="${git.working.dir}" arg2="" />
+					<then>
+						<fail 
+							message="The git working directory has not been specified: use -Dgit.working.dir=" />
+					</then>
+				</if>
+				<!-- Ensure that the specified git working directory exists. -->
+				<if>
+					<available file="${git.working.dir}" 
+						type="dir" />
+					<then>
+						<!-- Continue -->
+					</then>
+				<else>
+					<fail message="The specified git working directory does not exist." />
+				</else>
+				</if>
 			</then>
-		</if>
-		<!-- Ensure that the specified git working directory exists. -->
-		<if>
-			<available file="${git.working.dir}" 
-				type="dir" />
-			<then>
-				<!-- Continue -->
-			</then>
-			<else>
-				<fail message="The specified git working directory does not exist." />
-			</else>
-		</if>		
+		</if>	
 		
 		<var name="projects.dirs" 
 			value="${git.working.dir}/cots;${git.working.dir}/edexOsgi;${git.working.dir}/ncep;${git.working.dir}/RadarServer" />
@@ -98,6 +103,15 @@
 				</if>
 			</sequential>
 		</for>
+		
+		<if>
+			<available file="${basedir}/tmp" type="dir" />
+			<then>
+				<delete quiet="true" includeemptydirs="true">
+					<fileset dir="${basedir}/tmp" />
+				</delete>
+			</then>
+		</if>
 	</target>
 	
 	<target name="cleanup">
