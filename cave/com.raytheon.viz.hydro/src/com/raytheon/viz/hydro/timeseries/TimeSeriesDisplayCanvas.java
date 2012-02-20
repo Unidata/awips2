@@ -721,6 +721,8 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                 gc.setBackground(this.white);
             }
             gc.drawString(NO_DATA_AVAILABLE, tmpX, tmpY);
+            gc.drawString(siteLabel +" fs=" + floodStage, GRAPHBORDER,
+                    GRAPHBORDER - fontHeight * 2);
 
             this.dialog.getParentDialog().enableGraphButton();
             this.dialog.getParentDialog().enableBothButton();
