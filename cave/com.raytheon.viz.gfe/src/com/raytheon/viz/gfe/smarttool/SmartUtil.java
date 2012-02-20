@@ -128,7 +128,7 @@ public class SmartUtil {
         return pi;
     }
 
-    public static SmartToolRequest callFromSmartScript(final DataManager dm,
+    public static Object callFromSmartScript(final DataManager dm,
             final String toolName, final String elementName,
             ReferenceData editArea, TimeRange timeRange, String varDict,
             boolean emptyEditAreaFlag, List<String> passErrors,
@@ -176,6 +176,7 @@ public class SmartUtil {
             });
         }
 
-        return req;
+        SmartToolJob.enqueue(dm, req);
+        return req.getResult();
     }
 }
