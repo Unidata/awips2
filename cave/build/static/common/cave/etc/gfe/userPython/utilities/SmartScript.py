@@ -890,21 +890,15 @@ class SmartScript(BaseTool.BaseTool):
         else:
             timeRange = timeRange.toJavaObj()
         
-        from com.raytheon.viz.gfe.smarttool.script import SmartToolRequest, SmartToolFinishedListener, SmartToolJob
         from com.raytheon.viz.gfe.smarttool import SmartUtil
         
-        req = SmartUtil.callFromSmartScript(self.__dataMgr, toolName, elementName, editArea, 
+        result = SmartUtil.callFromSmartScript(self.__dataMgr, toolName, elementName, editArea, 
                                             timeRange, varDict, emptyEditAreaFlag, 
                                             JUtil.pylistToJavaStringList(passErrors), 
                                             missingDataMode, parm)
         
-        listener = SmartToolFinishedListener()
-        req.setListener(listener)
-        SmartToolJob.enqueue(self.__dataMgr, req)
-        while not listener.isDone():
-            time.sleep(0.2)
-        if listener.getResult():
-            raise Exceptions.EditActionError(errorType="Error", errorInfo=str(listener.getResult()))   
+        if result:
+            raise Exceptions.EditActionError(errorType="Error", errorInfo=str(result))   
         return None
     
     def callProcedure(self, name, editArea=None, timeRange=None, varDict=None,
@@ -919,20 +913,15 @@ class SmartScript(BaseTool.BaseTool):
         else:
             timeRange = timeRange.toJavaObj()
             
-        from com.raytheon.viz.gfe.procedures import ProcedureUtil, ProcedureRequest, ProcedureFinishedListener,ProcedureJob
+        from com.raytheon.viz.gfe.procedures import ProcedureUtil
         if varDict:
             varDict = str(varDict)
-        listener = ProcedureFinishedListener()
-        req = ProcedureUtil.callFromSmartScript(self.__dataMgr, name, editArea, timeRange, varDict)
-        req.setListener(listener)
-        
-        ProcedureJob.enqueue(self.__dataMgr, req)
-        while not listener.isDone():
-           time.sleep(0.2)
+
+        result = ProcedureUtil.callFromSmartScript(self.__dataMgr, name, editArea, timeRange, varDict)
         
         # callSmartTool raises the exception put here it is returned.
-        if listener.getResult():
-           return Exceptions.EditActionError(errorType="Error", errorInfo=str(listener.getResult()))   
+        if result:
+           return Exceptions.EditActionError(errorType="Error", errorInfo=str(result))   
         return None        
     
 
