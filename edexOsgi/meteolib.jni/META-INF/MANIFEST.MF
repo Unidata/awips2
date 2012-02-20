@@ -5,7 +5,8 @@ Bundle-SymbolicName: meteolib.jni
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: meteolib.jni.Activator
 Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime
+ org.eclipse.core.runtime,
+ org.apache.commons.lang;bundle-version="2.3.0"
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
  gluegen-rt.jar
