@@ -93,6 +93,11 @@ public class GfePyIncludeUtil {
 
     public static final String GFE_CONFIG = FileUtil.join("config", GFE);
 
+    public static final String VCMODULES = FileUtil.join(GFE, "vcmodule");
+
+    public static final String VCMOD_UTILS = FileUtil
+            .join(VCMODULES, "utility");
+
     private static final IPathManager PATH_MANAGER = PathManagerFactory
             .getPathManager();
 
@@ -175,6 +180,10 @@ public class GfePyIncludeUtil {
 
     public static LocalizationFile getTestsLF(LocalizationContext ctx) {
         return PATH_MANAGER.getLocalizationFile(ctx, TESTS);
+    }
+
+    public static LocalizationFile getVCModUtilsLF(LocalizationContext ctx) {
+        return PATH_MANAGER.getLocalizationFile(ctx, VCMOD_UTILS);
     }
 
     // Include Path getters
@@ -386,4 +395,13 @@ public class GfePyIncludeUtil {
                 LocalizationType.EDEX_STATIC, siteId), GFE_CONFIG);
     }
 
+    public static String getVCModulesIncludePath() {
+        return getPath(PATH_MANAGER.getContext(LocalizationType.COMMON_STATIC,
+                LocalizationLevel.BASE), VCMODULES);
+    }
+
+    public static String getVCModUtilsIncludePath() {
+        return getPath(PATH_MANAGER.getContext(LocalizationType.COMMON_STATIC,
+                LocalizationLevel.BASE), VCMOD_UTILS);
+    }
 }
