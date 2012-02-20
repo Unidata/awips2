@@ -27,6 +27,7 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.viz.core.jobs.JobPool;
 import com.raytheon.viz.gfe.GFEOperationFailedException;
 import com.raytheon.viz.gfe.core.msgs.IAvailableSourcesChangedListener;
 import com.raytheon.viz.gfe.core.msgs.IDisplayedParmListChangedListener;
@@ -567,4 +568,6 @@ public interface IParmManager extends IParmInventoryChangedListener,
      * @return
      */
     public ParmID fromExpression(String parmName);
+
+    public JobPool getNotificationPool();
 }
