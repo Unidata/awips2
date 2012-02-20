@@ -326,7 +326,8 @@ public abstract class Parm implements Comparable<Parm> {
         this.parmState = new ParmState(this);
 
         this.displayAttributes = new ParmDisplayAttributes(displayable, this);
-        this.parmListeners = new ParmListeners();
+        this.parmListeners = new ParmListeners(this.dataManager
+                .getParmManager().getNotificationPool());
 
         // Construct an empty lock table
         // Subclasses who utilize locks will override this
