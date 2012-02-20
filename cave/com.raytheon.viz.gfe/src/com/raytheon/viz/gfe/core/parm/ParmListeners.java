@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.ListenerList;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.viz.core.jobs.JobPool;
 import com.raytheon.viz.gfe.core.msgs.GridDataChangedMsg;
 import com.raytheon.viz.gfe.core.msgs.IColorTableModifiedListener;
 import com.raytheon.viz.gfe.core.msgs.ICombineModeChangedListener;
@@ -83,7 +84,9 @@ public class ParmListeners {
 
     private final ListenerList lockTableChangedListeners;
 
-    protected ParmListeners() {
+    private final JobPool notificationPool;
+
+    protected ParmListeners(JobPool pool) {
         this.gridChangedListeners = new ListenerList();
         this.parmInventoryChangedListeners = new ListenerList();
         this.parmIDChangedListeners = new ListenerList();
@@ -94,81 +97,171 @@ public class ParmListeners {
         this.pickupValueChangedListeners = new ListenerList();
         this.colorTableModifiedListeners = new ListenerList();
         this.lockTableChangedListeners = new ListenerList();
+        this.notificationPool = pool;
     }
 
-    public void fireGridChangedListener(ParmID parmID, TimeRange validTime) {
+    public void fireGridChangedListener(final ParmID parmID,
+            final TimeRange validTime) {
         for (Object listener : this.gridChangedListeners.getListeners()) {
-            ((IGridDataChangedListener) listener).gridDataChanged(parmID,
-                    validTime);
-        }
+            final IGridDataChangedListener casted = (IGridDataChangedListener) listener;
 
+            Runnable notTask = new Runnable() {
+
+                @Override
+                public void run() {
+                    casted.gridDataChanged(parmID, validTime);
+                }
+            };
+
+            notificationPool.schedule(notTask);
+        }
         new GridDataChangedMsg(parmID, validTime).send();
     }
 
-    protected void fireParmInventoryChangedListener(Parm parm,
-            TimeRange validTime) {
+    protected void fireParmInventoryChangedListener(final Parm parm,
+            final TimeRange validTime) {
         for (Object listener : this.parmInventoryChangedListeners
                 .getListeners()) {
-            ((IParmInventoryChangedListener) listener).parmInventoryChanged(
-                    parm, validTime);
+            final IParmInventoryChangedListener casted = (IParmInventoryChangedListener) listener;
+
+            Runnable notTask = new Runnable() {
+
+                @Override
+                public void run() {
+                    casted.parmInventoryChanged(parm, validTime);
+                }
+            };
+
+            notificationPool.schedule(notTask);
         }
     }
 
-    protected void fireParmIDChangedListener(Parm parm, ParmID newParmID) {
+    protected void fireParmIDChangedListener(final Parm parm,
+            final ParmID newParmID) {
         for (Object listener : this.parmIDChangedListeners.getListeners()) {
-            ((IParmIDChangedListener) listener).parmIDChanged(parm, newParmID);
+            final IParmIDChangedListener casted = (IParmIDChangedListener) listener;
+
+            Runnable notTask = new Runnable() {
+
+                @Override
+                public void run() {
+                    casted.parmIDChanged(parm, newParmID);
+                }
+            };
+            notificationPool.schedule(notTask);
         }
     }
 
-    public void fireSelectionTimeRangeChanged(Parm parm,
-            TimeRange selectionTimeRange) {
+    public void fireSelectionTimeRangeChanged(final Parm parm,
+            final TimeRange selectionTimeRange) {
         for (Object listener : this.selectionTimeRangeChangedListeners
                 .getListeners()) {
-            ((ISelectionTimeRangeChangedListener) listener)
-                    .selectionTimeRangeChanged(parm, selectionTimeRange);
+            final ISelectionTimeRangeChangedListener casted = (ISelectionTimeRangeChangedListener) listener;
+
+            Runnable notTask = new Runnable() {
+
+                @Override
+                public void run() {
+                    casted.selectionTimeRangeChanged(parm, selectionTimeRange);
+                }
+            };
+
+            notificationPool.schedule(notTask);
         }
     }
 
-    public void fireParameterSelectionChangedListener(Parm parm,
-            boolean selected) {
+    public void fireParameterSelectionChangedListener(final Parm parm,
+            final boolean selected) {
         for (Object listener : this.parameterSelectionChangedListeners
                 .getListeners()) {
-            ((IParameterSelectionChangedListener) listener)
-                    .parameterSelectionChanged(parm, selected);
+            final IParameterSelectionChangedListener casted = (IParameterSelectionChangedListener) listener;
+
+            Runnable notTask = new Runnable() {
+
+                @Override
+                public void run() {
+                    casted.parameterSelectionChanged(parm, selected);
+                }
+            };
+            notificationPool.schedule(notTask);
         }
     }
 
-    public void fireCombineModeChangedListener(Parm parm, CombineMode mode) {
+    public void fireCombineModeChangedListener(final Parm parm,
+            final CombineMode mode) {
         for (Object listener : this.combineModeChangedListeners.getListeners()) {
-            ((ICombineModeChangedListener) listener).combineModeChanged(parm,
-                    mode);
+            final ICombineModeChangedListener casted = (ICombineModeChangedListener) listener;
+
+            Runnable notTask = new Runnable() {
+
+                @Override
+                public void run() {
+                    casted.combineModeChanged(parm, mode);
+                }
+            };
+            notificationPool.schedule(notTask);
         }
     }
 
-    public void fireVectorModeChangedListener(Parm parm, VectorMode mode) {
+    public void fireVectorModeChangedListener(final Parm parm,
+            final VectorMode mode) {
         for (Object listener : this.vectorModeChangedListeners.getListeners()) {
-            ((IVectorModeChangedListener) listener).vectorModeChanged(parm,
-                    mode);
+            final IVectorModeChangedListener casted = (IVectorModeChangedListener) listener;
+
+            Runnable notTask = new Runnable() {
+
+                @Override
+                public void run() {
+                    casted.vectorModeChanged(parm, mode);
+                }
+            };
+            notificationPool.schedule(notTask);
         }
     }
 
-    public void firePickupValueChangedListener(Parm parm, WxValue pickupValue) {
+    public void firePickupValueChangedListener(final Parm parm,
+            final WxValue pickupValue) {
         for (Object listener : this.pickupValueChangedListeners.getListeners()) {
-            ((IPickupValueChangedListener) listener).pickupValueChanged(parm,
-                    pickupValue);
+            final IPickupValueChangedListener casted = (IPickupValueChangedListener) listener;
+
+            Runnable notTask = new Runnable() {
+
+                @Override
+                public void run() {
+                    casted.pickupValueChanged(parm, pickupValue);
+                }
+            };
+            notificationPool.schedule(notTask);
         }
     }
 
-    public void fireColorTableModified(Parm parm) {
+    public void fireColorTableModified(final Parm parm) {
         for (Object listener : this.colorTableModifiedListeners.getListeners()) {
-            ((IColorTableModifiedListener) listener).colorTableModified(parm);
+            final IColorTableModifiedListener casted = (IColorTableModifiedListener) listener;
+
+            Runnable notTask = new Runnable() {
+
+                @Override
+                public void run() {
+                    casted.colorTableModified(parm);
+                }
+            };
+            notificationPool.schedule(notTask);
         }
     }
 
-    public void fireLockTableChanged(Parm parm, LockTable lockTable) {
+    public void fireLockTableChanged(final Parm parm, final LockTable lockTable) {
         for (Object listener : this.lockTableChangedListeners.getListeners()) {
-            ((ILockTableChangedListener) listener).lockTableChanged(parm,
-                    lockTable);
+            final ILockTableChangedListener casted = (ILockTableChangedListener) listener;
+
+            Runnable notTask = new Runnable() {
+
+                @Override
+                public void run() {
+                    casted.lockTableChanged(parm, lockTable);
+                }
+            };
+            notificationPool.schedule(notTask);
         }
     }
 
