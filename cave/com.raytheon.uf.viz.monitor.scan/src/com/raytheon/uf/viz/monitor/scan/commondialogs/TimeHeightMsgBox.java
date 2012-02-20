@@ -43,6 +43,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 25, 2011            mpduff     Initial creation
+ * Dec 23, 2011 13608	   mgamazay	  Added initialization of ident to the constructor 
  * 
  * </pre>
  * 
@@ -65,6 +66,7 @@ public class TimeHeightMsgBox extends CaveSWTDialog implements
     protected TimeHeightMsgBox(Shell parentShell, String ident) {
         super(parentShell, SWT.DIALOG_TRIM | SWT.MODELESS);
         setText("Unavailable T-H Trend");
+        this.ident = ident;
 
     }
 
