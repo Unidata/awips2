@@ -40,6 +40,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.ui.progress.UIJob;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -74,7 +75,7 @@ public class TimeDisplay extends ContributionItem {
     /**
      * Job to update the time display
      */
-    private static class TimeUpdateJob extends Job {
+    private static class TimeUpdateJob extends UIJob {
 
         /**
          * @param name
@@ -91,22 +92,16 @@ public class TimeDisplay extends ContributionItem {
          * IProgressMonitor)
          */
         @Override
-        protected IStatus run(IProgressMonitor monitor) {
+        public IStatus runInUIThread(IProgressMonitor monitor) {
             // if any displays are active
-            if (activeList.size() > 0) {
+            if (!activeList.isEmpty()) {
                 // update the state of all active displays
-                Display.getDefault().syncExec(new Runnable() {
+                for (TimeDisplay td : activeList) {
+                    td.update();
+                }
 
-                    @Override
-                    public void run() {
-                        for (TimeDisplay td : activeList) {
-                            td.update();
-                        }
-                    }
-
-                });
-
-                this.schedule(1000);
+                long t = System.currentTimeMillis() % 60000;
+                this.schedule(60000 - t);
             }
 
             return Status.OK_STATUS;
