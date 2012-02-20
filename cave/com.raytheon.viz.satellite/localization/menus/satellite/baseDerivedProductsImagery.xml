@@ -96,7 +96,7 @@
 	        <substitute key="colormap" value="Sat/Precip Water/Precip Water - Polar)"/>
 	    </contribute>
 	    <contribute xsi:type="titleItem" 
-					titleText="------ Blended of AMSU and SSM/I------" id="blendedofAMSUAndSSMIDataLine"/>
+					titleText="------ AMSU and SSM/I + GPS ------" id="blendedofAMSUAndSSMIDataLine"/>
 			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
 	                menuText="Blended Total Precip Water" id="blendedTotalPrecipWater">
 		        <dataURI>/satellite/%/NESDIS/Miscellaneous/Supernational/Sounder_Based_Derived_Precipitable_Water_(PW)</dataURI>
