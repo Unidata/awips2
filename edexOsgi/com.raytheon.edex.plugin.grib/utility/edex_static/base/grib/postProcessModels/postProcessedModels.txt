@@ -79,3 +79,7 @@ TPCSurgeProb:com.raytheon.edex.plugin.grib.decoderpostprocessors.TPCSurgeProbPos
 #SREF grids
 SREF212:com.raytheon.edex.plugin.grib.decoderpostprocessors.SREFProbPostProcessor
 SREF243:com.raytheon.edex.plugin.grib.decoderpostprocessors.SREFProbPostProcessor
+
+#Canadian GEM grids
+Canadian-Reg:com.raytheon.edex.plugin.grib.decoderpostprocessors.CanadianRegPostProcessor
+Canadian-NH:com.raytheon.edex.plugin.grib.decoderpostprocessors.CanadianNHPostProcessor
