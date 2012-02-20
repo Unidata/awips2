@@ -69,12 +69,13 @@ public class ISCParmInitJob extends Job {
     protected IStatus run(IProgressMonitor monitor) {
         IISCDataAccess iscAccess = dataMgr.getIscDataAccess();
         for (Parm parm : parms) {
-            // if (parm != null) {
-            iscAccess.getISCParm(parm);
-            // }
+            if (!monitor.isCanceled()) {
+                iscAccess.getISCParm(parm);
+            } else {
+                return Status.CANCEL_STATUS;
+            }
         }
 
         return Status.OK_STATUS;
     }
-
 }
