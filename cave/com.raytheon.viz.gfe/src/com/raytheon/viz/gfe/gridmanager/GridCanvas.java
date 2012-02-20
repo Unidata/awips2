@@ -31,7 +31,6 @@ import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.SWT;
@@ -51,6 +50,7 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.ui.progress.UIJob;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.TimeConstraints;
@@ -125,7 +125,7 @@ public class GridCanvas extends Canvas implements IMessageClient {
     private static Color SEPARATOR_COLOR = new Color(Display.getDefault(),
             RGBColors.getRGBColor("CornflowerBlue"));
 
-    private class ScrollJob extends Job {
+    private class ScrollJob extends UIJob {
         private int increment = 0;
 
         /**
@@ -138,34 +138,72 @@ public class GridCanvas extends Canvas implements IMessageClient {
 
         public ScrollJob() {
             super("GridCanvasScrollJob");
+            setSystem(true);
         }
 
         @Override
-        protected IStatus run(IProgressMonitor monitor) {
-            VizApp.runSync(new Runnable() {
+        public IStatus runInUIThread(IProgressMonitor monitor) {
+            Point p = scrolledComp.getOrigin();
+            if ((increment < 0 && p.y > 0)
+                    || (increment > 0 && p.y < (getSize().y - scrolledComp
+                            .getClientArea().height))) {
+                p.y += increment;
+                scrolledComp.setOrigin(p);
 
-                @Override
-                public void run() {
-                    Point p = scrolledComp.getOrigin();
-                    if ((increment < 0 && p.y > 0)
-                            || (increment > 0 && p.y < (getSize().y - scrolledComp
-                                    .getClientArea().height))) {
-                        p.y += increment;
-                        scrolledComp.setOrigin(p);
+                if (increment < 0) {
+                    selection.y += increment;
+                }
+                selection.height += Math.abs(increment);
+                setSelection(selection);
 
-                        if (increment < 0) {
-                            selection.y += increment;
-                        }
-                        selection.height += Math.abs(increment);
-                        setSelection(selection);
+                schedule(100);
+            } else {
+                cancel();
+            }
+            return Status.OK_STATUS;
+        }
+    }
 
-                        schedule(100);
-                    } else {
-                        cancel();
-                    }
+    private class RepaintJob extends UIJob {
+        private Rectangle dirtyRect;
+
+        public RepaintJob() {
+            super("GridCanvasRepaintJob");
+            setSystem(true);
+        }
+
+        public void markDirty(Rectangle rect) {
+            synchronized (this) {
+                if (this.dirtyRect != null) {
+                    this.dirtyRect = this.dirtyRect.union(rect);
+                } else {
+                    this.dirtyRect = rect;
+                }
+            }
+            this.schedule();
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * org.eclipse.ui.progress.UIJob#runInUIThread(org.eclipse.core.runtime
+         * .IProgressMonitor)
+         */
+        @Override
+        public IStatus runInUIThread(IProgressMonitor monitor) {
+
+            if (!GridCanvas.this.isDisposed() && dirtyRect != null) {
+                Rectangle rect;
+                synchronized (this) {
+                    rect = dirtyRect;
+                    dirtyRect = null;
                 }
 
-            });
+                GridCanvas.this.redraw(rect.x, rect.y, rect.width, rect.height,
+                        true);
+            }
+
             return Status.OK_STATUS;
         }
 
@@ -197,6 +235,8 @@ public class GridCanvas extends Canvas implements IMessageClient {
     }
 
     private ScrollJob scrollJob = new ScrollJob();
+
+    private RepaintJob repaintJob = new RepaintJob();
 
     private ScrolledComposite scrolledComp;
 
@@ -1119,5 +1159,9 @@ public class GridCanvas extends Canvas implements IMessageClient {
                 showQuickViewGrid(null);
             }
         }
+    }
+
+    public void markDirty(Rectangle rect) {
+        this.repaintJob.markDirty(rect);
     }
 }

@@ -21,7 +21,6 @@ package com.raytheon.uf.viz.core.notification.jobs;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -119,23 +118,30 @@ public class NotificationManagerJob implements ExceptionListener, IDisposable {
          */
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
+            if (this == obj) {
                 return true;
-            if (obj == null)
+            }
+            if (obj == null) {
                 return false;
-            if (getClass() != obj.getClass())
+            }
+            if (getClass() != obj.getClass()) {
                 return false;
+            }
             ListenerKey other = (ListenerKey) obj;
             if (queryString == null) {
-                if (other.queryString != null)
+                if (other.queryString != null) {
                     return false;
-            } else if (!queryString.equals(other.queryString))
+                }
+            } else if (!queryString.equals(other.queryString)) {
                 return false;
+            }
             if (topic == null) {
-                if (other.topic != null)
+                if (other.topic != null) {
                     return false;
-            } else if (!topic.equals(other.topic))
+                }
+            } else if (!topic.equals(other.topic)) {
                 return false;
+            }
             return true;
         }
     }
@@ -532,13 +538,13 @@ public class NotificationManagerJob implements ExceptionListener, IDisposable {
                 sendToObserver(obs, msg);
             }
 
-            Iterator<JobWrapper> iterator = jobWrappers.values().iterator();
-            while (iterator.hasNext()) {
-                JobWrapper wrapper = iterator.next();
-                if (!wrapper.isEmpty() && wrapper.getState() != Job.RUNNING) {
-                    wrapper.schedule();
-                }
-            }
+            // Iterator<JobWrapper> iterator = jobWrappers.values().iterator();
+            // while (iterator.hasNext()) {
+            // JobWrapper wrapper = iterator.next();
+            // if (!wrapper.isEmpty() && wrapper.getState() != Job.RUNNING) {
+            // wrapper.schedule();
+            // }
+            // }
         }
 
         public synchronized void addObserver(INotificationObserver obs) {
@@ -659,6 +665,7 @@ public class NotificationManagerJob implements ExceptionListener, IDisposable {
                     lastErrorPrintTime = System.currentTimeMillis();
                 }
             }
+            this.schedule();
         }
 
         /**
