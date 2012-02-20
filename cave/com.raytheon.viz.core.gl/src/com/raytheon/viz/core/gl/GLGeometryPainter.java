@@ -50,9 +50,8 @@ public class GLGeometryPainter {
 
     private static int maxVertices = -1;
 
-    public static void paintGeometries(IGLTarget target,
-            GLGeometryObject2D... geoms) throws VizException {
-        GL gl = target.getGl();
+    public static void paintGeometries(GL gl, GLGeometryObject2D... geoms)
+            throws VizException {
         State state = State.INVALID;
         Set<State> states = new HashSet<State>();
         for (GLGeometryObject2D geom : geoms) {
@@ -131,11 +130,11 @@ public class GLGeometryPainter {
         case COMPILED:
         case COMPILED_HIGH_END: {
             for (GLGeometryObject2D geom : geoms) {
-                if (geom.vboId <= 0) {
+                if (!geom.vbo.isValid()) {
                     throw new VizException(
                             "Could not paint geometry, VBO not set!");
                 }
-                gl.glBindBuffer(GL.GL_ARRAY_BUFFER, geom.vboId);
+                geom.vbo.bind(gl, GL.GL_ARRAY_BUFFER);
                 switch (geom.data.coordType) {
                 case GL.GL_VERTEX_ARRAY: {
                     gl.glVertexPointer(geom.pointsPerCoordinate(), GL.GL_FLOAT,
