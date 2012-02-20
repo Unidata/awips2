@@ -54,6 +54,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 11, 2010            mnash     Initial creation
+ * Dec 28, 2011 11705	   gzhang	 Fix SCAN missing Rows error	
  * 
  * </pre>
  * 
@@ -82,8 +83,9 @@ public class RadarRecordUtil {
                                             .getTheText())) {
                                 Map<GraphicBlockValues, String> map = new HashMap<GraphicBlockValues, String>();
                                 Matcher m = RadarConstants.graphic_block_pattern
-                                        .matcher(((TextSymbolPacket) packets[j])
-                                                .getTheText());
+                                        .matcher(
+                                        		getNormalizedGBText( ((TextSymbolPacket) packets[j]).getTheText() ) 
+                                        		);
                                 if (m.find()) {
                                     String storm_id = m.group(1).trim();
                                     map.put(GraphicBlockValues.AZIMUTH, m
@@ -526,5 +528,41 @@ public class RadarRecordUtil {
         else
             return Double.parseDouble(s);
     }
-
+    
+    /**
+     * DR#11705: SCAN missing row(s) comparing to radar Comb Att Table.
+     * 
+     * Error cause: RadarConstants.GRAPHIC_BLOCK as a Regular Expression
+     * pattern can not match some variations in Graphic Block Texts with  
+     * "<" and ">" having spaces between them and their associated numbers
+     * ( MXHAILSIZE and TOP ).
+     * 
+     * Fix: replace all "<" and ">" with space: " "
+     * 
+     * @param : Graphic Block Text that may contain ">" and/or "<".
+     * @return: String with ">" and/or "<" replaced by space.      
+     */
+    private static String getNormalizedGBText(String text){
+    	
+    	if(text == null || text.isEmpty() || ( (!  text.contains(">"))  && (! text.contains("<")) ) ) 
+    		return text;
+    	
+    	/*
+    	 * contains only ">"
+    	 */
+    	if( ! text.contains("<") ) 
+    		return text.replaceAll(">", " ");
+    	
+    	/*
+    	 * contains only "<"
+    	 */
+    	if( ! text.contains(">") ) 
+    		return text.replaceAll("<", " ");
+    	
+    	/*
+    	 * contains both "<" and ">"
+    	 */
+    	return text.replaceAll(">"," ").replaceAll("<", " ");
+   	
+    }
 }
