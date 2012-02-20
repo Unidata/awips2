@@ -28,9 +28,7 @@ import java.util.Hashtable;
 
 import javax.media.jai.PlanarImage;
 import javax.media.opengl.GL;
-import javax.media.opengl.GLContext;
 
-import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.gl.IGLTarget;
@@ -73,7 +71,7 @@ public class GLImage extends AbstractGLImage implements IImageCacheable {
     protected int size;
 
     public GLImage(IRenderedImageCallback preparer, IGLTarget target) {
-        super(target);
+        super();
         theTexture = null;
         this.imagePreparer = preparer;
     }
@@ -113,15 +111,8 @@ public class GLImage extends AbstractGLImage implements IImageCacheable {
 
             if (getStatus() == Status.LOADED) {
                 if (theTexture != null) {
-                    final Texture tex = theTexture;
+                    theTexture.dispose();
                     theTexture = null;
-                    VizApp.runAsync(new Runnable() {
-                        @Override
-                        public void run() {
-                            theTarget.makeContextCurrent();
-                            tex.dispose();
-                        }
-                    });
                 }
                 if (theStagedData != null) {
                     setStatus(Status.STAGED);
@@ -154,7 +145,7 @@ public class GLImage extends AbstractGLImage implements IImageCacheable {
      *            the OpenGL context
      * @throws VizException
      */
-    public void loadTexture(GLContext ctx) throws VizException {
+    public void loadTexture(GL gl) throws VizException {
         synchronized (this) {
             Texture tex = TextureIO.newTexture(theStagedData);
 
