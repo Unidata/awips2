@@ -75,7 +75,7 @@ public class ProcedureUtil {
         return pi;
     }
 
-    public static ProcedureRequest callFromSmartScript(final DataManager dm,
+    public static Object callFromSmartScript(final DataManager dm,
             final String procName, ReferenceData editArea, TimeRange timeRange,
             String varDict) {
         PreviewInfo pi = dm.getEditActionProcessor().prepareExecute(
@@ -122,6 +122,7 @@ public class ProcedureUtil {
             });
         }
 
-        return req;
+        ProcedureJob.enqueue(dm, req);
+        return req.getResult();
     }
 }
