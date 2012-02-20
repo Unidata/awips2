@@ -38,15 +38,15 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.griddata.AbstractGridData;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
 import com.raytheon.viz.gfe.core.msgs.IGridDataChangedListener;
 import com.raytheon.viz.gfe.core.msgs.IParmInventoryChangedListener;
 import com.raytheon.viz.gfe.core.msgs.IParmListChangedListener;
-import com.raytheon.viz.gfe.core.parm.VCModule.DepParmInv;
-import com.raytheon.viz.gfe.core.parm.VCModule.VCInventory;
+import com.raytheon.viz.gfe.core.parm.vcparm.VCModule;
+import com.raytheon.viz.gfe.core.parm.vcparm.VCModule.DepParmInv;
+import com.raytheon.viz.gfe.core.parm.vcparm.VCModule.VCInventory;
 
 /**
  * A VC (virtual calculated) parm is virtual (non-database ifpServer) and is
@@ -145,39 +145,32 @@ public class VCParm extends VParm implements IParmListChangedListener,
         // statusHandler.handle(Priority.DEBUG, "gridDataChanged for: " + parmId
         // + " " + validTime);
 
-        VizApp.runAsync(new Runnable() {
-
-            @Override
-            public void run() {
-                for (VCInventory inv : VCParm.this.vcInventory) {
-                    for (DepParmInv dpi : inv.getDepParmInv()) {
-                        if (dpi.getParmID().equals(parmId)) {
-                            for (TimeRange tr : dpi.getTimes()) {
-                                if (tr.getStart().equals(validTime.getStart())) {
-                                    VCParm.this.grids.acquireReadLock();
-                                    try {
-                                        for (IGridData grid : VCParm.this.grids) {
-                                            if (inv.getGridTimeRange().equals(
-                                                    grid.getGridTime())) {
-                                                grid.depopulate();
-                                                gridDataHasChanged(
-                                                        grid,
-                                                        getDisplayAttributes()
-                                                                .getDisplayMask(),
-                                                        false);
-                                                return;
-                                            }
-                                        }
-                                    } finally {
-                                        VCParm.this.grids.releaseReadLock();
+        for (VCInventory inv : this.vcInventory) {
+            for (DepParmInv dpi : inv.getDepParmInv()) {
+                if (dpi.getParmID().equals(parmId)) {
+                    for (TimeRange tr : dpi.getTimes()) {
+                        if (tr.getStart().equals(validTime.getStart())) {
+                            this.grids.acquireReadLock();
+                            try {
+                                for (IGridData grid : this.grids) {
+                                    if (inv.getGridTimeRange().equals(
+                                            grid.getGridTime())) {
+                                        grid.depopulate();
+                                        gridDataHasChanged(grid,
+                                                getDisplayAttributes()
+                                                        .getDisplayMask(),
+                                                false);
+                                        return;
                                     }
                                 }
+                            } finally {
+                                this.grids.releaseReadLock();
                             }
                         }
                     }
                 }
             }
-        });
+        }
 
     }
 
@@ -196,13 +189,8 @@ public class VCParm extends VParm implements IParmListChangedListener,
         // statusHandler.handle(Priority.DEBUG,
         // "ParmListChangedMsg received: ");
 
-        VizApp.runAsync(new Runnable() {
+        registerParmClients(parms, true);
 
-            @Override
-            public void run() {
-                registerParmClients(parms, true);
-            }
-        });
     }
 
     /*
@@ -222,13 +210,8 @@ public class VCParm extends VParm implements IParmListChangedListener,
         // approach.
         // statusHandler.debug("ParmInventoryChanged notification for: "
         // + getParmID().toString());
-        VizApp.runAsync(new Runnable() {
 
-            @Override
-            public void run() {
-                recalcInventory(true);
-            }
-        });
+        recalcInventory(true);
     }
 
     /*
@@ -366,7 +349,7 @@ public class VCParm extends VParm implements IParmListChangedListener,
         // If there is an error in calcHistory() it
         // will still give us one to use. So, we can just logProblem
         if (!mod.isValid()) {
-            statusHandler.handle(Priority.PROBLEM,
+            statusHandler.handle(Priority.EVENTB,
                     "Error in history calculation for "
                             + getParmID().toString(), mod.getErrorString());
         }

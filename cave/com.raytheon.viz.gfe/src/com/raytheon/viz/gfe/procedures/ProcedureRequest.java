@@ -19,6 +19,8 @@
  **/
 package com.raytheon.viz.gfe.procedures;
 
+import java.util.concurrent.Semaphore;
+
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.jobs.QueueJobRequest;
@@ -51,6 +53,21 @@ public class ProcedureRequest extends QueueJobRequest<Object> {
     private String varDict;
 
     private PreviewInfo preview;
+
+    private Semaphore completedSemaphore;
+
+    private Object result;
+
+    public ProcedureRequest() {
+        super();
+
+        completedSemaphore = new Semaphore(1);
+        try {
+            completedSemaphore.acquire();
+        } catch (InterruptedException e) {
+            // don't care
+        }
+    }
 
     public String getProcedureName() {
         return procedureName;
@@ -92,4 +109,20 @@ public class ProcedureRequest extends QueueJobRequest<Object> {
         this.preview = preview;
     }
 
+    public void requestComplete(Object result) {
+        this.result = result;
+        completedSemaphore.release();
+    }
+
+    public Object getResult() {
+        try {
+            completedSemaphore.acquire();
+            return result;
+        } catch (InterruptedException e) {
+            return e;
+        } finally {
+            completedSemaphore.release();
+
+        }
+    }
 }
