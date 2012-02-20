@@ -55,7 +55,7 @@ copyApplicableDeltas ${RPM_BUILD_ROOT} %{_component_name} \
 #---------------------------------------------------------------------------#
 
 %install
-DEPLOY_SCRIPT="build.edex/deploy-install.xml"
+DEPLOY_SCRIPT="deploy-install.xml"
 
 # Deploy Edex To Our Temporary Build Directory.
 
@@ -71,10 +71,13 @@ fi
 ANT_EXE=`rpm -q --queryformat '%{INSTALLPREFIX}\n' awips2-ant`
 ANT_EXE="${ANT_EXE}/bin/ant"
 
-${ANT_EXE} -file ${WORKSPACE_DIR}/${DEPLOY_SCRIPT} \
+pushd . > /dev/null
+cd ${WORKSPACE_DIR}/build.edex
+${ANT_EXE} -file ${DEPLOY_SCRIPT} \
    -Dinstall.dir=${RPM_BUILD_ROOT}/awips2/edex \
    -Dinstaller=true -Dlocal.build=false \
    -Dcomponent.to.deploy=edex-cots
+popd > /dev/null
 
 %pre
 if [ "${1}" = "1" ]; then
