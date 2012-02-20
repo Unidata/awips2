@@ -30,22 +30,41 @@
 	        <dataURI>/redbook/%/PMNV88/%</dataURI>
 	        <substitute key="wmo" value="PMNV88"/>
 	    </contribute>
+	    <contribute xsi:type="separator" id="separator1"/>
 	    <contribute xsi:type="titleItem" 
-			titleText="------ 3-10 Day Threat Assessment ------" id="threeTo10DayThreatAssessLine"/>
+	  			titleText="------ 3-7 Day Hazard Outlook ------" id="threeTo7DayHazardOutlook"/>
 		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
-               menuText="Precipitation Fcst" id="precipFcst">
-	        <dataURI>/redbook/%/PEIY50/%</dataURI>
-	        <substitute key="wmo" value="PEIY50"/>
+               menuText="3-7 day Precipitation Fcst" id="threeTo7DayPrecipFcst">
+	        <dataURI>/redbook/%/PEIY97/%</dataURI>
+	        <substitute key="wmo" value="PEIY97"/>
 	    </contribute>
-	    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
-               menuText="Temp/Wind Fcst" id="tempWindFcst">
-	        <dataURI>/redbook/%/PTIY98/%</dataURI>
-	        <substitute key="wmo" value="PTIY98"/>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+               menuText="3-7 day Soil/Wildfire Fcst" id="threeTo7DaySoilWildfireFcst">
+	        <dataURI>/redbook/%/PYIY97/%</dataURI>
+	        <substitute key="wmo" value="PYIY97"/>
 	    </contribute>
-	    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
-               menuText="Soil/Wildfire Fcst" id="soilWildfireFcst">
-	        <dataURI>/redbook/%/PYIY88/%</dataURI>
-	        <substitute key="wmo" value="PYIY88"/>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+               menuText="3-7 day Temperature/Wind Fcst" id="threeTo7DayTempWindFcst">
+	        <dataURI>/redbook/%/PTIY97/%</dataURI>
+	        <substitute key="wmo" value="PTIY97"/>
+	    </contribute>
+	    <contribute xsi:type="separator" id="separator1"/>
+	    <contribute xsi:type="titleItem" 
+	  			titleText="------ 8-14 Day Hazard Outlook ------" id="eightTo14DayHazardOutlook"/>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+               menuText="8-14 day Precipitation Fcst" id="eightTo14DayPrecipFcst">
+	        <dataURI>/redbook/%/PEIY96/%</dataURI>
+	        <substitute key="wmo" value="PEIY96"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+               menuText="8-14 day Soil/Wildfire Fcst" id="eightTo14DaySoilWildfireFcst">
+	        <dataURI>/redbook/%/PYIY96/%</dataURI>
+	        <substitute key="wmo" value="PYIY96"/>
+	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+               menuText="8-14 day Temperature/Wind Fcst" id="eightTo14DayTempWindFcst">
+	        <dataURI>/redbook/%/PTIY96/%</dataURI>
+	        <substitute key="wmo" value="PTIY96"/>
 	    </contribute>
 	    <contribute xsi:type="separator" id="separator1"/>
 	    <contribute xsi:type="titleItem" 
@@ -71,6 +90,8 @@
 	        <substitute key="wmo" value="PTNR98"/>
 	    </contribute>
 	    <contribute xsi:type="separator" id="separator2"/>
+	    <contribute xsi:type="titleItem" 
+			titleText="------ 8-14 Day Heat Index Fcst ------" id="eightTo14DayHeatIndexFcstLine"/>
 	    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
                menuText=">=85F for 3 days of 7" id="gt85For3daysOf7">
 	        <dataURI>/redbook/%/PTAT90/%</dataURI>
