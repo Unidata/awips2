@@ -67,14 +67,11 @@ public class GLFont implements IGLFont {
 
     private boolean scaleFont = true;
 
-    private GLTarget target;
-
     public GLFont() {
         ;
     }
 
-    public GLFont(GLTarget target, File font, float fontSize, Style[] styles) {
-        this.target = target;
+    public GLFont(File font, float fontSize, Style[] styles) {
         try {
             this.font = Font.createFont(Font.TRUETYPE_FONT, font).deriveFont(
                     fontSize);
@@ -98,9 +95,7 @@ public class GLFont implements IGLFont {
         this.textRenderer = TextRendererCache.getRenderer(this.font);
     }
 
-    public GLFont(GLTarget target, String fontName, float fontSize,
-            Style[] styles) {
-        this.target = target;
+    public GLFont(String fontName, float fontSize, Style[] styles) {
         this.fontName = fontName;
         this.currentFontSize = this.fontSize = fontSize;
         this.styles = styles;
@@ -172,9 +167,9 @@ public class GLFont implements IGLFont {
         GLFont newFont = null;
         if (this.fontFile != null) {
             // File based construction
-            newFont = new GLFont(this.target, this.fontFile, size, styles);
+            newFont = new GLFont(this.fontFile, size, styles);
         } else {
-            newFont = new GLFont(this.target, this.fontName, size, styles);
+            newFont = new GLFont(this.fontName, size, styles);
         }
 
         return newFont;
@@ -262,31 +257,17 @@ public class GLFont implements IGLFont {
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.viz.core.gl.IGLFont#getTarget()
-     */
-    @Override
-    public GLTarget getTarget() {
-        return target;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see com.raytheon.viz.core.gl.IGLFont#disposeInternal()
      */
     @Override
     public void disposeInternal() {
         if (!disposed) {
             if (this.textRenderer != null) {
-                boolean release = target.makeContextCurrent();
 
                 TextRendererCache.releaseRenderer(this.font);
                 this.textRenderer = null;
                 disposed = true;
 
-                if (release) {
-                    target.releaseContext();
-                }
             }
         }
     }
