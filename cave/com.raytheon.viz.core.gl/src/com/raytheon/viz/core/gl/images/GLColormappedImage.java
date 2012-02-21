@@ -19,7 +19,7 @@
  **/
 package com.raytheon.viz.core.gl.images;
 
-import javax.media.opengl.GLContext;
+import javax.media.opengl.GL;
 
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
@@ -52,7 +52,7 @@ public class GLColormappedImage extends AbstractGLImage implements
 
     public GLColormappedImage(IColorMapDataRetrievalCallback dataCallback,
             ColorMapParameters params, IGLTarget target) {
-        super(target);
+        super();
         this.data = GLCMTextureData.getGlTextureId(dataCallback);
         this.colorMapParameters = params;
     }
@@ -79,8 +79,8 @@ public class GLColormappedImage extends AbstractGLImage implements
      * .GLContext)
      */
     @Override
-    public void loadTexture(GLContext ctx) throws VizException {
-        if (data.loadTexture(ctx.getGL())) {
+    public void loadTexture(GL gl) throws VizException {
+        if (data.loadTexture(gl)) {
             // Add to texture cache
             setStatus(Status.LOADED);
             data.disposeTextureData();
@@ -169,12 +169,7 @@ public class GLColormappedImage extends AbstractGLImage implements
 
     @Override
     public double getValue(int x, int y) {
-        double val = 0;
-        if (theTarget == null || data == null) {
-            return Double.NaN;
-        }
-        val = data.getValue(theTarget.getGl(), x, y,
-                colorMapParameters.getDataMin(),
+        double val = data.getValue(x, y, colorMapParameters.getDataMin(),
                 colorMapParameters.getDataMax());
         return val;
     }
