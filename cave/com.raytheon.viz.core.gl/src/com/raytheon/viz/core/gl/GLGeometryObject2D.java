@@ -29,8 +29,8 @@ import java.util.List;
 import javax.media.opengl.GL;
 
 import com.raytheon.uf.viz.core.IExtent;
-import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.viz.core.gl.objects.GLVertexBufferObject;
 
 /**
  * GL Geometry object, supports compiling into VBOs. Coordinates passed in will
@@ -53,9 +53,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 public class GLGeometryObject2D {
 
     public static class GLGeometryObjectData {
-        private IGLTarget target;
-
-        private GL gl;
 
         public IExtent worldExtent;
 
@@ -72,12 +69,6 @@ public class GLGeometryObject2D {
             this.coordType = coordType;
         }
 
-        public void setTarget(IGLTarget target) {
-            this.target = target;
-            if (target != null) {
-                gl = target.getGl();
-            }
-        }
     }
 
     protected static enum State {
@@ -96,7 +87,7 @@ public class GLGeometryObject2D {
 
     protected int points;
 
-    protected int vboId;
+    protected GLVertexBufferObject vbo;
 
     protected State state;
 
@@ -104,8 +95,6 @@ public class GLGeometryObject2D {
 
     public GLGeometryObject2D(GLGeometryObjectData data) {
         this.data = new GLGeometryObjectData(data.geometryType, data.coordType);
-        this.data.gl = data.gl;
-        this.data.target = data.target;
         this.data.manageIndicies = data.manageIndicies;
         this.data.mutable = data.mutable;
         this.data.worldExtent = data.worldExtent;
@@ -119,16 +108,16 @@ public class GLGeometryObject2D {
         }
         compiledIndicies = null;
         points = 0;
-        vboId = -1;
+        vbo = null;
         state = State.MUTABLE;
     }
 
-    public void compile() throws VizException {
+    public void compile(GL gl) throws VizException {
         // We will use glMultiDrawArrays if the cardSupportsHighEndFeatures, so
         // we will keep track of a lenghts buffer
         state = State.COMPILED;
         int add = 1;
-        if (GLCapabilities.getInstance(data.gl).cardSupportsHighEndFeatures) {
+        if (GLCapabilities.getInstance(gl).cardSupportsHighEndFeatures) {
             state = State.COMPILED_HIGH_END;
             add = 0;
         }
@@ -169,24 +158,21 @@ public class GLGeometryObject2D {
                     copy.put(data.get());
                 }
 
-                GL gl = this.data.gl;
-
                 // clear the error bit.
-                this.data.target.makeContextCurrent();
                 gl.glGetError();
 
                 // generate vbo
-                vboId = GLVBOCleaner.allocateVBO(this, this.data.target);
+                vbo = new GLVertexBufferObject(this);
 
                 // verify successful
-                if (vboId <= 0) {
-                    vboId = -1;
+                if (!vbo.isValid()) {
+                    vbo = null;
                     throw new VizException("Error compiling wireframe shape, "
                             + "could not generate vertex buffer object");
                 }
 
                 // bind and load
-                gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vboId);
+                vbo.bind(gl, GL.GL_ARRAY_BUFFER);
                 gl.glBufferData(GL.GL_ARRAY_BUFFER, copy.capacity() * 4,
                         copy.rewind(), GL.GL_STATIC_DRAW);
                 gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
@@ -223,16 +209,8 @@ public class GLGeometryObject2D {
         compiledLengths = null;
         state = State.INVALID;
 
-        if (vboId > -1) {
-            final int vbo = vboId;
-            vboId = -1;
-            VizApp.runAsync(new Runnable() {
-                @Override
-                public void run() {
-                    GLVBOCleaner.unallocateVBO(GLGeometryObject2D.this, vbo,
-                            data.target);
-                }
-            });
+        if (vbo != null && vbo.isValid()) {
+            vbo.dispose();
         }
     }
 
@@ -368,15 +346,8 @@ public class GLGeometryObject2D {
         }
     }
 
-    public synchronized void paint() throws VizException {
-        GLGeometryPainter.paintGeometries(data.target, this);
-    }
-
-    public void setTarget(IGLTarget target) {
-        data.target = target;
-        if (data.target != null) {
-            data.gl = target.getGl();
-        }
+    public synchronized void paint(GL gl) throws VizException {
+        GLGeometryPainter.paintGeometries(gl, this);
     }
 
     // 2D specific functions, override for 3D support
