@@ -23,8 +23,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.drawables.IFont;
-import com.raytheon.uf.viz.core.status.StatusConstants;
-import com.raytheon.viz.core.gl.Activator;
 import com.raytheon.viz.core.gl.IGLFont;
 import com.sun.opengl.util.j2d.TextRenderer;
 
@@ -47,7 +45,8 @@ import com.sun.opengl.util.j2d.TextRenderer;
  */
 
 public class UnmodifiableGLFont implements IGLFont {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(UnmodifiableGLFont.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(UnmodifiableGLFont.class);
 
     private IGLFont unmodifiableFont;
 
@@ -144,16 +143,6 @@ public class UnmodifiableGLFont implements IGLFont {
 
     public String toString() {
         return unmodifiableFont.toString();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.gl.IGLFont#getTarget()
-     */
-    @Override
-    public GLTarget getTarget() {
-        return unmodifiableFont.getTarget();
     }
 
 }
