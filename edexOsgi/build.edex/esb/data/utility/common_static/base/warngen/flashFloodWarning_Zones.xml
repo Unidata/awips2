@@ -1,8 +1,10 @@
-<!-- Flash Flood Warning configuration for County-based products-->
+<!-- Flash Flood Warning configuration for ZONES-->
 <!-- Modified by Mike Dangelo 07-12-2011 -->
 <!-- Modified by Phil Kurimski 08-15-2011 for 11.8 -->
 <!-- Modified by Mike Dangelo 09-22-2011 at Alaska TIM -->
 <!-- Modified by Phil Kurimski 09-23-2011 for burn scars and mud slides -->
+<!-- Modified by Mike Dangelo 01-26-2012 at CRH TIM -->
+
 <warngenConfig>
 
  <!-- Config distance/speed units -->
@@ -13,7 +15,7 @@
  	The various menu items are also the different maps
  	that can be loaded with each template. -->
  <maps>
-<!-- 	<map>FFMP Small Stream Basin Links</map> -->
+ 	<map>Forecast Zones</map>
  	<map>Major Rivers</map> 
  </maps>
 
@@ -64,7 +66,7 @@
   <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" parseString="FLASH FLOOD EMERGENCY"/>
   <bullet bulletName="icrs" bulletText="Also snow melt" parseString=".RS."/>
   <bullet bulletText="*********** SOURCE (CHOOSE 1) **********" bulletType="title"/>
-  <bullet bulletName="doppler" bulletText="doppler radar indicated" bulletGroup="source" bulletDefault="true" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR"/>
+  <bullet bulletName="doppler" bulletText="doppler radar indicated" bulletGroup="source" bulletDefault="true" parseString="DOPPLER RADAR"/>
   <bullet bulletName="dopplerGauge" bulletText="doppler radar and automated gauges" bulletGroup="source"  parseString="AUTOMATED "/>
   <bullet bulletName="satellite" bulletText="satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES"/>
   <bullet bulletName="satelliteGauge" bulletText="satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE AND "/> 
@@ -81,14 +83,11 @@
   <bullet bulletName="rain1" bulletText="one inch so far" bulletGroup="rainAmt" parseString="ONE INCH "/>
   <bullet bulletName="rain2" bulletText="two inches so far" bulletGroup="rainAmt" parseString="TWO INCHES "/>
   <bullet bulletName="rain3" bulletText="three inches so far" bulletGroup="rainAmt" parseString="THREE INCHES "/>
-  <bullet bulletName="rainEdit" bulletText="user defined amount" bulletGroup="rainAmt" parseString="INCHES HAS FALLEN "/>
+  <bullet bulletName="rainEdit" bulletText="user defined amount" bulletGroup="rainAmt" parseString="INCHES HAVE FALLEN "/>
   <bullet bulletText="*********** ADDITIONAL INFO ***********" bulletType="title"/>
-  <bullet bulletName="listofcities" bulletText="List cities impacted" parseString="CITIES"/>
   <bullet bulletName="addRainfall" bulletText="additional rainfall of XX inches expected" parseString="ADDITIONAL RAINFALL"/>
   <bullet bulletName="drainages" bulletText="automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
   <bullet bulletText="**** CALL TO ACTIONS (CHOOSE 1 OR MORE) ****" bulletType="title"/>
-<!-- end all call to action bullets with "CTA" ex: "obviousNameCTA" -->
-<!-- include file="testInclude.xml" /> -->
   <bullet bulletName="urbanFloodingCTA" bulletText="Urban flooding..." parseString="SMALL CREEKS AND STREAMS...URBAN AREAS...HIGHWAYS...STREETS AND UNDERPASSES"/>
   <bullet bulletName="ruralFloodingCTA" bulletText="Rural flooding/small streams..." parseString="SMALL CREEKS AND STREAMS...COUNTRY ROADS...AS WELL AS FARMLAND"/>
   <bullet bulletName="ruralUrbanCTA" bulletText="Flooding of rural and urban areas" parseString="HIGHWAYS AND UNDERPASSES"/>
@@ -106,15 +105,13 @@
 </bulletActionGroup>
 <bulletActionGroup action="EXT" phen="FF" sig="W">
  <bullets>
-  <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY*" parseString="FLASH FLOOD EMERGENCY"/>
-  <bullet bulletName="icrs" bulletText="Also snow melt" parseString=".RS."/>
+  <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" parseString="FLASH FLOOD EMERGENCY"/>
+  <bullet bulletName="icrs" bulletText="Also snow melt" parseString=".RS." showString=".RS."/>
   <bullet bulletText="*********** SOURCE (CHOOSE 1) **********" bulletType="title"/>
-  <bullet bulletName="doppler" bulletText="doppler radar indicated" bulletGroup="source" bulletDefault="true" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR"/>
+  <bullet bulletName="doppler" bulletText="doppler radar indicated" bulletGroup="source" bulletDefault="true" parseString="DOPPLER RADAR"/>
   <bullet bulletName="dopplerGauge" bulletText="doppler radar and automated gauges" bulletGroup="source"  parseString="AUTOMATED "/>
-<!-- The following bullets will add satellite and gauges as a source. If you would like to use this
-     in your template uncomment out the next few lines. -->  
-<!-- <bullet bulletName="satellite" bulletText="satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES"/>
-  <bullet bulletName="satelliteGauge" bulletText="satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE AND "/> -->
+  <bullet bulletName="satellite" bulletText="satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES"/>
+  <bullet bulletName="satelliteGauge" bulletText="satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE AND "/> 
   <bullet bulletName="trainedSpotters" bulletText="trained spotters reported" bulletGroup="source" parseString="TRAINED WEATHER SPOTTERS REPORTED"/>
   <bullet bulletName="public" bulletText="public reported" bulletGroup="source" parseString="THE PUBLIC REPORTED"/>
   <bullet bulletName="lawEnforcement" bulletText="local law enforcement reported" bulletGroup="source" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
@@ -125,16 +122,14 @@
   <bullet bulletName="burnScar" bulletText="Also Burn areas with debris flow" bulletGroup="addevent" parseString="BURN SCAR "/>
   <bullet bulletName="mudSlide" bulletText="Mud Slides" bulletGroup="addevent" parseString="MUD SLIDE "/>
   <bullet bulletText="*********** RAIN SO FAR (CHOOSE 1) **********" bulletType="title"/>
-  <bullet bulletName="rain1" bulletText="one inch so far" bulletGroup="rainamt" parseString="ONE INCH "/>
-  <bullet bulletName="rain2" bulletText="two inches so far" bulletGroup="rainamt" parseString="TWO INCHES "/>
-  <bullet bulletName="rain3" bulletText="three inches so far" bulletGroup="rainamt" parseString="THREE INCHES "/>
-  <bullet bulletName="rainEdit" bulletText="user defined amount" bulletGroup="rainamt" parseString="INCHES HAS FALLEN "/>
+  <bullet bulletName="rain1" bulletText="one inch so far" bulletGroup="rainAmt" parseString="ONE INCH "/>
+  <bullet bulletName="rain2" bulletText="two inches so far" bulletGroup="rainAmt" parseString="TWO INCHES "/>
+  <bullet bulletName="rain3" bulletText="three inches so far" bulletGroup="rainAmt" parseString="THREE INCHES "/>
+  <bullet bulletName="rainEdit" bulletText="user defined amount" bulletGroup="rainAmt" parseString="INCHES HAVE FALLEN "/>
   <bullet bulletText="*********** ADDITIONAL INFO ***********" bulletType="title"/>
-  <bullet bulletName="listofcities" bulletText="List cities impacted" parseString="CITIES"/>
   <bullet bulletName="addRainfall" bulletText="additional rainfall of XX inches expected" parseString="ADDITIONAL RAINFALL"/>
   <bullet bulletName="drainages" bulletText="automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
   <bullet bulletText="**** CALL TO ACTIONS (CHOOSE 1 OR MORE) ****" bulletType="title"/>
-<!-- end all call to action bullets with "CTA" ex: "obviousNameCTA" -->
   <bullet bulletName="urbanFloodingCTA" bulletText="Urban flooding..." parseString="SMALL CREEKS AND STREAMS...URBAN AREAS...HIGHWAYS...STREETS AND UNDERPASSES"/>
   <bullet bulletName="ruralFloodingCTA" bulletText="Rural flooding/small streams..." parseString="SMALL CREEKS AND STREAMS...COUNTRY ROADS...AS WELL AS FARMLAND"/>
   <bullet bulletName="ruralUrbanCTA" bulletText="Flooding of rural and urban areas" parseString="HIGHWAYS AND UNDERPASSES"/>
@@ -152,15 +147,13 @@
 </bulletActionGroup>
 <bulletActionGroup action="COR" phen="FF" sig="W">
  <bullets>
-  <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY*" parseString="FLASH FLOOD EMERGENCY"/>
-  <bullet bulletName="icrs" bulletText="Also snow melt" parseString=".RS."/>
+  <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" parseString="FLASH FLOOD EMERGENCY"/>
+  <bullet bulletName="icrs" bulletText="Also snow melt" parseString=".RS." showString=".RS."/>
   <bullet bulletText="*********** SOURCE (CHOOSE 1) **********" bulletType="title"/>
-  <bullet bulletName="doppler" bulletText="doppler radar indicated" bulletGroup="source" bulletDefault="true" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR"/>
+  <bullet bulletName="doppler" bulletText="doppler radar indicated" bulletGroup="source" bulletDefault="true" parseString="DOPPLER RADAR"/>
   <bullet bulletName="dopplerGauge" bulletText="doppler radar and automated gauges" bulletGroup="source"  parseString="AUTOMATED "/>
-<!-- The following bullets will add satellite and gauges as a source. If you would like to use this
-     in your template uncomment out the next few lines. -->  
-<!-- <bullet bulletName="satellite" bulletText="satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES"/>
-  <bullet bulletName="satelliteGauge" bulletText="satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE AND "/> -->
+  <bullet bulletName="satellite" bulletText="satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES"/>
+  <bullet bulletName="satelliteGauge" bulletText="satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE AND "/> 
   <bullet bulletName="trainedSpotters" bulletText="trained spotters reported" bulletGroup="source" parseString="TRAINED WEATHER SPOTTERS REPORTED"/>
   <bullet bulletName="public" bulletText="public reported" bulletGroup="source" parseString="THE PUBLIC REPORTED"/>
   <bullet bulletName="lawEnforcement" bulletText="local law enforcement reported" bulletGroup="source" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
@@ -171,16 +164,14 @@
   <bullet bulletName="burnScar" bulletText="Also Burn areas with debris flow" bulletGroup="addevent" parseString="BURN SCAR "/>
   <bullet bulletName="mudSlide" bulletText="Mud Slides" bulletGroup="addevent" parseString="MUD SLIDE "/>
   <bullet bulletText="*********** RAIN SO FAR (CHOOSE 1) **********" bulletType="title"/>
-  <bullet bulletName="rain1" bulletText="one inch so far" bulletGroup="rainamt" parseString="ONE INCH "/>
-  <bullet bulletName="rain2" bulletText="two inches so far" bulletGroup="rainamt" parseString="TWO INCHES "/>
-  <bullet bulletName="rain3" bulletText="three inches so far" bulletGroup="rainamt" parseString="THREE INCHES "/>
-  <bullet bulletName="rainEdit" bulletText="user defined amount" bulletGroup="rainamt" parseString="INCHES HAS FALLEN "/>
+  <bullet bulletName="rain1" bulletText="one inch so far" bulletGroup="rainAmt" parseString="ONE INCH "/>
+  <bullet bulletName="rain2" bulletText="two inches so far" bulletGroup="rainAmt" parseString="TWO INCHES "/>
+  <bullet bulletName="rain3" bulletText="three inches so far" bulletGroup="rainAmt" parseString="THREE INCHES "/>
+  <bullet bulletName="rainEdit" bulletText="user defined amount" bulletGroup="rainAmt" parseString="INCHES HAVE FALLEN "/>
   <bullet bulletText="*********** ADDITIONAL INFO ***********" bulletType="title"/>
-  <bullet bulletName="listofcities" bulletText="List cities impacted" parseString="CITIES"/>
   <bullet bulletName="addRainfall" bulletText="additional rainfall of XX inches expected" parseString="ADDITIONAL RAINFALL"/>
   <bullet bulletName="drainages" bulletText="automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
   <bullet bulletText="**** CALL TO ACTIONS (CHOOSE 1 OR MORE) ****" bulletType="title"/>
-<!-- end all call to action bullets with "CTA" ex: "obviousNameCTA" -->
   <bullet bulletName="urbanFloodingCTA" bulletText="Urban flooding..." parseString="SMALL CREEKS AND STREAMS...URBAN AREAS...HIGHWAYS...STREETS AND UNDERPASSES"/>
   <bullet bulletName="ruralFloodingCTA" bulletText="Rural flooding/small streams..." parseString="SMALL CREEKS AND STREAMS...COUNTRY ROADS...AS WELL AS FARMLAND"/>
   <bullet bulletName="ruralUrbanCTA" bulletText="Flooding of rural and urban areas" parseString="HIGHWAYS AND UNDERPASSES"/>
@@ -198,17 +189,26 @@
 </bulletActionGroup>
 </bulletActionGroups>
 
+<!--  Four variables below have been changed from the County-coded products -->
+<!--  areaConfig.areaField -->
+<!--  areaConfig.fipsField -->
+<!--  pathcast.Config.areaField and -->
+<!--  geospatialConfig.areaSource -->
+
+
+
+
  <areaConfig>
   <inclusionPercent>0.00</inclusionPercent>
   <inclusionAndOr>AND</inclusionAndOr>
   <inclusionArea>0</inclusionArea>
-  <areaField>COUNTYNAME</areaField>
-<!-- <areaField>NAME</areaField> -->
+<!-- <areaField>COUNTYNAME</areaField> -->
+  <areaField>NAME</areaField>
   <parentAreaField>NAME</parentAreaField>
   <areaNotationField>STATE</areaNotationField>
   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
-  <fipsField>FIPS</fipsField>
-<!-- <fipsField>STATE_ZONE</fipsField> -->
+<!-- <fipsField>FIPS</fipsField> -->
+  <fipsField>STATE_ZONE</fipsField> 
   <pointField>NAME</pointField>
   <sortBy>
   	<sort>parent</sort>
@@ -229,7 +229,8 @@
   <maxResults>4</maxResults>
   <maxGroup>8</maxGroup>
   <pointField>Name</pointField>
-  <areaField>COUNTYNAME</areaField>
+  <areaField>NAME</areaField>
+  <!--  <areaField>COUNTYNAME</areaField> -->
   <parentAreaField>STATE</parentAreaField>
   <areaNotationField>STATE</areaNotationField>
   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
@@ -267,28 +268,17 @@
   	</sortBy>
  </pointSource>
 
+<!-- this "include file" tag will grab the Mile Marker XML pointSource tags, 
+and place into this template -->  
+<include file="mileMarkers.xml"/>
+
+
   <trackEnabled>false</trackEnabled>
 
- <pathcastConfig>
-  <withinPolygon>true</withinPolygon>
-  <distanceThreshold>8.0</distanceThreshold>
-  <interval>5</interval>
-  <delta>5</delta>
-  <maxResults>4</maxResults>
-  <maxGroup>8</maxGroup>
-  <pointField>Name</pointField>
-  <areaField>COUNTYNAME</areaField>
-  <parentAreaField>STATE</parentAreaField>
-  <areaNotationField>STATE</areaNotationField>
-  <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
-  <sortBy>
-  	<sort>distance</sort>
-  </sortBy>
- </pathcastConfig>
- 
  <geospatialConfig>
   <pointSource>City</pointSource>
-  <areaSource>County</areaSource>
+<!--  <areaSource>County</areaSource> -->
+  <areaSource>Zone</areaSource>
   <parentAreaSource>States</parentAreaSource>
   <timezoneSource>TIMEZONES</timezoneSource>
   <timezoneField>TIME_ZONE</timezoneField>
@@ -304,7 +294,5 @@
  	</filter>
  	<withinPolygon>true</withinPolygon>
  </pointSource>
- 
-<include file="milemarkers.xml"/>
  
 </warngenConfig>
