@@ -2,6 +2,7 @@
 <!-- Modified by Phil Kurimski 08-18-2011 for 11.8.0-4 
                  Evan Bookbinder 09-16-2011 for 11.8.0-8
                  Mike Dangelo 09-19-2011 at Alaska TIM
+                 Mike and Phil 01-25-2012 at CRH TIM
 -->
 <warngenConfig>
 
@@ -39,7 +40,7 @@
  <autoLockText>true</autoLockText>
 
  <!-- durations: the list of possible durations of the warning -->
-  <!-- THIS REALLY SERVES NO PURPOSE BUT WILL CRASH WARNGEN IF REMVOED -->
+  <!-- THE DURATIONS HERE REALLY SERVE NO PURPOSE BUT WILL CRASH WARNGEN IF REMVOED -->
  <defaultDuration>30</defaultDuration>
  <durations>
   <duration>30</duration>
@@ -54,64 +55,52 @@
 </bulletActionGroup>
 <bulletActionGroup action="CAN" phen="FA" sig="Y">
  <bullets>
-  <bullet bulletText="*********** CAN SELECTED **********" bulletType="title"/>
-  <bullet bulletText="****** CANCELLATION OPTIONS **********" bulletType="title"/>
-  <bullet bulletName="recedingWater" bulletText="receding water" />
-  <bullet bulletName="rainEnded" bulletText="heavy rain ended" />
+  <bullet bulletName="recedingWater" bulletText="Receding water" />
+  <bullet bulletName="rainEnded" bulletText="Heavy rain ended" />
   <bullet bulletText="*************     TYPE OF ADVISORY    ***********" bulletType="title"/>
-  <bullet bulletName="general" bulletText="general (minor flooding)" bulletGroup="advType" parseString="&quot;-ARROYO&quot;,&quot;-SMALL STREAM FLOOD ADVISORY&quot;,&quot;FLOOD ADVISORY&quot;"/>
-  <bullet bulletName="small" bulletText="small stream" bulletGroup="advType" parseString="&quot;-URBAN AND&quot;,&quot;-ARROYO&quot;,&quot;SMALL STREAM FLOOD ADVISORY&quot;"/>
-  <bullet bulletName="uss" bulletText="urban and small stream" bulletGroup="advType" parseString="URBAN AND SMALL STREAM FLOOD ADVISORY"/>
-  <bullet bulletName="arroyo" bulletText="arroyo and small stream" bulletGroup="advType" parseString="ARROYO"/>
-  <bullet bulletName="hydrologic" bulletText="hydrologic" bulletGroup="advType" parseString="HYDROLOGIC ADVISORY"/> 
+  <bullet bulletName="general" bulletText="General (minor flooding)" bulletGroup="advType" parseString="&quot;-ARROYO&quot;,&quot;-SMALL STREAM FLOOD ADVISORY&quot;,&quot;FLOOD ADVISORY&quot;" showString="&quot;-ARROYO&quot;,&quot;-SMALL STREAM FLOOD ADVISORY&quot;,&quot;FLOOD ADVISORY&quot;"/>
+  <bullet bulletName="small" bulletText="Small stream" bulletGroup="advType" parseString="&quot;-URBAN AND&quot;,&quot;-ARROYO&quot;,&quot;SMALL STREAM FLOOD ADVISORY&quot;" showString="&quot;-URBAN AND&quot;,&quot;-ARROYO&quot;,&quot;SMALL STREAM FLOOD ADVISORY&quot;"/>
+  <bullet bulletName="uss" bulletText="Urban and small stream" bulletGroup="advType" parseString="URBAN AND SMALL STREAM FLOOD ADVISORY" showString="URBAN AND SMALL STREAM FLOOD ADVISORY"/>
+  <bullet bulletName="arroyo" bulletText="Arroyo and small stream" bulletGroup="advType" parseString="ARROYO" showString="ARROYO"/>
+  <bullet bulletName="hydrologic" bulletText="Hydrologic" bulletGroup="advType" parseString="HYDROLOGIC ADVISORY" showString="HYDROLOGIC ADVISORY"/> 
   <bullet bulletText="*********** HYDROLOGIC CONDITION (If applicable)  *********** " bulletType="title"/>
-  <bullet bulletName="rapidRiver" bulletText="rapid river rises" bulletGroup="group3" parseString="FOR RAPID RIVER RISES IN"/>
-  <bullet bulletName="poorDrainage" bulletText="minor flooding for poor drainage" bulletGroup="group3" parseString="FOR MINOR FLOODING OF POOR DRAINAGE AREAS IN"/>
+  <bullet bulletName="rapidRiver" bulletText="Rapid river rises" bulletGroup="hyCond" parseString="FOR RAPID RIVER RISES" showString="FOR RAPID RIVER RISES"/>
+  <bullet bulletName="poorDrainage" bulletText="Minor flooding for poor drainage" bulletGroup="hyCond" parseString="FOR MINOR FLOODING OF POOR DRAINAGE AREAS" showString="FOR MINOR FLOODING OF POOR DRAINAGE AREAS"/>
  </bullets>
 </bulletActionGroup>
 <bulletActionGroup action="EXP" phen="FA" sig="Y">
  <bullets>
-  <bullet bulletText="*********** EXP SELECTED **********" bulletType="title"/>
-  <bullet bulletText="******* EXPIRATION OPTIONS **********" bulletType="title"/>
-  <bullet bulletName="recedingWater" bulletText="water receding" />
-  <bullet bulletName="rainEnded" bulletText="heavy rain ended" />
+  <bullet bulletName="recedingWater" bulletText="Water receding" />
+  <bullet bulletName="rainEnded" bulletText="Heavy rain ended" />
   <bullet bulletText="*************     TYPE OF ADVISORY    ***********" bulletType="title"/>
-  <bullet bulletName="general" bulletText="general (minor flooding)" bulletGroup="advType" parseString="&quot;-ARROYO&quot;,&quot;-SMALL STREAM FLOOD ADVISORY&quot;,&quot;FLOOD ADVISORY&quot;"/>
-  <bullet bulletName="small" bulletText="small stream" bulletGroup="advType" parseString="&quot;-URBAN AND&quot;,&quot;-ARROYO&quot;,&quot;SMALL STREAM FLOOD ADVISORY&quot;"/>
-  <bullet bulletName="uss" bulletText="urban and small stream" bulletGroup="advType" parseString="URBAN AND SMALL STREAM FLOOD ADVISORY"/>
-  <bullet bulletName="arroyo" bulletText="arroyo and small stream" bulletGroup="advType" parseString="ARROYO"/>
-  <bullet bulletName="hydrologic" bulletText="hydrologic" bulletGroup="advType" parseString="HYDROLOGIC ADVISORY"/> 
+  <bullet bulletName="general" bulletText="General (minor flooding)" bulletGroup="advType" parseString="&quot;-ARROYO&quot;,&quot;-SMALL STREAM FLOOD ADVISORY&quot;,&quot;FLOOD ADVISORY&quot;" showString="&quot;-ARROYO&quot;,&quot;-SMALL STREAM FLOOD ADVISORY&quot;,&quot;FLOOD ADVISORY&quot;"/>
+  <bullet bulletName="small" bulletText="Small stream" bulletGroup="advType" parseString="&quot;-URBAN AND&quot;,&quot;-ARROYO&quot;,&quot;SMALL STREAM FLOOD ADVISORY&quot;" showString="&quot;-URBAN AND&quot;,&quot;-ARROYO&quot;,&quot;SMALL STREAM FLOOD ADVISORY&quot;"/>
+  <bullet bulletName="uss" bulletText="Urban and small stream" bulletGroup="advType" parseString="URBAN AND SMALL STREAM FLOOD ADVISORY" showString="URBAN AND SMALL STREAM FLOOD ADVISORY"/>
+  <bullet bulletName="arroyo" bulletText="Arroyo and small stream" bulletGroup="advType" parseString="ARROYO" showString="ARROYO"/>
+  <bullet bulletName="hydrologic" bulletText="Hydrologic" bulletGroup="advType" parseString="HYDROLOGIC ADVISORY" showString="HYDROLOGIC ADVISORY"/> 
   <bullet bulletText="*********** HYDROLOGIC CONDITION (If applicable)  *********** " bulletType="title"/>
-  <bullet bulletName="rapidRiver" bulletText="rapid river rises" bulletGroup="group3" parseString="FOR RAPID RIVER RISES IN"/>
-  <bullet bulletName="poorDrainage" bulletText="minor flooding for poor drainage" bulletGroup="group3" parseString="FOR MINOR FLOODING OF POOR DRAINAGE AREAS IN"/>
+  <bullet bulletName="rapidRiver" bulletText="Rapid river rises" bulletGroup="group10" parseString="FOR RAPID RIVER RISES" showString="FOR RAPID RIVER RISES"/>
+  <bullet bulletName="poorDrainage" bulletText="Minor flooding for poor drainage" bulletGroup="group10" parseString="FOR MINOR FLOODING OF POOR DRAINAGE AREAS" showString="FOR MINOR FLOODING OF POOR DRAINAGE AREAS"/>
  </bullets>
 </bulletActionGroup>
 <bulletActionGroup action="CON" phen="FA" sig="Y">
  <bullets>
   <bullet bulletText="*************     TYPE OF ADVISORY    ***********" bulletType="title"/>
-  <bullet bulletName="general" bulletText="general (minor flooding)" bulletGroup="advType" parseString="&quot;-ARROYO&quot;,&quot;-SMALL STREAM FLOOD ADVISORY&quot;,&quot;FLOOD ADVISORY&quot;"/>
-  <bullet bulletName="small" bulletText="small stream" bulletGroup="advType" parseString="&quot;-URBAN AND&quot;,&quot;-ARROYO&quot;,&quot;SMALL STREAM FLOOD ADVISORY&quot;"/>
-  <bullet bulletName="uss" bulletText="urban and small stream" bulletGroup="advType" parseString="URBAN AND SMALL STREAM FLOOD ADVISORY"/>
-  <bullet bulletName="arroyo" bulletText="arroyo and small stream" bulletGroup="advType" parseString="ARROYO"/>
-  <bullet bulletName="hydrologic" bulletText="hydrologic" bulletGroup="advType" parseString="HYDROLOGIC ADVISORY"/> 
-  <!-- The PRIMARY CAUSE section is not needed since the ic variable is carried
-     over from the warning. -->
-<!-- <bullet bulletText="*********** PRIMARY CAUSE *********** " bulletType="title"/>
-  <bullet bulletName="ER" bulletText="excessive rain" bulletGroup="ic" parseString=".ER."/>
-  <bullet bulletName="SM" bulletText="snow melt" bulletGroup="ic" parseString=".SM."/>
-  <bullet bulletName="RS" bulletText="excessive rain and snow melt" bulletGroup="ic" parseString=".RS."/>
-  <bullet bulletName="IJ" bulletText="ice jam" bulletGroup="ic" parseString=".IJ."/>
-  <bullet bulletName="IC" bulletText="ice jam and rain" bulletGroup="ic" parseString=".IC."/> -->
+  <bullet bulletName="general" bulletText="General (minor flooding)" bulletGroup="advType" parseString="&quot;-ARROYO&quot;,&quot;-SMALL STREAM FLOOD ADVISORY&quot;,&quot;FLOOD ADVISORY&quot;" showString="&quot;-ARROYO&quot;,&quot;-SMALL STREAM FLOOD ADVISORY&quot;,&quot;FLOOD ADVISORY&quot;"/>
+  <bullet bulletName="small" bulletText="Small stream" bulletGroup="advType" parseString="&quot;-URBAN AND&quot;,&quot;-ARROYO&quot;,&quot;SMALL STREAM FLOOD ADVISORY&quot;" showString="&quot;-URBAN AND&quot;,&quot;-ARROYO&quot;,&quot;SMALL STREAM FLOOD ADVISORY&quot;"/>
+  <bullet bulletName="uss" bulletText="Urban and small stream" bulletGroup="advType" parseString="URBAN AND SMALL STREAM FLOOD ADVISORY" showString="URBAN AND SMALL STREAM FLOOD ADVISORY"/>
+  <bullet bulletName="arroyo" bulletText="Arroyo and small stream" bulletGroup="advType" parseString="ARROYO" showString="ARROYO"/>
+  <bullet bulletName="hydrologic" bulletText="Hydrologic" bulletGroup="advType" parseString="HYDROLOGIC ADVISORY" showString="HYDROLOGIC ADVISORY"/> 
   <bullet bulletText="*********** SOURCE (choose 1) **********" bulletType="title"/>
-  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="group2" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="group2" parseString="DOPPLER RADAR"/>
   <bullet bulletName="dopplerGauge" bulletText="Doppler radar and automated gauges" bulletGroup="group2"  parseString="AUTOMATED "/>
   <bullet bulletName="trainedSpotters" bulletText="Trained spotters reported" bulletGroup="group2" parseString="TRAINED WEATHER SPOTTERS REPORTED"/>
   <bullet bulletName="public" bulletText="Public reported" bulletGroup="group2" parseString="THE PUBLIC REPORTED"/>
   <bullet bulletName="lawEnforcement" bulletText="Local law enforcement reported" bulletGroup="group2" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
   <bullet bulletText="*********** EVENT (choose one) *********** " bulletType="title"/>
-  <bullet bulletName="thunder" bulletText="Thunderstorm(s)" bulletGroup="group3" parseString="FROM A THUNDERSTORM "/>
+  <bullet bulletName="thunder" bulletText="Thunderstorm(s)" bulletGroup="group3" parseString="DUE TO A THUNDERSTORM "/>
   <bullet bulletName="actual" bulletText="Minor flooding occurring" bulletGroup="group3" parseString="REPORTED MINOR "/>
-  <bullet bulletName="plainRain" bulletText="Due to only heavy rain" bulletGroup="group3" parseString="DUE TO HEAVY RAIN "/>
+  <bullet bulletName="plainRain" bulletText="Due to only heavy rain" bulletGroup="group3" parseString="&quot;HEAVY RAIN&quot;,&quot;-THUNDERSTORM&quot;"/>
   <bullet bulletName="rapidRiver" bulletText="Rapid river rises" bulletGroup="group3" parseString="FOR RAPID RIVER RISES IN"/>
   <bullet bulletName="poorDrainage" bulletText="Minor flooding for poor drainage" bulletGroup="group3" parseString="FOR MINOR FLOODING OF POOR DRAINAGE AREAS IN"/>
   <bullet bulletText="*********** ADDITIONAL INFO ***********" bulletType="title"/>
@@ -120,34 +109,25 @@
   <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
   <bullet bulletText="****** CALL TO ACTIONS (choose 1 or more) ******" bulletType="title"/>
   <bullet bulletName="dontdrownCTA" bulletText="Turn around...dont drown" parseString="MOST FLOOD DEATHS OCCUR IN AUTOMOBILES"/>
-  <bullet bulletName="urbanCTA" bulletText="Urban flooding" parseString="AND PONDING OF WATER IN URBAN AREAS...HIGHWAYS...STREETS AND UNDERPASSES"/>
-  <bullet bulletName="ruralCTA" bulletText="Rural flooding/small streams" parseString="SMALL CREEKS AND STREAMS...HIGHWAYS AND UNDERPASSES"/>
+  <bullet bulletName="urbanCTA" bulletText="Urban flooding" parseString="&quot;URBAN AREAS&quot;,&quot;HIGHWAYS&quot;,&quot;STREETS AND UNDERPASSES&quot;"/>
+  <bullet bulletName="ruralCTA" bulletText="Rural flooding/small streams" parseString="&quot;SMALL CREEKS AND STREAMS&quot;,&quot;HIGHWAYS AND UNDERPASSES&quot;"/>
   <bullet bulletName="donotdriveCTA" bulletText="Do not drive into water" parseString="DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY"/>
   <bullet bulletName="lowspotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
   <bullet bulletName="powerCTA" bulletText="Power of flood waters/vehicles" parseString="DO NOT UNDERESTIMATE THE POWER OF FLOOD WATERS"/>
   <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to local law enforcement" parseString="HAVE THE NEAREST LAW ENFORCEMENT AGENCY RELAY YOUR REPORT"/>
-  <bullet bulletName="advMeans" bulletText="A flood advisory means" parseString="A FLOOD ADVISORY MEANS RIVER OR STREAM FLOWS"/>
+  <bullet bulletName="advisoryMeansCTA" bulletText="A flood advisory means" parseString="A FLOOD ADVISORY MEANS RIVER OR STREAM FLOWS"/>
  </bullets>
 </bulletActionGroup>
 <bulletActionGroup action="COR" phen="FA" sig="Y">
  <bullets>
-  <bullet bulletText="**** CORRECTED PRODUCT. CLICK CREATE TEXT ****" bulletType="title"/>
- <bullet bulletText="*************     TYPE OF ADVISORY    ***********" bulletType="title"/>
-  <bullet bulletName="general" bulletText="general (minor flooding)" bulletGroup="advType" parseString="&quot;-ARROYO&quot;,&quot;-SMALL STREAM FLOOD ADVISORY&quot;,&quot;FLOOD ADVISORY&quot;"/>
-  <bullet bulletName="small" bulletText="small stream" bulletGroup="advType" parseString="&quot;-URBAN AND&quot;,&quot;-ARROYO&quot;,&quot;SMALL STREAM FLOOD ADVISORY&quot;"/>
-  <bullet bulletName="uss" bulletText="urban and small stream" bulletGroup="advType" parseString="URBAN AND SMALL STREAM FLOOD ADVISORY"/>
-  <bullet bulletName="arroyo" bulletText="arroyo and small stream" bulletGroup="advType" parseString="ARROYO"/>
-  <bullet bulletName="hydrologic" bulletText="hydrologic" bulletGroup="advType" parseString="HYDROLOGIC ADVISORY"/> 
-  <!-- The PRIMARY CAUSE section is not needed since the ic variable is carried
-     over from the warning. -->
-<!-- <bullet bulletText="*********** PRIMARY CAUSE *********** " bulletType="title"/>
-  <bullet bulletName="ER" bulletText="excessive rain" bulletGroup="ic" parseString=".ER."/>
-  <bullet bulletName="SM" bulletText="snow melt" bulletGroup="ic" parseString=".SM."/>
-  <bullet bulletName="RS" bulletText="excessive rain and snow melt" bulletGroup="ic" parseString=".RS."/>
-  <bullet bulletName="IJ" bulletText="ice jam" bulletGroup="ic" parseString=".IJ."/>
-  <bullet bulletName="IC" bulletText="ice jam and rain" bulletGroup="ic" parseString=".IC."/> -->
+  <bullet bulletText="*************     TYPE OF ADVISORY    ***********" bulletType="title"/>
+  <bullet bulletName="general" bulletText="General (minor flooding)" bulletGroup="advType" parseString="&quot;-ARROYO&quot;,&quot;-SMALL STREAM FLOOD ADVISORY&quot;,&quot;FLOOD ADVISORY&quot;" showString="&quot;-ARROYO&quot;,&quot;-SMALL STREAM FLOOD ADVISORY&quot;,&quot;FLOOD ADVISORY&quot;"/>
+  <bullet bulletName="small" bulletText="Small stream" bulletGroup="advType" parseString="&quot;-URBAN AND&quot;,&quot;-ARROYO&quot;,&quot;SMALL STREAM FLOOD ADVISORY&quot;" showString="&quot;-URBAN AND&quot;,&quot;-ARROYO&quot;,&quot;SMALL STREAM FLOOD ADVISORY&quot;"/>
+  <bullet bulletName="uss" bulletText="Urban and small stream" bulletGroup="advType" parseString="URBAN AND SMALL STREAM FLOOD ADVISORY" showString="URBAN AND SMALL STREAM FLOOD ADVISORY"/>
+  <bullet bulletName="arroyo" bulletText="Arroyo and small stream" bulletGroup="advType" parseString="ARROYO" showString="ARROYO"/>
+  <bullet bulletName="hydrologic" bulletText="Hydrologic" bulletGroup="advType" parseString="HYDROLOGIC ADVISORY" showString="HYDROLOGIC ADVISORY"/> 
   <bullet bulletText="*********** SOURCE (choose 1) **********" bulletType="title"/>
-  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="group2" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="group2" parseString="DOPPLER RADAR"/>
   <bullet bulletName="dopplerGauge" bulletText="Doppler radar and automated gauges" bulletGroup="group2"  parseString="AUTOMATED "/>
   <bullet bulletName="trainedSpotters" bulletText="Trained spotters reported" bulletGroup="group2" parseString="TRAINED WEATHER SPOTTERS REPORTED"/>
   <bullet bulletName="public" bulletText="Public reported" bulletGroup="group2" parseString="THE PUBLIC REPORTED"/>
@@ -155,7 +135,7 @@
   <bullet bulletText="*********** EVENT (choose one) *********** " bulletType="title"/>
   <bullet bulletName="thunder" bulletText="Thunderstorm(s)" bulletGroup="group3" parseString="FROM A THUNDERSTORM "/>
   <bullet bulletName="actual" bulletText="Minor flooding occurring" bulletGroup="group3" parseString="REPORTED MINOR "/>
-  <bullet bulletName="plainRain" bulletText="Due to only heavy rain" bulletGroup="group3" parseString="DUE TO HEAVY RAIN "/>
+  <bullet bulletName="plainRain" bulletText="Due to only heavy rain" bulletGroup="group3" parseString="&quot;HEAVY RAIN&quot;,&quot;-THUNDERSTORM&quot;"/>
   <bullet bulletName="rapidRiver" bulletText="Rapid river rises" bulletGroup="group3" parseString="FOR RAPID RIVER RISES IN"/>
   <bullet bulletName="poorDrainage" bulletText="Minor flooding for poor drainage" bulletGroup="group3" parseString="FOR MINOR FLOODING OF POOR DRAINAGE AREAS IN"/>
   <bullet bulletText="*********** ADDITIONAL INFO ***********" bulletType="title"/>
@@ -164,8 +144,8 @@
   <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
   <bullet bulletText="****** CALL TO ACTIONS (choose 1 or more) ******" bulletType="title"/>
   <bullet bulletName="dontdrownCTA" bulletText="Turn around...dont drown" parseString="MOST FLOOD DEATHS OCCUR IN AUTOMOBILES"/>
-  <bullet bulletName="urbanCTA" bulletText="Urban flooding" parseString="AND PONDING OF WATER IN URBAN AREAS...HIGHWAYS...STREETS AND UNDERPASSES"/>
-  <bullet bulletName="ruralCTA" bulletText="Rural flooding/small streams" parseString="SMALL CREEKS AND STREAMS...HIGHWAYS AND UNDERPASSES"/>
+  <bullet bulletName="urbanCTA" bulletText="Urban flooding" parseString="&quot;URBAN AREAS&quot;,&quot;HIGHWAYS&quot;,&quot;STREETS AND UNDERPASSES&quot;"/>
+  <bullet bulletName="ruralCTA" bulletText="Rural flooding/small streams" parseString="&quot;SMALL CREEKS AND STREAMS&quot;,&quot;HIGHWAYS AND UNDERPASSES&quot;"/>
   <bullet bulletName="donotdriveCTA" bulletText="Do not drive into water" parseString="DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY"/>
   <bullet bulletName="lowspotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
   <bullet bulletName="powerCTA" bulletText="Power of flood waters/vehicles" parseString="DO NOT UNDERESTIMATE THE POWER OF FLOOD WATERS"/>
@@ -247,6 +227,10 @@
  		</mapping>
   	</filter>
  </pointSource>
+
+<!-- this "include file" tag will grab the Mile Marker XML pointSource tags, 
+and place into this template  -->
+<include file="mileMarkers.xml"/>
  
  <geospatialConfig>
   <pointSource>City</pointSource>
@@ -266,7 +250,4 @@
  	</filter>
  	<withinPolygon>true</withinPolygon>
  </pointSource>
- 
- <include file="milemarkers.xml"/>
- 
 </warngenConfig>
