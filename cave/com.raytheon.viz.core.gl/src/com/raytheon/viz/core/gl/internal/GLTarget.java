@@ -559,17 +559,20 @@ public class GLTarget implements IGLTarget {
      */
     @Override
     public void dispose() {
-        theContext.makeContextCurrent();
+
         if (defaultFont != null) {
             defaultFont.disposeInternal();
+            defaultFont = null;
         }
         if (colorbarFont != null) {
             colorbarFont.disposeInternal();
+            colorbarFont = null;
         }
 
-        theContext.releaseContext();
         theContext.destroyContext();
+
         if (theCanvas != null && theCanvas.isDisposed() == false) {
+
             theCanvas.removeListener(SWT.Resize, this.canvasResizeListener);
         }
         lastColormapUsed = null;
