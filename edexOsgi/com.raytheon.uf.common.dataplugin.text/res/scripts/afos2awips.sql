@@ -15,7 +15,7 @@
 -- *                         402.291.0100
 -- * 
 -- * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
--- * further licensing information.
+-- * further licensing information. 
 -- **
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('AAATIBCAX','WECA42','PHEB');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ABQABVABQ','UFUS45','KABQ');
@@ -953,12 +953,16 @@ INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCFFAAER','WGAK
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCFFAALU','WGAK62','PAFC');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCFFGBIN','ZEGZ98','PACR');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCFFSAER','WGAK71','PAFC');
+INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCFFSAFC','WGAK78','PAFC');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCFFSALU','WGAK72','PAFC');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCFFWAER','WGAK51','PAFC');
+INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCFFWAFC','WGAK58','PAFC');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCFFWALU','WGAK52','PAFC');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCFLSAER','WGAK81','PAFC');
+INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCFLSAFC','WGAK88','PAFC');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCFLSALU','WGAK82','PAFC');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCFLWAER','WGAK41','PAFC');
+INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCFLWAFC','WGAK48','PAFC');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCFLWALU','WGAK42','PAFC');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCFRWADQ','WOAK48','PADQ');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCFRWAFC','WOAK48','PAFC');
@@ -1027,11 +1031,12 @@ INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCMONMSG','NTXX
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCMSMANC','CSAK48','PANC');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCMVFAFC','FXAK58','PAFC');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCMWSAER','FZAK71','PAFC');
+INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCMWSAFC','FZAK78','PAFC');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCMWSALU','FZAK72','PAFC');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCMWWADQ','WHAK78','PADQ');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCMWWAFC','WHAK78','PAFC');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCNOWADQ','FPAK78','PADQ');
-INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCNOWAFC','FPAK58','PAFC');
+INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCNOWAFC','FPAK78','PAFC');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCNOWAKN','FPAK78','PAKN');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCNOWBET','FPAK78','PABE');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCNOWCDB','FPAK78','PACD');
@@ -1134,6 +1139,7 @@ INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCSIGAK8','WSAK
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCSIGAK9','WSAK09','PAWU');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCSIGANC','WSPN01','PANC');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCSMWAER','WHAK51','PAFC');
+INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCSMWAFC','WHAK58','PAFC');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCSMWALU','WHAK52','PAFC');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCSPSADQ','WWAK88','PADQ');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCSPSAER','WWAK81','PAFC');
@@ -1155,8 +1161,10 @@ INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCSPWSNP','WOAK
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCSTFAFC','FXUS91','PAFC');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCSTQAFC','BMBB91','PAFC');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCSVRAER','WUAK51','PAFC');
+INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCSVRAFC','WUAK58','PAFC');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCSVRALU','WUAK52','PAFC');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCSVSAER','WWAK51','PAFC');
+INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCSVSAFC','WWAK58','PAFC');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCSVSALU','WWAK52','PAFC');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCTAFAAQ','FTAK31','PANC');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCTAFABE','FTAK31','PANC');
@@ -1198,6 +1206,7 @@ INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCTOECDB','WOAK
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCTOEMCG','WOAK48','PAMC');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCTOESNP','WOAK48','PASN');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCTORAER','WFAK51','PAFC');
+INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCTORAFC','WFAK58','PAFC');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCTORALU','WFAK52','PAFC');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCTSTAAQ','NTXX99','PAAQ');
 INSERT INTO afos_to_awips (afosid, wmottaaii, wmocccc) VALUES ('ANCTSTMSG','NTXX98','PAAQ');
