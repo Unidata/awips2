@@ -22,7 +22,7 @@
 #### CREATE BASIS WORDING ###################################
 #############################################################
 #if(${list.contains($bullets, "doppler")})
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED A ${reportType1}")
+  #set ($report = "DOPPLER RADAR INDICATED A ${reportType1}")
   #set($reportAuthSVR = "CAPABLE OF PRODUCING")
 #end
 #if(${list.contains($bullets, "trainedSpotters")})
@@ -149,8 +149,8 @@
   #set ($hailThreat = "SOFTBALL SIZE") 
   #set ($hailLead = "LARGE DESTRUCTIVE HAIL UP TO ") 
   #set ($hailTrail = "")
-  #set ($hailSize = 3.75)  
-  #set ($hailTag = "3.75IN")
+  #set ($hailSize = 4.25)  
+  #set ($hailTag = "4.25IN")
 #end
 #if(${list.contains($bullets, "grapefruitHail")})
   #set ($hailThreat = "GRAPEFRUIT SIZE") 
@@ -193,9 +193,6 @@
 ################################################################
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 SVR${siteId}
-#if(${specialCorText})
-${specialCorText}
-#else
 ${ugcline}
 /${productClass}.${action}.${vtecOffice}.SV.W.${etn}.${dateUtil.format(${start}, ${timeFormat.ymdthmz})}-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
 
@@ -241,7 +238,7 @@ THIS IS A TEST MESSAGE. ##
 #end
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
 ...${report}${hailwind}. ${reportType2} LOCATED ##
-#handleClosestPoints($list, $closestPoints, $otherClosestPoints, $stormType, "NEAR", 6, "MILES")
+#handleClosestPoints($list, $closestPoints, $otherClosestPoints, $stormType, "NEAR", 6, "MILES", true)
 #if($movementSpeed < 3 || ${stationary})
 . ${reportType2} NEARLY STATIONARY. ${smallHail}
 #else
@@ -282,6 +279,9 @@ THIS IS A TEST MESSAGE. ##
   !** YOU DID NOT SELECT A PATHCAST OR LIST OF CITIES BULLET. PLEASE ENTER LOCATIONS IMPACTED **!.
 
 #end
+## Uncomment below pull in mile marker info
+## #parse("mileMarkers.vm")
+##
 ##############################################
 ###### SPECIAL VENUE/EVENT CASE ##############
 ##############################################
@@ -294,10 +294,7 @@ THOSE ATTENDING THE !**event/venue name or location**! ARE IN THE PATH OF THIS S
 
 #end
 #end
-##############################################
-###### mile markers ##############
-##############################################
-#parse("milemarkers.vm")
+
 ##################################
 ######### CALLS TO ACTION ########
 ##################################
@@ -485,7 +482,6 @@ ${mathUtil.round(${movementInKnots})}KT ##
 ##
 ##<L>${windhailTag}</L>
 
-
 $$
 
 ##############################################
@@ -493,4 +489,3 @@ $$
 ##############################################
 ##${user}
 !**NAME/INITIALS**!
-#end
