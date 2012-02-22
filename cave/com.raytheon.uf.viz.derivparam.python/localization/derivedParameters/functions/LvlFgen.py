@@ -18,6 +18,16 @@
 # further licensing information.
 ##
 
+#
+#    
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    01/19/12        DR14296        M. Huang      Flipped result by applying -1
+# 
+#
+
 from numpy import power
 from LvlQvec import calculate as lvlQvec
 
@@ -32,6 +42,6 @@ def execute(GHxSM, TxSM, P, dx, dy, coriolis):
     # Fgen = 2(Qx * d(theta)/dx + Qy * d(theta)/dy)
     result = slqx * dtdx
     result += slqy * dtdy
-    result *= t2th
+    result *= (-1) * t2th
     
     return result  
