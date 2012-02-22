@@ -14,9 +14,6 @@
 #end
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 MWS${siteId}
-#if(${specialCorText})
-${specialCorText}
-#else
 #if(${productClass}=="T")
 TEST...MARINE WEATHER STATEMENT...TEST
 #else
@@ -161,7 +158,7 @@ $zonecombo
 THIS IS A TEST MESSAGE. ##
 #end
 AT ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}...${report} ##
-#handleClosestPoints($list, $closestPoints, $otherClosestPoints, $stormType,"THESE STORMS WERE LOCATED", "OVER", 4, "NM")
+#handleClosestPoints($list, $closestPoints, $otherClosestPoints, $stormType,"THESE STORMS WERE LOCATED", "OVER", 4, "NM", true)
 #if($movementSpeed < 3 || ${stationary})
 . NEARLY STATIONARY.
 #else
@@ -243,4 +240,3 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 $$
 
 !**NAME/INITIALS**!
-#end
