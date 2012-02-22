@@ -57,6 +57,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                      removed shellListener().
  * Nov 15, 2011 11616      rferrel     Change font to fixed width; and text now
  *                                     uses the font.
+ * Feb 03, 2012 14317      mhuang      Make alarm display window wider
  * 
  * </pre>
  * 
@@ -284,6 +285,6 @@ public class AlarmDisplayWindow extends CaveSWTDialog {
 
     @Override
     protected void opened() {
-        shell.setSize(550, 300);
+        shell.setSize(600, 300);
     }
 }
