@@ -54,6 +54,7 @@ function loopThroughAllEdexRPMs()
    for component in `echo ${SELECT_ALL_SQL} | sqlite3 ${DB_FILE}`; do
       COMPONENT="${component}"
       # Scan DB for Edex RPMs
+
       SQL="SELECT buildDirectory FROM awips2_edex_rpms WHERE component = '${COMPONENT}';"
 
       COMPONENT_DIR=`echo ${SQL} | sqlite3 ${DB_FILE}`
