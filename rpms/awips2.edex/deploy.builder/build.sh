@@ -3,6 +3,7 @@
 # Arguments:
 #   ${1} == Build Version
 #   ${2} == Build Release
+#   -nobinlightning optional flag 
 
 if [ "${RPM_TOP_DIR}" = "" ]; then
    echo "ERROR: You Must Set The RPM_TOP_DIR Environment Variable."
@@ -17,7 +18,8 @@ export WORKSPACE_DIR=`cd ../../../; pwd;`
 source ${WORKSPACE_DIR}/Installer.rpm/awips2.core/deploy.builder/env.sh
 
 # If there is an actual version, it will be given to us as an argument.
-if [ "${1}" = "" ]; then
+if [ "${1}" = "" ] ||
+   [ "${1}" = "-nobinlightning" ]; then
    # Check version.txt
    VERSION_TXT="${WORKSPACE_DIR}/Installer.rpm/version.txt"
    if [ ! -f ${VERSION_TXT} ]; then
@@ -34,12 +36,22 @@ else
    export BUILD_VERSION="${1}"
 fi
 # If there is an actual release, it will be given to us as an argument.
-if [ "${2}" = "" ]; then
+if [ "${2}" = "" ] ||
+   [ "${2}" = "-nobinlightning" ]; then
    # Use the date.
    export BUILD_RELEASE=`date +"%Y%m%d"`
 else
    export BUILD_RELEASE="${2}"
 fi
+
+#See if there is a -nobinlightning flag
+LIGHTNING="YES"
+for x in "$@"
+do
+  if [ ${x} = "-nobinlightning" ]; then
+    LIGHTNING="NO"
+  fi
+done
 
 function buildRPM()
 {
@@ -88,10 +100,14 @@ buildRPM "Installer.edex-core"
 buildRPM "Installer.edex-cots"
 buildRPM "Installer.edex-dat"
 buildRPM "Installer.edex-dataplugins"
+if [ $LIGHTNING = "YES" ]; then
+  buildRPM "Installer.edex-binlightning"
+fi
 buildRPM "Installer.edex-grib"
 buildRPM "Installer.edex-hydro"
 buildRPM "Installer.edex-radar"
 buildRPM "Installer.edex-ncep"
+buildRPM "Installer.edex-ncep-nsharp"
 buildRPM "Installer.edex-satellite"
 buildRPM "Installer.edex-text"
 buildRPM "Installer.edex-native"
