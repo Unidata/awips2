@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <isEnabled>true</isEnabled>
+    <resourceDefnName>SVRL</resourceDefnName>
+    <resourceCategory>MISC</resourceCategory>
+    <filterLabels>AWW,Event</filterLabels>
+    <rscImplementation>SVRL</rscImplementation>
+    <subTypeGenerator></subTypeGenerator>
+    <rscTypeGenerator></rscTypeGenerator>
+    <timeMatchMethod>EXACT</timeMatchMethod>
+    <frameSpan>0</frameSpan>
+    <timelineGenMethod>USE_MANUAL_TIMELINE</timelineGenMethod>
+    <dfltFrameCount>10</dfltFrameCount>
+    <dfltTimeRange>6</dfltTimeRange>
+    <dfltGeogArea>BasicWX_US</dfltGeogArea>
+</ResourceDefinition>

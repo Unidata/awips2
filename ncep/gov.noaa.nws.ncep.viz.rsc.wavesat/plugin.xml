@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="com.raytheon.uf.viz.core.resource">
+         <!-- is this still needed? -->
+      <resource
+            class="gov.noaa.nws.ncep.viz.rsc.wavesat.rsc.WaveSatResource"
+            name="WaveSat"
+            recordClass="gov.noaa.nws.ncep.common.dataplugin.sgwh.SgwhRecord"
+            renderingOrderId="PLOT"
+            resourceType="PLAN_VIEW"/>
+   </extension>
+   <extension
+         point="com.raytheon.uf.viz.core.scriptTemplate">
+      <scriptTemplate
+            pluginName="sgwh"
+            scriptLibrary="BaseRequest">
+      </scriptTemplate>
+   </extension>
+   <extension
+         point="gov.noaa.nws.ncep.viz.resources.NC-Resource">
+      <nc-resource
+            class="gov.noaa.nws.ncep.viz.rsc.wavesat.rsc.WaveSatResourceData"
+            editDialogClass="gov.noaa.nws.ncep.viz.rsc.wavesat.rsc.EditWaveSatAttrsDialog"
+            name="WaveSat">
+      </nc-resource>
+   </extension>
+   <extension
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceAttribute">      
+      <nc-resourceAttribute
+            attributeClass="ColorBar"
+            attributeName="colorBar"
+            ncResourceName="WaveSat">
+      </nc-resourceAttribute>
+      <!-- This isn't considered an attribute right now mainly since 
+           the different satellites are stored in different db tables. 
+           If this is changed to put all the waveSat data in one table with
+           a satelliteId column then we can let the user change this through 
+           the edit attributes dialog.
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="satelliteId"
+            defaultValue="Jason-1"
+            ncResourceName="WaveSat">
+      </nc-resourceAttribute>
+	  -->
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="fontName"
+            defaultValue="Monospace"
+            ncResourceName="WaveSat">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="fontSize"
+            defaultValue="12"
+            ncResourceName="WaveSat">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="timeDisplayInterval"
+            defaultValue="30"
+            ncResourceName="WaveSat">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="RGB"
+            attributeName="timeDisplayColor"
+            defaultValue="RGB {255,255,255}"
+            ncResourceName="WaveSat">
+      </nc-resourceAttribute>
+   </extension>
+
+</plugin>

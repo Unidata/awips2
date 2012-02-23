@@ -9,6 +9,8 @@
  * ------------	----------	-----------	--------------------------
  * 12/2008		L. Lin		Initial creation	
  * 04/2009      L. Lin      Convert to to10.
+ * 09/2011      Chin Chen   changed to improve purge performance and
+ * 							removed xml serialization as well
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
  */
@@ -19,7 +21,6 @@ import java.io.Serializable;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Iterator;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -30,14 +31,9 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -45,7 +41,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @Entity
 @Table(name="aww_vtec")
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class AwwVtec implements Serializable, ISerializableObject {
 
@@ -56,61 +51,52 @@ public class AwwVtec implements Serializable, ISerializableObject {
     private Integer recordId = null;
 	
 	// The AWW VTEC record this object belongs to
-	@ManyToOne
-    @JoinColumn(name="parentID", nullable=false)
-	private AwwUgc parentID;
+	//@ManyToOne
+    //@JoinColumn(name="parentID", nullable=false)
+	//private AwwUgc parentID;
 	
 	// VTEC office ID
 	@Column(length=16)
-    @XmlElement
     @DynamicSerializeElement
 	private String officeID;
 	
 	// Action such as NEW, CON, CAN, EXT, ....
 	@Column(length=16)
-    @XmlElement
     @DynamicSerializeElement
 	private String action;
 	
 	// VTEC event start time
 	@Column
-	@XmlElement
 	@DynamicSerializeElement
 	private Calendar eventStartTime;
 	
 	// VTEC event end time
 	@Column
-	@XmlElement
 	@DynamicSerializeElement
 	private Calendar eventEndTime;
 	
 	// VTEC event tracking number
 	@Column(length=16)
-    @XmlElement
     @DynamicSerializeElement
 	private String eventTrackingNumber;
 
 	// Significance such as W-warning, A-watch, Y-advisory, S-statement
 	@Column(length=16)
-    @XmlElement
     @DynamicSerializeElement
 	private String significance;
 	
 	//  product class such as O-operational product, T-test product, E-experimental...
 	@Column(length=16)
-    @XmlElement
     @DynamicSerializeElement
 	private String productClass;
 	
 	// phenomena - two character string PP
 	@Column(length=16)
-    @XmlElement
     @DynamicSerializeElement
 	private String phenomena;
 	
 	// Text information for VTEC
 	@Column(length=128)
-    @XmlElement
     @DynamicSerializeElement
 	private String vtecLine;
 	
@@ -118,9 +104,9 @@ public class AwwVtec implements Serializable, ISerializableObject {
 	 * AWW HVTEC Table
 	 */
 	@DynamicSerializeElement
-	@XmlElement
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "parentID", fetch = FetchType.EAGER)
-	@OnDelete(action = OnDeleteAction.CASCADE)
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinColumn(name = "parentID", nullable = false)
+    @Index(name = "awwHVtecLine_parentid_idex")
 	private Set<AwwHVtec> awwHVtecLine = new HashSet<AwwHVtec>();
 
 	/**
@@ -163,26 +149,7 @@ public class AwwVtec implements Serializable, ISerializableObject {
 		this.recordId = recordId;
 	}
 	
-	/**
-	 * @return the parentID
-	 */
-	public AwwUgc getParentID() {
-		return parentID;
-	}
-
-	/**
-	 * @param parentID the parentID to set
-	 */
-	public void setParentID(AwwUgc parentID) {
-	    this.parentID = parentID;
-	    if (this.getAwwHVtecLine() != null && this.getAwwHVtecLine().size() > 0)
-	      {
-	         for (Iterator<AwwHVtec> iter = this.getAwwHVtecLine().iterator(); iter.hasNext();) {
-	            AwwHVtec cond = iter.next();
-	            cond.setParentID(this);
-	         }
-	      }
-	}
+	
 
 	/**
 	 * @return the vtecLine

@@ -1,0 +1,5 @@
+colorMapName=osf_ref16
+colorBar=@dfltRadarColorBar.xml
+! Storm Track Information (Graphic)
+productCode=58
+elevationNumber=0
