@@ -1,4 +1,0 @@
-! This must match the "creatingEntity" in the
-! satellite DB table valid values are 
-creatingEntity=GOES-12(M)
-pluginName=satellite

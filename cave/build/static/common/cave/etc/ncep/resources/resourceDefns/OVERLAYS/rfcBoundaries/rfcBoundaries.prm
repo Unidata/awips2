@@ -1,5 +1,0 @@
-! DbOverlay
-dbName=maps
-tableName=mapdata.rfc
-labelField=site_id
-mapName=RFC Boundaries

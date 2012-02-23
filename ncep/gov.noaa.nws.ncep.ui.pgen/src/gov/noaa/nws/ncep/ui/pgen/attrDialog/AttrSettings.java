@@ -14,6 +14,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TimeZone;
 
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 import gov.noaa.nws.ncep.ui.pgen.elements.*;
@@ -21,7 +25,9 @@ import gov.noaa.nws.ncep.ui.pgen.elements.*;
 import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
 import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
 import gov.noaa.nws.ncep.ui.pgen.file.Products;
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
+import gov.noaa.nws.ncep.ui.pgen.productManage.ProductConfigureDialog;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 /**
  * Singleton for the default attribute settings of PGEN DrawableElements.
@@ -34,7 +40,9 @@ import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
  * 04/09		89			J. Wu  		Added Arc.
  * 07/10		270			B. Yin		Use AbstractDrawableComponent instead of IAttribute
  * 12/10		359			B. Yin		Change loadPgenSettings to public 
+ * 07/11        450         G. Hull     settings tbl from NcPathManager
  * 08/11		?			B. Yin		Put current time for Storm Track
+ * 11/11		?  			B. Yin		Load settings for different Activity Type.
  * 
  * </pre>
  * 
@@ -129,19 +137,48 @@ public class AttrSettings {
 	private void loadSettingsTable() {		
 		
 		/*
-		 *  First Try to load from user's local directory; if not found, load from
-		 *  the base directory.
-		 */
-		String fullFileName = settingsTblLocal + settingsFileName;
-		File settingsFile = new File( fullFileName );
+		 *  Get the settings table file from localization
+		 */		
+		File settingsFile = NcPathManager.getInstance().getStaticFile( 
+				NcPathConstants.PGEN_SETTINGS_TBL );
 		
-		if ( !(settingsFile.exists() && settingsFile.isFile() && settingsFile.canRead() ) ) {
-			fullFileName = NmapCommon.getSettingsTable();
-			settingsFile = new File( fullFileName );
+		if ( settingsFile == null ) {
+			System.out.println("Unable to fing pgen settings table");
 		}	
 		
-		loadPgenSettings( fullFileName );
+		loadPgenSettings( settingsFile.getAbsolutePath() );
+	}
+	
+	public void loadProdSettings( String prodName ){
+		
+		if ( prodName == null || prodName.isEmpty() ){
+			loadSettingsTable();
+		}
+		else {
+			try {
+				
+				String pt = ProductConfigureDialog.getProductTypes().get(prodName).getType();
+				String pt1 = pt.replaceAll(" ", "_");
+	//			LocalizationContext userContext = NcPathManager.getInstance().getContext(
+	//					LocalizationType.CAVE_STATIC, LocalizationLevel.USER );
 
+	//			LocalizationFile lFile1 = NcPathManager.getInstance().getLocalizationFile( 
+	//					userContext, ProductConfigureDialog.getSettingFullPath(pt1));
+				
+				LocalizationFile lFile = NcPathManager.getInstance().getStaticLocalizationFile(ProductConfigureDialog.getSettingFullPath(pt1));
+				
+				String filePath =  lFile.getFile().getAbsolutePath();
+				if ( !new File( filePath).canRead()){
+					loadSettingsTable();
+				}
+				else {
+					loadPgenSettings( filePath);
+				}
+			}
+			catch ( Exception e ){
+				loadSettingsTable();
+			}
+		}
 	}
 	
 	public boolean loadPgenSettings( String fileName ){
@@ -151,6 +188,8 @@ public class AttrSettings {
 		HashMap<String, AbstractDrawableComponent> newSettings = new HashMap<String, AbstractDrawableComponent>();
 
 		File sFile = new File( fileName );
+		
+		try {
 		if ( sFile.canRead() ){
 			Products products = FileTools.read( fileName );
 	        
@@ -194,6 +233,10 @@ public class AttrSettings {
 	        	ret = true;
 	        }
 	        
+		}
+		}
+		catch ( Exception e ){
+			ret = false;
 		}
 		
 		return ret;

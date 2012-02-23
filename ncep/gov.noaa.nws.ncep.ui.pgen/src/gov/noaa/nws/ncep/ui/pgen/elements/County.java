@@ -153,8 +153,8 @@ public class County {
 
 							Coordinate loc = new Coordinate(0,0); 
 							try {
-								loc.x = ((Double)bnd[7]).doubleValue(); 
-								loc.y =	((Double)bnd[6]).doubleValue();
+								loc.x = ((Number)bnd[7]).doubleValue(); 
+								loc.y =	((Number)bnd[6]).doubleValue();
 							}
 							catch ( Exception e ){
 								// center location missing in database 
@@ -234,8 +234,8 @@ public class County {
 
 							Coordinate loc = new Coordinate(0,0); 
 							try {
-								loc.x = ((BigDecimal)zn[6]).doubleValue(); 
-								loc.y = ((BigDecimal)zn[5]).doubleValue();
+								loc.x = ((Number)zn[6]).doubleValue(); 
+								loc.y = ((Number)zn[5]).doubleValue();
 							}
 							catch ( Exception e ){
 								// center location missing in database 
