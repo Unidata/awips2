@@ -47,6 +47,7 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
  * ------------ ---------- ----------- --------------------------
  * 3/12/10      4758       bphillip     Initial creation
  * 10/13/10     276        llin                 Modified for NC GRIB.
+ * 11/02/11                xguo          Updated gridid
  * </pre>
  * 
  * @author njensen
@@ -108,7 +109,7 @@ public class NcgribModelLookup {
         model.setCenter(center);
         model.setName(modelName);
         model.setSubCenter(Integer.toString(subcenter));
-        model.setGrid(Integer.parseInt(grid));
+        model.setGrid(grid);
         ArrayList<Integer> processList = new ArrayList<Integer>();
         processList.add(process);
         model.setProcess(processList);

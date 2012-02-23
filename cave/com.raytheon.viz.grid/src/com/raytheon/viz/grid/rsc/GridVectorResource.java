@@ -102,7 +102,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *    01/07/11     7948        bkowal      wind direction will be displayed in
  *                                         addition to wind speed when sampling
  *                                         is on.
- * 
+ *    01/31/12   14306        kshresth     Cursor readout as you sample the dispay
+ *
  * </pre>
  * 
  * @author chammack
@@ -211,6 +212,7 @@ public class GridVectorResource extends AbstractMapVectorResource implements
             StorageException, VizException {
         IDataRecord[] results = super.getDataRecord(pdo, styleRule);
         GribRecord gribRecord = (GribRecord) pdo;
+        
         // We need to reproject global data to prevent a gap in the data
         boolean reproject = false;
         GridCoverage location = gribRecord.getModelInfo().getLocation();
@@ -235,10 +237,44 @@ public class GridVectorResource extends AbstractMapVectorResource implements
                         gridGeometry, remappedImageGeometry, -9998,
                         Float.POSITIVE_INFINITY, -999999);
                 interp.setMissingThreshold(1.0f);
+                
+                /*
+                 * Convert speed/dirs into U, V before interpolation.
+                 */
+                int len =  ((FloatDataRecord) results[0]).getFloatData().length;
+                float[] uu = new float[len];
+                float[] vv = new float[len];
+                
+                boolean isVector = false;
+                if (displayType == DisplayType.BARB
+                        || displayType == DisplayType.ARROW) {
+                	isVector = true;
+                	
+                    for (int i = 0; i < len; i++) {
+                    	float spd = ((FloatDataRecord) results[0]).getFloatData()[i];
+                    	float dir = ((FloatDataRecord) results[1]).getFloatData()[i];
+                    	
+                    	if ( spd > -999999.0f && dir > -999999.0f) {
+                    		uu[i] = (float) (-spd * Math.sin(dir * Math.PI/180));
+                    		vv[i] = (float) (-spd * Math.cos(dir * Math.PI/180));
+                    	}
+                    	else {
+                    		uu[i] = -999999.0f;
+                    		vv[i] = -999999.0f;  
+                    	}
+                    }
+                }
+                
                 for (int i = 0; i < results.length; i++) {
                     if (results[i] instanceof FloatDataRecord) {
-                        float[] data = ((FloatDataRecord) results[i])
-                                .getFloatData();
+                        float[] data = new float[len];
+                        if (isVector) {
+                        	data = i == 0 ? uu : vv;
+                        }
+                        else {
+                        	data = ((FloatDataRecord) results[i]).getFloatData();
+                        }
+                    	                    	
                         interp.setData(data);
                         data = interp.getReprojectedGrid();
                         newData[i] = results[i].clone();
@@ -246,11 +282,38 @@ public class GridVectorResource extends AbstractMapVectorResource implements
                                 .setIntSizes(new int[] {
                                         remappedImageGeometry.getGridRange2D().width,
                                         remappedImageGeometry.getGridRange2D().height });
-                        ((FloatDataRecord) newData[i]).setFloatData(data);
+                        ((FloatDataRecord) newData[i]).setFloatData(data);                                                
                     }
                 }
-                if (displayType == DisplayType.BARB
-                        || displayType == DisplayType.ARROW) {
+                uu = null;
+                vv = null;
+                
+                if (isVector) {
+                	/*
+                	 * Convert U, V back to speed/dirs
+                	 */
+                	len = ((FloatDataRecord) newData[0]).getFloatData().length;
+                    float[] new_spds = new float[len];
+                    float[] new_dirs = new float[len];
+                    for (int i = 0; i < len; i++) {
+                    	float u = ((FloatDataRecord) newData[0]).getFloatData()[i];
+                    	float v = ((FloatDataRecord) newData[1]).getFloatData()[i];
+                    	
+                    	if ( u > -999999.0f && v > -999999.0f) {
+                    		new_spds[i] = (float) Math.hypot(u, v);
+                    		new_dirs[i] = (float) (Math.atan2(u, v) * 180 / Math.PI) + 180;
+                    		
+                    		if (new_dirs[i] > 360) new_dirs[i] -= 360;
+                    		if (new_dirs[i] < 0) new_dirs[i] += 360;
+                    		
+                    	} else {
+                    		new_spds[i] = new_dirs[i] = -999999.0f;
+                    	}
+                    }
+                    ((FloatDataRecord) newData[0]).setFloatData(new_spds);
+                    new_spds = null;
+                    
+                    
                     // When reprojecting it is necessary to recalculate the
                     // direction of vectors based off the change in the "up"
                     // direction
@@ -259,7 +322,6 @@ public class GridVectorResource extends AbstractMapVectorResource implements
                     MathTransform crs2ll = MapUtil
                             .getTransformToLatLon(remappedImageGeometry
                                     .getCoordinateReferenceSystem());
-                    float[] dirs = (float[]) newData[1].getDataObject();
 
                     for (int i = 0; i < remappedImageGeometry.getGridRange2D().width; i++) {
                         for (int j = 0; j < remappedImageGeometry
@@ -267,7 +329,7 @@ public class GridVectorResource extends AbstractMapVectorResource implements
                             int index = i
                                     + j
                                     * remappedImageGeometry.getGridRange2D().width;
-                            if (dirs[index] > -9999) {
+                            if (new_dirs[index] > -9999) {
                                 DirectPosition2D dp = new DirectPosition2D(i, j);
                                 grid2crs.transform(dp, dp);
                                 crs2ll.transform(dp, dp);
@@ -276,10 +338,15 @@ public class GridVectorResource extends AbstractMapVectorResource implements
                                         remappedImageGeometry);
                                 double rot2 = MapUtil.rotation(ll,
                                         GridGeometry2D.wrap(gridGeometry));
-                                dirs[index] -= rot += rot2;
+                                new_dirs[index] -= rot += rot2;
                             }
                         }
                     }
+                    
+                    ((FloatDataRecord) newData[1]).setFloatData(new_dirs);
+                    new_dirs = null;
+                    
+                    
                 }
                 this.remappedImageGeometry = remappedImageGeometry;
                 results = newData;
@@ -668,7 +735,9 @@ public class GridVectorResource extends AbstractMapVectorResource implements
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
         if (!((GridResourceData) resourceData).isSampling()) {
+        	if (displayType != DisplayType.ARROW){
             return super.inspect(coord);
+        	}
         }
         GribRecord record = (GribRecord) getDataObjectMap().get(
                 getDisplayedDataTime());

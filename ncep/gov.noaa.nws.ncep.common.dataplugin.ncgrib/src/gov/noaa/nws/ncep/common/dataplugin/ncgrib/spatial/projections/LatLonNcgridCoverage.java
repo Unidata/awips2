@@ -60,6 +60,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 4/7/09       1994        bphillip    Initial Creation
+ * 9/08/11                  X. Guo		Skip correct Lon value after add new column
  * 
  * </pre>
  * 
@@ -154,10 +155,16 @@ public class LatLonNcgridCoverage extends NcgridCoverage {
 
     @Override
     public void initialize() throws GribException {
+    	double maxLon;
         double minLat = MapUtil.correctLat(la1);
         double maxLat = MapUtil.correctLat(la2);
         double minLon = MapUtil.correctLon(lo1);
-        double maxLon = MapUtil.correctLon(lo2);
+        if ( lo2 >= 360.0) {
+        	maxLon = lo2;
+        }
+        else {
+            maxLon = MapUtil.correctLon(lo2);
+        }
         if (maxLon < minLon) {
             maxLon += 360.0;
         }

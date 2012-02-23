@@ -1,0 +1,5 @@
+colorMapName=nids_vel16
+colorBar=@dfltRadarColorBar.xml
+! .25km Radial Velocity
+productCode=99
+elevationNumber=2
