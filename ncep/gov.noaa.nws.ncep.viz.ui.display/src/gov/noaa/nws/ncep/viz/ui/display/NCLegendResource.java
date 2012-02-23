@@ -185,12 +185,21 @@ public class NCLegendResource extends
         if (rc == null) 
         	return;
         
-        IInputHandler handler = new NCLegendResource(resourceData, loadProperties);
-        rc.registerMouseHandler(handler, InputPriority.PERSPECTIVE); //.RESOURCE
-        
+        rc.registerMouseHandler(this);
     }
     
     @Override
+	protected void disposeInternal() {
+		super.disposeInternal();
+ 
+		IDisplayPaneContainer rc = getResourceContainer();
+        if (rc == null) 
+        	return;
+        
+        rc.unregisterMouseHandler(this);
+	}
+
+	@Override
     public boolean handleMouseDown(int x, int y, int mouseButton) {
         
     	if (mouseButton ==1) {
