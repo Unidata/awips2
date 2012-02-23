@@ -1,5 +1,6 @@
 package gov.noaa.nws.ncep.viz.rsc.pgen.rsc;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.display.AbstractElementContainer;
 import gov.noaa.nws.ncep.ui.pgen.display.DisplayProperties;
 import gov.noaa.nws.ncep.ui.pgen.display.ElementContainerFactory;
@@ -8,16 +9,16 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
 import gov.noaa.nws.ncep.ui.pgen.elements.Product;
 import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
 import gov.noaa.nws.ncep.ui.pgen.file.Products;
+import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
-import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.DfltRecordRscDataObj;
-import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.IRscDataObject;
-import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefnsMngr;
 
 import java.awt.Color;
 import java.io.File;
 import java.util.Iterator;
 import java.util.List;
+
+import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.time.DataTime;
@@ -41,6 +42,7 @@ import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
  * ------------ ---------- ----------- --------------------------
  * 29 Dec 2009  202         B. Hebbard  Initial creation.
  * 18 Aug 2010  273         G. Hull     get full filename from rscMngr
+ * 09 Aug 2011  450         G. Hull     add pgen directory with the filename
  * 
  * </pre>
  * 
@@ -93,20 +95,30 @@ public class PgenResource extends AbstractNatlCntrsResource<PgenResourceData, IM
     	// set initial display values from resource attributes (as if after modification)
     	resourceAttrsModified();
 
-		File pgenDataDir = ResourceDefnsMngr.getInstance().getPgenDataDir( 
-				                                 pgenResourceData.getResourceName() );
-		if( pgenDataDir == null || !pgenDataDir.exists() ) {
-			throw new VizException( "Resource Mngr can't find data dir for: " + 
-					pgenResourceData.getResourceName().toString() );
-		}
+    	//     	
+    	String dataDirStr = pgenResourceData.getPgenDirectory().trim();
+    	
+    	if( !dataDirStr.startsWith( File.separator ) ) {
+    		dataDirStr = 
+    			NmapCommon.getPgenWorkingDirectory() + File.separator +
+    			    dataDirStr + File.separator;
+    	}
+    	
+    	File productsDir = new File( dataDirStr );
 		
-		// the group name is actually the name of the .prm file which contains the 
-		// name of the .xml file.
-		String pgenProdFilename = pgenDataDir.getAbsolutePath() + File.separator + 
-		                           pgenResourceData.getFileName();
+		if( productsDir == null || !productsDir.exists() ||
+									!productsDir.isDirectory() ) {
+			throw new VizException("Error generating PGEN products: the pgenDirectory, "+
+					pgenResourceData.getPgenDirectory() + ", doesn't exist" );
+		}
+				 
+		String pgenProdFilename = productsDir.getAbsolutePath() + File.separator + 
+		                           pgenResourceData.getProductName();
+		if( !pgenProdFilename.endsWith(".xml") ) {
+			pgenProdFilename = pgenProdFilename+".xml";
+		}
 
 		// get the PGEN product data, and convert into format ready for display during paint
-
 		Products products = FileTools.read( pgenProdFilename );        
         prds = ProductConverter.convert( products );
     }

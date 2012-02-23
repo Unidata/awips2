@@ -1,3 +1,22 @@
+<!-- The following is an example on how to set up the bullets for a site
+     specific dam break -->
+<!-- 
+<damInfoBullets>
+<damInfoBullet bulletGroup="dam" bulletText="Big Rock Dam (Ray/Lafayette Counties)" bulletName="BigRockDam"  parseString="BIG ROCK" showString="BIG ROCK DAM" coords="LAT...LON 3917 9405 3923 9387 3919 9385 3913 9394 3911 9405"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BigRockhighfast"  parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - high normal" bulletName="BigRockhighnormal"  parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - medium fast" bulletName="BigRockmediumfast"  parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - medium normal" bulletName="BigRockmediumnormal"  parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+<damInfoBullet bulletGroup="ruleofthumb" bulletText="rule of thumb" bulletName="BigRockruleofthumb"  parseString="FLOOD WAVE ESTIMATE" showString="BIG ROCK DAM"/>
+<damInfoBullet bulletGroup="dam" bulletText="Branched Oak Dam (Buchanan County)" bulletName="BranchedOakDam"  parseString="BRANCHED OAK" showString="BRANCHED OAK DAM" coords="LAT...LON 3971 9467 3957 9466 3955 9475 3970 9476"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BranchedOakhighfast"  parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - high normal" bulletName="BranchedOakhighnormal"  parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - medium fast" bulletName="BranchedOakmediumfast"  parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - medium normal" bulletName="BranchedOakmediumnormal"  parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+<damInfoBullet bulletGroup="ruleofthumb" bulletText="rule of thumb" bulletName="BranchedOakruleofthumb"  parseString="FLOOD WAVE ESTIMATE" showString="BRANCHED OAK DAM"/>
+</damInfoBullets>
+-->
+<!-- End of example. Begin your site specific information here. -->
 <damInfoBullets>
 <damInfoBullet bulletGroup="dam" bulletText="Big Rock Dam (Ray/Lafayette Counties)" bulletName="BigRockDam"  parseString="BIG ROCK"  coords="LAT...LON 3917 9405 3923 9387 3919 9385 3913 9394 3911 9405"/>
 <damInfoBullet bulletGroup="dam" bulletText="Branched Oak Dam (Buchanan County)" bulletName="BranchedOakDam"  parseString="BRANCHED OAK"  coords="LAT...LON 3971 9467 3957 9466 3955 9475 3970 9476"/>

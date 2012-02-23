@@ -713,8 +713,10 @@ public class TCVMessage {
 
 		for ( TCVEvent event : events ) {
 			for (String zone : event.getUgc().getZones() ) {
-				if ( bm.getCWA(zone) == null )  System.out.println("TRYING: "+zone);
-				wfos.add( bm.getCWA(zone) );
+				if ( bm.getCWA(zone) != null )  
+					wfos.add( bm.getCWA(zone) );
+				else
+					System.out.println("Could not find WFO associated with zone: "+zone);
 			}
 		}
 		
