@@ -13,6 +13,8 @@
  * 03/2009		14				T. Lee		Migration to TO10
  * 11/2009		14				T. Lee		Migration to TO11D6
  * 05/2010		14				T. Lee		Migration to TO11DR11
+ * 09/2011      		        Chin Chen   changed to improve purge performance and
+ * 										    removed xml serialization as well
  * </pre>
  *
  * @author T.Lee
@@ -26,21 +28,15 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import gov.noaa.nws.ncep.common.dataplugin.ffg.FfgRecord;
 import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
 @Entity
 @Table(name="ffg_precip")
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class FfgPrecip implements Serializable, ISerializableObject {
 
@@ -49,11 +45,6 @@ public class FfgPrecip implements Serializable, ISerializableObject {
 	@Id
     @GeneratedValue
     private Integer recordId = null;
-	
-	/** The FFG record this object belongs to **/
-    @ManyToOne
-    @JoinColumn(name="parentID", nullable=false)
-	private FfgRecord parentID;
 	
 	/** The zone ID **/
 	@Column(length=32)
@@ -113,17 +104,17 @@ public class FfgPrecip implements Serializable, ISerializableObject {
 
 	/**
 	 * @return the parentID
-	 */
+	 *
 	public FfgRecord getParentID() {
 		return parentID;
-	}
+	}*/
 
 	/**
 	 * @param parentID the parentID to set
-	 */
+	 *
 	public void setParentID(FfgRecord parentID) {
 		this.parentID = parentID;
-	}
+	}*/
 
 	/**
 	 * @return the zoneID

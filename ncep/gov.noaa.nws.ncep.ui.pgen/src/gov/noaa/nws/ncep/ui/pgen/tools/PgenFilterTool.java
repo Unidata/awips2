@@ -8,8 +8,8 @@
 
 package gov.noaa.nws.ncep.ui.pgen.tools;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.attrDialog.PgenFilterDlg;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 import org.eclipse.ui.PlatformUI;
 
@@ -57,7 +57,8 @@ public class PgenFilterTool extends AbstractPgenTool {
         filterDlg.setBlockOnOpen(false);
         filterDlg.open();
         
-        NmapUiUtils.setPanningMode();
+        //NmapUiUtils.setPanningMode();
+        PgenUtil.setSelectingMode();
 
     }
 

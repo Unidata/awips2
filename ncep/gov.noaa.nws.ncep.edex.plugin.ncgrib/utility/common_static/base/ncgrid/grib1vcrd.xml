@@ -1,0 +1,453 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grib1vcrdList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="grib1vcrd.xsd">
+<!--This is grib1 vcrd control table-->
+     <grib1vcrd>
+          <vcrdid>1</vcrdid>
+          <name>Ground or water surface</name>
+          <units>-</units>
+          <gnam>NONE</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>2</vcrdid>
+          <name>Cloud base level</name>
+          <units>-</units>
+          <gnam>CLDL</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>3</vcrdid>
+          <name>Cloud top level</name>
+          <units>-</units>
+          <gnam>CLDT</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>4</vcrdid>
+          <name>Level of 0 deg C isotherm</name>
+          <units>-</units>
+          <gnam>FRZL</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>5</vcrdid>
+          <name>Adiabatic condensation level</name>
+          <units>-</units>
+          <gnam>LCLV</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>6</vcrdid>
+          <name>Maximum wind speed level</name>
+          <units>-</units>
+          <gnam>MWSL</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>7</vcrdid>
+          <name>Tropopause</name>
+          <units>-</units>
+          <gnam>TROP</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>8</vcrdid>
+          <name>Nominal top of the atmosphere</name>
+          <units>kPa</units>
+          <gnam>TOPA</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>9</vcrdid>
+          <name>Sea bottom</name>
+          <units>-</units>
+          <gnam>SEAB</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>20</vcrdid>
+          <name>Isothermal level</name>
+          <units>1/100 K</units>
+          <gnam>TMPL</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>100</vcrdid>
+          <name>Isobaric surface</name>
+          <units>hPa</units>
+          <gnam>PRES</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>101</vcrdid>
+          <name>Layer between two isobaric sfcs</name>
+          <units>kPa</units>
+          <gnam>PRES</gnam>
+          <scale>1</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>102</vcrdid>
+          <name>Mean sea level</name>
+          <units>-</units>
+          <gnam>NONE</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>103</vcrdid>
+          <name>Specific altitude above msl</name>
+          <units>m</units>
+          <gnam>HGHT</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>104</vcrdid>
+          <name>Layer between two spec alts (msl)</name>
+          <units>hm</units>
+          <gnam>HGHT</gnam>
+          <scale>2</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>105</vcrdid>
+          <name>Specified height level above gnd</name>
+          <units>m</units>
+          <gnam>HGHT</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>106</vcrdid>
+          <name>Layer between two height levels (gnd)</name>
+          <units>hm</units>
+          <gnam>HGHT</gnam>
+          <scale>2</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>107</vcrdid>
+          <name>Sigma level</name>
+          <units>1/10000 sigma value</units>
+          <gnam>SGMA</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>108</vcrdid>
+          <name>Layer between two sigma levels</name>
+          <units>1/100 sigma values</units>
+          <gnam>SGMA</gnam>
+          <scale>2</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>109</vcrdid>
+          <name>Hybrid level</name>
+          <units>-</units>
+          <gnam>HYBL</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>110</vcrdid>
+          <name>Layer between two hybrid levels</name>
+          <units>-</units>
+          <gnam>HYBL</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>111</vcrdid>
+          <name>Depth below land surface</name>
+          <units>cm</units>
+          <gnam>DPTH</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>112</vcrdid>
+          <name>Layer btwn 2 dpths below lnd sfc</name>
+          <units>cm</units>
+          <gnam>DPTH</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>113</vcrdid>
+          <name>Isentropic (theta) level</name>
+          <units>K</units>
+          <gnam>THTA</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>114</vcrdid>
+          <name>Layer between two isentropic levels</name>
+          <units>K</units>
+          <gnam>THTA</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>115</vcrdid>
+          <name>Level at press diff from ground</name>
+          <units>hPa</units>
+          <gnam>PDLV</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>116</vcrdid>
+          <name>Pressure difference layer</name>
+          <units>hPa</units>
+          <gnam>PDLY</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>117</vcrdid>
+          <name>Potential vorticity surface</name>
+          <units>10**-6/km**2/kg</units>
+          <gnam>POTV</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>119</vcrdid>
+          <name>ETA level</name>
+          <units>1/10000</units>
+          <gnam>ELVL</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>120</vcrdid>
+          <name>ETA layer</name>
+          <units>1/100</units>
+          <gnam>ELYR</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>121</vcrdid>
+          <name>Layer between two isobaric sfcs</name>
+          <units>1100-hPa</units>
+          <gnam>PRES</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>125</vcrdid>
+          <name>Specified height level above gnd</name>
+          <units>cm</units>
+          <gnam>HGHT</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>128</vcrdid>
+          <name>Layer between two sigma levels</name>
+          <units>1.1 - 1/1000 sigma values</units>
+          <gnam>SGMA</gnam>
+          <scale>1</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>141</vcrdid>
+          <name>Layer between two isobaric sfcs</name>
+          <units>kPa and 1100-hPa</units>
+          <gnam>PRES</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>160</vcrdid>
+          <name>Depth below sea-level</name>
+          <units>m</units>
+          <gnam>DPTH</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>200</vcrdid>
+          <name>Entire atmosphere as a layer</name>
+          <units>-</units>
+          <gnam>NONE</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>201</vcrdid>
+          <name>Entire ocean as a layer</name>
+          <units>-</units>
+          <gnam>NONE</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>204</vcrdid>
+          <name>Highest tropospheric freezing lev</name>
+          <units>-</units>
+          <gnam>FRZH</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>206</vcrdid>
+          <name>Grid scale cloud bottom level</name>
+          <units>-</units>
+          <gnam>GCBL</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>207</vcrdid>
+          <name>Grid scale cloud top level</name>
+          <units>-</units>
+          <gnam>GCTL</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>209</vcrdid>
+          <name>Boundary layer cloud bottom level</name>
+          <units>-</units>
+          <gnam>BCBL</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>210</vcrdid>
+          <name>Boundary layer cloud top level</name>
+          <units>-</units>
+          <gnam>BCTL</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>211</vcrdid>
+          <name>Boundary layer cloud layer</name>
+          <units>-</units>
+          <gnam>BCLY</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>212</vcrdid>
+          <name>Low cloud bottom level</name>
+          <units>-</units>
+          <gnam>LCBL</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>213</vcrdid>
+          <name>Low cloud top level</name>
+          <units>-</units>
+          <gnam>LCTL</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>214</vcrdid>
+          <name>Low cloud layer</name>
+          <units>-</units>
+          <gnam>LCLY</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>215</vcrdid>
+          <name>Cloud Ceiling</name>
+          <units>-</units>
+          <gnam>CEIL</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>220</vcrdid>
+          <name>Planetary Boundary Layer</name>
+          <units>-</units>
+          <gnam>PBLRI</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>222</vcrdid>
+          <name>Middle cloud bottom level</name>
+          <units>-</units>
+          <gnam>MCBL</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>223</vcrdid>
+          <name>Middle cloud top level</name>
+          <units>-</units>
+          <gnam>MCTL</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>224</vcrdid>
+          <name>Middle cloud layer</name>
+          <units>-</units>
+          <gnam>MCLY</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>232</vcrdid>
+          <name>High cloud bottom level</name>
+          <units>-</units>
+          <gnam>HCBL</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>233</vcrdid>
+          <name>High cloud top level</name>
+          <units>-</units>
+          <gnam>HCTL</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>234</vcrdid>
+          <name>High cloud layer</name>
+          <units>-</units>
+          <gnam>HCLY</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>242</vcrdid>
+          <name>Convective cloud bottom level</name>
+          <units>-</units>
+          <gnam>CCBL</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>243</vcrdid>
+          <name>Convective cloud top level</name>
+          <units>-</units>
+          <gnam>CCTL</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>244</vcrdid>
+          <name>Convective cloud layer</name>
+          <units>-</units>
+          <gnam>CCLY</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>245</vcrdid>
+          <name>Lowest level of the wet bulb zero</name>
+          <units>-</units>
+          <gnam>LLTW</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>246</vcrdid>
+          <name>Maximum equiv potential tmp level</name>
+          <units>-</units>
+          <gnam>MTHE</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>247</vcrdid>
+          <name>Equilibrium level</name>
+          <units>-</units>
+          <gnam>EHLT</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>248</vcrdid>
+          <name>Shallow convective cloud bottom level</name>
+          <units>-</units>
+          <gnam>SCBL</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>249</vcrdid>
+          <name>Shallow convective cloud top level</name>
+          <units>-</units>
+          <gnam>SCTL</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>251</vcrdid>
+          <name>Deep convective cloud bottom level</name>
+          <units>-</units>
+          <gnam>DCBL</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+     <grib1vcrd>
+          <vcrdid>252</vcrdid>
+          <name>Deep convective cloud top level</name>
+          <units>-</units>
+          <gnam>DCTL</gnam>
+          <scale>0</scale>
+     </grib1vcrd>
+ </grib1vcrdList>

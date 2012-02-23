@@ -24,7 +24,7 @@ import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.viz.ui.EditorUtil;
 
 /**
- * The class for Volcano creation and Volcano create dialog openning
+ * The class for Volcano creation and Volcano create dialog opening
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -58,8 +58,8 @@ public class PgenVolcanoCreateTool extends AbstractPgenTool {
     	 * Center for another Volcano
     	 */
     	if( isUsedVolProd() ){ 
-    		openConfirmBox("Open a New VOLCANO Product Center to Create a New Volcano."); 
-    		return;
+    		openConfirmBox("Please start with Volcano Activity to create a new volcano."); 
+        	return;
     	}
     	
     	String param;
@@ -101,8 +101,8 @@ public class PgenVolcanoCreateTool extends AbstractPgenTool {
         	attrDlg.setBlockOnOpen( false );
         	attrDlg.open();
        		
-        	attrDlg.setDefaultAttr();
-        	
+       	    attrDlg.setDefaultAttr();
+        	        	
        	    attrDlg.setPgenCategory(pgenCategory);
        	    attrDlg.setPgenType(pgenType);
     		attrDlg.setDrawingLayer(drawingLayer);
@@ -146,7 +146,7 @@ public class PgenVolcanoCreateTool extends AbstractPgenTool {
     		return true;
     	
     	//if the prod is NOT a Volcano prod then a NEW Volcano prod is needed
-    	if( ! "VOLCANO".equals(prod.getName()))
+    	if( !"VOLCANO".equalsIgnoreCase( prod.getType() ) )
     		return true;
     	
     	/*
@@ -156,12 +156,13 @@ public class PgenVolcanoCreateTool extends AbstractPgenTool {
     	 * 				then this Product can be re-used
     	 */
     	if(VaaInfo.VOL_PROD_MAP.containsValue(prod)){
+        	   		
     		List<Layer> lyrList = prod.getLayers();    		
     		
     		//NO fixed Layers of Volcano and Ash Clouds
     		if(lyrList == null ) 
     			return true;    		
-    		
+   		
     		boolean isCloudExist = false;
     		
     		for(Layer lyr : lyrList){			
