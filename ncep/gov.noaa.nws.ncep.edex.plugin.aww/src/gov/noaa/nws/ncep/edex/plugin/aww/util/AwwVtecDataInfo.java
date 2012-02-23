@@ -4,7 +4,7 @@ import java.util.Calendar;
 
 public class AwwVtecDataInfo {
 	private Calendar eventStartTime, eventEndTime, awwRecordIssueTime; 
-	private String action; 
+	private String action, eventTrackingNumber; 
 	private Integer vtecRecordId; 
 	
 	public Calendar getAwwRecordIssueTime() {
@@ -42,4 +42,10 @@ public class AwwVtecDataInfo {
 		this.eventEndTime = eventEndTime;
 	}
 
+	public String getEventTrackingNumber() {
+		return eventTrackingNumber;
+	}
+	public void setEventTrackingNumber(String eventTrackingNumber) {
+		this.eventTrackingNumber = eventTrackingNumber;
+	}
 }

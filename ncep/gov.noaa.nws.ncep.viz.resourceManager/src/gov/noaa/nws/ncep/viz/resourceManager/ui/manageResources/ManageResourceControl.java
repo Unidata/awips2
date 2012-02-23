@@ -1,33 +1,22 @@
 package gov.noaa.nws.ncep.viz.resourceManager.ui.manageResources;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import gov.noaa.nws.ncep.viz.resourceManager.ui.manageResources.ResourceEditSelectionComposite.EditResourceAction;
 import gov.noaa.nws.ncep.viz.resourceManager.ui.manageResources.ResourceEditSelectionComposite.IEditResourceListener;
-import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData.TimeMatchMethod;
-import gov.noaa.nws.ncep.viz.resources.attributes.ResourceExtPointMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.AttrSetGroup;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefinition;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefnsMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.viz.core.exception.VizException;
 
@@ -43,6 +32,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 10/05/10       #307      Greg Hull    adjust the sash when edit forms are shown.
  * 12/17/10       #365      Greg Hull    add updateDialog
  * 06/07/11       #445       Xilin Guo   Data Manager Performance Improvements
+ * 07/25/11       #450      Greg Hull    Save to User Localization
  *
  * </pre>
  * 
@@ -89,8 +79,6 @@ public class ManageResourceControl extends Composite {
     
     public ManageResourceControl(Composite parent )   throws VizException {
         super(parent, SWT.NONE);
-        // TODO To help debugging. Don't deliver.
-//        ResourceDefnsMngr.reset();
         
         rscDefnMngr = ResourceDefnsMngr.getInstance();
 	    // query the database to generate dynamic resource names.
@@ -222,7 +210,10 @@ public class ManageResourceControl extends Composite {
 				activeEditComposite = editAttrSetComp;
 			}
 			else { // remove a type/group/attrSet
-				  if( action == EditResourceAction.REMOVE_RESOURCE_GROUP ) { 
+				  if( action == EditResourceAction.REMOVE_RESOURCE_TYPE ) { 
+					  removeResourceType( rscName );
+				  }
+				  else if( action == EditResourceAction.REMOVE_RESOURCE_GROUP ) { 
 					  removeAttrSetGroup( rscName );
 				  }
 				  else if( action == EditResourceAction.REMOVE_RESOURCE_ATTR_SET ) { 
@@ -246,7 +237,7 @@ public class ManageResourceControl extends Composite {
    	public void setResourceEnable( ResourceName rscName, boolean isEnabled ) {
    		rscDefnMngr.setResourceEnabled( rscName.getRscType(), isEnabled );
    		
-		MessageDialog okDlg = new MessageDialog( NmapUiUtils.getCaveShell(), 
+		MessageDialog okDlg = new MessageDialog( getShell(), 
 				"", null, 
 				"The "+rscName.getRscType()+" Resource has been " + 
 				(isEnabled ? "Enabled" : "Disabled") + "\nand will "+
@@ -256,6 +247,70 @@ public class ManageResourceControl extends Composite {
 		okDlg.open();
    	}
    	
+   	public void removeResourceType( ResourceName rscName ) {
+   		try {
+   			if( rscName == null ||
+   				rscDefnMngr.getResourceDefinition( rscName ) == null ) {
+   				throw new VizException( "Selected Resource/Group is not valid:" +
+   						(rscName == null ? "null" : rscName.toString() ) );
+   				
+   			}
+
+   			//boolean isPgen = rscName.getRscCategory().equals("PGEN" );
+   			ResourceDefinition rscDefn = rscDefnMngr.getResourceDefinition( rscName );
+   			
+//   		List<String> asgList = rscDefn.getAttrSetGroupNames()
+   			List<AttrSetGroup> asgList = 
+   						rscDefnMngr.getAttrSetGroupsForResource( 
+   									rscDefn.getResourceDefnName() );
+   			
+   			// true if another resource from a higher context level replaced the deleted one.
+   			//
+   			Boolean rscReplaced = rscDefnMngr.removeResourceDefn( rscDefn );
+
+   			if( !rscReplaced && !asgList.isEmpty() ) {
+   				// TODO : do we want to prompt user if they want to delete any AttrSetGroups that
+   				// apply to this resource?
+//   				MessageDialog confirmDlg = new MessageDialog( getShell(), 
+//   						"Confirm", null, 
+//   						"Do you also want to remove the "+
+//   						   Integer.toString( asgList.size() ) +"\nAttribute Set Groups?",				
+//   						MessageDialog.QUESTION, new String[]{"Yes", "No"}, 0);
+//   				confirmDlg.open();
+//
+//   				if( confirmDlg.getReturnCode() == MessageDialog.CANCEL ) {
+//   					return;
+//   				}
+//
+//   				// This won't work because the ResourceDefinition is gone now. 
+//   				// 
+//   				for( AttrSetGroup asg : asgList ) {
+//   					try {
+//   						rscDefnMngr.removeAttrSetGroup( 
+//   								rscName.getRscGroup(), rscName.getRscType() ); 
+//   					}
+//   					catch (VizException e ) {
+//   						MessageDialog msgDlg = new MessageDialog( getShell(), 
+//   								"Error", null, 
+//   								"Failed to remove the "+rscName.getRscGroup()+" Attribute Set Group.",				
+//   								MessageDialog.ERROR, new String[]{"OK"}, 0);
+//   						msgDlg.open();
+//   					}
+//
+//   				}
+   			}
+   		}
+   		catch ( VizException e ) {
+   			MessageDialog msgDlg = new MessageDialog( getShell(), 
+   					"Error", null, 
+   					"Failed to remove Resource Type "+rscName.getRscType()+"\n"+e.getMessage(),				
+   					MessageDialog.ERROR, new String[]{"OK"}, 0);
+   			msgDlg.open();
+   			rscName.setRscType("");
+   		}
+
+   		updateResourceSelections( rscName );
+   	}
    	
    	public void removeAttrSetGroup( ResourceName rscName ) {   		
    		try {
@@ -272,7 +327,7 @@ public class ManageResourceControl extends Composite {
    			//
    			MessageDialog confirmDlg;
    			if( isPgen ) {
-   				confirmDlg = new MessageDialog( NmapUiUtils.getCaveShell(), 
+   				confirmDlg = new MessageDialog( getShell(), 
    						"Confirm", null, 
    						"This will permanently remove the PGEN Resource, "+
    						rscName.getRscGroup()+
@@ -297,30 +352,22 @@ public class ManageResourceControl extends Composite {
    			}
 
 			if( isPgen ) {
-				rscDefnMngr.removePgenResource( rscName );
+			//	rscDefnMngr.removePgenResource( rscName );
 			}
 			else {
-				if( rscDefnMngr.removeAttrSetGroup( 
-						rscName.getRscGroup(), rscName.getRscType() ) ) {
+				rscDefnMngr.removeAttrSetGroup( 
+						rscName.getRscGroup(), rscName.getRscType() );
 
-					rscDefnMngr.writeResourceDefnTable();
-					rscDefnMngr.writeAttrSetGroups();
-
-					MessageDialog msgDlg = new MessageDialog( NmapUiUtils.getCaveShell(), 
-							"Done", null, 
-							"The "+rscName.getRscGroup()+" Attrribute Set Group has been " + 
-							"removed for Resource, " + rscName.getRscType()+".",				
-							MessageDialog.INFORMATION, new String[]{"OK"}, 0);
-					msgDlg.open();
-				}
-				else {
-					throw new VizException("Error removing AttrSetGroup: "+
-							rscName.getRscGroup() );
-				}
+				MessageDialog msgDlg = new MessageDialog( getShell(), 
+						"Done", null, 
+						"The User-Level Attrribute Set Group, "+rscName.getRscGroup()+", has been " + 
+						"removed for Resource, " + rscName.getRscType()+".",				
+						MessageDialog.INFORMATION, new String[]{"OK"}, 0);
+				msgDlg.open();
 			}
    		}
    		catch( VizException e ) {
-   			MessageDialog msgDlg = new MessageDialog( NmapUiUtils.getCaveShell(), 
+   			MessageDialog msgDlg = new MessageDialog( getShell(), 
    					"Error", null, 
    					"Failed to remove the "+rscName.getRscGroup()+" Attribute Set Group.",				
    					MessageDialog.ERROR, new String[]{"OK"}, 0);
@@ -338,15 +385,6 @@ public class ManageResourceControl extends Composite {
    				throw new VizException("Can't find rsc defn for:"+rscName.toString() );
    			}
 
-   			if( rscName.getRscAttrSetName().equals("default") ) {
-   				MessageDialog dlg = new MessageDialog( NmapUiUtils.getCaveShell(), 
-   						"Info", null, 
-   						"This is the default Attribute Set and can't be removed.",				
-   						MessageDialog.INFORMATION, new String[]{"OK"}, 0);
-   				dlg.open();   				
-   				return;
-   			}
-
    			String attrSetName = rscName.getRscAttrSetName();
    			String attrSetGroup = rscName.getRscGroup();
    			
@@ -357,11 +395,12 @@ public class ManageResourceControl extends Composite {
    				
    	   			// check if there are references to this attribute set and prompt the user
    	   			// whether they want to do this
-   				MessageDialog confirmDlg = new MessageDialog( NmapUiUtils.getCaveShell(), 
+   				MessageDialog confirmDlg = new MessageDialog( getShell(), 
    						"Confirm", null, 
    						"This will permanently remove the Attribute Set, "+ 
    						  rscName.getRscAttrSetName()+" and will remove references to "+
-   						  "it in the  "+attrSetGroup+" and all other Attribute Set Groups.\n\n"+
+   						  "it in the  "+attrSetGroup+" and any other Attribute Set Groups"+
+   						  "that reference it.\n\n"+
    						"Are you sure you want to delete the attribute set?",				
    						MessageDialog.QUESTION, new String[]{"Yes", "No"}, 0);
    				confirmDlg.open();
@@ -371,28 +410,28 @@ public class ManageResourceControl extends Composite {
    				}
    			}
    			
-   			rscDefnMngr.removeAttrSet( rscName );
+  // 			else if this is the last attribute set prompt a warning that they will not
+   			// be able to create a new one. This will only be allowed if the resource defn 
+   			// was copied; otherwise the attr set will be in the base context and will not 
+   			// be deletable.
    			
-   			rscDefnMngr.writeResourceDefnTable();
+   			rscDefnMngr.removeAttrSet( rscName );
+   	   		
+   	   		updateResourceSelections( rscName );
 
-   			MessageDialog msgDlg = new MessageDialog( NmapUiUtils.getCaveShell(), 
+   			MessageDialog msgDlg = new MessageDialog( getShell(), 
    					"Removed", null, 
-   					"The Attrribute Set has been removed",				
+   					"The Attrribute Set "+ attrSetName+" has been removed",				
    					MessageDialog.INFORMATION, new String[]{"OK"}, 0);
    			msgDlg.open();
-//   			else {
-//   				throw new VizException("Error writing modified Resource Defn Table" );
-//   			}
    		}
    		catch( VizException e ) {
-   			MessageDialog msgDlg = new MessageDialog( NmapUiUtils.getCaveShell(), 
+   			MessageDialog msgDlg = new MessageDialog( getShell(), 
    					"Error", null, 
-   					"Failed to remove the Attribute Set: "+ e.getMessage(),				
+   					"Failed to remove the Attribute Set:\n"+ e.getMessage(),				
    					MessageDialog.ERROR, new String[]{"OK"}, 0);
    			msgDlg.open();
-   		}
-   		
-   		updateResourceSelections( rscName );
+   		} 
    	}
 
    	// this is called by the 'edit' components when a new Type,Group, or attrSet

@@ -1,5 +1,6 @@
-<!-- Areal Flood Warning Follow-up Statement configuration  ZONES ENABLED-->
-<!-- Created by Mike Dangelo 09-19-2011 at TIM Alaska  -->
+<!-- Areal Flood Warning Follow-up Statement configuration -->
+<!-- Created by Mike Dangelo 09-19-2011 at Alaska TIM   
+     Edited by Mike Dangelo 01-25-2012 at CRH TIM-->
                  
 <warngenConfig>
 
@@ -11,7 +12,7 @@
  	The various menu items are also the different maps
  	that can be loaded with each template. -->
  <maps>
-  <map>Forecast Zones</map>
+    <map>County Names</map>
   <!--  <map>County Warning Areas</map> -->
   <!-- 	<map>FFMP Small Stream Basin Links</map> -->
   <!-- 	<map>Major Rivers</map> --> 
@@ -77,49 +78,37 @@
 </bulletActionGroup>
 <bulletActionGroup action="CON" phen="FA" sig="W">
  <bullets>
- <!--  
-  <bullet bulletName="smallstreams" bulletText="include small streams" bulletGroup="group1" parseString="SMALL STREAM FLOOD ADVISORY"/>
-  <bullet bulletName="urbansmallstreams" bulletText="include urban areas and small streams" bulletGroup="group1" parseString="URBAN AND SMALL STREAM FLOOD ADVISORY"/>
- -->
-  <bullet bulletText="****** HYDROLOGIC CAUSES/CONDITIONS *******" bulletType="title"/>
-  <bullet bulletName="icer" bulletText="Excessive Rainfall" bulletGroup="ic" parseString="&quot;.ER.&quot;,&quot;-FOR RAPID RIVER RISES&quot;"/>
-  <bullet bulletName="icrs" bulletText="Rain and Snow Melt" bulletGroup="ic" parseString=".RS."/>
-  <bullet bulletName="icsm" bulletText="Snow Melt" bulletGroup="ic" parseString=".SM."/>
-  <bullet bulletName="icij" bulletText="Ice Jam" bulletGroup="ic" parseString=".IJ."/>
-  <bullet bulletName="icicr" bulletText="Ice Jam and Heavy Rain" bulletGroup="ic" parseString="&quot;.IC.&quot;,&quot;HEAVY RAIN&quot;"/>
-  <bullet bulletName="icics" bulletText="Ice Jam and Snow Melt" bulletGroup="ic" parseString="&quot;.IC.&quot;,&quot;SNOW MELT&quot;"/>
-  <bullet bulletName="icerr" bulletText="Rapid River Rises" bulletGroup="ic" parseString="&quot;.ER.&quot;,&quot;FOR RAPID RIVER RISES&quot;"/>
   <bullet bulletText="*********** SOURCE (CHOOSE 1) **********" bulletType="title"/>
-  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="source" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="source" parseString="DOPPLER RADAR"/>
   <bullet bulletName="dopplerGauge" bulletText="Doppler radar and automated gauges" bulletGroup="source"  parseString="AUTOMATED "/>
 <!-- The following bullets will add satellite and gauges as a source. If you would like to use this
-     in your template uncomment out the next few lines. -->  
+     in your template uncomment the next few lines. -->  
 <!-- <bullet bulletName="satellite" bulletText="satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES"/>
   <bullet bulletName="satelliteGauge" bulletText="satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE AND "/> -->
   <bullet bulletName="trainedSpotters" bulletText="Trained spotters reported" bulletGroup="source" parseString="TRAINED WEATHER SPOTTERS REPORTED"/>
-  <bullet bulletName="public" bulletText="Public reported" bulletGroup="source" parseString="THE PUBLIC REPORTED"/>
+  <bullet bulletName="public" bulletText="Public reported" bulletGroup="source" parseString="PUBLIC REPORTED"/>
   <bullet bulletName="lawEnforcement" bulletText="Local law enforcement reported" bulletGroup="source" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
   <bullet bulletName="emergencyManagement" bulletText="Emergency management reported" bulletGroup="source" parseString="EMERGENCY MANAGEMENT REPORTED"/>
   <bullet bulletText="*********** EVENT (CHOOSE 1) **********" bulletType="title"/>
-  <bullet bulletName="thunder" bulletText="Thunderstorms with heavy rainfall" bulletGroup="event" parseString="THUNDERSTORMS"/>
-  <bullet bulletName="plainRain" bulletText="Heavy rainfall (no thunder)" bulletGroup="event" parseString="FROM HEAVY RAIN "/>
-  <bullet bulletName="floodOccurring" bulletText="Flooding occurring" bulletGroup="event" parseString="PRODUCING FLOODING "/>
+  <bullet bulletName="thunder" bulletText="Thunderstorms with heavy rainfall" bulletGroup="event" parseString="THUNDERSTORM"/>
+  <bullet bulletName="plainRain" bulletText="Heavy rainfall (no thunder)" bulletGroup="event" parseString="&quot;HEAVY RAIN&quot;,&quot;-THUNDERSTORM&quot;"/>
+  <bullet bulletName="floodOccurring" bulletText="Flooding occurring" bulletGroup="event" parseString="&quot;PRODUCING FLOODING&quot;,&quot;REPORTED FLOODING&quot;"/>
   <bullet bulletName="genericFlood" bulletText="Generic (provide reasoning)" bulletGroup="event" parseString="PRODUCING FLOODING "/>
   <bullet bulletText="*********** RAIN SO FAR (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="rain1" bulletText="One inch so far" bulletGroup="rainAmt" parseString="ONE INCH "/>
   <bullet bulletName="rain2" bulletText="Two inches so far" bulletGroup="rainAmt" parseString="TWO INCHES "/>
   <bullet bulletName="rain3" bulletText="Three inches so far" bulletGroup="rainAmt" parseString="THREE INCHES "/>
-  <bullet bulletName="rainEdit" bulletText="User defined amount" bulletGroup="rainAmt" parseString="INCHES HAS FALLEN "/>
+  <bullet bulletName="rainEdit" bulletText="User defined amount" bulletGroup="rainAmt" parseString="INCHES HAVE FALLEN "/>
   <bullet bulletText="*********** ADDITIONAL INFO ***********" bulletType="title"/>
   <bullet bulletName="addRainfall" bulletText="Additional rainfall of XX inches expected" parseString="ADDITIONAL RAINFALL"/>
   <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
+  <bullet bulletName="particularStream" bulletText="Flooding is occurring in a particular stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
   <bullet bulletText="**** CALL TO ACTIONS (CHOOSE 1 OR MORE) ****" bulletType="title"/>
 <!-- end all call to action bullets with "CTA" ex: "obviousNameCTA" -->
 <!-- include file="testInclude.xml" /> -->
   <bullet bulletName="urbanFloodingCTA" bulletText="Urban flooding..." parseString="SMALL CREEKS AND STREAMS...URBAN AREAS...HIGHWAYS...STREETS AND UNDERPASSES"/>
   <bullet bulletName="ruralFloodingCTA" bulletText="Rural flooding/small streams..." parseString="SMALL CREEKS AND STREAMS...COUNTRY ROADS...AS WELL AS FARMLAND"/>
   <bullet bulletName="ruralUrbanCTA" bulletText="Flooding of rural and urban areas" parseString="HIGHWAYS AND UNDERPASSES"/>
-  <bullet bulletName="particularStreamCTA" bulletText="Flooding is occurring in a particular stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
   <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding..." parseString="BE ESPECIALLY CAUTIOUS AT NIGHT WHEN"/>
   <bullet bulletName="dontDriveCTA" bulletText="Do not drive into water..." parseString="DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY"/>
   <bullet bulletName="turnAroundCTA" bulletText="Turn around...dont drown" parseString="MOST FLOOD DEATHS OCCUR IN AUTOMOBILES"/>
@@ -133,50 +122,37 @@
 </bulletActionGroup>
 <bulletActionGroup action="COR" phen="FA" sig="W">
   <bullets>
-   <bullet bulletText="**** CORRECTED PRODUCT. CLICK CREATE TEXT ****" bulletType="title"/>
-<!--  
-  <bullet bulletName="smallstreams" bulletText="include small streams" bulletGroup="group1" parseString="SMALL STREAM FLOOD ADVISORY"/>
-  <bullet bulletName="urbansmallstreams" bulletText="include urban areas and small streams" bulletGroup="group1" parseString="URBAN AND SMALL STREAM FLOOD ADVISORY"/>
- -->
-  <bullet bulletText="****** HYDROLOGIC CAUSES/CONDITIONS *******" bulletType="title"/>
-  <bullet bulletName="icer" bulletText="Excessive Rainfall" bulletGroup="ic" parseString="&quot;.ER.&quot;,&quot;-FOR RAPID RIVER RISES&quot;"/>
-  <bullet bulletName="icrs" bulletText="Rain and Snow Melt" bulletGroup="ic" parseString=".RS."/>
-  <bullet bulletName="icsm" bulletText="Snow Melt" bulletGroup="ic" parseString=".SM."/>
-  <bullet bulletName="icij" bulletText="Ice Jam" bulletGroup="ic" parseString=".IJ."/>
-  <bullet bulletName="icicr" bulletText="Ice Jam and Heavy Rain" bulletGroup="ic" parseString="&quot;.IC.&quot;,&quot;HEAVY RAIN&quot;"/>
-  <bullet bulletName="icics" bulletText="Ice Jam and Snow Melt" bulletGroup="ic" parseString="&quot;.IC.&quot;,&quot;SNOW MELT&quot;"/>
-  <bullet bulletName="icerr" bulletText="Rapid River Rises" bulletGroup="ic" parseString="&quot;.ER.&quot;,&quot;FOR RAPID RIVER RISES&quot;"/>
   <bullet bulletText="*********** SOURCE (CHOOSE 1) **********" bulletType="title"/>
-  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="source" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR"/>
-  <bullet bulletName="dopplerGauge" bulletText="Doppler radar and automated gauges" bulletGroup="source"  parseString="AUTOMATED "/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="source" parseString="DOPPLER RADAR"/>
+  <bullet bulletName="dopplerGauge" bulletText="Doppler radar and automated gauges" bulletGroup="source" parseString="AUTOMATED "/>
 <!-- The following bullets will add satellite and gauges as a source. If you would like to use this
      in your template uncomment out the next few lines. -->  
 <!--  <bullet bulletName="satellite" bulletText="satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES"/>
   <bullet bulletName="satelliteGauge" bulletText="satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE AND "/> --> 
   <bullet bulletName="trainedSpotters" bulletText="Trained spotters reported" bulletGroup="source" parseString="TRAINED WEATHER SPOTTERS REPORTED"/>
-  <bullet bulletName="public" bulletText="Public reported" bulletGroup="source" parseString="THE PUBLIC REPORTED"/>
+  <bullet bulletName="public" bulletText="Public reported" bulletGroup="source" parseString="PUBLIC REPORTED"/>
   <bullet bulletName="lawEnforcement" bulletText="Local law enforcement reported" bulletGroup="source" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
   <bullet bulletName="emergencyManagement" bulletText="Emergency management reported" bulletGroup="source" parseString="EMERGENCY MANAGEMENT REPORTED"/>
   <bullet bulletText="*********** EVENT (CHOOSE 1) **********" bulletType="title"/>
-  <bullet bulletName="thunder" bulletText="Thunderstorms with heavy rainfall" bulletGroup="event" parseString="THUNDERSTORMS"/>
-  <bullet bulletName="plainRain" bulletText="Heavy rainfall (no thunder)" bulletGroup="event" parseString="FROM HEAVY RAIN "/>
-  <bullet bulletName="floodOccurring" bulletText="Flooding occurring" bulletGroup="event" parseString="PRODUCING FLOODING "/>
-  <bullet bulletName="genericFlood" bulletText="Generic (provide reasoning)" bulletGroup="event" parseString="PRODUCING FLOODING "/>
+  <bullet bulletName="thunder" bulletText="Thunderstorms with heavy rainfall" bulletGroup="event" parseString="THUNDERSTORM"/>
+  <bullet bulletName="plainRain" bulletText="Heavy rainfall (no thunder)" bulletGroup="event" parseString="&quot;HEAVY RAIN&quot;,&quot;-THUNDERSTORM&quot;"/>
+  <bullet bulletName="floodOccurring" bulletText="Flooding occurring" bulletGroup="event" parseString="&quot;PRODUCING FLOODING&quot;,&quot;REPORTED FLOODING&quot;"/>
+  <bullet bulletName="genericFlood" bulletText="Generic (provide reasoning)" bulletGroup="event" parseString="PRODUCING FLOODING"/>
   <bullet bulletText="*********** RAIN SO FAR (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="rain1" bulletText="One inch so far" bulletGroup="rainAmt" parseString="ONE INCH "/>
   <bullet bulletName="rain2" bulletText="Two inches so far" bulletGroup="rainAmt" parseString="TWO INCHES "/>
   <bullet bulletName="rain3" bulletText="Three inches so far" bulletGroup="rainAmt" parseString="THREE INCHES "/>
-  <bullet bulletName="rainEdit" bulletText="User defined amount" bulletGroup="rainAmt" parseString="INCHES HAS FALLEN "/>
+  <bullet bulletName="rainEdit" bulletText="User defined amount" bulletGroup="rainAmt" parseString="INCHES HAVE FALLEN "/>
   <bullet bulletText="*********** ADDITIONAL INFO ***********" bulletType="title"/>
   <bullet bulletName="addRainfall" bulletText="Additional rainfall of XX inches expected" parseString="ADDITIONAL RAINFALL"/>
   <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
+  <bullet bulletName="particularStream" bulletText="Flooding is occurring in a particular stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
   <bullet bulletText="**** CALL TO ACTIONS (CHOOSE 1 OR MORE) ****" bulletType="title"/>
 <!-- end all call to action bullets with "CTA" ex: "obviousNameCTA" -->
 <!-- include file="testInclude.xml" /> -->
   <bullet bulletName="urbanFloodingCTA" bulletText="Urban flooding..." parseString="SMALL CREEKS AND STREAMS...URBAN AREAS...HIGHWAYS...STREETS AND UNDERPASSES"/>
   <bullet bulletName="ruralFloodingCTA" bulletText="Rural flooding/small streams..." parseString="SMALL CREEKS AND STREAMS...COUNTRY ROADS...AS WELL AS FARMLAND"/>
   <bullet bulletName="ruralUrbanCTA" bulletText="Flooding of rural and urban areas" parseString="HIGHWAYS AND UNDERPASSES"/>
-  <bullet bulletName="particularStreamCTA" bulletText="Flooding is occurring in a particular stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
   <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding..." parseString="BE ESPECIALLY CAUTIOUS AT NIGHT WHEN"/>
   <bullet bulletName="dontDriveCTA" bulletText="Do not drive into water..." parseString="DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY"/>
   <bullet bulletName="turnAroundCTA" bulletText="Turn around...dont drown" parseString="MOST FLOOD DEATHS OCCUR IN AUTOMOBILES"/>
@@ -265,6 +241,10 @@
  		</mapping>
   	</filter>
  </pointSource>
+
+<!-- this "include file" tag will grab the Mile Marker XML pointSource tags, 
+and place into this template  -->
+<include file="mileMarkers.xml"/>
  
  <geospatialConfig>
   <pointSource>City</pointSource>
@@ -285,8 +265,5 @@
  	</filter>
  	<withinPolygon>true</withinPolygon>
  </pointSource>
- 
- <include file="milemarkers.xml"/>
- 
 </warngenConfig>
 

@@ -40,6 +40,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Jun 22, 2010            bsteffen     Initial creation
  * Nov 22, 2010			   M. Li		modified from RTS for NCGRID
+ * Nov 02, 2011            X. Guo       Updated
  * 
  * </pre>
  * 
@@ -76,7 +77,7 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
     public GriddedVectorDisplay(NcFloatDataRecord rec,
     		DisplayType displayType, boolean directional, IMapDescriptor descriptor, 
             String windAttr, ISpatialObject gridLocation) {
-        super(descriptor, MapUtil.getGridGeometry(gridLocation));
+        super(descriptor, MapUtil.getGridGeometry(gridLocation),gridLocation.getNx(),gridLocation.getNy());
         
         this.data = rec;
         if (directional) {
@@ -172,7 +173,7 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
         
         ReferencedCoordinate newrco = new ReferencedCoordinate(
 				new Coordinate(x, y),
-				this.gridGeometryOfGrid, Type.GRID_CENTER);
+				this.gridGeometryOfGrid, Type.GRID_CORNER);
         Coordinate plotLoc = null;
 
         try {

@@ -1,0 +1,4 @@
+! Attributes for the GFSXMOS resource with "popanom" plot model
+!
+plotModelName=popanom
+plotDensity=10

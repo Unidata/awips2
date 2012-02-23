@@ -1,65 +1,73 @@
-<beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
   http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+    
+    <bean id="ffgDecoder" class="gov.noaa.nws.ncep.edex.plugin.ffg.decoder.FfgDecoder">
+        <constructor-arg ref="ffgPluginName"/>
+    </bean>
 
+    <bean id="ffgSeparator" class="gov.noaa.nws.ncep.edex.plugin.ffg.decoder.FfgSeparator"/>
 
-	<bean id="ffgDecoder" class="gov.noaa.nws.ncep.edex.plugin.ffg.decoder.FfgDecoder">
-		<constructor-arg ref="ffgPluginName" />
-	</bean>
-
-	<bean id="ffgSeparator" class="gov.noaa.nws.ncep.edex.plugin.ffg.decoder.FfgSeparator" />
-
-	<bean id="ffgDistRegistry" factory-bean="distributionSrv"
+    <bean id="ffgDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="ffg" />
 		<constructor-arg value="jms-dist:queue:Ingest.ffg" />
 	</bean>
-
+    
 	<bean id="ffgCamelRegistered" factory-bean="contextManager"
 		factory-method="register" depends-on="persistCamelRegistered">
 		<constructor-arg ref="ffg-camel"/>
   	</bean>  
-
-	<camelContext id="ffg-camel" xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
-		<endpoint id="ffgFileEndpoint"
-			uri="file:${edex.home}/data/sbn/ffg?noop=true&amp;idempotent=false" />
-
-		<route id="ffgFileConsumerRoute"> <from ref="ffgFileEndpoint" /> <bean 
-			ref="fileToString" /> <setHeader headerName="pluginName"> <constant>ffg</constant> 
-			</setHeader> <to uri="jms-generic:queue:Ingest.ffg" /> </route>
-			
-		<!-- Begin ffg routes -->
-		<route id="ffgIngestRoute">
-			<from uri="jms-generic:queue:Ingest.ffg" />
-			<setHeader headerName="pluginName">
-				<constant>ffg</constant>
-			</setHeader>
-			<doTry>
-				<pipeline>
-					<bean ref="stringToFile" />
-					<split streaming="true">
-						<method bean="ffgSeparator" method="separate" />
-						<doTry>
-							<pipeline>
-								<bean ref="ffgDecoder" method="decode" />
-								<to uri="directvm:indexAlert" />
-							</pipeline>
-							<doCatch>
-								<exception>java.lang.Throwable</exception>
-								<to uri="log:ffg?level=ERROR&amp;showBody=false" />
-							</doCatch>
+    
+    <camelContext id="ffg-camel" 
+                  xmlns="http://camel.apache.org/schema/spring" 
+                  errorHandlerRef="errorHandler"
+                  autoStartup="false">
+        <!--
+	    <endpoint id="ffgFileEndpoint" uri="file:${edex.home}/data/sbn/ffg?noop=true&amp;idempotent=false"/>
+        
+        <route id="ffgFileConsumerRoute">
+            <from ref="ffgFileEndpoint"/>
+            <bean ref="fileToString" />
+            <setHeader headerName="pluginName">
+                <constant>ffg</constant>
+            </setHeader>
+            <to uri="jms-generic:queue:Ingest.ffg"/>
+        </route>
+        -->
+        
+        <!-- Begin Ffg routes -->
+        <route id="ffgIngestRoute">
+            <from uri="jms-generic:queue:Ingest.ffg"/>
+            <setHeader headerName="pluginName">
+                <constant>ffg</constant>
+            </setHeader>
+            <doTry>
+                <pipeline>
+		            <bean ref="stringToFile" />
+        		    <split streaming="true">
+                		<method bean="ffgSeparator" method="separate"/>
+                  		<doTry>
+                     		<pipeline>
+                        		<bean ref="ffgDecoder" method="decode"/>
+                        		<to uri="directvm:indexAlert"/>
+		                    </pipeline>
+        		            <doCatch>
+                		        <exception>java.lang.Throwable</exception>
+                        		<to uri="log:ffg?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+		                    </doCatch>
 						</doTry>
 					</split>
-				</pipeline>
-				<doCatch>
-					<exception>java.lang.Throwable</exception>
-					<to uri="log:airmet?level=ERROR&amp;showBody=false" />
-				</doCatch>
-			</doTry>
-		</route>
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:ffg?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+                </doCatch>
+            </doTry>
+        </route>
 	</camelContext>
 </beans>

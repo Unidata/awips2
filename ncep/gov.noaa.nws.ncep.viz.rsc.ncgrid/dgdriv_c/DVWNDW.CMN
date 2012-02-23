@@ -1,0 +1,47 @@
+C************************************************************************
+C* /DVWNDW/								*
+C*									*
+C* This common area stores information about the windows and clipping	*
+C* bounds to be used in the DEVICE task.				*
+C* Dashing information for the DEVICE task is also included.		*
+C**									*
+C* Log:									*
+C* M. desJardins/GSFC	 5/85	GEMPLT 3.1				*
+C* M. desJardins/GSFC	 6/89	Added dashing information		*
+C* S. Schotz/GSC	 2/90	Added dot flag 				*
+C************************************************************************
+	LOGICAL		lnflg, dtflg
+C*
+	COMMON  / DVWNDW /
+     +		icleft,				
+C!					Left clipping bound
+     +		icbot,				
+C!					Bottom clipping bound
+     +		icrght,				
+C!					Right clipping bound
+     +		ictop,				
+C!					Top clipping bound
+     +		ispanx,				
+C!					Direction of increasing x
+     +		ispany,				
+C!					Direction of increasing y
+     +		iwleft (3),			
+C!					Left window for D/N, V, P
+     +		iwbot  (3),			
+C!					Bottom window for D/N, V, P
+     +		iwrght (3),			
+C!					Right window for D/N, V, P
+     +		iwtop  (3),			
+C!					Top window for D/N, V, P
+     +		actpat (8),			
+C!					Active line pattern
+     +		nseg,				
+C!					Number of segments in pattern
+     +		mseg,
+C!					Current segment number
+     +		rmlen,
+C!					Length of segment
+     +		lnflg,
+C!					Line flag for dash/dot patterns
+     +		dtflg		
+C!					Dot flag for segment
