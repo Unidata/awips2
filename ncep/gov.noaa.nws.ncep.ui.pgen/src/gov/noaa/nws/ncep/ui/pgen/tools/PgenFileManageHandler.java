@@ -27,6 +27,7 @@ import com.raytheon.viz.ui.tools.AbstractTool;
  * ------------	----------	-----------	--------------------------
  * 02/09		#63			J. Wu   	Initial Creation.
  * 04/09		#103		B. Yin		Extends from AbstractPgenTool
+ * 08/09		#335		J. Wu		Redefined "Save"/"Save As"/"Save All".
  *
  * </pre>
  * 
@@ -47,23 +48,38 @@ public class PgenFileManageHandler extends AbstractTool {
         String btnClicked = (String)event.getApplicationContext();
         
     	//Set "active" icon for the palette button corresponding to this tool
-        String btnName = event.getParameter("name");
-    	PgenSession.getInstance().getPgenPalette().setActiveIcon(btnName);
-        
-        PgenFileManageDialog file_dlg = null;
-        
-        if ( file_dlg == null ) {
-       	    try {	
-       	        file_dlg = new PgenFileManageDialog( shell, btnClicked );   
-       	        file_dlg.setBlockOnOpen(true);
-       	    }
-            catch (VizException e) {
-                e.printStackTrace();
-            }  
-        }
-        
-        if ( file_dlg != null )  file_dlg.open();
-        
+        String btnName = event.getParameter( "name" );
+    	PgenSession.getInstance().getPgenPalette().setActiveIcon( btnName );
+    	
+    	String curFile = PgenSession.getInstance().getPgenResource().getActiveProduct().getOutputFile();    	
+    	
+    	if ( curFile != null && btnClicked.equalsIgnoreCase( "Save" ) ) {
+    		PgenSession.getInstance().getPgenResource().saveCurrentProduct( curFile );
+    	}
+    	else if ( curFile != null && btnClicked.equalsIgnoreCase( "Save All" ) ) {   			  
+    	    if ( PgenSession.getInstance().getPgenResource().getProducts().size() > 1 ) {
+    		    PgenSession.getInstance().getPgenResource().saveAllProducts();
+    	    }
+    	    else {
+    	    	PgenSession.getInstance().getPgenResource().saveCurrentProduct( curFile );
+    	    }
+    	}
+    	else {    // "Save As"
+    		PgenFileManageDialog file_dlg = null;
+
+    		if ( file_dlg == null ) {
+    			try {	
+    				file_dlg = new PgenFileManageDialog( shell, btnClicked );   
+    				file_dlg.setBlockOnOpen(true);
+    			}
+    			catch (VizException e) {
+    				e.printStackTrace();
+    			}  
+    		}
+
+    		if ( file_dlg != null )  file_dlg.open();       
+    	}
+    	
     	//Reset the original icon for the palette button corresponding to this tool        
     	if ( PgenSession.getInstance().getPgenPalette() != null ) {
             PgenSession.getInstance().getPgenPalette().resetIcon(btnName);

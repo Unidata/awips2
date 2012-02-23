@@ -1,36 +1,125 @@
-#macro(markers $name $type $markers $simplify)
+##### UPDATED 1/26/12 12.1.1-2 BY WARNGEN TEAM
+
+#*
+##############################################
+Mile Marker Test Code                                     
+macro "mmarkers" use (called out of VM_global_library.vm):
+
+#mmarkers($name, $type, $markers, $simplify)
+where:
+$markers is a string, and is the exact "variable" set in the XML "pointSource" tag for this road
+         - <pointSource variable="i70momm">
+$id is a sequential field from the $markers database table
+$name is a string lead in of the road name (e.g. INTERSTATE 95)
+$type is a string which describes the type of "marker" (e.g. MILE MARKER)
+         - may be "MILE MARKER" or something similar, or blank ""
+         - "" is for use when town names (CHARLESTON) or exit names (THE SUNSET EXIT)
+$simplify is a boolean value (true or false) 
+         - true concatenates (FROM MM 2 to 4), 
+         - false is a big list (MM 2...3...AND 4)   
+##############################################
+*#
+### AUTHOR: EVAN BOOKBINDER
+### PURPOSE: Retrieve closetPoint object name for a given index field 
+###          in the database table.
+#macro(getmarker $objMarkers $markeridx)
+#set($markercounter = 1)
+#foreach($xxmarker in $objMarkers)
+#if ($markercounter == $markeridx)
+$xxmarker.name##
+#end
+#set($markercounter = $markercounter + 1)
+#end
+#end
+
+### AUTHORS: EVAN BOOKBINDER & MIKE DANGELO
+### PURPOSE: OUTPUT MILE MARKER, ROAD, INTERSECTION INFO
+#macro(mmarkers $markers $id $name $type $simplify)
 #set($size = ${list.size($markers)})
+#if (${type.length()} > 0) 
+#set($singType = "${type} ")
+#set($plurType = "${type}S ")
+#else
+#set($singType = "")
+#set($plurType = "")
+#end
 #set($startMarker = "")
 #set($endMarker = "")
 #set($counter = 0)
+#set($phraseCount = 0)
+#set($intIndex = 0)
 #if($size > 0)
-THIS INCLUDES $name##
+$name ##
 #if($simplify)
-#foreach($item in $markers)
+#foreach($index in $id)
 #set($counter = $counter + 1)
+#set($intIndex = $intIndex.parseInt($index.name))
 #if($counter == 1)
-#set($startMarker = ${item.name})
-#end
+#set($startIdx = $intIndex)
+#set($endIdx = $intIndex)
+#set($startCounter = $counter)
+#set($endCounter = $counter)
+## Only one item in the list
 #if($counter == $size)
-#set($endMarker = ${item.name})
+## GET MARKER @ INDEX 1
+#set ($marker1 = "#getmarker(${markers},1)")
+NEAR $singType$marker1.
 #end
-#end
-#if($startMarker == $endMarker)
- NEAR $type ${startMarker.trim()}##
+##Continuation of current segment		
+#elseif(($intIndex - $endIdx) == 1 && ($counter != $size))
+#set($endIdx = $intIndex)
+#set($endCounter = $counter)
+##We've found a break and we're not on the last item
+#elseif($counter != $size)
+#set ($marker1 = "#getmarker(${markers},${startCounter})")
+#set ($marker2 = "#getmarker(${markers},${endCounter})")
+#if($startCounter == $endCounter)
+NEAR $singType$marker1...##
 #else
- BETWEEN $type ${startMarker.trim()} AND ${endMarker.trim()}##
+BETWEEN $plurType$marker1 AND $marker2...##
+#end
+#set($phraseCount = $phraseCount + 1)
+#set($startIdx = $intIndex)
+#set($endIdx = $intIndex)
+#set($startCounter = $counter)
+#set($endCounter = $counter)
+## LAST ITEM
+#else
+#if($phraseCount > 0)
+AND ##
+#end
+##Continuous range (e.g. 1,2,3,4)
+#if (($intIndex - $endIdx) == 1)
+#set ($marker1 = "#getmarker(${markers},${startCounter})")
+#set ($marker2 = "#getmarker(${markers},${counter})")
+BETWEEN $plurType$marker1 AND $marker2.
+##Isolated mile marker previous and current (e.g. 1,4)
+#elseif ($startIdx == $endIdx)
+#set ($marker1 = "#getmarker(${markers},${startCounter})")
+#set ($marker2 = "#getmarker(${markers},${counter})")
+$singType$marker1 AND NEAR $singType$marker2.
+##Continuous range + isolated milemarker at end (e.g. 1,2,3,6)
+#else
+#set ($marker1 = "#getmarker(${markers},${startCounter})")
+#set ($marker2 = "#getmarker(${markers},${endCounter})")
+#set ($marker3 = "#getmarker(${markers},${counter})")
+BETWEEN $plurType$marker1 AND $marker2...AND NEAR $singType$marker3.	
+#end
+#end
 #end
 #else
- NEAR $type##
+NEAR $type##
 #foreach($item in $markers)
 #set($counter = $counter + 1)
-#if($size > 0 && $counter == $size)
- AND##
+#if($size > 1 && $counter == $size)
+AND ${item.name}.
+#elseif($size == 1 && $counter == $size)
+${item.name}.
+#else
+${item.name}...##
 #end
- ${item.name}##
 #end
 #end
-.
 #end
 #end
 
@@ -188,7 +277,7 @@ ERN##
 
 #macro(llFormat $v)
 #set($v100 = $v * 100)
-${mathUtil.floor(${mathUtil.abs($v100)})}##
+${mathUtil.abs(${mathUtil.round($v100)})}## 
 #end
 
 #macro( tml $time $motdir $motspd $timeFormat $eventlocation )
@@ -201,13 +290,13 @@ ${mathUtil.round(${motspd})}KT ##
 #end
 #end
 
-#macro(handleClosestPoints $list, $points1, $points2, $stormType, $nearText, $threshold, $units)
+#macro(handleClosestPoints $list, $points1, $points2, $stormType, $nearText, $threshold, $units, $useSecondRef)
 #if(${stormType} == "line")
 #set($used = [])
 #set($used1 = [])
 #lineOfStorms($used1, $used, $points1, $threshold, $units)
 ALONG A LINE EXTENDING FROM #outputLineOfStorms($used1, $threshold, $units)##
-#if($points2)
+#if($points2 && $useSecondRef)
 #set($used2 = [])
 #lineOfStorms($used2, $used, $points2, $threshold, $units)
 #if(${used1.size()} == ${used2.size()})
@@ -225,7 +314,7 @@ ${nearText} ##
 ${point1.roundedDistance} $units #direction(${point1.oppositeRoundedAzimuth}) OF ##
 #end
 ${point1.name}##
-#if($point2 && ${point2.name} != ${point1.name})
+#if($point2 && $useSecondRef && ${point2.name} != ${point1.name})
 ...OR ${point2.roundedDistance} $units #direction(${point2.oppositeRoundedAzimuth}) OF ${point2.name}##
 #end
 #end
@@ -666,8 +755,12 @@ ${bulletLead}
 #set($count = $count + 1)
 #if($count < $numMajorPoints)
 #set($strOutput = "${city.name}...")
-#elseif ($count == $numMajorPoints)
+#else
 #set($strOutput = "${city.name}.")
+#end
+##Exception for 2 items in straight list
+#if((${count} == ${numMajorPoints} - 1) && $columns == 0)
+#set($strOutput = "${city.name} ")
 #end
 ##STRAIGHT LIST
 #if($columns == 0)
@@ -677,7 +770,7 @@ ${strOutput}##
 #if($count != $numMajorPoints)
 ${strOutput}##
 #else
- AND ${strOutput}##
+AND ${strOutput}##
  
 #end
 #end
@@ -721,12 +814,13 @@ ${ruralPhrase} WILL REMAIN OVER MAINLY RURAL AREAS OF #headlineLocList(${areas} 
 #set($count = 0)
 #foreach(${city} in ${$otherCityList})
 #set($count = $count + 1)
-#if(${count} < ${numMinorPoints})
+#if(${count} < ${numMinorPoints} - 1)
 ${city.name}...##
-#elseif (${count} == ${numMajorPoints} && ${count} != 1)
+#elseif(${count} == ${numMinorPoints} - 1)
+${city.name} ##
+#elseif (${count} == ${numMinorPoints} && ${count} != 1)
 AND ${city.name}.
-
-#elseif (${count} == ${numMajorPoints})
+#elseif (${count} == ${numMinorPoints})
 ${city.name}.
 
 #end

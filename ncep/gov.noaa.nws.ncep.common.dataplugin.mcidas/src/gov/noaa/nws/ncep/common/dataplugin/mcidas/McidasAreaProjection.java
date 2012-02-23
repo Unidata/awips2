@@ -223,7 +223,7 @@ public class McidasAreaProjection extends MapProjection {
         
         static final ParameterDescriptorGroup PARAMETERS = new DefaultParameterDescriptorGroup(
         		"MCIDAS_AREA_NAV", 
-        		new ParameterDescriptor[] { SEMI_MAJOR, SEMI_MINOR, NAV_BLOCK_BASE64 }
+        		new ParameterDescriptor[] { SEMI_MAJOR, SEMI_MINOR, CENTRAL_MERIDIAN, NAV_BLOCK_BASE64 }
         		);
         
         /**

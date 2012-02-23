@@ -8,6 +8,7 @@
 package gov.noaa.nws.ncep.ui.pgen.productManage;
 
 import org.eclipse.jface.action.ContributionItem;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -19,13 +20,14 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Product;
 import gov.noaa.nws.ncep.ui.pgen.elements.ProductInfo;
 import gov.noaa.nws.ncep.ui.pgen.elements.ProductTime;
 import gov.noaa.nws.ncep.ui.pgen.productTypes.PgenLayer;
-import gov.noaa.nws.ncep.ui.pgen.productTypes.PgenSave;
 import gov.noaa.nws.ncep.ui.pgen.productTypes.ProductType;
-import gov.noaa.nws.ncep.ui.pgen.productTypes.ProductTypes;
+
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -40,7 +42,10 @@ import java.util.List;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 09/2010  	151    		J. Wu		Initial Creation
+ * 09/2010  	#151    	J. Wu		Initial Creation
+ * 09/2011  	#335    	J. Wu		Added type/subtype/alias for 
+ * 										PGEN activities.
+ * 09/11  		#335      	J. Wu 		made cascading menu for activity type/subtype. 
  * 
  * </pre>
  * 
@@ -49,7 +54,7 @@ import java.util.List;
  */
 public class ProductLauncher extends ContributionItem {
 	
-    protected ProductTypes prdTypes = null;
+    protected LinkedHashMap<String, ProductType> prdTypeMap = null;
 	
 	public ProductLauncher() {
 	}
@@ -64,25 +69,69 @@ public class ProductLauncher extends ContributionItem {
 	@Override
 	public void fill(Menu menu, int index) {
         
-    	// Load the product types in "productTypes.xml".
-  	    prdTypes = ProductConfigureDialog.loadProductTypes();
-
+    	// Load the product types in "productTypes.xml".  	    
+		prdTypeMap = ProductConfigureDialog.getProductTypes();
+        ArrayList<String> typeUsed = new ArrayList<String>();
+		
 		//Create the menu item with all types
         int ii = 0;
-        for ( ProductType ptyp : prdTypes.getProductType() ) {
-        
-            MenuItem menuItem = new MenuItem( menu, SWT.PUSH, ii );
-    		menuItem.setText( ptyp.getName() );
-    		menuItem.addSelectionListener(new SelectionAdapter() {
-    			public void widgetSelected(SelectionEvent e) {
-    				/*
-    				 * Create an active product with an active layer and add to the
-    				 * product List .
-    				 */	
-   			         quickLaunch( ((MenuItem)e.widget).getText() );
-    			}
-    		});
-    		
+        for ( String ptyp : prdTypeMap.keySet() ) {
+            		
+            ProductType prdType = prdTypeMap.get( ptyp );
+            LinkedHashMap<String, String>  subtypesNalias = getSubtypes( prdType.getType(), true );
+            
+            if ( (ptyp.equals( prdType.getName() ) && 
+            	 !prdType.getType().equals( prdType.getName() )) || 
+            	 !hasSubtypes( subtypesNalias.values() ) ) {
+                
+            	MenuItem typeItem = new MenuItem( menu, SWT.PUSH, ii );
+                
+            	typeItem.setText( ptyp );
+        		typeItem.addSelectionListener(new SelectionAdapter() {
+        			public void widgetSelected(SelectionEvent e) {
+        				/*
+        				 * Create an active product with an active layer and add to the
+        				 * product List .
+        				 */	
+       			         quickLaunch( ((MenuItem)e.widget).getText() );
+        			}
+        		});
+
+            }            
+            else {
+                
+            	if ( typeUsed.contains( prdType.getType() ) ) {
+           		    continue;
+            	}
+            	else {
+            		typeUsed.add( prdType.getType() );
+                	 
+           	    }
+ 
+            	MenuItem typeItem = new MenuItem( menu, SWT.CASCADE, ii );
+            	
+            	typeItem.setText( prdType.getType() );
+        		Menu submenu = new Menu( typeItem );
+        		typeItem.setMenu( submenu );
+        		
+        		for ( String styp : subtypesNalias.keySet() ) {
+            	    MenuItem subtypeItem = new MenuItem( submenu, SWT.PUSH );
+            	    subtypeItem.setText( subtypesNalias.get( styp ) );
+            	    
+            	    subtypeItem.setData( styp );
+
+       		        subtypeItem.addSelectionListener( new SelectionAdapter() {
+        			    public void widgetSelected(SelectionEvent e) {
+        			    	/*
+        			    	 * Create an active product with an active layer and add to the
+        			    	 * product List .
+        			    	 */	
+        			    	quickLaunch( ((MenuItem)e.widget).getData().toString() );
+        			    }
+        		    });       			
+        		}
+            }
+               		
     		ii++;
         }      
 	}
@@ -104,12 +153,9 @@ public class ProductLauncher extends ContributionItem {
 		                           new ProductInfo(), new ProductTime(), 
 		                           new ArrayList<Layer>() );
 	    prd.setType(  prdtype );
-	    PgenSave psave = getPgenSave( prdtype );
-	    if ( psave != null ) {
-	    	prd.setOutputFile( psave.getOutputFile() );
-	    }
+	    prd.setOutputFile( null );
         
-	    List<PgenLayer> players = getPgenLayers( prdtype );
+	    List<PgenLayer> players = getPgenLayers( prdTypeMap.get( prdtype ) );
 
 	    if ( players != null ) {
 	        for ( PgenLayer plyr : players ) {
@@ -148,20 +194,12 @@ public class ProductLauncher extends ContributionItem {
 	/**
      *  Retrieve the layers defined in a product type
      */    
-    private List<PgenLayer> getPgenLayers( String prdtypName ) {
+    private List<PgenLayer> getPgenLayers( ProductType ptype ) {
 	    
     	List<PgenLayer> players = null;
- 
-        ProductType curPrdType = null;
-    	for ( ProductType ptyp : prdTypes.getProductType() ) {
-        	if ( prdtypName.equals( ptyp.getName() ) ) {
-        		curPrdType = ptyp;
-        		break;
-        	}        	
-        }
-	    
-    	if ( curPrdType != null ) {
-	    	players = curPrdType.getPgenLayer();
+ 	    
+    	if ( ptype != null ) {
+	    	players = ptype.getPgenLayer();
 	    	if ( players.size() <= 0 ) {
 	    		players = null;
 	    	}
@@ -171,27 +209,58 @@ public class ProductLauncher extends ContributionItem {
 
     }
 	
+
     /**
-     *  Retrieve the PgenSave defined in a product type
+     *  Retrieve the all subtypes defined for an activity type
+     *  
+     *  Subtypes with alias could be excluded.
+     *  
      */    
-    private PgenSave getPgenSave( String prdtypName ) {
+    private LinkedHashMap<String, String> getSubtypes( String ptype, boolean noAlias ) {
 	    
-    	PgenSave pSave = null;
- 
-        ProductType curPrdType = null;
-    	for ( ProductType ptyp : prdTypes.getProductType() ) {
-        	if ( prdtypName.equals( ptyp.getName() ) ) {
-        		curPrdType = ptyp;
-        		break;
-        	}        	
-        }
-	    
-    	if ( curPrdType != null ) {
-	    	pSave = curPrdType.getPgenSave();
-	    }
+    	LinkedHashMap<String, String> stypes = new LinkedHashMap<String, String>();
+    	
+    	for ( String typeID : prdTypeMap.keySet() ) {
+    		ProductType  prdType = prdTypeMap.get( typeID );
+    		if ( prdType.getType().equals( ptype ) ) {
+    			if ( noAlias ) {
+    				if ( prdType.getName() == null || prdType.getName().trim().length() == 0 
+    					 || prdType.getName().equals( prdType.getType() ) ) {
+        			    stypes.put( typeID, prdType.getSubtype() );
+    				}
+   			    }
+    			else {
+    			    stypes.put( typeID, prdType.getSubtype() );
+    			}
+    		}
+    	}
 	    	    	   	
-    	return pSave;
+    	return stypes;
 
     }
+    
+    /**
+     *  Check if an activity type has no subtypes (except "None")
+     *  
+     */    
+    private boolean hasSubtypes( Collection<String>  subtypes ) {
+    	
+    	boolean hasSubtypes = true;
+    	if ( subtypes == null || subtypes.size() == 0  ) {
+    		hasSubtypes = false;
+    	}
+    	else if ( subtypes.size() == 1 ) {   	        
+        	for ( String st : subtypes ) {
+        		if ( st.equalsIgnoreCase( "None" ) ) {
+        			hasSubtypes = false;
+        			break;
+        		}
+        	}
+    	}
+	    	    	   	
+    	return hasSubtypes;
+
+    }
+    
 
 }

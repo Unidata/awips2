@@ -19,6 +19,8 @@ import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox.WatchShape;
 import gov.noaa.nws.ncep.ui.pgen.elements.labeledLines.Cloud;
 import gov.noaa.nws.ncep.ui.pgen.elements.labeledLines.LabeledLine;
 import gov.noaa.nws.ncep.ui.pgen.elements.labeledLines.Turbulence;
+import gov.noaa.nws.ncep.ui.pgen.elements.tcm.ITcm;
+import gov.noaa.nws.ncep.ui.pgen.elements.tcm.TcmFcst;
 import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.ConvSigmet;
 import gov.noaa.nws.ncep.ui.pgen.attrDialog.vaaDialog.*;
@@ -58,6 +60,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 01/10		#104?		S. Gilbert	Added Mid Level Cloud
  * 03/10		#223		M.Laryukhin	Gfa added. 
  * 09/10		#304		B. Yin		Added LabeledLine
+ * 09/11		?			B. Yin		Added TCM
  *
  * </pre>
  * 
@@ -214,6 +217,9 @@ public class DrawableElementFactory {
 			de = new Gfa(attr, locations);
 			break;
 
+		case TCM_FCST:
+			de = new TcmFcst(locations.get(0), ((ITcm)attr).getFcstHr(), ((ITcm)attr).getWindRadius());
+			break;
 		default:
 			/*
 			 * Do nothing.
@@ -222,6 +228,11 @@ public class DrawableElementFactory {
 	        break;
 		}
 		
+		//  Set element's Type and Category
+		de.setPgenCategory(pgenCategory);
+		de.setPgenType( pgenType );	
+		de.setParent(parent);
+		
 		if ( de != null && de instanceof DrawableElement) {
 			if ( attr != null ) {
 				((DrawableElement)de).update(attr);
@@ -229,10 +240,7 @@ public class DrawableElementFactory {
 
 		}
 		
-		//  Set element's Type and Category
-		de.setPgenCategory(pgenCategory);
-		de.setPgenType( pgenType );	
-		de.setParent(parent);
+	
 
 		return de;
 	}
