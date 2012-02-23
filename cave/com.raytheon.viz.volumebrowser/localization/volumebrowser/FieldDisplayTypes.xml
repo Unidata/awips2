@@ -16,7 +16,7 @@
         ________________________402.291.0100
         
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
-        further_licensing_information.
+        further_licensing_information. 
     -->
 <fieldDisplayTypesFile>
 	<field key="Wind" displayTypes="BARB,ARROW,STREAMLINE"/>
@@ -29,7 +29,7 @@
 	<field key="PGrd1" displayTypes="BARB,ARROW"/>
 	<field key="Gust" displayTypes="BARB,ARROW,STREAMLINE"/>
 	<field key="StrmMot" displayTypes="BARB,ARROW,STREAMLINE"/>
-	<field key="Corf" displayTypes="ARROW,BARB"/>
+	<field key="Corf" displayTypes="BARB,ARROW"/>
 	<field key="Shear" displayTypes="BARB,ARROW"/>
 	<field key="BlkShr" displayTypes="BARB,ARROW"/>
 	<field key="RM5" displayTypes="BARB,ARROW"/>

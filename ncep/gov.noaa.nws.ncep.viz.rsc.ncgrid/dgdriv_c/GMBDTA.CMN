@@ -1,0 +1,41 @@
+C************************************************************************
+C* GMBDTA.CMN								*
+C*									*
+C* This common area contains variables which must be initialized in	*
+C* each program.							*
+C*									*
+C* I. Graffman/RDS	 5/87						*
+C* M. desJardins/NMC	 8/94	Added iestat				*
+C* K. Tyle/GSC		12/96	Removed iestat				*
+C************************************************************************
+	LOGICAL		tablrd, dsflg, stnflg, pptabl, kwrite
+	COMMON  / GMBDTA /
+     +			iflgdp ( MMFLDP ),	
+C!	                                        DP 
+     +			isfcfn ( MMFILE ),	
+C!	                                        SF
+     +                  isndfn ( MMFILE ),	
+C!	                                        SN
+     +	                igrdfn ( MMFILE ),      
+C!	                                        GR
+     +			tablrd,			
+C!	                                        PC
+     +			dsflg,
+     +			stnflg,
+     +			pptabl,
+     +			lunp,			
+C!	                                        IP
+     +			lunf,
+     +	                kclast,			
+C!	                                        Last DM record read
+     +	                kcflno ( MCACHE ),	
+C!	                                        File # for DM reccord
+     +	                kcrecn ( MCACHE ),	
+C!	                                        DM record #
+     +	                kwrite ( MCACHE ),	
+C!	                                        DM write flag
+     +	    		lundm (MMFILE),		
+C!	                                        DM logical unit nos.
+     +			lungem (10)
+C!						SS logical unit nos.
+C------------------------------------------------------------------------

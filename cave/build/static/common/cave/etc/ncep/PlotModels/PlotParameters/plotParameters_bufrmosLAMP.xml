@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PlotParameterDefns>
+
+ <plugin>bufrmosLAMP</plugin>
+
+<!-- some derived data not in -->  
+    <!-- TEMPERATURE --> 
+     
+    <!-- measured parameters -->         
+ 	<PlotParameterDefn  plotParamName="TMPF" metParamName="AirTemperature"  
+                     	dbParamName="temperature" plotUnit="°F" plotFormat="%3.0f"/>
+ 	<PlotParameterDefn  plotParamName="TMPC" metParamName="AirTemperature"  
+                     	dbParamName="temperature" plotUnit="°C" plotFormat="%3.0f"/>
+ 	<PlotParameterDefn  plotParamName="TMPK" metParamName="AirTemperature" plotMode="text"  
+                     	dbParamName="temperature" plotUnit="K" plotFormat="%3.0f"/>                     
+
+ 	<PlotParameterDefn  plotParamName="DWPF" metParamName="DewPointTemp"  
+                     	dbParamName="dewpoint" plotUnit="°F" plotFormat="%3.0f"/>
+ 	<PlotParameterDefn  plotParamName="DWPC" metParamName="DewPointTemp"   
+                     	dbParamName="dewpoint" plotUnit="°C" plotFormat="%3.0f"/>
+ 	<PlotParameterDefn  plotParamName="DWPK" metParamName="DewPointTemp" plotMode="text"   
+                     	dbParamName="dewpoint" plotUnit="K" plotFormat="%3.0f"/>                     
+
+	<PlotParameterDefn  plotParamName="DPDC" metParamName="DewPointDepression"  
+                     	deriveParams="all" plotUnit="°C" plotFormat="%3.0f"/>
+ 	<PlotParameterDefn  plotParamName="DPDF" metParamName="DewPointDepression"  
+                     	deriveParams="all" plotUnit="°F" plotFormat="%3.0f"/>
+ 	<PlotParameterDefn  plotParamName="DPDK" metParamName="DewPointDepression"  
+                     	deriveParams="all" plotUnit="°F" plotFormat="%3.0f"/>
+	
+	<!-- STATION VARIABLES -->
+ 	<PlotParameterDefn  plotParamName="STID" metParamName="StationID"  
+                     	dbParamName="stationId" />
+ 	<PlotParameterDefn  plotParamName="SLAT" metParamName="StationLatitude"  
+                     	dbParamName="latitude" plotFormat="%2.2f" />
+ 	<PlotParameterDefn  plotParamName="SLON" metParamName="StationLongitude"  
+                     	dbParamName="longitude" plotFormat="%3.2f"/>
+
+	<!-- PRECIPITATION --> 
+ 	
+	<PlotParameterDefn  plotParamName="PP06" plotMode="text" metParamName="POPFcst06Hrs" 
+						dbParamName="PQPF_6hr" />
+	<PlotParameterDefn  plotParamName="PP12" plotMode="text" metParamName="POPFcst12Hrs" 
+						dbParamName="PQPF_12hr" />
+
+	<PlotParameterDefn  plotParamName="PCPT" plotMode="text" metParamName="CatFcstPrecipitation" 
+						dbParamName="precipType" />
+
+	<!--  MOISTURE -->
+	<PlotParameterDefn  plotParamName="RELH" metParamName="RelativeHumidity"  
+                     	deriveParams="all"   plotUnit="%" plotFormat="%3.0f"/>
+	
+	<!--  WIND -->
+	<PlotParameterDefn  plotParamName="DRCT" metParamName="WindDirection"  
+                     	deriveParams="all"  plotUnit="°" plotFormat="%3.0f"/>
+	<PlotParameterDefn  plotParamName="SPED" metParamName="WindSpeed"  
+                     	deriveParams="all" plotUnit="m/s" plotFormat="%3.0f"/>
+	<PlotParameterDefn  plotParamName="UWND" metParamName="WindDirectionUComp"  
+                     	dbParamName="uwind"  plotUnit="m/s" plotFormat="%2.2f"/>
+	<PlotParameterDefn  plotParamName="VWND" metParamName="WindDirectionVComp"  
+                     	dbParamName="vwind" plotUnit="m/s" plotFormat="%2.2f"/>
+
+ 	<PlotParameterDefn  plotParamName="BRBK" metParamName="WindDirection,WindSpeed"
+                     	plotMode="barb" symbolFont="WindSymbolFont" 
+                     	plotUnit="kts" />
+
+ 	<PlotParameterDefn  plotParamName="BRBM" metParamName="WindDirection,WindSpeed"
+                     	plotMode="barb" symbolFont="WindSymbolFont" 
+                     	plotUnit="m/s" />
+
+	<!--  MISCELLANEOUS -->
+ 	<PlotParameterDefn  plotParamName="FCIG" metParamName="CatFcstCeilingHeightCond" plotMode="text"   
+                     	dbParamName="ceiling_bestCat" />                     
+
+ 	<PlotParameterDefn  plotParamName="FVSA" metParamName="CatFcstVisibilityCond" plotMode="text"   
+                     	dbParamName="vis_bestCat" />                     
+
+ 	<PlotParameterDefn  plotParamName="OVIS" metParamName="CatFcstObstructionsVision" plotMode="text"   
+                     	dbParamName="obVis_bestCat" />                     
+
+ 	<PlotParameterDefn  plotParamName="POZP" metParamName="CondProbOfFreezingPrecip" plotMode="text"   
+                     	dbParamName="precipFreezing" />                     
+
+ 	<PlotParameterDefn  plotParamName="POSN" metParamName="CondProbOfSnow" plotMode="text"   
+                     	dbParamName="precipSnow" />                     
+
+ 	<PlotParameterDefn  plotParamName="TS02" metParamName="UncondProbOfTstorms2hr" plotMode="text"   
+                     	dbParamName="tstorm2hr" />                     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    <!-- CLOUD -->
+ <PlotParameterDefn  plotParamName="SKYC" metParamName="SkyCoverage" 
+                     plotMode="table" symbolFont="SpecialSymbolFont" 
+                     dbParamName="clouds_bestCat" 
+                     prioritySelectTable="cloud_select.txt"
+                     plotLookupTable="mos_clouds_gfs_s2s.txt" />                   
+
+<!--    NOT Tested
+ <PlotParameterDefn  plotParamName="SKYC" metParamName="SkyCoverage" 
+                     plotMode="table" symbolFont="SpecialSymbolFont" 
+                     dbParamName="clouds_bestCat" 
+                     prioritySelectTable="cloud_select.txt"
+                     plotLookupTable="mos_clouds_gfs_s2s.txt" />                   
+ --> 	
+	
+	<!-- WIND Not Tested
+	<PlotParameterDefn  ncepParamName="BRBK" plotMode="barb" class="barb" dbParamName="windSpeedInflated,windDir" plotLookupTable="wx_symbol_trans.txt"  transform="rotate(0,0,0)"/>
+	<PlotParameterDefn  ncepParamName="GUST" plotMode="text" dbParamName="stdMaxWindSpeed" plotUnit="kts" plotFormat="%3.0f"/>     
+
+	    
+	<!- - PRECIPITATION - - >
+	
+	<PlotParameterDefn  ncepParamName="PP06" plotMode="text" dbParamName="PQPF_6hr" plotUnit="%" plotFormat="%3.0f"/>
+	<PlotParameterDefn  ncepParamName="PP12" plotMode="text" dbParamName="PQPF_12hr" plotUnit="%" plotFormat="%3.0f"/>
+  -->   
+	<!-- WEATHER - - >    
+    <PlotParameterDefn  ncepParamName="WSYM" plotMode="table" class="weather" plotParam="presWeather"  transform="rotate(0,0,0)" plotLookupTable="wx_symbol_trans.txt"/>
+    
+     -->
+<!-- Wind parameters -->
+ <PlotParameterDefn  plotParamName="PALT" metParamName="SurfacePressure"  
+                     deriveParams="SeaLevelPressure,StationID"
+                     plotUnit="hPa" plotFormat="%2.2f"/>
+
+</PlotParameterDefns>

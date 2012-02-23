@@ -1,0 +1,6 @@
+colorMapName=osf_etops
+colorBar=@dfltRadarColorBar.xml
+! 1km Echo Tops
+productCode=41
+! check elevation
+elevationNumber=0

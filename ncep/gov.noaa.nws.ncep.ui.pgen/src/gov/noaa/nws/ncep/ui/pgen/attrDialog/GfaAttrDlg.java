@@ -9,6 +9,7 @@
 package gov.noaa.nws.ncep.ui.pgen.attrDialog;
 
 import static gov.noaa.nws.ncep.ui.pgen.gfa.GfaInfo.*;
+import gov.noaa.nws.ncep.ui.pgen.PgenSession;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
@@ -21,7 +22,8 @@ import gov.noaa.nws.ncep.ui.pgen.gfa.PreloadGfaDataThread;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenCycleTool;
 import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.awt.Color;
 import java.util.*;
@@ -55,6 +57,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 03/2010		#223		M.Laryukhin	Initial Creation.
  * 04/11		#?			B. Yin		Re-factor IAttribute
  * 05/11		#?			J. Wu		Retrieve cycle hour from PgenCycleTool
+ * 07/11        #450        G. Hull     NcPathManager
+ * 11/11        #?          J. Wu       Add linkage between GFA hazard type 
+ *                                      and GAIRMET layer names.
+ * 12/11		#?			B. Yin		Set voxText
+ *
  * </pre>
  * 
  * @author mlaryukhin
@@ -120,10 +127,9 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 	private HashMap<String, Label> requiredCrosses = new HashMap<String, Label>();
 	private Label warning;
 
-//	private final String RED_CROSS_PATH = LocalizationManager.getBaseDir()
-//			+ NmapCommon.NatlCntrsBaseDir + NmapCommon.GfaAttrDir + "red_cross.png";
-	private final String RED_CROSS_PATH = LocalizationManager.getInstance().getFilename("redCrossImageFile");
-	//End of change made by Michael Gao
+	private final String RED_CROSS_PATH = 
+		NcPathManager.getInstance().getStaticFile(
+				   NcPathConstants.PGEN_RED_CROSS_IMG ).getAbsolutePath();
 	
 	/** Digits, semicolon*/
 	private final String TIME = "[01234569]?|12|[012345]?:|[012345]?:(0|1|3|4|00|15|30|45)";
@@ -806,16 +812,8 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 		SelectionAdapter s1 = new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if(addRemoveTypeDlg != null&& !addRemoveTypeDlg.isDisposed()) {
-					addRemoveTypeDlg.close();
-					addRemoveTypeDlg = null;
-				}
-				if(type != null) type.setText("");
-				typeCheckboxes.clear();
-				values.clear();
-				widgets.clear();
-				addRemoveDlgCheckboxes.clear();
-				redrawHazardSpecificPanel();
+                updateHazard();
+                linkHazardWithLayer( hazardCbo.getText() );
 			}
 		};
 		SelectionAdapter s2 = new SelectionAdapter() {
@@ -1135,12 +1133,7 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 			if(adc instanceof Gfa) selectedGfa = (Gfa) adc;
 		}
 		if(selectedGfa != null) {
-			ArrayList<Coordinate> pts = selectedGfa.getPoints();
-			pts = SigmetInfo.getSnapWithStation(pts,SigmetInfo.VOR_STATION_LIST,10,16, false) ;
-			Coordinate[] a = new Coordinate[pts.size()];
-			a = pts.toArray(a);
-			String s = SigmetInfo.getVORText(a, " TO ", "Area", -1, true, false, true );
-			textVOR.setText(s);
+			setVorText( selectedGfa );
 		}
 	}
 
@@ -1441,7 +1434,14 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 		if(statesBtnEnabled || (top != null && !top.isDisposed())) {
 			return CANCEL;
 		}
-		return super.open();
+		
+		int open = super.open();
+		
+		switchHazard( PgenSession.getInstance().getPgenResource().getActiveLayer().getName() );
+		
+		return open;
+		
+//		return super.open();
 	}
 
 	private void correctOtherText() {
@@ -1827,4 +1827,96 @@ public class GfaAttrDlg extends LineAttrDlg implements IGfa {
 		// TODO Auto-generated method stub
 		return PgenCycleTool.getCycleHour();
 	}
+	
+	/**
+	 * Check if Gfa attribute window is open
+	 */
+	public boolean isGfaOpen() {		
+		return ( hazardCbo != null && !hazardCbo.isDisposed() );	
+	}
+	
+	/**
+	 * Switch Gfa hazard type to a given type.
+	 */
+	public void switchHazard( String hazard ) {
+
+		if ( isGfaOpen() ) {
+			
+			String currentHaz = hazardCbo.getText();
+			if ( hazard != null && !currentHaz.equals( hazard ) ) {
+			   
+				int index = hazardCbo.indexOf( hazard );
+			
+			    if ( index >= 0 ) {
+				
+			        hazardCbo.select(index);
+			        hazardIndexLastUsed = index;
+				
+			        updateHazard();
+			    }
+			}
+		}		
+	}
+	
+	/*
+	 * Update GFA GUI using the current Gfa hazard.
+	 */
+	private void updateHazard() {
+				
+		if ( addRemoveTypeDlg != null&& !addRemoveTypeDlg.isDisposed() ) {
+			addRemoveTypeDlg.close();
+			addRemoveTypeDlg = null;
+		}
+
+		if ( type != null ) type.setText( "" );
+
+		typeCheckboxes.clear();
+		values.clear();
+		widgets.clear();
+		addRemoveDlgCheckboxes.clear();
+		redrawHazardSpecificPanel();					
+	}	
+	
+	/*
+	 * Update the active layer in the product manage GUI or the layering control window
+	 * to the current Gfa hazard type.
+	 */
+	private void linkHazardWithLayer( String layer ) {
+    	if ( PgenSession.getInstance().getPgenResource().getProductManageDlg() != null &&
+    			PgenSession.getInstance().getPgenResource().getProductManageDlg().isOpen()	) {
+		    PgenSession.getInstance().getPgenResource().getProductManageDlg().switchLayer( layer );
+    	}	
+    	else if ( PgenSession.getInstance().getPgenResource().getLayeringControlDlg() != null &&
+    			      PgenSession.getInstance().getPgenResource().getLayeringControlDlg().isOpen() ) {
+		    PgenSession.getInstance().getPgenResource().getLayeringControlDlg().switchLayer( layer );
+    	}	
+	}	
+	
+	/**
+	 * Sets vorText field in the GFA dialog from the input GFA.
+	 * @param gfa
+	 */
+	public void setVorText( Gfa gfa ){
+		ArrayList<Coordinate> pts = gfa.getPoints();
+		pts = SigmetInfo.getSnapWithStation(pts,SigmetInfo.VOR_STATION_LIST,10,16, false) ;
+		Coordinate[] a = new Coordinate[pts.size()];
+		a = pts.toArray(a);
+		String s = "";
+		if ( gfa.getGfaHazard().equalsIgnoreCase("FZLVL")){
+			if ( gfa.isClosedLine() ){
+				s = SigmetInfo.getVORText(a, "-", "Area", -1, true, false, true );
+			}
+			else {
+				s = SigmetInfo.getVORText(a, "-", "Line", -1, true, false, true );
+			}
+		}
+		else if ( gfa.getGfaHazard().equalsIgnoreCase("LLWS")){
+			s = SigmetInfo.getVORText(a, "-", "Area", -1, true, false, true );
+		}
+		else {
+			s = SigmetInfo.getVORText(a, " TO ", "Area", -1, true, false, true );
+		}
+		textVOR.setText(s);
+	}
+	
 }
