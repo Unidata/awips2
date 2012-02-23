@@ -203,7 +203,7 @@ public class LineAttrDlg  extends AttrDlg implements ILine {
 	 * Sets the color of the color picker of the dialog.
 	 * @param clr
 	 */	
-	protected void setColor( Color[] colors ){
+	public void setColor( Color[] colors ){
 
 		manageColorBoxes( colors.length );
 		

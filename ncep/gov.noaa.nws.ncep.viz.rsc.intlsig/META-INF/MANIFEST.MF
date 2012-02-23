@@ -24,10 +24,8 @@ Import-Package: com.raytheon.uf.common.geospatial,
  gov.noaa.nws.ncep.common.dataplugin.intlsigmet,
  gov.noaa.nws.ncep.common.dataplugin.intlsigmet.dao,
  gov.noaa.nws.ncep.common.tools,
- gov.noaa.nws.ncep.ui.pgen.display,
- gov.noaa.nws.ncep.ui.pgen.elements,
  gov.noaa.nws.ncep.viz.common,
- org.opengis.referencing.crs,
- gov.noaa.nws.ncep.viz.ui.display
+ gov.noaa.nws.ncep.viz.ui.display,
+ org.opengis.referencing.crs
 Export-Package: gov.noaa.nws.ncep.viz.rsc.intlsig,
  gov.noaa.nws.ncep.viz.rsc.intlsig.rsc

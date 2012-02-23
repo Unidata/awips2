@@ -1,0 +1,4 @@
+! Parameters and Attributes for the default SCD Resource
+!
+plotModelName=standard
+plotDensity=15

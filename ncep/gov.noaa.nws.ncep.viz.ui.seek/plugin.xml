@@ -5,7 +5,7 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.viz.ui.actions.seek"
           name="Seek Results">
       </command>
@@ -18,14 +18,6 @@
             class="gov.noaa.nws.ncep.viz.ui.seek.SeekResultsAction"
             commandId="gov.noaa.nws.ncep.viz.ui.actions.seek">
       </handler>
-   </extension>
-   <extension
-         point="gov.noaa.nws.ncep.viz.localization.localizationData">
-      <singleLocalizationValue
-            name="locatorTable"
-            location="locator"
-            fileName="locator_tbl.xml">
-      </singleLocalizationValue>
    </extension>
 
 </plugin>
