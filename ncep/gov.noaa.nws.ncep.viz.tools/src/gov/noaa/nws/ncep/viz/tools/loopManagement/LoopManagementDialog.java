@@ -1,16 +1,17 @@
 package gov.noaa.nws.ncep.viz.tools.loopManagement;
 
 
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.tools.loopManagement.DwellRateInfo.DwellRateEntry;
 import gov.noaa.nws.ncep.viz.ui.display.NCLoopProperties;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.math.*;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -26,10 +27,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IEditorPart;
 
-import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.datastructure.LoopProperties;
 import com.raytheon.uf.viz.core.datastructure.LoopProperties.LoopMode;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
@@ -49,6 +47,9 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Oct 07, 2010             X. Guo		Re-write functions to handle Loop Control
  * 03/07/11      migration  G. Hull     use NCLoopProperties                                    
  * 06/30/11                 C. Chen     changed to support all editors
+ * 07/29/11       #450      G. Hull     use NCPathManager       
+ * 01/11/2012     #497      S. Gurung   Initialize speedLevel                         
+ * 
  * </pre>
  * 
  * @author xguo
@@ -173,6 +174,7 @@ public class LoopManagementDialog extends CaveJFACEDialog {
         createLoopLayerLink (comp);
         createBottomButtons(comp);
 
+        initSpeedLevel();
         initDialogControls();
 
         return comp;
@@ -249,7 +251,7 @@ public class LoopManagementDialog extends CaveJFACEDialog {
         /*
          * Last Frame Dwell
          */
-        label = new Label(composite, SWT.BOLD);
+        label = new Label(composite, SWT.BOLD); 
         label.setText("Last Frame Dwell: ");
 
         lastFrameDwellScale = new Scale(composite, SWT.NONE);
@@ -451,11 +453,12 @@ public class LoopManagementDialog extends CaveJFACEDialog {
     // Read Dwell Rate table
     private void readDwellRateTable() {
     	if (dwellRateList == null) {
-    		String resourceName = LocalizationManager.getInstance().getFilename("dwellRateTable");
-    		if ( resourceName.compareTo("Not_Found") == 0){
+    		File dwellRateFile = NcPathManager.getInstance().getStaticFile(
+            		NcPathConstants.LOOP_SPEEDS_TBL );
+    		if ( dwellRateFile == null || !dwellRateFile.exists() ) {
     			return;
     		}
-    		dwellRateInfo = new DwellRateInfo(resourceName);
+    		dwellRateInfo = new DwellRateInfo(dwellRateFile.getAbsolutePath());
     		try {
     			if (dwellRateInfo.readTable()) {
     				dwellRateList = new ArrayList<DwellRateEntry>();
@@ -693,5 +696,15 @@ public class LoopManagementDialog extends CaveJFACEDialog {
     	bd=bd.setScale(2,BigDecimal.ROUND_HALF_EVEN);
         return bd + " sec";
     }
+    
+    private void initSpeedLevel() {    	
+    	for (int i=0; i<speedLevelNum; i++) {
+    		if (loopProperties.getFwdFrameTime() >= dwellRateList.get(i).getMidFrameDwell() * 1000) {
+        		speedLevel = i;
+        		break;
+    		}
+    	}
+    }
+    
 }
 

@@ -1,12 +1,11 @@
 package gov.noaa.nws.ncep.viz.ui.seek;
 
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
@@ -25,7 +24,7 @@ public class SeekDrawingLayer extends AbstractVizResource<SeekResourceData,MapDe
    
 	private SeekResourceData seekRscData;
    
-   protected String name;
+   protected String name = "";
 
     protected RGB color = new RGB(255, 255, 0);
 
@@ -54,8 +53,7 @@ public class SeekDrawingLayer extends AbstractVizResource<SeekResourceData,MapDe
      * @see com.raytheon.viz.core.rsc.IVizResource#getName()
      */
     public String getName() {
-        //return name;
-    	return new String("");
+        return name;
     }
 
     /*
@@ -100,9 +98,11 @@ public class SeekDrawingLayer extends AbstractVizResource<SeekResourceData,MapDe
                 in[1] = c.y;
                 in[2] = c.z;
                 double[] out = descriptor.worldToPixel(in);
-                target.drawString(null, text, out[0], out[1], 0.0,
-                        IGraphicsTarget.TextStyle.NORMAL, textColor,
-                        HorizontalAlignment.LEFT, null);
+                DrawableString ds = new DrawableString(text, textColor);
+                ds.setCoordinates(out[0], out[1]);
+                ds.textStyle = IGraphicsTarget.TextStyle.NORMAL;
+                ds.horizontalAlignment = HorizontalAlignment.LEFT;
+                target.drawStrings(ds);
             }
         }
     	
@@ -141,44 +141,12 @@ public class SeekDrawingLayer extends AbstractVizResource<SeekResourceData,MapDe
       
     }   	
 
-//    public void drawLine(Coordinate c1, Coordinate c2) {
-////    	point1 = c1;
-////    	point2 = c2;
-//    }
-
-//    public void drawClickPtLine(Coordinate c1, Coordinate c2) {
-////    	firstPt = c1;
-////    	lastPt = c2;
-//    }
-    
-//    public void drawString(Coordinate c, String str) {
-//        this.strings.put(c, str);
-//    }
-
-//    public void clearStrings() {
-//        this.strings.clear();
-//    }
-
     public void clearLine() {
 //        point1 = null;
 //        point2 = null;
     	seekRscData.setPoint1(null);
     	seekRscData.setPoint2(null);
     }
-
-//    /*
-//     * (non-Javadoc)
-//     * 
-//     * @see com.raytheon.viz.core.rsc.IVizResource#dispose()
-//     */
-//    public void disposeInternal() {
-////    	firstPt = null;
-////    	lastPt = null;
-//    	SeekResourceData.setFirstPt(null);
-//    	SeekResourceData.setLastPt(null);
-//    	clearStrings();
-//    	clearLine();
-//    }
 
     /*
      * (non-Javadoc)
@@ -202,8 +170,8 @@ public class SeekDrawingLayer extends AbstractVizResource<SeekResourceData,MapDe
 
 	@Override
 	protected void disposeInternal() {
-//		((SeekResourceData)this.getResourceData()).disposeInternal();
-		
+		//((SeekResourceData)this.getResourceData()).disposeInternal();
+		//System.out.println("HOPEFULLYGETTINGHERE");
 	}
-
+    
 }

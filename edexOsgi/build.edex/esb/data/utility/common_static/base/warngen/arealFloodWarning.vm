@@ -22,6 +22,7 @@
 #else
 	#set($advType = "FLOOD WARNING")
 #end
+#set($ic = "ER")
 #set($hycType = "")
 #if(${list.contains($bullets, "sm")})
 	#set($ic = "SM")
@@ -31,7 +32,7 @@
 	#set($hycType = "A LEVEE FAILURE")
 #elseif(${list.contains($bullets, "dr")})
 	#set($ic = "DR")
-	#set($hycType = "A DAM FLOODGATE RELEASE")
+	#set($hycType = "A DAM GATE RELEASE")
 #elseif(${list.contains($bullets, "rs")})
 	#set($ic = "RS")
 	#set($hycType = "RAIN AND SNOW MELT")
@@ -56,9 +57,6 @@
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 FLW${siteId}
 
-#if(${specialCorText})
-${specialCorText}
-#else
 BULLETIN - EAS ACTIVATION REQUESTED
 #if(${productClass}=="T")
 TEST...FLOOD WARNING...TEST
@@ -109,22 +107,22 @@ THIS IS A TEST MESSAGE. ##
 #set ($report = "HEAVY RAIN THAT WILL CAUSE FLOODING.") 
 #set ($rainAmount = "") 
 #if(${list.contains($bullets, "doppler")})
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED HEAVY RAIN THAT WILL CAUSE FLOODING.")   
+  #set ($report = "DOPPLER RADAR INDICATED HEAVY RAIN THAT WILL CAUSE FLOODING.")   
 #end
 #if(${list.contains($bullets, "doppler")} && ${list.contains($bullets, "thunder")})
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED HEAVY RAIN DUE TO A THUNDERSTORM THAT WILL CAUSE FLOODING.")   
+  #set ($report = "DOPPLER RADAR INDICATED HEAVY RAIN DUE TO A THUNDERSTORM THAT WILL CAUSE FLOODING.")   
 #end
 #if(${list.contains($bullets, "doppler")} && ${list.contains($bullets, "thunder")} && ${stormType} == "line")
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED HEAVY RAIN DUE TO A LINE OF THUNDERSTORMS. THE HEAVY RAIN WILL CAUSE FLOODING.")   
+  #set ($report = "DOPPLER RADAR INDICATED HEAVY RAIN DUE TO A LINE OF THUNDERSTORMS. THE HEAVY RAIN WILL CAUSE FLOODING.")   
 #end
 #if(${list.contains($bullets, "dopplerGauge")})
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED THAT HEAVY RAIN WAS FALLING OVER THE AREA. THAT HEAVY RAIN WILL CAUSE FLOODING.")   
+  #set ($report = "DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED THAT HEAVY RAIN WAS FALLING OVER THE AREA. THAT HEAVY RAIN WILL CAUSE FLOODING.")   
 #end
 #if(${list.contains($bullets, "dopplerGauge")} && ${list.contains($bullets, "thunder")})
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED THAT A THUNDERSTORM IS PRODUCING HEAVY RAIN OVER THE AREA. THAT RAIN WILL CAUSE FLOODING.")   
+  #set ($report = "DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED THAT A THUNDERSTORM IS PRODUCING HEAVY RAIN OVER THE AREA. THAT RAIN WILL CAUSE FLOODING.")   
 #end
 #if(${list.contains($bullets, "dopplerGauge")} && ${list.contains($bullets, "thunder")} && ${stormType} == "line")
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED THAT A LINE OF THUNDERSTORMS IS PRODUCING HEAVY RAIN OVER THE AREA. THAT RAIN WILL CAUSE FLOODING.")   
+  #set ($report = "DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED THAT A LINE OF THUNDERSTORMS IS PRODUCING HEAVY RAIN OVER THE AREA. THAT RAIN WILL CAUSE FLOODING.")   
 #end
 #if(${list.contains($bullets, "trainedSpotters")} && ${list.contains($bullets, "thunder")})
   #set ($report = "TRAINED WEATHER SPOTTERS REPORTED HEAVY RAIN IN !** LOCATION **! DUE TO A THUNDERSTORM THAT WILL CAUSE FLOODING.")   
@@ -148,7 +146,7 @@ THIS IS A TEST MESSAGE. ##
   #set ($report = "THE PUBLIC REPORTED HEAVY RAIN IN !** LOCATION **! DUE TO A THUNDERSTORM. THE HEAVY RAIN WILL CAUSE FLOODING.")   
 #end
 #if(${list.contains($bullets, "public")} && ${list.contains($bullets, "floodReport")})
-  #set ($report = "THE PUBLIC REPORTED  FLOODING IN !** LOCATION **!.")   
+  #set ($report = "THE PUBLIC REPORTED FLOODING IN !** LOCATION **!.")   
 #end
 #if(${list.contains($bullets, "public")} && ${list.contains($bullets, "plainRain")})
   #set ($report = "THE PUBLIC REPORTED HEAVY RAIN IN !** LOCATION **!. THAT HEAVY RAIN WILL CAUSE FLOODING.")   
@@ -157,13 +155,13 @@ THIS IS A TEST MESSAGE. ##
   #set ($rainAmount = "UP TO ONE INCH OF RAIN HAS ALREADY FALLEN.")   
 #end
 #if(${list.contains($bullets, "rain2")} )
-  #set ($rainAmount = "UP TO TWO INCHES OF RAIN HAS ALREADY FALLEN.")   
+  #set ($rainAmount = "UP TO TWO INCHES OF RAIN HAVE ALREADY FALLEN.")   
 #end
 #if(${list.contains($bullets, "rain3")} )
-  #set ($rainAmount = "UP TO THREE INCHES OF RAIN HAS ALREADY FALLEN.")   
+  #set ($rainAmount = "UP TO THREE INCHES OF RAIN HAVE ALREADY FALLEN.")   
 #end
 #if(${list.contains($bullets, "rainEdit")} )
-  #set ($rainAmount = "!** RAINFALL AMOUNTS **! INCHES OF RAIN HAS ALREADY FALLEN.")   
+  #set ($rainAmount = "!** RAINFALL AMOUNTS **! INCHES OF RAIN HAVE ALREADY FALLEN.")   
 #end
 
 #################################
@@ -201,10 +199,14 @@ ADDITIONAL RAINFALL AMOUNTS OF !** EDIT AMOUNT **! ARE POSSIBLE IN THE WARNED AR
 #drainages(${riverdrainages})
 
 #end
-##############################################
-###### mile markers ##############
-##############################################
-#parse("milemarkers.vm")
+
+#if(${list.contains($bullets, "specificStream")})
+FLOOD WATERS ARE MOVING DOWN !**name of channel**! FROM !**location**! TO !**location**!. THE FLOOD CREST IS EXPECTED TO REACH !**location(s)**! BY !**time(s)**!.
+
+#end
+## parse file command here is to pull in mile marker info
+## #parse("mileMarkers.vm")
+
 #################################### END OF ADDITIONAL STUFF ###################################
 ######################################
 ####### CALL TO ACTIONS ##############
@@ -222,8 +224,8 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 
 #end
 ##
-#if(${list.contains($bullets, "warningMeans")})
-A FLOOD WARNING MEANS THAT FLOODING IS IMMINENT OR HAS BEEN REPORTED.  STREAM RISES WILL BE SLOW AND FLASH FLOODING IS NOT EXPECTED.  HOWEVER...ALL INTERESTED PARTIES SHOULD TAKE NECESSARY PRECAUTIONS IMMEDIATELY.
+#if(${list.contains($bullets, "warningMeansCTA")})
+A FLOOD WARNING MEANS THAT FLOODING IS IMMINENT OR HAS BEEN REPORTED. STREAM RISES WILL BE SLOW AND FLASH FLOODING IS NOT EXPECTED. HOWEVER...ALL INTERESTED PARTIES SHOULD TAKE NECESSARY PRECAUTIONS IMMEDIATELY.
 
 #end
 #if(${list.contains($bullets, "dontdrownCTA")})
@@ -242,10 +244,6 @@ EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE ELEVATED LEVELS ON SMALL CREEKS 
 EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE FLOODING OF SMALL CREEKS AND STREAMS...HIGHWAYS AND UNDERPASSES IN URBAN AREAS. ADDITIONALLY...COUNTRY ROADS AND FARMLANDS ALONG THE BANKS OF CREEKS...STREAMS AND OTHER LOW LYING AREAS ARE SUBJECT TO FLOODING.
 
 #end
-#if(${list.contains($bullets, "specificCTA")})
-FLOOD WATERS ARE MOVING DOWN !**name of channel**! FROM !**location**! TO !**location**!. THE FLOOD CREST IS EXPECTED TO REACH !**location(s)**! BY !**time(s)**!.
-
-#end
 #if(${list.contains($bullets, "nightCTA")})
 BE ESPECIALLY CAUTIOUS AT NIGHT WHEN IT IS HARDER TO RECOGNIZE THE DANGERS OF FLOODING. IF FLOODING IS OBSERVED ACT QUICKLY. MOVE UP TO HIGHER GROUND TO ESCAPE FLOOD WATERS. DO NOT STAY IN AREAS SUBJECT TO FLOODING WHEN WATER BEGINS RISING.
 
@@ -255,7 +253,7 @@ DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY. THE WAT
 
 #end
 #if(${list.contains($bullets, "camperCTA")})
-FLOODING IS OCCURRING OR IS IMMINENT.  IT IS IMPORTANT TO KNOW WHERE YOU ARE RELATIVE TO STREAMS...RIVERS...OR CREEKS WHICH CAN BECOME KILLERS IN HEAVY RAINS.  CAMPERS AND HIKERS SHOULD AVOID STREAMS OR CREEKS.
+FLOODING IS OCCURRING OR IS IMMINENT. IT IS IMPORTANT TO KNOW WHERE YOU ARE RELATIVE TO STREAMS...RIVERS...OR CREEKS WHICH CAN BECOME KILLERS IN HEAVY RAINS. CAMPERS AND HIKERS SHOULD AVOID STREAMS OR CREEKS.
 
 #end
 #if(${list.contains($bullets, "lowspotsCTA")})
@@ -292,5 +290,3 @@ $$
 ########### EXAMPLES OF PARSE OR INCLUDE STATEMENTS ################################
 ## #parse ("someFileInSiteWarngen.vm")
 ## #include ("username.txt")
-
-#end
