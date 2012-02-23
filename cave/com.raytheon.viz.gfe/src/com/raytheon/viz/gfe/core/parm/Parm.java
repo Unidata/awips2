@@ -171,6 +171,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 12Sep2008    #1332      wdougherty  Added deleteLockedTR() for editing hazards.
  * 04/16/2009   #2262      rjpeter     Updated pencilStretch to return Grid2DBit.
  * 06/08/2009   #2159      rjpeter     Fixed undo.
+ * 02/23/2012   #346       dgilling    Implement a dispose method to mimic 
+ *                                     AWIPS1 use of C++ destructor.
  * </pre>
  * 
  * @author chammack
@@ -346,7 +348,37 @@ public abstract class Parm implements Comparable<Parm> {
         if (this.officeType == null) {
             this.officeType = dataManager.getOfficeType();
         }
+    }
 
+    public void dispose() {
+        if (isModified()) {
+            statusHandler.warn("Destroying parm " + getParmID().toString()
+                    + " with modified data.");
+        }
+
+        if (dataManager.getParmOp() != null) {
+            dataManager.getParmOp().clearUndoParmList(this);
+        }
+
+        // cleanup interpolator stuff
+        finishInterpolation(true);
+
+        // Once this is done we had better not talk to any of the parm clients
+        // again...
+        parmListeners.clearParmListeners();
+
+        // Remove the undo grids
+        purgeUndoGrids();
+
+        // remove all grids
+        grids.acquireWriteLock();
+        try {
+            grids.clear();
+        } finally {
+            grids.releaseWriteLock();
+        }
+
+        return;
     }
 
     /**
