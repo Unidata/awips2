@@ -1,0 +1,11 @@
+s2s
+default : 
+BLNK : 
+SKC : 1
+CLR : 1
+FEW : 6
+SCT : 2
+BKN : 3
+OVC : 4
+OBS : 5
+VV  : 5

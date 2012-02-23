@@ -1,31 +1,31 @@
 package gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels;
 
 
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationConstants;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationResourcePathConstants;
-import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.elements.PlotModelElement;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.elements.PlotModel;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 
@@ -44,6 +44,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 03/21        R1G2-9      Greg Hull   synchronized readPlotModels()     
  * 03/04/11      425        Greg Hull   change category to plugin
  * 03/08/11      425        Greg Hull   add deletePlotModel
+ * 08/15/11      450        Greg Hull   NcPathManager and save LocalizationFiles;
+ *                                      use SerializationUtil instead of JaxBContext
  *                       
  * </pre>
  * 
@@ -51,77 +53,65 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * @version 1
  */
 public class PlotModelMngr {
-
-	//
+	
 	private static HashMap<String,PlotModel> plotModels = null;
 
 	private static PlotModelMngr instance = null;
 	
-	final String DFLT_SVG_TEMPLATE_FILE = "standardPlotModel.svg";
-	
-	private static File plotModelsDir = null;
+	final String DFLT_SVG_TEMPLATE_FILE = "standardPlotModelTemplate.svg";
 
-	/**
-	 * Singleton Constructor. 
-	 */
+
 	private PlotModelMngr() {
 	}
 
 	public static synchronized PlotModelMngr getInstance() {		
-		if ( instance == null ) 
+		if( instance == null ) 
 			 instance = new PlotModelMngr();
 		return instance;
 	}
 	
 	// read in all the xml files in the plotModels directory.
 	synchronized private void readPlotModels() {
-				
+		
 		if( plotModels == null ) {
 			plotModels = new HashMap<String,PlotModel>();
 
-			plotModelsDir = LocalizationManager.getInstance().getLocalizationFileDirectory(
-					LocalizationResourcePathConstants.PLOTMODELS_DIR); 
-
-			File xmlFiles[] = plotModelsDir.listFiles( new FilenameFilter() {
-				@Override
-				public boolean accept( File dir, String name) {
-					return (name.endsWith(".xml"));
-				}			
-			});
+			// get all of the xml (plotModel) files in the PLOT_MODELS directory.
+			// This will return files from all context levels.
+			// This is recursive to pick up files in the 'plugin' subdirectories but as
+			// a result the PlotParameterDefns in PlotModels/PlotParameters will also be
+			// picked up so we have to ignore them.
+			Map<String,LocalizationFile> pmLclFiles = NcPathManager.getInstance().listFiles( 
+        				NcPathConstants.PLOT_MODELS_DIR, 
+        				       new String[]{ ".xml" }, true, true );
 			
-			for( File xmlFile : xmlFiles ) {
+			for( LocalizationFile lFile : pmLclFiles.values() ) {
 				try {
 					PlotModel plotModel = null;
-					JAXBContext context = JAXBContext.newInstance(
-							PlotModel.class.getPackage().getName() );
-					Unmarshaller unmarshaller = context.createUnmarshaller();
-					plotModel = (PlotModel)unmarshaller.unmarshal(
-							new FileReader(xmlFile));
-					
-					// enforce the filenaming convention.
-					File genFile = new File( createPlotModelFilename( 
-												plotModel.getPlugin(), plotModel.getName() ) );
+					Object xmlObj = SerializationUtil.jaxbUnmarshalFromXmlFile( 
+							lFile.getFile().getAbsolutePath() );
 
-					if( plotModel.getPlugin() == null ) {
-						continue;
+					if( xmlObj instanceof PlotModel ) {
+						plotModel = (PlotModel)xmlObj;
+					
+						plotModel.setLocalizationFile( lFile );
+					
+						if( plotModel.getPlugin() == null ) {
+							continue;
+						}
+						else if( !lFile.getName().equals( plotModel.createLocalizationFilename() ) ) {
+							// This will only cause a problem if the user creates a USER-level (uses naming convention) and
+							// then reverts back to the base version by deleting the user level file. The code will 
+							// look for the base version useing the naming convention and so won't find the file.
+							System.out.println("Warning: PlotModel file doesn't follow the naming convention.\n");
+							System.out.println( lFile.getName()+" should be "+plotModel.createLocalizationFilename() );
+						}
+
+						plotModels.put( plotModel.getPlugin()+plotModel.getName(), plotModel );		
 					}
-					
-					if( !xmlFile.equals( genFile ) ) {
-						System.out.println("The PlotModel filename "+xmlFile.getAbsolutePath() + 
-								" doesn't follow the proper filename convention\nRenaming the file to "+
-								 genFile.getAbsolutePath() );
-						xmlFile.renameTo( genFile );
-					}
-					
-					plotModels.put( plotModel.getPlugin()+plotModel.getName(), plotModel );		
-					
-				} catch (JAXBException jbe ) {
-					System.out.println("Error unmarshalling file: " + xmlFile.getAbsolutePath() );
-					System.out.println( jbe.getMessage() );
-				} catch (FileNotFoundException e1) {
-					e1.printStackTrace();
-				} catch (NullPointerException e2) {
-					e2.printStackTrace();		
+				} catch (SerializationException e) {
+					System.out.println("Error unmarshalling file: " + lFile.getFile().getAbsolutePath() );
+					System.out.println( e.getMessage() );
 				}	
 			}
 			if( plotModels.size() == 0 ) 
@@ -175,64 +165,116 @@ public class PlotModelMngr {
 	/*
 	 *  Writes a JAXB-based object into the xml file and updates the map.
 	 *  
-	 *  This will overwrite an existing file so check before calling.
 	 */
-	public void savePlotModel( PlotModel plotModel ) { 
+	public void savePlotModel( PlotModel plotModel ) throws VizException { 
+		
 		readPlotModels();
 		
 		if( plotModel == null ||
 			plotModel.getName() == null ) {
-			System.out.println("savePlotModel: PlotModel is null or doesn't have a name?");
-			return;
+			throw new VizException( "savePlotModel: PlotModel is null or doesn't have a name?");
 		}
 		
-		// convention is camelcase category and plotmodel name
-		String pluginName = plotModel.getPlugin();
-		String name = plotModel.getName();
-		File plotModelFile = new File( createPlotModelFilename( pluginName, name ) );
+		// create a localization file for the plotModel
+		//
+		LocalizationContext userCntxt = NcPathManager.getInstance().getContext( 
+				LocalizationType.CAVE_STATIC, LocalizationLevel.USER );
+
+		LocalizationFile lFile = plotModel.getLocalizationFile();
+		
+		// if the file exists overwrite it.
+		if( lFile == null || 
+		    lFile.getContext().getLocalizationLevel() != LocalizationLevel.USER ) {
+		    lFile = NcPathManager.getInstance().getLocalizationFile( userCntxt,
+								plotModel.createLocalizationFilename() ); 
+		}
+			
+		plotModel.setLocalizationFile( lFile );
+		
+		File plotModelFile = lFile.getFile();
 		
 		try {
-			JAXBContext context = JAXBContext.newInstance(PlotModel.class);
-			Marshaller marshaller = context.createMarshaller();
-			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);  
-			marshaller.marshal( plotModel, new FileWriter( plotModelFile ) ); 
+			SerializationUtil.jaxbMarshalToXmlFile( plotModel, 
+					plotModelFile.getAbsolutePath() );
 
+			lFile.save();
+			
 			// update this PlotModel in the map
-			plotModels.put( plotModel.getPlugin()+plotModel.getName(), plotModel );				
-		} catch (JAXBException e) {
+			plotModels.put( plotModel.getPlugin()+plotModel.getName(), plotModel );		
+						
+		} catch (LocalizationOpFailedException e) {
+			throw new VizException( e );
+		} catch (SerializationException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}		
+		}
 	}
-	
 	
 	public void deletePlotModel( String pluginName, String pltMdlName ) 
-						throws VizException { 
-//		readPlotModels();
-				
-		File plotModelFile = new File( createPlotModelFilename( pluginName, pltMdlName ) );
+						throws VizException {
 		
-		if( !plotModelFile.exists() ) {
-			throw new VizException( "File "+plotModelFile.getAbsolutePath() +
-					" doesn't exist.");
+		PlotModel delPltMdl = getPlotModel( pluginName, pltMdlName );
+		
+		if( delPltMdl == null ) {
+			throw new VizException("Could not find plot model, "+pltMdlName+
+					", for plugin, "+pluginName );
 		}
-		else if( !plotModelFile.delete() ) {
-			throw new VizException( "Error Deleting File "+plotModelFile.getAbsolutePath());
-		}		
-		else if( plotModels.remove( pluginName+pltMdlName) == null ) {
-			// ???
+		
+		LocalizationFile lFile = delPltMdl.getLocalizationFile();
+		
+		if( lFile == null ||
+			!lFile.getFile().exists() ||
+			lFile.getContext().getLocalizationLevel() != LocalizationLevel.USER ) { // sanity check
+			throw new VizException( "File "+delPltMdl.createLocalizationFilename() +
+					" doesn't exist or is not a User Level Plot Model.");
 		}
+		
+		try {
+			String lFileName = lFile.getName();
+			
+			lFile.delete(); 
+			plotModels.remove( pluginName+pltMdlName );
+
+			lFile = NcPathManager.getInstance().getStaticLocalizationFile( lFileName ); 
+
+			// If there is another file of the same name in the BASE/SITE/DESK then
+			// update the plotmodels with this version.
+			if( lFile != null ) {
+				if( lFile.getContext().getLocalizationLevel() == LocalizationLevel.USER ) {
+					System.out.println("Huh, What?");
+					throw new VizException( "Unexplained error deleting PlotModel.");
+				}
+				try {
+					PlotModel plotModel = null;
+					Object xmlObj = SerializationUtil.jaxbUnmarshalFromXmlFile( 
+							lFile.getFile().getAbsolutePath() );
+
+					if( xmlObj instanceof PlotModel ) {
+						plotModel = (PlotModel)xmlObj;
+					
+						plotModel.setLocalizationFile( lFile );
+					
+						if( plotModel.getPlugin() != null ) {
+							plotModels.put( plotModel.getPlugin()+plotModel.getName(), plotModel );		
+						}
+					}
+				} catch (SerializationException e) {
+					System.out.println("Error unmarshalling file: " + lFile.getFile().getAbsolutePath() );
+					System.out.println( e.getMessage() );
+				}					
+			}
+//			else { // otherwise delete the PlotModel from the map.
+//				plotModels.remove( pluginName+pltMdlName );
+//			}
+
+			// TODO : check if there is a base or site level file of the same name and 
+			// update with it....
+		} catch ( LocalizationOpFailedException e ) {
+			throw new VizException( "Error Deleting PlotModel, "+pltMdlName+
+					", for plugin, "+pluginName +"\n"+e.getMessage() );
+		}				
 	}
-	
-	// convention is camelcase category and plotmodel name
-	public String createPlotModelFilename( String pluginName, String name ) {
-		String xmlFname = //pluginName.substring(0,1).toUpperCase() + pluginName.substring(0).toLowerCase() +
-//						  name.substring(0,1).toUpperCase() +  name.substring(1).toLowerCase() + ".xml";
-			plotModelsDir.getAbsolutePath()+File.separator+pluginName+"_"+name+".xml";
-		return xmlFname;
-	}
-	
+		
 	public PlotModel getDefaultPlotModel() {
 	    PlotModel dfltPM = new PlotModel();
 	    dfltPM.setName("default");

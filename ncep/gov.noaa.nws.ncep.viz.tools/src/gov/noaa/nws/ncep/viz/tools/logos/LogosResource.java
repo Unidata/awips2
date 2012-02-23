@@ -1,8 +1,8 @@
 package gov.noaa.nws.ncep.viz.tools.logos;
 
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationResourcePathConstants;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.tools.logos.LogoInfo.LogoEntry;
 
 import java.awt.Image;
@@ -12,9 +12,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.swt.graphics.RGB;
 
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelCoverage;
@@ -37,6 +39,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * June 2009  	105        M. Li    	Initial creation. 
  * Nov  2009               G. Hull      migrate to to11d6
+ * July 2011    #450       G. Hull      get Logos from NcPathManager.
  * 
  * </pre>
  * 
@@ -61,10 +64,7 @@ public class LogosResource extends AbstractVizResource<LogosResourceData,MapDesc
     private int[] positionArray = null;
     
     private int[] scaleArray = null;
-    
-    
-    
-    
+        
     protected LogosResource(LogosResourceData resourceData,
     		LoadProperties loadProperties) {        
     	super(resourceData, loadProperties);
@@ -97,22 +97,14 @@ public class LogosResource extends AbstractVizResource<LogosResourceData,MapDesc
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * com.raytheon.viz.core.rsc.IVizResource#isApplicable(com.raytheon.viz.
-     * core.PixelExtent)
-     */
-   // public boolean isApplicable(PixelExtent anExtent) {
-   //     return true;
-   // }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see com.raytheon.viz.core.rsc.IVizResource#paint(com.raytheon.viz.core.
      * IGraphicsTarget, com.raytheon.viz.core.PixelExtent, double, float)
      */
     public void paintInternal(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
+    	
+    	// TODO change this to only get the Image once and save it
+    	
     	
     	if (logoList != null) {
     		// Ratio to maintain same size when zoom in/out
@@ -129,20 +121,14 @@ public class LogosResource extends AbstractVizResource<LogosResourceData,MapDesc
             double ulY = extent.getMinY();
             double lrX = extent.getMaxX();
     		double lrY = extent.getMaxY();
+    		
     		for (int i = 0; i < logoList.size(); i++) {
-    			
-    			/*
-    			 * comment out by M. Gao
-    			 */
-//    			String logofile = LocalizationManager.getInstance().getFilename("logosImageDir") + File.separator
-//    				+ logoList.get(i).getImageFile();
-    			String logofileName = LocalizationManager.getInstance().getLocalizationFileNameDirectly(LocalizationResourcePathConstants.LOGO_IMAGES_DIR,
-    					logoList.get(i).getImageFile()); 
- 
+
+    			String logofileName = logoList.get(i).getImageFile();
 	    		IImage theImage = target.initializeRaster( 
 	    				new IODataPreparer( logofileName, 1), null );
     			
-    			Image image = Toolkit.getDefaultToolkit().getImage(logofileName);
+    			Image image = Toolkit.getDefaultToolkit().getImage( logofileName );
     			double h = image.getHeight(null) * ratio * scaleArray[i] / 100;
     			double w = image.getWidth(null)  * ratio * scaleArray[i] / 100;
     			
@@ -239,38 +225,34 @@ public class LogosResource extends AbstractVizResource<LogosResourceData,MapDesc
     public void setColor(RGB color) {
         this.color = color;
     }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.rsc.IVizResource#getShortName()
-     */
-    /*@Override
-    public String getShortName() {
-        return getName();
-    }
-    */
     
     private void readLogoTable() {
     	if (logoList == null) {
-    		logoInfo = new LogoInfo(LocalizationManager.getInstance().getFilename("logoTable"));
     		try {
-    			if (logoInfo.readTable()) {
+    			File logoTblFile = NcPathManager.getInstance().getStaticFile( 
+    					NcPathConstants.LOGOS_TBL ); // from ext point. logoTable" ) );
+    			if( logoTblFile == null || !logoTblFile.exists() ) {
+    				throw new FileNotFoundException( NcPathConstants.LOGOS_TBL );
+    			}
+
+    			// get a list of all the available image files.
+    			//
+				Map<String,LocalizationFile> logoLclFiles = NcPathManager.getInstance().listFiles( 
+						NcPathConstants.LOGOS_DIR, new String[]{".gif"}, true, true );
+			
+
+    			logoInfo = new LogoInfo( logoTblFile );
+    			
+    			if (logoInfo.readTable( logoLclFiles )) {
     				logoList = new ArrayList<LogoEntry>();
     				logoList = logoInfo.getLogoList();
     				
-    				for (LogoEntry logo : logoList) {
-    					/*
-    					 * comment out by M. Gao
-    					 */
-//    					String logofile = LocalizationManager.getInstance().getFilename("logosImageDir") + File.separator
-//    										+ logo.getImageFile();
-    					String logofileName = LocalizationManager.getInstance().getLocalizationFileNameDirectly(LocalizationResourcePathConstants.LOGO_IMAGES_DIR,
-    							logo.getImageFile()); 
-    					Image image = Toolkit.getDefaultToolkit().getImage(logofileName);
-    					logo.setImageHeigth(image.getHeight(null));
-    					logo.setImageWidth(image.getWidth(null));
-    				}
+        			for (LogoEntry logo : logoList) {
+        				Image image = Toolkit.getDefaultToolkit().getImage( 
+        						logo.getImageFile() );
+        				logo.setImageHeigth(image.getHeight(null));
+        				logo.setImageWidth(image.getWidth(null));
+        			}
     			}
     		} catch (FileNotFoundException e) {
     			e.printStackTrace();

@@ -1,4 +1,4 @@
-COPY stns.ZONES(STID, STNUM, NAME, STATE, COUNTRY, LAT, LON, WFO) FROM stdin with delimiter as ',';
+COPY stns.ZONES(STATION_ID, STATION_NUM, NAME, STATE, COUNTRY, LATITUDE, LONGITUDE, WFO) FROM stdin with delimiter as ',';
 AKZ187,21870,Central_Aleutians,AK,US,52.22,-174.23,AFC
 AKZ213,22130,St_Lawrence_I_and_Bering_St_Cst,AK,US,63.36,-170.27,AFG
 AKZ195,21950,Pribilof_Islands,AK,US,57.18,-170.26,AFC
