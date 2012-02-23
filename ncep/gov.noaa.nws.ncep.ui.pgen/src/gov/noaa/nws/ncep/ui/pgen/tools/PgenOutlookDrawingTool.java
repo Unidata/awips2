@@ -33,6 +33,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Line;
  * ------------	----------	-----------	--------------------------
  * 03/10			?		B. Yin   	Initial Creation.
  * 04/11			?		B. Yin		Re-factor IAttribute
+ * 12/11        #582        Q.Zhou      changed hard coded line type in mouse down/move for TROPICAL
  * 
  * </pre>
  * 
@@ -171,8 +172,12 @@ public class PgenOutlookDrawingTool extends AbstractPgenDrawingTool {
             	}
             	else {
             		// create a new DrawableElement.    
-            		elem = (DrawableElement)def.create( DrawableType.LINE, (IAttribute)attrDlg,
-            				"Lines", "POINTED_ARROW", points, drawingLayer.getActiveLayer());
+            		if (((OutlookAttrDlg)attrDlg).getOutlookType().equalsIgnoreCase("TROPICAL"))
+            			elem = (DrawableElement)def.create( DrawableType.LINE, (IAttribute)attrDlg,
+            				"Lines", "LINE_SOLID", points, drawingLayer.getActiveLayer());
+            		else 
+            			elem = (DrawableElement)def.create( DrawableType.LINE, (IAttribute)attrDlg,
+                				"Lines", "POINTED_ARROW", points, drawingLayer.getActiveLayer());
             		//if (((IMultiPoint)attrDlg).getFillFlag()) ((Line)elem).setFillPattern(attrDlg.getFillPattern());
             		
             		dec = new DECollection(Outlook.OUTLOOK_LABELED_LINE);
@@ -249,8 +254,14 @@ public class PgenOutlookDrawingTool extends AbstractPgenDrawingTool {
         	
         	
         	// create the ghost line and put it in the drawing layer
-           	AbstractDrawableComponent ghost = def.create(DrawableType.LINE, (IAttribute)attrDlg,
-        			"Lines", "POINTED_ARROW", points, drawingLayer.getActiveLayer());
+        	AbstractDrawableComponent ghost = null;
+        	if (((OutlookAttrDlg)attrDlg).getOutlookType().equalsIgnoreCase("TROPICAL"))
+        		ghost = def.create(DrawableType.LINE, (IAttribute)attrDlg,
+        			"Lines", "LINE_SOLID", points, drawingLayer.getActiveLayer());
+        	else
+        		ghost = def.create(DrawableType.LINE, (IAttribute)attrDlg,
+            			"Lines", "POINTED_ARROW", points, drawingLayer.getActiveLayer());
+        	
     		if (((ILine)attrDlg).isFilled()) ((Line)ghost).setFillPattern(((ILine)attrDlg).getFillPattern());
 
             if ( points != null && points.size() >= 1) {
@@ -269,7 +280,12 @@ public class PgenOutlookDrawingTool extends AbstractPgenDrawingTool {
         	
         }
         
-        public void clearPoints(){
+        @Override
+		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
+			return true;
+		}
+
+		public void clearPoints(){
         	points.clear();
         }
 

@@ -13,6 +13,7 @@ import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.attrDialog.AttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.attrDialog.AttrDlgFactory;
 import gov.noaa.nws.ncep.ui.pgen.attrDialog.GfaAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrDialog.PgenFilterDlg;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElementFactory;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableType;
@@ -37,6 +38,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------	----------	-----------	--------------------------
  * 03/10					M.Laryukhin Initial Creation.
  * 04/11		#?			B. Yin		Re-factor IAttribute
+ * 12/11		#?			B. Yin		Sets vorText 
  * 
  * </pre>
  * 
@@ -186,7 +188,15 @@ public class PgenGfaDrawingTool extends AbstractPgenDrawingTool {
             		// create a new DrawableElement.    
             		elem = def.create( drawableType, (IAttribute)attrDlg,
             				pgenCategory, pgenType, points, drawingLayer.getActiveLayer());
-
+            		
+            		//set the hour filter
+            		if ( PgenFilterDlg.isFilterDlgOpen()){
+            			PgenFilterDlg.getInstance(null).setHourChkBox(((Gfa)elem).getForecastHours(), true);
+            		}
+            		
+            		//set from line
+            		((GfaAttrDlg)attrDlg).setVorText((Gfa)elem);
+            		
 					startGfaText = true;
 					attrDlg.setAttrForDlg(attrDlg); // update the parameters in GfaAttrDlg
 					return true;
@@ -275,6 +285,11 @@ public class PgenGfaDrawingTool extends AbstractPgenDrawingTool {
         	return false;
         	
         }
+
+		@Override
+		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
+			return true;
+		}
 
 		private boolean handleGfaTextMouseMove(Coordinate loc) {
 			Gfa gfa = (Gfa)def.create(DrawableType.GFA, (IAttribute)attrDlg,

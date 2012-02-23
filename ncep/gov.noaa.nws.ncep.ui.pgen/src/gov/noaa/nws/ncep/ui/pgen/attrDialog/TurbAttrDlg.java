@@ -8,6 +8,7 @@
 
 package gov.noaa.nws.ncep.ui.pgen.attrDialog;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.AvnText;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
@@ -253,7 +254,7 @@ public class TurbAttrDlg extends AttrDlg implements ILine {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if ( ((Button)e.widget).getSelection() ){
-					turbTool.setDeleteHandler(true, false);
+					turbTool.setDeleteHandler(true, false, false);
 					addLineBtn.setSelection(false);
 					addLabelBtn.setSelection(false);
 					delLabelBtn.setSelection(false);
@@ -273,7 +274,7 @@ public class TurbAttrDlg extends AttrDlg implements ILine {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 					if ( ((Button)e.widget).getSelection() ){
-						turbTool.setDeleteHandler(false, false);
+						turbTool.setDeleteHandler(false, false, false);
 						addLineBtn.setSelection(false);
 						addLabelBtn.setSelection(false);
 						delLineBtn.setSelection(false);
@@ -596,5 +597,16 @@ public class TurbAttrDlg extends AttrDlg implements ILine {
 	public FillPattern getFillPattern() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	/**
+     * close all related dialogs and re-set tool.
+     */
+	@Override
+	public boolean close(){
+		
+		PgenUtil.setSelectingMode();
+		return super.close();
+		
 	}
 }

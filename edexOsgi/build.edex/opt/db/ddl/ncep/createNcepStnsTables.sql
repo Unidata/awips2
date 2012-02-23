@@ -22,11 +22,11 @@ pkey  SERIAL PRIMARY KEY,
 DROP TABLE IF EXISTS stns.BUOYS CASCADE; 
 CREATE TABLE stns.BUOYS ( 
 	PKEY SERIAL PRIMARY KEY, 
-        STNUM int, 
+        STATION_NUM int, 
         NAME varchar(32), 
         COUNTRY char(2), 
-        LAT double precision, 
-        LON double precision
+        LATITUDE double precision, 
+        LONGITUDE double precision
 );
 
 -- Create cities table
@@ -41,6 +41,20 @@ pkey  SERIAL PRIMARY KEY,
         latitude  double precision NOT NULL,
         longitude double precision NOT NULL,
         priority smallint NOT NULL
+);
+
+-- Create climo_data table
+DROP TABLE IF EXISTS stns.climo_data CASCADE;
+CREATE TABLE stns.climo_data(
+pkey  SERIAL PRIMARY KEY,
+        station_id varchar(8)      NOT NULL,
+        month      smallint	NOT NULL,
+        day        smallint	NOT NULL,
+        TDYF double precision,
+        TNTF double precision,
+        PPNT double precision,
+        PPDY double precision,
+        PP24 double precision
 );
 
 -- Create climreg table
@@ -114,13 +128,13 @@ pkey  SERIAL PRIMARY KEY,
 DROP TABLE IF EXISTS stns.countynam CASCADE; 
 CREATE TABLE stns.countynam ( 
 	PKEY SERIAL PRIMARY KEY, 
-        STID varchar(8), 
-        STNUM int, 
+        STATION_ID varchar(8), 
+        STATION_NUM int, 
         NAME varchar(32), 
         STATE char(2), 
         COUNTRY char(2), 
-        LAT double precision, 
-        LON double precision, 
+        LATITUDE double precision, 
+        LONGITUDE double precision, 
         WFO varchar(3) 
 );
 
@@ -142,13 +156,13 @@ pkey  SERIAL PRIMARY KEY,
 DROP TABLE IF EXISTS stns.CPCSTNS CASCADE; 
 CREATE TABLE stns.CPCSTNS ( 
 	PKEY SERIAL PRIMARY KEY, 
-        STID varchar(4), 
-        STNUM int, 
+        STATION_ID varchar(4), 
+        STATION_NUM int, 
         NAME varchar(32), 
         STATE char(2), 
         COUNTRY char(2), 
-        LAT double precision, 
-        LON double precision, 
+        LATITUDE double precision, 
+        LONGITUDE double precision, 
         ELEV int, 
         PRI int
 );
@@ -156,13 +170,13 @@ CREATE TABLE stns.CPCSTNS (
 DROP TABLE IF EXISTS stns.DLWX CASCADE; 
 CREATE TABLE stns.DLWX ( 
 	PKEY SERIAL PRIMARY KEY, 
-        STID varchar(4), 
-        STNUM int, 
+        STATION_ID varchar(4), 
+        STATION_NUM int, 
         NAME varchar(32), 
         STATE char(2), 
         COUNTRY char(2), 
-        LAT double precision, 
-        LON double precision, 
+        LATITUDE double precision, 
+        LONGITUDE double precision, 
         ELEV int, 
         PRI int
 );
@@ -170,26 +184,26 @@ CREATE TABLE stns.DLWX (
 DROP TABLE IF EXISTS stns.FFGZON CASCADE; 
 CREATE TABLE stns.FFGZON ( 
 	PKEY SERIAL PRIMARY KEY, 
-        STID varchar(8), 
-        STNUM int, 
+        STATION_ID varchar(8), 
+        STATION_NUM int, 
         NAME varchar(32), 
         STATE char(2), 
         COUNTRY char(2), 
-        LAT double precision, 
-        LON double precision, 
+        LATITUDE double precision, 
+        LONGITUDE double precision, 
         WFO varchar(8)        
 );
 -- Create firezones table
 DROP TABLE IF EXISTS stns.FIREZONES CASCADE; 
 CREATE TABLE stns.FIREZONES ( 
 	PKEY SERIAL PRIMARY KEY, 
-        STID varchar(8), 
-        STNUM int, 
+        STATION_ID varchar(8), 
+        STATION_NUM int, 
         NAME varchar(32), 
         STATE char(2), 
         COUNTRY char(2), 
-        LAT double precision, 
-        LON double precision, 
+        LATITUDE double precision, 
+        LONGITUDE double precision, 
         WFO varchar(8)        
 );
 
@@ -578,28 +592,28 @@ pkey  SERIAL PRIMARY KEY,
 DROP TABLE IF EXISTS stns.SNWORLD CASCADE; 
 CREATE TABLE stns.SNWORLD
 ( PKEY SERIAL PRIMARY KEY,
-  STID varchar(4)  NOT NULL,
-  STNUM int  NOT NULL,
+  STATION_ID varchar(4)  NOT NULL,
+  STATION_NUM int  NOT NULL,
   NAME varchar(32)  NOT NULL,
   STATE char(2)  NOT NULL,
   COUNTRY char(2)  NOT NULL,
-  LAT double precision  NOT NULL,
-  LON double precision  NOT NULL,
-  ELEV int  NOT NULL,
+  LATITUDE double precision  NOT NULL,
+  LONGITUDE double precision  NOT NULL,
+  ELEVATION int  NOT NULL,
   PRI int NOT NULL
 );
 -- Create spcwatch table
 DROP TABLE IF EXISTS stns.SPCWATCH CASCADE; 
 CREATE TABLE stns.SPCWATCH ( 
 	PKEY SERIAL PRIMARY KEY,
-        STID varchar(8)  NOT NULL,
-        STNUM int  NOT NULL,
+        STATION_ID varchar(8)  NOT NULL,
+        STATION_NUM int  NOT NULL,
         NAME varchar(32)  NOT NULL,
         STATE char(2)  NOT NULL,
         COUNTRY char(2)  NOT NULL,
-        LAT double precision  NOT NULL,
-        LON double precision  NOT NULL,
-	ELEV int NOT NULL
+        LATITUDE double precision  NOT NULL,
+        LONGITUDE double precision  NOT NULL,
+	ELEVATION int NOT NULL
 );
 -- Create state table
 DROP TABLE IF EXISTS stns.STATE CASCADE; 
@@ -612,53 +626,53 @@ CREATE TABLE stns.STATE (
 DROP TABLE IF EXISTS stns.STNS_II90 CASCADE; 
 CREATE TABLE stns.STNS_II90 ( 
 	PKEY SERIAL PRIMARY KEY,
-        STNUM int  NOT NULL,
+        STATION_NUM int  NOT NULL,
         NAME varchar(32)  NOT NULL,
         STATE char(2)  NOT NULL,
         COUNTRY char(2)  NOT NULL,
-        LAT double precision  NOT NULL,
-        LON double precision  NOT NULL,
-	ELEV int NOT NULL ,
+        LATITUDE double precision  NOT NULL,
+        LONGITUDE double precision  NOT NULL,
+	ELEVATION int NOT NULL ,
 	PRI  int NOT NULL
 );
 -- Create systns table
 DROP TABLE IF EXISTS stns.SYSTNS CASCADE; 
 CREATE TABLE stns.SYSTNS ( 
 	PKEY SERIAL PRIMARY KEY,
-        STID varchar(8)  NOT NULL,
-        STNUM int  NOT NULL,
+        STATION_ID varchar(8)  NOT NULL,
+        STATION_NUM int  NOT NULL,
         NAME varchar(32)  NOT NULL,
         STATE char(2)  NOT NULL,
         COUNTRY char(2)  NOT NULL,
-        LAT double precision  NOT NULL,
-        LON double precision  NOT NULL,
-	ELEV int NOT NULL
+        LATITUDE double precision  NOT NULL,
+        LONGITUDE double precision  NOT NULL,
+	ELEVATION int NOT NULL
 );
 -- Create syworld table
 DROP TABLE IF EXISTS stns.SYWORLD CASCADE; 
 CREATE TABLE stns.SYWORLD ( 
 	PKEY SERIAL PRIMARY KEY,
-        STID varchar(8)  NOT NULL,
-        STNUM int  NOT NULL,
+        STATION_ID varchar(8)  NOT NULL,
+        STATION_NUM int  NOT NULL,
         NAME varchar(32)  NOT NULL,
         STATE char(2)  NOT NULL,
         COUNTRY char(2)  NOT NULL,
-        LAT double precision  NOT NULL,
-        LON double precision  NOT NULL,
-	ELEV int NOT NULL
+        LATITUDE double precision  NOT NULL,
+        LONGITUDE double precision  NOT NULL,
+	ELEVATION int NOT NULL
 );
 -- Create tafstn table
 DROP TABLE IF EXISTS stns.TAFSTN CASCADE; 
 CREATE TABLE stns.TAFSTN ( 
 	PKEY SERIAL PRIMARY KEY,
-        STID varchar(8)  NOT NULL,
-        STNUM int  NOT NULL,
+        STATION_ID varchar(8)  NOT NULL,
+        STATION_NUM int  NOT NULL,
         NAME varchar(32)  NOT NULL,
         STATE char(2)  NOT NULL,
         COUNTRY char(2)  NOT NULL,
-        LAT double precision  NOT NULL,
-        LON double precision  NOT NULL,
-	ELEV int  NOT NULL,
+        LATITUDE double precision  NOT NULL,
+        LONGITUDE double precision  NOT NULL,
+	ELEVATION int  NOT NULL,
         PRI int NOT NULL,
 	MISC char(3) NOT NULL
 );
@@ -666,13 +680,13 @@ CREATE TABLE stns.TAFSTN (
 DROP TABLE IF EXISTS stns.TCABKPT CASCADE; 
 CREATE TABLE stns.TCABKPT ( 
 	PKEY SERIAL PRIMARY KEY,
-        STID varchar(8)  NOT NULL,
-        STNUM int  NOT NULL,
+        STATION_ID varchar(8)  NOT NULL,
+        STATION_NUM int  NOT NULL,
         NAME varchar(32)  NOT NULL,
         STATE char(2)  NOT NULL,
         COUNTRY char(2)  NOT NULL,
-        LAT double precision  NOT NULL,
-        LON double precision  NOT NULL,
+        LATITUDE double precision  NOT NULL,
+        LONGITUDE double precision  NOT NULL,
         PRI int NOT NULL ,
 	TBCHRS varchar(20) NOT NULL
 );
@@ -680,39 +694,39 @@ CREATE TABLE stns.TCABKPT (
 DROP TABLE IF EXISTS stns.TCABKPT_ISLAND CASCADE; 
 CREATE TABLE stns.TCABKPT_ISLAND ( 
 	PKEY SERIAL PRIMARY KEY,
-        STID varchar(8)  NOT NULL,
-        STNUM int  NOT NULL,
+        STATION_ID varchar(8)  NOT NULL,
+        STATION_NUM int  NOT NULL,
         NAME varchar(32)  NOT NULL,
         STATE char(2)  NOT NULL,
         COUNTRY char(2)  NOT NULL,
-        LAT double precision  NOT NULL,
-        LON double precision  NOT NULL,
+        LATITUDE double precision  NOT NULL,
+        LONGITUDE double precision  NOT NULL,
         PRI int NOT NULL
 );
 -- Create tcabkpt_land table
 DROP TABLE IF EXISTS stns.TCABKPT_LAND CASCADE; 
 CREATE TABLE stns.TCABKPT_LAND ( 
 	PKEY SERIAL PRIMARY KEY,
-        STID varchar(8)  NOT NULL,
-        STNUM int  NOT NULL,
+        STATION_ID varchar(8)  NOT NULL,
+        STATION_NUM int  NOT NULL,
         NAME varchar(32)  NOT NULL,
         STATE char(2)  NOT NULL,
         COUNTRY char(2)  NOT NULL,
-        LAT double precision  NOT NULL,
-        LON double precision  NOT NULL,
+        LATITUDE double precision  NOT NULL,
+        LONGITUDE double precision  NOT NULL,
         PRI int  NOT NULL
 );
 -- Create tcabkptlz table
 DROP TABLE IF EXISTS stns.TCABKPTLZ CASCADE; 
 CREATE TABLE stns.TCABKPTLZ ( 
 	PKEY SERIAL PRIMARY KEY,
-        STID varchar(8)  NOT NULL,
-        STNUM int  NOT NULL,
+        STATION_ID varchar(8)  NOT NULL,
+        STATION_NUM int  NOT NULL,
         NAME varchar(32)  NOT NULL,
         STATE char(2)  NOT NULL,
         COUNTRY char(2)  NOT NULL,
-        LAT double precision  NOT NULL,
-        LON double precision  NOT NULL,
+        LATITUDE double precision  NOT NULL,
+        LONGITUDE double precision  NOT NULL,
         PRI int NOT NULL,
 	TBCHRS varchar(20)  NOT NULL
 );
@@ -720,26 +734,26 @@ CREATE TABLE stns.TCABKPTLZ (
 DROP TABLE IF EXISTS stns.TCABKPT_OVL CASCADE; 
 CREATE TABLE stns.TCABKPT_OVL ( 
 	PKEY SERIAL PRIMARY KEY,
-        STID varchar(8)  NOT NULL,
-        STNUM int  NOT NULL,
+        STATION_ID varchar(8)  NOT NULL,
+        STATION_NUM int  NOT NULL,
         NAME varchar(32)  NOT NULL,
         STATE char(2)  NOT NULL,
         COUNTRY char(2)  NOT NULL,
-        LAT double precision  NOT NULL,
-        LON double precision  NOT NULL,
+        LATITUDE double precision  NOT NULL,
+        LONGITUDE double precision  NOT NULL,
         PRI int NOT NULL
 );
 -- Create tcabkpt_water table
 DROP TABLE IF EXISTS stns.TCABKPT_WATER CASCADE; 
 CREATE TABLE stns.TCABKPT_WATER ( 
 	PKEY SERIAL PRIMARY KEY,
-        STID varchar(8)  NOT NULL,
-        STNUM int  NOT NULL,
+        STATION_ID varchar(8)  NOT NULL,
+        STATION_NUM int  NOT NULL,
         NAME varchar(32)  NOT NULL,
         STATE char(2)  NOT NULL,
         COUNTRY char(2)  NOT NULL,
-        LAT double precision  NOT NULL,
-        LON double precision  NOT NULL,
+        LATITUDE double precision  NOT NULL,
+        LONGITUDE double precision  NOT NULL,
         PRI int NOT NULL
 );
 -- Create tpc_countries table
@@ -750,8 +764,8 @@ CREATE TABLE stns.TPC_COUNTRIES (
         FIPS int  NOT NULL,
         NAME varchar(32)  NOT NULL,
         COUNTRY char(2)  NOT NULL,
-        LAT double precision  NOT NULL,
-        LON double precision NOT NULL
+        LATITUDE double precision  NOT NULL,
+        LONGITUDE double precision NOT NULL
 );
 -- Create tpc_states table
 DROP TABLE IF EXISTS stns.TPC_STATES CASCADE; 
@@ -762,98 +776,98 @@ CREATE TABLE stns.TPC_STATES (
         NAME varchar(32)  NOT NULL,
         STATE char(2)  NOT NULL,
         COUNTRY char(2)  NOT NULL,
-        LAT double precision  NOT NULL,
-        LON double precision NOT NULL
+        LATITUDE double precision  NOT NULL,
+        LONGITUDE double precision NOT NULL
 );
 -- Create volcano table
 DROP TABLE IF EXISTS stns.VOLCANO CASCADE; 
 CREATE TABLE stns.VOLCANO
 ( PKEY SERIAL PRIMARY KEY,
-  STID varchar(8)  NOT NULL,
-  STNUM int  NOT NULL,
+  STATION_ID varchar(8)  NOT NULL,
+  STATION_NUM int  NOT NULL,
   NAME varchar(32)  NOT NULL,
-  LAT double precision  NOT NULL,
-  LON double precision  NOT NULL,
-  ELEV int  NOT NULL,
+  LATITUDE double precision  NOT NULL,
+  LONGITUDE double precision  NOT NULL,
+  ELEVATION int  NOT NULL,
   LOCATION varchar(20)  NOT NULL
 );
 -- Create volcano_small table
 DROP TABLE IF EXISTS stns.VOLCANO_SMALL CASCADE; 
 CREATE TABLE stns.VOLCANO_SMALL
 ( PKEY SERIAL PRIMARY KEY,
-  STID varchar(8)  NOT NULL,
-  STNUM int  NOT NULL,
+  STATION_ID varchar(8)  NOT NULL,
+  STATION_NUM int  NOT NULL,
   NAME varchar(32)  NOT NULL,
   STATE char(2)  NOT NULL,
   COUNTRY char(2)  NOT NULL,
-  LAT double precision  NOT NULL,
-  LON double precision  NOT NULL,
-  ELEV int  NOT NULL
+  LATITUDE double precision  NOT NULL,
+  LONGITUDE double precision  NOT NULL,
+  ELEVATION int  NOT NULL
 );
 -- Create vors table
 DROP TABLE IF EXISTS stns.VORS CASCADE; 
 CREATE TABLE stns.VORS
 ( PKEY SERIAL PRIMARY KEY,
-  STID varchar(8)  NOT NULL,
-  STNUM int  NOT NULL,
+  STATION_ID varchar(8)  NOT NULL,
+  STATION_NUM int  NOT NULL,
   NAME varchar(32)  NOT NULL,
   STATE char(2)  NOT NULL,
   COUNTRY char(2)  NOT NULL,
-  LAT double precision  NOT NULL,
-  LON double precision NOT NULL
+  LATITUDE double precision  NOT NULL,
+  LONGITUDE double precision NOT NULL
 );
 -- Create wfo table
 DROP TABLE IF EXISTS stns.WFO CASCADE; 
 CREATE TABLE stns.WFO
 ( PKEY SERIAL PRIMARY KEY,
-  STID varchar(8)  NOT NULL,
-  STNUM int  NOT NULL,
+  STATION_ID varchar(8)  NOT NULL,
+  STATION_NUM int  NOT NULL,
   NAME varchar(32)  NOT NULL,
   STATE char(2)  NOT NULL,
   COUNTRY char(2)  NOT NULL,
-  LAT double precision  NOT NULL,
-  LON double precision  NOT NULL,
-  ELEV int   NOT NULL
+  LATITUDE double precision  NOT NULL,
+  LONGITUDE double precision  NOT NULL,
+  ELEVATION int   NOT NULL
 );
 -- Create wrqpf table
 DROP TABLE IF EXISTS stns.WRQPF CASCADE; 
 CREATE TABLE stns.WRQPF
 ( PKEY SERIAL PRIMARY KEY,
-  STID varchar(8)  NOT NULL,
-  STNUM int  NOT NULL,
+  STATION_ID varchar(8)  NOT NULL,
+  STATION_NUM int  NOT NULL,
   NAME varchar(32)  NOT NULL,
   STATE char(2)  NOT NULL,
   COUNTRY char(2)  NOT NULL,
-  LAT double precision  NOT NULL,
-  LON double precision  NOT NULL,
-  ELEV int  NOT NULL,
+  LATITUDE double precision  NOT NULL,
+  LONGITUDE double precision  NOT NULL,
+  ELEVATION int  NOT NULL,
   PRI int    NOT NULL
 );
 -- Create xrainsort table
 DROP TABLE IF EXISTS stns.XRAINSORT CASCADE; 
 CREATE TABLE stns.XRAINSORT
 ( PKEY SERIAL PRIMARY KEY,
-  STID varchar(4)  NOT NULL,
-  STNUM int  NOT NULL,
+  STATION_ID varchar(4)  NOT NULL,
+  STATION_NUM int  NOT NULL,
   NAME varchar(32)  NOT NULL,
   STATE char(2)  NOT NULL,
   COUNTRY char(2)  NOT NULL,
-  LAT double precision  NOT NULL,
-  LON double precision  NOT NULL,
-  ELEV int  NOT NULL,
+  LATITUDE double precision  NOT NULL,
+  LONGITUDE double precision  NOT NULL,
+  ELEVATION int  NOT NULL,
   PRI int  NOT NULL
 );
 -- Create zones table
 DROP TABLE IF EXISTS stns.ZONES CASCADE; 
 CREATE TABLE stns.ZONES
 ( PKEY SERIAL PRIMARY KEY,
-  STID varchar(8)  NOT NULL,
-  STNUM int  NOT NULL,
+  STATION_ID varchar(8)  NOT NULL,
+  STATION_NUM int  NOT NULL,
   NAME varchar(32)  NOT NULL,
   STATE char(2)  NOT NULL,
   COUNTRY char(2)  NOT NULL,
-  LAT double precision  NOT NULL,
-  LON double precision  NOT NULL,
+  LATITUDE double precision  NOT NULL,
+  LONGITUDE double precision  NOT NULL,
   WFO char(3)  NOT NULL
 );
 
