@@ -15,9 +15,8 @@ import gov.noaa.nws.ncep.ui.pgen.PgenSession;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.attrDialog.SigmetCommAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationResourcePathConstants;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.awt.geom.Point2D;
 import java.io.*;
@@ -54,6 +53,9 @@ import com.vividsolutions.jts.geom.Polygon;
  * 07/11		?			J. Wu		Comment out the message box in 
  * 										SnapVor.getSnapWithStation()
  * 08/11		?			B. Yin		Fixed part of TTR 239.
+ * 07/11        450         G. Hull     NcPathManager for station tables
+ * 10/11		?			J. Wu		Fixed non-snappable points for outlook.
+ *
  * </pre>
  * 
  * @author	gzhang
@@ -97,10 +99,14 @@ public class SigmetInfo {
 	
 	static{
 		
-		VOR_STATION_LIST = new StationTable(LocalizationManager.getInstance().getLocalizationFileNameDirectly(LocalizationResourcePathConstants.STATION_RESOURCES_DIR, "vors.xml")).getStationList();//gov.noaa.nws.ncep.viz.common.ui.NmapCommon.getStnsDir()+"vors.xml").getStationList();
-		
-		VOLCANO_STATION_LIST = new StationTable(LocalizationManager.getInstance().getLocalizationFileNameDirectly(LocalizationResourcePathConstants.STATION_RESOURCES_DIR, "volcano.xml")).getStationList();//)gov.noaa.nws.ncep.viz.common.ui.NmapCommon.getStnsDir()+"volcano.xml").getStationList();
-		
+		File stnFile = NcPathManager.getInstance().getStaticFile( 
+				NcPathConstants.VORS_STN_TBL ); 
+		VOR_STATION_LIST = new StationTable( stnFile.getAbsolutePath() ).getStationList();
+
+		stnFile = NcPathManager.getInstance().getStaticFile( 
+				NcPathConstants.VOLCANO_STN_TBL );
+		VOLCANO_STATION_LIST = new StationTable( stnFile.getAbsolutePath() ).getStationList();
+
 		VOLCANO_BUCKET_MAP = initVolBucketMap();
 		
 		AREA_MAP.put(SIGMET_TYPES[0], new String[]{"KKCI","PHFO","PAWU" });
@@ -544,7 +550,9 @@ public class SigmetInfo {
 	 */
 	private static HashMap<String,Coordinate[]>  getGeometriesFromShapefile() {		
 		
-    	String FILE_NAME = NmapCommon.getFirShapefile();//LocalizationManager.getBaseDir()+NmapCommon.NatlCntrsBaseDir+"shapefiles"+File.separator+"firbnds"+File.separator+"firbnds.shp";
+    	String FILE_NAME =
+    		 NcPathManager.getInstance().getStaticFile( 
+    					NcPathConstants.PGEN_FIR_BOUNDS ).getAbsolutePath();
 		String[] LABEL_ATTR = new String[]{"FIR_ID"};
 				
 		FeatureIterator<SimpleFeature> featureIterator = null;	        
@@ -629,7 +637,9 @@ public class SigmetInfo {
 		
 		if( ! SnapVOR.isSnappable(coors) || stnList==null) {
 //			SnapVOR.openMsgBox(nonSnappingMsg);
-			return (ArrayList<Coordinate>) coors;
+			ArrayList<Coordinate> nlist = new ArrayList<Coordinate>();
+			nlist.addAll( coors );
+			return nlist;
 		}
 		
 		ArrayList<Coordinate> snapPtsList = new ArrayList<Coordinate>();

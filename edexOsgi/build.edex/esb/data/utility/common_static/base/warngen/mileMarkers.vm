@@ -1,0 +1,79 @@
+#*
+CREATED 1-25-2012 BY MIKE DANGELO AND EVAN BOOKBINDER
+
+Here are some examples of very simple INTERSTATE output 
+ (one line/sentence per interstate):
+
+#mmarkers(${i70momm},${i70mommid},"INTERSTATE 70 IN MISSOURI","MILE MARKER",false)
+#mmarkers(${i70momm},${i70mommid},"INTERSTATE 70 IN MISSOURI","MILE MARKER",true)
+#mmarkers(${i70momm},${i70mommid},"INTERSTATE 70 IN MISSOURI","",false)
+#mmarkers(${i70momm},${i70mommid},"INTERSTATE 70 IN MISSOURI","",true)
+#mmarkers(${i435mm},${i435mmid},"INTERSTATE 435 IN MISSOURI","",false)
+#mmarkers(${i435mm},${i435mmid},"INTERSTATE 435 IN MISSOURI","",true)
+#mmarkers(${i435mm},${i435mmid},"INTERSTATE 435 IN MISSOURI","MILE MARKER",false)
+#mmarkers(${i435mm},${i435mmid},"INTERSTATE 435 IN MISSOURI","MILE MARKER",true)
+
+Mile Marker Test Code                                     
+macro "mmarkers" use (called out of VM_global_library.vm):
+#mmarkers($name, $id, $type, $markers, $simplify)
+where the argument:
+$name is a string "OUTPUT TEXT" of the road name
+$id is the sequential ID database field to determine logical breaks in the mile markers
+$type is a string which describes the type of "marker" 
+         - may be "MILE MARKER" or something similar, or blank ""
+         - "" is for use when town names (CHARLESTON) or exit names (THE SUNSET EXIT)
+$markers is a string, and is the exact "variable" set in the XML "pointSource" tag for this road
+         - <pointSource variable="i70momm">
+$simplify is a boolean value (true or false) 
+         - true concatenates (FROM MM 2 to 4), 
+         - false is a big list (MM 2...3...AND 4)   
+
+From mileMarkers.xml         
+$databaseName is an array of pointSource objects containing the milemarker names
+$databaseId is an array of pointSource objects containing the milemarker IDs
+$specificName is an array of plain English names for the Interstates, Routes, etc..
+e.g.
+#set ($databaseName = [${i435mm},${i70momm},${i35momm}])
+#set ($databaseId = [${i435mmid},${i70mommid},${i35mommid}])
+#set ($specificName = ['INTERSTATE 435','INTERSTATE 70','INTERSTATE 35'])
+
+The following code makes upkeep of the mile marker files easier, and is 
+   reccomended for use.
+Substitute all your "INTERSTATE NAME(s)" into the array: $specificName
+Likewise,
+Substitute all your corresponding database table names (${tablename}) for those 
+   interstates into the array: $databaseName
+You may also use town names or exit names 
+   in the "name" field of your database tables.
+*#
+#set($hits = 0)
+#set($bigList = '')
+##set ($databaseName = [${i435mm},${i70momm},${i35momm}])
+##set ($databaseId = [${i435mmid},${i70mommid},${i35mommid}])
+##set ($specificName = ['INTERSTATE 435','INTERSTATE 70','INTERSTATE 35'])
+#set ($itemCount = 0)
+#foreach($specName in $specificName)
+#set ($itemCount = $itemCount + 1)
+#set ($itemCount2 = 0)
+#foreach($dbName in $databaseName)
+#set ($itemCount2 = $itemCount2 + 1)
+#set ($itemCount3 = 0)
+#foreach($dbId in $databaseId)
+#set ($itemCount3 = $itemCount3 + 1)
+#if ($itemCount3 == $itemCount2 && $itemCount2 == $itemCount)
+#set ($checker = "#mmarkers(${dbName},${dbId},${specName},'MILE MARKER',true)")
+#if ($checker.length() > 0)
+#set ($hits = $hits + 1)
+#set ($bigList = "$bigList $checker")
+#end
+#end
+#end
+#end
+#end
+#if ($hits == 1)
+THIS INCLUDES$bigList 
+#end
+#if ($hits > 1)
+THIS INCLUDES THE FOLLOWING HIGHWAYS...
+$bigList
+#end

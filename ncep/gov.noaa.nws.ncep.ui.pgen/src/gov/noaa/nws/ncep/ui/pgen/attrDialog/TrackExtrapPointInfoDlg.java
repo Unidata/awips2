@@ -36,6 +36,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Track;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 05/09					M. Gao   	Initial Creation.
+ * 10/11					J. Wu   	Adjusted text width
  *
  * </pre>
  * 
@@ -49,9 +50,9 @@ public class TrackExtrapPointInfoDlg extends AttrDlg {
 	
 	private static TrackExtrapPointInfoDlg INSTANCE = null;
        
-	private final int DEFAULT_TEXT_WIDTH = 100; 
+	private final int DEFAULT_TEXT_WIDTH = 115; 
 	private final int DEFAULT_TEXT_HEIGHT = 15; 
-	private final int DEFAULT_SCOLL_TEXT_WIDTH = 300; 
+	private final int DEFAULT_SCOLL_TEXT_WIDTH = 320; 
 	private final int DEFAULT_SCOLL_TEXT_HEIGHT = 60; 
     
 	private final String THREE_DECIMAL_DIGIT_PATTERN = "#.###"; 

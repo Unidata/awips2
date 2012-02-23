@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<svg width="150" height="150" 
+viewBox="0 0 150 150" 
+overflow="visible" 
+xmlns="http://www.w3.org/2000/svg" 
+xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
+   <defs>
+<style type="text/css">
+<![CDATA[
+        @font-face { font-family: "WindSymbolFont";
+                src: url(WindSymbols.svg#WindSymbols); }
+        @font-face { font-family: "StandardFont";
+                src: url(Standard.svg#Standard); }
+        @font-face { font-family: "WxSymbolFont";                
+                src: url(../ncep/PlotModels/NcWxSymbols.svg#NcWxSymbols); }
+        @font-face { font-family: "SpecialSymbolFont";
+                src: url(SpecialSymbols.svg#SpecialSymbols); }
+]]>
+</style>
+<!-- Note the CDATA will reference the svg files under etc/plotModels, unless we put path in it -->
+
+<!-- This is a 'template' which is read by the plotModelFactory2 and used
+     as the basis for dynamically creating svg plot images. A plotModel.xml file
+     and a plugin's plotParameters.xml file are used to create the svg syntax 
+     for a plot image.
+ -->
+<symbol overflow="visible" id="plotData" class="info">
+
+    <text position="UL" x="-10px"  y="-15px" style="text-anchor: end;">err</text>     <!--Upper Left -->
+    <text position="ML" x="-10px"  y="0"     style="text-anchor: end;">err</text>      <!--Middle Left-->
+    <text position="LL" x="-10px"  y="15px"  style="text-anchor: end;">err</text>     <!--Lower Left -->
+    
+    <text position="TC" x="0"      y="-25px" style="text-anchor: middle;">err</text>   <!--Top Center-->
+    <text position="UC" x="0"      y="-15px" style="text-anchor: middle;">err</text>   <!--Upper Center-->
+    
+    <text position="MC" x="0"      y="0"     style="text-anchor: middle;">err</text>   <!--Middle Center-->
+    
+    <text position="LC" x="0"      y="15px"  style="text-anchor: middle;">err</text>   <!--Lower Center-->
+    <text position="BC" x="0"      y="25px"  style="text-anchor: middle;">err</text>   <!--Bottom Center-->
+    
+    <text position="UR" x="10px"   y="-15px"  style="text-anchor:start;">err</text>  <!--Upper Right -->
+    <text position="MR" x="10px"   y="0"      style="text-anchor:start;">err</text>  <!--Middle Right -->
+    <text position="LR" x="10px"   y="15px"   style="text-anchor:start;">err</text> <!--Lower Right -->
+
+    <text position="SC" x="0"      y="0"     style="text-anchor: middle;">err</text>   
+    <!-- a group element for a possible wind barb symbol. -->    
+    <g id="windVaneText" position="WD" plotMode="barb" x="0" y="0" transform="rotate(0,0,0)">
+        <text id="windArrowText" class="barb" style="font-family: WindSymbolFont" x="0" y="0">arrow</text>	    
+    </g>    
+
+</symbol>
+</defs>
+<use id="wind" x="75" y="75" width="80" height="80" visibility="visible" xlink:href="#plotData"/>
+</svg>

@@ -1,5 +1,0 @@
-! DbOverlay
-dbName=ncep
-tableName=bounds.ascfaregion
-labelField=area
-mapName=ASCFAREGION Boundaries

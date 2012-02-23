@@ -61,6 +61,8 @@ import gov.noaa.nws.ncep.common.dataplugin.ncgrib.util.NcgridModel;
  * ------------ ----------  ----------- --------------------------
  * 4/7/09       1994        bphillip    Initial Creation
  * 1/31/11                  M. Li		Add eventName for dynamic model name
+ * 9/08/11                  X. Guo		Check file size to create hash code
+ * 11/17/11                 X. Guo      Fixed hash generator problem
  * 
  * </pre>
  * 
@@ -316,8 +318,12 @@ public class NcgribModel extends PersistableDataObject {
 
     public int hashCode(String afileName) {
         HashCodeBuilder builder = new HashCodeBuilder();
-        String[] tokens = afileName.split("\\.");
-        builder.append(modelName + "_" + tokens[0] + "_"+ tokens[1] + "_" + tokens[3]);
+//        String[] tokens = afileName.split("\\.");
+        String tmp = afileName;
+        if ( tmp.contains(".")) {
+        	tmp = tmp.replace(".", "_");
+        }
+        builder.append(modelName + "_" + tmp);
         builder.append(eventName);
         builder.append(parameterName);
         builder.append(parameterAbbreviation);
