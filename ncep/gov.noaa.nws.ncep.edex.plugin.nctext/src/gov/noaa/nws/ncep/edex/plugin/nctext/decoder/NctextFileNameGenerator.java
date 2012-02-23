@@ -17,11 +17,11 @@ import java.io.LineNumberReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.GregorianCalendar;
+//import java.util.Collections;
+//import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Calendar;
-import java.util.Date;
+//import java.util.Date;
 import java.util.TimeZone;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,33 +36,27 @@ import com.raytheon.uf.common.dataplugin.PluginException;
  * Date          Ticket     Engineer     Description
  * ------------ ---------- ----------- --------------------------
  * 22-Jun-2010    191       Archana.S   Initial Creation
+ * 21-Nov-2011              Chin Chen   change code that will not to decode nctext unknown/unsupported products, clean up code as well
  * @author Archana
  * @version 1 
  */
 public class NctextFileNameGenerator {
 	private final  SimpleDateFormat DATE_WITH_HOUR = new SimpleDateFormat("yyyyMMddHH");
 	//private final  SimpleDateFormat DATE_WITHOUT_HOUR = new SimpleDateFormat("yyyyMMdd");
-	private final  int NUM_SECS_PER_DAY = 3600;
-	private final  int NUM_LINES_IN_HEADER = 20;
-
-	private final Calendar calendar;
-	private long currTimeInSec;
-	private int currentYear;
-	private int currentMonth;
-	private int currentDayofMonth;
+	private final  int NUM_LINES_IN_HEADER = 10;
 
 	
-	private  Long    timeStamp;
-	private  Integer fileCreatedMonth;
-	private  Integer fileCreatedYear;
-	private  Integer fileCreatedDayOfMonth;
-	private  Date    fileCreatedDate;
+	//private  Long    timeStamp;
+	//private  Integer fileCreatedMonth;
+	//private  Integer fileCreatedYear;
+	//private  Integer fileCreatedDayOfMonth;
+	//private  Date    fileCreatedDate;
 	private  Calendar fileCreatedCalendar;
 
 	private List<String> formattedFileNameList;
 	private String pluginName;
     private Log logger = LogFactory.getLog(getClass());
-	private String filePath;
+	//private String filePath;
 
 
 	/**
@@ -71,8 +65,6 @@ public class NctextFileNameGenerator {
 	public NctextFileNameGenerator() {
 	    DATE_WITH_HOUR.setTimeZone( TimeZone.getTimeZone("GMT"));
 		formattedFileNameList    = new ArrayList<String>(0);
-		calendar                       = Calendar.getInstance();
-	    //DATE_WITHOUT_HOUR.setTimeZone( TimeZone.getTimeZone("GMT"));
 	}
 	
 	/***
@@ -91,72 +83,81 @@ public class NctextFileNameGenerator {
 	 * @throws IOException
 	 */
 	public synchronized PluginDataObject[] renameAndDecodeFile(File fileToRename) throws IOException{
-		logger.debug("renameAndDecodeFile() called...");
+		//logger.debug("renameAndDecodeFile() called...");
 		System.out.println("renameAndDecodeFile() invoked");
 		PluginDataObject[] srcArray = new PluginDataObject[0];
 		List<PluginDataObject> dynamicDestArray = new ArrayList<PluginDataObject>(0);
 		this.formattedFileNameList = new ArrayList<String>(0); 		
 		String filePath = fileToRename.getAbsolutePath();
 		String fileHeader = this.readFileHeader(NUM_LINES_IN_HEADER,filePath);
+		//System.out.println("file header="+ fileHeader);
 		String[] linesOfFileHeader = fileHeader.split(System.getProperty("line.separator"));
 		if(linesOfFileHeader != null && linesOfFileHeader.length > 1){
-//			System.out.println("Date of file creation: "+ this.fileCreatedCalendar.getTime().toString());
-	    	int i=0;
-	    	while( i < linesOfFileHeader.length - 1){
-	    		int j = i+1;
-	    		if(linesOfFileHeader[j].isEmpty()){
-	    			j++;
-	    		}
-	    	  String consecutive2Lines = new String(linesOfFileHeader[i] + linesOfFileHeader[j]); 
-//	    	  System.out.println(consecutive2Lines);
-	    	 if( createFormattedFileName(consecutive2Lines, this.fileCreatedCalendar)){
-//    		 System.out.println("The match was found at: "+ consecutive2Lines);
-//	    		 System.out.println("The final list of formatted file names: "+ this.formattedFileNameList);
-	    		 break;
-	    	 }
-	    	  i++;
-	    	}
-	    }
+			//			System.out.println("Date of file creation: "+ this.fileCreatedCalendar.getTime().toString());
+			for(int k =0; k < linesOfFileHeader.length; k++){
+				System.out.println("Line "+ k + " ="+ linesOfFileHeader[k]);
+			}
+			
+			int i=0;
+			 while( i < linesOfFileHeader.length - 1){
+				int j = i+1;
+				if(linesOfFileHeader[j].isEmpty()){
+					j++;
+				}
+				//Chin: add \n to separate the 2 lines to make regular expression work "correctly" on those products with
+				//product type coded at 2nd line
+				String consecutive2Lines = new String(linesOfFileHeader[i]+"\n" +linesOfFileHeader[j]); 
+				//	    	  System.out.println(consecutive2Lines);
+				if( createFormattedFileName(consecutive2Lines, this.fileCreatedCalendar)){
+					//    		 System.out.println("The match was found at: "+ consecutive2Lines);
+					//	    		 System.out.println("The final list of formatted file names: "+ this.formattedFileNameList);
+					break;
+				}
+				i++;
+			}
+			
+		}
 		List<PluginDataObject>  pdoList = new ArrayList<PluginDataObject>(0);
 		if (this.formattedFileNameList.size() > 0) {
-//			System.out.println("The final list of formatted file names: "+ this.formattedFileNameList);
+			//			System.out.println("The final list of formatted file names: "+ this.formattedFileNameList);
 			boolean isFileRenamedInPostProcess = false;
-
+			for(int p =0; p < formattedFileNameList.size(); p++){
+				System.out.println("File name "+p+ " ="+formattedFileNameList.get(p));
+			}
 			int index = 0;
 			int listSize = this.formattedFileNameList.size();
 			while(index <  listSize && !isFileRenamedInPostProcess){
 				String outFilePath = this.formattedFileNameList.get(index);
-	    		 logger.debug("New name for file: "+ outFilePath);
-    			 /*
-    			  * OMR and cgr files have similar regular expressions, hence the same raw data could be decoded as either product. 
-    			  * OMR files have the words "OTHER MARINE REPORTS" placed either in the file header or the file body, 
-    			  * while cgr (coast guard report) files lack this feature.
-    			  * Hence if either one of these extensions are encountered, the entire file is read to check if it contains the
-    			  * words "OTHER MARINE REPORTS"
-    			  */
-	    		 if( outFilePath.endsWith(".cgr")  || outFilePath.endsWith(".OMR") 
+				//logger.debug("New name for file: "+ outFilePath);
+				/*
+				 * OMR and cgr files have similar regular expressions, hence the same raw data could be decoded as either product. 
+				 * OMR files have the words "OTHER MARINE REPORTS" placed either in the file header or the file body, 
+				 * while cgr (coast guard report) files lack this feature.
+				 * Hence if either one of these extensions are encountered, the entire file is read to check if it contains the
+				 * words "OTHER MARINE REPORTS"
+				 */
+				if( outFilePath.endsWith(".cgr")  || outFilePath.endsWith(".OMR") 
 
-	    				 ) {
-	    			 outFilePath = new String(outFilePath.substring(0, 11) + getFileNameAfterPostProcess(fileToRename, outFilePath));
-	    			 isFileRenamedInPostProcess = true;
-	    		 }
-	    		 
-    		     System.out.println("New name for file: "+ outFilePath);
-	    		 srcArray = decodeFile(fileToRename, outFilePath);
-	    		 pdoList =   new ArrayList<PluginDataObject>(Arrays.asList(srcArray));
-	    		 dynamicDestArray.addAll(pdoList);
-	    		 index++;
-		}
-			
+				) {
+					outFilePath = new String(outFilePath.substring(0, 11) + getFileNameAfterPostProcess(fileToRename, outFilePath));
+					isFileRenamedInPostProcess = true;
+				}
 
+				System.out.println("New name for file: "+ outFilePath);
+				srcArray = decodeFile(fileToRename, outFilePath);
+				pdoList =   new ArrayList<PluginDataObject>(Arrays.asList(srcArray));
+				dynamicDestArray.addAll(pdoList);
+				index++;
+			}
 		}else{
-			 System.out.println("No match found with any regular expression- using default file name to decode "+ fileToRename.getName());
-			 srcArray = decodeFile(fileToRename, fileToRename.getName()); 
-			 pdoList =   new ArrayList<PluginDataObject>(Arrays.asList(srcArray));
-    		 dynamicDestArray.addAll(pdoList);
+			 System.out.println("No match found with any regular expression- file= "+ fileToRename.getName());
+			 //Chin:TESTING 
+			 //srcArray = decodeFile(fileToRename, fileToRename.getName()); 
+			// pdoList =   new ArrayList<PluginDataObject>(Arrays.asList(srcArray));
+    		 //dynamicDestArray.addAll(pdoList);
 		}
 		
-//		System.out.println("The final array length : " + dynamicDestArray.size());
+		System.out.println("The final array length : " + dynamicDestArray.size());
 		PluginDataObject[] returnArray = new PluginDataObject[0];
 		
 		return dynamicDestArray.toArray(returnArray);
@@ -214,7 +215,7 @@ public class NctextFileNameGenerator {
 	 */
 	private synchronized PluginDataObject[] decodeFile(File fileToDecode, String derivedFileName){
     	try {
-    		System.out.println("decodeFile() entered...");
+    		//System.out.println("decodeFile() entered...");
     	      return (new NctextDecoder().decodeTextInputFileWithName(fileToDecode, derivedFileName));
         	} catch (DecoderException e) {
 			
@@ -243,7 +244,6 @@ public class NctextFileNameGenerator {
 	  */
 
 	private synchronized boolean createFormattedFileName(String fileContent, Calendar productCreationDateCalendar){
-
 		if(NctextRegexMatcher.matchFileRegex(fileContent)){
 //			System.out.println("productCreationDateCalendar= "+ productCreationDateCalendar.getTime().toString());
 			List<String>  nctextProductTypeList   = new ArrayList<String>( NctextRegexMatcher.getProductType());
@@ -267,8 +267,8 @@ public class NctextFileNameGenerator {
     		tempCal.clear(Calendar.MONTH);
     		tempCal.set(Calendar.MONTH, productCreationDateCalendar.get(Calendar.MONTH));
     		
-    		long derivedTime = tempCal.getTimeInMillis()/1000;
-			long fileCreatedTime   = productCreationDateCalendar.getTimeInMillis()/1000;
+    		//long derivedTime = tempCal.getTimeInMillis()/1000;
+			//long fileCreatedTime   = productCreationDateCalendar.getTimeInMillis()/1000;
 //            System.out.println("File created time in seconds = "+ fileCreatedTime);
 //            System.out.println("File derived time after updating tempCal  = "+ derivedTime);
 			
@@ -289,52 +289,25 @@ public class NctextFileNameGenerator {
 
 
 	/**
-	 * Provides the list of filenames formatted as yyyymmddhh.proudctType
-	 * @return the formattedFileNameList if it has atleast one element or an empty list otherwise
-	 */
-	private List<String> getFormattedFileName() {
-		if(this.formattedFileNameList.size() > 0){
-			return new ArrayList<String>(formattedFileNameList);
-		}else{
-			return Collections.emptyList();
-		}
-		
-	}
-
-	/**
-	 * @return the fileCreatedYear
-	 */
-	private Integer getFileCreatedYear() {
-		return fileCreatedYear;
-	}
-
-	/**
 	 * @param fileCreatedYear the fileCreatedYear to set
 	 */
-	private void setFileCreatedYear(Integer fileCreatedYear) {
-		this.fileCreatedYear = fileCreatedYear;
-	}
-
-	/**
-	 * @return the fileCreatedDayOfMonth
-	 */
-	private Integer getFileCreatedDayOfMonth() {
-		return fileCreatedDayOfMonth;
-	}
+	//private void setFileCreatedYear(Integer fileCreatedYear) {
+	//	this.fileCreatedYear = fileCreatedYear;
+	//}
 
 	/**
 	 * @param fileCreatedDayOfMonth the fileCreatedDayOfMonth to set
 	 */
-	private void setFileCreatedDayOfMonth(Integer fileCreatedDayOfMonth) {
-		this.fileCreatedDayOfMonth = fileCreatedDayOfMonth;
-	}
+	//private void setFileCreatedDayOfMonth(Integer fileCreatedDayOfMonth) {
+	//	this.fileCreatedDayOfMonth = fileCreatedDayOfMonth;
+	//}
 
 	/**
 	 * @param fileCreatedMonth the fileCreatedMonth to set
 	 */
-	private void setFileCreatedMonth(Integer fileCreatedMonth) {
-		this.fileCreatedMonth = fileCreatedMonth;
-	}
+	//private void setFileCreatedMonth(Integer fileCreatedMonth) {
+	//	this.fileCreatedMonth = fileCreatedMonth;
+	//}
 
 	/**
 	 * Reads a fixed number of lines from a file into a String
@@ -421,25 +394,25 @@ public class NctextFileNameGenerator {
 		setFileCreatedCalendar(Calendar.getInstance());
 		getFileCreatedCalendar().setTimeZone(TimeZone.getTimeZone("GMT"));
 		getFileCreatedCalendar().setTimeInMillis(theFileTimeStamp);
-		setFileCreatedDate(new Date(theFileTimeStamp));
-		setFileCreatedDayOfMonth( new Integer (getFileCreatedCalendar().get(Calendar.DAY_OF_MONTH)));
-		setFileCreatedMonth( new Integer (getFileCreatedCalendar().get(Calendar.MONTH)));
-		setFileCreatedYear( new Integer (getFileCreatedCalendar().get(Calendar.YEAR)));
+		//setFileCreatedDate(new Date(theFileTimeStamp));
+		//setFileCreatedDayOfMonth( new Integer (getFileCreatedCalendar().get(Calendar.DAY_OF_MONTH)));
+		//setFileCreatedMonth( new Integer (getFileCreatedCalendar().get(Calendar.MONTH)));
+		//setFileCreatedYear( new Integer (getFileCreatedCalendar().get(Calendar.YEAR)));
 	}
 	
      /**
 	 * @return the fileCreatedDate
 	 */
-	private Date getFileCreatedDate() {
-		return fileCreatedDate;
-	}
+	//private Date getFileCreatedDate() {
+	//	return fileCreatedDate;
+	//}
 
 	/**
 	 * @param fileCreatedDate the fileCreatedDate to set
 	 */
-	private void setFileCreatedDate(Date fileCreatedDate) {
-		this.fileCreatedDate = fileCreatedDate;
-	}
+	//private void setFileCreatedDate(Date fileCreatedDate) {
+	//	this.fileCreatedDate = fileCreatedDate;
+	//}
 
 	/**
 	 * @return the fileCreatedCalendar
@@ -458,16 +431,16 @@ public class NctextFileNameGenerator {
 	/**
 	 * @return the timeStamp
 	 */
-	private Long getTimeStamp() {
-		return timeStamp;
-	}
+	//private Long getTimeStamp() {
+	//	return timeStamp;
+	//}
 
 	/**
 	 * @param timeStamp the timeStamp to set
 	 */
-	private void setTimeStamp(Long timeStamp) {
-		this.timeStamp = timeStamp;
-	}
+	//private void setTimeStamp(Long timeStamp) {
+	//	this.timeStamp = timeStamp;
+	//}
 
 	/** 
       * @return the pluginName

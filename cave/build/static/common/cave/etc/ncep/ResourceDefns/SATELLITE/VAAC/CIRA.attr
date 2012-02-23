@@ -1,0 +1,6 @@
+legend_color=RGB {200, 200, 200}
+colorMapName=lingray
+colorBar=@dfltMcidasColorBar.xml
+imageType=CIRA
+! ? check that the displayUnits is correct?
+displayUnitStr=BRIT

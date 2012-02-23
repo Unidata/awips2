@@ -58,7 +58,6 @@ public class AirmetSeparator extends AbstractRecordSeparator {
         return ds;
     }
 
-    @Override
     public void setData(byte[] data, Headers headers) {
         doSeparate(new String(data));
         iterator = records.iterator();
@@ -69,7 +68,6 @@ public class AirmetSeparator extends AbstractRecordSeparator {
      * 
      * @see com.raytheon.edex.plugin.IRecordSeparator#hasNext()
      */
-    @Override
     public boolean hasNext() {
         if (iterator == null) {
             return false;
@@ -81,17 +79,16 @@ public class AirmetSeparator extends AbstractRecordSeparator {
     /**
      * Get record
      */
-    @Override
     public byte[] next() {
         try {
             String temp = iterator.next();
             if (Util.isEmptyString(temp)) {
-                return null;
+                return (byte[]) null;
             } else {
                 return temp.getBytes();
             }
         } catch (NoSuchElementException e) {
-            return null;
+            return (byte[]) null;
         }
     }
 
@@ -122,16 +119,13 @@ public class AirmetSeparator extends AbstractRecordSeparator {
              */
             for (int i = 0; i < records.size(); i++) {
                 if (i < records.size() - 1) {
-                    records.set(
-                            i,
-                            "\n"
-                                    + message.substring(
-                                            message.indexOf(records.get(i)),
-                                            message.indexOf(records.get(i + 1))));
+                    records.set(i, "\n"
+                            + message.substring(
+                                    message.indexOf(records.get(i)), message
+                                            .indexOf(records.get(i + 1))));
                 } else {
-                    records.set(
-                            i,
-                            "\n"
+                    records
+                            .set(i, "\n"
                                     + message.substring(message.indexOf(records
                                             .get(i))));
                 }

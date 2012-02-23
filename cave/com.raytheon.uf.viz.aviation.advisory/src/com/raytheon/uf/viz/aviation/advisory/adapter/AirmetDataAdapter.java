@@ -59,13 +59,13 @@ public class AirmetDataAdapter extends AbstractAdvisoryDataAdapter {
     private static final String LABEL_FORMAT = "%d%s";
 
     private static final String INSPECT_FORMAT = "Valid UNTIL %02d%02d%02d\n%s";
-        
+
     private static final String REPORT_INDICATOR = "AIRMET";
 
     private static final String SEGMENT_SEPERATOR = "\n.  \n";
 
     private static final float LINE_WIDTH = 1.5f;
-    
+
     private static final LineStyle LINE_STYLE = LineStyle.SOLID;
 
     @XmlAttribute
@@ -89,7 +89,8 @@ public class AirmetDataAdapter extends AbstractAdvisoryDataAdapter {
             if (airmetRecord.getAirmetReport() != null) {
                 for (AirmetReport report : airmetRecord.getAirmetReport()) {
                     if (isValidReport(report)) {
-                        AdvisoryRecord oRecord = convertReport(report);
+                        AdvisoryRecord oRecord = convertReport(airmetRecord,
+                                report);
                         if (oRecord != null) {
                             result.add(oRecord);
                         }
@@ -100,17 +101,17 @@ public class AirmetDataAdapter extends AbstractAdvisoryDataAdapter {
         return result;
     }
 
-    public AdvisoryRecord convertReport(AirmetReport report) {
+    public AdvisoryRecord convertReport(AirmetRecord parent, AirmetReport report) {
         Set<AirmetLocation> locations = report.getAirmetLocation();
         if (locations == null || locations.size() == 0) {
             return null;
         }
         Coordinate[] coords = new Coordinate[locations.size()];
         for (AirmetLocation loc : locations) {
-            coords[loc.getIndex() - 1] = new Coordinate(loc.getLongitude(), loc
-                    .getLatitude());
+            coords[loc.getIndex() - 1] = new Coordinate(loc.getLongitude(),
+                    loc.getLatitude());
         }
-        int updateNumber = report.getParentID().getUpdateNumber();
+        int updateNumber = parent.getUpdateNumber();
         String sequenceId = report.getSequenceID();
         if (sequenceId == null) {
             sequenceId = "";
@@ -166,7 +167,7 @@ public class AirmetDataAdapter extends AbstractAdvisoryDataAdapter {
     public float getLineWidth() {
         return LINE_WIDTH;
     }
-    
+
     @Override
     public LineStyle getLineStyle() {
         return LINE_STYLE;
