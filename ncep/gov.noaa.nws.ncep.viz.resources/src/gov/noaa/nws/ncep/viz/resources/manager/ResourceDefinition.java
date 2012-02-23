@@ -16,8 +16,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.common.time.BinOffset;
 
 /**
  * 
@@ -29,6 +29,9 @@ import com.raytheon.uf.common.time.BinOffset;
  *                            Greg Hull   Created
  *  02/26/11      #408        Greg Hull   add filterable labels, rm isForecast, isEvent
  *  03/02/11      #408        Greg Hull   add definitionIndex
+ *  07/18/11      #450        Greg Hull   marshal rscParameters.
+ *  07/24/11      #450        Greg Hull   save LocalizationFile
+ *  11/15/11                  Greg Hull   rm attrSetGroupNames
  * 
  * </pre>
  * 
@@ -48,12 +51,6 @@ public class ResourceDefinition implements ISerializableObject {
     @XmlElement
     private boolean isEnabled;
 
-    // @XmlElement
-    // private boolean isForecast;
-
-    // @XmlElement
-    // private boolean isEventResource;
-
     @XmlElement
     private String resourceDefnName;
 
@@ -66,12 +63,11 @@ public class ResourceDefinition implements ISerializableObject {
     @XmlElement
     @XmlJavaTypeAdapter(StringListAdapter.class)
     private ArrayList<String> filterLabels;
+    
+    private String           localizationName; // the path
+    private LocalizationFile localizationFile;
 
-    // location of the .prm file and attribute set files
-    @XmlElement
-    private String configDir;
-
-    @XmlElement
+	@XmlElement
     private String rscImplementation;
 
     // the name of a column in the DB used to generated dynamic Resources.
@@ -85,14 +81,10 @@ public class ResourceDefinition implements ISerializableObject {
     private String rscTypeGenerator;
 
     private ArrayList<String> generatedTypesList; // set from DB if
-                                                  // rscTypeGenerator is not
                                                   // null
-
-    @XmlElement
-    @XmlJavaTypeAdapter(StringListAdapter.class)
-    private ArrayList<String> attrSetGroupNames;
-
-    private HashMap<String, File> availAttrSets;
+//    @XmlElement
+//    @XmlJavaTypeAdapter(StringListAdapter.class)
+//    private ArrayList<String> attrSetGroupNames;
 
     private HashMap<String, ArrayList<String>> subTypesMap;
 
@@ -120,37 +112,48 @@ public class ResourceDefinition implements ISerializableObject {
     @XmlElement
     private String dfltGeogArea;
 
-    // if null then don't bin the data.
-    @XmlElement
-    private BinOffset binOffset;
+    // TODO : remove this since it should no longer be needed.
+//    @XmlElement
+//    private BinOffset binOffset;
 
-    // this is read from the .prm file in the config dir and it
-    // does not include any parameters associated with subtypes or any in the
+    // this does not include any parameters associated with subtypes or any in the
     // attributes file.
-    private String rscTypeParameters;
+    // NOTE : Comments are kept in this map so that they can be preserved when the user
+    // edits the params in the gui. This are not returned by getResourceParameters
+    // but it would be nice to have a cleaner way to store the comments for a parameter.
+    @XmlElement
+    @XmlJavaTypeAdapter(RscParamsJaxBAdapter.class)
+    private HashMap<String,String> resourceParameters;
+    
+    //private ArrayList<RscParameter> rscTypeParameters;
 
-    private boolean rscTypeParamsModified;
+    private boolean resourceParametersModified;
 
+    // TODO : since the prms HashMap will not be ordered, we may want to implement
+    // these another way so the user can see the comments/help/description text
+    // when editing them.    
+//    static public class RscParameter {
+//    	public String name;
+//    	public String value;
+//    	public String description;    	
+//    }
+
+    
     public ResourceDefinition() {
         isEnabled = true;
         resourceDefnName = "";
         resourceCategory = ""; // new ArrayList<String>();
         filterLabels = new ArrayList<String>();
-        attrSetGroupNames = new ArrayList<String>();
-        // attrSetGroups = new HashMap<String,AttrSetGroup>();
-        availAttrSets = new HashMap<String, File>();
-        // rscSubTypes = new ArrayList<String>();
         subTypesMap = new HashMap<String, ArrayList<String>>();
         subTypeGenerator = "";
         rscTypeGenerator = "";
         generatedTypesList = new ArrayList<String>();
-        rscTypeParameters = "";
-        rscTypeParamsModified = false;
+        resourceParameters = new HashMap<String,String>();
+        resourceParametersModified = false;
         frameSpan = 0;
         dfltFrameCount = DEFAULT_FRAME_COUNT;
         dfltTimeRange = DEFAULT_TIME_RANGE;
         dfltGeogArea = NmapCommon.getDefaultMap();
-        binOffset = null;
         timeMatchMethod = TimeMatchMethod.CLOSEST_BEFORE_OR_AFTER;
         timelineGenMethod = timelineGenMethod.USE_DATA_TIMES;
     }
@@ -176,32 +179,50 @@ public class ResourceDefinition implements ISerializableObject {
             }
         }
 
-        availAttrSets = new HashMap<String, File>(rscDefn.availAttrSets);
-
         subTypeGenerator = rscDefn.getSubTypeGenerator();
         rscTypeGenerator = rscDefn.getRscTypeGenerator();
 
         generatedTypesList = new ArrayList<String>(
                 rscDefn.getGeneratedTypesList());
 
-        attrSetGroupNames = new ArrayList<String>(
-                rscDefn.getAttrSetGroupNames());
-        rscTypeParameters = new String(rscDefn.rscTypeParameters);
-        rscTypeParamsModified = rscDefn.rscTypeParamsModified;
+        resourceParameters = new HashMap<String,String>( 
+        		rscDefn.resourceParameters );
+        resourceParametersModified = rscDefn.resourceParametersModified;
 
         frameSpan = rscDefn.frameSpan;
         dfltFrameCount = rscDefn.dfltFrameCount;
         dfltTimeRange = rscDefn.dfltTimeRange;
 
-        binOffset = rscDefn.binOffset;
         timeMatchMethod = rscDefn.timeMatchMethod;
         timelineGenMethod = rscDefn.timelineGenMethod;
 
         dfltGeogArea = rscDefn.dfltGeogArea;
         rscImplementation = rscDefn.rscImplementation;
-
-        configDir = rscDefn.configDir;
+        
+        setLocalizationFile( rscDefn.getLocalizationFile() );
     }
+
+    public String getLocalizationName() {
+		return localizationName;
+	}
+
+	public void setLocalizationName(String name) {
+		this.localizationName = name;
+	}
+
+    public LocalizationFile getLocalizationFile() {
+		return localizationFile;
+	}
+
+	public void setLocalizationFile(LocalizationFile lFile) {
+		this.localizationFile = lFile;
+		if( lFile != null ) {
+			setLocalizationName( lFile.getName() );
+		}
+		else {
+			localizationName = "";
+		}
+	}
 
     public String[] getRscSubTypes() {
         return subTypesMap.keySet().toArray(new String[0]);
@@ -231,46 +252,12 @@ public class ResourceDefinition implements ISerializableObject {
         this.generatedTypesList = genTypes;
     }
 
-    public void addAttrSetFile(String asName, File asFile) {
-        availAttrSets.put(asName, asFile);
-    }
-
-    public void removeAllAttrSets() {
-        availAttrSets.clear();
-    }
-
-    public Set<String> getAvailAttrSets() {
-        return availAttrSets.keySet();
-    }
-
-    public File getAttrSetFile(String asName) {
-        if (availAttrSets.containsKey(asName)) {
-            return availAttrSets.get(asName);
-        } else {
-            return null;
-        }
-    }
-
     public HashMap<String, ArrayList<String>> getSubTypesMap() {
         return subTypesMap;
     }
 
     public void setSubTypesMap(HashMap<String, ArrayList<String>> stm) {
         this.subTypesMap = stm;
-    }
-
-    public ArrayList<String> getAttrSetGroupNames() {
-        return attrSetGroupNames;
-    }
-
-    public void setAttrSetGroupNames(ArrayList<String> attrSetGroupNames) {
-        this.attrSetGroupNames = attrSetGroupNames;
-    }
-
-    public void addAttrSetGroupName(String asgName) {
-        if (!attrSetGroupNames.contains(asgName)) {
-            attrSetGroupNames.add(asgName);
-        }
     }
 
     public String getResourceDefnName() {
@@ -292,25 +279,71 @@ public class ResourceDefinition implements ISerializableObject {
         // }
     }
 
-    public String getRscTypeParameters() {
-        return rscTypeParameters;
+    // resourceParameters includes the comments but don't return them.
+    //
+    public HashMap<String,String> getResourceParameters() {
+    	HashMap<String,String> prmsWithoutComments = new HashMap<String,String>();
+		for( String prmName : resourceParameters.keySet() ) {
+			if( !prmName.trim().startsWith("!") ) {
+				prmsWithoutComments.put( prmName, resourceParameters.get(prmName) );		
+			}
+		}
+    	return prmsWithoutComments;
     }
+    
+    public String getResourceParametersAsString() {
+		if( resourceParameters.isEmpty() ) {
+			return "";
+		}
 
-    public void setRscTypeParameters(String typeParams) {
-        if (rscTypeParameters.isEmpty()
-                || !rscTypeParameters.equals(typeParams)) {
-            rscTypeParamsModified = true;
+		StringBuffer strBuf = new StringBuffer();
+
+		for( String prmName : resourceParameters.keySet() ) {
+			if( prmName.startsWith("!") ) {
+				strBuf.append( prmName +"\n");
+			}
+			else {
+				strBuf.append( prmName+"="+ resourceParameters.get( prmName ) + "\n" );		
+			}
+		}
+		return strBuf.toString();			
+    	
+    }
+    
+    public void setResourceParameters(HashMap<String,String> typeParams) {
+        if (resourceParameters.isEmpty()
+                || !resourceParameters.equals(typeParams)) {
+        	resourceParametersModified = true;
         }
 
-        rscTypeParameters = typeParams;
+        resourceParameters = new HashMap<String,String>( typeParams );
+    }
+    
+    public void setResourceParametersFromString( String prmsStr ) {
+    	
+    	// sanity check that the keys are all the same.
+    	//
+		String[] prmStrs = prmsStr.split("\n");
+		
+		for( String prmStr : prmStrs ) {
+			if( prmStr.startsWith( "!" ) ) {
+				resourceParameters.put( prmStr, prmStr );
+			}
+			else {
+				int equalsIndx = prmStr.indexOf("=");
+				String prmName = prmStr.substring(0, equalsIndx );					
+				String prmVal = prmStr.substring( equalsIndx+1, prmStr.length() );
+				resourceParameters.put( prmName.trim(), prmVal.trim() );
+			}
+		}
+    }
+    
+    public boolean getResourceParamsModified() {
+        return resourceParametersModified;
     }
 
-    public boolean getRscTypeParamsModified() {
-        return rscTypeParamsModified;
-    }
-
-    public void setRscTypeParamsModified(boolean rscTypeParamsModified) {
-        this.rscTypeParamsModified = rscTypeParamsModified;
+    public void setResourceParamsModified(boolean rscTypeParamsModified) {
+        this.resourceParametersModified = rscTypeParamsModified;
     }
 
     public void setResourceImpl(String ri) { // Class<?> rscCls ) {
@@ -372,18 +405,6 @@ public class ResourceDefinition implements ISerializableObject {
         }
     }
 
-    //
-    public boolean removeAttrSetGroup(String asgName) {
-
-        if (attrSetGroupNames.contains(asgName)) {
-            attrSetGroupNames.remove(asgName);
-            // attrSetGroups.remove( asgName );
-            return true;
-        } else { // not in the map?
-            return false;
-        }
-    }
-
     public String getRscImplementation() {
         return rscImplementation;
     }
@@ -440,24 +461,8 @@ public class ResourceDefinition implements ISerializableObject {
         this.dfltGeogArea = dfltGeogArea;
     }
 
-    public BinOffset getBinOffset() {
-        return binOffset;
-    }
-
-    public void setBinOffset(BinOffset binOffset) {
-        this.binOffset = binOffset;
-    }
-
     public void setResourceDefnName(String rName) {
         this.resourceDefnName = rName;
-    }
-
-    public String getConfigDir() {
-        return configDir;
-    }
-
-    public void setConfigDir(String dDir) {
-        configDir = dDir;
     }
 
     public boolean isPgenResource() {
@@ -469,9 +474,5 @@ public class ResourceDefinition implements ISerializableObject {
                 || resourceCategory.equals(ResourceName.RadarRscCategory)
                 || resourceCategory.equals(ResourceName.PGENRscCategory)
                 || resourceCategory.equals(ResourceName.EnsembleRscCategory);
-        // applyAttrSetGroups;
-        // return rscCategories.contains( ResourceName.GridRscCategory) ||
-        // rscCategories.contains( ResourceName.SatelliteRscCategory);//
-        // applyAttrSetGroups;
     }
 }

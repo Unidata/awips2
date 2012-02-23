@@ -10,6 +10,14 @@ package gov.noaa.nws.ncep.ui.pgen.productManage;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.productTypes.ProdType;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -28,6 +36,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
+
 /**
  * Implements a dialog to define a ProdType such as XML/KML/Text etc..
  * 
@@ -36,6 +50,7 @@ import org.eclipse.ui.PlatformUI;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 01/11			?		B. Yin   	Initial Creation.
+ * 11/11			?		B. Yin		Put the style sheets in localization
  *
  * </pre>
  * 
@@ -204,6 +219,7 @@ public class ProdTypeDialog  extends Dialog {
 			ptype.setName(nameTxt.getText() );
 			ptype.setType(typeCbo.getText());
 			ptype.setStyleSheetFile(ssTxt.getText());
+			loadStyleSheet(ssTxt.getText());
 			ptype.setOutputFile(outputTxt.getText());
 			pcd.addProdType( ptype );
 		}
@@ -212,6 +228,7 @@ public class ProdTypeDialog  extends Dialog {
 			pt.setName(nameTxt.getText());
 			pt.setType(typeCbo.getText());
 			pt.setStyleSheetFile(ssTxt.getText());
+			loadStyleSheet(ssTxt.getText());
 			pt.setOutputFile(outputTxt.getText());
 			ptBtn.setText(pt.getName());
 			typeLbl.setText(pt.getType());
@@ -248,6 +265,74 @@ public class ProdTypeDialog  extends Dialog {
                 
         return dialog.open();
             	               
+	}
+	
+	private void loadStyleSheet(String filePath){
+		
+		File sFile = new File( filePath ); 
+		if ( !sFile.canRead() ){
+    			MessageDialog infoDlg = new MessageDialog( 
+						PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
+						"Warning", null, "Stlyle sheet file " + filePath + " does not exist!",
+						MessageDialog.WARNING, new String[]{"OK"}, 0);
+
+				infoDlg.open();
+		}
+		else {
+	    	//put into localization
+		    LocalizationContext userContext = NcPathManager.getInstance().getContext(
+					LocalizationType.CAVE_STATIC, LocalizationLevel.USER );
+		    
+		    LocalizationFile lFile = NcPathManager.getInstance().getLocalizationFile( 
+		    		userContext, getStyleSheetFileName(nameTxt.getText()));
+		    
+		    //check file
+		    InputStream is;
+		    try {
+		    	is = new FileInputStream( sFile );
+
+		    	// Get the size of the file
+		    	long length = sFile.length();
+
+		    	// ensure that file is not larger than Integer.MAX_VALUE.
+		    	if (length > Integer.MAX_VALUE) {
+		    		return;
+		    	}
+
+		    	// Create the byte array to hold the data
+		    	byte[] bytes = new byte[(int)length];
+
+		    	// Read in the bytes
+		    	int offset = 0;
+		    	int numRead = 0;
+		    	while (offset < bytes.length
+		    			&& (numRead=is.read(bytes, offset, bytes.length-offset)) >= 0) {
+		    		offset += numRead;
+		    	}
+
+		    	lFile.write( bytes );
+
+		    } catch (FileNotFoundException e1) {
+		    	// TODO Auto-generated catch block
+		    	e1.printStackTrace();
+		    } catch (LocalizationException e) {
+		    	// TODO Auto-generated catch block
+		    	e.printStackTrace();
+		    } catch (IOException e) {
+		    	// TODO Auto-generated catch block
+		    	e.printStackTrace();
+		    }
+		}
+		
+	}
+	
+	static public String getStyleSheetFileName( String prodName ){
+		String ret = "";
+		if ( prodName == null || prodName.isEmpty() ) return ret;
+		
+		String pn = prodName.replaceAll(" ", "_");
+		
+		return NcPathConstants.PGEN_ROOT + File.separator + "xslt" + File.separator + "prod" + File.separator + pn  + ".xslt";
 	}
 	
 }

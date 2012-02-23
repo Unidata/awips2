@@ -2,15 +2,19 @@ package gov.noaa.nws.ncep.viz.tools.aodt.ui;
 
 
 import gov.noaa.nws.ncep.viz.ui.display.AbstractNCModalMapTool;
+import gov.noaa.nws.ncep.viz.rsc.satellite.rsc.ICloudHeightCapable;
 import gov.noaa.nws.ncep.viz.tools.aodt.AODTProcesser;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 import org.eclipse.core.commands.common.NotDefinedException;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.viz.ui.input.InputAdapter;
+import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
+import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 import com.vividsolutions.jts.geom.Coordinate;
 
 
@@ -36,6 +40,7 @@ public class AODTAction extends AbstractNCModalMapTool {
 	
 	protected static AODTDialog aodtDlg = null;
 	private AODTProcesser aodtProcessor = null;
+	private ICloudHeightCapable satResource = null;
 	
     /*
      * (non-Javadoc)
@@ -60,6 +65,7 @@ public class AODTAction extends AbstractNCModalMapTool {
 			}
 			
 			aodtDlg = new AODTDialog( shell, aodtVersion);
+			satResource = aodtDlg.getSatResource();
         }
 
         aodtProcessor = new AODTProcesser( aodtDlg );
@@ -71,10 +77,18 @@ public class AODTAction extends AbstractNCModalMapTool {
             }
             mapEditor.registerMouseHandler( this.mouseHndlr );
             
-        	aodtDlg.open();
+            if ( satResource != null )
+            	aodtDlg.open();
+            else
+            	issueAlert();
+        	
         	aodtDlg = null;
 
-        	deactivateTool();
+        	//deactivateTool();
+    		AbstractVizPerspectiveManager mgr = VizPerspectiveListener.getCurrentPerspectiveManager();
+    		if (mgr != null) {
+    			mgr.getToolManager().deselectModalTool(this);
+    		}
         }
 
         aodtProcessor = null;
@@ -82,7 +96,18 @@ public class AODTAction extends AbstractNCModalMapTool {
 		return;
     }
     
-    /*
+    private void issueAlert() {
+		
+		String msg = "Unable to invoke AODT tool.\nPlease load an IR Satellite image!";
+    	MessageDialog messageDlg = new MessageDialog( 
+        		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
+        		"Warning", null, msg,
+        		MessageDialog.WARNING, new String[]{"OK"}, 0);
+        messageDlg.open();
+
+	}
+
+	/*
      * (non-Javadoc)
      * org.osgi.framework.BundleContext
      * @see com.raytheon.viz.ui.tools.AbstractModalTool#deactivateTool()
@@ -97,11 +122,17 @@ public class AODTAction extends AbstractNCModalMapTool {
     	}
     	
         //  close the Cloud Height dialog
-        if ( aodtDlg != null ) aodtDlg.close();
+        if ( aodtDlg != null ) {
+        	aodtDlg.close();
+        	aodtDlg = null;
+        }
         
     }
     
     public class MouseHandler extends InputAdapter {
+    	
+    	boolean preempt = false;
+    	
     	/*
          * (non-Javadoc)
          * 
@@ -110,12 +141,28 @@ public class AODTAction extends AbstractNCModalMapTool {
          */
     	@Override
     	public boolean handleMouseDown(int x, int y, int button) {
+    		
+    		preempt = false;
+    		
     		if( button == 1 ) {
     			Coordinate ll = mapEditor.translateClick(x, y);
-    			aodtProcessor.processAODT( ll );
+    			if ( ll == null || satResource == null ) return false;
+    			
+        		Double value = satResource.getSatIRTemperature(ll);
+        		if ( value != null && !value.isNaN() ) {
+        			aodtProcessor.processAODT( ll );
+        			preempt = false;
+        		}
+
     		}
 
-    		return false;
+    		return preempt;
     	}
+    	
+        @Override
+        public boolean handleMouseDownMove(int aX, int aY, int button) {
+        	return preempt;
+        }
+        
     }   
 }

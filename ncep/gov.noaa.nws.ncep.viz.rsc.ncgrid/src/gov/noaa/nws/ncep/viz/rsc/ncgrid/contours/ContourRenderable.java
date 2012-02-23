@@ -36,6 +36,7 @@ import com.raytheon.uf.viz.core.map.MapDescriptor;
  * Mar 01, 2010 #164		M. Li	    Applied to NC Perspective
  * Mar 08, 2011				M. Li		abstract class -> general class 
  * Apr 05, 2011				M. Li		increase threading retries from 10 to 100
+ * Nov,02, 2011             X. Guo      Added HILO relative
  * 
  * </pre>
  * 
@@ -78,6 +79,8 @@ public class ContourRenderable implements IRenderable {
     protected IDataRecord data;
     
     protected GeneralGridGeometry gridGeometry;
+    
+    protected GridRelativeHiLoDisplay gridRelativeHiLoDisplay;
 
     private double lastMagnification = 1.0;
 
@@ -183,7 +186,7 @@ public class ContourRenderable implements IRenderable {
                         if (contourGroup[i] == null || !contains
                                 || contourGroup[i].lastDensity != density) {
 
-                            MathTransform mathTransformFromGrid = gridGeometry.getGridToCRS(PixelInCell.CELL_CENTER);
+                            MathTransform mathTransformFromGrid = gridGeometry.getGridToCRS(PixelInCell.CELL_CORNER);
 
                             // If required data unavailable, quit now
                             if (mathTransformFromGrid == null
@@ -369,5 +372,13 @@ public class ContourRenderable implements IRenderable {
 
 	public void setGridGeometry(GeneralGridGeometry gridGeometry) {
 		this.gridGeometry = gridGeometry;
+	}
+	
+	public GridRelativeHiLoDisplay getGridRelativeHiLo () {
+		return gridRelativeHiLoDisplay;
+	}
+
+	public void setGridRelativeHiLo (GridRelativeHiLoDisplay gridRelativeHiLoDisplay) {
+		this.gridRelativeHiLoDisplay = gridRelativeHiLoDisplay;
 	}
 }

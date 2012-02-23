@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -41,16 +41,17 @@ import com.raytheon.uf.common.time.TimeRange;
 
 /**
  * Lookup class for getting metadata information about grib parameters.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 24, 2010 #6372      bphillip     Initial creation
- * 
+ * Jan 25, 2012 DR 14305   ryu          Read site parameterInfo files
+ *
  * </pre>
- * 
+ *
  * @author bphillip
  * @version 1.0
  */
@@ -66,7 +67,7 @@ public class GribParamInfoLookup {
 
     /**
      * Gets the singleton instance
-     * 
+     *
      * @return The singleton instance
      */
     public synchronized static GribParamInfoLookup getInstance() {
@@ -87,7 +88,7 @@ public class GribParamInfoLookup {
     /**
      * Gets the parameter information based on the specified model and parameter
      * name
-     * 
+     *
      * @param site
      *            The site which is requesting the information
      * @param model
@@ -152,6 +153,28 @@ public class GribParamInfoLookup {
             } catch (SerializationException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Error unmarshalling grib parameter information", e);
+            }
+        }
+
+        // Read SITE level files.
+        File siteDir = pm.getFile(pm.getContext(LocalizationType.EDEX_STATIC,
+                LocalizationLevel.SITE), "/grib/parameterInfo");
+        if (siteDir.exists()) {
+            files = siteDir.listFiles();
+            for (File file : files) {
+                String name = file.getName().replace(".xml", "");
+                // Do not override BASE files.
+                if (modelParamMap.get(name) != null)
+                    continue;
+
+                try {
+                    GribParamInfo paramInfo = (GribParamInfo) SerializationUtil
+                            .jaxbUnmarshalFromXmlFile(file);
+                    modelParamMap.put(name, paramInfo);
+                } catch (SerializationException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Error unmarshalling grib parameter information", e);
+                }
             }
         }
     }

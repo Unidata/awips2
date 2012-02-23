@@ -9,11 +9,6 @@
             recordClass="gov.noaa.nws.ncep.edex.plugin.mosaic.common.MosaicRecord"
             renderingOrderId="IMAGE_COUNTRY"
             resourceType="PLAN_VIEW"/>
-      <resource
-            class="gov.noaa.nws.ncep.viz.rsc.mosaic.rsc.RadarRadialResource"
-            name="LocalRadar"
-            recordClass="com.raytheon.uf.common.dataplugin.radar.RadarRecord"
-            renderingOrderId="IMAGE_LOCAL"/>
    </extension>
 <!-- Raytheons radar plugin extends this. Do we need this too?
    <extension
@@ -31,15 +26,6 @@
             scriptLibrary="BaseRequest">
       </scriptTemplate>
    </extension>
-   <!--
-   <extension
-         point="com.raytheon.uf.viz.core.scriptTemplate">
-      <scriptTemplate
-            pluginName="radar"
-            scriptLibrary="BaseRequest">
-      </scriptTemplate>
-   </extension>
-   -->
    <extension
          point="gov.noaa.nws.ncep.viz.resources.NC-Resource"> 
       <nc-resource
@@ -47,22 +33,6 @@
             editDialogClass="gov.noaa.nws.ncep.viz.rsc.mosaic.rsc.EditMosaicAttrsDialog"
             name="RadarMosaic">
       </nc-resource>
-   </extension>
-   <extension
-         point="gov.noaa.nws.ncep.viz.resources.NC-Resource"> 
-      <nc-resource
-            class="gov.noaa.nws.ncep.viz.rsc.mosaic.rsc.RadarResourceData"
-            editDialogClass="gov.noaa.nws.ncep.viz.rsc.mosaic.rsc.EditLocalRadarAttrsDialog"
-            name="LocalRadar">
-      </nc-resource>
-   </extension>
-   <extension
-         point="gov.noaa.nws.ncep.viz.localization.localizationData">
-      <singleLocalizationValue
-            fileName="mosaicInfo.txt"
-            location="radar"
-            name="radarMosaicInfoFile">
-      </singleLocalizationValue>
    </extension>
 
    <extension
@@ -76,19 +46,6 @@
             attributeClass="String"
             attributeName="colorMapName"
             ncResourceName="RadarMosaic">
-      </nc-resourceAttribute>
-   </extension>
-   <extension
-         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceAttribute">
-      <nc-resourceAttribute
-            attributeClass="gov.noaa.nws.ncep.viz.ui.display.ColorBarFromColormap"
-            attributeName="colorBar"
-            ncResourceName="LocalRadar">
-      </nc-resourceAttribute>
-      <nc-resourceAttribute
-            attributeClass="String"
-            attributeName="colorMapName"
-            ncResourceName="LocalRadar">
       </nc-resourceAttribute>
    </extension>
 

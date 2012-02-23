@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<resourceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <resource>
+          <loadProperties loadWithoutData="true"></loadProperties>
+          <properties isSystemResource="false"
+              isBlinking="false" isMapLayer="false" isHoverOn="false"
+              isVisible="true" />
+          <resourceData xsi:type="NC-FFAResourceData"
+                        isUpdatingOnMetadataOnly="false" 
+                        isRequeryNecessaryOnTimeMatch="false"> 
+             <frameSpan>${frameSpan}</frameSpan>
+             <dfltNumFrames>${dfltNumFrames}</dfltNumFrames>             
+             <dfltTimeRange>${dfltTimeRange}</dfltTimeRange>
+             <timeMatchMethod>${timeMatchMethod}</timeMatchMethod>
+             <timelineGenMethod>${timelineGenMethod}</timelineGenMethod> 
+             <sourceName>${sourceName}</sourceName>
+             <color>${color}</color>     
+             <flashFloodAdvisoryEnable>${flashFloodAdvisoryEnable}</flashFloodAdvisoryEnable>
+             <flashFloodAdvisoryColor>${flashFloodAdvisoryColor}</flashFloodAdvisoryColor>
+             <flashFloodAdvisorySymbolWidth>${flashFloodAdvisorySymbolWidth}</flashFloodAdvisorySymbolWidth>
+			 <flashFloodAdvisorySymbolSize>${flashFloodAdvisorySymbolSize}</flashFloodAdvisorySymbolSize>
+             <flashFloodWarningEnable>${flashFloodWarningEnable}</flashFloodWarningEnable>
+             <flashFloodWarningColor>${flashFloodWarningColor}</flashFloodWarningColor>
+             <flashFloodWarningSymbolWidth>${flashFloodWarningSymbolWidth}</flashFloodWarningSymbolWidth>
+             <flashFloodWarningSymbolSize>${flashFloodWarningSymbolSize}</flashFloodWarningSymbolSize>
+             <flashFloodWatchEnable>${flashFloodWatchEnable}</flashFloodWatchEnable>
+             <flashFloodWatchColor>${flashFloodWatchColor}</flashFloodWatchColor>
+             <flashFloodWatchSymbolWidth>${flashFloodWatchSymbolWidth}</flashFloodWatchSymbolWidth>
+             <flashFloodWatchSymbolSize>${flashFloodWatchSymbolSize}</flashFloodWatchSymbolSize>
+             <flashFloodStatementEnable>${flashFloodStatementEnable}</flashFloodStatementEnable>
+             <flashFloodStatementColor>${flashFloodStatementColor}</flashFloodStatementColor>
+             <flashFloodStatementSymbolWidth>${flashFloodStatementSymbolWidth}</flashFloodStatementSymbolWidth>
+             <flashFloodStatementSymbolSize>${flashFloodStatementSymbolSize}</flashFloodStatementSymbolSize>
+             <timeEnable>${timeEnable}</timeEnable>
+             <countyOrZoneNameEnable>${countyOrZoneNameEnable}</countyOrZoneNameEnable>
+             <immediateCauseEnable>${immediateCauseEnable}</immediateCauseEnable>
+             <outlineEnable>${outlineEnable}</outlineEnable>
+             <requestStyle>METADATA</requestStyle>
+             <metadataMap>
+               <mapping key="pluginName">
+              		<constraint constraintValue="aww" constraintType="EQUALS" />
+               </mapping>
+               <mapping key="reportType">
+                 <constraint constraintValue="FLASH_FLOOD_ADVISORY,FLASH_FLOOD_WARNING,FLASH_FLOOD_WATCH,FLASH_FLOOD_STATEMENT,FLOOD_WATCH" constraintType="IN" />
+               </mapping>
+             </metadataMap>
+          </resourceData>
+        </resource>
+</resourceGroup>

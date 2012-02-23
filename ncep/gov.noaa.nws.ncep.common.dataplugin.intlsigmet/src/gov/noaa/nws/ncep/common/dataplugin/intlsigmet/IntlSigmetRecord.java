@@ -11,6 +11,8 @@
  * 06/2009      113				L. Lin     	Initial coding
  * 07/2009		113			    L. Lin		Migration to TO11
  * 05/2010      113             L. Lin      Migration to TO11DR11
+ * 09/2011      				Chin Chen   changed to improve purge performance and
+ * 											removed xml serialization as well
  * </pre>
  *
  * This code has been developed by the SIB for use in the AWIPS2 system.
@@ -20,7 +22,6 @@ package gov.noaa.nws.ncep.common.dataplugin.intlsigmet;
 
 import java.util.Calendar;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
@@ -31,25 +32,18 @@ import javax.persistence.Column;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-
+import org.hibernate.annotations.Index;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @Entity
 @Table(name = "intlsigmet", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 
 
@@ -63,100 +57,84 @@ public class IntlSigmetRecord extends PluginDataObject{
 	// reportType is "international sigmet".
 	@Column(length=32)
 	@DataURI(position=1)
-	@XmlElement
 	@DynamicSerializeElement
 	private String reportType;
 	
 	// hazardType is weather phenomena.
 	@Column(length=48)
 	@DataURI(position=2)
-	@XmlElement
 	@DynamicSerializeElement
 	private String hazardType;
 	
 	// WMO header
 	@Column(length=32)
-	@XmlElement
 	@DynamicSerializeElement
 	private String wmoHeader;
 
 	// The issue office where the report from
 	@Column(length=32)
-	@XmlElement
 	@DynamicSerializeElement
 	private String issueOffice;
 	
 	// Issue time of the report
 	@Column
-	@XmlElement
 	@DynamicSerializeElement
 	private Calendar issueTime;
 
 	// Start time of the report
 	@Column
-	@XmlElement
 	@DynamicSerializeElement
 	private Calendar startTime;
 	
 	// End time of the report
 	@Column
-	@XmlElement
 	@DynamicSerializeElement
 	private Calendar endTime;
 	
 	// The message ID
 	@Column(length=16)
 	@DataURI(position=3)
-	@XmlElement
 	@DynamicSerializeElement
 	private String messageID;
 	
 	// The sequence number
 	@Column(length=8)
 	@DataURI(position=4)
-	@XmlElement
 	@DynamicSerializeElement
 	private String sequenceNumber;
 	
 	// The air traffic services unit
 	@Column(length=16)
-	@XmlElement
 	@DynamicSerializeElement
 	private String atsu;
 	
 	// The location indicator of the meteorological watch office originator
 	@Column(length=16)
-	@XmlElement
 	@DynamicSerializeElement
 	private String omwo;
 	
 	// Flight level 1
 	@Column
-	@XmlElement
 	@DynamicSerializeElement
 	private Integer flightlevel1;
 	
 	// Flight level 2
 	@Column
-	@XmlElement
 	@DynamicSerializeElement
 	private Integer flightlevel2;
 	
 	// Distance
 	@Column
-	@XmlElement
 	@DynamicSerializeElement
 	private Integer distance;
 	
 	// Direction
 	@Column(length=16)
-	@XmlElement
 	@DynamicSerializeElement
 	private String direction;
 	
 	// Speed
 	@Column
-	@XmlElement
 	@DynamicSerializeElement
 	private Integer speed;
 	
@@ -167,7 +145,6 @@ public class IntlSigmetRecord extends PluginDataObject{
 
 	 */
 	@Column(length=48)
-	@XmlElement
 	@DynamicSerializeElement
 	private String nameLocation;
 	
@@ -175,25 +152,21 @@ public class IntlSigmetRecord extends PluginDataObject{
 	 * remarks such as: correction, remarks, ...etc.
 	 */
 	@Column(length=32)
-    @XmlElement
     @DynamicSerializeElement
 	private String remarks;
 	
 	// The changes in intensity; using as "INTSF", "WKN", or "NC".
 	@Column(length=16)
-	@XmlElement
 	@DynamicSerializeElement
 	private String intensity;
 	
 	// The polygon indicator as "WI", "WTN", "EITHER SIDE", or "E OF".
 	@Column(length=16)
-	@XmlElement
 	@DynamicSerializeElement
 	private String polygonExtent;
 	
 	// The entire report
 	@Column(length=5000)
-	@XmlElement
 	@DynamicSerializeElement
 	private String bullMessage;
 
@@ -202,9 +175,9 @@ public class IntlSigmetRecord extends PluginDataObject{
 	 * Intlsigmet location 
 	 */
 	@DynamicSerializeElement
-	@XmlElement
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "parentID", fetch = FetchType.EAGER)
-	@OnDelete(action = OnDeleteAction.CASCADE)
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinColumn(name = "parentID", nullable = false)
+    @Index(name = "intlSigmetLocation_parentid_idex")
 	private Set<IntlSigmetLocation> intlSigmetLocation = new HashSet<IntlSigmetLocation>();
 
 
@@ -565,7 +538,7 @@ public class IntlSigmetRecord extends PluginDataObject{
 	 */
 	 public void addIntlSigmetLocation(IntlSigmetLocation psection){
          intlSigmetLocation.add(psection);
-         psection.setParentID(this);
+        
 	 }
  
 	 /**
@@ -578,13 +551,7 @@ public class IntlSigmetRecord extends PluginDataObject{
 
 	   this.identifier = dataURI;
     
-	   if(this.getIntlSigmetLocation() != null && this.getIntlSigmetLocation().size() > 0)
-	   {
-		   for (Iterator<IntlSigmetLocation> iter = this.getIntlSigmetLocation().iterator(); iter.hasNext();) {
-			   IntlSigmetLocation cs = iter.next();
-			   cs.setParentID(this);
-      	}
-	   }
+	   
     
 	 }
 

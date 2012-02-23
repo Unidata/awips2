@@ -86,6 +86,7 @@ public class PgenAddPointAlt extends AbstractPgenTool {
      */
     public class PgenAddPtHandler extends InputHandlerDefaultImpl {
    	
+    	private boolean preempt;
     	private ADD_STATUS status = ADD_STATUS.START;
     	private DrawableElement newEl;
     	Map<Coordinate, Integer> newPoints = null;
@@ -106,6 +107,8 @@ public class PgenAddPointAlt extends AbstractPgenTool {
         @Override	   	
         public boolean handleMouseDown(int anX, int aY, int button) { 
         	
+        	preempt = false;
+        	
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
         	if ( loc == null ) return false;
@@ -118,7 +121,9 @@ public class PgenAddPointAlt extends AbstractPgenTool {
         			/*
         			 * User selects an Element to alter
         			 */
-        			AbstractDrawableComponent elSelected = drawingLayer.getNearestComponent( loc, addPointFilter, true );
+        			//AbstractDrawableComponent elSelected = drawingLayer.getNearestComponent( loc, addPointFilter, true );
+        			AbstractDrawableComponent elSelected = drawingLayer.getNearestElement( loc, addPointFilter);
+
         			if ( elSelected == null ) return false;
         			drawingLayer.setSelected( elSelected );
 
@@ -147,6 +152,7 @@ public class PgenAddPointAlt extends AbstractPgenTool {
         					if ( loc.distance( coord ) < 0.2 ) {
         						index = newPoints.get(coord);
         						status = ADD_STATUS.MOVING;
+        						preempt = true;
         						break;
         					}
         				}
@@ -155,7 +161,7 @@ public class PgenAddPointAlt extends AbstractPgenTool {
         		}
         		
      	        mapEditor.refresh();  
-                return true;
+                return preempt;
                 
             }
             else if ( button == 3 ) {
@@ -217,7 +223,7 @@ public class PgenAddPointAlt extends AbstractPgenTool {
     		}
     		
     		mapEditor.refresh();
-        	return false;
+        	return preempt;
         }  
         
         /*
