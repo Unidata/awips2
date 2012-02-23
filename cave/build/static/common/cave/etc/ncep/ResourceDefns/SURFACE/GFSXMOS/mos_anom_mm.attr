@@ -1,0 +1,4 @@
+! Attributes for the GFSXMOS resource with "mosanonmm" plot model
+!
+plotModelName=mosanonmm
+plotDensity=10

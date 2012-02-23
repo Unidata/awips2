@@ -19,7 +19,6 @@ import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.resources.attributes.AbstractEditResourceAttrsDialog;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceAttrSet.RscAttrValue;
 import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarEditor;
-import gov.noaa.nws.ncep.viz.resources.manager.NmapResourceUtils;
 import gov.noaa.nws.ncep.viz.ui.display.ColorBar;
 import gov.noaa.nws.ncep.viz.ui.display.ColorBarFromColormap;
 import gov.noaa.nws.ncep.viz.common.ColorMapUtil;
@@ -159,6 +158,7 @@ public class EditMosaicAttrsDialog extends AbstractEditResourceAttrsDialog {
 	
 	@Override 
 	protected void dispose() {
+		super.dispose();
 		colorBarEditor.dispose();
 	}
 }

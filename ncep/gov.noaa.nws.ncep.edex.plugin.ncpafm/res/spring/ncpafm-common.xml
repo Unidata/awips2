@@ -1,0 +1,26 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+
+	<bean id="ncpafmPluginName" class="java.lang.String">
+		<constructor-arg type="java.lang.String" value="ncpafm" />
+	</bean>
+
+	<bean id="ncpafmProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+		<property name="pluginName" ref="ncpafmPluginName" />
+		<property name="pluginFQN" value="gov.noaa.nws.ncep.common.dataplugin.ncpafm" />
+		<property name="dao" value="gov.noaa.nws.ncep.common.dataplugin.ncpafm.dao.NcPafmDao" />
+        <property name="record" value="gov.noaa.nws.ncep.common.dataplugin.ncpafm.NcPafmRecord" />
+	</bean>
+
+	<bean factory-bean="pluginRegistry" factory-method="register">
+		<constructor-arg ref="ncpafmPluginName"/>
+		<constructor-arg ref="ncpafmProperties"/>
+	</bean>
+    
+</beans>

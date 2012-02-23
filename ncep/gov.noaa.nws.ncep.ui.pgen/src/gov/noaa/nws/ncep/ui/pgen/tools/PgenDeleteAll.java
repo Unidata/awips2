@@ -9,7 +9,7 @@
 package gov.noaa.nws.ncep.ui.pgen.tools;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.PlatformUI;
@@ -75,7 +75,8 @@ public class PgenDeleteAll extends AbstractPgenTool {
         	
         }
         
-        NmapUiUtils.setPanningMode();
+        //NmapUiUtils.setPanningMode();
+        PgenUtil.setSelectingMode();
         
     }
 

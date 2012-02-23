@@ -81,7 +81,8 @@
 		<!-- 
 			<displayUnits>K/(km * 1000)</displayUnits>
 		-->
-		<displayUnits label="K/(km * 1000)">K/m*1.0E6</displayUnits>
+		<displayUnits label="K/(km*1000)">K/m*1.0E6</displayUnits>
+		-->		
 		</arrowStyle>
 	</styleRule>
 

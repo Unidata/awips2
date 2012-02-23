@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<resourceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <resource>
+          <loadProperties loadWithoutData="true"></loadProperties>
+          <properties isSystemResource="false" isBlinking="false"
+            isMapLayer="false" isHoverOn="false" isVisible="true" />
+          <resourceData xsi:type="NC-WtchResourceData"
+            isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="false">
+            <frameSpan>${frameSpan}</frameSpan>
+            <dfltNumFrames>${dfltNumFrames}</dfltNumFrames>
+            <dfltTimeRange>${dfltTimeRange}</dfltTimeRange>
+            <timeMatchMethod>${timeMatchMethod}</timeMatchMethod>
+            <timelineGenMethod>${timelineGenMethod}</timelineGenMethod> 
+            <sourceName>${sourceName}</sourceName>
+            <color>${color}</color>
+            <thunderstormEnable>${thunderstormEnable}</thunderstormEnable>
+            <thunderstormColor>${thunderstormColor}</thunderstormColor>
+            <thunderstormLineWidth>${thunderstormLineWidth}</thunderstormLineWidth>
+            <tornadoEnable>${tornadoEnable}</tornadoEnable>
+            <tornadoColor>${tornadoColor}</tornadoColor>
+            <tornadoLineWidth>${tornadoLineWidth}</tornadoLineWidth>
+            <statusEnable>${statusEnable}</statusEnable>
+            <statusColor>${statusColor}</statusColor>
+            <statusLineWidth>${statusLineWidth}</statusLineWidth>
+            <watchxxx0Enable>${watchxxx0Enable}</watchxxx0Enable>
+            <watchxxx0Color>${watchxxx0Color}</watchxxx0Color>
+            <watchxxx0LineWidth>${watchxxx0LineWidth}</watchxxx0LineWidth>
+            <watchxxx1Enable>${watchxxx1Enable}</watchxxx1Enable>
+            <watchxxx1Color>${watchxxx1Color}</watchxxx1Color>
+            <watchxxx1LineWidth>${watchxxx1LineWidth}</watchxxx1LineWidth>
+            <watchxxx2Enable>${watchxxx2Enable}</watchxxx2Enable>
+            <watchxxx2Color>${watchxxx2Color}</watchxxx2Color>
+            <watchxxx2LineWidth>${watchxxx2LineWidth}</watchxxx2LineWidth>
+            <watchxxx3Enable>${watchxxx3Enable}</watchxxx3Enable>
+            <watchxxx3Color>${watchxxx3Color}</watchxxx3Color>
+            <watchxxx3LineWidth>${watchxxx3LineWidth}</watchxxx3LineWidth>
+            <watchxxx4Enable>${watchxxx4Enable}</watchxxx4Enable>
+            <watchxxx4Color>${watchxxx4Color}</watchxxx4Color>
+            <watchxxx4LineWidth>${watchxxx4LineWidth}</watchxxx4LineWidth>
+            <watchxxx5Enable>${watchxxx5Enable}</watchxxx5Enable>
+            <watchxxx5Color>${watchxxx5Color}</watchxxx5Color>
+            <watchxxx5LineWidth>${watchxxx5LineWidth}</watchxxx5LineWidth>
+            <watchxxx6Enable>${watchxxx6Enable}</watchxxx6Enable>
+            <watchxxx6Color>${watchxxx6Color}</watchxxx6Color>
+            <watchxxx6LineWidth>${watchxxx6LineWidth}</watchxxx6LineWidth>
+            <watchxxx7Enable>${watchxxx7Enable}</watchxxx7Enable>
+            <watchxxx7Color>${watchxxx7Color}</watchxxx7Color>
+            <watchxxx7LineWidth>${watchxxx7LineWidth}</watchxxx7LineWidth>
+            <watchxxx8Enable>${watchxxx8Enable}</watchxxx8Enable>
+            <watchxxx8Color>${watchxxx8Color}</watchxxx8Color>
+            <watchxxx8LineWidth>${watchxxx8LineWidth}</watchxxx8LineWidth>
+            <watchxxx9Enable>${watchxxx9Enable}</watchxxx9Enable>
+            <watchxxx9Color>${watchxxx9Color}</watchxxx9Color>
+            <watchxxx9LineWidth>${watchxxx9LineWidth}</watchxxx9LineWidth>
+            <watchBoxTimeEnable>${watchBoxTimeEnable}</watchBoxTimeEnable>
+            <statusLinesTimeEnable>${statusLinesTimeEnable}</statusLinesTimeEnable>
+            <watchBoxNumberEnable>${watchBoxNumberEnable}</watchBoxNumberEnable>
+            <statusLinesNumberEnable>${statusLinesNumberEnable}</statusLinesNumberEnable>
+            <colorCodeEnable>${colorCodeEnable}</colorCodeEnable>
+            <mostRecentStatusEnable>${mostRecentStatusEnable}</mostRecentStatusEnable>
+            <requestStyle>METADATA</requestStyle>
+            <metadataMap>
+              <mapping key="pluginName">
+                <constraint constraintValue="aww" constraintType="EQUALS" />
+              </mapping>
+              <mapping key="reportType">
+                <constraint constraintValue="THUNDERSTORM_REPORT,TORNADO_REPORT,STATUS_REPORT" constraintType="IN" />
+              </mapping>
+            </metadataMap>
+          </resourceData>
+        </resource>
+</resourceGroup>        

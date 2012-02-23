@@ -40,13 +40,6 @@
          unpack="false"/>
 
    <plugin
-         id="gov.noaa.nws.ncep.edex.gempak.jna"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="gov.noaa.nws.ncep.gempak.parameterConversionLibrary"
          download-size="0"
          install-size="0"
@@ -131,6 +124,13 @@
          unpack="false"/>
 
    <plugin
+         id="gov.noaa.nws.ncep.viz.rsc.hrcn"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
          id="gov.noaa.nws.ncep.viz.rsc.idft"
          download-size="0"
          install-size="0"
@@ -201,6 +201,13 @@
          unpack="false"/>
 
    <plugin
+         id="gov.noaa.nws.ncep.viz.rsc.stormtrack"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
          id="gov.noaa.nws.ncep.viz.rsc.svrl"
          download-size="0"
          install-size="0"
@@ -250,6 +257,20 @@
          unpack="false"/>
 
    <plugin
+         id="gov.noaa.nws.ncep.viz.ui.locator"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.camel"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
          id="gov.noaa.nws.ncep.viz.rsc.wou"
          download-size="0"
          install-size="0"
@@ -265,6 +286,27 @@
 
    <plugin
          id="gov.noaa.nws.ncep.viz.resources"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.viz.rsc.wavesat"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.viz.rsc.wtch"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ncep.viz.rsc.ncradar"
          download-size="0"
          install-size="0"
          version="0.0.0"
