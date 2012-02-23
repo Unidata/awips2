@@ -1,7 +1,0 @@
-legendString=SHIP-6Hr
-levelKey=Surface
-plugin=sfcobs
-reportTypeKey=reportType
-reportTypeValue=1003,1005,1007
-spiFile=MTR.spi
-legend_color=RGB {0, 255, 0}

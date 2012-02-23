@@ -8,11 +8,14 @@
 package gov.noaa.nws.ncep.ui.pgen.display;
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -22,6 +25,8 @@ import java.util.StringTokenizer;
 
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
+import org.geotools.referencing.GeodeticCalculator;
+import org.geotools.referencing.datum.DefaultEllipsoid;
 
 import gov.noaa.nws.ncep.edex.common.stationTables.Station;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
@@ -34,6 +39,7 @@ import gov.noaa.nws.ncep.ui.pgen.display.IText.TextJustification;
 import gov.noaa.nws.ncep.ui.pgen.display.IText.TextRotation;
 import gov.noaa.nws.ncep.ui.pgen.display.ArrowHead.ArrowHeadType;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
+import gov.noaa.nws.ncep.ui.pgen.elements.Arc;
 import gov.noaa.nws.ncep.ui.pgen.elements.ComboSymbol;
 import gov.noaa.nws.ncep.ui.pgen.elements.County;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
@@ -41,6 +47,10 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
 import gov.noaa.nws.ncep.ui.pgen.elements.SymbolLocationSet;
 import gov.noaa.nws.ncep.ui.pgen.elements.Text;
+import gov.noaa.nws.ncep.ui.pgen.elements.tcm.ITcm;
+import gov.noaa.nws.ncep.ui.pgen.elements.tcm.ITcmFcst;
+import gov.noaa.nws.ncep.ui.pgen.elements.tcm.TcmFcst;
+import gov.noaa.nws.ncep.ui.pgen.elements.tcm.ITcmWindQuarter;
 import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
 import gov.noaa.nws.ncep.ui.pgen.gfa.IGfa;
 import gov.noaa.nws.ncep.ui.pgen.tca.BPGeography;
@@ -62,6 +72,7 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.PixelExtent;
+import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.data.prep.IODataPreparer;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IImage;
@@ -159,6 +170,31 @@ public class DisplayElementFactory {
 	private Boolean layerFilled = false;
 	
 	private BackgroundColor backgroundColor = BackgroundColor.getActivePerspectiveInstance();
+	
+	class SymbolImageCallback implements IRenderedImageCallback {
+		private String patternName;
+		private double scale;
+		private float lineWidth;
+		private boolean mask;
+		private Color color;
+		
+		public SymbolImageCallback(String patternName, double scale,
+				float lineWidth, boolean mask, Color color) {
+			super();
+			this.patternName = patternName;
+			this.scale = scale;
+			this.lineWidth = lineWidth;
+			this.mask = mask;
+			this.color = color;
+		}
+
+		@Override
+		public RenderedImage getImage() throws VizException {
+			return SymbolImageUtil.createBufferedImage(patternName, scale, lineWidth,
+					mask, color);
+		}
+		
+	}
 	
 	/**
 	 * Constructor used to set initial Graphics Target and MapDescriptor
@@ -975,6 +1011,195 @@ public class DisplayElementFactory {
         
         return slist;
     }
+	
+    /**
+     * Create IDisplayable of PGEN TCM element.
+     * @param tcm A PGEN TCM Element
+     * @param paintProps The paint properties associated with the target
+     * @return A list of IDisplayable elements
+     */
+    public ArrayList<IDisplayable> createDisplayElements(ITcm tcm, PaintProperties paintProps) {
+        ArrayList<IDisplayable> slist = new ArrayList<IDisplayable>();
+        
+        ArrayList<Coordinate> trackPts = new ArrayList<Coordinate>();
+        
+        //draw wave quarters
+    	slist.addAll( createDisplayElements(tcm.getWaveQuarters(), paintProps));
+        
+    	//draw wind forecast quarters and labels
+        for (TcmFcst tcmFcst : tcm.getTcmFcst() ){
+        	String [] txt = new String[2];
+        	Calendar fcstHr = (Calendar) tcm.getAdvisoryTime().clone();
+        	fcstHr.add(Calendar.HOUR_OF_DAY, tcmFcst.getFcstHr());
+        	
+        	if ( tcmFcst.equals(tcm.getTcmFcst().get(0))){
+        		txt[0] = tcm.getStormName() + "/" + (int)tcm.getCentralPressure() + "mb";
+            	txt[1] = String.format("%1$td/%1$tH%1$tM", fcstHr);
+        	}
+        	else {
+        		txt[0] = String.format("%1$td/%1$tH%1$tM", fcstHr);
+        		txt[1] = "";
+        	}
+        	
+        	slist.addAll( createDisplayElements(tcmFcst, paintProps, txt));
+        	trackPts.add(tcmFcst.getQuarters()[0].getLocation());
+        }
+        
+        //draw track
+        if ( trackPts.size() >= 2 ){
+        	Line trackLn = new Line( null, new Color[]{new Color(0,255,255)},1.5f,.8,false,
+        			false, trackPts, 0,
+        			null,"Lines","LINE_DASHED_6");
+        	slist.addAll(createDisplayElements(trackLn,paintProps));
+        }
+        
+    	return slist;
+    }
+    
+    /**
+     * Create IDisplayable of PGEN TCM forecast
+     * @param tcmFcst A PGEN TCM forecast
+     * @param paintProps The paint properties associated with the target
+     * @return A list of IDisplayable elements
+     */   
+    private ArrayList<IDisplayable> createDisplayElements(ITcmFcst tcmFcst, PaintProperties paintProps, String[] txt) {
+        ArrayList<IDisplayable> slist = new ArrayList<IDisplayable>();
+        for (ITcmWindQuarter qua : tcmFcst.getQuarters() ){
+        	slist.addAll( createDisplayElements(qua, paintProps));
+        }
+        
+        Symbol ts = new Symbol(null, new Color[]{new Color(0,255,255)}, 2.5f, 1.5, false,
+				tcmFcst.getQuarters()[0].getLocation(),
+				"Symbol", this.getTcmFcstSymbolType(tcmFcst));
+        slist.addAll(createDisplayElements(ts,paintProps));
+
+        if ( txt != null ){
+        	Text label = new Text( null, "Courier", 14.0f, TextJustification.LEFT_JUSTIFY,
+        			tcmFcst.getQuarters()[0].getLocation(), 0.0, TextRotation.NORTH_RELATIVE, txt,
+        			FontStyle.REGULAR, getDisplayColor(Color.YELLOW), 4, 0, false, DisplayType.NORMAL,
+        			"Text", "General Text" );
+
+        	slist.addAll(createDisplayElements(label,paintProps));
+        }
+        
+    	return slist;
+    }
+    
+    /**
+     * Returns the TCM symbol according to the wind speed.
+     * Hurricane >= 64 knots
+     * TS >= 50 knots
+     * TD >= 32 knots
+     * Lx  < 32 knots
+     * @param tcmFcst
+     * @return
+     */
+    private String getTcmFcstSymbolType(ITcmFcst tcmFcst ){
+    	String ret = "TROPICAL_STORM_NH";
+    	ITcmWindQuarter[] quarters = tcmFcst.getQuarters();
+    	
+    	int maxWind = 0;
+    	
+    	for ( ITcmWindQuarter qtr : quarters ){
+    		double[] radius = qtr.getQuarters();
+    		for ( double r : radius ) {
+    			if ( r > 0 ) {
+    				if ( qtr.getWindSpeed() > maxWind ) maxWind = qtr.getWindSpeed();
+    				break;
+    			}
+    		}
+    	}
+    	
+    	double lat = quarters[0].getLocation().y;
+    	if ( maxWind >= 64 ){
+    		if ( lat > 0 ) ret = "HURRICANE_NH";
+    		else  ret = "HURRICANE_SH";
+    	}
+    	else if ( maxWind >= 50 ){
+    		if ( lat > 0 ) ret = "TROPICAL_STORM_NH";
+    		else  ret = "TROPICAL_STORM_SH";
+    	}
+       	else if ( maxWind >= 32 ){
+    		ret = "TROPICAL_DEPRESSION";
+    	}
+       	else {
+       		ret = "LOW_X_FILLED";
+       	}
+    	
+    	return ret;
+    }
+    
+    
+    /**
+     * Create IDisplayable of PGEN TCM wind/wave quarters
+     * @param quatros - PGEN TCM wind/wave quarters 
+     * @param paintProps The paint properties associated with the target
+     * @return A list of IDisplayable elements
+     */
+    private ArrayList<IDisplayable> createDisplayElements(ITcmWindQuarter quatros, PaintProperties paintProps) {
+        ArrayList<IDisplayable> slist = new ArrayList<IDisplayable>();
+        
+        Color color = Color.GREEN;
+        switch (quatros.getWindSpeed()){
+        case 0:
+        	color =  Color.GREEN ;
+        	break;
+        case 32:
+        	color =  Color.BLUE ;
+        	break;
+        case 50:
+        	color =  Color.YELLOW ;
+        	break;
+        case 64:
+        	color =  Color.RED ;
+        	break;
+        }
+
+    	Coordinate center = quatros.getLocation();
+        Arc quatro1 = new Arc( null, color,
+    			(float) 1.5, 1.0, false, false,
+    			0, null, "Circle", 
+    			center, this.calculateDestinationPointMap(center, 0, quatros.getQuarters()[0]), "Arc", 
+    			1, 0, 90 );
+        Arc quatro2 = new Arc( null, color,
+    			(float) 1.5, 1.0, false, false,
+    			0, null, "Circle", 
+    			center, this.calculateDestinationPointMap(center, 0, quatros.getQuarters()[1]), "Arc", 
+    			1, 90, 180 );
+        Arc quatro3 = new Arc( null, color,
+    			(float) 1.5, 1.0, false, false,
+    			0, null, "Circle", 
+    			center, this.calculateDestinationPointMap(center, 0, quatros.getQuarters()[2]), "Arc", 
+    			1, 180, 270 );
+        Arc quatro4 = new Arc( null, color,
+    			(float) 1.5, 1.0, false, false,
+    			0, null, "Circle", 
+    			center, this.calculateDestinationPointMap(center, 0, quatros.getQuarters()[3]), "Arc", 
+    			1, 270, 360 );
+        slist.addAll( createDisplayElements((IArc)quatro1, paintProps));
+        slist.addAll( createDisplayElements((IArc)quatro2, paintProps));
+        slist.addAll( createDisplayElements((IArc)quatro3, paintProps));
+        slist.addAll( createDisplayElements((IArc)quatro4, paintProps));
+
+		Line ln1 = getWindQuatroLine(getPointOnArc(quatro1, 0 ), 
+				getPointOnArc( quatro2, 0), color);
+		
+		Line ln2 = getWindQuatroLine(getPointOnArc(quatro2, 90 ), 
+				getPointOnArc( quatro3, 90), color);
+		
+		Line ln3 = getWindQuatroLine(getPointOnArc(quatro3, 180 ), 
+				getPointOnArc( quatro4, 180), color);
+		
+		Line ln4 = getWindQuatroLine(getPointOnArc(quatro4, 270 ), 
+				getPointOnArc( quatro1, 270), color);
+		
+        slist.addAll( createDisplayElements((ILine)ln1, paintProps));
+        slist.addAll( createDisplayElements((ILine)ln2, paintProps));
+        slist.addAll( createDisplayElements((ILine)ln3, paintProps));
+        slist.addAll( createDisplayElements((ILine)ln4, paintProps));
+        
+    	return slist;
+    }
     
     /**
      * Creates a list of IDisplayable Objects from an IArc object
@@ -1047,7 +1272,7 @@ public class DisplayElementFactory {
          */
         arcpts.compile();
         slist.add( new LineDisplayElement(arcpts, getDisplayColor( arc.getColors()[0] ), arc.getLineWidth()) );
-        
+       
     	slist.addAll( adjustContourCircleLabel( arc, paintProps, path ) );
         
         return slist;
@@ -1229,16 +1454,17 @@ public class DisplayElementFactory {
          * create an AWT BufferedImage from the symbol pattern
          */
         sfactor *= screenToWorldRatio;
-        BufferedImage image = SymbolImageUtil.createBufferedImage(sym.getPatternName(), sfactor, sym.getLineWidth(), 
-        		                                                  sym.isClear(), dspClr[0] );
-        
+        //BufferedImage image = SymbolImageUtil.createBufferedImage(sym.getPatternName(), sfactor, sym.getLineWidth(), 
+        //		                                                  sym.isClear(), dspClr[0] );
+        IRenderedImageCallback imageCb= new SymbolImageCallback(sym.getPatternName(), sfactor, 
+        		sym.getLineWidth(), sym.isClear(), dspClr[0] );
         /*
          * Initialize raster image for use with graphics target
          */
         IImage pic = null;
         try {
-        	//pic = target.initializeRaster(sym.getPatternName(), image, true, 0);
-        	pic = target.initializeRaster( new IODataPreparer(image, sym.getPatternName(), 0), null );
+        	pic = target.initializeRaster( imageCb );
+        	//pic = target.initializeRaster( new IODataPreparer(image, sym.getPatternName(), 0), null );
         }
         catch (Exception e) {
         	System.out.println("SAG:IMAGE CREATION");
@@ -4207,7 +4433,7 @@ public class DisplayElementFactory {
 	private ArrayList<IDisplayable> adjustContourCircleLabel( IArc arc, 
 															 PaintProperties paintProps,
 															 double[][] smoothpts ) {
-		
+
 		ArrayList<IDisplayable> dlist = new ArrayList<IDisplayable>();
 	    
 		AbstractDrawableComponent parent = ((DrawableElement)arc).getParent();
@@ -4321,5 +4547,75 @@ public class DisplayElementFactory {
 				list.addAll(createDisplayElements((IText)spdTxt, paintProps));
 			}				
 		}
+	}
+	
+	/**
+	 * Calculate end point from a start point, distance and angle.
+	 * @param startPt
+	 * @param angle
+	 * @param distance
+	 * @return - end point
+	 */
+	private Coordinate calculateDestinationPointMap(Coordinate startPt, double angle, double distance){
+		GeodeticCalculator gc = new GeodeticCalculator(DefaultEllipsoid.WGS84);
+    	gc.setStartingGeographicPoint( startPt.x, startPt.y );
+		gc.setDirection(angle, distance*PgenUtil.NM2M);
+		
+		Point2D pt1 = gc.getDestinationGeographicPoint();
+        return new Coordinate( pt1.getX(), pt1.getY());
+	}
+	
+	/**
+	 * Get the point on arc aith a sepcified angle from the starting angle. 
+	 * @param arc
+	 * @param angle
+	 * @return
+	 */
+	private Coordinate getPointOnArc(Arc arc, double angle){
+        /*
+         * Convert center and circumference point from lat/lon to pixel coordinates.
+         */
+        double[] tmp = { arc.getCenterPoint().x, arc.getCenterPoint().y, 0.0 };
+        double[] center = mapDescriptor.worldToPixel(tmp);
+        double[] tmp2 = { arc.getCircumferencePoint().x, arc.getCircumferencePoint().y, 0.0 };
+        double[] circum = mapDescriptor.worldToPixel(tmp2);
+        
+        double radius = Math.sqrt( (center[0] - circum[0])*(center[0] - circum[0]) +
+        							(center[1] - circum[1])*(center[1] - circum[1]) );
+        
+        /*
+         * calculate angle of major axis
+         */
+        double axisAngle = 90 + Math.toDegrees(Math.atan2( (circum[1]-center[1]), (circum[0]-center[0]) ));
+        angle += axisAngle;         
+        
+       	double thisSine = Math.sin( Math.toRadians(angle));
+       	double thisCosine = Math.cos( Math.toRadians(angle));
+       	
+       	double pt[] = new double[2];
+       // pt[0] = center[0] + (radius * cosineAxis * thisCosine ) - (radius * sineAxis * thisSine );
+       // pt[1] = center[1] + (radius * sineAxis * thisCosine ) + (radius * cosineAxis * thisSine );
+       	pt[0] = center[0] + (radius * thisCosine );
+        pt[1] = center[1] + (radius * thisSine );
+        
+        double mapPt[] = mapDescriptor.pixelToWorld(pt);
+        
+        return new Coordinate( mapPt[0], mapPt[1]);
+	}	
+	
+	/**
+	 * Get the line that connects two TCM wind/wave quarters
+	 * @param pt1 - start point 
+	 * @param pt2 - end point
+	 * @param color
+	 * @return - A Line 
+	 */
+	private Line getWindQuatroLine( Coordinate pt1, Coordinate pt2, Color color){
+		ArrayList<Coordinate> pts = new ArrayList<Coordinate>();
+		pts.add(pt1);
+		pts.add(pt2);
+
+		return new Line(null, new Color[]{color},1.5f,.5,false,
+				false, pts, 0, null,"Lines","LINE_SOLID");
 	}
 }

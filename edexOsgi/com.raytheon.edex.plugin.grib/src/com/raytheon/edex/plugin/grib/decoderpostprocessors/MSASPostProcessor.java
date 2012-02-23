@@ -92,6 +92,7 @@ public class MSASPostProcessor implements IDecoderPostProcessor {
         // Reassigns 3-hr pressure tendency to abbreviation used by MSAS
         else if (currentAbbr.equals(TSLSA)) {
             gribModel.setParameterAbbreviation(PT3_ABBR);
+            gribModel.setParameterUnit("mb*100");
             modelInfoModified = true;
         }
 

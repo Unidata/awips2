@@ -41,6 +41,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.viz.core.VariableSubstitutionUtil;
@@ -60,6 +61,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
  *    ------------ ----------  ----------- --------------------------
  *    02/20/10       #226      ghull       added Pane layout info to Bundle class.
  *    09/02/10       #307      ghull       use one timeMatcher for all descriptors
+ *    11/15/11                 ghull       add resolveLatestCycleTimes
  * 
  * </pre>
  * 
@@ -84,8 +86,11 @@ public class RbdBundle implements ISerializableObject {
 
     @XmlElement
     private NCTimeMatcher timeMatcher;
+    
+    // only set if read from Localization
+    private LocalizationFile lFile;
 
-    /** Contains the descriptors */
+	/** Contains the descriptors */
     @XmlElement
     @XmlElementWrapper(name = "displayList")
     protected NCMapRenderableDisplay[] displays;
@@ -117,6 +122,14 @@ public class RbdBundle implements ISerializableObject {
             }
         }
     }
+
+    public LocalizationFile getLocalizationFile() {
+		return lFile;
+	}
+
+	public void setLocalizationFile(LocalizationFile lFile) {
+		this.lFile = lFile;
+	}
 
     public boolean isGeoSyncedPanes() {
         return geoSyncedPanes;
@@ -339,7 +352,7 @@ public class RbdBundle implements ISerializableObject {
      * @throws VizException
      */
     public static RbdBundle unmarshalRBD(String bundleStr,
-            Map<String, String> variables) throws VizException {
+            Map<String, String> variables ) throws VizException {
 
         try {
             String substStr = VariableSubstitutionUtil.processVariables(
@@ -439,6 +452,41 @@ public class RbdBundle implements ISerializableObject {
                 timeMatcher.addDescriptor(disp.getDescriptor());
             }
         }
+    }
+    
+    // After and Rbd is unmarshalled it is possible for forecast resources
+    // to have a cycle time of LATEST. We don't always want to resolve the 
+    // Rbd after unmarshalling it so we do this as a separate step here.
+    //
+    public boolean resolveLatestCycleTimes() {
+        // loop through all of the 
+        for (NCMapRenderableDisplay disp : displays) {
+            ResourceList rl = disp.getDescriptor().getResourceList();
+            for (int r = 0; r < rl.size(); r++) {
+                ResourcePair rp = rl.get(r);
+                if (rp.getResourceData() instanceof AbstractNatlCntrsRequestableResourceData) {
+                    AbstractNatlCntrsRequestableResourceData rscData = 
+                    	(AbstractNatlCntrsRequestableResourceData) rp.getResourceData();
+                    ResourceName rscName = rscData.getResourceName();
+
+                    if( rscName.isForecastResource() &&
+                    	rscName.isLatestCycleTime() ) {
+                    
+                    	rscData.getAvailableDataTimes();
+                    	
+                    	// TODO : do we leave as Latest, or flag 
+                    	// as NoDataAvailable? Either way the resource is going
+                    	// to have to be able to handle this case.
+                    	//
+                    	if( rscName.isLatestCycleTime() ) {
+                    		System.out.println("Unable to Resolve Latest cycle time for :"+rscName );
+                    	}
+                    }
+                }
+            }
+        }
+
+    	return true;
     }
 
     // if the timeline has not been created then

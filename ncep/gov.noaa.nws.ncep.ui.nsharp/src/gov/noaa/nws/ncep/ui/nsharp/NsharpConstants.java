@@ -18,8 +18,8 @@ package gov.noaa.nws.ncep.ui.nsharp;
  * @author Chin Chen
  * @version 1.0
  */
-//import gov.noaa.nws.ncep.viz.localization.NcPathManager;
-//import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.text.DecimalFormat;
 import javax.measure.converter.UnitConverter;
@@ -376,12 +376,12 @@ public class NsharpConstants {
 	public static int filelistHeight = 100;
 	public static int dsiplayPanelSize = 2;
 	
-//	public static String getNlistFile() {
-//		return NcPathManager.getInstance().getStaticFile( 
-//				  NcPathConstants.NSHARP_NLIST_FILE ).getAbsolutePath();
-//    }
-//	public static String getSupFile() {
-//		return NcPathManager.getInstance().getStaticFile( 
-//				  NcPathConstants.NSHARP_SUP_FILE ).getAbsolutePath();
-//    }
+	public static String getNlistFile() {
+		return NcPathManager.getInstance().getStaticFile( 
+				  NcPathConstants.NSHARP_NLIST_FILE ).getAbsolutePath();
+    }
+	public static String getSupFile() {
+		return NcPathManager.getInstance().getStaticFile( 
+				  NcPathConstants.NSHARP_SUP_FILE ).getAbsolutePath();
+    }
 }
