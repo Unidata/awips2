@@ -31,6 +31,8 @@
     				minOccurs="0"></element>
     			<element name="PgenSettingsFile" type="string"></element>
     		</sequence>
+    		<attribute name="Subtype" type="string"></attribute>
+     		<attribute name="Type" type="string"></attribute>
     		<attribute name="Name" type="string"></attribute>
     	</complexType>
     </element>

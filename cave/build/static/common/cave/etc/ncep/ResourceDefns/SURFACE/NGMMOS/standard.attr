@@ -1,0 +1,4 @@
+! Attributes for the NGMMOS resource with "standard" plot model
+!
+plotModelName=nammos_standard
+plotDensity=10

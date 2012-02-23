@@ -82,6 +82,7 @@ public class PgenModifyTool extends AbstractPgenTool {
      */
     public class PgenModifyHandler extends InputHandlerDefaultImpl {
   	    	
+    	private boolean preempt;
     	OperationFilter modifyFilter = new OperationFilter( Operation.MODIFY );
     	
        	/**
@@ -113,6 +114,7 @@ public class PgenModifyTool extends AbstractPgenTool {
         @Override	   	
         public boolean handleMouseDown( int anX, int aY, int button ) { 
        	
+        	preempt = false;
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
         	if ( loc == null ) return false;
@@ -126,12 +128,14 @@ public class PgenModifyTool extends AbstractPgenTool {
         			if (( (elSelected instanceof Line) && !(elSelected instanceof Arc ) ) || isModifiableSigmet(elSelected)) {
         				drawingLayer.setSelected( elSelected ); 
         				mapEditor.refresh();
+        				preempt = true;
         			}
         			else { 
         				return false;
         			}
         		}
         		else {
+        			preempt = true;
                    	                          			
     			    if ( clickPts == null ) {
     				    clickPts = new ArrayList<Coordinate>();
@@ -154,7 +158,7 @@ public class PgenModifyTool extends AbstractPgenTool {
         		    
        		    }
                 
-    		    return true;	
+    		    return preempt;	
        		                
             }
             else if ( button == 3 ) {
@@ -283,7 +287,12 @@ public class PgenModifyTool extends AbstractPgenTool {
             
         }
         
-    	/**
+    	@Override
+		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
+			return preempt;
+		}
+
+		/**
     	 *  Set up a "modify" instance, perform modification and 
     	 *  build a new modified element
     	 */
