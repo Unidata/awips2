@@ -10,6 +10,7 @@ package gov.noaa.nws.ncep.ui.pgen.tools;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
+import gov.noaa.nws.ncep.ui.pgen.palette.PgenPaletteWindow;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
 import gov.noaa.nws.ncep.viz.ui.display.AbstractNCModalMapTool;
 
@@ -50,7 +51,7 @@ public abstract class AbstractPgenTool extends AbstractNCModalMapTool{
      */
     @Override
     protected void activateTool( ) {
-    	
+    	if ( PgenSession.getInstance().getPgenPalette() == null ) return;
     	super.activateTool(event);
     	
     	String param;
@@ -93,7 +94,8 @@ public abstract class AbstractPgenTool extends AbstractNCModalMapTool{
     public void deactivateTool() {
     	
     	//  Reset the original icon for the palette button corresponding to this tool
-    	if ( buttonName != null ) PgenSession.getInstance().getPgenPalette().resetIcon(buttonName);
+    	if ( buttonName != null && PgenSession.getInstance().getPgenPalette() != null) 
+    		PgenSession.getInstance().getPgenPalette().resetIcon(buttonName);
     	
     	if ( drawingLayer != null ) {
     		

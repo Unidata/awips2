@@ -1,17 +1,29 @@
 package gov.noaa.nws.ncep.viz.common;
 
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationResourcePathConstants;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.FilenameFilter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.colormap.IColorMap;
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 
 
 /**
@@ -27,7 +39,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 01/02/2010   204			 M. Li	     check for Radar or Sat resource
  * 03/14/2010                B. Hebbard	 add path separator btw tblDir and rsc (2 places);
  *                                       fix circular build dependency on MosaicResource	
- * 03/21/2010   259          G. Hull     load by category                                      
+ * 03/21/2010   259          G. Hull     load by category        
+ * 07/15/2011   450          G. Hull     use new NcPathManager          
  * 
  * </pre>
  * 
@@ -37,7 +50,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 
 public class ColorMapUtil {
 	ColorMapUtil() {
-
 	}
 
     /**
@@ -52,15 +64,10 @@ public class ColorMapUtil {
     	String cmapCat = cat.substring(0,1)+cat.substring(1).toLowerCase();
     	
         try {        	
-        	/*
-        	 * comment out by M. Gao
-        	 */
-//			String cmapDir = LocalizationManager.getInstance().getFilename("lutsDir");
-//        	File f = new File(cmapDir + File.separator + cmapCat + File.separator + name + ".cmap");
-        	File f = LocalizationManager.getInstance().getLocalizationFileDirectly(LocalizationResourcePathConstants.LUTS_RESOURCES_DIR
-        			+ File.separator + cmapCat,
-        			name + ".cmap");
-        	 
+        	File f = NcPathManager.getInstance().getStaticFile(
+        			NcPathConstants.COLORMAPS_DIR + File.separator+ 
+        			                  cmapCat + File.separator+ name + ".cmap" );
+        	
             if (f != null) {
             	ColorMap cm = (ColorMap) SerializationUtil   
                         .jaxbUnmarshalFromXmlFile(f.getAbsolutePath());
@@ -75,27 +82,19 @@ public class ColorMapUtil {
         }   
     }
     
+    // TODO Add logic for if the colormap is in the base/site level and provide appropriate confirmation msg
     public static boolean colorMapExists( String cat, String name ) {
-    	/*
-    	 * comment out by M. Gao
-    	 */
-//		String cmapDir = LocalizationManager.getInstance().getFilename("lutsDir");
-//		String fname = cmapDir + File.separator + cat + File.separator + name;
-//		if( !name.endsWith(".cmap")) {
-//			fname = fname + ".cmap";
-//		}
-//    	File f = new File( fname );
 		String fname = name;
 		if( !name.endsWith(".cmap")) {
 			fname = fname + ".cmap";
 		}
-    	File f = LocalizationManager.getInstance().getLocalizationFileDirectly(LocalizationResourcePathConstants.LUTS_RESOURCES_DIR
-    			+ File.separator + cat,
-    			fname);
-    	 
-        return f.exists();
+    	File f = NcPathManager.getInstance().getStaticFile( 
+    			NcPathConstants.COLORMAPS_DIR + File.separator+ cat + File.separator+ fname);
+
+        return ( f != null && f.exists() );
     }
 
+    // TODO : read from Localization
     public static String[] getColorMapCategories() {
     	return new String[] {"Satellite", "Radar", "Other" };
     }
@@ -108,113 +107,114 @@ public class ColorMapUtil {
      */
     public static String[] listColorMaps( String cat ) {
     	
-    	String[] fileNames; 
-//    	File[] files;
-//    	ArrayList<String> allfiles = new ArrayList<String>();
+        NcPathManager pathMngr = NcPathManager.getInstance();
+        
     	String cmapCat = cat.substring(0,1)+cat.substring(1).toLowerCase();
+  
+        Set<LocalizationContext> searchContexts = new HashSet<LocalizationContext>();        
+        searchContexts.addAll( 
+        		Arrays.asList( pathMngr
+        				.getLocalSearchHierarchy( LocalizationType.CAVE_STATIC) ) );
 
-    	/*
-    	 * comment out by M. Gao. This portion can only retrieve files under
-    	 * base level if the localization. If we want to be more dynamically, 
-    	 * we can switch to use MultiFileLoading extension 
-    	 */
-//		String tblDir = LocalizationManager.getInstance().getFilename("lutsDir");
-//		File tbl = new File(tblDir + File.separator + cmapCat + File.separator);
-//    	File tbl = LocalizationManager.getInstance().getLocalizationFileDirectory(LocalizationResourcePathConstants.LUTS_RESOURCES_DIR
-//    			+ File.separator + cmapCat,
-//    			LocalizationConstants.LOCALIZATION_BASE_LEVEL);
-    	File tbl = LocalizationManager.getInstance().reloadingResourceInfo(LocalizationResourcePathConstants.LUTS_RESOURCES_DIR, cmapCat); 
-    	/*
-    	 * End of M. Gao's change
-    	 */
-    	
-		FilenameFilter filter = new FilenameFilter() {
-	        public boolean accept(File dir, String name) {
-	            return name.endsWith(".cmap") ;
-	        }
-		};
-	    
-		fileNames = tbl.list(filter);
+//        LocalizationLevel[] levels = { LocalizationLevel.;
+//        for( LocalizationLevel level : levels) {
+//            if( level.isSystemLevel() == false) {
+//                String[] available = NcPathManager.getInstance().getContextList( level );
+//                for( String s : available ) {
+//                    LocalizationContext ctx = NcPathManager.getInstance().getContext(
+//                            LocalizationType.CAVE_STATIC, level);
+//                    ctx.setContextName(s);
+//                    searchContexts.add(ctx);
+//                }
+//            }
+//        }
 
-		String[] cmaps = new String[fileNames.length];
-		for (int i = 0; i < fileNames.length; i++) {
-			cmaps[i] = fileNames[i].substring(0, fileNames[i].lastIndexOf(".") );
-		}
+        Map<String,LocalizationFile> lFiles = pathMngr.listFiles( 
+        		NcPathConstants.COLORMAPS_DIR+ File.separator+ cmapCat, 
+        		        new String[]{ "cmap" }, false, true );
 
-        Arrays.sort(cmaps);
+		ArrayList<String> cmaps = new ArrayList<String>( lFiles.size() );
 
-        return cmaps;
+		for( LocalizationFile lFile : lFiles.values() ) {
+        	if( !lFile.getFile().exists() ) {
+        		System.out.println("cmap file "+ lFile.getName() + " doesn't exist???");
+        	}
+        	
+        	// lFile.getName() is /luts/Satellite/<fname>    in case we want to save this
+        	String fname = lFile.getFile().getName();
+        	cmaps.add( fname.substring(0, fname.lastIndexOf(".") ) );        	
+        }
+ 
+		String[] cmapArr = cmaps.toArray( new String[0] ); 
+        Arrays.sort( cmapArr );
+        return cmapArr;
     }
 
+    // assume that check/prompt for overwriting has already been done.
+    //
     public static void saveColorMap( ColorMap colorMap, String cmapCat, String cmapName) 
     				throws VizException {
 
-    	/*
-    	 * comment out and rewriteen by M. Gao
-    	 */
-//		String cmapDir = LocalizationManager.getInstance().getFilename("lutsDir");
-//		
-//		File catDir = new File(cmapDir + File.separator + cmapCat + File.separator);
-//
-//		if( !catDir.exists() ) {
-//			throw new VizException("ColorMap Category, "+cmapCat+" doesn't exist");
-//		}
-//		String cmapFilename = catDir.getAbsolutePath() + File.separator + cmapName;
-//
-//		if( !cmapFilename.endsWith(".cmap") ) {
-//			cmapFilename += ".cmap";
-//        }
-		String cmapFilename = cmapName;
-		if( !cmapFilename.endsWith(".cmap") ) {
-			cmapFilename += ".cmap";
+    	String cmapFileName = NcPathConstants.COLORMAPS_DIR + File.separator+ 
+    									cmapCat + File.separator + cmapName;
+    	if( !cmapFileName.endsWith(".cmap") ) {
+    		cmapFileName += ".cmap";
         }
-
-		cmapFilename = LocalizationManager.getInstance().getLocalizationFileNameDirectly(LocalizationResourcePathConstants.LUTS_RESOURCES_DIR
-				+ File.separator + cmapCat,
-				cmapFilename);
-		
-		if( cmapFilename == null || cmapFilename.trim().length() == 0 ) {
-			throw new VizException("ColorMap Category file, "+cmapFilename+" doesn't exist");
-		}
+    	
+        // Prompt to also save to DESK?  or determine if we are logged in 'as' a DESK and only
+        // save to desk?
+        //
+        LocalizationContext context = NcPathManager.getInstance().getContext(
+                	LocalizationType.CAVE_STATIC, LocalizationLevel.USER );
+        LocalizationFile lclFile = NcPathManager.getInstance().getLocalizationFile( context, cmapFileName );
+        File cmapFile = lclFile.getFile();
+    
+//		if( cmapFile == null || !cmapFile.exists() ) {
+//			throw new VizException("ColorMap Category file, "+cmapFile.getAbsolutePath() +" doesn't exist");
+//		}
 
         try {
-            SerializationUtil.jaxbMarshalToXmlFile( colorMap, cmapFilename );
+            SerializationUtil.jaxbMarshalToXmlFile( colorMap, cmapFile.getAbsolutePath() );
+
+            lclFile.save();
+        
         } catch (SerializationException e) {
 			throw new VizException("Unable to Marshal ColorMap "+ colorMap.getName() );          
-        } 
+        } catch (LocalizationOpFailedException lofe ) {
+        	throw new VizException("Unable to Localize ColorMap "+ colorMap.getName() );
+        }
+        
     }
     
+    // TODO : add code to check for BASE/system context
     public static void deleteColorMap( String cmapCat, String cmapName ) 
     			throws VizException {
-    	/*
-    	 * comment out and rewriteen by M. Gao
-    	 */
-//		String cmapDir = LocalizationManager.getInstance().getFilename("lutsDir");
-//		
-//		File catDir = new File(cmapDir + File.separator + cmapCat + File.separator);
-//
-//		if( !catDir.exists() ) {
-//			throw new VizException("ColorMap Category, "+cmapCat+" doesn't exist");
-//		}
-//		String cmapFilename = catDir.getAbsolutePath() + File.separator + cmapName;
-//
-//		if( !cmapFilename.endsWith(".cmap") ) {
-//			cmapFilename += ".cmap";
-//        }
 		String cmapFilename = cmapName;
 
 		if( !cmapFilename.endsWith(".cmap") ) {
 			cmapFilename += ".cmap";
         }
-		File cmapFile = LocalizationManager.getInstance().getLocalizationFileDirectly(LocalizationResourcePathConstants.LUTS_RESOURCES_DIR
-				+ File.separator + cmapCat,
-				cmapFilename);
-		if( !cmapFile.exists() ) {
-			throw new VizException("ColorMap "+ cmapFile.getAbsolutePath() + 
-					" doesn't exist." );
+		
+//		LocalizationContext userContext = NcPathManager.getInstance().getContext( 
+//				LocalizationType.CAVE_STATIC, LocalizationLevel.USER );
+
+		LocalizationFile cmapFile = NcPathManager.getInstance().getStaticLocalizationFile(
+    			NcPathConstants.COLORMAPS_DIR + File.separator + 
+    			     cmapCat + File.separator + cmapFilename);
+
+		if( cmapFile.getContext().getLocalizationLevel() != LocalizationLevel.USER ) {
+			throw new VizException( "Can't delete a Colormap localized at the "+
+					cmapFile.getContext().getLocalizationLevel().toString() +" level");
 		}
-		if( !cmapFile.delete() ) {
-			throw new VizException("Error deleting ColorMap "+ cmapFile.getAbsolutePath() );
+		
+		// TODO : check if there is a BASE/SITE/DESK level colormap by the same name and 
+		// inform the user that they will be reverting to another version of the file.
+		
+		try {
+			cmapFile.delete();
+		}
+		catch( LocalizationOpFailedException e ) {
+			throw new VizException(e);
 		}
     }
 }

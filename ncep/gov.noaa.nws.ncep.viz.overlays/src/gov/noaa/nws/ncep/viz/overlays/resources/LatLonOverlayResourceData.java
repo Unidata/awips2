@@ -119,12 +119,9 @@ public class LatLonOverlayResourceData extends AbstractNatlCntrsResourceData {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || obj instanceof LatLonOverlayResourceData == false) {
-            return false;
-        }
+		if (!super.equals(obj)) {
+			return false;
+		}
         LatLonOverlayResourceData other = (LatLonOverlayResourceData) obj;
 
 

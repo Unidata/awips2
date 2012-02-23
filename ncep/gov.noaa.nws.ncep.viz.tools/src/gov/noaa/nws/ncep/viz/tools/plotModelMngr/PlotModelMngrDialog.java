@@ -1,5 +1,7 @@
 package gov.noaa.nws.ncep.viz.tools.plotModelMngr;
 
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceExtPointMngr;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.PlotModelMngr;
 import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.elements.PlotModel;
@@ -32,6 +34,10 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
@@ -48,6 +54,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Feb. 2010     226        Greg Hull   NmapCommon -> NmapResourceUtils
  * Mar  2011     425        Greg Hull   categories are now the plotData plugins;   
  *               					    add a Delete and Save As button
+ * Jan 2012                 S. Gurung   Changed resource parameter name plugin to pluginName in init().
  * 
  * </pre>
  * 
@@ -173,9 +180,18 @@ public class PlotModelMngrDialog extends Dialog {
 			public void widgetSelected(SelectionEvent e) {
 				if (plotModelList.getSelectionCount() > 0) {
 					editPlotModelBtn.setEnabled(true);
+					deletePlotModelBtn.setEnabled(false);
+
+					String plotModelName = plotModelList.getSelection()[0];
 					
-					// Don't let the user delete the last plotModel
-					if( plotModelList.getItemCount() > 1 ) {
+					// if this plotModel is in the USER context
+					// then allow the user to delete it.
+					PlotModel pm = PlotModelMngr.getInstance().getPlotModel( 
+								seldPlugin, plotModelName );
+					
+					if( pm != null && 
+						pm.getLocalizationFile().getContext().getLocalizationLevel() 
+						             == LocalizationLevel.USER ) {
 						deletePlotModelBtn.setEnabled(true);
 					}
 				}
@@ -273,13 +289,24 @@ public class PlotModelMngrDialog extends Dialog {
 
 		
 		if( newPlotModel != null ) {
-			if( plotModelName.equals( newPlotModel ) ) {
-				
-			}
-			PlotModelMngr.getInstance().savePlotModel( newPlotModel );
-			plotModels.put( plotModelName, newPlotModel );
 			
-			loadPlotModelsList();
+			// create a LocalizationFile 
+			try {
+				PlotModelMngr.getInstance().savePlotModel( newPlotModel );
+
+				plotModels.put( plotModelName, newPlotModel );
+
+				loadPlotModelsList();
+			}
+			catch ( VizException ve ) {
+	    		MessageDialog errDlg = new MessageDialog( 
+	    				NmapUiUtils.getCaveShell(), 
+	    				"Error", null, 
+	    				"Error Saving Plot Model "+plotModelName+ ".\n\n"+
+	    				ve.getMessage(),
+	    				MessageDialog.ERROR, new String[]{"OK"}, 0);
+	    		errDlg.open();
+			}
 		}
 	}
 
@@ -290,18 +317,18 @@ public class PlotModelMngrDialog extends Dialog {
 			return; // nothing selected; sanity check
 		}
 
-//    	ResourceName rscName = new ResourceName( )
-		
 		// TODO : get a list of all the attribute sets that refer to this plotModel
 		// and tell the user to edit attribute sets 
 		try {
 			ArrayList<String> pltRscAttrSets = 
 				ResourceDefnsMngr.getInstance().getAvailAttrSetsForRscImpl("PlotData");
 
-			// don't delete the default/standard plotModel.
-			if( plotModelName.equals("standard" ) ) {    		
+			// don't delete BASE/SITE/DESK level plot models
+			PlotModel pm = PlotModelMngr.getInstance().getPlotModel( seldPlugin, plotModelName );
+			if( pm == null ) {
+				throw new VizException();
 			}
-
+			
 			MessageDialog confirmDlg = new MessageDialog(shell, "Confirm Delete", null, 
 					"Are you sure you want to delete the "+plotModelName+"?\n",
 					MessageDialog.QUESTION, 
@@ -346,12 +373,12 @@ public class PlotModelMngrDialog extends Dialog {
 				if( rscDefn != null ) {
 					ResourceName rscName = new ResourceName( rscDefn.getResourceCategory(), 
 							rscType, null, null );
-					HashMap<String,String> rscParams = 
-						ResourceDefnsMngr.getInstance().getResourceParametersForType( rscName );
-					if( rscParams.containsKey("plugin") &&
-						!plotDataPlugins.contains( rscParams.get("plugin") ) ) { 
-						plotDataPlugins.add( rscParams.get("plugin") );
-						pluginNameList.add( rscParams.get("plugin") );
+					
+					HashMap<String,String> rscParams = rscDefn.getResourceParameters();
+					if( rscParams.containsKey("pluginName") &&
+						!plotDataPlugins.contains( rscParams.get("pluginName") ) ) { 
+						plotDataPlugins.add( rscParams.get("pluginName") );
+						pluginNameList.add( rscParams.get("pluginName") );
 					}
 				}
 			}
