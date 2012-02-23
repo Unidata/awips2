@@ -1,0 +1,26 @@
+color= RGB {0, 255, 0}
+! Position 1
+pos1LocatorSource=LATLON
+pos1RoundToNearest=omit
+pos1DisplayUnit=omit
+pos1DirectionUnit=omit
+! Position 2
+pos2LocatorSource=COUNTY_NAME
+pos2RoundToNearest=omit
+pos2DisplayUnit=omit
+pos2DirectionUnit=omit
+! Position 3
+pos3LocatorSource=None
+pos3RoundToNearest=omit
+pos3DisplayUnit=omit
+pos3DirectionUnit=omit
+! Position 4
+pos4LocatorSource=None
+pos4RoundToNearest=omit
+pos4DisplayUnit=omit
+pos4DirectionUnit=omit
+! Position 5
+pos5LocatorSource=None
+pos5RoundToNearest=omit
+pos5DisplayUnit=omit
+pos5DirectionUnit=omit

@@ -233,7 +233,7 @@ public class MdlSoundingQuery {
 			else
 				pf.setSfcPress(sfcPressure);
 		}
-		System.out.println("surface pressure ="+pf.getSfcPress());
+		//System.out.println("surface pressure ="+pf.getSfcPress()+ " lat= "+lat+ " lon="+lon);
 		//calculate dew point if necessary
 		MergeSounding ms = new MergeSounding();
 		ms.spfhToDewpoint(layerList);
@@ -839,7 +839,12 @@ public class MdlSoundingQuery {
 		}
 
 		long t02 = System.currentTimeMillis();
-		System.out.println("MDL profile retreival took " + (t02 - t01));
+		//System.out.println("MDL profile retreival took " + (t02 - t01));
+		/*/debug
+		for(NcSoundingLayer layer: soundLyList){
+			System.out.println("pre="+ layer.getPressure()+ " h="+layer.getGeoHeight()+ " T="+layer.getTemperature()+" D="+
+					layer.getDewpoint()+ " WS="+layer.getWindSpeed()+ " WD="+layer.getWindDirection() + " SH="+layer.getSpecHumidity()+ " RH="+layer.getRelativeHumidity());
+		}*/
 		return soundLyList;
 	}
 

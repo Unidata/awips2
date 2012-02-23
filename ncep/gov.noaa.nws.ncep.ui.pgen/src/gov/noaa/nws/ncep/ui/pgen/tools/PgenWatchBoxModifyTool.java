@@ -37,6 +37,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------	----------	-----------	--------------------------
  * 10/09					B. Yin   	Initial Creation.
  * 04/11		?			B. Yin		Bring up the WatchBox spec dialog
+ * 12/11		565			B. Yin		Modify watch box onlly when the curse is close enough
  * 
  * </pre>
  * 
@@ -146,6 +147,8 @@ public class PgenWatchBoxModifyTool extends PgenSelectingTool {
         	if ( loc == null ) return false;
 
         	DrawableElement tmpEl = drawingLayer.getSelectedDE();
+        	//make sure the click is close enough to the element
+        	if ( drawingLayer.getDistance(tmpEl, loc) > 30 && !ptSelected ) return false;
 
         	if ( tmpEl != null && (tmpEl instanceof WatchBox) ) {
 
@@ -178,7 +181,7 @@ public class PgenWatchBoxModifyTool extends PgenSelectingTool {
         		}
         	}
 
-        	return false;
+        	return true;
                 
         }
         

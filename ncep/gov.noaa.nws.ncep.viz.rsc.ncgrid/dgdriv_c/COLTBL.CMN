@@ -1,0 +1,48 @@
+C************************************************************************
+C* COLTBL								*
+C*									*
+C* This common area holds the color tables used to define device	*
+C* colors.								*
+C*									*
+C* Variables:								*
+C*	CNAME		CHAR*		Name of color			*
+C*	CABBR		CHAR*		Color abbreviation		*
+C*	IRGUN		INTEGER		Red color component		*
+C*	IGGUN		INTEGER		Green color component		*
+C*	IBGUN		INTEGER		Blue color component		*
+C*	NUMCOL		INTEGER		Number of colors in table	*
+C**									*
+C* Log:									*
+C* I. Graffman/RDS	 8/85						*
+C* S. Schotz/GSC	 9/90	Reduce cname,colnam to 16 bytes		*
+C* M. desJardins/NMC	12/91	Change NCOL-->MXCLNM & put in gemprm	*
+C*				Change MXCOL from 50 to 100		*
+C* G. Krueger/EAI	11/95	Removed HLS;Added XNAME;Mod. RGB range	*
+C************************************************************************
+	PARAMETER	( MXCOL = 200 )
+C*
+	CHARACTER	cname*16, colnam*16, cabbr*4, cxname*32
+	COMMON /COLTBL/ 
+     +		cname   (MXCLNM),		
+C!	                               Color name in device color memory
+     +		icred    (MXCLNM),		
+C!	                               Red color component of CNAME
+     +		icgrn  (MXCLNM),		
+C!	                               Green color component of CNAME
+     +		icblue   (MXCLNM),		
+C!	                               Blue color component of CNAME
+     +		cxname  (MXCLNM),		
+C!	                               X Window System color name
+     +		colnam  (MXCOL), 	
+C!	                               Color name in lookup table
+     +		cabbr   (MXCOL), 	
+C!	                               Color name abbreviation
+     +		irgun    (MXCOL), 	
+C!	                               Red color component of COLNAM
+     +          iggun    (MXCOL), 	
+C!	                               Green color component of COLNAM 
+     +		ibgun    (MXCOL), 	
+C!	                               Blue color component of COLNAM
+     +		numcol			
+C!	                               Number of colors in lookup table
+C------------------------------------------------------------------------
