@@ -134,6 +134,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 4, 2010            mschenke     Initial creation
+ * 02/01/2012   DR 14491   D. Friedman Load/unload only the maps not already loaded
  * 
  * </pre>
  * 
@@ -802,10 +803,13 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
         if (maps != null && maps.length > 0) {
             if (descriptor instanceof IMapDescriptor) {
+                MapManager mapManager = MapManager.getInstance(descriptor);
                 for (String map : maps) {
                     if (!loadedCustomMaps.contains(map)) {
-                        MapManager.getInstance(descriptor).loadMapByName(map);
-                        loadedCustomMaps.add(map);
+                        if (! mapManager.isMapLoaded(map)) {
+                            mapManager.loadMapByName(map);
+                            loadedCustomMaps.add(map);
+                        }
                     }
                 }
 

@@ -1,7 +1,8 @@
 <!-- Dam Break Follow-up Statement (FFS) configuration -->
 <!-- Customized by Phil Kurimski WFO DTX 07-14-2011 
-         Modified  Evan Bookbinder       09-16-2011 OB11.0.8-8
-         Modified Phil Kurimski         09-23-2011  OB 11.0.8-8
+         Modified  Evan Bookbinder       09-16-2011  OB11.0.8-8
+         Modified  Phil Kurimski         09-23-2011  OB 11.0.8-8
+         Modified  Phil Kurimski         01-26-2012  OB 12.1.1-1
 -->
 
 <warngenConfig>
@@ -70,28 +71,28 @@
   <bullet bulletName="warnend2" bulletText="River Flooding" bulletGroup="group2"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******** PRIMARY CAUSE *******" bulletType="title"/>
-  <bullet bulletName="dam" bulletText="Dam failure - generic" bulletGroup="ic" parseString="A DAM FAILURE"/>
-  <bullet bulletName="levee" bulletText="Levee failure" bulletGroup="ic" parseString="A LEVEE FAILURE"/>
-  <bullet bulletName="floodgate" bulletText="Floodgate opening" bulletGroup="ic" parseString="A FLOODGATE RELEASE"/>
-  <bullet bulletName="glacier" bulletText="Glacial-dammed lake outburst" bulletGroup="ic" parseString="A GLACIAL-DAMMED LAKE OUTBURST FLOODING"/>
-  <bullet bulletName="icejam" bulletText="Ice jam" bulletGroup="ic" parseString="ICE JAM FLOODING"/>
-  <bullet bulletName="rain" bulletText="Rapid rain induced snow melt" bulletGroup="ic" parseString="EXTREMELY RAPID RAIN SNOW MELT"/>
-  <bullet bulletName="volcano" bulletText="Volcano induced snow melt" bulletGroup="ic" parseString="&quot;VOLCANIC SNOW MELT&quot;,&quot;-MELTING OF SNOW AND ICE&quot;,&quot;-TORRENT&quot;"/>
-  <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="&quot;VOLCANIC SNOW MELT&quot;,&quot;MELTING OF SNOW AND ICE&quot;,&quot;TORRENT&quot;"/>
-  <bullet bulletName="siteimminent" bulletText="Dam break - site specific (pick below) - imminent failure" bulletGroup="ic" parseString="THE IMMINENT FAILURE OF"/>
-  <bullet bulletName="sitefailed" bulletText="Dam break - site specific (pick below) - failure has occurred" bulletGroup="ic" parseString="THE FAILURE OF"/>
+  <bullet bulletName="dam" bulletText="Dam failure - generic" bulletGroup="damic" parseString="A DAM FAILURE" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
+  <bullet bulletName="levee" bulletText="Levee failure" bulletGroup="ic" parseString="A LEVEE FAILURE" showString="LEVEE FAILURE"/>
+  <bullet bulletName="floodgate" bulletText="Floodgate opening" bulletGroup="ic" parseString="A DAM FLOODGATE RELEASE" showString="A DAM FLOODGATE RELEASE"/>
+  <bullet bulletName="glacier" bulletText="Glacial-dammed lake outburst" bulletGroup="ic" parseString=".GO." showString=".GO."/>
+  <bullet bulletName="icejam" bulletText="Ice jam" bulletGroup="ic" parseString=".IJ." showString=".IJ."/>
+  <bullet bulletName="rain" bulletText="Rapid rain induced snow melt" bulletGroup="ic" parseString=".RS." showString=".RS."/>
+  <bullet bulletName="volcano" bulletText="Volcano induced snow melt" bulletGroup="ic" parseString="&quot;VOLCANIC SNOW MELT&quot;,&quot;-MELTING OF SNOW AND ICE&quot;,&quot;-TORRENT&quot;" showString="&quot;VOLCANIC SNOW MELT&quot;,&quot;-MELTING OF SNOW AND ICE&quot;,&quot;-TORRENT&quot;"/>
+  <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="&quot;VOLCANIC SNOW MELT&quot;,&quot;MELTING OF SNOW AND ICE&quot;,&quot;TORRENT&quot;" showString="&quot;VOLCANIC SNOW MELT&quot;,&quot;MELTING OF SNOW AND ICE&quot;,&quot;TORRENT&quot;"/>
+  <bullet bulletName="siteimminent" bulletText="Dam break - site specific (pick below) - imminent failure" bulletGroup="damic" parseString="THE IMMINENT FAILURE OF" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
+  <bullet bulletName="sitefailed" bulletText="Dam break - site specific (pick below) - failure has occurred" bulletGroup="damic" parseString="THE FAILURE OF" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
   <bullet bulletText="" bulletType="title"/>
   <!-- The following are examples on how to include site specific dams in your template
        You can choose to do this by editing the template and listing each dam in the
        template or listing the dams in a separate file and using the include command -->
   <!-- The bullet names may need to be edited once AWIPS 2 is fixed to include damInfoBullets coding. -->
   <!-- Note that Dam Names NEED to be in the CAN section to produce correct headline wording in the vm file -->
-  <bullet bulletText="****** DAM NAME ******" bulletType="title"/>
+  <bullet bulletText="****** DAM NAME ******" bulletType="title" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
  </bullets>
  <!-- The following are examples on how to include site specific dams in your template
        You can choose to do this by editing the template and listing each dam in the
        template or listing the dams in a separate file and using the include command -->
- <include file="damInfoBullet.xml"/>
+ <!--include file="damInfoBullet.xml"/> -->
  <!-- <damInfoBullets>
 <damInfoBullet bulletGroup="dam" bulletText="Big Rock Dam (Fairfield County)" bulletName="BigRockDam"  parseString="BIG ROCK"  coords="LAT...LON 4109 7338 4116 7311 4116 7320"/>
 <damInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BigRockhighfast"  parseString="COMPLETE FAILURE OF BIG ROCK"/>
@@ -115,28 +116,28 @@
   <bullet bulletName="warnend2" bulletText="River Flooding" bulletGroup="group2"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******** PRIMARY CAUSE (choose 1) *******" bulletType="title"/>
-  <bullet bulletName="dam" bulletText="Dam failure - generic" bulletGroup="ic" parseString="A DAM FAILURE"/>
-  <bullet bulletName="levee" bulletText="Levee failure" bulletGroup="ic" parseString="A LEVEE FAILURE"/>
-  <bullet bulletName="floodgate" bulletText="Floodgate opening" bulletGroup="ic" parseString="A FLOODGATE RELEASE"/>
-  <bullet bulletName="glacier" bulletText="Glacial-dammed lake outburst" bulletGroup="ic" parseString="A GLACIAL-DAMMED LAKE OUTBURST FLOODING"/>
-  <bullet bulletName="icejam" bulletText="Ice jam" bulletGroup="ic" parseString="ICE JAM FLOODING"/>
-  <bullet bulletName="rain" bulletText="Rapid rain induced snow melt" bulletGroup="ic" parseString="EXTREMELY RAPID RAIN SNOW MELT"/>
-  <bullet bulletName="volcano" bulletText="Volcano induced snow melt" bulletGroup="ic" parseString="&quot;VOLCANIC SNOW MELT&quot;,&quot;-MELTING OF SNOW AND ICE&quot;,&quot;-TORRENT&quot;"/>
-  <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="&quot;VOLCANIC SNOW MELT&quot;,&quot;MELTING OF SNOW AND ICE&quot;,&quot;TORRENT&quot;"/>
-  <bullet bulletName="siteimminent" bulletText="Dam break - site specific (pick below) - imminent failure" bulletGroup="ic" parseString="THE IMMINENT FAILURE OF"/>
-  <bullet bulletName="sitefailed" bulletText="Dam break - site specific (pick below) - failure has occurred" bulletGroup="ic" parseString="THE FAILURE OF"/>
+  <bullet bulletName="dam" bulletText="Dam failure - generic" bulletGroup="damic" parseString="A DAM FAILURE" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
+  <bullet bulletName="levee" bulletText="Levee failure" bulletGroup="ic" parseString="A LEVEE FAILURE" showString="LEVEE FAILURE"/>
+  <bullet bulletName="floodgate" bulletText="Floodgate opening" bulletGroup="ic" parseString="A DAM FLOODGATE RELEASE" showString="A DAM FLOODGATE RELEASE"/>
+  <bullet bulletName="glacier" bulletText="Glacial-dammed lake outburst" bulletGroup="ic" parseString=".GO." showString=".GO."/>
+  <bullet bulletName="icejam" bulletText="Ice jam" bulletGroup="ic" parseString=".IJ." showString=".IJ."/>
+  <bullet bulletName="rain" bulletText="Rapid rain induced snow melt" bulletGroup="ic" parseString=".RS." showString=".RS."/>
+  <bullet bulletName="volcano" bulletText="Volcano induced snow melt" bulletGroup="ic" parseString="&quot;VOLCANIC SNOW MELT&quot;,&quot;-MELTING OF SNOW AND ICE&quot;,&quot;-TORRENT&quot;" showString="&quot;VOLCANIC SNOW MELT&quot;,&quot;-MELTING OF SNOW AND ICE&quot;,&quot;-TORRENT&quot;"/>
+  <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="&quot;VOLCANIC SNOW MELT&quot;,&quot;MELTING OF SNOW AND ICE&quot;,&quot;TORRENT&quot;" showString="&quot;VOLCANIC SNOW MELT&quot;,&quot;MELTING OF SNOW AND ICE&quot;,&quot;TORRENT&quot;"/>
+  <bullet bulletName="siteimminent" bulletText="Dam break - site specific (pick below) - imminent failure" bulletGroup="damic" parseString="THE IMMINENT FAILURE OF" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
+  <bullet bulletName="sitefailed" bulletText="Dam break - site specific (pick below) - failure has occurred" bulletGroup="damic" parseString="THE FAILURE OF" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
   <bullet bulletText="" bulletType="title"/>
   <!-- The following are examples on how to include site specific dams in your template
        You can choose to do this by editing the template and listing each dam in the
        template or listing the dams in a separate file and using the include command -->
   <!-- The bullet names may need to be edited once AWIPS 2 is fixed to include damInfoBullets coding. -->
   <!-- Note that Dam Names NEED to be in the EXP section to produce correct headline wording in the vm file -->
-  <bullet bulletText="****** DAM and DAM BREAK SCENARIOS ******" bulletType="title"/>
+  <bullet bulletText="****** DAM and DAM BREAK SCENARIOS ******" bulletType="title" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
  </bullets>
  <!-- The following are examples on how to include site specific dams in your template
        You can choose to do this by editing the template and listing each dam in the
        template or listing the dams in a separate file and using the include command -->
- <include file="damInfoBullet.xml"/>
+ <!-- include file="damInfoBullet.xml"/> -->
  <!-- <damInfoBullets>
 <damInfoBullet bulletGroup="dam" bulletText="Big Rock Dam (Fairfield County)" bulletName="BigRockDam"  parseString="BIG ROCK"  coords="LAT...LON 4109 7338 4116 7311 4116 7320"/>
 <damInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BigRockhighfast"  parseString="COMPLETE FAILURE OF BIG ROCK"/>
@@ -156,16 +157,16 @@
  <bullets>
   <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" parseString="FLASH FLOOD EMERGENCY"/>
   <bullet bulletText="******** PRIMARY CAUSE (choose 1) *******" bulletType="title"/>
-  <bullet bulletName="dam" bulletText="Dam failure - generic" bulletGroup="ic" parseString="A DAM FAILURE"/>
-  <bullet bulletName="levee" bulletText="Levee failure" bulletGroup="ic" parseString="A LEVEE FAILURE"/>
-  <bullet bulletName="floodgate" bulletText="Floodgate opening" bulletGroup="ic" parseString="A FLOODGATE RELEASE"/>
-  <bullet bulletName="glacier" bulletText="Glacial-dammed lake outburst" bulletGroup="ic" parseString="A GLACIAL-DAMMED LAKE OUTBURST FLOODING"/>
-  <bullet bulletName="icejam" bulletText="Ice jam" bulletGroup="ic" parseString="ICE JAM FLOODING"/>
-  <bullet bulletName="rain" bulletText="Rapid rain induced snow melt" bulletGroup="ic" parseString="EXTREMELY RAPID RAIN SNOW MELT"/>
-  <bullet bulletName="volcano" bulletText="Volcano induced snow melt" bulletGroup="ic" parseString="&quot;VOLCANIC SNOW MELT&quot;,&quot;-MELTING OF SNOW AND ICE&quot;,&quot;-TORRENT&quot;"/>
-  <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="&quot;VOLCANIC SNOW MELT&quot;,&quot;MELTING OF SNOW AND ICE&quot;,&quot;TORRENT&quot;"/>
-  <bullet bulletName="siteimminent" bulletText="Dam break - site specific (pick below) - imminent failure" bulletGroup="ic" parseString="THE IMMINENT FAILURE OF"/>
-  <bullet bulletName="sitefailed" bulletText="Dam break - site specific (pick below) - failure has occurred" bulletGroup="ic" parseString="THE FAILURE OF"/>
+  <bullet bulletName="dam" bulletText="Dam failure - generic" bulletGroup="damic" parseString="A DAM FAILURE" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
+  <bullet bulletName="levee" bulletText="Levee failure" bulletGroup="ic" parseString="A LEVEE FAILURE" showString="LEVEE FAILURE"/>
+  <bullet bulletName="floodgate" bulletText="Floodgate opening" bulletGroup="ic" parseString="A DAM FLOODGATE RELEASE" showString="A DAM FLOODGATE RELEASE"/>
+  <bullet bulletName="glacier" bulletText="Glacial-dammed lake outburst" bulletGroup="ic" parseString=".GO." showString=".GO."/>
+  <bullet bulletName="icejam" bulletText="Ice jam" bulletGroup="ic" parseString=".IJ." showString=".IJ."/>
+  <bullet bulletName="rain" bulletText="Rapid rain induced snow melt" bulletGroup="ic" parseString=".RS." showString=".RS."/>
+  <bullet bulletName="volcano" bulletText="Volcano induced snow melt" bulletGroup="ic" parseString="&quot;VOLCANIC SNOW MELT&quot;,&quot;-MELTING OF SNOW AND ICE&quot;,&quot;-TORRENT&quot;" showString="&quot;VOLCANIC SNOW MELT&quot;,&quot;-MELTING OF SNOW AND ICE&quot;,&quot;-TORRENT&quot;"/>
+  <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="&quot;VOLCANIC SNOW MELT&quot;,&quot;MELTING OF SNOW AND ICE&quot;,&quot;TORRENT&quot;" showString="&quot;VOLCANIC SNOW MELT&quot;,&quot;MELTING OF SNOW AND ICE&quot;,&quot;TORRENT&quot;"/>
+  <bullet bulletName="siteimminent" bulletText="Dam break - site specific (pick below) - imminent failure" bulletGroup="damic" parseString="THE IMMINENT FAILURE OF" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
+  <bullet bulletName="sitefailed" bulletText="Dam break - site specific (pick below) - failure has occurred" bulletGroup="damic" parseString="THE FAILURE OF" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="************************************************************" bulletType="title"/>
   <bullet bulletText="* The next two sections apply only if one of the dam break *"/>
@@ -184,7 +185,7 @@
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="****** CALLS TO ACTION (choose 1 or more) ******" bulletType="title"/>
   <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES"/>
-  <bullet bulletName="floodMovingCTA" bulletText="Flooding is occurring in a particular stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
+  <bullet bulletName="floodMoving" bulletText="Flooding is occurring in a particular stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
   <bullet bulletName="taddCTA" bulletText="Turn around...dont drown" parseString="MOST FLOOD DEATHS OCCUR IN AUTOMOBILES"/>
   <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding" parseString="BE ESPECIALLY CAUTIOUS AT NIGHT WHEN"/>
   <bullet bulletName="vehicleCTA" bulletText="Do not drive into water" parseString="DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY"/>
@@ -196,12 +197,12 @@
        You can choose to do this by editing the template and listing each dam in the
        template or listing the dams in a separate file and using the include command -->
   <!-- The bullet names may need to be edited once AWIPS 2 is fixed to include damInfoBullets coding. -->
-  <bullet bulletText="****** DAM and DAM BREAK SCENARIOS (choose 1) ******" bulletType="title"/>
+  <bullet bulletText="****** DAM and DAM BREAK SCENARIOS (choose 1) ******" bulletType="title" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
  </bullets>
  <!-- The following are examples on how to include site specific dams in your template
        You can choose to do this by editing the template and listing each dam in the
        template or listing the dams in a separate file and using the include command -->
- <include file="damInfoBullet.xml"/>
+ <!-- include file="damInfoBullet.xml"/> -->
  <!-- <damInfoBullets>
 <damInfoBullet bulletGroup="dam" bulletText="Big Rock Dam (Fairfield County)" bulletName="BigRockDam"  parseString="BIG ROCK"  coords="LAT...LON 4109 7338 4116 7311 4116 7320"/>
 <damInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BigRockhighfast"  parseString="COMPLETE FAILURE OF BIG ROCK"/>
@@ -223,16 +224,16 @@
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" parseString="FLASH FLOOD EMERGENCY"/>
   <bullet bulletText="******** PRIMARY CAUSE (choose 1) *******" bulletType="title"/>
-  <bullet bulletName="dam" bulletText="Dam failure - generic" bulletGroup="ic" parseString="A DAM FAILURE"/>
-  <bullet bulletName="levee" bulletText="Levee failure" bulletGroup="ic" parseString="A LEVEE FAILURE"/>
-  <bullet bulletName="floodgate" bulletText="Floodgate opening" bulletGroup="ic" parseString="A FLOODGATE RELEASE"/>
-  <bullet bulletName="glacier" bulletText="Glacial-dammed lake outburst" bulletGroup="ic" parseString="A GLACIAL-DAMMED LAKE OUTBURST FLOODING"/>
-  <bullet bulletName="icejam" bulletText="Ice jam" bulletGroup="ic" parseString="ICE JAM FLOODING"/>
-  <bullet bulletName="rain" bulletText="Rapid rain induced snow melt" bulletGroup="ic" parseString="EXTREMELY RAPID RAIN SNOW MELT"/>
-  <bullet bulletName="volcano" bulletText="Volcano induced snow melt" bulletGroup="ic" parseString="&quot;VOLCANIC SNOW MELT&quot;,&quot;-MELTING OF SNOW AND ICE&quot;,&quot;-TORRENT&quot;"/>
-  <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="&quot;VOLCANIC SNOW MELT&quot;,&quot;MELTING OF SNOW AND ICE&quot;,&quot;TORRENT&quot;"/>
-  <bullet bulletName="siteimminent" bulletText="Dam break - site specific (pick below) - imminent failure" bulletGroup="ic" parseString="THE IMMINENT FAILURE OF"/>
-  <bullet bulletName="sitefailed" bulletText="Dam break - site specific (pick below) - failure has occurred" bulletGroup="ic" parseString="THE FAILURE OF"/>
+  <bullet bulletName="dam" bulletText="Dam failure - generic" bulletGroup="damic" parseString="A DAM FAILURE" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
+  <bullet bulletName="levee" bulletText="Levee failure" bulletGroup="ic" parseString="A LEVEE FAILURE" showString="LEVEE FAILURE"/>
+  <bullet bulletName="floodgate" bulletText="Floodgate opening" bulletGroup="ic" parseString="A DAM FLOODGATE RELEASE" showString="A DAM FLOODGATE RELEASE"/>
+  <bullet bulletName="glacier" bulletText="Glacial-dammed lake outburst" bulletGroup="ic" parseString=".GO." showString=".GO."/>
+  <bullet bulletName="icejam" bulletText="Ice jam" bulletGroup="ic" parseString=".IJ." showString=".IJ."/>
+  <bullet bulletName="rain" bulletText="Rapid rain induced snow melt" bulletGroup="ic" parseString=".RS." showString=".RS."/>
+  <bullet bulletName="volcano" bulletText="Volcano induced snow melt" bulletGroup="ic" parseString="&quot;VOLCANIC SNOW MELT&quot;,&quot;-MELTING OF SNOW AND ICE&quot;,&quot;-TORRENT&quot;" showString="&quot;VOLCANIC SNOW MELT&quot;,&quot;-MELTING OF SNOW AND ICE&quot;,&quot;-TORRENT&quot;"/>
+  <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="&quot;VOLCANIC SNOW MELT&quot;,&quot;MELTING OF SNOW AND ICE&quot;,&quot;TORRENT&quot;" showString="&quot;VOLCANIC SNOW MELT&quot;,&quot;MELTING OF SNOW AND ICE&quot;,&quot;TORRENT&quot;"/>
+  <bullet bulletName="siteimminent" bulletText="Dam break - site specific (pick below) - imminent failure" bulletGroup="damic" parseString="THE IMMINENT FAILURE OF" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
+  <bullet bulletName="sitefailed" bulletText="Dam break - site specific (pick below) - failure has occurred" bulletGroup="damic" parseString="THE FAILURE OF" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="************************************************************" bulletType="title"/>
   <bullet bulletText="* The next two sections apply only if one of the dam break *"/>
@@ -251,7 +252,7 @@
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="****** CALLS TO ACTION (choose 1 or more) ******" bulletType="title"/>
   <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES"/>
-  <bullet bulletName="floodMovingCTA" bulletText="Flooding is occurring in a particular stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
+  <bullet bulletName="floodMoving" bulletText="Flooding is occurring in a particular stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
   <bullet bulletName="taddCTA" bulletText="Turn around...dont drown" parseString="MOST FLOOD DEATHS OCCUR IN AUTOMOBILES"/>
   <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding" parseString="BE ESPECIALLY CAUTIOUS AT NIGHT WHEN"/>
   <bullet bulletName="vehicleCTA" bulletText="Do not drive into water" parseString="DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY"/>
@@ -263,12 +264,12 @@
        You can choose to do this by editing the template and listing each dam in the
        template or listing the dams in a separate file and using the include command -->
   <!-- The bullet names may need to be edited once AWIPS 2 is fixed to include damInfoBullets coding. -->
-  <bullet bulletText="****** DAM and DAM BREAK SCENARIOS (choose 1) ******" bulletType="title"/>
+  <bullet bulletText="****** DAM and DAM BREAK SCENARIOS (choose 1) ******" bulletType="title" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
  </bullets>
  <!-- The following are examples on how to include site specific dams in your template
        You can choose to do this by editing the template and listing each dam in the
        template or listing the dams in a separate file and using the include command -->
- <include file="damInfoBullet.xml"/>
+ <!-- include file="damInfoBullet.xml"/> -->
  <!-- <damInfoBullets>
 <damInfoBullet bulletGroup="dam" bulletText="Big Rock Dam (Fairfield County)" bulletName="BigRockDam"  parseString="BIG ROCK"  coords="LAT...LON 4109 7338 4116 7311 4116 7320"/>
 <damInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BigRockhighfast"  parseString="COMPLETE FAILURE OF BIG ROCK"/>
@@ -368,6 +369,10 @@
   	</filter>
  </pointSource>
  
+<!-- this "include file" tag will grab the Mile Marker XML pointSource tags, 
+and place into this template  
+<include file="mileMarkers.xml"/>
+-->
 
  <geospatialConfig>
   <pointSource>City</pointSource>
@@ -388,7 +393,4 @@
  	</filter>
  	<withinPolygon>true</withinPolygon>
  </pointSource>
- 
- <include file="milemarkers.xml"/>
- 
 </warngenConfig>

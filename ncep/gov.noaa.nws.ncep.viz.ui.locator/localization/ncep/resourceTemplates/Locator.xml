@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<resourceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <resource>
+      <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+         <pdProps maxDisplayWidth="100000000" minDisplayWidth="0" />
+      </properties>
+      <resourceData xsi:type="LocatorResourceData">
+         <color>${color}</color>
+         <pos1LocatorSource>${pos1LocatorSource}</pos1LocatorSource>
+		 <pos1RoundToNearest>${pos1RoundToNearest}</pos1RoundToNearest>
+		 <pos1DisplayUnit>${pos1DisplayUnit}</pos1DisplayUnit>
+		 <pos1DirectionUnit>${pos1DirectionUnit}</pos1DirectionUnit>                
+
+         <pos2LocatorSource>${pos2LocatorSource}</pos2LocatorSource>
+		 <pos2RoundToNearest>${pos2RoundToNearest}</pos2RoundToNearest>
+		 <pos2DisplayUnit>${pos2DisplayUnit}</pos2DisplayUnit>
+		 <pos2DirectionUnit>${pos2DirectionUnit}</pos2DirectionUnit>                
+
+         <pos3LocatorSource>${pos3LocatorSource}</pos3LocatorSource>
+		 <pos3RoundToNearest>${pos3RoundToNearest}</pos3RoundToNearest>
+		 <pos3DisplayUnit>${pos3DisplayUnit}</pos3DisplayUnit>
+		 <pos3DirectionUnit>${pos3DirectionUnit}</pos3DirectionUnit>                
+
+         <pos4LocatorSource>${pos4LocatorSource}</pos4LocatorSource>
+		 <pos4RoundToNearest>${pos4RoundToNearest}</pos4RoundToNearest>
+		 <pos4DisplayUnit>${pos4DisplayUnit}</pos4DisplayUnit>
+		 <pos4DirectionUnit>${pos4DirectionUnit}</pos4DirectionUnit>                
+
+         <pos5LocatorSource>${pos5LocatorSource}</pos5LocatorSource>
+		 <pos5RoundToNearest>${pos5RoundToNearest}</pos5RoundToNearest>
+		 <pos5DisplayUnit>${pos5DisplayUnit}</pos5DisplayUnit>
+		 <pos5DirectionUnit>${pos5DirectionUnit}</pos5DirectionUnit>                
+
+      </resourceData>
+  </resource>
+</resourceGroup>
+
