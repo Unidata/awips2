@@ -67,6 +67,7 @@ import gov.noaa.nws.ncep.edex.util.grib2vars.Grib2VarsTableLookup;
 import gov.noaa.nws.ncep.edex.util.grib2vcrd.Grib2Vcrd;
 
 import com.raytheon.edex.util.Util;
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.uf.common.dataplugin.level.Level;
@@ -1193,10 +1194,11 @@ public class Ncgrib1Decoder extends AbstractDecoder {
      *            The level two scale factor
      * @param value2
      *            The level two value
+     * @throws GribException 
      */
     private void getLevelInfo(NcgribModel model, int centerID, int subcenterID,
             float levelOneNumber, float scaleFactor1, float value1,
-            float levelTwoNumber, float scaleFactor2, float value2) {
+            float levelTwoNumber, float scaleFactor2, float value2) throws GribException {
         String levelName = null;
         String levelUnit = null;
         double levelOneValue = Level.getInvalidLevelValue();
@@ -1246,9 +1248,13 @@ public class Ncgrib1Decoder extends AbstractDecoder {
                         * -1));
             }
         }
-        Level level = LevelFactory.getInstance().getLevel(levelName,
-                levelOneValue, levelTwoValue, levelUnit);
-        model.setLevel(level);
+        try {
+            Level level = LevelFactory.getInstance().getLevel(levelName,
+                    levelOneValue, levelTwoValue, levelUnit);
+            model.setLevel(level);
+        } catch (CommunicationException e) {
+            throw new GribException("Error loading level.", e);
+        }
     }
 
     /**
