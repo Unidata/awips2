@@ -61,7 +61,6 @@ Require-Bundle: com.raytheon.uf.common.dataplugin.acars;bundle-version="1.12.117
  com.raytheon.uf.common.dataplugin.vaa;bundle-version="1.12.1174",
  com.raytheon.uf.common.dataplugin.goessounding;bundle-version="1.0.0",
  com.raytheon.edex.plugin.airep;bundle-version="1.12.1174",
- com.raytheon.edex.plugin.binlightning;bundle-version="1.12.1174",
  com.raytheon.edex.plugin.ccfp;bundle-version="1.12.1174",
  com.raytheon.edex.plugin.goessounding;bundle-version="1.12.1174",
  com.raytheon.edex.plugin.ldadhydro;bundle-version="1.12.1174",

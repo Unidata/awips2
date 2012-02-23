@@ -1,8 +1,8 @@
 package gov.noaa.nws.ncep.viz.rsc.plotdata.parameters;
 
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationResourcePathConstants;
-import gov.noaa.nws.ncep.metParameters.parameterConversion.NcUnits;
+import gov.noaa.nws.ncep.edex.common.metparameters.parameterconversion.NcUnits;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.io.File;
 import java.io.FileReader;
@@ -10,12 +10,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.JAXBException;
 
 import org.w3c.dom.Element;
 
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 
 /**
@@ -31,44 +34,70 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
  * 06/10		291			G. Zhang	Added support for synop/ship/ship6hr
  * 03/04/11     425         G. Hull     renamed from ParmList; create filename from plugin name,
  *                                      use SerializationUtil to un/marshal
- * 05/27/11     441         G. Hull     register NcUnits; Determine windBarb params from the plotMode                              
+ * 05/27/11     441         G. Hull     register NcUnits; Determine windBarb params from the plotMode 
+ * 07/31/11     450         G. Hull     Make singleton. Use NcPathManager                 
  *                       
  * </pre>
  * 
  * @author mli
  * @version 1
  */
-
 public class PlotParameterDefnsMngr{
 		
-	private List<PlotParameterDefn> paramDefnTable;
+	private Map<String,LocalizationFile> locFilesMap=null;
 		
-    public PlotParameterDefnsMngr( String pluginName ) { 
+	// map from the pluginName to the PlotParameterDefns
+	private Map<String,PlotParameterDefns> plotPrmDefnsMap=null;
+	
+	private static PlotParameterDefnsMngr instance=null;
+	
+	public static PlotParameterDefnsMngr getInstance() {
+		if( instance == null ) {
+			instance = new PlotParameterDefnsMngr();			
+		}
+		
+		return instance;
+	}
+	
+    private PlotParameterDefnsMngr( ) { 
         
     	NcUnits.register(); // moved from PlotResource.initResource
 
-		File plotModelsDir = LocalizationManager.getInstance().getLocalizationFileDirectory(
-				LocalizationResourcePathConstants.PLOTMODELS_DIR); 
-		File plotParamsFile = new File( plotModelsDir, "plotParameters"+File.separator+
-				"plotParameters_"+pluginName+".xml" );
+    	// get all of the xml (PlotParameterDefns) files in the PlotParameters dir.
+    	//
+    	plotPrmDefnsMap = new HashMap<String,PlotParameterDefns>();
     	
-    	try{
-    		if( plotParamsFile == null ||
-    		   !plotParamsFile.exists() ) {
+    	locFilesMap = NcPathManager.getInstance().listFiles(
+    				NcPathConstants.PLOT_PARAMETERS_DIR, 
+    				 	new String[]{".xml"}, false, true );
+
+    	for( LocalizationFile lFile : locFilesMap.values() ) {
+    	
+    		File plotParamsFile = lFile.getFile();
+    		    	
+    		try {
+    			if( plotParamsFile != null && plotParamsFile.exists() ) {
+    				
+    				PlotParameterDefns paramDefnTable = readParameterFile( plotParamsFile  );
     			
-    			System.out.println("Unable to find plotParameter file for plugin:"+pluginName );
-    			return;
+    				if( plotPrmDefnsMap.containsKey( paramDefnTable.getPlugin() ) ) {
+    					System.out.println("Warning : More than one PlotParameterDefns file "+
+    							"found for plugin "+ paramDefnTable.getPlugin() );    					
+    				}
+    				
+    				plotPrmDefnsMap.put( paramDefnTable.getPlugin(), paramDefnTable );
+    				
+    			}
     		}
-    		paramDefnTable = readParameterFile( plotParamsFile  );
+    		catch ( JAXBException exp ){
+    			System.out.println("Error parsing PlotParameterDefns file: "+
+    					lFile.getName()+" : "+ exp.getMessage() );
+    			continue;
+    		}    	
     	}
-    	catch ( JAXBException exp ){
-    		paramDefnTable = null;
-    		exp.printStackTrace();
-    	}    	
-    	
 	}
 
-	private List<PlotParameterDefn> readParameterFile( File xmlFile ) throws JAXBException{
+	private PlotParameterDefns readParameterFile( File xmlFile ) throws JAXBException{
 
         PlotParameterDefns parmsDefnsList = null;
         
@@ -82,10 +111,8 @@ public class PlotParameterDefnsMngr{
 			Object xmlObj = SerializationUtil.unmarshalFromXml( str.trim()  );
 
 			parmsDefnsList = (PlotParameterDefns)xmlObj;
-			
-			List<PlotParameterDefn> listOfItems = getRscParams( parmsDefnsList.getParameterDefns());			
-			
-			return  listOfItems;
+						
+			return  parmsDefnsList;
 			
         } catch (Exception e) {
         	System.out.println( "unmarshall error: "+e.getMessage() );
@@ -94,108 +121,17 @@ public class PlotParameterDefnsMngr{
 		return null;              
     }   
 	
-	public List<PlotParameterDefn> getPlotParamDefns() { //String pluginName ){
-		return paramDefnTable;
-	}
-	
-	public PlotParameterDefn getPlotParamDefn( String plotParmName ) {//TODO: Map<String,HashMap<String,String>> (<sfcobs,<SKYC,skyCover>>) 20100716
-		if (paramDefnTable == null || paramDefnTable.isEmpty()) 
-			return null;
+	public PlotParameterDefns getPlotParamDefns( String pluginName ) {
 		
-		for (PlotParameterDefn p : paramDefnTable){
-			if (p.getPlotParamName().equalsIgnoreCase(plotParmName)) {
-				return p;
-			}
+		if( plotPrmDefnsMap.containsKey( pluginName ) ) {
+			return plotPrmDefnsMap.get( pluginName );//.getParameterDefns();
 		}
-		
-		//System.out.println("Can't find mapping for Parameter " + parmName );
-		
-		return null;
-	}	
-	
-	private List<PlotParameterDefn> getRscParams(List<PlotParameterDefn> list){
-		return list;		
+		else {
+			return null;
+		}
 	}
-	
-	public String[] getAllParameterNames( boolean includeSkyC, boolean includeWndBrb ) {
-		List<String> list = new ArrayList<String>();
 		
-		for(PlotParameterDefn p : paramDefnTable ){
-			
-			if( p.getPlotMode() != null && p.getPlotMode().equals( "barb" ) ) {
-				if( includeWndBrb ) {
-					list.add( p.getPlotParamName() );
-				}
-			}
-			else if( p.getPlotMode() != null && p.getPlotMode().equals( "table" ) &&
-				 	 p.getSymbolFont() != null    && p.getSymbolFont().equals("SpecialSymbolFont") ) {					
-				if( includeSkyC ) {
-					list.add( p.getPlotParamName() );
-				}
-			}
-			else {
-				list.add( p.getPlotParamName() );
-			}
 
-		}		
-		
-		return list.toArray(new String[]{});
 
-	}
-
-	public ArrayList<String> getWindBarbParams(){ 
-		ArrayList<String> list = new ArrayList<String>();
-		
-		for(PlotParameterDefn p : paramDefnTable ){
-			if( p.getPlotMode() != null && p.getPlotMode().equals( "barb" ) &&
-				p.getPlotParamName() != null ) {
-				
-				list.add( p.getPlotParamName() );				
-			}
-		}		
-		
-		return list;
-	}
-	
-	public ArrayList<String> getSpecialTableParams() {
-		ArrayList<String> list = new ArrayList<String>();
-		
-		for(PlotParameterDefn p : paramDefnTable ){
-			if( p.getPlotMode() != null && p.getPlotMode().equals( "table" ) &&
-				p.getSymbolFont() != null    && p.getSymbolFont().equals("SpecialSymbolFont") &&
-				p.getPlotParamName() != null ) {
-				
-				list.add( p.getPlotParamName() );
-			}
-		}		
-		
-		return list;
-	}
-
-// there may be more than one Defn for a dbParam	
-//	public PlotParameterDefn getParamDefnForDbName( String dbParamName ) {
-//		if (paramDefnTable == null || paramDefnTable.isEmpty()) 
-//			return null;
-//		
-//		for (PlotParameterDefn p : paramDefnTable){
-//			if (p.getDbParamName().equalsIgnoreCase(dbParamName)) {
-//				return p;
-//			}
-//		}
-//		
-//		//System.out.println("Can't find mapping for Parameter " + parmName );
-//		
-//		return null;
-//	}	
-	// return  a list of all the Defns with the given metParameter.
-	public ArrayList<PlotParameterDefn> getPlotParamDefnsForMetParam( String metParam ) {
-		ArrayList<PlotParameterDefn> retList = new ArrayList<PlotParameterDefn>();
-		for(PlotParameterDefn pd : paramDefnTable ){
-			if( pd.getMetParamName().equals( metParam ) ) {
-				retList.add( pd );				
-			}
-		}		
-		return  retList;
-	}
 
 }

@@ -203,7 +203,12 @@ public class PgenWatchBoxAddDelCntyHandler extends InputHandlerDefaultImpl {
     
     }
     
-    /**
+    @Override
+	public boolean handleMouseDownMove(int x, int y, int mouseButton) {
+		return true;
+	}
+
+	/**
      * Create a feature collection of all counties
      */
     private void createCountyFeatureCollection(){
