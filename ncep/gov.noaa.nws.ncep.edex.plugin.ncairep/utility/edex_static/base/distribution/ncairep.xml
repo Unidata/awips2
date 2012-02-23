@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        WMO header pattern for ncairep
+    -->
+<requestPatterns xmlns:ns2="group">
+  <!-- The following is the original pattern for airep:
+    <regex>^UA(US|PA|NT).. KWBC.*</regex>
+  -->
+  <!--
+    <regex>^UA(US|PA|JP|CA|NT|AU|FJ|PF|AS|PS|CN|HW|MA|BZ|HW).. (KWBC|AMMC|NFFN|NTAA|RJTD|RJFF|NZKL|CWAO|CY|KDDL|KMSC|SBBS|KMSC|FIMP).*</regex>
+  -->
+    <regex>^U(A|D).... *</regex>
+</requestPatterns>

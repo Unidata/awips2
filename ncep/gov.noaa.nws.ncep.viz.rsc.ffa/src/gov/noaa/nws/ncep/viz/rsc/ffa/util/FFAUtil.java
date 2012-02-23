@@ -14,7 +14,8 @@ public class FFAUtil {
 			if(FFAConstant.FLASH_FLOOD_ADVISORY.equalsIgnoreCase(reportType) 
 					|| FFAConstant.FLASH_FLOOD_STATEMENT.equalsIgnoreCase(reportType)  
 					|| FFAConstant.FLASH_FLOOD_WARNING.equalsIgnoreCase(reportType)
-					|| FFAConstant.FLASH_FLOOD_WATCH.equalsIgnoreCase(reportType))
+					|| FFAConstant.FLASH_FLOOD_WATCH.equalsIgnoreCase(reportType)
+|| FFAConstant.FLOOD_WATCH.equalsIgnoreCase(reportType))//T456
 				result = true; 
 		}
 		return result; 

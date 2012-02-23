@@ -62,7 +62,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfigData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 20, 2009           dhladky     Initial creation
- * 
+ * Jan 25, 2012 DR 13839  gzhang	  Use paintTime for QPF 
  * </pre>
  * 
  * @author dhladky
@@ -545,10 +545,11 @@ public class FFMPDataGenerator {
                     }
                     if ((qpfBasin != null)
                             && (qpfBasin.get(cBasin.getPfaf()) != null)) {
-                        qpf = qpfBasin.get(cBasin.getPfaf()).getValue(
+                        /*qpf = qpfBasin.get(cBasin.getPfaf()).getValue(
                                 monitor.getQpfWindow().getBeforeTime(),
-                                monitor.getQpfWindow().getAfterTime());
-                        trd.setTableCellData(3, new FFMPTableCellData(
+                                monitor.getQpfWindow().getAfterTime());*/
+                    	qpf = getQPFValue(false,cBasin.getPfaf(),new ArrayList<Long>());/*DR13839*/		
+                    	trd.setTableCellData(3, new FFMPTableCellData(
                                 FIELDS.QPF, qpf));
                         // System.out.println("qpf: "+qpf);
                     } else {
@@ -940,9 +941,11 @@ public class FFMPDataGenerator {
                             Float.NaN));
                 }
                 if (qpfBasin != null) {
-                    qpf = qpfBasin.getMaxValue(pfafs, monitor.getQpfWindow()
+                    /*qpf = qpfBasin.getMaxValue(pfafs, monitor.getQpfWindow()
                             .getBeforeTime(), monitor.getQpfWindow()
-                            .getAfterTime());
+                            .getAfterTime());*/
+                	
+                	qpf = getQPFValue(true,new Long(0l),pfafs);/*DR13839*/
                     trd.setTableCellData(3, new FFMPTableCellData(FIELDS.QPF,
                             qpf.floatValue()));
                 } else {
@@ -1276,5 +1279,20 @@ public class FFMPDataGenerator {
         }
 
         return field;
+    }
+    
+    /**
+     * DR13839: Basin Table QPF should match independent QPFSCAN display.
+     * Since the latter use FFMPResource.getPaintTime().getRefTime()
+     * in FFMPResource.inspect(), it used here as well.
+     * @param isMax:	if the Maximum value is required;
+     * @param p:		the pfafs value for a basin, not used if isMax true;
+     * @param pfafs:	a list of pfafs values, not used if isMax false.
+     * @return:			the qpf value.
+     */
+    private float getQPFValue(boolean isMax, Long p, ArrayList<Long> pfafs){
+    	return 	isMax 
+    				? qpfBasin.getMaxValue(pfafs, resource.getPaintTime().getRefTime())
+    				: qpfBasin.get(p).getValue(resource.getPaintTime().getRefTime());
     }
 }
