@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
+    <resource>NatlMosaic</resource>
+    <attrSetGroupName>PRECIP</attrSetGroupName>
+    <attrSetNames>PRCP1_4.00,PRCP24_4.00,PRCPC_4.00</attrSetNames>
+</AttributeSetGroup>

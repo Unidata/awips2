@@ -45,13 +45,5 @@
             ncResourceName="FFG">
       </nc-resourceAttribute>
    </extension>
-   <extension
-         point="gov.noaa.nws.ncep.viz.localization.localizationData">
-      <singleLocalizationValue
-            name="countyZonesFile"
-            location="stns"
-            fileName="ffgZones.xml">
-      </singleLocalizationValue>
-   </extension>
 
 </plugin>

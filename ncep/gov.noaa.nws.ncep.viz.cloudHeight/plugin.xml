@@ -4,7 +4,7 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            categoryId="com.raytheon.viz.ui.modalTool"
+            categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
             id="gov.noaa.nws.ncep.viz.actions.cloudHeight"
             name="CloudHeight">
       </command>
@@ -16,13 +16,17 @@
             commandId="gov.noaa.nws.ncep.viz.actions.cloudHeight">
       </handler>
    </extension>
-   <extension
-         point="gov.noaa.nws.ncep.viz.localization.localizationData">
-      <singleLocalizationValue
-            name="soundingModelsTable"
-            location="cloud_height"
-            fileName="SoundingModels.xml">
-      </singleLocalizationValue>
-   </extension>
+    <extension
+          point="com.raytheon.uf.viz.localization.localizationpath">
+       <path
+             application="NCEP"
+             localizationType="CAVE_STATIC"
+             name="CloudHeight"
+             recursive="true"
+             value="ncep/CloudHeight"
+	          extensionFilter=".xml">
+       </path>
+    </extension>
 
 </plugin>
+
