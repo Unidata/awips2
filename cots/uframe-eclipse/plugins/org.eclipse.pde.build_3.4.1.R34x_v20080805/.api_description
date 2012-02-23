@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<component name="Plug-in Development Environment Build Support" version="1.1">
-    <plugin id="org.eclipse.pde.build"/>
-    <package name="org.eclipse.pde.build">
-        <type implement="false" name="Constants"/>
-        <type implement="false" name="IAntScript"/>
-    </package>
-</component>
