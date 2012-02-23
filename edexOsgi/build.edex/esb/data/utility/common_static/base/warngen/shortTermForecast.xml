@@ -87,6 +87,41 @@
   -->
  </bullets>
 </bulletActionGroup>
+<bulletActionGroup action="COR">
+ <bullets>
+  <!-- <bullet bulletText="***** CLICK 'CREATE TEXT' BELOW AFTER SELECTING AREA *****" bulletType="title"/> -->
+  <bullet bulletText="  *****BASIS SECTION*****...(Choose 1) " bulletType="title"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="group1" bulletDefault="true"/>
+  <bullet bulletName="trainedSpotters" bulletText="Trained spotters reported" bulletGroup="group1"/>
+  <bullet bulletName="lawEnforcement" bulletText="Law Enforcement reported" bulletGroup="group1"/>
+  <bullet bulletName="public" bulletText="Public reported" bulletGroup="group1"/>
+  <bullet bulletName="satellite" bulletText="Satellite imagery indicated" bulletGroup="group1"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="  ****EVENT TYPE SECTION****...(Choose 1) " bulletType="title"/>
+  <bullet bulletName="thunderstorm" bulletText="Thunderstorms" bulletGroup="group2" bulletDefault="true"/>
+  <bullet bulletName="rainShower" bulletText="Rain Showers" bulletGroup="group2"/>
+  <bullet bulletName="snowShower" bulletText="Snow Showers" bulletGroup="group2"/>
+  <bullet bulletName="leadingRain" bulletText="Leading edge of Rain" bulletGroup="group2"/>
+  <bullet bulletName="leadingSnow" bulletText="Leading edge of Snow" bulletGroup="group2"/>
+  <bullet bulletName="backedgeRain" bulletText="Back edge of Rain" bulletGroup="group2"/>
+  <bullet bulletName="backedgeSnow" bulletText="Back edge of Snow" bulletGroup="group2"/>
+  <bullet bulletName="snowSquall" bulletText="Snow Squall" bulletGroup="group2"/>
+  <bullet bulletName="showerThunderstorm" bulletText="Showers and Thunderstorms" bulletGroup="group2"/>
+  <bullet bulletName="front" bulletText="Front" bulletGroup="group2"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="*********** Pathcast Section **********" bulletType="title"/>
+  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="group3" bulletDefault="true"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="group3"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="*********** Supplemental Statements **********" bulletType="title"/>
+  <bullet bulletName="heavySnow" bulletText="heavy snow/low visibility"/>
+  <bullet bulletName="gustyWinds" bulletText="gusty winds"/>
+  <bullet bulletName="frontPass" bulletText="frontal passage"/>
+  <bullet bulletName="snowAmt" bulletText="snowfall amounts"/>
+  <!-- <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" bulletGroup="toggle2" bulletDefault="true" parseString=""/>
+  -->
+ </bullets>
+</bulletActionGroup>
 </bulletActionGroups>
 
 
@@ -164,6 +199,11 @@
   		<sort>warngenlev</sort>
   	</sortBy>
  </pointSource>
+
+<!-- this "include file" tag will grab the Mile Marker XML pointSource tags, 
+and place into this template
+-->  
+<include file="mileMarkers.xml"/>
  
  <pathcastConfig>
   <withinPolygon>true</withinPolygon>
@@ -191,7 +231,4 @@
   <timezoneSource>TIMEZONES</timezoneSource>
   <timezoneField>TIME_ZONE</timezoneField>
  </geospatialConfig>
- 
- <include file="milemarkers.xml"/>
- 
 </warngenConfig>

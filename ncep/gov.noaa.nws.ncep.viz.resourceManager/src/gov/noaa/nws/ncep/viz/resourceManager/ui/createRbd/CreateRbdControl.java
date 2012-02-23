@@ -14,6 +14,7 @@ import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefnsMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceFactory;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
 import gov.noaa.nws.ncep.viz.resources.manager.RscBundleDisplayMngr;
+import gov.noaa.nws.ncep.viz.resources.manager.SpfsManager;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceFactory.ResourceSelection;
 import gov.noaa.nws.ncep.viz.resources.time_match.NCTimeMatcher;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
@@ -93,7 +94,10 @@ import com.raytheon.viz.ui.UiPlugin;
  * 02/22/11       #408       Greg Hull   allow for use by EditRbdDialog
  * 06/07/11       #445       Xilin Guo   Data Manager Performance Improvements
  * 07/11/11                  Greg Hull   Rm code supporting 'Save All to SPF' capability.
- * 
+ * 08/20/11       #450       Greg Hull   Use new SpfsManager
+ * 10/22/11       #467       Greg Hull   Add Modify button
+ * 11/03/11       #???       B. Hebbard  Add "Save Source Timestamp As:" Constant / Latest 
+ *
  * </pre>
  * 
  * @author ghull
@@ -121,6 +125,7 @@ public class CreateRbdControl extends Composite {
 
     private ListViewer seld_rscs_lviewer = null; 	
 
+    private Button replace_rsc_btn = null;
     private Button edit_rsc_btn = null;
     private Button del_rsc_btn = null;
     private Button disable_rsc_btn = null;
@@ -166,7 +171,7 @@ public class CreateRbdControl extends Composite {
     private final String ImportFromSPF = "From SPF...";
     
     private boolean initialized = false;
-        
+    	        
     // the rbdMngr will be used to set the gui so it should either be initialized/cleared 
     // or set with the initial RBD.
     public CreateRbdControl(Composite parent, RscBundleDisplayMngr mngr )   throws VizException {
@@ -467,60 +472,95 @@ public class CreateRbdControl extends Composite {
     	form_data.bottom = new FormAttachment( 100, -47 );
     	seld_rscs_lviewer.getList().setLayoutData( form_data );
 
-    	
+    	// 
+    	edit_rsc_btn = new Button( seld_rscs_grp, SWT.PUSH ); 
+   		edit_rsc_btn.setText(" Edit ...");
+    	form_data = new FormData();
+		form_data.width = 90;
+		form_data.bottom = new FormAttachment( 100, -10 );
+
+//		if( enableReplaceBtnFromCreateRbd ) {
+//			form_data.left = new FormAttachment( 42, -45 );
+//		}
+//    	else {
+        	form_data.left = new FormAttachment( 40, 20 );
+//    	}
+    	    	
+		edit_rsc_btn.setLayoutData( form_data );
+    	edit_rsc_btn.setEnabled(false);
+
+
     	sel_rsc_btn = new Button( seld_rscs_grp, SWT.PUSH );
     	sel_rsc_btn.setText(" New ... ");
     	form_data = new FormData();
     	form_data.width = 90;
-//    	form_data.left = new FormAttachment( seld_rscs_lviewer.getList(), 50, SWT.LEFT );
-    	form_data.right = new FormAttachment( 40, -20 );
     	form_data.bottom = new FormAttachment( 100, -10 );
+//		if( enableReplaceBtnFromCreateRbd ) {
+//			form_data.right = new FormAttachment( edit_rsc_btn, -30, SWT.LEFT );
+//		}
+//		else {
+	    	form_data.right = new FormAttachment( 40, -20 );
+//		}
     	sel_rsc_btn.setLayoutData( form_data );
  
-    	edit_rsc_btn = new Button( seld_rscs_grp, SWT.PUSH ); 
-   		edit_rsc_btn.setText(" Edit ...");
+    	replace_rsc_btn = new Button( seld_rscs_grp, SWT.PUSH ); 
+    	replace_rsc_btn.setText(" Replace ...");
     	form_data = new FormData();
     	form_data.width = 90;
     	form_data.bottom = new FormAttachment( 100, -10 );
-//    	form_data.right = new FormAttachment( seld_rscs_lviewer.getList(), -50, SWT.RIGHT );
-    	form_data.left = new FormAttachment( 40, 20 );
-    	edit_rsc_btn.setLayoutData( form_data );
-    	edit_rsc_btn.setEnabled(false);
+    	form_data.left = new FormAttachment( edit_rsc_btn, 30, SWT.RIGHT );
+    	replace_rsc_btn.setLayoutData( form_data );
+    	replace_rsc_btn.setEnabled(false);
 
-    	Button move_up_btn = new Button( seld_rscs_grp, SWT.PUSH );
-    	move_up_btn.setText("Up");//Move Up");
-    	form_data = new FormData();
-    	form_data.width = 75;//90;
-    	form_data.top = new FormAttachment( 15, -10 );
-    	form_data.right = new FormAttachment( 100, -10 );
-    	move_up_btn.setLayoutData( form_data );
-    	move_up_btn.setEnabled(false);
+    	
+    	replace_rsc_btn.setVisible( false ); //enableReplaceBtnFromCreateRbd );
 
-    	Button move_down_btn = new Button( seld_rscs_grp, SWT.PUSH );
-    	move_down_btn.setText("Down");//Move Down");
-    	form_data = new FormData();
+    	
+   		del_rsc_btn = new Button( seld_rscs_grp, SWT.PUSH ); 
+   		del_rsc_btn.setText("Remove");
+    	form_data = new FormData();    	
     	form_data.width = 75;
-    	form_data.top = new FormAttachment( 32, -10 );
+    	form_data.top = new FormAttachment( 10, -10 );
     	form_data.right = new FormAttachment( 100, -10 );
-    	move_down_btn.setLayoutData( form_data );
-    	move_down_btn.setEnabled(false);
+    	del_rsc_btn.setLayoutData( form_data );
+    	del_rsc_btn.setEnabled(false);
 
     	disable_rsc_btn = new Button( seld_rscs_grp, SWT.TOGGLE );
     	disable_rsc_btn.setText("Turn Off");
     	form_data = new FormData();
     	form_data.width = 75;
     	form_data.right = new FormAttachment( 100, -10 );
-    	form_data.top = new FormAttachment( 49, -10 );
+    	form_data.top = new FormAttachment( 30, -10 );
     	disable_rsc_btn.setLayoutData( form_data );
 
-   		del_rsc_btn = new Button( seld_rscs_grp, SWT.PUSH ); 
-   		del_rsc_btn.setText("Remove");
-    	form_data = new FormData();    	
-    	form_data.width = 75;
+    	
+    	Button move_down_btn = new Button( seld_rscs_grp, SWT.ARROW | SWT.DOWN );
+     	move_down_btn.setToolTipText("Move Down");
+    	form_data = new FormData();
+    	form_data.width = 35;
+    	form_data.top = new FormAttachment( 50, -10 );
     	form_data.right = new FormAttachment( 100, -10 );
-    	form_data.top = new FormAttachment( 66, -10 );
-    	del_rsc_btn.setLayoutData( form_data );
-    	del_rsc_btn.setEnabled(false);
+    	move_down_btn.setLayoutData( form_data );
+    	move_down_btn.setEnabled(false);
+
+    	Button move_up_btn = new Button( seld_rscs_grp, SWT.ARROW | SWT.UP );
+     	move_up_btn.setToolTipText("Move Up");
+    	form_data = new FormData();
+    	form_data.width = 35;
+    	form_data.top = new FormAttachment( move_down_btn, 0, SWT.TOP );
+    	form_data.left  = new FormAttachment( disable_rsc_btn, 0, SWT.LEFT);
+    	move_up_btn.setLayoutData( form_data );
+    	move_up_btn.setEnabled(false);
+
+    	Button edit_span_btn = new Button( seld_rscs_grp, SWT.PUSH );
+    	edit_span_btn.setText(" Bin ... ");
+    	form_data = new FormData();
+    	form_data.width = 75;
+    	form_data.top = new FormAttachment( 70, -10 );
+    	form_data.right = new FormAttachment( 100, -10 );
+    	edit_span_btn.setLayoutData( form_data );
+    	edit_span_btn.setEnabled(false);
+
 
 //    	seld_rscs_grp.pack(true);
 
@@ -744,39 +784,74 @@ public class CreateRbdControl extends Composite {
    	void addSelectionListeners() {
     	sel_rsc_btn.addSelectionListener( new SelectionAdapter() {
    			public void widgetSelected(SelectionEvent e) {
-//              xguo,06/02/11. To enhance the system performance, move 
-//              data resource query into NC-Perspective initialization
-//   				try {
-//   					if( rscSelDlg.isOpen() ) {
-//   	   					ResourceDefnsMngr rscDefnsMngr = ResourceDefnsMngr.getInstance();
-//   	   					rscDefnsMngr.generateDynamicResources();
-//   					}
-//   					else {
-//   						rscSelDlg.open( "Select Resource",
-//   								SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MODELESS);   					
-//   					}
-//   				} catch (VizException e1) {
-//   					MessageDialog errDlg = new MessageDialog( 
-//   							shell, "Error", null, 
-//   							"Error reading Resource Definitions Table",
-//   							MessageDialog.ERROR, new String[]{"Ok"}, 0);
-//   					errDlg.open();
+   				StructuredSelection sel_elems = (StructuredSelection) seld_rscs_lviewer.getSelection();               
+   				ResourceSelection rscSel = (ResourceSelection)sel_elems.getFirstElement();
+   				
+   				if( !rscSelDlg.isOpen()) {
+   					ResourceName initRscName = ( rscSel == null ? 
+   							rscSelDlg.getPrevSelectedResource() : rscSel.getResourceName() );
+   					
+   					rscSelDlg.open( true, // Replace button is visible
+   							(rscSel != null ? true : false),
+   							initRscName,
+   					multi_pane_tog.getSelection(),
+							SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MODELESS);
+   				}
+   			}
+    	});
 
+    	// may be invisible, if implementing the Replace on the Select Resource Dialog
+    	replace_rsc_btn.addSelectionListener( new SelectionAdapter() {
+   			public void widgetSelected(SelectionEvent e) {
    				if (! rscSelDlg.isOpen()) {
-   					rscSelDlg.open( "Select Resource",
-							SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MODELESS);   
+   	       			StructuredSelection sel_elems = (StructuredSelection) seld_rscs_lviewer.getSelection();               
+   	       			ResourceSelection rscSel = (ResourceSelection)sel_elems.getFirstElement();
+
+   					rscSelDlg.open( true, // Replace button is visible
+   							(rscSel != null ? true : false),
+   							rscSel.getResourceName(),
+   							multi_pane_tog.getSelection(),
+							//SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MODELESS);   
+   							SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL );
    				}
    			}
     	});
     	
    		rscSelDlg.addResourceSelectionListener( new IResourceSelectedListener() {
    			@Override
-   			public void resourceSelected( ResourceName rscName, DataTime fcstTime, boolean done ) {
+   			public void resourceSelected( ResourceName rscName, boolean replace,
+   										  boolean addAllPanes, boolean done ) {
+   				
    				try {
    					ResourceSelection rbt = ResourceFactory.createResource( rscName );
    					
-   					if( !rbdMngr.addSelectedResource( rbt ) ) {
-   						return;
+   					// if replacing existing resources, get the selected resources
+   					// (For now just replace the 1st if more than one selected.)
+   					// 
+   	   				if( replace ) {
+   	   					StructuredSelection sel_elems = 
+   	   						(StructuredSelection) seld_rscs_lviewer.getSelection();   
+   	   					ResourceSelection rscSel = (ResourceSelection)sel_elems.getFirstElement();
+   	   				
+   	   					if( !rbdMngr.replaceSelectedResource( rscSel, rbt ) ) {   	   			
+//   	   						return;
+   	   					}
+   	   					
+   	   					// remove this from the list of available dominant resources.
+   	   					if( rscSel.getResourceData() instanceof AbstractNatlCntrsRequestableResourceData ) {
+   	   						timelineControl.removeAvailDomResource( 
+   	   		   					(AbstractNatlCntrsRequestableResourceData) rscSel.getResourceData() );
+   	   					}
+   	   				}
+   	   				else {
+   	   					if( addAllPanes ) {
+   	   	   					if( !rbdMngr.addSelectedResourceToAllPanes( rbt ) ) {
+   	   	   						return;
+   	   	   					}
+   	   					}
+   	   					else if( !rbdMngr.addSelectedResource( rbt ) ) {
+   	   						return;
+   	   					}
    					}
 
    	   				// add the new resource to the timeline as a possible dominant resource 
@@ -835,6 +910,10 @@ public class CreateRbdControl extends Composite {
    				else {
    					selectPane( new PaneID(0,0) );
    				}
+   				
+   				if( rscSelDlg != null && rscSelDlg.isOpen() ) {
+   					rscSelDlg.setMultiPaneEnabled(  multi_pane_tog.getSelection() );
+   				}
    			}
    		});
    		
@@ -886,14 +965,7 @@ public class CreateRbdControl extends Composite {
     			StructuredSelection sel_elems = (StructuredSelection) seld_rscs_lviewer.getSelection();               
     			Iterator itr = sel_elems.iterator();
     			while( itr.hasNext() ) {
-    				ResourceSelection rscSel = (ResourceSelection) itr.next();
-    				rbdMngr.removeSelectedResource( rscSel );
-    				
-    				// remove this from the list of available dominant resources.
-    				if( rscSel.getResourceData() instanceof AbstractNatlCntrsRequestableResourceData ) {
-    					timelineControl.removeAvailDomResource( 
-    							(AbstractNatlCntrsRequestableResourceData) rscSel.getResourceData() );
-    				}
+    				removeSelectedResource( (ResourceSelection) itr.next() );
     			}
     			
    		   		updateSelectedResourcesView( true );
@@ -1017,7 +1089,9 @@ public class CreateRbdControl extends Composite {
 //       						return;
 //       					}           				
 //       				}
-
+       				
+       				impRbd.resolveLatestCycleTimes();
+       				
            			importPane( impRbd, impRbd.getSelectedPaneId() );
        	    	}
        		}
@@ -1294,7 +1368,16 @@ public class CreateRbdControl extends Composite {
     	updateSelectedResourcesView( true );
    	}
 
+   	public void removeSelectedResource( ResourceSelection rscSel ) {
+   		rbdMngr.removeSelectedResource( rscSel );
 
+   		// remove this from the list of available dominant resources.
+   		if( rscSel.getResourceData() instanceof AbstractNatlCntrsRequestableResourceData ) {
+   			timelineControl.removeAvailDomResource( 
+   					(AbstractNatlCntrsRequestableResourceData) rscSel.getResourceData() );
+   		}
+   	}
+   	
 	// Listener callback for the Edit Resource button and dbl click on the list
 	public void editResourceData() {
 		StructuredSelection sel_elems = (StructuredSelection) seld_rscs_lviewer.getSelection();         
@@ -1421,7 +1504,7 @@ public class CreateRbdControl extends Composite {
 
 		// the edit button is enabled iff there is only one selected resource.
 		edit_rsc_btn.setEnabled( numSeldRscs == 1 );
-
+		
 		// the delete button is enabled if there is at least one resource selected and it
 		// is not the default overlay.
    		StructuredSelection sel_elems = (StructuredSelection) seld_rscs_lviewer.getSelection();               
@@ -1430,7 +1513,13 @@ public class CreateRbdControl extends Composite {
    		
    		if( numSeldRscs != 1 ) {
    			del_rsc_btn.setEnabled( false );
-   			
+
+   			// TODO : we could allow for the user to replace multiple resources. Or to select
+   			// the resource to replace after the dialog is up...
+   			//
+   			replace_rsc_btn.setEnabled( false );
+	   		rscSelDlg.setReplaceEnabled( false );
+
    			disable_rsc_btn.setEnabled( false );
    			disable_rsc_btn.setSelection( false );
    			disable_rsc_btn.setText( "Turn Off");
@@ -1438,16 +1527,22 @@ public class CreateRbdControl extends Composite {
    		else {
    			ResourceSelection rscSel = seldRscsList.get(0);
    			
-   			// Can't delete or turn off the base overlay.
+   			// Can't delete, replace or turn off the base overlay.
    			if( rscSel.getResourceName().equals( rbdMngr.getBaseOverlay().getResourceName() ) ) {
    	   			del_rsc_btn.setEnabled( false );
-   	   		
+   	   			
+   	   			replace_rsc_btn.setEnabled( false );
+   	   			rscSelDlg.setReplaceEnabled( false );
+
    	   			disable_rsc_btn.setEnabled( false );
    	   			disable_rsc_btn.setSelection( false );
    	   			disable_rsc_btn.setText( "Turn Off");
    			}
    			else {
    	   			del_rsc_btn.setEnabled( true );
+   	   			replace_rsc_btn.setEnabled( true );   	   		
+   	   			rscSelDlg.setReplaceEnabled( true );
+   	   			
    	   			disable_rsc_btn.setEnabled( true );
    			
    	   			if( rscSel.isVisible() ) {
@@ -1458,8 +1553,14 @@ public class CreateRbdControl extends Composite {
    	   	   			disable_rsc_btn.setSelection( true );
    	   	   			disable_rsc_btn.setText( "Turn On");
    	   			}
-   			}
+   			}   			
    		}
+   		// TODO : we could allow for multiple selections to be replaced.
+   		//
+//   		if( rscSelDlg != null && rscSelDlg.isOpen() ) {
+//
+//   			rscSelDlg.setReplaceEnabled( enableReplace );
+//   		}
    	}
 	
 	// This will load the currently configured RBD (all panes) into
@@ -1477,8 +1578,6 @@ public class CreateRbdControl extends Composite {
     	// we will need to make a copy here so that future edits are not immediately reflected in
     	// the loaded display. The easiest way to do this is to marshal and then unmarshal the rbd.
     	try {
-
-    		
     		
     		rbdMngr.setGeoSyncPanes( geo_sync_panes.getSelection() );
     		rbdMngr.setAutoUpdate( auto_update_btn.getSelection() );
@@ -1573,6 +1672,8 @@ public class CreateRbdControl extends Composite {
     		rbdLoader.addRBD( rbdBndl );
 
         	VizApp.runSync( rbdLoader );
+        	
+        	editor.refreshGUIElements();
   
         	// They aren't going to like this if there is an error loading....
         	if( close ) {
@@ -1710,6 +1811,8 @@ public class CreateRbdControl extends Composite {
     		if( impRbd == null ) {
     			return;
     		}
+    		
+    		impRbd.resolveLatestCycleTimes();    		
     	}
     	else {
     		// get RbdBundle from selected display
@@ -1739,6 +1842,7 @@ public class CreateRbdControl extends Composite {
     		}           				
     	}
 
+    	
     	rbdMngr.initFromRbdBundle( impRbd );
 
     	updateGUI();
@@ -1760,7 +1864,7 @@ public class CreateRbdControl extends Composite {
 
 		// loop thru the resources in the rbd and add them to the rbdMngr
 		//
-    	for( ResourcePair rp :  rbdBndl.getDisplayPane(paneId).getDescriptor().getResourceList() ) {
+    	for( ResourcePair rp : rbdBndl.getDisplayPane(paneId).getDescriptor().getResourceList() ) {
     		if( rp.getResourceData() instanceof INatlCntrsResourceData ) {
     			try {
     				ResourceSelection rbt = ResourceFactory.createResource( rp );
@@ -1838,61 +1942,57 @@ public class CreateRbdControl extends Composite {
     	}
     }
 
-   
+
     public void saveRBD( boolean new_pane ) {
     	try {    		
-			NCTimeMatcher timeMatcher = timelineControl.getTimeMatcher();
+    		NCTimeMatcher timeMatcher = timelineControl.getTimeMatcher();
     		boolean saveRefTime = !timeMatcher.isCurrentRefTime();
-    		
+    		boolean saveTimeAsConstant = false;  //TODO -- how should this be set???
+
     		// get the filename to save to.
     		SaveRbdDialog saveDlg = new SaveRbdDialog( shell,
-    				savedSpfGroup, savedSpfName, rbd_name_txt.getText(), saveRefTime ); 
-    		
-    		File rbdFile = (File)saveDlg.open();
-    		
-    		if( rbdFile == null ) {
+    				savedSpfGroup, savedSpfName, rbd_name_txt.getText(), saveRefTime, saveTimeAsConstant ); 
+
+    		if( (Boolean)saveDlg.open() == false ) {
     			return; 
     		}
-    		
+
     		savedSpfGroup = saveDlg.getSeldSpfGroup();
     		savedSpfName  = saveDlg.getSeldSpfName();
-    		
+
     		saveRefTime = saveDlg.getSaveRefTime();
-    		
+    		saveTimeAsConstant = saveDlg.getSaveTimeAsConstant();
+
     		// Set the name to the name that was actually used 
     		// to save the RBD.
     		// TODO : we could store a list of the RBDNames and load these
     		// as items in the combo.
     		rbd_name_txt.setText( saveDlg.getSeldRbdName() );
-    		
+
     		rbdMngr.setGeoSyncPanes( geo_sync_panes.getSelection() );
     		rbdMngr.setAutoUpdate( auto_update_btn.getSelection() );
-    		
+
     		// if the user elects not to save out the refTime then don't marshal it out. 
 
-			if( !saveRefTime ) {
+    		if( !saveRefTime ) {
     			timeMatcher.setCurrentRefTime();     			
     		}
-			
-			RbdBundle rbdBndl = rbdMngr.createRbdBundle( saveDlg.getSeldRbdName(), timeMatcher );
-    		
-    		try {
-    			SerializationUtil.jaxbMarshalToXmlFile( rbdBndl, rbdFile.getAbsolutePath() );
-    		} catch (SerializationException e) {
-    			VizException ve = new VizException( e );
-    			throw ve;
-    		} 
-    		
+
+    		RbdBundle rbdBndl = rbdMngr.createRbdBundle( saveDlg.getSeldRbdName(), timeMatcher );
+
+    		SpfsManager.getInstance().saveRbdToSpf( savedSpfGroup, savedSpfName, rbdBndl, saveTimeAsConstant );
+
     		VizApp.runSync(new Runnable() {
     			public void run() {
     				String msg = null;
     				msg = new String("Resource Bundle Display "+
-    						rbd_name_txt.getText() + " Saved." );
+    						rbd_name_txt.getText() + " Saved to SPF "+
+    						savedSpfGroup + File.separator+ savedSpfName+".");
     				MessageBox mb = new MessageBox( shell, SWT.OK );         								
     				mb.setText( "RBD Saved" );
     				mb.setMessage( msg );
     				mb.open();
-    				
+
     				rbdMngr.setRbdModified( false );
     			}
     		});
@@ -1907,35 +2007,6 @@ public class CreateRbdControl extends Composite {
     			}
     		});
     	}
-    }
-    
-    private int getNewFileIndexInt(String rbdFilename) {
-    	int resultIndex = 0; 
-    	if( rbdFilename == null ||
-    		rbdFilename.trim().isEmpty() ) {
-    		
-    		int beginIndex = rbdFilename.lastIndexOf("_"); 
-    		int endIndex = rbdFilename.lastIndexOf("."); 
-    		String intString = rbdFilename.substring(beginIndex + 1, endIndex); 
-    		try {
-    			resultIndex = Integer.parseInt(intString); 
-    		} catch(NumberFormatException nfe) {
-    			//do nothing
-    		}
-    	}
-    	return resultIndex++; 
-    }
-    
-    private File getNextRbdFile(String rbdFilePathPrefix, String savedRbdName, int fileIndexInt) {
-    	String rbdFilename = stripFileExtension(savedRbdName); 
-    	String savedRbdFilename = rbdFilename + "_" + fileIndexInt + ".xml"; 
-    	File parentDirFile = new File(rbdFilePathPrefix); 
-    	while(!isFileOKToBeSaved(parentDirFile, savedRbdFilename)) {
-    		fileIndexInt++; 
-        	savedRbdFilename = rbdFilename + "_" + fileIndexInt + ".xml"; 
-    	}
-    	File rdbFile = new File(rbdFilePathPrefix, savedRbdFilename);
-    	return rdbFile; 
     }
     
     private boolean isFileOKToBeSaved(File parentDirFile, String filename) {
@@ -1967,21 +2038,7 @@ public class CreateRbdControl extends Composite {
     	}
     	return isFileExist; 
     }
-    
-    private String stripFileExtension(String filename) {
-    	int index = filename.lastIndexOf("."); 
-    	String newFilename = filename; 
-    	if(index != -1) {
-    		newFilename = filename.substring(0, index); 
-    	}
-    	return newFilename; 
-    }
-    
-//    private String getRbdFilePathPrefix(String filePath) {
-//    	String prefix = Stringutil.stripLastPortionOfFilePathString(filePath); 
-//    	return prefix; 
-//    }
-    
+        
     // if Editing then save the current rbd to an RbdBundle 
     private void createEditedRbd() {
     	
