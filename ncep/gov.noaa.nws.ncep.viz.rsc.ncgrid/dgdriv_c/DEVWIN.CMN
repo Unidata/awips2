@@ -1,0 +1,47 @@
+C************************************************************************
+C* /DEVWIN/								*
+C*									*
+C* This common area holds the characteristics for each of the possible	*
+C* device windows. This common is used by the GPLT task.		*
+C*									*
+C* Log:									*
+C* S. Jacobs/NMC	12/94						*
+C* S. Jacobs/NMC	 2/95	Added USZM and USZG			*
+C* S. Jacobs/NCEP	 6/00	Increased wsatfl from 72 to 256 chars	*
+C* S. Jacobs/NCEP	 6/00	Added satellite navigation information	*
+C************************************************************************
+	PARAMETER	( MAXWIN = 5 )
+C*
+	CHARACTER	winnam*72, wcproj*4, wsatfl*256
+C*
+	COMMON	/ DEVWIN /
+     +		ncurwn, winnam (MAXWIN),
+C!					current window number
+C!					window name
+     +		nmode (MAXWIN), wcproj (MAXWIN),
+C!					graphics mode
+C!					projection name
+     +		uangle (MAXWIN,3), wsatfl (MAXWIN),
+C!					projection angles
+C!					satellite file name
+     +		ulatll (MAXWIN), ulonll (MAXWIN),
+     +		ulatur (MAXWIN), ulonur (MAXWIN),
+C!					map bounds
+     +		umarg (MAXWIN,4),
+C!					margins
+     +		uszm (MAXWIN),
+C!					text size for map margins
+     +		uszg (MAXWIN),
+C!					text size for graph margins
+     +		nxtyp (MAXWIN), nytyp (MAXWIN), uyxrat (MAXWIN),
+C!					X coordinate type for graph
+C!					Y coordinate type for graph
+C!					height to width ratio of graph
+     +		uxl (MAXWIN), uyb (MAXWIN), uxr (MAXWIN), uyt (MAXWIN),
+C!					graph bounds
+     +		nixlef (MAXWIN), niytop (MAXWIN),
+     +		nixrit (MAXWIN), niybot (MAXWIN),
+C!					sat nav image bounds
+     +		narea (64,MAXWIN), nnav (640,MAXWIN)
+C!					sat nav header information
+C------------------------------------------------------------------------

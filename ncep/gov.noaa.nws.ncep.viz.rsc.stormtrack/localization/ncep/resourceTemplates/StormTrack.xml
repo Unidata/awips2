@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<resourceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <resource>
+          <loadProperties loadWithoutData="true"></loadProperties>
+          <properties isSystemResource="false"
+              isBlinking="false" isMapLayer="false" isHoverOn="false"
+              isVisible="true" />
+          <resourceData xsi:type="StormTrackResourceData"
+                        isUpdatingOnMetadataOnly="false" 
+                        isRequeryNecessaryOnTimeMatch="false"> 
+                   <frameSpan>${frameSpan}</frameSpan>
+            	   <dfltNumFrames>${dfltNumFrames}</dfltNumFrames>                          
+            	   <dfltTimeRange>${dfltTimeRange}</dfltTimeRange>
+           	  	   <timeMatchMethod>${timeMatchMethod}</timeMatchMethod>       
+             	   <timelineGenMethod>${timelineGenMethod}</timelineGenMethod> 
+                   <legendName>Storm Track</legendName> 
+                   <legendColor>${legendColor}</legendColor>
+                        
+                   <gfsoEnable>${gfsoEnable}</gfsoEnable>
+                   <gfsoColor>${gfsoColor}</gfsoColor>
+                   <gfsoLineWidth>${gfsoLineWidth}</gfsoLineWidth>
+                   <gfsoSymbolWidth>${gfsoSymbolWidth}</gfsoSymbolWidth>
+                   <gfsoSymbolSize>${gfsoSymbolSize}</gfsoSymbolSize> 
+                   <namEnable>${namEnable}</namEnable>
+                   <namColor>${namColor}</namColor>
+                   <namLineWidth>${namLineWidth}</namLineWidth>
+                   <namSymbolWidth>${namSymbolWidth}</namSymbolWidth>
+                   <namSymbolSize>${namSymbolSize}</namSymbolSize>  
+                   <ukxEnable>${ukxEnable}</ukxEnable>
+                   <ukxColor>${ukxColor}</ukxColor>
+                   <ukxLineWidth>${ukxLineWidth}</ukxLineWidth>
+                   <ukxSymbolWidth>${ukxSymbolWidth}</ukxSymbolWidth>
+                   <ukxSymbolSize>${ukxSymbolSize}</ukxSymbolSize>
+                   <ngxEnable>${ngxEnable}</ngxEnable>
+                   <ngxColor>${ngxColor}</ngxColor>
+                   <ngxLineWidth>${ngxLineWidth}</ngxLineWidth>
+                   <ngxSymbolWidth>${ngxSymbolWidth}</ngxSymbolWidth>
+                   <ngxSymbolSize>${ngxSymbolSize}</ngxSymbolSize> 
+                   <ec00Enable>${ec00Enable}</ec00Enable>
+                   <ec00Color>${ec00Color}</ec00Color>
+                   <ec00LineWidth>${ec00LineWidth}</ec00LineWidth>
+                   <ec00SymbolWidth>${ec00SymbolWidth}</ec00SymbolWidth>
+                   <ec00SymbolSize>${ec00SymbolSize}</ec00SymbolSize> 
+                   <ep01Enable>${ep01Enable}</ep01Enable>
+                   <ep01Color>${ep01Color}</ep01Color>
+                   <ep01LineWidth>${ep01LineWidth}</ep01LineWidth>
+                   <ep01SymbolWidth>${ep01SymbolWidth}</ep01SymbolWidth>
+                   <ep01SymbolSize>${ep01SymbolSize}</ep01SymbolSize>
+                   <ep02Enable>${ep02Enable}</ep02Enable>
+                   <ep02Color>${ep02Color}</ep02Color>
+                   <ep02LineWidth>${ep02LineWidth}</ep02LineWidth>
+                   <ep02SymbolWidth>${ep02SymbolWidth}</ep02SymbolWidth>
+                   <ep02SymbolSize>${ep02SymbolSize}</ep02SymbolSize> 
+                   <ep03Enable>${ep03Enable}</ep03Enable>
+                   <ep03Color>${ep03Color}</ep03Color>
+                   <ep03LineWidth>${ep03LineWidth}</ep03LineWidth>
+                   <ep03SymbolWidth>${ep03SymbolWidth}</ep03SymbolWidth>
+                   <ep03SymbolSize>${ep03SymbolSize}</ep03SymbolSize>  
+                    <ep04Enable>${ep04Enable}</ep04Enable>
+                   <ep04Color>${ep04Color}</ep04Color>
+                   <ep04LineWidth>${ep04LineWidth}</ep04LineWidth>
+                   <ep04SymbolWidth>${ep04SymbolWidth}</ep04SymbolWidth>
+                   <ep04SymbolSize>${ep04SymbolSize}</ep04SymbolSize>
+                   <ep05Enable>${ep05Enable}</ep05Enable>
+                   <ep05Color>${ep05Color}</ep05Color>
+                   <ep05LineWidth>${ep05LineWidth}</ep05LineWidth>
+                   <ep05SymbolWidth>${ep05SymbolWidth}</ep05SymbolWidth>
+                   <ep05SymbolSize>${ep05SymbolSize}</ep05SymbolSize>
+                   <ep06Enable>${ep06Enable}</ep06Enable>
+                   <ep06Color>${ep06Color}</ep06Color>
+                   <ep06LineWidth>${ep06LineWidth}</ep06LineWidth>
+                   <ep06SymbolWidth>${ep06SymbolWidth}</ep06SymbolWidth>
+                   <ep06SymbolSize>${ep06SymbolSize}</ep06SymbolSize>  
+                   <ep07Enable>${ep07Enable}</ep07Enable>
+                   <ep07Color>${ep07Color}</ep07Color>
+                   <ep07LineWidth>${ep07LineWidth}</ep07LineWidth>
+                   <ep07SymbolWidth>${ep07SymbolWidth}</ep07SymbolWidth>
+                   <ep07SymbolSize>${ep07SymbolSize}</ep07SymbolSize>   
+                    <ep08Enable>${ep08Enable}</ep08Enable>
+                   <ep08Color>${ep08Color}</ep08Color>
+                   <ep08LineWidth>${ep08LineWidth}</ep08LineWidth>
+                   <ep08SymbolWidth>${ep08SymbolWidth}</ep08SymbolWidth>
+                   <ep08SymbolSize>${ep08SymbolSize}</ep08SymbolSize>
+                   <ep09Enable>${ep09Enable}</ep09Enable>
+                   <ep09Color>${ep09Color}</ep09Color>
+                   <ep09LineWidth>${ep09LineWidth}</ep09LineWidth>
+                   <ep09SymbolWidth>${ep09SymbolWidth}</ep09SymbolWidth>
+                   <ep09SymbolSize>${ep09SymbolSize}</ep09SymbolSize>
+                    <ep10Enable>${ep10Enable}</ep10Enable>
+                   <ep10Color>${ep10Color}</ep10Color>
+                   <ep10LineWidth>${ep10LineWidth}</ep10LineWidth>
+                   <ep10SymbolWidth>${ep10SymbolWidth}</ep10SymbolWidth>
+                   <ep10SymbolSize>${ep10SymbolSize}</ep10SymbolSize>
+                    <ep11Enable>${ep11Enable}</ep11Enable>
+                   <ep11Color>${ep11Color}</ep11Color>
+                   <ep11LineWidth>${ep11LineWidth}</ep11LineWidth>
+                   <ep11SymbolWidth>${ep11SymbolWidth}</ep11SymbolWidth>
+                   <ep11SymbolSize>${ep11SymbolSize}</ep11SymbolSize>
+                   <ep12Enable>${ep12Enable}</ep12Enable>
+                   <ep12Color>${ep12Color}</ep12Color>
+                   <ep12LineWidth>${ep12LineWidth}</ep12LineWidth>
+                   <ep12SymbolWidth>${ep12SymbolWidth}</ep12SymbolWidth>
+                   <ep12SymbolSize>${ep12SymbolSize}</ep12SymbolSize>            
+                    <ep13Enable>${ep13Enable}</ep13Enable>
+                   <ep13Color>${ep13Color}</ep13Color>
+                   <ep13LineWidth>${ep13LineWidth}</ep13LineWidth>
+                   <ep13SymbolWidth>${ep13SymbolWidth}</ep13SymbolWidth>
+                   <ep13SymbolSize>${ep13SymbolSize}</ep13SymbolSize>           
+                    <ep14Enable>${ep14Enable}</ep14Enable>
+                   <ep14Color>${ep14Color}</ep14Color>
+                   <ep14LineWidth>${ep14LineWidth}</ep14LineWidth>
+                   <ep14SymbolWidth>${ep14SymbolWidth}</ep14SymbolWidth>
+                   <ep14SymbolSize>${ep14SymbolSize}</ep14SymbolSize>           
+                   <dateTimeEnable>${dateTimeEnable}</dateTimeEnable>
+                   <pressureEnable>${pressureEnable}</pressureEnable>
+                   <markerEnable>${markerEnable}</markerEnable>
+                   <colorCodeEnable>${colorCodeEnable}</colorCodeEnable>
+                   <requestStyle>METADATA</requestStyle> 
+              <metadataMap>
+               <mapping key="pluginName">
+                 <constraint constraintValue="stormtrack" constraintType="EQUALS" />
+               </mapping>
+              <mapping key="reportType">
+                 <constraint constraintValue="ENSCYC" constraintType="EQUALS" />
+               </mapping>
+  		       </metadataMap>
+          </resourceData>
+        </resource>
+</resourceGroup>

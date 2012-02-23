@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 DB_FILE="${WORKSPACE}/Installer.rpm/awips2-rpm.db"
 
 # Now, it is time to build the AWIPS II Core rpms.
@@ -48,6 +50,8 @@ function buildRPM()
    time rpmbuild -ba --target=i386 \
       --define '_topdir %(echo ${RPM_TOP_DIR})' \
       --define '_build_root %(echo ${BUILDROOT_DIR})' \
+      --define '_component_version %(echo ${AWIPSII_VERSION})' \
+      --define '_component_release %(echo ${AWIPSII_RELEASE})' \
       --define '_baseline_workspace %(echo ${WORKSPACE})' \
       --buildroot ${BUILDROOT_DIR} ${COMPONENT_SPECS}
    RC="$?"
@@ -81,6 +85,9 @@ function buildLocalizationRPMs()
 
       rm -rf ${BUILDROOT_DIR}
 
+echo "AAAAAA the version in localization is ${AWIPSII_VERSION}"
+echo "AAAAAA the release in localization is ${AWIPSII_RELEASE}"
+
       rpmbuild -ba \
          --define '_topdir %(echo ${RPM_TOP_DIR})' \
          --define '_component_version %(echo ${AWIPSII_VERSION})' \
@@ -93,6 +100,8 @@ function buildLocalizationRPMs()
       RC=$?
       unset LOCALIZATION_DIRECTORY
       unset COMPONENT_NAME
+echo "BBBBBB the version in localization is ${AWIPSII_VERSION}"
+echo "BBBBBB the release in localization is ${AWIPSII_RELEASE}"
       if [ ${RC} -ne 0 ]; then
          echo "ERROR: Failed to build ${COMPONENT_NAME}."
          exit 1
@@ -175,6 +184,8 @@ function loopThroughAllCoreRPMs()
 {
    SELECT_ALL_SQL="SELECT component FROM awips2_core_rpms ORDER BY component;"
 
+echo "CCCCCC the version in core is ${AWIPSII_VERSION}"
+echo "CCCCCC the release in core is ${AWIPSII_RELEASE}"
    # Select All RPMs From The Core DB
    for component in `echo ${SELECT_ALL_SQL} | sqlite3 ${DB_FILE}`; do
       COMPONENT="${component}"
@@ -196,6 +207,8 @@ function loopThroughAllCoreRPMs()
             buildVersionRPM
          fi
       fi
+echo "DDDDDD the version in core is ${AWIPSII_VERSION}"
+echo "DDDDDD the release in core is ${AWIPSII_RELEASE}"
    done
 
    # Build The Localization RPMs
