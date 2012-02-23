@@ -53,8 +53,9 @@ import com.raytheon.viz.gfe.core.wxvalue.WxValue;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Jun 13, 2008				chammack	Initial creation
- * Sep 01, 2009       #2788 randerso    Changed listener lists to sets to prevent
+ * Sep 01, 2009  #2788      randerso    Changed listener lists to sets to prevent
  *                                      multiple registration
+ * Feb 23, 2012  #346       dgilling    Implement clearParmListeners.
  * 
  * </pre>
  * 
@@ -98,6 +99,19 @@ public class ParmListeners {
         this.colorTableModifiedListeners = new ListenerList();
         this.lockTableChangedListeners = new ListenerList();
         this.notificationPool = pool;
+    }
+
+    protected void clearParmListeners() {
+        this.gridChangedListeners.clear();
+        this.parmInventoryChangedListeners.clear();
+        this.parmIDChangedListeners.clear();
+        this.selectionTimeRangeChangedListeners.clear();
+        this.parameterSelectionChangedListeners.clear();
+        this.combineModeChangedListeners.clear();
+        this.vectorModeChangedListeners.clear();
+        this.pickupValueChangedListeners.clear();
+        this.colorTableModifiedListeners.clear();
+        this.lockTableChangedListeners.clear();
     }
 
     public void fireGridChangedListener(final ParmID parmID,

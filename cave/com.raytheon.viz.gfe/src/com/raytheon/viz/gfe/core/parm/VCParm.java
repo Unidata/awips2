@@ -63,6 +63,7 @@ import com.raytheon.viz.gfe.core.parm.vcparm.VCModule.VCInventory;
  *                                      safety and fix disappearing ISC 
  *                                      data. Also, remove overridden 
  *                                      finalize function.
+ * Feb 23, 2012  #346      dgilling     Implement a dispose method.
  * 
  * </pre>
  * 
@@ -115,7 +116,10 @@ public class VCParm extends VParm implements IParmListChangedListener,
         dataMgr.getParmManager().addParmListChangedListener(this);
     }
 
+    @Override
     public void dispose() {
+        super.dispose();
+
         this.dataManager.getParmManager().removeParmListChangedListener(this);
 
         // Unregister for the parm client notifications
