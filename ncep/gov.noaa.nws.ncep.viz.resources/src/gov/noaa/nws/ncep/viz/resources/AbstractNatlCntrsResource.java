@@ -42,6 +42,8 @@ import com.raytheon.uf.viz.core.rsc.ResourceType;
  * 11 Mar 2010     #257      Greg Hull    add overridable preProcessFrameUpdate()
  * 20 Apr 2010               Greg Hull    implement disposeInternal to dispose of the FrameData
  * 30 Apr 2010     #276      Greg Hull    Abstract the dataObject instead of assuming PluginDataObject.
+ * 05 Dec 2011               Shova Gurung Added progDiscDone to check if progressive disclosure is run 
+ * 										  for frames that are already populated
  * 
  * </pre>
  * 
@@ -51,7 +53,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceType;
 public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsRequestableResourceData, D extends IMapDescriptor>
 		extends AbstractVizResource<AbstractNatlCntrsRequestableResourceData, IMapDescriptor>
 		implements INatlCntrsResource {	
-
+	
 	// 
 	public static interface IRscDataObject {
 		abstract DataTime getDataTime();
@@ -94,6 +96,10 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
 		
 		protected long startTimeMillis;
 		protected long endTimeMillis;
+		
+		// for frames that are already populated but progressive disclosure is not run 
+		private boolean progDiscDone; 
+	      
 
 		// set the frame start and end time based on: 
 		//   - frame time (from dominant resource), 
@@ -250,6 +256,14 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
 		}
 		public void setPopulated() {
 			populated = true;
+		}
+		
+		public void setProgDiscDone(boolean progDisc) {
+			progDiscDone = progDisc;
+		}
+		
+		public boolean getProgDiscDone() {
+			return progDiscDone;
 		}
 	}
 
@@ -500,11 +514,11 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
 	// loop thru newDataObjectsList and update frameDataMap. If a frame for a given
 	// record time doesn't exist then create a new Frame
 	//
-	private synchronized boolean processNewRscDataList() { // boolean isUpdate ) {
+	protected synchronized boolean processNewRscDataList() { // boolean isUpdate ) {
 		
 		// allow resources to pre process the data before it is added to the frames
 		preProcessFrameUpdate();
-
+		
 		NCTimeMatcher timeMatcher = (NCTimeMatcher) descriptor.getTimeMatcher();
 
 		while( !newRscDataObjsQueue.isEmpty() ) {
@@ -520,6 +534,7 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
 					if( frameData.isRscDataObjInFrame( rscDataObj ) ) {
 						if( addRscDataToFrame( frameData, rscDataObj ) ) {
 							frameData.setPopulated();
+							frameData.setProgDiscDone(false);
 							foundFrame = true;												
 						}
 						
@@ -541,7 +556,7 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
 			//    if it is not the last frame. (ie. data is received out of order for some reason.) but this 
 			//    will cause any non-dominant data to not be displayed on these frames because we are only 
 			//    checking for the last frame here.) 
-			long dataTimeMs = rscDataObj.getDataTime().getValidTime().getTime().getTime();
+			long dataTimeMs = getDataTimeMs(rscDataObj);//rscDataObj.getDataTime().getValidTime().getTime().getTime();
 
 			if( timeMatcher.isAutoUpdateable()) {					
 
@@ -686,4 +701,10 @@ public abstract class AbstractNatlCntrsResource<T extends AbstractNatlCntrsReque
     public String toString() {
         return this.resourceData.toString();
     }
+    
+    // added since WarnResource gets null pointers in processNewRscDataList()    
+	protected long getDataTimeMs(IRscDataObject rscDataObj) {
+		return rscDataObj.getDataTime().getValidTime().getTime().getTime();
+ 
+	}
 }

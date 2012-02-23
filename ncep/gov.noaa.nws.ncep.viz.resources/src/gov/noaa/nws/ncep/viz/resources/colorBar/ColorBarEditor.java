@@ -56,6 +56,7 @@ import org.eclipse.ui.PlatformUI;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 03/21/10      #259        Greg Hull    Initial Creation.
+ * 09/29/11      #248        Greg Hull    dispose()
  * 
  * </pre>
  * 
@@ -1286,5 +1287,17 @@ public class ColorBarEditor extends Composite {
 		intrvlMaxSpnr.setVisible( !isInf );
 
 		intrvlMaxSpnr.setSelection( (isInf ? Integer.MAX_VALUE : Math.round( newMax )) );			
+	}
+	
+	@Override
+	public void dispose() {
+		super.dispose();
+		
+		if( font != null ) font.dispose();
+		if( canvas != null ) canvas.dispose();
+		if( seldColor != null ) seldColor.dispose();
+		if( labelColor != null ) labelColor.dispose();
+		if( pointerCursor != null ) pointerCursor.dispose();
+		if( dragIntrvlCursor != null ) dragIntrvlCursor.dispose();
 	}
 }

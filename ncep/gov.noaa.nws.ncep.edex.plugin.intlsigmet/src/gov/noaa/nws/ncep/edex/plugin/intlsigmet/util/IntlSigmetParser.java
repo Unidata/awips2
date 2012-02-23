@@ -12,6 +12,7 @@
  * 07/2009		113				L. Lin		Migration to TO11
  * 09/2009      113             L. Lin      Convert station ID to lat/lon
  *                                          if any exists.
+ * 11/2011      512             S. Gurung   Fixed NullPointerException bug while processing lat/lon (from vors)
  * </pre>
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
@@ -1058,7 +1059,7 @@ public class IntlSigmetParser {
     public static void processLatLon(String theLocation,
             IntlSigmetLocation locTb, Integer index, IntlSigmetRecord record) {
 
-        double flat, flon;
+    	double flat, flon;
 
         final String LATLON1_EXP = "(N|S)([0-9]{2})([0-9]{2}) (E|W)([0-9]{3})([0-9]{2})";
         // Pattern used for extracting latlon - CONUS
@@ -1233,7 +1234,7 @@ public class IntlSigmetParser {
             locTb.setLongitude(flon);
             locTb.setLocationName(latlon8Matcher.group());
         } else {
-            System.out.println("theLocation=" + theLocation);
+            System.out.println("theLocation=" + theLocation);            
             if ((index == 0)
                     && ((theLocation.substring(0, 3).equals("IN ")) || theLocation
                             .substring(0, 3).equals("OF "))) {
@@ -1243,15 +1244,19 @@ public class IntlSigmetParser {
                 // Get a latLonPoint for this station ID from "vors" location
                 // table
                 point = LatLonLocTbl.getLatLonPoint(retLoc, "vors");
-                locTb.setLatitude(point.getLatitude(LatLonPoint.INDEGREES));
-                locTb.setLongitude(point.getLongitude(LatLonPoint.INDEGREES));
+                if (point != null) {
+	                locTb.setLatitude(point.getLatitude(LatLonPoint.INDEGREES));
+	                locTb.setLongitude(point.getLongitude(LatLonPoint.INDEGREES));
+                }
             } else {
                 locTb.setLocationName(theLocation);
                 // Get a latLonPoint for this station ID from "vors" location
                 // table
                 point = LatLonLocTbl.getLatLonPoint(theLocation, "vors");
-                locTb.setLatitude(point.getLatitude(LatLonPoint.INDEGREES));
-                locTb.setLongitude(point.getLongitude(LatLonPoint.INDEGREES));
+                if (point != null) {
+	                locTb.setLatitude(point.getLatitude(LatLonPoint.INDEGREES));
+	                locTb.setLongitude(point.getLongitude(LatLonPoint.INDEGREES));
+                }
 
             }
         }
@@ -1347,55 +1352,54 @@ public class IntlSigmetParser {
         return retLocation;
     }
 
-    /**
-     * Obtains polygon extent from a bulletin for a "LINE" type or a polygon
-     * type
-     * 
-     * @param bullMessage
-     *            The bulletin message
-     * @return a string
-     */
-    public static String getPolygonExtent(String bullMessage) {
+	/**
+	 * Obtains polygon extent from a bulletin for a "LINE" type
+	 * or a polygon type
+	 * 
+	 *  @param bullMessage The bulletin message
+	 *  @return a string  
+	 */
+	public static String getPolygonExtent(String bullMessage) {
+		
+		String retStr = "";
+		
+		// Regular expression for distance
+	    final String DISTANCE_EXP = "(WI )?([0-9]{2}|[0-9]{3})( )?NM ";
+	    // Pattern used for extracting distance
+		final Pattern distancePattern = Pattern.compile(DISTANCE_EXP);
+		Matcher theMatcher = distancePattern.matcher( bullMessage );
+		
+		// Regular expression for line
+	    final String LINE_EXP = " ([0-9]{2}|[0-9]{3})( )?NM (EITHER SIDE OF)";
+	    // Pattern used for extracting line information
+		final Pattern linePattern = Pattern.compile(LINE_EXP);
+		Matcher lineMatcher = linePattern.matcher( bullMessage );
+		
+		// Regular expression distance for Canada
+	    final String CANADA_EXP = "(WTN|WITHIN) ([0-9]{2}|[0-9]{3})( )?NM OF (LN|LINE)";
+	    // Pattern used for extracting distance for CANADA sigmet
+		final Pattern canadaPattern = Pattern.compile(CANADA_EXP);
+		Matcher canadaMatcher = canadaPattern.matcher( bullMessage );
 
-        String retStr = "";
+		// Regular expression for POLYGON
+	    final String POLYGON_EXP = " ([0-9]{2}|[0-9]{3})( )?NM ([EWSN]|[EWSN]{2}|[EWSN]{3}) OF";
+	    // Pattern used for extracting POLYGON information
+		final Pattern polygonPattern = Pattern.compile(POLYGON_EXP);
+		Matcher polygonMatcher = polygonPattern.matcher( bullMessage );
+		
+		if (canadaMatcher.find()) {
+			retStr = canadaMatcher.group(1);
+		} else if (lineMatcher.find()) {
+			retStr = lineMatcher.group(3);
+		} else if (polygonMatcher.find()) {
+			retStr = polygonMatcher.group(3).concat(" OF");
+		} else if (theMatcher.find()) {
+			retStr = theMatcher.group(1);
+		}
 
-        // Regular expression for distance
-        final String DISTANCE_EXP = "(WI )?([0-9]{2}|[0-9]{3})( )?NM ";
-        // Pattern used for extracting distance
-        final Pattern distancePattern = Pattern.compile(DISTANCE_EXP);
-        Matcher theMatcher = distancePattern.matcher(bullMessage);
-
-        // Regular expression for line
-        final String LINE_EXP = " ([0-9]{2}|[0-9]{3})( )?NM (EITHER SIDE OF)";
-        // Pattern used for extracting line information
-        final Pattern linePattern = Pattern.compile(LINE_EXP);
-        Matcher lineMatcher = linePattern.matcher(bullMessage);
-
-        // Regular expression distance for Canada
-        final String CANADA_EXP = "(WTN|WITHIN) ([0-9]{2}|[0-9]{3})( )?NM OF (LN|LINE)";
-        // Pattern used for extracting distance for CANADA sigmet
-        final Pattern canadaPattern = Pattern.compile(CANADA_EXP);
-        Matcher canadaMatcher = canadaPattern.matcher(bullMessage);
-
-        // Regular expression for POLYGON
-        final String POLYGON_EXP = " ([0-9]{2}|[0-9]{3})( )?NM ([EWSN]|[EWSN]{2}|[EWSN]{3}) OF";
-        // Pattern used for extracting POLYGON information
-        final Pattern polygonPattern = Pattern.compile(POLYGON_EXP);
-        Matcher polygonMatcher = polygonPattern.matcher(bullMessage);
-
-        if (canadaMatcher.find()) {
-            retStr = canadaMatcher.group(1);
-        } else if (lineMatcher.find()) {
-            retStr = lineMatcher.group(3);
-        } else if (polygonMatcher.find()) {
-            retStr = polygonMatcher.group(3).concat(" OF");
-        } else if (theMatcher.find()) {
-            retStr = theMatcher.group(1);
-        }
-
-        return retStr;
-    }
-
+		return retStr;
+	}
+	
     /**
      * Parse the location lines and add location table to the main record table
      * if any
