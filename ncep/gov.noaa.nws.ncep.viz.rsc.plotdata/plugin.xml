@@ -22,15 +22,34 @@
             attributeName="levelKey"
             ncResourceName="PlotData">
       </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="java.lang.Integer"
+            attributeName="plotDensity"
+            ncResourceName="PlotData">
+      </nc-resourceAttribute>
    </extension>
-   <!--
+   
    <extension
-         point="gov.noaa.nws.ncep.viz.localization.localizationData">
-      <singleLocalizationValue
-            name="plotParametersMappingTable"
-            location="plotModels"
-            fileName="plotParametersMappingTable.txt">
-      </singleLocalizationValue>
-   </extension>
-   -->
+          point="com.raytheon.uf.viz.localization.localizationpath">
+       	<path
+             application="NCEP"
+             localizationType="CAVE_STATIC"
+             name="Plot Models"
+             recursive="true"
+             value="ncep/PlotModels"
+	         extensionFilter=".xml,.svg,.spi">
+       </path>
+    </extension>
+   <extension
+          point="com.raytheon.uf.viz.localization.localizationpath">
+       	<path
+             application="NCEP"
+             localizationType="CAVE_STATIC"
+             name="Plot Parameters"
+             recursive="false"
+             value="ncep/PlotModels/PlotParameters"
+	         extensionFilter=".xml">
+       </path>
+    </extension>
+
 </plugin>

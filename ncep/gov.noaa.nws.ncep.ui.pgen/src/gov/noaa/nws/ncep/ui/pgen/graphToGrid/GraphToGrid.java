@@ -17,7 +17,7 @@ import org.apache.log4j.Logger;
 
 import gov.noaa.nws.ncep.gempak.parameters.categorymap.CatMap;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 
 
 /**
@@ -28,6 +28,8 @@ import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 01/10		#215		J. Wu   	Initial Creation.
+ * 07/11        #450        G. Hull     use localization names from NcPathConstants
+ * 10/11         	        J. Wu	    handle non-existing table file entries.
  * 
  * </pre>
  * 
@@ -222,14 +224,31 @@ public abstract class GraphToGrid {
     /**
      *  Initialize the parameter list.
      */
-    public final static LinkedHashMap<String, String> loadParameters( String fileName ) {
+    public final static LinkedHashMap<String, String> loadParameters( String localizationName ) {
     	
     	LinkedHashMap<String, String> params = new LinkedHashMap<String, String>();
-    	        
-    	try {
-
-       	    String fname = LocalizationManager.getInstance().reloadingResourceInfoName( "pgen" + File.separator + fileName ); 
-         	Scanner fileScanner = new Scanner( new File( fname ) );       	 
+		
+    	//Check if the given file exists and readable.
+        String fname = null;
+        if ( NcPathManager.getInstance().getStaticFile( localizationName ) != null ) {
+            fname = NcPathManager.getInstance().getStaticFile( localizationName ).getAbsolutePath();
+        }
+ 
+        File thisFile = null;                
+        if ( fname != null ) {
+             thisFile = new File( fname );
+             if ( !thisFile.exists() || !thisFile.canRead() ) {
+        	    thisFile = null;
+             }
+        }
+        
+        if ( thisFile == null ) {
+        	return params;
+        }
+      
+   	    try {
+       	    
+         	Scanner fileScanner = new Scanner( thisFile );       	 
             Scanner lineScanner = null;
             
             try {

@@ -17,7 +17,8 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
 import gov.noaa.nws.ncep.ui.pgen.elements.Outlook;
 import gov.noaa.nws.ncep.ui.pgen.elements.Product;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import org.dom4j.Document;
 import org.dom4j.Node;
@@ -49,6 +50,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 04/10			?		B. Yin   	Initial Creation.
+ * 07/11        #450        G. Hull     NcPathManager
  *
  * </pre>
  * 
@@ -352,16 +354,19 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 	private String generateOutlookMsg( Outlook ol, Layer layer){
 		String msg ="";
 		
-		//days
-		msg += formatDays().toUpperCase() + "\n";
+		if ( !ol.getOutlookType().equalsIgnoreCase("EXCE_RAIN")) {
+
+			//days
+			msg += formatDays().toUpperCase() + "\n";
+
+			//forecaster
+			msg += forecaster.getText().toUpperCase() + "\n";
+
+			//initial time - expiration time
+			msg += String.format("%1$td%1$tH%1$tMZ", getInitTime()) +" - " +
+			String.format("%1$td%1$tH%1$tMZ", getExpTime()) +"\n";
+		}
 		
-		//forecaster
-		msg += forecaster.getText().toUpperCase() + "\n";
-		
-		//initial time - expiration time
-		msg += String.format("%1$td%1$tH%1$tMZ", getInitTime()) +" - " +
-						 String.format("%1$td%1$tH%1$tMZ", getExpTime()) +"\n";
-	
 		//get line info for all outlooks
 		//msg += generateLineInfo( ol, "\n");
 		msg += ol.generateLineInfo("\n");
@@ -447,7 +452,8 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 		
 		if ( otlkTimesTbl == null) {
 			try {
-				String outlookTimesFile = LocalizationManager.getInstance().getFilename("outlookTimes");
+				String outlookTimesFile =  NcPathManager.getInstance().getStaticFile(
+						   NcPathConstants.PGEN_OUTLOOK_TIMES ).getAbsolutePath();
 				SAXReader reader = new SAXReader();
 				otlkTimesTbl = reader.read(outlookTimesFile);
 			} catch (Exception e) {

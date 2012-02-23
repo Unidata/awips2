@@ -1,0 +1,5 @@
+colorMapName=osf_ref16
+colorBar=@dfltRadarColorBar.xml
+! Radar Coded Message
+productCode=74
+elevationNumber=0

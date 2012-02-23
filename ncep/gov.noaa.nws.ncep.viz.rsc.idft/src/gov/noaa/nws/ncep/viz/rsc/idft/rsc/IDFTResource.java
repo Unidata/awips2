@@ -11,32 +11,41 @@ package gov.noaa.nws.ncep.viz.rsc.idft.rsc;
 import gov.noaa.nws.ncep.common.dataplugin.idft.IdftRecord;
 import gov.noaa.nws.ncep.ui.pgen.display.DisplayElementFactory;
 import gov.noaa.nws.ncep.ui.pgen.display.IDisplayable;
+import gov.noaa.nws.ncep.ui.pgen.display.IVector;
 import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
 import gov.noaa.nws.ncep.ui.pgen.elements.Vector;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
+import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.IRscDataObject;
+import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.eclipse.swt.graphics.RGB;
 
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
-import com.raytheon.uf.viz.core.PixelExtent;
+import com.raytheon.uf.viz.core.catalog.LayerProperty;
+import com.raytheon.uf.viz.core.catalog.ScriptCreator;
+import com.raytheon.uf.viz.core.comm.Connector;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.ResourceType;
 
 /**
  * Display IDFT data.
  * 
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -46,215 +55,275 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * 09/30/2010   307        ghull       dont need to override queryRecords anymore
  * 10/25/2010   307        ghull       rm idftParam for the forecast day and use the
  *                                     forecast hour in the data.
- * 04/11		#?			B. Yin		Re-factor IAttribute
+ * 04/11        #?         B. Yin      Re-factor IAttribute
+ * 01/06/2012   530        B. Hebbard  In initResource filter DB query by cycle time
  * 
  * </pre>
  * 
- * @author gzhang
+ * @author gzhang 
  * @version 1.0
  */
-public class IDFTResource extends
-        AbstractNatlCntrsResource<IDFTResourceData, MapDescriptor> implements
-        INatlCntrsResource {
-
-    private IDFTResourceData idftRscData;
+public class IDFTResource extends AbstractNatlCntrsResource<IDFTResourceData, MapDescriptor> 
+                         implements INatlCntrsResource {
+	
+	ArrayList<DataTime> dataTimes = new ArrayList<DataTime>();
+	
+	private IDFTResourceData idftRscData;
 
     private IFont font;
 
-    private class IDFTRscDataObj implements IRscDataObject {
-        Symbol pointSymbol;
-
-        Vector vector;
-
-        DataTime dataTime;
-
-        // int pointNum; // not used
-        double lat, lon;
-
-        double direction;
-
-        double distanceNm;
-
-        String distanceInTenthString;
-
-        @Override
-        public DataTime getDataTime() {
-            return dataTime;
-        }
+	private class IDFTRscDataObj implements IRscDataObject {
+    	Symbol   pointSymbol;
+    	Vector	 vector;
+    	DataTime dataTime;
+//    	int 	 pointNum;  // not used
+    	double   lat,lon;
+    	double   direction;
+    	double   distanceNm;
+    	String   distanceInTenthString;
+    	
+		@Override
+		public DataTime getDataTime() {		
+			return dataTime;
+		}
     }
-
+	    
     private class FrameData extends AbstractFrameData {
-
+        
         ArrayList<IDFTRscDataObj> idftDataList;
 
         public FrameData(DataTime frameTime, int timeInt) {
-            super(frameTime, timeInt);
-            idftDataList = new ArrayList<IDFTRscDataObj>();
-        }
-
-        @Override
-        public boolean updateFrameData(IRscDataObject rscDataObj) {
-            if (!(rscDataObj instanceof IDFTRscDataObj)) {
-                System.out
-                        .println("IDFT:updateFrameData expecting IDFTRscDataObj instead of: "
-                                + rscDataObj.getClass().getName());
-                return false;
-            } else {
-                idftDataList.add((IDFTRscDataObj) rscDataObj);
-                return true;
-            }
-        }
-
+        	super( frameTime, timeInt );
+        	idftDataList = new ArrayList<IDFTRscDataObj>();
+    	}
+        
+    	public boolean updateFrameData( IRscDataObject rscDataObj ) {
+    		if( !(rscDataObj instanceof IDFTRscDataObj) ) {
+    			System.out.println("IDFT:updateFrameData expecting IDFTRscDataObj instead of: "+ 
+    					rscDataObj.getClass().getName() );
+    			return false;
+    		}
+    		else {
+    			idftDataList.add( (IDFTRscDataObj)rscDataObj );
+        		return true;
+    		}
+    	}
+    	
     }
-
-    public IDFTResource(IDFTResourceData ncresourceData,
-            LoadProperties loadProperties) {
-        super(ncresourceData, loadProperties);
-        this.idftRscData = (IDFTResourceData) resourceData;
+	
+	public IDFTResource(IDFTResourceData ncresourceData,
+			LoadProperties loadProperties) {
+    	super(ncresourceData, loadProperties);
+    	this.idftRscData = (IDFTResourceData) resourceData;    	
     }
-
-    private IDFTRscDataObj getIDFTRscDataObj(IdftRecord idftRec) {
-        IDFTRscDataObj idftData = new IDFTRscDataObj();
-
-        // the dataTime uses the issue time as the refTime and computes the
-        // forecast hour from
-        // the validTime in the record.
-        // int fcstSecs = (int)(idftRec.getValidTime().getTime().getTime() /
-        // 1000) -
-        // (int)(idftRec.getIssueTime().getTime().getTime() / 1000);
-        // idftData.dataTime = new DataTime( idftRec.getIssueTime().getTime(),
-        // fcstSecs );
-        idftData.dataTime = idftRec.getDataTime();
-        // idftData.pointNum = idftRec.getPointNum(); // not used
-        idftData.lat = idftRec.getLat();
-        idftData.lon = idftRec.getLon();
-        idftData.direction = idftRec.getDirection();
-        idftData.distanceNm = idftRec.getDistanceNm();
-        idftData.distanceInTenthString = Integer.toString((int) (Math
-                .round(idftData.distanceNm * 10)));
-        com.vividsolutions.jts.geom.Coordinate coor = new com.vividsolutions.jts.geom.Coordinate(
-                idftData.lon, idftData.lat);
-        idftData.vector = new Vector(
-                null,
-                new Color[] { Color.YELLOW },
-                idftRscData.getArrowLineWidth().floatValue(),// lineWidth
-                idftRscData.getArrowLength(),// sizeScale
-                true, coor,
-                gov.noaa.nws.ncep.ui.pgen.display.IVector.VectorType.ARROW,
-                idftData.distanceNm, idftData.direction,
-                idftRscData.getArrowLength(),// arrowHeadSize, using arrowLength
-                                             // for a match
-                true, "Vector", "Arrow"); // hard-code for clarity
-        idftData.pointSymbol = new Symbol(null, new Color[] { Color.RED },
-                idftRscData.getArrowLineWidth().floatValue(),// lineWidth, same
-                                                             // as arrow's
-                idftRscData.getPointSize(), true, coor, "Symbol", "DOT");
+	
+    private IDFTRscDataObj getIDFTRscDataObj( IdftRecord idftRec){
+    	IDFTRscDataObj idftData = new IDFTRscDataObj();
+    	
+    	// the dataTime uses the issue time as the refTime and computes the forecast hour from
+    	// the validTime in the record.
+//    	int fcstSecs = (int)(idftRec.getValidTime().getTime().getTime() / 1000) -
+//    			       (int)(idftRec.getIssueTime().getTime().getTime() / 1000);
+//    	idftData.dataTime = new DataTime( idftRec.getIssueTime().getTime(), fcstSecs );
+    	idftData.dataTime = idftRec.getDataTime();
+//    	idftData.pointNum = idftRec.getPointNum();  // not used
+    	idftData.lat = idftRec.getLat();
+    	idftData.lon = idftRec.getLon();
+    	idftData.direction = idftRec.getDirection();
+    	idftData.distanceNm = idftRec.getDistanceNm(); 
+    	idftData.distanceInTenthString = Integer.toString((int)(Math.round(idftData.distanceNm*10))); 
+    	com.vividsolutions.jts.geom.Coordinate coor = new com.vividsolutions.jts.geom.Coordinate(idftData.lon,idftData.lat);
+    	idftData.vector = new Vector( null,
+				new Color[]{Color.YELLOW},
+				idftRscData.getArrowLineWidth().floatValue(),//lineWidth
+				idftRscData.getArrowLength(),//sizeScale 
+				true,   coor,
+				gov.noaa.nws.ncep.ui.pgen.display.IVector.VectorType.ARROW,
+				idftData.distanceNm,
+				idftData.direction,
+				idftRscData.getArrowLength(),//arrowHeadSize, using arrowLength for a match
+				true, "Vector", "Arrow"); // hard-code for clarity
+    	idftData.pointSymbol = new Symbol( null,
+    			new Color[]{Color.RED},
+    			idftRscData.getArrowLineWidth().floatValue(),// lineWidth, same as arrow's
+    			idftRscData.getPointSize(),
+    			true, coor,
+    			"Symbol", "DOT");
 
         return idftData;
     }
+  
 
-    @Override
-    protected IRscDataObject[] processRecord(Object pdo) {
-        if (!(pdo instanceof IdftRecord)) {
-            System.out
-                    .println("IDFT processRecord() : Expecting IdftRecord object instead of: "
-                            + pdo.getClass().getName());
-            return null;
-        }
+	protected IRscDataObject[] processRecord( Object pdo ) {
+		if( !(pdo instanceof IdftRecord) ) {
+			System.out.println( "IDFT processRecord() : Expecting IdftRecord object instead of: "+
+					pdo.getClass().getName() );
+			return null;
+		}
+		
+		IDFTRscDataObj idftRscDataObj = getIDFTRscDataObj( (IdftRecord)pdo );
 
-        IDFTRscDataObj idftRscDataObj = getIDFTRscDataObj((IdftRecord) pdo);
+		if( idftRscData == null ) {
+			return new IDFTRscDataObj[0];
+		}
+		else {
+			return new IDFTRscDataObj[]{ idftRscDataObj };
+		}
+	}
+	
+	public void paintFrame( AbstractFrameData frameData, IGraphicsTarget grphTarget, PaintProperties paintProps) throws VizException {
+		FrameData currFrameData = (FrameData)frameData;
+       	RGB pointColorRGB = idftRscData.getPointColor();
+    	java.awt.Color pointColor = new java.awt.Color(pointColorRGB.red,pointColorRGB.green,pointColorRGB.blue);
+    	
+    	RGB    arrowColorRGB = idftRscData.getArrowColor();
+    	java.awt.Color arrowColor = new java.awt.Color(arrowColorRGB.red,arrowColorRGB.green,arrowColorRGB.blue);
+    	
+    	DisplayElementFactory df = new DisplayElementFactory( grphTarget, this.descriptor );
+    	
+    	for( IDFTRscDataObj idftData : currFrameData.idftDataList ){
+        	IExtent extent = paintProps.getView().getExtent();
+        	double maxX = (extent.getMaxX() < 0 ? 0 : extent.getMaxX() );
+        	double minX = (extent.getMinX() < 0 ? 0 : extent.getMinX() );
+        	double maxY = (extent.getMaxY() < 0 ? 0 : extent.getMaxY() );
+        	double minY = (extent.getMinY() < 0 ? 0 : extent.getMinY() );
+        	maxX = ( maxX > 19999 ? 19999 : maxX);
+        	minX = ( minX > 19999 ? 19999 : minX);
+        	maxY = ( maxY >  9999 ?  9999 : maxY);
+        	minY = ( minY >  9999 ?  9999 : minY);
 
-        if (idftRscData == null) {
-            return new IDFTRscDataObj[0];
-        } else {
-            return new IDFTRscDataObj[] { idftRscDataObj };
-        }
-    }
+        	PixelExtent correctedExtent = new PixelExtent(minX, maxX, minY, maxY);
+        	
+        	idftData.pointSymbol.setColors(new java.awt.Color[]{ pointColor });
+        	
+        	idftData.vector.setSizeScale( idftRscData.getArrowLength() );
+        	idftData.vector.setLineWidth( idftRscData.getArrowLineWidth().floatValue() );
+        	idftData.vector.setColors(new java.awt.Color[]{ arrowColor });
+        	
+        	double[] zonePix = this.descriptor.worldToPixel(new double[]{(double) idftData.lon,(double) idftData.lat});
+        	if( zonePix != null && correctedExtent.contains( zonePix[0], zonePix[1] ) ) {
 
-    @Override
-    public void paintFrame(AbstractFrameData frameData,
-            IGraphicsTarget grphTarget, PaintProperties paintProps)
-            throws VizException {
-        FrameData currFrameData = (FrameData) frameData;
-        RGB pointColorRGB = idftRscData.getPointColor();
-        java.awt.Color pointColor = new java.awt.Color(pointColorRGB.red,
-                pointColorRGB.green, pointColorRGB.blue);
+        		//TODO:  Suggest refactor to aggregate into List<IVector> here, then (after loop)
+        		//       call df.createDisplayElements( List<IVector>, PaintProperties )
+        		//       for faster performance.
+        		ArrayList<IDisplayable> displayElsArrow = df.createDisplayElements( (IVector)idftData.vector , paintProps );
+        		for ( IDisplayable each : displayElsArrow ) {
+        			each.draw(grphTarget);
+        			each.dispose();
+        		}
 
-        RGB arrowColorRGB = idftRscData.getArrowColor();
-        java.awt.Color arrowColor = new java.awt.Color(arrowColorRGB.red,
-                arrowColorRGB.green, arrowColorRGB.blue);
+        		//TODO:  Suggest refactor to create SymbolLocationSet (for identical
+        		//       symbols at many locations), then (after loop)
+        		//       call df.createDisplayElements ( SymbolLocationSet, PaintProperties )
+        		//       for faster performance.
+        		ArrayList<IDisplayable> displayElsPoint = df.createDisplayElements( idftData.pointSymbol , paintProps );
+        		for ( IDisplayable each : displayElsPoint ) {
+        			each.draw(grphTarget);
+        			each.dispose();
+        		}
 
-        DisplayElementFactory df = new DisplayElementFactory(grphTarget,
-                this.descriptor);
+        		grphTarget.drawString( font, idftData.distanceInTenthString, 
+        				zonePix[0], zonePix[1], 0.0, TextStyle.NORMAL, 
+        				idftRscData.getDistanceColor(),
+        				HorizontalAlignment.CENTER, 0.0 );
 
-        for (IDFTRscDataObj idftData : currFrameData.idftDataList) {
-            IExtent extent = paintProps.getView().getExtent();
-            double maxX = (extent.getMaxX() < 0 ? 0 : extent.getMaxX());
-            double minX = (extent.getMinX() < 0 ? 0 : extent.getMinX());
-            double maxY = (extent.getMaxY() < 0 ? 0 : extent.getMaxY());
-            double minY = (extent.getMinY() < 0 ? 0 : extent.getMinY());
-            maxX = (maxX > 19999 ? 19999 : maxX);
-            minX = (minX > 19999 ? 19999 : minX);
-            maxY = (maxY > 9999 ? 9999 : maxY);
-            minY = (minY > 9999 ? 9999 : minY);
+    		} 
+    	}
+	}
+	
+	public void disposeInternal() {  
+		super.disposeInternal();
+		if( font != null ) {
+			font.dispose();
+		}    
+	}
+	
+	public void resourceAttrsModified() {
+		// don't need to do anything
+	}
+	
+	protected AbstractFrameData createNewFrame(DataTime frameTime, int timeInt) {
+		return new FrameData(frameTime,timeInt);
+	}
+	
+	@Override
+	public void initResource(IGraphicsTarget grphTarget) throws VizException {
 
-            PixelExtent correctedExtent = new PixelExtent(minX, maxX, minY,
-                    maxY);
+		//  Request from the DB all IDFT data corresponding to the
+		//  selected cycle (initial) time, and use the returned PDOs to
+		//  fill up the newRscDataObjsQueue (with RDOs) for later use.
+		
+		//  [ TODO:  Note modeled after FcstPlotResource.initResource().  Is there
+		//           a more efficient way to do this (in the uEngine), i.e., construct
+		//           a single query to match all data keyed to a given reference time,
+		//           rather than filtering the times here, and then doing a separate
+		//           query for each forecast hour? ]
+		
+		//  First, query all of the times in the DB...
+		
+		ResourceName rscName = getResourceData().getResourceName();
+		DataTime   cycleTime = rscName.getCycleTime();
 
-            idftData.pointSymbol.setColors(new java.awt.Color[] { pointColor });
+		//  ("Latest" should already be resolved here)
+		if( cycleTime == null || rscName.isLatestCycleTime() ) { 
+			return;
+		}
 
-            idftData.vector.setSizeScale(idftRscData.getArrowLength());
-            idftData.vector.setLineWidth(idftRscData.getArrowLineWidth()
-                    .floatValue());
-            idftData.vector.setColors(new java.awt.Color[] { arrowColor });
+		HashMap<String, RequestConstraint> queryList = new HashMap<String, RequestConstraint>(
+				resourceData.getMetadataMap());
 
-            double[] zonePix = this.descriptor.worldToPixel(new double[] {
-                    idftData.lon, idftData.lat });
-            if (zonePix != null
-                    && correctedExtent.contains(zonePix[0], zonePix[1])) {
+		LayerProperty property = new LayerProperty();
+		property.setDesiredProduct( ResourceType.PLAN_VIEW );
+		DataTime[] availableTimes;
 
-                ArrayList<IDisplayable> displayElsArrow = df
-                        .createDisplayElements(idftData.vector, paintProps);
-                for (IDisplayable each : displayElsArrow) {
-                    each.draw(grphTarget);
-                    each.dispose();
-                }
+		try {
+			property.setEntryQueryParameters( queryList );
+			availableTimes = property.getEntryTimes();
+		}
+		catch( VizException e) {
+			throw e;
+		}
 
-                ArrayList<IDisplayable> displayElsPoint = df
-                        .createDisplayElements(idftData.pointSymbol, paintProps);
-                for (IDisplayable each : displayElsPoint) {
-                    each.draw(grphTarget);
-                    each.dispose();
-                }
+		//  ...then loop through all the available times in the DB and if the
+		//  reference time matches the cycle time for this resource and if it
+		//  hasn't already been added, add it to the list of matching DataTime.
+		
+		for( DataTime dt : availableTimes ) {
+			// create a dataTime without a possible validPeriod.
+			DataTime availTime = new DataTime( dt.getRefTime(), dt.getFcstTime() );
+			DataTime refTime = new DataTime( dt.getRefTime() );
 
-                grphTarget.drawString(font, idftData.distanceInTenthString,
-                        zonePix[0], zonePix[1], 0.0, TextStyle.NORMAL,
-                        idftRscData.getDistanceColor(),
-                        HorizontalAlignment.CENTER, 0.0);
-            }
-        }
-    }
+			if( cycleTime.equals( refTime ) ) {
+				if( !dataTimes.contains( availTime ) ) {
+					dataTimes.add( availTime );
+				}
+			}
+		}
 
-    @Override
-    public void disposeInternal() {
-        super.disposeInternal();
-        if (font != null) {
-            font.dispose();
-        }
-    }
+		//  Now, dataTimes is limited to those that apply to the selected cycle time.
+		//  For each, query the DB for matching records (PDOs), process into RDOs, and
+		//  add to newRscDataObjsQueue.
 
-    @Override
-    public void resourceAttrsModified() {
-        // don't need to do anything
-    }
+		for( DataTime dt : dataTimes ) {
+			RequestConstraint timeConstraint = new RequestConstraint( dt.toString() );
+			queryList.put("dataTime", timeConstraint );
+			LayerProperty prop = new LayerProperty();
+			prop.setDesiredProduct(ResourceType.PLAN_VIEW);
+			prop.setEntryQueryParameters(queryList, false);
+			prop.setNumberOfImages(15000); // TODO: max # records ?? should we cap
+			String script = null;
+			script = ScriptCreator.createScript(prop);
+			if (script == null)
+				return;
 
-    @Override
-    protected AbstractFrameData createNewFrame(DataTime frameTime, int timeInt) {
-        return new FrameData(frameTime, timeInt);
-    }
+			Object[] pdoList = Connector.getInstance().connect(script, null, 60000);
 
-    @Override
-    public void initResource(IGraphicsTarget grphTarget) throws VizException {
-        queryRecords();
-    }
+			for (Object pdo : pdoList) {
+				for( IRscDataObject dataObject : processRecord( pdo ) )	{	
+					newRscDataObjsQueue.add(dataObject);
+				}
+			}
+		}
+
+	}	
 }

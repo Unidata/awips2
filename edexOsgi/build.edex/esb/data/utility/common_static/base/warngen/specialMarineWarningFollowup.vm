@@ -1,12 +1,14 @@
-#################################################
-## SPECIAL MARINE WARNING FOLLOWUP             ##
-## CREATED BY PHIL KURIMSKI - WFO DTX          ##
-## VERSION AWIPS II 1.0 -- FEB 24 2011  OB11.2 ##
-## VERSION AWIPS II 1.1 -- APR 14 2011  OB11.4 ##
-## VERSION AWIPS II 1.2 -- JUL 14 2011  OB11.7 ##
-## VERSION AWIPS II 1.3 -- SEP 22 2011  OB11.8 ##
-## Added Volcano Information for version 1.3   ##  
-#################################################
+#####################################################
+## SPECIAL MARINE WARNING FOLLOWUP                 ##
+## CREATED BY PHIL KURIMSKI - WFO DTX              ##
+## VERSION AWIPS II 1.0 -- FEB 24 2011  OB11.2     ##
+## VERSION AWIPS II 1.1 -- APR 14 2011  OB11.4     ##
+## VERSION AWIPS II 1.2 -- JUL 14 2011  OB11.7     ##
+## VERSION AWIPS II 1.3 -- SEP 22 2011  OB11.8     ##
+## Added Volcano Information for version 1.3       ##  
+## VERSION AWIPS II 1.4 -- JAN 26 2012  OB12.1.1-1 ##   
+## Cleaned up wind coding for version 1.4          ## 
+#####################################################
 ## Added Volcano Information in version 1.3 for sites where
 ## Volcanoes affect their marine zones. If sites wish to hide
 ## this information comment out the appropriate bullets in the
@@ -33,11 +35,6 @@
 	#set ($ashCON = "N")
 #end
 ################################################
-#if(${specialCorText})
-${WMOId} ${vtecOffice} 000000 ${BBBId}
-MWS${siteId}
-${specialCorText}
-#else
 #######################################################################
 ## HEADER FOR NON-CAN/CON PRODUCTS
 #######################################################################
@@ -174,15 +171,15 @@ ${canwarning}
 #set ($windTag = "<34")
 #if(${list.contains($bullets, "34ktWind")})
 	#set ($windTag = ">34")
-	#set ($windType = "STRONG WINDS 34 KNOTS OR GREATER")
+	#set ($windType = "WINDS 34 KNOTS OR GREATER")
 #end
 #if(${list.contains($bullets, "40ktWind")})
 	#set ($windTag = "40")
-	#set ($windType = "STRONG WINDS TO 40 KNOTS")
+	#set ($windType = "WINDS TO 40 KNOTS")
 #end
 #if(${list.contains($bullets, "40ktplusWind")})
 	#set ($windTag = "40")
-	#set ($windType = "STRONG WINDS TO NEARLY 50 KNOTS")
+	#set ($windType = "WINDS TO NEARLY 50 KNOTS")
 #end
 #if(${list.contains($bullets, "50ktWind")})
 	#set ($windTag = "50")
@@ -216,6 +213,7 @@ ${canwarning}
 #if(${list.contains($bullets, "possibleSpout")})
 	#set ($spoutType = "WATERSPOUTS")
 	#set ($capable = "CAPABLE OF ")
+	#set ($severeType = "SEVERE")
 #end
 ################################################
 ## Threat section for Volcanic Situations
@@ -312,7 +310,10 @@ ${canwarning}
 #set ($report = "!** YOU DIDN'T SELECT A REPORTER **! ${eventType}")
 #if(${list.contains($bullets, "doppler")})
   #set ($capable = "CAPABLE OF ")
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED ${stormline}...${capable}PRODUCING ${threat}...")
+  #set ($report = "DOPPLER RADAR INDICATED ${stormline}...${capable}PRODUCING ${threat}...")
+#end
+#if(${list.contains($bullets, "doppler")} && ${list.contains($bullets, "sightedSpout")})
+  #set ($report = "DOPPLER RADAR INDICATED ${stormline}...PRODUCING ${threat}...")
 #end
 #if(${list.contains($bullets, "marineSpotter")})
   #set ($report = "MARINE WEATHER SPOTTERS REPORTED ${stormline}...${capable}PRODUCING ${threat}...") 
@@ -329,6 +330,9 @@ ${canwarning}
 #if(${list.contains($bullets, "satellite")})
   #set ($capable = "CAPABLE OF ")
   #set ($report = "SATELLITE IMAGERY INDICATED ${stormline}...${capable}PRODUCING ${threat}...")
+#end
+#if(${list.contains($bullets, "satellite")} && ${list.contains($bullets, "sightedSpout")})
+  #set ($report = "SATELLITE IMAGERY INDICATED ${stormline}...PRODUCING ${threat}...")
 #end
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE.##
@@ -347,8 +351,8 @@ ${area.name}...
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
-AT ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}... ${report} LOCATED ##
-#handleClosestPoints($list, $closestPoints, $otherClosestPoints, $stormType, "OVER", 4, "NM")
+AT ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}...${report}LOCATED ##
+#handleClosestPoints($list, $closestPoints, $otherClosestPoints, $stormType, "OVER", 4, "NM", true)
 #if(${eventType} == "VOLCANO")
 .
 #elseif($movementSpeed < 3 || ${stationary})
@@ -713,7 +717,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${eventType} == "FRONT")
 	#set($stormline = "A ${eventType}")
 	#set($pathheader = "${eventType}")
-	#set($stormType = "")
+##	#set($stormType = "")
 #end
 #######################################################################
 ## Coding for volcanos...this will override all other selections.
@@ -722,7 +726,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${eventType} == "VOLCANO")
 	#set($stormline = "!** NAME OF VOLCANO**! ${eventType}")
 	#set($pathheader = "THE ${volcanoPath}")
-	#set($stormType = "")
+##	#set($stormType = "")
 	#set($impacted = "LOCATIONS IMPACTED BY ${volcanoPath} INCLUDE...")
 #end
 #######################################################################
@@ -987,4 +991,3 @@ ${mathUtil.round(${movementInKnots})}KT ##
 $$
 
 !**NAME/INITIALS**!
-#end

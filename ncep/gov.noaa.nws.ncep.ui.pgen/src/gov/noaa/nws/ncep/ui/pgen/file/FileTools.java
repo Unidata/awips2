@@ -22,7 +22,8 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.*;
 import java.io.File;
 
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 /**
  * Define a file tool for reading/writing PGEN products using JAXB.
@@ -40,6 +41,7 @@ import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
  * 05/10                    M.Laryukhin Refactored to use SerializationUtil for better performance
  * 01/11					J. Wu   	Added validation against "Product.xsd" before
  * 										marshalling and creating non-existing dirs.
+ * 07/11        #450        G. Hull     NcPathManager
  *
  * </pre>
  * 
@@ -141,7 +143,8 @@ public class FileTools {
 		boolean valid = true;
 		
 		if ( xsdFile == null ) {
-		   xsdFile = LocalizationManager.getInstance().getFilename("Pgen_Product_Schema");
+			   xsdFile = NcPathManager.getInstance().getStaticFile(
+					   NcPathConstants.PGEN_PROD_SCHEMA ).getAbsolutePath();
 		}
 		
 		File xsdf = new File( fileName );
