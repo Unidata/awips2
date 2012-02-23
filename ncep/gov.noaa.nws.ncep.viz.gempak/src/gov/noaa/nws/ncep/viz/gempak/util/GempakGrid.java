@@ -104,11 +104,11 @@ public class GempakGrid {
 	 * @return
 	 * @throws VizException
 	 */
-	public static ISpatialObject getGridNavigation (String aDataLocation, String aCurrentCycle) 
+	public static ISpatialObject getGridNavigation (String anAlias, String aDataLocation, String aCurrentCycle) 
 	throws VizException{
 		int numberOfLayers = aDataLocation.split("/").length;
 		String model = aDataLocation.split("/")[numberOfLayers-1];
-		String gdfile = constructGridFilename (aDataLocation,aCurrentCycle);
+		String gdfile = constructGridFilename (anAlias, aDataLocation,aCurrentCycle);
 		float[] rnav = getGridNavigationBlock (gdfile);
 		String proj = getGridProjection (rnav);
 
@@ -260,78 +260,30 @@ public class GempakGrid {
 	/**
 	 * Constructs a GEMPAK grid filename eg "gfs_2010112818f003"
 	 * 
+	 * @param anAlias
+	 *        eg "GFS"
 	 * @param aLocation
 	 *        eg "$MODEL/gfs"
 	 * @param aTime
 	 *        eg "2010-11-28 18:00:00.0 (3)"
 	 * @return
 	 */
-	private static String constructGridFilename(String aLocation, String aTime) {
-		String aFilename = null;
-		String[] timeArray = new String[2];
-		int numberOfLayers = aLocation.split("/").length;
-		String model = aLocation.split("/")[numberOfLayers-1];
-		
-		CharSequence char0 = "(";
-		/*
-		 * Process time contains forecast hour info
-		 */
-		if ( aTime.contains(char0) ) {
-			String zeroes = null;
-			int ind1 = aTime.indexOf("(");
-			int ind2 = aTime.indexOf(")");
-			if ( ind2-ind1 == 2 ) {
-				zeroes = "00";
+	private static String constructGridFilename(String anAlias, String aLocation, String aTime) {
+		try {
+			String fileNameTemplate = getGempakGridTemplate(anAlias);
+			IntByReference iret = new IntByReference(0);
+			byte[] theFileName = new byte[50];
+			String gTime = dbtimeToDattim(aTime);
+			String fullPath = aLocation+ "/" + fileNameTemplate;
+			gd.gem.cfl_mnam_ ( gTime, fullPath, theFileName, iret);
+			if ( iret.getValue () != 0 ) {
+				return null;
 			}
-			else if ( ind2-ind1 == 3 ) {
-				zeroes = "0";
-			}
-			String str1 = aTime.substring(0, ind1-1);
-			String str2 = "";
-			if ( zeroes != null) {
-				str2 = "f"+zeroes+aTime.substring(ind1+1, ind2);
-			}
-			else {
-				str2 = "f"+aTime.substring(ind1+1, ind2);
-			}
-			
-			if ( aTime.contains("_") ) {
-				timeArray = str1.split("_");
-			}
-			else if ( ! aTime.contains("_") ) {
-				timeArray = str1.split(" ");
-			}
-
-			/*
-			 * YYYY-MM-DD HH:MM:SS.S (HHH)-> YYMMDD/HHMMfHHH
-			 * 2009-10-22 16:00:00.0 (5)-> 091022/1600f005
-			 * 0123456789 0123456789
-			 */
-			aFilename = aLocation + "/" + model + "_" 
-					+ timeArray[0].substring(0, 4)
-					+ timeArray[0].substring(5, 7)
-					+ timeArray[0].substring(8, 10)
-					+ timeArray[1].substring(0, 2)
-					+ str2;
+			return Native.toString(theFileName);
+		} catch (VizException e) {
+			// TODO Auto-generated catch block
+			return null;
 		}
-		/*
-		 * Process time that does NOT contain forecast hour info
-		 */
-		else {
-//			timeArray = aTime.split(" ");
-//
-//			/*
-//			 * YYYY-MM-DD HH:MM:SS.S -> YYMMDD/HHMM
-//			 * 2009-01-20 02:25:00.0 -> 090120/0225
-//			 * 0123456789 0123456789
-//			 */
-//			aFilename = timeArray[0].substring(2, 4)
-//					+ timeArray[0].substring(5, 7)
-//					+ timeArray[0].substring(8, 10) + "/"
-//					+ timeArray[1].substring(0, 2)
-//					+ timeArray[1].substring(3, 5);
-		}
-		return aFilename;
 	}
 	
 	/**
@@ -376,6 +328,172 @@ public class GempakGrid {
 		IntByReference ky = new IntByReference(0);
 		gd.gem.grc_rnav_ (rnav, cproj, kx, ky, iret);
 		return Native.toString(cproj);
+	}
+	
+	/**
+	 * Serves as a wrapper for the legacy ctb_dtpath function
+	 * 
+	 * @param anAlias
+	 *        eg "GFS"
+	 * @return
+	 */
+	public static String getGempakGridPath ( String anAlias) throws VizException {
+		IntByReference iret = new IntByReference(0);
+		byte[] thePath = new byte[30];
+		gd.gem.ctb_dtpath_ (anAlias, thePath, iret);
+		if ( iret.getValue () != 0 ) {
+			throw new VizException("Alias " + anAlias + " not found in legacy datatype.tbl");
+		}
+		return Native.toString(thePath);
+	}
+	
+	/**
+	 * Serves as a wrapper for the legacy ctb_dttmpl function
+	 * 
+	 * @param anAlias
+	 *        eg "GFS"
+	 * @return
+	 */
+	public static String getGempakGridTemplate ( String anAlias) throws VizException {
+		IntByReference iret = new IntByReference(0);
+		byte[] theTemplate = new byte[50];
+		gd.gem.ctb_dttmpl_ (anAlias, theTemplate, iret);
+		if ( iret.getValue () != 0 ) {
+			throw new VizException("Alias " + anAlias + " not found in legacy datatype.tbl");
+		}
+		return Native.toString(theTemplate);
+	}
+	
+	/**
+	 *
+	 * Converts AWIPS2 date time string into GEMPAK DATTIM string
+	 *
+	 * @param aTime
+	 *        eg "2011-10-09 06:20:00.0 (1)"
+	 * @return
+	 *        eq "111009/0620f001"
+	 */
+	private static String dbtimeToDattim(String aTime) {
+		String aDattim = null;
+		String[] inputStringArray = new String[2];
+		
+		CharSequence char0 = "(";
+		/*
+		 * Process time contains forecast hour info
+		 */
+		if ( aTime.contains(char0) ) {
+			String zeroes = null;
+			int ind1 = aTime.indexOf("(");
+			int ind2 = aTime.indexOf(")");
+			if ( ind2-ind1 == 2 ) {
+				zeroes = "00";
+			}
+			else if ( ind2-ind1 == 3 ) {
+				zeroes = "0";
+			}
+			String str1 = aTime.substring(0, ind1-1);
+			String str2 = "";
+			if ( zeroes != null) {
+				str2 = "f"+zeroes+aTime.substring(ind1+1, ind2);
+			}
+			else {
+				str2 = "f"+aTime.substring(ind1+1, ind2);
+			}
+			
+			if ( aTime.contains("_") ) {
+				inputStringArray = str1.split("_");
+			}
+			else if ( ! aTime.contains("_") ) {
+				inputStringArray = str1.split(" ");
+			}
+
+			/*
+			 * YYYY-MM-DD HH:MM:SS.S (HHH)-> YYMMDD/HHMMfHHH
+			 * 2009-10-22 16:00:00.0 (5)-> 091022/1600f005
+			 * 0123456789 0123456789
+			 */
+			aDattim = inputStringArray[0].substring(2, 4)
+					+ inputStringArray[0].substring(5, 7)
+					+ inputStringArray[0].substring(8, 10) + "/"
+					+ inputStringArray[1].substring(0, 2)
+					+ inputStringArray[1].substring(3, 5) + str2;
+		}
+		/*
+		 * Process time that does NOT contain forecast hour info
+		 */
+		else {
+			inputStringArray = aTime.split(" ");
+
+			/*
+			 * YYYY-MM-DD HH:MM:SS.S -> YYMMDD/HHMM
+			 * 2009-01-20 02:25:00.0 -> 090120/0225
+			 * 0123456789 0123456789
+			 */
+			aDattim = inputStringArray[0].substring(2, 4)
+					+ inputStringArray[0].substring(5, 7)
+					+ inputStringArray[0].substring(8, 10) + "/"
+					+ inputStringArray[1].substring(0, 2)
+					+ inputStringArray[1].substring(3, 5);
+		}
+		return aDattim;
+	}
+	
+	/*
+	 * Converts GEMPAK DATTIM string into AWIPS2 date time string
+	 */
+	public static String dattimToDbtime(String aDattim) {
+		aDattim = aDattim.toUpperCase();
+		String retDateTime = null;
+		String[] inputStringArray = new String[2];
+		CharSequence char0 = "F";
+		if ( aDattim.contains(char0) ) {
+			
+			int ind1 = aDattim.indexOf("F00");
+			int addChars = 3;
+			if ( ind1 == -1 ) {
+				ind1 = aDattim.indexOf("F0");
+				addChars = 2;
+			}
+			if ( ind1 == -1 ) {
+				ind1 = aDattim.indexOf("F");
+				addChars = 1;
+			}
+			int ind2 = aDattim.length();
+			
+			String str1 = aDattim.substring(0, ind1);
+			String str2 = aDattim.substring(ind1+addChars,ind2 );
+			inputStringArray = str1.split("/");
+
+			/*
+			 * YYMMDD/HHMMfHHH -> YYYY-MM-DD HH:MM:SS.S 
+			 * 090120/0225f005 -> 2009-01-20 02:25:00.0 
+			 * 012345 0123
+			 */
+			retDateTime = "20" + inputStringArray[0].substring(0, 2) + "-"
+			+ inputStringArray[0].substring(2, 4) + "-"
+			+ inputStringArray[0].substring(4, 6) + "_"
+			+ inputStringArray[1].substring(0, 2) + ":"
+			+ inputStringArray[1].substring(2, 4) + ":00.0_("+ str2 + ")";
+		}
+		/*
+		 * Process time that does NOT contain forecast hour info
+		 */
+		else {
+			inputStringArray = aDattim.split("/");
+
+			/*
+			 * YYMMDD/HHMM -> YYYY-MM-DD HH:MM:SS.S 
+			 * 090120/0225 -> 2009-01-2002:25:00.0 
+			 * s012345 0123
+			 */
+			retDateTime = "20" + inputStringArray[0].substring(0, 2) + "-"
+					+ inputStringArray[0].substring(2, 4) + "-"
+					+ inputStringArray[0].substring(4, 6) + " "
+					+ inputStringArray[1].substring(0, 2) + ":"
+					+ inputStringArray[1].substring(2, 4) + ":00.0";
+		}
+
+		return retDateTime;
 	}
 
 }

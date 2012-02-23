@@ -19,6 +19,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.uf.viz.core.exception.VizException;
+
 /**
  * The grid contour attribute editing dialog.
  * 
@@ -29,6 +31,8 @@ import org.eclipse.ui.PlatformUI;
  * Oct  2010    277			 M. Li		Copied form EditGridAttributeDialog
  * Nov,22 2010  352			 X. Guo     Add HILO, HLSYM and move all help functions
  *                                      into NcgridAttributesHelp.java
+ * Dec 13 2011  578          G. Hull    added ensembleComponentWeights, and folded the 
+ *                                      EnsembleSelectDialog into this one.                                    
  * 
  * @author mli
  * @version 1
@@ -36,7 +40,6 @@ import org.eclipse.ui.PlatformUI;
 
 public class EditEnsembleAttributesDialog extends AbstractEditResourceAttrsDialog {
     private RscAttrValue cintString = null;
-    private RscAttrValue gdfile = null;
     private RscAttrValue glevel = null;
     private RscAttrValue gvcord = null;
     private RscAttrValue scale = null;
@@ -53,7 +56,6 @@ public class EditEnsembleAttributesDialog extends AbstractEditResourceAttrsDialo
     private RscAttrValue marker = null;
     private RscAttrValue grdlbl = null;
     
-    private Text gdfileText;
     private Text glevelText;
     private Text gvcordText;
     
@@ -87,7 +89,6 @@ public class EditEnsembleAttributesDialog extends AbstractEditResourceAttrsDialo
     	
     	lineAttr   = editedRscAttrSet.getRscAttr("lineAttributes");
     	cintString = editedRscAttrSet.getRscAttr("cint");
-    	gdfile     = editedRscAttrSet.getRscAttr("gdfile");
     	glevel     = editedRscAttrSet.getRscAttr("glevel");
     	gvcord     = editedRscAttrSet.getRscAttr("gvcord");
     	scale      = editedRscAttrSet.getRscAttr("scale");
@@ -101,7 +102,7 @@ public class EditEnsembleAttributesDialog extends AbstractEditResourceAttrsDialo
     	colors     = editedRscAttrSet.getRscAttr("colors");
     	marker     = editedRscAttrSet.getRscAttr("marker");
     	grdlbl     = editedRscAttrSet.getRscAttr("grdlbl");
-    	wind      = editedRscAttrSet.getRscAttr("wind");
+    	wind       = editedRscAttrSet.getRscAttr("wind");
     	
     	
     	// confirm the classes of the attributes..
@@ -125,51 +126,26 @@ public class EditEnsembleAttributesDialog extends AbstractEditResourceAttrsDialo
     		hlsym.setAttrValue((String)"");
     	
 		//contour attributes editing
-        Group contourAttributesGroup = new Group ( composite, SWT.SHADOW_NONE );
+        Group topAttrsGrp = new Group ( composite, SWT.SHADOW_NONE );
         GridLayout contourAttrGridLayout = new GridLayout();
-        contourAttrGridLayout.numColumns = 1;
+        contourAttrGridLayout.numColumns = 2;
         contourAttrGridLayout.marginHeight = 8;
         contourAttrGridLayout.marginWidth = 2;
         contourAttrGridLayout.horizontalSpacing = 20;
         contourAttrGridLayout.verticalSpacing = 8;
-        contourAttributesGroup.setLayout(contourAttrGridLayout);
+        topAttrsGrp.setLayout(contourAttrGridLayout);
         
        
-        Composite comp = new Composite(contourAttributesGroup, SWT.SHADOW_NONE); 
+        Composite gridAttrsComp = new Composite(topAttrsGrp, SWT.SHADOW_NONE); 
         GridLayout contourIntervalsGridLayout = new GridLayout();
         contourIntervalsGridLayout.numColumns = 2;
-        comp.setLayout(contourIntervalsGridLayout); 
-        
-     // GDFILE
-        Button gdfileButton = new Button(comp, SWT.PUSH);
-        gdfileButton.setText("GDFILE:");
-        gdfileButton.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent event) {
-            	Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-       		    EnsembleSelectDialog ensembleSelectDialog = new EnsembleSelectDialog(shell, gdfileText.getText());
-       		    if (!(ensembleSelectDialog.isOpen())) ensembleSelectDialog.open();
-       		    if (ensembleSelectDialog.getSelectedModels() != null && 
-            				 !ensembleSelectDialog.getSelectedModels().equalsIgnoreCase(gdfileText.getText())) {
-       		    	gdfileText.setText(ensembleSelectDialog.getSelectedModels());
-       		    }
-            }
-        });
-        
-        gdfileText = new Text(comp,SWT.SINGLE | SWT.BORDER );
-        gdfileText.setLayoutData(new GridData(300, SWT.DEFAULT));
-        gdfileText.setText((String)gdfile.getAttrValue());
-        gdfileText.addModifyListener(new ModifyListener() {
-			public void modifyText(ModifyEvent e) {
-				gdfile.setAttrValue((String)gdfileText.getText().trim());
-			}
-        	
-        });
+        gridAttrsComp.setLayout(contourIntervalsGridLayout); 
         
         // GLEVEL
-        Label glevelLabel = new Label(comp, SWT.NONE);
+        Label glevelLabel = new Label(gridAttrsComp, SWT.NONE);
         glevelLabel.setText("GLEVEL:");
-        glevelText = new Text(comp,SWT.SINGLE | SWT.BORDER );
-        glevelText.setLayoutData(new GridData(300, SWT.DEFAULT));
+        glevelText = new Text(gridAttrsComp,SWT.SINGLE | SWT.BORDER );
+        glevelText.setLayoutData(new GridData(225, SWT.DEFAULT));
         glevelText.setText((String)glevel.getAttrValue());
         glevelText.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
@@ -179,10 +155,10 @@ public class EditEnsembleAttributesDialog extends AbstractEditResourceAttrsDialo
         });
         
         // GVCORD
-        Label gvcordLabel = new Label(comp, SWT.NONE);
+        Label gvcordLabel = new Label(gridAttrsComp, SWT.NONE);
         gvcordLabel.setText("GVCORD:");
-        gvcordText = new Text(comp,SWT.SINGLE | SWT.BORDER );
-        gvcordText.setLayoutData(new GridData(300, SWT.DEFAULT));
+        gvcordText = new Text(gridAttrsComp,SWT.SINGLE | SWT.BORDER );
+        gvcordText.setLayoutData(new GridData(225, SWT.DEFAULT));
         gvcordText.setText((String)gvcord.getAttrValue());
         gvcordText.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
@@ -191,10 +167,10 @@ public class EditEnsembleAttributesDialog extends AbstractEditResourceAttrsDialo
         });
         
         // SCALE
-        Label scaleLabel = new Label(comp, SWT.NONE);
+        Label scaleLabel = new Label(gridAttrsComp, SWT.NONE);
         scaleLabel.setText("SCALE:");
-        scaleText = new Text(comp,SWT.SINGLE | SWT.BORDER );
-        scaleText.setLayoutData(new GridData(300, SWT.DEFAULT));
+        scaleText = new Text(gridAttrsComp,SWT.SINGLE | SWT.BORDER );
+        scaleText.setLayoutData(new GridData(225, SWT.DEFAULT));
         scaleText.setText((String)scale.getAttrValue());
         scaleText.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
@@ -204,10 +180,10 @@ public class EditEnsembleAttributesDialog extends AbstractEditResourceAttrsDialo
         
         
         // GDPFUN
-        Label gdpfunLabel = new Label(comp, SWT.NONE);
+        Label gdpfunLabel = new Label(gridAttrsComp, SWT.NONE);
         gdpfunLabel.setText("GDPFUN:");
-        gdpfunText = new Text(comp,SWT.SINGLE | SWT.BORDER );
-        gdpfunText.setLayoutData(new GridData(300, SWT.DEFAULT));
+        gdpfunText = new Text(gridAttrsComp,SWT.SINGLE | SWT.BORDER );
+        gdpfunText.setLayoutData(new GridData(225, SWT.DEFAULT));
         gdpfunText.setText((String)gdpfun.getAttrValue());
         gdpfunText.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
@@ -216,10 +192,10 @@ public class EditEnsembleAttributesDialog extends AbstractEditResourceAttrsDialo
         });
         
         // TYPE
-        Label typeLabel = new Label(comp, SWT.NONE);
+        Label typeLabel = new Label(gridAttrsComp, SWT.NONE);
         typeLabel.setText("TYPE:");
-        typeText = new Text(comp,SWT.SINGLE | SWT.BORDER );
-        typeText.setLayoutData(new GridData(300, SWT.DEFAULT));
+        typeText = new Text(gridAttrsComp,SWT.SINGLE | SWT.BORDER );
+        typeText.setLayoutData(new GridData(225, SWT.DEFAULT));
         typeText.setText((String)type.getAttrValue());
         typeText.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
@@ -229,10 +205,10 @@ public class EditEnsembleAttributesDialog extends AbstractEditResourceAttrsDialo
         
                             
         // Contour Intervals -- CINT
-        Label contourIntervalsLabel = new Label(comp, SWT.NONE);
+        Label contourIntervalsLabel = new Label(gridAttrsComp, SWT.NONE);
         contourIntervalsLabel.setText("CINT:");
-        cintText = new Text(comp,SWT.SINGLE | SWT.BORDER );
-        cintText.setLayoutData(new GridData(300, SWT.DEFAULT));
+        cintText = new Text(gridAttrsComp,SWT.SINGLE | SWT.BORDER );
+        cintText.setLayoutData(new GridData(225, SWT.DEFAULT));
         cintText.setText((String)cintString.getAttrValue());
         cintText.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
@@ -242,10 +218,10 @@ public class EditEnsembleAttributesDialog extends AbstractEditResourceAttrsDialo
         });
         
      // LINE
-        Label lineAttrLabel = new Label(comp, SWT.NONE);
+        Label lineAttrLabel = new Label(gridAttrsComp, SWT.NONE);
         lineAttrLabel.setText("LINE:");
-        lineAttrText = new Text(comp,SWT.SINGLE | SWT.BORDER );
-        lineAttrText.setLayoutData(new GridData(300, SWT.DEFAULT));
+        lineAttrText = new Text(gridAttrsComp,SWT.SINGLE | SWT.BORDER );
+        lineAttrText.setLayoutData(new GridData(225, SWT.DEFAULT));
         lineAttrText.setText((String)lineAttr.getAttrValue());
         lineAttrText.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
@@ -254,10 +230,10 @@ public class EditEnsembleAttributesDialog extends AbstractEditResourceAttrsDialo
         });
         
         // FINT
-        Label fintAttrLabel = new Label(comp, SWT.NONE);
+        Label fintAttrLabel = new Label(gridAttrsComp, SWT.NONE);
         fintAttrLabel.setText("FINT:");
-        fintAttrText = new Text(comp,SWT.SINGLE | SWT.BORDER );
-        fintAttrText.setLayoutData(new GridData(300, SWT.DEFAULT));
+        fintAttrText = new Text(gridAttrsComp,SWT.SINGLE | SWT.BORDER );
+        fintAttrText.setLayoutData(new GridData(225, SWT.DEFAULT));
         fintAttrText.setText((String)fint.getAttrValue());
         fintAttrText.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
@@ -266,10 +242,10 @@ public class EditEnsembleAttributesDialog extends AbstractEditResourceAttrsDialo
         });
         
         // FLINE
-        Label flineAttrLabel = new Label(comp, SWT.NONE);
+        Label flineAttrLabel = new Label(gridAttrsComp, SWT.NONE);
         flineAttrLabel.setText("FLINE:");
-        flineAttrText = new Text(comp,SWT.SINGLE | SWT.BORDER );
-        flineAttrText.setLayoutData(new GridData(300, SWT.DEFAULT));
+        flineAttrText = new Text(gridAttrsComp,SWT.SINGLE | SWT.BORDER );
+        flineAttrText.setLayoutData(new GridData(225, SWT.DEFAULT));
         flineAttrText.setText((String)fline.getAttrValue());
         flineAttrText.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
@@ -279,10 +255,10 @@ public class EditEnsembleAttributesDialog extends AbstractEditResourceAttrsDialo
         
      // HILO
         if ( hilo != null ) {
-        	Label hiloAttrLabel = new Label(comp, SWT.NONE);
+        	Label hiloAttrLabel = new Label(gridAttrsComp, SWT.NONE);
         	hiloAttrLabel.setText("HILO:");
-        	hiloAttrText = new Text(comp,SWT.SINGLE | SWT.BORDER );
-        	hiloAttrText.setLayoutData(new GridData(300, SWT.DEFAULT));
+        	hiloAttrText = new Text(gridAttrsComp,SWT.SINGLE | SWT.BORDER );
+        	hiloAttrText.setLayoutData(new GridData(225, SWT.DEFAULT));
         	hiloAttrText.setText((String)hilo.getAttrValue());
         	hiloAttrText.addModifyListener(new ModifyListener() {
         		public void modifyText(ModifyEvent e) {
@@ -293,10 +269,10 @@ public class EditEnsembleAttributesDialog extends AbstractEditResourceAttrsDialo
         
      // HLSYM
         if ( hlsym != null ) {
-        	Label hlsymAttrLabel = new Label(comp, SWT.NONE);
+        	Label hlsymAttrLabel = new Label(gridAttrsComp, SWT.NONE);
         	hlsymAttrLabel.setText("HLSYM:");
-        	hlsymAttrText = new Text(comp,SWT.SINGLE | SWT.BORDER );
-        	hlsymAttrText.setLayoutData(new GridData(300, SWT.DEFAULT));
+        	hlsymAttrText = new Text(gridAttrsComp,SWT.SINGLE | SWT.BORDER );
+        	hlsymAttrText.setLayoutData(new GridData(225, SWT.DEFAULT));
         	hlsymAttrText.setText((String)hlsym.getAttrValue());
         	hlsymAttrText.addModifyListener(new ModifyListener() {
         		public void modifyText(ModifyEvent e) {
@@ -306,10 +282,10 @@ public class EditEnsembleAttributesDialog extends AbstractEditResourceAttrsDialo
         }
         
      // WIND
-        Label windAttrLabel = new Label(comp, SWT.NONE);
+        Label windAttrLabel = new Label(gridAttrsComp, SWT.NONE);
         windAttrLabel.setText("WIND:");
-        windAttrText = new Text(comp,SWT.SINGLE | SWT.BORDER );
-        windAttrText.setLayoutData(new GridData(230, SWT.DEFAULT));
+        windAttrText = new Text(gridAttrsComp,SWT.SINGLE | SWT.BORDER );
+        windAttrText.setLayoutData(new GridData(225, SWT.DEFAULT));
         windAttrText.setText((String)wind.getAttrValue());
         windAttrText.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
@@ -318,10 +294,10 @@ public class EditEnsembleAttributesDialog extends AbstractEditResourceAttrsDialo
         });
         
         // TITLE
-        Label titleAttrLabel = new Label(comp, SWT.NONE);
+        Label titleAttrLabel = new Label(gridAttrsComp, SWT.NONE);
         titleAttrLabel.setText("TITLE:");
-        titleAttrText = new Text(comp,SWT.SINGLE | SWT.BORDER );
-        titleAttrText.setLayoutData(new GridData(300, SWT.DEFAULT));
+        titleAttrText = new Text(gridAttrsComp,SWT.SINGLE | SWT.BORDER );
+        titleAttrText.setLayoutData(new GridData(225, SWT.DEFAULT));
         titleAttrText.setText((String)title.getAttrValue());
         titleAttrText.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
@@ -331,10 +307,10 @@ public class EditEnsembleAttributesDialog extends AbstractEditResourceAttrsDialo
         
         
         // COLORS
-        Label colorsLabel = new Label(comp, SWT.NONE);
+        Label colorsLabel = new Label(gridAttrsComp, SWT.NONE);
         colorsLabel.setText("COLORS:");
-        colorsText = new Text(comp,SWT.SINGLE | SWT.BORDER );
-        colorsText.setLayoutData(new GridData(300, SWT.DEFAULT));
+        colorsText = new Text(gridAttrsComp,SWT.SINGLE | SWT.BORDER );
+        colorsText.setLayoutData(new GridData(225, SWT.DEFAULT));
         colorsText.setText((String)colors.getAttrValue());
         colorsText.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
@@ -343,10 +319,10 @@ public class EditEnsembleAttributesDialog extends AbstractEditResourceAttrsDialo
         });
         
         // MARKER
-        Label markerLabel = new Label(comp, SWT.NONE);
+        Label markerLabel = new Label(gridAttrsComp, SWT.NONE);
         markerLabel.setText("MARKER:");
-        markerText = new Text(comp,SWT.SINGLE | SWT.BORDER );
-        markerText.setLayoutData(new GridData(300, SWT.DEFAULT));
+        markerText = new Text(gridAttrsComp,SWT.SINGLE | SWT.BORDER );
+        markerText.setLayoutData(new GridData(225, SWT.DEFAULT));
         markerText.setText((String)marker.getAttrValue());
         markerText.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
@@ -355,10 +331,10 @@ public class EditEnsembleAttributesDialog extends AbstractEditResourceAttrsDialo
         });
         
         // GRDLBL
-        Label grdlblLabel = new Label(comp, SWT.NONE);
+        Label grdlblLabel = new Label(gridAttrsComp, SWT.NONE);
         grdlblLabel.setText("GRDLBL:");
-        grdlblText = new Text(comp,SWT.SINGLE | SWT.BORDER );
-        grdlblText.setLayoutData(new GridData(300, SWT.DEFAULT));
+        grdlblText = new Text(gridAttrsComp,SWT.SINGLE | SWT.BORDER );
+        grdlblText.setLayoutData(new GridData(225, SWT.DEFAULT));
         grdlblText.setText(String.valueOf((Integer)grdlbl.getAttrValue()));
         grdlblText.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
@@ -366,11 +342,11 @@ public class EditEnsembleAttributesDialog extends AbstractEditResourceAttrsDialo
 			}
         });
         
-        GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-        Label sepLbl = new Label(contourAttributesGroup, SWT.SEPARATOR | SWT.HORIZONTAL);
-        sepLbl.setLayoutData(gd);
+//        GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+//        Label sepLbl = new Label(contourAttributesGroup, SWT.SEPARATOR | SWT.HORIZONTAL);
+//        sepLbl.setLayoutData(gd);
         
-        final Button toolTipDisplay = new Button(contourAttributesGroup, SWT.CHECK);
+        final Button toolTipDisplay = new Button(gridAttrsComp, SWT.CHECK);
         toolTipDisplay.setLayoutData(new GridData(SWT.DEFAULT, SWT.DEFAULT));
         toolTipDisplay.setText("ToolTips OFF");
         toolTipDisplay.addSelectionListener(new SelectionAdapter() {
@@ -385,6 +361,16 @@ public class EditEnsembleAttributesDialog extends AbstractEditResourceAttrsDialo
             	}
             }
         });
+        
+        EnsembleSelectComposite ensSelComp = new EnsembleSelectComposite(topAttrsGrp);//, ensembleComponentWeights );
+        ensSelComp.setLayout( new GridLayout() );
+        
+        try {
+			ensSelComp.init( (NcEnsembleResourceData)rscData, editedRscAttrSet );
+		} catch (VizException e1) {
+			e1.printStackTrace();
+		}
+        
         return composite;
     }
     

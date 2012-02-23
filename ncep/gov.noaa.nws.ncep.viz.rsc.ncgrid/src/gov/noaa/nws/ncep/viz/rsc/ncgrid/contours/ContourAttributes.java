@@ -133,5 +133,23 @@ public class ContourAttributes {
 		this.marker = marker;
 	}
     
-	
+	public boolean isMatch ( ContourAttributes attr) {
+		boolean match = false;
+		if ( this.glevel.trim().equalsIgnoreCase(attr.getGlevel())&&
+			 this.gvcord.trim().equalsIgnoreCase(attr.getGvcord()) &&
+			 this.scale.trim().equalsIgnoreCase(attr.getScale()) &&
+			 this.gdpfun.trim().equalsIgnoreCase(attr.getGdpfun()) &&
+			 this.type.trim().equalsIgnoreCase(attr.getType())&&
+			 this.cint.trim().equalsIgnoreCase(attr.getCint()) &&
+			 this.line.trim().equalsIgnoreCase(attr.getLine()) &&
+			 this.fint.trim().equalsIgnoreCase(attr.getFint()) &&
+			 this.fline.trim().equalsIgnoreCase(attr.getFline()) &&
+			 this.hilo.trim().equalsIgnoreCase(attr.getHilo()) &&
+			 this.hlsym.trim().equalsIgnoreCase(attr.getHlsym()) &&
+			 this.wind.trim().equalsIgnoreCase(attr.getWind()) &&
+			 this.marker.trim().equalsIgnoreCase(attr.getMarker())) {
+			match = true;
+		}
+		return match;
+	}
 }

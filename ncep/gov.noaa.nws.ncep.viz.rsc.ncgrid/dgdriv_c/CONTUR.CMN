@@ -1,0 +1,37 @@
+C************************************************************************
+C* These common areas are used by the contouring task.			*
+C*									*
+C**									*
+C* Log:									*
+C* M. desJardins/GSFC	 6/89	GEMPAK 5				*
+C* J. Whistler/SSAI	 6/91	Set internal grids to size LLMXGD	*
+C* M. desJardins/NMC	11/91	Reorganized contouring options		*
+C* S. Gilbert/NCEP	04/07	Removed work arrays			*
+C************************************************************************
+	COMMON  / CTRCMN / 
+     +				jbxsub, jlblbk, jsmoth, jsadjf,
+C!						Grid subset size
+C!						Label background color
+C!						Number of smoothing passes
+C!						Spline adjustment factor
+     +				isize, jsize,
+C!						Size of grid
+     +				offx, offy, skip,
+C!						Offsets from orig grid
+C*						Grid skip factor
+     +				numsub, fincxy,
+C!						Grid subspacing,
+C!						Fractional distance
+     +				number,
+C!						Number of points
+     +				xval ( 1024 ), yval ( 1024 )
+C!						Points on line
+C************************************************************************
+C* /COFICN/								*
+C*									*
+C* This common area stores the Lagrangian coefficients used in the	*
+C* contouring package.							*
+C*									*
+C************************************************************************
+	COMMON /COFICN/ c00, c10, c20, c30, c01, c11, c21, c31, c02,
+     +			c12, c22, c32, c03, c13, c23, c33

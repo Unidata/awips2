@@ -340,13 +340,5 @@
             ncResourceName="SVRL">
       </nc-resourceAttribute>
       </extension>
-   <extension
-         point="gov.noaa.nws.ncep.viz.localization.localizationData">
-      <singleLocalizationValue
-            fileName="county.xml"
-            location="stns"
-            name="cntyStationFile">
-      </singleLocalizationValue>
-   </extension>
 
 </plugin>

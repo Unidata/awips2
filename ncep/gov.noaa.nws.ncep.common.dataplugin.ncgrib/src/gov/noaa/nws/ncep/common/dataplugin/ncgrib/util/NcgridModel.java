@@ -45,7 +45,7 @@ public class NcgridModel implements ISerializableObject {
 
     /** The NCEP grid associated with this model */
     @XmlElement
-    private Integer grid;
+    private String grid;
 
     @XmlElement
     private String subcenter;
@@ -80,11 +80,11 @@ public class NcgridModel implements ISerializableObject {
         this.name = name;
     }
 
-    public Integer getGrid() {
+    public String getGrid() {
         return grid;
     }
 
-    public void setGrid(Integer grid) {
+    public void setGrid(String grid) {
         this.grid = grid;
     }
 

@@ -1,0 +1,4 @@
+! Attributes for the TAF resource with "tempo_flt_condition" plot model
+!
+plotModelName=tempo_flt_condition
+plotDensity=10
