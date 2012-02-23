@@ -15,7 +15,8 @@ import java.util.List;
 import java.util.TimeZone;
 
 import gov.noaa.nws.ncep.ui.pgen.contours.IContours;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import org.dom4j.Document;
 import org.dom4j.Node;
@@ -46,6 +47,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 10/09		#167		J. Wu   	Initial Creation.
+ * 07/11        #450        G. Hull     NcPathManager
  * 
  * </pre>
  * 
@@ -472,7 +474,8 @@ public class ContoursInfoDlg extends CaveJFACEDialog implements IContours {
 		
 		if ( contoursInfoTbl == null) {
 			try {
-				String cntrInfoFile = LocalizationManager.getInstance().getFilename("contoursInfo");
+				String cntrInfoFile = NcPathManager.getInstance().getStaticFile(
+						   NcPathConstants.PGEN_CONTOURS_INFO ).getAbsolutePath();
 				SAXReader reader = new SAXReader();
 				contoursInfoTbl = reader.read(cntrInfoFile);
 			} catch (Exception e) {
