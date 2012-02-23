@@ -1,0 +1,19 @@
+C************************************************************************
+C* GBUFFD.CMN - UNIX version						*
+C*									*
+C* This common area holds the large buffer used by the DEVICE task	*
+C* for communicating with GPLT.						*
+C*									*
+C* Variables:								*
+C*	MBCHND		INTEGER		Mailbox channel number		*
+C*	JRTYPD		INTEGER		Message type to read		*
+C*	JWTYPD		INTEGER		Message type to write		*
+C*	IGBUFD (IGDSIZ)	INTEGER		Buffer				*
+C**									*
+C* Log:									*
+C* M. desJardins/GSFC	 4/85						*
+C* M. desJardins/GSFC	 7/91	UNIX version				*
+C* M. Linda/GSC		 3/96	Created GBUFFD based on GBUFF		*
+C************************************************************************
+	COMMON /GBUFFD/	mbchnd, jrtypd, jwtypd, igbufd ( IGDSIZ )
+C------------------------------------------------------------------------

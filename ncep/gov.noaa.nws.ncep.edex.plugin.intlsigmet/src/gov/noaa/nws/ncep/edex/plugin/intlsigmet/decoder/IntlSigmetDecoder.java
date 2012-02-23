@@ -162,7 +162,7 @@ public class IntlSigmetDecoder extends AbstractDecoder {
 
                     // Decode and set the speed
                     record.setSpeed(IntlSigmetParser.getSpeed(theBulletin));
-
+                    
                     // Decode and set distance
                     record.setDistance(IntlSigmetParser
                             .getDistance(theBulletin));
@@ -175,8 +175,7 @@ public class IntlSigmetDecoder extends AbstractDecoder {
                     record.setRemarks(IntlSigmetParser.getRemarks(theBulletin));
 
                     // Decode and set polyGonExtend
-                    record.setPolygonExtent(IntlSigmetParser
-                            .getPolygonExtent(theBulletin));
+                    record.setPolygonExtent(IntlSigmetParser.getPolygonExtent(theBulletin));
                 }
             } catch (Exception e) {
                 logger.error("Error postprocessing " + pluginName, e);

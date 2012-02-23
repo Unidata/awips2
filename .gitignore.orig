@@ -1,0 +1,15 @@
+bin/
+.metadata/
+ldm/Debug
+test-bin/
+testbin/
+testBin/
+bin-test/
+<<<<<<< HEAD
+.svn
+*.pyo
+=======
+*.class
+*.pyo
+*.o
+>>>>>>> awips2_OB12.1.1_Omaha
