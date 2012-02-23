@@ -23,9 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
@@ -38,6 +36,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.util.RWLArrayList;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.griddata.AbstractGridData;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
@@ -59,6 +58,11 @@ import com.raytheon.viz.gfe.core.parm.vcparm.VCModule.VCInventory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 17, 2011            dgilling     Initial creation
+ * Feb 22, 2012  #346      dgilling     Convert registeredParms to 
+ *                                      RWLArrayList to improve thread 
+ *                                      safety and fix disappearing ISC 
+ *                                      data. Also, remove overridden 
+ *                                      finalize function.
  * 
  * </pre>
  * 
@@ -74,7 +78,7 @@ public class VCParm extends VParm implements IParmListChangedListener,
 
     private VCModule mod;
 
-    private Set<Parm> registeredParms = new HashSet<Parm>();
+    private RWLArrayList<Parm> registeredParms = new RWLArrayList<Parm>();
 
     private List<VCInventory> vcInventory;
 
@@ -111,19 +115,7 @@ public class VCParm extends VParm implements IParmListChangedListener,
         dataMgr.getParmManager().addParmListChangedListener(this);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#finalize()
-     */
-    @Override
-    protected void finalize() throws Throwable {
-        // TODO: find a better way to get this called
-        this.dispose();
-    }
-
     public void dispose() {
-
         this.dataManager.getParmManager().removeParmListChangedListener(this);
 
         // Unregister for the parm client notifications
@@ -188,6 +180,8 @@ public class VCParm extends VParm implements IParmListChangedListener,
             Parm[] additions) {
         // statusHandler.handle(Priority.DEBUG,
         // "ParmListChangedMsg received: ");
+        System.out.println("ParmListChangedMsg received: "
+                + getParmID().toString());
 
         registerParmClients(parms, true);
 
@@ -210,6 +204,8 @@ public class VCParm extends VParm implements IParmListChangedListener,
         // approach.
         // statusHandler.debug("ParmInventoryChanged notification for: "
         // + getParmID().toString());
+        System.out.println("ParmInventoryChanged notification for: "
+                + getParmID().toString());
 
         recalcInventory(true);
     }
@@ -439,7 +435,7 @@ public class VCParm extends VParm implements IParmListChangedListener,
         }
 
         // get list of currently registered parms
-        List<Parm> currRegistered = new ArrayList<Parm>(registeredParms());
+        List<Parm> currRegistered = registeredParms();
 
         // get list of parms to unregister
         boolean changed = false;
@@ -467,19 +463,45 @@ public class VCParm extends VParm implements IParmListChangedListener,
     }
 
     private void registerPC(Parm parm) {
+        System.out.println(getParmID().toString() + " is registering "
+                + parm.toString());
+
         parm.parmListeners.addGridChangedListener(this);
         parm.parmListeners.addParmInventoryChangedListener(this);
-        this.registeredParms.add(parm);
+
+        registeredParms.acquireWriteLock();
+        try {
+            this.registeredParms.add(parm);
+        } finally {
+            registeredParms.releaseWriteLock();
+        }
     }
 
     private void unregisterPC(Parm parm) {
+        System.out.println(getParmID().toString() + " is unregistering "
+                + parm.toString());
+
         parm.parmListeners.removeGridChangedListener(this);
         parm.parmListeners.removeParmInventoryChangedListener(this);
-        this.registeredParms.remove(parm);
+
+        registeredParms.acquireWriteLock();
+        try {
+            this.registeredParms.remove(parm);
+        } finally {
+            registeredParms.releaseWriteLock();
+        }
     }
 
-    private Set<Parm> registeredParms() {
-        return this.registeredParms;
-    }
+    private List<Parm> registeredParms() {
+        List<Parm> retVal = new ArrayList<Parm>();
 
+        registeredParms.acquireReadLock();
+        try {
+            retVal.addAll(registeredParms);
+        } finally {
+            registeredParms.releaseReadLock();
+        }
+
+        return retVal;
+    }
 }
