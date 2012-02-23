@@ -233,6 +233,11 @@ public class PgenWatchStatusLineDrawingTool extends AbstractPgenDrawingTool{
 
 		}    
 
+		@Override
+		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
+			return true;
+		}
+		
 		public void clearPoints(){
 			points.clear();
 		}

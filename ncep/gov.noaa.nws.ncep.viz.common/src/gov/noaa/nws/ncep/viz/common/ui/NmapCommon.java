@@ -1,7 +1,5 @@
 package gov.noaa.nws.ncep.viz.common.ui;
 
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
-
 import java.io.File;
 import java.io.FileFilter;
 import java.text.NumberFormat;
@@ -72,6 +70,9 @@ import com.raytheon.uf.common.time.DataTime;
  * 											getNavigationFromGempak, getAvailableTimesStringFromGempak, 
  * 											getCycleTimeStringFromGempak
  * 12/20/10       #137      Q. Zhou         Modified standalone condition for watch box & volcano
+ * 07/28/11       #450      G. Hull         move pgen localization calls to pgen
+ * 08/09/11       #450      G. Hull         get/set for pgen working directory.
+ * 
  * </pre>
  * 
  * @author 
@@ -79,22 +80,10 @@ import com.raytheon.uf.common.time.DataTime;
  */
 
 public class NmapCommon {
-	
-//	public static final Map<String, Map<String, String>> DATATYPE_MAP = createDatatypeMap();
-//	
-//	public final static String datatypeTableFilename = "datatype.tbl";
-	
-    public final static String OverlaysRscDir = "overlays" + File.separator;    
-    
-// // change this to get from localization (remove from Common probably too)
-    private final static String DefaultMap = "BasicWX_US";
+		    
     private final static String BaseOverlay = "GeoPolitical";
-    
-//    // the RBD which is loaded first on startup. 
-//    // This could be made configurable and/or we could change this to be defined as the 
-//    // defaultMap + the BaseOverlay.
-//    public final static String DefaultRBD = "defaultRBD.xml";
-    
+    private final static String DefaultMap = "BasicWX_US";
+
     // commands associated with GUI Elements that can be updated/refreshed.
     public final static String[] guiUpdateElementCommands = {
 //    	"gov.noaa.nws.ncep.viz.tools.pan",
@@ -105,107 +94,24 @@ public class NmapCommon {
     
     public final static String NatlCntrsPerspectiveID = "gov.noaa.nws.ncep.viz.ui.NCPerspective";
 
+    private static String pgenWorkingDirectory=".";
+    
+    public static String getPgenWorkingDirectory() {
+		return pgenWorkingDirectory;
+	}
 
+	public static void setPgenWorkingDirectory(String pgenWorkingDirectory) {
+		NmapCommon.pgenWorkingDirectory = pgenWorkingDirectory;
+	}
+
+	public static String getBaseOverlay() {
+    	return new String( BaseOverlay );
+    }
+    
     public static String getDefaultMap() {
         return new String( DefaultMap );
     }
-    
-    public static String getBaseOverlay() {
-    	return new String( BaseOverlay );
-    }
 
-
-    public static String getSettingsTable() {
-		return LocalizationManager.getInstance().getFilename("settingsTable"); 
-    }
-    
-    public static String getLinePatternsFile() {
-		return LocalizationManager.getInstance().getFilename("linePatternsTable"); 
-    }
-    
-    public static String getSymbolPatternsFile() {
-		return LocalizationManager.getInstance().getFilename("symbolPatternsTable"); 
-    }
-     
-    public static String getProductTypes() {
-		return LocalizationManager.getInstance().getFilename("productTypesTable"); 
-    }
-
-    public static String getPgenHelpFile() {
-		return LocalizationManager.getInstance().getFilename("pgenHelpFile"); 
-    }
-   
-    public static String getTcaAttrInfoFile() {
-		return LocalizationManager.getInstance().getFilename("tcaAttrInfoTable"); 
-    }
-        
-    public static String getGfaAttrInfoFile() {
-		return LocalizationManager.getInstance().getFilename("gfaAttrTable"); 
-    }
-    
-    public static String getAirmetCycle() {
-		return LocalizationManager.getInstance().getFilename("airmetCycleTable"); 
-    }
-
-    public static String getGfaProductXsl() {
-//    	return new String( LocalizationManager.getBaseDir() +
-//    			NatlCntrsBaseDir + NmapCommon.airmetXsltDir + NmapCommon.gfaProductXslName);
-		return LocalizationManager.getInstance().getFilename("gfaProductXslFile"); 
-    }
-
-    public static String getIslandBreakpointFile() {
-//    	return new String( LocalizationManager.getBaseDir() +
-//    			NatlCntrsBaseDir + NmapCommon.IslandBkptDir + NmapCommon.IslandBkptName );
-		return LocalizationManager.getInstance().getFilename("islandBreakpointsTable"); 
-    }
-    
-    public static String getWaterBreakpointFile() {
-//    	return new String( LocalizationManager.getBaseDir() +
-//    			NatlCntrsBaseDir + NmapCommon.WaterBkptDir + NmapCommon.WaterBkptName );
-		return LocalizationManager.getInstance().getFilename("waterBreakpointsTable"); 
-    }
-    
-    public static String getCoastBreakpointFile() {
-//    	return new String( LocalizationManager.getBaseDir() +
-//    			NatlCntrsBaseDir + NmapCommon.CoastBkptDir + NmapCommon.CoastBkptName );
-		return LocalizationManager.getInstance().getFilename("coastBreakpointsTable"); 
-    }
-    
-//    public static String getCountyZonesFile() {
-//    	return new String( LocalizationManager.getBaseDir() + 
-//    			NatlCntrsBaseDir + NmapCommon.StationsDir + NmapCommon.CountyZonesTable );    	
-//    }
-    
-    public static String getSPCAnchorFile() {
-//    	return new String( LocalizationManager.getBaseDir() + 
-//    			NatlCntrsBaseDir + NmapCommon.StationsDir + NmapCommon.SPCAnchorTable ); 
-    	
-    	/*if (isEnvironmentalVariableSetToTrueValue("ISCONVERTER")) {
-    		String fileName = NmapCommon.class.getProtectionDomain().getCodeSource().getLocation().toString(); 
-        	//fileName = file:/usr1/qzhou/R1G1-4/workspace/gov.noaa.nws.ncep.standalone/distXC/xmlConverter.jar
-        	//fileName = file:/usr1/qzhou/R1G1-4/workspace/gov.noaa.nws.ncep.viz.common/bin/NmapCommon.class
-    		//fileName = file:/usr1/qzhou/R1G1-6/workspace/gov.noaa.nws.ncep.viz.common/
-        	
-    		if (fileName.endsWith(".jar")) {
-        		fileName = fileName.substring(5, fileName.lastIndexOf("/"));
-        		fileName = fileName + "/table/spcwatch.xml";
-        	}
-        	else if (fileName.endsWith(".class")) { //not seen in R1G1-6
-        		fileName = fileName.substring(5, fileName.lastIndexOf("/"));
-        		fileName  = fileName.substring(0, fileName.lastIndexOf("/"));       	
-        		fileName  = fileName.substring(0, fileName.lastIndexOf("/")) + "/gov.noaa.nws.ncep.standalone/table/spcwatch.xml";
-        	}
-        	else {
-        		fileName = fileName.substring(5, fileName.lastIndexOf("/"));
-        		fileName  = fileName.substring(0, fileName.lastIndexOf("/")) + "/gov.noaa.nws.ncep.standalone/table/spcwatch.xml";  
-        	}
-    		
-        	return fileName;
-    	}
-        else */
-        	return LocalizationManager.getInstance().getFilename("spcAnchorTable"); 
-    }
-    
     /*
      * This helper method to fix a bug caused the logic of checking environmental "ISCONVERTER"
      */
@@ -218,120 +124,6 @@ public class NmapCommon {
     	}
     	return isVariableThere; 
     }
-    
-    public static String getVorFile() {
-//    	return new String( LocalizationManager.getBaseDir() + 
-//    			NatlCntrsBaseDir + NmapCommon.StationsDir + NmapCommon.VorTable );    	
-		return LocalizationManager.getInstance().getFilename("vorTable"); 
-    }
-    
-//    public static String getStnsDir() {
-////    	return new String( LocalizationManager.getBaseDir() + 
-////    			NatlCntrsBaseDir + NmapCommon.StationsDir);
-////		return LocalizationManager.getInstance().getFilename("stationDir"); comment out by M. Gao
-//		return LocalizationManager.getInstance().getLocalizationFileDirectoryName(LocalizationResourcePathConstants.STATION_RESOURCES_DIR, 
-//				LocalizationConstants.LOCALIZATION_BASE_LEVEL); 
-//    	/*
-//    	 * End of M. Gao's change
-//    	 */
-//    }
-    
-    /**
-     *  getter for Fir shapefile name
-     * @return shp file name for Fir
-     */
-    public static String getFirShapefile(){
-//    	return new String(LocalizationManager.getBaseDir() + 
-//    			NatlCntrsBaseDir + NmapCommon.FirShapefileDir + NmapCommon.FirShapefileName );
-		return LocalizationManager.getInstance().getFilename("firShapeFile"); 
-    }
-    
-    /**
-     * getter for Volcano XSLT file name
-     * @return file name for volXml2Txt
-     */
-    public static String getVolXml2TxtFile(){
-//    	return new String(LocalizationManager.getBaseDir() + 
-//    			NatlCntrsBaseDir + NmapCommon.VolcanoXsltFileDir + NmapCommon.VolcanoXsltFileName );
-		return LocalizationManager.getInstance().getFilename("volcanoXsltFile"); 
-    }
-    
-    /**
-     * getter for Volcano vaa.xml file
-     * @return file name for vaa.xml
-     */
-    public static String getVaaXmlFile(){
-//    	return new String(LocalizationManager.getBaseDir() +
-//    			NatlCntrsBaseDir + NmapCommon.VaaXmlFileDir + NmapCommon.VaaXmlFileName );
-    	
-    	return LocalizationManager.getInstance().getFilename("vaaXmlFile"); 
-    }
-    
-    /**
-     * getter for CCFP XSLT file name
-     * @return file name for ccfpXml2Txt
-     */
-    public static String getCcfpXml2TxtFile(){
-    	return LocalizationManager.getInstance().getFilename("ccfpXsltFile");
-    }
-    
-    /**
-     * getter for CCFP ccfpTimes.xml file
-     * @return file name for ccfpTimes.xml
-     */
-    public static String getCcfpTimesXmlFile(){
-//    	return new String(LocalizationManager.getBaseDir() +
-//    			NatlCntrsBaseDir + NmapCommon.VaaXmlFileDir + NmapCommon.VaaXmlFileName );
-		return LocalizationManager.getInstance().getFilename("ccfpTimesXmlFile"); 
-    }
-    
-    /**
-     * getter for Seek seekStns.xml file
-     * @return file name for seekStns.xml
-     */
-    public static String getSeekStnsXmlFile(){
-		return LocalizationManager.getInstance().getFilename("seekStnsFile"); 
-    }
-    
-    /**
-     * getter for Seek seekStns.xml file
-     * @return file name for seekStns.xml
-     */
-    public static String getPhenomXmlFile(){
-		return LocalizationManager.getInstance().getFilename("phenomXmlFile"); 
-    }
-    
-    
-
-//    public static String getSoundingModelsTable() {
-//    	return new String( LocalizationManager.getBaseDir() + 
-//    			NatlCntrsBaseDir + NmapCommon.CloudHeightDir + NmapCommon.SoundingModelsTable );    	
-//    }
-//    
-//    public static String getPlotModelsDir() {
-//    	return new String( LocalizationManager.getBaseDir() + 
-//    			NatlCntrsBaseDir + NmapCommon.PlotModelsDir );    	
-//    }    
-//    public static String getPlotParametersDir() {
-//    	return new String( LocalizationManager.getBaseDir() + 
-//    			NatlCntrsBaseDir + NmapCommon.PlotModelsDir + File.separator +
-//    			                   NmapCommon.PlotParametersDir );    	
-//    }
-//    public static String getPlotParametersFile() {
-//    	return new String( LocalizationManager.getBaseDir() + 
-//    			NatlCntrsBaseDir + NmapCommon.PlotModelsDir + File.separator +
-//    			                   NmapCommon.PlotParametersDir + File.separator +
-//    			                   NmapCommon.PlotParametersFile );    	
-//    }
-//
-//    public static String getLutsDir( ) {
-//    	File colormap_dir = new File( LocalizationManager.getBaseDir() + 
-//    			File.separator + NatlCntrsBaseDir + NmapCommon.LutsDir );
-//    	if( !colormap_dir.exists() ) {
-//    		System.out.println("Error: Luts Directory doesn't exist: " + colormap_dir.getAbsolutePath() );
-//    	}
-//    	return colormap_dir.getAbsolutePath() + File.separator;
-//    }
     
     // Only non-svn directories.
 	public static FileFilter createDirFilter() {
@@ -536,13 +328,5 @@ public class NmapCommon {
         cal.set( Calendar.MILLISECOND, 0 );
         
         return new DataTime( cal );
-	}
-	
-	// a convienience method to help. We will probably want 
-//	public static String getLocalizedDirectory( String dir ) {
-//		return LocalizationManager.getInstance().getLocalizationFileDirectoryName(
-//				dir, LocalizationConstants.LOCALIZATION_BASE_LEVEL); 
-//
-//	}
-
+	}	
 }

@@ -30,10 +30,6 @@
 ######################################################################################
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 FLS${siteId}
-### IF CORRECTED...DUMP OUT CORRECTED TEXT OTHERWISE PROCEED
-#if(${specialCorText})
-${specialCorText}
-#else
 #if(${productClass}=="T")
 TEST...FLOOD STATEMENT...TEST
 #else
@@ -66,7 +62,6 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${productClass}=="T")
 ...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
 
-#end
 #end
 #################################################################
 #################################################################
@@ -105,6 +100,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #headlineLocList(${cancelareas} true true true false)
  ${expcanHLTag}...
 #end
+
 ############################
 ## END CAN/EXP HEADLINE ####
 ############################
@@ -112,18 +108,19 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ## EXPIRATION/CANCELLATION STATEMENT ##
 #######################################
 #if(${action}=="EXP" || ${action} == "CAN" || ${action}=="CANCON")
-#if(${list.contains($bullets, "recedingWater")})
-"FLOOD WATERS HAVE RECEDED...AND ARE NO LONGER EXPECTED TO POSE A THREAT TO LIFE OR PROPERTY. PLEASE CONTINUE TO HEED ANY ROAD CLOSURES."
+#if(${list.contains($bullets, "recedingWater")} && ${list.contains($bullets, "rainEnded")})
+THE HEAVY RAIN HAS ENDED AND FLOOD WATERS HAVE RECEDED...NO LONGER POSING A THREAT TO LIFE OR PROPERTY. PLEASE CONTINUE TO HEED ANY ROAD CLOSURES.
+#elseif(${list.contains($bullets, "recedingWater")})
+FLOOD WATERS HAVE RECEDED...AND ARE NO LONGER EXPECTED TO POSE A THREAT TO LIFE OR PROPERTY. PLEASE CONTINUE TO HEED ANY ROAD CLOSURES.
 #elseif(${list.contains($bullets, "rainEnded")})
-"THE HEAVY RAIN HAS ENDED...AND FLOODING IS NO LONGER EXPECTED TO POSE A THREAT."
+THE HEAVY RAIN HAS ENDED...AND FLOODING IS NO LONGER EXPECTED TO POSE A THREAT.
 #else
-!** THE HEAVY RAIN HAS ENDED. !** OR **! THE FLOOD WATER IS RECEDING. THEREFORE...THE FLOODING THREAT HAS ENDED. **!"
+!** THE HEAVY RAIN HAS ENDED. !** OR **! THE FLOOD WATER IS RECEDING. THEREFORE...THE FLOODING THREAT HAS ENDED. **!
 #end
 
 #printcoords(${areaPoly}, ${list})
 
 
-$$
 #end
 #################################### END OF CAN STUFF ###################################
 #### IF PARTIAL CANCELLATION, INSERT $$ AND 2ND UGC/MND SECTION PRIOR TO CON PORTION
@@ -152,7 +149,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE.##
 #end
-...A FLOOD WARNING ##
+...THE FLOOD WARNING ##
 #if (${hycType} != "")
 FOR <L>${hycType}</L> ##
 #end
@@ -178,9 +175,9 @@ REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimez
 #end
 #set ($reportBy = "!**YOU DID NOT SELECT A /SOURCE/ BULLET.  PLEASE CLOSE THIS WINDOW AND REGENERATE YOUR WARNING**!")
 #if(${list.contains($bullets, "doppler")})
-  #set ($reportBy = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED")
+  #set ($reportBy = "DOPPLER RADAR INDICATED")
 #elseif(${list.contains($bullets, "dopplerGauge")})
-  #set ($reportBy = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED")   
+  #set ($reportBy = "DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED")   
 #elseif(${list.contains($bullets, "trainedSpotters")})
   #set ($reportBy = "TRAINED WEATHER SPOTTERS REPORTED")   
 #elseif(${list.contains($bullets, "lawEnforcement")})
@@ -240,10 +237,10 @@ ADDITIONAL RAINFALL AMOUNTS OF !** EDIT AMOUNT **! ARE POSSIBLE IN THE WARNED AR
 #drainages(${riverdrainages})
 
 #end
-##############################################
-###### mile markers ##############
-##############################################
-#parse("milemarkers.vm")
+
+## parse file command here is to pull in mile marker info
+## #parse("mileMarkers.vm")
+
 #################################### END OF ADDITIONAL STUFF ###################################
 ######################################
 ####### CALL TO ACTIONS ##############
@@ -326,7 +323,7 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 #end
 #printcoords(${areaPoly}, ${list})
 
-
+#end
 $$
 
 !**NAME/INITIALS**!
@@ -339,5 +336,3 @@ $$
 ########### EXAMPLES OF PARSE OR INCLUDE STATEMENTS ################################
 ## #parse ("test.vm")
 ## #include ("username.txt") 
-
-#end

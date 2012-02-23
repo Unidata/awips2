@@ -179,7 +179,7 @@ public class PgenDeletePoint extends PgenSelectingTool {
          */
         @Override
         public boolean handleMouseDownMove(int anX, int aY, int button){
-        	return false;
+        	return true;
         }  
         
         /*

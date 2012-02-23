@@ -8,11 +8,14 @@ Eclipse-RegisterBuddy: gov.noaa.nws.ncep.resources, com.raytheon.viz.core, com.r
 Eclipse-BuddyPolicy: ext, global
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
+ com.raytheon.viz.core;bundle-version="1.12.1174",
+ com.raytheon.viz.ui;bundle-version="1.12.1174",
  com.raytheon.uf.viz.core;bundle-version="1.12.1142",
  gov.noaa.nws.ncep.viz.resources,
+ gov.noaa.nws.ncep.viz.common;bundle-version="1.0.0",
  gov.noaa.nws.ncep.common.dataplugin.aww;bundle-version="1.0.0",
- org.geotools,
- gov.noaa.nws.ncep.ui.pgen;bundle-version="1.0.0"
+ gov.noaa.nws.ncep.ui.pgen;bundle-version="1.0.0",
+ org.geotools
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: gov.noaa.nws.ncep.viz.rsc.wstm,
@@ -24,8 +27,6 @@ Import-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.viz.core.rsc.jts,
  com.vividsolutions.jts.geom,
  com.vividsolutions.jts.io,
- gov.noaa.nws.ncep.ui.pgen.display,
- gov.noaa.nws.ncep.ui.pgen.elements,
  gov.noaa.nws.ncep.viz.common.ui.color,
  gov.noaa.nws.ncep.viz.resources,
  gov.noaa.nws.ncep.viz.resources.misc,

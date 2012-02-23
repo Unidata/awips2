@@ -1,0 +1,25 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="nctafPluginName" class="java.lang.String">
+		<constructor-arg type="java.lang.String" value="nctaf" />
+	</bean>
+
+	<bean id="nctafProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+		<property name="pluginName" ref="nctafPluginName" />
+		<property name="pluginFQN" value="gov.noaa.nws.ncep.common.dataplugin.nctaf" />
+		<property name="dao" value="gov.noaa.nws.ncep.common.dataplugin.nctaf.dao.NcTafDao" />
+        <property name="record" value="gov.noaa.nws.ncep.common.dataplugin.nctaf.NcTafRecord" />
+	</bean>
+
+	<bean factory-bean="pluginRegistry" factory-method="register">
+		<constructor-arg ref="nctafPluginName"/>
+		<constructor-arg ref="nctafProperties"/>
+	</bean>
+    
+</beans>

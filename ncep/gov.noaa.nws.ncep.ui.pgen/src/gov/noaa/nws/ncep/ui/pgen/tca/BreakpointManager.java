@@ -10,6 +10,8 @@ package gov.noaa.nws.ncep.ui.pgen.tca;
 import gov.noaa.nws.ncep.viz.common.dbQuery.NcDirectDbQuery;
 import gov.noaa.nws.ncep.ui.pgen.tca.BreakpointPair;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -129,7 +131,9 @@ public class BreakpointManager {
 		/*
 		 * unmarshal island breakpoints from XML file
 		 */
-		String bkptfile = NmapCommon.getCoastBreakpointFile();
+		String bkptfile = NcPathManager.getInstance().getStaticFile( 
+				NcPathConstants.PGEN_COAST_BRKPTS_TBL ).getAbsolutePath();
+
 		try {
 			coasts = (CoastBreakpointList)SerializationUtil.jaxbUnmarshalFromXmlFile(bkptfile);
 		}
@@ -172,7 +176,8 @@ public class BreakpointManager {
 		/*
 		 * unmarshal island breakpoints from XML file
 		 */
-		String bkptfile = NmapCommon.getIslandBreakpointFile();
+		String bkptfile = NcPathManager.getInstance().getStaticFile( 
+				NcPathConstants.PGEN_ISLND_BRKPTS_TBL ).getAbsolutePath();
 		try {
 			islands = (IslandBreakpointList)SerializationUtil.jaxbUnmarshalFromXmlFile(bkptfile);
 		}
@@ -211,7 +216,8 @@ public class BreakpointManager {
 		/*
 		 * unmarshal waterway breakpoints from XML file
 		 */
-		String bkptfile = NmapCommon.getWaterBreakpointFile();
+		String bkptfile = NcPathManager.getInstance().getStaticFile( 
+				NcPathConstants.PGEN_WATER_BRKPTS_TBL ).getAbsolutePath();
 		try {
 			waterways = (WaterBreakpointList)SerializationUtil.jaxbUnmarshalFromXmlFile(bkptfile);
 		}
