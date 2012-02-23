@@ -1,7 +1,9 @@
 package gov.noaa.nws.ncep.viz.resourceManager.ui.manageResources;
 
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.resourceManager.ui.manageResources.ManageResourceControl.IEditResourceComposite;
 import gov.noaa.nws.ncep.viz.resources.manager.AttrSetGroup;
+import gov.noaa.nws.ncep.viz.resources.manager.AttributeSet;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefinition;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefnsMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
@@ -43,6 +45,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * ------------	----------	-----------	--------------------------
  * 06/09/10		  #273		Greg Hull	 Created
  * 12/22/11       #365      Greg Hull    Changes to support dynamic resources
+ * 07/22/11       #450      Greg Hull    Save to User Localization
  *
  * </pre>
  * 
@@ -55,7 +58,7 @@ class EditAttrSetComp extends Composite implements IEditResourceComposite {
 
 	ResourceName       seldRscName=null;
 	ResourceDefinition seldRscDefn=null;
-	File seldAttrSetFile;
+	AttributeSet       seldAttrSet=null;
 	
 	Text attrSetNameTxt;	
 	Text editAttrSetValuesTxt;
@@ -157,7 +160,6 @@ class EditAttrSetComp extends Composite implements IEditResourceComposite {
     	groupsList.setVisible( false );
     	
     	
-    	
     	saveAttrSetBtn = new Button( top_form, SWT.PUSH );
     	saveAttrSetBtn.setText("Save");
 		fd = new FormData();
@@ -196,14 +198,13 @@ class EditAttrSetComp extends Composite implements IEditResourceComposite {
 					saveAttrSetBtn.setEnabled( false );
 				}
 				else {
-					if( seldAttrSetFile != null ) {
+					if( seldAttrSet != null ) {
 						saveAttrSetBtn.setEnabled( true );
 
 						// if the name has been changed, the 'save' button acts as a 'Rename' or Save As
-						//					
 						// disable the New button if the name hasn't been changed.
 						//
-						if( seldAttrSetFile.getName().equals( newTextStr + ".attr" ) ) {
+						if( seldAttrSet.getName().equals( newTextStr /*+ ".attr"*/ ) ) {
 							saveAttrSetBtn.setText("Save" );
 
 							newAttrSetBtn.setEnabled( false );
@@ -266,6 +267,8 @@ class EditAttrSetComp extends Composite implements IEditResourceComposite {
 		setSelectedResource( rscName );
 		attrSetNameTxt.setText( "CopyOf"+attrSetNameTxt.getText() );
 		attrSetNameTxt.setSelection(0, attrSetNameTxt.getText().length() );
+		attrSetNameTxt.setEditable(true);
+		attrSetNameTxt.setBackground( editAttrSetValuesTxt.getBackground() );
 		attrSetNameTxt.setFocus();
 		newAttrSetBtn.setVisible( true );
 		saveAttrSetBtn.setVisible( false );
@@ -274,7 +277,9 @@ class EditAttrSetComp extends Composite implements IEditResourceComposite {
 	
 	public void editSelectedResource( ResourceName rscName ) {
 		setSelectedResource( rscName );
-		newAttrSetBtn.setVisible( false );
+		attrSetNameTxt.setEditable(false);
+		attrSetNameTxt.setBackground( getParent().getBackground() );
+		newAttrSetBtn.setVisible(false);
 		saveAttrSetBtn.setVisible( true );
 		editAttrSetValuesTxt.setFocus();
 	}
@@ -288,9 +293,11 @@ class EditAttrSetComp extends Composite implements IEditResourceComposite {
 			return;
 		}
 		
-		seldAttrSetFile = rscDefnMngr.getAttrSetFile( seldRscName );
+		seldAttrSet = rscDefnMngr.getAttrSet( seldRscName );
 
-		if( seldAttrSetFile == null ) {
+		if( seldAttrSet == null || 
+		   !seldAttrSet.getFile().getFile().exists() ) {
+			
 			attrSetNameTxt.setText("");
 			return;
 		}
@@ -308,7 +315,7 @@ class EditAttrSetComp extends Composite implements IEditResourceComposite {
 				groupsList.add( "All PGEN Resources");
 			}
 			else {
-				ArrayList<AttrSetGroup> attrSetGroupsList = rscDefnMngr.getAllAttrSetGroupsForResource( 
+				ArrayList<AttrSetGroup> attrSetGroupsList = rscDefnMngr.getAttrSetGroupsForResource( 
 						seldRscDefn.getResourceDefnName() );
 				for( AttrSetGroup asg : attrSetGroupsList ) {
 					if( asg.getAttrSetNames().contains( seldRscName.getRscAttrSetName() ) ) {
@@ -325,8 +332,8 @@ class EditAttrSetComp extends Composite implements IEditResourceComposite {
 		
 		
 		try {
-			FileReader fr = new FileReader(seldAttrSetFile);
-			char[] attrsSetStr = new char[(int) seldAttrSetFile.length()];
+			FileReader fr = new FileReader( seldAttrSet.getFile().getFile() );
+			char[] attrsSetStr = new char[(int) seldAttrSet.getFile().getFile().length()];
 			fr.read(attrsSetStr);
 			fr.close();
 			
@@ -349,198 +356,132 @@ class EditAttrSetComp extends Composite implements IEditResourceComposite {
 		return "Edit Attribute Set";			
 	}
 
+	// NOTE : Currently this is written to not delete an attributeSet if the 
+	// name is changed. 
+	//
 	private void saveAttrSet( boolean newAttrSet ) {
-		
-		String origName = seldAttrSetFile.getName();
-		origName = origName.substring(0, origName.length()-".attr".length() );
-		
-		String attrSetName = attrSetNameTxt.getText().trim();
-			
-		boolean nameChanged = !origName.equals( attrSetName );
-		
-		// first write to a tmp file so we can validate the file.
-		// 
-		File tmpAttrSetFile = new File( seldAttrSetFile.getAbsolutePath() +".tmp" );
-
-		String newAttrStr = editAttrSetValuesTxt.getText();
-
-		String errMsg=null;
+    	
+    	HashMap<String, String> attrsMap;
+    	
+    	// get and validate the new attibutes.
+    	//
 		try {
+			String newAttrsStr = editAttrSetValuesTxt.getText();
+			NcPathManager pathMngr = NcPathManager.getInstance();
+
+			// First validate by writing to a tmp file and parsing the attributes
+			// 
+			File tmpAttrSetFile = File.createTempFile("tempAttrSet-", ".attr");
+
 			FileWriter fwriter = new FileWriter( tmpAttrSetFile );
 
-			fwriter.write( newAttrStr );
+			fwriter.write( newAttrsStr );
 			fwriter.close();
 
-			// TODO : add stronger validation on the attribute syntax
-			HashMap<String, String> tmpAttrMap = 
-					rscDefnMngr.readParamsFile( tmpAttrSetFile );
-	
-			// if a new set is being created make sure it doesn't already exist.
-			//	
-			if( nameChanged ) {
-				File newAttrSetFile = new File( seldAttrSetFile.getParentFile(), attrSetName + ".attr");
+			attrsMap = ResourceDefnsMngr.readAttrSetFile( tmpAttrSetFile ); // throws exception on parse error
 
-				if( newAttrSetFile.exists() ) {
-		    		MessageDialog confirmDlg = new MessageDialog( 
-		    				NmapUiUtils.getCaveShell(), 
-		    				"New Attribute Set", null, 
-		    				"The Attribute Set " + attrSetName + " already exists.\n\n"+
-		    				"Do you want to replace it?",
-					MessageDialog.QUESTION, new String[]{"Yes", "No"}, 0);
-					confirmDlg.open();
-					
-					if( confirmDlg.getReturnCode() == MessageDialog.CANCEL ) {
-						tmpAttrSetFile.delete();
-						return;
-					}
-				}
-				
-				// rename the tmp file to the new filename
-				tmpAttrSetFile.renameTo( newAttrSetFile );
-
-				// if not a new attrSet and not in an attrSetGroup then 
-				//    go ahead and delete the original file and thats it.
-				//
-				if( !newAttrSet && !seldRscDefn.applyAttrSetGroups() ) {
-					seldAttrSetFile.delete();
-				}
-				
-				// this will re-set the list of attrSet files.
-				if( !seldRscDefn.applyAttrSetGroups() ) {
-					rscDefnMngr.findAvailAttrSets( seldRscDefn );
-				}
-					
-				if( seldRscDefn.applyAttrSetGroups() ) {
-					// else if this attrSet is in an attrSetGroup we will need to 
-					//   update attrSetGroups referencing the renamed attrSet and 
-					//   possibly delete the original file
-					//
-					boolean addToGroup = true;
-					
-					// for new pgen AttrSets and for renamed attrSets we will automatically add to the attrSetGroup
-					//    otherwise for other renamed attrSets prompt the user
-					//
-					if( newAttrSet && !seldRscDefn.isPgenResource() ) {
-						MessageDialog confirmDlg = new MessageDialog( 
-								NmapUiUtils.getCaveShell(), 
-								"New Attribute Set", null, 
-								"Do you want to add this Attribute Set\nto the group "+
-								seldRscName.getRscGroup()+"?",
-								MessageDialog.QUESTION, new String[]{"Yes", "No"}, 0);
-						confirmDlg.open();
-
-						addToGroup = ( confirmDlg.getReturnCode() == MessageDialog.OK );
-					}
-
-//					AttrSetGroup seldAsGroup = seldRscDefn.getAttrSetGroup( 
-//							( seldRscDefn.isPgenResource() ? "PGEN" : seldRscName.getRscGroup() ) );
-					AttrSetGroup seldAsGroup = 
-								rscDefnMngr.getAttrSetGroupForResource( seldRscName );
-					
-					if( addToGroup ) {						
-						if( seldAsGroup == null ) {
-							throw new VizException("??failed to get AttributeSetGroup for resource, "+ seldRscName.toString() );
-						}
-						seldAsGroup.addAttrSet( attrSetName, newAttrSetFile );	
-						rscDefnMngr.findAvailAttrSets( seldRscDefn ); // reset the list of attrSets
-					}	
-					
-					// if renaming the attrSet, remove the old name from the group.
-					if( !newAttrSet ) {
-						seldAsGroup.removeAttrSet( origName );
-										
-						// Next, we need to check if there are any groups 
-						//     for other resources that reference the old attrSet
-
-						// loop thru all the resources for this implementation and 
-						//   check if 
-						String  rscImpl = seldRscDefn.getRscImplementation();
-						int numRefs = 0;
-						
-						for( String rscType : 
-							    rscDefnMngr.getRscTypesForRscImplementation( rscImpl ) ) {
-							ResourceDefinition rscDefn = rscDefnMngr.getResourceDefinition( rscType );
-							
-							if( rscDefn != null ) { // sanity check								
-							
-								for( String asgName : rscDefn.getAttrSetGroupNames() ) {
-									
-//									AttrSetGroup asGroup = rscDefn.getAttrSetGroup( groupName );
-									AttrSetGroup asGroup =
-										rscDefnMngr.getAttrSetGroupForResource( rscType, asgName );
-									
-									if( asGroup != null ) { // sanity check
-										if( asGroup.getAttrSetNames().contains( origName ) ) {											
-											MessageDialog confirmDlg = new MessageDialog( 
-													NmapUiUtils.getCaveShell(), 
-													"Add to Group", null, 
-													origName+"  is referenced by the Attribute Set Group, "+
-													asgName+"\nfor Resource, "+
-													rscDefn.getResourceDefnName()+
-													".\n\nDo you want to replace this with the new Attribute Set?",
-													MessageDialog.QUESTION, new String[]{"Yes", "No"}, 0);
-											confirmDlg.open();
-
-											if( confirmDlg.getReturnCode() == MessageDialog.OK ) {
-												asGroup.removeAttrSet( origName );
-												asGroup.addAttrSet( attrSetName, newAttrSetFile );
-												rscDefnMngr.findAvailAttrSets( rscDefn ); // reset the list of attrSets
-											}
-											else {
-												numRefs++;
-											}
-										}
-									}
-								}								
-							}
-						}
-						
-						// if there are references from other Resource groups then do not delete the file.
-						// 
-						if( numRefs == 0 ) {
-							seldAttrSetFile.delete();							
-						}
-					}
-				}
-			}
-			else { // if not renaming then save back to the original filename.
-				tmpAttrSetFile.renameTo( seldAttrSetFile );
-			}
-			
-			rscDefnMngr.writeResourceDefnTable();
-	
-			MessageDialog infoDlg = new MessageDialog( NmapUiUtils.getCaveShell(), 
-					"Info", null, "The Attribute Set  "+ attrSetName + "  has been "+
-					( newAttrSet ? "Created" : ( nameChanged ? "Saved" : "Saved" )),
-					MessageDialog.INFORMATION, new String[]{"OK"}, 0);
-			infoDlg.open();
-			
-
-			ResourceName newSeldRscName = new ResourceName();
-			newSeldRscName.setRscCategory( seldRscName.getRscCategory() );
-			newSeldRscName.setRscType( seldRscName.getRscType() );		
-			newSeldRscName.setRscGroup( seldRscName.getRscGroup() );
-			newSeldRscName.setRscAttrSetName( attrSetName );
-			mngrControl.updateResourceSelections( newSeldRscName );
-
-			return;
-			
-		} catch (FileNotFoundException fnf ) {
-			errMsg = fnf.getMessage();
-		} catch (IOException ioe ) {
-			errMsg = ioe.getMessage();
-		} catch (VizException e) {
-			// failed to read the tmp file			
 			tmpAttrSetFile.delete();
 			
-			errMsg = e.getMessage(); //"Error parsing the new Attributes Set File";				
-		}    	
-		
-		if( errMsg != null ) {
-			MessageDialog errDlg = new MessageDialog( NmapUiUtils.getCaveShell(), 
-					"Error", null, errMsg,
+		} catch ( Exception e ) {
+			MessageDialog errDlg = new MessageDialog( getShell(), 
+					"Error", null, "Error Parsing Attributes: "+e.getMessage(),
 					MessageDialog.ERROR, new String[]{"OK"}, 0);
 			errDlg.open();
+			return;
+		} 
+
+		String attrSetName = attrSetNameTxt.getText().trim();
+		
+//    	String applicableRsc = seldAttrSet.getApplicableResource();    	
+//    	AttributeSet existingAttrSet = rscDefnMngr.getAttrSet( seldRscName );
+    	
+    	// if copying then check to make sure that the new name doesn't already exist
+    	if( newAttrSet ) {
+    		ResourceName newRscName = new ResourceName( seldRscName );
+    		newRscName.setRscAttrSetName( attrSetName );
+    		AttributeSet aset = rscDefnMngr.getAttrSet( newRscName  );
+    		if( aset != null ) {
+    			// TODO : allow user to confirm. for now just fail..
+	    		MessageDialog confirmDlg = new MessageDialog( 
+	    				getShell(), 
+	    				"Error", null, 
+	    				"The Attribute Set " + attrSetName + " already exists.\n"+
+	    				"Either enter another name or delete the existing Attribute Set",
+				MessageDialog.ERROR, new String[]{"Ok"}, 0);
+				confirmDlg.open();
+				return;
+//				if( confirmDlg.getReturnCode() == MessageDialog.CANCEL ) {						
+//					return;
+//				}
+    		}
+    		
+    	}
+
+		try {
+			rscDefnMngr.saveAttrSet( seldRscDefn, attrSetName, 
+									 editAttrSetValuesTxt.getText() );//attrsMap );
+		} catch (VizException e) {
+			MessageDialog errDlg = new MessageDialog( NmapUiUtils.getCaveShell(), 
+					"Error", null, "Error Saving AttrSet, "+attrSetName+"\n"+
+					e.getMessage(),
+					MessageDialog.ERROR, new String[]{"OK"}, 0);
+			errDlg.open();
+			return;
 		}
+		
+		// Next if this is a new AttrSet and if attrSetGroups apply, then 
+		// prompt if the user wants to add it to the selected group
+		if( newAttrSet && seldRscDefn.applyAttrSetGroups() ) {
+			boolean addToGroup = true;
+
+			// for new pgen AttrSets and for renamed attrSets we will automatically add to the attrSetGroup
+			//    otherwise for other renamed attrSets prompt the user
+			//
+			if( !seldRscDefn.isPgenResource() ) {
+				MessageDialog confirmDlg = new MessageDialog( 
+						NmapUiUtils.getCaveShell(), 
+						"New Attribute Set", null, 
+						"Do you want to add this Attribute Set\nto the group "+
+						seldRscName.getRscGroup()+"?",
+						MessageDialog.QUESTION, new String[]{"Yes", "No"}, 0);
+				confirmDlg.open();
+
+				addToGroup = ( confirmDlg.getReturnCode() == MessageDialog.OK );
+			}
+			
+			try {
+				AttrSetGroup seldAsGroup = 
+					rscDefnMngr.getAttrSetGroupForResource( seldRscName );
+
+				if( addToGroup ) {						
+					if( seldAsGroup == null ) {
+						throw new VizException("??failed to get AttributeSetGroup for resource, "+ seldRscName.toString() );
+					}
+					seldAsGroup.addAttrSetName(attrSetName);
+					rscDefnMngr.saveAttrSetGroup( seldAsGroup );
+				}
+			} catch (VizException e) {
+				MessageDialog errDlg = new MessageDialog( NmapUiUtils.getCaveShell(), 
+						"Error", null, "Error Saving AttrSet to AttrSetGroup\n"+
+							e.getMessage(),
+						MessageDialog.ERROR, new String[]{"OK"}, 0);
+				errDlg.open();
+				return;
+			}
+		}
+	
+		MessageDialog infoDlg = new MessageDialog( getShell(), 
+				"Info", null, "The Attribute Set  "+ attrSetName + "  has been "+
+				( newAttrSet ? "Created" : "Saved" ),
+				MessageDialog.INFORMATION, new String[]{"OK"}, 0);
+		infoDlg.open();
+
+
+		ResourceName newSeldRscName = new ResourceName();
+		newSeldRscName.setRscCategory( seldRscName.getRscCategory() );
+		newSeldRscName.setRscType( seldRscName.getRscType() );		
+		newSeldRscName.setRscGroup( seldRscName.getRscGroup() );
+		newSeldRscName.setRscAttrSetName( attrSetName );
+		mngrControl.updateResourceSelections( newSeldRscName );
 	}
 }

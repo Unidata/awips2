@@ -8,41 +8,32 @@
 
 package gov.noaa.nws.ncep.ui.pgen.sigmet;
 
-//import gov.noaa.nws.ncep.ui.pgen.file.Volcano;
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 
 import javax.xml.parsers.DocumentBuilder; 
 import javax.xml.parsers.DocumentBuilderFactory; 
-import javax.xml.parsers.FactoryConfigurationError; 
-import javax.xml.parsers.ParserConfigurationException; 
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import org.xml.sax.SAXException; 
-import org.xml.sax.SAXParseException;
-
-import java.awt.Color;
 import java.io.*; 
-import java.math.RoundingMode;
 import java.text.*;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.lang.reflect.*;
 
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.ui.PlatformUI;
 import org.w3c.dom.*;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.attrDialog.SigmetAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.elements.*;
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
+
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 /**
  * The class for Volcano info storage and utilities 
@@ -52,6 +43,8 @@ import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 01/10		#165		G. Zhang   	Initial Creation.
+ * 07/11        #450        G. Hull     NcPathManager
+ * 10/11        #?          J. Wu       Match "OBS" with "F00"
  *
  * </pre>
  * 
@@ -402,7 +395,10 @@ public class VaaInfo {
 		
 		try {
 			  DocumentBuilder builder = factory.newDocumentBuilder();
-			  doc = builder.parse( NmapCommon.getVaaXmlFile() );//"/usr1/gzhang/files/ticket165-vaa/vaa.xml") );
+			  File vaaFile = NcPathManager.getInstance().getStaticFile( 
+					  NcPathConstants.PGEN_VAA_FILE );
+			  
+			  doc = builder.parse( vaaFile.getAbsoluteFile() );
 		} catch (Exception e) { 
 			System.out.println("-----------"+e.getMessage());
 		} 
@@ -1158,7 +1154,7 @@ public class VaaInfo {
 		}*/
 		volProd = PgenSession.getInstance().getPgenResource().getActiveProduct();
 		List<Layer> lyrList = volProd == null ? null : volProd.getLayers();
-		if( ! VaaInfo.VOLCANO_PRODUCT_NAME.equals(volProd.getName()) ) return sb.toString();
+		if( ! VaaInfo.VOLCANO_PRODUCT_NAME.equalsIgnoreCase((volProd.getName()) )) return sb.toString();
 		/*try{
 			list = PgenSession.getInstance().getPgenResource().getActiveLayer().getDrawables();
 		}catch(Exception e){ System.out.println(e.getMessage());return sb.toString(); }*/
@@ -1284,8 +1280,15 @@ public class VaaInfo {
 	public static int getLayerIdx() {
 		Layer lyr = PgenSession.getInstance().getPgenResource().getActiveLayer();
 		for(int i=0; i<LAYERS.length; i++){
-			if(LAYERS[i].equals(lyr.getName())){
-				return i;
+			if ( LAYERS[i].equalsIgnoreCase( "OBS") ) {
+			    if( LAYERS[i].equalsIgnoreCase(lyr.getName()) || lyr.getName().equalsIgnoreCase("F00") ){
+					   return i;
+				}			    	
+			}
+			else {
+			   if( LAYERS[i].equalsIgnoreCase(lyr.getName()) ){
+				   return i;
+			   }
 			}
 		}
 		return CURRENT_LAYER_INDEX;

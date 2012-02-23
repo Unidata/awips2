@@ -15,7 +15,7 @@
 #    (in ~/.alias)
 #
 
-$RM *.o glibnsharp.so
+$RM *.o glibnsharp.so Sndglib/*.o
 
 set myLinkflags = "-L$AWIPS2/tools/lib -shared -Wl,-soname,libbignsharp.so -o libbignsharp.so"
 set myLinktail = "-lg2c -lc $XLIBS -lz -lm"
@@ -40,7 +40,7 @@ echo " "
 #
 
 
-set myLibs = "./libsndg.a $OS_LIB/ginitp_alt.o $OS_LIB/gendp_alt.o $OS_LIB/libsnlist.a $OS_LIB/libsnlib.a $OS_LIB/libsflist.a $OS_LIB/libsflib.a $OS_LIB/libnxmlib.a $OS_LIB/libdiaglib.a $OS_LIB/libgemlib.a $OS_LIB/libprmcnvlib.a $OS_LIB/libgridlib.a $OS_LIB/libgplt.a $OS_LIB/libgridlib.a $OS_LIB/libcgemlib.a $OS_LIB/libdevice.a $OS_LIB/libxwp.a $OS_LIB/libxw.a $OS_LIB/libps.a $OS_LIB/libgn.a $OS_LIB/libgemlib.a $OS_LIB/libnetcdf.a $OS_LIB/libtextlib.a $OS_LIB/libxml2.a $OS_LIB/libxslt.a $OS_LIB/libiconv.a $OS_LIB/libbz2.a"
+set myLibs = "$OS_LIB/ginitp_alt.o $OS_LIB/gendp_alt.o $OS_LIB/libsnlist.a $OS_LIB/libsnlib.a $OS_LIB/libsflist.a $OS_LIB/libsflib.a $OS_LIB/libnxmlib.a $OS_LIB/libdiaglib.a $OS_LIB/libgemlib.a $OS_LIB/libprmcnvlib.a $OS_LIB/libgridlib.a $OS_LIB/libgplt.a $OS_LIB/libgridlib.a $OS_LIB/libcgemlib.a $OS_LIB/libdevice.a $OS_LIB/libxwp.a $OS_LIB/libxw.a $OS_LIB/libps.a $OS_LIB/libgn.a $OS_LIB/libgemlib.a $OS_LIB/libnetcdf.a $OS_LIB/libtextlib.a $OS_LIB/libxml2.a $OS_LIB/libxslt.a $OS_LIB/libiconv.a $OS_LIB/libbz2.a"
 
 
 
@@ -50,7 +50,7 @@ set myLibs = "./libsndg.a $OS_LIB/ginitp_alt.o $OS_LIB/gendp_alt.o $OS_LIB/libsn
 #
 echo "Compiling C program... "
 echo " "
-$CC $myCflags *.c
+$CC $myCflags *.c Sndglib/*.c
 
 #
 # Compile all Fortran  programs
@@ -74,6 +74,7 @@ if ( $check == "libbignsharp.so") then
 	echo "****** Shared library is created ******\n "
 	echo " "
 	cp libbignsharp.so $DEV_BASE/workspace/build.cave/static/common/cave/caveEnvironment/lib 
+	cp libbignsharp.so $DEV_BASE/workspace/gov.noaa.nws.ncep.ui.nsharp.linux32
 else
 	echo "****** Houston, we got problems ******\n "
 endif
