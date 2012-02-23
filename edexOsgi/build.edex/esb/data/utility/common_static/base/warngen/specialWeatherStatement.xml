@@ -61,6 +61,14 @@
   -->
  </bullets>
 </bulletActionGroup>
+<bulletActionGroup action="COR">
+ <bullets>
+ <bullet bulletText="***** CLICK 'CREATE TEXT' BELOW AFTER SELECTING AREA *****" bulletType="title"/>
+  <!-- 
+  <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" bulletGroup="toggle2" bulletDefault="true" parseString=""/>
+  -->
+ </bullets>
+</bulletActionGroup>
 </bulletActionGroups>
 
  <areaConfig>
@@ -96,6 +104,11 @@
   	</sortBy>
  </pointSource>
  
+<!-- this "include file" tag will grab the Mile Marker XML pointSource tags, 
+and place into this template  
+-->
+<include file="mileMarkers.xml"/>
+ 
  <pathcastConfig>
   <withinPolygon>true</withinPolygon>
   <distanceThreshold>8.0</distanceThreshold>
@@ -120,7 +133,4 @@
   <timezoneSource>TIMEZONES</timezoneSource>
   <timezoneField>TIME_ZONE</timezoneField>
  </geospatialConfig>
- 
- <include file="milemarkers.xml"/>
- 
 </warngenConfig>

@@ -68,9 +68,10 @@ public class PgenFlipDrawingElement extends AbstractPgenTool {
      *
      */
     public class PgenFlipHandler extends InputHandlerDefaultImpl {
+    	
     	private PgenResource flipPgenSource; 
     	private NCMapEditor flipNCMapEditor;
-    	
+    	private boolean preempt;
     	private OperationFilter flipFilter;
     	
     	public PgenFlipHandler(PgenResource _flipPgenSource, NCMapEditor _flipNCMapEditor) {
@@ -87,6 +88,8 @@ public class PgenFlipDrawingElement extends AbstractPgenTool {
          */
         @Override	   	
         public boolean handleMouseDown(int anX, int aY, int button) {
+        	
+        	preempt = false;
            	//  Check if mouse is in geographic extent
         	Coordinate loc = flipNCMapEditor.translateClick(anX, aY);
         	if ( loc == null ) return false;
@@ -101,16 +104,22 @@ public class PgenFlipDrawingElement extends AbstractPgenTool {
         		AbstractDrawableComponent	reversedDrawableElement = PgenToolUtils.createReversedDrawableElement(selectedDrawableElement); 
 
         		leftMouseButtonDownHandler(flipPgenSource, selectedDrawableElement, reversedDrawableElement, loc); 
-        		flipNCMapEditor.refresh();       
+        		flipNCMapEditor.refresh(); 
+        		if ( selectedDrawableElement != null ) preempt = true;
             }
             else if ( button == 3 ) {
             	rightMouseButtonDownHandler(flipPgenSource, selectedDrawableElement, flipNCMapEditor);       	        
             }
-           	return true;
+           	return preempt;
         }
 
        
-        /*
+        @Override
+		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
+			return preempt;
+		}
+
+		/*
          * If the selectedDrawableElement is valid, reverse the Coordinate points of the 
          * DrawableElement and then set the reversed points back to the DrawableElement. Otherwise, 
          * retrieve the nearest DrawableElement object using the current mouse location

@@ -8,6 +8,7 @@
 
 package gov.noaa.nws.ncep.viz.tools.frame;
 
+import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 import java.util.TreeSet;
@@ -123,7 +124,6 @@ public class BadFrameAction  extends AbstractTool {
 					nxtIdx = getNxtIdx(idtor, index);
 					
 					fi = new FramesInfo(fi.getFrameTimes(), nxtIdx);
-					FrameDataDisplay.updateInstance();
 				}catch(Throwable t){
 					
 					THE_LOG.setLevel(Level.INFO);	
@@ -133,6 +133,9 @@ public class BadFrameAction  extends AbstractTool {
 				}					
 				
 				editor.refresh();
+				if( editor instanceof NCMapEditor ) {
+					((NCMapEditor) editor).refreshGUIElements();
+				}
 			}
 		}else{
 			return null;

@@ -100,7 +100,6 @@
 </bulletActionGroup>
 <bulletActionGroup action="COR" phen="MA" sig="S">
  <bullets>
-  <bullet bulletText="*** CORRECTED PRODUCT. CLICK CREATE TEXT ****" bulletType="title"/>
   <bullet bulletText="  *****HEADLINE SECTION*****...(Choose 1) " bulletType="title"/>
   <bullet bulletName="ashadv" bulletText="Ashfall advisory" bulletGroup="group2" bulletDefault="true" parseString="ASHFALL ADVISORY"/>
   <bullet bulletName="approachHead" bulletText="Approaching waters" bulletGroup="group2" parseString="APPROACHING THE COASTAL WATERS"/>
@@ -237,5 +236,4 @@
   <timezoneSource>TIMEZONES</timezoneSource>
   <timezoneField>TIME_ZONE</timezoneField>
  </geospatialConfig>
- 
 </warngenConfig>

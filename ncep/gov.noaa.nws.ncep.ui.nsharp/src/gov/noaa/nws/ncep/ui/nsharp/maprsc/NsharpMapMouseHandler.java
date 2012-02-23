@@ -22,6 +22,7 @@ package gov.noaa.nws.ncep.ui.nsharp.maprsc;
 
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
 import gov.noaa.nws.ncep.ui.nsharp.NsharpStationInfo;
+import gov.noaa.nws.ncep.ui.nsharp.SurfaceStationPointData;
 import gov.noaa.nws.ncep.ui.nsharp.menu.ModelSoundingDialogContents;
 import gov.noaa.nws.ncep.ui.nsharp.menu.NsharpLoadDialog;
 import gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTDisplay;
@@ -29,7 +30,6 @@ import gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor;
 import gov.noaa.nws.ncep.ui.nsharp.skewt.rsc.NsharpSkewTResource;
 import gov.noaa.nws.ncep.ui.pgen.tools.InputHandlerDefaultImpl;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
-import gov.noaa.nws.ncep.viz.ui.locator.resource.SurfaceStationPointData;
 
 import java.util.ArrayList;
 import java.util.HashMap;

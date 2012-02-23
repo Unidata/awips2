@@ -9,6 +9,7 @@ package gov.noaa.nws.ncep.ui.pgen.layering;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
+import gov.noaa.nws.ncep.ui.pgen.attrDialog.GfaAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
 import gov.noaa.nws.ncep.ui.pgen.elements.Product;
 import gov.noaa.nws.ncep.ui.pgen.elements.ProductInfo;
@@ -527,6 +528,29 @@ public class PgenLayeringControlDialog extends PgenLayeringDialog {
         startLayering();         
                 
     }
+    
+    /**
+     * Switch to a given layer (used for switching from GFA hazard type).
+     */
+    public void switchLayer( String newLayer ) {
+    	String clayer = layerList.get( layerInUse ).getName();
+    	int which = -1;
+    	
+    	if ( !newLayer.equals( clayer ) ) {
+    		for ( int ii = 0; ii < layerNameBtns.size(); ii++ ) {
+    			if ( layerNameBtns.get(ii).getText().equals( newLayer ) ) {
+    				which = ii;
+    				break;
+    			}
+    		}
+    		
+    		if ( which >= 0 ) {
+    			switchLayer( which );
+    		}
+    	}
+    	
+    }
+
         
     /**
      *  Switch between layer.
@@ -554,6 +578,22 @@ public class PgenLayeringControlDialog extends PgenLayeringDialog {
     	currentLayer.setOnOff( true );
 		
         drawingLayer.setActiveLayer( currentLayer );
+        
+        drawingLayer.removeGhostLine();
+        
+        if ( GfaAttrDlg.getInstance( this.getParent() ).isGfaOpen() ) {
+        	if ( drawingLayer.getSelectedDE() != null ) {
+        		GfaAttrDlg.getInstance( this.getParent() ).close();
+        	}
+        	else {
+        	    GfaAttrDlg.getInstance( this.getParent() ).switchHazard( currentLayer.getName() );
+        	}
+        }
+        else {
+        	PgenUtil.setSelectingMode();
+        }
+        
+        drawingLayer.removeSelected();
 	    
         // Reset undo/redo and refresh   	       	
         PgenSession.getInstance().disableUndoRedo();

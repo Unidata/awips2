@@ -9,6 +9,8 @@
  * ------------	----------	-----------	--------------------------
  * 12/2008		L. Lin		Initial creation	
  * 04/2009      L. Lin      Convert to to10
+ * 09/2011      Chin Chen   changed to improve purge performance and
+ * 							removed xml serialization as well
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
  */
@@ -24,7 +26,6 @@ import gov.noaa.nws.ncep.common.dataplugin.aww.AwwLatlons;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Iterator;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -35,22 +36,15 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-
+import org.hibernate.annotations.Index;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @Entity
 @Table(name="aww_ugc")
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class AwwUgc implements Serializable, ISerializableObject {
 	
@@ -61,31 +55,27 @@ public class AwwUgc implements Serializable, ISerializableObject {
     private Integer recordId = null;
 	
 	// The AWW record this object belongs to
-	@ManyToOne
-    @JoinColumn(name="parentID", nullable=false)
-	private AwwRecord parentID;
+	//@ManyToOne
+    //@JoinColumn(name="parentID", nullable=false)
+	//private AwwRecord parentID;
 
 	// The universal geographic code
 	@Column(length=640)
-    @XmlElement
     @DynamicSerializeElement
 	private String ugc;
 	
 	// The product purge time
 	@Column
-	@XmlElement
 	@DynamicSerializeElement
 	private Calendar prodPurgeTime;
 	
 	// A collection of VTEC event tracking numbers under this UGC
 	@Column(length=40)
-    @XmlElement
     @DynamicSerializeElement
 	private String eventTrackingNumber;
 	
 	// Text information for this segment
 	@Column(length=12000)
-    @XmlElement
     @DynamicSerializeElement
 	private String segment;
 
@@ -93,27 +83,27 @@ public class AwwUgc implements Serializable, ISerializableObject {
 	 * AWW VTEC Table
 	 */
 	@DynamicSerializeElement
-	@XmlElement
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "parentID", fetch = FetchType.EAGER)
-	@OnDelete(action = OnDeleteAction.CASCADE)
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinColumn(name = "parentID", nullable = false)
+    @Index(name = "awwVtecLine_parentid_idex")
 	private Set<AwwVtec> awwVtecLine = new HashSet<AwwVtec>();
 	
 	/** 
 	 * Aww FIPS Table
 	 */
 	@DynamicSerializeElement
-	@XmlElement
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "parentID", fetch = FetchType.EAGER)
-	@OnDelete(action = OnDeleteAction.CASCADE)
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinColumn(name = "parentID", nullable = false)
+    @Index(name = "awwFIPS_parentid_idex")
 	private Set<AwwFips> awwFIPS = new HashSet<AwwFips>();
 	
 	/** 
 	 * Aww LatLon Table
 	 */
 	@DynamicSerializeElement
-	@XmlElement
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "parentID", fetch = FetchType.EAGER)
-	@OnDelete(action = OnDeleteAction.CASCADE)
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinColumn(name = "parentID", nullable = false)
+    @Index(name = "awwLatLon_parentid_idex")
 	private Set<AwwLatlons> awwLatLon = new HashSet<AwwLatlons>();
 
 	/**
@@ -152,44 +142,7 @@ public class AwwUgc implements Serializable, ISerializableObject {
 		return serialVersionUID;
 	}
 
-	/**
-	 * @return the parentID
-	 */
-	public AwwRecord getParentID() {
-	    return parentID;
-	}
-
-	/**
-	 * @param parentID the parentID to set
-	 */
-	public void setParentID(AwwRecord parentID) {
-	    this.parentID = parentID;
-	    
-	    if(this.getAwwVtecLine() != null && this.getAwwVtecLine().size() > 0)
-	      {
-	         for (Iterator<AwwVtec> iter = this.getAwwVtecLine().iterator(); iter.hasNext();) {
-	            AwwVtec cond = iter.next();
-	            cond.setParentID(this);
-	         }
-	      }
-	    
-	    if (this.getAwwFIPS() !=null && this.getAwwFIPS().size() >0 )
-	    {
-	    	for (Iterator<AwwFips> iter = this.getAwwFIPS().iterator(); iter.hasNext();) {
-	            AwwFips cond = iter.next();
-	            cond.setParentID(this);
-	            cond.setUgc(ugc);
-	         }
-	    }
-	    
-	    if (this.getAwwLatLon() !=null && this.getAwwLatLon().size() >0 )
-	    {
-	    	for (Iterator<AwwLatlons> iter = this.getAwwLatLon().iterator(); iter.hasNext();) {
-	            AwwLatlons cond = iter.next();
-	            cond.setParentID(this);
-	         }
-	    }
-	}
+	
 	
 	/**
 	 * @return the ugc
