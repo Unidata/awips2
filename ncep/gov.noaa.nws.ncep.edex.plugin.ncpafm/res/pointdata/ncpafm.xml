@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pointDataDescription>
+  
+  <parameter name="dataURI" numDims="1" type="STRING" size="128" />
+  <parameter name="wmoHeader" numDims="1" type="STRING" size="8" />
+  <parameter name="stationId" numDims="1" type="STRING" size="16" />
+  <parameter name="reportType" numDims="1" type="STRING" />
+
+  <parameter name="forecastTimeUtc" numDims="1" type="LONG" unit="seconds since 1-1-1970" />
+  <parameter name="forecastTimeLocal" numDims="1" type="LONG" unit="seconds since 1-1-1970" />
+  <parameter name="forecastTimeZone" numDims="1" type="STRING" size="8" />
+  
+  <parameter name="avgMxTmpf" numDims="1" type="FLOAT" unit="Fahrenheit" fillValue="999999" />
+  <parameter name="hiMxTmpf" numDims="1" type="FLOAT" unit="Fahrenheit" fillValue="999999" />
+  <parameter name="loMxTmpf" numDims="1" type="FLOAT" unit="Fahrenheit" fillValue="999999" />
+  <parameter name="avgMnTmpf" numDims="1" type="FLOAT" unit="Fahrenheit" fillValue="999999" /> 
+  <parameter name="hiMnTmpf" numDims="1" type="FLOAT" unit="Fahrenheit" fillValue="999999" />
+  <parameter name="loMnTmpf" numDims="1" type="FLOAT" unit="Fahrenheit" fillValue="999999" />
+  <parameter name="tmpf" numDims="1" type="FLOAT" unit="Fahrenheit" fillValue="999999" />
+  <parameter name="dwpf" numDims="1" type="FLOAT" unit="Fahrenheit" fillValue="999999" />
+  <parameter name="relh" numDims="1" type="FLOAT" unit="%" fillValue="999999" />
+  <parameter name="windDir" numDims="1" type="FLOAT" unit="degree" fillValue="999999" />
+  <parameter name="windSmph" numDims="1" type="STRING" unit="mph" />
+  <parameter name="gust_Mph" numDims="1" type="STRING" unit="mph"/>
+  <parameter name="pwindDir" numDims="1" type="FLOAT" unit="degree" fillValue="999999"/>
+  <parameter name="windChar" numDims="1" type="STRING" size="8"/>
+  <parameter name="skyCover" numDims="1" type="STRING" size="8"/>
+  <parameter name="pop12" numDims="1" type="FLOAT" unit="%" fillValue="999999"/>
+  <parameter name="qpf12Mn" numDims="1" type="FLOAT" unit="in" fillValue="999999"/>  
+  <parameter name="qpf12Mx" numDims="1" type="FLOAT" unit="in" fillValue="999999"/>
+  <parameter name="highestMaxQpf" numDims="1" type="FLOAT" unit="in" fillValue="999999"/>
+  <parameter name="lowestMaxQpf" numDims="1" type="FLOAT" unit="in" fillValue="999999"/>
+  <parameter name="snow12Mn" numDims="1" type="FLOAT" unit="in" fillValue="999999"/>
+  <parameter name="snow12Mx" numDims="1" type="FLOAT" unit="in" fillValue="999999"/>
+  <parameter name="avgSkyCover" numDims="1" type="STRING" size="8"/>
+  <parameter name="obvis" numDims="1" type="STRING" size="8"/>
+  <parameter name="windChill" numDims="1" type="FLOAT" unit="Fahrenheit" fillValue="999999"/>
+  <parameter name="heatIndex" numDims="1" type="FLOAT" unit="Fahrenheit" fillValue="999999"/>
+  <parameter name="minChill" numDims="1" type="FLOAT" unit="Fahrenheit" fillValue="999999"/>
+  <parameter name="maxHeat" numDims="1" type="FLOAT" unit="Fahrenheit" fillValue="999999"/>
+  <parameter name="rain" numDims="1" type="STRING" size="8"/>
+  <parameter name="rainShwrs" numDims="1" type="STRING" size="8"/>
+  <parameter name="sprinkles" numDims="1" type="STRING" size="8"/>
+  <parameter name="tstms" numDims="1" type="STRING" size="8"/>
+  <parameter name="drizzle" numDims="1" type="STRING" size="8"/>
+  <parameter name="snow" numDims="1" type="STRING" size="8"/>  
+  <parameter name="snowShwrs" numDims="1" type="STRING" size="8"/>
+  <parameter name="flurries" numDims="1" type="STRING" size="8"/>
+  <parameter name="sleet" numDims="1" type="STRING" size="8"/>
+  <parameter name="frzgRain" numDims="1" type="STRING" size="8"/>
+  <parameter name="frzgDrzl" numDims="1" type="STRING" size="8"/>
+  <parameter name="hazards" numDims="1" type="STRING" size="160"/>
+
+</pointDataDescription>

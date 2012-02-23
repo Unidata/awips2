@@ -1,0 +1,80 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="ncpafmDecoder" class="gov.noaa.nws.ncep.edex.plugin.ncpafm.decoder.NcPafmDecoder">
+		<constructor-arg ref="ncpafmPluginName" />
+	</bean>
+
+	<bean id="ncpafmPointDataTransform" class="gov.noaa.nws.ncep.common.dataplugin.ncpafm.NcPafmPointDataTransform" />
+
+	<bean id="ncpafmSeparator" class="gov.noaa.nws.ncep.edex.plugin.ncpafm.decoder.NcPafmSeparator" />
+
+	<bean id="ncpafmDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="ncpafm" />
+		<constructor-arg value="jms-dist:queue:Ingest.ncpafm" />
+	</bean>
+
+	<bean id="ncpafmCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="ncpafm-camel"/>
+	</bean> 
+
+	<camelContext id="ncpafm-camel" xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+
+		<!-- 
+		<endpoint id="ncpafmFileEndpoint"
+			uri="file:${edex.home}/data/sbn/ncpafm?noop=true&amp;idempotent=false" />
+
+		<route id="ncpafmFileConsumerRoute">
+			<from ref="ncpafmFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+				<constant>ncpafm</constant> 
+			</setHeader>
+			<to uri="jms-generic:queue:Ingest.ncpafm" />
+		</route>
+		-->
+			
+		<!-- Begin ncpafm routes -->
+		<route id="ncpafmIngestRoute">
+			<from uri="jms-generic:queue:Ingest.ncpafm" />
+			<setHeader headerName="pluginName">
+				<constant>ncpafm</constant>
+			</setHeader>
+			<doTry>
+				<pipeline>
+					<bean ref="stringToFile" />
+					<split streaming="true">
+						<method bean="ncpafmSeparator" method="separate" />
+						<doTry>
+							<pipeline>
+								<bean ref="ncpafmDecoder" method="decode" />
+								<!-- Add next line for h5 version  /-->
+								<bean ref="ncpafmPointDataTransform" method="toPointData" />
+								<!--to uri="directvm:indexAlert" /-->
+								<to uri="directvm:persistIndexAlert" />
+							</pipeline>
+							<doCatch>
+								<exception>java.lang.Throwable</exception>
+								<to uri="log:ncpafm?level=ERROR&amp;showBody=false" />
+							</doCatch>
+						</doTry>
+					</split>
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<!--to uri="log:airmet?level=ERROR&amp;showBody=false" /-->
+					<to uri="log:ncpafm?level=ERROR&amp;showBody=false" />
+				</doCatch>
+			</doTry>
+		</route>
+	</camelContext>
+</beans>

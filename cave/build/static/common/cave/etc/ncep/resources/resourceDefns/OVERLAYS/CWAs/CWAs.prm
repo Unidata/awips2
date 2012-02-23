@@ -1,5 +1,0 @@
-! DbOverlay
-dbName=maps
-tableName=mapdata.cwa
-labelField=wfo
-mapName=County Warning Areas

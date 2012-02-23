@@ -1,0 +1,6 @@
+colorMapName=rad_scref
+colorBar=@dfltRadarColorBar.xml
+! 1km COMP REFL
+productCode=37
+! check elevation
+elevationNumber=0

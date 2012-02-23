@@ -1,6 +1,0 @@
-legend_color= RGB {255, 165, 79}
-color= RGB {255, 165, 79}
-lineWidth=1
-lineStyle=SHORT_DASHED
-latitudeInterval=10
-longitudeInterval=10
