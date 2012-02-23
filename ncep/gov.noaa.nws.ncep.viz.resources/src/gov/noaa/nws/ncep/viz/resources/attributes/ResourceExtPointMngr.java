@@ -26,6 +26,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  *      	 	     		Greg Hull    created
  *  06/10/10     #273	    Greg Hull    read bundleFile location
  *  06/22/10     #273       Greg Hull    map attributes with rscName key instead of rscDataClass
+ *  10/13/11                Xilin Guo    Enable "WOU"
  *  
  * </pre>
  * 
@@ -136,6 +137,10 @@ public class ResourceExtPointMngr {
                 	System.out.println( " "+rscClassName );
                 	continue;
                 }
+//                if( rscName.contains("WOU") ) {
+//                	System.out.println( " "+rscName );
+//                	continue;
+//                }
                 // for now this is optional since we can have NC resources that do not have 
                 // editable attributes.
                 if( editDlgClassName == null ) {

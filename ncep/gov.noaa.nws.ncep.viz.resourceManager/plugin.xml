@@ -30,4 +30,50 @@
       </handler>
    </extension>
 
+    <extension
+          point="com.raytheon.uf.viz.localization.localizationpath">
+       <path
+             application="NCEP"
+             localizationType="CAVE_STATIC"
+             name="SPFs"
+             recursive="true"
+             value="ncep/SPFs"
+	         extensionFilter=".xml">
+       </path>
+    </extension>
+
+    <extension
+          point="com.raytheon.uf.viz.localization.localizationpath">
+       <path
+             application="NCEP"
+             localizationType="CAVE_STATIC"
+             name="Resource Definitions"
+             recursive="true"
+             value="ncep/ResourceDefns"
+	         extensionFilter=".xml,.attr">
+       </path>
+    </extension>
+   <extension
+          point="com.raytheon.uf.viz.localization.localizationpath">
+       <path
+             application="NCEP"
+             localizationType="CAVE_STATIC"
+             name="Attribute Set Groups"
+             recursive="true"
+             value="ncep/AttributeSetGroups"
+	         extensionFilter=".xml,.attr">
+       </path>
+    </extension>
+    <extension
+          point="com.raytheon.uf.viz.localization.localizationpath">
+       <path
+             application="NCEP"
+             localizationType="CAVE_STATIC"
+             name="Default RBDs"
+             recursive="true"
+             value="ncep/DefaultRBDs"
+	         extensionFilter=".xml">
+       </path>
+    </extension>
+
 </plugin>

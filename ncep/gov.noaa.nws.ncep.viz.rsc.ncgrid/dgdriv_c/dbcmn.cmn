@@ -1,0 +1,50 @@
+C************************************************************************
+C* /DBSET/								*
+C*									*
+C************************************************************************
+        CHARACTER       dbdttm*20, dbstid*6, dbstns*6,
+     +                  dbdatasrc*20, dbparms*128, dbprmfile*20,
+     +                  dbtimes(200)*20, dbtime*20, dburi*255, 
+     +                  dbmodel*20, navtime*20, enstimes(200)*20,
+     +                  evtname*20, ensnames*500
+        LOGICAL         dbread, firstdb, gridtmdb, isnavtime, 
+     +                  isenstime, isevtname, isensnames
+        INTEGER         stnindx, idbstns, stnlat, stnlon, stnelv, 
+     +                  dbstlt, dbstln, dbstel, ntotstn, igdtim,
+     +                  dimx, dimy, ienstim, nenstim, iensmem
+        COMMON / DBSET /
+     +                  dbstns(LLSTFL),
+     +                  stnlat(LLSTFL),
+     +                  stnlon(LLSTFL),
+     +                  stnelv(LLSTFL),
+     +                  dbstlt,
+     +                  dbstln,
+     +                  dbstel,
+     +                  ntotstn,
+     +                  stnindx,
+     +                  idbstns,
+     +                  igdtim,
+     +                  dimx, dimy,
+     +                  ienstim,
+     +                  nenstim,
+     +                  iensmem,
+     +                  dbread,
+     +                  firstdb,
+     +                  gridtmdb,
+     +                  isnavtime,
+     +                  isenstime,
+     +                  isevtname,
+     +                  isensnames,
+     +                  dbtimes,
+     +                  enstimes,
+     +                  ensnames,
+     +                  dburi,
+     +                  dbtime,
+     +                  navtime,
+     +                  evtname,
+     +                  dbdttm,
+     +                  dbmodel,
+     +                  dbstid,
+     +                  dbdatasrc,
+     +                  dbparms,
+     +                  dbprmfile
