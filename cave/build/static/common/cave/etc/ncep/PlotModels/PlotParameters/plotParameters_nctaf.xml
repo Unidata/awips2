@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PlotParameterDefns>
+
+	<plugin>nctaf</plugin>
+
+<!-- 
+			All GEMPAK Parameters (displayed in nmap2, except for the ones in parenthesis) and their definitions:
+			brbk = barb feathered in knots - done
+			brbm = barb feathered in m/s - done
+			brbs = barb feathered in mi/hr 
+			(drct) - done
+			(sped) - done
+			(sknt) - done 
+			skyc = cloud coverage graphics symbol as for cfrt - done
+			(cfft) = cloud coverage number from clct (maximum clouds)
+			skyk = sky coverage symbol with wind barb in knots
+			brgk = gust barb feathered in knots - done
+			tskc = temp/prob cloud coverage graphics symbol as for skyc - done
+			wskc = worst case cloud coverage graphics symbol as for skyc
+			ceil = ceiling in hundreds of feet (defined as height above earth's surface of the lowest cloud layer that is reported
+				   as broken or overcast, or the vertical visibility into an indefinite ceiling) - done
+			cmsl = ceiling converted to mean sea level in hundreds of feet - done
+			csyl = low cloud type symbol
+			gust = wind gust in knots - done
+			llws = low level wind shear forecast flag - done
+			selv = station elevation in meters - done
+			stid = character station identifier - done
+			stim = report hour and minutes as hhmm - done
+			vwsy = vicinity graphics weather symbol corresponding to vwnm as for wsym
+			(vwnm) = vicinity numeric code as for wnum
+			(wnum) = numeric weather code
+			vsby*10 = visibility in statute miles * 10 - done (displayed as vsby)
+			wsym = present weather symbol
+			xvfr = categorical identification of flight rules - done
+			       0 = low instrument flight rules (LIFR)
+			       1 = instrument flight rules (IFR)
+			       2 = marginal visual flight rules (MVFR)
+			       3 = visual flight rules (VFR
+			awsy = prevailing/temp/prob/vicinity graphics weather code corresponding to awnm as for wsym
+			(awnm) = prevailing/temp/prob/vicinity numeric code as for wnum
+			pprb = probability for taf forecast change indicator - done
+					30 = PROB30 - 30 percent probability condition
+					40 = PROB40 - 40 percent probability condition
+					50 = TEMPO  - temporary condition
+			tcel = temp/prob ceiling in hundreds of feet for ceil - done
+			tcms = temp/prob ceiling converted to mean sea level in hundreds of feet - done
+			tcsl = temp/prob cloud graphics symbol for tctl as for csyl
+			(tctl) = temp/prob low-level cloud generated from wmo code 0513 as for ctyl
+			tgst = temp/prob wind gust in knots - done
+			tpws = temp/prob/vicinity graphics symbol corresponding to tpwn as for wsym
+			(tpwn) = temp/prob/vicinity numeric weather code as for wnum
+			tvsb*10 = temp/prob visibility in statute miles (tvsb done)
+			twsy = temp/prob graphics weather symbol corresponding to twnm as for wsym
+			(twnm) = temp/prob numeric weather code as for wnum
+			txvf = temp/prob categorical identification of flight rules as for xvfr - done
+			wcms = worst case ceiling converted to mean seal level in hundreds of feet - done
+-->
+
+ <PlotParameterDefn  plotParamName="STID" metParamName="StationID" dbParamName="stationId" />
+ <PlotParameterDefn  plotParamName="SLAT" metParamName="StationLatitude" dbParamName="latitude" plotUnit="°" plotFormat="%.3f"/>
+ <PlotParameterDefn  plotParamName="SLON" metParamName="StationLongitude" dbParamName="longitude" plotUnit="°" plotFormat="%.3f"/>        
+ <PlotParameterDefn  plotParamName="SELV" metParamName="StationElevation" dbParamName="elevation" plotUnit="m" plotFormat="%5.0f"/>                  
+                                  
+ <!-- CLOUD -->
+ <PlotParameterDefn  plotParamName="SKYC" metParamName="SkyCoverage" 
+                     plotMode="table" symbolFont="SpecialSymbolFont" 
+                     dbParamName="SCVR_TYPE" 
+                     prioritySelectTable="cloud_select.txt"
+                     plotLookupTable="cloud_chars.txt" />
+
+ <PlotParameterDefn  plotParamName="SKYCHAR" metParamName="SkyCoverage" 
+                     plotMode="text" dbParamName="SCVR_TYPE" 
+                     prioritySelectTable="cloud_select.txt"
+                     /> 
+
+ <PlotParameterDefn  plotParamName="TSKC" metParamName="ProbableSkyCoverage" 
+                     plotMode="table" symbolFont="SpecialSymbolFont" 
+                     dbParamName="PROBABLE_SCVR_TYPE" 
+                     prioritySelectTable="cloud_select.txt"
+                     plotLookupTable="cloud_chars.txt" />
+ 
+ <PlotParameterDefn  plotParamName="CEIL" metParamName="CeilingFromSurface" dbParamName="CEILING" plotUnit="hecto_ft" plotFormat="%3.0f"/>
+ <PlotParameterDefn  plotParamName="CMSL" metParamName="CeilingFromSeaLevel" deriveParams="CeilingFromSurface,StationElevation" plotUnit="hecto_ft" plotFormat="%3.0f"/>
+ <PlotParameterDefn  plotParamName="TCEL" metParamName="ProbableCeiling" dbParamName="PROBABLE_CEILING" plotUnit="hecto_ft" plotFormat="%3.0f"/>
+ <PlotParameterDefn  plotParamName="TCMS" metParamName="ProbableCeilingAsMeanSeaLevel" deriveParams="ProbableCeiling,StationElevation" plotUnit="hecto_ft" plotFormat="%3.0f"/>
+ <PlotParameterDefn  plotParamName="WCMS" metParamName="CeilingFromSeaLevelWorstCase" deriveParams="all" plotUnit="hecto_ft" plotFormat="%3.0f"/>
+  
+  <!-- These really aren't normally displayed by themselves but they need
+  == to be here since they are used to derive the WindBarbs.
+  -->
+ <PlotParameterDefn  plotParamName="DRCT" metParamName="WindDirection" dbParamName="WIND_DIR" plotUnit="degree" plotFormat="%3.0f"/>
+ <PlotParameterDefn  plotParamName="SPED" metParamName="WindSpeed" dbParamName="WIND_SPEED" plotUnit="m/s" plotFormat="%3.0f"/>
+ <PlotParameterDefn  plotParamName="SKNT" metParamName="WindSpeed" dbParamName="WIND_SPEED" plotUnit="kts" plotFormat="%3.0f"/>
+  
+  <!-- WIND BARBS -->
+ <PlotParameterDefn plotParamName="BRBK" metParamName="WindDirection,WindSpeed" plotMode="barb" symbolFont="WindSymbolFont" plotUnit="kts" />
+ <PlotParameterDefn plotParamName="BRBM" metParamName="WindDirection,WindSpeed" plotMode="barb" symbolFont="WindSymbolFont" plotUnit="m/s"/>
+ <PlotParameterDefn  plotParamName="BRGK" metParamName="WindDirection,WindGust" plotMode="barb" symbolFont="WindSymbolFont" plotUnit="kts"/>
+ 
+ <PlotParameterDefn plotParamName="GUST" metParamName="WindGust" dbParamName="WIND_GUST" plotUnit="kts" plotFormat="%3.0f"/>     
+                                      
+    
+ <!-- 
+    SHEAR_WIND_DIR, SHEAR_WIND_SPEED, SHEAR_WIND_HGT
+ -->
+ 
+ <PlotParameterDefn  plotParamName="LLWS" metParamName="LowLevelWindShear" dbParamName="LOW_LEVEL_WIND_SHEAR"/>
+ 
+  
+ <!-- WEATHER -->  
+ <!-- (Greg: this is a 2d array, code currently just uses the first value in the array 
+ (usually others are missing). 
+   
+ <PlotParameterDefn  plotParamName="WSYM" metParamName="PresentWeather" 
+                     dbParamName="PRES_WEATHER"
+                     plotMode="table" symbolFont="WxSymbolFont" 
+                     arrayIndex="0"
+                     lotLookupTable="wx_symbol_trans.txt"/>  
+                     
+ <PlotParameterDefn  plotParamName="TWSY" metParamName="ProbablePresentWeather" 
+                     dbParamName="PROBABLE_PRES_WEATHER"
+                     plotMode="table" symbolFont="WxSymbolFont" 
+                     arrayIndex="0"
+                     plotLookupTable="wx_symbol_trans.txt"/> -->
+
+ <!--  FLIGHT RULES -->
+
+ <PlotParameterDefn   plotParamName="XVFR" metParamName="FlightRulesID" deriveParams="CeilingFromSurface,Visibility" plotFormat="%1.0f"/>   
+ <PlotParameterDefn   plotParamName="TXVF" metParamName="ProbableFlightRuleIdentifier" deriveParams="ProbableCeiling,ProbableVisibility" plotFormat="%1.0f"/>   
+ <PlotParameterDefn   plotParamName="WXVF" metParamName="FlightRulesIdWorstCase" deriveParams="all" plotFormat="%1.0f"/>   
+                           
+ <!-- MISCELLANEOUS -->
+ 
+ <PlotParameterDefn  plotParamName="STIM" metParamName="ReportTimeInHourMins" dbParamName="STIM"/>
+ 
+ <PlotParameterDefn   plotParamName="VSBY" metParamName="Visibility" dbParamName="VISIBILITY" plotUnit="mi" plotFormat="%3.2f"/>
+ <PlotParameterDefn   plotParamName="PPRB" metParamName="Probability" dbParamName="PROB"/>   
+   
+ <PlotParameterDefn   plotParamName="TVSB" metParamName="ProbableVisibility" dbParamName="PROBABLE_VISIBILITY" plotUnit="mi" plotFormat="%3.2f"/>
+ <PlotParameterDefn plotParamName="TGST" metParamName="ProbableWindGust" dbParamName="PROBABLE_WIND_GUST" plotUnit="kts" plotFormat="%3.0f"/>     
+ 
+ <PlotParameterDefn  plotParamName="ALTI" metParamName="SeaLevelPressure" dbParamName="ALTIM" plotUnit="inHg" plotFormat="%2.2f"/>
+ 
+ <!-- The following dbParams do not have corresponding gempak paramaters displayed in nmap2
+	 VERT_VISIBILITY, MIN_TEMP, MAX_TEMP,
+     PROBABLE_WIND_DIR, PROBABLE_WIND_SPEED, PROBABLE_WIND_GUST,
+     PROBABLE_SHEAR_WIND_DIR, PROBABLE_SHEAR_WIND_SPEED, PROBABLE_SHEAR_WIND_HGT, PROBABLE_VERT_VISIBILITY
+ -->
+ 
+</PlotParameterDefns>

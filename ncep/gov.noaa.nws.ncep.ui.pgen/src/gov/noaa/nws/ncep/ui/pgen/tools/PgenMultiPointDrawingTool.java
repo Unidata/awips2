@@ -43,7 +43,7 @@ import gov.noaa.nws.ncep.ui.pgen.attrDialog.SigmetAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.attrDialog.SigmetCommAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.attrDialog.vaaDialog.*;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.*;
-import gov.noaa.nws.ncep.viz.ui.locator.resource.LocatorTool;
+import gov.noaa.nws.ncep.viz.common.LocatorUtil;
 
 /**
  * Implements a modal map tool for PGEN multiple points drawing.
@@ -253,6 +253,11 @@ public class PgenMultiPointDrawingTool extends AbstractPgenDrawingTool {
         	
         }
         
+        @Override
+        public boolean handleMouseDownMove(int aX, int aY, int button) {
+        	return true;
+        }
+        
         private boolean handleSigmetMouseDown(Coordinate loc){  
         	
         	if("CCFP_SIGMET".equals(pgenType) && ccfpTxtFlag ) return handleCcfpMouseDown(loc);
@@ -390,14 +395,14 @@ public class PgenMultiPointDrawingTool extends AbstractPgenDrawingTool {
 				double dir, DistanceDisplayProperties distProps) {
 
         	StringBuilder sb = new StringBuilder();
-        	String distVal = LocatorTool.distanceDisplay(distanceInMeter, 1, distProps.distanceUnits.toUpperCase());
+        	String distVal = LocatorUtil.distanceDisplay(distanceInMeter, 1, distProps.distanceUnits.toUpperCase());
         	
         	sb.append(distVal);
-        	sb.append( distProps.distanceUnits.toLowerCase() );
+//        	sb.append( distProps.distanceUnits.toLowerCase() );
         	sb.append(' ');
         	
         	if ( distProps.directionUnits.equalsIgnoreCase( PgenDistanceDlg.COMPASS_16_PT) ) {
-        		sb.append( LocatorTool.ConvertTO16PointDir(dir) );
+        		sb.append( LocatorUtil.ConvertTO16PointDir(dir) );
         	}
         	else {
         		sb.append( String.valueOf((int)dir) );
