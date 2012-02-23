@@ -1,14 +1,13 @@
 package gov.noaa.nws.ncep.viz.ui.seek;
 
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
+import gov.noaa.nws.ncep.viz.common.LocatorUtil;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.tools.cursor.NCCursors;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
-import gov.noaa.nws.ncep.viz.ui.locator.resource.Locator;
-import gov.noaa.nws.ncep.viz.ui.locator.resource.LocatorPointData;
-import gov.noaa.nws.ncep.viz.ui.locator.resource.LocatorTableReader;
-import gov.noaa.nws.ncep.viz.ui.locator.resource.LocatorTool;
-import gov.noaa.nws.ncep.viz.ui.locator.resource.PointDataResource;
+//import gov.noaa.nws.ncep.viz.ui.locator.resource.LocatorTableReader;
+//import gov.noaa.nws.ncep.viz.ui.locator.util.LocatorUtil;
+//import gov.noaa.nws.ncep.viz.ui.locator.resource.PointDataResource;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -22,8 +21,6 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -80,8 +77,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                                           remove the seek layer.
  *                                                           Added functionality to the "Take Control"
  *                                                           button to match legacy.
- *March  2011    351       Archana        Changed the path to save the CPF file - it is now under the user's home directory.    
- *    
+ * March  2011    351       Archana        Changed the path to save the CPF file - it is now under the user's home directory.    
+ * Jan    2012   #561        G. Hull       make independent of Locator project. 
  * </pre>
  * 
  * @author mli
@@ -161,11 +158,11 @@ public class SeekResultsDialog extends Dialog  {
     
     private int dirUnitIndex = 0;
     
-    private LocatorPointData[] closePoints = null;
+    private SeekPointData[] closePoints = null;
     
-    private ArrayList<Locator> list = null;
+//    private ArrayList<LocatorDataSource> list = null;
     
-    private PointDataResource mypoint = null;
+//    private PointDataResource mypoint = null;
     
     private Coordinate coordinate = null;
 
@@ -194,7 +191,7 @@ public class SeekResultsDialog extends Dialog  {
 	// Fields for keeping information in Widgets.
 	private String txt1txt = "", txt2txt = "";
 	private String point1Txt = "", point2Txt = "", distanceTxt ="";
-    private LocatorPointData[] closePoints1 = null, closePoints2 = null;
+    private SeekPointData[] closePoints1 = null, closePoints2 = null;
     
     //Composites for the expandable List Widget
     Composite resultsComp = null;
@@ -211,7 +208,9 @@ public class SeekResultsDialog extends Dialog  {
 	private static boolean txtNotSet1 = true;
 	private static boolean  txtNotSet2 = true;
 
-    
+    public static final String DISTANCEUNIT_OPTIONS[] = {"NM", "SM", "KM"};
+    public static final String DIRECTIONUNIT_OPTIONS[] = {"16 point", "degrees"};
+
 
     /**
      * Constructor.
@@ -286,7 +285,10 @@ public class SeekResultsDialog extends Dialog  {
         	System.out.println("___ SeekResultsDialog open(): Exception: "+e.getMessage());
         }
 
-        NmapUiUtils.setPanningMode();
+        AbstractVizPerspectiveManager mgr = VizPerspectiveListener.getCurrentPerspectiveManager();
+		if (mgr != null) {
+			mgr.getToolManager().deselectModalTool(associatedSeekAction);
+		}
         
         return returnValue;
     }
@@ -381,9 +383,9 @@ public class SeekResultsDialog extends Dialog  {
         distCombo = new Combo(dspGroup, SWT.DROP_DOWN | SWT.READ_ONLY);
         distCombo.setLayoutData(new GridData(SWT.DEFAULT, SWT.DEFAULT));
         
-        int size = LocatorTool.DISTANCEUNIT_OPTIONS.length;
+        int size = DISTANCEUNIT_OPTIONS.length;
         for(int i = 1; i < size; i++) {
-           distCombo.add(LocatorTool.DISTANCEUNIT_OPTIONS[i]);
+           distCombo.add( DISTANCEUNIT_OPTIONS[i] );
         }   
         distCombo.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
@@ -402,9 +404,8 @@ public class SeekResultsDialog extends Dialog  {
         dirCombo = new Combo(dspGroup, SWT.DROP_DOWN | SWT.READ_ONLY);
         dirCombo.setLayoutData(new GridData(SWT.DEFAULT, SWT.DEFAULT));
         
-        size = LocatorTool.DIRECTIONUNIT_OPTIONS.length;
-        for(int i = 1; i < size; i++) {
-            dirCombo.add(LocatorTool.DIRECTIONUNIT_OPTIONS[i]);
+        for( int i=1; i < DIRECTIONUNIT_OPTIONS.length ; i++ ) {
+            dirCombo.add( DIRECTIONUNIT_OPTIONS[i] );
         } 
         
         dirCombo.addSelectionListener(new SelectionAdapter() {
@@ -517,14 +518,15 @@ public class SeekResultsDialog extends Dialog  {
         //combo2.setLayoutData(new GridData(GridData.END));
         
         combo2.add("LATLON");
-        LocatorTableReader myloc = new LocatorTableReader(
-        		LocalizationManager.getInstance().getFilename("locatorTable"));
+//        LocatorDataSourceMngr myloc = new LocatorDataSourceMngr();
+        		
+        		//LocalizationManager.getInstance().getFilename("locatorTable"));
         try {
         	
         	combo1.setItems(SeekInfo.getStnTypes());
         	combo2.setItems(SeekInfo.getStnTypes());
         	
-			list = (ArrayList<Locator>) myloc.getLocatorTable();
+//			list = (ArrayList<LocatorDataSource>) myloc.getLocatorTable();
 			
 			/*--- old code kept for reference
 			 *
@@ -677,23 +679,19 @@ public class SeekResultsDialog extends Dialog  {
 					.getCurrentPerspectiveManager();
 					if (mgr != null) {
 						mgr.getToolManager().selectModalTool(associatedSeekAction);
+						associatedSeekAction.setEnabled(false);
+						try {
+							mgr.getToolManager().activateToolSet(associatedSeekAction.getCommandId());
+						} catch (VizException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
 					}					
 					
-					if(associatedSeekAction.mouseHandler == null){
-						associatedSeekAction.mouseHandler  = associatedSeekAction.createSeekMouseHandler()   ;   			
-					}
-					NmapUiUtils.getActiveNatlCntrsEditor().registerMouseHandler( associatedSeekAction.mouseHandler);
-                	if(!SeekResultsAction.addedSeekLayerToResourceList){
-                		associatedSeekAction.initializeTheSeekLayer();
-	                 }
-					
 			}
-//				MessageDialog.openInformation(shell, "", "Take Control functionality unavailable in CAVE!");
-				//srAction.activeMouseHandler();
 				
 			}
 		});
-        //*/
         
         Button saveCPFBtn = new Button(centeredComp, SWT.NONE);
         saveCPFBtn.setText("Save CPF");
@@ -716,22 +714,7 @@ public class SeekResultsDialog extends Dialog  {
                 close();          	
             }
         });
-        /*archana - added DisposeListener*/
-        closeBtn.addDisposeListener(new DisposeListener(){
 
-			@Override
-			public void widgetDisposed(DisposeEvent e) {
-				if(associatedSeekAction != null && ( ! isDlgOpen())){
-					NmapUiUtils.getActiveNatlCntrsEditor().getDescriptor().getResourceList().removeRsc(associatedSeekAction.seekDrawingLayer);
-                    associatedSeekAction.deactivateTool();
-					associatedSeekAction.seekDrawingLayer = null;
-					 NmapUiUtils.getActiveNatlCntrsEditor().refresh();
-
-				}
-
-			}
-        	
-        });
     }
     
    // public boolean isOpen() {
@@ -882,20 +865,20 @@ public class SeekResultsDialog extends Dialog  {
     	
     	if (closePoints == null) return;
     	
-     	LocatorPointData dt = null;
+     	SeekPointData dt = null;
     	int size = closePoints.length < limitNo ? closePoints.length : limitNo;	
     	
     	for (int i=0; i<size; i++){//LocatorPointData dt : closePoints) {
     		
     		dt = closePoints[i];
-    		String distStr = LocatorTool.distanceDisplay(dt.getDistanceInMeter(), 1, distCombo.getText());
+    		String distStr = LocatorUtil.distanceDisplay(dt.getDistanceInMeter(), 1, distCombo.getText());
     		distStr = distStr + distCombo.getText().toLowerCase();
     		
     		String dirStr = "-";
     		if (dt.getDistanceInMeter() > 0) {
     			
     			if (dirUnitIndex == 0) {
-    				dirStr = LocatorTool.ConvertTO16PointDir(dt.getDir());
+    				dirStr = LocatorUtil.ConvertTO16PointDir(dt.getDir());
     			} else {
     				dirStr = String.valueOf((int)dt.getDir()) + "deg"; 
     			}
@@ -970,14 +953,14 @@ public class SeekResultsDialog extends Dialog  {
     
     public String getFormatDistance(double dist, double dir) {
     	// format distance
-    	String distStr = LocatorTool.distanceDisplay(dist, 1, distCombo.getText())
+    	String distStr = LocatorUtil.distanceDisplay(dist, 1, distCombo.getText())
     	        	+ distCombo.getText().toLowerCase();
 
     	// format direction		
     	String dirStr = "-";
     	if (dist > 0) {
     		if (dirUnitIndex == 0) {
-    			dirStr = LocatorTool.ConvertTO16PointDir(dir);
+    			dirStr = LocatorUtil.ConvertTO16PointDir(dir);
     		} else {
     			dirStr = String.valueOf((int)dir) + "deg"; 
     		}
@@ -1049,51 +1032,52 @@ public class SeekResultsDialog extends Dialog  {
     /*
      *  Stations/points search 
      */
-    private void pointSearch(String prefix) {
-    	// Gray out the titles
-    	title.setEnabled(false);
-    	title2.setEnabled(false);
-    	
-    	// Set active button color indicating current point
-    	if (currentPointID == 0) {
-    		button1.setBackground(new Color(getParent().getDisplay(),	new RGB(140, 255, 0)));
-    		button2.setBackground(Display.getDefault().getSystemColor(
-                SWT.COLOR_WIDGET_BACKGROUND));
-    	} else {
-    		button2.setBackground(new Color(getParent().getDisplay(),	new RGB(140, 255, 0)));
-    		button1.setBackground(Display.getDefault().getSystemColor(
-                SWT.COLOR_WIDGET_BACKGROUND));
-    	}
-    	
-    	resultList.removeAll();
-    	
-    	for (Locator loc : list) {
-			if (clickPtData[currentPointID].getLocatorName().equals(loc.getLocatorName())) {
-				String fullPathFile = VizApp.getMapsDir() + File.separator + 
-					loc.getShapefilePath() + File.separator + loc.getShapefileName();
-				PointDataResource pointRsc = new PointDataResource(fullPathFile, loc.getAttributeName());
-				try {
-					pointRsc.setStateIDAttr(loc.getStateID());
-					closePoints = pointRsc.getMatchedPoints(prefix);
-					if (closePoints.length > 0) {
-						for (LocatorPointData dt : closePoints) {
-							resultList.add(dt.getName()+", "+dt.getStateID());
-						}
-					}
-				} catch (VizException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (RuntimeException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				break;
-			} // End of if (LocName... 
-		} // for loop
-    }
+//    private void pointSearch(String prefix) {
+//    	// Gray out the titles
+//    	title.setEnabled(false);
+//    	title2.setEnabled(false);
+//    	
+//    	// Set active button color indicating current point
+//    	if (currentPointID == 0) {
+//    		button1.setBackground(new Color(getParent().getDisplay(),	new RGB(140, 255, 0)));
+//    		button2.setBackground(Display.getDefault().getSystemColor(
+//                SWT.COLOR_WIDGET_BACKGROUND));
+//    	} else {
+//    		button2.setBackground(new Color(getParent().getDisplay(),	new RGB(140, 255, 0)));
+//    		button1.setBackground(Display.getDefault().getSystemColor(
+//                SWT.COLOR_WIDGET_BACKGROUND));
+//    	}
+//    	
+//    	resultList.removeAll();
+//    	
+//    	for (LocatorDataSource loc : list) {
+//			if (clickPtData[currentPointID].getLocatorName().equals(loc.getSourceName())) {
+//				String fullPathFile = VizApp.getMapsDir() + File.separator + 
+//					loc.getShapefilePath() + File.separator + loc.getShapefileName();
+//				
+//				PointDataResource pointRsc = new PointDataResource(fullPathFile, loc.getAttributeName());
+//				try {
+//					pointRsc.setStateIDAttr(loc.getStateID());
+//					closePoints = pointRsc.getMatchedPoints(prefix);
+//					if (closePoints.length > 0) {
+//						for (LocatorPointData dt : closePoints) {
+//							resultList.add(dt.getName()+", "+dt.getStateID());
+//						}
+//					}
+//				} catch (VizException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				} catch (RuntimeException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				} catch (IOException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//				break;
+//			} // End of if (LocName... 
+//		} // for loop
+//    }
 
 
 //commented out by archana
@@ -1123,16 +1107,15 @@ public class SeekResultsDialog extends Dialog  {
 	 * @param coord: the coordinate
 	 * @return:		 the LocatorPointData array
 	 */
-	private LocatorPointData[] calClosePoints(Coordinate coord, String locName){
-		gov.noaa.nws.ncep.viz.ui.locator.resource.citiesPointData cpd = 
-			new gov.noaa.nws.ncep.viz.ui.locator.resource.citiesPointData();
-		
-		cpd.nameIdQuery(coord);
-		java.util.List<LocatorPointData> list = cpd.getPointList();
-
-		return list.toArray(new LocatorPointData[]{});
-		
-	}
+//	private LocatorPointData[] calClosePoints(Coordinate coord, String locName){
+//		CitiesPointData cpd = new CitiesPointData();		
+//		cpd.nameIdQuery(coord);
+//		
+//		java.util.List<LocatorPointData> list = cpd.getPointList();
+//
+//		return list.toArray(new LocatorPointData[]{});
+//		
+//	}
 	
 	/**
 	 * Setter for srAction field.
@@ -1283,7 +1266,7 @@ public class SeekResultsDialog extends Dialog  {
 				if(resultList2!=null && ! resultList2.isDisposed()) 
 					resultList2.removeAll();				    			
 			
-				for (LocatorPointData dt : closePoints) {
+				for (SeekPointData dt : closePoints) {
 					resultList2.add(dt.getName()+ ",    "+dt.getStateID() );
 				}
 			

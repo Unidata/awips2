@@ -1,8 +1,7 @@
 package gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels;
 
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationResourcePathConstants;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -13,7 +12,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeMap;
 
-import com.raytheon.uf.common.localization.PathManagerFactory;
 /**
  * copy from com.raytheon.viz.pointdata.StringLookup and changed to look up NC file
  * TODO : merge back with ratheons baseline
@@ -242,18 +240,13 @@ public class StringLookup {
         BufferedReader input = null;
         StringLookup lookup = new StringLookup(s2nFilename);
 
-        /*
-         * comment out by M. Gao
-         */
-//        File s2nFile = new File( LocalizationManager.getInstance().getFilename("plotParametersDir") + File.separator + s2nFilename );
-        File s2nFile = LocalizationManager.getInstance().getLocalizationFileDirectly(LocalizationResourcePathConstants.PLOTMODELPARAMETERS_DIR,
-        		s2nFilename); 
+        File s2nFile = NcPathManager.getInstance().getStaticFile(
+        		NcPathConstants.PLOT_PARAMETERS_DIR+File.separator + s2nFilename ); 
         if( !s2nFile.exists() ) {
         	System.out.println("readS2SFile: can't open file:"+s2nFile.getAbsolutePath() );
         	return null;
         }
-//        	PathManagerFactory.getPathManager().getStaticFile(
-//                StringLookup.plotmodelDir + File.separator + s2nFilename);
+
         try {
             input = new BufferedReader(new FileReader(s2nFile));
             String line = null;
@@ -305,19 +298,14 @@ public class StringLookup {
         BufferedReader input = null;
         StringLookup lookup = new StringLookup(r2nFilename);
 
-        /*
-         * comment out by M. Gao
-         */
-//        File r2nFile = new File( LocalizationManager.getInstance().getFilename("plotModelsDir") + File.separator + r2nFilename );
-        File r2nFile = LocalizationManager.getInstance().getLocalizationFileDirectly(LocalizationResourcePathConstants.PLOTMODELS_DIR,
-        		r2nFilename);
+        File r2nFile = NcPathManager.getInstance().getStaticFile(
+        		NcPathConstants.PLOT_PARAMETERS_DIR+File.separator+r2nFilename );
+
         if( !r2nFile.exists() ) {
         	System.out.println("readS2SFile: can't open file:"+r2nFile.getAbsolutePath() );
         	return null;
         }
 
-//        File r2nFile = PathManagerFactory.getPathManager().getStaticFile(
-//                StringLookup.plotmodelDir + File.separator + r2nFilename);
         try {
             input = new BufferedReader(new FileReader(r2nFile));
             String line = null;

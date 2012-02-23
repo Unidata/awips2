@@ -144,6 +144,9 @@
     			<xsd:element ref="Volcano" maxOccurs="unbounded"
     				minOccurs="0">
     			</xsd:element>
+   				<xsd:element ref="TCM" maxOccurs="unbounded"
+    				minOccurs="0">
+    			</xsd:element>
     		</xsd:choice>
     	</xsd:complexType>
     </xsd:element>
@@ -673,5 +676,30 @@
         </xsd:complexType>
     </xsd:element>
     
+    <xsd:element name="TCM">
+    	<xsd:complexType>
+    		<xsd:sequence>
+    			<!--xsd:element ref="Color" maxOccurs="unbounded"
+    				minOccurs="1">
+    				</xsd:element-->
+    			<!--xsd:element ref="Advisory" maxOccurs="1" minOccurs="1">
+    			</xsd:element-->
+    		</xsd:sequence>
+    		
+     		<xsd:attribute name="stormName" type="xsd:string"></xsd:attribute>
+    		<xsd:attribute name="stormType" type="xsd:string"></xsd:attribute>
+    		<xsd:attribute name="stormNumber" type="xsd:int"></xsd:attribute>
+    		<xsd:attribute name="advisoryNumber" type="xsd:string"></xsd:attribute>
+    		<xsd:attribute name="advisoryTime" type="xsd:dateTime"></xsd:attribute>
+    		<xsd:attribute name="basin" type="xsd:string"></xsd:attribute>
+    		<xsd:attribute name="eyeSize" type="xsd:int"></xsd:attribute>
+    		<xsd:attribute name="positionAccuracy" type="xsd:int"></xsd:attribute>
+    		<xsd:attribute name="correction" type="xsd:boolean"></xsd:attribute>
+    		<xsd:attribute name="centralPressure" type="xsd:int"></xsd:attribute>
+    		
+    		<xsd:attribute name="pgenType" type="xsd:string"></xsd:attribute>
+    		<xsd:attribute name="pgenCategory" type="xsd:string"></xsd:attribute>
+	   	</xsd:complexType>
+    </xsd:element>
 </xsd:schema>
 

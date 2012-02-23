@@ -411,6 +411,7 @@ public class McidasSpatialFactory {
 		 */
         pvg.parameter("semi_major").setValue(1.0);
         pvg.parameter("semi_minor").setValue(1.0);
+        pvg.parameter("central_meridian").setValue(0.0);
         //pvg.parameter("scale_factor").setValue(1.0);
 
 		pvg.parameter("NAV_BLOCK_BASE64").setValue(encoded);
