@@ -39,6 +39,7 @@ import org.eclipse.ui.PlatformUI;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.vividsolutions.jts.geom.Coordinate;
 
+import gov.noaa.nws.ncep.edex.common.stationTables.StationTable;
 import gov.noaa.nws.ncep.ui.pgen.PgenSession;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.contours.IContours;
@@ -58,7 +59,8 @@ import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
 import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
 import gov.noaa.nws.ncep.ui.pgen.graphToGrid.GraphToGridParamDialog;
 import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 /**
  * Singleton attribute dialog for outlooks.
@@ -71,6 +73,9 @@ import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
  * 07/10		#215		J. Wu  		Added support for graph-to-grid.
  * 08/10		#215		J. Wu  		Added support for Contours Attributes.
  * 04/11		#?			B. Yin		Re-factor IAttribute
+ * 07/11        #450        G. Hull     NcPathManager
+ * 01/12        #582        Q. Zhou     Added NHC line/label group. Added flagLabel and flagAction and enable function. 
+ *                                      Fixed enable problem when dialog returns. 
  * </pre>
  * 
  * @author	B. Yin
@@ -127,6 +132,12 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
     //Filled line check box
     private Button filledBtn;
     
+    // info btn
+	private Button infoBtn;
+	
+    //make grid btn
+    private Button makeGridBtn;
+    
     //Check boxes for multi-selection
     private Button chkBox[];
     
@@ -163,6 +174,8 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
     //Show-continue lines button
     private Button showContBtn;
     
+    //Format button
+    private Button fmtBtn;
     //previous selection of text label
     private String prevLbl;
     
@@ -175,8 +188,6 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
     // Dialog to get input for Contours attributes
 	private static ContoursInfoDlg contoursInfoDlg = null;
 	
-	private Button	infoBtn = null;
-	
 	private String contourParm = "HGMT";
 
 	private String contourLevel = "1000";
@@ -186,6 +197,14 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 	private Calendar contourTime2 = (Calendar)Calendar.getInstance();
 	private String contourCint = "10/0/100";
 
+	private boolean needFromLine = false;
+	private static StationTable sfstnTbl;
+
+	private boolean showGrid = true;
+	private boolean flagLabel = true;
+	private boolean flagAction = true;
+	
+	
 	/**
 	 * Private constructor
 	 * @param parShell
@@ -258,7 +277,8 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 	    infoComp.setLayout( layout );	    
 
 	    infoBtn = new Button( infoComp, SWT.PUSH );
-	    infoBtn.setToolTipText( "Bring up the contour attribute dialog" );        	
+	    infoBtn.setToolTipText( "Bring up the contour attribute dialog" );  
+	    infoBtn.setEnabled(showGrid); 
 		setInfoBtnText();
 		
 		infoBtn.addSelectionListener( new SelectionAdapter() {
@@ -268,9 +288,10 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
         }); 
 		 
 	    // Button to activate the graph-to-grid processing.
-	    Button makeGridBtn = new Button( infoComp, SWT.PUSH );
+	    makeGridBtn = new Button( infoComp, SWT.PUSH );
         makeGridBtn.setText("Make Grid");
         makeGridBtn.setToolTipText( "Generate grid for this Outlook" ); 
+        makeGridBtn.setEnabled(showGrid); 
 		makeGridBtn.addSelectionListener( new SelectionAdapter() {
 			@Override
             public void widgetSelected(SelectionEvent event) {    			
@@ -326,6 +347,25 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 						msgDlg.open();
 				 }
 				 
+				 //disable some fields such as "Make Grid" for some outlooks
+				 showGrid = showMakeGrid(type);
+				 flagLabel = showLabel(type);
+				 flagAction = showAction(type);
+				 
+				 infoBtn.setEnabled(showGrid); 
+				 makeGridBtn.setEnabled( showGrid );			 
+				 lblBtn.setEnabled(flagLabel);
+				 txtBtn.setEnabled(flagLabel);
+				 symbolBtn.setEnabled(flagLabel);
+				 lnColorBtn.setEnabled(flagLabel);
+				 addLineBtn.setEnabled(flagAction);
+				 delLineBtn.setEnabled(flagAction);
+				 setContBtn.setEnabled(flagAction);
+				 showContBtn.setEnabled(flagAction);
+				 fmtBtn.setEnabled(flagAction);
+
+				 needFromLine = setFromLineFlag(type); 
+				 
 				 //Set default labels for the selected outlook type
 				 setDefaultLabels( type );
 				 
@@ -338,17 +378,18 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 		//Check box for label
 		lblBtn = new Button( panel1, SWT.CHECK );
 		lblBtn.setText("Label:");
+		lblBtn.setEnabled(flagLabel);
 		lblBtn.setSelection(true);
 		lblBtn.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if ( ((Button)(e.widget)).getSelection()  ){
-					txtBtn.setEnabled(true);
+					txtBtn.setEnabled(flagLabel);
 					txtBtn.setSelection(true);
-					txtCombo.setEnabled(true);
-					symbolBtn.setEnabled(true);
-					symbolCombo.setEnabled(true);
-					lnColorBtn.setEnabled(true);
+					txtCombo.setEnabled(flagLabel);
+					symbolBtn.setEnabled(flagLabel);
+					symbolCombo.setEnabled(flagLabel);
+					lnColorBtn.setEnabled(flagLabel);
 				}
 				else {
 					txtBtn.setSelection(false);
@@ -377,6 +418,7 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 		
 		txtBtn = new Button(txtComp, SWT.CHECK);
 		txtBtn.setText("Text");
+		txtBtn.setEnabled(flagLabel);
 		txtBtn.setSelection(true);
 		txtBtn.addSelectionListener(new SelectionAdapter(){
 			@Override
@@ -410,6 +452,7 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 		//symbol check box
 		symbolBtn = new Button(txtComp, SWT.CHECK);
 		symbolBtn.setText("Symbol");
+		symbolBtn.setEnabled(flagLabel);
 		symbolBtn.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -428,6 +471,7 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 		//'Use Line Color' check box
 		lnColorBtn = new Button( lblGrp, SWT.CHECK);
 		lnColorBtn.setText("Use Line Color");
+		lnColorBtn.setEnabled(flagLabel);
 		lnColorBtn.setSelection(useLineColor);
 		lnColorBtn.addSelectionListener(new SelectionAdapter(){
 			
@@ -449,6 +493,7 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 		addLineBtn = new Button(btnsComp, SWT.PUSH);
 		addLineBtn.setText("Add Line");
 		addLineBtn.setLayoutData(new GridData(120,30));
+		addLineBtn.setEnabled(flagAction);
 		addLineBtn.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -460,6 +505,7 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 		delLineBtn = new Button(btnsComp, SWT.PUSH);
 		delLineBtn.setText("Del Line");
 		delLineBtn.setLayoutData(new GridData(120,30));
+		delLineBtn.setEnabled(flagAction);
 		delLineBtn.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -524,6 +570,7 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 		setContBtn = new Button(btnsComp, SWT.PUSH);
 		setContBtn.setText("Set Cont");
 		setContBtn.setLayoutData(new GridData(120,30));
+		setContBtn.setEnabled(flagAction);
 		setContBtn.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -543,6 +590,7 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 		showContBtn = new Button(btnsComp, SWT.TOGGLE);
 		showContBtn.setText("Show Cont");
 		showContBtn.setLayoutData(new GridData(120,30));
+		showContBtn.setEnabled(flagAction);
 		showContBtn.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -564,10 +612,10 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 		});
 
 		//'Format' button
-		Button fmtBtn = new Button(btnsComp, SWT.PUSH);
+		fmtBtn = new Button(btnsComp, SWT.PUSH);
 		fmtBtn.setText("Format");
 		fmtBtn.setLayoutData(new GridData(120,30));
-		
+		fmtBtn.setEnabled(flagAction);
 		fmtBtn.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -967,6 +1015,7 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 	 * Create widgets for the Closed attribute
 	 */	
 	private void createCloseAttr(){
+		
 		chkBox[ChkBox.CLOSE.ordinal()] = new Button(panel2, SWT.CHECK);
 		chkBox[ChkBox.CLOSE.ordinal()] .setLayoutData(new GridData(CHK_WIDTH,CHK_HEIGHT));
 		chkBox[ChkBox.CLOSE.ordinal()].addSelectionListener(new SelectionAdapter(){
@@ -986,6 +1035,7 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 		});
 		closedBtn  = new Button(panel2, SWT.CHECK);
 		closedBtn.setText("Closed");
+		
 	}
 
 	/**
@@ -1224,7 +1274,9 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 		
 		if (outlookTbl == null) {
 			try {
-				String outlookTypeFile = LocalizationManager.getInstance().getFilename("outlookType");
+				String outlookTypeFile = NcPathManager.getInstance().getStaticFile(
+						   NcPathConstants.PGEN_OUTLOOK_TYPE ).getAbsolutePath();
+
 				SAXReader reader = new SAXReader();
 				outlookTbl = reader.read(outlookTypeFile);
 			} catch (Exception e) {
@@ -1385,7 +1437,8 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 		
 		settings = new HashMap<String, Line>();
 		
-		String settingFile = LocalizationManager.getInstance().getFilename("outlookSettings");
+		String settingFile = NcPathManager.getInstance().getStaticFile(
+				   NcPathConstants.PGEN_OUTLOOK_SETTINGS ).getAbsolutePath();
 		
 		gov.noaa.nws.ncep.ui.pgen.file.Products products = FileTools.read( settingFile );
 		
@@ -1662,4 +1715,101 @@ public class OutlookAttrDlg  extends AttrDlg implements IContours, ILine{
 		return null;
 	}
 
+	/**
+	 * Check the outlook type table to see if the "Make Grid" need enable. 
+	 * @param otlk
+	 * @return
+	 */
+	private boolean showMakeGrid( String type ){
+		boolean ret = true;
+		if ( type != null ){
+			type = type.toUpperCase();
+			String xpath = OutlookAttrDlg.OTLK_XPATH +"[@name='" + type + "']"; 
+			String makegrid = OutlookAttrDlg.readOutlookTbl().selectSingleNode(xpath).valueOf("@makegrid");
+			if ( makegrid != null && !makegrid.isEmpty() && makegrid.equalsIgnoreCase("false")){
+				ret = false;
+			}
+		}
+		
+		return ret;		
+	}
+
+	/**
+	 * Check the outlook type table to see if the "Label" buttons need enable. 
+	 * @param otlk
+	 * @return
+	 */
+	private boolean showLabel( String type ){
+		boolean ret = true;
+		if ( type != null ){
+			type = type.toUpperCase();
+			String xpath = OutlookAttrDlg.OTLK_XPATH +"[@name='" + type + "']"; 
+			String makegrid = OutlookAttrDlg.readOutlookTbl().selectSingleNode(xpath).valueOf("@flagLabel");
+			if ( makegrid != null && !makegrid.isEmpty() && makegrid.equalsIgnoreCase("false")){
+				ret = false;
+			}
+		}
+		
+		return ret;		
+	}
+	
+	/**
+	 * Check the outlook type table to see if the "Action" buttons need enable. 
+	 * @param otlk
+	 * @return
+	 */
+	private boolean showAction( String type ){
+		boolean ret = true;
+		if ( type != null ){
+			type = type.toUpperCase();
+			String xpath = OutlookAttrDlg.OTLK_XPATH +"[@name='" + type + "']"; 
+			String makegrid = OutlookAttrDlg.readOutlookTbl().selectSingleNode(xpath).valueOf("@flagAction");
+			if ( makegrid != null && !makegrid.isEmpty() && makegrid.equalsIgnoreCase("false")){
+				ret = false;
+			}
+		}
+		
+		return ret;		
+	}
+	
+	/**
+	 * Check the outlook type table to see if the "Make Grid" need enable. 
+	 * @param otlk
+	 * @return
+	 */
+	private boolean setFromLineFlag( String type ){
+		boolean ret = false;
+		if ( type != null ){
+			type = type.toUpperCase();
+			String xpath = OutlookAttrDlg.OTLK_XPATH +"[@name='" + type + "']"; 
+			String makegrid = OutlookAttrDlg.readOutlookTbl().selectSingleNode(xpath).valueOf("@fromline");
+			if ( makegrid != null && !makegrid.isEmpty() && makegrid.equalsIgnoreCase("true")){
+				ret = true;
+			}
+		}
+		
+		return ret;
+		
+	}
+	
+	public boolean fromLineFlag() {
+		return needFromLine;
+	}
+	
+	/**
+	 * Return the anchor table
+	 * @return
+	 */
+	public static StationTable getSfstnTbl(){
+		
+		if ( sfstnTbl == null ){
+			
+			sfstnTbl = new StationTable(
+					NcPathManager.getInstance().getStaticFile(
+	            			NcPathConstants.SFSTNS_TBL ).getAbsolutePath());
+
+		}
+		
+		return sfstnTbl;
+	}
 }

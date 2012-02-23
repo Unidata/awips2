@@ -12,8 +12,9 @@ import org.eclipse.swt.graphics.RGB;
  * SOFTWARE HISTORY
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 17 Apr 2009  74          bhebbard    Initial implementation.
- * 17 May 2010  164			M. Li		Add convertToRGB
+ * 17 Apr 2009  74          B. Hebbard  Initial implementation.
+ * 17 May 2010  164         M. Li       Add convertToRGB
+ * 01 Nov 2011  397         B. Hebbard  Add getRGBString(); various cleanups
  * </pre>
  * 
  * @author bhebbard
@@ -65,8 +66,7 @@ public enum GempakColor {
 	    private String xColorName;
 
 	    //  Constructor
-	    GempakColor (String abbrev, int red, int green, int blue, String xColorName)
-	    {
+	    private GempakColor (String abbrev, int red, int green, int blue, String xColorName) {
 	        this.abbrev     = abbrev;
 	        this.red        = red;
 	        this.green      = green;
@@ -74,46 +74,44 @@ public enum GempakColor {
 	        this.xColorName = xColorName;
 	    }
 
-	    public String getAbbrev()
-	    {
+	    public String getAbbrev() {
 	        return abbrev;
 	    }
 
-	    public int getRed()
-	    {
+	    public int getRed() {
 	        return red;
 	    }
 
-	    public int getGreen()
-	    {
+	    public int getGreen() {
 	        return green;
 	    }
 
-	    public int getBlue()
-	    {
+	    public int getBlue() {
 	        return blue;
 	    }
+	    
+	    public String getXColorName() {
+	        return xColorName;
+	    }
 
-	    public RGB getRGB()
-	    {
+	    public RGB getRGB() {
 	    	return new RGB (red, green, blue);
 	    }
-	    
-	    public String getXColorName()
-	    {
-	        return xColorName;
+
+	    public String getRGBString() {
+	    	//  Result identical to getRGB().toString(), but doesn't invoke SWT
+            return "RGB {" + getRed()   + ", "
+                           + getGreen() + ", "
+                           + getBlue()  + "}";
 	    }
 	    
 	    public static RGB convertToRGB(int index) {
-	    	if ( index == 0) return new RGB(0, 0, 0);
-	    	
-	    	int i = 1;
-    	    for (GempakColor gColor : GempakColor.values()) {
-    	    	if ( i == index) {
-    	    		return gColor.getRGB();
-    	    	}
-    	    	i++;
-    	    }
-    	    return null;
+	    	if (index == 0) {
+	    		return new RGB(0, 0, 0);
+	    	}
+	    	if (index > values().length) {
+	    	    return null;
+	    	}
+    	    return values()[index-1].getRGB();
 	    }
 }

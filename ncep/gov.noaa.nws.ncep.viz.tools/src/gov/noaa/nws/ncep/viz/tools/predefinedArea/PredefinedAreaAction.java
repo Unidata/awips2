@@ -1,8 +1,8 @@
 
 package gov.noaa.nws.ncep.viz.tools.predefinedArea;
 
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationConstants;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationResourcePathConstants;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.resources.manager.PredefinedAreasMngr;
 import gov.noaa.nws.ncep.viz.ui.display.NCDisplayPane;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
@@ -92,24 +92,9 @@ public class PredefinedAreaAction extends AbstractHandler {
         		editor.getDisplayPanes() : editor.getSelectedPanes() );
         
         try {
-//			PredefinedArea area = NmapCommon.getPredefinedArea( areaName );
-        	Object xmlObj;
-//        	xmlObj = SerializationUtil.jaxbUnmarshalFromXmlFile( 
-//        			LocalizationManager.getInstance().getFilename("mapResourcesDir")
-//        			+ File.separator + areaName + ".xml" );  comment out by M. Gao
-            File mapBundle = PathManagerFactory.getPathManager().getStaticFile( 
-                 LocalizationConstants.DEFAULT_ROOT_DIR_PORTION_FOR_NCEP_BASE +
-                       File.separator + LocalizationConstants.BASE_DIR + File.separator +
-                       LocalizationResourcePathConstants.PREDEFINED_AREAS_DIR +
-                       File.separator + areaName + ".xml");
-			xmlObj = SerializationUtil.jaxbUnmarshalFromXmlFile(mapBundle);
-
-        	if( !(xmlObj instanceof PredefinedArea) ) {				
-        		VizException ve = new VizException( 
-        				"Unmarshalled rbd file is not a valid PredefinedArea." );
-        		throw ve;
-        	}
-        	NCMapRenderableDisplay dispPane = ((PredefinedArea)xmlObj).getPredefinedArea();
+        	PredefinedArea pArea = PredefinedAreasMngr.getPredefinedArea(areaName);
+            
+        	NCMapRenderableDisplay dispPane = pArea.getPredefinedArea();
 					
         	for( IDisplayPane pane : displayPanes ) {
         		NCMapRenderableDisplay existingDisplay = (NCMapRenderableDisplay) pane.getRenderableDisplay();

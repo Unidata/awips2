@@ -1,0 +1,81 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+
+	<bean id="ncscdDecoder"
+		class="gov.noaa.nws.ncep.edex.plugin.ncscd.decoder.NcScdDecoder">
+		<constructor-arg ref="ncscdPluginName" />
+	</bean>
+
+	<bean id="ncscdPointData"
+		class="gov.noaa.nws.ncep.common.dataplugin.ncscd.dao.NcScdPointDataTransform" />
+
+	<bean id="ncscdSeparator"
+		class="gov.noaa.nws.ncep.edex.plugin.ncscd.decoder.NcScdSeparator" />
+
+	<!-- bean id="ncscdRegistry" class=" com.raytheon.uf.edex.esb.camel.BasicThreadPoolRouter" 
+		factory-method="getInstance" depends-on="alphaNumericDatatypePool"> <constructor-arg><value>AlphaNumeric</value></constructor-arg> 
+		<constructor-arg><value>ncscd</value></constructor-arg> <constructor-arg><value>directvm:ncscdIngest</value></constructor-arg> 
+		</bean -->
+
+	<bean id="ncscdDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="ncscd" />
+		<constructor-arg value="jms-dist:queue:Ingest.ncscd" />
+	</bean>
+
+	<bean id="ncscdCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="ncscd-camel" />
+	</bean>
+
+	<camelContext id="ncscd-camel" xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler" autoStartup="false">
+		<endpoint id="ncscdFileEndpoint"
+			uri="file:${edex.home}/data/sbn/ncscd?noop=true&amp;idempotent=false" />
+
+		<!-- Begin NcScd routes -->
+		<route id="ncscdFileConsumerRoute">
+			<from ref="ncscdFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+				<constant>ncscd</constant>
+			</setHeader>
+			<to uri="jms-generic:queue:Ingest.ncscd" />
+		</route>
+
+		<route id="ncscdIngestRoute">
+			<from uri="jms-generic:queue:Ingest.ncscd" />
+			<setHeader headerName="pluginName">
+				<constant>ncscd</constant>
+			</setHeader>
+			<doTry>
+				<pipeline>
+					<bean ref="stringToFile" />
+					<split streaming="true">
+						<method bean="ncscdSeparator" method="separate" />
+						<doTry>
+							<pipeline>
+								<bean ref="ncscdDecoder" method="decode" />
+								<bean ref="ncscdPointData" method="toPointData" />
+								<to uri="directvm:persistIndexAlert" />
+							</pipeline>
+							<doCatch>
+								<exception>java.lang.Throwable</exception>
+								<to uri="log:ncscd?level=ERROR&amp;showBody=false" />
+							</doCatch>
+						</doTry>
+					</split>
+					<!-- <bean ref="processUtil" method="delete" /> -->
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:ncscd?level=ERROR&amp;showBody=false" />
+				</doCatch>
+			</doTry>
+		</route>
+	</camelContext>
+</beans>

@@ -203,9 +203,11 @@ public abstract class AbstractPgenDrawingTool extends AbstractPgenTool {
     
    protected void setHandler( IInputHandler handler){
     	
-        mapEditor.unregisterMouseHandler( this.mouseHandler );
-    	mouseHandler = handler;
-        mapEditor.registerMouseHandler( this.mouseHandler );
+	   if ( mapEditor != null ) {
+		   mapEditor.unregisterMouseHandler( this.mouseHandler );
+		   mouseHandler = handler;
+		   mapEditor.registerMouseHandler( this.mouseHandler );
+	   }
 
     }
   
