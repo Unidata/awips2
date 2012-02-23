@@ -16,6 +16,8 @@ import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
 import gov.noaa.nws.ncep.ui.pgen.file.Products;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenCycleTool;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -59,7 +61,8 @@ public class GfaGenerate {
 
 	private final static Logger logger = Logger.getLogger(GfaGenerate.class);
 	private Transformer transformer;
-	private String XSLT_FILE = NmapCommon.getGfaProductXsl();
+	private String XSLT_FILE = 	NcPathManager.getInstance().getStaticFile( 
+			NcPathConstants.PGEN_GFA_PROD_XSL ).getAbsolutePath();
 
 
 	/**
@@ -286,8 +289,8 @@ public class GfaGenerate {
 			    stateList2.append( secondList.toString().trim() );
 			    stateList2.append( " " );
 			    stateList2.append( firstList.toString().trim() );
-			    stateList1.append( " " );
-			    stateList1.append( tailList.toString().trim() );
+			    stateList2.append( " " );
+			    stateList2.append( tailList.toString().trim() );
 			    
 			    secondg.setGfaStates( stateList2.toString().trim() );
 			    

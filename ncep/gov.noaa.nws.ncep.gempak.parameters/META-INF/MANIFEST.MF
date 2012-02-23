@@ -13,7 +13,7 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: gov.noaa.nws.ncep.viz.common.ui,
  gov.noaa.nws.ncep.viz.common.ui.color,
- gov.noaa.nws.ncep.viz.localization.impl,
+ gov.noaa.nws.ncep.viz.localization,
  org.junit
 Export-Package: gov.noaa.nws.ncep.gempak.parameters,
  gov.noaa.nws.ncep.gempak.parameters.categorymap,
