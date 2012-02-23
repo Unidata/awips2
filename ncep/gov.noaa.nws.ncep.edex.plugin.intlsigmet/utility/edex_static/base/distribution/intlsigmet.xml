@@ -1,7 +1,34 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <requestPatterns xmlns:ns2="group">
-    <regex>^W[CSV]PA(0[1-9]|1[1-3]) PHFO.*</regex>
-    <regex>^W[CSV]NT(0[1-9]|1[1-3]) KKCI.*</regex>
-    <regex>^WAAK4[789] PAWU.*</regex>
-    <regex>^W[CSV]PN0[1-6] KKCI.*</regex>
+    <regex>^WSAK0[12] PAWU.*</regex>
+    <regex>^WSA[LG]31 .*</regex>
+    <regex>^WSAU21 .*</regex>
+    <regex>^WSBZ[23]1 .*</regex>
+    <regex>^WSBW20 .*</regex>
+    <regex>^WSC[AH]31 .*</regex>
+    <regex>^WSCD20 .*</regex>
+    <regex>^WSCI3[14579] .*</regex>
+    <regex>^WSCN(3[12356]|02) .*</regex>
+    <regex>^WSE[EW]3[1-3] .*</regex>
+    <regex>^WSF(I31|G20|J01|R3[245]) .*</regex>
+    <regex>^WS(G[LR]|L[JV])31 .*</regex>
+    <regex>^WSIE31 .*</regex>
+    <regex>^WSIY3[1-3] .*</regex>
+    <regex>^WSIN(31|90) .*</regex>
+    <regex>^WSM[CAGVOP]31 .*</regex>
+    <regex>^WSN(L31|U20|O3[2456]) .*</regex>
+    <regex>^WSP[RM]31 .*</regex>
+    <regex>^WSR[ASH]3[126] .*</regex>
+    <regex>^WSS(([MQG]31)|(G32)|([CRSD]20)) .*</regex>
+    <regex>^WSTS(40|31) .*</regex>
+    <regex>^WSU(K32|R34) .*</regex>
+    <regex>^WSZA21 .*</regex>
+    <regex>^W[CSV](PA|NT)(0[1-9]|1[1-3]) .*</regex>
+    <regex>^W[CSV]PN0[1-6] .*</regex>
+    <regex>^W[SCV]HO31 .*</regex>
+    <regex>^W[SV]JP31 .*</regex>
+    <regex>^WV(AG|EQ)31 .*</regex>
+    <regex>^WV(IY32|RS37) .*</regex>
+    <regex>^W[CSV](NT|PN|PA|AK)[01][0-9] (KKCI|PHFO|PAWU) ([0-3][0-9])([0-2][0-9]).*</regex>
+	<regex>^W[CSV].... [^KP]... (0[1-9]|[12][0-9]|3[01])([01][0-9]|2[0-3])([0-5][0-9]).*</regex>    
 </requestPatterns>

@@ -43,6 +43,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceProperties;
  * ------------ ----------  ----------- --------------------------
  * 04/18/11      #           Greg Hull    Initial Creation.
  * 06/07/11       #445       Xilin Guo   Data Manager Performance Improvements
+ * 10/22/11      #467        Greg Hull   add to all panes option
  * 
  * </pre>
  * 
@@ -103,7 +104,9 @@ public class NewResourceAction extends AbstractHandler {
 				
    		rscSelDlg.addResourceSelectionListener( new IResourceSelectedListener() {
    			@Override
-   			public void resourceSelected( ResourceName rscName, DataTime fcstTime, boolean done ) {
+   			public void resourceSelected( ResourceName rscName, 
+   								boolean replace, // ignore the replace option 
+   										  boolean addAllPanes, boolean done ) {
    				try {
 //   	   			System.out.println("Loading Resource " + rscName );   	   				
    					ResourceSelection rscSel = ResourceFactory.createResource( rscName );
@@ -148,9 +151,12 @@ public class NewResourceAction extends AbstractHandler {
 
    					}   	   					
 
+   					IDisplayPane[] panesToLoad = 
+   						(addAllPanes ? editor.getDisplayPanes() : editor.getSelectedPanes() );
+   					
    	   				// add the selected resource to the resource list for each pane
    					//
-   	   				for( IDisplayPane pane : editor.getSelectedPanes() ) {    			
+   	   				for( IDisplayPane pane : panesToLoad ) {    			
 
    	   					IDescriptor mapDescr = pane.getDescriptor();
    	   					
@@ -200,25 +206,11 @@ public class NewResourceAction extends AbstractHandler {
    			}
    		});
 
-   		// generate any new dynamic resources and open the Selection Dialog
-   		//
-//      xguo,06/02/11. To enhance the system performance, move 
-//      data resource query into NC-Perspective initialization
-//   		try {
-//   			ResourceDefnsMngr rscDefnsMngr = ResourceDefnsMngr.getInstance();
-//   			rscDefnsMngr.generateDynamicResources();
-
-//   	   		rscSelDlg.open( " Load Resource ",
-//   					SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL );   					
-
-//   		} catch (VizException e1) {
-//   			MessageDialog errDlg = new MessageDialog( 
-//   					shell, "Error", null, 
-//   					"Error reading Resource Definitions Table",
-//   					MessageDialog.ERROR, new String[]{"Ok"}, 0);
-//   			errDlg.open();
-//   		}
-   		rscSelDlg.open( " Load Resource ",
+   		boolean isMultipane = (editor.getPaneLayout().getNumberOfPanes() > 1 );
+   		
+   		rscSelDlg.open( false, // no replaceResource option  
+   						false, // replace button not enabled
+   						null, isMultipane,
 				SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL );
 		return null;
 	}
