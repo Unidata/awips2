@@ -89,6 +89,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * 03/11		  			J. Wu		  Added getSphPolyArea() && getPolyArea()
  * 05/11		  			J. Wu		  Added methods to setup/covert between lat/lon
  * 											and a custom coordinate.
+ * 08/11		  			J. Wu		  Added getPgenOprDirectory()
+ * 
  * </pre>
  * 
  * @author 
@@ -467,7 +469,33 @@ public class PgenUtil {
         	}
         }
     }
-    
+    /**
+     * Load the LabeledLine modifying tool. 
+     * @param ll - LabeledLine to edit when the tool is loaded
+     */
+    public static final void loadTcmTool( DrawableElement elem ) {
+        IEditorPart part = EditorUtil.getActiveEditor();
+        ICommandService service = (ICommandService) part.getSite().getService( ICommandService.class );
+        Command cmd = service.getCommand("gov.noaa.nws.ncep.ui.pgen.rsc.PgenTCMtool");
+
+        if (cmd != null ) {
+        	
+        	try {        		
+        		HashMap<String, Object> params = new HashMap<String, Object>();
+        		params.put("editor", part);
+				params.put("name", elem.getPgenType() );
+				params.put("className", elem.getPgenCategory());
+				
+        		ExecutionEvent exec = new ExecutionEvent(cmd, params, elem, null);
+
+        		cmd.executeWithChecks(exec);
+
+        	} catch (Exception e) {
+        		
+        		e.printStackTrace();
+        	}
+        }
+    }    
     /**
      * Load the outlook drawing tool. 
      */
@@ -1264,6 +1292,91 @@ public class PgenUtil {
 				
 		return new ArrayList<Coordinate>( Arrays.asList( aa ) );
 		
+	}
+	
+	/**
+     * Returns the base directory for storing/access PGEN operation product file.
+     * @return
+     */
+    public static String getPgenOprDirectory() {
+		return Activator.getDefault().getPreferenceStore().getString( PgenPreferences.P_OPR_DIR );
+    }
+
+
+	/**
+	 * Format a Calendar date into a string of "DDMMYYYY"
+	 */
+	public static String formatDate( Calendar cal ) {
+		
+		StringBuilder dstr = new StringBuilder();
+		
+		int day = cal.get( Calendar.DAY_OF_MONTH );
+		if ( day < 10 ) {
+			dstr.append( "0" + day );
+		}
+		else {
+			dstr.append( day );
+		}
+				
+		int mon = cal.get( Calendar.MONTH ) + 1;
+		if ( mon < 10  ) {			
+			dstr.append( "0" + mon );
+		}
+		else {
+			dstr.append( mon );
+		}
+		
+		dstr.append( cal.get( Calendar.YEAR ) );		
+		
+		return dstr.toString();		
+	}
+
+	/**
+	 * Parse the environmental variables to get a full path file name.
+//     * Default path will be the user's PGEN_OPR directory.
+	 * @param filename
+	 * @return a full path file name or unchanged if no "/" in the input file name
+	 */
+	public static String parsePgenFileName( String fileName ) {
+		
+		String parsedFile = fileName;
+
+		if ( fileName != null ) {
+			if ( fileName.contains( File.separator ) ) {
+
+				String[] items = fileName.split( File.separator );
+				StringBuilder stb = new  StringBuilder();
+				if ( fileName.startsWith( File.separator ) ) {
+					stb.append( File.separator );
+				}
+
+				for ( String str : items ) {
+					if ( str.equals(".") ) {
+						stb.append( System.getProperty("user.home") );
+					}
+					else if ( str.startsWith( "$") && System.getenv( str.substring(1) ) != null ) {
+						stb.append( System.getenv( str.substring(1) ) );
+					}
+					else {
+						stb.append( str );
+					}
+
+					stb.append( File.separator );
+				}
+
+				parsedFile = stb.toString();
+
+				if ( !fileName.endsWith( File.separator ) ) {
+					parsedFile = parsedFile.substring( 0, parsedFile.length() - 1 );
+				}
+			}
+//			else {
+//				parsedFile = new String( PgenUtil.getPgenOprDirectory() + 
+//						   File.separator + fileName );				
+//			}
+		}
+		
+		return parsedFile;
 	}
 
 }

@@ -8,6 +8,8 @@
  * Date     	Author		Description
  * ------------	----------	-----------	--------------------------
  * 12/2008		L. Lin		Initial creation	
+ * 09/2011      Chin Chen   changed to improve purge performance and
+ * 							removed xml serialization as well
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
  */
@@ -20,12 +22,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -33,7 +30,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @Entity
 @Table(name="aww_fips")
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class AwwFips implements Serializable, ISerializableObject {
 
@@ -44,19 +40,17 @@ public class AwwFips implements Serializable, ISerializableObject {
     private Integer recordId = null;
 	
 	// The AWW record this object belongs to.
-	@ManyToOne
-    @JoinColumn(name="parentID", nullable=false)
-	private AwwUgc parentID;
+	//@ManyToOne
+    //@JoinColumn(name="parentID", nullable=false)
+	//private AwwUgc parentID;
 
 	// The county FIPS 
 	@Column(length=16)
-    @XmlElement
     @DynamicSerializeElement
 	private String fips;
 
 	// The universal geographic code
 	@Column(length=640)
-    @XmlElement
     @DynamicSerializeElement
 	private String ugc;
 	
@@ -94,19 +88,7 @@ public class AwwFips implements Serializable, ISerializableObject {
 		this.recordId = recordId;
 	}
 	
-	/**
-	 * @return the parentID
-	 */
-	public AwwUgc getParentID() {
-	    return parentID;
-	}
-
-	/**
-	 * @param parentID the parentID to set
-	 */
-	public void setParentID(AwwUgc parentID) {
-	    this.parentID = parentID;
-	}
+	
 	
 	/**
 	 * @return the fips

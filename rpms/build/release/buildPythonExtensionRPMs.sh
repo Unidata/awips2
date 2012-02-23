@@ -50,6 +50,8 @@ function buildRPM()
    updateSpecsFileIfNecessary
    time rpmbuild -ba --target=i386 \
       --define '_topdir %(echo ${RPM_TOP_DIR})' \
+      --define '_component_version %(echo ${AWIPSII_VERSION})' \
+      --define '_component_release %(echo ${AWIPSII_RELEASE})' \
       --define '_build_root %(echo ${BUILDROOT_DIR})' \
       --buildroot ${BUILDROOT_DIR} ${COMPONENT_SPECS}
    RC="$?"

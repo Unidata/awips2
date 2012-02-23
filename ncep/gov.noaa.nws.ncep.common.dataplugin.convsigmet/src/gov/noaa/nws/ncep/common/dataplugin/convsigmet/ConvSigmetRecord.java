@@ -9,6 +9,8 @@
  * ------------ ----------      ----------- --------------------------
  * 03/2009      87/114			L. Lin     	Initial coding
  * 07/2009		87/114		    L. Lin		Migration to TO11
+ * 09/2011      				Chin Chen   changed to improve purge performance and
+ * 											removed xml serialization as well
  * </pre>
  *
  * This code has been developed by the SIB for use in the AWIPS2 system.
@@ -16,128 +18,119 @@
 
 package gov.noaa.nws.ncep.common.dataplugin.convsigmet;
 
-import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
-
 import java.util.Calendar;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.IDecoderGettable;
+
+import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @Entity
 @Table(name = "convsigmet", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class ConvSigmetRecord extends PluginDataObject {
 
-    /**
+
+public class ConvSigmetRecord extends PluginDataObject{
+
+	/**
 	 * 
 	 */
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    // reportType is "convective sigmet".
-    @Column(length = 32)
-    @DataURI(position = 1)
-    @XmlElement
+	// reportType is "convective sigmet".
+	@Column(length=32)
+	@DataURI(position=1)
+	@DynamicSerializeElement
+	private String reportType;
+	
+	// WMO header
+	@Column(length=32)
+	@DataURI(position=2)
+	@DynamicSerializeElement
+	private String wmoHeader;
+
+	// forecastRegion as: SIGW, SIGC, or SIGE
+	@Column(length=8)
+	@DataURI(position=3)
+	@DynamicSerializeElement
+	private String forecastRegion;
+
+	// The issue office where the report from
+	@Column(length=32)
+	@DynamicSerializeElement
+	private String issueOffice;
+	
+	// Issue time of the report
+	@Column
+	@DynamicSerializeElement
+	private Calendar issueTime;
+
+	// The designator
+	@Column(length=8)
+	@DynamicSerializeElement
+	private String designatorBBB;
+	
+	// CorrectionFlag is a flag indicating a cancellation (0 or 1)
+	@Column
     @DynamicSerializeElement
-    private String reportType;
+	private Integer correctionFlag;
+	
+	// The entire report
+	@Column(length=15000)
+	@DynamicSerializeElement
+	private String bullMessage;
 
-    // WMO header
-    @Column(length = 32)
-    @DataURI(position = 2)
-    @XmlElement
-    @DynamicSerializeElement
-    private String wmoHeader;
 
-    // forecastRegion as: SIGW, SIGC, or SIGE
-    @Column(length = 8)
-    @DataURI(position = 3)
-    @XmlElement
-    @DynamicSerializeElement
-    private String forecastRegion;
+	/** 
+	 * Convsigmet section  
+	 */
+	@DynamicSerializeElement
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinColumn(name = "parentID", nullable = false)
+    @Index(name = "convSigmetSection_parentid_idex")
+	private Set<ConvSigmetSection> convSigmetSection = new HashSet<ConvSigmetSection>();
 
-    // The issue office where the report from
-    @Column(length = 32)
-    @XmlElement
-    @DynamicSerializeElement
-    private String issueOffice;
 
-    // Issue time of the report
-    @Column
-    @XmlElement
-    @DynamicSerializeElement
-    private Calendar issueTime;
-
-    // The designator
-    @Column(length = 8)
-    @XmlElement
-    @DynamicSerializeElement
-    private String designatorBBB;
-
-    // CorrectionFlag is a flag indicating a cancellation (0 or 1)
-    @Column
-    @XmlElement
-    @DynamicSerializeElement
-    private Integer correctionFlag;
-
-    // The entire report
-    @Column(length = 15000)
-    @XmlElement
-    @DynamicSerializeElement
-    private String bullMessage;
-
-    /**
-     * Convsigmet section
-     */
-    @DynamicSerializeElement
-    @XmlElement
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "parentID", fetch = FetchType.EAGER)
-    @Index(name = "convsigmet_section_parentid_idex")
-    private Set<ConvSigmetSection> convSigmetSection = new HashSet<ConvSigmetSection>();
-
-    /**
+	/**
      * Default Convstructor
      */
     public ConvSigmetRecord() {
-        this.issueOffice = "";
-        this.wmoHeader = "";
-        this.bullMessage = "";
-        this.designatorBBB = "";
-        this.forecastRegion = "";
-        this.reportType = "";
-        this.correctionFlag = IDecoderConstantsN.INTEGER_MISSING;
+    	this.issueOffice="";
+    	this.wmoHeader="";
+    	this.bullMessage="";
+    	this.designatorBBB="";
+    	this.forecastRegion="";
+    	this.reportType="";
+    	this.correctionFlag=IDecoderConstantsN.INTEGER_MISSING;
     }
 
     /**
      * Convstructs a consigmet record from a dataURI
      * 
-     * @param uri
-     *            The dataURI
+     * @param uri The dataURI
      */
     public ConvSigmetRecord(String uri) {
         super(uri);
     }
 
+    
     @Override
     public IDecoderGettable getDecoderGettable() {
         // TODO Auto-generated method stub
@@ -145,167 +138,150 @@ public class ConvSigmetRecord extends PluginDataObject {
     }
 
     /**
-     * @return the issueOffice
-     */
-    public String getIssueOffice() {
-        return issueOffice;
-    }
+	 * @return the issueOffice
+	 */
+	public String getIssueOffice(){
+		return issueOffice;
+	}
 
-    /**
-     * @param issueOffice
-     *            to set
-     */
-    public void setIssueOffice(String issueOffice) {
-        this.issueOffice = issueOffice;
-    }
+	/**
+	 * @param issueOffice to set
+	 */
+	public void setIssueOffice(String issueOffice){
+		this.issueOffice=issueOffice;
+	}
+	
+	/**
+	 * @return the wmoHeader
+	 */
+	public String getWmoHeader(){
+		return wmoHeader;
+	}
 
-    /**
-     * @return the wmoHeader
-     */
-    public String getWmoHeader() {
-        return wmoHeader;
-    }
+	/**
+	 * @param wnoHeader to set
+	 */
+	public void setWmoHeader(String wmoHeader){
+		this.wmoHeader=wmoHeader;
+	}
+	
+	/**
+	 * @return the issueTime
+	 */
+	public Calendar getIssueTime(){
+		return issueTime;
+	}
 
-    /**
-     * @param wnoHeader
-     *            to set
-     */
-    public void setWmoHeader(String wmoHeader) {
-        this.wmoHeader = wmoHeader;
-    }
+	/**
+	 * @param issueTime to set
+	 */
+	public void setIssueTime(Calendar issueTime){
+		this.issueTime=issueTime;
+	}
+	
+	/**
+	 * @return the reportType
+	 */
+	public String getReportType() {
+		return reportType;
+	}
 
-    /**
-     * @return the issueTime
-     */
-    public Calendar getIssueTime() {
-        return issueTime;
-    }
+	/**
+	 * @param reportType to set
+	 */
+	public void setReportType(String reportType) {
+		this.reportType = reportType;
+	}
 
-    /**
-     * @param issueTime
-     *            to set
-     */
-    public void setIssueTime(Calendar issueTime) {
-        this.issueTime = issueTime;
-    }
+	/**
+	 * @return the designatorBBB
+	 */
+	public String getDesignatorBBB() {
+		return designatorBBB;
+	}
 
-    /**
-     * @return the reportType
-     */
-    public String getReportType() {
-        return reportType;
-    }
+	/**
+	 * @param designatorBBB to set
+	 */
+	public void setDesignatorBBB(String designatorBBB) {
+		this.designatorBBB = designatorBBB;
+	}
 
-    /**
-     * @param reportType
-     *            to set
-     */
-    public void setReportType(String reportType) {
-        this.reportType = reportType;
-    }
+	/**
+	 * @return the correctionFlag
+	 */
+	public Integer getCorrectionFlag() {
+		return correctionFlag;
+	}
 
-    /**
-     * @return the designatorBBB
-     */
-    public String getDesignatorBBB() {
-        return designatorBBB;
-    }
+	/**
+	 * @param correctionFlag to set
+	 */
+	public void setCorrectionFlag(Integer correctionFlag) {
+		this.correctionFlag = correctionFlag;
+	}
 
-    /**
-     * @param designatorBBB
-     *            to set
-     */
-    public void setDesignatorBBB(String designatorBBB) {
-        this.designatorBBB = designatorBBB;
-    }
+	/**
+	 * @return the forecastRegion
+	 */
+	public String getForecastRegion() {
+		return forecastRegion;
+	}
 
-    /**
-     * @return the correctionFlag
-     */
-    public Integer getCorrectionFlag() {
-        return correctionFlag;
-    }
+	/**
+	 * @param forecastRegion to set
+	 */
+	public void setForecastRegion(String forecastRegion) {
+		this.forecastRegion = forecastRegion;
+	}
+	
+	/**
+	 * @return the bullMessage
+	 */
+	public String getBullMessage() {
+		return bullMessage;
+	}
 
-    /**
-     * @param correctionFlag
-     *            to set
-     */
-    public void setCorrectionFlag(Integer correctionFlag) {
-        this.correctionFlag = correctionFlag;
-    }
+	/**
+	 * @param bullMessage to set
+	 */
+	public void setBullMessage(String bullMessage) {
+		this.bullMessage = bullMessage;
+	}
+	   
+	
+	/**
+	 * @return the set of convective Sigmet section
+	 */
+	   public Set<ConvSigmetSection> getConvSigmetSection() {
+	           return convSigmetSection;
+	   }
 
-    /**
-     * @return the forecastRegion
-     */
-    public String getForecastRegion() {
-        return forecastRegion;
-    }
+	   /**
+	    * @param convsigmet the section to set
+	    */
+	   public void setConvSigmetSection(Set<ConvSigmetSection> convSection) {
+	           this.convSigmetSection = convSection;
+	   }
 
-    /**
-     * @param forecastRegion
-     *            to set
-     */
-    public void setForecastRegion(String forecastRegion) {
-        this.forecastRegion = forecastRegion;
-    }
+	   /**
+	    * @param add convective Sigmet Section to set
+	    */
+	   public void addConvSigmetSection(ConvSigmetSection psection){
+	           convSigmetSection.add(psection);
+	          
+	   }
+	   
+	   /**
+	    * Override existing set method to modify any
+	    * classes that use the dataURI as a foreign key
+	    */
+	   @Override
+	   public void setIdentifier(Object dataURI)
+	   {
 
-    /**
-     * @return the bullMessage
-     */
-    public String getBullMessage() {
-        return bullMessage;
-    }
-
-    /**
-     * @param bullMessage
-     *            to set
-     */
-    public void setBullMessage(String bullMessage) {
-        this.bullMessage = bullMessage;
-    }
-
-    /**
-     * @return the set of convective Sigmet section
-     */
-    public Set<ConvSigmetSection> getConvSigmetSection() {
-        return convSigmetSection;
-    }
-
-    /**
-     * @param convsigmet
-     *            the section to set
-     */
-    public void setConvSigmetSection(Set<ConvSigmetSection> convSection) {
-        this.convSigmetSection = convSection;
-    }
-
-    /**
-     * @param add
-     *            convective Sigmet Section to set
-     */
-    public void addConvSigmetSection(ConvSigmetSection psection) {
-        convSigmetSection.add(psection);
-        psection.setParentID(this);
-    }
-
-    /**
-     * Override existing set method to modify any classes that use the dataURI
-     * as a foreign key
-     */
-    @Override
-    public void setIdentifier(Object dataURI) {
-
-        this.identifier = dataURI;
-
-        if (this.getConvSigmetSection() != null
-                && this.getConvSigmetSection().size() > 0) {
-            for (Iterator<ConvSigmetSection> iter = this.getConvSigmetSection()
-                    .iterator(); iter.hasNext();) {
-                ConvSigmetSection cs = iter.next();
-                cs.setParentID(this);
-            }
-        }
-
-    }
+		   this.identifier = dataURI;
+	      
+	   }
 
 }

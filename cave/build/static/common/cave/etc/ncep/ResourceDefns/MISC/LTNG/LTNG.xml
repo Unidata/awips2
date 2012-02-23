@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <isEnabled>true</isEnabled>
+    <resourceDefnName>LTNG</resourceDefnName>
+    <resourceCategory>MISC</resourceCategory>
+    <resourceParameters>
+legend_color=RGB {200, 200, 200}
+colorByIntensity=false
+    </resourceParameters>
+    <filterLabels>Observed</filterLabels>
+    <rscImplementation>Lightning</rscImplementation>
+    <subTypeGenerator></subTypeGenerator>
+    <rscTypeGenerator></rscTypeGenerator>
+    <timeMatchMethod>BEFORE_OR_EQUAL</timeMatchMethod>
+    <frameSpan>0</frameSpan>
+    <timelineGenMethod>USE_MANUAL_TIMELINE</timelineGenMethod>
+    <dfltFrameCount>10</dfltFrameCount>
+    <dfltTimeRange>6</dfltTimeRange>
+    <dfltGeogArea>BasicWX_US</dfltGeogArea>
+    <binOffset virtualOffset="0" posOffset="10" negOffset="10"/>
+</ResourceDefinition>

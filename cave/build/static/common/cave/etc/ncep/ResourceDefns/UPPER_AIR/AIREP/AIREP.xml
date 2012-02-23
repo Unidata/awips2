@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <isEnabled>true</isEnabled>
+    <resourceDefnName>AIREP</resourceDefnName>
+    <resourceCategory>UPPER_AIR</resourceCategory>
+    <resourceParameters>
+legendString=Aircraft Reports
+pluginName=ncairep
+reportType=AIREP
+spiFile=MTR.spi
+legend_color=RGB {0, 255, 0}
+levelKey=N/A
+    </resourceParameters>
+    <filterLabels>Observed</filterLabels>
+    <rscImplementation>PlotData</rscImplementation>
+    <subTypeGenerator></subTypeGenerator>
+    <rscTypeGenerator></rscTypeGenerator>
+    <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
+    <frameSpan>60</frameSpan>
+    <timelineGenMethod>USE_FRAME_INTERVAL</timelineGenMethod>
+    <dfltFrameCount>4</dfltFrameCount>
+    <dfltTimeRange>48</dfltTimeRange>
+    <dfltGeogArea>BasicWX_US</dfltGeogArea>
+</ResourceDefinition>

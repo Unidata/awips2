@@ -4,9 +4,10 @@ import gov.noaa.nws.ncep.viz.common.ui.FileDateComparator;
 import gov.noaa.nws.ncep.viz.common.ui.FileNameComparator;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 //import gov.noaa.nws.ncep.viz.resource.manager.util.OpenedNcMapEditorInfoManager;
-import gov.noaa.nws.ncep.viz.resources.manager.NmapResourceUtils;
+import gov.noaa.nws.ncep.viz.resources.manager.SpfsManager;
 import gov.noaa.nws.ncep.viz.resources.manager.RbdBundle;
 import gov.noaa.nws.ncep.viz.resources.manager.RscBundleDisplayMngr;
+import gov.noaa.nws.ncep.viz.resources.manager.SpfsManager;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NCPaneManager.PaneLayout;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
@@ -18,9 +19,11 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 //import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.ModifyEvent;
@@ -58,6 +61,7 @@ import com.raytheon.viz.ui.UiPlugin;
  * ------------	----------	-----------	--------------------------
  * 04/29/11		  #416		 M. Gao      Created
  * 07/11/11                  Greg Hull   Get Displays instead of storing RscBundleDisplayMngr
+ * 08/04/11      #450        Greg Hull   SpfsManager
  * 
  * </pre>
  * 
@@ -74,15 +78,8 @@ public class ManageMultiSPFControl extends Composite {
     private final int NO_NEW_NAME_INT_VALUE = 2; 
     private final int YES_INT_VALUE = 3; 
     
-    private boolean yesToAll; 
-
-    public boolean isYesToAll() {
-		return yesToAll;
-	}
-	public void setYesToAll(boolean yesToAll) {
-		this.yesToAll = yesToAll;
-	}
-    
+    private boolean yesToAll = false; 
+	    
 	private Button display_by_name = null;
     private Button display_by_date = null;
 
@@ -100,7 +97,7 @@ public class ManageMultiSPFControl extends Composite {
 	
 	private boolean saveRefTime;
 	
-	private String savedRbdFilename; 
+	private String savedRbdName; 
 
 	public ManageMultiSPFControl(Composite parent) {
 		super(parent, SWT.NONE);
@@ -131,13 +128,10 @@ public class ManageMultiSPFControl extends Composite {
         display_by_name.setSelection( true );
         display_by_name.addSelectionListener(new SelectionAdapter() {
        		public void widgetSelected( SelectionEvent ev ) {
-              spf_name_lviewer.setContentProvider( NmapCommon.createSubDirContentProvider( new FileNameComparator()) );     
-              spf_name_lviewer.setLabelProvider( NmapCommon.createFileLabelProvider());
-     		  spf_name_lviewer.refresh(true);
-     		 
+     		  spf_name_lviewer.refresh(true);     		 
        		}
         });
-     
+        
         display_by_date = new Button( display_by_grp, SWT.RADIO );
         display_by_date.setText("Sort By Date");
         fd = new FormData();
@@ -148,10 +142,7 @@ public class ManageMultiSPFControl extends Composite {
         
         display_by_date.addSelectionListener(new SelectionAdapter() {
        		public void widgetSelected( SelectionEvent ev ) {
-                spf_name_lviewer.setContentProvider( NmapCommon.createSubDirContentProvider( new FileDateComparator() ) );     
-                spf_name_lviewer.setLabelProvider( NmapCommon.createFileLabelProvider() );
        		    spf_name_lviewer.refresh(true);
-       		 
          		}
           });
 
@@ -189,7 +180,7 @@ public class ManageMultiSPFControl extends Composite {
         spf_name_lviewer.getList().setLayoutData( fd );    	
 
 
-        spf_name_text = new Text(spf_name_grp, SWT.SINGLE);
+        spf_name_text = new Text(spf_name_grp, SWT.SINGLE | SWT.BORDER );
         fd = new FormData();
         fd.top = new FormAttachment( spf_name_lviewer.getList(), 30, SWT.BOTTOM );
         fd.left  = new FormAttachment( spf_name_lviewer.getList(), 0, SWT.LEFT );  
@@ -232,7 +223,6 @@ public class ManageMultiSPFControl extends Composite {
         });
 
     	initWidgets();
-    	
 	}
 
 
@@ -279,20 +269,34 @@ public class ManageMultiSPFControl extends Composite {
 			}
     	});
 
-        spf_name_lviewer.setContentProvider( NmapCommon.createSubDirContentProvider() );     
-        spf_name_lviewer.setLabelProvider( NmapCommon.createFileLabelProvider( ) );
+        spf_name_lviewer.setContentProvider(new IStructuredContentProvider() {
+			@Override
+			public Object[] getElements(Object inputElement) {
+				
+				// TODO : check display_by_name selection and order appropriately.
+				// (add support in SpfsManager to get the time. Not sure how to do this
+				// now that it is possible to have the SPF in 2 contexts?)
+				return SpfsManager.getInstance().getSpfNamesForGroup( (String)inputElement );
+			}
+			@Override
+			public void dispose() { }
+
+			@Override
+			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+			}
+        });          
+        
+//        spf_name_lviewer.setLabelProvider( NmapCommon.createFileLabelProvider( ) );
 
         spf_name_lviewer.addSelectionChangedListener(new ISelectionChangedListener() {
             public void selectionChanged( SelectionChangedEvent event ) {
             	StructuredSelection seldSpfs = (StructuredSelection)spf_name_lviewer.getSelection();  
 
-            	File spfFile = (File)seldSpfs.getFirstElement();
-            	
-            	setSeldSpfName( spfFile.getName() );
+            	setSeldSpfName( (String)seldSpfs.getFirstElement() );
             }
         });
 
-        spf_group_combo.setItems( NmapResourceUtils.getAvailSPFGroups() );
+        spf_group_combo.setItems( SpfsManager.getInstance().getAvailSPFGroups() );
         
         // if the user has pre selected a group then select it
         //
@@ -307,30 +311,16 @@ public class ManageMultiSPFControl extends Composite {
         else if( spf_group_combo.getItemCount() > 0 ) {
     		spf_group_combo.select(0);
     		setSeldSpfGroup( spf_group_combo.getText() );        			
-
         }
-        
     }
 
     
 	private void setSeldSpfGroup(String spfGroup) {
 		seldSpfGroup = spfGroup;
 
-		File spfGroupDir = new File( NmapResourceUtils.getSpfGroupsDir(), 
-                						spf_group_combo.getText() );	
+		String spfGroupName = spf_group_combo.getText();	
 
-		// if this is a valid spf group then get set the content provider 
-    	// of the spf name viewer and select one if not already set. 
-    	//
-    	if( spfGroupDir.exists() && spfGroupDir.isDirectory() ) {
-    		spf_name_lviewer.setInput( spfGroupDir );    
-    	}
-    	else {
-    		spf_name_lviewer.setInput( null );
-//    		rbd_name_combo.setText("");
-    		return;
-    	}
-
+		spf_name_lviewer.setInput( spfGroupName );    
     }
     
 	private void setSeldSpfName( String spfName ) {
@@ -344,25 +334,8 @@ public class ManageMultiSPFControl extends Composite {
     
     private void saveAllRBD() {    
       try {
-    	File spfGroupDir = new File( NmapResourceUtils.getSpfGroupsDir( ),  
-    			spf_group_combo.getText() );	
-    	String seldSpfName = spf_name_text.getText();
-
-    	// get the name of the directories and create them if needed
-    	if( !spfGroupDir.exists() && !spfGroupDir.mkdir() ) {
-    		System.out.println("Error creating SPF group directory : " + 
-    				spfGroupDir.getAbsolutePath() );
-    		throw new VizException("Error creating SPF group directory : " + 
-    				spfGroupDir.getAbsolutePath() );
-    	}   			
-    	File spfDir = new File( spfGroupDir, seldSpfName );
-
-    	if( !spfDir.exists() && !spfDir.mkdir() ) {
-    		System.out.println("Error creating SPF : " + 
-    				spfDir.getAbsolutePath() );
-    		throw new VizException("Error creating SPF : " + 
-    				spfDir.getAbsolutePath() );
-    	}   			
+    	String spfGroup = spf_group_combo.getText();	
+    	String spfName  = spf_name_text.getText();
 
     	//????? do we still need saveRefTime flag ????
 
@@ -378,16 +351,49 @@ public class ManageMultiSPFControl extends Composite {
     		
     		rbd.initFromEditor();   
 
-    		File rbdFile = getRbdFile( spfDir, display.getApplicationName() );
-    		
+    		savedRbdName = rbd.getRbdName();
+        	
+        	if( !yesToAll ) {        		
+        		if( SpfsManager.getInstance().doesRbdExistInUserContext( 
+        							spfGroup, spfName, savedRbdName ) ) {
+        		
+            		MessageDialog confirmDlg = new MessageDialog( 
+            				getShell(), 
+            				"Create RBD", null, 
+            				"RBD " +rbd.getRbdName()+" already exists in this SPF.\n\n"+
+            				"Do you want to overwrite it?",
+            				MessageDialog.QUESTION, new String[]
+            				          {"Yes to All", "No, Skip", "No, New Name", "Yes"}, 0);
+            		confirmDlg.open();
+            		
+            		int returnCode = confirmDlg.getReturnCode(); 
+            		
+            		if(returnCode == YES_TO_ALL_INT_VALUE) {
+            			yesToAll = true; 
+            		} 
+            		else if(returnCode == NO_SKIP_INT_VALUE) {
+            			savedRbdName = null; 
+            		} 
+            		else if(returnCode == NO_NEW_NAME_INT_VALUE) {
+            			NewRbdNameDialog newSpfFileNameDialog = 
+            				   new NewRbdNameDialog( shell, 
+            						   spfGroup, spfName, rbd.getRbdName() ); 
+            			newSpfFileNameDialog.open(); 
+            			savedRbdName = newSpfFileNameDialog.getNewRbdName(); 
+            			newSpfFileNameDialog = null;
+            			
+            			rbd.setRbdName( savedRbdName );
+            		}
+            	}
+        	}
+
     		try {
-        		if( rbdFile != null ) { // if null assume duplicate name and user choose to skip 
-        			SerializationUtil.jaxbMarshalToXmlFile( rbd, rbdFile.getAbsolutePath() );
+        		if( savedRbdName != null ) { // if null assume duplicate name and user choose to skip 
+        			SpfsManager.getInstance().saveRbdToSpf(spfGroup, spfName, rbd );    			
         			numRBDs++;
         		}
-    		} catch ( SerializationException e ) {
-    			VizException ve = new VizException( e );
-    			throw ve;
+    		} catch ( VizException e ) {
+    			throw e;
     		} 
     	}
 
@@ -413,190 +419,5 @@ public class ManageMultiSPFControl extends Composite {
 		});
 	  }    	
     }
-
-    private File getRbdFile(File parentDir, String rbdBundleName) {
-    	File rbdFile = null; 
-    	if(isDirectoryFileValid(parentDir)) {
-	    	savedRbdFilename = rbdBundleName + ".xml"; 
-    		if(isFileOKToBeSaved(parentDir, savedRbdFilename, isYesToAll())) {
-    	    	rbdFile = new File(parentDir, savedRbdFilename);
-    		}
-    	}
-    	return rbdFile; 
-    }
-    
-	private boolean isDirectoryFileValid(File file) {
-		boolean isDirectoryFileValid = true; 
-		if(file != null) {
-			if(!file.exists() && !file.mkdir())
-				isDirectoryFileValid = false; 
-		}
-		return isDirectoryFileValid; 
-	}
-
-	private boolean isFileValid(File file) {
-		boolean isFileValid = true; 
-		if(file == null) {
-			isFileValid = false; 
-		}
-		return isFileValid; 
-	}
-
-    private boolean isFileOKToBeSaved(File parentDirFile, String filename, boolean isYesToAll) {
-    	boolean isOKflag = true; 
-    	if(!isYesToAll) {
-        	String[] existFilenameArray = parentDirFile.list(); 
-        	if( isFilenameAlreadyExist(existFilenameArray, filename) ) {
-        		MessageDialog confirmDlg = new MessageDialog( 
-        				NmapUiUtils.getCaveShell(), 
-        				"Create RBD", null, 
-        				"RBD " +filename+" already exists in this SPF.\n\n"+
-        				"Do you want to overwrite it?",
-        				MessageDialog.QUESTION, new String[]{"Yes to All", "No, Skip", "No, New Name", "Yes"}, 0);
-        		confirmDlg.open();
-        		int returnCode = confirmDlg.getReturnCode(); 
-        		if(returnCode == YES_TO_ALL_INT_VALUE) {
-        			setYesToAll(true); 
-        		} else if(returnCode == NO_SKIP_INT_VALUE) {
-            		isOKflag = false; 
-        		} else if(returnCode == NO_NEW_NAME_INT_VALUE) {
-        			NewSpfFileNameDialog newSpfFileNameDialog = new NewSpfFileNameDialog(shell, parentDirFile); 
-        			newSpfFileNameDialog.open(); 
-        			savedRbdFilename = newSpfFileNameDialog.getSelectedSpfFilename(); 
-        			newSpfFileNameDialog = null; 
-        		}
-        	}
-    	}
-    	return isOKflag; 
-    }
-    
-    private boolean isFilenameAlreadyExist(String [] existFilenameArray, String filename) {
-    	boolean isFileExist = false; 
-    	for(String eachFilename : existFilenameArray) {
-    		if(eachFilename.equals(filename)) {
-    			isFileExist = true; 
-    			break; 
-    		}
-    	}
-    	return isFileExist; 
-    }
-    
-//    public void saveAllRBDs( boolean new_pane ) {
-//    	try {    		
-//			NCTimeMatcher timeMatcher = timelineControl.getTimeMatcher();
-//    		boolean saveRefTime = !timeMatcher.isCurrentRefTime();
-//    		
-//    		// get the filename to save to.
-//    		SaveRbdDialog saveDlg = new SaveRbdDialog( shell,
-//    				savedSpfGroup, savedSpfName, rbd_name_txt.getText(), saveRefTime ); 
-//    		
-//    		File rbdFile = (File)saveDlg.open();
-//    		
-//    		if( rbdFile == null ) {
-//    			return; 
-//    		}
-//
-//    		/*
-//    		 * repeated logic??? Gao's comment
-//    		 */
-////    		savedSpfGroup = saveDlg.getSeldSpfGroup();
-////    		savedSpfName  = saveDlg.getSeldSpfName();
-//    		String savedRbdName = saveDlg.getSeldRbdName(); 
-//    		String rbdFilePathPrefix = getRbdFilePathPrefix(rbdFile.getAbsolutePath()); 
-//    		
-//    		saveRefTime = saveDlg.getSaveRefTime();   ////???????? Gao's comment 
-//   
-//    		/*
-//    		 * disable this section at this moment because do not know how to implement it for
-//    		 * multiple editors
-//    		 */
-////    		// Set the name to the name that was actually used 
-////    		// to save the RBD.
-////    		// TODO : we could store a list of the RBDNames and load these
-////    		// as items in the combo.
-///////    		rbd_name_txt.setText( saveDlg.getSeldRbdName() );
-////    		
-////    		rbdMngr.setGeoSyncPanes( geo_sync_panes.getSelection() );
-////    		rbdMngr.setAutoUpdate( auto_update_btn.getSelection() );
-//    		
-//    		// if the user elects not to save out the refTime then don't marshal it out. 
-//
-//			if( !saveRefTime ) {
-//    			timeMatcher.setCurrentRefTime();     			
-//    		}
-//			
-////			RscBundleDisplayMngr rscBundleDisplayManager = null; 
-////			RscBundleDisplayMngr rscBundleDisplayManager = new RscBundleDisplayMngr(); 
-////			rscBundleDisplayManager.init(); 
-//			
-//			/*
-//			 * Now retrieved all opened NcmapEditors
-//			 */
-//    		int fileIndexInt = 1; 
-//			List<NCMapEditor> ncMapEditorList = NmapUiUtils.getAllNCDisplays(); 
-//			for(NCMapEditor eachNCMapEditor : ncMapEditorList) {
-//				String rbdBundleName = eachNCMapEditor.getApplicationName(); 
-//				PaneLayout eachPaneLayout = eachNCMapEditor.getPaneLayout(); 
-//				RscBundleDisplayMngr eachRscBundleDisplayMngr = OpenedNcMapEditorInfoManager.getRscBundleDisplayMngrByNcMapEditor(eachNCMapEditor); 
-//				if(eachRscBundleDisplayMngr != null) {
-//					RbdBundle eachRbdBundle = eachRscBundleDisplayMngr.createRbdBundle(rbdBundleName, timeMatcher, eachPaneLayout); 
-//		    		try {
-//		    			SerializationUtil.jaxbMarshalToXmlFile( eachRbdBundle, rbdFile.getAbsolutePath() );
-////		    			SerializationUtil.jaxbMarshalToXmlFile( rbdBundleCollectionObject, rbdFile.getAbsolutePath() );
-//		    		} catch (SerializationException e) {
-//		    			VizException ve = new VizException( e );
-//		    			throw ve;
-//		    		} 
-//		    		final String msg = new String("Resource Bundle Display "+
-//    						rbdBundleName + " Saved." );
-//		    		VizApp.runSync(new Runnable() {
-//		    			public void run() {
-//		    				MessageBox mb = new MessageBox( shell, SWT.OK );         								
-//		    				mb.setText( "RBD Saved" );
-//		    				mb.setMessage( msg );
-//		    				mb.open();
-//		    				
-//		    				rbdMngr.setRbdModified( false );
-//		    			}
-//		    		});
-//		    		rbdFile = getNextRbdFile(rbdFilePathPrefix, savedRbdName, fileIndexInt); 
-//		    		fileIndexInt = getNewFileIndexInt(rbdFile.getName()); 
-//				}
-//			}
-//
-//    		
-////    		try {
-////    			SerializationUtil.jaxbMarshalToXmlFile( rbdBndl, rbdFile.getAbsolutePath() );
-//////    			SerializationUtil.jaxbMarshalToXmlFile( rbdBundleCollectionObject, rbdFile.getAbsolutePath() );
-////    		} catch (SerializationException e) {
-////    			VizException ve = new VizException( e );
-////    			throw ve;
-////    		} 
-////    		
-////    		VizApp.runSync(new Runnable() {
-////    			public void run() {
-////    				String msg = null;
-////    				msg = new String("Resource Bundle Display "+
-////    						rbd_name_txt.getText() + " Saved." );
-////    				MessageBox mb = new MessageBox( shell, SWT.OK );         								
-////    				mb.setText( "RBD Saved" );
-////    				mb.setMessage( msg );
-////    				mb.open();
-////    				
-////    				rbdMngr.setRbdModified( false );
-////    			}
-////    		});
-//    	}
-//    	catch( VizException e ) {
-//    		final String msg = e.getMessage();
-//    		VizApp.runSync(new Runnable() {
-//    			public void run() {
-//    				Status status = new Status(Status.ERROR, UiPlugin.PLUGIN_ID, 0, msg, null );
-//    				ErrorDialog.openError(Display.getCurrent().getActiveShell(),
-//    						"ERROR", "Error.", status);
-//    			}
-//    		});
-//    	}
-//    }
 
 }

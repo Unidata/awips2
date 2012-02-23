@@ -8,6 +8,8 @@
  * Date			Ticket#		Engineer	Description
  * ------------ -----------	----------- --------------------------
  * 17May2010		37		F. J. Yen	Initial Coding (Following one of RTN's DAO to refactor)
+ * 09/2011      		    Chin Chen   changed to improve purge performance and
+ * 										removed xml serialization as well
  * </pre>
  * 
  * @author fjyen
@@ -18,12 +20,14 @@ package gov.noaa.nws.ncep.common.dataplugin.wcp.dao;
 import java.util.List;
 
 import gov.noaa.nws.ncep.common.dataplugin.wcp.WcpRecord;
-import gov.noaa.nws.ncep.edex.common.dao.NcepDefaultPluginDao;
 
 import com.raytheon.uf.common.dataplugin.PluginException;
+import com.raytheon.uf.common.dataplugin.persist.IPersistable;
+import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
+import com.raytheon.uf.edex.database.plugin.PluginDao;
 
-public class WcpDao extends NcepDefaultPluginDao {
+public class WcpDao extends PluginDao {
 
     
     /**
@@ -72,4 +76,11 @@ public class WcpDao extends NcepDefaultPluginDao {
 
         return results;
     }
+
+	@Override
+	protected IDataStore populateDataStore(IDataStore dataStore,
+			IPersistable obj) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
