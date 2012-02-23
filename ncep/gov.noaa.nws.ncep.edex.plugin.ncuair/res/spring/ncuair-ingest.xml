@@ -1,0 +1,73 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+       
+	
+	<bean id="ncuairDecoder" class="gov.noaa.nws.ncep.edex.plugin.ncuair.decoder.NcUairDecoder">
+		<constructor-arg ref="ncuairPluginName"/>
+	</bean>
+
+    <bean id="ncuairToPointData" class="gov.noaa.nws.ncep.common.dataplugin.ncuair.dao.NcUairToPointData" />
+		
+	<bean id="ncuairSeparator" class="gov.noaa.nws.ncep.edex.plugin.ncuair.decoder.NcUairSeparator" />
+
+	<bean id="ncuairDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="ncuair" />
+		<constructor-arg value="jms-dist:queue:Ingest.ncuair" />
+	</bean>
+
+	<bean id="ncuairCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="ncuair-camel"/>
+  	</bean>
+  	
+	<camelContext id="ncuair-camel" xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+		<endpoint id="ncuairFileEndpoint" uri="file:${edex.home}/data/sbn/ncuair?noop=true&amp;idempotent=false"/>
+
+		<!-- Begin ncUair routes -->
+		<route id="ncuairFileConsumerRoute">
+			<from ref="ncuairFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+				<constant>ncuair</constant>
+			</setHeader>
+			<!-- chin to uri="jms-generic:queue:Ingest.AlphaNumeric" /-->
+			<to uri="jms-generic:queue:Ingest.ncuair" />
+		</route>
+		<!-- Chin, decodes and persist one batch of records at one time for better performance -->
+		<route id="ncuairIngestRoute">
+			
+			<from uri="jms-generic:queue:Ingest.ncuair" />
+			<setHeader headerName="pluginName">
+				<constant>ncuair</constant>
+			</setHeader>
+			<bean ref="stringToFile" />			
+			
+			<split streaming="true"> 
+				<!-- chin method bean="ncuairSeparator" method="separate" /-->
+			 	<method bean="ncuairSeparator" method="batchSeparate" />
+				<doTry>
+					<pipeline>			
+						<!-- chin  bean ref="ncuairDecoder" method="decode" /-->
+					 	<bean ref="ncuairDecoder" method="decodeBatch" />
+						<bean ref="ncuairToPointData" method="toPointData" />					
+						<to uri="directvm:persistIndexAlert" />
+					</pipeline>
+					<doCatch>
+						<exception>java.lang.Throwable</exception>
+						<to uri="log:ncuair?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true" />
+					</doCatch>
+				</doTry>
+			</split>
+			
+		</route>
+		 
+	</camelContext>
+</beans>

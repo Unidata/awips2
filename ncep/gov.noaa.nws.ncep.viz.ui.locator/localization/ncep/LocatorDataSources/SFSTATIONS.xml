@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LocatorDataSource>
+    <sourceName>SFSTATIONS</sourceName>
+    <sourceType>POINT</sourceType>
+    <dbName>ncep</dbName>
+    <dbTableName>stns.sfstns</dbTableName>
+	<dbFieldName>name</dbFieldName> 	
+</LocatorDataSource>

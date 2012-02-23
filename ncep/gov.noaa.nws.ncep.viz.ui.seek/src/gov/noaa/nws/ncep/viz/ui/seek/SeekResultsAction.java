@@ -1,27 +1,16 @@
 package gov.noaa.nws.ncep.viz.ui.seek;
 
-import java.util.HashMap;
-
 import gov.noaa.nws.ncep.viz.ui.display.AbstractNCModalMapTool;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
-import org.eclipse.core.commands.Command;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.commands.ICommandService;
 import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.referencing.datum.DefaultEllipsoid;
 
-import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.drawables.ResourcePair;
-import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.viz.ui.input.InputAdapter;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -73,25 +62,18 @@ public class SeekResultsAction extends AbstractNCModalMapTool  {
             mouseHandler = createSeekMouseHandler();
         }
         mapEditor.registerMouseHandler( this.mouseHandler );
-
+        
+        initializeTheSeekLayer();
+        
         /*
          * Pop up Seek result window
          */
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
         if(id == null) { id = SeekResultsDialog.getInstance(shell, this);}
         if( ! id.isDlgOpen() ){ 
-        	initializeTheSeekLayer();
+        	//initializeTheSeekLayer();
         	id.open(); 
-        	}
-        else{
-                    	if(!addedSeekLayerToResourceList){
-        		                   initializeTheSeekLayer();
-        	           }else{
-        		                   removeSeekLayer();
-        	           }
-
-      }
-        
+        }
     }
     
     /*
@@ -107,6 +89,7 @@ public class SeekResultsAction extends AbstractNCModalMapTool  {
             mouseHandler = null;
         }
 
+        removeSeekLayer();
     }
 
     
@@ -132,20 +115,23 @@ public class SeekResultsAction extends AbstractNCModalMapTool  {
     		}
 
     		Coordinate ll = mapEditor.translateClick(x, y);
+    		if ( ll == null ) return false;
+    		
     		if (id != null && id.isDlgOpen()/*.isOpen()*/ && ll != null) {//archana - changed isOpen() to isDlgOpen() 
     			id.setPosition(ll);
                 firstMouseX = x;
                 firstMouseY = y;
                 endpts = id.getEndPoints();
-                if (endpts[0] != null || endpts[1] != null)
-//                	seekDrawingLayer.drawClickPtLine(endpts[0], endpts[1]);
-                (( SeekResourceData) seekDrawingLayer.getResourceData()).setFirstPt(endpts[0]);
-                (( SeekResourceData) seekDrawingLayer.getResourceData()).setLastPt(endpts[1]);
+                if (endpts[0] != null || endpts[1] != null) {
+                	//seekDrawingLayer.drawClickPtLine(endpts[0], endpts[1]);
+                	(( SeekResourceData) seekDrawingLayer.getResourceData()).setFirstPt(endpts[0]);
+                	(( SeekResourceData) seekDrawingLayer.getResourceData()).setLastPt(endpts[1]);
+                }
     		}
 
     		mapEditor.refresh();
 
-    		return false;
+    		return true;
     	}
 
         /*
@@ -186,7 +172,9 @@ public class SeekResultsAction extends AbstractNCModalMapTool  {
                 	(( SeekResourceData) seekDrawingLayer.getResourceData()).drawString(c, str);
                 	}  
     			mapEditor.refresh();
+    			return true;
     		}
+    		
     		return false;
     	}
 
@@ -201,6 +189,8 @@ public class SeekResultsAction extends AbstractNCModalMapTool  {
         	if (button != 1) {
                 return false;
             }
+    		Coordinate ll = mapEditor.translateClick(x, y);
+    		if ( ll == null ) return false;
         	
 //        	seekDrawingLayer.clearStrings();
         	 (( SeekResourceData) seekDrawingLayer.getResourceData()).clearStrings();
@@ -230,21 +220,24 @@ public class SeekResultsAction extends AbstractNCModalMapTool  {
     
     protected void initializeTheSeekLayer(){
 
-      try {
+    	try {
 
-      	if ( seekDrawingLayer == null ){
-          	seekResourceData = new SeekResourceData();
-      	}
-  		seekDrawingLayer = seekResourceData.construct(new LoadProperties(), mapEditor.getDescriptor());
-        seekDrawingLayer.init(mapEditor.getActiveDisplayPane()
-              .getTarget());
-        
-      	addedSeekLayerToResourceList =  mapEditor.getDescriptor().getResourceList().add(
-                  seekDrawingLayer);
-      } catch (VizException e) {
-          e.printStackTrace();
-      }
-      mapEditor.refresh();
+    		if ( seekResourceData == null ){
+    			seekResourceData = new SeekResourceData();
+    		}
+
+    		if ( seekDrawingLayer == null ){
+    			seekDrawingLayer = seekResourceData.construct(new LoadProperties(), mapEditor.getDescriptor());
+    			seekDrawingLayer.init(mapEditor.getActiveDisplayPane()
+    					.getTarget());
+
+    			addedSeekLayerToResourceList =  mapEditor.getDescriptor().getResourceList().add(
+    					seekDrawingLayer);
+    		}
+    	} catch (VizException e) {
+    		e.printStackTrace();
+    	}
+    	mapEditor.refresh();
 
     }
     
@@ -257,7 +250,7 @@ public class SeekResultsAction extends AbstractNCModalMapTool  {
     	  mapEditor.getDescriptor().getResourceList().removeRsc(seekDrawingLayer);
     	  addedSeekLayerToResourceList = false;
 //    	 seekDrawingLayer.disposeInternal(); /*Added by archana*/
-//   	seekDrawingLayer = null;
+   	seekDrawingLayer = null;
       }
 //    	
         mapEditor.refresh();
@@ -266,5 +259,9 @@ public class SeekResultsAction extends AbstractNCModalMapTool  {
     protected SeekMouseHandler createSeekMouseHandler(){
     	return  (new SeekMouseHandler());
     }
+
+	public String getCommandId() {
+		return commandId;
+	}
     
 }

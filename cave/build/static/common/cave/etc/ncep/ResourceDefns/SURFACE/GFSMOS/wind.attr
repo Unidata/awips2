@@ -1,0 +1,4 @@
+! Attributes for the GFSMOS resource with "wind related symbols" plot model
+!
+plotModelName=gfsmos_wind
+plotDensity=10

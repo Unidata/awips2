@@ -7,6 +7,7 @@
 ## EDITED BY MIKE DANGELO 9-21-2011 at Alaska TIM ##
 ## EDITED BY PHIL KURIMSKI 9-23-2011 at Alaska TIM for burn scars and mud slides ##
 ## EDITED BY EVAN BOOKBINDER 11-04-11 - OB11.9-3 (DRs)               ##
+## EDITED BY MIKE DANGELO 1-25-2012 at CRH TIM ##
 
 #################################### SET SOME VARIABLES ###################################
 #set ($hycType = "")
@@ -19,20 +20,16 @@
 	#set($extend = false)
 #end
 ##
+#set($ic = "ER")
+#set ($snowMelt = "")
 #if(${list.contains($bullets, "icrs")})
 	#set($ic = "RS")
-        #set ($snowMelt = "RAPID SNOW MELT IS ALSO OCCURRING AND WILL ADD TO THE FLOODING.")
-        #set ($hycType = "RAIN AND SNOW MELT IN...")
-#else
-	#set($ic = "ER")
-        #set ($snowMelt = "")
+    #set ($hycType = "RAIN AND SNOW MELT IN...")
+    #set ($snowMelt = "RAPID SNOW MELT IS ALSO OCCURRING AND WILL ADD TO THE FLOODING.")
 #end
 ##
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 FFW${siteId}
-#if(${specialCorText})
-${specialCorText}
-#else
 ${ugcline}
 #################################### VTEC LINE ###################################
 /${productClass}.${action}.${vtecOffice}.FF.W.${etn}.${starttime}-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
@@ -109,31 +106,31 @@ THIS IS A TEST MESSAGE. ##
   #set ($rainAmount = "UP TO ONE INCH OF RAIN HAS ALREADY FALLEN.")   
 #end
 #if(${list.contains($bullets, "rain2")} )
-  #set ($rainAmount = "UP TO TWO INCHES OF RAIN HAS ALREADY FALLEN.")   
+  #set ($rainAmount = "UP TO TWO INCHES OF RAIN HAVE ALREADY FALLEN.")   
 #end
 #if(${list.contains($bullets, "rain3")} )
-  #set ($rainAmount = "UP TO THREE INCHES OF RAIN HAS ALREADY FALLEN.")   
+  #set ($rainAmount = "UP TO THREE INCHES OF RAIN HAVE ALREADY FALLEN.")   
 #end
 #if(${list.contains($bullets, "rainEdit")} )
-  #set ($rainAmount = "!** RAINFALL AMOUNTS **! INCHES OF RAIN HAS ALREADY FALLEN.")   
+  #set ($rainAmount = "!** RAINFALL AMOUNTS **! INCHES OF RAIN HAVE ALREADY FALLEN.")   
 #end
 #if(${list.contains($bullets, "doppler")})
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED HEAVY RAIN. ${rainAmount} ${isExpected}")
+  #set ($report = "DOPPLER RADAR INDICATED HEAVY RAIN. ${rainAmount} ${isExpected}")
 #end
 #if(${list.contains($bullets, "doppler")} && ${list.contains($bullets, "thunder")})
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED HEAVY RAIN DUE TO A THUNDERSTORM. ${rainAmount} ${isExpected}")   
+  #set ($report = "DOPPLER RADAR INDICATED HEAVY RAIN DUE TO A THUNDERSTORM. ${rainAmount} ${isExpected}")   
 #end
 #if(${list.contains($bullets, "doppler")} && ${list.contains($bullets, "thunder")} && ${stormType} == "line")
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED HEAVY RAIN DUE TO THUNDERSTORMS. ${rainAmount} ${isExpected}")   
+  #set ($report = "DOPPLER RADAR INDICATED HEAVY RAIN DUE TO THUNDERSTORMS. ${rainAmount} ${isExpected}")   
 #end
 #if(${list.contains($bullets, "dopplerGauge")})
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED THAT HEAVY RAIN WAS FALLING OVER THE AREA. ${rainAmount} ${isExpected}")   
+  #set ($report = "DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED THAT HEAVY RAIN WAS FALLING OVER THE AREA. ${rainAmount} ${isExpected}")   
 #end
 #if(${list.contains($bullets, "dopplerGauge")} && ${list.contains($bullets, "thunder")})
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED THAT A THUNDERSTORM IS PRODUCING HEAVY RAIN OVER THE AREA. ${rainAmount} ${isExpected}")   
+  #set ($report = "DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED THAT A THUNDERSTORM IS PRODUCING HEAVY RAIN OVER THE AREA. ${rainAmount} ${isExpected}")   
 #end
 #if(${list.contains($bullets, "dopplerGauge")} && ${list.contains($bullets, "thunder")} && ${stormType} == "line")
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED THAT A LINE OF THUNDERSTORMS IS PRODUCING HEAVY RAIN OVER THE AREA. ${rainAmount} ${isExpected}")   
+  #set ($report = "DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED THAT A LINE OF THUNDERSTORMS IS PRODUCING HEAVY RAIN OVER THE AREA. ${rainAmount} ${isExpected}")   
 #end
 #if(${list.contains($bullets, "trainedSpotters")})
   #set ($report = "TRAINED WEATHER SPOTTERS REPORTED HEAVY RAIN IN !** LOCATION **! ${rainAmount} ${isExpected}")   
@@ -235,11 +232,14 @@ ADDITIONAL RAINFALL AMOUNTS OF !** EDIT AMOUNT **! ARE POSSIBLE IN THE WARNED AR
 #drainages(${riverdrainages})
 
 #end
+#if(${list.contains($bullets, "particularStream")})
+FLOOD WATERS ARE MOVING DOWN !**name of channel**! FROM !**location**! TO !**location**!. THE FLOOD CREST IS EXPECTED TO REACH !**location(s)**! BY !**time(s)**!. 
 
-##############################################
-###### mile markers ##############
-##############################################
-#parse("milemarkers.vm")
+#end
+
+## parse file command here is to pull in mile marker info
+## #parse("mileMarkers.vm")
+
 #################################### END OF ADDITIONAL STUFF ###################################
 ######################################
 ####### CALL TO ACTIONS ##############
@@ -268,10 +268,6 @@ EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE FLOODING OF SMALL CREEKS AND STR
 #end
 #if(${list.contains($bullets, "ruralUrbanCTA")})
 EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE FLOODING OF SMALL CREEKS AND STREAMS...HIGHWAYS AND UNDERPASSES.  ADDITIONALLY...COUNTRY ROADS AND FARMLANDS ALONG THE BANKS OF CREEKS...STREAMS AND OTHER LOW LYING AREAS ARE SUBJECT TO FLOODING.
-
-#end
-#if(${list.contains($bullets, "particularStreamCTA")})
-FLOOD WATERS ARE MOVING DOWN !**name of channel**! FROM !**location**! TO !**location**!. THE FLOOD CREST IS EXPECTED TO REACH !**location(s)**! BY !**time(s)**!. 
 
 #end
 #if(${list.contains($bullets, "nighttimeCTA")})
@@ -347,4 +343,3 @@ space
 #end
 *#
 
-#end

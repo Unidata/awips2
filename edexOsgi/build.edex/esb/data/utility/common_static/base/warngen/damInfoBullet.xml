@@ -2,26 +2,24 @@
      specific dam break -->
 <!-- 
 <damInfoBullets>
-<damInfoBullet bulletGroup="dam" bulletText="Big Rock Dam (Ray/Lafayette Counties)" bulletName="BigRockDam"  parseString="BIG ROCK"  coords="LAT...LON 3917 9405 3923 9387 3919 9385 3913 9394 3911 9405"/>
-<damInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BigRockhighfast"  parseString="COMPLETE FAILURE OF BIG ROCK"/>
-<damInfoBullet bulletGroup="scenario" bulletText="scenario - high normal" bulletName="BigRockhighnormal"  parseString="COMPLETE FAILURE OF BIG ROCK"/>
-<damInfoBullet bulletGroup="scenario" bulletText="scenario - medium fast" bulletName="BigRockmediumfast"  parseString="COMPLETE FAILURE OF BIG ROCK"/>
-<damInfoBullet bulletGroup="scenario" bulletText="scenario - medium normal" bulletName="BigRockmediumnormal"  parseString="COMPLETE FAILURE OF BIG ROCK"/>
-<damInfoBullet bulletGroup="ruleofthumb" bulletText="rule of thumb" bulletName="BigRockruleofthumb"  parseString="FLOOD WAVE ESTIMATE"/>
-<damInfoBullet bulletGroup="dam" bulletText="Branched Oak Dam (Buchanan County)" bulletName="BranchedOakDam"  parseString="BRANCHED OAK"  coords="LAT...LON 3971 9467 3957 9466 3955 9475 3970 9476"/>
-<damInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BranchedOakhighfast"  parseString="COMPLETE FAILURE OF BRANCHED OAK"/>
-<damInfoBullet bulletGroup="scenario" bulletText="scenario - high normal" bulletName="BranchedOakhighnormal"  parseString="COMPLETE FAILURE OF BRANCHED OAK"/>
-<damInfoBullet bulletGroup="scenario" bulletText="scenario - medium fast" bulletName="BranchedOakmediumfast"  parseString="COMPLETE FAILURE OF BRANCHED OAK"/>
-<damInfoBullet bulletGroup="scenario" bulletText="scenario - medium normal" bulletName="BranchedOakmediumnormal"  parseString="COMPLETE FAILURE OF BRANCHED OAK"/>
-<damInfoBullet bulletGroup="ruleofthumb" bulletText="rule of thumb" bulletName="BranchedOakruleofthumb"  parseString="FLOOD WAVE ESTIMATE"/>
+<damInfoBullet bulletGroup="dam" bulletText="Big Rock Dam (Ray/Lafayette Counties)" bulletName="BigRockDam"  parseString="BIG ROCK" showString="BIG ROCK DAM" coords="LAT...LON 3917 9405 3923 9387 3919 9385 3913 9394 3911 9405"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BigRockhighfast"  parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - high normal" bulletName="BigRockhighnormal"  parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - medium fast" bulletName="BigRockmediumfast"  parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - medium normal" bulletName="BigRockmediumnormal"  parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+<damInfoBullet bulletGroup="ruleofthumb" bulletText="rule of thumb" bulletName="BigRockruleofthumb"  parseString="FLOOD WAVE ESTIMATE" showString="BIG ROCK DAM"/>
+<damInfoBullet bulletGroup="dam" bulletText="Branched Oak Dam (Buchanan County)" bulletName="BranchedOakDam"  parseString="BRANCHED OAK" showString="BRANCHED OAK DAM" coords="LAT...LON 3971 9467 3957 9466 3955 9475 3970 9476"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BranchedOakhighfast"  parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - high normal" bulletName="BranchedOakhighnormal"  parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - medium fast" bulletName="BranchedOakmediumfast"  parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+<damInfoBullet bulletGroup="scenario" bulletText="scenario - medium normal" bulletName="BranchedOakmediumnormal"  parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+<damInfoBullet bulletGroup="ruleofthumb" bulletText="rule of thumb" bulletName="BranchedOakruleofthumb"  parseString="FLOOD WAVE ESTIMATE" showString="BRANCHED OAK DAM"/>
 </damInfoBullets>
 -->
 <!-- End of example. Begin your site specific information here. -->
 <!-- Site Specific Information for WFO Anchorage -->
-<!-- 
 <damInfoBullets>
-<damInfoBullet bulletGroup="dam" bulletText="Cooper Lake Hydroelectric Dam (Cooper Landing)" bulletName="CooperLakeDam"  parseString="COOPER LAKE DAM"  coords="LAT...LON 6029 14953 6032 15035 6023 15036 6021 14947"/>
-<damInfoBullet bulletGroup="dam" bulletText="Eklutna Lake Dam (Eklutna)" bulletName="EklutnaLakeDam"  parseString="EKLUTNA LAKE DAM"  coords="LAT...LON 6148 14944 6148 14914 6139 14912 6140 14943"/>
-<damInfoBullet bulletGroup="dam" bulletText="Solomon Gulch Dam (Valdez)" bulletName="SolomonGulchDam"  parseString="SOLOMON GULCH DAM"  coords="LAT...LON 6109 14632 6109 14603 6107 14630 6107 14631"/>
+<damInfoBullet bulletGroup="dam" bulletText="Cooper Lake Hydroelectric Dam (Cooper Landing)" bulletName="CooperLakeDam"  parseString="COOPER LAKE DAM" showString="COOPER LAKE DAM" coords="LAT...LON 6029 14953 6032 15035 6023 15036 6021 14947"/>
+<damInfoBullet bulletGroup="dam" bulletText="Eklutna Lake Dam (Eklutna)" bulletName="EklutnaLakeDam"  parseString="EKLUTNA LAKE DAM" showString="EKLUTNA LAKE DAM" coords="LAT...LON 6148 14944 6148 14914 6139 14912 6140 14943"/>
+<damInfoBullet bulletGroup="dam" bulletText="Solomon Gulch Dam (Valdez)" bulletName="SolomonGulchDam"  parseString="SOLOMON GULCH DAM" showString="SOLOMON GULCH DAM" coords="LAT...LON 6109 14632 6109 14603 6107 14630 6107 14631"/>
 </damInfoBullets>
--->

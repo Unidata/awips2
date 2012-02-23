@@ -1,0 +1,6 @@
+! Parameters and Attributes for the default METAR Resource
+!
+legendString=Fixed Land Synop
+plotModelName=synop_standard
+reportType=1001
+plotDensity=15

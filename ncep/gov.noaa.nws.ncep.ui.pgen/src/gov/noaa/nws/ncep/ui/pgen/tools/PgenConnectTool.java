@@ -167,7 +167,7 @@ public class PgenConnectTool extends AbstractPgenDrawingTool {
         				DrawableElement elSelected = drawingLayer.getNearestElement( loc, connectFilter );
                    		AbstractDrawableComponent adc = drawingLayer.getNearestComponent( loc, connectFilter, false );
 
-        			    if ( elSelected != firstEl && 
+        			    if ( elSelected != firstEl && elSelected != null &&
            					 getPgenCategory( elSelected, adc ).equals( pgenCategory ) &&
            				     getPgenType(elSelected, adc ).equals( pgenType ) && 
            				     selectableContourLine( (MultiPointElement)elSelected, firstEl ) )  {        				   
