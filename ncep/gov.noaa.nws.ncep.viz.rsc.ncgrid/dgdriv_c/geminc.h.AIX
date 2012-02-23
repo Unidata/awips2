@@ -1,0 +1,36 @@
+/************************************************************************
+ * GEMINC.H								*
+ *									*
+ * This include file will include all necessary standard C include	*
+ * files.								*
+ *									*
+ **									*
+ * Log:									*
+ * S. Jacobs/NMC	 6/94						*
+ * S. Jacobs/NMC	 7/95	Added sys/wait.h, stdarg.h, ctype.h	*
+ * S. Jacobs/NCEP	11/95	Added sys/time.h			*
+ * G. Krueger/EAI	 3/96	Added limits.h				*
+ * S. Jacobs/NCEP	 6/96	Added sys/select.h			*
+ ***********************************************************************/
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <malloc.h>
+#include <math.h>
+#include <time.h>
+#include <sys/time.h>
+#include <errno.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+#include <signal.h>
+#include <dirent.h>
+#include <sys/wait.h>
+#include <stdarg.h>
+#include <ctype.h>
+#include <limits.h>
+#include <sys/select.h>

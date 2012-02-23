@@ -71,13 +71,13 @@ fi
 ANT_EXE=`rpm -q --queryformat '%{INSTALLPREFIX}\n' awips2-ant`
 ANT_EXE="${ANT_EXE}/bin/ant"
 
-pushd . > /dev/null
+pushd .
 cd ${WORKSPACE_DIR}/build.edex
 ${ANT_EXE} -file ${DEPLOY_SCRIPT} \
    -Dinstall.dir=${RPM_BUILD_ROOT}/awips2/edex \
    -Dinstaller=true -Dlocal.build=false \
    -Dcomponent.to.deploy=edex-cots
-popd > /dev/null
+popd
 
 %pre
 if [ "${1}" = "1" ]; then

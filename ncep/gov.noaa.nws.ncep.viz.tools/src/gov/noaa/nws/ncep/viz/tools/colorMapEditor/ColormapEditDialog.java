@@ -47,6 +47,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  *                         lvenable    Initial Creation.
  * Jul 24, 2007            njensen     Hooked into backend.
  * Apr 10, 2010   #259     ghull       Copied and modified from Raytheon
+ * July 18 2011   #450     ghull       use NcPathManager
  * 
  * </pre>
  * 
@@ -540,26 +541,7 @@ public class ColormapEditDialog extends Dialog implements IColorBarAction,
         deleteBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-            	try {
-            		ColorMapUtil.deleteColorMap(seldCmapCat, seldCmapName);
-            		
-                    MessageDialog msgDlg = new MessageDialog( 
-                			NmapUiUtils.getCaveShell(), 
-                			"Deleted", null, 
-                			"Colormap " +seldCmapCat+File.separator +seldCmapName + 
-                			" Deleted.",
-                			MessageDialog.INFORMATION, new String[]{"OK"}, 0);
-                	msgDlg.open();
-
-            	} catch (VizException e) {
-                    MessageDialog msgDlg = new MessageDialog( 
-                			NmapUiUtils.getCaveShell(), 
-                			"Error", null, 
-                			"Error Deleting Colormap " +seldCmapCat+File.separator +seldCmapName + 
-                			"\n"+e.getMessage(),
-                			MessageDialog.ERROR, new String[]{"OK"}, 0);
-                	msgDlg.open();
-            	}
+            	deleteColormap();
             }
         });
         Label sep = new Label(shell, SWT.SEPARATOR|SWT.HORIZONTAL);
@@ -766,4 +748,48 @@ public class ColormapEditDialog extends Dialog implements IColorBarAction,
         saveBtn.setEnabled(true);
     }
 
+    private void deleteColormap() {
+    	try{
+    		ColorMapUtil.deleteColorMap(seldCmapCat, seldCmapName);
+
+    		MessageDialog msgDlg = new MessageDialog( 
+    				NmapUiUtils.getCaveShell(), 
+    				"Deleted", null, 
+    				"Colormap " +seldCmapCat+File.separator +seldCmapName + 
+    				" Deleted.",
+    				MessageDialog.INFORMATION, new String[]{"OK"}, 0);
+    		msgDlg.open();
+
+    		shell.dispose();
+//    		availColorMaps = new ArrayList<String>();
+//
+//    		seldCmapName = null;
+//    		selCmapCombo.setText("");
+//
+//    		for( String cmap : ColorMapUtil.listColorMaps(seldCmapCat) ) {
+//    			if( seldCmapName == null ) {
+//    				seldCmapName = cmap;
+//            		if( initColorMap() ) {
+//                        createSliderData();
+//            		}
+//            		else {
+//            			seldCmapName = null;
+//    					continue; // don't add to the list
+//    				}
+//                    colorBar.setNewColorMap(sliderText, colorArray);
+//
+//    			}
+//    			availColorMaps.add(cmap);
+//    		}
+
+    	} catch (VizException e) {
+    		MessageDialog msgDlg = new MessageDialog( 
+    				NmapUiUtils.getCaveShell(), 
+    				"Error", null, 
+    				"Error Deleting Colormap " +seldCmapCat+File.separator +seldCmapName + 
+    				"\n"+e.getMessage(),
+    				MessageDialog.ERROR, new String[]{"OK"}, 0);
+    		msgDlg.open();
+    	}
+    }
 }

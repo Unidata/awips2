@@ -61,11 +61,11 @@
 #if ($bullet.endsWith("Dam"))
     #set($ctaSelected = "YES")
     #set($sitespecSelected = "YES")
-    #set($hycType = "THE ${riverName} BELOW ${damName}")
-    #set($headline = "FOR ${reportType2} ${damName} ON THE ${riverName} ")
-    #set($reportType1 = "${reportType2} ${damName} ON THE ${riverName}${reportInfo}")
-    #set($addInfo = "THE NEAREST DOWNSTREAM TOWN IS ${cityInfo} FROM THE DAM.")
-    #set($sitespecCTA = "IF YOU ARE IN LOW LYING AREAS BELOW THE ${damName} YOU SHOULD MOVE TO HIGHER GROUND IMMEDIATELY.")
+##    #set($hycType = "THE ${riverName} BELOW ${damName}")
+##    #set($headline = "FOR ${reportType2} ${damName} ON THE ${riverName} ")
+##    #set($reportType1 = "${reportType2} ${damName} ON THE ${riverName}${reportInfo}")
+##    #set($addInfo = "THE NEAREST DOWNSTREAM TOWN IS ${cityInfo} FROM THE DAM.")
+##    #set($sitespecCTA = "IF YOU ARE IN LOW LYING AREAS BELOW THE ${damName} YOU SHOULD MOVE TO HIGHER GROUND IMMEDIATELY.")
 #end
 #end
 #######################################################################

@@ -22,9 +22,11 @@ Require-Bundle: javax.measure,
  gov.noaa.nws.ncep.common;bundle-version="1.0.0",
  gov.noaa.nws.ncep.edex.common;bundle-version="1.0.0"
 Import-Package: com.raytheon.uf.common.dataplugin.level,
+ com.raytheon.uf.common.derivparam.tree,
  com.raytheon.uf.common.geospatial
 Export-Package: gov.noaa.nws.ncep.common.dataplugin.ncgrib,
  gov.noaa.nws.ncep.common.dataplugin.ncgrib.exception,
+ gov.noaa.nws.ncep.common.dataplugin.ncgrib.ncdatatree,
  gov.noaa.nws.ncep.common.dataplugin.ncgrib.request,
  gov.noaa.nws.ncep.common.dataplugin.ncgrib.spatial.projections,
  gov.noaa.nws.ncep.common.dataplugin.ncgrib.subgrid,

@@ -1,5 +1,0 @@
-! Parameters and Attributes for the default METAR Resource
-!
-legendString=Fixed Land Synop
-plotModelName=default
-reportTypeValue=1001
