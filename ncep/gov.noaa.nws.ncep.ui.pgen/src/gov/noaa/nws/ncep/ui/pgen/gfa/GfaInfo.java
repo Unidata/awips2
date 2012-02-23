@@ -8,8 +8,11 @@
 package gov.noaa.nws.ncep.ui.pgen.gfa;
 
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.awt.Color;
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 
@@ -84,11 +87,12 @@ public class GfaInfo {
 	 * Read the menu configuration from gfa.xml file
 	 */
 	private static void readOptions() {
-		String gfainfo = NmapCommon.getGfaAttrInfoFile();
-		
+		File gfainfoFile = NcPathManager.getInstance().getStaticFile( 
+				NcPathConstants.PGEN_GFA_ATTR_FILE );   	    
+
 		try {
 			SAXReader reader = new SAXReader();
-			doc = reader.read(gfainfo);
+			doc = reader.read(gfainfoFile.getAbsoluteFile());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

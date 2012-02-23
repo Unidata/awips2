@@ -1,0 +1,4 @@
+! Attributes for the TAF resource with "tempo_prob" plot model
+!
+plotModelName=tempo_prob
+plotDensity=10

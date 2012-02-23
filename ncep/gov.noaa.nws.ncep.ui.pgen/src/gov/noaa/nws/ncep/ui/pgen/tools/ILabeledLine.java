@@ -19,6 +19,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.labeledLines.LabeledLine;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 09/09		#305		B. Yin   	Initial Creation.
+ * 12/11		?			B. Yin		Added a flag to open/close line 
  * 
  * </pre>
  * 
@@ -30,6 +31,6 @@ public interface ILabeledLine {
       public void resetMouseHandler();
       public LabeledLine getLabeledLine();
       public void setLabeledLine( LabeledLine ln );
-      public void setDeleteHandler(boolean delLine, boolean flipFlag);
+      public void setDeleteHandler(boolean delLine, boolean flipFlag, boolean openClose);
      // public void setAddLineMode( boolean addLineMode );
 }
