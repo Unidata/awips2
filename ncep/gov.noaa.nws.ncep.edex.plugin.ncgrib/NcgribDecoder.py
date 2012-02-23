@@ -131,6 +131,12 @@ THINNED_GRID_VALUES = THINNED_GRID_PT_MAP.values()
 #    06/28/11                      xguo           Added codes to get correct VAR/VCD
 #    07/12/11                      xguo           Changed Grib1Decoder() to Ncgrib1Decoder()
 #    07/26/11                      xguo           Added codes to handle Derived Ensemble Data 
+#    09/08/11                      xguo           Added one column grib data
+#    09/21/11                      xguo           Check derived ensemble data
+#    10/04/11                      xguo           Remove '_' from model name
+#    11/02/11                      xguo           Added codes to decode firewx
+#    11/08/11                      xguo           Adjusted glevel1/glevel2 for PRES/PDLY/POTV
+#    11/22/11                      xguo           Updated Level infor in model
 #    
 class NcgribDecoder():
 
@@ -147,8 +153,10 @@ class NcgribDecoder():
         self.inputFile = None
         self.abbr = None
         self.derived = None
-        self.VCD = -1        
-
+        self.VCD = -1
+        self.count = 1
+        self.AddColumn = -1
+    
     ##
     # Decodes the ncgrib file
     #
@@ -208,7 +216,7 @@ class NcgribDecoder():
                         if record != None:
                             self._addRecord(records, record)
                             
-                            if self.abbr == "uW" or self.abbr == "uWmean" or self.abbr == "uWsprd":
+                            if self.abbr == "uW" or self.abbr == "uWmean" or self.abbr == "uWsprd" or self.abbr == "uWprob":
                                 #Extract a second field if it exists
                                 metadataResults = grib2.getMetadata(gribFile, recordIndex, fieldIndex + 1, 0)
                                 numFields = metadataResults['numFields']
@@ -339,6 +347,9 @@ class NcgribDecoder():
              
         nx = gdsSectionValues['coverage'].getNx().intValue()
         ny = gdsSectionValues['coverage'].getNy().intValue()
+        
+        if self.AddColumn == 1:
+            nx = nx - 1
 
         # Correct the data according to the scan mode found in the gds section.
         scanMode = gdsSectionValues['scanMode']
@@ -383,8 +394,8 @@ class NcgribDecoder():
         
         self._createModelName(pdsSectionValues['model'], self.inputFile)
         modelName = pdsSectionValues['model'].getModelName()
-        if modelName == "GHMNEST" :
-            pdsSectionValues['model'].generateId(self.inputFile)
+        if modelName == "GHMNEST" or modelName == "GHM6TH" or modelName == "HWRFNEST" or modelName == "GFS" or modelName == "NAMFIREWX":
+           pdsSectionValues['model'].generateId(self.inputFile)
         else:
             pdsSectionValues['model'].generateId()
         
@@ -463,7 +474,10 @@ class NcgribDecoder():
         record.setModelName(model.getModelName())
         record.setFileName(self.inputFile)
         tokens = self.inputFile.split(".")
-        record.setEventName(tokens[0])
+        if len(tokens) >= 3 and tokens[2] == "firewxnest":
+            record.setEventName(tokens[2]);
+        else :
+            record.setEventName(tokens[0])
         
         record.setModelInfo(model)  
         record.setResCompFlags(Integer(gdsSectionValues['resCompFlags']))
@@ -483,13 +497,32 @@ class NcgribDecoder():
         discipline = record.getDiscipline()
 #        pdt = record.getPdt()
         g2scale = Grib2VarsTableLookup.getG2varsScale(discipline, category, parameterId, pdsTemplateNumber)
+
         if g2scale != 0:
             scale = pow(10,g2scale )
             missscale = -999999 * scale
             for i in range(0,len(numpyDataArray)):
                 numpyDataArray[i] = numpyDataArray[i] * scale
             numpyDataArray = numpy.where(numpyDataArray == missscale, -999999, numpyDataArray)
-        record.setMessageData(numpyDataArray)
+
+        if self.AddColumn == 1:
+            self.AddColumn = -1
+            numpyDataArray1 = None
+            nx1 = nx + 1
+            metadata[4] = nx1 * ny
+            numpyDataArray1 = numpy.zeros((ny, nx1), numpy.float32)
+            numpyDataArray = numpy.resize(numpyDataArray, (ny, nx))
+
+            for i in range(ny):
+                for j in range(nx):
+                    numpyDataArray1[i,j] = numpyDataArray[i,j]
+                numpyDataArray1[i,nx] = numpyDataArray[i,0]
+                
+            numpyDataArray1 = numpy.resize(numpyDataArray1, (1, metadata[4]))    
+            
+            record.setMessageData(numpyDataArray1)
+        else:
+            record.setMessageData(numpyDataArray)
         
         if pdsTemplateNumber == 8 :
             if lenPds > 27 :
@@ -499,10 +532,10 @@ class NcgribDecoder():
         record.setProcessType(int(pdsSectionValues['processedDataType']))
         record.setVcrdId1(int(pdsSectionValues['verticalCoordinate1']))
         record.setVcrdId2(int(pdsSectionValues['verticalCoordinate2']))
-        record.setGlevel1(int(pdsSectionValues['level1']))
+        record.setDecodedLevel1( pdsSectionValues['level1'] )
         record.setGridVersion(2)
         if  pdsSectionValues['level2'] is not None:
-            record.setGlevel2(int(pdsSectionValues['level2']))
+            record.setDecodedLevel2( pdsSectionValues['level2'] )
         
         # Special case handling for ffg grids
         if(model.getCenterid() == 9):
@@ -688,7 +721,10 @@ class NcgribDecoder():
                 elif (derivedForecast >= 2  and derivedForecast <= 5 ):
                     parameterAbbreviation= parameterAbbreviation+"sprd"
                     self.derived = 'sprd'
-                    
+                elif (derivedForecast >= 193  and derivedForecast <= 195 ):
+                    parameterAbbreviation= parameterAbbreviation+"prob"
+                    self.derived = 'prob'
+                     
                 model.setTypeEnsemble(Integer(pdsTemplate[15]))
                 model.setNumForecasts(Integer(pdsTemplate[16]))
                 
@@ -751,7 +787,10 @@ class NcgribDecoder():
             model.setParameterUnit(parameterUnit)
             
             tokens = self.inputFile.split(".")
-            model.setEventName(tokens[0])
+            if len(tokens) >= 3 and tokens[2] == "firewxnest":
+                model.setEventName(tokens[2])
+            else:
+                model.setEventName(tokens[0])
 
             # Constructing the Level object
             level = LevelFactory.getInstance().getLevel(levelName, levelOneValue, levelTwoValue, levelUnit)
@@ -825,8 +864,8 @@ class NcgribDecoder():
         pdsFields['endTime'] = endTime
         pdsFields['model'] = model
         
-        pdsFields['level1'] = pdsTemplate[11]
-        pdsFields['level2'] = pdsTemplate[14]
+        pdsFields['level1'] = levelOneValue #pdsTemplate[11]
+        pdsFields['level2'] = levelTwoValue #pdsTemplate[14]
         pdsFields['category'] = pdsTemplate[0]
         pdsFields['parameterId'] = pdsTemplate[1]
         pdsFields['processedDataType'] = pdsTemplate[2]
@@ -883,7 +922,13 @@ class NcgribDecoder():
                 ny = gdsTemplate[8]
                 dx = self._divideBy10e6(gdsTemplate[16])
                 dy = self._divideBy10e6(gdsTemplate[17])
-
+            Lon1 = lo1 + lo2
+            Lon2 = lo2 + dx
+            if Lon1 == 360.0 or Lon2 == 360.0:
+                nx = nx + 1
+                lo2 = lo2 + dx
+                self.AddColumn = 1
+                
             coverage.setSpacingUnit(DEFAULT_SPACING_UNIT2)
             coverage.setNx(Integer(nx))
             coverage.setNy(Integer(ny))
@@ -925,7 +970,14 @@ class NcgribDecoder():
             dy = self._divideBy10e6(gdsTemplate[18])
             scanMode = gdsTemplate[15]
             resCompFlags = gdsTemplate[11]
-            
+
+            Lon1 = lo1 + lo2
+            Lon2 = lo2 + dx
+            if Lon1 == 360.0 or Lon2 == 360.0:
+                nx = nx + 1
+                lo2 = lo2 + dx
+                self.AddColumn = 1
+                            
             coverage.setSpacingUnit(DEFAULT_SPACING_UNIT)
             coverage.setMajorAxis(majorAxis)
             coverage.setMinorAxis(minorAxis)
@@ -1100,6 +1152,13 @@ class NcgribDecoder():
                 dx = self._divideBy10e6(gdsTemplate[16])
                 dy = self._divideBy10e6(gdsTemplate[17])
 
+            Lon1 = lo1 + lo2
+            Lon2 = lo2 + dx
+            if Lon1 == 360.0 or Lon2 == 360.0:
+                nx = nx + 1
+                lo2 = lo2 + dx
+                self.AddColumn = 1
+
             coverage.setSpacingUnit(DEFAULT_SPACING_UNIT2)
             coverage.setNx(Integer(nx))
             coverage.setNy(Integer(ny))
@@ -1194,7 +1253,7 @@ class NcgribDecoder():
     def _correctLat(self, lat):
 
         if lat < 0:
-            lat = lat % 180
+            lat = lat % -180
         else:
             lat = lat % 180
 
@@ -1354,27 +1413,40 @@ class NcgribDecoder():
         gridid = model.getGridid()
         process = model.getGenprocess()
         gridModel = NcgribModelLookup.getInstance().getModel(center, subcenter, gridid, process)
-        
+
         if gridModel is None:
-            name = "UnknownModel:" + str(center) + ":" + str(subcenter) + ":" + str(process) + ":" + gridid
+            name = "NewGrid:" + str(center) + ":" + str(subcenter) + ":" + str(process) + ":" + gridid
             tokens = fileName.split(".")
             hurricane = tokens[0]
             basin = hurricane[-1]
             trackno = hurricane[-3:-1]
-            if trackno.isdigit() :
-                basins = "lewcs"
-                if basin in basins:
+            if trackno.isdigit() or tokens[2] =="firewxnest":
+                if trackno.isdigit():
+                    basins = "lewcs"
+                    if basin in basins:
                     #name = "GHM:" + str(center) + ":" + str(subcenter) + ":" + str(process) + ":" + gridid
                     #hurricaneName = hurricane[:len(hurricane)-3]
-                    if tokens[2] == "gribn3":
-                        name = "GHMNEST"
-                    else:
-                        name = "GHM"    
-                    NcgribModelLookup.getInstance().setModel(center, subcenter, str(gridid), process, name)
-                    gridModel = NcgribModelLookup.getInstance().getModel(center, subcenter, gridid, process)
+                        name = "GHM"
+                        if tokens[2] == "gribn3":
+                            name = "GHMNEST"
+                        elif tokens[2] == "grib6th":
+                            name = "GHM6TH"
+                        elif tokens[2] == "hwrfprs_n":
+                            name = "HWRFNEST"
+                        elif tokens[2] == "hwrfprs_p":
+                            name = "HWRF"
+                else:
+                    name = "NAMFIREWX"         
+                NcgribModelLookup.getInstance().setModel(center, subcenter, gridid, process, name)
+                gridModel = NcgribModelLookup.getInstance().getModel(center, subcenter, gridid, process)
                     #name = gridModel.getName()
         else:
             name = gridModel.getName()
+            if name == "GEFS" :
+                tokens = fileName.split(".")
+                gefc = tokens[0]
+                if gefc[:3] == "gec":
+                    name = "GEFC"
             
         model.setModelName(name)
       
@@ -1418,36 +1490,63 @@ class NcgribDecoder():
             # get and set vcord and scale
             vcord = Grib2VcrdTableLookup.getGnamByVcrdId(vcrd1, vcrd2)
             record.setVcord(vcord)
-            scale = Grib2VcrdTableLookup.getScaleByVcrdId(vcrd1, vcrd2)
-            record.setScale(scale)
+            scale = float( Grib2VcrdTableLookup.getScaleByVcrdId(vcrd1, vcrd2) )
+            scale = pow ( 10, scale)
+            #record.setScale(scale)
+            glevel1 = record.getDecodedLevel1()
+            if (glevel1 != 0 and scale != 1 ) :
+                record.setGlevel1(int(round(glevel1 * scale)))
+            else :
+                record.setGlevel1(int(round(glevel1)))
+                
+            if vcrd2 == 255 :
+                record.setGlevel2(-9999) 
+            else :
+                glevel2 = record.getDecodedLevel2()
+                if (glevel2 != 0 and scale != 1 ) :
+                    record.setGlevel2(int(round(glevel2 * scale)))
+                else :
+                    record.setGlevel2( int(round(glevel2) ))
+            levelName = record.getModelInfo().getLevelName()
+            levelOneValue = 1.0*record.getGlevel1()
+            levelTwoValue = 1.0*record.getGlevel2()
+            levelUnit = record.getModelInfo().getLevelUnit()
+            level = LevelFactory.getInstance().getLevel(levelName, levelOneValue, levelTwoValue, levelUnit)
+            record.getModelInfo().setLevel(level)
         else :
+            record.setGlevel1( int(record.getDecodedLevel1) )
+            record.setGlevel2( int(record.getDecodedLevel2) )
             LogStream.logEvent("No vertical coordinate ID for first fixed surfaced level" + str(vcrd1) + "], and second fixed surfaced [" + 
                                      str(vcrd2) + "]");
             
-        # Change glevl1 and glevel2
-        glevel1 = record.getGlevel1()
-        if vcrd2 == 255 :
-                record.setGlevel2(-9999)           
-        if vcord == 'PRES' :
-            record.setGlevel1(int(glevel1 /100))
-        elif vcord == 'POTV' :
-            record.setGlevel1(int(glevel1 /1000))            
-              
+  
         if str(g2vcrdId).isdigit() :
             g2varsId = Grib2VarsTableLookup.getG2varsId(discipline, category, parameterId, pdt)
 
     #        print ("5=", discipline, category, parameterId, pdt,g2varsId, parm)
             if g2varsId > 0 :
                 parm = Grib2VarsTableLookup.getVarGnam(discipline, category, parameterId, pdt)
+                modelName = record.getModelName()
                 if self.derived == 'mean':
                     parm = parm + "ENMW"
+                    if modelName.find('MEAN') == -1:   
+                        modelName = modelName +"MEAN"
                 elif self.derived == 'sprd':
                     parm = parm + "ENSA"
+                    if modelName.find('SPREAD') == -1 : 
+                        modelName = modelName +"SPREAD"
+                elif self.derived == 'prob':
+                    parm = parm + "PROB"
+                    if modelName.find ('PROB') == -1: 
+                        modelName = modelName +"PROB"
+                record.setModelName(modelName)
+                record.getModelInfo().setModelName(modelName)
+                
                 if pdt == 8 :
                     record.setParm(parm.replace("--", charHour))
                 else :
                     record.setParm(parm)
-                    
+            record.setProcessType(self.count)        
             if g2varsId > 0 :
                 # the parameter ID is in the table so append the record
                 records.append(record)
@@ -1455,4 +1554,5 @@ class NcgribDecoder():
                 if discipline != 255:
                     LogStream.logEvent("No variable ID for discipline:", discipline, "category =",category, "parameterId =", parameterId, "pdt=", pdt);
         self.derived = None
-     
+        self.count = self.count + 1
+        

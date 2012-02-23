@@ -1,0 +1,91 @@
+C************************************************************************
+C* MCHPRM.LINUX								*
+C*									*
+C* This include file contains Linux specific parameter definitions	*
+C* for the GEMPAK software.						*
+C*									*
+C* LINUX								*
+C**									*
+C* Log:									*
+C* S. Jacobs/NCEP	 2/01	Made MTLNUX a separate machine type	*
+C* K. Brill/HPC		 8/02	Define LLMXTG				*
+C* R. Tian/SAIC          9/02   Increase LLMXGD from 97000 to 275000    *
+C* K. Brill/HPC		11/02	Set LLMXTG = 1000000			*
+C* T. Piper/SAIC         3/03   Increased LLMXTG to 4000000             *
+C* S. Jacobs/NCEP	 3/03	Reduced LLMXTG back to 1000000		*
+C* S. Jacobs/NCEP	 3/03	Reduced LLMXTG to 750000		*
+C* T. Piper/SAIC        05/05   Increased LLMXPT from 10K to 50K        *
+C* T. Piper/SAIC        07/05   Increased LLMXPT to 80K                 *
+C* D.W.Plummer/NCEP	07/06	Increased LLMXGD to 750000		*
+C* D.W.Plummer/NCEP     07/06   Increased LLMXGD & LLMXTG to 1M         *
+C************************************************************************
+C!
+	PARAMETER	( MTMACH =  MTLNUX )
+C!						Machine type
+C!						Raob, VAS data source
+	PARAMETER	( MMRECL =     4   )
+C!						Multiplier for RECL in
+C!						file create/open
+C!						(usually 4 on UNIX sys)
+C!
+C!	ASCII character constants
+C!
+	CHARACTER*1	CHNULL, CHCTLA, CHCTLC, CHTAB,  CHLF,  CHFF
+	CHARACTER*1	CHCR,   CHCAN,  CHESC,  CHFS,   CHGS,  CHRS
+	CHARACTER*1	CHUS,   CHSPAC, CHTLDA
+C!
+	PARAMETER	( CHNULL = '00'X )
+C!						Null
+	PARAMETER	( CHCTLA = '01'X )
+C!						Control A
+	PARAMETER	( CHCTLC = '03'X )
+C!						Control C
+	PARAMETER	( CHTAB  = '09'X )
+C!						Tab
+	PARAMETER	( CHLF   = '0A'X)
+C!						Line feed
+	PARAMETER	( CHFF   = '0C'X)
+C!						Form feed
+	PARAMETER	( CHCR   = '0D'X)
+C!						Carriage return
+	PARAMETER	( CHCAN  = '18'X )
+C!						Cancel (CAN)
+	PARAMETER	( CHESC  = '1B'X )
+C!						Escape
+	PARAMETER	( CHFS   = '1C'X )
+C!						FS
+	PARAMETER	( CHGS   = '1D'X )
+C!						GS
+	PARAMETER	( CHRS   = '1E'X )
+C!						Record Separator
+	PARAMETER	( CHUS   = '1F'X )
+C!						US
+	PARAMETER	( CHSPAC = '20'X )
+C!						Space
+	PARAMETER	( CHTLDA = '7E'X )
+C!						Tilda
+C!
+	PARAMETER	( LLMXPT = 80000 )
+C!						Max # lines, polygons, ...
+	PARAMETER	( LLMXGD = 1000000 )
+C!						Max # grid points
+	PARAMETER	( LLMXTG = 1000000 )
+C!						Max # transfer grid pnts
+C!
+C!	FORTRAN specific PARAMETERS
+C!
+C!-----------------------GPLT BUFFER SIZE--------------------------------
+	PARAMETER	( IGBSZM  = 20 + ( 4 * LLMXGD ) )
+C!					Min desired GPLT buffer size
+C!
+	PARAMETER	( IGBSIZ = (128*(1+((IGBSZM-1)/128))))
+C!					Makes buffer size mul. of 128
+C!
+C!-----------------------DEVICE BUFFER SIZE------------------------------
+	PARAMETER	( IGDSZM = 20 + ( 5 * LLMXPT ) )
+C!					Min desired DEVICE buffer size
+C!
+	PARAMETER	( IGDSIZ = (128*(1+((IGDSZM-1)/128))))
+C!					Makes buffer size mul. of 128
+C!
+
