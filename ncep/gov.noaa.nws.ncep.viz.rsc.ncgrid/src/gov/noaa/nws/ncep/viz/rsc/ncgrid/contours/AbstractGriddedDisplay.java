@@ -58,6 +58,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Nov 22, 2010			   M. Li		modified from RTS for NCGRID
  * Dec 03, 2010			   M. Li		Converted negative longitude
  * Dec 07, 2010			   M. Li		Modified wind plot algorithm
+ * Nov 02, 2011            X. Guo       Added nx/ny parameters
  * 
  * </pre>
  * 
@@ -100,7 +101,7 @@ public abstract class AbstractGriddedDisplay<T> implements IRenderable {
      * @param size
      */
     public AbstractGriddedDisplay(IMapDescriptor descriptor,
-            GeneralGridGeometry gridGeometryOfGrid) {
+            GeneralGridGeometry gridGeometryOfGrid,int nx, int ny) {
 
         this.calculationQueue = new ConcurrentLinkedQueue<Coordinate>();
 
@@ -110,8 +111,8 @@ public abstract class AbstractGriddedDisplay<T> implements IRenderable {
 //        this.size = size;
 
         this.gridDims = new int[] {
-                this.gridGeometryOfGrid.getGridRange().getSpan(0),
-                this.gridGeometryOfGrid.getGridRange().getSpan(1) };
+                nx,
+                ny };
         
         isPlotted = new boolean[gridDims[0] * gridDims[1]];
         
@@ -206,7 +207,7 @@ public abstract class AbstractGriddedDisplay<T> implements IRenderable {
                             this.descriptor.getGridGeometry(), new Coordinate(
                                     i, j));
                     Coordinate gridCell = coordToTry.asGridCell(
-                            gridGeometryOfGrid, PixelInCell.CELL_CENTER);
+                            gridGeometryOfGrid, PixelInCell.CELL_CORNER);
                     gridCell.y = Math.round(gridCell.y);
                     gridCell.x = Math.round(gridCell.x);
                     
@@ -223,7 +224,7 @@ public abstract class AbstractGriddedDisplay<T> implements IRenderable {
                     Coordinate newCoord = new Coordinate(x, coord.y);
                     ReferencedCoordinate newrco = new ReferencedCoordinate(newCoord);
                     Coordinate newGridCell = newrco.asGridCell(
-                            gridGeometryOfGrid, PixelInCell.CELL_CENTER);
+                            gridGeometryOfGrid, PixelInCell.CELL_CORNER);
                     newGridCell.x = Math.round(newGridCell.x);
                     
                     /*
@@ -238,10 +239,10 @@ public abstract class AbstractGriddedDisplay<T> implements IRenderable {
                     
                     ReferencedCoordinate rco = new ReferencedCoordinate(
             				new Coordinate((int)gridCell.x, (int)gridCell.y),
-            				this.gridGeometryOfGrid, Type.GRID_CENTER);
+            				this.gridGeometryOfGrid, Type.GRID_CORNER);
             		Coordinate plotLoc = rco.asPixel(this.descriptor.getGridGeometry());
             		Coordinate gridCell2 = rco.asGridCell(
-                            gridGeometryOfGrid, PixelInCell.CELL_CENTER);
+                            gridGeometryOfGrid, PixelInCell.CELL_CORNER);
                     
 //                    Coordinate plotLoc = coordToTry.asPixel(this.descriptor
 //                            .getGridGeometry());
@@ -393,13 +394,13 @@ public abstract class AbstractGriddedDisplay<T> implements IRenderable {
     	
     	 ReferencedCoordinate newrco0 = new ReferencedCoordinate(
  				new Coordinate(0, 0),
- 				this.gridGeometryOfGrid, Type.GRID_CENTER);
+ 				this.gridGeometryOfGrid, Type.GRID_CORNER);
     	 ReferencedCoordinate newrco1 = new ReferencedCoordinate(
   				new Coordinate(gridDims[0] - 1, 0),
-  				this.gridGeometryOfGrid, Type.GRID_CENTER);
+  				this.gridGeometryOfGrid, Type.GRID_CORNER);
     	 ReferencedCoordinate newrco2 = new ReferencedCoordinate(
   				new Coordinate(1, 0),
-  				this.gridGeometryOfGrid, Type.GRID_CENTER);
+  				this.gridGeometryOfGrid, Type.GRID_CORNER);
 
          try {
              Coordinate latLon0 = newrco0.asLatLon();
@@ -412,7 +413,7 @@ public abstract class AbstractGriddedDisplay<T> implements IRenderable {
              int dx = (int) Math.round(dx2/dx1);
              int dlat = (int) Math.round(latLon1.y - latLon0.y);
 
-             if (dx == 2 && dlat == 0) return true;
+             if (dx <= 2 && dlat == 0) return true;
              
          } catch (Exception e) {
              throw new VizException(e);

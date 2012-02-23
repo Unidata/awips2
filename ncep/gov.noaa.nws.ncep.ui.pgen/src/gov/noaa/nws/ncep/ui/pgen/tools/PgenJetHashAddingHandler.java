@@ -129,7 +129,12 @@ public class PgenJetHashAddingHandler extends InputHandlerDefaultImpl {
     	
     }
     
-    private JetHash createHash( Jet aJet, Coordinate loc  ){
+    @Override
+	public boolean handleMouseDownMove(int x, int y, int mouseButton) {
+		return true;
+	}
+
+	private JetHash createHash( Jet aJet, Coordinate loc  ){
     	JetHash hash = aJet.new JetHash(null, new Color[]{ new Color(0,255,0), new Color(255,0,0)},
 				2.0f, 2.0, true, loc, VectorType.HASH_MARK,
 				100, 0, 1.0, false, "Vector", "Hash");

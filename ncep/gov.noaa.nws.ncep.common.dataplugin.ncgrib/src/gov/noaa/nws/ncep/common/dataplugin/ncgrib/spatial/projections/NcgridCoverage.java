@@ -20,9 +20,6 @@
 
 package gov.noaa.nws.ncep.common.dataplugin.ncgrib.spatial.projections;
 
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.exception.GribException;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.subgrid.SubNcgrid;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -41,6 +38,8 @@ import org.hibernate.annotations.Type;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import gov.noaa.nws.ncep.common.dataplugin.ncgrib.exception.GribException;
+import gov.noaa.nws.ncep.common.dataplugin.ncgrib.subgrid.SubNcgrid;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -167,12 +166,10 @@ public abstract class NcgridCoverage extends PersistableDataObject implements
      */
     public abstract NcgridCoverage trim(SubNcgrid subGrid);
 
-    @Override
     public Polygon getGeometry() {
         return geometry;
     }
 
-    @Override
     public CoordinateReferenceSystem getCrs() {
         if (crs == null) {
             try {

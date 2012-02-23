@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<resourceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<resource>
+		<loadProperties loadWithoutData="true"></loadProperties>
+		<properties isSystemResource="false" isBlinking="false"
+			isMapLayer="false" isHoverOn="false" isVisible="true" />
+		<resourceData xsi:type="NC-HrcnResourceData"
+			isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="false">
+			<hurricaneEnable>${hurricaneEnable}</hurricaneEnable>
+			<hurricaneColor>${hurricaneColor}</hurricaneColor>
+			<hurricaneSymbolWidth>${hurricaneSymbolWidth}</hurricaneSymbolWidth>
+			<hurricaneSymbolSize>${hurricaneSymbolSize}</hurricaneSymbolSize>
+			<tropicalStormEnable>${tropicalStormEnable}</tropicalStormEnable>
+			<tropicalStormColor>${tropicalStormColor}</tropicalStormColor>
+			<tropicalStormSymbolWidth>${tropicalStormSymbolWidth}</tropicalStormSymbolWidth>
+			<tropicalStormSymbolSize>${tropicalStormSymbolSize}</tropicalStormSymbolSize>
+			<tropicalDepressionEnable>${tropicalDepressionEnable}</tropicalDepressionEnable>
+			<tropicalDepressionColor>${tropicalDepressionColor}</tropicalDepressionColor>
+			<tropicalDepressionSymbolWidth>${tropicalDepressionSymbolWidth}</tropicalDepressionSymbolWidth>
+			<tropicalDepressionSymbolSize>${tropicalDepressionSymbolSize}</tropicalDepressionSymbolSize>
+			<motionDirectionEnable>${motionDirectionEnable}</motionDirectionEnable>
+			<motionDirectionColor>${motionDirectionColor}</motionDirectionColor>
+			<motionDirectionArrowWidth>${motionDirectionArrowWidth}</motionDirectionArrowWidth>
+			<motionDirectionArrowSize>${motionDirectionArrowSize}</motionDirectionArrowSize>
+			<motionDirectionArrowHeadSize>${motionDirectionArrowHeadSize}</motionDirectionArrowHeadSize>
+			<timeEnable>${timeEnable}</timeEnable>
+			<namePressureEnable>${namePressureEnable}</namePressureEnable>
+			<motionSpeedEnable>${motionSpeedEnable}</motionSpeedEnable>
+			<windSeaFtRadiiEnable>${windSeaFtRadiiEnable}</windSeaFtRadiiEnable>
+			<forecastPosHour00>${forecastPosHour00}</forecastPosHour00>
+			<forecastPosHour06>${forecastPosHour06}</forecastPosHour06>
+			<forecastPosHour12>${forecastPosHour12}</forecastPosHour12>
+			<forecastPosHour18>${forecastPosHour18}</forecastPosHour18>
+			<forecastPosHour24>${forecastPosHour24}</forecastPosHour24>
+			<forecastPosHour30>${forecastPosHour30}</forecastPosHour30>
+			<forecastPosHour36>${forecastPosHour36}</forecastPosHour36>
+			<forecastPosHour42>${forecastPosHour42}</forecastPosHour42>
+			<forecastPosHour48>${forecastPosHour48}</forecastPosHour48>
+			<forecastPosHour54>${forecastPosHour54}</forecastPosHour54>
+			<forecastPosHour60>${forecastPosHour60}</forecastPosHour60>
+			<forecastPosHour66>${forecastPosHour66}</forecastPosHour66>
+			<forecastPosHour72>${forecastPosHour72}</forecastPosHour72>
+			<forecastPosHour78>${forecastPosHour78}</forecastPosHour78>
+			<forecastPosHour84>${forecastPosHour84}</forecastPosHour84>
+			<forecastPosHour90>${forecastPosHour90}</forecastPosHour90>
+			<forecastPosHour96>${forecastPosHour96}</forecastPosHour96>
+			<forecastPosHour120>${forecastPosHour120}</forecastPosHour120>
+			<requestStyle>METADATA</requestStyle>
+			<metadataMap>
+				<mapping key="pluginName">
+					<constraint constraintValue="tcm" constraintType="EQUALS" />
+				</mapping>
+				<mapping key="reportType">
+					<constraint constraintValue="TCM" constraintType="EQUALS" />
+				</mapping>
+			</metadataMap>
+		</resourceData>
+	</resource>
+</resourceGroup>

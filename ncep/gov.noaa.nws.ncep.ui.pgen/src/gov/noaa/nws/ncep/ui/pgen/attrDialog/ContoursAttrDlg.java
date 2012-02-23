@@ -97,6 +97,7 @@ import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
  * 04/11		#?			B. Yin		Re-factor IAttribute
  * 07/11		#?			J. Wu		Updated symbol selection panel and allowed closed
  * 08/11		#?			J. Wu   	TTR78: keep line/symbol/label attr window open.
+ * 01/12		#?			J. Wu   	Fixed exceptions when closing the dialog.
  * </pre>
  * 
  * @author	J. Wu
@@ -198,7 +199,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours, SelectionList
 	private LabelAttrDlg labelAttrDlg;
 
 	/**
-	 * stored label text attribute
+	 * stored label text attributeSlider
 	 */
 	private gov.noaa.nws.ncep.ui.pgen.elements.Text labelTemplate = null;
 	
@@ -212,6 +213,16 @@ public class ContoursAttrDlg extends AttrDlg implements IContours, SelectionList
 	 */
 	private Symbol minmaxTemplate = null;
 	
+	/**
+	 * Line attribute dialog
+	 */
+	private ContourCircleAttrDlg circleAttrDlg;
+
+	/**
+	 * stored line attribute
+	 */
+	private Arc circleTemplate = null;
+
 	/**
 	 * stored symbol attribute
 	 */
@@ -582,11 +593,53 @@ public class ContoursAttrDlg extends AttrDlg implements IContours, SelectionList
        
         Button circleAttrBtn = new Button( editCircleComp, SWT.PUSH );;
         circleAttrBtn.setText("Edit");
-        circleAttrBtn.setEnabled( false );
+        circleAttrBtn.setEnabled( true );
         circleAttrBtn.setToolTipText( "Edit contour's circle attributes" ); 
+        
+		circleAttrBtn.addListener(SWT.MouseDown, new Listener(){
+
+			 @Override
+			 public void handleEvent(Event event) {
+				 try {
+					 if ( circleAttrDlg == null ){
+						 circleAttrDlg = new ContourCircleAttrDlg(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell());
+					 }
+					 
+					 openAttrDlg( circleAttrDlg );
+                     circleAttrDlg.initDlg();
+					 					 
+					 //get stored attributes
+        			 DrawableElement de = drawingLayer.getSelectedDE();
+
+                    if ( de != null && de.getParent() != null && de.getParent() instanceof ContourCircle ) {
+                   	    ContourCircle pde = (ContourCircle)de.getParent();
+                   	    circleAttrDlg.setAttrForDlg( (IAttribute)pde.getCircle() );
+                    }
+                    else {
+                   	                     	 
+                   	    if ( circleTemplate == null ) {
+                   		    circleTemplate = (Arc)contoursAttrSettings.get( "Circle" );
+                            circleTemplate.setPgenType( "Circle" );
+                   	    }
+                       
+						circleAttrDlg.setAttrForDlg( (IAttribute)circleTemplate );
+                        
+                    }
+        			 					 
+					 // disable un-used attributes
+					 circleAttrDlg.disableWidgets();
+
+				 }
+				 catch (VizException e) {
+					 e.printStackTrace();
+				 }
+			 }
+		 });	 
+       
+        
 		applyAllCircleBtn = new Button( editCircleComp, SWT.CHECK );;
         applyAllCircleBtn.setText("All");
-        applyAllCircleBtn.setEnabled( false );
+        applyAllCircleBtn.setEnabled( true );
         
         
         // Create a composite to editing the label attributes.      			
@@ -1099,6 +1152,9 @@ public class ContoursAttrDlg extends AttrDlg implements IContours, SelectionList
 							    
 			    disableActionButtons();
 				
+			    this.getButton(IDialogConstants.CANCEL_ID).setEnabled(false);
+		  		this.getButton(IDialogConstants.OK_ID).setEnabled(false);
+				
 			    setButtonColor( addLineBtn, activeButtonColor );
 			    setButtonColor( selectLineBtn, defaultButtonColor );
 			    setButtonColor( deleteLineBtn, defaultButtonColor );
@@ -1368,6 +1424,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours, SelectionList
 		if ( labelAttrDlg != null ) labelAttrDlg.close();
 		if ( lineAttrDlg != null )  lineAttrDlg.close();
 		if ( minmaxAttrDlg != null )  minmaxAttrDlg.close();
+		if ( circleAttrDlg != null )  circleAttrDlg.close();
 				
 	}
 
@@ -1400,6 +1457,13 @@ public class ContoursAttrDlg extends AttrDlg implements IContours, SelectionList
 		return applyAllLabelBtn.getSelection();
 	}
 
+	/**
+	 * See if we need to update all circle's attributes.
+	 */
+	private Boolean updateAllCircleAttr() {
+		return applyAllCircleBtn.getSelection();
+	}
+	
 	/**
 	 * @return the labelTemplate
 	 */	
@@ -1464,6 +1528,28 @@ public class ContoursAttrDlg extends AttrDlg implements IContours, SelectionList
 		this.minmaxTemplate = minmaxTemplate;
 	}
 
+	/**
+	 * @return the circleTemplate
+	 */
+	public IAttribute getCircleTemplate() {
+		if ( circleAttrDlg != null && circleAttrDlg.getShell() != null ) {
+			return circleAttrDlg;
+		}
+		else if ( circleTemplate != null ) {
+			return circleTemplate;
+		}
+		else {
+			circleTemplate = (Arc)contoursAttrSettings.get( "Circle" );
+			return circleTemplate;
+		}
+	}
+	
+	/**
+	 * @param circleTemplate the circleTemplate to set
+	 */
+	public void setCircleTemplate(Arc circleTemplate) {
+		this.circleTemplate = circleTemplate;
+	}
 	/**
 	 * Initialize and open the line and label attribute editing dialog
 	 * @param dlg
@@ -1872,6 +1958,165 @@ public class ContoursAttrDlg extends AttrDlg implements IContours, SelectionList
 		}
 
 	}
+	
+	/**
+	 * Private Contour Circle attribute dialog class
+	 * @author jwu
+	 *
+	 */
+	private class ContourCircleAttrDlg extends ArcAttrDlg {
+		
+		private ContourCircleAttrDlg(Shell parShell) throws VizException {
+			
+	        super( parShell );
+			
+	    }
+		
+		/**
+		 * Update the circle attributes
+		 */
+		@Override
+		public void okPressed(){			
+			/*
+			 * Update the circle template first.
+			 */
+			circleTemplate = (gov.noaa.nws.ncep.ui.pgen.elements.Arc)new DrawableElementFactory().create(DrawableType.ARC, 
+					this, "Arc", "Circle", (Coordinate)null, null );
+			
+			/*
+			 * Update the Contours.
+			 */
+			updateCircleAttributes();	
+			
+		}
+		
+		/**
+		 * closes the circle attribute dialog only
+		 */
+		@Override
+		public void cancelPressed(){						
+			this.close();			
+		}
+		
+		
+		/**
+		 * disable un-used widgets
+		 */
+		private void disableWidgets() {
+			axisRatioLbl.setEnabled(false);
+			axisRatioSlider.setEnabled(false);
+			axisRatioText.setEnabled(false);
+			
+			startAngleLbl.setEnabled(false);
+			startAngleSlider.setEnabled(false);
+			startAngleText.setEnabled(false);
+			
+			endAngleLbl.setEnabled(false);
+			endAngleSlider.setEnabled(false);
+			endAngleText.setEnabled(false);			
+		}
+		
+		/**
+		 * initialize dialog
+		 */
+		private void initDlg() {			
+			this.getShell().setText("Contour Circle Attributes");
+		}
+
+	}
+	
+	/**
+	 * Updates the selected contours' circle attributes, then redraws the PGEN layer. 
+	 */
+	private void updateCircleAttributes() {
+		
+		/*
+		 * If no Contourcircle is selected and "All" is not checked, do nothing.
+		 */            
+		DrawableElement de = drawingLayer.getSelectedDE();	
+		
+		if ( de == null || de.getParent() == null || !(de.getParent() instanceof ContourCircle ) ) {
+			return;
+		}
+
+		/*
+		 * Create a new Contours with all components in the old Contours and update
+		 * the line attributes if required.
+		 */            
+		DrawableElement newEl = null;
+		
+		Contours oldContours = null;
+
+		if ( de != null && de.getParent() instanceof ContourCircle ) {           
+			newEl = (DrawableElement)de.copy();							
+			oldContours = (Contours)de.getParent().getParent();			
+		}
+		else {
+			oldContours = currentContours;
+		}
+		
+	    
+		if ( oldContours != null ) {
+						
+			Iterator<AbstractDrawableComponent> iterator = oldContours.getComponentIterator();
+			
+			Contours newContours = new Contours();
+			
+			/*
+			 *  Copy all contour lines and update the line attributes.
+			 */			
+	        while ( iterator.hasNext() ) {    				        					        					        	
+	        	
+	        	AbstractDrawableComponent oldAdc = iterator.next();	        	
+	        	AbstractDrawableComponent newAdc = oldAdc.copy();
+	        	
+	        	if ( newAdc instanceof ContourCircle ) {
+	        	    if ( updateAllCircleAttr() ) {	        		
+	        	        Arc oneCircle = (Arc)((ContourCircle)newAdc).getCircle();
+	        		    oneCircle.update( circleTemplate );
+       	            }
+	        	
+	        	    if ( newEl != null && oldAdc.equals( de.getParent() ) ) {	                	        		
+	        		    newEl.setParent( newAdc );
+	        		    if ( newEl instanceof Arc ) {
+	        		        ((DECollection)newAdc).replace( ((ContourCircle)newAdc).getCircle(), newEl );
+	        		    }
+	        		    
+	        		    ((ContourCircle)newAdc).getCircle().update( circleTemplate );
+
+	        	    }
+	        	    
+	        	}
+	        	       	
+	        	newAdc.setParent( newContours );
+	        	newContours.add( newAdc );
+	        }
+					
+			/*
+			 * Update the contours attributes and replace the old one with the new Contours.
+			 */
+	        newContours.update( oldContours );
+	        drawingLayer.replaceElement( oldContours, newContours );
+		    		    		    
+			/*
+			 * Reset the selected contours and DE to the updated ones.
+			 */
+	        currentContours = newContours;
+			
+	        if ( newEl != null ) {
+		        drawingLayer.removeSelected();
+			    drawingLayer.setSelected( newEl );
+			}
+							            			
+		}
+		
+		if ( mapEditor != null ) {
+			mapEditor.refresh();
+		}
+
+	}
+
+
 
 	/*
 	 * Open the dialog to do graph-to-grid processing.
@@ -2045,18 +2290,14 @@ public class ContoursAttrDlg extends AttrDlg implements IContours, SelectionList
      *  Get the line type (pgenType string).
      */
     public String getContourLineType() {    	
-		    	
-	    return lineTypeBtn.getData().toString();
-		           
+	    return lineTypeBtn.getData().toString();		           
     }
     
     /**
      *  Check if the circle drawing button is selected.
      */
-    public boolean drawCircle() {    	
-		    	
-	    return drawCircleBtn.getSelection();
-		           
+    public boolean drawCircle() {    			    	
+	    return drawCircleBtn.getSelection();		           
     }
     
     /**
@@ -2069,10 +2310,8 @@ public class ContoursAttrDlg extends AttrDlg implements IContours, SelectionList
     /**
      *  Check if the circle label hiding button is selected.
      */
-    public boolean hideCircleLabel() {    	
-		    	
-	    return hideCircleLabelBtn.getSelection();
-		           
+    public boolean hideCircleLabel() {    			    	
+	    return hideCircleLabelBtn.getSelection();		           
     }
     
     /**
@@ -2576,8 +2815,8 @@ public class ContoursAttrDlg extends AttrDlg implements IContours, SelectionList
 		numOfQuickSymbols = selected;
 		
 		if ( selected == 0 ) {
-			lbls.put( "HIGH_PRESSURE_H", true );
-			lbls.put( "LOW_PRESSURE_L", true );
+			lbls.put( "FILLED_HIGH_PRESSURE_H", true );
+			lbls.put( "FILLED_LOW_PRESSURE_L", true );
 			numOfQuickSymbols = 2;
 		}
 		
@@ -2600,13 +2839,17 @@ public class ContoursAttrDlg extends AttrDlg implements IContours, SelectionList
 		    for ( String str : quickSymbolType.keySet() ) {            
 		    	contoursAttrSettings.put( str, retrieveDefaultSettings( str ) );
 		    }
+		    
+		    //Get Default for Circle.
+//	    	contoursAttrSettings.put( "Circle", retrieveDefaultSettings( "Circle" ) );		    
             		               		    
 			/*
-			 * Get line, text, and symbols/markers found in the Contours in "settings.tbl" 
+			 * Get line, text, symbols/markers, circles found in the Contours in "settings.tbl" 
 			 */
 		    AbstractDrawableComponent adc = retrieveDefaultSettings( "Contours" );
 	    	boolean lineFound = false;
 	    	boolean labelFound = false;
+	    	boolean circleFound = false;
 		    if ( adc != null && adc instanceof Contours ) {
 		    	List<ContourLine> cline = ((Contours)adc).getContourLines();
 		    	if ( cline != null && cline.size() > 0 ) {
@@ -2637,9 +2880,25 @@ public class ContoursAttrDlg extends AttrDlg implements IContours, SelectionList
                     }
 		    	}
 		    	
+		    	List<ContourCircle> ccircles = ((Contours)adc).getContourCircles();
+		    	if ( ccircles != null && ccircles.size() > 0 ) {
+                    Arc cc = (Arc)ccircles.get(0).getCircle();
+		    		if ( cc != null ) {
+		    			contoursAttrSettings.put( cc.getPgenType(), cc.copy() );
+		    			circleFound = true;
+		    		}
+                    
+		    		if ( !labelFound ) {
+		    			if ( ccircles.get(0).getLabel() != null ) {
+		    				labelFound = true;
+		    				contoursAttrSettings.put( ccircles.get(0).getLabel().getPgenType(), 
+		    						ccircles.get(0).getLabel().copy() );
+		    			}
+		    		}
+		    	}
 		    } 
 		    
-		    // Build a default line and text as template
+		    // Build a default line, text, circle as template
 		    if ( !lineFound ) {
 			    Line dln = new Line( null, new Color[]{ Color.red }, 
 	           		     2.0f, 2.0, false, false, null, 2,
@@ -2657,6 +2916,15 @@ public class ContoursAttrDlg extends AttrDlg implements IContours, SelectionList
 	                     "Text", "General Text" );
 			    
 			    contoursAttrSettings.put( "General Text", txt );
+		    }
+		    
+		    if ( !circleFound ) {                
+				
+				Arc ccr = new Arc( null, Color.red,
+						2.0f, 2.0, false, false,2, FillPattern.SOLID, "Circle", 
+						null, null, "Arc", 1.0, 0.0, 360.0 );
+			    
+			    contoursAttrSettings.put( "Circle", ccr );
 		    }
 		}
 	}
@@ -2680,7 +2948,7 @@ public class ContoursAttrDlg extends AttrDlg implements IContours, SelectionList
 		retrieveContoursSettings();
 		String type = new String( "LINE_SOLID" );
 		for ( AbstractDrawableComponent adc : contoursAttrSettings.values() ) {
-		     if ( adc instanceof Line ) {
+		     if ( adc instanceof Line && !(adc instanceof Arc) ) {
 		    	 type = new String( adc.getPgenType() );
 		    	 break;
 		     }

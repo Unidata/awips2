@@ -35,7 +35,7 @@ public class FFAConstant {
 	public final static String FLASH_FLOOD_ADVISORY = "FLASH_FLOOD_ADVISORY"; 
 	
 	public final static String FLASH_FLOOD_WARNING = "FLASH_FLOOD_WARNING"; 
-	
+public final static String FLOOD_WATCH = "FLOOD_WATCH";//T456: Areal Flood Watch
 	public final static String FLASH_FLOOD_WATCH = "FLASH_FLOOD_WATCH"; 
 	
 	public final static String FLASH_FLOOD_STATEMENT = "FLASH_FLOOD_STATEMENT"; 
