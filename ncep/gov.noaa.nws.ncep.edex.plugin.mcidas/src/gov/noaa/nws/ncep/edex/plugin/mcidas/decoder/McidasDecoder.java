@@ -15,6 +15,7 @@
  * 12/2009		144			T. Lee		Renamed proj type for resource 
  *										rendering
  * 05/2010		144			L. Lin		Migration to TO11DR11.
+ * 11/2011					T. Lee		Enhanced for ntbn
  * </pre>
  * 
  * @author tlee
@@ -30,9 +31,11 @@ import java.io.InputStream;
 import java.util.Calendar;
 import java.util.TimeZone;
 
+import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasMapCoverage;
@@ -52,7 +55,7 @@ public class McidasDecoder extends AbstractDecoder {
 	Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 	private McidasRecord mr = new McidasRecord();
 
-	public PluginDataObject[] decode(byte[] data) throws Exception {
+	public PluginDataObject[] decode(byte[] data, Headers headers) throws Exception {
 		int endian = 0;
 		byte[] area = null;
 		byte[] nonAreaBlock = new byte[data.length - SIZE_OF_AREA];
@@ -63,13 +66,10 @@ public class McidasDecoder extends AbstractDecoder {
 		 * Separate area file and non-area block.
 		 */
 		record.setSizeRecords(data.length);
-		if (area == null) {
-			area = new byte[SIZE_OF_AREA];
-			System.arraycopy(data, 0, area,  0, SIZE_OF_AREA);
-			System.arraycopy(data, SIZE_OF_AREA, nonAreaBlock, 0, nonAreaBlock.length);
-		} else {
-			nonAreaBlock = data;
-		}		
+
+		area = new byte[SIZE_OF_AREA];
+		System.arraycopy(data, 0, area,  0, SIZE_OF_AREA);
+		System.arraycopy(data, SIZE_OF_AREA, nonAreaBlock, 0, nonAreaBlock.length);
 
 		/*
 		 * First word contains all zero for a valid record
@@ -238,16 +238,25 @@ public class McidasDecoder extends AbstractDecoder {
 				}
 		    }
 			record.setAreaName(areaName);
-			String filename = mr.getInputFileName();
-			record.setInputFileName(filename);
-
+			String fileName = "";
+			if ( headers != null ) {
+				fileName = (String) headers.get("traceId");
+			}			
+			record.setInputFileName(fileName);
+			
 			/* 
 			 * Acquire image type from input file name if needed.
 			 */
-			if (imageType.equals("UNKNOWN") || satelliteName.equals("VAAC")) {				
-				int index = filename.indexOf("_2");
-				imageType = filename.substring(0,index);
-			}
+			if (imageType.equals("UNKNOWN") || satelliteName.equals("VAAC")) {		
+				if ( fileName.contains("_20") ) {
+					int index = fileName.indexOf("_20");;
+					imageType = fileName.substring(0,index);
+                    if ( imageType.contains("_") ) {
+                            index = imageType.lastIndexOf("_");
+                            imageType = imageType.substring (index + 1, imageType.length());
+                    }
+				}
+			}                            
 			record.setImageType(imageType);
 			
 			/* 
@@ -710,15 +719,13 @@ public class McidasDecoder extends AbstractDecoder {
 				record.setCoverage(mapCoverage);
 				record.setPersistenceTime(TimeTools.getSystemCalendar());
 				record.setPluginName("mcidas");
-				record.constructDataURI();
+				try {
+					record.constructDataURI();
+				} catch (PluginException e) {
+					e.printStackTrace();
+				}
 			}
-			if (record == null) {
-				System.out.println (" Not a valid image record");
-				return new PluginDataObject[0];
-			}
-			else {
-				return new PluginDataObject[] {record};
-			}
+			return new PluginDataObject[] {record};
 		}
 		else {
 			return new PluginDataObject[0];
@@ -888,7 +895,7 @@ public class McidasDecoder extends AbstractDecoder {
 				}
 			}
 		}
-		return decode(fileData);
+		return decode(fileData, null);
 	}
 	
 	/*

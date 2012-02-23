@@ -16,6 +16,7 @@
          <packagereq type="default">awips2-database-standalone-configuration</packagereq>
 
          <packagereq type="default">awips2-edex-base</packagereq>
+         <packagereq type="default">awips2-edex-binlightning</packagereq>
          <packagereq type="default">awips2-edex-bufr</packagereq>
          <packagereq type="default">awips2-edex-common-core</packagereq>
          <packagereq type="default">awips2-edex-core</packagereq>
@@ -31,7 +32,6 @@
          <packagereq type="default">awips2-edex-text</packagereq>
          <packagereq type="default">awips2-edex-shapefiles</packagereq>
          <packagereq type="default">awips2-edex-configuration</packagereq>
-         <packagereq type="default">awips2-edex-ncep-nsharp</packagereq>
          <packagereq type="default">awips2-edex-npp</packagereq>
          <packagereq type="default">awips2-edex-ncep</packagereq>
          <packagereq type="default">awips2-gfesuite-server</packagereq>
@@ -165,6 +165,7 @@
          <packagereq type="default">awips2-psql</packagereq>
 
          <packagereq type="default">awips2-edex-base</packagereq>
+         <packagereq type="default">awips2-edex-binlightning</packagereq>
          <packagereq type="default">awips2-edex-bufr</packagereq>
          <packagereq type="default">awips2-edex-common-core</packagereq>
          <packagereq type="default">awips2-edex-configuration</packagereq>
@@ -181,7 +182,6 @@
          <packagereq type="default">awips2-edex-shapefiles</packagereq>
          <packagereq type="default">awips2-edex-text</packagereq>
          <packagereq type="default">awips2-edex-ncep</packagereq>
-         <packagereq type="default">awips2-edex-ncep-nsharp</packagereq>
          <packagereq type="default">awips2-edex-npp</packagereq>
          <packagereq type="default">awips2-gfesuite-server</packagereq>
 
@@ -257,6 +257,7 @@
          <packagereq type="default">awips2-python-tpg</packagereq>
          <packagereq type="default">awips2-python-ufpy</packagereq>
          <packagereq type="default">awips2-python-werkzeug</packagereq>
+         <packagereq type="default">awips2-localapps-environment</packagereq>
       </packagelist>
    </group>
 
@@ -296,6 +297,7 @@
          <packagereq type="default">awips2-python-tpg</packagereq>
          <packagereq type="default">awips2-python-ufpy</packagereq>
          <packagereq type="default">awips2-python-werkzeug</packagereq>
+         <packagereq type="default">awips2-localapps-environment</packagereq>
       </packagelist>
    </group>
 
@@ -330,6 +332,7 @@
          <packagereq type="default">awips2-python-tpg</packagereq>
          <packagereq type="default">awips2-python-ufpy</packagereq>
          <packagereq type="default">awips2-python-werkzeug</packagereq>
+         <packagereq type="default">awips2-localapps-environment</packagereq>
       </packagelist>
    </group>
 
@@ -364,6 +367,7 @@
          <packagereq type="default">awips2-python-tpg</packagereq>
          <packagereq type="default">awips2-python-ufpy</packagereq>
          <packagereq type="default">awips2-python-werkzeug</packagereq>
+         <packagereq type="default">awips2-localapps-environment</packagereq>
       </packagelist>
    </group>
 
@@ -438,6 +442,7 @@
 		 <packagereq type="default">awips2-cave-viz-nwsauth</packagereq>
 		 <packagereq type="default">awips2-cave-viz-thinclient</packagereq>
 		 <packagereq type="default">awips2-cave-viz-npp</packagereq>
+		 <packagereq type="default">awips2-localapps-environment</packagereq>
       </packagelist>
    </group>
 </comps>

@@ -15,8 +15,13 @@ import java.util.List;
 import gov.noaa.nws.ncep.ui.pgen.filter.ElementFilter;
 import gov.noaa.nws.ncep.ui.pgen.filter.ForecastHourFilter;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 
+import org.dom4j.Document;
+import org.dom4j.Node;
+import org.dom4j.io.SAXReader;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
@@ -41,7 +46,9 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 03/10		#256		B. Yin   	      Initial Creation.
- * 10/10       #289        Archana.S      Added FilterButtonKeyListener 
+ * 10/10        #289        Archana.S      Added FilterButtonKeyListener 
+ * 12/11		#522		B. Yin		Made the linkage between the filter dialog and the GFA dialog.
+ * 12/11                    Q.Zhou      Read HOURS from filterHour.xml instead of fixed string.
  * </pre>
  * 
  * @author	B. Yin
@@ -67,9 +74,9 @@ public class PgenFilterDlg extends CaveJFACEDialog {
 	private Button hourBtns[];
 	
 	//Hour buttons
-	private static String HOURS[] = {"0","0+", "3", "3+", "6","9","12","0-0","3-3","6-6","0-3","0-6","3-6","6-9",
-		"6-12","9-12","AIRM","OTLK"};
-	
+	private static String HOURS[] = null; 
+	private static Document filterHourTbl = null;
+	private static String HOUR_XPATH = "/root/filterHour/label";
 	//filter map
 	private HashMap<String, ElementFilter> filterMap;
 	
@@ -229,6 +236,9 @@ public class PgenFilterDlg extends CaveJFACEDialog {
 		super(parentShell);
         this.setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE );
         
+        filterHourTbl = readFilterHourTbl();
+        HOURS = getFilterHour();
+        
         filterMap = new HashMap<String,ElementFilter>();
         
         for ( String str : HOURS ){
@@ -285,8 +295,6 @@ public class PgenFilterDlg extends CaveJFACEDialog {
 
         }
 		
-
-       	
         return top;
 	}
 	
@@ -365,8 +373,145 @@ public class PgenFilterDlg extends CaveJFACEDialog {
 		
 	}
 	
+	/**
+	 * Sets the PGEN resource and the map editor
+	 * @param resource
+	 * @param editor
+	 */
 	public void setResource(PgenResource resource, NCMapEditor editor){
 		this.drawingLayer = resource;
 		this.mapEditor = editor;
 	}
+
+	
+	/**
+	 * Read filter (hour) document
+	 * @return - filter document
+	 */
+	public static Document readFilterHourTbl() {
+		
+		if (HOURS == null) {
+			try {
+				String filterHourFile = NcPathManager.getInstance().getStaticFile(
+						   NcPathConstants.PGEN_FILTER_HOUR ).getAbsolutePath();
+
+				SAXReader reader = new SAXReader();
+				filterHourTbl = reader.read(filterHourFile);
+			} catch (Exception e) {
+				e.printStackTrace();				
+			}
+		}
+		
+		return filterHourTbl;
+	}
+	
+	/**
+	 * Get hours from the filter (hour) document
+	 */
+	private String[] getFilterHour() {
+		if (filterHourTbl == null)
+			HOURS = new String[] {"0","0+", "3", "3+", "6","9","12","0-0","3-3","6-6","0-3","0-6","3-6","6-9",
+				"6-12","9-12","AIRM","OTLK"};
+		else {
+			List<String> list = new ArrayList<String>();		
+			List<Node> nodes = filterHourTbl.selectNodes(HOUR_XPATH);
+		
+			for (Node node : nodes) {
+				list.add( node.valueOf("@text").toString());
+			}
+		
+			HOURS = new String[list.size()];
+			HOURS = list.toArray(HOURS);
+		}
+		
+		return HOURS;
+	}
+
+	
+	/**
+	 * Sets the filter check box
+	 * @param hours - text of the check box
+	 * @param flag - check or un-check
+	 */
+	public void setHourChkBox(String hours, boolean flag){
+		
+		//search the check box for the input hour string
+		Button hrBtn = null;
+		for ( Button btn : hourBtns ){
+			if ( btn.getText().equalsIgnoreCase(hours )){
+				hrBtn = btn;
+				break;
+			}
+		}
+		
+		//If the input hour does not match and check box,
+		//check if the input hour is in format H:MM, and then check if it is between 0 and 3,
+		if ( hrBtn == null ){
+			double fHrs = -1;
+			double fMinutes = -1;
+			if ( hours.contains(":")){
+				String hm[] = hours.split(":");
+				try {
+					fHrs = Integer.valueOf( hm[0]);
+					fMinutes = Integer.valueOf( hm[1]);
+				}
+				catch ( Exception e){
+					e.printStackTrace();
+				}
+			}
+			else {
+				try {
+					fHrs = Integer.valueOf( hours );
+				}
+				catch ( Exception e){
+					e.printStackTrace();
+				}
+			}
+			
+			fMinutes = (fMinutes >0)? (fMinutes/60.):0;
+			if ( fHrs > 0 ){
+				String hrStr = "";
+				fHrs += fMinutes;
+				if ( fHrs <= 0.001 ) hrStr = "0";
+				else if ( fHrs > 0.001 && fHrs < 3 ) hrStr = "0+";
+				else if ( Math.abs(fHrs-3) < 0.001 ) hrStr = "3";
+				else if ( fHrs > 3.001 ) hrStr ="3+";
+				if (! hrStr.isEmpty()){
+					for ( Button btn : hourBtns ){
+						if ( btn.getText().equalsIgnoreCase( hrStr )){
+							hrBtn = btn;
+							break;
+						}
+					}
+				}
+			}
+			
+		}
+		
+		//check or un-check the box
+		if ( hrBtn != null ){
+			if ( flag ){
+				hrBtn.setSelection(true);
+				drawingLayer.getFilters().addFilter(filterMap.get(hrBtn.getText()));
+			}
+			else {
+				hrBtn.setSelection(false);
+				drawingLayer.getFilters().removeFilter(filterMap.get(hrBtn.getText()));
+			}
+		}
+			
+		
+	}
+	
+	/**
+	 * Checks if the PGEN filter dialog is open
+	 * @return
+	 */
+	static public boolean isFilterDlgOpen(){
+		if ( INSTANCE != null && INSTANCE.getShell() != null){
+			return true;
+		}
+		return false;
+	}
+
 }

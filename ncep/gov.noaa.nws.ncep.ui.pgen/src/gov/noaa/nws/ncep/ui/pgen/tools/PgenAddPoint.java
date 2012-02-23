@@ -88,6 +88,7 @@ public class PgenAddPoint extends AbstractPgenTool {
      */
     public class PgenAddPtHandler extends InputHandlerDefaultImpl {
    	
+    	private boolean preempt;
     	private ADD_STATUS status = ADD_STATUS.START;
     	private DrawableElement newEl;
     	private DECollection ghost = new DECollection();
@@ -106,6 +107,8 @@ public class PgenAddPoint extends AbstractPgenTool {
         @Override	   	
         public boolean handleMouseDown(int anX, int aY, int button) { 
         	
+        	preempt = false;
+        	
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
         	if ( loc == null ) return false;
@@ -119,11 +122,13 @@ public class PgenAddPoint extends AbstractPgenTool {
         			 * User selects an Element to alter
         			 */
         			//AbstractDrawableComponent elSelected = drawingLayer.getNearestComponent( loc, addPointFilter );
-        			AbstractDrawableComponent elSelected = drawingLayer.getNearestComponent( loc, addPointFilter, true );
+        			//AbstractDrawableComponent elSelected = drawingLayer.getNearestComponent( loc, addPointFilter, true );
+        			AbstractDrawableComponent elSelected = drawingLayer.getNearestElement( loc, addPointFilter);
 
         			if ( elSelected == null ) return false;
         			drawingLayer.setSelected( elSelected );
         			status = ADD_STATUS.SELECTED;
+        			preempt = true;
         			break;
         		case SELECTED:
         			/*
@@ -135,12 +140,13 @@ public class PgenAddPoint extends AbstractPgenTool {
         			drawingLayer.replaceElement(drawingLayer.getSelectedComp(), newComp);
         			drawingLayer.removeSelected();
         			status = ADD_STATUS.START;
+        			preempt = false;
         			break;
         		}
         		
         		
      	        mapEditor.refresh();  
-                return true;
+                return preempt;
                 
             }
             else if ( button == 3 ) {
@@ -198,7 +204,12 @@ public class PgenAddPoint extends AbstractPgenTool {
     		}
     		
         	return false;
-        }  
+        }
+
+		@Override
+		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
+			return preempt;
+		}  
         
         
     }
