@@ -10,198 +10,208 @@
           name="Product Generation">
       </command>
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
           name="Pgen Single Point Drawing">
       </command>     
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenVolcanoDraw"
           name="Pgen Volcano Drawing">
       </command>           
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDualDraw"
           name="Pgen Dual Point Drawing">
       </command>  
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
           name="Pgen Multi Point Drawing">
       </command> 
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.outlookDraw"
           name="Pgen Outlook Drawing">
       </command> 
        <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenOutlookSetCont"
           name="Pgen Outlook Set Continue Lines">
       </command>  
   	  <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenJetDraw"
           name="Pgen Jet Drawing">
       </command> 
   	  <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenGfaDraw"
           name="Pgen Gfa Drawing">
       </command> 
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenLabeledLineDraw"
           name="Pgen Cloud Drawing">
       </command> 
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenLabeledLineModify"
           name="Pgen Labeled Line Modify">
       </command> 
 	  <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenWatchBoxDraw"
           name="Pgen Watch Box Drawing">
       </command>
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenWatchStatusLineDraw"
           name="Pgen Watch Status Line Drawing">
       </command>  
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenWatchBoxModify"
           name="Pgen Watch Box Modify">
       </command> 
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenVectorDraw"
           name="Pgen Vector Drawing">
           
       </command>
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenTextDraw"
           name="Pgen Text Drawing">
       </command>      
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenAvnTextDraw"
           name="Pgen Aviation Text Drawing">
       </command>      
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSelect"
           name="Pgen Selecting">
       </command>   
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiSelect"
           name="Pgen Multi Selecting">
       </command>           
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDeleteElement"
           name="Pgen Deleting Element">
       </command>       
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenCopyElement"
           name="Pgen Copy Element">
       </command>    
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMoveElement"
           name="Pgen Move Element">
       </command>    
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenFlipDrawingElement"
           name="Pgen Flip Element">
       </command>    
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDeleteAll"
           name="Pgen Deleting All">
       </command> 
     <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenProd"
           name="Pgen Prod">
       </command>             
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDeletePoint"
           name="Pgen Deleting Point">
       </command>       
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenAddPoint"
           name="Pgen Add Point">
       </command>       
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenAddPointAlt"
           name="Pgen Add Point Alt">
       </command>       
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDistance"
           name="Pgen Distance">
       </command>       
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDeletePart"
           name="Pgen Deleting Part">
       </command>       
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDeleteObj"
           name="Pgen Deleting Obj">
       </command> 
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenRotateElement"
           name="Pgen Rotate Element">
       </command>    
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenRotateElement"
+          name="Pgen Rotate Element">
+      </command>    
+      <command
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenModifyTool"
           name="Pgen Modify Lines">
       </command>
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenConnect"
           name="Pgen Connect">
       </command>                                   
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenExtrapTool"
           name="Pgen Extrapolate Object">
       </command>        
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenInterpTool"
           name="Pgen Interpolate Object">
       </command>        
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenFilterTool"
           name="Pgen Filter">
       </command>        
        <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenFromTool"
           name="From">
       </command>        
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenCycleTool"
           name="Cycle selection">
       </command>        
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenIncDec"
+          name="Pgen Inc/Dec">
+      </command>        
+      <command
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenGfaFormatTool"
           name="Cycle selection">
       </command>        
@@ -209,7 +219,7 @@
           id="gov.noaa.nws.ncep.ui.pgen.fileManage"
           name="Manage Product File">
       </command>
-      <command categoryId="com.raytheon.viz.ui.modalTool"
+      <command categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.exit"
           name="Exit Product Generation">
       </command>
@@ -222,16 +232,16 @@
           name="Start PGEN Layering">
       </command>     
       <command
-          id="gov.noaa.nws.ncep.ui.pgen.productManage"
-          name="Manage Products">
+          id="gov.noaa.nws.ncep.ui.pgen.activityManage"
+          name="Manage PGEN Activities">
       </command>               
       <command
-          id="gov.noaa.nws.ncep.ui.pgen.launchProduct"
-          name="Launch Products">
+          id="gov.noaa.nws.ncep.ui.pgen.activityProduct"
+          name="Launch PGEN Activities">
       </command>               
        <command
-          id="gov.noaa.nws.ncep.ui.pgen.productConfigure"
-          name="Configure Product Types">
+          id="gov.noaa.nws.ncep.ui.pgen.activityConfigure"
+          name="Configure PGEN  Acitivities">
       </command>  
       <command
           id="gov.noaa.nws.ncep.ui.pgen.PgenHelp"
@@ -246,18 +256,22 @@
                optional="false">
          </commandParameter>          
       </command>
-      <command categoryId="com.raytheon.viz.ui.modalTool"
+      <command categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.tca"
           name="TCA">
       </command>
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
+          categoryId="gov.noaa.nws.ncep.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.pgen.contours"
           name="Contours">
       </command>
-      <command categoryId="com.raytheon.viz.ui.modalTool" 
+      <command categoryId="gov.noaa.nws.ncep.viz.ui.modalTool" 
           id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenVolCreate" 
           name="Pgen Volcano Create"> 
+      </command>
+      <command categoryId="gov.noaa.nws.ncep.viz.ui.modalTool" 
+          id="gov.noaa.nws.ncep.ui.pgen.rsc.PgenTCMtool" 
+          name="Pgen TCM Create"> 
       </command>
       <command 
             id="gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringHotKeyCommand"
@@ -289,6 +303,10 @@
        <handler
             class="gov.noaa.nws.ncep.ui.pgen.tools.PgenMultiPointDrawingTool"
             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw">
+       </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenIncDecTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenIncDec">
        </handler>
        <handler
             class="gov.noaa.nws.ncep.ui.pgen.tools.PgenJetDrawingTool"
@@ -440,11 +458,11 @@
        </handler>      
        <handler
             class="gov.noaa.nws.ncep.ui.pgen.productManage.ProductManageHandler"
-            commandId="gov.noaa.nws.ncep.ui.pgen.productManage">
+            commandId="gov.noaa.nws.ncep.ui.pgen.activityManage">
        </handler>                 
        <handler
             class="gov.noaa.nws.ncep.ui.pgen.productManage.ProductConfigureHandler"
-            commandId="gov.noaa.nws.ncep.ui.pgen.productConfigure">
+            commandId="gov.noaa.nws.ncep.ui.pgen.activityConfigure">
        </handler> 
        <handler
             class="gov.noaa.nws.ncep.ui.pgen.productManage.PgenHelpHandler"
@@ -478,6 +496,10 @@
             class="gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringHotKeyHandler"
             commandId="gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringHotKeyCommand">
        </handler>
+       <handler
+            class="gov.noaa.nws.ncep.ui.pgen.tools.PgenTcmDrawingTool"
+            commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenTCMtool">
+       </handler>
    </extension>
 
    <extension
@@ -499,19 +521,19 @@
        <menuContribution
            locationURI="toolbar:gov.noaa.nws.ncep.ui.PGEN">
            <command
-                  commandId="gov.noaa.nws.ncep.ui.pgen.productManage"
+                  commandId="gov.noaa.nws.ncep.ui.pgen.activityManage"
                   label="Start"
                   mnemonic="S"
                   style="pulldown"
-                  id="gov.noaa.nws.ncep.ui.pgen.PGEN.productLaunch">
+                  id="gov.noaa.nws.ncep.ui.pgen.PGEN.activityLaunch">
            </command>
                              
-           <command
-                commandId="gov.noaa.nws.ncep.ui.pgen.productConfigure"
+           <!--command
+                commandId="gov.noaa.nws.ncep.ui.pgen.activityConfigure"
                 label="Configure"
                 mnemonic="C"
                 style="push">
-           </command>
+           </command-->
 
            <command
                 commandId="gov.noaa.nws.ncep.ui.pgen.PgenHelp"
@@ -526,10 +548,10 @@
    <extension
        point="org.eclipse.ui.menus">
        <menuContribution
-           locationURI="menu:gov.noaa.nws.ncep.ui.pgen.PGEN.productLaunch">   
+           locationURI="menu:gov.noaa.nws.ncep.ui.pgen.PGEN.activityLaunch">   
            <dynamic
               class="gov.noaa.nws.ncep.ui.pgen.productManage.ProductLauncher"
-              id="gov.noaa.nws.ncep.ui.pgen.productManage.productLauncher">
+              id="gov.noaa.nws.ncep.ui.pgen.productManage.activityLauncher">
            </dynamic>                                 
        </menuContribution>               
    </extension> 
@@ -540,16 +562,17 @@
              name="Open"
              label="Open MetObject File"
              commandId="gov.noaa.nws.ncep.ui.pgen.fileManage"
+             alwaysVisible="true"
              icon="icons/open.gif" />
          <control
              name="Save"
-             label="Save MetObject File"
+             label="Save Current Product to Configured File"
              commandId="gov.noaa.nws.ncep.ui.pgen.fileManage"
              alwaysVisible="true"
              icon="icons/save.gif" />
          <control
              name="Save As"
-             label="Save As..."
+             label="Save Current Product As..."
              commandId="gov.noaa.nws.ncep.ui.pgen.fileManage"
              alwaysVisible="true"
              icon="icons/saveas.gif" />
@@ -583,8 +606,9 @@
    -->
          <control
              name="Save All"
-             label="SAVE All"
-             commandId="com.raytheon.viz.ui.actions.notImplemented"
+             label="SAVE All Products to Configured Files"
+             alwaysVisible="true"
+             commandId="gov.noaa.nws.ncep.ui.pgen.fileManage"
              icon="icons/saveall.gif" />
          <control
              name="ProdCtrl"
@@ -691,6 +715,11 @@
              commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenFromTool"
              icon="icons/from.gif" />
          <action
+             name="PROD_AIRMET"
+             label="Airmet Format"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenGfaFormatTool"
+             icon="icons/airmet.gif" />
+         <action
              name="Cycle"
              label="Cycle selection"
              commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenCycleTool"
@@ -709,7 +738,12 @@
              name="Distance"
              label="Distance Options"
              commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenDistance"
-             icon="icons/distance.gif" />     
+             icon="icons/distance.gif" />   
+         <action
+             name="IncDec"
+             label="Inc/Dec"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenIncDec"
+             icon="icons/inc_dec.gif" />  
 
          <class
              name="Front"
@@ -731,10 +765,12 @@
              name="Track"
              label="Track"
              icon="icons/track.gif" />
+ <!--
          <class
              name="Prod"
              label="Prod"
              icon="icons/prod.gif" />
+ -->
          <class
              name="Text"
              label="Text"
@@ -1171,13 +1207,13 @@
              icon="icons/spsym13.gif" />  
          <object
              name="HIGH_PRESSURE_H"
-             label="High pressure H (filled)"
+             label="High pressure H"
              className="Symbol"
              commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
              icon="icons/spsym10.gif" />             
          <object
              name="LOW_PRESSURE_L"
-             label="Low pressure L (filled)"
+             label="Low pressure L"
              className="Symbol"
              commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenSingleDraw"
              icon="icons/spsym11.gif" />         
@@ -2611,12 +2647,7 @@
              className="Track"
              commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenMultiDraw"
              icon="icons/trkstorm.gif" />
-         <object
-             name="PROD_AIRMET"
-             label="Airmet Format"
-             className="Prod"
-             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenGfaFormatTool"
-             icon="icons/airmet.gif" />
+
          <object
              name="LINE_SOLID"
              label="Solid Line"
@@ -2938,7 +2969,13 @@
              label="Turbulence"
              className="MET"
              commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenLabeledLineDraw"
-             icon="icons/textturb.gif" />         
+             icon="icons/textturb.gif" />   
+           <object
+             name="TCM"
+             label="TCM"
+             className="MET"
+             commandId="gov.noaa.nws.ncep.ui.pgen.rsc.PgenTCMtool"
+             icon="icons/hcntrak.gif" />                   
           <object
              name="INTL_SIGMET"
              label="INTL_SIGMET"
@@ -3003,59 +3040,6 @@
             category="org.eclipse.jface.Prerences">
       </page> 
    </extension>
-      <extension
-            point="gov.noaa.nws.ncep.viz.localization.localizationData">
-         <singleLocalizationValue
-               name="g2g_Grphgd"
-               location="pgen"
-               fileName="grphgd.tbl">
-         </singleLocalizationValue>
-         <singleLocalizationValue
-               name="outlookType"
-               location="pgen"
-               fileName="outlooktype.xml">
-         </singleLocalizationValue>
-         <singleLocalizationValue
-               name="outlookTimes"
-               location="pgen"
-               fileName="outlooktimes.xml">
-         </singleLocalizationValue>
-         <singleLocalizationValue
-               name="outlookSettings"
-               location="pgen"
-               fileName="outlooksettings.xml">
-         </singleLocalizationValue>
-         <singleLocalizationValue
-               fileName="red_cross.png"
-               location="pgen"
-               name="redCrossImageFile">
-         </singleLocalizationValue>
-         <singleLocalizationValue
-               fileName="contoursInfo.xml"
-               location="pgen"
-               name="contoursInfo">
-         </singleLocalizationValue>
-         <singleLocalizationValue
-               fileName="product.xsd"
-               location="pgen"
-               name="Pgen_Product_Schema">
-         </singleLocalizationValue>
-         <singleLocalizationValue
-               fileName="productTypes.xml"
-               location="pgen"
-               name="Pgen_Product_Types">
-         </singleLocalizationValue>
-         <singleLocalizationValue
-               fileName="mt_obsc_states.xml"
-               location="pgen"
-               name="mtObscStates">
-         </singleLocalizationValue>
-         <singleLocalizationValue
-               fileName="pgenFileOrganizer.xml"
-               location="pgen"
-               name="pgenFileOrganizer">
-         </singleLocalizationValue>
-      </extension>
    <extension
       point="org.eclipse.ui.bindings"
       id="gov.noaa.nws.ncep.ui.pgen.pgenKeyBinding"
@@ -3223,4 +3207,17 @@
          </key> 
 
    </extension>
+
+    <extension
+          point="com.raytheon.uf.viz.localization.localizationpath">
+       <path
+             application="NCEP"
+             localizationType="CAVE_STATIC"
+             name="PGEN"
+             recursive="true"
+             value="ncep/pgen"
+	         extensionFilter=".xml,.tbl,.png,.txt,.xsl,.xlt,.xslt">
+       </path>
+    </extension>
+
 </plugin>

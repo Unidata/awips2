@@ -12,9 +12,6 @@
 ##
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 EWW${siteId}
-#if(${specialCorText})
-${specialCorText}
-#else
 ${ugcline}
 /${productClass}.${action}.${vtecOffice}.EW.W.${etn}.${dateUtil.format(${start}, ${timeFormat.ymdthmz})}-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
 
@@ -118,7 +115,7 @@ THIS IS A TEST MESSAGE. ##
 THIS IS A TEST MESSAGE. ##
 #end
 AT ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}...${reportType}...${reportType1} ##
-#handleClosestPoints($list, $closestPoints, $otherClosestPoints, $stormType, "NEAR", 6, "MILES")
+#handleClosestPoints($list, $closestPoints, $otherClosestPoints, $stormType, "NEAR", 6, "MILES", true)
 #if($movementSpeed < 3 || ${stationary})
 . ${reportType2} NEARLY STATIONARY.
 #else
@@ -146,10 +143,10 @@ THIS IS A TEST MESSAGE. ##
 #locationsList("LOCATIONS IMPACTED INCLUDE..." ${phenomena} 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
 
 #end
-##############################################
-###### mile markers ##############
-##############################################
-#parse("milemarkers.vm")
+
+## parse file command here is to pull in mile marker info
+## #parse("mileMarkers.vm")
+
 #####################
 ## CALL TO ACTIONS ##
 #####################
@@ -202,4 +199,3 @@ ${mathUtil.round(${movementInKnots})}KT ##
 $$
 
 !**NAME/INITIALS**!
-#end

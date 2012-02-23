@@ -8,10 +8,6 @@
 
 package gov.noaa.nws.ncep.viz.rsc.wstm.rsc;
 
-import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
-import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
-import gov.noaa.nws.ncep.viz.resources.attributes.RGBColorAdapter;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -20,16 +16,24 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.eclipse.swt.graphics.RGB;
 
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractNameGenerator;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 
+import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
+import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
+import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData.TimeMatchMethod;
+import gov.noaa.nws.ncep.viz.resources.attributes.RGBColorAdapter;
+import gov.noaa.nws.ncep.viz.resources.misc.IMiscResourceData;
+import gov.noaa.nws.ncep.viz.resources.misc.IMiscResourceData.EditElement;
+import gov.noaa.nws.ncep.viz.resources.misc.IMiscResourceData.MiscResourceAttr;
+import gov.noaa.nws.ncep.viz.resources.misc.IMiscResourceData.MiscRscAttrs;
 /**
  * Provides the user-editable attributes for the WSTM resource
  * 
- * <pre>
+  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
@@ -37,429 +41,410 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * 22-Apr-2011    439      G. Hull     don't set timeMatchMethod to BEFORE_OR_EQUAL
  *                                                
  * @author archana
- * </pre>
+ *</pre>
  */
 @SuppressWarnings("unused")
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(name = "WstmResourceData")
-public class WstmResourceData extends AbstractNatlCntrsRequestableResourceData
-        implements INatlCntrsResourceData {
+public class WstmResourceData extends	AbstractNatlCntrsRequestableResourceData implements 
+INatlCntrsResourceData{
 
-    @XmlElement
-    protected String legendName;
+	@XmlElement
+	protected String legendName;
+	
+//	--------Winter Storm Warning attributes-----------------------------------
+	@XmlElement
+	private Boolean wstmWarningEnable = true;
 
-    // --------Winter Storm Warning
-    // attributes-----------------------------------
-    @XmlElement
-    private Boolean wstmWarningEnable = true;
+	@XmlElement
+	@XmlJavaTypeAdapter(RGBColorAdapter.class)
+	protected RGB wstmWarningColor;
 
-    @XmlElement
-    @XmlJavaTypeAdapter(RGBColorAdapter.class)
-    protected RGB wstmWarningColor;
+	@XmlElement
+	private Integer wstmWarningLineWidth = 3;
 
-    @XmlElement
-    private Integer wstmWarningLineWidth = 3;
+	@XmlElement
+	private Integer wstmWarningSymbolWidth = 3;
 
-    @XmlElement
-    private Integer wstmWarningSymbolWidth = 3;
+	@XmlElement
+	private Float wstmWarningSymbolSize = 1.0f;
+	
+	/*------------Winter Storm Watch-------------*/
+	
+	@XmlElement
+	private Boolean wstmWatchEnable = true;
 
-    @XmlElement
-    private Float wstmWarningSymbolSize = 1.0f;
+	@XmlElement
+	@XmlJavaTypeAdapter(RGBColorAdapter.class)
+	protected RGB wstmWatchColor;
 
-    /*------------Winter Storm Watch-------------*/
+	@XmlElement
+	private Integer wstmWatchLineWidth = 3;
 
-    @XmlElement
-    private Boolean wstmWatchEnable = true;
+	@XmlElement
+	private Integer wstmWatchSymbolWidth = 3;
 
-    @XmlElement
-    @XmlJavaTypeAdapter(RGBColorAdapter.class)
-    protected RGB wstmWatchColor;
+	@XmlElement
+	private Float wstmWatchSymbolSize = 1.0f;	
+	
+/*------------------Winter Storm Advisory------------------------*/
+	@XmlElement
+	private Boolean wstmAdvisoryEnable = true;
 
-    @XmlElement
-    private Integer wstmWatchLineWidth = 3;
+	@XmlElement
+	@XmlJavaTypeAdapter(RGBColorAdapter.class)
+	protected RGB wstmAdvisoryColor;
 
-    @XmlElement
-    private Integer wstmWatchSymbolWidth = 3;
+	@XmlElement
+	private Integer wstmAdvisoryLineWidth = 3;
 
-    @XmlElement
-    private Float wstmWatchSymbolSize = 1.0f;
+	@XmlElement
+	private Integer wstmAdvisorySymbolWidth = 3;
 
-    /*------------------Winter Storm Advisory------------------------*/
-    @XmlElement
-    private Boolean wstmAdvisoryEnable = true;
+	@XmlElement
+	private Float wstmAdvisorySymbolSize = 1.0f;	
 
-    @XmlElement
-    @XmlJavaTypeAdapter(RGBColorAdapter.class)
-    protected RGB wstmAdvisoryColor;
+	@XmlElement
+	private Boolean timeEnable = true;
 
-    @XmlElement
-    private Integer wstmAdvisoryLineWidth = 3;
+	@XmlElement
+	private Boolean zoneNameEnable = false;
+	
+	@XmlElement
+	private Boolean outlineEnable = false; 	
+	
+	
+	/**
+	 * @return the legendName
+	 */
+	public String getLegendName() {
+		return legendName;
+	}
 
-    @XmlElement
-    private Integer wstmAdvisorySymbolWidth = 3;
+	/**
+	 * @param legendName the legendName to set
+	 */
+	public void setLegendName(String legendName) {
+		this.legendName = legendName;
+	}
 
-    @XmlElement
-    private Float wstmAdvisorySymbolSize = 1.0f;
+	/**
+	 * @return the wstmWarningEnable
+	 */
+	public Boolean getWstmWarningEnable() {
+		return wstmWarningEnable;
+	}
 
-    @XmlElement
-    private Boolean timeEnable = true;
+	/**
+	 * @param wstmWarningEnable the wstmWarningEnable to set
+	 */
+	public void setWstmWarningEnable(Boolean wstmWarningEnable) {
+		this.wstmWarningEnable = new Boolean(wstmWarningEnable);
+	}
 
-    @XmlElement
-    private Boolean zoneNameEnable = false;
+	/**
+	 * @return the wstmWarningColor
+	 */
+	public RGB getWstmWarningColor() {
+		return wstmWarningColor;
+	}
 
-    @XmlElement
-    private Boolean outlineEnable = false;
+	/**
+	 * @param wstmWarningColor the wstmWarningColor to set
+	 */
+	public void setWstmWarningColor(RGB wstmWarningColor) {
+		this.wstmWarningColor = new RGB( wstmWarningColor.red, 
+				                                                         wstmWarningColor.green, 
+				                                                         wstmWarningColor.blue);
+	}
 
-    /**
-     * @return the legendName
-     */
-    public String getLegendName() {
-        return legendName;
-    }
+	/**
+	 * @return the wstmWarningLineWidth
+	 */
+	public Integer getWstmWarningLineWidth() {
+		return wstmWarningLineWidth;
+	}
 
-    /**
-     * @param legendName
-     *            the legendName to set
-     */
-    public void setLegendName(String legendName) {
-        this.legendName = legendName;
-    }
+	/**
+	 * @param wstmWarningLineWidth the wstmWarningLineWidth to set
+	 */
+	public void setWstmWarningLineWidth(Integer wstmWarningLineWidth) {
+		this.wstmWarningLineWidth = new Integer(wstmWarningLineWidth);
+	}
 
-    /**
-     * @return the wstmWarningEnable
-     */
-    public Boolean getWstmWarningEnable() {
-        return wstmWarningEnable;
-    }
+	/**
+	 * @return the wstmWarningSymbolWidth
+	 */
+	public Integer getWstmWarningSymbolWidth() {
+		return wstmWarningSymbolWidth;
+	}
 
-    /**
-     * @param wstmWarningEnable
-     *            the wstmWarningEnable to set
-     */
-    public void setWstmWarningEnable(Boolean wstmWarningEnable) {
-        this.wstmWarningEnable = new Boolean(wstmWarningEnable);
-    }
+	/**
+	 * @param wstmWarningSymbolWidth the wstmWarningSymbolWidth to set
+	 */
+	public void setWstmWarningSymbolWidth(Integer wstmWarningSymbolWidth) {
+		this.wstmWarningSymbolWidth = new Integer(wstmWarningSymbolWidth);
+	}
 
-    /**
-     * @return the wstmWarningColor
-     */
-    public RGB getWstmWarningColor() {
-        return wstmWarningColor;
-    }
+	/**
+	 * @return the wstmWarningSymbolSize
+	 */
+	public Float getWstmWarningSymbolSize() {
+		return wstmWarningSymbolSize;
+	}
 
-    /**
-     * @param wstmWarningColor
-     *            the wstmWarningColor to set
-     */
-    public void setWstmWarningColor(RGB wstmWarningColor) {
-        this.wstmWarningColor = new RGB(wstmWarningColor.red,
-                wstmWarningColor.green, wstmWarningColor.blue);
-    }
+	/**
+	 * @param wstmWarningSymbolSize the wstmWarningSymbolSize to set
+	 */
+	public void setWstmWarningSymbolSize(Float wstmWarningSymbolSize) {
+		this.wstmWarningSymbolSize = new Float(wstmWarningSymbolSize);
+	}
 
-    /**
-     * @return the wstmWarningLineWidth
-     */
-    public Integer getWstmWarningLineWidth() {
-        return wstmWarningLineWidth;
-    }
+	/**
+	 * @return the wstmWatchEnable
+	 */
+	public Boolean getWstmWatchEnable() {
+		return wstmWatchEnable;
+	}
 
-    /**
-     * @param wstmWarningLineWidth
-     *            the wstmWarningLineWidth to set
-     */
-    public void setWstmWarningLineWidth(Integer wstmWarningLineWidth) {
-        this.wstmWarningLineWidth = new Integer(wstmWarningLineWidth);
-    }
+	/**
+	 * @param wstmWatchEnable the wstmWatchEnable to set
+	 */
+	public void setWstmWatchEnable(Boolean wstmWatchEnable) {
+		this.wstmWatchEnable = new Boolean(wstmWatchEnable);
+	}
 
-    /**
-     * @return the wstmWarningSymbolWidth
-     */
-    public Integer getWstmWarningSymbolWidth() {
-        return wstmWarningSymbolWidth;
-    }
+	/**
+	 * @return the wstmWatchColor
+	 */
+	public RGB getWstmWatchColor() {
+		return wstmWatchColor;
+	}
 
-    /**
-     * @param wstmWarningSymbolWidth
-     *            the wstmWarningSymbolWidth to set
-     */
-    public void setWstmWarningSymbolWidth(Integer wstmWarningSymbolWidth) {
-        this.wstmWarningSymbolWidth = new Integer(wstmWarningSymbolWidth);
-    }
+	/**
+	 * @param wstmWatchColor the wstmWatchColor to set
+	 */
+	public void setWstmWatchColor(RGB wstmWatchColor) {
+		this.wstmWatchColor = new RGB(wstmWatchColor.red, 
+				                                                    wstmWatchColor.green,
+				                                                    wstmWatchColor.blue);
+	}
 
-    /**
-     * @return the wstmWarningSymbolSize
-     */
-    public Float getWstmWarningSymbolSize() {
-        return wstmWarningSymbolSize;
-    }
+	/**
+	 * @return the wstmWatchLineWidth
+	 */
+	public Integer getWstmWatchLineWidth() {
+		return wstmWatchLineWidth;
+	}
 
-    /**
-     * @param wstmWarningSymbolSize
-     *            the wstmWarningSymbolSize to set
-     */
-    public void setWstmWarningSymbolSize(Float wstmWarningSymbolSize) {
-        this.wstmWarningSymbolSize = new Float(wstmWarningSymbolSize);
-    }
+	/**
+	 * @param wstmWatchLineWidth the wstmWatchLineWidth to set
+	 */
+	public void setWstmWatchLineWidth(Integer wstmWatchLineWidth) {
+		this.wstmWatchLineWidth = new Integer(wstmWatchLineWidth);
+	}
 
-    /**
-     * @return the wstmWatchEnable
-     */
-    public Boolean getWstmWatchEnable() {
-        return wstmWatchEnable;
-    }
+	/**
+	 * @return the wstmWatchSymbolWidth
+	 */
+	public Integer getWstmWatchSymbolWidth() {
+		return wstmWatchSymbolWidth;
+	}
 
-    /**
-     * @param wstmWatchEnable
-     *            the wstmWatchEnable to set
-     */
-    public void setWstmWatchEnable(Boolean wstmWatchEnable) {
-        this.wstmWatchEnable = new Boolean(wstmWatchEnable);
-    }
+	/**
+	 * @param wstmWatchSymbolWidth the wstmWatchSymbolWidth to set
+	 */
+	public void setWstmWatchSymbolWidth(Integer wstmWatchSymbolWidth) {
+		this.wstmWatchSymbolWidth = new Integer(wstmWatchSymbolWidth);
+	}
 
-    /**
-     * @return the wstmWatchColor
-     */
-    public RGB getWstmWatchColor() {
-        return wstmWatchColor;
-    }
+	/**
+	 * @return the wstmWatchSymbolSize
+	 */
+	public Float getWstmWatchSymbolSize() {
+		return wstmWatchSymbolSize;
+	}
 
-    /**
-     * @param wstmWatchColor
-     *            the wstmWatchColor to set
-     */
-    public void setWstmWatchColor(RGB wstmWatchColor) {
-        this.wstmWatchColor = new RGB(wstmWatchColor.red, wstmWatchColor.green,
-                wstmWatchColor.blue);
-    }
+	/**
+	 * @param wstmWatchSymbolSize the wstmWatchSymbolSize to set
+	 */
+	public void setWstmWatchSymbolSize(Float wstmWatchSymbolSize) {
+		this.wstmWatchSymbolSize = new Float(wstmWatchSymbolSize);
+	}
 
-    /**
-     * @return the wstmWatchLineWidth
-     */
-    public Integer getWstmWatchLineWidth() {
-        return wstmWatchLineWidth;
-    }
+	/**
+	 * @return the wstmAdvisoryEnable
+	 */
+	public Boolean getWstmAdvisoryEnable() {
+		return wstmAdvisoryEnable;
+	}
 
-    /**
-     * @param wstmWatchLineWidth
-     *            the wstmWatchLineWidth to set
-     */
-    public void setWstmWatchLineWidth(Integer wstmWatchLineWidth) {
-        this.wstmWatchLineWidth = new Integer(wstmWatchLineWidth);
-    }
+	/**
+	 * @param wstmAdvisoryEnable the wstmAdvisoryEnable to set
+	 */
+	public void setWstmAdvisoryEnable(Boolean wstmAdvisoryEnable) {
+		this.wstmAdvisoryEnable = new Boolean(wstmAdvisoryEnable);
+	}
 
-    /**
-     * @return the wstmWatchSymbolWidth
-     */
-    public Integer getWstmWatchSymbolWidth() {
-        return wstmWatchSymbolWidth;
-    }
+	/**
+	 * @return the wstmAdvisoryColor
+	 */
+	public RGB getWstmAdvisoryColor() {
+		return wstmAdvisoryColor;
+	}
 
-    /**
-     * @param wstmWatchSymbolWidth
-     *            the wstmWatchSymbolWidth to set
-     */
-    public void setWstmWatchSymbolWidth(Integer wstmWatchSymbolWidth) {
-        this.wstmWatchSymbolWidth = new Integer(wstmWatchSymbolWidth);
-    }
+	/**
+	 * @param wstmAdvisoryColor the wstmAdvisoryColor to set
+	 */
+	public void setWstmAdvisoryColor(RGB wstmAdvisoryColor) {
+		this.wstmAdvisoryColor = new RGB(wstmAdvisoryColor.red,
+				                                                         wstmAdvisoryColor.green,
+				                                                         wstmAdvisoryColor.blue);
+	}
 
-    /**
-     * @return the wstmWatchSymbolSize
-     */
-    public Float getWstmWatchSymbolSize() {
-        return wstmWatchSymbolSize;
-    }
+	/**
+	 * @return the wstmAdvisoryLineWidth
+	 */
+	public Integer getWstmAdvisoryLineWidth() {
+		return wstmAdvisoryLineWidth;
+	}
 
-    /**
-     * @param wstmWatchSymbolSize
-     *            the wstmWatchSymbolSize to set
-     */
-    public void setWstmWatchSymbolSize(Float wstmWatchSymbolSize) {
-        this.wstmWatchSymbolSize = new Float(wstmWatchSymbolSize);
-    }
+	/**
+	 * @param wstmAdvisoryLineWidth the wstmAdvisoryLineWidth to set
+	 */
+	public void setWstmAdvisoryLineWidth(Integer wstmAdvisoryLineWidth) {
+		this.wstmAdvisoryLineWidth = new Integer(wstmAdvisoryLineWidth);
+	}
 
-    /**
-     * @return the wstmAdvisoryEnable
-     */
-    public Boolean getWstmAdvisoryEnable() {
-        return wstmAdvisoryEnable;
-    }
+	/**
+	 * @return the wstmAdvisorySymbolWidth
+	 */
+	public Integer getWstmAdvisorySymbolWidth() {
+		return wstmAdvisorySymbolWidth;
+	}
 
-    /**
-     * @param wstmAdvisoryEnable
-     *            the wstmAdvisoryEnable to set
-     */
-    public void setWstmAdvisoryEnable(Boolean wstmAdvisoryEnable) {
-        this.wstmAdvisoryEnable = new Boolean(wstmAdvisoryEnable);
-    }
+	/**
+	 * @param wstmAdvisorySymbolWidth the wstmAdvisorySymbolWidth to set
+	 */
+	public void setWstmAdvisorySymbolWidth(Integer wstmAdvisorySymbolWidth) {
+		this.wstmAdvisorySymbolWidth = new Integer(wstmAdvisorySymbolWidth);
+	}
 
-    /**
-     * @return the wstmAdvisoryColor
-     */
-    public RGB getWstmAdvisoryColor() {
-        return wstmAdvisoryColor;
-    }
+	/**
+	 * @return the wstmAdvisorySymbolSize
+	 */
+	public Float getWstmAdvisorySymbolSize() {
+		return wstmAdvisorySymbolSize;
+	}
 
-    /**
-     * @param wstmAdvisoryColor
-     *            the wstmAdvisoryColor to set
-     */
-    public void setWstmAdvisoryColor(RGB wstmAdvisoryColor) {
-        this.wstmAdvisoryColor = new RGB(wstmAdvisoryColor.red,
-                wstmAdvisoryColor.green, wstmAdvisoryColor.blue);
-    }
+	/**
+	 * @param wstmAdvisorySymbolSize the wstmAdvisorySymbolSize to set
+	 */
+	public void setWstmAdvisorySymbolSize(Float wstmAdvisorySymbolSize) {
+		this.wstmAdvisorySymbolSize = new Float(wstmAdvisorySymbolSize);
+	}
 
-    /**
-     * @return the wstmAdvisoryLineWidth
-     */
-    public Integer getWstmAdvisoryLineWidth() {
-        return wstmAdvisoryLineWidth;
-    }
+	/**
+	 * @return the timeEnable
+	 */
+	public Boolean getTimeEnable() {
+		return timeEnable;
+	}
 
-    /**
-     * @param wstmAdvisoryLineWidth
-     *            the wstmAdvisoryLineWidth to set
-     */
-    public void setWstmAdvisoryLineWidth(Integer wstmAdvisoryLineWidth) {
-        this.wstmAdvisoryLineWidth = new Integer(wstmAdvisoryLineWidth);
-    }
+	/**
+	 * @param timeEnable the timeEnable to set
+	 */
+	public void setTimeEnable(Boolean timeEnable) {
+		this.timeEnable = new Boolean(timeEnable);
+	}
 
-    /**
-     * @return the wstmAdvisorySymbolWidth
-     */
-    public Integer getWstmAdvisorySymbolWidth() {
-        return wstmAdvisorySymbolWidth;
-    }
+	/**
+	 * @return the zoneNameEnable
+	 */
+	public Boolean getZoneNameEnable() {
+		return zoneNameEnable;
+	}
 
-    /**
-     * @param wstmAdvisorySymbolWidth
-     *            the wstmAdvisorySymbolWidth to set
-     */
-    public void setWstmAdvisorySymbolWidth(Integer wstmAdvisorySymbolWidth) {
-        this.wstmAdvisorySymbolWidth = new Integer(wstmAdvisorySymbolWidth);
-    }
+	/**
+	 * @param zoneNameEnable the zoneNameEnable to set
+	 */
+	public void setZoneNameEnable(Boolean zoneNameEnable) {
+		this.zoneNameEnable = new Boolean(zoneNameEnable);
+	}
 
-    /**
-     * @return the wstmAdvisorySymbolSize
-     */
-    public Float getWstmAdvisorySymbolSize() {
-        return wstmAdvisorySymbolSize;
-    }
+	/**
+	 * @return the outlineEnable
+	 */
+	public Boolean getOutlineEnable() {
+		return outlineEnable;
+	}
 
-    /**
-     * @param wstmAdvisorySymbolSize
-     *            the wstmAdvisorySymbolSize to set
-     */
-    public void setWstmAdvisorySymbolSize(Float wstmAdvisorySymbolSize) {
-        this.wstmAdvisorySymbolSize = new Float(wstmAdvisorySymbolSize);
-    }
+	/**
+	 * @param outlineEnable the outlineEnable to set
+	 */
+	public void setOutlineEnable(Boolean outlineEnable) {
+		this.outlineEnable = new Boolean(outlineEnable);
+	}
 
-    /**
-     * @return the timeEnable
-     */
-    public Boolean getTimeEnable() {
-        return timeEnable;
-    }
 
-    /**
-     * @param timeEnable
-     *            the timeEnable to set
-     */
-    public void setTimeEnable(Boolean timeEnable) {
-        this.timeEnable = new Boolean(timeEnable);
-    }
+	
+//	@Override
+//	public MiscRscAttrs getMiscResourceAttrs() {
+//        MiscRscAttrs attrs = new MiscRscAttrs(5);
+//		attrs.addAttr(new MiscResourceAttr("wstmWarningEnable",
+//				"Winter storm warning", EditElement.CHECK_BOX, 1));
+//		attrs.addAttr(new MiscResourceAttr("wstmWarningColor", "",
+//				EditElement.COLOR_SELECTOR, 2));
+//		attrs.addAttr(new MiscResourceAttr("wstmWarningLineWidth",
+//				"Line Width", EditElement.SPINNER, 3));
+//		attrs.addAttr(new MiscResourceAttr("wstmWarningSymbolWidth",
+//				"Symbol Width", EditElement.SPINNER, 4));
+//		attrs.addAttr(new MiscResourceAttr("wstmWarningSymbolSize",
+//				"Symbol Size", EditElement.SPINNER, 5));	
+//	
+//		attrs.addAttr(new MiscResourceAttr("wstmWatchEnable",
+//				"Winter storm watch", EditElement.CHECK_BOX, 1));
+//		attrs.addAttr(new MiscResourceAttr("wstmWatchColor", "",
+//				EditElement.COLOR_SELECTOR, 2));
+//		attrs.addAttr(new MiscResourceAttr("wstmWatchLineWidth",
+//				"Line Width", EditElement.SPINNER, 3));
+//		attrs.addAttr(new MiscResourceAttr("wstmWatchSymbolWidth",
+//				"Symbol Width", EditElement.SPINNER, 4));
+//		attrs.addAttr(new MiscResourceAttr("wstmWatchSymbolSize",
+//				"Symbol Size", EditElement.SPINNER, 5));
+//				
+//		attrs.addAttr(new MiscResourceAttr("wstmAdvisoryEnable",
+//				"Winter storm advisory", EditElement.CHECK_BOX, 1));
+//		attrs.addAttr(new MiscResourceAttr("wstmAdvisoryColor", "",
+//				EditElement.COLOR_SELECTOR, 2));
+//		attrs.addAttr(new MiscResourceAttr("wstmAdvisoryLineWidth",
+//				"Line Width", EditElement.SPINNER, 3));
+//		attrs.addAttr(new MiscResourceAttr("wstmAdvisorySymbolWidth",
+//				"Symbol Width", EditElement.SPINNER, 4));
+//		attrs.addAttr(new MiscResourceAttr("wstmAdvisorySymbolSize",
+//				"Symbol Size", EditElement.SPINNER, 5));
+//		return attrs;
+//	}
 
-    /**
-     * @return the zoneNameEnable
-     */
-    public Boolean getZoneNameEnable() {
-        return zoneNameEnable;
-    }
+//	@Override
+	protected AbstractVizResource<?, ?> constructResource(LoadProperties loadProperties, PluginDataObject[] objects)
+			throws VizException {
+         WstmResource wstmResource = new WstmResource(this, loadProperties);
+		return wstmResource;
+	}
+	
+	public WstmResourceData(){
+		super();
+		this.nameGenerator = new AbstractNameGenerator() {
+			@Override
+			public String getName(AbstractVizResource<?, ?> resource) {
+				if (legendName != null) {
+					return legendName;
+				}				
+				return "WSTM";
+			}
+		};
+	}
 
-    /**
-     * @param zoneNameEnable
-     *            the zoneNameEnable to set
-     */
-    public void setZoneNameEnable(Boolean zoneNameEnable) {
-        this.zoneNameEnable = new Boolean(zoneNameEnable);
-    }
-
-    /**
-     * @return the outlineEnable
-     */
-    public Boolean getOutlineEnable() {
-        return outlineEnable;
-    }
-
-    /**
-     * @param outlineEnable
-     *            the outlineEnable to set
-     */
-    public void setOutlineEnable(Boolean outlineEnable) {
-        this.outlineEnable = new Boolean(outlineEnable);
-    }
-
-    // @Override
-    // public MiscRscAttrs getMiscResourceAttrs() {
-    // MiscRscAttrs attrs = new MiscRscAttrs(5);
-    // attrs.addAttr(new MiscResourceAttr("wstmWarningEnable",
-    // "Winter storm warning", EditElement.CHECK_BOX, 1));
-    // attrs.addAttr(new MiscResourceAttr("wstmWarningColor", "",
-    // EditElement.COLOR_SELECTOR, 2));
-    // attrs.addAttr(new MiscResourceAttr("wstmWarningLineWidth",
-    // "Line Width", EditElement.SPINNER, 3));
-    // attrs.addAttr(new MiscResourceAttr("wstmWarningSymbolWidth",
-    // "Symbol Width", EditElement.SPINNER, 4));
-    // attrs.addAttr(new MiscResourceAttr("wstmWarningSymbolSize",
-    // "Symbol Size", EditElement.SPINNER, 5));
-    //
-    // attrs.addAttr(new MiscResourceAttr("wstmWatchEnable",
-    // "Winter storm watch", EditElement.CHECK_BOX, 1));
-    // attrs.addAttr(new MiscResourceAttr("wstmWatchColor", "",
-    // EditElement.COLOR_SELECTOR, 2));
-    // attrs.addAttr(new MiscResourceAttr("wstmWatchLineWidth",
-    // "Line Width", EditElement.SPINNER, 3));
-    // attrs.addAttr(new MiscResourceAttr("wstmWatchSymbolWidth",
-    // "Symbol Width", EditElement.SPINNER, 4));
-    // attrs.addAttr(new MiscResourceAttr("wstmWatchSymbolSize",
-    // "Symbol Size", EditElement.SPINNER, 5));
-    //
-    // attrs.addAttr(new MiscResourceAttr("wstmAdvisoryEnable",
-    // "Winter storm advisory", EditElement.CHECK_BOX, 1));
-    // attrs.addAttr(new MiscResourceAttr("wstmAdvisoryColor", "",
-    // EditElement.COLOR_SELECTOR, 2));
-    // attrs.addAttr(new MiscResourceAttr("wstmAdvisoryLineWidth",
-    // "Line Width", EditElement.SPINNER, 3));
-    // attrs.addAttr(new MiscResourceAttr("wstmAdvisorySymbolWidth",
-    // "Symbol Width", EditElement.SPINNER, 4));
-    // attrs.addAttr(new MiscResourceAttr("wstmAdvisorySymbolSize",
-    // "Symbol Size", EditElement.SPINNER, 5));
-    // return attrs;
-    // }
-
-    // @Override
-    @Override
-    protected AbstractVizResource<?, ?> constructResource(
-            LoadProperties loadProperties, PluginDataObject[] objects)
-            throws VizException {
-        WstmResource wstmResource = new WstmResource(this, loadProperties);
-        return wstmResource;
-    }
-
-    public WstmResourceData() {
-        super();
-        this.nameGenerator = new AbstractNameGenerator() {
-            @Override
-            public String getName(AbstractVizResource<?, ?> resource) {
-                if (legendName != null) {
-                    return legendName;
-                }
-                return "WSTM";
-            }
-        };
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return true;
-    }
+//    @Override    public boolean equals(Object obj) {    	return true;    }
 }

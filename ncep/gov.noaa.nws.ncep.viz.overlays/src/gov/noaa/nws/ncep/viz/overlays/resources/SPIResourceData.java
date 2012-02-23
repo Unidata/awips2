@@ -165,12 +165,9 @@ public class SPIResourceData extends AbstractNatlCntrsResourceData
 
 	@Override
 	public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || obj instanceof SPIResourceData == false) {
-            return false;
-        }
+		if (!super.equals(obj)) {
+			return false;
+		}
         SPIResourceData other = (SPIResourceData) obj;
 		return filename.equals( other.filename );
 	}

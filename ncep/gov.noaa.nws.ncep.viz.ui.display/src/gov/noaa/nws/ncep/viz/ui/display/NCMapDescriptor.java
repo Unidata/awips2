@@ -36,6 +36,7 @@ import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.datastructure.LoopProperties;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.drawables.IDescriptor.IFrameChangedListener;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
@@ -62,6 +63,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 22-Oct-2010  307         Greg Hull   updateDataTimes()                                                                   
  * 20-Jan-2011              Chin Chen   Fixed a race condition bug in handleDataTimeIndex()
  * 07/15/11                    C Chen   fixed frame number not updated while looping problem
+ * 11/11/11                 Greg Hull   rm frameChangeListener in place of Raytheon's, synchronize the listener
+ * 
  * </pre>
  * 
  * @author Archana
@@ -88,13 +91,6 @@ public class NCMapDescriptor extends MapDescriptor {
         if (getTimeMatcher() != null) {
             // getTimeMatcher().setAutoUpdate( autoUpdate );
         }
-    }
-
-    private static Set<IFrameChangedListener> listenerSet = new HashSet<IFrameChangedListener>();
-
-    public interface IFrameChangedListener {
-        public void frameChanged(FrameChangeOperation operation,
-                FrameChangeMode mode);
     }
 
     public NCMapDescriptor() throws VizException {
@@ -206,26 +202,6 @@ public class NCMapDescriptor extends MapDescriptor {
     }
 
     /***
-     * Adds a listener to the set of listeners in NCMapDescriptor
-     * 
-     * @param lstnr
-     *            - A listener of type IFrameChangedListener
-     */
-    public void addFrameChangedListener(IFrameChangedListener lstnr) {
-        listenerSet.add(lstnr);
-    }
-
-    /***
-     * Removes a listener from the set of listeners in NCMapDescriptor
-     * 
-     * @param lstnr
-     *            - A listener of type IFrameChangedListener
-     */
-    public boolean removeFrameChangedListener(IFrameChangedListener lstnr) {
-        return listenerSet.remove(lstnr);
-    }
-
-    /***
      * Provides the time of the frame, given the index of the frame in the
      * DataTime array
      * 
@@ -266,34 +242,17 @@ public class NCMapDescriptor extends MapDescriptor {
         FRAME_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
         return FRAME_DATE_FORMAT;
     }
-
-    /***
-     * Overridden method to update the displayed frame number and its time when
-     * the current frame changes.
-     * 
-     * @param operation
-     *            - FrameChangeOperation
-     * @param mode
-     *            - FrameChangeMode
-     */
+    
+    // only 1 instance 
     @Override
-    public void changeFrame(FrameChangeOperation operation, FrameChangeMode mode) {
-        super.changeFrame(operation, mode);
-
-        for (IFrameChangedListener lstnr : listenerSet) {
-            lstnr.frameChanged(operation, mode);
-        }
+    public void addFrameChangedListener(IFrameChangedListener listener) {
+    	synchronized (listener) {
+        	if( !listeners.contains( listener ) ) {
+        		super.addFrameChangedListener( listener );
+        	}			
+		}
     }
 
-    /***
-     * Checks if the set of IFrameChangedListener objects is empty
-     * 
-     * @return True if the set of IFrameChangedListener objects is empty and
-     *         false otherwise.
-     */
-    public boolean isListenerSetEmpty() {
-        return listenerSet.isEmpty();
-    }
 
     /***
      * Overridden method to refresh all the contribution items in the status bar
@@ -332,27 +291,27 @@ public class NCMapDescriptor extends MapDescriptor {
             }
         }
     }*/
-    @SuppressWarnings("deprecation")
-	@Override
-	public void checkDrawTime(LoopProperties loopProperties) {
-    	super.checkDrawTime(loopProperties);
-    	
-    	//System.out.println("NsharpSkewTDescriptor checkDrawTime called ");
-    	if (loopProperties == null || getFrames() == null) {
-    		//System.out.println("NsharpSkewTDescriptor checkDrawTime called but jump ");
-    		return;
-    	}
-    	
-    	if (loopProperties.isLooping() && loopProperties.isShouldDraw()) {
-    		int currentFrame = this.getCurrentFrame();
-			int totalFrames = this.getFrameCount();
-			System.out.println("NcMapD checkDrawTime curFram="+currentFrame+ " totalFrame="+totalFrames);
-			
-    		IDescriptor.FrameChangeMode mode = IDescriptor.FrameChangeMode.valueOf("TIME_ONLY");
-			IDescriptor.FrameChangeOperation operation = IDescriptor.FrameChangeOperation.valueOf("NEXT");
-			for (IFrameChangedListener lstnr : listenerSet) {
-	            lstnr.frameChanged(operation, mode);
-	        }
-    	}
-    }
+//    @SuppressWarnings("deprecation")
+//	@Override
+//	public void checkDrawTime(LoopProperties loopProperties) {
+//    	super.checkDrawTime(loopProperties);
+//    	
+//    	//System.out.println("NsharpSkewTDescriptor checkDrawTime called ");
+//    	if (loopProperties == null || getFrames() == null) {
+//    		//System.out.println("NsharpSkewTDescriptor checkDrawTime called but jump ");
+//    		return;
+//    	}
+//    	
+//    	if (loopProperties.isLooping() && loopProperties.isShouldDraw()) {
+//    		int currentFrame = this.getCurrentFrame();
+//			int totalFrames = this.getFrameCount();
+//			System.out.println("NcMapD checkDrawTime curFram="+currentFrame+ " totalFrame="+totalFrames);
+//			
+//    		IDescriptor.FrameChangeMode mode = IDescriptor.FrameChangeMode.valueOf("TIME_ONLY");
+//			IDescriptor.FrameChangeOperation operation = IDescriptor.FrameChangeOperation.valueOf("NEXT");
+//			for (IFrameChangedListener lstnr : listenerSet) {
+//	            lstnr.frameChanged(operation, mode);
+//	        }
+//    	}
+//    }
 }

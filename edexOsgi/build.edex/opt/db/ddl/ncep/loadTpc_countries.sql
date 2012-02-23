@@ -1,4 +1,4 @@
-COPY stns.TPC_COUNTRIES (PKEY, ALPHA ,FIPS, NAME, COUNTRY, LAT, LON) FROM stdin with delimiter as ',';
+COPY stns.TPC_COUNTRIES (PKEY, ALPHA ,FIPS, NAME, COUNTRY, LATITUDE, LONGITUDE) FROM stdin with delimiter as ',';
 1,PR,72,Puerto Rico,PR,18.9,-65
 2,BA,101,Bahamas,BA,24.5,-73.8
 3,BE,102,Bermuda,BE,32,-63.7

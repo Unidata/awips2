@@ -1,0 +1,4 @@
+! Attributes for the GFSMOS resource with "Fosberg index, also called fire weather index" plot model
+!
+plotModelName=gfsmos_fosb
+plotDensity=10
