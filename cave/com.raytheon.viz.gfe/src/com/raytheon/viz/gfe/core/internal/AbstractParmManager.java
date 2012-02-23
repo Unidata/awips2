@@ -74,7 +74,6 @@ import com.raytheon.viz.gfe.core.msgs.Message;
 import com.raytheon.viz.gfe.core.msgs.ShowISCGridsMsg;
 import com.raytheon.viz.gfe.core.parm.ABVParmID;
 import com.raytheon.viz.gfe.core.parm.Parm;
-import com.raytheon.viz.gfe.core.parm.VCParm;
 import com.raytheon.viz.gfe.core.parm.vcparm.VCModule;
 
 /**
@@ -87,6 +86,8 @@ import com.raytheon.viz.gfe.core.parm.vcparm.VCModule;
  * ------------ ---------- ----------- --------------------------
  * 03/26/2008              chammack    Split non-mock code from MockParmManager
  * 02/23/2012    #346      dgilling    Dispose of VCParms from this class's 
+ *                                     dispose method.
+ * 02/23/2012    #346      dgilling    Ensure all Parms are disposed when calling
  *                                     dispose method.
  * 
  * </pre>
@@ -400,13 +401,16 @@ public abstract class AbstractParmManager implements IParmManager {
         dataManager.getNotificationRouter().removeObserver(
                 this.siteActivationListener);
 
-        for (VCModule module : vcModules) {
-            ParmID pid = module.getGpi().getParmID();
-            Parm p = getParm(pid);
-            if (p != null) {
-                ((VCParm) p).dispose();
+        parms.acquireReadLock();
+        try {
+            for (Parm p : parms) {
+                p.dispose();
             }
+        } finally {
+            parms.releaseReadLock();
+        }
 
+        for (VCModule module : vcModules) {
             module.dispose();
         }
 
