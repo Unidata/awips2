@@ -21,6 +21,8 @@
  *                                          when the aww record is inserted into relational DB
  *                                          The reason mndTime is used is because the combination 
  *                                          of original 5 elements is not unique in some scenarios.                                       
+ * 09/2011      				Chin Chen   changed to improve purge performance and
+ * 											removed xml serialization as well
  * </pre>
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
@@ -40,6 +42,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -48,6 +51,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.hibernate.annotations.Index;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -57,8 +61,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @Entity
 @Table(name = "aww", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 
 public class AwwRecord extends PluginDataObject{
@@ -101,69 +103,60 @@ public class AwwRecord extends PluginDataObject{
 	 */
 	@Column(length=40)
 	@DataURI(position=1)
-	@XmlElement
 	@DynamicSerializeElement
 	private String reportType;
 	
 	// The issue office where the report from
 	@Column(length=32)
 	@DataURI(position=2)
-	@XmlElement
 	@DynamicSerializeElement
 	private String issueOffice;
 	
 	// The collection of watch numbers in the report
 	@Column(length=160)
 	@DataURI(position=5)
-	@XmlElement
 	@DynamicSerializeElement
 	private String watchNumber;
 	
 	// WMO header
 	@Column(length=32)
-	@XmlElement
 	@DynamicSerializeElement
 	private String wmoHeader;
 	
 	// Issue time of the report
 	@Column
 	@DataURI(position=3)
-	@XmlElement
 	@DynamicSerializeElement
 	private Calendar issueTime;
 	
 	// The designator
 	@Column(length=8)
 	@DataURI(position=4)
-	@XmlElement
 	@DynamicSerializeElement
 	private String designatorBBB;
 	
 	// The designator
 	@Column(length=72)
 	@DataURI(position=6)
-	@XmlElement
 	@DynamicSerializeElement
 	private String mndTime;
 	
 	// Attention WFO
 	@Column(length=72)
-	@XmlElement
 	@DynamicSerializeElement
 	private String attentionWFO;
 	
 	// The entire report
 	@Column(length=40000)
-	@XmlElement
 	@DynamicSerializeElement
 	private String bullMessage;
 	
 
 	// AWW UGC Table
 	@DynamicSerializeElement
-	@XmlElement
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "parentID", fetch = FetchType.EAGER)
-	@OnDelete(action = OnDeleteAction.CASCADE)
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinColumn(name = "parentID", nullable = false)
+    @Index(name = "awwUGC_parentid_idex")
 	private Set<AwwUgc> awwUGC = new HashSet<AwwUgc>();
 
 	
@@ -258,7 +251,7 @@ public class AwwRecord extends PluginDataObject{
 	    */
 	   public void addAwwUGC(AwwUgc pugc){
 	           awwUGC.add(pugc);
-	           pugc.setParentID(this);
+	           //pugc.setParentID(this);
 	   }
 
 	   /**
@@ -270,13 +263,7 @@ public class AwwRecord extends PluginDataObject{
 
 		   this.identifier = dataURI;
 	      
-	      if(this.getAwwUGC() != null && this.getAwwUGC().size() > 0)
-	      {
-	         for (Iterator<AwwUgc> iter = this.getAwwUGC().iterator(); iter.hasNext();) {
-	            AwwUgc cond = iter.next();
-	            cond.setParentID(this);
-	         }
-	      }
+	      
 	      
 	   }
 

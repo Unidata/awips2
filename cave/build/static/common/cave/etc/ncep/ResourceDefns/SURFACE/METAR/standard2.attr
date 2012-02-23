@@ -1,0 +1,4 @@
+! Alternative standard with PTSY and P03C together METAR Resource
+!
+plotModelName=standard2
+plotDensity=10

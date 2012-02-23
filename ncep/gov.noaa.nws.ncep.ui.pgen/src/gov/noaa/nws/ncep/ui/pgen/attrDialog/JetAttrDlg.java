@@ -29,6 +29,7 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
@@ -520,18 +521,21 @@ public class JetAttrDlg extends LineAttrDlg {
 	 * close barb info dialg and all attribute dialogs
 	 */
 	public void closeBarbDlg(){
-		barbDlg.close();
-		if ( barbAttrDlg != null ){
-			barbAttrDlg.close();
-		}
-		if ( flAttrDlg != null ){
-			flAttrDlg.close();
-		}
-		if ( hashAttrDlg != null ){
-			hashAttrDlg.close();
-		}
-		if ( jetTool instanceof PgenJetDrawingTool ){
-			((PgenJetDrawingTool)jetTool).deSelect();
+		
+		if ( barbDlg.getShell() != null ){
+			barbDlg.close();
+			if ( barbAttrDlg != null ){
+				barbAttrDlg.close();
+			}
+			if ( flAttrDlg != null ){
+				flAttrDlg.close();
+			}
+			if ( hashAttrDlg != null ){
+				hashAttrDlg.close();
+			}
+			if ( jetTool instanceof PgenJetDrawingTool ){
+				((PgenJetDrawingTool)jetTool).deSelect();
+			}
 		}
 	}
 	
@@ -637,6 +641,14 @@ public class JetAttrDlg extends LineAttrDlg {
 				barbDlg.btmTxt.getText().trim();
 		if (flDepth.length() == 1) flDepth = null;
 		return flDepth;
+	}
+	
+	/**
+	 *  clears top and bottom fields.
+	 */
+	public void clearFLDepth(){
+		barbDlg.topTxt.setText("");
+		barbDlg.btmTxt.setText("");	
 	}
 	
 	/**
@@ -765,6 +777,13 @@ public class JetAttrDlg extends LineAttrDlg {
 			
 			return super.open();
 			
+		}
+		
+		@Override
+		public boolean close() {
+			
+			if ( jetTool != null ) jetTool.resetMouseHandler();	//de-activate addBarbTool
+			return super.close();
 		}
 	}
 
