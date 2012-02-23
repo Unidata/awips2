@@ -17,6 +17,8 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.eclipse.swt.graphics.RGB;
 
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -38,6 +40,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
  * 08 Mar 2010  226        Greg Hull   override generateFrameTimes()
  * 06 Aug 2010  273        Greg Hull   rm color, use legendColor
  * 06 Oct 2010  307        Greg Hull   override getAvailableTimes() 
+ * 09 Aug 2011  450        Greg Hull   move productLocation and productName to metadata 
  * 
  * </pre>
  * 
@@ -52,8 +55,11 @@ public class PgenResourceData extends AbstractNatlCntrsRequestableResourceData
     @XmlElement
     protected String legendString;
 
-    @XmlElement
-    protected String fileName;
+//	@XmlElement
+//    protected String pgenDirectory;
+//
+//    @XmlElement
+//    protected String fileName;
 
 //    @XmlElement
 //	@XmlJavaTypeAdapter(RGBColorAdapter.class)
@@ -86,7 +92,9 @@ public class PgenResourceData extends AbstractNatlCntrsRequestableResourceData
                 if( legendString != null ) {
                     return legendString;
                 }
-                return "PGEN";
+                else 
+                	return "PGEN: "+getProductName();
+                //return "PGEN";
             }
         };
     }
@@ -116,13 +124,26 @@ public class PgenResourceData extends AbstractNatlCntrsRequestableResourceData
 //        this.color = color;
 //        setLegendColor( color );
 //    }
-	
-	public String getFileName() {
-		return fileName;
+
+    public String getPgenDirectory() {
+		return (metadataMap.containsKey("productLocation") ?
+				metadataMap.get("productLocation").getConstraintValue() : "." );
 	}
 
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
+	public void setPgenDirectory(String pgenDirectory) {
+		metadataMap.put("productLocation",
+				new RequestConstraint( pgenDirectory, ConstraintType.EQUALS ) );
+	}
+
+
+	public String getProductName() {
+		return (metadataMap.containsKey("productName") ?
+				metadataMap.get("productName").getConstraintValue() : "." );
+	}
+
+	public void setProductName(String fileName) {
+		metadataMap.put("productName",
+				new RequestConstraint( fileName, ConstraintType.EQUALS ) );
 	}
 
 	public boolean getMonoColorEnable() {

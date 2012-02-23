@@ -1,52 +1,3 @@
-/*
- * 
- * WcpRecord
- * 
- * This class performs the mapping to the database tables for the Watch Corner Point
- * (WCP) Decoder Plug-In
- * 
- * SOFTWARE HISTORY
- * Date			Ticket#		Engineer		Description
- * ------------	----------- --------------	-----------------------------------
- * 02Dec2008	37			F. J. Yen		Initial creation
- * 03Apr2009	37			F. J. Yen		Refactored for TO10
- * *
- * This code has been develped by the SIB for use in the AWIPS2 system.
- * </pre>
- * 
- * @author F. J. Yen, SIB
- * @version 1
- 
- */
-
-package gov.noaa.nws.ncep.common.dataplugin.wcp;
-
-import java.util.Calendar;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-import gov.noaa.nws.ncep.common.dataplugin.wcp.WcpSevrln;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
-import com.raytheon.uf.common.dataplugin.annotations.DataURI;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
  * WcpRecord is the Data Access component for WCP Watch Corner Point data.
@@ -63,15 +14,39 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 17Apr2009		 37	   F. J. Yen	Refactored for TO10
  * 24Aug2009		 37	   F. J. Yen	Refactored for TO11
  * 17May2010		 37	   F. J. Yen	Refactored to dataplugin for migration to to11dr11
+ * 09/2011      		   Chin Chen    changed to improve purge performance and
+ * 										removed xml serialization as well
  * </pre>
  * 
  * @author F. J. Yen, SIB
  * @version 1.0
  */
+
+package gov.noaa.nws.ncep.common.dataplugin.wcp;
+
+import java.util.Calendar;
+import java.util.HashSet;
+import java.util.Set;
+import gov.noaa.nws.ncep.common.dataplugin.wcp.WcpSevrln;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+
+import org.hibernate.annotations.Index;
+
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.IDecoderGettable;
+import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Entity
 @Table(name = "wcp", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 
 public class WcpRecord extends PluginDataObject{
@@ -80,33 +55,29 @@ public class WcpRecord extends PluginDataObject{
 	
 	/** Report type */
 	@Column(length=32)
-	@XmlElement
 	@DynamicSerializeElement
 	private String reportType;
 	
 	//@DataURI(position = 1)
 	@Column
     @DynamicSerializeElement
-	@XmlElement
 	private Calendar issueTime;
 
 	//@DataURI(position = 2)
 	@DataURI(position = 1)
 	@Column(length = 8)
 	@DynamicSerializeElement
-	@XmlElement
 	private String designatorBBB;
 	
 	@Column(length = 2500)
 	@DynamicSerializeElement
-	@XmlElement
 	private String bullMessage;
 
 	/** WcpSevrln */
-	@XmlElement
-    @DynamicSerializeElement
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "parentID", fetch = FetchType.EAGER)
-	@OnDelete(action = OnDeleteAction.CASCADE)
+	@DynamicSerializeElement
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinColumn(name = "parentID", nullable = false)
+    @Index(name = "wcpSevrLn_parentid_idex")
 	private Set<WcpSevrln> wcpSevrLn = new HashSet<WcpSevrln>();
 
 	/**
@@ -178,18 +149,12 @@ public class WcpRecord extends PluginDataObject{
 	 */
 	public void addWcpSevrLn(WcpSevrln psevrln) {
 		wcpSevrLn.add(psevrln);
-		psevrln.setParentID(this);
+		
 	}
 
     public void setIdentifier(Object dataURI){
 		 this.identifier = dataURI;      
-	     if(this.getWcpSevrLn() != null && this.getWcpSevrLn().size() > 0)
-	     {
-	         for (Iterator<WcpSevrln> iter = this.getWcpSevrLn().iterator(); iter.hasNext();) {
-	            WcpSevrln ws = iter.next();
-	            ws.setParentID(this);
-	         }
-	     }
+	     
 	      
     }
    

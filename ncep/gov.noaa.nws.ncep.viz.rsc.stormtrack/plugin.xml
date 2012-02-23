@@ -1,0 +1,679 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="com.raytheon.uf.viz.core.resource">
+      <resource
+            class="gov.noaa.nws.ncep.viz.rsc.stormtrack.rsc.StormTrackResource"
+            name="StormTrack"
+            recordClass="gov.noaa.nws.ncep.common.dataplugin.stormtrack.StormTrackRecord"
+            renderingOrderId="PLOT"
+            resourceType="PLAN_VIEW">
+      </resource>
+   </extension>
+    <extension
+         point="com.raytheon.uf.viz.core.scriptTemplate">
+      <scriptTemplate
+            pluginName="stormtrack"
+            scriptLibrary="BaseRequest">
+      </scriptTemplate>
+   </extension>
+   <extension
+         point="gov.noaa.nws.ncep.viz.resources.NC-Resource">
+       <nc-resource
+            class="gov.noaa.nws.ncep.viz.rsc.stormtrack.rsc.StormTrackResourceData"
+            editDialogClass="gov.noaa.nws.ncep.viz.resources.misc.EditMiscResourceAttrsDialog"
+            name="StormTrack">
+      </nc-resource>
+   </extension> 
+      <extension
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceAttribute">
+      <nc-resourceAttribute
+            attributeClass="Boolean"
+            attributeName="gfsoEnable"
+            defaultValue="true"
+            ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="RGB"
+            attributeName="gfsoColor"
+            defaultValue="RGB {255,0,0}"
+               
+            ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="gfsoLineWidth"
+            defaultValue="3"
+              
+             ncResourceName="StormTrack">
+       </nc-resourceAttribute>
+       <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="gfsoSymbolWidth"
+            defaultValue="1"
+               
+            ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+       <nc-resourceAttribute
+            attributeClass="Float"
+            attributeName="gfsoSymbolSize"
+            defaultValue="1.0"
+              
+             ncResourceName="StormTrack">
+      </nc-resourceAttribute>
+            <nc-resourceAttribute
+            attributeClass="Boolean"
+            attributeName="namEnable"
+            defaultValue="true"
+              
+             ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="RGB"
+            attributeName="namColor"
+            defaultValue="RGB {0,255,0}"
+              
+             ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="namLineWidth"
+            defaultValue="3"
+              
+             ncResourceName="StormTrack">
+       </nc-resourceAttribute>
+       <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="namSymbolWidth"
+            defaultValue="1"
+               
+            ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+       <nc-resourceAttribute
+            attributeClass="Float"
+            attributeName="namSymbolSize"
+            defaultValue="1.0"
+               
+            ncResourceName="StormTrack">
+      </nc-resourceAttribute>
+            <nc-resourceAttribute
+            attributeClass="Boolean"
+            attributeName="ukxEnable"
+            defaultValue="true"
+               
+            ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="RGB"
+            attributeName="ukxColor"
+            defaultValue="RGB {0,0,255}"
+               
+            ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ukxLineWidth"
+            defaultValue="3"
+               
+            ncResourceName="StormTrack">
+       </nc-resourceAttribute>
+       <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ukxSymbolWidth"
+            defaultValue="1"
+               
+            ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+       <nc-resourceAttribute
+            attributeClass="Float"
+            attributeName="ukxSymbolSize"
+            defaultValue="1.0"
+               
+            ncResourceName="StormTrack">
+      </nc-resourceAttribute>
+            <nc-resourceAttribute
+            attributeClass="Boolean"
+            attributeName="ngxEnable"
+            defaultValue="true"
+               
+            ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="RGB"
+            attributeName="ngxColor"
+            defaultValue="RGB {255,255,0}"
+               
+            ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ngxLineWidth"
+            defaultValue="3"
+               
+            ncResourceName="StormTrack">
+       </nc-resourceAttribute>
+       <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ngxSymbolWidth"
+            defaultValue="1"
+               
+            ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+       <nc-resourceAttribute
+            attributeClass="Float"
+            attributeName="ngxSymbolSize"
+            defaultValue="1.0"
+              
+             ncResourceName="StormTrack">
+      </nc-resourceAttribute>
+            <nc-resourceAttribute
+            attributeClass="Boolean"
+            attributeName="ec00Enable"
+            defaultValue="true"
+              
+             ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="RGB"
+            attributeName="ec00Color"
+            defaultValue="RGB {0,255,255}"
+             
+              ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ec00LineWidth"
+            defaultValue="3"
+             
+              ncResourceName="StormTrack">
+       </nc-resourceAttribute>
+       <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ec00SymbolWidth"
+            defaultValue="1"
+              
+             ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+       <nc-resourceAttribute
+            attributeClass="Float"
+            attributeName="ec00SymbolSize"
+            defaultValue="1.0"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>
+            <nc-resourceAttribute
+            attributeClass="Boolean"
+            attributeName="ep01Enable"
+            defaultValue="true"
+              
+             ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="RGB"
+            attributeName="ep01Color"
+            defaultValue="RGB {255,0,255}"
+              
+             ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ep01LineWidth"
+            defaultValue="3"
+              
+             ncResourceName="StormTrack">
+       </nc-resourceAttribute>
+       <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ep01SymbolWidth"
+            defaultValue="1"
+              
+             ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+       <nc-resourceAttribute
+            attributeClass="Float"
+            attributeName="ep01SymbolSize"
+            defaultValue="1.0"
+              
+             ncResourceName="StormTrack">
+      </nc-resourceAttribute>
+            <nc-resourceAttribute
+            attributeClass="Boolean"
+            attributeName="ep02Enable"
+            defaultValue="true"
+              
+             ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="RGB"
+            attributeName="ep02Color"
+            defaultValue="RGB {139,71,38}"
+              
+             ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ep02LineWidth"
+            defaultValue="3"
+               
+            ncResourceName="StormTrack">
+       </nc-resourceAttribute>
+       <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ep02SymbolWidth"
+            defaultValue="1"
+             
+ ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+       <nc-resourceAttribute
+            attributeClass="Float"
+            attributeName="ep02SymbolSize"
+            defaultValue="1.0"
+              
+             ncResourceName="StormTrack">
+      </nc-resourceAttribute>
+            <nc-resourceAttribute
+            attributeClass="Boolean"
+            attributeName="ep03Enable"
+            defaultValue="true"
+               
+            ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="RGB"
+            attributeName="ep03Color"
+            defaultValue="RGB {255,130,71}"
+               
+            ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ep03LineWidth"
+            defaultValue="3"
+               
+            ncResourceName="StormTrack">
+       </nc-resourceAttribute>
+       <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ep03SymbolWidth"
+            defaultValue="1"
+              
+             ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+       <nc-resourceAttribute
+            attributeClass="Float"
+            attributeName="ep03SymbolSize"
+            defaultValue="1.0"
+               
+            ncResourceName="StormTrack">
+      </nc-resourceAttribute>
+            <nc-resourceAttribute
+            attributeClass="Boolean"
+            attributeName="ep04Enable"
+            defaultValue="true"
+               
+            ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="RGB"
+            attributeName="ep04Color"
+            defaultValue="RGB {255,165,79}"
+             
+ ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ep04LineWidth"
+            defaultValue="3"
+              
+             ncResourceName="StormTrack">
+       </nc-resourceAttribute>
+       <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ep04SymbolWidth"
+            defaultValue="1"
+               
+            ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+       <nc-resourceAttribute
+            attributeClass="Float"
+            attributeName="ep04SymbolSize"
+            defaultValue="1.0"
+              
+             ncResourceName="StormTrack">
+      </nc-resourceAttribute>
+            <nc-resourceAttribute
+            attributeClass="Boolean"
+            attributeName="ep05Enable"
+            defaultValue="true"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="RGB"
+            attributeName="ep05Color"
+            defaultValue="RGB {255,174,185}"
+               
+            ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ep05LineWidth"
+            defaultValue="3"
+              
+             ncResourceName="StormTrack">
+       </nc-resourceAttribute>
+       <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ep05SymbolWidth"
+            defaultValue="1"
+              
+             ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+       <nc-resourceAttribute
+            attributeClass="Float"
+            attributeName="ep05SymbolSize"
+            defaultValue="1.0"
+              
+ncResourceName="StormTrack">
+      </nc-resourceAttribute>
+            <nc-resourceAttribute
+            attributeClass="Boolean"
+            attributeName="ep06Enable"
+            defaultValue="true"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="RGB"
+            attributeName="ep06Color"
+            defaultValue="RGB {255,106,106}"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ep06LineWidth"
+            defaultValue="3"
+               ncResourceName="StormTrack">
+       </nc-resourceAttribute>
+       <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ep06SymbolWidth"
+            defaultValue="1"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+       <nc-resourceAttribute
+            attributeClass="Float"
+            attributeName="ep06SymbolSize"
+            defaultValue="1.0"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>
+            <nc-resourceAttribute
+            attributeClass="Boolean"
+            attributeName="ep07Enable"
+            defaultValue="true"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="RGB"
+            attributeName="ep07Color"
+            defaultValue="RGB {238,44,44}"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ep07LineWidth"
+            defaultValue="3"
+               ncResourceName="StormTrack">
+       </nc-resourceAttribute>
+       <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ep07SymbolWidth"
+            defaultValue="1"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+       <nc-resourceAttribute
+            attributeClass="Float"
+            attributeName="ep07SymbolSize"
+            defaultValue="1.0"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>
+            <nc-resourceAttribute
+            attributeClass="Boolean"
+            attributeName="ep08Enable"
+            defaultValue="true"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="RGB"
+            attributeName="ep08Color"
+            defaultValue="RGB {139,0,0}"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ep08LineWidth"
+            defaultValue="3"
+               ncResourceName="StormTrack">
+       </nc-resourceAttribute>
+       <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ep08SymbolWidth"
+            defaultValue="1"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+       <nc-resourceAttribute
+            attributeClass="Float"
+            attributeName="ep08SymbolSize"
+            defaultValue="1.0"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>
+            <nc-resourceAttribute
+            attributeClass="Boolean"
+            attributeName="ep09Enable"
+            defaultValue="true"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="RGB"
+            attributeName="ep09Color"
+            defaultValue="RGB {205,0,0}"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ep09LineWidth"
+            defaultValue="3"
+               ncResourceName="StormTrack">
+       </nc-resourceAttribute>
+       <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ep09SymbolWidth"
+            defaultValue="1"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+       <nc-resourceAttribute
+            attributeClass="Float"
+            attributeName="ep09SymbolSize"
+            defaultValue="1.0"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>
+            <nc-resourceAttribute
+            attributeClass="Boolean"
+            attributeName="ep10Enable"
+            defaultValue="true"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="RGB"
+            attributeName="ep10Color"
+            defaultValue="RGB {238,64,0}"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ep10LineWidth"
+            defaultValue="3"
+               ncResourceName="StormTrack">
+       </nc-resourceAttribute>
+       <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ep10SymbolWidth"
+            defaultValue="1"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+       <nc-resourceAttribute
+            attributeClass="Float"
+            attributeName="ep10SymbolSize"
+            defaultValue="1.0"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>
+            <nc-resourceAttribute
+            attributeClass="Boolean"
+            attributeName="ep11Enable"
+            defaultValue="true"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="RGB"
+            attributeName="ep11Color"
+            defaultValue="RGB {255,127,0}"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ep11LineWidth"
+            defaultValue="3"
+               ncResourceName="StormTrack">
+       </nc-resourceAttribute>
+       <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ep11SymbolWidth"
+            defaultValue="1"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+       <nc-resourceAttribute
+            attributeClass="Float"
+            attributeName="ep11SymbolSize"
+            defaultValue="1.0"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>
+            <nc-resourceAttribute
+            attributeClass="Boolean"
+            attributeName="ep12Enable"
+            defaultValue="true"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="RGB"
+            attributeName="ep12Color"
+            defaultValue="RGB {205,133,0}"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ep12LineWidth"
+            defaultValue="3"
+               ncResourceName="StormTrack">
+       </nc-resourceAttribute>
+       <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ep12SymbolWidth"
+            defaultValue="1"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+       <nc-resourceAttribute
+            attributeClass="Float"
+            attributeName="ep12SymbolSize"
+            defaultValue="1.0"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>
+            <nc-resourceAttribute
+            attributeClass="Boolean"
+            attributeName="ep13Enable"
+            defaultValue="true"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="RGB"
+            attributeName="ep13Color"
+            defaultValue="RGB {255,215,0}"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ep13LineWidth"
+            defaultValue="3"
+               ncResourceName="StormTrack">
+       </nc-resourceAttribute>
+       <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ep13SymbolWidth"
+            defaultValue="1"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+       <nc-resourceAttribute
+            attributeClass="Float"
+            attributeName="ep13SymbolSize"
+            defaultValue="1.0"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>
+            <nc-resourceAttribute
+            attributeClass="Boolean"
+            attributeName="ep14Enable"
+            defaultValue="true"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="RGB"
+            attributeName="ep14Color"
+            defaultValue="RGB {238,238,0}"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ep14LineWidth"
+            defaultValue="3"
+               ncResourceName="StormTrack">
+       </nc-resourceAttribute>
+       <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="ep14SymbolWidth"
+            defaultValue="1"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+       <nc-resourceAttribute
+            attributeClass="Float"
+            attributeName="ep14SymbolSize"
+            defaultValue="1.0"
+               ncResourceName="StormTrack">
+      </nc-resourceAttribute>         
+      
+      <nc-resourceAttribute
+            attributeClass="Boolean"
+            attributeName="dateTimeEnable"
+            defaultValue="true"
+              
+             ncResourceName="StormTrack">
+      </nc-resourceAttribute> 
+      <nc-resourceAttribute
+            attributeClass="Boolean"
+            attributeName="pressureEnable"
+            defaultValue="true"
+             
+              ncResourceName="StormTrack">
+      </nc-resourceAttribute>  
+      <nc-resourceAttribute      
+            attributeClass="Boolean"
+            attributeName="markerEnable"
+            defaultValue="true"
+               
+            ncResourceName="StormTrack">
+      </nc-resourceAttribute>        
+      <nc-resourceAttribute
+            attributeClass="Boolean"
+            attributeName="colorCodeEnable"
+            defaultValue="false"
+               
+            ncResourceName="StormTrack">
+      </nc-resourceAttribute>               
+      </extension>   
+   
+</plugin>
