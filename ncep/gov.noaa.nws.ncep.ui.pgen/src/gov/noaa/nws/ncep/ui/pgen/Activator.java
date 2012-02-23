@@ -63,6 +63,7 @@ public class Activator extends AbstractUIPlugin {
 		 */
 		if ( myprefs == null ) {
 			myprefs =  super.getPreferenceStore();
+			myprefs.setDefault( PgenPreferences.P_OPR_DIR,  PgenPreferences.V_OPR_DIR);
 			myprefs.setDefault( PgenPreferences.P_WORKING_DIR,  PgenPreferences.V_WORKING_DIR);
 			myprefs.setDefault( PgenPreferences.P_RECOVERY_DIR, PgenPreferences.V_RECOVERY_DIR);
 			myprefs.setDefault( PgenPreferences.P_AUTO_FREQ, 5);

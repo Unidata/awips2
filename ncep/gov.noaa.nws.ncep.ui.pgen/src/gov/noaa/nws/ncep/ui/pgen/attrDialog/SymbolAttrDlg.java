@@ -41,6 +41,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
+import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElementFactory;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableType;
@@ -104,7 +105,7 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
 	protected Label longitudeLabel; 
 	protected Text longitudeText = null;
 	
-	private Button placeBtn = null;
+	protected Button placeBtn = null;
 	private Button undoBtn = null;
 	private boolean keyEvent = false;
 	
@@ -829,13 +830,27 @@ public class SymbolAttrDlg extends AttrDlg implements ISymbol{
 					drawingLayer.replaceElement(drawingLayer.getSelectedDE(), elem);
 					drawingLayer.setSelected(elem);
 				}
+				else if (SymbolAttrDlg.this.labelEnabled()){
+            		DECollection dec = new DECollection("labeledSymbol");
+            		dec.setPgenCategory(pgenCategory);
+            		dec.setPgenType(pgenType);
+            		dec.addElement(elem);
+            		drawingLayer.addElement(dec);
+            		
+            		String defaultTxt = "";
+            		if ( SymbolAttrDlg.this instanceof VolcanoAttrDlg ){
+            			defaultTxt = ((VolcanoAttrDlg)SymbolAttrDlg.this).getVolText();
+            			dec.setCollectionName("Volcano");
+            		}
+            		PgenUtil.setDrawingTextMode( true, ((LabeledSymbolAttrDlg)SymbolAttrDlg.this).useSymbolColor(), defaultTxt, dec );
+				}
 				else {
 					drawingLayer.addElement(elem);
+					placeBtn.setEnabled(false);
+					undoBtn.setEnabled(true);
 				}
 
 				mapEditor.refresh();
-				placeBtn.setEnabled(false);
-				undoBtn.setEnabled(true);
 
 			} 
 

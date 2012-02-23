@@ -92,7 +92,24 @@
 </bulletActionGroup>
 <bulletActionGroup action="COR" phen="EW" sig="W">
  <bullets>
-   <bullet bulletText="**** CORRECTED PRODUCT. CLICK CREATE TEXT ****" bulletType="title"/>
+  <bullet bulletName="var1" bulletText="convective winds" bulletGroup="group1" parseString="ASSOCIATED WITH A BROAD AREA OF INTENSE THUNDERSTORMS"/>
+  <bullet bulletName="var2" bulletText="non-hurricane winds" bulletGroup="group1" parseString="ASSOCIATED WITH AN INTENSE LOW PRESSURE AREA"/>
+  <bullet bulletName="var3" bulletText="downslope winds" bulletGroup="group1" parseString="ASSOCIATED WITH A DOWNSLOPE WINDSTORM"/>
+  <bullet bulletText="***** BASIS FOR WARNING (CHOOSE 1) ******" bulletType="title"/>
+  <bullet bulletName="basis1" bulletText="Doppler radar indicated" bulletGroup="group2" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED"/>
+  <bullet bulletName="basis2" bulletText="surface observations indicated..." bulletGroup="group2" parseString="SURFACE OBSERVATIONS INDICATED EXTREME WINDS"/>
+  <bullet bulletName="basis3" bulletText="maritime observations indicated..." bulletGroup="group2" parseString="MARITIME OBSERVATIONS INDICATED EXTREME WINDS"/>
+  <bullet bulletName="basis4" bulletText="spotters indicated..." bulletGroup="group2" parseString="TRAINED WEATHER SPOTTERS REPORTED EXTREME WINDS"/>
+  <bullet bulletName="basis5" bulletText="radar and surface observations..." bulletGroup="group2" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR AND SURFACE OBSERVATIONS"/>
+  <bullet bulletName="basis6" bulletText="radar and maritime observations..." bulletGroup="group2" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR AND MARITIME OBSERVATIONS"/>
+  <bullet bulletName="basis7" bulletText="radar and spotters..." bulletGroup="group2" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR AND TRAINED WEATHER SPOTTERS"/>
+  <bullet bulletText="*********** CALL TO ACTIONS (CHOOSE 1 OR MORE) **********" bulletType="title"/>
+  <bullet bulletName="cta1" bulletText="Specific wind values" parseString="WIDESPREAD DESTRUCTIVE WINDS OF"/>
+  <bullet bulletName="cta2" bulletText="CTA - Take cover now" parseString="TAKE COVER NOW!"/>
+  <bullet bulletName="cta3" bulletText="CTA - Safe places to be" parseString="THE SAFEST PLACE TO BE DURING"/>
+  <bullet bulletText="*********** Pathcast? **********" bulletType="title"/>
+  <bullet bulletName="pathcast" bulletText="select for pathcast" bulletGroup="toggle4" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listofcities" bulletText="select for a list of cities" bulletGroup="toggle4" parseString="LOCATIONS IMPACTED INCLUDE..."/>
  </bullets>
 </bulletActionGroup>
 </bulletActionGroups>
@@ -197,6 +214,11 @@
   	</filter>
  </pointSource>
  
+<!-- this "include file" tag will grab the Mile Marker XML pointSource tags, 
+and place into this template
+-->  
+<include file="mileMarkers.xml"/>
+
 
  <geospatialConfig>
   <pointSource>City</pointSource>
@@ -205,7 +227,4 @@
   <timezoneSource>TIMEZONES</timezoneSource>
   <timezoneField>TIME_ZONE</timezoneField>
  </geospatialConfig>
- 
- <include file="milemarkers.xml"/>
- 
 </warngenConfig>
