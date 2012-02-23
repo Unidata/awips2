@@ -4,7 +4,8 @@ import gov.noaa.nws.ncep.common.log.logger.NcepLogger;
 import gov.noaa.nws.ncep.common.log.logger.NcepLoggerManager;
 import gov.noaa.nws.ncep.gempak.parameters.marshaller.garea.GraphicsAreaCoordinates;
 import gov.noaa.nws.ncep.viz.common.ui.DisplayViewLowerLeftAndUpperRightLongLatValues;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 
 import java.text.DecimalFormat;
@@ -67,6 +68,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Sep. 24, 2009    Task 171   M. Gao	   Init Custom Project Dialog
  * Apr 07, 2010  Task 238,239  Archana     Used NCMapDescriptor instead of
  *                                         MapDescriptor  
+ * 07/28/11        #450        G. Hull     NcPathManager
+ * Nov 22, 2011                B. Hebbard  Comment out validateParameters() call from
+ *                                         handleProjectionSelection(), to prevent pre-
+ *                                         mature complaints about null Double values
  * 
  * </pre>
  * 
@@ -823,11 +828,13 @@ public class CreateCustomProjectionDialog extends CaveJFACEDialog {
             	String gempakProjectionString = gempakProjectionText.getText(); 
             	String gempakGraphicAreaString = gempakGraphicAreaText.getText(); 
 
-            	String geogFilePath = LocalizationManager.getInstance().getFilename("projectionResourcesGeogXmlFile"); 
-            	String stationFilePath = LocalizationManager.getInstance().getFilename("projectionResourcesSfstnsXmlFile"); 
+            	String geogFilePath = NcPathManager.getInstance().getStaticFile(
+            			NcPathConstants.GEOG_TBL ).getAbsolutePath();
+            	String stationFilePath =  NcPathManager.getInstance().getStaticFile(
+            			NcPathConstants.SFSTNS_TBL ).getAbsolutePath();
       	
             	ICustomProjectionService customProjectionService = new CustomProjectionServiceImpl(gempakProjectionString, gempakGraphicAreaString, 
-            			geogFilePath, stationFilePath); 
+            			geogFilePath, stationFilePath ); 
 
             	if(!customProjectionService.isGempakProjectionStringValid()) {
             		gempakProjectionText.setFocus(); 
@@ -1284,7 +1291,7 @@ public class CreateCustomProjectionDialog extends CaveJFACEDialog {
             /*
              * a new change added in version R1G2-9
              */
-            validateParameters();
+            //validateParameters();
 
             paramComp.layout();
             paramComp.setSize(paramComp.computeSize(SWT.DEFAULT, SWT.DEFAULT));

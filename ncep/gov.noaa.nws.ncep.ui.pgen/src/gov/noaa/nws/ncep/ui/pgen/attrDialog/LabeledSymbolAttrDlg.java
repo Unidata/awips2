@@ -41,7 +41,7 @@ public class LabeledSymbolAttrDlg extends SymbolAttrDlg {
 	
 	static private LabeledSymbolAttrDlg INSTANCE = null;
 
-	private Button labelChkBox;
+	protected Button labelChkBox;
 	private Button labelColorChkBox;
 	
 	private boolean lastLabelStatus;

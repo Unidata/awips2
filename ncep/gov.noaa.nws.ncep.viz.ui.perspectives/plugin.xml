@@ -71,7 +71,7 @@
                   </visibleWhen>
                   <parameter
                         name="mode"
-                        value="LOAD">
+                        value="CREATE">
                   </parameter>
                </command>                   
                 <command
@@ -252,14 +252,14 @@
                    id="gov.noaa.nws.ncep.viz.ui.perspectives.menus.PredefinedAreaMenu">
              </dynamic>
               
-              <command
+              <!--command
                     commandId="gov.noaa.nws.ncep.viz.ui.actions.loadPredefinedArea"
                     label="LOCAL">
                  <parameter
                        name="areaName"
                        value="LOCAL">
                  </parameter>
-              </command>
+              </command // redundant, but saving as comment in case want to consider placing here again for legacy position consistency-->
               <command
                     commandId="gov.noaa.nws.ncep.viz.ui.actions.loadSatelliteArea"
                     label="SAT">
@@ -355,23 +355,6 @@
                    mnemonic="H">
              </command>
              <separator
-                   name="beforeLocator"
-                   visible="true">
-             </separator>
-             <command
-                   commandId="com.raytheon.viz.ui.actions.notImplemented"
-                   label="Locator Editor"
-                   style="push"
-                   mnemonic="E">
-             </command>
-              <command
-                    commandId="gov.noaa.nws.ncep.viz.ui.locatorOptsDflts"
-                    label="Locator Defaults"
-                    mnemonic="D"
-                    style="push"
-                    tooltip="Locator Options Defaults">
-              </command>
-             <separator
                    name="beforeLogos"
                    visible="true">
              </separator>
@@ -411,10 +394,17 @@
                     tooltip="Colormap Editor">
               </command>
               <command
+                    commandId="gov.noaa.nws.ncep.ui.pgen.activityConfigure"
+                    label="Configure PGEN Activity"
+                    mnemonic="C"
+                    style="push">
+              </command>
+              <command
                     commandId="sync.file.tool.command"
                     label="Sync File Tool"
                     style="push">
               </command>
+              
            </menu>
            <menu
                 id="NCHelp"
@@ -477,7 +467,7 @@
                   </visibleWhen>
                   <parameter
                         name="mode"
-                        value="LOAD">
+                        value="CREATE">
                   </parameter>
                </command>
 	            <command
@@ -813,6 +803,10 @@
    </extension>
    <extension
          point="org.eclipse.ui.commands">
+      <category 
+            id="gov.noaa.nws.ncep.viz.ui.modalTool"
+            name="Modal Tool">
+      </category>
       <command
             id="gov.noaa.nws.ncep.viz.ui.actions.loadPredefinedArea"
             name="Load Predefined Area">
@@ -885,10 +879,6 @@
             commandId="gov.noaa.nws.ncep.viz.ui.actions.loadOverlay">
       </handler>
       <handler
-            class="gov.noaa.nws.ncep.viz.localization.command.handler.SyncFileToolCommandHandler"
-            commandId="sync.file.tool.command">
-      </handler>
-      <handler
             class="gov.noaa.nws.ncep.viz.ui.perspectives.PreferencesHandler"
             commandId="gov.noaa.nws.ncep.viz.ui.preferences.handler">
       </handler>
@@ -930,14 +920,6 @@
 		</activityPatternBinding-->
   		
    </extension>
-   <extension
-         point="gov.noaa.nws.ncep.viz.localization.localizationData">
-      <singleLocalizationValue
-            name="defaultRBDFile"
-            location="resources"
-            fileName="BasicWX_US.xml">
-      </singleLocalizationValue>
-   </extension>
       
       <!--Definition of the NCMapContext -->
    <extension
@@ -972,7 +954,7 @@
             sequence="SPACE">
                  <parameter
                        id="mode"
-                       value="LOAD">
+                       value="CREATE">
                  </parameter>
          </key> 
          

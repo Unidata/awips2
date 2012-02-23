@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: NcTaf Plug-in
+Bundle-SymbolicName: gov.noaa.nws.ncep.edex.plugin.nctaf
+Bundle-Version: 1.0.0.qualifier
+Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Bundle-Vendor: NOAA/NWS/NCEP/NCO/SIB
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.raytheon.edex.common;bundle-version="1.10.13",
+ gov.noaa.nws.ncep.edex.common;bundle-version="1.0.0",
+ javax.persistence;bundle-version="1.0.0",
+ org.apache.commons.logging;bundle-version="1.0.4",
+ org.apache.log4j;bundle-version="1.0.0",
+ org.junit;bundle-version="1.0.0",
+ gov.noaa.nws.ncep.common.dataplugin.nctaf;bundle-version="1.0.0",
+ com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
+ org.geotools
+Export-Package: gov.noaa.nws.ncep.edex.plugin.nctaf.decoder
+Import-Package: com.raytheon.edex.exception,
+ com.raytheon.uf.edex.decodertools.core,
+ com.raytheon.uf.edex.decodertools.time,
+ com.raytheon.uf.edex.wmo.message,
+ gov.noaa.nws.ncep.common.dataplugin.nctaf,
+ gov.noaa.nws.ncep.common.dataplugin.tcm,
+ gov.noaa.nws.ncep.common.tools
