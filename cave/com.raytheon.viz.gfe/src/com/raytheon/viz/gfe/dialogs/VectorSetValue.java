@@ -19,6 +19,9 @@
  **/
 package com.raytheon.viz.gfe.dialogs;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
@@ -35,6 +38,7 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.progress.UIJob;
 
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.gfe.core.msgs.IPickupValueChangedListener;
@@ -54,6 +58,9 @@ import com.raytheon.viz.gfe.visual.SetValueVectorVisual;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 22, 2009 #1318      randerso     Initial creation
+ * Feb 20, 2012 #346       dgilling     Create PickupChangedJob to fix 
+ *                                      Invalid Thread Access exceptions 
+ *                                      in pickupValueChanged.
  * 
  * </pre>
  * 
@@ -64,6 +71,48 @@ import com.raytheon.viz.gfe.visual.SetValueVectorVisual;
 public class VectorSetValue extends AbstractSetValue implements
         IVectorModeChangedListener, IPickupValueChangedListener {
 
+    private class PickupChangedJob extends UIJob {
+
+        private WxValue pickupValue;
+
+        private boolean redrawMainDA;
+
+        public PickupChangedJob() {
+            super("PickupValueChanged");
+            setSystem(true);
+        }
+
+        public void setPickupValue(WxValue newValue, boolean redraw) {
+            this.pickupValue = newValue;
+            this.redrawMainDA = redraw;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * org.eclipse.ui.progress.UIJob#runInUIThread(org.eclipse.core.runtime
+         * .IProgressMonitor)
+         */
+        @Override
+        public IStatus runInUIThread(IProgressMonitor monitor) {
+            if ((!monitor.isCanceled())
+                    && (!VectorSetValue.this.magField.isDisposed())
+                    && (!VectorSetValue.this.dirField.isDisposed())
+                    && (!VectorSetValue.this.mainDA.isDisposed())) {
+                VectorWxValue value = (VectorWxValue) pickupValue;
+                VectorSetValue.this.magField.setText(value.magToString());
+                VectorSetValue.this.dirField.setText(value.dirToString());
+                if (redrawMainDA) {
+                    VectorSetValue.this.mainDA.redraw();
+                }
+                return Status.OK_STATUS;
+            }
+
+            return Status.CANCEL_STATUS;
+        }
+    }
+
     private Canvas mainDA;
 
     private SetValueVectorVisual mainVisual;
@@ -73,6 +122,8 @@ public class VectorSetValue extends AbstractSetValue implements
     private Text magField;
 
     private Button[] modeButton;
+
+    private PickupChangedJob pickupJob;
 
     /**
      * Constructor
@@ -104,8 +155,9 @@ public class VectorSetValue extends AbstractSetValue implements
 
         });
 
-        setParm(parm);
+        pickupJob = new PickupChangedJob();
 
+        setParm(parm);
     }
 
     protected void paint(PaintEvent e) {
@@ -318,6 +370,7 @@ public class VectorSetValue extends AbstractSetValue implements
     public void dispose() {
         parm.getListeners().removeVectorModeChangedListener(this);
         parm.getListeners().removePickupValueChangedListener(this);
+        pickupJob.cancel();
         mainVisual.dispose();
         super.dispose();
     }
@@ -360,16 +413,13 @@ public class VectorSetValue extends AbstractSetValue implements
     }
 
     private void pickUpValueChanged(WxValue pickUpValue) {
-        VectorWxValue value = (VectorWxValue) pickUpValue;
-        dirField.setText(value.dirToString());
-        magField.setText(value.magToString());
+        pickupJob.setPickupValue(pickUpValue, false);
+        pickupJob.schedule();
     }
 
     @Override
     public void pickupValueChanged(Parm parm, WxValue pickupValue) {
-        VectorWxValue value = (VectorWxValue) pickupValue;
-        magField.setText(value.magToString());
-        dirField.setText(value.dirToString());
-        mainDA.redraw();
+        pickupJob.setPickupValue(pickupValue, true);
+        pickupJob.schedule();
     }
 }
