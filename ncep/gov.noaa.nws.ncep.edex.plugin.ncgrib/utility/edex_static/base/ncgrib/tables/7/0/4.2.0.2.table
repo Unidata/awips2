@@ -32,4 +32,5 @@
 221:221:Hourly Maximum of Downward Vertical Vorticity in the lowest 400hPa:m/s:MAXDVV
 222:222:U Component of Hourly Maximum 10m Wind Speed:m/s:MAXUW
 223:223:V Component of Hourly Maximum 10m Wind Speed:m/s:MAXVW
+224:224:Ventilation Rate:m^2/s:VRATE
 255:255:Missing
