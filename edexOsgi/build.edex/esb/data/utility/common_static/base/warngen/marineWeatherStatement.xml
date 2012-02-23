@@ -1,6 +1,6 @@
 <!--Generic Marine Weather Statement configuration -->
 <warngenConfig>
-<!-- Customized by Phil Kurimski WFO DTX 22 September 2011 -->
+<!-- Customized by Phil Kurimski WFO DTX 25 January 2012 -->
 
  <!-- Config distance/speed units -->
  <unitDistance>nmi</unitDistance>
@@ -87,6 +87,7 @@
   <bullet bulletName="smallHail" bulletText="Small Hail" bulletGroup="group4" parseString="SMALL HAIL"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="  *****HEADLINE SECTION*****...(Choose 1) " bulletType="title"/>
+  <bullet bulletName="noHead" bulletText="No Headline" bulletGroup="group2" bulletDefault="true" parseString="OVER THE WATERS"/>
   <bullet bulletName="approachHead" bulletText="Approaching waters" bulletGroup="group2" parseString="APPROACHING THE WATERS"/>
   <bullet bulletName="overHead" bulletText="Over the waters" bulletGroup="group2" parseString="OVER THE WATERS"/>
   <bullet bulletText="" bulletType="title"/>
@@ -98,8 +99,8 @@
   <bullet bulletText=" *****Call to Action SECTION*****" bulletType="title"/>
   <bullet bulletName="genericCTA" bulletText="Generic thunderstorm marine call to action" bulletDefault="true" parseString="LOCALLY HIGHER WAVES...AND LIGHTNING STRIKES"/>
   <bullet bulletName="heavyRainCTA" bulletText="Thunderstorm with heavy rain" parseString="LOCALLY HIGHER WAVES...LIGHTNING STRIKES...AND HEAVY DOWNPOURS"/>
-  <bullet bulletName="possibleSmwCTA" bulletText="HEADS-UP - SMW MAY be needed" parseString="SPECIAL MARINE WARNING MAY EVENTUALLY"/>
-  <bullet bulletName="likelySmwCTA" bulletText="HEADS-UP - SMW will LIKELY be needed" parseString="SPECIAL MARINE WARNING WILL LIKELY"/>
+  <bullet bulletName="possibleSmwCTA" bulletText="HEADS-UP - SMW MAY be needed" bulletGroup="specmarine" parseString="SPECIAL MARINE WARNING MAY EVENTUALLY"/>
+  <bullet bulletName="likelySmwCTA" bulletText="HEADS-UP - SMW will LIKELY be needed" bulletGroup="specmarine" parseString="SPECIAL MARINE WARNING WILL LIKELY"/>
   <bullet bulletName="lightningCTA" bulletText="Intense lightning" parseString="INTENSE LIGHTNING IS OCCURRING WITH THIS STORM"/>
   <bullet bulletName="reportCTA" bulletText="Report severe weather to coast guard" parseString="REPORT SEVERE WEATHER TO THE COAST GUARD"/>
   <bullet bulletName="fogCTA" bulletText="Dense fog" parseString="DENSE FOG WAS REDUCING VISIBILITIES TO"/>
@@ -107,8 +108,6 @@
 </bulletActionGroup>
 <bulletActionGroup action="COR" phen="MA" sig="S">
  <bullets>
-  <bullet bulletText="*** CORRECTED PRODUCT. CLICK CREATE TEXT ****" bulletType="title"/>
-  <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="  *****BASIS SECTION*****...(Choose 1) " bulletType="title"/>
   <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="group5" bulletDefault="true" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED"/>
   <bullet bulletName="marineSpotter" bulletText="Marine weather spotters reported" bulletGroup="group5" parseString="MARINE WEATHER SPOTTERS REPORTED"/>
@@ -242,7 +241,7 @@
  		</mapping>
   	</filter>
  </pointSource>
- 
+  
  
  <geospatialConfig>
   <pointSource>MarineSites</pointSource>
@@ -251,5 +250,4 @@
   <timezoneSource>TIMEZONES</timezoneSource>
   <timezoneField>TIME_ZONE</timezoneField>
  </geospatialConfig>
- 
 </warngenConfig>
