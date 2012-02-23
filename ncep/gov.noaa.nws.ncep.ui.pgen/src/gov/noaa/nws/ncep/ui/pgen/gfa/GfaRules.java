@@ -357,7 +357,6 @@ public class GfaRules {
 				Geometry g = greatLakes.get( key );
 
 				if ( !g.intersects( smearP ) ) continue;
-				nState++;
 				updateGfaStatesField( smear, key );				
 
 			}
@@ -367,7 +366,6 @@ public class GfaRules {
 
 				if ( !g.intersects( smearP ) ) continue;
 				
-				nState++;
 				nWaters++;
 				updateGfaStatesField( smear, key );				
 			}			
@@ -383,6 +381,10 @@ public class GfaRules {
 			
 	    	StringBuilder s = new StringBuilder ( nvl( smear.getGfaStates() ) );
             
+	    	/*
+	    	 * Note - nState should be states on land, not including states from 
+	    	 * Great Lakes and Coastal Waters.
+	    	 */
 	        if ( nState > 0 ) {
 		        s.append( " AND" );
 	        }
@@ -542,7 +544,7 @@ public class GfaRules {
 		 * overridden if any of the hazards (smears) are of an issuance type that is CAN, COR, NEW,
 		 * or AMD.
 		 */
-		boolean overrideIssueTime = !"NORM".equalsIgnoreCase(smear.getGfaIssueType());
+		boolean overrideIssueTime = !"NRML".equalsIgnoreCase(smear.getGfaIssueType());
 
 		Calendar localTimeCal = Calendar.getInstance();
 

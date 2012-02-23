@@ -100,7 +100,7 @@
 ## information. Sites can include this information in a separate file or
 ## include in the template per the coding below.
 #########################################################################
-#parse ("damInfo.vm")
+##parse ("damInfo.vm")
 #*
 #########################################################################
 ## The next section is for site specific dams. Each site should take the
@@ -170,11 +170,6 @@
 ## End of Site Specific Dam Information
 #######################################################################
 *#
-#if(${specialCorText})
-${WMOId} ${vtecOffice} 000000 ${BBBId}
-FFS${siteId}
-${specialCorText}
-#else
 ####################################
 ## DAM BREAK FFW FOLLOW-UP HEADER ##
 ####################################
@@ -308,10 +303,6 @@ THIS IS A TEST MESSAGE. ##
 #drainages(${riverdrainages})
 
 #end
-##############################################
-###### mile markers ##############
-##############################################
-#parse("milemarkers.vm")
 #####################
 ## CALL TO ACTIONS ##
 #####################
@@ -504,10 +495,14 @@ THIS IS A TEST MESSAGE. ##
 
 #end
 
-##############################################
-###### mile markers ##############
-##############################################
-#parse("milemarkers.vm")
+## parse file command here is to pull in mile marker info
+## #parse("mileMarkers.vm")
+
+#if(${list.contains($bullets, "floodMoving")})
+FLOOD WATERS ARE MOVING DOWN !**name of channel**! FROM !**location**! TO !**location**!. THE FLOOD CREST IS EXPECTED TO REACH !**location(s)**! BY !**time(s)**!.
+
+#end
+
 #####################
 ## CALL TO ACTIONS ##
 #####################
@@ -530,10 +525,6 @@ ${sitespecCTA}
 
 ${volcanoCTA}
 
-#if(${list.contains($bullets, "floodMovingCTA")})
-FLOOD WATERS ARE MOVING DOWN !**name of channel**! FROM !**location**! TO !**location**!. THE FLOOD CREST IS EXPECTED TO REACH !**location(s)**! BY !**time(s)**!.
-
-#end
 #if(${list.contains($bullets, "taddCTA")})
 MOST FLOOD DEATHS OCCUR IN AUTOMOBILES. NEVER DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY. FLOOD WATERS ARE USUALLY DEEPER THAN THEY APPEAR. JUST ONE FOOT OF FLOWING WATER IS POWERFUL ENOUGH TO SWEEP VEHICLES OFF THE ROAD. WHEN ENCOUNTERING FLOODED ROADS MAKE THE SMART CHOICE...TURN AROUND...DONT DROWN.
 
@@ -599,4 +590,3 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 $$
 
 !**NAME/INITIALS**!
-#end

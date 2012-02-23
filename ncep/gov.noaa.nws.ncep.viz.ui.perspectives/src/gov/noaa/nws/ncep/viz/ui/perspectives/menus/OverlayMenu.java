@@ -1,5 +1,7 @@
 package gov.noaa.nws.ncep.viz.ui.perspectives.menus;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
@@ -38,7 +40,8 @@ import com.raytheon.viz.ui.UiPlugin;
  * SOFTWARE HISTORY
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 4/15/11                  G. Hull      created.
+ *  4/15/11                  G. Hull      created.
+ * 12/06/11                  B. Hebbard   sort menu entries alphabetically
  * 
  * </pre>
  * 
@@ -54,6 +57,11 @@ public class OverlayMenu extends ContributionItem {
 		try {
 			List<String> overlayRscTypes = ResourceDefnsMngr.getInstance().getResourceTypesForCategory(
 					ResourceName.OverlayRscCategory, "", false );
+			Collections.sort(overlayRscTypes, new Comparator<String>() { // alphabetize menu...
+					public int compare (String s1, String s2) { // ...case insensitive
+						return s1.compareToIgnoreCase(s2);
+					}
+			});
 			
 			int ovlyIndx=0;
 			for( String overlayRsc : overlayRscTypes ) {		
