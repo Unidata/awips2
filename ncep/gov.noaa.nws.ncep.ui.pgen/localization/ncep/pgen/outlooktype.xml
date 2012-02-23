@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  This xml file is to be used for outlook types/labels in the outlook GUI.
+  the 'prefix' attribute is used for the name of the output outlook file.  
+-->
+<root>
+	<otlktype name="OUTLOOK" prefix="" >
+		<label text="TSTM"	value="0"/>
+		<label text="SLGT"	value="20"/>
+		<label text="MDT"	value="40"/>
+		<label text="HIGH"	value="60"/>
+		<label text="2%"/>
+		<label text="5%"/>
+		<label text="10%"/>
+		<label text="15%"/>
+		<label text="30%"/>
+		<label text="40%"/>
+		<label text="45%"/>
+		<label text="60%"/>
+		<label text="70%"/>
+		<label text="SIG"	value="100"/>
+	</otlktype>
+	
+	<otlktype name="LABEL" prefix="">
+		<label text="TSTM"	value="0"/>
+		<label text=".01"/>
+		<label text=".10"/>
+		<label text=".25"/>
+		<label text=".50"/>
+		<label text="1"/>
+		<label text="1.5"/>
+		<label text="2"/>
+		<label text="2.5"/>
+		<label text="3"/>
+		<label text="4"/>
+		<label text="5"/>
+		<label text="6"/>
+	</otlktype>
+
+	<otlktype name="TROPICAL" prefix="" makegrid="false" flagLabel="true" flagAction="false">
+		<label text="1"/>
+		<label text="2"/>
+		<label text="3"/>
+		<label text="4"/>
+		<label text="5"/>
+		<label text="6"/>
+		<label text="7"/>
+		<label text="8"/>
+		<label text="9"/>
+		<label text="10"/>
+	</otlktype>
+
+	<otlktype name="HAILOTLK" prefix="hail">
+		<label text="5%"/>
+		<label text="10%"/>
+		<label text="15%"/>
+		<label text="30%"/>
+		<label text="45%"/>
+		<label text="60%"/>
+		<label text="SIG"		value="100"/>
+	</otlktype>
+	
+	<otlktype name="TORNOTLK" prefix="torn">
+		<label text="2%"/>
+		<label text="5%"/>
+		<label text="10%"/>
+		<label text="15%"/>
+		<label text="30%"/>
+		<label text="45%"/>
+		<label text="60%"/>
+		<label text="SIG"		value="100"/>
+	</otlktype>
+	
+	<otlktype name="WINDOTLK" prefix="wind">
+		<label text="5%"/>
+		<label text="15%"/>
+		<label text="30%"/>
+		<label text="45%"/>
+		<label text="60%"/>
+		<label text="SIG"		value="100"/>
+	</otlktype>
+	
+	<otlktype name="TOTL_SVR" prefix="prob">
+		<label text="5%"/>
+		<label text="15%"/>
+		<label text="30%"/>
+		<label text="45%"/>
+		<label text="60%"/>
+		<label text="SIG"		value="100"/>	
+	</otlktype>
+	
+	<otlktype name="FIREOUTL" prefix="fire">
+		<label text="CRITICAL"		value="60"/>
+		<label text="EXTREME"		value="80"/>
+		<label text="DRY-TSTM"		value="100"/>	
+	</otlktype>
+	
+	<otlktype name="CATG_SVR" prefix="category_severe">
+		<label text="SLGT"		value="20"/>
+		<label text="MDT"		value="40"/>
+		<label text="HIGH"		value="60"/>		
+	</otlktype>
+	
+	<otlktype name="MESO_DSC" prefix="">
+		<label text="CNVTV"		value="20"/>
+		<label text="SVRUK"		value="40"/>
+		<label text="SVRRED"	value="60"/>
+		<label text="SVRBLUE"	value="80"/>
+		<label text="HVYRA"		value="100"/>
+		<label text="HVYSN"		value="120"/>
+		<label text="FZRA"		value="140"/>
+	</otlktype>
+	
+	<otlktype name="TSTMOLK" prefix="">
+		<label text="5%"/>
+		<label text="15%"/>
+		<label text="30%"/>
+		<label text="45%"/>
+		<label text="60%"/>
+		<label text="SIG"		value="100"/>		
+	</otlktype>
+	
+	<otlktype name="EXT_SVR" prefix="">
+		<label text="D4"		value="40"/>
+		<label text="D5"		value="50"/>
+		<label text="D6"		value="60"/>
+		<label text="D7"		value="70"/>
+		<label text="D8"		value="80"/>
+		<label text="D4-5"		value="45"/>
+		<label text="D4-6"		value="46"/>
+		<label text="D4-7"		value="47"/>
+		<label text="D4-8"		value="48"/>
+		<label text="D5-6"		value="56"/>
+		<label text="D5-7"		value="57"/>
+		<label text="D5-8"		value="58"/>
+		<label text="D6-7"		value="67"/>
+		<label text="D6-8"		value="68"/>
+		<label text="D7-8"		value="78"/>			
+	</otlktype>
+	
+	<otlktype name="EXT_FIRE" prefix="fire">
+		<label text="D3"		value="30"/>
+		<label text="D4"		value="40"/>
+		<label text="D5"		value="50"/>
+		<label text="D6"		value="60"/>
+		<label text="D7"		value="70"/>
+		<label text="D8"		value="80"/>
+		<label text="D3-4"		value="34"/>
+		<label text="D3-5"		value="35"/>
+		<label text="D3-6"		value="36"/>
+		<label text="D3-7"		value="37"/>
+		<label text="D3-8"		value="38"/>
+		<label text="D4-5"		value="45"/>
+		<label text="D4-6"		value="46"/>
+		<label text="D4-7"		value="47"/>
+		<label text="D4-8"		value="48"/>
+		<label text="D5-6"		value="56"/>
+		<label text="D5-7"		value="57"/>
+		<label text="D5-8"		value="58"/>
+		<label text="D6-7"		value="67"/>
+		<label text="D6-8"		value="68"/>
+		<label text="D7-8"		value="78"/>			
+	</otlktype>
+	
+	<otlktype name="ISO_BARS" prefix="">
+		<label text="956"/>
+		<label text="960"/>
+		<label text="968"/>
+		<label text="972"/>
+		<label text="976"/>
+		<label text="980"/>
+		<label text="984"/>
+		<label text="988"/>
+		<label text="992"/>
+		<label text="996"/>
+		<label text="1000"/>
+		<label text="1004"/>
+		<label text="1008"/>
+		<label text="1012"/>
+		<label text="1016"/>
+		<label text="1020"/>
+		<label text="1024"/>
+		<label text="1028"/>
+		<label text="1032"/>
+	</otlktype>
+	
+	<otlktype name="HI_FCST" prefix="">
+		<label text="08"/>
+		<label text="10"/>
+		<label text="12"/>
+		<label text="14"/>
+		<label text="16"/>
+		<label text="20"/>
+		<label text="22"/>
+		<label text="24"/>
+		<label text="28"/>
+		<label text="30"/>
+		<label text="32"/>
+		<label text="34"/>
+		<label text="36"/>
+		<label text="38"/>
+		<label text="40"/>
+		<label text="42"/>
+		<label text="44"/>
+		<label text="46"/>					
+	</otlktype>
+	
+	<otlktype name="LO_FCST" prefix="">
+		<label text="60"/>
+		<label text="64"/>
+		<label text="68"/>
+		<label text="72"/>
+		<label text="76"/>
+		<label text="80"/>
+		<label text="82"/>
+		<label text="84"/>
+		<label text="86"/>
+		<label text="88"/>
+		<label text="90"/>
+		<label text="92"/>
+		<label text="94"/>
+		<label text="96"/>
+		<label text="98"/>
+		<label text="00"/>
+		<label text="02"/>
+		<label text="04"/>
+		<label text="08"/>					
+	</otlktype>
+	
+	<otlktype name="WHFT" prefix="">
+		<label text="1.5"/>
+		<label text="3"/>
+		<label text="4.5"/>
+		<label text="6"/>
+		<label text="9"/>
+		<label text="12"/>
+		<label text="15"/>
+		<label text="18"/>
+		<label text="21"/>
+		<label text="24"/>
+		<label text="27"/>
+		<label text="30"/>
+		<label text="33"/>
+		<label text="36"/>
+		<label text="39"/>
+		<label text="42"/>
+		<label text="45"/>
+		<label text="48"/>
+	</otlktype>
+	
+	<otlktype name="WHM" prefix="">
+		<label text="0.5"/>
+		<label text="1"/>
+		<label text="1.5"/>
+		<label text="2"/>
+		<label text="3"/>
+		<label text="4"/>
+		<label text="5"/>
+		<label text="6"/>
+		<label text="7"/>
+		<label text="8"/>
+		<label text="9"/>
+		<label text="10"/>
+		<label text="11"/>
+		<label text="12"/>
+		<label text="13"/>
+		<label text="14"/>
+		<label text="15"/>
+		<label text="16"/>
+		<label text="17"/>
+		<label text="18"/>		
+	</otlktype>
+	
+	<otlktype name="WPER" prefix="">
+		<label text="6"/>
+		<label text="8"/>
+		<label text="10"/>
+		<label text="12"/>
+		<label text="14"/>
+		<label text="16"/>
+	</otlktype>
+	
+	<otlktype name="PROB" prefix="">
+		<label text="10"/>
+		<label text="20"/>
+		<label text="25"/>
+		<label text="30"/>
+		<label text="40"/>
+		<label text="50"/>
+		<label text="60"/>
+		<label text="70"/>
+		<label text="75"/>
+		<label text="80"/>
+		<label text="90"/>
+		<label text="100"/>
+	</otlktype>
+	
+	<otlktype name="EXCE_RAIN" prefix="" makegrid="false" fromline ="true" >
+		<label text="SLGT"/>
+		<label text="MDT"/>
+		<label text="HIGH"/>
+		<label text="5 INCH"/>
+	</otlktype>
+		
+	<otlktype name="ENH00" prefix="enh00">
+		<label text="10%"/>
+		<label text="40%"/>
+		<label text="70%"/>
+	</otlktype>
+	
+	<otlktype name="ENH04" prefix="enh04">
+		<label text="10%"/>
+		<label text="40%"/>
+		<label text="70%"/>	
+	</otlktype>
+	
+	<otlktype name="ENH12" prefix="enh12">
+		<label text="10%"/>
+		<label text="40%"/>
+		<label text="70%"/>	
+	</otlktype>
+	
+	<otlktype name="ENH16" prefix="enh16">
+		<label text="10%"/>
+		<label text="40%"/>
+		<label text="70%"/>	
+	</otlktype>
+	
+	<otlktype name="ENH20" prefix="enh20">
+		<label text="10%"/>
+		<label text="40%"/>
+		<label text="70%"/>	
+	</otlktype>
+		
+</root>

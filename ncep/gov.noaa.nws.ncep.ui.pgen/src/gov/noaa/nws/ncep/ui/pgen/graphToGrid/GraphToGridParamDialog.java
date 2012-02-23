@@ -20,6 +20,7 @@ import gov.noaa.nws.ncep.ui.pgen.contours.Contours;
 import gov.noaa.nws.ncep.ui.pgen.contours.IContours;
 import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 
@@ -53,6 +54,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 import java.awt.Color;
+import java.io.File;
 
 
 /**
@@ -64,6 +66,8 @@ import java.awt.Color;
  * ------------	----------	-----------	--------------------------
  * 01/10		#215		J. Wu   	Initial Creation.
  * 11/10		#345		J. Wu   	Added support for ContourCircle.
+ * 10/11        #450        G. Hull     use localization names from NcPathConstants
+ * 10/11		?			J. Wu   	Remove entry if the given table does not exist.
  * 
  * </pre>
  * 
@@ -77,7 +81,7 @@ public class GraphToGridParamDialog extends CaveJFACEDialog {
 	private static LinkedHashMap<String, String> productMaps = null;
 	private static HashMap<String, String> currentProductParams = null;
 	private static ArrayList<String> productNames = null;	
-	private static String grphgdTblName = "grphgd.tbl"; 
+	private static String grphgdTblName = NcPathConstants.PGEN_G2G_GRPHGD; // "grphgd.tbl"; 
 	private static ArrayList< HashMap<String, String> > productDefaults = null;
 	
 	private static final int 	BASIC_ADV_ID = IDialogConstants.CLIENT_ID + 7585;
@@ -128,16 +132,24 @@ public class GraphToGridParamDialog extends CaveJFACEDialog {
         
         if ( productDefaults == null  ) {
             
-        	productDefaults = new ArrayList< HashMap<String, String> >( productNames.size() );
+//        	productDefaults = new ArrayList< HashMap<String, String> >( productNames.size() );
+        	productDefaults = new ArrayList< HashMap<String, String> >();
            
         	for ( String str : productNames ) {
                 
         	    String value = productMaps.get( str );
         	    String fileName = value.substring( value.lastIndexOf('/') + 1 );
        	    
-        		HashMap<String, String> map = GraphToGrid.loadParameters( fileName );
+        		HashMap<String, String> map = GraphToGrid.loadParameters( 
+        				NcPathConstants.PGEN_ROOT+File.separator+fileName );
         		
-        		productDefaults.add( map );
+        		if ( map.size() > 0 ) {
+        			productDefaults.add( map );
+        		}
+        		else {
+        			productMaps.remove( str );       			
+        		}
+        		
             }
        		
         }

@@ -14,7 +14,6 @@ Require-Bundle: com.raytheon.viz.ui;bundle-version="1.10.13",
  gov.noaa.nws.ncep.viz.ui.display;bundle-version="1.0.0",
  gov.noaa.nws.ncep.viz.localization;bundle-version="1.0.0",
  gov.noaa.nws.ncep.viz.common,
- gov.noaa.nws.ncep.viz.ui.locator;bundle-version="1.0.0",
  javax.measure;bundle-version="1.0.0",
  com.raytheon.viz.ui.tools.map;bundle-version="1.10.13",
  gov.noaa.nws.ncep.viz.tools;bundle-version="1.0.0"

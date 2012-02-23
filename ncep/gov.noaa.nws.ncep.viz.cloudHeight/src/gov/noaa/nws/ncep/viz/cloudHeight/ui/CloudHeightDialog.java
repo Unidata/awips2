@@ -1,10 +1,6 @@
 package gov.noaa.nws.ncep.viz.cloudHeight.ui;
 
-import java.util.Iterator;
-
-import gov.noaa.nws.ncep.edex.common.stationTables.Station;
 import gov.noaa.nws.ncep.viz.tools.cursor.NCCursors;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -23,14 +19,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.geotools.referencing.GeodeticCalculator;
-
-import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
-import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.index.quadtree.Quadtree;
-import java.util.ArrayList;
 import javax.measure.converter.UnitConverter;
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Temperature;
@@ -529,8 +518,6 @@ public class CloudHeightDialog extends Dialog {
 
     	parent.setCursor( prevCursor );
     	
-		NmapUiUtils.setPanningMode();
-
     	isOpen = false;
     	
     	return null;
@@ -566,8 +553,8 @@ public class CloudHeightDialog extends Dialog {
     // always in   converted from user selected units.
     public void setSoundingDataDistance( double workingDist ) {
     	if( workingDist == Double.NaN) {
-//    		dist_txt.setText("N/A");
-    		dist_txt.setText("");
+     		dist_txt.setText("N/A");
+//    		dist_txt.setText("");
     	}
     	try {
     		double distVal = distUnitsConverter.convert( workingDist );
@@ -715,6 +702,27 @@ public class CloudHeightDialog extends Dialog {
     }
     
     /**
+	 * @return the distWorkingUnits
+	 */
+	public final Unit<? extends Length> getDistWorkingUnits() {
+		return distWorkingUnits;
+	}
+
+	/**
+	 * @return the tempWorkingUnits
+	 */
+	public final Unit<? extends Temperature> getTempWorkingUnits() {
+		return tempWorkingUnits;
+	}
+
+	/**
+	 * @return the hghtWorkingUnits
+	 */
+	public final Unit<? extends Length> getHghtWorkingUnits() {
+		return hghtWorkingUnits;
+	}
+
+	/**
      * closes the Cloud Height Dialog
      */
     public void close() {

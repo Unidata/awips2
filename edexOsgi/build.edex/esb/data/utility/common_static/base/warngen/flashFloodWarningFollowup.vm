@@ -4,6 +4,7 @@
 ## EDITED BY EVAN BOOKBINDER 9-15-2011 for OB11.8.0-8 ##
 ## Modified by MIKE DANGELO  9-19-2011 at Alaska TIM ##
 ## Overhauled by Phil Kurimski 09-23-2011 
+## Modified by MIKE DANGELO  1-25-2012 at CRH TIM ##
 ##
 #################################### SET SOME VARs ###################################
 #set ($hycType = "")
@@ -12,18 +13,14 @@
 #set ($floodType = "FLASH FLOODING")
 #set ($burnCTA = "")
 ###OVERRIDE DEFAULT EXECESSIVE RAINFALL IF NECESSARY
-#if(${list.contains($bullets, "icrs")})
+#if(${ic} == "RS")
 	#set ($hycType = "RAIN AND SNOW MELT")
-    #set ($floodReason = " RAPID SNOW MELT IS ALSO OCCURRING AND WILL ADD TO THE ${floodType}.")
+    #set ($snowMelt = "RAPID SNOW MELT IS ALSO OCCURRING AND WILL ADD TO THE ${floodType}.")
 #end
 ##
 ######################################################################################
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 FFS${siteId}
-### IF CORRECTED...DUMP OUT CORRECTED TEXT OTHERWISE PROCEED
-#if(${specialCorText})
-${specialCorText}
-#else
 #if(${productClass}=="T")
 TEST...FLASH FLOOD STATEMENT...TEST
 #else
@@ -56,7 +53,6 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${productClass}=="T")
 ...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
 
-#end
 #end
 #################################################################
 #################################################################
@@ -102,18 +98,19 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #######################################
 
 #if(${action}=="EXP" || ${action} == "CAN" || ${action}=="CANCON")
+#if(${list.contains($bullets, "rainEnded")})
+THE HEAVY RAIN HAS ENDED...AND FLOODING IS NO LONGER EXPECTED TO POSE A THREAT.
+
+#end
 #if(${list.contains($bullets, "recedingWater")})
 FLOOD WATERS HAVE RECEDED...AND ARE NO LONGER EXPECTED TO POSE A THREAT TO LIFE OR PROPERTY. PLEASE CONTINUE TO HEED ANY ROAD CLOSURES.
-#elseif(${list.contains($bullets, "rainEnded")})
-THE HEAVY RAIN HAS ENDED...AND FLOODING IS NO LONGER EXPECTED TO POSE A THREAT.
-#else
-!** THE HEAVY RAIN HAS ENDED. !** OR **! THE FLOOD WATER IS RECEDING. THEREFORE...THE FLOODING THREAT HAS ENDED. **!"
+
 #end
 
 #printcoords(${areaPoly}, ${list})
+########### KEEP TWO BLANK LINES BELOW
 
 
-$$
 #end
 #################################### END OF CAN STUFF ###################################
 #### IF PARTIAL CANCELLATION, INSERT $$ AND 2ND UGC/MND SECTION PRIOR TO CON PORTION
@@ -142,7 +139,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE.##
 #end
-...A FLASH FLOOD WARNING ##
+...THE FLASH FLOOD WARNING ##
 #if (${hycType} != "")
 FOR <L>${hycType}</L> ##
 #end
@@ -154,7 +151,7 @@ REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimez
 ###############################################################################
 #if(${list.contains($bullets, "ffwEmergency")})
 
-...A FLASH FLOOD EMERGENCY FOR !**ENTER LOCATION**!...
+...THIS IS A FLASH FLOOD EMERGENCY FOR !**ENTER LOCATION**!...
 
 #end
 
@@ -166,9 +163,9 @@ REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimez
 #set ($rainAmount = "") 
 #set ($report = "HEAVY RAIN IS OCCURRING. !** ADD MORE DETAIL HERE **!") 
 #if(${list.contains($bullets, "flash")} )
-  #set ($isExpected = "FLASH FLOODING IS ALREADY OCCURRING")   
+  #set ($isExpected = "FLASH FLOODING IS ALREADY OCCURRING.")   
 #else
-  #set ($isExpected = "FLASH FLOODING IS EXPECTED TO BEGIN SHORTLY")   
+  #set ($isExpected = "FLASH FLOODING IS EXPECTED TO BEGIN SHORTLY.")   
 #end
 #if(${list.contains($bullets, "burnScar")} )
   #set ($burnScar = "EXCESSIVE RAINFALL OVER THE BURN SCAR WILL RESULT IN DEBRIS FLOW MOVING THROUGH THE !** DRAINAGE **!. THE DEBRIS FLOW CAN CONSIST OF ROCK...MUD...VEGETATION AND OTHER LOOSE MATERIALS.")
@@ -195,40 +192,23 @@ REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimez
 #if(${list.contains($bullets, "rain3")} )
   #set ($rainAmount = "UP TO THREE INCHES OF RAIN HAS ALREADY FALLEN.")   
 #end
-#if(${list.contains($bullets, "rainEdit")} )
-  #set ($rainAmount = "!** RAINFALL AMOUNTS **! INCHES OF RAIN HAS ALREADY FALLEN.")   
-#end
-#if(${list.contains($bullets, "heavyRainIndicated")})
-  #set ($reportType = "HEAVY RAIN") 
-  #set ($waswere = "WAS")
-#end
-#if(${list.contains($bullets, "realFloodingReport")})
-  #set ($reportType = "FLASH FLOODING")
-  #set ($waswere = "WAS")
-  #set ($rainOnly = "")
-#end
-#if(${list.contains($bullets, "realFloodingReport")} && ${list.contains($bullets, "heavyRainIndicated")})
-  #set ($reportType = "HEAVY RAIN AND FLASH FLOODING") 
-  #set ($waswere = "WERE")
-  #set ($rainOnly = "")
-#end
 #if(${list.contains($bullets, "doppler")})
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED HEAVY RAIN. ${rainAmount} ${isExpected}")
+  #set ($report = "DOPPLER RADAR INDICATED HEAVY RAIN. ${rainAmount} ${isExpected}")
 #end
 #if(${list.contains($bullets, "doppler")} && ${list.contains($bullets, "thunder")})
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED HEAVY RAIN DUE TO A THUNDERSTORM. ${rainAmount} ${isExpected}")   
+  #set ($report = "DOPPLER RADAR INDICATED HEAVY RAIN DUE TO A THUNDERSTORM. ${rainAmount} ${isExpected}")   
 #end
 #if(${list.contains($bullets, "doppler")} && ${list.contains($bullets, "thunder")} && ${stormType} == "line")
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED HEAVY RAIN DUE TO THUNDERSTORMS. ${rainAmount} ${isExpected}")   
+  #set ($report = "DOPPLER RADAR INDICATED HEAVY RAIN DUE TO THUNDERSTORMS. ${rainAmount} ${isExpected}")   
 #end
 #if(${list.contains($bullets, "dopplerGauge")})
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED THAT HEAVY RAIN WAS FALLING OVER THE AREA. ${rainAmount} ${isExpected}")   
+  #set ($report = "DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED THAT HEAVY RAIN WAS FALLING OVER THE AREA. ${rainAmount} ${isExpected}")   
 #end
 #if(${list.contains($bullets, "dopplerGauge")} && ${list.contains($bullets, "thunder")})
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED THAT A THUNDERSTORM IS PRODUCING HEAVY RAIN OVER THE AREA. ${rainAmount} ${isExpected}")   
+  #set ($report = "DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED THAT A THUNDERSTORM IS PRODUCING HEAVY RAIN OVER THE AREA. ${rainAmount} ${isExpected}")   
 #end
 #if(${list.contains($bullets, "dopplerGauge")} && ${list.contains($bullets, "thunder")} && ${stormType} == "line")
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED THAT A LINE OF THUNDERSTORMS IS PRODUCING HEAVY RAIN OVER THE AREA. ${rainAmount} ${isExpected}")   
+  #set ($report = "DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED THAT A LINE OF THUNDERSTORMS IS PRODUCING HEAVY RAIN OVER THE AREA. ${rainAmount} ${isExpected}")   
 #end
 #if(${list.contains($bullets, "trainedSpotters")})
   #set ($report = "TRAINED WEATHER SPOTTERS REPORTED HEAVY RAIN IN !** LOCATION **! ${rainAmount} ${isExpected}")   
@@ -288,7 +268,7 @@ REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimez
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
-AT ${dateUtil.format(${now}, ${timeFormat.clock}, ${localtimezone})}...${report}. ${snowMelt}
+AT ${dateUtil.format(${now}, ${timeFormat.clock}, ${localtimezone})}...${report} ${snowMelt}
 
 ${burnScar}
 
@@ -303,24 +283,29 @@ THIS IS A TEST MESSAGE. ##
 #### IF YOU USE SOMETHING OTHER THAN "LOCATIONS IMPACTED INCLUDE" LEAD IN BELOW, MAKE SURE THE
 #### ACCOMPANYING XML FILE PARSE STRING IS CHANGED TO MATCH!
 #locationsList("SOME LOCATIONS THAT WILL EXPERIENCE FLOODING INCLUDE" ${floodType} 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+########### KEEP TWO BLANK LINES BELOW
+
 
 ########################################## END OF OPTIONAL FOURTH BULLET ##############################
 ######################################
 ###### WHERE ADDITIONAL INFO GOES ####
 ######################################
-
 #if(${list.contains($bullets, "addRainfall")})
 ADDITIONAL RAINFALL AMOUNTS OF !** EDIT AMOUNT **! ARE POSSIBLE IN THE WARNED AREA.
+
+#end
+#if(${list.contains($bullets, "particularStream")})
+FLOOD WATERS ARE MOVING DOWN !**name of channel**! FROM !**location**! TO !**location**!. THE FLOOD CREST IS EXPECTED TO REACH !**location(s)**! BY !**time(s)**!. 
 
 #end
 #if(${list.contains($bullets, "drainages")})
 #drainages(${riverdrainages})
 
 #end
-##############################################
-###### mile markers ##############
-##############################################
-#parse("milemarkers.vm")
+
+## parse file command here is to pull in mile marker info
+## #parse("mileMarkers.vm")
+
 #################################### END OF ADDITIONAL STUFF ###################################
 ######################################
 ####### CALL TO ACTIONS ##############
@@ -349,10 +334,6 @@ EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE FLOODING OF SMALL CREEKS AND STR
 #end
 #if(${list.contains($bullets, "ruralUrbanCTA")})
 EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE FLOODING OF SMALL CREEKS AND STREAMS...HIGHWAYS AND UNDERPASSES.  ADDITIONALLY...COUNTRY ROADS AND FARMLANDS ALONG THE BANKS OF CREEKS...STREAMS AND OTHER LOW LYING AREAS ARE SUBJECT TO FLOODING.
-
-#end
-#if(${list.contains($bullets, "particularStreamCTA")})
-FLOOD WATERS ARE MOVING DOWN !**name of channel**! FROM !**location**! TO !**location**!. THE FLOOD CREST IS EXPECTED TO REACH !**location(s)**! BY !**time(s)**!. 
 
 #end
 #if(${list.contains($bullets, "nighttimeCTA")})
@@ -405,18 +386,10 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 
 #end
 #printcoords(${areaPoly}, ${list})
+########### KEEP TWO BLANK LINES BELOW
 
-
+#end
 $$
 
 !**NAME/INITIALS**!
 
-## example of a for-each loop which will include interstate/mile marker information
-## #foreach (${local} in ${alpha})
-## spot is ${local.name}...
-## #end
-
-########### EXAMPLES OF PARSE OR INCLUDE STATEMENTS ################################
-## #parse ("test.vm")
-## #include ("username.txt") 
-#end
