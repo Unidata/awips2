@@ -86,36 +86,36 @@ public class NcgribRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     private int masterTableVersion;
 
-    /**
+	/**
      * Version number of GRIB local tables used to augment Master Tables (See
      * Table 1.1) 0 - local tables not used, only table entries and templates
-     * the current master table are valid. (Currently 1)
+     * the current master table are valid.  (Currently 1)
      */
     @Column
     @XmlAttribute
     @DynamicSerializeElement
     private int localTableVersion;
 
-    /**
-     * Significance of reference time (See Table 1.2) 0 for analysis, 1 for
-     * forecast, 2 for verifying time, and 3 for observation time
+    /** Significance of reference time (See Table 1.2)
+     * 0 for analysis, 1 for forecast, 2 for verifying time,
+     * and 3 for observation time
      */
     @Column
     @XmlAttribute
     @DynamicSerializeElement
     private int refTimeSignificance;
 
-    /**
-     * Processed data type in this GRIB message (See Table 1.4) 0 for analysis,
-     * 1 for forecast, 2 for both, .... or PDT in table 4.3 This refers to PDT#
-     * in GEMPAK output
+    /** Processed data type in this GRIB message (See Table 1.4)
+     *  0 for analysis, 1 for forecast, 2 for both, ....
+     *  or PDT in table 4.3
+     *  This refers to PDT# in GEMPAK output
      */
     @Column
     @XmlAttribute
     @DynamicSerializeElement
     private int processedDataType;
-
-    /** Denotes if local section is present (currently false) */
+    
+    /** Denotes if local section is present (currently false)*/
     @Column
     @XmlAttribute
     @DynamicSerializeElement
@@ -160,7 +160,7 @@ public class NcgribRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     private float[] hybridCoordList;
 
-    /** The model information in ncgrib_models child table */
+    /** The model information in ncgrib_models child table*/
     @ManyToOne(cascade = { CascadeType.REFRESH }, fetch = FetchType.EAGER)
     @PrimaryKeyJoinColumn
     @Fetch(FetchMode.SELECT)
@@ -171,12 +171,13 @@ public class NcgribRecord extends PersistablePluginDataObject implements
 
     private boolean isVector = false;
 
-    /**
-     * The short model name (i.e.NAM80) This should be interpreted from the
-     * generating process number and grid id : 96 for gfs, 114 for NAEFS, 84 for
-     * meso NAM 12KM, 86 for RUC, 81 for GFS analysis, 82 for analysis GDAS,
-     * etc... information form ON388 - table A Generating Process or Model from
-     * originating center 7 which is NCEP
+    /** The short model name (i.e.NAM80) This should be interpreted from
+     *  the generating process number and grid id : 96 for gfs,
+     *  114 for NAEFS, 84 for meso NAM 12KM, 86 for RUC, 81 for GFS analysis,
+     *  82 for analysis GDAS, etc...
+     *  information form ON388 - table A
+     *  Generating Process or Model from originating center 7
+     *  which is NCEP
      */
     @Column
     @XmlAttribute
@@ -190,34 +191,32 @@ public class NcgribRecord extends PersistablePluginDataObject implements
     @DataURI(position = 3)
     private int gridVersion = 0;
 
-    /**
-     * The name of ingested file
+    /** The name of ingested file
      */
     @Column
     @XmlAttribute
     @DynamicSerializeElement
     @DataURI(position = 4)
     private String fileName;
-
-    /**
-     * The name of event such as Hurricane or Volcano
+    
+    /** The name of event such as Hurricane or 
+     *  Volcano 
      */
     @Column
     @XmlAttribute
     @DynamicSerializeElement
     private String eventName;
-
-    /**
-     * Type of Generating Process
+    
+    /** Type of Generating Process 
      */
     @Column
     @XmlAttribute
     @DynamicSerializeElement
     @DataURI(position = 7)
     private int processType;
-
-    /**
-     * Resolution and componet flags (See Table 3.3)
+    
+    /** Resolution and componet flags
+     * (See Table 3.3)
      */
     @Column
     @XmlAttribute
@@ -225,9 +224,10 @@ public class NcgribRecord extends PersistablePluginDataObject implements
     private Integer resCompFlags;
 
     /**
-     * Indicate the discipline of the processed data contained within a GRIB
-     * message - 0 for Meteorological products in table 0.0 This refers to DIS#
-     * in GEMPAK output
+     * Indicate the discipline of the processed
+     * data contained within a GRIB message -
+     * 0 for Meteorological products in table 0.0
+     * This refers to DIS# in GEMPAK output
      */
     @Column
     @XmlAttribute
@@ -235,8 +235,8 @@ public class NcgribRecord extends PersistablePluginDataObject implements
     private int discipline;
 
     /**
-     * Parameter category by product discipline 0 for temperature in table 4.1
-     * by discipline 0
+     * Parameter category by product discipline
+     * 0 for temperature in table 4.1 by discipline 0
      */
     @Column
     @XmlAttribute
@@ -244,27 +244,29 @@ public class NcgribRecord extends PersistablePluginDataObject implements
     private int category;
 
     /**
-     * Parameter number by product discipline and parameter category 9 for
-     * temperature anomaly in table 4.2-0-0 for discipline 0 and category 0 This
-     * refers to ID# in GEMPAK output
+     * Parameter number by product discipline and parameter category
+     * 9 for temperature anomaly in table 4.2-0-0 for discipline 0
+     * and category 0
+     * This refers to ID# in GEMPAK output
      */
     @Column
     @XmlAttribute
     @DynamicSerializeElement
     private int parameterId;
-
-    /**
-     * pdt - Product definition template number.
+   
+    /** pdt - Product definition template number.
      */
     @Column
     @XmlAttribute
     @DynamicSerializeElement
     private int pdt;
-
+    
     /**
-     * Fixed surface types or vertical coordinate ID 1 2 for cloud base level
-     * and 100 for isobaric surface in table 4.5 or VCRDGRID1.TBL for NCEP This
-     * refers to VCD# in GEMPAK output The location in pds[9]
+     * Fixed surface types or vertical coordinate ID 1
+     * 2 for cloud base level and 100 for isobaric surface
+     * in table 4.5 or VCRDGRID1.TBL for NCEP
+     * This refers to VCD# in GEMPAK output
+     * The location in pds[9]
      */
     @Column
     @XmlAttribute
@@ -272,9 +274,11 @@ public class NcgribRecord extends PersistablePluginDataObject implements
     private int vcrdId1;
 
     /**
-     * Fixed surface types or vertical coordinate ID 2 2 for cloud base level
-     * and 100 for isobaric surface in table 4.5 or VCRDGRID1.TBL for NCEP This
-     * refers to VCD# in GEMPAK output The location in pds[12]
+     * Fixed surface types or vertical coordinate ID 2
+     * 2 for cloud base level and 100 for isobaric surface
+     * in table 4.5 or VCRDGRID1.TBL for NCEP
+     * This refers to VCD# in GEMPAK output
+     * The location in pds[12]
      */
     @Column
     @XmlAttribute
@@ -282,22 +286,26 @@ public class NcgribRecord extends PersistablePluginDataObject implements
     private int vcrdId2;
 
     /**
-     * Scaled value of first fixed surface in GRIB2- TEMPLATE 4.1 This refers to
-     * LEVEL1 in GEMPAK output
+     * Scaled value of first fixed surface in GRIB2- TEMPLATE 4.1
+     * This refers to LEVEL1 in GEMPAK output
      */
     @Column
     @XmlAttribute
     @DynamicSerializeElement
     private int glevel1;
+    
+    private float decodedLevel1;
 
     /**
-     * Scaled value of second fixed surface in GRIB2- TEMPLATE 4.1 This refers
-     * to LEVEL2 in GEMPAK output
+     * Scaled value of second fixed surface in GRIB2- TEMPLATE 4.1
+     * This refers to LEVEL2 in GEMPAK output
      */
     @Column
     @XmlAttribute
     @DynamicSerializeElement
     private int glevel2;
+
+    private float decodedLevel2;
 
     /**
      * The gempak vertical coordinate grid name
@@ -307,7 +315,7 @@ public class NcgribRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     @DataURI(position = 6)
     private String vcord;
-
+    
     /**
      * The gempak abbreviation grid name
      */
@@ -316,7 +324,7 @@ public class NcgribRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     @DataURI(position = 5)
     private String parm;
-
+    
     /**
      * The gempak scale for decoding the grid field
      */
@@ -324,7 +332,7 @@ public class NcgribRecord extends PersistablePluginDataObject implements
     @XmlAttribute
     @DynamicSerializeElement
     private String scale;
-
+    
     /**
      * The forecast interval
      */
@@ -332,7 +340,7 @@ public class NcgribRecord extends PersistablePluginDataObject implements
     @XmlAttribute
     @DynamicSerializeElement
     private int interval;
-
+    
     /**
      * Creates an empty NcgribRecord
      */
@@ -399,7 +407,7 @@ public class NcgribRecord extends PersistablePluginDataObject implements
         this.pdt = recordToCopy.pdt;
         this.vcrdId1 = recordToCopy.vcrdId1;
         this.vcrdId2 = recordToCopy.vcrdId2;
-        this.vcord = vcord;
+        this.vcord = recordToCopy.vcord;
         this.glevel1 = recordToCopy.glevel1;
         this.glevel2 = recordToCopy.glevel2;
         this.parm = recordToCopy.parm;
@@ -438,10 +446,10 @@ public class NcgribRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * public void setSpatialObject(NcgridCoverage location) {
-     * modelInfo.setLocation(location); }
-     */
-
+    public void setSpatialObject(NcgridCoverage location) {
+        modelInfo.setLocation(location);
+    }*/
+    
     /**
      * Gets the model information
      * 
@@ -645,7 +653,7 @@ public class NcgribRecord extends PersistablePluginDataObject implements
         this.gridVersion = gridVersion;
     }
 
-    public Integer getResCompFlags() {
+	public Integer getResCompFlags() {
         return resCompFlags;
     }
 
@@ -654,131 +662,159 @@ public class NcgribRecord extends PersistablePluginDataObject implements
     }
 
     public String getModelName() {
-        return modelName;
-    }
+		return modelName;
+	}
 
-    public void setModelName(String modelName) {
-        this.modelName = modelName;
-    }
+	public void setModelName(String modelName) {
+		this.modelName = modelName;
+	}
 
-    public int getDiscipline() {
-        return discipline;
-    }
+	public int getDiscipline() {
+		return discipline;
+	}
 
-    public void setDiscipline(int discipline) {
-        this.discipline = discipline;
-    }
+	public void setDiscipline(int discipline) {
+		this.discipline = discipline;
+	}
 
-    public int getCategory() {
-        return category;
-    }
+	public int getCategory() {
+		return category;
+	}
 
-    public void setCategory(int category) {
-        this.category = category;
-    }
+	public void setCategory(int category) {
+		this.category = category;
+	}
 
-    public int getParameterId() {
-        return parameterId;
-    }
+	public int getParameterId() {
+		return parameterId;
+	}
 
-    public void setParameterId(int parameterId) {
-        this.parameterId = parameterId;
-    }
+	public void setParameterId(int parameterId) {
+		this.parameterId = parameterId;
+	}
 
-    public int getPdt() {
-        return pdt;
-    }
+	public int getPdt() {
+		return pdt;
+	}
 
-    public void setPdt(int pdt) {
-        this.pdt = pdt;
-    }
+	public void setPdt(int pdt) {
+		this.pdt = pdt;
+	}
 
-    public String getFileName() {
-        return fileName;
-    }
+	public String getFileName() {
+		return fileName;
+	}
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+	
+	public String getEventName() {
+		return eventName;
+	}
 
-    public String getEventName() {
-        return eventName;
-    }
+	public void setEventName(String eventName) {
+		this.eventName = eventName;
+	}
 
-    public void setEventName(String eventName) {
-        this.eventName = eventName;
-    }
+	public int getProcessType() {
+		return processType;
+	}
 
-    public int getProcessType() {
-        return processType;
-    }
+	public void setProcessType(int processType) {
+		this.processType = processType;
+	}
+	
+	public int getVcrdId1() {
+		return vcrdId1;
+	}
 
-    public void setProcessType(int processType) {
-        this.processType = processType;
-    }
+	public void setVcrdId1(int vcrdId1) {
+		this.vcrdId1 = vcrdId1;
+	}
 
-    public int getVcrdId1() {
-        return vcrdId1;
-    }
+	public int getVcrdId2() {
+		return vcrdId2;
+	}
 
-    public void setVcrdId1(int vcrdId1) {
-        this.vcrdId1 = vcrdId1;
-    }
+	public void setVcrdId2(int vcrdId2) {
+		this.vcrdId2 = vcrdId2;
+	}
 
-    public int getVcrdId2() {
-        return vcrdId2;
-    }
+	public int getGlevel1() {
+		return glevel1;
+	}
 
-    public void setVcrdId2(int vcrdId2) {
-        this.vcrdId2 = vcrdId2;
-    }
+	public void setGlevel1(int glevel1) {
+		this.glevel1 = glevel1;
+	}
 
-    public int getGlevel1() {
-        return glevel1;
-    }
+	public int getGlevel2() {
+		return glevel2;
+	}
 
-    public void setGlevel1(int glevel1) {
-        this.glevel1 = glevel1;
-    }
+	public void setGlevel2(int glevel2) {
+		this.glevel2 = glevel2;
+	}
 
-    public int getGlevel2() {
-        return glevel2;
-    }
+	public String getVcord() {
+		return vcord;
+	}
 
-    public void setGlevel2(int glevel2) {
-        this.glevel2 = glevel2;
-    }
+	public void setVcord(String vcord) {
+		this.vcord = vcord;
+	}
 
-    public String getVcord() {
-        return vcord;
-    }
+	public String getParm() {
+		return parm;
+	}
 
-    public void setVcord(String vcord) {
-        this.vcord = vcord;
-    }
+	public void setParm(String parm) {
+		this.parm = parm;
+	}
 
-    public String getParm() {
-        return parm;
-    }
+	public String getScale() {
+		return scale;
+	}
 
-    public void setParm(String parm) {
-        this.parm = parm;
-    }
+	public void setScale(String scale) {
+		this.scale = scale;
+	}
 
-    public String getScale() {
-        return scale;
-    }
+	public int getInterval() {
+		return interval;
+	}
 
-    public void setScale(String scale) {
-        this.scale = scale;
-    }
+	public void setInterval(int interval) {
+		this.interval = interval;
+	}
 
-    public int getInterval() {
-        return interval;
-    }
+	/**
+	 * @return the decodedLevel1
+	 */
+	public float getDecodedLevel1() {
+		return decodedLevel1;
+	}
 
-    public void setInterval(int interval) {
-        this.interval = interval;
-    }
+	/**
+	 * @param decodedLevel1 the decodedLevel1 to set
+	 */
+	public void setDecodedLevel1(float decodedLevel1) {
+		this.decodedLevel1 = decodedLevel1;
+	}
+
+	/**
+	 * @return the decodedLevel2
+	 */
+	public float getDecodedLevel2() {
+		return decodedLevel2;
+	}
+
+	/**
+	 * @param decodedLevel2 the decodedLevel2 to set
+	 */
+	public void setDecodedLevel2(float decodedLevel2) {
+		this.decodedLevel2 = decodedLevel2;
+	}
 
 }

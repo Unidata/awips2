@@ -65,6 +65,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 22, 2010            mschenke     Initial creation
+ * Jan 31, 2012   14306    kshresth     Cursor readout as you sample the dispays
  * 
  * </pre>
  * 
@@ -390,8 +391,15 @@ public class SamplingResource extends
                         while (j < split.length) {
                             String s = split[j];
                             if (s.length() + line.length() <= approxLenPerStr) {
-                                if (!s.isEmpty()) {
-                                    line += " " + s;
+                                if (!s.isEmpty()){
+                                	if (j == split.length -1 && split[1].equalsIgnoreCase("=")) 
+                                	{
+                                	line = split[split.length-1];
+                                	}
+                                	else
+                                	{
+                                	line += " " + s;	
+                                	}
                                 } else {
                                     line += " ";
                                 }

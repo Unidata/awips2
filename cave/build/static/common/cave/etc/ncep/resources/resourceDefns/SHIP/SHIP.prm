@@ -1,8 +1,0 @@
-! Parameters UAIR Plot Resource
-legendString=SHIP
-levelKey=Surface
-plugin=sfcobs
-reportTypeKey=reportType
-reportTypeValue=1003
-spiFile=MTR.spi
-legend_color=RGB {0, 255, 0}
