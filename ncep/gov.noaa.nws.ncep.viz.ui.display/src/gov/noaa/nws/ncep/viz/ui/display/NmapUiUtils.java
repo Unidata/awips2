@@ -143,8 +143,7 @@ public class NmapUiUtils {
     }
 
     public static boolean bringToTop(AbstractEditor editor) {
-        // PlatformUI.getWorkbench().getActiveWorkbenchWindow().
-        // getActivePage().bringToTop(r.getPart(true));
+		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().bringToTop(editor);
         return false;
     }
 
@@ -206,9 +205,14 @@ public class NmapUiUtils {
                 edInput.setName(edtDispName);
             }
 
-            NCMapEditor new_editor = (NCMapEditor) PlatformUI.getWorkbench()
-                    .getActiveWorkbenchWindow().getActivePage()
-                    .openEditor(edInput, NatlCntrsEditorType);
+            IWorkbenchPage actPage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+            
+            if( actPage == null ) {
+            	return null;
+            }
+
+            NCMapEditor new_editor = 
+            	(NCMapEditor) actPage.openEditor(edInput, NatlCntrsEditorType);
 
             new_editor.setApplicationName(applicationName);
 
@@ -403,12 +407,13 @@ public class NmapUiUtils {
      * Modify the title of the CAVE to "CAVE:title".
      */
     public static final void setCaveTitle(String title) {
-        if (PlatformUI.getWorkbench().getActiveWorkbenchWindow() != null
-                && PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                        .getShell() != null) {
-            PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()
-                    .setText(CaveTitle + ":" + title);
-        }
+    	if (PlatformUI.getWorkbench().getActiveWorkbenchWindow() != null
+    			&& PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+    			.getShell() != null) {
+    		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()
+    		.setText(CaveTitle + ":" + title);
+    	}
+
     }
 
     /**

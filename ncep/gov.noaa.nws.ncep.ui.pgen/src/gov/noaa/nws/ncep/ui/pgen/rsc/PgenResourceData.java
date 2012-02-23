@@ -35,12 +35,14 @@ import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
 import gov.noaa.nws.ncep.ui.pgen.file.Products;
 import gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringControlDialog;
 import gov.noaa.nws.ncep.ui.pgen.productManage.ProductManageDialog;
+import gov.noaa.nws.ncep.ui.pgen.tools.AbstractPgenDrawingTool;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -55,6 +57,9 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
+import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
+import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
+import com.raytheon.viz.ui.tools.AbstractModalTool;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -93,6 +98,8 @@ public class PgenResourceData extends AbstractResourceData
 	private boolean multiSave = true;
 	private boolean needsSaving = false;
 	private int numberOfResources = 0;
+
+	private static final String PRD_GRAPHIC = "xml";
 	
 	public PgenResourceData() {
 		super();
@@ -336,26 +343,31 @@ public class PgenResourceData extends AbstractResourceData
 	}
 
 	/**
-	 *  Replace existing products with new products. 
+	 *  Replace the active product with a new product. 
 	 */
 	public void replaceProduct ( List<Product> prds ) {
-		
-		productList.clear();
-		
-		productList.addAll( prds );
+				
+		int index = 0;
+		if ( productList.size() > 0 ) {
+		    index = productList.indexOf( activeProduct );
+		    productList.set( index, prds.get(0) );		    
+		}
+		else {
+			productList.addAll( prds );
+		}
 		
 		/*
 		 *  Set active product and layer to start product management.
 		 */
-		activeProduct = productList.get( 0 );
-		activeLayer = productList.get( 0 ).getLayer( 0 );
+		activeProduct = productList.get( index );
+		activeLayer = productList.get( index ).getLayer( 0 );
 				
         startProductManage();
         
 	}	
 	
 	/**
-	 *  Append products to the existing products. 
+	 *  Add products to the existing products. 
 	 *  Rule: (1) If there is only a Default product with a Default layer in the 
 	 *            "productList" and no DEs in it. This empty product is removed
 	 *            before appending any products to "productList".
@@ -363,7 +375,7 @@ public class PgenResourceData extends AbstractResourceData
 	 *            it is appended but an warning message is provided to ask the user
 	 *            to change it to a different names.
 	 */
-	public void appendProduct( List<Product> prds ) {
+	public void addProduct( List<Product> prds ) {
 		
 		// remove the empty "Default" product
 		if ( productList.size() == 1 && productList.get(0).getName().equals( "Default") 
@@ -376,12 +388,18 @@ public class PgenResourceData extends AbstractResourceData
 			}
 			
 		}
+		
+		//Find the active Product.
+		int index = -1;
+		if ( productList.size() > 0 ) {
+			index = productList.indexOf( activeProduct );
+		}
 						
 		// Append all products
 		productList.addAll( prds );
 		
 		// check and inform duplicate product names.
-		boolean dup = false;
+/*		boolean dup = false;
 		for ( Product p : prds ) {
 			for ( Product p1 : productList ) {
 				if ( !p1.equals( p ) && p1.getName().equals( p.getName() ) ) {
@@ -398,31 +416,38 @@ public class PgenResourceData extends AbstractResourceData
             		"There are duplicate product names. \nThey need to be unique before saving!",
             		MessageDialog.INFORMATION, new String[]{"OK"}, 0);
             
-        	confirmDlg.open();			
+        	confirmDlg.open();
 		}
-		
+*/		
 		/*
 		 *  Set active product and layer to start layering control.
 		 */
-		activeProduct = productList.get( 0 );
-		activeLayer = productList.get( 0 ).getLayer( 0 );
+		if ( index < 0 ) {
+		    activeProduct = productList.get( 0 );
+		    activeLayer = productList.get( 0 ).getLayer( 0 );			
+		}
 		
         startProductManage();
 		       
 	}
 	
+
 	/**
-	 *  Merge products with the existing products. 
-	 *  Rule: (1) A product with different name or type is appended to the product list.
-	 *        (2) A product with same name and type as an existing one are merged as:
-	 *            a. The layers with different names than the layers in the matching 
-	 *               product is appended into the matching product.
-	 *            b. If a layer has the same name as a existing layer in the matching 
-	 *               product, all the DEs in the layer are added to the existing layer.
+	 *  Append the incoming activity to the active activity. 
+	 *  
+	 *  Rule: (1) If there is only ONE layer in the incoming activity, its contents is combined into 
+	 *            the active layer.
+	 *        (2) If there are more than one layer in the incoming activity, we will first try to match the 
+	 *            active layer with the incoming layers by this order:
+	 *            a. a layer with the same name as the active layers'
+	 *            b. a "Default" layer
 	 *            
+	 *            All other layers in the incoming activity will be matched against the layers in the 
+	 *            active activity by the layer's name.  If no match found, the incoming layer is attached 
+	 *            as a separate layer.
 	 *            
 	 */
-	public void mergeProduct( List<Product> prds ) {
+	public void appendProduct( List<Product> prds ) {
 		
 		// remove the empty "Default" product
 		if ( productList.size() == 1 && productList.get(0).getName().equals( "Default") 
@@ -436,53 +461,71 @@ public class PgenResourceData extends AbstractResourceData
 			
 		}
 		
-		List<Product> pList = new ArrayList<Product>();
-		pList.addAll( productList );
-		
-		for ( Product newp : prds ) {
-			
-			// try merge first
-			boolean merged = false;			
-			for ( Product oldp : pList ) {
-				if ( newp.getType().equals( oldp.getType() ) &&
-					 newp.getName().equals( oldp.getName() ) ) {					 
-					
-					// merge layers
-					for ( Layer newlyr : newp.getLayers() ) {
-						for ( Layer oldlyr : oldp.getLayers() ) {
-							if ( newlyr.getName().equals( oldlyr.getName() ) ) {
-								//merge DEs
-								oldlyr.add( newlyr.getDrawables() );
-							}
-							else {
-								//append layer
-								oldp.addLayer( newlyr );
-							}
+		/*
+		 * Incoming activity always has only one activity
+		 */
+		if ( productList.size() < 1 ) {
+			productList.add( prds.get(0) );
+			activeProduct = productList.get( 0 );
+			activeLayer = productList.get( 0 ).getLayer( 0 );
+		}
+		else {
+			int nlayers = prds.get(0).getLayers().size();
+
+			//Only one layer, combine them anyway
+			if ( nlayers == 1 ) {
+				activeLayer.add( prds.get(0).getLayers().get(0).getDrawables() );
+			}
+			else {
+				
+				ArrayList<Boolean>  layerUsed = new ArrayList<Boolean>();
+				for ( int ii = 0; ii < nlayers; ii++ ) {
+					layerUsed.add( false );
+				}
+				
+				// Find match for active layer
+				Layer matchLayer = prds.get(0).getLayer( activeLayer.getName() );
+				if ( matchLayer == null ) {
+					matchLayer = prds.get(0).getLayer( "Default" );
+				}
+				
+				if ( matchLayer != null ) {
+					activeLayer.add( matchLayer.getDrawables() );					
+				}
+				
+				// match other layers by name
+				int ii = 0;
+				for ( Layer lyr : prds.get(0).getLayers() ) {
+					if ( lyr == matchLayer ) {
+						layerUsed.set( ii, true );
+					}
+					else {
+						Layer mlyr = activeProduct.getLayer( lyr.getName() );
+						if ( mlyr != null ) {
+							mlyr.add( lyr.getDrawables() );
+							layerUsed.set( ii, true );
 						}
 					}
 					
-					merged = true;
-					break;
+					ii++;
 				}
-			}
-			
-			// Append the product
-			if ( !merged ) {				
-				productList.add( newp );
-			}
-			
+				
+				//append unused layers
+				int jj = 0;
+				for ( Layer lyr : prds.get(0).getLayers() ) {
+					if ( !layerUsed.get( jj ) ) {
+						activeProduct.addLayer( lyr );
+					}
+					
+					jj++;
+				}												
+			}						
 		}
-		
-		
-		/*
-		 *  Set active product and layer to start layering control.
-		 */
-		activeProduct = productList.get( 0 );
-		activeLayer = productList.get( 0 ).getLayer( 0 );
-		
+				
         startProductManage();
         
 	}
+
 	/**
 	 * Uses a PgenCommand to remove an element from the product list
 	 * @param de Element to be removed
@@ -667,9 +710,24 @@ public class PgenResourceData extends AbstractResourceData
 		}
 		
 		if ( PgenUtil.getPgenMode() == PgenMode.SINGLE ) PgenUtil.resetResourceData();
+		deactivatePgenTools();
 		
 	}
 
+	/**
+	 * De-activates all PGEN tools (called when PGEN resource is removed)
+	 */
+	private void deactivatePgenTools(){
+		AbstractVizPerspectiveManager mgr = VizPerspectiveListener.getCurrentPerspectiveManager();
+		if ( mgr != null ){
+			for (AbstractModalTool mt : mgr.getToolManager().getSelectedModalTools()){
+				if ( mt instanceof AbstractPgenDrawingTool){
+					((AbstractPgenDrawingTool)mt).deactivateTool();
+				}
+			}
+		}
+	}
+	
 	/*
 	 * deletes temp recovery file for this pgen resource data
 	 */
@@ -1027,4 +1085,111 @@ public class PgenResourceData extends AbstractResourceData
         }
         
     }
+    
+	/**
+	 * Saves all elements in a product to a configured file.
+	 * 
+     * Layers might be saved into individual files as well if "saveLayers" is 
+     * true for this product type.
+	 *
+	 */
+    public boolean saveOneProduct( Product prd, String outfile  ) {
+    	
+    	if ( prd == null ) {
+    		return false;
+    	}
+            	
+        ArrayList<Product> prds = new ArrayList<Product>();
+        prds.add( prd );
+                		
+        String filename = buildFileName( prd );         
+        if ( outfile != null ) {        	
+        	filename = new String( outfile ); 
+        }
+        
+        prd.setOutputFile( filename );
+               
+        //Write all products into one file.
+        Products filePrds = ProductConverter.convert( prds );
+        FileTools.write( filename, filePrds );          
+        
+        //Write each layer into a file if requested  	    	      	    	    
+	    if ( prd.isSaveLayers() ) {
+  	    	    	
+	        Product backupPrd = prd.copy();
+ 	    	//Save each layer
+  	    	for ( Layer lyr : prd.getLayers() ) {
+   	    	    backupPrd.clear();
+  	    		backupPrd.addLayer( lyr );
+
+  	    		prds.clear();                    	
+  	    		prds.add( backupPrd ); 
+  
+  	          	String outlyrfile = new String(  filename.substring(0, filename.length() - 4 ) 
+  	          			                           + "." + lyr.getName() + ".xml" );
+                       
+  	          	Products oneLayerPrd =  ProductConverter.convert( prds );
+  	    	    FileTools.write( outlyrfile, oneLayerPrd );                  	       	    	 		  	  	    	
+            }            
+        }
+	    
+        needsSaving = false;   
+        
+        return true;
+        
+    }
+	
+    /**
+	 * Saves all elements in the active product to a configured file.
+	 * 
+     * Layers might be saved into individual files as well if "saveLayers" is 
+     * true for this product type.
+	 */
+    public boolean saveCurrentProduct( String fileName ) {
+    	
+    	return saveOneProduct( getActiveProduct(), fileName );
+    }
+
+    /**
+	 * Saves all  products to their configured files.
+	 * 
+     * Layers might be saved into individual files as well if "saveLayers" is 
+     * true for this product type.
+	 */
+    public boolean saveAllProducts() {
+        
+    	for ( Product pp : productList ) {
+    	    String ofile = pp.getOutputFile();
+    	    pp.setInputFile( ofile );
+    		saveOneProduct( pp, ofile );
+        }
+        
+        return true;
+    }
+    
+    /*
+     * Build a full path file name for a product's configured path/output file name.
+     */
+    public String buildFileName( Product prd ) {
+        
+    	String sfile = null;
+    	if ( productManageDlg != null ) {
+    		sfile = productManageDlg.getPrdOutputFile( prd );
+    	}
+    	else {
+    		
+    		StringBuilder sdir = new StringBuilder();
+
+    		sdir.append( PgenUtil.getPgenOprDirectory() + File.separator + "Default." );
+    		
+    		sdir.append( PgenUtil.formatDate( Calendar.getInstance() ) + "." );
+    		
+    		sdir.append( Calendar.getInstance().get( Calendar.HOUR_OF_DAY ) + ".xml" );
+
+    		sfile = new String( sdir.toString() ); 
+    	}
+    	
+    	return sfile;
+    }
+    
 }
