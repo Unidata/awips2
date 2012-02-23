@@ -77,7 +77,9 @@ import com.raytheon.viz.gfe.core.wxvalue.WxValue;
  * ------------ ---------- ----------- --------------------------
  * 04/04/2008   1066       Dan Fitch   Initial Creation 
  * 11/11/2008   1666       njensen     Added procedure cmds
- * 06/24/09       1876      njensen     Publish updates inventory
+ * 06/24/2009   1876       njensen     Publish updates inventory
+ * 02/23/2012   1876       dgilling    Implement missing clearUndoParmList
+ *                                     function.
  * 
  * </pre>
  * 
@@ -107,6 +109,16 @@ public class ParmOp {
     public ParmOp(DataManager dataManager) {
         this.undoParmList = new HashSet<Parm>();
         this.dataManager = dataManager;
+    }
+
+    /**
+     * Removes a parm from the list that can be undone.
+     * 
+     * @param p
+     *            <code>Parm</code> to remove from the undo list.
+     */
+    public void clearUndoParmList(Parm p) {
+        undoParmList.remove(p);
     }
 
     /**
