@@ -952,8 +952,7 @@ public class PlotResource2 extends AbstractNatlCntrsResource<PlotResourceData, M
 	}
 	
 	@Override
-	// public void messageGenerated(String dataURI, String message) {
-        public void messageGenerated(int id, String message) {
+	 public void messageGenerated(String dataURI, String message) {
 	}
 
 	// generate a string used as the key for the StationMap
