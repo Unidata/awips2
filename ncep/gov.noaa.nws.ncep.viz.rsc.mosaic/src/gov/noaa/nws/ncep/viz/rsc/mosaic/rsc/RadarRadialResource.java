@@ -10,6 +10,7 @@ package gov.noaa.nws.ncep.viz.rsc.mosaic.rsc;
 
 import gov.noaa.nws.ncep.viz.ui.display.ColorBarFromColormap;
 
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,13 +61,6 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class RadarRadialResource  extends RadarImageResource<MapDescriptor> {
 	
-    @Override
-    protected void disposeInternal() {
-   
-        super.disposeInternal();
-    }
-
-
     private static String EAV_VALUE = "EAC.Value";
 
     /**
@@ -104,11 +98,12 @@ public class RadarRadialResource  extends RadarImageResource<MapDescriptor> {
         if (record != null) {
         	IRadarRecordMetadata radarRecord = record.radarCacheObject.getMetadata();
             if (record != null) {
-            	java.text.DecimalFormat df = new java.text.DecimalFormat("0.0");
-                return df.format( radarRecord.getTrueElevationAngle()) + " DEG";//new Amount(radarRecord.getElevation(), NonSI.FOOT);
+            	DecimalFormat df = new DecimalFormat("0.0");
+                
+            	return df.format( radarRecord.getTrueElevationAngle()) + NonSI.DEGREE_ANGLE.toString();                
             }
         }
-        return s;//0.0f;    	
+        return s;    	
     }
 
     /*
@@ -276,4 +271,5 @@ protected HashMap<String, RequestConstraint> queryList;//for legend DEG 2011-03-
         // TODO : how to migrate this to to11dr11? Or do we still need to do this?
 //		baseTile.resourceChanged(ChangeType.CAPABILITY, this.getCapability( ColorMapCapability.class));
 	}
+
 }

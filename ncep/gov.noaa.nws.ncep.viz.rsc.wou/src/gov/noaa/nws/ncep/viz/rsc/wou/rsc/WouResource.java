@@ -10,9 +10,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.Calendar;
+import java.util.Date;
 
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
@@ -33,16 +37,19 @@ import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 import gov.noaa.nws.ncep.ui.pgen.display.DisplayElementFactory;
 import gov.noaa.nws.ncep.ui.pgen.display.IDisplayable;
 import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
+import gov.noaa.nws.ncep.ui.pgen.elements.SymbolLocationSet;
 
 
 import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
 
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
 
@@ -78,6 +85,9 @@ import gov.noaa.nws.ncep.common.dataplugin.aww.AwwVtec;
  * ------------ ---------- ----------- --------------------------
  * 4 May 2010           Uma Josyula  Initial creation.
  * 01/10/11				Uma Josyula	 Made changes to preprocess update and event date
+ * 07/28/11      #450   Greg Hull    NcPathManager   
+ * 09/28/11             Xilin Guo    Made changes to create IWireframeShape for watch number 
+ * 12/27/11             Xilin Guo    Checked available watch data                          
  * 
  * </pre>
  * 
@@ -116,20 +126,58 @@ implements     INatlCntrsResource, IStationField {
 			String 				evProductClass;
 			String				evSignificance;
 
-
 		@Override
 		public DataTime getDataTime() {
 			return eventTime;
 		}
 	}
 
+	private class WouCntyRscData implements IRscDataObject {
+			String 				keyStr;       //used as a key string countyName/stateName
+			DataTime        	issueTime;     //  issue time from bulletin
+			DataTime            eventTime;
+			String 				reportType;   
+			float      			countyLat;
+			float      			countyLon;
+			      
+			LatLonPoint			countyPoints;
+			String				countyName,stateName;     
+			String 				eventType;
+
+
+			String              watchNumber;   //  watch number to be displayed
+			DataTime			evEndTime;
+			List<byte []>             g;
+            List<byte []>             countyGeo;
+			
+		@Override
+		public DataTime getDataTime() {
+			return eventTime;
+		}
+	}
+
+	private class WouData {
+		String 				key;// watchnumber
+		String 				reportType;
+		HashMap< String, WouCntyRscData> data;
+		int 				numOfActCnties;
+		IWireframeShape  	outlineShape;
+		IShadedShape  		shadedShape;
+		IWireframeShape 	unionShape;
+		Boolean				rebuild;
+		Boolean             colorCode;
+		RGB					color;
+		RGB					symbolColor;
+		int					symbolWidth;
+		int					symbolSize;
+	}
 
 	protected class FrameData extends AbstractFrameData {
-		HashMap<String, WouRscDataObj> wouDataMap;  
-
+		HashMap<String, WouData> wouFrameData;
+		
 		public FrameData(DataTime frameTime, int timeInt) {
 			super( frameTime, timeInt );
-			wouDataMap = new HashMap<String,WouRscDataObj>();
+			wouFrameData = new HashMap<String, WouData>();
 		}
 		@Override
 		public boolean updateFrameData( IRscDataObject rscDataObj ) {
@@ -139,13 +187,96 @@ implements     INatlCntrsResource, IStationField {
 				return false;
 			}
   
-			WouRscDataObj warnRscDataObj = (WouRscDataObj) rscDataObj;
-			WouRscDataObj existingWouData = wouDataMap.get(warnRscDataObj.datauri);
-			if( existingWouData == null || 
-					warnRscDataObj.issueTime.greaterThan( existingWouData.issueTime ) ) {//I doubt this condition
-				wouDataMap.put(warnRscDataObj.datauri, warnRscDataObj);
-			}
+			WouRscDataObj wouRscDataObj = (WouRscDataObj) rscDataObj;
+            updateEachWatchNumberData (wouRscDataObj);
 			return true;
+		}
+		
+		private void updateEachWatchNumberData (WouRscDataObj wouRscDataObj) {
+			String keyStr;
+
+			if ( wouRscDataObj.countyNames.size() <= 0 ) {
+				return;
+			}
+			WouData wData = wouFrameData.get(wouRscDataObj.watchNumber);
+			if (wData == null) {
+				wouFrameData.put(wouRscDataObj.watchNumber, createWouData(wouRscDataObj));
+				wData = wouFrameData.get(wouRscDataObj.watchNumber);
+			}
+			
+			for(int i = 0; i < wouRscDataObj.countyNames.size();i++) {
+			    keyStr = wouRscDataObj.countyNames.get(i)+"/" + wouRscDataObj.stateNames.get(i);
+			    //update county's status
+			    WouCntyRscData existingCntyWouData = wData.data.get(keyStr);
+			    if ( existingCntyWouData != null ) { 
+			    	if ( wouRscDataObj.issueTime.greaterThan(existingCntyWouData.issueTime) ) {
+			    		Boolean oldStatus = isDisplay(existingCntyWouData);
+			    		
+			    		existingCntyWouData.issueTime = wouRscDataObj.issueTime;
+			    		existingCntyWouData.eventTime = wouRscDataObj.eventTime;
+			    		existingCntyWouData.reportType = wouRscDataObj.reportType;
+			    		existingCntyWouData.countyLat = wouRscDataObj.countyLat[i];
+			    		existingCntyWouData.countyLon = wouRscDataObj.countyLon[i];
+			    		existingCntyWouData.countyPoints = wouRscDataObj.countyPoints.get(i);
+			    		existingCntyWouData.eventType = wouRscDataObj.eventType;
+			    		existingCntyWouData.evEndTime = wouRscDataObj.evEndTime;
+			    		Boolean newStatus = isDisplay(existingCntyWouData);
+			    		if ( (oldStatus != newStatus) && 
+			    				(wData.outlineShape !=null)) {
+			    			wData.rebuild = true;
+			    		}
+			    		if ( oldStatus != newStatus ) {
+			    			if ( newStatus ) wData.numOfActCnties ++;
+			    			else wData.numOfActCnties --;
+			    		}
+			    	}
+			    }
+			    else {
+			    	WouCntyRscData wouData = getCntyWonData(wouRscDataObj,i);
+			    	wData.data.put(keyStr, wouData);
+			    	if ( isDisplay (wouData)) {
+			    		wData.numOfActCnties ++;
+			    		if ( wData.outlineShape != null ) {
+			    			wData.rebuild = true;
+			    		}
+			    	}
+			    }
+			}
+		}
+		
+		
+		private WouData createWouData (WouRscDataObj wouRscDataObj) {
+			WouData wData = new WouData();
+			wData.key = wouRscDataObj.watchNumber;
+			wData.reportType = wouRscDataObj.reportType;
+			wData.data = new HashMap<String,WouCntyRscData>();
+			wData.numOfActCnties = 0;
+			wData.colorCode = false;
+			wData.rebuild = false;
+			return wData;
+		}
+		
+		private WouCntyRscData getCntyWonData (WouRscDataObj wouRscDataObj, int index ) {
+			WouCntyRscData cntyWouData = new WouCntyRscData() ;
+			
+		    cntyWouData.keyStr 			= wouRscDataObj.countyNames.get(index) + "/" + wouRscDataObj.stateNames.get(index);
+		    cntyWouData.issueTime		= new DataTime ();
+		    cntyWouData.issueTime 		= wouRscDataObj.issueTime;
+		    cntyWouData.eventTime 		= new DataTime();
+		    cntyWouData.eventTime 		= wouRscDataObj.eventTime;
+		    cntyWouData.reportType 		= wouRscDataObj.reportType;
+		    cntyWouData.countyLat 		= wouRscDataObj.countyLat[index];
+		    cntyWouData.countyLon 		= wouRscDataObj.countyLon[index];
+		    cntyWouData.countyPoints 	= wouRscDataObj.countyPoints.get(index);
+		    cntyWouData.countyName 		= wouRscDataObj.countyNames.get(index);
+		    cntyWouData.stateName 		= wouRscDataObj.stateNames.get(index);
+		    cntyWouData.eventType 		= wouRscDataObj.eventType;
+		    cntyWouData.watchNumber 	= wouRscDataObj.watchNumber;
+		    cntyWouData.evEndTime		= new DataTime();
+		    cntyWouData.evEndTime 		= wouRscDataObj.evEndTime;
+		    cntyWouData.g               = new ArrayList<byte []>();
+            cntyWouData.countyGeo       = new ArrayList<byte []>();
+			return cntyWouData;
 		}
 	}
 
@@ -170,6 +301,7 @@ implements     INatlCntrsResource, IStationField {
 	    //
 	    @Override
 		public IRscDataObject[] processRecord( Object pdo ) {
+
 			AwwRecord awwRecord = (AwwRecord) pdo;
 			ArrayList<WouRscDataObj> wouDataList = getAwwtData( awwRecord );
 			if( wouDataList == null ) {
@@ -184,10 +316,11 @@ implements     INatlCntrsResource, IStationField {
 		private ArrayList<WouRscDataObj> getAwwtData( AwwRecord awwRecord) {
 			WouRscDataObj wouStatusData = null;
 			List<WouRscDataObj> wouDataList = new ArrayList<WouRscDataObj>();
+
 					try{
 
-
 						Set<AwwUgc> awwUgc = awwRecord.getAwwUGC();
+
 						for (AwwUgc awwugcs : awwUgc) {
 							wouStatusData= new WouRscDataObj();
 							wouStatusData.issueTime =new DataTime(awwRecord.getIssueTime());
@@ -228,44 +361,40 @@ implements     INatlCntrsResource, IStationField {
 							int vtechNumber = awwugcs.getAwwVtecLine().size();
 							if(vtechNumber>0){ 
 								for (AwwVtec awwVtech : awwugcs.getAwwVtecLine()) {
-							wouStatusData.eventType			=awwVtech.getAction();
-							wouStatusData.evTrack			=awwVtech.getEventTrackingNumber();
-							wouStatusData.evEndTime			=new DataTime(awwVtech.getEventEndTime());
-							wouStatusData.evOfficeId		=awwVtech.getOfficeID();
-							wouStatusData.evPhenomena		=awwVtech.getPhenomena();
-							wouStatusData.evProductClass	=awwVtech.getProductClass();
-							wouStatusData.evSignificance	=awwVtech.getSignificance();
-							if((awwVtech.getAction().equalsIgnoreCase("COR"))||(awwVtech.getAction().equalsIgnoreCase("CAN"))
-									||(awwVtech.getAction().equalsIgnoreCase("EXP"))){
-								modifyList.add(wouStatusData);
-									}
+						            wouStatusData.eventType			=awwVtech.getAction();
+						            wouStatusData.evTrack			=awwVtech.getEventTrackingNumber();
+						            wouStatusData.evEndTime			=new DataTime(awwVtech.getEventEndTime());
+						            wouStatusData.evOfficeId		=awwVtech.getOfficeID();
+						            wouStatusData.evPhenomena		=awwVtech.getPhenomena();
+						            wouStatusData.evProductClass	=awwVtech.getProductClass();
+						            wouStatusData.evSignificance	=awwVtech.getSignificance();
+						            if((awwVtech.getAction().equalsIgnoreCase("COR"))||(awwVtech.getAction().equalsIgnoreCase("CAN"))
+						            			||(awwVtech.getAction().equalsIgnoreCase("EXP"))){
+						            	modifyList.add(wouStatusData);
+						            }
 								
-										if(awwVtech.getEventStartTime()!=null && awwVtech.getEventEndTime()!=null){
-											wouStatusData.eventTime=  new DataTime( awwVtech.getEventStartTime(),
-						    			              new TimeRange( awwVtech.getEventStartTime(),
-						    			            		  awwVtech.getEventEndTime() ));
-										}
-										else if (awwVtech.getEventEndTime()!=null){
-											wouStatusData.eventTime=  new DataTime( wouStatusData.issueTime.getRefTimeAsCalendar(),
-						    			              new TimeRange( wouStatusData.issueTime.getRefTimeAsCalendar(),
-						    			            		  awwVtech.getEventEndTime() ));
-										}
-										else if (awwVtech.getEventStartTime()!=null){
-											wouStatusData.eventTime=  new DataTime( awwVtech.getEventStartTime(),
-						    			              new TimeRange( awwVtech.getEventStartTime(),
-						    			            		  wouStatusData.issueTime.getRefTimeAsCalendar() ));
-										}
-										else{
-											wouStatusData.eventTime = wouStatusData.issueTime;
-										}
-									
-									
+						            if(awwVtech.getEventStartTime()!=null && awwVtech.getEventEndTime()!=null){
+						            	wouStatusData.eventTime=  new DataTime( awwVtech.getEventStartTime(),
+						    			             new TimeRange( awwVtech.getEventStartTime(),
+						    			            		 awwVtech.getEventEndTime() ));
+						            }
+						            else if (awwVtech.getEventEndTime()!=null){
+						            	wouStatusData.eventTime=  new DataTime( wouStatusData.issueTime.getRefTimeAsCalendar(),
+						    			             new TimeRange( wouStatusData.issueTime.getRefTimeAsCalendar(),
+						    			            		 awwVtech.getEventEndTime() ));
+						            }
+						            else if (awwVtech.getEventStartTime()!=null){
+						            	wouStatusData.eventTime=  new DataTime( awwVtech.getEventStartTime(),
+						    			             new TimeRange( awwVtech.getEventStartTime(),
+						    			            		 wouStatusData.issueTime.getRefTimeAsCalendar() ));
+						            }
+						            else{
+						            	wouStatusData.eventTime = wouStatusData.issueTime;
+						            }
 								}
 							}
 							wouDataList.add(wouStatusData);
-
 						}
-
 					}
 					catch(Exception e){
 						System.out.println("at line 212"+e);
@@ -309,7 +438,7 @@ implements     INatlCntrsResource, IStationField {
 		@Override
 		protected boolean preProcessFrameUpdate() {
 
-		modifyQueue();
+		//modifyQueue();
 			return true;
 		}
 
@@ -343,7 +472,9 @@ implements     INatlCntrsResource, IStationField {
 	}
 		public void initResource(IGraphicsTarget grphTarget) throws VizException {
 			font = grphTarget.initializeFont("Monospace", 14, new IFont.Style[] { IFont.Style.BOLD });
-			stationTable = new StationTable( LocalizationManager.getInstance().getFilename("countyStationFile") );
+			stationTable = new StationTable( 
+					NcPathManager.getInstance().getStaticFile( 
+							NcPathConstants.COUNTY_STN_TBL ).getAbsolutePath() );
 			HashMap<String, RequestConstraint> metadataMap =new HashMap<String, RequestConstraint>(resourceData.getMetadataMap());
 			metadataMap.put("issueOffice",new RequestConstraint("KWNS"));
 			metadataMap.put("wmoHeader",new RequestConstraint("WOUS64"));
@@ -357,8 +488,33 @@ implements     INatlCntrsResource, IStationField {
 		}
 
 	@Override
-	public void disposeInternal() {
+	protected void disposeInternal() {
+		super.disposeInternal();
+	}
 
+	private void clearFrameShapes (FrameData currFrameData) {
+		Collection<WouData> wouCntyDataValues = currFrameData.wouFrameData.values();
+        if ( wouCntyDataValues.size() <= 0 ) {
+        	return;
+        }
+        for( WouData wouData : wouCntyDataValues ) {
+        	clearWatchNumberShapes (wouData);
+        }
+	}
+	
+	private void clearWatchNumberShapes (WouData wouData){
+		if (wouData.outlineShape != null) {
+			wouData.outlineShape.dispose();
+			wouData.outlineShape = null;
+		}
+		if (wouData.shadedShape != null ) {
+			wouData.shadedShape.dispose();
+			wouData.shadedShape = null;
+		}
+		if ( wouData.unionShape !=null ) {
+			wouData.unionShape.dispose();
+			wouData.unionShape = null;
+		}
 	}
 
 	public void paintFrame( AbstractFrameData frameData, 
@@ -367,22 +523,22 @@ implements     INatlCntrsResource, IStationField {
 		if( paintProps == null ) {
 			return;
 		}
-
 		FrameData currFrameData = (FrameData) frameData;
 
 		RGB color = new RGB (155, 155, 155);
 		RGB symbolColor = new RGB (155, 155, 155);
-		LineStyle lineStyle = LineStyle.SOLID;
 		int symbolWidth = 2;
 		int symbolSize  = 2;
 
-		Collection<WouRscDataObj> wouDataValues = currFrameData.wouDataMap.values();
+		Collection<WouData> wouCntyDataValues = currFrameData.wouFrameData.values();
+        if ( wouCntyDataValues.size() <= 0 ) {
+        	return;
+        }
 
-		for( WouRscDataObj wouData : wouDataValues ) {
-			Boolean draw = false, drawLabel = true;
+		for( WouData wouData : wouCntyDataValues ) {
 
 			if(wouRscData.getColorCodeEnable()){
-				int watchNumberchoice =  Integer.parseInt(wouData.watchNumber)%10;
+				int watchNumberchoice =  Integer.parseInt(wouData.key)%10;
 			
 
 				switch(watchNumberchoice) {
@@ -485,98 +641,113 @@ implements     INatlCntrsResource, IStationField {
 					
 				}
 			}
+			wouData.color = new RGB (color.red,color.green, color.blue);
+			wouData.symbolColor = new RGB (symbolColor.red, symbolColor.green, symbolColor.blue);
+			wouData.symbolWidth = symbolWidth;
+			wouData.symbolSize = symbolSize;
 
 			if((((wouData.reportType).equalsIgnoreCase("SEVERE_THUNDERSTORM_WATCH")) &&(wouRscData.thunderstormEnable) ) ||
 					(((wouData.reportType).equalsIgnoreCase("TORNADO_WATCH_OUTLINE_UPDATE")) &&(wouRscData.tornadoEnable) ))	{
-			
-				draw=true;
-			}
-			//draw the polygon
-
-			if (draw){
-
-
-				if (wouRscData.getWatchBoxMarkerEnable()){
-					try{
-						Color[] colors = new Color[] {new Color(color.red, color.green, color.blue)};
-
-						for(int i = 0; i < wouData.countyNumPoints;i++) {
-
-							Coordinate coord = new Coordinate(
-									wouData.countyLon[i], wouData.countyLat[i] );					
-							Symbol pointSymbol = new Symbol(null,colors,symbolWidth, symbolSize*0.4 ,false,
-									coord,"Symbol","DIAMOND");
-							DisplayElementFactory df = new DisplayElementFactory( target, descriptor );
-							ArrayList<IDisplayable> displayEls = df.createDisplayElements( pointSymbol , paintProps );
-							for (IDisplayable each : displayEls) {
-								each.draw(target);
-								each.dispose();
-							}
-
-						}
+				
+				if( wouRscData.getWatchBoxOutlineEnable() || 
+						  wouRscData.getWatchBoxFillEnable() || 
+						  wouRscData.getWatchBoxUnionEnable() ){
+					if ( wouData.outlineShape == null ) {
+						queryCountyTable (wouData,target, paintProps);
+						rebuildCntyWireFrame (wouData,target, paintProps);
+						wouData.colorCode = wouRscData.getColorCodeEnable();
 					}
-					catch(Exception e){
-						System.out.println("error at line 392 "+e);
+					else if ( wouData.rebuild ){
+						queryCountyTable (wouData,target, paintProps);
+						rebuildCntyWireFrame (wouData,target, paintProps);
+						wouData.rebuild = false;
 					}
-
-				}
-				if (wouRscData.getWatchBoxFillEnable()){
-					drawCountyOutline(wouData,target,symbolColor,symbolWidth,lineStyle,paintProps,1);
-					drawTimeLabelWatchNumber(wouData,target,color);
-				}
-
-				if(wouRscData.getWatchBoxUnionEnable()){
-
-					drawLabel = false;	
-					double[] labelLatLon = { (wouData.countyLon[0]+wouData.countyLon[(wouData.countyNumPoints)/2])/2, 
-							(wouData.countyLat[0]+wouData.countyLat[(wouData.countyNumPoints)/2])/2 }; 
-
-					double[] labelPix = descriptor.worldToPixel( labelLatLon );
-					if( labelPix != null ){
-						String[] text = new String[2];
-						text[0]=null;text[1]=null;
-						if(wouRscData.getWatchBoxNumberEnable()){
-							text[0]=" "+wouData.watchNumber;
-						}
-						if(wouRscData.getWatchBoxTimeEnable()){
-							DataTime startTime = new DataTime( wouData.eventTime.getValidPeriod().getStart() );
-							DataTime endTime = new DataTime( wouData.eventTime.getValidPeriod().getEnd() );
-							text[1] = " "+startTime.toString().substring(11, 16)
-							+ "-" + endTime.toString().substring(11, 16);
-						}
-						target.drawStrings(font, text,   
-								labelPix[0], labelPix[1], 0.0, TextStyle.NORMAL,
-								new RGB[] {color, color},
-								HorizontalAlignment.LEFT, 
-								VerticalAlignment.MIDDLE );
+					if ( wouData.colorCode != wouRscData.getColorCodeEnable()) {
+						wouData.colorCode = wouRscData.getColorCodeEnable();
+						rebuildCntyWireFrame (wouData,target, paintProps);
 					}
-					drawCountyOutline(wouData,target,color,symbolWidth,lineStyle,paintProps,2);
-
-
-				}
-				else if(wouRscData.getWatchBoxOutlineEnable() ){
-
-					drawCountyOutline(wouData,target,color,symbolWidth,lineStyle,paintProps,0);
-				}
-
-				if(((wouRscData.getWatchBoxTimeEnable()||wouRscData.getWatchBoxLabelEnable()||wouRscData.getWatchBoxNumberEnable())
-						&&drawLabel)&&!wouRscData.watchBoxFillEnable) {
-					drawTimeLabelWatchNumber(wouData,target,color);
-
 				}
 			}
 
 		}//if draw = true
+		
+		if ( wouRscData.getWatchBoxFillEnable() ) {
+			if (wouRscData.thunderstormEnable) {
+				drawSevereThunderstormWatch (currFrameData,  target,paintProps, 2);
+			}
+			if (wouRscData.tornadoEnable) {
+				drawTornadoWatch (currFrameData,  target,paintProps, color, symbolWidth, 2);
+			}
+		}
+		if ( wouRscData.getWatchBoxUnionEnable() ) {
+			if (wouRscData.thunderstormEnable) {
+				drawSevereThunderstormWatchUnion (currFrameData,  target);
+			}
+			if (wouRscData.tornadoEnable) {
+				drawTornadoWatchUnion (currFrameData,  target);
+			}
+		}
+		else if ( wouRscData.getWatchBoxOutlineEnable() ) {
+			if (wouRscData.thunderstormEnable) {
+				drawSevereThunderstormWatch (currFrameData,  target,paintProps, 1);
+			}
+			if (wouRscData.tornadoEnable) {
+				drawTornadoWatch (currFrameData,  target,paintProps, color, symbolWidth, 1);
+			}
+		}
+		
+		if (wouRscData.getWatchBoxMarkerEnable()){
+			drawWatchBoxmarker (currFrameData,target,paintProps);
+		}
+
+		if((wouRscData.getWatchBoxTimeEnable()||
+				 wouRscData.getWatchBoxLabelEnable()||
+				 wouRscData.getWatchBoxNumberEnable())
+					&& (! wouRscData.getWatchBoxUnionEnable())) {
+			drawTimeLabelWatchNumber(currFrameData,target);
+		}
 	}
 
-	/* 0 for drawoutline
-	   1 for shaded shape
-	   2 for union*/
+	private void drawWatchBoxmarker (FrameData currFrameData,IGraphicsTarget target,PaintProperties paintProps ) throws VizException{
+		Collection<WouData> wouCntyDataValues = currFrameData.wouFrameData.values();
+		if ( wouCntyDataValues.size() <= 0 ) {
+        	return;
+        }
+		for( WouData wouData : wouCntyDataValues ) {
+			Collection<WouCntyRscData> wouDataValues = wouData.data.values();
+			if ( wouDataValues.size() <= 0 ) continue;
+			try{
+				Color[] colors = new Color[] {new Color(wouData.color.red, wouData.color.green, wouData.color.blue)};
+				for ( WouCntyRscData wData : wouDataValues) {
+					if ( ! isDisplay( wData) ) continue;
+					Coordinate coord = new Coordinate(
+						wData.countyLon, wData.countyLat );					
+					Symbol pointSymbol = new Symbol(null,colors,wouData.symbolWidth, wouData.symbolSize*0.4 ,false,
+							coord,"Symbol","FILLED_BOX");
+					DisplayElementFactory df = new DisplayElementFactory( target, descriptor );
+					ArrayList<IDisplayable> displayEls = df.createDisplayElements( pointSymbol , paintProps );
+					for (IDisplayable each : displayEls) {
+						each.draw(target);
+						each.dispose();
+					}
+				}
+			}
+			catch(Exception e){
+				System.out.println("error at line 392 "+e);
+			}
+		}
+	}
+	
+	public void queryCountyTable (WouData wouData,IGraphicsTarget target, PaintProperties paintProps) throws VizException{
+	
+		Envelope env = null;
+		String keyStr;
 
-	public void drawCountyOutline(WouRscDataObj wouData,IGraphicsTarget target,RGB color,int symbolWidth ,
-			LineStyle lineStyle,PaintProperties paintProps,int drawOutlineOrShadedshapeorUnion) throws VizException{
-		String countyName, stateName;
-		Envelope env = null;	
+		Collection<WouCntyRscData> wouCntyDataValues = wouData.data.values();
+		if ( wouCntyDataValues.size() <= 0 ) {
+        	return;
+        }
+		
 		try {
 			PixelExtent extent = (PixelExtent) paintProps.getView().getExtent();
 			Envelope e = descriptor.pixelToWorld(extent, descriptor.getCRS());
@@ -585,132 +756,292 @@ implements     INatlCntrsResource, IStationField {
 		} catch (Exception e) {
 			throw new VizException("Error transforming extent", e);
 		}
-		Collection<Geometry> gCollection = new ArrayList<Geometry>();;
 
 		String geoConstraint = String.format("the_geom_0_001 && ST_SetSrid('BOX3D(%f %f, %f %f)'::box3d,4326)",
 				env.getMinX(), env.getMinY(), env.getMaxX(), env.getMaxY());
-		for(int i = 0; i < wouData.countyNames.size();i++) {
-			countyName=wouData.countyNames.get(i);
-			stateName= wouData.stateNames.get(i);
-			if(countyName.contains("_")){
-				countyName=countyName.replace("_"," ");
-			}
-			StringBuilder query = new StringBuilder(
-					"select AsBinary(the_geom), AsBinary(the_geom_0_001) from mapdata.county where countyname ='");
-			query.append(countyName);
-			query.append("' AND  state ='");
-			query.append(stateName);
-			query.append("' AND ");
-			query.append(geoConstraint);
-			query.append(";");
-			List<Object[]> results = DirectDbQuery.executeQuery
-			(query.toString(), "maps", QueryLanguage.SQL);
-			IWireframeShape newOutlineShape = target.createWireframeShape(false, descriptor, 0.0f);
-			IShadedShape newShadedShape = target.createShadedShape(false,descriptor, true);
-			JTSCompiler jtsCompiler = new JTSCompiler(newShadedShape,newOutlineShape, descriptor, PointStyle.CROSS);
+	    StringBuilder query = new StringBuilder(
+		"select countyname, state, AsBinary(the_geom), AsBinary(the_geom_0_001) from mapdata.county where (");
+        int i = 0;
+	    for ( WouCntyRscData wData : wouCntyDataValues) {
+	    	if ( ! isDisplay( wData) || wData.g.size() > 0 ) continue;
+	    	if ( i != 0 ) {
+	    		query.append(" OR ");
+	    	}
+	    	query.append("(countyname LIKE '%");
+			query.append(wData.countyName.replace("_", " "));
+			query.append("%' AND  state ='");
+			query.append(wData.stateName);
+			query.append("')");
+			i ++;
+	    }
+	    if ( i == 0 ) return;
+         query.append(") AND ");
+         query.append(geoConstraint);
+		 query.append(";");
+		 List<Object[]> results = DirectDbQuery.executeQuery
+			        (query.toString(), "maps", QueryLanguage.SQL);
+		 WKBReader wkbReader = new WKBReader();
 
-			WKBReader wkbReader = new WKBReader();
-			for (Object[] result : results) {
-				int k = 0;
-				byte[] wkb = (byte[]) result[k+1];
-				byte[]wkb1=(byte[]) result[k];
-				Geometry g;
-				MultiPolygon countyGeo = null;
-				try {
-					g = wkbReader.read(wkb);
+		 for (Object[] result : results) {
+			String cntyName = getCountyName (wouCntyDataValues,result[0].toString().replace(" ", "_"),result[1].toString());
+			if ( cntyName == null ) {
+				keyStr = result[0].toString().replace(" ", "_") + "/" + result[1].toString();
+			}
+			else {
+				keyStr = cntyName + "/" + result[1].toString();
+			}
+			WouCntyRscData wouCntyData = wouData.data.get(keyStr);
+			if ( wouCntyData == null ) {
+                continue;
+			}
+			byte[] wkb = (byte[]) result[3];
+			byte[]wkb1=(byte[]) result[2];
+			Geometry g;
+			Geometry countyGeo = null;
+			try {
+				g = (Geometry) wkbReader.read(wkb);
+				if (!(g instanceof Point)) {
+//					if ( wouCntyData.g == null ) {
+//						wouCntyData.g = new byte[wkb.length];
+//						wouCntyData.g = wkb;
+//					}
+					wouCntyData.g.add(wkb);
+			    }
+				countyGeo= (Geometry)wkbReader.read(wkb1);
+				if ( countyGeo != null ){
+//					if ( wouCntyData.countyGeo == null ) {
+//						wouCntyData.countyGeo = new byte[wkb1.length];
+//						wouCntyData.countyGeo = wkb1;
+//					}
+					wouCntyData.countyGeo.add(wkb1);
+				}
+			} 
+		    catch (ParseException e) {
+			    e.printStackTrace();
+		    }
+		 }
+	}
+
+	public void rebuildCntyWireFrame (WouData wouData,IGraphicsTarget target, PaintProperties paintProps) throws VizException{
+
+		Collection<WouCntyRscData> wouCntyDataValues = wouData.data.values();
+		if ( wouData.numOfActCnties <= 0 ) {
+        	return;
+        }
+
+		clearWatchNumberShapes (wouData);
+		
+
+	     wouData.outlineShape  = target.createWireframeShape(false, descriptor, 0.0f);
+		 wouData.shadedShape  = target.createShadedShape(false,descriptor, true);
+		 JTSCompiler jtsCompiler = new JTSCompiler(wouData.shadedShape,wouData.outlineShape, descriptor, PointStyle.CROSS);
+		 WKBReader wkbReader = new WKBReader();
+
+		 int num = getAvailableData (wouCntyDataValues);
+		 if ( num == 0 ) return;
+		 Geometry []gunion = new Geometry[num];
+		 int i = 0;
+		 for (WouCntyRscData wData : wouCntyDataValues) {
+			 if ( ! isDisplay( wData) ) continue;
+			 if ( wData.g.size() == 0 || wData.countyGeo.size() == 0) continue;
+			Geometry g;
+
+			try {
+				for ( int j = 0; j < wData.g.size(); j ++ ) {
+					g = (Geometry) wkbReader.read(wData.g.get(j));
 					if (!(g instanceof Point)) {
-						jtsCompiler.handle(g, color);
+						jtsCompiler.handle(g, wouData.symbolColor);
 					}
-					countyGeo= (MultiPolygon)wkbReader.read(wkb1);
-					if ( countyGeo != null ){
-						gCollection.add(countyGeo);
-					}
+				
+					gunion[i] = (Geometry)wkbReader.read(wData.countyGeo.get(j));
+					i ++;
 				}
-				catch (VizException e) {
-					System.out.println("Error reprojecting map outline:"+e.getMessage());
-				}
-				catch (ParseException e) {
-					e.printStackTrace();
-				}
-			}
-			newOutlineShape.compile();
-			newShadedShape.compile();
-			float alpha = paintProps.getAlpha();
-			if(drawOutlineOrShadedshapeorUnion ==1){
-				if (newShadedShape != null && newShadedShape.isDrawable() ) {
-					target.drawShadedShape(newShadedShape, alpha);
-				}
-			}else if(drawOutlineOrShadedshapeorUnion ==0){
+				
+			} 
+		    catch (ParseException e) {
+			    e.printStackTrace();
+		    }
+		 }
+		 wouData.outlineShape.compile();
+		 wouData.shadedShape.compile();
+		 GeometryFactory gf = new GeometryFactory();
+		 GeometryCollection geometryCollection = gf.createGeometryCollection( gunion );
+         try{
+        	 wouData.unionShape  = target.createWireframeShape(false, descriptor, 0.0f);
+        	 JTSCompiler jts = new JTSCompiler(null,wouData.unionShape, descriptor, PointStyle.CROSS);
+        	 jts.handle(geometryCollection.union(), wouData.color);
+        	 wouData.unionShape.compile();
+         }
+         catch (Exception e) {
+                 e.printStackTrace();
+         }
 
-				if (newOutlineShape != null && newOutlineShape.isDrawable()){
-					target.drawWireframeShape(newOutlineShape, color,symbolWidth,lineStyle );
-				}
-			}
-		}
-		if(drawOutlineOrShadedshapeorUnion ==2){
-			IWireframeShape newUnionShape = target.createWireframeShape(false, descriptor, 0.0f);
-			JTSCompiler jtsCompile = new JTSCompiler(null,newUnionShape, descriptor, PointStyle.CROSS);
-			GeometryFactory gf = new GeometryFactory();
-
-			GeometryCollection geometryCollection =
-				(GeometryCollection) gf.buildGeometry( gCollection );
+	}
+	
+	public void drawTimeLabelWatchNumber (FrameData currFrameData,IGraphicsTarget target){
+		Collection<WouData> wouCntyDataValues = currFrameData.wouFrameData.values();
+		if ( wouCntyDataValues.size() <= 0 ) {
+        	return;
+        }
+		
+		for( WouData wouData : wouCntyDataValues ) {
+			Collection<WouCntyRscData> wouDataValues = wouData.data.values();
+			if ( wouDataValues.size() <= 0 ) continue;
 			try{
-			jtsCompile.handle(geometryCollection.union(), color);
-			newUnionShape.compile();
+				for ( WouCntyRscData wData : wouDataValues) {
+					if ( ! isDisplay( wData) ) continue;
 
-			if (newUnionShape != null && newUnionShape.isDrawable()){
-				target.drawWireframeShape(newUnionShape, color,symbolWidth,lineStyle );
-			}	
+					double[] labelLatLon = { wData.countyLon, wData.countyLat }; 
+					double[] labelPix = descriptor.worldToPixel( labelLatLon );
+
+					if( labelPix != null ){
+						String[] text = new String[3];
+						text[0]=" "+wData.watchNumber;
+						text[1]=" "+wData.countyName;
+						DataTime startTime = new DataTime( wData.eventTime.getValidPeriod().getStart() );
+						DataTime endTime = new DataTime( wData.eventTime.getValidPeriod().getEnd() );
+						text[2] =" " + startTime.toString().substring(11, 16) + "-"
+								+ endTime.toString().substring(11, 16);
+
+
+						if(!wouRscData.getWatchBoxTimeEnable() ){
+							//text[2] = null;
+							text[2] = "";
+						}
+
+						if(!wouRscData.getWatchBoxLabelEnable() ){
+							//text[1]=null;
+							text[1]="";
+						}
+
+						if(!wouRscData.getWatchBoxNumberEnable() ){
+							//text[0] = null;
+							text[0] = "";
+						}
+
+						target.drawStrings(font, text,   
+								labelPix[0], labelPix[1], 0.0, TextStyle.NORMAL,
+								new RGB[] {wouData.color, wouData.color, wouData.color},
+								HorizontalAlignment.LEFT, 
+								VerticalAlignment.MIDDLE );
+					}
+				}
 			}
-			catch (Exception e) {
-				e.printStackTrace();
+			catch(Exception e){
+				System.out.println("wouResource.java at Line 427"+e);
 			}
 		}
 	}
 
 
-	public void drawTimeLabelWatchNumber(WouRscDataObj wouData,IGraphicsTarget target,RGB color){
-		try{
-			for(int i = 0; i < wouData.countyNumPoints;i++) {
-				double[] labelLatLon = { wouData.countyLon[i], wouData.countyLat[i] }; 
-				double[] labelPix = descriptor.worldToPixel( labelLatLon );
+	private void drawSevereThunderstormWatch (FrameData currFrameData, IGraphicsTarget target,PaintProperties paintProps, int drawtype ) throws VizException{
+		LineStyle lineStyle = LineStyle.SOLID;
+		Collection<WouData> wouCntyDataValues = currFrameData.wouFrameData.values();
+        if ( wouCntyDataValues.size() <= 0 ) {
+        	return;
+        }
 
-				if( labelPix != null ){
-					String[] text = new String[3];
-					text[0]=" "+wouData.watchNumber;
-					text[1]=" "+wouData.countyNames.get(i);
-					DataTime startTime = new DataTime( wouData.eventTime.getValidPeriod().getStart() );
-					DataTime endTime = new DataTime( wouData.eventTime.getValidPeriod().getEnd() );
-					text[2] = " "+startTime.toString().substring(11, 16)
-					+ "-" + endTime.toString().substring(11, 16);
-					
-
-
-					if(!wouRscData.getWatchBoxTimeEnable() ){
-						//text[2] = null;
-						text[2] = "";
+		for( WouData wouData : wouCntyDataValues ) {
+			if ((wouData.reportType).equalsIgnoreCase("SEVERE_THUNDERSTORM_WATCH") ) {
+				if ( drawtype == 1) {
+					if ( wouData.outlineShape != null && wouData.outlineShape.isDrawable() ) {
+						target.drawWireframeShape(wouData.outlineShape, wouData.color, wouData.symbolWidth,lineStyle);
 					}
-
-					if(!wouRscData.getWatchBoxLabelEnable() ){
-						//text[1]=null;
-						text[1]="";
+				}
+				else {
+					if ( wouData.shadedShape != null && wouData.shadedShape.isDrawable()){
+						float alpha = paintProps.getAlpha();
+						target.drawShadedShape(wouData.shadedShape, alpha);
 					}
-
-					if(!wouRscData.getWatchBoxNumberEnable() ){
-						//text[0] = null;
-						text[0] = "";
-					}
-
-					target.drawStrings(font, text,   
-							labelPix[0], labelPix[1], 0.0, TextStyle.NORMAL,
-							new RGB[] {color, color, color},
-							HorizontalAlignment.LEFT, 
-							VerticalAlignment.MIDDLE );
 				}
 			}
 		}
-		catch(Exception e){
-			System.out.println("wouResource.java at Line 427"+e);
+	}
+	
+	private void drawSevereThunderstormWatchUnion (FrameData currFrameData, IGraphicsTarget target ) throws VizException{
+		LineStyle lineStyle = LineStyle.SOLID;
+		Collection<WouData> wouCntyDataValues = currFrameData.wouFrameData.values();
+        if ( wouCntyDataValues.size() <= 0 ) {
+        	return;
+        }
+        for( WouData wouData : wouCntyDataValues ) {
+        	if ((wouData.reportType).equalsIgnoreCase("SEVERE_THUNDERSTORM_WATCH") ) {
+        		if ( wouData.unionShape != null && wouData.unionShape.isDrawable()) {
+        			target.drawWireframeShape(wouData.unionShape,wouData.color, wouData.symbolWidth,lineStyle );
+        		}
+        	}
+        }
+	}
+	
+	private void drawTornadoWatch (FrameData currFrameData, IGraphicsTarget target,PaintProperties paintProps, RGB lineColor,int lineWidth, int drawtype ) throws VizException{
+		LineStyle lineStyle = LineStyle.SOLID;
+		Collection<WouData> wouCntyDataValues = currFrameData.wouFrameData.values();
+        if ( wouCntyDataValues.size() <= 0 ) {
+        	return;
+        }
+
+		for( WouData wouData : wouCntyDataValues ) {
+			if ((wouData.reportType).equalsIgnoreCase("TORNADO_WATCH_OUTLINE_UPDATE") ) {
+				if ( drawtype == 1) {
+					if ( wouData.outlineShape != null && wouData.outlineShape.isDrawable() ) {
+						target.drawWireframeShape(wouData.outlineShape, wouData.color, wouData.symbolWidth,lineStyle);
+					}
+				}
+				else {
+					if ( wouData.shadedShape != null && wouData.shadedShape.isDrawable()){
+						float alpha = paintProps.getAlpha();
+						target.drawShadedShape(wouData.shadedShape, alpha);
+					}
+				}
+			}
 		}
+	}
+	
+	private void drawTornadoWatchUnion (FrameData currFrameData, IGraphicsTarget target ) throws VizException{
+		LineStyle lineStyle = LineStyle.SOLID;
+		Collection<WouData> wouCntyDataValues = currFrameData.wouFrameData.values();
+        if ( wouCntyDataValues.size() <= 0 ) {
+        	return;
+        }
+        for( WouData wouData : wouCntyDataValues ) {
+        	if ((wouData.reportType).equalsIgnoreCase("TORNADO_WATCH_OUTLINE_UPDATE") ) {
+        		if ( wouData.unionShape != null && wouData.unionShape.isDrawable()) {
+        			target.drawWireframeShape(wouData.unionShape, wouData.color,wouData.symbolWidth,lineStyle );
+        		}
+        	}
+		}
+	}
+	
+	private Boolean isDisplay ( WouCntyRscData wData ) {
+		Boolean display = true;
+		if (wData.eventType.equalsIgnoreCase("CAN")||wData.eventType.equalsIgnoreCase("COR")
+				||wData.eventType.equalsIgnoreCase("EXP") ) {
+			display = false;
+		}
+		return display;
+	}
+	
+	private int getAvailableData (Collection<WouCntyRscData> wouCntyDataValues ) {
+		int num= 0;
+		
+		for (WouCntyRscData wData : wouCntyDataValues) {
+			 if ( ! isDisplay( wData) ) continue;
+			 if ( wData.g.size() == 0 || wData.countyGeo.size() == 0) continue;
+			 num += wData.g.size();
+		}
+		return num;
+	}
+	
+	private String getCountyName ( Collection<WouCntyRscData> wouCntyDataValues, String retCntyName, String retStName ){
+		String cntyName=null;
+		for (WouCntyRscData wData : wouCntyDataValues) {
+			 if ( ! isDisplay( wData) ) continue;
+			 if ( retCntyName.contains(wData.countyName) && wData.stateName.equalsIgnoreCase(retStName)) {
+				 cntyName = wData.countyName;
+				 break;
+			 }
+			 
+		}		
+		return cntyName;
 	}
 }
