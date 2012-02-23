@@ -1,0 +1,4 @@
+! Attributes for the GFSMOS resource with "12 hour POP" plot model
+!
+plotModelName=gfsmos_12hrpop
+plotDensity=10
