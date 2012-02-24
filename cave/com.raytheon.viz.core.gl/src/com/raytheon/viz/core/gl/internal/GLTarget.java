@@ -562,11 +562,9 @@ public class GLTarget implements IGLTarget {
 
         if (defaultFont != null) {
             defaultFont.disposeInternal();
-            defaultFont = null;
         }
         if (colorbarFont != null) {
             colorbarFont.disposeInternal();
-            colorbarFont = null;
         }
 
         theContext.destroyContext();
