@@ -34,6 +34,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------	----------	-----------	--------------------------
  * 09/10		304			B. Yin   	Initial Creation.
  * 09/10		305/306		B. Yin		Added Cloud and Turbulence
+ * 12/11		?			B. Yin		Added open/close line functions
  * 
  * </pre>
  * 
@@ -279,7 +280,12 @@ public class PgenLabeledLineDrawingTool extends AbstractPgenDrawingTool implemen
         	
         }
         
-        private void clearPoints(){
+        @Override
+		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
+			return true;
+		}
+
+		private void clearPoints(){
         	points.clear();
         }
 
@@ -302,8 +308,8 @@ public class PgenLabeledLineDrawingTool extends AbstractPgenDrawingTool implemen
 	}
 	
 	@Override
-	public void setDeleteHandler( boolean delLine, boolean flipFlag ){
-		setHandler(new PgenLabeledLineDelHandler(mapEditor, drawingLayer, this, attrDlg, delLine, flipFlag));
+	public void setDeleteHandler( boolean delLine, boolean flipFlag, boolean openClose ){
+		setHandler(new PgenLabeledLineDelHandler(mapEditor, drawingLayer, this, attrDlg, delLine, flipFlag, openClose));
 	}
 	
 }

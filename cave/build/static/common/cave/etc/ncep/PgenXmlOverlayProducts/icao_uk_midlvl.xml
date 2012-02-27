@@ -1,0 +1,911 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+  <Products xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
+    <Product name="Default" type="Default" forecaster="Default" center="Default" onOff="true" useFile="true" filePath="" fileName="">
+      <Layer name="Default" onOff="true" monoColor="false" filled="false">
+        <Color red="255" green="255" blue="0" alpha="255"/>
+        <DrawableElement>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 46.633457" Lon="-56.568073"/>
+            <Point Lat=" 47.462479" Lon="-56.059486"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 47.462479" Lon="-56.059486"/>
+            <Point Lat=" 48.967922" Lon="-55.080444"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 48.997101" Lon="-55.079422"/>
+            <Point Lat=" 51.605156" Lon="-53.187363"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 51.629307" Lon="-53.168541"/>
+            <Point Lat=" 54.257648" Lon="-50.952431"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 54.257648" Lon="-50.952431"/>
+            <Point Lat=" 56.842209" Lon="-48.385906"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 56.842209" Lon="-48.385906"/>
+            <Point Lat=" 59.246922" Lon="-45.543697"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 59.246922" Lon="-45.543697"/>
+            <Point Lat=" 62.803421" Lon="-40.188122"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 62.803421" Lon="-40.188122"/>
+            <Point Lat=" 64.961349" Lon="-35.938595"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 64.980919" Lon="-35.988129"/>
+            <Point Lat=" 64.961349" Lon="-35.938595"/>
+            <Point Lat=" 67.546936" Lon="-29.196693"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 67.546936" Lon="-29.196693"/>
+            <Point Lat=" 69.379173" Lon="-22.550537"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 69.379173" Lon="-22.550537"/>
+            <Point Lat=" 71.419495" Lon="-11.055575"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 71.419495" Lon="-11.055575"/>
+            <Point Lat=" 72.515373" Lon="  1.370587"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 72.520264" Lon="  1.467056"/>
+            <Point Lat=" 72.757370" Lon=" 10.505431"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 72.757599" Lon=" 10.604640"/>
+            <Point Lat=" 72.534508" Lon=" 20.246107"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 72.534508" Lon=" 20.246107"/>
+            <Point Lat=" 71.854279" Lon=" 29.301647"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 71.845039" Lon=" 29.391020"/>
+            <Point Lat=" 70.689728" Lon=" 37.980602"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 70.676445" Lon=" 38.059341"/>
+            <Point Lat=" 68.967667" Lon=" 46.241005"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 68.934059" Lon=" 46.373146"/>
+            <Point Lat=" 66.920853" Lon=" 53.159531"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 66.901451" Lon=" 53.214100"/>
+            <Point Lat=" 64.152382" Lon=" 59.733570"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 64.152382" Lon=" 59.733570"/>
+            <Point Lat=" 60.467731" Lon=" 65.956108"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 60.467731" Lon=" 65.956108"/>
+            <Point Lat=" 58.793617" Lon=" 68.183403"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 46.651749" Lon="-56.533512"/>
+            <Point Lat=" 46.052898" Lon="-54.535084"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 46.063622" Lon="-54.569016"/>
+            <Point Lat=" 45.213440" Lon="-52.042240"/>
+            <Point Lat=" 43.456779" Lon="-47.642506"/>
+            <Point Lat=" 42.229080" Lon="-45.031174"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 35.881546" Lon="-34.925827"/>
+            <Point Lat=" 31.687418" Lon="-30.135803"/>
+            <Point Lat=" 26.962553" Lon="-25.758938"/>
+            <Point Lat=" 25.001701" Lon="-24.176178"/>
+            <Point Lat=" 23.395132" Lon="-22.962589"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 58.770168" Lon=" 68.212563"/>
+            <Point Lat=" 58.009502" Lon=" 66.050552"/>
+            <Point Lat=" 57.060265" Lon=" 63.631145"/>
+            <Point Lat=" 55.975742" Lon=" 61.168964"/>
+            <Point Lat=" 54.824173" Lon=" 58.836205"/>
+            <Point Lat=" 53.894009" Lon=" 57.125675"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 53.875156" Lon=" 57.092426"/>
+            <Point Lat=" 52.901829" Lon=" 55.445137"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 52.901829" Lon=" 55.445137"/>
+            <Point Lat=" 51.729652" Lon=" 53.623516"/>
+            <Point Lat=" 50.350929" Lon=" 51.673634"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 50.350929" Lon=" 51.673634"/>
+            <Point Lat=" 48.326912" Lon=" 49.122795"/>
+            <Point Lat=" 46.493698" Lon=" 47.074501"/>
+            <Point Lat=" 45.357224" Lon=" 45.909512"/>
+            <Point Lat=" 44.171902" Lon=" 44.769066"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 44.171902" Lon=" 44.769066"/>
+            <Point Lat=" 43.059166" Lon=" 43.719673"/>
+            <Point Lat=" 40.093281" Lon=" 41.290268"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 40.080803" Lon=" 41.318169"/>
+            <Point Lat=" 38.012203" Lon=" 39.807522"/>
+            <Point Lat=" 36.714886" Lon=" 38.926224"/>
+            <Point Lat=" 34.788132" Lon=" 37.700245"/>
+            <Point Lat=" 32.707767" Lon=" 36.475319"/>
+            <Point Lat=" 31.186766" Lon=" 35.637352"/>
+            <Point Lat=" 29.431837" Lon=" 34.724648"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 29.411304" Lon=" 34.714291"/>
+            <Point Lat=" 28.347210" Lon=" 34.187149"/>
+            <Point Lat=" 26.362808" Lon=" 33.251720"/>
+          </Line>
+          <Line pgenType="LINE_DASHED_6" pgenCategory="Lines" lineWidth="3" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="165" blue="79" alpha="255"/>
+            <Point Lat=" 46.669880" Lon="-56.399601"/>
+            <Point Lat=" 48.389706" Lon="-55.267662"/>
+            <Point Lat=" 50.292896" Lon="-53.943081"/>
+          </Line>
+          <Line pgenType="LINE_DASHED_6" pgenCategory="Lines" lineWidth="3" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="165" blue="79" alpha="255"/>
+            <Point Lat=" 50.317005" Lon="-53.925434"/>
+            <Point Lat=" 51.992290" Lon="-52.687775"/>
+            <Point Lat=" 53.593018" Lon="-51.288269"/>
+          </Line>
+          <Line pgenType="LINE_DASHED_6" pgenCategory="Lines" lineWidth="3" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="165" blue="79" alpha="255"/>
+            <Point Lat=" 53.508312" Lon="-51.311520"/>
+            <Point Lat=" 55.748734" Lon="-49.244827"/>
+            <Point Lat=" 57.844021" Lon="-46.893742"/>
+            <Point Lat=" 58.749992" Lon="-45.853039"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 39.722977" Lon="-40.452450"/>
+            <Point Lat=" 38.337387" Lon="-38.298508"/>
+            <Point Lat=" 36.722626" Lon="-36.024616"/>
+            <Point Lat=" 35.897572" Lon="-34.988640"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 42.231537" Lon="-44.975292"/>
+            <Point Lat=" 39.227894" Lon="-39.658779"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 23.412561" Lon="-22.975389"/>
+            <Point Lat=" 21.969213" Lon="-21.941599"/>
+            <Point Lat=" 21.501326" Lon="-21.617233"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 21.490240" Lon="-21.635839"/>
+            <Point Lat=" 22.851837" Lon="-19.230629"/>
+            <Point Lat=" 23.575518" Lon="-17.840973"/>
+            <Point Lat=" 24.155542" Lon="-16.660633"/>
+            <Point Lat=" 24.839600" Lon="-15.180313"/>
+            <Point Lat=" 25.644695" Lon="-13.292080"/>
+            <Point Lat=" 26.265532" Lon="-11.704027"/>
+            <Point Lat=" 27.300032" Lon=" -8.718914"/>
+            <Point Lat=" 27.960676" Lon=" -6.504976"/>
+            <Point Lat=" 28.640266" Lon=" -3.844365"/>
+            <Point Lat=" 29.150816" Lon=" -1.442208"/>
+            <Point Lat=" 29.494040" Lon="  0.497258"/>
+            <Point Lat=" 29.810066" Lon="  2.692344"/>
+            <Point Lat=" 29.926548" Lon="  3.670543"/>
+            <Point Lat=" 30.221359" Lon="  7.150661"/>
+            <Point Lat=" 30.326031" Lon=" 10.030044"/>
+            <Point Lat=" 30.322617" Lon=" 12.180488"/>
+            <Point Lat=" 30.267004" Lon=" 13.961528"/>
+            <Point Lat=" 30.154320" Lon=" 15.867075"/>
+            <Point Lat=" 29.943535" Lon=" 18.175365"/>
+            <Point Lat=" 29.664623" Lon=" 20.383913"/>
+            <Point Lat=" 28.741270" Lon=" 25.403084"/>
+            <Point Lat=" 27.893610" Lon=" 28.743921"/>
+            <Point Lat=" 26.989805" Lon=" 31.666798"/>
+            <Point Lat=" 26.431370" Lon=" 33.256832"/>
+          </Line>
+          <Line pgenType="LINE_DASHED_6" pgenCategory="Lines" lineWidth="3" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="165" blue="79" alpha="255"/>
+            <Point Lat=" 44.250248" Lon="-49.155899"/>
+            <Point Lat=" 48.092541" Lon="-45.751282"/>
+            <Point Lat=" 51.823952" Lon="-41.647007"/>
+            <Point Lat=" 54.677837" Lon="-37.744198"/>
+          </Line>
+          <Line pgenType="LINE_DASHED_6" pgenCategory="Lines" lineWidth="3" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="165" blue="79" alpha="255"/>
+            <Point Lat=" 46.700222" Lon="-56.210567"/>
+            <Point Lat=" 44.275654" Lon="-49.217808"/>
+          </Line>
+          <Line pgenType="LINE_DASHED_6" pgenCategory="Lines" lineWidth="3" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="165" blue="79" alpha="255"/>
+            <Point Lat=" 58.443031" Lon="-45.908062"/>
+            <Point Lat=" 55.022640" Lon="-37.851280"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 35.962582" Lon=" 53.023922"/>
+            <Point Lat=" 35.962582" Lon=" 56.133965"/>
+            <Point Lat=" 35.962582" Lon=" 59.961716"/>
+            <Point Lat=" 35.962582" Lon=" 63.813389"/>
+            <Point Lat=" 35.962582" Lon=" 67.641144"/>
+            <Point Lat=" 35.962582" Lon=" 71.588509"/>
+            <Point Lat=" 35.962582" Lon=" 74.961708"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 35.962582" Lon=" 74.985641"/>
+            <Point Lat=" 35.962582" Lon=" 78.454536"/>
+            <Point Lat=" 35.962582" Lon=" 79.889938"/>
+            <Point Lat=" 35.962582" Lon=" 83.980850"/>
+            <Point Lat=" 35.962582" Lon=" 87.162666"/>
+            <Point Lat=" 35.962582" Lon=" 91.181801"/>
+            <Point Lat=" 35.962582" Lon=" 95.129173"/>
+            <Point Lat=" 35.962582" Lon=" 97.999985"/>
+            <Point Lat=" 35.962582" Lon=" 99.866013"/>
+            <Point Lat=" 35.962582" Lon="102.665054"/>
+            <Point Lat=" 35.962582" Lon="106.038261"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 35.962585" Lon="106.038269"/>
+            <Point Lat=" 35.962585" Lon="107.712914"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 35.962582" Lon="107.760750"/>
+            <Point Lat=" 32.401329" Lon="107.760750"/>
+            <Point Lat=" 29.133652" Lon="107.760750"/>
+            <Point Lat=" 25.844873" Lon="107.760750"/>
+            <Point Lat=" 23.123720" Lon="107.760750"/>
+            <Point Lat=" 20.234053" Lon="107.760750"/>
+            <Point Lat=" 19.152914" Lon="107.760750"/>
+            <Point Lat=" 16.832249" Lon="107.760750"/>
+            <Point Lat=" 14.065469" Lon="107.760750"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 35.943214" Lon=" 53.047840"/>
+            <Point Lat=" 35.242886" Lon=" 53.047840"/>
+            <Point Lat=" 34.339138" Lon=" 53.047840"/>
+            <Point Lat=" 32.844612" Lon=" 53.047840"/>
+            <Point Lat=" 31.344912" Lon=" 53.047840"/>
+            <Point Lat=" 29.675524" Lon=" 53.047840"/>
+            <Point Lat=" 28.441753" Lon=" 53.047840"/>
+            <Point Lat=" 26.767033" Lon=" 53.047840"/>
+            <Point Lat=" 25.197201" Lon=" 53.047840"/>
+            <Point Lat=" 22.991646" Lon=" 53.047840"/>
+            <Point Lat=" 20.435946" Lon=" 53.047840"/>
+            <Point Lat=" 18.836220" Lon=" 53.047840"/>
+            <Point Lat=" 16.488459" Lon=" 53.047840"/>
+            <Point Lat=" 13.949410" Lon=" 53.047840"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 13.995842" Lon=" 53.071766"/>
+            <Point Lat=" 11.710257" Lon=" 53.071766"/>
+            <Point Lat="  9.971591" Lon=" 53.071766"/>
+            <Point Lat="  8.909633" Lon=" 53.071766"/>
+            <Point Lat="  5.397085" Lon=" 53.071766"/>
+            <Point Lat="  2.007550" Lon=" 53.071766"/>
+            <Point Lat="  0.237622" Lon=" 53.071766"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat="  0.189777" Lon=" 53.095688"/>
+            <Point Lat="  0.189777" Lon=" 54.435398"/>
+            <Point Lat="  0.189777" Lon=" 55.679424"/>
+            <Point Lat="  0.189777" Lon=" 57.066978"/>
+            <Point Lat="  0.189777" Lon=" 59.172241"/>
+            <Point Lat="  0.189777" Lon=" 61.803825"/>
+            <Point Lat="  0.189777" Lon=" 64.555008"/>
+            <Point Lat="  0.189777" Lon=" 67.856453"/>
+            <Point Lat="  0.189777" Lon=" 70.153099"/>
+            <Point Lat="  0.189777" Lon=" 73.287071"/>
+            <Point Lat="  0.189777" Lon=" 75.775108"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat="  0.165851" Lon=" 75.775116"/>
+            <Point Lat="  0.165851" Lon=" 79.866020"/>
+            <Point Lat="  0.165851" Lon=" 83.071762"/>
+            <Point Lat="  0.165851" Lon=" 85.942574"/>
+            <Point Lat="  0.165851" Lon=" 88.909088"/>
+            <Point Lat="  0.165851" Lon=" 90.966499"/>
+            <Point Lat="  0.165851" Lon=" 92.425827"/>
+            <Point Lat="  0.165851" Lon=" 95.679420"/>
+            <Point Lat="  0.165851" Lon=" 98.645927"/>
+            <Point Lat="  0.165851" Lon="101.947365"/>
+            <Point Lat="  0.165851" Lon="104.507172"/>
+            <Point Lat="  0.165851" Lon="106.516739"/>
+            <Point Lat="  0.165851" Lon="107.569366"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 14.088678" Lon="107.760750"/>
+            <Point Lat=" 12.061417" Lon="107.760750"/>
+            <Point Lat=" 10.207123" Lon="107.760750"/>
+            <Point Lat="  7.631227" Lon="107.760750"/>
+            <Point Lat="  5.039730" Lon="107.760750"/>
+            <Point Lat="  1.888008" Lon="107.760750"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat="  1.888001" Lon="107.760757"/>
+            <Point Lat="  0.213696" Lon="107.760757"/>
+          </Line>
+          <Line pgenType="LINE_DASHED_6" pgenCategory="Lines" lineWidth="3" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="165" blue="79" alpha="255"/>
+            <Point Lat="  4.562935" Lon=" 53.143536"/>
+            <Point Lat="  4.562935" Lon=" 54.291862"/>
+            <Point Lat="  4.562935" Lon=" 55.607651"/>
+            <Point Lat="  4.562935" Lon=" 57.114830"/>
+            <Point Lat="  4.562935" Lon=" 59.076553"/>
+            <Point Lat="  4.562935" Lon=" 60.822964"/>
+            <Point Lat="  4.562935" Lon=" 63.023918"/>
+            <Point Lat="  4.562935" Lon=" 63.980858"/>
+          </Line>
+          <Line pgenType="LINE_DASHED_6" pgenCategory="Lines" lineWidth="3" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="165" blue="79" alpha="255"/>
+            <Point Lat="  4.491389" Lon=" 53.167461"/>
+            <Point Lat="  3.274119" Lon=" 53.143536"/>
+            <Point Lat="  1.911906" Lon=" 53.143536"/>
+          </Line>
+          <Line pgenType="LINE_DASHED_6" pgenCategory="Lines" lineWidth="3" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="165" blue="79" alpha="255"/>
+            <Point Lat="  1.959731" Lon=" 53.167461"/>
+            <Point Lat="  0.452930" Lon=" 53.167461"/>
+          </Line>
+          <Line pgenType="LINE_DASHED_6" pgenCategory="Lines" lineWidth="3" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="165" blue="79" alpha="255"/>
+            <Point Lat="  0.357239" Lon=" 53.167461"/>
+            <Point Lat="  0.333313" Lon=" 55.200954"/>
+            <Point Lat="  0.333313" Lon=" 56.755978"/>
+            <Point Lat="  0.333313" Lon=" 58.669853"/>
+            <Point Lat="  0.333313" Lon=" 60.200954"/>
+            <Point Lat="  0.333313" Lon=" 62.114826"/>
+            <Point Lat="  0.333313" Lon=" 64.004784"/>
+          </Line>
+          <Line pgenType="LINE_DASHED_6" pgenCategory="Lines" lineWidth="3" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="165" blue="79" alpha="255"/>
+            <Point Lat="  4.539084" Lon=" 64.028702"/>
+            <Point Lat="  3.536808" Lon=" 64.004784"/>
+            <Point Lat="  2.246613" Lon=" 64.028702"/>
+            <Point Lat="  0.931365" Lon=" 64.004784"/>
+            <Point Lat="  0.285468" Lon=" 64.004784"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 43.943615" Lon=" 16.495451"/>
+            <Point Lat=" 43.943615" Lon=" 17.701920"/>
+            <Point Lat=" 43.943615" Lon=" 18.720367"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 43.943615" Lon=" 18.736036"/>
+            <Point Lat=" 43.932331" Lon=" 19.942505"/>
+            <Point Lat=" 43.943615" Lon=" 21.039297"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 43.932331" Lon=" 21.023628"/>
+            <Point Lat=" 43.932331" Lon=" 22.935177"/>
+            <Point Lat=" 43.932331" Lon=" 24.611700"/>
+            <Point Lat=" 43.932331" Lon=" 26.115870"/>
+            <Point Lat=" 43.932331" Lon=" 27.416349"/>
+            <Point Lat=" 43.932331" Lon=" 28.810839"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 43.932331" Lon=" 28.826508"/>
+            <Point Lat=" 43.932331" Lon=" 30.268003"/>
+            <Point Lat=" 43.932331" Lon=" 31.772173"/>
+            <Point Lat=" 43.932331" Lon=" 33.229336"/>
+            <Point Lat=" 43.932331" Lon=" 34.686501"/>
+            <Point Lat=" 43.932331" Lon=" 35.783291"/>
+            <Point Lat=" 43.932331" Lon=" 37.021099"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 43.932331" Lon=" 37.036770"/>
+            <Point Lat=" 43.943615" Lon=" 38.681953"/>
+            <Point Lat=" 43.932331" Lon=" 41.094891"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 43.932331" Lon=" 41.110561"/>
+            <Point Lat=" 43.943615" Lon=" 42.567726"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 43.943615" Lon=" 42.552055"/>
+            <Point Lat=" 43.932331" Lon=" 44.134567"/>
+            <Point Lat=" 43.943615" Lon=" 46.124458"/>
+            <Point Lat=" 43.932331" Lon=" 47.847988"/>
+            <Point Lat=" 43.943615" Lon=" 49.665527"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 43.943615" Lon=" 49.665527"/>
+            <Point Lat=" 43.932331" Lon=" 51.216702"/>
+            <Point Lat=" 43.943615" Lon=" 52.673866"/>
+            <Point Lat=" 43.932331" Lon=" 54.334721"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 43.932331" Lon=" 54.334721"/>
+            <Point Lat=" 43.943615" Lon=" 55.650867"/>
+            <Point Lat=" 43.932331" Lon=" 57.343060"/>
+            <Point Lat=" 43.943615" Lon=" 59.207603"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 43.932331" Lon=" 59.191936"/>
+            <Point Lat=" 43.932331" Lon=" 61.526531"/>
+            <Point Lat=" 43.932331" Lon=" 63.171715"/>
+            <Point Lat=" 43.932331" Lon=" 65.004921"/>
+            <Point Lat=" 43.932331" Lon=" 66.665779"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 43.921047" Lon=" 66.712784"/>
+            <Point Lat=" 43.921047" Lon=" 67.966263"/>
+            <Point Lat=" 43.921047" Lon=" 69.172729"/>
+            <Point Lat=" 43.921047" Lon=" 70.332191"/>
+            <Point Lat=" 43.921047" Lon=" 70.567223"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 43.932331" Lon=" 16.996840"/>
+            <Point Lat=" 43.194359" Lon=" 17.012508"/>
+            <Point Lat=" 42.087929" Lon=" 17.012508"/>
+            <Point Lat=" 41.386429" Lon=" 17.012508"/>
+            <Point Lat=" 40.795998" Lon=" 17.012508"/>
+            <Point Lat=" 40.140400" Lon=" 17.012508"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 40.140400" Lon=" 17.028177"/>
+            <Point Lat=" 38.944260" Lon=" 17.028177"/>
+            <Point Lat=" 37.814285" Lon=" 17.028177"/>
+            <Point Lat=" 36.704449" Lon=" 17.028177"/>
+            <Point Lat=" 35.527355" Lon=" 17.028177"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 35.527355" Lon=" 17.028177"/>
+            <Point Lat=" 34.177326" Lon=" 17.043844"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 34.190289" Lon=" 17.043844"/>
+            <Point Lat=" 32.897495" Lon=" 17.043844"/>
+            <Point Lat=" 32.011681" Lon=" 17.043844"/>
+            <Point Lat=" 31.157463" Lon=" 17.043844"/>
+            <Point Lat=" 30.051649" Lon=" 17.043844"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 30.051649" Lon=" 17.043844"/>
+            <Point Lat=" 28.342031" Lon=" 17.028177"/>
+            <Point Lat=" 26.982086" Lon=" 17.043844"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 26.996048" Lon=" 17.043844"/>
+            <Point Lat=" 25.478264" Lon=" 17.043844"/>
+            <Point Lat=" 23.826471" Lon=" 17.043844"/>
+            <Point Lat=" 22.501225" Lon=" 17.043844"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 22.515697" Lon=" 17.059513"/>
+            <Point Lat=" 21.717350" Lon=" 17.059513"/>
+            <Point Lat=" 20.636206" Lon=" 17.059513"/>
+            <Point Lat=" 18.792547" Lon=" 17.059513"/>
+            <Point Lat=" 17.542042" Lon=" 17.059513"/>
+            <Point Lat=" 15.151674" Lon=" 17.059513"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 15.151674" Lon=" 17.059513"/>
+            <Point Lat=" 13.542673" Lon=" 17.075182"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 13.527442" Lon=" 17.059513"/>
+            <Point Lat=" 12.290399" Lon=" 17.075182"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 12.275092" Lon=" 17.075182"/>
+            <Point Lat=" 11.370276" Lon=" 17.090851"/>
+            <Point Lat=" 10.647417" Lon=" 17.090851"/>
+            <Point Lat=" 10.246793" Lon=" 17.090851"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 10.231370" Lon=" 17.075182"/>
+            <Point Lat=" 10.231370" Lon=" 18.187641"/>
+            <Point Lat=" 10.231370" Lon=" 18.971064"/>
+            <Point Lat=" 10.231370" Lon=" 20.475233"/>
+            <Point Lat=" 10.231370" Lon=" 22.057745"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 10.231370" Lon=" 22.057745"/>
+            <Point Lat=" 10.246793" Lon=" 23.859615"/>
+            <Point Lat=" 10.231370" Lon=" 25.692822"/>
+            <Point Lat=" 10.231370" Lon=" 26.617258"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 10.231370" Lon=" 26.617258"/>
+            <Point Lat=" 10.231370" Lon=" 29.750946"/>
+            <Point Lat=" 10.231370" Lon=" 31.411798"/>
+            <Point Lat=" 10.231370" Lon=" 32.649605"/>
+            <Point Lat=" 10.231370" Lon=" 33.699390"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 10.215955" Lon=" 33.683723"/>
+            <Point Lat=" 10.215955" Lon=" 35.266235"/>
+            <Point Lat=" 10.215955" Lon=" 36.880081"/>
+            <Point Lat=" 10.215955" Lon=" 38.337246"/>
+            <Point Lat=" 10.215955" Lon=" 39.935429"/>
+            <Point Lat=" 10.215955" Lon=" 41.815639"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 10.215955" Lon=" 41.815639"/>
+            <Point Lat=" 10.231370" Lon=" 43.648849"/>
+            <Point Lat=" 10.215955" Lon=" 45.153015"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 10.231370" Lon=" 45.168686"/>
+            <Point Lat=" 10.246793" Lon=" 47.346596"/>
+            <Point Lat=" 10.215955" Lon=" 48.803764"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 10.231370" Lon=" 48.803764"/>
+            <Point Lat=" 10.215955" Lon=" 51.185364"/>
+            <Point Lat=" 10.231370" Lon=" 52.893223"/>
+            <Point Lat=" 10.231370" Lon=" 55.682205"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 10.231370" Lon=" 55.697872"/>
+            <Point Lat=" 10.246793" Lon=" 57.092365"/>
+            <Point Lat=" 10.231370" Lon=" 58.800224"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 10.231370" Lon=" 58.847229"/>
+            <Point Lat=" 10.246793" Lon=" 60.194714"/>
+            <Point Lat=" 10.231370" Lon=" 61.526531"/>
+            <Point Lat=" 10.231370" Lon=" 63.782784"/>
+            <Point Lat=" 10.231370" Lon=" 66.070381"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 10.231370" Lon=" 66.086044"/>
+            <Point Lat=" 10.215955" Lon=" 67.762566"/>
+            <Point Lat=" 10.231370" Lon=" 69.094383"/>
+            <Point Lat=" 10.215955" Lon=" 70.034492"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 43.909756" Lon=" 69.971817"/>
+            <Point Lat=" 42.180882" Lon=" 69.971817"/>
+            <Point Lat=" 40.961853" Lon=" 69.971817"/>
+            <Point Lat=" 40.092476" Lon=" 69.971817"/>
+            <Point Lat=" 39.308903" Lon=" 69.971817"/>
+            <Point Lat=" 37.826664" Lon=" 69.987488"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 37.826664" Lon=" 69.971817"/>
+            <Point Lat=" 36.641609" Lon=" 69.956146"/>
+            <Point Lat=" 36.048458" Lon=" 69.971817"/>
+            <Point Lat=" 35.092632" Lon=" 69.971817"/>
+            <Point Lat=" 34.332737" Lon=" 69.971817"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 34.345673" Lon=" 69.987488"/>
+            <Point Lat=" 32.382931" Lon=" 69.971817"/>
+            <Point Lat=" 30.740896" Lon=" 69.987488"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 30.727428" Lon=" 70.003159"/>
+            <Point Lat=" 29.234594" Lon=" 70.003159"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 29.248268" Lon=" 70.003159"/>
+            <Point Lat=" 28.038219" Lon=" 70.018822"/>
+            <Point Lat=" 26.380089" Lon=" 70.034492"/>
+            <Point Lat=" 24.740507" Lon=" 70.018822"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 28.699976" Lon=" 70.003159"/>
+            <Point Lat=" 26.982086" Lon=" 69.987488"/>
+            <Point Lat=" 25.336735" Lon=" 70.003159"/>
+            <Point Lat=" 24.270031" Lon=" 70.003159"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 24.284313" Lon=" 70.003159"/>
+            <Point Lat=" 22.501225" Lon=" 69.987488"/>
+            <Point Lat=" 20.180975" Lon=" 70.003159"/>
+            <Point Lat=" 18.242834" Lon=" 69.987488"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 18.227951" Lon=" 69.987488"/>
+            <Point Lat=" 16.493288" Lon=" 69.971817"/>
+            <Point Lat=" 14.924693" Lon=" 69.987488"/>
+            <Point Lat=" 13.222576" Lon=" 69.987488"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="1" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 13.298828" Lon=" 69.987488"/>
+            <Point Lat=" 11.922723" Lon=" 69.987488"/>
+            <Point Lat=" 10.231370" Lon=" 69.987488"/>
+          </Line>
+          <Line pgenType="LINE_DASHED_6" pgenCategory="Lines" lineWidth="3" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="165" blue="79" alpha="255"/>
+            <Point Lat=" 10.416687" Lon=" 17.273495"/>
+            <Point Lat=" 10.370412" Lon=" 20.895809"/>
+            <Point Lat=" 10.416687" Lon=" 24.941511"/>
+            <Point Lat=" 10.462948" Lon=" 28.234528"/>
+          </Line>
+          <Line pgenType="LINE_DASHED_6" pgenCategory="Lines" lineWidth="3" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="165" blue="79" alpha="255"/>
+            <Point Lat=" 10.370412" Lon=" 17.320538"/>
+            <Point Lat=" 13.133538" Lon=" 17.320538"/>
+            <Point Lat=" 14.913458" Lon=" 17.320538"/>
+          </Line>
+          <Line pgenType="LINE_DASHED_6" pgenCategory="Lines" lineWidth="3" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="165" blue="79" alpha="255"/>
+            <Point Lat=" 14.958913" Lon=" 17.320538"/>
+            <Point Lat=" 14.958913" Lon=" 20.284248"/>
+            <Point Lat=" 14.958913" Lon=" 23.436134"/>
+            <Point Lat=" 14.958913" Lon=" 26.258717"/>
+            <Point Lat=" 14.958913" Lon=" 28.140440"/>
+          </Line>
+          <Line pgenType="LINE_DASHED_6" pgenCategory="Lines" lineWidth="3" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="165" blue="79" alpha="255"/>
+            <Point Lat=" 14.958913" Lon=" 28.281570"/>
+            <Point Lat=" 13.362493" Lon=" 28.328611"/>
+            <Point Lat=" 11.663312" Lon=" 28.281570"/>
+            <Point Lat=" 10.462948" Lon=" 28.281570"/>
+          </Line>
+          <Line pgenType="LINE_DASHED_6" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="165" blue="79" alpha="255"/>
+            <Point Lat=" 46.507839" Lon="-55.178211"/>
+            <Point Lat=" 57.964451" Lon="-44.735619"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="2" closed="false" filled="true" fillPattern="FILL_PATTERN_2" flipSide="false">
+            <Color red="145" green="44" blue="238" alpha="255"/>
+            <Point Lat=" 30.096968" Lon=" 64.497322"/>
+            <Point Lat=" 28.089014" Lon=" 66.029366"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="2" closed="false" filled="true" fillPattern="FILL_PATTERN_2" flipSide="false">
+            <Color red="145" green="44" blue="238" alpha="255"/>
+            <Point Lat=" 28.046762" Lon=" 66.077248"/>
+            <Point Lat=" 35.017277" Lon=" 69.045586"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="2" closed="false" filled="true" fillPattern="FILL_PATTERN_2" flipSide="false">
+            <Color red="145" green="44" blue="238" alpha="255"/>
+            <Point Lat=" 35.056473" Lon=" 69.093460"/>
+            <Point Lat=" 35.134819" Lon=" 73.976852"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="2" closed="false" filled="true" fillPattern="FILL_PATTERN_2" flipSide="false">
+            <Color red="145" green="44" blue="238" alpha="255"/>
+            <Point Lat=" 35.134819" Lon=" 73.928978"/>
+            <Point Lat=" 34.505962" Lon=" 73.498093"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="2" closed="false" filled="true" fillPattern="FILL_PATTERN_2" flipSide="false">
+            <Color red="145" green="44" blue="238" alpha="255"/>
+            <Point Lat=" 34.505962" Lon=" 73.450211"/>
+            <Point Lat=" 30.096968" Lon=" 81.014687"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="2" closed="false" filled="true" fillPattern="FILL_PATTERN_2" flipSide="false">
+            <Color red="145" green="44" blue="238" alpha="255"/>
+            <Point Lat=" 30.055542" Lon=" 81.062561"/>
+            <Point Lat=" 30.096968" Lon=" 82.020088"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="2" closed="false" filled="true" fillPattern="FILL_PATTERN_2" flipSide="false">
+            <Color red="145" green="44" blue="238" alpha="255"/>
+            <Point Lat=" 30.096968" Lon=" 82.020088"/>
+            <Point Lat=" 29.014185" Lon=" 82.498856"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="2" closed="false" filled="true" fillPattern="FILL_PATTERN_2" flipSide="false">
+            <Color red="145" green="44" blue="238" alpha="255"/>
+            <Point Lat=" 29.014185" Lon=" 82.498856"/>
+            <Point Lat=" 28.004505" Lon=" 85.084183"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="2" closed="false" filled="true" fillPattern="FILL_PATTERN_2" flipSide="false">
+            <Color red="145" green="44" blue="238" alpha="255"/>
+            <Point Lat=" 28.004505" Lon=" 85.084183"/>
+            <Point Lat=" 27.962227" Lon=" 93.031662"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="2" closed="false" filled="true" fillPattern="FILL_PATTERN_2" flipSide="false">
+            <Color red="145" green="44" blue="238" alpha="255"/>
+            <Point Lat=" 28.004505" Lon=" 93.031662"/>
+            <Point Lat=" 29.515377" Lon=" 94.994598"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="2" closed="false" filled="true" fillPattern="FILL_PATTERN_2" flipSide="false">
+            <Color red="145" green="44" blue="238" alpha="255"/>
+            <Point Lat=" 29.515377" Lon=" 95.042473"/>
+            <Point Lat=" 28.004505" Lon=" 96.000000"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="2" closed="false" filled="true" fillPattern="FILL_PATTERN_2" flipSide="false">
+            <Color red="145" green="44" blue="238" alpha="255"/>
+            <Point Lat=" 28.004505" Lon=" 96.000000"/>
+            <Point Lat=" 27.708204" Lon=" 98.010811"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="2" closed="false" filled="true" fillPattern="FILL_PATTERN_2" flipSide="false">
+            <Color red="145" green="44" blue="238" alpha="255"/>
+            <Point Lat=" 27.708204" Lon=" 98.010811"/>
+            <Point Lat=" 25.525475" Lon=" 99.016212"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="2" closed="false" filled="true" fillPattern="FILL_PATTERN_2" flipSide="false">
+            <Color red="145" green="44" blue="238" alpha="255"/>
+            <Point Lat=" 25.525475" Lon=" 99.016212"/>
+            <Point Lat=" 25.525475" Lon="100.021622"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="2" closed="false" filled="true" fillPattern="FILL_PATTERN_2" flipSide="false">
+            <Color red="145" green="44" blue="238" alpha="255"/>
+            <Point Lat=" 25.568668" Lon="100.069496"/>
+            <Point Lat=" 28.510553" Lon="102.989960"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="2" closed="false" filled="true" fillPattern="FILL_PATTERN_2" flipSide="false">
+            <Color red="145" green="44" blue="238" alpha="255"/>
+            <Point Lat=" 28.510553" Lon="103.037834"/>
+            <Point Lat=" 29.515377" Lon="101.505791"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="2" closed="false" filled="true" fillPattern="FILL_PATTERN_2" flipSide="false">
+            <Color red="145" green="44" blue="238" alpha="255"/>
+            <Point Lat=" 29.557028" Lon="101.553665"/>
+            <Point Lat=" 30.510317" Lon="102.032433"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="2" closed="false" filled="true" fillPattern="FILL_PATTERN_2" flipSide="false">
+            <Color red="145" green="44" blue="238" alpha="255"/>
+            <Point Lat=" 30.510317" Lon="102.032433"/>
+            <Point Lat=" 30.014090" Lon="102.511192"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="2" closed="false" filled="true" fillPattern="FILL_PATTERN_2" flipSide="false">
+            <Color red="145" green="44" blue="238" alpha="255"/>
+            <Point Lat=" 30.014090" Lon="102.511192"/>
+            <Point Lat=" 35.991623" Lon="105.096519"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="2" closed="false" filled="true" fillPattern="FILL_PATTERN_2" flipSide="false">
+            <Color red="145" green="44" blue="238" alpha="255"/>
+            <Point Lat=" 36.069057" Lon=" 85.132057"/>
+            <Point Lat=" 36.107746" Lon=" 85.132057"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="2" closed="false" filled="true" fillPattern="FILL_PATTERN_2" flipSide="false">
+            <Color red="145" green="44" blue="238" alpha="255"/>
+            <Point Lat=" 36.030350" Lon=" 64.593079"/>
+            <Point Lat=" 35.991623" Lon="105.096519"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="2" closed="false" filled="true" fillPattern="FILL_PATTERN_2" flipSide="false">
+            <Color red="145" green="44" blue="238" alpha="255"/>
+            <Point Lat=" 36.030350" Lon=" 64.593079"/>
+            <Point Lat=" 30.096968" Lon=" 64.545197"/>
+          </Line>
+          <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="0" closed="false" filled="true" fillPattern="FILL_PATTERN_2" flipSide="false">
+            <Color red="255" green="0" blue="255" alpha="255"/>
+            <Point Lat=" 36.030350" Lon=" 64.593079"/>
+            <Point Lat=" 30.055542" Lon=" 64.545197"/>
+            <Point Lat=" 28.046762" Lon=" 66.077248"/>
+            <Point Lat=" 35.056473" Lon=" 69.093460"/>
+            <Point Lat=" 35.134819" Lon=" 73.976852"/>
+            <Point Lat=" 34.466503" Lon=" 73.402336"/>
+            <Point Lat=" 30.096968" Lon=" 81.014687"/>
+            <Point Lat=" 30.055542" Lon=" 82.020088"/>
+            <Point Lat=" 29.014185" Lon=" 82.498856"/>
+            <Point Lat=" 28.004505" Lon=" 85.179932"/>
+            <Point Lat=" 27.962227" Lon=" 92.983788"/>
+            <Point Lat=" 29.557028" Lon=" 95.042473"/>
+            <Point Lat=" 27.962227" Lon=" 96.047874"/>
+            <Point Lat=" 27.708204" Lon=" 98.058693"/>
+            <Point Lat=" 25.568668" Lon=" 99.016212"/>
+            <Point Lat=" 25.568668" Lon="100.069496"/>
+            <Point Lat=" 28.594660" Lon="102.989960"/>
+            <Point Lat=" 29.557028" Lon="101.505791"/>
+            <Point Lat=" 30.675163" Lon="102.032433"/>
+            <Point Lat=" 30.096968" Lon="102.511192"/>
+            <Point Lat=" 36.069057" Lon="105.144394"/>
+            <Point Lat=" 36.030350" Lon=" 64.545197"/>
+          </Line>
+          <Line pgenType="LINE_DASHED_6" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="165" blue="79" alpha="255"/>
+            <Point Lat=" 35.901546" Lon=" 53.143600"/>
+            <Point Lat=" 35.901546" Lon=" 64.536118"/>
+          </Line>
+          <Line pgenType="LINE_DASHED_6" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="165" blue="79" alpha="255"/>
+            <Point Lat=" 35.043934" Lon=" 53.095734"/>
+            <Point Lat=" 35.004738" Lon=" 64.536118"/>
+          </Line>
+          <Line pgenType="LINE_DASHED_6" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="165" blue="79" alpha="255"/>
+            <Point Lat=" 35.901546" Lon=" 53.095734"/>
+            <Point Lat=" 35.083118" Lon=" 53.143600"/>
+          </Line>
+          <Line pgenType="LINE_DASHED_6" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="165" blue="79" alpha="255"/>
+            <Point Lat=" 35.862762" Lon=" 64.583984"/>
+            <Point Lat=" 35.083118" Lon=" 64.583984"/>
+          </Line>
+          <Line pgenType="LINE_DASHED_6" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="165" blue="79" alpha="255"/>
+            <Point Lat=" 43.830555" Lon=" 17.085321"/>
+            <Point Lat=" 43.830555" Lon=" 27.905224"/>
+          </Line>
+          <Line pgenType="LINE_DASHED_6" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="165" blue="79" alpha="255"/>
+            <Point Lat=" 43.113636" Lon=" 17.038279"/>
+            <Point Lat=" 43.113636" Lon=" 27.952267"/>
+          </Line>
+          <Line pgenType="LINE_DASHED_6" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="165" blue="79" alpha="255"/>
+            <Point Lat=" 43.830555" Lon=" 17.085321"/>
+            <Point Lat=" 43.182281" Lon=" 17.132364"/>
+          </Line>
+          <Line pgenType="LINE_DASHED_6" pgenCategory="Lines" lineWidth="2" sizeScale="  1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+            <Color red="255" green="165" blue="79" alpha="255"/>
+            <Point Lat=" 43.796604" Lon=" 27.952267"/>
+            <Point Lat=" 43.147964" Lon=" 27.952267"/>
+          </Line>
+        </DrawableElement>
+      </Layer>
+    </Product>
+  </Products>

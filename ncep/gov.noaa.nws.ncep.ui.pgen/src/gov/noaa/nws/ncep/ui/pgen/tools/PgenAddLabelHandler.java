@@ -225,7 +225,7 @@ public class PgenAddLabelHandler extends InputHandlerDefaultImpl {
      */
     @Override
     public boolean handleMouseMove(int x, int y) {
-    	
+
     	LabeledLine l = prevTool.getLabeledLine(); 
     	if(l!=null && l instanceof gov.noaa.nws.ncep.ui.pgen.sigmet.Ccfp)
     		return handleCcfpMouseMove(x,y);
@@ -248,7 +248,12 @@ public class PgenAddLabelHandler extends InputHandlerDefaultImpl {
     	
     }
 
-    /**
+    @Override
+	public boolean handleMouseDownMove(int x, int y, int mouseButton) {
+		return true;
+	}
+
+	/**
      * Create label for line ln at location loc.
      * @param loc
      * @return
