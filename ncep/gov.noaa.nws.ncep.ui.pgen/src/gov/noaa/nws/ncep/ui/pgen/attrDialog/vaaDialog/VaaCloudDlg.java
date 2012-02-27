@@ -50,8 +50,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 01/10		#165		G. Zhang   	Initial Creation.
- *
- * 04/11		#?			B. Yin			Re-factor IAttribute
+ * 04/11		#?			B. Yin		Re-factor IAttribute
+ * 10/11		#?			J. Wu		Link color/FHR with layer.
  * </pre>
  * 
  * @author	G. Zhang
@@ -229,6 +229,13 @@ public class VaaCloudDlg extends AttrDlg implements ISigmet{
 		
 		setFhrFlDirSpdTxt(vaCloud);
 		AttrDlg.mouseHandlerName = null;//20100810 testing TODO
+		
+		//Associate the color and forecast hour with the active layer.
+		if ( "Volcano".equalsIgnoreCase( drawingLayer.getActiveProduct().getType() ) ) {
+		    cs.setColorValue( getLayerColor() );
+		    comboFHR.setText( drawingLayer.getActiveLayer().getName() );
+		}
+		
 	}
 	
 	/**
@@ -273,7 +280,7 @@ public class VaaCloudDlg extends AttrDlg implements ISigmet{
 	 * @param Composite: parent for this dialog
 	 */
 	@Override
-	public Control createDialogArea(Composite parent) {
+	public Control createDialogArea(Composite parent) {		
 		this.top = (Composite) super.createDialogArea(parent);
 		this.getShell().setText("VAA Ash Cloud Create/Edit");
 		
@@ -375,8 +382,7 @@ public class VaaCloudDlg extends AttrDlg implements ISigmet{
 			public void propertyChange( PropertyChangeEvent event ) {
 				//rscAttrPointColor.setAttrValue( event.getNewValue() );
 			}
-		});	
-		
+		});		
 	}
 	
 	/**
@@ -494,7 +500,7 @@ public class VaaCloudDlg extends AttrDlg implements ISigmet{
         return colors;  	
 	}
 
-	private void setColor( Color clr ){
+	public void setColor( Color clr ){
 		cs.setColorValue(new RGB(clr.getRed(), clr.getGreen(), clr.getBlue()));
 	}
 	
