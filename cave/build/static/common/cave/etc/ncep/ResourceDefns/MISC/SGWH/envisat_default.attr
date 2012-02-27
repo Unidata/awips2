@@ -1,0 +1,8 @@
+! Parameters and Attributes for the default WaveSat Resource
+!
+colorBar=@waveSatColorBar.xml
+fontSize=12
+fontName=Courier
+timeDisplayInterval=30
+timeDisplayColor=RGB {255, 255, 255}
+satelliteId=60

@@ -12,14 +12,6 @@
   #set($expcanHLTag = "IS CANCELLED")
 #end
 #############
-## EWW COR ##
-#############
-#if(${specialCorText})
-${WMOId} ${vtecOffice} 000000 ${BBBId}
-SVS${siteId}
-${specialCorText}
-#else
-#############
 ## EWW CAN ##
 #############
 #if(${action}=="CAN")
@@ -166,7 +158,7 @@ THIS IS A TEST MESSAGE. AT ${dateUtil.format(${event}, ${timeFormat.clock}, ${lo
 
 AT ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}...${reportType}...${reportType1} ##
 #end
-#handleClosestPoints($list, $closestPoints, $otherClosestPoints, $stormType, "NEAR", 6, "MILES")
+#handleClosestPoints($list, $closestPoints, $otherClosestPoints, $stormType, "NEAR", 6, "MILES", true)
 #if($movementSpeed < 3 || ${stationary})
 . ${reportType2} NEARLY STATIONARY.
 #else
@@ -192,10 +184,6 @@ THIS IS A TEST MESSAGE. ##
 #locationsList("LOCATIONS IMPACTED INCLUDE..." "${phenomena} ARE EXPECTED TO REMAIN OVER MAINLY RURAL AREAS OF" 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
 
 #end
-##############################################
-###### mile markers ##############
-##############################################
-#parse("milemarkers.vm")
 #####################
 ## CALL TO ACTIONS ##
 #####################
@@ -395,10 +383,10 @@ THIS IS A TEST MESSAGE. ##
 #locationsList("LOCATIONS IMPACTED INCLUDE..." ${phenomena} 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
 
 #end
-##############################################
-###### mile markers ##############
-##############################################
-#parse("milemarkers.vm")
+
+## parse file command here is to pull in mile marker info
+## #parse("mileMarkers.vm")
+
 #####################
 ## CALL TO ACTIONS ##
 #####################
@@ -497,4 +485,3 @@ ${mathUtil.round(${movementInKnots})}KT ##
 $$
 
 !**NAME/INITIALS**!
-#end

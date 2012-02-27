@@ -104,12 +104,29 @@ public class PgenTextDrawingTool extends AbstractPgenDrawingTool {
         			}
         		}
         		
-        		if ( (param = event.getParameter("defaultTxt")) != null && !param.equalsIgnoreCase("Other")) {
+        		if ( (param = event.getParameter("defaultTxt")) != null && !param.equalsIgnoreCase("Other") ) {
         			txt = param;
+        			if ( !txt.isEmpty() ){
+        				String[] txtArray = {"",""};
+        				if ( txt.contains("\n" )){
+        					txtArray[0] = txt.substring(0, txt.indexOf('\n'));
+        					txtArray[1] = txt.substring(txt.indexOf('\n')+1, txt.length());
+        				}
+        				else {
+        					txtArray[0] = txt;
+        				}
+        				((TextAttrDlg) attrDlg).setText( txtArray );
+        			}
         		}
-        		
-        		((TextAttrDlg) attrDlg).setText(new String[] { txt });
 
+        		//for fronts, don't remember last value
+        		if (  prevElem.getName().equalsIgnoreCase("labeledFront")){
+    				((TextAttrDlg) attrDlg).setText(new String[] { "" });
+        		}
+        		else if ( prevElem.getName().equalsIgnoreCase("Volcano")){
+        			((TextAttrDlg) attrDlg).setFontSize(18);
+        			((TextAttrDlg) attrDlg).setBoxText(true, DisplayType.BOX);
+        		}
         	}
     		
     	}
@@ -177,8 +194,9 @@ public class PgenTextDrawingTool extends AbstractPgenDrawingTool {
             	if ( elem != null ) {
 
             		DECollection dec = PgenSinglePointDrawingTool.getCollection();
-            		if (addLabelToSymbol && dec != null){
-            			dec.addElement(elem);
+            		if (addLabelToSymbol && prevElem != null && (prevElem.getName().equalsIgnoreCase("labeledSymbol")||
+            				prevElem.getName().equalsIgnoreCase("Volcano"))){
+            			((DECollection)prevElem).add(elem);
             		}
             		else if ( prevElem != null && prevElem.getName().equalsIgnoreCase(Outlook.OUTLOOK_LABELED_LINE)){
             			((DECollection)prevElem).add(elem);
@@ -198,11 +216,13 @@ public class PgenTextDrawingTool extends AbstractPgenDrawingTool {
         		if (addLabelToSymbol){
         			addLabelToSymbol = false;
         			usePrevColor = false;
-        			if ( prevElem instanceof Symbol ){
-        				PgenUtil.setDrawingSymbolMode( prevElem.getPgenCategory(), prevElem.getPgenType(), false, null );
-        			}        			
-        			else if ( prevElem instanceof  ComboSymbol ){
-        				PgenUtil.setDrawingSymbolMode( "Combo", prevElem.getPgenType(), false, null );
+        			if ( prevElem.getName().equalsIgnoreCase("labeledSymbol") || prevElem.getName().equalsIgnoreCase("Volcano")){
+        				if ( prevElem.getPrimaryDE() instanceof Symbol ) {
+        					PgenUtil.setDrawingSymbolMode( prevElem.getPrimaryDE().getPgenCategory(), prevElem.getPgenType(), false, null );
+        				}        			
+        				else if ( prevElem.getPrimaryDE() instanceof  ComboSymbol ){
+        					PgenUtil.setDrawingSymbolMode( "Combo", prevElem.getPgenType(), false, null );
+        				}
         			}            		
         			else if ( prevElem instanceof DECollection && prevElem.getPgenCategory().equalsIgnoreCase("Front") ){
         				PgenUtil.setDrawingFrontMode((Line)prevElem.getPrimaryDE());
@@ -225,12 +245,14 @@ public class PgenTextDrawingTool extends AbstractPgenDrawingTool {
         		if (addLabelToSymbol){
         			addLabelToSymbol = false;
         			usePrevColor = false;
-        			if ( prevElem instanceof  Symbol ){
-        				PgenUtil.setDrawingSymbolMode( "Symbol", prevElem.getPgenType(), false, null );
-        			}
-        			else if ( prevElem instanceof  ComboSymbol ){
-        				PgenUtil.setDrawingSymbolMode( "ComboSymbol", prevElem.getPgenType(), false, null );
-        			}	        			
+        			if ( prevElem.getName().equalsIgnoreCase("labeledSymbol") ){
+        				if ( prevElem.getPrimaryDE() instanceof Symbol ) {
+        					PgenUtil.setDrawingSymbolMode( prevElem.getPrimaryDE().getPgenCategory(), prevElem.getPgenType(), false, null );
+        				}        			
+        				else if ( prevElem.getPrimaryDE() instanceof  ComboSymbol ){
+        					PgenUtil.setDrawingSymbolMode( "Combo", prevElem.getPgenType(), false, null );
+        				}
+        			}            		
         			else if (  prevElem instanceof DECollection && prevElem.getPgenCategory().equalsIgnoreCase("Front") ){
         				PgenUtil.setDrawingFrontMode((Line)prevElem.getPrimaryDE());
         			}
@@ -309,6 +331,11 @@ public class PgenTextDrawingTool extends AbstractPgenDrawingTool {
         	return false;
         	
         }
+
+		@Override
+		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
+			return true;
+		}
  
     }
     /**

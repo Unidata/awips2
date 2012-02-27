@@ -36,6 +36,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
  *     02/10/11		?			B. Yin		Add maximum distance to be selected
  *     02/11	    #405        J. Wu    	Added P_WORKING_DIR.
  *     05/11	    ?        	J. Wu    	Added P_COMP_COORD
+ *     08/11	    #335        	J. Wu    	Added P_BASE_DIR
  * 
  * </pre>
  * 
@@ -59,6 +60,12 @@ public class PgenPreferences extends FieldEditorPreferencePage implements
 	public final static String P_WORKING_DIR = "PGEN_WORKING_DIR";
 	public final static String V_WORKING_DIR = System.getProperty("user.home");
 
+	//Preference for the operational directory to store PGEN product file.
+	public final static String P_OPR_DIR = "PGEN_BASE_DIR";
+	public final static String V_OPR_DIR = ( System.getenv( "PGEN_OPR" ) != null ) ? 
+											 System.getenv( "PGEN_OPR" ) :
+										     System.getProperty("user.home");			                                 
+
 	//Preference for PGEN computational coordinates
 	public final static String P_COMP_COORD = "PGEN_COMP_COORD";
 	public final static String CED_COMP_COORD = "ced/0;0;0|18.00;-137.00;58.00;-54.00";
@@ -75,6 +82,9 @@ public class PgenPreferences extends FieldEditorPreferencePage implements
 
     @Override
     public void createFieldEditors() {
+
+		this.addField(new DirectoryFieldEditor(P_OPR_DIR,
+				"&PGEN Base Directory:", getFieldEditorParent()));
 
 		this.addField(new DirectoryFieldEditor(P_WORKING_DIR,
 				"&PGEN Working Directory:", getFieldEditorParent()));
@@ -132,14 +142,13 @@ public class PgenPreferences extends FieldEditorPreferencePage implements
     		}
     	} else if (event.getSource() instanceof DirectoryFieldEditor) {
     		String ovalue = event.getOldValue().toString();
-    		String opref = Activator.getDefault().getPreferenceStore()
-    		.getString(P_WORKING_DIR);
-    		if (ovalue.equals(opref)) {
+    		String prefname = ((DirectoryFieldEditor)event.getSource()).getPreferenceName();
+    		String opref = Activator.getDefault().getPreferenceStore().getString( prefname );
+    		if ( ovalue.equals(opref) ) {
     			String nvalue = event.getNewValue().toString();
-    			File nfile = new File(nvalue);
-    			if (nfile.exists() && nfile.isDirectory() && nfile.canWrite()) {
-    				Activator.getDefault().getPreferenceStore()
-    				.setValue(P_WORKING_DIR, nvalue);
+    			File nfile = new File( nvalue );
+    			if ( nfile.exists() && nfile.isDirectory() && nfile.canWrite() ) {
+    				Activator.getDefault().getPreferenceStore().setValue( prefname, nvalue);
     			}
     		}
     	}
