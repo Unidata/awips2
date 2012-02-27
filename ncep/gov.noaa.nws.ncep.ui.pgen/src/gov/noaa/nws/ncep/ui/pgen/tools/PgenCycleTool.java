@@ -127,6 +127,12 @@ public class PgenCycleTool extends AbstractPgenDrawingTool {
 				return false;
 			}
 		}
+
+		@Override
+		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
+			return true;
+		}
+		
 	}
 
 	public static int getCycleDay() {

@@ -1,6 +1,7 @@
 package gov.noaa.nws.ncep.viz.tools.cursor;
 
-import gov.noaa.nws.ncep.viz.tools.cursor.CursorTypes.CursorType;
+
+import gov.noaa.nws.ncep.viz.tools.cursor.NCCursors.CursorType;
 
 import java.util.List;
 
@@ -162,11 +163,8 @@ public class CursorSelectDialog extends Dialog {
         }
         
         curTypeComb.addSelectionListener(new SelectionListener() {
-
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-				
 			}
 
 			@Override
@@ -292,50 +290,4 @@ public class CursorSelectDialog extends Dialog {
         return shell != null && !shell.isDisposed();
     }
 
-    /*
-    public Cursor getCursor(Display d, NCCursors.CursorRef curRef) {
-    	// Get cursor image file name
-    	int refIndex = curRef.ordinal();
-    	String imageFile = NmapCommon.getCursorImageDir() + File.separator
-    		+ cursorList.get(curTypeSet[refIndex]).getImageFile();
-    	
-    	// Get hotSpot X, & Y
-    	int x = 0;
-    	int y = 0;
-    	switch (curTypeSet[refIndex]) {
-    	case 2:
-    		x = 8;
-    		y = 9;
-    		break;
-    	case 3:
-    		x = 15;
-    		y = 16;
-    		break;
-    	case 4:
-    		x = 9;
-    		y = 9;
-    		break;
-    	case 5:
-    		x = 17;
-    		y = 17;
-    		break;
-    	}
-
-    	// Change cursor color
-    	ImageData image = new ImageData(imageFile);
-    	if (curColorSet[refIndex] > 0) {
-    		for(int i = 0; i < image.width; i++) {
-    			for(int j = 0; j < image.height; j++) {
-    				if (image.getPixel(i,j) != 0)
-    					image.setPixel(i, j, colors[curColorSet[refIndex]]);
-    			}
-    		}
-    	}
-    	
-    	Cursor cursor = new Cursor(d, image, x, y);
-    	
-    	return cursor;
-    }
-    
-    */
 }

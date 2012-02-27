@@ -22,6 +22,7 @@
 package gov.noaa.nws.ncep.common.dataplugin.mcidas;
 
 import java.util.Calendar;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -41,10 +42,12 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasMapCoverage;
 
 @Entity
 @Table(name = "mcidas", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
@@ -53,7 +56,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class McidasRecord extends PersistablePluginDataObject implements
-        ISpatialEnabled {
+        IPersistable, ISpatialEnabled {
 
     private static final long serialVersionUID = 1L;
 
@@ -69,15 +72,15 @@ public class McidasRecord extends PersistablePluginDataObject implements
     @DataURI(position = 2)
     @XmlAttribute
     @DynamicSerializeElement
+    
     private String areaName;
-
-    /** The resolution */
+	/** The resolution */
     @Column
     @DataURI(position = 3)
     @XmlAttribute
     @DynamicSerializeElement
     private Integer resolution;
-
+ 
     /** The image type */
     @Column(length = 32)
     @DataURI(position = 4)
@@ -92,7 +95,7 @@ public class McidasRecord extends PersistablePluginDataObject implements
     @XmlAttribute
     @DynamicSerializeElement
     private Calendar creationTime;
-
+    
     /**
      * The image time
      */
@@ -101,8 +104,8 @@ public class McidasRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     private Calendar imageTime;
 
-    /**
-     * Size of logical records in bytes for product.
+	/**
+     * Size of logical records in bytes for product. 
      */
     @Column
     @XmlAttribute
@@ -110,30 +113,30 @@ public class McidasRecord extends PersistablePluginDataObject implements
     private Integer sizeRecords;
 
     /** Satellite projection */
-    @Column(length = 16)
+    @Column(length=16)
     @XmlAttribute
     @DynamicSerializeElement
     private String projection;
 
-    /** The report type */
-    @Column(length = 16)
+    /** The report type  */
+    @Column(length=16)
     @XmlAttribute
     @DynamicSerializeElement
     private String reportType;
-
-    /** The calibration type */
-    @Column(length = 16)
+    
+    /** The calibration type  */
+    @Column(length=16)
     @XmlAttribute
     @DynamicSerializeElement
     private String calType;
 
-    /** The satellite ID */
+    /** The satellite ID  */
     @Column
     @XmlAttribute
     @DynamicSerializeElement
     private Integer satelliteId;
-
-    /** The image type number */
+    
+    /** The image type number  */
     @Column
     @XmlAttribute
     @DynamicSerializeElement
@@ -143,13 +146,13 @@ public class McidasRecord extends PersistablePluginDataObject implements
      * Length of prefix in bytes.
      */
     private Integer prefix;
-
+    
     /*
-     * Validation code. if these bytes are non-zero, they must match the first
-     * four bytes of each DATA block line prefix or the line's data is ignored.
+     * Validation code. if these bytes are non-zero, they must match the first four 
+	 * bytes of each DATA block line prefix or the line's data is ignored.
      */
     private Integer validCode;
-
+    
     /*
      * File name ingested to the end point.
      */
@@ -160,7 +163,7 @@ public class McidasRecord extends PersistablePluginDataObject implements
     @XmlElement
     @DynamicSerializeElement
     private McidasMapCoverage coverage;
-
+        
     /** Area file header block */
     @Transient
     private byte[] headerBlock;
@@ -182,12 +185,12 @@ public class McidasRecord extends PersistablePluginDataObject implements
      * No-arg constructor.
      */
     public McidasRecord() {
-        satelliteName = null;
-        imageType = null;
-        resolution = null;
-        projection = null;
-        imageTime = null;
-        areaName = null;
+    	satelliteName = null;
+    	imageType = null;
+    	resolution = null;
+    	projection = null;
+    	imageTime = null;
+    	areaName = null;
     }
 
     /**
@@ -200,6 +203,22 @@ public class McidasRecord extends PersistablePluginDataObject implements
         super(uri);
     }
 
+    
+    /**
+     * Get the time to use for persisting this data.
+     * 
+     * @return The persistence time for this data.
+     */
+    @Override
+    public Date getPersistenceTime() {
+        Calendar c = getInsertTime();
+        if (c == null)
+            return null;
+
+        return c.getTime();
+    }
+
+    
     /**
      * Set the time to be used for the persistence time for this object.
      * 
@@ -208,7 +227,7 @@ public class McidasRecord extends PersistablePluginDataObject implements
      */
     public void setPersistenceTime(Calendar persistTime) {
         setInsertTime(persistTime);
-    }
+    } 
 
     public Integer getSizeRecords() {
         return sizeRecords;
@@ -239,33 +258,33 @@ public class McidasRecord extends PersistablePluginDataObject implements
 
     public String getSatelliteName() {
         return satelliteName;
-    }
+    }   
 
     public Calendar getCreationTime() {
-        return creationTime;
-    }
+		return creationTime;
+	}
 
-    public void setCreationTime(Calendar creationTime) {
-        this.creationTime = creationTime;
-    }
+	public void setCreationTime(Calendar creationTime) {
+		this.creationTime = creationTime;
+	}
 
-    public Calendar getImageTime() {
-        return imageTime;
-    }
+	public Calendar getImageTime() {
+		return imageTime;
+	}
 
-    public void setImageTime(Calendar imageTime) {
-        this.imageTime = imageTime;
-    }
+	public void setImageTime(Calendar imageTime) {
+		this.imageTime = imageTime;
+	}
 
-    public String getProjection() {
-        return projection;
-    }
+	public String getProjection() {
+		return projection;
+	}
 
-    public void setProjection(String projection) {
-        this.projection = projection;
-    }
+	public void setProjection(String projection) {
+		this.projection = projection;
+	}
 
-    public void setSatelliteName(String satelliteName) {
+	public void setSatelliteName(String satelliteName) {
         this.satelliteName = satelliteName;
     }
 
@@ -283,69 +302,75 @@ public class McidasRecord extends PersistablePluginDataObject implements
 
     public void setResolution(Integer resolution) {
         this.resolution = resolution;
-    }
+    }    
+ 
+	public byte[] getHeaderBlock() {
+		return headerBlock;
+	}
 
-    public byte[] getHeaderBlock() {
-        return headerBlock;
-    }
+	public void setHeaderBlock(byte[] headerBlock) {
+		this.headerBlock = headerBlock;
+	}
 
-    public void setHeaderBlock(byte[] headerBlock) {
-        this.headerBlock = headerBlock;
-    }
+	public String getAreaName() {
+		return areaName;
+	}
 
-    public String getAreaName() {
-        return areaName;
-    }
+	public void setAreaName(String areaName) {
+		this.areaName = areaName;
+	}
 
-    public void setAreaName(String areaName) {
-        this.areaName = areaName;
-    }
+	public Integer getPrefix() {
+		return prefix;
+	}
 
-    public Integer getPrefix() {
-        return prefix;
-    }
+	public void setPrefix(Integer prefix) {
+		this.prefix = prefix;
+	}    
 
-    public void setPrefix(Integer prefix) {
-        this.prefix = prefix;
-    }
+	public Integer getValidCode() {
+		return validCode;
+	}
 
-    public Integer getValidCode() {
-        return validCode;
-    }
+	public void setValidCode(Integer validCode) {
+		this.validCode = validCode;
+	}    
+	
+	public String getInputFileName() {
+		return inputFileName;
+	}
 
-    public void setValidCode(Integer validCode) {
-        this.validCode = validCode;
-    }
-
-    public String getInputFileName() {
-        return inputFileName;
-    }
-
-    public void setInputFileName(String inputFileName) {
-        this.inputFileName = inputFileName;
-    }
-
+	public void setInputFileName(String inputFileName) {
+		this.inputFileName = inputFileName;
+	}    	
+		
     public String getCalType() {
-        return calType;
-    }
+		return calType;
+	}
 
-    public void setCalType(String calType) {
-        this.calType = calType;
-    }
+	public void setCalType(String calType) {
+		this.calType = calType;
+	}
 
-    public Integer getSatelliteId() {
-        return satelliteId;
-    }
+	public Integer getSatelliteId() {
+		return satelliteId;
+	}
 
-    public void setSatelliteId(Integer satelliteId) {
-        this.satelliteId = satelliteId;
-    }
+	public void setSatelliteId(Integer satelliteId) {
+		this.satelliteId = satelliteId;
+	}
 
-    public Integer getImageTypeNumber() {
-        return imageTypeNumber;
-    }
+	public Integer getImageTypeNumber() {
+		return imageTypeNumber;
+	}
 
-    public void setImageTypeNumber(Integer imageTypeNumber) {
-        this.imageTypeNumber = imageTypeNumber;
-    }
+	public void setImageTypeNumber(Integer imageTypeNumber) {
+		this.imageTypeNumber = imageTypeNumber;
+	}
+
+	@Override
+	public void setPersistenceTime(Date persistTime) {
+		// TODO Auto-generated method stub
+		
+	}	
 }

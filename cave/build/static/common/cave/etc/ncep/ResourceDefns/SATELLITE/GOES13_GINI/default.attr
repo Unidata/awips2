@@ -1,0 +1,7 @@
+legend_color=RGB {200, 200, 200}
+colorMapName=lingray
+colorBar=@dfltMcidasColorBar.xml
+imageType=Imager 11 micron IR
+displayUnitStr=C
+!Should this be BRIT?
+
