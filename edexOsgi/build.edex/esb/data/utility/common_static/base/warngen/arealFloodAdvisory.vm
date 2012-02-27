@@ -4,6 +4,7 @@
 ## Edited by Phil Kurimski     8-17-2011 for OB11.8.0-4 ##
 ##             Evan Bookbinder 9-16-2011 for OB11.8.0-8 ##
 ##             Mike Dangelo    9-19-2011 at Alaska TIM ##
+##             Mike Dangelo    1-25-2012 at CRH TIM ##
 ##
 #if(${action} == "EXT")
 	#set($starttime = "000000T0000Z")
@@ -13,6 +14,8 @@
 	#set($extend = false)
 #end
 ##
+#set($advType = "FLOOD ADVISORY")
+#set($advTypeShort = "MINOR FLOODING")
 #if(${list.contains($bullets, "small")})
 	#set($advType = "SMALL STREAM FLOOD ADVISORY")
 	#set($advTypeShort = "SMALL STREAM FLOODING")
@@ -28,9 +31,6 @@
 	#set($advType = "HYDROLOGIC ADVISORY")
 	#set($advTypeShort = "MINOR FLOODING")
 	#set($extend = false)
-#else
-	#set($advType = "FLOOD ADVISORY")
-	#set($advTypeShort = "MINOR FLOODING")
 #end
 ##
 #set($ic = "ER")
@@ -46,6 +46,8 @@
 	#set($hycType = "ICE JAM FLOODING")
 #elseif(${list.contains($bullets, "IC")})
 	#set($ic = "IC")
+#elseif(${list.contains($bullets, "DR")})
+	#set($ic = "DR")
 #elseif(${list.contains($bullets, "rapidRiver")})
 	#set($hycType = "RAPID RIVER RISES")
 #elseif(${list.contains($bullets, "poorDrainage")})
@@ -54,9 +56,6 @@
 ##
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 FLS${siteId}
-#if(${specialCorText})
-${specialCorText}
-#else
 #if(${productClass}=="T")
 TEST...FLOOD ADVISORY...TEST
 #else
@@ -91,12 +90,6 @@ ${advType} FOR...
 #end
 #firstBullet(${areas})
 
-* ##
-#if(${productClass}=="T")
-THIS IS A TEST MESSAGE. ##
-#end
-#secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone})
-
 #set ($report = "!** warning basis **!")
 #set ($report2 = "")
 #set ($cause = "HEAVY RAIN")
@@ -112,6 +105,9 @@ THIS IS A TEST MESSAGE. ##
 #if(${list.contains($bullets, "IC")})
   #set ($cause = "AN ICE JAM AND HEAVY RAIN")   
 #end
+#if(${list.contains($bullets, "DR")})
+  #set ($report = ". A DAM GATE FLOOD RELEASE WILL CREATE MINOR FLOODING") 
+#end
 #if(${list.contains($bullets, "rapidRiver")})
   #set ($report2 = ". RAPID RIVER RISES WILL RESULT IN MINOR FLOODING")   
 #end
@@ -119,22 +115,22 @@ THIS IS A TEST MESSAGE. ##
   #set ($report2 = ". OVERFLOWING POOR DRAINAGE AREAS WILL RESULT IN MINOR FLOODING")   
 #end
 #if(${list.contains($bullets, "doppler")})
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED ${cause} THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
+  #set ($report = "DOPPLER RADAR INDICATED ${cause} THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
 #end
 #if(${list.contains($bullets, "doppler")} && ${list.contains($bullets, "thunder")})
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED ${cause} DUE TO A THUNDERSTORM THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
+  #set ($report = "DOPPLER RADAR INDICATED ${cause} DUE TO A THUNDERSTORM THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
 #end
 #if(${list.contains($bullets, "doppler")} && ${list.contains($bullets, "thunder")} && ${stormType} == "line")
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED ${cause} DUE TO A LINE OF THUNDERSTORMS THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
+  #set ($report = "DOPPLER RADAR INDICATED ${cause} DUE TO A LINE OF THUNDERSTORMS THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
 #end
 #if(${list.contains($bullets, "dopplerGauge")})
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED ${cause} THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
+  #set ($report = "DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED ${cause} THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
 #end
 #if(${list.contains($bullets, "dopplerGauge")} && ${list.contains($bullets, "thunder")})
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED ${cause} DUE TO A THUNDERSTORM THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
+  #set ($report = "DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED ${cause} DUE TO A THUNDERSTORM THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
 #end
 #if(${list.contains($bullets, "dopplerGauge")} && ${list.contains($bullets, "thunder")} && ${stormType} == "line")
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED ${cause} DUE TO A LINE OF THUNDERSTORMS THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
+  #set ($report = "DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED ${cause} DUE TO A LINE OF THUNDERSTORMS THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
 #end
 #if(${list.contains($bullets, "trainedSpotters")})
   #set ($report = "TRAINED WEATHER SPOTTERS REPORTED ${cause} CAUSING ${advTypeShort} IN !** LOCATION **!${report2}")   
@@ -161,36 +157,30 @@ THIS IS A TEST MESSAGE. ##
   #set ($report = "LOCAL LAW ENFORCEMENT REPORTED ${cause} IN !** LOCATION **! THAT WILL CAUSE ${advTypeShort}${report2}")   
 #end
 #if(${list.contains($bullets, "public")})
-  #set ($report = "THE PUBLIC REPORTED ${cause} CAUSING ${advTypeShort} IN !** LOCATION **!${report2}")   
+  #set ($report = "${cause} WAS REPORTED TO BE CAUSING ${advTypeShort} IN !** LOCATION **!${report2}")   
 #end
 #if(${list.contains($bullets, "public")} && ${list.contains($bullets, "thunder")})
-  #set ($report = "THE PUBLIC REPORTED ${advTypeShort} IN !** LOCATION **! DUE TO A THUNDERSTORM THAT WILL CAUSE ${advTypeShort}")   
+  #set ($report = "A THUNDERSTORM WAS REPORTED IN !** LOCATION **! THAT WILL CAUSE ${advTypeShort}")   
 #end
 #if(${list.contains($bullets, "public")} && ${list.contains($bullets, "actual")})
-  #set ($report = "THE PUBLIC REPORTED ${cause} CAUSING ${advTypeShort} IN !** LOCATION **!${report2}")   
+  #set ($report = "${cause} WAS REPORTED TO BE CAUSING ${advTypeShort} IN !** LOCATION **!${report2}")   
 #end
 #if(${list.contains($bullets, "public")} && ${list.contains($bullets, "plainRain")})
-  #set ($report = "THE PUBLIC REPORTED ${cause} IN !** LOCATION **! THAT WILL CAUSE MINOR FLOODING${report2}")   
+  #set ($report = "${cause} WAS REPORTED IN !** LOCATION **! THAT WILL CAUSE MINOR FLOODING${report2}")   
 #end
-#*
-#if(${list.contains($bullets, "SM")})
-  #set ($report = "MINOR FLOODING IS !** OCCURRING/EXPECTED **! DUE TO SNOW MELT")   
-#end
-#if(${list.contains($bullets, "RS")})
-  #set ($report = "MINOR FLOODING IS !** OCCURRING/EXPECTED **! DUE TO HEAVY RAIN AND SNOW MELT")   
-#end
-#if(${list.contains($bullets, "IJ")})
-  #set ($report = "MINOR FLOODING IS !** OCCURRING/EXPECTED **! DUE TO AN ICE JAM")   
-#end
-#if(${list.contains($bullets, "IC")})
-  #set ($report = "MINOR FLOODING IS !** OCCURRING/EXPECTED **! DUE TO AN ICE JAM AND HEAVY RAIN")   
-#end
-*#
 #if(${list.contains($bullets, "doppler")} || ${list.contains($bullets, "dopplerGauge")})
 #set($estimate = "UP TO !** Number **! INCHES OF RAIN HAS FALLEN IN THE PAST HOUR.")
 #else
 #set($estimate = "")
 #end
+* ##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone})
+###Leave two blank lines here#########
+
+
 * ##
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
@@ -206,21 +196,20 @@ THIS IS A TEST MESSAGE. ##
 #locationsList("SOME LOCATIONS THAT WILL EXPERIENCE MINOR FLOODING INCLUDE" "MINOR FLOODING" 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
 
 #if(${list.contains($bullets, "addRainfall")})
-ADDITIONAL RAINFALL OF !** Edit Amount **! INCHES IS EXPECTED OVER THE AREA.  THIS ADDITIONAL RAIN WILL MAKE MINOR FLOODING.
+ADDITIONAL RAINFALL OF !** Edit Amount **! INCHES IS EXPECTED OVER THE AREA. THIS ADDITIONAL RAIN WILL MAKE MINOR FLOODING.
 
 #end
 #if(${list.contains($bullets, "specificPlace")})
-MINOR FLOODING IS OCCURRING NEAR !** Enter Location **!. 
+!** Enter Location **! IS THE MOST LIKELY PLACE TO EXPERIENCE MINOR FLOODING. 
 
 #end
 #if(${list.contains($bullets, "drainages")})
 #drainages(${riverdrainages})
 
+## parse file command here is to pull in mile marker info
+## #parse("mileMarkers.vm")
+
 #end
-##############################################
-###### mile markers ##############
-##############################################
-#parse("milemarkers.vm")
 #####################
 ## CALL TO ACTIONS ##
 #####################
@@ -237,7 +226,7 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 #end
 ##
 
-#if(${list.contains($bullets, "advMeans")})
+#if(${list.contains($bullets, "advisoryMeansCTA")})
 A FLOOD ADVISORY MEANS RIVER OR STREAM FLOWS ARE ELEVATED OR PONDING OF WATER IN URBAN OR OTHER AREAS IS OCCURRING OR IS IMMINENT.
 
 #end
@@ -284,4 +273,3 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 $$
 
 !**NAME/INITIALS**!
-#end

@@ -282,13 +282,11 @@ public class DbOverlayResourceData extends AbstractNatlCntrsResourceData
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || obj instanceof DbOverlayResourceData == false) {
-            return false;
-        }
-        DbOverlayResourceData other = (DbOverlayResourceData) obj;
+		if (!super.equals(obj)) {
+			return false;
+		}
+
+		DbOverlayResourceData other = (DbOverlayResourceData) obj;
 
         if (this.columns != null && other.columns == null) {
             return false;
@@ -344,13 +342,20 @@ public class DbOverlayResourceData extends AbstractNatlCntrsResourceData
             return false;
         }
 
-        if (this.tables != null && other.tables == null) {
-            return false;
-        } else if (this.tables == null && other.tables != null) {
-            return false;
-        } else if (this.tables != null
-                && this.tables.equals(other.tables) == false) {
-            return false;
+        if (this.tables != null || other.tables != null) {
+            if (this.tables == null || other.tables == null) {            	
+            	return false;
+            }
+            else if( this.tables.length != other.tables.length ) {
+            	return false;
+            }
+        	else {
+        		for( int i=0 ; i<this.tables.length ; i++ ) {
+        			if( !this.tables[i].equals( other.tables[i] )) {
+        	            return false;		
+        			}
+        		}
+        	}            
         }
 
         return true;

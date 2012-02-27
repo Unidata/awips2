@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Ncpirep
+Bundle-SymbolicName: gov.noaa.nws.ncep.edex.plugin.ncpirep
+Bundle-Version: 1.12.1174.qualifier
+Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Bundle-Vendor: NOAA/NWS/NCEP/NCO/SIB
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.raytheon.edex.common;bundle-version="1.12.1174",
+ com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
+ com.raytheon.uf.edex.decodertools;bundle-version="1.12.1174",
+ org.apache.commons.logging;bundle-version="1.1.1",
+ org.geotools;bundle-version="2.6.4",
+ javax.measure;bundle-version="1.0.0",
+ javax.persistence;bundle-version="1.0.0",
+ org.apache.camel;bundle-version="1.0.0",
+ com.raytheon.uf.common.status;bundle-version="1.12.1174",
+ gov.noaa.nws.ncep.common.dataplugin.ncpirep;bundle-version="1.0.0"
+Export-Package: gov.noaa.nws.ncep.edex.plugin.ncpirep,
+ gov.noaa.nws.ncep.edex.plugin.ncpirep.decoder
+Import-Package: com.raytheon.uf.edex.pointdata,
+ gov.noaa.nws.ncep.common.tools
