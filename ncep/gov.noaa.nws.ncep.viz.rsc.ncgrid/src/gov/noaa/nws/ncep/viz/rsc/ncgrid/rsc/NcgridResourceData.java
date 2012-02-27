@@ -1,6 +1,7 @@
 package gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc;
 
-import gov.noaa.nws.ncep.viz.gempak.util.DatatypeTable;
+import java.util.HashMap;
+
 import gov.noaa.nws.ncep.viz.gempak.util.GempakGrid;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
@@ -11,6 +12,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -31,7 +34,9 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * 12/22/1010               G Hull     replace dataSource with pluginName
  * Feb, 2011				           Add eventName to timeline query
  * 02/11/2011               G Hull     eventName now set in bndlTemplate and by RseourceDefnsMngr ;
- *                                     add constructor 
+ *                                     add constructor
+ * 09/19/2011				mgamazaychikov	Made changes associated with removal of DatatypeTable class
+ * 12/22/2011               G Hull     Updated getGdFile()
  *           
  * </pre>
  * 
@@ -282,7 +287,7 @@ public class NcgridResourceData extends AbstractNatlCntrsRequestableResourceData
 	}
 
 	public void setGdfile(String gdfile) {
-		this.gdfile = gdfile;
+		this.gdfile = gdfile.toUpperCase();
 	}
 
 	public String getGvcord() {
@@ -433,6 +438,18 @@ public class NcgridResourceData extends AbstractNatlCntrsRequestableResourceData
 		}		
 	}
 	
+    // set metadataMap with the modelName constraint and return it
+    // (This is overridden by the NcEnsembleResourceData
+	//
+    public HashMap<String, RequestConstraint> getMetadataMap() {
+    	HashMap<String, RequestConstraint> queryList = super.getMetadataMap();
+    	
+    	queryList.put("modelInfo.modelName", 
+	        		new RequestConstraint( getGdfile(), ConstraintType.EQUALS ) );
+		
+		return queryList;
+    }
+
 	@Override
 	public DataTime[] getAvailableTimes() throws VizException {
 		
@@ -441,7 +458,8 @@ public class NcgridResourceData extends AbstractNatlCntrsRequestableResourceData
                         String currentCycle = getResourceName().getCycleTime().toString();
                         String dataLoc = null;
                         try {
-                        dataLoc = DatatypeTable.getDatatypeTblColumnValue( gdfile, "PATH");
+                        dataLoc = GempakGrid.getGempakGridPath( getGdfile() );
+            					
                         } catch (VizException e) {
                                 throw new VizException (e);
                         }

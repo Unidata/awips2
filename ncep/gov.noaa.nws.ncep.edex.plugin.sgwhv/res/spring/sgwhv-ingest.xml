@@ -1,0 +1,67 @@
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:amq="http://activemq.apache.org/schema/core"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="sgwhvDecoder"
+		class="gov.noaa.nws.ncep.edex.plugin.sgwhv.decoder.SgwhvDecoder">
+		<constructor-arg ref="sgwhvPluginName" />
+	</bean>
+
+	<bean id="sgwhvSeparator"
+		class="gov.noaa.nws.ncep.edex.plugin.sgwhv.decoder.SgwhvSeparator" />
+
+	<bean id="swghvToPointData" class="gov.noaa.nws.ncep.common.dataplugin.sgwhv.dao.SgwhvPointDataTransform" />
+
+
+    <bean id="sgwhvDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg ref="sgwhvPluginName" />
+		<constructor-arg value="jms-dist:queue:Ingest.sgwhv" />
+	</bean>
+    
+	<bean id="sgwhvCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="sgwhv-camel"/>
+  	</bean>   
+    
+	<camelContext id="sgwhv-camel" 
+	              xmlns="http://camel.apache.org/schema/spring" 
+	              errorHandlerRef="errorHandler"
+	              autoStartup="false">
+		<endpoint id="sgwhvFileEndpoint" uri="file:${edex.home}/data/sbn/sgwhv?noop=true&amp;idempotent=false" />
+
+		<!-- Begin sgwhv routes -->
+		<route id="sgwhvFileConsumerRoute">
+			<from ref="sgwhvFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+				<constant>sgwhv</constant>
+			</setHeader>
+			<to uri="jms-generic:queue:Ingest.sgwhv" />
+		</route>
+
+		<route id="sgwhvIngestRoute">
+			<from uri="jms-generic:queue:Ingest.sgwhv?destinationResolver=#qpidDurableResolver" />
+			<setHeader headerName="pluginName">
+				<constant>sgwhv</constant>
+			</setHeader>
+			<doTry>
+				<pipeline>
+					<bean ref="stringToFile" />
+					<bean ref="sgwhvDecoder" method="decode" />
+					<bean ref="swghvToPointData" method="toPointData" />
+					<to uri="directvm:persistIndexAlert" />		
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:sgwhv?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
+		</route>
+		
+		</camelContext>
+</beans>
