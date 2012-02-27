@@ -8,6 +8,8 @@
 
 package gov.noaa.nws.ncep.viz.rsc.plotdata.parameters;
 
+import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.S2N;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -63,9 +65,16 @@ public class PlotParameterDefn implements ISerializableObject {
     @XmlAttribute
     protected String prioritySelectTable;
     
+    protected S2N prioritySelector=null;
+    
     @XmlAttribute
     protected String plotLookupTable;
     
+    // For parameters stored as arrays (and no prioritySelectTable given) 
+    // the array index specifies which index to show. (ex. For Metar presentWeather)
+	@XmlAttribute
+    protected Integer arrayIndex=0;
+
     @XmlAttribute
     protected String symbolFont;
     
@@ -226,14 +235,17 @@ public class PlotParameterDefn implements ISerializableObject {
         return prioritySelectTable;
     }
 
-    /**
-     * Sets the value of the arrayIndex property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
+    public S2N getPrioritySelector() {
+    	if( prioritySelector == null ) {
+			if( prioritySelectTable != null ) {
+				prioritySelector = S2N.readS2NFile( 
+						prioritySelectTable );				
+			}
+    	}
+    	
+    	return prioritySelector;
+    }
+    
     public void setPrioritySelectTable(String prioritySelectTable) {
         this.prioritySelectTable = prioritySelectTable;
     }
@@ -249,6 +261,15 @@ public class PlotParameterDefn implements ISerializableObject {
     public String getPlotLookupTable() {
         return plotLookupTable;
     }
+
+    public Integer getArrayIndex() {
+		return arrayIndex;
+	}
+
+	public void setArrayIndex(Integer arrayIndex) {
+		this.arrayIndex = arrayIndex;
+	}
+
 
     /**
      * Sets the value of the plotLookupTable property.

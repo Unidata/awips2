@@ -154,7 +154,37 @@ public abstract class MultiPointElement extends DrawableElement implements IMult
 	 */
 	public void setColors(Color[] colors) {
 		if ( colors != null ){
-			this.colors = colors;
+			if ( getPgenType() != null && getPgenType().contains("FRONT") ) {
+				
+				if ( getPgenType().contains("STATIONARY_FRONT") ){
+					//for stationary front
+					if ( this.colors.length > colors.length){
+						// stationary fronts need two color, if there is only one input, keep the original 2nd color
+						for ( int ii = 0; ii < colors.length; ii++ ){
+							this.colors[ii] = colors[ii];
+						}
+					}
+					else {
+						this.colors = colors;
+					}
+				}
+				else {
+					//for other fronts
+					if ( this.colors.length < colors.length ){
+						//for other fronts, keep only the major color
+						for ( int ii = 0; ii < this.colors.length; ii++ ){
+							this.colors[ii] = colors[ii];
+						}
+					}
+					else {
+						this.colors = colors;
+
+					}
+				}
+			}
+			else {
+				this.colors = colors;
+			}
 		}
 	}
 	

@@ -612,7 +612,7 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
 
         gd = new GridData(80, 100);
         // hsaList has part of the pa_options.HSA_set data
-        hsaList = new List(filterByComp, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
+        hsaList = new List(filterByComp, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
         hsaList.setLayoutData(gd);
 
         // Get real data for the list
@@ -1105,17 +1105,16 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
                     .getTime(), lid, pTs, RawPrecipTable.CurRawPrecip);
 
             // populate the data map
-            pd = new RawPrecipData();
+           pd = new RawPrecipData();
             if ((ppHead != null) && (ppHead.size() > 0)) {
                 prevId = ppHead.get(0).getLid();
                 for (Rawpp rpp : ppHead) {
                     id = rpp.getLid();
-                    pd.setLid(id);
                     if (!prevId.equals(id)) {
+                        pd.setLid(prevId);
                         // Found next site
-                        dataMap.put(prevId, pd);
+                        dataMap.put(prevId, pd);                        
                         pd = new RawPrecipData();
-                        pd.setLid(id);
                         prevId = id;
                     } else {
                         if (dataMap.containsKey(id)
@@ -1131,6 +1130,7 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
         }
     }
 
+    
     /**
      * Set the beginning and ending times for the query.
      * 

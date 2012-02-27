@@ -1,0 +1,4 @@
+! Attributes for the GFSXMOS resource with "pop12mm" plot model
+!
+plotModelName=pop12mm
+plotDensity=10
