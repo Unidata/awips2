@@ -2,7 +2,7 @@ package gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd;
 
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
-import gov.noaa.nws.ncep.viz.resources.manager.NmapResourceUtils;
+import gov.noaa.nws.ncep.viz.resources.manager.SpfsManager;
 import gov.noaa.nws.ncep.viz.resources.manager.RbdBundle;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapRenderableDisplay;
 import gov.noaa.nws.ncep.viz.ui.display.PaneID;
@@ -43,6 +43,7 @@ import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.exception.VizException;
 
 
 /**
@@ -57,6 +58,7 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
  * 09/22/09      #169       Greg Hull    Handle Display Panes
  * 11/11/09      #180       Greg Hull    Select from SPF
  * 02/04/10      #226       Greg Hull    Import RBDs or single Panes  
+ * 08/04/11      #450       Greg Hull    SpfsManager
  * 
  * </pre>
  * 
@@ -132,7 +134,11 @@ public class ImportRbdDialog extends Dialog {
     			display.sleep();
     		}
     	}
-
+//    	if( oked ) { // 
+//    		if( currRbdSel != null ) {
+//    			currRbdSel.resolveLatestCycleTimes();
+//    		}
+//    	}
     	return (oked ? currRbdSel : null );
     }
 
@@ -292,9 +298,19 @@ public class ImportRbdDialog extends Dialog {
    			} 
    		});
         
-    	// TODO : can change this to be a CP that calls NmapResourceUtils.getSpfNamesForGroup()
-        spf_name_lviewer.setContentProvider( NmapCommon.createSubDirContentProvider() );     
-        spf_name_lviewer.setLabelProvider( NmapCommon.createFileLabelProvider( ) );
+        spf_name_lviewer.setContentProvider(new IStructuredContentProvider() {
+			@Override
+			public Object[] getElements(Object inputElement) {
+				
+				return SpfsManager.getInstance().getSpfNamesForGroup( (String)inputElement );
+			}
+			@Override
+			public void dispose() { }
+
+			@Override
+			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+			}
+        });          
 
         spf_name_lviewer.addSelectionChangedListener(new ISelectionChangedListener() {
             public void selectionChanged( SelectionChangedEvent event ) {
@@ -435,7 +451,7 @@ public class ImportRbdDialog extends Dialog {
    		});
 
        	
-        spf_group_combo.setItems( NmapResourceUtils.getAvailSPFGroups() );
+        spf_group_combo.setItems( SpfsManager.getInstance().getAvailSPFGroups() );
         if( spf_group_combo.getItemCount() == 0 ) {
         	spf_group_combo.add("None Available");
         	spf_group_combo.select(0);
@@ -449,69 +465,43 @@ public class ImportRbdDialog extends Dialog {
 
     private void setSeldSpfGroup() {
     	seldSpfGroup = spf_group_combo.getText();
-    	File spf_group_dir = new File( NmapResourceUtils.getSpfGroupsDir(), seldSpfGroup );
+    	
+//    	String SpfsManager.getInstance().getSpfGroupsDir(), seldSpfGroup );
 //    	new File(LocalizationManager.getInstance().getFilename("spfGroupsDir") + File.separator + seldSpfGroup );	
-    	spf_name_lviewer.setInput( spf_group_dir );
+    	spf_name_lviewer.setInput( seldSpfGroup );
     	spf_name_lviewer.getList().select(0);
     	
     	setSeldSpfName();
     }
     
     private void setSeldSpfName() {
-    	StructuredSelection sel_group = (StructuredSelection)spf_name_lviewer.getSelection();  
-    	File seldSpfDir = (File)sel_group.getFirstElement();
-    	if( seldSpfDir == null || !seldSpfDir.isDirectory() ) {
+    	StructuredSelection sel = (StructuredSelection)spf_name_lviewer.getSelection();  
+    	
+    	seldSpfName = (String)sel.getFirstElement();
+    	
+    	if( seldSpfName == null || seldSpfName.isEmpty() ) {
     		rbd_lviewer.setInput( null );
 	    	rbd_lviewer.refresh();
 			setSelectedRBDs();
     		return;
     	}
+    	 
+    	ArrayList<RbdBundle> rbdBndls;
     	
-    	seldSpfName = seldSpfDir.getName();
-    	
-    	File rbdFiles[] = seldSpfDir.listFiles( new FileFilter() {
-			@Override
-			public boolean accept(File f) {
-    			return (!f.isDirectory() && f.getName().endsWith(".xml") ? true : false );
-			}
-    	});
-
-    	Arrays.sort( rbdFiles );
-    	Vector<String> maps_vect = new Vector<String>();
-
-    	ArrayList<RbdBundle> rbdBndls = new ArrayList<RbdBundle>();
+		try {
+			rbdBndls = SpfsManager.getInstance().getRbdsFromSpf(
+					seldSpfGroup, seldSpfName, 
+					false ); // don't resolve Latest Cycle Times
  		
- 		for( File rbdFile : rbdFiles ) {
- 			String rbdFilename = rbdFile.getAbsolutePath(); 
- 			try {
- 				Object rbdObj = SerializationUtil.jaxbUnmarshalFromXmlFile( 
- 														rbdFilename );
-				if( !(rbdObj instanceof RbdBundle ) ) {
-					System.out.println("??RBD file "+ rbdFilename+"is an " +
-							rbdObj.getClass().getName() );
-					continue;
-				}
-				
-				// set the timeMatcher's dominant resource. The name of the resource is set but we
-				// need to set the actual object.
-				RbdBundle rbdBndl = (RbdBundle) rbdObj;
-				if( !rbdBndl.initTimeline() ) {
-				//	System.out.println("???timeMatcher has dominant rsc which is not in the bundle file???");
-				}
-				
-				rbdBndls.add( rbdBndl );
-				
-			} catch (SerializationException e) {
-				System.out.println("JaxB error unmarshalling rbdfile:"+rbdFilename );
-			} 		
- 		}
- 		
- 		rbd_lviewer.setInput( rbdBndls );
- 		rbd_lviewer.refresh();
+			rbd_lviewer.setInput( rbdBndls );
+			rbd_lviewer.refresh();
 
- 		rbd_lviewer.getList().select(0);
+			rbd_lviewer.getList().select(0);
 
- 		setSelectedRBDs();
+			setSelectedRBDs();
+			
+		} catch (VizException e) {
+		}
     }
     
     private void  setSelectedRBDs() {

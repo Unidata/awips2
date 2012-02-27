@@ -169,7 +169,7 @@ public class GridRelativeHiLoDisplay implements IRenderable {
     				
     				ReferencedCoordinate c = new ReferencedCoordinate(
     						new Coordinate((int)tmp1[i], (int)tmp2[i] ),
-    						this.gridGeometryOfGrid, Type.GRID_CENTER);
+    						this.gridGeometryOfGrid, Type.GRID_CORNER);
     				try {
     					double[] d = this.descriptor.worldToPixel(new double[]{
     							(double)c.asLatLon().x, (double)c.asLatLon().y	
@@ -208,7 +208,7 @@ public class GridRelativeHiLoDisplay implements IRenderable {
     				
     				ReferencedCoordinate c = new ReferencedCoordinate(
     						new Coordinate((int)tmp1[i], (int)tmp2[i] ),
-    						this.gridGeometryOfGrid, Type.GRID_CENTER);
+    						this.gridGeometryOfGrid, Type.GRID_CORNER);
     				try {
     					double[] d = this.descriptor.worldToPixel(new double[]{
     							(double)c.asLatLon().x, (double)c.asLatLon().y	
@@ -249,7 +249,7 @@ public class GridRelativeHiLoDisplay implements IRenderable {
     				String text = convertFloat2String (tmp3[i],hiloBuild.getSymbolHiNumOfDecPls());
     				ReferencedCoordinate c = new ReferencedCoordinate(
     						new Coordinate((int)tmp1[i], (int)tmp2[i] ),
-    						this.gridGeometryOfGrid, Type.GRID_CENTER);
+    						this.gridGeometryOfGrid, Type.GRID_CORNER);
     				try {
     					double[] d = this.descriptor.worldToPixel(new double[]{
     							(double)c.asLatLon().x, (double)c.asLatLon().y	
@@ -291,7 +291,7 @@ public class GridRelativeHiLoDisplay implements IRenderable {
     				String text = convertFloat2String (tmp3[i],hiloBuild.getSymbolLoNumOfDecPls());
     				ReferencedCoordinate c = new ReferencedCoordinate(
     						new Coordinate((int)tmp1[i], (int)tmp2[i] ),
-    						this.gridGeometryOfGrid, Type.GRID_CENTER);
+    						this.gridGeometryOfGrid, Type.GRID_CORNER);
     				try {
     					double[] d = this.descriptor.worldToPixel(new double[]{
     							(double)c.asLatLon().x, (double)c.asLatLon().y	
@@ -348,7 +348,7 @@ public class GridRelativeHiLoDisplay implements IRenderable {
 	    		for ( i = 0; i < tmp1.length; i ++ ) {
 	    			ReferencedCoordinate c = new ReferencedCoordinate(
 	    					new Coordinate((int)tmp1[i], (int)tmp2[i]),
-	    					this.gridGeometryOfGrid, Type.GRID_CENTER);
+	    					this.gridGeometryOfGrid, Type.GRID_CORNER);
 
 	    			try {
 	    				locations1[i] = new Coordinate((double)c.asLatLon().x, (double)c.asLatLon().y);
@@ -394,7 +394,7 @@ public class GridRelativeHiLoDisplay implements IRenderable {
 	    		for ( i = 0; i < tmp1.length; i ++ ) {
 	    			ReferencedCoordinate c = new ReferencedCoordinate(
 	    					new Coordinate((int)tmp1[i], (int)tmp2[i]),
-	    					this.gridGeometryOfGrid, Type.GRID_CENTER);
+	    					this.gridGeometryOfGrid, Type.GRID_CORNER);
 
 	    			try {
 	    				locations2[i] = new Coordinate((double)c.asLatLon().x, (double)c.asLatLon().y);
