@@ -1,0 +1,178 @@
+#####################
+## CUSTOM TEMPLATE ##
+#####################
+${WMOId} ${vtecOffice} 000000
+CUSTOM
+${ugcline}
+/${productClass}.${action}.${vtecOffice}.SS.W.${etn}.${dateUtil.format(${start}, ${timeFormat.ymdthmz})}-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
+
+BULLETIN - EAS ACTIVATION REQUESTED
+#if(${productClass}=="T")
+TEST...CUSTOM WARNING...TEST
+#else
+CUSTOM WARNING
+#end
+NATIONAL WEATHER SERVICE ${officeShort}
+${dateUtil.format(${start}, ${timeFormat.header}, ${localtimezone})}
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+#headline(${officeLoc}, ${backupSite})
+
+* ##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+CUSTOM WARNING FOR...
+#foreach (${area} in ${areas}) 
+  ##
+#if(${area.partOfArea})
+#areaFormat(${area.partOfArea} true false) ##
+#end
+${area.name} ${area.areaNotation} IN #areaFormat(${area.partOfParentRegion} true false) ${area.parentRegion}...
+#if(${list.size($area.points)} > 0)
+#if(${list.size($area.points)} > 1)
+     THIS INCLUDES THE CITIES OF... #foreach (${city} in ${area.points})${city}... #end
+
+#else 
+     THIS INCLUDES THE CITY OF ${list.get(${area.points},0)}
+#end
+#end
+#end
+
+* ##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+UNTIL ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone})}
+
+#set($report = "") 
+#if(${list.contains($bullets, "much")})
+  #set ($report = "NATIONAL WEATHER SERVICE CUSTOM RADAR WAS TRACKING A CUSTOM THING") 
+#end
+#set($closest = ${list.get($closestPoints, 0)})
+#set($secondary = ${list.get($closestPoints, 1)})
+* ##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+AT ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}...${report} ##
+#if($closest.roundedDistance <= 4)
+OVER ##
+#else 
+${closest.roundedDistance} MILES #direction(${closest.oppositeRoundedAzimuth}) OF ##
+#end
+${closest.name}##
+#if($secondary)
+...OR ${secondary.roundedDistance} MILES #direction(${secondary.oppositeRoundedAzimuth}) OF ${secondary.name}##
+#end
+#if($movementSpeed < 3 || ${stationary})
+. ${reportType2} NEARLY STATIONARY.
+#else
+...MOVING #direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} MPH.
+#end
+## Determine if the pathcast goes over only rural areas
+#set($ruralOnly = 1)
+#foreach(${pc} in ${pathCast})
+#if(${pc.points})
+#set($ruralOnly = 0)
+#end
+#end
+#set($numOtherCities = ${list.size($otherPoints)})
+
+####################
+## BEGIN PATHCAST ##
+####################
+#if(${pathCast} && ${ruralOnly} == 0)
+#if(${stormType} == "line")
+* ##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+THE CUSTOM THING PRODUCING STORMS WILL BE NEAR...
+#else
+* ##
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+THE CUSTOM THING WILL BE NEAR...
+#end
+#set($numRural = 0)## indicates the number of rural points
+#foreach (${pc} in ${pathCast})
+#if(${pc.points})
+#set($numRural = 0)
+#set($numCities = ${list.size($pc.points)})
+#set($count = 0)
+  ##
+#foreach (${city} in ${pc.points})
+#if(${city.roundedDistance} < 3)
+## close enough to not need azran, considered OVER the area
+${city.name}##
+#else
+## needs azran information
+${city.roundedDistance} MILES #direction(${city.oppositeRoundedAzimuth}) OF ${city.name}##
+#end
+#set($count = $count + 1)
+#if($count == $numCities - 1)
+ AND ##
+#elseif($count < $numCities)
+...##
+#end
+#end
+ BY ${dateUtil.format(${pc.time}, ${timeFormat.clock}, ${localtimezone})}...
+#else## Handle the rural cases 
+#set($numRural = $numRural + 1)
+#if($numRural > 2)
+  RURAL ${pc.area} ${pc.areaNotation} AT ${dateUtil.format(${pc.time}, ${timeFormat.clock}, ${localtimezone})}... 
+#set($numRural = 0)
+#end
+#end
+#end
+#elseif(${otherPoints} && ${numOtherCities} > 0)
+* OTHER LOCATIONS IN THE WARNING INCLUDE BUT ARE NOT LIMITED TO
+#set($count = 0)
+  ##
+#foreach(${point} in ${otherPoints})
+#set($count = $count + 1)
+${point}##
+#if($count == $numOtherCities - 1)
+ AND ##
+#elseif($count < $numOtherCities)
+...##
+#end
+#end
+
+#else
+* THE CUSTOM THING WILL OTHERWISE REMAIN OVER MAINLY RURAL AREAS OF THE INDICATED COUNTIES.  
+
+#end
+####################
+## ENDS  PATHCAST ##
+####################
+
+#if(${list.contains($bullets, "more")})
+IN ADDITION TO THE CUSTOM WARNING...
+
+## parse file command here is to pull in mile marker info
+## #parse("mileMarkers.vm")
+
+#end
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
+
+#end
+#printcoords(${areaPoly}, ${list})
+
+TIME...MOT...LOC ##
+${dateUtil.format(${event}, ${timeFormat.time})}Z ##
+${mathUtil.round(${movementDirection})}DEG ##
+${mathUtil.round(${movementInKnots})}KT ##
+#foreach(${eventCoord} in ${eventLocation})
+#llFormat(${eventCoord.y}) #llFormat(${eventCoord.x}) ##
+#end
+
+$$
+
+!**NAME/INITIALS**!

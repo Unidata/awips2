@@ -57,7 +57,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.listeners.FFMPLoaderEvent;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 28 Feb, 2011   7587    dhladky     Initial creation
- * 
+ * 25 Jan, 2012   DR13839 gzhang	  Handle Uris and Huc processing
  * </pre>
  * 
  * @author dhladky
@@ -310,10 +310,11 @@ public class FFMPDataLoader extends Thread {
                                         source.getSourceName(), phuc);
                             }
                         }
-
-                        if ((qpfData == null) && !qpfURIs.isEmpty()) {
+                        if (isUrisProcessNeeded(qpfData,qpfURIs)) {/*DR13839*/
+                        /*if ((qpfData == null) && !qpfURIs.isEmpty()) {
                             if (phuc.equals(config.getFFMPConfigData()
-                                    .getLayer())) {
+                                    .getLayer())) { old code: keep for reference*/
+                        	if (isHucProcessNeeded(phuc)) {/*DR13839*/
                                 getMonitor().processUris(qpfURIs,
                                         isProductLoad, siteKey,
                                         product.getQpf(i), timeBack, phuc,
@@ -516,6 +517,27 @@ public class FFMPDataLoader extends Thread {
 
         return siteKey;
 
+    }
+    
+    /**
+     * DR13839:	Basin Table QPF should match independent QPFSCAN display.
+     * Old code: qpfData==null in if statement causing some uris not processed.
+     * @param qpfData:	FFMPBasinData read from file;
+     * @param qpfURIs:	qpf uris.
+     * @return:			true if qpf uris not empty.
+     */
+    private boolean isUrisProcessNeeded(FFMPBasinData qpfData, NavigableMap<Date, List<String>> qpfURIs){    	
+    	return ! qpfURIs.isEmpty();
+    }
+    
+    /**
+     * DR13839:	Basin Table QPF should match independent QPFSCAN display.
+     * with phuc is ALL allows matching independent QPFSCAN values. 
+     * @param phuc:	the huc string of a basin;
+     * @return:		true if the huc needs processing.
+     */
+    private boolean isHucProcessNeeded(String phuc){    	
+    	return "ALL".equals(phuc); 	//config.getFFMPConfigData().getLayer().equals(phuc);    	
     }
 
 }

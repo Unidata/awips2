@@ -22,7 +22,8 @@ import gov.noaa.nws.ncep.ui.pgen.file.FileTools;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo.SnapVOR;
 
 import gov.noaa.nws.ncep.viz.common.dbQuery.NcDirectDbQuery;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -67,6 +68,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * 05/11					J. Wu		Exclude null and non-GFA-related States..
  * 06/11					J. Wu		Temporarily hard-coded in fixStateBounds()
  * 										to fix known errors in ID/VT/FL/WA/OH
+ * 07/11        #450        G. Hull     NcPathManager
  * 
  * </pre>
  * 
@@ -102,7 +104,10 @@ public class GfaClip {
 	 */
 	private final String[] EXCLUDE_STATES = new String[]{ "AK", "HI", "UM", "GU", "AS", "PR", "VI" };
 //	private final String[] WRONG_STATES = new String[] {"VT", "ID", "OH", "FL", "WA", "AK", "HI", "UM", "GU", "AS", "PR", "VI"};
-	private final String[] WRONG_STATES = new String[] {"VT", "ID", "OH", "FL", "WA"};
+//	private final String[] WRONG_STATES = new String[] {"VT", "ID", "OH", "FL", "WA"}; //OB11.5
+	private final String[] WRONG_STATES = new String[] {"HI","VI","ME","VA","MI","MD","MA","AS","AR",
+			 "IL","MN", "MS","NJ","PR","AK","AL","TX","NC","ND","NY","OK","OH", 
+			 "FL","SD","SC","WI","LA","GU","WA" }; //OB11.7
 	
 	/**
 	 * The union of three FA region bound shapes.
@@ -405,6 +410,16 @@ public class GfaClip {
 	private void readStateBounds() throws VizException {
 		// TODO change to use SCHEMA, DATABASE, and STATE_BNDS_TABLE
 		String sql = "select t.state, AsBinary(t.the_geom) from mapdata.states t";
+//		String sql = "select t.state, AsBinary(t.the_geom_0) from mapdata.states t";
+//		String sql = "select t.state, AsBinary(t.the_geom_0_001) from mapdata.states t";
+//		String sql = "select t.state, AsBinary(t.the_geom_0_004) from mapdata.states t";
+//		String sql = "select t.state, AsBinary(t.the_geom_0_016) from mapdata.states t";
+//		String sql = "select t.state, AsBinary(t.the_geom_0_064) from mapdata.states t";
+		
+//		long l1 = System.currentTimeMillis();
+//		stateBounds = readBounds( "maps", sql );
+//		System.out.println("Time to load state bounds =  " + (System.currentTimeMillis() - l1 ) );
+
 		
 		HashMap<String, Geometry>  originalStateBounds = readBounds( "maps", sql );
 		
@@ -1014,7 +1029,8 @@ public class GfaClip {
 		
 		if ( mtObscTbl == null) {
 			try {
-				String mtObscFile = LocalizationManager.getInstance().getFilename("mtObscStates");
+				String mtObscFile = NcPathManager.getInstance().getStaticFile(
+						   NcPathConstants.PGEN_MNTN_OBSC_STATES ).getAbsolutePath();
 				SAXReader reader = new SAXReader();
 				mtObscTbl = reader.read( mtObscFile );
 			} catch ( Exception e ) {
@@ -1797,8 +1813,29 @@ public class GfaClip {
 		faAreaXBoundsInGrid = updateBoundsInGrid( getFaAreaXBounds() );
 
 		stateBoundsInGrid = updateBoundsInGrid( getStateBounds() );
-		stateBoundsInGrid = updateBoundsInGrid( getStateBounds() );
 
+/*
+		stateBoundsInGrid = updateBoundsInGrid( getStateBounds() );
+		StringBuilder invalidSts = new StringBuilder();
+		for ( String key : stateBoundsInGrid.keySet() ) {
+		    Geometry g1 = stateBounds.get( key );
+		    Geometry g2 = stateBoundsInGrid.get( key );
+		    
+		    if ( !g1.isValid() || (g1.isValid() && !g2.isValid()) ) {
+		    	invalidSts.append( " " + key );
+		    }
+		}
+		
+		System.out.println( "Invalid state = " + invalidSts );
+
+		for ( String key : stateBoundsInGrid.keySet() ) {
+	    Geometry g1 = stateBounds.get( key );
+	    Geometry g2 = stateBoundsInGrid.get( key );
+	    System.out.println( "Original State Bound for " + key + " is " + g1.isValid() );
+	    System.out.println( "\tState Bound in Grid for " + key + " is " + g2.isValid() );
+	}
+	stateBoundsInGrid = updateBoundsInGrid( getStateBounds() );
+*/
 		greatLakesBoundsInGrid = updateBoundsInGrid( getGreatLakeBounds() );
 		coastalWaterBoundsInGrid = updateBoundsInGrid( getCoastalWaterBounds() );
 		faRegionCommBoundsInGrid = updateBoundsInGrid( getFaRegionCommBounds() );
@@ -1908,12 +1945,22 @@ public class GfaClip {
 	private void writeErrorBound( String bndName, HashMap<String, Geometry> bndMap ) {
     		    	
 	    ArrayList<String>  errorStates = new ArrayList<String>();
-	    for ( String s : WRONG_STATES ) {
-	    	errorStates.add( s );
-	    }
-
+//	    for ( String s : WRONG_STATES ) {
+//	    	errorStates.add( s );
+//	    }
+        
+	    boolean isvalid = true;
+        System.out.println( "Total of state bounds = " + bndMap.keySet().size() );
+		StringBuilder ss = new StringBuilder();
+        for ( String key : bndMap.keySet() ) {		    
+		       ss.append( key + " ");
+		}
+	    
+        System.out.println( "States are: " + ss );		
+		
+	    StringBuilder as = new StringBuilder();
 		for ( String key : bndMap.keySet() ) {
-			 
+
 		    Product activeProduct = new Product("Default", "Default", "Default",
 		  		      new ProductInfo(), new ProductTime(), new ArrayList<Layer>() );
 			    
@@ -1927,9 +1974,17 @@ public class GfaClip {
 		    
 	    	ArrayList<Coordinate> pts = new ArrayList<Coordinate>();
             
-	    	if ( errorStates.contains( key ) ) {
+//	    	if ( errorStates.contains( key ) ) {
+    		isvalid = g.isValid();
+	    	if ( !isvalid ) {
+    			as.append( " " + key );
+	    		System.out.println( "\tInvalid Bound " + key + "\t " + g.getNumGeometries() );
+    		}
+	    	
+//	    	if ( !g.isValid() ) {
         	    
-	    		System.out.println( "\tHandle Invalid Bound " + key + "\t " + g.getNumGeometries() );
+	    		
+	    		System.out.println( "\tProcess Bound " + key + "\t " + g.getNumGeometries() );
 			    
 	    		for ( int jk = 0; jk < g.getNumGeometries(); jk++ ) {
 			        
@@ -1955,22 +2010,30 @@ public class GfaClip {
                                 "Text", "General Text" );	
 		                        lbl.setLocation( cline.getLinePoints()[0] );
 		            
-		             activeLayer.add( lbl );		    		    
+//		             activeLayer.add( lbl );		    		    
 		  		     activeLayer.add( cline );
 			    }			
 	    	
 	    	    /*
 	             * Write into a file.
 	             */
-		        if ( productList.get(0).getLayer(0).getDrawables().size() > 0 ) {
-			        Products filePrds = ProductConverter.convert( productList  );
-	                String a = "/export/cdbsrv/jwu/" + bndName + "_" + key +"_validate.xml";
-	                System.out.println( "Write to validation file: " + a );
+		        if ( productList.get(0).getLayer(0).getDrawables().size() > 0 ) {			        
+		        	Products filePrds = ProductConverter.convert( productList  );
+	                String a;
+		        	if ( isvalid ) {
+		        	    a = "/export/cdbsrv/jwu/stateBnd/" + bndName + "_high_" + key + "_correct_nolabel.xml";
+	                }
+	                else {
+		        	    a = "/export/cdbsrv/jwu/stateBnd/" + bndName + "_high_" + key + "_icorrect_nolabel.xml";	                	
+	                }
+		        	System.out.println( "Write to validation file: " + a );
 		            FileTools.write( a, filePrds ); 
 		        }
 		    }
-
-		}
+		
+    	    System.out.println( "Invalid states are: " + as );		    
+		
+//		}
 	}
 
 	
@@ -2177,7 +2240,7 @@ public class GfaClip {
 		    System.out.println( "o1 is at left of t1t2 " );
 		}
 		else {
-		    System.out.println( "o1 is at right of t1t2 " );			
+		    System.out.println( "o1 is at right of t1t2 " );			//
 		}
        
 		if ( onLeft( o2, t1, t2 ) ) {
