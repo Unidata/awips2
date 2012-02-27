@@ -2,8 +2,6 @@
 package gov.noaa.nws.ncep.viz.tools.predefinedArea;
 
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationResourcePathConstants;
 import gov.noaa.nws.ncep.viz.rsc.satellite.rsc.AbstractSatelliteResource;
 import gov.noaa.nws.ncep.viz.rsc.satellite.rsc.GiniSatResource;
 import gov.noaa.nws.ncep.viz.rsc.satellite.rsc.McidasSatResource;

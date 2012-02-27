@@ -43,6 +43,8 @@ import gov.noaa.nws.ncep.ui.pgen.file.Products;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.CcfpInfo;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 /**
  * Singleton text product dialog for CCFP.
@@ -131,7 +133,9 @@ public class CcfpMsgDlg extends AttrDlg{
 			public void handleEvent(Event e){
 			
 				String xmlFileName = CcfpInfo.saveCcfpXmlFile(getIssueTime(), getValidTime());
-				txtFileContent = CcfpInfo.convertXml2Txt(xmlFileName, NmapCommon.getCcfpXml2TxtFile());
+				txtFileContent = CcfpInfo.convertXml2Txt(xmlFileName, 
+						NcPathManager.getInstance().getStaticFile( 
+								NcPathConstants.PGEN_CCFP_XSLT).getAbsolutePath() );
 				txtInfo.setText(txtFileContent.trim());
 				
 			}
