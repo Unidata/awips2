@@ -39,8 +39,9 @@ import com.vividsolutions.jts.geom.Polygon;
  * 03/2010		#223		M.Laryukhin	Initial Creation.
  * 05/2010		#256		B. Yin		Added getForecastHours to make filter work
  * 02/2011					J. Wu		Made deep copy of GFA
- * 04/11		#?			B. Yin		Re-factor IAttribute
+ * 04/2011		#?			B. Yin		Re-factor IAttribute
  * 05/2011					J. Wu		Added reduce-able flags.
+ * 01/2012					J. Wu		Avoid null pointer in copy().
  * 
  * </pre>
  * 
@@ -255,7 +256,7 @@ public class Gfa extends Line implements IGfa, Comparable<Gfa> {
 		
 		HashMap<String, String> gfaValuesCopy = new HashMap<String, String>();
 		for ( String str : this.getGfaValues().keySet() ) {
-			gfaValuesCopy.put( new String(str) , new String( this.getGfaValues().get( str ) ) );
+			gfaValuesCopy.put( new String(str) , new String( nvl(this.getGfaValues().get( str ) ) ) );
 		}
 		gfa.setGfaValues( gfaValuesCopy );
 

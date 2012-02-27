@@ -17,7 +17,8 @@ Require-Bundle: org.eclipse.ui,
  gov.noaa.nws.ncep.edex.plugin.mosaic;bundle-version="1.0.0",
  gov.noaa.nws.ncep.viz.common,
  com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0",
- com.raytheon.viz.radar
+ com.raytheon.viz.radar,
+ gov.noaa.nws.ncep.viz.localization
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.uf.common.dataplugin,
@@ -35,7 +36,6 @@ Import-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.viz.radar,
  com.raytheon.viz.ui.editor,
  gov.noaa.nws.ncep.viz.common.ui,
- gov.noaa.nws.ncep.viz.localization.impl,
  gov.noaa.nws.ncep.viz.tools.imageProperties,
  gov.noaa.nws.ncep.viz.ui.display,
  javax.measure.converter,

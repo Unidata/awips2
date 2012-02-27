@@ -22,6 +22,7 @@ import gov.noaa.nws.ncep.ui.pgen.display.ElementContainerFactory;
 import gov.noaa.nws.ncep.ui.pgen.display.IDisplayable;
 import gov.noaa.nws.ncep.ui.pgen.display.ISymbolSet;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
+import gov.noaa.nws.ncep.ui.pgen.elements.Arc;
 import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.IJetTools;
@@ -34,15 +35,19 @@ import gov.noaa.nws.ncep.ui.pgen.elements.SinglePointElement;
 import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
 import gov.noaa.nws.ncep.ui.pgen.elements.SymbolLocationSet;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
+import gov.noaa.nws.ncep.ui.pgen.elements.tcm.Tcm;
 import gov.noaa.nws.ncep.ui.pgen.filter.AcceptFilter;
 import gov.noaa.nws.ncep.ui.pgen.filter.CategoryFilter;
 import gov.noaa.nws.ncep.ui.pgen.filter.ElementFilter;
 import gov.noaa.nws.ncep.ui.pgen.filter.ElementFilterCollection;
 import gov.noaa.nws.ncep.ui.pgen.gfa.Gfa;
+import gov.noaa.nws.ncep.ui.pgen.layering.PgenLayeringControlDialog;
 import gov.noaa.nws.ncep.ui.pgen.productManage.ProductManageDialog;
+import gov.noaa.nws.ncep.ui.pgen.sigmet.Sigmet;
 import gov.noaa.nws.ncep.ui.pgen.tca.TCAElement;
 import gov.noaa.nws.ncep.ui.pgen.tca.TropicalCycloneAdvisory;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenSnapJet;
+import gov.noaa.nws.ncep.viz.tools.pgenFileName.PgenFileNameDisplay;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
@@ -110,7 +115,9 @@ import com.vividsolutions.jts.geom.Point;
  * 09/10		#151		J. Wu		Save product in LPF-style
  * 10/10 		#310        S. Gilbert  Modified to support PGEN SINGLE mode
  * 02/11		?			B. Yin		Select elements only in certain distance.
- * 04/11		#?			B. Yin		Re-factor IAttribute
+ * 04/11		?			B. Yin		Re-factor IAttribute
+ * 09/11		?			B. Yin		Added Circle symbol for Inc/Dec selection.			
+ * 01/12		?			J. Wu		TTR 444-Always display active product's active layer.			
  *
  * </pre>
  * 
@@ -206,12 +213,7 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
     	
     	if ( filename == null ) return;
         
-        boolean multiSave = false;        
-        if ( getProductManageDlg() != null && getProductManageDlg().isOpen() ) {       		
-        	multiSave = getProductManageDlg().isMultiSave();
-        }
-        
-        resourceData.saveProducts(filename, multiSave);
+        resourceData.saveProducts(filename, false );
         
     }
     
@@ -374,12 +376,19 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 	 * @param paintProps Paint properties from the paint() method.
 	 */
 	private void drawProduct(IGraphicsTarget target, PaintProperties paintProps ) {
-
+        
+		int nprds = resourceData.getProductList().size();
+		
 		for ( Product prod : resourceData.getProductList() ) {
-			if (  prod.isOnOff() ) {
-			    for ( Layer layer : prod.getLayers() ) {
+			if (  prod.isOnOff() || nprds == 1 ||
+				  prod == resourceData.getActiveProduct() ) {
+			    
+				int nlyrs =  prod.getLayers().size();
+				
+				for ( Layer layer : prod.getLayers() ) {
 					
-				    if ( layer.isOnOff() ) {
+				    if ( layer.isOnOff() || nlyrs == 1 || 
+				    	 layer == resourceData.getActiveLayer() ) {
                    
 				    	DisplayProperties dprops = new DisplayProperties();
 					    if ( layer != resourceData.getActiveLayer() ) {
@@ -563,8 +572,16 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 			List<IDisplayable> displayEls = new ArrayList<IDisplayable>();
 			HashMap<Symbol,CoordinateList> map = new HashMap<Symbol,CoordinateList>();
 
-			Symbol defaultSymbol = new Symbol( null, new Color[]{Color.lightGray},
-					2.5f, 7.5, false, null, "Marker", "DOT");
+			Symbol defaultSymbol;
+			if ( PgenSession.getInstance().getPgenPalette().getCurrentAction().equalsIgnoreCase("IncDec") ){
+				defaultSymbol = new Symbol( null, new Color[]{Color.MAGENTA},
+						2.5f, 0.7, false, null, "Symbol", "CIRCLE");
+			}
+			else {
+				defaultSymbol = new Symbol( null, new Color[]{Color.lightGray},
+						2.5f, 7.5, false, null, "Marker", "DOT");
+			}
+			
 			Symbol selectSymbol = new Symbol( null, new Color[]{getPtsSelectedColor()},
 					2.5f, 7.5, false, null, "Marker", "DOT");
 
@@ -725,7 +742,7 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 	 * add an ADC to the selected list.
 	 * @param adc
 	 */
-	public void addSelected( List<AbstractDrawableComponent> adcList ){
+	public void addSelected( List<? extends AbstractDrawableComponent> adcList ){
 		elSelected.addAll(adcList);
 	}
 	
@@ -833,36 +850,29 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 	 */
 	public void replaceProduct ( List<Product> prds ) {
 		
-		List<Product> productList = resourceData.getProductList();
-		
- 		/*
-		 * reset/dispose elements in the displayMap
-		 */
-		for ( Product prod : productList ) {
-			for ( Layer layer : prod.getLayers() ) {
-				resetADC(layer);
-			}
+		for ( Layer layer : resourceData.getActiveProduct().getLayers() ) {
+			resetADC(layer);
 		}
-
-		resourceData.replaceProduct(prds);
+		
+		resourceData.replaceProduct( prds );
         
 	}	
 	
 	/**
-	 *  Append products to the existing products. 
+	 *  Add products to the existing products. 
 	 */
-	public void appendProduct( List<Product> prds ) {
+	public void addProduct( List<Product> prds ) {
 		
-		resourceData.appendProduct( prds );
+		resourceData.addProduct( prds );
 		
 	}
 	
 	/**
-	 *  Merge products with the existing products. 
+	 *  Append products with the existing products. 
 	 */
-	public void mergeProduct( List<Product> prds ) {
+	public void appendProduct( List<Product> prds ) {
 		
-		resourceData.mergeProduct( prds );
+		resourceData.appendProduct( prds );
 		
 	}
 	
@@ -1017,6 +1027,19 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 	 */
 	public void setActiveProduct(Product activeProduct) {
 		resourceData.setActiveProduct( activeProduct );
+		
+		String fname = activeProduct.getInputFile();
+		if ( fname == null ) {
+			fname = activeProduct.getOutputFile();
+		}
+		
+		if ( fname == null && resourceData.getProductManageDlg() != null ) {
+			fname = resourceData.getProductManageDlg().getPrdOutputFile( activeProduct );
+		}
+		
+		if ( fname != null ) {
+		    PgenFileNameDisplay.getInstance().setFileName( fname );
+		}
 	}
 
 	/**
@@ -1131,6 +1154,13 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 		return resourceData.getProductManageDlg();
 	}
 	
+    /**
+     *  Return the current layering control dialog.
+     */
+	public PgenLayeringControlDialog getLayeringControlDlg() {
+		return resourceData.getLayeringControlDlg();
+	}
+	
 	/**
 	 * closes any 
 	 */
@@ -1239,7 +1269,7 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 	 * @param loc
 	 * @return
 	 */
-	private double getDistance(AbstractDrawableComponent adc, Coordinate loc ){
+	public double getDistance(AbstractDrawableComponent adc, Coordinate loc ){
 		
 		double minDist = Double.MAX_VALUE;
 		
@@ -1310,6 +1340,49 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 				}
 			}
 		}
+		else if ( adc instanceof Arc ){
+			Arc arc = (Arc)adc;
+			
+		       double[] center = mapEditor.translateInverseClick( arc.getCenterPoint());
+		       double[] circum = mapEditor.translateInverseClick(arc.getCircumferencePoint());
+		       
+		       Point ctrScreen = new GeometryFactory().createPoint(new Coordinate(center[0], center[1]));
+
+		       minDist = ctrScreen.distance(new GeometryFactory().createPoint(new Coordinate(locScreen[0], locScreen[1])));
+		       
+		        /*
+		         * calculate angle of major axis
+		         */
+		        double axisAngle = Math.toDegrees(Math.atan2( (circum[1]-center[1]), (circum[0]-center[0]) ));
+		        double cosineAxis = Math.cos( Math.toRadians(axisAngle));
+		        double sineAxis = Math.sin( Math.toRadians(axisAngle));
+		        
+		        /*
+		         * calculate half lengths of major and minor axes
+		         */
+		        double diff[] = { circum[0] - center[0], circum[1] - center[1] };
+		        double major = Math.sqrt( (diff[0]*diff[0]) + (diff[1]*diff[1]) );
+		        double minor = major * arc.getAxisRatio();
+			
+			double angle = arc.getStartAngle();
+			int numpts = (int)Math.round(arc.getEndAngle() - arc.getStartAngle() + 1.0);
+			
+			for ( int j=0; j < numpts; j++ ) {
+				double thisSine = Math.sin( Math.toRadians(angle));
+				double thisCosine = Math.cos( Math.toRadians(angle));
+				
+				double xx = center[0] + (major * cosineAxis * thisCosine )
+				- (minor * sineAxis * thisSine );
+				double yy = center[1] + (major * sineAxis * thisCosine )
+				+ (minor * cosineAxis * thisSine );
+				
+				Point ptScreen = new GeometryFactory().createPoint(new Coordinate(xx, yy));
+				double dist = ptScreen.distance(new GeometryFactory().createPoint(new Coordinate(locScreen[0], locScreen[1])));				
+				if ( dist < minDist ) minDist = dist;
+
+				angle += 1.0;
+			}
+		}
 		else if ( adc instanceof MultiPointElement ){
 			
 			if( adc instanceof gov.noaa.nws.ncep.ui.pgen.sigmet.Sigmet && 			
@@ -1329,8 +1402,17 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 
 			for ( int ii = 0; ii <  pts.length; ii++ ) {
 
+				if ( mpe instanceof Tcm && pts.length == 1){
+					double [] pt = mapEditor.translateInverseClick(mpe.getLinePoints()[0]);
+					Point ptScreen = new GeometryFactory().createPoint(new Coordinate(pt[0], pt[1]));
+					minDist = ptScreen.distance(new GeometryFactory().createPoint(new Coordinate(locScreen[0], locScreen[1])));
+					break;
+				}
+				
 				if ( ii == pts.length - 1){
-					if ((mpe instanceof Line && ((Line)mpe).isClosedLine()) || mpe instanceof WatchBox ){
+					if ((mpe instanceof Line && ((Line)mpe).isClosedLine()) || mpe instanceof WatchBox
+							||( mpe instanceof gov.noaa.nws.ncep.ui.pgen.sigmet.Sigmet && 			
+									Sigmet.AREA.equalsIgnoreCase(((gov.noaa.nws.ncep.ui.pgen.sigmet.Sigmet) mpe).getType()))){
 						
 						dist = distanceFromLineSegment(loc, (Coordinate)pts[ii], (Coordinate)pts[0]);
 
@@ -1401,5 +1483,30 @@ public class PgenResource extends AbstractVizResource<PgenResourceData,MapDescri
 		if ( maxDist <= 0 ) maxDist = 30;
  		return maxDist;
 	}
+	
+	/**
+	 * Saves the current product in the resourceData to its configured file
+	 * @param filename
+	 */
+    public void saveCurrentProduct( String filename ) {   	                
+        resourceData.saveCurrentProduct( filename );        
+    }
+
+    /**
+	 * Saves all products in the resourceData to their configured files.
+	 * @param filename
+	 */
+    public void saveAllProducts() {
+    	
+        resourceData.saveAllProducts();
+        
+    }
+    
+    /**
+     * Build a full path file name for a product's configured path/output file name.
+     */
+    public String buildFileName( Product prd ) {
+        return resourceData.buildFileName( prd );  
+    }
 }
 

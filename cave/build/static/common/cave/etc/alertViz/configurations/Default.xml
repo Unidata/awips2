@@ -5,6 +5,7 @@
     	12/26/2011	Xiaochuan		DR14236 (trac 11710) request to fix SCAN Alert Visualization BASE 
     								configuring file. Changed true or false setting on popup, text,  
     								blink and color items followed the A1 configuring master.gcf file.
+	01/31/2012	dyninaj			DR14427 added category NDFD
 	-->
 <alertConfiguration name="DEFAULT">
     <globalConfiguration height="37" width="-1" yPosition="-1" xPosition="-1" logLength="10" audioDuration="30" blinkDuration="5" expandedPopup="false" categoryShown="false" sourceKeyShown="false" priorityShown="false" mode="H2"/>
@@ -18,6 +19,7 @@
     <category textBox="1" categoryName="MISC" longName="Miscellaneous" locked="true"/>
     <category textBox="1" categoryName="MODEL" longName="Model Related" locked="true"/>
     <category textBox="1" categoryName="MONITOR" longName="Used only by Monitor applications." locked="true"/>
+    <category textBox="1" categoryName="NDFD" longName="AWIPS NDFD messages" locked="true"/>
     <category textBox="1" categoryName="NWSADMIN" longName="NWS Administrative messages" locked="true"/>
     <category textBox="1" categoryName="OBS_SFC" longName="Surface Observations" locked="true"/>
     <category textBox="1" categoryName="OBS_UPPR" longName="Upper Observations" locked="true"/>

@@ -14,17 +14,128 @@
          point="gov.noaa.nws.ncep.viz.resources.NC-Resource">
       <nc-resource
             class="gov.noaa.nws.ncep.viz.ui.locator.resource.LocatorResourceData"
-            editDialogClass="gov.noaa.nws.ncep.viz.ui.locator.LocatorEditDialog"
+            editDialogClass="gov.noaa.nws.ncep.viz.ui.locator.resource.LocatorEditDialog"
             name="Locator">
       </nc-resource>
    </extension>
    <extension
-         point="gov.noaa.nws.ncep.viz.localization.localizationData">
-      <singleLocalizationValue
-            name="locatorTable"
-            location="locator"
-            fileName="locator_tbl.xml">
-      </singleLocalizationValue>
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceAttribute">
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="pos1LocatorSource"
+            ncResourceName="Locator">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="java.lang.Integer"
+            attributeName="pos1RoundToNearest"
+            ncResourceName="Locator">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="pos1DisplayUnit"
+            ncResourceName="Locator">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="pos1DirectionUnit"
+            ncResourceName="Locator">
+      </nc-resourceAttribute>
+      
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="pos2LocatorSource"
+            ncResourceName="Locator">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="java.lang.Integer"
+            attributeName="pos2RoundToNearest"
+            ncResourceName="Locator">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="pos2DisplayUnit"
+            ncResourceName="Locator">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="pos2DirectionUnit"
+            ncResourceName="Locator">
+      </nc-resourceAttribute>
+      
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="pos3LocatorSource"
+            ncResourceName="Locator">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="java.lang.Integer"
+            attributeName="pos3RoundToNearest"
+            ncResourceName="Locator">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="pos3DisplayUnit"
+            ncResourceName="Locator">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="pos3DirectionUnit"
+            ncResourceName="Locator">
+      </nc-resourceAttribute>
+      
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="pos4LocatorSource"
+            ncResourceName="Locator">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="java.lang.Integer"
+            attributeName="pos4RoundToNearest"
+            ncResourceName="Locator">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="pos4DisplayUnit"
+            ncResourceName="Locator">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="pos4DirectionUnit"
+            ncResourceName="Locator">
+      </nc-resourceAttribute>
+      
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="pos5LocatorSource"
+            ncResourceName="Locator">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="java.lang.Integer"
+            attributeName="pos5RoundToNearest"
+            ncResourceName="Locator">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="pos5DisplayUnit"
+            ncResourceName="Locator">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="pos5DirectionUnit"
+            ncResourceName="Locator">
+      </nc-resourceAttribute>
+      
    </extension>
+   <extension
+          point="com.raytheon.uf.viz.localization.localizationpath">
+       	<path
+             application="NCEP"
+             localizationType="CAVE_STATIC"
+             name="LocatorDataSources"
+             recursive="false"
+             value="ncep/LocatorDataSources"
+	         extensionFilter=".xml">
+       </path>
+      </extension>
    
 </plugin>
