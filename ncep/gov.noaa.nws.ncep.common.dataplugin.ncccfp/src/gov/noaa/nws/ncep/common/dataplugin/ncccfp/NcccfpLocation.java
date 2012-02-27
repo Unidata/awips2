@@ -1,3 +1,4 @@
+
 package gov.noaa.nws.ncep.common.dataplugin.ncccfp;
 
 import javax.persistence.Column;
@@ -10,8 +11,8 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.hibernate.annotations.Type;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
+import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.serialization.adapters.GeometryAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -43,18 +44,18 @@ public class NcccfpLocation implements ISpatialObject {
 
     private static final long serialVersionUID = 8890315829188793187L;
 
-    @DataURI(position = 0)
+    @DataURI(position=0)
     @Column(name = "location", columnDefinition = "geometry")
     @Type(type = "com.raytheon.edex.db.objects.hibernate.GeometryType")
     @XmlJavaTypeAdapter(value = GeometryAdapter.class)
     @DynamicSerializeElement
     private Geometry geometry;
-
-    @Column(length = 600)
+    
+    @Column(length=600)
     @DynamicSerializeElement
     @XmlElement
     private String locationAll;
-
+    
     @Column
     @DynamicSerializeElement
     @XmlElement
@@ -64,7 +65,7 @@ public class NcccfpLocation implements ISpatialObject {
     @DynamicSerializeElement
     @XmlElement
     private double boxLong;
-
+    
     @Override
     public CoordinateReferenceSystem getCrs() {
         return null;
@@ -104,12 +105,12 @@ public class NcccfpLocation implements ISpatialObject {
     public void setGeometry(Geometry geometry) {
         this.geometry = geometry;
     }
-
-    public void setLocationAll(String locationAll) {
-        this.locationAll = locationAll;
+    
+    public void setLocationAll (String locationAll) {
+    	this.locationAll = locationAll;
     }
-
-    public String getLocationAll() {
-        return locationAll;
+    
+    public String getLocationAll () {
+    	return locationAll;
     }
 }

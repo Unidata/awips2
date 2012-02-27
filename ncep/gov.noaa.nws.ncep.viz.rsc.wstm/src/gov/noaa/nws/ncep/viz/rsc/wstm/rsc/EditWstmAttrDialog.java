@@ -44,6 +44,7 @@ import gov.noaa.nws.ncep.viz.rsc.wstm.Activator;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 08-Nov-2010    247      Archana     Initial creation.
+ * 21-Dec-2011             B. Hebbard  Correct event type checkbox labels
  *                                                
  * @author archana
  *</pre>
@@ -52,17 +53,17 @@ public class EditWstmAttrDialog extends AbstractEditResourceAttrsDialog {
 	private RscAttrValue wstmWarningEnableAttr = null;
 	private RscAttrValue wstmWarningColorAttr = null;
 	private RscAttrValue wstmWarningLineWidthAttr = null;
-	private RscAttrValue  wstmWarningSymbolWidthAttr = null;	
+	private RscAttrValue wstmWarningSymbolWidthAttr = null;
 	private RscAttrValue wstmWarningSymbolSizeAttr = null;
 	private RscAttrValue wstmWatchEnableAttr = null;
 	private RscAttrValue wstmWatchColorAttr = null;
 	private RscAttrValue wstmWatchLineWidthAttr = null;
-	private RscAttrValue  wstmWatchSymbolWidthAttr = null;	
+	private RscAttrValue wstmWatchSymbolWidthAttr = null;
 	private RscAttrValue wstmWatchSymbolSizeAttr = null;
 	private RscAttrValue wstmAdvisoryEnableAttr = null;
 	private RscAttrValue wstmAdvisoryColorAttr = null;
 	private RscAttrValue wstmAdvisoryLineWidthAttr = null;
-	private RscAttrValue  wstmAdvisorySymbolWidthAttr = null;	
+	private RscAttrValue wstmAdvisorySymbolWidthAttr = null;
 	private RscAttrValue wstmAdvisorySymbolSizeAttr = null;
 	private RscAttrValue timeEnableAttr = null;
 	private RscAttrValue zoneNameEnableAttr = null;
@@ -131,7 +132,7 @@ public class EditWstmAttrDialog extends AbstractEditResourceAttrsDialog {
 		int advisorySymbolSize = 0;
 		
 		wstmWarningCheckBox =  drawCheckBox(gridComp);  	
-		wstmWarningCheckBox.setText("Winter hazard warning");
+		wstmWarningCheckBox.setText("Winter storm warning");
 		wstmWarningCheckBox.setSelection((Boolean)wstmWarningEnableAttr.getAttrValue());    		
 		wstmWarningCheckBox.addSelectionListener(new SelectionAdapter(){
 		
@@ -190,7 +191,7 @@ public class EditWstmAttrDialog extends AbstractEditResourceAttrsDialog {
          });
          
 		wstmWatchCheckBox =  drawCheckBox(gridComp);  	
-		wstmWatchCheckBox.setText("Winter hazard watch");
+		wstmWatchCheckBox.setText("Winter storm watch");
 		wstmWatchCheckBox.setSelection((Boolean)wstmWatchEnableAttr.getAttrValue());    		
 		wstmWatchCheckBox.addSelectionListener(new SelectionAdapter(){
 		
@@ -249,7 +250,7 @@ public class EditWstmAttrDialog extends AbstractEditResourceAttrsDialog {
         });
         
 		wstmAdvisoryCheckBox =  drawCheckBox(gridComp);  	
-		wstmAdvisoryCheckBox.setText("Winter hazard advisory");
+		wstmAdvisoryCheckBox.setText("Winter weather advisory");
 		wstmAdvisoryCheckBox.setSelection((Boolean)wstmAdvisoryEnableAttr.getAttrValue());    		
 		wstmAdvisoryCheckBox.addSelectionListener(new SelectionAdapter(){
 		

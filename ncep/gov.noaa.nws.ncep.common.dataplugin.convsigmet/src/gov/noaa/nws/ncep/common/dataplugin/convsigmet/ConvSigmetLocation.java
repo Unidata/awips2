@@ -12,6 +12,8 @@
  * 06/2009		87/114			L. Lin      Enlarge size of locationLine and location.
  * 07/2009		87/114		    L. Lin		Migration to TO11
  * 09/2009		87/114		    L. Lin		Add latitude/longitude to location table
+ * 09/2011      				Chin Chen   changed to improve purge performance and
+ * 											removed xml serialization as well
  * </pre>
  *
  * This code has been developed by the SIB for use in the AWIPS2 system.
@@ -24,12 +26,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -37,7 +34,6 @@ import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
 @Entity
 @Table(name="convsigmet_location")
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class ConvSigmetLocation implements Serializable, ISerializableObject {
 
@@ -47,38 +43,29 @@ public class ConvSigmetLocation implements Serializable, ISerializableObject {
     @GeneratedValue
     private Integer recordId = null;
 	
-	// The consigmet record this object belongs to 
-	@ManyToOne
-    @JoinColumn(name="parentID", nullable=false)
-	private ConvSigmetSection parentID;
-	
+		
 	// Collection of locations
     @Column(length=480)
-    @XmlElement
     @DynamicSerializeElement
 	private String locationLine;
 	
 	// Each location of a convective sigmet forecast area
     @Column(length=48)
-    @XmlElement
     @DynamicSerializeElement
 	private String location;
     
     // Each latitude of a convective sigmet forecast area
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private double latitude;
 
 	// Each longitude of a convective sigmet forecast area
     @Column
-    @XmlElement
     @DynamicSerializeElement
 	private double longitude;   
     
 	// Index for the order of a complete location set
     @Column
-    @XmlElement
     @DynamicSerializeElement
 	private Integer index;
 			
@@ -99,19 +86,6 @@ public class ConvSigmetLocation implements Serializable, ISerializableObject {
 		return serialVersionUID;
 	}
 
-	/**
-	 * @return the parentID
-	 */
-	public ConvSigmetSection getParentID() {
-		return parentID;
-	}
-
-	/**
-	 * @param parentID to set
-	 */
-	public void setParentID(ConvSigmetSection parentID) {
-		this.parentID = parentID;
-	}
 
 	/**
 	 * @return the index
