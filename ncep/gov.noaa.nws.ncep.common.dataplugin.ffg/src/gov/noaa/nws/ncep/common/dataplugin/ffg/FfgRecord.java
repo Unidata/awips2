@@ -13,6 +13,8 @@
  * 12/2008		14				T. Lee		Initialized variable
  * 03/2009		14				T. Lee		Migration to TO10
  * 07/2009		14				T. Lee		Migration to TO11
+ * 09/2011      				Chin Chen   changed to improve purge performance and
+ * 										    removed xml serialization as well
  * </pre>
  *
  * @author T.Lee
@@ -23,23 +25,17 @@ package gov.noaa.nws.ncep.common.dataplugin.ffg;
 
 import java.util.Calendar;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
-import javax.xml.bind.annotation.XmlRootElement;
-
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
@@ -49,67 +45,57 @@ import gov.noaa.nws.ncep.common.dataplugin.ffg.FfgPrecip;
 
 @Entity
 @Table(name = "ffg", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 
 public class FfgRecord extends PluginDataObject {
     private static final long serialVersionUID = 1L;
     
     /** Report type */
-    @Column(length=32)
-    @XmlElement
+    @Column(length=32)    
     @DynamicSerializeElement   
     private String reportType;
 
     /** FFG AWIPS identifier */
     @Column(length=32)
-    @DataURI(position=1)
-    @XmlElement
+    @DataURI(position=1)    
     @DynamicSerializeElement
     private String awipsID;
     
     /** Bulletin insurance time */
-    @Column
-    @XmlElement
+    @Column    
     @DynamicSerializeElement
     private Calendar issueTime;
 
     /** Station ID */
-    @Column(length=32)
-    @XmlElement
+    @Column(length=32)    
     @DynamicSerializeElement
     private String issueOffice;
 
     /** Designator BBB */
-    @Column(length=8)
-    @XmlElement
+    @Column(length=8)    
     @DynamicSerializeElement
     private String designatorBBB;
 
     /** Bulletin messages */
-    @Column(length=10000)
-    @XmlElement
+    @Column(length=10000)    
     @DynamicSerializeElement
     private String bullMessage;
     
     /** Mass News Disseminator (MND) */
-    @Column(length=72)
-    @XmlElement
+    @Column(length=72)    
     @DynamicSerializeElement
     private String mndTime;
 
     /** WMO header */
-    @Column(length=32)
-    @XmlElement
+    @Column(length=32)    
     @DynamicSerializeElement
     private String wmoHeader;
 	
     /** FFG precipitation */
-    @DynamicSerializeElement
-    @XmlElement
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "parentID", fetch = FetchType.EAGER)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @DynamicSerializeElement   
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinColumn(name = "parentID", nullable = false)
+    @Index(name = "ffgP_parentid_idex")
 	private Set<FfgPrecip> ffgP = new HashSet<FfgPrecip>();
 	
     /**
@@ -270,7 +256,7 @@ public class FfgRecord extends PluginDataObject {
      */
     public void addPrecip(FfgPrecip precip){
     	ffgP.add(precip);
-    	precip.setParentID (this);
+    	//precip.setParentID (this);
     }    
 
     /**
@@ -281,11 +267,11 @@ public class FfgRecord extends PluginDataObject {
     public void setIdentifier(Object dataURI) {
     	
     	this.identifier = dataURI;
-    	if (this.getFfgP() != null && this.getFfgP().size() > 0) {
+    	/*if (this.getFfgP() != null && this.getFfgP().size() > 0) {
     		for (Iterator<FfgPrecip> iter = this.getFfgP().iterator(); iter.hasNext();) {
     			FfgPrecip fp = iter.next();
-    			fp.setParentID(this);
+    			//fp.setParentID(this);
     		}
-    	}
+    	}*/
     }
 }

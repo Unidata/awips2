@@ -76,9 +76,11 @@ class NcSoundingDataRequest():
         
 
     def makeResponse(self):
-        return ResponseMessageGeneric(self.result)
+#            print 'Before calling the constructor for ResponseMessageGeneric with NcSoundingCube'
+            return ResponseMessageGeneric(self.result)
 
     def makeNullResponse(self):
+#        print 'from makeNullResponse'
         return ResponseMessageGeneric("No data is available")
 
  
@@ -130,6 +132,40 @@ class NcSoundingDataRequest():
             return self.makeNullResponse()
         else:
             return self.makeResponse()
+        
+    def getSoundingLayer2DataByLatLonArray(self, LatLonArr):
+#        print'from NcSoundingDataRequest.getSoundingLayer2DataByLatLonArray'
+        self.NcSoundingDrv.setQueryType("LATLON")
+        from jep import jarray, JFLOAT_ID
+        jA = jarray(len(LatLonArr), JFLOAT_ID)
+        for i in range(len(LatLonArr)):
+            jA[i] = float(LatLonArr[i])
+        self.NcSoundingDrv.setLatLons(jA)
+#        print'just before calling self.NcSoundingDrv.getSoundingLayer2DataUsingLatLonArray()'
+        self.result = self.NcSoundingDrv.getSoundingLayer2DataUsingLatLonArray()
+        if self.result is None:
+#            print 'unable to get the sounding cube back'
+            return self.makeNullResponse()
+        else:
+#            print 'Got the sounding cube back'
+            return self.makeResponse()        
+
+    def getSoundingLayer2DataByLatLonArray1(self, LatLonArr):
+#       This method calling per station base algorithm. It is not used for production.
+        self.NcSoundingDrv.setQueryType("LATLON")
+        from jep import jarray, JFLOAT_ID
+        jA = jarray(len(LatLonArr), JFLOAT_ID)
+        for i in range(len(LatLonArr)):
+            jA[i] = float(LatLonArr[i])
+        self.NcSoundingDrv.setLatLons(jA)
+#        print'just before calling self.NcSoundingDrv.getSoundingLayer2DataUsingLatLonArray()'
+        self.result = self.NcSoundingDrv.getSoundingLayer2DataUsingLatLonArrayPerStn()
+        if self.result is None:
+#            print 'unable to get the sounding cube back'
+            return self.makeNullResponse()
+        else:
+#            print 'Got the sounding cube back'
+            return self.makeResponse()        
 
     def getSoundingDataByStnIdArray(self, StnIdArr):
         self.NcSoundingDrv.setQueryType("STNID")

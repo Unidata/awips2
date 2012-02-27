@@ -4,9 +4,6 @@
 ##
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 SPS${siteId}
-#if(${specialCorText})
-${specialCorText}
-#else
 #if(${productClass}=="T")
 TEST...SPECIAL WEATHER STATEMENT...TEST##
 #else
@@ -36,6 +33,8 @@ THIS IS A TEST MESSAGE. ##
 
 !** ENTER INFORMATION HERE **!
 
+## parse file command here is to pull in mile marker info
+## #parse("mileMarkers.vm")
 
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
@@ -60,4 +59,3 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 $$
 
 !**NAME/INITIALS**!
-#end
