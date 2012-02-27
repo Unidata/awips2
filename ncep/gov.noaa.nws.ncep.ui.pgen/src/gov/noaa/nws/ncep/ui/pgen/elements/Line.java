@@ -123,6 +123,14 @@ public class Line extends MultiPointElement  implements ILine{
 		 * create a new Line object and initially set its attributes to this one's
 		 */
 		Line newLine = new Line();
+		
+		/*
+		 * new Strings are created for Type and LinePattern
+		 */
+		newLine.setPgenCategory(new String(this.getPgenCategory()));
+		newLine.setPgenType(new String(this.getPgenType()));
+		newLine.setParent(this.getParent());
+		
 		newLine.update(this);
 		
 		/*
@@ -147,13 +155,6 @@ public class Line extends MultiPointElement  implements ILine{
 		}
 		newLine.setColors(colorCopy);
 		newLine.setFlipSide(this.flipSide);
-		
-		/*
-		 * new Strings are created for Type and LinePattern
-		 */
-		newLine.setPgenCategory(new String(this.getPgenCategory()));
-		newLine.setPgenType(new String(this.getPgenType()));
-		newLine.setParent(this.getParent());
 		
 		return newLine;
 

@@ -1,29 +1,21 @@
 package gov.noaa.nws.ncep.viz.resourceManager.ui.manageResources;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 import gov.noaa.nws.ncep.viz.resourceManager.ui.manageResources.ManageResourceControl.IEditResourceComposite;
-import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData.TimeMatchMethod;
-import gov.noaa.nws.ncep.viz.resources.attributes.ResourceExtPointMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.AttrSetGroup;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefinition;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefnsMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
-import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.ListViewer;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -31,18 +23,17 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 
@@ -54,6 +45,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 06/09/10		  #273		Greg Hull	 Created
+ * 07/22/11       #450      Greg Hull    Save to User Localization
  *
  * </pre>
  * 
@@ -340,7 +332,7 @@ class EditAttrSetGroupComp extends Composite implements IEditResourceComposite {
 							newAttrSetGroupBtn.setEnabled( true );
 
 							// disable the Save button if the new name already exists 
-							if( rscDefnMngr.getAllAttrSetGroupsForResource( 
+							if( rscDefnMngr.getAttrSetGroupNamesForResource( 
 									           seldRscDefn.getResourceDefnName() ).contains( 
 									        		   attrSetGroupNameTxt.getText().trim() ) ) {								
 								saveAttrSetGroupBtn.setEnabled( false );
@@ -353,13 +345,13 @@ class EditAttrSetGroupComp extends Composite implements IEditResourceComposite {
 
 		saveAttrSetGroupBtn.addSelectionListener( new SelectionAdapter() {
         	public void widgetSelected( SelectionEvent ev ) {
-        		saveAttrSetGroup( false );
+        		saveAttrSetGroup( );
         	}
 		});
 
 		newAttrSetGroupBtn.addSelectionListener( new SelectionAdapter() {
         	public void widgetSelected( SelectionEvent ev ) {
-        		saveAttrSetGroup( true );
+        		saveAttrSetGroup( );
         	}
 		});
 		
@@ -452,6 +444,9 @@ class EditAttrSetGroupComp extends Composite implements IEditResourceComposite {
 		setSelectedResource( rscName );
 		newAttrSetGroupBtn.setVisible( true );
 		saveAttrSetGroupBtn.setVisible( false );
+		attrSetGroupNameTxt.setEditable( true );
+		attrSetGroupNameTxt.setBackground( availAttrSetsLViewer.getList().getBackground() );
+		
 		attrSetGroupNameTxt.setText( "CopyOf"+attrSetGroupNameTxt.getText() );
 		attrSetGroupNameTxt.setSelection(0, attrSetGroupNameTxt.getText().length() );
 		attrSetGroupNameTxt.setFocus();
@@ -461,11 +456,16 @@ class EditAttrSetGroupComp extends Composite implements IEditResourceComposite {
 		setSelectedResource( rscName );
 		newAttrSetGroupBtn.setVisible( false );
 		saveAttrSetGroupBtn.setVisible( true );
+		
+		attrSetGroupNameTxt.setEditable( false );
+		attrSetGroupNameTxt.setBackground( getParent().getBackground() );
 	}
 
 	public void setSelectedResource( ResourceName rscName ) {
 
 		seldRscName = rscName;
+		
+		attrSetGroupNameTxt.setEditable( false );
 		
 		if( seldRscName.getRscGroup().isEmpty() ) {
 			attrSetGroupNameTxt.setText( "" );
@@ -531,23 +531,42 @@ class EditAttrSetGroupComp extends Composite implements IEditResourceComposite {
 	}
 	
 	
-	private void saveAttrSetGroup( boolean newGroup ) {
+	private void saveAttrSetGroup( ) {
+		try {
 		String origName = seldAttrSetGroup.getAttrSetGroupName();
 		
 		String attrSetGroupName = attrSetGroupNameTxt.getText().trim();
-			
-		boolean nameChanged = (!origName.equals( attrSetGroupName ) );
+
+		boolean nameChanged = 
+			   (!origName.equals( attrSetGroupName ) );
+//		boolean addToResource = true;
 		
+		// create the new AttrSetGroup from the GUI selections.
+		AttrSetGroup newAttrSetGroup = new AttrSetGroup();
+		newAttrSetGroup.setAttrSetGroupName( attrSetGroupName );
+		newAttrSetGroup.setResource( seldAttrSetGroup.getResource() );
+		//
+		if( nameChanged ) {
+			newAttrSetGroup.setLocalizationFile( null );
+		}
+		else {
+			newAttrSetGroup.setLocalizationFile( seldAttrSetGroup.getLocalizationFile() );
+		}
+		
+		newAttrSetGroup.removeAllAttrSets();
+		
+		for( String asName : seldAttrSets ) {
+			newAttrSetGroup.addAttrSetName( asName );
+		}
+
 		// if a new group is being created make sure it doesn't already exist.
 		//	
 		if( nameChanged ) {
-			if( rscDefnMngr.getAvailAttrSetsForRscImpl( 
-					seldRscDefn.getRscImplementation() ).contains( attrSetGroupName ) ) {
-//			if( rscDefnMngr.getResourceAttrSetGroups( 
-//					seldAttrSetGroup.getResource() ).contains( attrSetGroupName ) ) {
-//				
-	    		MessageDialog confirmDlg = new MessageDialog( 
-	    				NmapUiUtils.getCaveShell(), 
+			
+			if( rscDefnMngr.getAttrSetGroupForResource(
+					newAttrSetGroup.getResource(), attrSetGroupName ) != null ) {
+	    		
+				MessageDialog confirmDlg = new MessageDialog( getShell(), 
 	    				"Confirm", null, 
 	    				"The Attribute Set Group " +attrSetGroupName + " already exists.\n\n"+
 	    				"Do you want to replace this Group?",
@@ -557,52 +576,28 @@ class EditAttrSetGroupComp extends Composite implements IEditResourceComposite {
 				if( confirmDlg.getReturnCode() == MessageDialog.CANCEL ) {
 					return;
 				}
-			}
-			
-			// make a copy
-			if( newGroup ) {
-				AttrSetGroup newAttrSetGroup = new AttrSetGroup( seldAttrSetGroup );
-				seldAttrSetGroup = newAttrSetGroup;
-			}
-			
-			seldAttrSetGroup.setAttrSetGroupName( attrSetGroupName );
-		}
-		
-		seldAttrSetGroup.removeAllAttrSets();
-		
-		// update the seldAttrSetGroup with the GUI selections
-		//		
-		for( String asName : seldAttrSets ) {
-			seldAttrSetGroup.addAttrSetName( asName );
-		}
+			}	
 
-		rscDefnMngr.saveAttrSetGroup( seldAttrSetGroup, true );	    		
-
-		// if renaming the group delete the old entry in the map 
-		if( !newGroup && nameChanged ) {
-			rscDefnMngr.removeAttrSetGroup( origName, seldAttrSetGroup.getResource() );
+//			MessageDialog confirmDlg = new MessageDialog( getShell(), 
+//						"Confirm", null, 
+//						"Do you want to add " +attrSetGroupName + " .\n"+
+//						"to resource "+ seldRscDefn.getResourceDefnName()+"?",
+//						MessageDialog.QUESTION, new String[]{"Yes", "No"}, 0);
+//			confirmDlg.open();
+//
+//			addToResource = 
+//				(confirmDlg.getReturnCode() != MessageDialog.CANCEL);					
+//						
 		}
-		
-		seldRscDefn.addAttrSetGroupName( seldAttrSetGroup.getAttrSetGroupName() );
 				
-       	try {
-       		rscDefnMngr.findAvailAttrSets( seldRscDefn );
+		// 
+		rscDefnMngr.saveAttrSetGroup(  newAttrSetGroup );	    		
 
-    		rscDefnMngr.writeResourceDefnTable();
-    		rscDefnMngr.writeAttrSetGroups();
-    		
-		} catch (VizException e) {
-    		MessageDialog confirmDlg = new MessageDialog( 
-    				NmapUiUtils.getCaveShell(), 
-    				"Save Attribute Set Group", null, 
-    				"Error Writing new Resource Definitions Table\n\n"+
-    				e.getMessage(),
-    				MessageDialog.ERROR, new String[]{"OK"}, 0);
-    		confirmDlg.open();
-
-			System.out.println("Error saving Resource Defns Table."+ e.getMessage() );
-		}
-
+//		if( addToResource ) {
+//			seldRscDefn.addAttrSetGroupName( newAttrSetGroup.getAttrSetGroupName() );
+//			rscDefnMngr.saveResourceDefn( seldRscDefn );
+//		}
+		
 		ResourceName newSeldRscName = new ResourceName();
 		newSeldRscName.setRscCategory( seldRscDefn.getResourceCategory() );
 		newSeldRscName.setRscType( seldRscDefn.getResourceDefnName() );		
@@ -610,25 +605,22 @@ class EditAttrSetGroupComp extends Composite implements IEditResourceComposite {
 		
 		mngrControl.updateResourceSelections( newSeldRscName );
 		
-		String msgStr;
+		String msgStr = "Saved Attribute Set Group " + attrSetGroupName ;
+					 //   " for Resource " + seldRscDefn.getResourceDefnName();
 		
-		if( newGroup ) {
-			msgStr = "Created new Attribute Set Group "+attrSetGroupName + 
-			  " for Resource " + seldRscDefn.getResourceDefnName();
-		}
-		else {
-			msgStr = (nameChanged ? "Saved " : "Saved " ) +
-			         "Attribute Set Group " + attrSetGroupName +
-					  " for Resource " + seldRscDefn.getResourceDefnName();
-		}
-		
-		MessageDialog saveMsgDlg = new MessageDialog( 
-				NmapUiUtils.getCaveShell(), 
+		MessageDialog saveMsgDlg = new MessageDialog( getShell(), 
 				"Done", null, msgStr+"\n\n",
 				MessageDialog.INFORMATION, new String[]{"OK"}, 0);
 		saveMsgDlg.open();
 
 		return;
 	}
-
+	catch( VizException ve ) {
+		MessageDialog errDlg = new MessageDialog( getShell(), 
+				"Error", null, 
+				"Error Saving AttrSetGroup:\n"+ve.getMessage()+"\n"+ve.getCause(),
+				MessageDialog.ERROR, new String[]{"OK"}, 0);
+		errDlg.open();
+	}
+  }
 }
