@@ -1,0 +1,51 @@
+C************************************************************************
+C SFCMN									*
+C*									*
+C* Surface data common area.						*
+C**									*
+C* Log:									*
+C* I. Graffman/RDS	 5/87						*
+C* M. desJardins/GSFC	 4/90	GEMPAK 5				*
+C* K. Brill/NMC		 8/93	Added KSTD2 and KSPRI			*
+C* T. Lee/GSC		10/97	Added KSWFO and KWFO2			*
+C************************************************************************
+	CHARACTER	dttype*4, sttype*4, curtim*20, curstn*8
+	LOGICAL		timset, stnset, ftmset, onestn, onefnd
+C*
+	COMMON /SFCMN/	dttype (MMFILE), sttype (MMFILE),
+C!						Type for date/time
+C!						Type for station
+     +			kdate  (MMFILE), ktime (MMFILE),
+C!						Location of date
+C!						Location of time
+     +			kstid  (MMFILE), kstd2 (MMFILE), kstnm (MMFILE),
+C!						Location of id char 1-4
+C!						Location of id char 5-8
+C!						Location of integer id
+     +			kslat  (MMFILE), kslon (MMFILE),
+C!						Location of latitude
+C!						Location of longitude
+     +			kselv  (MMFILE), kstat (MMFILE),
+C!						Location of elevation
+C!						Location of state name
+     +			kcoun  (MMFILE), kspri (MMFILE), 
+     +			kswfo (MMFILE ), kwfo2 (MMFILE),
+C!						Location of country name
+C!						Location of stn priority
+C!					        Location of WFO name
+C!					        Location of extended WFO name
+     +			krow   (MMFILE), kcol (MMFILE),
+C!						Current row
+C!						Current column
+     +			curtim (MMFILE), curstn (MMFILE),
+C!						Current time
+C!						Current station
+     +			kparm  (MMFILE),
+C!						Number of parameters
+     +			timset (MMFILE), stnset (MMFILE),
+C!						Time set flag
+C!						Station set flag
+     +			ftmset (MMFILE),
+C!						Time set by SF_FTIM
+     +			onestn (MMFILE), onefnd (MMFILE)
+C!						Single station search

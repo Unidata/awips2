@@ -37,6 +37,7 @@ import org.eclipse.swt.widgets.Shell;
  * 07/10		?			B. Yin		Seperated Front from lines
  * 09/10		#305/306	B. Yin		Added Cloud and Turbulence
  * 02/11        #318        S. Gilbert  Added Distance Display Options Dialog
+ * 08/11		#?			B. Yin		Added Pgen Inc/Dec 
  * </pre>
  * 
  * @author	B. Yin
@@ -130,6 +131,11 @@ public class AttrDlgFactory {
 			 
 			return PgenInterpDlg.getInstance( parShell );
 		
+		}		
+		else if  ( pgenCategory.equalsIgnoreCase(  "IncDec" ) ) {
+			 
+			return IncDecDlg.getInstance( parShell );
+		
 		}
 		else if  ( pgenCategory.equalsIgnoreCase(  "Distance" ) ) {
 			 
@@ -146,7 +152,7 @@ public class AttrDlgFactory {
 			return CycleDlg.getInstance( parShell );
 		
 		}
-		else if  ( pgenCategory.equalsIgnoreCase(  "Prod" ) ) {
+		else if  ( pgenCategory.equalsIgnoreCase(  "Prod_AIRMET" ) ) {
 			 
 			return GfaFormatAttrDlg.getInstance( parShell );
 		
@@ -166,6 +172,11 @@ public class AttrDlgFactory {
 		else if  ( pgenType != null && pgenType.equalsIgnoreCase("WatchBox") ) {
 			 
 			return WatchBoxAttrDlg.getInstance( parShell );
+			
+	    }
+		else if  ( pgenType != null && pgenType.equalsIgnoreCase("TCM") ) {
+			 
+			return TcmAttrDlg.getInstance( parShell );
 			
 	    }
 		else if  ( pgenType != null && pgenType.equalsIgnoreCase("Cloud") ) {

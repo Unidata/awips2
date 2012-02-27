@@ -10,11 +10,14 @@
 package gov.noaa.nws.ncep.viz.rsc.mosaic.rsc;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.TimeZone;
 
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationResourcePathConstants;
+import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
-import gov.noaa.nws.ncep.viz.rsc.mosaic.util.LegendNameGenerator;
 import gov.noaa.nws.ncep.viz.ui.display.ColorBarFromColormap;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -24,13 +27,14 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.radar.util.RadarInfo;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarInfoDict;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractNameGenerator;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.viz.radar.RadarTimeRecord;
 
 /**
  * Provide Radar raster rendering support 
@@ -43,6 +47,8 @@ import com.raytheon.viz.radar.RadarTimeRecord;
  *  ------------ ----------  -----------  --------------------------
  *  02/08/11	    	 	  Greg Hull    Created shell. No Display. Just for the Resource Manager
  *  03/04/11				  G. Zhang	   Modified for Local Radar
+ *  07/2011        450        Greg Hull    NcPathManager
+ *  11/11/11                  Greg Hull    rm productName, add getRadarName(), use radarInfo.txt to create legend
  *                                         
  * </pre>
  * 
@@ -51,12 +57,11 @@ import com.raytheon.viz.radar.RadarTimeRecord;
  */
 
 @XmlAccessorType(XmlAccessType.NONE)
-@XmlType(name="NC-RadarResourceData")
+//@XmlType(name="NC-RadarResourceData")
 public class RadarResourceData extends AbstractNatlCntrsRequestableResourceData {
 	
 	private RadarRadialResource rrr;// for DEG only: 2011-03-14
 	
-	//-------------------------------------------from raytheon's	
     @XmlAttribute
     protected String pointID = "";
 
@@ -72,7 +77,6 @@ public class RadarResourceData extends AbstractNatlCntrsRequestableResourceData 
 
     @XmlAttribute
     protected boolean rangeRings = true;
-//---------------------------------------------end of raytheon's    
  
 	@XmlElement
     private String colorMapName;
@@ -80,50 +84,79 @@ public class RadarResourceData extends AbstractNatlCntrsRequestableResourceData 
 	@XmlElement
     private ColorBarFromColormap colorBar;
 
-	// Both the productCode and the productName should be given in the metadataMap
-	// but only one is really needed. 
-	// TODO write code to make only one of these necessary and set productCode from
-	// the productName if not set.
-    private Integer productCode=0;
-
-    private String productName;
+    private static RadarInfo rdrInfo = null;
     
-    private static RadarInfoDict infoDict = null;
+    // The legend w/o the time prefix
+    private String legendStr = null; 
     
-//    private static MosaicInfoDict infoDict = null;
-    
-    // The legend is set from MosaicInfoDict based on 
-    // the product code which is set in the metadataMap.
-    private String legendString = null; 
-    
-//	private static void loadRadarInfo() {
-//    	String radarDirname = LocalizationManager.getInstance().getLocalizationFileDirectoryName(LocalizationResourcePathConstants.RADAR_RESOURCES_DIR); 
-//    	infoDict = MosaicInfoDict.getInstance(radarDirname);
-//    }
-
     public RadarResourceData() {
         this.nameGenerator = new AbstractNameGenerator() {
 
         	// This method is not called since MosaicResource is overriding
         	// getName()
-            @Override
-            public String getName(AbstractVizResource<?, ?> resource) {
-            
-                	legendString = "LOCAL radar-testing";
-                	
-                	if( infoDict == null ) {
-                		loadRadarInfo();
-                    	if( infoDict == null ) {	
-                    		legendString = new String( "LOCAL radar-testing"+//"Radar Mosaic: Product Code "+
-                    				Integer.toString( getProductCode()) );
-                    		return legendString;
-                    	}
-                	}
-                	
-                	return LegendNameGenerator.generateName(rrr, ""+getProductCode() );  
+        	@Override
+        	public String getName(AbstractVizResource<?, ?> resource) {
 
+        		if( rrr == null || rrr.displayedDate == null ) {
+        			return "";
+        		}
+        		
+        		// only create this once and then pre-pend the time to it
+        		// the legend is the time+icao+resolution+productname+tilt
+        		//
+        		if( legendStr == null ) {
+
+        			// get the elevation as a string
+
+        			String tiltStr = " "+rrr.getTrueElevText();
+
+        			if( rdrInfo == null ) {
+        				String radarDirname = 
+        					NcPathManager.getInstance().getStaticFile(
+        							NcPathConstants.RADAR_INFO ).getParent();
+
+        				RadarInfoDict infoDict = RadarInfoDict.getInstance( radarDirname );
+
+        				if( infoDict != null ) {	
+        					rdrInfo = infoDict.getInfo( getProductCode() );	
+        				}
+        			}
+
+        			if( rdrInfo == null ) {
+        				legendStr = " "+getRadarName().toUpperCase()+" -product " + getProductCode() + tiltStr;
+        			}
+        			else {  
+        				// else get the resolution and productName from the radarInfo file
+
+        				// This is also in the data. we could get it from there.
+        				String resKmStr; // in km from meters.
+        				
+        				if( rdrInfo.getResolution() % 1000 == 0 ) {
+        					resKmStr = " "+ new Integer( rdrInfo.getResolution()/1000)+"km ";
+        				}
+        				else {
+        					resKmStr = " " + new Float( rdrInfo.getResolution()/1000.0)+"km ";
+        				}
+        				
+        				legendStr = " " + getRadarName().toUpperCase() + resKmStr + 
+        							   rdrInfo.getName() + tiltStr;
+        			}
+        		}
+            	
+            	// TODO : this is the frame time. We will need to change this 
+            	// when the code is fixed to be able to display radar as non-dominant resource.
+            	//	
+            	if( rrr.displayedDate == null ) {
+            		String retLegStr = "No Data " + legendStr; 
+            		legendStr = null; // no data so tilt is not set so recompute next time.
+            		return retLegStr;
+            	}
+            	else {
+            		
+            		return NmapCommon.getTimeStringFromDataTime( 
+            			rrr.displayedDate, "/") + " " + legendStr;
+            	}
             }
-
         };
     }
 
@@ -137,16 +170,19 @@ public class RadarResourceData extends AbstractNatlCntrsRequestableResourceData 
     }
 
     public Integer getProductCode() {
-    	if( productCode == 0 && 
-    		metadataMap.containsKey("productCode") ) {
+    	if( metadataMap.containsKey("productCode") ) {
     		RequestConstraint reqCon = metadataMap.get("productCode");
-    		productCode = Integer.parseInt( reqCon.getConstraintValue() ); 
+    		return Integer.parseInt( reqCon.getConstraintValue() ); 
     	}
-		return productCode;
+		return -1;
 	}
 
-	public void setProductCode(Integer productCode) {
-		this.productCode = productCode;
+    public String getRadarName() {
+    	if( metadataMap.containsKey("icao") ) {
+    		RequestConstraint reqCon = metadataMap.get("icao");
+    		return reqCon.getConstraintValue(); 
+    	}
+		return "Unknown ICAO";
 	}
 
     @Override
@@ -184,22 +220,5 @@ public class RadarResourceData extends AbstractNatlCntrsRequestableResourceData 
 
 	public void setColorBar(ColorBarFromColormap cBar) {
 		this.colorBar = cBar;
-	}	
-	
-	
-	private static void loadRadarInfo() {
-    	/*
-    	 * The directory is the one under base level of our localization only at this time. 
-    	 */
-		/*
-		 * Start of M. Gao's change
-		 */
-//    	String radarDirname = LocalizationManager.getInstance().getLocalizationFileDirectoryName(LocalizationResourcePathConstants.RADAR_RESOURCES_DIR,
-//    			LocalizationConstants.LOCALIZATION_BASE_LEVEL); 
-    	String radarDirname = LocalizationManager.getInstance().getLocalizationFileDirectoryName(LocalizationResourcePathConstants.RADAR_RESOURCES_DIR); 
-		/*
-		 * End of M. Gao's change
-		 */
-    	infoDict = RadarInfoDict.getInstance(radarDirname);
-    }
+	}			
 }

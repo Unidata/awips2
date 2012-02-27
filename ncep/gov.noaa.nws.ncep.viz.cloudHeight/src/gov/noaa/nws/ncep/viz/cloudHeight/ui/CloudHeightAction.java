@@ -2,11 +2,13 @@ package gov.noaa.nws.ncep.viz.cloudHeight.ui;
 
 
 import gov.noaa.nws.ncep.viz.cloudHeight.CloudHeightProcesser;
+import gov.noaa.nws.ncep.viz.rsc.satellite.rsc.ICloudHeightCapable;
 import gov.noaa.nws.ncep.viz.ui.display.AbstractNCModalMapTool;
 import gov.noaa.nws.ncep.viz.ui.display.NCDisplayPane;
 import gov.noaa.nws.ncep.viz.ui.display.NCPaneManager;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
@@ -14,6 +16,8 @@ import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.viz.ui.editor.ISelectedPanesChangedListener;
 import com.raytheon.viz.ui.input.InputAdapter;
+import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
+import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 import com.vividsolutions.jts.geom.Coordinate;
 
 
@@ -39,6 +43,7 @@ public class CloudHeightAction extends AbstractNCModalMapTool {
 	
 	protected static CloudHeightDialog cldHghtDlg = null;
 	private CloudHeightProcesser cldHghtProcessor = null;
+	private ICloudHeightCapable satResource = null;
 	
 	ISelectedPanesChangedListener paneChangeListener = new ISelectedPanesChangedListener() {
 
@@ -83,16 +88,17 @@ public class CloudHeightAction extends AbstractNCModalMapTool {
         	System.out.println("Cloud Height will only work on one selected pane.");
         }
         
-        cldHghtProcessor = new CloudHeightProcesser( seldPanes[0], cldHghtDlg );
-        
-        // if the dialog is already open then reset it with 
-		//
-        if( cldHghtDlg.isOpen() ) {         	 
-    		mapEditor.registerMouseHandler( this.mouseHndlr );
-    		return;
-    	}
-
         try {
+        	cldHghtProcessor = new CloudHeightProcesser( seldPanes[0], cldHghtDlg );
+        	satResource = cldHghtProcessor.getSatResource();
+
+        	// if the dialog is already open then reset it with 
+        	//
+        	if( cldHghtDlg.isOpen() ) {         	 
+        		mapEditor.registerMouseHandler( this.mouseHndlr );
+        		return;
+        	}
+
         	if( !cldHghtDlg.isOpen() ) {
 
         		if( mouseHndlr == null ) {
@@ -100,13 +106,28 @@ public class CloudHeightAction extends AbstractNCModalMapTool {
         		}
         		mapEditor.registerMouseHandler( this.mouseHndlr );
 
-        		cldHghtDlg.open();
+        		if ( satResource != null )
+        			cldHghtDlg.open();
+        		else
+        			issueAlert();
+        		
         		cldHghtDlg = null;
 
-        		deactivateTool();
+        		//deactivateTool();
+        		AbstractVizPerspectiveManager mgr = VizPerspectiveListener.getCurrentPerspectiveManager();
+        		if (mgr != null) {
+        			mgr.getToolManager().deselectModalTool(this);
+        		}
+        		
         	}
         } catch( Exception ex ) {
         	System.out.println("Exception from CloudHeightDialog: "+ex.getMessage() );
+    		MessageDialog errDlg = new MessageDialog( 
+    				NmapUiUtils.getCaveShell(), 
+    				"Error Starting Cloud Height:\n"+ex.getMessage(), null, 
+    				"\n",
+			MessageDialog.ERROR, new String[]{"OK"}, 0);
+			errDlg.open();			
         }
         finally {
         	cldHghtDlg = null;
@@ -115,6 +136,17 @@ public class CloudHeightAction extends AbstractNCModalMapTool {
         
 		return;
     }
+    
+    private void issueAlert() {
+		
+		String msg = "Unable to invoke CLOUD HEIGHT tool.\nPlease load an IR Satellite image!";
+    	MessageDialog messageDlg = new MessageDialog( 
+        		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
+        		"Warning", null, msg,
+        		MessageDialog.WARNING, new String[]{"OK"}, 0);
+        messageDlg.open();
+
+	}
   
     // TODO : make cloud height work as a modal tool 
     @Override
@@ -146,11 +178,17 @@ public class CloudHeightAction extends AbstractNCModalMapTool {
     	}
     	
         //  close the Cloud Height dialog
-        if ( cldHghtDlg != null ) cldHghtDlg.close();
+        if ( cldHghtDlg != null ) {
+        	cldHghtDlg.close();
+        	cldHghtDlg = null;
+        }
         
     }
     
     public class MouseHandler extends InputAdapter {
+    	
+    	boolean preempt = false;
+    	
     	/*
          * (non-Javadoc)
          * 
@@ -159,12 +197,22 @@ public class CloudHeightAction extends AbstractNCModalMapTool {
          */
     	@Override
     	public boolean handleMouseDown(int x, int y, int button) {
+    		
+    		preempt = false;
+    		
     		if( button == 1 ) {
     			Coordinate ll = mapEditor.translateClick(x, y);
-    			cldHghtProcessor.processCloudHeight( ll, true );
+    			if ( ll == null || satResource == null ) return false;
+    			
+        		Double value = satResource.getSatIRTemperature(ll);
+        		if ( value != null && !value.isNaN() ) {
+    				cldHghtProcessor.processCloudHeight( ll, true );
+    				preempt = false;
+        		} 
+    			
     		}
 
-    		return false;
+    		return preempt;
     	}
 
         /*
@@ -175,29 +223,8 @@ public class CloudHeightAction extends AbstractNCModalMapTool {
          */
     	@Override
     	public boolean handleMouseDownMove(int x, int y, int button) {
-    		if( button == 1 ) {
-    			Coordinate ll = mapEditor.translateClick(x, y);
-    			cldHghtProcessor.processCloudHeight( ll, false );
-    		}
-
-    		return false;
+    		return preempt;
     	}
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseUp(int, int,
-         *      int)
-         */
-        @Override
-        public boolean handleMouseUp(int x, int y, int button) {
-    		if( button == 1 ) {
-    			Coordinate ll = mapEditor.translateClick(x, y);
-    			cldHghtProcessor.processCloudHeight( ll, false );
-    		}
-
-    		return true;
-        }
 
     }   
 }
