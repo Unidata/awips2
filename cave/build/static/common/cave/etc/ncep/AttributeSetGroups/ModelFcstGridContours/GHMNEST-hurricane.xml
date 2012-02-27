@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
+    <resource>GHMNEST</resource>
+    <attrSetGroupName>hurricane</attrSetGroupName>
+    <attrSetNames>200mb_absv_wind,500mb_absv_wind,700mb_absv_wind,850mb_absv_wind,minpres_1000mb_wind,minpres_35m_wind,pmsl_1000mb_wind,pmsl_1000-500thk</attrSetNames>
+</AttributeSetGroup>

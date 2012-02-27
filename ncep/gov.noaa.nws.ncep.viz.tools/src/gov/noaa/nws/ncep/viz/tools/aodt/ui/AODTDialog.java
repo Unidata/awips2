@@ -2,7 +2,6 @@ package gov.noaa.nws.ncep.viz.tools.aodt.ui;
 
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 import gov.noaa.nws.ncep.viz.rsc.satellite.rsc.ICloudHeightCapable;
-import gov.noaa.nws.ncep.viz.tools.aodt.AODTResource;
 import gov.noaa.nws.ncep.viz.tools.aodt.natives.AODTv64Native;
 import gov.noaa.nws.ncep.viz.tools.cursor.NCCursors;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
@@ -184,8 +183,6 @@ public class AODTDialog extends Dialog {
         crossCursor.dispose();
         parent.setCursor(prevCursor);
 
-        NmapUiUtils.setPanningMode();
-    	
     	return null;
     }
     
@@ -537,6 +534,10 @@ public class AODTDialog extends Dialog {
     
     public void clearFields() {
       
+    }
+    
+    public ICloudHeightCapable getSatResource() {
+    	return satRsc;
     }
     
     public DataTime getCurrentDate() {

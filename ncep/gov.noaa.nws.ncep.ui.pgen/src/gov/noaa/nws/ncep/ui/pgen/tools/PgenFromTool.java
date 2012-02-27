@@ -64,6 +64,7 @@ public class PgenFromTool extends AbstractPgenDrawingTool {
      */       
     public class PgenFromHandler extends InputHandlerDefaultImpl {
     	    	
+    	private boolean preempt;
     	OperationFilter fromFilter = new OperationFilter( Operation.GFA_FROM );
     	
         /*
@@ -75,6 +76,7 @@ public class PgenFromTool extends AbstractPgenDrawingTool {
         @Override	   	
         public boolean handleMouseDown( int anX, int aY, int button ) { 
        	
+        	preempt = false;
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
         	if ( loc == null ) return false;
@@ -86,18 +88,19 @@ public class PgenFromTool extends AbstractPgenDrawingTool {
 			 */
         	if ( button == 1 ) {
                if ( !fromAttrDlg.isFormatByTag() ) {
-            	   return true;
+            	   return false;
                }
             	/*
             	 * If the nearest element is valid, set it as a "selected" element
             	 */
             	DrawableElement el1 = drawingLayer.getNearestElement( loc, fromFilter );
             	drawingLayer.setSelected( el1 );
+            	if (el1 != null) preempt = true;
             	
             	fromAttrDlg.formatTagPressed();
          	    
                 mapEditor.refresh();
-                return true;	
+                return preempt;	
        		                
             }
         	
@@ -121,6 +124,11 @@ public class PgenFromTool extends AbstractPgenDrawingTool {
             }
         	
         }
+
+		@Override
+		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
+			return preempt;
+		}
     }
     
 }

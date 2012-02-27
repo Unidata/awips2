@@ -1,5 +1,7 @@
 package gov.noaa.nws.ncep.viz.resourceManager.ui.manageResources;
 
+import gov.noaa.nws.ncep.viz.resources.manager.AttrSetGroup;
+import gov.noaa.nws.ncep.viz.resources.manager.AttributeSet;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefinition;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefnsMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
@@ -26,6 +28,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 
@@ -38,6 +42,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * ------------	----------	-----------	--------------------------
  * 07/03/10      #273        Greg Hull   
  * 03/01/11      #408        Greg Hull   remove Forecast/Observed
+ * 07/25/11      #450        Greg Hull   use NcPathManager for Localization
  *
  * </pre>
  * 
@@ -214,13 +219,13 @@ public class ResourceEditSelectionComposite extends Composite {
     	fd.left = new FormAttachment( copyRscTypeBtn, -50, SWT.CENTER );
     	editRscTypeBtn.setLayoutData( fd );
 
-    	removeRscTypeBtn = new Button( sel_rsc_comp, SWT.CHECK );
-    	removeRscTypeBtn.setText("Disable");
+    	removeRscTypeBtn = new Button( sel_rsc_comp, SWT.PUSH );
+    	removeRscTypeBtn.setText("Remove");
         fd = new FormData(100,25);
         fd.top = new FormAttachment( editRscTypeBtn, 7, SWT.BOTTOM );
     	fd.left = new FormAttachment( editRscTypeBtn, -50, SWT.CENTER );
     	removeRscTypeBtn.setLayoutData( fd );
-    	removeRscTypeBtn.setEnabled( false ); // TODO : not implemented
+    	//removeRscTypeBtn.setEnabled( false ); // TODO : not implemented
             	
     	
     	// first create the lists and then attach the label to the top of them
@@ -259,7 +264,7 @@ public class ResourceEditSelectionComposite extends Composite {
     	editRscGroupBtn.setLayoutData( fd );
 
     	removeRscGroupBtn = new Button( sel_rsc_comp, SWT.PUSH );
-    	removeRscGroupBtn.setText("Remove ...");
+    	removeRscGroupBtn.setText(" Remove ");
         fd = new FormData(100,25);
         fd.top = new FormAttachment( editRscGroupBtn, 7, SWT.BOTTOM );
     	fd.left = new FormAttachment( editRscGroupBtn, -50, SWT.CENTER );
@@ -300,7 +305,7 @@ public class ResourceEditSelectionComposite extends Composite {
     	editRscAttrSetBtn.setLayoutData( fd );
 
     	removeRscAttrSetBtn = new Button( sel_rsc_comp, SWT.PUSH );
-    	removeRscAttrSetBtn.setText("Remove ...");
+    	removeRscAttrSetBtn.setText(" Remove ");
         fd = new FormData(100,25);
         fd.top = new FormAttachment( editRscAttrSetBtn, 7, SWT.BOTTOM );
     	fd.left = new FormAttachment( editRscAttrSetBtn, -50, SWT.CENTER );
@@ -343,9 +348,7 @@ public class ResourceEditSelectionComposite extends Composite {
 				}
 				List<String> rscTypes = rscDefnsMngr.getResourceTypesForCategory( 
 							seldResourceName.getRscCategory(), null, false );
-					return rscTypes.toArray();
-				
-				
+					return rscTypes.toArray();				
 			}
 
 			@Override
@@ -362,11 +365,18 @@ public class ResourceEditSelectionComposite extends Composite {
 				String rscType = seldResourceName.getRscType();
 				
 				if( !rscType.isEmpty() ) {
+					
 					// if this resource uses attrSetGroups then get get the list of 
 					// groups. (PGEN uses groups but we will list the subTypes (products) and not the group)
-					if( rscDefnsMngr.doesResourceUseAttrSetGroups( rscType ) &&
-							!seldResourceName.isPgenResource() ) {
-						List<String> rscAttrSetsList = rscDefnsMngr.getResourceAttrSetGroups( rscType );
+					if( rscDefnsMngr.doesResourceUseAttrSetGroups( rscType ) ) {
+
+						// for PGEN there is only 1 'default' attrSetGroup 
+						if( seldResourceName.isPgenResource() ) {
+							rscTypeGroupLbl.setText("PGEN Attribute Group");
+							return new String[]{"PGEN"};
+						}
+
+						List<String> rscAttrSetsList = rscDefnsMngr.getAttrSetGroupNamesForResource( rscType );
 
 						if( rscAttrSetsList != null &&
 								!rscAttrSetsList.isEmpty() ) {
@@ -381,17 +391,10 @@ public class ResourceEditSelectionComposite extends Composite {
 						}
 					}
 					else {						
-						// for PGEN set the title to 
-						if( seldResourceName.isPgenResource() ) {
-							rscTypeGroupLbl.setText("PGEN Product");
-						}
-						else {
-							rscTypeGroupLbl.setText( rscType+" Sub-Types");
-						}
-						
 						String[] rscGroups = rscDefnsMngr.getResourceSubTypes( rscType );
-
-
+						
+						rscTypeGroupLbl.setText( rscType+" Sub-Types");
+	
 						if( rscGroups != null && rscGroups.length != 0 ) {
 							return rscGroups;//.toArray();
 						}
@@ -419,7 +422,6 @@ public class ResourceEditSelectionComposite extends Composite {
 				
 				// if an attrSetGroup is selected, return the attrSets in the group
 				if( !seldResourceName.getRscType().isEmpty() ) {
-					//Set<String> attrSets = 
 					return rscDefnsMngr.getAttrSetsForResource( seldResourceName, false );
 
 //					if( attrSets != null && !attrSets.isEmpty() ) {
@@ -659,28 +661,14 @@ public class ResourceEditSelectionComposite extends Composite {
 		if( seldResourceName.getRscType().isEmpty() ) {
 			copyRscTypeBtn.setEnabled( false );
 			editRscTypeBtn.setEnabled( false );
-//			removeRscTypeBtn.setSelection(true);    // Disable/Enable/Delete is not implemented
-//			removeRscTypeBtn.setText("Disable");
-//			removeRscTypeBtn.setEnabled( false );
+			removeRscTypeBtn.setEnabled( false );
 		}
 		else {
 			copyRscTypeBtn.setEnabled( true );
 			editRscTypeBtn.setEnabled( true );
-//			removeRscTypeBtn.setEnabled( true );	
-//			
-//			if( rscDefnsMngr.isResourceEnabled( seldResourceName.getRscType() ) ) {
-//				removeRscTypeBtn.setSelection(false);
-//				removeRscTypeBtn.setText("Disable");
-//			}
-//			else {
-//				removeRscTypeBtn.setSelection(true);
-//				removeRscTypeBtn.setText("Enable");
-//			}
+			
+			removeRscTypeBtn.setEnabled( false );			
 		}
-
-		removeRscTypeBtn.setText(
-				rscDefnsMngr.isResourceEnabled(seldResourceName.getRscType()) ?
-						"Disable" : "Enable" );
 
 		updateResourceGroups();
 	}
@@ -733,11 +721,22 @@ public class ResourceEditSelectionComposite extends Composite {
 			}
 		}
 		
+		ResourceDefinition rscDefn = rscDefnsMngr.getResourceDefinition( seldResourceName );
+		
 		// enable/disable the Edit/Delete buttons based on whether a group is selected and whether
 		// 
+		// TODO : if there is a USER group superceding a BASE, SITE, or DESK group then
+		// change the name of the Remove button to 'Revert'
+		
 		if( seldResourceName.getRscGroup().isEmpty() ||
-			seldResourceName.getRscCategory().equals("SATELLITE" ) ) {
+			!rscDefn.applyAttrSetGroups() ) {
 			
+			copyRscGroupBtn.setEnabled( false );
+			editRscGroupBtn.setEnabled( false );
+			removeRscGroupBtn.setEnabled( false );			
+		}
+		// Also, PGEN groups are the PGEN files which can't be edited here.
+		else if( seldResourceName.getRscCategory().equals("PGEN") ) {
 			copyRscGroupBtn.setEnabled( false );
 			editRscGroupBtn.setEnabled( false );
 			removeRscGroupBtn.setEnabled( false );			
@@ -745,29 +744,52 @@ public class ResourceEditSelectionComposite extends Composite {
 		else {
 			copyRscGroupBtn.setEnabled( true );
 			editRscGroupBtn.setEnabled( true );
-			removeRscGroupBtn.setEnabled( true );	
-//			rscTypeGroupLbl.setText();
+			removeRscTypeBtn.setEnabled( false );
+
+			AttrSetGroup asg = rscDefnsMngr.getAttrSetGroupForResource( seldResourceName );
+			if( asg != null ) {
+				LocalizationLevel lLvl = asg.getLocalizationFile().getContext().getLocalizationLevel();
+
+				removeRscTypeBtn.setEnabled( (lLvl == LocalizationLevel.USER) );	
+			}
 		}
 		
-		// Can't remove the last group. 
-		if( rscGroupLViewer.getList().getItemCount() == 1 ) {
-			removeRscGroupBtn.setEnabled( false );
-		}
+//		// Can't remove the last group. Must be in the BASE 
+//		if( rscGroupLViewer.getList().getItemCount() == 1 ) {
+//			removeRscGroupBtn.setEnabled( false );
+//		}
 		
 		rscTypeGroupLbl.setVisible( !seldResourceName.getRscGroup().isEmpty() );
+
+		LocalizationLevel lLvl = rscDefn.getLocalizationFile().getContext().getLocalizationLevel();
 		
-		// Also, PGEN groups are the PGEN files which can't be edited here.
-		if( seldResourceName.getRscCategory().equals("PGEN") ) {
-			copyRscGroupBtn.setEnabled( false );
-			editRscGroupBtn.setEnabled( false );
-		}
-		
+		removeRscTypeBtn.setEnabled( (lLvl == LocalizationLevel.USER) );	
+
 		updateResourceAttrSets();
 	}
 
 	private void updateResourceAttrSets() {
+		
+		
+		// if there is a group set it is from the BASE or SITE level then don't let the user 
+		// delete it.
+		if( !seldResourceName.getRscGroup().isEmpty() ) {		
+			AttrSetGroup asg = rscDefnsMngr.getAttrSetGroupForResource( seldResourceName );
+
+			if( asg == null ) {
+				removeRscGroupBtn.setEnabled( false );
+			}
+			else if( asg.getLocalizationFile().getContext().getLocalizationLevel() == 
+												          LocalizationLevel.USER ) {
+				removeRscGroupBtn.setEnabled( true );					
+			}
+			else {
+				removeRscGroupBtn.setEnabled( false );
+			}
+		}
+		
 		rscAttrSetLViewer.setInput( rscDefnsMngr );
-		rscAttrSetLViewer.refresh();
+		rscAttrSetLViewer.refresh( true );
 		
 		rscAttrSetLViewer.getList().deselectAll();
 
@@ -798,6 +820,12 @@ public class ResourceEditSelectionComposite extends Composite {
 			seldResourceName.setRscAttrSetName( (String)seld_elem.getFirstElement() );
 		}		
 		
+		updateSelectedResource( );
+	}
+   	
+   	// when an attrSetName is selected and a valid resource name is ready for selection 
+   	// 
+	public void updateSelectedResource( ) {
 		// enable/disable the Edit/Delete buttons based on whether an attr set is selected.
 		//
 		if( seldResourceName.getRscAttrSetName().isEmpty() ) {
@@ -808,19 +836,18 @@ public class ResourceEditSelectionComposite extends Composite {
 		else {
 			copyRscAttrSetBtn.setEnabled( true );
 			editRscAttrSetBtn.setEnabled( true );
-			removeRscAttrSetBtn.setEnabled( true );	
-		}
 
-		if( rscAttrSetLViewer.getList().getItemCount() == 1 ) {
-			removeRscAttrSetBtn.setEnabled( false );
+			// The user can not edit or delete a BASE, SITE or DESK level file.
+			AttributeSet selAttrSet = rscDefnsMngr.getAttrSet( seldResourceName );
+
+			if( selAttrSet != null && 
+				selAttrSet.getLocalizationLevel() == LocalizationLevel.USER ) {
+				removeRscAttrSetBtn.setEnabled( true );
+			}
+			else {							
+				removeRscAttrSetBtn.setEnabled( false );
+			}
 		}
-		
-		updateSelectedResource();
-	}
-   	
-   	// when an attrSetName is selected and a valid resource name is ready for selection 
-   	// 
-	public void updateSelectedResource( ) {
 	}
 
 

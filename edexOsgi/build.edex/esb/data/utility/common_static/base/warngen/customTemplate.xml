@@ -1,0 +1,234 @@
+<!-- Severe Thunderstorm Warning configuration -->
+<warngenConfig>
+
+ <!-- Maps to load on template selection. Refer to 'Maps' menu in CAVE. 
+ 	The various menu items are also the different maps
+ 	that can be loaded with each template. -->
+ <maps>
+ <!--	<map></map> -->
+ </maps>
+
+ <!-- Followups: VTEC actions of allowable followups when this template is selected -->
+ <followups>
+ </followups>
+ 
+ <!-- Phensigs: The list of phenomena and significance combinations that this template applies to -->
+ <phensigs>
+   <phensig>XX.W</phensig>
+ </phensigs>
+ 
+ <!-- Enables/disables user from selecting the Restart button the GUI -->
+ <enableRestart>true</enableRestart>
+ 
+  <!-- Enable/disables the system to lock text based on various patterns -->
+ <autoLockText>true</autoLockText>
+ 
+ <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
+ 	included with the warning product include torWatches and/or svrWatches, 
+ 	respectively. Please refer to 'includedWatchAreaBuffer' in <areaConfig/>. -->
+ <includedWatches>
+  <includedWatch>torWatches</includedWatch>
+  <includedWatch>svrWatches</includedWatch>
+ </includedWatches>
+ 
+ <!-- durations: the list of possible durations of the warning -->
+ <defaultDuration>30</defaultDuration>
+ <durations>
+  <duration>10</duration>
+  <duration>15</duration>
+  <duration>20</duration>
+  <duration>25</duration>
+  <duration>30</duration>
+  <duration>40</duration>
+  <duration>45</duration>
+  <duration>50</duration>
+  <duration>60</duration>
+  <duration>75</duration>
+  <duration>90</duration>
+ </durations>
+ 
+<bulletActionGroups>
+<bulletActionGroup action="NEW">
+ <bullets>
+  <bullet bulletText="*********** BASIS FOR WARNING (CHOOSE 1) **********" bulletType="title"/>
+  <bullet bulletName="much" bulletText="Custom basis" bulletDefault="true" parseText="NATIONAL WEATHER SERVICE CUSTOM RADAR WAS TRACKING A CUSTOM THING"/>
+  <bullet bulletText="*********** CALL TO ACTIONS (CHOOSE 1 OR MORE) **********" bulletType="title"/>
+  <bullet bulletName="more" bulletText="Custom CTA" bulletDefault="true" parseText="IN ADDITION TO THE CUSTOM WARNING"/>
+ </bullets>
+</bulletActionGroup>
+</bulletActionGroups>
+  <!-- areaConfig: specifies how the area portion of the warning is generated; Mainly used
+ 	for determining the impacting counties in the 1st bullet
+    	- inclusionPercent: If an area greater than this percentage of area is covered, include it in the warning
+    	- inclusionArea: If an area greater than this is covered, include it in the warning (Square Kilometers)
+	- inclusionAndOr: AND - both inclusionPercent and inclusionArea must pass in
+		order to be included. OR - either inclusionPercent or inclusionArea
+		can pass pass to be included.
+        	- pointField: the column name in the pointSource that contains the name of the point
+        	- sortBy: Can sort by 'name','parent','size',
+	- pointFilter: Controls which point (i.e. cities) to include in the 1st bullet based on 
+        		the 'WARNGENLEV' of the point. WARNGENLEV is a value from 1 to 3.
+        		key: WARNGENLEV (Column name in the pointSource)
+        		value: 1,2,or 3 (Can only be a single value), 0 does nothing
+        		type: INCLUSIVE - include only points that match the value
+        		      EXCLUSIVE - exclude only points that match the value
+        		      For example: INCLUSIVE 1,will only include points that are WARNGENLEV 1,
+        		      	         EXCLUSIVE 3, will only include points that are WARNGENLEV 1 and 2
+  	- fipsField: the name of the attribute that retrieves the fips
+
+	- areaNotationField: The column in the areaSource table that contains the key 
+        		used to map to the correct areaNotation. Look at countTypes.txt
+	- areaNotationTranslationFile: TranslationFile to look up an area 
+          	notation located in /edex/data/utility/common_static/base/warngen
+	- includedWatchAreaBuffer: The number of MILES the warning polygon will be increased to include nearby watches
+
+	- otherPoints: this configures the otherPoints object for the fourth bullet. It
+		uses the same pointSource as the areaConfig
+		- includeAreaPoints: true/false, don't add name if already available for 1st bullet
+		- includeClosePoints: true/false, don't add name if already available for 3rd bullet
+		- sortBy - Can sort the path cast by 'distance', 'name', 'population','warngenlev','lat','lon',
+    
+  -->
+ <areaConfig>
+  <inclusionPercent>0.00</inclusionPercent>
+  <inclusionAndOr>AND</inclusionAndOr>
+  <inclusionArea>0</inclusionArea>
+  <areaField>COUNTYNAME</areaField>
+  <parentAreaField>NAME</parentAreaField>
+  <areaNotationField>STATE</areaNotationField>
+  <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+  <fipsField>FIPS</fipsField>
+  <pointField>NAME</pointField>
+  <sortBy>
+  	<sort>parent</sort>
+  </sortBy>
+  <pointFilter>
+  	<key>WARNGENLEV</key>
+  	<value>1</value>
+  	<type>INCLUSIVE</type>
+  </pointFilter>
+  <includedWatchAreaBuffer>25</includedWatchAreaBuffer>
+  <otherPoints>
+  	<maxCount>50</maxCount>
+  	<includeAreaPoints>true</includeAreaPoints>
+  	<includeClosestPoints>true</includeClosestPoints>
+  	<sortBy>
+  		<sort>warngenlev</sort>
+  		<sort>population</sort>
+  	</sortBy>
+  </otherPoints>
+ </areaConfig>
+
+ <!-- closestPointsConfig: determines how the closest points to the storm
+         are generated. This configuration is usually applied to the 3rd bullet.
+        - numberOfPoints: number of closest points to generate
+        - unitDistance: the output unit
+        - unitSpeed: the output speed
+        - pointField: The field out of the area field that is used for naming
+	  the point 
+        - pointFilter: Controls which point (i.e. cities) to include in the 1st bullet based on 
+        		the 'WARNGENLEV' of the point. WARNGENLEV is a value from 1 to 3.
+        		key: WARNGENLEV (Column name in the pointSource)
+        		value: 1,2,or 3 (Can only be a single value), 0 does nothing
+        		type: INCLUSIVE - include only points that match the value
+        		      EXCLUSIVE - exclude only points that match the value
+        		      For example: INCLUSIVE 1,will only include points that are WARNGENLEV 1,
+        		      	         EXCLUSIVE 3, will only include points that are WARNGENLEV 1 and 2
+        - sortBy: Can sort the path cast by 'distance', 'name', 'population','warngenlev','lat','lon',
+  -->
+ <closestPointsConfig>
+  <numberOfPoints>2</numberOfPoints>
+  <unitDistance>mi</unitDistance>
+  <unitSpeed>mph</unitSpeed>
+  <pointField>NAME</pointField>
+  <pointFilter>
+  	<key>WARNGENLEV</key>
+   	<value>0</value>
+   	<type>EXCLUSIVE</type>
+  </pointFilter>
+  <sortBy>
+  	<sort>distance</sort>
+  	<sort>warngenlev</sort>
+  </sortBy>
+ </closestPointsConfig>
+ 
+ <!-- pathcastConfig: If present, this indicates a track product is generated
+          to determine the areas the storm will pass under. This is mainly for the
+          4th bullet and used if type 1 is selected. Refer to VM_global_library.vm for details.
+          
+        - enabled: 0 to disable pathCast, 1 to enable pathCast
+        - defaultSpeedKt: Default speed in knots  
+        - defaultDirection: Default Direction (0 degrees is South)
+        - nearThreshold: Specifies a distance in Miles that indicates how close
+          	a storm can be to a location to be included in the path cast;
+        - interval: will round the minutes in the pathcast to the next interval set
+        - maxCount: max number of points can be included in each group
+        - pointField: the column name in the pointSource that contains the name of the point
+        - pointFilter: Controls which point to include based on the 'WARNGENLEV' of the point.
+        		WARNGENLEV is a value from 1 to 3.
+        		key: WARNGENLEV (Column name in the pointSource)
+        		value: 1,2,or 3 (Can only be a single value), 0 does nothing
+        		type: INCLUSIVE - include only points that match the value
+        		      EXCLUSIVE - exclude only points that match the value
+        		      For example: INCLUSIVE 1,will only include points that are WARNGENLEV 1,
+        		      	         EXCLUSIVE 3, will only include points that are WARNGENLEV 1 and 2
+        - areaField: the column name in the areaSource table that contains the name of the area
+        - parentAreaField: the column name in the area Source that contains the parent of the area (i.e. State)
+        - areaNotationField: The column in the areaSource table that contains the key 
+        		used to map to the correct areaNotation. Look at countTypes.txt
+        - areaNotationTranslationFile: TranslationFile to look up an area 
+          	notation located in /edex/data/utility/common_static/base/warngen
+        - sortBy: Can sort the path cast by 'distance', 'name', 'population','warngenlev','lat','lon'
+  --> 
+ <pathcastConfig>
+  <withinPolygon>true</withinPolygon>
+  <defaultSpeedKt>20</defaultSpeedKt>
+  <defaultDirection>45</defaultDirection>
+  <nearThreshold>8.0</nearThreshold>
+  <interval>5</interval>
+  <maxCount>4</maxCount>
+  <maxGroup>8</maxGroup>
+  <pointField>Name</pointField>
+  <pointFilter>
+  	<key>WARNGENLEV</key>
+  	<value>0</value>
+  	<type>EXCLUSIVE</type>
+  </pointFilter>
+  <areaField>COUNTYNAME</areaField>
+  <parentAreaField>STATE</parentAreaField>
+  <areaNotationField>STATE</areaNotationField>
+  <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+  <sortBy>
+  	<sort>distance</sort>
+  </sortBy>
+ </pathcastConfig>
+
+<!-- this "include file" tag will grab the Mile Marker XML pointSource tags, 
+and place into this template  
+<include file="mileMarkers.xml"/>
+-->
+
+ <!-- geospatialConfig: The geospatial configuration
+         	- pointSource: the name of the table that reads the points from (i.e. City, MarineSites)
+          - areaSource: the name of the table that reads the areas from (i.e. County,MarineZones)
+          - timezoneSource: the name of the table that reads the time zones from
+        	- timezoneField: the column name of the table that contains the name of the time zone
+ 	- maskSource: Table name of the CWAs
+ 	- maskFilter: Upon initialization will gather all the areas that have a WFO
+ 		that matches what CAVE is localized to
+ -->
+ <geospatialConfig>
+  <pointSource>City</pointSource>
+  <areaSource>County</areaSource>
+  <parentAreaSource>States</parentAreaSource>
+  <timezoneSource>TIMEZONES</timezoneSource>
+  <timezoneField>TIME_ZONE</timezoneField>
+  <maskSource>CWA</maskSource>
+  <maskFilter>
+    <key>WFO</key>
+    <value>$warngenCWAFilter</value>
+    <type>INCLUSIVE</type>
+  </maskFilter>
+ </geospatialConfig>
+</warngenConfig>
+ 
