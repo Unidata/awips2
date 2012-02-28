@@ -1,9 +1,11 @@
 package gov.noaa.nws.ncep.gempak.parameters.marker;
 
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.common.ui.color.GempakColor;
 import gov.noaa.nws.ncep.viz.common.ui.GempakMarkerType;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 
@@ -74,10 +76,12 @@ public class MARKER {
 		if (markerAttributeString == null || markerAttributeString.trim().length() <= 0) return;
 		
 		LinkedHashMap<Integer, String> markerTypeMaps = null;
-		String markerTypeTable = LocalizationManager.getInstance().getFilename("gempakMarkerType");
+		File markerTypeTable = 
+    		NcPathManager.getInstance().getStaticFile(
+    				NcPathConstants.GEMPAK_MARKER_TYPE );
 		
         try {
-			markerTypeMaps = GempakMarkerType.loadMarkerTypes(markerTypeTable);
+			markerTypeMaps = GempakMarkerType.loadMarkerTypes(markerTypeTable.getAbsolutePath() );
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();

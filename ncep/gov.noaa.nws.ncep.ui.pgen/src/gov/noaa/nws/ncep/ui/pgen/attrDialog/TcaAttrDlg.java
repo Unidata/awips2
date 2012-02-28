@@ -55,7 +55,8 @@ import gov.noaa.nws.ncep.ui.pgen.tca.ITca;
 import gov.noaa.nws.ncep.ui.pgen.tca.StormAdvisoryNumber;
 import gov.noaa.nws.ncep.ui.pgen.tca.TropicalCycloneAdvisory;
 import gov.noaa.nws.ncep.ui.pgen.tools.PgenTcaTool;
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 /**
  * Singleton attribute dialog for text.
@@ -995,10 +996,12 @@ public class TcaAttrDlg extends AttrDlg implements ITca, SelectionListener {
 	 */
 	private static void readOptions() {
 		
-		String tcainfo = NmapCommon.getTcaAttrInfoFile();
-		
+		File tcainfoFile = NcPathManager.getInstance().getStaticFile( 
+    				NcPathConstants.PGEN_TCA_ATTR_INFO );   	    
+    		
+
 		try {
-			info = (TcaAttrInfo)SerializationUtil.jaxbUnmarshalFromXmlFile(tcainfo);
+			info = (TcaAttrInfo)SerializationUtil.jaxbUnmarshalFromXmlFile(tcainfoFile.getAbsoluteFile() );
 		}
 		catch ( Exception e) {
 			e.printStackTrace();

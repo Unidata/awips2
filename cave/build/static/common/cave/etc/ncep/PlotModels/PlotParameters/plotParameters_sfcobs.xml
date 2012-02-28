@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PlotParameterDefns>
+
+	<plugin>sfcobs</plugin>
+
+	<!-- PRESSURE AND ALTIMETER-->
+	
+	<PlotParameterDefn  plotParamName="ALTI" metParamName="SeaLevelPressure" plotMode="text" dbParamName="altimeter"     plotUnit="inHg"   plotFormat="%5.2f" />
+	<PlotParameterDefn  plotParamName="ALTM" metParamName="SeaLevelPressure" plotMode="text" dbParamName="altimeter"     plotUnit="mb"    plotFormat="%5.2f" />
+	<PlotParameterDefn  plotParamName="PALT" metParamName="SurfacePressure"  plotMode="text"  dbParamName="stationPress"  plotUnit="mb"    plotFormat="%5.2f" />
+	<PlotParameterDefn  plotParamName="PMSL" metParamName="MeanSeaLevelPres" plotMode="text" dbParamName="seaLevelPress" plotUnit="mb"    plotFormat="%5.2f" />
+	<PlotParameterDefn  plotParamName="SMSL" metParamName="MeanSeaLevelPres" dbParamName="seaLevelPress" plotUnit="inHg" plotFormat="SMSL"/>
+	<PlotParameterDefn  plotParamName="P03C" metParamName="PressChange3Hr" plotMode="text" dbParamName="pressChange3Hour"  plotUnit="mb"    plotFormat="%+3.0f"/>
+    <PlotParameterDefn  plotParamName="PTSY" metParamName="PressureTendencySymbol" dbParamName="pressChangeChar" plotMode="table" symbolFont="WxSymbolFont" plotLookupTable="press_change_char_lookup.txt"/>
+    <!--  TODO Is the dbParamName really presChange24Hour? Didn't encounter an instance in the canned data... -->
+    <!-- <PlotParameterDefn  plotParamName="P24C" metParamName="PressChange24Hr" plotMode="text" dbParamName="presChange24Hour" plotUnit="mb"    plotFormat="%5.2f" plotTrim="2"/> 	 -->
+    
+
+                <!-- The parameters listed below are present in the database, but do not have an equivalent GEMPAK parameter -->
+	
+	    <PlotParameterDefn  plotParamName="SP10" metParamName="EquivWindSpeed10min" plotMode="text" dbParamName="equivWindSpeed10m" plotUnit="m/s" plotFormat="%.2f"/>
+	    <PlotParameterDefn  plotParamName="SP20" metParamName="EquivWindSpeed20min" plotMode="text" dbParamName="equivWindSpeed20m" plotUnit="m/s" plotFormat="%.2f"/>
+        <PlotParameterDefn  plotParamName="HRWH" metParamName="HighResWaveHeight" plotMode="text" dbParamName="highResWaveHeight" plotUnit="m"   plotFormat="%.2f"/>
+        <PlotParameterDefn  plotParamName="SICE" metParamName="IceCode" plotMode="text" dbParamName="iceCode"/>
+        <PlotParameterDefn  plotParamName="IDIR" metParamName="InterWindDir" plotMode="text" dbParamName="interWindDir" plotUnit="°" plotFormat="%.2f" />
+        <PlotParameterDefn  plotParamName="ISPD" metParamName="InterWindSpeed" plotMode="text" dbParamName="interWindSpeed" plotUnit="m/s" plotFormat="%.2f" />
+        <PlotParameterDefn  plotParamName="ITIM" metParamName="InterWindTime" plotMode="text" dbParamName="interWindTime"/>
+        <PlotParameterDefn  plotParamName="IWND" metParamName="NumInterWinds" plotMode="text" dbParamName="numInterWinds"/>
+        <PlotParameterDefn  plotParamName="PKWD" metParamName="PeakWindDir" plotMode="text" dbParamName="peakWindDir" plotUnit="°" plotFormat="%.2f" />
+        <PlotParameterDefn  plotParamName="PKWS" metParamName="PeakWindSpeed" plotMode="text" dbParamName="peakWindSpeed" plotUnit="m/s" plotFormat="%.2f" />
+        <PlotParameterDefn  plotParamName="PKWT" metParamName="PeakWindSpeedTime" plotMode="text" dbParamName="peakWindSpeedTime"/>
+        <PlotParameterDefn  plotParamName="SHPD" metParamName="PlatformTrueDirection" plotMode="text" dbParamName="platformTrueDirection" plotUnit="°" plotFormat="%.2f" />
+        <PlotParameterDefn  plotParamName="SHPK" metParamName="PlatformTrueSpeed" plotMode="text" dbParamName="platformTrueSpeed" plotUnit="m/s" plotFormat="%.2f" /> 
+        <PlotParameterDefn  plotParamName="WSTP" metParamName="WaveSteepness" plotMode="text" dbParamName="waveSteepness"/>               
+     
+     <!-- TBD: The parameters listed below are present in the database, but do not have an equivalent GEMPAK parameter
+        <PlotParameterDefn  plotParamName="XXXX" metParamName="????" plotMode="table" class="special" dbParamName="lowCloudAmount" plotLookupTable="cloud_chars.txt" plotFunctionTable="cloud_select.txt" />
+        <PlotParameterDefn  plotParamName="XXXX" metParamName="????" plotMode="table" class="special" dbParamName="lowCloudHeight" plotLookupTable="cloud_chars.txt" plotFunctionTable="cloud_select.txt" />
+        <PlotParameterDefn  plotParamName="XXXX" metParamName="????" plotMode="table" class="special" dbParamName="lowCloudType" plotLookupTable="cloud_chars.txt" plotFunctionTable="cloud_select.txt" />
+        <PlotParameterDefn  plotParamName="XXXX" metParamName="????" plotMode="table" class="special" dbParamName="midCloudType" plotLookupTable="cloud_chars.txt" plotFunctionTable="cloud_select.txt" />
+
+        presChangeChar?? totCloudAmount?? 
+	  -->    
+	  
+	  
+	                <!-- These parameters have an equivalent GEMPAK parameter -->
+
+  
+    <!-- TEMPERATURE -->         
+	<PlotParameterDefn  plotParamName="TMPK" metParamName="AirTemperature"  plotMode="text" dbParamName="temperature" plotUnit="K" plotFormat="%3.0f"/>
+	<PlotParameterDefn  plotParamName="TMPF" metParamName="AirTemperature"  plotMode="text" dbParamName="temperature" plotUnit="°F" plotFormat="%3.0f"/>
+	<PlotParameterDefn  plotParamName="TMPC" metParamName="AirTemperature" plotMode="text" dbParamName="temperature" plotUnit="°C" plotFormat="%3.0f"/>
+	<PlotParameterDefn  plotParamName="SSTC" metParamName="SeaSurfaceTemp"        plotMode="text" dbParamName="seaSurfaceTemp" plotUnit="°C" plotFormat="%3.0f"/>
+    <PlotParameterDefn  plotParamName="SSTF" metParamName="SeaSurfaceTemp"        plotMode="text" dbParamName="seaSurfaceTemp" plotUnit="°F" plotFormat="%3.0f"/>	
+	<PlotParameterDefn  plotParamName="LTMP" metParamName="LiftedSurfaceAirTempAt500mb"  plotMode="text" deriveParams="all" plotUnit="°C" plotFormat="%3.0f"/>
+	<PlotParameterDefn  plotParamName="STHA" metParamName="SurfacePotentialTemp"  plotMode="text" deriveParams="all"    plotUnit="K" plotFormat="%3.0f"/>
+	<PlotParameterDefn  plotParamName="STHK" metParamName="SurfacePotentialTemp"  plotMode="text" deriveParams="all"    plotUnit="K" plotFormat="%3.0f"/>
+	<PlotParameterDefn  plotParamName="STHC" metParamName="SurfacePotentialTemp"  plotMode="text" deriveParams="all"    plotUnit="°C" plotFormat="%3.0f"/>
+	<PlotParameterDefn  plotParamName="STHE" metParamName="SurfaceEquivPotentialTemp"    plotMode="text" deriveParams="all"    plotUnit="K" plotFormat="%3.0f"/>
+		<!-- 
+		<PlotParameterDefn  plotParamName="TDNF" metParamName="Min24HrTemp"  plotMode="text" dbParamName="?????" plotUnit="°F" plotFormat="%3.0f"/>
+		<PlotParameterDefn  plotParamName="TDXF" metParamName="Max24HrTemp"  plotMode="text" dbParamName="?????" plotUnit="°F" plotFormat="%3.0f"/>
+		 -->
+		
+
+    <!-- MOISTURE -->      
+	<PlotParameterDefn  plotParamName="DWPF" metParamName="DewPointTemp"  plotMode="text" dbParamName="dewpoint" plotUnit="°F" plotFormat="%3.0f"/>
+	<PlotParameterDefn  plotParamName="DWPC" metParamName="DewPointTemp"  plotMode="text" dbParamName="dewpoint" plotUnit="°C" plotFormat="%3.0f"/>
+	<PlotParameterDefn  plotParamName="DWPK" metParamName="DewPointTemp"  plotMode="text" dbParamName="dewpoint" plotUnit="K" plotFormat="%3.0f"/>
+<!--
+    <PlotParameterDefn  plotParamName="TMWK" metParamName="WetBulbTemp"  plotMode="text" dbParamName="wetBulb" plotUnit="K" plotFormat="%3.0f"/>
+ <PlotParameterDefn  plotParamName="TMWF" metParamName="WetBulbTemp"
+                     deriveParams="AirTemperature,DewPointtemp,SeaLevelPressure"
+                     plotUnit="°F" plotFormat="%3.0f"/>
+-->
+    <!-- The following works for report type 1003 Ship (wetBulb is provided) -->
+    <PlotParameterDefn  plotParamName="TMWF" metParamName="WetBulbTemp"  plotMode="text" dbParamName="wetBulb" plotUnit="°F" plotFormat="%3.0f"/>
+    <PlotParameterDefn  plotParamName="TMWC" metParamName="WetBulbTemp"  plotMode="text" dbParamName="wetBulb" plotUnit="°C" plotFormat="%3.0f"/>
+
+	<!-- The following works for report types other than 1003 (webBulb is not provided, should be derived), need a way to fix this 
+	<PlotParameterDefn  plotParamName="TMWF" metParamName="WetBulbTemp"  plotMode="text" deriveParams="all"  plotUnit="°F" plotFormat="%3.0f"/>
+    <PlotParameterDefn  plotParamName="TMWC" metParamName="WetBulbTemp"  plotMode="text" deriveParams="all"  plotUnit="°C" plotFormat="%3.0f"/>
+   -->
+    <PlotParameterDefn  plotParamName="DPDC" metParamName="DewPointDepression"  plotMode="text" deriveParams="all"    plotUnit="°C" plotFormat="%3.0f"/>
+    <PlotParameterDefn  plotParamName="DPDF" metParamName="DewPointDepression"  plotMode="text" deriveParams="all"    plotUnit="°F" plotFormat="%3.0f"/>
+    <PlotParameterDefn  plotParamName="DPDK" metParamName="DewPointDepression"  plotMode="text" deriveParams="all"    plotUnit="K" plotFormat="%3.0f"/>
+    <PlotParameterDefn  plotParamName="RELH" metParamName="RelativeHumidity"         plotMode="text" deriveParams="all"    plotUnit="%" plotFormat="%3.0f"/>
+    <PlotParameterDefn  plotParamName="SMXR" metParamName="SurfaceMixingRatio"  plotMode="text" deriveParams="all" plotUnit="%"   plotFormat="%3.2f"/>
+    <!--  
+    <PlotParameterDefn  plotParamName="SMXS" metParamName="SurfaceSatMixingRatio" plotMode="text" deriveParams="all"    plotFormat="%3.0f"/>
+    <PlotParameterDefn  plotParamName="MIXR" metParamName="MixingRatio" plotMode="text" deriveParams="all"    plotFormat="%3.0f"/>
+    <PlotParameterDefn  plotParamName="MIXS" metParamName="SatMixingRatio" plotMode="text" deriveParams="all"    plotFormat="%3.0f"/>
+    --> 
+	<PlotParameterDefn  plotParamName="VAPR" metParamName="VaporPressure" plotMode="text" deriveParams="all"    plotUnit="hPa" plotFormat="%3.0f"/>
+	<PlotParameterDefn  plotParamName="VAPS" metParamName="SatVaporPressure" plotMode="text" deriveParams="all"    plotUnit="hPa" plotFormat="%3.0f"/>
+	
+	
+
+
+	<!-- STATION VARIABLES -->
+    <PlotParameterDefn  plotParamName="STID" metParamName="StationID" plotMode="text" dbParamName="stationId"/>
+<!--<PlotParameterDefn  plotParamName="STNM" metParamName="StationName" plotMode="text" deriveParams="all"   />  -->    
+        
+    <!-- Cross check if elevation refers only to station elevation -->
+    <PlotParameterDefn  plotParamName="SELV" metParamName="StationElevation" plotMode="text" dbParamName="elevation" plotUnit="m" plotFormat="%5.0f" /> 
+    <PlotParameterDefn  plotParamName="SLAT" metParamName="StationLatitude"  plotMode="text" dbParamName="latitude" plotUnit="°"   plotFormat="%.3f"  />
+    <PlotParameterDefn  plotParamName="SLON" metParamName="StationLongitude" plotMode="text" dbParamName="longitude" plotUnit="°"   plotFormat="%.3f"  />
+        
+    <!-- CLOUD -->
+	
+   <!-- Cross check CSYH with Greg -->
+   <!--  <PlotParameterDefn  plotParamName="CSYH" metParamName="????" plotMode="table" class="special" dbParamName="hicloudType" plotLookupTable="cloud_chars.txt" plotFunctionTable="cloud_select.txt" /> 
+<PlotParameterDefn  plotParamName="SKYC" metParamName="SkyCoverage" plotMode="table" class="special" dbParamName="totCloudAmount" plotLookupTable="cloud_chars.txt" plotFunctionTable="cloud_select.txt" /> 
+ <PlotParameterDefn  plotParamName="SKYC" metParamName="SkyCoverage"
+                     plotMode="table" symbolFont="SpecialSymbolFont"
+                     dbParamName="skyCover"
+                     prioritySelectTable="cloud_select.txt"
+                     plotLookupTable="cloud_chars.txt" />
+-->
+<PlotParameterDefn  plotParamName="SKYC" metParamName="SkyCoverage" plotMode="table" symbolFont="SpecialSymbolFont" dbParamName="totCloudAmount" prioritySelectTable="cloud_select.txt" plotLookupTable="cloud_chars.txt" />	   
+
+ <PlotParameterDefn  plotParamName="BRGK" metParamName="WindDirection,WindGust" 
+                     plotMode="barb" symbolFont="WindSymbolFont" 
+                     plotUnit="kts"/>
+
+ <PlotParameterDefn  plotParamName="BRBK" metParamName="WindDirection,WindSpeed"
+                     plotMode="barb" symbolFont="WindSymbolFont" 
+                     plotUnit="kts" />
+
+ <PlotParameterDefn  plotParamName="BRBM" metParamName="WindDirection,WindSpeed"
+                     plotMode="barb" symbolFont="WindSymbolFont" 
+                     plotUnit="m/s"/>
+
+ <PlotParameterDefn plotParamName="GUST" metParamName="WindGust"  
+                    dbParamName="windGust" plotUnit="kts" plotFormat="%3.0f"/>      
+ 
+ 
+    <!-- TSKC/WSKC for testing simulate TAF only -->
+	
+  <!--<PlotParameterDefn  plotParamName="TSKC" plotMode="table" class="special" dbParamName="totCloudAmount" plotLookupTable="cloud_chars.txt" plotFunctionTable="cloud_select.txt" />   
+	<PlotParameterDefn  plotParamName="WSKC" plotMode="table" class="special" dbParamName="totCloudAmount" plotLookupTable="cloud_chars.txt" plotFunctionTable="cloud_select.txt" />     -->	
+	
+	<!-- WIND -->
+
+<!-- 
+	<PlotParameterDefn  plotParamName="BRBK" metParamName="WindBarb" plotMode="barb" class="barb" plotParam="windSpeed,windDir" plotUnit="kts" plotLookupTable="wx_symbol_trans.txt"  transform="rotate(0,0,0)"/>
+    <PlotParameterDefn  plotParamName="BRBM" metParamName="WindBarb" plotMode="barb" class="barb" plotParam="windSpeed,windDir" plotUnit="m/s" plotLookupTable="wx_symbol_trans.txt"  transform="rotate(0,0,0)"/>	
+	<PlotParameterDefn  plotParamName="GUST" metParamName="WindGust" plotMode="text" dbParamName="windGust" plotUnit="kts" plotFormat="%3.0f"/>
+	<PlotParameterDefn  plotParamName="GUMS" metParamName="WindGust" plotMode="text" dbParamName="windGust" plotUnit="m/s" plotFormat="%3.0f"/> 
+    -->
+    
+    <PlotParameterDefn  plotParamName="DRCT" metParamName="WindDirection" plotMode="text" dbParamName="windDir" plotUnit="°"/>
+    <PlotParameterDefn  plotParamName="SPED" metParamName="WindSpeed" plotMode="text" dbParamName="windSpeed" plotUnit="m/s" plotFormat="%.2f"/>
+    <PlotParameterDefn  plotParamName="SKNT" metParamName="WindSpeed" plotMode="text" dbParamName="windSpeed" plotUnit="kn"  plotFormat="%.2f"/>
+    <PlotParameterDefn  plotParamName="SMPH" metParamName="WindSpeed" plotMode="text" dbParamName="windSpeed" plotUnit="mph" plotFormat="%.2f"/>
+    <PlotParameterDefn  plotParamName="HOWW" metParamName="WindWaveHeight" plotMode="text" dbParamName="windWaveHeight" plotUnit="m"/>
+    <PlotParameterDefn  plotParamName="POWW" metParamName="WindWavePeriod" plotMode="text" dbParamName="windWavePeriod" plotUnit="s"/>
+	    
+	<!-- WEATHER -->   
+	<PlotParameterDefn  plotParamName="WSYM" metParamName="PresentWeather" plotMode="table" class="weather" dbParamName="presWeather"  transform="rotate(0,0,0)" plotLookupTable="wx_symbol_trans.txt"/>  
+    <!-- <PlotParameterDefn  plotParamName="WSYM" metParamName="PresentWeather" dbParamName="presWeather" plotMode="table" symbolFont="WxSymbolFont" arrayIndex="0" plotLookupTable="wx_symbol_trans.txt"/> -->
+    
+    <PlotParameterDefn  plotParamName="P01M" metParamName="Precip01Hr"  plotMode="text" dbParamName="precip1Hour" plotUnit="mm" />
+    <!-- precip3Hour is not defined in the current decoder
+    <PlotParameterDefn  plotParamName="P03M" metParamName="Precip03Hr"  plotMode="text" dbParamName="precip3Hour" plotUnit="mm" />
+    <PlotParameterDefn  plotParamName="P03I" metParamName="Precip03Hr"  plotMode="text" dbParamName="precip3Hour" plotUnit="in" />
+     -->    
+    <PlotParameterDefn  plotParamName="P06M" metParamName="Precip06Hr"  plotMode="text" dbParamName="precip6Hour" plotUnit="mm" />
+    <PlotParameterDefn  plotParamName="P12M" metParamName="Precip12Hr"  plotMode="text" dbParamName="precip12Hour" plotUnit="mm" />
+    <PlotParameterDefn  plotParamName="P18M" metParamName="Precip18Hr"  plotMode="text" dbParamName="precip18Hour" plotUnit="mm" />
+    <PlotParameterDefn  plotParamName="P24M" metParamName="Precip24Hr"  plotMode="text" dbParamName="precip24Hour" plotUnit="mm" />
+    
+    <PlotParameterDefn  plotParamName="P01I" metParamName="Precip01Hr"  plotMode="text" dbParamName="precip1Hour" plotUnit="in" />
+    <PlotParameterDefn  plotParamName="P06I" metParamName="Precip06Hr"  plotMode="text" dbParamName="precip6Hour" plotUnit="in" />
+    <PlotParameterDefn  plotParamName="P12I" metParamName="Precip12Hr"  plotMode="text" dbParamName="precip12Hour" plotUnit="in" />
+    <PlotParameterDefn  plotParamName="P18I" metParamName="Precip18Hr"  plotMode="text" dbParamName="precip18Hour" plotUnit="in" />
+    <PlotParameterDefn  plotParamName="P24I" metParamName="Precip24Hr"  plotMode="text" dbParamName="precip24Hour" plotUnit="in" />    
+    
+    <!-- MARINE -->
+   
+    <PlotParameterDefn  plotParamName="DOSW" metParamName="PredomSwellWaveDir" plotMode="text" dbParamName="primarySwellWaveDir"    plotUnit="°" plotFormat="%.2f"/>
+    <PlotParameterDefn  plotParamName="HOSW" metParamName="PredomSwellWaveHeight"    plotMode="text" dbParamName="primarySwellWaveHeight" plotUnit="m" plotFormat="%.2f"/>
+    <PlotParameterDefn  plotParamName="POSW" metParamName="PredomSwellWavePeriod"    plotMode="text" dbParamName="primarySwellWavePeriod" plotUnit="s"/>
+    <PlotParameterDefn  plotParamName="DOS2" metParamName="SecondarySwellWaveDir" plotMode="text" dbParamName="secondarySwellWaveDir"    plotUnit="°" plotFormat="%.2f"/>
+    <PlotParameterDefn  plotParamName="HOS2" metParamName="SecondarySwellWaveHeight"    plotMode="text" dbParamName="secondarySwellWaveHeight" plotUnit="m" plotFormat="%.2f"/>
+    <PlotParameterDefn  plotParamName="POS2" metParamName="SecondarySwellWavePeriod"    plotMode="text" dbParamName="secondarySwellWavePeriod" plotUnit="s"/>    
+    <PlotParameterDefn  plotParamName="WHGT" metParamName="WaveHeight"    plotMode="text" dbParamName="waveHeight" plotUnit="m"  plotFormat="%.2f" />
+    <PlotParameterDefn  plotParamName="WHFT" metParamName="WaveHeight"    plotMode="text" dbParamName="waveHeight" plotUnit="ft" plotFormat="%.2f" />
+    <PlotParameterDefn  plotParamName="WPER" metParamName="WavePeriod"    plotMode="text" dbParamName="wavePeriod" plotUnit="s"/>
+
+    
+    <!-- MISCELLANEOUS -->
+    <PlotParameterDefn  plotParamName="VSBK" metParamName="Visibility" plotMode="text" dbParamName="visibility" plotUnit="km" plotFormat="%4.0f"/>
+    <PlotParameterDefn  plotParamName="VSBY" metParamName="Visibility" plotMode="text" dbParamName="visibility" plotUnit="mi" plotFormat="%4.0f"/>      
+    <PlotParameterDefn  plotParamName="FOSB" metParamName="FosbergFireWxIndex" plotMode="text" 
+    deriveParams="all" plotFormat="%3.0f"/>
+    <PlotParameterDefn  plotParamName="HEAT" metParamName="HeatIndex"  plotMode="text" deriveParams="all" plotUnit="°F" plotFormat="%4.0f"/>
+   
+   
+                    <!-- The parameters listed below are present in GEMPAK and CAVE, but do not have an equivalent database parameter -->
+   
+   
+   <!-- <PlotParameterDefn  plotParamName="SNOW" metParamName="SnowDepth"                       plotMode="text" dbParamName="????" plotUnit="in" plotFormat="%3.2f"/>
+        <PlotParameterDefn  plotParamName="SNEW" metParamName="NewSnowAmount"                   plotMode="text" dbParamName="????" plotUnit="in" plotFormat="%3.2f"/>
+		<PlotParameterDefn  plotParamName="WCEQ" metParamName="WindChillEquivalentTemp"  plotMode="text" dbParamName="?????" plotUnit="°F" plotFormat="%3.0f"/>
+		<PlotParameterDefn  plotParamName="WCHT" metParamName="WindChillTemp"            plotMode="text" dbParamName="?????" plotUnit="°F" plotFormat="%3.0f"/>
+		<PlotParameterDefn  plotParamName="TDXC" metParamName="MaxDayTemp"               plotMode="text" dbParamName="????" plotUnit="°C" plotFormat="%3.0f" />
+		<PlotParameterDefn  plotParamName="TMAX" metParamName="MaxDayTemp"               plotMode="text" dbParamName="????" plotUnit="°C" plotFormat="%3.0f"/>
+		<PlotParameterDefn  plotParamName="TDXF" metParamName="MaxDayTemp"               plotMode="text" dbParamName="????" plotUnit="°F" plotFormat="%3.0f"/>
+		<PlotParameterDefn  plotParamName="TDNC" metParamName="MinNightTemp"             plotMode="text" dbParamName="????" plotUnit="°C" plotFormat="%3.0f" />
+		<PlotParameterDefn  plotParamName="TMIN" metParamName="MinNightTemp"             plotMode="text" dbParamName="????" plotUnit="°C" plotFormat="%3.0f"/>
+		<PlotParameterDefn  plotParamName="TDNF" metParamName="MinNightTemp"             plotMode="text" dbParamName="????" plotUnit="°F" plotFormat="%3.0f"/>
+        <PlotParameterDefn  plotParamName="IGRO" metParamName="RateOfIceAccretionOnVesselInSaltWater" plotMode="text" dbParamName="????" plotUnit="in/hr" plotFormat="%3.2f"/>
+        <PlotParameterDefn  plotParamName="IGRO" metParamName="ShipIceThickness" plotMode="text" dbParamName="????" plotUnit="m" plotFormat="%3.2f"/>        
+        <PlotParameterDefn  plotParamName="SHPD" metParamName="ShipCourse" plotMode="text" dbParamName="????" plotUnit="°" plotFormat="%3.3f"/>
+        <PlotParameterDefn  plotParamName="SHPK" metParamName="Avg3HrShipSpeed" plotMode="text" dbParamName="????" plotUnit="kts" plotFormat="%3.3f"/>
+    
+    
+    --> 
+
+        
+</PlotParameterDefns>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

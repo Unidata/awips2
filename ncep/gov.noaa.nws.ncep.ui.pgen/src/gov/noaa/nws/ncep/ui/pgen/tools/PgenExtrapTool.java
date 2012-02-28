@@ -70,6 +70,8 @@ public class PgenExtrapTool extends AbstractPgenDrawingTool {
      */       
     public class PgenExtrapHandler extends InputHandlerDefaultImpl {
     	    	
+    	private boolean preempt;
+    	
     	/**
     	 * Current extrapolation dialog.
     	 */
@@ -86,6 +88,8 @@ public class PgenExtrapTool extends AbstractPgenDrawingTool {
         @Override	   	
         public boolean handleMouseDown( int anX, int aY, int button ) { 
        	
+        	preempt = false;
+        	
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
         	if ( loc == null ) return false;
@@ -97,6 +101,7 @@ public class PgenExtrapTool extends AbstractPgenDrawingTool {
         			// Get the nearest element and set it as the selected element.
         			AbstractDrawableComponent elSelected = drawingLayer.getNearestComponent( loc, extrapFilter, true );
         			drawingLayer.setSelected( elSelected ); 
+        			if ( elSelected != null ) preempt = true;
         			
         		}
         		else {
@@ -128,7 +133,7 @@ public class PgenExtrapTool extends AbstractPgenDrawingTool {
         	    
                 mapEditor.refresh();               
     		    
-                return true;	
+                return preempt;	
        		                
             }
             else if ( button == 3 ) {
@@ -154,7 +159,11 @@ public class PgenExtrapTool extends AbstractPgenDrawingTool {
             }
         	
         }
- 
+
+		@Override
+		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
+			return preempt;
+		}
 
 
     }

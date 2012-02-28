@@ -198,7 +198,7 @@ public class PgenRotateElement extends AbstractPgenDrawingTool {
 				mapEditor.refresh();
 			}
 			
-			return false;
+			return true;
 		}
 
 		/**

@@ -308,6 +308,8 @@ public class ContourValidator {
 			tempCoords = coords;
 		}
 		
+		if ( indexes.size() < 2 ) return tempList;
+		
 		/*
 		 * create two polygons from list of coordinates in tempCoords at intersection point.
 		 */

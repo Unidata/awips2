@@ -144,7 +144,7 @@ public  class FFAResourceData extends AbstractNatlCntrsRequestableResourceData
 	@Override
 	public MiscRscAttrs getMiscResourceAttrs() {
 		MiscRscAttrs attrs = new MiscRscAttrs( 4 );
-	
+/*	
 		attrs.addAttr( new MiscResourceAttr( "flashFloodAdvisoryEnable", "Flash Flood Advisory",
 				EditElement.CHECK_BOX, 1 ));		
 		attrs.addAttr( new MiscResourceAttr( "flashFloodAdvisoryColor", "", 
@@ -162,8 +162,8 @@ public  class FFAResourceData extends AbstractNatlCntrsRequestableResourceData
 				EditElement.SPINNER, 3 ));		
 		attrs.addAttr( new MiscResourceAttr( "flashFloodWarningSymbolSize", "Symbol Size", 
 				EditElement.SPINNER, 4 ));
-		
-		attrs.addAttr( new MiscResourceAttr( "flashFloodWatchEnable", "Flash Flood Watch",
+*/		
+		attrs.addAttr( new MiscResourceAttr( "flashFloodWatchEnable", "Flash Flood Watches",//Watch",
 				EditElement.CHECK_BOX, 1 ));		
 		attrs.addAttr( new MiscResourceAttr( "flashFloodWatchColor", "", 
 				EditElement.COLOR_SELECTOR, 2 ));
@@ -171,8 +171,8 @@ public  class FFAResourceData extends AbstractNatlCntrsRequestableResourceData
 				EditElement.SPINNER, 3 ));
 		attrs.addAttr( new MiscResourceAttr( "flashFloodWatchSymbolSize", "Symbol Size", 
 				EditElement.SPINNER, 4 ));
-		
-		attrs.addAttr( new MiscResourceAttr( "flashFloodStatementEnable", "Flash Flood Statement",
+//T456: change to Areal Flood Watches		
+		attrs.addAttr( new MiscResourceAttr( "flashFloodStatementEnable", "Areal Flood Watches",//"Flash Flood Statement",
 				EditElement.CHECK_BOX, 1 ));		
 		attrs.addAttr( new MiscResourceAttr( "flashFloodStatementColor", "", 
 				EditElement.COLOR_SELECTOR, 2 ));
