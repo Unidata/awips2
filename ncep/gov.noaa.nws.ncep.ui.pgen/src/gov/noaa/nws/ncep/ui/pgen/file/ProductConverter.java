@@ -66,6 +66,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.labeledLines.Cloud;
 import gov.noaa.nws.ncep.ui.pgen.elements.labeledLines.Label;
 import gov.noaa.nws.ncep.ui.pgen.elements.labeledLines.LabeledLine;
 import gov.noaa.nws.ncep.ui.pgen.elements.labeledLines.Turbulence;
+import gov.noaa.nws.ncep.ui.pgen.elements.tcm.Tcm;
 import gov.noaa.nws.ncep.ui.pgen.file.WatchBox.Hole;
 import gov.noaa.nws.ncep.ui.pgen.file.WatchBox.Outline;
 import gov.noaa.nws.ncep.ui.pgen.file.WatchBox.Status;
@@ -122,6 +123,7 @@ import gov.noaa.nws.ncep.ui.pgen.sigmet.Volcano;
  * 11/10                    Q.Zhou      Added code to get Avntext in convertXML2LabeledLine()
  * 01/11                    J. Wu       Reworked on Product's attributes. 
  * 04/11		#?			B. Yin		Re-factor IAttribute
+ * 12/11		#?			B. Yin		Changed 'TO' to '-' in LLWS vorText
  * </pre>
  * 
  * @author	J. Wu
@@ -209,7 +211,7 @@ public class ProductConverter {
 		    }
 		    
 		    lyr.setInputFile( null );		        
-		    lyr.setOutputFile( null );
+		    lyr.setOutputFile( null );           
 
 		    lyr.setDrawables( convert( fLayer.getDrawableElement() ) );
 		    
@@ -684,7 +686,14 @@ public class ProductConverter {
     	    	des.add( convertXML2Volcano( fVol) );
     	    }
     	}
-  	  	
+    	
+       	if ( !elem.getTcm().isEmpty()) {   	    	    
+    	       
+    	    for ( gov.noaa.nws.ncep.ui.pgen.file.TCM ftcm: elem.getTcm() ) {	 
+    	    	des.add( convertXML2Tcm( ftcm) );
+    	    }
+    	}
+       	
         return des;
     }
 
@@ -717,7 +726,7 @@ public class ProductConverter {
 		    
 	    	p.setInputFile ( null );
 		    p.setUseFile ( false );
-		    p.setOnOff( prd.isOnOff() );
+		    p.setOnOff( prd.isOnOff() );		    
 		    p.setSaveLayers( prd.isSaveLayers() );
 		    
 		    p.getLayer().addAll( convertLayers ( prd.getLayers() ) );
@@ -955,6 +964,9 @@ public class ProductConverter {
 							else {
 								s = SigmetInfo.getVORText(a, "-", "Line", -1, true, false, true );
 							}
+						}
+						else if ( fgfa.getHazard().equalsIgnoreCase("LLWS")){
+							s = SigmetInfo.getVORText(a, "-", "Area", -1, true, false, true );
 						}
 						else {
 							s = SigmetInfo.getVORText(a, " TO ", "Area", -1, true, false, true );
@@ -1269,6 +1281,9 @@ public class ProductConverter {
 				
 				else if ( de instanceof WatchBox ) {
 					fde.getWatchBox().add(convertWatchBox2XML((WatchBox)de));
+				}
+				else if ( de instanceof Tcm ){
+					fde.getTcm().add(convertTcm2XML((Tcm)de));
 				}
 				else if ( de instanceof TCAElement ) {
 
@@ -2544,42 +2559,6 @@ public class ProductConverter {
     					gov.noaa.nws.ncep.ui.pgen.file.DrawableElement lblDe = lblDec
     					.getDrawableElement();
 
-    					if (lblDe.getLine() != null) {
-    						// convert arrow lines
-    						for (gov.noaa.nws.ncep.ui.pgen.file.Line arrowLine : lblDe
-    								.getLine()) {
-
-    							// get colors
-    							Color[] clr = new Color[arrowLine.getColor().size()];
-    							int nn = 0;
-    							for (gov.noaa.nws.ncep.ui.pgen.file.Color fColor : arrowLine
-    									.getColor()) {
-    								clr[nn++] = new Color(fColor.getRed(), fColor
-    										.getGreen(), fColor.getBlue(), fColor
-    										.getAlpha());
-    							}
-
-    							ArrayList<Coordinate> linePoints = new ArrayList<Coordinate>();
-    							nn = 0;
-    							for (Point pt : arrowLine.getPoint()) {
-    								linePoints.add(new Coordinate(pt.getLon(), pt
-    										.getLat()));
-    							}
-
-    							Line line = new Line(null, clr, arrowLine
-    									.getLineWidth(), arrowLine.getSizeScale(),
-    									arrowLine.isClosed(), arrowLine.isFilled(),
-    									linePoints, arrowLine.getSmoothFactor(),
-    									FillPattern.valueOf(arrowLine
-    											.getFillPattern()), arrowLine
-    											.getPgenCategory(), arrowLine
-    											.getPgenType());
-
-    							line.setParent(lbl);
-    							lbl.addArrow(line);
-    						}
-    					}
-
     					if (lblDe.getMidCloudText() != null) {
     						// convert label texts.
     						// mid-level text is for clouds.
@@ -2646,6 +2625,43 @@ public class ProductConverter {
     						}
     					}
     					if(lblDe.getText()!=null){ 	handleCcfpText(lblDe,  lbl);	}
+    					
+    					if (lblDe.getLine() != null) {
+    						// convert arrow lines
+    						for (gov.noaa.nws.ncep.ui.pgen.file.Line arrowLine : lblDe
+    								.getLine()) {
+
+    							// get colors
+    							Color[] clr = new Color[arrowLine.getColor().size()];
+    							int nn = 0;
+    							for (gov.noaa.nws.ncep.ui.pgen.file.Color fColor : arrowLine
+    									.getColor()) {
+    								clr[nn++] = new Color(fColor.getRed(), fColor
+    										.getGreen(), fColor.getBlue(), fColor
+    										.getAlpha());
+    							}
+
+    							ArrayList<Coordinate> linePoints = new ArrayList<Coordinate>();
+    							nn = 0;
+    							for (Point pt : arrowLine.getPoint()) {
+    								linePoints.add(new Coordinate(pt.getLon(), pt
+    										.getLat()));
+    							}
+
+    							Line line = new Line(null, clr, arrowLine
+    									.getLineWidth(), arrowLine.getSizeScale(),
+    									arrowLine.isClosed(), arrowLine.isFilled(),
+    									linePoints, arrowLine.getSmoothFactor(),
+    									FillPattern.valueOf(arrowLine
+    											.getFillPattern()), arrowLine
+    											.getPgenCategory(), arrowLine
+    											.getPgenType());
+
+    							line.setParent(lbl);
+    							lbl.addArrow(line);
+    						}
+    					}
+    					
     					ll.addLabel(lbl);
     				}
 
@@ -2755,6 +2771,92 @@ public class ProductConverter {
     		text.setParent(lbl);
     		lbl.setSpe(text);
     	}
+    }
+    
+    
+    /**
+	 * Convert a JAXB XML TCM object to a PGEN Tcm object.
+	 * @param cnt
+	 * @return
+	 */
+    private static Tcm convertXML2Tcm( gov.noaa.nws.ncep.ui.pgen.file.TCM fileTcm ) {
+
+	    Tcm pgenTcm = new Tcm();	
+	    
+	    pgenTcm.setPgenType( fileTcm.getPgenType() );
+	    pgenTcm.setPgenCategory( fileTcm.getPgenCategory() );
+	    
+	    pgenTcm.setAdvisoryNumber(fileTcm.getAdvisoryNumber());
+	    pgenTcm.setBasin(fileTcm.getBasin());
+	    pgenTcm.setCentralPressure(fileTcm.getCentralPressure());
+	    pgenTcm.setCorrection(fileTcm.getCorrection());
+	    pgenTcm.setEyeSize(fileTcm.getEyeSize());
+	    pgenTcm.setStormName(fileTcm.getStormName());
+	    pgenTcm.setStormNumber(fileTcm.getStormNumber());
+	    pgenTcm.setStormType(fileTcm.getStormType());
+	    
+	    Calendar tcmTime = Calendar.getInstance( TimeZone.getTimeZone("GMT") );
+	    XMLGregorianCalendar xmlCal = fileTcm.getAdvisoryTime();
+	    tcmTime.set( xmlCal.getYear(), xmlCal.getMonth()-1, xmlCal.getDay(), 
+	    		xmlCal.getHour(), xmlCal.getMinute(), xmlCal.getSecond() );
+	    pgenTcm.setTime( tcmTime );
+	    
+	    pgenTcm.setWaveQuatro(fileTcm.getTcmWaves());
+	    pgenTcm.setTcmFcst(fileTcm.getTcmFcst());
+    		
+	    return pgenTcm;
+
+    }
+    
+    /**
+	 * Convert a Tcm object to an XML TCM object.
+	 * @param cnt
+	 * @return
+	 */
+    private static gov.noaa.nws.ncep.ui.pgen.file.TCM convertTcm2XML( Tcm pgenTcm ) {
+
+	    gov.noaa.nws.ncep.ui.pgen.file.TCM fileTcm = 
+		                      new gov.noaa.nws.ncep.ui.pgen.file.TCM();
+	    
+	    //fileTcm.setAdvisories(advisories);
+	    fileTcm.setAdvisoryNumber( pgenTcm.getAdvisoryNumber() );
+
+	    XMLGregorianCalendar xmlCal = null;
+        Calendar tcmTime = pgenTcm.getAdvisoryTime();
+
+        try {
+        	xmlCal = DatatypeFactory.newInstance().newXMLGregorianCalendar(
+        			tcmTime.get(Calendar.YEAR),
+        			tcmTime.get(Calendar.MONTH)+1,
+        			tcmTime.get(Calendar.DAY_OF_MONTH),
+        			tcmTime.get(Calendar.HOUR_OF_DAY),
+        			tcmTime.get(Calendar.MINUTE),
+        			tcmTime.get(Calendar.SECOND),
+        			tcmTime.get(Calendar.MILLISECOND),
+        			0 );
+        } catch (DatatypeConfigurationException e) {
+        	e.printStackTrace();
+        }
+
+	    fileTcm.setAdvisoryTime(xmlCal);
+
+	    fileTcm.setCentralPressure(pgenTcm.getCentralPressure());
+	    fileTcm.setCorrection(pgenTcm.isCorrection());
+	    fileTcm.setEyeSize(pgenTcm.getEyeSize());
+	    fileTcm.setPositionAccuracy(pgenTcm.getPositionAccuracy());
+	    
+	    fileTcm.setBasin(pgenTcm.getBasin());
+	    fileTcm.setPgenCategory(pgenTcm.getPgenCategory());
+	    fileTcm.setPgenType(pgenTcm.getPgenType());
+	    fileTcm.setStormName(pgenTcm.getStormName());
+	    fileTcm.setStormNumber(pgenTcm.getStormNumber());
+	    fileTcm.setStormType(pgenTcm.getStormType());
+	    
+	    fileTcm.setTcmWaves( pgenTcm.getWaveQuarters());
+	    fileTcm.setTcmFcst(pgenTcm.getTcmFcst());
+        
+	    return fileTcm;
+
     }
     
 }

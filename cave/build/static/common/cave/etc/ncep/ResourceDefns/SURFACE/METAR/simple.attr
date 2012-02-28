@@ -1,0 +1,4 @@
+! Parameters and Attributes for the default METAR Resource
+!
+plotModelName=simple
+plotDensity=10

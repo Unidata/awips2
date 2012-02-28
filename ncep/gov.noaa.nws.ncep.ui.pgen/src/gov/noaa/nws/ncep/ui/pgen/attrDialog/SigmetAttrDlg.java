@@ -20,8 +20,9 @@ import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.ISigmet;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.Sigmet;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.SigmetInfo;
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.awt.Color;
 import java.beans.PropertyDescriptor;
@@ -85,7 +86,10 @@ import com.vividsolutions.jts.geom.Polygon;
  *                                      the complete color matrix.
  * 03/10		#223		M.Laryukhin	Refactored getVOR method to be used with gfa.
  * 04/11		#?			B. Yin		Re-factor IAttribute
- * </pre>
+ * 07/11        #450        G. Hull     NcPathManager
+ * 12/11		#526		B. Yin		Close dialog after text is saved.
+ *
+ *  </pre>
  * 
  * @author	gzhang
  */
@@ -1719,6 +1723,9 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
 			}finally{ 				
 				setReturnCode(OK);
 				close();
+				SigmetAttrDlg.this.drawingLayer.removeSelected();
+		    	SigmetAttrDlg.this.close();
+				PgenUtil.setSelectingMode();
 			}
 			
 			//String fileName = "/usr1/gzhang/to11/workspace/build.edex/esb/data/utility/edex_static/base/ncep/shapefiles/firbnds/firbnds.shp";
@@ -2420,10 +2427,13 @@ GridData gdText = new GridData(); 	gdText.widthHint=66;
 		   
 		   org.w3c.dom.NodeList nlist = null;      
 		   
-		   String file = NmapCommon.getPhenomXmlFile();
+		   File file = NcPathManager.getInstance().getStaticFile( 
+				   NcPathConstants.PGEN_PHENOMENONS );
 	             
 		   try {            	 
-			   org.w3c.dom.Document doc  = javax.xml.parsers.DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file);	           
+			   org.w3c.dom.Document doc  = 
+				   javax.xml.parsers.DocumentBuilderFactory.newInstance().
+				            newDocumentBuilder().parse(file.getAbsoluteFile());	           
 			   nlist = doc.getElementsByTagName(type);
 	           
 			   if(nlist!=null && nlist.getLength()>0){ 

@@ -8,11 +8,10 @@
 
 package gov.noaa.nws.ncep.ui.pgen.tools;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.productManage.ProductConfigureDialog;
 import gov.noaa.nws.ncep.ui.pgen.productTypes.ProdType;
 import gov.noaa.nws.ncep.ui.pgen.productTypes.ProductType;
-import gov.noaa.nws.ncep.ui.pgen.productTypes.ProductTypes;
-import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -48,6 +47,7 @@ import com.raytheon.uf.viz.core.rsc.IInputHandler;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 01/11			?		B. Yin   	Initial Creation.
+ * 11/11			? 		B. Yin		Write the text products to a predefined location 
  *
  * </pre>
  * 
@@ -75,7 +75,7 @@ public class PgenProd extends AbstractPgenTool {
     	ProdDialog dlg = new ProdDialog();
     	dlg.open();
         
-        NmapUiUtils.setPanningMode();
+        //NmapUiUtils.setPanningMode();
 
     }
     
@@ -119,16 +119,7 @@ public class PgenProd extends AbstractPgenTool {
 
     	        // Initialize all of the menus, controls, and layouts
     	        String typeName = drawingLayer.getActiveProduct().getType();
-    	        ProductTypes pts = ProductConfigureDialog.loadProductTypes();
-    	        ProductType curType = null;
-    	        
-    	        //find current type
-    	        for ( ProductType pt : pts.getProductType()) {
-    	        	if ( pt.getName().equalsIgnoreCase(typeName)){
-    	        		curType = pt;
-    	        		break;
-    	        	}
-    	        }
+    	        ProductType curType = ProductConfigureDialog.getProductTypes().get(typeName);
     	        
     	        //create a list of check boxes
     	        if ( curType != null ){
@@ -307,10 +298,23 @@ public class PgenProd extends AbstractPgenTool {
     	
        	@Override
     	public void okPressed(){
+       		
+       		
        		if ( pt.getOutputFile() != null && !pt.getOutputFile().isEmpty()) {
-        		File out = new File( pt.getOutputFile() );
+       			
+				String pd = ProductConfigureDialog.getProductTypes().get(drawingLayer.getActiveProduct().getType()).getType();
+				String pd1 = pd.replaceAll(" ", "_");
+       			
+       			String dirPath = PgenUtil.getPgenOprDirectory() + 
+       							File.separator + pd1 +
+       							File.separator + "text";
+       			
+       			String filePath = dirPath +File.separator + pt.getOutputFile();
+       			
+        		File out = new File(  filePath );
         		
         		int code = MessageDialog.OK;
+        		
         		if ( out.exists() ) {
         			String msg = "File " + out + " exists. Do you want to overwrite it?";
 
@@ -321,6 +325,17 @@ public class PgenProd extends AbstractPgenTool {
 
         			code = confirmDlg.open();
         			
+        		}
+        		else {
+        			try {
+        				File dir = new File(dirPath);
+        				if ( !dir.exists() ){
+        					dir.mkdirs();
+        				}
+        			}
+        			catch ( Exception e ){
+        				System.out.println("Problem writing file "+out.getAbsolutePath());
+        			}
         		}
         		
         		if ( code == MessageDialog.OK ){

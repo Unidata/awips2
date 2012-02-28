@@ -105,7 +105,6 @@ public abstract class AbstractRadarResource<D extends IDescriptor> extends Abstr
 
     protected RadarRecord baseRecord = null;
 
-    protected static final RadarInfoDict infoDict;
 
     protected Map<RadarTimeRecord, String[]> radarInfoText = new HashMap<RadarTimeRecord, String[]>();
 
@@ -114,22 +113,6 @@ public abstract class AbstractRadarResource<D extends IDescriptor> extends Abstr
     public Map<Float, IWireframeShape> rangeCircle;
 
     protected String mode;
-
-    static {
-        File radarInfo = PathManagerFactory.getPathManager().getStaticFile(
-                "radarInfo.txt");
-        if (radarInfo != null) {
-            infoDict = RadarInfoDict.getInstance(radarInfo.getParent());
-        } else {
-            infoDict = null;
-        }
-    }
-
-//    protected AbstractRadarResource(RadarResourceData resourceData,
-//            LoadProperties loadProperties, com.raytheon.viz.radar.interrogators.IRadarInterrogator interrogator) {
-//        this(resourceData, loadProperties);
-//        this.interrogator = interrogator;
-//    }
 
     /**
      * @param resourceData
@@ -149,23 +132,6 @@ public abstract class AbstractRadarResource<D extends IDescriptor> extends Abstr
         productCode = 0;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#initInternal(com.raytheon
-     * .uf.viz.core.IGraphicsTarget)
-     */
-//    @Override
-//    protected void initInternal(IGraphicsTarget target) throws VizException {
-//        RadarTextResourceData.addRadarTextResource(descriptor);
-//    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#disposeInternal()
-     */
     @Override
     protected void disposeInternal() {
     }
@@ -287,25 +253,6 @@ public abstract class AbstractRadarResource<D extends IDescriptor> extends Abstr
         refreshDisplay = true;
         this.issueRefresh();
 
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.IResourceDataChanged#resourceChanged(com
-     * .raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType,
-     * java.lang.Object)
-     */
-    @Override
-    public void resourceChanged(ChangeType type, Object object) {
-        if (type == ChangeType.DATA_UPDATE) {
-            PluginDataObject[] pdoArr = (PluginDataObject[]) object;
-            for (PluginDataObject record : pdoArr) {
-                addRecord(record);
-            }
-        }
-        issueRefresh();
     }
 
     /*

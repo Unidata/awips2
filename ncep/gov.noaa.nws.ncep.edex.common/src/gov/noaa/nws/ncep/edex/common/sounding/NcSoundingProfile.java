@@ -11,17 +11,19 @@ package gov.noaa.nws.ncep.edex.common.sounding;
  * <pre>
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    	Engineer    Description
- * -------		------- 	-------- 	-----------
- * 09/13/2010	362			Chin Chen	Initial coding
- * 12/16/2010   362         Chin Chen   add support of BUFRUA observed sounding and PFC (NAM and GFS) model sounding data
- *
+ * Date             Ticket#    	Engineer       Description
+ * -------		      ---------   ---------------    ------------------
+ * 09/13/2010	362		   Chin Chen	 Initial coding
+ * 12/16/2010   362         Chin Chen    add support of BUFRUA observed sounding and PFC (NAM and GFS) model sounding data
+ * 09/14/2011   457         S. Gurung     Renamed ObsSndType.H5UAIR to ObsSndType.NCUAIR
+ *10/06/2011    465         Archana        Added a list of NcSoundingLayer2 objects to the sounding profile
  * </pre>
  * 
  * @author Chin Chen
  * @version 1.0
  */
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,10 +37,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class NcSoundingProfile implements  ISerializableObject{
-	@DynamicSerializeElement
-    private static final long serialVersionUID = 1324632468L;
+public class NcSoundingProfile implements ISerializableObject{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6858474095965608817L;
 
+	@DynamicSerializeElement
     public static final float MISSING = -9999.f;
 	public static enum PfcSndType {
         NAMSND, GFSSND, RUC2SND, RUCPTYPSND, BROWSE, NONE
@@ -47,7 +52,7 @@ public class NcSoundingProfile implements  ISerializableObject{
         ANY,  NONE
     };
 	public static enum ObsSndType {
-        H5UAIR, UAIR, DROP, TAMDAR, BUFRUA //same as uair but using bufrua decoder and data is saved in HDF5 
+        NCUAIR, UAIR, DROP, TAMDAR, BUFRUA //same as uair but using bufrua decoder and data is saved in HDF5 
         ,BROWSE, NONE
     };
     //Important Note:
@@ -60,7 +65,11 @@ public class NcSoundingProfile implements  ISerializableObject{
     };
     @DynamicSerializeElement
     private List<NcSoundingLayer> soundingLyLst;
+
     @DynamicSerializeElement
+    private List<NcSoundingLayer2> soundingLyLst2;
+    
+	@DynamicSerializeElement
     private float stationElevation;
     //@DynamicSerializeElement
     //private String stationId;
@@ -77,6 +86,7 @@ public class NcSoundingProfile implements  ISerializableObject{
     @DynamicSerializeElement
     private int stationNum;
 
+    @DynamicSerializeElement
     private NcSoundingCube.QueryStatus rtnStatus = NcSoundingCube.QueryStatus.OK;
     
 
@@ -112,6 +122,20 @@ public class NcSoundingProfile implements  ISerializableObject{
 		this.soundingLyLst = soundingLyLst;
 	}
 
+    /**
+	 * @return the soundingLyLst2
+	 */
+	public List<NcSoundingLayer2> getSoundingLyLst2() {
+		return soundingLyLst2;
+	}
+
+	/**
+	 * @param soundingLyLst2 the soundingLyLst2 to set
+	 */
+	public void setSoundingLyLst2(List<NcSoundingLayer2> soundingLyLst2) {
+		this.soundingLyLst2 = soundingLyLst2;
+	}
+	
 	public float getStationElevation() {
 		return stationElevation;
 	}
@@ -150,10 +174,12 @@ public class NcSoundingProfile implements  ISerializableObject{
 	}
 
 	// TO-DO: Add station number (stationNumber)
-	public NcSoundingProfile(List<NcSoundingLayer> soundingLyLst,
+	public NcSoundingProfile(List<NcSoundingLayer2> soundingLyLst2, 
+			                                    List<NcSoundingLayer> soundingLyLst, 
 			float stationElevation, String stationId, float stationLatitude,
 			float stationLongitude, float sfcPress, int stnNum) {
 		super();
+		this.soundingLyLst2 = soundingLyLst2;
 		this.soundingLyLst = soundingLyLst;
 		this.stationElevation = stationElevation;
 		this.stationId = stationId;
@@ -166,6 +192,7 @@ public class NcSoundingProfile implements  ISerializableObject{
 	public NcSoundingProfile() {
 		super();
 		this.soundingLyLst = new ArrayList<NcSoundingLayer>();
+		this.soundingLyLst2 = new ArrayList<NcSoundingLayer2>();
 		this.stationElevation = MISSING;
 		this.stationId = "";
 		this.stationLatitude = MISSING;
@@ -211,3 +238,4 @@ public class NcSoundingProfile implements  ISerializableObject{
     */
     
 }
+

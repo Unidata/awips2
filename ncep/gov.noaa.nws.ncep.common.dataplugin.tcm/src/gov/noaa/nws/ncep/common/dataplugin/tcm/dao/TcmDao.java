@@ -10,6 +10,8 @@
  * Date         Ticket#         Engineer    Description
  * ------------ ----------      ----------- --------------------------
  * 05/2010		128				T. Lee		Migration to TO11DR11
+ * 09/2011      			    Chin Chen   changed to improve purge performance and
+ * 										    removed xml serialization as well
  * </pre>
  *
  * @author T.Lee
@@ -19,13 +21,15 @@
 package gov.noaa.nws.ncep.common.dataplugin.tcm.dao;
 
 import gov.noaa.nws.ncep.common.dataplugin.tcm.TcmRecord;
-import gov.noaa.nws.ncep.edex.common.dao.NcepDefaultPluginDao;
 
 import java.util.List;
 import com.raytheon.uf.common.dataplugin.PluginException;
+import com.raytheon.uf.common.dataplugin.persist.IPersistable;
+import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
+import com.raytheon.uf.edex.database.plugin.PluginDao;
 
-public class TcmDao extends NcepDefaultPluginDao {
+public class TcmDao extends PluginDao {
 	
     /**
      * FfgDao constructor.
@@ -74,4 +78,11 @@ public class TcmDao extends NcepDefaultPluginDao {
 
         return results;
     }
+
+	@Override
+	protected IDataStore populateDataStore(IDataStore dataStore,
+			IPersistable obj) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

@@ -27,6 +27,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import ucar.grib.GribNumbers;
@@ -71,6 +72,13 @@ import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataquery.db.QueryResult;
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
@@ -86,6 +94,8 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 3/11/10      4758        bphillip    Initial Creation
+ * 9/08/10                  X. Guo      Add new column
+ * 11/02/11                 X. Guo      Check octet size for isEnsmble()
  * 
  * </pre>
  * 
@@ -93,7 +103,9 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * @version 1
  */
 public class Ncgrib1Decoder extends AbstractDecoder {
-
+	private static final transient IUFStatusHandler statusHandler = UFStatus
+    .getHandler(Ncgrib1Decoder.class);
+	
     /** Missing value string */
     private static final String MISSING = "Missing";
 
@@ -105,11 +117,36 @@ public class Ncgrib1Decoder extends AbstractDecoder {
 	
 	private String fileName="";
 	
+	private boolean addCol = false;
+
+    private static final int[] fourtyOne = new int[] { 1, 1, 2, 3, 2, 3, 2, 3,
+        2, 3, 2, 3 };
+
+    private static final int[] fourtyTwo = new int[] { 1, 2, 1, 1, 2, 2, 3, 3,
+        4, 4, 5, 5 };
+
+    private static final int[] perturbation = new int[] { 1, 2, 3, 4, 5, 6, 7,
+        8, 9, 10, 11, 12 };
+
     static {
         AVG_ACCUM_LIST.add(3);
         AVG_ACCUM_LIST.add(4);
         AVG_ACCUM_LIST.add(6);
         AVG_ACCUM_LIST.add(7);
+        
+        IPathManager pm = PathManagerFactory.getPathManager();
+        String ucarUserFile = pm.getFile(
+                pm.getContext(LocalizationType.EDEX_STATIC,
+                        LocalizationLevel.BASE), "/ncgrib/ucar/userTables.lst")
+                .getPath();
+        try {
+            GribPDSParamTable.addParameterUserLookup(ucarUserFile);
+        } catch (IOException e) {
+            statusHandler
+                    .handle(Priority.PROBLEM,
+                            "Error reading user parameter tables for ucar grib decoder",
+                            e);
+        }
     }
 
     /**
@@ -160,11 +197,15 @@ public class Ncgrib1Decoder extends AbstractDecoder {
                         + gribFile + "]");
             }
             ArrayList<Grib1Record> records = g1i.getRecords();
-            NcgribRecord[] gribRecords = new NcgribRecord[records.size()];
+//            NcgribRecord[] gribRecords = new NcgribRecord[records.size()];
+            List<NcgribRecord> gribRecords = new ArrayList<NcgribRecord>();
             for (int i = 0; i < records.size(); i++) {
-                gribRecords[i] = decodeRecord((Grib1Record) records.get(i), raf);
+            	NcgribRecord rec = decodeRecord((Grib1Record) records.get(i), raf);
+            	if ( rec != null ) {
+            		gribRecords.add(rec);
+            	}
             }
-            return gribRecords;
+            return gribRecords.toArray(new NcgribRecord[] {});
         } finally {
             if (raf != null) {
                 try {
@@ -210,12 +251,13 @@ public class Ncgrib1Decoder extends AbstractDecoder {
 
         // Some centers use other center's parameter tables so we need to check
         // for that
+//        System.out.println ("==centerid:" + centerid + " subcenterid:" + subcenterid + " pdsVars.getTableVersion():" + pdsVars.getTableVersion());
         int[] tableValue = Ncgrib1TableMap.getInstance().getTableAlias(centerid,
                 subcenterid, pdsVars.getParameterTableVersion());
         int centerAlias = tableValue[0];
         int subcenterAlias = tableValue[1];
         int tableAlias = tableValue[2];
-        int vcrdid = pdsVars.getLevelType1();
+        int vcrdid = pdsVars.getLevelType1(); 
  
         /*
          * Decodes the parameter information from the record. An attempt is
@@ -277,10 +319,24 @@ public class Ncgrib1Decoder extends AbstractDecoder {
         model.setParameterName(parameterName);
         model.setParameterAbbreviation(parameterAbbreviation);
         model.setParameterUnit(parameterUnit);
-        if (pdsVars.isEnsemble()) {
+       
+        // unidata does not handle isEnsemble call when
+        // octet size is less than 40.
+        if (pdsVars.getLength() > 40 && pdsVars.isEnsemble()) {
             model.setNumForecasts(pdsVars.getNumberForecasts());
             model.setTypeEnsemble(pdsVars.getType());
-            model.setPerturbationNumber(pdsVars.getPerturbationNumber());
+            // rcg: added code to get perturbation
+            int pos41 = pdsVars.getOctet(41);
+            int pos42 = pdsVars.getOctet(42);
+            int pert = pdsVars.getID();
+            for (int i = 0; i < perturbation.length; i++) {
+                if (pos41 == fourtyOne[i] && pos42 == fourtyTwo[i]) {
+                    pert = perturbation[i];
+                    break;
+                }
+            }
+            model.setPerturbationNumber(pert);
+//            model.setPerturbationNumber(pdsVars.getPerturbationNumber());
         } else {
             model.setNumForecasts(null);
             model.setTypeEnsemble(null);
@@ -316,6 +372,7 @@ public class Ncgrib1Decoder extends AbstractDecoder {
          */
         Grib1Data gd = new Grib1Data(raf);
         float[] data = null;
+        
         try {
             boolean bmsPresent = pdsVars.bmsExists();
             int scanMode = gdsVars.getScanMode();
@@ -332,7 +389,12 @@ public class Ncgrib1Decoder extends AbstractDecoder {
             }
             correctForScanMode(data, gdsVars.getNx(), gdsVars.getNy(),
                     bmsPresent, scanMode);
-            retVal.setMessageData(data);
+            if ( getAddCol()) {
+            	float []dataArry = this.addOneColumnDataTo1D(data, gdsVars.getNx(),gdsVars.getNy() );
+            	retVal.setMessageData(dataArry);
+            }
+            else
+            	retVal.setMessageData(data);
         } catch (IOException e) {
             throw new GribException("Error getting data from grib file", e);
         }
@@ -345,16 +407,26 @@ public class Ncgrib1Decoder extends AbstractDecoder {
         if (subCoverage != null) {
             SubNcgrid subGrid = NcgribSpatialCache.getInstance().getSubGrid(
                     modelName);
+            int nx  = gridCoverage.getNx();
+            if ( getAddCol()) {
+            	nx = nx - 1;
+            }
             // resize the data array
-            float[][] dataArray = this.resizeDataTo2D(data, gridCoverage
-                    .getNx(), gridCoverage.getNy());
+            float[][] dataArray = this.resizeDataTo2D(data, nx,
+            		gridCoverage.getNy());
             dataArray = this.subGrid(dataArray, subGrid.getStartX(), subGrid
                     .getStartY(), subGrid.getNX(), subGrid.getNY());
             data = this.resizeDataTo1D(dataArray, subGrid.getNY(), subGrid
                     .getNX());
-            retVal.setMessageData(data);
+            if (getAddCol()) {
+            	float [] dataArray1 = this.addOneColumnDataTo1D(data, subGrid.getNX(), subGrid.getNY());
+            	retVal.setMessageData(dataArray1);
+            }
+            else
+                retVal.setMessageData(data);
             model.setLocation(subCoverage);
         }
+        setAddCol(false);
 
         String newAbbr = NcgribParamTranslator.getInstance().translateParameter(
                 1, model, dataTime);
@@ -369,8 +441,11 @@ public class Ncgrib1Decoder extends AbstractDecoder {
         } else {
             model.setParameterAbbreviation(newAbbr);
         }
-
+        
         if (!model.getParameterName().equals(MISSING)) {
+        	if ( modelName.toUpperCase().equals("GFS")) {
+        		model.generateId(fileName);
+        	}
             try {
                 model = NcgribModelCache.getInstance().getModel(model);
             } catch (DataAccessLayerException e) {
@@ -402,23 +477,53 @@ public class Ncgrib1Decoder extends AbstractDecoder {
         retVal.setCategory(category);
         retVal.setParameterId(pid);
         retVal.setProcessedDataType(pdsVars.getGenProcessId());
-        retVal.setGlevel1((int)model.getLevel().getLevelonevalue());
-        retVal.setGlevel2((int)model.getLevel().getLeveltwovalue());
+        retVal.setDecodedLevel1( (float)model.getLevel().getLevelonevalue());
+        retVal.setDecodedLevel2((float)model.getLevel().getLeveltwovalue());
         retVal.setVcrdId1(vcrdid);
         retVal.setVcrdId2(vcrdid);
         retVal.setGridVersion(1);
 
         String vcord = "NONE";
         String scale = "";
+        //TODO need to change this call to read the GRIB1 version of the vcrd table 
+        //     instead of the GRIB2 version...
         Grib2Vcrd grib2Vcrd = Grib2VcrdTableLookup.getGrib2VcrdByGrib1VcrdId (vcrdid);
         if ( grib2Vcrd != null ) {
         	vcord = grib2Vcrd.getGnam();
         	scale = grib2Vcrd.getScale();
+        	
+            float dscale = (float)Math.pow ( 10, Double.parseDouble(scale));
+            float glevel1 = retVal.getDecodedLevel1();
+            if (glevel1 != 0 && dscale != 1 ) {
+                retVal.setGlevel1(Math.round(glevel1 * dscale));
+            }
+            else {
+                retVal.setGlevel1(Math.round(glevel1));
+            }
+                
+            float glevel2 = retVal.getDecodedLevel2();
+            if ( glevel2 == -999999. ) {
+                retVal.setGlevel2(-9999);
+            }
+            else {
+                if (glevel2 != 0 && dscale != 1 ) {
+                    retVal.setGlevel2(Math.round(glevel2 * dscale));
+                }
+                else {
+                    retVal.setGlevel2( Math.round(glevel2) );
+                }
+            }
+        }
+        else {
+          retVal.setGlevel1((int)model.getLevel().getLevelonevalue());
+          retVal.setGlevel2((int)model.getLevel().getLeveltwovalue());
         }
         retVal.setVcord(vcord);
-        retVal.setScale(scale);        
+        //retVal.setScale(scale);        
         String parm = Grib2VarsTableLookup.getVarGnam4Grib1 (discipline,category,pid);
         retVal.setParm(parm);
+        
+        
         
         // Special case handling for ffg grids
         try {
@@ -472,6 +577,31 @@ public class Ncgrib1Decoder extends AbstractDecoder {
         }
 
         return newGrid;
+    }
+
+    /**
+     * Resizes a 1-D data array into a 2-D array based on the provided row and
+     * column count and add one column for each row, then convert to 1-D array. 
+     * 
+     * @param data
+     *            The 1-D array of data
+     * @param columnCount
+     *            The number of columns to map the data to
+     * @param rowCount
+     *            The number of rows to map the data to
+     * @return The 1-D array of data
+     */
+    private float[] addOneColumnDataTo1D(float[] data, int columnCount, int rowCount) {
+        float[][] newGrid = new float[rowCount][columnCount+1];
+
+        for (int row = 0; row < rowCount; row++) {
+            for (int column = 0; column < columnCount; column++) {
+                newGrid[row][column] = data[row * columnCount + column];
+            }
+            newGrid[row][columnCount] = newGrid[row][0];
+        }
+
+        return resizeDataTo1D(newGrid,rowCount,columnCount+1);
     }
 
     /**
@@ -620,15 +750,26 @@ public class Ncgrib1Decoder extends AbstractDecoder {
         NcgridCoverage coverage = null;
 
         int gridType = gdsVars.getGdtn();
+        int nx;
+        float Lon1, Lon2,lo2;
         switch (gridType) {
         case 0:
             LatLonNcgridCoverage latLonCoverage = new LatLonNcgridCoverage();
-            latLonCoverage.setNx(gdsVars.getNx());
+            nx = gdsVars.getNx();
+            lo2 = gdsVars.getLo2()+360.0F;
+            Lon1 = gdsVars.getLo1() + lo2;
+            Lon2 = lo2 + gdsVars.getDx();
+            if ( Lon1 == 360.0 || Lon2 == 360.0 ) {
+            	nx = nx + 1;
+            	lo2 = Lon2;
+            	setAddCol (true);
+            }
+            latLonCoverage.setNx(nx);
             latLonCoverage.setNy(gdsVars.getNy());
             latLonCoverage.setLa1(gdsVars.getLa1());
             latLonCoverage.setLo1(gdsVars.getLo1());
             latLonCoverage.setLa2(gdsVars.getLa2());
-            latLonCoverage.setLo2(gdsVars.getLo2());
+            latLonCoverage.setLo2(lo2);
             if (gdsVars.getGridUnits().equals("degrees")) {
                 latLonCoverage.setSpacingUnit("degree");
                 latLonCoverage.setDx(gdsVars.getDx());
@@ -648,12 +789,24 @@ public class Ncgrib1Decoder extends AbstractDecoder {
             MercatorNcgridCoverage mercator = new MercatorNcgridCoverage();
             mercator.setMajorAxis(gdsVars.getMajorAxis() * 1000);
             mercator.setMinorAxis(gdsVars.getMinorAxis() * 1000);
-            mercator.setNx(gdsVars.getNx());
+            nx = gdsVars.getNx();
+            lo2 = gdsVars.getLo2()+360.0F;
+            Lon1 = gdsVars.getLo1() + lo2;
+            Lon2 = lo2 + gdsVars.getDx();
+            if ( Lon1 == 360.0 || Lon2 == 360.0 ) {
+            	nx = nx + 1;
+            	lo2 = Lon2;
+            	setAddCol (true);
+            }
+            else {
+            	lo2 = correctLon(lo2);
+            }
+            mercator.setNx(nx);
             mercator.setNy(gdsVars.getNy());
             mercator.setLa1(correctLat(gdsVars.getLa1()));
             mercator.setLo1(correctLon(gdsVars.getLo1()));
             mercator.setLa2(correctLat(gdsVars.getLa2()));
-            mercator.setLo2(correctLon(gdsVars.getLo2()));
+            mercator.setLo2(lo2);
             mercator.setLatin(correctLat(gdsVars.getLatin1()));
             if (gdsVars.getGridUnits().equals("degrees")) {
                 mercator.setSpacingUnit("degree");
@@ -1145,4 +1298,11 @@ public class Ncgrib1Decoder extends AbstractDecoder {
         return lat;
     }
     
+    private void setAddCol ( boolean addCol ) {
+    	this.addCol = addCol;
+    }
+    
+    private boolean getAddCol ( ) {
+    	return this.addCol;
+    }
 }
