@@ -1,0 +1,5 @@
+colorMapName=nids_pre
+colorBar=@dfltRadarColorBar.xml
+! 2km 1 hr precip
+productCode=78
+elevationNumber=0

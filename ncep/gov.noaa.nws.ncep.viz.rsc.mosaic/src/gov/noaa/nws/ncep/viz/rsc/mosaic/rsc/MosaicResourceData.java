@@ -1,16 +1,9 @@
 package gov.noaa.nws.ncep.viz.rsc.mosaic.rsc;
 
-import java.io.File;
-
-import gov.noaa.nws.ncep.edex.plugin.mosaic.common.MosaicRecord;
-import gov.noaa.nws.ncep.edex.plugin.mosaic.util.MosaicInfo;
 import gov.noaa.nws.ncep.edex.plugin.mosaic.util.MosaicInfoDict;
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationConstants;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationResourcePathConstants;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
-import gov.noaa.nws.ncep.viz.resources.manager.NmapResourceUtils;
 import gov.noaa.nws.ncep.viz.ui.display.ColorBarFromColormap;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -39,6 +32,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  *  04/2010        259        Greg Hull   Added Colorbar
  *  09/2010        307        Greg Hull   set legendString once from the productCode
  *                                        in the metadataMap.
+ *  07/2011        450        Greg Hull   NcPathManager
  *                                         
  * </pre>
  * 
@@ -61,8 +55,6 @@ public class MosaicResourceData extends AbstractNatlCntrsRequestableResourceData
 	// TODO write code to make only one of these necessary and set productCode from
 	// the productName if not set.
     private Integer productCode=0;
-
-    //private String productName;
     
     private static MosaicInfoDict infoDict = null;
     
@@ -71,18 +63,12 @@ public class MosaicResourceData extends AbstractNatlCntrsRequestableResourceData
     private String legendString = null; 
     
 	private static void loadRadarInfo() {
-    	/*
-    	 * The directory is the one under base level of our localization only at this time. 
-    	 */
-		/*
-		 * Start of M. Gao's change
-		 */
-//    	String radarDirname = LocalizationManager.getInstance().getLocalizationFileDirectoryName(LocalizationResourcePathConstants.RADAR_RESOURCES_DIR,
-//    			LocalizationConstants.LOCALIZATION_BASE_LEVEL); 
-    	String radarDirname = LocalizationManager.getInstance().getLocalizationFileDirectoryName(LocalizationResourcePathConstants.RADAR_RESOURCES_DIR); 
-		/*
-		 * End of M. Gao's change
-		 */
+    	String radarDirname = 
+        		NcPathManager.getInstance().getStaticFile(
+        				NcPathConstants.MOSAIC_INFO ).getParent();
+    	
+    	// Note: MosaicInfoDict actually ignores the file and uses 
+    	// the directory to find the mosaicInfo.txt file.    	
     	infoDict = MosaicInfoDict.getInstance(radarDirname);
     }
 

@@ -18,4 +18,6 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: gov.noaa.nws.ncep.viz.gempak,
  gov.noaa.nws.ncep.viz.gempak.grid.jna,
+ gov.noaa.nws.ncep.viz.gempak.grid.inv,
  gov.noaa.nws.ncep.viz.gempak.util
+Import-Package: com.raytheon.uf.common.derivparam.tree

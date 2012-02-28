@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ResourceDefinition xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+    <isEnabled>true</isEnabled>
+    <resourceDefnName>IDFT</resourceDefnName>
+    <resourceCategory>SURFACE</resourceCategory>
+    <filterLabels>Forecast</filterLabels>
+    <rscImplementation>IDFT</rscImplementation>
+    <subTypeGenerator></subTypeGenerator>
+    <rscTypeGenerator></rscTypeGenerator>
+    <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
+    <frameSpan>1440</frameSpan>
+    <timelineGenMethod>USE_DATA_TIMES</timelineGenMethod>
+    <dfltFrameCount>20</dfltFrameCount>
+    <dfltTimeRange>480</dfltTimeRange>
+    <dfltGeogArea>BasicWX_US</dfltGeogArea>
+</ResourceDefinition>

@@ -1,0 +1,7 @@
+! Attributes for the LTNG Resource - ! Attributes for the LTNG Resource - with color indicating intensitycolor indicating intensity
+!
+enablePositiveStrikes=true
+enableNegativeStrikes=true
+positiveSymbolSize=3
+negativeSymbolSize=3
+colorBar=@intensityColorBar.xml
