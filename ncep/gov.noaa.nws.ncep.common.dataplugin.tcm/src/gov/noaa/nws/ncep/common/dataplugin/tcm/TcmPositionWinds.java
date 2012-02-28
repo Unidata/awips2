@@ -12,6 +12,8 @@
  * ------------ ---------- 	----------- --------------------------
  * 06/2009		128			T. Lee		Initial coding
  * 11/2009		128			T. Lee		Migrated to TO11D6
+ * 09/2011      			Chin Chen   changed to improve purge performance and
+ * 										removed xml serialization as well
  * </pre>
  * 
  * @author T.Lee
@@ -26,21 +28,14 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import gov.noaa.nws.ncep.common.dataplugin.tcm.TcmRecord;
 import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
 @Entity
 @Table(name="tcm_position_winds")
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class TcmPositionWinds implements Serializable, ISerializableObject {
 	private static final long serialVersionUID = 1L;
@@ -49,128 +44,105 @@ public class TcmPositionWinds implements Serializable, ISerializableObject {
     @GeneratedValue
     private Integer recordId = null;
 	
-	/** The TCM record this object belongs to **/
-    @ManyToOne
-    @JoinColumn(name="parentID", nullable=false)
-	private TcmRecord parentID;
+	
 	
 	/** The forecast valid time **/
 	@Column
-	@XmlElement
 	@DynamicSerializeElement
 	private Calendar validTime;
 
 	/** The forecast hour **/
 	@Column
-	@XmlElement
 	@DynamicSerializeElement
 	private String fcstHour;
 	
 	/** The latitude of the storm center **/
 	@Column
-	@XmlElement
 	@DynamicSerializeElement  
 	private Float clat;
 
 	/** The longitude of the storm center **/
 	@Column
-	@XmlElement
 	@DynamicSerializeElement  
 	private Float clon;
 	
 	/** The maximum wind of the storm **/
 	@Column
-	@XmlElement
 	@DynamicSerializeElement  
 	private Integer windMax;
 
 	/** The wind gust of the storm **/
 	@Column
-	@XmlElement
 	@DynamicSerializeElement  
 	private Integer gust;
 
 	/** Storm moving direction in compass direction */
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private Integer stormDrct;
     
     /** Storm moving speed */
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private Integer stormSped;
     
 	/** The extent of 34kts wind at NE quadrant of the storm **/
 	@Column(length=8)
-	@XmlElement
 	@DynamicSerializeElement  
 	private String ne34k;
 	
 	/** The extent of 34kts wind at SE quadrant of the storm **/
 	@Column(length=8)
-	@XmlElement
 	@DynamicSerializeElement  
 	private String se34k;
 	
 	/** The extent of 34kts wind at SW quadrant of the storm **/
 	@Column(length=8)
-	@XmlElement
 	@DynamicSerializeElement  
 	private String sw34k;
 	
 	/** The extent of 34kts wind at NW quadrant of the storm **/
 	@Column(length=8)
-	@XmlElement
 	@DynamicSerializeElement  
 	private String nw34k;
 	
 	/** The extent of 50kts wind at NE quadrant of the storm **/
 	@Column(length=8)
-	@XmlElement
 	@DynamicSerializeElement  
 	private String ne50k;
 	
 	/** The extent of 50kts wind at SE quadrant of the storm **/
 	@Column(length=8)
-	@XmlElement
 	@DynamicSerializeElement  
 	private String se50k;
 	
 	/** The extent of 50kts wind at SW quadrant of the storm **/
 	@Column(length=8)
-	@XmlElement
 	@DynamicSerializeElement  
 	private String sw50k;
 	
 	/** The extent of 50kts wind at NW quadrant of the storm **/
 	@Column(length=8)
-	@XmlElement
 	@DynamicSerializeElement  
 	private String nw50k;
 	
 	/** The extent of 64kts wind at NE quadrant of the storm **/
 	@Column(length=8)
-	@XmlElement
 	@DynamicSerializeElement  
 	private String ne64k;
 	
 	/** The extent of 64kts wind at SE quadrant of the storm **/
 	@Column(length=8)
-	@XmlElement
 	@DynamicSerializeElement  
 	private String se64k;
 	
 	/** The extent of 64kts wind at SW quadrant of the storm **/
 	@Column(length=8)
-	@XmlElement
 	@DynamicSerializeElement  
 	private String sw64k;
 	
 	/** The extent of 64kts wind at NW quadrant of the storm **/
 	@Column(length=8)
-	@XmlElement
 	@DynamicSerializeElement  
 	private String nw64k;	
 
@@ -199,19 +171,7 @@ public class TcmPositionWinds implements Serializable, ISerializableObject {
 		return serialVersionUID;
 	}
 
-	/**
-	 * @return the parentID
-	 */
-	public TcmRecord getParentID() {
-		return parentID;
-	}
-
-	/**
-	 * @param parentID the parentID to set
-	 */
-	public void setParentID(TcmRecord parentID) {
-		this.parentID = parentID;
-	}
+	
 
 	/**
 	 * @return the recordId

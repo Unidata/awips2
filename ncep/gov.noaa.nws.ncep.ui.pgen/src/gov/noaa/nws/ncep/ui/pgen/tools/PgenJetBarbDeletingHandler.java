@@ -147,4 +147,9 @@ public class PgenJetBarbDeletingHandler extends InputHandlerDefaultImpl {
     	
     }
 
+	@Override
+	public boolean handleMouseDownMove(int x, int y, int mouseButton) {
+		return true;
+	}
+
 }

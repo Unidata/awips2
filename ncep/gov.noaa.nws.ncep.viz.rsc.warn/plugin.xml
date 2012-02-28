@@ -126,13 +126,5 @@
       </nc-resourceAttribute>
    
    </extension>
-   <extension
-         point="gov.noaa.nws.ncep.viz.localization.localizationData">
-      <singleLocalizationValue
-            fileName="county.xml"
-            location="stns"
-            name="countyStnFile">
-      </singleLocalizationValue>
-   </extension>
 
 </plugin>

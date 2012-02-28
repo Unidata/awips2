@@ -18,7 +18,6 @@ Require-Bundle: org.eclipse.ui,
  gov.noaa.nws.ncep.viz.resources
 Eclipse-LazyStart: true
 Export-Package: gov.noaa.nws.ncep.viz.ui.locator,
- gov.noaa.nws.ncep.viz.ui.locator.resource,
- gov.noaa.nws.ncep.viz.ui.locator.util
+ gov.noaa.nws.ncep.viz.ui.locator.resource
 Import-Package: gov.noaa.nws.ncep.viz.resources,
  gov.noaa.nws.ncep.viz.ui.display

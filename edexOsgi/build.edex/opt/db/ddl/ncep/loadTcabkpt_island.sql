@@ -1,4 +1,4 @@
-COPY stns.TCABKPT_ISLAND (PKEY, STID ,STNUM, NAME, STATE, COUNTRY, LAT, LON, PRI ) FROM stdin with delimiter as ',';
+COPY stns.TCABKPT_ISLAND (PKEY, STATION_ID, STATION_NUM, NAME, STATE, COUNTRY, LATITUDE, LONGITUDE, PRI ) FROM stdin with delimiter as ',';
 1,ANTIGUA/,500100,Antigua/Barbuda,--,AD,17.35,-61.8,50
 2,ARUBA\,_B,500200,Aruba\,_Bonaire\,_Curacao,--,AC,12.35,-69,50
 3,BAHAMA_C,500300,Bahamas_(Central),--,BA,24,-75.5,50

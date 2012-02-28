@@ -51,7 +51,9 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 09/01/10     #307        Greg Hull       implement autoUpdate
  * 02/20/11     #408        Greg Hull       add initialTimeMatcher
  * 04/26/11     #416        M. Gao          Add RscBundleDisplayMngr deep copy functionality 
- * 07/11/11     #           Greg Hull       Back out #416 changes supporting SPF Mngr.
+ * 07/11/11                Greg Hull       Back out #416 changes supporting SPF Mngr.
+ * 10/22/11     #467       Greg Hull       replace selected resource
+ * 01/05/11     #561       Greg Hull       add Locator as default selected resource
  *
  * </pre>
  * 
@@ -94,6 +96,7 @@ public class RscBundleDisplayMngr  {
 			}
 
 			seldResources.add( baseOverlayRBT );
+			
 		}
 		
 
@@ -109,19 +112,19 @@ public class RscBundleDisplayMngr  {
 			return seldResources.toArray( new ResourceSelection[0] );
 		}		
 
-		public boolean addSelectedResource( ResourceName rscName ) throws VizException {
-			for( ResourceSelection r : seldResources ) {
-				if( rscName.equals( r.getResourceName() ) ) {
-					return false;					
-				}
-			}
-
-			ResourceSelection rbt = ResourceFactory.createResource( rscName );
-						
-			seldResources.add( 0, rbt );
-			
-			return true;
-		}
+//		public boolean addSelectedResource( ResourceName rscName ) throws VizException {
+//			for( ResourceSelection r : seldResources ) {
+//				if( rscName.equals( r.getResourceName() ) ) {
+//					return false;					
+//				}
+//			}
+//
+//			ResourceSelection rbt = ResourceFactory.createResource( rscName );
+//						
+//			seldResources.add( 0, rbt );
+//			
+//			return true;
+//		}
 		
 		public boolean addSelectedResource( ResourceSelection rbt ) {
 			for( ResourceSelection r : seldResources ) {
@@ -134,34 +137,77 @@ public class RscBundleDisplayMngr  {
 			return true;
 		}
 
+		public boolean replaceSelectedResource( ResourceSelection existingRsc, ResourceSelection newRsc ) {
+			// find the existing resource and replace it.
+			int rscIndx = seldResources.indexOf( existingRsc );
+			
+			// if we can't replace, just add it.
+			if( rscIndx == -1 ) {
+				seldResources.add( newRsc );
+				return false;
+			}
+			else {
+				
+				if( existingRsc.getResourceName().toString().equals( baseOverlayRBT.getResourceName().toString() ) ) {
+					System.out.println("Can't replace the base Overlay :" + NmapCommon.getBaseOverlay() );
+					seldResources.add( newRsc );
+					return false;
+				}
+				else {
+					seldResources.set( rscIndx, newRsc );
+					return true;
+				}				
+			}
+		}
+
+		public void resetPane() {
+			seldResources.clear();
+			
+			// Add the default Locator
+			try {
+				ResourceDefinition locRscDefn = 
+					ResourceDefnsMngr.getInstance().getLocatorResourceDefinition(); 
+				if( locRscDefn != null ) {
+					ResourceName rscName = new ResourceName( 
+							ResourceName.OverlayRscCategory, 
+							locRscDefn.getResourceDefnName(), null ); // 'default' attrSet
+					
+					seldResources.add( ResourceFactory.createResource( rscName ) ); 				
+				}
+			} catch (VizException e) {
+				System.out.println( "Error creating the Default Locator Overlay Resource?" );
+			}
+			
+			// if clearing all resources we will remove any edits made to the base overlay.
+			if( baseOverlayRBT == null ||
+				baseOverlayRBT.getResourceData().getIsEdited() ) {
+				try {
+					ResourceName rscName = new ResourceName( 
+							ResourceName.OverlayRscCategory, NmapCommon.getBaseOverlay(), null );
+					baseOverlayRBT = ResourceFactory.createResource( rscName ); 				
+				} catch (VizException e) {
+					System.out.println( "Error creating base overlay??" );
+				}
+			}
+
+			seldResources.add( baseOverlayRBT );
+			
+		}
+		
 		// pass in null to remove all of the resources (except the base.)
 		public void removeSelectedResource( ResourceSelection rbt ) {
 			if( rbt == null ) {
-				seldResources.clear();
-				
-				// if clearing all resources we will remove any edits made to the base overlay.
-				if( baseOverlayRBT == null ||
-					baseOverlayRBT.getResourceData().getIsEdited() ) {
-					try {
-						ResourceName rscName = new ResourceName( 
-								ResourceName.OverlayRscCategory, NmapCommon.getBaseOverlay(), null );
-						baseOverlayRBT = ResourceFactory.createResource( rscName ); 				
-					} catch (VizException e) {
-						System.out.println( "Error creating base overlay??" );
-					}
-				}
-
-				seldResources.add( baseOverlayRBT );
-				return;
+				resetPane();
 			}
-
-			if( seldResources.contains( rbt ) ) { // sanity check; this has to be in the list
-				if( rbt.getResourceName().toString().equals( baseOverlayRBT.getResourceName().toString() ) ) {
-					System.out.println("Can't remove the base Overlay :" + NmapCommon.getBaseOverlay() );
+			else {
+				if( seldResources.contains( rbt ) ) { // sanity check; this has to be in the list
+					if( rbt.getResourceName().toString().equals( baseOverlayRBT.getResourceName().toString() ) ) {
+						System.out.println("Can't remove the base Overlay :" + NmapCommon.getBaseOverlay() );
+					}
+					else {
+						seldResources.remove( rbt );
+					}				
 				}
-				else {
-					seldResources.remove( rbt );
-				}				
 			}
 		}
 
@@ -313,7 +359,7 @@ public class RscBundleDisplayMngr  {
 		paneSelectionDataMap.put( selectedPaneId.toString(),
 				                  selectedPaneData );		
 		
-		availGeoAreas = Arrays.asList( NmapResourceUtils.getAvailPredefinedAreas() );
+		availGeoAreas = Arrays.asList( PredefinedAreasMngr.getAvailPredefinedAreas() );
 		
 		multiPane = false;
 		
@@ -371,8 +417,13 @@ public class RscBundleDisplayMngr  {
     	
     	setSelectedPaneId( rbdBndl.getSelectedPaneId() );
 
-    	initialTimeMatcher = rbdBndl.getTimeMatcher();
-    	
+    	if( rbdBndl.getTimeMatcher() == null ) {
+    		initialTimeMatcher = new NCTimeMatcher();
+    	}
+    	else {
+    		initialTimeMatcher = rbdBndl.getTimeMatcher();    			
+    	}
+
     	rbdModified = false;
     	
     	return true;
@@ -392,14 +443,28 @@ public class RscBundleDisplayMngr  {
 	// take the Selected Rsc and create a new ResourceSelection. 
 	// The ResourceSelection is added to the list of selected Rscs.
 	//
-	public boolean addSelectedResource( ResourceName rscName ) throws VizException {
-		rbdModified = true;
-		return selectedPaneData.addSelectedResource( rscName );		
-	}
+//	public boolean addSelectedResource( ResourceName rscName ) throws VizException {
+//		rbdModified = true;
+//		return selectedPaneData.addSelectedResource( rscName );		
+//	}
 	
 	public boolean addSelectedResource( ResourceSelection rbt ) {
 		rbdModified = true;
 		return selectedPaneData.addSelectedResource( rbt );		
+	}
+	
+	public boolean addSelectedResourceToAllPanes( ResourceSelection rbt ) {
+		for( PaneSelectionData paneData : paneSelectionDataMap.values() ) {
+			paneData.addSelectedResource( rbt );
+		}
+		
+		return true;
+	}
+
+
+	public boolean replaceSelectedResource( ResourceSelection existingRsc, ResourceSelection newRsc ) {
+		rbdModified = true;
+		return selectedPaneData.replaceSelectedResource( existingRsc, newRsc );		
 	}
 
 	public void removeSelectedResource( ResourceSelection rbt ) {
@@ -535,7 +600,7 @@ public class RscBundleDisplayMngr  {
    				PaneSelectionData paneData = paneSelectionDataMap.get( paneId.toString() );
    				
    				PredefinedArea predefinedArea =
-   				             NmapResourceUtils.getPredefinedArea( paneData.getGeoAreaName() );
+   					     PredefinedAreasMngr.getPredefinedArea( paneData.getGeoAreaName() );
 
    				NCMapRenderableDisplay dispPane = predefinedArea.getPredefinedArea();
    						

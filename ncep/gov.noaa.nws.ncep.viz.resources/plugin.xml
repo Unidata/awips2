@@ -19,5 +19,16 @@
             sortID="801">
       </contextualMenu-->
    </extension>
-   
+   <extension
+          point="com.raytheon.uf.viz.localization.localizationpath">
+       	<path
+             application="NCEP"
+             localizationType="CAVE_STATIC"
+             name="Resource Templates"
+             recursive="true"
+             value="ncep/resourceTemplates"
+	         extensionFilter=".xml">
+       </path>
+    </extension>
+      
 </plugin>
