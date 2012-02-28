@@ -46,6 +46,7 @@ import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
  *										fixed text location for SHEM. 
  * 04/11		?			B. Yin		fixed zoom/unzoom problem in R1G2-9
  * 04/11		?			B. Yin		Re-factor IAttribute
+ * 10/11		?			B. Yin		Fixed the flight level text location issue.
  *
  * </pre>
  * 
@@ -57,15 +58,18 @@ public class PgenSnapJet implements IJetTools{
 	// Map editor is needed for zooming.
 	// Map descriptor  is needed when projection changes
 	private IMapDescriptor descriptor;
+	private NCMapEditor mapEditor;
 	private JetAttrDlg jetDlg;
 	private JetHash hashTmp;
+	private static final double defaultZoomLevel = 0.24;
 
 	/**
 	 * public constructor
 	 * @param mapEditor
 	 */
-	public PgenSnapJet( IMapDescriptor des, JetAttrDlg dlg ){
+	public PgenSnapJet( IMapDescriptor des, NCMapEditor editor, JetAttrDlg dlg ){
 		this.descriptor = des;
+		this.mapEditor = editor;
 		this.jetDlg = dlg;
 	}
 	
@@ -98,7 +102,7 @@ public class PgenSnapJet implements IJetTools{
 	 * Snap the input barb/FL info on the input jet
 	 */
 	public void snapJet(AbstractDrawableComponent barb, Jet aJet){
-
+		
 		double[][] lineCurvePts = getJetCurve( aJet );
 		snapBarbOnJet(barb, lineCurvePts);
 		
@@ -272,11 +276,11 @@ public class PgenSnapJet implements IJetTools{
 						//for two-line text, increase distance and theta
 						if (((Text)spe).getText().length > 1 ){
 							theta = 35;
-							distance = 40;
+							distance = 110;
 						}
 						else {
 							theta = 26;
-							distance = 30;
+							distance = 95;
 						}
 
 					}
@@ -285,12 +289,12 @@ public class PgenSnapJet implements IJetTools{
 						//for two-line text, increase distance and theta
 						if (((Text)spe).getText().length > 1 ){
 							theta = 33;
-							distance = 30;
+							distance = 110;
 
 						}
 						else {
 							theta = 20;
-							distance = 30;	
+							distance = 95;	
 						}
 					}
 					
@@ -300,6 +304,7 @@ public class PgenSnapJet implements IJetTools{
 							theta += -20;
 					}
 					
+				//	distance /= mapEditor.getSelectedPane().getZoomLevel() / defaultZoomLevel;
 					((JetText)spe).setLocation(relative2LatLon(new Coordinate(distance, theta),
 							(Vector)spe.getParent().getPrimaryDE()));
 				}
@@ -573,13 +578,15 @@ public class PgenSnapJet implements IJetTools{
 	 */
 	public Coordinate relative2LatLon(Coordinate relativeLoc, Vector barb) {
 		
+		double scaleFactor = mapEditor.getSelectedPane().getZoomLevel() / defaultZoomLevel;
+		
 		double [] pt0 = descriptor.worldToPixel( new double[]{barb.getPoints().get(0).x, barb.getPoints().get(0).y});
 
 		double mdir = barb.getDirection();
 		double dir = translateDir(mdir, barb.getPoints().get(0).y, barb.getPoints().get(0).x, false);
 
-		double deltaX = Math.sin((dir-relativeLoc.y)*Math.PI/180)*relativeLoc.x;
-		double deltaY = Math.cos((dir-relativeLoc.y)*Math.PI/180)*relativeLoc.x;
+		double deltaX = Math.sin((dir-relativeLoc.y)*Math.PI/180)*relativeLoc.x*scaleFactor;
+		double deltaY = Math.cos((dir-relativeLoc.y)*Math.PI/180)*relativeLoc.x*scaleFactor;
 		
 		double[] pt1 = {pt0[0]+deltaX, pt0[1]-deltaY};
 		
@@ -611,7 +618,9 @@ public class PgenSnapJet implements IJetTools{
 		
 		//get radius in the polar coordinate system
 		polar.x = Math.sqrt(deltaX*deltaX+deltaY*deltaY);
-		
+		double scaleFactor = mapEditor.getSelectedPane().getZoomLevel() / defaultZoomLevel;
+
+		polar.x /= scaleFactor;
 		//get angular wind barb and flight text
 		//use -deltaY because in screen coordinate the original point is at upper-left.
 		double tmp = Math.atan2(-deltaY, deltaX) * 180 /Math.PI;

@@ -8,3 +8,4 @@ bin-test/
 *.class
 *.pyo
 *.o
+*.orig

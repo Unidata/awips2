@@ -1,6 +1,7 @@
 package gov.noaa.nws.ncep.viz.gempak.grid.jna;
 
 import com.sun.jna.Callback;
+import com.sun.jna.LastErrorException;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.ptr.IntByReference;
@@ -28,6 +29,12 @@ import com.sun.jna.ptr.FloatByReference;
  * 06/2011		168			mgamazaychikov	Renamed MyCallback to DbCallbackWithMessage,
  * 											added DbCallbackWithoutMessage, added 
  * 											db_duriCallback, db_diagCallback, db_returnduri
+ * 09/2011					mgamazaychikov	Added ctb_dtpath_, ctb_dttmpl, cfl_mnam_,
+ * 											db_ensmCallback and db_returnensm prototypes
+ * 10/2011					mgamazaychikov	Added db_seta2dtinfo_ prototype, removed db_wsetenstime_
+ * 											prototype and renamed db_ensmCallback and db_returnensm prototypes
+ * 											to db_flnmCallback and db_returnflnm
+ * 12/12/2011               X. Guo          Changed navigation call-back function
  * </pre>
  *
  * @author tlee
@@ -39,7 +46,7 @@ public class GridDiag {
 	/** 
 	 * Setting up Singleton 
 	 * */
-	private static GridDiag instance;
+	private static GridDiag instance = null;
 	public static GridDiag getInstance() {
 		if (instance == null) {
 			instance = new GridDiag();	
@@ -52,7 +59,7 @@ public class GridDiag {
 	 */
     public gempak gem;
 
-    public GridDiag(){
+    private GridDiag(){
 //    	gem = gempak.SYNC_INSTANCE;
     	gem = gempak.INSTANCE;
     }
@@ -63,24 +70,26 @@ public class GridDiag {
 		/*
 		 * callbacks
 		 */
-		public interface DbCallbackWithMessage extends Callback {
-			public boolean callback(String msg);
+		public interface DbCallbackWithMessage extends Callback  {
+			public boolean callback(String msg);// throws LastErrorException;
 		}
 		
 		public interface DbCallbackWithoutMessage extends Callback {
-			public boolean callback();
+			public boolean callback();// throws LastErrorException;
 		}
 
-		public int db_dataCallback(DbCallbackWithMessage callback);
-		public int db_navCallback(DbCallbackWithoutMessage callback);
-		public int db_duriCallback(DbCallbackWithMessage callback);
-		public int db_diagCallback(DbCallbackWithMessage callback);
-		public void db_fhrsCallback(DbCallbackWithoutMessage fhrsCallback);
+		public int db_dataCallback(DbCallbackWithMessage callback);// throws LastErrorException ;
+		public int db_navCallback(DbCallbackWithMessage callback);// throws LastErrorException ;
+		public int db_duriCallback(DbCallbackWithMessage callback);// throws LastErrorException ;
+		public int db_diagCallback(DbCallbackWithMessage callback);// throws LastErrorException ;
+		public void db_fhrsCallback(DbCallbackWithoutMessage fhrsCallback);// throws LastErrorException ;
+		public int db_flnmCallback(DbCallbackWithMessage callback);// throws LastErrorException ;
 		
-		public void db_returndata( float [] data, IntByReference nData);		
-		public void db_returnnav( String navigationStr );
-		public void db_returnduri( String navigationStr );
-		public void db_returnfhrs(String cycleFcstHrsString);
+		public void db_returndata( float [] data, IntByReference nData);// throws LastErrorException ;		
+		public void db_returnnav( String navigationStr );// throws LastErrorException ;
+		public void db_returnduri( String datauriStr );// throws LastErrorException ;		
+		public void db_returnfhrs(String cycleFcstHrsString);// throws LastErrorException ;
+		public void db_returnflnm( String ensmStr );// throws LastErrorException ;
 		
 
 		/** Native library declaration and usage. */
@@ -113,11 +122,11 @@ public class GridDiag {
 		public void dgc_grid_ (byte[] time, String glevel, String gvcord, String gfunc, byte[] pfunc, 
 				float[] grid, IntByReference kx, IntByReference ky, byte[] time1, byte[] time2, 
 				IntByReference level1, IntByReference level2, IntByReference ivcord, byte[] parm, 
-				IntByReference iret);
+				IntByReference iret);// throws LastErrorException;
 		public void dgc_vecr_ (byte[] gdattm, String glevel, String gvcord, String gvect, byte[] pfunc,
 				float[] ugrid, float[] vgrid, IntByReference igx, IntByReference igy, byte[] time1,
 				byte[] time2, IntByReference level1, IntByReference level2, IntByReference ivcord,
-				byte[] parmu, byte[] parmv, IntByReference iret);
+				byte[] parmu, byte[] parmv, IntByReference iret);// throws LastErrorException;
 		public void dgc_subg_(String skip, IntByReference maxgrid, IntByReference ix1, IntByReference iy1, 
 				IntByReference ix2, IntByReference iy2, IntByReference iret);
 		
@@ -131,21 +140,33 @@ public class GridDiag {
 		public void grc_rnav_(float[] rnav, byte[] cproj, IntByReference kx, 
 				IntByReference ky, IntByReference iret);
 		
+		public void ctb_dtpath_(String anAlias, byte[] thePath,
+				IntByReference iret);
+		
+		public void ctb_dttmpl_(String anAlias, byte[] theTemplate,
+				IntByReference iret);
+		
+		public void cfl_mnam_(String dbtimeToDattim, String fileNameTemplate,
+				byte[] theFileName, IntByReference iret);
+		
 		public void er_gerrmsg_ (IntByReference index, byte[]msg, IntByReference iret);
 		public void er_gnumerr_ (IntByReference numerr, IntByReference iret);
 		public void inc_outt_ (String output, String def, IntByReference termflg, IntByReference fileflg, String filnam,
 				IntByReference iret);
 		
+		public void db_seta2dtinfo_ (String alias, String path, String template,
+				IntByReference iret);
 		/*
 		 * Wrapper functions
 		 */
 		public void db_wsetevtname_ (String anEvent, IntByReference iret);
 		public void db_wsetnavtime_ (String aTime, IntByReference iret);
-		public void db_wsetenstime_ (String aTime, IntByReference iret);
 		public void inc_scal (String scale, IntByReference iscale, IntByReference iscalv, IntByReference iret);
 		public void ggc_maps (byte[] proj, byte[] garea, String imgfil, IntByReference idrpfl, IntByReference iret);
 		public void tgc_dual (byte[] time1, byte[] time2, byte[] time, IntByReference iret);
 		public void erc_wmsg (String errgrp, IntByReference numerr, String errstr, IntByReference iret);
+		
+		public void init_driver( IntByReference iret );
 		
 	}
 }
