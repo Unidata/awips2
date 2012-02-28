@@ -30,6 +30,8 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -633,6 +635,14 @@ public class NctextuiPaletteWindow extends ViewPart implements SelectionListener
         
         GridData data = new GridData (SWT.FILL,SWT.FILL, true, true);
         text.setLayoutData (data);
+        Font font = text.getFont();
+		FontData[] fontData = font.getFontData();
+		for (int i = 0; i < fontData.length; i++) {
+			//fontData[i].setHeight(12);				
+			fontData[i].setName("courier");
+		}
+		Font newFont = new Font(font.getDevice(), fontData);
+		text.setFont(newFont);
 	}
 	
 	

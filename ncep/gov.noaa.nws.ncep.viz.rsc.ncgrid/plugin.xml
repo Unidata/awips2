@@ -245,7 +245,7 @@
       
        <nc-resourceAttribute
             attributeClass="String"
-            attributeName="gdfile"
+            attributeName="ensembleComponentWeights"
             defaultValue=""
             ncResourceName="EnsembleFcstGridContours">
       </nc-resourceAttribute>
@@ -260,19 +260,20 @@
       </nc-resource>
       
       <nc-resource
-            class="gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc.NcgridResourceData"
+            class="gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc.NcEnsembleResourceData"
             editDialogClass="gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc.EditEnsembleAttributesDialog"
             name="EnsembleFcstGridContours">
       </nc-resource>
    </extension>
    
    <extension
-         point="gov.noaa.nws.ncep.viz.localization.localizationData">
-      <singleLocalizationValue
-            name="ensembleTable"
-            location="grid"
-            fileName="ensemble_models.tbl">
-      </singleLocalizationValue>
+         point="org.eclipse.ui.preferencePages">
+      <page
+            category="org.eclipse.jface.Prerences"
+            class="gov.noaa.nws.ncep.viz.rsc.ncgrid.NcgridPreferences"
+            id="gov.noaa.nws.ncep.viz.rsc.ncgrid.NcgridPreferences"
+            name="Clipping Area">
+      </page>
    </extension>
-
+   
 </plugin>   

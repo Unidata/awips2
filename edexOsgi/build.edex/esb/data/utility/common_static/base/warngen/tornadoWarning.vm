@@ -78,8 +78,8 @@
 #end
 #if(${list.contains($bullets, "softballHail")})
   #set ($hailThreat = "DANGEROUS AND EXTREMELY LARGE DESTRUCTIVE HAIL UP TO SOFTBALL SIZE") 
-  #set ($hailSize = 3.75)
-  #set ($hailTag = "3.75IN")
+  #set ($hailSize = 4.25)
+  #set ($hailTag = "4.25IN")
 #end
 #if(${list.contains($bullets, "grapefruitHail")})
   #set ($hailThreat = "DANGEROUS AND EXTREMELY LARGE DESTRUCTIVE HAIL UP TO GRAPEFRUIT SIZE") 
@@ -97,9 +97,7 @@
 #end
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 TOR${siteId}
-#if(${specialCorText})
-${specialCorText}
-#else
+
 ${ugcline}
 /${productClass}.${action}.${vtecOffice}.TO.W.${etn}.${dateUtil.format(${start}, ${timeFormat.ymdthmz})}-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
 
@@ -141,21 +139,21 @@ THIS IS A TEST MESSAGE. ##
 
 #if(${list.contains($bullets, "doppler")})
   #if(${stormType} == "line")
-    #set ($reportType = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED A LINE OF SEVERE THUNDERSTORMS CAPABLE OF PRODUCING A TORNADO. THESE DANGEROUS STORMS WERE LOCATED")
+    #set ($reportType = "DOPPLER RADAR INDICATED A LINE OF SEVERE THUNDERSTORMS CAPABLE OF PRODUCING A TORNADO. THESE DANGEROUS STORMS WERE LOCATED")
     #set ($pathcastLead = "THESE DANGEROUS STORMS")
   #else
-    #set ($reportType = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED A SEVERE THUNDERSTORM CAPABLE OF PRODUCING A TORNADO. THIS DANGEROUS STORM WAS LOCATED")
+    #set ($reportType = "DOPPLER RADAR INDICATED A SEVERE THUNDERSTORM CAPABLE OF PRODUCING A TORNADO. THIS DANGEROUS STORM WAS LOCATED")
     #set ($pathcastLead = "THIS DANGEROUS STORM")   
   #end
   #set ($moveLead = "..AND MOVING")
 #end
 #if(${list.contains($bullets, "dopplerSquall")})
-  #set ($reportType = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED A SEVERE SQUALL LINE CAPABLE OF PRODUCING BOTH TORNADOES AND EXTENSIVE STRAIGHT LINE WIND DAMAGE. THESE DANGEROUS STORMS WERE LOCATED")
+  #set ($reportType = "DOPPLER RADAR INDICATED A SEVERE SQUALL LINE CAPABLE OF PRODUCING BOTH TORNADOES AND EXTENSIVE STRAIGHT LINE WIND DAMAGE. THESE DANGEROUS STORMS WERE LOCATED")
   #set ($pathcastLead = "THIS DANGEROUS STORM")   
   #set ($moveLead = "..AND MOVING")
 #end
 #if(${list.contains($bullets, "confirmedDoppler")})
-  #set ($reportType = "NATIONAL WEATHER SERVICE DOPPLER RADAR WAS TRACKING A CONFIRMED TORNADO") 
+  #set ($reportType = "DOPPLER RADAR WAS TRACKING A CONFIRMED TORNADO") 
   #if(${stormType} == "line")
     #set ($pathcastLead = "THESE TORNADIC STORMS")
     #set ($moveLead = " DOPPLER RADAR SHOWED THESE TORNADIC STORMS MOVING")
@@ -165,7 +163,7 @@ THIS IS A TEST MESSAGE. ##
   #end
 #end
 #if(${list.contains($bullets, "confirmedLarge")})
-  #set ($reportType = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND STORM SPOTTERS WERE TRACKING A LARGE AND EXTREMELY DANGEROUS TORNADO") 
+  #set ($reportType = "DOPPLER RADAR AND STORM SPOTTERS WERE TRACKING A LARGE AND EXTREMELY DANGEROUS TORNADO") 
   #if(${stormType} == "line")
     #set ($pathcastLead = "THESE TORNADIC STORMS")
     #set ($moveLead = " DOPPLER RADAR SHOWED THESE TORNADIC STORMS MOVING")
@@ -242,7 +240,7 @@ THIS IS A TEST MESSAGE. ##
 THIS IS A TEST MESSAGE. ##
 #end
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})...${reportType} ##
-#handleClosestPoints($list, $closestPoints, $otherClosestPoints, $stormType, "NEAR", 6, "MILES")
+#handleClosestPoints($list, $closestPoints, $otherClosestPoints, $stormType, "NEAR", 6, "MILES", true)
 #if($movementSpeed < 3 || ${stationary})
   #if(${stormType} == "line")
 . THE LINE OF TORNADIC STORMS WAS NEARLY STATIONARY. 
@@ -344,10 +342,10 @@ THOSE ATTENDING THE !**event/venue name or location**! ARE IN THE PATH OF THIS S
 
 #end
 #end
-##############################################
-###### mile markers ##############
-##############################################
-#parse("milemarkers.vm")
+
+## parse file command here is to pull in mile marker info
+## #parse("mileMarkers.vm")
+
 #####################
 ## CALL TO ACTIONS ##
 #####################
@@ -442,4 +440,3 @@ $$
 ##############################################
 ##${user}
 !**NAME/INITIALS**!
-#end

@@ -2578,7 +2578,7 @@
           <pdt>0</pdt>
           <name>Weather</name>
           <units>NA</units>
-          <gnam>WTHR</gnam>
+          <gnam>WXTR</gnam>
           <scale>0</scale>
           <missing>-9999.00</missing>
      </grib2vars>
@@ -2590,7 +2590,7 @@
           <pdt>1</pdt>
           <name>Weather</name>
           <units>NA</units>
-          <gnam>WTHR</gnam>
+          <gnam>WXTR</gnam>
           <scale>0</scale>
           <missing>-9999.00</missing>
      </grib2vars>
@@ -3183,7 +3183,7 @@
           <missing>-9999.00</missing>
      </grib2vars>
      <grib2vars>
-          <g2varsid>888</g2varsid>
+          <g2varsid>22220</g2varsid>
           <discipline>0</discipline>
           <category>2</category>
           <pid>222</pid>
@@ -3195,7 +3195,19 @@
           <missing>-9999.00</missing>
      </grib2vars>
      <grib2vars>
-          <g2varsid>888</g2varsid>
+          <g2varsid>22228</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>222</pid>
+          <pdt>8</pdt>
+          <name>U Component of Hourly Maximum 10m Wind Speed</name>
+          <units>m/s</units>
+          <gnam>MAXUW--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>     
+     <grib2vars>
+          <g2varsid>22230</g2varsid>
           <discipline>0</discipline>
           <category>2</category>
           <pid>223</pid>
@@ -3203,6 +3215,30 @@
           <name>V Component of Hourly Maximum 10m Wind Speed</name>
           <units>m/s</units>
           <gnam>MAXVW</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>22238</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>223</pid>
+          <pdt>8</pdt>
+          <name>V Component of Hourly Maximum 10m Wind Speed</name>
+          <units>m/s</units>
+          <gnam>MAXVW--</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>22240</g2varsid>
+          <discipline>0</discipline>
+          <category>2</category>
+          <pid>224</pid>
+          <pdt>0</pdt>
+          <name>Ventilation Rate</name>
+          <units>m**2/s</units>
+          <gnam>VRATE</gnam>
           <scale>0</scale>
           <missing>-9999.00</missing>
      </grib2vars>
@@ -3374,6 +3410,19 @@
           <scale>-2</scale>
           <missing>-9999.00</missing>
      </grib2vars>
+     <!-- Altimeter -->
+     <grib2vars>
+          <g2varsid>888</g2varsid>
+          <discipline>0</discipline>
+          <category>3</category>
+          <pid>1</pid>
+          <pdt>0</pdt>
+          <name>mean sea level pressure (Standard Atmosphere Reduction)</name>
+          <units>Pa</units>
+          <gnam>MSLSA</gnam>
+          <scale>-2</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>     
      <grib2vars>
           <g2varsid>888</g2varsid>
           <discipline>0</discipline>
@@ -3951,6 +4000,42 @@
           <missing>-9999.00</missing>
      </grib2vars>
      <grib2vars>
+          <g2varsid>8192</g2varsid>
+          <discipline>0</discipline>
+          <category>16</category>
+          <pid>192</pid>
+          <pdt>0</pdt>
+          <name>Equivalent radar refectivity factor for rain</name>
+          <units>mm**6/m**3</units>
+          <gnam>REFZR</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>8193</g2varsid>
+          <discipline>0</discipline>
+          <category>16</category>
+          <pid>193</pid>
+          <pdt>0</pdt>
+          <name>Equivalent radar refectivity factor for snow</name>
+          <units>mm**6/m**3</units>
+          <gnam>REFZI</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>8194</g2varsid>
+          <discipline>0</discipline>
+          <category>16</category>
+          <pid>194</pid>
+          <pdt>0</pdt>
+          <name>Equivalent radar refectivity factor for parameterized convection</name>
+          <units>mm**6/m**3</units>
+          <gnam>REFZC</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
           <g2varsid>888</g2varsid>
           <discipline>0</discipline>
           <category>16</category>
@@ -4007,6 +4092,18 @@
           <name>Icing</name>
           <units>Table 4.207</units>
           <gnam>ICI</gnam>
+          <scale>0</scale>
+          <missing>-9999.00</missing>
+     </grib2vars>
+     <grib2vars>
+          <g2varsid>8812</g2varsid>
+          <discipline>0</discipline>
+          <category>19</category>
+          <pid>12</pid>
+          <pdt>0</pdt>
+          <name>Planetary Boundary Layer Regime</name>
+          <units>Table 4.209</units>
+          <gnam>PBLREG</gnam>
           <scale>0</scale>
           <missing>-9999.00</missing>
      </grib2vars>

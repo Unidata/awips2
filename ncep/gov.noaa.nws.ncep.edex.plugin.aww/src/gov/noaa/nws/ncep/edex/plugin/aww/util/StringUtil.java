@@ -8,4 +8,8 @@ public class StringUtil {
 		return result; 
 	}
 
+	public static String[] parseString(String str, String parsingStringPattern) {
+		String[] stringArray = str.split(parsingStringPattern); 
+		return stringArray; 
+	}
 }

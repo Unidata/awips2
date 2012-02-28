@@ -11,24 +11,33 @@ import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.productTypes.PgenLayer;
 import gov.noaa.nws.ncep.ui.pgen.productTypes.ProductType;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.awt.Color;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 
 /**
  * This class allows the user to edit a product's attributes.
@@ -39,6 +48,8 @@ import org.eclipse.swt.widgets.Group;
  * ------------ ---------- ----------- --------------------------
  * 09/09  		#151      	J. Wu 		Initial creation. 
  * 01/11  		#151      	J. Wu 		updated to show info in a product type. 
+ * 09/11  		#335      	J. Wu 		updated with new activity type definition. 
+ * 09/11  		#335      	J. Wu 		made cascading menu for activity type/subtype. 
  * 
  * </pre>
  * 
@@ -51,6 +62,9 @@ public class ProductNameDialog extends ProductDialog {
 
     private Text   nameText = null;      
     private Combo  typeCombo = null;     
+    private Composite   typeComp = null;     
+    private Text   typeText = null;     
+    private ToolBar  typeToolBar = null;     
     private Text   forecasterText = null; 
     private Text   centerText = null; 
     private Button saveLayerBtn = null;
@@ -61,7 +75,6 @@ public class ProductNameDialog extends ProductDialog {
     
     private ProductManageDialog prdManageDlg = null;
     
-    private int curType = 0;
     
 	/**
      * Constructor.
@@ -109,7 +122,8 @@ public class ProductNameDialog extends ProductDialog {
      */
     public void initializeComponents() {
 		
-    	initialOutput = prdManageDlg.getPrdOutputFile( prdManageDlg.getActiveProduct() );
+//    	initialOutput = prdManageDlg.getPrdOutputFile( prdManageDlg.getActiveProduct() );
+      	initialOutput = prdManageDlg.getActiveProduct().getOutputFile();
        	
     	Composite main = new Composite( shell, SWT.NONE );
         GridLayout gl1 = new GridLayout( 1, false );
@@ -131,54 +145,113 @@ public class ProductNameDialog extends ProductDialog {
 
         Label ptype = new Label( top, SWT.NONE );
         ptype.setText( "Type:");
- 
-        typeCombo = new Combo( top, SWT.DROP_DOWN | SWT.READ_ONLY );       
-        typeCombo.add( "Default" );
-        for ( ProductType ptyp : prdManageDlg.prdTypes.getProductType() ) {        	
-        	typeCombo.add( ptyp.getName() );
-        }
         
-        int ii = 0;
-        for ( String str : typeCombo.getItems() ) {        	
-        	
-        	if ( str.equals( prdManageDlg.getActiveProduct().getType() ) ) {
-        		curType = ii;
-        	}
-        	
-        	ii++;
-        }
+        String curType = prdManageDlg.getActiveProduct().getType();
+        
+    	typeComp = new Composite( top, SWT.LEFT );    	    	    	    	
+    	typeComp.setLayout( new GridLayout( 2, false ) );
+    	
+   	    typeText = new Text( typeComp, SWT.LEFT | SWT.BORDER );	
+   	    typeText.setSize( 300, 20 );
+   	    typeText.setText( curType );
+   	    typeText.setData( curType );
+   	    typeText.setEditable( false );
+        
+    	typeToolBar = new ToolBar( typeComp, SWT.HORIZONTAL );
+    	final ToolItem ti = new ToolItem( typeToolBar, SWT.DROP_DOWN );
+    	
+    	ti.setEnabled( true );
+    	
+    	final Menu mu = new Menu( shell.getShell(), SWT.POP_UP );
+    	
+    	MenuItem mi1 = new MenuItem( mu, SWT.PUSH, 0 );
+		mi1.setText( "Default" );
+       	mi1.setData( "Default" );
+   		mi1.addSelectionListener(new SelectionAdapter() {
+   			public void widgetSelected(SelectionEvent e) {
+   				typeText.setText( ((MenuItem)e.widget).getData().toString() );
+  				typeText.pack();
+ 				typeComp.pack();
+   				typeComp.getParent().pack();
+            	switchProductType( "Default" );
+   			}
+   		});
+        
+		int ntyp = 1;
+        ArrayList<String> typeUsed = new ArrayList<String>();
+		for ( String ptypName : prdManageDlg.prdTypesMap.keySet() ) {
+    		
+            ProductType prdType = prdManageDlg.prdTypesMap.get( ptypName );
+            LinkedHashMap<String, String>  subtypesNalias = prdManageDlg.getSubtypes( prdType.getType(), true );
+            
+            if ( (ptypName.equals( prdType.getName() ) && 
+               	 !prdType.getType().equals( prdType.getName() ) ) ||
+               	 !prdManageDlg.hasSubtypes( subtypesNalias.values() ) ) {
+                   
+                MenuItem typeItem = new MenuItem( mu, SWT.PUSH, ntyp );
+                   
+               	typeItem.setText( ptypName );
+               	typeItem.setData( ptypName );
+           		typeItem.addSelectionListener(new SelectionAdapter() {
+           			public void widgetSelected(SelectionEvent e) {
+           				String typeName = ((MenuItem)e.widget).getData().toString();
+    			    	typeText.setText( typeName );
+          				typeText.pack();
+          				typeComp.pack();
+           				typeComp.getParent().pack();
+   	            	    switchProductType( typeName );
+           			}
+           		});
 
-        typeCombo.setData( curType );
-        typeCombo.select( curType );  
-        
-        typeCombo.addSelectionListener( new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent event) {                     
-                String prevType = prdManageDlg.getActiveProduct().getType();
-                String newType = typeCombo.getText();
-      		    
-                createLayersTemplate( layersGrp, newType ); 
-                
-                if ( !newType.equals( prevType )) {
-                	saveLayerBtn.setSelection( false );
-                	outputFileTxt.setText( ""  );
-                	for ( ProductType ptyp : prdManageDlg.prdTypes.getProductType() ) {        	
-                	    if ( newType.equals( ptyp.getName() ) ) {
-                		    if ( ptyp.getPgenSave() != null ) {            		    	
-                		        if ( ptyp.getPgenSave().getOutputFile() != null ) {               		    	
-                		    	    outputFileTxt.setText( ptyp.getPgenSave().getOutputFile()  );
-                		        }
-                		        if ( ptyp.getPgenSave().isSaveLayers() != null ) {
-                		        	saveLayerBtn.setSelection( ptyp.getPgenSave().isSaveLayers() );
-                		        }
-                		    }
-                		                   		    
-                		    break;
-                	    }
-                   }
-               }            
             }
-        });
+            else {
                 
+            	if ( typeUsed.contains( prdType.getType() ) ) {
+           		    continue;
+            	}
+            	else {
+            		typeUsed.add( prdType.getType() );
+                	 
+           	    }
+ 
+            	MenuItem typeItem = new MenuItem( mu, SWT.CASCADE, ntyp );
+            	
+            	typeItem.setText( prdType.getType() );
+        		Menu submenu = new Menu( typeItem );
+        		typeItem.setMenu( submenu );
+        		
+        		for ( String styp : subtypesNalias.keySet() ) {
+            	    MenuItem subtypeItem = new MenuItem( submenu, SWT.PUSH );
+            	    subtypeItem.setText( subtypesNalias.get( styp ) );
+            	    
+            	    subtypeItem.setData( styp );
+
+       		        subtypeItem.addSelectionListener( new SelectionAdapter() {
+        			    public void widgetSelected(SelectionEvent e) {
+               				String typeName = ((MenuItem)e.widget).getData().toString();
+        			    	typeText.setText( typeName );
+               				typeText.pack();
+               				typeComp.pack();
+               				typeComp.getParent().pack();
+       	            	    
+               				switchProductType( typeName);
+        			    }
+        		    });       			
+        		}
+            }
+               		
+    		ntyp++;
+        }      
+            		    	
+    	ti.addListener(SWT.Selection, new Listener() {
+        	public void handleEvent(Event event) {
+        		Rectangle bounds = ti.getBounds();
+        		Point point = typeToolBar.toDisplay( bounds.x, bounds.y + bounds.height );
+        		mu.setLocation( point );
+        		mu.setVisible( true );
+        	}
+        });
+    	
         Label pfst = new Label( top, SWT.NONE );
         pfst.setText( "Forecaster:");
         
@@ -215,11 +288,10 @@ public class ProductNameDialog extends ProductDialog {
         Label outputLbl = new Label( bot2, SWT.LEFT );
         outputLbl.setText("Output:");
               
-//        Composite outfileComp = new Composite( bot, SWT.NONE );
-//        outfileComp.setLayout( gl );
         outputFileTxt = new Text( bot2,  SWT.SINGLE | SWT.BORDER );                        
         outputFileTxt.setLayoutData( new GridData( 150, 20 ) );
         outputFileTxt.setEditable( true );   
+
         if ( initialOutput != null ) {
         	outputFileTxt.setText( initialOutput  );
         }
@@ -241,7 +313,9 @@ public class ProductNameDialog extends ProductDialog {
             public void widgetSelected( SelectionEvent event ) {            	
                	createFileText( outputFileTxt, initialOutput );
             }
-        });      
+        });  
+        
+        browseBtn.setEnabled( false );
 
         // Create control buttons
         Composite centeredComp = new Composite( shell, SWT.NONE );
@@ -282,7 +356,7 @@ public class ProductNameDialog extends ProductDialog {
     	HashMap<String, String> attr = new HashMap<String, String>();
     	
     	attr.put( "name", nameText.getText() );
-    	attr.put( "type", typeCombo.getText() );
+    	attr.put( "type", typeText.getText() );
     	attr.put( "forecaster", forecasterText.getText() );
     	attr.put( "center", centerText.getText() );    	
     	if (saveLayerBtn.getSelection() ) {
@@ -402,17 +476,9 @@ public class ProductNameDialog extends ProductDialog {
  	    cmp.pack(); 
     	shell.pack( true );
  	    
- 	    ProductType prdtype = null;
-        for ( ProductType ptyp : prdManageDlg.prdTypes.getProductType() ) {        	
-        	if ( typ.equals( ptyp.getName() ) ) {
-        		if ( ptyp.getPgenLayer() != null && ptyp.getPgenLayer().size() > 0 ) {            		    	
-        		    prdtype = ptyp;
-        		    break;
-        		}
-        	}
-        }
-       	               
-        if ( prdtype == null ) {
+ 	    ProductType prdtype = prdManageDlg.prdTypesMap.get( typ );
+        if ( prdtype == null || prdtype.getPgenLayer() == null || 
+        		                prdtype.getPgenLayer().size() <= 0	) {
         	return;
         }
                        
@@ -448,6 +514,34 @@ public class ProductNameDialog extends ProductDialog {
 	    
     	cmp.pack();
     	shell.pack( true ); 	    		    		
+    }
+    
+    
+    /*
+     *  Switch to a new type
+     */
+    private void switchProductType( String newType ) {       
+
+        createLayersTemplate( layersGrp, newType ); 
+        
+        nameText.setText( newType );
+        
+        saveLayerBtn.setSelection( false );
+        outputFileTxt.setText( ""  );
+        outputFileTxt.setEditable( false );
+
+        ProductType ptyp = prdManageDlg.prdTypesMap.get( newType );
+        if ( ptyp != null ) {
+        	if ( ptyp.getPgenSave() != null ) {            		    	
+        		if ( ptyp.getPgenSave().getOutputFile() != null ) {               		    	
+        			outputFileTxt.setText( ptyp.getPgenSave().getOutputFile()  );
+        		}
+        		if ( ptyp.getPgenSave().isSaveLayers() != null ) {
+        			saveLayerBtn.setSelection( ptyp.getPgenSave().isSaveLayers() );
+        		}
+        	}
+        }
+	
     }
 
       
