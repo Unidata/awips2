@@ -11,7 +11,6 @@ import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -736,12 +735,6 @@ public class MosaicRecord extends PersistablePluginDataObject implements
             }
         }
         return list;
-    }
-
-    @Override
-    public void setPersistenceTime(Date persistTime) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
