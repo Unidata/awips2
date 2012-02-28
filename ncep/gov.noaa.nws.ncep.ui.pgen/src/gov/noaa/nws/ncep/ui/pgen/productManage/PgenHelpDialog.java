@@ -7,8 +7,8 @@
  */
 package gov.noaa.nws.ncep.ui.pgen.productManage;
 
-import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -35,6 +35,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 10/09  		#151      	J. Wu 		Initial creation. 
+ * 07/11  		#450      	G. Hull     NcPathManager 
  * 
  * </pre>
  * 
@@ -47,9 +48,6 @@ public class PgenHelpDialog extends ProductDialog {
 	
 	private static PgenHelpDialog INSTANCE = null;
     
-    private static String PgenHelpFileLocal = System.getProperty("user.home") + File.separator;   
-    private static String PgenHelpFileName = "PgenHelp.txt";
- 
     private static String helpContent = null;
 	    	               
     private final static int TEXT_WIDTH = 600;
@@ -179,26 +177,14 @@ public class PgenHelpDialog extends ProductDialog {
    	    if ( helpContent == null ) {
     	    
     		/*
-    		 *  First Try to load from user's local directory; if not found, load from
-    		 *  the base directory.
+    		 *  Get the help file from the localization
     		 */    		
-    		String helpFileDir = new String( PgenHelpFileLocal );
-//            String 	currentWorkingDir = PgenUtil.CURRENT_WORKING_DIRECTORY;        
-            String 	currentWorkingDir = PgenUtil.getWorkingDirectory();        
-           if ( currentWorkingDir != null ) {
-            	helpFileDir = new String( currentWorkingDir );
-            }
+   	    	helpContent = "";
+   	    	File prdHelpFile = NcPathManager.getInstance().getStaticFile( 
+    				NcPathConstants.PGEN_HELP_FILE );   	    
     		
-        	String fullFileName = helpFileDir  + File.separator + PgenHelpFileName;
-    		File prdHelpFile = new File( fullFileName );
-
-    		if ( !( prdHelpFile.exists() && prdHelpFile.isFile() && prdHelpFile.canRead() ) ) {
-    			fullFileName = NmapCommon.getPgenHelpFile();
-    			prdHelpFile = new File( fullFileName );
-    		}
     		
-    		helpContent = "";
-     		if ( prdHelpFile.exists() && prdHelpFile.isFile() && prdHelpFile.canRead() ) {
+     		if( prdHelpFile != null && prdHelpFile.exists() && prdHelpFile.canRead() ) {
 
      			Scanner scanner = new Scanner( prdHelpFile );
     	        try {

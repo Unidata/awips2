@@ -22,6 +22,15 @@
                name="LPI File">
          </fileType>
       </resource>
+      <resource
+            class="gov.noaa.nws.ncep.viz.overlays.resources.PgenXmlOverlayResource"
+            name="PgenXmlOverlay"
+            renderingOrderId="MAP_OUTLINE">
+         <fileType
+               fileExtension="xml"
+               name="XML File">
+         </fileType>
+      </resource>
       <!--resource
             class="com.raytheon.viz.core.topo.TopoResource"
             name="NC-TopoResource"
@@ -75,6 +84,11 @@
             name="DbOverlay">
       </nc-resource>
       <nc-resource
+            class="gov.noaa.nws.ncep.viz.overlays.resources.PgenXmlOverlayResourceData"
+            editDialogClass="gov.noaa.nws.ncep.viz.overlays.dialogs.ChangeLineAttributesDialog"
+            name="PgenXmlOverlay">
+      </nc-resource>
+      <nc-resource
             class="gov.noaa.nws.ncep.viz.overlays.resources.LPIResourceData"
             editDialogClass="gov.noaa.nws.ncep.viz.overlays.dialogs.ChangeMarkerAttributesDialog"
             name="LpiOverlay">
@@ -104,6 +118,24 @@
             attributeName="lineWidth"
             defaultValue="1"
             ncResourceName="DbOverlay">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="RGB"
+            attributeName="color"
+            defaultValue="RGB {255, 165, 79}"
+            ncResourceName="PgenXmlOverlay">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="LineStyle"
+            attributeName="lineStyle"
+            defaultValue="SOLID"
+            ncResourceName="PgenXmlOverlay">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="Integer"
+            attributeName="lineWidth"
+            defaultValue="1"
+            ncResourceName="PgenXmlOverlay">
       </nc-resourceAttribute>
       <nc-resourceAttribute
             attributeClass="RGB"
@@ -292,5 +324,25 @@
             ncResourceName="SpiOverlay">
       </nc-resourceAttribute>
    </extension>
+       
+   <extension
+          point="com.raytheon.uf.viz.localization.localizationpath">
+       <path
+             application="NCEP"
+             localizationType="CAVE_STATIC"
+             name="basemaps"
+             recursive="false"
+             value="ncep/basemaps"
+	         extensionFilter=".lpi,.spi">
+       </path>
+       <path
+             application="NCEP"
+             localizationType="CAVE_STATIC"
+             name="PgenXmlOverlayProducts"
+             recursive="false"
+             value="ncep/PgenXmlOverlayProducts"
+	         extensionFilter=".xml">
+       </path>
+    </extension>
    
 </plugin>

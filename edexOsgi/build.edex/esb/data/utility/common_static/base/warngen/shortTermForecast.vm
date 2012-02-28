@@ -6,9 +6,6 @@
 ##
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 NOW${siteId}
-#if(${specialCorText})
-${specialCorText}
-#else
 #if(${productClass}=="T")
 TEST...SHORT TERM FORECAST...TEST##
 #else
@@ -147,7 +144,7 @@ THIS IS A TEST MESSAGE. ##
 ######################################################
 
 AT ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}... ${report} ##
-#handleClosestPoints($list, $closestPoints, $otherClosestPoints, $stormType,"LOCATED", "NEAR", 4, "MILES")
+#handleClosestPoints($list, $closestPoints, $otherClosestPoints, $stormType,"LOCATED", "NEAR", 4, "MILES", true)
 #if($movementSpeed < 3 || ${stationary})
 NEARLY STATIONARY.
 #else
@@ -196,6 +193,10 @@ WINDS BEHIND THE FRONT WILL SHIFT SUDDENLY TO THE !** DIRECTION **! AND INCREASE
 LOCATIONS CAN EXPECT !** EXPECTED SNOW **! INCHES OF SNOW.
 
 #end
+
+## parse file command here is to pull in mile marker info
+## #parse("mileMarkers.vm")
+
 #############
 ## WATCHES ##
 #############
@@ -211,4 +212,3 @@ LOCATIONS CAN EXPECT !** EXPECTED SNOW **! INCHES OF SNOW.
 $$
 
 !**NAME/INITIALS**!
-#end

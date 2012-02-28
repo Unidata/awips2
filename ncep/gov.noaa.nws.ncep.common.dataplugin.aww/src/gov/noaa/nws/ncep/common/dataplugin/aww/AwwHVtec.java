@@ -9,6 +9,8 @@
  * ------------	----------	-----------	--------------------------
  * 12/2008		L. Lin		Initial creation	
  * 04/2009      L. Lin      Convert to to10
+ * 09/2011      Chin Chen   changed to improve purge performance and
+ * 							removed xml serialization as well
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
  */
@@ -23,12 +25,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -36,7 +33,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @Entity
 @Table(name="aww_hvtec")
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class AwwHVtec implements Serializable, ISerializableObject {
 
@@ -47,55 +43,47 @@ public class AwwHVtec implements Serializable, ISerializableObject {
     private Integer recordId = null;
 	
 	// The AWW HVTEC record this object belongs to 
-	@ManyToOne
-    @JoinColumn(name="parentID", nullable=false)
-	private AwwVtec parentID;
+	//@ManyToOne
+    //@JoinColumn(name="parentID", nullable=false)
+	//private AwwVtec parentID;
 
 	// NWS location Identifier
 	@Column(length=16)
-    @XmlElement
     @DynamicSerializeElement
 	private String locationIdentifier;
 	
 	//  Flood severity such as 0, N, 1, 2, 3, U
 	@Column(length=16)
-    @XmlElement
     @DynamicSerializeElement
 	private String floodSeverity;
 	
 	// Immediate Cause such as ER, SM, ...etc
 	@Column(length=16)
-    @XmlElement
     @DynamicSerializeElement
 	private String immediateCause;
 	
 	// Flood record such as NO, NR, UU, OO 
 	@Column(length=32)
-    @XmlElement
     @DynamicSerializeElement
 	private String floodRecord;
 	
 	// HVTEC event start time
 	@Column
-	@XmlElement
 	@DynamicSerializeElement
 	private Calendar eventStartTime;
 	
 	// HVTEC event crest time
 	@Column
-	@XmlElement
 	@DynamicSerializeElement
 	private Calendar eventCrestTime;
 	
 	// HVTEC event end time
 	@Column
-	@XmlElement
 	@DynamicSerializeElement
 	private Calendar eventEndTime;
 
 	// Text information for HVTEC line
 	@Column(length=128)
-    @XmlElement
     @DynamicSerializeElement
 	private String hvtecLine;
 
@@ -139,19 +127,7 @@ public class AwwHVtec implements Serializable, ISerializableObject {
 		this.recordId = recordId;
 	}
 	
-	/**
-	 * @return the parentID
-	 */
-	public AwwVtec getParentID() {
-		return parentID;
-	}
-
-	/**
-	 * @param parentID the parentID to set
-	 */
-	public void setParentID(AwwVtec parentID) {
-	    this.parentID = parentID;
-	}
+	
 
 	/**
 	 * @return the floodSeverity

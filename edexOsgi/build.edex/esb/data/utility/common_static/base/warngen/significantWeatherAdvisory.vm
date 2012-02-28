@@ -88,9 +88,6 @@
 
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 SPS${siteId}
-#if(${specialCorText})
-${specialCorText}
-#else
 #if(${productClass}=="T")
 TEST...SPECIAL WEATHER STATEMENT...TEST##
 #else
@@ -233,15 +230,12 @@ THOSE ATTENDING THE !**event/venue name or location**! ARE IN THE PATH OF THIS S
 THIS IS A TEST MESSAGE. ##
 #end
 
-##############################################
-###### mile markers ##############
-##############################################
-#parse("milemarkers.vm")
+## parse file command here is to pull in mile marker info
+## #parse("mileMarkers.vm")
+
 ##################################
 ######### CALLS TO ACTION ########
 ##################################
-##Check to see if we've selected any calls to action. In our .cfg file
-##we ended each CTA bullet ID with "CTA" for this reason as a 'trip'
 #foreach ($bullet in $bullets)
 #if($bullet.endsWith("CTA"))
 #set ($ctaSelected = "YES")
@@ -332,10 +326,5 @@ ${mathUtil.round(${movementInKnots})}KT ##
 #end
 
 $$
-#end
 
-##############################################
-## Code to pull the user name into the product
-##############################################
-##${user}
 !**NAME/INITIALS**!

@@ -1,0 +1,932 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Products xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
+    <Product name="PGEN Settings" type="Default" forecaster="Default" center="Default" onOff="true" saveLayers="false" useFile="false">
+        <Layer name="Default" onOff="true" monoColor="false" filled="false">
+            <Color red="255" green="255" blue="0" alpha="255"/>
+            <DrawableElement>
+                <DECollection pgenCategory="MET" pgenType="JET" collectionName="Jet">
+                    <DrawableElement>
+                        <DECollection collectionName="WindInfo">
+                            <DrawableElement>
+                                <Text pgenCategory="Text" pgenType="General Text" fontSize="18.0" fontName="Courier" style="REGULAR" justification="CENTER" rotation="289.0" rotationRelativity="SCREEN_RELATIVE" mask="false" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                                    <Color red="255" green="0" blue="0" alpha="255"/>
+                                    <Point Lat="24.370719825166535" Lon="-122.20535221347572"/>
+                                    <textLine>FL300</textLine>
+                                </Text>
+                                <Vector pgenCategory="Vector" pgenType="Barb" direction="323.01585993274364" speed="120.0" arrowHeadSize="1.0" directionOnly="false" lineWidth="2.0" sizeScale="2.0" clear="true">
+                                    <Color red="255" green="0" blue="0" alpha="255"/>
+                                    <Point Lat="23.48763893335557" Lon="-120.67426748783554"/>
+                                </Vector>
+                            </DrawableElement>
+                        </DECollection>
+                        <Line pgenType="FILLED_ARROW" pgenCategory="Lines" lineWidth="3.0" sizeScale="2.5" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                            <Color red="255" green="0" blue="0" alpha="255"/>
+                            <Color red="0" green="255" blue="0" alpha="255"/>
+                            <Point Lat="22.385743592166126" Lon="-126.84696477158134"/>
+                            <Point Lat="25.60626233946596" Lon="-123.12227870665762"/>
+                            <Point Lat="21.951934533639328" Lon="-118.85344452470602"/>
+                            <Point Lat="23.451422828483725" Lon="-113.78402123979879"/>
+                        </Line>
+                        <Vector pgenCategory="Vector" pgenType="Hash" direction="291.0" speed="10.0" arrowHeadSize="1.0" directionOnly="false" lineWidth="2.0" sizeScale="2.0" clear="true">
+                            <Color red="255" green="0" blue="0" alpha="255"/>
+                            <Point Lat="25.496929136470555" Lon="-123.84130908818742"/>
+                        </Vector>
+                        <Vector pgenCategory="Vector" pgenType="Hash" direction="279.9856150498179" speed="10.0" arrowHeadSize="1.0" directionOnly="false" lineWidth="2.0" sizeScale="2.0" clear="true">
+                            <Color red="255" green="0" blue="0" alpha="255"/>
+                            <Point Lat="21.934652835268857" Lon="-117.6045917472339"/>
+                        </Vector>
+                    </DrawableElement>
+                </DECollection>
+                <Line pgenType="COLD_FRONT" pgenCategory="Front" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="0" green="0" blue="255" alpha="255"/>
+                    <Point Lat="55.94050058070887" Lon="-131.2947265543222"/>
+                    <Point Lat="56.92703317452704" Lon="-124.05114780456228"/>
+                </Line>
+                <Line pgenType="COLD_FRONT_FORM" pgenCategory="Front" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="0" green="0" blue="255" alpha="255"/>
+                    <Point Lat="54.469461460200364" Lon="-131.23929126229424"/>
+                    <Point Lat="55.479090120068705" Lon="-123.67509493467838"/>
+                </Line>
+                <Line pgenType="COLD_FRONT_DISS" pgenCategory="Front" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="0" green="0" blue="255" alpha="255"/>
+                    <Point Lat="53.644502667923746" Lon="-131.03926144529453"/>
+                    <Point Lat="54.45390335952878" Lon="-123.92966847273993"/>
+                </Line>
+                <Line pgenType="WARM_FRONT" pgenCategory="Front" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="52.331560558143536" Lon="-130.45188837028533"/>
+                    <Point Lat="53.358408429589204" Lon="-123.79879443419208"/>
+                </Line>
+                <Line pgenType="WARM_FRONT_FORM" pgenCategory="Front" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="51.42436056937775" Lon="-129.97350321809662"/>
+                    <Point Lat="52.2559805540691" Lon="-124.02687501632668"/>
+                </Line>
+                <Line pgenType="WARM_FRONT_DISS" pgenCategory="Front" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="50.28607010358857" Lon="-129.5023427566131"/>
+                    <Point Lat="51.25322043299898" Lon="-123.41618856329704"/>
+                </Line>
+                <Line pgenType="STATIONARY_FRONT" pgenCategory="Front" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="0" blue="255" alpha="255"/>
+                    <Point Lat="49.18679867026702" Lon="-129.06404350242326"/>
+                    <Point Lat="49.968577859313264" Lon="-123.59098898930479"/>
+                </Line>
+                <Line pgenType="STATIONARY_FRONT_FORM" pgenCategory="Front" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="0" blue="255" alpha="255"/>
+                    <Point Lat="48.04932315420111" Lon="-128.45703802705694"/>
+                    <Point Lat="48.81264523519168" Lon="-123.12972759447176"/>
+                </Line>
+                <Line pgenType="STATIONARY_FRONT_DISS" pgenCategory="Front" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="0" blue="255" alpha="255"/>
+                    <Point Lat="46.91224524906041" Lon="-127.78630221983752"/>
+                    <Point Lat="47.7402653944268" Lon="-122.79359750234181"/>
+                </Line>
+                <Line pgenType="OCCLUDED_FRONT" pgenCategory="Front" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="160" green="32" blue="240" alpha="255"/>
+                    <Point Lat="45.69616188248049" Lon="-127.52141828654428"/>
+                    <Point Lat="46.54998215160349" Lon="-122.02056066681982"/>
+                </Line>
+                <Line pgenType="OCCLUDED_FRONT_FORM" pgenCategory="Front" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="160" green="32" blue="240" alpha="255"/>
+                    <Point Lat="44.441786316587034" Lon="-127.41702058478937"/>
+                    <Point Lat="45.38858618752492" Lon="-120.9534845555878"/>
+                </Line>
+                <Line pgenType="OCCLUDED_FRONT_DISS" pgenCategory="Front" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="160" green="32" blue="240" alpha="255"/>
+                    <Point Lat="43.28060584220657" Lon="-126.38529622379171"/>
+                    <Point Lat="44.18483795662828" Lon="-120.9493775179665"/>
+                </Line>
+                <Line pgenType="TROF" pgenCategory="Front" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="165" blue="0" alpha="255"/>
+                    <Point Lat="42.04447629723107" Lon="-126.07230844814251"/>
+                    <Point Lat="42.857150193538786" Lon="-120.51901209329233"/>
+                </Line>
+                <Line pgenType="TROPICAL_TROF" pgenCategory="Front" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="165" blue="0" alpha="255"/>
+                    <Point Lat="40.673057462722916" Lon="-125.8070086034075"/>
+                    <Point Lat="41.5982437425656" Lon="-120.35488795025793"/>
+                </Line>
+                <Line pgenType="DRY_LINE" pgenCategory="Front" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="165" blue="0" alpha="255"/>
+                    <Point Lat="39.530718541611584" Lon="-125.54230810486656"/>
+                    <Point Lat="40.408239618320415" Lon="-120.05940295421559"/>
+                </Line>
+                <Line pgenType="INSTABILITY" pgenCategory="Front" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="37.779530031591975" Lon="-124.95888526230613"/>
+                    <Point Lat="38.60506004629856" Lon="-119.85585806847165"/>
+                </Line>
+                <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="57.704562232189716" Lon="-119.17524290838445"/>
+                    <Point Lat="58.20726897317869" Lon="-112.46182935525103"/>
+                </Line>
+                <Line pgenType="POINTED_ARROW" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="56.52980260725664" Lon="-118.78917656563178"/>
+                    <Point Lat="57.08741025945119" Lon="-112.10090167810085"/>
+                </Line>
+                <Line pgenType="FILLED_ARROW" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="55.70362802041158" Lon="-118.34555882895849"/>
+                    <Point Lat="56.23099353997903" Lon="-112.08769103846618"/>
+                </Line>
+                <Line pgenType="LINE_DASHED_2" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="54.80658941995571" Lon="-118.52589424114309"/>
+                    <Point Lat="55.49749102257913" Lon="-111.65161464251916"/>
+                </Line>
+                <Line pgenType="LINE_DASHED_3" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="255" blue="0" alpha="255"/>
+                    <Point Lat="53.937321349002225" Lon="-117.81957797465058"/>
+                    <Point Lat="54.56614498076134" Lon="-111.72097286373898"/>
+                </Line>
+                <Line pgenType="LINE_DASHED_4" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="255" blue="0" alpha="255"/>
+                    <Point Lat="52.85915673197243" Lon="-117.51511075331841"/>
+                    <Point Lat="53.404953885387464" Lon="-111.91929527587178"/>
+                </Line>
+                <Line pgenType="LINE_DASHED_5" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="255" blue="0" alpha="255"/>
+                    <Point Lat="51.645620451810196" Lon="-117.35975928365046"/>
+                    <Point Lat="51.908897577572404" Lon="-114.0400949010151"/>
+                    <Point Lat="52.208764399614815" Lon="-111.67346709290742"/>
+                </Line>
+                <Line pgenType="LINE_DASHED_6" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="255" blue="0" alpha="255"/>
+                    <Point Lat="50.70749072049002" Lon="-117.02689975281213"/>
+                    <Point Lat="51.19573270488142" Lon="-111.6448225897766"/>
+                </Line>
+                <Line pgenType="LINE_DASHED_7" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="255" blue="0" alpha="255"/>
+                    <Point Lat="49.73401246530588" Lon="-116.94934248252305"/>
+                    <Point Lat="50.272444050835496" Lon="-111.72103176011291"/>
+                </Line>
+                <Line pgenType="LINE_DASHED_8" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="255" blue="0" alpha="255"/>
+                    <Point Lat="48.70649634267627" Lon="-116.7785176234861"/>
+                    <Point Lat="49.23197482051737" Lon="-111.10364282577494"/>
+                </Line>
+                <Line pgenType="LINE_DASHED_9" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="255" blue="0" alpha="255"/>
+                    <Point Lat="47.64987672428785" Lon="-116.27541315959596"/>
+                    <Point Lat="48.0869861254374" Lon="-110.98150031116195"/>
+                </Line>
+                <Line pgenType="LINE_DASHED_10" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="255" blue="0" alpha="255"/>
+                    <Point Lat="46.58261024346136" Lon="-115.78383966438197"/>
+                    <Point Lat="46.994308113017304" Lon="-111.44627306791396"/>
+                </Line>
+                <Line pgenType="DASHED_ARROW" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="45.241036145189355" Lon="-115.65038311948757"/>
+                    <Point Lat="45.79254805053886" Lon="-111.07428783514753"/>
+                </Line>
+                <Line pgenType="DASHED_ARROW_FILLED" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="44.02370723988077" Lon="-115.31067825262741"/>
+                    <Point Lat="44.483245615475454" Lon="-111.17421618608887"/>
+                </Line>
+                <Line pgenType="BALL_CHAIN" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="42.89649618841513" Lon="-115.62978401529615"/>
+                    <Point Lat="43.35170052961868" Lon="-111.06644207382931"/>
+                </Line>
+                <Line pgenType="ZIGZAG" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="255" blue="0" alpha="255"/>
+                    <Point Lat="41.787142477747054" Lon="-115.71341063592855"/>
+                    <Point Lat="41.77215094542145" Lon="-111.356925583144"/>
+                </Line>
+                <Line pgenType="SCALLOPED" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="39.58604606154498" Lon="-115.04420779065818"/>
+                    <Point Lat="39.93875154393843" Lon="-111.06677329703894"/>
+                </Line>
+                <Line pgenType="ANGLED_TICKS_ALT" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="160" green="32" blue="240" alpha="255"/>
+                    <Point Lat="38.747752381022075" Lon="-114.6576624606285"/>
+                    <Point Lat="39.15131509357796" Lon="-110.71932750321177"/>
+                </Line>
+                <Line pgenType="FILLED_CIRCLES" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="37.50673906457284" Lon="-114.65373557109756"/>
+                    <Point Lat="37.88186359787375" Lon="-110.45757792364648"/>
+                </Line>
+                <Line pgenType="LINE_WITH_CARETS" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="192" blue="203" alpha="255"/>
+                    <Point Lat="36.41817021218797" Lon="-114.30878288285577"/>
+                    <Point Lat="36.86505588802406" Lon="-109.94255844601042"/>
+                </Line>
+                <Line pgenType="LINE_CARET_LINE" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="192" blue="203" alpha="255"/>
+                    <Point Lat="35.18215196932056" Lon="-114.16556497464263"/>
+                    <Point Lat="35.61495921990058" Lon="-109.9920855593144"/>
+                </Line>
+                <Line pgenType="SINE_CURVE" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="173" green="216" blue="230" alpha="255"/>
+                    <Point Lat="34.05003052791817" Lon="-114.11641841150953"/>
+                    <Point Lat="33.932879858534555" Lon="-110.12754813949826"/>
+                </Line>
+                <Line pgenType="BOX_CIRCLE" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="32.22188504378253" Lon="-113.81046461135132"/>
+                    <Point Lat="32.650878003798745" Lon="-109.74383810778578"/>
+                </Line>
+                <Line pgenType="FILL_OPEN_BOX" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="165" blue="0" alpha="255"/>
+                    <Point Lat="30.86920035583086" Lon="-114.01346580343987"/>
+                    <Point Lat="31.186374121726857" Lon="-109.97941321696214"/>
+                </Line>
+                <Line pgenType="LINE_X_LINE" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="165" blue="0" alpha="255"/>
+                    <Point Lat="29.690335391409327" Lon="-113.75301004981685"/>
+                    <Point Lat="30.015069748068925" Lon="-110.24770359002206"/>
+                </Line>
+                <Line pgenType="LINE_XX_LINE" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="28.52691159312473" Lon="-113.84546585784113"/>
+                    <Point Lat="28.974608328928163" Lon="-109.7689049039295"/>
+                </Line>
+                <Line pgenType="FILL_CIRCLE_X" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="165" blue="0" alpha="255"/>
+                    <Point Lat="27.335568777372078" Lon="-113.65873647900627"/>
+                    <Point Lat="27.766368009849128" Lon="-109.75687024399734"/>
+                </Line>
+                <Line pgenType="BOX_X" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="165" blue="0" alpha="255"/>
+                    <Point Lat="26.134550156473527" Lon="-113.54202767552592"/>
+                    <Point Lat="26.496817821970318" Lon="-109.73781062653394"/>
+                </Line>
+                <Line pgenType="LINE_CIRCLE_ARROW" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="25.041121190893485" Lon="-113.04178096077794"/>
+                    <Point Lat="25.30903863032713" Lon="-108.85906236863968"/>
+                </Line>
+                <Line pgenType="DOUBLE_LINE" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="23.89848709334172" Lon="-112.94180947987614"/>
+                    <Point Lat="24.133042262513104" Lon="-109.12524753064729"/>
+                </Line>
+                <Line pgenType="ZZZ_LINE" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="22.49338547697529" Lon="-113.00314714932638"/>
+                    <Point Lat="22.707540809802193" Lon="-108.83360141691881"/>
+                </Line>
+                <Line pgenType="TICK_MARKS" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="255" green="165" blue="0" alpha="255"/>
+                    <Point Lat="20.831167317573637" Lon="-112.70241695119927"/>
+                    <Point Lat="21.204569382850483" Lon="-108.7343450409119"/>
+                </Line>
+                <Line pgenType="STREAM_LINE" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                    <Color red="160" green="32" blue="240" alpha="255"/>
+                    <Point Lat="19.282701554968984" Lon="-112.48852999239747"/>
+                    <Point Lat="19.853243101176776" Lon="-108.33312442667157"/>
+                </Line>
+                <Symbol pgenCategory="Symbol" pgenType="PRESENT_WX_088" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="58.00819955920095" Lon="-105.22011687306525"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="FILLED_HIGH_PRESSURE_H" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="0" green="0" blue="255" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="58.096453631787895" Lon="-102.8521535528763"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="FILLED_LOW_PRESSURE_L" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="58.11400826582063" Lon="-93.36135550950785"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="HIGH_PRESSURE_H" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="0" green="0" blue="255" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="58.096453631787895" Lon="-100.8521535528763"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="LOW_PRESSURE_L" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="58.11400826582063" Lon="-95.36135550950785"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="PRESENT_WX_005" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="58.390472160537264" Lon="-91.99944420077273"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="PRESENT_WX_010" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="58.098308278080225" Lon="-87.3560031389412"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="PRESENT_WX_045" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="55.15085257272747" Lon="-105.105325616694"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="PRESENT_WX_051" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="55.10383243953169" Lon="-100.26448870514633"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="PRESENT_WX_056" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="55.518353199439304" Lon="-95.34895228020736"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="PRESENT_WX_061" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="55.48864184044005" Lon="-88.78912639926419"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="PRESENT_WX_063" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="55.54422068413056" Lon="-84.55145514500855"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="PRESENT_WX_065" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="52.597496415823834" Lon="-105.30887108406327"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="PRESENT_WX_066" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="52.99051064014291" Lon="-99.95255482018953"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="PRESENT_WX_071" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="53.253908495262976" Lon="-94.90246576996036"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="PRESENT_WX_073" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="53.18673752176344" Lon="-89.49118257088506"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="PRESENT_WX_075" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="53.30641009932742" Lon="-84.14255432042914"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="PRESENT_WX_079" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="49.784498066520136" Lon="-104.88924391527192"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="PRESENT_WX_080" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="50.47348643222256" Lon="-100.90567266666028"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="PRESENT_WX_085" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="50.177679854711606" Lon="-95.83210180033325"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="PRESENT_WX_089" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="50.19264284618585" Lon="-90.86331649066942"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="PRESENT_WX_095" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="50.17960262345406" Lon="-85.46821231016186"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="PRESENT_WX_105" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="47.37519761866969" Lon="-104.87281735626959"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="PRESENT_WX_201" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="47.64762870840391" Lon="-100.72111674036745"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="TROPICAL_STORM_NH" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="46.621784197195446" Lon="-95.79994567207872"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="HURRICANE_NH" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="46.47534990790562" Lon="-91.19182014768862"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="TROPICAL_STORM_SH" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="46.550476217595254" Lon="-86.49273562321157"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="HURRICANE_SH" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="42.28021221631332" Lon="-104.13090936391379"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="STORM_CENTER" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="42.8891215326389" Lon="-100.28744133269387"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="TROPICAL_DEPRESSION" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="43.249623351344646" Lon="-94.99086568670687"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="TROPICAL_CYCLONE" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="42.450922229856054" Lon="-90.4157776640661"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="FLAME" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="43.0529040036441" Lon="-85.31078220164004"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="X_CROSS" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="38.76958581038543" Lon="-103.67575942115286"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="LOW_X_OUTLINE" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="38.7" Lon="-99.0"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="LOW_X_FILLED" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="38.764921798876955" Lon="-99.03170313210154"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="TROPICAL_STORM_NH_WPAC" lineWidth="1.0" sizeScale="2.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="38.92828730621715" Lon="-94.76646026829452"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="TROPICAL_STORM_SH_WPAC" lineWidth="1.0" sizeScale="2.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="38.73464321921994" Lon="-89.82944337328756"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="NUCLEAR_FALLOUT" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="38.6408657552488" Lon="-86.09261101200478"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="LETTER_A_FILLED" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="36.20892967867947" Lon="-103.27254020730498"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="LETTER_C" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="36.53379568117395" Lon="-98.81419647594392"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="LETTER_C_FILLED" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="36.34373940693731" Lon="-94.52455018593129"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="LETTER_X" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="36.587581951230405" Lon="-89.7723211310872"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="LETTER_X_FILLED" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="36.335112672891455" Lon="-86.15371735319238"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="LETTER_N" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="34.187552402290656" Lon="-102.95828860946654"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="LETTER_N_FILLED" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="34.720274822147715" Lon="-99.35791025909238"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="LETTER_B" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="34.73989789716146" Lon="-95.04520047663429"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="LETTER_B_FILLED" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="34.49784841073462" Lon="-91.1416020373972"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="30_KT_BARB" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="34.46462934752184" Lon="-88.01913737657048"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="ICING_09" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="32.07994160653829" Lon="-102.96008140893132"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="ICING_10" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="32.62400207697082" Lon="-99.88162731483665"/>
+                </Symbol>
+                <Symbol pgenCategory="Marker" pgenType="PLUS_SIGN" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="57.42373937689146" Lon="-76.31066942824172"/>
+                </Symbol>
+                <Symbol pgenCategory="Marker" pgenType="OCTAGON" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="57.122799087124434" Lon="-73.23143109676302"/>
+                </Symbol>
+                <Symbol pgenCategory="Marker" pgenType="TRIANGLE" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="56.89910597639131" Lon="-70.32563144269854"/>
+                </Symbol>
+                <Symbol pgenCategory="Marker" pgenType="BOX" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="56.435592109590885" Lon="-67.88640782518563"/>
+                </Symbol>
+                <Symbol pgenCategory="Marker" pgenType="SMALL_X" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="56.158193233674076" Lon="-65.11504225478663"/>
+                </Symbol>
+                <Symbol pgenCategory="Marker" pgenType="Z_WITH_BAR" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="55.277083891545395" Lon="-76.7490757297261"/>
+                </Symbol>
+                <Symbol pgenCategory="Marker" pgenType="X_WITH_TOP_BAR" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="55.14894482246995" Lon="-73.9775695733111"/>
+                </Symbol>
+                <Symbol pgenCategory="Marker" pgenType="DIAMOND" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="54.87853105349985" Lon="-71.15957630621844"/>
+                </Symbol>
+                <Symbol pgenCategory="Marker" pgenType="UP_ARROW" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="54.58363102821036" Lon="-68.44932539363255"/>
+                </Symbol>
+                <Symbol pgenCategory="Marker" pgenType="Y" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="54.50776445462743" Lon="-65.66587755528214"/>
+                </Symbol>
+                <Symbol pgenCategory="Marker" pgenType="BOX_WITH_DIAGONALS" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="53.27804906148571" Lon="-77.11784755376404"/>
+                </Symbol>
+                <Symbol pgenCategory="Marker" pgenType="ASTERISK" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="53.10006243551938" Lon="-74.42767652326468"/>
+                </Symbol>
+                <Symbol pgenCategory="Marker" pgenType="HOURGLASS_X" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="52.941254371548105" Lon="-71.73549227132538"/>
+                </Symbol>
+                <Symbol pgenCategory="Marker" pgenType="STAR" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="52.60534394800802" Lon="-69.18907930156391"/>
+                </Symbol>
+                <Symbol pgenCategory="Marker" pgenType="DOT" lineWidth="2.0" sizeScale="4.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="52.342334901995294" Lon="-66.62853877884156"/>
+                </Symbol>
+                <Symbol pgenCategory="Marker" pgenType="LARGE_X" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="51.41588736683589" Lon="-77.08602076751212"/>
+                </Symbol>
+                <Symbol pgenCategory="Marker" pgenType="FILLED_OCTAGON" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="51.303060619705924" Lon="-74.61129460718716"/>
+                </Symbol>
+                <Symbol pgenCategory="Marker" pgenType="FILLED_TRIANGLE" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="51.22156175791849" Lon="-71.69541140184907"/>
+                </Symbol>
+                <Symbol pgenCategory="Marker" pgenType="FILLED_BOX" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="50.8369955815884" Lon="-69.30014088544016"/>
+                </Symbol>
+                <Symbol pgenCategory="Marker" pgenType="FILLED_DIAMOND" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="50.69786387463387" Lon="-66.92319310104156"/>
+                </Symbol>
+                <Symbol pgenCategory="Marker" pgenType="FILLED_STAR" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="49.53408535218434" Lon="-77.89503174081656"/>
+                </Symbol>
+                <Symbol pgenCategory="Marker" pgenType="MINUS_SIGN" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="49.566161187293694" Lon="-75.18827384242621"/>
+                </Symbol>
+                <Symbol pgenCategory="Combo" pgenType="PRESENT_WX_061|PRESENT_WX_051" lineWidth="1.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="36.69122381078902" Lon="-77.66703008082177"/>
+                </Symbol>
+                <Symbol pgenCategory="Combo" pgenType="PRESENT_WX_061|PRESENT_WX_063" lineWidth="1.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="36.673050052715254" Lon="-73.7564370547985"/>
+                </Symbol>
+                <Symbol pgenCategory="Combo" pgenType="PRESENT_WX_061|PRESENT_WX_080" lineWidth="1.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="36.22789245582859" Lon="-69.79294508484215"/>
+                </Symbol>
+                <Symbol pgenCategory="Combo" pgenType="PRESENT_WX_061|PRESENT_WX_095" lineWidth="1.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="35.5951286736764" Lon="-65.95750957463977"/>
+                </Symbol>
+                <Symbol pgenCategory="Combo" pgenType="PRESENT_WX_063|PRESENT_WX_065" lineWidth="1.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="34.93847724299643" Lon="-62.21682989345769"/>
+                </Symbol>
+                <Symbol pgenCategory="Combo" pgenType="PRESENT_WX_063|PRESENT_WX_080" lineWidth="1.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="34.48341889757323" Lon="-78.34097466378641"/>
+                </Symbol>
+                <Symbol pgenCategory="Combo" pgenType="PRESENT_WX_063|PRESENT_WX_095" lineWidth="1.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="34.272183698705845" Lon="-74.14894908259635"/>
+                </Symbol>
+                <Symbol pgenCategory="Combo" pgenType="PRESENT_WX_065|PRESENT_WX_080" lineWidth="1.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="33.71318110715412" Lon="-70.55938208352298"/>
+                </Symbol>
+                <Symbol pgenCategory="Combo" pgenType="PRESENT_WX_065|PRESENT_WX_095" lineWidth="1.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="32.91998694416165" Lon="-66.45181633769079"/>
+                </Symbol>
+                <Symbol pgenCategory="Combo" pgenType="PRESENT_WX_051|PRESENT_WX_056" lineWidth="1.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="32.205785123324475" Lon="-62.483578897634544"/>
+                </Symbol>
+                <Symbol pgenCategory="Combo" pgenType="PRESENT_WX_061|PRESENT_WX_056" lineWidth="1.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="31.892155578484715" Lon="-79.1685139696483"/>
+                </Symbol>
+                <Symbol pgenCategory="Combo" pgenType="PRESENT_WX_061|PRESENT_WX_066" lineWidth="1.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="31.392539141408474" Lon="-74.7999687171152"/>
+                </Symbol>
+                <Symbol pgenCategory="Combo" pgenType="PRESENT_WX_061|PRESENT_WX_071" lineWidth="1.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="30.816355966545853" Lon="-70.39951521085841"/>
+                </Symbol>
+                <Symbol pgenCategory="Combo" pgenType="PRESENT_WX_071|PRESENT_WX_073" lineWidth="1.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="30.293355788383266" Lon="-66.39032139503895"/>
+                </Symbol>
+                <Symbol pgenCategory="Combo" pgenType="PRESENT_WX_073|PRESENT_WX_075" lineWidth="1.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="29.771500581637582" Lon="-62.90850194852598"/>
+                </Symbol>
+                <Symbol pgenCategory="Combo" pgenType="PRESENT_WX_071|PRESENT_WX_085" lineWidth="1.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="29.564727813305883" Lon="-80.04977799816696"/>
+                </Symbol>
+                <Symbol pgenCategory="Combo" pgenType="PRESENT_WX_073|PRESENT_WX_085" lineWidth="1.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="29.011079569716536" Lon="-76.02768768139003"/>
+                </Symbol>
+                <Symbol pgenCategory="Combo" pgenType="PRESENT_WX_075|PRESENT_WX_085" lineWidth="1.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="28.243141545875663" Lon="-71.68965631402504"/>
+                </Symbol>
+                <Symbol pgenCategory="Combo" pgenType="PRESENT_WX_071|PRESENT_WX_105" lineWidth="1.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="27.75082541663378" Lon="-67.4450987087552"/>
+                </Symbol>
+                <Symbol pgenCategory="Combo" pgenType="PRESENT_WX_073|PRESENT_WX_105" lineWidth="1.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="27.12000508188666" Lon="-63.93964183628469"/>
+                </Symbol>
+                <Symbol pgenCategory="Combo" pgenType="PRESENT_WX_075|PRESENT_WX_105" lineWidth="1.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="26.782280376359804" Lon="-80.88673209355365"/>
+                </Symbol>
+                <Symbol pgenCategory="Combo" pgenType="PRESENT_WX_080|PRESENT_WX_095" lineWidth="1.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="26.14864275533824" Lon="-77.02882100116429"/>
+                </Symbol>
+                <Symbol pgenCategory="Combo" pgenType="PRESENT_WX_080|PRESENT_WX_085" lineWidth="1.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="25.588820565486063" Lon="-72.50604148567717"/>
+                </Symbol>
+                <Symbol pgenCategory="Combo" pgenType="PRESENT_WX_061|PRESENT_WX_079" lineWidth="1.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="25.248142459380198" Lon="-68.75316845230822"/>
+                </Symbol>
+                <Symbol pgenCategory="Combo" pgenType="PRESENT_WX_079|PRESENT_WX_066" lineWidth="1.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="24.27276058908192" Lon="-65.40259289881985"/>
+                </Symbol>
+                <Symbol pgenCategory="Combo" pgenType="PRESENT_WX_071|PRESENT_WX_079" lineWidth="1.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Color red="0" green="255" blue="0" alpha="255"/>
+                    <Point Lat="23.84257024289965" Lon="-81.2808164822886"/>
+                </Symbol>
+                <Symbol pgenCategory="Symbol" pgenType="PAST_WX_09" lineWidth="1.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="32.76159880485587" Lon="-96.55504658626423"/>
+                </Symbol>
+                <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="BOLD_ITALIC" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="true" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="false">
+                    <Color red="255" green="255" blue="0" alpha="255"/>
+                    <Point Lat="46.11026640392028" Lon="-72.6692548493991"/>
+                    <textLine>Sample</textLine>
+                    <textLine>Text</textLine>
+                </Text>
+                <AvnText pgenCategory="Text" pgenType="AVIATION_TEXT" symbolPatternName="Not Applicable" fontSize="14.0" fontName="Courier" style="REGULAR" justification="CENTER" bottomValue="XXX" topValue="XXX" avnTextType="LOW_PRESSURE_BOX">
+                    <Color red="255" green="255" blue="255" alpha="255"/>
+                    <Point Lat="30.508823131419327" Lon="-98.25635229216034"/>
+                </AvnText>
+                <MidCloudText pgenCategory="Text" pgenType="MID_LEVEL_CLOUD" fontSize="14.0" fontName="Courier" style="REGULAR" justification="CENTER" tstormLevels="" tstormTypes="" icingLevels="" icingType="ICING_05" turbulenceLevels="" turbulenceType="TURBULENCE_4" cloudTypes="">
+                    <Color red="255" green="255" blue="255" alpha="255"/>
+                    <Point Lat="37.33487901359149" Lon="-101.59046925996388"/>
+                </MidCloudText>
+                <Arc pgenCategory="Arc" pgenType="Circle" endAngle="360.0" startAngle="0.0" axisRatio="1.0" lineWidth="3.0" sizeScale="1.0" smoothFactor="2" closed="true" filled="false" fillPattern="SOLID">
+                    <Color red="0" green="0" blue="255" alpha="255"/>
+                    <Point Lat="42.867103597000316" Lon="-73.86894811811908"/>
+                    <Point Lat="41.97887089093084" Lon="-72.25745920172047"/>
+                </Arc>
+                <Vector pgenCategory="Vector" pgenType="Arrow" direction="360.0" speed="10.0" arrowHeadSize="1.0" directionOnly="false" lineWidth="1.0" sizeScale="1.0" clear="true">
+                    <Color red="0" green="0" blue="255" alpha="255"/>
+                    <Point Lat="40.295713472449606" Lon="-77.79680427737456"/>
+                </Vector>
+                <Vector pgenCategory="Vector" pgenType="Barb" direction="360.0" speed="100.0" arrowHeadSize="1.0" directionOnly="false" lineWidth="1.0" sizeScale="1.0" clear="true">
+                    <Color red="0" green="0" blue="255" alpha="255"/>
+                    <Point Lat="39.10760614739255" Lon="-76.6734081781352"/>
+                </Vector>
+                <Vector pgenCategory="Vector" pgenType="Directional" direction="0.0" speed="10.0" arrowHeadSize="1.5" directionOnly="false" lineWidth="2.0" sizeScale="1.5" clear="true">
+                    <Color red="0" green="0" blue="255" alpha="255"/>
+                    <Point Lat="40.0042761674099" Lon="-75.04306320917897"/>
+                </Vector>
+                <Vector pgenCategory="Vector" pgenType="Hash" direction="0.0" speed="10.0" arrowHeadSize="1.0" directionOnly="false" lineWidth="2.0" sizeScale="1.0" clear="true">
+                    <Color red="255" green="255" blue="0" alpha="255"/>
+                    <Point Lat="39.35390746604257" Lon="-73.2133975036754"/>
+                </Vector>
+                <Track skipFactorTextString="0" setTimeButtonSelected="true" pgenType="STORM_TRACK" pgenCategory="Track" lineWidth="1.0" intervalTimeTextString="01:00" intervalComboSelectedIndex="2" initialMarker="FILLED_DIAMOND" initialLinePattern="LINE_SOLID" fontStyleComboSelectedIndex="2" fontSizeComboSelectedIndex="2" fontSize="14.0" fontNameComboSelectedIndex="0" fontName="Courier" extrapMarker="FILLED_TRIANGLE" extrapLinePattern="LINE_SOLID" extraPointTimeDisplayOptionName="SKIP_FACTOR">
+                    <initialColor>
+                        <Color red="255" green="0" blue="0" alpha="255"/>
+                    </initialColor>
+                    <extrapColor>
+                        <Color red="255" green="255" blue="0" alpha="255"/>
+                    </extrapColor>
+                    <initialPoints>
+                        <time>2010-06-30T14:57:08.419-04:00</time>
+                        <location longitude="-126.37951168276611" latitude="30.034228159851732"/>
+                    </initialPoints>
+                    <initialPoints>
+                        <time>2010-06-30T15:57:08.419-04:00</time>
+                        <location longitude="-123.600117459191" latitude="30.05307989167604"/>
+                    </initialPoints>
+                    <extrapPoints>
+                        <time>2010-06-30T16:00:08.419-04:00</time>
+                        <location longitude="-123.46115811309699" latitude="30.05541713520117"/>
+                    </extrapPoints>
+                    <extrapPoints>
+                        <time>2010-06-30T17:00:08.419-04:00</time>
+                        <location longitude="-120.68117208589054" latitude="30.0742437809133"/>
+                    </extrapPoints>
+                    <extraPointTimeTextDisplayIndicator>true</extraPointTimeTextDisplayIndicator>
+                    <extraPointTimeTextDisplayIndicator>true</extraPointTimeTextDisplayIndicator>
+                </Track>
+                <Contours collectionName="Contours" pgenCategory="MET" pgenType="Contours" parm="HGMT" level="1000" forecastHour="f000" time1="2011-01-31T10:31:30.624Z" time2="2011-01-31T10:31:30.624Z" cint="10/0/100">
+                    <DECollection collectionName="ContourLine">
+                        <DrawableElement>
+                            <Line pgenType="LINE_SOLID" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="2" closed="false" filled="false" fillPattern="SOLID" flipSide="false">
+                                <Color red="255" green="0" blue="0" alpha="255"/>
+                                <Point Lat="26.428785592797627" Lon="-96.45561948258505"/>
+                                <Point Lat="25.310522417022966" Lon="-93.35768115376911"/>
+                                <Point Lat="25.232952038817622" Lon="-88.85298910006651"/>
+                                <Point Lat="25.823670559001588" Lon="-83.90007857750363"/>
+                            </Line>
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="REGULAR" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="true" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="true">
+                                <Color red="0" green="255" blue="0" alpha="255"/>
+                                <Point Lat="25.24318826665325" Lon="-90.54066002900755"/>
+                                <textLine>0.0</textLine>
+                            </Text>
+                        </DrawableElement>
+                    </DECollection>
+                    <DECollection collectionName="ContourMinmax">
+                        <DrawableElement>
+                            <Symbol pgenCategory="Symbol" pgenType="FILLED_HIGH_PRESSURE_H" lineWidth="2.0" sizeScale="2.0" clear="true">
+                                <Color red="0" green="0" blue="255" alpha="255"/>
+                                <Point Lat="24.477612656422" Lon="-96.02791970899126"/>
+                            </Symbol>
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="REGULAR" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="true" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="true">
+                                <Color red="0" green="255" blue="0" alpha="255"/>
+                                <Point Lat="21.977612656422" Lon="-96.02791970899126"/>
+                                <textLine>0.0</textLine>
+                            </Text>
+                        </DrawableElement>
+                    </DECollection>
+                    <DECollection collectionName="ContourMinmax">
+                        <DrawableElement>
+                            <Symbol pgenCategory="Symbol" pgenType="FILLED_LOW_PRESSURE_L" lineWidth="2.0" sizeScale="2.0" clear="true">
+                                <Color red="255" green="0" blue="0" alpha="255"/>
+                                <Point Lat="23.795978963992948" Lon="-93.16267008905666"/>
+                            </Symbol>
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="REGULAR" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="true" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="true">
+                                <Color red="0" green="255" blue="0" alpha="255"/>
+                                <Point Lat="21.295978963992948" Lon="-93.16267008905666"/>
+                                <textLine>0.0</textLine>
+                            </Text>
+                        </DrawableElement>
+                    </DECollection>
+                    <DECollection collectionName="ContourMinmax">
+                        <DrawableElement>
+                            <Symbol pgenCategory="Symbol" pgenType="TROPICAL_STORM_NH" lineWidth="2.0" sizeScale="2.0" clear="true">
+                                <Color red="255" green="0" blue="0" alpha="255"/>
+                                <Point Lat="23.160532223358484" Lon="-90.91533071519707"/>
+                            </Symbol>
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="REGULAR" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="true" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="true">
+                                <Color red="0" green="255" blue="0" alpha="255"/>
+                                <Point Lat="20.660532223358484" Lon="-90.91533071519707"/>
+                                <textLine>0.0</textLine>
+                            </Text>
+                        </DrawableElement>
+                    </DECollection>
+                    <DECollection collectionName="ContourMinmax">
+                        <DrawableElement>
+                            <Symbol pgenCategory="Symbol" pgenType="HURRICANE_NH" lineWidth="2.0" sizeScale="2.0" clear="true">
+                                <Color red="255" green="0" blue="0" alpha="255"/>
+                                <Point Lat="23.289201256859105" Lon="-89.01095592046661"/>
+                            </Symbol>
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="REGULAR" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="true" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="true">
+                                <Color red="0" green="255" blue="0" alpha="255"/>
+                                <Point Lat="20.789201256859105" Lon="-89.01095592046661"/>
+                                <textLine>0.0</textLine>
+                            </Text>
+                        </DrawableElement>
+                    </DECollection>
+                    <DECollection collectionName="ContourMinmax">
+                        <DrawableElement>
+                            <Symbol pgenCategory="Symbol" pgenType="TROPICAL_DEPRESSION" lineWidth="2.0" sizeScale="2.0" clear="true">
+                                <Color red="255" green="0" blue="0" alpha="255"/>
+                                <Point Lat="23.486876792864617" Lon="-87.12551374508226"/>
+                            </Symbol>
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="REGULAR" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="true" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="true">
+                                <Color red="0" green="255" blue="0" alpha="255"/>
+                                <Point Lat="20.986876792864617" Lon="-87.12551374508226"/>
+                                <textLine>0.0</textLine>
+                            </Text>
+                        </DrawableElement>
+                    </DECollection>
+                    <DECollection collectionName="ContourMinmax">
+                        <DrawableElement>
+                            <Symbol pgenCategory="Symbol" pgenType="TROPICAL_CYCLONE" lineWidth="2.0" sizeScale="2.0" clear="true">
+                                <Color red="255" green="0" blue="0" alpha="255"/>
+                                <Color red="0" green="255" blue="0" alpha="255"/>
+                                <Point Lat="23.665113167611565" Lon="-85.14814732119048"/>
+                            </Symbol>
+                            <Text pgenCategory="Text" pgenType="General Text" fontSize="14.0" fontName="Courier" style="REGULAR" justification="CENTER" rotation="0.0" rotationRelativity="SCREEN_RELATIVE" mask="true" displayType="NORMAL" yOffset="0" xOffset="0" hide="false" auto="true">
+                                <Color red="0" green="255" blue="0" alpha="255"/>
+                                <Point Lat="21.165113167611565" Lon="-85.14814732119048"/>
+                                <textLine>0.0</textLine>
+                            </Text>
+                        </DrawableElement>
+                    </DECollection>
+                </Contours>
+            </DrawableElement>
+        </Layer>
+    </Product>
+</Products>

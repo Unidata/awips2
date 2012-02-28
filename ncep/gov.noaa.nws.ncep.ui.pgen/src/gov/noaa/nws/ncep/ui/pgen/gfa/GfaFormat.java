@@ -14,6 +14,12 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
 import gov.noaa.nws.ncep.ui.pgen.elements.Product;
 import gov.noaa.nws.ncep.ui.pgen.rsc.PgenResource;
 
+import java.io.IOException;
+import java.io.File;
+import java.io.BufferedWriter;
+import java.io.Writer;
+import java.io.FileWriter;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -171,7 +177,10 @@ public class GfaFormat {
 	 * @return 
 	 */
 	protected void createSmears( List<AbstractDrawableComponent> list ) {
-        		
+//		System.out.println("Create Smear.....call GfaClip.getInstance().validateGfaBounds");
+//		GfaClip.getInstance().validateGfaBounds();
+//		System.out.println("Create Smear.....finish ");
+		
 		/*
 		 * Put snapshots into a tree set and sort them by fcstHr in ascending order.
 		 */
@@ -996,4 +1005,32 @@ public class GfaFormat {
 		if ( smears.isEmpty() ) return smears;
 		else return new FrzlFormatter(smears).format();
 	}
+    
+	/**
+     * Write out an array of lat/lons to a file
+     *  
+     * @param
+     */
+    public static void writePoints ( ArrayList<Coordinate> snp, String filename ){    	
+    	
+    	Writer output = null;	    	
+    	File file = new File( "/export/cdbsrv/jwu/" + filename );
+    	try {
+    	    FileWriter fw = new FileWriter( file );
+	    	output = new BufferedWriter( fw );
+		    
+	    	for ( Coordinate cc : snp ) {
+		    	String c = new String( "<Point Lat=\"" + cc.y + "\" Lon=\" " + cc.x + " \"/>\n");
+	    		output.write( c ); 
+		    }
+	        
+	    	output.close();
+    	
+    	}
+    	catch ( IOException e ) {
+    		e.printStackTrace();
+    	}
+    		    	
+    }
+	
 }
