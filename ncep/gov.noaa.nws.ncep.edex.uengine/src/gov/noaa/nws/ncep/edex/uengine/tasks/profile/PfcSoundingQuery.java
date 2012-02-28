@@ -82,10 +82,10 @@ public class PfcSoundingQuery {
 		queryStr = new String("Select Distinct latitude, longitude, stationid, elevation, reftime, rangestart FROM "+ currentDBTblName + " where rangestart='" +
 				selectedSndTime+ "' AND reporttype ='" + reportType + "' AND latitude BETWEEN -89.9 AND 89.9 AND longitude BETWEEN -179.9 AND 179.9");
 
-		System.out.println(queryStr);
+		//System.out.println(queryStr);
 		CoreDao dao = new CoreDao(DaoConfig.forClass(SoundingSite.class));
 		rtnobjArray = dao.executeSQLQuery(queryStr);
-		System.out.println("size of rtnobjArray " + rtnobjArray.length);
+		//System.out.println("size of rtnobjArray " + rtnobjArray.length);
 		if(rtnobjArray.length > 0){
 			double lat, lon, elv;
 			//System.out.println("queryAndMarkStn called mapresource = "+ nsharpMapResource.toString());
@@ -336,14 +336,14 @@ public class PfcSoundingQuery {
 							soundingLy.setSpecHumidity(specHumdata[i]);						
 							soundLyList.add(soundingLy);
 						}
-						System.out.println("sounding layer size = "+ soundLyList.size());
+						//System.out.println("sounding layer size = "+ soundLyList.size());
 						//debug
-						int k=1;
-						for(NcSoundingLayer lvl: soundLyList){
-							System.out.println("Sounding Level "+ k + " pres="+lvl.getPressure()+ " temp="+
-									lvl.getTemperature()+ " u="+lvl.getWindU() + " SH="+ lvl.getSpecHumidity());
-							k++;
-						}
+						//int k=1;
+						//for(NcSoundingLayer lvl: soundLyList){
+						//	System.out.println("Sounding Level "+ k + " pres="+lvl.getPressure()+ " temp="+
+						//			lvl.getTemperature()+ " u="+lvl.getWindU() + " SH="+ lvl.getSpecHumidity());
+						//	k++;
+						//}
 					}
 					
 				}
@@ -652,7 +652,7 @@ public class PfcSoundingQuery {
 							soundingLy.setSpecHumidity(level.getSpecificHumidity().floatValue());						
 							soundLyList.add(soundingLy);
 						}
-						System.out.println("sounding layer size = "+ soundLyList.size());
+						//System.out.println("sounding layer size = "+ soundLyList.size());
 						//debug
 						//for(NcSoundingLayer ly: soundLyList){
 							//*System.out.println("P= "+ly.getPressure()+ " Hm= "+ ly.getSpecHumidity()+ " T= "+ ly.getTemperature());
@@ -678,8 +678,8 @@ public class PfcSoundingQuery {
 			k++;
 		}*/
 		pf.setSoundingLyLst(soundLyList);
-		long t02 = System.currentTimeMillis();
-		System.out.println("getPfcSndData2 PFC profile retreival took " + (t02 - t01));
+		//long t02 = System.currentTimeMillis();
+		//System.out.println("getPfcSndData2 PFC profile retreival took " + (t02 - t01));
 		return pf;
     }
 	private static Comparator<NcSoundingLayer> reversePressureComparator() {

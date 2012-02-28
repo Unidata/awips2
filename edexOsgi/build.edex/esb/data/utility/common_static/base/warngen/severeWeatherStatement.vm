@@ -45,10 +45,6 @@
 ######################################
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 SVS${siteId}
-### IF CORRECTED...DUMP OUT CORRECTED TEXT OTHERWISE PROCEED
-#if(${specialCorText})
-${specialCorText}
-#else
 #if(${productClass}=="T")
 TEST...SEVERE WEATHER STATEMENT...TEST
 #else
@@ -77,7 +73,6 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${productClass}=="T")
 ...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
 
-#end
 #end
 #######################################
 ###### END CREATE HEADER ##############
@@ -312,26 +307,33 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #headlineLocList(${areas} true true true false)
 ...##
 ########### END NEW HEADLINE CODE ####################
+#####################################################################
+### TORNADO EMERGENCY PER NWS 10-511 DIRECTIVE                      #
+#####################################################################
 
+#if(${list.contains($bullets, "torEmergency")})
+...THIS IS A TORNADO EMERGENCY FOR !** EDIT LOCATION(S) **!...
+
+#end
 #set($reportType = "!** BASIS FOR WARNING **!")
 #set($reportAuthSVR = "")
 ############### BASIS SECTION ####################
 #if(${list.contains($bullets, "dopplerTOR")})
   #if(${stormType} == "line")
-    #set($reportType = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED A LINE OF SEVERE THUNDERSTORMS CAPABLE OF PRODUCING TORNADOES")
+    #set($reportType = "DOPPLER RADAR INDICATED A LINE OF SEVERE THUNDERSTORMS CAPABLE OF PRODUCING TORNADOES")
     #set($reportType2 = "THESE DANGEROUS STORMS WERE")
     #set($pathcastLead = "THESE DANGEROUS STORMS") 
   #else
-    #set($reportType = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED A SEVERE THUNDERSTORM CAPABLE OF PRODUCING A TORNADO")
+    #set($reportType = "DOPPLER RADAR INDICATED A SEVERE THUNDERSTORM CAPABLE OF PRODUCING A TORNADO")
     #set($reportType2 = "THIS DANGEROUS STORM WAS")
     #set($pathcastLead = "THIS DANGEROUS STORM") 
   #end
 #elseif(${list.contains($bullets, "dopplerSquallTOR")})
- #set($reportType = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED A SEVERE SQUALL LINE CAPABLE OF PRODUCING BOTH TORNADOES AND EXTENSIVE STRAIGHT LINE WIND DAMAGE")
+ #set($reportType = "DOPPLER RADAR INDICATED A SEVERE SQUALL LINE CAPABLE OF PRODUCING BOTH TORNADOES AND EXTENSIVE STRAIGHT LINE WIND DAMAGE")
     #set($reportType2 = "THESE DANGEROUS STORMS WERE")
     #set($pathcastLead = "THESE DANGEROUS STORMS") 
 #elseif(${list.contains($bullets, "confirmedDopplerTOR")})
- #set($reportType = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND STORM SPOTTERS WERE TRACKING A TORNADO")
+ #set($reportType = "DOPPLER RADAR AND STORM SPOTTERS WERE TRACKING A TORNADO")
   #if(${stormType} == "line")
     #set($reportType2 = "THESE TORNADIC STORMS WERE")
   #else
@@ -363,7 +365,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
     #set($pathcastLead = "THIS DANGEROUS STORM") 
   #end
 #elseif(${list.contains($bullets, "dopplerSVR")})
- #set($reportType = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED A ${reportType1}")
+ #set($reportType = "DOPPLER RADAR INDICATED A ${reportType1}")
  #set($reportAuthSVR = "CAPABLE OF PRODUCING")
 #elseif(${list.contains($bullets, "trainedSpottersSVR")})
  #set($reportType = "TRAINED WEATHER SPOTTERS REPORTED A ${reportType1}")
@@ -486,8 +488,8 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
   #set ($hailThreat = "SOFTBALL SIZE") 
   #set ($hailLead = "LARGE DESTRUCTIVE HAIL UP TO ") 
   #set ($hailTrail = "")
-  #set ($hailSize = 3.75)
-  #set ($hailTag = "3.75IN")
+  #set ($hailSize = 4.25)
+  #set ($hailTag = "4.25IN")
 #end
 #if(${list.contains($bullets, "grapefruitHail")})
   #set ($hailThreat = "GRAPEFRUIT SIZE") 
@@ -550,7 +552,7 @@ THIS IS A TEST MESSAGE. ##
 
 AT ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}...${reportType}${hailwind}. ##
 ${reportType2} LOCATED ##
-#handleClosestPoints($list, $closestPoints, $otherClosestPoints, $stormType, "NEAR", 6, "MILES")
+#handleClosestPoints($list, $closestPoints, $otherClosestPoints, $stormType, "NEAR", 6, "MILES", true)
 #if($movementSpeed < 3 || ${stationary})
 . ${reportType2} NEARLY STATIONARY. ${smallHail}${TORHailThreat}
 #else
@@ -619,10 +621,10 @@ THOSE ATTENDING THE !**now/venue name or location**! ARE IN THE PATH OF THIS STO
 
 #end
 #end
-##############################################
-###### mile markers ##############
-##############################################
-#parse("milemarkers.vm")
+
+## parse file command here is to pull in mile marker info
+## #parse("mileMarkers.vm")
+
 ##################################
 ######### CALLS TO ACTION ########
 ##################################
@@ -848,7 +850,6 @@ ${mathUtil.round(${movementInKnots})}KT ##
 
 
 $$
-#end
 ##############################################
 #### END CONTINUATION SECTON #################
 ##############################################
@@ -858,3 +859,4 @@ $$
 ##############################################
 ##${user}
 !**NAME/INITIALS**!
+#end

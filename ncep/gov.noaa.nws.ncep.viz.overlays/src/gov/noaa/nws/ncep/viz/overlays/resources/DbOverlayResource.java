@@ -100,7 +100,7 @@ public class DbOverlayResource extends
     private static class MapQueryJob extends Job {
 
         private static final int QUEUE_LIMIT = 1;
-        private static String dbName=null;//uma
+        private String dbName=null;//uma
         
         private static class Request {
             static Random rand = new Random(System.currentTimeMillis());

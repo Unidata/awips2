@@ -100,7 +100,7 @@ public class GridPointMarkerDisplay implements IRenderable {
     
 
     
-    public GridPointMarkerDisplay(String markerAttr, IMapDescriptor descriptor, ISpatialObject gridLocation) {
+	public GridPointMarkerDisplay(String markerAttr, IMapDescriptor descriptor, ISpatialObject gridLocation) {
 
         this.descriptor = descriptor;
         
@@ -130,10 +130,17 @@ public class GridPointMarkerDisplay implements IRenderable {
     		for (int j = 0; j < ny; j++) {
     			ReferencedCoordinate c = new ReferencedCoordinate(
     					new Coordinate(i, j),
-    					MapUtil.getGridGeometry(gridLocation), Type.GRID_CENTER);
+    					MapUtil.getGridGeometry(gridLocation), Type.GRID_CORNER);
 
     			try {
-    				locations[n++] = new Coordinate((double)c.asLatLon().x, (double)c.asLatLon().y);
+    				if (c != null) {
+    					double lat = c.asLatLon().y;
+    					double lon = c.asLatLon().x;
+    					if (j == 0 && lat == 90) lat -= 0.2;
+    					if (j == ny - 1 && lat == -90) lat += 0.2;
+    					
+    					locations[n++] = new Coordinate(lon, lat);
+    				}	
     			 } catch (TransformException e) {
     				 e.printStackTrace();
     			 } catch (FactoryException e) {
@@ -173,6 +180,8 @@ public class GridPointMarkerDisplay implements IRenderable {
 			ArrayList<IDisplayable> elements = df.createDisplayElements(gridPointMarkerSet, paintProps);
 			for (IDisplayable each : elements)
 			{
+				if (each == null) continue;
+
 				each.draw(target);
 				each.dispose();
 			}

@@ -1,0 +1,74 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+  http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd   
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="nctafDecoder" class="gov.noaa.nws.ncep.edex.plugin.nctaf.decoder.NcTafDecoder" />
+
+    <bean id="nctafToPointData" class="gov.noaa.nws.ncep.common.dataplugin.nctaf.dao.NcTafToPointData" />
+	
+	<bean id="nctafSeparator" class="gov.noaa.nws.ncep.edex.plugin.nctaf.decoder.NcTafSeparator" />
+
+	<bean id="nctafDistRegistry" factory-bean="distributionSrv"
+		factory-method="register">
+		<constructor-arg value="nctaf" />
+		<constructor-arg value="jms-dist:queue:Ingest.nctaf?destinationResolver=#qpidDurableResolver" />
+	</bean>
+
+    <bean id="nctafCamelRegistered" factory-bean="contextManager"
+		factory-method="register" depends-on="persistCamelRegistered">
+		<constructor-arg ref="nctaf-camel"/>
+  	</bean>  
+
+	<camelContext id="nctaf-camel"
+		xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler"
+		autoStartup="false">
+		<!--
+		<endpoint id="nctafFileEndpoint" uri="file:${edex.home}/data/sbn/nctaf?noop=true&amp;idempotent=false" />
+
+		<route id="nctafFileConsumerRoute">
+			<from ref="nctafFileEndpoint" />
+			<bean ref="fileToString" />
+			<setHeader headerName="pluginName">
+				<constant>nctaf</constant>
+			</setHeader>
+			<to uri="jms-generic:queue:Ingest.nctaf" />
+		</route>
+		-->
+
+		<!-- Begin TAF routes -->
+		<route id="nctafIngestRoute">
+			<from uri="jms-generic:queue:Ingest.nctaf?destinationResolver=#qpidDurableResolver" />
+			<setHeader headerName="pluginName">
+				<constant>nctaf</constant>
+			</setHeader>
+			<doTry>
+				<pipeline>
+					<bean ref="stringToFile" />
+					<split streaming="true">
+						<method bean="nctafSeparator" method="separate" />
+						<doTry>
+							<pipeline>
+								<bean ref="nctafDecoder" method="decode" />
+								<bean ref="nctafToPointData" method="toPointData" />					
+								<to uri="directvm:persistIndexAlert" />
+							</pipeline>
+							<doCatch>
+								<exception>java.lang.Throwable</exception>
+								<to uri="log:nctaf?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+							</doCatch>
+						</doTry>
+					</split>
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:nctaf?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
+		</route>
+
+	</camelContext>
+			
+</beans>
