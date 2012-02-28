@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PlotParameterDefns>
+
+	<plugin>obs</plugin>
+
+<!-- default(missing) plotMode is "text" -->
+
+<!-- Derived Parameters -->  
+
+ <PlotParameterDefn  plotParamName="PALT" metParamName="SurfacePressure"  
+                     deriveParams="all"
+                     plotUnit="hPa" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="SALT" metParamName="SeaLevelPressure"  
+                     dbParamName="altimeter" plotUnit="mb" 
+                     plotFormat="SALT"/>
+
+ <PlotParameterDefn  plotParamName="PMSL" metParamName="MeanSeaLevelPres"  
+                     dbParamName="seaLevelPress" plotUnit="mb" 
+                     plotFormat="%2.2f"/>
+
+ <PlotParameterDefn  plotParamName="P03C" metParamName="PressChange3Hr"  
+                     dbParamName="pressChange3Hour" plotUnit="mb" 
+                     plotFormat="%+3.0f"/>
+
+ <PlotParameterDefn  plotParamName="PTSY" metParamName="PressureTendencySymbol"  
+					 dbParamName="pressChangeChar"
+                     plotMode="table" symbolFont="WxSymbolFont" 
+                     plotLookupTable="press_change_char_lookup.txt"/>
+
+ <!--  RMSL - First 3 digits left of decimal of PMSL * 10 -->
+ <PlotParameterDefn  plotParamName="RMSL" metParamName="MeanSeaLevelPres"  
+                     dbParamName="seaLevelPress" plotUnit="inHg" 
+                     plotFormat="RMSL"/>
+ <PlotParameterDefn  plotParamName="SMSL" metParamName="MeanSeaLevelPres"  
+                     dbParamName="seaLevelPress" plotUnit="inHg" 
+                     plotFormat="SMSL"/>
+<!-- to get PALT to display without the decimal, use the plotUnit="centi_inHg"
+     and plotFormat="%2.0"
+  -->
+ <PlotParameterDefn  plotParamName="ALTI" metParamName="SeaLevelPressure"  
+                     dbParamName="altimeter" plotUnit="inHg" 
+                     plotFormat="%2.2f"/>
+
+ <PlotParameterDefn  plotParamName="SALI" metParamName="SeaLevelPressure"  
+                     dbParamName="altimeter" plotUnit="inHg" 
+                     plotFormat="SALI"/>
+
+<!--  RSLI - First 3 digits left of decimal of ALTI * 100 -->
+ <PlotParameterDefn  plotParamName="RSLI" metParamName="SeaLevelPressure"  
+                     dbParamName="altimeter" plotUnit="inHg" 
+                     plotFormat="RSLI"/>
+
+ <PlotParameterDefn  plotParamName="ALTM" metParamName="SeaLevelPressure"  
+                     dbParamName="altimeter" plotUnit="hPa" 
+                     plotFormat="%3.0f"/>
+
+ <!-- RSLT - First 3 digits left of decimal of ALTM * 10 -->
+ <PlotParameterDefn  plotParamName="RSLT" metParamName="SeaLevelPressure"  
+                     dbParamName="altimeter" plotUnit="mb" 
+                     plotFormat="RSLT"/>
+
+ <PlotParameterDefn  plotParamName="RELH" metParamName="RelativeHumidity"  
+                     deriveParams="all"    plotUnit="%" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="HEAT" metParamName="HeatIndex"  
+                     deriveParams="all"    plotUnit="°F" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="FOSB" metParamName="FosbergFireWxIndex"  
+                     deriveParams="all"    plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="DPDX" metParamName="DewPointDepression"  
+                     deriveParams="all"    plotUnit="°C" plotFormat="DPDX"/>
+ 
+ <PlotParameterDefn  plotParamName="DPDC" metParamName="DewPointDepression"  
+                     deriveParams="all"    plotUnit="°C" plotFormat="%3.0f"/>
+ 
+ <PlotParameterDefn  plotParamName="DPDF" metParamName="DewPointDepression"  
+                     deriveParams="all"    plotUnit="°F" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="DPDK" metParamName="DewPointDepression"  
+                     deriveParams="all"    plotUnit="K" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="TMWF" metParamName="WetBulbTemp"  
+                     deriveParams="all"    plotUnit="°F" plotFormat="%3.0f"/>
+ 
+ <PlotParameterDefn  plotParamName="TMWC" metParamName="WetBulbTemp"  
+                     deriveParams="all"    plotUnit="°C" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="TMWK" metParamName="WetBulbTemp"  
+                     deriveParams="all"    plotUnit="K" plotFormat="%3.0f"/>
+
+ 
+ <PlotParameterDefn  plotParamName="SMXR" metParamName="SurfaceMixingRatio"  
+					 deriveParams="all"   plotUnit="%"  plotFormat="%3.2f"/>
+
+
+ <PlotParameterDefn  plotParamName="LTMP" metParamName="LiftedSurfaceAirTempAt500mb"
+                     deriveParams="all"    plotUnit="°C" plotFormat="%2.1f"/>
+
+<!-- TODO : smsl, snow, smxr, stha, sthe, ptnd:1, ltmp, 
+ceil
+cldb
+clds
+cldt
+p01i*100 
+p01m             
+p03i*100        
+p03m           
+p06i*100      
+p06m         
+p24i*100    
+p24m     
+
+-->
+
+    <!-- measured parameters -->         
+ <PlotParameterDefn  plotParamName="TMPF" metParamName="AirTemperature"  
+                     dbParamName="temperature" plotUnit="°F" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="TMPC" metParamName="AirTemperature"  
+                     dbParamName="temperature" plotUnit="°C" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="TMPK" metParamName="AirTemperature"  
+                     dbParamName="temperature" plotUnit="K" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="DWPF" metParamName="DewPointTemp"  
+                     dbParamName="dewpoint" plotUnit="°F" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="DWPC" metParamName="DewPointTemp"   
+                     dbParamName="dewpoint" plotUnit="°C" plotFormat="%3.0f"/>
+                     
+ <PlotParameterDefn  plotParamName="DWPK" metParamName="DewPointTemp"   
+                     dbParamName="dewpoint" plotUnit="K" plotFormat="%3.0f"/>                     
+
+ <PlotParameterDefn  plotParamName="TDXC" metParamName="Max24HrTemp"  
+                     dbParamName="maxTemp24Hour" plotUnit="°C" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="TDXF" metParamName="Max24HrTemp"  
+                     dbParamName="maxTemp24Hour" plotUnit="°F" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="TDNC" metParamName="Min24HrTemp"  
+                     dbParamName="minTemp24Hour" plotUnit="°C" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="TDNF" metParamName="Min24HrTemp"  
+                     dbParamName="minTemp24Hour" plotUnit="°F" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="T6XC" metParamName="Max6HrTemp"  
+                     dbParamName="maxTemp6Hour" plotUnit="°C" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="T6XF" metParamName="Max6HrTemp"  
+                     dbParamName="maxTemp6Hour" plotUnit="°F" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="T6NC" metParamName="Min6HrTemp"  
+                     dbParamName="minTemp6Hour" plotUnit="°C" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="T6NF" metParamName="Min6HrTemp"  
+                     dbParamName="minTemp6Hour" plotUnit="°F" plotFormat="%3.0f"/>
+	
+<!-- STATION VARIABLES 
+	STNM, SLAT, SLON, 
+	-->
+ <PlotParameterDefn  plotParamName="STID" metParamName="StationID"  
+                     dbParamName="stationName" />
+ <PlotParameterDefn  plotParamName="SLAT" metParamName="StationLatitude"  
+                     dbParamName="latitude" plotUnit="°"/>
+ <PlotParameterDefn  plotParamName="SLON" metParamName="StationLongitude"  
+                     dbParamName="longitude" plotUnit="°"/>        
+ <PlotParameterDefn  plotParamName="SELV" metParamName="StationElevation"  
+                     dbParamName="elevation"  plotUnit="m"/>                     
+                                  
+<!-- this should? be the stationId in the hdf5 file but it is the 
+     same as the stationName field. Instead we just look it up. -->
+ <PlotParameterDefn  plotParamName="STNM" metParamName="StationName"  
+                     deriveParams="all"    />
+        
+    <!-- CLOUD -->
+ <PlotParameterDefn  plotParamName="SKYC" metParamName="SkyCoverage" 
+                     plotMode="table" symbolFont="SpecialSymbolFont" 
+                     dbParamName="skyCover" 
+                     prioritySelectTable="cloud_select.txt"
+                     plotLookupTable="cloud_chars.txt" />
+ <PlotParameterDefn  plotParamName="SKYCHAR" metParamName="SkyCoverage" 
+                     plotMode="text" dbParamName="skyCover" 
+                     prioritySelectTable="cloud_select.txt"
+                     />
+	
+<!-- These really aren't normally displayed by themselves but they need
+  == to be here since they are used to derive the WindBarbs.
+  -->
+ <PlotParameterDefn  plotParamName="DRCT" metParamName="WindDirection"  
+                    dbParamName="windDir" plotUnit="degree" plotFormat="%3.0f"/>
+ <PlotParameterDefn  plotParamName="SPED" metParamName="WindSpeed"  
+                     dbParamName="windSpeed" plotUnit="m/s" plotFormat="%3.0f"/>
+ <PlotParameterDefn  plotParamName="SKNT" metParamName="WindSpeed"  
+                     dbParamName="windSpeed" plotUnit="kts" plotFormat="%3.0f"/>
+<!-- WIND BARBS 
+don't think this is needed here plotLookupTable="wx_symbol_trans.txt"  
+ <PlotParameterDefn  plotParamName="BRGK" metParamName="GustBarb" 
+-->
+ <PlotParameterDefn  plotParamName="BRGK" metParamName="WindDirection,WindGust" 
+                     plotMode="barb" symbolFont="WindSymbolFont" 
+                     plotUnit="kts"/>
+
+ <PlotParameterDefn  plotParamName="BRBK" metParamName="WindDirection,WindSpeed"
+                     plotMode="barb" symbolFont="WindSymbolFont" 
+                     plotUnit="kts" />
+
+ <PlotParameterDefn  plotParamName="BRBM" metParamName="WindDirection,WindSpeed"
+                     plotMode="barb" symbolFont="WindSymbolFont" 
+                     plotUnit="m/s"/>
+
+ <PlotParameterDefn plotParamName="GUST" metParamName="WindGust"  
+                    dbParamName="windGust" plotUnit="kts" plotFormat="%3.0f"/>     
+
+ <!-- WEATHER - this is a 2d array, code currently just uses the first value in the array 
+ (usually others are missing).
+    There are 2 alternatives : 
+ First we can add/implement the arrayIndex="0" attribute to display other values and
+ Second we can use the prioritySelectTable="wx_sym_select.txt". This is currently 
+ only configured to rank all values the same so to prioritize it would need the ranking set -->
+ <PlotParameterDefn  plotParamName="WSYM" metParamName="PresentWeather" 
+                     dbParamName="presWeather" 
+                     plotMode="table" symbolFont="WxSymbolFont"
+                     arrayIndex="0"
+                     plotLookupTable="wx_symbol_trans.txt"/>
+<!--  arrayIndex="0" or   prioritySelectTable="wx_sym_select.txt"  -->
+
+<!-- There is currently a bug that will not let more than one value in an array be displayed 
+ <PlotParameterDefn  plotParamName="WSYM2" metParamName="PresentWeather" 
+                     dbParamName="presWeather" 
+                     plotMode="table" symbolFont="WxSymbolFont"
+                     arrayIndex="1"
+                     plotLookupTable="wx_symbol_trans.txt"/>
+ -->
+
+ <PlotParameterDefn   plotParamName="VSBY" metParamName="Visibility"  
+                      dbParamName="visibility" plotUnit="mi" plotFormat="%3.1f"/>
+ 	
+</PlotParameterDefns>
