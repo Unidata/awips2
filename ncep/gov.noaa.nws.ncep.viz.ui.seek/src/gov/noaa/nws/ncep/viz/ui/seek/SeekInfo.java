@@ -12,16 +12,13 @@ package gov.noaa.nws.ncep.viz.ui.seek;
 import java.util.*;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 
 import javax.xml.parsers.*;
 
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.common.dbQuery.NcDirectDbQuery;
-import gov.noaa.nws.ncep.viz.ui.locator.resource.LoadEnvelopes;
-import gov.noaa.nws.ncep.viz.ui.locator.resource.Locator;
-import gov.noaa.nws.ncep.viz.ui.locator.resource.LocatorBoundsResource;
-import gov.noaa.nws.ncep.viz.ui.locator.resource.LocatorPointData;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
+//import gov.noaa.nws.ncep.viz.ui.locator.util.LoadEnvelopes;
 
 import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.dataquery.db.QueryResultRow;
@@ -37,13 +34,8 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKBReader;
 
-import org.geotools.data.DefaultQuery;
-import org.geotools.data.shapefile.indexed.IndexType;
-import org.geotools.data.shapefile.indexed.IndexedShapefileDataStore;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.referencing.datum.DefaultEllipsoid;
-import org.opengis.feature.simple.SimpleFeature;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -58,6 +50,8 @@ import org.w3c.dom.NodeList;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * March 2009  	337        	G. Zhang   	Initial creation. 	 	
+ * 07/11        #450        G. Hull     NcPathManager
+ * 01/12        #561        G. Hull     make independent of Locator project. 
  * 
  * </pre>
  * 
@@ -76,7 +70,7 @@ public class SeekInfo {
 	
 	
 	// The first station type in Seek dialog Combo Widgets	 
-	private static final String FIRST_TYPE = "LATLON";
+//	private static final String FIRST_TYPE = "LATLON";
 
 	//maximum factor nubmer
 	private static final int MaxFactorNum = 6; 
@@ -84,9 +78,9 @@ public class SeekInfo {
 	// Filter box factor
 	private static final int boxFactor = 2;
 	
-	private static int filterFactor = 1;
+//	private static int filterFactor = 1;
 	
-	private static final double POINT_INQUIRY_TOLERANCE = 0.75;  
+//	private static final double POINT_INQUIRY_TOLERANCE = 0.75;  
 	
 	// Default attribute name for point shapefile
 	private String attribute = "NAME";		
@@ -115,9 +109,9 @@ public class SeekInfo {
 		
 	}
 	
-    private static class LocatorPoitntDataComparator implements Comparator<LocatorPointData> {
+    private static class LocatorPoitntDataComparator implements Comparator<SeekPointData> {
 
-		public int compare(LocatorPointData o1, LocatorPointData o2) {
+		public int compare(SeekPointData o1, SeekPointData o2) {
 			return o1.getDistanceInMeter() - o2.getDistanceInMeter();
 		}
 
@@ -140,9 +134,10 @@ public class SeekInfo {
 
 		try {			
 			
-			String fileName = NmapCommon.getSeekStnsXmlFile();
+			File file = NcPathManager.getInstance().getStaticFile( 
+					NcPathConstants.SEEK_STN_TBL );
 			DocumentBuilder builder = factory.newDocumentBuilder();
-			doc = builder.parse( fileName);
+			doc = builder.parse( file.getAbsoluteFile() );
 			
 		} catch (Exception e) {  
 			System.out.println("________SeekInfo: parseSeekStnsFile(): Error:"+e.getMessage());		
@@ -230,12 +225,13 @@ public class SeekInfo {
 	 * @param stnType:	the station type: vor, city, etc;
 	 * @return:			the LocatorPointData array.
 	 */
-	public static LocatorPointData[] getPtsData(Coordinate coord, String stnType){
+	public static SeekPointData[] getPtsData(Coordinate coord, String stnType){
 		
-		gov.noaa.nws.ncep.viz.ui.locator.resource.citiesPointData cpd = 
-			new gov.noaa.nws.ncep.viz.ui.locator.resource.citiesPointData();	
+//		LocatorDataSource citiesDataSource = 
+//			LocatorDataSourceMngr.getInstance().getCitiesLocatorDataSource( );		
+//		CitiesDataSource cpd = new CitiesDataSource();	
 		
-		java.util.List<LocatorPointData> list = null;		
+		java.util.List<SeekPointData> list = null;		
 		
 		try{
 			
@@ -245,7 +241,7 @@ public class SeekInfo {
 			System.out.println("___________ SeekInfo: getPtsData(): Error: "+e.getMessage());
 		}		
 
-		return list.toArray(new LocatorPointData[]{});
+		return list.toArray(new SeekPointData[]{});
 		
 	}
 	
@@ -258,7 +254,7 @@ public class SeekInfo {
 	 * @return:			a list of the LocatorPointData relative to the point and station.
 	 * @throws DataAccessLayerException
 	 */
-	public static List<LocatorPointData>  nameIdQuery(double lat,double lon, String stnType)
+	public static List<SeekPointData>  nameIdQuery(double lat,double lon, String stnType)
 										throws DataAccessLayerException {
 		
 		/* island has only three field */
@@ -266,7 +262,7 @@ public class SeekInfo {
 		
 		QueryResultRow[] citiesResult = null;
 		double corr = 0.2;
-		List<LocatorPointData> pointList = new ArrayList<LocatorPointData>();
+		List<SeekPointData> pointList = new ArrayList<SeekPointData>();
 
 		double minLat= lat-corr;
 		double maxLat =lat+corr;
@@ -308,7 +304,7 @@ public class SeekInfo {
 			citiesResult = getcitiesList(query1.toString(),query2.toString());
 		
 		for(QueryResultRow rows:citiesResult){
-			LocatorPointData pointData = new LocatorPointData();
+			SeekPointData pointData = new SeekPointData();
 			String n = (String)( isIsland ? ""+WORD_SEPERATOR+rows.getColumn(0) : rows.getColumn(0)+WORD_SEPERATOR+rows.getColumn(1) );
 			pointData.setName(n);
 			pointData.setLat((Double) rows.getColumn( isIsland ? 1 : 2));
@@ -362,7 +358,7 @@ public class SeekInfo {
      * @throws RuntimeException
      * @throws IOException
      */
-    public static LocatorPointData[] getClosestPoints(Coordinate ll, String stnType) 
+    public static SeekPointData[] getClosestPoints(Coordinate ll, String stnType) 
 					throws VizException, RuntimeException, IOException  {
     	/*
     	 * Check for invalid Coordinate
@@ -373,7 +369,7 @@ public class SeekInfo {
     	/*
     	 * Retrieve all points within the envelope
     	 */
-    	List<LocatorPointData> list = new ArrayList<LocatorPointData>();
+    	List<SeekPointData> list = new ArrayList<SeekPointData>();
     	    	
     	try{
     		list = nameIdQuery(ll.y, ll.x, stnType);
@@ -387,7 +383,7 @@ public class SeekInfo {
     	int factorNum = 1;
     	boolean filter = true;
     	while (list.size() < MAX_POINT_NUM) {
-    		filterFactor = factorNum * boxFactor;
+//    		filterFactor = factorNum * boxFactor;
 		
     		if (factorNum > MaxFactorNum) filter = false;
     		
@@ -407,7 +403,7 @@ public class SeekInfo {
     	/*
     	 * Compute distance (in meter) of the closest points
     	 */
-    	LocatorPointData[] ptDataOut = new LocatorPointData[list.size()];
+    	SeekPointData[] ptDataOut = new SeekPointData[list.size()];
     	for (int ii = 0; ii < list.size(); ii++) {
 		
     		GeodeticCalculator gc = new GeodeticCalculator(
@@ -426,7 +422,7 @@ public class SeekInfo {
     		}
     		//list.get(ii).setDir(direction);
     		
-    		ptDataOut[ii] = new LocatorPointData();
+    		ptDataOut[ii] = new SeekPointData();
     		ptDataOut[ii].setName(list.get(ii).getName());
     		ptDataOut[ii].setDistanceInMeter((int)dist);
     		ptDataOut[ii].setDir(direction);
@@ -440,9 +436,9 @@ public class SeekInfo {
     	
     	// Only export top 25 closest points
     	int number = (ptDataOut.length > MAX_POINT_NUM) ? MAX_POINT_NUM : ptDataOut.length;
-    	LocatorPointData[] out = new LocatorPointData[number];
+    	SeekPointData[] out = new SeekPointData[number];
     	for (int i = 0; i < number; i++) {
-    		out[i] = new LocatorPointData();
+    		out[i] = new SeekPointData();
     		out[i].setName(ptDataOut[i].getName());
     		out[i].setDistanceInMeter(ptDataOut[i].getDistanceInMeter());
     		out[i].setDir(ptDataOut[i].getDir());
@@ -502,45 +498,45 @@ public class SeekInfo {
      * @param stnType
      * @return
      */
-    public static String getCntyLPD(Coordinate aLatLon, String stnType){   	
-    	
-    	HashMap<Envelope,List<Object[]>> savedEnvelopes = LoadEnvelopes.getbndEnv("COUNTIES");//stnType
-        
-    	List<Object[]> BoundsDataStore = null;
-		
-    	for ( Envelope env : savedEnvelopes.keySet() ) {
-			if ( env.contains(aLatLon) ) {
-	    		    BoundsDataStore = savedEnvelopes.get(env);
-				break;
-			}
-		}
-    			
-    	GeometryFactory gf = new GeometryFactory();
-	    Point llPoint = gf.createPoint(aLatLon);
-                
-	   	WKBReader wkbReader = new WKBReader();
-	    for ( Object[] bound : BoundsDataStore){
-	    	
-	    	byte[] wkb = (byte[]) bound[0];
-			MultiPolygon boundGeo = null;
-			
-			try {
-		    	boundGeo = (MultiPolygon) wkbReader.read(wkb);		    			
-		    } catch (ParseException e) {
-		    	e.printStackTrace();
-		    }
-		    
-		    if (boundGeo.contains(llPoint) ){		    	
-		    	return (String)bound[1];// name
-		    }
-	    }
-    	return "";
-
-    }
+//    public static String getCntyLPD(Coordinate aLatLon, String stnType){   	
+//    	
+//    	HashMap<Envelope,List<Object[]>> savedEnvelopes = LoadEnvelopes.getbndEnv("COUNTIES");//stnType
+//        
+//    	List<Object[]> BoundsDataStore = null;
+//		
+//    	for ( Envelope env : savedEnvelopes.keySet() ) {
+//			if ( env.contains(aLatLon) ) {
+//	    		    BoundsDataStore = savedEnvelopes.get(env);
+//				break;
+//			}
+//		}
+//    			
+//    	GeometryFactory gf = new GeometryFactory();
+//	    Point llPoint = gf.createPoint(aLatLon);
+//                
+//	   	WKBReader wkbReader = new WKBReader();
+//	    for ( Object[] bound : BoundsDataStore){
+//	    	
+//	    	byte[] wkb = (byte[]) bound[0];
+//			MultiPolygon boundGeo = null;
+//			
+//			try {
+//		    	boundGeo = (MultiPolygon) wkbReader.read(wkb);		    			
+//		    } catch (ParseException e) {
+//		    	e.printStackTrace();
+//		    }
+//		    
+//		    if (boundGeo.contains(llPoint) ){		    	
+//		    	return (String)bound[1];// name
+//		    }
+//	    }
+//    	return "";
+//
+//    }
     
-    private static class PointDataNameComparator implements Comparator<LocatorPointData> {
+    private static class PointDataNameComparator implements Comparator<SeekPointData> {
 
-		public int compare(LocatorPointData o1, LocatorPointData o2) {
+		public int compare(SeekPointData o1, SeekPointData o2) {
 			return o1.getName().compareTo(o2.getName());
 		}
 
@@ -559,7 +555,7 @@ public class SeekInfo {
      * @throws RuntimeException
      * @throws IOException
      */
-    public static LocatorPointData[] getMatchedPoints(String prefix, String stnType, int comboNo) 
+    public static SeekPointData[] getMatchedPoints(String prefix, String stnType, int comboNo) 
 									throws VizException, RuntimeException, IOException  {
     	
     	if(prefix==null || stnType==null)
@@ -575,12 +571,12 @@ public class SeekInfo {
 		/* island has only three field */
 		boolean isIsland = "ISLAND".equalsIgnoreCase(stnType);
 		
-		List<LocatorPointData> list = new ArrayList<LocatorPointData>();
+		List<SeekPointData> list = new ArrayList<SeekPointData>();
 		int len = prefix.length();
 		
 		for(int i=0; i<citiesResult.length; i++){
 			
-			LocatorPointData point = new LocatorPointData();
+			SeekPointData point = new SeekPointData();
 			
 			/* some use col 0: id; others col 1: name */
 			String name= (String)citiesResult[i].getColumn( isNameOrIdCol(stnType) );          
@@ -598,9 +594,9 @@ public class SeekInfo {
 			}
 		}		
 			
-		LocatorPointData[] ptDataOut = new LocatorPointData[list.size()];
+		SeekPointData[] ptDataOut = new SeekPointData[list.size()];
 		for (int i = 0; i < list.size(); i++) {
-			ptDataOut[i] = new LocatorPointData();
+			ptDataOut[i] = new SeekPointData();
 			ptDataOut[i].setName(list.get(i).getName());
 			ptDataOut[i].setStateID(list.get(i).getStateID());
 			ptDataOut[i].setLat(list.get(i).getLat());

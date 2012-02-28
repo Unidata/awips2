@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LocatorDataSource>
+    <sourceName>TROPCY_BRKS</sourceName>
+    <sourceType>POINT</sourceType>
+    <dbName>ncep</dbName>
+    <dbTableName>stns.tcabkpt</dbTableName>
+	<dbFieldName>name</dbFieldName> 
+</LocatorDataSource>

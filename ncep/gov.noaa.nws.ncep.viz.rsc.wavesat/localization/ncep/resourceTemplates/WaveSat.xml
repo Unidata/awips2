@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<resourceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <resource>
+    <loadProperties>
+    </loadProperties>
+    <properties isSystemResource="false" isBlinking="false"
+      isMapLayer="false" isHoverOn="false" isVisible="true" />
+    <resourceData xsi:type="NC-WaveSatResourceData"
+      retrieveData="false" isUpdatingOnMetadataOnly="false"
+      isRequeryNecessaryOnTimeMatch="false">
+
+      <legendColor>${legend_color}</legendColor>
+      <frameSpan>${frameSpan}</frameSpan>
+      <timeMatchMethod>${timeMatchMethod}</timeMatchMethod>
+      <timelineGenMethod>${timelineGenMethod}</timelineGenMethod> 
+      <dfltNumFrames>${dfltNumFrames}</dfltNumFrames>
+      <dfltTimeRange>${dfltTimeRange}</dfltTimeRange>
+      <!--  NOT IMPLEMENTED
+      <displayValues>$ { displayValues}</displayValues>
+      <symbolName>$ { symbolName}</symbolName>
+       --> 
+      <fontName>${fontName}</fontName>
+      <fontSize>${fontSize}</fontSize>
+	  <timeDisplayInterval>${timeDisplayInterval}</timeDisplayInterval>
+	  <timeDisplayColor>${timeDisplayColor}</timeDisplayColor>
+	  
+      ${colorBar}
+      
+      <metadataMap>
+        <mapping key="pluginName">
+          <constraint constraintValue="${pluginName}" constraintType="EQUALS" />
+        </mapping>
+        <mapping key="said">
+          <constraint constraintValue="${satelliteId}" constraintType="EQUALS" />
+        </mapping>
+      </metadataMap>
+    </resourceData>
+  </resource>
+</resourceGroup>

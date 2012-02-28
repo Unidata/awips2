@@ -63,6 +63,9 @@ import com.vividsolutions.jts.geom.Polygon;
  * 07/11					J. Wu		Used the legacy algorithm to check if a 
  * 										point is at left/right of a line. 
  * 07/11					B. Yin		SnapPtGfa to handle null or points less than two.
+ *
+ * 10/11					J. Wu		Do not add "usedPts" check when snapping a whole
+ * 										polygon (snapOneRound).
  * 
  * </pre>
  * 
@@ -183,7 +186,7 @@ public class GfaSnap {
 	 */
 	public ArrayList<Coordinate> snapPolygon( ArrayList<Coordinate> pointsIn ) {
 		
-		return snapPolygon( true, 3.0F, true, true, pointsIn );
+		return snapPolygon( true, 0.0F, true, true, pointsIn );
 				
 	}
 
@@ -357,8 +360,8 @@ public class GfaSnap {
 				status = 0;
 			}
 			else {				
-			    status = snapPtGFA( ii, ii2, snappedPts, chkPts, coors, true, true, tolerance, snappedPt );			
-//			    status = snapPtGFA( ii, ii2, null, null, coors, false, true, tolerance, snappedPt );			
+//			    status = snapPtGFA( ii, ii2, snappedPts, chkPts, coors, true, true, tolerance, snappedPt );			
+			    status = snapPtGFA( ii, ii2, null, null, coors, false, true, tolerance, snappedPt );			
 			}
 
 			snappedPts.add( new Coordinate( snappedPt[0] ) );

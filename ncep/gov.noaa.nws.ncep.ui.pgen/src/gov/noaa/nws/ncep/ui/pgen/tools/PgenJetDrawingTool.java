@@ -61,11 +61,15 @@ public class PgenJetDrawingTool extends PgenMultiPointDrawingTool
 	 */
 	@Override
 	public void deactivateTool() {
+	
+		this.resetMouseHandler();
 
 		super.deactivateTool();
 
-		PgenJetDrawingHandler jdh = (PgenJetDrawingHandler) mouseHandler;
-		if (jdh != null) jdh.clearPoints();
+		if ( mouseHandler instanceof PgenJetDrawingHandler){
+			PgenJetDrawingHandler jdh = (PgenJetDrawingHandler) mouseHandler;
+			if (jdh != null) jdh.clearPoints();
+		}
 
 	}
 
@@ -114,7 +118,6 @@ public class PgenJetDrawingTool extends PgenMultiPointDrawingTool
 
 	@Override
 	public void resetMouseHandler(){
-		((JetAttrDlg)attrDlg).closeBarbDlg();
 		setHandler(new PgenJetDrawingHandler() );
 	}  
 
@@ -206,7 +209,7 @@ public class PgenJetDrawingTool extends PgenMultiPointDrawingTool
 
 					jet = (Jet)elem;
 					
-					jet.setSnapTool(new PgenSnapJet(drawingLayer.getDescriptor(), (JetAttrDlg)attrDlg));
+					jet.setSnapTool(new PgenSnapJet(drawingLayer.getDescriptor(), mapEditor, (JetAttrDlg)attrDlg));
 					
 					// add the jet to PGEN resource
 					drawingLayer.addElement( jet );
@@ -270,6 +273,10 @@ public class PgenJetDrawingTool extends PgenMultiPointDrawingTool
 
 			return false;
 
+		}
+		@Override
+		public boolean handleMouseDownMove(int aX, int aY, int button) {
+			return true;
 		}
 	}
 }

@@ -1,0 +1,4 @@
+! Attributes for the GFSXMOS resource with "maxmm1" plot model
+!
+plotModelName=maxmm1
+plotDensity=10
