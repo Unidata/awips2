@@ -74,6 +74,8 @@ public class PgenDeleteElement extends AbstractPgenTool {
      */
     public class PgenDeleteHandler extends InputHandlerDefaultImpl {
     	
+    	private boolean preempt;
+    	
         /*
          * (non-Javadoc)
          * 
@@ -82,6 +84,8 @@ public class PgenDeleteElement extends AbstractPgenTool {
          */
         @Override	   	
         public boolean handleMouseDown(int anX, int aY, int button) {
+        	
+        	preempt = false;
         	
         	//  Check if mouse is in geographic extent
         	Coordinate loc = mapEditor.translateClick(anX, aY);
@@ -94,6 +98,7 @@ public class PgenDeleteElement extends AbstractPgenTool {
         			drawingLayer.removeElement(drawingLayer.getSelectedComp());
         			// de-select element
                 	drawingLayer.removeSelected();
+                	preempt = false;
         		}
         		else {        	
         			// Get the nearest element and set it as the selected element.
@@ -107,11 +112,15 @@ public class PgenDeleteElement extends AbstractPgenTool {
         			else if ( elSelected instanceof Outlook && ((Outlook)elSelected).getDEs() > 1){
         				elSelected =drawingLayer.getNearestElement(loc);
         			}
-        			if (elSelected != null) drawingLayer.setSelected( elSelected );
+        			
+        			if (elSelected != null) {
+        				drawingLayer.setSelected( elSelected );
+        				preempt = true;
+        			}
         		}
                 
      	        mapEditor.refresh();  
-                return true;
+                return preempt;
                 
             }
         	else if ( button == 2 ){
@@ -141,6 +150,12 @@ public class PgenDeleteElement extends AbstractPgenTool {
             }
         	
         }
+
+		@Override
+		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
+			return preempt;
+		}
+        
 
     }
 

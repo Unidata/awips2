@@ -386,4 +386,8 @@ public class DECollection extends AbstractDrawableComponent {
 		
 		return false;
 	}
+
+	public void setCollectionName(String collectionName) {
+		this.collectionName = collectionName;
+	}
 }

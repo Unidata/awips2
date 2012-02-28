@@ -23,6 +23,7 @@ import com.raytheon.uf.common.time.DataTime;
  *  10/14/10	  #277		  M. Li		  add ensemble category
  *  10/20/10                  Xilin Guo   Rename getCycleTimeStringFromDataTime to getTimeStringFromDataTime
  *  02/16/11      #408        Greg Hull   add 'backup' categories for obs/fcst surface/uair
+ *  01/09/11      #561        Greg Hull   generated equals()
  *
  * </pre>
  * 
@@ -303,4 +304,59 @@ public class ResourceName {
 			return "";
 		}
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((cycleTime == null) ? 0 : cycleTime.hashCode());
+		result = prime * result
+				+ ((rscAttrSetName == null) ? 0 : rscAttrSetName.hashCode());
+		result = prime * result
+				+ ((rscCategory == null) ? 0 : rscCategory.hashCode());
+		result = prime * result
+				+ ((rscGroup == null) ? 0 : rscGroup.hashCode());
+		result = prime * result + ((rscType == null) ? 0 : rscType.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ResourceName other = (ResourceName) obj;
+		if (cycleTime == null) {
+			if (other.cycleTime != null)
+				return false;
+		} else if (!cycleTime.equals(other.cycleTime))
+			return false;
+		if (rscAttrSetName == null) {
+			if (other.rscAttrSetName != null)
+				return false;
+		} else if (!rscAttrSetName.equals(other.rscAttrSetName))
+			return false;
+		if (rscCategory == null) {
+			if (other.rscCategory != null)
+				return false;
+		} else if (!rscCategory.equals(other.rscCategory))
+			return false;
+		if (rscGroup == null) {
+			if (other.rscGroup != null)
+				return false;
+		} else if (!rscGroup.equals(other.rscGroup))
+			return false;
+		if (rscType == null) {
+			if (other.rscType != null)
+				return false;
+		} else if (!rscType.equals(other.rscType))
+			return false;
+		return true;
+	}
+	
+	
 }
