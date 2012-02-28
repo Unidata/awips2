@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PlotParameterDefns>
+
+	<plugin>bufrua</plugin>
+
+<!-- 
+	A List of plot data parameters and their properties.
+ 		
+                TEMPERATURE
+
+        TMPC - Temperature in Celsius
+        TMPF - Temperature in Fahrenheit
+
+ 		        MOISTURE 
+
+        DWPC - Dewpoint in Celsius
+        DWPF - Dewpoint in Fahrenheit
+ 		
+ 		       PRESSURE AND ALTIMETER
+
+        PMSL - Mean sea level pressure in millibars
+        PTND - Complete pressure tendency with symbol
+        
+ 		          WIND
+
+        BRBK - Wind barb (knots)
+        GUST - Wind gust in knots
+ 		
+ 				  CLOUD
+ 				  
+ 		SKYC - Sky coverage symbol
+ 		
+ 		
+ 	         STATION VARIABLES
+
+        STID - Character station identifier
+        
+        
+                 WEATHER
+
+        WSYM - Present weather symbol
+        
+        		MISCELLANEOUS
+        		
+        VSBK - Visibility in kilometers
+ -->  
+  
+	<!-- STATION VARIABLES -->
+    <PlotParameterDefn  ncepParamName="STID" plotMode="text" dbParamName="staName"/>
+    <PlotParameterDefn  ncepParamName="STNM" plotMode="text" dbParamName="wmoStaNum" plotFormat="%5.0f"/>
+    
+    <!-- HIGHT -->
+    <PlotParameterDefn  ncepParamName="STDZ" plotMode="text" dbParamName="htMan" plotUnit="m" plotFormat="%3.0f"/>
+    <PlotParameterDefn  ncepParamName="HGHT" plotMode="text" dbParamName="htMan" plotUnit="m" plotFormat="%3.0f"/>
+    
+    <!-- TEMPRETURE -->
+   <!--  <PlotParameterDefn  ncepParamName="TMPF" plotMode="text" dbParamName="tempreture" plotUnit="°F" plotFormat="%3.0f"/> -->
+    <PlotParameterDefn  ncepParamName="TMPC" plotMode="text" dbParamName="tpMan" plotUnit="°C" plotFormat="%3.0f"/> 
+    <PlotParameterDefn  ncepParamName="THTE" plotMode="text" dbParamName="tpTrop" plotUnit="K" plotFormat="%3.0f"/> 
+    
+    <!-- MOISTURE -->
+    <PlotParameterDefn  ncepParamName="DWPC" plotMode="text" dbParamName="tdMan" plotUnit="°C" plotFormat="%3.0f"/>
+    <PlotParameterDefn  ncepParamName="DPDC" plotMode="text" dbParamName="tdMan" plotUnit="°C" plotFormat="%3.0f"/>
+    <PlotParameterDefn  ncepParamName="RELH" plotMode="text" dbParamName="" plotUnit="%"/>
+    <PlotParameterDefn  ncepParamName="MIXR" plotMode="text" dbParamName="" plotUnit="g/kg"/>
+    
+    <!-- PRESSURE -->
+    <PlotParameterDefn  ncepParamName="PRES" plotMode="text" dbParamName="prMan" plotUnit="hPa" plotFormat="%3.0f"/>
+    
+	<!-- WIND -->
+	<PlotParameterDefn  ncepParamName="BRBK" plotMode="barb" class="barb" dbParamName="wsMan,wdMan" plotUnit="kts" plotLookupTable="wx_symbol_trans.txt"  transform="rotate(0,0,0)"/>
+	<PlotParameterDefn  ncepParamName="BRBM" plotMode="barb" dbParamName="wsMan,wdMan" plotUnit="m/s" />     
+	   
+ 	<PlotParameterDefn  ncepParamName="PSYM" plotMode="text" dbParamName=""/>
+    
+</PlotParameterDefns>

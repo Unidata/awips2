@@ -8,6 +8,9 @@
 
 package gov.noaa.nws.ncep.ui.pgen.attrDialog;
 
+import java.io.File;
+import java.io.FileWriter;
+
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.Layer;
 import gov.noaa.nws.ncep.ui.pgen.elements.Outlook;
@@ -65,7 +68,7 @@ public class OutlookFormatMsgDlg extends CaveJFACEDialog {
 	
 	//dialog size
 	private final int NUM_LINES = 25;
-	private final int NUM_COLUMNS = 35;
+	private final int NUM_COLUMNS = 68;
 	
 	/*
 	 * constructor
@@ -144,14 +147,26 @@ public class OutlookFormatMsgDlg extends CaveJFACEDialog {
 	 * Save the formatted outlook element to a file
 	 */
 	private void savePressed(){
-		String fileName = getFileName(otlk);
+		String fileName = getFileName(otlk) + ".dat";
 		InputDialog dlg = new InputDialog(this.getShell(), "Save Outlook", "Save To File:",fileName, null);
 		dlg.open();
 		if ( dlg.getReturnCode() == Dialog.OK ) {
 			fileName = dlg.getValue();
 			if ( !fileName.isEmpty() && PgenUtil.checkFileStatus(fileName) ) {
 				issueOutlook( otlk );
-				otlk.saveToFile(fileName);
+				
+				File out = new File(fileName);
+				
+				try {
+					FileWriter fw = new FileWriter(out);
+					fw.write(message);
+					fw.close();
+				}
+				catch (Exception e) {
+					System.out.println("Problem writing Outlook to file "+out.getAbsolutePath());
+				}
+				
+				otlk.saveToFile( getFileName(otlk)+".xml");
 			}
 		}
 		
@@ -190,7 +205,7 @@ public class OutlookFormatMsgDlg extends CaveJFACEDialog {
 		}
 		
 		name += "_" + ofd.getDays();
-		name += "_" + String.format("%1$td%1$tH%1$tM", ofd.getInitTime()) + ".xml";
+		name += "_" + String.format("%1$td%1$tH%1$tM", ofd.getInitTime());
 		return name;
 		
 	}
