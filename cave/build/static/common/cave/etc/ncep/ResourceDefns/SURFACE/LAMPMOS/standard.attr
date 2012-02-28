@@ -1,0 +1,4 @@
+! Attributes for the LAMP resource with "standard" plot model
+!
+plotModelName=lampmos_standard
+plotDensity=10

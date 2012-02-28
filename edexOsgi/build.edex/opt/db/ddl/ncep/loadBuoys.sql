@@ -1,4 +1,4 @@
-COPY stns.BUOYS(PKEY, STNUM, NAME, COUNTRY, LAT, LON) FROM stdin with delimiter as ',';
+COPY stns.BUOYS(PKEY, STATION_NUM, NAME, COUNTRY, LATITUDE, LONGITUDE) FROM stdin with delimiter as ',';
 1,44004,Hotel,US,38.5,-70.7
 2,41001,East_Hatteras,US,34.7,-72.6
 3,41002,South_Hatteras,US,32.3,-75.2

@@ -1,0 +1,4 @@
+! Attributes for the GFSXMOS resource with "maxanom" plot model
+!
+plotModelName=maxanom
+plotDensity=10

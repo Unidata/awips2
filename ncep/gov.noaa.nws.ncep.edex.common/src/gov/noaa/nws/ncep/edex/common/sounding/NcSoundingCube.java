@@ -15,13 +15,14 @@ package gov.noaa.nws.ncep.edex.common.sounding;
  * Date         Ticket#    	Engineer    Description
  * -------		------- 	-------- 	-----------
  * 11/18/2010	TBD			Chin Chen	Initial coding
- *
+ *10/06/2011    465         Archana          Generated a fresh serial version id
  * </pre>
  * 
  * @author Chin Chen
  * @version 1.0
  */
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,12 +37,17 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class NcSoundingCube implements ISerializableObject {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8077693951195416377L;
+
 	public enum QueryStatus {
 		OK, FAILED, LOCATION_NOT_FOUND
 	}
 	
-	@DynamicSerializeElement
-    private static final long serialVersionUID = 1324632468L;
+//	@DynamicSerializeElement
+ //   private static final long serialVersionUID = 1324632468L;
 
 	@DynamicSerializeElement
 	private List<NcSoundingProfile> soundingProfileList;
@@ -78,3 +84,4 @@ public class NcSoundingCube implements ISerializableObject {
 	
 
 }
+

@@ -73,6 +73,7 @@ import com.raytheon.uf.viz.core.map.IMapDescriptor;
  *                                      the complete color matrix.
  * 03/10		#223		M.Laryukhin	Refactored getVOR method to be used with gfa too.
  * 04/11		#?			B. Yin		Re-factor IAttribute
+ * 12/11		#526		B. Yin		Close dialog after saving text.
  * </pre>
  * 
  * @author	gzhang
@@ -94,7 +95,7 @@ public class SigmetCommAttrDlg extends AttrDlg implements ISigmet{
 	private static final String WIDTH = "10.00";
 	private String width = WIDTH;
 	
-	private static final String[] LINE_SIDES = new String[]{"ESOL","NOF","SOF","EOF","WOF"};	
+	private static final String[] LINE_SIDES = new String[]{"ESOL"};	
 	private String sideOfLine = LINE_SIDES[0]; 
 		
 	protected Composite top = null;
@@ -649,6 +650,9 @@ public class SigmetCommAttrDlg extends AttrDlg implements ISigmet{
 				}finally{ 				
 					setReturnCode(OK);
 					close();
+					SigmetCommAttrDlg.this.drawingLayer.removeSelected();
+			    	SigmetCommAttrDlg.this.close();
+					PgenUtil.setSelectingMode();
 				}				
 			}
 	
