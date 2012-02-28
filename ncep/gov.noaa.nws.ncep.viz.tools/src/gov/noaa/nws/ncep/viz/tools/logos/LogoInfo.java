@@ -1,5 +1,7 @@
 package gov.noaa.nws.ncep.viz.tools.logos;
 
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -7,6 +9,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import com.raytheon.uf.common.localization.LocalizationFile;
 
 /**
  * This class reads logos.tbl for logos display control
@@ -16,6 +21,7 @@ import java.util.List;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  *  06/2/2009    105         M. Li    Initial creation.
+ *  07/24/2011   #405        G. Hull  pass File from Localization
  * 
  * </pre>
  * 
@@ -24,8 +30,8 @@ import java.util.List;
  * 
  */
 public class LogoInfo {
-	private  String fileName;
-	
+	private  File locoFile;
+    
 	private List<LogoEntry> logoList;
 	
 	public class LogoEntry {
@@ -92,8 +98,8 @@ public class LogoInfo {
 		
 	}
 	
-	public LogoInfo(String fname) {
-		fileName = fname;
+	public LogoInfo(File f) {
+		locoFile = f;
 	}
 	
 	
@@ -105,8 +111,9 @@ public class LogoInfo {
 		return logoList;
 	}
 	
-	public boolean readTable() throws FileNotFoundException, IOException {
-		BufferedReader input = new BufferedReader(new FileReader(new File(fileName)));
+	public boolean readTable( Map<String,LocalizationFile> logoImgFiles ) 
+						throws FileNotFoundException, IOException {
+		BufferedReader input = new BufferedReader(new FileReader( locoFile ));
         String lineStr = null;
 		
 		logoList = new ArrayList<LogoEntry>();
@@ -132,8 +139,14 @@ public class LogoInfo {
         			initScale = Integer.valueOf(lv[3].trim());
         		}
         		
-        		LogoEntry entry = new LogoEntry(logonm, logoImg, initLoc, initScale);
-        		logoList.add(entry);
+        		for( LocalizationFile lclF : logoImgFiles.values() ) {
+        			if( lclF.getFile().getName().equals( logoImg ) ) {
+                		LogoEntry entry = new LogoEntry(
+                				logonm, lclF.getFile().getAbsolutePath(), initLoc, initScale);
+                		logoList.add(entry);
+                		break;
+        			}
+        		}
         	}
 		}
 		input.close();
