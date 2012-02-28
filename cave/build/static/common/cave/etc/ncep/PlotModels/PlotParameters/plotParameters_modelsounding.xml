@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PlotParameterDefns>
+
+	<plugin>modelsounding</plugin>
+	<!--  from the PointDataDescription file...
+  <parameter name="wmoStaNum" numDims="1" type="INT" />
+
+  <parameter name="landSea" numDims="1" type="INT" />
+
+  <parameter name="lowCld" numDims="1" type="FLOAT" unit="%" />
+  <parameter name="midCld" numDims="1" type="FLOAT" unit="%" />
+  <parameter name="hiCld" numDims="1" type="FLOAT" unit="%" />
+  <parameter name="prCloud" numDims="1" type="FLOAT" unit="Pa" />
+  <parameter name="vsby" numDims="1" type="FLOAT" unit="m" />
+  <! - - u-component of storm motion - - >
+  <parameter name="uStorm" numDims="1" type="FLOAT" unit="m/s" />
+  <! - - v-component of storm motion - - >
+  <parameter name="vStorm" numDims="1" type="FLOAT" unit="m/s" />
+  <parameter name="srHel" numDims="1" type="FLOAT" unit="m²/s²" />
+  <parameter name="skinTemp" numDims="1" type="FLOAT" unit="K" />
+  <parameter name="sensHeat" numDims="1" type="FLOAT" unit="W/s²"/>
+  <parameter name="subSfcHeat" numDims="1" type="FLOAT" unit="W/s²"/>
+  <parameter name="snowFlux" numDims="1" type="FLOAT" unit="W/s²"/>
+  <parameter name="totPrecip" numDims="1" type="FLOAT" unit="kg/m²" />
+  <parameter name="convPrecip" numDims="1" type="FLOAT" unit="kg/m²" />
+  <parameter name="snowFall" numDims="1" type="FLOAT" unit="kg/m²" />
+  <parameter name="snowMelt" numDims="1" type="FLOAT" unit="kg/m²" />
+  <parameter name="u10" numDims="1" type="FLOAT" unit="m/s" />
+  <parameter name="v10" numDims="1" type="FLOAT" unit="m/s" />
+  <parameter name="Theta10" numDims="1" type="FLOAT" unit="K" />
+  <parameter name="q10" numDims="1" type="FLOAT" unit="kg/kg" />
+  <parameter name="temp2" numDims="1" type="FLOAT" unit="K" />
+  <parameter name="q2" numDims="1" type="FLOAT" unit="kg/kg" />
+  <parameter name="snowTyp" numDims="1" type="INT" />
+  <parameter name="iceTyp" numDims="1" type="INT" />
+  <parameter name="frzgRainTyp" numDims="1" type="INT" />
+  <parameter name="rainType" numDims="1" type="INT" />
+  <parameter name="numProfLvls" numDims="1" type="INT" />
+  <parameter name="specHum" numDims="2" type="FLOAT" unit="kg/Kg" dimension="maxLevels"/>
+  <parameter name="cldCvr" numDims="2" type="FLOAT" unit="%" dimension="maxLevels"/>
+
+MAPPED
+  <parameter name="sfcPress" numDims="1" type="FLOAT" unit="Pa" />
+  <parameter name="seaLvlPress" numDims="1" type="FLOAT" unit="Pa" />
+  <parameter name="minTemp" numDims="1" type="FLOAT" unit="K" />
+  <parameter name="maxTemp" numDims="1" type="FLOAT" unit="K" />
+  <parameter name="temperature" numDims="2" type="FLOAT" unit="K" dimension="maxLevels"/>
+  <parameter name="pressure" numDims="2" type="FLOAT" unit="Pa" dimension="maxLevels"/>
+  <parameter name="omega" numDims="2" type="FLOAT" unit="Pa/s" dimension="maxLevels"/>
+  <parameter name="snowWater" numDims="1" type="FLOAT" unit="kg/m²" />
+  <parameter name="uComp" numDims="2" type="FLOAT" unit="m/s" dimension="maxLevels"/>
+  <parameter name="vComp" numDims="2" type="FLOAT" unit="m/s" dimension="maxLevels"/>
++++++++++++++++==-->
+ <PlotParameterDefn  plotParamName="TMPC" metParamName="AirTemperature"  
+                     dbParamName="temperature" plotUnit="°C" plotFormat="%3.1f"/>
+
+ <PlotParameterDefn  plotParamName="TMPF" metParamName="AirTemperature"  
+                     dbParamName="temperature" plotUnit="°F" plotFormat="%3.1f"/>
+
+<!--  Is this right or should it be MaxDayTemp? -->
+ <PlotParameterDefn  plotParamName="TDXC" metParamName="Max24HrTemp"  
+                     dbParamName="maxTemp" plotUnit="°C" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="TDNC" metParamName="Min24HrTemp"  
+                     dbParamName="minTemp" plotUnit="°C" plotFormat="%3.0f"/>
+                     
+ <PlotParameterDefn  plotParamName="TDXF" metParamName="Max24HrTemp"  
+                     dbParamName="maxTemp" plotUnit="°F" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="TDNF" metParamName="Min24HrTemp"  
+                     dbParamName="minTemp" plotUnit="°F" plotFormat="%3.0f"/>
+                 
+ <PlotParameterDefn  plotParamName="PALT" metParamName="SurfacePressure"  
+                     dbParamName="sfcPres"
+                     plotUnit="hPa" plotFormat="%2.2f"/>
+
+ <PlotParameterDefn  plotParamName="PRES" metParamName="PressureLevel"  
+                     dbParamName="pressure"
+                     plotUnit="hPa" plotFormat="%2.0f"/>
+
+ <PlotParameterDefn  plotParamName="ALTI" metParamName="SeaLevelPressure"  
+                     dbParamName="seaLvlPress" plotUnit="inHg" 
+                     plotFormat="%2.2f"/>
+<!--  wont work till 
+ <PlotParameterDefn  plotParamName="OMEG" metParamName="VerticalVelocity"  
+                     dbParamName="omega"
+                     plotUnit="Pa/s" plotFormat="%2.2f"/>
+ -->                     
+ <PlotParameterDefn  plotParamName="WEQS" metParamName="WaterEquivOfNewSnow"  
+                     dbParamName="snowWater"
+                     plotUnit="in" plotFormat="%2.2f"/>
+
+ <PlotParameterDefn  plotParamName="UWND" metParamName="WindDirectionVComp"  
+                     dbParamName="uComp"
+                     plotUnit="m/s" plotFormat="%2.2f"/>
+
+ <PlotParameterDefn  plotParamName="VWND" metParamName="WindDirectionUComp"  
+                     dbParamName="vComp"
+                     plotUnit="m/s" plotFormat="%2.2f"/>
+                     
+ <!--  Derived - need to wait till support is added to NcSoundingQuery
+ <PlotParameterDefn  plotParamName="DRCT" metParamName="WindDirection" plotMode="text" 
+ 					 dbParamName="windDir" plotUnit="°"/>
+ 					 
+ <PlotParameterDefn  plotParamName="SPED" metParamName="WindSpeed" plotMode="text" 
+ 					 dbParamName="windSpeed" plotUnit="m/s" plotFormat="%.2f"/>
+-->       
+<!--  24 Hr Snow ? 
+ <PlotParameterDefn  plotParamName="S24I" metParamName=""  
+                     dbParamName="S24I"
+                     plotUnit="in" plotFormat="%2d"/>
+ -->
+<!-- 
+ <PlotParameterDefn  plotParamName="SNEW" metParamName="NewSnowAmount"  
+                     dbParamName="SNEW"
+                     plotUnit="in" plotFormat="%2.2f"/>
+
+ <PlotParameterDefn  plotParamName="SNOW" metParamName="SnowDepth"  
+                     dbParamName="SNOW"
+                     plotUnit="in" plotFormat="%2.2f"/>
+-->
+<!-- STATION VARIABLES -->
+	<PlotParameterDefn  plotParamName="STID" metParamName="StationID" plotMode="text" dbParamName="stationId"/>
+    
+<!--<PlotParameterDefn  plotParamName="STNM" metParamName="StationName" plotMode="text" deriveParams="all"   />  -->    
+        
+    <!-- Cross check if elevation refers only to station elevation -->
+    <PlotParameterDefn  plotParamName="SELV" metParamName="StationElevation" plotMode="text" dbParamName="elevation" plotUnit="m" plotFormat="%5.0f" /> 
+    <PlotParameterDefn  plotParamName="SLAT" metParamName="StationLatitude"  plotMode="text" dbParamName="latitude" plotUnit="°"   plotFormat="%.3f"  />
+    <PlotParameterDefn  plotParamName="SLON" metParamName="StationLongitude" plotMode="text" dbParamName="longitude" plotUnit="°"   plotFormat="%.3f"  />
+ 	
+</PlotParameterDefns>
