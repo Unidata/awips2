@@ -35,11 +35,14 @@ import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintTyp
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.msgs.GetServerTimeRequest;
+import com.raytheon.uf.common.time.msgs.GetServerTimeResponse;
 import com.raytheon.uf.viz.core.RecordFactory;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.updater.DataUpdateTree;
@@ -70,6 +73,8 @@ public class ThinClientDataUpdateTree extends DataUpdateTree {
 
     private long lastQuery = 0l;
 
+    private long serverTimeLag = Long.MIN_VALUE;
+
     public static synchronized ThinClientDataUpdateTree getInstance() {
         DataUpdateTree instance = DataUpdateTree.getInstance();
         if (!(instance instanceof ThinClientDataUpdateTree)) {
@@ -86,8 +91,7 @@ public class ThinClientDataUpdateTree extends DataUpdateTree {
 
     public Collection<AlertMessage> updateAllData() {
         String time = DATE_FORMAT.format(new Date(lastQuery));
-        // put in a 1 second overlap in case insert time is a bit off.
-        lastQuery = System.currentTimeMillis() - 1000;
+        lastQuery = getServerTime();
         Set<AlertMessage> messages = new HashSet<AlertMessage>();
         for (DataPair pair : getDataPairs()) {
             AbstractResourceData resourceData = pair.data.getResourceData();
@@ -121,6 +125,32 @@ public class ThinClientDataUpdateTree extends DataUpdateTree {
             }
         }
         return messages;
+    }
+
+    /**
+     * Get the estimated current time on the server. This is useful if the
+     * client and server have differences in their clocks. The time returned
+     * from this method will always be slightly earlier than the actual server
+     * time because of network latency. The earlier time guarantees that all
+     * updates are retrieved but may result in updates being retrieved twice if
+     * the data is inserted during this one second window
+     * 
+     * @return
+     */
+    private long getServerTime() {
+        if (serverTimeLag == Long.MIN_VALUE) {
+            try {
+                GetServerTimeResponse response = (GetServerTimeResponse) ThriftClient
+                        .sendRequest(new GetServerTimeRequest());
+                serverTimeLag = System.currentTimeMillis() - response.getTime();
+            } catch (VizException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+                return System.currentTimeMillis() - 1000l;
+            }
+        }
+        // put in a 1 second overlap in case insert time is a bit off.
+        return System.currentTimeMillis() - serverTimeLag - 1000l;
     }
 
 }
