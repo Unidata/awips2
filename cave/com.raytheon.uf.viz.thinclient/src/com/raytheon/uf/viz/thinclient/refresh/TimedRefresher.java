@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.thinclient.refresh;
 
+import java.util.Calendar;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -91,6 +93,7 @@ public class TimedRefresher implements IPropertyChangeListener {
 
                     @Override
                     protected IStatus run(IProgressMonitor monitor) {
+                    	System.out.println(refreshTask.getClass().getSimpleName() + " : " + Calendar.getInstance().getTime().toString() + " : running");
                         startOfLastRun = System.currentTimeMillis();
                         try {
                             refreshTask.run();
@@ -117,11 +120,13 @@ public class TimedRefresher implements IPropertyChangeListener {
     }
 
     private synchronized void reschedule() {
-        if (intervalInMillis > 0) {
+        if (intervalInMillis > 0) {        	
             long timePassed = System.currentTimeMillis() - startOfLastRun;
             if (timePassed > intervalInMillis) {
+            	System.out.println(refreshTask.getClass().getSimpleName() + " : " + Calendar.getInstance().getTime().toString() + " : Scheduled now");
                 job.schedule();
             } else {
+            	System.out.println(refreshTask.getClass().getSimpleName() + " : " + Calendar.getInstance().getTime().toString() + " : Scheduled in " + ((intervalInMillis - timePassed)/1000/60) + " minutes");
                 job.schedule(intervalInMillis - timePassed);
             }
         }
