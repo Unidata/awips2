@@ -48,6 +48,7 @@ import com.raytheon.uf.viz.thinclient.cave.cache.GeometryCachePersistence;
 import com.raytheon.uf.viz.thinclient.cave.cache.MapQueryCachePersistence;
 import com.raytheon.uf.viz.thinclient.cave.refresh.DataRefreshTask;
 import com.raytheon.uf.viz.thinclient.cave.refresh.MenuTimeRefreshTask;
+import com.raytheon.uf.viz.thinclient.cave.refresh.ThinClientDataUpdateTree;
 import com.raytheon.uf.viz.thinclient.cave.refresh.ThinClientURICatalog;
 import com.raytheon.uf.viz.thinclient.localization.LocalizationCachePersistence;
 import com.raytheon.uf.viz.thinclient.localization.ThinClientLocalizationInitializer;
@@ -112,6 +113,7 @@ public class ThinClientComponent extends CAVE implements IThinClientComponent {
         Activator.getDefault().setComponent(this);
 
         ThinClientURICatalog.getInstance();
+        ThinClientDataUpdateTree.getInstance();
         List<String> pluginBlacklist = new ArrayList<String>();
         File blacklistFile = BundleScanner.searchInBundle(
                 com.raytheon.uf.viz.thinclient.cave.Activator.PLUGIN_ID, "",
