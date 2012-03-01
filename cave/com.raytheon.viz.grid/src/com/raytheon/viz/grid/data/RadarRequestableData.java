@@ -25,6 +25,7 @@ import java.lang.ref.WeakReference;
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
 
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.grib.GribModel;
 import com.raytheon.uf.common.dataplugin.grib.GribRecord;
 import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
@@ -37,6 +38,9 @@ import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -61,6 +65,8 @@ import com.raytheon.viz.radar.util.DataUtilities;
  */
 
 public class RadarRequestableData extends GribRequestableData {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(RadarRequestableData.class);
 
     private RadarRecord radarSource;
 
@@ -80,8 +86,13 @@ public class RadarRequestableData extends GribRequestableData {
                 RadarAdapter.getGridSpacing());
         this.source = "radar";
         this.dataTime = source.getDataTime();
-        this.level = LevelFactory.getInstance().getLevel("TILT",
-                source.getPrimaryElevationAngle());
+        try {
+            this.level = LevelFactory.getInstance().getLevel("TILT",
+                    source.getPrimaryElevationAngle());
+        } catch (CommunicationException e1) {
+            statusHandler
+                    .handle(Priority.PROBLEM, e1.getLocalizedMessage(), e1);
+        }
         this.parameter = parameterAbbrev;
         this.parameterName = "";
         this.unit = unit;
@@ -146,14 +157,12 @@ public class RadarRequestableData extends GribRequestableData {
             fdr.setDimension(2);
             cache = new WeakReference<FloatDataRecord>(fdr);
         }
-        if (arg == null) {
-            return new IDataRecord[] { fdr };
-        } else if (arg instanceof Request) {
+        if (arg instanceof Request) {
             fdr = SliceUtil.slice(fdr, (Request) arg);
             return new IDataRecord[] { fdr };
+        } else {
+            return new IDataRecord[] { fdr };
         }
-        throw new VizException(this.getClass().getSimpleName()
-                + " cannot process request of type: "
-                + arg.getClass().getSimpleName());
+
     }
 }
