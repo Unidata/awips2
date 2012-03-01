@@ -50,7 +50,17 @@ public class DataUpdateTree extends DecisionTree<AbstractVizResource<?, ?>> {
         return instance;
     }
 
-    public DataUpdateTree() {
+    protected static synchronized void setCustomInstance(DataUpdateTree tree) {
+        if (instance != null) {
+            for (DataPair pair : instance.getDataPairs()) {
+                tree.insertCriteria(pair.metadata, pair.data, false);
+            }
+            tree.rebuildTree();
+        }
+        instance = tree;
+    }
+
+    protected DataUpdateTree() {
         super();
     }
 

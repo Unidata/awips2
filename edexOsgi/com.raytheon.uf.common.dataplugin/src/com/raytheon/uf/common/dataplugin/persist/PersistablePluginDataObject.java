@@ -19,6 +19,10 @@
  **/
 package com.raytheon.uf.common.dataplugin.persist;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Inheritance;
@@ -90,5 +94,33 @@ public abstract class PersistablePluginDataObject extends PluginDataObject
      */
     public void setHdfFileId(Integer hdfFileId) {
         this.hdfFileId = hdfFileId;
+    }
+
+    /**
+     * Set the time to be used for the persistence time for this object.
+     * 
+     * @param persistTime
+     *            The persistence time to be used.
+     */
+    @Override
+    public void setPersistenceTime(Date persistTime) {
+        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        c.setTime(persistTime);
+        setInsertTime(c);
+    }
+
+    /**
+     * Get the time to use for persisting this data.
+     * 
+     * @return The persistence time for this data.
+     */
+    @Override
+    public Date getPersistenceTime() {
+        Calendar c = getInsertTime();
+        if (c == null) {
+            return null;
+        }
+
+        return c.getTime();
     }
 }

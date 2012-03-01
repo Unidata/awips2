@@ -35,6 +35,7 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 
 /**
  * Factory for getting level mappings
@@ -56,15 +57,22 @@ public class LevelMappingFactory {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(LevelMappingFactory.class);
 
-    private static LevelMappingFactory instance = new LevelMappingFactory();
+    private static LevelMappingFactory instance = null;
 
     private Map<String, LevelMapping> keyToLevelMappings = new HashMap<String, LevelMapping>();
 
+    private boolean levelToLevelMappingsInitialized = false;
+
     private Map<Level, LevelMapping> levelToLevelMappings = new HashMap<Level, LevelMapping>();
+
+    private boolean groupToMasterLevelsInitialized = false;
 
     private Map<String, Map<MasterLevel, Set<Level>>> groupToMasterLevels = new HashMap<String, Map<MasterLevel, Set<Level>>>();
 
-    public static LevelMappingFactory getInstance() {
+    public synchronized static LevelMappingFactory getInstance() {
+        if (instance == null) {
+            instance = new LevelMappingFactory();
+        }
         return instance;
     }
 
@@ -96,47 +104,6 @@ public class LevelMappingFactory {
                 }
             }
 
-            for (LevelMapping mapping : keyToLevelMappings.values()) {
-                String group = mapping.getGroup();
-                Map<MasterLevel, Set<Level>> masterLevels = null;
-
-                if (group != null) {
-                    masterLevels = groupToMasterLevels.get(mapping.getGroup());
-                    if (masterLevels == null) {
-                        masterLevels = new HashMap<MasterLevel, Set<Level>>();
-                        groupToMasterLevels.put(group, masterLevels);
-                    }
-                }
-
-                for (Level l : mapping.getLevels()) {
-                    if (levelToLevelMappings.containsKey(l)) {
-                        LevelMapping oldMapping = levelToLevelMappings.get(l);
-                        // Only replace the old level mapping if we have less
-                        // levels than the old mapping
-                        // This should cause the most specific mapping to be
-                        // used
-                        if (mapping.getLevels().size() < oldMapping.getLevels()
-                                .size()) {
-                            levelToLevelMappings.put(l, mapping);
-                        }
-                    } else {
-                        levelToLevelMappings.put(l, mapping);
-                    }
-
-                    // populate grouping map
-                    if (masterLevels != null) {
-                        MasterLevel ml = l.getMasterLevel();
-                        Set<Level> levels = masterLevels.get(ml);
-
-                        if (levels == null) {
-                            levels = new HashSet<Level>();
-                            masterLevels.put(ml, levels);
-                        }
-
-                        levels.add(l);
-                    }
-                }
-            }
         }
         long finish = System.currentTimeMillis();
         System.out.println("LevelMappingFactory initialization took ["
@@ -147,7 +114,11 @@ public class LevelMappingFactory {
         return keyToLevelMappings.get(key);
     }
 
-    public LevelMapping getLevelMappingForLevel(Level level) {
+    public LevelMapping getLevelMappingForLevel(Level level)
+            throws VizCommunicationException {
+        if (!levelToLevelMappingsInitialized) {
+            initializeLevelToLevelMappings();
+        }
         return levelToLevelMappings.get(level);
     }
 
@@ -155,11 +126,75 @@ public class LevelMappingFactory {
         return keyToLevelMappings.values();
     }
 
-    public Set<Level> getAllLevels() {
+    public Set<Level> getAllLevels() throws VizCommunicationException {
+        if (!levelToLevelMappingsInitialized) {
+            initializeLevelToLevelMappings();
+        }
         return levelToLevelMappings.keySet();
     }
 
-    public Map<MasterLevel, Set<Level>> getLevelMapForGroup(String group) {
+    public Map<MasterLevel, Set<Level>> getLevelMapForGroup(String group)
+            throws VizCommunicationException {
+        if (!groupToMasterLevelsInitialized) {
+            initializeGroupToMasterLevels();
+        }
         return groupToMasterLevels.get(group);
+    }
+
+    private void initializeLevelToLevelMappings()
+            throws VizCommunicationException {
+        for (LevelMapping mapping : keyToLevelMappings.values()) {
+            String group = mapping.getGroup();
+
+            for (Level l : mapping.getLevels()) {
+                if (levelToLevelMappings.containsKey(l)) {
+                    LevelMapping oldMapping = levelToLevelMappings.get(l);
+                    // Only replace the old level mapping if we have less
+                    // levels than the old mapping
+                    // This should cause the most specific mapping to be
+                    // used
+                    if (mapping.getLevels().size() < oldMapping.getLevels()
+                            .size()) {
+                        levelToLevelMappings.put(l, mapping);
+                    }
+                } else {
+                    levelToLevelMappings.put(l, mapping);
+                }
+            }
+        }
+        levelToLevelMappingsInitialized = true;
+    }
+
+    private void initializeGroupToMasterLevels()
+            throws VizCommunicationException {
+        for (LevelMapping mapping : keyToLevelMappings.values()) {
+            String group = mapping.getGroup();
+            Map<MasterLevel, Set<Level>> masterLevels = null;
+
+            if (group != null) {
+                masterLevels = groupToMasterLevels.get(mapping.getGroup());
+                if (masterLevels == null) {
+                    masterLevels = new HashMap<MasterLevel, Set<Level>>();
+                    groupToMasterLevels.put(group, masterLevels);
+                }
+            }
+
+            for (Level l : mapping.getLevels()) {
+
+                // populate grouping map
+                if (masterLevels != null) {
+                    MasterLevel ml = l.getMasterLevel();
+                    Set<Level> levels = masterLevels.get(ml);
+
+                    if (levels == null) {
+                        levels = new HashSet<Level>();
+                        masterLevels.put(ml, levels);
+                    }
+
+                    levels.add(l);
+                }
+            }
+        }
+        groupToMasterLevelsInitialized = true;
     }
 }
