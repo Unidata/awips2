@@ -1,5 +1,6 @@
 package gov.noaa.nws.ncep.viz.resources.time_match;
 
+import gov.noaa.nws.ncep.viz.common.SelectableFrameTimeMatcher;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData.TimelineGenMethod;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
@@ -48,6 +49,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * 02/01/11       365      Greg Hull    change generateTimes to set frameTimes 
  *                                      to allow for initialization without timelineControl
  * 03/07/11     migration  Greg Hull    rm notifyResourceAdd and change defn of initialLoad
+ * 11/29/11       518      Greg Hull    add dfltFrameTimes
  * 
  * </pre>
  * 
@@ -75,7 +77,7 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
 
     @XmlAttribute
     protected int frameInterval; // if -1 then use data times
-
+    
     private final static DataTime latestRefTimeSentinel = new DataTime(
             new Date(0));
 
@@ -90,6 +92,10 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
 
     // the frame times that will be used for the RBD
     protected ArrayList<DataTime> frameTimes;
+
+    // ie GDATTIME used to set the initial frame times
+    @XmlAttribute 
+    protected String dfltFrameTimesStr;
 
     private final int dfltNumFrames = 0;
 
@@ -255,8 +261,8 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
     }
 
     public boolean isAutoUpdateable() {
-        return (dominantRscData == null ? false : dominantRscData
-                .isAutoUpdateable());
+        return (dominantRscData == null ? false : 
+        	dominantRscData.isAutoUpdateable());
     }
 
     // set the dominant resource
@@ -268,7 +274,7 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
             isForecast = false;
         } else {
             dominantResourceName = dominantRscData.getResourceName();
-            isForecast = dominantResourceName.isForecastResource();
+            isForecast = dominantRscData.isForecastResource();
         }
     }
 
@@ -292,10 +298,13 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
 
         skipValue = 0; // no default but reset to 0
 
-        isForecast = dominantRscData.getResourceName().isForecastResource();
-
-        if (isForecast) {
-            refTime = null;
+        isForecast = dominantRscData.isForecastResource();
+         
+        dfltFrameTimesStr = dominantRscData.getDfltFrameTimes();
+        
+//      if (isForecast) {
+        if( dominantRscData.getResourceName().getCycleTime() != null ) {
+        	refTime = null;
         } else {
             setCurrentRefTime();
         }
@@ -337,32 +346,36 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
         // or 'latest' or a time set by the user.
         long refTimeMillisecs = 0;
 
-        if (isForecast) {
+        // 	if (isForecast) {        
+        // check cycleTime instead of isForecast since some resources may
+        // be forecast w/o a cycletime
+        if( dominantResourceName.getCycleTime() != null ) {
             if (!dominantResourceName.isLatestCycleTime()) {
                 DataTime cyclTime = dominantResourceName.getCycleTime();
                 refTimeMillisecs = (cyclTime == null ? 0 : cyclTime
                         .getRefTime().getTime());
-            } else {
-                System.out
-                        .println("Can't get a ref time from 'latest' cycle time");
-                return false;
             }
-        } else if (isCurrentRefTime()) {
+//            else {
+//                System.out.println("Can't get a ref time from 'latest' cycle time");
+//                return false;
+//            }
+        } else if( isCurrentRefTime() ) {
             refTimeMillisecs = Calendar.getInstance().getTimeInMillis();
-        } else if (isLatestRefTime()) {
+        } else if( isLatestRefTime() ) {
             refTimeMillisecs = 0;
         } else {
             refTimeMillisecs = refTime.getRefTime().getTime();
         }
 
-        // if refTime is null or if using the data to generate the timeline,
-        // then we will
-        // need to query the times of the dominant resource.
+        // if refTime is Latest or 
+        // if using the data to generate the timeline, or
+        // if we need to get the cycle time for a forecast resource, then
+        //  we will need to query the times of the dominant resource.
         if (refTimeMillisecs == 0 || frameInterval == -1) {
             allAvailDataTimes = dominantRscData.getAvailableDataTimes();
 
             if (allAvailDataTimes == null) { // no data
-                allAvailDataTimes = new ArrayList<DataTime>(); //
+                allAvailDataTimes = new ArrayList<DataTime>(); // 
                 return false;
             }
 
@@ -398,25 +411,32 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
                     long timeMS = time.getValidTime().getTimeInMillis();
 
                     if (timeMS >= oldestTimeMs && timeMS <= latestTimeMs) {
-                        selectableDataTimes.add(time);
+                    	
+//                    	if( frmTimeMatcher == null ||
+//                    		frmTimeMatcher.matchTime( time ) ) {                  		
+                    		selectableDataTimes.add(time);
+//                    	}
                     }
                 }
             }
         }
-
+        
         // if a frameInterval is set then use it to create a list of times
         // within the defined range.
-        //
+        // 
         if (frameInterval > 0) {
 
             long frameTimeMillisecs = refTimeMillisecs;
 
             if (isForecast) {
-                while (frameTimeMillisecs <= refTimeMillisecs
-                        + timeRangeMillisecs) {
-
-                    selectableDataTimes.add(new DataTime(new Date(
-                            frameTimeMillisecs)));
+                while (frameTimeMillisecs <= refTimeMillisecs + timeRangeMillisecs) {
+                	
+                	DataTime time = new DataTime( new Date( frameTimeMillisecs));
+                	
+//                	if( frmTimeMatcher == null ||
+//                    	frmTimeMatcher.matchTime( time ) ) {                    		
+                		selectableDataTimes.add(time);
+//                	}
 
                     frameTimeMillisecs += frameIntervalMillisecs;
                 }
@@ -424,21 +444,32 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
 
                 // frameTimeMillisecs = normRefTime.getRefTime().getTime();;
 
-                while (frameTimeMillisecs >= refTimeMillisecs
-                        - timeRangeMillisecs) {
+                while (frameTimeMillisecs >= refTimeMillisecs - timeRangeMillisecs) {
 
-                    DataTime normRefTime = getNormalizedTime(new DataTime(
+                    DataTime normRefTime = getNormalizedTime( new DataTime(
                             new Date(frameTimeMillisecs)));
 
-                    selectableDataTimes.add(0, normRefTime); // new DataTime(
-                                                             // new
-                                                             // Date(frameTimeMillisecs)
-                                                             // ) );
+//                	if( frmTimeMatcher == null ||
+//                		frmTimeMatcher.matchTime( normRefTime ) ) {
+                       selectableDataTimes.add(0, normRefTime); // new DataTime(
+                        // new Date(frameTimeMillisecs)  ) );
+//                    }	
 
                     frameTimeMillisecs -= frameIntervalMillisecs;
                 }
-
             }
+        }
+
+        SelectableFrameTimeMatcher frmTimeMatcher = null;
+        
+        if( dfltFrameTimesStr != null ) {
+        	try {
+				frmTimeMatcher = new SelectableFrameTimeMatcher( dfltFrameTimesStr );
+			} catch (VizException e) {
+				// sanity check since this should already be validated
+				System.out.println("bad GDATTIM string:"+dfltFrameTimesStr);
+				frmTimeMatcher = null;
+			}
         }
 
         int skipCount = 0;
@@ -447,19 +478,26 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
         // set the initial frameTimes from the skip value and numFrames
         //
         for (skipCount = 0; skipCount < selectableDataTimes.size(); skipCount++) {
-            if (skipCount % (skipValue + 1) == 0) {
-                if (isForecast) {
-                    frameTimes.add(selectableDataTimes.get(skipCount));
-                } else {
-                    frameTimes.add(
-                            0,
-                            selectableDataTimes.get(selectableDataTimes.size()
-                                    - skipCount - 1));
-                }
-                if (frameTimes.size() == numFrames) {
-                    break;
-                }
-            }
+        	if (skipCount % (skipValue + 1) == 0) {
+        		
+        		DataTime selectableTime = ( isForecast ?
+        				selectableDataTimes.get( skipCount ) :
+        					selectableDataTimes.get(
+        							selectableDataTimes.size()-skipCount-1) );
+
+        		if( frmTimeMatcher == null || 
+        			frmTimeMatcher.matchTime( selectableTime ) ) {
+        			
+        			if (isForecast) {
+        				frameTimes.add( selectableTime );
+        			} else {
+        				frameTimes.add( 0, selectableTime );
+        			}
+        		}
+        		if (frameTimes.size() == numFrames) {
+        			break;
+        		}
+        	}
         }
 
         // if the list is empty don't set numFrames.
@@ -664,11 +702,10 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
         // }
     }
 
-    @Override
-    public void redoTimeMatching(AbstractVizResource<?, ?> resource) {
-        // bsteffen I think it is safe to do nothing here since redoing for the
-        // descriptor also does nothing
-    }
+	@Override
+	public void redoTimeMatching(AbstractVizResource<?, ?> resource) {
+		
+	}
 
     // TODO : What should the behaviour be if the user removes/unloads the
     // dominant resource?
@@ -718,4 +755,5 @@ public class NCTimeMatcher extends AbstractTimeMatcher implements
     public AbstractVizResource<?, ?> getTimeMatchBasis() {
         return null;
     }
+
 }

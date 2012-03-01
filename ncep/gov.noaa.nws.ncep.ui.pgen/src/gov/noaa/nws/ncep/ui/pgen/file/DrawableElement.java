@@ -67,7 +67,8 @@ import javax.xml.bind.annotation.XmlType;
     "watchBox",
     "outlook",
     "gfa",
-    "volcano"
+    "volcano",
+    "tcm"
 })
 @XmlRootElement(name = "DrawableElement")
 public class DrawableElement {
@@ -104,7 +105,8 @@ public class DrawableElement {
     protected List<Gfa> gfa;
     @XmlElement(name = "Volcano")
     protected List<Volcano> volcano;
-
+    @XmlElement(name = "TCM")
+    protected List<TCM> tcm;
     /**
      * Gets the value of the deCollection property.
      * 
@@ -524,6 +526,13 @@ public class DrawableElement {
             volcano = new ArrayList<Volcano>();
         }
         return this.volcano;
+    }
+    
+    public List<TCM> getTcm() {
+        if (tcm == null) {
+            tcm = new ArrayList<TCM>();
+        }
+        return this.tcm;
     }
 
 }

@@ -78,9 +78,20 @@ log_msg 90
 # We need to add another -c command in message hanlding system.
 # Send the grids to the failed site
 cd ${SVCBU_HOME}
-echo ${FAILED_SITE} > siteID.txt
-tar cf Grd.tar ${FAILED_SITE}Grd.netcdf.gz siteID.txt
-msgSendOutput=$($MSG_SEND_COMMAND -e ${SVCBU_HOME}/Grd.tar -a ${FAILED_CAPS_SITE} -s $subj -c 25)
+
+# these lines are commented out for DR14441
+# A1 expects to receive a file in gz format
+# for now this change brings A2 in line with A1
+# this may return to the original design after all sites are on A2
+#
+# echo ${FAILED_SITE} > siteID.txt
+# tar cf Grd.tar ${FAILED_SITE}Grd.netcdf.gz siteID.txt
+# msgSendOutput=$($MSG_SEND_COMMAND -e ${SVCBU_HOME}/Grd.tar -a ${FAILED_CAPS_SITE} -s $subj -c 25)
+
+# begin changes for 14441
+msgSendOutput=$($MSG_SEND_COMMAND -e ${FAILED_SITE}Grd.netcdf.gz -a ${FAILED_CAPS_SITE} -s $subj -c 25)
+# end changes for 14441
+
 exitValue=$?
 if [ $exitValue -ne 0 ]
 then

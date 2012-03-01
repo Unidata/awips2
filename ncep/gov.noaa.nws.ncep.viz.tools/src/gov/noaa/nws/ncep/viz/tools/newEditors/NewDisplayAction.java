@@ -1,7 +1,8 @@
 package gov.noaa.nws.ncep.viz.tools.newEditors;
 
 import gov.noaa.nws.ncep.viz.common.ui.UserEntryDialog;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.resources.manager.RbdBundle;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceBndlLoader;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
@@ -24,7 +25,8 @@ import com.raytheon.uf.viz.core.VizApp;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 04/20/11                Greg Hull   change name to plot model editor. Don't refresh mapEditor
- * 
+ * 08/12/11       #450     Greg Hull   use the RBD name instead of the filename. 
+ *
  * </pre>
  * 
  * @author ghull
@@ -40,19 +42,11 @@ public class NewDisplayAction extends AbstractHandler {
 
 		// create a unique display name.
 		//
-		File rbdFile = LocalizationManager.getInstance().getLocalizationFile("defaultRBDFile");
+		File rbdFile = NcPathManager.getInstance().getStaticFile( 
+				         NcPathConstants.DFLT_RBD );
 		
-		String newDisplayName =rbdFile.getName().substring(0, 
-    					rbdFile.getName().lastIndexOf(".xml") );
+		String newDisplayName = null; 
 		
-//		String displayNames[] = NmapUiUtils.getNatlCntrsDisplayNames( false );
-//        
-//		for( String dispName : displayNames ) {
-//			if( newDisplayName.equals( dispName ) ) {
-//				
-//			}
-//		}
-
 		if( promptForName.equalsIgnoreCase( "true" ) ) {
 			
 			// pop up a dialog to prompt for the new name
@@ -69,16 +63,22 @@ public class NewDisplayAction extends AbstractHandler {
 			}
 		}
 
-
 		createNewDefaultDisplay( newDisplayName );
+		
 		return null;
 	}
 
 	public static void createNewDefaultDisplay( String newDisplayName ) {
-		File rbdFile;
-        rbdFile = LocalizationManager.getInstance().getLocalizationFile("defaultRBDFile");
+		File rbdFile = NcPathManager.getInstance().getStaticFile( 
+		         NcPathConstants.DFLT_RBD );
+		
     	try {
     		RbdBundle rbd = RbdBundle.unmarshalRBD( rbdFile, null );
+    		rbd.resolveLatestCycleTimes(); // shouldn't be needed  but just in case
+    		
+    		if( newDisplayName == null || newDisplayName.isEmpty() ) {
+    			newDisplayName = rbd.getRbdName();
+    		}
     		
     		NCMapEditor editor = NmapUiUtils.createNatlCntrsEditor( newDisplayName );
     		rbd.setNcEditor( editor );

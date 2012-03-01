@@ -15,6 +15,8 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
+import gov.noaa.nws.ncep.ui.pgen.elements.tcm.ITcm;
+import gov.noaa.nws.ncep.ui.pgen.elements.tcm.ITcmFcst;
 import gov.noaa.nws.ncep.ui.pgen.gfa.IGfa;
 import gov.noaa.nws.ncep.ui.pgen.tca.ITca;
 import gov.noaa.nws.ncep.ui.pgen.sigmet.ISigmet;
@@ -123,6 +125,9 @@ public abstract class AbstractElementContainer {
 	    }
 	    else if ( element instanceof IWatchBox ){
 	    	displayEls = def.createDisplayElements( (IWatchBox) element, paintProps );
+	    } 
+	    else if ( element instanceof ITcm ){
+	    	displayEls = def.createDisplayElements( (ITcm) element, paintProps );
 	    } 
 	    else if ( element instanceof IMultiPoint ){
 		    if ( element instanceof IKink ){
