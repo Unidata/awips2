@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Resource Attributes Plug-in
+Bundle-Name: Resource Plug-in
 Bundle-SymbolicName: gov.noaa.nws.ncep.viz.resources;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: gov.noaa.nws.ncep.viz.resources.Activator
@@ -19,15 +19,60 @@ Require-Bundle: org.apache.batik;bundle-version="1.6.0",
  gov.noaa.nws.ncep.viz.ui.display,
  com.raytheon.uf.common.colormap;bundle-version="1.11.22",
  gov.noaa.nws.ncep.viz.localization;bundle-version="1.0.0",
- com.raytheon.uf.common.dataplugin.satellite;bundle-version="1.0.0"
+ com.raytheon.uf.common.dataplugin.satellite;bundle-version="1.0.0",
+ com.raytheon.viz.alerts
 Eclipse-LazyStart: true
-Export-Package: gov.noaa.nws.ncep.viz.resources,
- gov.noaa.nws.ncep.viz.resources.attributes,
- gov.noaa.nws.ncep.viz.resources.colorBar,
- gov.noaa.nws.ncep.viz.resources.manager,
- gov.noaa.nws.ncep.viz.resources.misc,
- gov.noaa.nws.ncep.viz.resources.time_match
+Export-Package: gov.noaa.nws.ncep.viz.resources;
+  uses:="gov.noaa.nws.ncep.viz.resources.manager,
+   com.raytheon.uf.viz.core.rsc,
+   org.eclipse.ui.plugin,
+   com.raytheon.uf.common.dataplugin,
+   gov.noaa.nws.ncep.viz.resources.attributes,
+   com.raytheon.uf.viz.core,
+   org.eclipse.swt.graphics,
+   org.osgi.framework,
+   com.raytheon.uf.viz.core.drawables,
+   com.raytheon.uf.common.serialization,
+   com.raytheon.uf.common.time,
+   gov.noaa.nws.ncep.viz.ui.display",
+ gov.noaa.nws.ncep.viz.resources.attributes;
+  uses:="com.raytheon.viz.ui.cmenu,
+   gov.noaa.nws.ncep.viz.resources,
+   gov.noaa.nws.ncep.viz.resources.manager,
+   org.eclipse.swt.graphics,
+   javax.xml.bind.annotation.adapters,
+   org.eclipse.swt.widgets",
+ gov.noaa.nws.ncep.viz.resources.colorBar;
+  uses:="com.raytheon.uf.viz.core.rsc,
+   com.raytheon.uf.viz.core,
+   com.raytheon.uf.viz.core.drawables,
+   org.eclipse.swt.widgets,
+   gov.noaa.nws.ncep.viz.common.ui.color,
+   gov.noaa.nws.ncep.viz.ui.display",
+ gov.noaa.nws.ncep.viz.resources.manager;
+  uses:="javax.xml.bind.annotation.adapters,
+   gov.noaa.nws.ncep.viz.resources,
+   com.raytheon.uf.common.localization,
+   com.raytheon.uf.viz.core,
+   com.raytheon.uf.viz.core.drawables,
+   com.raytheon.uf.common.serialization,
+   gov.noaa.nws.ncep.viz.resources.time_match,
+   com.raytheon.uf.common.time,
+   gov.noaa.nws.ncep.viz.ui.display",
+ gov.noaa.nws.ncep.viz.resources.misc;uses:="gov.noaa.nws.ncep.viz.resources,org.eclipse.swt.widgets,gov.noaa.nws.ncep.viz.resources.attributes",
+ gov.noaa.nws.ncep.viz.resources.time_match;
+  uses:="gov.noaa.nws.ncep.viz.resources,
+   gov.noaa.nws.ncep.viz.resources.manager,
+   com.raytheon.uf.viz.core.rsc,
+   com.raytheon.uf.viz.core,
+   com.raytheon.uf.viz.core.drawables,
+   com.raytheon.uf.common.serialization,
+   com.raytheon.uf.common.time,
+   gov.noaa.nws.ncep.viz.ui.display"
 Import-Package: com.raytheon.uf.common.message.response,
  com.raytheon.uf.viz.core.maps,
+ com.raytheon.viz.alerts.observers,
  gov.noaa.nws.ncep.common.dataplugin.mcidas,
- gov.noaa.nws.ncep.edex.plugin.mosaic.common
+ gov.noaa.nws.ncep.common.dataplugin.ncgrib.ncdatatree,
+ gov.noaa.nws.ncep.edex.plugin.mosaic.common,
+ gov.noaa.nws.ncep.viz.gempak.grid.inv

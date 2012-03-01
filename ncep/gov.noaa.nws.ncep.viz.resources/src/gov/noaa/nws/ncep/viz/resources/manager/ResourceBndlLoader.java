@@ -8,6 +8,8 @@ import gov.noaa.nws.ncep.viz.ui.display.NCMapRenderableDisplay;
 import gov.noaa.nws.ncep.viz.ui.display.PaneID;
 
 import java.lang.reflect.Constructor;
+import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.eclipse.jface.dialogs.ErrorDialog;
@@ -45,6 +47,8 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
  * 10/22/10      307        Greg Hull     set to first frame for fcst data.
  * 10/29/10      307        Greg Hull     wait for DataCube to init
  * 06/07/11     #445        Xilin Guo     Data Manager Performance Improvements
+ * 10/15/11		?			B. Yin		  Keep PGEN resource when loading RBDs.
+ * 01/09/11     #561        Greg Hull     rm code to add Locator Resource
  * 
  * </pre>
  * 
@@ -136,10 +140,17 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
     			continue;
     		}
     		
-    		// If this editor currently has resources loaded, clear them out 
+    		// If this editor currently has resources loaded, clear them out except for PGEN
     		for( IDisplayPane pane : editor.getDisplayPanes() ) {    			
-//    			((NCDisplayPane)pane).clearResources();
-    			((NCDisplayPane)pane).getRenderableDisplay().getDescriptor().getResourceList().clear();
+    			List<ResourcePair> rlist = ((NCDisplayPane)pane).getRenderableDisplay().getDescriptor().getResourceList();
+    			Iterator<ResourcePair> it = rlist.iterator();
+    			
+    			while( it.hasNext() ){
+    				ResourcePair rp = it.next();
+    				if ( !rp.getResource().getClass().getName().endsWith("PgenResource") ) {
+    					rlist.remove(rp);
+    				}
+    			}
     		}
     		
     		editor.setGeoSyncPanesEnabled( rbdBndl.isGeoSyncedPanes() );
@@ -234,20 +245,11 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
 
     	ResourceList rscList = descr.getResourceList();
 		   	
-		Class clazzData = null, clazzRsc = null; Constructor<?> constrData = null, constrRsc = null;
-		try{ 
-			clazzData=Class.forName("gov.noaa.nws.ncep.viz.ui.locator.resource.LocatorResourceData");
-			clazzRsc =Class.forName("gov.noaa.nws.ncep.viz.ui.locator.resource.LocatorResource");
-		
-			constrData = clazzData.getConstructor();
-			constrRsc = clazzRsc.getConstructor(clazzData, com.raytheon.uf.viz.core.rsc.LoadProperties.class);
-			
-			AbstractVizResource<?, ?> a = 
-				(AbstractVizResource<?, ?>) constrRsc.newInstance(constrData.newInstance(), new com.raytheon.uf.viz.core.rsc.LoadProperties() );
-			
-			rscList.add(a);
-		}catch(Exception e){	System.out.println("_____________ ResourceBndlLoader:"+e.getMessage());	}
 
+		//Add PGEN resource back
+		if ( !pane.getRenderableDisplay().getDescriptor().getResourceList().isEmpty() ){
+			rscList.addAll( pane.getRenderableDisplay().getDescriptor().getResourceList());
+		}
 
     	rscList.instantiateResources( descr, true );
 

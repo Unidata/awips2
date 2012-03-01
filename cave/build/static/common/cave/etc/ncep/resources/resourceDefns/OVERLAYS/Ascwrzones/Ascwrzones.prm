@@ -1,5 +1,0 @@
-! DbOverlay
-dbName=ncep
-tableName=bounds.ascwrzones
-labelField=area
-mapName=ASCWRZONES Boundaries

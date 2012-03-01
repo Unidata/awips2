@@ -68,6 +68,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Oct 6, 2009  2987       jelkins     Initial creation
  * 10-21-09     #1711      bsteffen    Updated Baseline and Points to use new ToolsDataManager
+ * 01/30/2012   DR 14308   D.Friedman  Use correct style for arrow types.
  * 
  * 
  * </pre>
@@ -377,9 +378,12 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
                 styleType = StyleManager.StyleType.IMAGERY;
             }
 
-            if (displayType.equals(DisplayType.BARB)) {
+            if (displayType.equals(DisplayType.BARB) 
+            		|| displayType.equals(DisplayType.DUALARROW)
+            		|| displayType.equals(DisplayType.ARROW)) {
                 styleType = StyleManager.StyleType.ARROW;
             }
+            
             if (catalogEntry.getDialogSettings().getViewSelection() == ViewMenu.TIMESERIES
                     || catalogEntry.getDialogSettings().getViewSelection() == ViewMenu.VARVSHGT) {
                 styleType = StyleManager.StyleType.GRAPH;
