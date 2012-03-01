@@ -90,8 +90,9 @@ public class ThinClientDataUpdateTree extends DataUpdateTree {
     }
 
     public Collection<AlertMessage> updateAllData() {
-        String time = DATE_FORMAT.format(new Date(lastQuery));
-        lastQuery = getServerTime();
+        String time = DATE_FORMAT.format(new Date(lastQuery
+                - getServerTimeOffset()));
+        lastQuery = System.currentTimeMillis();
         Set<AlertMessage> messages = new HashSet<AlertMessage>();
         for (DataPair pair : getDataPairs()) {
             AbstractResourceData resourceData = pair.data.getResourceData();
@@ -128,16 +129,16 @@ public class ThinClientDataUpdateTree extends DataUpdateTree {
     }
 
     /**
-     * Get the estimated current time on the server. This is useful if the
-     * client and server have differences in their clocks. The time returned
-     * from this method will always be slightly earlier than the actual server
-     * time because of network latency. The earlier time guarantees that all
-     * updates are retrieved but may result in updates being retrieved twice if
-     * the data is inserted during this one second window
+     * Get the estimated difference between the clock on the server and the
+     * local clock. The offset returned from this method will always be slightly
+     * earlier than the actual server time because of network latency. The
+     * earlier time guarantees that all updates are retrieved but may result in
+     * updates being retrieved twice if the data is inserted during this one
+     * second window
      * 
      * @return
      */
-    private long getServerTime() {
+    private long getServerTimeOffset() {
         if (serverTimeLag == Long.MIN_VALUE) {
             try {
                 GetServerTimeResponse response = (GetServerTimeResponse) ThriftClient
@@ -146,11 +147,11 @@ public class ThinClientDataUpdateTree extends DataUpdateTree {
             } catch (VizException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
-                return System.currentTimeMillis() - 1000l;
+                return 1000l;
             }
         }
         // put in a 1 second overlap in case insert time is a bit off.
-        return System.currentTimeMillis() - serverTimeLag - 1000l;
+        return serverTimeLag + 1000l;
     }
 
 }
