@@ -73,26 +73,20 @@ public class GLWireframeShape2D implements IWireframeShape {
 
     private boolean compiled = false;
 
-    private IGLTarget target;
-
     private GLGeometryObject2D geometry;
 
     private GLGeometryObjectData geomData;
 
-    public GLWireframeShape2D(IGLTarget target,
-            GeneralGridGeometry gridGeometry, boolean mutable) {
-        this.target = target;
+    public GLWireframeShape2D(GeneralGridGeometry gridGeometry, boolean mutable) {
         geomData = new GLGeometryObjectData(GL.GL_LINE_STRIP,
                 GL.GL_VERTEX_ARRAY);
-        geomData.setTarget(target);
         geomData.mutable = mutable;
         geomData.worldExtent = new PixelExtent(gridGeometry.getGridRange());
         initialize();
     }
 
-    public GLWireframeShape2D(IGLTarget target, IDescriptor descriptor,
-            boolean mutable) {
-        this(target, descriptor.getGridGeometry(), mutable);
+    public GLWireframeShape2D(IDescriptor descriptor, boolean mutable) {
+        this(descriptor.getGridGeometry(), mutable);
         this.descriptor = descriptor;
     }
 
@@ -230,16 +224,16 @@ public class GLWireframeShape2D implements IWireframeShape {
         geometry.allocate(points);
     }
 
-    public synchronized void paint(IExtent viewExtent, Rectangle canvasSize,
-            RGB color, float lineWidth, LineStyle lineStyle, IFont font,
-            float alpha) throws VizException {
+    public synchronized void paint(IGLTarget target, IExtent viewExtent,
+            Rectangle canvasSize, RGB color, float lineWidth,
+            LineStyle lineStyle, IFont font, float alpha) throws VizException {
         if (isDrawable() == false) {
             return;
         }
 
         if (!geomData.mutable && !compiled) {
             compiled = true;
-            geometry.compile();
+            geometry.compile(target.getGl());
         }
 
         GL gl = target.getGl();
@@ -321,7 +315,7 @@ public class GLWireframeShape2D implements IWireframeShape {
             gl.glStencilOp(GL.GL_KEEP, GL.GL_KEEP, GL.GL_KEEP);
         }
 
-        geometry.paint();
+        geometry.paint(target.getGl());
 
         gl.glDisable(GL.GL_BLEND);
 

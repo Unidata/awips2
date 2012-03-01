@@ -71,10 +71,10 @@ public class RadarRadialMesh extends AbstractGLMesh {
             throws TransformException {
 
         int horizontalDivisions = key.horizontalDivisions;
-        int verticalDivisions = key.verticalDivisions;
+        int verticalDivisions = key.verticalDivisions + 1;
 
         // get dx and dy for texture points
-        float dX = (1.0f / (horizontalDivisions));
+        float dX = (1.0f / (key.horizontalDivisions));
 
         vertexCoords = new GLGeometryObject2D(new GLGeometryObjectData(
                 GL.GL_TRIANGLE_STRIP, GL.GL_VERTEX_ARRAY));
@@ -168,7 +168,7 @@ public class RadarRadialMesh extends AbstractGLMesh {
     @Override
     protected SharedCoordinateKey generateKey(ImageTile tile, MathTransform mt) {
         try {
-            return new SharedCoordinateKey(record.getNumRadials() + 1,
+            return new SharedCoordinateKey(record.getNumRadials(),
                     getNumVerticalDivisions(mt, record));
         } catch (Exception e) {
             statusHandler
