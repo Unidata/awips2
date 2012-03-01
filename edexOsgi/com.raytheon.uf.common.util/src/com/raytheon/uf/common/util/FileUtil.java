@@ -79,7 +79,7 @@ public class FileUtil {
         for (String component : pathComponents) {
             if ((fullPath.length() > 0)
                     && (fullPath.charAt(fullPath.length() - 1) != File.separatorChar)
-                    && (component.charAt(0) != File.separatorChar)) {
+                    && ((component.isEmpty()) || (component.charAt(0) != File.separatorChar))) {
                 fullPath.append(File.separatorChar);
             }
             fullPath.append(component);
