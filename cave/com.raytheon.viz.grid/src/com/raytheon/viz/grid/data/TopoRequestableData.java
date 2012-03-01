@@ -26,10 +26,14 @@ import javax.measure.unit.SI;
 
 import org.geotools.coverage.grid.GridGeometry2D;
 
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.topo.TopoQuery;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
@@ -53,6 +57,9 @@ import com.raytheon.viz.grid.util.SliceUtil;
  */
 
 public class TopoRequestableData extends AbstractRequestableData {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(TopoRequestableData.class);
+
     // need to move to a static timed cache
     private static Map<GridCoverage, FloatDataRecord> topoCache = new HashMap<GridCoverage, FloatDataRecord>();
 
@@ -61,7 +68,11 @@ public class TopoRequestableData extends AbstractRequestableData {
         this.parameter = "staticTopo";
         this.parameterName = "Topography";
         this.unit = SI.METER;
-        this.level = LevelFactory.getInstance().getLevel("SFC", 0.0);
+        try {
+            this.level = LevelFactory.getInstance().getLevel("SFC", 0.0);
+        } catch (CommunicationException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
     }
 
     /*
@@ -85,13 +96,10 @@ public class TopoRequestableData extends AbstractRequestableData {
                 topoCache.put(coverage, rval);
             }
         }
-        if (arg == null) {
-            return rval;
-        } else if (arg instanceof Request) {
+        if (arg instanceof Request) {
             return SliceUtil.slice(rval, (Request) arg);
+        } else {
+            return rval;
         }
-        throw new VizException(this.getClass().getSimpleName()
-                + " cannot process request of type: "
-                + arg.getClass().getSimpleName());
     }
 }
