@@ -8,6 +8,7 @@
 
 package gov.noaa.nws.ncep.ui.pgen.attrDialog;
 
+import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.DrawableElement;
 import gov.noaa.nws.ncep.ui.pgen.display.FillPatternList.FillPattern;
@@ -26,7 +27,9 @@ import java.util.Iterator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -48,6 +51,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 09/10					B. Yin   	Initial Creation.
  * 10/10		#?			B. Yin		Use MidLevelCloudText as label.	
  * 04/11		#?			B. Yin		Re-factor IAttribute
+ * 12/11		#523		B. Yin		Save the label dialog location
+ * 12/11		?			B. Yin		Added the open/close line button
  * </pre>
  * 
  * @author	B. Yin
@@ -73,7 +78,7 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
     protected ColorButtonSelector cs;
     
     //Closed line check box
-    protected Button closedBtn;
+    protected Button closedChkBox;
     
     //Add-Line button
     private Button addLineBtn;
@@ -89,11 +94,14 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
     
     //Flip button
     private Button flipBtn;
-    
+    private Button openCloseBtn;
+
     //Edit Label button
     private Button editLabelBtn;
     
     private float lineWidth = 2.0f;
+
+	private Point labelDlgLocation;
 
     /**
      * Constructor
@@ -189,6 +197,7 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
 					delLineBtn.setSelection(false);
 					delLabelBtn.setSelection(false);
 					flipBtn.setSelection(false);
+					openCloseBtn.setSelection(false);
 				}
 				else {
 //					cloudTool.setAddLineMode(false);
@@ -211,6 +220,7 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
 						delLineBtn.setSelection(false);
 						delLabelBtn.setSelection(false);
 						flipBtn.setSelection(false);
+						openCloseBtn.setSelection(false);
 						try {
 							labelDlg = new LabelAttrDlg( CloudAttrDlg.this.getParentShell() );
 							//labelDlg = MidLevelCloudAttrDlg.getInstance( CloudAttrDlg.this.getParentShell());
@@ -247,12 +257,13 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if ( ((Button)e.widget).getSelection() ){
-					cloudTool.setDeleteHandler(true, false);
+					cloudTool.setDeleteHandler(true, false, false);
 					addLineBtn.setSelection(false);
 					addLabelBtn.setSelection(false);
 					if ( labelDlg != null ) labelDlg.close();
 					delLabelBtn.setSelection(false);
 					flipBtn.setSelection(false);
+					openCloseBtn.setSelection(false);
 				}
 				else {
 					cloudTool.resetMouseHandler();
@@ -269,12 +280,13 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 					if ( ((Button)e.widget).getSelection() ){
-						cloudTool.setDeleteHandler(false, false);
+						cloudTool.setDeleteHandler(false, false, false);
 						addLineBtn.setSelection(false);
 						addLabelBtn.setSelection(false);
 						if ( labelDlg != null ) labelDlg.close();
 						delLineBtn.setSelection(false);
 						flipBtn.setSelection(false);
+						openCloseBtn.setSelection(false);
 					}
 					else {
 						cloudTool.resetMouseHandler();
@@ -291,12 +303,13 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 					if ( ((Button)e.widget).getSelection() ){
-						cloudTool.setDeleteHandler(true, true);
+						cloudTool.setDeleteHandler(true, true, false);
 						addLineBtn.setSelection(false);
 						addLabelBtn.setSelection(false);
 						if ( labelDlg != null ) labelDlg.close();
 						delLineBtn.setSelection(false);
 						delLabelBtn.setSelection(false);
+						openCloseBtn.setSelection(false);
 					}
 					else {
 						cloudTool.resetMouseHandler();
@@ -320,6 +333,7 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
 						delLabelBtn.setSelection(false);
 						addLabelBtn.setSelection(false);
 						flipBtn.setSelection(false);
+						openCloseBtn.setSelection(false);
 						//labelDlg = MidLevelCloudAttrDlg.getInstance( CloudAttrDlg.this.getParentShell());
 						try {
 							labelDlg = new LabelAttrDlg( CloudAttrDlg.this.getParentShell() );
@@ -335,15 +349,32 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						}
-						
-
 					}
 			}
-			
-			
-			
 		});
-			
+		//'Open/close' button
+		openCloseBtn = new Button(pane1, SWT.TOGGLE);
+		openCloseBtn.setText("Open/Close");
+		openCloseBtn.setLayoutData(new GridData(120,30));
+		openCloseBtn.addSelectionListener(new SelectionAdapter(){
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+					if ( ((Button)e.widget).getSelection() ){
+						cloudTool.setDeleteHandler(true, false, true);
+						addLineBtn.setSelection(false);
+						addLabelBtn.setSelection(false);
+						if ( labelDlg != null ) labelDlg.close();
+						delLineBtn.setSelection(false);
+						delLabelBtn.setSelection(false);
+						flipBtn.setSelection(false);
+					}
+					else {
+						cloudTool.resetMouseHandler();
+					}
+					
+			}
+		});		
+		
         addSeparator(top);
  
 	}
@@ -394,10 +425,10 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
 			public void widgetSelected(SelectionEvent e) {
 				Button btn = (Button)e.widget;
 				if(btn.getSelection()){
-					closedBtn.setEnabled(true);
+					closedChkBox.setEnabled(true);
 				}
 				else {
-					closedBtn.setEnabled(false);
+					closedChkBox.setEnabled(false);
 
 				}
 			}
@@ -405,8 +436,8 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
 		});
 		
 	*/
-		closedBtn  = new Button(comp, SWT.CHECK);
-		closedBtn.setText("Closed");
+		closedChkBox  = new Button(comp, SWT.CHECK);
+		closedChkBox.setText("Closed");
 	}
 
 	@Override
@@ -414,7 +445,7 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
 		if ( cloudTool != null && cloudTool.getLabeledLine() != null ){
 			Line ln = (Line)cloudTool.getLabeledLine().getPrimaryDE();
 			this.setColor(ln.getColors()[0]);
-			this.closedBtn.setSelection(ln.isClosedLine());
+			this.closedChkBox.setSelection(ln.isClosedLine());
 			
 		}
 	
@@ -475,7 +506,7 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
 	public Boolean isClosedLine(){
 	//	if ( chkBox[ChkBox.CLOSE.ordinal()].getSelection() ){
 
-			return closedBtn.getSelection();
+			return closedChkBox.getSelection();
 	//	}
 	//	else {
 	//		return null;
@@ -489,8 +520,8 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
 	 */
 	/*private void setClosed( Boolean cls ){
 		
-		if ( closedBtn != null ){
-			closedBtn.setSelection( cls );
+		if ( closedChkBox != null ){
+			closedChkBox.setSelection( cls );
 		}
 	}
 	*/
@@ -559,6 +590,7 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
 	public boolean close(){
 		
 		if ( labelDlg != null ) labelDlg.close();
+		PgenUtil.setSelectingMode();
 		return super.close();
 		
 	}
@@ -578,6 +610,7 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
 	 */
 	private class LabelAttrDlg extends MidLevelCloudAttrDlg {
 		
+
 		/**
 		 * constructor
 		 * @param parShell
@@ -618,6 +651,31 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
 			CloudAttrDlg.this.mapEditor.refresh();
 			close();
 		}
+		
+		/**
+		 * Set the location of the dialog
+		 */
+		@Override
+		public int open(){
+		
+			if(labelDlgLocation != null){
+				shellLocation = labelDlgLocation;
+			}
+			
+	   	    return super.open();
+			
+		}
+		
+		/** 
+		 * Save location of the dialog.
+		 */
+		public boolean close() {
+			if(getShell() != null){
+				Rectangle bounds = getShell().getBounds();
+				labelDlgLocation = new Point(bounds.x, bounds.y);
+			}
+			return super.close();
+		}
 	}
 
 	@Override
@@ -634,8 +692,7 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
 
 	@Override
 	public int getSmoothFactor() {
-		// TODO Auto-generated method stub
-		return 0;
+		return 2;
 	}
 
 	@Override
@@ -649,5 +706,4 @@ public class CloudAttrDlg extends AttrDlg implements ILine{
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
 }

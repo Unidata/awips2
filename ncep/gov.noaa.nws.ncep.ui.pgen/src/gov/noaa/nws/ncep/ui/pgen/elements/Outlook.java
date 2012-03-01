@@ -32,6 +32,8 @@ import gov.noaa.nws.ncep.ui.pgen.file.ProductConverter;
 import gov.noaa.nws.ncep.ui.pgen.file.Products;
 import gov.noaa.nws.ncep.ui.pgen.annotation.ElementOperations;
 import gov.noaa.nws.ncep.ui.pgen.annotation.Operation;
+import gov.noaa.nws.ncep.ui.pgen.attrDialog.OutlookAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrDialog.vaaDialog.SaveMsgDlg;
 
 /**
  * Class for Jet element.
@@ -452,6 +454,8 @@ public class Outlook extends Contours {
 	 */
 	public String generateLineInfo( String lineBreaker ){
 		
+		if ( this.getOutlookType().equalsIgnoreCase("EXCE_RAIN")) return excessiveRain(lineBreaker);
+			
 		String lnInfo = "";
 		
 		List<Station> anchors = WatchBox.getAnchorTbl().getStationList();
@@ -741,6 +745,76 @@ public class Outlook extends Contours {
                 lines.add( cline );                
 			}
 		}								
+	}
+	
+	private String excessiveRain( String lineBreaker ){
+		String ret = "";
+		
+		String rainTxt = "RISK OF RAINFALL EXCEEDING FFG TO THE RIGHT OF A LINE FROM";
+		String fiveInch = "TOTAL RAINFALL AMOUNTS OF FIVE INCHES WILL BE POSSIBLE TO THE RIGHT OF A LINE FROM";
+		
+		List<Station> sfstns = OutlookAttrDlg.getSfstnTbl().getStationList();
+
+		Iterator<AbstractDrawableComponent> it = this.getComponentIterator();
+		while( it.hasNext() ){
+			AbstractDrawableComponent adc = it.next();
+			if ( adc.getName().equalsIgnoreCase(Outlook.OUTLOOK_LABELED_LINE)){
+				Iterator<DrawableElement> itDe = ((DECollection)adc).createDEIterator();
+				List<Line> lines = new ArrayList<Line>();
+				gov.noaa.nws.ncep.ui.pgen.elements.Text txt = null;
+				while ( itDe.hasNext() ){
+					DrawableElement de = itDe.next();
+					if ( de instanceof gov.noaa.nws.ncep.ui.pgen.elements.Text ) txt = (gov.noaa.nws.ncep.ui.pgen.elements.Text) de;
+					else if ( de instanceof Line ) lines.add((Line)de);
+				}
+				
+				String lblInfo = "";
+				if ( txt == null ){
+					break;
+				}
+				else if ( txt.getString()[0].equalsIgnoreCase("5 INCH")){
+					ret += fiveInch;
+				}
+				else if ( txt.getString()[0].equalsIgnoreCase("SLGT")){
+					lblInfo += "SLIGHT ";
+				}
+				else if ( txt.getString()[0].equalsIgnoreCase("MDT")){
+					lblInfo += "MODERATE ";
+				}
+				else if ( txt.getString()[0].equalsIgnoreCase("HIGH")){
+					lblInfo += "HIGH ";
+				}
+				
+				if ( !lblInfo.isEmpty() ) ret += lblInfo + rainTxt;
+				
+				if ( !lines.isEmpty() ){
+					for ( Line ln : lines ){
+						ArrayList<Coordinate> pts = ln.getPoints();
+						if ( ln.isClosedLine() ) pts.add( pts.get(0));
+						for (Coordinate pt : pts ){
+							Station st = WatchBox.getNearestAnchorPt(pt, sfstns);
+							GeodeticCalculator gc = new GeodeticCalculator(DefaultEllipsoid.WGS84);
+
+							gc.setStartingGeographicPoint(st.getLongitude(), st.getLatitude() );
+							gc.setDestinationGeographicPoint(pt.x, pt.y  );
+
+							long dist = Math.round( gc.getOrthodromicDistance()/PgenUtil.SM2M);
+							long dir = Math.round(gc.getAzimuth());
+							if ( dir < 0 ) dir += 360;
+
+							ret += String.format(" %1$d %2$s %3$s", (int)(dist/5*5), 
+									WatchBox.dirs[(int)Math.round(dir/22.5)], st.getStid());
+
+						}
+					}
+					ret += "\n";
+				}
+			}
+			ret += "\n";
+		}
+		
+		return SaveMsgDlg.wrap(ret, 65, "\n", false);
+
 	}
 	
 }

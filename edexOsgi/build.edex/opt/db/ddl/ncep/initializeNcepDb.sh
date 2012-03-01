@@ -43,6 +43,10 @@ for shp in `find ${4}/shapefiles -name "*.shp"` ; do
        || $base == 'Asctropfirs' \
        || $base == 'Asctweb' \
        || $base == 'Ascwrzones' \
+       || $base == 'Awcartcc' \
+       || $base == 'Awcccfcan' \
+       || $base == 'Awcfaarea' \
+       || $base == 'Atlbasin' \
        || $base == 'Bwus_bnd' \
        || $base == 'Bwus_label' \
        || $base == 'Bwx1224' \
@@ -57,6 +61,7 @@ for shp in `find ${4}/shapefiles -name "*.shp"` ; do
        || $base == 'Firbnds' \
        || $base == 'Firebnds' \
        || $base == 'FireWxAOR' \
+       || $base == 'FirKzoaAwc' \
        || $base == 'G2t_atl_bnd' \
        || $base == 'G2t_nwc' \
        || $base == 'G2t_pac_bnd' \
@@ -74,6 +79,7 @@ for shp in `find ${4}/shapefiles -name "*.shp"` ; do
        || $base == 'Npsabnds' \
        || $base == 'Opcbnds' \
        || $base == 'Opcbnds_nomex' \
+       || $base == 'PacBasin' \
        || $base == 'Pfzbnds' \
        || $base == 'Rfcbnds' \
        || $base == 'Sig_high' \

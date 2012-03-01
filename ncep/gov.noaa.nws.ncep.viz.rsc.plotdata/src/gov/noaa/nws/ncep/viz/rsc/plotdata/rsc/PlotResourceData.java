@@ -14,6 +14,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.rsc.AbstractNameGenerator;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -37,7 +40,14 @@ import com.raytheon.viz.pointdata.rsc.retrieve.AbstractDbPlotInfoRetriever;
  * 03/07/2011     migration ghull     use AbstractDbPlotInfoRetriever
  * 03/04/2011              ghull       change plotModel category to plugin name
  * 05/12/2011    #441      ghull       remove upper/lower limit
- *                            
+ * 09/03/2011              ghull       rmove reportTypeKey; add ncscd 
+ * 09/14/2011    #457      sgurung     Renamed h5 to nc
+ * 09/22/2011    #459      ghull       added modelsounding, ncairep and ncpirep
+ * 10/14/2011              ghull       added ncpafm, nctaf
+ * 10/18/2011              sgurung     Modified setReportType() to set constrainttype as ConstraintType.IN 
+ * 10/19/2011              ghull       add TafPlotResource
+ * 11/01/2011    #482      ghull       added plotDensity, comment out unimplemented plugins
+ *                           
  * </pre>
  * 
  * @author njensen
@@ -49,7 +59,11 @@ import com.raytheon.viz.pointdata.rsc.retrieve.AbstractDbPlotInfoRetriever;
 public class PlotResourceData extends AbstractNatlCntrsRequestableResourceData implements
 INatlCntrsResourceData {
 
-	protected int pixelSizeHint = 90;
+	protected int pixelSizeHint = 80;
+
+	// used in metadata query. For bufrmos this is the bufrmos type.
+	@XmlElement
+	protected String reportType = null;
 
 	@XmlElement
 	protected String legendString = null;
@@ -68,6 +82,9 @@ INatlCntrsResourceData {
 
 	@XmlElement
     protected String levelKey = null;
+
+	@XmlElement
+    protected Integer plotDensity = 10;
 
 // This is for the 'range' plotMode which we currently aren't. We'll need similar 
 // functionality in the future but this will need to be on a per parameter basis and
@@ -91,34 +108,80 @@ INatlCntrsResourceData {
     private static ArrayList<String> fcstPlugins = new ArrayList<String>();
 
     static {
-        pluginNames.add("bufrmos");
-        pluginNames.add("goessounding");
-        pluginNames.add("poessounding");
+//        pluginNames.add("goessounding");
+//        pluginNames.add("poessounding");
         pluginNames.add("obs");
-        pluginNames.add("bufrssmi");
-        pluginNames.add("bufrquikscat");
-        pluginNames.add("bufrascat");
-        pluginNames.add("radar");
-        pluginNames.add("bufrhdw");
-        pluginNames.add("lsr");
+//        pluginNames.add("bufrssmi");
+//        pluginNames.add("bufrquikscat");
+//        pluginNames.add("bufrascat");
+//        pluginNames.add("radar");
+//        pluginNames.add("bufrhdw");
+//        pluginNames.add("lsr");
         pluginNames.add("sfcobs");
-        pluginNames.add("tcg");
-        pluginNames.add("svrwx");
-        pluginNames.add("ldadmesonet");
-        pluginNames.add("h5uair");
-        pluginNames.add("scd");//scd added
+//        pluginNames.add("tcg");
+//        pluginNames.add("svrwx");
+//        pluginNames.add("ldadmesonet");
+        pluginNames.add("ncuair");
+        pluginNames.add("ncscd");
+//        pluginNames.add("scd");
+        pluginNames.add("ncairep");
+        pluginNames.add("ncpirep");
+        pluginNames.add("nctaf");
+        pluginNames.add("ncpafm");
+        pluginNames.add("modelsounding");
+        pluginNames.add("bufrmosLAMP");
+        pluginNames.add("bufrmosAVN");
+        pluginNames.add("bufrmosETA");
+        pluginNames.add("bufrmosGFS");
+        pluginNames.add("bufrmosNAM");
+        pluginNames.add("bufrmosHPC");
+        pluginNames.add("bufrmosMRF");
         
         // for the ModelGridPlotResource 
         // TODO : is this ncgrib, or a new plugin just for the Model Plot Data?
-        pluginNames.add("ncgrib");
+//        pluginNames.add("ncgrib");
         
+        // We could key off of levelKey.equals("Surface") but for airep and pirep 
+        // levelKey won't be surface.
         sfcPlugins.add("obs");
         sfcPlugins.add("sfcobs");
-        sfcPlugins.add("bufrmos");        
+        sfcPlugins.add("ncscd");
+        sfcPlugins.add("ncairep");
+        sfcPlugins.add("ncpirep");
+        sfcPlugins.add("nctaf");
+        sfcPlugins.add("ncpafm");
+        sfcPlugins.add("bufrmosLAMP");
+        sfcPlugins.add("bufrmosAVN");
+        sfcPlugins.add("bufrmosETA");
+        sfcPlugins.add("bufrmosGFS");
+        sfcPlugins.add("bufrmosNAM");
+        sfcPlugins.add("bufrmosHPC");
+        sfcPlugins.add("bufrmosMRF");
     
-        fcstPlugins.add("bufrmos");
+        fcstPlugins.add("bufrmosLAMP");
+        fcstPlugins.add("bufrmosAVN");
+        fcstPlugins.add("bufrmosETA");
+        fcstPlugins.add("bufrmosGFS");
+        fcstPlugins.add("bufrmosNAM");
+        fcstPlugins.add("bufrmosHPC");
+        fcstPlugins.add("bufrmosMRF");
         fcstPlugins.add("ncgrib");
+        fcstPlugins.add("modelsounding");
+        fcstPlugins.add("nctaf");
+        fcstPlugins.add("ncpafm");
     }
+
+    // taf is an exception to the rule that forecast resources have cycle times.
+    //
+    @Override
+	public boolean isForecastResource() {
+		if( getPluginName().equals("nctaf") ) {
+			return true;
+		}
+		else { // or could base off of fcstPlugins...same result
+			return super.isForecastResource();
+		}
+	}
 
 	public PlotResourceData( ) {
 		super();
@@ -145,27 +208,23 @@ INatlCntrsResourceData {
 	@Override
 	protected AbstractVizResource<?, ?> constructResource(
 			LoadProperties loadProperties, PluginDataObject[] objects) {
-		//        if (this.metadataMap.get("pluginName").getConstraintValue().equals(
-		//                "bufrmos")
-		//                || this.metadataMap.get("pluginName").getConstraintValue()
-		//                        .equals("goessounding")) {
-		//            return new PlotResource2(this, loadProperties);
-		//        }
-		//  
-		//              if( isEdited && plotModel != null ) {
-		//                      // should we go thru the mngr to create this so we can store it?
-		//              }
-		//              else {
-		//                      getPlotModel();
-		//              }
-		//    
+		
+		// Force the reportType to be set in the metadata map for non-bufrmos plugins
+		// 
+		if( !getPluginName().startsWith("bufrmos") ) {		
+			setReportType( getReportType() );
+		}
+		
 		String pluginName = this.metadataMap.get("pluginName").getConstraintValue();
 		
         if (pluginNames.contains(pluginName)) {
         	if( pluginName.equals("ncgrib") ) {
         		return new ModelGridPlotResource(this, loadProperties );
+        	}        	
+        	else if( pluginName.equals("nctaf") ) {
+        		return new TafPlotResource(this, loadProperties);
         	}
-        	else if( fcstPlugins.contains(pluginName)) {
+        	else if( fcstPlugins.contains( pluginName)) {
         		return new FcstPlotResource(this, loadProperties);
         	}
         	else {
@@ -176,6 +235,20 @@ INatlCntrsResourceData {
 			System.out.println("Plugin "+ pluginName + " not supported by PlotResource2");
 			return null; //new PlotResource( this, loadProperties );
 	}
+		
+	public String getReportType() {
+		return reportType;
+	}
+
+	public void setReportType(String rType) {
+		reportType = rType;
+		
+		RequestConstraint req = new RequestConstraint(
+				reportType, ConstraintType.IN );
+
+		getMetadataMap().put( "reportType", req );
+	}
+
 
 	public String getLegendString() {
 		return legendString;
@@ -252,14 +325,18 @@ INatlCntrsResourceData {
         this.levelKey = levelKey;
     }
     
+	public Integer getPlotDensity() {
+		return plotDensity;
+	}
+
+	public void setPlotDensity(Integer plotDensity) {
+		this.plotDensity = plotDensity;
+	}
+
     public boolean isSurfaceOnly() {
 		return sfcPlugins.contains( getPluginName() );
 	}
     
-    public String getPluginName() {
-        return metadataMap.get("pluginName").getConstraintValue();
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (!super.equals(obj)) {
@@ -287,6 +364,15 @@ INatlCntrsResourceData {
             return false;
         } else if (this.levelKey != null
                 && this.levelKey.equals(other.levelKey) == false) {
+            return false;
+        }
+
+        if (this.plotDensity != null && other.plotDensity == null) {
+            return false;
+        } else if (this.plotDensity == null && other.plotDensity != null) {
+            return false;
+        } else if (this.plotDensity != null
+                && this.plotDensity.equals(other.plotDensity) == false) {
             return false;
         }
 

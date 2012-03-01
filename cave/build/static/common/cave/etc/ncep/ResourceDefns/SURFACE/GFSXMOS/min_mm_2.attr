@@ -1,0 +1,4 @@
+! Attributes for the GFSXMOS resource with "minmm2" plot model
+!
+plotModelName=minmm2
+plotDensity=10

@@ -161,7 +161,7 @@ public class PgenInterpolationTool extends AbstractPgenDrawingTool {
         	    
                 mapEditor.refresh();               
                 //System.out.println("Button 1111111 status = "+status);    		    
-                return true;	
+                return false;	
        		                
             }
         	
@@ -238,6 +238,7 @@ public class PgenInterpolationTool extends AbstractPgenDrawingTool {
      */
     public boolean comparisonIsValid(DrawableElement el2, DrawableElement orig) {
     	
+    	if ( orig==null || el2==null ) return false; 
     	if ( orig == el2 ) return false;
     	
 		if ( el2.getPgenCategory().equals( orig.getPgenCategory() ) ) {
