@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PlotParameterDefns>
+
+<plugin>ncuair</plugin>
+
+<!-- default(missing) plotMode is "text" -->
+
+<!-- For ncuair, the dbParamName is not necessarily the name of the
+  -->
+
+<!-- Derived Parameters -->  
+ <PlotParameterDefn  plotParamName="DPDC" metParamName="DewPointDepression"  
+ 					 deriveParams="all" plotUnit="°C" plotFormat="%3.0f"/>
+ 
+ <PlotParameterDefn  plotParamName="DPDF" metParamName="DewPointDepression"  
+                     deriveParams="all" plotUnit="°F" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="MIXR" metParamName="MixingRatio"  
+                     deriveParams="all" plotUnit="%" plotFormat="%1.2f"/>
+
+ <PlotParameterDefn  plotParamName="THTE" metParamName="EquivPotentialTemp"  
+                     deriveParams="all" plotUnit="K" plotFormat="%3.0f"/>
+
+    <!-- measured parameters -->         
+ <PlotParameterDefn  plotParamName="PRES" metParamName="PressureLevel"  
+                     dbParamName="PRES" plotUnit="hPa" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="RELH" metParamName="RelativeHumidity"  
+                     deriveParams="all" plotUnit="%" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="TMPF" metParamName="AirTemperature"  
+                     dbParamName="TEMP" plotUnit="°F" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="TMPC" metParamName="AirTemperature"  
+                     dbParamName="temperature" plotUnit="°C" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="HGHT" metParamName="HeightAboveSeaLevel"  
+                     dbParamName="HGHT" plotUnit="m" plotFormat="%3.0f"/>
+
+<!-- the height as a standard character abbreviation.
+  -->
+ <PlotParameterDefn  plotParamName="STDZ" metParamName="HeightAboveSeaLevel"  
+                     dbParamName="HGHT" plotUnit="m" 
+                     plotFormat="STDZ"/>
+
+ <PlotParameterDefn  plotParamName="DWPF" metParamName="DewPointTemp"  
+                     dbParamName="dewpoint" plotUnit="°F" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="DWPC" metParamName="DewPointTemp"   
+                     dbParamName="dewpoint" plotUnit="°C" plotFormat="%3.0f"/>
+
+<!-- STATION VARIABLES -->
+ <PlotParameterDefn  plotParamName="STID" metParamName="StationID"    
+                     plotMode="text" dbParamName="stationId" />
+ <PlotParameterDefn  plotParamName="SLAT" metParamName="StationLatitude"   
+                     plotMode="text" dbParamName="latitude" plotUnit="°" plotFormat="%.3f"  />
+ <PlotParameterDefn  plotParamName="SLON" metParamName="StationLongitude"   
+                     plotMode="text" dbParamName="longitude" plotUnit="°" plotFormat="%.3f"/>
+ <PlotParameterDefn  plotParamName="SELV" metParamName="StationElevation" 
+ 					 plotMode="text" dbParamName="elevation" plotUnit="m" plotFormat="%5.0f" /> 
+   
+<!-- this should? be the stationId in the hdf5 file but it is the 
+     same as the stationName field. Instead we just look it up. -->
+        
+<!-- These really aren't normally displayed by themselves but they need
+  == to be here since they are used to derive the WindBarbs.
+  -->
+ <PlotParameterDefn plotParamName="DRCT" metParamName="WindDirection"  
+                    dbParamName="windDir" plotUnit="degree" plotFormat="%3.0f"/>
+ <PlotParameterDefn plotParamName="SPED" metParamName="WindSpeed"  
+                    dbParamName="SPED" plotUnit="m/s" plotFormat="%3.0f"/>
+ <PlotParameterDefn plotParamName="SKNT" metParamName="WindSpeed"  
+                    dbParamName="SPED" plotUnit="kts" plotFormat="%3.0f"/>
+
+<!-- WIND BARBS -->
+ <PlotParameterDefn plotParamName="BRBK" metParamName="WindDirection,WindSpeed"
+                    plotMode="barb" symbolFont="WindSymbolFont" 
+                    plotUnit="kts" />
+
+ <PlotParameterDefn plotParamName="BRBM" metParamName="WindDirection,WindSpeed"
+                    plotMode="barb" symbolFont="WindSymbolFont" 
+                    plotUnit="m/s"/>
+
+</PlotParameterDefns>

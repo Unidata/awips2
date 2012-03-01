@@ -11,7 +11,8 @@ import gov.noaa.nws.ncep.edex.common.stationTables.Station;
 import gov.noaa.nws.ncep.edex.common.stationTables.StationTable;
 import gov.noaa.nws.ncep.ui.pgen.PgenUtil;
 import gov.noaa.nws.ncep.ui.pgen.gfa.GfaSnap;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -40,6 +41,8 @@ import com.vividsolutions.jts.index.quadtree.Quadtree;
  * 05/23/2011     430      Q.Zhou      Add intersection to polygon before snap, calculate area after snap
  * 06/27/2011     430      Q.Zhou      Added map and device system transaction
  * 07/06/2011     430      Q. Zhou     Preload station table.
+ * 07/11        #450        G. Hull     NcPathManager
+ *
  * </pre>
  * 
  * @author Q.Zhou
@@ -58,7 +61,9 @@ public class ReduceGfaPointsUtil {
 	static StationTable stationTable;
 	
 	public static StationTable getStationTable()  {
-		stationTable = new StationTable(LocalizationManager.getInstance().getFilename("vorTable"));
+		stationTable = new StationTable(
+				NcPathManager.getInstance().getStaticFile(
+						   NcPathConstants.VORS_STN_TBL ).getAbsolutePath() );
 		return stationTable;
 	}
 	

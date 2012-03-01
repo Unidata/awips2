@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<resourceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <resource>
+          <loadProperties loadWithoutData="true"></loadProperties>
+          <properties isSystemResource="false"
+              isBlinking="false" isMapLayer="false" isHoverOn="false"
+              isVisible="true" />
+          <resourceData xsi:type="WstmResourceData"
+                        isUpdatingOnMetadataOnly="false" 
+                        isRequeryNecessaryOnTimeMatch="false"> 
+             <frameSpan>${frameSpan}</frameSpan>
+             <dfltNumFrames>${dfltNumFrames}</dfltNumFrames>
+             <dfltTimeRange>${dfltTimeRange}</dfltTimeRange>
+             <timeMatchMethod>${timeMatchMethod}</timeMatchMethod>       
+             <timelineGenMethod>${timelineGenMethod}</timelineGenMethod> 
+             <legendName>WSTM</legendName>
+             <legendColor>${legendColor}</legendColor>     
+             <wstmWarningEnable>${wstmWarningEnable}</wstmWarningEnable>
+             <wstmWarningColor>${wstmWarningColor}</wstmWarningColor>
+             <wstmWarningLineWidth>${wstmWarningLineWidth}</wstmWarningLineWidth>
+             <wstmWarningSymbolWidth>${wstmWarningSymbolWidth}</wstmWarningSymbolWidth>
+             <wstmWarningSymbolSize>${wstmWarningSymbolSize}</wstmWarningSymbolSize>
+             <wstmWatchEnable>${wstmWatchEnable}</wstmWatchEnable>
+             <wstmWatchColor>${wstmWatchColor}</wstmWatchColor>
+             <wstmWatchLineWidth>${wstmWatchLineWidth}</wstmWatchLineWidth>
+             <wstmWatchSymbolWidth>${wstmWatchSymbolWidth}</wstmWatchSymbolWidth>
+             <wstmWatchSymbolSize>${wstmWatchSymbolSize}</wstmWatchSymbolSize>
+             <wstmAdvisoryEnable>${wstmAdvisoryEnable}</wstmAdvisoryEnable>
+             <wstmAdvisoryColor>${wstmAdvisoryColor}</wstmAdvisoryColor>
+             <wstmAdvisoryLineWidth>${wstmAdvisoryLineWidth}</wstmAdvisoryLineWidth>
+             <wstmAdvisorySymbolWidth>${wstmAdvisorySymbolWidth}</wstmAdvisorySymbolWidth>
+             <wstmAdvisorySymbolSize>${wstmAdvisorySymbolSize}</wstmAdvisorySymbolSize>
+             <timeEnable>${timeEnable}</timeEnable>
+             <zoneNameEnable>${zoneNameEnable}</zoneNameEnable>
+             <outlineEnable>${outlineEnable}</outlineEnable>
+             <requestStyle>METADATA</requestStyle>
+             <metadataMap>
+               <mapping key="pluginName">
+              		<constraint constraintValue="aww" constraintType="EQUALS" />
+               </mapping>
+               <mapping key="reportType">
+                 <constraint constraintValue="WINTER_WEATHER_ADVISORY,WINTER_STORM_WARNING,WINTER_STORM_WATCH,ADVISORY,URGENT_WEATHER_MESSAGE,WEATHER_ADVISORY,WINTER_STORM" constraintType="IN" />
+               </mapping>
+             </metadataMap>
+          </resourceData>
+        </resource>
+</resourceGroup>

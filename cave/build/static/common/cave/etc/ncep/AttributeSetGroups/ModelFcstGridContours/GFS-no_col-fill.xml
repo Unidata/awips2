@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
+    <resource>GFS</resource>
+    <attrSetGroupName>no_col-fill</attrSetGroupName>
+    <attrSetNames>250mb_hght_wind_ncf,400mb_avg_rh_ncf,500mb_absv_ncf,500mb_hght_absv_ncf,700mb_hght_rh_omega_ncf,850mb_hght_tmp_wind_ncf,850mb_wind_pw,bl_h2o_conv_ncf,lifted_index_ncf,pcpn_potential_ncf,precip_type_vv_ncf</attrSetNames>
+</AttributeSetGroup>
