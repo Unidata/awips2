@@ -1,0 +1,50 @@
+! Attributes for Tropical Cyclone (HRCN/TCM)
+!
+color= {155, 155, 155}
+! 
+hurricaneEnable=true
+hurricaneColor= {255, 0, 0}
+hurricaneSymbolWidth=1
+hurricaneSymbolSize=3
+!
+tropicalStormEnable=true
+tropicalStormColor= {255, 255, 0}
+tropicalStormSymbolWidth=1
+tropicalStormSymbolSize=3
+!
+tropicalDepressionEnable=true
+tropicalDepressionColor= {0, 255, 0}
+tropicalDepressionSymbolWidth=1
+tropicalDepressionSymbolSize=3
+!
+motionDirectionEnable=false
+motionDirectionColor= {255, 0, 255}
+motionDirectionArrowWidth=1
+motionDirectionArrowSize=3
+motionDirectionArrowHeadSize=1
+!
+timeEnable=true
+namePressureEnable=true
+motionSpeedEnable=false
+windSeaFtRadiiEnable=true
+!
+forecastPosHour00=true
+forecastPosHour06=false
+forecastPosHour12=true
+forecastPosHour18=false
+forecastPosHour24=true
+forecastPosHour30=false
+forecastPosHour36=true
+forecastPosHour42=false
+forecastPosHour48=true
+forecastPosHour54=false
+forecastPosHour60=false
+forecastPosHour66=false
+forecastPosHour72=true
+forecastPosHour78=false
+forecastPosHour84=false
+forecastPosHour90=false
+forecastPosHour96=true
+forecastPosHour120=true
+!
+!

@@ -74,7 +74,7 @@ Added Volcano Information Phil Kurimski 23 Sept 2011
  <bullets>
   <!-- Added Volcano Information. Sites can comment out if they wish. -->
   <bullet bulletText="  *****BASIS SECTION*****...(Choose 1) " bulletType="title"/>
-  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="group5" bulletDefault="true" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="group5" bulletDefault="true" parseString="DOPPLER RADAR INDICATED"/>
   <bullet bulletName="marineSpotter" bulletText="Marine weather spotters reported" bulletGroup="group5" parseString="MARINE WEATHER SPOTTERS REPORTED"/>
   <bullet bulletName="mariner" bulletText="Mariner reported" bulletGroup="group5" parseString="A MARINER REPORTED"/>
   <bullet bulletName="public" bulletText="Public reported" bulletGroup="group5" parseString="THE PUBLIC REPORTED"/>
@@ -88,11 +88,11 @@ Added Volcano Information Phil Kurimski 23 Sept 2011
   <bullet bulletName="front" bulletText="Front" bulletGroup="group1" parseString="FRONT"/>
   <bullet bulletName="volcano" bulletText="Volcano" bulletGroup="group1" parseString="VOLCANO"/>
   <bullet bulletText="" bulletType="title"/>
-  <bullet bulletText="  ****THREAT SECTION****..." bulletType="title"/>
+  <bullet bulletText="****THREAT SECTION****..." bulletType="title"/>
   <bullet bulletText="  ****Wind Section****...(Choose 1 if applicable) " bulletType="title"/>
-  <bullet bulletName="34ktWind" bulletText="Strong winds 34 knots or greater" bulletGroup="group2" bulletDefault="true" parseString="STRONG WINDS 34 KNOTS OR GREATER"/>
-  <bullet bulletName="40ktWind" bulletText="Strong winds to 40 knots" bulletGroup="group2" parseString="STRONG WINDS TO 40 KNOTS"/>
-  <bullet bulletName="40ktplusWind" bulletText="Strong winds to nearly 50 knots" bulletGroup="group2" parseString="STRONG WINDS TO NEARLY 50 KNOTS"/>
+  <bullet bulletName="34ktWind" bulletText="Strong winds 34 knots or greater" bulletGroup="group2" bulletDefault="true" parseString="WINDS 34 KNOTS OR GREATER"/>
+  <bullet bulletName="40ktWind" bulletText="Strong winds to 40 knots" bulletGroup="group2" parseString="WINDS TO 40 KNOTS"/>
+  <bullet bulletName="40ktplusWind" bulletText="Strong winds to nearly 50 knots" bulletGroup="group2" parseString="WINDS TO NEARLY 50 KNOTS"/>
   <bullet bulletName="50ktWind" bulletText="Dangerous winds in excess of 50 knots" bulletGroup="group2" parseString="DANGEROUS WINDS IN EXCESS OF 50 KNOTS"/>
   <bullet bulletName="65ktWind" bulletText="Dangerous winds in excess of 65 knots" bulletGroup="group2" parseString="DANGEROUS WINDS IN EXCESS OF 65 KNOTS"/>
   <bullet bulletText="  ****Hail Section****...(Choose 1 if applicable) " bulletType="title"/>
@@ -123,10 +123,8 @@ Added Volcano Information Phil Kurimski 23 Sept 2011
 <bulletActionGroup action="COR" phen="MA" sig="W">
  <bullets>
   <!-- Added Volcano Information. Sites can comment out if they wish. -->
-  <bullet bulletText="*** CORRECTED PRODUCT. CLICK CREATE TEXT ***" bulletType="title"/>
-  <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="  *****BASIS SECTION*****...(Choose 1) " bulletType="title"/>
-  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="group5" bulletDefault="true" parseString="NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="group5" bulletDefault="true" parseString="DOPPLER RADAR INDICATED"/>
   <bullet bulletName="marineSpotter" bulletText="Marine weather spotters reported" bulletGroup="group5" parseString="MARINE WEATHER SPOTTERS REPORTED"/>
   <bullet bulletName="mariner" bulletText="Mariner reported" bulletGroup="group5" parseString="A MARINER REPORTED"/>
   <bullet bulletName="public" bulletText="Public reported" bulletGroup="group5" parseString="THE PUBLIC REPORTED"/>
@@ -142,9 +140,9 @@ Added Volcano Information Phil Kurimski 23 Sept 2011
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="  ****THREAT SECTION****..." bulletType="title"/>
   <bullet bulletText="  ****Wind Section****...(Choose 1 if applicable) " bulletType="title"/>
-  <bullet bulletName="34ktWind" bulletText="Strong winds 34 knots or greater" bulletGroup="group2" bulletDefault="true" parseString="STRONG WINDS 34 KNOTS OR GREATER"/>
-  <bullet bulletName="40ktWind" bulletText="Strong winds to 40 knots" bulletGroup="group2" parseString="STRONG WINDS TO 40 KNOTS"/>
-  <bullet bulletName="40ktplusWind" bulletText="Strong winds to nearly 50 knots" bulletGroup="group2" parseString="STRONG WINDS TO NEARLY 50 KNOTS"/>
+  <bullet bulletName="34ktWind" bulletText="Strong winds 34 knots or greater" bulletGroup="group2" bulletDefault="true" parseString="WINDS 34 KNOTS OR GREATER"/>
+  <bullet bulletName="40ktWind" bulletText="Strong winds to 40 knots" bulletGroup="group2" parseString="WINDS TO 40 KNOTS"/>
+  <bullet bulletName="40ktplusWind" bulletText="Strong winds to nearly 50 knots" bulletGroup="group2" parseString="WINDS TO NEARLY 50 KNOTS"/>
   <bullet bulletName="50ktWind" bulletText="Dangerous winds in excess of 50 knots" bulletGroup="group2" parseString="DANGEROUS WINDS IN EXCESS OF 50 KNOTS"/>
   <bullet bulletName="65ktWind" bulletText="Dangerous winds in excess of 65 knots" bulletGroup="group2" parseString="DANGEROUS WINDS IN EXCESS OF 65 KNOTS"/>
   <bullet bulletText="  ****Hail Section****...(Choose 1 if applicable) " bulletType="title"/>
@@ -279,5 +277,4 @@ Added Volcano Information Phil Kurimski 23 Sept 2011
   <timezoneSource>TIMEZONES</timezoneSource>
   <timezoneField>TIME_ZONE</timezoneField>
  </geospatialConfig>
- 
 </warngenConfig>
