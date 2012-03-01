@@ -33,12 +33,16 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.grib.util.GribModelLookup;
 import com.raytheon.uf.common.dataplugin.grib.util.GridModel;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
@@ -70,6 +74,8 @@ import com.raytheon.viz.grid.rsc.GridResourceData;
  */
 public class GridProductBrowserDataDefinition extends
         AbstractRequestableProductBrowserDataDefinition<GridResourceData> {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(GridProductBrowserDataDefinition.class);
 
     private static final String SHOW_UNKNOWN_MODELS = "Show Unknown Models";
 
@@ -166,27 +172,32 @@ public class GridProductBrowserDataDefinition extends
             e.printStackTrace();
         }
         LevelFactory lf = LevelFactory.getInstance();
-        if (selection.length > 3) {
-            List<String> availLevels = new ArrayList<String>();
-            for (String levelid : returnQueue) {
-                Level level = lf.getLevel(levelid);
-                if (level.getMasterLevel().getName().equals(selection[3])) {
-                    availLevels.add(levelid);
+        try {
+            if (selection.length > 3) {
+                List<String> availLevels = new ArrayList<String>();
+                for (String levelid : returnQueue) {
+                    Level level = lf.getLevel(levelid);
+                    if (level.getMasterLevel().getName().equals(selection[3])) {
+                        availLevels.add(levelid);
+                    }
                 }
+                return formatData(GridInventory.LEVEL_ID_QUERY,
+                        availLevels.toArray(new String[availLevels.size()]));
+            } else {
+                Set<String> masterLevels = new HashSet<String>();
+                for (String levelid : returnQueue) {
+                    Level level = lf.getLevel(levelid);
+                    masterLevels.add(level.getMasterLevel().getName());
+                }
+                List<ProductBrowserLabel> results = formatData(
+                        GridInventory.MASTER_LEVEL_QUERY,
+                        masterLevels.toArray(new String[masterLevels.size()]));
+                Collections.sort(results);
+                return results;
             }
-            return formatData(GridInventory.LEVEL_ID_QUERY,
-                    availLevels.toArray(new String[availLevels.size()]));
-        } else {
-            Set<String> masterLevels = new HashSet<String>();
-            for (String levelid : returnQueue) {
-                Level level = lf.getLevel(levelid);
-                masterLevels.add(level.getMasterLevel().getName());
-            }
-            List<ProductBrowserLabel> results = formatData(
-                    GridInventory.MASTER_LEVEL_QUERY,
-                    masterLevels.toArray(new String[masterLevels.size()]));
-            Collections.sort(results);
-            return results;
+        } catch (CommunicationException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+            return super.populateData(selection);
         }
 
     }
@@ -249,8 +260,13 @@ public class GridProductBrowserDataDefinition extends
         } else if (GridInventory.LEVEL_ID_QUERY.equals(param)) {
             Level[] levels = new Level[parameters.length];
             LevelFactory lf = LevelFactory.getInstance();
-            for (int i = 0; i < levels.length; i++) {
-                levels[i] = lf.getLevel(parameters[i]);
+            try {
+                for (int i = 0; i < levels.length; i++) {
+                    levels[i] = lf.getLevel(parameters[i]);
+                }
+            } catch (CommunicationException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
             }
             Arrays.sort(levels, levelComparator);
             for (int i = 0; i < parameters.length; i++) {
@@ -264,10 +280,15 @@ public class GridProductBrowserDataDefinition extends
             return labels;
         } else if (GridInventory.MASTER_LEVEL_QUERY.equals(param)) {
             LevelFactory lf = LevelFactory.getInstance();
-            for (int i = 0; i < parameters.length; i++) {
-                MasterLevel masterLevel = lf.getMasterLevel(parameters[i]);
-                labels.add(new ProductBrowserLabel(
-                        masterLevel.getDescription(), masterLevel.getName()));
+            try {
+                for (int i = 0; i < parameters.length; i++) {
+                    MasterLevel masterLevel = lf.getMasterLevel(parameters[i]);
+                    labels.add(new ProductBrowserLabel(masterLevel
+                            .getDescription(), masterLevel.getName()));
+                }
+            } catch (CommunicationException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
             }
         }
         return super.formatData(param, parameters);
@@ -281,14 +302,18 @@ public class GridProductBrowserDataDefinition extends
         }
         HashMap<String, RequestConstraint> queryList = super
                 .getProductParameters(selection, order);
+        try {
+            // Convert Level id to level one and level two values.
+            Level level = LevelFactory.getInstance().getLevel(selection[4]);
+            queryList.put(GridInventory.LEVEL_ONE_QUERY, new RequestConstraint(
+                    level.getLevelOneValueAsString()));
+            queryList.put(GridInventory.LEVEL_TWO_QUERY, new RequestConstraint(
+                    level.getLevelTwoValueAsString()));
+            queryList.remove(order[4]);
+        } catch (CommunicationException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
 
-        queryList.remove(order[4]);
-        // Convert Level id to level one and level two values.
-        Level level = LevelFactory.getInstance().getLevel(selection[4]);
-        queryList.put(GridInventory.LEVEL_ONE_QUERY, new RequestConstraint(
-                level.getLevelOneValueAsString()));
-        queryList.put(GridInventory.LEVEL_TWO_QUERY, new RequestConstraint(
-                level.getLevelTwoValueAsString()));
+        }
         return queryList;
     }
 

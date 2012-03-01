@@ -19,4 +19,5 @@ Export-Package: com.raytheon.uf.common.dataplugin.level,
  com.raytheon.uf.common.dataplugin.level.request,
  com.raytheon.uf.common.dataplugin.level.xml
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: org.hibernate.annotations
+Import-Package: com.raytheon.uf.common.comm,
+ org.hibernate.annotations

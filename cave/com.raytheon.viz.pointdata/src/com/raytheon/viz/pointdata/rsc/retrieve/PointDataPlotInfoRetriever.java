@@ -66,7 +66,7 @@ public class PointDataPlotInfoRetriever extends AbstractDbPlotInfoRetriever {
 
     @Override
     protected void addColumns(DbQuery dq) {
-        dq.addColumn("id");
+        dq.addColumn("dataURI");
         dq.addColumn("location.latitude");
         dq.addColumn("location.longitude");
         dq.addColumn("location.stationId");
@@ -81,7 +81,7 @@ public class PointDataPlotInfoRetriever extends AbstractDbPlotInfoRetriever {
     @Override
     protected PlotInfo getPlotInfo(Object[] data) {
         PlotInfo stationInfo = new PlotInfo();
-        stationInfo.id = (Integer) data[0];
+        stationInfo.dataURI = (String) data[0];
         stationInfo.latitude = (Double) data[1];
         stationInfo.longitude = (Double) data[2];
         stationInfo.stationId = (String) data[3];

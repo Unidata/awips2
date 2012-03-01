@@ -408,38 +408,53 @@ public class RadarImageResource<D extends IDescriptor> extends
 
             this.actualLevel = String.format("%1.1f",
                     record.getTrueElevationAngle());
-            try {
-                DrawableImage image = images.get(displayedDate);
-                if (image == null || image.getCoverage() == null) {
-                    if (record.getStoredDataAsync() == null) {
-                        issueRefresh();
-                        return;
-                    }
-                    createTile(target, record);
-                    image = images.get(displayedDate);
-                }
+            DrawableImage image = getImage(target, displayedDate);
+            if (image != null) {
+                ImagingCapability cap = getCapability(ImagingCapability.class);
+                image.getImage().setBrightness(cap.getBrightness());
+                image.getImage().setContrast(cap.getContrast());
+                image.getImage().setInterpolated(cap.isInterpolationState());
+                target.drawRasters(paintProps, image);
+            }
 
-                if (image != null) {
-                    ImagingCapability cap = getCapability(ImagingCapability.class);
-                    image.getImage().setBrightness(cap.getBrightness());
-                    image.getImage().setContrast(cap.getContrast());
-                    image.getImage()
-                            .setInterpolated(cap.isInterpolationState());
-                    target.drawRasters(paintProps, image);
-                }
-
-                if (image == null || image.getCoverage() == null
-                        || image.getCoverage().getMesh() == null) {
-                    issueRefresh();
-                }
-            } catch (Exception e) {
-                String msg = e.getMessage();
-                if (msg == null) {
-                    msg = "Error rendering radar";
-                }
-                throw new VizException(msg, e);
+            if (image == null || image.getCoverage() == null
+                    || image.getCoverage().getMesh() == null) {
+                issueRefresh();
             }
         }
+    }
+
+    /**
+     * Get the radar image for the given time
+     * 
+     * @param target
+     * @param dataTime
+     * @return
+     * @throws VizException
+     */
+    public DrawableImage getImage(IGraphicsTarget target, DataTime dataTime)
+            throws VizException {
+        DrawableImage image = images.get(dataTime);
+        if (image == null || image.getCoverage() == null) {
+            VizRadarRecord record = getRadarRecord(dataTime);
+            if (record != null) {
+                if (record.getStoredDataAsync() == null) {
+                    issueRefresh();
+                } else {
+                    try {
+                        createTile(target, record);
+                        image = images.get(dataTime);
+                    } catch (Exception e) {
+                        String msg = e.getMessage();
+                        if (msg == null) {
+                            msg = "Error rendering radar";
+                        }
+                        throw new VizException(msg, e);
+                    }
+                }
+            }
+        }
+        return image;
     }
 
     /**
