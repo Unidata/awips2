@@ -24,6 +24,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Outlook;
 import gov.noaa.nws.ncep.ui.pgen.attrDialog.AttrSettings;
 import gov.noaa.nws.ncep.ui.pgen.attrDialog.LabeledSymbolAttrDlg;
 import gov.noaa.nws.ncep.ui.pgen.attrDialog.SymbolAttrDlg;
+import gov.noaa.nws.ncep.ui.pgen.attrDialog.VolcanoAttrDlg;
 
 /**
  * Implements a modal map tool for PGEN single point drawing.
@@ -171,7 +172,7 @@ public class PgenSinglePointDrawingTool extends AbstractPgenDrawingTool {
             	
             	if ( prevElem != null){
         			usePrevColor = false;
-        			if ( prevElem.getParent().getPgenCategory().equalsIgnoreCase("OUTLOOK")){
+        			if ( prevElem.getName().equalsIgnoreCase(Outlook.OUTLOOK_LABELED_LINE)){
         				PgenUtil.loadOutlookDrawingTool();
         			}
         			prevElem = null;
@@ -186,7 +187,12 @@ public class PgenSinglePointDrawingTool extends AbstractPgenDrawingTool {
             		drawingLayer.removeGhostLine();
             		mapEditor.refresh();
             		
-            		PgenUtil.setDrawingTextMode( true, ((LabeledSymbolAttrDlg)attrDlg).useSymbolColor(), "", elem );
+            		String defaultTxt = "";
+            		if ( attrDlg instanceof VolcanoAttrDlg ){
+            			defaultTxt = ((VolcanoAttrDlg)attrDlg).getVolText();
+            			dec.setCollectionName("Volcano");
+            		}
+            		PgenUtil.setDrawingTextMode( true, ((LabeledSymbolAttrDlg)attrDlg).useSymbolColor(), defaultTxt, dec );
             		elem = null;
             		
             	}
@@ -245,6 +251,11 @@ public class PgenSinglePointDrawingTool extends AbstractPgenDrawingTool {
        	
         	return false;
         	
+        }
+        
+        @Override
+        public boolean handleMouseDownMove(int aX, int aY, int button) {
+        	return true;
         }
 
     }

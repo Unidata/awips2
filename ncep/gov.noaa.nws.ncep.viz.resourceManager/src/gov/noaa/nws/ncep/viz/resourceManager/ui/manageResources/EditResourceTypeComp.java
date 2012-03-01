@@ -1,15 +1,24 @@
 package gov.noaa.nws.ncep.viz.resourceManager.ui.manageResources;
 
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 import gov.noaa.nws.ncep.viz.resourceManager.ui.manageResources.ManageResourceControl.IEditResourceComposite;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData.TimeMatchMethod;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData.TimelineGenMethod;
 import gov.noaa.nws.ncep.viz.resources.attributes.ResourceExtPointMngr;
+import gov.noaa.nws.ncep.viz.resources.manager.AttrSetGroup;
+import gov.noaa.nws.ncep.viz.resources.manager.AttributeSet;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefinition;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceDefnsMngr;
 import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -30,6 +39,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.viz.core.exception.VizException;
 
@@ -48,6 +60,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 11/27/10       #365      Greg Hull    dynamically generated resource types and sub-types
  * 01/24/10                 Greg Hull    Change frame Interval to frame span
  * 03/01/11       #408      Greg Hull    add filter labels
+ * 07/22/11       #450      Greg Hull    Save to User Localization
  * 
  * </pre>
  * 
@@ -490,13 +503,13 @@ class EditResourceTypeComp extends Composite implements IEditResourceComposite {
 		
 		saveTypeBtn.addSelectionListener( new SelectionAdapter() {
         	public void widgetSelected( SelectionEvent ev ) {
-        		saveResourceType( false );
+        		saveResourceType();
         	}
 		});
 
 		newTypeBtn.addSelectionListener( new SelectionAdapter() {
         	public void widgetSelected( SelectionEvent ev ) {
-        		saveResourceType( true );
+        		createResourceType();
         	}
 		});
 		
@@ -530,6 +543,9 @@ class EditResourceTypeComp extends Composite implements IEditResourceComposite {
 		setSelectedResource( rscName );
 		newTypeBtn.setVisible( true );
 		saveTypeBtn.setVisible( false );
+		rscTypeTxt.setEditable( true );
+		rscTypeTxt.setBackground( editParamsTxt.getBackground() ); // set white to indicate editable
+		
 		rscTypeTxt.setText( "CopyOf"+rscTypeTxt.getText() );
 		rscTypeTxt.setSelection(0, rscTypeTxt.getText().length() );
 		rscTypeTxt.setFocus();
@@ -539,6 +555,9 @@ class EditResourceTypeComp extends Composite implements IEditResourceComposite {
 		setSelectedResource( rscName );
 		newTypeBtn.setVisible( false );
 		saveTypeBtn.setVisible( true );
+		
+		rscTypeTxt.setEditable( false );
+		rscTypeTxt.setBackground( getParent().getBackground() );
 	}
 	
 	public void setSelectedResource( ResourceName rscName ) {
@@ -681,13 +700,13 @@ class EditResourceTypeComp extends Composite implements IEditResourceComposite {
 			dfltTimeRangeHrsSpnr.setSelection( timeRangeHrs );
 			
 
-			if( seldRscDefn.getRscTypeParameters().isEmpty() ) {
+			if( seldRscDefn.getResourceParametersAsString().isEmpty() ) {
 				editParamsTxt.setVisible( false );
 				editParamsLbl.setVisible( false );
 			}
 			else {
 				editParamsTxt.setVisible( true );
-				editParamsTxt.setText( seldRscDefn.getRscTypeParameters() ); 
+				editParamsTxt.setText( seldRscDefn.getResourceParametersAsString() ); 
 				editParamsLbl.setVisible( true );
 			}
 
@@ -733,16 +752,16 @@ class EditResourceTypeComp extends Composite implements IEditResourceComposite {
 //				subTypeGenTxt.setText( seldRscDefn.getSubTypeGenerator() );
 //			}
 			
-			BinOffset binOffset = seldRscDefn.getBinOffset();
+//			BinOffset binOffset = seldRscDefn.getBinOffset();
 			
-			binDataBtn.setSelection( binOffset != null );
-			binStartIntrvlSpnr.setVisible( binDataBtn.getSelection() );
-			binEndIntrvlSpnr.setVisible( binDataBtn.getSelection() );
-			startLbl.setVisible( binDataBtn.getSelection() );
-			endLbl.setVisible( binDataBtn.getSelection() );
+//			binDataBtn.setSelection( binOffset != null );
+			binStartIntrvlSpnr.setVisible( false );//binDataBtn.getSelection() );
+			binEndIntrvlSpnr.setVisible( false );//binDataBtn.getSelection() );
+			startLbl.setVisible( false );//binDataBtn.getSelection() );
+			endLbl.setVisible( false );//binDataBtn.getSelection() );
 			
-			minsLbl2.setVisible( binDataBtn.getSelection() );
-			minsLbl3.setVisible( binDataBtn.getSelection() );
+			minsLbl2.setVisible( false );//binDataBtn.getSelection() );
+			minsLbl3.setVisible( false );//binDataBtn.getSelection() );
 		}
 	}
 
@@ -756,10 +775,9 @@ class EditResourceTypeComp extends Composite implements IEditResourceComposite {
 		return "Edit Resource Type";			
 	}	
 	
-	protected void saveResourceType( boolean newType ) {
-		
-		String origRscType = seldRscDefn.getResourceDefnName();
-		
+	protected void createResourceType( ) {
+    	ResourceDefinition newRscDefn = new ResourceDefinition( seldRscDefn );
+		    	
 		String rscTypeName = rscTypeTxt.getText().trim();
 		String rscTypeGen = "";
 		
@@ -775,62 +793,254 @@ class EditResourceTypeComp extends Composite implements IEditResourceComposite {
 			}
 		}
 		
-		boolean nameChanged = (!origRscType.equals( rscTypeName ) );
+		if( rscDefnMngr.getResourceDefinition( rscTypeName ) != null ) {
+			
+    		MessageDialog confirmDlg = new MessageDialog( getShell(), 
+    				"Resource Exist", null, 
+    				"The Resource Type " +rscTypeName + " already exists.\n\n"+
+    				"Enter a different name.",
+    				MessageDialog.INFORMATION, new String[]{"OK"}, 0);
+    		confirmDlg.open();
+    		return;
+		}
+
+		newRscDefn.setResourceDefnName( rscTypeName );
 		
-		// update the seldRscDefn with the GUI selections
-		//
-		seldRscDefn.setEnabled( true );
-		seldRscDefn.setDfltFrameCount( dfltNumFramesSpnr.getSelection() );
+    	// this will copy the localizationFile and the sub-types and attrSets which we do not want.
+//    	if( !newRscDefn.applyAttrSetGroups() ) {
+//    		newRscDefn.getSubTypesMap().clear();	
+//    	}
+    	
+		setSelectedRscDefnFromGUI( newRscDefn );
+
+		
+		// if attrSetGroups apply then we will just create 1 standard attrSetGroup with nothing in 
+		// it. The user will need to edit this later.
+		// TODO : allow the user to copy all (or some?) of the attributeSetGroups from the 
+		// original rscDefn.
+		if( newRscDefn.applyAttrSetGroups() && 
+		   !newRscDefn.isPgenResource() ) {
+
+//			newRscDefn.setAttrSetGroupNames( new ArrayList<String>() );
+//			newRscDefn.addAttrSetGroupName("standard");
+		}
+		
+    	String newLocFilename = seldRscDefn.getLocalizationFile().getName();
+    	
+    	// peal off the filename and last directory of the same name
+    	// and replace with a path and filename based on the new name
+    	newLocFilename = newLocFilename.substring( 0, 
+    			newLocFilename.lastIndexOf(File.separator) );
+    	newLocFilename = newLocFilename.substring( 0, 
+    			newLocFilename.lastIndexOf(File.separator)+1 ) + 
+    			rscTypeName + File.separator + rscTypeName + ".xml";
+
+		newRscDefn.setLocalizationFile( null );
+		newRscDefn.setLocalizationName( newLocFilename );
+
+		//seldRscDefn.setResourceDefnName( rscTypeName );
+//		String origRscType = seldRscDefn.getResourceDefnName();
+
+		try {
+			rscDefnMngr.saveResourceDefn( newRscDefn );
+
+//			create a new attrSetGroup
+			if( newRscDefn.applyAttrSetGroups() ) {
+				if( !newRscDefn.isPgenResource() ) {
+					AttrSetGroup asg = new AttrSetGroup();
+					asg.setResource( newRscDefn.getResourceDefnName() );
+					asg.setAttrSetGroupName("standard");
+					
+					rscDefnMngr.saveAttrSetGroup( asg );
+				}
+			}
+			// or a new 'default' attrSet so the user will have something to edit.
+    		else {
+    			List<String> availAttrSets = rscDefnMngr.getAvailAttrSets( seldRscDefn );
+
+    			// find an attrSet from the original to copy over for the new resource.
+    			// priority is 'default', 'standard' and then just the first one in the list.
+    			AttributeSet dfltAttrSet = null;
+
+    			for( String attrSetName : availAttrSets ) {
+    				if( dfltAttrSet == null ) {
+    					dfltAttrSet = rscDefnMngr.getAttrSet(seldRscDefn, attrSetName );    						
+    				}
+    				else if( attrSetName.equals("standard" ) ) {
+    					dfltAttrSet = rscDefnMngr.getAttrSet(seldRscDefn, attrSetName );    						    						
+    				}
+    				else if( attrSetName.equals("default" ) ) {
+    					dfltAttrSet = rscDefnMngr.getAttrSet(seldRscDefn, attrSetName );
+    					break;
+    				}    					 
+    			}
+    			if( dfltAttrSet == null ) {
+    				return;
+    			}
+    			
+    			try {
+    				FileReader fr = new FileReader( dfltAttrSet.getFile().getFile() );
+    				char[] attrsSetStr = new char[(int) dfltAttrSet.getFile().getFile().length()];
+    				fr.read(attrsSetStr);
+    				fr.close();
+    				
+        			rscDefnMngr.saveAttrSet(newRscDefn, dfltAttrSet.getName(), new String( attrsSetStr ) );
+        			
+    			} catch (FileNotFoundException fnf ) {
+    				throw new VizException( "file not found for default attr set.");
+    			} catch (IOException ioe ) {
+    				throw new VizException( "i/o error copying default attr set file.");
+    			}
+    		}			
+			seldRscDefn = newRscDefn;
+
+			ResourceName newSeldRscName = new ResourceName();
+			newSeldRscName.setRscCategory( seldRscDefn.getResourceCategory() );
+			newSeldRscName.setRscType( seldRscDefn.getResourceDefnName() );		
+
+			mngrControl.updateResourceSelections( newSeldRscName );
+
+		} catch (VizException e) {
+			MessageDialog errDlg = new MessageDialog(getShell(), 
+					"New Resource Type", null, 
+					"Error Creating new Type " +rscTypeName + "\n\n"+
+					e.getMessage(),
+					MessageDialog.ERROR, new String[]{"OK"}, 0);
+			errDlg.open();
+			return;
+		}
+	}
+	
+	// The name of the resource type hasn't changed
+	//
+	protected void saveResourceType( ) {
+		
+		setSelectedRscDefnFromGUI( seldRscDefn );
+		
+//		String origRscType = seldRscDefn.getResourceDefnName();
+		
+		String rscTypeName = rscTypeTxt.getText().trim();
+		String rscTypeGen = "";
+		
+		int indx = rscTypeName.indexOf(":${");
+
+		// if there is a type generator then parse the rscType name and the name of the appending generator parameter
+		if( indx != -1 ) {
+			rscTypeGen  = rscTypeName.substring(indx+2);
+			rscTypeName = rscTypeName.substring(0,indx);
+			indx = rscTypeGen.indexOf("}");
+			if( indx != -1 ) {
+				rscTypeGen = rscTypeGen.substring(0,indx);
+			}
+		}
+	
+		LocalizationFile lFile = seldRscDefn.getLocalizationFile();
+
+		if( lFile.getContext().getLocalizationLevel() == LocalizationLevel.USER ) {
+			MessageDialog confirmDlg = new MessageDialog( getShell(), 
+					"Confirm", null, 
+					"This will overwrite the current User-Level Resource Type\n"+
+					"Are you sure you want to do this?",
+					MessageDialog.CONFIRM, new String[]{"Yes", "No"}, 0);
+			confirmDlg.open();
+			
+			if( confirmDlg.getReturnCode() == MessageDialog.CANCEL ) {
+				return;
+			}			
+		}
+//		else { // create a new user-level lFile
+//			LocalizationContext newContext = NcPathManager.getInstance().getContext(
+//					lFile.getContext().getLocalizationType(),
+//					   LocalizationLevel.USER );
+//			lFile = NcPathManager.getInstance().getLocalizationFile( newContext,
+//										lFile.getName() );
+//			seldRscDefn.setLocalizationFile(lFile);
+//		}
+				
+		try {			
+			rscDefnMngr.saveResourceDefn( seldRscDefn );
+		
+    		MessageDialog msgDlg = new MessageDialog( getShell(), 
+    				"Saved", null, 
+    				"The Resource " + rscTypeName + " has been saved.\n",
+    				MessageDialog.INFORMATION, new String[]{"OK"}, 0);
+    		msgDlg.open();
+
+		
+		} catch (VizException e) {
+			MessageDialog confirmDlg = new MessageDialog( getShell(), 
+					"Save Resource Type", null, 
+					"Error Writing new Resource Definitions Table\n\n"+
+					e.getMessage(),
+					MessageDialog.ERROR, new String[]{"OK"}, 0);
+			confirmDlg.open();
+		}
+		
+//		ResourceName newSeldRscName = new ResourceName();
+//		newSeldRscName.setRscCategory( seldRscDefn.getResourceCategory() );
+//		newSeldRscName.setRscType( seldRscDefn.getResourceDefnName() );		
+
+//		mngrControl.updateResourceSelections( newSeldRscName );
+		
+		return;
+	}
+	
+	// update the seldRscDefn with the GUI selections
+	//
+	private void setSelectedRscDefnFromGUI( ResourceDefinition rscDefn ) {
+		
+		rscDefn.setEnabled( true );
+		rscDefn.setDfltFrameCount( dfltNumFramesSpnr.getSelection() );
 		
 		for( TimeMatchMethod tmm : TimeMatchMethod.values() ) {
 			if( timeMatchMethodCombo.getText().equals( tmm.toString() ) ) {
-				seldRscDefn.setTimeMatchMethod( tmm );
+				rscDefn.setTimeMatchMethod( tmm );
 				break;
 			}
 		}		
 				
 		if( frameSpanCombo.getText().equals("N/A") ) {
-			seldRscDefn.setFrameSpan( 0 );
+			rscDefn.setFrameSpan( 0 );
 		}
 		else {
 			for( int i=0; i<availFrameSpanStrings.length ; i++ ) {				
 				if( availFrameSpanStrings[i].equals( frameSpanCombo.getText() ) ) {
-					seldRscDefn.setFrameSpan( availFrameSpanMins[i] );
+					rscDefn.setFrameSpan( availFrameSpanMins[i] );
 					break;
 				}
 			}
 		}
  
 		if( useFrameIntrvlBtn.getSelection() ) {
-			seldRscDefn.setTimelineGenMethod( TimelineGenMethod.USE_FRAME_INTERVAL );
+			rscDefn.setTimelineGenMethod( TimelineGenMethod.USE_FRAME_INTERVAL );
 		}
 		else if( useDataTimesBtn.getSelection() ) {
-			seldRscDefn.setTimelineGenMethod( TimelineGenMethod.USE_DATA_TIMES );			
+			rscDefn.setTimelineGenMethod( TimelineGenMethod.USE_DATA_TIMES );			
 		}
 		else if( useManualTimelineBtn.getSelection() ) {
-			seldRscDefn.setTimelineGenMethod( TimelineGenMethod.USE_MANUAL_TIMELINE );			
+			rscDefn.setTimelineGenMethod( TimelineGenMethod.USE_MANUAL_TIMELINE );			
 		}
 
 		int timeRangeHrs = dfltTimeRangeDaysSpnr.getSelection() * 24 + 
 		                                dfltTimeRangeHrsSpnr.getSelection();
-		seldRscDefn.setDfltTimeRange( timeRangeHrs );
+		rscDefn.setDfltTimeRange( timeRangeHrs );
 		
 		// The GUI is in minutes and binOffset is in seconds
-		if( binDataBtn.getSelection() ) {
-			seldRscDefn.setBinOffset( 
-					new BinOffset( binEndIntrvlSpnr.getSelection()*60,
-								   binStartIntrvlSpnr.getSelection()*60 ) );
-		}
-		else {
-			seldRscDefn.setBinOffset( null );
-		}
-
+//		if( binDataBtn.getSelection() ) {
+//			rscDefn.setBinOffset( 
+//					new BinOffset( binEndIntrvlSpnr.getSelection()*60,
+//								   binStartIntrvlSpnr.getSelection()*60 ) );
+//		}
+//		else {
+//			rscDefn.setBinOffset( null );
+//		}
 		
 		if( editParamsTxt.isVisible() ) {			
-			if( !seldRscDefn.getRscTypeParameters().equals( 
+			if( !rscDefn.getResourceParametersAsString().equals( 
 					editParamsTxt.getText() ) ) {
-				seldRscDefn.setRscTypeParamsModified( true );
-				seldRscDefn.setRscTypeParameters( editParamsTxt.getText() );
+				rscDefn.setResourceParamsModified( true );
+				 
+				rscDefn.setResourceParametersFromString( editParamsTxt.getText() );
 			}
 		}
 
@@ -838,14 +1048,14 @@ class EditResourceTypeComp extends Composite implements IEditResourceComposite {
 //		filtLabelsStr.replace('\n', "");
 		String filtLabelsArray[] = filtLabelsStr.split(",");
 		
-		seldRscDefn.setFilterLabels( new ArrayList<String>() );
+		rscDefn.setFilterLabels( new ArrayList<String>() );
 		
 		for( String filtLabel : filtLabelsArray ) {
-			seldRscDefn.addFilterLabel( filtLabel.trim() );
+			rscDefn.addFilterLabel( filtLabel.trim() );
 		}
 		
 		// don't save the ${
-		if( !seldRscDefn.applyAttrSetGroups() ) {
+		if( !rscDefn.applyAttrSetGroups() ) {
 			String subTypeGenStr = subTypeGenTxt.getText();
 //			int indx = subTypeGenStr.indexOf( "${" );
 //			if( indx != -1 ) {
@@ -855,87 +1065,11 @@ class EditResourceTypeComp extends Composite implements IEditResourceComposite {
 //					subTypeGenStr = subTypeGenStr.substring(0, indx);
 //				}
 //			}
-			seldRscDefn.setSubTypeGenerator( subTypeGenStr );
-		}
-		
-		// if a new type is being created make sure it doesn't already exist.
-		//
-		if( newType || nameChanged ) {
-			if( rscDefnMngr.findResourceDefinition( rscTypeName ) ) {
-	    		MessageDialog confirmDlg = new MessageDialog( 
-	    				NmapUiUtils.getCaveShell(), 
-	    				"Resource Exist", null, 
-	    				"The Resource Type " +rscTypeName + " already exists.\n\n"+
-	    				"Enter a different name or delete the existing resource type.",
-	    				MessageDialog.INFORMATION, new String[]{"OK"}, 0);
-	    		confirmDlg.open();
-	    		return;
-			}
-		}
-		
-		if( newType ) {						
-			// seldRscDefn.setDfltGeogArea( );
-
-			// create a new data directory and copy the prm file
-			ResourceDefinition newRscDefn;
-
-			try {
-				newRscDefn = rscDefnMngr.createNewResourceDefn( rscTypeName, seldRscDefn );
-	    		
-//				// create a new attrSetGroup
-//				if( newRscDefn.applyAttrSetGroups() ) {
-//					if( !newRscDefn.isPgenResource() ) {
-//						rscDefnMngr.saveAttrSetGroup( seldRscDefn.getAttrSetGroup("PGEN"), false );
-//					}
-//				}
-				
-			} catch (VizException e) {
-	    		MessageDialog errDlg = new MessageDialog( 
-	    				NmapUiUtils.getCaveShell(), 
-	    				"New Resource Type", null, 
-	    				"Error Creating new Type " +rscTypeName + "\n\n"+
-	    				e.getMessage(),
-	    				MessageDialog.ERROR, new String[]{"OK"}, 0);
-	    		errDlg.open();
-	    		return;
-			}
-		}	
-//		// check that we are not changing name to an existing resource. 
-//		else if( typeNameChanged ) {
-//			
-//		}
-		else {
-
-			rscDefnMngr.saveResourceDefn( seldRscDefn );
-
-			// if editing the existing type and the name is different then
-			// we need to move the data directory 		
- 			if( !newType && nameChanged ) {
- 				rscDefnMngr.renameResourceDefn( origRscType, rscTypeName );
-			}
-		}
-		
-       	try {
-       		rscDefnMngr.writeResourceDefnTable();
-		} catch (VizException e) {
-    		MessageDialog confirmDlg = new MessageDialog( 
-    				NmapUiUtils.getCaveShell(), 
-    				"Save Resource Type", null, 
-    				"Error Writing new Resource Definitions Table\n\n"+
-    				e.getMessage(),
-    				MessageDialog.ERROR, new String[]{"OK"}, 0);
-    		confirmDlg.open();
-
-			System.out.println("Error saving Resource Defns Table."+ e.getMessage() );
-		}
-
-		ResourceName newSeldRscName = new ResourceName();
-		newSeldRscName.setRscCategory( seldRscDefn.getResourceCategory() );
-		newSeldRscName.setRscType( seldRscDefn.getResourceDefnName() );		
-
-		mngrControl.updateResourceSelections( newSeldRscName );
-		
-		return;
+			rscDefn.setSubTypeGenerator( subTypeGenStr );
+			
+			// 
+			rscDefn.getSubTypesMap().clear();
+		}		
 	}
 	
 	private String subTypeGenToolTipText = "This is the name of a DB column used to generate "

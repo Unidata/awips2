@@ -53,6 +53,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
  * Aug 03, 2009            ghull       rm 'Attr' getter methods
  * Aug 06, 2009            ghull       construct() -> constructResource()
  * Apr 5, 2010     259     ghull       add legendColor
+ * Jan 9, 2011     561     ghull       fixed equals()
  * 
  * </pre>
  *  * 
@@ -342,55 +343,33 @@ public abstract class AbstractNatlCntrsResourceData extends AbstractResourceData
     	return legendColor;
     }
     
-    @Override
-    public boolean equals(Object obj) {
-        if( obj == null ) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-
-        AbstractNatlCntrsRequestableResourceData other = 
-        	   (AbstractNatlCntrsRequestableResourceData) obj;
-
-        if( (legendColor == null && other.legendColor != null) ||
-        	(legendColor != null && other.legendColor == null) ) {
-        	return false;
-        }
-        if( !legendColor.toString().equals( other.legendColor.toString() ) ) {
-        	return false;
-        }
-        if( isEdited != other.isEdited ) {
-        	return false;
-        }
-        if( (resourceName == null && other.resourceName != null) ||
-            (resourceName != null && other.resourceName == null) ) {
-            	return false;
-        }
-    	if( !resourceName.toString().equals( other.resourceName.toString() ) ) {
-    		return false;
-    	}
-    	if( !resourceVersion.equals( other.resourceVersion ) ) {
-    		return false;
-    	}
-
-        // Compare the attributes here to avoid having to write code in all of the resource classes.
-        //       
-        ResourceAttrSet thisAttrSet = this.getRscAttrSet();
-        ResourceAttrSet otherAttrSet = other.getRscAttrSet();
-        
-        if( thisAttrSet == null && otherAttrSet != null ) {
-        	return false;
-        }
-        else if( thisAttrSet != null && otherAttrSet == null ) {
-        	return false;
-        }
-        else if( thisAttrSet != null ) {
-        	return thisAttrSet.equals( otherAttrSet );
-        }
-        
-        return true;
-    }
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AbstractNatlCntrsResourceData other = (AbstractNatlCntrsResourceData) obj;
+		if (isEdited != other.isEdited)
+			return false;
+		if (legendColor == null) {
+			if (other.legendColor != null)
+				return false;
+		} else if (!legendColor.equals(other.legendColor))
+			return false;
+		if (resourceName == null) {
+			if (other.resourceName != null)
+				return false;
+		} else if (!resourceName.equals(other.resourceName))
+			return false;
+		if (resourceVersion == null) {
+			if (other.resourceVersion != null)
+				return false;
+		} else if (!resourceVersion.equals(other.resourceVersion))
+			return false;
+		return true;
+	}
 
 }

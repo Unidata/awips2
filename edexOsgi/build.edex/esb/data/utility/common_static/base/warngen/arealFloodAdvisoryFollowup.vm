@@ -2,9 +2,9 @@
 ## FLOOD ADVISORY FOLLOW-UP ##
 ##############################
 ## EDITED BY PHIL KURIMSKI   8-18-2011 FOR OB11.8.0-4
-##           EVAN BOOKBINDER 9-16-2011 FOR OB11.0.8-8 ##
-##           Mike Dangelo 09-19-2011 at Alaska TIM ##
-##
+##           EVAN BOOKBINDER 9-16-2011 FOR OB11.0.8-8 
+##           Mike Dangelo 09-19-2011 at Alaska TIM 
+##           Mike and Phil 1-25-2012 at CRH TIM
 ##
 #if(${action} == "EXT")
 	#set($starttime = "000000T0000Z")
@@ -14,45 +14,22 @@
 	#set($extend = false)
 #end
 ##
-#if(${list.contains($bullets, "uss")})
+#set($advType = "FLOOD ADVISORY")
+#set($advTypeShort = "MINOR FLOODING")
+#if(${list.contains($bullets, "small")})
+	#set($advType = "SMALL STREAM FLOOD ADVISORY")
+	#set($advTypeShort = "SMALL STREAM FLOODING")
+#elseif(${list.contains($bullets, "uss")})
 	#set($advType = "URBAN AND SMALL STREAM FLOOD ADVISORY")
-	#set($advTypeShort = "URBAN AND SMALL STREAM FLOODING")
+	#set($advTypeShort = "URBAN AND SMALL STREAM FLOODING")	
 #elseif(${list.contains($bullets, "arroyo")})
 	#set($advType = "ARROYO AND SMALL STREAM FLOOD ADVISORY")
 	#set($advTypeShort = "ARROYO AND SMALL STREAM FLOODING")
-#elseif(${list.contains($bullets, "small")})
-	#set($advType = "SMALL STREAM FLOOD ADVISORY")
-	#set($advTypeShort = "SMALL STREAM FLOODING")	
 #elseif(${list.contains($bullets, "hydrologic")})
 	#set($advType = "HYDROLOGIC ADVISORY")
 	#set($advTypeShort = "MINOR FLOODING")
-#else
-	#set($advType = "FLOOD ADVISORY")
-	#set($advTypeShort = "MINOR FLOODING")
 #end
-##
-## The following code is not needed because the "ic" variable is passed
-## from the warning. Therefore it has been commented out.
-#*
-#if(${list.contains($bullets, "SM")})
-	#set($ic = "SM")
-	#set($hycType = "FOR MELTING SNOW IN")
-#elseif(${list.contains($bullets, "RS")})
-	#set($ic = "RS")
-	#set($hycType = "FOR RAIN AND MELTING SNOW IN")
-#elseif(${list.contains($bullets, "IJ")})
-	#set($ic = "IJ")
-	#set($hycType = "FOR ICE JAM FLOODING IN")
-#elseif(${list.contains($bullets, "IC")})
-	#set($ic = "IC")
-	#set($hycType = "FOR AN ICE JAM AND RAIN")
-#elseif(${list.contains($bullets, "ic1")})
-	#set($hycType = "FOR RAPID RIVER RISES IN")
-#elseif(${list.contains($bullets, "ic2")})
-	#set($hycType = "FOR MINOR FLOODING OF POOR DRAINAGE AREAS IN")
-#end
-*#
-## End of the unnecessary ic coding
+
 #set($hycType = "")
 #set ($report = "!** warning basis **!")
 #set ($report2 = "")
@@ -81,22 +58,22 @@
   #set ($cause = "AN ICE JAM AND HEAVY RAIN")   
 #end
 #if(${list.contains($bullets, "doppler")})
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED ${cause} THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
+  #set ($report = "DOPPLER RADAR INDICATED ${cause} THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
 #end
 #if(${list.contains($bullets, "doppler")} && ${list.contains($bullets, "thunder")})
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED ${cause} DUE TO A THUNDERSTORM THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
+  #set ($report = "DOPPLER RADAR INDICATED ${cause} DUE TO A THUNDERSTORM THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
 #end
 #if(${list.contains($bullets, "doppler")} && ${list.contains($bullets, "thunder")} && ${stormType} == "line")
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED ${cause} DUE TO A LINE OF THUNDERSTORMS THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
+  #set ($report = "DOPPLER RADAR INDICATED ${cause} DUE TO A LINE OF THUNDERSTORMS THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
 #end
 #if(${list.contains($bullets, "dopplerGauge")})
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED ${cause} THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
+  #set ($report = "DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED ${cause} THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
 #end
 #if(${list.contains($bullets, "dopplerGauge")} && ${list.contains($bullets, "thunder")})
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED ${cause} DUE TO A THUNDERSTORM THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
+  #set ($report = "DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED ${cause} DUE TO A THUNDERSTORM THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
 #end
 #if(${list.contains($bullets, "dopplerGauge")} && ${list.contains($bullets, "thunder")} && ${stormType} == "line")
-  #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED ${cause} DUE TO A LINE OF THUNDERSTORMS THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
+  #set ($report = "DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED ${cause} DUE TO A LINE OF THUNDERSTORMS THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
 #end
 #if(${list.contains($bullets, "trainedSpotters")})
   #set ($report = "TRAINED WEATHER SPOTTERS REPORTED ${cause} CAUSING ${advTypeShort} IN !** LOCATION **!${report2}")   
@@ -105,7 +82,7 @@
   #set ($report = "TRAINED WEATHER SPOTTERS REPORTED ${cause} IN !** LOCATION **! DUE TO A THUNDERSTORM THAT WILL CAUSE ${advTypeShort}${report2}")   
 #end
 #if(${list.contains($bullets, "trainedSpotters")} && ${list.contains($bullets, "actual")})
-  #set ($report = "TRAINED WEATHER SPOTTERS REPORTED ${cause} CAUSING ${advTypeShort} IN !** LOCATION **!${report2}")   
+  #set ($report = "TRAINED WEATHER SPOTTERS REPORTED ${advTypeShort} IN !** LOCATION **!${report2}")   
 #end
 #if(${list.contains($bullets, "trainedSpotters")} && ${list.contains($bullets, "plainRain")})
   #set ($report = "TRAINED WEATHER SPOTTERS REPORTED ${cause} IN !** LOCATION **! THAT WILL CAUSE ${advTypeShort}${report2}")   
@@ -129,7 +106,7 @@
   #set ($report = "THE PUBLIC REPORTED ${advTypeShort} IN !** LOCATION **! DUE TO A THUNDERSTORM THAT WILL CAUSE ${advTypeShort}")   
 #end
 #if(${list.contains($bullets, "public")} && ${list.contains($bullets, "actual")})
-  #set ($report = "THE PUBLIC REPORTED ${cause} CAUSING ${advTypeShort} IN !** LOCATION **!${report2}")   
+  #set ($report = "THE PUBLIC REPORTED ${advTypeShort} IN !** LOCATION **!${report2}")   
 #end
 #if(${list.contains($bullets, "public")} && ${list.contains($bullets, "plainRain")})
   #set ($report = "THE PUBLIC REPORTED ${cause} IN !** LOCATION **! THAT WILL CAUSE MINOR FLOODING${report2}")   
@@ -139,12 +116,6 @@
 #else
 #set($estimate = "")
 #end
-#if(${specialCorText})
-${WMOId} ${vtecOffice} 000000 ${BBBId}
-FLS${siteId}
-
-${specialCorText}
-#else
 ##########################################
 ## FLOOD ADVISORY FOLLOW-UP HEADER INFO ##
 ##########################################
@@ -187,24 +158,43 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE.##
 #end
 ...THE ${advType} ${hycType}HAS BEEN CANCELLED FOR ##
-#headlineLocList(${areas} true true true false)
-...##
-
-########### END NEW HEADLINE CODE ####################
+#headlineLocList(${areas} true true true false)##
+...
 
 #if(${list.contains($bullets, "recedingWater")})
 THE HIGH WATER IS RECEDING...AND IS NO LONGER EXPECTED TO POSE A THREAT. PLEASE CONTINUE TO HEED ANY ROAD CLOSURES.
 
-#elseif(${list.contains($bullets, "rainEnded")})
+#end
+#if(${list.contains($bullets, "rainEnded")})
 THE HEAVY RAIN HAS ENDED...AND FLOODING IS NO LONGER EXPECTED TO POSE A THREAT.
 
+#end
+#end
+########################
+## FLOOD ADVISORY EXP ##
+########################
+#if(${action}=="EXP")
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE.##
+#end
+...THE ${advType} ${hycType}##
+#if(${now.compareTo(${expire})} > -1)
+EXPIRED AT ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone})} FOR ##
 #else
-!** THE HEAVY RAIN HAS ENDED. !** OR **! THE FLOOD WATER IS RECEDING. THEREFORE...THE FLOODING THREAT HAS ENDED. **!
+WILL EXPIRE AT ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone})} FOR ##
+#end
+#headlineLocList(${areas} true true true false)##
+...
+
+#if(${list.contains($bullets, "recedingWater")})
+THE HIGH WATER IS RECEDING...AND IS NO LONGER EXPECTED TO POSE A THREAT. PLEASE CONTINUE TO HEED ANY ROAD CLOSURES.
 
 #end
-## One line explanation
-##!**EXPLANATION**!
 
+#if(${list.contains($bullets, "rainEnded")})
+THE HEAVY RAIN HAS ENDED...AND FLOODING IS NO LONGER EXPECTED TO POSE A THREAT.
+
+#end
 #end
 ########################
 ## FLOOD ADVISORY CON ##
@@ -246,10 +236,6 @@ MINOR FLOODING IS OCCURRING NEAR !** Enter Location **!.
 #drainages(${riverdrainages})
 
 #end
-##############################################
-###### mile markers ##############
-##############################################
-#parse("milemarkers.vm")
 #####################
 ## CALL TO ACTIONS ##
 #####################
@@ -293,15 +279,16 @@ DO NOT UNDERESTIMATE THE POWER OF FLOOD WATERS. ONLY A FEW INCHES OF RAPIDLY FLO
 TO REPORT FLOODING...HAVE THE NEAREST LAW ENFORCEMENT AGENCY RELAY YOUR REPORT TO THE NATIONAL WEATHER SERVICE FORECAST OFFICE.
 
 #end
+#if(${list.contains($bullets, "advisoryMeans")})
+A FLOOD ADVISORY MEANS RIVER OR STREAM FLOWS ARE ELEVATED OR PONDING OF WATER IN URBAN OR OTHER AREAS IS OCCURRING OR IS IMMINENT.
+
+#end
 #if(${ctaSelected} == "YES") 
 &&
 
 #end
 #################################### END OF CTA STUFF ###################################
-#if(${list.contains($bullets, "advMeans")})
-A FLOOD ADVISORY MEANS RIVER OR STREAM FLOWS ARE ELEVATED OR PONDING OF WATER IN URBAN OR OTHER AREAS IS OCCURRING OR IS IMMINENT.
 
-#end
 #end
 ############################
 ## FLOOD ADVISORY CAN/CON ##
@@ -407,15 +394,13 @@ MINOR FLOODING IS OCCURRING NEAR !** Enter Location **!.
 #drainages(${riverdrainages})
 
 #end
-##############################################
-###### mile markers ##############
-##############################################
-#parse("milemarkers.vm")
+
+## parse file command here is to pull in mile marker info
+## #parse("mileMarkers.vm")
+
 #####################
 ## CALL TO ACTIONS ##
 #####################
-##Check to see if we've selected any calls to action. In our .cfg file
-##we ended each CTA bullet ID with "CTA" for this reason as a 'trip'
 #foreach ($bullet in $bullets)
 #if($bullet.endsWith("CTA"))
 #set ($ctaSelected = "YES")
@@ -454,44 +439,17 @@ DO NOT UNDERESTIMATE THE POWER OF FLOOD WATERS. ONLY A FEW INCHES OF RAPIDLY FLO
 TO REPORT FLOODING...HAVE THE NEAREST LAW ENFORCEMENT AGENCY RELAY YOUR REPORT TO THE NATIONAL WEATHER SERVICE FORECAST OFFICE.
 
 #end
+#if(${list.contains($bullets, "advisoryMeansCTA")})
+A FLOOD ADVISORY MEANS RIVER OR STREAM FLOWS ARE ELEVATED OR PONDING OF WATER IN URBAN OR OTHER AREAS IS OCCURRING OR IS IMMINENT.
+
+#end
 #if(${ctaSelected} == "YES") 
 &&
 
 #end
 #################################### END OF CTA STUFF ###################################
-#if(${list.contains($bullets, "advMeans")})
-A FLOOD ADVISORY MEANS RIVER OR STREAM FLOWS ARE ELEVATED OR PONDING OF WATER IN URBAN OR OTHER AREAS IS OCCURRING OR IS IMMINENT.
-
-#end
-#end
-########################
-## FLOOD ADVISORY EXP ##
-########################
-#if(${action}=="EXP")
-#if(${productClass}=="T")
-THIS IS A TEST MESSAGE.##
-#end
-...THE ${advType} ${hycType}##
-#if(${now.compareTo(${expire})} > -1)
-EXPIRED AT ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone})} FOR ##
-#else
-WILL EXPIRE AT ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone})} FOR ##
-#end
-#headlineLocList(${areas} true true true false)
-...##
-########### END NEW HEADLINE CODE ####################
-
-
-#if(${list.contains($bullets, "recedingWater")})
-#set ($why = "THE HIGH WATER IS RECEDING...AND IS NO LONGER EXPECTED TO POSE A THREAT. PLEASE CONTINUE TO HEED ANY ROAD CLOSURES.")
 #end
 
-#if(${list.contains($bullets, "rainEnded")})
-#set ($why = "THE HEAVY RAIN HAS ENDED...AND FLOODING IS NO LONGER EXPECTED TO POSE A THREAT.")
-#end
-${why}
-
-#end
 ####################################
 ## END OF FLOOD ADVISORY PRODUCTS ##
 ####################################
@@ -506,4 +464,3 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 $$
 
 !**NAME/INITIALS**!
-#end

@@ -28,16 +28,22 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
+import com.raytheon.uf.viz.core.IRenderableDisplayChangedListener.DisplayChangeType;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
+import com.raytheon.uf.viz.core.catalog.LayerProperty;
+import com.raytheon.uf.viz.core.catalog.ScriptCreator;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
+import com.raytheon.uf.viz.core.comm.Connector;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.geom.PixelCoordinate;
+import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.edex.decodertools.core.LatLonPoint;
 import gov.noaa.nws.ncep.common.dataplugin.aww.AwwFips;
 import gov.noaa.nws.ncep.common.dataplugin.aww.AwwRecord;
@@ -49,6 +55,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Symbol;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
 
 
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
@@ -57,7 +64,6 @@ import com.raytheon.viz.core.rsc.jts.JTSCompiler.PointStyle;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResource;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.AbstractFrameData;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource.IRscDataObject;
-
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -121,7 +127,7 @@ implements INatlCntrsResource{
  */
 	protected WstmResource(WstmResourceData resourceData, LoadProperties props) {
 		super(resourceData, props);
-		wstmResourceDataObj =  (WstmResourceData) resourceData;
+		wstmResourceDataObj =  (WstmResourceData) resourceData;		addRDChangedListener();//T456
 	}
 
 	
@@ -144,8 +150,8 @@ implements INatlCntrsResource{
  * Overridden method. Invokes queryRecords() to fetch the records from the database
  * per the metadata map in WSTM.xml
  */
-	public void initResource(IGraphicsTarget grphTarget) throws VizException {
-    	queryRecords();		
+	public void initResource(IGraphicsTarget grphTarget) throws VizException {long t1 = System.currentTimeMillis();
+    	queryRecords();		long t2 = System.currentTimeMillis(); System.out.println("__^^^__ initResource (t2-t1): "+(t2-t1));
 	}
 
 	@Override
@@ -173,7 +179,7 @@ implements INatlCntrsResource{
 		if( paintProps == null ) {
 			return;
 		}
-		
+		if( areaChangeFlag ){ areaChangeFlag = false; postProcessFrameUpdate(); }//T456		
 		if(frameData != null){
 			FrameData currFrameData = (FrameData) frameData;
 			
@@ -228,7 +234,7 @@ implements INatlCntrsResource{
          					   if (listOfFipsInfo != null && listOfFipsInfo.size() > 0) {
  								
          						   for (FipsInfo eachFipsInfo : listOfFipsInfo) {
-							           LatLonPoint thisPoint =  eachFipsInfo.getFipsCentroid();
+LatLonPoint thisPoint =  wqr.getLatLonPoint(eachFipsInfo.getFipsCode());//eachFipsInfo.getFipsCentroid();//T456
 							           Coordinate thisMarkerCoord = this.convertCentroidToWorldCoordinates(thisPoint);
 							           PixelCoordinate pixCoord = null;
 
@@ -241,8 +247,8 @@ implements INatlCntrsResource{
 																             .worldToPixel(worldC));
 												pixCoord.addToY(offsetY*1.75);
 										        target.drawString(font,  eachWstmRscDataObject.validTimePeriod, pixCoord.getX(), pixCoord.getY(), 0.0, 
-												                          		TextStyle.NORMAL, wstmRscAttr.getColorOfEvent(),HorizontalAlignment.LEFT, 
-														                        VerticalAlignment.BOTTOM, 0.0);  												
+												                          		TextStyle.NORMAL, wstmRscAttr.getColorOfEvent(),HorizontalAlignment.CENTER, 
+														                        VerticalAlignment.MIDDLE, 0.0);  												
 
 											}
 							           }
@@ -262,14 +268,14 @@ implements INatlCntrsResource{
 
 											}
 							          }
-											target.drawString(font, eachFipsInfo.getZoneName(), pixCoord.getX(), pixCoord.getY(), 0.0, 
-													TextStyle.NORMAL, wstmRscAttr.getColorOfEvent(),HorizontalAlignment.LEFT, 
-													VerticalAlignment.BOTTOM, 0.0);  
+											target.drawString(font, wqr.getZoneName(eachFipsInfo.getFipsCode())/*eachFipsInfo.getZoneName()*/, pixCoord.getX(), pixCoord.getY(), 0.0, 
+													TextStyle.NORMAL, wstmRscAttr.getColorOfEvent(),HorizontalAlignment.CENTER, 
+													VerticalAlignment.MIDDLE, 0.0);  
 							           }
 							          
 							          /*If the outline flag is enabled draw the outline else plot the marker at the centroid of the zone's area*/
 									   if(wstmResourceDataObj.getOutlineEnable()){		
-									             drawOutlineForZone(eachFipsInfo.fipsNumber, target, wstmRscAttr.getColorOfEvent(), wstmRscAttr.getLineWidth());
+drawOutlineForZone2(eachFipsInfo.getFipsCode()/*eachFipsInfo.fipsNumber*/, target, wstmRscAttr.getColorOfEvent(), wstmRscAttr.getLineWidth());
 							           }else{
 
 									/*Plot the symbol selected by the user from the marker selection panel*/
@@ -313,15 +319,15 @@ implements INatlCntrsResource{
 	 */
 	private void drawOutlineForZone( String fipsCode, IGraphicsTarget target,RGB lineColor,int lineWidth) throws VizException{
 		StringBuilder queryString = new StringBuilder(
-		"select AsBinary(the_geom) from ");
-		queryString.append(BOUNDS_SCHEMA + "." + BOUNDS_TABLE);
-		queryString.append(" where fips = '");
-		queryString.append(fipsCode);
+		"select AsBinary(the_geom_0_001) from ");//the_geom) from ");//T456
+queryString.append("mapdata.zone");//BOUNDS_SCHEMA + "." + BOUNDS_TABLE);//T456
+		queryString.append(" where state_zone = '");//" where fips = '");//T456
+		queryString.append(fipsCode.substring(0,2)+fipsCode.substring(3));//fipsCode);//T456
 		queryString.append("'");
 		queryString.append(";");
 
 		try {
-			List<Object[]> results = DirectDbQuery.executeQuery(queryString.toString(), DATABASE, QueryLanguage.SQL);
+List<Object[]> results = DirectDbQuery.executeQuery(queryString.toString(), "maps"/*DATABASE*/, QueryLanguage.SQL);//T456
 			LineStyle lineStyle = LineStyle.SOLID;
 			Geometry geometry = null;
 			WKBReader wkbReader = new WKBReader();
@@ -365,13 +371,13 @@ implements INatlCntrsResource{
 	 * @param pdo - the AwwRecord
 	 * Returns an array of IRscDataObject processed from the AwwRecord
 	 */
-	protected IRscDataObject[] processRecord(Object pdo) {
+	protected IRscDataObject[] processRecord(Object pdo) {long t1 = System.currentTimeMillis();
 		if(! (pdo instanceof AwwRecord)) {
 			System.out.println("Error: " + "Object is of type " + pdo.getClass().getCanonicalName() + "instead of type AwwRecord");
 			return new IRscDataObject[]{};
 		}
 		AwwRecord awwRecord = (AwwRecord) pdo;
-	
+		
 		List<WstmRscDataObject> wstmRscDataObjectList = getWstmData(awwRecord);
 		if(wstmRscDataObjectList == null || wstmRscDataObjectList.size() == 0){
 			return new IRscDataObject[]{};
@@ -380,7 +386,7 @@ implements INatlCntrsResource{
 		IRscDataObject[] irscDataObjArray = new IRscDataObject[listSize];
 		for(int index = 0; index < listSize; index++){
 			irscDataObjArray[index] = wstmRscDataObjectList.get(index);
-		}
+		}//long t2 = System.currentTimeMillis(); System.out.println("+++___+++------------- processRecord (t2-t1): "+(t2-t1));
 		return irscDataObjArray;
 	}
 	
@@ -439,7 +445,7 @@ List<WstmRscDataObject> wstmRscDataObjectList = new ArrayList<WstmRscDataObject>
 			for(AwwUgc eachAwwUgc : thisAwwUgcSet ){
 				Set<AwwVtec> aSetOfAwwVtec= new HashSet<AwwVtec>( eachAwwUgc.getAwwVtecLine());
 				Set<AwwFips> aSetOfAwwFips = new HashSet<AwwFips>( eachAwwUgc.getAwwFIPS());
-
+//for(AwwVtec av : eachAwwUgc.getAwwVtecLine())System.out.println("____________vtec: "+av.getVtecLine());
 				for(AwwVtec thisVtec: aSetOfAwwVtec){
 
 							wstmRscDataObject                        = new WstmRscDataObject();
@@ -474,8 +480,8 @@ List<WstmRscDataObject> wstmRscDataObjectList = new ArrayList<WstmRscDataObject>
 							/* (Non-Javadoc) - From the UGC line corresponding to the VTEC line (in the bulletin)
 							 * retrieve the list of zones for which the weather hazard is valid*/
 							if  (aSetOfAwwFips != null &&  aSetOfAwwFips.size() > 0 ){
-
-								wstmRscDataObject.aListOfFipsInfoObjects = new ArrayList<FipsInfo>(wstmRscDataObject.createListOfFipsInfoObjects(aSetOfAwwFips));
+wqr.buildQueryPart(aSetOfAwwFips);	wstmRscDataObject.aListOfFipsInfoObjects=createListOfFipsInfoObjects2(aSetOfAwwFips);//T456
+//wstmRscDataObject.aListOfFipsInfoObjects = new ArrayList<FipsInfo>(wstmRscDataObject.createListOfFipsInfoObjects(aSetOfAwwFips));
 							}	
 
 							/*If the phenomenon is not unknown, add the WstmRscDataObject to the list*/
@@ -497,7 +503,7 @@ List<WstmRscDataObject> wstmRscDataObjectList = new ArrayList<WstmRscDataObject>
  * @author archana
  *
  */
-	private class WstmRscDataObject implements IRscDataObject{
+	public class WstmRscDataObject implements IRscDataObject{
 
 //          private Map<String, String> fipsCodeAndFipsStringMap = null;
           List<FipsInfo>  aListOfFipsInfoObjects = null;
@@ -595,7 +601,7 @@ List<WstmRscDataObject> wstmRscDataObjectList = new ArrayList<WstmRscDataObject>
          * @return a list of FipInfo objects
          */
         
-      	private List<FipsInfo> createListOfFipsInfoObjects ( Set<AwwFips> aSetOfAwwFips ) {
+      	private List<FipsInfo> createListOfFipsInfoObjects ( Set<AwwFips> aSetOfAwwFips ) {long t1=System.currentTimeMillis();
       		List<FipsInfo> thisListOfFipsInfo = new ArrayList<FipsInfo>(0);
       		
       		/*Create a map of the UGCs to their corresponding FIPS codes and zone names*/
@@ -648,7 +654,7 @@ List<WstmRscDataObject> wstmRscDataObjectList = new ArrayList<WstmRscDataObject>
 					}
 				}
 			}
-      		
+//long t2=System.currentTimeMillis();System.out.println("==================== createListOfFipsInfoObjects() t2-t1: "+(t2-t1));      		
       		/*return the list of newly created FipsInfo objects*/
 			return thisListOfFipsInfo;
       	}      	
@@ -696,7 +702,7 @@ List<WstmRscDataObject> wstmRscDataObjectList = new ArrayList<WstmRscDataObject>
       				 * XXX - 3 digit zone identifier
       				 * */      		
       				String thisUGC = new String (eachAwwFips.getFips());
-           
+//System.out.println("________________________________ ugc: "+thisUGC);           
       				/*and use this UGC to retrieve the FIPS code and zone name from the stations table*/
       				String fipsCodeAndZoneName = new String (getZoneNumberAndNameFromZonesTable(thisUGC));
       				
@@ -1145,6 +1151,287 @@ List<WstmRscDataObject> wstmRscDataObjectList = new ArrayList<WstmRscDataObject>
 }
 }
 	
+
+	
+	
+//---------------------------------------------------------------T456:
+	
+	
+	WstmQueryResult wqr = new WstmQueryResult();
+	
+	//for storing result of pre-calculation
+	private IWireframeShape outlineShape;
+	
+	//for pre-calculate the IWiredframeShape
+	private ZoneResultJob zrJob = new ZoneResultJob("");
+	
+	//if it is 1st round in the loop then draw outline since it pre-calculated for all zones
+	private boolean isFirstRound = true;
+	
+	//Area change flag
+	private boolean areaChangeFlag = false;
+	
+	@Override
+	public void queryRecords() throws VizException {
+
+		HashMap<String, RequestConstraint> queryList = new HashMap<String, RequestConstraint>(
+				resourceData.getMetadataMap());
+
+		LayerProperty prop = new LayerProperty();
+		prop.setDesiredProduct(ResourceType.PLAN_VIEW);
+		prop.setEntryQueryParameters(queryList, false);
+		prop.setNumberOfImages(15000); // TODO: max # records ?? should we cap
+										// this ?
+		String script = null;
+		script = ScriptCreator.createScript(prop);
+
+		if (script == null)
+			return;
+
+		Object[] pdoList = Connector.getInstance().connect(script, null, 60000);
+
+		for (Object pdo : pdoList) {
+			for( IRscDataObject dataObject : processRecord( pdo ) )	{	
+				newRscDataObjsQueue.add(dataObject);
+			}
+		}
+		
+wqr.populateFipsMap();
+	}
+	
+	private List<FipsInfo> createListOfFipsInfoObjects2 ( Set<AwwFips> aSetOfAwwFips ) {
+		
+		List<FipsInfo> thisListOfFipsInfo = new ArrayList<FipsInfo>();
+		
+		for(AwwFips af : aSetOfAwwFips){
+			FipsInfo fips = new FipsInfo();
+			fips.fipsNumber = af.getFips();
+			
+			thisListOfFipsInfo.add(fips);
+		}
+		
+		
+		return thisListOfFipsInfo;
+	}
+	
+    /**
+     * handles the IWireframeShape pre-calculation
+     * 
+     * @author gzhang     
+     */
+    private class ZoneResultJob extends org.eclipse.core.runtime.jobs.Job {
+    	
+    	private Map<String,Result> keyResultMap = new java.util.concurrent.ConcurrentHashMap<String,Result>();
+    	
+    	private IGraphicsTarget target;
+    	private IMapDescriptor descriptor;
+    	private RGB symbolColor = new RGB (155, 155, 155);
+    	
+        public class Result {
+        	
+            public IWireframeShape outlineShape;            
+            public Map<Object, RGB> colorMap;
+
+            private Result(IWireframeShape outlineShape,IWireframeShape nuShape,
+                     			IShadedShape shadedShape,Map<Object, RGB> colorMap){
+            	
+            	this.outlineShape = outlineShape;
+                
+                this.colorMap = colorMap;
+            }
+        }
+    	
+    	public ZoneResultJob(String name) {
+			super(name);			
+		}
+    	
+		public void setRequest(IGraphicsTarget target, IMapDescriptor descriptor,
+        		String query, boolean labeled, boolean shaded, Map<Object, RGB> colorMap){
+			
+			this.target = target;
+			this.descriptor = descriptor;					
+			this.run(null);//this.schedule();
+			
+    	}
+    	
+    	
+    	@Override
+		protected org.eclipse.core.runtime.IStatus run(org.eclipse.core.runtime.IProgressMonitor monitor){
+    		
+    		List<Object[]> results;
+    		
+    		for(AbstractFrameData afd : frameDataMap.values())	{
+    			
+    			FrameData fd = (FrameData)afd;
+    			
+    			for( WstmRscDataObject wrdo : fd.wstmDataMap.values()){    				
+    				
+    				for( FipsInfo fi : wrdo.aListOfFipsInfoObjects){
+    					
+    					Collection<Geometry> gw = new ArrayList<Geometry>();
+    					
+    					for(ArrayList<Object[]> zones : wqr.getZoneResult(fi.fipsNumber)){
+    						
+    						if( zones == null ) continue;
+    						
+    						WKBReader wkbReader = new WKBReader();
+    						
+    						for (Object[] result : zones) {
+    							
+    							int k = 0;
+								byte[] wkb1 = (byte[]) result[k];
+								
+								com.vividsolutions.jts.geom.MultiPolygon countyGeo = null;
+								
+								try{
+									
+									countyGeo= (com.vividsolutions.jts.geom.MultiPolygon)wkbReader.read(wkb1);
+									
+									if ( countyGeo != null && countyGeo.isValid() && ( ! countyGeo.isEmpty())){
+										gw.add(countyGeo);
+									}
+									
+								}catch(Exception e){
+									System.out.println("Exception in run(),ZoneResultJob: "+e.getMessage());
+								}
+    						}    						
+    					}
+    					
+    					if(gw.size() == 0)
+    						continue;
+    					else
+    						keyResultMap.put(fi.fipsNumber, new Result(getEachWrdoShape(gw),null,null,null));
+    				}
+    				
+    				
+    				
+    			}
+    			
+    			
+    		}
+
+    		
+    		return org.eclipse.core.runtime.Status.OK_STATUS;
+    	}
+    	
+    	public IWireframeShape getEachWrdoShape(Collection<Geometry> gw){
+	    	
+	    	IWireframeShape newOutlineShape = target.createWireframeShape(false, descriptor, 0.0f);
+			
+			JTSCompiler jtsCompiler = new JTSCompiler(null,newOutlineShape, descriptor, PointStyle.CROSS);
+	    	
+			com.vividsolutions.jts.geom.GeometryCollection gColl=
+				(com.vividsolutions.jts.geom.GeometryCollection) new com.vividsolutions.jts.geom.GeometryFactory().buildGeometry( gw );
+			
+			try{	
+				gColl.normalize();
+				
+				jtsCompiler.handle(gColl, symbolColor);				
+						
+				newOutlineShape.compile();	
+											
+			}catch (Exception e) {	System.out.println("_____Exception in getEachWrdoShape(), ZoneResultJob : "+e.getMessage());	}
+	    	
+	    	return newOutlineShape;
+	    }
+    }
+    
+    public String getKey(WstmRscDataObject thisWstmRscDataObject){
+    	
+    	return thisWstmRscDataObject.officeId +"." 
+                             + thisWstmRscDataObject.eventNumber + "."
+                             + thisWstmRscDataObject.phenomenonType + "."
+                             + thisWstmRscDataObject.significance ;
+    }
+    
+    
+    private void drawOutlineForZone2( String fipsCode, IGraphicsTarget target,RGB lineColor,int lineWidth) throws VizException{
+    	
+    	ZoneResultJob.Result result = zrJob.keyResultMap.get(fipsCode);
+    	
+    	if (result != null) {
+    		if (outlineShape == null) {   
+    			outlineShape = result.outlineShape;   
+    		}else{									 
+		//if ( outlineShape.hashCode() != result.outlineShape.hashCode()) { //TODO: do NOT use outlineShape.hashCode !!!   
+			//outlineShape.dispose(); 
+    			outlineShape = result.outlineShape;
+		//}
+    		}    
+    	}else {
+    		return;
+    	}
+    	
+    	if (outlineShape != null && outlineShape.isDrawable() ){
+    		try{
+    			target.drawWireframeShape(outlineShape,  lineColor,lineWidth,LineStyle.SOLID );
+    		} catch (VizException e) {
+    			System.out.println("Exception in drawCountyOutline2(), WstmResource"+e.getMessage()); 
+    			//e.printStackTrace();
+    		}
+
+    	} else if (outlineShape == null){
+		
+  		//target.setNeedsRefresh(true);
+    	}
+    }
+    
+    @Override
+	protected boolean postProcessFrameUpdate() {
+    	
+    	gov.noaa.nws.ncep.viz.ui.display.NCMapEditor ncme = 
+    				gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils.getActiveNatlCntrsEditor();
+    	
+    	zrJob.setRequest(ncme.getActiveDisplayPane().getTarget(), descriptor, null, false, false, null); 
+    	
+    	return true;
+    }
+    
+	/**
+	 *  called in the constructor.
+	 */
+	private void addRDChangedListener(){
+		com.raytheon.viz.ui.editor.AbstractEditor editor = gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils.getActiveNatlCntrsEditor();
+		editor.addRenderableDisplayChangedListener(this.new WstmDCListener());
+	}
+    
+    /**
+	 * change the flag so outlineShape can be re-calculated
+	 */
+	private class WstmDCListener implements com.raytheon.uf.viz.core.IRenderableDisplayChangedListener{
+
+		@Override
+		public void renderableDisplayChanged(com.raytheon.uf.viz.core.IDisplayPane pane,
+				com.raytheon.uf.viz.core.drawables.IRenderableDisplay newRenderableDisplay, DisplayChangeType type) {
+			
+			areaChangeFlag = true;
+			
+		}
+		
+	}
+	
+    /**
+     * avoid null pointers exception in super class  
+     */
+    @Override
+	protected long getDataTimeMs(IRscDataObject rscDataObj) {
+		//			long dataTimeMs = rscDataObj.getDataTime().getValidTime().getTime().getTime();
+		if(rscDataObj == null)
+			return 0;
+		
+    	java.util.Calendar validTimeInCalendar = null; 
+		DataTime dataTime = rscDataObj.getDataTime(); 
+		if(dataTime != null) {
+			validTimeInCalendar = dataTime.getValidTime(); 
+			
+		} else {
+			System.out.println("===== find IRscDataObject rscDataObj.getDataTime() return NULL!!!"); 
+		}
+		long dataTimeInMs = 0; 
+		if(validTimeInCalendar != null)
+			dataTimeInMs = validTimeInCalendar.getTimeInMillis(); 
+		return dataTimeInMs; 
+	}
 	
 }
 
