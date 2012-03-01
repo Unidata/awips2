@@ -54,7 +54,8 @@ import com.raytheon.viz.core.gl.IGLFont;
  */
 
 public class FontFactory {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(FontFactory.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(FontFactory.class);
 
     public static final String DEFAULT_FONT_ID = "com.raytheon.uf.viz.core.defaultFont";
 
@@ -85,7 +86,7 @@ public class FontFactory {
      * @param target
      * @return The font to use, never null
      */
-    public IGLFont getFont(String fontId, GLTarget target) {
+    public IGLFont getFont(String fontId) {
         if (!registry.hasValueFor(fontId)) {
             statusHandler.handle(Priority.PROBLEM,
                     "No font registered with id: " + fontId);
@@ -108,7 +109,7 @@ public class FontFactory {
             styles.add(IFont.Style.ITALIC);
         }
 
-        IGLFont font = new GLFont(target, name, size,
+        IGLFont font = new GLFont(name, size,
                 styles.toArray(new IFont.Style[styles.size()]));
         if (fontId.equals(DEFAULT_FONT_ID)) {
             font = new UnmodifiableGLFont(font);

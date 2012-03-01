@@ -72,11 +72,10 @@ import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.ReferencedGeometry;
 import com.raytheon.uf.common.geospatial.ReferencedObject.Type;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.viz.core.DrawableLine;
+import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
-import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
-import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IRenderable;
@@ -84,6 +83,8 @@ import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
+import com.raytheon.viz.pointdata.drawables.IPointImageExtension;
+import com.raytheon.viz.pointdata.drawables.IPointImageExtension.PointImage;
 import com.raytheon.viz.radar.RadarHelper;
 import com.raytheon.viz.radar.rsc.graphic.RadarGraphicFunctions.MesocycloneType;
 import com.raytheon.viz.radar.rsc.graphic.RadarGraphicFunctions.PlotObject;
@@ -981,23 +982,6 @@ public class RadarGraphicsPage implements IRenderable {
         return images;
     }
 
-    public PixelCoverage getPixelCoverage(Coordinate c) {
-        int scaleWidth = 3;
-
-        double[] centerpixels = this.descriptor.worldToPixel(new double[] {
-                c.x, c.y });
-        Coordinate ul = new Coordinate(centerpixels[0] - scaleWidth,
-                centerpixels[1] - scaleWidth);
-        Coordinate ur = new Coordinate(centerpixels[0] + scaleWidth,
-                centerpixels[1] - scaleWidth);
-        Coordinate lr = new Coordinate(centerpixels[0] + scaleWidth,
-                centerpixels[1] + scaleWidth);
-        Coordinate ll = new Coordinate(centerpixels[0] - scaleWidth,
-                centerpixels[1] + scaleWidth);
-
-        return new PixelCoverage(ul, ur, lr, ll);
-    }
-
     public static Coordinate rectifyCoordinate(Coordinate c) {
         c.x += RadarGraphicsDisplay.X_OFFSET;
         c.y += RadarGraphicsDisplay.Y_OFFSET;
@@ -1067,9 +1051,10 @@ public class RadarGraphicsPage implements IRenderable {
         // Paint map-relative text
         for (Coordinate c : this.localStringMap.keySet()) {
             String str = this.localStringMap.get(c);
-
-            target.drawString(this.font, str, c.x, c.y, 0.0, TextStyle.NORMAL,
-                    this.color, HorizontalAlignment.LEFT, null);
+            DrawableString string = new DrawableString(str, this.color);
+            string.font = this.font;
+            string.setCoordinates(c.x, c.y);
+            target.drawStrings(string);
         }
 
         // Paint screen-relative text
@@ -1096,7 +1081,9 @@ public class RadarGraphicsPage implements IRenderable {
 
             // the target may have messes with our magnification value,
             // especially in smaller panes.
-            magnification = target.getStringBounds(font, "Hy").getHeight() / 14;
+            DrawableString testString = new DrawableString("hy", this.color);
+            testString.font = this.font;
+            magnification = target.getStringsBounds(testString).getHeight() / 14;
             double width = (maxx - minx) * magnification;
             // If the table wider than our canvas then shrink it
             if (width > paintProps.getCanvasBounds().width) {
@@ -1104,7 +1091,7 @@ public class RadarGraphicsPage implements IRenderable {
                         * paintProps.getCanvasBounds().width
                         / (width + xOffset * 2);
                 font.setMagnification((float) magnification, false);
-                magnification = target.getStringBounds(font, "Hy").getHeight() / 14;
+                magnification = target.getStringsBounds(testString).getHeight() / 14;
                 width = (maxx - minx) * magnification;
             }
             xOffset = (paintProps.getCanvasBounds().width - width) / 2;
@@ -1123,9 +1110,11 @@ public class RadarGraphicsPage implements IRenderable {
                         new double[] { x1, y1 }, target);
                 double[] pts2 = paintProps.getView().getDisplayCoords(
                         new double[] { x2, y2 }, target);
-
-                target.drawLine(pts1[0], pts1[1], 0, pts2[0], pts2[1], 0,
-                        color, 1.0f);
+                DrawableLine line = new DrawableLine();
+                line.addPoint(pts1[0], pts1[1]);
+                line.addPoint(pts2[0], pts2[1]);
+                line.basics.color = this.color;
+                target.drawLine(line);
             }
         }
 
@@ -1145,9 +1134,11 @@ public class RadarGraphicsPage implements IRenderable {
                     // }
                     double[] pts = paintProps.getView().getDisplayCoords(
                             new double[] { x, y }, target);
-                    target.drawString(this.font, str, pts[0], pts[1], 0.0,
-                            TextStyle.NORMAL, color, HorizontalAlignment.LEFT,
-                            VerticalAlignment.TOP, null);
+                    DrawableString string = new DrawableString(str, this.color);
+                    string.font = this.font;
+                    string.setCoordinates(pts[0], pts[1]);
+                    string.verticallAlignment = VerticalAlignment.TOP;
+                    target.drawStrings(string);
                 }
 
             }
@@ -1160,24 +1151,30 @@ public class RadarGraphicsPage implements IRenderable {
         // paint symbols on screen
         double ratio = (paintProps.getView().getExtent().getWidth() / paintProps
                 .getCanvasBounds().width);
-        double pixels = 90 * ratio * magnification;
+        double pixels = 90 * magnification;
 
         for (PlotObject po : this.plotObjects) {
             Coordinate adjustedCoord = (Coordinate) po.coord.clone();
 
             adjustedCoord.x += po.pixelOffset[0] * ratio * magnification;
             adjustedCoord.y += po.pixelOffset[1] * ratio * magnification;
-            target.drawRaster(po.image, new PixelCoverage(adjustedCoord,
-                    pixels, pixels), paintProps);
+            PointImage image = new PointImage(po.image, adjustedCoord);
+            image.setHeight(pixels);
+            image.setWidth(pixels);
 
             if (po.label != null) {
+                image.setSiteId(po.label);
                 // Place the label next to the image
                 adjustedCoord.x += pixels / 20;
-                target.drawString(this.font, po.label, adjustedCoord.x,
-                        adjustedCoord.y, 0.0, TextStyle.NORMAL, this.color,
-                        HorizontalAlignment.LEFT, VerticalAlignment.BOTTOM,
-                        null);
+                DrawableString string = new DrawableString(po.label, this.color);
+                string.font = this.font;
+                string.setCoordinates(adjustedCoord.x, adjustedCoord.y);
+                target.drawStrings(string);
+
             }
+            target.getExtension(IPointImageExtension.class).drawPointImages(
+                    paintProps, image);
+
         }
 
     }

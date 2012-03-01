@@ -121,7 +121,8 @@ public class RadarRequestableLevelNode extends AbstractRequestableLevelNode {
     }
 
     @Override
-    public Set<DataTime> timeQueryInternal(boolean latestOnly,
+    public Set<DataTime> timeQueryInternal(TimeQueryRequest originalRequest,
+            boolean latestOnly,
             Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
             Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
             throws VizException {
@@ -147,7 +148,8 @@ public class RadarRequestableLevelNode extends AbstractRequestableLevelNode {
     }
 
     @Override
-    protected TimeQueryRequest getTimeQueryInternal(boolean latestOnly,
+    protected TimeQueryRequest getTimeQueryInternal(
+            TimeQueryRequest originalRequest, boolean latestOnly,
             Map<AbstractRequestableLevelNode, Set<DataTime>> cache)
             throws VizException {
         // TODO Auto-generated method stub

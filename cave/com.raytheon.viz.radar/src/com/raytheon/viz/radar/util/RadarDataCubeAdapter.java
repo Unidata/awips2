@@ -35,6 +35,9 @@ import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponseSet;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -61,6 +64,9 @@ import com.raytheon.viz.pointdata.util.PointDataCubeAdapter;
  * @version 1.0
  */
 public class RadarDataCubeAdapter extends PointDataCubeAdapter {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(RadarDataCubeAdapter.class);
+
     private static final String DATA_TIME_FIELD = "dataTime";
 
     private static final String LATEST_DATA_TIME_FIELD = "dataTime.refTime";
@@ -74,11 +80,16 @@ public class RadarDataCubeAdapter extends PointDataCubeAdapter {
 
     @Override
     public void initInventory() {
-        derParLibrary = DerivedParameterGenerator.getDerParLibrary();
         if (inventory == null) {
             AbstractPointDataInventory pointInventory = new VwpInventory();
-            pointInventory.initTree(derParLibrary);
-            this.inventory = pointInventory;
+            try {
+                pointInventory.initTree(DerivedParameterGenerator
+                        .getDerParLibrary());
+                this.inventory = pointInventory;
+            } catch (VizException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
         }
     }
 

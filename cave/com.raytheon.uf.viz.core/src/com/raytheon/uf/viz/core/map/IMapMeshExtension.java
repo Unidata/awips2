@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.core.map;
 
 import com.raytheon.uf.viz.core.IMesh;
+import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension.IGraphicsExtensionInterface;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
@@ -39,7 +40,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * @version 1.0
  */
 
-public interface IMapMeshExtension {
+public interface IMapMeshExtension extends IGraphicsExtensionInterface {
 
     /**
      * Create a mesh
