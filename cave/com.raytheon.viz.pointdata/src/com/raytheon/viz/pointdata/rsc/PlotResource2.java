@@ -44,13 +44,11 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
-import com.raytheon.uf.viz.core.drawables.SingleColorImage;
+import com.raytheon.uf.viz.core.drawables.ext.ISingleColorImageExtension.ISingleColorImage;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.jobs.JobPool;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
@@ -65,6 +63,8 @@ import com.raytheon.viz.pointdata.IPlotModelGeneratorCaller;
 import com.raytheon.viz.pointdata.PlotAlertParser;
 import com.raytheon.viz.pointdata.PlotDataThreadPool;
 import com.raytheon.viz.pointdata.PlotInfo;
+import com.raytheon.viz.pointdata.drawables.IPointImageExtension;
+import com.raytheon.viz.pointdata.drawables.IPointImageExtension.PointImage;
 import com.raytheon.viz.pointdata.rsc.progdisc.AbstractProgDisclosure;
 import com.raytheon.viz.pointdata.rsc.progdisc.AbstractProgDisclosure.IProgDiscListener;
 import com.raytheon.viz.pointdata.rsc.progdisc.DynamicProgDisclosure;
@@ -123,7 +123,7 @@ public class PlotResource2 extends
     private JobPool frameRetrievalPool = new JobPool("Retrieving plot frame",
             8, true);
 
-    private TreeMap<Integer, String> rawMessageMap = new TreeMap<Integer, String>();
+    private TreeMap<String, String> rawMessageMap = new TreeMap<String, String>();
 
     private class FrameRetriever implements Runnable {
 
@@ -145,7 +145,7 @@ public class PlotResource2 extends
     public static class Station {
         public PlotInfo[] info;
 
-        public DrawableImage plotImage;
+        public PointImage plotImage;
 
         public Object progDiscInfo;
 
@@ -216,26 +216,19 @@ public class PlotResource2 extends
             return;
         }
 
-        double screenToWorldRatio = progressiveDisclosure
-                .getScreenToWorldRatio();
-        double scaleValue = (this.plotWidth) / screenToWorldRatio;
-
-        List<DrawableImage> images = new ArrayList<DrawableImage>(
-                stationList.size());
+        List<PointImage> images = new ArrayList<PointImage>(stationList.size());
         for (Station station : stationList) {
             if (station.plotImage == null) {
                 continue;
             }
-            station.plotImage.setCoverage(new PixelCoverage(
-                    station.pixelLocation, scaleValue, scaleValue));
             // set image color so shader can draw in appropriate color
-            ((SingleColorImage) station.plotImage.getImage())
+            ((ISingleColorImage) station.plotImage.getImage())
                     .setColor(imageColor);
             images.add(station.plotImage);
         }
 
-        aTarget.drawRasters(paintProps,
-                images.toArray(new DrawableImage[images.size()]));
+        aTarget.getExtension(IPointImageExtension.class).drawPointImages(
+                paintProps, images);
     }
 
     @Override
@@ -337,12 +330,13 @@ public class PlotResource2 extends
                 if (stationMap.containsKey(plot.stationId)) {
                     Station existingStation = stationMap.get(plot.stationId);
                     if (existingStation.plotImage != null) {
-                        existingStation.plotImage.dispose();
+                        existingStation.plotImage.getImage().dispose();
                         existingStation.plotImage = null;
                     }
                     boolean dup = false;
                     for (int i = 0; i < existingStation.info.length; i++) {
-                        if (existingStation.info[i].id.equals(plot.id)) {
+                        if (existingStation.info[i].dataURI
+                                .equals(plot.dataURI)) {
                             // existingStation.info[i] = plot;
                             dup = true;
                             break;
@@ -501,15 +495,15 @@ public class PlotResource2 extends
             }
 
             if (inspectPlot != null) {
-                int id = inspectPlot[0].id;
-                if (rawMessageMap.containsKey(id)) {
-                    if (rawMessageMap.get(id) != null) {
-                        message = rawMessageMap.get(id);
+                String dataURI = inspectPlot[0].dataURI;
+                if (rawMessageMap.containsKey(dataURI)) {
+                    if (rawMessageMap.get(dataURI) != null) {
+                        message = rawMessageMap.get(dataURI);
                     }
                 } else {
                     message = "Generating...";
                     synchronized (rawMessageMap) {
-                        rawMessageMap.put(id, message);
+                        rawMessageMap.put(dataURI, message);
                     }
                     List<PlotInfo[]> list = new ArrayList<PlotInfo[]>();
                     list.add(inspectPlot);
@@ -623,7 +617,7 @@ public class PlotResource2 extends
             FrameInformation frameInfo = entry.getValue();
             for (Station station : frameInfo.stationMap.values()) {
                 if (station.plotImage != null) {
-                    station.plotImage.dispose();
+                    station.plotImage.getImage().dispose();
                     station.plotImage = null;
 
                     if (station.info != null) {
@@ -645,8 +639,9 @@ public class PlotResource2 extends
             Station s = frameInfo.stationMap.get(key[0].stationId);
             if (s != null) {
                 if (image != null) {
-                    SingleColorImage si = new SingleColorImage(image);
-                    s.plotImage = new DrawableImage(si, null);
+                    ISingleColorImage si = (ISingleColorImage) image;
+                    s.plotImage = new PointImage(si, s.pixelLocation);
+                    s.plotImage.setSiteId(s.info[0].stationId);
                     si.setColor(imageColor);
                 } else {
                     frameInfo.stationMap.remove(key[0].stationId);
@@ -669,7 +664,7 @@ public class PlotResource2 extends
         if (frameInfo != null) {
             for (Station s : frameInfo.stationMap.values()) {
                 if (s != null && s.plotImage != null) {
-                    s.plotImage.dispose();
+                    s.plotImage.getImage().dispose();
                     s.plotImage = null;
                 }
             }
@@ -711,9 +706,9 @@ public class PlotResource2 extends
     }
 
     @Override
-    public void messageGenerated(int id, String message) {
+    public void messageGenerated(String dataURI, String message) {
         synchronized (rawMessageMap) {
-            rawMessageMap.put(id, message);
+            rawMessageMap.put(dataURI, message);
         }
         issueRefresh();
     }
