@@ -60,8 +60,7 @@ import com.raytheon.viz.radar.rsc.AbstractRadarResource;
 import com.raytheon.viz.radar.rsc.MosaicPaintProperties;
 import com.raytheon.viz.radar.rsc.RadarImageResource;
 import com.raytheon.viz.radar.rsc.RadarTextResource.IRadarTextGeneratingResource;
-import com.raytheon.viz.radar.rsc.mosaic.ext.IRadarMosaicRendererFactoryExtension;
-import com.raytheon.viz.radar.rsc.mosaic.ext.IRadarMosaicRendererFactoryExtension.IRadarMosaicRenderer;
+import com.raytheon.viz.radar.rsc.mosaic.RadarMosaicRendererFactory.IRadarMosaicRenderer;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -153,10 +152,8 @@ public class RadarMosaicResource extends
      */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-
-        mosaicRenderer = target.getExtension(
-                IRadarMosaicRendererFactoryExtension.class).createNewRenderer(
-                resourceData.getMosaicType());
+        mosaicRenderer = RadarMosaicRendererFactory
+                .createNewRenderer(resourceData.getMosaicType());
 
         // We want to init the most severe resource first so the colormap
         // matches.
