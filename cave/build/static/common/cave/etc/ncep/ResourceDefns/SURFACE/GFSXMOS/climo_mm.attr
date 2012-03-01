@@ -1,0 +1,4 @@
+! Attributes for the GFSXMOS resource with "climomm" plot model
+!
+plotModelName=climomm
+plotDensity=10
