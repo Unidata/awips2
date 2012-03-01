@@ -28,21 +28,20 @@ import java.util.Hashtable;
 
 import javax.media.jai.PlanarImage;
 import javax.media.opengl.GL;
-import javax.media.opengl.GLContext;
 
-import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
+import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.core.gl.IGLTarget;
 import com.raytheon.viz.core.gl.internal.cache.IImageCacheable;
 import com.raytheon.viz.core.gl.internal.cache.ImageCache;
 import com.raytheon.viz.core.gl.internal.cache.ImageCache.CacheType;
 import com.sun.opengl.util.texture.Texture;
+import com.sun.opengl.util.texture.TextureCoords;
 import com.sun.opengl.util.texture.TextureData;
 import com.sun.opengl.util.texture.TextureIO;
 
 /**
- * Represents a GL "Image"
+ * Represents a GL "RenderedImage"
  * 
  * <pre>
  * 
@@ -72,8 +71,8 @@ public class GLImage extends AbstractGLImage implements IImageCacheable {
 
     protected int size;
 
-    public GLImage(IRenderedImageCallback preparer, IGLTarget target) {
-        super(target);
+    public GLImage(IRenderedImageCallback preparer, Class<? extends IImagingExtension> extensionClass) {
+        super(extensionClass);
         theTexture = null;
         this.imagePreparer = preparer;
     }
@@ -113,15 +112,8 @@ public class GLImage extends AbstractGLImage implements IImageCacheable {
 
             if (getStatus() == Status.LOADED) {
                 if (theTexture != null) {
-                    final Texture tex = theTexture;
+                    theTexture.dispose();
                     theTexture = null;
-                    VizApp.runAsync(new Runnable() {
-                        @Override
-                        public void run() {
-                            theTarget.makeContextCurrent();
-                            tex.dispose();
-                        }
-                    });
                 }
                 if (theStagedData != null) {
                     setStatus(Status.STAGED);
@@ -134,17 +126,20 @@ public class GLImage extends AbstractGLImage implements IImageCacheable {
 
     }
 
-    /**
-     * Stage the texture in memory
+    /*
+     * (non-Javadoc)
      * 
-     * The texture will then be ready to load into the video card
-     * 
-     * @throws VizException
+     * @see com.raytheon.viz.core.gl.images.AbstractGLImage#stageTexture()
      */
-    public void stageTexture() throws VizException {
-        generateTextureData();
-        ImageCache.getInstance(CacheType.MEMORY).put(this); // Add to
-        // memory
+    @Override
+    public boolean stageTexture() throws VizException {
+        if (theImage == null) {
+            theImage = imagePreparer.getImage();
+        }
+        boolean rval = generateTextureData(theImage);
+        // Add to memory cache
+        ImageCache.getInstance(CacheType.MEMORY).put(this);
+        return rval;
     }
 
     /**
@@ -154,7 +149,7 @@ public class GLImage extends AbstractGLImage implements IImageCacheable {
      *            the OpenGL context
      * @throws VizException
      */
-    public void loadTexture(GLContext ctx) throws VizException {
+    public void loadTexture(GL gl) throws VizException {
         synchronized (this) {
             Texture tex = TextureIO.newTexture(theStagedData);
 
@@ -186,9 +181,9 @@ public class GLImage extends AbstractGLImage implements IImageCacheable {
      * @param rendImg
      *            the rendered image to load
      */
-    private void generateTextureData(RenderedImage rendImg) {
+    private boolean generateTextureData(RenderedImage rendImg) {
         if (rendImg == null) {
-            return;
+            return false;
         }
 
         if (rendImg instanceof BufferedImage) {
@@ -205,18 +200,7 @@ public class GLImage extends AbstractGLImage implements IImageCacheable {
 
         this.size = rendImg.getHeight() * rendImg.getWidth() * 4
                 * rendImg.getColorModel().getNumColorComponents();
-        setStatus(Status.STAGED);
-    }
-
-    private void generateTextureData() {
-        if (theImage == null) {
-            try {
-                theImage = imagePreparer.getImage();
-            } catch (VizException e) {
-                e.printStackTrace();
-            }
-        }
-        generateTextureData(theImage);
+        return true;
     }
 
     /**
@@ -259,6 +243,9 @@ public class GLImage extends AbstractGLImage implements IImageCacheable {
      * @see com.raytheon.viz.core.drawables.IImage#getHeight()
      */
     public int getHeight() {
+        if (theImage != null) {
+            return theImage.getHeight();
+        }
         if (theTexture != null) {
             return theTexture.getImageHeight();
         }
@@ -272,6 +259,9 @@ public class GLImage extends AbstractGLImage implements IImageCacheable {
      * @see com.raytheon.viz.core.drawables.IImage#getWidth()
      */
     public int getWidth() {
+        if (theImage != null) {
+            return theImage.getWidth();
+        }
         if (theTexture != null) {
             return theTexture.getImageWidth();
         }
@@ -312,6 +302,16 @@ public class GLImage extends AbstractGLImage implements IImageCacheable {
         ImageCache.getInstance(CacheType.TEXTURE).put(this);
 
         return getTexture().getTextureObject();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.core.gl.images.AbstractGLImage#getTextureCoords()
+     */
+    @Override
+    public TextureCoords getTextureCoords() {
+        return theTexture.getImageTexCoords();
     }
 
 }

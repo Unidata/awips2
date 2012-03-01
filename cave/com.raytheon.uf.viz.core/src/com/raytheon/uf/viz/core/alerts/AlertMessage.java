@@ -38,8 +38,6 @@ import java.util.Map;
  */
 
 public class AlertMessage {
-    /** The id of the alert */
-    public Integer id;
 
     /** The raw string dataURI */
     public String dataURI;
