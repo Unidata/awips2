@@ -1,0 +1,29 @@
+ <!--
+ CREATED 1-26-2012 BY EVAN BOOKBINDER
+  
+ FOR EACH DATABASE TABLE IMPORTED USING THE importMarkersInfo.sh SCRIPT,
+ THERE WILL BE TWO pointSource OBJECTS CREATED BELOW. 
+ ONLY THE pointSource variable (unique to each object) AND
+          pointSource attribute (the tablename created from importMarkersInfo.sh)
+ SHOULD BE MODIFIED.
+ 
+ EXAMPLE FOR INTERSTATE 435 in the Kansas City Metro follows:
+ 
+ <pointSource variable="i435mm">
+    <pointSource>i435mm</pointSource>
+ 	<pointField>NAME</pointField>
+ 	<searchMethod>POINTS</searchMethod>
+ 	<withinPolygon>true</withinPolygon>
+ 	<maxResults>1000</maxResults>
+ 	<distanceThreshold>100</distanceThreshold>
+ </pointSource>
+  <pointSource variable="i435mmid">
+    <pointSource>i435mm</pointSource>
+ 	<pointField>GID</pointField>
+ 	<searchMethod>POINTS</searchMethod>
+ 	<withinPolygon>true</withinPolygon>
+ 	<maxResults>1000</maxResults>
+ 	<distanceThreshold>100</distanceThreshold>
+ </pointSource>
+ 
+ -->

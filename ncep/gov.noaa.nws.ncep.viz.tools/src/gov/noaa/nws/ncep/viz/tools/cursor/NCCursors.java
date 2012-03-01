@@ -1,20 +1,22 @@
 package gov.noaa.nws.ncep.viz.tools.cursor;
 
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationResourcePathConstants;
-import gov.noaa.nws.ncep.viz.tools.cursor.CursorTypes.CursorType;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.JAXBException;
 
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.widgets.Display;
+
+import com.raytheon.uf.common.localization.LocalizationFile;
 
 
 /**
@@ -25,6 +27,9 @@ import org.eclipse.swt.widgets.Display;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 06/22/09		  #109		M. Li		Created
+ * 07/28/11       #450      G. Hull     NcPathManager, remove cursorType tbl 
+ *                                      and determine cursors from available png files
+ * 
  * </pre>
  * 
  * @author mli
@@ -37,10 +42,34 @@ public class NCCursors {
 		BUSY
 	}
 	
+	// from CursorTypes 
+	public static class CursorType {
+		public CursorType(String name, String imgFile) {
+			CursorName = name;
+			imageFile = imgFile;
+		}
+		
+		private String CursorName;
+		private String imageFile; // the full path
+		
+		public String getCursorName() {
+			return CursorName;
+		}
+		public void setCursorName(String cursorName) {
+			CursorName = cursorName;
+		}
+		public String getImageFile() {
+			return imageFile;
+		}
+		public void setImageFile(String imageFile) {
+			this.imageFile = imageFile;
+		}
+	}
+
 	// Pre-set cursor references from table
 	private static List<CursorReference> curRefList = null;
     
-	// Cursor type list from cursor type table
+	// Cursor type list from available png files 
     private static List<CursorType> cursorTypeList = null;
     
     // Cursor color options
@@ -73,7 +102,8 @@ public class NCCursors {
     }
     
     protected List<CursorType> getCursorTypeList() {
-    	if (cursorTypeList == null)  readCursorTable();
+    	if (cursorTypeList == null)  
+    		readCursorTable();
     	return cursorTypeList;
     }
     
@@ -83,32 +113,53 @@ public class NCCursors {
     
     
     private static void readCursorTable() {
-
     	if (curRefList == null) {
     		CursorReferenceTableReader curRefTbl = 
-    			new CursorReferenceTableReader(LocalizationManager.getInstance().getFilename("cursorRefTable"));
+    			new CursorReferenceTableReader(
+    					NcPathManager.getInstance().getStaticFile(
+    							NcPathConstants.CURSOR_REFS_TBL ).getAbsolutePath() );
     		try {
     			curRefList = curRefTbl.getTable();
     		} catch (JAXBException e) {
     			e.printStackTrace();
     		}
     	}
+    	
+    	cursorTypeList = new ArrayList<CursorType>();
+    	
+    	// Get a list of all the Localization .png files under the CURSORS directory
+    	// (recursive to find files in the images sub-dir)
+    	Map<String,LocalizationFile> availCursors = NcPathManager.getInstance().listFiles( 
+        		NcPathConstants.CURSORS_DIR, new String[]{ ".png" }, true, true );
 
-    	if ( cursorTypeList == null) {
-    		CursorTypes curType = new CursorTypes(LocalizationManager.getInstance().getFilename("cursorTypeTable")); 
+    	// Wanted to change this to read all of the available cursors to make it possible to 
+    	// add cursors in the future but then realized that there was an ordering to the cursorTypeList
+    	// based on the order from the old cursorTypes.tbl. So I am hardcoding the ordering 
+    	// here
+    	String[] expectedCursorTypes = {"SMALL_ARROW","LARGE_ARROW",
+    									"SMALL_CROSS","LARGE_CROSS","SMALL_X","LARGE_X" };
 
-    		try {
-    			if (curType.readTable()) {
-    				cursorTypeList = new ArrayList<CursorType>();
-    				cursorTypeList = curType.getCursorTypes();
-    			}
-    		} catch (FileNotFoundException e) {
-    			e.printStackTrace();
-    		} catch (IOException e) {
-    			e.printStackTrace();
-    		}
+    	for( String cursorType : expectedCursorTypes ) {
+        	for( LocalizationFile lFile : availCursors.values() ) {
+        		if( lFile.getName().contains( cursorType ) ) {
+        			if( !lFile.getFile().exists() ) {
+        				System.out.println( "Could not Find expected Cursor Type: "+ 
+        						lFile.getName() );
+        				return;
+        			}
+        			String imgFileName = lFile.getFile().getName();
+        			String cursorName = imgFileName.substring(0, imgFileName.length()-".png".length());
 
+        			cursorTypeList.add( 
+        						new CursorType( cursorName, lFile.getFile().getAbsolutePath() ) );
+        		}
+        	}
     	}
+    	
+    	if( cursorTypeList.size() != expectedCursorTypes.length ) {
+			System.out.println( "Could not Find All the Expected Cursor Types? ");
+			cursorTypeList.clear(); // 
+    	}    	
     }
     
     protected static int[] getCursorTypeIdx(boolean default_value) {
@@ -182,13 +233,8 @@ public class NCCursors {
     	// Get cursor image file name
     	int refIndex = curRef.ordinal();
 
-    	/*
-    	 * comment out by M. Gao
-    	 */
-//    	String imageFile = LocalizationManager.getInstance().getFilename("cursorImageDir") + File.separator
-//		+ cursorTypeList.get(curTypes[refIndex]).getImageFile();
-    	String imageFile = LocalizationManager.getInstance().getLocalizationFileNameDirectly(LocalizationResourcePathConstants.CURSOR_IMAGES_DIR,
-    			cursorTypeList.get(curTypes[refIndex]).getImageFile()); 
+    	String imageFile =     		
+    			cursorTypeList.get(curTypes[refIndex]).getImageFile(); 
     	
     	// Get hotSpot X, & Y
     	int x = 1;

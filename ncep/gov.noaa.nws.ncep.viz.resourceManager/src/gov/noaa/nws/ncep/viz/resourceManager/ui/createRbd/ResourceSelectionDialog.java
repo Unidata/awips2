@@ -2,6 +2,7 @@ package gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd;
 
 
 import gov.noaa.nws.ncep.viz.resourceManager.ui.createRbd.ResourceSelectionControl.IResourceSelectedListener;
+import gov.noaa.nws.ncep.viz.resources.manager.ResourceName;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -31,6 +32,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 02/10/10      #226       Greg Hull    Initial Creation.
  * 06/13/10      #273       Greg Hull    
  * 04/20/11                 Greg Hull    args to set the style and title
+ * 10/25/11      #467       Greg Hull    add Replace Resource 
  * 
  * </pre>
  * 
@@ -41,8 +43,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
 public class ResourceSelectionDialog extends Dialog { 
    
     private Shell shell;
-    private boolean isOpen = false;
     private Point dlgLocation=null;
+    private boolean replaceEnabled = false;
     
     private ResourceSelectionControl sel_rsc_cntrl = null;
         
@@ -52,8 +54,24 @@ public class ResourceSelectionDialog extends Dialog {
     public ResourceSelectionDialog( Shell parShell )  {
     	super(parShell);
     }
-      
-    public Object open( String title, int style ) {
+    
+	Boolean replaceBtnVisible;
+	Boolean replaceBtnEnabled;
+	ResourceName initRscName;
+
+
+    public Object open( Boolean replaceVisible,
+    					Boolean replaceEnabled,
+    					ResourceName initRsc, 
+    			        Boolean multiPane, int style ) {
+    	
+        replaceBtnVisible =replaceVisible;
+    	replaceBtnEnabled = replaceEnabled;
+    	initRscName =initRsc;
+    	
+    	String title = ( replaceBtnVisible ? "Replace Resource" : "Add Resource" );
+    	title = "Select New Resource";
+    	
     	Shell parent = getParent();
     	Display display = parent.getDisplay();
     	
@@ -79,7 +97,10 @@ public class ResourceSelectionDialog extends Dialog {
     	sel_rscs_grp.setLayoutData( gd );
 
     	try {
-			sel_rsc_cntrl = new ResourceSelectionControl( sel_rscs_grp, title );
+			sel_rsc_cntrl = new ResourceSelectionControl( sel_rscs_grp, 
+					replaceBtnVisible, 
+					replaceBtnEnabled, 
+					initRscName, multiPane );
 		} catch (VizException e) {
 			e.printStackTrace();
 			close();
@@ -117,8 +138,6 @@ public class ResourceSelectionDialog extends Dialog {
     	shell.pack();
     	shell.open();
     	
-    	isOpen = true;
-    	
     	while( !shell.isDisposed() ) {
     		if( !display.readAndDispatch() ) {
     			display.sleep();
@@ -126,8 +145,6 @@ public class ResourceSelectionDialog extends Dialog {
     	}
     	
 //    	dlgLocation = shell.getLocation();
-    	
-    	isOpen = false;
     	
     	return null;
     }
@@ -143,6 +160,13 @@ public class ResourceSelectionDialog extends Dialog {
 		rscSelListeners.add( lstnr );
 	}
     
+	// this isn't necessary if we remove the 'Replace' (Modify) button from Create Rbd
+	// and have it on the Select Resource instead.
+	//
+	public boolean replaceOptionEnabled() {
+		return replaceEnabled;
+	}
+	
     public boolean isOpen() {
         return shell != null && !shell.isDisposed();
     }  
@@ -151,5 +175,18 @@ public class ResourceSelectionDialog extends Dialog {
     	shell.dispose();
     }
 
+    public void setMultiPaneEnabled( Boolean multPaneEnable ) {
+    	sel_rsc_cntrl.setMultiPaneEnabled( multPaneEnable );
+    }
+    
+    public void setReplaceEnabled( Boolean replaceEnabled ) {
+    	if( sel_rsc_cntrl != null ) 
+    		sel_rsc_cntrl.setReplaceEnabled( replaceEnabled );
+    }
+    
+    public ResourceName getPrevSelectedResource() {
+    	
+    	return (sel_rsc_cntrl != null ?  sel_rsc_cntrl.getPrevSelectedResource() : new ResourceName());
+    }
 }
 

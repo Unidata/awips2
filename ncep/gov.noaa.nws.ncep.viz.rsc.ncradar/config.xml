@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<configuration>
+<STI_NumStorms>20</STI_NumStorms>
+<STI_TrackType>PAST_AND_FORECAST</STI_TrackType>
+<HI_POHLow>30</HI_POHLow>
+<HI_POHHigh>50</HI_POHHigh>
+<HI_POSHLow>30</HI_POSHLow>
+<HI_POSHHigh>50</HI_POSHHigh>
+<TVS_ShowElevated>false</TVS_ShowElevated>
+<DMD_ShowExtrapolated>false</DMD_ShowExtrapolated>
+<DMD_MinFeatureStrength>3</DMD_MinFeatureStrength>
+<DMD_ShowOverlapping>false</DMD_ShowOverlapping>
+<DMD_TrackType>PAST_AND_FORECAST</DMD_TrackType>
+<SRM_Source>WARNGEN</SRM_Source>
+<SRM_Direction>0</SRM_Direction>
+<SRM_Speed>0</SRM_Speed>
+</configuration>
