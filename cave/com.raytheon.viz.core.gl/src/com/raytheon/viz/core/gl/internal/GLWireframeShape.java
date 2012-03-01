@@ -802,7 +802,8 @@ public class GLWireframeShape implements IWireframeShape {
         recursiveDispose(baseLevel);
 
         if (vboAssociatedTarget != null && vboID > 0) {
-            vboAssociatedTarget.disposeVBO(vboID);
+            vboAssociatedTarget.getGl().glDeleteBuffers(1, new int[] { vboID },
+                    0);
             vboID = 0;
             vboAssociatedTarget = null;
         }

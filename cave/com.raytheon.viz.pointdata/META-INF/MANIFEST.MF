@@ -22,10 +22,12 @@ Require-Bundle: org.apache.batik,
  com.raytheon.uf.common.pointdata;bundle-version="1.12.1174"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.pointdata,
+ com.raytheon.viz.pointdata.drawables,
  com.raytheon.viz.pointdata.rsc,
  com.raytheon.viz.pointdata.rsc.retrieve,
  com.raytheon.viz.pointdata.util
 Import-Package: com.raytheon.edex.meteoLib,
+ com.raytheon.uf.common.comm,
  com.raytheon.uf.common.dataplugin.level,
  com.raytheon.uf.common.derivparam.tree,
  com.raytheon.uf.common.message.response,
