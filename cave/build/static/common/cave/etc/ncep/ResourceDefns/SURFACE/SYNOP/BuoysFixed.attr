@@ -1,0 +1,6 @@
+! Parameters and Attributes for the default METAR Resource
+!
+legendString=Fixed Buoy Synop
+plotModelName=bouys
+reportType=1005
+plotDensity=15
