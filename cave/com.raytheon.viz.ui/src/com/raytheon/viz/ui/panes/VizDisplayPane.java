@@ -403,7 +403,9 @@ public class VizDisplayPane implements IDisplayPane {
                         renderableDisplay, DisplayChangeType.REMOVE);
             }
 
-            graphicsAdapter.disposeCanvas(canvas);
+            if (canvas.isDisposed() == false) {
+                canvas.getParent().dispose();
+            }
         }
     }
 
