@@ -46,8 +46,6 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.IGraphicsTarget.RasterMode;
-import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.catalog.CatalogQuery;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -65,6 +63,8 @@ import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.viz.pointdata.PlotModelGenerator;
 import com.raytheon.viz.pointdata.StaticPlotInfoPV;
 import com.raytheon.viz.pointdata.StaticPlotInfoPV.SPIEntry;
+import com.raytheon.viz.pointdata.drawables.IPointImageExtension;
+import com.raytheon.viz.pointdata.drawables.IPointImageExtension.PointImage;
 import com.raytheon.viz.pointdata.units.PlotUnits;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -328,33 +328,14 @@ public class PlotResource extends
                         }
                         continue;
                     }
-                    this.screenToWorldRatio = paintProps.getCanvasBounds().width
-                            / paintProps.getView().getExtent().getWidth();
-                    double scaleValue = (this.plotWidth / 2.0)
-                            / screenToWorldRatio;
-                    double[] ul = new double[] {
-                            stationPixelLocation[0] - scaleValue,
-                            stationPixelLocation[1] - scaleValue, 0 };
 
-                    double[] ur = new double[] {
-                            stationPixelLocation[0] + scaleValue,
-                            stationPixelLocation[1] - scaleValue, 0 };
-
-                    double[] lr = new double[] {
-                            stationPixelLocation[0] + scaleValue,
-                            stationPixelLocation[1] + scaleValue, 0 };
-
-                    double[] ll = new double[] {
-                            stationPixelLocation[0] - scaleValue,
-                            stationPixelLocation[1] + scaleValue, 0 };
-
-                    PixelCoverage pc = new PixelCoverage(new Coordinate(ul[0],
-                            ul[1], ul[2]), new Coordinate(ur[0], ur[1], ur[2]),
-                            new Coordinate(lr[0], lr[1], lr[2]),
-                            new Coordinate(ll[0], ll[1], ll[2]));
-
-                    aTarget.drawRaster(generator.getStation(currentDataUri),
-                            pc, paintProps, RasterMode.SYNCHRONOUS);
+                    PointImage image = new PointImage(
+                            generator.getStation(currentDataUri),
+                            stationPixelLocation[0], stationPixelLocation[1]);
+                    image.setHeight(this.plotWidth);
+                    image.setWidth(this.plotWidth);
+                    aTarget.getExtension(IPointImageExtension.class)
+                            .drawPointImages(paintProps, image);
                 }
                 if (newStations.size() > 0) {
                     generator.queueStations(newStations, paintProps

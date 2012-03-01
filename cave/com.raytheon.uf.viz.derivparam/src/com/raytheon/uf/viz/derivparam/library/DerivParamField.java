@@ -29,6 +29,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.adapters.UnitAdapter;
+import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.level.LevelMapping;
 import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 
@@ -82,14 +83,14 @@ public class DerivParamField implements ISerializableObject, IDerivParamField {
         this.param = param;
     }
 
-    public LevelMapping getLevelMapping() {
+    public LevelMapping getLevelMapping() throws VizCommunicationException {
         if (levelType == null && level != null) {
             setLevel(level);
         }
         return levelMapping;
     }
 
-    public LevelType getLevelType() {
+    public LevelType getLevelType() throws VizCommunicationException {
         if (levelType == null && level != null) {
             setLevel(level);
         }
@@ -125,8 +126,9 @@ public class DerivParamField implements ISerializableObject, IDerivParamField {
      * @param level
      * @return true upon success, false if the token is not recognized, in which
      *         case levelType and levelMapping will both be reset to null
+     * @throws VizCommunicationException
      */
-    public boolean setLevel(String level) {
+    public boolean setLevel(String level) throws VizCommunicationException {
         levelType = LevelType.parseLevel(level);
         if (levelType == LevelType.LevelMapping) {
             levelMapping = LevelMappingFactory.getInstance()
