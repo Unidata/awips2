@@ -1,0 +1,127 @@
+C************************************************************************
+C* /DEVACT/								*
+C*									*
+C* This common area holds the device characteristics actually set in	*
+C* the device task. It is included in both the GPLT and DEVICE tasks.	*
+C*									*
+C* Log:									*
+C* M. desJardins/GSFC	 5/85	GEMPLT 3.1				*
+C* S. Schotz/GSC	 1/90	Added wind arrow/barb width and type,	*
+C*					and marker/text width		*
+C* S. Schotz/GSC	 3/90	Added cloud/weather symbol parameters	*
+C* S. Schotz/GSC	 8/90	Added arrow head size			*
+C* M. Linda/GSC		 8/96	Added icng, spcl, and turb parameters	*
+C* E. Wehner/EAi	10/96	Added pip size, stroke and direction 	*
+C* D. Keiser/GSC	 3/97	Added spln type, stroke, dir, siz, wdth	*
+C* E. Safford/GSC	 6/97   Added mstlc, mstfc, mstxc for spcl text	*
+C* S. Maxwell/GSC	 6/97   Added tfilsz and mfltyp for filling    	*
+C* S. Jacobs/NCEP	 9/97	Removed mstlc, mstfc, mstxc		*
+C* S. Jacobs/NCEP	 9/97	Added mbrdr, mrrotn, mjust		*
+C* S. Jacobs/NCEP	 2/98	Added msmtyp, metype, tdens		*
+C* S. Jacobs/NCEP	 3/98	Added tszdsh				*
+C* I. Durham/GSC	 3/98	Added twdasz, mdarwd, mdartp, tdahsz	*
+C* I. Durham/GSC	 3/98	Added thshsz, mhwid, mlwidh		*
+C* I. Durham/GSC	 3/98	Added mcolr2				*
+C* S. Jacobs/NCEP	 6/98	Changed pip size to a REAL variable	*
+C* A. Hardy/GSC         10/98   Added mcsywd and tcsysz                 *
+C* S. Jacobs/NCEP	 5/99	Added trfilt				*
+C************************************************************************
+	COMMON	/ DEVACT /
+     +		mcolr, mltyp, mlthw, mlwid, mlwhw,
+C!					color number
+C!					linetype number
+C!					linetype hw flag
+C!					line width
+C!					line width hw flag
+     +		mmark, mmkhw, tmksz,
+C!					marker number
+C!					marker hw flag
+C!					marker size
+     +		mtxfn, mtxhw, ttxsz, mtxwid, mbrdr, mrrotn, mjust,
+C!					text font number
+C!					text hw flag
+C!					text size
+C!					text width
+C!					text border/blank flag
+C!					text north-rel rotation flag
+C!					text justification
+     +		twasz, twbsz, mbrwid,
+C!					wind arrow size (GARRW)
+C!					wind barb size
+C!					wind barb width
+     +		mbrtyp, marwid, martyp,
+C!					wind barb type
+C!					wind arrow width (GARRW)
+C!					wind arrow type (GARRW)
+     +		mmkwid,
+C!					marker width
+     +		tskysz, msktyp, mskwid, twtrsz,
+C!					sky coverage symbol size
+C!					sky coverage symbol type
+C!					sky coverage symbol width
+C!					weather symbol size
+     +		mwtwid, tptnsz, mptwid, tpwtsz, mpwwid,
+C!					weather symbol width
+C!					pressure tendency size
+C!					pressure tendency width
+C!					past weather symbol size
+C!					past weather symbol width
+     +		tctsz, mctwid,
+C!					cloud type symbol size
+C!					cloud type symbol width
+     +		twahsz,
+C!					arrow head size (GARRW)
+     +		tcersz, mcewid,
+C!					icing symbol size
+C!					icing symbol line width
+     +		tsprsz, mspwid,
+C!					special symbol size
+C!					special symbol line width
+     +		ttursz, mtuwid,
+C!					turbulence symbol size
+C!					turbulence symbol line width
+     +		mfcod,
+C!
+     +		tpipsz, mpipst, mpipdr,
+C!					front pip size
+C!					front pip stroke (spacing)
+C!					front pip direction (facing)
+C!
+     +		msltyp, mslstr, msldir,
+C!					special line type number
+C!					special line stroke multiplier
+C!					special line direction indicator 
+     +		tslsiz, mslwid,
+C!					special line size
+C!					special line width multiplier
+C!
+     +		tfilsz, mfltyp,
+C!					fill pattern size
+C!					fill pattern type
+     +		msmtyp, metype, tdens, ttensn,
+C!					smoothing type
+C!					end point conditions
+C!					density of intermediate points
+C!					line tension
+     +		tszdsh,
+C!					line dash scale
+     +		twdasz,
+C!					wind arrow size (GDARR)
+     +		mdarwd, mdartp,
+C!					wind arrow width (GDARR)
+C!					wind arrow type (GDARR)
+     +		tdahsz,
+C!					arrow head size (GDARR)
+     +		thshsz,
+C!					hash mark size
+     +		mhwid, mlwidh,
+C!					hash mark line width
+C!					hash mark line spacing
+     +		mcolr2,
+C!					color number (2)
+     +		mcsywd, tcsysz,
+C!					combination weather symbol size
+C!					combination wx symbol line width
+     +		trfilt
+C!					Point reduction filter for lines
+C------------------------------------------------------------------------

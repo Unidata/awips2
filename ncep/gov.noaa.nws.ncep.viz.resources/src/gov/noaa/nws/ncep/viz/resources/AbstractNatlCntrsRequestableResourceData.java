@@ -48,7 +48,7 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
  * the AbstractNatlCntrsResourceData class with the only real difference being that it
  * extends AbstractRequestableResourceData instead of AbstractResourceData.
  *    The main purpose of this class is to manage the resource's attributes which are stored in a
- * named ResourceAttrSet (currently the .prm files) The values in the attrSet can be loaded to and
+ * named ResourceAttrSet (.attr files) The values in the attrSet can be loaded to and
  * from the ResourceData. The edit Attributes dialog uses this to get the attribute values from
  * the resource. When an RBD is being created the attribute values are stored in the .prm file and
  * in a ResourceData and both are written out to the RBD file along with a flag indicating whether
@@ -72,6 +72,8 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
  * Sep 01, 2010    307     ghull       add isAutoUpdatable
  * Sep 16, 2010    307     ghull       generate forecast timelines 
  * Mar 03, 2011    408     ghull       frameInterval -> frameSpan
+ * Nov 15, 2011            ghull       add resolveLatestCycleTime, 
+ * Nov 29, 2011    518     ghull       add dfltFrameTimes
  * 
  * </pre>
  *  * 
@@ -118,13 +120,17 @@ public abstract class AbstractNatlCntrsRequestableResourceData extends AbstractR
 	@XmlElement
     protected TimeMatchMethod timeMatchMethod;
     
-	// this is set from the ResourceDefnsMngr and is used to initialize
-	// the timeline when it is the dominant resource
+	// the following are set from the ResourceDefn and are used to initialize
+	// the timeline when this resource is the dominant
 	@XmlElement
 	protected int dfltNumFrames;
 
 	@XmlElement
 	protected int dfltTimeRange; // in hours
+	
+	@XmlElement
+	protected String dfltFrameTimes; // GEMPAKs GDATTIME
+
 	
 	protected AbstractVizResource<?, ?> ncRsc;
 
@@ -240,6 +246,15 @@ public abstract class AbstractNatlCntrsRequestableResourceData extends AbstractR
 	public void setDfltTimeRange(int dfltTimeRange) {
 		this.dfltTimeRange = dfltTimeRange;
 	}
+	
+	public String getDfltFrameTimes() {
+		return dfltFrameTimes;
+	}
+
+	public void setDfltFrameTimes(String dfltFrameTimes) {
+		this.dfltFrameTimes = dfltFrameTimes;
+	}
+
 	public String getPluginName() {
 		if( getMetadataMap().containsKey("pluginName") ) {
 			return getMetadataMap().get("pluginName").getConstraintValue();
@@ -247,6 +262,12 @@ public abstract class AbstractNatlCntrsRequestableResourceData extends AbstractR
 		else {
 			return "";
 		}
+	}
+	
+	// if there is a cycle time then this is a forecast resource.
+	// (Taf is a forecast resource w/o a cycle time but it will override this method.)
+	public boolean isForecastResource() {
+		return resourceName.isForecastResource();
 	}
 	
 	public void setPluginName( String pluginName ) {
@@ -313,6 +334,16 @@ public abstract class AbstractNatlCntrsRequestableResourceData extends AbstractR
     	return rsc;
     }
 	
+	// There are better/faster ways of doing this I'm sure, but for now
+	// just call getAvailableDataTimes to do this.
+	//
+	public void resolveLatestCycleTime() {
+		if( getResourceName().getCycleTime() == null && 
+			getResourceName().isLatestCycleTime() ) {
+			getAvailableDataTimes();
+		}
+	}
+
 	// return a list of all of the data times from the database. If 
 	// this is a forecast resource with a cycle time, this will only 
 	// return a list of unique cycle times. 
@@ -323,11 +354,11 @@ public abstract class AbstractNatlCntrsRequestableResourceData extends AbstractR
 		try {
 			availTimes = getAvailableTimes();
 		} catch ( VizException e ) {
-			System.out.println("Error getting Available Times" );
+			System.out.println("Error getting Available Times: "+e.getMessage() );
 			return null;
 		}
 
-		// if this is a forecast resource, get the cycle time and filter out other times and sort by the forecast hours 
+		// if there is a cycle time, filter out other times and sort by the forecast hours 
 		// TODO: don't get the cycle time from the resourceName.... 
 		//
 		if( getResourceName().getCycleTime() == null ) {
@@ -338,10 +369,15 @@ public abstract class AbstractNatlCntrsRequestableResourceData extends AbstractR
 			long cycleTimeMs=0;
 			
 			// if latest then get the latest time
+			// and set the resolved time in the ResourceName
+			//
 			if( getResourceName().isLatestCycleTime() ) {
 				for( DataTime dt : availTimes ) {
 					if( dt.getRefTime().getTime() > cycleTimeMs ) {
+						
 						cycleTimeMs = dt.getRefTime().getTime();
+						
+						getResourceName().setCycleTime( dt );
 					}
 				}
 			}
