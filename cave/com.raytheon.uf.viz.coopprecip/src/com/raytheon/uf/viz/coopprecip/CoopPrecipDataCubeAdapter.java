@@ -82,7 +82,7 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
     private static final PointDataDescription rtpDescription = new PointDataDescription();
 
     static {
-        ffgDescription.parameters = new ParameterDescription[8];
+        ffgDescription.parameters = new ParameterDescription[9];
         ffgDescription.parameters[0] = new ParameterDescription("time",
                 Type.LONG);
         ffgDescription.parameters[1] = new ParameterDescription("latitude",
@@ -98,8 +98,9 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
         ffgDescription.parameters[6] = new ParameterDescription("stationId",
                 Type.STRING);
         ffgDescription.parameters[7] = new ParameterDescription("id", Type.INT);
+        ffgDescription.parameters[8] = new ParameterDescription("dataURI", Type.STRING);
 
-        rtpDescription.parameters = new ParameterDescription[6];
+        rtpDescription.parameters = new ParameterDescription[7];
         rtpDescription.parameters[0] = new ParameterDescription("time",
                 Type.LONG);
         rtpDescription.parameters[1] = new ParameterDescription("latitude",
@@ -111,6 +112,8 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
         rtpDescription.parameters[4] = new ParameterDescription("stationId",
                 Type.STRING);
         rtpDescription.parameters[5] = new ParameterDescription("id", Type.INT);
+        rtpDescription.parameters[6] = new ParameterDescription("dataURI", Type.STRING);
+
     }
 
     @Override
@@ -238,6 +241,7 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
                         pdv.setFloat("3hr", Float.valueOf(parts[1]));
                         pdv.setFloat("6hr", Float.valueOf(parts[2]));
                         pdv.setString("stationId", station);
+                        pdv.setString("dataURI", "/textPoints/" + station + "/" + time);
                         // TODO this id is not really guaranteed to be unique
                         pdv.setInt("id", ((int) time) + station.hashCode());
                     }
@@ -315,6 +319,7 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
                         pdv.setFloat("latitude", (float) coord.latlon.y);
                         pdv.setFloat("precip", precip);
                         pdv.setString("stationId", station);
+                        pdv.setString("dataURI", "/textPoints/" + station + "/" + time);
                         // TODO this id is not really guaranteed to be unique
                         pdv.setInt("id", ((int) time) + station.hashCode());
                     }
@@ -398,12 +403,6 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
     @Override
     public List<Object> getData(LayerProperty property, int timeOut)
             throws VizException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public String recordKeyGenerator(PluginDataObject pdo) {
         // TODO Auto-generated method stub
         return null;
     }

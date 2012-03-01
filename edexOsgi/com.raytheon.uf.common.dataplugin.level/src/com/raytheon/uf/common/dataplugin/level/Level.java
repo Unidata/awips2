@@ -38,8 +38,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
-import com.raytheon.uf.common.dataplugin.level.util.Constants;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -71,7 +71,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 @XmlRootElement
 @XmlType(namespace = "dataplugin-level")
 public class Level extends PersistableDataObject implements ISerializableObject {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(Level.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(Level.class);
 
     public static final double INVALID_VALUE = -999999;
 
@@ -216,7 +217,7 @@ public class Level extends PersistableDataObject implements ISerializableObject 
         dirtyFlag = false;
     }
 
-    public Level getUpperLevel() {
+    public Level getUpperLevel() throws CommunicationException {
         Level rval = null;
 
         if (isRangeLevel()) {
@@ -278,7 +279,7 @@ public class Level extends PersistableDataObject implements ISerializableObject 
         return bestLevel;
     }
 
-    public Level getLowerLevel() {
+    public Level getLowerLevel() throws CommunicationException {
         Level rval = null;
 
         if (isRangeLevel()) {

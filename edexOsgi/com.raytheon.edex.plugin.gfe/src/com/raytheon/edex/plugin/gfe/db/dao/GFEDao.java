@@ -57,6 +57,7 @@ import com.raytheon.edex.plugin.gfe.server.GridParmManager;
 import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
 import com.raytheon.edex.plugin.gfe.util.GridTranslator;
 import com.raytheon.edex.plugin.gfe.util.SendNotifications;
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
@@ -651,16 +652,19 @@ public class GFEDao extends DefaultPluginDao {
             Level level = null;
 
             // to have a level 2, must have a level one
-            if (levelOnePresent && levelTwoPresent) {
-                level = LevelFactory.getInstance().getLevel(levelName,
-                        levelValues[0], levelValues[1]);
-            } else if (levelOnePresent) {
-                level = LevelFactory.getInstance().getLevel(levelName,
-                        levelValues[0]);
-            } else {
-                level = LevelFactory.getInstance().getLevel(levelName, 0.0);
+            try {
+                if (levelOnePresent && levelTwoPresent) {
+                    level = LevelFactory.getInstance().getLevel(levelName,
+                            levelValues[0], levelValues[1]);
+                } else if (levelOnePresent) {
+                    level = LevelFactory.getInstance().getLevel(levelName,
+                            levelValues[0]);
+                } else {
+                    level = LevelFactory.getInstance().getLevel(levelName, 0.0);
+                }
+            } catch (CommunicationException e) {
+                logger.error(e.getLocalizedMessage(), e);
             }
-
             if (level == null) {
                 logger.warn("Unable to query D2D parms, ParmID " + id
                         + " does not map to a level");
