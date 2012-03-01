@@ -1,8 +1,13 @@
 #!/bin/bash
 # We Have Been Created To Automate The Building Of The AWIPS II RPMs.
-
+set -x
 # We Need To Setup Our Environment.
 source env.sh
+
+echo "The AWIPSII Version is $AWIPSII_VERSION WTF WTF WTF WTF"
+echo "The AWIPSII Release is $AWIPSII_RELEASE WTF WTF WTF WTF"
+
+
 
 if [ "${RPM_TOP_DIR}" = "" ]; then
    echo "ERROR: You Must Set The RPM_TOP_DIR Environment Variable."
@@ -29,6 +34,11 @@ export WORKSPACE_DIR=`cd ../../../; pwd;`
 export AWIPSII_VERSION=`cat ${WORKSPACE_DIR}/Installer.rpm/version.txt`
 export AWIPSII_RELEASE=`date +"%Y%m%d"`
 
+
+echo "The AWIPSII Version is $AWIPSII_VERSION outside the buildRPM function"
+echo "The AWIPSII Release is $AWIPSII_RELEASE outside the buildRPM function"
+
+
 function buildRPM()
 {
    BUILDROOT_DIR=/tmp/awips-component
@@ -51,6 +61,9 @@ function buildRPM()
       export AWIPSII_BUILD_DATE=`date +"%m-%d-%Y"`
       export AWIPSII_BUILD_TIME=`date +"%T %Z"`
       export AWIPSII_BUILD_SYSTEM=`uname -n`
+
+      echo "The AWIPSII Version is $AWIPSII_VERSION in the buildRPM function"
+      echo "The AWIPSII Release is $AWIPSII_RELEASE in the buildRPM function"
 
       rpmbuild -ba --target=i386 \
          --define '_topdir %(echo ${RPM_TOP_DIR})' \

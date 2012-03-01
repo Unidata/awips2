@@ -6,7 +6,6 @@ import gov.noaa.nws.ncep.viz.common.ColorMapUtil;
 import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
 import gov.noaa.nws.ncep.viz.ui.display.NmapUiUtils;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResource;
-import gov.noaa.nws.ncep.viz.resources.manager.NmapResourceUtils;
 import gov.noaa.nws.ncep.viz.ui.display.NCDisplayPane;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
 import gov.noaa.nws.ncep.viz.ui.display.NCPaneManager;

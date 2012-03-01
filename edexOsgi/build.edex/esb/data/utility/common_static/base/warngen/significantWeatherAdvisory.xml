@@ -57,38 +57,72 @@
 <bulletActionGroups>
 <bulletActionGroup action="NEW">
  <bullets>
- <bullet bulletText="*********** BASIS FOR ADVISORY (CHOOSE 1) **********" bulletType="title"/>
+  <bullet bulletText="*********** BASIS FOR ADVISORY (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="toggle1" bulletDefault="true" parseString="DOPPLER RADAR INDICATED"/>
   <bullet bulletName="stormSpotters" bulletText="Storm spotters reported" bulletGroup="toggle1" parseString="STORM SPOTTERS REPORTED"/>
   <bullet bulletName="lawEnforcement" bulletText="Law Enforcement reported" bulletGroup="toggle1" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
   <bullet bulletName="emergencyMgmt" bulletText="Emergency Management Reported" bulletGroup="toggle1" parseString="EMERGENCY MANAGEMENT REPORTED"/>
   <bullet bulletName="public" bulletText="Public Reported" bulletGroup="toggle1" parseString="THE PUBLIC REPORTED"/>
   <bullet bulletName="amateurRadio" bulletText="Amateur Radio Operators Reported" bulletGroup="toggle1" parseString="AMATUER RADIO OPERATORS REPORTED"/>
-  <bullet bulletText="" bulletType="title"/>
- <bullet bulletText="******* THREAT (CHOOSE UP TO 1 EACH WIND/HAIL) ******" bulletType="title"/>
+  <bullet bulletText="******* THREAT (CHOOSE UP TO 1 EACH WIND/HAIL) ******" bulletType="title"/>
   <bullet bulletName="wind30" bulletText="Winds 30 mph or greater" bulletGroup="toggle2" parseString="30 MPH"/>
   <bullet bulletName="wind40" bulletText="Strong winds 40 mph or greater" bulletGroup="toggle2" parseString="40 MPH"/>
   <bullet bulletName="wind50" bulletText="Strong winds 50 mph or greater" bulletGroup="toggle2" parseString="50 MPH"/>
   <bullet bulletName="peaHail" bulletText="Pea sized hail" bulletGroup="toggle3" parseString="PEA SIZED HAIL"/>
   <bullet bulletName="dimeHail" bulletText="Dime sized hail" bulletGroup="toggle3" parseString="DIME SIZED HAIL"/>
   <bullet bulletName="nickelHail" bulletText="Nickel sized hail" bulletGroup="toggle3" parseString="NICKEL SIZED HAIL"/>
-  <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="************ LOCATIONS IMPACTED  **************" bulletType="title"/>
   <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="toggle4" parseString="WILL BE NEAR..."/>
   <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="toggle4" bulletDefault="true" parseString="LOCATIONS IMPACTED INCLUDE..."/>
   <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
-  <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******** CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
   <bullet bulletName="torrentialRainfallCTA" bulletText="Torrential rainfall" parseString="TORRENTIAL RAINFALL IS ALSO OCCURRING"/>
   <bullet bulletName="lightningCTA" bulletText="Frequent Lightning" parseString="FREQUENT CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
   <bullet bulletName="stormIntensify" bulletText="Storm(s) May Intensify" parseString="STORMS MAY INTENSIFY...MONITOR TV"/>
   <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
   <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET OUT OF THE WATER AND MOVE INDOORS"/>
-  
- </bullets>
   <!-- 
+  <bullet bulletText="******** MILE MARKERS *********" bulletType="title"/>
+  <bullet bulletName="interstates" bulletText="Interstate Mile Markers" bulletDefault="true" />
+  <bullet bulletName="roads" bulletText="Road Markers" />
   <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" bulletGroup="toggle2" bulletDefault="true" parseString=""/>
   -->
+ </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="COR">
+ <bullets>
+  <bullet bulletText="*********** BASIS FOR ADVISORY (CHOOSE 1) **********" bulletType="title"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="toggle1" bulletDefault="true" parseString="DOPPLER RADAR INDICATED"/>
+  <bullet bulletName="stormSpotters" bulletText="Storm spotters reported" bulletGroup="toggle1" parseString="STORM SPOTTERS REPORTED"/>
+  <bullet bulletName="lawEnforcement" bulletText="Law Enforcement reported" bulletGroup="toggle1" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
+  <bullet bulletName="emergencyMgmt" bulletText="Emergency Management Reported" bulletGroup="toggle1" parseString="EMERGENCY MANAGEMENT REPORTED"/>
+  <bullet bulletName="public" bulletText="Public Reported" bulletGroup="toggle1" parseString="THE PUBLIC REPORTED"/>
+  <bullet bulletName="amateurRadio" bulletText="Amateur Radio Operators Reported" bulletGroup="toggle1" parseString="AMATUER RADIO OPERATORS REPORTED"/>
+  <bullet bulletText="******* THREAT (CHOOSE UP TO 1 EACH WIND/HAIL) ******" bulletType="title"/>
+  <bullet bulletName="wind30" bulletText="Winds 30 mph or greater" bulletGroup="toggle2" parseString="30 MPH"/>
+  <bullet bulletName="wind40" bulletText="Strong winds 40 mph or greater" bulletGroup="toggle2" parseString="40 MPH"/>
+  <bullet bulletName="wind50" bulletText="Strong winds 50 mph or greater" bulletGroup="toggle2" parseString="50 MPH"/>
+  <bullet bulletName="peaHail" bulletText="Pea sized hail" bulletGroup="toggle3" parseString="PEA SIZED HAIL"/>
+  <bullet bulletName="dimeHail" bulletText="Dime sized hail" bulletGroup="toggle3" parseString="DIME SIZED HAIL"/>
+  <bullet bulletName="nickelHail" bulletText="Nickel sized hail" bulletGroup="toggle3" parseString="NICKEL SIZED HAIL"/>
+  <bullet bulletText="************ LOCATIONS IMPACTED  **************" bulletType="title"/>
+  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="toggle4" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="toggle4" bulletDefault="true" parseString="LOCATIONS IMPACTED INCLUDE..."/>
+  <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
+  <bullet bulletText="******** CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
+  <bullet bulletName="torrentialRainfallCTA" bulletText="Torrential rainfall" parseString="TORRENTIAL RAINFALL IS ALSO OCCURRING"/>
+  <bullet bulletName="lightningCTA" bulletText="Frequent Lightning" parseString="FREQUENT CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
+  <bullet bulletName="stormIntensify" bulletText="Storm(s) May Intensify" parseString="STORMS MAY INTENSIFY...MONITOR TV"/>
+  <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
+  <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET OUT OF THE WATER AND MOVE INDOORS"/>
+  <bullet bulletText="" bulletType="title"/>
+  <!-- 
+  <bullet bulletText="******** MILE MARKERS *********" bulletType="title"/>
+  <bullet bulletName="interstates" bulletText="Interstate Mile Markers" bulletDefault="true" />
+  <bullet bulletName="roads" bulletText="Road Markers" />
+  <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" bulletGroup="toggle2" bulletDefault="true" parseString=""/>
+  -->
+ </bullets>
 </bulletActionGroup>
 </bulletActionGroups>
 
@@ -196,7 +230,11 @@
   <timezoneSource>TIMEZONES</timezoneSource>
   <timezoneField>TIME_ZONE</timezoneField>
  </geospatialConfig>
- 
- <include file="milemarkers.xml"/>
- 
+
+<!-- this "include file" tag will grab the Mile Marker XML pointSource tags, 
+and place into this template  
+-->
+<include file="mileMarkers.xml"/>
+
+
 </warngenConfig>

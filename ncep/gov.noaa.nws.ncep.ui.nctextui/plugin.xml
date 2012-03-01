@@ -9,7 +9,6 @@
           name="Nctext">
       </command>
       <command
-          categoryId="com.raytheon.viz.ui.modalTool"
           id="gov.noaa.nws.ncep.ui.nctextui.rsc.NctextuiTool"
           name="Nctextui Selecting">
       </command>   
