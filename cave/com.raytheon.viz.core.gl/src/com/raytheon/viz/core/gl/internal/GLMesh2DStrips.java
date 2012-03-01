@@ -77,9 +77,9 @@ public class GLMesh2DStrips extends AbstractGLMesh {
         // get dx and dy for texture points
 
         double dXWorld = worldWidth / (key.horizontalDivisions);
-        double dYWorld = worldHeight / (key.verticalDivisions - 1);
+        double dYWorld = worldHeight / (key.verticalDivisions);
 
-        double[][][] worldCoordinates = new double[key.horizontalDivisions][2 * key.verticalDivisions][2];
+        double[][][] worldCoordinates = new double[key.horizontalDivisions][2 * (key.verticalDivisions + 1)][2];
 
         int width = worldCoordinates.length;
         int height = worldCoordinates[0].length;
@@ -136,60 +136,63 @@ public class GLMesh2DStrips extends AbstractGLMesh {
         return worldCoordinates;
     }
 
+    private static final int MIN_HORZ_DIVS = 1;
+
+    private static final int MIN_VERT_DIVS = 1;
+
     @Override
     protected SharedCoordinateKey generateKey(ImageTile tile, MathTransform mt) {
         try {
-            int maxHorzDiv = tile.rect.width / 4;
-            int maxVertDiv = tile.rect.height / 4;
+            int maxHorzDiv = Math.max(tile.rect.width / 4, MIN_HORZ_DIVS);
+            int maxVertDiv = Math.max(tile.rect.height / 4, MIN_VERT_DIVS);
+
             Envelope envelope = tile.envelope;
             double[] tl = { envelope.getMinX(), envelope.getMaxY() };
             double[] tr = { envelope.getMaxX(), envelope.getMaxY() };
             double[] bl = { envelope.getMinX(), envelope.getMinY() };
             double[] br = { envelope.getMaxX(), envelope.getMinY() };
-            // start off estimating the number of horzintal divisions by using
-            // only the top and bottom.
-            int horzDivTop = 1 + getNumDivisions(tl, null, tr, null,
-                    maxHorzDiv, mt);
-            int horzDivBot = 1 + getNumDivisions(bl, null, br, null,
-                    maxHorzDiv, mt);
-            int horzDiv = Math.max(horzDivTop, horzDivBot);
+
+            int horzDiv = MIN_HORZ_DIVS;
+            if (maxHorzDiv > MIN_HORZ_DIVS) {
+                // start off estimating the number of horzintal divisions by
+                // using only the top and bottom.
+                int horzDivTop = getNumDivisions(tl, null, tr, null,
+                        maxHorzDiv, mt);
+                int horzDivBot = getNumDivisions(bl, null, br, null,
+                        maxHorzDiv, mt);
+                horzDiv = Math.max(horzDivTop, horzDivBot);
+            }
             // Next get the number of vertical divisions by finding the maximum
             // needed in every horizontal row.
-            int vertDiv = 2;
-            for (int i = 1; i <= horzDiv; i++) {
-                double topX = tl[0] + (tr[0] - tl[0]) * i / horzDiv;
-                double topY = tl[1] + (tr[1] - tl[1]) * i / horzDiv;
-                double botX = bl[0] + (br[0] - bl[0]) * i / horzDiv;
-                double botY = bl[1] + (br[1] - bl[1]) * i / horzDiv;
-                double[] top = { topX, topY };
-                double[] bot = { botX, botY };
-                int vertDivTest = 1 + getNumDivisions(top, null, bot, null,
-                        maxVertDiv, mt);
-                vertDiv = Math.max(vertDiv, vertDivTest);
-                if (vertDiv >= maxVertDiv) {
-                    vertDiv = maxVertDiv;
-                    break;
+            int vertDiv = MIN_VERT_DIVS;
+            if (maxVertDiv > MIN_VERT_DIVS) {
+                for (int i = 1; i <= horzDiv; i++) {
+                    double topX = tl[0] + (tr[0] - tl[0]) * i / horzDiv;
+                    double topY = tl[1] + (tr[1] - tl[1]) * i / horzDiv;
+                    double botX = bl[0] + (br[0] - bl[0]) * i / horzDiv;
+                    double botY = bl[1] + (br[1] - bl[1]) * i / horzDiv;
+                    double[] top = { topX, topY };
+                    double[] bot = { botX, botY };
+                    int vertDivTest = getNumDivisions(top, null, bot, null,
+                            maxVertDiv, mt);
+                    vertDiv = Math.max(vertDiv, vertDivTest);
                 }
             }
+
             // Now fill in the actual number of horzontal divisions incase
             // distortion increases towards the middle.
-            for (int i = 2; i < vertDiv; i++) {
+            for (int i = MIN_VERT_DIVS; i < vertDiv; i++) {
                 double leftX = bl[0] + (tl[0] - bl[0]) * i / vertDiv;
                 double leftY = bl[1] + (tl[1] - bl[1]) * i / vertDiv;
                 double rightX = br[0] + (tr[0] - br[0]) * i / vertDiv;
                 double rightY = br[1] + (tr[1] - br[1]) * i / vertDiv;
                 double[] left = { leftX, leftY };
                 double[] right = { rightX, rightY };
-                int horzDivTest = 1 + getNumDivisions(left, null, right, null,
+                int horzDivTest = getNumDivisions(left, null, right, null,
                         maxHorzDiv, mt);
                 horzDiv = Math.max(horzDiv, horzDivTest);
-                if (horzDiv >= maxHorzDiv) {
-                    horzDiv = maxHorzDiv;
-                    break;
-                }
             }
-            horzDiv = Math.max(2, horzDiv);
-            vertDiv = Math.max(2, vertDiv);
+
             return new SharedCoordinateKey(vertDiv, horzDiv);
         } catch (Exception e) {
             statusHandler
