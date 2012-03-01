@@ -74,6 +74,6 @@ public class GLRadialMeshExtension extends GraphicsExtension<IGLTarget>
      */
     @Override
     public int getCompatibilityValue(IGLTarget target) {
-        return Compatibilty.TARGET_COMPATIBLE.value;
+        return Compatibilty.TARGET_COMPATIBLE;
     }
 }

@@ -22,6 +22,7 @@ package com.raytheon.viz.grid.rsc;
 import com.raytheon.uf.common.dataplugin.grib.GribModel;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.level.LevelMapping;
 import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 import com.raytheon.uf.viz.core.rsc.AbstractNameGenerator;
@@ -118,12 +119,17 @@ public class GridNameGenerator extends AbstractNameGenerator {
     }
 
     private String lookupPlane(Level level) {
-        LevelMapping mapping = LevelMappingFactory.getInstance()
-                .getLevelMappingForLevel(level);
-        if (mapping == null) {
+        try {
+            LevelMapping mapping = LevelMappingFactory.getInstance()
+                    .getLevelMappingForLevel(level);
+            if (mapping == null) {
+                return level.getMasterLevel().getName();
+            }
+            return mapping.getDisplayName();
+        } catch (VizCommunicationException e) {
             return level.getMasterLevel().getName();
+
         }
-        return mapping.getDisplayName();
     }
 
     public void setPlaneLabelString(String planeLabelString) {
