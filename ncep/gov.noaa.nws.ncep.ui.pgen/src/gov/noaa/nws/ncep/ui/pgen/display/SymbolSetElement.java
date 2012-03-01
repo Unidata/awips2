@@ -13,7 +13,7 @@ import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.vividsolutions.jts.geom.Coordinate;
-
+import com.raytheon.viz.core.gl.images.GLImage;
 /**
  * Contains a raster image and information needed to readily display that image on a graphics target
  * at one or more locations.
@@ -77,14 +77,20 @@ public class SymbolSetElement implements IDisplayable {
 		/*
 		 * Scale image 
 		 */
+		double halfWidth;
+		double halfHeight;
 		double screenToWorldRatio = paintProps.getCanvasBounds().width
 									/ paintProps.getView().getExtent().getWidth();
 		double scale =  0.5 / screenToWorldRatio ;
-//		double halfWidth = raster.getImage().getWidth() * scale;
-//		double halfHeight = raster.getImage().getHeight() * scale;
-		double halfWidth = 0;
-		double halfHeight = 0;
-		
+		if ( raster instanceof GLImage ) {
+			halfWidth = ((GLImage)raster).getImage().getWidth() * scale;
+			halfHeight = ((GLImage)raster).getImage().getHeight() * scale;
+		}
+		else {
+			halfWidth = raster.getWidth() * scale;
+			halfHeight = raster.getHeight() * scale;
+		}
+
 		/*
 		 * draw raster image at each location
 		 */

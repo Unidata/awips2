@@ -1,0 +1,53 @@
+C************************************************************************
+C GRDCMN								*
+C*									*
+C* Grid library common area.						*
+C**									*
+C* Log:									*
+C* M. desJardins/GSFC	 6/87						*
+C* M. desJardins/GSFC	11/88	Save nav and anl blocks			*
+C* M. desJardins/GSFC	 4/89	Added new time sorting			*
+C* R. Tian/SAIC		 1/04	Added gdflnm, iflacc, nflnum, nucode,	*
+C*				MXFLNM, use LLNNAV & LLNANL		*
+C* R. Tian/SAIC		 3/05	Added mgrid				*
+C************************************************************************
+	PARAMETER	(MXFLNM=1000000000)
+	LOGICAL		gdwrt, nucode
+	CHARACTER	gdflnm*(MXFLSZ)
+C*
+	COMMON /GRDCMN/
+     +		mgrid  (MMFILE),
+C!					Maximum number of grids
+     +		kgrid  (MMFILE),
+C!					Number of grids
+     +		gdwrt  (MMFILE),
+C!					Write access flag
+     +		khdrln (MMFILE),
+C!					Grid header length
+     +		kbfhdr (LLGDHD),
+C!					Buffer for grid header
+     +		savnav (LLNNAV,MMFILE),
+C!					Navigation block
+     +		lnavbl (MMFILE),
+C!					Length of navigation block
+     +		savanl (LLNANL,MMFILE),
+C!					Analysis block
+     +		lanlbl (MMFILE),
+C!					Length of analysis block
+     +		igdatm (3,LLMXGT,MMFILE),
+C!					Sorted integer times
+     +		ndattm (LLMXGT,MMFILE),
+C!					Number of occations of times
+     +		ktgrid (MMFILE),
+C!					Number of times
+     +		ksrtl  (2,MMHDRS,MMFILE),
+C!					Sorted time/level list
+     +		gdflnm (MMFILE),
+C!					Names of open files
+     +		iflacc (MMFILE),
+C!					File access numbers
+     +		nflnum,
+C!					Integer counter for access #s
+     +		nucode
+C!					Flag to use new code
+C*

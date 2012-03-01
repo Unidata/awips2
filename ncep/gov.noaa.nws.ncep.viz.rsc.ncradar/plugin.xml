@@ -1,0 +1,53 @@
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="com.raytheon.uf.viz.core.resource">
+      <resource
+            class="gov.noaa.nws.ncep.viz.rsc.ncradar.rsc.image.RadarImageResource"
+            name="LocalRadar"
+            recordClass="com.raytheon.uf.common.dataplugin.radar.RadarRecord"
+            renderingOrderId="IMAGE_LOCAL"/>
+        <resource
+            class="gov.noaa.nws.ncep.viz.rsc.ncradar.rsc.graphic.RadarGraphicsResource"
+            name="LocalRadar"
+            recordClass="com.raytheon.uf.common.dataplugin.radar.RadarRecord"
+            renderingOrderId="PLOT"
+            resourceType="PLAN_VIEW"/>
+   </extension>
+   <!--<extension
+         point="com.raytheon.uf.viz.core.units">
+      <units
+            class="com.raytheon.viz.radar.units.RadarUnits"
+            name="RadarUnits">
+      </units>
+   </extension> -->
+   <!--<extension
+         point="com.raytheon.uf.viz.core.scriptTemplate">
+      <scriptTemplate
+            pluginName="radar"
+            scriptLibrary="BaseRequest">
+      </scriptTemplate>
+   </extension>-->
+   <extension
+         point="gov.noaa.nws.ncep.viz.resources.NC-Resource"> 
+      <nc-resource
+            class="gov.noaa.nws.ncep.viz.rsc.ncradar.rsc.RadarResourceData"
+            editDialogClass="gov.noaa.nws.ncep.viz.rsc.ncradar.rsc.EditLocalRadarAttrsDialog"
+            name="LocalRadar">
+      </nc-resource>
+   </extension>
+   <extension
+         point="gov.noaa.nws.ncep.viz.resources.NC-ResourceAttribute">
+      <nc-resourceAttribute
+            attributeClass="gov.noaa.nws.ncep.viz.ui.display.ColorBarFromColormap"
+            attributeName="colorBar"
+            ncResourceName="LocalRadar">
+      </nc-resourceAttribute>
+      <nc-resourceAttribute
+            attributeClass="String"
+            attributeName="colorMapName"
+            ncResourceName="LocalRadar">
+      </nc-resourceAttribute>
+   </extension>
+
+</plugin>

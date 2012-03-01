@@ -162,12 +162,9 @@ public class OverlayResourceGroupData extends AbstractNatlCntrsResourceData impl
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || obj instanceof OverlayResourceGroupData == false) {
-            return false;
-        }
+		if (!super.equals(obj)) {
+			return false;
+		}
         OverlayResourceGroupData other = (OverlayResourceGroupData) obj;
 
         if (this.resourceList != null && other.resourceList == null) {

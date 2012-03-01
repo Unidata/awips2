@@ -47,20 +47,24 @@
 	 	<exclude>ncgrib-ingest.xml</exclude>
 	 	<!-- ncep excludes until tested -->	 		 	
 	 	<exclude>aww-ingest.xml</exclude>
+	 	<exclude>ncairep-ingest.xml</exclude>
 	 	<exclude>ncccfp-ingest.xml</exclude>	 	
 	 	<exclude>ncgrib-distribution.xml</exclude>
 	 	<exclude>ncep-util-on-edex-ingest</exclude>
-	 	<exclude>ncep-util-on-edex-ingestGrib</exclude>
-	 	<exclude>h5uair-ingest.xml</exclude>
-	 	<exclude>h5scd-ingest.xml</exclude>
-	 	<exclude>pafm-ingest.xml</exclude>
-	 	<exclude>uair-ingest.xml</exclude>	 	
+	 	<exclude>ncep-util-on-edex-ingestGrib</exclude>	 	
+	 	<exclude>ncscd-ingest.xml</exclude>
+	 	<exclude>ncpafm-ingest.xml</exclude>
+	 	<exclude>ncpirep-ingest.xml</exclude>
+	 	<exclude>nctaf-ingest.xml</exclude>
+	 	<exclude>nctext-ingest.xml</exclude>
+	 	<exclude>ncuair-ingest.xml</exclude>	 	
 	 	<!--  end of ncep excludes -->
 	</mode>
 	<!-- In high memory mode, DAT runs in its own jvm -->
 	<mode name="ingestHighMem">				
 		<exclude>.*request.*</exclude>
 	 	<exclude>grib-ingest.xml</exclude>
+	 	<exclude>ncairep-ingest.xml</exclude>
 	 	<exclude>ncgrib-ingest.xml</exclude>
 		<exclude>ffmp-ingest.*.xml</exclude>
 		<exclude>scan-ingest.*.xml</exclude>
@@ -77,11 +81,13 @@
 	 	<exclude>ncccfp-ingest.xml</exclude>	 	
 	 	<exclude>ncgrib-distribution.xml</exclude>
 	 	<exclude>ncep-util-on-edex-ingest</exclude>
-	 	<exclude>ncep-util-on-edex-ingestGrib</exclude> 	
-	 	<exclude>h5uair-ingest.xml</exclude>
-	 	<exclude>h5scd-ingest.xml</exclude>
-	 	<exclude>pafm-ingest.xml</exclude>
-	 	<exclude>uair-ingest.xml</exclude>
+	 	<exclude>ncep-util-on-edex-ingestGrib</exclude> 		 	
+	 	<exclude>ncscd-ingest.xml</exclude>
+	 	<exclude>ncpafm-ingest.xml</exclude>
+	 	<exclude>ncpirep-ingest.xml</exclude>
+	 	<exclude>nctaf-ingest.xml</exclude>
+	 	<exclude>nctext-ingest.xml</exclude>
+	 	<exclude>ncuair-ingest.xml</exclude>
 	 	<!--  end of ncep excludes -->
 	</mode>
 	<mode name="ingestGrib">

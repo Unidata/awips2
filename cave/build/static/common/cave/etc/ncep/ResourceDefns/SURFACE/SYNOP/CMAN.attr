@@ -1,0 +1,6 @@
+! Parameters and Attributes for the default METAR Resource
+!
+legendString=CMAN Synop
+plotModelName=synop_standard
+reportType=1004
+plotDensity=15

@@ -1,0 +1,5 @@
+! Attributes for the NGM Model Sounding resource with "standard" plot model
+!
+levelKey=500
+plotModelName=basicNAM
+plotDensity=10
