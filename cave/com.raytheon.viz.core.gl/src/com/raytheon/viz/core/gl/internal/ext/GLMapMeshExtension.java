@@ -67,7 +67,7 @@ public class GLMapMeshExtension extends GraphicsExtension<IGLTarget> implements
      */
     @Override
     public int getCompatibilityValue(IGLTarget target) {
-        return Compatibilty.TARGET_COMPATIBLE.value;
+        return Compatibilty.TARGET_COMPATIBLE;
     }
 
 }

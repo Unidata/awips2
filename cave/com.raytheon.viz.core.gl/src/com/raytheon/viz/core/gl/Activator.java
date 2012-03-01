@@ -19,7 +19,6 @@
  **/
 package com.raytheon.viz.core.gl;
 
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.preference.IPersistentPreferenceStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -62,12 +61,6 @@ public class Activator extends AbstractUIPlugin {
      */
     public void start(BundleContext context) throws Exception {
         super.start(context);
-        // Start the texture loader job
-        TextureLoaderJob textureLoader = TextureLoaderJob.getInstance();
-        if (textureLoader.getState() != Job.RUNNING) {
-            textureLoader.setSystem(true);
-            textureLoader.schedule();
-        }
     }
 
     /*
@@ -81,10 +74,7 @@ public class Activator extends AbstractUIPlugin {
         plugin = null;
         super.stop(context);
         // Start the texture loader job
-        TextureLoaderJob textureLoader = TextureLoaderJob.getInstance();
-        if (textureLoader.getState() == Job.RUNNING) {
-            textureLoader.shutdown();
-        }
+        TextureLoader.getInstance().shutdown();
     }
 
     /**
