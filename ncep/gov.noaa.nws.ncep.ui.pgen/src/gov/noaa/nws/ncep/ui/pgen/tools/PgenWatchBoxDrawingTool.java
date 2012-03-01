@@ -282,7 +282,12 @@ public class PgenWatchBoxDrawingTool extends AbstractPgenDrawingTool {
 
 
   
-        /**
+        @Override
+		public boolean handleMouseDownMove(int x, int y, int mouseButton) {
+			return true;
+		}
+
+		/**
          * Remove all points from the mouse handler.
          */
         public void clearPoints(){

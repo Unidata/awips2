@@ -81,9 +81,9 @@
 <bullet bulletName="tennisBallHail" bulletText="Tennis ball hail (2 1/2&quot;)" bulletGroup="group2" parseString="TENNIS BALL SIZE"/>
 <bullet bulletName="baseballHail" bulletText="Baseball size hail (2 3/4&quot;)" bulletGroup="group2" parseString="BASEBALL SIZE"/>
 <bullet bulletName="threeinchHail" bulletText="Three inch hail (3&quot;)" bulletGroup="group2" parseString="THREE INCHES IN DIAMETER"/>
-<bullet bulletName="softballHail" bulletText="Softball size hail (3 3/4&quot;)" bulletGroup="group2" parseString="SOFTBALL SIZE"/>
-  <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4&quot;)" bulletGroup="group2" parseString="GRAPEFRUIT SIZE"/>
-  -->
+<bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4&quot;)" bulletGroup="group2" parseString="GRAPEFRUIT SIZE"/>
+<bullet bulletName="softballHail" bulletText="Softball size hail (4 1/4&quot;)" bulletGroup="group2" parseString="SOFTBALL SIZE"/>
+ -->
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="****** ADDITIONAL REPORTS *******" bulletType="title"/>
   <bullet bulletName="extraReportTornado" bulletText="Select to include additional tornadic information..."/>  
@@ -114,10 +114,6 @@
 <bulletActionGroup action="COR" phen="TO" sig="W">
 <bullets>
   <bullet bulletText="" bulletType="title"/>
-  <bullet bulletText="" bulletType="title"/>
-  <bullet bulletText="**** CORRECTED PRODUCT. CLICK CREATE TEXT ****" bulletType="title"/>
-  <bullet bulletText="" bulletType="title"/>
-  <bullet bulletText="" bulletType="title"/>
   <bullet bulletName="torEmergency" bulletText="** SELECT FOR TORNADO EMERGENCY **" parseString="TORNADO EMERGENCY"/>
   <bullet bulletText="*********** BASIS FOR WARNING (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="group1" bulletDefault="true" parseString="DOPPLER RADAR INDICATED"/>
@@ -143,8 +139,8 @@
 <bullet bulletName="tennisBallHail" bulletText="Tennis ball hail (2 1/2&quot;)" bulletGroup="group2" parseString="TENNIS BALL SIZE"/>
 <bullet bulletName="baseballHail" bulletText="Baseball size hail (2 3/4&quot;)" bulletGroup="group2" parseString="BASEBALL SIZE"/>
 <bullet bulletName="threeinchHail" bulletText="Three inch hail (3&quot;)" bulletGroup="group2" parseString="THREE INCHES IN DIAMETER"/>
-<bullet bulletName="softballHail" bulletText="Softball size hail (3 3/4&quot;)" bulletGroup="group2" parseString="SOFTBALL SIZE"/>
-  <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4&quot;)" bulletGroup="group2" parseString="GRAPEFRUIT SIZE"/>
+<bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4&quot;)" bulletGroup="group2" parseString="GRAPEFRUIT SIZE"/>
+<bullet bulletName="softballHail" bulletText="Softball size hail (4 1/4&quot;)" bulletGroup="group2" parseString="SOFTBALL SIZE"/>
   -->
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="****** ADDITIONAL REPORTS *******" bulletType="title"/>
@@ -290,6 +286,11 @@
   	</filter>
  </pointSource>
  
+<!-- this "include file" tag will grab the Mile Marker XML pointSource tags, 
+and place into this template  
+-->
+<include file="mileMarkers.xml"/>
+ 
  <geospatialConfig>
   <pointSource>City</pointSource>
  <areaSource>County</areaSource>
@@ -298,8 +299,5 @@
   <timezoneSource>TIMEZONES</timezoneSource>
   <timezoneField>TIME_ZONE</timezoneField>
  </geospatialConfig>
- 
- <include file="milemarkers.xml"/>
- 
 </warngenConfig>
 

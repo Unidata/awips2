@@ -10,6 +10,7 @@ package gov.noaa.nws.ncep.viz.tools.contour;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sun.jna.LastErrorException;
 import com.sun.jna.Native;
 import com.sun.jna.Library;
 import com.vividsolutions.jts.algorithm.CGAlgorithms;
@@ -83,7 +84,8 @@ public class CNFNative {
 		
 		/*  Calculates the contours for the given grid data values.*/
 		void cnf_comp(int[] xdim, int[] ydim, float[] grid, int[] xoff, int[] yoff,
-				      int[] skip, int[] iret );
+				 //     int[] skip, int[] iret );
+	      int[] skip, int[] iret ) throws LastErrorException;
 		
 		/*  Returns the number of contour segments/polygons created for the given contour value */
 		void cnf_getnumcntrs ( float cval, int[] numcntrs );
@@ -123,7 +125,7 @@ public class CNFNative {
 		int[] iret = new int[1];
 		int[] idummy = new int[cvalues.length];
 		int[] noFill = new int[] {0};
-		
+		//System.out.println(cnflib.INSTANCE);
 		cnflib.INSTANCE.cnf_init(iret);
 		//System.out.println("cnf_init returns: "+iret[0]);
 		cnflib.INSTANCE.cnf_vals( new int[] {cvalues.length}, cvalues, idummy, idummy, idummy, idummy,
@@ -142,8 +144,14 @@ public class CNFNative {
 		int[] iret = new int[1];
 		int[] izero = new int[] {0};
 		
-		cnflib.INSTANCE.cnf_comp( new int[] {szX}, new int[] {szY}, grid, izero, izero, izero, iret );
-		//System.out.println("cnf_comp returns: "+iret[0]);
+		//Native.setProtected(true);
+		try {
+			cnflib.INSTANCE.cnf_comp( new int[] {szX}, new int[] {szY}, grid, izero, izero, izero, iret );
+			if ( iret[0] != 0 ) System.out.println("cnf_comp returns: "+iret[0]);
+		}
+		catch ( Exception e) {
+			e.printStackTrace();
+		}
 		
 	}
 
@@ -218,7 +226,7 @@ public class CNFNative {
         	
         	Coordinate[] coords = new Coordinate[numPoints[n]];
         	for ( int i=0; i < numPoints[n]; i++ ) {
-        		coords[i] = new Coordinate( xc[num], yc[num] );
+        		coords[i] = new Coordinate( xc[num] - 1, yc[num] - 1 );
         		num++;
         	}
 
@@ -288,7 +296,7 @@ public class CNFNative {
         	//System.out.println("EDGE "+n+": "+numPoints[n]+" points");
         	Coordinate[] coords = new Coordinate[numPoints[n]];
         	for ( int i=0; i < numPoints[n]; i++ ) {
-        		coords[i] = new Coordinate( Math.rint(xc[num]), Math.rint(yc[num]) );
+        		coords[i] = new Coordinate( Math.rint(xc[num] - 1), Math.rint(yc[num] - 1) );
         		num++;
         	}
 
@@ -304,6 +312,7 @@ public class CNFNative {
         		//LineString ls = gf.createLineString(coords);
         		CoordinateList cl = new CoordinateList(coords, false);
         		LineString ls = gf.createLineString(cl.toCoordinateArray());
+        		//System.out.println("EDGE: "+ls.toString());
         		geoms.add(ls);
         	}
         }
@@ -325,6 +334,7 @@ public class CNFNative {
 			cl.closeRing();
 			LinearRing lr = gf.createLinearRing(cl.toCoordinateArray());
 			lr.normalize();
+			//System.out.println("Merged: "+lr.toString());
 			geoms.add(lr);
 		}
 			
