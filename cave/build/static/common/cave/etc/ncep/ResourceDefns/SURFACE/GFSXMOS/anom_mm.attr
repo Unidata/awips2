@@ -1,0 +1,4 @@
+! Attributes for the GFSXMOS resource with "anonmm" plot model
+!
+plotModelName=anonmm
+plotDensity=10

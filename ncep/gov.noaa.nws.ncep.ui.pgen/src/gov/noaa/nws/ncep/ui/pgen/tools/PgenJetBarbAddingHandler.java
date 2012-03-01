@@ -38,6 +38,7 @@ import gov.noaa.nws.ncep.viz.ui.display.NCMapEditor;
  * ------------	----------	-----------	--------------------------
  * 07/09		#135		B. Yin   	Initial Creation.
  * 09/30/09     #169        Greg Hull   NCMapEditor
+ * 12/11		#523		B. Yin		Clear top/bottom after adding barb
  *
  * </pre>
  * 
@@ -94,6 +95,11 @@ public class PgenJetBarbAddingHandler extends InputHandlerDefaultImpl {
     		
     		mapEditor.refresh();
 
+    		//top/bottom are needed only once.
+    		if ( jetDlg.getFLDepth() != null && !jetDlg.getFLDepth().isEmpty()){
+    			jetDlg.clearFLDepth();
+    		}
+    		
     		jetDlg.updateSegmentPane();
     		
     		return true;
@@ -103,6 +109,8 @@ public class PgenJetBarbAddingHandler extends InputHandlerDefaultImpl {
 
     		drawingLayer.removeGhostLine();
     		mapEditor.refresh();
+
+    		if ( jetDlg != null )((JetAttrDlg)jetDlg).closeBarbDlg();
 
     		prevTool.resetMouseHandler();
     		return true;
@@ -139,7 +147,12 @@ public class PgenJetBarbAddingHandler extends InputHandlerDefaultImpl {
     	
     }
 
-    /**
+    @Override
+	public boolean handleMouseDownMove(int x, int y, int mouseButton) {
+		return true;
+	}
+
+	/**
      * Create the wind info(barb and FL text) at location loc.
      * @param loc
      * @return

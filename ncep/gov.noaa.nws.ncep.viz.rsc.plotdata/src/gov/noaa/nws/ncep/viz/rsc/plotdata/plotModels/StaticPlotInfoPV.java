@@ -1,8 +1,7 @@
 package gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels;
 
-import gov.noaa.nws.ncep.viz.common.ui.NmapCommon;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationManager;
-import gov.noaa.nws.ncep.viz.localization.impl.LocalizationResourcePathConstants;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager.NcPathConstants;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -105,13 +104,8 @@ public class StaticPlotInfoPV {
 		if (isSPI) {
 			spiFile = new File(filename);
 		} else {
-			/*
-			 * comment out by M. Gao
-			 */
-//			spiFileName = new File( LocalizationManager.getInstance().getFilename("plotModelsDir") + File.separator + filename );
-			spiFile = LocalizationManager.getInstance().getLocalizationFileDirectly(
-					LocalizationResourcePathConstants.PLOTMODELS_DIR,
-					filename);
+			spiFile = NcPathManager.getInstance().getStaticFile(
+	        		NcPathConstants.PLOT_MODELS_DIR+File.separator + filename);
 		}
 		BufferedReader input = null;
 		StaticPlotInfoPV catalog = new StaticPlotInfoPV(filename);
