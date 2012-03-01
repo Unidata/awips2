@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PlotParameterDefns>
+
+	<plugin>ncairep</plugin>
+	<!--  From NMAP ACFT params
+brbk:1:2:112      1          
+brbm:1:2          1         
+acrt              aircraft report type
+actp              character aircraft type
+cbs1              0
+cbs2              0
+clc1              numeric cloud coverage 1
+clc2              
+ctp1              0
+ctp2              0
+ibse              base of icing in ft  
+icsy:1            icing symbol   
+itop              top of icing   
+itsy              icing type symbol
+pmsl                     
+smsl              0    
+sstc              sea surface temp in C
+stim              hr and mins as hhmm
+tbse              base of turb in ft
+tbsy:1            turb symbol
+tfsy              turb freq symbol
+ttop              top of turb in ft
+ttsy              turb typs symbol
+vsby              visibility
+wbse              base of wx in ft  
+wsym:1            wx sym      
+wtop              top of wx in ft
+-->
+	<!-- from pointDataDescription file
+  <parameter name="flightHazard" numDims="1" type="INT" />
+  <parameter name="flightWeather" numDims="1" type="INT" />
+  <parameter name="flightConditions" numDims="1" type="INT" />
+
+-->
+
+    <!-- measured parameters          
+ <PlotParameterDefn  plotParamName="PRES" metParamName="PressureLevel"  
+                     dbParamName="" plotUnit="°F" plotFormat="%3.0f"/>
+-->
+ <PlotParameterDefn  plotParamName="TMPF" metParamName="AirTemperature"  
+                     dbParamName="temperature" plotUnit="°F" plotFormat="%3.0f"/>
+
+ <PlotParameterDefn  plotParamName="TMPC" metParamName="AirTemperature"  
+                     dbParamName="temperature" plotUnit="°C" plotFormat="%3.0f"/>
+
+<!--  <PlotParameterDefn  plotParamName="TMPK" metParamName="AirTemperature"  
+                     dbParamName="temperature" plotUnit="K" plotFormat="%3.0f"/> -->
+
+ <!-- FlightLevel is an int in the DB but when converted to hecto_ft, the value becomes a Double 
+      so the plotFormat has to be 'f' -->
+ <PlotParameterDefn  plotParamName="FELV" metParamName="FlightLevel"  
+                     dbParamName="flightLevel" plotUnit="hecto_ft" plotFormat="%3.0f"/>
+<!-- 
+ <PlotParameterDefn   plotParamName="VSBY" metParamName="Visibility"  
+                      dbParamName="visibility" plotUnit="mi" plotFormat="%3.1f"/>
+ -->
+ <PlotParameterDefn   plotParamName="ICSY" metParamName="IcingIntensitySymbol"  
+                      dbParamName="iceInten"                     
+                      plotMode="table" symbolFont="WxSymbolFont" 
+					  plotLookupTable="icing_intens_trans.txt"/> 
+
+ <PlotParameterDefn   plotParamName="TPOI" metParamName="IcingTypeSymbol"  
+                      dbParamName="iceType"                     
+                      plotMode="table" symbolFont="WxSymbolFont" 
+					  plotLookupTable="icing_type_trans.txt"/> 
+
+<!-- 
+this references a raytheon lookupTable but in their airepTurbDesign.svg file the plotParam is FLT_HZD??? 
+here we are using turbInten from ncairep instead of flightHazard. Is this correct?
+ --> 
+  <PlotParameterDefn   plotParamName="TBSY" metParamName="TurbulenceIntensitySymbol"  
+                      dbParamName="turbInten"                     
+                      plotMode="table" symbolFont="WxSymbolFont" 
+					  plotLookupTable="turb_intens_trans.txt"/> 
+					  
+  <PlotParameterDefn   plotParamName="TFSY" metParamName="TurbulenceFrequencySymbol"  
+                      dbParamName="turbFreq"                     
+                      plotMode="table" symbolFont="WxSymbolFont" 
+					  plotLookupTable="turb_freq_trans.txt"/> 
+<!-- SKYC -->
+ <PlotParameterDefn  plotParamName="SKYC" metParamName="SkyCoverage" 
+                     plotMode="table" symbolFont="SpecialSymbolFont" 
+                     dbParamName="skyCover" 
+                     prioritySelectTable="cloud_select.txt"
+                     plotLookupTable="cloud_chars.txt" />
+ <PlotParameterDefn  plotParamName="CLC1" metParamName="CloudCover" 
+                     dbParamName="skyCover" 
+                     plotMode="table" symbolFont="StandardFont"
+                     plotLookupTable="cloud_intens_trans.txt" />    
+
+<!-- STATION VARIABLES  -->
+ <PlotParameterDefn  plotParamName="STID" metParamName="StationID"  
+                     dbParamName="stationId" />
+ <PlotParameterDefn  plotParamName="SLAT" metParamName="StationLatitude"  
+                     dbParamName="latitude" plotUnit="°" plotFormat="%2.2f"/>
+ <PlotParameterDefn  plotParamName="SLON" metParamName="StationLongitude"  
+                     dbParamName="longitude" plotUnit="°" plotFormat="%3.2f"/>        
+ <PlotParameterDefn  plotParamName="SELV" metParamName="StationElevation"  
+                     deriveParams="all"    plotUnit="m" plotFormat="%4.0f"/>                     
+                                          
+
+<!-- These really aren't normally displayed by themselves but they need
+  == to be here since they are used to derive the WindBarbs.
+  -->
+ <PlotParameterDefn  plotParamName="DRCT" metParamName="WindDirection"  
+                    dbParamName="windDir" plotUnit="degree" plotFormat="%3.0f"/>
+ <PlotParameterDefn  plotParamName="SPED" metParamName="WindSpeed"  
+                     dbParamName="windSpeed" plotUnit="m/s" plotFormat="%3.0f"/>
+ <PlotParameterDefn  plotParamName="SKNT" metParamName="WindSpeed"  
+                     dbParamName="windSpeed" plotUnit="kts" plotFormat="%3.0f"/>
+<!-- WIND BARBS -->
+
+ <PlotParameterDefn  plotParamName="BRBK" metParamName="WindDirection,WindSpeed"
+                     plotMode="barb" symbolFont="WindSymbolFont" plotUnit="kts"/>
+
+ <!-- WEATHER
+ <PlotParameterDefn  plotParamName="WSYM" metParamName="PresentWeather" 
+                     dbParamName="presWeather"
+                     plotMode="table" symbolFont="WxSymbolFont" 
+                     plotLookupTable="wx_symbol_trans.txt"/>
+    -->
+ 	
+</PlotParameterDefns>

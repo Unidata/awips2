@@ -11,12 +11,6 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.viz.application;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: gov.noaa.nws.ncep.viz.localization,
- gov.noaa.nws.ncep.viz.localization.admin,
- gov.noaa.nws.ncep.viz.localization.command.handler,
- gov.noaa.nws.ncep.viz.localization.exception,
- gov.noaa.nws.ncep.viz.localization.filter,
- gov.noaa.nws.ncep.viz.localization.impl,
- gov.noaa.nws.ncep.viz.localization.resource.synchronization
+Export-Package: gov.noaa.nws.ncep.viz.localization
 Import-Package: com.raytheon.uf.viz.core.localization,
  gov.noaa.nws.ncep.common.log.logger
