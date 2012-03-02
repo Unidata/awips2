@@ -64,6 +64,9 @@ import com.raytheon.viz.gfe.core.parm.vcparm.VCModule.VCInventory;
  *                                      data. Also, remove overridden 
  *                                      finalize function.
  * Feb 23, 2012  #346      dgilling     Implement a dispose method.
+ * Mar 02, 2012  #346      dgilling     Use Parm's new disposed flag to
+ *                                      prevent leaks through
+ *                                      ListenerLists.
  * 
  * </pre>
  * 
@@ -138,6 +141,12 @@ public class VCParm extends VParm implements IParmListChangedListener,
      */
     @Override
     public void gridDataChanged(final ParmID parmId, final TimeRange validTime) {
+        synchronized (this) {
+            if (disposed) {
+                return;
+            }
+        }
+
         // statusHandler.handle(Priority.DEBUG, "gridDataChanged for: " + parmId
         // + " " + validTime);
 
@@ -167,7 +176,6 @@ public class VCParm extends VParm implements IParmListChangedListener,
                 }
             }
         }
-
     }
 
     /*
@@ -182,13 +190,22 @@ public class VCParm extends VParm implements IParmListChangedListener,
     @Override
     public void parmListChanged(final Parm[] parms, Parm[] deletions,
             Parm[] additions) {
-        // statusHandler.handle(Priority.DEBUG,
-        // "ParmListChangedMsg received: ");
-        System.out.println("ParmListChangedMsg received: "
-                + getParmID().toString());
 
-        registerParmClients(parms, true);
+        // forcing access to the disposed variable and subsequent
+        // registration/unregistation of listeners through this synchronized
+        // block seems to prevent VCParm objects being leaked through outdated
+        // listener list copies
+        synchronized (this) {
+            if (disposed) {
+                return;
+            }
 
+            // statusHandler.handle(Priority.DEBUG,
+            // "ParmListChangedMsg received: ");
+            // System.out.println("ParmListChangedMsg received: "
+            // + getParmID().toString());
+            registerParmClients(parms, true);
+        }
     }
 
     /*
@@ -208,8 +225,13 @@ public class VCParm extends VParm implements IParmListChangedListener,
         // approach.
         // statusHandler.debug("ParmInventoryChanged notification for: "
         // + getParmID().toString());
-        System.out.println("ParmInventoryChanged notification for: "
-                + getParmID().toString());
+        // System.out.println("ParmInventoryChanged notification for: "
+        // + getParmID().toString());
+        synchronized (this) {
+            if (disposed) {
+                return;
+            }
+        }
 
         recalcInventory(true);
     }
@@ -467,9 +489,6 @@ public class VCParm extends VParm implements IParmListChangedListener,
     }
 
     private void registerPC(Parm parm) {
-        System.out.println(getParmID().toString() + " is registering "
-                + parm.toString());
-
         parm.parmListeners.addGridChangedListener(this);
         parm.parmListeners.addParmInventoryChangedListener(this);
 
@@ -482,9 +501,6 @@ public class VCParm extends VParm implements IParmListChangedListener,
     }
 
     private void unregisterPC(Parm parm) {
-        System.out.println(getParmID().toString() + " is unregistering "
-                + parm.toString());
-
         parm.parmListeners.removeGridChangedListener(this);
         parm.parmListeners.removeParmInventoryChangedListener(this);
 

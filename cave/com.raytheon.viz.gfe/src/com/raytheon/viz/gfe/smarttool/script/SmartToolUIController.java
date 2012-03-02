@@ -42,6 +42,7 @@ import com.raytheon.viz.gfe.core.msgs.ISmartToolInventoryChanged;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 19, 2010            njensen     Initial creation
+ * Mar 01, 2012  #346      dgilling    Use identity-based ListenerLists.
  * 
  * </pre>
  * 
@@ -58,7 +59,7 @@ public class SmartToolUIController extends SmartToolController {
             throws JepException {
         super(filePath, anIncludePath, classLoader, dataManager);
 
-        invChangedListeners = new ListenerList();
+        invChangedListeners = new ListenerList(ListenerList.IDENTITY);
     }
 
     /**
