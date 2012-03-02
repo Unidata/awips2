@@ -89,6 +89,7 @@ import com.raytheon.viz.gfe.core.parm.vcparm.VCModule;
  *                                     dispose method.
  * 02/23/2012    #346      dgilling    Ensure all Parms are disposed when calling
  *                                     dispose method.
+ * 03/01/2012    #346      dgilling    Use identity-based ListenerLists.
  * 
  * </pre>
  * 
@@ -246,12 +247,14 @@ public abstract class AbstractParmManager implements IParmManager {
     protected AbstractParmManager(final DataManager dataManager) {
         this.dataManager = dataManager;
         this.parms = new RWLArrayList<Parm>();
-        this.displayedParmListListeners = new ListenerList();
-        this.parmListChangedListeners = new ListenerList();
-        this.systemTimeRangeChangedListeners = new ListenerList();
-        this.availableSourcesListeners = new ListenerList();
-        this.newModelListeners = new ListenerList();
-        this.parmIdChangedListeners = new ListenerList();
+        this.displayedParmListListeners = new ListenerList(
+                ListenerList.IDENTITY);
+        this.parmListChangedListeners = new ListenerList(ListenerList.IDENTITY);
+        this.systemTimeRangeChangedListeners = new ListenerList(
+                ListenerList.IDENTITY);
+        this.availableSourcesListeners = new ListenerList(ListenerList.IDENTITY);
+        this.newModelListeners = new ListenerList(ListenerList.IDENTITY);
+        this.parmIdChangedListeners = new ListenerList(ListenerList.IDENTITY);
 
         // Get virtual parm definitions
         vcModules = initVirtualCalcParmDefinitions();
