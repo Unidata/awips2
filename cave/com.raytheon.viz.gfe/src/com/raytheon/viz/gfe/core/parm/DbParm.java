@@ -71,6 +71,7 @@ import com.raytheon.viz.gfe.core.griddata.IGridData;
  * 01/29/08     #1271      njensen     Rewrote populateGridFromData()
  *                                      to use IFPClient
  * 02/23/12     #346       dgilling    Implement a dispose method.
+ * 03/01/12     #346       dgilling    Re-order dispose method.
  * 
  * </pre>
  * 
@@ -122,8 +123,8 @@ public class DbParm extends Parm {
      */
     @Override
     public void dispose() {
-        super.dispose();
         looseLocks();
+        super.dispose();
     }
 
     // -- private
