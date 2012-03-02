@@ -43,10 +43,11 @@ import com.raytheon.viz.gfe.Activator;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Jun 11, 2008				chammack	Initial creation
- * Sep 3, 2008  1448        chammack    Implement refactored interface
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Jun 11, 2008             chammack    Initial creation
+ * Sep 03, 2008  1448       chammack    Implement refactored interface
+ * Mar 01, 2012  #346       dgilling    Use identity-based ListenerLists.
  * </pre>
  * 
  * @author chammack
@@ -68,7 +69,7 @@ public class NotificationRouter implements INotificationObserver {
      */
     public NotificationRouter(String siteID) {
         this.siteID = siteID;
-        this.observers = new ListenerList();
+        this.observers = new ListenerList(ListenerList.IDENTITY);
         this.observers
                 .add(new AbstractGFENotificationObserver<UserMessageNotification>(
                         UserMessageNotification.class) {
@@ -178,6 +179,7 @@ public class NotificationRouter implements INotificationObserver {
     /**
      * Notification that a message has arrived
      */
+    @Override
     @SuppressWarnings("unchecked")
     public void notificationArrived(NotificationMessage[] messages) {
         // If DataManager is not initialized yet, do not start listening
