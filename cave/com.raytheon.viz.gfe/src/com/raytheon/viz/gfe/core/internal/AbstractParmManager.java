@@ -62,7 +62,6 @@ import com.raytheon.viz.gfe.GFEServerException;
 import com.raytheon.viz.gfe.PythonPreferenceStore;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.IParmManager;
-import com.raytheon.viz.gfe.core.ISCParmInitJob;
 import com.raytheon.viz.gfe.core.internal.NotificationRouter.AbstractGFENotificationObserver;
 import com.raytheon.viz.gfe.core.msgs.IAvailableSourcesChangedListener;
 import com.raytheon.viz.gfe.core.msgs.IDisplayedParmListChangedListener;
@@ -90,6 +89,9 @@ import com.raytheon.viz.gfe.core.parm.vcparm.VCModule;
  * 02/23/2012    #346      dgilling    Ensure all Parms are disposed when calling
  *                                     dispose method.
  * 03/01/2012    #346      dgilling    Use identity-based ListenerLists.
+ * 03/01/2012    #354      dgilling    Modify setParms to always load (but not
+ *                                     necessarily display) the ISC parms that
+ *                                     correspond to a visible mutable parm.
  * 
  * </pre>
  * 
@@ -239,8 +241,6 @@ public abstract class AbstractParmManager implements IParmManager {
     private AbstractGFENotificationObserver<LockNotification> lockNotificationListener;
 
     private AbstractGFENotificationObserver<SiteActivationNotification> siteActivationListener;
-
-    private ISCParmInitJob iscInit;
 
     private JobPool notificationPool;
 
@@ -415,10 +415,6 @@ public abstract class AbstractParmManager implements IParmManager {
 
         for (VCModule module : vcModules) {
             module.dispose();
-        }
-
-        if (iscInit != null) {
-            iscInit.cancel();
         }
 
         notificationPool.cancel();
@@ -776,15 +772,46 @@ public abstract class AbstractParmManager implements IParmManager {
         return ret;
     }
 
-    // -- private
-    // ----------------------------------------------------------------
-    // ParmMgr::setParmsDependencies()
-    // Helper function for setParms(). Takes the toBeLoaded, addedParms,
-    // removeParms, and modParms lists, calculates dependencies, and then
-    // returns the updated lists through the calling arguments.
-    // -- implementation
-    // ---------------------------------------------------------
-    // ---------------------------------------------------------------------------
+    /**
+     * Helper function for <code>setParms</code>. Takes the toBeLoaded and
+     * removeParms lists, calculates non-visible ISC dependencies, and then
+     * returns the updated lists through the calling arguments.
+     * 
+     * @param toBeLoaded
+     * @param removeParms
+     */
+    private void setParmsRemoveISCDeps(List<ParmIDVisDep> toBeLoaded,
+            Collection<ParmID> removeParms) {
+        List<ParmID> removeList = new ArrayList<ParmID>(removeParms);
+
+        for (int i = 0; i < removeList.size(); i++) {
+            List<ParmID> depParms = dependentParms(removeList.get(i), true);
+            for (ParmID pid : depParms) {
+                int index = pivdIndex(toBeLoaded, pid);
+                if ((index != -1) && (!toBeLoaded.get(index).isVisible())) {
+                    removeList.add(toBeLoaded.get(index).getParmID());
+                    toBeLoaded.remove(index);
+                }
+            }
+        }
+
+        for (ParmID pid : removeList) {
+            if (!removeParms.contains(pid)) {
+                removeParms.add(pid);
+            }
+        }
+    }
+
+    /**
+     * Helper function for <code>setParms</code>. Takes the toBeLoaded,
+     * addedParms, removeParms, and modParms lists, calculates dependencies, and
+     * then returns the updated lists through the calling arguments.
+     * 
+     * @param toBeLoaded
+     * @param addParms
+     * @param removeParms
+     * @param modParms
+     */
     private void setParmsDependencies(List<ParmIDVisDep> toBeLoaded,
             Collection<ParmIDVis> addParms, Collection<ParmID> removeParms,
             Collection<Parm> modParms) {
@@ -793,8 +820,13 @@ public abstract class AbstractParmManager implements IParmManager {
         // non-displayed. If any are missing from the "tobeloaded", then
         // add them as undisplayed.
         for (int i = 0; i < toBeLoaded.size(); i++) {
+            // Here's a derivation from AWIPS1...
+            // We've hard-coded the third parameter in the dependentParms() call
+            // to true so that the ISC parms that correspond to the visible
+            // mutable parms are always loaded in the ParmManager. This was
+            // found to significantly improve performance when loading ISC data.
             List<ParmID> depParms = dependentParms(toBeLoaded.get(i)
-                    .getParmID(), iscMode());
+                    .getParmID(), true);
 
             for (ParmID depParm : depParms) {
                 // if not present, then add it to "tobeloaded" list
@@ -933,6 +965,16 @@ public abstract class AbstractParmManager implements IParmManager {
             // the displayed/undisplayed flags.
             toBeLoaded = setParmsMakeParmIDVisDep(addParms, modParms,
                     removeParms);
+
+            // Here's a derivation from AWIPS1...
+            // We've modified setParmsDependencies to always ensure that the ISC
+            // parms that correspond to parms from the mutable database are
+            // always loaded (but not necessary visible) in the ParmManager.
+            // However, this change made it impossible to unload parms if they
+            // were a dependency to an invisible VCParm. Hence, this new
+            // function was added which removes the mutable parm and the ISC
+            // parm(s) if none of them should be visible.
+            setParmsRemoveISCDeps(toBeLoaded, removeParms);
 
             // statusHandler.debug("PASS " + (i + 1)
             // + " toBeLoaded before dependencies="
@@ -1164,12 +1206,6 @@ public abstract class AbstractParmManager implements IParmManager {
         }
         setParms(addParms, deletions);
 
-        if (iscInit != null) {
-            iscInit.cancel();
-        }
-        iscInit = new ISCParmInitJob(dataManager, getDisplayedParms());
-        iscInit.schedule();
-
         return;
     }
 
@@ -1187,7 +1223,7 @@ public abstract class AbstractParmManager implements IParmManager {
             Collection<Parm> modParms, Collection<ParmID> removeParms) {
         // only try to unload old undisplayed, if there are already parms
         // being removed.
-        if (removeParms.size() == 0) {
+        if (removeParms.isEmpty()) {
             return;
         }
 
