@@ -226,11 +226,7 @@ public class DefaultPathProvider implements IHDFFilePathProvider {
     @Override
     public String getHDFFileName(String pluginName, IPersistable persistable) {
         Integer partition = persistable.getHdfFileId();
-        if (partition == null) {
-            throw new IllegalArgumentException(
-                    "Expected argument hdfFileId not set on object "
-                            + persistable.toString());
-        } else if (pluginName == null) {
+        if (pluginName == null) {
             throw new IllegalArgumentException(
                     "Expected argument pluginName not set on object "
                             + persistable.toString());
@@ -262,10 +258,17 @@ public class DefaultPathProvider implements IHDFFilePathProvider {
                 refTimeString = fileNameFormat.format(refTime);
             }
             sb.append(refTimeString);
-            sb.append("-");
-            sb.append(partition);
+            
+            if (partition != null) {
+            	sb.append("-");
+            	sb.append(partition);
+            }
             sb.append(".h5");
             return sb.toString();
+        }
+        
+        if (partition == null) {
+        	return pluginName + ".h5";
         }
 
         return pluginName + "-" + partition + ".h5";
