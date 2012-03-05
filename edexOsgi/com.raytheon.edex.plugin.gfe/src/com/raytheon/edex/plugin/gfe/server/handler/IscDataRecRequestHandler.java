@@ -19,13 +19,15 @@
  **/
 package com.raytheon.edex.plugin.gfe.server.handler;
 
-import com.raytheon.edex.plugin.gfe.isc.GfeScriptExecutor;
 import com.raytheon.uf.common.dataplugin.gfe.request.IscDataRecRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
+import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
+import com.raytheon.uf.edex.core.EDEXUtil;
 
 /**
- * TODO Add Description
+ * Thrift request handler for <code>IscDataRecRequest</code>. Takes request and
+ * places it on a queue to be executed by <code>IscReceiveSrv</code>.
  * 
  * <pre>
  * 
@@ -34,6 +36,8 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 26, 2010            dgilling     Initial creation
+ * Mar 05, 2012  #361      dgilling     Make call to iscDataRec
+ *                                      asynchronous.
  * 
  * </pre>
  * 
@@ -55,15 +59,9 @@ public class IscDataRecRequestHandler implements
     public ServerResponse<String> handleRequest(IscDataRecRequest request)
             throws Exception {
         ServerResponse<String> sr = new ServerResponse<String>();
-        GfeScriptExecutor scriptRunner = new GfeScriptExecutor();
 
-        String retVal = scriptRunner.execute("iscDataRec "
-                + request.getArgString());
-
-        if (!retVal.equals(GfeScriptExecutor.SUCCESS)) {
-            sr.addMessage(retVal);
-        }
-
+        byte[] message = SerializationUtil.transformToThrift(request);
+        EDEXUtil.getMessageProducer().sendAsync("iscReceiveRoute", message);
         return sr;
     }
 
