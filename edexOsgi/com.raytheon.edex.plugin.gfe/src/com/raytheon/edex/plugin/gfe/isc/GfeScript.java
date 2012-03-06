@@ -191,7 +191,6 @@ public class GfeScript extends Thread {
 
     public String waitFor() {
         try {
-            Thread.sleep(500);
             while (isRunning()) {
 
                 Thread.sleep(200);
