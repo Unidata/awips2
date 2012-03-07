@@ -4,8 +4,8 @@ set -x
 # We Need To Setup Our Environment.
 source env.sh
 
-echo "The AWIPSII Version is $AWIPSII_VERSION WTF WTF WTF WTF"
-echo "The AWIPSII Release is $AWIPSII_RELEASE WTF WTF WTF WTF"
+echo "The AWIPSII Version is $AWIPSII_VERSION "
+echo "The AWIPSII Release is $AWIPSII_RELEASE "
 
 
 
