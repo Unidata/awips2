@@ -87,7 +87,13 @@ public class CollaborationGroupView extends ViewPart {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(CollaborationGroupView.class);
 
+    private SessionGroup activeSessionGroup = null;
+
     private TreeViewer usersTreeViewer;
+
+    CollaborationGroup topLevel = new CollaborationGroup("kickstart");
+
+    SessionGroup acitveSessionGroup;
 
     Map<String, String[]> groupMap;
 
@@ -119,7 +125,7 @@ public class CollaborationGroupView extends ViewPart {
 
     private Action changeStatusAction;
 
-    private Action refreshSessonAction;
+    private Action refreshActiveSessionsAction;
 
     /**
      * @param parent
@@ -191,7 +197,7 @@ public class CollaborationGroupView extends ViewPart {
                 messageBox.setText("Log off Collaboration");
                 messageBox.setMessage("Logging off will sever your\n"
                         + "connection to the server and\n"
-                        + "remove and close all joined\n" + "sessions.");
+                        + "close all session views.");
                 int result = messageBox.open();
                 if (result == SWT.OK) {
                     CollaborationDataManager.getInstance().closeManager();
@@ -239,12 +245,13 @@ public class CollaborationGroupView extends ViewPart {
             };
         };
 
-        refreshSessonAction = new Action("Refresh") {
+        refreshActiveSessionsAction = new Action("Refresh") {
             public void run() {
                 System.out.println("Refresh Active Sessions");
+                refreshActiveSessions();
             }
         };
-        refreshSessonAction
+        refreshActiveSessionsAction
                 .setToolTipText("Refresh the Active Sessions Entries.");
 
         IMenuCreator creator = new IMenuCreator() {
@@ -301,9 +308,9 @@ public class CollaborationGroupView extends ViewPart {
 
     private void createToolbar() {
         IToolBarManager mgr = getViewSite().getActionBars().getToolBarManager();
-        mgr.add(joinCollaborationAction);
+        // mgr.add(joinCollaborationAction);
         mgr.add(collaborateAction);
-        mgr.add(privateChatAction);
+        // mgr.add(privateChatAction);
         mgr.add(inviteAction);
     }
 
@@ -364,7 +371,7 @@ public class CollaborationGroupView extends ViewPart {
                     System.out.println("sessionId - Invite: " + user.getId());
                 }
             }
-
+            refreshActiveSessions();
         } catch (PartInitException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to open collaboation sesson", e);
@@ -381,6 +388,23 @@ public class CollaborationGroupView extends ViewPart {
             if (node instanceof SessionGroup) {
                 SessionGroup sg = (SessionGroup) node;
                 System.out.println("Join: " + sg.getId());
+                String sessionId = CollaborationDataManager.getInstance()
+                        .joinCollaborationSession(sg.getText(), sg.getId());
+                try {
+                    IViewPart part = PlatformUI
+                            .getWorkbench()
+                            .getActiveWorkbenchWindow()
+                            .getActivePage()
+                            .showView(CollaborationSessionView.ID, sessionId,
+                                    IWorkbenchPage.VIEW_ACTIVATE);
+
+                } catch (PartInitException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Unable to open collaboation sesson", e);
+                } catch (Exception e) {
+                    statusHandler.handle(Priority.ERROR, "Unexpected excepton",
+                            e);
+                }
             }
         }
     }
@@ -462,7 +486,7 @@ public class CollaborationGroupView extends ViewPart {
             SessionGroup sessionGroup = (SessionGroup) o;
             if (sessionGroup.isSessionRoot()) {
                 manager.add(collaborateAction);
-                manager.add(refreshSessonAction);
+                manager.add(refreshActiveSessionsAction);
             } else {
                 manager.add(joinAction);
             }
@@ -505,7 +529,7 @@ public class CollaborationGroupView extends ViewPart {
     }
 
     protected void populateTree() {
-        final CollaborationGroup topLevel = new CollaborationGroup("kickstart");
+        topLevel = new CollaborationGroup("kickstart");
         usersTreeViewer.setInput(topLevel);
         CollaborationDataManager manager = CollaborationDataManager
                 .getInstance();
@@ -513,21 +537,11 @@ public class CollaborationGroupView extends ViewPart {
         LoginUser user = new LoginUser(CollaborationDataManager.getInstance()
                 .getLoginId());
         topLevel.addChild(user);
-        SessionGroup sessionGroup = new SessionGroup("Active Sessions");
-        sessionGroup.setSessionRoot(true);
-        topLevel.addChild(sessionGroup);
+        activeSessionGroup = new SessionGroup("Active Sessions");
+        activeSessionGroup.setSessionRoot(true);
+        topLevel.addChild(activeSessionGroup);
 
-        Collection<IVenueInfo> venuList = sessionManager.getVenueInfo();
-        for (IVenueInfo venu : venuList) {
-            SessionGroup gp = new SessionGroup(manager.venuIdToSessionId(venu
-                    .getVenueID()));
-            gp.setText(venu.getVenueName());
-
-            if (venu.getParticipantCount() > 0) {
-                // TODO add current participants of the venu here.
-            }
-            sessionGroup.addChild(gp);
-        }
+        populateActiveSessions(activeSessionGroup);
 
         // TODO get from server.
         for (String g : new String[] { "Mybuddy1", "buddy1" }) {
@@ -565,6 +579,27 @@ public class CollaborationGroupView extends ViewPart {
             }
         }
         usersTreeViewer.refresh(topLevel, true);
+    }
+
+    private void refreshActiveSessions() {
+        activeSessionGroup.removeChildren();
+        populateActiveSessions(activeSessionGroup);
+        usersTreeViewer.refresh(activeSessionGroup, true);
+    }
+
+    private void populateActiveSessions(SessionGroup sessionGroup) {
+        Collection<IVenueInfo> venuList = CollaborationDataManager
+                .getInstance().getSessionManager().getVenueInfo();
+        for (IVenueInfo venu : venuList) {
+            SessionGroup gp = new SessionGroup(CollaborationDataManager
+                    .getInstance().venuIdToSessionId(venu.getVenueID()));
+            gp.setText(venu.getVenueName());
+
+            if (venu.getParticipantCount() > 0) {
+                // TODO add current participants of the venu here.
+            }
+            sessionGroup.addChild(gp);
+        }
     }
 
     /**
