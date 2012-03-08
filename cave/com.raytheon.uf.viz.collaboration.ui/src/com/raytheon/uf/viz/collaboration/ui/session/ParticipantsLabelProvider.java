@@ -27,7 +27,9 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 
+import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
+import com.raytheon.uf.viz.collaboration.data.DataUser.RoleType;
 
 /**
  * TODO Add Description
@@ -49,6 +51,8 @@ import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
 public class ParticipantsLabelProvider implements ITableColorProvider,
         ITableFontProvider, ITableLabelProvider {
 
+    private String sessionId = null;
+
     @Override
     public void addListener(ILabelProviderListener listener) {
         // TODO Auto-generated method stub
@@ -64,7 +68,7 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
     @Override
     public boolean isLabelProperty(Object element, String property) {
         // TODO Auto-generated method stub
-        System.err.println("isLabelProperty");
+        System.out.println("isLabelProperty");
         return false;
     }
 
@@ -76,7 +80,7 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
 
     @Override
     public Image getColumnImage(Object element, int columnIndex) {
-        System.err.println("getColumImage");
+        System.out.println("getColumnImage");
         // TODO Auto-generated method stub
         return null;
     }
@@ -84,25 +88,86 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
     @Override
     public String getColumnText(Object element, int columnIndex) {
         CollaborationUser user = (CollaborationUser) element;
+        RoleType[] roles = user.getRoles(sessionId);
         return user.getText();
     }
 
     @Override
     public Font getFont(Object element, int columnIndex) {
-        // TODO Auto-generated method stub
+        System.out.println("getFont");
         return null;
     }
 
     @Override
     public Color getForeground(Object element, int columnIndex) {
-        // TODO Auto-generated method stub
+        CollaborationDataManager.getInstance().getUser(element.toString());
+        System.out.println("getForeground");
         return null;
     }
 
     @Override
     public Color getBackground(Object element, int columnIndex) {
+        System.out.println("getBackground");
         // TODO Auto-generated method stub
         return null;
     }
+
+    /**
+     * @param sessionId
+     *            the sessionId to set
+     */
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
+    }
+
+    /**
+     * @return the sessionId
+     */
+    public String getSessionId() {
+        return sessionId;
+    }
+    // usersList.setLabelProvider(new LabelProvider() {
+    // public String getText(Object element) {
+    // CollaborationUser user = (CollaborationUser) element;
+    // DataUser.RoleType[] roles = user.getRoles(sessionId);
+    // StringBuilder sb = new StringBuilder();
+    // if (roles.length > 0
+    // && roles[0] != DataUser.RoleType.PARTICIPANT) {
+    // sb.append("[");
+    // for (DataUser.RoleType r : roles) {
+    // switch (r) {
+    // case DATA_PROVIDER:
+    // sb.append("D");
+    // break;
+    // case LEADER:
+    // sb.append("L");
+    // break;
+    // default:
+    // sb.append("?");
+    // break;
+    // }
+    // }
+    // sb.append("] - ");
+    // }
+    // sb.append(user.getId());
+    // return sb.toString();
+    // }
+    //
+    // public Image getImage(Object element) {
+    // Image image = null;
+    // if (element instanceof CollaborationNode) {
+    // CollaborationNode node = (CollaborationNode) element;
+    // String key = node.getImageKey();
+    // if (key != null) {
+    // image = imageMap.get(key);
+    // if (image == null) {
+    // image = CollaborationUtils.getNodeImage(node);
+    // imageMap.put(key, image);
+    // }
+    // }
+    // }
+    // return image;
+    // }
+    // });
 
 }
