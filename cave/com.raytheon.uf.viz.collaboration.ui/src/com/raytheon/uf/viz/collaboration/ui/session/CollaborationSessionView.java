@@ -22,7 +22,10 @@ package com.raytheon.uf.viz.collaboration.ui.session;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
-import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.IMenuCreator;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Menu;
 
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 
@@ -47,50 +50,61 @@ public class CollaborationSessionView extends SessionView {
 
     private static final String COLLABORATION_SESSION_IMAGE_NAME = "add_correction.gif";
 
-    private Action switchDataProviderAction;
+    private Action switchToAction;
 
-    private Action switchLeaderAction;
-
-    public void createSwitchDataProviderAction() {
-        switchDataProviderAction = new Action() {
+    protected void createActions() {
+        super.createActions();
+        switchToAction = new Action("Switch to...", Action.AS_DROP_DOWN_MENU) {
             public void run() {
-                switchDataProvider();
+                if ("DataProvider".equals(switchToAction.getId())) {
+                    switchDataProvider();
+                } else if ("SessionLeader".equals(switchToAction.getId())) {
+                    switchLeader();
+                }
+            };
+        };
+
+        IMenuCreator creator = new IMenuCreator() {
+            Menu menu;
+
+            @Override
+            public Menu getMenu(Menu parent) {
+                if (menu == null) {
+                    menu = new Menu(parent);
+                }
+                Action dataProviderAction = new Action("Data Provider") {
+                    public void run() {
+                        switchToAction.setId("DataProvider");
+                        switchToAction.run();
+                    };
+                };
+                ActionContributionItem dataProviderItem = new ActionContributionItem(
+                        dataProviderAction);
+                dataProviderItem.fill(menu, -1);
+
+                Action leaderAction = new Action("Session Leader") {
+                    public void run() {
+                        switchToAction.setId("SessionLeader");
+                        switchToAction.run();
+                    };
+                };
+                ActionContributionItem leaderItem = new ActionContributionItem(
+                        leaderAction);
+                leaderItem.fill(menu, -1);
+                return menu;
+            }
+
+            @Override
+            public void dispose() {
+                menu.dispose();
+            }
+
+            @Override
+            public Menu getMenu(Control parent) {
+                return getMenu(parent.getMenu());
             }
         };
-        // TODO find image and use instead of text
-        // switchDataProviderAction.setImageDescriptor(CollaborationUtils
-        // .getImageDescriptor("browser.gif"));
-        switchDataProviderAction.setText("Data");
-        switchDataProviderAction.setToolTipText("Switch Data Provider Request");
-    }
-
-    public void createSwitchLeaderAction() {
-        switchLeaderAction = new Action() {
-            public void run() {
-                switchLeader();
-            }
-        };
-        // TODO find image and use instead of text
-        // switchLeaderAction.setImageDescriptor(CollaborationUtils
-        // .getImageDescriptor("browser.gif"));
-        switchLeaderAction.setText("Leader");
-        switchLeaderAction.setToolTipText("Switch Leader Request");
-    }
-
-    protected void createToolBar() {
-        IToolBarManager mgr = getViewSite().getActionBars().getToolBarManager();
-        createSwitchDataProviderAction();
-        createSwitchLeaderAction();
-        ActionContributionItem item = null;
-        item = new ActionContributionItem(switchDataProviderAction);
-        item.setMode(ActionContributionItem.MODE_FORCE_TEXT);
-        mgr.add(item);
-        item = new ActionContributionItem(switchLeaderAction);
-        item.setMode(ActionContributionItem.MODE_FORCE_TEXT);
-        mgr.add(switchLeaderAction);
-        // item = new ActionContributionItem(sendMessageAction);
-        // item.setMode(ActionContributionItem.MODE_FORCE_TEXT);
-        super.createToolBar();
+        switchToAction.setMenuCreator(creator);
     }
 
     public void switchDataProvider() {
@@ -125,8 +139,19 @@ public class CollaborationSessionView extends SessionView {
         CollaborationDataManager.getInstance().getSession(sessionId)
                 .sendMessageToVenue(message);
     }
-    // @Override
-    // public void dispose() {
-    // super.dispose();
-    // }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.ui.session.SessionView#fillContextMenu
+     * (org.eclipse.jface.action.IMenuManager)
+     */
+    @Override
+    protected void fillContextMenu(IMenuManager manager) {
+        super.fillContextMenu(manager);
+        // check if data provider
+        // check if session leader
+        manager.add(switchToAction);
+    }
 }
