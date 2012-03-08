@@ -72,7 +72,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * @author mnash
  * @version 1.0
  */
-
+@Deprecated
 public class CollaborationData {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(CollaborationData.class);
