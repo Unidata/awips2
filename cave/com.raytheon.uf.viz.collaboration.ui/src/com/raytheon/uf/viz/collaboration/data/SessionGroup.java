@@ -37,7 +37,18 @@ package com.raytheon.uf.viz.collaboration.data;
  */
 
 public class SessionGroup extends CollaborationGroup {
+    boolean sessionRoot;
+
     public SessionGroup(String id) {
         super(id);
+        this.sessionRoot = false;
+    }
+
+    public boolean isSessionRoot() {
+        return sessionRoot;
+    }
+
+    public void setSessionRoot(boolean sessionRoot) {
+        this.sessionRoot = sessionRoot;
     }
 }
