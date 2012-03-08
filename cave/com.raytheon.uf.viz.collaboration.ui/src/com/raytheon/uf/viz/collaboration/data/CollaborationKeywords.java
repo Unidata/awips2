@@ -1,5 +1,3 @@
-package com.raytheon.uf.viz.collaboration.ui.session;
-
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
@@ -19,8 +17,11 @@ package com.raytheon.uf.viz.collaboration.ui.session;
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
+package com.raytheon.uf.viz.collaboration.data;
 
-import org.eclipse.swt.widgets.Composite;
+import java.util.List;
+
+import javax.xml.bind.annotation.XmlElement;
 
 /**
  * TODO Add Description
@@ -31,22 +32,34 @@ import org.eclipse.swt.widgets.Composite;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 1, 2012            rferrel     Initial creation
+ * Mar 7, 2012            mnash     Initial creation
  * 
  * </pre>
  * 
- * @author rferrel
+ * @author mnash
  * @version 1.0
  */
-public class CollaborationSessionComp extends SessionComp {
 
-    public CollaborationSessionComp(Composite parent) {
-        super(parent);
+public class CollaborationKeywords {
+    @XmlElement(name = "keyword")
+    List<String> keywords;
+
+    /**
+     * @param keywords
+     *            the keywords to set
+     */
+    public void setKeywords(List<String> keywords) {
+        this.keywords = keywords;
     }
 
-    @Override
-    public String getRoomLabel() {
-        return "(C) - " + getRoom();
+    /**
+     * @return the keywords
+     */
+    public List<String> getKeywords() {
+        return keywords;
     }
 
+    public static List<String> parseKeywords() {
+        return null;
+    }
 }
