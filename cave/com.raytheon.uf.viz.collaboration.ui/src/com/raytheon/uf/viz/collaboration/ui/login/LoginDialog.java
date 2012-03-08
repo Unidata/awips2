@@ -104,14 +104,14 @@ public class LoginDialog extends CaveSWTDialogBase {
                 | GridData.HORIZONTAL_ALIGN_FILL));
         // TODO Get user name based on linux log in name and the virtual sever
         // from configuration then combine to make this label
-        userTF.setText("rferrel");
+        // userTF.setText("rferrel");
 
         label = new Label(body, SWT.NONE);
-        label.setText("Sever");
+        label.setText("Server");
         serverTF = new Text(body, SWT.BORDER);
         serverTF.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL
                 | GridData.HORIZONTAL_ALIGN_FILL));
-        serverTF.setText("awipscm.omaha.us.ray.com");
+        // serverTF.setText("awipscm.omaha.us.ray.com");
 
         label = new Label(body, SWT.NONE);
         label.setText("Password: ");
