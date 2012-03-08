@@ -17,10 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.data;
-
-import java.util.ArrayList;
-import java.util.List;
+package com.raytheon.uf.viz.collaboration.ui;
 
 /**
  * TODO Add Description
@@ -31,45 +28,52 @@ import java.util.List;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 22, 2012            mnash     Initial creation
+ * Mar 7, 2012            rferrel     Initial creation
  * 
  * </pre>
  * 
- * @author mnash
+ * @author rferrel
  * @version 1.0
  */
 
-public class CollaborationGroup extends CollaborationNode {
-    protected boolean modifiable;
+public class CreateSessionData {
+    private String name;
 
-    protected List<CollaborationNode> children;
+    private String subject;
 
-    public CollaborationGroup(String id) {
-        super(id);
-        children = new ArrayList<CollaborationNode>();
+    private boolean inviteUsers;
+
+    private String inviteMessage;
+
+    public String getName() {
+        return name;
     }
 
-    /**
-     * @param modifiable
-     *            the modifiable to set
-     */
-    public void setModifiable(boolean modifiable) {
-        this.modifiable = modifiable;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public boolean getModifiable() {
-        return modifiable;
+    public String getSubject() {
+        return subject;
     }
 
-    public void addChild(CollaborationNode child) {
-        children.add(child);
+    public void setSubject(String subject) {
+        this.subject = subject;
     }
 
-    /**
-     * @return the users
-     */
-    public List<CollaborationNode> getChildren() {
-        return children;
+    public boolean isInviteUsers() {
+        return inviteUsers;
     }
 
+    public void setInviteUsers(boolean inviteUsers) {
+        this.inviteUsers = inviteUsers;
+    }
+
+    public String getInviteMessage() {
+        return inviteMessage;
+    }
+
+    public void setInviteMessage(String inviteMessage) {
+        this.inviteMessage = inviteMessage;
+    }
 }
