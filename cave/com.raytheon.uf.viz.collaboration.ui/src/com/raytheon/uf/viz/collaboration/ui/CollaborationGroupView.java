@@ -323,10 +323,10 @@ public class CollaborationGroupView extends ViewPart {
     }
 
     private void createCollaborationSession() {
-        CollaborationDataManager dataManager = CollaborationDataManager
+        CollaborationDataManager manager = CollaborationDataManager
                 .getInstance();
-        SessionManager manager = dataManager.getSessionManager();
-        if (manager == null) {
+        SessionManager sessionManager = manager.getSessionManager();
+        if (sessionManager == null) {
             System.err.println("Unable to get session manager");
             return;
         }
@@ -346,8 +346,8 @@ public class CollaborationGroupView extends ViewPart {
         String sessionId = null;
         try {
 
-            sessionId = dataManager.createCollaborationSession(
-                    result.getName(), result.getSubject());
+            sessionId = manager.createCollaborationSession(result.getName(),
+                    result.getSubject());
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -541,7 +541,7 @@ public class CollaborationGroupView extends ViewPart {
         activeSessionGroup.setSessionRoot(true);
         topLevel.addChild(activeSessionGroup);
 
-        populateActiveSessions(activeSessionGroup);
+        populateActiveSessions();
 
         // TODO get from server.
         for (String g : new String[] { "Mybuddy1", "buddy1" }) {
@@ -582,12 +582,12 @@ public class CollaborationGroupView extends ViewPart {
     }
 
     private void refreshActiveSessions() {
-        activeSessionGroup.removeChildren();
-        populateActiveSessions(activeSessionGroup);
+        populateActiveSessions();
         usersTreeViewer.refresh(activeSessionGroup, true);
     }
 
-    private void populateActiveSessions(SessionGroup sessionGroup) {
+    private void populateActiveSessions() {
+        activeSessionGroup.removeChildren();
         Collection<IVenueInfo> venuList = CollaborationDataManager
                 .getInstance().getSessionManager().getVenueInfo();
         for (IVenueInfo venu : venuList) {
@@ -598,7 +598,7 @@ public class CollaborationGroupView extends ViewPart {
             if (venu.getParticipantCount() > 0) {
                 // TODO add current participants of the venu here.
             }
-            sessionGroup.addChild(gp);
+            activeSessionGroup.addChild(gp);
         }
     }
 
