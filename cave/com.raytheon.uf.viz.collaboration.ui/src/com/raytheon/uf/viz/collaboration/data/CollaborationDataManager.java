@@ -209,4 +209,15 @@ public class CollaborationDataManager {
         }
         return sessionId;
     }
+
+    public String joinCollaborationSession(String venuName, String sessionId) {
+        // String sessionId = venuIdToSessionId(venuName);
+        if (sessionsMap.get(sessionId) == null) {
+            IVenueSession session = getSessionManager()
+                    .createCollaborationSession();
+            session.joinVenue(venuName);
+            sessionsMap.put(sessionId, session);
+        }
+        return sessionId;
+    }
 }
