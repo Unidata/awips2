@@ -29,7 +29,7 @@
                class="com.raytheon.uf.viz.collaboration.ui.CollaborationGroupView"
                id="com.raytheon.uf.viz.collaboration.ui.CollaborationGroupView"
                icon="icons/browser.gif"
-               name="Collaboration Groups"
+               name="Collaboration Information"
                restorable="true"/>
    </extension>
    <extension
