@@ -72,4 +72,22 @@ public class CollaborationGroup extends CollaborationNode {
         return children;
     }
 
+    public void removeChild(CollaborationNode child) {
+        if (children.contains(child)) {
+            if (child instanceof CollaborationGroup) {
+                CollaborationGroup groupNode = (CollaborationGroup) child;
+                groupNode.removeChildren();
+            }
+            children.remove(child);
+        }
+    }
+
+    public void removeChildren() {
+        for (CollaborationNode child : children) {
+            if (child instanceof CollaborationNode) {
+                CollaborationGroup groupNode = (CollaborationGroup) child;
+                groupNode.removeChildren();
+            }
+        }
+    }
 }
