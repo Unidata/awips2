@@ -89,5 +89,6 @@ public class CollaborationGroup extends CollaborationNode {
                 groupNode.removeChildren();
             }
         }
+        children.clear();
     }
 }
