@@ -24,12 +24,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.SessionManager;
-import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
+import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginData;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginDialog;
@@ -77,7 +78,7 @@ public class CollaborationDataManager {
     /**
      * The connection to the server.
      */
-    SessionManager manager;
+    private SessionManager manager;
 
     String loginId;
 
@@ -89,7 +90,7 @@ public class CollaborationDataManager {
     /**
      * Mapping for all active chat sessions.
      */
-    Map<String, ISession> sessionsMap;
+    Map<String, IVenueSession> sessionsMap;
 
     public static CollaborationDataManager getInstance() {
         if (instance == null) {
@@ -98,12 +99,16 @@ public class CollaborationDataManager {
         return instance;
     }
 
+    public String venuIdToSessionId(String venuId) {
+        return venuId.replace(':', ';');
+    }
+
     /**
      * Private constructor to for singleton class.
      */
     private CollaborationDataManager() {
         usersMap = new HashMap<String, DataUser>();
-        sessionsMap = new HashMap<String, ISession>();
+        sessionsMap = new HashMap<String, IVenueSession>();
     }
 
     public String getLoginId() {
@@ -124,14 +129,17 @@ public class CollaborationDataManager {
      * 
      * @return manager or null if unable to get connection.
      */
-    public SessionManager getSessionManager() {
+    synchronized public SessionManager getSessionManager() {
         if (manager == null) {
             VizApp.runSync(new Runnable() {
 
                 @Override
                 public void run() {
-                    LoginDialog dlg = new LoginDialog(Display.getDefault()
-                            .getActiveShell());
+                    Shell shell = Display.getDefault().getActiveShell();
+                    if (shell == null) {
+                        return;
+                    }
+                    LoginDialog dlg = new LoginDialog(shell);
                     LoginData loginData = null;
                     while (manager == null) {
                         loginData = (LoginData) dlg.open();
@@ -143,19 +151,18 @@ public class CollaborationDataManager {
                             manager = new SessionManager(
                                     loginData.getAccount(), loginData
                                             .getPassword());
+                            loginId = loginData.getAccount();
+                            DataUser user = CollaborationDataManager
+                                    .getInstance().getUser(loginId);
+                            user.status = loginData.getStatus();
+                            user.statusMessage = loginData.getMessage();
                         } catch (Exception e) {
                             // TODO Auto-generated catch block. Please
                             // revise as appropriate.
                             statusHandler.handle(Priority.PROBLEM,
                                     e.getLocalizedMessage(), e);
+                            e.printStackTrace();
                         }
-                    }
-                    if (manager != null) {
-                        loginId = loginData.getAccount();
-                        DataUser user = CollaborationDataManager.getInstance()
-                                .getUser(loginId);
-                        user.status = loginData.getStatus();
-                        user.statusMessage = loginData.getMessage();
                     }
                 }
             });
@@ -168,33 +175,38 @@ public class CollaborationDataManager {
         return manager;
     }
 
+    synchronized public void closeManager() {
+        if (manager != null) {
+            manager.closeManager();
+            manager = null;
+        }
+    }
+
     /**
      * @param sessionId
      *            - key to fetch session
      * @return session
      */
-    public ISession getSession(String sessionId) {
+    public IVenueSession getSession(String sessionId) {
         return sessionsMap.get(sessionId);
     }
-
-    private int colRm = 0;
 
     /**
      * @return sessionId
      */
-    public String createCollaborationSession() {
+    public String createCollaborationSession(String venue, String subject) {
         SessionManager manager = getSessionManager();
-        ISession session = manager
-                .createCollaborationSession(SessionManager.SESSION_COLLABORATION);
-        // TODO get unique venue name from server
-        session.createVenue("collaboration-" + ++colRm);
-        String sessionId = session.getVenue().getInfo().getVenueID()
-                .replace(':', ';');
-        // TODO throw an exception if unable to make connection?
-        if (session == null || session.isConnected() == false) {
-            return null;
+        IVenueSession session = manager.createCollaborationSession();
+        int status = session.createVenue(venue, subject);
+        String sessionId = null;
+        if (status == 0) {
+            sessionId = venuIdToSessionId(session.getVenue().getInfo()
+                    .getVenueID());
+            // TODO throw an exception if unable to make connection?
+            if (session.isConnected()) {
+                sessionsMap.put(sessionId, session);
+            }
         }
-        sessionsMap.put(sessionId, session);
         return sessionId;
     }
 }
