@@ -717,7 +717,7 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
      */
     public final void recycle() {
         if (status == ResourceStatus.INITIALIZED) {
-            dispose();
+            disposeInternal();
         }
         status = ResourceStatus.NEW;
         initJob = null;
