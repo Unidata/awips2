@@ -30,6 +30,7 @@ import javax.media.jai.PlanarImage;
 import javax.media.opengl.GL;
 
 import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
+import com.raytheon.uf.viz.core.drawables.IRenderedImage;
 import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.gl.internal.cache.IImageCacheable;
@@ -56,7 +57,8 @@ import com.sun.opengl.util.texture.TextureIO;
  * @author chammack
  * 
  */
-public class GLImage extends AbstractGLImage implements IImageCacheable {
+public class GLImage extends AbstractGLImage implements IRenderedImage,
+        IImageCacheable {
 
     /** The memory resident texture */
     private TextureData theStagedData;
@@ -71,7 +73,8 @@ public class GLImage extends AbstractGLImage implements IImageCacheable {
 
     protected int size;
 
-    public GLImage(IRenderedImageCallback preparer, Class<? extends IImagingExtension> extensionClass) {
+    public GLImage(IRenderedImageCallback preparer,
+            Class<? extends IImagingExtension> extensionClass) {
         super(extensionClass);
         theTexture = null;
         this.imagePreparer = preparer;
@@ -80,7 +83,7 @@ public class GLImage extends AbstractGLImage implements IImageCacheable {
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.viz.core.drawables.IImage#getImage()
+     * @see com.raytheon.viz.core.drawables.IRenderedImage#getImage()
      */
     public RenderedImage getImage() {
         return theImage;

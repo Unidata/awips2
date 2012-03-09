@@ -31,20 +31,16 @@ import javax.media.opengl.GL;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.DrawableImage;
-import com.raytheon.uf.viz.core.IGraphicsTarget.RasterMode;
 import com.raytheon.uf.viz.core.IMesh;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.drawables.IImage;
-import com.raytheon.uf.viz.core.drawables.IImage.Status;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension;
 import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.gl.GLCapabilities;
 import com.raytheon.viz.core.gl.IGLTarget;
-import com.raytheon.viz.core.gl.TextureLoader;
 import com.raytheon.viz.core.gl.glsl.GLSLFactory;
 import com.raytheon.viz.core.gl.glsl.GLShaderProgram;
 import com.raytheon.viz.core.gl.images.AbstractGLImage;
@@ -74,9 +70,6 @@ public abstract class AbstractGLImagingExtension extends
     protected static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractGLImagingExtension.class);
 
-    protected static final TextureLoader textureLoader = TextureLoader
-            .getInstance();
-
     /*
      * (non-Javadoc)
      * 
@@ -95,44 +88,7 @@ public abstract class AbstractGLImagingExtension extends
         target.pushGLState();
         try {
             gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL);
-            List<DrawableImage> renderable = new ArrayList<DrawableImage>(
-                    images.length);
-
-            for (DrawableImage di : images) {
-                IImage image = di.getImage();
-                if (image instanceof AbstractGLImage) {
-                    AbstractGLImage glImage = (AbstractGLImage) image;
-                    RasterMode mode = di.getMode();
-
-                    if (glImage.getStatus() != Status.LOADED) {
-                        if (glImage.getStatus() != Status.STAGED) {
-                            if (mode == RasterMode.ASYNCHRONOUS) {
-                                textureLoader.requestLoad(glImage);
-                                target.setNeedsRefresh(true);
-                            } else if (mode == RasterMode.SYNCHRONOUS) {
-                                glImage.stage();
-                            }
-                        }
-
-                        if (glImage.getStatus() == Status.STAGED) {
-                            glImage.target(target);
-                        }
-                    }
-
-                    if (glImage.getStatus() == IImage.Status.LOADED) {
-                        renderable.add(di);
-                    }
-                } else {
-                    statusHandler
-                            .handle(Priority.PROBLEM,
-                                    "Can only draw AbstractGLImages on AbstractGLImagingExtension");
-                }
-            }
-
-            rval = drawRastersInternal(paintProps,
-                    renderable.toArray(new DrawableImage[renderable.size()]))
-                    && (renderable.size() == images.length);
-
+            rval = drawRastersInternal(paintProps, images);
             gl.glPolygonMode(GL.GL_BACK, GL.GL_LINE);
             gl.glDisable(GL.GL_BLEND);
         } finally {
