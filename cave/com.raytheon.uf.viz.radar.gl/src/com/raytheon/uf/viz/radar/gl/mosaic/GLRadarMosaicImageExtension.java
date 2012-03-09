@@ -96,7 +96,10 @@ public class GLRadarMosaicImageExtension extends AbstractGLSLImagingExtension
                         .getExtension(IOffscreenRenderingExtension.class);
                 try {
                     extension.renderOffscreen(mosaicImage);
-                    drawRasters(paintProps, mosaicImage.getImagesToMosaic());
+                    DrawableImage[] imagesToMosaic = mosaicImage
+                            .getImagesToMosaic();
+                    ImagingSupport.prepareImages(target, imagesToMosaic);
+                    drawRasters(paintProps, imagesToMosaic);
                 } finally {
                     extension.renderOnscreen();
                 }

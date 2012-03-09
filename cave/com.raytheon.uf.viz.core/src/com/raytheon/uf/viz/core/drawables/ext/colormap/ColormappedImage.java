@@ -237,4 +237,16 @@ public class ColormappedImage implements IColormappedImage,
         image.stage();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.drawables.IImage#target(com.raytheon.uf.viz.
+     * core.IGraphicsTarget)
+     */
+    @Override
+    public void target(IGraphicsTarget target) throws VizException {
+        image.target(target);
+    }
+
 }

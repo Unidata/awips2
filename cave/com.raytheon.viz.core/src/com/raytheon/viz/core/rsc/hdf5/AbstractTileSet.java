@@ -51,7 +51,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.AbstractGraphicsFactoryAdapter;
 import com.raytheon.uf.viz.core.DrawableImage;
-import com.raytheon.uf.viz.core.GraphicsFactory;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.RasterMode;
@@ -192,7 +191,6 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
         this.tileSize = tileSize;
         this.rsc = rsc;
         this.cellOrientation = pixelOrientation;
-        graphicsAdapter = GraphicsFactory.getGraphicsAdapter(viewType);
         setup(levels, tileSize, gridGeometry);
     }
 
@@ -216,7 +214,6 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
             this.rsc = rsc;
         }
         setSharedGeometryTileSet(sharedGeometryTileset);
-        disposed = false;
     }
 
     /**
@@ -261,7 +258,6 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
 
     protected void setup(int levels, int tileSize, GridGeometry2D gridGeometry)
             throws VizException {
-        disposed = false;
         this.levels = levels;
         try {
 
@@ -677,6 +673,7 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
     }
 
     public void init(IGraphicsTarget target) throws VizException {
+        disposed = false;
         this.lastPaintedTarget = target;
 
         if (this.sharedGeometryTileSet == null) {
@@ -722,7 +719,6 @@ public abstract class AbstractTileSet implements IRenderable, IMeshCallback {
         this.originalGridGeometry = sharedGeometryTileset.originalGridGeometry;
         this.originalMathTransform = sharedGeometryTileset.originalMathTransform;
         this.cellOrientation = sharedGeometryTileset.cellOrientation;
-        this.graphicsAdapter = sharedGeometryTileset.graphicsAdapter;
     }
 
     public void reproject() throws VizException {
