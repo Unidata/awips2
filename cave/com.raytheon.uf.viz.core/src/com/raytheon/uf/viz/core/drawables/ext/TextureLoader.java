@@ -18,17 +18,19 @@
  * further licensing information.
  **/
 
-package com.raytheon.viz.core.gl;
+package com.raytheon.uf.viz.core.drawables.ext;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.ui.services.IDisposable;
+
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.drawables.IImage.Status;
+import com.raytheon.uf.viz.core.Activator;
+import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.jobs.JobPool;
-import com.raytheon.viz.core.gl.images.AbstractGLImage;
 
 /**
  * Class that loads data for AbstractGLImages asynchronously
@@ -56,7 +58,7 @@ public class TextureLoader {
 
     private JobPool loaderPool;
 
-    private List<AbstractGLImage> texturesToLoad;
+    private List<IImage> texturesToLoad;
 
     /**
      * Get the currently running instance of the texture loader
@@ -75,9 +77,16 @@ public class TextureLoader {
      * 
      */
     private TextureLoader() {
-        this.texturesToLoad = new ArrayList<AbstractGLImage>();
+        this.texturesToLoad = new ArrayList<IImage>();
         this.loaderPool = new JobPool("Texture Loader", Runtime.getRuntime()
                 .availableProcessors(), true);
+        // Make sure we get shutdown properly
+        Activator.getDefault().registerDisposable(new IDisposable() {
+            @Override
+            public void dispose() {
+                shutdown();
+            }
+        });
     }
 
     /**
@@ -86,7 +95,7 @@ public class TextureLoader {
      * @param img
      *            the image
      */
-    public void requestLoad(final AbstractGLImage img) {
+    public void requestLoad(final IImage img) {
         if (!texturesToLoad.contains(img)) {
             texturesToLoad.add(img);
             loaderPool.schedule(new Runnable() {
@@ -96,7 +105,6 @@ public class TextureLoader {
                         try {
                             img.stage();
                         } catch (Throwable t) {
-                            img.setStatus(Status.FAILED);
                             statusHandler.handle(
                                     Priority.PROBLEM,
                                     "Error staging texture: "
