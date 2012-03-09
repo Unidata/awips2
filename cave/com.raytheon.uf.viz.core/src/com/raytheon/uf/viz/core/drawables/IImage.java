@@ -20,6 +20,7 @@
 
 package com.raytheon.uf.viz.core.drawables;
 
+import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 
@@ -70,6 +71,16 @@ public interface IImage {
      * Stages any data required for the image to load/draw
      */
     public abstract void stage() throws VizException;
+
+    /**
+     * Load the staged data into something that can be used by the target.
+     * Errors may be thrown if image is not in correct state when called, see
+     * getStatus() to check image state
+     * 
+     * @param target
+     * @throws VizException
+     */
+    public abstract void target(IGraphicsTarget target) throws VizException;
 
     /**
      * @return the status

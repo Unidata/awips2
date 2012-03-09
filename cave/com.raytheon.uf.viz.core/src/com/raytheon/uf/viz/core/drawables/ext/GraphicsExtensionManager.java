@@ -81,6 +81,11 @@ public class GraphicsExtensionManager {
                 try {
                     graphicsExt = GraphicsExtension.class.cast(eClass
                             .newInstance());
+                    int val = graphicsExt.setTarget(target);
+                    if (val > bestVal) {
+                        bestVal = val;
+                        bestExt = extensionClass.cast(graphicsExt);
+                    }
                 } catch (InstantiationException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             e.getLocalizedMessage(), e);
@@ -89,11 +94,6 @@ public class GraphicsExtensionManager {
                     statusHandler.handle(Priority.PROBLEM,
                             e.getLocalizedMessage(), e);
                     continue;
-                }
-                int val = graphicsExt.setTarget(target);
-                if (val > bestVal) {
-                    bestVal = val;
-                    bestExt = extensionClass.cast(graphicsExt);
                 }
             }
         }
