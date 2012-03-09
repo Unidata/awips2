@@ -82,6 +82,7 @@ import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IFont.Style;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
+import com.raytheon.uf.viz.core.drawables.IRenderedImage;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -99,7 +100,6 @@ import com.raytheon.viz.core.gl.IGLFont;
 import com.raytheon.viz.core.gl.IGLTarget;
 import com.raytheon.viz.core.gl.glsl.GLSLFactory;
 import com.raytheon.viz.core.gl.glsl.GLShaderProgram;
-import com.raytheon.viz.core.gl.images.AbstractGLImage;
 import com.raytheon.viz.core.gl.images.GLColormappedImage;
 import com.raytheon.viz.core.gl.images.GLImage;
 import com.raytheon.viz.core.gl.internal.ext.GLColormappedImageExtension;
@@ -1044,34 +1044,7 @@ public class GLTarget implements IGLTarget {
     @Override
     public boolean drawRasters(PaintProperties paintProps,
             DrawableImage... images) throws VizException {
-        boolean rval = true;
-        List<DrawableImage> bulk = new ArrayList<DrawableImage>();
-        Class<? extends IImagingExtension> lastExt = null;
-        for (DrawableImage di : images) {
-            IImage image = di.getImage();
-            Class<? extends IImagingExtension> imageExt = image
-                    .getExtensionClass();
-            if (imageExt.equals(lastExt) == false && bulk.size() > 0) {
-                DrawableImage[] extImages = bulk.toArray(new DrawableImage[bulk
-                        .size()]);
-                // Render what we have
-                IImagingExtension impl = getExtension(lastExt);
-                rval &= impl.drawRasters(paintProps, extImages);
-                bulk.clear();
-            }
-
-            bulk.add(di);
-            lastExt = imageExt;
-        }
-
-        if (bulk.size() > 0) {
-            // Render what is left
-            IImagingExtension impl = getExtension(lastExt);
-            rval &= impl.drawRasters(paintProps,
-                    bulk.toArray(new DrawableImage[bulk.size()]));
-        }
-
-        return rval;
+        return ImagingSupport.drawRasters(this, paintProps, images);
     }
 
     /*
@@ -1814,15 +1787,8 @@ public class GLTarget implements IGLTarget {
      * .uf.viz.core.data.IRenderedImageCallback)
      */
     @Override
-    public AbstractGLImage initializeRaster(IRenderedImageCallback imageCallback) {
-        GLImage image = new GLImage(imageCallback,
-                GLDefaultImagingExtension.class);
-        try {
-            image.stage();
-        } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM, "Error staging texture", e);
-        }
-        return image;
+    public IRenderedImage initializeRaster(IRenderedImageCallback imageCallback) {
+        return new GLImage(imageCallback, GLDefaultImagingExtension.class);
     }
 
     /*
