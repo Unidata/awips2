@@ -58,7 +58,7 @@ public class CollaborationGroupAction extends AbstractHandler {
                     .getActivePage().showView(CollaborationGroupView.ID);
         } catch (PartInitException e) {
             statusHandler.handle(Priority.PROBLEM,
-                    "Unable to open collaboration", e);
+                    "Unable to open collaboration contact list", e);
         }
         return event;
     }
