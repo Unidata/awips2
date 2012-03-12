@@ -35,7 +35,7 @@ import com.raytheon.uf.viz.collaboration.data.CollaborationGroup;
 import com.raytheon.uf.viz.collaboration.data.CollaborationNode;
 import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
 import com.raytheon.uf.viz.collaboration.data.DataUser;
-import com.raytheon.uf.viz.collaboration.data.DataUser.StatusType;
+import com.raytheon.uf.viz.collaboration.data.SessionGroup;
 
 /**
  * Methods for sending, receiving messages
@@ -75,14 +75,24 @@ public class CollaborationUtils {
         if (node instanceof CollaborationUser) {
             CollaborationUser user = (CollaborationUser) node;
             if (user.getStatus() == DataUser.StatusType.AVAILABLE) {
-                nodeImage = getImageDescriptor("online.gif").createImage();
+                nodeImage = getImageDescriptor("available.gif").createImage();
             } else if (user.getStatus() == DataUser.StatusType.AWAY) {
                 nodeImage = getImageDescriptor("away.gif").createImage();
-            } else if (user.getStatus() == DataUser.StatusType.MEETING) {
-                nodeImage = getImageDescriptor("busy.gif").createImage();
+            } else if (user.getStatus() == DataUser.StatusType.DO_NOT_DISTURB) {
+                nodeImage = getImageDescriptor("do_not_disturb.gif")
+                        .createImage();
+            } else {
+                nodeImage = getImageDescriptor("available.gif").createImage();
+            }
+        } else if (node instanceof SessionGroup) {
+            if (!((SessionGroup) node).isSessionRoot()) {
+                nodeImage = getImageDescriptor("group.gif").createImage();
+            } else {
+                // nodeImage = getImageDescriptor("").createImage();
+
             }
         } else if (node instanceof CollaborationGroup) {
-            nodeImage = null;
+            nodeImage = getImageDescriptor("group.gif").createImage();
         }
         return nodeImage;
     }
