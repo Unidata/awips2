@@ -281,7 +281,7 @@ public class ScanTestDataPopulator {
          */
         private void copyFile(File file) {
 
-            File outfile = new File(MANUAL_INGEST_DIR + "/" + file.getName());
+            File outfile = new File(MANUAL_INGEST_DIR + "/scanTestDataPopulator/" + file.getName());
             InputStream in = null;
             try {
                 in = new FileInputStream(file);
