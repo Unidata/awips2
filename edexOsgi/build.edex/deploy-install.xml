@@ -7,8 +7,9 @@
 	<property name="git.working.dir" value="" />
 	<property name="component.to.deploy" value="" />
 	<property name="update.python" value="true" />
-	<property name="localization.sites" value="" />
+	<property name="localization.sites" value="OAX" />
 	<property name="python.version.dir" value="python2.7" />
+	<property name="git" value="false" />
 	
 	<property name="native.target" value="i386-pc-linux-gnu" />
 	<property name="props.dir" location="${basedir}/properties" />
@@ -43,8 +44,8 @@
 		<echo message="BUILD TIME   = ${build.time}" />
 		<echo message="BUILD SYSTEM = ${build.system}" />
 
-                <if>
-                	<equals arg1="${installer}" arg2="false" />
+		<if>
+        	<equals arg1="${git}" arg2="true" />
 			<then>
 			<!-- Ensure the git working directory has been set. -->
 			<if>
@@ -68,8 +69,17 @@
 			</then>
 		</if>
 		
-		<var name="projects.dirs" 
-			value="${git.working.dir}/cots;${git.working.dir}/edexOsgi;${git.working.dir}/ncep;${git.working.dir}/RadarServer" />
+		<if>
+			<equals arg1="${git}" arg2="true" />
+			<then>
+				<var name="projects.dirs" 
+					value="${git.working.dir}/cots;${git.working.dir}/edexOsgi;${git.working.dir}/ncep;${git.working.dir}/RadarServer" />
+			</then>
+			<else>
+				<var name="projects.dirs"
+					value="${basedir}/../" />
+			</else>
+		</if>
 
 		<for param="propFile">
 			<path id="propertyset">
@@ -202,32 +212,76 @@
 	
 	<!-- deploys core components to ${esbDir}/lib/plugins -->
 	<target name="deploy.core.developer">
+		<if>
+			<equals arg1="${git}" arg2="true" />
+			<then>
+				<antcall target="deploy.core.developer.multi" />
+			</then>
+			<else>
+				<antcall target="deploy.core.developer.single" />
+			</else>
+		</if>
+	</target>
+	
+	<target name="deploy.core.developer.single">
+		<subant failonerror="true" inheritAll="false" inheritRefs="false">
+			<fileset dir="${projects.dirs}" 
+				includesfile="${includes.dir}/core.includes" 
+				excludes="com.raytheon.edex.plugin.*/component-deploy.xml" />
+			<target name="deploy" />
+			<property name="dest.dir" value="${esbDir}/lib/plugins" />
+			<!-- This following property turns on individual component utility deployment -->
+			<property name="util.dest.dir" location="${utilDir}" />
+		</subant>		
+	</target>
+	
+	<target name="deploy.core.developer.multi">
 		<subant failonerror="true" inheritAll="false" inheritRefs="false">
 			<fileset dir="${git.working.dir}/edexOsgi" includesfile="${includes.dir}/core.includes" excludes="com.raytheon.edex.plugin.*/component-deploy.xml" />
 			<target name="deploy" />
 			<property name="dest.dir" value="${esbDir}/lib/plugins" />
-			<!-- This following propetry turns on individual component utility deployment -->
+			<!-- This following property turns on individual component utility deployment -->
 			<property name="util.dest.dir" location="${utilDir}" />
 		</subant>
 		<subant failonerror="true" inheritAll="false" inheritRefs="false">
 			<fileset dir="${git.working.dir}/ncep" includesfile="${includes.dir}/core.includes" excludes="com.raytheon.edex.plugin.*/component-deploy.xml" />
 			<target name="deploy" />
 			<property name="dest.dir" value="${esbDir}/lib/plugins" />
-			<!-- This following propetry turns on individual component utility deployment -->
+			<!-- This following property turns on individual component utility deployment -->
 			<property name="util.dest.dir" location="${utilDir}" />
 		</subant>
 		<subant failonerror="true" inheritAll="false" inheritRefs="false">
 			<fileset dir="${git.working.dir}/RadarServer" includesfile="${includes.dir}/core.includes" excludes="com.raytheon.edex.plugin.*/component-deploy.xml" />
 			<target name="deploy" />
 			<property name="dest.dir" value="${esbDir}/lib/plugins" />
-			<!-- This following propetry turns on individual component utility deployment -->
+			<!-- This following property turns on individual component utility deployment -->
 			<property name="util.dest.dir" location="${utilDir}" />
 		</subant>
 	</target>
 	
-	<!-- deploy third party jars to ${esbDir}/lib/dependencies -->
+	<!-- deploy third party jars to ${esbDir}/lib/dependencies -->	
 	<target name="deploy.cots.developer">
-
+		<if>
+			<equals arg1="${git}" arg2="true" />
+			<then>
+				<antcall target="deploy.cots.developer.multi" />
+			</then>
+			<else>
+				<antcall target="deploy.cots.developer.single" />
+			</else>
+		</if>
+	</target>
+	
+	<target name="deploy.cots.developer.single">
+		<!-- OSGi cots that have their own projects -->
+		<copy todir="${esbDir}/lib/dependencies" flatten="false">
+			<fileset dir="${projects.dirs}">
+				<includesfile name="${includes.dir}/cots.includes" />
+			</fileset>
+		</copy>		
+	</target>
+	
+	<target name="deploy.cots.developer.multi">
 		<!-- OSGi cots that have their own projects -->
 		<copy todir="${esbDir}/lib/dependencies" flatten="false">
 			<fileset dir="${git.working.dir}/cots">
@@ -248,25 +302,48 @@
 		
 	<!-- deploys plugins to ${esbDir}/lib/plugins -->
 	<target name="deploy.plugins.developer">
+		<if>
+			<equals arg1="${git}" arg2="true" />
+			<then>
+				<antcall target="deploy.plugins.developer.multi" />
+			</then>
+			<else>
+				<antcall target="deploy.plugins.developer.single" />
+			</else>
+		</if>
+	</target>
+	
+	<target name="deploy.plugins.developer.single">
+		<subant failonerror="true" inheritAll="false" inheritRefs="false">
+			<fileset dir="${projects.dirs}"
+				includesfile="${includes.dir}/plugins.includes" />
+			<target name="deploy" />
+			<property name="dest.dir" value="${esbDir}/lib/plugins" />
+			<!-- This following property turns on individual component utility deployment -->
+			<property name="util.dest.dir" location="${utilDir}" />
+		</subant>
+	</target>
+	
+	<target name="deploy.plugins.developer.multi">
 		<subant failonerror="true" inheritAll="false" inheritRefs="false">
 			<fileset dir="${git.working.dir}/edexOsgi" includesfile="${includes.dir}/plugins.includes" />
 			<target name="deploy" />
 			<property name="dest.dir" value="${esbDir}/lib/plugins" />
-			<!-- This following propetry turns on individual component utility deployment -->
+			<!-- This following property turns on individual component utility deployment -->
 			<property name="util.dest.dir" location="${utilDir}" />
 		</subant>
 		<subant failonerror="true" inheritAll="false" inheritRefs="false">
 			<fileset dir="${git.working.dir}/ncep" includesfile="${includes.dir}/plugins.includes" />
 			<target name="deploy" />
 			<property name="dest.dir" value="${esbDir}/lib/plugins" />
-			<!-- This following propetry turns on individual component utility deployment -->
+			<!-- This following property turns on individual component utility deployment -->
 			<property name="util.dest.dir" location="${utilDir}" />
 		</subant>
 		<subant failonerror="true" inheritAll="false" inheritRefs="false">
 			<fileset dir="${git.working.dir}/RadarServer" includesfile="${includes.dir}/plugins.includes" />
 			<target name="deploy" />
 			<property name="dest.dir" value="${esbDir}/lib/plugins" />
-			<!-- This following propetry turns on individual component utility deployment -->
+			<!-- This following property turns on individual component utility deployment -->
 			<property name="util.dest.dir" location="${utilDir}" />
 		</subant>
 	</target>
@@ -276,16 +353,28 @@
 			<fileset dir="${working.dir}" includesfile="${includes.dir}/plugins.includes" />
 			<target name="deploy" />
 			<property name="dest.dir" value="${esbDir}/lib/plugins" />
-			<!-- This following propetry turns on individual component utility deployment -->
+			<!-- This following property turns on individual component utility deployment -->
 			<property name="util.dest.dir" location="${utilDir}" />
 		</subant>
 	</target>
 	
 	<!-- deploy ufpy and dynamicserialize to awips2-python -->
 	<target name="deploy.python">
+		<if>
+			<equals arg1="${git}" arg2="true" />
+			<then>
+				<var name="pythonPackages.root"
+					value="${git.working.dir}" />
+			</then>
+			<else>
+				<var name="pythonPackages.root"
+					value="${projects.dirs}" />
+			</else>
+		</if>
+		
 		<!-- Ensure That The pythonPackages Project Is In The Workspace. -->
 		<if>
-			<available file="${git.working.dir}/pythonPackages/ufpy" type="dir" />
+			<available file="${pythonPackages.root}/pythonPackages/ufpy" type="dir" />
 			<then>
 				<!-- Continue -->
 			</then>
@@ -295,7 +384,7 @@
 		</if>
 		
 		<if>
-			<available file="${git.working.dir}/pythonPackages/dynamicserialize" 
+			<available file="${pythonPackages.root}/pythonPackages/dynamicserialize" 
 				type="dir" />
 			<then>
 				<!-- Continue -->
@@ -306,7 +395,7 @@
 		</if>
 		
 		<if>
-			<available file="${git.working.dir}/pythonPackages/pypies"
+			<available file="${pythonPackages.root}/pythonPackages/pypies"
 				type="dir" />
 			<then>
 				<!-- Continue -->
@@ -369,17 +458,17 @@
 		<!-- Update ufpy, dynamicserialize, and pypies -->
 		<copy todir="${python.installation.root}/lib/${python.version.dir}/site-packages/ufpy" 
 			flatten="false">
-			<fileset dir="${git.working.dir}/pythonPackages/ufpy" />
+			<fileset dir="${pythonPackages.root}/pythonPackages/ufpy" />
 		</copy>		
 		
 		<copy todir="${python.installation.root}/lib/${python.version.dir}/site-packages/dynamicserialize" 
 			flatten="false">
-			<fileset dir="${git.working.dir}/pythonPackages/dynamicserialize" />
+			<fileset dir="${pythonPackages.root}/pythonPackages/dynamicserialize" />
 		</copy>
 		
 		<copy todir="${python.installation.root}/lib/${python.version.dir}/site-packages/pypies"
 			flatten="false">
-			<fileset dir="${git.working.dir}/pythonPackages/pypies/pypies" />
+			<fileset dir="${pythonPackages.root}/pythonPackages/pypies/pypies" />
 		</copy>
 	</target>
 	
@@ -454,11 +543,24 @@
 	</target>
 	
 	<target name="deploy.localization.site">
+		
+		<if>
+			<equals arg1="${git}" arg2="true" />
+			<then>
+				<var name="localization.root" 
+					value="${git.working.dir}/localization" />
+			</then>
+			<else>
+				<var name="localization.root"
+					value="${projects.dirs}" />
+			</else>
+		</if>
+		
 		<!-- Ensure that the localization directory for the specified site exists
 		in the localization project. -->
 		<if>
 			<not>
-				<available file="${git.working.dir}/localization/localization.${site}"
+				<available file="${localization.root}/localization.${site}"
 					type="dir" />
 			</not>
 			<then>
@@ -472,7 +574,7 @@
 			<try>
 				<copy todir="${install.dir}/data/utility"
 				flatten="false" verbose="true">
-					<fileset dir="${git.working.dir}/localization/localization.${site}/utility" />
+					<fileset dir="${localization.root}/localization.${site}/utility" />
 				</copy>
 			</try>
 			
