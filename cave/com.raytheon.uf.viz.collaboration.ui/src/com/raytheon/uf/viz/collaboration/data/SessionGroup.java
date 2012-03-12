@@ -51,4 +51,15 @@ public class SessionGroup extends CollaborationGroup {
     public void setSessionRoot(boolean sessionRoot) {
         this.sessionRoot = sessionRoot;
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.data.CollaborationNode#getImageKey()
+     */
+    @Override
+    public String getImageKey() {
+        return "session";
+    }
 }

@@ -30,6 +30,7 @@ import org.eclipse.swt.graphics.Image;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
 import com.raytheon.uf.viz.collaboration.data.DataUser.RoleType;
+import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 
 /**
  * TODO Add Description
@@ -81,8 +82,9 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
     @Override
     public Image getColumnImage(Object element, int columnIndex) {
         System.out.println("getColumnImage");
-        // TODO Auto-generated method stub
-        return null;
+        CollaborationUser user = (CollaborationUser) element;
+        CollaborationDataManager.getInstance().getUser(user.getId());
+        return CollaborationUtils.getNodeImage(user);
     }
 
     @Override
