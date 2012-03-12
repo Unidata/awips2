@@ -111,7 +111,8 @@ public class LoginDialog extends CaveSWTDialogBase {
         serverTF = new Text(body, SWT.BORDER);
         serverTF.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL
                 | GridData.HORIZONTAL_ALIGN_FILL));
-        // serverTF.setText("awipscm.omaha.us.ray.com");
+        serverTF.setText("awipscm.omaha.us.ray.com");
+        serverTF.setEnabled(false);
 
         label = new Label(body, SWT.NONE);
         label.setText("Password: ");
