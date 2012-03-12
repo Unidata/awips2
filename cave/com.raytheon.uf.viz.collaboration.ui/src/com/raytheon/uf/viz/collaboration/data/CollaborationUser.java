@@ -1,5 +1,9 @@
 package com.raytheon.uf.viz.collaboration.data;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
+import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Mode;
+import com.raytheon.uf.viz.collaboration.data.DataUser.StatusType;
+
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
@@ -91,6 +95,16 @@ public class CollaborationUser extends CollaborationNode implements
 
     public void setStatus(DataUser.StatusType status) {
         CollaborationDataManager.getInstance().getUser(id).status = status;
+    }
+
+    public void setStatus(IPresence.Mode mode) {
+        if (mode.getMode().equals(Mode.AWAY)) {
+            CollaborationDataManager.getInstance().getUser(id).status = StatusType.AWAY;
+        } else if (mode.getMode().equals(Mode.DND)) {
+            CollaborationDataManager.getInstance().getUser(id).status = StatusType.DO_NOT_DISTURB;
+        } else if (mode.getMode().equals(Mode.AVAILABLE)) {
+            CollaborationDataManager.getInstance().getUser(id).status = StatusType.AVAILABLE;
+        }
     }
 
     public String getStatusMessage() {
