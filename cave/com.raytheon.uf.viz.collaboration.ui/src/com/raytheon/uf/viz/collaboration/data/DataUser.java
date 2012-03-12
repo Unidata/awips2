@@ -45,8 +45,8 @@ import java.util.Map;
 
 public class DataUser {
     public static enum StatusType {
-        AVAILABLE("Available"), AWAY("Away"), MEETING("In A Meeting"), DO_NOT_DISTURB(
-                "Do Not Disturb"), NOT_ON_LINE("UnAvailable");
+        AVAILABLE("Available"), AWAY("Away"), DO_NOT_DISTURB("Do Not Disturb"), NOT_ON_LINE(
+                "UnAvailable");
 
         private final String value;
 
@@ -176,5 +176,20 @@ public class DataUser {
 
     public String getSessString(String key) {
         return sessionsMap.get(key);
+    }
+
+    /**
+     * @param status
+     *            the status to set
+     */
+    public void setStatus(StatusType status) {
+        this.status = status;
+    }
+
+    /**
+     * @return the status
+     */
+    public StatusType getStatus() {
+        return status;
     }
 }
