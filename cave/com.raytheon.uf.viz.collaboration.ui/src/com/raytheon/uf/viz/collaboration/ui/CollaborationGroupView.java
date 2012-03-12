@@ -34,9 +34,15 @@ import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.TreeEditor;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -44,6 +50,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
@@ -99,7 +106,7 @@ public class CollaborationGroupView extends ViewPart {
 
     private Action collaborateAction;
 
-    private Action privateChatAction;
+    private Action linkToEditorAction;
 
     private Action inviteAction;
 
@@ -127,6 +134,10 @@ public class CollaborationGroupView extends ViewPart {
 
     private Action refreshActiveSessionsAction;
 
+    private Action collapseAllAction;
+
+    private TreeEditor treeEditor;
+
     /**
      * @param parent
      */
@@ -136,6 +147,7 @@ public class CollaborationGroupView extends ViewPart {
         createToolbar();
         createMenubar();
         createUsersTree(parent);
+        addDoubleClickListeners();
         createContextMenu();
 
         SessionManager manger = CollaborationDataManager.getInstance()
@@ -151,28 +163,28 @@ public class CollaborationGroupView extends ViewPart {
      * 
      */
     private void createActions() {
-        joinCollaborationAction = new Action("Join...") {
-            @Override
-            public void run() {
-                System.out.println("this join with menu goes away.");
-            }
-        };
-        joinCollaborationAction
-                .setToolTipText("Select a Collaboration\nroom to join.");
 
         collaborateAction = new Action("Create Session...") {
             @Override
             public void run() {
                 createCollaborationSession();
             }
-        };
 
-        privateChatAction = new Action("Chat") {
+        };
+        collaborateAction.setImageDescriptor(CollaborationUtils
+                .getImageDescriptor("add_collaborate.gif"));
+
+        linkToEditorAction = new Action("Link Editor to Chat Session",
+                Action.AS_CHECK_BOX) {
             @Override
             public void run() {
-                createPrivateChat();
+                // TODO
+                System.out.println("Link to editor here");
+                // createPrivateChat();
             }
         };
+        linkToEditorAction.setImageDescriptor(CollaborationUtils
+                .getImageDescriptor("link_to_editor.gif"));
 
         inviteAction = new Action("Invite...") {
             @Override
@@ -180,8 +192,10 @@ public class CollaborationGroupView extends ViewPart {
                 System.out.println("Invite...");
             };
         };
+        inviteAction.setImageDescriptor(CollaborationUtils
+                .getImageDescriptor("invite.gif"));
 
-        joinAction = new Action("Join") {
+        joinAction = new Action("Join Session") {
             @Override
             public void run() {
                 createJoinCollaboration();
@@ -205,10 +219,13 @@ public class CollaborationGroupView extends ViewPart {
                 }
             };
         };
+        logoutAction.setImageDescriptor(CollaborationUtils
+                .getImageDescriptor("logout.gif"));
 
         aliasAction = new Action("Alias") {
             @Override
             public void run() {
+                aliasItem();
                 System.out.println("Alias");
             };
         };
@@ -216,15 +233,18 @@ public class CollaborationGroupView extends ViewPart {
         addUserAction = new Action("Add User") {
             public void run() {
                 System.out.println("Add User");
-
             };
         };
+        addUserAction.setImageDescriptor(CollaborationUtils
+                .getImageDescriptor("add_contact.gif"));
 
         addGroupAction = new Action("Add Group") {
             public void run() {
                 System.out.println("Add group");
             };
         };
+        addGroupAction.setImageDescriptor(CollaborationUtils
+                .getImageDescriptor("add_group.gif"));
 
         changeMessageAction = new Action("Change Message...") {
             public void run() {
@@ -254,6 +274,14 @@ public class CollaborationGroupView extends ViewPart {
         refreshActiveSessionsAction
                 .setToolTipText("Refresh the Active Sessions Entries.");
 
+        collapseAllAction = new Action("Collapse All") {
+            public void run() {
+                usersTreeViewer.collapseAll();
+            }
+        };
+        collapseAllAction.setImageDescriptor(CollaborationUtils
+                .getImageDescriptor("collapseall.gif"));
+
         IMenuCreator creator = new IMenuCreator() {
 
             Menu menu;
@@ -261,14 +289,14 @@ public class CollaborationGroupView extends ViewPart {
             @Override
             public Menu getMenu(Menu parent) {
                 menu = new Menu(parent);
-                fillStatusMeu(menu);
+                fillStatusMenu(menu);
                 return menu;
             }
 
             @Override
             public Menu getMenu(Control parent) {
                 menu = new Menu(parent);
-                fillStatusMeu(menu);
+                fillStatusMenu(menu);
                 return menu;
             }
 
@@ -289,10 +317,37 @@ public class CollaborationGroupView extends ViewPart {
         };
     }
 
-    private void fillStatusMeu(Menu menu) {
+    /**
+     * 
+     */
+    protected void aliasItem() {
+        Control oldEditor = treeEditor.getEditor();
+        if (oldEditor != null) {
+            oldEditor.dispose();
+        }
+        TreeSelection selection = (TreeSelection) usersTreeViewer
+                .getSelection();
+        selection.getFirstElement();
+
+        Text newEditor = new Text(usersTreeViewer.getTree(), SWT.NONE);
+        newEditor.setText(((CollaborationNode) selection.getFirstElement())
+                .getId());
+        newEditor.addModifyListener(new ModifyListener() {
+            public void modifyText(ModifyEvent e) {
+                Text text = (Text) treeEditor.getEditor();
+                treeEditor.getItem().setText(text.getText());
+            }
+        });
+        newEditor.selectAll();
+        newEditor.setFocus();
+        treeEditor.setEditor(newEditor, usersTreeViewer.getTree()
+                .getSelection()[0]);
+
+    }
+
+    private void fillStatusMenu(Menu menu) {
         for (DataUser.StatusType type : DataUser.StatusType.values()) {
             if (type != DataUser.StatusType.NOT_ON_LINE) {
-                System.out.println(type + " " + type.value());
                 Action action = new Action(type.value()) {
                     public void run() {
                         changeStatusAction.setId(getId());
@@ -301,6 +356,8 @@ public class CollaborationGroupView extends ViewPart {
                 };
                 action.setId(type.name());
                 ActionContributionItem item = new ActionContributionItem(action);
+                action.setImageDescriptor(CollaborationUtils
+                        .getImageDescriptor(type.name().toLowerCase() + ".gif"));
                 item.fill(menu, -1);
             }
         }
@@ -310,12 +367,17 @@ public class CollaborationGroupView extends ViewPart {
         IToolBarManager mgr = getViewSite().getActionBars().getToolBarManager();
         // mgr.add(joinCollaborationAction);
         mgr.add(collaborateAction);
+        mgr.add(collapseAllAction);
         // mgr.add(privateChatAction);
-        mgr.add(inviteAction);
+        mgr.add(linkToEditorAction);
     }
 
     private void createMenubar() {
         IMenuManager mgr = getViewSite().getActionBars().getMenuManager();
+        createMenu(mgr);
+    }
+
+    private void createMenu(IMenuManager mgr) {
         mgr.add(changeStatusAction);
         mgr.add(changeMessageAction);
         mgr.add(changePasswordAction);
@@ -447,6 +509,8 @@ public class CollaborationGroupView extends ViewPart {
         usersTreeViewer.setContentProvider(new UsersTreeContentProvider());
         usersTreeViewer.setLabelProvider(new UsersTreeLabelProvider());
         usersTreeViewer.setSorter(new UsersTreeViewerSorter());
+
+        treeEditor = new TreeEditor(usersTreeViewer.getTree());
     }
 
     private void createContextMenu() {
@@ -475,10 +539,7 @@ public class CollaborationGroupView extends ViewPart {
                 .getSelection();
         Object o = selection.getFirstElement();
         if (o instanceof LoginUser) {
-            manager.add(changeStatusAction);
-            manager.add(changeMessageAction);
-            manager.add(changePasswordAction);
-            manager.add(logoutAction);
+            createMenu(manager);
             return;
         }
 
@@ -578,6 +639,7 @@ public class CollaborationGroupView extends ViewPart {
                 break;
             }
         }
+        usersTreeViewer.setInput(topLevel);
         usersTreeViewer.refresh(topLevel, true);
     }
 
@@ -663,5 +725,21 @@ public class CollaborationGroupView extends ViewPart {
     public void setFocus() {
         // TODO Auto-generated method stub
 
+    }
+
+    private void addDoubleClickListeners() {
+        usersTreeViewer.addDoubleClickListener(new IDoubleClickListener() {
+            @Override
+            public void doubleClick(DoubleClickEvent event) {
+                TreeSelection selection = (TreeSelection) event.getSelection();
+                if (selection.getFirstElement() instanceof SessionGroup) {
+                    SessionGroup group = (SessionGroup) selection
+                            .getFirstElement();
+                    if (!group.isSessionRoot()) {
+                        createJoinCollaboration();
+                    }
+                }
+            }
+        });
     }
 }
