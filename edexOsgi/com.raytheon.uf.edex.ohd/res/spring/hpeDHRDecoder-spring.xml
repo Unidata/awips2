@@ -18,13 +18,11 @@
 		<constructor-arg value="dhr" />
 		<constructor-arg value="jms-dist:queue:Ingest.dhr?destinationResolver=#qpidDurableResolver" />
 	</bean>
-
- 	<camelContext id="clusteredDHRroutes" 
- 	    autoStartup="false"
-	    xmlns="http://camel.apache.org/schema/spring"
+	
+	<camelContext id="nonClusteredDHRroutes" xmlns="http://camel.apache.org/schema/spring"
 	    errorHandlerRef="errorHandler">                
-		<!-- Begin dhr Routes -->
-		<route id="dhrIngestRoute">
+		<!-- Begin non-clustered dhr Routes -->
+		<route id="dhrIngestFilter">
 			<from uri="jms-generic:queue:Ingest.dhr?destinationResolver=#qpidDurableResolver" />
 			<setHeader headerName="pluginName">
 				<constant>dhr</constant>
@@ -34,6 +32,26 @@
 					<bean ref="setIngestHeaderFields"/>
 					<bean ref="stringToFile"  />
 					<bean ref="radarDecompressor" method="decompressToFile" />
+					<bean ref="dhrDecodeSrv" method="filter" />
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:dhr?level=INFO&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
+				</doCatch>
+			</doTry>
+		</route>
+ 	</camelContext>
+
+ 	<camelContext id="clusteredDHRroutes" 
+ 	    autoStartup="false"
+	    xmlns="http://camel.apache.org/schema/spring"
+	    errorHandlerRef="errorHandler">                
+		<!-- Begin dhr Routes -->
+		<route id="dhrIngestRoute">
+			<from uri="jms-generic:queue:dhrProcess?destinationResolver=#qpidDurableResolver" />
+			<doTry>
+				<pipeline>
+					<bean ref="serializationUtil" method="transformFromThrift" />
 					<bean ref="dhrDecodeSrv" method="process" />
 					<!-- <bean ref="processUtil" method="log"/> -->
 				</pipeline>
@@ -44,8 +62,8 @@
 			</doTry>
 		</route>
  	</camelContext>
- 	<bean factory-bean="clusteredCamelContextMgr"
-		factory-method="register">
+ 	
+ 	<bean factory-bean="clusteredCamelContextMgr" factory-method="register">
 		<constructor-arg ref="clusteredDHRroutes" />
   	</bean>
 </beans>
