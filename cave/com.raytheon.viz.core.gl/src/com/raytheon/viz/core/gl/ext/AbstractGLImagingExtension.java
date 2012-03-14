@@ -22,9 +22,7 @@ package com.raytheon.viz.core.gl.ext;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.media.opengl.GL;
@@ -37,9 +35,11 @@ import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.IImage.Status;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.drawables.PaintStatus;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension;
 import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.viz.core.gl.AbstractGLMesh;
 import com.raytheon.viz.core.gl.GLCapabilities;
 import com.raytheon.viz.core.gl.IGLTarget;
 import com.raytheon.viz.core.gl.glsl.GLSLFactory;
@@ -107,9 +107,8 @@ public abstract class AbstractGLImagingExtension extends
         // Get shader program extension uses
         String shaderProgram = getShaderProgramName();
 
-        int continues = 0;
+        int repaints = 0;
         Set<String> errorMsgs = new HashSet<String>();
-        List<DrawableImage> notDrawn = new ArrayList<DrawableImage>();
 
         GLShaderProgram program = null;
         boolean attemptedToLoadShader = false;
@@ -123,12 +122,12 @@ public abstract class AbstractGLImagingExtension extends
                 if (glImage.getStatus() == Status.STAGED) {
                     glImage.target(target);
                 }
-                
+
                 if (glImage.getStatus() != Status.LOADED) {
-                    ++continues;
+                    ++repaints;
                     continue;
                 }
-                
+
                 int textureType = glImage.getTextureStorageType();
 
                 if (lastTextureType != textureType) {
@@ -146,7 +145,7 @@ public abstract class AbstractGLImagingExtension extends
                     dataObj = preImageRender(paintProps, glImage, extent);
 
                     if (dataObj == null) {
-                        continues++;
+                        // Skip image if preImageRender returned null
                         continue;
                     }
 
@@ -183,8 +182,11 @@ public abstract class AbstractGLImagingExtension extends
                         gl.glColor4f(1.0f, 1.0f, 1.0f, paintProps.getAlpha());
                     }
 
-                    drawCoverage(paintProps, extent,
-                            glImage.getTextureCoords(), 0);
+                    if (drawCoverage(paintProps, extent,
+                            glImage.getTextureCoords(), 0) == PaintStatus.REPAINT) {
+                        // Coverage not ready, needs repaint
+                        ++repaints;
+                    }
 
                     gl.glActiveTexture(GL.GL_TEXTURE0);
                     gl.glBindTexture(textureType, 0);
@@ -210,8 +212,6 @@ public abstract class AbstractGLImagingExtension extends
                     }
                 } else {
                     errorMsgs.add("Texture did not bind");
-                    continues++;
-                    notDrawn.add(di);
                     continue;
                 }
             }
@@ -230,12 +230,12 @@ public abstract class AbstractGLImagingExtension extends
                     + " images: " + errorMsgs);
         }
 
-        boolean allDrawn = continues == 0;
-        if (!allDrawn) {
+        boolean needsRepaint = repaints > 0;
+        if (needsRepaint) {
             target.setNeedsRefresh(true);
         }
 
-        return allDrawn;
+        return needsRepaint == false;
     }
 
     /**
@@ -247,11 +247,12 @@ public abstract class AbstractGLImagingExtension extends
      * @param corrFactor
      * @throws VizException
      */
-    protected void drawCoverage(PaintProperties paintProps, PixelCoverage pc,
-            TextureCoords coords, float corrFactor) throws VizException {
+    protected PaintStatus drawCoverage(PaintProperties paintProps,
+            PixelCoverage pc, TextureCoords coords, float corrFactor)
+            throws VizException {
         GL gl = target.getGl();
         if (pc == null) {
-            return;
+            return PaintStatus.ERROR;
         }
         // gl.glPolygonMode(GL.GL_BACK, GL.GL_FILL);
         // gl.glColor3d(1.0, 0.0, 0.0);
@@ -262,7 +263,9 @@ public abstract class AbstractGLImagingExtension extends
 
         // if mesh exists, use it
         if (mesh != null) {
-            mesh.paint(target, paintProps);
+            if (mesh instanceof AbstractGLMesh) {
+                return ((AbstractGLMesh) mesh).paint(target, paintProps);
+            }
         } else if (coords != null) {
             FloatBuffer fb = ByteBuffer.allocateDirect(4 * 5 * 4)
                     .order(ByteOrder.nativeOrder()).asFloatBuffer();
@@ -304,7 +307,9 @@ public abstract class AbstractGLImagingExtension extends
 
             gl.glDisableClientState(GL.GL_VERTEX_ARRAY);
             gl.glDisableClientState(GL.GL_TEXTURE_COORD_ARRAY);
+            return PaintStatus.PAINTED;
         }
+        return PaintStatus.ERROR;
     }
 
     /**
