@@ -44,7 +44,7 @@ import org.eclipse.swt.widgets.Text;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.DataUser;
-import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
  * TODO Add Description
@@ -62,7 +62,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase;
  * @author rferrel
  * @version 1.0
  */
-public class CreateSessionDialog extends CaveSWTDialogBase {
+public class CreateSessionDialog extends CaveSWTDialog {
     private static DataUser.StatusType[] status = null;
 
     private Text nameTF;
@@ -97,29 +97,29 @@ public class CreateSessionDialog extends CaveSWTDialogBase {
         }
         Composite body = new Composite(parent, SWT.NONE);
         body.setLayout(new GridLayout(2, false));
-        body.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL
-                | GridData.HORIZONTAL_ALIGN_FILL));
+        // body.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL
+        // | GridData.HORIZONTAL_ALIGN_FILL));
         Label label = null;
         label = new Label(body, SWT.NONE);
         label.setText("Name: ");
         nameTF = new Text(body, SWT.BORDER);
-        nameTF.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL
-                | GridData.HORIZONTAL_ALIGN_FILL));
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gd.minimumWidth = 200;
+        nameTF.setLayoutData(gd);
 
         label = new Label(body, SWT.NONE);
         label.setText("Subject: ");
         subjectTF = new Text(body, SWT.BORDER);
-        subjectTF.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL
-                | GridData.HORIZONTAL_ALIGN_FILL));
+        subjectTF.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-        inviteUsers = new Button(body, SWT.CHECK);
-        inviteUsers.setText("Invite Selected Users");
-        inviteUsers.setSelection(showInvite);
-        inviteUsers.setVisible(showInvite);
-        label = new Label(body, SWT.NONE);
-        label.setText("");
-        label.setVisible(showInvite);
         if (showInvite) {
+            inviteUsers = new Button(body, SWT.CHECK);
+            inviteUsers.setText("Invite Selected Users");
+            inviteUsers.setSelection(true);
+            inviteUsers.setVisible(true);
+            label = new Label(body, SWT.NONE);
+            label.setText("");
+            label.setVisible(showInvite);
             inviteLabel = new Label(body, SWT.NONE);
             inviteLabel.setText("Invite Message: ");
             inviteMessageTF = new StyledText(body, SWT.BORDER | SWT.MULTI
@@ -127,7 +127,7 @@ public class CreateSessionDialog extends CaveSWTDialogBase {
             inviteMessageTF.setLayoutData(new GridData(GridData.FILL_BOTH));
             inviteMessageTF.pack();
             Point p = inviteMessageTF.getSize();
-            GridData gd = (GridData) inviteMessageTF.getLayoutData();
+            gd = (GridData) inviteMessageTF.getLayoutData();
             gd.heightHint = p.y * 3;
             inviteUsers.addSelectionListener(new SelectionListener() {
 
@@ -158,14 +158,13 @@ public class CreateSessionDialog extends CaveSWTDialogBase {
     }
 
     private void createButtonBar(Composite parent) {
-        Composite b = new Composite(parent, SWT.NONE);
+        GridData gd = null;
+        Composite bar = new Composite(parent, SWT.NONE);
 
         // set up to center buttons.
-        b.setLayout(new GridLayout(3, true));
-        new Composite(b, SWT.NONE);
-        Composite bar = new Composite(b, SWT.NONE);
-        new Composite(b, SWT.NONE);
         bar.setLayout(new GridLayout(0, true));
+        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
+        bar.setLayoutData(gd);
         createButton(bar, IDialogConstants.OK_ID, "Create", true);
 
         createButton(bar, IDialogConstants.CANCEL_ID,
@@ -214,7 +213,9 @@ public class CreateSessionDialog extends CaveSWTDialogBase {
         ((GridLayout) parent.getLayout()).numColumns++;
         Button button = new Button(parent, SWT.PUSH);
         button.setText(label);
-        // button.setFont(JFaceResources.getDialogFont());
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gd.minimumWidth = 70;
+        button.setLayoutData(gd);
         button.setData(new Integer(id));
         button.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
@@ -237,7 +238,11 @@ public class CreateSessionDialog extends CaveSWTDialogBase {
                         CreateSessionData result = new CreateSessionData();
                         result.setName(name);
                         result.setSubject(subject);
-                        result.setInviteUsers(inviteUsers.getSelection());
+                        if (inviteUsers == null) {
+                            result.setInviteUsers(false);
+                        } else {
+                            result.setInviteUsers(inviteUsers.getSelection());
+                        }
                         setReturnValue(result);
                         CreateSessionDialog.this.getShell().dispose();
                     } else {
