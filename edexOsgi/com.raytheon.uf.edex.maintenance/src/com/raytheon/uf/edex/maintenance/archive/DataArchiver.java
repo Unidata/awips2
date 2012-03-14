@@ -21,6 +21,8 @@ package com.raytheon.uf.edex.maintenance.archive;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -162,8 +164,11 @@ public class DataArchiver {
     private Map<String, DataArchiveConfig> getDataArchiveConfigs() {
         Map<String, DataArchiveConfig> configs = new HashMap<String, DataArchiveConfig>();
         IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationContext[] contexts = pathMgr
-                .getLocalSearchHierarchy(LocalizationType.COMMON_STATIC);
+        // process in reverse order so BASE is processed before CONFIGURED
+        // before SITE
+        List<LocalizationContext> contexts = Arrays.asList(pathMgr
+                .getLocalSearchHierarchy(LocalizationType.COMMON_STATIC));
+        Collections.reverse(contexts);
         String[] extensions = new String[] { "xml" };
         for (LocalizationContext ctx : contexts) {
             statusHandler.info("Loading context: " + ctx);
@@ -182,8 +187,7 @@ public class DataArchiver {
                             String plugin = conf.getPluginName();
                             if (plugin != null) {
                                 plugin = plugin.trim();
-                                if (!plugin.isEmpty()
-                                        && !configs.containsKey(plugin)) {
+                                if (!plugin.isEmpty()) {
                                     configs.put(plugin, conf);
                                 } else {
                                     throw new Exception(
