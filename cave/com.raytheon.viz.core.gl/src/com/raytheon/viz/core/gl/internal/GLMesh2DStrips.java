@@ -21,17 +21,17 @@ package com.raytheon.viz.core.gl.internal;
 
 import javax.media.opengl.GL;
 
+import org.geotools.coverage.grid.GeneralGridGeometry;
+import org.geotools.coverage.grid.GridGeometry2D;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.map.IMapDescriptor;
-import com.raytheon.uf.viz.core.rsc.hdf5.ImageTile;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.gl.AbstractGLMesh;
+import com.raytheon.viz.core.gl.Activator;
 import com.raytheon.viz.core.gl.SharedCoordMap.SharedCoordinateKey;
-import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * 
@@ -51,11 +51,10 @@ import com.vividsolutions.jts.geom.Envelope;
  */
 public class GLMesh2DStrips extends AbstractGLMesh {
 
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(GLMesh2DStrips.class);
-
-    public GLMesh2DStrips(IMapDescriptor descriptor) {
-        super(GL.GL_TRIANGLE_STRIP, descriptor);
+    public GLMesh2DStrips(GridGeometry2D imageGeometry,
+            GeneralGridGeometry targetGeometry) throws VizException {
+        super(GL.GL_TRIANGLE_STRIP);
+        initialize(imageGeometry, targetGeometry);
     }
 
     /*
@@ -67,12 +66,14 @@ public class GLMesh2DStrips extends AbstractGLMesh {
      * org.opengis.referencing.operation.MathTransform)
      */
     @Override
-    public double[][][] generateWorldCoords(ImageTile tile, MathTransform mt)
-            throws TransformException {
-        double worldMinX = tile.envelope.getMinX();
-        double worldMinY = tile.envelope.getMinY();
-        double worldWidth = tile.envelope.getWidth();
-        double worldHeight = tile.envelope.getHeight();
+    public double[][][] generateWorldCoords(GridGeometry2D imageGeometry,
+            MathTransform mt) throws TransformException {
+        ReferencedEnvelope envelope = new ReferencedEnvelope(
+                imageGeometry.getEnvelope());
+        double worldMinX = envelope.getMinX();
+        double worldMinY = envelope.getMinY();
+        double worldWidth = envelope.getWidth();
+        double worldHeight = envelope.getHeight();
 
         // get dx and dy for texture points
 
@@ -141,12 +142,16 @@ public class GLMesh2DStrips extends AbstractGLMesh {
     private static final int MIN_VERT_DIVS = 1;
 
     @Override
-    protected SharedCoordinateKey generateKey(ImageTile tile, MathTransform mt) {
+    protected SharedCoordinateKey generateKey(GridGeometry2D imageGeometry,
+            MathTransform mt) {
+        int width = imageGeometry.getGridRange().getSpan(0);
+        int height = imageGeometry.getGridRange().getSpan(1);
         try {
-            int maxHorzDiv = Math.max(tile.rect.width / 4, MIN_HORZ_DIVS);
-            int maxVertDiv = Math.max(tile.rect.height / 4, MIN_VERT_DIVS);
+            int maxHorzDiv = Math.max(width / 4, MIN_HORZ_DIVS);
+            int maxVertDiv = Math.max(height / 4, MIN_VERT_DIVS);
 
-            Envelope envelope = tile.envelope;
+            ReferencedEnvelope envelope = new ReferencedEnvelope(
+                    imageGeometry.getEnvelope());
             double[] tl = { envelope.getMinX(), envelope.getMaxY() };
             double[] tr = { envelope.getMaxX(), envelope.getMaxY() };
             double[] bl = { envelope.getMinX(), envelope.getMinY() };
@@ -195,12 +200,11 @@ public class GLMesh2DStrips extends AbstractGLMesh {
 
             return new SharedCoordinateKey(vertDiv, horzDiv);
         } catch (Exception e) {
-            statusHandler
+            Activator.statusHandler
                     .handle(Priority.PROBLEM,
                             "Error calculating divisions needed for image, defaulting to dims/4",
                             e);
-            return new SharedCoordinateKey(tile.rect.height / 4,
-                    tile.rect.width / 4);
+            return new SharedCoordinateKey(height / 4, width / 4);
         }
 
     }
@@ -213,12 +217,12 @@ public class GLMesh2DStrips extends AbstractGLMesh {
         if (r1 == null) {
             r1 = new double[p1.length];
             mt.transform(p1, 0, r1, 0, 1);
-            r1 = descriptor.worldToPixel(r1);
+            r1 = worldToPixel(r1);
         }
         if (r3 == null) {
             r3 = new double[p3.length];
             mt.transform(p3, 0, r3, 0, 1);
-            r3 = descriptor.worldToPixel(r3);
+            r3 = worldToPixel(r3);
         }
         if (r1 == null || r3 == null) {
             // if the image has some points outside the valid range of the
@@ -229,7 +233,7 @@ public class GLMesh2DStrips extends AbstractGLMesh {
         double[] p2 = { (p1[0] + p3[0]) / 2, (p1[1] + p3[1]) / 2 };
         double[] r2 = new double[p2.length];
         mt.transform(p2, 0, r2, 0, 1);
-        r2 = descriptor.worldToPixel(r2);
+        r2 = worldToPixel(r2);
         double[] interp2 = { (r1[0] + r3[0]) / 2, (r1[1] + r3[1]) / 2 };
         double dX = r2[0] - interp2[0];
         double dY = r2[1] - interp2[1];
