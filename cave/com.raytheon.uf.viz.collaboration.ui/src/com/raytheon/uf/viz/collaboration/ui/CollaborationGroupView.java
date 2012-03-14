@@ -20,10 +20,8 @@ package com.raytheon.uf.viz.collaboration.ui;
  * further licensing information.
  **/
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,6 +40,8 @@ import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TreeEditor;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
@@ -62,6 +62,8 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.SessionManager;
+import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
+import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationGroup;
@@ -72,6 +74,7 @@ import com.raytheon.uf.viz.collaboration.data.LoginUser;
 import com.raytheon.uf.viz.collaboration.data.SessionGroup;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.SessionView;
+import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 
 /**
  * TODO Add Description
@@ -153,11 +156,14 @@ public class CollaborationGroupView extends ViewPart {
         addDoubleClickListeners();
         createContextMenu();
 
-        SessionManager manger = CollaborationDataManager.getInstance()
-                .getSessionManager();
-        if (manger == null) {
+        CollaborationDataManager dManager = CollaborationDataManager
+                .getInstance();
+        SessionManager manager = null;
+        if (dManager != null) {
+            manager = dManager.getSessionManager();
+        }
+        if (manager == null) {
             System.err.println("Unable to connect");
-            return;
         }
         populateTree();
     }
@@ -280,6 +286,8 @@ public class CollaborationGroupView extends ViewPart {
                 refreshActiveSessions();
             }
         };
+        refreshActiveSessionsAction.setImageDescriptor(CollaborationUtils
+                .getImageDescriptor("refresh.gif"));
         refreshActiveSessionsAction
                 .setToolTipText("Refresh the Active Sessions Entries.");
 
@@ -520,6 +528,19 @@ public class CollaborationGroupView extends ViewPart {
         usersTreeViewer = new TreeViewer(child);
         usersTreeViewer.getTree().setLayoutData(
                 new GridData(SWT.FILL, SWT.FILL, true, true));
+        usersTreeViewer.getTree().addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                VizPerspectiveListener.getCurrentPerspectiveManager()
+                        .deactivateContexts();
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                VizPerspectiveListener.getCurrentPerspectiveManager()
+                        .activateContexts();
+            }
+        });
         usersTreeViewer.setContentProvider(new UsersTreeContentProvider());
         usersTreeViewer.setLabelProvider(new UsersTreeLabelProvider());
         usersTreeViewer.setSorter(new UsersTreeViewerSorter());
@@ -572,7 +593,32 @@ public class CollaborationGroupView extends ViewPart {
             CollaborationUser user = (CollaborationUser) o;
             MenuManager inviteManager = new MenuManager("Invite to...");
             // get current open chats
-            inviteManager.add(joinAction);
+            Map<String, IVenueSession> sessions = CollaborationDataManager
+                    .getInstance().getSessions();
+            for (String name : sessions.keySet()) {
+                ISession session = sessions.get(name);
+                if (session != null) {
+                    final IVenueInfo info = sessions.get(name).getVenue()
+                            .getInfo();
+                    if (info != null) {
+                        System.out.println(info.getVenueDescription());
+                        Action action = new Action(info.getVenueDescription()) {
+                            /*
+                             * (non-Javadoc)
+                             * 
+                             * @see org.eclipse.jface.action.Action#run()
+                             */
+                            @Override
+                            public void run() {
+                                joinAction.setId(info.getVenueID());
+                                joinAction.run();
+                            }
+                        };
+                        action.setId(info.getVenueID());
+                        inviteManager.add(action);
+                    }
+                }
+            }
             manager.add(inviteManager);
             if (user.isLocal()) {
                 manager.add(addUserAction);
@@ -592,23 +638,16 @@ public class CollaborationGroupView extends ViewPart {
         manager.add(aliasAction);
     }
 
-    /**
-     * 
-     */
-    private List<String> getChatSessions() {
-        List<String> rooms = new ArrayList<String>();
-        for (int i = 0; i < 3; i++) {
-            rooms.add("Room : " + i);
-        }
-        return rooms;
-    }
-
     protected void populateTree() {
-        topLevel = new CollaborationGroup("kickstart");
-        usersTreeViewer.setInput(topLevel);
         CollaborationDataManager manager = CollaborationDataManager
                 .getInstance();
         SessionManager sessionManager = manager.getSessionManager();
+        topLevel = new CollaborationGroup("kickstart");
+        usersTreeViewer.setInput(topLevel);
+        if (sessionManager == null) {
+            usersTreeViewer.getTree().setEnabled(false);
+            return;
+        }
         LoginUser user = new LoginUser(CollaborationDataManager.getInstance()
                 .getLoginId());
         topLevel.addChild(user);
@@ -737,8 +776,6 @@ public class CollaborationGroupView extends ViewPart {
      */
     @Override
     public void setFocus() {
-        // TODO Auto-generated method stub
-
     }
 
     private void addDoubleClickListeners() {
