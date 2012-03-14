@@ -60,8 +60,8 @@ public class DataUser {
     }
 
     public static enum RoleType {
-        LEADER("Leader"), PARTICIPANT("Participant"), DATA_PROVIDER(
-                "Data Provider"), UNKNOWN("Unknown");
+        LEADER("Session Leader"), DATA_PROVIDER("Data Provider"), PARTICIPANT(
+                "Participant"), UNKNOWN("Unknown");
         private final String value;
 
         RoleType(String value) {
