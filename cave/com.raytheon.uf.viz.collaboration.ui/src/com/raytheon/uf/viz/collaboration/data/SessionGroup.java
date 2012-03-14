@@ -60,6 +60,6 @@ public class SessionGroup extends CollaborationGroup {
      */
     @Override
     public String getImageKey() {
-        return "session";
+        return "session_group";
     }
 }
