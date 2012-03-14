@@ -32,12 +32,16 @@ import org.eclipse.ecf.core.identity.Namespace;
 import org.eclipse.ecf.core.security.ConnectContextFactory;
 import org.eclipse.ecf.presence.IPresenceContainerAdapter;
 import org.eclipse.ecf.presence.chatroom.IChatRoomInfo;
+import org.eclipse.ecf.presence.chatroom.IChatRoomInvitationListener;
 import org.eclipse.ecf.presence.chatroom.IChatRoomManager;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
+import com.raytheon.uf.viz.collaboration.comm.identity.listener.IVenueInvitationListener;
+import com.raytheon.uf.viz.collaboration.comm.provider.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.provider.CollaborationSession;
+import com.raytheon.uf.viz.collaboration.comm.provider.Errors;
 import com.raytheon.uf.viz.collaboration.comm.provider.info.InfoAdapter;
 
 /**
@@ -71,8 +75,11 @@ public class SessionManager {
     
     private String password;
     
-    private IContainer container = null;
+    private IChatRoomInvitationListener intInvitationListener;
     
+    private IVenueInvitationListener invitationListener;
+    
+    private IContainer container = null;
     
     /**
      * @throws ContainerCreateException 
@@ -83,15 +90,12 @@ public class SessionManager {
         this.account = account;
         this.password = password;
     }
-
-    
-
     
     /**
      * 
      * @return
      */
-    public ISession createPeerToPeerSession() {
+    public ISession createPeerToPeerSession() throws CollaborationException {
         return (ISession) createSession(SESSION_P2P);
     }
     
@@ -99,16 +103,15 @@ public class SessionManager {
      * 
      * @return
      */
-    public IVenueSession createChatOnlySession() {
+    public IVenueSession createChatOnlySession() throws CollaborationException {
         return (IVenueSession) createSession(SESSION_CHAT_ONLY);
     }
-    
     
     /**
      * 
      * @return
      */
-    public IVenueSession createCollaborationSession() {
+    public IVenueSession createCollaborationSession() throws CollaborationException {
         return (IVenueSession) createSession(SESSION_COLLABORATION);
     }
 
@@ -117,7 +120,7 @@ public class SessionManager {
      * @param sessionKind
      * @return
      */
-    public ISession createSession(String sessionKind) {
+    public ISession createSession(String sessionKind) throws CollaborationException {
 
         ISession session = null;
         if(sessionKind != null) {
@@ -133,9 +136,14 @@ public class SessionManager {
             }
         }
         if(session != null) {
-            session.connect(account, password);
+            int errorCode = session.connect(account, password);
+            if(errorCode == Errors.BAD_NAME) {
+                throw new CollaborationException(String.format("Bad name [%s]", account));
+            } else if (errorCode == Errors.CANNOT_CONNECT) {
+                throw new CollaborationException(String.format("Count not connect using name [%s]", account));
+            }
         } else {
-            System.out.println("Could not connect session");
+            throw new CollaborationException(String.format("Count not connect using name [%s]", account));
         }
         return session;
     }
@@ -163,6 +171,43 @@ public class SessionManager {
         
         return info;
     }
+    
+    public IVenueInvitationListener setVenueInvitationListener(IVenueInvitationListener listener) {
+        connectToContainer();
+        IPresenceContainerAdapter presence = (IPresenceContainerAdapter) container.getAdapter(IPresenceContainerAdapter.class);
+        IChatRoomManager venueManager = presence.getChatRoomManager();
+        
+        invitationListener = listener;
+        if(invitationListener != null) {
+            // Do we already have one set?
+            if(intInvitationListener != null) {
+                venueManager.removeInvitationListener(intInvitationListener);
+            }
+            intInvitationListener = new IChatRoomInvitationListener() {
+                @Override
+                public void handleInvitationReceived(ID roomID, ID from,
+                        String subject, String body) {
+                    invitationListener.handleInvitation(null, null, subject, body);
+                }
+            };
+            venueManager.addInvitationListener(intInvitationListener);
+        }
+        return listener;
+    }
+    
+    public IVenueInvitationListener removeVenueInvitationListener(IVenueInvitationListener listener) {
+        connectToContainer();
+        IPresenceContainerAdapter presence = (IPresenceContainerAdapter) container.getAdapter(IPresenceContainerAdapter.class);
+        IChatRoomManager venueManager = presence.getChatRoomManager();
+        
+        invitationListener = listener;
+        if(invitationListener != null) {
+            venueManager.removeInvitationListener(intInvitationListener);
+        }
+        return listener;
+    }
+    
+    
 
     
     private void connectToContainer() {
