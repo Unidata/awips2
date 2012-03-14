@@ -86,7 +86,8 @@ public class CollaborationUtils {
             }
         } else if (node instanceof SessionGroup) {
             if (!((SessionGroup) node).isSessionRoot()) {
-                nodeImage = getImageDescriptor("group.gif").createImage();
+                nodeImage = getImageDescriptor("session_group.gif")
+                        .createImage();
             } else {
                 // nodeImage = getImageDescriptor("").createImage();
 
