@@ -441,7 +441,10 @@ public class SessionView extends ViewPart implements IPartListener {
         usersTable.setLabelProvider(labelProvider);
         usersTable.setSorter(new ViewerSorter() {
             public int compare(Viewer viewer, Object e1, Object e2) {
-                return super.compare(viewer, e1, e2);
+                CollaborationUser c1 = (CollaborationUser) e1;
+                CollaborationUser c2 = (CollaborationUser) e1;
+                // return super.compare(viewer, e1, e2);
+                return c1.compareTo(c2);
             }
         });
 
@@ -590,7 +593,7 @@ public class SessionView extends ViewPart implements IPartListener {
         disposeArrow(highlightedRightArrow);
         disposeArrow(downArrow);
         disposeArrow(rightArrow);
-
+        CollaborationDataManager.getInstance().closeSession(sessionId);
         super.dispose();
     }
 
