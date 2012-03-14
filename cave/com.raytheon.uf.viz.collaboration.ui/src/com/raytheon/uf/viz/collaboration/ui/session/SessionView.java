@@ -51,12 +51,14 @@ import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchListener;
@@ -445,6 +447,29 @@ public class SessionView extends ViewPart implements IPartListener {
                 CollaborationUser c2 = (CollaborationUser) e1;
                 // return super.compare(viewer, e1, e2);
                 return c1.compareTo(c2);
+            }
+        });
+
+        usersTable.getTable().addMouseTrackListener(new MouseTrackAdapter() {
+            @Override
+            public void mouseHover(MouseEvent e) {
+                TableItem item = usersTable.getTable().getItem(
+                        new Point(e.x, e.y));
+                if (item != null) {
+                    CollaborationUser user = (CollaborationUser) item.getData();
+                    StringBuilder builder = new StringBuilder("-- Roles --");
+                    for (RoleType type : RoleType.values()) {// user.getRoles(sessionId))
+                                                             // {
+                        // fake XXX take this out
+                        if (type == RoleType.UNKNOWN) {
+                            continue;
+                        }
+                        builder.append("\n" + type.value());
+                    }
+                    usersTable.getTable().setToolTipText(builder.toString());
+                } else {
+                    usersTable.getTable().setToolTipText("");
+                }
             }
         });
 
