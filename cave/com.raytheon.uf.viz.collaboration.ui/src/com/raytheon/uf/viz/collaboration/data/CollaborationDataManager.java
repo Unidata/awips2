@@ -23,7 +23,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -54,7 +56,8 @@ import com.raytheon.uf.viz.core.VizApp;
  */
 
 /**
- * TODO Add Description
+ * This class contains information on user and session connections that can then
+ * be used by more then one veiw.
  * 
  * <pre>
  * 
@@ -99,6 +102,13 @@ public class CollaborationDataManager {
         return instance;
     }
 
+    /**
+     * Converts the venu's Id into a string that usable for a view's secondary
+     * ID. This is the used as the key in the session Map.
+     * 
+     * @param venuId
+     * @return sessionId
+     */
     public String venuIdToSessionId(String venuId) {
         return venuId.replace(':', ';');
     }
@@ -130,6 +140,7 @@ public class CollaborationDataManager {
      * @return manager or null if unable to get connection.
      */
     synchronized public SessionManager getSessionManager() {
+        // Get log on to server information and make connection.
         if (manager == null) {
             VizApp.runSync(new Runnable() {
 
@@ -154,6 +165,7 @@ public class CollaborationDataManager {
                             loginId = loginData.getAccount();
                             DataUser user = CollaborationDataManager
                                     .getInstance().getUser(loginId);
+                            // TODO set status and message here.
                             user.status = loginData.getStatus();
                             user.statusMessage = loginData.getMessage();
                         } catch (Exception e) {
@@ -161,6 +173,10 @@ public class CollaborationDataManager {
                             // revise as appropriate.
                             statusHandler.handle(Priority.PROBLEM,
                                     e.getLocalizedMessage(), e);
+                            MessageBox box = new MessageBox(shell, SWT.ERROR);
+                            box.setText("Log On Failed");
+                            box.setMessage(e.toString());
+                            box.open();
                             e.printStackTrace();
                         }
                     }
@@ -192,7 +208,26 @@ public class CollaborationDataManager {
     }
 
     /**
-     * @return sessionId
+     * Closes connection to the session.
+     * 
+     * @param sessionId
+     */
+    public void closeSession(String sessionId) {
+        IVenueSession session = sessionsMap.get(sessionId);
+        if (session != null) {
+            sessionsMap.remove(sessionId);
+            session.close();
+        }
+    }
+
+    /**
+     * Generate a new session with
+     * 
+     * @param venue
+     *            - Session name
+     * @param subject
+     *            - Sessin topic
+     * @return sessionId or null if unable to create session
      */
     public String createCollaborationSession(String venue, String subject) {
         SessionManager manager = getSessionManager();
