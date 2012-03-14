@@ -19,12 +19,17 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.session;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITableColorProvider;
 import org.eclipse.jface.viewers.ITableFontProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
@@ -84,7 +89,11 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
         System.out.println("getColumnImage");
         CollaborationUser user = (CollaborationUser) element;
         CollaborationDataManager.getInstance().getUser(user.getId());
-        return CollaborationUtils.getNodeImage(user);
+        Image image = CollaborationUtils.getNodeImage(user);
+        // user.getRoles(sessionId);
+        RoleType[] types = new RoleType[] { RoleType.LEADER,
+                RoleType.DATA_PROVIDER };
+        return getModifier(types, image);
     }
 
     @Override
@@ -128,6 +137,7 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
     public String getSessionId() {
         return sessionId;
     }
+
     // usersList.setLabelProvider(new LabelProvider() {
     // public String getText(Object element) {
     // CollaborationUser user = (CollaborationUser) element;
@@ -172,4 +182,22 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
     // }
     // });
 
+    private Image getModifier(RoleType[] types, Image image) {
+        // original image is 16x16
+        GC gc = new GC(image, SWT.LEFT_TO_RIGHT);
+        List<RoleType> t = Arrays.asList(types);
+
+        if (t.contains(RoleType.LEADER)) {
+            // Image im = CollaborationUtils.getImageDescriptor(
+            // "session_leader.png").createImage();
+            // gc.drawImage(im, 7, 7);
+        }
+        if (t.contains(RoleType.DATA_PROVIDER)) {
+            Image im = CollaborationUtils.getImageDescriptor(
+                    "data_provider.png").createImage();
+            gc.drawImage(im, 0, 16);
+        }
+        image.getImageData();
+        return image;
+    }
 }
