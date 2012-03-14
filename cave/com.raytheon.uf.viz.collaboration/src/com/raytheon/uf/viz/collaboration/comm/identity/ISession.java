@@ -73,8 +73,9 @@ public interface ISession {
      * 
      * @param userName
      * @param password
+     * @return An error status.
      */
-    void connect(String userName, String password);
+    int connect(String userName, String password);
     
     /**
      * 
@@ -105,6 +106,18 @@ public interface ISession {
      * @return The roster manager.
      */
     IRosterManager getRosterManager();
+    
+    /**
+     * 
+     * @param handler
+     */
+    void registerEventHandler(Object handler);
+    
+    /**
+     * 
+     * @param handler
+     */
+    void unRegisterEventHandler(Object handler);
     
     /**
      * Send a Text message. 
