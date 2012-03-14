@@ -36,7 +36,6 @@ import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
-import com.raytheon.uf.viz.core.drawables.IRenderedImage;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -127,16 +126,15 @@ public interface IGraphicsTarget extends IImagingExtension {
             ColorMapParameters optionalParams);
 
     /**
-     * This method will create an IRenderedImage object from a RenderedImage
-     * callback. The callback is used to construct the RenderableImage when it
-     * is needed. All targets need to support IImage creation for RenderedImage.
-     * Other IImage construction methods should be done through extensions
+     * This method will create an IImage object from a RenderedImage callback.
+     * The callback is used to construct the RenderableImage when it is needed.
+     * All targets need to support IImage creation for RenderedImage. Other
+     * IImage construction methods should be done through extensions
      * 
      * @param imageCallback
      * @return
      */
-    public abstract IRenderedImage initializeRaster(
-            IRenderedImageCallback imageCallback);
+    public abstract IImage initializeRaster(IRenderedImageCallback imageCallback);
 
     /**
      * Given the font, construct it with default values for the font

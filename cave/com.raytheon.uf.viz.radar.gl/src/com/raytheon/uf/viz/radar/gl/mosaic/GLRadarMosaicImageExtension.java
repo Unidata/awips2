@@ -27,6 +27,7 @@ import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IImage;
+import com.raytheon.uf.viz.core.drawables.ImagingSupport;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.IOffscreenRenderingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -98,6 +99,7 @@ public class GLRadarMosaicImageExtension extends AbstractGLSLImagingExtension
                     extension.renderOffscreen(mosaicImage);
                     DrawableImage[] imagesToMosaic = mosaicImage
                             .getImagesToMosaic();
+                    // Make sure images are staged before we mosaic them
                     ImagingSupport.prepareImages(target, imagesToMosaic);
                     drawRasters(paintProps, imagesToMosaic);
                 } finally {
