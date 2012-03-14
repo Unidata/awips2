@@ -17,12 +17,19 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.core.map;
+package com.raytheon.uf.common.geospatial.util;
 
+import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.referencing.CRS;
+import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.geotools.referencing.operation.projection.MapProjection;
 import org.geotools.referencing.operation.projection.MapProjection.AbstractProvider;
 import org.opengis.parameter.ParameterValueGroup;
+import org.opengis.referencing.operation.MathTransform;
+
+import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * Given a descriptor of a map, this class will check line segments for wrapping
@@ -50,9 +57,9 @@ public class WorldWrapChecker {
 
     private boolean checkForWrapping = false;
 
-    public WorldWrapChecker(IMapDescriptor descriptor) {
-        MapProjection worldProjection = CRS.getMapProjection(descriptor
-                .getCRS());
+    public WorldWrapChecker(GeneralGridGeometry worldGeometry) {
+        MapProjection worldProjection = CRS.getMapProjection(worldGeometry
+                .getCoordinateReferenceSystem());
         double centralMeridian = 0.0;
         if (worldProjection != null) {
             ParameterValueGroup group = worldProjection.getParameterValues();
@@ -71,12 +78,27 @@ public class WorldWrapChecker {
         double r1 = inverseCentralMeridian - 359.9;
         double r2 = inverseCentralMeridian - 359.8;
 
-        double xl1 = descriptor.worldToPixel(new double[] { l1, 0.0 })[0];
-        double xl2 = descriptor.worldToPixel(new double[] { l2, 0.0 })[0];
-        double xr1 = descriptor.worldToPixel(new double[] { r1, 0.0 })[0];
-        double xr2 = descriptor.worldToPixel(new double[] { r2, 0.0 })[0];
+        try {
+            MathTransform latLonToGrid = new DefaultMathTransformFactory()
+                    .createConcatenatedTransform(MapUtil
+                            .getTransformFromLatLon(worldGeometry
+                                    .getCoordinateReferenceSystem()),
+                            worldGeometry.getGridToCRS().inverse());
 
-        checkForWrapping = Math.abs(xl1 - xr1) > Math.abs(xl2 - xr2);
+            double[] in = new double[] { l1, 0.0, l2, 0.0, r1, 0.0, r2, 0.0 };
+            double[] out = new double[in.length];
+            latLonToGrid.transform(in, 0, out, 0, 4);
+
+            double xl1 = out[0];
+            double xl2 = out[2];
+            double xr1 = out[4];
+            double xr2 = out[6];
+
+            checkForWrapping = Math.abs(xl1 - xr1) > Math.abs(xl2 - xr2);
+        } catch (Throwable t) {
+            UFStatus.getHandler().handle(Priority.PROBLEM,
+                    "Error determing world wrap checking", t);
+        }
     }
 
     /**

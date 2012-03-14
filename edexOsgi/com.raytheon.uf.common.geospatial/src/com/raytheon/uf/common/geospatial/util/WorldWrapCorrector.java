@@ -17,11 +17,13 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.core.map;
+package com.raytheon.uf.common.geospatial.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import org.geotools.coverage.grid.GeneralGridGeometry;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -53,12 +55,12 @@ public class WorldWrapCorrector {
     private WorldWrapChecker checker;
 
     /**
-     * Constructs of world wrap corrector for the specified descriptor
+     * Constructs of world wrap corrector for the specified world
      * 
      * @param descriptor
      */
-    public WorldWrapCorrector(IMapDescriptor descriptor) {
-        checker = new WorldWrapChecker(descriptor);
+    public WorldWrapCorrector(GeneralGridGeometry worldGeometry) {
+        checker = new WorldWrapChecker(worldGeometry);
     }
 
     /**

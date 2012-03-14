@@ -77,9 +77,8 @@ public class GraphicsExtensionManager {
         int bestVal = -1;
         for (Class<?> eClass : extensions) {
             if (extensionClass.isAssignableFrom(eClass)) {
-                GraphicsExtension<?> graphicsExt;
                 try {
-                    graphicsExt = GraphicsExtension.class.cast(eClass
+                    GraphicsExtension<?> graphicsExt = GraphicsExtension.class.cast(eClass
                             .newInstance());
                     int val = graphicsExt.setTarget(target);
                     if (val > bestVal) {
