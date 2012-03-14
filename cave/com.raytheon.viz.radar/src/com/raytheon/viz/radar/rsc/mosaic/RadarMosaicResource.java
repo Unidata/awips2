@@ -42,6 +42,7 @@ import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
+import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -226,11 +227,11 @@ public class RadarMosaicResource extends
         if (recordsToMosaic.isEmpty() == false) {
             DataTime curTime = getTimeForResource(this);
             synchronized (this) {
-                force = force || !curTime.equals(lastTime);
-                mosaicRenderer.mosaic(target, new MosaicPaintProperties(
-                        paintProps, force), this);
+                boolean forceIt = force || !curTime.equals(lastTime);
                 force = false;
                 lastTime = curTime;
+                mosaicRenderer.mosaic(target, new MosaicPaintProperties(
+                        paintProps, forceIt), this);
             }
 
         }
@@ -423,6 +424,9 @@ public class RadarMosaicResource extends
         } catch (Exception e) {
             // ignore
         }
+        FramesInfo descInfo = descriptor.getFramesInfo();
+        FramesInfo rscFrameInfo = new FramesInfo(descInfo.getFrameTimes(),
+                descInfo.getFrameIndex(), timeMatchingMap);
         Map<AbstractRadarResource<?>, Map<String, String>> rscInspectMap = new HashMap<AbstractRadarResource<?>, Map<String, String>>();
         AbstractRadarResource<?> highestRsc = null;
         String inspectString = null;
@@ -475,8 +479,10 @@ public class RadarMosaicResource extends
             if (resources.isEmpty() && highestRsc != null) {
                 resources.add(highestRsc);
             }
+
             for (AbstractRadarResource<?> rr : resources) {
-                Map<String, String> vals = rr.interrogate(coord);
+                Map<String, String> vals = rr.interrogate(
+                        rscFrameInfo.getTimeForResource(rr), coord);
                 if (vals != null) {
                     rscInspectMap.put(rr, vals);
                 }
@@ -497,7 +503,9 @@ public class RadarMosaicResource extends
         }
 
         if (highestRsc != null) {
-            inspectString = highestRsc.inspect(rscInspectMap.get(highestRsc));
+            inspectString = highestRsc.inspect(
+                    rscFrameInfo.getTimeForResource(highestRsc),
+                    rscInspectMap.get(highestRsc));
         }
         return inspectString == null ? "NO DATA" : inspectString;
     }
