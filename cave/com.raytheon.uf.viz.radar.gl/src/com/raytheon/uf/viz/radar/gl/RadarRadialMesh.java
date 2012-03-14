@@ -21,18 +21,18 @@ package com.raytheon.uf.viz.radar.gl;
 
 import javax.media.opengl.GL;
 
+import org.geotools.coverage.grid.GeneralGridGeometry;
+import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
+import com.raytheon.uf.common.dataplugin.radar.util.RadarUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.map.IMapDescriptor;
-import com.raytheon.uf.viz.core.rsc.hdf5.ImageTile;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.gl.AbstractGLMesh;
-import com.raytheon.viz.core.gl.GLGeometryObject2D;
-import com.raytheon.viz.core.gl.GLGeometryObject2D.GLGeometryObjectData;
 import com.raytheon.viz.core.gl.SharedCoordMap.SharedCoordinateKey;
 
 /**
@@ -58,27 +58,26 @@ public class RadarRadialMesh extends AbstractGLMesh {
     /** The record to build the mesh for */
     private RadarRecord record;
 
-    private IMapDescriptor descriptor;
-
-    public RadarRadialMesh(IMapDescriptor descriptor, RadarRecord record) {
-        super(GL.GL_TRIANGLE_STRIP, descriptor);
+    public RadarRadialMesh(RadarRecord record,
+            GeneralGridGeometry targetGeometry) throws VizException {
+        super(GL.GL_TRIANGLE_STRIP);
         this.record = record;
-        this.descriptor = descriptor;
+        initialize(
+                RadarUtil.constructGridGeometry(record.getCRS(),
+                        RadarUtil.calculateExtent(record),
+                        Math.max(record.getNumBins(), record.getNumRadials())),
+                targetGeometry);
     }
 
     @Override
-    protected double[][][] generateWorldCoords(ImageTile tile, MathTransform mt)
-            throws TransformException {
+    protected double[][][] generateWorldCoords(GridGeometry2D imageGeometry,
+            MathTransform mt) throws TransformException {
 
         int horizontalDivisions = key.horizontalDivisions;
         int verticalDivisions = key.verticalDivisions + 1;
 
         // get dx and dy for texture points
         float dX = (1.0f / (key.horizontalDivisions));
-
-        vertexCoords = new GLGeometryObject2D(new GLGeometryObjectData(
-                GL.GL_TRIANGLE_STRIP, GL.GL_VERTEX_ARRAY));
-        vertexCoords.allocate(2 * verticalDivisions * horizontalDivisions);
 
         // set up our angle data for the radials
         float[] angles = record.getAngleData();
@@ -166,7 +165,8 @@ public class RadarRadialMesh extends AbstractGLMesh {
     }
 
     @Override
-    protected SharedCoordinateKey generateKey(ImageTile tile, MathTransform mt) {
+    protected SharedCoordinateKey generateKey(GridGeometry2D imageGeometry,
+            MathTransform mt) {
         try {
             return new SharedCoordinateKey(record.getNumRadials(),
                     getNumVerticalDivisions(mt, record));
@@ -202,7 +202,7 @@ public class RadarRadialMesh extends AbstractGLMesh {
         in[1] = 0;
         toLatLon.transform(in, 0, out, 0, 1);
 
-        double[] start = descriptor.worldToPixel(out);
+        double[] start = worldToPixel(out);
 
         for (int i = 0; i < angles.length; ++i) {
             // grab end
@@ -215,7 +215,7 @@ public class RadarRadialMesh extends AbstractGLMesh {
             in[0] = range * sinAz;
             in[1] = range * cosAz;
             toLatLon.transform(in, 0, out, 0, 1);
-            out = descriptor.worldToPixel(out);
+            out = worldToPixel(out);
 
             int[] curPow2 = new int[] { (int) Math.floor(Math.log(numBins)
                     / Math.log(2)) };
@@ -256,7 +256,7 @@ public class RadarRadialMesh extends AbstractGLMesh {
         double[] in = new double[] { rangeToTry * sinAz, rangeToTry * cosAz };
         double[] actual = new double[3];
         toLatLon.transform(in, 0, actual, 0, 1);
-        actual = descriptor.worldToPixel(actual);
+        actual = worldToPixel(actual);
 
         // Get linear interpolated point
         double[] interp = new double[] { (endLoc[0] + startLoc[0]) / 2,
