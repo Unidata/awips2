@@ -38,6 +38,7 @@ import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IMesh;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.drawables.PaintStatus;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.jobs.JobPool;
 import com.raytheon.viz.core.gl.GLGeometryObject2D.GLGeometryObjectData;
@@ -123,21 +124,15 @@ public abstract class AbstractGLMesh implements IMesh {
         reproject(targetGeometry);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.IMesh#paint(com.raytheon.viz.core.IGraphicsTarget)
-     */
-    @Override
-    public final synchronized void paint(IGraphicsTarget target,
+    public final synchronized PaintStatus paint(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
+        State internalState = this.internalState;
         if (internalState == State.NEW) {
             throw new VizException(
                     "Class did not properly call initialize on construction");
         } else if (internalState == State.INVALID) {
             // Don't paint if invalid to avoid crashes
-            return;
+            return PaintStatus.ERROR;
         }
 
         IGLTarget glTarget;
@@ -147,28 +142,32 @@ public abstract class AbstractGLMesh implements IMesh {
 
         glTarget = (IGLTarget) target;
 
-        if (internalState == State.CALCULATED) {
-            // We finished calculating the mesh, compile it
-            try {
+        try {
+            if (internalState == State.CALCULATED) {
+                // We finished calculating the mesh, compile it
                 sharedTextureCoords = SharedCoordMap.get(key, glTarget);
                 vertexCoords.compile(glTarget.getGl());
-                internalState = State.COMPILED;
-            } catch (VizException e) {
-                internalState = State.INVALID;
-                throw e;
+                this.internalState = internalState = State.COMPILED;
             }
-        }
 
-        if (internalState == State.COMPILED) {
-            GLGeometryPainter.paintGeometries(glTarget.getGl(), vertexCoords,
-                    sharedTextureCoords.getTextureCoords());
-        } else {
-            target.setNeedsRefresh(true);
+            if (internalState == State.COMPILED) {
+                GLGeometryPainter.paintGeometries(glTarget.getGl(),
+                        vertexCoords, sharedTextureCoords.getTextureCoords());
+                return PaintStatus.PAINTED;
+            } else if (internalState == State.CALCULATING) {
+                target.setNeedsRefresh(true);
+                return PaintStatus.REPAINT;
+            } else {
+                return PaintStatus.ERROR;
+            }
+        } catch (VizException e) {
+            this.internalState = State.INVALID;
+            throw e;
         }
     }
 
     @Override
-    public final synchronized void dispose() {
+    public synchronized void dispose() {
         // Synchronize on calculate so we don't dispose while running
         synchronized (calculate) {
             // Cancel calculation job from running
