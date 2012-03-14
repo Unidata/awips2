@@ -101,7 +101,9 @@ public class GLRadarMosaicImageExtension extends AbstractGLSLImagingExtension
                             .getImagesToMosaic();
                     // Make sure images are staged before we mosaic them
                     ImagingSupport.prepareImages(target, imagesToMosaic);
-                    drawRasters(paintProps, imagesToMosaic);
+                    // Need to set repaint based on if drawing completed
+                    mosaicImage.setRepaint(drawRasters(paintProps,
+                            imagesToMosaic) == false);
                 } finally {
                     extension.renderOnscreen();
                 }
