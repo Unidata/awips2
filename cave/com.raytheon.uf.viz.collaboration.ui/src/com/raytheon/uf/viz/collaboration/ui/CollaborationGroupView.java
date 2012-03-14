@@ -34,6 +34,7 @@ import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -121,6 +122,8 @@ public class CollaborationGroupView extends ViewPart {
     private Action addGroupAction;
 
     private Action addUserAction;
+
+    private Action selectGroups;
 
     private Action removeGroupAction;
 
@@ -238,13 +241,19 @@ public class CollaborationGroupView extends ViewPart {
         addUserAction.setImageDescriptor(CollaborationUtils
                 .getImageDescriptor("add_contact.gif"));
 
-        addGroupAction = new Action("Add Group") {
+        addGroupAction = new Action("Create Group") {
             public void run() {
-                System.out.println("Add group");
+                System.out.println("Create Group here");
             };
         };
         addGroupAction.setImageDescriptor(CollaborationUtils
                 .getImageDescriptor("add_group.gif"));
+
+        selectGroups = new Action("Select System Groups...") {
+            public void run() {
+                System.out.println("Select System Groups to Display...");
+            }
+        };
 
         changeMessageAction = new Action("Change Message...") {
             public void run() {
@@ -378,9 +387,14 @@ public class CollaborationGroupView extends ViewPart {
     }
 
     private void createMenu(IMenuManager mgr) {
+        mgr.add(addGroupAction);
+        mgr.add(addUserAction);
+        mgr.add(selectGroups);
+        mgr.add(new Separator());
         mgr.add(changeStatusAction);
         mgr.add(changeMessageAction);
         mgr.add(changePasswordAction);
+        mgr.add(new Separator());
         mgr.add(logoutAction);
     }
 
