@@ -302,8 +302,16 @@ public class AbstractRadarResource<D extends IDescriptor> extends
         if (resourceData.mode.equals("CZ-Pg")) {
             return null;
         }
+
+        // Grab current time
+        DataTime displayedDate = descriptor.getTimeForResource(this);
+
+        if (displayedDate == null) {
+            displayedDate = this.displayedDate;
+        }
+
         try {
-            dataMap = interrogate(latLon.asLatLon());
+            dataMap = interrogate(displayedDate, latLon.asLatLon());
         } catch (Exception e) {
             throw new VizException("Error converting coordinate for hover", e);
         }
@@ -333,20 +341,23 @@ public class AbstractRadarResource<D extends IDescriptor> extends
             boolean visible = descriptor.getRenderableDisplay().getContainer()
                     .getActiveDisplayPane().getDescriptor() == descriptor;
             if (visible && primary) {
-                return "=" + inspect(primaryInspectLabels, dataMap);
+                return "="
+                        + inspect(displayedDate, primaryInspectLabels, dataMap);
             } else {
-                return " " + inspect(offscreenInspectLabels, dataMap);
+                return " "
+                        + inspect(displayedDate, offscreenInspectLabels,
+                                dataMap);
             }
         } else if (primary) {
-            return inspect(dataMap);
+            return inspect(displayedDate, dataMap);
         } else {
             // The secondary returns slightly less data
-            return inspect(secondaryInspectLabels, dataMap);
+            return inspect(displayedDate, secondaryInspectLabels, dataMap);
         }
     }
 
-    public String inspect(Map<String, String> dataMap) {
-        return inspect(defaultInspectLabels, dataMap);
+    public String inspect(DataTime dataTime, Map<String, String> dataMap) {
+        return inspect(dataTime, defaultInspectLabels, dataMap);
     }
 
     /**
@@ -355,7 +366,7 @@ public class AbstractRadarResource<D extends IDescriptor> extends
      * @param dataMap
      * @return
      */
-    public String inspect(List<InspectLabels> labels,
+    public String inspect(DataTime dataTime, List<InspectLabels> labels,
             Map<String, String> dataMap) {
         if (dataMap == null) {
             return "NO DATA";
@@ -416,8 +427,13 @@ public class AbstractRadarResource<D extends IDescriptor> extends
     public Map<String, Object> interrogate(ReferencedCoordinate coord)
             throws VizException {
         try {
-            return new HashMap<String, Object>(this.interrogate(coord
-                    .asLatLon()));
+            DataTime displayedDate = descriptor.getTimeForResource(this);
+
+            if (displayedDate == null) {
+                displayedDate = this.displayedDate;
+            }
+            return new HashMap<String, Object>(interrogate(displayedDate,
+                    coord.asLatLon()));
         } catch (TransformException e) {
             throw new VizException(
                     "Transformation error creating lat/lon from referenced coordinate",
@@ -428,7 +444,7 @@ public class AbstractRadarResource<D extends IDescriptor> extends
         }
     }
 
-    public Map<String, String> interrogate(Coordinate latLon) {
+    public Map<String, String> interrogate(DataTime dataTime, Coordinate latLon) {
         if (interrogator == null) {
             return new HashMap<String, String>();
         }
@@ -438,13 +454,7 @@ public class AbstractRadarResource<D extends IDescriptor> extends
                     .getColorMapParameters();
         }
 
-        DataTime displayedDate = descriptor.getTimeForResource(this);
-
-        if (displayedDate == null) {
-            displayedDate = this.displayedDate;
-        }
-
-        VizRadarRecord radarRecord = getRadarRecord(displayedDate);
+        VizRadarRecord radarRecord = getRadarRecord(dataTime);
         if (radarRecord != null && radarRecord.getStoredDataAsync() != null) {
             return interrogator.sample(radarRecord, latLon, params);
         }
