@@ -91,4 +91,15 @@ public class CollaborationGroup extends CollaborationNode {
         }
         children.clear();
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.data.CollaborationNode#getImageKey()
+     */
+    @Override
+    public String getImageKey() {
+        return "group";
+    }
 }

@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.data;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,7 +32,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.SessionManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
-import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginData;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginDialog;
 import com.raytheon.uf.viz.core.VizApp;
@@ -182,11 +180,6 @@ public class CollaborationDataManager {
                     }
                 }
             });
-
-            Collection<IVenueInfo> info = manager.getVenueInfo();
-            for (IVenueInfo i : info) {
-                System.out.println(i);
-            }
         }
         return manager;
     }
@@ -205,6 +198,10 @@ public class CollaborationDataManager {
      */
     public IVenueSession getSession(String sessionId) {
         return sessionsMap.get(sessionId);
+    }
+
+    public Map<String, IVenueSession> getSessions() {
+        return sessionsMap;
     }
 
     /**
