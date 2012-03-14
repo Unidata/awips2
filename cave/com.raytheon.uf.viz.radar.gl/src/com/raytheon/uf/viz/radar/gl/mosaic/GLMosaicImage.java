@@ -88,6 +88,14 @@ public class GLMosaicImage extends GLDelegateImage<AbstractGLImage> implements
         return repaint;
     }
 
+    /**
+     * @param repaint
+     * @return
+     */
+    public void setRepaint(boolean repaint) {
+        this.repaint = repaint;
+    }
+
     public DrawableImage[] getImagesToMosaic() {
         return images;
     }

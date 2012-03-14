@@ -21,11 +21,11 @@ package com.raytheon.uf.viz.core;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
 
-import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
- * Base for any mesh 2D/3D, Quad/Triangle -- etc
+ * Base for any mesh 2D/3D, Quad/Triangle -- etc. See {@link PixelCoverage} /
+ * {@link DrawableImage}
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -39,7 +39,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * @version 1.0
  */
 
-public interface IMesh extends IRenderable {
+public interface IMesh {
 
     /**
      * Dispose of the mesh data
