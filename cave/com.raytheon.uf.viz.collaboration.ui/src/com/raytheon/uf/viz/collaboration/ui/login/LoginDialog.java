@@ -27,6 +27,7 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -39,10 +40,10 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.viz.collaboration.data.DataUser;
-import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
- * TODO Add Description
+ * Dialog for getting user information to establish a connection to the server.
  * 
  * <pre>
  * 
@@ -57,23 +58,18 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase;
  * @author rferrel
  * @version 1.0
  */
-public class LoginDialog extends CaveSWTDialogBase {
+public class LoginDialog extends CaveSWTDialog {
     private static DataUser.StatusType[] status = null;
 
     private Text userTF;
 
-    private Text serverTF;
+    private Label serverTF;
 
     private Text passwordTF;
 
     private Combo statusC;
 
     private Text messageTF;
-
-    // /**
-    // * Collection of buttons created by the <code>createButton</code> method.
-    // */
-    // private Map<Integer, Button> buttons = new HashMap<Integer, Button>();
 
     public LoginDialog(Shell parentShell) {
         super(parentShell);
@@ -92,34 +88,46 @@ public class LoginDialog extends CaveSWTDialogBase {
                 }
             }
         }
+        GridData gd = null;
         Composite body = new Composite(parent, SWT.NONE);
-        body.setLayout(new GridLayout(2, false));
-        body.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL
-                | GridData.HORIZONTAL_ALIGN_FILL));
+        body.setLayout(new GridLayout(3, false));
         Label label = null;
         label = new Label(body, SWT.NONE);
         label.setText("User: ");
         userTF = new Text(body, SWT.BORDER);
-        userTF.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL
-                | GridData.HORIZONTAL_ALIGN_FILL));
-        // TODO Get user name based on linux log in name and the virtual sever
-        // from configuration then combine to make this label
-        // userTF.setText("rferrel");
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        // Set minimum width one time and the fill will handle the other fields.
+        gd.minimumWidth = 200;
+        userTF.setLayoutData(gd);
+        label = new Label(body, SWT.NONE);
 
         label = new Label(body, SWT.NONE);
-        label.setText("Server");
-        serverTF = new Text(body, SWT.BORDER);
-        serverTF.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL
-                | GridData.HORIZONTAL_ALIGN_FILL));
+        label.setText("Server: ");
+        serverTF = new Label(body, SWT.NONE);
+        serverTF.setLayoutData(new GridData(SWT.DEFAULT, SWT.CENTER, true,
+                false));
         serverTF.setText("awipscm.omaha.us.ray.com");
-        serverTF.setEnabled(false);
+        Button serverButton = new Button(body, SWT.PUSH);
+        serverButton.setText("Server ...");
+        serverButton.setToolTipText("Change Server");
+        serverButton.addSelectionListener(new SelectionListener() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                System.out.println("Change server here.");
+            }
+
+            @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+            }
+        });
 
         label = new Label(body, SWT.NONE);
         label.setText("Password: ");
         passwordTF = new Text(body, SWT.PASSWORD | SWT.BORDER);
-        passwordTF.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL
-                | GridData.HORIZONTAL_ALIGN_FILL));
+        passwordTF.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         passwordTF.setTextLimit(32);
+        label = new Label(body, SWT.NONE);
         label = new Label(body, SWT.NONE);
         label.setText("Status: ");
         statusC = new Combo(body, SWT.DEFAULT);
@@ -130,33 +138,35 @@ public class LoginDialog extends CaveSWTDialogBase {
         }
 
         statusC.select(0);
+        label = new Label(body, SWT.NONE);
 
         label = new Label(body, SWT.NONE);
         label.setText("Message: ");
 
         messageTF = new Text(body, SWT.BORDER);
-        messageTF
-                .setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-        // body.pack();
+        // messageTF
+        // .setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+        messageTF.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         return body;
     }
 
     @Override
     protected void initializeComponents(Shell shell) {
         shell.setLayout(new GridLayout(1, false));
+        // GridData gd = new GridData();
+        // gd.
+        // shell.setLayoutData(gd);
         createDialogArea(shell);
         createButtonBar(shell);
     }
 
     private void createButtonBar(Composite parent) {
-        Composite b = new Composite(parent, SWT.NONE);
-
-        // set up to center buttons.
-        b.setLayout(new GridLayout(3, true));
-        new Composite(b, SWT.NONE);
-        Composite bar = new Composite(b, SWT.NONE);
-        new Composite(b, SWT.NONE);
+        GridData gd = null;
+        Composite bar = new Composite(parent, SWT.NONE);
+        // bar.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
+        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         bar.setLayout(new GridLayout(0, true));
+        bar.setLayoutData(gd);
         createButton(bar, IDialogConstants.OK_ID, "Log On", true);
 
         createButton(bar, IDialogConstants.CANCEL_ID,
@@ -165,9 +175,8 @@ public class LoginDialog extends CaveSWTDialogBase {
 
     @Override
     protected void preOpened() {
-        // TODO Auto-generated method stub
         super.preOpened();
-        passwordTF.setFocus();
+        userTF.setFocus();
     }
 
     /**
@@ -207,7 +216,9 @@ public class LoginDialog extends CaveSWTDialogBase {
         ((GridLayout) parent.getLayout()).numColumns++;
         Button button = new Button(parent, SWT.PUSH);
         button.setText(label);
-        // button.setFont(JFaceResources.getDialogFont());
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gd.minimumWidth = 70;
+        button.setLayoutData(gd);
         button.setData(new Integer(id));
         button.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
@@ -226,22 +237,22 @@ public class LoginDialog extends CaveSWTDialogBase {
                         if (focusField == null) {
                             focusField = userTF;
                         }
-                        errorMessages.add("Must have a user.");
+                        errorMessages.add("Must enter a user.");
                         userTF.setText("");
                     }
-                    if (server.length() <= 0) {
-                        if (focusField == null) {
-                            focusField = serverTF;
-                        }
-                        errorMessages.add("Must have a server.");
-                        serverTF.setText("");
-                    }
+                    // if (server.length() <= 0) {
+                    // if (focusField == null) {
+                    // focusField = serverTF;
+                    // }
+                    // errorMessages.add("Must have a server.");
+                    // serverTF.setText("");
+                    // }
 
                     if (password.length() <= 0) {
                         if (focusField == null) {
                             focusField = passwordTF;
                         }
-                        errorMessages.add("Must have a password.");
+                        errorMessages.add("Must enter a password.");
                         passwordTF.setText("");
                     }
                     if (focusField == null) {
@@ -274,8 +285,6 @@ public class LoginDialog extends CaveSWTDialogBase {
                 shell.setDefaultButton(button);
             }
         }
-        // buttons.put(new Integer(id), button);
-        // setButtonLayoutData(button);
         return button;
     }
 }
