@@ -182,6 +182,7 @@ public class AbstractRadarResource<D extends IDescriptor> extends
      */
     @Override
     protected void disposeInternal() {
+        radarRecords.clear();
         upperTextMap.clear();
 
         RadarTextResourceData.removeRadarTextResource(descriptor);
