@@ -58,7 +58,7 @@
                category="com.raytheon.viz.ui"
                class="com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView"
                id="com.raytheon.uf.viz.collaboration.CollaborationSession"
-               icon="icons/add_correction.gif"
+               icon="icons/messages.gif"
                name="Collaboration Session"
                restorable="true"/>
    </extension>
