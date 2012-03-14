@@ -24,19 +24,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
-import org.geotools.coverage.grid.GridGeometry2D;
-import org.opengis.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IMesh;
-import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.map.IMapDescriptor;
-import com.raytheon.uf.viz.core.rsc.hdf5.ImageTile;
 
 /**
  * 
@@ -161,8 +156,6 @@ public class RadarRadialMeshCache {
 
         private int refCount = 0;
 
-        private boolean calculated = false;
-
         private RadarSharedMesh(IMesh mesh, CacheKey key) {
             this.mesh = mesh;
             this.key = key;
@@ -172,26 +165,6 @@ public class RadarRadialMeshCache {
         public void paint(IGraphicsTarget target, PaintProperties paintProps)
                 throws VizException {
             mesh.paint(target, paintProps);
-        }
-
-        @Override
-        public synchronized void calculateMesh(PixelCoverage pc,
-                ImageTile tile, MathTransform toLatLon) {
-            if (!calculated) {
-                mesh.calculateMesh(pc, tile, toLatLon);
-                calculated = true;
-            }
-
-        }
-
-        @Override
-        public synchronized void calculateMesh(PixelCoverage pc,
-                GridGeometry2D gg) {
-            if (!calculated) {
-                mesh.calculateMesh(pc, gg);
-                calculated = true;
-            }
-
         }
 
         @Override
@@ -207,6 +180,19 @@ public class RadarRadialMeshCache {
 
         private void use() {
             refCount += 1;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * com.raytheon.uf.viz.core.IMesh#reproject(org.geotools.coverage.grid
+         * .GeneralGridGeometry)
+         */
+        @Override
+        public void reproject(GeneralGridGeometry targetGeometry)
+                throws VizException {
+            mesh.reproject(targetGeometry);
         }
 
         @Override
@@ -237,8 +223,8 @@ public class RadarRadialMeshCache {
             RadarSharedMesh mesh = cache.get(key);
             if (mesh == null) {
                 // System.out.println("Mesh Cache miss");
-                IMesh baseMesh = new RadarRadialMesh(
-                        (IMapDescriptor) descriptor, radarData);
+                IMesh baseMesh = new RadarRadialMesh(radarData,
+                        descriptor.getGridGeometry());
                 mesh = new RadarSharedMesh(baseMesh, key);
                 cache.put(key, mesh);
             } else {
