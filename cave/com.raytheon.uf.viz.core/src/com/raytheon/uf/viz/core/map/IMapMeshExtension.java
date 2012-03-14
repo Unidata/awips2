@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.viz.core.map;
 
+import org.geotools.coverage.grid.GeneralGridGeometry;
+import org.geotools.coverage.grid.GridGeometry2D;
+
 import com.raytheon.uf.viz.core.IMesh;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension.IGraphicsExtensionInterface;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -43,14 +46,14 @@ import com.raytheon.uf.viz.core.exception.VizException;
 public interface IMapMeshExtension extends IGraphicsExtensionInterface {
 
     /**
-     * Create a mesh
+     * Constructs a mesh for mapping the imageGeometry onto the targetGeometry
      * 
-     * @param descriptor
-     * 
+     * @param imageGeometry
+     * @param targetGeometry
      * @return
      * @throws VizException
      */
-    public abstract IMesh constructMesh(IMapDescriptor descriptor)
-            throws VizException;
+    public abstract IMesh constructMesh(GridGeometry2D imageGeometry,
+            GeneralGridGeometry targetGeometry) throws VizException;
 
 }
