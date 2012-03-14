@@ -35,6 +35,7 @@ import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IMesh;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.drawables.IImage;
+import com.raytheon.uf.viz.core.drawables.IImage.Status;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension;
 import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
@@ -119,6 +120,15 @@ public abstract class AbstractGLImagingExtension extends
             PixelCoverage extent = di.getCoverage();
 
             synchronized (glImage) {
+                if (glImage.getStatus() == Status.STAGED) {
+                    glImage.target(target);
+                }
+                
+                if (glImage.getStatus() != Status.LOADED) {
+                    ++continues;
+                    continue;
+                }
+                
                 int textureType = glImage.getTextureStorageType();
 
                 if (lastTextureType != textureType) {
