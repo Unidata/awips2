@@ -48,7 +48,7 @@ import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 public class CollaborationSessionView extends SessionView {
     public static final String ID = "com.raytheon.uf.viz.collaboration.CollaborationSession";
 
-    private static final String COLLABORATION_SESSION_IMAGE_NAME = "add_correction.gif";
+    private static final String COLLABORATION_SESSION_IMAGE_NAME = "messages.gif";
 
     private Action switchToAction;
 
@@ -72,16 +72,6 @@ public class CollaborationSessionView extends SessionView {
                 if (menu == null) {
                     menu = new Menu(parent);
                 }
-                Action dataProviderAction = new Action("Data Provider") {
-                    public void run() {
-                        switchToAction.setId("DataProvider");
-                        switchToAction.run();
-                    };
-                };
-                ActionContributionItem dataProviderItem = new ActionContributionItem(
-                        dataProviderAction);
-                dataProviderItem.fill(menu, -1);
-
                 Action leaderAction = new Action("Session Leader") {
                     public void run() {
                         switchToAction.setId("SessionLeader");
@@ -91,6 +81,16 @@ public class CollaborationSessionView extends SessionView {
                 ActionContributionItem leaderItem = new ActionContributionItem(
                         leaderAction);
                 leaderItem.fill(menu, -1);
+
+                Action dataProviderAction = new Action("Data Provider") {
+                    public void run() {
+                        switchToAction.setId("DataProvider");
+                        switchToAction.run();
+                    };
+                };
+                ActionContributionItem dataProviderItem = new ActionContributionItem(
+                        dataProviderAction);
+                dataProviderItem.fill(menu, -1);
                 return menu;
             }
 
