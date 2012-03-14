@@ -33,7 +33,8 @@ import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
  * The activator class controls the plug-in life cycle
  */
 public class Activator extends AbstractUIPlugin {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+
+    public static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(Activator.class);
 
     // The plug-in ID
