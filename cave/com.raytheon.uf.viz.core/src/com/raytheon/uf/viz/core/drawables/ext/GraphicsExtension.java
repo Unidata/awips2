@@ -78,6 +78,7 @@ public abstract class GraphicsExtension<T extends IGraphicsTarget> {
             this.target = (T) target;
             return getCompatibilityValue(this.target);
         } catch (ClassCastException e) {
+            this.target = null;
             return Compatibilty.INCOMPATIBLE;
         }
     }

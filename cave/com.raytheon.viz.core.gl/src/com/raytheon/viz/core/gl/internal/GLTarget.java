@@ -82,9 +82,9 @@ import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IFont.Style;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
-import com.raytheon.uf.viz.core.drawables.IRenderedImage;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
+import com.raytheon.uf.viz.core.drawables.ImagingSupport;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension.IGraphicsExtensionInterface;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtensionManager;
@@ -1787,7 +1787,7 @@ public class GLTarget implements IGLTarget {
      * .uf.viz.core.data.IRenderedImageCallback)
      */
     @Override
-    public IRenderedImage initializeRaster(IRenderedImageCallback imageCallback) {
+    public IImage initializeRaster(IRenderedImageCallback imageCallback) {
         return new GLImage(imageCallback, GLDefaultImagingExtension.class);
     }
 
