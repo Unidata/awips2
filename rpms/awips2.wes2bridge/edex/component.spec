@@ -203,6 +203,21 @@ fi
 
 %pre
 %post
+# We need to create a link to the python shared library if it does not exist.
+pushd . > /dev/null 2>&1
+if [ -d /awips2/python/lib ]; then
+   cd /awips2/python/lib
+   if [ -L libpython.so ]; then
+      # Ensure that we are pointing to the correct shared library.
+      rm -f libpython.so
+   fi
+      
+   if [ -f libpython2.7.so.1.0 ]; then
+      ln -s libpython2.7.so.1.0 libpython.so
+   fi
+fi
+popd > /dev/null 2>&1
+
 %preun
 %postun
 
