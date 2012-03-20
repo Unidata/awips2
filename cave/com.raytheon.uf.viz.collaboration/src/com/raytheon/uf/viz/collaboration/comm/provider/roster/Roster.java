@@ -21,6 +21,9 @@ package com.raytheon.uf.viz.collaboration.comm.provider.roster;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
@@ -49,9 +52,9 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 
 public class Roster extends RosterItem implements IRoster {
 
-    private Collection<IRosterEntry> entries;
+    private Map<IRosterEntry, IRosterEntry> entries;
 
-    private Collection<IRosterGroup> groups;
+    private Map<IRosterGroup, IRosterGroup> groups = null;
 
     private final IChatID user;
 
@@ -74,7 +77,8 @@ public class Roster extends RosterItem implements IRoster {
      */
     public Roster(IChatID user) {
         this.user = user;
-        entries = new ArrayList<IRosterEntry>();
+        entries = new HashMap<IRosterEntry, IRosterEntry>();
+        groups = new HashMap<IRosterGroup, IRosterGroup>();
     }
 
     /**
@@ -113,9 +117,18 @@ public class Roster extends RosterItem implements IRoster {
      */
     @Override
     public void addRosterEntry(IRosterEntry entry) {
-        entries.add(entry);
+        entries.put(entry, entry);
     }
 
+    /**
+     * 
+     * @param entry
+     * @return
+     */
+    public IRosterEntry getRosterEntry(IRosterEntry entry) {
+        return entries.get(entry);
+    }
+    
     /**
      * Get all entries belonging with this roster.
      * 
@@ -124,9 +137,9 @@ public class Roster extends RosterItem implements IRoster {
      */
     @Override
     public Collection<IRosterEntry> getEntries() {
-        return entries;
+        return entries.values();
     }
-
+    
     /**
      * Get all groups associated with this roster.
      * 
@@ -134,7 +147,16 @@ public class Roster extends RosterItem implements IRoster {
      */
     @Override
     public Collection<IRosterGroup> getGroups() {
-        return groups;
+        return groups.values();
+    }
+
+    /**
+     * 
+     * @param group
+     * @return
+     */
+    public IRosterGroup getRosterGroup(IRosterGroup group) {
+        return groups.get(group);
     }
 
     /**
@@ -144,6 +166,9 @@ public class Roster extends RosterItem implements IRoster {
     @Override
     public void addRosterEntry(IQualifiedID user, String nickName,
             String[] groups) {
+        
+        
+        
     }
 
     /**
@@ -153,7 +178,7 @@ public class Roster extends RosterItem implements IRoster {
     public void modifyRosterEntry(IRosterEntry entry) {
     }
 
-    /*
+    /**
      * 
      * 
      * @see com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster#
@@ -161,7 +186,6 @@ public class Roster extends RosterItem implements IRoster {
      */
     @Override
     public void removeFromRoster(ID user) {
-        // TODO Auto-generated method stub
 
     }
 
