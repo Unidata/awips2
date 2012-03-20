@@ -53,6 +53,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -72,7 +73,9 @@ import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
 import com.raytheon.uf.viz.collaboration.data.DataUser;
 import com.raytheon.uf.viz.collaboration.data.LoginUser;
 import com.raytheon.uf.viz.collaboration.data.SessionGroup;
+import com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
+import com.raytheon.uf.viz.collaboration.ui.session.PeerToPeerView;
 import com.raytheon.uf.viz.collaboration.ui.session.SessionView;
 import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 
@@ -108,7 +111,7 @@ public class CollaborationGroupView extends ViewPart {
 
     Map<String, String[]> groupMap;
 
-    private Action collaborateAction;
+    private Action createSessionAction;
 
     private Action linkToEditorAction;
 
@@ -118,9 +121,13 @@ public class CollaborationGroupView extends ViewPart {
 
     private Action joinCollaborationAction;
 
+    private Action peerToPeerChatAction;
+
     private Action logoutAction;
 
     private Action aliasAction;
+
+    private Action renameAction;
 
     private Action addGroupAction;
 
@@ -173,14 +180,14 @@ public class CollaborationGroupView extends ViewPart {
      */
     private void createActions() {
 
-        collaborateAction = new Action("Create Session...") {
+        createSessionAction = new Action("Create Session...") {
             @Override
             public void run() {
-                createCollaborationSession();
+                createSession();
             }
 
         };
-        collaborateAction.setImageDescriptor(CollaborationUtils
+        createSessionAction.setImageDescriptor(CollaborationUtils
                 .getImageDescriptor("add_collaborate.gif"));
 
         linkToEditorAction = new Action("Link Editor to Chat Session",
@@ -208,25 +215,21 @@ public class CollaborationGroupView extends ViewPart {
             @Override
             public void run() {
                 createJoinCollaboration();
-            };
+            }
+        };
+
+        peerToPeerChatAction = new Action("Private Chat") {
+            @Override
+            public void run() {
+                createPrivateChat(getId());
+            }
         };
 
         logoutAction = new Action("Logout") {
             @Override
             public void run() {
-                MessageBox messageBox = new MessageBox(Display.getCurrent()
-                        .getActiveShell(), SWT.ICON_WARNING | SWT.OK
-                        | SWT.CANCEL);
-                messageBox.setText("Log off Collaboration");
-                messageBox.setMessage("Logging off will sever your\n"
-                        + "connection to the server and\n"
-                        + "close all session views.");
-                int result = messageBox.open();
-                if (result == SWT.OK) {
-                    CollaborationDataManager.getInstance().closeManager();
-                    // TODO clean up ui here.
-                }
-            };
+                performLogout();
+            }
         };
         logoutAction.setImageDescriptor(CollaborationUtils
                 .getImageDescriptor("logout.gif"));
@@ -237,6 +240,13 @@ public class CollaborationGroupView extends ViewPart {
                 aliasItem();
                 System.out.println("Alias");
             };
+        };
+
+        renameAction = new Action("Rename") {
+            @Override
+            public void run() {
+                System.out.println("Rename action");
+            }
         };
 
         addUserAction = new Action("Add User") {
@@ -335,6 +345,44 @@ public class CollaborationGroupView extends ViewPart {
     }
 
     /**
+     * This displays a warning dialog then closes all collaboration views and
+     * disconnects from the server.
+     */
+    private void performLogout() {
+        MessageBox messageBox = new MessageBox(Display.getCurrent()
+                .getActiveShell(), SWT.ICON_WARNING | SWT.OK | SWT.CANCEL);
+        messageBox.setText("Log Out of Collaboration");
+        messageBox.setMessage("Logging out will sever your\n"
+                + "connection to the server and\n"
+                + "close all collaboration views\n" + "and editors.");
+        int result = messageBox.open();
+        if (result == SWT.OK) {
+            PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getActivePage().hideView(this);
+            for (IViewReference ref : PlatformUI.getWorkbench()
+                    .getActiveWorkbenchWindow().getActivePage()
+                    .getViewReferences()) {
+                IViewPart view = ref.getView(false);
+                if (view instanceof AbstractSessionView) {
+                    PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                            .getActivePage().hideView(view);
+                }
+            }
+            // TODO close collaboration CAVE editor(s).
+            // for (IEditorReference ref :
+            // PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getEditorReferences())
+            // {
+            // IEditorPart editor = ref.getEditor(false);
+            // if (editor instanceof CollaborationEditor) {
+            // PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+            // .getActivePage().hideEditor(ref);
+            // }
+            // }
+            CollaborationDataManager.getInstance().closeManager();
+        }
+    }
+
+    /**
      * 
      */
     protected void aliasItem() {
@@ -383,7 +431,7 @@ public class CollaborationGroupView extends ViewPart {
     private void createToolbar() {
         IToolBarManager mgr = getViewSite().getActionBars().getToolBarManager();
         // mgr.add(joinCollaborationAction);
-        mgr.add(collaborateAction);
+        mgr.add(createSessionAction);
         mgr.add(collapseAllAction);
         // mgr.add(privateChatAction);
         mgr.add(linkToEditorAction);
@@ -406,7 +454,7 @@ public class CollaborationGroupView extends ViewPart {
         mgr.add(logoutAction);
     }
 
-    private void createCollaborationSession() {
+    private void createSession() {
         CollaborationDataManager manager = CollaborationDataManager
                 .getInstance();
         SessionManager sessionManager = manager.getSessionManager();
@@ -423,15 +471,21 @@ public class CollaborationGroupView extends ViewPart {
 
         CreateSessionData result = (CreateSessionData) dialog.getReturnValue();
 
-        if (result == null) {
-            return;
+        if (result != null) {
+            if (result.isCollaborationSession()) {
+                createCollaborationView(result);
+            } else {
+                createPrivateView(result);
+            }
         }
+    }
 
+    private void createCollaborationView(CreateSessionData result) {
         String sessionId = null;
         try {
-
-            sessionId = manager.createCollaborationSession(result.getName(),
-                    result.getSubject());
+            sessionId = CollaborationDataManager.getInstance()
+                    .createCollaborationSession(result.getName(),
+                            result.getSubject());
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -446,6 +500,46 @@ public class CollaborationGroupView extends ViewPart {
                     .getActiveWorkbenchWindow()
                     .getActivePage()
                     .showView(CollaborationSessionView.ID, sessionId,
+                            IWorkbenchPage.VIEW_ACTIVATE);
+
+            if (result.isInviteUsers()) {
+                // TODO send invites to the users
+                Set<CollaborationUser> selectedUsers = getSelectedUsers();
+                for (CollaborationUser user : selectedUsers) {
+                    System.out.println("sessionId - Invite: " + user.getId());
+                }
+            }
+            refreshActiveSessions();
+        } catch (PartInitException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to open collaboation sesson", e);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.ERROR, "Unexpected excepton", e);
+        }
+    }
+
+    private void createPrivateView(CreateSessionData result) {
+        String sessionId = null;
+        try {
+            // TODO Do not use createCollaborationSession once private session
+            // implemented.
+            sessionId = CollaborationDataManager.getInstance()
+                    .createCollaborationSession(result.getName(),
+                            result.getSubject());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (sessionId == null) {
+                return;
+            }
+        }
+
+        try {
+            IViewPart part = PlatformUI
+                    .getWorkbench()
+                    .getActiveWorkbenchWindow()
+                    .getActivePage()
+                    .showView(SessionView.ID, sessionId,
                             IWorkbenchPage.VIEW_ACTIVATE);
 
             if (result.isInviteUsers()) {
@@ -493,9 +587,10 @@ public class CollaborationGroupView extends ViewPart {
         }
     }
 
-    private void createPrivateChat() {
-        IStructuredSelection selection = (IStructuredSelection) usersTreeViewer
-                .getSelection();
+    private void createPrivateChat(String user) {
+        // IStructuredSelection selection = (IStructuredSelection)
+        // usersTreeViewer
+        // .getSelection();
         // TODO
         // List<ID> users = new ArrayList<ID>();
         // ID id = IDFactory.getDefault().createID(
@@ -510,11 +605,8 @@ public class CollaborationGroupView extends ViewPart {
                     .getWorkbench()
                     .getActiveWorkbenchWindow()
                     .getActivePage()
-                    .showView(
-                            SessionView.ID,
-                            null,
-                            IWorkbenchPage.VIEW_CREATE
-                                    | IWorkbenchPage.VIEW_VISIBLE);
+                    .showView(PeerToPeerView.ID, user,
+                            IWorkbenchPage.VIEW_ACTIVATE);
             // }
         } catch (PartInitException e) {
             statusHandler.handle(Priority.PROBLEM, "Unable to open chat", e);
@@ -581,7 +673,7 @@ public class CollaborationGroupView extends ViewPart {
         if (o instanceof SessionGroup) {
             SessionGroup sessionGroup = (SessionGroup) o;
             if (sessionGroup.isSessionRoot()) {
-                manager.add(collaborateAction);
+                manager.add(createSessionAction);
                 manager.add(refreshActiveSessionsAction);
             } else {
                 manager.add(joinAction);
@@ -601,7 +693,8 @@ public class CollaborationGroupView extends ViewPart {
                     final IVenueInfo info = sessions.get(name).getVenue()
                             .getInfo();
                     if (info != null) {
-                        System.out.println(info.getVenueDescription());
+                        System.out.println("Add to Invite To menu: "
+                                + info.getVenueDescription());
                         Action action = new Action(info.getVenueDescription()) {
                             /*
                              * (non-Javadoc)
@@ -620,6 +713,8 @@ public class CollaborationGroupView extends ViewPart {
                 }
             }
             manager.add(inviteManager);
+            manager.add(peerToPeerChatAction);
+            peerToPeerChatAction.setId(user.getId());
             if (user.isLocal()) {
                 manager.add(addUserAction);
                 manager.add(addGroupAction);
@@ -628,14 +723,14 @@ public class CollaborationGroupView extends ViewPart {
             }
         } else if (o instanceof CollaborationGroup) {
             CollaborationGroup group = (CollaborationGroup) o;
-            manager.add(collaborateAction);
+            manager.add(createSessionAction);
             if (group.isLocal()) {
                 manager.add(addUserAction);
                 manager.add(addGroupAction);
                 manager.add(removeGroupAction);
+                manager.add(renameAction);
             }
         }
-        manager.add(aliasAction);
     }
 
     protected void populateTree() {
@@ -664,7 +759,7 @@ public class CollaborationGroupView extends ViewPart {
             group.setModifiable(true);
             topLevel.addChild(group);
             for (String u : new String[] { "OAX_user1", "DSM_user3",
-                    "LBF_user2" }) {
+                    "LBF_user2", "mnash@awipscm.omaha.us.ray.com" }) {
                 CollaborationUser item = new CollaborationUser(u);
                 group.addChild(item);
                 item.setStatus(DataUser.StatusType.AVAILABLE);
@@ -783,14 +878,29 @@ public class CollaborationGroupView extends ViewPart {
             @Override
             public void doubleClick(DoubleClickEvent event) {
                 TreeSelection selection = (TreeSelection) event.getSelection();
-                if (selection.getFirstElement() instanceof SessionGroup) {
+                CollaborationNode node = (CollaborationNode) selection
+                        .getFirstElement();
+                if (node instanceof SessionGroup) {
                     SessionGroup group = (SessionGroup) selection
                             .getFirstElement();
                     if (!group.isSessionRoot()) {
                         createJoinCollaboration();
                     }
+                } else if (node instanceof CollaborationUser) {
+                    String loginUserId = CollaborationDataManager.getInstance()
+                            .getLoginId();
+                    if (loginUserId.equals(node.getId()) == false) {
+                        createPrivateChat(node.getId());
+                    }
                 }
             }
         });
+    }
+
+    @Override
+    public void dispose() {
+        // TODO Auto-generated method stub
+        System.out.println("Disposing: " + getClass().getName());
+        super.dispose();
     }
 }
