@@ -69,6 +69,8 @@ public class CreateSessionDialog extends CaveSWTDialog {
 
     private Text subjectTF;
 
+    private Button publicCollaboration;
+
     private Button inviteUsers;
 
     private boolean showInvite;
@@ -80,7 +82,7 @@ public class CreateSessionDialog extends CaveSWTDialog {
     public CreateSessionDialog(Shell parentShell, boolean showInvite) {
         super(parentShell);
         this.showInvite = showInvite;
-        setText("Create Collaboration Session");
+        setText("Create Session");
     }
 
     private Control createDialogArea(Composite parent) {
@@ -111,21 +113,31 @@ public class CreateSessionDialog extends CaveSWTDialog {
         label.setText("Subject: ");
         subjectTF = new Text(body, SWT.BORDER);
         subjectTF.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        publicCollaboration = new Button(body, SWT.CHECK);
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false);
+        gd.horizontalSpan = 2;
+        publicCollaboration.setLayoutData(gd);
+        publicCollaboration.setText("Create Public Collaboration");
 
         if (showInvite) {
             inviteUsers = new Button(body, SWT.CHECK);
+            gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false);
+            gd.horizontalSpan = 2;
+            inviteUsers.setLayoutData(gd);
             inviteUsers.setText("Invite Selected Users");
-            inviteUsers.setSelection(true);
+            // inviteUsers.setSelection(true);
             inviteUsers.setVisible(true);
-            label = new Label(body, SWT.NONE);
-            label.setText("");
-            label.setVisible(showInvite);
+            // label = new Label(body, SWT.NONE);
+            // label.setText("");
+            // label.setVisible(showInvite);
             inviteLabel = new Label(body, SWT.NONE);
-            inviteLabel.setText("Invite Message: ");
+            inviteLabel.setText("Message: ");
+            inviteLabel.setToolTipText("Message to send to invited users");
             inviteMessageTF = new StyledText(body, SWT.BORDER | SWT.MULTI
                     | SWT.WRAP | SWT.H_SCROLL | SWT.V_SCROLL);
             inviteMessageTF.setLayoutData(new GridData(GridData.FILL_BOTH));
             inviteMessageTF.pack();
+            inviteMessageTF.setToolTipText("Message to send to invited users");
             Point p = inviteMessageTF.getSize();
             gd = (GridData) inviteMessageTF.getLayoutData();
             gd.heightHint = p.y * 3;
@@ -146,6 +158,8 @@ public class CreateSessionDialog extends CaveSWTDialog {
 
                 }
             });
+            inviteLabel.setVisible(false);
+            inviteMessageTF.setVisible(false);
         }
         return body;
     }
@@ -238,6 +252,8 @@ public class CreateSessionDialog extends CaveSWTDialog {
                         CreateSessionData result = new CreateSessionData();
                         result.setName(name);
                         result.setSubject(subject);
+                        result.setCollaborationSessioh(publicCollaboration
+                                .getSelection());
                         if (inviteUsers == null) {
                             result.setInviteUsers(false);
                         } else {
