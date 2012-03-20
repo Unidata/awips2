@@ -28,6 +28,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.listener.IMessageListener;
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 
 /**
@@ -165,8 +166,12 @@ public class PeerToPeerView extends AbstractSessionView {
             if (session != null) {
                 session.sendTextMessage(toUser, message);
             } else {
-                session = CollaborationDataManager.getInstance()
-                        .getSessionManager().createPeerToPeerSession();
+                try {
+                    session = CollaborationDataManager.getInstance()
+                    .getSessionManager().createPeerToPeerSession();
+                } catch(CollaborationException ce) {
+                    
+                }
                 // session.sendTextMessage(toUser, message);
                 // session.close();
             }
