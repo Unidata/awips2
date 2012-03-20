@@ -23,15 +23,12 @@ package com.raytheon.uf.viz.collaboration.ui.session;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
-import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
@@ -40,11 +37,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyleRange;
-import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseTrackAdapter;
@@ -59,14 +51,10 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.ui.IPartListener;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchListener;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.part.ViewPart;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -83,9 +71,7 @@ import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationKeywords;
 import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
 import com.raytheon.uf.viz.collaboration.data.DataUser.RoleType;
-import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 
 /**
  * TODO Add Description
@@ -103,27 +89,15 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  * @author rferrel
  * @version 1.0
  */
-public class SessionView extends ViewPart implements IPartListener {
+public class SessionView extends AbstractSessionView {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SessionView.class);
 
-    protected static final String SESSION_IMAGE_KEY = "sessionId.key";
-
     private static final String SESSION_IMAGE_NAME = "chats.gif";
-
-    protected Map<String, Image> imageMap;
 
     public static final String ID = "com.raytheon.uf.viz.collaboration.SessionView";
 
-    private static int SASH_WIDTH = 5;
-
-    private static int SASH_COLOR = SWT.COLOR_DARK_GRAY;
-
     private TableViewer usersTable;
-
-    private StyledText messagesText;
-
-    protected StyledText composeText;
 
     protected String sessionId;
 
@@ -135,53 +109,29 @@ public class SessionView extends ViewPart implements IPartListener {
 
     private Image highlightedDownArrow;
 
-    private Action chatAction;
+    protected Action chatAction;
 
     protected IVenueParticipantListener participantListener;
 
     protected IMessageListener messageListener;
 
     public SessionView() {
-        imageMap = new HashMap<String, Image>();
+        super();
     }
 
     @Override
     public void createPartControl(Composite parent) {
-        setTitleImage(getImage());
-        initComponents(parent);
+        super.createPartControl(parent);
         createActions();
         createContextMenu();
     }
 
     @Override
-    public void setFocus() {
-        composeText.setFocus();
-    }
-
-    private void initComponents(Composite parent) {
-        Composite sashComp = new Composite(parent, SWT.NONE);
-        GridLayout layout = new GridLayout(1, false);
-        GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
-        sashComp.setLayout(layout);
-        sashComp.setLayoutData(data);
-
-        Color sashColor = Display.getCurrent().getSystemColor(SASH_COLOR);
-
-        SashForm sashForm = new SashForm(sashComp, SWT.VERTICAL);
-        layout = new GridLayout(1, false);
-        data = new GridData(SWT.FILL, SWT.FILL, true, true);
-        sashForm.setLayout(layout);
-        sashForm.setLayoutData(data);
-        sashForm.setBackground(sashColor);
-        sashForm.setSashWidth(SASH_WIDTH);
-
-        createListeners();
+    protected void populateSashForm(SashForm sashForm) {
         createArrows();
         createUsersComp(sashForm);
-        createMessagesComp(sashForm);
-        createComposeComp(sashForm);
+        super.populateSashForm(sashForm);
         sashForm.setWeights(new int[] { 1, 20, 5 });
-
     }
 
     protected void createActions() {
@@ -243,8 +193,9 @@ public class SessionView extends ViewPart implements IPartListener {
         // do something here!
         Object ob = selection.getFirstElement();
         System.out.println(ob.toString());
-        manager.add(chatAction);
-        manager.add(new Separator());
+        // super.fillContextMenu(manager);
+        // manager.add(chatAction);
+        // manager.add(new Separator());
     }
 
     /**
@@ -252,15 +203,16 @@ public class SessionView extends ViewPart implements IPartListener {
      * 
      * @param sessionId
      */
-    private void createListeners() {
-        this.getViewSite().getWorkbenchWindow().getPartService()
-                .addPartListener(this);
-
-        sessionId = getViewSite().getSecondaryId();
+    @Override
+    protected void createListeners() {
+        // this.getViewSite().getWorkbenchWindow().getPartService()
+        // .addPartListener(this);
+        super.createListeners();
+        // sessionId = getViewSite().getSecondaryId();
         IVenueSession session = CollaborationDataManager.getInstance()
                 .getSession(sessionId);
         if (session != null) {
-            setPartName(session.getVenue().getInfo().getVenueDescription());
+            // setPartName(session.getVenue().getInfo().getVenueDescription());
             messageListener = new IMessageListener() {
 
                 @Override
@@ -327,25 +279,10 @@ public class SessionView extends ViewPart implements IPartListener {
                 }
             };
             session.addVenueParticipantListener(participantListener);
-
-            getViewSite().getWorkbenchWindow().getWorkbench()
-                    .addWorkbenchListener(new IWorkbenchListener() {
-
-                        @Override
-                        public boolean preShutdown(IWorkbench workbench,
-                                boolean forced) {
-                            return false;
-                        }
-
-                        @Override
-                        public void postShutdown(IWorkbench workbench) {
-                            System.out.println("Shutting down");
-                        }
-                    });
         }
     }
 
-    private void createUsersComp(final Composite parent) {
+    protected void createUsersComp(final Composite parent) {
         Composite comp = new Composite(parent, SWT.NONE);
         GridLayout layout = new GridLayout(1, false);
         GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -496,122 +433,123 @@ public class SessionView extends ViewPart implements IPartListener {
         ((GridData) usersComp.getLayoutData()).exclude = true;
     }
 
-    private void createMessagesComp(Composite parent) {
-        Composite messagesComp = new Composite(parent, SWT.NONE);
-        GridLayout layout = new GridLayout(1, false);
-        messagesComp.setLayout(layout);
-        // TODO, wrap label in view
-        Label label = new Label(messagesComp, SWT.WRAP);
+    // protected void createMessagesComp(Composite parent) {
+    // Composite messagesComp = new Composite(parent, SWT.NONE);
+    // GridLayout layout = new GridLayout(1, false);
+    // messagesComp.setLayout(layout);
+    // // TODO, wrap label in view
+    // Label label = new Label(messagesComp, SWT.WRAP);
+    //
+    // StringBuilder labelInfo = new StringBuilder();
+    // IVenueSession session = CollaborationDataManager.getInstance()
+    // .getSession(sessionId);
+    // if (session != null) {
+    // IVenueInfo info = session.getVenue().getInfo();
+    // labelInfo.append(info.getVenueSubject());
+    // label.setToolTipText(info.getVenueSubject());
+    // }
+    // messagesText = new StyledText(messagesComp, SWT.MULTI | SWT.WRAP
+    // | SWT.READ_ONLY | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+    // messagesText.setLayoutData(new GridData(GridData.FILL_BOTH));
+    //
+    // if (session == null) {
+    // labelInfo.append("There is no active session.");
+    // label.setEnabled(false);
+    // messagesText.setEnabled(false);
+    // }
+    //
+    // label.setText(labelInfo.toString());
+    // }
 
-        StringBuilder labelInfo = new StringBuilder();
-        IVenueSession session = CollaborationDataManager.getInstance()
-                .getSession(sessionId);
-        if (session != null) {
-            IVenueInfo info = session.getVenue().getInfo();
-            labelInfo.append(info.getVenueSubject());
-            label.setToolTipText(info.getVenueSubject());
-        }
-        messagesText = new StyledText(messagesComp, SWT.MULTI | SWT.WRAP
-                | SWT.READ_ONLY | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
-        messagesText.setLayoutData(new GridData(GridData.FILL_BOTH));
+    // protected void createComposeComp(Composite parent) {
+    // Composite composeComp = new Composite(parent, SWT.NONE);
+    // GridLayout layout = new GridLayout(1, false);
+    // composeComp.setLayout(layout);
+    //
+    // Label label = new Label(composeComp, SWT.NONE);
+    // label.setText("Compose:");
+    // composeText = new StyledText(composeComp, SWT.MULTI | SWT.WRAP
+    // | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+    // composeText.setLayoutData(new GridData(GridData.FILL_BOTH));
+    // composeText.setToolTipText("Enter message here");
+    // composeText.addKeyListener(new KeyListener() {
+    // private boolean keyPressed;
+    //
+    // @Override
+    // public void keyReleased(KeyEvent e) {
+    // if (e.keyCode == SWT.SHIFT) {
+    // keyPressed = false;
+    // }
+    // // do nothing, all done on key pressed
+    // }
+    //
+    // @Override
+    // public void keyPressed(KeyEvent e) {
+    // if (!keyPressed
+    // && (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR)) {
+    // sendMessage();
+    // }
+    // if (e.keyCode == SWT.SHIFT) {
+    // keyPressed = true;
+    // }
+    // }
+    // });
+    //
+    // composeText.addFocusListener(new FocusListener() {
+    //
+    // @Override
+    // public void focusLost(FocusEvent e) {
+    // // Restore other perspective's key bindings.
+    // VizPerspectiveListener.getCurrentPerspectiveManager()
+    // .activateContexts();
+    // }
+    //
+    // @Override
+    // public void focusGained(FocusEvent e) {
+    // // Remove other perspective's key bindings.
+    // VizPerspectiveListener.getCurrentPerspectiveManager()
+    // .deactivateContexts();
+    // }
+    // });
+    //
+    // IVenueSession session = CollaborationDataManager.getInstance()
+    // .getSession(sessionId);
+    // if (session == null) {
+    // composeComp.setEnabled(false);
+    // composeText.setEnabled(false);
+    // label.setEnabled(false);
+    // }
+    // }
 
-        if (session == null) {
-            labelInfo.append("There is no active session.");
-            label.setEnabled(false);
-            messagesText.setEnabled(false);
-        }
-
-        label.setText(labelInfo.toString());
-    }
-
-    private void createComposeComp(Composite parent) {
-        Composite composeComp = new Composite(parent, SWT.NONE);
-        GridLayout layout = new GridLayout(1, false);
-        composeComp.setLayout(layout);
-
-        Label label = new Label(composeComp, SWT.NONE);
-        label.setText("Compose:");
-        composeText = new StyledText(composeComp, SWT.MULTI | SWT.WRAP
-                | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
-        composeText.setLayoutData(new GridData(GridData.FILL_BOTH));
-        composeText.setToolTipText("Enter message here");
-        composeText.addKeyListener(new KeyListener() {
-            private boolean keyPressed;
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-                if (e.keyCode == SWT.SHIFT) {
-                    keyPressed = false;
-                }
-                // do nothing, all done on key pressed
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (!keyPressed
-                        && (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR)) {
-                    sendMessage();
-                }
-                if (e.keyCode == SWT.SHIFT) {
-                    keyPressed = true;
-                }
-            }
-        });
-
-        composeText.addFocusListener(new FocusListener() {
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                // Restore other perspective's key bindings.
-                VizPerspectiveListener.getCurrentPerspectiveManager()
-                        .activateContexts();
-            }
-
-            @Override
-            public void focusGained(FocusEvent e) {
-                // Remove other perspective's key bindings.
-                VizPerspectiveListener.getCurrentPerspectiveManager()
-                        .deactivateContexts();
-            }
-        });
-
-        IVenueSession session = CollaborationDataManager.getInstance()
-                .getSession(sessionId);
-        if (session == null) {
-            composeComp.setEnabled(false);
-            composeText.setEnabled(false);
-            label.setEnabled(false);
-        }
-    }
-
-    private Image getImage() {
-        Image image = imageMap.get(SESSION_IMAGE_KEY);
-        if (image == null) {
-            image = CollaborationUtils
-                    .getImageDescriptor(getSessionImageName()).createImage();
-            if (image != null) {
-                imageMap.put(SESSION_IMAGE_KEY, image);
-            }
-        }
-        return image;
-    }
+    // private Image getImage() {
+    // Image image = imageMap.get(SESSION_IMAGE_KEY);
+    // if (image == null) {
+    // image = CollaborationUtils
+    // .getImageDescriptor(getSessionImageName()).createImage();
+    // if (image != null) {
+    // imageMap.put(SESSION_IMAGE_KEY, image);
+    // }
+    // }
+    // return image;
+    // }
 
     @Override
     public void dispose() {
-        if (messageListener != null) {
-            CollaborationDataManager.getInstance().getSession(sessionId)
-                    .removeMessageListener(messageListener);
-        }
+        // if (messageListener != null) {
+        // CollaborationDataManager.getInstance().getSession(sessionId)
+        // .removeMessageListener(messageListener);
+        // }
+        // for (Image im : imageMap.values()) {
+        // im.dispose();
+        // }
+        //
+        // imageMap.clear();
+        // imageMap = null;
+
         if (participantListener != null) {
             CollaborationDataManager.getInstance().getSession(sessionId)
                     .removeVenueParticipantListener(participantListener);
         }
-        for (Image im : imageMap.values()) {
-            im.dispose();
-        }
-
-        imageMap.clear();
-        imageMap = null;
 
         // dispose of the images first
         disposeArrow(highlightedDownArrow);
@@ -661,8 +599,8 @@ public class SessionView extends ViewPart implements IPartListener {
         sb.append(user).append(": ").append(message);
 
         // here is the place to put the font and color changes for keywords
-        // read in localization file once and then don't read in again, per chat
-        // room?
+        // read in localization file once and then don't read in again, per
+        // chat room?
         List<String> keywords = CollaborationKeywords.parseKeywords();
         List<StyleRange> ranges = new ArrayList<StyleRange>();
         if (keywords != null) {
@@ -704,18 +642,21 @@ public class SessionView extends ViewPart implements IPartListener {
         // placeholder for future things
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView#sendMessage
+     * ()
+     */
     public void sendMessage() {
-        String message = null;
-        message = composeText.getText().trim();
-        composeText.setText("");
-        composeText.setCaretOffset(0);
-        if (message.length() == 0) {
-            // Do not send empty messages.
-            return;
+        String message = getComposedMessage();
+        if (message.length() > 0) {
+            // CollaborationDataManager.getInstance().getSession(sessionId)
+            // .sendTextMessage(message);
+            CollaborationDataManager.getInstance().getSession(sessionId)
+                    .sendMessageToVenue(message);
         }
-        CollaborationDataManager.getInstance().getSession(sessionId)
-                .sendTextMessage(message);
-
     }
 
     public String getRoom() {
@@ -737,32 +678,33 @@ public class SessionView extends ViewPart implements IPartListener {
         // if link with editor is on, need to activate the editor
     }
 
-    @Override
+    // @Override
     public void partClosed(IWorkbenchPart part) {
+        super.partClosed(part);
         // TODO
         // here you need to end a session that is a temporary session
         IVenueSession session = CollaborationDataManager.getInstance()
                 .getSession(sessionId);
         if (session != null) {
-            session.removeMessageListener(messageListener);
-            for (IMessageListener list : session.getMessageListeners()) {
-                session.removeMessageListener(list);
-            }
+            // session.removeMessageListener(messageListener);
+            // for (IMessageListener list : session.getMessageListeners()) {
+            // session.removeMessageListener(list);
+            // }
             session.removeVenueParticipantListener(participantListener);
         }
-        this.getViewSite().getWorkbenchWindow().getPartService()
-                .removePartListener(this);
+        // this.getViewSite().getWorkbenchWindow().getPartService()
+        // .removePartListener(this);
     }
 
-    @Override
-    public void partDeactivated(IWorkbenchPart part) {
-        // nothing to do
-    }
-
-    @Override
-    public void partOpened(IWorkbenchPart part) {
-        // nothing to do
-    }
+    // @Override
+    // public void partDeactivated(IWorkbenchPart part) {
+    // // nothing to do
+    // }
+    //
+    // @Override
+    // public void partOpened(IWorkbenchPart part) {
+    // // nothing to do
+    // }
 
     private void createArrows() {
         int imgWidth = 11;
@@ -813,5 +755,42 @@ public class SessionView extends ViewPart implements IPartListener {
         } else {
             gc.drawPolygon(polyArray);
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView#
+     * setMessageLabel(org.eclipse.swt.widgets.Label)
+     */
+    @Override
+    protected void setMessageLabel(Label label) {
+        StringBuilder labelInfo = new StringBuilder();
+        labelInfo.append("Private Chat: ");
+        IVenueSession session = CollaborationDataManager.getInstance()
+                .getSession(sessionId);
+        if (session != null) {
+            IVenueInfo info = session.getVenue().getInfo();
+            labelInfo.append(info.getVenueSubject());
+            label.setToolTipText(info.getVenueSubject());
+        }
+        label.setText(labelInfo.toString());
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView#
+     * getSessionName()
+     */
+    @Override
+    protected String getSessionName() {
+        sessionId = getViewSite().getSecondaryId();
+        IVenueSession session = CollaborationDataManager.getInstance()
+                .getSession(sessionId);
+        if (session == null) {
+            return sessionId;
+        }
+        return session.getVenue().getInfo().getVenueDescription();
     }
 }
