@@ -60,7 +60,7 @@
                id="com.raytheon.uf.viz.collaboration.CollaborationSession"
                icon="icons/messages.gif"
                name="Collaboration Session"
-               restorable="true"/>
+               restorable="false"/>
    </extension>
    <extension
          point="org.eclipse.ui.views">
@@ -71,7 +71,18 @@
                id="com.raytheon.uf.viz.collaboration.SessionView"
                icon="icons/chats.gif"
                name="Private Session"
-               restorable="true"/>
+               restorable="false"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+         <view
+               allowMultiple="true"
+               category="com.raytheon.viz.ui"
+               class="com.raytheon.uf.viz.collaboration.ui.session.PeerToPeerView"
+               id="com.raytheon.uf.viz.collaboration.PeerToPeerView"
+               icon="icons/chats.gif"
+               name="Private Chat"
+               restorable="false"/>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
