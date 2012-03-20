@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.collaboration.comm.provider.user;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
+import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 
 /**
  * TODO Add Description
@@ -78,4 +79,52 @@ public class VenueUserId extends UserId implements IChatID {
         return nickName;
     }
 
+    /**
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((nickName == null) ? 0 : nickName.hashCode());
+        return result;
+    }
+
+    /**
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        VenueUserId other = (VenueUserId) obj;
+        if (nickName == null) {
+            if (other.nickName != null)
+                return false;
+        } else if (!nickName.equals(other.nickName))
+            return false;
+        return true;
+    }
+
+    public static IChatID convertFrom(org.eclipse.ecf.core.user.IUser user) {
+
+        String name = Tools.parseName(user.getName());
+        String host = Tools.parseHost(user.getName());
+        IChatID id = new VenueUserId(name, user.getNickname(), host);
+        
+        return null;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
 }

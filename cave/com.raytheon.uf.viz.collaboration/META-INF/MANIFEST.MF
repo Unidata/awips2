@@ -13,13 +13,14 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.collaboration,
- com.raytheon.uf.viz.collaboration.comm,
  com.raytheon.uf.viz.collaboration.comm.identity,
+ com.raytheon.uf.viz.collaboration.comm.identity.event,
  com.raytheon.uf.viz.collaboration.comm.identity.info,
  com.raytheon.uf.viz.collaboration.comm.identity.listener,
  com.raytheon.uf.viz.collaboration.comm.identity.roster,
  com.raytheon.uf.viz.collaboration.comm.identity.user,
  com.raytheon.uf.viz.collaboration.comm.provider,
+ com.raytheon.uf.viz.collaboration.comm.provider.event,
  com.raytheon.uf.viz.collaboration.comm.provider.info,
  com.raytheon.uf.viz.collaboration.comm.provider.roster,
  com.raytheon.uf.viz.collaboration.comm.provider.user
