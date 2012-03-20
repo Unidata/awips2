@@ -49,8 +49,6 @@ public class LoginData {
 
     private String statusMessage;
 
-    // private List<String> errorMessages;
-
     public LoginData(final String user, final String server,
             final String password, final DataUser.StatusType status,
             final String statusMessage) {
@@ -59,7 +57,6 @@ public class LoginData {
         this.password = password;
         this.status = status;
         this.statusMessage = statusMessage;
-        // this.errorMessages = new ArrayList<String>();
     }
 
     public String getUser() {
@@ -76,6 +73,10 @@ public class LoginData {
 
     public DataUser.StatusType getStatus() {
         return status;
+    }
+
+    public String getServer() {
+        return server;
     }
 
     public String getMessage() {
