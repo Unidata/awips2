@@ -26,6 +26,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchListener;
+import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -52,24 +55,6 @@ import com.raytheon.uf.viz.core.VizApp;
  * @author rferrel
  * @version 1.0
  */
-
-/**
- * This class contains information on user and session connections that can then
- * be used by more then one veiw.
- * 
- * <pre>
- * 
- * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 5, 2012            rferrel     Initial creation
- * 
- * </pre>
- * 
- * @author rferrel
- * @version 1.0
- */
 public class CollaborationDataManager {
     private static CollaborationDataManager instance;
 
@@ -82,6 +67,12 @@ public class CollaborationDataManager {
     private SessionManager manager;
 
     String loginId;
+
+    /**
+     * Created when connection made. Used to clean up connection when CAVE shuts
+     * down.
+     */
+    private IWorkbenchListener wbListener;
 
     /**
      * User information such as sessions and groups user is in.
@@ -138,7 +129,7 @@ public class CollaborationDataManager {
      * @return manager or null if unable to get connection.
      */
     synchronized public SessionManager getSessionManager() {
-        // Get log on to server information and make connection.
+        // Get user's server account information and make connection.
         if (manager == null) {
             VizApp.runSync(new Runnable() {
 
@@ -166,14 +157,39 @@ public class CollaborationDataManager {
                             // TODO set status and message here.
                             user.status = loginData.getStatus();
                             user.statusMessage = loginData.getMessage();
+                            wbListener = new IWorkbenchListener() {
+
+                                @Override
+                                public boolean preShutdown(
+                                        IWorkbench workbench, boolean forced) {
+                                    return true;
+                                }
+
+                                @Override
+                                public void postShutdown(IWorkbench workbench) {
+                                    if (manager != null) {
+                                        manager.closeManager();
+                                        manager = null;
+                                    }
+                                }
+                            };
+                            PlatformUI.getWorkbench().addWorkbenchListener(
+                                    wbListener);
                         } catch (Exception e) {
-                            // TODO Auto-generated catch block. Please
-                            // revise as appropriate.
+                            if (manager != null) {
+                                manager.closeManager();
+                                manager = null;
+                            }
+                            if (wbListener != null) {
+                                PlatformUI.getWorkbench()
+                                        .removeWorkbenchListener(wbListener);
+                                wbListener = null;
+                            }
                             statusHandler.handle(Priority.PROBLEM,
                                     e.getLocalizedMessage(), e);
                             MessageBox box = new MessageBox(shell, SWT.ERROR);
                             box.setText("Log On Failed");
-                            box.setMessage(e.toString());
+                            box.setMessage(e.getMessage());
                             box.open();
                             e.printStackTrace();
                         }
@@ -189,15 +205,30 @@ public class CollaborationDataManager {
             manager.closeManager();
             manager = null;
         }
+        if (wbListener != null) {
+            PlatformUI.getWorkbench().removeWorkbenchListener(wbListener);
+            wbListener = null;
+        }
     }
 
     /**
+     * Get the Venue session associated with the key or any session when key is
+     * null.
+     * 
      * @param sessionId
      *            - key to fetch session
-     * @return session
+     * @return session - The venue session or null if none found
      */
     public IVenueSession getSession(String sessionId) {
-        return sessionsMap.get(sessionId);
+        IVenueSession session = null;
+        if (sessionId == null) {
+            if (sessionsMap.size() > 0) {
+                session = sessionsMap.get(sessionsMap.keySet().toArray()[0]);
+            }
+        } else {
+            session = sessionsMap.get(sessionId);
+        }
+        return session;
     }
 
     public Map<String, IVenueSession> getSessions() {
@@ -218,13 +249,14 @@ public class CollaborationDataManager {
     }
 
     /**
-     * Generate a new session with
+     * Generate a new session.
      * 
      * @param venue
      *            - Session name
      * @param subject
-     *            - Sessin topic
-     * @return sessionId or null if unable to create session
+     *            - Session topic
+     * @return sessionId - the key to use to retrieve the sesson or null if
+     *         unable to create the session
      */
     public String createCollaborationSession(String venue, String subject) {
         SessionManager manager = getSessionManager();
@@ -239,16 +271,17 @@ public class CollaborationDataManager {
                 sessionsMap.put(sessionId, session);
             }
         }
+        // TODO Start CAVE editor associated with this session and make sure the
+        // user is data provider and session leader.
         return sessionId;
     }
 
     public String joinCollaborationSession(String venuName, String sessionId) {
-        // String sessionId = venuIdToSessionId(venuName);
         if (sessionsMap.get(sessionId) == null) {
             IVenueSession session = getSessionManager()
                     .createCollaborationSession();
-            session.joinVenue(venuName);
             sessionsMap.put(sessionId, session);
+            session.joinVenue(venuName);
         }
         return sessionId;
     }
