@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
+import com.raytheon.uf.viz.collaboration.comm.identity.listener.IInvitation;
 import com.raytheon.uf.viz.collaboration.comm.identity.listener.IMessageFilter;
 import com.raytheon.uf.viz.collaboration.comm.identity.listener.IMessageListener;
 import com.raytheon.uf.viz.collaboration.comm.identity.listener.IVenueParticipantListener;
@@ -50,6 +51,7 @@ public interface IVenueSession extends ISession {
      * Joins an existing multiple user collaboration.
      * @param venueName Name of the venue.
      */
+    @Deprecated
     int joinVenue(String venueName);
     
     /**
@@ -57,6 +59,7 @@ public interface IVenueSession extends ISession {
      * @param venueName Name of the venue.
      * @param subject The subject of the collaboration.
      */
+    @Deprecated
     int createVenue(String venueName, String subject);
     
     /**
@@ -83,6 +86,13 @@ public interface IVenueSession extends ISession {
      */
     int sendCollaborationMessage(String message);
 
+    /**
+     * Send an invitation from this venue to another user.
+     * @param invitation An invitation
+     * @return
+     */
+    int sendInvitation(IInvitation invitation);
+    
     /**
      * Send an invitation from this venue to another user.
      * @param room The target venue for this invitation.
