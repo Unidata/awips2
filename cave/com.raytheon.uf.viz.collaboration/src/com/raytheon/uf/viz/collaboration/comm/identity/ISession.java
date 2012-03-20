@@ -71,14 +71,6 @@ public interface ISession {
     
     /**
      * 
-     * @param userName
-     * @param password
-     * @return An error status.
-     */
-    int connect(String userName, String password);
-    
-    /**
-     * 
      * @return
      */
     IQualifiedID getUserID();
@@ -102,12 +94,6 @@ public interface ISession {
     int sendPresence(IPresence presence);
 
     /**
-     * Get the roster manager for this user on this session. 
-     * @return The roster manager.
-     */
-    IRosterManager getRosterManager();
-    
-    /**
      * 
      * @param handler
      */
@@ -120,7 +106,8 @@ public interface ISession {
     void unRegisterEventHandler(Object handler);
     
     /**
-     * Send a Text message. 
+     * Send a Text message. Note that the recipient of the message is
+     * included as an attribute of the message.
      * @param message
      */
     int sendTextMessage(IMessage message);
