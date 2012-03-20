@@ -43,6 +43,8 @@ public class CreateSessionData {
 
     private boolean inviteUsers;
 
+    private boolean collaborationSession;
+
     private String inviteMessage;
 
     public String getName() {
@@ -61,8 +63,16 @@ public class CreateSessionData {
         this.subject = subject;
     }
 
+    public boolean isCollaborationSession() {
+        return collaborationSession;
+    }
+
     public boolean isInviteUsers() {
         return inviteUsers;
+    }
+
+    public void setCollaborationSessioh(boolean collaborationSession) {
+        this.collaborationSession = collaborationSession;
     }
 
     public void setInviteUsers(boolean inviteUsers) {
