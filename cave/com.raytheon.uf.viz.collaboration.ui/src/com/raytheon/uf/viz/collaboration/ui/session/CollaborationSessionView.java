@@ -25,8 +25,11 @@ import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
+import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 
 /**
@@ -54,7 +57,8 @@ public class CollaborationSessionView extends SessionView {
 
     protected void createActions() {
         super.createActions();
-        switchToAction = new Action("Switch to...", Action.AS_DROP_DOWN_MENU) {
+        switchToAction = new Action("Transfer Role...",
+                Action.AS_DROP_DOWN_MENU) {
             public void run() {
                 if ("DataProvider".equals(switchToAction.getId())) {
                     switchDataProvider();
@@ -128,16 +132,11 @@ public class CollaborationSessionView extends SessionView {
      */
     @Override
     public void sendMessage() {
-        String message = null;
-        message = composeText.getText().trim();
-        composeText.setText("");
-        composeText.setCaretOffset(0);
-        if (message.length() == 0) {
-            // Do not send empty messages.
-            return;
+        String message = getComposedMessage();
+        if (message.length() > 0) {
+            CollaborationDataManager.getInstance().getSession(sessionId)
+                    .sendMessageToVenue(message);
         }
-        CollaborationDataManager.getInstance().getSession(sessionId)
-                .sendMessageToVenue(message);
     }
 
     /*
@@ -153,5 +152,24 @@ public class CollaborationSessionView extends SessionView {
         // check if data provider
         // check if session leader
         manager.add(switchToAction);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView#
+     * setMessageLabel(org.eclipse.swt.widgets.Label)
+     */
+    @Override
+    protected void setMessageLabel(Label label) {
+        StringBuilder labelInfo = new StringBuilder();
+        IVenueSession session = CollaborationDataManager.getInstance()
+                .getSession(sessionId);
+        if (session != null) {
+            IVenueInfo info = session.getVenue().getInfo();
+            labelInfo.append(info.getVenueSubject());
+            label.setToolTipText(info.getVenueSubject());
+        }
+        label.setText(labelInfo.toString());
     }
 }

@@ -46,11 +46,15 @@ public class UsersTreeViewerSorter extends ViewerSorter {
 
     @Override
     public int compare(Viewer viewer, Object e1, Object e2) {
+        if (e1 == e2) {
+            return 0;
+        }
+
         // Make login user top node
         if (e1 instanceof LoginUser) {
             return -1;
         }
-        if (e1 instanceof LoginUser) {
+        if (e2 instanceof LoginUser) {
             return 1;
         }
 

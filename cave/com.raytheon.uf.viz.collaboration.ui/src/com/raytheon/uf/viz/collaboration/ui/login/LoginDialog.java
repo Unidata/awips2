@@ -59,21 +59,38 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class LoginDialog extends CaveSWTDialog {
+    // TODO get default user, server, status and message from localized file.
     private static DataUser.StatusType[] status = null;
 
     private Text userTF;
 
-    private Label serverTF;
+    private Text serverTF;
+
+    private Button serverButton;
 
     private Text passwordTF;
 
-    private Combo statusC;
+    private Combo statusCombo;
 
     private Text messageTF;
+
+    private Button logOnButton;
+
+    private String DEFAULT_SERVER = "awipscm.omaha.us.ray.com";
+
+    private Control[] noServerList;
+
+    private Control[] withServerList;
+
+    private LoginData loginData;
 
     public LoginDialog(Shell parentShell) {
         super(parentShell);
         setText("Collaboration Server Log On");
+    }
+
+    public void setLoginData(LoginData loginData) {
+        this.loginData = loginData;
     }
 
     private Control createDialogArea(Composite parent) {
@@ -97,24 +114,55 @@ public class LoginDialog extends CaveSWTDialog {
         userTF = new Text(body, SWT.BORDER);
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         // Set minimum width one time and the fill will handle the other fields.
-        gd.minimumWidth = 200;
+        gd.horizontalSpan = 2;
         userTF.setLayoutData(gd);
-        label = new Label(body, SWT.NONE);
 
         label = new Label(body, SWT.NONE);
         label.setText("Server: ");
-        serverTF = new Label(body, SWT.NONE);
-        serverTF.setLayoutData(new GridData(SWT.DEFAULT, SWT.CENTER, true,
-                false));
-        serverTF.setText("awipscm.omaha.us.ray.com");
-        Button serverButton = new Button(body, SWT.PUSH);
-        serverButton.setText("Server ...");
+        serverTF = new Text(body, SWT.BORDER);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        // Set minimum width one time and the fill will handle the other fields.
+        gd.minimumWidth = 200;
+        serverTF.setLayoutData(gd);
+        serverTF.setText(DEFAULT_SERVER);
+        serverTF.setEditable(false);
+        serverTF.setBackground(parent.getBackground());
+        serverButton = new Button(body, SWT.PUSH);
+        serverButton.setText("Edit");
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gd.minimumWidth = 45;
+        serverButton.setLayoutData(gd);
         serverButton.setToolTipText("Change Server");
         serverButton.addSelectionListener(new SelectionListener() {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                System.out.println("Change server here.");
+                if ("OK".equals(serverButton.getText())) {
+                    serverButton.setText("Edit");
+                    serverButton.setToolTipText("Change Server");
+                    serverTF.setEditable(false);
+                    serverTF.setBackground(serverTF.getParent().getBackground());
+                    String server = serverTF.getText().trim();
+                    if (server.length() == 0) {
+                        serverTF.setText(DEFAULT_SERVER);
+                    } else {
+                        serverTF.setText(server);
+                        DEFAULT_SERVER = server;
+                    }
+                    serverTF.clearSelection();
+                    serverTF.getParent().setTabList(noServerList);
+                    logOnButton.setEnabled(true);
+                } else {
+                    serverButton.setText("OK");
+                    serverButton
+                            .setToolTipText("Implement Change.\nEmpty field restores previous server.");
+                    serverTF.setEditable(true);
+                    serverTF.setBackground(null);
+                    serverTF.selectAll();
+                    serverTF.setFocus();
+                    serverTF.getParent().setTabList(withServerList);
+                    logOnButton.setEnabled(false);
+                }
             }
 
             @Override
@@ -125,37 +173,41 @@ public class LoginDialog extends CaveSWTDialog {
         label = new Label(body, SWT.NONE);
         label.setText("Password: ");
         passwordTF = new Text(body, SWT.PASSWORD | SWT.BORDER);
-        passwordTF.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gd.horizontalSpan = 2;
+        passwordTF.setLayoutData(gd);
         passwordTF.setTextLimit(32);
-        label = new Label(body, SWT.NONE);
+
         label = new Label(body, SWT.NONE);
         label.setText("Status: ");
-        statusC = new Combo(body, SWT.DEFAULT);
+        statusCombo = new Combo(body, SWT.DEFAULT);
 
-        // TODO get status messages form config file?
+        // TODO get status messages from config file?
         for (DataUser.StatusType type : status) {
-            statusC.add(type.value());
+            statusCombo.add(type.value());
         }
-
-        statusC.select(0);
+        statusCombo.select(0);
         label = new Label(body, SWT.NONE);
 
         label = new Label(body, SWT.NONE);
         label.setText("Message: ");
 
         messageTF = new Text(body, SWT.BORDER);
-        // messageTF
-        // .setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-        messageTF.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gd.horizontalSpan = 2;
+        messageTF.setLayoutData(gd);
+
+        noServerList = new Control[] { userTF, passwordTF, statusCombo,
+                messageTF, serverButton };
+        withServerList = new Control[] { userTF, serverTF, serverButton,
+                passwordTF, statusCombo, messageTF };
+        body.setTabList(noServerList);
         return body;
     }
 
     @Override
     protected void initializeComponents(Shell shell) {
         shell.setLayout(new GridLayout(1, false));
-        // GridData gd = new GridData();
-        // gd.
-        // shell.setLayoutData(gd);
         createDialogArea(shell);
         createButtonBar(shell);
     }
@@ -163,11 +215,10 @@ public class LoginDialog extends CaveSWTDialog {
     private void createButtonBar(Composite parent) {
         GridData gd = null;
         Composite bar = new Composite(parent, SWT.NONE);
-        // bar.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         bar.setLayout(new GridLayout(0, true));
         bar.setLayoutData(gd);
-        createButton(bar, IDialogConstants.OK_ID, "Log On", true);
+        logOnButton = createButton(bar, IDialogConstants.OK_ID, "Log On", true);
 
         createButton(bar, IDialogConstants.CANCEL_ID,
                 IDialogConstants.CANCEL_LABEL, false);
@@ -176,6 +227,13 @@ public class LoginDialog extends CaveSWTDialog {
     @Override
     protected void preOpened() {
         super.preOpened();
+        if (loginData != null) {
+            userTF.setText(loginData.getUser());
+            serverTF.setText(loginData.getServer());
+            statusCombo.select(statusCombo.indexOf(loginData.getStatus()
+                    .value()));
+            messageTF.setText(loginData.getMessage());
+        }
         userTF.setFocus();
     }
 
@@ -256,9 +314,10 @@ public class LoginDialog extends CaveSWTDialog {
                         passwordTF.setText("");
                     }
                     if (focusField == null) {
-                        setReturnValue(new LoginData(user, server, password,
-                                status[statusC.getSelectionIndex()], messageTF
-                                        .getText().trim()));
+                        loginData = new LoginData(user, server, password,
+                                status[statusCombo.getSelectionIndex()],
+                                messageTF.getText().trim());
+                        setReturnValue(loginData);
                         LoginDialog.this.getShell().dispose();
                     } else {
                         StringBuilder sb = new StringBuilder();
