@@ -26,13 +26,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.ecf.core.ContainerConnectException;
 import org.eclipse.ecf.core.IContainer;
 import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.ecf.core.identity.IDCreateException;
 import org.eclipse.ecf.core.identity.IDFactory;
 import org.eclipse.ecf.core.identity.Namespace;
-import org.eclipse.ecf.core.security.ConnectContextFactory;
 import org.eclipse.ecf.core.user.IUser;
 import org.eclipse.ecf.core.util.ECFException;
 import org.eclipse.ecf.presence.IIMMessageEvent;
@@ -57,14 +55,17 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPropertied.Property;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
+import com.raytheon.uf.viz.collaboration.comm.identity.listener.IInvitation;
 import com.raytheon.uf.viz.collaboration.comm.identity.listener.IMessageFilter;
 import com.raytheon.uf.viz.collaboration.comm.identity.listener.IMessageListener;
 import com.raytheon.uf.viz.collaboration.comm.identity.listener.IPresenceListener;
 import com.raytheon.uf.viz.collaboration.comm.identity.listener.IVenueParticipantListener;
-import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
+import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.info.InfoAdapter;
 import com.raytheon.uf.viz.collaboration.comm.provider.info.Venue;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
@@ -72,6 +73,15 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueUserId;
 
 /**
  * 
+ * <ul>
+ * <li>EventBus subscription events.</li>
+ * <ul>
+ * <li><strong>IVenueParticipantEvent</strong> : This event is posted when a venue participant enters, leaves a venue, or
+ * updates their status in the venue.</li>
+ * <li><strong>TextMessage</strong> : Text messages send between users. Meant to be displayed as conversation.</li>
+ * <li><strong>CollaborationMessage</strong> : These messages are CAVE to CAVE command messages.</li>
+ * </ul>
+ * </ul>
  * 
  * <pre>
  *
@@ -122,6 +132,7 @@ public class CollaborationSession implements IVenueSession {
         public InternalListener(IMessageListener listener, IMessageFilter filter) {
             messageListener = listener;
             this.filter = filter;
+            
         }
 
         /**
@@ -158,8 +169,10 @@ public class CollaborationSession implements IVenueSession {
         public boolean filter(IMessage message) {
             return filter.filter(message);
         }
-       
     }
+    
+    private static final String SEND_CMD = "[[COMMAND]]";
+    private static final String SEND_TXT = "[[TEXT]]";
     
     private IContainer connectionContainer = null;
 
@@ -191,12 +204,14 @@ public class CollaborationSession implements IVenueSession {
     
     private IQualifiedID userID = null;
     
-    private EventBus eventBus = new EventBus();
+    private EventBus eventBus;
     
     /**
      * 
+     * @param container
+     * @param eventBus
      */
-    public CollaborationSession(IContainer container) {
+    CollaborationSession(IContainer container, EventBus eventBus) {
         this.connectionContainer = container;
         try {
             setup();
@@ -205,33 +220,7 @@ public class CollaborationSession implements IVenueSession {
         } finally {
             initListeners();
         }
-    }
-
-    /**
-     * 
-     * @param userName
-     * @param password
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISession#connect(java.lang.String, java.lang.String)
-     */
-    @Override
-    public int connect(String userName, String password) {
-        int errorStatus = Errors.NO_ERROR;
-        // Make sure we're not already connected.
-        if(!isConnected()) {
-            try {
-                ID targetID = createID(userName);
-                // Now connect
-                connectionContainer.connect(targetID, ConnectContextFactory.createPasswordConnectContext(password));
-            } catch(IDCreateException e) {
-                errorStatus = Errors.BAD_NAME;
-            } catch (ContainerConnectException e) {
-                errorStatus = Errors.CANNOT_CONNECT;
-                e.printStackTrace();
-            }
-        } else {
-            errorStatus = Errors.ALREADY_CONNECTED;
-        }
-        return errorStatus;
+        this.eventBus = eventBus;
     }
 
     /**
@@ -315,6 +304,7 @@ public class CollaborationSession implements IVenueSession {
             
             // Now dispose of the comm container.
             connectionContainer = null;
+            eventBus.unregister(this);
         }
     }
     
@@ -425,7 +415,10 @@ public class CollaborationSession implements IVenueSession {
                         @Override
                         public void handleArrived(IUser participant) {
                             IVenueParticipant p = new VenueParticipant(participant.getName(), participant.getNickname());
+
+                            IVenueParticipantEvent event = new VenueParticipantEvent(p, ParticipantEventType.ARRIVED);
                             eventBus.post(p);
+                            
                             for(IVenueParticipantListener listener : venueParticipantListeners) {
                                 listener.handleArrived(p);
                             }
@@ -434,6 +427,8 @@ public class CollaborationSession implements IVenueSession {
                         @Override
                         public void handleUpdated(IUser participant) {
                             IVenueParticipant p = new VenueParticipant(participant.getName(), participant.getNickname());
+
+                            IVenueParticipantEvent event = new VenueParticipantEvent(p, ParticipantEventType.UPDATED);
                             eventBus.post(p);
                             for(IVenueParticipantListener listener : venueParticipantListeners) {
                                 listener.handleUpdated(p);
@@ -443,6 +438,8 @@ public class CollaborationSession implements IVenueSession {
                         @Override
                         public void handleDeparted(IUser participant) {
                             IVenueParticipant p = new VenueParticipant(participant.getName(), participant.getNickname());
+
+                            IVenueParticipantEvent event = new VenueParticipantEvent(p, ParticipantEventType.DEPARTED);
                             eventBus.post(p);
                             for(IVenueParticipantListener listener : venueParticipantListeners) {
                                 listener.handleDeparted(p);
@@ -459,7 +456,10 @@ public class CollaborationSession implements IVenueSession {
                             vp.setName(fromID.getName());
                             
                             IPresence p = Presence.convertPresence(presence);
-                            eventBus.post(p);
+
+                            IVenueParticipantEvent event = new VenueParticipantEvent(vp, p, ParticipantEventType.PRESENCE_UPDATED);
+                            eventBus.post(event);
+
                             for(IVenueParticipantListener listener : venueParticipantListeners) {
                                 listener.handlePresenceUpdated(vp, p);
                             }
@@ -513,14 +513,8 @@ public class CollaborationSession implements IVenueSession {
         return status;
     }
 
-    /**
-     * @return Get the roster manager for this session.
-     */
-    @Override
-    public IRosterManager getRosterManager() {
-        return null;
-    }
 
+    
     /**
      * 
      * @param handler
@@ -609,10 +603,14 @@ public class CollaborationSession implements IVenueSession {
     public int sendMessageToVenue(String message) {
         // Assume success
         int status = Errors.NO_ERROR;
-        if(venueContainer != null) {
+        if((venueContainer != null)&&(message != null)) {
             IChatRoomMessageSender sender = venueContainer.getChatRoomMessageSender();
             try {
-                sender.sendMessage(message);
+                if(message.startsWith(SEND_CMD)) {
+                    sender.sendMessage(message);
+                } else {
+                    sender.sendMessage(SEND_TXT + message);
+                }
             } catch (ECFException e) {
                 e.printStackTrace();
             }
@@ -630,7 +628,7 @@ public class CollaborationSession implements IVenueSession {
         // Assume success
         int status = Errors.NO_ERROR;
         // for now we're sending everything via regular messages.
-        return sendMessageToVenue(message.getBody()); 
+        return sendMessageToVenue(SEND_CMD + message.getBody()); 
     }
 
     /**
@@ -642,6 +640,31 @@ public class CollaborationSession implements IVenueSession {
     public int sendCollaborationMessage(String message) {
         IMessage msg = new CollaborationMessage(receiver, message);
         return sendCollaborationMessage(msg);
+    }
+
+    /**
+     * Send an invitation from this venue to another user.
+     * @param invitation An invitation
+     * @return
+     */
+    public int sendInvitation(IInvitation invitation) {
+        int status = Errors.NO_ERROR;
+        IChatRoomInvitationSender sender = presence.getChatRoomManager().getInvitationSender();
+        if(sender != null) {
+            ID roomId = presence.getChatRoomManager().getChatRoomInfo(invitation.getRoomId()).getConnectedID();
+
+            //*******************
+            //** TODO : The host part of this need to defined  
+            ID userId = IDFactory.getDefault().createID(namespace, invitation.getFrom() + "@awipscm.omaha.us.ray.com");
+            //*******************
+            
+            try {
+                sender.sendInvitation(roomId, userId, invitation.getSubject(), invitation.getBody());
+            } catch (ECFException e) {
+                e.printStackTrace();
+            }
+        }        
+        return status;
     }
 
     /**
@@ -855,15 +878,27 @@ public class CollaborationSession implements IVenueSession {
      */
     private void distributeMessage(IMessage message) {
         if(message != null) {
-            fireMessageListeners(message);
-
-            eventBus.post(message);
             
-//            if(IMessage.MessageType.CHAT.equals(message.getMessageType())) {
-//                fireMessageListeners(message);
-//            } else if (IMessage.MessageType.COLLABORATION.equals(message.getMessageType())) {
-//                fireCollaborationListeners(message);
-//            }
+            String body = message.getBody();
+            if(body != null) {
+                if(body.startsWith(SEND_TXT)) {
+                    body = body.substring(SEND_TXT.length());
+                    message.setBody(body);
+                    fireMessageListeners(message);
+
+                    TextMessage msg = new TextMessage(message.getFrom(), message.getBody());
+                
+                    eventBus.post(msg);
+                } else if (body.startsWith(SEND_CMD)) {
+                    body = body.substring(SEND_CMD.length());
+                    message.setBody(body);
+
+                    fireCollaborationListeners(message);
+
+                    CollaborationMessage msg = new CollaborationMessage(message.getFrom(), message.getBody());
+                    eventBus.post(msg);
+                }
+            }
         }
     }
 
