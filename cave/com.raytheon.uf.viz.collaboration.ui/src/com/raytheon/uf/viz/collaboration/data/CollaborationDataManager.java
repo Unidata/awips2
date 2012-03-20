@@ -33,8 +33,9 @@ import org.eclipse.ui.PlatformUI;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.collaboration.comm.SessionManager;
+import com.raytheon.uf.viz.collaboration.comm.provider.SessionManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginData;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginDialog;
 import com.raytheon.uf.viz.core.VizApp;
@@ -260,16 +261,21 @@ public class CollaborationDataManager {
      */
     public String createCollaborationSession(String venue, String subject) {
         SessionManager manager = getSessionManager();
-        IVenueSession session = manager.createCollaborationSession();
-        int status = session.createVenue(venue, subject);
+        IVenueSession session = null;
         String sessionId = null;
-        if (status == 0) {
-            sessionId = venuIdToSessionId(session.getVenue().getInfo()
-                    .getVenueID());
-            // TODO throw an exception if unable to make connection?
-            if (session.isConnected()) {
-                sessionsMap.put(sessionId, session);
+        try {
+            session = manager.createCollaborationSession();
+            int status = session.createVenue(venue, subject);
+            if (status == 0) {
+                sessionId = venuIdToSessionId(session.getVenue().getInfo()
+                        .getVenueID());
+                // TODO throw an exception if unable to make connection?
+                if (session.isConnected()) {
+                    sessionsMap.put(sessionId, session);
+                }
             }
+        } catch(CollaborationException ce) {
+            
         }
         // TODO Start CAVE editor associated with this session and make sure the
         // user is data provider and session leader.
@@ -278,10 +284,14 @@ public class CollaborationDataManager {
 
     public String joinCollaborationSession(String venuName, String sessionId) {
         if (sessionsMap.get(sessionId) == null) {
-            IVenueSession session = getSessionManager()
-                    .createCollaborationSession();
-            sessionsMap.put(sessionId, session);
-            session.joinVenue(venuName);
+            try {
+                IVenueSession session = getSessionManager()
+                        .createCollaborationSession();
+                sessionsMap.put(sessionId, session);
+                session.joinVenue(venuName);
+            } catch (CollaborationException ce) {
+
+            }
         }
         return sessionId;
     }

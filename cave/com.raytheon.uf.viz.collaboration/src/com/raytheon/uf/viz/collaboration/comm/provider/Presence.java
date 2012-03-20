@@ -178,7 +178,7 @@ public class Presence implements IPresence {
     public static org.eclipse.ecf.presence.IPresence convertPresence(IPresence presence) {
         org.eclipse.ecf.presence.IPresence newPresence = null;
         if(presence != null) {
-
+            
         
         }
         return newPresence;
