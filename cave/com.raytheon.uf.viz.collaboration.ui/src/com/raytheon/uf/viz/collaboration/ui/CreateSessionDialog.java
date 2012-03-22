@@ -43,7 +43,6 @@ import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
-import com.raytheon.uf.viz.collaboration.data.DataUser;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -63,7 +62,6 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class CreateSessionDialog extends CaveSWTDialog {
-    private static DataUser.StatusType[] status = null;
 
     private Text nameTF;
 
@@ -86,17 +84,6 @@ public class CreateSessionDialog extends CaveSWTDialog {
     }
 
     private Control createDialogArea(Composite parent) {
-        if (status == null) {
-            DataUser.StatusType[] types = DataUser.StatusType.values();
-            status = new DataUser.StatusType[types.length - 1];
-            int index = 0;
-            for (DataUser.StatusType type : types) {
-                if (type != DataUser.StatusType.NOT_ON_LINE) {
-                    status[index] = type;
-                    ++index;
-                }
-            }
-        }
         Composite body = new Composite(parent, SWT.NONE);
         body.setLayout(new GridLayout(2, false));
         // body.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL
