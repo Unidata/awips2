@@ -1,8 +1,6 @@
 package com.raytheon.uf.viz.collaboration.data;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
-import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Mode;
-import com.raytheon.uf.viz.collaboration.data.DataUser.StatusType;
 
 /**
  * This software was developed and / or modified by Raytheon Company,
@@ -66,7 +64,7 @@ public class CollaborationUser extends CollaborationNode implements
      */
     @Override
     public String getImageKey() {
-        return getStatus().toString();
+        return getMode().toString();
     }
 
     public DataUser.RoleType[] getRoles(String session) {
@@ -89,23 +87,26 @@ public class CollaborationUser extends CollaborationNode implements
                 .removeSession(session);
     }
 
-    public DataUser.StatusType getStatus() {
-        return CollaborationDataManager.getInstance().getUser(id).status;
+    public IPresence.Mode getMode() {
+        return CollaborationDataManager.getInstance().getUser(id).mode;
     }
 
-    public void setStatus(DataUser.StatusType status) {
-        CollaborationDataManager.getInstance().getUser(id).status = status;
+    public void setMode(IPresence.Mode mode) {
+        CollaborationDataManager.getInstance().getUser(id).mode = mode;
     }
 
-    public void setStatus(IPresence.Mode mode) {
-        if (mode.getMode().equals(Mode.AWAY)) {
-            CollaborationDataManager.getInstance().getUser(id).status = StatusType.AWAY;
-        } else if (mode.getMode().equals(Mode.DND)) {
-            CollaborationDataManager.getInstance().getUser(id).status = StatusType.DO_NOT_DISTURB;
-        } else if (mode.getMode().equals(Mode.AVAILABLE)) {
-            CollaborationDataManager.getInstance().getUser(id).status = StatusType.AVAILABLE;
-        }
-    }
+    // public void setStatus(IPresence.Mode mode) {
+    // if (mode.getMode().equals(Mode.AWAY)) {
+    // CollaborationDataManager.getInstance().getUser(id).mode =
+    // StatusType.AWAY;
+    // } else if (mode.getMode().equals(Mode.DND)) {
+    // CollaborationDataManager.getInstance().getUser(id).mode =
+    // StatusType.DO_NOT_DISTURB;
+    // } else if (mode.getMode().equals(Mode.AVAILABLE)) {
+    // CollaborationDataManager.getInstance().getUser(id).mode =
+    // StatusType.AVAILABLE;
+    // }
+    // }
 
     public String getStatusMessage() {
         return CollaborationDataManager.getInstance().getUser(id).statusMessage;
