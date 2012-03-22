@@ -21,8 +21,8 @@ package com.raytheon.uf.viz.collaboration.ui.session;
  **/
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.jface.action.Action;
@@ -56,12 +56,15 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
+import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.listener.IMessageFilter;
 import com.raytheon.uf.viz.collaboration.comm.identity.listener.IMessageListener;
@@ -212,7 +215,6 @@ public class SessionView extends AbstractSessionView {
         IVenueSession session = CollaborationDataManager.getInstance()
                 .getSession(sessionId);
         if (session != null) {
-            // setPartName(session.getVenue().getInfo().getVenueDescription());
             messageListener = new IMessageListener() {
 
                 @Override
@@ -235,50 +237,53 @@ public class SessionView extends AbstractSessionView {
                 }
             });
 
-            participantListener = new IVenueParticipantListener() {
-                @Override
-                public void handleUpdated(IVenueParticipant participant) {
-                    System.out.println("updated");
-                }
-
-                @Override
-                public void handlePresenceUpdated(IVenueParticipant fromID,
-                        IPresence presence) {
-                    // not the best way to do it, should just be adding the
-                    // new
-                    // user instead of requerying for participants
-                    Collection<IVenueParticipant> participants = CollaborationDataManager
-                            .getInstance().getSession(sessionId).getVenue()
-                            .getParticipants();
-                    final List<CollaborationUser> users = new ArrayList<CollaborationUser>();
-                    for (IVenueParticipant part : participants) {
-                        CollaborationUser user = new CollaborationUser(
-                                part.getName());
-                        user.setStatus(presence.getMode());
-                        user.setText(user.getId());
-                        users.add(user);
-                    }
-                    VizApp.runAsync(new Runnable() {
-                        @Override
-                        public void run() {
-                            usersTable.setInput(users
-                                    .toArray(new CollaborationUser[users.size()]));
-                        }
-                    });
-                }
-
-                @Override
-                public void handleDeparted(IVenueParticipant participant) {
-                    System.out.println("goodbye");
-
-                }
-
-                @Override
-                public void handleArrived(IVenueParticipant participant) {
-                    System.out.println("you've got mail");
-                }
-            };
-            session.addVenueParticipantListener(participantListener);
+            session.registerEventHandler(this);
+            // participantListener = new IVenueParticipantListener() {
+            // @Override
+            // public void handleUpdated(IVenueParticipant participant) {
+            // System.out.println("updated");
+            // }
+            //
+            // @Override
+            // public void handlePresenceUpdated(IVenueParticipant fromID,
+            // IPresence presence) {
+            // // not the best way to do it, should just be adding the
+            // // new
+            // // user instead of requerying for participants
+            // Collection<IVenueParticipant> participants =
+            // CollaborationDataManager
+            // .getInstance().getSession(sessionId).getVenue()
+            // .getParticipants();
+            // final List<CollaborationUser> users = new
+            // ArrayList<CollaborationUser>();
+            // for (IVenueParticipant part : participants) {
+            // CollaborationUser user = new CollaborationUser(
+            // part.getName());
+            // user.setMode(presence.getMode());
+            // user.setText(user.getId());
+            // users.add(user);
+            // }
+            // VizApp.runAsync(new Runnable() {
+            // @Override
+            // public void run() {
+            // usersTable.setInput(users
+            // .toArray(new CollaborationUser[users.size()]));
+            // }
+            // });
+            // }
+            //
+            // @Override
+            // public void handleDeparted(IVenueParticipant participant) {
+            // System.out.println("goodbye");
+            //
+            // }
+            //
+            // @Override
+            // public void handleArrived(IVenueParticipant participant) {
+            // System.out.println("you've got mail");
+            // }
+            // };
+            // session.addVenueParticipantListener(participantListener);
         }
     }
 
@@ -551,6 +556,9 @@ public class SessionView extends AbstractSessionView {
                     .removeVenueParticipantListener(participantListener);
         }
 
+        CollaborationDataManager.getInstance().getSession(sessionId)
+                .unRegisterEventHandler(this);
+
         // dispose of the images first
         disposeArrow(highlightedDownArrow);
         disposeArrow(highlightedRightArrow);
@@ -691,6 +699,7 @@ public class SessionView extends AbstractSessionView {
             // session.removeMessageListener(list);
             // }
             session.removeVenueParticipantListener(participantListener);
+            session.unRegisterEventHandler(this);
         }
         // this.getViewSite().getWorkbenchWindow().getPartService()
         // .removePartListener(this);
@@ -792,5 +801,104 @@ public class SessionView extends AbstractSessionView {
             return sessionId;
         }
         return session.getVenue().getInfo().getVenueDescription();
+    }
+
+    @Subscribe
+    public void participantHandler(IVenueParticipantEvent event)
+            throws Exception {
+        System.out.println("++ ParticipantHander type " + event.getEventType()
+        // + ": presence " + event.getPresence() + ": participant "
+        // + event.getParticipant());
+                );
+        final ParticipantEventType type = event.getEventType();
+        final IVenueParticipant participant = event.getParticipant();
+        final IPresence presence = event.getPresence();
+        VizApp.runAsync(new Runnable() {
+
+            @Override
+            public void run() {
+                switch (type) {
+                case ARRIVED:
+                    participantArrived(participant);
+                    break;
+                case DEPARTED:
+                    participantDeparted(participant);
+                    break;
+                case PRESENCE_UPDATED:
+                    participantPresenceUpdated(participant, presence);
+                    break;
+                case UPDATED:
+                    System.out.println("++++ handle update here: "
+                            + participant.getName());
+                    break;
+                default:
+                    System.err.println("Unknown Event type");
+                }
+            }
+        });
+    }
+
+    private void participantArrived(IVenueParticipant participant) {
+        // System.out
+        // .println("++++ handle arrival here: " + participant.getName());
+        CollaborationUser[] users = (CollaborationUser[]) usersTable.getInput();
+        String name = participant.getName();
+        for (CollaborationUser user : users) {
+            if (name.equals(user.getId())) {
+                return;
+            }
+        }
+        CollaborationUser user = new CollaborationUser(name);
+        user.setText(name);
+        CollaborationUser[] usersNew = Arrays.copyOf(users, users.length + 1);
+        usersNew[users.length] = user;
+        usersTable.setInput(usersNew);
+    }
+
+    private void participantDeparted(IVenueParticipant participant) {
+        // System.out.println("++++ handle departed here: "
+        // + participant.getName());
+        int index = -1;
+        CollaborationUser[] users = (CollaborationUser[]) usersTable.getInput();
+        String name = participant.getName();
+        for (int i = 0; i < users.length; ++i) {
+            if (name.equals(users[i].getId())) {
+                index = i;
+                break;
+            }
+        }
+        if (index >= 0) {
+            CollaborationUser[] usersNew = new CollaborationUser[users.length - 1];
+            for (int i = 0; i < index; ++i) {
+                usersNew[i] = users[i];
+            }
+            for (int i = index + 1; i < users.length; ++i) {
+                usersNew[i - 1] = users[i];
+            }
+            usersTable.setInput(usersNew);
+        }
+    }
+
+    private void participantPresenceUpdated(IVenueParticipant participant,
+            IPresence presence) {
+        System.out.println("++++ handle presence here: " + presence.getMode()
+                + ": " + participant.getName());
+        CollaborationUser[] users = (CollaborationUser[]) usersTable.getInput();
+        String name = participant.getName();
+        int index = -1;
+        for (int i = 0; i < users.length; ++i) {
+            if (name.equals(users[i].getId())) {
+                index = i;
+                break;
+            }
+        }
+
+        CollaborationUser user = null;
+        if (index >= 0) {
+            user = users[index];
+        } else {
+            user = new CollaborationUser(name);
+        }
+        user.setMode(presence.getMode());
     }
 }
