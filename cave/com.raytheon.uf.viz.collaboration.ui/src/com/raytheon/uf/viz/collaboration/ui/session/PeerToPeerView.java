@@ -26,9 +26,10 @@ import org.eclipse.swt.widgets.Label;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.listener.IMessageListener;
-import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 
 /**
@@ -168,12 +169,15 @@ public class PeerToPeerView extends AbstractSessionView {
             } else {
                 try {
                     session = CollaborationDataManager.getInstance()
-                    .getSessionManager().createPeerToPeerSession();
-                } catch(CollaborationException ce) {
-                    
+                            .getSessionManager().createPeerToPeerSession();
+                    // session.sendTextMessage(toUser, message);
+                    // session.close();
+                } catch (CollaborationException e) {
+                    // TODO Auto-generated catch block. Please revise as
+                    // appropriate.
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
                 }
-                // session.sendTextMessage(toUser, message);
-                // session.close();
             }
         }
     }
