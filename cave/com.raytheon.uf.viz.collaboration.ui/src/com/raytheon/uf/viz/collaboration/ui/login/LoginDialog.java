@@ -39,7 +39,8 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.raytheon.uf.viz.collaboration.data.DataUser;
+import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
+import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -59,9 +60,6 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class LoginDialog extends CaveSWTDialog {
-    // TODO get default user, server, status and message from localized file.
-    private static DataUser.StatusType[] status = null;
-
     private Text userTF;
 
     private Text serverTF;
@@ -85,7 +83,7 @@ public class LoginDialog extends CaveSWTDialog {
     private LoginData loginData;
 
     public LoginDialog(Shell parentShell) {
-        super(parentShell);
+        super(parentShell, SWT.DIALOG_TRIM);
         setText("Collaboration Server Log On");
     }
 
@@ -94,17 +92,6 @@ public class LoginDialog extends CaveSWTDialog {
     }
 
     private Control createDialogArea(Composite parent) {
-        if (status == null) {
-            DataUser.StatusType[] types = DataUser.StatusType.values();
-            status = new DataUser.StatusType[types.length - 1];
-            int index = 0;
-            for (DataUser.StatusType type : types) {
-                if (type != DataUser.StatusType.NOT_ON_LINE) {
-                    status[index] = type;
-                    ++index;
-                }
-            }
-        }
         GridData gd = null;
         Composite body = new Composite(parent, SWT.NONE);
         body.setLayout(new GridLayout(3, false));
@@ -182,9 +169,9 @@ public class LoginDialog extends CaveSWTDialog {
         label.setText("Status: ");
         statusCombo = new Combo(body, SWT.DEFAULT);
 
-        // TODO get status messages from config file?
-        for (DataUser.StatusType type : status) {
-            statusCombo.add(type.value());
+        // TODO get mode messages from config file?
+        for (IPresence.Mode mode : CollaborationUtils.statusModes) {
+            statusCombo.add(mode.getMode());
         }
         statusCombo.select(0);
         label = new Label(body, SWT.NONE);
@@ -230,8 +217,7 @@ public class LoginDialog extends CaveSWTDialog {
         if (loginData != null) {
             userTF.setText(loginData.getUser());
             serverTF.setText(loginData.getServer());
-            statusCombo.select(statusCombo.indexOf(loginData.getStatus()
-                    .value()));
+            statusCombo.select(statusCombo.indexOf(loginData.getStatus()));
             messageTF.setText(loginData.getMessage());
         }
         userTF.setFocus();
@@ -315,8 +301,9 @@ public class LoginDialog extends CaveSWTDialog {
                     }
                     if (focusField == null) {
                         loginData = new LoginData(user, server, password,
-                                status[statusCombo.getSelectionIndex()],
-                                messageTF.getText().trim());
+                                CollaborationUtils.statusModes[statusCombo
+                                        .getSelectionIndex()], messageTF
+                                        .getText().trim());
                         setReturnValue(loginData);
                         LoginDialog.this.getShell().dispose();
                     } else {
