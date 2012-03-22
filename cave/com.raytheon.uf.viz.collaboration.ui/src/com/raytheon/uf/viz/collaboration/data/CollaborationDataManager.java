@@ -33,9 +33,9 @@ import org.eclipse.ui.PlatformUI;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.collaboration.comm.provider.SessionManager;
-import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
+import com.raytheon.uf.viz.collaboration.comm.provider.SessionManager;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginData;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginDialog;
 import com.raytheon.uf.viz.core.VizApp;
@@ -155,8 +155,8 @@ public class CollaborationDataManager {
                             loginId = loginData.getAccount();
                             DataUser user = CollaborationDataManager
                                     .getInstance().getUser(loginId);
-                            // TODO set status and message here.
-                            user.status = loginData.getStatus();
+                            // TODO set mode and message here.
+                            user.setMode(loginData.getStatus());
                             user.statusMessage = loginData.getMessage();
                             wbListener = new IWorkbenchListener() {
 
@@ -274,23 +274,33 @@ public class CollaborationDataManager {
                     sessionsMap.put(sessionId, session);
                 }
             }
-        } catch(CollaborationException ce) {
-            
+        } catch (CollaborationException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+            sessionId = null;
         }
+
         // TODO Start CAVE editor associated with this session and make sure the
         // user is data provider and session leader.
         return sessionId;
     }
 
+    public boolean isConnected() {
+        return manager != null;
+    }
+
     public String joinCollaborationSession(String venuName, String sessionId) {
         if (sessionsMap.get(sessionId) == null) {
+
+            IVenueSession session = null;
             try {
-                IVenueSession session = getSessionManager()
-                        .createCollaborationSession();
+                session = getSessionManager().createCollaborationSession();
                 sessionsMap.put(sessionId, session);
                 session.joinVenue(venuName);
-            } catch (CollaborationException ce) {
-
+            } catch (CollaborationException e) {
+                // TODO Auto-generated catch block. Please revise as
+                // appropriate.
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
             }
         }
         return sessionId;

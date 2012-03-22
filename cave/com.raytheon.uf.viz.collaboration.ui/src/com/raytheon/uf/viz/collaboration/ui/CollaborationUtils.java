@@ -31,10 +31,11 @@ import org.eclipse.swt.graphics.Image;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
+import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Mode;
 import com.raytheon.uf.viz.collaboration.data.CollaborationGroup;
 import com.raytheon.uf.viz.collaboration.data.CollaborationNode;
 import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
-import com.raytheon.uf.viz.collaboration.data.DataUser;
 import com.raytheon.uf.viz.collaboration.data.SessionGroup;
 
 /**
@@ -59,6 +60,9 @@ public class CollaborationUtils {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(CollaborationUtils.class);
 
+    public static final IPresence.Mode[] statusModes = { Mode.AVAILABLE,
+            Mode.DND, Mode.AWAY };
+
     public static ImageDescriptor getImageDescriptor(String string) {
         String iconPath = "icons" + File.separator;
         URL url = FileLocator.find(Activator.getDefault().getBundle(),
@@ -74,11 +78,11 @@ public class CollaborationUtils {
         Image nodeImage = null;
         if (node instanceof CollaborationUser) {
             CollaborationUser user = (CollaborationUser) node;
-            if (user.getStatus() == DataUser.StatusType.AVAILABLE) {
+            if (user.getMode() == IPresence.Mode.AVAILABLE) {
                 nodeImage = getImageDescriptor("available.gif").createImage();
-            } else if (user.getStatus() == DataUser.StatusType.AWAY) {
+            } else if (user.getMode() == IPresence.Mode.AWAY) {
                 nodeImage = getImageDescriptor("away.gif").createImage();
-            } else if (user.getStatus() == DataUser.StatusType.DO_NOT_DISTURB) {
+            } else if (user.getMode() == IPresence.Mode.DND) {
                 nodeImage = getImageDescriptor("do_not_disturb.gif")
                         .createImage();
             } else {
@@ -134,8 +138,8 @@ public class CollaborationUtils {
         // }
     }
 
-    public static void changeStatus(DataUser.StatusType type) {
-        System.out.println("Changing status...");
+    public static void changeStatus(IPresence.Mode statusMode) {
+        System.out.println("Changing mode...");
         // IPresenceContainerAdapter presence = CollaborationData.getInstance()
         // .getPresence();
         //
