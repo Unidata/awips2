@@ -25,6 +25,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
+import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Mode;
+
 /**
  * A Data class that contains all the user information needed for the current
  * instance of CAVE.
@@ -44,18 +47,26 @@ import java.util.Map;
  */
 
 public class DataUser {
-    public static enum StatusType {
-        AVAILABLE("Available"), AWAY("Away"), DO_NOT_DISTURB("Do Not Disturb"), NOT_ON_LINE(
-                "UnAvailable");
+    // public static enum StatusType {
+    // AVAILABLE("Available"), AWAY("Away"), DO_NOT_DISTURB("Do Not Disturb"),
+    // NOT_ON_LINE(
+    // "UnAvailable");
+    //
+    // private final String value;
+    //
+    // StatusType(String value) {
+    // this.value = value;
+    // }
+    //
+    // public String value() {
+    // return value;
+    // }
+    // }
 
-        private final String value;
-
-        StatusType(String value) {
-            this.value = value;
-        }
-
-        public String value() {
-            return value;
+    private static final Map<String, IPresence.Mode> modeMap = new HashMap<String, IPresence.Mode>();
+    static {
+        for (Mode mode : Mode.values()) {
+            modeMap.put(mode.name(), mode);
         }
     }
 
@@ -73,7 +84,7 @@ public class DataUser {
         }
     }
 
-    StatusType status;
+    IPresence.Mode mode;
 
     String statusMessage;
 
@@ -103,7 +114,7 @@ public class DataUser {
         this.id = id;
         groupsMap = new HashMap<String, DataGroup>();
         sessionsMap = new HashMap<String, String>();
-        status = StatusType.NOT_ON_LINE;
+        mode = Mode.EXTENDED_AWAY;
         roleMap = new HashMap<String, List<RoleType>>();
     }
 
@@ -179,17 +190,21 @@ public class DataUser {
     }
 
     /**
-     * @param status
-     *            the status to set
+     * @param mode
+     *            the mode to set
      */
-    public void setStatus(StatusType status) {
-        this.status = status;
+    public void setMode(Mode status) {
+        this.mode = status;
+    }
+
+    public void setMode(String name) {
+        this.mode = modeMap.get(name);
     }
 
     /**
-     * @return the status
+     * @return the mode
      */
-    public StatusType getStatus() {
-        return status;
+    public Mode getMode() {
+        return mode;
     }
 }
