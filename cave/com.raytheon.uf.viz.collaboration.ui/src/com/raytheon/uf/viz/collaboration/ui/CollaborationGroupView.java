@@ -62,15 +62,20 @@ import org.eclipse.ui.part.ViewPart;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.collaboration.comm.provider.SessionManager;
+import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
+import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Mode;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
+import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster;
+import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
+import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
+import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
+import com.raytheon.uf.viz.collaboration.comm.provider.SessionManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationGroup;
 import com.raytheon.uf.viz.collaboration.data.CollaborationNode;
 import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
-import com.raytheon.uf.viz.collaboration.data.DataUser;
 import com.raytheon.uf.viz.collaboration.data.LoginUser;
 import com.raytheon.uf.viz.collaboration.data.SessionGroup;
 import com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView;
@@ -101,13 +106,11 @@ public class CollaborationGroupView extends ViewPart {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(CollaborationGroupView.class);
 
-    private SessionGroup activeSessionGroup = null;
+    private SessionGroup activeSessionGroup;
 
     private TreeViewer usersTreeViewer;
 
-    CollaborationGroup topLevel = new CollaborationGroup("kickstart");
-
-    SessionGroup acitveSessionGroup;
+    CollaborationGroup topLevel;
 
     Map<String, String[]> groupMap;
 
@@ -122,6 +125,8 @@ public class CollaborationGroupView extends ViewPart {
     private Action joinCollaborationAction;
 
     private Action peerToPeerChatAction;
+
+    private Action logonAction;
 
     private Action logoutAction;
 
@@ -162,17 +167,11 @@ public class CollaborationGroupView extends ViewPart {
         createUsersTree(parent);
         addDoubleClickListeners();
         createContextMenu();
-
-        CollaborationDataManager dManager = CollaborationDataManager
-                .getInstance();
-        SessionManager manager = null;
-        if (dManager != null) {
-            manager = dManager.getSessionManager();
+        if (CollaborationDataManager.getInstance().isConnected()) {
+            populateTree();
+        } else {
+            usersTreeViewer.getTree().setEnabled(false);
         }
-        if (manager == null) {
-            System.err.println("Unable to connect");
-        }
-        populateTree();
     }
 
     /**
@@ -189,6 +188,8 @@ public class CollaborationGroupView extends ViewPart {
         };
         createSessionAction.setImageDescriptor(CollaborationUtils
                 .getImageDescriptor("add_collaborate.gif"));
+        createSessionAction.setEnabled(CollaborationDataManager.getInstance()
+                .isConnected());
 
         linkToEditorAction = new Action("Link Editor to Chat Session",
                 Action.AS_CHECK_BOX) {
@@ -225,12 +226,22 @@ public class CollaborationGroupView extends ViewPart {
             }
         };
 
+        logonAction = new Action("Logon...") {
+            @Override
+            public void run() {
+                populateTree();
+            }
+        };
+        logonAction.setImageDescriptor(CollaborationUtils
+                .getImageDescriptor("logout.gif"));
+
         logoutAction = new Action("Logout") {
             @Override
             public void run() {
                 performLogout();
             }
         };
+
         logoutAction.setImageDescriptor(CollaborationUtils
                 .getImageDescriptor("logout.gif"));
 
@@ -411,20 +422,18 @@ public class CollaborationGroupView extends ViewPart {
     }
 
     private void fillStatusMenu(Menu menu) {
-        for (DataUser.StatusType type : DataUser.StatusType.values()) {
-            if (type != DataUser.StatusType.NOT_ON_LINE) {
-                Action action = new Action(type.value()) {
-                    public void run() {
-                        changeStatusAction.setId(getId());
-                        changeStatusAction.run();
-                    };
+        for (IPresence.Mode type : CollaborationUtils.statusModes) {
+            Action action = new Action(type.getMode()) {
+                public void run() {
+                    changeStatusAction.setId(getId());
+                    changeStatusAction.run();
                 };
-                action.setId(type.name());
-                ActionContributionItem item = new ActionContributionItem(action);
-                action.setImageDescriptor(CollaborationUtils
-                        .getImageDescriptor(type.name().toLowerCase() + ".gif"));
-                item.fill(menu, -1);
-            }
+            };
+            action.setId(type.name());
+            ActionContributionItem item = new ActionContributionItem(action);
+            action.setImageDescriptor(CollaborationUtils
+                    .getImageDescriptor(type.name().toLowerCase() + ".gif"));
+            item.fill(menu, -1);
         }
     }
 
@@ -440,6 +449,14 @@ public class CollaborationGroupView extends ViewPart {
     private void createMenubar() {
         IMenuManager mgr = getViewSite().getActionBars().getMenuManager();
         createMenu(mgr);
+        mgr.addMenuListener(new IMenuListener() {
+
+            @Override
+            public void menuAboutToShow(IMenuManager manager) {
+                manager.removeAll();
+                createMenu(manager);
+            }
+        });
     }
 
     private void createMenu(IMenuManager mgr) {
@@ -451,7 +468,11 @@ public class CollaborationGroupView extends ViewPart {
         mgr.add(changeMessageAction);
         mgr.add(changePasswordAction);
         mgr.add(new Separator());
-        mgr.add(logoutAction);
+        if (CollaborationDataManager.getInstance().isConnected()) {
+            mgr.add(logoutAction);
+        } else {
+            mgr.add(logonAction);
+        }
     }
 
     private void createSession() {
@@ -636,6 +657,8 @@ public class CollaborationGroupView extends ViewPart {
         usersTreeViewer.setContentProvider(new UsersTreeContentProvider());
         usersTreeViewer.setLabelProvider(new UsersTreeLabelProvider());
         usersTreeViewer.setSorter(new UsersTreeViewerSorter());
+        topLevel = new CollaborationGroup("kickstart");
+        usersTreeViewer.setInput(topLevel);
 
         treeEditor = new TreeEditor(usersTreeViewer.getTree());
     }
@@ -737,8 +760,7 @@ public class CollaborationGroupView extends ViewPart {
         CollaborationDataManager manager = CollaborationDataManager
                 .getInstance();
         SessionManager sessionManager = manager.getSessionManager();
-        topLevel = new CollaborationGroup("kickstart");
-        usersTreeViewer.setInput(topLevel);
+        topLevel.removeChildren();
         if (sessionManager == null) {
             usersTreeViewer.getTree().setEnabled(false);
             return;
@@ -752,43 +774,12 @@ public class CollaborationGroupView extends ViewPart {
 
         populateActiveSessions();
 
-        // TODO get from server.
-        for (String g : new String[] { "Mybuddy1", "buddy1" }) {
-            CollaborationGroup group = new CollaborationGroup(g);
-            group.setLocal(true);
-            group.setModifiable(true);
-            topLevel.addChild(group);
-            for (String u : new String[] { "OAX_user1", "DSM_user3",
-                    "LBF_user2", "mnash@awipscm.omaha.us.ray.com" }) {
-                CollaborationUser item = new CollaborationUser(u);
-                group.addChild(item);
-                item.setStatus(DataUser.StatusType.AVAILABLE);
-            }
-        }
+        populateGroups();
 
-        // TODO get from server
-        for (String g : new String[] { "OAX", "DSM", "LBF", "FSD" }) {
-            CollaborationGroup group = new CollaborationGroup(g);
-            group.setLocal(false);
-            topLevel.addChild(group);
-            for (String u : new String[] { g + "_user2", g + "_user3",
-                    g + "_user1" }) {
-                CollaborationUser item = new CollaborationUser(u);
-                group.addChild(item);
-                item.setStatus(DataUser.StatusType.AWAY);
-            }
-        }
-
-        CollaborationUser me = new CollaborationUser("OAX_rferrel");
-        me.setStatus(DataUser.StatusType.AVAILABLE);
-        for (CollaborationNode node : topLevel.getChildren()) {
-            if ("OAX".equals(node.getId())) {
-                ((CollaborationGroup) node).addChild(me);
-                break;
-            }
-        }
-        usersTreeViewer.setInput(topLevel);
+        // usersTreeViewer.setInput(topLevel);
+        usersTreeViewer.getTree().setEnabled(true);
         usersTreeViewer.refresh(topLevel, true);
+        createSessionAction.setEnabled(true);
     }
 
     private void refreshActiveSessions() {
@@ -806,9 +797,95 @@ public class CollaborationGroupView extends ViewPart {
             gp.setText(venu.getVenueName());
 
             if (venu.getParticipantCount() > 0) {
-                // TODO add current participants of the venu here.
+                // TODO add current participants of the venu here?
             }
             activeSessionGroup.addChild(gp);
+        }
+    }
+
+    private void populateGroups() {
+        for (CollaborationNode node : topLevel.getChildren()) {
+            if (!(node instanceof LoginUser || node instanceof SessionGroup)) {
+                topLevel.removeChild(node);
+            }
+        }
+
+        IRosterManager rosterManager = CollaborationDataManager.getInstance()
+                .getSessionManager().getRosterManager();
+
+        IRoster roster = rosterManager.getRoster();
+        System.out.println("rosterManager Name " + roster.getUser().getName()
+                + ": group size " + roster.getGroups().size() + ": entry size "
+                + roster.getEntries().size());
+        for (IRosterGroup rosterGroup : roster.getGroups()) {
+            populateGroup(topLevel, rosterGroup);
+        }
+
+        // TODO get Groups from server.
+        for (String g : new String[] { "Mybuddy1", "buddy1" }) {
+            CollaborationGroup group = new CollaborationGroup(g);
+            group.setLocal(true);
+            group.setModifiable(true);
+            topLevel.addChild(group);
+            for (String u : new String[] { "jkorman@awipscm.omaha.us.ray.com",
+                    "abc@awipscm.omaha.us.ray.com",
+                    "mnash@awipscm.omaha.us.ray.com" }) {
+                CollaborationUser item = new CollaborationUser(u);
+                group.addChild(item);
+                item.setMode(Mode.AVAILABLE);
+            }
+        }
+
+        // TODO get from server
+        for (String g : new String[] { "OAX", "DSM", "LBF", "FSD" }) {
+            CollaborationGroup group = new CollaborationGroup(g);
+            group.setLocal(false);
+            topLevel.addChild(group);
+            for (String u : new String[] { g + "_user2", g + "_user3",
+                    g + "_user1" }) {
+                CollaborationUser item = new CollaborationUser(u);
+                group.addChild(item);
+                item.setMode(Mode.AWAY);
+            }
+        }
+
+        CollaborationUser me = new CollaborationUser("OAX_rferrel");
+        me.setMode(Mode.AVAILABLE);
+        for (CollaborationNode node : topLevel.getChildren()) {
+            if ("OAX".equals(node.getId())) {
+                ((CollaborationGroup) node).addChild(me);
+                break;
+            }
+        }
+    }
+
+    /**
+     * This creates a group node, populates it with its children and makes it a
+     * child of its parent.
+     * 
+     * @param parent
+     * @param rosterGroup
+     *            - Information about the group and its children -
+     */
+    private void populateGroup(CollaborationGroup parent,
+            IRosterGroup rosterGroup) {
+        CollaborationGroup groupNode = new CollaborationGroup(
+                rosterGroup.getName());
+        // TODO determine if group is modifiable (User) or System group.
+        groupNode.setLocal(true);
+        groupNode.setModifiable(true);
+        parent.addChild(groupNode);
+        System.out.println("group Name " + rosterGroup.getName() + ": entries "
+                + rosterGroup.getEntries());
+        if (rosterGroup.getGroups() != null) {
+            for (IRosterGroup childGroup : rosterGroup.getGroups()) {
+                populateGroup(groupNode, childGroup);
+            }
+        }
+
+        for (IRosterEntry e : rosterGroup.getEntries()) {
+            CollaborationUser child = new CollaborationUser(e.getName());
+            groupNode.addChild(child);
         }
     }
 
