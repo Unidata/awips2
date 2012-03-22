@@ -86,7 +86,6 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
 
     @Override
     public Image getColumnImage(Object element, int columnIndex) {
-        System.out.println("getColumnImage");
         CollaborationUser user = (CollaborationUser) element;
         CollaborationDataManager.getInstance().getUser(user.getId());
         Image image = CollaborationUtils.getNodeImage(user);
@@ -105,7 +104,7 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
 
     @Override
     public Font getFont(Object element, int columnIndex) {
-        System.out.println("getFont");
+        // System.out.println("getFont");
         return null;
     }
 
@@ -118,7 +117,7 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
 
     @Override
     public Color getBackground(Object element, int columnIndex) {
-        System.out.println("getBackground");
+        // System.out.println("getBackground");
         // TODO Auto-generated method stub
         return null;
     }

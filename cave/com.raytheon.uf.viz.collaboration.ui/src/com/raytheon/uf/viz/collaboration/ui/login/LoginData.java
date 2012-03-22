@@ -1,6 +1,12 @@
 package com.raytheon.uf.viz.collaboration.ui.login;
 
-import com.raytheon.uf.viz.collaboration.data.DataUser;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 
 /**
  * This software was developed and / or modified by Raytheon Company,
@@ -23,7 +29,8 @@ import com.raytheon.uf.viz.collaboration.data.DataUser;
  **/
 
 /**
- * TODO Add Description
+ * Data class that provides logon information. All but the password may be saved
+ * and from a localized file.
  * 
  * <pre>
  * 
@@ -38,24 +45,37 @@ import com.raytheon.uf.viz.collaboration.data.DataUser;
  * @author rferrel
  * @version 1.0
  */
-public class LoginData {
+@XmlRootElement(name = "CollaborationLogon")
+@XmlAccessorType(XmlAccessType.NONE)
+public class LoginData implements ISerializableObject {
+    @XmlElement(name = "user")
     private String user;
 
+    @XmlElement(name = "server")
     private String server;
 
-    transient private String password;
+    private transient String password;
 
-    private DataUser.StatusType status;
+    @XmlElement(name = "mode")
+    private String status;
 
+    @XmlElement(name = "statusMessage")
     private String statusMessage;
 
+    public LoginData() {
+        this.user = "";
+        this.server = "";
+        this.password = "";
+        this.status = IPresence.Mode.AVAILABLE.name();
+    }
+
     public LoginData(final String user, final String server,
-            final String password, final DataUser.StatusType status,
+            final String password, final IPresence.Mode status,
             final String statusMessage) {
         this.user = user;
         this.server = server;
         this.password = password;
-        this.status = status;
+        this.status = status.name();
         this.statusMessage = statusMessage;
     }
 
@@ -71,7 +91,7 @@ public class LoginData {
         password = null;
     }
 
-    public DataUser.StatusType getStatus() {
+    public String getStatus() {
         return status;
     }
 
@@ -88,17 +108,8 @@ public class LoginData {
     }
 
     public String toString() {
-        return "userId: \"" + user + "\", server \"" + server + "\", status:\""
-                + status.value() + "\", statusMessage: \"" + statusMessage
-                + "\", pw: "
+        return "userId: \"" + user + "\", server \"" + server + "\", mode:\""
+                + status + "\", statusMessage: \"" + statusMessage + "\", pw: "
                 + ((password == null) ? "null" : password.length());
     }
-
-    // public void addErrorMessage(String error) {
-    // errorMessages.add(error);
-    // }
-    //
-    // public List<String> getErrorMessages() {
-    // return errorMessages;
-    // }
 }
