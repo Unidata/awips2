@@ -17,12 +17,13 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.comm.provider;
+package com.raytheon.uf.viz.collaboration.comm.identity.event;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 
 /**
- * TODO Add Description
+ * Encapsulates a venue invitation to the user.
  * 
  * <pre>
  *
@@ -30,42 +31,37 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
  *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 24, 2012            jkorman     Initial creation
+ * Mar 21, 2012            jkorman     Initial creation
  *
  * </pre>
  *
  * @author jkorman
- * @version 1.0 
+ * @version 1.0	
  */
 
-public class CollaborationMessage extends BaseMessage {
+public interface IVenueInvitationEvent {
     
-    private static final long serialVersionUID = 1L;
-
     /**
      * 
-     * @param to
-     * @param body
+     * @return
      */
-    public CollaborationMessage(IQualifiedID to, String body) {
-        super(to,body);
-    }
-
+    IQualifiedID getRoomId();
+    
     /**
      * 
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.IMessage#getMessageType()
+     * @return
      */
-    @Override
-    public MessageType getMessageType() {
-        return MessageType.COLLABORATION;
-    }
-
+    IChatID getInvitor();
+    
     /**
      * 
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.IMessage#getBodyAsBinary(byte[])
      */
-    @Override
-    public void getBodyAsBinary(byte[] body) {
-    }
+    String getSubject();
+    
+    /**
+     * 
+     * @return
+     */
+    String getBody();
     
 }
