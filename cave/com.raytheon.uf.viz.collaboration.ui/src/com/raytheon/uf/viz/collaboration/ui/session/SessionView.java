@@ -60,6 +60,7 @@ import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
@@ -201,6 +202,20 @@ public class SessionView extends AbstractSessionView {
         // manager.add(new Separator());
     }
 
+    
+    @Subscribe
+    public void handleMessage(IMessage message) {
+        final IMessage msg = message;
+        VizApp.runAsync(new Runnable() {
+
+            @Override
+            public void run() {
+                addMessage(msg.getFrom().getName(),
+                        msg.getTimeStamp(), msg.getBody());
+            }
+        });
+    }
+    
     /**
      * Ties the view to a session.
      * 
@@ -229,13 +244,13 @@ public class SessionView extends AbstractSessionView {
                     });
                 }
             };
-            session.addMessageListener(messageListener, new IMessageFilter() {
-
-                @Override
-                public boolean filter(IMessage message) {
-                    return true;
-                }
-            });
+//            session.addMessageListener(messageListener, new IMessageFilter() {
+//
+//                @Override
+//                public boolean filter(IMessage message) {
+//                    return true;
+//                }
+//            });
 
             session.registerEventHandler(this);
             // participantListener = new IVenueParticipantListener() {
@@ -551,10 +566,10 @@ public class SessionView extends AbstractSessionView {
         // imageMap.clear();
         // imageMap = null;
 
-        if (participantListener != null) {
-            CollaborationDataManager.getInstance().getSession(sessionId)
-                    .removeVenueParticipantListener(participantListener);
-        }
+//        if (participantListener != null) {
+//            CollaborationDataManager.getInstance().getSession(sessionId)
+//                    .removeVenueParticipantListener(participantListener);
+//        }
 
         CollaborationDataManager.getInstance().getSession(sessionId)
                 .unRegisterEventHandler(this);
@@ -662,8 +677,14 @@ public class SessionView extends AbstractSessionView {
         if (message.length() > 0) {
             // CollaborationDataManager.getInstance().getSession(sessionId)
             // .sendTextMessage(message);
-            CollaborationDataManager.getInstance().getSession(sessionId)
-                    .sendMessageToVenue(message);
+            
+            try {
+                CollaborationDataManager.getInstance().getSession(sessionId)
+                        .sendTextMessage(message);
+            } catch (CollaborationException e) {
+                // TODO Auto-generated catch block. Please revise as appropriate.
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+            }
         }
     }
 
@@ -698,7 +719,7 @@ public class SessionView extends AbstractSessionView {
             // for (IMessageListener list : session.getMessageListeners()) {
             // session.removeMessageListener(list);
             // }
-            session.removeVenueParticipantListener(participantListener);
+            // session.removeVenueParticipantListener(participantListener);
             session.unRegisterEventHandler(this);
         }
         // this.getViewSite().getWorkbenchWindow().getPartService()

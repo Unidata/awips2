@@ -21,7 +21,6 @@ package com.raytheon.uf.viz.collaboration.comm.provider.roster;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
@@ -54,39 +53,6 @@ public class RosterEntry extends RosterItem implements IRosterEntry, IMutableRos
     private IPresence presence = null;
 
     private Map<IRosterGroup, IRosterGroup> groups = null;
-
-    /**
-     * 
-     * @see java.lang.Object#hashCode()
-     */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = super.hashCode();
-        result = prime * result + ((userId == null) ? 0 : userId.hashCode());
-        return result;
-    }
-
-    /**
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (!super.equals(obj))
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        RosterEntry other = (RosterEntry) obj;
-        if (userId == null) {
-            if (other.userId != null)
-                return false;
-        } else if (!userId.equals(other.userId))
-            return false;
-        return true;
-    }
 
     /**
      * 
@@ -140,6 +106,39 @@ public class RosterEntry extends RosterItem implements IRosterEntry, IMutableRos
     @Override
     public IPresence getPresence() {
         return presence;
+    }
+
+    /**
+     * 
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((userId == null) ? 0 : userId.hashCode());
+        return result;
+    }
+
+    /**
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        RosterEntry other = (RosterEntry) obj;
+        if (userId == null) {
+            if (other.userId != null)
+                return false;
+        } else if (!userId.equals(other.userId))
+            return false;
+        return true;
     }
 
 
@@ -224,6 +223,5 @@ public class RosterEntry extends RosterItem implements IRosterEntry, IMutableRos
         
         System.out.println(id.getFQName());
     }
-    
     
 }
