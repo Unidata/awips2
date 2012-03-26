@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.role;
 
-import com.raytheon.uf.viz.collaboration.comm.provider.session.VenueSession;
+import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 
 /**
  * TODO Add Description
@@ -41,9 +41,9 @@ import com.raytheon.uf.viz.collaboration.comm.provider.session.VenueSession;
 public abstract class AbstractRoleEventController implements
         IRoleEventController {
 
-    protected VenueSession session;
+    protected ISharedDisplaySession session;
 
-    protected AbstractRoleEventController(VenueSession session) {
+    protected AbstractRoleEventController(ISharedDisplaySession session) {
         this.session = session;
     }
 
