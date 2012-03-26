@@ -17,9 +17,11 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.comm.provider;
+package com.raytheon.uf.viz.collaboration.comm.provider.session;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IRenderable;
 
 /**
  * TODO Add Description
@@ -30,42 +32,55 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
  *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 24, 2012            jkorman     Initial creation
+ * Mar 23, 2012            jkorman     Initial creation
  *
  * </pre>
  *
  * @author jkorman
- * @version 1.0 
+ * @version 1.0	
  */
+@DynamicSerialize
+public class TestObject implements IRenderable {
 
-public class CollaborationMessage extends BaseMessage {
+    @DynamicSerializeElement
+    private String name;
     
-    private static final long serialVersionUID = 1L;
-
-    /**
-     * 
-     * @param to
-     * @param body
-     */
-    public CollaborationMessage(IQualifiedID to, String body) {
-        super(to,body);
-    }
-
-    /**
-     * 
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.IMessage#getMessageType()
-     */
-    @Override
-    public MessageType getMessageType() {
-        return MessageType.COLLABORATION;
-    }
-
-    /**
-     * 
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.IMessage#getBodyAsBinary(byte[])
-     */
-    @Override
-    public void getBodyAsBinary(byte[] body) {
+    @DynamicSerializeElement
+    private int value = 0;
+    
+    public TestObject() {
     }
     
+    public TestObject(String name) {
+        this.name = name;
+    }
+
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * @return the value
+     */
+    public int getValue() {
+        return value;
+    }
+
+    /**
+     * @param value the value to set
+     */
+    public void setValue(int value) {
+        this.value = value;
+    }
+
 }
