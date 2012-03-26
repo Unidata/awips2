@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.comm.provider;
+package com.raytheon.uf.viz.collaboration.comm.provider.session;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -25,6 +25,7 @@ import java.util.Map;
 import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.ecf.core.util.ECFException;
 import org.eclipse.ecf.presence.IPresenceContainerAdapter;
+import org.eclipse.ecf.presence.IPresenceSender;
 import org.eclipse.ecf.presence.roster.IRosterSubscriptionListener;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
@@ -32,6 +33,8 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.ISubscriptionResponder;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
+import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 
 /**
  * TODO Add Description
@@ -70,45 +73,8 @@ public class AccountManager implements IAccountManager {
             } else {
                 subscribedType = IPresence.Type.SUBSCRIBED;
             }
-            org.eclipse.ecf.presence.Presence.Type sType = null;
-            switch(subscribedType) {
-            case AVAILABLE: {
-                sType = org.eclipse.ecf.presence.Presence.Type.AVAILABLE;
-                break;
-            }
-            case ERROR: {
-                sType = org.eclipse.ecf.presence.Presence.Type.ERROR;
-                break;
-            }
-            case SUBSCRIBE: {
-                sType = org.eclipse.ecf.presence.Presence.Type.SUBSCRIBE;
-                break;
-            }
-            case SUBSCRIBED: {
-                sType = org.eclipse.ecf.presence.Presence.Type.SUBSCRIBED;
-                break;
-            }
-            case UNAVAILABLE: {
-                sType = org.eclipse.ecf.presence.Presence.Type.UNAVAILABLE;
-                break;
-            }
-            case UNSUBSCRIBE: {
-                sType = org.eclipse.ecf.presence.Presence.Type.UNSUBSCRIBE;
-                break;
-            }
-            case UNSUBSCRIBED: {
-                sType = org.eclipse.ecf.presence.Presence.Type.UNSUBSCRIBED;
-                break;
-            }
-            case UNKNOWN : {
-                sType = org.eclipse.ecf.presence.Presence.Type.UNKNOWN;
-                break;
-            }
-            default :  {
-                sType = org.eclipse.ecf.presence.Presence.Type.ERROR;
-                break;
-            }
-            }
+            org.eclipse.ecf.presence.Presence.Type sType = Tools.convertPresenceType(subscribedType);
+
             org.eclipse.ecf.presence.IPresence presence = new org.eclipse.ecf.presence.Presence(sType);
             
             try {
@@ -127,6 +93,8 @@ public class AccountManager implements IAccountManager {
         }
     };
     
+    private boolean autoRespond = true;
+    
     private IPresenceContainerAdapter presenceAdapter;
     
     private ISubscriptionResponder responder;
@@ -140,13 +108,15 @@ public class AccountManager implements IAccountManager {
     }
     
     /**
+     * Set the auto subscription mode to ON or OFF. If set to off then any currently assigned
+     * autoresponder is set to null.
+     * @param mode The auto subscription mode.
      * @see com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager#setAutoSubscriptionMode(boolean)
      */
     @Override
-    public void setAutoSubscriptionMode(boolean mode) {
-        if(mode) {
-            
-        } else {
+    public void setAutoSubscriptionMode(boolean auto) {
+        autoRespond = auto;
+        if(!auto) {
             responder = null;
         }
     }
@@ -211,6 +181,8 @@ public class AccountManager implements IAccountManager {
     }
 
     /**
+     * 
+     * 
      * @see com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager#canCreateAccount()
      */
     @Override
@@ -227,11 +199,15 @@ public class AccountManager implements IAccountManager {
         return canCreate;
     }
 
-    /* (non-Javadoc)
+    /**
+     * TODO : Body of method
+     * 
+     * @param password
+     * @param attributes 
      * @see com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager#createAccount(java.lang.String, char[], java.util.Map)
      */
     @Override
-    public void createAccount(String name, char[] password, Map attributes)
+    public void createAccount(String name, char[] password, Map<String, String> attributes)
             throws CollaborationException {
         if (name != null) {
             if (password != null) {
@@ -242,5 +218,22 @@ public class AccountManager implements IAccountManager {
             }
         }
     }
+
+    /**
+     * 
+     * 
+     * @param userPresence
+     * @throws CollaborationException
+     */
+    @Override
+    public void sendPresence(IPresence userPresence) throws CollaborationException {
+        IPresenceSender sender = presenceAdapter.getRosterManager().getPresenceSender();
+        try {
+            sender.sendPresenceUpdate(null, Presence.convertPresence(userPresence));
+        } catch (ECFException e) {
+            // TODO : Exception handing....
+        }
+    }
+
 
 }

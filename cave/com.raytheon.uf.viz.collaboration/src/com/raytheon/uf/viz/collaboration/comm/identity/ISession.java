@@ -38,12 +38,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity;
 
-import java.util.Collection;
-
-import com.raytheon.uf.viz.collaboration.comm.identity.listener.IMessageFilter;
-import com.raytheon.uf.viz.collaboration.comm.identity.listener.IMessageListener;
-import com.raytheon.uf.viz.collaboration.comm.identity.listener.IPresenceListener;
-import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 
 /**
@@ -68,7 +62,12 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
  */
 
 public interface ISession {
-    
+
+    /**
+     * Close and clean up this session. After a close, isConnected must return false.
+     */
+    void close();
+
     /**
      * 
      * @return
@@ -82,85 +81,8 @@ public interface ISession {
     boolean isConnected();
     
     /**
-     * Close and clean up this session. After a close, isConnected must return false.
+     * Get the session identifier.
+     * @return The session identifier. 
      */
-    void close();
-
-    /**
-     * Allow the user to send presence information to the transport provider.
-     * @param presence
-     * @return Return status information.
-     */
-    int sendPresence(IPresence presence);
-
-    /**
-     * 
-     * @param handler
-     */
-    void registerEventHandler(Object handler);
-    
-    /**
-     * 
-     * @param handler
-     */
-    void unRegisterEventHandler(Object handler);
-    
-    /**
-     * Send a Text message. Note that the recipient of the message is
-     * included as an attribute of the message.
-     * @param message
-     */
-    int sendTextMessage(IMessage message);
-
-    /**
-     * Send a Text message to a specific receiver.
-     * @param to The intended receiver.
-     * @param message The message to send.
-     */
-    int sendTextMessage(String to, String message);
-
-    /**
-     * Add a listener for incoming messages. These messages will be filtered using
-     * the supplied message filter. 
-     * @param listener A listener for incoming messages.
-     * @param filter A filter that either accepts/rejects messages. 
-     * @return The listener that was added.
-     */
-    IMessageListener addMessageListener(IMessageListener listener, IMessageFilter filter);
-    
-    /**
-     * Get the message listeners defined for the session.
-     * @return A not null collection of message listeners defined for the session.
-     */
-    Collection<IMessageListener> getMessageListeners();
-    
-    /**
-     * Remove a message listener from the session.
-     * @param listener A listener to remove.
-     * @return The listener that was removed. If the listener was not
-     * found, a null reference is returned.
-     */
-    IMessageListener removeMessageListener(IMessageListener listener);
-
-    /**
-     * 
-     * @param filter
-     * @return
-     */
-    IPresenceListener addPresenceListener(IPresenceListener listener, IMessageFilter filter);
-    
-    /**
-     * Get the presence listeners defined for the session.
-     * @return A not null collection of presence listeners defined for the session.
-     */
-    Collection<IPresenceListener> getPresenceListeners();
-
-    /**
-     * Remove a presence listener from the session.
-     * @param listener A listener to remove.
-     * @return The listener that was removed. If the listener was not
-     * found, a null reference is returned.
-     */
-    IPresenceListener removePresenceListener(IPresenceListener listener);
-
+    String getSessionId();
 }

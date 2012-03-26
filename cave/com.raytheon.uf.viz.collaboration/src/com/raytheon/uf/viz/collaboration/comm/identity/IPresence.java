@@ -39,8 +39,8 @@ package com.raytheon.uf.viz.collaboration.comm.identity;
 public interface IPresence extends IPropertied {
 
     public static enum Mode {
-        AVAILABLE("available"), AWAY("away"), CHAT("chat"), DND("dnd"), EXTENDED_AWAY(
-                "extended_away"), INVISIBLE("invisible");
+        AVAILABLE("Available"), AWAY("Away"), CHAT("chat"), DND("Do Not Disturb"), EXTENDED_AWAY(
+                "Extended Away"), INVISIBLE("Invisible");
 
         private final String mode;
 

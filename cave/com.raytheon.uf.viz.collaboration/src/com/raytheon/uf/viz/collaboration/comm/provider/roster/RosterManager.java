@@ -28,41 +28,44 @@ import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.RosterId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueUserId;
 
 /**
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 14, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public class RosterManager implements IRosterManager {
 
     private String owner;
-    
+
     private IRoster roster;
-    
+
+    private org.eclipse.ecf.presence.roster.IRoster baseRoster;
+
     /**
      * 
      * @param roster
      */
     public RosterManager(org.eclipse.ecf.presence.roster.IRoster roster) {
-        this.roster = toLocalRoster(roster);
+        baseRoster = roster;
         owner = roster.getName();
+        this.roster = toLocalRoster(roster);
     }
-    
-    
+
     /**
      * 
      * @return
@@ -96,7 +99,8 @@ public class RosterManager implements IRosterManager {
 
     /**
      * 
-     * @param listener A listener to remove.
+     * @param listener
+     *            A listener to remove.
      * @return The listener that was removed.
      * @see com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager#removeRosterListener(com.raytheon.uf.viz.collaboration.comm.identity.listener.IRosterListener)
      */
@@ -104,7 +108,7 @@ public class RosterManager implements IRosterManager {
     public IRosterListener removeRosterListener(IRosterListener listener) {
         return null;
     }
-    
+
     /**
      * 
      * @param roster
@@ -112,60 +116,37 @@ public class RosterManager implements IRosterManager {
      */
     public IRoster toLocalRoster(org.eclipse.ecf.presence.roster.IRoster roster) {
         Roster newRoster = null;
-        
-        if(roster != null) {
+
+        if (roster != null) {
             IChatID id = VenueUserId.convertFrom(roster.getUser());
             newRoster = new Roster(id);
-            
+
             @SuppressWarnings("rawtypes")
             Collection items = roster.getItems();
-            for(Object o : items) {
-                if(o instanceof org.eclipse.ecf.presence.roster.IRosterEntry) {
+            for (Object o : items) {
+                if (o instanceof org.eclipse.ecf.presence.roster.IRosterEntry) {
                     org.eclipse.ecf.presence.roster.IRosterEntry entry = (org.eclipse.ecf.presence.roster.IRosterEntry) o;
 
-                    id = VenueUserId.convertFrom(entry.getUser());
+                    id = RosterId.convertFrom(entry.getUser());
                     RosterEntry re = new RosterEntry(id);
-                    if(!newRoster.getEntries().contains(re)) {
-                        IPresence p = Presence.convertPresence(entry.getPresence());
+                    if (!newRoster.getEntries().contains(re)) {
+                        IPresence p = Presence.convertPresence(entry
+                                .getPresence());
                         re.setPresence(p);
                         newRoster.addRosterEntry(re);
                     }
-                } else if(o instanceof org.eclipse.ecf.presence.roster.IRosterGroup) {
+                } else if (o instanceof org.eclipse.ecf.presence.roster.IRosterGroup) {
                     org.eclipse.ecf.presence.roster.IRosterGroup group = (org.eclipse.ecf.presence.roster.IRosterGroup) o;
-                    
-                    RosterGroup newGroup = new RosterGroup(group.getName(), null ,newRoster);
-                    
-                    populateGroup(newRoster, newGroup, group.getEntries());
-                } 
+
+                    RosterGroup newGroup = new RosterGroup(group.getName(),
+                            null, newRoster);
+
+                    newRoster.populateGroup(newGroup, group.getEntries());
+                    newRoster.addGroup(newGroup);
+                }
             }
         }
         return newRoster;
     }
-    
-    /**
-     * 
-     * @param roster
-     * @param newGroup
-     * @param entries
-     */
-    private void populateGroup(Roster roster, RosterGroup newGroup, @SuppressWarnings("rawtypes") Collection entries) {
-        
-        for(Object o : entries) {
-            if(o instanceof org.eclipse.ecf.presence.roster.IRosterEntry) {
-                org.eclipse.ecf.presence.roster.IRosterEntry entry = (org.eclipse.ecf.presence.roster.IRosterEntry) o;
-                
-                IChatID id = VenueUserId.convertFrom(entry.getUser());
-                RosterEntry re = new RosterEntry(id);
-                // Check to see if we already have an entry
-                IRosterEntry reCurrent = roster.getRosterEntry(re);
-                if((reCurrent != null)&&(reCurrent instanceof RosterEntry)) {
-                    re = (RosterEntry) reCurrent;
-                }
-                IPresence p = Presence.convertPresence(entry.getPresence());
-                re.setPresence(p);
-                re.addGroup(newGroup);
-                roster.addRosterEntry(re);
-            }
-        }
-    }
+
 }
