@@ -55,17 +55,9 @@ public class RosterGroup extends RosterItem implements IRosterGroup {
      */
     public RosterGroup(String name, IRosterItem parent, IRoster roster) {
         super(name, parent, roster);
+        entries = new ArrayList<IRosterEntry>();
         if(roster.supportsNestedGroups()) {
             groups = new ArrayList<IRosterGroup>();
-        }
-    }
-    
-    /**
-     * 
-     */
-    private void ensureEntries() {
-        if(entries == null) {
-            entries = new ArrayList<IRosterEntry>();
         }
     }
     
@@ -74,7 +66,6 @@ public class RosterGroup extends RosterItem implements IRosterGroup {
      * @param entry
      */
     public void addEntry(IRosterEntry entry) {
-        ensureEntries();
         entries.add(entry);
     }
     
@@ -94,10 +85,8 @@ public class RosterGroup extends RosterItem implements IRosterGroup {
      */
     public IRosterEntry removeEntry(IRosterEntry entry) {
         IRosterEntry removed = null;
-        if(entries != null) {
-            if(entries.remove(entry)) {
-                removed = entry;
-            }
+        if (entries.remove(entry)) {
+            removed = entry;
         }
         return removed;
     }

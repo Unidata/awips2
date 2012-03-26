@@ -71,7 +71,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
-import com.raytheon.uf.viz.collaboration.comm.provider.SessionManager;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.SessionManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationGroup;
 import com.raytheon.uf.viz.collaboration.data.CollaborationNode;
@@ -814,40 +814,59 @@ public class CollaborationGroupView extends ViewPart {
                 .getSessionManager().getRosterManager();
 
         IRoster roster = rosterManager.getRoster();
-        System.out.println("rosterManager Name " + roster.getUser().getName()
-                + ": group size " + roster.getGroups().size() + ": entry size "
-                + roster.getEntries().size());
-        for (IRosterGroup rosterGroup : roster.getGroups()) {
-            populateGroup(topLevel, rosterGroup);
-        }
-
-        // TODO get Groups from server.
-        for (String g : new String[] { "Mybuddy1", "buddy1" }) {
-            CollaborationGroup group = new CollaborationGroup(g);
-            group.setLocal(true);
-            group.setModifiable(true);
-            topLevel.addChild(group);
-            for (String u : new String[] { "jkorman@awipscm.omaha.us.ray.com",
-                    "abc@awipscm.omaha.us.ray.com",
-                    "mnash@awipscm.omaha.us.ray.com" }) {
-                CollaborationUser item = new CollaborationUser(u);
-                group.addChild(item);
-                item.setMode(Mode.AVAILABLE);
+        
+        String name = null;
+        int rsize = -1;
+        int gsize = -1;
+        if(roster != null) {
+            if(roster.getUser() != null) {
+                name = roster.getUser().getName();
             }
-        }
-
-        // TODO get from server
-        for (String g : new String[] { "OAX", "DSM", "LBF", "FSD" }) {
-            CollaborationGroup group = new CollaborationGroup(g);
-            group.setLocal(false);
-            topLevel.addChild(group);
-            for (String u : new String[] { g + "_user2", g + "_user3",
-                    g + "_user1" }) {
-                CollaborationUser item = new CollaborationUser(u);
-                group.addChild(item);
-                item.setMode(Mode.AWAY);
+            if(roster.getEntries() != null) {
+                rsize = roster.getEntries().size();
             }
+            if(roster.getGroups() != null) {
+                gsize = roster.getGroups().size();
+            }
+            System.out.println("rosterManager Name " + name
+                    + ": group size " + gsize + ": entry size "
+                    + rsize);
+            for (IRosterGroup rosterGroup : roster.getGroups()) {
+                if(rosterGroup != null) {
+                    populateGroup(topLevel, rosterGroup);
+                }
+            }
+
+            // TODO get Groups from server.
+            for (String g : new String[] { "Mybuddy1", "buddy1" }) {
+                CollaborationGroup group = new CollaborationGroup(g);
+                group.setLocal(true);
+                group.setModifiable(true);
+                topLevel.addChild(group);
+                for (String u : new String[] { "jkorman@awipscm.omaha.us.ray.com",
+                        "abc@awipscm.omaha.us.ray.com",
+                        "mnash@awipscm.omaha.us.ray.com" }) {
+                    CollaborationUser item = new CollaborationUser(u);
+                    group.addChild(item);
+                    item.setMode(Mode.AVAILABLE);
+                }
+            }
+
+            // TODO get from server
+            for (String g : new String[] { "OAX", "DSM", "LBF", "FSD" }) {
+                CollaborationGroup group = new CollaborationGroup(g);
+                group.setLocal(false);
+                topLevel.addChild(group);
+                for (String u : new String[] { g + "_user2", g + "_user3",
+                        g + "_user1" }) {
+                    CollaborationUser item = new CollaborationUser(u);
+                    group.addChild(item);
+                    item.setMode(Mode.AWAY);
+                }
+            }
+        
         }
+            
 
         CollaborationUser me = new CollaborationUser("OAX_rferrel");
         me.setMode(Mode.AVAILABLE);
@@ -869,6 +888,7 @@ public class CollaborationGroupView extends ViewPart {
      */
     private void populateGroup(CollaborationGroup parent,
             IRosterGroup rosterGroup) {
+
         CollaborationGroup groupNode = new CollaborationGroup(
                 rosterGroup.getName());
         // TODO determine if group is modifiable (User) or System group.

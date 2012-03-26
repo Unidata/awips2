@@ -17,9 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.comm.provider;
-
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+package com.raytheon.uf.viz.collaboration.comm.identity.event;
 
 /**
  * TODO Add Description
@@ -30,42 +28,13 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
  *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 24, 2012            jkorman     Initial creation
+ * Mar 22, 2012            jkorman     Initial creation
  *
  * </pre>
  *
  * @author jkorman
- * @version 1.0 
+ * @version 1.0	
  */
 
-public class CollaborationMessage extends BaseMessage {
-    
-    private static final long serialVersionUID = 1L;
-
-    /**
-     * 
-     * @param to
-     * @param body
-     */
-    public CollaborationMessage(IQualifiedID to, String body) {
-        super(to,body);
-    }
-
-    /**
-     * 
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.IMessage#getMessageType()
-     */
-    @Override
-    public MessageType getMessageType() {
-        return MessageType.COLLABORATION;
-    }
-
-    /**
-     * 
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.IMessage#getBodyAsBinary(byte[])
-     */
-    @Override
-    public void getBodyAsBinary(byte[] body) {
-    }
-    
+public interface IRenderable {
 }
