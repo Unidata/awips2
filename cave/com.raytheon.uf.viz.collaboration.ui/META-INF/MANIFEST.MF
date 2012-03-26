@@ -5,6 +5,7 @@ Bundle-SymbolicName: com.raytheon.uf.viz.collaboration.ui;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: com.raytheon.uf.viz.collaboration.ui.Activator
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-RegisterBuddy: com.raytheon.uf.viz.core
 Export-Package: com.raytheon.uf.viz.collaboration.ui
 Require-Bundle: com.raytheon.viz.ui,
  org.eclipse.ui,
