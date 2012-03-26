@@ -19,19 +19,20 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.roster;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
-import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterItem;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.RosterId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueUserId;
 
 /**
  * TODO Add Description
@@ -51,25 +52,18 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
  */
 
 public class Roster extends RosterItem implements IRoster {
+    // Map of all roster entries in this roster.
+    private Map<IQualifiedID, IRosterEntry> internalEntries;
 
-    private Map<IRosterEntry, IRosterEntry> entries;
+    // Map of roster entries that are not contained in a group.
+    private Map<IQualifiedID, IRosterEntry> entries;
 
-    private Map<IRosterGroup, IRosterGroup> groups = null;
+    // Map of all roster groups in this roster.
+    private Map<String, IRosterGroup> groups = null;
 
     private final IChatID user;
 
     private boolean roomRoster = false;
-
-    // From ecf . . . .
-    // IPresenceContainerAdapter presence = (IPresenceContainerAdapter)
-    // container
-    // .getAdapter(IPresenceContainerAdapter.class);
-    // private IPresenceContainerAdapter presenceAdapter = null;
-    //
-    //
-    // presenceAdapter.getRosterManager.getRoster();
-    // We will then build our internal roster from the ecf roster.
-    //
 
     /**
      * 
@@ -77,8 +71,9 @@ public class Roster extends RosterItem implements IRoster {
      */
     public Roster(IChatID user) {
         this.user = user;
-        entries = new HashMap<IRosterEntry, IRosterEntry>();
-        groups = new HashMap<IRosterGroup, IRosterGroup>();
+        internalEntries = new HashMap<IQualifiedID, IRosterEntry>();
+        entries = new HashMap<IQualifiedID, IRosterEntry>();
+        groups = new HashMap<String, IRosterGroup>();
     }
 
     /**
@@ -117,7 +112,7 @@ public class Roster extends RosterItem implements IRoster {
      */
     @Override
     public void addRosterEntry(IRosterEntry entry) {
-        entries.put(entry, entry);
+        entries.put(entry.getUser(), entry);
     }
 
     /**
@@ -128,7 +123,7 @@ public class Roster extends RosterItem implements IRoster {
     public IRosterEntry getRosterEntry(IRosterEntry entry) {
         return entries.get(entry);
     }
-    
+
     /**
      * Get all entries belonging with this roster.
      * 
@@ -139,7 +134,30 @@ public class Roster extends RosterItem implements IRoster {
     public Collection<IRosterEntry> getEntries() {
         return entries.values();
     }
-    
+
+    /**
+     * 
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster#addGroup(com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup)
+     */
+    @Override
+    public void addGroup(IRosterGroup group) {
+        if (!groups.containsKey(group.getName())) {
+            groups.put(group.getName(), group);
+        }
+    }
+
+    /**
+     * 
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster#removeGroup(java.lang.String)
+     */
+    @Override
+    public void removeGroup(String groupName) {
+        // Need to remove the group from the map
+        // visit any entries that reference this group
+        // and send updates so that the info is updated
+        // at the server.
+    }
+
     /**
      * Get all groups associated with this roster.
      * 
@@ -160,15 +178,26 @@ public class Roster extends RosterItem implements IRoster {
     }
 
     /**
+     * Add a user entry to this roster. If the groups are null or empty then the
+     * entry is considered to be ungrouped.
+     * 
      * @see com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster#addRosterEntry(com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID,
      *      java.lang.String, java.lang.String[])
      */
     @Override
     public void addRosterEntry(IQualifiedID user, String nickName,
             String[] groups) {
-        
-        
-        
+
+        if (user != null) {
+            IRosterEntry entry = internalEntries.get(user.getFQName());
+            if (entry == null) {
+                RosterId id = new RosterId(user.getName(), user.getHost(),
+                        null, user.getResource());
+                entry = new RosterEntry(id);
+            }
+            internalEntries.put(entry.getUser(), entry);
+
+        }
     }
 
     /**
@@ -176,17 +205,57 @@ public class Roster extends RosterItem implements IRoster {
      */
     @Override
     public void modifyRosterEntry(IRosterEntry entry) {
+
     }
 
     /**
      * 
      * 
      * @see com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster#
-     * removeFromRoster(com.raytheon.uf.viz.collaboration.comm.identity.user.ID)
+     *      removeFromRoster(com.raytheon.uf.viz.collaboration.comm.identity.user.ID)
      */
     @Override
     public void removeFromRoster(ID user) {
 
     }
+
+    /**
+     * 
+     * @param roster
+     * @param group
+     * @param entries
+     */
+    void populateGroup(RosterGroup group,
+            @SuppressWarnings("rawtypes") Collection entries) {
+        if ((group != null) && (entries != null)) {
+            for (Object o : entries) {
+                if (o instanceof org.eclipse.ecf.presence.roster.IRosterEntry) {
+                    org.eclipse.ecf.presence.roster.IRosterEntry entry = (org.eclipse.ecf.presence.roster.IRosterEntry) o;
+
+                    IChatID id = VenueUserId.convertFrom(entry.getUser());
+                    RosterEntry re = new RosterEntry(id);
+                    // Check to see if we already have an entry
+                    IRosterEntry reCurrent = getRosterEntry(re);
+                    if ((reCurrent != null)
+                            && (reCurrent instanceof RosterEntry)) {
+                        re = (RosterEntry) reCurrent;
+                    }
+                    IPresence p = Presence.convertPresence(entry.getPresence());
+                    re.setPresence(p);
+                    re.addGroup(group);
+                    internalEntries.put(re.getUser(), re);
+                }
+            }
+        }
+    }
+
+    // *******************************************
+    // <pre>
+    // internalEntries : A map of all roster entries contained by this roster.
+    // Each entry contains a map of all groups it is contained in. If the
+    // map is empty then the entry is not contained within a group and will
+    // be found in the entries map.
+    // </pre>
+    // *******************************************
 
 }
