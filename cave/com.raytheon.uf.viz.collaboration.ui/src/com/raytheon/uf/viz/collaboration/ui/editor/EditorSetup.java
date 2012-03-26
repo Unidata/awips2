@@ -104,7 +104,8 @@ public class EditorSetup {
         return se;
     }
 
-    public static void createEditor(SharedEditor sharedEditor) {
+    public static CollaborationEditor createEditor(SharedEditor sharedEditor) {
+        CollaborationEditor editor = null;
         AbstractRenderableDisplay[] displays = new AbstractRenderableDisplay[1];
         try {
             // TODO make it work with any IDescriptor and
@@ -133,12 +134,12 @@ public class EditorSetup {
             disp.setExtent(extent);
 
             displays[0] = disp;
-            UiUtil.createEditor(CollaborationEditor.EDITOR_ID, displays);
+            editor = (CollaborationEditor) UiUtil.createEditor(
+                    CollaborationEditor.EDITOR_ID, displays);
         } catch (VizException e) {
-            // TODO Auto-generated catch block. Please revise as appropriate.
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
-
+        return editor;
     }
 
     // TODO delete
