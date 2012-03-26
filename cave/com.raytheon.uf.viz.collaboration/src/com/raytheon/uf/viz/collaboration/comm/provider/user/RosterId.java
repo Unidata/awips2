@@ -31,7 +31,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
  *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 5, 2012            jkorman     Initial creation
+ * Mar 21, 2012            jkorman     Initial creation
  *
  * </pre>
  *
@@ -39,36 +39,28 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
  * @version 1.0	
  */
 
-public class VenueUserId extends UserId implements IChatID {
+public class RosterId extends UserId implements IChatID {
 
-    private String nickName;
+    private String nickname;
+
+    /**
+     * 
+     * @param userName
+     * @param hostName
+     * @param nickName
+     * @param resource
+     */
+    public RosterId(String userName, String hostName, String resource, String nickName) {
+        super(userName, hostName, resource);
+        nickname = nickName;
+    }
     
-    /**
-     * 
-     * @param userName
-     * @param hostName
-     */
-    public VenueUserId(String userName, String hostName) {
-        super(userName, hostName);
-        nickName = null;
-    }
-
-    /**
-     * 
-     * @param userName
-     * @param hostName
-     */
-    public VenueUserId(String userName, String nickName, String hostName) {
-        super(userName, hostName);
-        this.nickName = nickName;
-    }
-
     /**
      * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID#setNickname(java.lang.String)
      */
     @Override
     public void setNickname(String nickname) {
-        this.nickName = nickname;
+        this.nickname = nickname;
     }
 
     /**
@@ -76,10 +68,10 @@ public class VenueUserId extends UserId implements IChatID {
      */
     @Override
     public String getNickname() {
-        return nickName;
+        return nickname;
     }
 
-    /**
+    /* (non-Javadoc)
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -87,11 +79,11 @@ public class VenueUserId extends UserId implements IChatID {
         final int prime = 31;
         int result = super.hashCode();
         result = prime * result
-                + ((nickName == null) ? 0 : nickName.hashCode());
+                + ((nickname == null) ? 0 : nickname.hashCode());
         return result;
     }
 
-    /**
+    /* (non-Javadoc)
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -102,15 +94,15 @@ public class VenueUserId extends UserId implements IChatID {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        VenueUserId other = (VenueUserId) obj;
-        if (nickName == null) {
-            if (other.nickName != null)
+        RosterId other = (RosterId) obj;
+        if (nickname == null) {
+            if (other.nickname != null)
                 return false;
-        } else if (!nickName.equals(other.nickName))
+        } else if (!nickname.equals(other.nickname))
             return false;
         return true;
     }
-
+    
     /**
      * 
      * @param user
@@ -119,14 +111,7 @@ public class VenueUserId extends UserId implements IChatID {
     public static IChatID convertFrom(org.eclipse.ecf.core.user.IUser user) {
         String name = Tools.parseName(user.getName());
         String host = Tools.parseHost(user.getName());
-        return new VenueUserId(name, user.getNickname(), host);
+        return new RosterId(name, host, user.getNickname(), null);
     }
-    
-    
-    
-    
-    
-    
-    
-    
+
 }

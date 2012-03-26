@@ -55,8 +55,7 @@ public interface IRoster {
     void addRosterEntry(IRosterEntry entry);
 
     /**
-     * Add this user to the roster. An IRosterListener.rosterEntryAdded
-     * event will be triggered if the addition is successful.
+     * Add this user to the roster.
      * @param user
      * @param nickName
      * @param groups
@@ -64,16 +63,14 @@ public interface IRoster {
     void addRosterEntry(IQualifiedID user, String nickName, String [] groups);
 
     /**
-     * Request that the specified entry be modified in the roster. An IRosterListener.rosterEntryAdded
-     * event will be triggered if the addition is successful.  
+     * Request that the specified entry be modified in the roster.
      * @param entry The entry to modify. This entry will contain the modifications
      * to apply.
      */
     void modifyRosterEntry(IRosterEntry entry);
     
     /**
-     * Request that the user be removed from the roster. An IRosterListener.rosterEntryUpdated
-     * event will be triggered if the update is successful.
+     * Request that the user be removed from the roster.
      * @param user The identification of the user to be removed.
      */
     void removeFromRoster(ID user);
@@ -83,6 +80,19 @@ public interface IRoster {
      * @return A Collection of entries belonging to this Roster.
      */
     Collection<IRosterEntry> getEntries();
+    
+    /**
+     * Add a group to the roster. This method adds to the roster
+     * level groups only.
+     * @param group A group to add. 
+     */
+    void addGroup(IRosterGroup group);
+
+    /**
+     * Removes a group from the roster level groups.
+     * @param groupName Name of the group to remove.
+     */
+    void removeGroup(String groupName);
     
     /**
      * Get all groups associated with this roster.
