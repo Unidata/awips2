@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.collaboration.comm.identity;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IInitData;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IRenderable;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
@@ -38,8 +39,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
  * venue.</li>
  * <li><strong>TextMessage</strong> : Text messages send between users. Meant to
  * be displayed as conversation.</li>
- * <li><strong>IDisplayEvent</strong> : These messages are CAVE to CAVE
- * events</li>
+ * <li><strong>IDisplayEvent</strong> : These messages are CAVE to CAVE events</li>
  * <li><strong>IRenderable</strong> : These messages are CAVE to CAVE
  * display......</li>
  * 
@@ -61,33 +61,35 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
  */
 
 public interface ISharedDisplaySession extends IEventPublisher {
-    
+
     /**
      * Send a single initialization object to a participant who has joined an
-     * in-progress collaboration session. 
+     * in-progress collaboration session.
      * 
      * @param participant
      * @param initData
      */
-    void sendInitData(IChatID participant, Object initData) throws CollaborationException;
-    
+    void sendInitData(IChatID participant, IInitData initData)
+            throws CollaborationException;
+
     /**
      * 
      * @param event
      */
     void sendEvent(IDisplayEvent event) throws CollaborationException;
-    
+
     /**
      * 
      */
-    void sendRenderableObject(IRenderable renderable) throws CollaborationException;
+    void sendRenderableObject(IRenderable renderable)
+            throws CollaborationException;
 
     /**
      * 
      * @return
      */
     IChatID getCurrentDataProvider();
-    
+
     /**
      * 
      * @return
@@ -100,22 +102,24 @@ public interface ISharedDisplaySession extends IEventPublisher {
      * @return
      */
     boolean hasRole(ParticipantRole role);
-    
+
     /**
      * 
      * @return
      */
     IQualifiedID getUserID();
-    
+
     /**
      * Gets the connection status of the session.
+     * 
      * @return The connection status.
      */
     boolean isConnected();
-    
+
     /**
      * Get the session identifier.
-     * @return The session identifier. 
+     * 
+     * @return The session identifier.
      */
     String getSessionId();
 
