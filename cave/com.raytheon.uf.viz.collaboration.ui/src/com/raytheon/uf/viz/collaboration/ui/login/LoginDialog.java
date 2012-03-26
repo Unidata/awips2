@@ -20,8 +20,12 @@ package com.raytheon.uf.viz.collaboration.ui.login;
  * further licensing information.
  **/
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.bind.JAXB;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
@@ -39,8 +43,19 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -60,6 +75,13 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class LoginDialog extends CaveSWTDialog {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(LoginDialog.class);
+
+    private static final String LOGIN_FILE_NAME = "collaboration"
+            + File.separator + "config" + File.separator + "gui"
+            + File.separator + "LoginData.xml";
+
     private Text userTF;
 
     private Text serverTF;
@@ -87,9 +109,9 @@ public class LoginDialog extends CaveSWTDialog {
         setText("Collaboration Server Log On");
     }
 
-    public void setLoginData(LoginData loginData) {
-        this.loginData = loginData;
-    }
+    // public void setLoginData(LoginData loginData) {
+    // this.loginData = loginData;
+    // }
 
     private Control createDialogArea(Composite parent) {
         GridData gd = null;
@@ -214,12 +236,14 @@ public class LoginDialog extends CaveSWTDialog {
     @Override
     protected void preOpened() {
         super.preOpened();
-        if (loginData != null) {
-            userTF.setText(loginData.getUser());
-            serverTF.setText(loginData.getServer());
-            statusCombo.select(statusCombo.indexOf(loginData.getStatus()));
-            messageTF.setText(loginData.getMessage());
-        }
+        initLoginData();
+        userTF.setText(loginData.getUser());
+        serverTF.setText(loginData.getServer());
+
+        statusCombo.select(CollaborationUtils.statusModesIndex(loginData
+                .getMode()));
+        messageTF.setText(loginData.getModeMessage());
+        userTF.selectAll();
         userTF.setFocus();
     }
 
@@ -266,7 +290,6 @@ public class LoginDialog extends CaveSWTDialog {
         button.setData(new Integer(id));
         button.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                // buttonPressed(((Integer) event.widget.getData()).intValue());
                 Integer val = (Integer) event.widget.getData();
                 if (val != IDialogConstants.OK_ID) {
                     setReturnValue(null);
@@ -277,6 +300,9 @@ public class LoginDialog extends CaveSWTDialog {
                     String user = userTF.getText().trim();
                     String server = serverTF.getText().trim();
                     String password = passwordTF.getText();
+                    IPresence.Mode mode = CollaborationUtils.statusModes[statusCombo
+                            .getSelectionIndex()];
+                    String modeMessage = messageTF.getText().trim();
                     if (user.length() <= 0) {
                         if (focusField == null) {
                             focusField = userTF;
@@ -284,13 +310,13 @@ public class LoginDialog extends CaveSWTDialog {
                         errorMessages.add("Must enter a user.");
                         userTF.setText("");
                     }
-                    // if (server.length() <= 0) {
-                    // if (focusField == null) {
-                    // focusField = serverTF;
-                    // }
-                    // errorMessages.add("Must have a server.");
-                    // serverTF.setText("");
-                    // }
+                    if (server.length() <= 0) {
+                        if (focusField == null) {
+                            focusField = serverTF;
+                        }
+                        errorMessages.add("Must have a server.");
+                        serverTF.setText("");
+                    }
 
                     if (password.length() <= 0) {
                         if (focusField == null) {
@@ -300,10 +326,32 @@ public class LoginDialog extends CaveSWTDialog {
                         passwordTF.setText("");
                     }
                     if (focusField == null) {
-                        loginData = new LoginData(user, server, password,
-                                CollaborationUtils.statusModes[statusCombo
-                                        .getSelectionIndex()], messageTF
-                                        .getText().trim());
+                        boolean doSaveLoginData = false;
+                        if (!loginData.getUser().equals(user)) {
+                            doSaveLoginData = true;
+                            loginData.setUser(user);
+                        }
+                        if (!loginData.getServer().equals(server)) {
+                            doSaveLoginData = true;
+                            loginData.setServer(server);
+                        }
+                        loginData.setPassword(password);
+                        if (!loginData.getMode().equals(mode)) {
+                            doSaveLoginData = true;
+                            loginData.setMode(mode);
+                        }
+                        if (!loginData.getModeMessage().equals(modeMessage)) {
+                            doSaveLoginData = true;
+                            loginData.setModeMessage(modeMessage);
+                        }
+                        if (doSaveLoginData) {
+                            saveLoginData();
+                        }
+
+                        // loginData = new LoginData(user, server, password,
+                        // CollaborationUtils.statusModes[statusCombo
+                        // .getSelectionIndex()], messageTF
+                        // .getText().trim());
                         setReturnValue(loginData);
                         LoginDialog.this.getShell().dispose();
                     } else {
@@ -315,7 +363,7 @@ public class LoginDialog extends CaveSWTDialog {
                         }
                         MessageBox messageBox = new MessageBox(event.widget
                                 .getDisplay().getActiveShell(), SWT.ERROR);
-                        messageBox.setText("Login in error");
+                        messageBox.setText("Log On Error");
                         messageBox.setMessage(sb.toString());
                         messageBox.open();
                         event.doit = false;
@@ -332,5 +380,60 @@ public class LoginDialog extends CaveSWTDialog {
             }
         }
         return button;
+    }
+
+    private void initLoginData() {
+        loginData = null;
+        IPathManager pm = PathManagerFactory.getPathManager();
+        File fname = pm.getStaticFile(LOGIN_FILE_NAME);
+        try {
+            if (fname != null) {
+                loginData = JAXB.unmarshal(fname, LoginData.class);
+            }
+        } catch (RuntimeException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        } finally {
+            if (loginData == null) {
+                loginData = new LoginData();
+            }
+        }
+    }
+
+    private void saveLoginData() {
+        try {
+            LocalizationFile lFile = getFile(LOGIN_FILE_NAME);
+            File file = lFile.getFile(false);
+            file.getParentFile().mkdirs();
+            JAXB.marshal(loginData, file);
+            lFile.save();
+        } catch (FileNotFoundException ex) {
+            statusHandler
+                    .handle(Priority.PROBLEM, ex.getLocalizedMessage(), ex);
+        } catch (LocalizationException e) {
+            // TODO Auto-generated catch block. Please revise as appropriate.
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
+    }
+
+    /**
+     * Obtains a localization file for desired file name.
+     * 
+     * @param filename
+     * @return lFile
+     * @throws FileNotFoundException
+     */
+    private LocalizationFile getFile(String filename)
+            throws FileNotFoundException {
+        IPathManager pm = PathManagerFactory.getPathManager();
+        LocalizationContext context = pm.getContext(
+                LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
+        LocalizationFile lFile = pm.getLocalizationFile(context, filename);
+        if (lFile == null) {
+            String user = LocalizationManager.getInstance().getCurrentUser();
+            throw new FileNotFoundException("Unable to find \"" + filename
+                    + "\" under the directory for user " + user + ".");
+
+        }
+        return lFile;
     }
 }
