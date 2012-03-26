@@ -32,6 +32,7 @@ import org.geotools.coverage.grid.GeneralGridGeometry;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.adapters.GridGeometryAdapter;
 import com.raytheon.uf.common.serialization.adapters.JTSEnvelopeAdapter;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IInitData;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.vividsolutions.jts.geom.Envelope;
 
@@ -55,7 +56,7 @@ import com.vividsolutions.jts.geom.Envelope;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
-public class SharedEditor implements ISerializableObject {
+public class SharedEditor implements ISerializableObject, IInitData {
 
     /** The geometry of the descriptor */
     private GeneralGridGeometry geometry;
