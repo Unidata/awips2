@@ -156,8 +156,8 @@ public class CollaborationDataManager {
                             DataUser user = CollaborationDataManager
                                     .getInstance().getUser(loginId);
                             // TODO set mode and message here.
-                            user.setMode(loginData.getStatus());
-                            user.statusMessage = loginData.getMessage();
+                            user.setMode(loginData.getMode());
+                            user.statusMessage = loginData.getModeMessage();
                             wbListener = new IWorkbenchListener() {
 
                                 @Override
