@@ -43,7 +43,7 @@ import com.raytheon.viz.ui.panes.PaneManager;
 
 public class CollaborationEditor extends AbstractEditor {
 
-    public static final String EDITOR_ID = "com.raytheon.uf.viz.collaboration.display.editor.CollaborationEditor";
+    public static final String EDITOR_ID = "com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor";
 
     @Override
     protected PaneManager getNewPaneManager() {
