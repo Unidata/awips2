@@ -19,8 +19,11 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity;
 
+import java.util.Collection;
 import java.util.Map;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.listener.IMessageFilter;
+import com.raytheon.uf.viz.collaboration.comm.identity.listener.IPresenceListener;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.ISubscriptionResponder;
 
 
@@ -87,7 +90,7 @@ public interface IAccountManager {
      * @param attributes
      * @throws CollaborationException
      */
-    void createAccount(String name, char [] password, Map attributes) throws CollaborationException;
+    void createAccount(String name, char [] password, Map<String, String> attributes) throws CollaborationException;
     
     /**
      * Allows the user to change their account password. If the server does
@@ -113,4 +116,11 @@ public interface IAccountManager {
      */
     boolean canCreateAccount() throws CollaborationException;
     
+    /**
+     * Allow the user to send presence information to the transport provider.
+     * @param presence
+     * @return Return status information.
+     * @throws CollaborationException
+     */
+    public void sendPresence(IPresence presence) throws CollaborationException;
 }

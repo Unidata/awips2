@@ -35,7 +35,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
-import com.raytheon.uf.viz.collaboration.comm.provider.SessionManager;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.SessionManager;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginData;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginDialog;
 import com.raytheon.uf.viz.core.VizApp;
@@ -264,15 +264,12 @@ public class CollaborationDataManager {
         IVenueSession session = null;
         String sessionId = null;
         try {
-            session = manager.createCollaborationSession();
-            int status = session.createVenue(venue, subject);
-            if (status == 0) {
-                sessionId = venuIdToSessionId(session.getVenue().getInfo()
-                        .getVenueID());
-                // TODO throw an exception if unable to make connection?
-                if (session.isConnected()) {
-                    sessionsMap.put(sessionId, session);
-                }
+            session = manager.createCollaborationVenue(venue, subject);
+            sessionId = venuIdToSessionId(session.getVenue().getInfo()
+                    .getVenueID());
+            // TODO throw an exception if unable to make connection?
+            if (session.isConnected()) {
+                sessionsMap.put(sessionId, session);
             }
         } catch (CollaborationException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
@@ -288,14 +285,13 @@ public class CollaborationDataManager {
         return manager != null;
     }
 
-    public String joinCollaborationSession(String venuName, String sessionId) {
+    public String joinCollaborationSession(String venueName, String sessionId) {
         if (sessionsMap.get(sessionId) == null) {
 
             IVenueSession session = null;
             try {
-                session = getSessionManager().createCollaborationSession();
+                session = getSessionManager().joinCollaborationVenue(venueName);
                 sessionsMap.put(sessionId, session);
-                session.joinVenue(venuName);
             } catch (CollaborationException e) {
                 // TODO Auto-generated catch block. Please revise as
                 // appropriate.
