@@ -20,24 +20,19 @@
 package com.raytheon.uf.viz.collaboration.comm.provider.session;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.eclipse.ecf.core.IContainer;
 import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.ecf.core.identity.IDFactory;
-import org.eclipse.ecf.core.identity.Namespace;
 import org.eclipse.ecf.core.user.IUser;
 import org.eclipse.ecf.core.util.ECFException;
 import org.eclipse.ecf.presence.IIMMessageEvent;
 import org.eclipse.ecf.presence.IIMMessageListener;
-import org.eclipse.ecf.presence.IPresenceContainerAdapter;
-import org.eclipse.ecf.presence.IPresenceSender;
 import org.eclipse.ecf.presence.chatroom.IChatRoomContainer;
 import org.eclipse.ecf.presence.chatroom.IChatRoomInfo;
 import org.eclipse.ecf.presence.chatroom.IChatRoomInvitationSender;
@@ -46,7 +41,6 @@ import org.eclipse.ecf.presence.chatroom.IChatRoomMessage;
 import org.eclipse.ecf.presence.chatroom.IChatRoomMessageEvent;
 import org.eclipse.ecf.presence.chatroom.IChatRoomMessageSender;
 import org.eclipse.ecf.presence.chatroom.IChatRoomParticipantListener;
-import org.eclipse.ecf.presence.im.IChatMessage;
 import org.eclipse.ecf.provider.xmpp.identity.XMPPRoomID;
 
 import com.google.common.eventbus.EventBus;
@@ -57,6 +51,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IInitData;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IRenderable;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
@@ -65,7 +60,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.listener.IInvitation;
 import com.raytheon.uf.viz.collaboration.comm.identity.listener.IMessageFilter;
 import com.raytheon.uf.viz.collaboration.comm.identity.listener.IMessageListener;
 import com.raytheon.uf.viz.collaboration.comm.identity.listener.IPresenceListener;
-import com.raytheon.uf.viz.collaboration.comm.identity.listener.IVenueParticipantListener;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
@@ -231,22 +225,23 @@ public class VenueSession extends BaseSession implements IVenueSession,
         } finally {
             initListeners();
         }
-        
+
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                for(int i = 0;i < 10;i++) {
+                for (int i = 0; i < 10; i++) {
 
                     IRenderable r = new TestObject("Test1");
                     ((TestObject) r).setValue(i);
-                    
+
                     try {
                         System.out.println("Sending renderable " + i);
                         sendRenderableObject(r);
-                        if(i == 5) {
-                            sendTextMessage(Tools.marshallData("This is a text message as a String"));
+                        if (i == 5) {
+                            sendTextMessage(Tools
+                                    .marshallData("This is a text message as a String"));
                         }
-                        
+
                     } catch (CollaborationException ce) {
                         ce.printStackTrace();
                     }
@@ -259,18 +254,20 @@ public class VenueSession extends BaseSession implements IVenueSession,
         };
         Thread t = new Thread(r);
         t.start();
-        
+
         registerEventHandler(this);
     }
 
     @Subscribe
     public void handle(IRenderable renderable) {
-        System.out.println("IRenderable " + renderable.getClass().getName() + " was received");
+        System.out.println("IRenderable " + renderable.getClass().getName()
+                + " was received");
     }
-    
+
     @Subscribe
     public void handle(IDisplayEvent event) {
-        System.out.println("IDisplayEvent " + event.getClass().getName() + " was received");
+        System.out.println("IDisplayEvent " + event.getClass().getName()
+                + " was received");
     }
 
     @Subscribe
@@ -280,9 +277,10 @@ public class VenueSession extends BaseSession implements IVenueSession,
 
     @Subscribe
     public void handle(IVenueParticipantEvent event) {
-        System.out.println("IVenueParticipantEvent " + event.getEventType() + " was received");
+        System.out.println("IVenueParticipantEvent " + event.getEventType()
+                + " was received");
     }
-    
+
     /**
      * 
      * @throws ECFException
@@ -630,18 +628,10 @@ public class VenueSession extends BaseSession implements IVenueSession,
     // ISharedDisplaySession
     // ***************************
 
-    /**
-     * 
-     * @param
-     * @param
-     * @throws CollaborationException
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#sendInitData(com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID,
-     *      java.lang.Object)
-     */
     @Override
     public void sendInitData(
             com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID participant,
-            Object initData) throws CollaborationException {
+            IInitData initData) throws CollaborationException {
 
         PeerToPeerChat session = null;
         session = getP2PSession();
@@ -663,7 +653,7 @@ public class VenueSession extends BaseSession implements IVenueSession,
     public void sendEvent(IDisplayEvent event) throws CollaborationException {
         if (event != null) {
             String message = Tools.marshallData(event);
-            if(message != null) {
+            if (message != null) {
                 sendTextMessage(message);
             }
         }
@@ -679,7 +669,7 @@ public class VenueSession extends BaseSession implements IVenueSession,
             throws CollaborationException {
         if (renderable != null) {
             String message = Tools.marshallData(renderable);
-            if(message != null) {
+            if (message != null) {
                 sendTextMessage(message);
             }
         }
@@ -687,7 +677,8 @@ public class VenueSession extends BaseSession implements IVenueSession,
 
     /**
      * Get the identification of the user who is the DataProvider.
-     * @return The DataProvider user identification. 
+     * 
+     * @return The DataProvider user identification.
      * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#getCurrentDataProvider()
      */
     @Override
@@ -697,6 +688,7 @@ public class VenueSession extends BaseSession implements IVenueSession,
 
     /**
      * Get the identification of the user who is the Session Leader.
+     * 
      * @return The Session Leader user identification.
      * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#getCurrentSessionLeader()
      */
@@ -773,10 +765,10 @@ public class VenueSession extends BaseSession implements IVenueSession,
                     Object o = null;
                     try {
                         o = Tools.unMarshallData(body);
-                        if(o != null) {
+                        if (o != null) {
                             getEventPublisher().post(o);
                         }
-                    } catch(CollaborationException ce) {
+                    } catch (CollaborationException ce) {
                         // TODO : more robust!!
                         ce.printStackTrace();
                     }
