@@ -22,14 +22,26 @@ package com.raytheon.uf.viz.collaboration.comm.identity;
 import java.util.Collection;
 import java.util.List;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
 import com.raytheon.uf.viz.collaboration.comm.identity.listener.IInvitation;
 import com.raytheon.uf.viz.collaboration.comm.identity.listener.IMessageFilter;
 import com.raytheon.uf.viz.collaboration.comm.identity.listener.IMessageListener;
 import com.raytheon.uf.viz.collaboration.comm.identity.listener.IVenueParticipantListener;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 
 /**
- * TODO Add Description
+ *
+ * 
+ * <ul>
+ * <li>EventBus subscription events. Implementors are required to post the following events.</li>
+ * <ul>
+ * <li><strong>IVenueParticipantEvent</strong> : This event is posted when a venue participant enters, leaves a venue, or
+ * updates their status in the venue.</li>
+ * <li><strong>TextMessage</strong> : Text messages send between users. Meant to be displayed as conversation.</li>
+ * <li><strong>CollaborationMessage</strong> : These messages are CAVE to CAVE command messages.</li>
+ * </ul>
+ * </ul>
  * 
  * <pre>
  *
@@ -45,22 +57,14 @@ import com.raytheon.uf.viz.collaboration.comm.identity.listener.IVenueParticipan
  * @version 1.0	
  */
 
-public interface IVenueSession extends ISession {
-    
+public interface IVenueSession extends ISession, IEventPublisher {
+
     /**
-     * Joins an existing multiple user collaboration.
-     * @param venueName Name of the venue.
+     * Return this session as an ISharedDisplaySession if it is supported. If
+     * the interface is not supported the method must return a null reference.
+     * @return 
      */
-    @Deprecated
-    int joinVenue(String venueName);
-    
-    /**
-     * Creates a multiple user collaboration.
-     * @param venueName Name of the venue.
-     * @param subject The subject of the collaboration.
-     */
-    @Deprecated
-    int createVenue(String venueName, String subject);
+    ISharedDisplaySession spawnSharedDisplaySession();
     
     /**
      * Returns information about a venue. 
@@ -69,22 +73,17 @@ public interface IVenueSession extends ISession {
     IVenue getVenue();
     
     /**
-     * Send a Text message to the venue.
-     * @param message The message text to send.
+     * 
+     * @param role
+     * @return
      */
-    int sendTextMessage(String message);
+    boolean hasRole(ParticipantRole role);
 
     /**
      * Send a Collaboration message.
      * @param message The message to send.
      */
-    int sendCollaborationMessage(IMessage message);
-
-    /**
-     * Send a Collaboration message.
-     * @param message The message to send.
-     */
-    int sendCollaborationMessage(String message);
+    void sendTextMessage(String message) throws CollaborationException;
 
     /**
      * Send an invitation from this venue to another user.
@@ -112,54 +111,5 @@ public interface IVenueSession extends ISession {
      * @return
      */
     int sendInvitation(String room, List<String> ids, String subject, String body);
-    /**
-     * 
-     * @param message
-     */
-    int sendMessageToVenue(String message);
     
-    /**
-     * Add a venue participant listener to this session.
-     * @param listener The listener to add.
-     * @return
-     */
-    public IVenueParticipantListener addVenueParticipantListener(IVenueParticipantListener listener);
-
-    /**
-     * Get the venue participant listeners defined for the session.
-     * @return A not null collection of venue participant listeners defined for the session.
-     */
-    public Collection<IVenueParticipantListener> getVenueParticipantListeners();
-
-    /**
-     * Remove  a venue participant listener from this session.
-     * @param listener A listener to remove.
-     * @return The listener that was removed. If the listener was not
-     * found, a null reference is returned.
-     */
-    public IVenueParticipantListener removeVenueParticipantListener(IVenueParticipantListener listener);
-    
-    /**
-     * 
-     * @param listener
-     * @param filter
-     * @return
-     */
-    public IMessageListener addCollaborationListener(IMessageListener listener, IMessageFilter filter);
-
-    /**
-     * Get the collaboration listeners defined for the session.
-     * @return A not null collection of collaboration listeners defined for the session.
-     */
-    public Collection<IMessageListener> getCollaborationListeners();
-
-    /**
-     * Remove a collaboration listener from the session.
-     * @param listener A listener to remove.
-     * @return The listener that was removed. If the listener was not
-     * found, a null reference is returned.
-     */
-    public IMessageListener removeCollaborationListener(IMessageListener listener);
-    
-
 }
