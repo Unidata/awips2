@@ -17,9 +17,9 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.comm.provider;
+package com.raytheon.uf.viz.collaboration.comm.identity.event;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.google.common.eventbus.EventBus;
 
 /**
  * TODO Add Description
@@ -30,42 +30,34 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
  *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 24, 2012            jkorman     Initial creation
+ * Mar 21, 2012            jkorman     Initial creation
  *
  * </pre>
  *
  * @author jkorman
- * @version 1.0 
+ * @version 1.0	
  */
 
-public class CollaborationMessage extends BaseMessage {
+public interface IEventPublisher {
+
+    /**
+     * 
+     * @param handler
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISession#registerEventHandler(java.lang.Object)
+     */
+    void registerEventHandler(Object handler);
     
-    private static final long serialVersionUID = 1L;
-
     /**
      * 
-     * @param to
-     * @param body
+     * @param handler
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISession#unRegisterEventHandler(java.lang.Object)
      */
-    public CollaborationMessage(IQualifiedID to, String body) {
-        super(to,body);
-    }
-
-    /**
-     * 
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.IMessage#getMessageType()
-     */
-    @Override
-    public MessageType getMessageType() {
-        return MessageType.COLLABORATION;
-    }
-
-    /**
-     * 
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.IMessage#getBodyAsBinary(byte[])
-     */
-    @Override
-    public void getBodyAsBinary(byte[] body) {
-    }
+    void unRegisterEventHandler(Object handler);
     
+    /**
+     * Get the underlying event publisher. Any class implementing this interface
+     * must return a not null event publisher.
+     * @return The event publisher.
+     */
+    EventBus getEventPublisher();
 }

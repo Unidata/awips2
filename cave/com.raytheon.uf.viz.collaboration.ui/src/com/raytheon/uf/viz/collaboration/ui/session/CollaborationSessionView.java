@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
@@ -134,8 +135,12 @@ public class CollaborationSessionView extends SessionView {
     public void sendMessage() {
         String message = getComposedMessage();
         if (message.length() > 0) {
-            CollaborationDataManager.getInstance().getSession(sessionId)
-                    .sendMessageToVenue(message);
+            try {
+                CollaborationDataManager.getInstance().getSession(sessionId)
+                        .sendTextMessage(message);
+            } catch (CollaborationException e) {
+                // TODO Auto-generated catch block. Please revise as appropriate.
+            }
         }
     }
 
