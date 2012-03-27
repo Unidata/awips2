@@ -121,12 +121,4 @@ public class VenueUserId extends UserId implements IChatID {
         String host = Tools.parseHost(user.getName());
         return new VenueUserId(name, user.getNickname(), host);
     }
-    
-    
-    
-    
-    
-    
-    
-    
 }
