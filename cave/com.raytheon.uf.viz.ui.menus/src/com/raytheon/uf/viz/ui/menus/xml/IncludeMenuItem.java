@@ -44,7 +44,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.ui.menus.DiscoverMenuContributions;
-import com.raytheon.uf.viz.ui.menus.widgets.IncludeContributionItem;
 import com.raytheon.uf.viz.ui.menus.widgets.SubmenuContributionItem;
 
 /**
@@ -68,6 +67,8 @@ public class IncludeMenuItem extends CommonIncludeMenuItem implements
     static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(IncludeMenuItem.class);
 
+    private SubmenuContributionItem submenuCont = null;
+
     /*
      * (non-Javadoc)
      * 
@@ -81,8 +82,8 @@ public class IncludeMenuItem extends CommonIncludeMenuItem implements
             VariableSubstitution[] incomingSubs, Set<String> removalsIn)
             throws VizException {
         if (subMenuName != null) {
-            return new IContributionItem[] { new SubmenuContributionItem(
-                    incomingSubs, subMenuName, null, removalsIn) {
+            submenuCont = new SubmenuContributionItem(incomingSubs,
+                    subMenuName, null, removalsIn) {
 
                 @Override
                 protected synchronized IContributionItem[][] getContributionItems() {
@@ -97,11 +98,20 @@ public class IncludeMenuItem extends CommonIncludeMenuItem implements
                     }
                     return this.contributionItems;
                 }
-            } };
+
+                /*
+                 * (non-Javadoc)
+                 * 
+                 * @see org.eclipse.jface.action.MenuManager#getId()
+                 */
+                @Override
+                public String getId() {
+                    return subMenuName;
+                }
+            };
+            return new IContributionItem[] { submenuCont };
         }
-        // return getAllContributionItems(items, incomingSubs, removalsIn);
-        return new IContributionItem[] { new IncludeContributionItem(this,
-                items, incomingSubs, removalsIn) };
+        return getAllContributionItems(items, incomingSubs, removalsIn);
     }
 
     public IContributionItem[] getAllContributionItems(
@@ -141,7 +151,8 @@ public class IncludeMenuItem extends CommonIncludeMenuItem implements
                         continue;
 
                     if (amc == null) {
-                        System.out.println(c.getClass());
+                        System.out.println("There is no xml mapping for "
+                                + c.getClass());
                     }
                     IContributionItem[] contribItems = amc
                             .getContributionItems(c, combinedSub, removalsSet);
@@ -162,5 +173,4 @@ public class IncludeMenuItem extends CommonIncludeMenuItem implements
         }
 
     }
-
 }

@@ -98,9 +98,8 @@ public class SharedCoordMap {
                     GL.GL_TRIANGLE_STRIP, GL.GL_TEXTURE_COORD_ARRAY);
             data.manageIndicies = false;
             textureCoords = new GLGeometryObject2D(data);
-            textureCoords.setTarget(glTarget);
             populateTextureGeom(key, textureCoords);
-            textureCoords.compile();
+            textureCoords.compile(glTarget.getGl());
         }
 
         private void incRef() {

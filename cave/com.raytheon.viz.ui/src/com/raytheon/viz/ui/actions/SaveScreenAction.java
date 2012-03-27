@@ -26,12 +26,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
 
-import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.SWT;
@@ -43,6 +43,7 @@ import org.eclipse.ui.PlatformUI;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
@@ -60,7 +61,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * @author chammack
  * @version 1
  */
-public class SaveScreenAction extends AbstractHandler {
+public class SaveScreenAction extends AbstractScreenCaptureAction {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SaveScreenAction.class);
 
@@ -116,6 +117,7 @@ public class SaveScreenAction extends AbstractHandler {
         }
 
         String suffix = path.substring(path.lastIndexOf('.') + 1);
+        String basePath = path.substring(0, path.lastIndexOf('.'));
         Iterator<ImageWriter> iter = ImageIO.getImageWritersBySuffix(suffix);
         if (!iter.hasNext()) {
             String reason = "Unsupported filetype: \"" + suffix + "\"";
@@ -125,15 +127,48 @@ public class SaveScreenAction extends AbstractHandler {
         }
         ImageWriter writer = iter.next();
 
-        BufferedImage bi = editor.screenshot();
+        String frameMode = arg0.getParameter("frameSelection");
 
-        try {
-            writer.setOutput(new FileImageOutputStream(new File(path)));
-            writer.write(bi);
-        } catch (IOException e) {
-            String reason = "Error occurred while writing image";
-            statusHandler.handle(Priority.PROBLEM, reason, e);
-            throw new ExecutionException(reason, e);
+        if (frameMode == null || frameMode.equalsIgnoreCase("current")) {
+            BufferedImage bi = captureCurrentFrames(editor);
+
+            try {
+                writer.setOutput(new FileImageOutputStream(new File(path)));
+                writer.write(bi);
+            } catch (IOException e) {
+                String reason = "Error occurred while writing image";
+                statusHandler.handle(Priority.PROBLEM, reason, e);
+                throw new ExecutionException(reason, e);
+            }
+        } else if (frameMode.equalsIgnoreCase("all")) {
+            List<BufferedImage> images = null;
+            try {
+                images = captureAllFrames(editor);
+            } catch (VizException e) {
+                String reason = "Error occurred while writing image";
+                statusHandler.handle(Priority.PROBLEM, reason, e);
+                throw new ExecutionException(reason, e);
+            }
+
+            for (int i = 0; i < images.size(); i++) {
+
+                BufferedImage bi = images.get(i);
+
+                path = basePath + "-" + (i + 1) + "." + suffix;
+
+                try {
+                    writer.setOutput(new FileImageOutputStream(new File(path)));
+                    writer.write(bi);
+                } catch (IOException e) {
+                    String reason = "Error occurred while writing image";
+                    statusHandler.handle(Priority.PROBLEM, reason, e);
+                    throw new ExecutionException(reason, e);
+                }
+            }
+        } else {
+            String reason = "Invalid frameMode: " + frameMode;
+            statusHandler.handle(Priority.PROBLEM, reason);
+            throw new ExecutionException(reason);
         }
         return null;
     }
