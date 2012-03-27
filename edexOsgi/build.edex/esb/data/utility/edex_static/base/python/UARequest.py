@@ -62,7 +62,7 @@ class UARequest(PointDataQuery.PointDataQuery):
         self._pdq.setParameters(BufrUAPointDataTransform.MAN_PARAMS_LIST)        
         self.queryResults = self._pdq.execute()
         if self.queryResults is None:
-            self.makeNullResponse()
+            return self.makeNullResponse()
         else:
             records = BufrUAPointDataTransform.toUAObsRecords(self.queryResults)
             size = len(records)

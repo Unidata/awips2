@@ -22,7 +22,6 @@ package com.raytheon.uf.common.dataplugin.sfcobs;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -51,7 +50,6 @@ import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
-import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.pointdata.IPointData;
@@ -82,7 +80,7 @@ import com.vividsolutions.jts.geom.Geometry;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class ObsCommon extends PersistablePluginDataObject implements
-        ISpatialEnabled, IDecoderGettable, IPointData, IPersistable {
+        ISpatialEnabled, IDecoderGettable, IPointData {
 
     private static final long serialVersionUID = 1L;
 
@@ -1650,21 +1648,4 @@ public class ObsCommon extends PersistablePluginDataObject implements
     public void setPointDataView(PointDataView pdv) {
         this.pdv = pdv;
     }
-
-    /**
-     * 
-     * @return The time to use for persistence.
-     */
-    @Override
-    public Date getPersistenceTime() {
-        return dataTime.getRefTime();
-    }
-
-    /**
-     * @persistTime
-     */
-    @Override
-    public void setPersistenceTime(Date persistTime) {
-    }
-
 }

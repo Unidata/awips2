@@ -1386,10 +1386,11 @@ jvalue convert_pynumpyarg_jvalue(JNIEnv *env,
                             int paramTypeId,
                             int pos) {
     jvalue ret;
-    ret.l = NULL;
-
-	jarray arr = NULL;
+	jarray arr;
 	jclass arrclazz;
+
+    ret.l = NULL;
+	arr = NULL;
 
 	if(param != Py_None && !pyjarray_check(param)) {
 		// this pyarray -> jarray added by njensen

@@ -17,7 +17,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.gl.IGLTarget;
 import com.raytheon.viz.core.gl.dataformat.AbstractGLColorMapDataFormat;
 import com.raytheon.viz.core.gl.dataformat.GLByteDataFormat;
-import com.raytheon.viz.core.gl.dataformat.GLColorMapData;
 import com.raytheon.viz.core.gl.dataformat.IGLColorMapDataFormatProvider;
 import com.raytheon.viz.core.gl.images.AbstractGLImage;
 
@@ -34,7 +33,6 @@ public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
             throw new VizException(
                     "Can only use GLImages as offscreen frameBuffer on GLTarget");
         }
-        target.makeContextCurrent();
         AbstractGLImage glImage = (AbstractGLImage) offscreenImage;
         if (glImage.getStatus() == IImage.Status.UNLOADED
                 || glImage.getStatus() == IImage.Status.LOADING) {
@@ -52,7 +50,6 @@ public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
 
     @Override
     public void renderOnscreen() throws VizException {
-        target.makeContextCurrent();
         Rectangle canvasSize = target.getBounds();
         target.getGl().glViewport(0, 0, canvasSize.width, canvasSize.height);
         target.getGl().glBindFramebufferEXT(GL.GL_FRAMEBUFFER_EXT, 0);
@@ -121,7 +118,7 @@ public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
                         }, parameters);
             } else {
                 image = cmapExt.initializeRaster(new GLOffscreenDataCallback(
-                        buffer, dimensions), null);
+                        buffer, dimensions), parameters);
             }
             if (!checkedLuminance) {
                 checkedLuminance = true;
@@ -132,7 +129,8 @@ public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
                     // assume we don't support luminance
                     supportsLuminance = false;
                     // Reconstruct image
-                    image = constructOffscreenImage(dataType, dimensions);
+                    image = constructOffscreenImage(dataType, dimensions,
+                            parameters);
                 }
             }
             return image;
@@ -176,19 +174,6 @@ public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
                 @Override
                 public int getTextureInternalFormat() {
                     return GL.GL_RGB8;
-                }
-
-                /*
-                 * (non-Javadoc)
-                 * 
-                 * @see com.raytheon.viz.core.gl.dataprep.GLByteDataFormat#
-                 * getCopybackBuffer(java.awt.Rectangle)
-                 */
-                @Override
-                public Buffer getCopybackBuffer(GLColorMapData data) {
-                    int width = getAlignedWidth(data.getDimensionSize(0)) * 3;
-                    int height = data.getDimensionSize(1) * 3;
-                    return ByteBuffer.allocate(height * width);
                 }
 
                 /*
