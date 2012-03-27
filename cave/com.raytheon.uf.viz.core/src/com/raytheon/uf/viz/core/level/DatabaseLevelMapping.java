@@ -27,13 +27,13 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.Activator;
-import com.raytheon.uf.viz.core.status.StatusConstants;
+import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 
 /**
  * Class defines a database level
@@ -55,7 +55,9 @@ import com.raytheon.uf.viz.core.status.StatusConstants;
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
 public class DatabaseLevelMapping {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(DatabaseLevelMapping.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(DatabaseLevelMapping.class);
+
     @XmlAttribute
     private String levelName = null;
 
@@ -100,7 +102,7 @@ public class DatabaseLevelMapping {
         this.unit = unit;
     }
 
-    public List<Level> getLevels() {
+    public List<Level> getLevels() throws VizCommunicationException {
         String[] levelOneValues = new String[0];
         String[] levelTwoValues = new String[0];
 
@@ -143,12 +145,16 @@ public class DatabaseLevelMapping {
             }
 
             // handle any aliasing etc
-            Level level = LevelFactory.getInstance().getLevel(levelName, lvl1,
-                    lvl2, unit);
-
-            if (level != null) {
-                rval.add(level);
+            try {
+                Level level = LevelFactory.getInstance().getLevel(levelName,
+                        lvl1, lvl2, unit);
+                if (level != null) {
+                    rval.add(level);
+                }
+            } catch (CommunicationException e) {
+                throw new VizCommunicationException(e);
             }
+
         }
 
         return rval;

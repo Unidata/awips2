@@ -21,7 +21,6 @@ package com.raytheon.uf.common.dataplugin.bufrascat;
 
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -372,14 +371,4 @@ public class AScatObs extends PersistablePluginDataObject implements
     public void setPointDataView(PointDataView pdv) {
         this.pdv = pdv;
     }
-
-    @Override
-    public Date getPersistenceTime() {
-        return dataTime.getRefTime();
-    }
-
-    @Override
-    public void setPersistenceTime(Date persistTime) {
-    }
-
 }
