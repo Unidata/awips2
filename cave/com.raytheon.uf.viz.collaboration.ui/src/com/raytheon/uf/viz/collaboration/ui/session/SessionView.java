@@ -67,9 +67,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
-import com.raytheon.uf.viz.collaboration.comm.identity.listener.IMessageFilter;
-import com.raytheon.uf.viz.collaboration.comm.identity.listener.IMessageListener;
-import com.raytheon.uf.viz.collaboration.comm.identity.listener.IVenueParticipantListener;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationKeywords;
@@ -115,10 +112,6 @@ public class SessionView extends AbstractSessionView {
 
     protected Action chatAction;
 
-    protected IVenueParticipantListener participantListener;
-
-    protected IMessageListener messageListener;
-
     public SessionView() {
         super();
     }
@@ -155,7 +148,6 @@ public class SessionView extends AbstractSessionView {
                             .getActivePage()
                             .showView(CollaborationSessionView.ID, session,
                                     IWorkbenchPage.VIEW_ACTIVATE);
-                    // }
                 } catch (PartInitException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Unable to open chat", e);
@@ -202,7 +194,6 @@ public class SessionView extends AbstractSessionView {
         // manager.add(new Separator());
     }
 
-    
     @Subscribe
     public void handleMessage(IMessage message) {
         final IMessage msg = message;
@@ -210,12 +201,12 @@ public class SessionView extends AbstractSessionView {
 
             @Override
             public void run() {
-                addMessage(msg.getFrom().getName(),
-                        msg.getTimeStamp(), msg.getBody());
+                addMessage(msg.getFrom().getName(), msg.getTimeStamp(),
+                        msg.getBody());
             }
         });
     }
-    
+
     /**
      * Ties the view to a session.
      * 
@@ -230,75 +221,7 @@ public class SessionView extends AbstractSessionView {
         IVenueSession session = CollaborationDataManager.getInstance()
                 .getSession(sessionId);
         if (session != null) {
-            messageListener = new IMessageListener() {
-
-                @Override
-                public void processMessage(final IMessage message) {
-                    VizApp.runAsync(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            addMessage(message.getFrom().getName(),
-                                    message.getTimeStamp(), message.getBody());
-                        }
-                    });
-                }
-            };
-//            session.addMessageListener(messageListener, new IMessageFilter() {
-//
-//                @Override
-//                public boolean filter(IMessage message) {
-//                    return true;
-//                }
-//            });
-
             session.registerEventHandler(this);
-            // participantListener = new IVenueParticipantListener() {
-            // @Override
-            // public void handleUpdated(IVenueParticipant participant) {
-            // System.out.println("updated");
-            // }
-            //
-            // @Override
-            // public void handlePresenceUpdated(IVenueParticipant fromID,
-            // IPresence presence) {
-            // // not the best way to do it, should just be adding the
-            // // new
-            // // user instead of requerying for participants
-            // Collection<IVenueParticipant> participants =
-            // CollaborationDataManager
-            // .getInstance().getSession(sessionId).getVenue()
-            // .getParticipants();
-            // final List<CollaborationUser> users = new
-            // ArrayList<CollaborationUser>();
-            // for (IVenueParticipant part : participants) {
-            // CollaborationUser user = new CollaborationUser(
-            // part.getName());
-            // user.setMode(presence.getMode());
-            // user.setText(user.getId());
-            // users.add(user);
-            // }
-            // VizApp.runAsync(new Runnable() {
-            // @Override
-            // public void run() {
-            // usersTable.setInput(users
-            // .toArray(new CollaborationUser[users.size()]));
-            // }
-            // });
-            // }
-            //
-            // @Override
-            // public void handleDeparted(IVenueParticipant participant) {
-            // System.out.println("goodbye");
-            //
-            // }
-            //
-            // @Override
-            // public void handleArrived(IVenueParticipant participant) {
-            // System.out.println("you've got mail");
-            // }
-            // };
-            // session.addVenueParticipantListener(participantListener);
         }
     }
 
@@ -453,123 +376,8 @@ public class SessionView extends AbstractSessionView {
         ((GridData) usersComp.getLayoutData()).exclude = true;
     }
 
-    // protected void createMessagesComp(Composite parent) {
-    // Composite messagesComp = new Composite(parent, SWT.NONE);
-    // GridLayout layout = new GridLayout(1, false);
-    // messagesComp.setLayout(layout);
-    // // TODO, wrap label in view
-    // Label label = new Label(messagesComp, SWT.WRAP);
-    //
-    // StringBuilder labelInfo = new StringBuilder();
-    // IVenueSession session = CollaborationDataManager.getInstance()
-    // .getSession(sessionId);
-    // if (session != null) {
-    // IVenueInfo info = session.getVenue().getInfo();
-    // labelInfo.append(info.getVenueSubject());
-    // label.setToolTipText(info.getVenueSubject());
-    // }
-    // messagesText = new StyledText(messagesComp, SWT.MULTI | SWT.WRAP
-    // | SWT.READ_ONLY | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
-    // messagesText.setLayoutData(new GridData(GridData.FILL_BOTH));
-    //
-    // if (session == null) {
-    // labelInfo.append("There is no active session.");
-    // label.setEnabled(false);
-    // messagesText.setEnabled(false);
-    // }
-    //
-    // label.setText(labelInfo.toString());
-    // }
-
-    // protected void createComposeComp(Composite parent) {
-    // Composite composeComp = new Composite(parent, SWT.NONE);
-    // GridLayout layout = new GridLayout(1, false);
-    // composeComp.setLayout(layout);
-    //
-    // Label label = new Label(composeComp, SWT.NONE);
-    // label.setText("Compose:");
-    // composeText = new StyledText(composeComp, SWT.MULTI | SWT.WRAP
-    // | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
-    // composeText.setLayoutData(new GridData(GridData.FILL_BOTH));
-    // composeText.setToolTipText("Enter message here");
-    // composeText.addKeyListener(new KeyListener() {
-    // private boolean keyPressed;
-    //
-    // @Override
-    // public void keyReleased(KeyEvent e) {
-    // if (e.keyCode == SWT.SHIFT) {
-    // keyPressed = false;
-    // }
-    // // do nothing, all done on key pressed
-    // }
-    //
-    // @Override
-    // public void keyPressed(KeyEvent e) {
-    // if (!keyPressed
-    // && (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR)) {
-    // sendMessage();
-    // }
-    // if (e.keyCode == SWT.SHIFT) {
-    // keyPressed = true;
-    // }
-    // }
-    // });
-    //
-    // composeText.addFocusListener(new FocusListener() {
-    //
-    // @Override
-    // public void focusLost(FocusEvent e) {
-    // // Restore other perspective's key bindings.
-    // VizPerspectiveListener.getCurrentPerspectiveManager()
-    // .activateContexts();
-    // }
-    //
-    // @Override
-    // public void focusGained(FocusEvent e) {
-    // // Remove other perspective's key bindings.
-    // VizPerspectiveListener.getCurrentPerspectiveManager()
-    // .deactivateContexts();
-    // }
-    // });
-    //
-    // IVenueSession session = CollaborationDataManager.getInstance()
-    // .getSession(sessionId);
-    // if (session == null) {
-    // composeComp.setEnabled(false);
-    // composeText.setEnabled(false);
-    // label.setEnabled(false);
-    // }
-    // }
-
-    // private Image getImage() {
-    // Image image = imageMap.get(SESSION_IMAGE_KEY);
-    // if (image == null) {
-    // image = CollaborationUtils
-    // .getImageDescriptor(getSessionImageName()).createImage();
-    // if (image != null) {
-    // imageMap.put(SESSION_IMAGE_KEY, image);
-    // }
-    // }
-    // return image;
-    // }
-
     @Override
     public void dispose() {
-        // if (messageListener != null) {
-        // CollaborationDataManager.getInstance().getSession(sessionId)
-        // .removeMessageListener(messageListener);
-        // }
-        // for (Image im : imageMap.values()) {
-        // im.dispose();
-        // }
-        //
-        // imageMap.clear();
-        // imageMap = null;
-
-//        if (participantListener != null) {
-//            CollaborationDataManager.getInstance().getSession(sessionId)
-//                    .removeVenueParticipantListener(participantListener);
-//        }
 
         CollaborationDataManager.getInstance().getSession(sessionId)
                 .unRegisterEventHandler(this);
@@ -677,13 +485,15 @@ public class SessionView extends AbstractSessionView {
         if (message.length() > 0) {
             // CollaborationDataManager.getInstance().getSession(sessionId)
             // .sendTextMessage(message);
-            
+
             try {
                 CollaborationDataManager.getInstance().getSession(sessionId)
                         .sendTextMessage(message);
             } catch (CollaborationException e) {
-                // TODO Auto-generated catch block. Please revise as appropriate.
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+                // TODO Auto-generated catch block. Please revise as
+                // appropriate.
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
             }
         }
     }
@@ -715,15 +525,8 @@ public class SessionView extends AbstractSessionView {
         IVenueSession session = CollaborationDataManager.getInstance()
                 .getSession(sessionId);
         if (session != null) {
-            // session.removeMessageListener(messageListener);
-            // for (IMessageListener list : session.getMessageListeners()) {
-            // session.removeMessageListener(list);
-            // }
-            // session.removeVenueParticipantListener(participantListener);
             session.unRegisterEventHandler(this);
         }
-        // this.getViewSite().getWorkbenchWindow().getPartService()
-        // .removePartListener(this);
     }
 
     // @Override
@@ -827,10 +630,7 @@ public class SessionView extends AbstractSessionView {
     @Subscribe
     public void participantHandler(IVenueParticipantEvent event)
             throws Exception {
-        System.out.println("++ ParticipantHander type " + event.getEventType()
-        // + ": presence " + event.getPresence() + ": participant "
-        // + event.getParticipant());
-                );
+        System.out.println("++ ParticipantHander type " + event.getEventType());
         final ParticipantEventType type = event.getEventType();
         final IVenueParticipant participant = event.getParticipant();
         final IPresence presence = event.getPresence();
@@ -849,7 +649,7 @@ public class SessionView extends AbstractSessionView {
                     participantPresenceUpdated(participant, presence);
                     break;
                 case UPDATED:
-                    System.out.println("++++ handle update here: "
+                    System.out.println("---- handle update here: "
                             + participant.getName());
                     break;
                 default:
@@ -860,8 +660,6 @@ public class SessionView extends AbstractSessionView {
     }
 
     private void participantArrived(IVenueParticipant participant) {
-        // System.out
-        // .println("++++ handle arrival here: " + participant.getName());
         CollaborationUser[] users = (CollaborationUser[]) usersTable.getInput();
         String name = participant.getName();
         for (CollaborationUser user : users) {
@@ -877,8 +675,8 @@ public class SessionView extends AbstractSessionView {
     }
 
     private void participantDeparted(IVenueParticipant participant) {
-        // System.out.println("++++ handle departed here: "
-        // + participant.getName());
+        System.out.println("++++ handle departed here: "
+                + participant.getName());
         int index = -1;
         CollaborationUser[] users = (CollaborationUser[]) usersTable.getInput();
         String name = participant.getName();
@@ -902,8 +700,8 @@ public class SessionView extends AbstractSessionView {
 
     private void participantPresenceUpdated(IVenueParticipant participant,
             IPresence presence) {
-        System.out.println("++++ handle presence here: " + presence.getMode()
-                + ": " + participant.getName());
+        System.out.println("++++ handle presence updated here: "
+                + presence.getMode() + ": " + participant.getName());
         CollaborationUser[] users = (CollaborationUser[]) usersTable.getInput();
         String name = participant.getName();
         int index = -1;
