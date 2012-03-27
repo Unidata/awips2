@@ -34,11 +34,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * MasterLevel - once a field is set it cannot be changed.
@@ -61,6 +65,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 public class MasterLevel extends PersistableDataObject implements
         ISerializableObject {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(MasterLevel.class);
+
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -151,7 +158,12 @@ public class MasterLevel extends PersistableDataObject implements
 
     public Progression getProgression() {
         if (processType) {
-            processTypeField();
+            try {
+                processTypeField();
+            } catch (CommunicationException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
         }
 
         return progression;
@@ -216,7 +228,7 @@ public class MasterLevel extends PersistableDataObject implements
         return rval;
     }
 
-    private void processTypeField() {
+    private void processTypeField() throws CommunicationException {
         if (type != null && type.trim().length() > 0) {
             try {
                 setProgression(Progression.valueOf(type));

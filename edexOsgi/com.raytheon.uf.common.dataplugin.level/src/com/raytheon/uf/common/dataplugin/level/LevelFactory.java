@@ -37,6 +37,7 @@ import javax.xml.bind.JAXB;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.level.request.GetLevelByIdRequest;
 import com.raytheon.uf.common.dataplugin.level.request.GetLevelRequest;
 import com.raytheon.uf.common.dataplugin.level.request.GetMasterLevelRequest;
@@ -98,6 +99,10 @@ public class LevelFactory {
 
     private ILevelRetrievalAdapter retrievalAdapter = null;
 
+    private boolean hasRequestedAllLevels = false;
+
+    private boolean hasRequestedAllMasterLevels = false;
+
     private static final double INVALID_LEVEL = Level.getInvalidLevelValue();
 
     public static LevelFactory getInstance() {
@@ -119,43 +124,58 @@ public class LevelFactory {
         }
 
         loadLevelAliases();
-        LoadAllMasterLevels();
-        loadMasterLevelFiles();
-        loadAllLevels();
+        try {
+            loadAllMasterLevels();
+        } catch (CommunicationException e) {
+            ; // This is non-fatal, master levels should still be retrieved
+              // individually
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
+        try {
+            loadAllLevels();
+        } catch (CommunicationException e) {
+            ; // This is non-fatal, master levels should still be retrieved
+              // individually
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
     }
 
-    public void checkMasterLevel(MasterLevel level) {
+    public void checkMasterLevel(MasterLevel level)
+            throws CommunicationException {
         loadMasterLevel(level, true);
     }
 
-    public MasterLevel getMasterLevel(String name) {
+    public MasterLevel getMasterLevel(String name)
+            throws CommunicationException {
         MasterLevel request = new MasterLevel(name);
         return loadMasterLevel(request, false);
     }
 
-    public Level getLevel(long id) {
+    public Level getLevel(long id) throws CommunicationException {
         return loadLevel(id);
     }
 
-    public Level getLevel(String name) {
+    public Level getLevel(String name) throws CommunicationException {
         return loadLevel(name);
     }
 
-    public Level getLevel(String name, double levelOneValue) {
+    public Level getLevel(String name, double levelOneValue)
+            throws CommunicationException {
         return getLevel(name, levelOneValue, INVALID_LEVEL, null);
     }
 
-    public Level getLevel(String name, double levelOneValue, String unit) {
+    public Level getLevel(String name, double levelOneValue, String unit)
+            throws CommunicationException {
         return getLevel(name, levelOneValue, INVALID_LEVEL, unit);
     }
 
     public Level getLevel(String name, double levelOneValue,
-            double levelTwoValue) {
+            double levelTwoValue) throws CommunicationException {
         return getLevel(name, levelOneValue, levelTwoValue, null);
     }
 
     public Level getLevel(String name, double levelOneValue,
-            double levelTwoValue, String unit) {
+            double levelTwoValue, String unit) throws CommunicationException {
         Level rval = null;
 
         // lookup master level
@@ -204,7 +224,8 @@ public class LevelFactory {
         return rval;
     }
 
-    private MasterLevel loadMasterLevel(MasterLevel level, boolean createFlag) {
+    private MasterLevel loadMasterLevel(MasterLevel level, boolean createFlag)
+            throws CommunicationException {
         MasterLevel rval = null;
         String levelName = level.getName();
 
@@ -213,6 +234,9 @@ public class LevelFactory {
             levelName = levelAliasMap.get(levelName);
         }
 
+        if (!hasRequestedAllMasterLevels) {
+            loadAllMasterLevels();
+        }
         if (masterLevelCache.containsKey(levelName)) {
             rval = masterLevelCache.get(levelName);
         } else if (retrievalAdapter != null) {
@@ -243,7 +267,7 @@ public class LevelFactory {
         return rval;
     }
 
-    private Level loadLevel(Level level) {
+    private Level loadLevel(Level level) throws CommunicationException {
         // limit precision to 3 places past the decimal
         double levelone = ((int) (level.getLevelonevalue() * 1000)) / 1000.0;
         double leveltwo = ((int) (level.getLeveltwovalue() * 1000)) / 1000.0;
@@ -259,6 +283,9 @@ public class LevelFactory {
         }
         level.setLevelonevalue(levelone);
         level.setLeveltwovalue(leveltwo);
+        if (!hasRequestedAllLevels) {
+            loadAllLevels();
+        }
         // check if we have already loaded level
         Level rval = levelCache.get(level);
 
@@ -280,7 +307,10 @@ public class LevelFactory {
         return rval;
     }
 
-    private Level loadLevel(long id) {
+    private Level loadLevel(long id) throws CommunicationException {
+        if (!hasRequestedAllLevels) {
+            loadAllLevels();
+        }
         // check if we have already loaded level
         Level rval = levelCacheById.get(id);
 
@@ -298,7 +328,10 @@ public class LevelFactory {
         return rval;
     }
 
-    private Level loadLevel(String id) {
+    private Level loadLevel(String id) throws CommunicationException {
+        if (!hasRequestedAllLevels) {
+            loadAllLevels();
+        }
         // check if we have already loaded level
         Level rval = levelCacheByIdAsString.get(id);
 
@@ -386,7 +419,7 @@ public class LevelFactory {
         }
     }
 
-    private void loadAllLevels() {
+    private void loadAllLevels() throws CommunicationException {
         if (retrievalAdapter != null) {
             LevelContainer container = retrievalAdapter.getAllLevels();
             if (container != null) {
@@ -408,10 +441,11 @@ public class LevelFactory {
                     }
                 }
             }
+            hasRequestedAllLevels = true;
         }
     }
 
-    private void LoadAllMasterLevels() {
+    private void loadAllMasterLevels() throws CommunicationException {
         if (retrievalAdapter != null) {
             MasterLevelContainer container = retrievalAdapter
                     .getAllMasterLevels();
@@ -426,6 +460,8 @@ public class LevelFactory {
                     }
                 }
             }
+            hasRequestedAllMasterLevels = true;
+            loadMasterLevelFiles();
         }
     }
 
@@ -450,7 +486,7 @@ public class LevelFactory {
 
     }
 
-    private void loadMasterLevelFile(File file) {
+    private void loadMasterLevelFile(File file) throws CommunicationException {
         if (file == null || !file.exists()) {
             return;
         }

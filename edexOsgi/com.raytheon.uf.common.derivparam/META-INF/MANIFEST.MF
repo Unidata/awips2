@@ -9,6 +9,7 @@ Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Eclipse-BuddyPolicy: registered, ext, global
 Import-Package: com.raytheon.edex.scriptfactory,
+ com.raytheon.uf.common.comm,
  com.raytheon.uf.common.dataplugin.level,
  com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.serialization.annotations,

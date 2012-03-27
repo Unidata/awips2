@@ -27,7 +27,6 @@ import java.awt.image.ComponentColorModel;
 import java.awt.image.IndexColorModel;
 import java.awt.image.WritableRaster;
 
-import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.graphics.GC;
@@ -46,6 +45,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
@@ -65,7 +66,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * @author chammack
  * @version 1
  */
-public class PrintScreenAction extends AbstractHandler {
+public class PrintScreenAction extends AbstractScreenCaptureAction {
 
     /*
      * (non-Javadoc)
@@ -88,17 +89,68 @@ public class PrintScreenAction extends AbstractHandler {
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                 .getShell();
 
+        IDescriptor desc = editor.getActiveDisplayPane().getDescriptor();
+
         // display the printer dialog to get print options
         PrintDialog pd = new PrintDialog(shell);
+        String frameMode = event.getParameter("frameSelection");
+        if (frameMode == null || frameMode.equalsIgnoreCase("current")) {
+            // selection doesn't seem to work.
+            pd.setScope(PrinterData.PAGE_RANGE);
+            pd.setStartPage(desc.getFramesInfo().getFrameIndex() + 1);
+            pd.setEndPage(desc.getFramesInfo().getFrameIndex() + 1);
+        } else if (frameMode.equalsIgnoreCase("all")) {
+            pd.setScope(PrinterData.ALL_PAGES);
+        } else {
+            throw new ExecutionException("Invalid frameMode: " + frameMode);
+        }
         PrinterData printerData = pd.open();
         if (printerData == null) {
             return null;
         }
 
-        BufferedImage bi = editor.screenshot();
-
         Display display = editor.getActiveDisplayPane().getDisplay();
         Printer printer = new Printer(printerData);
+        if (printer.startJob("CAVE")) {
+            switch (pd.getScope()) {
+            case PrinterData.ALL_PAGES: {
+                try {
+                    for (BufferedImage bi : captureAllFrames(editor)) {
+                        printImage(printer, display, bi);
+                    }
+                } catch (VizException e) {
+                    throw new ExecutionException(
+                            "Error occurred while writing image", e);
+                }
+                break;
+            }
+            case PrinterData.PAGE_RANGE: {
+                try {
+                    for (BufferedImage bi : captureFrames(editor,
+                            pd.getStartPage() - 1, pd.getEndPage())) {
+                        printImage(printer, display, bi);
+                    }
+                } catch (VizException e) {
+                    throw new ExecutionException(
+                            "Error occurred while writing image", e);
+                }
+                break;
+            }
+            case PrinterData.SELECTION: {
+                BufferedImage bi = editor.screenshot();
+                printImage(printer, display, bi);
+                break;
+            }
+            }
+            printer.endJob();
+
+        }
+        printer.dispose();
+
+        return null;
+    }
+
+    private void printImage(Printer printer, Display display, BufferedImage bi) {
         Point screenDPI = display.getDPI();
         Point printerDPI = printer.getDPI();
 
@@ -152,27 +204,20 @@ public class PrintScreenAction extends AbstractHandler {
             offset.x += printArea.width - (imageBounds.width) * scaleX;
         }
 
-        if (printer.startJob("CAVE")) {
-            if (printer.startPage()) {
-                GC gc = new GC(printer);
-                Transform transform = new Transform(gc.getDevice());
-                transform.translate(offset.x, offset.y);
-                transform.scale(scaleX, scaleY);
-                gc.setTransform(transform);
+        if (printer.startPage()) {
+            GC gc = new GC(printer);
+            Transform transform = new Transform(gc.getDevice());
+            transform.translate(offset.x, offset.y);
+            transform.scale(scaleX, scaleY);
+            gc.setTransform(transform);
 
-                gc.drawImage(image, 0, 0);
+            gc.drawImage(image, 0, 0);
 
-                transform.dispose();
-                gc.dispose();
-                printer.endPage();
-                printer.endJob();
-            }
+            transform.dispose();
+            gc.dispose();
+            printer.endPage();
         }
-
         image.dispose();
-        printer.dispose();
-
-        return null;
 
     }
 
@@ -228,15 +273,4 @@ public class PrintScreenAction extends AbstractHandler {
         }
         return null;
     }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.IWorkbenchWindowActionDelegate#dispose()
-     */
-    @Override
-    public void dispose() {
-
-    }
-
 }
