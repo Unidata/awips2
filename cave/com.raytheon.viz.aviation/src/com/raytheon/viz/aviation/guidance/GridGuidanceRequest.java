@@ -49,6 +49,9 @@ public class GridGuidanceRequest extends GuidanceRequest {
         this.siteObjs = siteObjs;
     }
 
+    /**
+     * Place in the map arguments need for grid.
+     */
     @Override
     public Map<String, Object> getPythonArguments() {
         Map<String, Object> map = new HashMap<String, Object>();

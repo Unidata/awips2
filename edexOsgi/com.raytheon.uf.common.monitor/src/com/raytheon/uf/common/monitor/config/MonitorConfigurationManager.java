@@ -28,6 +28,7 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.monitor.MonitorAreaUtils;
+import com.raytheon.uf.common.monitor.data.AdjacentWfoMgr;
 import com.raytheon.uf.common.monitor.data.CommonTableConfig.ObsHistType;
 import com.raytheon.uf.common.monitor.xml.AreaIdXML;
 import com.raytheon.uf.common.monitor.xml.MonAreaConfigXML;
@@ -47,6 +48,7 @@ import com.raytheon.uf.common.site.SiteMap;
  * ------------ ---------- ----------- --------------------------
  * Jan 5, 2010            mpduff     Initial creation
  * Apr 29, 2011 DR#8986   zhao       Read in Counties instead of Forecast Zones
+ * Feb 21 2012  14413     zhao       add code handling "adjacent areas"
  * 
  * </pre>
  *
@@ -68,6 +70,11 @@ public abstract class MonitorConfigurationManager {
     protected MonAreaConfigXML configXml;
 
     /**
+     * Adjacent Area Configuration XML object.
+     */
+    protected MonAreaConfigXML adjAreaConfigXml;
+
+    /**
      * List of newly added zones.
      */
     protected ArrayList<String> addedZones = new ArrayList<String>();
@@ -82,36 +89,58 @@ public abstract class MonitorConfigurationManager {
     
     /**
      * Read the XML configuration data for the current XML file name.
+     * filename: monitor area config file name
+     * adjAreaFileName: adjacent areas config file name
      */
-    protected void readConfigXml(String currentSite, String filename) {
-        boolean fileExists = true;
+    protected void readConfigXml(String currentSite, String filename, String adjAreaFilename) {
+        boolean monitorAreaFileExists = true;
+        boolean adjacentAreaFileExists = true;
         try {
             // configXml = null;
             IPathManager pm = PathManagerFactory.getPathManager();
 
-            String path = pm.getFile(
+            String monitorAreaFilePath = pm.getFile(
                     pm.getContext(LocalizationType.COMMON_STATIC,
                             LocalizationLevel.SITE), filename)
                     .getAbsolutePath();
 
-            System.out.println("Read path = " + path);
+            System.out.println("Read path = " + monitorAreaFilePath);
 
             MonAreaConfigXML configXmltmp = (MonAreaConfigXML) SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(path.toString());
+                    .jaxbUnmarshalFromXmlFile(monitorAreaFilePath.toString());
             configXml = configXmltmp;
         } catch (Exception e) {
             // e.printStackTrace();
-            System.err.println("No configuration file found");
-            fileExists = false;
+            System.err.println("No mopnitor area configuration file found");
+            monitorAreaFileExists = false;
         }
 
         try {
-            // Check for a config file, if one does not exist use defaults
+            IPathManager pm = PathManagerFactory.getPathManager();
+
+            String adjacentAreaFilePath = pm.getFile(
+                    pm.getContext(LocalizationType.COMMON_STATIC,
+                            LocalizationLevel.SITE), adjAreaFilename)
+                    .getAbsolutePath();
+
+            System.out.println("Read path = " + adjacentAreaFilePath);
+
+            MonAreaConfigXML configXmltmp = (MonAreaConfigXML) SerializationUtil
+                    .jaxbUnmarshalFromXmlFile(adjacentAreaFilePath.toString());
+            adjAreaConfigXml = configXmltmp;
+        } catch (Exception e) {
+            // e.printStackTrace();
+            System.err.println("No adjacent area configuration file found");
+            adjacentAreaFileExists = false;
+        }
+
+        try {
+            // Check for a monitor area config file, if one does not exist, create and use defaults
             /**
         	 * Note: Read in "county" for CONUS site, "forecast zone" for OCONUS site
         	 * [DR#9905]
         	 */
-            if (!fileExists) {
+            if (!monitorAreaFileExists) {
             	ArrayList<String> zones; 
             	if ( SiteMap.getInstance().getSite4LetterId(currentSite).charAt(0) == 'K' ) { // CONUS site
             		zones = MonitorAreaUtils.getUniqueCounties(currentSite); 
@@ -153,13 +182,35 @@ public abstract class MonitorConfigurationManager {
                 
                 saveConfigXml(filename);
             }
+            
+            // Check for an adjacent area config file, if one does not exist, create and use defaults
+            if (!adjacentAreaFileExists) {
+            	AdjacentWfoMgr adjMgr = new AdjacentWfoMgr(currentSite);
+            	ArrayList<String> zones = adjMgr.getAdjZones();
+                if (zones.size() > 0) {
+                    for (String zone: zones) {
+                    	AreaIdXML zoneXml = new AreaIdXML();
+                    	zoneXml.setAreaId(zone);
+                    	zoneXml.setType(ZoneType.REGULAR);
+                    	ArrayList<StationIdXML> stations = MonitorAreaUtils.getZoneReportingStationXMLs(zone);
+                    	if ( stations.size() > 0 ) {
+                    		for ( StationIdXML station : stations ) {
+                    			zoneXml.addStationIdXml(station);
+                    		}
+                    	}
+                        adjAreaConfigXml.addAreaId(zoneXml);            
+                    }
+                }
+                
+                saveAdjacentAreaConfigXml(adjAreaFilename);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     /**
-     * Save the XML configuration data to the current XML file name.
+     * Save the monitor area XML configuration data to the current XML file name.
      */
     protected void saveConfigXml(String filename) {
         // Save the xml object to disk
@@ -181,6 +232,36 @@ public abstract class MonitorConfigurationManager {
             System.out.println("Saving -- "
                     + newXmlFile.getFile().getAbsolutePath());
             SerializationUtil.jaxbMarshalToXmlFile(configXml, newXmlFile
+                    .getFile().getAbsolutePath());
+            newXmlFile.save();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Save the adjacent area XML configuration data to the current XML file name.
+     */
+    protected void saveAdjacentAreaConfigXml(String filename) {
+        // Save the xml object to disk
+        IPathManager pm = PathManagerFactory.getPathManager();
+        LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
+                LocalizationLevel.SITE);
+        LocalizationFile newXmlFile = pm.getLocalizationFile(lc,
+                filename);
+
+        if (newXmlFile.getFile().getParentFile().exists() == false) {
+            System.out.println("Creating new directory");
+
+            if (newXmlFile.getFile().getParentFile().mkdirs() == false) {
+                System.out.println("Could not create new directory...");
+            }
+        }
+
+        try {
+            System.out.println("Saving -- "
+                    + newXmlFile.getFile().getAbsolutePath());
+            SerializationUtil.jaxbMarshalToXmlFile(adjAreaConfigXml, newXmlFile
                     .getFile().getAbsolutePath());
             newXmlFile.save();
         } catch (Exception e) {
@@ -333,6 +414,31 @@ public abstract class MonitorConfigurationManager {
     }
     
     /**
+     * Get stations associated with an adjacent area.
+     * 
+     * @param areaId
+     *      AreaId of associated stations
+     * @return
+     *      List of stations for area
+     */
+    public ArrayList<String> getAdjacentAreaStationsWithType(String areaId) {
+        ArrayList<String> results = new ArrayList<String>();
+        ArrayList<AreaIdXML> areaList = adjAreaConfigXml.getAreaIds();
+        for (AreaIdXML area: areaList) {
+            if (area.getAreaId().equals(areaId)) {
+                ArrayList<StationIdXML> stationList = area.getStationIds();
+
+                for (StationIdXML station : stationList) {
+                    results.add(station.getName() + "#" + station.getType());
+                }
+               
+            }
+        }
+
+        return results;
+    }
+    
+    /**
      * Get stations associated with an area.
      * 
      * @param areaId
@@ -401,12 +507,30 @@ public abstract class MonitorConfigurationManager {
     }
 
     /**
-     * Get a list of all the areas.
+     * Get a list of all monitoring areas.
      * 
-     * @return ArrayList<String> of area ids
+     * @return ArrayList<String> of monitor area ids
      */
     public ArrayList<String> getAreaList() {
         ArrayList<AreaIdXML> areaXmlList = configXml.getAreaIds();
+        ArrayList<String> areaList = new ArrayList<String>();
+
+        for (AreaIdXML area : areaXmlList) {
+            areaList.add(area.getAreaId());
+        }
+
+        areaList.trimToSize();
+
+        return areaList;
+    }
+
+    /**
+     * Get a list of all adjacent areas.
+     * 
+     * @return ArrayList<String> of adjacent area ids
+     */
+    public ArrayList<String> getAdjacentAreaList() {
+        ArrayList<AreaIdXML> areaXmlList = adjAreaConfigXml.getAreaIds();
         ArrayList<String> areaList = new ArrayList<String>();
 
         for (AreaIdXML area : areaXmlList) {

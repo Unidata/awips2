@@ -23,12 +23,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Point;
 
 import com.raytheon.uf.common.dataplugin.scan.data.ScanTableData;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
@@ -47,6 +47,8 @@ import com.raytheon.uf.viz.monitor.scan.data.ScanDataGenerator;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 2, 2010            mnash     Initial creation
+ * 
+ * 03/15/2012	13939	   Mike Duff    For a SCAN Alarms issue
  * 
  * </pre>
  * 
@@ -74,11 +76,7 @@ public class SCANAlarmAlertManager {
 
     private HashMap<String, HashMap<ScanTables, List<ScheduledAlarms>>> scheduledAlarmsMap;
 
-    private HashMap<String, HashMap<ScanTables, List<AlertedAlarms>>> alertedAlarmsMap;
-
-    private HashMap<String, HashMap<ScanTables, boolean[][]>> indicesMap;
-
-    private HashMap<String, HashMap<ScanTables, List<Point>>> toReset;
+    private HashMap<String, HashMap<ScanTables, Set<AlertedAlarms>>> alertedAlarmsMap;
 
     private HashMap<String, HashMap<ScanTables, List<String>>> idents;
 
@@ -109,24 +107,12 @@ public class SCANAlarmAlertManager {
         }
 
         if (!alertedAlarmsMap.containsKey(site)) {
-            HashMap<ScanTables, List<AlertedAlarms>> siteAlertedAlarmsMap = new HashMap<ScanTables, List<AlertedAlarms>>();
-            siteAlertedAlarmsMap.put(ScanTables.DMD,
-                    new CopyOnWriteArrayList<AlertedAlarms>());
-            siteAlertedAlarmsMap.put(ScanTables.CELL,
-                    new CopyOnWriteArrayList<AlertedAlarms>());
-            alertedAlarmsMap.put(site, siteAlertedAlarmsMap);
-        }
-
-        if (!indicesMap.containsKey(site)) {
-            HashMap<ScanTables, boolean[][]> siteIndicesMap = new HashMap<ScanTables, boolean[][]>();
-            indicesMap.put(site, siteIndicesMap);
-        }
-
-        if (!toReset.containsKey(site)) {
-            HashMap<ScanTables, List<Point>> siteToReset = new HashMap<ScanTables, List<Point>>();
-            siteToReset.put(ScanTables.CELL, new ArrayList<Point>());
-            siteToReset.put(ScanTables.DMD, new ArrayList<Point>());
-            toReset.put(site, siteToReset);
+            HashMap<ScanTables, Set<AlertedAlarms>> siteAlertedAlarmsSet = new HashMap<ScanTables, Set<AlertedAlarms>>();
+            siteAlertedAlarmsSet.put(ScanTables.DMD,
+                    new HashSet<AlertedAlarms>());
+            siteAlertedAlarmsSet.put(ScanTables.CELL,
+                    new HashSet<AlertedAlarms>());
+            alertedAlarmsMap.put(site, siteAlertedAlarmsSet);
         }
 
         if (!idents.containsKey(site)) {
@@ -144,15 +130,7 @@ public class SCANAlarmAlertManager {
         }
 
         if (alertedAlarmsMap == null) {
-            alertedAlarmsMap = new HashMap<String, HashMap<ScanTables, List<AlertedAlarms>>>();
-        }
-
-        if (indicesMap == null) {
-            indicesMap = new HashMap<String, HashMap<ScanTables, boolean[][]>>();
-        }
-
-        if (toReset == null) {
-            toReset = new HashMap<String, HashMap<ScanTables, List<Point>>>();
+            alertedAlarmsMap = new HashMap<String, HashMap<ScanTables, Set<AlertedAlarms>>>();
         }
 
         if (idents == null) {
@@ -169,7 +147,7 @@ public class SCANAlarmAlertManager {
      * @param sdg
      */
     public void calculateScanCells(SCANTableData data, ScanTables tableType,
-            ScanDataGenerator sdg) {
+            ScanDataGenerator sdg, Date latestTime) {
         int colLength = 0;
         if (tableType == ScanTables.CELL) {
             colLength = SCANConfigEnums.CELLTable.values().length;
@@ -178,12 +156,8 @@ public class SCANAlarmAlertManager {
         }
 
         String site = sdg.getSite();
-        clearAlertedAlarms(site, tableType);
+        clearOldAlarms(site, tableType, latestTime);
 
-        if (tableType == ScanTables.CELL || tableType == ScanTables.DMD) {
-            indicesMap.get(sdg.getSite()).put(tableType,
-                    new boolean[data.getTableRows().size()][colLength]);
-        }
         SCANConfig config = SCANConfig.getInstance();
 
         for (ScheduledAlarms alarm : scheduledAlarmsMap.get(site)
@@ -219,15 +193,13 @@ public class SCANAlarmAlertManager {
                     if (valCompare) {
                         addAlertedAlarm(site, tableType, scanData
                                 .getTableCellData(0).getCellText(),
-                                alarm.colName, AlarmType.AbsVal, row, index);
-                        indicesMap.get(site).get(tableType)[row][index] = true;
-                    } else if (indicesMap.get(site).get(tableType)[row][index] != true) {
-                        indicesMap.get(site).get(tableType)[row][index] = false;
+                                alarm.colName, AlarmType.AbsVal, row, 
+                                index, latestTime);
                     }
                     row++;
                 }
-            } else if (tableType != ScanTables.DMD
-                    && alarm.type == AlarmType.RateOfChange) {
+            } else if ((tableType != ScanTables.DMD)
+                    && (alarm.type == AlarmType.RateOfChange)) {
                 ScanMonitor monitor = ScanMonitor.getInstance();
 
                 if (monitor.cellData != null) {
@@ -245,7 +217,7 @@ public class SCANAlarmAlertManager {
                                         .getTableData(tableType, site, previous);
                                 getScanTableDiff(data, tableDataPrev,
                                         tableType, colLength, sdg, alarm,
-                                        config);
+                                        config, latestTime);
                             }
                         }
                     }
@@ -267,7 +239,8 @@ public class SCANAlarmAlertManager {
      */
     public void getScanTableDiff(SCANTableData data,
             ScanTableData<?> otherData, ScanTables tableType, int length,
-            ScanDataGenerator sdg, ScheduledAlarms alarm, SCANConfig config) {
+            ScanDataGenerator sdg, ScheduledAlarms alarm, SCANConfig config,
+            Date latestTime) {
         SCANTableData scanOtherData = null;
         if (tableType == ScanTables.CELL) {
             scanOtherData = sdg.generateCellData(otherData);
@@ -326,18 +299,9 @@ public class SCANAlarmAlertManager {
                                 // add alarm
                                 addAlertedAlarm(site, tableType,
                                         currentTableCells[0].getCellText(),
-                                        alarm.colName, alarm.type, row, i);
-                                // set the blinkability = true
-                                indicesMap.get(site).get(tableType)[row][i] = true;
+                                        alarm.colName, alarm.type, row, i,
+                                        latestTime);
                             }
-                            // don't want to overwrite any current alarms
-                            else if (indicesMap.get(site).get(tableType)[row][i] != true) {
-                                indicesMap.get(site).get(tableType)[row][i] = false;
-                            }
-                        }
-                        // don't want to overwrite any current alarms
-                        else if (indicesMap.get(site).get(tableType)[row][i] != true) {
-                            indicesMap.get(site).get(tableType)[row][i] = false;
                         }
                     }
                 }
@@ -347,27 +311,21 @@ public class SCANAlarmAlertManager {
     }
 
     /**
-     * return the indices of blinkable elements (boolean[][])
-     * 
-     * @return
-     */
-    public boolean[][] getIndices(String site, ScanTables tableType) {
-        if (indicesMap.get(site).get(tableType) == null) {
-            return new boolean[0][0];
-        }
-        return indicesMap.get(site).get(tableType);
-    }
-
-    /**
      * Remove the alarm and set the indices to false
      * 
      * @param alarm
      */
-    public void removeAlarm(String site, ScanTables tableType,
+    public void clearAlarm(String site, ScanTables tableType,
             AlertedAlarms alarm) {
-        alertedAlarmsMap.get(site).get(tableType).remove(alarm);
-        indicesMap.get(site).get(tableType)[alarm.row][alarm.col] = false;
-        toReset.get(site).get(tableType).add(new Point(alarm.row, alarm.col));
+        Set<AlertedAlarms> alarms = alertedAlarmsMap.get(site).get(tableType);
+        for (AlertedAlarms aa: alarms) {
+            if (alarm.ident.equalsIgnoreCase(aa.ident) && 
+                    alarm.colName.equalsIgnoreCase(aa.colName) && 
+                    (alarm.type == aa.type) && (alarm.row == aa.row)) {
+                aa.cleared = true;
+                break;
+            }
+        }
     }
 
     /**
@@ -384,9 +342,9 @@ public class SCANAlarmAlertManager {
         for (ScheduledAlarms theAlarm : scheduledAlarmsMap.get(site).get(
                 tableType)) {
             if (alarm.colName.equals(theAlarm.colName)
-                    && alarm.type == theAlarm.type) {
-                if (alarm.type == AlarmType.RateOfChange
-                        && tableType == ScanTables.DMD) {
+                    && (alarm.type == theAlarm.type)) {
+                if ((alarm.type == AlarmType.RateOfChange)
+                        && (tableType == ScanTables.DMD)) {
                     return;
                 } else {
                     scheduledAlarmsMap.get(site).get(tableType)
@@ -428,9 +386,25 @@ public class SCANAlarmAlertManager {
      * @param col
      */
     public void addAlertedAlarm(String site, ScanTables tableType,
-            String ident, String colName, AlarmType type, int row, int col) {
-        alertedAlarmsMap.get(site).get(tableType)
-                .add(new AlertedAlarms(ident, colName, type, row, col));
+            String ident, String colName, AlarmType type, int row, 
+            int col, Date validTime) {
+        Set<AlertedAlarms> alarms = alertedAlarmsMap.get(site).get(tableType);
+        if (alarms.size() == 0) {
+            alarms.add(new AlertedAlarms(ident, colName, type, row, col, validTime));
+            return;
+        }
+        for (AlertedAlarms alarm: alarms) {
+            if (alarm.ident.equalsIgnoreCase(ident) && 
+                    alarm.colName.equalsIgnoreCase(colName) && 
+                    (alarm.type == type) && (alarm.row == row)) {
+                if (alarm.cleared) {
+                    break;
+                }
+            } else {
+                alarms.add(new AlertedAlarms(ident, colName, type, row, col, validTime));
+                break;
+            }
+        }
     }
 
     /**
@@ -448,33 +422,32 @@ public class SCANAlarmAlertManager {
      * 
      * @return
      */
-    public List<AlertedAlarms> getAlertedAlarms(String site,
+    public Set<AlertedAlarms> getAlertedAlarms(String site,
             ScanTables tableType) {
         return alertedAlarmsMap.get(site).get(tableType);
+    }
+    
+    public int getAlertedAlarmCount(String site,
+            ScanTables tableType) {
+        int count = 0;
+        for (AlertedAlarms alarm: alertedAlarmsMap.get(site).get(tableType)) {
+            if (!alarm.cleared) {
+                count++;
+            }
+        }
+        
+        return count;
     }
 
     public boolean containsAlarm(String site, ScanTables tableType,
             AlarmType type, String colName, String ident) {
         for (AlertedAlarms alarm : alertedAlarmsMap.get(site).get(tableType)) {
-            if (ident.equals(alarm.ident) && type == alarm.type
+            if (ident.equals(alarm.ident) && (type == alarm.type)
                     && colName.equals(alarm.colName)) {
                 return true;
             }
         }
         return false;
-    }
-
-    /**
-     * Returns the points to reset
-     * 
-     * @return
-     */
-    public List<Point> getPointsToReset(String site, ScanTables tableType) {
-        return toReset.get(site).get(tableType);
-    }
-
-    public void clearToReset(String site, ScanTables tableType) {
-        toReset.get(site).get(tableType).clear();
     }
 
     public boolean isRing() {
@@ -494,17 +467,37 @@ public class SCANAlarmAlertManager {
     }
 
     /**
+     * Remove any old alarms
+     * 
+     * @param site
+     * @param type
+     */
+    private void clearOldAlarms(String site, ScanTables type, Date latestTime) {
+        List<AlertedAlarms> clearList = new ArrayList<AlertedAlarms>();
+        for (AlertedAlarms alarm: alertedAlarmsMap.get(site).get(type)) {
+            if (latestTime.getTime() > alarm.validTime.getTime()) {
+                clearList.add(alarm);
+            }
+        }
+        
+        for (AlertedAlarms alarm: clearList) {
+            alertedAlarmsMap.get(site).get(type).remove(alarm);
+        }
+    }
+    
+    /**
      * clear the alerted alarms and the indices
      */
     public void clearAlertedAlarms(String site, ScanTables tableType) {
         for (AlertedAlarms alarm : alertedAlarmsMap.get(site).get(tableType)) {
-            alertedAlarmsMap.get(site).get(tableType).remove(alarm);
-            indicesMap.get(site).get(tableType)[alarm.row][alarm.col] = false;
-            toReset.get(site).get(tableType)
-                    .add(new Point(alarm.row, alarm.col));
+            alarm.cleared = true;
         }
     }
 
+    public void removeAlertedAlarms(String site, ScanTables tableType) {
+        alertedAlarmsMap.get(site).get(tableType).clear();
+    }
+    
     /**
      * Clear the scheduled alarms
      */
@@ -583,14 +576,19 @@ public class SCANAlarmAlertManager {
         int row;
 
         int col;
+        
+        boolean cleared = false;
+        
+        Date validTime;
 
         public AlertedAlarms(String ident, String colName, AlarmType type,
-                int row, int col) {
+                int row, int col, Date validTime) {
             this.ident = ident;
             this.colName = colName;
             this.type = type;
             this.row = row;
             this.col = col;
+            this.validTime = validTime;
         }
 
         /*
@@ -602,7 +600,7 @@ public class SCANAlarmAlertManager {
         public String toString() {
             return "Identifier : " + this.ident + "\nColumn : " + this.colName
                     + "\nType : " + this.type.getName() + "\nRow #: "
-                    + this.row + "\nCol #:" + this.col;
+                    + this.row + "\nCol #:" + this.col + "\nCleared: " + cleared + "\n";
         }
     }
 }

@@ -37,7 +37,8 @@ import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
 import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
 
 /**
- * TODO Add Description
+ * This class is a handler for bring up the Ceiling/Visibility Distribution
+ * dialog.
  * 
  * <pre>
  * 
@@ -52,7 +53,9 @@ import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
  * @author mnash
  * @version 1.0
  */
-
+@Deprecated
+// No long used @see com.raytheon.viz.aviation.CigVisDistComponent
+// TODO remove from base line.
 public class CigVisDistAction extends AbstractHandler {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(CigVisDistAction.class);
