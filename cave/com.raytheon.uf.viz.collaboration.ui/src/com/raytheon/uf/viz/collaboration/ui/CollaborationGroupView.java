@@ -814,25 +814,26 @@ public class CollaborationGroupView extends ViewPart {
                 .getSessionManager().getRosterManager();
 
         IRoster roster = rosterManager.getRoster();
-        
+        // System.out.println("rosterManager Name " /* +
+        // roster.getUser().getName() */
+
         String name = null;
         int rsize = -1;
         int gsize = -1;
-        if(roster != null) {
-            if(roster.getUser() != null) {
+        if (roster != null) {
+            if (roster.getUser() != null) {
                 name = roster.getUser().getName();
             }
-            if(roster.getEntries() != null) {
+            if (roster.getEntries() != null) {
                 rsize = roster.getEntries().size();
             }
-            if(roster.getGroups() != null) {
+            if (roster.getGroups() != null) {
                 gsize = roster.getGroups().size();
             }
-            System.out.println("rosterManager Name " + name
-                    + ": group size " + gsize + ": entry size "
-                    + rsize);
+            System.out.println("rosterManager Name " + name + ": group size "
+                    + gsize + ": entry size " + rsize);
             for (IRosterGroup rosterGroup : roster.getGroups()) {
-                if(rosterGroup != null) {
+                if (rosterGroup != null) {
                     populateGroup(topLevel, rosterGroup);
                 }
             }
@@ -843,7 +844,8 @@ public class CollaborationGroupView extends ViewPart {
                 group.setLocal(true);
                 group.setModifiable(true);
                 topLevel.addChild(group);
-                for (String u : new String[] { "jkorman@awipscm.omaha.us.ray.com",
+                for (String u : new String[] {
+                        "jkorman@awipscm.omaha.us.ray.com",
                         "abc@awipscm.omaha.us.ray.com",
                         "mnash@awipscm.omaha.us.ray.com" }) {
                     CollaborationUser item = new CollaborationUser(u);
@@ -864,9 +866,8 @@ public class CollaborationGroupView extends ViewPart {
                     item.setMode(Mode.AWAY);
                 }
             }
-        
+
         }
-            
 
         CollaborationUser me = new CollaborationUser("OAX_rferrel");
         me.setMode(Mode.AVAILABLE);
