@@ -44,7 +44,6 @@ import org.eclipse.ecf.presence.chatroom.IChatRoomParticipantListener;
 import org.eclipse.ecf.provider.xmpp.identity.XMPPRoomID;
 
 import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
@@ -225,46 +224,48 @@ public class VenueSession extends BaseSession implements IVenueSession,
         } finally {
             initListeners();
         }
-//        Runnable r = new Runnable() {
-//            @Override
-//            public void run() {
-//                try {
-//                    Thread.sleep(20000);
-//
-//                    TestJAXBObject j = new TestJAXBObject();
-//                    j.setItem_1("This is an object");
-//                    j.setValue(5);
-//                    sendRenderableObject(j);
-//                } catch (Exception e) {
-//                    System.out.println("Error sending RenderableObject");
-//                }
-//            }
-//        };
-//        Thread t = new Thread(r);
-//        t.start();
-//        registerEventHandler(this);
+        // Runnable r = new Runnable() {
+        // @Override
+        // public void run() {
+        // try {
+        // Thread.sleep(20000);
+        //
+        // TestJAXBObject j = new TestJAXBObject();
+        // j.setItem_1("This is an object");
+        // j.setValue(5);
+        // sendRenderableObject(j);
+        // } catch (Exception e) {
+        // System.out.println("Error sending RenderableObject");
+        // }
+        // }
+        // };
+        // Thread t = new Thread(r);
+        // t.start();
+        // registerEventHandler(this);
     }
 
-//    @Subscribe
-//    public void handle(IRenderable renderable) {
-//        System.out.println("Renderable found");
-//        if(renderable instanceof TestJAXBObject) {
-//            TestJAXBObject j = (TestJAXBObject) renderable;
-//            if(j.getValue() < 100) {
-//                System.out.println(String.format("%s %d Renderable", j.getItem_1(), j.getValue()));
-//                j.setValue(j.getValue() + 200);
-//                j.setItem_1("Now for the return trip");
-//                try {
-//                    sendRenderableObject(j);
-//                } catch (CollaborationException ce) {
-//                    System.out.println("Error sending RenderableObject");
-//                }
-//            } else {
-//                System.out.println(String.format("%s %d Renderable", j.getItem_1(), j.getValue()));
-//            }
-//        }
-//    }
-    
+    // @Subscribe
+    // public void handle(IRenderable renderable) {
+    // System.out.println("Renderable found");
+    // if(renderable instanceof TestJAXBObject) {
+    // TestJAXBObject j = (TestJAXBObject) renderable;
+    // if(j.getValue() < 100) {
+    // System.out.println(String.format("%s %d Renderable", j.getItem_1(),
+    // j.getValue()));
+    // j.setValue(j.getValue() + 200);
+    // j.setItem_1("Now for the return trip");
+    // try {
+    // sendRenderableObject(j);
+    // } catch (CollaborationException ce) {
+    // System.out.println("Error sending RenderableObject");
+    // }
+    // } else {
+    // System.out.println(String.format("%s %d Renderable", j.getItem_1(),
+    // j.getValue()));
+    // }
+    // }
+    // }
+
     /**
      * 
      * @throws ECFException
@@ -617,7 +618,8 @@ public class VenueSession extends BaseSession implements IVenueSession,
      * @param participant
      * @param initData
      * @throws CollaborationException
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#sendInitData(com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID, com.raytheon.uf.viz.collaboration.comm.identity.event.IInitData)
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#sendInitData(com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID,
+     *      com.raytheon.uf.viz.collaboration.comm.identity.event.IInitData)
      */
     @Override
     public void sendInitData(
@@ -629,7 +631,7 @@ public class VenueSession extends BaseSession implements IVenueSession,
         if (session != null) {
             String message = Tools.marshallData(initData);
             if (message != null) {
-                session.sendPeerToPeer(participant.getFQName(), message);
+                session.sendPeerToPeer(participant.getName(), message);
             }
         }
     }
