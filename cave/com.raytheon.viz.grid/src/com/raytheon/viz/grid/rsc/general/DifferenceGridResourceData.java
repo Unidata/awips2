@@ -23,6 +23,9 @@ import java.util.Arrays;
 
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
@@ -52,11 +55,14 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
  * @author bsteffen
  * @version 1.0
  */
+@XmlAccessorType(XmlAccessType.NONE)
 public class DifferenceGridResourceData extends AbstractResourceData implements
         IResourceGroup {
 
+    @XmlElement
     private ResourcePair one;
 
+    @XmlElement
     private ResourcePair two;
 
     private ResourceList resourceList;

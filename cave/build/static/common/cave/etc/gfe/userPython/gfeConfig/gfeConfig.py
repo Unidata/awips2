@@ -1050,6 +1050,7 @@ Hazards_commonValues = [ \
     "Advisories|Winter Weather|WW.Y",
     "Statements|Coastal Flooding|CF.S",
     "Statements|Coastal Flooding|LS.S",
+    "Statements|Coastal Flooding|RP.S",
     "Statements|Marine|MA.S",
     ]
 

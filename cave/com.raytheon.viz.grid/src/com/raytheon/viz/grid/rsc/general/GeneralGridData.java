@@ -207,8 +207,8 @@ public class GeneralGridData {
             vComponent.rewind();
             direction = FloatBuffer.allocate(uComponent.capacity());
             while (vComponent.hasRemaining()) {
-                direction.put((float) Math.atan2(uComponent.get(),
-                        vComponent.get()));
+                direction.put((float) Math.toDegrees(Math.atan2(
+                        uComponent.get(), vComponent.get())));
             }
             uComponent.rewind();
             vComponent.rewind();

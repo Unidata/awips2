@@ -1490,25 +1490,16 @@ public class MultiPointResource extends
 
                 Envelope env = new Envelope(coord);
                 List<?> elements = strTree.query(env);
-                if (elements.size() > 0) {
-                    Iterator<?> iter = elements.iterator();
-                    /* Take the first one in the list */
-                    if (iter.hasNext()) {
-                        /* element 0 = Coordinate, 1 = inspectString */
-                        ArrayList<?> data = (ArrayList<?>) iter.next();
-
-                        Shell shell = PlatformUI.getWorkbench()
-                                .getActiveWorkbenchWindow().getShell();
-
-                        GageData gage = getGageData((Coordinate) data.get(0));
-
-                        if ((ts == null) || !ts.isOpen()) {
-                            ts = new TimeSeriesDlg(shell, gage, true);
-                            ts.open();
-                        } else {
-                            ts.updateSelection(gage, true);
-                        }
-                    }
+                GageData closestGage=getNearestPoint(coord,elements);
+                if (closestGage!=null) {
+                    if ((ts == null) || !ts.isOpen()) {
+                		Shell shell = PlatformUI.getWorkbench()
+                      .getActiveWorkbenchWindow().getShell();
+                      ts = new TimeSeriesDlg(shell, closestGage, true);
+                      ts.open();
+                  } else {
+                      ts.updateSelection(closestGage, true);
+                  }
 
                 } else {
                     showMessage();
@@ -1549,18 +1540,8 @@ public class MultiPointResource extends
                 Envelope env = new Envelope(coord);
                 List<?> elements = strTree.query(env);
                 if (elements.size() > 0) {
-                    List<?> data = elements;
-                    if (elements.size() > 1) {
-                        data = nearest(coord, elements);
-                    }
-                    if ((data != null) && (data.size() > 0)) {
-                        List<?> element = (List<?>) data.get(0);
-
-                        if ((element != null) && (element.size() > 0)) {
-                            /* element 0 = Coordinate, 1 = inspectString */
-                            GageData gageData = getGageData((Coordinate) element
-                                    .get(0));
-
+                    GageData gageData = getNearestPoint(coord, elements);
+                    if ((gageData != null)) {
                             String lid = gageData.getLid();
                             String dataType = toPEDTSEP(gageData);
                             String fcstType = null;
@@ -1610,7 +1591,6 @@ public class MultiPointResource extends
                     showMessage();
                 }
             }
-        }
     }
 
     /**
@@ -1655,35 +1635,37 @@ public class MultiPointResource extends
     }
 
     /**
-     * Return the data from the input list that is closest to the given
+     * Return the nearest data in the elements list to the given
      * coordinate latitude/longitude.
      * 
      * @param coord
      *            Reference coordinate latitude/longitude
-     * @param list
+     * @param elements
+     *            List of Coordinates
      * @return The closest data if found. If the input list is null or empty a
      *         null reference is returned.
      */
-    private static ArrayList<?> nearest(Coordinate coord, List<?> list) {
-        ArrayList<?> retList = null;
-
-        double minDist = Double.MAX_VALUE;
-        if ((list != null) && (list.size() > 0)) {
-            for (Object o : list) {
-                if (o instanceof ArrayList<?>) {
-                    ArrayList<?> subList = (ArrayList<?>) o;
-                    Coordinate c = (Coordinate) subList.get(0);
-                    double dx = coord.x - c.x;
-                    double dy = coord.y - c.y;
-                    double dist = (dx * dx) + (dy * dy);
-                    if (dist < minDist) {
-                        minDist = dist;
-                        retList = subList;
-                    }
-                }
-            }
+    private GageData getNearestPoint(Coordinate coord, List<?> elements) {
+        if (elements ==null || elements.size() <= 0) {
+        	return null;
         }
-        return retList;
+        
+        Iterator<?> iter = elements.iterator();
+        double minDistance=Double.MAX_VALUE;
+        GageData closestGage=null;
+        while (iter.hasNext()) {
+        	ArrayList<?> data = (ArrayList<?>) iter.next();
+
+        	GageData gage = getGageData((Coordinate) data.get(0));
+        	double lon=gage.getLon();
+        	double lat=gage.getLat();
+        	double distance = Math.sqrt(Math.pow((lon-coord.x),2)+Math.pow((lat-coord.y), 2));
+        	if (distance < minDistance) {
+        		minDistance=distance;
+        		closestGage=gage;
+        	}
+        }
+        return closestGage;
     }
 
     /*
