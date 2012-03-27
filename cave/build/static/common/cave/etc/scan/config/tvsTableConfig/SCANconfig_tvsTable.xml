@@ -20,9 +20,12 @@
         
   SOFTWARE HISTORY
   
-  Date			Ticket#	Engineer	Description
+  Date			Ticket#	Engineer	 Description
   __________________________________________________________________________
-  Dec 28, 2011	14230	mgamazay	Changed DefaultRank to ident
+  Dec 28, 2011	14230	mgamazay	 Changed DefaultRank to ident
+ 
+  02/28/2012	14538	Xiaochuan	 Changed DefaultRank to default
+ 
     -->
 <ScanConfigTvsTable>
     <LinkToFrame>false</LinkToFrame>
@@ -30,7 +33,7 @@
     <TipsOption>false</TipsOption>
     <FilterOption>false</FilterOption>
     <ZoomFactor>4</ZoomFactor>
-    <DefaultRank>ident</DefaultRank>
+    <DefaultRank>default</DefaultRank>
     
     <!--
           TVS Table attributes 

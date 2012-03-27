@@ -26,7 +26,7 @@ import java.util.Map;
 import com.raytheon.uf.common.time.DataTime;
 
 /**
- * Guidance request used for caching data.
+ * Guidance request used for caching MOS data.
  * 
  * <pre>
  * 
@@ -42,20 +42,34 @@ import com.raytheon.uf.common.time.DataTime;
  * @version 1.0
  */
 public class MosCacheGuidanceRequest extends CacheGuidanceRequest {
+    // TODO remove use the one in CacheGuidanceRequest
     protected String siteID;
 
+    /**
+     * The Reference time can be null for the current time.
+     */
     protected Date refTime;
 
     /**
+     * Get MOS tag for give site ID, model and the current time as the reference
+     * time.
+     * 
      * @param siteID
      * @param model
-     * @param format
-     * @return
+     * @return tag
      */
     public static String getTag(String siteID, String model) {
         return getTag(siteID, model, "current");
     }
 
+    /**
+     * Get MOS tag based on site ID, model and reference time.
+     * 
+     * @param siteID
+     * @param model
+     * @param refTime
+     * @return tag
+     */
     public static String getTag(String siteID, String model, String refTime) {
         return model + ":" + siteID + ":" + refTime;
     }
@@ -72,10 +86,12 @@ public class MosCacheGuidanceRequest extends CacheGuidanceRequest {
         return map;
     }
 
+    // TODO remove use the one in CacheGuidanceRequest
     public String getSiteID() {
         return this.siteID;
     }
 
+    // TODO remove use the one in CacheGuidanceRequest
     public void setSiteID(String siteID) {
         this.siteID = siteID;
     }

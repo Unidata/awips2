@@ -51,7 +51,9 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.avnconfig.AvnConfigConstants.triggerType;
 
 /**
- * Trigger editor dialog.
+ * Trigger editor dialog. There are no longer any references to this class in
+ * any of the java and python code or in the xml configuration files. Consider
+ * removing this class from the base line.
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -67,6 +69,7 @@ import com.raytheon.viz.avnconfig.AvnConfigConstants.triggerType;
  * @version 1.0
  * 
  */
+@Deprecated
 public class TriggerEditorDlg extends Dialog {
     /**
      * Dialog shell.
