@@ -36,20 +36,32 @@ import com.raytheon.uf.common.dataplugin.grib.GribModel;
 import com.raytheon.uf.common.dataplugin.grib.GribRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.datastorage.Request;
+import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.time.CombinedDataTime;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
+import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.DisplayType;
+import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
+import com.raytheon.uf.viz.d2d.core.map.IDataScaleResource;
 import com.raytheon.uf.viz.d2d.core.time.LoadMode;
 import com.raytheon.uf.viz.d2d.core.time.TimeMatcher;
 import com.raytheon.viz.core.rsc.ICombinedResourceData;
 import com.raytheon.viz.grid.inv.GribDataCubeAlertMessageParser;
 import com.raytheon.viz.grid.inv.GridInventory;
+import com.raytheon.viz.grid.rsc.general.D2DGribGridResource;
+import com.raytheon.viz.grid.rsc.general.DifferenceGridResourceData;
+import com.raytheon.viz.grid.util.TiltRequest;
+import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Resource data for grids from GribRecords
@@ -108,6 +120,31 @@ public class GridResourceData extends AbstractRequestableResourceData implements
     }
 
     @Override
+    public AbstractVizResource<?, ?> construct(LoadProperties loadProperties,
+            IDescriptor descriptor) throws VizException {
+        DisplayType displayType = loadProperties.getCapabilities()
+                .getCapability(this, DisplayTypeCapability.class)
+                .getDisplayType();
+        if (secondaryResourceData != null
+                && (displayType == DisplayType.BARB
+                        || displayType == DisplayType.ARROW
+                        || displayType == DisplayType.DUALARROW || displayType == DisplayType.STREAMLINE)) {
+            // GribGridResource does not support diff through a secondary
+            // resource, instead it must use a DifferenceGridResource.
+            ResourcePair one = new ResourcePair();
+            one.setResourceData(this);
+            one.setLoadProperties(loadProperties);
+            ResourcePair two = new ResourcePair();
+            two.setResourceData(secondaryResourceData);
+            two.setLoadProperties(loadProperties);
+            this.secondaryResourceData = null;
+            return new DifferenceGridResourceData(one, two).construct(
+                    loadProperties, descriptor);
+        }
+        return super.construct(loadProperties, descriptor);
+    }
+
+    @Override
     protected AbstractVizResource<?, ?> constructResource(
             LoadProperties loadProperties, PluginDataObject[] objects)
             throws VizException {
@@ -121,44 +158,25 @@ public class GridResourceData extends AbstractRequestableResourceData implements
         case IMAGE:
             sampling = sampling == null ? true : sampling;
             return new GridResource(this, loadProperties);
-        case STREAMLINE:
-            sampling = sampling == null ? false : sampling;
-            return new GridVectorResource(
-                    this,
-                    loadProperties,
-                    com.raytheon.viz.pointdata.PointWindDisplay.DisplayType.STREAMLINE);
-        case BARB:
-            sampling = sampling == null ? false : sampling;
-            return new GridVectorResource(
-                    this,
-                    loadProperties,
-                    com.raytheon.viz.pointdata.PointWindDisplay.DisplayType.BARB);
         case ICON:
             sampling = sampling == null ? false : sampling;
             return new GridIconResource(this, loadProperties);
+        case BARB:
         case ARROW:
-            sampling = sampling == null ? false : sampling;
-            return new GridVectorResource(
-                    this,
-                    loadProperties,
-                    com.raytheon.viz.pointdata.PointWindDisplay.DisplayType.ARROW);
         case DUALARROW:
+        case STREAMLINE:
+            // TODO eventually contour and image should also use
+            // D2DGribGridResource so that all data requesta nd transform of
+            // grib data in D2D is in one location. There are only a few
+            // products that do not work correctly, contours of vector
+            // direction, and data mapped images.
             sampling = sampling == null ? false : sampling;
-            return new GridVectorResource(
-                    this,
-                    loadProperties,
-                    com.raytheon.viz.pointdata.PointWindDisplay.DisplayType.DUALARROW);
+            return new D2DGribGridResource(this, loadProperties);
         case CONTOUR:
         default:
             sampling = sampling == null ? false : sampling;
             return new GridVectorResource(this, loadProperties);
         }
-    }
-
-    protected AbstractVizResource<?, ?> constructResource(DataTime[] dataTimes,
-            LoadProperties loadProperties, PluginDataObject[] objects)
-            throws VizException {
-        return constructResource(loadProperties, objects);
     }
 
     /**
@@ -310,7 +328,6 @@ public class GridResourceData extends AbstractRequestableResourceData implements
 
                 }
                 List<DataTime> availDataTimes = new ArrayList<DataTime>();
-                int j = 0;
                 for (int i = 0; i < primaryTimes.length; i++) {
                     if (primaryTimes[i] != null && secondaryTimes[i] != null) {
                         availDataTimes.add(new CombinedDataTime(
@@ -495,6 +512,40 @@ public class GridResourceData extends AbstractRequestableResourceData implements
     @Override
     public AbstractVizResource<?, ?> getSecondaryResource() {
         // TODO Auto-generated method stub
+        return null;
+    }
+
+    public static IDataRecord[] getDataRecordsForTilt(GribRecord record,
+            IDescriptor descriptor) throws VizException {
+        if (record.getModelInfo().getLevel().getMasterLevel().getName()
+                .equals("TILT")) {
+            Coordinate tiltLoc = findTiltLocation(descriptor.getResourceList());
+            if (tiltLoc != null) {
+                TiltRequest request = new TiltRequest();
+                request.setType(Request.Type.ALL);
+                request.setTiltLocation(tiltLoc);
+                return DataCubeContainer.getDataRecord(record, request, null);
+            }
+        }
+        return null;
+
+    }
+
+    private static Coordinate findTiltLocation(ResourceList resourceList) {
+        for (ResourcePair rp : resourceList) {
+            AbstractResourceData resourceData = rp.getResourceData();
+            AbstractVizResource<?, ?> resource = rp.getResource();
+            if (resource instanceof IDataScaleResource) {
+                return ((IDataScaleResource) resource).getCenterLocation();
+            }
+            if (resourceData instanceof IResourceGroup) {
+                Coordinate tiltLoc = findTiltLocation(((IResourceGroup) resourceData)
+                        .getResourceList());
+                if (tiltLoc != null) {
+                    return tiltLoc;
+                }
+            }
+        }
         return null;
     }
 }

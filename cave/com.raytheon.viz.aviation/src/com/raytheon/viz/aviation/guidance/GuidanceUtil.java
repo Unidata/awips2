@@ -60,6 +60,8 @@ public class GuidanceUtil {
      * @return
      */
     @Deprecated
+    // TODO Remove this method no longer used in java, python of xml
+    // configuration.
     public static MetarRecord getLatestMetar(String siteID) {
         try {
             Map<String, RequestConstraint> map = new HashMap<String, RequestConstraint>();
@@ -82,6 +84,13 @@ public class GuidanceUtil {
         return null;
     }
 
+    /**
+     * Get the GFE Point Data information for the task request.
+     * 
+     * @param task
+     * @return gfePointDataContainer
+     * @throws VizException
+     */
     @SuppressWarnings("unchecked")
     public static GFEPointDataContainer getGFEPointData(GetPointDataRequest task)
             throws VizException {

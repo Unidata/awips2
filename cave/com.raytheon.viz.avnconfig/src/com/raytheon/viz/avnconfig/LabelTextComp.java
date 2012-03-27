@@ -210,6 +210,14 @@ public class LabelTextComp extends Composite {
         });
     }
 
+    /**
+     * Replace the text for the control text field associated with key and if
+     * applicable change its background color.
+     * 
+     * @param key
+     * @param text
+     *            - new text
+     */
     public void updateTextControl(String key, String text) {
         Text textControl = textControlMap.get(key);
         textControl.setText(text);

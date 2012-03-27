@@ -724,6 +724,12 @@ public class DataSourceTabComp extends Composite implements
                 activeRules.clear();
 
                 saveRules(siteID);
+
+                // TODO The site's rules are removed and replaced with the
+                // current XXXXs rules.
+                // Should any monitoring rules configuration files for the
+                // site be deleted so it will pick up any changes made to the
+                // default rules?
             }
         }
     }
@@ -745,6 +751,13 @@ public class DataSourceTabComp extends Composite implements
                 activeRules);
     }
 
+    /**
+     * Get the rules that apply for a site and display them.
+     * 
+     * @param siteID
+     * @throws LocalizationException
+     * @throws ConfigurationException
+     */
     public void reloadRules(String siteID) throws LocalizationException,
             ConfigurationException {
         this.siteID = siteID;
@@ -752,6 +765,12 @@ public class DataSourceTabComp extends Composite implements
         populateList();
     }
 
+    /**
+     * Load active rules for the tab.
+     * 
+     * @throws LocalizationException
+     * @throws ConfigurationException
+     */
     private void loadActiveRulesList() throws LocalizationException,
             ConfigurationException {
         AvnConfiguration config = AvnConfiguration.load(false);
@@ -765,6 +784,11 @@ public class DataSourceTabComp extends Composite implements
         }
     }
 
+    /**
+     * The DataSource type associated with this tab.
+     * 
+     * @return dataSource
+     */
     public String getDataSource() {
         return pageData.getDataSource();
     }
