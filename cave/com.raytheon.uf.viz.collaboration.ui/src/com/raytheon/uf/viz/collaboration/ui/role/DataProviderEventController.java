@@ -24,9 +24,9 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueParticipantEvent;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.VenueSession;
 import com.raytheon.uf.viz.collaboration.ui.editor.EditorSetup;
 import com.raytheon.uf.viz.collaboration.ui.editor.SharedEditor;
 import com.raytheon.viz.ui.VizWorkbenchManager;
@@ -55,9 +55,7 @@ public class DataProviderEventController extends AbstractRoleEventController {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DataProviderEventController.class);
 
-    private VenueSession session;
-
-    public DataProviderEventController(VenueSession session) {
+    public DataProviderEventController(ISharedDisplaySession session) {
         super(session);
     }
 
