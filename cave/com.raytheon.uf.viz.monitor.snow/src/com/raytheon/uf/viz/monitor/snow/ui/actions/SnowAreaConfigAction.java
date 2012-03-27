@@ -37,6 +37,7 @@ import com.raytheon.uf.viz.monitor.snow.ui.dialogs.SnowMonitoringAreaConfigDlg;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 28, 2009 3963       dhladky    Initial creation.
+ * March 5, 2012 14413     zhao       Launch AreaConfigDlg w/o monitor
  * 
  * </pre>
  * 
@@ -51,12 +52,12 @@ public class SnowAreaConfigAction extends AbstractHandler {
     	
     	System.out.println("Activating/Action the Snow Area Config...");
         
-    	SnowMonitor monitor = SnowMonitor.getInstance();
+    	//SnowMonitor monitor = SnowMonitor.getInstance();
     	Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-        monitor.launchDialog("area", shell);
+        //monitor.launchDialog("area", shell);
         
-    	//SnowMonitoringAreaConfigDlg configDlg= new SnowMonitoringAreaConfigDlg(shell, "SNOW Monitor Area Configuration");
-        //configDlg.open();
+    	SnowMonitoringAreaConfigDlg configDlg= new SnowMonitoringAreaConfigDlg(shell, "SNOW Monitor Area Configuration");
+        configDlg.open();
    
         return null;
     }

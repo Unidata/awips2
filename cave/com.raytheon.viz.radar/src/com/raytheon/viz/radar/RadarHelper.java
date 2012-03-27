@@ -21,9 +21,12 @@ package com.raytheon.viz.radar;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.eclipse.swt.graphics.RGB;
 
@@ -44,7 +47,9 @@ import com.raytheon.uf.common.dataplugin.radar.level3.WindBarbPacket;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarDataRetriever;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest.OrderMode;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
@@ -63,7 +68,8 @@ import com.raytheon.viz.awipstools.common.StormTrackData;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 16, 2009            mnash     Initial creation
+ * Feb 16, 2009            mnash       Initial creation
+ * 03/07/2012   DR 14660   D. Friedman Added time-based getSTIData* functions.
  * 
  * </pre>
  * 
@@ -169,6 +175,11 @@ public class RadarHelper {
     public static final String[] rdaChannelStr = { "NWS Single Thread",
             "RDA 1", "RDA 2" };
 
+	/**
+	 * The default maximimum difference in time used when retrieving STI data (15 minutes.)
+	 */
+	public static final long DEFAULT_MAX_STI_TIME_DIFFERENCE = 15 * 60 * 1000;
+	
     /**
      * Returns the information in the packet to be processed
      * 
@@ -352,4 +363,148 @@ public class RadarHelper {
 
         return rval;
     }
+
+	/**
+	 * Get the STI data for the radar and time specified by the given
+	 * RadarRecord.
+	 * 
+	 * @param referenceRecord
+	 *            Specifies the radar and time to search for.
+	 * @return The STI data record for the specified radar and closest in time
+	 *         to the specified time within
+	 *         {@link #DEFAULT_MAX_STI_TIME_DIFFERENCE} or null if there isn't
+	 *         any STI data that matches.
+	 * @throws VizException
+	 */
+	public static StormTrackData getSTIDataForRadarRecord(
+			RadarRecord referenceRecord) throws VizException {
+		return getSTIData(referenceRecord.getIcao(), referenceRecord
+				.getDataTime().getRefTime(), DEFAULT_MAX_STI_TIME_DIFFERENCE);
+	}
+    
+    private static final SimpleDateFormat DATE_FORMAT;
+    static {
+        DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
+    }
+
+	/**
+	 * Retrieves the specified STI data.
+	 * 
+	 * @param icao
+	 *            The ICAO of there radar whose STI data is to be returned
+	 * @param targetTime
+	 *            If not null, specifies the center or a time range to search.
+	 *            If null, the latest STI product is retrieved
+	 *            (<strong>TODO</strong>: DOES NOT WORK because "order by" is
+	 *            ignored by DbQueryHandler.)
+	 * @param maxTimeDifference
+	 *            The maximum acceptable difference in time from targetTime, in
+	 *            milliseconds.
+	 * @return The STI data or null if there isn't any STI data in the database
+	 *         that matches the given criteria
+	 * @throws VizException
+	 */
+	public static StormTrackData getSTIData(String icao, Date targetTime, long maxTimeDifference) throws VizException {
+        StormTrackData rval = null;
+        Exception exc = null;
+        try {
+            RadarRecord record = null;
+            DbQueryRequest request = new DbQueryRequest();
+            request.setEntityClass(RadarRecord.class.getName());
+            request.setOrderByField("dataTime.refTime", OrderMode.DESC);
+            if (targetTime != null) {
+            	if (maxTimeDifference != 0) {
+            		maxTimeDifference = Math.abs(maxTimeDifference);
+            		request.addConstraint("dataTime.refTime", 
+            				new RequestConstraint(DATE_FORMAT.format(new Date(targetTime.getTime() - maxTimeDifference)), 
+            						ConstraintType.GREATER_THAN_EQUALS));
+            		request.addConstraint("dataTime.refTime", 
+            				new RequestConstraint(DATE_FORMAT.format(new Date(targetTime.getTime() + maxTimeDifference)), 
+            						ConstraintType.LESS_THAN_EQUALS));
+            		RequestConstraint timeConstraint = new RequestConstraint(null, ConstraintType.BETWEEN);
+            		timeConstraint.setBetweenValueList(new String[] {
+            				DATE_FORMAT.format(new Date(targetTime.getTime() - maxTimeDifference)),
+            				DATE_FORMAT.format(new Date(targetTime.getTime() + maxTimeDifference))
+            		});
+            		request.addConstraint("dataTime.refTime", timeConstraint);
+            	} else {
+            		request.addConstraint("dataTime.refTime",
+            				new RequestConstraint(DATE_FORMAT.format(targetTime)));
+            	}
+            } else
+            	request.setLimit(1);
+            request.addConstraint("productCode", new RequestConstraint("58"));
+            request.addConstraint("icao", new RequestConstraint(icao));
+            request.addConstraint("pluginName", new RequestConstraint("radar"));
+
+            DbQueryResponse response = (DbQueryResponse) ThriftClient
+                    .sendRequest(request);
+            if (targetTime != null && maxTimeDifference != 0) {
+            	// Find the record closest in time to targetTime.
+            	long bestDifference = Long.MAX_VALUE;
+	            for (Map<String, Object> result : response.getResults()) {
+	            	RadarRecord aRecord = (RadarRecord) result.get(null);; 
+					long difference = Math.abs(aRecord.getDataTime()
+							.getRefTime().getTime() - targetTime.getTime());
+	            	if (difference < bestDifference) {
+	            		bestDifference = difference;
+	            		record = aRecord; 
+	            	}
+	            }
+            } else {
+	            for (Map<String, Object> result : response.getResults()) {
+	                record = (RadarRecord) result.get(null);
+	                break;
+	            }
+            }
+
+            if (record != null) {
+                // Populate the radar record with its data
+                File loc = HDF5Util.findHDF5Location(record);
+                IDataStore dataStore = DataStoreFactory.getDataStore(loc);
+                RadarDataRetriever.populateRadarRecord(dataStore, record);
+
+                // Get the Tabular data from the record
+                Map<RadarConstants.MapValues, Map<RadarConstants.MapValues, String>> stiMap = record
+                        .getMapRecordVals();
+
+                String stiDir = null;
+                String stiSpeed = null;
+                double direction = 0;
+                double speed = 0;
+
+                // Get the speed and dir from the record
+                if (stiMap != null) {
+                    stiDir = stiMap.get(RadarConstants.MapValues.STI_TYPE).get(
+                            RadarConstants.MapValues.STI_AVG_DIRECTION);
+                    stiSpeed = stiMap.get(RadarConstants.MapValues.STI_TYPE)
+                            .get(RadarConstants.MapValues.STI_AVG_SPEED);
+                }
+
+                if (stiDir == null || stiSpeed == null ||
+                		stiDir.isEmpty() || stiSpeed.isEmpty()) {
+                    direction = 0;
+                    speed = 0;
+                } else {
+                    direction = Double.parseDouble(stiDir);
+                    speed = Double.parseDouble(stiSpeed);
+                }
+
+                // Populate the return data with the STI data
+                rval = new StormTrackData();
+                rval.setDate(record.getDataTime().getRefTime());
+                rval.setMotionDirection(direction);
+                rval.setMotionSpeed(speed);
+            }
+        } catch (FileNotFoundException e) {
+            exc = e;
+        } catch (StorageException e) {
+            exc = e;
+        }
+        if (exc != null)
+        	throw new VizException(exc);
+        return rval;
+    }
+
 }
