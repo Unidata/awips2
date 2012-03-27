@@ -50,11 +50,13 @@ import com.raytheon.viz.gfe.core.wxvalue.WxValue;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Jun 13, 2008				chammack	Initial creation
- * Sep 01, 2009       #2788 randerso    Changed listener lists to sets to prevent
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Jun 13, 2008             chammack    Initial creation
+ * Sep 01, 2009  #2788      randerso    Changed listener lists to sets to prevent
  *                                      multiple registration
+ * Feb 23, 2012  #346       dgilling    Implement clearParmListeners.
+ * Mar 01, 2012  #346       dgilling    Use identity-based ListenerLists.
  * 
  * </pre>
  * 
@@ -87,17 +89,37 @@ public class ParmListeners {
     private final JobPool notificationPool;
 
     protected ParmListeners(JobPool pool) {
-        this.gridChangedListeners = new ListenerList();
-        this.parmInventoryChangedListeners = new ListenerList();
-        this.parmIDChangedListeners = new ListenerList();
-        this.selectionTimeRangeChangedListeners = new ListenerList();
-        this.parameterSelectionChangedListeners = new ListenerList();
-        this.combineModeChangedListeners = new ListenerList();
-        this.vectorModeChangedListeners = new ListenerList();
-        this.pickupValueChangedListeners = new ListenerList();
-        this.colorTableModifiedListeners = new ListenerList();
-        this.lockTableChangedListeners = new ListenerList();
+        this.gridChangedListeners = new ListenerList(ListenerList.IDENTITY);
+        this.parmInventoryChangedListeners = new ListenerList(
+                ListenerList.IDENTITY);
+        this.parmIDChangedListeners = new ListenerList(ListenerList.IDENTITY);
+        this.selectionTimeRangeChangedListeners = new ListenerList(
+                ListenerList.IDENTITY);
+        this.parameterSelectionChangedListeners = new ListenerList(
+                ListenerList.IDENTITY);
+        this.combineModeChangedListeners = new ListenerList(
+                ListenerList.IDENTITY);
+        this.vectorModeChangedListeners = new ListenerList(
+                ListenerList.IDENTITY);
+        this.pickupValueChangedListeners = new ListenerList(
+                ListenerList.IDENTITY);
+        this.colorTableModifiedListeners = new ListenerList(
+                ListenerList.IDENTITY);
+        this.lockTableChangedListeners = new ListenerList(ListenerList.IDENTITY);
         this.notificationPool = pool;
+    }
+
+    protected void clearParmListeners() {
+        this.gridChangedListeners.clear();
+        this.parmInventoryChangedListeners.clear();
+        this.parmIDChangedListeners.clear();
+        this.selectionTimeRangeChangedListeners.clear();
+        this.parameterSelectionChangedListeners.clear();
+        this.combineModeChangedListeners.clear();
+        this.vectorModeChangedListeners.clear();
+        this.pickupValueChangedListeners.clear();
+        this.colorTableModifiedListeners.clear();
+        this.lockTableChangedListeners.clear();
     }
 
     public void fireGridChangedListener(final ParmID parmID,
