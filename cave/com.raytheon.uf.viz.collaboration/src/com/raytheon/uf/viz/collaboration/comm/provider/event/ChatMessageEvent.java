@@ -17,9 +17,10 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.comm.identity;
+package com.raytheon.uf.viz.collaboration.comm.provider.event;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.ITextMessageEvent;
+import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 
 /**
  * TODO Add Description
@@ -30,7 +31,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
  *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 21, 2012            jkorman     Initial creation
+ * Mar 27, 2012            jkorman     Initial creation
  *
  * </pre>
  *
@@ -38,20 +39,25 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
  * @version 1.0	
  */
 
-public interface IPeerToPeer extends ISession, IEventPublisher {
-
+public class ChatMessageEvent implements ITextMessageEvent {
+    
+    private final TextMessage message;
+    
     /**
-     * Send a Text message. Note that the recipient of the message is
-     * included as an attribute of the message.
-     * @param message
+     * 
+     * @param msg
      */
-    int sendPeerToPeer(IMessage message);
+    public ChatMessageEvent(TextMessage msg) {
+        message = msg;
+    }
 
+    
     /**
-     * Send a Text message to a specific receiver.
-     * @param to The intended receiver.
-     * @param message The message to send.
+     * 
+     * @return
+     * 
      */
-    int sendPeerToPeer(String to, String message);
-
+    public TextMessage getMessage() {
+       return message; 
+    }
 }

@@ -31,7 +31,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
  * 
  * 
  * <ul>
- * <li>EventBus subscription events. Implementors are required to post the
+ * <li>EventBus subscription events. Implementors may to post the
  * following events.</li>
  * <ul>
  * <li><strong>IVenueParticipantEvent</strong> : This event is posted when a
@@ -41,6 +41,10 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
  * be displayed as conversation.</li>
  * <li><strong>IDisplayEvent</strong> : These messages are CAVE to CAVE events</li>
  * <li><strong>IRenderable</strong> : These messages are CAVE to CAVE
+ * display......</li>
+ * <li><strong>IInitData</strong> : These messages are CAVE to CAVE
+ * initialization data......</li>
+ * <li><strong>IDisplayEvent</strong> : These messages are CAVE to CAVE
  * display......</li>
  * 
  * </ul>
@@ -74,9 +78,25 @@ public interface ISharedDisplaySession extends IEventPublisher {
 
     /**
      * 
+     * @param subscriber
+     */
+    void subscribeToInitData(Object subscriber) throws CollaborationException;
+
+    /**
+     * 
+     * @param subscriber
+     * @throws CollaborationException
+     */
+    void unSubscribeToInitData(Object subscriber) throws CollaborationException;
+
+    /**
+     * 
      * @param event
      */
     void sendEvent(IDisplayEvent event) throws CollaborationException;
+
+    void sendEvent(IChatID participant, IDisplayEvent event)
+            throws CollaborationException;
 
     /**
      * 
