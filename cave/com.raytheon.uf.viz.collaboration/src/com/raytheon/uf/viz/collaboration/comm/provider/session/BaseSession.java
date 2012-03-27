@@ -174,9 +174,9 @@ public abstract class BaseSession implements ISession, IEventPublisher {
     public void close() {
 
         // Unregister any handlers added using this session
-        for(Object o : eventSubscribers.values()) {
-            managerEventBus.unregister(o);
-        }
+//        for(Object o : eventSubscribers.values()) {
+//            managerEventBus.unregister(o);
+//        }
         sessionManager.removeSession(this);
     }
 
@@ -201,6 +201,7 @@ public abstract class BaseSession implements ISession, IEventPublisher {
     public void registerEventHandler(Object handler) {
         if(!eventSubscribers.containsKey(handler)) {
             eventBus.register(handler);
+            eventSubscribers.put(handler, handler);
         }
     }
     
@@ -221,6 +222,10 @@ public abstract class BaseSession implements ISession, IEventPublisher {
     @Override
     public EventBus getEventPublisher() {
         return eventBus;
+    }
+    
+    EventBus getManagerEventPublisher() {
+        return managerEventBus;
     }
     
     /**
