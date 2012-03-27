@@ -72,12 +72,15 @@ import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.SessionManager;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.VenueSession;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationGroup;
 import com.raytheon.uf.viz.collaboration.data.CollaborationNode;
 import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
 import com.raytheon.uf.viz.collaboration.data.LoginUser;
 import com.raytheon.uf.viz.collaboration.data.SessionGroup;
+import com.raytheon.uf.viz.collaboration.ui.role.DataProviderEventController;
+import com.raytheon.uf.viz.collaboration.ui.role.ParticipantEventController;
 import com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.PeerToPeerView;
@@ -504,9 +507,14 @@ public class CollaborationGroupView extends ViewPart {
     private void createCollaborationView(CreateSessionData result) {
         String sessionId = null;
         try {
-            sessionId = CollaborationDataManager.getInstance()
-                    .createCollaborationSession(result.getName(),
-                            result.getSubject());
+            CollaborationDataManager manager = CollaborationDataManager
+                    .getInstance();
+            sessionId = manager.createCollaborationSession(result.getName(),
+                    result.getSubject());
+            DataProviderEventController controller = new DataProviderEventController(
+                    (VenueSession) manager.getSession(sessionId));
+            controller.startup();
+            manager.setDisplaySession(sessionId, controller);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -587,8 +595,14 @@ public class CollaborationGroupView extends ViewPart {
             if (node instanceof SessionGroup) {
                 SessionGroup sg = (SessionGroup) node;
                 System.out.println("Join: " + sg.getId());
-                String sessionId = CollaborationDataManager.getInstance()
-                        .joinCollaborationSession(sg.getText(), sg.getId());
+                CollaborationDataManager manager = CollaborationDataManager
+                        .getInstance();
+                String sessionId = manager.joinCollaborationSession(
+                        sg.getText(), sg.getId());
+                ParticipantEventController controller = new ParticipantEventController(
+                        (VenueSession) manager.getSession(sessionId));
+                manager.setDisplaySession(sessionId, controller);
+                controller.startup();
                 try {
                     IViewPart part = PlatformUI
                             .getWorkbench()
@@ -793,7 +807,7 @@ public class CollaborationGroupView extends ViewPart {
                 .getInstance().getSessionManager().getVenueInfo();
         for (IVenueInfo venu : venuList) {
             SessionGroup gp = new SessionGroup(CollaborationDataManager
-                    .getInstance().venuIdToSessionId(venu.getVenueID()));
+                    .getInstance().venueIdToSessionId(venu.getVenueID()));
             gp.setText(venu.getVenueName());
 
             if (venu.getParticipantCount() > 0) {
