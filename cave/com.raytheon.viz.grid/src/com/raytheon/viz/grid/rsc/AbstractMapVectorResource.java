@@ -546,7 +546,14 @@ public abstract class AbstractMapVectorResource extends
             StorageException, VizException {
 
         IDataRecord rec = null;
-        IDataRecord[] records = DataCubeContainer.getDataRecord(pdo);
+        IDataRecord[] records = null;
+        if (pdo instanceof GribRecord) {
+            records = GridResourceData.getDataRecordsForTilt((GribRecord) pdo,
+                    descriptor);
+        }
+        if (records == null) {
+            records = DataCubeContainer.getDataRecord(pdo);
+        }
         if (records != null && records.length > 0) {
             rec = records[0].clone();
         }

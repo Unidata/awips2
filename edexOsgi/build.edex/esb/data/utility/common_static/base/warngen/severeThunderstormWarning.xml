@@ -5,6 +5,7 @@
                              4-13-2011 Merge in OB11.4 Coding Changes
                              9-17-2011 Merge in OB11.8.0-8 NEW XML SYNTAX CHANGES
      Mike Dangelo    WFO CTP 9-22-2011 to add in remarks and lines which will allow Zone-based products (Alaska TIM)
+     Phil Kurimski   WFO DTX 2-28-2012 to fix parse string issues
 -->
 <warngenConfig>
 
@@ -74,9 +75,9 @@
   <bullet bulletText="*********** BASIS FOR WARNING (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="toggle1" bulletDefault="true" parseString="DOPPLER RADAR INDICATED"/>
   <bullet bulletName="trainedSpotters" bulletText="Trained spotters reported" bulletGroup="toggle1" parseString="TRAINED WEATHER SPOTTERS REPORTED"/>
-  <bullet bulletName="public" bulletText="Public reported" bulletGroup="toggle1" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
+  <bullet bulletName="lawEnforcement" bulletText="Law Enforcement Reported" bulletGroup="toggle1" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
   <bullet bulletName="emergencyMgmt" bulletText="Emergency Management Reported" bulletGroup="toggle1" parseString="EMERGENCY MANAGEMENT REPORTED"/>
-  <bullet bulletName="lawEnforcement" bulletText="Law Enforcement Reported" bulletGroup="toggle1" parseString="THE PUBLIC REPORTED"/>
+  <bullet bulletName="public" bulletText="Public reported" bulletGroup="toggle1" parseString="THE PUBLIC REPORTED"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******* THREAT (CHOOSE UP TO 1 EACH WIND/HAIL) ******" bulletType="title"/>
   <bullet bulletName="60mphWind" bulletText="60 mph wind" bulletGroup="toggle2" parseString="60 MPH"/>
@@ -110,7 +111,7 @@
   <bullet bulletName="veryLargeHailCTA" bulletText="Large DESTRUCTIVE Hail" parseString="LARGE DERSTRUCTIVE HAIL"/>
   <bullet bulletName="largeHailWindCTA" bulletText="Large Hail and Damaging Wind" parseString="LARGE HAIL AND DAMAGING WINDS"/>
   <bullet bulletName="historyHailCTA" bulletText="History of Producing Large Hail" parseString="HISTORY OF PRODUCING LARGE HAIL"/>
-  <bullet bulletName="historyWindCTA" bulletText="History of Widespread Wind Damage" parseString="HISTORY OF PRODUCING WIDESPREAD WIND DAMAGE"/>
+  <bullet bulletName="historyWindCTA" bulletText="History of Producing Wind Damage" parseString="HISTORY OF PRODUCING WIND DAMAGE"/>
   <bullet bulletName="historyWindHailCTA" bulletText="History of Dmgg Winds and Large Hail" parseString="HISTORY OF PRODUCING DESTRUCTIVE WINDS AND LARGE HAIL"/>
   <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
   <bullet bulletText="" bulletType="title"/>
@@ -129,9 +130,9 @@
   <bullet bulletText="*********** BASIS FOR WARNING (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="toggle1" bulletDefault="true" parseString="DOPPLER RADAR INDICATED"/>
   <bullet bulletName="trainedSpotters" bulletText="Trained spotters reported" bulletGroup="toggle1" parseString="TRAINED WEATHER SPOTTERS REPORTED"/>
-  <bullet bulletName="public" bulletText="Public reported" bulletGroup="toggle1" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
+  <bullet bulletName="lawEnforcement" bulletText="Law Enforcement Reported" bulletGroup="toggle1" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
   <bullet bulletName="emergencyMgmt" bulletText="Emergency Management Reported" bulletGroup="toggle1" parseString="EMERGENCY MANAGEMENT REPORTED"/>
-  <bullet bulletName="lawEnforcement" bulletText="Law Enforcement Reported" bulletGroup="toggle1" parseString="THE PUBLIC REPORTED"/>
+  <bullet bulletName="public" bulletText="Public reported" bulletGroup="toggle1" parseString="THE PUBLIC REPORTED"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******* THREAT (CHOOSE UP TO 1 EACH WIND/HAIL) ******" bulletType="title"/>
   <bullet bulletName="60mphWind" bulletText="60 mph wind" bulletGroup="toggle2" parseString="60 MPH"/>
@@ -164,8 +165,8 @@
   <bullet bulletName="largeHailCTA" bulletText="Large Hail and Deadly Lightning" parseString="PREPARE IMMEDIATELY FOR LARGE HAIL"/>
   <bullet bulletName="veryLargeHailCTA" bulletText="Large DESTRUCTIVE Hail" parseString="LARGE DERSTRUCTIVE HAIL"/>
   <bullet bulletName="largeHailWindCTA" bulletText="Large Hail and Damaging Wind" parseString="LARGE HAIL AND DAMAGING WINDS"/>
-  <bullet bulletName="historyHailCTA" bulletText="History of Producing Large Hail" parseString="HISTORY OF PRODUCING LARGE HAIL"/>
-  <bullet bulletName="historyWindCTA" bulletText="History of Widespread Wind Damage" parseString="HISTORY OF PRODUCING WIDESPREAD WIND DAMAGE"/>
+  <bullet bulletName="historyHailCTA" bulletText="History of Large Hail" parseString="HISTORY OF PRODUCING LARGE HAIL"/>
+  <bullet bulletName="historyWindCTA" bulletText="History of Wind Damage" parseString="HISTORY OF PRODUCING WIND DAMAGE"/>
   <bullet bulletName="historyWindHailCTA" bulletText="History of Dmgg Winds and Large Hail" parseString="HISTORY OF PRODUCING DESTRUCTIVE WINDS AND LARGE HAIL"/>
   <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
   <bullet bulletText="" bulletType="title"/>
@@ -277,6 +278,11 @@
  	<withinPolygon>true</withinPolygon>
  	<maxResults>20</maxResults>
  	<distanceThreshold>10</distanceThreshold>
+	<filter> 	
+  	  <mapping key="WARNGENLEV">
+ 		<constraint constraintValue="1,2,3" constraintType="IN" />
+ 	  </mapping>
+ 	</filter>  	
  	<sortBy>
   		<sort>warngenlev</sort>
   		<sort>population</sort>
@@ -302,6 +308,10 @@
 <!-- this "include file" tag will grab the Mile Marker XML pointSource tags, 
 and place into this template  -->
 <include file="mileMarkers.xml"/>
+
+<!-- this "include file" tag will grab the storm reports XML pointSource tags, 
+and place into this template  -->
+<include file="stormReports.xml"/>
  
  <geospatialConfig>
   <pointSource>City</pointSource>
