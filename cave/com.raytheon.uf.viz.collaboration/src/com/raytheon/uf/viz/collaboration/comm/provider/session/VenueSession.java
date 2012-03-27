@@ -44,6 +44,7 @@ import org.eclipse.ecf.presence.chatroom.IChatRoomParticipantListener;
 import org.eclipse.ecf.provider.xmpp.identity.XMPPRoomID;
 
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
@@ -209,6 +210,8 @@ public class VenueSession extends BaseSession implements IVenueSession,
     private EnumSet<ParticipantRole> roles = EnumSet
             .noneOf(ParticipantRole.class);
 
+    private Map<Object, Object> initSubscribers = new HashMap<Object, Object>();
+
     /**
      * 
      * @param container
@@ -224,48 +227,66 @@ public class VenueSession extends BaseSession implements IVenueSession,
         } finally {
             initListeners();
         }
-        // Runnable r = new Runnable() {
-        // @Override
-        // public void run() {
-        // try {
-        // Thread.sleep(20000);
-        //
-        // TestJAXBObject j = new TestJAXBObject();
-        // j.setItem_1("This is an object");
-        // j.setValue(5);
-        // sendRenderableObject(j);
-        // } catch (Exception e) {
-        // System.out.println("Error sending RenderableObject");
-        // }
-        // }
-        // };
-        // Thread t = new Thread(r);
-        // t.start();
-        // registerEventHandler(this);
+        
+//        Runnable r = new Runnable() {
+//            @Override
+//            public void run() {
+//                try {
+//                    Thread.sleep(20000);
+//
+//                    TestJAXBObject j = new TestJAXBObject();
+//                    j.setItem_1("This is an object");
+//                    j.setValue(5);
+//                    sendRenderableObject(j);
+//
+//                    VenueParticipant id = new VenueParticipant("jkorman", "paul", "awipscm.omaha.us.ray.com");
+//                    id.setResource("cave");
+//                    IInitData d = new InitData();
+//                    ((InitData) d).setName("This is a test init data object");
+//
+//                    IDisplayEvent e = new DisplayEvent();
+//                    ((DisplayEvent) e).setName("This is a test display event");
+//                    
+//                    sendInitData(id, d);
+//                    sendEvent(id,e);
+//                } catch (Exception e) {
+//                    System.out.println("Error sending RenderableObject");
+//                }
+//            }
+//        };
+//        Thread t = new Thread(r);
+//        t.start();
+//        registerEventHandler(this);
+//        try {
+//            DataHandler h = new DataHandler();
+//            subscribeToInitData(h);
+//        } catch (CollaborationException ce) {
+//            ce.printStackTrace();
+//        }
     }
 
-    // @Subscribe
-    // public void handle(IRenderable renderable) {
-    // System.out.println("Renderable found");
-    // if(renderable instanceof TestJAXBObject) {
-    // TestJAXBObject j = (TestJAXBObject) renderable;
-    // if(j.getValue() < 100) {
-    // System.out.println(String.format("%s %d Renderable", j.getItem_1(),
-    // j.getValue()));
-    // j.setValue(j.getValue() + 200);
-    // j.setItem_1("Now for the return trip");
-    // try {
-    // sendRenderableObject(j);
-    // } catch (CollaborationException ce) {
-    // System.out.println("Error sending RenderableObject");
-    // }
-    // } else {
-    // System.out.println(String.format("%s %d Renderable", j.getItem_1(),
-    // j.getValue()));
-    // }
-    // }
-    // }
-
+//    @Subscribe
+//    public void handle(IRenderable renderable) {
+//        System.out.println("Renderable found");
+//        if (renderable instanceof TestJAXBObject) {
+//            TestJAXBObject j = (TestJAXBObject) renderable;
+//            if (j.getValue() < 100) {
+//                System.out.println(String.format("%s %d Renderable",
+//                        j.getItem_1(), j.getValue()));
+//                j.setValue(j.getValue() + 200);
+//                j.setItem_1("Now for the return trip");
+//                try {
+//                    sendRenderableObject(j);
+//                } catch (CollaborationException ce) {
+//                    System.out.println("Error sending RenderableObject");
+//                }
+//            } else {
+//                System.out.println(String.format("%s %d Renderable",
+//                        j.getItem_1(), j.getValue()));
+//            }
+//        }
+//    }
+    
     /**
      * 
      * @throws ECFException
@@ -402,6 +423,76 @@ public class VenueSession extends BaseSession implements IVenueSession,
         if (venueInfo != null) {
             try {
                 venueContainer = venueInfo.createChatRoomContainer();
+
+                IChatRoomParticipantListener pListener = new IChatRoomParticipantListener() {
+                    @Override
+                    public void handleArrived(IUser participant) {
+                        // IVenueParticipant p = new VenueParticipant(
+                        // participant.getName(),
+                        // participant.getNickname());
+                        //
+                        // System.out.println("Arrived");
+                        // IVenueParticipantEvent event = new
+                        // VenueParticipantEvent(
+                        // p, ParticipantEventType.ARRIVED);
+                        //
+                        // getEventPublisher().post(event);
+                    }
+
+                    @Override
+                    public void handleUpdated(IUser participant) {
+                        // IVenueParticipant p = new VenueParticipant(
+                        // participant.getName(),
+                        // participant.getNickname());
+                        //
+                        // System.out.println("Updated");
+                        // IVenueParticipantEvent event = new
+                        // VenueParticipantEvent(
+                        // p, ParticipantEventType.UPDATED);
+                        // getEventPublisher().post(event);
+                    }
+
+                    @Override
+                    public void handleDeparted(IUser participant) {
+                        // IVenueParticipant p = new VenueParticipant(
+                        // participant.getName(),
+                        // participant.getNickname());
+                        //
+                        // System.out.println("Departed");
+                        // IVenueParticipantEvent event = new
+                        // VenueParticipantEvent(
+                        // p, ParticipantEventType.DEPARTED);
+                        // getEventPublisher().post(event);
+                    }
+
+                    @Override
+                    public void handlePresenceUpdated(ID fromID,
+                            org.eclipse.ecf.presence.IPresence presence) {
+
+                        IVenueParticipant vp = new VenueParticipant();
+                        String fullName = fromID.getName();
+                        vp.setName(Tools.parseName(fullName));
+                        vp.setHost(Tools.parseHost(fullName));
+                        vp.setResource(Tools.parseResource(fullName));
+                        IPresence p = Presence.convertPresence(presence);
+                        IVenueParticipantEvent event = null;
+                        if (IPresence.Type.AVAILABLE.equals(p.getType())) {
+                            event = new VenueParticipantEvent(vp, p,
+                                    ParticipantEventType.ARRIVED);
+                            getEventPublisher().post(event);
+                        } else if (IPresence.Type.UNAVAILABLE.equals(p
+                                .getType())) {
+                            event = new VenueParticipantEvent(vp, p,
+                                    ParticipantEventType.DEPARTED);
+                            getEventPublisher().post(event);
+                        }
+                        event = new VenueParticipantEvent(vp, p,
+                                ParticipantEventType.PRESENCE_UPDATED);
+                        getEventPublisher().post(event);
+                    }
+                };
+                venueContainer.addChatRoomParticipantListener(pListener);
+
                 venueContainer.connect(venueInfo.getRoomID(), null);
                 if (venueContainer.getConnectedID() != null) {
 
@@ -418,58 +509,6 @@ public class VenueSession extends BaseSession implements IVenueSession,
                     };
                     venueContainer.addMessageListener(intListener);
 
-                    IChatRoomParticipantListener pListener = new IChatRoomParticipantListener() {
-                        @Override
-                        public void handleArrived(IUser participant) {
-                            IVenueParticipant p = new VenueParticipant(
-                                    participant.getName(),
-                                    participant.getNickname());
-
-                            IVenueParticipantEvent event = new VenueParticipantEvent(
-                                    p, ParticipantEventType.ARRIVED);
-
-                            getEventPublisher().post(event);
-                        }
-
-                        @Override
-                        public void handleUpdated(IUser participant) {
-                            IVenueParticipant p = new VenueParticipant(
-                                    participant.getName(),
-                                    participant.getNickname());
-
-                            IVenueParticipantEvent event = new VenueParticipantEvent(
-                                    p, ParticipantEventType.UPDATED);
-                            getEventPublisher().post(event);
-                        }
-
-                        @Override
-                        public void handleDeparted(IUser participant) {
-                            IVenueParticipant p = new VenueParticipant(
-                                    participant.getName(),
-                                    participant.getNickname());
-
-                            IVenueParticipantEvent event = new VenueParticipantEvent(
-                                    p, ParticipantEventType.DEPARTED);
-                            getEventPublisher().post(event);
-                        }
-
-                        @Override
-                        public void handlePresenceUpdated(ID fromID,
-                                org.eclipse.ecf.presence.IPresence presence) {
-
-                            fromID.getName();
-                            IVenueParticipant vp = new VenueParticipant();
-                            vp.setName(fromID.getName());
-
-                            IPresence p = Presence.convertPresence(presence);
-
-                            IVenueParticipantEvent event = new VenueParticipantEvent(
-                                    vp, p,
-                                    ParticipantEventType.PRESENCE_UPDATED);
-                            getEventPublisher().post(event);
-                        }
-                    };
-                    venueContainer.addChatRoomParticipantListener(pListener);
                 }
             } catch (Exception e) {
                 errorStatus = -1;
@@ -631,7 +670,60 @@ public class VenueSession extends BaseSession implements IVenueSession,
         if (session != null) {
             String message = Tools.marshallData(initData);
             if (message != null) {
-                session.sendPeerToPeer(participant.getName(), message);
+                session.sendPeerToPeer(participant.getFQName(), message);
+            }
+        }
+    }
+
+    /**
+     * Subscribe to peer to peer data events.
+     * 
+     * @param An
+     *            object that subscribes to peer to peer events.
+     */
+    @Override
+    public void subscribeToInitData(Object subscriber)
+            throws CollaborationException {
+        if (!initSubscribers.containsKey(subscriber)) {
+            initSubscribers.put(subscriber, subscriber);
+        }
+        PeerToPeerChat session = getP2PSession();
+        session.getEventPublisher().register(subscriber);
+    }
+
+    /**
+     * UnSubscribe to peer to peer data events.
+     * 
+     * @param An
+     *            object that will be unsubscribed for peer to peer events.
+     */
+    @Override
+    public void unSubscribeToInitData(Object subscriber)
+            throws CollaborationException {
+        if (initSubscribers.containsKey(subscriber)) {
+            initSubscribers.remove(subscriber);
+            PeerToPeerChat session = getP2PSession();
+            session.getEventPublisher().unregister(subscriber);
+        }
+    }
+
+    /**
+     * 
+     * @param participant
+     * @param event
+     * @throws CollaborationException
+     */
+    @Override
+    public void sendEvent(
+            com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID participant,
+            IDisplayEvent event) throws CollaborationException {
+
+        PeerToPeerChat session = null;
+        session = getP2PSession();
+        if (session != null) {
+            String message = Tools.marshallData(event);
+            if (message != null) {
+                session.sendPeerToPeer(participant.getFQName(), message);
             }
         }
     }

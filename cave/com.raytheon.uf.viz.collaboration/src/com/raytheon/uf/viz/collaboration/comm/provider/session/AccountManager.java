@@ -105,6 +105,7 @@ public class AccountManager implements IAccountManager {
      */
     AccountManager(IPresenceContainerAdapter adapter) {
         presenceAdapter = adapter;
+        presenceAdapter.getRosterManager().addRosterSubscriptionListener(autoResponder);
     }
     
     /**
@@ -122,6 +123,8 @@ public class AccountManager implements IAccountManager {
     }
 
     /**
+     * 
+     * 
      * @see com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager#getAutoSubscriptionMode()
      */
     @Override
@@ -148,6 +151,8 @@ public class AccountManager implements IAccountManager {
 
     /**
      * 
+     * @param password The new password. For security the password is a character array that will
+     * be zero'd after use. 
      * @see com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager#changePassword(char[])
      */
     @Override
@@ -181,8 +186,8 @@ public class AccountManager implements IAccountManager {
     }
 
     /**
-     * 
-     * 
+     * Determines if the server allows new accounts to be created by the user.
+     * @throws CollaborationException 
      * @see com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager#canCreateAccount()
      */
     @Override
@@ -193,7 +198,7 @@ public class AccountManager implements IAccountManager {
             try {
                 canCreate = manager.isAccountCreationSupported();
             } catch (ECFException e) {
-                throw new CollaborationException("Could not delete account");
+                throw new CollaborationException("Error attempting to determine if accounts may be created.");
             }
         }
         return canCreate;
