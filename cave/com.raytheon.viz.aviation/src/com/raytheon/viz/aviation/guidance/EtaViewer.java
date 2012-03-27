@@ -97,6 +97,11 @@ public class EtaViewer extends ViewerTab implements
      */
     private List<String> stationList;
 
+    /**
+     * The results from the last completed request. Should contain the raw
+     * header and data information used for highlighting. Keep around for faster
+     * updates when highlighting options state changes.
+     */
     private String[] currentGuidance;
 
     /**
@@ -265,6 +270,12 @@ public class EtaViewer extends ViewerTab implements
         }
     }
 
+    /**
+     * Request desired data for display on the tab. A check is performed and if
+     * all data is cached a request is queued to immediately update the tab.
+     * Otherwise request is made to cache missing data and update the display
+     * once it arrives.
+     */
     @Override
     public int generateGuidance(String siteID) {
         int cnt = super.generateGuidance(siteID);
@@ -306,8 +317,6 @@ public class EtaViewer extends ViewerTab implements
         } else {
             req.setSiteObjs(siteObjs);
             req.setRoutine(routineChk.getSelection());
-            // textComp.getHeaderStTxt().setText("");
-            // textComp.getDataStTxt().setText("");
             PythonGuidanceJob.getInstance().enqueue(req);
         }
         return cnt;
@@ -333,10 +342,23 @@ public class EtaViewer extends ViewerTab implements
         this.stationList = stationList;
     }
 
+    /**
+     * Get a tag for current time, site, and the tab's model.
+     * 
+     * @param siteID
+     * @return tag
+     */
     private String getTag(String siteID) {
         return MosCacheGuidanceRequest.getTag(siteID, this.model);
     }
 
+    /**
+     * This creates a cache request.
+     * 
+     * @param siteID
+     * @param format
+     * @return req
+     */
     private CacheGuidanceRequest createCacheRequest(String siteID, String format) {
         MosCacheGuidanceRequest req = new MosCacheGuidanceRequest();
         req.setTag(getTag(siteID));
@@ -347,6 +369,9 @@ public class EtaViewer extends ViewerTab implements
         return req;
     }
 
+    /**
+     * Queue a cache request for the list of sites.
+     */
     @Override
     public void generateCache(List<String> siteIDs) {
         for (String siteID : siteIDs) {

@@ -110,6 +110,7 @@ import com.raytheon.viz.ui.statusline.StatusStore;
  * ------------ ---------- ----------- --------------------------
  * 	Jun 5, 2008				Eric Babin Initial Creation
  *  Sep 27,2010 5813        gzhou       get etn from param pattern hazXXXnnn
+ *  Feb 28,2012 14436		mli		   Add RP.S - Rip Current
  * 
  * </pre>
  * 
@@ -1309,7 +1310,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
             hazardMap.put("Fire Weather", Arrays.asList("FW.A", "FW.W"));
             hazardMap.put("Convective Watches", Arrays.asList("SV.A", "TO.A"));
             hazardMap.put("Coastal Flood", Arrays.asList("CF.S", "LS.S",
-                    "CF.Y", "CF.W", "CF.A", "SU.Y", "SU.W", "LS.Y", "LS.W",
+                    "CF.Y", "CF.W", "CF.A", "SU.Y", "SU.W", "RP.S", "LS.Y", "LS.W",
                     "LS.A"));
             hazardMap.put("Non-Precipitation", Arrays.asList("AF.W", "AF.Y",
                     "AS.Y", "DU.Y", "DS.W", "EH.W", "EH.A", "EC.W", "EC.A",
