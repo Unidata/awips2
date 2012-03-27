@@ -62,7 +62,7 @@ class ProfilerRequest(PointDataQuery.PointDataQuery):
         self._pdq.setParameters(ProfilerDataTransform.MAN_PARAMS_LIST)        
         self.queryResults = self._pdq.execute()
         if self.queryResults is None:
-            self.makeNullResponse()
+            return self.makeNullResponse()
         else:
             records = ProfilerDataTransform.toProfilerRecords(self.queryResults)
             size = len(records)

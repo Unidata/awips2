@@ -26,7 +26,6 @@ import java.util.Map.Entry;
 
 import com.raytheon.edex.uengine.tasks.query.CatalogQuery;
 import com.raytheon.edex.uengine.tasks.query.MetadataCatalogQuery;
-import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.derivparam.tree.DataTree;
 import com.raytheon.uf.common.pointdata.GetPointDataTreeRequest;
@@ -52,16 +51,14 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 public class GetPointDataTreeHandler implements
         IRequestHandler<GetPointDataTreeRequest> {
 
-    public static final Level STATION = LevelFactory.getInstance().getLevel(
-            LevelFactory.UNKNOWN_LEVEL, 0.0);
-
     public static final String PLUGIN_NAME = "pluginName";
 
     @Override
     public DataTree handleRequest(GetPointDataTreeRequest request)
             throws Exception {
         DataTree tree = new DataTree();
-        String stationId = Long.toString(STATION.getId());
+        String stationId = Long.toString(LevelFactory.getInstance()
+                .getLevel(LevelFactory.UNKNOWN_LEVEL, 0.0).getId());
         for (Entry<String, String> entry : request.getPluginTypeKeyMap()
                 .entrySet()) {
             String[] types = getAvailableTypes(entry.getKey(), entry.getValue());

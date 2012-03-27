@@ -27,6 +27,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.handlers.RadioState;
 
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
+import com.raytheon.viz.ui.EditorUtil;
 
 /**
  * Sets the font size on the display managers for an editor. Updates radio state
@@ -55,8 +56,9 @@ public class FontAction extends AbstractHandler {
         String newVal = event.getParameter(RadioState.PARAMETER_ID);
         HandlerUtil.updateRadioState(event.getCommand(), newVal);
 
-        IEditorPart part = HandlerUtil.getActiveEditor(event);
-        if (part instanceof IDisplayPaneContainer) {
+        IEditorPart part = (IEditorPart) EditorUtil
+                .getActiveEditorAs(IDisplayPaneContainer.class);
+        if (part != null) {
             ((IDisplayPaneContainer) part).refresh();
         }
         return null;

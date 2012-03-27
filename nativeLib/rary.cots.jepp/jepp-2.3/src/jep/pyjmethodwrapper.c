@@ -94,6 +94,7 @@ static PyObject* pyjmethodwrapper_call(PyJmethodWrapper_Object *self,
                                 PyObject *args,
                                 PyObject *keywords) {
     PyObject *ret;
+	PyJobject_Object* obj;
     
     if(!PyTuple_Check(args)) {
         PyErr_Format(PyExc_RuntimeError, "args is not a valid tuple");
@@ -105,7 +106,7 @@ static PyObject* pyjmethodwrapper_call(PyJmethodWrapper_Object *self,
         return NULL;
     }
 
-    PyJobject_Object* obj = self->object;
+    obj = self->object;
     ret = pyjobject_find_method(obj, self->method->pyMethodName, args);
     Py_XDECREF(obj);
     Py_DECREF(self);

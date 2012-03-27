@@ -106,12 +106,11 @@ public abstract class AbstractGLMesh implements IMesh {
         }
 
         if (!compiled) {
-            vertexCoords.setTarget(glTarget);
-            vertexCoords.compile();
+            vertexCoords.compile(glTarget.getGl());
             compiled = true;
         }
 
-        GLGeometryPainter.paintGeometries(glTarget, vertexCoords,
+        GLGeometryPainter.paintGeometries(glTarget.getGl(), vertexCoords,
                 sharedTextureCoords.getTextureCoords());
     }
 

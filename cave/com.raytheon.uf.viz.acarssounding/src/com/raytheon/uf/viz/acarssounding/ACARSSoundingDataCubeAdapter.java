@@ -39,14 +39,19 @@ import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
 import com.raytheon.uf.common.datastorage.records.LongDataRecord;
 import com.raytheon.uf.common.datastorage.records.StringDataRecord;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.catalog.ScriptCreator;
 import com.raytheon.uf.viz.core.comm.Loader;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
-import com.raytheon.viz.pointdata.util.PointDataCubeAdapter;
 import com.raytheon.viz.pointdata.util.AbstractPointDataInventory;
+import com.raytheon.viz.pointdata.util.PointDataCubeAdapter;
 
 public class ACARSSoundingDataCubeAdapter extends PointDataCubeAdapter {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ACARSSoundingDataCubeAdapter.class);
 
     protected static final String REFTIME = AcarsSoundingInventory.REFTIME;
 
@@ -101,11 +106,16 @@ public class ACARSSoundingDataCubeAdapter extends PointDataCubeAdapter {
 
     @Override
     public void initInventory() {
-        derParLibrary = DerivedParameterGenerator.getDerParLibrary();
         if (inventory == null) {
             AbstractPointDataInventory pointInventory = new AcarsSoundingInventory();
-            pointInventory.initTree(derParLibrary);
-            this.inventory = pointInventory;
+            try {
+                pointInventory.initTree(DerivedParameterGenerator
+                        .getDerParLibrary());
+                this.inventory = pointInventory;
+            } catch (VizException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
         }
     }
 
