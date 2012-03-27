@@ -34,10 +34,13 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.SessionManager;
+import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginData;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginDialog;
+import com.raytheon.uf.viz.collaboration.ui.role.AbstractRoleEventController;
 import com.raytheon.uf.viz.core.VizApp;
 
 /**
@@ -85,6 +88,10 @@ public class CollaborationDataManager {
      */
     Map<String, IVenueSession> sessionsMap;
 
+    Map<String, AbstractRoleEventController> displaySessionsMap;
+
+    Map<String, CollaborationEditor> editorsMap;
+
     public static CollaborationDataManager getInstance() {
         if (instance == null) {
             instance = new CollaborationDataManager();
@@ -96,11 +103,11 @@ public class CollaborationDataManager {
      * Converts the venu's Id into a string that usable for a view's secondary
      * ID. This is the used as the key in the session Map.
      * 
-     * @param venuId
+     * @param venueId
      * @return sessionId
      */
-    public String venuIdToSessionId(String venuId) {
-        return venuId.replace(':', ';');
+    public String venueIdToSessionId(String venueId) {
+        return venueId.replace(':', ';');
     }
 
     /**
@@ -109,6 +116,7 @@ public class CollaborationDataManager {
     private CollaborationDataManager() {
         usersMap = new HashMap<String, DataUser>();
         sessionsMap = new HashMap<String, IVenueSession>();
+        // displaySessionsMap = new HashMap<String, ISharedDisplaySession>();
     }
 
     public String getLoginId() {
@@ -122,6 +130,24 @@ public class CollaborationDataManager {
             usersMap.put(id, user);
         }
         return usersMap.get(id);
+    }
+
+    public AbstractRoleEventController getDisplaySession(String sessonId) {
+        return displaySessionsMap.get(sessonId);
+    }
+
+    public void setDisplaySession(String sessionId,
+            AbstractRoleEventController controller) {
+        displaySessionsMap.put(sessionId, controller);
+    }
+
+    public void editorCreated(String venueId, CollaborationEditor editor) {
+        String sessionId = venueIdToSessionId(venueId);
+        editorsMap.put(sessionId, editor);
+    }
+
+    public CollaborationEditor getEditor(String sessionId) {
+        return editorsMap.get(sessionId);
     }
 
     /**
@@ -245,6 +271,11 @@ public class CollaborationDataManager {
         IVenueSession session = sessionsMap.get(sessionId);
         if (session != null) {
             sessionsMap.remove(sessionId);
+            AbstractRoleEventController controller = displaySessionsMap
+                    .remove(sessionId);
+            if (controller != null) {
+                controller.shutdown();
+            }
             session.close();
         }
     }
@@ -265,11 +296,14 @@ public class CollaborationDataManager {
         String sessionId = null;
         try {
             session = manager.createCollaborationVenue(venue, subject);
-            sessionId = venuIdToSessionId(session.getVenue().getInfo()
+            sessionId = venueIdToSessionId(session.getVenue().getInfo()
                     .getVenueID());
             // TODO throw an exception if unable to make connection?
             if (session.isConnected()) {
+                ISharedDisplaySession displaySession = session
+                        .spawnSharedDisplaySession();
                 sessionsMap.put(sessionId, session);
+                // TODO set displaySession's data provider and session leader.
             }
         } catch (CollaborationException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
@@ -291,7 +325,10 @@ public class CollaborationDataManager {
             IVenueSession session = null;
             try {
                 session = getSessionManager().joinCollaborationVenue(venueName);
+                ISharedDisplaySession displaySession = session
+                        .spawnSharedDisplaySession();
                 sessionsMap.put(sessionId, session);
+                // displaySessionsMap.put(sessionId, displaySession);
             } catch (CollaborationException e) {
                 // TODO Auto-generated catch block. Please revise as
                 // appropriate.
