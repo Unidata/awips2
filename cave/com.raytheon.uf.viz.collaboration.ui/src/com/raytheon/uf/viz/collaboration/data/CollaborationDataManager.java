@@ -41,6 +41,8 @@ import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginData;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginDialog;
 import com.raytheon.uf.viz.collaboration.ui.role.AbstractRoleEventController;
+import com.raytheon.uf.viz.collaboration.ui.role.DataProviderEventController;
+import com.raytheon.uf.viz.collaboration.ui.role.ParticipantEventController;
 import com.raytheon.uf.viz.core.VizApp;
 
 /**
@@ -88,9 +90,9 @@ public class CollaborationDataManager {
      */
     Map<String, IVenueSession> sessionsMap;
 
-    Map<String, AbstractRoleEventController> displaySessionsMap;
+    Map<String, AbstractRoleEventController> displaySessionsMap = new HashMap<String, AbstractRoleEventController>();
 
-    Map<String, CollaborationEditor> editorsMap;
+    Map<String, CollaborationEditor> editorsMap = new HashMap<String, CollaborationEditor>();
 
     public static CollaborationDataManager getInstance() {
         if (instance == null) {
@@ -303,6 +305,10 @@ public class CollaborationDataManager {
                 ISharedDisplaySession displaySession = session
                         .spawnSharedDisplaySession();
                 sessionsMap.put(sessionId, session);
+                DataProviderEventController dpec = new DataProviderEventController(
+                        displaySession);
+                dpec.startup();
+                displaySessionsMap.put(sessionId, dpec);
                 // TODO set displaySession's data provider and session leader.
             }
         } catch (CollaborationException e) {
@@ -328,6 +334,10 @@ public class CollaborationDataManager {
                 ISharedDisplaySession displaySession = session
                         .spawnSharedDisplaySession();
                 sessionsMap.put(sessionId, session);
+                ParticipantEventController pec = new ParticipantEventController(
+                        displaySession);
+                pec.startup();
+                displaySessionsMap.put(sessionId, pec);
                 // displaySessionsMap.put(sessionId, displaySession);
             } catch (CollaborationException e) {
                 // TODO Auto-generated catch block. Please revise as
