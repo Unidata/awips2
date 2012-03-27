@@ -88,6 +88,8 @@ import com.vividsolutions.jts.geom.Point;
  *    Date         Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
  *    Nov 1, 2007             chammack    Initial Creation.
+ *    Mar 01, 2012 DR13596    Qinglu Lin  Call GisUtil.restoreAlaskaLon() 
+ *                                        in getClosestPoints().
  * 
  * </pre>
  * 
@@ -742,6 +744,7 @@ public class Wx {
         }
 
         Coordinate c = searchArea.getCentroid().getCoordinate();
+        c = GisUtil.restoreAlaskaLon(c);
         CoordinateReferenceSystem crs = MapUtil.constructStereographic(
                 MapUtil.AWIPS_EARTH_RADIUS, MapUtil.AWIPS_EARTH_RADIUS, c.y,
                 c.x);
@@ -796,6 +799,7 @@ public class Wx {
                         gc.setStartingGeographicPoint(cp.point.x, cp.point.y);
                         Coordinate cen = distanceGeom.getCentroid()
                                 .getCoordinate();
+                        cen = GisUtil.restoreAlaskaLon(cen);
                         gc.setDestinationGeographicPoint(cen.x, cen.y);
                         cp.azimuth = gc.getAzimuth();
                         cp.oppositeAzimuth = ClosestPoint

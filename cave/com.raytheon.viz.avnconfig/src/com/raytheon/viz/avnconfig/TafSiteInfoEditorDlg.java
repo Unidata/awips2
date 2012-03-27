@@ -309,7 +309,14 @@ public class TafSiteInfoEditorDlg extends Dialog {
         createBottomMessageControls();
     }
 
+    /**
+     * Converts an array into a comma separated string
+     * 
+     * @param array
+     * @return string
+     */
     private String arrayToString(String[] array) {
+        // TODO convert to use StringBuilder.
         String s = "";
 
         for (int i = 0; i < array.length; i++) {
@@ -1577,6 +1584,10 @@ public class TafSiteInfoEditorDlg extends Dialog {
         return elevationTF.getText().matches("^-?[0-9]+$");
     }
 
+    /**
+     * Obtain the site information for the site user entered in site ID text
+     * field and when valid populate the fields with the information.
+     */
     private void loadSite() {
         boolean loadFailed = false;
         String loadFailedMsg = null;

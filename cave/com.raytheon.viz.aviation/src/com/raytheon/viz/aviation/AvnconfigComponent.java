@@ -25,7 +25,7 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
 
 /**
- * TODO Add Description
+ * This class is a run configuration component to launch the AvnFPS monitor.
  * 
  * <pre>
  * 
