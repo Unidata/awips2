@@ -69,6 +69,7 @@ import com.raytheon.uf.viz.monitor.Activator;
  * Jun 24, 2010 5885/5886     zhao         added initZoneStationLists(),
  *                                           and revised accordingly
  * Apr 29, 2011 DR#8986       zhao         Read in "Counties" instead of "Forecast Zones"
+ * Feb 22, 2012 14413         zhao         modified to reduce calls to database 
  * 
  * </pre>
  * 
@@ -250,8 +251,6 @@ public abstract class MonitoringAreaConfigDlg extends Dialog implements INewZone
 
 	private MonitorConfigurationManager configMgr = null;
 
-	private AdjacentWfoMgr adjMgr = null;
-
 	private Mode mode = Mode.Zone;
 
 	protected ArrayList<String> addedZones = new ArrayList<String>();
@@ -316,40 +315,7 @@ public abstract class MonitoringAreaConfigDlg extends Dialog implements INewZone
 		/**
 		 * (3) set additional zones in the neighborhood of the monitor area
 		 */
-		additionalZones = adjMgr.getAdjZones();
-
-		// if a zone is already in maZones, remove it from additionalZones
-		for (int i = 0; i < additionalZones.size(); i++) {
-			if (maZones.contains(additionalZones.get(i))) {
-				additionalZones.remove(i);
-				i--;
-			}
-		}
-
-		// if a zone (county) is in default monitor area zones but is not
-		// in maZones, it must be added to additional zones
-		try {
-			ArrayList<String> defaultRegularZones = null; 
-			if ( SiteMap.getInstance().getSite4LetterId(currentSite).charAt(0) == 'K' ) { // CONUS site
-				defaultRegularZones = MonitorAreaUtils.getUniqueCounties(currentSite);
-			} else {
-				defaultRegularZones = MonitorAreaUtils.getForecastZones(currentSite);
-			}
-			ArrayList<String> defaultMarineZones = MonitorAreaUtils
-					.getMarineZones(currentSite);
-			for (String zone : defaultRegularZones) {
-				if (!maZones.contains(zone)) {
-					additionalZones.add(zone);
-				}
-			}
-			for (String zone : defaultMarineZones) {
-				if (!maZones.contains(zone)) {
-					additionalZones.add(zone);
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		additionalZones = configMgr.getAdjacentAreaList(); //adjMgr.getAdjZones();
 
 		Collections.sort(additionalZones);
 
@@ -359,10 +325,8 @@ public abstract class MonitoringAreaConfigDlg extends Dialog implements INewZone
 		additionalStns = new ArrayList<String>();
 		try {
 			for (String zone : additionalZones) {
-				ArrayList<StationIdXML> stnXmls = MonitorAreaUtils
-						.getZoneReportingStationXMLs(zone);
-				for (StationIdXML stnXml : stnXmls) {
-					String stn = stnXml.getName() + "#" + stnXml.getType();
+				ArrayList<String> stns = configMgr.getAdjacentAreaStationsWithType(zone);
+				for (String stn : stns) {
 					if (!additionalStns.contains(stn)) {
 						additionalStns.add(stn);
 					}
@@ -370,14 +334,6 @@ public abstract class MonitoringAreaConfigDlg extends Dialog implements INewZone
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-
-		// if a station is in maStations,
-		// remove it from additionalStations
-		for (String station : maStations) {
-			if (additionalStns.contains(station)) {
-				additionalStns.remove(station);
-			}
 		}
 
 		Collections.sort(additionalStns);
@@ -415,7 +371,6 @@ public abstract class MonitoringAreaConfigDlg extends Dialog implements INewZone
 
 		// set configuration and adjacent managers
 		configMgr = getConfigManager();
-		adjMgr = new AdjacentWfoMgr(currentSite);
 
 		// initialize zone/station lists
 		initZoneStationLists();

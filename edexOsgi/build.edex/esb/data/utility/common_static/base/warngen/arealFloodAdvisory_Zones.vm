@@ -4,6 +4,7 @@
 ## Created by Mike Dangelo 9-21-2011 at Alaska TIM ##
 ##            Mary-Beth Schreck, Ed Plumb, Aaron Jacobs 9-22-2011 at Alaska TIM
 ##            Mike Dangelo 01-26-2012 at CRH TIM
+##            Phil Kurimski 2-29-2012
 ##
 #if(${action} == "EXT")
 	#set($starttime = "000000T0000Z")
@@ -193,6 +194,18 @@ THIS IS A TEST MESSAGE. ##
 #if(${list.contains($bullets, "lawEnforcement")} && ${list.contains($bullets, "plainRain")})
   #set ($report = "LOCAL LAW ENFORCEMENT REPORTED ${cause} IN !** LOCATION **! THAT WILL CAUSE ${advTypeShort}${typeofevent}")   
 #end
+#if(${list.contains($bullets, "emergencyManagement")})
+  #set ($report = "EMERGENCY MANAGEMENT REPORTED ${cause} CAUSING ${advTypeShort} IN !** LOCATION **!${typeofevent}")   
+#end
+#if(${list.contains($bullets, "emergencyManagement")} && ${list.contains($bullets, "thunder")})
+  #set ($report = "EMERGENCY MANAGEMENT REPORTED ${cause} IN !** LOCATION **! DUE TO A THUNDERSTORM IN THAT WILL CAUSE ${advTypeShort}${typeofevent}")   
+#end
+#if(${list.contains($bullets, "emergencyManagement")} && ${list.contains($bullets, "actual")})
+  #set ($report = "EMERGENCY MANAGEMENT REPORTED ${cause} CAUSING ${advTypeShort} IN !** LOCATION **!${typeofevent}")   
+#end
+#if(${list.contains($bullets, "emergencyManagement")} && ${list.contains($bullets, "plainRain")})
+  #set ($report = "EMERGENCY MANAGEMENT REPORTED ${cause} IN !** LOCATION **! THAT WILL CAUSE ${advTypeShort}${typeofevent}")   
+#end
 #if(${list.contains($bullets, "public")})
   #set ($report = "THE PUBLIC REPORTED ${cause} CAUSING ${advTypeShort} IN !** LOCATION **!${typeofevent}")   
 #end
@@ -209,10 +222,16 @@ THIS IS A TEST MESSAGE. ##
   #set ($report = "A TRAINED SPOTTER REPORTED MINOR FLOODING IN !** LOCATION **! DUE TO RISING GROUND WATER LEVELS")   
 #end
 #if(${list.contains($bullets, "lawEnforcement")} && ${list.contains($bullets, "glacierOutburst")})
-  #set ($report = "LAW ENFORCEMENT REPORTED MINOR FLOODING IN !** LOCATION **! DUE TO A GLACIER-DAMMED LAKE OUTBURST FLOOD")   
+  #set ($report = "LOCAL LAW ENFORCEMENT REPORTED MINOR FLOODING IN !** LOCATION **! DUE TO A GLACIER-DAMMED LAKE OUTBURST FLOOD")   
 #end
 #if(${list.contains($bullets, "lawEnforcement")} && ${list.contains($bullets, "groundWater")})
-  #set ($report = "LAW ENFORCEMENT REPORTED MINOR FLOODING IN !** LOCATION **! DUE TO RISING GROUND WATER LEVELS")   
+  #set ($report = "LOCAL LAW ENFORCEMENT REPORTED MINOR FLOODING IN !** LOCATION **! DUE TO RISING GROUND WATER LEVELS")   
+#end
+#if(${list.contains($bullets, "emergencyManagement")} && ${list.contains($bullets, "glacierOutburst")})
+  #set ($report = "EMERGENCY MANAGEMENT REPORTED MINOR FLOODING IN !** LOCATION **! DUE TO A GLACIER-DAMMED LAKE OUTBURST FLOOD")   
+#end
+#if(${list.contains($bullets, "emergencyManagement")} && ${list.contains($bullets, "groundWater")})
+  #set ($report = "EMERGENCY MANAGEMENT REPORTED MINOR FLOODING IN !** LOCATION **! DUE TO RISING GROUND WATER LEVELS")   
 #end
 #if(${list.contains($bullets, "public")} && ${list.contains($bullets, "thunder")})
   #set ($report = "THE PUBLIC REPORTED ${advTypeShort} IN !** LOCATION **! DUE TO A THUNDERSTORM THAT WILL CAUSE ${advTypeShort}")   
@@ -272,6 +291,7 @@ ADDITIONAL RAINFALL OF !** Edit Amount **! INCHES IS EXPECTED OVER THE AREA.  TH
 
 MINOR FLOODING IS OCCURRING NEAR !** Enter Location **!. 
 #end
+
 #if(${list.contains($bullets, "drainages")})
 #drainages(${riverdrainages})
 
@@ -291,10 +311,6 @@ MINOR FLOODING IS OCCURRING NEAR !** Enter Location **!.
 ##
 #if(${ctaSelected} == "YES") 
 PRECAUTIONARY/PREPAREDNESS ACTIONS...
-
-#end
-#if(${list.contains($bullets, "advisoryMeansCTA")})
-A FLOOD ADVISORY MEANS RIVER OR STREAM FLOWS ARE ELEVATED OR PONDING OF WATER IN URBAN OR OTHER AREAS IS OCCURRING OR IS IMMINENT.
 
 #end
 #if(${list.contains($bullets, "dontdrownCTA")})
@@ -323,6 +339,10 @@ DO NOT UNDERESTIMATE THE POWER OF FLOOD WATERS. ONLY A FEW INCHES OF RAPIDLY FLO
 #end
 #if(${list.contains($bullets, "reportFloodingCTA")})
 TO REPORT FLOODING...HAVE THE NEAREST LAW ENFORCEMENT AGENCY RELAY YOUR REPORT TO THE NATIONAL WEATHER SERVICE FORECAST OFFICE.
+
+#end
+#if(${list.contains($bullets, "advisoryMeansCTA")})
+A FLOOD ADVISORY MEANS RIVER OR STREAM FLOWS ARE ELEVATED...OR PONDING OF WATER IN URBAN OR OTHER AREAS IS OCCURRING OR IS IMMINENT. DO NOT ATTEMPT TO TRAVEL ACROSS FLOODED ROADS. FIND ALTERNATE ROUTES. IT TAKES ONLY A FEW INCHES OF SWIFTLY FLOWING WATER TO CARRY VEHICLES AWAY.
 
 #end
 #if(${ctaSelected} == "YES") 

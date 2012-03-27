@@ -69,12 +69,10 @@ public class ImportRequestableData extends AliasRequestableData {
     }
 
     public Object getDataValue(Object arg) throws VizException {
-        if (!(arg instanceof Request)) {
-            throw new VizException(this.getClass().getSimpleName()
-                    + " cannot process request of type: "
-                    + arg.getClass().getSimpleName());
+        Request req = Request.ALL;
+        if (arg instanceof Request) {
+            req = (Request) arg;
         }
-        Request req = (Request) arg;
         Object rval = getDataAndConvert(sourceRecord, Request.ALL);
 
         if (sourceRecord2 != null) {
@@ -167,13 +165,16 @@ public class ImportRequestableData extends AliasRequestableData {
         }
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.derivparam.data.AliasRequestableData#getDependencies()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.derivparam.data.AliasRequestableData#getDependencies
+     * ()
      */
     @Override
     public List<AbstractRequestableData> getDependencies() {
         return Arrays.asList(sourceRecord, sourceRecord2);
     }
-    
-    
+
 }

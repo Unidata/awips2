@@ -9,8 +9,14 @@ import org.apache.commons.configuration.ConfigurationException;
  * implements the ITafSiteConfig interface. Intent is to allow changing between
  * classes without having to impact all the other classes that depend on
  * configuration class. This assumes implementing ITafSiteConfig contains the
- * static methods <code>getIntance</code> and <code>clearInstance</code>. if
+ * static methods <code>getInstance</code> and <code>clearInstance</code>. if
  * needed it is up to the implementing class to synchronize these methods.
+ * 
+ * <br>
+ * <br>
+ * This class is a bridge form using a single xml configuration file for
+ * all sites to using the AWIPS I style configuration files. This makes porting
+ * from AWIPS I easier for sites.
  * 
  * <pre>
  * 

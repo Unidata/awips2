@@ -51,6 +51,9 @@ public class MetarGuidanceRequest extends GuidanceRequest {
 
     protected ArrayList<String> siteObjs;
 
+    /**
+     * Place in the map arguments need for Metar request.
+     */
     @Override
     public Map<String, Object> getPythonArguments() {
         Map<String, Object> map = new HashMap<String, Object>();

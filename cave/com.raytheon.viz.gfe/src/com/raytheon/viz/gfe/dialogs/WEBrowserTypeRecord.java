@@ -21,6 +21,7 @@ package com.raytheon.viz.gfe.dialogs;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -31,6 +32,7 @@ import java.util.TimeZone;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.viz.core.mode.CAVEMode;
+import com.raytheon.viz.gfe.GFEServerException;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.IParmManager;
 
@@ -45,6 +47,7 @@ import com.raytheon.viz.gfe.core.IParmManager;
  * 06/10/2008              Eric Babin  Initial Creation
  * 04/30/2009   2282       rjpeter     Refactored interfaces.
  * 08/19/2009   2547       rjpeter     Implement Test/Prac database display.
+ * 02/22/2012	14351	   mli		   update with incoming databases
  * </pre>
  * 
  * @author ebabin
@@ -114,6 +117,14 @@ public class WEBrowserTypeRecord {
     public java.util.List<String> getSources() {
         return sources;
     }
+    
+    /**
+     * @return the sources
+     */
+    public java.util.List<String> getUpdatedSources() {
+    	makeSources();
+        return sources;
+    }
 
     /**
      * @return the fields
@@ -134,9 +145,18 @@ public class WEBrowserTypeRecord {
             pracFlag = mode.equals(CAVEMode.PRACTICE);
             testFlag = mode.equals(CAVEMode.TEST);
         }
-        List<DatabaseID> dbs = DataManager.getCurrentInstance()
-                .getParmManager().getAvailableDbs();
+//        List<DatabaseID> dbs = DataManager.getCurrentInstance()
+//                .getParmManager().getAvailableDbs();
 
+        // Always retrieve updated databases
+        List<DatabaseID> dbs = null; 
+        try {
+        	dbs = DataManager.getCurrentInstance().getClient().getAvailableDbs();
+        } catch (GFEServerException e) {
+        	// TODO Auto-generated catch block
+        	e.printStackTrace();
+        }
+        
         ArrayList<DatabaseID> filtDB = new ArrayList<DatabaseID>();
 
         for (DatabaseID db : dbs) {
@@ -417,6 +437,25 @@ public class WEBrowserTypeRecord {
         return possibleParms;
     }
 
+    /**
+     * Add ParmIDs for new database
+     */
+    public void addNewParmIDs(String newSource) {
+    	ArrayList<ParmID> parmIds = new ArrayList<ParmID>();
+    	possibleParms = getPossibleParmIDs();
+    	parmIds.addAll(Arrays.asList(possibleParms));
+    	
+    	ParmID ids[] = getFields(newSource);
+    	for ( int i = 0; i < ids.length; i++) {
+    		if (!parmIds.contains(ids[i])) {
+    			parmIds.add(ids[i]);
+    		}	
+    	}
+    	
+    	possibleParms = new ParmID[parmIds.size()];
+    	parmIds.toArray(possibleParms);
+    }
+    
     public ArrayList<ParmID> getFilteredParmIDs(String sources[],
             String fields[], String planes[]) {
         ArrayList<ParmID> listToReturn = new ArrayList<ParmID>();

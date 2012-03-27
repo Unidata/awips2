@@ -21,29 +21,38 @@ package com.raytheon.uf.edex.topo;
 
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.image.Raster;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Map;
-
-import javax.media.jai.Interpolation;
 
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridGeometry2D;
+import org.geotools.factory.Hints;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.GeneralEnvelope;
+import org.geotools.referencing.CRS;
+import org.geotools.referencing.ReferencingFactoryFinder;
+import org.geotools.referencing.operation.AbstractCoordinateOperationFactory;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
+import org.geotools.referencing.operation.transform.IdentityTransform;
 import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.Envelope;
 import org.opengis.metadata.spatial.PixelOrientation;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.crs.GeographicCRS;
+import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengis.referencing.datum.PixelInCell;
+import org.opengis.referencing.operation.CoordinateOperationFactory;
 import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.MathTransformFactory;
+import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
@@ -77,6 +86,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * 11/19/2007   #377       randerso    Initial creation
  * Jun 13, 2008     #1160   randerso    Moved to server side
+ * 03/09/2012   DR 14581   D. Friedman Fix grid referencing and use custom 
+ *                                     nearest-neighbor resampling.
  * 
  * </pre>
  * 
@@ -548,12 +559,12 @@ public class TopoQuery implements ITopoQuery {
             double[] crsCorners = new double[worldCorners.length];
             GeneralEnvelope env = new GeneralEnvelope(2);
             if (worldCorners[2] > worldGeomPM.getGridRange().getHigh(0) + 1) {
-                worldGeomDL.getGridToCRS().transform(worldCorners, 0,
+                worldGeomDL.getGridToCRS(PixelInCell.CELL_CORNER).transform(worldCorners, 0,
                         crsCorners, 0, worldCorners.length / 2);
                 env.setCoordinateReferenceSystem(worldGeomDL.getEnvelope()
                         .getCoordinateReferenceSystem());
             } else {
-                worldGeomPM.getGridToCRS().transform(worldCorners, 0,
+                worldGeomPM.getGridToCRS(PixelInCell.CELL_CORNER).transform(worldCorners, 0,
                         crsCorners, 0, worldCorners.length / 2);
                 env.setCoordinateReferenceSystem(worldGeomPM.getEnvelope()
                         .getCoordinateReferenceSystem());
@@ -711,16 +722,104 @@ public class TopoQuery implements ITopoQuery {
         GridCoverageFactory factory = new GridCoverageFactory();
         GridCoverage2D baseGC = factory.create("", topoValues, env);
 
-        GridCoverage2D gridCov = MapUtil.reprojectCoverage(baseGC,
-                targetGeom.getCoordinateReferenceSystem(), targetGeom,
-                Interpolation.getInstance(Interpolation.INTERP_BICUBIC));
+        return simpleResample(baseGC, topoValues, targetGeom);
+    }
+    
+    float[] simpleResample(GridCoverage2D sourceGC, float[][] sourceData, GridGeometry2D targetGG) {
+    	int sourceWidth = sourceGC.getGridGeometry().getGridRange2D().getSpan(0);
+    	int sourceHeight = sourceGC.getGridGeometry().getGridRange2D().getSpan(1);
+    	int targetWidth = targetGG.getGridRange2D().getSpan(0);
+    	int targetHeight = targetGG.getGridRange2D().getSpan(1);
+    	float[] output = new float[targetWidth * targetHeight];
+    	Arrays.fill(output, Float.NaN);
 
-        Raster data = gridCov.getRenderedImage().getData();
-        float[] f1 = null;
-        f1 = data.getPixels(data.getMinX(), data.getMinY(), data.getWidth(),
-                data.getHeight(), f1);
+    	ArrayList<MathTransform> transforms = new ArrayList<MathTransform>();
+    	ArrayList<MathTransform> toGeoXforms = new ArrayList<MathTransform>();
+    	ArrayList<MathTransform> sourceToGeoXforms = new ArrayList<MathTransform>();
 
-        return f1;
+    	MathTransform targetGtoCRS = targetGG.getGridToCRS(PixelInCell.CELL_CENTER);
+    	MathTransform sourceCRStoG = sourceGC.getGridGeometry().getCRSToGrid2D(PixelOrientation.CENTER);
+    	CoordinateReferenceSystem targetCRS = targetGG.getCoordinateReferenceSystem();
+    	CoordinateReferenceSystem sourceCRS = sourceGC.getCoordinateReferenceSystem();
+    	
+    	transforms.add(targetGtoCRS);
+    	if (! CRS.equalsIgnoreMetadata(sourceCRS, targetCRS)) {
+    		GeographicCRS sourceGeoCRS = null;
+    		GeographicCRS targetGeoCRS = null;
+    		if (sourceCRS instanceof ProjectedCRS) {
+    			sourceGeoCRS = ((ProjectedCRS) sourceCRS).getBaseCRS();
+    		}
+    		if (targetCRS instanceof ProjectedCRS) {
+    			targetGeoCRS = ((ProjectedCRS) targetCRS).getBaseCRS();
+    		}
+    		try {
+				transforms.add(CRS.findMathTransform(targetCRS, targetGeoCRS, true));
+				toGeoXforms.addAll(transforms);
+	    		if (CRS.equalsIgnoreMetadata(sourceGeoCRS, targetGeoCRS)) {
+	    			// nothing...
+	    		} else {
+	    			transforms.add(CRS.findMathTransform(targetGeoCRS, sourceGeoCRS));
+	    		}
+				transforms.add(CRS.findMathTransform(sourceGeoCRS, sourceCRS, true));
+				sourceToGeoXforms.add(0, CRS.findMathTransform(sourceCRS, sourceGeoCRS));
+    		} catch (FactoryException e) {
+    			statusHandler.error(e.getMessage(), e);
+    			return output;
+    		}
+    	}
+    	transforms.add(sourceCRStoG);
+    	sourceToGeoXforms.add(0, sourceGC.getGridGeometry().getGridToCRS(PixelInCell.CELL_CENTER));
+
+    	MathTransform mt;
+		try {
+			mt = concatenateTransforms(transforms);
+		} catch (FactoryException e) {
+			statusHandler.error(e.getMessage(), e);
+			return output;
+		}
+		
+    	double[] coord = new double[2];
+    	for (int y = 0; y < targetHeight; ++y) {
+    		for (int x = 0; x < targetWidth; ++x) {
+    			coord[0] = x;
+    			coord[1] = y;
+    	    	try {
+    	    		mt.transform(coord, 0, coord, 0, 1);
+    	    	} catch (TransformException e) {
+					continue;
+				}
+    	    	
+    	    	int sx = (int) Math.round(coord[0]);
+    	    	int sy = (int) Math.round(coord[1]);
+    	    	if (sx >= 0 && sx < sourceWidth && sy >= 0 && sy < sourceHeight)
+    	    		output[y * targetWidth + x] = sourceData[sy][sx]; 
+    		}
+    	}
+    	
+    	return output;
+    }
+    
+	private static MathTransform concatenateTransforms(ArrayList<MathTransform> transforms) throws FactoryException {
+    	Hints hints = new Hints();
+        final CoordinateOperationFactory factory =
+            ReferencingFactoryFinder.getCoordinateOperationFactory(hints);
+	    final MathTransformFactory mtFactory;
+	    if (factory instanceof AbstractCoordinateOperationFactory) {
+	        mtFactory = ((AbstractCoordinateOperationFactory) factory).getMathTransformFactory();
+	    } else {
+	        mtFactory = ReferencingFactoryFinder.getMathTransformFactory(hints);
+	    }
+	    
+    	MathTransform mt = null;
+    	for (MathTransform mti : transforms) {
+    		if (mt == null)
+    			mt = mti;
+    		else {
+				mt = mtFactory.createConcatenatedTransform(mt, mti);
+    		}
+    	}
+    	
+    	return mt != null ? mt : IdentityTransform.create(2);
     }
 
 }

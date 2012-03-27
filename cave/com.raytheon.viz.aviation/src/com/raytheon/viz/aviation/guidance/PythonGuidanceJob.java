@@ -73,16 +73,36 @@ public class PythonGuidanceJob extends AbstractQueueJob<GuidanceRequest> {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PythonGuidanceJob.class);
 
+    /**
+     * The single instance of this class.
+     */
     private static PythonGuidanceJob instance;
 
+    /**
+     * List of tabs to send alerts to in order to purge data cache.
+     */
     private static final List<ViewerTab> viewerList = new ArrayList<ViewerTab>();
 
+    /**
+     * instance of python to execute the python methods.
+     */
     private PythonScript python;
 
+    /**
+     * Object to synchronize on when changing the suspendJob state.
+     */
     private Object suspendMonitor;
 
+    /**
+     * flag to indicate job is suspended.
+     */
     private boolean suspendJob;
 
+    /**
+     * Private constructor to enforce singleton.
+     * 
+     * @param name
+     */
     private PythonGuidanceJob(String name) {
         super(name);
         suspendMonitor = new Object();
@@ -90,6 +110,9 @@ public class PythonGuidanceJob extends AbstractQueueJob<GuidanceRequest> {
         setupDispose();
     }
 
+    /**
+     * Flag to indicate job should go away.
+     */
     private boolean shutdown = false;
 
     /**
@@ -124,30 +147,49 @@ public class PythonGuidanceJob extends AbstractQueueJob<GuidanceRequest> {
         return instance;
     }
 
+    /**
+     * Shutdowns the running instance and cleans up any threads.
+     */
     private void shutdown() {
         shutdown = true;
         restart();
         instance = null;
     }
 
+    /**
+     * Add a tab that needs to be told about alerts.
+     * 
+     * @param viewerTab
+     */
     public final static synchronized void addViewerTab(ViewerTab viewerTab) {
         viewerList.add(viewerTab);
         PythonCacheGuidanceJob.getInstance().restart();
         PythonGuidanceJob.getInstance().restart();
     }
 
+    /**
+     * Tab is being disposed and no longer needs to receive alerts.
+     * 
+     * @param viewerTab
+     */
     public final static synchronized void removeViwerTab(ViewerTab viewerTab) {
         viewerList.remove(viewerTab);
         PythonCacheGuidanceJob.suspend();
         PythonGuidanceJob.suspend();
     }
 
+    /**
+     * Stop process of request and clear the queue.
+     */
     private final static void suspend() {
         if (instance != null) {
             instance.suspendJob = true;
         }
     }
 
+    /**
+     * Restart processing of request.
+     */
     private void restart() {
         synchronized (instance.suspendMonitor) {
             instance.suspendJob = false;
@@ -155,6 +197,9 @@ public class PythonGuidanceJob extends AbstractQueueJob<GuidanceRequest> {
         }
     }
 
+    /**
+     * Set up dispose listener to clean up when Cave goes away.
+     */
     private void setupDispose() {
 
         PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()
@@ -337,6 +382,12 @@ public class PythonGuidanceJob extends AbstractQueueJob<GuidanceRequest> {
         return Status.OK_STATUS;
     }
 
+    /**
+     * This method does not return until the list of cache requests are
+     * completed.
+     * 
+     * @param cacheRequests
+     */
     public void waitForCacheRequests(List<CacheGuidanceRequest> cacheRequests) {
         PythonCacheGuidanceJob.getInstance()
                 .waitForCacheRequests(cacheRequests);
