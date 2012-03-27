@@ -1,0 +1,115 @@
+###############################################################################
+## FIRE WARNING TEMPLATE                                                     ##
+## VERSION 1.1                                                               ##
+## CREATED BOOKBINDER/DANGELO - 2-07-12 - Initial OB12 Write                 ##
+###############################################################################
+${WMOId} ${vtecOffice} 000000 ${BBBId}
+FRW${siteId}
+${ugcline}
+
+BULLETIN - EAS ACTIVATION REQUESTED
+#if(${productClass}=="T")
+TEST...FIRE WARNING...TEST
+#else
+FIRE WARNING
+#end
+!** ENTER AUTHORIZING AGENCY HERE **!
+RELAYED BY NATIONAL WEATHER SERVICE ${officeShort}
+#backupText(${backupSite})
+${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
+## end of addition
+
+#if(${productClass}=="T")
+...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
+
+#end
+THE FOLLOWING MESSAGE IS BEING TRANSMITTED AT THE REQUEST OF !** ENTER AUTHORIZING AGENCY HERE **!.
+
+############################
+### FIRE WEATHER EMERGENCY #
+############################
+#if(${list.contains($bullets, "fireEmergency")})
+THIS IS A FIRE EMERGENCY FOR !** EDIT LOCATION(S) **!...TAKE IMMEDIATE SAFETY PRECAUTIONS NOW.
+
+#end
+#if(${list.contains($bullets, "generic")})
+
+!** TYPE FIRE DETAILS HERE **!.
+
+
+
+#end
+
+#if(${list.contains($bullets, "actual")})
+
+A FIRE WAS LOCATED !** DETAILS **! AND COULD AFFECT !** AREAS **!.
+
+
+
+#end
+
+#if(${list.contains($bullets, "racing")})
+
+A FIRE WAS RACING TOWARD !** LOCATIONS **! AND COULD REACH THERE BY !** TIME **!.
+
+
+
+#end
+
+## parse file command here is to pull in mile marker info
+##parse("mileMarkers.vm")
+
+#####################
+## CALL TO ACTIONS ##
+#####################
+###Check to see if we've selected any calls to action. In our .xml file
+##we ended each CTA bullet ID with "CTA" for this reason as a 'trip'
+#foreach ($bullet in $bullets)
+#if($bullet.endsWith("CTA"))
+#set ($ctaSelected = "YES")
+#end
+#end
+##
+#if(${ctaSelected} == "YES") 
+PRECAUTIONARY/PREPAREDNESS ACTIONS...
+
+#end
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
+
+#end
+##
+#if(${list.contains($bullets, "stayIndoorsCTA")})
+
+STAY INDOORS TO KEEP SAFE FROM THE SMOKE. KEEP WINDOWS AND DOORS SHUT AND TURN OFF ALL VENTILATION SYSTEMS. 
+
+
+
+#end
+
+#if(${list.contains($bullets, "followInstructionsCTA")})
+
+FOLLOW SAFETY INSTRUCTIONS FROM LOCAL LAW ENFORCEMENT OFFICIALS. 
+
+
+
+#end
+
+#if(${list.contains($bullets, "heedEvacuationsCTA")})
+
+HEED ANY EVACUATION ORDERS AND FOLLOW ALL SAFETY PRECAUTIONS.
+
+
+
+#end
+#if(${ctaSelected} == "YES") 
+&&
+#end
+
+#### REMOVE ONE # BELOW FOR LAT/LON OUTPUT
+##printcoords(${areaPoly}, ${list})
+
+$$
+
+
+!**NAME/INITIALS**!

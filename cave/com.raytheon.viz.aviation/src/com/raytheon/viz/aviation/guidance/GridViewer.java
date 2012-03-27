@@ -279,6 +279,12 @@ public class GridViewer extends ViewerTab implements
         }
     }
 
+    /**
+     * Request desired data for display on the tab. A check is performed and if
+     * all data is cached a request is queued to immediately update the tab.
+     * Otherwise request is made to cache missing data and update the display
+     * once it arrives.
+     */
     @Override
     public int generateGuidance(String siteID) {
         int cnt = super.generateGuidance(siteID);
@@ -320,8 +326,6 @@ public class GridViewer extends ViewerTab implements
         } else {
             req.setSiteObjs(siteObjs);
             req.setRoutine(routineChk.getSelection());
-            // textComp.getHeaderStTxt().setText("");
-            // textComp.getDataStTxt().setText("");
             PythonGuidanceJob.getInstance().enqueue(req);
         }
         return cnt;
@@ -347,6 +351,9 @@ public class GridViewer extends ViewerTab implements
         this.stationList = stationList;
     }
 
+    /**
+     * Queue a cache request for the list of sites.
+     */
     @Override
     public void generateCache(List<String> siteIDs) {
         for (String siteID : siteIDs) {
@@ -355,10 +362,22 @@ public class GridViewer extends ViewerTab implements
         }
     }
 
+    /**
+     * Get grid style tag for the site ID.
+     * 
+     * @param siteID
+     * @return tag
+     */
     private String getTag(String siteID) {
         return GridCacheGuidanceRequest.getTag(siteID);
     }
 
+    /**
+     * Create grid cache request.
+     * 
+     * @param siteID
+     * @return req
+     */
     private CacheGuidanceRequest createCacheRequest(String siteID) {
         GridCacheGuidanceRequest req = new GridCacheGuidanceRequest();
         req.setTag(getTag(siteID));

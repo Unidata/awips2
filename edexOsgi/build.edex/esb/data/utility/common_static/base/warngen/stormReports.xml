@@ -1,0 +1,35 @@
+ <!--
+ CREATED 2-29-2012 BY EVAN BOOKBINDER
+ How often do you get to write awesome software on a leap day?
+ 
+ Take LSR data imported by the LSR2WARNGEN local app via the 
+ importLSR2DB.sh script and create pointSource objects for
+ WarnGen usage
+ 
+
+  
+ <pointSource variable="lsr_severe">
+    <pointSource>lsr_severe</pointSource>
+ 	<pointField>NAME</pointField>
+ 	<searchMethod>POINTS</searchMethod>
+ 	<withinPolygon>false</withinPolygon>
+ 	<maxResults>5</maxResults>
+ 	<distanceThreshold>50</distanceThreshold>
+ 	<sortBy>
+ 		<sort>distance</sort>
+  	</sortBy>
+ </pointSource>
+ 
+ <pointSource variable="lsr_flood">
+    <pointSource>lsr_flood</pointSource>
+ 	<pointField>NAME</pointField>
+ 	<searchMethod>POINTS</searchMethod>
+ 	<withinPolygon>false</withinPolygon>
+ 	<maxResults>5</maxResults>
+ 	<distanceThreshold>50</distanceThreshold>
+ 	<sortBy>
+ 		<sort>distance</sort>
+  	</sortBy>
+ </pointSource>
+ 
+  -->
