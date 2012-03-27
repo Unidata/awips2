@@ -17,9 +17,11 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.comm.identity;
+package com.raytheon.uf.viz.collaboration.comm.provider.session;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
+import com.google.common.eventbus.Subscribe;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IInitData;
 
 /**
  * TODO Add Description
@@ -30,7 +32,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
  *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 21, 2012            jkorman     Initial creation
+ * Mar 27, 2012            jkorman     Initial creation
  *
  * </pre>
  *
@@ -38,20 +40,16 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
  * @version 1.0	
  */
 
-public interface IPeerToPeer extends ISession, IEventPublisher {
+public class DataHandler {
 
-    /**
-     * Send a Text message. Note that the recipient of the message is
-     * included as an attribute of the message.
-     * @param message
-     */
-    int sendPeerToPeer(IMessage message);
-
-    /**
-     * Send a Text message to a specific receiver.
-     * @param to The intended receiver.
-     * @param message The message to send.
-     */
-    int sendPeerToPeer(String to, String message);
+    @Subscribe
+    public void handle(IInitData initdata) {
+        System.out.println("Handling IInitData " + initdata);
+    }
+    
+    @Subscribe
+    public void handle(IDisplayEvent event) {
+        System.out.println("Handling IDisplayEvent " + event);
+    }
 
 }
