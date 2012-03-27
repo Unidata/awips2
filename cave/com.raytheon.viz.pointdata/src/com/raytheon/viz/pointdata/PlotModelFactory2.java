@@ -569,7 +569,7 @@ public class PlotModelFactory2 {
      * @return A buffered image representing the station data
      */
     public synchronized BufferedImage getStationPlot(PlotData stationData,
-            int id, double latitude, double longitude) {
+            double latitude, double longitude) {
         double[] stationLocation = { longitude, latitude };
         double[] stationPixelLocation = this.mapDescriptor
                 .worldToPixel(stationLocation);
@@ -701,7 +701,7 @@ public class PlotModelFactory2 {
         return null;
     }
 
-    public synchronized String getStationMessage(PlotData stationData, int id) {
+    public synchronized String getStationMessage(PlotData stationData, String dataURI) {
         PlotPythonScript script = null;
         StringBuilder sampleMessage = new StringBuilder();
         try {
