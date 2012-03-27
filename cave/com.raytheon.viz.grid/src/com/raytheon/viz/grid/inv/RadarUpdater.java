@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.grib.GribModel;
 import com.raytheon.uf.common.dataplugin.grib.GribRecord;
@@ -157,8 +158,14 @@ public class RadarUpdater implements IAlertObserver {
             }
             Double elevationAngle = (Double) obj;
             cache.remove(new CacheKey(productCode, elevationAngle));
-            Level level = LevelFactory.getInstance().getLevel(
-                    RadarAdapter.CUBE_MASTER_LEVEL_NAME, elevationAngle);
+            Level level = null;
+            try {
+                level = LevelFactory.getInstance().getLevel(
+                        RadarAdapter.CUBE_MASTER_LEVEL_NAME, elevationAngle);
+            } catch (CommunicationException e1) {
+                statusHandler.handle(Priority.PROBLEM,
+                        e1.getLocalizedMessage(), e1);
+            }
             GribRecord fakeRec = new GribRecord();
             fakeRec.setPluginName("grib");
             fakeRec.setDataTime(time);
