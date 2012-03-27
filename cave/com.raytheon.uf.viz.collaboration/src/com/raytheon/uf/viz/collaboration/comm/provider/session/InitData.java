@@ -17,41 +17,56 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.comm.identity;
+package com.raytheon.uf.viz.collaboration.comm.provider.session;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IInitData;
 
 /**
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 21, 2012            jkorman     Initial creation
- *
+ * Mar 27, 2012            jkorman     Initial creation
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
+@DynamicSerialize
+public class InitData implements IInitData {
 
-public interface IPeerToPeer extends ISession, IEventPublisher {
+    @DynamicSerializeElement
+    private String name;
+
+    public InitData() {
+
+    }
 
     /**
-     * Send a Text message. Note that the recipient of the message is
-     * included as an attribute of the message.
-     * @param message
+     * @return the name
      */
-    int sendPeerToPeer(IMessage message);
+    public String getName() {
+        return name;
+    }
 
     /**
-     * Send a Text message to a specific receiver.
-     * @param to The intended receiver.
-     * @param message The message to send.
+     * @param name
+     *            the name to set
      */
-    int sendPeerToPeer(String to, String message);
+    public void setName(String name) {
+        this.name = name;
+    }
 
+    @Override
+    public String toString() {
+        return name;
+    }
 }
