@@ -451,6 +451,22 @@
         <constructor-arg ref="iscSendSrvCfg" />
   	</bean>
   	<!-- End ISC Send Beans -->
+  	
+  	<!-- ISC Receive Beans -->
+	
+  	<bean id="jms-iscrec" class="org.apache.camel.component.jms.JmsComponent">
+        <constructor-arg ref="jmsIscReceiveConfig" />
+		<property name="taskExecutor" ref="iscReceiveThreadPool" />		
+	</bean>
+	<bean id="jmsIscReceiveConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+			factory-bean="jmsConfig" factory-method="copy" />
+	<bean id="iscReceiveThreadPool"
+		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="2" />
+		<property name="maxPoolSize" value="2" />
+	</bean>
+  	<bean id="IscReceiveSrv" class="com.raytheon.edex.plugin.gfe.isc.IscReceiveSrv" />
+  	<!-- End ISC Receive Beans -->
 
 	<bean id="logPurger" class="com.raytheon.edex.plugin.gfe.log.LogPurger" />
 
@@ -500,6 +516,21 @@
 					<exception>java.lang.Throwable</exception>
 					<to
 						uri="log:svcBackup?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true" />
+				</doCatch>
+			</doTry>
+		</route>
+		
+		<!-- ISC Data Receive route -->
+		<route id="iscReceiveRoute">
+			<from uri="jms-iscrec:queue:gfeIscDataReceive?concurrentConsumers=2&amp;destinationResolver=#qpidDurableResolver" />
+			<doTry>
+				<pipeline>
+					<bean ref="serializationUtil" method="transformFromThrift" />
+					<bean ref="IscReceiveSrv" method="processRequest"/>
+				</pipeline>
+				<doCatch>
+					<exception>java.lang.Throwable</exception>
+					<to uri="log:iscDataRec?level=ERROR&amp;showBody=false&amp;showCaughtException=true&amp;showStackTrace=true"/>
 				</doCatch>
 			</doTry>
 		</route>

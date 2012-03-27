@@ -58,6 +58,21 @@ if [ ${RC} -ne 0 ]; then
    exit 1
 fi
 
+# Create additional directories that are required; the baselined empty
+# directories were lost when we started using git.
+mkdir -p ${RPM_BUILD_ROOT}/awips2/GFESuite/exportgrids/tmp
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+mkdir -p ${RPM_BUILD_ROOT}/awips2/GFESuite/exportgrids2
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+mkdir -p ${RPM_BUILD_ROOT}/awips2/GFESuite/products/ISC
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+
 # Copy the profile.d scripts.
 PROFILE_D_DIR="Installer.rpm/common/environment/awips2-gfesuite/profile.d"
 cp ${WORKSPACE_DIR}/${PROFILE_D_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
@@ -75,3 +90,9 @@ cp ${WORKSPACE_DIR}/${PROFILE_D_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
 %defattr(644,awips,fxalpha,755)
 %dir /awips2/GFESuite/bin/src
 /awips2/GFESuite/bin/src/*
+%dir /awips2/GFESuite/exportgrids
+/awips2/GFESuite/exportgrids/*
+%dir /awips2/GFESuite/exportgrids2
+%defattr(644,awips,fxalpha,775)
+%dir /awips2/GFESuite/products
+/awips2/GFESuite/products/*
