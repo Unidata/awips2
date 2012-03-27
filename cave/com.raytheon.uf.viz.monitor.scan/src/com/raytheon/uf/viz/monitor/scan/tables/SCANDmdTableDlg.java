@@ -89,6 +89,8 @@ import com.raytheon.viz.ui.EditorUtil;
  * ------------ ---------- ----------- --------------------------
  * Apr 29, 2010            lvenable     Initial creation
  * 
+ * 03/15/2012	13939	   Mike Duff    For a SCAN Alarms issue
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -1069,9 +1071,7 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
                         && currentTime.equals(scan.getMostRecent(scan,
                                 scanTable.name(), site).getRefTime())
                         && !scanCfg.getAlarmsDisabled(scanTable)) {
-                    mgr.clearAlertedAlarms(site, scanTable);
-                    mgr.clearToReset(site, scanTable);
-                    dmdTableComp.checkBlink(sdg);
+                    dmdTableComp.checkBlink(sdg, scan.getMostRecent(scan, scanTable.name(), site).getRefTime());
                     if (mgr.getAlertedAlarms(site, scanTable).size() > 0) {
                         alarmBtn.setVisible(true);
                         addAlarmTimer();
@@ -1079,7 +1079,7 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
                         alarmBtn.setVisible(false);
                     }
                 } else {
-                    mgr.clearAlertedAlarms(site, scanTable);
+                    mgr.removeAlertedAlarms(site, scanTable);
                     alarmBtn.setVisible(false);
                 }
             }

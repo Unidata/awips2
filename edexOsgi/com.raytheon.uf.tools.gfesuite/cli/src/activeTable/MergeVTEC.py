@@ -172,8 +172,10 @@ def convertToNewFormat(newTable):
     for dct in newTable:
         dct['officeid'] = dct['oid']
         dct['vtecstr'] = dct['vstr']
-        dct['endTime'] = dct['end']
-        dct['startTime'] = dct['start']
+        dct['endTime'] = int(dct['end'])
+        dct['startTime'] = int(dct['start'])
+        dct['purgeTime'] = int(dct['purgeTime'])
+        dct['issueTime'] = int(dct['issueTime'])
         dct['phensig'] = dct['key']
         dct['state'] = 'Decoded'
         if dct['endTime'] >= maxFutureTime:
@@ -184,6 +186,9 @@ def convertToNewFormat(newTable):
         if not dct.has_key('rawMessage'):
             dct['rawMessage'] = ''
         
+        # Note: this is not always correct
+        dct['xxxid'] = dct['officeid'][1:]
+
         if dct.has_key('text'):
             dct['segText'] = dct['text']
             # adapted from WarningDecoder...
