@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Guidance request used for caching data.
+ * Guidance request used for caching Grid data.
  * 
  * <pre>
  * 
@@ -39,8 +39,15 @@ import java.util.Map;
  * @version 1.0
  */
 public class GridCacheGuidanceRequest extends CacheGuidanceRequest {
+    // TODO remove use the siteID in CacheGuidanceRequest.
     protected String siteID;
 
+    /**
+     * Build the Grid tag string for desired site.
+     * 
+     * @param siteID
+     * @return tag
+     */
     public static String getTag(String siteID) {
         return GuidanceType.GRID + ":" + siteID;
     }
@@ -52,10 +59,12 @@ public class GridCacheGuidanceRequest extends CacheGuidanceRequest {
         return map;
     }
 
+    // TODO remove use the one in CacheGuidanceRequest
     public String getSiteID() {
         return this.siteID;
     }
 
+    // TODOremove use the one in CacheGuidanceRequest
     public void setSiteID(String siteID) {
         this.siteID = siteID;
     }

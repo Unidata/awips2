@@ -1,6 +1,7 @@
 <!-- Short Term Forecast configuration -->
 <!-- Customized by Phil Kurimski WFO DTX 19 August 2011 with OB11.8 changes -->
 <!-- Changed Co coding to Zones - Mike Dangelo 09-23-2011 at Alaska TIM -->
+<!-- Edited by Mike Dangelo 02-27-2012 -->
 <warngenConfig>
 
  <!-- Config distance/speed units -->
@@ -56,35 +57,34 @@
  <bullets>
   <!-- <bullet bulletText="***** CLICK 'CREATE TEXT' BELOW AFTER SELECTING AREA *****" bulletType="title"/> -->
   <bullet bulletText="  *****BASIS SECTION*****...(Choose 1) " bulletType="title"/>
-  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="group1" bulletDefault="true"/>
-  <bullet bulletName="trainedSpotters" bulletText="Trained spotters reported" bulletGroup="group1"/>
-  <bullet bulletName="lawEnforcement" bulletText="Law Enforcement reported" bulletGroup="group1"/>
-  <bullet bulletName="public" bulletText="Public reported" bulletGroup="group1"/>
-  <bullet bulletName="satellite" bulletText="Satellite imagery indicated" bulletGroup="group1"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="basis" bulletDefault="true"/>
+  <bullet bulletName="trainedSpotters" bulletText="Trained spotters reported" bulletGroup="basis"/>
+  <bullet bulletName="lawEnforcement" bulletText="Law Enforcement reported" bulletGroup="basis"/>
+  <bullet bulletName="public" bulletText="Public reported" bulletGroup="basis"/>
+  <bullet bulletName="satellite" bulletText="Satellite imagery indicated" bulletGroup="basis"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="  ****EVENT TYPE SECTION****...(Choose 1) " bulletType="title"/>
-  <bullet bulletName="thunderstorm" bulletText="Thunderstorms" bulletGroup="group2" bulletDefault="true"/>
-  <bullet bulletName="rainShower" bulletText="Rain Showers" bulletGroup="group2"/>
-  <bullet bulletName="snowShower" bulletText="Snow Showers" bulletGroup="group2"/>
-  <bullet bulletName="leadingRain" bulletText="Leading edge of Rain" bulletGroup="group2"/>
-  <bullet bulletName="leadingSnow" bulletText="Leading edge of Snow" bulletGroup="group2"/>
-  <bullet bulletName="backedgeRain" bulletText="Back edge of Rain" bulletGroup="group2"/>
-  <bullet bulletName="backedgeSnow" bulletText="Back edge of Snow" bulletGroup="group2"/>
-  <bullet bulletName="snowSquall" bulletText="Snow Squall" bulletGroup="group2"/>
-  <bullet bulletName="showerThunderstorm" bulletText="Showers and Thunderstorms" bulletGroup="group2"/>
-  <bullet bulletName="front" bulletText="Front" bulletGroup="group2"/>
+  <bullet bulletName="thunderstorm" bulletText="Thunderstorms" bulletGroup="event" bulletDefault="true"/>
+  <bullet bulletName="rainShower" bulletText="Rain Showers" bulletGroup="event"/>
+  <bullet bulletName="snowShower" bulletText="Snow Showers" bulletGroup="event"/>
+  <bullet bulletName="leadingRain" bulletText="Leading edge of Rain" bulletGroup="event"/>
+  <bullet bulletName="leadingSnow" bulletText="Leading edge of Snow" bulletGroup="event"/>
+  <bullet bulletName="backedgeRain" bulletText="Back edge of Rain" bulletGroup="event"/>
+  <bullet bulletName="backedgeSnow" bulletText="Back edge of Snow" bulletGroup="event"/>
+  <bullet bulletName="snowSquall" bulletText="Snow Squall" bulletGroup="event"/>
+  <bullet bulletName="showerThunderstorm" bulletText="Showers and Thunderstorms" bulletGroup="event"/>
+  <bullet bulletName="gFront" bulletText="Gust Front" bulletGroup="event"/>
+  <bullet bulletName="cFront" bulletText="Cold Front" bulletGroup="event"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** Pathcast Section **********" bulletType="title"/>
-  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="group3" bulletDefault="true"/>
-  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="group3"/>
+  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="cast" bulletDefault="true"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="cast"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** Supplemental Statements **********" bulletType="title"/>
-  <bullet bulletName="heavySnow" bulletText="heavy snow/low visibility"/>
-  <bullet bulletName="gustyWinds" bulletText="gusty winds"/>
-  <bullet bulletName="frontPass" bulletText="frontal passage"/>
+  <bullet bulletName="gustFrontWinds" bulletText="gusty winds"/>
+  <bullet bulletName="frontalPassage" bulletText="frontal passage"/>
+  <bullet bulletName="heavySnow" bulletText="low visibility in heavy snow"/>
   <bullet bulletName="snowAmt" bulletText="snowfall amounts"/>
-  <!-- <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" bulletGroup="toggle2" bulletDefault="true" parseString=""/>
-  -->
  </bullets>
 </bulletActionGroup>
 <bulletActionGroup action="COR">
@@ -98,29 +98,28 @@
   <bullet bulletName="satellite" bulletText="Satellite imagery indicated" bulletGroup="group1"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="  ****EVENT TYPE SECTION****...(Choose 1) " bulletType="title"/>
-  <bullet bulletName="thunderstorm" bulletText="Thunderstorms" bulletGroup="group2" bulletDefault="true"/>
-  <bullet bulletName="rainShower" bulletText="Rain Showers" bulletGroup="group2"/>
-  <bullet bulletName="snowShower" bulletText="Snow Showers" bulletGroup="group2"/>
-  <bullet bulletName="leadingRain" bulletText="Leading edge of Rain" bulletGroup="group2"/>
-  <bullet bulletName="leadingSnow" bulletText="Leading edge of Snow" bulletGroup="group2"/>
-  <bullet bulletName="backedgeRain" bulletText="Back edge of Rain" bulletGroup="group2"/>
-  <bullet bulletName="backedgeSnow" bulletText="Back edge of Snow" bulletGroup="group2"/>
-  <bullet bulletName="snowSquall" bulletText="Snow Squall" bulletGroup="group2"/>
-  <bullet bulletName="showerThunderstorm" bulletText="Showers and Thunderstorms" bulletGroup="group2"/>
-  <bullet bulletName="front" bulletText="Front" bulletGroup="group2"/>
+  <bullet bulletName="thunderstorm" bulletText="Thunderstorms" bulletGroup="event" bulletDefault="true"/>
+  <bullet bulletName="rainShower" bulletText="Rain Showers" bulletGroup="event"/>
+  <bullet bulletName="snowShower" bulletText="Snow Showers" bulletGroup="event"/>
+  <bullet bulletName="leadingRain" bulletText="Leading edge of Rain" bulletGroup="event"/>
+  <bullet bulletName="leadingSnow" bulletText="Leading edge of Snow" bulletGroup="event"/>
+  <bullet bulletName="backedgeRain" bulletText="Back edge of Rain" bulletGroup="event"/>
+  <bullet bulletName="backedgeSnow" bulletText="Back edge of Snow" bulletGroup="event"/>
+  <bullet bulletName="snowSquall" bulletText="Snow Squall" bulletGroup="event"/>
+  <bullet bulletName="showerThunderstorm" bulletText="Showers and Thunderstorms" bulletGroup="event"/>
+  <bullet bulletName="gFront" bulletText="Gust Front" bulletGroup="event"/>
+  <bullet bulletName="cFront" bulletText="Cold Front" bulletGroup="event"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** Pathcast Section **********" bulletType="title"/>
-  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="group3" bulletDefault="true"/>
-  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="group3"/>
+  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="cast" bulletDefault="true"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="cast"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** Supplemental Statements **********" bulletType="title"/>
+  <bullet bulletName="gustFrontPassage" bulletText="gust front passage"/>
+  <bullet bulletName="frontalPassage" bulletText="cold frontal passage"/>
   <bullet bulletName="heavySnow" bulletText="heavy snow/low visibility"/>
-  <bullet bulletName="gustyWinds" bulletText="gusty winds"/>
-  <bullet bulletName="frontPass" bulletText="frontal passage"/>
   <bullet bulletName="snowAmt" bulletText="snowfall amounts"/>
-  <!-- <bullet bulletName="includeSvrWatches" bulletText="Include Severe Thunderstorm Watches" bulletGroup="toggle2" bulletDefault="true" parseString=""/>
-  -->
- </bullets>
+</bullets>
 </bulletActionGroup>
 </bulletActionGroups>
 
@@ -130,8 +129,6 @@
 <!--  areaConfig.fipsField -->
 <!--  pathcast.Config.areaField and -->
 <!--  geospatialConfig.areaSource -->
-
-
 
  <areaConfig>
   <inclusionPercent>0.00</inclusionPercent>
@@ -156,17 +153,22 @@
   <includedWatchAreaBuffer>25</includedWatchAreaBuffer>
  </areaConfig>
  
- <pointSource variable="otherPoints">
+  <pointSource variable="otherPoints">
  	<pointField>NAME</pointField>
  	<searchMethod>TRACK</searchMethod>
  	<withinPolygon>true</withinPolygon>
- 	<maxResults>50</maxResults>
+ 	<maxResults>10</maxResults>
  	<distanceThreshold>10</distanceThreshold>
  	<sortBy>
-  		<sort>warngenlev</sort>
-  		<sort>population</sort>
+  		<sort>distance</sort>
   	</sortBy>
+	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="3" constraintType="EQUALS" />
+ 		</mapping>
+  	</filter>
  </pointSource>
+ 
  
  <pointSource variable="closestPoints">
  	<pointField>NAME</pointField>
@@ -199,6 +201,23 @@
   		<sort>warngenlev</sort>
   	</sortBy>
  </pointSource>
+ 
+ <pointSource variable="cityList">
+ 	<pointField>NAME</pointField>
+ 	<searchMethod>TRACK</searchMethod>
+ 	<withinPolygon>true</withinPolygon>
+ 	<maxResults>20</maxResults>
+ 	<distanceThreshold>10</distanceThreshold>
+	<filter> 	
+  	  <mapping key="WARNGENLEV">
+ 		<constraint constraintValue="1,2,3" constraintType="IN" />
+ 	  </mapping>
+ 	</filter>   	
+ 	<sortBy>
+  		<sort>warngenlev</sort>
+  		<sort>population</sort>
+  	</sortBy>
+ </pointSource>
 
 <!-- this "include file" tag will grab the Mile Marker XML pointSource tags, 
 and place into this template
@@ -210,17 +229,22 @@ and place into this template
   <distanceThreshold>8.0</distanceThreshold>
   <interval>5</interval>
   <delta>5</delta>
-  <maxResults>4</maxResults>
+  <maxResults>10</maxResults>
   <maxGroup>8</maxGroup>
   <pointField>Name</pointField>
-<!-- <areaField>COUNTYNAME</areaField> -->
-  <areaField>NAME</areaField>
+<!--  <areaField>COUNTYNAME</areaField> --> 
+ <areaField>NAME</areaField> -->
   <parentAreaField>STATE</parentAreaField>
   <areaNotationField>STATE</areaNotationField>
   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
   <sortBy>
-  	<sort>distance</sort>
+  	<sort>population</sort>
   </sortBy>
+  <filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1,2" constraintType="IN" />
+ 		</mapping>
+  </filter>
  </pathcastConfig>
 
  <geospatialConfig>
@@ -231,4 +255,6 @@ and place into this template
   <timezoneSource>TIMEZONES</timezoneSource>
   <timezoneField>TIME_ZONE</timezoneField>
  </geospatialConfig>
+ 
+ 
 </warngenConfig>

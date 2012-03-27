@@ -2,7 +2,7 @@
 ##  Created BY Mike Dangelo 9-19-2011 at Alaska TIM  for zone code issuances ##
 ##             Mary-Beth Schreck, Ed Plumb, Aaron Jacobs 9-23-2011 at Alaska TIM
 ##             edited by Mike Dangelo 01-26-2012 at CRH TIM
-
+##             edited by Phil Kurimski 2-29-2012
 #################################### SET SOME VARIABLES ###################################
 #if(${action} == "EXT")
 	#set($starttime = "000000T0000Z")
@@ -159,6 +159,15 @@ THIS IS A TEST MESSAGE. ##
 #if(${list.contains($bullets, "lawEnforcement")} && ${list.contains($bullets, "plainRain")})
   #set ($report = "LOCAL LAW ENFORCEMENT REPORTED HEAVY RAIN IN !** LOCATION **! THAT WILL CAUSE FLOODING.")   
 #end
+#if(${list.contains($bullets, "emergencyManagement")} && ${list.contains($bullets, "thunder")})
+  #set ($report = "EMERGENCY MANAGEMENT REPORTED HEAVY RAIN DUE TO A THUNDERSTORM OVER !** LOCATION **! THAT WILL CAUSE FLOODING.")   
+#end
+#if(${list.contains($bullets, "emergencyManagement")} && ${list.contains($bullets, "floodReport")})
+  #set ($report = "EMERGENCY MANAGEMENT REPORTED FLOODING IN !** LOCATION **!.")   
+#end
+#if(${list.contains($bullets, "emergencyManagement")} && ${list.contains($bullets, "plainRain")})
+  #set ($report = "EMERGENCY MANAGEMENT REPORTED HEAVY RAIN IN !** LOCATION **! THAT WILL CAUSE FLOODING.")   
+#end
 #if(${list.contains($bullets, "public")} && ${list.contains($bullets, "thunder")})
   #set ($report = "THE PUBLIC REPORTED HEAVY RAIN IN !** LOCATION **! DUE TO A THUNDERSTORM. THE HEAVY RAIN WILL CAUSE FLOODING.")   
 #end
@@ -181,10 +190,16 @@ THIS IS A TEST MESSAGE. ##
   #set ($report = "A TRAINED SPOTTER REPORTED MINOR FLOODING IN !** LOCATION **! DUE TO RISING GROUND WATER LEVELS.")   
 #end
 #if(${list.contains($bullets, "lawEnforcement")} && ${list.contains($bullets, "glacierOutburst")})
-  #set ($report = "LAW ENFORCEMENT REPORTED MINOR FLOODING IN !** LOCATION **! DUE TO A GLACIER-DAMMED LAKE OUTBURST FLOOD.")   
+  #set ($report = "LOCAL LAW ENFORCEMENT REPORTED MINOR FLOODING IN !** LOCATION **! DUE TO A GLACIER-DAMMED LAKE OUTBURST FLOOD.")   
 #end
 #if(${list.contains($bullets, "lawEnforcement")} && ${list.contains($bullets, "groundWater")})
-  #set ($report = "LAW ENFORCEMENT REPORTED MINOR FLOODING IN !** LOCATION **! DUE TO RISING GROUND WATER LEVELS.")   
+  #set ($report = "LOCAL LAW ENFORCEMENT REPORTED MINOR FLOODING IN !** LOCATION **! DUE TO RISING GROUND WATER LEVELS.")   
+#end
+#if(${list.contains($bullets, "emergencyManagement")} && ${list.contains($bullets, "glacierOutburst")})
+  #set ($report = "EMERGENCY MANAGEMENT REPORTED MINOR FLOODING IN !** LOCATION **! DUE TO A GLACIER-DAMMED LAKE OUTBURST FLOOD.")   
+#end
+#if(${list.contains($bullets, "emergencyManagement")} && ${list.contains($bullets, "groundWater")})
+  #set ($report = "EMERGENCY MANAGEMENT REPORTED MINOR FLOODING IN !** LOCATION **! DUE TO RISING GROUND WATER LEVELS.")   
 #end
 #if(${list.contains($bullets, "rain1")} )
   #set ($rainAmount = "UP TO ONE INCH OF RAIN HAS ALREADY FALLEN.")   
@@ -263,7 +278,7 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 
 #end
 ##
-#if(${list.contains($bullets, "warningMeans")})
+#if(${list.contains($bullets, "warningMeansCTA")})
 A FLOOD WARNING MEANS THAT FLOODING IS IMMINENT OR HAS BEEN REPORTED.  STREAM RISES WILL BE SLOW AND FLASH FLOODING IS NOT EXPECTED.  HOWEVER...ALL INTERESTED PARTIES SHOULD TAKE NECESSARY PRECAUTIONS IMMEDIATELY.
 
 #end
@@ -283,6 +298,10 @@ EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE ELEVATED LEVELS ON SMALL CREEKS 
 EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE FLOODING OF SMALL CREEKS AND STREAMS...HIGHWAYS AND UNDERPASSES IN URBAN AREAS. ADDITIONALLY...COUNTRY ROADS AND FARMLANDS ALONG THE BANKS OF CREEKS...STREAMS AND OTHER LOW LYING AREAS ARE SUBJECT TO FLOODING.
 
 #end
+#if(${list.contains($bullets, "particularStreamCTA")})
+FLOOD WATERS ARE MOVING DOWN !**name of channel**! FROM !**location**! TO !**location**!. THE FLOOD CREST IS EXPECTED TO REACH !**location(s)**! BY !**time(s)**!. 
+
+#end
 #if(${list.contains($bullets, "specificCTA")})
 FLOOD WATERS ARE MOVING DOWN !**name of channel**! FROM !**location**! TO !**location**!. THE FLOOD CREST IS EXPECTED TO REACH !**location(s)**! BY !**time(s)**!.
 
@@ -293,6 +312,10 @@ BE ESPECIALLY CAUTIOUS AT NIGHT WHEN IT IS HARDER TO RECOGNIZE THE DANGERS OF FL
 #end
 #if(${list.contains($bullets, "donotdriveCTA")})
 DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY. THE WATER DEPTH MAY BE TOO GREAT TO ALLOW YOUR CAR TO CROSS SAFELY. MOVE TO HIGHER GROUND.
+
+#end
+#if(${list.contains($bullets, "autoSafetyCTA")})
+FLOODING IS OCCURRING OR IS IMMINENT. MOST FLOOD RELATED DEATHS OCCUR IN AUTOMOBILES. DO NOT ATTEMPT TO CROSS WATER COVERED BRIDGES...DIPS... OR LOW WATER CROSSINGS. NEVER TRY TO CROSS A FLOWING STREAM...EVEN A SMALL ONE...ON FOOT. TO ESCAPE RISING WATER FIND ANOTHER ROUTE OVER HIGHER GROUND.
 
 #end
 #if(${list.contains($bullets, "camperCTA")})

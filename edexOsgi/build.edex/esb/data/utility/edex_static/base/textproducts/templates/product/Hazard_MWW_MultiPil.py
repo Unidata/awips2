@@ -125,21 +125,34 @@ class TextProduct(GenericHazards.TextProduct):
 
     def _bulletDict(self):
         return {
-            "GL" : ("WINDS,SEAS"),                 ### gale warning, watch
-            "HF" : ("WINDS AND WAVES"),            ### hurricane force wind warnings, watch
-            "MH" : ("VOLCANIC ASH"),               ### volcanic ashfall warning, advisory
-            "SE" : ("SEAS"),                       ### hazardous seas warning, watch
-            "SR" : ("WINDS,SEAS"),                 ### storm warning, watch
-            "UP" : ("FREEZING SPRAY"),             ### heavy freezing spray warnings, advisory, watch
-            "BW" : ("WINDS"),                      ### brisk wind advisory
-            "MF" : ("VISIBILITY"),                 ### dense fog advisory
-            "LO" : ("LOW WATER"),                  ### low water advisory
-            "RB" : ("SEAS,FIRST EBB,SECOND EBB"),  ### small craft advisory for rough bar
-            "SI" : ("WINDS"),                      ### small craft advisory for winds
-            "SC" : ("WINDS AND WAVES"),            ### small craft advisory
-            "MS" : ("DENSE SMOKE"),                ### dense smoke advisory
-            "SW" : ("SEAS"),                       ### small craft advisory hazardous seas
-              }
+            "GL" : ("WINDS,WAVES/SEAS"),                 ### gale warning, watch
+            "HF" : ("WINDS,WAVES/SEAS"),                 ### hurricane force wind warnings, watch
+            "MH" : ("VOLCANIC ASH INFO"),                ### volcanic ashfall warning, advisory
+            "SE" : ("WAVES/SEAS"),                       ### hazardous seas warning, watch
+            "SR" : ("WINDS,WAVES/SEAS"),                 ### storm warning, watch
+            "UP" : ("ICE ACCUMULATIONS"),                ### heavy freezing spray warnings, advisory, watch
+            "BW" : ("WINDS"),                            ### brisk wind advisory
+            "MF" : ("VISIBILITY"),                       ### dense fog advisory
+            "LO" : ("WATER LEVELS"),                     ### low water advisory
+            "RB" : ("WAVES/SEAS,FIRST EBB,SECOND EBB"),  ### small craft advisory for rough bar
+            "SI" : ("WINDS"),                            ### small craft advisory for winds
+            "SC" : ("WINDS,WAVES/SEAS"),                 ### small craft advisory
+            "MS" : ("VISIBILITY"),                       ### dense smoke advisory
+            "SW" : ("WAVES/SEAS"),                       ### small craft advisory hazardous seas
+            }
+
+    def _bulletOrder(self):
+        return [
+            "WINDS",
+            "WAVES/SEAS",
+            "VOLCANIC ASH INFO",
+            "ICE ACCUMULATIONS",
+            "FIRST EBB",
+            "SECOND EBB",
+            "WATER LEVELS",
+            "VISIBILITY",
+            ]
+
 
     #
     # Overridden to allow for attribution statement

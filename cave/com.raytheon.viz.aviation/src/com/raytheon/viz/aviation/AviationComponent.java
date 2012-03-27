@@ -25,7 +25,8 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
 
 /**
- * TODO Add Description
+ * This class starts AviationDialog as a stand alone component with runtime mode
+ * of ALERT_VIZ.
  * 
  * <pre>
  * 
