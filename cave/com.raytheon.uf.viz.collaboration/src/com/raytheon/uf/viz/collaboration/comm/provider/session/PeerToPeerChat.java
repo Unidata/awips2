@@ -19,29 +19,29 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.session;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.ecf.core.IContainer;
 import org.eclipse.ecf.core.identity.ID;
-import org.eclipse.ecf.core.identity.Namespace;
 import org.eclipse.ecf.core.util.ECFException;
+import org.eclipse.ecf.presence.IIMMessageEvent;
+import org.eclipse.ecf.presence.IIMMessageListener;
 import org.eclipse.ecf.presence.im.IChatMessage;
+import org.eclipse.ecf.presence.im.IChatMessageEvent;
 import org.eclipse.ecf.presence.im.IChatMessageSender;
 
 import com.google.common.eventbus.EventBus;
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPeerToPeer;
-import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPropertied.Property;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
-import com.raytheon.uf.viz.collaboration.comm.identity.listener.IMessageFilter;
-import com.raytheon.uf.viz.collaboration.comm.identity.listener.IMessageListener;
-import com.raytheon.uf.viz.collaboration.comm.identity.listener.IPresenceListener;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.ITextMessageEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.Errors;
+import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
+import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
+import com.raytheon.uf.viz.collaboration.comm.provider.event.ChatMessageEvent;
 
 /**
  * 
@@ -62,85 +62,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Errors;
  * @version 1.0
  */
 
-public class PeerToPeerChat extends BaseSession implements IPeerToPeer,
-        IEventPublisher {
-
-    /**
-     * 
-     * TODO Add Description
-     * 
-     * <pre>
-     * 
-     * SOFTWARE HISTORY
-     * 
-     * Date         Ticket#    Engineer    Description
-     * ------------ ---------- ----------- --------------------------
-     * Feb 27, 2012            jkorman     Initial creation
-     * 
-     * </pre>
-     * 
-     * @author jkorman
-     * @version 1.0
-     */
-    private static class InternalListener {
-
-        private IMessageListener messageListener;
-
-        private IPresenceListener presenceListener;
-
-        private IMessageFilter filter;
-
-        /**
-         * 
-         * @param listener
-         * @param filter
-         */
-        public InternalListener(IMessageListener listener, IMessageFilter filter) {
-            messageListener = listener;
-            this.filter = filter;
-
-        }
-
-        /**
-         * 
-         * @param listener
-         * @param filter
-         */
-        public InternalListener(IPresenceListener listener,
-                IMessageFilter filter) {
-            presenceListener = listener;
-            this.filter = filter;
-        }
-
-        /**
-         * 
-         * @param message
-         */
-        public void processMessage(IMessage message) {
-            messageListener.processMessage(message);
-        }
-
-        /**
-         * 
-         * @param presence
-         */
-        public void processPresence(IPresence presence) {
-            presenceListener.notifyPresence(presence);
-        }
-
-        /**
-         * 
-         * @param message
-         * @return
-         */
-        public boolean filter(IMessage message) {
-            return filter.filter(message);
-        }
-    }
-
-    private List<InternalListener> messageListeners = null;
-
-    private Namespace namespace = null;
+public class PeerToPeerChat extends BaseSession implements IPeerToPeer {
 
     private IChatMessageSender chatSender = null;
 
@@ -153,15 +75,9 @@ public class PeerToPeerChat extends BaseSession implements IPeerToPeer,
     PeerToPeerChat(IContainer container, EventBus externalBus,
             SessionManager manager) {
         super(container, externalBus, manager);
-        try {
-            setup();
-        } catch (ECFException e) {
-            // TODO
-            e.printStackTrace();
-        }
+        setup();
         chatSender = getConnectionPresenceAdapter().getChatManager()
                 .getChatMessageSender();
-
     }
 
     /**
@@ -217,42 +133,48 @@ public class PeerToPeerChat extends BaseSession implements IPeerToPeer,
         return status;
     }
 
-    /**
-     * 
-     */
-    @Override
-    public IMessageListener addMessageListener(IMessageListener listener,
-            IMessageFilter filter) {
-        InternalListener messageListener = new InternalListener(listener,
-                filter);
-        messageListeners.add(messageListener);
-        return listener;
-    }
+    void setup() {
+        try {
+            super.setup();
 
-    /**
-     * 
-     */
-    @Override
-    public Collection<IMessageListener> getMessageListeners() {
-        Collection<IMessageListener> listeners = new ArrayList<IMessageListener>();
-        synchronized (messageListeners) {
-            for (InternalListener intListener : messageListeners) {
-                listeners.add(intListener.messageListener);
-            }
+            getConnectionPresenceAdapter().getChatManager().addMessageListener(
+                    new IIMMessageListener() {
+
+                        @Override
+                        public void handleMessageEvent(
+                                IIMMessageEvent messageEvent) {
+                            if (messageEvent instanceof IChatMessageEvent) {
+                                IChatMessageEvent event = (IChatMessageEvent) messageEvent;
+
+                                IChatMessage msg = event.getChatMessage();
+                                String body = msg.getBody();
+                                if (body != null) {
+                                    if (body.startsWith("[[COMMAND#")) {
+                                        Object object = null;
+                                        try {
+                                            object = Tools.unMarshallData(body);
+                                        } catch (CollaborationException e) {
+                                            System.out
+                                                    .println("Error unmarshalling PeerToPeer data");
+                                        }
+                                        if (object != null) {
+                                            getEventPublisher().post(object);
+                                        }
+                                    } else {
+                                        // anything else pass to the normal text
+                                        TextMessage textMsg = null;
+
+                                        ITextMessageEvent chatEvent = new ChatMessageEvent(
+                                                textMsg);
+
+                                        getEventPublisher().post(chatEvent);
+                                    }
+                                }
+                            }
+                        }
+                    });
+        } catch (ECFException ecfe) {
+            System.out.println("Error setting up PeerToPeer chat listeners");
         }
-        return listeners;
     }
-
-    /**
-     * 
-     */
-    @Override
-    public IMessageListener removeMessageListener(IMessageListener listener) {
-        IMessageListener removed = null;
-        if (messageListeners.remove(listener)) {
-            removed = listener;
-        }
-        return removed;
-    }
-
 }
