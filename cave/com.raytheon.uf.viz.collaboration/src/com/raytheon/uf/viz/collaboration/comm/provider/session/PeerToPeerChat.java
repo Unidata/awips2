@@ -27,11 +27,8 @@ import java.util.Map;
 
 import org.eclipse.ecf.core.IContainer;
 import org.eclipse.ecf.core.identity.ID;
-import org.eclipse.ecf.core.identity.IDCreateException;
-import org.eclipse.ecf.core.identity.IDFactory;
 import org.eclipse.ecf.core.identity.Namespace;
 import org.eclipse.ecf.core.util.ECFException;
-import org.eclipse.ecf.presence.IPresenceContainerAdapter;
 import org.eclipse.ecf.presence.im.IChatMessage;
 import org.eclipse.ecf.presence.im.IChatMessageSender;
 
@@ -52,46 +49,47 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Errors;
  * Only one instance of this class should be created.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 21, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
-public class PeerToPeerChat extends BaseSession implements IPeerToPeer, IEventPublisher {
+public class PeerToPeerChat extends BaseSession implements IPeerToPeer,
+        IEventPublisher {
 
     /**
      * 
      * TODO Add Description
      * 
      * <pre>
-     *
+     * 
      * SOFTWARE HISTORY
-     *
+     * 
      * Date         Ticket#    Engineer    Description
      * ------------ ---------- ----------- --------------------------
      * Feb 27, 2012            jkorman     Initial creation
-     *
+     * 
      * </pre>
-     *
+     * 
      * @author jkorman
      * @version 1.0
      */
     private static class InternalListener {
-        
+
         private IMessageListener messageListener;
-        
+
         private IPresenceListener presenceListener;
 
         private IMessageFilter filter;
-       
+
         /**
          * 
          * @param listener
@@ -100,7 +98,7 @@ public class PeerToPeerChat extends BaseSession implements IPeerToPeer, IEventPu
         public InternalListener(IMessageListener listener, IMessageFilter filter) {
             messageListener = listener;
             this.filter = filter;
-            
+
         }
 
         /**
@@ -108,7 +106,8 @@ public class PeerToPeerChat extends BaseSession implements IPeerToPeer, IEventPu
          * @param listener
          * @param filter
          */
-        public InternalListener(IPresenceListener listener, IMessageFilter filter) {
+        public InternalListener(IPresenceListener listener,
+                IMessageFilter filter) {
             presenceListener = listener;
             this.filter = filter;
         }
@@ -142,7 +141,7 @@ public class PeerToPeerChat extends BaseSession implements IPeerToPeer, IEventPu
     private List<InternalListener> messageListeners = null;
 
     private Namespace namespace = null;
-    
+
     private IChatMessageSender chatSender = null;
 
     /**
@@ -151,11 +150,20 @@ public class PeerToPeerChat extends BaseSession implements IPeerToPeer, IEventPu
      * @param externalBus
      * @param manager
      */
-    PeerToPeerChat(IContainer container, EventBus externalBus, SessionManager manager) {
+    PeerToPeerChat(IContainer container, EventBus externalBus,
+            SessionManager manager) {
         super(container, externalBus, manager);
-        
+        try {
+            setup();
+        } catch (ECFException e) {
+            // TODO
+            e.printStackTrace();
+        }
+        chatSender = getConnectionPresenceAdapter().getChatManager()
+                .getChatMessageSender();
+
     }
-    
+
     /**
      * 
      */
@@ -163,20 +171,21 @@ public class PeerToPeerChat extends BaseSession implements IPeerToPeer, IEventPu
     public int sendPeerToPeer(IMessage message) {
         // Assume success
         int status = Errors.NO_ERROR;
-        if(chatSender != null) {
+        if (chatSender != null) {
             ID toID = createID(message.getTo().getName());
             String subject = message.getSubject();
             String body = message.getBody();
             Collection<Property> properties = message.getProperties();
             Map<String, String> props = null;
-            if((properties != null) && (properties.size() > 0)) {
+            if ((properties != null) && (properties.size() > 0)) {
                 props = new HashMap<String, String>();
-                for(Property p : properties) {
-                    props.put(p.getKey(),p.getValue());
+                for (Property p : properties) {
+                    props.put(p.getKey(), p.getValue());
                 }
             }
             try {
-                chatSender.sendChatMessage(toID, null, IChatMessage.Type.CHAT, subject, body, props);
+                chatSender.sendChatMessage(toID, null, IChatMessage.Type.CHAT,
+                        subject, body, props);
             } catch (ECFException e) {
                 System.out.println("Error sending message");
                 e.printStackTrace();
@@ -187,8 +196,11 @@ public class PeerToPeerChat extends BaseSession implements IPeerToPeer, IEventPu
 
     /**
      * Send a message to the named recipient.
-     * @param to The recipient of the message.
-     * @param message The body of the message to send.
+     * 
+     * @param to
+     *            The recipient of the message.
+     * @param message
+     *            The body of the message to send.
      */
     @Override
     public int sendPeerToPeer(String to, String message) {
@@ -201,7 +213,7 @@ public class PeerToPeerChat extends BaseSession implements IPeerToPeer, IEventPu
             System.out.println("Error sending message");
             e.printStackTrace();
         }
-        
+
         return status;
     }
 
@@ -209,8 +221,10 @@ public class PeerToPeerChat extends BaseSession implements IPeerToPeer, IEventPu
      * 
      */
     @Override
-    public IMessageListener addMessageListener(IMessageListener listener, IMessageFilter filter) {
-        InternalListener messageListener = new InternalListener(listener, filter);
+    public IMessageListener addMessageListener(IMessageListener listener,
+            IMessageFilter filter) {
+        InternalListener messageListener = new InternalListener(listener,
+                filter);
         messageListeners.add(messageListener);
         return listener;
     }
@@ -221,8 +235,8 @@ public class PeerToPeerChat extends BaseSession implements IPeerToPeer, IEventPu
     @Override
     public Collection<IMessageListener> getMessageListeners() {
         Collection<IMessageListener> listeners = new ArrayList<IMessageListener>();
-        synchronized(messageListeners) {
-            for(InternalListener intListener : messageListeners) {
+        synchronized (messageListeners) {
+            for (InternalListener intListener : messageListeners) {
                 listeners.add(intListener.messageListener);
             }
         }
@@ -235,11 +249,10 @@ public class PeerToPeerChat extends BaseSession implements IPeerToPeer, IEventPu
     @Override
     public IMessageListener removeMessageListener(IMessageListener listener) {
         IMessageListener removed = null;
-        if(messageListeners.remove(listener)) {
+        if (messageListeners.remove(listener)) {
             removed = listener;
         }
         return removed;
     }
-
 
 }
