@@ -41,6 +41,7 @@ import org.eclipse.ecf.presence.chatroom.IChatRoomInfo;
 import org.eclipse.ecf.presence.chatroom.IChatRoomInvitationListener;
 import org.eclipse.ecf.presence.chatroom.IChatRoomManager;
 import org.eclipse.ecf.presence.roster.IRoster;
+import org.jivesoftware.smack.XMPPConnection;
 
 import com.google.common.eventbus.EventBus;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
@@ -49,11 +50,13 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.listener.IVenueInvitationListener;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
+import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueInvitationEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.info.InfoAdapter;
 import com.raytheon.uf.viz.collaboration.comm.provider.roster.RosterManager;
 
@@ -115,6 +118,8 @@ public class SessionManager {
      * 
      */
     public SessionManager(String account, String password) throws Exception {
+        // XMPPConnection.DEBUG_ENABLED = true;
+
         try {
             container = ContainerFactory.getDefault().createContainer(PROVIDER);
         } catch (ContainerCreateException cce) {
@@ -128,12 +133,29 @@ public class SessionManager {
         } catch (Exception e) {
 
         }
+        setupAccountManager();
+        
         eventBus = new EventBus();
 
         sessions = new HashMap<String, ISession>();
 
         setupInternalConnectionListeners();
         setupInternalVenueInvitationListener();
+    }
+
+    /**
+     * 
+     * @param account The account name to connect to.
+     * @param password The password to use for connection.
+     * @param initialPresence The initial presence for the account name.
+     * @throws ContainerCreateException
+     * 
+     */
+    public SessionManager(String account, String password, IPresence initialPresence) throws Exception {
+        this(account, password);
+        if(accountManager != null) {
+            accountManager.sendPresence(initialPresence);
+        }
     }
 
     /**
@@ -161,11 +183,11 @@ public class SessionManager {
     private void setupAccountManager() {
         if (accountManager == null) {
             if (isConnected()) {
-                IPresenceContainerAdapter presence = Tools
+                IPresenceContainerAdapter presenceAdapter = Tools
                         .getPresenceContainerAdapter(container,
                                 IPresenceContainerAdapter.class);
-                if (presence != null) {
-                    accountManager = new AccountManager(presence);
+                if (presenceAdapter != null) {
+                    accountManager = new AccountManager(presenceAdapter);
                 }
             }
         }
@@ -188,10 +210,10 @@ public class SessionManager {
      */
     private void setupRosterManager() {
         IRoster roster = null;
-        IPresenceContainerAdapter presence = Tools.getPresenceContainerAdapter(
+        IPresenceContainerAdapter presenceAdapter = Tools.getPresenceContainerAdapter(
                 container, IPresenceContainerAdapter.class);
-        if (presence != null) {
-            roster = presence.getRosterManager().getRoster();
+        if (presenceAdapter != null) {
+            roster = presenceAdapter.getRosterManager().getRoster();
             if (roster != null) {
                 rosterManager = new RosterManager(roster);
             }
@@ -353,10 +375,10 @@ public class SessionManager {
         // Check to see if the container has been connected.
         Collection<IVenueInfo> info = new ArrayList<IVenueInfo>();
         if (isConnected()) {
-            IPresenceContainerAdapter presence = Tools
+            IPresenceContainerAdapter presenceAdapter = Tools
                     .getPresenceContainerAdapter(container,
                             IPresenceContainerAdapter.class);
-            IChatRoomManager venueManager = presence.getChatRoomManager();
+            IChatRoomManager venueManager = presenceAdapter.getChatRoomManager();
             if (venueManager != null) {
                 IChatRoomInfo[] roomInfo = venueManager.getChatRoomInfos();
                 for (IChatRoomInfo rInfo : roomInfo) {
@@ -401,11 +423,11 @@ public class SessionManager {
      */
     private void setupInternalVenueInvitationListener() {
         if (isConnected()) {
-            IPresenceContainerAdapter presence = Tools
+            IPresenceContainerAdapter presenceAdapter = Tools
                     .getPresenceContainerAdapter(container,
                             IPresenceContainerAdapter.class);
-            if (presence != null) {
-                IChatRoomManager venueManager = presence.getChatRoomManager();
+            if (presenceAdapter != null) {
+                IChatRoomManager venueManager = presenceAdapter.getChatRoomManager();
                 if (venueManager != null) {
                     intInvitationListener = new IChatRoomInvitationListener() {
                         @Override
@@ -415,6 +437,13 @@ public class SessionManager {
                                 invitationListener.handleInvitation(null, null,
                                         subject, body);
                             }
+                            
+                            
+//                            IVenueInvitationEvent invite = new VenueInvitationEvent(roomID, from, subject, body);
+                            
+                            
+                            
+                            
                         }
                     };
                     venueManager.addInvitationListener(intInvitationListener);
