@@ -8,7 +8,7 @@ xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255, 255, 255);">
 <style type="text/css">
 <![CDATA[
         @font-face { font-family: "LargeSpecialSymbolFont";
-                src: url(LargeSpecialSymbols.svg#LargeSpecialSymbols); }
+                src: url(LargeSpecialSymbols.svg#LrgSpecialSymbols); }
         
         text.special
             {

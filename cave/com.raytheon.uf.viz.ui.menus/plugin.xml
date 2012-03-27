@@ -12,4 +12,11 @@
             extensionFilter=".xml">
       </path>
    </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.raytheon.uf.viz.ui.menus.widgets.tearoff.TearOffPreferencePage"
+            id="com.raytheon.uf.viz.ui.menus.tearoffpreferencepage"
+            name="Tear-Off Menus"/>
+   </extension>
 </plugin>

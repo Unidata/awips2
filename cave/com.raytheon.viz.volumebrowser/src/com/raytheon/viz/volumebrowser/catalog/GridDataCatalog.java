@@ -40,6 +40,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.grib.util.GribModelLookup;
 import com.raytheon.uf.common.dataplugin.grib.util.GridModel;
 import com.raytheon.uf.common.dataplugin.level.Level;
@@ -267,10 +268,14 @@ public class GridDataCatalog implements IDataCatalog {
         LevelFactory lf = LevelFactory.getInstance();
 
         for (int i = 0; i < levelIds.length; i++) {
-            Level level = lf.getLevel(levelIds[i]);
-            levelNames[i] = level.getMasterLevel().getName()
-                    + level.getLevelInfo();
-            this.levelList.put(levelNames[i], level);
+            try {
+                Level level = lf.getLevel(levelIds[i]);
+                levelNames[i] = level.getMasterLevel().getName()
+                        + level.getLevelInfo();
+                this.levelList.put(levelNames[i], level);
+            } catch (CommunicationException e) {
+                e.printStackTrace();
+            }
         }
 
         Arrays.sort(levelNames);
