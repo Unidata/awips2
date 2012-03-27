@@ -112,7 +112,12 @@ public class PointDataInventory extends AbstractPointDataInventory implements
             }
 
             if (getAllSources() != null && !getAllSources().contains(source)) {
-                initTree(derParLibrary);
+                try {
+                    initTree(derParLibrary);
+                } catch (VizException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
+                }
             }
         }
     }

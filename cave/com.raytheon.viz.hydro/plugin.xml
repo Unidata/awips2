@@ -392,6 +392,10 @@
                      name="size"
                      value="7">
                </parameter>
+               <parameter
+                     name="org.eclipse.ui.commands.radioStateParameter"
+                     value="miniscule">
+               </parameter>
             </command>
             <command
                   commandId="com.raytheon.viz.hydro.actions.setfont"
@@ -401,6 +405,10 @@
                <parameter
                      name="size"
                      value="8">
+               </parameter>
+               <parameter
+                     name="org.eclipse.ui.commands.radioStateParameter"
+                     value="verysmall">
                </parameter>
             </command>
             <command
@@ -412,6 +420,10 @@
                      name="size"
                      value="9">
                </parameter>
+               <parameter
+                     name="org.eclipse.ui.commands.radioStateParameter"
+                     value="small">
+               </parameter>
             </command>
             <command
                   commandId="com.raytheon.viz.hydro.actions.setfont"
@@ -421,6 +433,10 @@
                <parameter
                      name="size"
                      value="10">
+               </parameter>
+               <parameter
+                     name="org.eclipse.ui.commands.radioStateParameter"
+                     value="normal">
                </parameter>
             </command>
             <command
@@ -432,6 +448,10 @@
                      name="size"
                      value="12">
                </parameter>
+               <parameter
+                     name="org.eclipse.ui.commands.radioStateParameter"
+                     value="large">
+               </parameter>
             </command>
             <command
                   commandId="com.raytheon.viz.hydro.actions.setfont"
@@ -441,6 +461,10 @@
                <parameter
                      name="size"
                      value="16">
+               </parameter>
+               <parameter
+                     name="org.eclipse.ui.commands.radioStateParameter"
+                     value="verylarge">
                </parameter>
             </command>
          </menu>
@@ -625,8 +649,17 @@
          <commandParameter
                id="size"
                name="size"
-               optional="true">
-         </commandParameter>
+               optional="false">
+         </commandParameter>        
+         <commandParameter
+               id="org.eclipse.ui.commands.radioStateParameter"
+               name="State"
+               optional="false">
+         </commandParameter>   
+         <state
+               class="org.eclipse.ui.handlers.RadioState:normal"
+               id="org.eclipse.ui.commands.radioState">
+         </state>
       </command>
       <command
             id="com.raytheon.viz.hydro.actions.EditLocationShiftAction"
