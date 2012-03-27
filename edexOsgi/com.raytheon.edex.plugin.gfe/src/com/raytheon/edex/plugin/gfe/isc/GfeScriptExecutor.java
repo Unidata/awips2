@@ -72,6 +72,7 @@ public class GfeScriptExecutor {
     private static Map<String, GfeScript> scriptMap = new ConcurrentHashMap<String, GfeScript>();
 
     private static final FilenameFilter docFileFilter = new FilenameFilter() {
+        @Override
         public boolean accept(File dir, String name) {
             return name.endsWith(".doc");
         }
@@ -111,22 +112,27 @@ public class GfeScriptExecutor {
             return "Error getting database configuration\n" + e.getMessage();
         }
 
-        GfeScript theScript = null;
-        String key = null;
         for (String site : sites.keySet()) {
-            key = scriptName + site;
+            GfeScript theScript = null;
+            String key = scriptName + site;
+            // synchronize on the map here so multiple threads don't try
+            // creating the same GfeScript object
             synchronized (scriptMap) {
-                if (scriptMap.containsKey(key)) {
-                    scriptMap.get(key).waitFor();
-                } else {
-                    GfeScript newScript = new GfeScript(scriptName, site);
-                    newScript.start();
-                    scriptMap.put(key, newScript);
+                theScript = scriptMap.get(key);
+                if (theScript == null) {
+                    theScript = new GfeScript(scriptName, site);
+                    theScript.start();
+                    scriptMap.put(key, theScript);
                 }
             }
-            theScript = scriptMap.get(key);
-            theScript.execute(sites.get(site));
-            String scriptRetVal = theScript.waitFor();
+
+            String scriptRetVal = null;
+            // synchronize on the GfeScript object here so multiple threads
+            // can't try to execute the same instance at once
+            synchronized (theScript) {
+                theScript.execute(sites.get(site));
+                scriptRetVal = theScript.waitFor();
+            }
             if (!scriptRetVal.equals(SUCCESS)) {
                 if (retVal.equals(SUCCESS)) {
                     retVal = scriptRetVal;
