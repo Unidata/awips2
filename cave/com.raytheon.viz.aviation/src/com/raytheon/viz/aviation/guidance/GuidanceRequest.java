@@ -26,7 +26,7 @@ import java.util.Map;
 import com.raytheon.uf.viz.core.jobs.QueueJobRequest;
 
 /**
- * Basic request to generate guidance
+ * Basic request to generate a request for the PythonGuidancdJob class.
  * 
  * <pre>
  * 
@@ -45,32 +45,75 @@ import com.raytheon.uf.viz.core.jobs.QueueJobRequest;
 
 public class GuidanceRequest extends QueueJobRequest<String[]> {
 
+    /**
+     * This enumeration class defines the various type of guidance request that
+     * can be received and associates the python method executed to service the
+     * request. The METAR_CACHE and TAF_CACHE are special types used by
+     * observer's to inform when new data has arrived and the cache needs to be
+     * cleared and the new data retrieved.
+     * 
+     */
     public static enum GuidanceType {
         MOS("tafgen"), TAMP("tampgen"), GRID("gridgen"), ETA("tafgen"), METAR(
                 "metargen"), METAR_CACHE("clearMetarCache"), TAF_CACHE(
                 "clearCache");
 
+        /**
+         * The python method associated with the enumeration.
+         */
         private String pythonMethod;
 
+        /**
+         * Constructor that associates a python method with the enumerator.
+         * 
+         * @param pythonMethod
+         */
         private GuidanceType(String pythonMethod) {
             this.pythonMethod = pythonMethod;
         }
 
+        /**
+         * Get the enumeatior's python method.
+         * 
+         * @return pythonMethod
+         */
         public String getPythonMethod() {
             return pythonMethod;
         }
     }
 
+    /**
+     * List of site ID to query for.
+     */
     protected ArrayList<String> siteIDs;
 
+    /**
+     * the model being used.
+     */
     protected String model;
 
+    /**
+     * The format to use.
+     */
     protected String format;
 
+    /**
+     * Type of request.
+     */
     protected GuidanceType guidanceType;
 
+    /**
+     * Tag associated with the request.
+     */
     protected String tag;
 
+    /**
+     * This creates a default map with the mapping of the site IDs, model and
+     * format. The intent is to pass the map to the python code. This can be
+     * overriden by subclasses to fulfill the needs of a given python method.
+     * 
+     * @return map
+     */
     public Map<String, Object> getPythonArguments() {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("siteIDs", siteIDs);
@@ -79,42 +122,92 @@ public class GuidanceRequest extends QueueJobRequest<String[]> {
         return map;
     }
 
+    /**
+     * The list of sites request is for.
+     * 
+     * @return siteIDs
+     */
     public ArrayList<String> getSiteIDs() {
         return siteIDs;
     }
 
+    /**
+     * 
+     * @param siteIDs
+     *            list of sites array request is for
+     */
     public void setSiteIDs(ArrayList<String> siteIDs) {
         this.siteIDs = siteIDs;
     }
 
+    /**
+     * The model argument for the request.
+     * 
+     * @return model
+     */
     public String getModel() {
         return model;
     }
 
+    /**
+     * Set the model argument for the request.
+     * 
+     * @param model
+     */
     public void setModel(String model) {
         this.model = model;
     }
 
+    /**
+     * The format argument for the request.
+     * 
+     * @return format
+     */
     public String getFormat() {
         return format;
     }
 
+    /**
+     * Set the format argument for the request.
+     * 
+     * @param format
+     */
     public void setFormat(String format) {
         this.format = format;
     }
 
+    /**
+     * 
+     * @return guidanceType
+     */
     public GuidanceType getGuidanceType() {
         return guidanceType;
     }
 
+    /**
+     * Set the guidance type for the request.
+     * 
+     * @param guidanceType
+     */
     public void setGuidanceType(GuidanceType guidanceType) {
         this.guidanceType = guidanceType;
     }
 
+    /**
+     * The tag value for the request. Use to determine if the value has been
+     * cached.
+     * 
+     * @return tag
+     */
     public String getTag() {
         return tag;
     }
 
+    /**
+     * Set the tag value of the request.
+     * 
+     * @param tag
+     */
     public void setTag(String tag) {
         this.tag = tag;
     }
@@ -132,6 +225,8 @@ public class GuidanceRequest extends QueueJobRequest<String[]> {
                 state = tag.equals(oReq.tag);
             }
         }
+
+        // TODO remove debug statement.
         if (state) {
             System.out.println("-- GuidanceRequest match tag:  " + tag);
         }

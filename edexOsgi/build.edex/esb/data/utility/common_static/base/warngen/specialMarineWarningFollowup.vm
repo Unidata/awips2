@@ -7,7 +7,8 @@
 ## VERSION AWIPS II 1.3 -- SEP 22 2011  OB11.8     ##
 ## Added Volcano Information for version 1.3       ##  
 ## VERSION AWIPS II 1.4 -- JAN 26 2012  OB12.1.1-1 ##   
-## Cleaned up wind coding for version 1.4          ## 
+## Cleaned up wind coding for version 1.4          ##
+## VERSION AWIPS II 1.5 -- MAR  2 2012  OB12.2.1-4 ## 
 #####################################################
 ## Added Volcano Information in version 1.3 for sites where
 ## Volcanoes affect their marine zones. If sites wish to hide
@@ -281,9 +282,13 @@ ${canwarning}
 #######################################################################
 #set($stormline = "A ${eventType}")
 #set($pathheader = "THE ${eventType}")
+#set($specialEvent = "THIS ${eventType}")
+#set($reportType2 = "THE ${eventType} WAS")
 #if(${stormType} == "line")
 	#set($stormline = "A LINE OF ${eventType}S")
 	#set($pathheader = "${eventType}S")
+	#set($specialEvent = "THESE ${eventType}S")
+	#set($reportType2 = "THE ${eventType}S WERE")
 #end
 #######################################################################
 ## Corrective coding to prevent the use of "Line of Fronts" in the Product
@@ -291,7 +296,9 @@ ${canwarning}
 #if(${eventType} == "FRONT")
 	#set($stormline = "A ${eventType}")
 	#set($pathheader = "THE ${eventType}")
+	#set($specialEvent = "THIS ${eventType}")
 	#set($stormType = "")
+	#set($reportType2 = "THE ${eventType} WAS")
 #end
 #######################################################################
 ## Coding for volcanos...this will override all other selections.
@@ -300,6 +307,8 @@ ${canwarning}
 #if(${eventType} == "VOLCANO")
 	#set($stormline = "AN ERUPTION OF !** NAME OF VOLCANO**! VOLCANO")
 	#set($pathheader = "THE ${volcanoPath}")
+	#set($specialEvent = "THE ${volcanoPath}")
+	#set($reportType2 = "THE ${volcanoPath} WAS")
 	#set($stormType = "")
 	#set($impacted = "LOCATIONS IMPACTED BY ${volcanoPath} INCLUDE...")
 #end
@@ -399,13 +408,8 @@ THIS IS A TEST MESSAGE. ##
 ##############################################
 
 #if(${list.contains($bullets, "specialEvent")})
-#if(${stormType} == "line")
-THOSE ATTENDING THE !**event/venue name or location**! ARE IN THE PATH OF THESE STORMS AND SHOULD PREPARE FOR IMMINENT DANGEROUS WEATHER CONDITIONS. SEEK SHELTER NOW.
+EVERYONE AT !**event/venue name or location**! ARE IN THE PATH OF ${specialEvent} AND SHOULD PREPARE FOR IMMINENT DANGEROUS WEATHER CONDITIONS. SEEK SHELTER NOW.
 
-#else
-THOSE ATTENDING THE !**event/venue name or location**! ARE IN THE PATH OF THIS STORM AND SHOULD PREPARE FOR IMMINENT DANGEROUS WEATHER CONDITIONS. SEEK SHELTER NOW.
-
-#end
 #end
 #####################
 ## CALL TO ACTIONS ##
@@ -771,7 +775,7 @@ ${area.name}...
 THIS IS A TEST MESSAGE. ##
 #end
 AT ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}... ${report} LOCATED ##
-#handleClosestPoints($list, $closestPoints, $otherClosestPoints, $stormType, "OVER", 4, "NM")
+#handleClosestPoints($list, $closestPoints, $otherClosestPoints, $stormType, "OVER", 4, "NM", true)
 #if(${eventType} == "VOLCANO")
 .
 #elseif($movementSpeed < 3 || ${stationary})
@@ -990,4 +994,12 @@ ${mathUtil.round(${movementInKnots})}KT ##
 
 $$
 
+##############################################
+## Code to pull the user name into the product
+##############################################
+##${user}
+##################################################################
+## If you decide to pull the user name from a file use this coding
+##################################################################
+##parse("name.vm")
 !**NAME/INITIALS**!

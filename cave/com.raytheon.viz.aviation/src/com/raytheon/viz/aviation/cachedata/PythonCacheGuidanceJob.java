@@ -46,7 +46,7 @@ import com.raytheon.viz.aviation.activator.Activator;
 import com.raytheon.viz.aviation.monitor.AvnPyUtil;
 
 /**
- * TODO Add Description
+ * Class to handle the cache data jobs.
  * 
  * <pre>
  * 
@@ -101,8 +101,14 @@ public class PythonCacheGuidanceJob extends
      */
     private Object waitMonitor;
 
+    /**
+     * Object to synchronize suspending/restarting the instance of this class.
+     */
     private Object suspendMonitor;
 
+    /**
+     * True when job suspended otherwise false.
+     */
     boolean suspendJob;
 
     /**
@@ -161,12 +167,18 @@ public class PythonCacheGuidanceJob extends
         instance = null;
     }
 
+    /**
+     * Indicate the jobs is to be suspended.
+     */
     public static final void suspend() {
         if (instance != null) {
             instance.suspendJob = true;
         }
     }
 
+    /**
+     * Notify the job it can resume working.
+     */
     public void restart() {
         synchronized (instance.suspendMonitor) {
             instance.suspendJob = false;
@@ -174,6 +186,10 @@ public class PythonCacheGuidanceJob extends
         }
     }
 
+    /**
+     * Setup listener to clean up the instance of this class and any threads it
+     * is running.
+     */
     private void setupDispose() {
         PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()
                 .addDisposeListener(new DisposeListener() {
@@ -300,6 +316,13 @@ public class PythonCacheGuidanceJob extends
         }
     }
 
+    /**
+     * Clear desired tags for sites.
+     * 
+     * @param tags
+     *            A map with key of stites an array of tags to clear for the
+     *            site
+     */
     public synchronized void clearSiteObjs(Map<String, ArrayList<String>> tags) {
         for (Object s : tags.keySet().toArray()) {
             String siteID = s.toString();

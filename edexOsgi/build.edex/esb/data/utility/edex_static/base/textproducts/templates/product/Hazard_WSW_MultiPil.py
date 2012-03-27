@@ -122,6 +122,18 @@ class TextProduct(GenericHazards.TextProduct):
         "IS" : ("TIMING,ICE ACCUMULATIONS,OTHER IMPACTS"),   ## Ice Storm
         "WC" : ("WIND CHILL VALUES,OTHER IMPACTS"),          ## Wind Chill
         }
+
+    def _bulletOrder(self):
+        return [
+            "TIMING",
+            "WINDS/VISIBILITY",
+            "SNOW ACCUMULATIONS",
+            "ICE ACCUMULATIONS",
+            "WIND CHILL VALUES",
+            "MAIN IMPACT",
+            "OTHER IMPACTS",
+            ]
+
     ###
     ### end configuration section
     #####################################################################

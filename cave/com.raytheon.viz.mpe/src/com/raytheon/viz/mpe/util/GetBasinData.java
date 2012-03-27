@@ -134,7 +134,7 @@ public class GetBasinData {
                 mean_areal_precip_global[ib].basin = ppp;
                 for (l = 0; l < numpts; l++) {
                     ibuf = in.readLine().trim();
-                    String[] locs = ibuf.split(" ");
+                    String[] locs = ibuf.split("\\s+");
                     lat = Double.parseDouble(locs[0].trim());
                     lon = Double.parseDouble(locs[1].trim());
 
