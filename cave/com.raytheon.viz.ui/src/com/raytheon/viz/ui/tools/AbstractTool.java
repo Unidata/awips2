@@ -95,8 +95,9 @@ public abstract class AbstractTool extends AbstractHandler implements
             }
         }
 
-        IEditorPart eventEditor = HandlerUtil.getActiveEditor(event);
-        if (eventEditor != null && eventEditor instanceof IDisplayPaneContainer) {
+        IEditorPart eventEditor = (IEditorPart) EditorUtil
+                .getActiveEditorAs(IDisplayPaneContainer.class);
+        if (eventEditor != null) {
             this.editor = (IDisplayPaneContainer) eventEditor;
         } else {
             IWorkbenchWindow window = HandlerUtil

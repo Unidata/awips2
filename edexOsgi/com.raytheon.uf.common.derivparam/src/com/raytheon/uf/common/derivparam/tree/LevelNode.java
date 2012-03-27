@@ -21,6 +21,7 @@ package com.raytheon.uf.common.derivparam.tree;
 
 import javax.persistence.Transient;
 
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -67,7 +68,11 @@ public class LevelNode extends AbstractNode<LevelNode> {
      */
     public Level getLevel() {
         if (value != null && level == null) {
-            level = LevelFactory.getInstance().getLevel(value);
+            try {
+                level = LevelFactory.getInstance().getLevel(value);
+            } catch (CommunicationException e) {
+                e.printStackTrace();
+            }
         }
         return level;
     }
