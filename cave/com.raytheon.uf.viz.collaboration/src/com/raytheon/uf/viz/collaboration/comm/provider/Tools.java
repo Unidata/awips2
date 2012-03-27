@@ -19,8 +19,7 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import javax.xml.bind.JAXBException;
 
 import org.eclipse.ecf.core.IContainer;
 import org.eclipse.ecf.core.util.Base64;
@@ -34,36 +33,44 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 7, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public abstract class Tools {
 
-    private static final String ENV_THRIFT = "[[COMMAND#" + SerializationMode.THRIFT.name() + "]]";
-    private static final String ENV_JAXB = "[[COMMAND#" + SerializationMode.JAXB.name() + "]]";
-    private static final String ENV_STRING = "[[COMMAND#" + SerializationMode.STRING.name() + "]]";
-    private static final String ENV_JAVA = "[[COMMAND#" + SerializationMode.JAVA.name() + "]]";
-    private static final String ENV_NONE = "[[COMMAND#" + SerializationMode.NONE.name() + "]]";
-    
+    private static final String ENV_THRIFT = "[[COMMAND#"
+            + SerializationMode.THRIFT.name() + "]]";
+
+    private static final String ENV_JAXB = "[[COMMAND#"
+            + SerializationMode.JAXB.name() + "]]";
+
+    private static final String ENV_STRING = "[[COMMAND#"
+            + SerializationMode.STRING.name() + "]]";
+
+    private static final String ENV_JAVA = "[[COMMAND#"
+            + SerializationMode.JAVA.name() + "]]";
+
+    private static final String ENV_NONE = "[[COMMAND#"
+            + SerializationMode.NONE.name() + "]]";
+
     public static final String VENUE_SUBJECT_PROP = "subject";
-    
+
     public static final String NAME_DELIM = "@";
-    
+
     public static final String PORT_DELIM = ":";
-    
+
     public static final String RESOURCE_DELIM = "/";
-    
-    
+
     /**
      * 
      * @param <T>
@@ -72,7 +79,8 @@ public abstract class Tools {
      * @return
      */
     @SuppressWarnings("unchecked")
-    public static <T> T getPresenceContainerAdapter(IContainer container, Class<T> c) {
+    public static <T> T getPresenceContainerAdapter(IContainer container,
+            Class<T> c) {
         return (T) container.getAdapter(c);
     }
 
@@ -83,10 +91,10 @@ public abstract class Tools {
      */
     public static String parseName(String id) {
         String name = null;
-        if(id != null) {
+        if (id != null) {
             int delimPos = id.indexOf(NAME_DELIM);
-            if(delimPos >= 0) {
-                name = id.substring(0,delimPos);
+            if (delimPos >= 0) {
+                name = id.substring(0, delimPos);
             }
         }
         return name;
@@ -99,27 +107,27 @@ public abstract class Tools {
      */
     public static String parseHost(String id) {
         String host = null;
-        if(id != null) {
+        if (id != null) {
             int delimPos = id.indexOf(NAME_DELIM);
-            if(delimPos >= 0) {
+            if (delimPos >= 0) {
                 // Ok we have the start of the host name
                 int start = delimPos + 1;
                 int stop = start;
                 delimPos = id.indexOf(PORT_DELIM);
-                if(delimPos > stop) {
+                if (delimPos > stop) {
                     // ok we have a port so grab anything in between
                     stop = delimPos;
                 } else {
                     // no port delimiter, so check for the resource
                     delimPos = id.indexOf(RESOURCE_DELIM);
-                    if(delimPos > stop) {
+                    if (delimPos > stop) {
                         // we have the resource delimiter
                         stop = delimPos;
                     } else {
                         stop = id.length();
                     }
                 }
-                host = id.substring(start,stop);
+                host = id.substring(start, stop);
             }
         }
         return host;
@@ -132,29 +140,29 @@ public abstract class Tools {
      */
     public static String parsePort(String id) {
         String host = null;
-        if(id != null) {
+        if (id != null) {
             int delimPos = id.indexOf(NAME_DELIM);
-            if(delimPos >= 0) {
+            if (delimPos >= 0) {
                 // Ok we have the start of the host name
                 int start = delimPos + 1;
                 int stop = start;
                 delimPos = id.indexOf(PORT_DELIM);
-                if(delimPos > stop) {
+                if (delimPos > stop) {
                     // ok we have a port so grab anything in between
                     start = delimPos + 1;
                     delimPos = id.indexOf(RESOURCE_DELIM);
-                    if(delimPos > start) {
+                    if (delimPos > start) {
                         stop = delimPos;
                     } else {
                         stop = id.length();
                     }
-                    host = id.substring(start,stop);
+                    host = id.substring(start, stop);
                 }
             }
         }
         return host;
     }
-    
+
     /**
      * 
      * @param id
@@ -162,15 +170,15 @@ public abstract class Tools {
      */
     public static String parseResource(String id) {
         String resource = null;
-        if(id != null) {
+        if (id != null) {
             int delimPos = id.indexOf(NAME_DELIM);
             // Ensure that the name delimiter is there first.
-            if(delimPos >= 0) {
-                int start = delimPos+1;
+            if (delimPos >= 0) {
+                int start = delimPos + 1;
                 delimPos = id.indexOf(RESOURCE_DELIM);
-                if(delimPos > start) {
+                if (delimPos > start) {
                     delimPos++;
-                    if(delimPos < id.length()) {
+                    if (delimPos < id.length()) {
                         resource = id.substring(delimPos);
                     }
                 }
@@ -178,10 +186,12 @@ public abstract class Tools {
         }
         return resource;
     }
-    
+
     /**
      * Converts from an IPresence.Type to ECF Presence Type.
-     * @param type A type to convert.
+     * 
+     * @param type
+     *            A type to convert.
      * @return The converted type.
      */
     public static org.eclipse.ecf.presence.Presence.Type convertPresenceType(
@@ -228,26 +238,29 @@ public abstract class Tools {
         }
 
         return sType;
-    }    
+    }
 
     /**
-     * Decode Base64 encoded String data into a byte array. 
+     * Decode Base64 encoded String data into a byte array.
+     * 
      * @param message
      * @return The decoded byte array data.
      */
-    public static byte [] decodeFromBase64(String message) {
+    public static byte[] decodeFromBase64(String message) {
         return Base64.decode(message);
     }
-    
+
     /**
      * Encode byte array data into a Base64 String for transmission.
-     * @param message The message to encode.
+     * 
+     * @param message
+     *            The message to encode.
      * @return The encoded data as a String.
      */
-    public static String encodeToBase64(byte [] message) {
+    public static String encodeToBase64(byte[] message) {
         return Base64.encode(message);
     }
-    
+
     /**
      * 
      * @param data
@@ -268,11 +281,21 @@ public abstract class Tools {
                     sb.append(ENV_THRIFT);
                 } catch (SerializationException e) {
                     throw new CollaborationException(
-                            "Could not serialize object");
+                            "[THRIFT] Could not serialize object");
                 }
                 break;
             }
             case JAXB: {
+                try {
+                    String s = SerializationUtil.marshalToXml(data);
+                    if (s != null) {
+                        sb.append(ENV_JAXB);
+                        sb.append(s);
+                    }
+                } catch (JAXBException je) {
+                    throw new CollaborationException(
+                            "[JAXB] Could not serialize object");
+                }
                 break;
             }
             case JAVA: {
@@ -299,36 +322,43 @@ public abstract class Tools {
         }
         return marshalledData;
     }
-    
+
     /**
      * 
      * @param data
      * @return
      * @throws CollaborationException
      */
-    public static Object unMarshallData(String data) throws CollaborationException {
+    public static Object unMarshallData(String data)
+            throws CollaborationException {
         Object unMarshalledData = null;
-        if(data != null) {
+        if (data != null) {
             // look for the envelope header first
-            if(data.startsWith(ENV_THRIFT)) {
+            if (data.startsWith(ENV_THRIFT)) {
                 String s = data.substring(ENV_THRIFT.length());
                 try {
-                    byte [] b = decodeFromBase64(s);
+                    byte[] b = decodeFromBase64(s);
                     unMarshalledData = SerializationUtil.transformFromThrift(b);
                 } catch (SerializationException e) {
-                    throw new CollaborationException("Could not deserialize object");
+                    throw new CollaborationException(
+                            "Could not deserialize object");
                 }
-            } else if(data.startsWith(ENV_JAXB)) {
-                throw new CollaborationException("Could not deserialize object");
-            } else if(data.startsWith(ENV_STRING)) {
+            } else if (data.startsWith(ENV_JAXB)) {
+                String s = data.substring(ENV_JAXB.length());
+                try {
+                    unMarshalledData = SerializationUtil.unmarshalFromXml(s);
+                } catch (JAXBException je) {
+                    throw new CollaborationException(
+                            "[JAXB] Could not deserialize object");
+                }
+            } else if (data.startsWith(ENV_STRING)) {
                 unMarshalledData = data.substring(ENV_STRING.length());
-            } else if(data.startsWith(ENV_JAVA)) {
+            } else if (data.startsWith(ENV_JAVA)) {
                 throw new CollaborationException("Could not deserialize object");
-            } else if(data.startsWith(ENV_NONE)) {
+            } else if (data.startsWith(ENV_NONE)) {
                 throw new CollaborationException("Could not deserialize object");
-            } 
+            }
         }
         return unMarshalledData;
     }
-    
 }

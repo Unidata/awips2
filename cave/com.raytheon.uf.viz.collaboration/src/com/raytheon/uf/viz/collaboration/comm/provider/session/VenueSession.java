@@ -225,62 +225,46 @@ public class VenueSession extends BaseSession implements IVenueSession,
         } finally {
             initListeners();
         }
-
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                for (int i = 0; i < 10; i++) {
-
-                    IRenderable r = new TestObject("Test1");
-                    ((TestObject) r).setValue(i);
-
-                    try {
-                        System.out.println("Sending renderable " + i);
-                        sendRenderableObject(r);
-                        if (i == 5) {
-                            sendTextMessage(Tools
-                                    .marshallData("This is a text message as a String"));
-                        }
-
-                    } catch (CollaborationException ce) {
-                        ce.printStackTrace();
-                    }
-                    try {
-                        Thread.sleep(10000);
-                    } catch (InterruptedException ie) {
-                    }
-                }
-            }
-        };
-        Thread t = new Thread(r);
-        t.start();
-
-        registerEventHandler(this);
+//        Runnable r = new Runnable() {
+//            @Override
+//            public void run() {
+//                try {
+//                    Thread.sleep(20000);
+//
+//                    TestJAXBObject j = new TestJAXBObject();
+//                    j.setItem_1("This is an object");
+//                    j.setValue(5);
+//                    sendRenderableObject(j);
+//                } catch (Exception e) {
+//                    System.out.println("Error sending RenderableObject");
+//                }
+//            }
+//        };
+//        Thread t = new Thread(r);
+//        t.start();
+//        registerEventHandler(this);
     }
 
-    @Subscribe
-    public void handle(IRenderable renderable) {
-        System.out.println("IRenderable " + renderable.getClass().getName()
-                + " was received");
-    }
-
-    @Subscribe
-    public void handle(IDisplayEvent event) {
-        System.out.println("IDisplayEvent " + event.getClass().getName()
-                + " was received");
-    }
-
-    @Subscribe
-    public void handle(String string) {
-        System.out.println("String \"" + string + "\" was received");
-    }
-
-    @Subscribe
-    public void handle(IVenueParticipantEvent event) {
-        System.out.println("IVenueParticipantEvent " + event.getEventType()
-                + " was received");
-    }
-
+//    @Subscribe
+//    public void handle(IRenderable renderable) {
+//        System.out.println("Renderable found");
+//        if(renderable instanceof TestJAXBObject) {
+//            TestJAXBObject j = (TestJAXBObject) renderable;
+//            if(j.getValue() < 100) {
+//                System.out.println(String.format("%s %d Renderable", j.getItem_1(), j.getValue()));
+//                j.setValue(j.getValue() + 200);
+//                j.setItem_1("Now for the return trip");
+//                try {
+//                    sendRenderableObject(j);
+//                } catch (CollaborationException ce) {
+//                    System.out.println("Error sending RenderableObject");
+//                }
+//            } else {
+//                System.out.println(String.format("%s %d Renderable", j.getItem_1(), j.getValue()));
+//            }
+//        }
+//    }
+    
     /**
      * 
      * @throws ECFException
@@ -628,6 +612,13 @@ public class VenueSession extends BaseSession implements IVenueSession,
     // ISharedDisplaySession
     // ***************************
 
+    /**
+     * 
+     * @param participant
+     * @param initData
+     * @throws CollaborationException
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#sendInitData(com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID, com.raytheon.uf.viz.collaboration.comm.identity.event.IInitData)
+     */
     @Override
     public void sendInitData(
             com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID participant,
