@@ -175,7 +175,14 @@ public class VenueParticipant implements IVenueParticipant {
      */
     @Override
     public String getFQName() {
-        return null;
+        StringBuilder sb = new StringBuilder(name);
+        sb.append("@");
+        sb.append(host);
+        if(resource != null) {
+            sb.append("/");
+            sb.append(resource);
+        }
+        return sb.toString();
     }
 
 }

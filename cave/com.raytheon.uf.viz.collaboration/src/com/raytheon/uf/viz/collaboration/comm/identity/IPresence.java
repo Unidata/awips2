@@ -102,5 +102,16 @@ public interface IPresence extends IPropertied {
      */
     void setType(Type type);
     
+    /**
+     * Get the status message for this presence.
+     * @return The status message.
+     */
+    String getStatusMessage();
+    
+    /**
+     * Set the status message for this presence. 
+     * @param statusMessage The status message.
+     */
+    void setStatusMessage(String statusMessage);
     
 }
