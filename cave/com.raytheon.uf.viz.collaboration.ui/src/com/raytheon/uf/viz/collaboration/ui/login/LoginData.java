@@ -29,8 +29,8 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
  **/
 
 /**
- * Data class that provides logon information. All but the password may be saved
- * and from a localized file.
+ * Data class that provides log on information. All but the password may be
+ * saved in a localized file.
  * 
  * <pre>
  * 
@@ -57,26 +57,17 @@ public class LoginData implements ISerializableObject {
     private transient String password;
 
     @XmlElement(name = "mode")
-    private String status;
+    private IPresence.Mode mode;
 
-    @XmlElement(name = "statusMessage")
-    private String statusMessage;
+    @XmlElement(name = "modeMessage")
+    private String modeMessage;
 
     public LoginData() {
         this.user = "";
         this.server = "";
         this.password = "";
-        this.status = IPresence.Mode.AVAILABLE.name();
-    }
-
-    public LoginData(final String user, final String server,
-            final String password, final IPresence.Mode status,
-            final String statusMessage) {
-        this.user = user;
-        this.server = server;
-        this.password = password;
-        this.status = status.name();
-        this.statusMessage = statusMessage;
+        this.mode = IPresence.Mode.AVAILABLE;
+        this.modeMessage = "";
     }
 
     public String getUser() {
@@ -91,25 +82,46 @@ public class LoginData implements ISerializableObject {
         password = null;
     }
 
-    public String getStatus() {
-        return status;
+    public IPresence.Mode getMode() {
+        return mode;
     }
 
     public String getServer() {
         return server;
     }
 
-    public String getMessage() {
-        return statusMessage;
+    public String getModeMessage() {
+        return modeMessage;
     }
 
     public String getAccount() {
         return user + "@" + server;
     }
 
+    public void setUser(String user) {
+        this.user = user;
+    }
+
+    public void setServer(String server) {
+        this.server = server;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setMode(IPresence.Mode mode) {
+        this.mode = mode;
+    }
+
+    public void setModeMessage(String statusMessage) {
+        this.modeMessage = statusMessage;
+    }
+
     public String toString() {
         return "userId: \"" + user + "\", server \"" + server + "\", mode:\""
-                + status + "\", statusMessage: \"" + statusMessage + "\", pw: "
+                + mode.toString() + "\", modeMessage: \"" + modeMessage
+                + "\", pw: "
                 + ((password == null) ? "null" : password.length());
     }
 }
