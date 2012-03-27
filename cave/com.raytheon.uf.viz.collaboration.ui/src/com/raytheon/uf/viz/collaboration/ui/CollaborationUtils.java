@@ -63,17 +63,45 @@ public class CollaborationUtils {
     public static final IPresence.Mode[] statusModes = { Mode.AVAILABLE,
             Mode.DND, Mode.AWAY };
 
-    public static ImageDescriptor getImageDescriptor(String string) {
+    /**
+     * Get the statusModes' index for desired mode.
+     * 
+     * @param mode
+     * @return index - the mode's index or -1 if not in statusModes
+     */
+    public static int statusModesIndex(IPresence.Mode mode) {
+        for (int index = 0; index < statusModes.length; ++index) {
+            if (mode.equals(statusModes[index])) {
+                return index;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Get an descriptor for the file in the icon directory.
+     * 
+     * @param name
+     *            - file name
+     * @return imageDescriptor
+     */
+    public static ImageDescriptor getImageDescriptor(String name) {
         String iconPath = "icons" + File.separator;
         URL url = FileLocator.find(Activator.getDefault().getBundle(),
-                new Path(iconPath + string), null);
+                new Path(iconPath + name), null);
         if (url != null && url.getFile() == null) {
             url = FileLocator.find(Activator.getDefault().getBundle(),
-                    new Path(".." + File.separator + iconPath + string), null);
+                    new Path(".." + File.separator + iconPath + name), null);
         }
         return ImageDescriptor.createFromURL(url);
     }
 
+    /**
+     * Get an image associated with the node.
+     * 
+     * @param node
+     * @return image
+     */
     public static Image getNodeImage(CollaborationNode node) {
         Image nodeImage = null;
         if (node instanceof CollaborationUser) {
