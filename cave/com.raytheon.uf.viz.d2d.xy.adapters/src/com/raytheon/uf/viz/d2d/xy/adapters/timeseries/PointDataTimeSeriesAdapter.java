@@ -245,19 +245,23 @@ public class PointDataTimeSeriesAdapter extends
             // The level mapping for surface has way to much junk in it.
             return level;
         }
-        LevelMapping mapping = LevelMappingFactory.getInstance()
-                .getLevelMappingForKey(resourceData.getLevelKey());
-        for (Level l : mapping.getLevels()) {
-            if (LevelUtilities.isPressureLevel(l)) {
-                try {
-                    level = new SingleLevel(l.getMasterLevel().getName());
-                    level.setValue(l.getLevelonevalue());
-                    break;
-                } catch (IllegalArgumentException e) {
-                    level = new SingleLevel("SURFACE");
-                    level.setValue(0.0);
+        try {
+            LevelMapping mapping = LevelMappingFactory.getInstance()
+                    .getLevelMappingForKey(resourceData.getLevelKey());
+            for (Level l : mapping.getLevels()) {
+                if (LevelUtilities.isPressureLevel(l)) {
+                    try {
+                        level = new SingleLevel(l.getMasterLevel().getName());
+                        level.setValue(l.getLevelonevalue());
+                        break;
+                    } catch (IllegalArgumentException e) {
+                        level = new SingleLevel("SURFACE");
+                        level.setValue(0.0);
+                    }
                 }
             }
+        } catch (VizException e) {
+            // return the default
         }
         return level;
     }
