@@ -937,10 +937,12 @@
                name="State"
                optional="false">
          </commandParameter>
+         <!--
          <state
                class="org.eclipse.ui.handlers.RadioState:Contrast"
                id="org.eclipse.ui.commands.radioState">
          </state>
+         -->
       </command>
       <command
             id="com.raytheon.viz.mpe.ui.actions.saveBestEstimate"
@@ -1608,6 +1610,8 @@
 	      point="com.raytheon.uf.viz.core.classContext">
 	      <classContext
              class="com.raytheon.viz.mpe.ui.perspective.MPEPerspectiveManager">
+              <contextId id="com.raytheon.viz.MPEActionSet">
+	          </contextId>
 	          <contextId id="com.raytheon.viz.mpe.ui.MPE">
 	          </contextId>
 	          <contextId id="com.raytheon.viz.ui.tools.nav.zoom">

@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
@@ -23,8 +24,12 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
+import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
@@ -39,6 +44,8 @@ import com.raytheon.viz.pointdata.util.PointDataInventory;
 
 public class PlotModelDataDefinition extends
         AbstractRequestableProductBrowserDataDefinition<PlotResourceData> {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(PlotModelDataDefinition.class);
 
     private static final String PLOTLOCATION = "plotModels";
 
@@ -271,10 +278,18 @@ public class PlotModelDataDefinition extends
         }
         List<String> validLevels = new ArrayList<String>();
         for (String levelid : possibleLevels) {
-            Level level = LevelFactory.getInstance().getLevel(
-                    Long.parseLong(levelid));
-            validLevels.add(LevelMappingFactory.getInstance()
-                    .getLevelMappingForLevel(level).getDisplayName());
+            try {
+                Level level = LevelFactory.getInstance().getLevel(
+                        Long.parseLong(levelid));
+                validLevels.add(LevelMappingFactory.getInstance()
+                        .getLevelMappingForLevel(level).getDisplayName());
+            } catch (CommunicationException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            } catch (VizCommunicationException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
         }
         return validLevels.toArray(new String[0]);
     }
