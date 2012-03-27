@@ -42,26 +42,11 @@ public class PracticeDataURINotificationMessage implements ISerializableObject {
     @DynamicSerializeElement
     private String[] dataURIs;
 
-    @DynamicSerializeElement
-    private int[] ids;
-
     /**
      * @return the dataURIs
      */
     public String[] getDataURIs() {
         return dataURIs;
-    }
-
-    public int[] getIds() {
-        return ids;
-    }
-
-    /**
-     * @param ids
-     *            The ids to set
-     */
-    public void setIds(int[] ids) {
-        this.ids = ids;
     }
 
     /**

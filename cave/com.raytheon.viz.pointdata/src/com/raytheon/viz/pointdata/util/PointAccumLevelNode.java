@@ -65,7 +65,7 @@ public class PointAccumLevelNode extends AbstractDerivedLevelNode {
     public PointAccumLevelNode(DerivParamDesc desc, DerivParamMethod method,
             List<AbstractRequestableLevelNode> idNodes,
             AbstractRequestableLevelNode timeNode) {
-        super(PointDataInventory.STATION, desc, method, null);
+        super(PointDataInventory.getStationLevel(), desc, method, null);
         this.idNodes = idNodes;
         this.timeNode = timeNode;
     }
