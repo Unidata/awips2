@@ -5,7 +5,8 @@
 ##              HEADLINE MACRO REWRITE   8-17-2011  OB11.8.4   ##
 ##              PATHCAST/CITIES CHANGES  9-15-2011  OB11.8.0-8 ##
 ##         BY PHIL KURIMSKI              9-22-2011  OB11.8.0-8 ##
-##         BY EVAN BOOKBINDER           11-04-2011  OB11.9-3 (DRs) ##
+##         BY EVAN BOOKBINDER           11-04-2011  OB11.9-3   ##
+##         BY EVAN BOOKBINDER            2-24-2012  OB12.2.1   ##
 #################################################################
 ##
 ###################################################################
@@ -503,21 +504,21 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ##################################################################
 #set ($hailwind = "")
 #if (${hailSize} < 1 && ${windSpeed} < 58)
-  #if (${phenomena}=="SV")
-    #set ($hailwind = "!**YOU DID NOT SELECT ANY SEVERE WIND OR HAIL THREATS. PLEASE CLOSE THIS WINDOW AND RE-GENERATE THIS WARNING!**!")
-    #set ($windhailTag = "WIND...HAIL <50MPH <.75IN")
-  #else
-    #set ($TORhailTag = "HAIL <.75IN")
-  #end
+#if (${phenomena}=="SV")
+  #set ($hailwind = "!**YOU DID NOT SELECT ANY SEVERE WIND OR HAIL THREATS. PLEASE CLOSE THIS WINDOW AND RE-GENERATE THIS WARNING!**!")
+  #set ($windhailTag = "WIND...HAIL <50MPH <.75IN")
+#else
+  #set ($TORhailTag = "HAIL <.75IN")
+#end
 #elseif(${hailSize} > 0 && ${windSpeed} > 0)
-  #if (${hailSize} < 1)
-    #set ($hailwind = " ${reportAuthSVR} ${windThreat}")
-    #if(${phenomena}=="SV")
-      #set ($smallHail = "${hailThreat}${hailTrail} MAY ALSO ACCOMPANY THE DAMAGING WINDS.")
-    #end
-  #else
-    #set ($hailwind = " ${reportAuthSVR} ${hailLead}${hailThreat}${hailTrail} AND ${windThreat}")
-  #end
+#if (${hailSize} < 1)
+  #set ($hailwind = " ${reportAuthSVR} ${windThreat}")
+#if(${phenomena}=="SV")
+  #set ($smallHail = "${hailThreat}${hailTrail} MAY ALSO ACCOMPANY THE DAMAGING WINDS.")
+#end
+#else
+  #set ($hailwind = " ${reportAuthSVR} ${hailLead}${hailThreat}${hailTrail} AND ${windThreat}")
+#end
   #set ($windhailTag = "WIND...HAIL ${windTag} ${hailTag}")
   #set ($TORhailTag = "HAIL ${hailTag}")
 #elseif(${hailSize} > 0)
@@ -534,11 +535,11 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ########################################################
 #set($TORHailThreat = "")
 #if (${hailSize} >= 1.5 && ${phenomena}=="TO")
- #if(${stormType} == "line")
+#if(${stormType} == "line")
   #set($TORHailThreat = "IN ADDITION TO TORNADOES...${hailLead}${hailThreat}${hailTrail} IS EXPECTED WITH THESE STORMS.")
- #else
+#else
   #set($TORHailThreat = "IN ADDITION TO A TORNADO...${hailLead}${hailThreat}${hailTrail} IS EXPECTED WITH THIS STORM.")
- #end
+#end
 #end
 ######################################################
 ###### Storm current location description   ##########
@@ -672,6 +673,9 @@ IF A TORNADO OR OTHER SEVERE WEATHER IS SPOTTED...REPORT IT TO THE NATIONAL WEAT
 #if(${list.contains($bullets, "squallCTA")} && ${stormType} == "line")
 THIS LINE OF THUNDERSTORMS IS CAPABLE OF PRODUCING TORNADOES AND WIDESPREAD SIGNIFICANT WIND DAMAGE. DO NOT WAIT TO SEE OR HEAR THE TORNADO. FOR YOUR PROTECTION MOVE TO AN INTERIOR ROOM ON THE LOWEST FLOOR OF YOUR HOME OR BUSINESS.
 
+#elseif(${list.contains($bullets, "squallCTA")})
+THIS CLUSTER OF THUNDERSTORMS IS CAPABLE OF PRODUCING TORNADOES AND WIDESPREAD SIGNIFICANT WIND DAMAGE. DO NOT WAIT TO SEE OR HEAR THE TORNADO. FOR YOUR PROTECTION MOVE TO AN INTERIOR ROOM ON THE LOWEST FLOOR OF YOUR HOME OR BUSINESS.
+
 #end
 #if(${list.contains($bullets, "waterCTA")})
 IF ON OR NEAR !**NAME OF WATER BODY **!...GET OUT OF THE WATER AND MOVE TO SAFE SHELTER IMMEDIATELY! IF YOU CAN HEAR THUNDER...YOU ARE CLOSE ENOUGH TO BE STRUCK BY LIGHTNING. IN ADDITION...SEVERE THUNDERSTORMS CAN PRODUCE LARGE CAPSIZING WAVES...EVEN ON SMALL BODIES OF WATER. MOVE INTO DOCK AND SEEK SAFE SHELTER NOW. DON'T BE CAUGHT ON THE WATER IN A THUNDERSTORM.
@@ -679,7 +683,7 @@ IF ON OR NEAR !**NAME OF WATER BODY **!...GET OUT OF THE WATER AND MOVE TO SAFE 
 #end
 ##
 #if(${list.contains($bullets, "torWatchRemainsInEffectCTA")})
-A TORNADO WATCH REMAINS IN EFFECT FOR THE WARNED AREA. ALTHOUGH NOT IMMEDIATELY LIKELY...IF A TORNADO IS SPOTTED... ACT QUICKLY AND MOVE TO A PLACE OF SAFETY IN A STURDY STRUCTURE...SUCH AS A BASEMENT OR SMALL INTERIOR ROOM.
+A TORNADO WATCH REMAINS IN EFFECT FOR THE WARNED AREA. ALTHOUGH NOT IMMEDIATELY LIKELY...IF A TORNADO IS SPOTTED...ACT QUICKLY AND MOVE TO A PLACE OF SAFETY IN A STURDY STRUCTURE...SUCH AS A BASEMENT OR SMALL INTERIOR ROOM.
 
 #end
 ##
@@ -740,10 +744,10 @@ THIS STORM HAS A HISTORY OF PRODUCING LARGE HAIL. SEEK SHELTER NOW INSIDE A STUR
 ##
 #if(${list.contains($bullets, "historyWindCTA")})
 #if(${stormType} == "line")
-THESE STORMS HAVE A HISTORY OF PRODUCING DESTRUCTIVE WINDS. THIS IS A VERY DANGEROUS SITUATION. SEEK SHELTER NOW INSIDE A STURDY STRUCTURE AND STAY AWAY FROM WINDOWS.
+THESE STORMS HAVE A HISTORY OF PRODUCING WIND DAMAGE. THIS IS A VERY DANGEROUS SITUATION. SEEK SHELTER NOW INSIDE A STURDY STRUCTURE AND STAY AWAY FROM WINDOWS.
  
 #else
-THIS STORM HAS A HISTORY OF PRODUCING DESTRUCTIVE WINDS. THIS IS A VERY DANGEROUS SITUATION. SEEK SHELTER NOW INSIDE A STURDY STRUCTURE AND STAY AWAY FROM WINDOWS.
+THIS STORM HAS A HISTORY OF PRODUCING WIND DAMAGE. THIS IS A VERY DANGEROUS SITUATION. SEEK SHELTER NOW INSIDE A STURDY STRUCTURE AND STAY AWAY FROM WINDOWS.
 
 #end
 #end
@@ -853,10 +857,10 @@ $$
 ##############################################
 #### END CONTINUATION SECTON #################
 ##############################################
-
+#end
 ##############################################
 ## Code to pull the user name into the product
 ##############################################
 ##${user}
+
 !**NAME/INITIALS**!
-#end

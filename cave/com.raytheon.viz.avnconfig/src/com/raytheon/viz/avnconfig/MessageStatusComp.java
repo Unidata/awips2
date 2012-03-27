@@ -42,11 +42,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.viz.avncommon.AvnMessageMgr;
 import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
 
@@ -106,12 +106,14 @@ public class MessageStatusComp extends Composite implements IStatusSettable {
     private MessageViewerDlg msgViewerDlg;
 
     /**
-     * Background RGB color.
+     * Background RGB color. Only used at construction time to create
+     * newBgColor. No need to keep it around in a class variable.
      */
+    @Deprecated
     private RGB bgRGB;
 
     /**
-     * New background color.
+     * New background color for the msgViewerBtn.
      */
     private Color newBgColor;
 
@@ -120,18 +122,41 @@ public class MessageStatusComp extends Composite implements IStatusSettable {
      */
     private StatusMessageType msgType = null;
 
+    /**
+     * Use to control the blinking of the background color.
+     */
     private Timer timer;
 
+    /**
+     * Task use by timer to do the blinking work.
+     */
     private TimerTask timerTask;
 
+    /**
+     * Counter used to determine how long to blink.
+     */
     private int timerCounter = 0;
 
+    /**
+     * The color to use for the blinking.
+     */
     private Color currentMsgColor;
 
+    /**
+     * When false blinking is active.
+     */
     private boolean timerDone = true;
 
+    /**
+     * Message background RGB color. Only used at construction time to create
+     * messageBgColor. No need to keep it around in a class variable.
+     */
+    @Deprecated
     private RGB messageBgRGB;
 
+    /**
+     * The normal back ground color for the text field.
+     */
     private Color messageBgColor;
 
     /**
@@ -140,7 +165,11 @@ public class MessageStatusComp extends Composite implements IStatusSettable {
      * @param parent
      *            Parent composite.
      * @param bgRGB
-     *            Background RGB.
+     *            Background RGB for dialog display button. (not used therefore
+     *            always defaults to white)
+     * @param messageBgRGB
+     *            Background RGB for the message textfield. When null defaults
+     *            to white
      */
     public MessageStatusComp(Composite parent, RGB bgRGB, RGB messageBgRGB) {
         super(parent, SWT.NONE);
@@ -162,7 +191,10 @@ public class MessageStatusComp extends Composite implements IStatusSettable {
      * @param msgType
      *            Status message type.
      * @param bgRGB
-     *            Background RGB.
+     *            Background RGB for display button. When null defaults to
+     *            white.
+     * @param messageBgRGB
+     *            Background RGB for text field. When null defaults to white.
      */
     public MessageStatusComp(Composite parent, StatusMessageType msgType,
             RGB bgRGB, RGB messageBgRGB) {
@@ -297,7 +329,7 @@ public class MessageStatusComp extends Composite implements IStatusSettable {
     }
 
     /**
-     * Set the message text in the dialog.
+     * Set the message text in the dialog and start the blinking timer.
      * 
      * @param msg
      *            Message to add to the dialog.
