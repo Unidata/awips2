@@ -72,6 +72,8 @@ public class Presence implements IPresence {
     
     private Type type;
     
+    private String statusMessage;
+    
     /**
      * 
      */
@@ -112,6 +114,23 @@ public class Presence implements IPresence {
         this.type = type;
     }
 
+    /**
+     * Get the status message for this presence.
+     * @return The status message.
+     */
+    public String getStatusMessage() {
+        return statusMessage;
+    }
+    
+    /**
+     * Set the status message for this presence. 
+     * @param statusMessage The status message.
+     */
+    public void setStatusMessage(String statusMessage) {
+        this.statusMessage = statusMessage;
+    }
+
+    
     private void ensureProperties() {
         if(properties == null) {
             properties = new HashMap<String,Property>();
@@ -150,21 +169,26 @@ public class Presence implements IPresence {
         return properties.values();
     }
     
+    
     /**
-     * 
-     * @param presence
+     * Convert from an ECF presence to this presence. 
+     * @param presence The ECF presnce to convert from.
      * @return
      */
     public static IPresence convertPresence(org.eclipse.ecf.presence.IPresence presence) {
         IPresence newPresence = null;
         if(presence != null) {
             newPresence = new Presence();
-            
-            
             newPresence.setType(TYPE_MAP.get(presence.getType()));
             newPresence.setMode(MODE_MAP.get(presence.getMode()));
-            
-            System.out.println(presence.getStatus());
+            newPresence.setStatusMessage(presence.getStatus());
+            @SuppressWarnings("unchecked")
+            Map<String, String> properties = (Map<String, String>) presence.getProperties();
+            if(properties != null) {
+                for(String key : properties.keySet()) {
+                    newPresence.setProperty(key, properties.get(key));
+                }
+            }
         }
         return newPresence;
     }
@@ -178,6 +202,17 @@ public class Presence implements IPresence {
     public static org.eclipse.ecf.presence.IPresence convertPresence(IPresence presence) {
         org.eclipse.ecf.presence.IPresence newPresence = null;
         if(presence != null) {
+            newPresence = new org.eclipse.ecf.presence.Presence();
+            
+//            Map<String, String> properties = presence.getProperties();
+//            if(properties != null) {
+//                for(String key : properties.keySet()) {
+//                    newPresence.setProperty(key, properties.get(key));
+//                }
+//            }
+            
+            
+            
             
         
         }
