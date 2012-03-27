@@ -20,14 +20,14 @@
 package com.raytheon.viz.core.gl.images;
 
 import javax.media.opengl.GL;
-import javax.media.opengl.GLContext;
+import javax.media.opengl.glu.GLU;
 
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.core.gl.IGLTarget;
-import com.raytheon.viz.core.gl.internal.GLTarget;
+import com.raytheon.viz.core.gl.GLContextBridge;
+import com.raytheon.viz.core.gl.objects.GLFrameBufferObject;
+import com.raytheon.viz.core.gl.objects.GLRenderBuffer;
 
 /**
  * 
@@ -48,9 +48,6 @@ import com.raytheon.viz.core.gl.internal.GLTarget;
  */
 public abstract class AbstractGLImage implements IImage {
 
-    /** The GL graphics target */
-    protected IGLTarget theTarget;
-
     /** The brightness of the image */
     private float brightness = 1.0f;
 
@@ -67,13 +64,12 @@ public abstract class AbstractGLImage implements IImage {
     protected Throwable throwable;
 
     // Used for offscreen rendering
-    private int fbo = -1;
+    private GLFrameBufferObject fbo;
 
     // Used for offscreen rendering
-    private int rbuf = -1;
+    private GLRenderBuffer rbuf;
 
-    protected AbstractGLImage(IGLTarget target) {
-        this.theTarget = target;
+    protected AbstractGLImage() {
     }
 
     /**
@@ -113,10 +109,10 @@ public abstract class AbstractGLImage implements IImage {
      * IGraphicsTarget)
      */
     public void target(IGraphicsTarget target) throws VizException {
-        theTarget = (GLTarget) target;
-        GLContext ctx = theTarget.getContext();
         // TextureLoaderJob.getInstance().requestLoadIntoTexture(this, ctx);
-        this.loadTexture(ctx);
+        GLContextBridge.makeMasterContextCurrent();
+        this.loadTexture(GLU.getCurrentGL());
+        GLContextBridge.releaseMasterContext();
     }
 
     /*
@@ -158,112 +154,64 @@ public abstract class AbstractGLImage implements IImage {
     }
 
     public void dispose() {
-        if (fbo > 0 || rbuf > 0) {
-            final int[] bufs = new int[] { -1, -1 };
-            if (fbo > 0) {
-                bufs[0] = fbo;
-                fbo = -1;
-            }
-            if (rbuf > 0) {
-                bufs[1] = rbuf;
-                rbuf = -1;
-            }
-
-            VizApp.runAsync(new Runnable() {
-                @Override
-                public void run() {
-                    theTarget.makeContextCurrent();
-                    if (bufs[0] > 0) {
-                        theTarget.getGl().glDeleteFramebuffersEXT(1,
-                                new int[] { bufs[0] }, 0);
-                    }
-                    if (bufs[1] > 0) {
-                        theTarget.getGl().glDeleteRenderbuffersEXT(1,
-                                new int[] { bufs[1] }, 0);
-                    }
-                }
-            });
+        if (fbo != null) {
+            fbo.dispose();
+            fbo = null;
+        }
+        if (rbuf != null) {
+            rbuf.dispose();
+            rbuf = null;
         }
     }
 
     public void usaAsFrameBuffer() throws VizException {
-        GL gl = theTarget.getGl();
-        if (fbo != -1 && rbuf != -1) {
-            gl.glBindFramebufferEXT(GL.GL_FRAMEBUFFER_EXT, fbo);
+        GL gl = GLU.getCurrentGL();
+        if (fbo != null && fbo.isValid()) {
+            fbo.bind(gl);
             gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-            gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+            if (rbuf != null && rbuf.isValid()) {
+                gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+            } else {
+                gl.glClear(GL.GL_COLOR_BUFFER_BIT);
+            }
             return;
         }
+        gl = GLU.getCurrentGL();
+
         gl.glBindTexture(getTextureStorageType(), 0);
 
-        int[] ids = new int[1];
-        gl.glGenFramebuffersEXT(1, ids, 0);
-        fbo = ids[0];
-        gl.glBindFramebufferEXT(GL.GL_FRAMEBUFFER_EXT, fbo);
+        fbo = new GLFrameBufferObject(this);
+        fbo.bind(gl);
 
-        // Generate and bind a render buffer for the depth component
-        gl.glGenRenderbuffersEXT(1, ids, 0);
-        rbuf = ids[0];
-        gl.glBindRenderbufferEXT(GL.GL_RENDERBUFFER_EXT, rbuf);
-        gl.glRenderbufferStorageEXT(GL.GL_RENDERBUFFER_EXT,
-                GL.GL_DEPTH_COMPONENT, getWidth(), getHeight());
-        gl.glBindRenderbufferEXT(GL.GL_RENDERBUFFER_EXT, 0);
+        if (gl.glIsEnabled(GL.GL_DEPTH_TEST)) {
+            // Generate and bind a render buffer for the depth component
+            rbuf = new GLRenderBuffer(this);
+            rbuf.bind(gl);
+            rbuf.createStorage(gl, GL.GL_DEPTH_COMPONENT, getWidth(),
+                    getHeight());
+            gl.glBindRenderbufferEXT(GL.GL_RENDERBUFFER_EXT, 0);
 
-        // Attach render buffer to depth of fbo
-        gl.glFramebufferRenderbufferEXT(GL.GL_FRAMEBUFFER_EXT,
-                GL.GL_DEPTH_ATTACHMENT_EXT, GL.GL_RENDERBUFFER_EXT, rbuf);
-
+            // Attach render buffer to depth of fbo
+            gl.glFramebufferRenderbufferEXT(GL.GL_FRAMEBUFFER_EXT,
+                    GL.GL_DEPTH_ATTACHMENT_EXT, GL.GL_RENDERBUFFER_EXT,
+                    rbuf.getId());
+        }
         // Attach texture to color attachement on fbo
         gl.glFramebufferTexture2DEXT(GL.GL_FRAMEBUFFER_EXT,
                 GL.GL_COLOR_ATTACHMENT0_EXT, getTextureStorageType(),
                 getTextureid(), 0);
-        String errorMessage = null;
-
-        switch (gl.glCheckFramebufferStatusEXT(GL.GL_FRAMEBUFFER_EXT)) {
-        case GL.GL_FRAMEBUFFER_COMPLETE_EXT: {
-            // Everything is ok.
-            break;
-        }
-        case GL.GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT: {
-            errorMessage = "Error: Framebuffer incomplete, fbo attachement is NOT complete";
-            break;
-        }
-        case GL.GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT: {
-            errorMessage = "Error: Framebuffer incomplete, no image is attached to FBO";
-            break;
-        }
-        case GL.GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT: {
-            errorMessage = "Error: Framebuffer incomplete, attached images have different dimensions";
-            break;
-        }
-        case GL.GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT: {
-            errorMessage = "Error: Framebuffer incomplete, color attached images have different internal formats";
-            break;
-        }
-        case GL.GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT: {
-            errorMessage = "Error: Framebuffer incomplete, draw buffer";
-            break;
-        }
-        case GL.GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT: {
-            errorMessage = "Error: Framebuffer incomplete, read buffer";
-            break;
-        }
-        case GL.GL_FRAMEBUFFER_UNSUPPORTED_EXT: {
-            errorMessage = "Error: Framebuffer not supported by hardware/drivers";
-            break;
-        }
-        }
+        String errorMessage = fbo.checkStatus(gl);
 
         // use the window buffer
         if (errorMessage != null) {
             gl.glBindFramebufferEXT(GL.GL_FRAMEBUFFER_EXT, 0);
-            if (fbo != -1) {
-                gl.glDeleteFramebuffersEXT(1, new int[] { fbo }, 0);
-                fbo = -1;
+            if (fbo != null) {
+                fbo.dispose();
+                fbo = null;
             }
-            if (rbuf != -1) {
-                gl.glDeleteRenderbuffersEXT(1, new int[] { rbuf }, 0);
-                rbuf = -1;
+            if (rbuf != null) {
+                rbuf.dispose();
+                rbuf = null;
             }
             throw new VizException(errorMessage);
         }
@@ -275,6 +223,6 @@ public abstract class AbstractGLImage implements IImage {
 
     public abstract void stageTexture() throws VizException;
 
-    public abstract void loadTexture(GLContext ctx) throws VizException;
+    public abstract void loadTexture(GL gl) throws VizException;
 
 }

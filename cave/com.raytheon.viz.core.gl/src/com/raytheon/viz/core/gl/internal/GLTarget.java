@@ -40,10 +40,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.media.opengl.GL;
-import javax.media.opengl.GLCapabilities;
-import javax.media.opengl.GLContext;
-import javax.media.opengl.GLDrawableFactory;
-import javax.media.opengl.GLPbuffer;
 import javax.media.opengl.glu.GLU;
 import javax.media.opengl.glu.GLUquadric;
 import javax.vecmath.Vector3d;
@@ -102,6 +98,8 @@ import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormappedImageExtensio
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.geom.PixelCoordinate;
 import com.raytheon.uf.viz.core.preferences.PreferenceConstants;
+import com.raytheon.viz.core.gl.GLContextBridge;
+import com.raytheon.viz.core.gl.GLDisposalManager;
 import com.raytheon.viz.core.gl.IGLFont;
 import com.raytheon.viz.core.gl.IGLTarget;
 import com.raytheon.viz.core.gl.TextureLoaderJob;
@@ -111,9 +109,7 @@ import com.raytheon.viz.core.gl.glsl.GLShaderProgram;
 import com.raytheon.viz.core.gl.images.AbstractGLImage;
 import com.raytheon.viz.core.gl.images.GLColormappedImage;
 import com.raytheon.viz.core.gl.images.GLImage;
-import com.raytheon.viz.core.gl.internal.cache.IImageCacheable;
-import com.raytheon.viz.core.gl.internal.cache.ImageCache;
-import com.raytheon.viz.core.gl.internal.cache.ImageCache.CacheType;
+import com.raytheon.viz.core.gl.objects.GLTextureObject;
 import com.sun.opengl.util.Screenshot;
 import com.sun.opengl.util.j2d.TextRenderer;
 import com.sun.opengl.util.texture.Texture;
@@ -182,7 +178,7 @@ public class GLTarget implements IGLTarget {
     protected final GLCanvas theCanvas;
 
     /** the GLContext */
-    protected final GLContext theContext;
+    protected final GLContextBridge theContext;
 
     /** Has a texure load occurred during a draw operation */
     protected boolean hasLoadedTextureOnLoop = false;
@@ -216,12 +212,13 @@ public class GLTarget implements IGLTarget {
     /** The GLU object */
     protected final GLU glu = new GLU();
 
-    protected static final Map<String, Integer> loadedColorMaps = new LinkedHashMap<String, Integer>() {
+    protected static final Map<String, GLTextureObject> loadedColorMaps = new LinkedHashMap<String, GLTextureObject>() {
 
         private static final long serialVersionUID = 1L;
 
         @Override
-        protected boolean removeEldestEntry(Entry<String, Integer> eldest) {
+        protected boolean removeEldestEntry(
+                Entry<String, GLTextureObject> eldest) {
             if (size() > maxColorMapCacheSize) {
                 handleRemove(eldest.getValue());
                 return true;
@@ -231,15 +228,15 @@ public class GLTarget implements IGLTarget {
         }
 
         @Override
-        public Integer remove(Object key) {
-            Integer id = super.remove(key);
+        public GLTextureObject remove(Object key) {
+            GLTextureObject id = super.remove(key);
             handleRemove(id);
             return id;
         }
 
-        private void handleRemove(Integer value) {
-            if (value != null) {
-                currentGl.disposeLuminanceTexture(value, 0);
+        private void handleRemove(GLTextureObject value) {
+            if (value != null && value.isValid()) {
+                value.dispose();
             }
         }
 
@@ -256,8 +253,6 @@ public class GLTarget implements IGLTarget {
             .getBoolean(PreferenceConstants.P_DRAW_TILE_BOUNDARIES);
 
     protected final float textMagnification;
-
-    protected final GLContext sharedContext;
 
     protected ColorMapParameters lastColormapUsed;
 
@@ -311,14 +306,11 @@ public class GLTarget implements IGLTarget {
 
         theCanvas = (GLCanvas) canvas;
         theCanvas.setCurrent();
-        theContext = GLDrawableFactory.getFactory().createExternalGLContext();
+        theContext = new GLContextBridge(theCanvas);
 
-        sharedContext = theContext; // extDrawable.createContext(theContext);
-        // sharedContext.makeCurrent();
+        theContext.makeContextCurrent();
 
-        makeContextCurrent();
-
-        gl = theContext.getGL();
+        gl = GLU.getCurrentGL();
 
         theWidth = width;
         theHeight = width;
@@ -359,22 +351,12 @@ public class GLTarget implements IGLTarget {
     public GLTarget(float width, float height) throws VizException {
         theCanvas = null;
         canvasSize = new Rectangle(0, 0, (int) width, (int) height);
-        GLCapabilities glCap = new GLCapabilities();
-        if (!GLDrawableFactory.getFactory().canCreateGLPbuffer()) {
-            throw new VizException(
-                    "Graphics card does not support GLPbuffer and "
-                            + "therefore does not support offscreen rendering.");
-        }
-        GLPbuffer buf = GLDrawableFactory.getFactory().createGLPbuffer(glCap,
-                null, (int) width, (int) height, null);
-        theContext = buf.createContext(null);
 
-        sharedContext = theContext;
+        theContext = new GLContextBridge((int) width, (int) height);
 
-        makeContextCurrent();
+        theContext.makeContextCurrent();
 
-        gl = theContext.getGL();
-
+        gl = GLU.getCurrentGL();
         theWidth = width;
         theHeight = width;
 
@@ -473,7 +455,6 @@ public class GLTarget implements IGLTarget {
      */
     @Override
     public void clearClippingPlane() {
-        this.makeContextCurrent();
         gl.glDisable(GL.GL_CLIP_PLANE0);
         gl.glDisable(GL.GL_CLIP_PLANE1);
         gl.glDisable(GL.GL_CLIP_PLANE2);
@@ -501,7 +482,7 @@ public class GLTarget implements IGLTarget {
     @Override
     public IWireframeShape createWireframeShape(boolean mutableFlag,
             GeneralGridGeometry geom) {
-        return new GLWireframeShape2D(this, geom, mutableFlag);
+        return new GLWireframeShape2D(geom, mutableFlag);
     }
 
     /*
@@ -519,7 +500,7 @@ public class GLTarget implements IGLTarget {
             return new GLWireframeShape(null, geom, mutable,
                     simplificationLevel, spatialChopFlag, extent);
         } else {
-            return new GLWireframeShape2D(this, geom, mutable);
+            return new GLWireframeShape2D(geom, mutable);
         }
     }
 
@@ -532,7 +513,7 @@ public class GLTarget implements IGLTarget {
     @Override
     public IWireframeShape createWireframeShape(boolean mutable,
             IDescriptor descriptor) {
-        return new GLWireframeShape2D(this, descriptor, mutable);
+        return new GLWireframeShape2D(descriptor, mutable);
     }
 
     /*
@@ -548,7 +529,7 @@ public class GLTarget implements IGLTarget {
             return new GLWireframeShape(descriptor, mutable,
                     simplificationLevel);
         } else {
-            return new GLWireframeShape2D(this, descriptor, mutable);
+            return new GLWireframeShape2D(descriptor, mutable);
         }
     }
 
@@ -567,7 +548,7 @@ public class GLTarget implements IGLTarget {
             return new GLWireframeShape(descriptor, null, mutable,
                     simplificationLevel, spatialChopFlag, extent);
         } else {
-            return new GLWireframeShape2D(this, descriptor, mutable);
+            return new GLWireframeShape2D(descriptor, mutable);
         }
     }
 
@@ -578,7 +559,7 @@ public class GLTarget implements IGLTarget {
      */
     @Override
     public void dispose() {
-        makeContextCurrent();
+
         if (defaultFont != null) {
             defaultFont.disposeInternal();
         }
@@ -586,22 +567,14 @@ public class GLTarget implements IGLTarget {
             colorbarFont.disposeInternal();
         }
 
-        theContext.release();
-        theContext.destroy();
+        theContext.destroyContext();
+
         if (theCanvas != null && theCanvas.isDisposed() == false) {
+
             theCanvas.removeListener(SWT.Resize, this.canvasResizeListener);
         }
         lastColormapUsed = null;
         extensionManager.dispose();
-    }
-
-    public void disposeLuminanceTexture(int id, int pboID) {
-        makeContextCurrent();
-
-        gl.glDeleteTextures(1, new int[] { id }, 0);
-        if (pboID > 0) {
-            gl.glDeleteBuffers(1, new int[] { pboID }, 0);
-        }
     }
 
     /**
@@ -668,7 +641,6 @@ public class GLTarget implements IGLTarget {
         }
 
         this.clearClippingPlane();
-        this.makeContextCurrent();
         this.pushGLState();
         try {
 
@@ -726,7 +698,6 @@ public class GLTarget implements IGLTarget {
     @Override
     public void drawColorRamp(DrawableColorMap drawableColorMap)
             throws VizException {
-        this.makeContextCurrent();
         this.pushGLState();
         try {
             final ColorMapParameters colorMapParams = drawableColorMap
@@ -743,7 +714,7 @@ public class GLTarget implements IGLTarget {
             double y1 = pixelExtent.getMinY();
             double y2 = pixelExtent.getMaxY();
 
-            Integer i = getColorMapTexture(colorMapParams);
+            GLTextureObject i = getColorMapTexture(colorMapParams);
 
             GLColormappedImage alphaMaskTexture = null;
             if (colorMapParams.isUseMask() && capabilities.cardSupportsShaders) {
@@ -767,7 +738,7 @@ public class GLTarget implements IGLTarget {
             gl.glEnable(GL.GL_TEXTURE_1D);
 
             gl.glActiveTexture(GL.GL_TEXTURE0);
-            gl.glBindTexture(GL.GL_TEXTURE_1D, i);
+            i.bind(gl, GL.GL_TEXTURE_1D);
 
             if (drawableColorMap.interpolate) {
                 gl.glTexParameteri(GL.GL_TEXTURE_1D, GL.GL_TEXTURE_MIN_FILTER,
@@ -1040,7 +1011,6 @@ public class GLTarget implements IGLTarget {
      */
     @Override
     public void drawLine(DrawableLine... lines) throws VizException {
-        this.makeContextCurrent();
         this.pushGLState();
         try {
             RGB prevColor = null;
@@ -1191,7 +1161,6 @@ public class GLTarget implements IGLTarget {
         Set<String> errorMsgs = new HashSet<String>();
         List<DrawableImage> notDrawn = new ArrayList<DrawableImage>();
 
-        this.makeContextCurrent();
         this.pushGLState();
         try {
             gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL);
@@ -1293,7 +1262,7 @@ public class GLTarget implements IGLTarget {
                         }
 
                         // Get and stage colormap texture
-                        Integer cmapTexture = getColorMapTexture(usedColorMapParameters);
+                        GLTextureObject cmapTexture = getColorMapTexture(usedColorMapParameters);
 
                         if (alphaMaskTexture != null) {
                             gl.glActiveTexture(GL.GL_TEXTURE2);
@@ -1303,7 +1272,7 @@ public class GLTarget implements IGLTarget {
                         }
 
                         gl.glActiveTexture(GL.GL_TEXTURE1);
-                        gl.glBindTexture(GL.GL_TEXTURE_1D, cmapTexture);
+                        cmapTexture.bind(gl, GL.GL_TEXTURE_1D);
 
                         if (glImage.isInterpolated()) {
                             gl.glTexParameteri(GL.GL_TEXTURE_1D,
@@ -1461,25 +1430,6 @@ public class GLTarget implements IGLTarget {
 
         handleError(gl.glGetError());
 
-        IImageCacheable[] pending = ImageCache.getInstance(CacheType.TEXTURE)
-                .getImagesWaitingToDispose();
-
-        if (pending != null) {
-            for (IImageCacheable glI : pending) {
-                glI.disposeTexture(getGl());
-            }
-        }
-
-        // Delete any pending resources
-        pending = ImageCache.getInstance(CacheType.MEMORY)
-                .getImagesWaitingToDispose();
-
-        if (pending != null) {
-            for (IImageCacheable glI : pending) {
-                glI.disposeTextureData();
-            }
-        }
-
         if (errorMsgs.size() > 0) {
             throw new VizException("Error rendering " + errorMsgs.size()
                     + " images: " + errorMsgs);
@@ -1572,7 +1522,6 @@ public class GLTarget implements IGLTarget {
     @Override
     public void drawRect(IExtent extent, RGB color, float lineWidth,
             double alpha) {
-        this.makeContextCurrent();
         this.pushGLState();
         try {
             gl.glPolygonMode(GL.GL_BACK, GL.GL_LINE);
@@ -1605,7 +1554,6 @@ public class GLTarget implements IGLTarget {
     @Override
     public void drawShadedRect(IExtent pe, RGB color, double alpha,
             byte[] stipple) throws VizException {
-        this.makeContextCurrent();
         this.pushGLState();
         try {
 
@@ -1644,7 +1592,6 @@ public class GLTarget implements IGLTarget {
      */
     public void drawRect(PixelCoverage coverage, RGB color, float lineWidth,
             double alpha) {
-        this.makeContextCurrent();
         this.pushGLState();
         try {
             gl.glPolygonMode(GL.GL_FRONT, GL.GL_LINE);
@@ -1718,7 +1665,6 @@ public class GLTarget implements IGLTarget {
         brightness = Math.max(brightness, 0.0f);
         brightness = Math.min(brightness, 1.0f);
 
-        this.makeContextCurrent();
         pushGLState();
         try {
             gl.glPolygonMode(GL.GL_BACK, GL.GL_FILL);
@@ -1916,11 +1862,10 @@ public class GLTarget implements IGLTarget {
             float lineWidth, IGraphicsTarget.LineStyle lineStyle, IFont font,
             float alpha) throws VizException {
         if (shape instanceof GLWireframeShape2D) {
-            makeContextCurrent();
             pushGLState();
             try {
-                ((GLWireframeShape2D) shape).paint(viewExtent, canvasSize,
-                        aColor, lineWidth, lineStyle, font, alpha);
+                ((GLWireframeShape2D) shape).paint(this, viewExtent,
+                        canvasSize, aColor, lineWidth, lineStyle, font, alpha);
             } finally {
                 popGLState();
             }
@@ -1934,7 +1879,6 @@ public class GLTarget implements IGLTarget {
             float lineWidth, LineStyle lineStyle, IGLFont font, float alpha)
             throws VizException {
 
-        this.makeContextCurrent();
         this.pushGLState();
         try {
 
@@ -2085,7 +2029,7 @@ public class GLTarget implements IGLTarget {
      */
     @Override
     public void endFrame() {
-
+        makeContextCurrent();
         try {
             if (this.lastColormapUsed != null && this.useBuiltinColorbar) {
                 this.drawColorbar(this.lastColormapUsed);
@@ -2098,27 +2042,6 @@ public class GLTarget implements IGLTarget {
             return;
         }
 
-        makeContextCurrent();
-
-        // Delete any pending resources
-        IImageCacheable[] pending = ImageCache.getInstance(CacheType.MEMORY)
-                .getImagesWaitingToDispose();
-
-        if (pending != null) {
-            for (IImageCacheable glI : pending) {
-                glI.disposeTextureData();
-            }
-        }
-
-        pending = ImageCache.getInstance(CacheType.TEXTURE)
-                .getImagesWaitingToDispose();
-
-        if (pending != null) {
-            for (IImageCacheable glI : pending) {
-                glI.disposeTexture(getGl());
-            }
-        }
-
         gl.glFinish();
 
         if (theCanvas != null) {
@@ -2129,13 +2052,12 @@ public class GLTarget implements IGLTarget {
             // redrawRetries++;
             // }
         }
-        if (GLContext.getCurrent() == theContext) {
-            theContext.release();
-        }
-    }
+        GLContextBridge.makeMasterContextCurrent();
 
-    public GLContext getContext() {
-        return this.theContext;
+        GLDisposalManager.performDispose(GLU.getCurrentGL());
+
+        GLContextBridge.releaseMasterContext();
+        releaseContext();
     }
 
     /*
@@ -2182,10 +2104,6 @@ public class GLTarget implements IGLTarget {
     private double getScaleY() {
         return viewExtent.getHeight() / this.canvasSize.height;
 
-    }
-
-    public GLContext getSharedContext() {
-        return this.sharedContext;
     }
 
     /*
@@ -2328,16 +2246,16 @@ public class GLTarget implements IGLTarget {
         gl.glLoadIdentity();
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
-        this.colorbarFont = new UnmodifiableGLFont(new GLFont(this,
-                DEFAULT_FONT, (10 * textMagnification), null));
+        this.colorbarFont = new UnmodifiableGLFont(new GLFont(DEFAULT_FONT,
+                (10 * textMagnification), null));
 
         if (PlatformUI.isWorkbenchRunning()) {
             fontFactory = FontFactory.getInstance();
-            this.defaultFont = new UnmodifiableGLFont(fontFactory.getFont(
-                    FontFactory.DEFAULT_FONT_ID, this));
+            this.defaultFont = new UnmodifiableGLFont(
+                    fontFactory.getFont(FontFactory.DEFAULT_FONT_ID));
         } else {
             this.defaultFont = new UnmodifiableGLFont(
-                    new GLFont(this, java.awt.Font.MONOSPACED, 14.0f,
+                    new GLFont(java.awt.Font.MONOSPACED, 14.0f,
                             new Style[] { Style.BOLD }));
         }
         releaseContext();
@@ -2418,7 +2336,7 @@ public class GLTarget implements IGLTarget {
      */
     @Override
     public IFont initializeFont(File fontFile, float size, Style[] styles) {
-        return new GLFont(this, fontFile, size, styles);
+        return new GLFont(fontFile, size, styles);
     }
 
     /*
@@ -2430,7 +2348,7 @@ public class GLTarget implements IGLTarget {
      */
     @Override
     public IFont initializeFont(String fontName, float size, Style[] styles) {
-        return new GLFont(this, fontName, size, styles);
+        return new GLFont(fontName, size, styles);
     }
 
     /*
@@ -2442,7 +2360,7 @@ public class GLTarget implements IGLTarget {
     @Override
     public IFont initializeFont(String font) {
         if (fontFactory != null && fontFactory.hasId(font)) {
-            return fontFactory.getFont(font, this);
+            return fontFactory.getFont(font);
         }
         return defaultFont.deriveWithSize(defaultFont.getFontSize());
     }
@@ -2457,16 +2375,16 @@ public class GLTarget implements IGLTarget {
         return needsRefresh;
     }
 
-    protected int loadColormapIntoTexture(ColorMap glColorMap) {
+    protected GLTextureObject loadColormapIntoTexture(ColorMap glColorMap) {
         Buffer bb = glColorMap.getColorMap();
-
-        int[] t = new int[2];
-        gl.glGenTextures(1, t, 0);
+        GLContextBridge.makeMasterContextCurrent();
+        GLTextureObject t = new GLTextureObject();
+        GLContextBridge.releaseMasterContext();
         if (gl.isFunctionAvailable("glActiveTexture")) {
             gl.glActiveTexture(GL.GL_TEXTURE1);
         }
         gl.glEnable(GL.GL_TEXTURE_1D);
-        gl.glBindTexture(GL.GL_TEXTURE_1D, t[0]);
+        t.bind(gl, GL.GL_TEXTURE_1D);
         bb.rewind();
         gl.glTexParameteri(GL.GL_TEXTURE_1D, GL.GL_TEXTURE_WRAP_S,
                 GL.GL_CLAMP_TO_EDGE);
@@ -2487,7 +2405,7 @@ public class GLTarget implements IGLTarget {
                 0, GL.GL_RGBA, GL.GL_FLOAT, bb);
         gl.glDisable(GL.GL_TEXTURE_1D);
 
-        return t[0];
+        return t;
     }
 
     /*
@@ -2496,22 +2414,7 @@ public class GLTarget implements IGLTarget {
      * @see com.raytheon.viz.core.gl.IGLTarget#makeContextCurrent()
      */
     public boolean makeContextCurrent() {
-        boolean releaseContext = false;
-
-        if (theContext != (GLContext.getCurrent())) {
-            GLContext oldContext = GLContext.getCurrent();
-            if (oldContext != null) {
-                oldContext.release();
-            }
-
-            if (theCanvas != null && !theCanvas.isDisposed()) {
-                theCanvas.setCurrent();
-            }
-            theContext.makeCurrent();
-            currentGl = this;
-            releaseContext = true;
-        }
-        return releaseContext;
+        return theContext.makeContextCurrent();
     }
 
     /**
@@ -2521,7 +2424,7 @@ public class GLTarget implements IGLTarget {
      * 
      */
     public void releaseContext() {
-        theContext.release();
+        theContext.releaseContext();
     }
 
     /*
@@ -2537,7 +2440,7 @@ public class GLTarget implements IGLTarget {
 
         Rectangle bounds = theCanvas.getClientArea();
 
-        boolean needsDispose = makeContextCurrent();
+        makeContextCurrent();
         gl.glViewport(0, 0, bounds.width, bounds.height);
         gl.glMatrixMode(GL.GL_PROJECTION);
         gl.glLoadIdentity();
@@ -2545,9 +2448,7 @@ public class GLTarget implements IGLTarget {
         gl.glMatrixMode(GL.GL_MODELVIEW);
         gl.glLoadIdentity();
 
-        if (needsDispose) {
-            releaseContext();
-        }
+        releaseContext();
 
     }
 
@@ -2559,7 +2460,7 @@ public class GLTarget implements IGLTarget {
     @Override
     public BufferedImage screenshot() {
 
-        boolean grabbedContext = makeContextCurrent();
+        makeContextCurrent();
         if (theCanvas != null) {
             theCanvas.swapBuffers();
         }
@@ -2570,9 +2471,7 @@ public class GLTarget implements IGLTarget {
             theCanvas.swapBuffers();
         }
 
-        if (grabbedContext) {
-            releaseContext();
-        }
+        releaseContext();
         return bi;
     }
 
@@ -2621,7 +2520,6 @@ public class GLTarget implements IGLTarget {
         if (extent == null) {
             return;
         }
-        this.makeContextCurrent();
 
         gl.glMatrixMode(GL.GL_MODELVIEW);
         gl.glPushMatrix();
@@ -2917,7 +2815,6 @@ public class GLTarget implements IGLTarget {
     @Override
     public void drawShadedPolygon(LinearRing poly, RGB color, double alpha,
             byte[] stipple) throws VizException {
-        this.makeContextCurrent();
         this.pushGLState();
         try {
             // set the shading and alpha
@@ -2966,7 +2863,7 @@ public class GLTarget implements IGLTarget {
         this.updatedExtent = updatedExtent;
     }
 
-    private Integer getColorMapTexture(ColorMapParameters cmapParams) {
+    private GLTextureObject getColorMapTexture(ColorMapParameters cmapParams) {
         IColorMap cmap = cmapParams.getColorMap();
         String name = cmap.getName();
         if (name == null) {
@@ -2974,7 +2871,7 @@ public class GLTarget implements IGLTarget {
                     + cmapParams.hashCode();
         }
 
-        Integer i = loadedColorMaps.get(name);
+        GLTextureObject i = loadedColorMaps.get(name);
         if (i == null || cmap.isChanged()) {
             if (i != null) {
                 loadedColorMaps.remove(name);
@@ -3220,7 +3117,6 @@ public class GLTarget implements IGLTarget {
         // function ends up calling begin/end rendering lots which slows it down
         // to the speed of a not bulk operation
         TextRenderer textRenderer = null;
-        makeContextCurrent();
 
         pushGLState();
         gl.glMatrixMode(GL.GL_MODELVIEW);
@@ -3558,7 +3454,6 @@ public class GLTarget implements IGLTarget {
             return;
         }
 
-        this.makeContextCurrent();
         this.pushGLState();
         try {
             int pointsPerLocation = 1;

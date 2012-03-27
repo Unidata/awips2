@@ -20,7 +20,6 @@
 package com.raytheon.uf.common.dataplugin.ncwf;
 
 import java.util.Collection;
-import java.util.Date;
 
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -273,14 +272,4 @@ public class BUFRncwf extends PersistablePluginDataObject implements
     public void setPointDataView(PointDataView pdv) {
         this.pdv = pdv;
     }
-
-    @Override
-    public Date getPersistenceTime() {
-        return dataTime.getRefTime();
-    }
-
-    @Override
-    public void setPersistenceTime(Date persistTime) {
-    }
-
 }

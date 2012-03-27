@@ -22,7 +22,6 @@ package com.raytheon.uf.common.dataplugin.profiler;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -525,23 +524,6 @@ public class ProfilerObs extends PersistablePluginDataObject implements
     @Override
     public void setPointDataView(PointDataView view) {
         pdv = view;
-    }
-
-    /**
-     * 
-     */
-    @Override
-    public Date getPersistenceTime() {
-        return dataTime.getRefTime();
-    }
-
-    /**
-     * 
-     * 
-     */
-    @Override
-    public void setPersistenceTime(Date persistTime) {
-
     }
 
     private Double getWindSpeed() {

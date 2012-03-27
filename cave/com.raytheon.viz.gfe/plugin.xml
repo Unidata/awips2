@@ -2043,6 +2043,9 @@
     <classContext
           class="com.raytheon.viz.gfe.perspective.GFEPerspectiveManager">
        <contextId
+             id="com.raytheon.viz.gfe.GFEActionSet">
+       </contextId>
+       <contextId
              id="com.raytheon.viz.gfe.GFEContext">
        </contextId>
        <contextId

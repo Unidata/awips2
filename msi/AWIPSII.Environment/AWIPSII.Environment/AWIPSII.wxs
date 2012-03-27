@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="8A1F2DCB-5527-4D32-BC7A-E4295EA72940" Name="AWIPS II Runtime Environment" 
+  Language="1033" Version="1.0.0.0" Manufacturer="Raytheon" 
+  UpgradeCode="8924277C-5B6A-4EEB-AE9F-5471481F92A6">
+    <Package Manufacturer="Raytheon" InstallerVersion="200" 
+      Compressed="yes" InstallScope="perMachine" />
+
+    <Media Id="1" Cabinet="product.cab" EmbedCab="yes" />
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder" Name="PFiles">
+        <Directory Id="INSTALLDIR" Name="Raytheon">
+          <Directory Id="AwipsII" Name="AWIPS II">
+          </Directory>
+        </Directory>
+      </Directory>
+
+      <Component Id="A2RE" Guid="2934162A-C503-441D-81F6-284AEE160F65">
+        <RegistryKey Root="HKMU" Key="Software\Raytheon\Runtime Environment"
+        Action="createAndRemoveOnUninstall">
+          <RegistryValue Type="string" Name="Name"
+          Value="AWIPS II Runtime Environment" KeyPath="yes" />
+        </RegistryKey>
+      </Component>
+
+      <Component Id="A2JavaRegistryEntries" Guid="2934162A-C503-441D-81F6-284AEE160F84">
+        <RegistryKey Root="HKMU" Key="Software\Raytheon\Runtime Environment\AWIPS II Java"
+        Action="createAndRemoveOnUninstall">
+          <RegistryValue Type="string" Name="JavaInstallDirectory"
+          Value="[INSTALLDIR]AWIPS II\Java" KeyPath="yes" />
+          <RegistryValue Type="string" Name="JavaJdkDirectory"
+          Value="[INSTALLDIR]AWIPS II\Java\jdk1.6.0_27" />
+          <RegistryValue Type="string" Name="JavaJreDirectory"
+          Value="[INSTALLDIR]AWIPS II\Java\jre6" />
+          <RegistryValue Type="string" Name="JavaVersion"
+          Value="6.0.270" />
+          <RegistryValue Type="string" Name="JAIVersion"
+          Value="1.1.3" />
+          <RegistryValue Type="string" Name="JAIImageIOVersion"
+          Value="1.1" />
+        </RegistryKey>
+      </Component>
+
+      <Component Id="A2PythonRegistryEntries" Guid="2D26E381-FD7B-4FD7-9CDE-A78A93BA8CA8">
+        <RegistryKey Root="HKMU" Key="Software\Raytheon\Runtime Environment\AWIPS II Python"
+        Action="createAndRemoveOnUninstall">
+          <RegistryValue Type="string" Name="PythonInstallDirectory"
+          Value="[INSTALLDIR]AWIPS II\Python" KeyPath="yes" />
+          <RegistryValue Type="string" Name="PythonVersion"
+          Value="2.7.2150" />
+          <RegistryValue Type="integer" Name="SitePackageCount"
+          Value="10" />
+        </RegistryKey>
+
+        <RegistryKey Root="HKMU" Key="Software\Raytheon\Runtime Environment\AWIPS II Python\SitePackages"
+        Action="createAndRemoveOnUninstall">
+          <RegistryValue Type="string" Name="PythonPackage1-Name"
+          Value="h5py" />
+          <RegistryValue Type="string" Name="PythonPackage1-Version"
+          Value="1.3.1" />
+
+          <RegistryValue Type="string" Name="PythonPackage2-Name"
+          Value="matplotlib" />
+          <RegistryValue Type="string" Name="PythonPackage2-Version"
+          Value="0.99.1.1" />
+
+          <RegistryValue Type="string" Name="PythonPackage3-Name"
+          Value="nose" />
+          <RegistryValue Type="string" Name="PythonPackage3-Version"
+          Value="0.11.1" />
+
+          <RegistryValue Type="string" Name="PythonPackage4-Name"
+          Value="numpy" />
+          <RegistryValue Type="string" Name="PythonPackage4-Version"
+          Value="1.5.0" />
+
+          <RegistryValue Type="string" Name="PythonPackage5-Name"
+          Value="pmw" />
+          <RegistryValue Type="string" Name="PythonPackage5-Version"
+          Value="1.3.2" />
+
+          <RegistryValue Type="string" Name="PythonPackage6-Name"
+          Value="scientific" />
+          <RegistryValue Type="string" Name="PythonPackage6-Version"
+          Value="2.8" />
+
+          <RegistryValue Type="string" Name="PythonPackage7-Name"
+          Value="scipy" />
+          <RegistryValue Type="string" Name="PythonPackage7-Version"
+          Value="0.9.0" />
+
+          <RegistryValue Type="string" Name="PythonPackage8-Name"
+          Value="setuptools" />
+          <RegistryValue Type="string" Name="PythonPackage8-Version"
+          Value="0.6c11" />
+
+          <RegistryValue Type="string" Name="PythonPackage9-Name"
+          Value="tables" />
+          <RegistryValue Type="string" Name="PythonPackage9-Version"
+          Value="2.1.2" />
+
+          <RegistryValue Type="string" Name="PythonPackage10-Name"
+          Value="tpg" />
+          <RegistryValue Type="string" Name="PythonPackage10-Version"
+          Value="3.1.2" />
+        </RegistryKey>
+      </Component>      
+    </Directory>
+
+    <Feature Id="AWIPS_II_JAVA" Title="AWIPS II Java" Level="1"
+    Display="expand" Description="AWIPS II Java"
+    ConfigurableDirectory="INSTALLDIR">
+      <ComponentGroupRef Id="AWIPSII_JAVA"/>
+      <ComponentRef Id="A2JavaRegistryEntries"/>
+    </Feature>
+
+    <Feature Id="AWIPS_II_PYTHON" Title="AWIPS II Python" Level="1"
+    Display="expand" Description="AWIPS II Python"
+    ConfigurableDirectory="INSTALLDIR">
+      <ComponentGroupRef Id="AWIPSII_PYTHON" />
+      <ComponentRef Id="A2PythonRegistryEntries"/>
+    </Feature>
+
+    <Feature Id="_Hidden_RegKeys" Display="hidden" Level="1">
+      <ComponentRef Id="A2RE" />  
+    </Feature>
+
+    <UIRef Id="WixUI_FeatureTree" />
+    <UIRef Id="WixUI_ErrorProgressText" />    
+    
+  </Product>
+</Wix>
