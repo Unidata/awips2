@@ -22,8 +22,9 @@ package com.raytheon.uf.viz.collaboration.ui.role;
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IInitData;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.VenueSession;
+import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.editor.EditorSetup;
 import com.raytheon.uf.viz.collaboration.ui.editor.SharedEditor;
@@ -50,7 +51,7 @@ public class ParticipantEventController extends AbstractRoleEventController {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ParticipantEventController.class);
 
-    public ParticipantEventController(VenueSession session) {
+    public ParticipantEventController(ISharedDisplaySession session) {
         super(session);
     }
 
@@ -59,8 +60,8 @@ public class ParticipantEventController extends AbstractRoleEventController {
         if (initData instanceof SharedEditor) {
             SharedEditor se = (SharedEditor) initData;
             CollaborationEditor editor = EditorSetup.createEditor(se);
-            // TODO need to send the editor somewhere so it can be tied to the
-            // session for the link to editor capability
+            CollaborationDataManager.getInstance().editorCreated(
+                    session.getSessionId(), editor);
         }
     }
 
