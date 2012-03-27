@@ -252,8 +252,23 @@ public class GridResource extends
 
         @Override
         protected IDataRecord getDataRecord() throws StorageException {
-            IDataRecord record = super.getDataRecord();
-            Unit<?> realDataUnit = ((GribRecord) pdo).getModelInfo()
+            GribRecord gribRecord = (GribRecord) pdo;
+            IDataRecord record = null;
+            try {
+                IDataRecord[] records = GridResourceData.getDataRecordsForTilt(
+                        gribRecord, descriptor);
+                if (records != null && records.length > 0) {
+                    record = records[0];
+                }
+            } catch (VizException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
+
+            if (record == null) {
+                record = super.getDataRecord();
+            }
+            Unit<?> realDataUnit = gribRecord.getModelInfo()
                     .getParameterUnitObject();
             Unit<?> expectedDataUnit = getCapability(ColorMapCapability.class)
                     .getColorMapParameters().getDataUnit();
@@ -271,7 +286,7 @@ public class GridResource extends
                     }
                 }
             }
-            GridGeometry2D realGridGeometry = ((GribRecord) pdo).getModelInfo()
+            GridGeometry2D realGridGeometry = gribRecord.getModelInfo()
                     .getLocation().getGridGeometry();
             GridGeometry2D expectedGridGeometry = this.gridGeometry[0];
             if (!realGridGeometry.equals(expectedGridGeometry)) {
@@ -707,7 +722,7 @@ public class GridResource extends
             }
         }
         GridMemoryBasedTileSet mbts = new GridMemoryBasedTileSet(
-                record.getDataURI(), "Data", numLevels, 512, gridGeometry2D,
+                record.getDataURI(), "Data", numLevels, 32, gridGeometry2D,
                 this, conversion, PixelInCell.CELL_CORNER, record, viewType);
         return mbts;
     }

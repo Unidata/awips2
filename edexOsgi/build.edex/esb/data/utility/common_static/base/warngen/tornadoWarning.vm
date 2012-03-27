@@ -9,6 +9,7 @@
 ##                                    9-16-11 - OB11.8.0-8 Pathcast/City     ##
 ##         MIKE DANGELO      WFO CTP  9-22-11 - OB11.8.0-9                   ##
 ##         EVAN BOOKBINDER   WFO EAX 11-04-11 - OB11.9-3 (DRs)               ##
+##         EVAN BOOKBINDER   WFO EAX  2-24-12 - OB12.2.1                     ##
 ###############################################################################
 ## ESTABLISH SOME INITIAL VARIABLES
 #set($preAmble = "")
@@ -196,7 +197,7 @@ THIS IS A TEST MESSAGE. ##
   #set ($preAmble = "TO REPEAT...A TORNADO HAS BEEN CONFIRMED BY LOCAL LAW ENFORCEMENT.") 
 #end
 #if(${list.contains($bullets, "emergencyManagement")})
-  #set ($reportType = "EMERGENCY MANAGEMENT OFFICIALS REPORTED A TORNADO")
+  #set ($reportType = "EMERGENCY MANAGEMENT REPORTED A TORNADO")
   #if(${stormType} == "line")
     #set ($pathcastLead = "THESE TORNADIC STORMS")
     #set ($moveLead = " DOPPLER RADAR SHOWED THESE TORNADIC STORMS MOVING")
@@ -242,11 +243,11 @@ THIS IS A TEST MESSAGE. ##
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})...${reportType} ##
 #handleClosestPoints($list, $closestPoints, $otherClosestPoints, $stormType, "NEAR", 6, "MILES", true)
 #if($movementSpeed < 3 || ${stationary})
-  #if(${stormType} == "line")
+#if(${stormType} == "line")
 . THE LINE OF TORNADIC STORMS WAS NEARLY STATIONARY. 
-  #else
+#else
 . THE TORNADIC STORM WAS NEARLY STATIONARY. 
-  #end
+#end
 #else
 .${moveLead} #direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} MPH.
 #end
