@@ -22,7 +22,6 @@ package com.raytheon.uf.common.dataplugin.goessounding;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -507,15 +506,4 @@ public class GOESSounding extends PersistablePluginDataObject implements
     public void setPointDataView(PointDataView pdv) {
         this.pdv = pdv;
     }
-
-    @Override
-    public Date getPersistenceTime() {
-        return this.dataTime.getRefTime();
-    }
-
-    @Override
-    public void setPersistenceTime(Date persistTime) {
-
-    }
-
 }
