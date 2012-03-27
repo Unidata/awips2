@@ -363,24 +363,30 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
         return []
 
     # Added for DR 21194
-    def bulletDict(self):
+    def _bulletDict(self):
         return []
 
-    def _getBullets(self, eachHazard, argDict):
+    # Added for DR 21309
+    def _bulletOrder(self):
+        return []
 
-        ### get the bullet dictionary and split the bullets
-        bDict = self._bulletDict()
-        bLine = bDict.get(eachHazard['phen'])
-        bList = bLine.split(",")
-
-        ### initialize the bullet output
-        bullets = ""
-
-        ### loop through the bullets and format the output
-        for b in bList:
-            bullets = bullets + "* " + b + "...|* ENTER BULLET TEXT *|\n\n"
-       # bullets = bullets + "\n"
-        return bullets
+## Replaced by 21309 code
+##    def _getBullets(self, newBulletList, argDict):
+##
+##        ### get the bullet dictionary and split the bullets
+##        bDict = self._bulletDict()
+##        bLine = bDict.get(eachHazard['phen'])
+##        print 20* "*" + (eachHazard['phen'])
+##        bList = newBulletList.split(",")
+##
+##        ### initialize the bullet output
+##        bullets = ""
+##
+##        ### loop through the bullets and format the output
+##        for b in bList:
+##            bullets = bullets + "* " + b + "...|* ENTER BULLET TEXT *|\n\n"
+##       # bullets = bullets + "\n"
+##        return bullets
 
     def _indentBulletText(self, prevText):
 
@@ -466,21 +472,20 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
         statementList = []
 
         for eachHazard in sortedHazardList:
-            if eachHazard['act'] in ['NEW', 'EXA', 'EXB'] and \
-               eachHazard['sig'] != 'S':
-                newList.append(eachHazard)
-            elif eachHazard['act'] in ['CAN'] and eachHazard['sig'] != 'S':
-                canList.append(eachHazard)
-            elif eachHazard['act'] in ['EXP'] and eachHazard['sig'] != 'S':
-                expList.append(eachHazard)
-            elif eachHazard['act'] in ['EXT'] and eachHazard['sig'] != 'S':
-                extList.append(eachHazard)
-            elif eachHazard['act'] in ['UPG'] and eachHazard['sig'] != 'S':
-                upgList.append(eachHazard)
-            elif eachHazard['sig'] != 'S':
-                conList.append(eachHazard)
-            elif eachHazard['sig'] == 'S':
+            if eachHazard['sig'] in ['S']and eachHazard['phen'] in ['CF', 'LS']:
                 statementList.append(eachHazard)
+            elif eachHazard['act'] in ['NEW', 'EXA', 'EXB']:
+                newList.append(eachHazard)
+            elif eachHazard['act'] in ['CAN']:
+                canList.append(eachHazard)
+            elif eachHazard['act'] in ['EXP']:
+                expList.append(eachHazard)
+            elif eachHazard['act'] in ['EXT']:
+                extList.append(eachHazard)
+            elif eachHazard['act'] in ['UPG']:
+                upgList.append(eachHazard)
+            else:
+                conList.append(eachHazard)
 
         #
         # Now, go through each list and build the phrases
@@ -613,11 +618,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
         # This is for statement hazards
         #
 
-        #we will add in text later either by text capture or 
-        #framing codes as needed
-        #for eachHazard in statementList:
-        #    hazardBodyPhrase = hazardBodyPhrase + "|* STATEMENT TEXT *|."
-        
+        for eachHazard in statementList:
+            hazardBodyPhrase = "...|* ADD STATEMENT HEADLINE *|...\n\n"
+                        
         #
         # This adds segment text
         #
@@ -641,12 +644,12 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
         for eachHazard in sortedHazardList:
             if eachHazard.has_key('prevText'):
                 prevText = eachHazard['prevText']
-                if eachHazard['sig'] == 'S':
+                if eachHazard['pil'] == 'MWS':
                     startPara = 0
                 else:
                     startPara = 1
                     segmentText, foundCTAs = self.cleanCapturedText(prevText,
-                      startPara, addFramingCodes = incFramingCodes,
+                      startPara, addFramingCodes = False,
                       skipCTAs = skipCTAs)
                     tester = segmentText[0]
                     if tester == '*':
@@ -654,7 +657,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
                     else: 
                         startPara = 2
                 segmentText, foundCTAs = self.cleanCapturedText(prevText,
-                  startPara, addFramingCodes = incFramingCodes,
+                  startPara, addFramingCodes = False,
                   skipCTAs = skipCTAs)
 
         #
@@ -664,19 +667,91 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
         if len(segmentText) < 6:
             incTextFlag = 0
 
+        # DR 21309 code addition from Middendorf (BYZ)
+        #
+        # Now if there is a new hazard and previous segment Text, then
+        # we may have to add bullets.
+        #
+        if incTextFlag and bulletProd:
+            for eachHazard in sortedHazardList:
+                if not eachHazard.has_key('prevText'):
+                    newBullets = string.split(self._bulletDict().get(eachHazard['phen']),",")
+                    print "newBullets = ", newBullets
+                    print "segment text is: ", segmentText
+                    for bullet in newBullets:
+                        if not "* " + bullet + "..." in segmentText:
+                            print bullet + " not in segmentText"
+                            start = self._bulletOrder().index(bullet) + 1
+                            end = len(self._bulletOrder())
+                            bulletFlag = 1
+                            for i in range(start,end):
+                                if "* " + self._bulletOrder()[i] + "..." in segmentText and bulletFlag:
+                                    print "* " + self._bulletOrder()[i] + "... found!"
+                                    segmentTextSplit = string.split(segmentText,"* " + self._bulletOrder()[i] + "...")
+                                    segmentText = string.join(segmentTextSplit,"* " + bullet + \
+                                                              "...|* ENTER BULLET TEXT *|\n\n* " + self._bulletOrder()[i] + "...")
+                                    bulletFlag = 0
+                            if bulletFlag:
+                                print "appending to bottom list of bullets!"
+                                segmentTextSplit = string.split(segmentText,"PRECAUTIONARY/PREPAREDNESS ACTIONS...")
+                                segmentText = "\n" + string.join(segmentTextSplit,"* " + bullet + \
+                                                                   "...|* ENTER BULLET TEXT *|\n\nPRECAUTIONARY/PREPAREDNESS ACTIONS...")
+                                bulletFlag = 0
+        #
+        # Now if there is a can/exp hazard and previous segment Text, then
+        # we may have to remove bullets.
+        #
+
+        if incTextFlag and bulletProd:
+            # First make list of bullets that we need to keep.
+            keepBulletList = []
+            for eachHazard in sortedHazardList:
+                if eachHazard['act'] not in ["CAN","EXP"]:
+                    saveBullets = string.split(self._bulletDict().get(eachHazard['phen']),",")
+                    for saveBullet in saveBullets:
+                        if saveBullet not in keepBulletList:
+                            keepBulletList.append(saveBullet)
+            # Now determine which bullets we have to remove.
+            removeBulletList = []
+            for eachHazard in sortedHazardList:
+                if eachHazard['act'] in ["CAN","EXP"]:
+                    canBullets = string.split(self._bulletDict().get(eachHazard['phen']),",")
+                    for canBullet in canBullets:
+                        if canBullet not in keepBulletList and canBullet not in removeBulletList:
+                            removeBulletList.append(canBullet)
+            print "hazardBodyText info: keepBulletList: ",keepBulletList
+            print "hazardBodyText info: removeBulletList: ",removeBulletList
+            # Finally remove the bullets no longer needed.
+            PRECAUTION = "PRECAUTIONARY/PREPAREDNESS ACTIONS..."
+            for bullet in removeBulletList:
+                segmentTextSplit = string.split(segmentText,"* " + bullet + "...")
+                print "segmentTextSplit is ", segmentTextSplit 
+                if len(segmentTextSplit) > 1:
+                    segmentTextSplit2 = string.split(segmentTextSplit[1],"*",1)
+                    if len(segmentTextSplit2) == 2:
+                        segmentTextSplit[1] = "*" + segmentTextSplit2[1]
+                    else:
+                        segmentTextSplit2 = string.split(segmentTextSplit[1], \
+                                                         PRECAUTION, 1)
+                        if len(segmentTextSplit2) == 2:
+                            segmentTextSplit[1] = PRECAUTION + segmentTextSplit2[1]
+                    segmentText = string.join(segmentTextSplit,"")
+
+            if removeBulletList != []:
+                segmentText = "|*\n" + segmentText + "*|"
+
         #
         # If segment passes the above checks, add the text
         #
 
+        print "hazardBodyText info: incTextFlag: ",incTextFlag
         if incTextFlag:
+            print "hazardBodyText info: segmentText: ",segmentText
             hazardBodyPhrase = hazardBodyPhrase + "\n\n" + \
               segmentText + '\n\n'
-# added below for DR21194
+
         elif bulletProd:
-            forceList = ['HW','DS','EH','EC','BZ','WS','IS']
-            for h in newList:
-                if h['phen'] in forceList:
-                    eachHazard = h 
+            bulletFlag = 0
             if eachHazard['act'] == 'CAN':
                 hazardBodyPhrase = hazardBodyPhrase + \
                   "\n\n|* WRAP-UP TEXT GOES HERE *|.\n"
@@ -684,19 +759,37 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis,
                 hazardBodyPhrase = hazardBodyPhrase + \
                   "\n\n|* WRAP-UP TEXT GOES HERE *|.\n"
             else:
-                ### get the default bullets from the bullet dictionary
-                bullets = self._getBullets(eachHazard, argDict)
+                bulletFlag = 1
+##            print "bulletFlag is: ",bulletFlag
+            if bulletFlag:
+                newBulletList = []
+                bullets = ""
+                for eachHazard in sortedHazardList:
+                ### get the default bullets for all hazards from the bullet diction
+                    newBullets = string.split(self._bulletDict().get(eachHazard['phen']),",")
+                    for newBullet in newBullets:
+                        if newBullet not in newBulletList:
+                            newBulletList.append(newBullet)
+                print "my bullets are: ", newBulletList
+         ###   Determine the correct order for all bullets       
+                bulletOrder = self._bulletOrder()
+                staticBulletOrder = self._bulletOrder()
+                for bullet in staticBulletOrder:
+                    print "correct bullet order should be: ", bulletOrder
+                    if bullet not in newBulletList:
+                        bulletOrder.remove(bullet)
+                print "reordered bullets are: ", bulletOrder
+                for b in bulletOrder:
+                    bullets = bullets + "* " + b + "...|* ENTER BULLET TEXT *|\n\n"
+
                 hazardBodyPhrase = hazardBodyPhrase + "\n\n" + bullets
-# end addition
 
         # If segment doesn't pass the checks, put in framing codes
         else:
-            if eachHazard['sig'] != 'S':
-                hazardBodyPhrase = hazardBodyPhrase + \
-                  "\n\n|* SEGMENT TEXT GOES HERE *|.\n\n"
-            else:
-                hazardBodyPhrase = hazardBodyPhrase + \
-                  "\n\n|* STATEMENT TEXT GOES HERE *|.\n\n"
+            hazardBodyPhrase = hazardBodyPhrase + \
+                "\n\n|* STATEMENT TEXT GOES HERE *|.\n\n"
+
+        # End code for DR 21310
 
         #
         # This adds the call to action statements. This is only performed

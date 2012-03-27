@@ -375,7 +375,7 @@ then
    then
     
       echo "starting HPE processes via start_hpe script " $Dte >> $hpefnm
-      /bin/ksh $PPROC_BIN/launch_hpe &
+      /bin/ksh $PPROC_BIN/launch_hpe 2>$DHR_LOG_DIR/launch_hpe.err &
       exit 0
    else
    

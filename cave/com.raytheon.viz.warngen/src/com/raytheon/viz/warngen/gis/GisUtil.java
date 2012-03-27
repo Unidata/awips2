@@ -55,6 +55,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *                                         convert longitudes for Alaska when
  *                                         they're in Eastern Hemisphere; invoke
  *                                         it in convertCoords().
+ *    Feb 29, 2012 #13596      Qinglu Lin  Added restoreAlaskaLon().
  * </pre>
  * 
  * @author chammack
@@ -265,6 +266,26 @@ public class GisUtil {
         Point2D[] old = GisUtil.convertCoords(oldGeom.getCoordinates());
         Point2D[] neww = GisUtil.convertCoords(newGeom.getCoordinates());
         return Arrays.equals(old, neww);
+    }
+
+    /**
+     * restoreAlaskaLon()
+     * 
+     * Feb 28, 2012  DR13596  Qinglu Lin Created.
+     * 
+     * If the longitude of a Coordinate is less than -180 and corresponding 
+     * latitude is larger than 45 degree North, convert it to a value 
+     * equivalent to (360 + the longitude).
+     */
+    public static Coordinate restoreAlaskaLon(Coordinate oldCoords) {
+        Coordinate coord = new Coordinate();
+    	if (oldCoords.x < -180. && oldCoords.y > 45.) {
+            coord.x = 360. + oldCoords.x;
+        } else {
+            coord.x = oldCoords.x;
+        }
+        coord.y = oldCoords.y;
+        return coord;
     }
 
 }
