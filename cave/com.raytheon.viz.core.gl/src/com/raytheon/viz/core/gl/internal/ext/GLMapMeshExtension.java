@@ -23,6 +23,7 @@ import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
 
 import com.raytheon.uf.viz.core.IMesh;
+import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapMeshExtension;
@@ -61,6 +62,20 @@ public class GLMapMeshExtension extends GraphicsExtension<IGLTarget> implements
     public IMesh constructMesh(GridGeometry2D imageGeometry,
             GeneralGridGeometry targetGeometry) throws VizException {
         return new GLMesh2DStrips(imageGeometry, targetGeometry);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.core.map.IMapMeshExtension#constructMesh(org.geotools
+     * .coverage.grid.GridGeometry2D,
+     * com.raytheon.uf.viz.core.drawables.IDescriptor)
+     */
+    @Override
+    public IMesh constructMesh(GridGeometry2D imageGeometry,
+            IDescriptor targetDescriptor) throws VizException {
+        return constructMesh(imageGeometry, targetDescriptor.getGridGeometry());
     }
 
     /*
