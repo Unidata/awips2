@@ -26,8 +26,10 @@ import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IInitData;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
+import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditorInputHandler;
 import com.raytheon.uf.viz.collaboration.ui.editor.EditorSetup;
 import com.raytheon.uf.viz.collaboration.ui.editor.SharedEditor;
+import com.raytheon.uf.viz.core.rsc.IInputHandler.InputPriority;
 
 /**
  * Handles the events of a session that are specific to the Participant role.
@@ -60,6 +62,9 @@ public class ParticipantEventController extends AbstractRoleEventController {
         if (initData instanceof SharedEditor) {
             SharedEditor se = (SharedEditor) initData;
             CollaborationEditor editor = EditorSetup.createEditor(se);
+            editor.registerMouseHandler(new CollaborationEditorInputHandler(
+                    session, editor.getDisplayPanes()[0]),
+                    InputPriority.SYSTEM_RESOURCE);
             CollaborationDataManager.getInstance().editorCreated(
                     session.getSessionId(), editor);
         }
