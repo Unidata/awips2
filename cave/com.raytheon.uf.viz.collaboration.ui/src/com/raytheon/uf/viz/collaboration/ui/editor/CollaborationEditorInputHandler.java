@@ -21,6 +21,15 @@ package com.raytheon.uf.viz.collaboration.ui.editor;
 
 import org.eclipse.swt.widgets.Event;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent;
+import com.raytheon.uf.viz.collaboration.ui.editor.event.InputEvent;
+import com.raytheon.uf.viz.collaboration.ui.editor.event.InputEvent.EventType;
+import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 
 /**
@@ -44,9 +53,31 @@ import com.raytheon.uf.viz.core.rsc.IInputHandler;
 
 public class CollaborationEditorInputHandler implements IInputHandler {
 
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(CollaborationEditorInputHandler.class);
+
+    private ISharedDisplaySession session;
+
+    private IDisplayPane displayPane;
+
+    public CollaborationEditorInputHandler(ISharedDisplaySession session,
+            IDisplayPane displayPane) {
+        this.session = session;
+        this.displayPane = displayPane;
+    }
+
+    private void sendEvent(IDisplayEvent event) {
+        try {
+            session.sendEvent(session.getCurrentDataProvider(), event);
+        } catch (CollaborationException e) {
+            statusHandler.handle(Priority.PROBLEM, "Error sending input event",
+                    e);
+        }
+    }
+
     protected boolean isSessionLeader() {
-        // TODO this should query the session somehow for the current role
-        return false;
+        // TODO does this work?
+        return session.getUserID().equals(session.getCurrentSessionLeader());
     }
 
     /*
@@ -57,7 +88,14 @@ public class CollaborationEditorInputHandler implements IInputHandler {
      */
     @Override
     public boolean handleMouseDown(int x, int y, int mouseButton) {
-        return !isSessionLeader();
+        boolean leader = isSessionLeader();
+        if (leader) {
+            double[] coords = displayPane.screenToGrid(x, y, 0);
+            InputEvent event = new InputEvent(EventType.MOUSE_DOWN, coords[0],
+                    coords[1], mouseButton);
+            sendEvent(event);
+        }
+        return leader;
     }
 
     /*
@@ -68,7 +106,14 @@ public class CollaborationEditorInputHandler implements IInputHandler {
      */
     @Override
     public boolean handleMouseDownMove(int x, int y, int mouseButton) {
-        return !isSessionLeader();
+        boolean leader = isSessionLeader();
+        if (leader) {
+            double[] coords = displayPane.screenToGrid(x, y, 0);
+            InputEvent event = new InputEvent(EventType.MOUSE_DOWN_MOVE,
+                    coords[0], coords[1], mouseButton);
+            sendEvent(event);
+        }
+        return !leader;
     }
 
     /*
@@ -79,7 +124,14 @@ public class CollaborationEditorInputHandler implements IInputHandler {
      */
     @Override
     public boolean handleMouseUp(int x, int y, int mouseButton) {
-        return !isSessionLeader();
+        boolean leader = isSessionLeader();
+        if (leader) {
+            double[] coords = displayPane.screenToGrid(x, y, 0);
+            InputEvent event = new InputEvent(EventType.MOUSE_UP, coords[0],
+                    coords[1], mouseButton);
+            sendEvent(event);
+        }
+        return !leader;
     }
 
     /*
@@ -90,6 +142,7 @@ public class CollaborationEditorInputHandler implements IInputHandler {
      */
     @Override
     public boolean handleMouseHover(int x, int y) {
+        // TODO doesn't do anything right now to reduce bandwidth
         return !isSessionLeader();
     }
 
@@ -100,6 +153,7 @@ public class CollaborationEditorInputHandler implements IInputHandler {
      */
     @Override
     public boolean handleMouseMove(int x, int y) {
+        // TODO doesn't do anything right now to reduce bandwidth
         return !isSessionLeader();
     }
 
@@ -111,6 +165,7 @@ public class CollaborationEditorInputHandler implements IInputHandler {
      */
     @Override
     public boolean handleDoubleClick(int x, int y, int button) {
+        // TODO doesn't do anything right now to reduce bandwidth
         return !isSessionLeader();
     }
 
@@ -123,7 +178,14 @@ public class CollaborationEditorInputHandler implements IInputHandler {
      */
     @Override
     public boolean handleMouseWheel(Event event, int x, int y) {
-        return !isSessionLeader();
+        boolean leader = isSessionLeader();
+        if (leader) {
+            double[] coords = displayPane.screenToGrid(x, y, 0);
+            InputEvent mevent = new InputEvent(EventType.MOUSE_WHEEL,
+                    coords[0], coords[1], event.count);
+            sendEvent(mevent);
+        }
+        return !leader;
     }
 
     /*
@@ -135,6 +197,7 @@ public class CollaborationEditorInputHandler implements IInputHandler {
      */
     @Override
     public boolean handleMouseExit(Event event) {
+        // TODO doesn't do anything right now to reduce bandwidth
         return !isSessionLeader();
     }
 
@@ -147,6 +210,7 @@ public class CollaborationEditorInputHandler implements IInputHandler {
      */
     @Override
     public boolean handleMouseEnter(Event event) {
+        // TODO doesn't do anything right now to reduce bandwidth
         return !isSessionLeader();
     }
 
@@ -157,7 +221,13 @@ public class CollaborationEditorInputHandler implements IInputHandler {
      */
     @Override
     public boolean handleKeyDown(int keyCode) {
-        return !isSessionLeader();
+        boolean leader = isSessionLeader();
+        if (leader) {
+            InputEvent event = new InputEvent(EventType.KEY_DOWN, -1, -1,
+                    keyCode);
+            sendEvent(event);
+        }
+        return !leader;
     }
 
     /*
@@ -167,7 +237,13 @@ public class CollaborationEditorInputHandler implements IInputHandler {
      */
     @Override
     public boolean handleKeyUp(int keyCode) {
-        return !isSessionLeader();
+        boolean leader = isSessionLeader();
+        if (leader) {
+            InputEvent event = new InputEvent(EventType.KEY_DOWN, -1, -1,
+                    keyCode);
+            sendEvent(event);
+        }
+        return !leader;
     }
 
 }
