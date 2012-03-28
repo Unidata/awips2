@@ -137,6 +137,7 @@
             class="com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor"
             default="true"
             id="com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor"
+            icon="icons/messages.gif"
             name="Map">
       </editor>
    </extension>
