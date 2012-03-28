@@ -23,6 +23,7 @@ import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
 
 import com.raytheon.uf.viz.core.IMesh;
+import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension.IGraphicsExtensionInterface;
 import com.raytheon.uf.viz.core.exception.VizException;
 
@@ -55,5 +56,19 @@ public interface IMapMeshExtension extends IGraphicsExtensionInterface {
      */
     public abstract IMesh constructMesh(GridGeometry2D imageGeometry,
             GeneralGridGeometry targetGeometry) throws VizException;
+
+    /**
+     * Convenient method for constructing a mesh for mapping the imageGeometry
+     * onto the targetDescriptor. Same as calling
+     * {@link #constructMesh(GridGeometry2D, GeneralGridGeometry)} passing in
+     * target.getGridGeometry()
+     * 
+     * @param imageGeometry
+     * @param targetDescriptor
+     * @return
+     * @throws VizException
+     */
+    public abstract IMesh constructMesh(GridGeometry2D imageGeometry,
+            IDescriptor targetDescriptor) throws VizException;
 
 }
