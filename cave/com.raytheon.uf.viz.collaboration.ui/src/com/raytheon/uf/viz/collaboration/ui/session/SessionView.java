@@ -214,10 +214,7 @@ public class SessionView extends AbstractSessionView {
      */
     @Override
     protected void createListeners() {
-        // this.getViewSite().getWorkbenchWindow().getPartService()
-        // .addPartListener(this);
         super.createListeners();
-        // sessionId = getViewSite().getSecondaryId();
         IVenueSession session = CollaborationDataManager.getInstance()
                 .getSession(sessionId);
         if (session != null) {
@@ -325,7 +322,6 @@ public class SessionView extends AbstractSessionView {
             public int compare(Viewer viewer, Object e1, Object e2) {
                 CollaborationUser c1 = (CollaborationUser) e1;
                 CollaborationUser c2 = (CollaborationUser) e1;
-                // return super.compare(viewer, e1, e2);
                 return c1.compareTo(c2);
             }
         });
@@ -340,7 +336,7 @@ public class SessionView extends AbstractSessionView {
                     StringBuilder builder = new StringBuilder("-- Roles --");
                     for (RoleType type : RoleType.values()) {// user.getRoles(sessionId))
                                                              // {
-                        // fake XXX take this out
+                        // TODO fake XXX take this out
                         if (type == RoleType.UNKNOWN) {
                             continue;
                         }
@@ -379,15 +375,15 @@ public class SessionView extends AbstractSessionView {
     @Override
     public void dispose() {
 
-        CollaborationDataManager.getInstance().getSession(sessionId)
-                .unRegisterEventHandler(this);
+        // CollaborationDataManager.getInstance().getSession(sessionId)
+        // .unRegisterEventHandler(this);
 
         // dispose of the images first
         disposeArrow(highlightedDownArrow);
         disposeArrow(highlightedRightArrow);
         disposeArrow(downArrow);
         disposeArrow(rightArrow);
-        CollaborationDataManager.getInstance().closeSession(sessionId);
+        // CollaborationDataManager.getInstance().closeSession(sessionId);
         super.dispose();
     }
 
@@ -506,26 +502,31 @@ public class SessionView extends AbstractSessionView {
         return SESSION_IMAGE_NAME;
     }
 
-    @Override
-    public void partActivated(IWorkbenchPart part) {
-        // nothing to do
-    }
-
-    @Override
-    public void partBroughtToTop(IWorkbenchPart part) {
-        // TODO
-        // if link with editor is on, need to activate the editor
-    }
+    // @Override
+    // public void partActivated(IWorkbenchPart part) {
+    // // nothing to do
+    // }
+    //
+    // @Override
+    // public void partBroughtToTop(IWorkbenchPart part) {
+    // // TODO
+    // // if link with editor is on, need to activate the editor
+    // }
 
     // @Override
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView#partClosed
+     * (org.eclipse.ui.IWorkbenchPart)
+     */
     public void partClosed(IWorkbenchPart part) {
         super.partClosed(part);
-        // TODO
-        // here you need to end a session that is a temporary session
-        IVenueSession session = CollaborationDataManager.getInstance()
-                .getSession(sessionId);
-        if (session != null) {
-            session.unRegisterEventHandler(this);
+        if (this == part) {
+            CollaborationDataManager.getInstance().getSession(sessionId)
+                    .unRegisterEventHandler(this);
+            CollaborationDataManager.getInstance().closeSession(sessionId);
         }
     }
 
