@@ -25,7 +25,6 @@ import org.eclipse.ui.IWorkbenchPart;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
-import com.raytheon.uf.viz.core.rsc.IInputHandler.InputPriority;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.panes.PaneManager;
 
@@ -54,10 +53,7 @@ public class CollaborationEditor extends AbstractEditor implements
 
     @Override
     protected PaneManager getNewPaneManager() {
-        PaneManager pm = new PaneManager();
-        pm.registerMouseHandler(new CollaborationEditorInputHandler(),
-                InputPriority.SYSTEM_RESOURCE);
-        return pm;
+        return new PaneManager();
     }
 
     @Override
