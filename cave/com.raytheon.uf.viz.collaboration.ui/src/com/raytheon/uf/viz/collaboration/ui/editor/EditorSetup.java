@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.editor;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -157,6 +158,11 @@ public class EditorSetup {
 
     // TODO delete
     public static SharedEditor testLoadEditorData() {
+        File file = new File(PATH);
+        if (!file.exists()) {
+            testSaveEditorData();
+        }
+
         SharedEditor se = null;
         try {
             se = (SharedEditor) SerializationUtil
