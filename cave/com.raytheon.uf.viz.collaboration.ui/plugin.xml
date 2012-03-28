@@ -130,6 +130,14 @@
                  style="push">
          </command>
       </menuContribution>
+      <menuContribution
+     		locationURI="toolbar:d2d-2?after=tools.toolbar">
+			<command
+                  commandId="com.raytheon.uf.viz.drawing.pathdrawingtool"
+                  style="push"
+                  label="Draw">
+            </command>
+      </menuContribution>
    </extension>
    <extension
          point="org.eclipse.ui.editors">
