@@ -26,6 +26,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchListener;
 import org.eclipse.ui.PlatformUI;
@@ -85,14 +87,16 @@ public class CollaborationDataManager {
      */
     Map<String, DataUser> usersMap;
 
+    private boolean linkCollaboration;
+
     /**
      * Mapping for all active chat sessions.
      */
     Map<String, IVenueSession> sessionsMap;
 
-    Map<String, AbstractRoleEventController> displaySessionsMap = new HashMap<String, AbstractRoleEventController>();
+    private Map<String, AbstractRoleEventController> roleEventControllersMap;
 
-    Map<String, CollaborationEditor> editorsMap = new HashMap<String, CollaborationEditor>();
+    Map<String, CollaborationEditor> editorsMap;
 
     public static CollaborationDataManager getInstance() {
         if (instance == null) {
@@ -116,9 +120,11 @@ public class CollaborationDataManager {
      * Private constructor to for singleton class.
      */
     private CollaborationDataManager() {
+        linkCollaboration = false;
         usersMap = new HashMap<String, DataUser>();
         sessionsMap = new HashMap<String, IVenueSession>();
-        // displaySessionsMap = new HashMap<String, ISharedDisplaySession>();
+        roleEventControllersMap = new HashMap<String, AbstractRoleEventController>();
+        editorsMap = new HashMap<String, CollaborationEditor>();
     }
 
     public String getLoginId() {
@@ -134,17 +140,15 @@ public class CollaborationDataManager {
         return usersMap.get(id);
     }
 
-    public AbstractRoleEventController getDisplaySession(String sessonId) {
-        return displaySessionsMap.get(sessonId);
+    public void setLinkCollaboration(boolean state) {
+        this.linkCollaboration = state;
     }
 
-    public void setDisplaySession(String sessionId,
-            AbstractRoleEventController controller) {
-        displaySessionsMap.put(sessionId, controller);
+    public boolean getLinkCollaboration() {
+        return linkCollaboration;
     }
 
-    public void editorCreated(String venueId, CollaborationEditor editor) {
-        String sessionId = venueIdToSessionId(venueId);
+    public void editorCreated(String sessionId, CollaborationEditor editor) {
         editorsMap.put(sessionId, editor);
     }
 
@@ -273,12 +277,72 @@ public class CollaborationDataManager {
         IVenueSession session = sessionsMap.get(sessionId);
         if (session != null) {
             sessionsMap.remove(sessionId);
-            AbstractRoleEventController controller = displaySessionsMap
-                    .remove(sessionId);
-            if (controller != null) {
-                controller.shutdown();
-            }
             session.close();
+        }
+    }
+
+    public void closeEditor(String sessionId) {
+        CollaborationEditor editor = editorsMap.remove(sessionId);
+        if (editor != null) {
+            for (IEditorReference ref : PlatformUI.getWorkbench()
+                    .getActiveWorkbenchWindow().getActivePage()
+                    .getEditorReferences()) {
+                if (editor == ref.getEditor(false)) {
+                    PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                            .getActivePage().hideEditor(ref);
+                }
+            }
+        }
+
+        AbstractRoleEventController controller = roleEventControllersMap
+                .remove(sessionId);
+        if (controller != null) {
+            controller.shutdown();
+        }
+    }
+
+    public void editorBringToTop(String sessionId) {
+        if (linkCollaboration) {
+            CollaborationEditor editor = CollaborationDataManager.getInstance()
+                    .getEditor(sessionId);
+            if (editor != null) {
+                PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                        .getActivePage().bringToTop(editor);
+            }
+        }
+    }
+
+    public String getSessinId(CollaborationEditor editor) {
+        String sessionId = null;
+        for (String key : editorsMap.keySet()) {
+            if (editor == editorsMap.get(key)) {
+                sessionId = key;
+                break;
+            }
+        }
+        return sessionId;
+    }
+
+    /**
+     * Bring the view associated with the sessionId to the top.
+     * 
+     * @param sessionId
+     */
+    public void viewBringToTop(String sessionId) {
+        if (linkCollaboration) {
+            for (IViewReference ref : PlatformUI.getWorkbench()
+                    .getActiveWorkbenchWindow().getActivePage()
+                    .getViewReferences()) {
+                if (sessionId.equals(ref.getSecondaryId())) {
+                    try {
+                        PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                                .getActivePage().bringToTop(ref.getView(false));
+                    } catch (NullPointerException ex) {
+                        // Ignore happens during creation of view/editor.
+                    }
+                    break;
+                }
+            }
         }
     }
 
@@ -298,8 +362,9 @@ public class CollaborationDataManager {
         String sessionId = null;
         try {
             session = manager.createCollaborationVenue(venue, subject);
-            sessionId = venueIdToSessionId(session.getVenue().getInfo()
-                    .getVenueID());
+            // sessionId = venueIdToSessionId(session.getVenue().getInfo()
+            // .getVenueID());
+            sessionId = session.getSessionId();
             // TODO throw an exception if unable to make connection?
             if (session.isConnected()) {
                 ISharedDisplaySession displaySession = session
@@ -308,7 +373,7 @@ public class CollaborationDataManager {
                 DataProviderEventController dpec = new DataProviderEventController(
                         displaySession);
                 dpec.startup();
-                displaySessionsMap.put(sessionId, dpec);
+                roleEventControllersMap.put(sessionId, dpec);
                 // TODO set displaySession's data provider and session leader.
             }
         } catch (CollaborationException e) {
@@ -326,19 +391,23 @@ public class CollaborationDataManager {
     }
 
     public String joinCollaborationSession(String venueName, String sessionId) {
+        String result = sessionId;
         if (sessionsMap.get(sessionId) == null) {
 
             IVenueSession session = null;
             try {
                 session = getSessionManager().joinCollaborationVenue(venueName);
+                result = session.getSessionId();
                 ISharedDisplaySession displaySession = session
                         .spawnSharedDisplaySession();
-                sessionsMap.put(sessionId, session);
+                sessionsMap.put(result, session);
                 ParticipantEventController pec = new ParticipantEventController(
                         displaySession);
                 pec.startup();
-                displaySessionsMap.put(sessionId, pec);
-                // displaySessionsMap.put(sessionId, displaySession);
+                roleEventControllersMap.put(sessionId, pec);
+                // TODO test only delete
+                // SharedEditor editor = EditorSetup.testLoadEditorData();
+                // pec.initDataArrived(editor);
             } catch (CollaborationException e) {
                 // TODO Auto-generated catch block. Please revise as
                 // appropriate.
@@ -346,6 +415,6 @@ public class CollaborationDataManager {
                         e);
             }
         }
-        return sessionId;
+        return result;
     }
 }

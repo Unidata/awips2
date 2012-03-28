@@ -128,6 +128,8 @@ public abstract class AbstractSessionView extends ViewPart implements
     }
 
     protected void createListeners() {
+        getViewSite().getWorkbenchWindow().getPartService()
+                .addPartListener(this);
     }
 
     private void createMessagesComp(Composite parent) {
@@ -251,8 +253,10 @@ public abstract class AbstractSessionView extends ViewPart implements
      */
     @Override
     public void partClosed(IWorkbenchPart part) {
-        getViewSite().getWorkbenchWindow().getPartService()
-                .removePartListener(this);
+        if (this == part) {
+            getViewSite().getWorkbenchWindow().getPartService()
+                    .removePartListener(this);
+        }
     }
 
     /*
