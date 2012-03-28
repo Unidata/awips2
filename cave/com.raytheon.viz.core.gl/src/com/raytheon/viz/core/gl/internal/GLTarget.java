@@ -495,7 +495,7 @@ public class GLTarget implements IGLTarget {
     @Override
     public IWireframeShape createWireframeShape(boolean mutable,
             IDescriptor descriptor) {
-        return new GLWireframeShape2D(descriptor, mutable);
+        return new GLWireframeShape2D(descriptor.getGridGeometry(), mutable);
     }
 
     /*
@@ -511,7 +511,7 @@ public class GLTarget implements IGLTarget {
             return new GLWireframeShape(descriptor, mutable,
                     simplificationLevel);
         } else {
-            return new GLWireframeShape2D(descriptor, mutable);
+            return new GLWireframeShape2D(descriptor.getGridGeometry(), mutable);
         }
     }
 
@@ -530,7 +530,7 @@ public class GLTarget implements IGLTarget {
             return new GLWireframeShape(descriptor, null, mutable,
                     simplificationLevel, spatialChopFlag, extent);
         } else {
-            return new GLWireframeShape2D(descriptor, mutable);
+            return new GLWireframeShape2D(descriptor.getGridGeometry(), mutable);
         }
     }
 
