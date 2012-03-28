@@ -52,6 +52,10 @@ public class SessionGroup extends CollaborationGroup {
         this.sessionRoot = sessionRoot;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
     /*
      * (non-Javadoc)
      * 

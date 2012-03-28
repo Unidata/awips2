@@ -52,6 +52,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
@@ -72,15 +74,13 @@ import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.SessionManager;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.VenueSession;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationGroup;
 import com.raytheon.uf.viz.collaboration.data.CollaborationNode;
 import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
 import com.raytheon.uf.viz.collaboration.data.LoginUser;
 import com.raytheon.uf.viz.collaboration.data.SessionGroup;
-import com.raytheon.uf.viz.collaboration.ui.role.DataProviderEventController;
-import com.raytheon.uf.viz.collaboration.ui.role.ParticipantEventController;
+import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.PeerToPeerView;
@@ -198,13 +198,15 @@ public class CollaborationGroupView extends ViewPart {
                 Action.AS_CHECK_BOX) {
             @Override
             public void run() {
-                // TODO
-                System.out.println("Link to editor here");
+                CollaborationDataManager.getInstance().setLinkCollaboration(
+                        isChecked());
                 // createPrivateChat();
             }
         };
         linkToEditorAction.setImageDescriptor(CollaborationUtils
                 .getImageDescriptor("link_to_editor.gif"));
+        linkToEditorAction.setChecked(CollaborationDataManager.getInstance()
+                .getLinkCollaboration());
 
         inviteAction = new Action("Invite...") {
             @Override
@@ -371,6 +373,7 @@ public class CollaborationGroupView extends ViewPart {
                 + "close all collaboration views\n" + "and editors.");
         int result = messageBox.open();
         if (result == SWT.OK) {
+            // Close all Session Views
             PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getActivePage().hideView(this);
             for (IViewReference ref : PlatformUI.getWorkbench()
@@ -382,16 +385,17 @@ public class CollaborationGroupView extends ViewPart {
                             .getActivePage().hideView(view);
                 }
             }
-            // TODO close collaboration CAVE editor(s).
-            // for (IEditorReference ref :
-            // PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getEditorReferences())
-            // {
-            // IEditorPart editor = ref.getEditor(false);
-            // if (editor instanceof CollaborationEditor) {
-            // PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-            // .getActivePage().hideEditor(ref);
-            // }
-            // }
+
+            // Close all Collaboration Editors.
+            for (IEditorReference ref : PlatformUI.getWorkbench()
+                    .getActiveWorkbenchWindow().getActivePage()
+                    .getEditorReferences()) {
+                IEditorPart editor = ref.getEditor(false);
+                if (editor instanceof CollaborationEditor) {
+                    PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                            .getActivePage().hideEditor(ref);
+                }
+            }
             CollaborationDataManager.getInstance().closeManager();
         }
     }
@@ -511,10 +515,6 @@ public class CollaborationGroupView extends ViewPart {
                     .getInstance();
             sessionId = manager.createCollaborationSession(result.getName(),
                     result.getSubject());
-            DataProviderEventController controller = new DataProviderEventController(
-                    (VenueSession) manager.getSession(sessionId));
-            controller.startup();
-            manager.setDisplaySession(sessionId, controller);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -599,10 +599,12 @@ public class CollaborationGroupView extends ViewPart {
                         .getInstance();
                 String sessionId = manager.joinCollaborationSession(
                         sg.getText(), sg.getId());
-                ParticipantEventController controller = new ParticipantEventController(
-                        (VenueSession) manager.getSession(sessionId));
-                manager.setDisplaySession(sessionId, controller);
-                controller.startup();
+                sg.setId(sessionId);
+                // ParticipantEventController controller = new
+                // ParticipantEventController(
+                // (VenueSession) manager.getSession(sessionId));
+                // manager.setDisplaySession(sessionId, controller);
+                // controller.startup();
                 try {
                     IViewPart part = PlatformUI
                             .getWorkbench()
@@ -610,7 +612,6 @@ public class CollaborationGroupView extends ViewPart {
                             .getActivePage()
                             .showView(CollaborationSessionView.ID, sessionId,
                                     IWorkbenchPage.VIEW_ACTIVATE);
-
                 } catch (PartInitException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Unable to open collaboation sesson", e);
@@ -806,8 +807,9 @@ public class CollaborationGroupView extends ViewPart {
         Collection<IVenueInfo> venuList = CollaborationDataManager
                 .getInstance().getSessionManager().getVenueInfo();
         for (IVenueInfo venu : venuList) {
-            SessionGroup gp = new SessionGroup(CollaborationDataManager
-                    .getInstance().venueIdToSessionId(venu.getVenueID()));
+            // SessionGroup gp = new SessionGroup(CollaborationDataManager
+            // .getInstance().venueIdToSessionId(venu.getVenueID()));
+            SessionGroup gp = new SessionGroup(null);
             gp.setText(venu.getVenueName());
 
             if (venu.getParticipantCount() > 0) {
