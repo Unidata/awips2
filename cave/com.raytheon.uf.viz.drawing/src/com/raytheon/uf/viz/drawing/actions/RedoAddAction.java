@@ -19,8 +19,15 @@
  **/
 package com.raytheon.uf.viz.drawing.actions;
 
+import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
+
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.drawing.DrawingLayer;
-import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
+import com.raytheon.viz.ui.EditorUtil;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
  * TODO Add Description
@@ -39,43 +46,19 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  * @version 1.0
  */
 
-public class RedoAddAction extends AbstractRightClickAction {
+public class RedoAddAction extends AbstractHandler {
 
     @Override
-    public void run() {
-        ((DrawingLayer) getSelectedRsc()).redoAdd();
-    }
-
-    @Override
-    public boolean isHidden() {
-        if (getSelectedRsc() instanceof DrawingLayer) {
-            return false;
-        } else {
-            return true;
+    public Object execute(ExecutionEvent event) throws ExecutionException {
+        ResourceList list = ((AbstractEditor) EditorUtil
+                .getActiveEditorAs(AbstractEditor.class))
+                .getActiveDisplayPane().getDescriptor().getResourceList();
+        for (ResourcePair pair : list) {
+            if (pair.getResource() instanceof DrawingLayer) {
+                ((DrawingLayer) pair.getResource()).redoAdd();
+                break;
+            }
         }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.action.Action#isEnabled()
-     */
-    @Override
-    public boolean isEnabled() {
-        if (!((DrawingLayer) getSelectedRsc()).getDeletedShapes().isEmpty()) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.action.Action#getText()
-     */
-    @Override
-    public String getText() {
-        return "Redo Draw";
+        return null;
     }
 }

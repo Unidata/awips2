@@ -23,6 +23,7 @@ package com.raytheon.uf.viz.drawing;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
@@ -72,10 +73,9 @@ public abstract class AbstractDrawingTool extends AbstractModalTool {
         }
 
         if (theDrawingLayer == null) {
-            PathDrawingResourceData resourceData = new PathDrawingResourceData();
             try {
-                theDrawingLayer = resourceData.construct(new LoadProperties(),
-                        desc);
+                theDrawingLayer = (DrawingLayer) constructData().construct(
+                        new LoadProperties(), desc);
             } catch (VizException e1) {
                 e1.printStackTrace();
             }
@@ -110,4 +110,5 @@ public abstract class AbstractDrawingTool extends AbstractModalTool {
      */
     public abstract IInputHandler getMouseHandler();
 
+    protected abstract AbstractResourceData constructData();
 }
