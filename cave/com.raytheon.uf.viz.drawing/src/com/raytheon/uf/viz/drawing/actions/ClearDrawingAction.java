@@ -19,8 +19,15 @@
  **/
 package com.raytheon.uf.viz.drawing.actions;
 
+import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
+
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.drawing.DrawingLayer;
-import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
+import com.raytheon.viz.ui.EditorUtil;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
  * TODO Add Description
@@ -39,36 +46,19 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  * @version 1.0
  */
 
-public class ClearDrawingAction extends AbstractRightClickAction {
+public class ClearDrawingAction extends AbstractHandler {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.action.Action#run()
-     */
     @Override
-    public void run() {
-        if (getSelectedRsc() != null) {
-            ((DrawingLayer) getSelectedRsc()).reset();
+    public Object execute(ExecutionEvent event) throws ExecutionException {
+        ResourceList list = ((AbstractEditor) EditorUtil
+                .getActiveEditorAs(AbstractEditor.class))
+                .getActiveDisplayPane().getDescriptor().getResourceList();
+        for (ResourcePair pair : list) {
+            if (pair.getResource() instanceof DrawingLayer) {
+                ((DrawingLayer) pair.getResource()).reset();
+                break;
+            }
         }
-    }
-
-    @Override
-    public String getText() {
-        return "Clear Drawing";
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.cmenu.AbstractRightClickAction#isHidden()
-     */
-    @Override
-    public boolean isHidden() {
-        if (getSelectedRsc() instanceof DrawingLayer) {
-            return false;
-        } else {
-            return true;
-        }
+        return null;
     }
 }
