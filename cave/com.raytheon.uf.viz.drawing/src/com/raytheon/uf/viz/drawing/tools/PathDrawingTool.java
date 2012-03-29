@@ -25,14 +25,14 @@ import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.widgets.Display;
 
+import com.raytheon.uf.viz.core.icon.IconUtil;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.drawing.AbstractDrawingTool;
+import com.raytheon.uf.viz.drawing.Activator;
 import com.raytheon.uf.viz.drawing.PathDrawingResourceData;
 import com.raytheon.viz.ui.input.InputAdapter;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -88,16 +88,13 @@ public class PathDrawingTool extends AbstractDrawingTool {
 
             Cursor cursor = null;
             if (theDrawingLayer.isErase()) {
-                ImageData data = ToolsUtils
-                        .getImageDescriptor("eraser_box.gif").getImageData();
+                ImageData data = IconUtil.getImageDescriptor(
+                        Activator.getDefault().getBundle(), "eraser_box.gif")
+                        .getImageData();
                 data.alpha = 255;
                 cursor = new Cursor(Display.getCurrent(), data, 8, 8);
             } else {
                 cursor = new Cursor(Display.getCurrent(), SWT.CURSOR_HAND);
-                Image image = new Image(cursor.getDevice(), 16, 16);
-                ImageLoader loader = new ImageLoader();
-                loader.data = new ImageData[] { image.getImageData() };
-                loader.save("/home/mnash/Desktop/hand.png", SWT.IMAGE_PNG);
             }
 
             Display.getCurrent().getActiveShell().setCursor(cursor);
