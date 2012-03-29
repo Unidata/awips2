@@ -38,6 +38,8 @@ import org.eclipse.ui.internal.presentations.util.ISystemMenu;
 import org.eclipse.ui.presentations.IPresentablePart;
 import org.eclipse.ui.presentations.IStackPresentationSite;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.actions.ContributedEditorMenuAction;
@@ -46,6 +48,9 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
 public class VizEditorSystemMenu implements ISystemMenu {
 
     private static final String EDITOR_MENU_EXTENSION_POINT = "com.raytheon.viz.ui.editorMenuAddition";
+
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(VizEditorSystemMenu.class);
 
     private static class CustomCloseAll extends SystemMenuCloseAll {
 
@@ -219,14 +224,10 @@ public class VizEditorSystemMenu implements ISystemMenu {
                         }
                         action.setId(el.getAttribute("name"));
                         action.setText(el.getAttribute("name"));
-                        // action.setImageDescriptor(newImage)
                         userContributionActions.add(action);
                     } catch (CoreException e) {
-                        // TODO Auto-generated catch block. Please revise as
-                        // appropriate.
-                        // statusHandler.handle(Priority.PROBLEM,
-                        // e.getLocalizedMessage(), e);
-                        e.printStackTrace();
+                        statusHandler.error(
+                                "Error creating custom editor menu action", e);
                     }
                 }
             }
