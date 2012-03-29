@@ -19,8 +19,11 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.session;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITableColorProvider;
@@ -57,18 +60,27 @@ import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 public class ParticipantsLabelProvider implements ITableColorProvider,
         ITableFontProvider, ITableLabelProvider {
 
+    private List<ILabelProviderListener> listeners;
+
     private String sessionId = null;
+
+    private Map<String, Image> imageMap;
+
+    public ParticipantsLabelProvider() {
+        listeners = new ArrayList<ILabelProviderListener>();
+        imageMap = new HashMap<String, Image>();
+    }
 
     @Override
     public void addListener(ILabelProviderListener listener) {
-        // TODO Auto-generated method stub
-
+        listeners.add(listener);
     }
 
     @Override
     public void dispose() {
-        // TODO Auto-generated method stub
-
+        for (String key : imageMap.keySet()) {
+            imageMap.get(key).dispose();
+        }
     }
 
     @Override
@@ -80,25 +92,36 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
 
     @Override
     public void removeListener(ILabelProviderListener listener) {
-        // TODO Auto-generated method stub
-
+        listeners.remove(listener);
     }
 
     @Override
     public Image getColumnImage(Object element, int columnIndex) {
         CollaborationUser user = (CollaborationUser) element;
-        CollaborationDataManager.getInstance().getUser(user.getId());
-        Image image = CollaborationUtils.getNodeImage(user);
-        // user.getRoles(sessionId);
-        RoleType[] types = new RoleType[] { RoleType.LEADER,
-                RoleType.DATA_PROVIDER };
-        return getModifier(types, image);
+        Image image = null;
+        String key = user.getImageKey();
+        if (key != null) {
+            image = imageMap.get(key);
+            if (image == null) {
+                image = CollaborationUtils.getNodeImage(user);
+                if (image != null) {
+                    imageMap.put(key, image);
+                }
+            }
+        }
+        // TODO Determine user's role and then test getModifier.
+        if (image != null) {
+            RoleType[] types = new RoleType[] { RoleType.LEADER,
+                    RoleType.DATA_PROVIDER };
+            image = getModifier(types, user);
+        }
+        return image;
     }
 
     @Override
     public String getColumnText(Object element, int columnIndex) {
         CollaborationUser user = (CollaborationUser) element;
-        RoleType[] roles = user.getRoles(sessionId);
+        // RoleType[] roles = user.getRoles(sessionId);
         return user.getText();
     }
 
@@ -137,66 +160,39 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
         return sessionId;
     }
 
-    // usersList.setLabelProvider(new LabelProvider() {
-    // public String getText(Object element) {
-    // CollaborationUser user = (CollaborationUser) element;
-    // DataUser.RoleType[] roles = user.getRoles(sessionId);
-    // StringBuilder sb = new StringBuilder();
-    // if (roles.length > 0
-    // && roles[0] != DataUser.RoleType.PARTICIPANT) {
-    // sb.append("[");
-    // for (DataUser.RoleType r : roles) {
-    // switch (r) {
-    // case DATA_PROVIDER:
-    // sb.append("D");
-    // break;
-    // case LEADER:
-    // sb.append("L");
-    // break;
-    // default:
-    // sb.append("?");
-    // break;
-    // }
-    // }
-    // sb.append("] - ");
-    // }
-    // sb.append(user.getId());
-    // return sb.toString();
-    // }
-    //
-    // public Image getImage(Object element) {
-    // Image image = null;
-    // if (element instanceof CollaborationNode) {
-    // CollaborationNode node = (CollaborationNode) element;
-    // String key = node.getImageKey();
-    // if (key != null) {
-    // image = imageMap.get(key);
-    // if (image == null) {
-    // image = CollaborationUtils.getNodeImage(node);
-    // imageMap.put(key, image);
-    // }
-    // }
-    // }
-    // return image;
-    // }
-    // });
-
-    private Image getModifier(RoleType[] types, Image image) {
-        // original image is 16x16
-        GC gc = new GC(image, SWT.LEFT_TO_RIGHT);
+    private Image getModifier(RoleType[] types, CollaborationUser user) {
+        String key = user.getImageKey();
+        StringBuilder modKey = new StringBuilder(key);
         List<RoleType> t = Arrays.asList(types);
-
         if (t.contains(RoleType.LEADER)) {
-            // Image im = CollaborationUtils.getImageDescriptor(
-            // "session_leader.png").createImage();
-            // gc.drawImage(im, 7, 7);
+            modKey.append(":").append(RoleType.LEADER.toString());
         }
         if (t.contains(RoleType.DATA_PROVIDER)) {
-            Image im = CollaborationUtils.getImageDescriptor(
-                    "data_provider.png").createImage();
-            gc.drawImage(im, 0, 16);
+            modKey.append(":").append(RoleType.DATA_PROVIDER.toString());
         }
-        image.getImageData();
+        Image image = imageMap.get(modKey.toString());
+
+        if (image == null) {
+            image = CollaborationUtils.getNodeImage(user);
+            // original image is 16x16
+            GC gc = new GC(image, SWT.LEFT_TO_RIGHT);
+
+            if (t.contains(RoleType.LEADER)) {
+                Image im = CollaborationUtils.getImageDescriptor(
+                        "session_leader.png").createImage();
+                gc.drawImage(im, 7, 7);
+                im.dispose();
+            }
+            if (t.contains(RoleType.DATA_PROVIDER)) {
+                Image im = CollaborationUtils.getImageDescriptor(
+                        "data_provider.png").createImage();
+                gc.drawImage(im, 0, 16);
+                im.dispose();
+            }
+            image.getImageData();
+            imageMap.put(modKey.toString(), image);
+            gc.dispose();
+        }
         return image;
     }
 }
