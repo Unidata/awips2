@@ -51,7 +51,7 @@ public interface IVenueInvitationEvent {
      * 
      * @return
      */
-    IChatID getInvitor();
+    IQualifiedID getInvitor();
     
     /**
      * 

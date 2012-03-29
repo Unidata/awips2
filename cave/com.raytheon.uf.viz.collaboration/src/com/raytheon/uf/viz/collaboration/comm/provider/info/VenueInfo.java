@@ -41,15 +41,15 @@ import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 public class VenueInfo implements IVenueInfo {
 
     private String description;
-    
+
     private String name;
-    
+
     private String subject;
-    
+
     private String id;
-    
+
     private int participantCount;
-    
+
     private boolean isModerated = false;
 
     private boolean isPersistent = false;
@@ -96,7 +96,7 @@ public class VenueInfo implements IVenueInfo {
     public int getParticipantCount() {
         return participantCount;
     }
-    
+
     /**
      * 
      * @see com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo#isModerated()
@@ -134,7 +134,7 @@ public class VenueInfo implements IVenueInfo {
         sb.append(String.format("pass[%s]:", (requiresPassword) ? "T" : "F"));
         sb.append(String.format("\n   subject     : %s", subject));
         sb.append(String.format("\n   description : %s", description));
-        
+
         return sb.toString();
     }
 }

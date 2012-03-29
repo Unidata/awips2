@@ -33,23 +33,24 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 27, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0 
+ * @version 1.0
  */
 
-public class RosterEntry extends RosterItem implements IRosterEntry, IMutableRosterEntry {
+public class RosterEntry extends RosterItem implements IRosterEntry,
+        IMutableRosterEntry {
 
     private IChatID userId = null;
-    
+
     private IPresence presence = null;
 
     private Map<IRosterGroup, IRosterGroup> groups = null;
@@ -60,6 +61,7 @@ public class RosterEntry extends RosterItem implements IRosterEntry, IMutableRos
      */
     public RosterEntry(IChatID id) {
         userId = id;
+        setName(id.getFQName());
         groups = new HashMap<IRosterGroup, IRosterGroup>();
     }
 
@@ -69,15 +71,15 @@ public class RosterEntry extends RosterItem implements IRosterEntry, IMutableRos
     @Override
     public IChatID getUser() {
         return userId;
-    }    
+    }
 
     /**
      * 
      * @param group
      */
     public void addGroup(IRosterGroup group) {
-        if(group != null) {
-            if(!groups.containsKey(group)) {
+        if (group != null) {
+            if (!groups.containsKey(group)) {
                 groups.put(group, group);
             }
         }
@@ -98,10 +100,10 @@ public class RosterEntry extends RosterItem implements IRosterEntry, IMutableRos
     public void setPresence(IPresence presence) {
         this.presence = presence;
     }
-    
+
     /**
      * 
-     * @return 
+     * @return
      */
     @Override
     public IPresence getPresence() {
@@ -141,19 +143,18 @@ public class RosterEntry extends RosterItem implements IRosterEntry, IMutableRos
         return true;
     }
 
+    public static final void main(String[] args) {
 
-    public static final void main(String [] args) {
-        
         IChatID id = new IChatID() {
 
             private String name = null;
-            
+
             private String nickName = null;
-            
+
             private String host = null;
-            
+
             private String resource = null;
-            
+
             @Override
             public void setName(String userName) {
                 name = userName;
@@ -172,9 +173,9 @@ public class RosterEntry extends RosterItem implements IRosterEntry, IMutableRos
             @Override
             public String getNickname() {
                 return nickName;
-                
+
             }
-            
+
             @Override
             public void setHost(String hostName) {
                 host = hostName;
@@ -184,44 +185,42 @@ public class RosterEntry extends RosterItem implements IRosterEntry, IMutableRos
             public String getHost() {
                 return host;
             }
-            
+
             @Override
             public String getResource() {
                 return resource;
             }
-            
+
             @Override
             public void setResource(String resource) {
                 this.resource = resource;
             }
-            
 
             @Override
             public String getFQName() {
                 StringBuilder sb = new StringBuilder(name);
                 sb.append("@");
                 sb.append(host);
-                if(resource != null) {
+                if (resource != null) {
                     sb.append("/");
                     sb.append(resource);
                 }
-                
-                
+
                 return sb.toString();
             }
-            
+
         };
 
         id.setName("fred");
         id.setHost("awipscm.omaha.us.ray.com");
         id.setResource("smack");
-        
+
         IMutableRosterEntry entry = new RosterEntry(id);
         entry.setPresence(new Presence());
-        
+
         IRosterEntry en = entry;
-        
+
         System.out.println(id.getFQName());
     }
-    
+
 }

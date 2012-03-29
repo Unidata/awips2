@@ -22,34 +22,42 @@ package com.raytheon.uf.viz.collaboration.comm.provider.session;
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IInitData;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
 
 /**
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 27, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public class DataHandler {
 
     @Subscribe
     public void handle(IInitData initdata) {
-        System.out.println("Handling IInitData " + initdata);
+        System.out.println("DataHandler---------------------------------");
+        System.out.println("   Handling IInitData " + initdata);
     }
-    
+
     @Subscribe
     public void handle(IDisplayEvent event) {
+        System.out.println("DataHandler---------------------------------");
         System.out.println("Handling IDisplayEvent " + event);
     }
 
+    @Subscribe
+    public void handle(IVenueInvitationEvent event) {
+        System.out.println("DataHandler---------------------------------");
+        System.out.println("Received invitation " + event.getBody());
+    }
 }

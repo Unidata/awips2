@@ -62,7 +62,7 @@ public abstract class BaseMessage implements Serializable, IMessage {
     private String status;
 
     private final long timeStamp;
-    
+
     /**
      * 
      * @param to
@@ -74,7 +74,7 @@ public abstract class BaseMessage implements Serializable, IMessage {
         initProperties();
         timeStamp = setTimeStamp();
     }
-    
+
     /**
      * @return the to
      */
@@ -162,7 +162,7 @@ public abstract class BaseMessage implements Serializable, IMessage {
     public String getProperty(String key, String defaultValue) {
         String retValue = defaultValue;
         if (properties != null) {
-            if(properties.containsKey(key)) {
+            if (properties.containsKey(key)) {
                 retValue = properties.get(key);
             }
         }
@@ -170,16 +170,17 @@ public abstract class BaseMessage implements Serializable, IMessage {
     }
 
     /**
-     * Gets the message properties as a collection of key, value
-     * pairs. Always returns a not-null value.
+     * Gets the message properties as a collection of key, value pairs. Always
+     * returns a not-null value.
+     * 
      * @return A Collection of properties associated with this message.
      * @see com.raytheon.uf.viz.collaboration.comm.identity.IMessage#getProperties()
      */
     @Override
     public Collection<Property> getProperties() {
         Collection<Property> p = new ArrayList<Property>();
-        for(String s : properties.keySet()) {
-            p.add(new Property(s,properties.get(s)));
+        for (String s : properties.keySet()) {
+            p.add(new Property(s, properties.get(s)));
         }
         return p;
     }
@@ -221,12 +222,11 @@ public abstract class BaseMessage implements Serializable, IMessage {
     public void setStatus(String status) {
         this.status = status;
     }
-    
-    
+
     /**
-     * Get the receipt time for this message in milliseconds from
-     * Jan 1, 1970.
-     * @return The receipt time stamp. 
+     * Get the receipt time for this message in milliseconds from Jan 1, 1970.
+     * 
+     * @return The receipt time stamp.
      * @see com.raytheon.uf.viz.collaboration.comm.identity.IMessage#getTimeStamp()
      */
     @Override
@@ -243,5 +243,5 @@ public abstract class BaseMessage implements Serializable, IMessage {
         properties.put(TIMESTAMP, Long.toHexString(timestamp));
         return timestamp;
     }
-    
+
 }

@@ -26,17 +26,17 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 21, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public class RosterId extends UserId implements IChatID {
@@ -50,11 +50,12 @@ public class RosterId extends UserId implements IChatID {
      * @param nickName
      * @param resource
      */
-    public RosterId(String userName, String hostName, String resource, String nickName) {
+    public RosterId(String userName, String hostName, String resource,
+            String nickName) {
         super(userName, hostName, resource);
         nickname = nickName;
     }
-    
+
     /**
      * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID#setNickname(java.lang.String)
      */
@@ -71,7 +72,9 @@ public class RosterId extends UserId implements IChatID {
         return nickname;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -83,7 +86,9 @@ public class RosterId extends UserId implements IChatID {
         return result;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -102,15 +107,15 @@ public class RosterId extends UserId implements IChatID {
             return false;
         return true;
     }
-    
+
     /**
      * 
      * @param user
      * @return
      */
     public static IChatID convertFrom(org.eclipse.ecf.core.user.IUser user) {
-        String name = Tools.parseName(user.getName());
-        String host = Tools.parseHost(user.getName());
+        String name = Tools.parseName(user.getID().getName());
+        String host = Tools.parseHost(user.getID().getName());
         return new RosterId(name, host, user.getNickname(), null);
     }
 
