@@ -136,53 +136,64 @@ public class VenueSession extends BaseSession implements IVenueSession,
      * @param eventBus
      */
     VenueSession(IContainer container, EventBus externalBus,
+            SessionManager manager, String sessionId) throws CollaborationException {
+        super(container, externalBus, manager, sessionId);
+    }
+
+    /**
+     * 
+     * @param container
+     * @param eventBus
+     */
+    VenueSession(IContainer container, EventBus externalBus,
             SessionManager manager) throws CollaborationException {
         super(container, externalBus, manager);
 
-        // Runnable r = new Runnable() {
-        // @Override
-        // public void run() {
-        // try {
-        // Thread.sleep(30000);
-        //
-        // TestJAXBObject j = new TestJAXBObject();
-        // j.setItem_1("This is an object");
-        // j.setValue(5);
-        // sendRenderableObject(j);
-        //
-        // VenueParticipant id = new VenueParticipant("jkorman",
-        // "paul", "awipscm.omaha.us.ray.com");
-        // id.setResource("cave");
-        // IInitData d = new InitData();
-        // ((InitData) d).setName("This is a test init data object");
-        //
-        // IDisplayEvent e = new DisplayEvent();
-        // ((DisplayEvent) e).setName("This is a test display event");
-        //
-        // sendInitData(id, d);
-        // sendEvent(id, e);
-        //
-        // Thread.sleep(10000);
-        // System.out.println("Sending invitation");
-        //
-        // sendInvitation("tester5@conference.awipscm.omaha.us.ray.com",
-        // "jkorman", "Test Room", "Join the test");
-        //
-        // } catch (Exception e) {
-        // System.out.println("Error sending RenderableObject");
-        // }
-        //
-        // }
-        // };
-        // Thread t = new Thread(r);
-        // t.start();
-        // registerEventHandler(this);
-        // try {
-        // DataHandler h = new DataHandler();
-        // subscribeToInitData(h);
-        // } catch (CollaborationException ce) {
-        // ce.printStackTrace();
-        // }
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(30000);
+
+//                    TestJAXBObject j = new TestJAXBObject();
+//                    j.setItem_1("This is an object");
+//                    j.setValue(5);
+//                    sendRenderableObject(j);
+//
+//                    VenueParticipant id = new VenueParticipant("jkorman",
+//                            "paul", "awipscm.omaha.us.ray.com");
+//                    id.setResource("cave");
+//                    IInitData d = new InitData();
+//                    ((InitData) d).setName("This is a test init data object");
+//
+//                    IDisplayEvent e = new DisplayEvent();
+//                    ((DisplayEvent) e).setName("This is a test display event");
+//
+//                    sendInitData(id, d);
+//                    sendEvent(id, e);
+//
+//                    Thread.sleep(10000);
+                    System.out.println("Sending invitation");
+
+                    sendInvitation(
+                            "tester5@conference.awipscm.omaha.us.ray.com",
+                            "jkorman", "Test Room", "Join the test");
+
+                } catch (Exception e) {
+                    System.out.println("Error sending RenderableObject");
+                }
+
+            }
+        };
+        Thread t = new Thread(r);
+        t.start();
+        registerEventHandler(this);
+        try {
+            DataHandler h = new DataHandler();
+            subscribeToPeerToPeerData(h);
+        } catch (CollaborationException ce) {
+            ce.printStackTrace();
+        }
     }
 
     // @Subscribe
@@ -425,8 +436,7 @@ public class VenueSession extends BaseSession implements IVenueSession,
             com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID participant,
             IInitData initData) throws CollaborationException {
 
-        PeerToPeerChat session = null;
-        session = getP2PSession();
+        PeerToPeerChat session = getP2PSession();
         if (session != null) {
             String message = Tools.marshallData(initData);
             if (message != null) {
@@ -442,14 +452,16 @@ public class VenueSession extends BaseSession implements IVenueSession,
      *            object that subscribes to peer to peer events.
      */
     @Override
-    public void subscribeToInitData(Object subscriber)
+    public void subscribeToPeerToPeerData(Object subscriber)
             throws CollaborationException {
         if (!initSubscribers.containsKey(subscriber)) {
             initSubscribers.put(subscriber, subscriber);
         }
-        EventBus bus = getP2PSession().getEventPublisher();
-        System.out.println("Subscribe EventBus instance :" + bus.hashCode());
-        bus.register(subscriber);
+        
+        PeerToPeerChat session = getP2PSession();
+        if (session != null) {
+            session.registerEventHandler(subscriber);
+        }
     }
 
     /**
@@ -459,11 +471,14 @@ public class VenueSession extends BaseSession implements IVenueSession,
      *            object that will be unsubscribed for peer to peer events.
      */
     @Override
-    public void unSubscribeToInitData(Object subscriber)
+    public void unSubscribeToPeerToPeerData(Object subscriber)
             throws CollaborationException {
         if (initSubscribers.containsKey(subscriber)) {
             initSubscribers.remove(subscriber);
-            getP2PSession().getEventPublisher().unregister(subscriber);
+            PeerToPeerChat session = getP2PSession();
+            if (session != null) {
+                session.unRegisterEventHandler(subscriber);
+            }
         }
     }
 
