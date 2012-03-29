@@ -149,4 +149,12 @@
             name="Map">
       </editor>
    </extension>
+   <extension
+         point="com.raytheon.viz.ui.editorMenuAddition">
+      <editorMenuAddition
+            class="com.raytheon.uf.viz.collaboration.ui.actions.ShareEditorAction"
+            name="Share Editor"
+            icon="icons/add_correction.gif">
+      </editorMenuAddition>
+   </extension>
 </plugin>
