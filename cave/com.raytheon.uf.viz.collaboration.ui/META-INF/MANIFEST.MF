@@ -15,8 +15,10 @@ Require-Bundle: com.raytheon.viz.ui,
  org.eclipse.ecf;bundle-version="3.1.0",
  com.raytheon.uf.viz.core;bundle-version="1.12.1174",
  org.geotools;bundle-version="2.6.4",
- com.google.guava;bundle-version="1.0.0"
+ com.google.guava;bundle-version="1.0.0",
+ com.raytheon.viz.core;bundle-version="1.12.1174"
 Import-Package: com.raytheon.uf.common.status,
  com.raytheon.uf.viz.core.maps.display,
- com.raytheon.uf.viz.core.maps.rsc
+ com.raytheon.uf.viz.core.maps.rsc,
+ com.raytheon.uf.viz.drawing
 Bundle-ActivationPolicy: lazy
