@@ -34,11 +34,14 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.osgi.framework.Bundle;
 
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
 import com.raytheon.uf.viz.collaboration.data.DataUser.RoleType;
+import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
+import com.raytheon.uf.viz.core.icon.IconUtil;
 
 /**
  * TODO Add Description
@@ -173,18 +176,19 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
         Image image = imageMap.get(modKey.toString());
 
         if (image == null) {
+            Bundle bundle = Activator.getDefault().getBundle();
             image = CollaborationUtils.getNodeImage(user);
             // original image is 16x16
             GC gc = new GC(image, SWT.LEFT_TO_RIGHT);
 
             if (t.contains(RoleType.LEADER)) {
-                Image im = CollaborationUtils.getImageDescriptor(
+                Image im = IconUtil.getImageDescriptor(bundle,
                         "session_leader.png").createImage();
                 gc.drawImage(im, 7, 7);
                 im.dispose();
             }
             if (t.contains(RoleType.DATA_PROVIDER)) {
-                Image im = CollaborationUtils.getImageDescriptor(
+                Image im = IconUtil.getImageDescriptor(bundle,
                         "data_provider.png").createImage();
                 gc.drawImage(im, 0, 16);
                 im.dispose();

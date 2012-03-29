@@ -20,7 +20,6 @@
 package com.raytheon.uf.viz.collaboration.ui.session;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.swt.SWT;
@@ -49,7 +48,7 @@ import com.raytheon.uf.viz.collaboration.data.DataUser.RoleType;
 public class SessionColorAdvisor {
     private static Map<RoleType, Color> colors = null;
 
-    public static Color getColor(List<RoleType> type, boolean isSelf) {
+    public static Color getColor(RoleType[] type, boolean isSelf) {
         if (colors == null) {
             colors = new HashMap<RoleType, Color>();
             colors.put(RoleType.LEADER,
@@ -63,15 +62,23 @@ public class SessionColorAdvisor {
             return Display.getCurrent().getSystemColor(SWT.COLOR_BLACK);
         }
         RoleType rType = null;
-        if (type == null || type.isEmpty()) {
+        if (type == null || type.length == 0) {
             rType = RoleType.PARTICIPANT;
-        } else if (type.contains(RoleType.LEADER)) {
-            rType = RoleType.LEADER;
-        } else if (type.contains(RoleType.DATA_PROVIDER)) {
-            rType = RoleType.DATA_PROVIDER;
+        } else if (type.length == 1) {
+            rType = type[0];
         } else {
             rType = RoleType.PARTICIPANT;
+            for (RoleType rt : type) {
+                if (rt == RoleType.DATA_PROVIDER) {
+                    rType = rt;
+                    break;
+                }
+                if (rt == RoleType.LEADER) {
+                    rType = rt;
+                }
+            }
         }
+
         return colors.get(rType);
     }
 }
