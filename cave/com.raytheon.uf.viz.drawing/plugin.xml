@@ -23,10 +23,6 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-          id="com.raytheon.uf.viz.drawing.pathdrawingtool"
-          name="Draw Path...">
-      </command>
-      <command
           id="com.raytheon.uf.viz.drawing.undoadd"
           name="Undo Add">
       </command>
@@ -38,10 +34,6 @@
    <extension
          point="org.eclipse.ui.handlers">
       <handler
-      		class="com.raytheon.uf.viz.drawing.tools.PathDrawingTool"
-      		commandId="com.raytheon.uf.viz.drawing.pathdrawingtool">
-      </handler>
-      <handler
             class="com.raytheon.uf.viz.drawing.actions.UndoAddAction"
             commandId="com.raytheon.uf.viz.drawing.undoadd">
       </handler>
@@ -50,7 +42,7 @@
             commandId="com.raytheon.uf.viz.drawing.redoadd">
       </handler>
    </extension>
-   <extension
+   <!--extension
          point="org.eclipse.ui.bindings">
       <scheme
             id="com.raytheon.uf.viz.drawing.scheme"
@@ -68,5 +60,5 @@
             schemeId="com.raytheon.uf.viz.drawing.scheme"
             sequence="M1+Y">
       </key>
-   </extension>
+   </extension-->
 </plugin>
