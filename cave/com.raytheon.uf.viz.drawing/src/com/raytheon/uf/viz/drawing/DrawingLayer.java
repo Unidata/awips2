@@ -42,10 +42,6 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
-import com.raytheon.uf.viz.drawing.actions.ClearDrawingAction;
-import com.raytheon.uf.viz.drawing.actions.RedoAddAction;
-import com.raytheon.uf.viz.drawing.actions.UndoAddAction;
-import com.raytheon.uf.viz.drawing.tools.ToolsUtils;
 import com.raytheon.viz.ui.cmenu.IContextMenuContributor;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -143,6 +139,9 @@ public class DrawingLayer extends
         }
         target.drawWireframeShape(tempWireframeShape, colorable.getColor(),
                 outline.getOutlineWidth(), outline.getLineStyle());
+
+        // target.drawWireframeShape(eraseWireframeShape, new RGB(255, 0, 0),
+        // 4.0f);
     }
 
     private void drawTempLinePrimitive(Geometry shape, IGraphicsTarget target,
@@ -191,7 +190,7 @@ public class DrawingLayer extends
                     Point point = factory
                             .createPoint(line.getCoordinates()[line
                                     .getNumPoints() - 1]);
-                    Geometry intersection = point.buffer(8).intersection(geom);
+                    Geometry intersection = point.buffer(1).intersection(geom);
                     Geometry finalGeom = geom.difference(intersection);
                     deletedShapes.put(geom, wireframeShapes.remove(geom));
 
@@ -200,6 +199,8 @@ public class DrawingLayer extends
                         for (int j = 0; j < mLineString.getNumGeometries(); j++) {
                             LineString lineString = (LineString) mLineString
                                     .getGeometryN(j);
+                            eraseWireframeShape = target.createWireframeShape(
+                                    true, descriptor);
                             int pts = lineString.getNumPoints();
                             for (int i = 1; i < pts; i++) {
                                 double[] p1 = this.descriptor
@@ -217,11 +218,24 @@ public class DrawingLayer extends
                                 coords[0][1] = p1[1];
                                 coords[1][0] = p2[0];
                                 coords[1][1] = p2[1];
-                                System.out.println(i);
                                 eraseWireframeShape.addLineSegment(coords);
+                                // try {
+                                // target.drawPoint(coords[0][0],
+                                // coords[0][1], 0,
+                                // new RGB(0, 0, 255),
+                                // PointStyle.CIRCLE);
+                                // } catch (VizException e) {
+                                // e.printStackTrace();
+                                // }
                             }
                             this.wireframeShapes.put(lineString,
                                     eraseWireframeShape);
+                            // try {
+                            // target.drawWireframeShape(eraseWireframeShape,
+                            // new RGB(0, 0, 255), 10.0f);
+                            // } catch (VizException e) {
+                            // e.printStackTrace();
+                            // }
                             issueRefresh();
                         }
                     }
@@ -254,6 +268,8 @@ public class DrawingLayer extends
         for (IWireframeShape shape : this.deletedShapes.values()) {
             shape.dispose();
         }
+
+        this.eraseWireframeShape.dispose();
         this.wireframeShapes.clear();
         this.deletedShapes.clear();
     }
