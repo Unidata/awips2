@@ -48,7 +48,8 @@ public class TestJAXBObject implements IRenderable, ISerializableObject {
     }
 
     /**
-     * @param item_1 the item_1 to set
+     * @param item_1
+     *            the item_1 to set
      */
     public void setItem_1(String item_1) {
         this.item_1 = item_1;
@@ -62,7 +63,8 @@ public class TestJAXBObject implements IRenderable, ISerializableObject {
     }
 
     /**
-     * @param value the value to set
+     * @param value
+     *            the value to set
      */
     public void setValue(Integer value) {
         this.value = value;
