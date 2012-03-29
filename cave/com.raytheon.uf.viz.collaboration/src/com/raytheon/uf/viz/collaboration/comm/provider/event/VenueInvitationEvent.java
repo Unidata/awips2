@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.collaboration.comm.provider.event;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 
 /**
  * TODO Add Description
@@ -49,6 +50,8 @@ public class VenueInvitationEvent implements IVenueInvitationEvent {
 
     private String body;
 
+    private String sessionId;
+
     /**
      * 
      * @param roomId
@@ -62,6 +65,7 @@ public class VenueInvitationEvent implements IVenueInvitationEvent {
         this.invitor = invitor;
         this.subject = subject;
         this.body = body;
+        extractSessionId();
     }
 
     /**
@@ -75,10 +79,10 @@ public class VenueInvitationEvent implements IVenueInvitationEvent {
     }
 
     /**
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent#getInvitor()
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent#getInviter()
      */
     @Override
-    public IQualifiedID getInvitor() {
+    public IQualifiedID getInviter() {
         return invitor;
     }
 
@@ -97,5 +101,29 @@ public class VenueInvitationEvent implements IVenueInvitationEvent {
     public String getBody() {
         return body;
     }
+    
+    /**
+     * @return the sessionId
+     */
+    public String getSessionId() {
+        return sessionId;
+    }
 
+    /**
+     * Extract the session identifier from the body of the invitation.
+     */
+    private void extractSessionId() {
+        if (body != null) {
+            if (body.startsWith(Tools.TAG_INVITE)) {
+                int start = Tools.TAG_INVITE.length();
+                // find the end of the invite tag
+                int tagEnd = body.indexOf("]]");
+                if (tagEnd > start) {
+
+                    sessionId = body.substring(start, tagEnd);
+                    body = body.substring(tagEnd + 2);
+                }
+            }
+        }
+    }
 }
