@@ -27,6 +27,7 @@ import java.util.Map;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Mode;
+import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Type;
 
 /**
  * A Data class that contains all the user information needed for the current
@@ -86,6 +87,8 @@ public class DataUser {
 
     IPresence.Mode mode;
 
+    IPresence.Type type;
+
     String statusMessage;
 
     Map<String, List<RoleType>> roleMap;
@@ -115,6 +118,7 @@ public class DataUser {
         groupsMap = new HashMap<String, DataGroup>();
         sessionsMap = new HashMap<String, String>();
         mode = Mode.EXTENDED_AWAY;
+        type = Type.UNKNOWN;
         roleMap = new HashMap<String, List<RoleType>>();
     }
 

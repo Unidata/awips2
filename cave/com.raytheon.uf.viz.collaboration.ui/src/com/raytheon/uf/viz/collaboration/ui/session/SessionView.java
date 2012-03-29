@@ -333,7 +333,12 @@ public class SessionView extends AbstractSessionView {
                         new Point(e.x, e.y));
                 if (item != null) {
                     CollaborationUser user = (CollaborationUser) item.getData();
-                    StringBuilder builder = new StringBuilder("-- Roles --");
+                    StringBuilder builder = new StringBuilder();
+                    builder.append("mode: ").append(user.getMode())
+                            .append("\n");
+                    builder.append("type: ").append(user.getType())
+                            .append("\n");
+                    builder.append("-- Roles --");
                     for (RoleType type : RoleType.values()) {// user.getRoles(sessionId))
                                                              // {
                         // TODO fake XXX take this out
@@ -354,12 +359,17 @@ public class SessionView extends AbstractSessionView {
         List<CollaborationUser> users = new ArrayList<CollaborationUser>();
         if (session != null) {
             for (IVenueParticipant part : session.getVenue().getParticipants()) {
-                CollaborationUser user = new CollaborationUser(part.getName());
+                // CollaborationUser user = new
+                // CollaborationUser(part.getName());
+                CollaborationUser user = new CollaborationUser(part.getFQName());
+
                 RoleType[] roles = user.getRoles(sessionId);
                 for (RoleType role : roles) {
                     user.addRole(role);
                 }
-                user.setText(part.getName());
+                user.setText(part.getFQName());
+                // user.setMode(mode);
+                // user.setType(Type.AVAILABLE);
                 users.add(user);
             }
         } else {
@@ -374,16 +384,11 @@ public class SessionView extends AbstractSessionView {
 
     @Override
     public void dispose() {
-
-        // CollaborationDataManager.getInstance().getSession(sessionId)
-        // .unRegisterEventHandler(this);
-
         // dispose of the images first
         disposeArrow(highlightedDownArrow);
         disposeArrow(highlightedRightArrow);
         disposeArrow(downArrow);
         disposeArrow(rightArrow);
-        // CollaborationDataManager.getInstance().closeSession(sessionId);
         super.dispose();
     }
 
@@ -503,17 +508,6 @@ public class SessionView extends AbstractSessionView {
     }
 
     // @Override
-    // public void partActivated(IWorkbenchPart part) {
-    // // nothing to do
-    // }
-    //
-    // @Override
-    // public void partBroughtToTop(IWorkbenchPart part) {
-    // // TODO
-    // // if link with editor is on, need to activate the editor
-    // }
-
-    // @Override
     /*
      * (non-Javadoc)
      * 
@@ -529,16 +523,6 @@ public class SessionView extends AbstractSessionView {
             CollaborationDataManager.getInstance().closeSession(sessionId);
         }
     }
-
-    // @Override
-    // public void partDeactivated(IWorkbenchPart part) {
-    // // nothing to do
-    // }
-    //
-    // @Override
-    // public void partOpened(IWorkbenchPart part) {
-    // // nothing to do
-    // }
 
     private void createArrows() {
         int imgWidth = 11;
@@ -651,7 +635,8 @@ public class SessionView extends AbstractSessionView {
                     break;
                 case UPDATED:
                     System.out.println("---- handle update here: "
-                            + participant.getName());
+                            + participant.getName() + ", "
+                            + participant.getFQName());
                     break;
                 default:
                     System.err.println("Unknown Event type");
@@ -677,7 +662,7 @@ public class SessionView extends AbstractSessionView {
 
     private void participantDeparted(IVenueParticipant participant) {
         System.out.println("++++ handle departed here: "
-                + participant.getName());
+                + participant.getName() + ", " + participant.getFQName());
         int index = -1;
         CollaborationUser[] users = (CollaborationUser[]) usersTable.getInput();
         String name = participant.getName();
@@ -702,9 +687,10 @@ public class SessionView extends AbstractSessionView {
     private void participantPresenceUpdated(IVenueParticipant participant,
             IPresence presence) {
         System.out.println("++++ handle presence updated here: "
-                + presence.getMode() + ": " + participant.getName());
+                + presence.getMode() + "/" + presence.getType() + ": "
+                + participant.getName() + ", " + participant.getFQName());
         CollaborationUser[] users = (CollaborationUser[]) usersTable.getInput();
-        String name = participant.getName();
+        String name = participant.getFQName();
         int index = -1;
         for (int i = 0; i < users.length; ++i) {
             if (name.equals(users[i].getId())) {
@@ -720,5 +706,6 @@ public class SessionView extends AbstractSessionView {
             user = new CollaborationUser(name);
         }
         user.setMode(presence.getMode());
+        user.setType(presence.getType());
     }
 }
