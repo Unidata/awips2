@@ -24,33 +24,32 @@ import java.lang.annotation.Annotation;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
  * 
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 23, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public enum SerializationMode {
     THRIFT, JAXB, JAVA, STRING, NONE, ISNULL;
-    
+
     public static SerializationMode getMode(Object object) {
         SerializationMode mode = ISNULL;
         if (object != null) {
-            if(object instanceof String) {
+            if (object instanceof String) {
                 mode = STRING;
             } else if (object instanceof Serializable) {
                 mode = JAVA;
