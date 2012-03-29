@@ -19,9 +19,36 @@
  **/
 package com.raytheon.uf.viz.drawing;
 
-import org.eclipse.swt.widgets.Shell;
+import java.util.HashMap;
+import java.util.Map;
 
-import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase;
+import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
+
+import com.raytheon.uf.viz.core.IDisplayPane;
+import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.drawing.actions.ClearDrawingAction;
+import com.raytheon.uf.viz.drawing.actions.EraseObjectsAction;
+import com.raytheon.uf.viz.drawing.actions.RedoAddAction;
+import com.raytheon.uf.viz.drawing.actions.UndoAddAction;
+import com.raytheon.uf.viz.drawing.tools.PathDrawingTool;
+import com.raytheon.uf.viz.drawing.tools.ToolsUtils;
+import com.raytheon.viz.ui.EditorUtil;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.editor.AbstractEditor;
+import com.raytheon.viz.ui.editor.ISelectedPanesChangedListener;
+import com.raytheon.viz.ui.editor.VizMultiPaneEditor;
 
 /**
  * TODO Add Description
@@ -40,23 +67,40 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase;
  * @version 1.0
  */
 
-public class PathToolbar extends CaveSWTDialogBase {
+public class PathToolbar extends CaveSWTDialog implements
+        ISelectedPanesChangedListener {
+
+    private static PathToolbar toolbar;
+
+    private Map<AbstractEditor, ResourcePair> layers;
+
+    private ToolItem drawItem;
+
+    private ToolItem eraserItem;
+
+    public static PathToolbar getToolbar() {
+        if (toolbar == null) {
+            toolbar = new PathToolbar(Display.getCurrent().getActiveShell());
+        }
+        return toolbar;
+    }
 
     /**
      * @param parentShell
      * @param swtStyle
      */
-    protected PathToolbar(Shell parentShell, int swtStyle) {
-        super(parentShell, swtStyle);
-        // TODO Auto-generated constructor stub
+    protected PathToolbar(Shell parentShell) {
+        super(parentShell, SWT.DIALOG_TRIM | CAVE.DO_NOT_BLOCK);
+        layers = new HashMap<AbstractEditor, ResourcePair>();
+        setText("Drawing");
     }
 
     /**
      * @param args
      */
     public static void main(String[] args) {
-        // TODO Auto-generated method stub
-
+        PathToolbar bar = new PathToolbar(new Shell());
+        bar.open();
     }
 
     /*
@@ -68,6 +112,158 @@ public class PathToolbar extends CaveSWTDialogBase {
      */
     @Override
     protected void initializeComponents(Shell shell) {
+        Composite comp = new Composite(shell, SWT.NONE);
+        GridLayout layout = new GridLayout();
+        comp.setLayout(layout);
+        GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
+        comp.setLayoutData(data);
+        layout.marginHeight = 0;
+        layout.marginWidth = 0;
+
+        ToolBar toolbar = new ToolBar(comp, SWT.FLAT);
+
+        layout = new GridLayout();
+        layout.marginHeight = 0;
+        layout.marginWidth = 0;
+        data = new GridData(SWT.FILL, SWT.FILL, true, true);
+        toolbar.setLayout(layout);
+        toolbar.setLayoutData(data);
+
+        drawItem = new ToolItem(toolbar, SWT.NONE);
+        drawItem.setText("Draw");
+        drawItem.setImage(ToolsUtils.getImageDescriptor("draw.gif")
+                .createImage());
+
+        drawItem.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                AbstractEditor editor = EditorUtil
+                        .getActiveEditorAs(AbstractEditor.class);
+                IDescriptor desc = editor.getActiveDisplayPane()
+                        .getDescriptor();
+                if (layers.containsKey(editor)) {
+                    if (((DrawingLayer) layers.get(editor).getResource()).erase) {
+                        ((DrawingLayer) layers.get(editor).getResource())
+                                .setErase(false);
+                        eraserItem.setSelection(false);
+                    }
+                }
+                PathDrawingTool tool = new PathDrawingTool();
+                tool.activate();
+                // ((VizMultiPaneEditor) editor)
+                // .addSelectedPaneChangedListener(PathToolbar
+                // .getToolbar());
+                for (ResourcePair pair : desc.getResourceList()) {
+                    if (pair.getResource() instanceof DrawingLayer) {
+                        layers.put(editor, pair);
+                        // drawItem.setEnabled(false);
+                    }
+                }
+            }
+        });
+
+        ToolItem undoItem = new ToolItem(toolbar, SWT.FLAT);
+        undoItem.setText("Undo");
+        undoItem.setImage(ToolsUtils.getImageDescriptor("undo.gif")
+                .createImage());
+        undoItem.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                UndoAddAction action = new UndoAddAction();
+                AbstractEditor editor = EditorUtil
+                        .getActiveEditorAs(AbstractEditor.class);
+                if (layers.get(editor) != null) {
+                    executeAction(action);
+                }
+            }
+        });
+
+        ToolItem redoItem = new ToolItem(toolbar, SWT.FLAT);
+        redoItem.setText("Redo");
+        redoItem.setImage(ToolsUtils.getImageDescriptor("redo.gif")
+                .createImage());
+        redoItem.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                RedoAddAction action = new RedoAddAction();
+                AbstractEditor editor = EditorUtil
+                        .getActiveEditorAs(AbstractEditor.class);
+                if (layers.get(editor) != null) {
+                    executeAction(action);
+                }
+            }
+        });
+
+        ToolItem clearItem = new ToolItem(toolbar, SWT.FLAT);
+        clearItem.setText("Clear");
+        clearItem.setImage(ToolsUtils.getImageDescriptor("remove.gif")
+                .createImage());
+        clearItem.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                ClearDrawingAction action = new ClearDrawingAction();
+                AbstractEditor editor = EditorUtil
+                        .getActiveEditorAs(AbstractEditor.class);
+                if (layers.get(editor) != null) {
+                    executeAction(action);
+                }
+            }
+        });
+
+        eraserItem = new ToolItem(toolbar, SWT.CHECK);
+        eraserItem.setText("Eraser");
+        eraserItem.setImage(ToolsUtils.getImageDescriptor("eraser.png")
+                .createImage());
+        eraserItem.setEnabled(false);
+        eraserItem.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                EraseObjectsAction action = new EraseObjectsAction();
+                AbstractEditor editor = EditorUtil
+                        .getActiveEditorAs(AbstractEditor.class);
+                if (layers.get(editor) != null) {
+                    executeAction(action);
+                }
+            }
+        });
+    }
+
+    private void executeAction(AbstractHandler action) {
+        try {
+            action.execute(null);
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 
+     */
+    private void dispose() {
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.editor.ISelectedPanesChangedListener#selectedPanesChanged
+     * (java.lang.String, com.raytheon.uf.viz.core.IDisplayPane[])
+     */
+    @Override
+    public void selectedPanesChanged(String id, IDisplayPane[] pane) {
+        AbstractEditor editor = EditorUtil
+                .getActiveEditorAs(AbstractEditor.class);
+        IDescriptor desc = editor.getActiveDisplayPane().getDescriptor();
+        ((VizMultiPaneEditor) editor)
+                .addSelectedPaneChangedListener(PathToolbar.getToolbar());
+        boolean hasLayer = false;
+        for (ResourcePair pair : desc.getResourceList()) {
+            if (pair.getResource() instanceof DrawingLayer) {
+                hasLayer = true;
+                break;
+            }
+        }
+        // drawItem.setEnabled(hasLayer);
     }
 
 }
