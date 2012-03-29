@@ -19,10 +19,15 @@
  **/
 package com.raytheon.uf.viz.drawing.actions;
 
-import org.eclipse.jface.action.IAction;
+import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
 
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.drawing.DrawingLayer;
-import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
+import com.raytheon.viz.ui.EditorUtil;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
  * TODO Add Description
@@ -41,35 +46,20 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  * @version 1.0
  */
 
-public class EraseObjectsAction extends AbstractRightClickAction {
-
-    /**
-     * 
-     */
-    public EraseObjectsAction() {
-        super("Eraser", IAction.AS_CHECK_BOX);
-    }
+public class EraseObjectsAction extends AbstractHandler {
 
     @Override
-    public void run() {
-        ((DrawingLayer) getSelectedRsc())
-                .setErase(!((DrawingLayer) getSelectedRsc()).isErase());
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.cmenu.AbstractRightClickAction#isHidden()
-     */
-    @Override
-    public boolean isHidden() {
-        if (true) {
-            return true;
+    public Object execute(ExecutionEvent event) throws ExecutionException {
+        ResourceList list = ((AbstractEditor) EditorUtil
+                .getActiveEditorAs(AbstractEditor.class))
+                .getActiveDisplayPane().getDescriptor().getResourceList();
+        for (ResourcePair pair : list) {
+            if (pair.getResource() instanceof DrawingLayer) {
+                ((DrawingLayer) pair.getResource())
+                        .setErase(((DrawingLayer) pair.getResource()).isErase());
+                break;
+            }
         }
-        if (getSelectedRsc() instanceof DrawingLayer) {
-            return false;
-        } else {
-            return true;
-        }
+        return null;
     }
 }
