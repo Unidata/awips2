@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.swt.graphics.RGB;
 
@@ -42,7 +43,6 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.drawing.actions.ClearDrawingAction;
-import com.raytheon.uf.viz.drawing.actions.EraseObjectsAction;
 import com.raytheon.uf.viz.drawing.actions.RedoAddAction;
 import com.raytheon.uf.viz.drawing.actions.UndoAddAction;
 import com.raytheon.uf.viz.drawing.tools.ToolsUtils;
@@ -50,6 +50,7 @@ import com.raytheon.viz.ui.cmenu.IContextMenuContributor;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.Point;
 
 /**
@@ -70,13 +71,13 @@ public class DrawingLayer extends
 
     protected IWireframeShape tempWireframeShape;
 
+    protected IWireframeShape eraseWireframeShape;
+
     protected IGraphicsTarget target;
 
     protected boolean needsRefresh = true;
 
     protected boolean erase = false;
-
-    private EraseObjectsAction eAction = null;
 
     public DrawingLayer(PathDrawingResourceData data, LoadProperties props) {
         super(data, props);
@@ -122,6 +123,10 @@ public class DrawingLayer extends
             tempWireframeShape = target.createWireframeShape(true,
                     getDescriptor());
             needsRefresh = false;
+        }
+        if (eraseWireframeShape == null) {
+            eraseWireframeShape = target.createWireframeShape(true,
+                    getDescriptor());
         }
 
         RGB rgb = getCapability(ColorableCapability.class).getColor();
@@ -186,12 +191,39 @@ public class DrawingLayer extends
                     Point point = factory
                             .createPoint(line.getCoordinates()[line
                                     .getNumPoints() - 1]);
-                    if (point.buffer(8).intersects(geom)) {
-                        Geometry intersection = point.intersection(geom);
-                        Geometry finalGeom = geom.difference(intersection);
-                        deletedShapes.put(geom, wireframeShapes.remove(geom));
-                        this.tempGeometries.add(finalGeom);
-                        System.out.println("removing things");
+                    Geometry intersection = point.buffer(8).intersection(geom);
+                    Geometry finalGeom = geom.difference(intersection);
+                    deletedShapes.put(geom, wireframeShapes.remove(geom));
+
+                    if (finalGeom instanceof MultiLineString) {
+                        MultiLineString mLineString = (MultiLineString) finalGeom;
+                        for (int j = 0; j < mLineString.getNumGeometries(); j++) {
+                            LineString lineString = (LineString) mLineString
+                                    .getGeometryN(j);
+                            int pts = lineString.getNumPoints();
+                            for (int i = 1; i < pts; i++) {
+                                double[] p1 = this.descriptor
+                                        .worldToPixel(new double[] {
+                                                lineString.getPointN(i - 1)
+                                                        .getX(),
+                                                lineString.getPointN(i - 1)
+                                                        .getY() });
+                                double[] p2 = this.descriptor
+                                        .worldToPixel(new double[] {
+                                                lineString.getPointN(i).getX(),
+                                                lineString.getPointN(i).getY() });
+                                double[][] coords = new double[2][2];
+                                coords[0][0] = p1[0];
+                                coords[0][1] = p1[1];
+                                coords[1][0] = p2[0];
+                                coords[1][1] = p2[1];
+                                System.out.println(i);
+                                eraseWireframeShape.addLineSegment(coords);
+                            }
+                            this.wireframeShapes.put(lineString,
+                                    eraseWireframeShape);
+                            issueRefresh();
+                        }
                     }
                 }
             }
@@ -201,6 +233,7 @@ public class DrawingLayer extends
     public void reset() {
         resetTemp();
         disposeInternal();
+        issueRefresh();
     }
 
     public void resetTemp() {
@@ -264,25 +297,24 @@ public class DrawingLayer extends
     public void addContextMenuItems(IMenuManager menuManager, int x, int y) {
         ResourcePair pair = new ResourcePair();
         pair.setResource(this);
-        if (eAction == null) {
-            eAction = new EraseObjectsAction();
-            eAction.setSelectedRsc(pair);
-        } else {
-            eAction.setSelectedRsc(pair);
-        }
-        ClearDrawingAction cAction = new ClearDrawingAction();
-        cAction.setSelectedRsc(pair);
-        cAction.setImageDescriptor(ToolsUtils.getImageDescriptor("remove.gif"));
-        UndoAddAction uAction = new UndoAddAction();
-        uAction.setSelectedRsc(pair);
-        uAction.setImageDescriptor(ToolsUtils.getImageDescriptor("undo.gif"));
-        RedoAddAction rAction = new RedoAddAction();
-        rAction.setSelectedRsc(pair);
-        rAction.setImageDescriptor(ToolsUtils.getImageDescriptor("redo.gif"));
-        menuManager.add(eAction);
-        menuManager.add(cAction);
-        menuManager.add(uAction);
-        menuManager.add(rAction);
+        Action action = new Action("Draw Toolbar") {
+            public void run() {
+                PathToolbar.getToolbar().open();
+            };
+        };
+        // ClearDrawingAction cAction = new ClearDrawingAction();
+        // cAction.setSelectedRsc(pair);
+        // cAction.setImageDescriptor(ToolsUtils.getImageDescriptor("remove.gif"));
+        // UndoAddAction uAction = new UndoAddAction();
+        // uAction.setSelectedRsc(pair);
+        // uAction.setImageDescriptor(ToolsUtils.getImageDescriptor("undo.gif"));
+        // RedoAddAction rAction = new RedoAddAction();
+        // rAction.setSelectedRsc(pair);
+        // rAction.setImageDescriptor(ToolsUtils.getImageDescriptor("redo.gif"));
+        // menuManager.add(cAction);
+        // menuManager.add(uAction);
+        // menuManager.add(rAction);
+        menuManager.add(action);
     }
 
     /**
