@@ -1,6 +1,7 @@
 package com.raytheon.uf.viz.collaboration.data;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
+import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Type;
 
 /**
  * This software was developed and / or modified by Raytheon Company,
@@ -64,7 +65,10 @@ public class CollaborationUser extends CollaborationNode implements
      */
     @Override
     public String getImageKey() {
-        return getMode().toString();
+        if (getType() == Type.AVAILABLE) {
+            return getMode().toString();
+        }
+        return "contact_disabled";
     }
 
     public DataUser.RoleType[] getRoles(String session) {
@@ -91,8 +95,16 @@ public class CollaborationUser extends CollaborationNode implements
         return CollaborationDataManager.getInstance().getUser(id).mode;
     }
 
+    public IPresence.Type getType() {
+        return CollaborationDataManager.getInstance().getUser(id).type;
+    }
+
     public void setMode(IPresence.Mode mode) {
         CollaborationDataManager.getInstance().getUser(id).mode = mode;
+    }
+
+    public void setType(IPresence.Type type) {
+        CollaborationDataManager.getInstance().getUser(id).type = type;
     }
 
     // public void setStatus(IPresence.Mode mode) {
