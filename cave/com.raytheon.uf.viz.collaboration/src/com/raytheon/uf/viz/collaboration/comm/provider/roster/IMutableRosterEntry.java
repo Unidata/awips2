@@ -26,21 +26,21 @@ import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 27, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 interface IMutableRosterEntry extends IRosterEntry {
 
     void setPresence(IPresence presence);
-    
+
 }

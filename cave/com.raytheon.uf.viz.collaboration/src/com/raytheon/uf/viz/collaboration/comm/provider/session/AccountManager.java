@@ -41,21 +41,22 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
  * 
  * <ul>
  * EventBus subscription events.
- * <li>ISubscriptionResponseEvent : This event is posted when a subscription request has
- * been responded to.</li>
+ * <li>ISubscriptionResponseEvent : This event is posted when a subscription
+ * request has been responded to.</li>
  * </ul>
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 16, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public class AccountManager implements IAccountManager {
@@ -64,21 +65,24 @@ public class AccountManager implements IAccountManager {
 
         @Override
         public void handleSubscribeRequest(ID fromID) {
-            
+
             IQualifiedID fromId = null;
-            
-            IPresence.Type subscribedType = IPresence.Type.UNKNOWN; 
-            if(responder != null) {
+
+            IPresence.Type subscribedType = IPresence.Type.UNKNOWN;
+            if (responder != null) {
                 subscribedType = responder.handleSubscribeRequest(fromId);
             } else {
                 subscribedType = IPresence.Type.SUBSCRIBED;
             }
-            org.eclipse.ecf.presence.Presence.Type sType = Tools.convertPresenceType(subscribedType);
+            org.eclipse.ecf.presence.Presence.Type sType = Tools
+                    .convertPresenceType(subscribedType);
 
-            org.eclipse.ecf.presence.IPresence presence = new org.eclipse.ecf.presence.Presence(sType);
-            
+            org.eclipse.ecf.presence.IPresence presence = new org.eclipse.ecf.presence.Presence(
+                    sType);
+
             try {
-                presenceAdapter.getRosterManager().getPresenceSender().sendPresenceUpdate(fromID, presence);
+                presenceAdapter.getRosterManager().getPresenceSender()
+                        .sendPresenceUpdate(fromID, presence);
             } catch (ECFException e) {
                 // Will have to do something with this sooner or later.
             }
@@ -92,32 +96,35 @@ public class AccountManager implements IAccountManager {
         public void handleUnsubscribed(ID fromID) {
         }
     };
-    
+
     private boolean autoRespond = true;
-    
+
     private IPresenceContainerAdapter presenceAdapter;
-    
+
     private ISubscriptionResponder responder;
-    
+
     /**
      * 
      * @param adapter
      */
     AccountManager(IPresenceContainerAdapter adapter) {
         presenceAdapter = adapter;
-        presenceAdapter.getRosterManager().addRosterSubscriptionListener(autoResponder);
+        presenceAdapter.getRosterManager().addRosterSubscriptionListener(
+                autoResponder);
     }
-    
+
     /**
-     * Set the auto subscription mode to ON or OFF. If set to off then any currently assigned
-     * autoresponder is set to null.
-     * @param mode The auto subscription mode.
+     * Set the auto subscription mode to ON or OFF. If set to off then any
+     * currently assigned autoresponder is set to null.
+     * 
+     * @param mode
+     *            The auto subscription mode.
      * @see com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager#setAutoSubscriptionMode(boolean)
      */
     @Override
     public void setAutoSubscriptionMode(boolean auto) {
         autoRespond = auto;
-        if(!auto) {
+        if (!auto) {
             responder = null;
         }
     }
@@ -151,20 +158,23 @@ public class AccountManager implements IAccountManager {
 
     /**
      * 
-     * @param password The new password. For security the password is a character array that will
-     * be zero'd after use. 
+     * @param password
+     *            The new password. For security the password is a character
+     *            array that will be zero'd after use.
      * @see com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager#changePassword(char[])
      */
     @Override
     public void changePassword(char[] password) throws CollaborationException {
-        org.eclipse.ecf.presence.IAccountManager manager = presenceAdapter.getAccountManager();
-        if(manager != null) {
+        org.eclipse.ecf.presence.IAccountManager manager = presenceAdapter
+                .getAccountManager();
+        if (manager != null) {
             try {
                 manager.changePassword(new String(password));
                 // all done so clear the password.
                 Arrays.fill(password, (char) 0);
             } catch (ECFException e) {
-                throw new CollaborationException("Could not change account password");
+                throw new CollaborationException(
+                        "Could not change account password");
             }
         }
     }
@@ -175,8 +185,9 @@ public class AccountManager implements IAccountManager {
      */
     @Override
     public void deleteAccount() throws CollaborationException {
-        org.eclipse.ecf.presence.IAccountManager manager = presenceAdapter.getAccountManager();
-        if(manager != null) {
+        org.eclipse.ecf.presence.IAccountManager manager = presenceAdapter
+                .getAccountManager();
+        if (manager != null) {
             try {
                 manager.deleteAccount();
             } catch (ECFException e) {
@@ -187,18 +198,21 @@ public class AccountManager implements IAccountManager {
 
     /**
      * Determines if the server allows new accounts to be created by the user.
-     * @throws CollaborationException 
+     * 
+     * @throws CollaborationException
      * @see com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager#canCreateAccount()
      */
     @Override
     public boolean canCreateAccount() throws CollaborationException {
         boolean canCreate = false;
-        org.eclipse.ecf.presence.IAccountManager manager = presenceAdapter.getAccountManager();
-        if(manager != null) {
+        org.eclipse.ecf.presence.IAccountManager manager = presenceAdapter
+                .getAccountManager();
+        if (manager != null) {
             try {
                 canCreate = manager.isAccountCreationSupported();
             } catch (ECFException e) {
-                throw new CollaborationException("Error attempting to determine if accounts may be created.");
+                throw new CollaborationException(
+                        "Error attempting to determine if accounts may be created.");
             }
         }
         return canCreate;
@@ -208,16 +222,16 @@ public class AccountManager implements IAccountManager {
      * TODO : Body of method
      * 
      * @param password
-     * @param attributes 
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager#createAccount(java.lang.String, char[], java.util.Map)
+     * @param attributes
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager#createAccount(java.lang.String,
+     *      char[], java.util.Map)
      */
     @Override
-    public void createAccount(String name, char[] password, Map<String, String> attributes)
-            throws CollaborationException {
+    public void createAccount(String name, char[] password,
+            Map<String, String> attributes) throws CollaborationException {
         if (name != null) {
             if (password != null) {
 
-                
                 // all done so clear the password.
                 Arrays.fill(password, (char) 0);
             }
@@ -231,14 +245,16 @@ public class AccountManager implements IAccountManager {
      * @throws CollaborationException
      */
     @Override
-    public void sendPresence(IPresence userPresence) throws CollaborationException {
-        IPresenceSender sender = presenceAdapter.getRosterManager().getPresenceSender();
+    public void sendPresence(IPresence userPresence)
+            throws CollaborationException {
+        IPresenceSender sender = presenceAdapter.getRosterManager()
+                .getPresenceSender();
         try {
-            sender.sendPresenceUpdate(null, Presence.convertPresence(userPresence));
+            sender.sendPresenceUpdate(null,
+                    Presence.convertPresence(userPresence));
         } catch (ECFException e) {
             // TODO : Exception handing....
         }
     }
-
 
 }

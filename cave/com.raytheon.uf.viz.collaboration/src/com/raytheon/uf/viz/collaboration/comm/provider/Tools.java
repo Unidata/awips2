@@ -48,19 +48,25 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 
 public abstract class Tools {
 
-    private static final String ENV_THRIFT = "[[COMMAND#"
+    public static final String TAG_INVITE_ID = "[[INVITEID#%s]]%s";
+
+    public static final String PROP_SESSION_ID = "sessionId";
+
+    public static final String CMD_PREAMBLE = "[[COMMAND#";
+
+    private static final String ENV_THRIFT = CMD_PREAMBLE
             + SerializationMode.THRIFT.name() + "]]";
 
-    private static final String ENV_JAXB = "[[COMMAND#"
+    private static final String ENV_JAXB = CMD_PREAMBLE
             + SerializationMode.JAXB.name() + "]]";
 
-    private static final String ENV_STRING = "[[COMMAND#"
+    private static final String ENV_STRING = CMD_PREAMBLE
             + SerializationMode.STRING.name() + "]]";
 
-    private static final String ENV_JAVA = "[[COMMAND#"
+    private static final String ENV_JAVA = CMD_PREAMBLE
             + SerializationMode.JAVA.name() + "]]";
 
-    private static final String ENV_NONE = "[[COMMAND#"
+    private static final String ENV_NONE = CMD_PREAMBLE
             + SerializationMode.NONE.name() + "]]";
 
     public static final String VENUE_SUBJECT_PROP = "subject";

@@ -26,10 +26,7 @@ import java.util.Map;
 import org.eclipse.ecf.core.IContainer;
 import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.ecf.core.util.ECFException;
-import org.eclipse.ecf.presence.IIMMessageEvent;
-import org.eclipse.ecf.presence.IIMMessageListener;
 import org.eclipse.ecf.presence.im.IChatMessage;
-import org.eclipse.ecf.presence.im.IChatMessageEvent;
 import org.eclipse.ecf.presence.im.IChatMessageSender;
 
 import com.google.common.eventbus.EventBus;
@@ -37,11 +34,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPeerToPeer;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPropertied.Property;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.ITextMessageEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.Errors;
-import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
-import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
-import com.raytheon.uf.viz.collaboration.comm.provider.event.ChatMessageEvent;
 
 /**
  * 
@@ -73,9 +66,8 @@ public class PeerToPeerChat extends BaseSession implements IPeerToPeer {
      * @param manager
      */
     PeerToPeerChat(IContainer container, EventBus externalBus,
-            SessionManager manager) {
+            SessionManager manager) throws CollaborationException {
         super(container, externalBus, manager);
-        setup();
         chatSender = getConnectionPresenceAdapter().getChatManager()
                 .getChatMessageSender();
     }
@@ -132,49 +124,14 @@ public class PeerToPeerChat extends BaseSession implements IPeerToPeer {
 
         return status;
     }
-
-    void setup() {
-        try {
-            super.setup();
-
-            getConnectionPresenceAdapter().getChatManager().addMessageListener(
-                    new IIMMessageListener() {
-
-                        @Override
-                        public void handleMessageEvent(
-                                IIMMessageEvent messageEvent) {
-                            if (messageEvent instanceof IChatMessageEvent) {
-                                IChatMessageEvent event = (IChatMessageEvent) messageEvent;
-
-                                IChatMessage msg = event.getChatMessage();
-                                String body = msg.getBody();
-                                if (body != null) {
-                                    if (body.startsWith("[[COMMAND#")) {
-                                        Object object = null;
-                                        try {
-                                            object = Tools.unMarshallData(body);
-                                        } catch (CollaborationException e) {
-                                            System.out
-                                                    .println("Error unmarshalling PeerToPeer data");
-                                        }
-                                        if (object != null) {
-                                            getEventPublisher().post(object);
-                                        }
-                                    } else {
-                                        // anything else pass to the normal text
-                                        TextMessage textMsg = null;
-
-                                        ITextMessageEvent chatEvent = new ChatMessageEvent(
-                                                textMsg);
-
-                                        getEventPublisher().post(chatEvent);
-                                    }
-                                }
-                            }
-                        }
-                    });
-        } catch (ECFException ecfe) {
-            System.out.println("Error setting up PeerToPeer chat listeners");
-        }
+    
+    /**
+     * 
+     * @return 
+     */
+    @Override
+    public EventBus getEventPublisher() {
+        return getManagerEventPublisher();
     }
+
 }
