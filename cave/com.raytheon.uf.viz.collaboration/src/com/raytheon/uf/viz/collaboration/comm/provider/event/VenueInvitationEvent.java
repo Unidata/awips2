@@ -20,34 +20,33 @@
 package com.raytheon.uf.viz.collaboration.comm.provider.event;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 
 /**
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 27, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public class VenueInvitationEvent implements IVenueInvitationEvent {
-    
+
     private IQualifiedID venueId;
-    
-    private IChatID invitor;
-    
+
+    private IQualifiedID invitor;
+
     private String subject;
-    
+
     private String body;
 
     /**
@@ -57,16 +56,17 @@ public class VenueInvitationEvent implements IVenueInvitationEvent {
      * @param subject
      * @param body
      */
-    public VenueInvitationEvent(IQualifiedID venueId, IChatID invitor, String subject, String body) {
+    public VenueInvitationEvent(IQualifiedID venueId, IQualifiedID invitor,
+            String subject, String body) {
         this.venueId = venueId;
         this.invitor = invitor;
         this.subject = subject;
         this.body = body;
     }
-    
-    
+
     /**
-     * Get the room identifier 
+     * Get the room identifier
+     * 
      * @see com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent#getRoomId()
      */
     @Override
@@ -78,7 +78,7 @@ public class VenueInvitationEvent implements IVenueInvitationEvent {
      * @see com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent#getInvitor()
      */
     @Override
-    public IChatID getInvitor() {
+    public IQualifiedID getInvitor() {
         return invitor;
     }
 

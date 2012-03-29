@@ -43,26 +43,26 @@ import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterItem;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 29, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 public class RosterItem implements IRosterItem {
 
     //
     private String name = null;
-    
+
     //
     private IRosterItem parent = null;
-    
+
     //
     private IRoster roster = null;
 
@@ -82,9 +82,9 @@ public class RosterItem implements IRosterItem {
      * 
      */
     public RosterItem() {
-        this(null,null,null);
+        this(null, null, null);
     }
-    
+
     /**
      * 
      * @param name
@@ -101,7 +101,7 @@ public class RosterItem implements IRosterItem {
     public void setName(String name) {
         this.name = name;
     }
-    
+
     /**
      * 
      * @see com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterItem#getName()
@@ -118,7 +118,7 @@ public class RosterItem implements IRosterItem {
     public void setParent(IRosterItem item) {
         parent = item;
     }
-    
+
     /**
      * @see com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterItem#getParent()
      */
@@ -134,7 +134,7 @@ public class RosterItem implements IRosterItem {
     public void setRoster(IRoster roster) {
         this.roster = roster;
     }
-    
+
     /**
      * 
      * @see com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterItem#getRoster()
@@ -176,5 +176,5 @@ public class RosterItem implements IRosterItem {
             return false;
         return true;
     }
-    
+
 }
