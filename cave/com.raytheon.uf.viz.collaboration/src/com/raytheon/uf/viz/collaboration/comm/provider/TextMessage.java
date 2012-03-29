@@ -25,30 +25,30 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 24, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0 
+ * @version 1.0
  */
 
 public class TextMessage extends BaseMessage {
-    
+
     private static final long serialVersionUID = 1L;
-    
+
     /**
      * 
      * @param to
      * @param body
      */
     public TextMessage(IQualifiedID to, String body) {
-        super(to,body);
+        super(to, body);
     }
 
     /**

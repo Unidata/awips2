@@ -23,17 +23,17 @@ package com.raytheon.uf.viz.collaboration.comm.provider;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 8, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public abstract class Errors {
@@ -43,15 +43,16 @@ public abstract class Errors {
     public static final int CANNOT_CONNECT = -50;
 
     public static final int ALREADY_CONNECTED = -51;
-    
+
     public static final int BAD_NAME = -52;
-    
+
     // Error - An attempt to use a Venue that has been disposed.
     public static final int VENUE_DISPOSED = -100;
+
     // Error - Venue exists when attempting to create a new venue.
     public static final int VENUE_EXISTS = -101;
+
     // Error - Venue not found when attempting to join an existing venue.
     public static final int VENUE_NOT_FOUND = -102;
-    
-    
+
 }
