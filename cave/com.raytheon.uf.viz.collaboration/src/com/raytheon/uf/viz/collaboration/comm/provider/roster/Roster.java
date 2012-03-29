@@ -31,8 +31,8 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.RosterId;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueUserId;
 
 /**
  * TODO Add Description
@@ -232,7 +232,12 @@ public class Roster extends RosterItem implements IRoster {
                 if (o instanceof org.eclipse.ecf.presence.roster.IRosterEntry) {
                     org.eclipse.ecf.presence.roster.IRosterEntry entry = (org.eclipse.ecf.presence.roster.IRosterEntry) o;
 
-                    IChatID id = VenueUserId.convertFrom(entry.getUser());
+                    IChatID id = IDConverter.convertFrom(entry.getUser());
+                    System.out.println("      "
+                            + entry.getUser().getID().getName());
+                    System.out.println("Group:" + group.getName() + " id:"
+                            + id.getFQName());
+
                     RosterEntry re = new RosterEntry(id);
                     // Check to see if we already have an entry
                     IRosterEntry reCurrent = getRosterEntry(re);
@@ -242,7 +247,12 @@ public class Roster extends RosterItem implements IRoster {
                     }
                     IPresence p = Presence.convertPresence(entry.getPresence());
                     re.setPresence(p);
+                    System.out.println(" entry:" + re.getName() + " presence:"
+                            + re.getPresence().getMode()
+                            + re.getPresence().getType());
+
                     re.addGroup(group);
+                    group.addEntry(re);
                     internalEntries.put(re.getUser(), re);
                 }
             }

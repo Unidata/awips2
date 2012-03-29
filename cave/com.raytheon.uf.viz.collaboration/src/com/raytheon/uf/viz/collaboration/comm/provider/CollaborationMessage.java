@@ -25,21 +25,21 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 24, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0 
+ * @version 1.0
  */
 
 public class CollaborationMessage extends BaseMessage {
-    
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -48,7 +48,7 @@ public class CollaborationMessage extends BaseMessage {
      * @param body
      */
     public CollaborationMessage(IQualifiedID to, String body) {
-        super(to,body);
+        super(to, body);
     }
 
     /**
@@ -67,5 +67,5 @@ public class CollaborationMessage extends BaseMessage {
     @Override
     public void getBodyAsBinary(byte[] body) {
     }
-    
+
 }

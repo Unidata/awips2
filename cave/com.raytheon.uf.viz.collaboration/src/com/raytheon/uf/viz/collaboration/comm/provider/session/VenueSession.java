@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.session;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -44,7 +42,7 @@ import org.eclipse.ecf.presence.chatroom.IChatRoomParticipantListener;
 import org.eclipse.ecf.provider.xmpp.identity.XMPPRoomID;
 
 import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
+// import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
@@ -57,9 +55,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEv
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
 import com.raytheon.uf.viz.collaboration.comm.identity.listener.IInvitation;
-import com.raytheon.uf.viz.collaboration.comm.identity.listener.IMessageFilter;
-import com.raytheon.uf.viz.collaboration.comm.identity.listener.IMessageListener;
-import com.raytheon.uf.viz.collaboration.comm.identity.listener.IPresenceListener;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
@@ -110,79 +105,6 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueUserId;
 public class VenueSession extends BaseSession implements IVenueSession,
         ISharedDisplaySession {
 
-    /**
-     * 
-     * TODO Add Description
-     * 
-     * <pre>
-     * 
-     * SOFTWARE HISTORY
-     * 
-     * Date         Ticket#    Engineer    Description
-     * ------------ ---------- ----------- --------------------------
-     * Feb 27, 2012            jkorman     Initial creation
-     * 
-     * </pre>
-     * 
-     * @author jkorman
-     * @version 1.0
-     */
-    private static class InternalListener {
-
-        private IMessageListener messageListener;
-
-        private IPresenceListener presenceListener;
-
-        private IMessageFilter filter;
-
-        /**
-         * 
-         * @param listener
-         * @param filter
-         */
-        public InternalListener(IMessageListener listener, IMessageFilter filter) {
-            messageListener = listener;
-            this.filter = filter;
-
-        }
-
-        /**
-         * 
-         * @param listener
-         * @param filter
-         */
-        public InternalListener(IPresenceListener listener,
-                IMessageFilter filter) {
-            presenceListener = listener;
-            this.filter = filter;
-        }
-
-        /**
-         * 
-         * @param message
-         */
-        public void processMessage(IMessage message) {
-            messageListener.processMessage(message);
-        }
-
-        /**
-         * 
-         * @param presence
-         */
-        public void processPresence(IPresence presence) {
-            presenceListener.notifyPresence(presence);
-        }
-
-        /**
-         * 
-         * @param message
-         * @return
-         */
-        public boolean filter(IMessage message) {
-            return filter.filter(message);
-        }
-    }
-
     private static final String SEND_CMD = "[[COMMAND";
 
     private static final String SEND_TXT = "[[TEXT]]";
@@ -192,10 +114,6 @@ public class VenueSession extends BaseSession implements IVenueSession,
     private IChatRoomInfo venueInfo = null;
 
     private IChatRoomContainer venueContainer = null;
-
-    private List<InternalListener> collaborationListeners = null;
-
-    private List<InternalListener> presenceListeners = null;
 
     private IIMMessageListener intListener = null;
 
@@ -218,84 +136,79 @@ public class VenueSession extends BaseSession implements IVenueSession,
      * @param eventBus
      */
     VenueSession(IContainer container, EventBus externalBus,
-            SessionManager manager) {
+            SessionManager manager) throws CollaborationException {
         super(container, externalBus, manager);
-        try {
-            setup();
-        } catch (ECFException e) {
 
-        } finally {
-            initListeners();
-        }
-        
-//        Runnable r = new Runnable() {
-//            @Override
-//            public void run() {
-//                try {
-//                    Thread.sleep(20000);
-//
-//                    TestJAXBObject j = new TestJAXBObject();
-//                    j.setItem_1("This is an object");
-//                    j.setValue(5);
-//                    sendRenderableObject(j);
-//
-//                    VenueParticipant id = new VenueParticipant("jkorman", "paul", "awipscm.omaha.us.ray.com");
-//                    id.setResource("cave");
-//                    IInitData d = new InitData();
-//                    ((InitData) d).setName("This is a test init data object");
-//
-//                    IDisplayEvent e = new DisplayEvent();
-//                    ((DisplayEvent) e).setName("This is a test display event");
-//                    
-//                    sendInitData(id, d);
-//                    sendEvent(id,e);
-//                } catch (Exception e) {
-//                    System.out.println("Error sending RenderableObject");
-//                }
-//            }
-//        };
-//        Thread t = new Thread(r);
-//        t.start();
-//        registerEventHandler(this);
-//        try {
-//            DataHandler h = new DataHandler();
-//            subscribeToInitData(h);
-//        } catch (CollaborationException ce) {
-//            ce.printStackTrace();
-//        }
+        // Runnable r = new Runnable() {
+        // @Override
+        // public void run() {
+        // try {
+        // Thread.sleep(30000);
+        //
+        // TestJAXBObject j = new TestJAXBObject();
+        // j.setItem_1("This is an object");
+        // j.setValue(5);
+        // sendRenderableObject(j);
+        //
+        // VenueParticipant id = new VenueParticipant("jkorman",
+        // "paul", "awipscm.omaha.us.ray.com");
+        // id.setResource("cave");
+        // IInitData d = new InitData();
+        // ((InitData) d).setName("This is a test init data object");
+        //
+        // IDisplayEvent e = new DisplayEvent();
+        // ((DisplayEvent) e).setName("This is a test display event");
+        //
+        // sendInitData(id, d);
+        // sendEvent(id, e);
+        //
+        // Thread.sleep(10000);
+        // System.out.println("Sending invitation");
+        //
+        // sendInvitation("tester5@conference.awipscm.omaha.us.ray.com",
+        // "jkorman", "Test Room", "Join the test");
+        //
+        // } catch (Exception e) {
+        // System.out.println("Error sending RenderableObject");
+        // }
+        //
+        // }
+        // };
+        // Thread t = new Thread(r);
+        // t.start();
+        // registerEventHandler(this);
+        // try {
+        // DataHandler h = new DataHandler();
+        // subscribeToInitData(h);
+        // } catch (CollaborationException ce) {
+        // ce.printStackTrace();
+        // }
     }
 
-//    @Subscribe
-//    public void handle(IRenderable renderable) {
-//        System.out.println("Renderable found");
-//        if (renderable instanceof TestJAXBObject) {
-//            TestJAXBObject j = (TestJAXBObject) renderable;
-//            if (j.getValue() < 100) {
-//                System.out.println(String.format("%s %d Renderable",
-//                        j.getItem_1(), j.getValue()));
-//                j.setValue(j.getValue() + 200);
-//                j.setItem_1("Now for the return trip");
-//                try {
-//                    sendRenderableObject(j);
-//                } catch (CollaborationException ce) {
-//                    System.out.println("Error sending RenderableObject");
-//                }
-//            } else {
-//                System.out.println(String.format("%s %d Renderable",
-//                        j.getItem_1(), j.getValue()));
-//            }
-//        }
-//    }
-    
-    /**
-     * 
-     * @throws ECFException
-     */
-    void setup() throws ECFException {
-        super.setup();
-    }
+    // @Subscribe
+    // public void handle(IRenderable renderable) {
+    // System.out.println("Renderable found");
+    // if (renderable instanceof TestJAXBObject) {
+    // TestJAXBObject j = (TestJAXBObject) renderable;
+    // if (j.getValue() < 100) {
+    // System.out.println(String.format("%s %d Renderable",
+    // j.getItem_1(), j.getValue()));
+    // j.setValue(j.getValue() + 200);
+    // j.setItem_1("Now for the return trip");
+    // try {
+    // sendRenderableObject(j);
+    // } catch (CollaborationException ce) {
+    // System.out.println("Error sending RenderableObject");
+    // }
+    // } else {
+    // System.out.println(String.format("%s %d Renderable",
+    // j.getItem_1(), j.getValue()));
+    // }
+    // }
+    // }
 
     /**
+     * Get the identification of the owner of this session.
      * 
      * @see com.raytheon.uf.viz.collaboration.comm.identity.ISession#getUserID()
      */
@@ -310,6 +223,7 @@ public class VenueSession extends BaseSession implements IVenueSession,
      * 
      * @return
      */
+    @Override
     public ISharedDisplaySession spawnSharedDisplaySession() {
         return this;
     }
@@ -325,20 +239,17 @@ public class VenueSession extends BaseSession implements IVenueSession,
 
         if (intListener != null) {
             venueContainer.removeMessageListener(intListener);
+            intListener = null;
         }
         if (participantListener != null) {
             venueContainer
                     .removeChatRoomParticipantListener(participantListener);
+            participantListener = null;
         }
-
-        collaborationListeners.clear();
-        collaborationListeners = null;
-
-        presenceListeners.clear();
-        presenceListeners = null;
-
-        venueContainer.disconnect();
-        venueContainer = null;
+        if (venueContainer != null) {
+            venueContainer.disconnect();
+            venueContainer = null;
+        }
 
         venueManager = null;
         venueInfo = null;
@@ -347,10 +258,334 @@ public class VenueSession extends BaseSession implements IVenueSession,
     }
 
     /**
+     * Get information about this venue.
+     * 
+     * @return The information about this venue. May return a null reference if
+     *         the venue is not connected.
+     */
+    @Override
+    public IVenue getVenue() {
+        IVenue venue = null;
+        if (isConnected() && (venueContainer != null)) {
+            venue = new Venue();
+            ID[] ids = venueContainer.getChatRoomParticipants();
+            for (ID id : ids) {
+
+                IVenueParticipant vp = new VenueParticipant();
+                String fullName = id.getName();
+                vp.setName(Tools.parseName(fullName));
+                vp.setHost(Tools.parseHost(fullName));
+                vp.setResource(Tools.parseResource(fullName));
+                venue.addParticipant(vp);
+            }
+            venue.setInfo(InfoAdapter.createVenueInfo(venueInfo));
+        } else {
+
+        }
+        return venue;
+    }
+
+    /**
+     * Send an invitation from this venue to another user.
+     * 
+     * @param invitation
+     *            An invitation
+     * @return
+     */
+    @Override
+    public int sendInvitation(IInvitation invitation) {
+        int status = Errors.NO_ERROR;
+        IChatRoomInvitationSender sender = getConnectionPresenceAdapter()
+                .getChatRoomManager().getInvitationSender();
+        if (sender != null) {
+            ID roomId = getConnectionPresenceAdapter().getChatRoomManager()
+                    .getChatRoomInfo(invitation.getRoomId()).getConnectedID();
+
+            // *******************
+            // ** TODO : The host part of this need to defined
+            ID userId = IDFactory.getDefault().createID(
+                    getConnectionNamespace(),
+                    invitation.getFrom() + "@awipscm.omaha.us.ray.com");
+            // *******************
+
+            try {
+                String body = insertSessionId(invitation.getBody());
+
+                sender.sendInvitation(roomId, userId, invitation.getSubject(),
+                        body);
+            } catch (ECFException e) {
+                e.printStackTrace();
+            }
+        }
+        return status;
+    }
+
+    /**
+     * Send an invitation from this venue to another user.
+     * 
+     * @param room
+     *            The target venue for this invitation.
+     * @param id
+     *            The target user for this invitation.
+     * @param subject
+     *            The intended subject of the venue conversation.
+     * @param body
+     *            Any text that the user may wish to include.
+     * @return
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession#sendInvitation(java.lang.String,
+     *      java.lang.String, java.lang.String, java.lang.String)
+     */
+    @Override
+    public int sendInvitation(String room, String id, String subject,
+            String body) {
+        // Assume success
+        int status = Errors.NO_ERROR;
+        IChatRoomInvitationSender sender = getConnectionPresenceAdapter()
+                .getChatRoomManager().getInvitationSender();
+        if (sender != null) {
+            body = insertSessionId(body);
+
+            ID roomId = getConnectionPresenceAdapter().getChatRoomManager()
+                    .getChatRoomInfo(room).getConnectedID();
+            ID userId = IDFactory.getDefault().createID(
+                    getConnectionNamespace(), id + "@awipscm.omaha.us.ray.com");
+
+            try {
+                sender.sendInvitation(roomId, userId, subject, body);
+            } catch (ECFException e) {
+                e.printStackTrace();
+            }
+        }
+        return status;
+    }
+
+    /**
+     * Send an invitation from this venue to another user.
+     * 
+     * @param room
+     *            The target venue for this invitation.
+     * @param id
+     *            The target user for this invitation.
+     * @param subject
+     *            The intended subject of the venue conversation.
+     * @param body
+     *            Any text that the user may wish to include.
+     * @return
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession#sendInvitation(java.lang.String,
+     *      java.lang.String, java.lang.String, java.lang.String)
+     */
+    @Override
+    public int sendInvitation(String room, List<String> ids, String subject,
+            String body) {
+        // Assume success
+        int status = Errors.NO_ERROR;
+        if (ids != null) {
+            for (String id : ids) {
+                sendInvitation(room, id, subject, body);
+            }
+        } else {
+            status = -1;
+        }
+        return status;
+    }
+
+    /**
+     * 
+     * @param body
+     * @return
+     */
+    private String insertSessionId(String body) {
+        return String.format(Tools.TAG_INVITE_ID, sessionId,
+                (body != null) ? body : "");
+    }
+
+    /**
+     * 
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISession#getSessionId()
+     */
+    @Override
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    // ***************************
+    // ISharedDisplaySession
+    // ***************************
+
+    /**
+     * 
+     * @param participant
+     * @param initData
+     * @throws CollaborationException
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#sendInitData(com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID,
+     *      com.raytheon.uf.viz.collaboration.comm.identity.event.IInitData)
+     */
+    @Override
+    public void sendInitData(
+            com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID participant,
+            IInitData initData) throws CollaborationException {
+
+        PeerToPeerChat session = null;
+        session = getP2PSession();
+        if (session != null) {
+            String message = Tools.marshallData(initData);
+            if (message != null) {
+                session.sendPeerToPeer(participant.getFQName(), message);
+            }
+        }
+    }
+
+    /**
+     * Subscribe to peer to peer data events.
+     * 
+     * @param An
+     *            object that subscribes to peer to peer events.
+     */
+    @Override
+    public void subscribeToInitData(Object subscriber)
+            throws CollaborationException {
+        if (!initSubscribers.containsKey(subscriber)) {
+            initSubscribers.put(subscriber, subscriber);
+        }
+        EventBus bus = getP2PSession().getEventPublisher();
+        System.out.println("Subscribe EventBus instance :" + bus.hashCode());
+        bus.register(subscriber);
+    }
+
+    /**
+     * UnSubscribe to peer to peer data events.
+     * 
+     * @param An
+     *            object that will be unsubscribed for peer to peer events.
+     */
+    @Override
+    public void unSubscribeToInitData(Object subscriber)
+            throws CollaborationException {
+        if (initSubscribers.containsKey(subscriber)) {
+            initSubscribers.remove(subscriber);
+            getP2PSession().getEventPublisher().unregister(subscriber);
+        }
+    }
+
+    /**
+     * 
+     * @param participant
+     * @param event
+     * @throws CollaborationException
+     */
+    @Override
+    public void sendEvent(
+            com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID participant,
+            IDisplayEvent event) throws CollaborationException {
+
+        PeerToPeerChat session = null;
+        session = getP2PSession();
+        if (session != null) {
+            String message = Tools.marshallData(event);
+            if (message != null) {
+                session.sendPeerToPeer(participant.getFQName(), message);
+            }
+        }
+    }
+
+    /**
+     * 
+     * @param event
+     * @throws CollaborationException
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#sendEvent(com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent)
+     */
+    @Override
+    public void sendEvent(IDisplayEvent event) throws CollaborationException {
+        if (event != null) {
+            String message = Tools.marshallData(event);
+            if (message != null) {
+                sendTextMessage(message);
+            }
+        }
+    }
+
+    /**
+     * @param renderable
+     * @throws CollaborationException
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#sendRenderableObject(com.raytheon.uf.viz.collaboration.comm.identity.event.IRenderable)
+     */
+    @Override
+    public void sendRenderableObject(IRenderable renderable)
+            throws CollaborationException {
+        if (renderable != null) {
+            String message = Tools.marshallData(renderable);
+            if (message != null) {
+                sendTextMessage(message);
+            }
+        }
+    }
+
+    /**
+     * Get the identification of the user who is the DataProvider.
+     * 
+     * @return The DataProvider user identification.
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#getCurrentDataProvider()
+     */
+    @Override
+    public IChatID getCurrentDataProvider() {
+        return sessionDataProvider;
+    }
+
+    /**
+     * Get the identification of the user who is the Session Leader.
+     * 
+     * @return The Session Leader user identification.
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#getCurrentSessionLeader()
+     */
+    @Override
+    public IChatID getCurrentSessionLeader() {
+        return sessionLeader;
+    }
+
+    /**
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#hasRole(com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole)
+     */
+    @Override
+    public boolean hasRole(ParticipantRole role) {
+        return roles.contains(role);
+    }
+
+    // ***************************
+    // ISharedDisplaySession
+    // ***************************
+
+    /**
+     * @param message
+     *            A message to send.
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession#sendTextMessage(java.lang.String)
+     */
+    @Override
+    public void sendTextMessage(String message) throws CollaborationException {
+        // Assume success
+        if ((venueContainer != null) && (message != null)) {
+            IChatRoomMessageSender sender = venueContainer
+                    .getChatRoomMessageSender();
+            try {
+                if (message.startsWith(SEND_CMD)) {
+                    sender.sendMessage(message);
+                } else {
+                    sender.sendMessage(SEND_TXT + message);
+                }
+            } catch (ECFException e) {
+                throw new CollaborationException("Error sending text messge");
+            }
+        }
+    }
+
+    // ***************************
+    // Internal methods
+    // ***************************
+
+    /**
      * 
      * @see com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession#joinVenue(java.lang.String)
      */
-    public int joinVenue(String venueName) {
+    int joinVenue(String venueName) {
         int errorStatus = -1;
         try {
             // Create chat room container from manager
@@ -382,7 +617,7 @@ public class VenueSession extends BaseSession implements IVenueSession,
      * @see com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession#createVenue(java.lang.String,
      *      java.lang.String)
      */
-    public int createVenue(String venueName, String subject) {
+    int createVenue(String venueName, String subject) {
         int errorStatus = -1;
         try {
             // Create chat room container from manager
@@ -519,317 +754,6 @@ public class VenueSession extends BaseSession implements IVenueSession,
 
     /**
      * 
-     * @return The information about this venue. May return a null reference if
-     *         the venue is not connected.
-     */
-    public IVenue getVenue() {
-        IVenue venue = null;
-        if (isConnected() && (venueContainer != null)) {
-            venue = new Venue();
-            ID[] ids = venueContainer.getChatRoomParticipants();
-            for (ID id : ids) {
-                IVenueParticipant participant = new VenueParticipant();
-                participant.setName(id.getName());
-                venue.addParticipant(participant);
-            }
-            venue.setInfo(InfoAdapter.createVenueInfo(venueInfo));
-        } else {
-
-        }
-        return venue;
-    }
-
-    /**
-     * Send an invitation from this venue to another user.
-     * 
-     * @param invitation
-     *            An invitation
-     * @return
-     */
-    public int sendInvitation(IInvitation invitation) {
-        int status = Errors.NO_ERROR;
-        IChatRoomInvitationSender sender = getConnectionPresenceAdapter()
-                .getChatRoomManager().getInvitationSender();
-        if (sender != null) {
-            ID roomId = getConnectionPresenceAdapter().getChatRoomManager()
-                    .getChatRoomInfo(invitation.getRoomId()).getConnectedID();
-
-            // *******************
-            // ** TODO : The host part of this need to defined
-            ID userId = IDFactory.getDefault().createID(
-                    getConnectionNamespace(),
-                    invitation.getFrom() + "@awipscm.omaha.us.ray.com");
-            // *******************
-
-            try {
-                sender.sendInvitation(roomId, userId, invitation.getSubject(),
-                        invitation.getBody());
-            } catch (ECFException e) {
-                e.printStackTrace();
-            }
-        }
-        return status;
-    }
-
-    /**
-     * Send an invitation from this venue to another user.
-     * 
-     * @param room
-     *            The target venue for this invitation.
-     * @param id
-     *            The target user for this invitation.
-     * @param subject
-     *            The intended subject of the venue conversation.
-     * @param body
-     *            Any text that the user may wish to include.
-     * @return
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession#sendInvitation(java.lang.String,
-     *      java.lang.String, java.lang.String, java.lang.String)
-     */
-    @Override
-    public int sendInvitation(String room, String id, String subject,
-            String body) {
-        // Assume success
-        int status = Errors.NO_ERROR;
-        IChatRoomInvitationSender sender = getConnectionPresenceAdapter()
-                .getChatRoomManager().getInvitationSender();
-        if (sender != null) {
-
-            ID roomId = getConnectionPresenceAdapter().getChatRoomManager()
-                    .getChatRoomInfo(room).getConnectedID();
-            ID userId = IDFactory.getDefault().createID(
-                    getConnectionNamespace(), id + "@awipscm.omaha.us.ray.com");
-
-            try {
-                sender.sendInvitation(roomId, userId, subject, body);
-            } catch (ECFException e) {
-                e.printStackTrace();
-            }
-        }
-        return status;
-    }
-
-    /**
-     * Send an invitation from this venue to another user.
-     * 
-     * @param room
-     *            The target venue for this invitation.
-     * @param id
-     *            The target user for this invitation.
-     * @param subject
-     *            The intended subject of the venue conversation.
-     * @param body
-     *            Any text that the user may wish to include.
-     * @return
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession#sendInvitation(java.lang.String,
-     *      java.lang.String, java.lang.String, java.lang.String)
-     */
-    @Override
-    public int sendInvitation(String room, List<String> ids, String subject,
-            String body) {
-        // Assume success
-        int status = Errors.NO_ERROR;
-        if (ids != null) {
-            for (String id : ids) {
-                sendInvitation(room, id, subject, body);
-            }
-        } else {
-            status = -1;
-        }
-        return status;
-    }
-
-    /**
-     * 
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISession#getSessionId()
-     */
-    @Override
-    public String getSessionId() {
-        return sessionId;
-    }
-
-    // ***************************
-    // ISharedDisplaySession
-    // ***************************
-
-    /**
-     * 
-     * @param participant
-     * @param initData
-     * @throws CollaborationException
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#sendInitData(com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID,
-     *      com.raytheon.uf.viz.collaboration.comm.identity.event.IInitData)
-     */
-    @Override
-    public void sendInitData(
-            com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID participant,
-            IInitData initData) throws CollaborationException {
-
-        PeerToPeerChat session = null;
-        session = getP2PSession();
-        if (session != null) {
-            String message = Tools.marshallData(initData);
-            if (message != null) {
-                session.sendPeerToPeer(participant.getFQName(), message);
-            }
-        }
-    }
-
-    /**
-     * Subscribe to peer to peer data events.
-     * 
-     * @param An
-     *            object that subscribes to peer to peer events.
-     */
-    @Override
-    public void subscribeToInitData(Object subscriber)
-            throws CollaborationException {
-        if (!initSubscribers.containsKey(subscriber)) {
-            initSubscribers.put(subscriber, subscriber);
-        }
-        PeerToPeerChat session = getP2PSession();
-        session.getEventPublisher().register(subscriber);
-    }
-
-    /**
-     * UnSubscribe to peer to peer data events.
-     * 
-     * @param An
-     *            object that will be unsubscribed for peer to peer events.
-     */
-    @Override
-    public void unSubscribeToInitData(Object subscriber)
-            throws CollaborationException {
-        if (initSubscribers.containsKey(subscriber)) {
-            initSubscribers.remove(subscriber);
-            PeerToPeerChat session = getP2PSession();
-            session.getEventPublisher().unregister(subscriber);
-        }
-    }
-
-    /**
-     * 
-     * @param participant
-     * @param event
-     * @throws CollaborationException
-     */
-    @Override
-    public void sendEvent(
-            com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID participant,
-            IDisplayEvent event) throws CollaborationException {
-
-        PeerToPeerChat session = null;
-        session = getP2PSession();
-        if (session != null) {
-            String message = Tools.marshallData(event);
-            if (message != null) {
-                session.sendPeerToPeer(participant.getFQName(), message);
-            }
-        }
-    }
-
-    /**
-     * 
-     * @param event
-     * @throws CollaborationException
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#sendEvent(com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent)
-     */
-    @Override
-    public void sendEvent(IDisplayEvent event) throws CollaborationException {
-        if (event != null) {
-            String message = Tools.marshallData(event);
-            if (message != null) {
-                sendTextMessage(message);
-            }
-        }
-    }
-
-    /**
-     * @param renderable
-     * @throws CollaborationException
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#sendRenderableObject(com.raytheon.uf.viz.collaboration.comm.identity.event.IRenderable)
-     */
-    @Override
-    public void sendRenderableObject(IRenderable renderable)
-            throws CollaborationException {
-        if (renderable != null) {
-            String message = Tools.marshallData(renderable);
-            if (message != null) {
-                sendTextMessage(message);
-            }
-        }
-    }
-
-    /**
-     * Get the identification of the user who is the DataProvider.
-     * 
-     * @return The DataProvider user identification.
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#getCurrentDataProvider()
-     */
-    @Override
-    public IChatID getCurrentDataProvider() {
-        return sessionDataProvider;
-    }
-
-    /**
-     * Get the identification of the user who is the Session Leader.
-     * 
-     * @return The Session Leader user identification.
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#getCurrentSessionLeader()
-     */
-    @Override
-    public IChatID getCurrentSessionLeader() {
-        return sessionLeader;
-    }
-
-    /**
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#hasRole(com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole)
-     */
-    @Override
-    public boolean hasRole(ParticipantRole role) {
-        return roles.contains(role);
-    }
-
-    // ***************************
-    // ISharedDisplaySession
-    // ***************************
-
-    /**
-     * @param message
-     *            A message to send.
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession#sendTextMessage(java.lang.String)
-     */
-    @Override
-    public void sendTextMessage(String message) throws CollaborationException {
-        // Assume success
-        if ((venueContainer != null) && (message != null)) {
-            IChatRoomMessageSender sender = venueContainer
-                    .getChatRoomMessageSender();
-            try {
-                if (message.startsWith(SEND_CMD)) {
-                    sender.sendMessage(message);
-                } else {
-                    sender.sendMessage(SEND_TXT + message);
-                }
-            } catch (ECFException e) {
-                throw new CollaborationException("Error sending text messge");
-            }
-        }
-    }
-
-    /**
-     * Set up the various message listener lists. Ensures that all listener
-     * collections are not null prior to use.
-     */
-    private void initListeners() {
-        presenceListeners = Collections
-                .synchronizedList(new ArrayList<InternalListener>());
-        collaborationListeners = Collections
-                .synchronizedList(new ArrayList<InternalListener>());
-    }
-
-    /**
-     * 
      * @param message
      */
     private void distributeMessage(IMessage message) {
@@ -856,23 +780,6 @@ public class VenueSession extends BaseSession implements IVenueSession,
                     } catch (CollaborationException ce) {
                         // TODO : more robust!!
                         ce.printStackTrace();
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * 
-     * @param message
-     */
-    private void firePresenceListeners(IMessage message) {
-        synchronized (presenceListeners) {
-            if (message instanceof IPresence) {
-                IPresence presence = (IPresence) message;
-                for (InternalListener listener : presenceListeners) {
-                    if (listener.filter(message)) {
-                        listener.processPresence(presence);
                     }
                 }
             }

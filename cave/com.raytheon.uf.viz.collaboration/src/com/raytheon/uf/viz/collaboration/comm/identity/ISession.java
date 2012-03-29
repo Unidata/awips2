@@ -38,6 +38,7 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 
 /**
@@ -45,26 +46,28 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
  * 
  * 
  * Implementations of ISession do not support polling for messages but instead
- * make exclusive use of listener based callbacks to make incoming data available.
+ * make exclusive use of listener based callbacks to make incoming data
+ * available.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 24, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
-public interface ISession {
+public interface ISession extends IEventPublisher {
 
     /**
-     * Close and clean up this session. After a close, isConnected must return false.
+     * Close and clean up this session. After a close, isConnected must return
+     * false.
      */
     void close();
 
@@ -73,16 +76,33 @@ public interface ISession {
      * @return
      */
     IQualifiedID getUserID();
-    
+
     /**
      * Gets the connection status of the session.
+     * 
      * @return The connection status.
      */
     boolean isConnected();
-    
+
     /**
      * Get the session identifier.
-     * @return The session identifier. 
+     * 
+     * @return The session identifier.
      */
     String getSessionId();
+
+    /**
+     * Get the session identifier of a remote session this session is following.
+     * 
+     * @return The remote session id.
+     */
+    String getFollowingSessionId();
+
+    /**
+     * Set the session identifier of a remote session this session is following.
+     * 
+     * @param id
+     *            The remote session identifier.
+     */
+    void setFollowingSessionId(String id);
 }
