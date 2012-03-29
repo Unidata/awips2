@@ -48,6 +48,9 @@ import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseTrackAdapter;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -56,6 +59,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IViewPart;
@@ -69,7 +73,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
-import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Mode;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
@@ -223,7 +226,6 @@ public class CollaborationGroupView extends ViewPart {
             public void run() {
                 CollaborationDataManager.getInstance().setLinkCollaboration(
                         isChecked());
-                // createPrivateChat();
             }
         };
         linkToEditorAction.setImageDescriptor(CollaborationUtils
@@ -234,7 +236,11 @@ public class CollaborationGroupView extends ViewPart {
         inviteAction = new Action("Invite...") {
             @Override
             public void run() {
-                System.out.println("Invite...");
+                System.out.println("Invite... to join room " + getId());
+                String sessionId = getId();
+                IVenueSession session = CollaborationDataManager.getInstance()
+                        .getSession(sessionId);
+                // session.sendInvitation(invitation)
             };
         };
         inviteAction.setImageDescriptor(CollaborationUtils
@@ -656,7 +662,7 @@ public class CollaborationGroupView extends ViewPart {
         // CollaborationData.getInstance().getClient()
         // .getConnectNamespace(), "abc@awipscm.omaha.us.ray.com");
         // users.add(id);
-
+        System.err.println("createPrivateChat with " + user);
         try {
             // if (users.size() > 0) {
             // CollaborationUtils.createChat(users);
@@ -699,6 +705,35 @@ public class CollaborationGroupView extends ViewPart {
         usersTreeViewer.setInput(topLevel);
 
         treeEditor = new TreeEditor(usersTreeViewer.getTree());
+        usersTreeViewer.getTree().addMouseTrackListener(
+                new MouseTrackAdapter() {
+                    @Override
+                    public void mouseHover(MouseEvent e) {
+                        TreeItem item = usersTreeViewer.getTree().getItem(
+                                new Point(e.x, e.y));
+                        if (item != null) {
+                            CollaborationNode node = (CollaborationNode) item
+                                    .getData();
+                            StringBuilder builder = new StringBuilder();
+                            builder.append("ID: ").append(node.getId())
+                                    .append("\n");
+                            if (node instanceof CollaborationUser) {
+                                CollaborationUser user = (CollaborationUser) node;
+                                builder.append("Mode: ").append(user.getMode())
+                                        .append("\n");
+                                builder.append("Type: ").append(user.getType())
+                                        .append("\n");
+                                builder.append("Message: \"")
+                                        .append(user.getStatusMessage())
+                                        .append("\"\n");
+                            }
+                            usersTreeViewer.getTree().setToolTipText(
+                                    builder.toString());
+                        } else {
+                            usersTreeViewer.getTree().setToolTipText("");
+                        }
+                    }
+                });
     }
 
     private void createContextMenu() {
@@ -749,7 +784,7 @@ public class CollaborationGroupView extends ViewPart {
             Map<String, IVenueSession> sessions = CollaborationDataManager
                     .getInstance().getSessions();
             for (String name : sessions.keySet()) {
-                ISession session = sessions.get(name);
+                final ISession session = sessions.get(name);
                 if (session != null) {
                     final IVenueInfo info = sessions.get(name).getVenue()
                             .getInfo();
@@ -764,8 +799,8 @@ public class CollaborationGroupView extends ViewPart {
                              */
                             @Override
                             public void run() {
-                                joinAction.setId(info.getVenueID());
-                                joinAction.run();
+                                inviteAction.setId(session.getSessionId());
+                                inviteAction.run();
                             }
                         };
                         action.setId(info.getVenueID());
@@ -803,8 +838,8 @@ public class CollaborationGroupView extends ViewPart {
             usersTreeViewer.getTree().setEnabled(false);
             return;
         }
-        LoginUser user = new LoginUser(CollaborationDataManager.getInstance()
-                .getLoginId());
+
+        LoginUser user = new LoginUser(manager.getLoginId());
         topLevel.addChild(user);
         activeSessionGroup = new SessionGroup("Active Sessions");
         activeSessionGroup.setSessionRoot(true);
@@ -860,6 +895,7 @@ public class CollaborationGroupView extends ViewPart {
         int rsize = -1;
         int gsize = -1;
         if (roster != null) {
+            // TODO remove DEBUG start
             if (roster.getUser() != null) {
                 name = roster.getUser().getName();
             }
@@ -871,51 +907,65 @@ public class CollaborationGroupView extends ViewPart {
             }
             System.out.println("rosterManager Name " + name + ": group size "
                     + gsize + ": entry size " + rsize);
+            // TODO DEBUG end remove
             for (IRosterGroup rosterGroup : roster.getGroups()) {
                 if (rosterGroup != null) {
                     populateGroup(topLevel, rosterGroup);
                 }
             }
 
+            // TODO Are these buddies not in a group that need to be displayed?
+            if (roster.getEntries() != null && roster.getEntries().size() > 0) {
+                for (IRosterEntry e : roster.getEntries()) {
+                    System.out.println(name + " entry: "
+                            + e.getUser().getName() + "@"
+                            + e.getUser().getHost() + "/"
+                            + e.getUser().getResource());
+                }
+            }
+
             // TODO get Groups from server.
-            for (String g : new String[] { "Mybuddy1", "buddy1" }) {
-                CollaborationGroup group = new CollaborationGroup(g);
-                group.setLocal(true);
-                group.setModifiable(true);
-                topLevel.addChild(group);
-                for (String u : new String[] {
-                        "jkorman@awipscm.omaha.us.ray.com",
-                        "abc@awipscm.omaha.us.ray.com",
-                        "mnash@awipscm.omaha.us.ray.com" }) {
-                    CollaborationUser item = new CollaborationUser(u);
-                    group.addChild(item);
-                    item.setMode(Mode.AVAILABLE);
-                }
-            }
+            // for (String g : new String[] { "Mybuddy1", "buddy1" }) {
+            // CollaborationGroup group = new CollaborationGroup(g);
+            // group.setLocal(true);
+            // group.setModifiable(true);
+            // topLevel.addChild(group);
+            // for (String u : new String[] {
+            // "jkorman@awipscm.omaha.us.ray.com",
+            // "abc@awipscm.omaha.us.ray.com",
+            // "mnash@awipscm.omaha.us.ray.com" }) {
+            // CollaborationUser item = new CollaborationUser(u);
+            // group.addChild(item);
+            // item.setMode(Mode.AVAILABLE);
+            // item.setType(Type.AVAILABLE);
+            // }
+            // }
 
-            // TODO get from server
-            for (String g : new String[] { "OAX", "DSM", "LBF", "FSD" }) {
-                CollaborationGroup group = new CollaborationGroup(g);
-                group.setLocal(false);
-                topLevel.addChild(group);
-                for (String u : new String[] { g + "_user2", g + "_user3",
-                        g + "_user1" }) {
-                    CollaborationUser item = new CollaborationUser(u);
-                    group.addChild(item);
-                    item.setMode(Mode.AWAY);
-                }
-            }
-
+            // // TODO get from server
+            // for (String g : new String[] { "OAX", "DSM", "LBF", "FSD" }) {
+            // CollaborationGroup group = new CollaborationGroup(g);
+            // group.setLocal(false);
+            // topLevel.addChild(group);
+            // for (String u : new String[] { g + "_user2", g + "_user3",
+            // g + "_user1" }) {
+            // CollaborationUser item = new CollaborationUser(u);
+            // group.addChild(item);
+            // item.setMode(Mode.AWAY);
+            // item.setType(Type.AVAILABLE);
+            // }
+            // }
+            //
         }
 
-        CollaborationUser me = new CollaborationUser("OAX_rferrel");
-        me.setMode(Mode.AVAILABLE);
-        for (CollaborationNode node : topLevel.getChildren()) {
-            if ("OAX".equals(node.getId())) {
-                ((CollaborationGroup) node).addChild(me);
-                break;
-            }
-        }
+        // CollaborationUser me = new CollaborationUser("OAX_rferrel");
+        // me.setMode(Mode.AVAILABLE);
+        // me.setType(Type.AVAILABLE);
+        // for (CollaborationNode node : topLevel.getChildren()) {
+        // if ("OAX".equals(node.getId())) {
+        // ((CollaborationGroup) node).addChild(me);
+        // break;
+        // }
+        // }
     }
 
     /**
@@ -932,8 +982,8 @@ public class CollaborationGroupView extends ViewPart {
         CollaborationGroup groupNode = new CollaborationGroup(
                 rosterGroup.getName());
         // TODO determine if group is modifiable (User) or System group.
-        groupNode.setLocal(true);
-        groupNode.setModifiable(true);
+        groupNode.setLocal(false);
+        groupNode.setModifiable(false);
         parent.addChild(groupNode);
         System.out.println("group Name " + rosterGroup.getName() + ": entries "
                 + rosterGroup.getEntries());
@@ -944,7 +994,12 @@ public class CollaborationGroupView extends ViewPart {
         }
 
         for (IRosterEntry e : rosterGroup.getEntries()) {
-            CollaborationUser child = new CollaborationUser(e.getName());
+            CollaborationUser child = new CollaborationUser(e.getUser()
+                    .getFQName());
+            IPresence presence = e.getPresence();
+            child.setMode(presence.getMode());
+            child.setType(presence.getType());
+            child.setStatusMessage(presence.getStatusMessage());
             groupNode.addChild(child);
         }
     }
