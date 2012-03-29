@@ -26,23 +26,23 @@ import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 27, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public class ChatMessageEvent implements ITextMessageEvent {
-    
+
     private final TextMessage message;
-    
+
     /**
      * 
      * @param msg
@@ -51,13 +51,12 @@ public class ChatMessageEvent implements ITextMessageEvent {
         message = msg;
     }
 
-    
     /**
      * 
      * @return
      * 
      */
     public TextMessage getMessage() {
-       return message; 
+        return message;
     }
 }

@@ -27,17 +27,17 @@ import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 1, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public class InfoAdapter {
@@ -45,44 +45,44 @@ public class InfoAdapter {
      * TODO Add Description
      * 
      * <pre>
-     *
+     * 
      * SOFTWARE HISTORY
-     *
+     * 
      * Date         Ticket#    Engineer    Description
      * ------------ ---------- ----------- --------------------------
      * Mar 1, 2012            jkorman     Initial creation
-     *
+     * 
      * </pre>
-     *
+     * 
      * @author jkorman
-     * @version 1.0	
+     * @version 1.0
      */
     /**
      * TODO Add Description
      * 
      * <pre>
-     *
+     * 
      * SOFTWARE HISTORY
-     *
+     * 
      * Date         Ticket#    Engineer    Description
      * ------------ ---------- ----------- --------------------------
      * Mar 1, 2012            jkorman     Initial creation
-     *
+     * 
      * </pre>
-     *
+     * 
      * @author jkorman
-     * @version 1.0	
+     * @version 1.0
      */
     private static class MutableVenueInfo implements IVenueInfo {
-        
+
         private String description;
-        
+
         private String name;
-        
+
         private String subject;
-        
+
         private String id;
-        
+
         private int participantCount;
 
         private boolean isModerated = false;
@@ -90,7 +90,7 @@ public class InfoAdapter {
         private boolean isPersistent = false;
 
         private boolean requiresPassword = false;
-        
+
         /**
          * 
          * @param description
@@ -98,7 +98,7 @@ public class InfoAdapter {
         public void setVenueDescription(String description) {
             this.description = description;
         }
-        
+
         /**
          * 
          * @param name
@@ -106,7 +106,7 @@ public class InfoAdapter {
         public void setVenueName(String name) {
             this.name = name;
         }
-        
+
         /**
          * 
          * @param subject
@@ -122,7 +122,7 @@ public class InfoAdapter {
         public void setVenueID(String id) {
             this.id = id;
         }
-        
+
         /**
          * 
          * @param count
@@ -130,7 +130,7 @@ public class InfoAdapter {
         public void setParticipantCount(int count) {
             participantCount = count;
         }
-        
+
         /**
          * 
          * @param moderated
@@ -138,6 +138,7 @@ public class InfoAdapter {
         public void setModerated(boolean moderated) {
             isModerated = moderated;
         }
+
         /**
          * 
          * @param persistent
@@ -145,6 +146,7 @@ public class InfoAdapter {
         public void setPersistent(boolean persistent) {
             isPersistent = persistent;
         }
+
         public void setRequiresPassword(boolean requiresPassword) {
             this.requiresPassword = requiresPassword;
         }
@@ -215,7 +217,7 @@ public class InfoAdapter {
         public boolean requiresPassword() {
             return requiresPassword;
         }
-        
+
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
@@ -223,10 +225,11 @@ public class InfoAdapter {
             sb.append(String.format("[%s]:", id));
             sb.append(String.format("mod[%s]:", (isModerated) ? "T" : "F"));
             sb.append(String.format("pers[%s]:", (isPersistent) ? "T" : "F"));
-            sb.append(String.format("pass[%s]:", (requiresPassword) ? "T" : "F"));
+            sb.append(String
+                    .format("pass[%s]:", (requiresPassword) ? "T" : "F"));
             sb.append(String.format("\n   subject     : %s", subject));
             sb.append(String.format("\n   description : %s", description));
-            
+
             return sb.toString();
         }
 
@@ -234,20 +237,21 @@ public class InfoAdapter {
 
     /**
      * Convert ECF room into to a VenueInfo instance.
+     * 
      * @param info
      * @return
      */
     public static IVenueInfo createVenueInfo(IChatRoomInfo info) {
         MutableVenueInfo venue = null;
-        if(info != null) {
-            
+        if (info != null) {
+
             venue = new MutableVenueInfo();
             venue.setVenueDescription(info.getDescription());
             venue.setVenueName(info.getName());
             venue.setVenueSubject(info.getSubject());
             venue.setVenueID(info.getRoomID().toExternalForm());
             venue.setParticipantCount(info.getParticipantsCount());
-            
+
             venue.setModerated(info.isModerated());
             venue.setPersistent(info.isPersistent());
             venue.setRequiresPassword(info.requiresPassword());
