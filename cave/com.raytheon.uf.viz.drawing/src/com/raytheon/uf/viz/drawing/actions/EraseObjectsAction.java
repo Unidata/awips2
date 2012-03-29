@@ -56,7 +56,8 @@ public class EraseObjectsAction extends AbstractHandler {
         for (ResourcePair pair : list) {
             if (pair.getResource() instanceof DrawingLayer) {
                 ((DrawingLayer) pair.getResource())
-                        .setErase(((DrawingLayer) pair.getResource()).isErase());
+                        .setErase(!((DrawingLayer) pair.getResource())
+                                .isErase());
                 break;
             }
         }
