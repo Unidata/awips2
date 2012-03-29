@@ -38,12 +38,12 @@ import org.eclipse.swt.widgets.ToolItem;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.icon.IconUtil;
 import com.raytheon.uf.viz.drawing.actions.ClearDrawingAction;
 import com.raytheon.uf.viz.drawing.actions.EraseObjectsAction;
 import com.raytheon.uf.viz.drawing.actions.RedoAddAction;
 import com.raytheon.uf.viz.drawing.actions.UndoAddAction;
 import com.raytheon.uf.viz.drawing.tools.PathDrawingTool;
-import com.raytheon.uf.viz.drawing.tools.ToolsUtils;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.editor.AbstractEditor;
@@ -131,8 +131,8 @@ public class PathToolbar extends CaveSWTDialog implements
 
         drawItem = new ToolItem(toolbar, SWT.NONE);
         drawItem.setText("Draw");
-        drawItem.setImage(ToolsUtils.getImageDescriptor("draw.gif")
-                .createImage());
+        drawItem.setImage(IconUtil.getImageDescriptor(
+                Activator.getDefault().getBundle(), "draw.gif").createImage());
 
         drawItem.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -156,6 +156,7 @@ public class PathToolbar extends CaveSWTDialog implements
                 for (ResourcePair pair : desc.getResourceList()) {
                     if (pair.getResource() instanceof DrawingLayer) {
                         layers.put(editor, pair);
+                        eraserItem.setEnabled(true);
                         // drawItem.setEnabled(false);
                     }
                 }
@@ -164,8 +165,8 @@ public class PathToolbar extends CaveSWTDialog implements
 
         ToolItem undoItem = new ToolItem(toolbar, SWT.FLAT);
         undoItem.setText("Undo");
-        undoItem.setImage(ToolsUtils.getImageDescriptor("undo.gif")
-                .createImage());
+        undoItem.setImage(IconUtil.getImageDescriptor(
+                Activator.getDefault().getBundle(), "undo.gif").createImage());
         undoItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -180,8 +181,8 @@ public class PathToolbar extends CaveSWTDialog implements
 
         ToolItem redoItem = new ToolItem(toolbar, SWT.FLAT);
         redoItem.setText("Redo");
-        redoItem.setImage(ToolsUtils.getImageDescriptor("redo.gif")
-                .createImage());
+        redoItem.setImage(IconUtil.getImageDescriptor(
+                Activator.getDefault().getBundle(), "redo.gif").createImage());
         redoItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -196,8 +197,10 @@ public class PathToolbar extends CaveSWTDialog implements
 
         ToolItem clearItem = new ToolItem(toolbar, SWT.FLAT);
         clearItem.setText("Clear");
-        clearItem.setImage(ToolsUtils.getImageDescriptor("remove.gif")
-                .createImage());
+        clearItem
+                .setImage(IconUtil.getImageDescriptor(
+                        Activator.getDefault().getBundle(), "remove.gif")
+                        .createImage());
         clearItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -212,8 +215,10 @@ public class PathToolbar extends CaveSWTDialog implements
 
         eraserItem = new ToolItem(toolbar, SWT.CHECK);
         eraserItem.setText("Eraser");
-        eraserItem.setImage(ToolsUtils.getImageDescriptor("eraser.png")
-                .createImage());
+        eraserItem
+                .setImage(IconUtil.getImageDescriptor(
+                        Activator.getDefault().getBundle(), "eraser.png")
+                        .createImage());
         eraserItem.setEnabled(false);
         eraserItem.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -236,12 +241,6 @@ public class PathToolbar extends CaveSWTDialog implements
         }
     }
 
-    /**
-     * 
-     */
-    private void dispose() {
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -256,14 +255,11 @@ public class PathToolbar extends CaveSWTDialog implements
         IDescriptor desc = editor.getActiveDisplayPane().getDescriptor();
         ((VizMultiPaneEditor) editor)
                 .addSelectedPaneChangedListener(PathToolbar.getToolbar());
-        boolean hasLayer = false;
         for (ResourcePair pair : desc.getResourceList()) {
             if (pair.getResource() instanceof DrawingLayer) {
-                hasLayer = true;
                 break;
             }
         }
-        // drawItem.setEnabled(hasLayer);
     }
 
 }
