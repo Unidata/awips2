@@ -25,24 +25,24 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 24, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 public class UserId implements IQualifiedID {
 
     private String name;
-    
+
     private String host;
-    
+
     private String resource;
 
     /**
@@ -55,7 +55,7 @@ public class UserId implements IQualifiedID {
         this.host = hostName;
         resource = null;
     }
-    
+
     /**
      * 
      * @param userName
@@ -108,7 +108,8 @@ public class UserId implements IQualifiedID {
 
     /**
      * 
-     * @param resourceName The resource associated with this id.
+     * @param resourceName
+     *            The resource associated with this id.
      * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID#setResourceName(java.lang.String)
      */
     @Override
@@ -135,14 +136,16 @@ public class UserId implements IQualifiedID {
         StringBuilder sb = new StringBuilder(name);
         sb.append("@");
         sb.append(host);
-        if(resource != null) {
+        if (resource != null) {
             sb.append("/");
             sb.append(resource);
         }
         return sb.toString();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -156,7 +159,9 @@ public class UserId implements IQualifiedID {
         return result;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override

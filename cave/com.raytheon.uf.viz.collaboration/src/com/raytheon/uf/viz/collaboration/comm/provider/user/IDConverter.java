@@ -17,11 +17,11 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.comm.provider.session;
+package com.raytheon.uf.viz.collaboration.comm.provider.user;
 
-import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IRenderable;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 
 /**
  * TODO Add Description
@@ -32,57 +32,37 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IRenderable;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 23, 2012            jkorman     Initial creation
+ * Mar 28, 2012            jkorman     Initial creation
  * 
  * </pre>
  * 
  * @author jkorman
  * @version 1.0
  */
-@DynamicSerialize
-public class TestObject implements IRenderable {
 
-    @DynamicSerializeElement
-    private String name;
+public class IDConverter {
 
-    @DynamicSerializeElement
-    private int value = 0;
-
-    public TestObject() {
-    }
-
-    public TestObject(String name) {
-        this.name = name;
+    /**
+     * 
+     * @param user
+     * @return
+     */
+    public static IQualifiedID convertFrom(org.eclipse.ecf.core.identity.ID id) {
+        String name = Tools.parseName(id.getName());
+        String host = Tools.parseHost(id.getName());
+        String rsc = Tools.parseResource(id.getName());
+        return new UserId(name, host, rsc);
     }
 
     /**
-     * @return the name
+     * 
+     * @param user
+     * @return
      */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * @param name
-     *            the name to set
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * @return the value
-     */
-    public int getValue() {
-        return value;
-    }
-
-    /**
-     * @param value
-     *            the value to set
-     */
-    public void setValue(int value) {
-        this.value = value;
+    public static IChatID convertFrom(org.eclipse.ecf.core.user.IUser user) {
+        String name = Tools.parseName(user.getID().getName());
+        String host = Tools.parseHost(user.getID().getName());
+        return new VenueUserId(name, user.getNickname(), host);
     }
 
 }
