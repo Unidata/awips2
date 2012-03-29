@@ -36,6 +36,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Type;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.SessionManager;
@@ -189,6 +190,7 @@ public class CollaborationDataManager {
                                     .getInstance().getUser(loginId);
                             // TODO set mode and message here.
                             user.setMode(loginData.getMode());
+                            user.type = Type.AVAILABLE;
                             user.statusMessage = loginData.getModeMessage();
                             wbListener = new IWorkbenchListener() {
 
