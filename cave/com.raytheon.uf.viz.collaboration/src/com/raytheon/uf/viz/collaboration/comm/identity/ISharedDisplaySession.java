@@ -80,14 +80,14 @@ public interface ISharedDisplaySession extends IEventPublisher {
      * 
      * @param subscriber
      */
-    void subscribeToInitData(Object subscriber) throws CollaborationException;
+    void subscribeToPeerToPeerData(Object subscriber) throws CollaborationException;
 
     /**
      * 
      * @param subscriber
      * @throws CollaborationException
      */
-    void unSubscribeToInitData(Object subscriber) throws CollaborationException;
+    void unSubscribeToPeerToPeerData(Object subscriber) throws CollaborationException;
 
     /**
      * 
