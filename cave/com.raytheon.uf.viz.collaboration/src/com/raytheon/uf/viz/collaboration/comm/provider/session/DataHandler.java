@@ -58,6 +58,9 @@ public class DataHandler {
     @Subscribe
     public void handle(IVenueInvitationEvent event) {
         System.out.println("DataHandler---------------------------------");
-        System.out.println("Received invitation " + event.getBody());
+        System.out.println("   venue identifer  " + event.getRoomId());
+        System.out.println("   inviter          " + event.getInviter());
+        System.out.println("   sessionid        " + event.getSessionId());
+        System.out.println("   body             " + event.getBody());
     }
 }
