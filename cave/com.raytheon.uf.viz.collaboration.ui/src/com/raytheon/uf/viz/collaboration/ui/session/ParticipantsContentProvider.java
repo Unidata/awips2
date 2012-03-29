@@ -19,10 +19,10 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.session;
 
+import java.util.List;
+
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
-
-import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
 
 /**
  * TODO Add Description
@@ -43,19 +43,42 @@ import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
 
 public class ParticipantsContentProvider implements IStructuredContentProvider {
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.jface.viewers.IContentProvider#dispose()
+     */
     @Override
     public void dispose() {
         // TODO Auto-generated method stub
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.jface.viewers.IContentProvider#inputChanged(org.eclipse.jface
+     * .viewers.Viewer, java.lang.Object, java.lang.Object)
+     */
     @Override
     public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
         oldInput = newInput;
         viewer.refresh();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.jface.viewers.IStructuredContentProvider#getElements(java
+     * .lang.Object)
+     */
     @Override
     public Object[] getElements(Object inputElement) {
-        return (CollaborationUser[]) inputElement;
+        if (inputElement instanceof List<?>) {
+            List<?> list = (List<?>) inputElement;
+            return list.toArray();
+        }
+        return null;
     }
 }
