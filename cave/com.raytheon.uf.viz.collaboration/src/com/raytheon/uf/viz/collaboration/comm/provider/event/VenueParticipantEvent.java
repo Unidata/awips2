@@ -28,38 +28,40 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 20, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public class VenueParticipantEvent implements IVenueParticipantEvent {
 
     private final ParticipantEventType eventType;
-    
+
     private final IVenueParticipant participant;
-    
+
     private IPresence presence;
-    
-    public VenueParticipantEvent(IVenueParticipant participant, ParticipantEventType eventType) {
+
+    public VenueParticipantEvent(IVenueParticipant participant,
+            ParticipantEventType eventType) {
         this.participant = participant;
         this.eventType = eventType;
     }
-    
-    public VenueParticipantEvent(IVenueParticipant participant, IPresence presence, ParticipantEventType eventType) {
+
+    public VenueParticipantEvent(IVenueParticipant participant,
+            IPresence presence, ParticipantEventType eventType) {
         this.participant = participant;
         this.eventType = eventType;
         this.presence = presence;
     }
-    
+
     /**
      * @see com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent#getEventType()
      */
@@ -83,6 +85,5 @@ public class VenueParticipantEvent implements IVenueParticipantEvent {
     public IPresence getPresence() {
         return presence;
     }
-    
-    
+
 }

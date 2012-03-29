@@ -31,32 +31,32 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 1, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public class Venue implements IVenue {
 
     private IVenueInfo info;
-    
+
     private Map<String, IVenueParticipant> participants;
-    
+
     /**
      * 
      */
     public Venue() {
         participants = new HashMap<String, IVenueParticipant>();
     }
-    
+
     /**
      * @see com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue#getInfo()
      */
@@ -73,7 +73,7 @@ public class Venue implements IVenue {
     public void setInfo(IVenueInfo info) {
         this.info = info;
     }
-    
+
     /**
      * @see com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue#getParticipants()
      */
