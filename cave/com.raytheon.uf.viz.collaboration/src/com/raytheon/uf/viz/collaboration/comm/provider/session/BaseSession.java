@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.session;
 
-import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -29,51 +28,46 @@ import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.ecf.core.identity.IDCreateException;
 import org.eclipse.ecf.core.identity.IDFactory;
 import org.eclipse.ecf.core.identity.Namespace;
-import org.eclipse.ecf.core.util.Base64;
 import org.eclipse.ecf.core.util.ECFException;
 import org.eclipse.ecf.presence.IPresenceContainerAdapter;
 
 import com.google.common.eventbus.EventBus;
-import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 
 /**
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 21, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
-
-public abstract class BaseSession implements ISession, IEventPublisher {
+public abstract class BaseSession implements ISession {
 
     protected final String sessionId;
-    
+
+    private String followingId;
+
     private EventBus managerEventBus;
 
     private EventBus eventBus;
-    
+
     private Map<Object, Object> eventSubscribers;
 
     private IContainer connectionContainer;
 
     private IPresenceContainerAdapter connectionPresence = null;
-    
+
     private Namespace connectionNamespace = null;
 
     // The session manager that created this session.
@@ -85,42 +79,41 @@ public abstract class BaseSession implements ISession, IEventPublisher {
      * @param externalBus
      * @param manager
      */
-    protected BaseSession(IContainer container, EventBus externalBus, SessionManager manager) {
+    protected BaseSession(IContainer container, EventBus externalBus,
+            SessionManager manager) throws CollaborationException {
         // Set the session identifier.
         sessionId = UUID.randomUUID().toString();
         managerEventBus = externalBus;
         eventBus = new EventBus();
         connectionContainer = container;
         sessionManager = manager;
-        eventSubscribers = new HashMap<Object,Object>();
-        
+        eventSubscribers = new HashMap<Object, Object>();
+        setup();
     }
-    
+
     /**
      * 
      * @throws ECFException
      */
-    void setup() throws ECFException {
+    void setup() {
         // Check if the container has been set up previously.
         if (connectionContainer != null) {
-            
             connectionNamespace = connectionContainer.getConnectNamespace();
             connectionPresence = (IPresenceContainerAdapter) connectionContainer
                     .getAdapter(IPresenceContainerAdapter.class);
-        } else {
-
         }
     }
-    
+
     /**
      * Get access to the peer to peer session instance.
+     * 
      * @return The peer to peer chat session instance.
      * @throws CollaborationException
      */
     PeerToPeerChat getP2PSession() throws CollaborationException {
         return (PeerToPeerChat) sessionManager.getPeerToPeerSession();
     }
-    
+
     /**
      * 
      * @return
@@ -145,7 +138,6 @@ public abstract class BaseSession implements ISession, IEventPublisher {
         return connectionPresence;
     }
 
-    
     /**
      * @see com.raytheon.uf.viz.collaboration.comm.identity.ISession#getUserID()
      */
@@ -161,7 +153,7 @@ public abstract class BaseSession implements ISession, IEventPublisher {
     @Override
     public boolean isConnected() {
         boolean connected = false;
-        if(connectionContainer != null) {
+        if (connectionContainer != null) {
             connected = (connectionContainer.getConnectedID() != null);
         }
         return connected;
@@ -174,13 +166,16 @@ public abstract class BaseSession implements ISession, IEventPublisher {
     public void close() {
 
         // Unregister any handlers added using this session
-//        for(Object o : eventSubscribers.values()) {
-//            managerEventBus.unregister(o);
-//        }
+        // for(Object o : eventSubscribers.values()) {
+        // managerEventBus.unregister(o);
+        // }
         sessionManager.removeSession(this);
     }
 
     /**
+     * Get the session identifier.
+     * 
+     * @return The session id for this session.
      * @see com.raytheon.uf.viz.collaboration.comm.identity.ISession#getSessionId()
      */
     @Override
@@ -188,9 +183,31 @@ public abstract class BaseSession implements ISession, IEventPublisher {
         return sessionId;
     }
 
-    //*****************
+    /**
+     * Get the session identifier of a remote session this session is following.
+     * 
+     * @param id
+     *            The remote session identifier.
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISession#getFollowingSessionId()
+     */
+    @Override
+    public String getFollowingSessionId() {
+        return followingId;
+    }
+
+    /**
+     * Set the session identifier of a remote session this session is following.
+     * 
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISession#setFollowingSessionId(java.lang.String)
+     */
+    @Override
+    public void setFollowingSessionId(String id) {
+        followingId = id;
+    }
+
+    // *****************
     // Implement IEventPublisher methods
-    //*****************
+    // *****************
 
     /**
      * 
@@ -199,12 +216,12 @@ public abstract class BaseSession implements ISession, IEventPublisher {
      */
     @Override
     public void registerEventHandler(Object handler) {
-        if(!eventSubscribers.containsKey(handler)) {
+        if (!eventSubscribers.containsKey(handler)) {
             eventBus.register(handler);
             eventSubscribers.put(handler, handler);
         }
     }
-    
+
     /**
      * 
      * @param handler
@@ -223,11 +240,11 @@ public abstract class BaseSession implements ISession, IEventPublisher {
     public EventBus getEventPublisher() {
         return eventBus;
     }
-    
+
     EventBus getManagerEventPublisher() {
         return managerEventBus;
     }
-    
+
     /**
      * 
      * @param name
@@ -235,8 +252,8 @@ public abstract class BaseSession implements ISession, IEventPublisher {
      */
     public ID createID(String name) throws IDCreateException {
         ID id = null;
-        if(connectionNamespace != null) {
-            id = IDFactory.getDefault().createID(connectionNamespace, name);           
+        if (connectionNamespace != null) {
+            id = IDFactory.getDefault().createID(connectionNamespace, name);
         }
         return id;
     }

@@ -29,21 +29,21 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 1, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public class VenueParticipant implements IVenueParticipant {
-    
+
     private Map<String, String> properties;
 
     private String name;
@@ -53,7 +53,7 @@ public class VenueParticipant implements IVenueParticipant {
     private String host;
 
     private String resource;
-    
+
     /**
      * 
      */
@@ -79,7 +79,8 @@ public class VenueParticipant implements IVenueParticipant {
     }
 
     /**
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.IPropertied#setProperty(java.lang.String, java.lang.String)
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.IPropertied#setProperty(java.lang.String,
+     *      java.lang.String)
      */
     @Override
     public void setProperty(String key, String value) {
@@ -87,12 +88,13 @@ public class VenueParticipant implements IVenueParticipant {
     }
 
     /**
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.IPropertied#getProperty(java.lang.String, java.lang.String)
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.IPropertied#getProperty(java.lang.String,
+     *      java.lang.String)
      */
     @Override
     public String getProperty(String key, String defaultValue) {
         String value = properties.get(key);
-        if(value == null) {
+        if (value == null) {
             value = defaultValue;
         }
         return value;
@@ -178,7 +180,7 @@ public class VenueParticipant implements IVenueParticipant {
         StringBuilder sb = new StringBuilder(name);
         sb.append("@");
         sb.append(host);
-        if(resource != null) {
+        if (resource != null) {
             sb.append("/");
             sb.append(resource);
         }
