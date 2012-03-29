@@ -20,29 +20,28 @@
 package com.raytheon.uf.viz.collaboration.comm.provider.user;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
-import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 
 /**
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 5, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public class VenueUserId extends UserId implements IChatID {
 
     private String nickName;
-    
+
     /**
      * 
      * @param userName
@@ -109,16 +108,5 @@ public class VenueUserId extends UserId implements IChatID {
         } else if (!nickName.equals(other.nickName))
             return false;
         return true;
-    }
-
-    /**
-     * 
-     * @param user
-     * @return
-     */
-    public static IChatID convertFrom(org.eclipse.ecf.core.user.IUser user) {
-        String name = Tools.parseName(user.getName());
-        String host = Tools.parseHost(user.getName());
-        return new VenueUserId(name, user.getNickname(), host);
     }
 }
