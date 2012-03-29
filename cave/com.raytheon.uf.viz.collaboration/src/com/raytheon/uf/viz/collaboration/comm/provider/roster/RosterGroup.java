@@ -31,36 +31,36 @@ import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterItem;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 27, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public class RosterGroup extends RosterItem implements IRosterGroup {
 
     private Collection<IRosterEntry> entries = null;
-    
+
     private Collection<IRosterGroup> groups = null;
-    
+
     /**
      * 
      */
     public RosterGroup(String name, IRosterItem parent, IRoster roster) {
         super(name, parent, roster);
         entries = new ArrayList<IRosterEntry>();
-        if(roster.supportsNestedGroups()) {
+        if (roster.supportsNestedGroups()) {
             groups = new ArrayList<IRosterGroup>();
         }
     }
-    
+
     /**
      * 
      * @param entry
@@ -68,7 +68,7 @@ public class RosterGroup extends RosterItem implements IRosterGroup {
     public void addEntry(IRosterEntry entry) {
         entries.add(entry);
     }
-    
+
     /**
      * 
      * @see com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup#getEntries()
