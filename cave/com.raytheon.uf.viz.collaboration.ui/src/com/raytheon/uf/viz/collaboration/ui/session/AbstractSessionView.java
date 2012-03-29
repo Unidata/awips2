@@ -40,7 +40,8 @@ import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
 
-import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
+import com.raytheon.uf.viz.collaboration.ui.Activator;
+import com.raytheon.uf.viz.core.icon.IconUtil;
 import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 
 /**
@@ -199,8 +200,9 @@ public abstract class AbstractSessionView extends ViewPart implements
     private Image getImage() {
         Image image = imageMap.get(SESSION_IMAGE_KEY);
         if (image == null) {
-            image = CollaborationUtils
-                    .getImageDescriptor(getSessionImageName()).createImage();
+            image = IconUtil.getImageDescriptor(
+                    Activator.getDefault().getBundle(), getSessionImageName())
+                    .createImage();
             if (image != null) {
                 imageMap.put(SESSION_IMAGE_KEY, image);
             }

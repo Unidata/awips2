@@ -21,7 +21,6 @@ package com.raytheon.uf.viz.collaboration.ui.session;
  **/
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
@@ -63,6 +62,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
+import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Mode;
+import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Type;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
@@ -201,8 +202,7 @@ public class SessionView extends AbstractSessionView {
 
             @Override
             public void run() {
-                addMessage(msg.getFrom().getName(), msg.getTimeStamp(),
-                        msg.getBody());
+                addMessage(msg);
             }
         });
     }
@@ -339,8 +339,7 @@ public class SessionView extends AbstractSessionView {
                     builder.append("type: ").append(user.getType())
                             .append("\n");
                     builder.append("-- Roles --");
-                    for (RoleType type : RoleType.values()) {// user.getRoles(sessionId))
-                                                             // {
+                    for (RoleType type : user.getRoles()) {
                         // TODO fake XXX take this out
                         if (type == RoleType.UNKNOWN) {
                             continue;
@@ -358,16 +357,21 @@ public class SessionView extends AbstractSessionView {
                 .getSession(sessionId);
         List<CollaborationUser> users = new ArrayList<CollaborationUser>();
         if (session != null) {
-            for (IVenueParticipant part : session.getVenue().getParticipants()) {
-                // CollaborationUser user = new
-                // CollaborationUser(part.getName());
-                CollaborationUser user = new CollaborationUser(part.getFQName());
+            for (IVenueParticipant participant : session.getVenue()
+                    .getParticipants()) {
 
-                RoleType[] roles = user.getRoles(sessionId);
-                for (RoleType role : roles) {
-                    user.addRole(role);
-                }
-                user.setText(part.getFQName());
+                CollaborationUser user = new CollaborationUser(
+                        participant.getFQName());
+                user.setMode(Mode.AVAILABLE);
+                user.setType(Type.AVAILABLE);
+
+                // RoleType[] roles = user.getRoles(sessionId);
+                // for (RoleType role : roles) {
+                // user.addRole(role);
+                // }
+                user.addRole(RoleType.DATA_PROVIDER);
+                user.addRole(RoleType.LEADER);
+                user.setText(participant.getFQName());
                 // user.setMode(mode);
                 // user.setType(Type.AVAILABLE);
                 users.add(user);
@@ -378,7 +382,7 @@ public class SessionView extends AbstractSessionView {
                     .getSystemColor(SWT.COLOR_DARK_GRAY));
             comp.setEnabled(false);
         }
-        usersTable.setInput(users.toArray(new CollaborationUser[users.size()]));
+        usersTable.setInput(users);
         ((GridData) usersComp.getLayoutData()).exclude = true;
     }
 
@@ -398,27 +402,33 @@ public class SessionView extends AbstractSessionView {
         }
     }
 
-    public void addUsers(java.util.List<CollaborationUser> users) {
-        for (CollaborationUser user : users) {
-            addUser(user);
-        }
-    }
+    // @SuppressWarnings("unchecked")
+    // public void addUser(CollaborationUser user) {
+    // List<CollaborationUser> list = (List<CollaborationUser>) usersTable
+    // .getInput();
+    // list.add(user);
+    // }
+    //
+    // @SuppressWarnings("unchecked")
+    // public void clearUsers() {
+    // List<CollaborationUser> list = (List<CollaborationUser>) usersTable
+    // .getInput();
+    // list.clear();
+    // ;
+    // }
+    //
+    // @SuppressWarnings("unchecked")
+    // public void removeUser(CollaborationUser user) {
+    // List<CollaborationUser> list = (List<CollaborationUser>) usersTable
+    // .getInput();
+    // list.remove(user);
+    // }
 
-    public void addUser(CollaborationUser user) {
-        usersTable.add(user);
-    }
-
-    public void clearUsers() {
-        usersTable.getTable().removeAll();
-    }
-
-    public void removeUser(CollaborationUser user) {
-        usersTable.remove(user);
-    }
-
-    public void addMessage(String user, long timestamp, String message) {
+    public void addMessage(IMessage message) {
+        String name = message.getFrom().getFQName();
+        String user = message.getFrom().getName();
         Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(timestamp);
+        cal.setTimeInMillis(message.getTimeStamp());
         String time = String.format("%1$tI:%1$tM:%1$tS %1$Tp", cal);
         StringBuilder sb = new StringBuilder();
         if (messagesText.getCharCount() != 0) {
@@ -428,7 +438,7 @@ public class SessionView extends AbstractSessionView {
         sb.append("(").append(time).append(") ");
         offset = sb.length();
 
-        sb.append(user).append(": ").append(message);
+        sb.append(user).append(": ").append(message.getBody());
 
         // here is the place to put the font and color changes for keywords
         // read in localization file once and then don't read in again, per
@@ -448,11 +458,17 @@ public class SessionView extends AbstractSessionView {
             }
         }
 
-        // XXX determine from the user data
-        // get self
-        List<RoleType> type = new ArrayList<RoleType>();
-        type.add(RoleType.LEADER);
-        Color color = SessionColorAdvisor.getColor(type, false);
+        RoleType[] type = null;
+        for (CollaborationUser u : (List<CollaborationUser>) usersTable
+                .getInput()) {
+            if (name.equals(u.getId())) {
+                type = u.getRoles();
+                break;
+            }
+        }
+
+        Color color = SessionColorAdvisor.getColor(type, name
+                .equals(CollaborationDataManager.getInstance().getLoginId()));
         StyleRange range = new StyleRange(messagesText.getCharCount() + offset,
                 user.length() + 1, color, null, SWT.BOLD);
         messagesText.append(sb.toString());
@@ -645,9 +661,11 @@ public class SessionView extends AbstractSessionView {
         });
     }
 
+    @SuppressWarnings("unchecked")
     private void participantArrived(IVenueParticipant participant) {
-        CollaborationUser[] users = (CollaborationUser[]) usersTable.getInput();
-        String name = participant.getName();
+        List<CollaborationUser> users = (List<CollaborationUser>) usersTable
+                .getInput();
+        String name = participant.getFQName();
         for (CollaborationUser user : users) {
             if (name.equals(user.getId())) {
                 return;
@@ -655,57 +673,47 @@ public class SessionView extends AbstractSessionView {
         }
         CollaborationUser user = new CollaborationUser(name);
         user.setText(name);
-        CollaborationUser[] usersNew = Arrays.copyOf(users, users.length + 1);
-        usersNew[users.length] = user;
-        usersTable.setInput(usersNew);
+        users.add(user);
+        usersTable.refresh();
     }
 
+    @SuppressWarnings("unchecked")
     private void participantDeparted(IVenueParticipant participant) {
         System.out.println("++++ handle departed here: "
                 + participant.getName() + ", " + participant.getFQName());
-        int index = -1;
-        CollaborationUser[] users = (CollaborationUser[]) usersTable.getInput();
-        String name = participant.getName();
-        for (int i = 0; i < users.length; ++i) {
-            if (name.equals(users[i].getId())) {
-                index = i;
+        List<CollaborationUser> users = (List<CollaborationUser>) usersTable
+                .getInput();
+        String name = participant.getFQName();
+        for (int i = 0; i < users.size(); ++i) {
+            if (name.equals(users.get(i).getId())) {
+                users.remove(i);
+                usersTable.refresh();
                 break;
             }
-        }
-        if (index >= 0) {
-            CollaborationUser[] usersNew = new CollaborationUser[users.length - 1];
-            for (int i = 0; i < index; ++i) {
-                usersNew[i] = users[i];
-            }
-            for (int i = index + 1; i < users.length; ++i) {
-                usersNew[i - 1] = users[i];
-            }
-            usersTable.setInput(usersNew);
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void participantPresenceUpdated(IVenueParticipant participant,
             IPresence presence) {
+        List<CollaborationUser> users = (List<CollaborationUser>) usersTable
+                .getInput();
         System.out.println("++++ handle presence updated here: "
                 + presence.getMode() + "/" + presence.getType() + ": "
                 + participant.getName() + ", " + participant.getFQName());
-        CollaborationUser[] users = (CollaborationUser[]) usersTable.getInput();
         String name = participant.getFQName();
-        int index = -1;
-        for (int i = 0; i < users.length; ++i) {
-            if (name.equals(users[i].getId())) {
-                index = i;
-                break;
+        for (CollaborationUser user : users) {
+            if (name.equals(user.getId())) {
+                user.setMode(presence.getMode());
+                user.setType(presence.getType());
+                usersTable.refresh();
+                return;
             }
         }
 
-        CollaborationUser user = null;
-        if (index >= 0) {
-            user = users[index];
-        } else {
-            user = new CollaborationUser(name);
-        }
+        CollaborationUser user = new CollaborationUser(name);
         user.setMode(presence.getMode());
         user.setType(presence.getType());
+        // usersTable.refresh();
     }
 }
