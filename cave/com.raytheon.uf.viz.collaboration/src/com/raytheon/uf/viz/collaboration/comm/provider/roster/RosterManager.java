@@ -24,12 +24,11 @@ import java.util.Collection;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.listener.IRosterListener;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster;
-import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.RosterId;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueUserId;
 
 /**
  * TODO Add Description
@@ -118,7 +117,7 @@ public class RosterManager implements IRosterManager {
         Roster newRoster = null;
 
         if (roster != null) {
-            IChatID id = VenueUserId.convertFrom(roster.getUser());
+            IChatID id = IDConverter.convertFrom(roster.getUser());
             newRoster = new Roster(id);
 
             @SuppressWarnings("rawtypes")
@@ -127,12 +126,22 @@ public class RosterManager implements IRosterManager {
                 if (o instanceof org.eclipse.ecf.presence.roster.IRosterEntry) {
                     org.eclipse.ecf.presence.roster.IRosterEntry entry = (org.eclipse.ecf.presence.roster.IRosterEntry) o;
 
+                    System.out.println("RosterEntry ");
+                    System.out.println("  --  " + entry.getUser().getName());
+                    System.out.println("      "
+                            + entry.getUser().getID().getName());
+
                     id = RosterId.convertFrom(entry.getUser());
                     RosterEntry re = new RosterEntry(id);
                     if (!newRoster.getEntries().contains(re)) {
                         IPresence p = Presence.convertPresence(entry
                                 .getPresence());
                         re.setPresence(p);
+
+                        System.out.println(" entry:" + re.getName()
+                                + " presence:" + re.getPresence().getMode()
+                                + re.getPresence().getType());
+
                         newRoster.addRosterEntry(re);
                     }
                 } else if (o instanceof org.eclipse.ecf.presence.roster.IRosterGroup) {

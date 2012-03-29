@@ -29,51 +29,65 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 27, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public class Presence implements IPresence {
 
-    private static Map<org.eclipse.ecf.presence.IPresence.Type,IPresence.Type> TYPE_MAP = new HashMap<org.eclipse.ecf.presence.IPresence.Type,IPresence.Type>();
+    private static Map<org.eclipse.ecf.presence.IPresence.Type, IPresence.Type> TYPE_MAP = new HashMap<org.eclipse.ecf.presence.IPresence.Type, IPresence.Type>();
     static {
-        TYPE_MAP.put(org.eclipse.ecf.presence.IPresence.Type.AVAILABLE, IPresence.Type.AVAILABLE);
-        TYPE_MAP.put(org.eclipse.ecf.presence.IPresence.Type.ERROR, IPresence.Type.ERROR);
-        TYPE_MAP.put(org.eclipse.ecf.presence.IPresence.Type.SUBSCRIBE, IPresence.Type.SUBSCRIBE);
-        TYPE_MAP.put(org.eclipse.ecf.presence.IPresence.Type.SUBSCRIBED, IPresence.Type.SUBSCRIBED);
-        TYPE_MAP.put(org.eclipse.ecf.presence.IPresence.Type.UNAVAILABLE, IPresence.Type.UNAVAILABLE);
-        TYPE_MAP.put(org.eclipse.ecf.presence.IPresence.Type.UNSUBSCRIBE, IPresence.Type.UNSUBSCRIBE);
-        TYPE_MAP.put(org.eclipse.ecf.presence.IPresence.Type.UNSUBSCRIBED, IPresence.Type.UNSUBSCRIBED);
-        TYPE_MAP.put(org.eclipse.ecf.presence.IPresence.Type.UNKNOWN, IPresence.Type.UNKNOWN);
-    }
-    
-    private static Map<org.eclipse.ecf.presence.IPresence.Mode,IPresence.Mode> MODE_MAP = new HashMap<org.eclipse.ecf.presence.IPresence.Mode,IPresence.Mode>();
-    static {
-        MODE_MAP.put(org.eclipse.ecf.presence.IPresence.Mode.AVAILABLE, IPresence.Mode.AVAILABLE);
-        MODE_MAP.put(org.eclipse.ecf.presence.IPresence.Mode.AWAY, IPresence.Mode.AWAY);
-        MODE_MAP.put(org.eclipse.ecf.presence.IPresence.Mode.CHAT, IPresence.Mode.CHAT);
-        MODE_MAP.put(org.eclipse.ecf.presence.IPresence.Mode.DND, IPresence.Mode.DND);
-        MODE_MAP.put(org.eclipse.ecf.presence.IPresence.Mode.EXTENDED_AWAY, IPresence.Mode.EXTENDED_AWAY);
-        MODE_MAP.put(org.eclipse.ecf.presence.IPresence.Mode.INVISIBLE, IPresence.Mode.INVISIBLE);
+        TYPE_MAP.put(org.eclipse.ecf.presence.IPresence.Type.AVAILABLE,
+                IPresence.Type.AVAILABLE);
+        TYPE_MAP.put(org.eclipse.ecf.presence.IPresence.Type.ERROR,
+                IPresence.Type.ERROR);
+        TYPE_MAP.put(org.eclipse.ecf.presence.IPresence.Type.SUBSCRIBE,
+                IPresence.Type.SUBSCRIBE);
+        TYPE_MAP.put(org.eclipse.ecf.presence.IPresence.Type.SUBSCRIBED,
+                IPresence.Type.SUBSCRIBED);
+        TYPE_MAP.put(org.eclipse.ecf.presence.IPresence.Type.UNAVAILABLE,
+                IPresence.Type.UNAVAILABLE);
+        TYPE_MAP.put(org.eclipse.ecf.presence.IPresence.Type.UNSUBSCRIBE,
+                IPresence.Type.UNSUBSCRIBE);
+        TYPE_MAP.put(org.eclipse.ecf.presence.IPresence.Type.UNSUBSCRIBED,
+                IPresence.Type.UNSUBSCRIBED);
+        TYPE_MAP.put(org.eclipse.ecf.presence.IPresence.Type.UNKNOWN,
+                IPresence.Type.UNKNOWN);
     }
 
-    private Map<String,Property> properties = null;
-    
+    private static Map<org.eclipse.ecf.presence.IPresence.Mode, IPresence.Mode> MODE_MAP = new HashMap<org.eclipse.ecf.presence.IPresence.Mode, IPresence.Mode>();
+    static {
+        MODE_MAP.put(org.eclipse.ecf.presence.IPresence.Mode.AVAILABLE,
+                IPresence.Mode.AVAILABLE);
+        MODE_MAP.put(org.eclipse.ecf.presence.IPresence.Mode.AWAY,
+                IPresence.Mode.AWAY);
+        MODE_MAP.put(org.eclipse.ecf.presence.IPresence.Mode.CHAT,
+                IPresence.Mode.CHAT);
+        MODE_MAP.put(org.eclipse.ecf.presence.IPresence.Mode.DND,
+                IPresence.Mode.DND);
+        MODE_MAP.put(org.eclipse.ecf.presence.IPresence.Mode.EXTENDED_AWAY,
+                IPresence.Mode.EXTENDED_AWAY);
+        MODE_MAP.put(org.eclipse.ecf.presence.IPresence.Mode.INVISIBLE,
+                IPresence.Mode.INVISIBLE);
+    }
+
+    private Map<String, Property> properties = null;
+
     private Mode mode;
-    
+
     private Type type;
-    
+
     private String statusMessage;
-    
+
     /**
      * 
      */
@@ -116,45 +130,49 @@ public class Presence implements IPresence {
 
     /**
      * Get the status message for this presence.
+     * 
      * @return The status message.
      */
     public String getStatusMessage() {
         return statusMessage;
     }
-    
+
     /**
-     * Set the status message for this presence. 
-     * @param statusMessage The status message.
+     * Set the status message for this presence.
+     * 
+     * @param statusMessage
+     *            The status message.
      */
     public void setStatusMessage(String statusMessage) {
         this.statusMessage = statusMessage;
     }
 
-    
     private void ensureProperties() {
-        if(properties == null) {
-            properties = new HashMap<String,Property>();
+        if (properties == null) {
+            properties = new HashMap<String, Property>();
         }
     }
 
     /**
      * 
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.IMessage#setProperty(java.lang.String, java.lang.String)
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.IMessage#setProperty(java.lang.String,
+     *      java.lang.String)
      */
     @Override
     public void setProperty(String key, String value) {
         ensureProperties();
-        properties.put(key, new Property(key,value));
+        properties.put(key, new Property(key, value));
     }
-    
+
     /**
      * 
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.IMessage#getProperty(java.lang.String, java.lang.String)
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.IMessage#getProperty(java.lang.String,
+     *      java.lang.String)
      */
     @Override
     public String getProperty(String key, String defaultValue) {
         String retValue = defaultValue;
-        if(properties != null) {
+        if (properties != null) {
             Property property = properties.get(key);
             retValue = (property != null) ? property.getValue() : defaultValue;
         }
@@ -168,24 +186,27 @@ public class Presence implements IPresence {
     public Collection<Property> getProperties() {
         return properties.values();
     }
-    
-    
+
     /**
-     * Convert from an ECF presence to this presence. 
-     * @param presence The ECF presnce to convert from.
+     * Convert from an ECF presence to this presence.
+     * 
+     * @param presence
+     *            The ECF presnce to convert from.
      * @return
      */
-    public static IPresence convertPresence(org.eclipse.ecf.presence.IPresence presence) {
+    public static IPresence convertPresence(
+            org.eclipse.ecf.presence.IPresence presence) {
         IPresence newPresence = null;
-        if(presence != null) {
+        if (presence != null) {
             newPresence = new Presence();
             newPresence.setType(TYPE_MAP.get(presence.getType()));
             newPresence.setMode(MODE_MAP.get(presence.getMode()));
             newPresence.setStatusMessage(presence.getStatus());
             @SuppressWarnings("unchecked")
-            Map<String, String> properties = (Map<String, String>) presence.getProperties();
-            if(properties != null) {
-                for(String key : properties.keySet()) {
+            Map<String, String> properties = (Map<String, String>) presence
+                    .getProperties();
+            if (properties != null) {
+                for (String key : properties.keySet()) {
                     newPresence.setProperty(key, properties.get(key));
                 }
             }
@@ -193,36 +214,26 @@ public class Presence implements IPresence {
         return newPresence;
     }
 
-    
     /**
      * 
      * @param presence
      * @return
      */
-    public static org.eclipse.ecf.presence.IPresence convertPresence(IPresence presence) {
+    public static org.eclipse.ecf.presence.IPresence convertPresence(
+            IPresence presence) {
         org.eclipse.ecf.presence.IPresence newPresence = null;
-        if(presence != null) {
+        if (presence != null) {
             newPresence = new org.eclipse.ecf.presence.Presence();
-            
-//            Map<String, String> properties = presence.getProperties();
-//            if(properties != null) {
-//                for(String key : properties.keySet()) {
-//                    newPresence.setProperty(key, properties.get(key));
-//                }
-//            }
-            
-            
-            
-            
-        
+
+            // Map<String, String> properties = presence.getProperties();
+            // if(properties != null) {
+            // for(String key : properties.keySet()) {
+            // newPresence.setProperty(key, properties.get(key));
+            // }
+            // }
+
         }
         return newPresence;
     }
-    
-    
-    
-    
-    
-    
-    
+
 }
