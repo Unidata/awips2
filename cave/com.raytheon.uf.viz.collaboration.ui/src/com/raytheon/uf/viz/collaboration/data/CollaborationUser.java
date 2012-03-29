@@ -71,7 +71,7 @@ public class CollaborationUser extends CollaborationNode implements
         return "contact_disabled";
     }
 
-    public DataUser.RoleType[] getRoles(String session) {
+    public DataUser.RoleType[] getRoles() {
         return CollaborationDataManager.getInstance().getUser(id)
                 .getSessionRoles(session);
     }

@@ -19,14 +19,9 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui;
 
-import java.io.File;
-import java.net.URL;
 import java.util.List;
 
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.ecf.core.identity.ID;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -34,6 +29,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Mode;
 import com.raytheon.uf.viz.collaboration.data.CollaborationNode;
+import com.raytheon.uf.viz.core.icon.IconUtil;
 
 /**
  * Methods for sending, receiving messages
@@ -76,59 +72,15 @@ public class CollaborationUtils {
     }
 
     /**
-     * Get an descriptor for the file in the icon directory. DEPRECATED: Use
-     * IconUtil instead
-     * 
-     * @param name
-     *            - file name
-     * @return imageDescriptor
-     */
-    @Deprecated
-    public static ImageDescriptor getImageDescriptor(String name) {
-        String iconPath = "icons" + File.separator;
-        URL url = FileLocator.find(Activator.getDefault().getBundle(),
-                new Path(iconPath + name), null);
-        if (url != null && url.getFile() == null) {
-            url = FileLocator.find(Activator.getDefault().getBundle(),
-                    new Path(".." + File.separator + iconPath + name), null);
-        }
-        return ImageDescriptor.createFromURL(url);
-    }
-
-    /**
      * Get an image associated with the node.
      * 
      * @param node
      * @return image
      */
     public static Image getNodeImage(CollaborationNode node) {
-        // Image nodeImage = null;
         String name = node.getImageKey().toLowerCase() + ".gif";
-        return getImageDescriptor(name).createImage();
-        // if (node instanceof CollaborationUser) {
-        // CollaborationUser user = (CollaborationUser) node;
-        // if (user.getMode() == IPresence.Mode.AVAILABLE) {
-        // nodeImage = getImageDescriptor("available.gif").createImage();
-        // } else if (user.getMode() == IPresence.Mode.AWAY) {
-        // nodeImage = getImageDescriptor("away.gif").createImage();
-        // } else if (user.getMode() == IPresence.Mode.DND) {
-        // nodeImage = getImageDescriptor("do_not_disturb.gif")
-        // .createImage();
-        // } else {
-        // nodeImage = getImageDescriptor("available.gif").createImage();
-        // }
-        // } else if (node instanceof SessionGroup) {
-        // if (!((SessionGroup) node).isSessionRoot()) {
-        // nodeImage = getImageDescriptor("session_group.gif")
-        // .createImage();
-        // } else {
-        // // nodeImage = getImageDescriptor("").createImage();
-        //
-        // }
-        // } else if (node instanceof CollaborationGroup) {
-        // nodeImage = getImageDescriptor("group.gif").createImage();
-        // }
-        // return nodeImage;
+        return IconUtil.getImageDescriptor(Activator.getDefault().getBundle(),
+                name).createImage();
     }
 
     public static void sendChatMessage(List<String> ids, String message) {
