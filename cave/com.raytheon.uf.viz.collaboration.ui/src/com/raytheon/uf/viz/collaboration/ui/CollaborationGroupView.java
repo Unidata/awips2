@@ -68,6 +68,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
+import org.osgi.framework.Bundle;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -93,6 +94,7 @@ import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.PeerToPeerView;
 import com.raytheon.uf.viz.collaboration.ui.session.SessionView;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.icon.IconUtil;
 import com.raytheon.uf.viz.drawing.PathToolbar;
 import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 
@@ -207,6 +209,7 @@ public class CollaborationGroupView extends ViewPart {
      * 
      */
     private void createActions() {
+        Bundle bundle = Activator.getDefault().getBundle();
 
         createSessionAction = new Action("Create Session...") {
             @Override
@@ -215,8 +218,8 @@ public class CollaborationGroupView extends ViewPart {
             }
 
         };
-        createSessionAction.setImageDescriptor(CollaborationUtils
-                .getImageDescriptor("add_collaborate.gif"));
+        createSessionAction.setImageDescriptor(IconUtil.getImageDescriptor(
+                bundle, "add_collaborate.gif"));
         createSessionAction.setEnabled(CollaborationDataManager.getInstance()
                 .isConnected());
 
@@ -228,8 +231,8 @@ public class CollaborationGroupView extends ViewPart {
                         isChecked());
             }
         };
-        linkToEditorAction.setImageDescriptor(CollaborationUtils
-                .getImageDescriptor("link_to_editor.gif"));
+        linkToEditorAction.setImageDescriptor(IconUtil.getImageDescriptor(
+                bundle, "link_to_editor.gif"));
         linkToEditorAction.setChecked(CollaborationDataManager.getInstance()
                 .getLinkCollaboration());
 
@@ -243,8 +246,8 @@ public class CollaborationGroupView extends ViewPart {
                 // session.sendInvitation(invitation)
             };
         };
-        inviteAction.setImageDescriptor(CollaborationUtils
-                .getImageDescriptor("invite.gif"));
+        inviteAction.setImageDescriptor(IconUtil.getImageDescriptor(bundle,
+                "invite.gif"));
 
         joinAction = new Action("Join Session") {
             @Override
@@ -266,8 +269,8 @@ public class CollaborationGroupView extends ViewPart {
                 populateTree();
             }
         };
-        logonAction.setImageDescriptor(CollaborationUtils
-                .getImageDescriptor("logout.gif"));
+        logonAction.setImageDescriptor(IconUtil.getImageDescriptor(bundle,
+                "logout.gif"));
 
         logoutAction = new Action("Logout") {
             @Override
@@ -276,8 +279,8 @@ public class CollaborationGroupView extends ViewPart {
             }
         };
 
-        logoutAction.setImageDescriptor(CollaborationUtils
-                .getImageDescriptor("logout.gif"));
+        logoutAction.setImageDescriptor(IconUtil.getImageDescriptor(bundle,
+                "logout.gif"));
 
         aliasAction = new Action("Alias") {
             @Override
@@ -299,16 +302,16 @@ public class CollaborationGroupView extends ViewPart {
                 System.out.println("Add User");
             };
         };
-        addUserAction.setImageDescriptor(CollaborationUtils
-                .getImageDescriptor("add_contact.gif"));
+        addUserAction.setImageDescriptor(IconUtil.getImageDescriptor(bundle,
+                "add_contact.gif"));
 
         addGroupAction = new Action("Create Group") {
             public void run() {
                 System.out.println("Create Group here");
             };
         };
-        addGroupAction.setImageDescriptor(CollaborationUtils
-                .getImageDescriptor("add_group.gif"));
+        addGroupAction.setImageDescriptor(IconUtil.getImageDescriptor(bundle,
+                "add_group.gif"));
 
         selectGroups = new Action("Select System Groups...") {
             public void run() {
@@ -341,8 +344,8 @@ public class CollaborationGroupView extends ViewPart {
                 refreshActiveSessions();
             }
         };
-        refreshActiveSessionsAction.setImageDescriptor(CollaborationUtils
-                .getImageDescriptor("refresh.gif"));
+        refreshActiveSessionsAction.setImageDescriptor(IconUtil
+                .getImageDescriptor(bundle, "refresh.gif"));
         refreshActiveSessionsAction
                 .setToolTipText("Refresh the Active Sessions Entries.");
 
@@ -351,8 +354,8 @@ public class CollaborationGroupView extends ViewPart {
                 usersTreeViewer.collapseAll();
             }
         };
-        collapseAllAction.setImageDescriptor(CollaborationUtils
-                .getImageDescriptor("collapseall.gif"));
+        collapseAllAction.setImageDescriptor(IconUtil.getImageDescriptor(
+                bundle, "collapseall.gif"));
 
         IMenuCreator creator = new IMenuCreator() {
 
@@ -467,8 +470,9 @@ public class CollaborationGroupView extends ViewPart {
             };
             action.setId(type.name());
             ActionContributionItem item = new ActionContributionItem(action);
-            action.setImageDescriptor(CollaborationUtils
-                    .getImageDescriptor(type.name().toLowerCase() + ".gif"));
+            action.setImageDescriptor(IconUtil.getImageDescriptor(Activator
+                    .getDefault().getBundle(), type.name().toLowerCase()
+                    + ".gif"));
             item.fill(menu, -1);
         }
     }
