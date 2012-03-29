@@ -79,12 +79,14 @@ public class CollaborationUtils {
     }
 
     /**
-     * Get an descriptor for the file in the icon directory.
+     * Get an descriptor for the file in the icon directory. DEPRECATED: Use
+     * IconUtil instead
      * 
      * @param name
      *            - file name
      * @return imageDescriptor
      */
+    @Deprecated
     public static ImageDescriptor getImageDescriptor(String name) {
         String iconPath = "icons" + File.separator;
         URL url = FileLocator.find(Activator.getDefault().getBundle(),
