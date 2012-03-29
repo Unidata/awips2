@@ -17,13 +17,10 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.comm.identity.event;
-
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+package com.raytheon.uf.viz.collaboration.comm.identity.user;
 
 /**
- * Encapsulates a venue invitation to the user.
+ * TODO Add Description
  * 
  * <pre>
  *
@@ -31,7 +28,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
  *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 21, 2012            jkorman     Initial creation
+ * Mar 29, 2012            jkorman     Initial creation
  *
  * </pre>
  *
@@ -39,33 +36,14 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
  * @version 1.0	
  */
 
-public interface IVenueInvitationEvent {
+public interface IVenueId extends IQualifiedID {
     
-    /**
-     * 
-     * @return
-     */
-    IQualifiedID getRoomId();
+    String getVenueName();
     
-    /**
-     * 
-     * @return
-     */
-    IQualifiedID getInviter();
     
-    /**
-     * 
-     */
-    String getSubject();
+    String getDomain();
     
-    /**
-     * 
-     * @return
-     */
-    String getBody();
     
-    /**
-     * @return The sessionId of the inviter.
-     */
-    String getSessionId();
+    
+
 }
