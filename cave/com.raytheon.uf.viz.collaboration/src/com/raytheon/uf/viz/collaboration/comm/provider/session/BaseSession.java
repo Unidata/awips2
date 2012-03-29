@@ -56,8 +56,6 @@ public abstract class BaseSession implements ISession {
 
     protected final String sessionId;
 
-    private String followingId;
-
     private EventBus managerEventBus;
 
     private EventBus eventBus;
@@ -81,8 +79,20 @@ public abstract class BaseSession implements ISession {
      */
     protected BaseSession(IContainer container, EventBus externalBus,
             SessionManager manager) throws CollaborationException {
+        this(container, externalBus, manager, UUID.randomUUID().toString());
+    }
+
+    /**
+     * 
+     * @param container
+     * @param externalBus
+     * @param manager
+     * @param sessionId
+     */
+    protected BaseSession(IContainer container, EventBus externalBus,
+            SessionManager manager, String sessionId) throws CollaborationException {
         // Set the session identifier.
-        sessionId = UUID.randomUUID().toString();
+        this.sessionId = sessionId;
         managerEventBus = externalBus;
         eventBus = new EventBus();
         connectionContainer = container;
@@ -90,7 +100,7 @@ public abstract class BaseSession implements ISession {
         eventSubscribers = new HashMap<Object, Object>();
         setup();
     }
-
+    
     /**
      * 
      * @throws ECFException
@@ -181,28 +191,6 @@ public abstract class BaseSession implements ISession {
     @Override
     public String getSessionId() {
         return sessionId;
-    }
-
-    /**
-     * Get the session identifier of a remote session this session is following.
-     * 
-     * @param id
-     *            The remote session identifier.
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISession#getFollowingSessionId()
-     */
-    @Override
-    public String getFollowingSessionId() {
-        return followingId;
-    }
-
-    /**
-     * Set the session identifier of a remote session this session is following.
-     * 
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.ISession#setFollowingSessionId(java.lang.String)
-     */
-    @Override
-    public void setFollowingSessionId(String id) {
-        followingId = id;
     }
 
     // *****************
