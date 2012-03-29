@@ -48,7 +48,9 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 
 public abstract class Tools {
 
-    public static final String TAG_INVITE_ID = "[[INVITEID#%s]]%s";
+    public static final String TAG_INVITE = "[[INVITEID#";
+    
+    public static final String TAG_INVITE_ID = TAG_INVITE + "%s]]%s";
 
     public static final String PROP_SESSION_ID = "sessionId";
 
