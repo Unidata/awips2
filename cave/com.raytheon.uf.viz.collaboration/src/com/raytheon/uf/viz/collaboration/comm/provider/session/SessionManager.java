@@ -39,6 +39,7 @@ import org.eclipse.ecf.presence.chatroom.IChatRoomInfo;
 import org.eclipse.ecf.presence.chatroom.IChatRoomInvitationListener;
 import org.eclipse.ecf.presence.chatroom.IChatRoomManager;
 import org.eclipse.ecf.presence.roster.IRoster;
+import org.eclipse.ecf.provider.xmpp.identity.XMPPRoomID;
 import org.jivesoftware.smack.XMPPConnection;
 
 import com.google.common.eventbus.EventBus;
@@ -59,6 +60,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueInvitationEven
 import com.raytheon.uf.viz.collaboration.comm.provider.info.InfoAdapter;
 import com.raytheon.uf.viz.collaboration.comm.provider.roster.RosterManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueUserId;
 
 /**
@@ -259,7 +261,12 @@ public class SessionManager implements IEventPublisher {
 
             // Close any created sessions.
             for (ISession session : sessions.values()) {
-                session.close();
+                if ((chatInstance != null) && chatInstance.equals(session)) {
+                    chatInstance.close();
+                    chatInstance = null;
+                } else {
+                    session.close();
+                }
             }
             chatInstance = null;
             // Get rid of the account and roster managers
@@ -279,6 +286,23 @@ public class SessionManager implements IEventPublisher {
             sessions.put(chatInstance.getSessionId(), chatInstance);
         }
         return chatInstance;
+    }
+
+    public IVenueSession joinCollaborationVenue(IVenueInvitationEvent invitation)
+            throws CollaborationException {
+        VenueSession session = null;
+        try {
+            String venueName = invitation.getRoomId().getName();
+            String sessionId = invitation.getSessionId();
+            session = new VenueSession(container, eventBus, this, sessionId);
+            if (session != null) {
+                session.joinVenue(venueName);
+                sessions.put(session.getSessionId(), session);
+            }
+        } catch (Exception e) {
+
+        }
+        return session;
     }
 
     /**
@@ -466,17 +490,25 @@ public class SessionManager implements IEventPublisher {
                     public void handleInvitationReceived(ID roomID, ID from,
                             String subject, String body) {
 
-                        IQualifiedID venueId = IDConverter.convertFrom(roomID);
-                        IQualifiedID id = IDConverter.convertFrom(from);
+                        IQualifiedID venueId = null;
+                        if(roomID instanceof XMPPRoomID) {
+                            XMPPRoomID room = (XMPPRoomID) roomID;
+                            venueId = new VenueId();
+                            venueId.setName(room.getLongName());
+                            
+                        }
+                        if(venueId != null) {
+                            IQualifiedID id = IDConverter.convertFrom(from);
 
-                        IChatID invitor = new VenueUserId(id.getName(),
-                                id.getHost(), id.getResource());
+                            IChatID invitor = new VenueUserId(id.getName(),
+                                    id.getHost(), id.getResource());
 
-                        IVenueInvitationEvent invite = new VenueInvitationEvent(
-                                venueId, invitor, subject, body);
-                        System.out.println("Posting invitation using eventBus:"
-                                + eventBus.hashCode());
-                        eventBus.post(invite);
+                            IVenueInvitationEvent invite = new VenueInvitationEvent(
+                                    venueId, invitor, subject, body);
+                            System.out.println("Posting invitation using eventBus:"
+                                    + eventBus.hashCode());
+                            eventBus.post(invite);
+                        }
                     }
                 };
                 venueManager.addInvitationListener(intInvitationListener);

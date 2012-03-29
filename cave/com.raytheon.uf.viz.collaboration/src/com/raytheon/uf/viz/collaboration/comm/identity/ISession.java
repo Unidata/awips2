@@ -90,19 +90,4 @@ public interface ISession extends IEventPublisher {
      * @return The session identifier.
      */
     String getSessionId();
-
-    /**
-     * Get the session identifier of a remote session this session is following.
-     * 
-     * @return The remote session id.
-     */
-    String getFollowingSessionId();
-
-    /**
-     * Set the session identifier of a remote session this session is following.
-     * 
-     * @param id
-     *            The remote session identifier.
-     */
-    void setFollowingSessionId(String id);
 }
