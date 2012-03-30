@@ -17,39 +17,36 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.radar.gl.mosaic;
+package com.raytheon.viz.radar.rsc.mosaic;
 
-import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
-import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
-import com.raytheon.uf.viz.core.drawables.ext.IOffscreenRenderingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IRefreshListener;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
-import com.raytheon.uf.viz.radar.gl.MosaicGLTarget;
-import com.raytheon.viz.core.gl.IGLTarget;
 import com.raytheon.viz.core.rsc.BestResResource;
 import com.raytheon.viz.radar.rsc.MosaicPaintProperties;
 import com.raytheon.viz.radar.rsc.RadarImageResource;
-import com.raytheon.viz.radar.rsc.mosaic.RadarMosaicResource;
-import com.raytheon.viz.radar.rsc.mosaic.ext.IRadarMosaicRendererFactoryExtension.IRadarMosaicRenderer;
+import com.raytheon.viz.radar.rsc.mosaic.RadarMosaicRendererFactory.IRadarMosaicRenderer;
+import com.raytheon.viz.radar.rsc.mosaic.ext.IRadarMosaicImageExtension;
+import com.raytheon.viz.radar.rsc.mosaic.ext.IRadarMosaicImageExtension.IMosaicImage;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * GL Mosaic rendering class using gl frame buffer objects and custom fragment
- * shader.
+ * Radar Mosaic rendering class using IRadarMosaicImageExtension to render
+ * mosaic image
  * 
  * <pre>
  * 
@@ -66,38 +63,15 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class RadarMosaicRenderer implements IRadarMosaicRenderer,
         IRefreshListener {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(RadarMosaicRenderer.class);
-
-    /** The current offscreen texture that is getting rendered to */
-    private static IImage currentWrite = null;
 
     /** This instances offscreen texture */
-    private IImage writeTo = null;
-
-    /** Bounds of the offscreen texture */
-    private int[] mosaicBounds = null;
+    private IMosaicImage writeTo = null;
 
     /** Last extent painted, if extent changes, repaint to texture */
     private IExtent lastExtent = null;
 
     /** The coverage of the offscreen texture (used for drawing on screen) */
     private PixelCoverage writeToCoverage = null;
-
-    private IGraphicsTarget mosaicTarget = null;
-
-    private IGLTarget glTarget = null;
-
-    /**
-     * This function returns the current gl image that is being mosaic'd to. It
-     * depends on the fact that painting is a synchronous operation and no 2
-     * mosaics will be drawing at exactly the same time.
-     * 
-     * @return currently writing offscreen mosaic texture
-     */
-    public static IImage getCurrentMosaicImage() {
-        return currentWrite;
-    }
 
     /**
      * Default constructor, needed since class is instantiated through eclipse
@@ -124,13 +98,6 @@ public class RadarMosaicRenderer implements IRadarMosaicRenderer,
         ColorMapParameters params = mosaicToRender.getCapability(
                 ColorMapCapability.class).getColorMapParameters();
 
-        IGLTarget glTarget = (IGLTarget) target;
-
-        if (glTarget != this.glTarget) {
-            this.glTarget = glTarget;
-            this.mosaicTarget = new MosaicGLTarget(glTarget);
-        }
-
         // If first paint, initialize and wait for next paint
         if (writeTo == null) {
             init(target, paintProps, params);
@@ -142,13 +109,11 @@ public class RadarMosaicRenderer implements IRadarMosaicRenderer,
                 }
             }
             mosaicToRender.registerListener(this);
-        }
-
-        // If Window size changed, recreate the off screen buffer
-        if (Arrays.equals(
-                mosaicBounds,
+        } else if (Arrays.equals(
+                new int[] { writeTo.getWidth(), writeTo.getHeight() },
                 new int[] { paintProps.getCanvasBounds().width,
                         paintProps.getCanvasBounds().height }) == false) {
+            // If Window size changed, recreate the off screen buffer
             dispose();
             init(target, paintProps, params);
         }
@@ -158,29 +123,31 @@ public class RadarMosaicRenderer implements IRadarMosaicRenderer,
         synchronized (this) {
             if (props.isForceRepaint()
                     || paintProps.getView().getExtent().equals(lastExtent) == false) {
-                IOffscreenRenderingExtension offscreenExt = target
-                        .getExtension(IOffscreenRenderingExtension.class);
-                offscreenExt.renderOffscreen(writeTo);
-                try {
-                    currentWrite = writeTo;
-                    // paint radar using mosaic target
-                    for (ResourcePair rp : mosaicToRender.getResourceList()) {
-                        AbstractVizResource<?, ?> rsc = rp.getResource();
-                        DataTime time = mosaicToRender.getTimeForResource(rsc);
-                        if (rsc instanceof BestResResource) {
-                            rsc = ((BestResResource) rsc)
-                                    .getBestResResource(time);
-                        }
-                        if (rsc != null) {
-                            RadarImageResource rr = (RadarImageResource) rsc;
-                            paintProps.setDataTime(time);
-                            rr.paintRadar(mosaicTarget, paintProps);
+                List<DrawableImage> images = new ArrayList<DrawableImage>();
+
+                // paint radar using mosaic target
+                for (ResourcePair rp : mosaicToRender.getResourceList()) {
+                    AbstractVizResource<?, ?> rsc = rp.getResource();
+                    DataTime time = mosaicToRender.getTimeForResource(rsc);
+                    if (rsc instanceof BestResResource) {
+                        rsc = ((BestResResource) rsc).getBestResResource(time);
+                    }
+                    if (rsc != null && time != null) {
+                        RadarImageResource rr = (RadarImageResource) rsc;
+                        DrawableImage di = rr.getImage(target, time);
+                        if (di != null && di.getImage() != null
+                                && di.getCoverage() != null
+                                && di.getCoverage().getMesh() != null) {
+                            // If image is ready to go, add
+                            images.add(di);
+                        } else {
+                            mosaicToRender.issueRefresh();
                         }
                     }
-                } finally {
-                    offscreenExt.renderOnscreen();
                 }
 
+                writeTo.setImagesToMosaic(images
+                        .toArray(new DrawableImage[images.size()]));
                 lastExtent = paintProps.getView().getExtent().clone();
 
                 Coordinate ul = new Coordinate(lastExtent.getMinX(),
@@ -197,13 +164,10 @@ public class RadarMosaicRenderer implements IRadarMosaicRenderer,
 
             writeTo.setContrast(mosaicToRender.getCapability(
                     ImagingCapability.class).getContrast());
-
             writeTo.setBrightness(mosaicToRender.getCapability(
                     ImagingCapability.class).getBrightness());
 
             target.drawRaster(writeTo, writeToCoverage, paintProps);
-
-            currentWrite = null;
         }
     }
 
@@ -212,12 +176,11 @@ public class RadarMosaicRenderer implements IRadarMosaicRenderer,
      */
     private void init(IGraphicsTarget target, PaintProperties paintProps,
             ColorMapParameters params) throws VizException {
-        // Construct texture for offscreen rendering
-        mosaicBounds = new int[] { paintProps.getCanvasBounds().width,
-                paintProps.getCanvasBounds().height };
-        writeTo = target
-                .getExtension(IOffscreenRenderingExtension.class)
-                .constructOffscreenImage(ByteBuffer.class, mosaicBounds, params);
+        // Construct texture for mosaicing
+        writeTo = target.getExtension(IRadarMosaicImageExtension.class)
+                .initializeRaster(
+                        new int[] { paintProps.getCanvasBounds().width,
+                                paintProps.getCanvasBounds().height }, params);
     }
 
     @Override

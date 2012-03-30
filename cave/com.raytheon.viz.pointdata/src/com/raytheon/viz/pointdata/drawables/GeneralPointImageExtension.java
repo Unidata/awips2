@@ -62,7 +62,7 @@ public class GeneralPointImageExtension extends
 
     @Override
     public int getCompatibilityValue(IGraphicsTarget target) {
-        return Compatibilty.GENERIC.value;
+        return Compatibilty.GENERIC;
     }
 
     @Override
