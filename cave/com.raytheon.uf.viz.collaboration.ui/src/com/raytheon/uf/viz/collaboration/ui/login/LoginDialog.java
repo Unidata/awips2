@@ -109,10 +109,6 @@ public class LoginDialog extends CaveSWTDialog {
         setText("Collaboration Server Log On");
     }
 
-    // public void setLoginData(LoginData loginData) {
-    // this.loginData = loginData;
-    // }
-
     private Control createDialogArea(Composite parent) {
         GridData gd = null;
         Composite body = new Composite(parent, SWT.NONE);
