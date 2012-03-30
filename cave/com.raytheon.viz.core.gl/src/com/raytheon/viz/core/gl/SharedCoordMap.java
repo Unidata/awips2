@@ -153,14 +153,13 @@ public class SharedCoordMap {
      */
     private static void populateTextureGeom(SharedCoordinateKey key,
             GLGeometryObject2D geom) {
-        geom.allocate(key.verticalDivisions * key.horizontalDivisions * 2);
-
-        int height = 2 * key.verticalDivisions;
+        int height = 2 * (key.verticalDivisions + 1);
         int width = key.horizontalDivisions;
+        geom.allocate(width * height * 2);
 
         // get dx and dy for texture points
         float dX = (1.0f / (key.horizontalDivisions));
-        float dY = (1.0f / (key.verticalDivisions - 1));
+        float dY = (1.0f / (key.verticalDivisions));
 
         float xLow, xHigh = 0;
 

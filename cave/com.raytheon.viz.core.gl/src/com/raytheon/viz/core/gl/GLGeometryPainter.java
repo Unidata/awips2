@@ -48,8 +48,6 @@ import com.raytheon.viz.core.gl.GLGeometryObject2D.State;
 
 public class GLGeometryPainter {
 
-    private static int maxVertices = -1;
-
     public static void paintGeometries(GL gl, GLGeometryObject2D... geoms)
             throws VizException {
         State state = State.INVALID;

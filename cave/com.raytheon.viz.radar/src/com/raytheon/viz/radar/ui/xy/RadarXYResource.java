@@ -59,7 +59,6 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.TimeMatchBasisCapability;
-import com.raytheon.uf.viz.core.rsc.hdf5.ImageTile;
 import com.raytheon.viz.awipstools.capabilities.RangeRingsOverlayCapability;
 import com.raytheon.viz.core.contours.util.VectorGraphicsRenderable;
 import com.raytheon.viz.radar.RadarHelper;
@@ -184,7 +183,7 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
      * com.raytheon.viz.radar.RadarTimeRecord.RadarTiltRecord)
      */
     @Override
-    public PixelCoverage buildCoverage(IGraphicsTarget target, ImageTile tile,
+    public PixelCoverage buildCoverage(IGraphicsTarget target,
             VizRadarRecord radarRecord) throws VizException {
         double width = radarRecord.getNumBins();
         double height = radarRecord.getNumRadials();
