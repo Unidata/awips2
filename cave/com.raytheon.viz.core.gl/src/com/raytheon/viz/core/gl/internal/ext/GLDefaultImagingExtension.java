@@ -17,27 +17,25 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.radar.gl.mosaic;
-
-import javax.media.opengl.GL;
+package com.raytheon.viz.core.gl.internal.ext;
 
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.core.gl.IGLTarget;
-import com.raytheon.viz.core.gl.glsl.AbstractShaderLoader;
+import com.raytheon.viz.core.gl.ext.AbstractGLImagingExtension;
 import com.raytheon.viz.core.gl.glsl.GLShaderProgram;
 import com.raytheon.viz.core.gl.images.AbstractGLImage;
 
 /**
- * Loads variables for mosiac fragment shader
+ * TODO Add Description
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 10, 2010            mschenke     Initial creation
+ * Dec 16, 2011            mschenke     Initial creation
  * 
  * </pre>
  * 
@@ -45,39 +43,44 @@ import com.raytheon.viz.core.gl.images.AbstractGLImage;
  * @version 1.0
  */
 
-public class MosaicShaderLoader extends AbstractShaderLoader {
+public class GLDefaultImagingExtension extends AbstractGLImagingExtension {
 
     /*
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.viz.core.gl.glsl.IShaderLoader#loadData(com.raytheon.viz
-     * .core.gl.IGLTarget, com.raytheon.viz.core.gl.glsl.GLShaderProgram,
+     * com.raytheon.viz.core.gl.ext.AbstractGLImagingExtension#getShaderProgramName
+     * ()
+     */
+    @Override
+    public String getShaderProgramName() {
+        return "raster";
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.core.gl.ext.AbstractGLImagingExtension#loadShaderData
+     * (com.raytheon.viz.core.gl.glsl.GLShaderProgram,
      * com.raytheon.uf.viz.core.drawables.IImage,
      * com.raytheon.uf.viz.core.drawables.PaintProperties)
      */
     @Override
-    public void loadData(IGLTarget target, GLShaderProgram program,
-            IImage image, PaintProperties paintProps) throws VizException {
-        // load radar data to GL_TEXTURE0 (bound in drawRaster)
-        program.setUniform("radarData", 0);
+    public void loadShaderData(GLShaderProgram program, IImage iimage,
+            PaintProperties paintProps) throws VizException {
+        // Get image as AbstractGLImage
+        AbstractGLImage image = null;
+        if (iimage instanceof AbstractGLImage == false) {
+            throw new VizException(
+                    "Cannot apply glsl raster shader to non gl image");
+        }
+        image = (AbstractGLImage) iimage;
 
-        GL gl = target.getGl();
-
-        // grab currently writting to texture
-        AbstractGLImage writeTo = (AbstractGLImage) RadarMosaicRenderer
-                .getCurrentMosaicImage();
-
-        // activate on texture2 as 0 is radar image and 1 is colormap
-        gl.glActiveTexture(GL.GL_TEXTURE2);
-        gl.glBindTexture(writeTo.getTextureStorageType(),
-                writeTo.getTextureid());
-
-        program.setUniform("mosaicTexture", 2);
-
-        // pass in width and height
-        program.setUniform("height", (paintProps.getCanvasBounds().height));
-        program.setUniform("width", (paintProps.getCanvasBounds().width));
+        program.setUniform("alpha", paintProps.getAlpha());
+        program.setUniform("brightness", image.getBrightness());
+        program.setUniform("contrast", image.getContrast());
+        program.setUniform("rawTex", 0);
     }
 
 }
