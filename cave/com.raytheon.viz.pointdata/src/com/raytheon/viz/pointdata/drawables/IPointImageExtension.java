@@ -25,6 +25,7 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension.IGraphicsExtensionInterface;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -46,7 +47,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 
-public interface IPointImageExtension {
+public interface IPointImageExtension extends IGraphicsExtensionInterface {
 
     public static class PointImage {
 
