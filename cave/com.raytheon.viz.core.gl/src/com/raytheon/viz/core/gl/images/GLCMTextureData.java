@@ -203,9 +203,6 @@ public class GLCMTextureData implements IImageCacheable {
     public double getValue(int x, int y) {
         if (!isStaged() && isLoaded()) {
             GL gl = GLU.getCurrentGL();
-            if (gl == null || data == null) {
-                return Double.NaN;
-            }
             int textureStorageType = getTextureStorageType();
             int copybackTextureType = data.getCopyBackTextureType();
             Buffer copybackBuffer = data.getCopybackBuffer();
