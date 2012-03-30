@@ -42,7 +42,6 @@ import org.eclipse.ecf.presence.chatroom.IChatRoomParticipantListener;
 import org.eclipse.ecf.provider.xmpp.identity.XMPPRoomID;
 
 import com.google.common.eventbus.EventBus;
-// import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
@@ -54,7 +53,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IRenderable;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
-import com.raytheon.uf.viz.collaboration.comm.identity.listener.IInvitation;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
@@ -130,6 +128,8 @@ public class VenueSession extends BaseSession implements IVenueSession,
 
     private Map<Object, Object> initSubscribers = new HashMap<Object, Object>();
 
+    private String subject;
+    
     /**
      * 
      * @param container
@@ -149,74 +149,7 @@ public class VenueSession extends BaseSession implements IVenueSession,
             SessionManager manager) throws CollaborationException {
         super(container, externalBus, manager);
 
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(30000);
-
-//                    TestJAXBObject j = new TestJAXBObject();
-//                    j.setItem_1("This is an object");
-//                    j.setValue(5);
-//                    sendRenderableObject(j);
-//
-//                    VenueParticipant id = new VenueParticipant("jkorman",
-//                            "paul", "awipscm.omaha.us.ray.com");
-//                    id.setResource("cave");
-//                    IInitData d = new InitData();
-//                    ((InitData) d).setName("This is a test init data object");
-//
-//                    IDisplayEvent e = new DisplayEvent();
-//                    ((DisplayEvent) e).setName("This is a test display event");
-//
-//                    sendInitData(id, d);
-//                    sendEvent(id, e);
-//
-//                    Thread.sleep(10000);
-                    System.out.println("Sending invitation");
-
-                    sendInvitation(
-                            "tester5@conference.awipscm.omaha.us.ray.com",
-                            "jkorman", "Test Room", "Join the test");
-
-                } catch (Exception e) {
-                    System.out.println("Error sending RenderableObject");
-                }
-
-            }
-        };
-        Thread t = new Thread(r);
-        t.start();
-        registerEventHandler(this);
-        try {
-            DataHandler h = new DataHandler();
-            subscribeToPeerToPeerData(h);
-        } catch (CollaborationException ce) {
-            ce.printStackTrace();
-        }
     }
-
-    // @Subscribe
-    // public void handle(IRenderable renderable) {
-    // System.out.println("Renderable found");
-    // if (renderable instanceof TestJAXBObject) {
-    // TestJAXBObject j = (TestJAXBObject) renderable;
-    // if (j.getValue() < 100) {
-    // System.out.println(String.format("%s %d Renderable",
-    // j.getItem_1(), j.getValue()));
-    // j.setValue(j.getValue() + 200);
-    // j.setItem_1("Now for the return trip");
-    // try {
-    // sendRenderableObject(j);
-    // } catch (CollaborationException ce) {
-    // System.out.println("Error sending RenderableObject");
-    // }
-    // } else {
-    // System.out.println(String.format("%s %d Renderable",
-    // j.getItem_1(), j.getValue()));
-    // }
-    // }
-    // }
 
     /**
      * Get the identification of the owner of this session.
@@ -295,40 +228,19 @@ public class VenueSession extends BaseSession implements IVenueSession,
         }
         return venue;
     }
+    
+    /**
+     * @return the subject
+     */
+    public String getSubject() {
+        return subject;
+    }
 
     /**
-     * Send an invitation from this venue to another user.
-     * 
-     * @param invitation
-     *            An invitation
-     * @return
+     * @param subject the subject to set
      */
-    @Override
-    public int sendInvitation(IInvitation invitation) {
-        int status = Errors.NO_ERROR;
-        IChatRoomInvitationSender sender = getConnectionPresenceAdapter()
-                .getChatRoomManager().getInvitationSender();
-        if (sender != null) {
-            ID roomId = getConnectionPresenceAdapter().getChatRoomManager()
-                    .getChatRoomInfo(invitation.getRoomId()).getConnectedID();
-
-            // *******************
-            // ** TODO : The host part of this need to defined
-            ID userId = IDFactory.getDefault().createID(
-                    getConnectionNamespace(),
-                    invitation.getFrom() + "@awipscm.omaha.us.ray.com");
-            // *******************
-
-            try {
-                String body = insertSessionId(invitation.getBody());
-
-                sender.sendInvitation(roomId, userId, invitation.getSubject(),
-                        body);
-            } catch (ECFException e) {
-                e.printStackTrace();
-            }
-        }
-        return status;
+    public void setSubject(String subject) {
+        this.subject = subject;
     }
 
     /**
@@ -347,8 +259,7 @@ public class VenueSession extends BaseSession implements IVenueSession,
      *      java.lang.String, java.lang.String, java.lang.String)
      */
     @Override
-    public int sendInvitation(String room, String id, String subject,
-            String body) {
+    public int sendInvitation(String id, String body) {
         // Assume success
         int status = Errors.NO_ERROR;
         IChatRoomInvitationSender sender = getConnectionPresenceAdapter()
@@ -356,11 +267,11 @@ public class VenueSession extends BaseSession implements IVenueSession,
         if (sender != null) {
             body = insertSessionId(body);
 
-            ID roomId = getConnectionPresenceAdapter().getChatRoomManager()
-                    .getChatRoomInfo(room).getConnectedID();
-            ID userId = IDFactory.getDefault().createID(
-                    getConnectionNamespace(), id + "@awipscm.omaha.us.ray.com");
+            ID roomId = venueInfo.getConnectedID();
 
+            ID userId = IDFactory.getDefault().createID(
+                    getConnectionNamespace(), id);
+            
             try {
                 sender.sendInvitation(roomId, userId, subject, body);
             } catch (ECFException e) {
@@ -386,20 +297,19 @@ public class VenueSession extends BaseSession implements IVenueSession,
      *      java.lang.String, java.lang.String, java.lang.String)
      */
     @Override
-    public int sendInvitation(String room, List<String> ids, String subject,
-            String body) {
+    public int sendInvitation(List<String> ids, String body) {
         // Assume success
         int status = Errors.NO_ERROR;
         if (ids != null) {
             for (String id : ids) {
-                sendInvitation(room, id, subject, body);
+                sendInvitation(id, body);
             }
         } else {
             status = -1;
         }
         return status;
     }
-
+    
     /**
      * 
      * @param body
@@ -598,6 +508,20 @@ public class VenueSession extends BaseSession implements IVenueSession,
 
     /**
      * 
+     */
+    void setSessionLeader(IChatID id) {
+        sessionLeader = id;
+    }
+    
+    /**
+     * 
+     */
+    void setSessionDataProvider(IChatID id) {
+        sessionDataProvider = id;
+    }
+
+    /**
+     * 
      * @see com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession#joinVenue(java.lang.String)
      */
     int joinVenue(String venueName) {
@@ -607,13 +531,13 @@ public class VenueSession extends BaseSession implements IVenueSession,
             venueManager = getConnectionPresenceAdapter().getChatRoomManager();
             if (venueManager != null) {
                 venueInfo = venueManager.getChatRoomInfo(venueName);
+                subject = venueInfo.getSubject();
                 if (venueInfo != null) {
                     errorStatus = completeVenueConnection(venueInfo);
 
                     roles.add(ParticipantRole.PARTICIPANT);
                 } else {
                     // Could not join venue.
-
                 }
             } else {
 
@@ -635,6 +559,7 @@ public class VenueSession extends BaseSession implements IVenueSession,
     int createVenue(String venueName, String subject) {
         int errorStatus = -1;
         try {
+            this.subject = subject;
             // Create chat room container from manager
             venueManager = getConnectionPresenceAdapter().getChatRoomManager();
             if (venueManager != null) {
@@ -677,42 +602,14 @@ public class VenueSession extends BaseSession implements IVenueSession,
                 IChatRoomParticipantListener pListener = new IChatRoomParticipantListener() {
                     @Override
                     public void handleArrived(IUser participant) {
-                        // IVenueParticipant p = new VenueParticipant(
-                        // participant.getName(),
-                        // participant.getNickname());
-                        //
-                        // System.out.println("Arrived");
-                        // IVenueParticipantEvent event = new
-                        // VenueParticipantEvent(
-                        // p, ParticipantEventType.ARRIVED);
-                        //
-                        // getEventPublisher().post(event);
                     }
 
                     @Override
                     public void handleUpdated(IUser participant) {
-                        // IVenueParticipant p = new VenueParticipant(
-                        // participant.getName(),
-                        // participant.getNickname());
-                        //
-                        // System.out.println("Updated");
-                        // IVenueParticipantEvent event = new
-                        // VenueParticipantEvent(
-                        // p, ParticipantEventType.UPDATED);
-                        // getEventPublisher().post(event);
                     }
 
                     @Override
                     public void handleDeparted(IUser participant) {
-                        // IVenueParticipant p = new VenueParticipant(
-                        // participant.getName(),
-                        // participant.getNickname());
-                        //
-                        // System.out.println("Departed");
-                        // IVenueParticipantEvent event = new
-                        // VenueParticipantEvent(
-                        // p, ParticipantEventType.DEPARTED);
-                        // getEventPublisher().post(event);
                     }
 
                     @Override
