@@ -243,7 +243,8 @@ public abstract class AbstractDerivedLevelNode extends
     }
 
     @Override
-    protected TimeQueryRequest getTimeQueryInternal(boolean latestOnly,
+    protected TimeQueryRequest getTimeQueryInternal(
+            TimeQueryRequest originalRequest, boolean latestOnly,
             Map<AbstractRequestableLevelNode, Set<DataTime>> cache)
             throws VizException {
         throw new UnsupportedOperationException(
