@@ -32,6 +32,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
+import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.DataTime.FLAG;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
@@ -149,7 +150,8 @@ public class DerivedLevelNode extends AbstractDerivedLevelNode {
     }
 
     @Override
-    public Set<DataTime> timeQueryInternal(boolean latestOnly,
+    public Set<DataTime> timeQueryInternal(TimeQueryRequest originalRequest,
+            boolean latestOnly,
             Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
             Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
             throws VizException {
@@ -176,8 +178,8 @@ public class DerivedLevelNode extends AbstractDerivedLevelNode {
         }
         for (DerivParamField field : fieldsKeys) {
             AbstractRequestableLevelNode node = fields.get(field);
-            Set<DataTime> queryDataTimes = node.timeQuery(false, cache,
-                    latestOnlyCache);
+            Set<DataTime> queryDataTimes = node.timeQuery(originalRequest,
+                    false, cache, latestOnlyCache);
             timeCache.put(field, queryDataTimes);
             if (queryDataTimes == TIME_AGNOSTIC) {
                 if (availableDataTimes == null) {
@@ -285,7 +287,7 @@ public class DerivedLevelNode extends AbstractDerivedLevelNode {
         if (this.timeCache == null
                 || this.lastTimeQuery + TIME_QUERY_CACHE_TIME < System
                         .currentTimeMillis()) {
-            this.timeQuery(false);
+            this.timeQuery(null, false);
         }
 
         // keep a reference for scope of method
