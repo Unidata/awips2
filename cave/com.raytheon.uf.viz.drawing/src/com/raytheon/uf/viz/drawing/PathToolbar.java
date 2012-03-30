@@ -19,14 +19,13 @@
  **/
 package com.raytheon.uf.viz.drawing;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -34,11 +33,15 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.contexts.IContextActivation;
+import org.eclipse.ui.contexts.IContextService;
 
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.icon.IconUtil;
+import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.drawing.actions.ClearDrawingAction;
 import com.raytheon.uf.viz.drawing.actions.EraseObjectsAction;
 import com.raytheon.uf.viz.drawing.actions.RedoAddAction;
@@ -72,15 +75,23 @@ public class PathToolbar extends CaveSWTDialog implements
 
     private static PathToolbar toolbar;
 
-    private Map<AbstractEditor, ResourcePair> layers;
+    // private Map<AbstractEditor, ResourcePair> layers;
 
     private ToolItem drawItem;
 
     private ToolItem eraserItem;
 
+    private ToolItem undoItem;
+
+    private ToolItem redoItem;
+
+    private ToolItem clearItem;
+
+    private IContextActivation drawingContext;
+
     public static PathToolbar getToolbar() {
         if (toolbar == null) {
-            toolbar = new PathToolbar(Display.getCurrent().getActiveShell());
+            toolbar = new PathToolbar(new Shell(Display.getCurrent()));
         }
         return toolbar;
     }
@@ -91,7 +102,6 @@ public class PathToolbar extends CaveSWTDialog implements
      */
     protected PathToolbar(Shell parentShell) {
         super(parentShell, SWT.DIALOG_TRIM | CAVE.DO_NOT_BLOCK);
-        layers = new HashMap<AbstractEditor, ResourcePair>();
         setText("Drawing");
     }
 
@@ -112,6 +122,18 @@ public class PathToolbar extends CaveSWTDialog implements
      */
     @Override
     protected void initializeComponents(Shell shell) {
+        shell.addShellListener(new ShellAdapter() {
+            @Override
+            public void shellClosed(ShellEvent e) {
+                PathToolbar.getToolbar().getShell().removeShellListener(this);
+
+                IContextService contextService = (IContextService) PlatformUI
+                        .getWorkbench().getService(IContextService.class);
+                contextService.deactivateContext(drawingContext);
+                super.shellClosed(e);
+            }
+        });
+
         Composite comp = new Composite(shell, SWT.NONE);
         GridLayout layout = new GridLayout();
         comp.setLayout(layout);
@@ -141,10 +163,9 @@ public class PathToolbar extends CaveSWTDialog implements
                         .getActiveEditorAs(AbstractEditor.class);
                 IDescriptor desc = editor.getActiveDisplayPane()
                         .getDescriptor();
-                if (layers.containsKey(editor)) {
-                    if (((DrawingLayer) layers.get(editor).getResource()).erase) {
-                        ((DrawingLayer) layers.get(editor).getResource())
-                                .setErase(false);
+                for (ResourcePair pair : desc.getResourceList()) {
+                    if (pair.getResource() instanceof DrawingLayer) {
+                        ((DrawingLayer) pair.getResource()).erase = false;
                         eraserItem.setSelection(false);
                     }
                 }
@@ -153,49 +174,39 @@ public class PathToolbar extends CaveSWTDialog implements
                 // ((VizMultiPaneEditor) editor)
                 // .addSelectedPaneChangedListener(PathToolbar
                 // .getToolbar());
-                for (ResourcePair pair : desc.getResourceList()) {
-                    if (pair.getResource() instanceof DrawingLayer) {
-                        layers.put(editor, pair);
-                        eraserItem.setEnabled(true);
-                        // drawItem.setEnabled(false);
-                    }
-                }
+                updateToolbar();
             }
         });
 
-        ToolItem undoItem = new ToolItem(toolbar, SWT.FLAT);
+        undoItem = new ToolItem(toolbar, SWT.FLAT);
         undoItem.setText("Undo");
         undoItem.setImage(IconUtil.getImageDescriptor(
                 Activator.getDefault().getBundle(), "undo.gif").createImage());
+        undoItem.setToolTipText("Ctrl+Z to Undo");
         undoItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 UndoAddAction action = new UndoAddAction();
-                AbstractEditor editor = EditorUtil
-                        .getActiveEditorAs(AbstractEditor.class);
-                if (layers.get(editor) != null) {
-                    executeAction(action);
-                }
+                executeAction(action);
+                updateToolbar();
             }
         });
 
-        ToolItem redoItem = new ToolItem(toolbar, SWT.FLAT);
+        redoItem = new ToolItem(toolbar, SWT.FLAT);
         redoItem.setText("Redo");
         redoItem.setImage(IconUtil.getImageDescriptor(
                 Activator.getDefault().getBundle(), "redo.gif").createImage());
+        redoItem.setToolTipText("Ctrl+Y to Redo");
         redoItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 RedoAddAction action = new RedoAddAction();
-                AbstractEditor editor = EditorUtil
-                        .getActiveEditorAs(AbstractEditor.class);
-                if (layers.get(editor) != null) {
-                    executeAction(action);
-                }
+                executeAction(action);
+                updateToolbar();
             }
         });
 
-        ToolItem clearItem = new ToolItem(toolbar, SWT.FLAT);
+        clearItem = new ToolItem(toolbar, SWT.FLAT);
         clearItem.setText("Clear");
         clearItem
                 .setImage(IconUtil.getImageDescriptor(
@@ -205,11 +216,8 @@ public class PathToolbar extends CaveSWTDialog implements
             @Override
             public void widgetSelected(SelectionEvent e) {
                 ClearDrawingAction action = new ClearDrawingAction();
-                AbstractEditor editor = EditorUtil
-                        .getActiveEditorAs(AbstractEditor.class);
-                if (layers.get(editor) != null) {
-                    executeAction(action);
-                }
+                executeAction(action);
+                updateToolbar();
             }
         });
 
@@ -219,18 +227,23 @@ public class PathToolbar extends CaveSWTDialog implements
                 .setImage(IconUtil.getImageDescriptor(
                         Activator.getDefault().getBundle(), "eraser.png")
                         .createImage());
-        eraserItem.setEnabled(false);
         eraserItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 EraseObjectsAction action = new EraseObjectsAction();
-                AbstractEditor editor = EditorUtil
-                        .getActiveEditorAs(AbstractEditor.class);
-                if (layers.get(editor) != null) {
-                    executeAction(action);
-                }
+                executeAction(action);
             }
         });
+        updateToolbar();
+    }
+
+    @Override
+    protected void opened() {
+        IContextService contextService = (IContextService) PlatformUI
+                .getWorkbench().getService(IContextService.class);
+        drawingContext = contextService
+                .activateContext("com.raytheon.uf.viz.drawing.context");
+        super.opened();
     }
 
     private void executeAction(AbstractHandler action) {
@@ -258,6 +271,43 @@ public class PathToolbar extends CaveSWTDialog implements
         for (ResourcePair pair : desc.getResourceList()) {
             if (pair.getResource() instanceof DrawingLayer) {
                 break;
+            }
+        }
+    }
+
+    private void updateToolbar() {
+        if (true) {
+            return;
+        }
+        AbstractEditor editor = EditorUtil
+                .getActiveEditorAs(AbstractEditor.class);
+        ResourceList list = editor.getActiveDisplayPane().getDescriptor()
+                .getResourceList();
+        for (ResourcePair pair : list) {
+            if (pair.getResource() instanceof DrawingLayer) {
+                DrawingLayer layer = (DrawingLayer) pair.getResource();
+                if (layer.getDeletedShapes().isEmpty()
+                        && layer.getWireframeShapes().isEmpty()) {
+                    undoItem.setEnabled(false);
+                    redoItem.setEnabled(false);
+                    clearItem.setEnabled(false);
+                } else {
+                    clearItem.setEnabled(true);
+                    if (layer.getDeletedShapes().isEmpty()) {
+                        undoItem.setEnabled(true);
+                        redoItem.setEnabled(false);
+                    } else {
+                        undoItem.setEnabled(false);
+                        redoItem.setEnabled(true);
+                    }
+                    if (layer.getWireframeShapes().isEmpty()) {
+                        redoItem.setEnabled(true);
+                        undoItem.setEnabled(false);
+                    } else {
+                        redoItem.setEnabled(false);
+                        undoItem.setEnabled(true);
+                    }
+                }
             }
         }
     }
