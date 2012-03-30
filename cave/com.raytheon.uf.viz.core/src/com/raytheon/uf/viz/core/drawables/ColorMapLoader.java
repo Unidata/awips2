@@ -206,8 +206,8 @@ public class ColorMapLoader {
             ColorMap cm = (ColorMap) SerializationUtil
                     .jaxbUnmarshalFromXmlFile(colorMapFile.getFile()
                             .getAbsolutePath());
-
             cm.setName(name);
+            cm.setChanged(false);
             return cm;
         } else {
             return null;

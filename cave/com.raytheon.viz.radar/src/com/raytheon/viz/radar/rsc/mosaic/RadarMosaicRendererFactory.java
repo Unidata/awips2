@@ -17,16 +17,14 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.radar.rsc.mosaic.ext;
+package com.raytheon.viz.radar.rsc.mosaic;
 
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.radar.rsc.mosaic.RadarMosaicResource;
 
 /**
- * Mosaic Renderer factory extension. Implementers of this extension will
- * construct IRadarMosaicRenderers
+ * Radar mosaic renderer factory, creates mosaic renderers
  * 
  * <pre>
  * 
@@ -42,7 +40,7 @@ import com.raytheon.viz.radar.rsc.mosaic.RadarMosaicResource;
  * @version 1.0
  */
 
-public interface IRadarMosaicRendererFactoryExtension {
+public class RadarMosaicRendererFactory {
 
     public static enum MosaicType {
         MergeRaster, MaxValue;
@@ -50,31 +48,23 @@ public interface IRadarMosaicRendererFactoryExtension {
 
     public static interface IRadarMosaicRenderer {
 
-        /**
-         * similar to the paint(...) call on IRenderable, this function tells
-         * the mosaic renderer to render the mosaic given the target,
-         * paintProperties, and mosaic resource
-         * 
-         * @param target
-         * @param paintProps
-         * @param mosaicToRender
-         * @throws VizException
-         */
         public void mosaic(IGraphicsTarget target, PaintProperties paintProps,
                 RadarMosaicResource mosaicToRender) throws VizException;
 
-        /**
-         * Dispose of any resources being used
-         */
         public void dispose();
+
     }
 
-    /**
-     * Create a new radar mosaic renderer
-     * 
-     * @return
-     */
-    public IRadarMosaicRenderer createNewRenderer(MosaicType mosaicType)
-            throws VizException;
+    public static IRadarMosaicRenderer createNewRenderer(MosaicType mosaicType)
+            throws VizException {
+        switch (mosaicType) {
+        case MergeRaster:
+            return new MergeRasterRadarMosaicRenderer();
+        case MaxValue:
+            return new RadarMosaicRenderer();
+        }
+        throw new VizException("Could not find mosaic renderer for type = "
+                + mosaicType);
+    }
 
 }
