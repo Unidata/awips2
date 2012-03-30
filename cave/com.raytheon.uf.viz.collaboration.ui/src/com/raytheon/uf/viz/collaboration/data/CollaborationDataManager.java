@@ -30,8 +30,11 @@ import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchListener;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
+import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -39,6 +42,8 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Type;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.SessionManager;
 import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginData;
@@ -46,6 +51,7 @@ import com.raytheon.uf.viz.collaboration.ui.login.LoginDialog;
 import com.raytheon.uf.viz.collaboration.ui.role.AbstractRoleEventController;
 import com.raytheon.uf.viz.collaboration.ui.role.DataProviderEventController;
 import com.raytheon.uf.viz.collaboration.ui.role.ParticipantEventController;
+import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
 import com.raytheon.uf.viz.core.VizApp;
 
 /**
@@ -76,6 +82,8 @@ public class CollaborationDataManager {
     private SessionManager manager;
 
     String loginId;
+
+    Shell shell;
 
     /**
      * Created when connection made. Used to clean up connection when CAVE shuts
@@ -169,7 +177,7 @@ public class CollaborationDataManager {
 
                 @Override
                 public void run() {
-                    Shell shell = Display.getDefault().getActiveShell();
+                    shell = Display.getDefault().getActiveShell();
                     if (shell == null) {
                         return;
                     }
@@ -192,34 +200,7 @@ public class CollaborationDataManager {
                             user.setMode(loginData.getMode());
                             user.type = Type.AVAILABLE;
                             user.statusMessage = loginData.getModeMessage();
-                            wbListener = new IWorkbenchListener() {
-
-                                @Override
-                                public boolean preShutdown(
-                                        IWorkbench workbench, boolean forced) {
-                                    return true;
-                                }
-
-                                @Override
-                                public void postShutdown(IWorkbench workbench) {
-                                    if (manager != null) {
-                                        manager.closeManager();
-                                        manager = null;
-                                    }
-                                }
-                            };
-                            PlatformUI.getWorkbench().addWorkbenchListener(
-                                    wbListener);
                         } catch (Exception e) {
-                            if (manager != null) {
-                                manager.closeManager();
-                                manager = null;
-                            }
-                            if (wbListener != null) {
-                                PlatformUI.getWorkbench()
-                                        .removeWorkbenchListener(wbListener);
-                                wbListener = null;
-                            }
                             statusHandler.handle(Priority.PROBLEM,
                                     e.getLocalizedMessage(), e);
                             MessageBox box = new MessageBox(shell, SWT.ERROR);
@@ -231,12 +212,37 @@ public class CollaborationDataManager {
                     }
                 }
             });
+
+            if (isConnected()) {
+                // Register handlers and events for the new manager.
+                manager.registerEventHandler(this);
+                wbListener = new IWorkbenchListener() {
+
+                    @Override
+                    public boolean preShutdown(IWorkbench workbench,
+                            boolean forced) {
+                        return true;
+                    }
+
+                    @Override
+                    public void postShutdown(IWorkbench workbench) {
+                        if (manager != null) {
+                            manager.unRegisterEventHandler(this);
+                            manager.closeManager();
+                            manager = null;
+                        }
+                    }
+                };
+                PlatformUI.getWorkbench().addWorkbenchListener(wbListener);
+            }
         }
+
         return manager;
     }
 
     synchronized public void closeManager() {
         if (manager != null) {
+            manager.unRegisterEventHandler(this);
             manager.closeManager();
             manager = null;
         }
@@ -390,6 +396,58 @@ public class CollaborationDataManager {
 
     public boolean isConnected() {
         return manager != null;
+    }
+
+    @Subscribe
+    public void handleInvitationEvent(IVenueInvitationEvent event) {
+        final IVenueInvitationEvent invitation = event;
+        System.out.println("==== handleInvitationEvent sessionId: "
+                + invitation.getSessionId());
+        System.out.println("==== handleInvitationEvent inviter: "
+                + invitation.getInviter());
+        VizApp.runSync(new Runnable() {
+
+            @Override
+            public void run() {
+                IQualifiedID inviter = invitation.getInviter();
+                IQualifiedID room = invitation.getRoomId();
+                MessageBox box = new MessageBox(shell, SWT.ICON_QUESTION
+                        | SWT.OK | SWT.CANCEL);
+                box.setText("Invitation");
+                StringBuilder sb = new StringBuilder();
+                sb.append("You are invited to a collaboration.\n");
+                sb.append("Inviter: ").append(inviter.getName()).append("\n");
+                sb.append("Room: ").append(room.getName()).append("\n");
+                sb.append("Subject: ").append(invitation.getSubject());
+                box.setMessage(sb.toString());
+                if (SWT.OK != box.open()) {
+                    return;
+                }
+                try {
+                    IVenueSession session = manager
+                            .joinCollaborationVenue(invitation);
+                    String sessionId = session.getSessionId();
+                    sessionsMap.put(sessionId, session);
+                    PlatformUI
+                            .getWorkbench()
+                            .getActiveWorkbenchWindow()
+                            .getActivePage()
+                            .showView(CollaborationSessionView.ID, sessionId,
+                                    IWorkbenchPage.VIEW_ACTIVATE);
+
+                } catch (CollaborationException e) {
+                    // TODO Auto-generated catch block. Please revise as
+                    // appropriate.
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
+                } catch (PartInitException e) {
+                    // TODO Auto-generated catch block. Please revise as
+                    // appropriate.
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
+                }
+            }
+        });
     }
 
     public String joinCollaborationSession(String venueName, String sessionId) {
