@@ -39,6 +39,8 @@ import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension.IGraphicsExtensionInterface;
+import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.geom.PixelCoordinate;
 import com.vividsolutions.jts.geom.LinearRing;
@@ -64,7 +66,7 @@ import com.vividsolutions.jts.geom.LinearRing;
  * @author chammack
  * @version 1
  */
-public interface IGraphicsTarget {
+public interface IGraphicsTarget extends IImagingExtension {
 
     /** Defines alignment characteristics */
     public static enum HorizontalAlignment {
@@ -188,24 +190,6 @@ public interface IGraphicsTarget {
      */
     public abstract boolean drawRaster(IImage image, PixelCoverage extent,
             PaintProperties paintProps) throws VizException;
-
-    /**
-     * Draw a raster to a target, given an extent and an alpha (transparency)
-     * value. Assumes synchronous operation.
-     * 
-     * This operation will block on unavailable data.
-     * 
-     * @param image
-     *            the image reference object to draw
-     * @param extent
-     *            the extent of the drawable area
-     * @param paintProps
-     *            the paint properties
-     * @return status whether the raster was able to be drawn
-     * @throws VizException
-     */
-    public abstract boolean drawRasters(PaintProperties paintProps,
-            DrawableImage... images) throws VizException;
 
     /**
      * Draw a raster to a target, given an extent and an alpha (transparency)
@@ -663,15 +647,6 @@ public interface IGraphicsTarget {
     public abstract boolean isNeedsRefresh();
 
     /**
-     * Stage an image
-     * 
-     * @param image
-     *            the image to stage
-     * @throws VizException
-     */
-    public abstract void stage(final IImage image) throws VizException;
-
-    /**
      * Sets the background color of the panes.
      * 
      * @param backgroundColor
@@ -680,6 +655,10 @@ public interface IGraphicsTarget {
     public abstract void setBackgroundColor(RGB backgroundColor);
 
     /**
+     * DEPRECATED: This method has no effect. IGraphicsTargets are not
+     * responsible to drawing a colorbar. Use method drawColorRamp to draw a
+     * color ramp
+     * 
      * Sets whether to display a builtin colorbar when displaying colormapped
      * images (Defaults to true)
      * 
@@ -687,6 +666,7 @@ public interface IGraphicsTarget {
      *            boolean flag indicating whether to display the built in
      *            colorbar
      */
+    @Deprecated
     public abstract void setUseBuiltinColorbar(boolean isColorbarDisplayed);
 
     /**
@@ -1044,6 +1024,7 @@ public interface IGraphicsTarget {
      * @param extensionClass
      * @return
      */
-    public abstract <T> T getExtension(Class<T> extensionClass)
-            throws VizException;
+    public abstract <T extends IGraphicsExtensionInterface> T getExtension(
+            Class<T> extensionClass) throws VizException;
+
 }
