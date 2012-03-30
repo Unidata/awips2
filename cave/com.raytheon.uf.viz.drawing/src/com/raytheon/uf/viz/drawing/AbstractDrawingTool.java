@@ -29,7 +29,6 @@ import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.viz.ui.tools.AbstractModalTool;
-
 /**
  * Describes a basic drawing tool.
  * 
