@@ -31,6 +31,7 @@ import org.eclipse.swt.widgets.Display;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
+import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.drawing.AbstractDrawingTool;
 import com.raytheon.uf.viz.drawing.Activator;
 import com.raytheon.uf.viz.drawing.PathDrawingResourceData;
@@ -83,7 +84,9 @@ public class PathDrawingTool extends AbstractDrawingTool {
          */
         @Override
         public boolean handleMouseDown(int anX, int aY, int button) {
-            if (button != 1)
+            if (button != 1
+                    || !theDrawingLayer.getCapability(EditableCapability.class)
+                            .isEditable())
                 return false;
 
             Cursor cursor = null;
@@ -120,7 +123,9 @@ public class PathDrawingTool extends AbstractDrawingTool {
          */
         @Override
         public boolean handleMouseDownMove(int x, int y, int button) {
-            if (button != 1)
+            if (button != 1
+                    || !theDrawingLayer.getCapability(EditableCapability.class)
+                            .isEditable())
                 return false;
             Coordinate p1 = editor.translateClick(theLastMouseX, theLastMouseY);
             Coordinate p2 = editor.translateClick(x, y);
@@ -133,8 +138,12 @@ public class PathDrawingTool extends AbstractDrawingTool {
             GeometryFactory gf = new GeometryFactory();
             LineString ls = gf.createLineString(new Coordinate[] { p1, p2 });
 
-            theDrawingLayer.addTempLine(ls);
-
+            ls = theDrawingLayer.convertPixels(ls);
+            if (theDrawingLayer.isErase()) {
+                theDrawingLayer.addTempEraseLine(ls);
+            } else {
+                theDrawingLayer.addTempDrawLine(ls);
+            }
             theLastMouseX = x;
             theLastMouseY = y;
             editor.refresh();
@@ -149,14 +158,15 @@ public class PathDrawingTool extends AbstractDrawingTool {
          */
         @Override
         public boolean handleMouseUp(int anX, int aY, int button) {
+            if (button != 1
+                    || !theDrawingLayer.getCapability(EditableCapability.class)
+                            .isEditable()) {
+                return false;
+            }
             // change the cursor back on up
             Cursor cursor = new Cursor(Display.getCurrent(), SWT.CURSOR_ARROW);
             Display.getCurrent().getActiveShell().setCursor(cursor);
             cursor.dispose();
-
-            if (button != 1) {
-                return false;
-            }
 
             theDrawingLayer.resetTemp();
             Coordinate[] coords = (Coordinate[]) pathList
@@ -164,10 +174,12 @@ public class PathDrawingTool extends AbstractDrawingTool {
             GeometryFactory gf = new GeometryFactory();
             if (coords.length > 1) {
                 LineString ls = gf.createLineString(coords);
+                ls = theDrawingLayer.convertPixels(ls);
                 if (!theDrawingLayer.isErase()) {
-                    theDrawingLayer.addLine(ls, null);
+                    theDrawingLayer.finalizeLine(ls, null);
                 }
             }
+            editor.refresh();
             return true;
         }
     }
