@@ -320,7 +320,7 @@ public class CollaborationDataManager {
         }
     }
 
-    public String getSessinId(CollaborationEditor editor) {
+    public String getSessionId(CollaborationEditor editor) {
         String sessionId = null;
         for (String key : editorsMap.keySet()) {
             if (editor == editorsMap.get(key)) {
