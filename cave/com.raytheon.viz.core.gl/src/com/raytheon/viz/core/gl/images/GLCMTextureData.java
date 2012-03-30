@@ -200,7 +200,7 @@ public class GLCMTextureData implements IImageCacheable {
         return GL.GL_TEXTURE_2D;
     }
 
-    public double getValue(int x, int y, float dataMin, float dataMax) {
+    public double getValue(int x, int y) {
         if (!isStaged() && isLoaded()) {
             GL gl = GLU.getCurrentGL();
             if (gl == null || data == null) {

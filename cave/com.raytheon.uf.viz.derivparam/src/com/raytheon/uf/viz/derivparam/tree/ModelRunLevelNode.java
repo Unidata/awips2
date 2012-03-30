@@ -24,8 +24,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.time.DataTime;
@@ -70,7 +70,7 @@ public class ModelRunLevelNode extends AbstractAliasLevelNode {
             int timeOut,
             Map<AbstractRequestableLevelNode, List<AbstractRequestableData>> cache)
             throws VizException {
-        Set<DataTime> allTimes = this.timeQuery(false);
+        Set<DataTime> allTimes = this.timeQuery(null, false);
         Set<DataTime> neededTimes = null;
         DataTime[] requestedTimes = property.getSelectedEntryTime();
         if (requestedTimes == null) {
