@@ -64,9 +64,11 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
@@ -76,6 +78,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
+import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Type;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
@@ -116,7 +119,7 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  * @author rferrel
  * @version 1.0
  */
-public class CollaborationGroupView extends ViewPart {
+public class CollaborationGroupView extends ViewPart implements IPartListener {
     public static final String ID = "com.raytheon.uf.viz.collaboration.ui.CollaborationGroupView";
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -181,12 +184,13 @@ public class CollaborationGroupView extends ViewPart {
         createToolbar();
         createMenubar();
 
+        getViewSite().getWorkbenchWindow().getPartService()
+                .addPartListener(this);
+
         createUsersTree(parent);
         addDoubleClickListeners();
         createContextMenu();
-        if (CollaborationDataManager.getInstance().isConnected()) {
-            populateTree();
-        } else {
+        if (CollaborationDataManager.getInstance().isConnected() == false) {
             usersTreeViewer.getTree().setEnabled(false);
         }
 
@@ -352,16 +356,16 @@ public class CollaborationGroupView extends ViewPart {
             };
         };
 
-        refreshActiveSessionsAction = new Action("Refresh") {
-            public void run() {
-                System.out.println("Refresh Active Sessions");
-                refreshActiveSessions();
-            }
-        };
-        refreshActiveSessionsAction.setImageDescriptor(IconUtil
-                .getImageDescriptor(bundle, "refresh.gif"));
-        refreshActiveSessionsAction
-                .setToolTipText("Refresh the Active Sessions Entries.");
+        // refreshActiveSessionsAction = new Action("Refresh") {
+        // public void run() {
+        // System.out.println("Refresh Active Sessions");
+        // refreshActiveSessions();
+        // }
+        // };
+        // refreshActiveSessionsAction.setImageDescriptor(IconUtil
+        // .getImageDescriptor(bundle, "refresh.gif"));
+        // refreshActiveSessionsAction
+        // .setToolTipText("Refresh the Active Sessions Entries.");
 
         collapseAllAction = new Action("Collapse All") {
             public void run() {
@@ -585,7 +589,7 @@ public class CollaborationGroupView extends ViewPart {
                     System.out.println("sessionId - Invite: " + user.getId());
                 }
             }
-            refreshActiveSessions();
+            // refreshActiveSessions();
         } catch (PartInitException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to open collaboation sesson", e);
@@ -625,7 +629,7 @@ public class CollaborationGroupView extends ViewPart {
                     System.out.println("sessionId - Invite: " + user.getId());
                 }
             }
-            refreshActiveSessions();
+            // refreshActiveSessions();
         } catch (PartInitException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to open collaboation sesson", e);
@@ -641,17 +645,12 @@ public class CollaborationGroupView extends ViewPart {
         for (Object node : nodes) {
             if (node instanceof SessionGroup) {
                 SessionGroup sg = (SessionGroup) node;
-                System.out.println("Join: " + sg.getId());
+                // System.out.println("Join: " + sg.getId());
                 CollaborationDataManager manager = CollaborationDataManager
                         .getInstance();
                 String sessionId = manager.joinCollaborationSession(
                         sg.getText(), sg.getId());
                 sg.setId(sessionId);
-                // ParticipantEventController controller = new
-                // ParticipantEventController(
-                // (VenueSession) manager.getSession(sessionId));
-                // manager.setDisplaySession(sessionId, controller);
-                // controller.startup();
                 try {
                     IViewPart part = PlatformUI
                             .getWorkbench()
@@ -744,6 +743,22 @@ public class CollaborationGroupView extends ViewPart {
                                 builder.append("Message: \"")
                                         .append(user.getStatusMessage())
                                         .append("\"\n");
+                            } else if (node instanceof SessionGroup
+                                    && ((SessionGroup) node).isSessionRoot() == false) {
+                                IVenueInfo info = CollaborationDataManager
+                                        .getInstance().getSession(node.getId())
+                                        .getVenue().getInfo();
+                                builder.append("VenueName: ")
+                                        .append(info.getVenueName())
+                                        .append("\n");
+                                // builder.append("VenueID: ")
+                                // .append(info.getVenueID()).append("\n");
+                                builder.append("Subject: ")
+                                        .append(info.getVenueSubject())
+                                        .append("\n");
+                                builder.append("ParticipantCount: ")
+                                        .append(info.getParticipantCount())
+                                        .append("\n");
                             }
                             usersTreeViewer.getTree().setToolTipText(
                                     builder.toString());
@@ -788,7 +803,7 @@ public class CollaborationGroupView extends ViewPart {
             SessionGroup sessionGroup = (SessionGroup) o;
             if (sessionGroup.isSessionRoot()) {
                 manager.add(createSessionAction);
-                manager.add(refreshActiveSessionsAction);
+                // manager.add(refreshActiveSessionsAction);
             } else {
                 manager.add(joinAction);
             }
@@ -797,43 +812,46 @@ public class CollaborationGroupView extends ViewPart {
 
         if (o instanceof CollaborationUser) {
             CollaborationUser user = (CollaborationUser) o;
-            MenuManager inviteManager = new MenuManager("Invite to...");
-            // get current open chats
-            Map<String, IVenueSession> sessions = CollaborationDataManager
-                    .getInstance().getSessions();
-            for (String name : sessions.keySet()) {
-                final ISession session = sessions.get(name);
-                if (session != null) {
-                    final IVenueInfo info = sessions.get(name).getVenue()
-                            .getInfo();
-                    if (info != null) {
-                        System.out.println("Add to Invite To menu: "
-                                + info.getVenueDescription());
-                        Action action = new Action(info.getVenueDescription()) {
-                            /*
-                             * (non-Javadoc)
-                             * 
-                             * @see org.eclipse.jface.action.Action#run()
-                             */
-                            @Override
-                            public void run() {
-                                inviteAction.setId(session.getSessionId());
-                                inviteAction.run();
-                            }
-                        };
-                        action.setId(info.getVenueID());
-                        inviteManager.add(action);
+            if (user.getType() == Type.AVAILABLE) {
+                MenuManager inviteManager = new MenuManager("Invite to...");
+                // get current open chats
+                Map<String, IVenueSession> sessions = CollaborationDataManager
+                        .getInstance().getSessions();
+                for (String name : sessions.keySet()) {
+                    final ISession session = sessions.get(name);
+                    if (session != null) {
+                        final IVenueInfo info = sessions.get(name).getVenue()
+                                .getInfo();
+                        if (info != null) {
+                            System.out.println("Add to Invite To menu: "
+                                    + info.getVenueDescription());
+                            Action action = new Action(
+                                    info.getVenueDescription()) {
+                                /*
+                                 * (non-Javadoc)
+                                 * 
+                                 * @see org.eclipse.jface.action.Action#run()
+                                 */
+                                @Override
+                                public void run() {
+                                    inviteAction.setId(session.getSessionId());
+                                    inviteAction.run();
+                                }
+                            };
+                            action.setId(info.getVenueID());
+                            inviteManager.add(action);
+                        }
                     }
                 }
-            }
-            manager.add(inviteManager);
-            manager.add(peerToPeerChatAction);
-            peerToPeerChatAction.setId(user.getId());
-            if (user.isLocal()) {
-                manager.add(addUserAction);
-                manager.add(addGroupAction);
-                manager.add(removeUserAction);
-                manager.add(removeGroupAction);
+                manager.add(inviteManager);
+                manager.add(peerToPeerChatAction);
+                peerToPeerChatAction.setId(user.getId());
+                if (user.isLocal()) {
+                    manager.add(addUserAction);
+                    manager.add(addGroupAction);
+                    manager.add(removeUserAction);
+                    manager.add(removeGroupAction);
+                }
             }
         } else if (o instanceof CollaborationGroup) {
             CollaborationGroup group = (CollaborationGroup) o;
@@ -873,25 +891,42 @@ public class CollaborationGroupView extends ViewPart {
         createSessionAction.setEnabled(true);
     }
 
-    private void refreshActiveSessions() {
-        populateActiveSessions();
-        usersTreeViewer.refresh(activeSessionGroup, true);
-    }
+    // private void refreshActiveSessions() {
+    // populateActiveSessions();
+    // usersTreeViewer.refresh(activeSessionGroup, true);
+    // }
 
     private void populateActiveSessions() {
         activeSessionGroup.removeChildren();
         Collection<IVenueInfo> venuList = CollaborationDataManager
                 .getInstance().getSessionManager().getVenueInfo();
-        for (IVenueInfo venu : venuList) {
-            // SessionGroup gp = new SessionGroup(CollaborationDataManager
-            // .getInstance().venueIdToSessionId(venu.getVenueID()));
-            SessionGroup gp = new SessionGroup(null);
-            gp.setText(venu.getVenueName());
-
-            if (venu.getParticipantCount() > 0) {
-                // TODO add current participants of the venu here?
+        // for (IVenueInfo venu : venuList) {
+        // // SessionGroup gp = new SessionGroup(CollaborationDataManager
+        // // .getInstance().venueIdToSessionId(venu.getVenueID()));
+        // SessionGroup gp = new SessionGroup(null);
+        // gp.setText(venu.getVenueName());
+        //
+        // if (venu.getParticipantCount() > 0) {
+        // // TODO add current participants of the venu here?
+        // }
+        // activeSessionGroup.addChild(gp);
+        // }
+        try {
+            CollaborationDataManager manager = CollaborationDataManager
+                    .getInstance();
+            for (IViewReference ref : getViewSite().getWorkbenchWindow()
+                    .getActivePage().getViewReferences()) {
+                IViewPart viewPart = ref.getView(false);
+                if (viewPart instanceof SessionView) {
+                    String sessionId = viewPart.getViewSite().getSecondaryId();
+                    SessionGroup child = new SessionGroup(sessionId);
+                    child.setText(manager.getSession(sessionId).getVenue()
+                            .getInfo().getVenueDescription());
+                    activeSessionGroup.addChild(child);
+                }
             }
-            activeSessionGroup.addChild(gp);
+        } catch (NullPointerException e) {
+            // Ignore happens when creating view when starting CAVE.
         }
     }
 
@@ -1041,14 +1076,22 @@ public class CollaborationGroupView extends ViewPart {
         return result;
     }
 
+    /**
+     * Get the list of selected users that have a Type of AVAILABLE.
+     * 
+     * @return
+     */
     private Set<CollaborationUser> getSelectedUsers() {
         Set<CollaborationUser> selectedUsers = new HashSet<CollaborationUser>();
         IStructuredSelection selection = (IStructuredSelection) usersTreeViewer
                 .getSelection();
         Object[] nodes = selection.toArray();
+
         for (Object node : nodes) {
             if (node instanceof CollaborationUser) {
-                if ((node instanceof LoginUser) == false) {
+                CollaborationUser user = (CollaborationUser) node;
+                if ((user instanceof LoginUser) == false
+                        && user.getType() == Type.AVAILABLE) {
                     selectedUsers.add((CollaborationUser) node);
                 }
             } else if ((node instanceof SessionGroup) == false) {
@@ -1112,5 +1155,91 @@ public class CollaborationGroupView extends ViewPart {
         // TODO Auto-generated method stub
         System.out.println("Disposing: " + getClass().getName());
         super.dispose();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.ui.IPartListener#partActivated(org.eclipse.ui.IWorkbenchPart)
+     */
+    @Override
+    public void partActivated(IWorkbenchPart part) {
+        // TODO Auto-generated method stub
+
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.ui.IPartListener#partBroughtToTop(org.eclipse.ui.IWorkbenchPart
+     * )
+     */
+    @Override
+    public void partBroughtToTop(IWorkbenchPart part) {
+        // TODO Auto-generated method stub
+
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.ui.IPartListener#partClosed(org.eclipse.ui.IWorkbenchPart)
+     */
+    @Override
+    public void partClosed(IWorkbenchPart part) {
+        if (part instanceof SessionView) {
+            SessionView sessionView = (SessionView) part;
+            String sessionId = sessionView.getViewSite().getSecondaryId();
+            System.out.println("partClosed remove sessionId: " + sessionId);
+            for (CollaborationNode node : activeSessionGroup.getChildren()) {
+                if (sessionId.equals(node.getId())) {
+                    activeSessionGroup.removeChild(node);
+                    usersTreeViewer.refresh(activeSessionGroup);
+                    break;
+                }
+            }
+        } else if (part == this) {
+            getViewSite().getWorkbenchWindow().getPartService()
+                    .removePartListener(this);
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.ui.IPartListener#partDeactivated(org.eclipse.ui.IWorkbenchPart
+     * )
+     */
+    @Override
+    public void partDeactivated(IWorkbenchPart part) {
+        // TODO Auto-generated method stub
+
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.ui.IPartListener#partOpened(org.eclipse.ui.IWorkbenchPart)
+     */
+    @Override
+    public void partOpened(IWorkbenchPart part) {
+        if (part instanceof SessionView) {
+            SessionView sessionView = (SessionView) part;
+            String sessionId = sessionView.getViewSite().getSecondaryId();
+            System.out.println("partOpen add sessionId: " + sessionId);
+            SessionGroup child = new SessionGroup(sessionId);
+            child.setText(CollaborationDataManager.getInstance()
+                    .getSession(sessionId).getVenue().getInfo()
+                    .getVenueDescription());
+            activeSessionGroup.addChild(child);
+            usersTreeViewer.refresh(activeSessionGroup);
+        } else if (part == this) {
+            populateTree();
+        }
     }
 }
