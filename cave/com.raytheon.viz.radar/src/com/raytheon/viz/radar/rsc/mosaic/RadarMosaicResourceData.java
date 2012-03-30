@@ -48,7 +48,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
-import com.raytheon.viz.radar.rsc.mosaic.ext.IRadarMosaicRendererFactoryExtension.MosaicType;
+import com.raytheon.viz.radar.rsc.mosaic.RadarMosaicRendererFactory.MosaicType;
 
 /**
  * Provides the metadata and constructor for Radar
