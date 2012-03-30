@@ -146,16 +146,6 @@ public interface IDataCubeAdapter {
             throws VizException;
 
     /**
-     * A simple method that will create a unique string based on the information
-     * in the PluginDataObject passed in.
-     * 
-     * @param pdo
-     *            The PDO to generate a unique name from
-     * @return A string unique to that PDO
-     */
-    public String recordKeyGenerator(PluginDataObject pdo);
-
-    /**
      * If the inventory for a particular data type is large (for example, Grib),
      * a call to this method should get a copy of that data type's inventory
      * and, if possible, determine was derived parameters are available for the
