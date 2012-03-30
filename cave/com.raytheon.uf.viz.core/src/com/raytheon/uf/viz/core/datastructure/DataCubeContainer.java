@@ -34,7 +34,6 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
-import com.raytheon.uf.common.dataquery.requests.TimeQueryRequestSet;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
@@ -42,10 +41,7 @@ import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.catalog.ScriptCreator;
-import com.raytheon.uf.viz.core.comm.Loader;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.requests.ThriftClient;
 
 /**
  * The DataCubeContainer is responsible for handling requests for data times,
@@ -101,7 +97,7 @@ public class DataCubeContainer {
         if (container.adapter != null) {
             synchronized (container.adapter) {
                 Boolean initialized = initializedMap.get(container.adapter);
-                if (!initialized) {
+                if (initialized == null || !initialized) {
                     container.adapter.initInventory();
                     initializedMap.put(container.adapter, true);
                 }
@@ -121,21 +117,9 @@ public class DataCubeContainer {
                 }
             }
         }
-    }
-
-    private IDataRecord[] getDataRecordInternal(PluginDataObject obj)
-            throws VizDataCubeException {
-        if (adapter != null) {
-            return adapter.getRecord(obj);
-        } else {
-            IDataRecord record = null;
-            try {
-                record = CubeUtil.retrieveData(obj, pluginName);
-            } catch (VizException e) {
-                throw new VizDataCubeException(
-                        "Error retrieving 2D grid record.", e);
-            }
-            return new IDataRecord[] { record };
+        if (adapter == null) {
+            // Construct default adapter for plugin if none found
+            adapter = new DefaultDataCubeAdapter(plugin);
         }
     }
 
@@ -153,23 +137,7 @@ public class DataCubeContainer {
      */
     public static IDataRecord[] getDataRecord(PluginDataObject obj)
             throws VizDataCubeException {
-        return getInstance(obj.getPluginName()).getDataRecordInternal(obj);
-    }
-
-    private IDataRecord[] getDataRecordInternal(PluginDataObject obj,
-            Request req, String dataset) throws VizDataCubeException {
-        if (adapter != null) {
-            return adapter.getRecord(obj, req, dataset);
-        } else {
-            IDataRecord record = null;
-            try {
-                record = CubeUtil.retrieveData(obj, pluginName, req, dataset);
-            } catch (VizException e) {
-                throw new VizDataCubeException(
-                        "Error retrieving 2D grid record.", e);
-            }
-            return new IDataRecord[] { record };
-        }
+        return getInstance(obj.getPluginName()).adapter.getRecord(obj);
     }
 
     /**
@@ -188,27 +156,8 @@ public class DataCubeContainer {
      */
     public static IDataRecord[] getDataRecord(PluginDataObject obj,
             Request req, String dataset) throws VizDataCubeException {
-        return getInstance(obj.getPluginName()).getDataRecordInternal(obj, req,
+        return getInstance(obj.getPluginName()).adapter.getRecord(obj, req,
                 dataset);
-    }
-
-    private void getDataRecordsInternal(List<PluginDataObject> objs,
-            Request req, String dataset) throws VizDataCubeException {
-        if (adapter != null) {
-            adapter.getRecords(objs, req, dataset);
-        } else {
-            for (PluginDataObject obj : objs) {
-                IDataRecord record = null;
-                try {
-                    record = CubeUtil.retrieveData(obj, pluginName, req,
-                            dataset);
-                } catch (VizException e) {
-                    throw new VizDataCubeException(
-                            "Error retrieving 2D grid record.", e);
-                }
-                obj.setMessageData(record);
-            }
-        }
     }
 
     /**
@@ -238,41 +187,25 @@ public class DataCubeContainer {
                         "All PluginDataObjects must be for the same plugin");
             }
         }
-        getInstance(pluginName).getDataRecordsInternal(objs, req, dataset);
-    }
-
-    private PointDataContainer getPointDataInternal(String[] params,
-            Map<String, RequestConstraint> map) throws VizException {
-        if (adapter != null) {
-            return adapter.getPoints(pluginName, params, map);
-        } else {
-            return null;
-        }
+        getInstance(pluginName).adapter.getRecords(objs, req, dataset);
     }
 
     public static PointDataContainer getPointData(String plugin,
             String[] params, Map<String, RequestConstraint> map)
             throws VizException {
-        return getInstance(plugin).getPointDataInternal(params, map);
-    }
-
-    private PointDataContainer getPointDataInternal(String[] params,
-            String levelKey, Map<String, RequestConstraint> map)
-            throws VizException {
-        if (levelKey == null) {
-            return getPointData(pluginName, params, map);
-        }
-        if (adapter != null) {
-            return adapter.getPoints(pluginName, params, levelKey, map);
-        } else {
-            return null;
-        }
+        DataCubeContainer container = getInstance(plugin);
+        return container.adapter.getPoints(container.pluginName, params, map);
     }
 
     public static PointDataContainer getPointData(String plugin,
             String[] params, String levelKey, Map<String, RequestConstraint> map)
             throws VizException {
-        return getInstance(plugin).getPointDataInternal(params, levelKey, map);
+        DataCubeContainer container = getInstance(plugin);
+        if (levelKey == null) {
+            return getPointData(container.pluginName, params, map);
+        }
+        return container.adapter.getPoints(container.pluginName, params,
+                levelKey, map);
     }
 
     public static DataTime[] performTimeQuery(
@@ -308,20 +241,6 @@ public class DataCubeContainer {
                 new DataTime[0]);
     }
 
-    public List<List<DataTime>> performTimeQueriesInternal(
-            List<TimeQueryRequest> requests) throws VizException {
-        if (adapter == null) {
-            TimeQueryRequestSet set = new TimeQueryRequestSet();
-            set.setRequests(requests.toArray(new TimeQueryRequest[0]));
-            @SuppressWarnings("unchecked")
-            List<List<DataTime>> result = (List<List<DataTime>>) ThriftClient
-                    .sendRequest(set);
-            return result;
-        } else {
-            return adapter.timeQuery(requests);
-        }
-    }
-
     /**
      * Perform a bulk time query request when all requests have the same plugin
      * type.
@@ -334,7 +253,7 @@ public class DataCubeContainer {
         if (requests.isEmpty()) {
             return Collections.emptyList();
         }
-        return getInstance(pluginName).performTimeQueriesInternal(requests);
+        return getInstance(pluginName).adapter.timeQuery(requests);
     }
 
     /**
@@ -346,8 +265,8 @@ public class DataCubeContainer {
      */
     public static List<List<DataTime>> performTimeQueries(String pluginName,
             TimeQueryRequest... requests) throws VizException {
-        return getInstance(pluginName).performTimeQueriesInternal(
-                Arrays.asList(requests));
+        return getInstance(pluginName).adapter.timeQuery(Arrays
+                .asList(requests));
     }
 
     /**
@@ -403,17 +322,6 @@ public class DataCubeContainer {
         return result;
     }
 
-    private synchronized List<Object> getDataInternal(LayerProperty property,
-            int timeOut) throws VizException {
-        if (adapter == null) {
-            String scriptToExecute = ScriptCreator.createScript(property);
-            return Loader
-                    .loadScripts(new String[] { scriptToExecute }, timeOut);
-        } else {
-            return adapter.getData(property, timeOut);
-        }
-    }
-
     /**
      * Returns a list of responses for the requested layer property. If a
      * derived parameter, this will piece together the base parameteters.
@@ -432,31 +340,11 @@ public class DataCubeContainer {
                 .getEntryQueryParameters(false);
         String pluginName = originalQuery.get("pluginName")
                 .getConstraintValue();
-        return getInstance(pluginName).getDataInternal(property, timeOut);
-    }
-
-    private Object getInventoryInternal() {
-        if (adapter != null) {
-            return adapter.getInventory();
-        } else {
-            return null;
-        }
+        return getInstance(pluginName).adapter.getData(property, timeOut);
     }
 
     public static Object getInventory(String plugin) {
-        return getInstance(plugin).getInventoryInternal();
-    }
-
-    private List<Map<String, RequestConstraint>> getBaseUpdateConstraintsInternal(
-            Map<String, RequestConstraint> constraints) {
-        if (adapter != null) {
-            return adapter.getBaseUpdateConstraints(constraints);
-        } else {
-            List<Map<String, RequestConstraint>> result = new ArrayList<Map<String, RequestConstraint>>(
-                    1);
-            result.add(constraints);
-            return result;
-        }
+        return getInstance(plugin).adapter.getInventory();
     }
 
     public static List<Map<String, RequestConstraint>> getBaseUpdateConstraints(
@@ -467,8 +355,8 @@ public class DataCubeContainer {
                 && pluginRC.getConstraintType() == ConstraintType.EQUALS) {
             plugin = pluginRC.getConstraintValue();
         }
-        return getInstance(plugin)
-                .getBaseUpdateConstraintsInternal(constraints);
+        return getInstance(plugin).adapter
+                .getBaseUpdateConstraints(constraints);
     }
 
 }

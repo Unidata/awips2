@@ -48,7 +48,7 @@ import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
-import com.raytheon.uf.viz.core.drawables.SingleColorImage;
+import com.raytheon.uf.viz.core.drawables.ext.ISingleColorImageExtension.ISingleColorImage;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.jobs.JobPool;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
@@ -222,7 +222,7 @@ public class PlotResource2 extends
                 continue;
             }
             // set image color so shader can draw in appropriate color
-            ((SingleColorImage) station.plotImage.getImage())
+            ((ISingleColorImage) station.plotImage.getImage())
                     .setColor(imageColor);
             images.add(station.plotImage);
         }
@@ -639,7 +639,7 @@ public class PlotResource2 extends
             Station s = frameInfo.stationMap.get(key[0].stationId);
             if (s != null) {
                 if (image != null) {
-                    SingleColorImage si = new SingleColorImage(image);
+                    ISingleColorImage si = (ISingleColorImage) image;
                     s.plotImage = new PointImage(si, s.pixelLocation);
                     s.plotImage.setSiteId(s.info[0].stationId);
                     si.setColor(imageColor);
