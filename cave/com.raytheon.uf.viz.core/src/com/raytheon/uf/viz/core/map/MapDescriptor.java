@@ -26,9 +26,7 @@ import java.util.ArrayList;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
@@ -36,23 +34,16 @@ import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.GeneralEnvelope;
-import org.geotools.referencing.CRS;
 import org.geotools.referencing.GeodeticCalculator;
-import org.geotools.referencing.crs.DefaultGeocentricCRS;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.MathTransformFactory;
 import org.opengis.referencing.operation.TransformException;
 
-import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.common.serialization.adapters.GridGeometryAdapter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -196,23 +187,11 @@ public class MapDescriptor extends AbstractDescriptor implements
         return gridGeom;
     }
 
-    /** The transform from lat/lon to the current CRS */
-    protected MathTransform coordinateTransform;
-
-    /** The transform from the current CRS to lat/lon */
-    protected MathTransform inverseCoordinateTransform;
-
     /** The mapping from grid to coordinate */
     protected MathTransform mapToCoordinateTransform;
 
     /** The mapping from coordinate to grid */
     protected MathTransform coordinateToMapTransform;
-
-    /** The mapping from wgs84 to grid */
-    protected MathTransform wgsToGridTransform;
-
-    /** The mapping from grid to wgs84 */
-    protected MathTransform gridToWGSTransform;
 
     /** The time in ms that the last blink state was used */
     protected long timeLastBlink;
@@ -229,9 +208,6 @@ public class MapDescriptor extends AbstractDescriptor implements
      */
     protected int mapWidth;
 
-    /** The geospatial descriptor for the grid */
-    protected GeneralGridGeometry gridGeometry;
-
     /** elevation exaggeration */
     protected double elevationExageration = 0;
 
@@ -241,8 +217,6 @@ public class MapDescriptor extends AbstractDescriptor implements
         LAT_LON_FORMATTER.setMinimumFractionDigits(2);
         LAT_LON_FORMATTER.setMaximumFractionDigits(2);
     }
-
-    private String cloudSourceName;
 
     /**
      * Constructor
@@ -274,49 +248,26 @@ public class MapDescriptor extends AbstractDescriptor implements
      * 
      */
     public MapDescriptor(GeneralGridGeometry gridGeometry) throws VizException {
-        super();
-
-        this.gridGeometry = gridGeometry;
+        super(gridGeometry);
         init();
     }
 
     protected void init() throws VizException {
-        MathTransformFactory mtf = new DefaultMathTransformFactory();
-
         try {
-
-            mapToCoordinateTransform = this.gridGeometry
+            GeneralGridGeometry gridGeometry = getGridGeometry();
+            mapToCoordinateTransform = gridGeometry
                     .getGridToCRS(PixelInCell.CELL_CENTER);
             coordinateToMapTransform = mapToCoordinateTransform.inverse();
-            CoordinateReferenceSystem descriptorCRS = this.gridGeometry
-                    .getCoordinateReferenceSystem();
-            if (descriptorCRS.toWKT().equals(
-                    DefaultGeocentricCRS.CARTESIAN.toWKT())) {
-                inverseCoordinateTransform = CRS.findMathTransform(
-                        descriptorCRS, DefaultGeographicCRS.WGS84_3D);
 
-                coordinateTransform = inverseCoordinateTransform.inverse();
-
-            } else {
-                inverseCoordinateTransform = CRSCache.getInstance()
-                        .getTransformToLatLon(descriptorCRS);
-                coordinateTransform = inverseCoordinateTransform.inverse();
-            }
-
-            wgsToGridTransform = mtf.createConcatenatedTransform(
-                    coordinateTransform, coordinateToMapTransform);
-            gridToWGSTransform = mtf.createConcatenatedTransform(
-                    mapToCoordinateTransform, inverseCoordinateTransform);
-
-            CoordinateReferenceSystem crs = this.gridGeometry
+            CoordinateReferenceSystem crs = gridGeometry
                     .getCoordinateReferenceSystem();
 
             DirectPosition s1, d1, s2, d2;
             if (crs.getCoordinateSystem().getDimension() == 2) {
-                double centerX = (this.gridGeometry.getGridRange().getLow(0) + this.gridGeometry
+                double centerX = (gridGeometry.getGridRange().getLow(0) + gridGeometry
                         .getGridRange().getHigh(0)) / 2;
 
-                double centerY = (this.gridGeometry.getGridRange().getLow(1) + this.gridGeometry
+                double centerY = (gridGeometry.getGridRange().getLow(1) + gridGeometry
                         .getGridRange().getHigh(1)) / 2;
 
                 s1 = new DirectPosition2D(centerX, centerY);
@@ -370,43 +321,6 @@ public class MapDescriptor extends AbstractDescriptor implements
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * com.raytheon.uf.viz.core.drawables.IDescriptor#pixelToWorld(double[])
-     */
-    @Override
-    public double[] pixelToWorld(final double[] pixel) {
-        // if (pixel[0] < 1.0)
-        // pixel[0] = 1;
-        //
-        // if (pixel[0] > theWorldWidth - 1.0)
-        // pixel[0] = theWorldWidth - 1.0;
-        //
-        // if (pixel[1] < 1.0)
-        // pixel[1] = 1;
-        //
-        // if (pixel[1] > theWorldHeight - 1.0)
-        // pixel[1] = theWorldHeight;
-
-        double[] output = new double[3];
-        double[] wpixel = pixel;
-
-        if (pixel.length == 2) {
-            wpixel = new double[] { pixel[0], pixel[1], 0 };
-        }
-
-        try {
-            gridToWGSTransform.transform(wpixel, 0, output, 0, 1);
-        } catch (TransformException e) {
-            e.printStackTrace();
-            return null;
-        }
-
-        return output;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see com.raytheon.uf.viz.core.map.IMapDescriptor#pixelToWorld(double[],
      * org.opengis.referencing.crs.CoordinateReferenceSystem)
      */
@@ -417,7 +331,7 @@ public class MapDescriptor extends AbstractDescriptor implements
         if (crs == MapUtil.LATLON_PROJECTION) {
             return pixelToWorld(pixel);
         } else if (!crs.getName().equals(
-                this.gridGeometry.getCoordinateReferenceSystem().getName())) {
+                getGridGeometry().getCoordinateReferenceSystem().getName())) {
             return null;
         }
 
@@ -434,43 +348,15 @@ public class MapDescriptor extends AbstractDescriptor implements
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * com.raytheon.uf.viz.core.drawables.IDescriptor#worldToPixel(double[])
-     */
-    @Override
-    public double[] worldToPixel(double[] world) {
-
-        double[] output = new double[3];
-
-        double[] input = null;
-        if (world.length == 2) {
-            input = new double[] { world[0], world[1], 0 };
-        } else {
-            input = world;
-        }
-
-        try {
-            wgsToGridTransform.transform(input, 0, output, 0, 1);
-        } catch (TransformException e) {
-            return null;
-        }
-
-        return output;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see com.raytheon.uf.viz.core.map.IMapDescriptor#worldToPixel(double[],
      * org.opengis.referencing.crs.CoordinateReferenceSystem)
      */
     @Override
     public double[] worldToPixel(double[] pixel, CoordinateReferenceSystem crs) {
-
         if (crs == MapUtil.LATLON_PROJECTION) {
             return worldToPixel(pixel);
         } else if (!crs.getName().equals(
-                this.gridGeometry.getCoordinateReferenceSystem().getName())) {
+                getGridGeometry().getCoordinateReferenceSystem().getName())) {
             return null;
         }
 
@@ -621,18 +507,6 @@ public class MapDescriptor extends AbstractDescriptor implements
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.uf.viz.core.map.IMapDescriptor#getMapData()
-     */
-    @Override
-    @XmlElement
-    @XmlJavaTypeAdapter(value = GridGeometryAdapter.class)
-    public GeneralGridGeometry getGridGeometry() {
-        return this.gridGeometry;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see
      * com.raytheon.uf.viz.core.map.IMapDescriptor#setProjection(org.opengis
      * .referencing.crs.CoordinateReferenceSystem,
@@ -656,27 +530,8 @@ public class MapDescriptor extends AbstractDescriptor implements
     @Override
     public void setGridGeometry(GeneralGridGeometry gridGeometry)
             throws VizException {
-        this.gridGeometry = gridGeometry;
-
+        super.setGridGeometry(gridGeometry);
         init();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.map.IMapDescriptor#getCRS()
-     */
-    @Override
-    public CoordinateReferenceSystem getCRS() {
-        if (this.gridGeometry != null) {
-            return this.gridGeometry.getCoordinateReferenceSystem();
-        } else {
-            return null;
-        }
-    }
-
-    public MathTransform getToGridTransform() {
-        return this.wgsToGridTransform;
     }
 
     /**
