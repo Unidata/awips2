@@ -257,8 +257,7 @@ public class CollaborationGroupView extends ViewPart {
                 System.out.println("room: " + info.getVenueName());
                 System.out.println("subject: "
                         + session.getVenue().getInfo().getVenueSubject());
-                session.sendInvitation(info.getVenueName(), ids, session
-                        .getVenue().getInfo().getVenueSubject(), "body");
+                session.sendInvitation(ids, "body");
             };
         };
         inviteAction.setImageDescriptor(IconUtil.getImageDescriptor(bundle,

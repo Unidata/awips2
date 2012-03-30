@@ -60,6 +60,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueInvitationEven
 import com.raytheon.uf.viz.collaboration.comm.provider.info.InfoAdapter;
 import com.raytheon.uf.viz.collaboration.comm.provider.roster.RosterManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueUserId;
 
@@ -68,9 +69,12 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueUserId;
  * <ul>
  * <li>EventBus subscription events.</li>
  * <ul>
- * <li><strong>IVenueInvitationEvent</strong> : This event is posted when a
- * venue participant enters, leaves a venue, or updates their status in the
- * venue.</li>
+ * <li><strong>IVenueInvitationEvent</strong> : This event is posted when the
+ * SessionManager receives a venue invitation requesting that the user join some
+ * particular collaboration session.</li>
+ * <li><strong>IConnectionStatusEvent</strong> : This event is posted when the
+ * state of the underlying connection changes, reconnecting, connecting,
+ * disconnected, for example.</li>
  * <li><strong>---------------</strong> : ---------------.</li>
  * </ul>
  * </ul>
@@ -341,11 +345,23 @@ public class SessionManager implements IEventPublisher {
             if (session != null) {
                 session.createVenue(venueName, subject);
 
+                IChatID me = new VenueUserId("jkorman",
+                        "awipscm.omaha.us.ray.com");
+
+                session.setSessionLeader(me);
+                session.setSessionDataProvider(me);
+
                 IPresence presence = new Presence();
                 presence.setMode(IPresence.Mode.AVAILABLE);
                 presence.setType(IPresence.Type.AVAILABLE);
-                presence.setProperty("DATA_PROVIDER", "");
-                presence.setProperty("SESSION_LEADER", "");
+                presence.setProperty("DATA_PROVIDER", me.getFQName());
+                presence.setProperty("SESSION_LEADER", me.getFQName());
+
+                presenceAdapter
+                        .getRosterManager()
+                        .getPresenceSender()
+                        .sendPresenceUpdate(null,
+                                Presence.convertPresence(presence));
 
                 sessions.put(session.getSessionId(), session);
             }
@@ -441,6 +457,9 @@ public class SessionManager implements IEventPublisher {
     // Connection listener
     // ***************************
 
+    /**
+     * 
+     */
     private void setupInternalConnectionListeners() {
 
         if (container != null) {
@@ -491,13 +510,13 @@ public class SessionManager implements IEventPublisher {
                             String subject, String body) {
 
                         IQualifiedID venueId = null;
-                        if(roomID instanceof XMPPRoomID) {
+                        if (roomID instanceof XMPPRoomID) {
                             XMPPRoomID room = (XMPPRoomID) roomID;
                             venueId = new VenueId();
                             venueId.setName(room.getLongName());
-                            
+
                         }
-                        if(venueId != null) {
+                        if (venueId != null) {
                             IQualifiedID id = IDConverter.convertFrom(from);
 
                             IChatID invitor = new VenueUserId(id.getName(),
@@ -505,8 +524,6 @@ public class SessionManager implements IEventPublisher {
 
                             IVenueInvitationEvent invite = new VenueInvitationEvent(
                                     venueId, invitor, subject, body);
-                            System.out.println("Posting invitation using eventBus:"
-                                    + eventBus.hashCode());
                             eventBus.post(invite);
                         }
                     }
