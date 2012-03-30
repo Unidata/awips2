@@ -20,8 +20,10 @@ package com.raytheon.uf.viz.collaboration.ui;
  * further licensing information.
  **/
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -243,7 +245,20 @@ public class CollaborationGroupView extends ViewPart {
                 String sessionId = getId();
                 IVenueSession session = CollaborationDataManager.getInstance()
                         .getSession(sessionId);
-                // session.sendInvitation(invitation)
+                List<String> ids = new ArrayList<String>();
+                for (CollaborationUser user : getSelectedUsers()) {
+                    String id = user.getId();
+                    if (!ids.contains(id)) {
+                        System.out.println("Add Selected User: " + id);
+                        ids.add(id);
+                    }
+                }
+                IVenueInfo info = session.getVenue().getInfo();
+                System.out.println("room: " + info.getVenueName());
+                System.out.println("subject: "
+                        + session.getVenue().getInfo().getVenueSubject());
+                session.sendInvitation(info.getVenueName(), ids, session
+                        .getVenue().getInfo().getVenueSubject(), "body");
             };
         };
         inviteAction.setImageDescriptor(IconUtil.getImageDescriptor(bundle,
