@@ -51,12 +51,6 @@ public interface IGLTarget extends IGraphicsTarget {
     public abstract void releaseContext();
 
     /**
-     * 
-     * @return
-     */
-    public abstract void releaseContext();
-
-    /**
      * Get the modle view matrix settings
      * 
      * @return
