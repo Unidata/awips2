@@ -552,7 +552,6 @@ public class GLTarget implements IGLTarget {
         theContext.destroyContext();
 
         if (theCanvas != null && theCanvas.isDisposed() == false) {
-
             theCanvas.removeListener(SWT.Resize, this.canvasResizeListener);
         }
         extensionManager.dispose();
