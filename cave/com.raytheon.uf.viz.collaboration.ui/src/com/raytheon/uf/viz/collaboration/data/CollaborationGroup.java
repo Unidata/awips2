@@ -84,7 +84,7 @@ public class CollaborationGroup extends CollaborationNode {
 
     public void removeChildren() {
         for (CollaborationNode child : children) {
-            if (child instanceof CollaborationNode) {
+            if (child instanceof CollaborationGroup) {
                 CollaborationGroup groupNode = (CollaborationGroup) child;
                 groupNode.removeChildren();
             }
