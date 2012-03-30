@@ -26,6 +26,7 @@ import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
+import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension.IGraphicsExtensionInterface;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
@@ -53,7 +54,8 @@ import com.vividsolutions.jts.geom.LineString;
  * @author bsteffen
  * @version 1.0
  */
-public interface IColormapShadedShapeExtension {
+public interface IColormapShadedShapeExtension extends
+        IGraphicsExtensionInterface {
 
     public interface IColormapShadedShape {
 
