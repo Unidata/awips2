@@ -74,7 +74,7 @@ public class CollaborationEditor extends AbstractEditor implements
         if (this == part) {
             CollaborationDataManager manager = CollaborationDataManager
                     .getInstance();
-            String sessionId = manager.getSessinId(this);
+            String sessionId = manager.getSessionId(this);
             manager.viewBringToTop(sessionId);
         }
     }
@@ -130,7 +130,7 @@ public class CollaborationEditor extends AbstractEditor implements
         if (this == part) {
             CollaborationDataManager manager = CollaborationDataManager
                     .getInstance();
-            String sessionId = manager.getSessinId(this);
+            String sessionId = manager.getSessionId(this);
             IVenueSession session = manager.getSession(sessionId);
             String name = (session == null) ? sessionId : session.getVenue()
                     .getInfo().getVenueDescription();
