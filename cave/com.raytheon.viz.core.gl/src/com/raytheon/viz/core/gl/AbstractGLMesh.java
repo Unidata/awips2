@@ -19,31 +19,31 @@
  **/
 package com.raytheon.viz.core.gl;
 
-import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.media.opengl.GL;
 
+import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.referencing.CRS;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.referencing.operation.DefaultMathTransformFactory;
+import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.geospatial.util.WorldWrapChecker;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IMesh;
-import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.drawables.PaintStatus;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.map.IMapDescriptor;
-import com.raytheon.uf.viz.core.map.WorldWrapChecker;
-import com.raytheon.uf.viz.core.rsc.hdf5.ImageTile;
+import com.raytheon.uf.viz.core.jobs.JobPool;
 import com.raytheon.viz.core.gl.GLGeometryObject2D.GLGeometryObjectData;
 import com.raytheon.viz.core.gl.SharedCoordMap.SharedCoordinateKey;
 import com.raytheon.viz.core.gl.SharedCoordMap.SharedCoordinates;
-import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * Abstract GLMesh
@@ -63,35 +63,76 @@ import com.vividsolutions.jts.geom.Envelope;
 
 public abstract class AbstractGLMesh implements IMesh {
 
-    protected boolean shouldDraw = true;
+    private static final JobPool calculator = new JobPool("Mesh Calculator", 2,
+            false);
 
-    private boolean compiled = false;
+    protected static enum State {
+        NEW, CALCULATING, CALCULATED, COMPILED, INVALID;
+    }
 
-    protected GLGeometryObject2D vertexCoords;
+    private State internalState = State.NEW;
 
-    protected SharedCoordinateKey key;
+    private GLGeometryObject2D vertexCoords;
 
     private SharedCoordinates sharedTextureCoords;
 
-    protected IMapDescriptor descriptor;
+    protected SharedCoordinateKey key;
 
-    public AbstractGLMesh(int geometryType, IMapDescriptor descriptor) {
-        vertexCoords = new GLGeometryObject2D(new GLGeometryObjectData(
-                geometryType, GL.GL_VERTEX_ARRAY));
-        this.descriptor = descriptor;
+    private Runnable calculate = new Runnable() {
+        @Override
+        public void run() {
+            synchronized (calculate) {
+                if (internalState == State.CALCULATING) {
+                    // If we aren't in CALCULATING state, we were disposed while
+                    // waiting to run and shouldn't run now
+                    if (calculateMesh()) {
+                        internalState = State.CALCULATED;
+                    } else {
+                        internalState = State.INVALID;
+                    }
+                }
+            }
+        }
+    };
+
+    private int geometryType;
+
+    private MathTransform imageCRSToLatLon;
+
+    private MathTransform latLonToTargetGrid;
+
+    private GeneralGridGeometry targetGeometry;
+
+    private GridGeometry2D imageGeometry;
+
+    protected AbstractGLMesh(int geometryType) {
+        this.geometryType = geometryType;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.IMesh#paint(com.raytheon.viz.core.IGraphicsTarget)
-     */
-    @Override
-    public synchronized void paint(IGraphicsTarget target,
+    protected final void initialize(GridGeometry2D imageGeometry,
+            GeneralGridGeometry targetGeometry) throws VizException {
+        this.imageGeometry = imageGeometry;
+        if (imageGeometry != null) {
+            try {
+                imageCRSToLatLon = MapUtil.getTransformToLatLon(imageGeometry
+                        .getCoordinateReferenceSystem());
+            } catch (Throwable t) {
+                throw new VizException(
+                        "Error construcing image to lat/lon transform", t);
+            }
+        }
+        reproject(targetGeometry);
+    }
+
+    public final synchronized PaintStatus paint(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-        if (!shouldDraw) {
-            return;
+        State internalState = this.internalState;
+        if (internalState == State.NEW) {
+            throw new VizException(
+                    "Class did not properly call initialize on construction");
+        } else if (internalState == State.INVALID) {
+            // Don't paint if invalid to avoid crashes
+            return PaintStatus.ERROR;
         }
 
         IGLTarget glTarget;
@@ -101,65 +142,91 @@ public abstract class AbstractGLMesh implements IMesh {
 
         glTarget = (IGLTarget) target;
 
-        if (sharedTextureCoords == null) {
-            sharedTextureCoords = SharedCoordMap.get(key, glTarget);
-        }
+        try {
+            if (internalState == State.CALCULATED) {
+                // We finished calculating the mesh, compile it
+                sharedTextureCoords = SharedCoordMap.get(key, glTarget);
+                vertexCoords.compile(glTarget.getGl());
+                this.internalState = internalState = State.COMPILED;
+            }
 
-        if (!compiled) {
-            vertexCoords.compile(glTarget.getGl());
-            compiled = true;
+            if (internalState == State.COMPILED) {
+                GLGeometryPainter.paintGeometries(glTarget.getGl(),
+                        vertexCoords, sharedTextureCoords.getTextureCoords());
+                return PaintStatus.PAINTED;
+            } else if (internalState == State.CALCULATING) {
+                target.setNeedsRefresh(true);
+                return PaintStatus.REPAINT;
+            } else {
+                return PaintStatus.ERROR;
+            }
+        } catch (VizException e) {
+            this.internalState = State.INVALID;
+            throw e;
         }
-
-        GLGeometryPainter.paintGeometries(glTarget.getGl(), vertexCoords,
-                sharedTextureCoords.getTextureCoords());
     }
 
     @Override
     public synchronized void dispose() {
-        vertexCoords.dispose();
-        if (sharedTextureCoords != null) {
-            SharedCoordMap.remove(key);
-            sharedTextureCoords = null;
+        // Synchronize on calculate so we don't dispose while running
+        synchronized (calculate) {
+            // Cancel calculation job from running
+            calculator.cancel(calculate);
+            // dispose and reset vertexCoords
+            if (vertexCoords != null) {
+                vertexCoords.dispose();
+                vertexCoords = null;
+            }
+            if (sharedTextureCoords != null) {
+                SharedCoordMap.remove(key);
+                sharedTextureCoords = null;
+            }
+            internalState = State.INVALID;
         }
-        shouldDraw = false;
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * com.raytheon.viz.core.IMesh#calculateMesh(com.raytheon.viz.core.PixelCoverage
-     * , org.opengis.coverage.grid.GridGeometry)
+     * @see com.raytheon.uf.viz.core.IMesh#reproject(org.geotools.coverage.grid.
+     * GeneralGridGeometry)
      */
-    public void calculateMesh(PixelCoverage pc, GridGeometry2D gg) {
-        MathTransform toLL = null;
-        ImageTile tile = null;
-        try {
-            toLL = CRS.findMathTransform(gg.getCoordinateReferenceSystem(),
-                    DefaultGeographicCRS.WGS84);
-            tile = new ImageTile();
-            tile.coverage = pc;
-            tile.rect = new Rectangle(gg.getGridRange().getLow(0), gg
-                    .getGridRange().getLow(1), gg.getGridRange().getHigh(0), gg
-                    .getGridRange().getHigh(1));
-            tile.envelope = new Envelope(gg.getEnvelope().getMinimum(0), gg
-                    .getEnvelope().getMaximum(0), gg.getEnvelope()
-                    .getMinimum(1), gg.getEnvelope().getMaximum(1));
-        } catch (Exception e) {
+    @Override
+    public final void reproject(GeneralGridGeometry targetGeometry)
+            throws VizException {
+        if (targetGeometry.equals(this.targetGeometry) == false) {
+            dispose();
+            this.targetGeometry = targetGeometry;
+
+            // Set up convenience transforms
+            try {
+                DefaultMathTransformFactory factory = new DefaultMathTransformFactory();
+                latLonToTargetGrid = factory.createConcatenatedTransform(
+                        MapUtil.getTransformFromLatLon(targetGeometry
+                                .getCoordinateReferenceSystem()),
+                        targetGeometry.getGridToCRS(PixelInCell.CELL_CENTER)
+                                .inverse());
+            } catch (Throwable t) {
+                internalState = State.INVALID;
+                throw new VizException("Error projecting mesh", t);
+            }
+
+            internalState = State.CALCULATING;
+            calculator.schedule(calculate);
         }
-        calculateMesh(pc, tile, toLL);
     }
 
-    @Override
-    public void calculateMesh(PixelCoverage pc, ImageTile tile, MathTransform mt) {
-        shouldDraw = false;
-        key = generateKey(tile, mt);
+    private boolean calculateMesh() {
+        key = generateKey(imageGeometry, imageCRSToLatLon);
         try {
-            double[][][] worldCoordinates = generateWorldCoords(tile, mt);
+            double[][][] worldCoordinates = generateWorldCoords(imageGeometry,
+                    imageCRSToLatLon);
+            vertexCoords = new GLGeometryObject2D(new GLGeometryObjectData(
+                    geometryType, GL.GL_VERTEX_ARRAY));
             vertexCoords.allocate(worldCoordinates.length
                     * worldCoordinates[0].length);
             // Check for world wrapping
-            WorldWrapChecker wwc = new WorldWrapChecker(descriptor);
+            WorldWrapChecker wwc = new WorldWrapChecker(targetGeometry);
 
             for (int i = 0; i < worldCoordinates.length; ++i) {
                 double[][] strip = worldCoordinates[i];
@@ -176,7 +243,7 @@ public abstract class AbstractGLMesh implements IMesh {
                         prev1 = null;
                         prev2 = null;
                     }
-                    vSegment.add(descriptor.worldToPixel(next));
+                    vSegment.add(worldToPixel(next));
 
                     prev2 = prev1;
                     prev1 = next;
@@ -185,14 +252,28 @@ public abstract class AbstractGLMesh implements IMesh {
                 vertexCoords.addSegment(vSegment.toArray(new double[vSegment
                         .size()][]));
             }
-
-            shouldDraw = true;
+            return true;
         } catch (Exception e) {
-            e.printStackTrace();
-            shouldDraw = false;
+            Activator.statusHandler.handle(Priority.PROBLEM,
+                    "Error calculating mesh", e);
         }
+        return false;
+    }
 
-        pc.setMesh(this);
+    protected final double[] worldToPixel(double[] world) {
+        double[] in = null;
+        if (world.length == 2) {
+            in = new double[] { world[0], world[1], 0.0 };
+        } else {
+            in = world;
+        }
+        double[] out = new double[in.length];
+        try {
+            latLonToTargetGrid.transform(in, 0, out, 0, 1);
+        } catch (TransformException e) {
+            return null;
+        }
+        return out;
     }
 
     /*
@@ -207,10 +288,11 @@ public abstract class AbstractGLMesh implements IMesh {
         return false;
     }
 
-    protected abstract SharedCoordinateKey generateKey(ImageTile tile,
-            MathTransform mt);
+    protected abstract SharedCoordinateKey generateKey(
+            GridGeometry2D imageGeometry, MathTransform mt);
 
-    protected abstract double[][][] generateWorldCoords(ImageTile tile,
-            MathTransform mt) throws TransformException;
+    protected abstract double[][][] generateWorldCoords(
+            GridGeometry2D imageGeometry, MathTransform mt)
+            throws TransformException;
 
 }

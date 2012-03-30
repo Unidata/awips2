@@ -6,6 +6,7 @@ package gov.noaa.nws.ncep.viz.rsc.satellite.rsc;
 import java.awt.Rectangle;
 import java.util.Map;
 import org.geotools.coverage.grid.GridGeometry2D;
+import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.referencing.datum.PixelInCell;
 
@@ -15,6 +16,7 @@ import org.opengis.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.datastorage.StorageException;
+import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -96,7 +98,11 @@ public class McidasFileBasedTileSet extends SatFileBasedTileSet {
         }
 
         try {
-
+            ReferencedEnvelope mapEnv = new ReferencedEnvelope(
+                    this.mapDescriptor.getGridGeometry().getEnvelope());
+            mapEnv = mapEnv.transform(MapUtil.LATLON_PROJECTION, false);
+            GeneralEnvelope generalMapEnv = new GeneralEnvelope(mapEnv);
+            generalMapEnv.normalize(false);
             startY = 0;
             for (int j = 0; j < totalTilesY; j++) {
                 startY = j * (inTileSize);
@@ -127,18 +133,23 @@ public class McidasFileBasedTileSet extends SatFileBasedTileSet {
                     mathTransform[level].transform(in, 0, lr, 0, 1);
 
                     ReferencedEnvelope env = new ReferencedEnvelope(ul[0],
-                            lr[0], ul[1], lr[1], gridGeometry[0]
-                                    .getCoordinateReferenceSystem());
+                            lr[0], ul[1], lr[1],
+                            gridGeometry[0].getCoordinateReferenceSystem());
+                    GeneralEnvelope generalEnv = new GeneralEnvelope(
+                            env.transform(MapUtil.LATLON_PROJECTION, false));
+                    // tiles which cross the dateline will almost always be
+                    // created since normalizing changes their range to
+                    // -180,180. If this is causing problems then instead of
+                    // normalizing we should split envelopes that cross the
+                    // dateline.
+                    generalEnv.normalize(false);
+                    // only create the tile if env overlaps the map
+                    if (generalEnv.intersects(generalMapEnv, true)) {
 
                         tiles[i][j] = new ImageTile();
-
-                        tiles[i][j].rect = new Rectangle(startX, startY,
-                                effectiveWidth, effectiveHeight);
-
-                        tiles[i][j].envelope = env;
-                        tiles[i][j].elevation = this.elevation;
-                        tiles[i][j].rect.width = effectiveWidth;
-                        tiles[i][j].rect.height = effectiveHeight;
+                        tiles[i][j].setGridGeometry(new Rectangle(startX,
+                                startY, effectiveWidth, effectiveHeight), env);
+                    }
                 }
 
             }
@@ -224,6 +235,7 @@ public class McidasFileBasedTileSet extends SatFileBasedTileSet {
                             continue;
                         }
 
+                        ReferencedEnvelope envelope = tile.getEnvelope();
                         //if (this.sharedGeometryTileSet != null) {
                         //    ImageTile baseTile = sharedGeometryTileSet.tileSet
                         //            .getTileSet().get(level)[i][j];
@@ -236,9 +248,8 @@ public class McidasFileBasedTileSet extends SatFileBasedTileSet {
                             double[] ur = new double[2];
 
                             try {
-                                ReferencedEnvelope envelope = ((ReferencedEnvelope) tile.envelope)
-                                        .transform(mapDescriptor.getCRS(),
-                                                false);
+                                envelope = tile.getEnvelope().transform(
+                                        mapDescriptor.getCRS(), false);
                                 ll[0] = envelope.getMinX();
                                 ll[1] = envelope.getMinY();
 
@@ -251,20 +262,25 @@ public class McidasFileBasedTileSet extends SatFileBasedTileSet {
                                 lr[0] = envelope.getMaxX();
                                 lr[1] = envelope.getMinY();
 
-                                mapDescriptor.getGridGeometry().getGridToCRS()
-                                        .inverse().transform(ul, 0, ul, 0, 1);
-                                mapDescriptor.getGridGeometry().getGridToCRS()
-                                        .inverse().transform(ll, 0, ll, 0, 1);
-                                mapDescriptor.getGridGeometry().getGridToCRS()
-                                        .inverse().transform(lr, 0, lr, 0, 1);
-                                mapDescriptor.getGridGeometry().getGridToCRS()
-                                        .inverse().transform(ur, 0, ur, 0, 1);
+                                mapDescriptor.getGridGeometry()
+                                        .getGridToCRS().inverse()
+                                        .transform(ul, 0, ul, 0, 1);
+                                mapDescriptor.getGridGeometry()
+                                        .getGridToCRS().inverse()
+                                        .transform(ll, 0, ll, 0, 1);
+                                mapDescriptor.getGridGeometry()
+                                        .getGridToCRS().inverse()
+                                        .transform(lr, 0, lr, 0, 1);
+                                mapDescriptor.getGridGeometry()
+                                        .getGridToCRS().inverse()
+                                        .transform(ur, 0, ur, 0, 1);
 
                             } catch (Throwable t) {
                                 // Skip tile on error
                                 statusHandler.handle(Priority.VERBOSE,
-                                        "Error reprojecting tile " + i + ":"
-                                                + j + " at level " + level, t);
+                                        "Error reprojecting tile " + i
+                                                + ":" + j + " at level "
+                                                + level, t);
                                 ul = ll = lr = ur = null;
                                 tileLevel[i][j] = null;
                             }
@@ -274,19 +290,21 @@ public class McidasFileBasedTileSet extends SatFileBasedTileSet {
                                 tile.coverage = null;
                             } else {
 
-                                Coordinate ulc = new Coordinate(ul[0], ul[1], 0);
-                                Coordinate llc = new Coordinate(ll[0], ll[1], 0);
-                                Coordinate lrc = new Coordinate(lr[0], lr[1], 0);
-                                Coordinate urc = new Coordinate(ur[0], ur[1], 0);
+                                Coordinate ulc = new Coordinate(ul[0],
+                                        ul[1], 0);
+                                Coordinate llc = new Coordinate(ll[0],
+                                        ll[1], 0);
+                                Coordinate lrc = new Coordinate(lr[0],
+                                        lr[1], 0);
+                                Coordinate urc = new Coordinate(ur[0],
+                                        ur[1], 0);
 
                                 tile.coverage = new PixelCoverage(ulc, urc,
                                         lrc, llc);
                             }
-                        } else {
-                            if (tile.envelope != null) {
-                                tile.coverage = mapDescriptor
-                                        .worldToPixel(tile.envelope);
-                            }
+                        } else if (envelope != null) {
+                            tile.coverage = mapDescriptor
+                                    .worldToPixel(envelope);
                         }
 
                     }
