@@ -111,8 +111,8 @@ public class FileBasedTileSet extends AbstractTileSet {
                 .initializeRaster(
                         new HDF5DataRetriever(new File(this.hdf5File), "/"
                                 + this.group + "/" + this.dataset
-                                + "-interpolated/" + level,
-                                this.tileSet.getTile(level, i, j).rect),
+                                + "-interpolated/" + level, this.tileSet
+                                .getTile(level, i, j).getRectangle()),
                         rsc.getCapability(ColorMapCapability.class)
                                 .getColorMapParameters());
         return raster;

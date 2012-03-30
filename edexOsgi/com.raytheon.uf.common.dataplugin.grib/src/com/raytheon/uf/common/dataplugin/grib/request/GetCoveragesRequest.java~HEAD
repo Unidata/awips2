@@ -17,52 +17,42 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
+package com.raytheon.uf.common.dataplugin.grib.request;
 
-package com.raytheon.viz.core.gl.glsl;
+import java.util.List;
+
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.serialization.comm.IServerRequest;
 
 /**
- * Define common interface for vertex and fragement shaders.
+ * 
+ * TODO Add Description
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- *  
+ * Dec 20, 2011            bsteffen     Initial creation
  * 
  * </pre>
  * 
- * @author estrabal
+ * @author bsteffen
  * @version 1.0
  */
+@DynamicSerialize
+public class GetCoveragesRequest implements IServerRequest {
+    @DynamicSerializeElement
+    private List<String> modelNames;
 
-import com.raytheon.uf.viz.core.drawables.IImage;
-import com.raytheon.uf.viz.core.drawables.PaintProperties;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.core.gl.IGLTarget;
+    public List<String> getModelNames() {
+        return modelNames;
+    }
 
-public interface IShaderLoader {
+    public void setModelNames(List<String> modelNames) {
+        this.modelNames = modelNames;
+    }
 
-    /**
-     * 
-     * @return
-     */
-    public abstract String getName();
-
-    /**
-     * 
-     * @param name
-     */
-    public abstract void setName(String name);
-
-    /**
-     * load shader variables using IImage and PaintProperties
-     * 
-     * @param target
-     * @param program
-     * @param image
-     * @param paintProps
-     * @throws VizException
-     */
-    public abstract void loadData(IGLTarget target, GLShaderProgram program,
-            IImage image, PaintProperties paintProps) throws VizException;
 }

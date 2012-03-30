@@ -21,7 +21,6 @@ package com.raytheon.viz.pointdata;
 
 import java.awt.image.BufferedImage;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.commons.collections.map.LRUMap;
@@ -33,8 +32,8 @@ import org.eclipse.core.runtime.jobs.Job;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.data.prep.IODataPreparer;
 import com.raytheon.uf.viz.core.drawables.IImage;
+import com.raytheon.uf.viz.core.drawables.ext.ISingleColorImageExtension;
 
 /**
  * Job separated from PlotModelGenerator2 that creates the plot images.
@@ -102,8 +101,9 @@ public class PlotModelGeneratorJob extends Job {
                         }
                     }
                     if (image == null) {
-                        image = target.initializeRaster(new IODataPreparer(
-                                bImage, UUID.randomUUID().toString(), 0), null);
+                        image = target.getExtension(
+                                ISingleColorImageExtension.class)
+                                .constructImage(bImage, null);
                         if (plotCreator.isCachingImages()) {
                             imageCache.put(bImage, image);
                         }
