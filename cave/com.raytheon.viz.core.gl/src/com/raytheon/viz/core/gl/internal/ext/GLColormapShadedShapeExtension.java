@@ -246,7 +246,7 @@ public class GLColormapShadedShapeExtension extends
      */
     @Override
     public int getCompatibilityValue(IGLTarget target) {
-        return Compatibilty.TARGET_COMPATIBLE.value;
+        return Compatibilty.TARGET_COMPATIBLE;
     }
 
 }
