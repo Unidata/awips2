@@ -125,19 +125,23 @@ public class DefaultPathProvider implements IHDFFilePathProvider {
                     // This key is not an embedded object meaning it is a field
                     // in the class passed in. We can get the value directly.
                     else {
-                        property = PropertyUtils.getProperty(persistable, key);
+                        try {
+                            property = PropertyUtils.getProperty(persistable,
+                                    key);
+                        } catch (Throwable t) {
+                            // Ignore
+                            property = null;
+                        }
                     }
 
                     // For times and dates, we must format them correctly
-                    if (property == null) {
-                        pathBuilder.append("null");
-                    } else if (property instanceof Calendar) {
+                    if (property instanceof Calendar) {
                         pathBuilder.append(TimeUtil
                                 .formatCalendar((Calendar) property));
                     } else if (property instanceof Date) {
                         pathBuilder
                                 .append(TimeUtil.formatDate((Date) property));
-                    } else {
+                    } else if (property != null) {
                         pathBuilder.append(property.toString());
                     }
                 } catch (Exception e) {
@@ -226,11 +230,7 @@ public class DefaultPathProvider implements IHDFFilePathProvider {
     @Override
     public String getHDFFileName(String pluginName, IPersistable persistable) {
         Integer partition = persistable.getHdfFileId();
-        if (partition == null) {
-            throw new IllegalArgumentException(
-                    "Expected argument hdfFileId not set on object "
-                            + persistable.toString());
-        } else if (pluginName == null) {
+        if (pluginName == null) {
             throw new IllegalArgumentException(
                     "Expected argument pluginName not set on object "
                             + persistable.toString());
@@ -262,10 +262,18 @@ public class DefaultPathProvider implements IHDFFilePathProvider {
                 refTimeString = fileNameFormat.format(refTime);
             }
             sb.append(refTimeString);
-            sb.append("-");
-            sb.append(partition);
+
+            if (partition != null) {
+                sb.append("-");
+                sb.append(partition);
+            }
+
             sb.append(".h5");
             return sb.toString();
+        }
+
+        if (partition == null) {
+            return pluginName + ".h5";
         }
 
         return pluginName + "-" + partition + ".h5";
