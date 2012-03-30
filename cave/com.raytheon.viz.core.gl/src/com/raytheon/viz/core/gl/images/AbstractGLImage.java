@@ -219,6 +219,7 @@ public abstract class AbstractGLImage implements IImage {
                 rbuf = null;
             }
             throw new VizException(errorMessage);
+        }
     }
 
     /*
@@ -261,8 +262,10 @@ public abstract class AbstractGLImage implements IImage {
                         GL.GL_NEAREST);
             }
             return true;
+        }
         return false;
     }
+    
     /*
      * (non-Javadoc)
      * 
