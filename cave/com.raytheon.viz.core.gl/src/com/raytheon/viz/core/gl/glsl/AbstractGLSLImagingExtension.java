@@ -19,15 +19,21 @@
  **/
 package com.raytheon.viz.core.gl.glsl;
 
+import com.raytheon.viz.core.gl.GLCapabilities;
+import com.raytheon.viz.core.gl.IGLTarget;
+import com.raytheon.viz.core.gl.ext.AbstractGLImagingExtension;
+import com.raytheon.viz.core.gl.internal.GLTarget;
+
 /**
- * TODO Add Description
+ * Abstract GL Extension that requires shader to work properly
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 25, 2010            mschenke     Initial creation
+ * Dec 15, 2011            mschenke     Initial creation
  * 
  * </pre>
  * 
@@ -35,18 +41,23 @@ package com.raytheon.viz.core.gl.glsl;
  * @version 1.0
  */
 
-public abstract class AbstractShaderLoader implements IShaderLoader {
+public abstract class AbstractGLSLImagingExtension extends
+        AbstractGLImagingExtension {
 
-    private String programName;
-
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension#
+     * getCompatibilityValue(com.raytheon.uf.viz.core.IGraphicsTarget)
+     */
     @Override
-    public final String getName() {
-        return programName;
-    }
-
-    @Override
-    public final void setName(String name) {
-        this.programName = name;
+    public int getCompatibilityValue(IGLTarget target) {
+        if (GLCapabilities.getInstance(target.getGl()).cardSupportsShaders
+                && GLTarget.FORCE_NO_SHADER == false) {
+            return Compatibilty.ENHANCED_TARGET_COMPATIBLE;
+        } else {
+            return Compatibilty.INCOMPATIBLE;
+        }
     }
 
 }
