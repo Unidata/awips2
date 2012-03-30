@@ -7,7 +7,10 @@ Bundle-Activator: com.raytheon.uf.viz.derivparam.Activator
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.core.runtime,
  javax.measure,
- com.raytheon.uf.common.dataquery
+ com.raytheon.uf.common.dataquery,
+ com.raytheon.uf.viz.core;bundle-version="1.12.1174",
+ com.raytheon.uf.common.datastorage;bundle-version="1.12.1174",
+ com.raytheon.uf.common.pointdata;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
@@ -17,21 +20,13 @@ Import-Package: com.raytheon.edex.meteoLib,
  com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.dataplugin.level,
  com.raytheon.uf.common.dataplugin.persist,
- com.raytheon.uf.common.datastorage.records,
  com.raytheon.uf.common.derivparam.tree,
  com.raytheon.uf.common.localization,
  com.raytheon.uf.common.message.response,
  com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.serialization.adapters,
  com.raytheon.uf.common.status,
- com.raytheon.uf.common.time,
- com.raytheon.uf.viz.core,
- com.raytheon.uf.viz.core.catalog,
- com.raytheon.uf.viz.core.comm,
- com.raytheon.uf.viz.core.exception,
- com.raytheon.uf.viz.core.level,
- com.raytheon.uf.viz.core.localization,
- com.raytheon.uf.viz.core.status
+ com.raytheon.uf.common.time
 Export-Package: com.raytheon.uf.viz.derivparam,
  com.raytheon.uf.viz.derivparam.data,
  com.raytheon.uf.viz.derivparam.inv,
