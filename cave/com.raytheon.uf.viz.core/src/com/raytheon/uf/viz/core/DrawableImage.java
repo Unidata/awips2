@@ -45,11 +45,16 @@ public class DrawableImage {
 
     private PixelCoverage coverage;
 
-    private RasterMode mode = RasterMode.SYNCHRONOUS;
+    private RasterMode mode;
 
     public DrawableImage(IImage image, PixelCoverage coverage) {
+        this(image, coverage, RasterMode.SYNCHRONOUS);
+    }
+
+    public DrawableImage(IImage image, PixelCoverage coverage, RasterMode mode) {
         this.image = image;
         this.coverage = coverage;
+        this.mode = mode;
     }
 
     public IImage getImage() {

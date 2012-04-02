@@ -69,7 +69,6 @@ public class CoopPrecipPlotInfoRetriever extends AbstractPlotInfoRetriever {
             for (int uriCounter = 0; uriCounter < pdc.getCurrentSz(); uriCounter++) {
                 PointDataView pdv = pdc.readRandom(uriCounter);
                 PlotInfo stationInfo = new PlotInfo();
-                stationInfo.id = pdv.getInt("id");
                 stationInfo.latitude = pdv.getNumber("latitude").doubleValue();
                 stationInfo.longitude = pdv.getNumber("longitude")
                         .doubleValue();
@@ -80,6 +79,7 @@ public class CoopPrecipPlotInfoRetriever extends AbstractPlotInfoRetriever {
                     stationInfo.pdv = new PlotData();
                 }
                 stationInfo.pdv.addData(pdv);
+                stationInfo.dataURI = pdv.getString("dataURI");
                 info.add(stationInfo);
             }
         }

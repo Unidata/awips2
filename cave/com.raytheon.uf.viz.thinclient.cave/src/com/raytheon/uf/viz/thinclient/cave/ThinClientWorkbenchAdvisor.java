@@ -26,10 +26,11 @@ import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 
 import com.raytheon.uf.viz.thinclient.cave.preferences.DynamicPreferenceNode;
-import com.raytheon.uf.viz.thinclient.cave.preferences.ThinClientFunctionPreferences;
+import com.raytheon.uf.viz.thinclient.cave.preferences.DynamicPreferenceNode.IPreferencePageFactory;
+import com.raytheon.uf.viz.thinclient.cave.preferences.ThinClientCachePreferences;
+import com.raytheon.uf.viz.thinclient.cave.preferences.ThinClientConnectionPreferences;
 import com.raytheon.uf.viz.thinclient.cave.preferences.ThinClientPreferencePage;
 import com.raytheon.uf.viz.thinclient.cave.preferences.ThinClientServerPreferences;
-import com.raytheon.uf.viz.thinclient.cave.preferences.DynamicPreferenceNode.IPreferencePageFactory;
 import com.raytheon.viz.ui.personalities.awips.VizWorkbenchAdvisor;
 import com.raytheon.viz.ui.personalities.awips.VizWorkbenchWindowAdvisor;
 
@@ -113,11 +114,20 @@ public class ThinClientWorkbenchAdvisor extends VizWorkbenchAdvisor {
                 }));
 
         pm.addTo(ThinClientPreferencePage.PAGE_ID, new DynamicPreferenceNode(
-                ThinClientPreferencePage.PAGE_ID + ".FunctionPreferences",
-                "Functions", new IPreferencePageFactory() {
+                ThinClientPreferencePage.PAGE_ID + ".CachePreferences",
+                "Caches", new IPreferencePageFactory() {
                     @Override
                     public IPreferencePage createNewPage() {
-                        return new ThinClientFunctionPreferences();
+                        return new ThinClientCachePreferences();
+                    }
+                }));
+
+        pm.addTo(ThinClientPreferencePage.PAGE_ID, new DynamicPreferenceNode(
+                ThinClientPreferencePage.PAGE_ID + ".ConnectionPreferences",
+                "Connections", new IPreferencePageFactory() {
+                    @Override
+                    public IPreferencePage createNewPage() {
+                        return new ThinClientConnectionPreferences();
                     }
                 }));
     }

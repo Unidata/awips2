@@ -54,12 +54,12 @@ void createSlices(float * vc3d, float * param3d, int sense,
         int nx, int ny, int nz,
         float * vcC, int nc, float * paramC);
 
-void capeFunc(float usetv, const float ** p_dat, const float ** tve_dat,
+int capeFunc(float usetv, const float ** p_dat, const float ** tve_dat,
         float * p0, float * th0, float * sh0, 
         int mnx, int nx, int ny, int nz, 
         float * cape_dat, float * cin_dat);
 
-void dcapeFunc(float usetv, const float ** p_dat, const float ** t_dat, const float **
+int dcapeFunc(float usetv, const float ** p_dat, const float ** t_dat, const float **
         td_dat, float * p0, float * th0, float * sh0, 
         int mnx, int nx, int ny, int nz, 
         float max_evap, float max_rh, float * dcape_dat);

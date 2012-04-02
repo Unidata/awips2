@@ -1,0 +1,338 @@
+<!-- Impact Based Tornado Warning configuration -->
+<!-- MODIFIED 
+     PHIL KURIMSKI WFO DTX   2-12-2012 OB12.1.1-1 FOR IMPACT BASED TOR WARNINGS
+     PHIL KURIMSKI WFO DTX   2-29-2012 OB12.2.1-4
+-->
+
+<warngenConfig>
+
+ <!-- Config distance/speed units -->
+ <unitDistance>mi</unitDistance>
+ <unitSpeed>mph</unitSpeed>
+
+ <!-- Maps to load on template selection. Refer to 'Maps' menu in CAVE. 
+ 	The various menu items are also the different maps
+ 	that can be loaded with each template. -->
+ <maps>
+  <map>County Names</map>
+  <map>County Warning Areas</map>
+ </maps>
+
+ <!-- Followups: VTEC actions of allowable followups when this template is selected 
+	Each followup will become available when the appropriate time range permits.
+ -->
+ <followups>
+  <followup>NEW</followup>
+  <followup>COR</followup>
+ </followups>
+ 
+ <!-- Phensigs: The list of phenomena and significance combinations that this template applies to -->
+ <phensigs>
+   <phensig>TO.W</phensig>
+ </phensigs>
+ 
+ <!-- Enables/disables user from selecting the Restart button the GUI -->
+ <enableRestart>true</enableRestart>
+
+ <!-- Enable/disables the system to lock text based on various patterns -->
+ <autoLockText>true</autoLockText>
+ 
+ <!-- durations: the list of possible durations of the warning -->
+ <defaultDuration>30</defaultDuration>
+ <durations>
+  <duration>15</duration>
+  <duration>20</duration>
+  <duration>25</duration>
+  <duration>30</duration>
+  <duration>40</duration>
+  <duration>45</duration>
+  <duration>50</duration>
+  <duration>60</duration>
+ </durations>
+ 
+<bulletActionGroups>
+<bulletActionGroup action="NEW" phen="TO" sig="W">
+<bullets>
+  <bullet bulletName="torEmergency" bulletText="**TORNADO EMERGENCY/CATASTROPHIC TORNADO**" bulletGroup="headline" parseString="TORNADO EMERGENCY"/>
+  <bullet bulletName="significantTornado" bulletText="SIGNIFICANT TORNADO" bulletGroup="headline" parseString="TORNADO DAMAGE THREAT...SIGNIFICANT"/>
+  <bullet bulletText="*********** BASIS FOR WARNING (CHOOSE 1) **********" bulletType="title"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="group1" bulletDefault="true" parseString="&quot;SOURCE...RADAR INDICATED&quot;,&quot;-SQUALL LINE&quot;"/>
+  <bullet bulletName="dopplerSquall" bulletText="Squall line w/ embedded tornadoes" bulletGroup="group1" parseString="&quot;SOURCE...RADAR INDICATED&quot;,&quot;SQUALL LINE&quot;"/>
+  <bullet bulletName="confirmedDoppler" bulletText="Confirmed tornado (WSR-88D was tracking a tornado)" bulletGroup="group1" parseString="SOURCE...STORM SPOTTERS"/>
+  <bullet bulletName="spotter" bulletText="Trained weather spotters reported a tornado" bulletGroup="group1" parseString="&quot;SOURCE...WEATHER SPOTTERS&quot;,&quot;-FUNNEL CLOUD&quot;"/>
+  <bullet bulletName="lawEnforcement" bulletText="Law enforcement reported a tornado" bulletGroup="group1" parseString="SOURCE...LAW ENFORCEMENT"/>
+  <bullet bulletName="emergencyManagement" bulletText="Emergency management reported a tornado" bulletGroup="group1" parseString="SOURCE...EMERGENCY MANAGEMENT"/>
+  <bullet bulletName="public" bulletText="Public reported a tornado" bulletGroup="group1" parseString="SOURCE...PUBLIC"/>
+  <bullet bulletName="spotterFunnelCloud" bulletText="Spotters reported a funnel cloud" bulletGroup="group1" parseString="&quot;SOURCE...WEATHER SPOTTERS&quot;,&quot;FUNNEL CLOUD&quot;"/>
+<!-- HAIL THREATS FOR TESTBED OFFICES UNCOMMENT IF NEEDED -->
+  <bullet bulletText="" bulletType="title"/>
+  <!-- Use the following title for Hail Threats -->
+  <bullet bulletText="******* SELECT HAIL THREAT (CHOOSE UP TO 1) ******" bulletType="title"/>
+  <!-- Use the following title for Wind and Hail Threats -->
+  <!--
+  <bullet bulletText="******* ACCOMPANYING WIND/HAIL THREATS (CHOOSE UP TO 1 EACH) ******" bulletType="title"/>
+  -->
+  <!-- Uncomment out the following section to include wind threats -->
+  <!--
+  <bullet bulletName="60mphWind" bulletText="60 mph wind" bulletGroup="toggle2" parseString="60MPH"/>
+  <bullet bulletName="70mphWind" bulletText="70 mph wind" bulletGroup="toggle2" parseString="70MPH"/>
+  <bullet bulletName="80mphWind" bulletText="80 mph wind" bulletGroup="toggle2" parseString="80MPH"/>
+  <bullet bulletName="90mphWind" bulletText="90 mph wind" bulletGroup="toggle2" parseString="90MPH"/>
+  <bullet bulletName="100mphWind" bulletText="100 mph wind" bulletGroup="toggle2" parseString="100MPH"/>
+  -->
+<!-- Sub-Severe Hail Threats are commented out -->
+<!--  
+  <bullet bulletName="pennyHail" bulletText="Penny size hail (3/4&quot;)" bulletGroup="group2" parseString="0.75IN"/>
+  <bullet bulletName="nickelHail" bulletText="Nickel size hail (7/8&quot;)" bulletGroup="group2" parseString="0.88IN"/>
+  -->
+  <bullet bulletName="nosevereHail" bulletText="NO SEVERE HAIL" bulletGroup="group2" bulletDefault="true" parseString="&lt;.75"/>
+  <bullet bulletName="quarterHail" bulletText="Quarter size hail (1&quot;)" bulletGroup="group2" parseString="1.00IN"/>
+  <bullet bulletName="halfdollarHail" bulletText="Half Dollar size hail (1 1/4&quot;)" bulletGroup="group2" parseString="1.25IN"/>
+  <bullet bulletName="pingpongHail" bulletText="Ping pong size hail (1 1/2&quot;)" bulletGroup="group2" parseString="1.50IN"/>
+  <bullet bulletName="golfballHail" bulletText="Golf ball size hail (1 3/4&quot;)" bulletGroup="group2" parseString="1.75IN"/>
+  <bullet bulletName="twoinchHail" bulletText="Two Inch hail (2&quot;)" bulletGroup="group2" parseString="2.00IN"/>
+  <bullet bulletName="tennisBallHail" bulletText="Tennis ball hail (2 1/2&quot;)" bulletGroup="group2" parseString="2.50IN"/>
+  <bullet bulletName="baseballHail" bulletText="Baseball size hail (2 3/4&quot;)" bulletGroup="group2" parseString="2.75IN"/>
+  <bullet bulletName="threeinchHail" bulletText="Three inch hail (3&quot;)" bulletGroup="group2" parseString="3.00IN"/>
+  <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4&quot;)" bulletGroup="group2" parseString="4.00IN"/>
+  <bullet bulletName="softballHail" bulletText="Softball size hail (4 1/4&quot;)" bulletGroup="group2" parseString="4.25IN"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="****** ADDITIONAL REPORTS *******" bulletType="title"/>
+  <bullet bulletName="extraReportTornado" bulletText="Select to include additional tornadic information..."/>  
+  <bullet bulletName="extraReportHail" bulletText="Select to include additional hail report..." bulletGroup="group3"/>
+  <bullet bulletName="extraReportWind" bulletText="Select to include additional wind report..." bulletGroup="group3"/>
+  <bullet bulletName="extraReportHailWind" bulletText="Select to include additional hail and wind reports..." bulletGroup="group3"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="************ LOCATIONS IMPACTED  **************" bulletType="title"/>
+  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="group4" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="group4" bulletDefault="true" parseString="LOCATIONS IMPACTED INCLUDE..."/>
+  <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="*********** CALLS TO ACTION (CHOOSE 1 OR MORE) **********" bulletType="title"/>
+  <bullet bulletName="replacesSVRCTA" bulletText="TOR Replaces Severe Thunderstorm Warning"/>
+  <!-- There are two "default" safety rules. The first...which will probably be used by most offices...includes safety rules for mobile homes. The second...which is commented out...is for large urban areas that do not have mobile homes. If you wish to switch defaults or provide both options, remove comment tags as necessary and adjust the bulletDefault="true" as appropriate if both options are allowed -->
+  <bullet bulletName="defaultMobileCTA" bulletText="Default safety rules -- includes mobile homes" parseString="IF IN A MOBILE HOME...A VEHICLE OR OUTDOORS" bulletDefault="true" bulletGroup="cta1"/>
+  <bullet bulletName="defaultUrbanCTA" bulletText="Default safety rules for urban -- no mobile homes" parseString="IF IN A VEHICLE OR OUTDOORS" bulletGroup="cta1"/>
+  <bullet bulletName="motoristsCTA" bulletText="Safety rules for motorists" parseString="MOTORISTS SHOULD NOT TAKE SHELTER UNDER"/>
+  <bullet bulletName="rainWrappedCTA" bulletText="Rain wrapped tornado" parseString="HEAVY RAINFALL MAY HIDE THIS TORNADO"/>
+  <bullet bulletName="nighttimeCTA" bulletText="Tornadoes at night" parseString="TORNADOES ARE EXTREMELY DIFFICULT TO SEE AND CONFIRM AT NIGHT"/>
+  <bullet bulletName="largeTORCTA" bulletText="Large/Violent tornado" parseString="A LARGE AND EXTREMELY DANGEROUS TORNADO IS ON THE GROUND"/>
+  <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="**** SPECIAL CASE CALLS TO ACTION *****" bulletType="title"/>   
+  <bullet bulletName="squallCTA" bulletText="Squall line tornadoes" parseString="CAPABLE OF PRODUCING TORNADOES AND WIDESPREAD SIGNIFICANT WIND DAMAGE"/>
+  <bullet bulletName="waterCTA" bulletText="Over water - boaters seek shelter" parseString="GET AWAY FROM THE WATER"/>
+</bullets>
+</bulletActionGroup>
+<bulletActionGroup action="COR" phen="TO" sig="W">
+<bullets>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="**** CORRECTED PRODUCT. CLICK CREATE TEXT ****" bulletType="title"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletName="torEmergency" bulletText="**TORNADO EMERGENCY/CATASTROPHIC TORNADO**" parseString="TORNADO EMERGENCY"/>
+  <bullet bulletName="significantTornado" bulletText="SIGNIFICANT TORNADO" bulletGroup="headline" parseString="TORNADO DAMAGE THREAT...SIGNIFICANT"/>
+  <bullet bulletText="*********** BASIS FOR WARNING (CHOOSE 1) **********" bulletType="title"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="group1" bulletDefault="true" parseString="&quot;SOURCE...RADAR INDICATED&quot;,&quot;-SQUALL LINE&quot;"/>
+  <bullet bulletName="dopplerSquall" bulletText="Squall line w/ embedded tornadoes" bulletGroup="group1" parseString="&quot;SOURCE...RADAR INDICATED&quot;,&quot;SQUALL LINE&quot;"/>
+  <bullet bulletName="confirmedDoppler" bulletText="Confirmed tornado (WSR-88D was tracking a tornado)" bulletGroup="group1" parseString="SOURCE...STORM SPOTTERS"/>
+  <bullet bulletName="spotter" bulletText="Trained weather spotters reported a tornado" bulletGroup="group1" parseString="&quot;SOURCE...WEATHER SPOTTERS&quot;,&quot;-FUNNEL CLOUD&quot;"/>
+  <bullet bulletName="lawEnforcement" bulletText="Law enforcement reported a tornado" bulletGroup="group1" parseString="SOURCE...LAW ENFORCEMENT"/>
+  <bullet bulletName="emergencyManagement" bulletText="Emergency management reported a tornado" bulletGroup="group1" parseString="SOURCE...EMERGENCY MANAGEMENT"/>
+  <bullet bulletName="public" bulletText="Public reported a tornado" bulletGroup="group1" parseString="SOURCE...PUBLIC"/>
+  <bullet bulletName="spotterFunnelCloud" bulletText="Spotters reported a funnel cloud" bulletGroup="group1" parseString="&quot;SOURCE...WEATHER SPOTTERS&quot;,&quot;FUNNEL CLOUD&quot;"/>
+  <bullet bulletText="" bulletType="title"/>
+  <!-- Use the following title for Hail Threats -->
+  <bullet bulletText="******* SELECT HAIL THREAT (CHOOSE UP TO 1) ******" bulletType="title"/>
+  <!-- Use the following title for Wind and Hail Threats -->
+  <!--
+  <bullet bulletText="******* ACCOMPANYING WIND/HAIL THREATS (CHOOSE UP TO 1 EACH) ******" bulletType="title"/>
+  -->
+  <!-- Uncomment out the following section to include wind threats -->
+  <!--
+  <bullet bulletName="60mphWind" bulletText="60 mph wind" bulletGroup="toggle2" parseString="60MPH"/>
+  <bullet bulletName="70mphWind" bulletText="70 mph wind" bulletGroup="toggle2" parseString="70MPH"/>
+  <bullet bulletName="80mphWind" bulletText="80 mph wind" bulletGroup="toggle2" parseString="80MPH"/>
+  <bullet bulletName="90mphWind" bulletText="90 mph wind" bulletGroup="toggle2" parseString="90MPH"/>
+  <bullet bulletName="100mphWind" bulletText="100 mph wind" bulletGroup="toggle2" parseString="100MPH"/>
+  -->
+  <!-- Sub-Severe Hail Threats are commented out -->
+  <!-- 
+  <bullet bulletName="pennyHail" bulletText="Penny size hail (3/4&quot;)" bulletGroup="group2" parseString="0.75IN"/>
+  <bullet bulletName="nickelHail" bulletText="Nickel size hail (7/8&quot;)" bulletGroup="group2" parseString="0.88IN"/>
+  -->
+  <bullet bulletName="nosevereHail" bulletText="NO SEVERE HAIL" bulletGroup="group2" bulletDefault="true" parseString="&lt;.75"/>
+  <bullet bulletName="quarterHail" bulletText="Quarter size hail (1&quot;)" bulletGroup="group2" parseString="1.00IN"/>
+  <bullet bulletName="halfdollarHail" bulletText="Half Dollar size hail (1 1/4&quot;)" bulletGroup="group2" parseString="1.25IN"/>
+  <bullet bulletName="pingpongHail" bulletText="Ping pong size hail (1 1/2&quot;)" bulletGroup="group2" parseString="1.50IN"/>
+  <bullet bulletName="golfballHail" bulletText="Golf ball size hail (1 3/4&quot;)" bulletGroup="group2" parseString="1.75IN"/>
+  <bullet bulletName="twoinchHail" bulletText="Two Inch hail (2&quot;)" bulletGroup="group2" parseString="2.00IN"/>
+  <bullet bulletName="tennisBallHail" bulletText="Tennis ball hail (2 1/2&quot;)" bulletGroup="group2" parseString="2.50IN"/>
+  <bullet bulletName="baseballHail" bulletText="Baseball size hail (2 3/4&quot;)" bulletGroup="group2" parseString="2.75IN"/>
+  <bullet bulletName="threeinchHail" bulletText="Three inch hail (3&quot;)" bulletGroup="group2" parseString="3.00IN"/>
+  <bullet bulletName="grapefruitHail" bulletText="Grapefruit size hail (4&quot;)" bulletGroup="group2" parseString="4.00IN"/>
+  <bullet bulletName="softballHail" bulletText="Softball size hail (4 1/4&quot;)" bulletGroup="group2" parseString="4.25IN"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="****** ADDITIONAL REPORTS *******" bulletType="title"/>
+  <bullet bulletName="extraReportTornado" bulletText="Select to include additional tornadic information..."/>  
+  <bullet bulletName="extraReportHail" bulletText="Select to include additional hail report..." bulletGroup="group3"/>
+  <bullet bulletName="extraReportWind" bulletText="Select to include additional wind report..." bulletGroup="group3"/>
+  <bullet bulletName="extraReportHailWind" bulletText="Select to include additional hail and wind reports..." bulletGroup="group3"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="************ LOCATIONS IMPACTED  **************" bulletType="title"/>
+  <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="group4" parseString="WILL BE NEAR..."/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="group4" bulletDefault="true" parseString="LOCATIONS IMPACTED INCLUDE..."/>
+  <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="*********** CALLS TO ACTION (CHOOSE 1 OR MORE) **********" bulletType="title"/>
+  <bullet bulletName="replacesSVRCTA" bulletText="TOR Replaces Severe Thunderstorm Warning"/>
+  <!-- There are two "default" safety rules. The first...which will probably be used by most offices...includes safety rules for mobile homes. The second...which is commented out...is for large urban areas that do not have mobile homes. If you wish to switch defaults or provide both options, remove comment tags as necessary and adjust the bulletDefault="true" as appropriate if both options are allowed -->
+  <bullet bulletName="defaultMobileCTA" bulletText="Default safety rules -- includes mobile homes" parseString="IF IN A MOBILE HOME...A VEHICLE OR OUTDOORS" bulletDefault="true" bulletGroup="cta1"/>
+  <bullet bulletName="defaultUrbanCTA" bulletText="Default safety rules for urban -- no mobile homes" parseString="IF IN A VEHICLE OR OUTDOORS" bulletGroup="cta1"/>
+  <bullet bulletName="motoristsCTA" bulletText="Safety rules for motorists" parseString="MOTORISTS SHOULD NOT TAKE SHELTER UNDER"/>
+  <bullet bulletName="rainWrappedCTA" bulletText="Rain wrapped tornado" parseString="HEAVY RAINFALL MAY HIDE THIS TORNADO"/>
+  <bullet bulletName="nighttimeCTA" bulletText="Tornadoes at night" parseString="TORNADOES ARE EXTREMELY DIFFICULT TO SEE AND CONFIRM AT NIGHT"/>
+  <bullet bulletName="largeTORCTA" bulletText="Large/Violent tornado" parseString="A LARGE AND EXTREMELY DANGEROUS TORNADO IS ON THE GROUND"/>
+  <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
+  <bullet bulletText="" bulletType="title"/>
+  <bullet bulletText="**** SPECIAL CASE CALLS TO ACTION *****" bulletType="title"/>   
+  <bullet bulletName="squallCTA" bulletText="Squall line tornadoes" parseString="CAPABLE OF PRODUCING TORNADOES AND WIDESPREAD SIGNIFICANT WIND DAMAGE"/>
+  <bullet bulletName="waterCTA" bulletText="Over water - boaters seek shelter" parseString="GET AWAY FROM THE WATER"/>
+</bullets>
+</bulletActionGroup>
+</bulletActionGroups>
+
+
+<!--  To create Zone-based products set the four variables below to:-->
+<!--  areaConfig.areaField  to: NAME -->
+<!--  areaConfig.fipsField to: STATE_ZONE -->
+<!--  pathcast.Config.areaField to: NAME  and -->
+<!--  geospatialConfig.areaSource to: Zone -->
+
+
+ <areaConfig>
+  <inclusionPercent>0.00</inclusionPercent>
+  <inclusionAndOr>AND</inclusionAndOr>
+  <inclusionArea>0</inclusionArea>
+  <areaField>COUNTYNAME</areaField>
+<!-- <areaField>NAME</areaField> -->
+  <parentAreaField>NAME</parentAreaField>
+  <areaNotationField>STATE</areaNotationField>
+  <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+  <fipsField>FIPS</fipsField> 
+<!-- <fipsField>STATE_ZONE</fipsField> -->
+  <pointField>NAME</pointField>
+  <sortBy>
+  	<sort>parent</sort>
+  </sortBy>
+  <pointFilter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1" constraintType="EQUALS" />
+ 		</mapping>
+  </pointFilter>
+  <includedWatchAreaBuffer>25</includedWatchAreaBuffer>
+ </areaConfig>
+ 
+ <pointSource variable="closestPoints">
+ 	<pointField>NAME</pointField>
+ 	<searchMethod>POINTS</searchMethod>
+ 	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1,2" constraintType="IN" />
+ 		</mapping>
+ 	</filter>
+ 	<maxResults>1</maxResults>
+ 	<distanceThreshold>50</distanceThreshold>
+ 	<sortBy>
+ 		<sort>distance</sort>
+  		<sort>warngenlev</sort>
+  	</sortBy>
+ </pointSource>
+ 
+ <pointSource variable="otherClosestPoints">
+ 	<pointField>NAME</pointField>
+ 	<searchMethod>POINTS</searchMethod>
+ 	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1" constraintType="EQUALS" />
+ 		</mapping>
+ 	</filter>
+ 	<maxResults>5</maxResults>
+ 	<distanceThreshold>100</distanceThreshold>
+ 	<sortBy>
+ 		<sort>distance</sort>
+  	</sortBy>
+ </pointSource>
+ 
+ <pathcastConfig>
+  <withinPolygon>true</withinPolygon>
+  <distanceThreshold>8.0</distanceThreshold>
+  <interval>5</interval>
+  <delta>5</delta>
+  <maxResults>4</maxResults>
+  <maxGroup>8</maxGroup>
+  <pointField>Name</pointField> 
+  <areaField>COUNTYNAME</areaField>
+<!-- <areaField>NAME</areaField> -->
+  <parentAreaField>STATE</parentAreaField>
+  <areaNotationField>STATE</areaNotationField>
+  <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+  <sortBy>
+  	<sort>distance</sort>
+  </sortBy>
+  <filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1,2" constraintType="IN" />
+ 		</mapping>
+  </filter>
+ </pathcastConfig>
+
+  <pointSource variable="cityList">
+ 	<pointField>NAME</pointField>
+ 	<searchMethod>TRACK</searchMethod>
+ 	<withinPolygon>true</withinPolygon>
+ 	<maxResults>20</maxResults>
+ 	<distanceThreshold>10</distanceThreshold>
+	<filter> 	
+  	  <mapping key="WARNGENLEV">
+ 		<constraint constraintValue="1,2,3" constraintType="IN" />
+ 	  </mapping>
+ 	</filter>  	
+ 	<sortBy>
+  		<sort>warngenlev</sort>
+  		<sort>population</sort>
+  	</sortBy>
+ </pointSource>
+ 
+  <pointSource variable="otherPoints">
+ 	<pointField>NAME</pointField>
+ 	<searchMethod>TRACK</searchMethod>
+ 	<withinPolygon>true</withinPolygon>
+ 	<maxResults>10</maxResults>
+ 	<distanceThreshold>10</distanceThreshold>
+ 	<sortBy>
+  		<sort>distance</sort>
+  	</sortBy>
+	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="3" constraintType="IN" />
+ 		</mapping>
+  	</filter>
+ </pointSource>
+ 
+ <!-- this "include file" tag will grab the Mile Marker XML pointSource tags, 
+and place into this template
+-->  
+<include file="mileMarkers.xml"/>
+ 
+ <geospatialConfig>
+  <pointSource>City</pointSource>
+ <areaSource>County</areaSource>
+<!-- <areaSource>Zone</areaSource> --> 
+  <parentAreaSource>States</parentAreaSource>
+  <timezoneSource>TIMEZONES</timezoneSource>
+  <timezoneField>TIME_ZONE</timezoneField>
+ </geospatialConfig>
+</warngenConfig>
+
