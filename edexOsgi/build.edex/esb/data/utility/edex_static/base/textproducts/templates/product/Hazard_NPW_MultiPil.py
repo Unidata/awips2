@@ -122,8 +122,8 @@ class TextProduct(GenericHazards.TextProduct):
         "LW" : ("TIMING,WINDS,IMPACTS"),            ## Lake Wind
         "WI" : ("TIMING,WINDS,IMPACTS"),            ## Wind Advisory
         "HW" : ("TIMING,WINDS,IMPACTS"),            ## High Wind
-        "DU" : ("TIMING,WINDS,VISIBILITY,IMPACTS"), ## Dust Storm
-        "DS" : ("TIMING,WINDS,VISIBILITY,IMPACTS"), ## Blowind Dust
+        "DU" : ("TIMING,WINDS,VISIBILITY,IMPACTS"), ## Blowing Dust
+        "DS" : ("TIMING,WINDS,VISIBILITY,IMPACTS"), ## Dust Storm
         "FG" : ("VISIBILITY,IMPACTS"),              ## Dense Fog
         "FZ" : ("TEMPERATURE,IMPACTS"),             ## Freeze
         "AF" : ("ASH INFO,IMPACTS"),                ## Ashfall
@@ -136,6 +136,18 @@ class TextProduct(GenericHazards.TextProduct):
         "HT" : ("TEMPERATURE,IMPACTS"),             ## Heat
         "SM" : ("VISIBILITY,IMPACTS"),              ## Dense Smoke
         }
+
+    def _bulletOrder(self):
+        return [
+            "TIMING",
+            "ASH INFO",
+            "WINDS",
+            "VISIBILITY",
+            "AIR QUALITY",
+            "TEMPERATURE",
+            "IMPACTS",
+            ]
+
     ###
     ### end configuration section
     #####################################################################

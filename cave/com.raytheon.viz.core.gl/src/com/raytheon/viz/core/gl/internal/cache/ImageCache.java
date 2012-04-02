@@ -20,12 +20,12 @@
 
 package com.raytheon.viz.core.gl.internal.cache;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.media.opengl.GL;
 
 import com.raytheon.uf.common.util.cache.LRUCache;
 import com.raytheon.uf.viz.core.Activator;
 import com.raytheon.uf.viz.core.preferences.PreferenceConstants;
+import com.raytheon.viz.core.gl.GLDisposalManager.GLDisposer;
 
 /**
  * Cache for GLImages, one for memory and one fore texture
@@ -77,8 +77,6 @@ public class ImageCache extends LRUCache<Object, IImageCacheable> implements
     /** The instance of the memory cache */
     private static ImageCache memoryCache;
 
-    private List<IImageCacheable> waitingToDispose;
-
     /**
      * Get Singletons
      * 
@@ -116,7 +114,6 @@ public class ImageCache extends LRUCache<Object, IImageCacheable> implements
      */
     private ImageCache(long maxSz) {
         super(maxSz);
-        this.waitingToDispose = new ArrayList<IImageCacheable>();
     }
 
     public void put(IImageCacheable image) {
@@ -126,13 +123,16 @@ public class ImageCache extends LRUCache<Object, IImageCacheable> implements
     @Override
     protected void removeItem(Item item) {
         super.removeItem(item);
-        waitingToDispose.add(item.value);
-    }
-
-    public IImageCacheable[] getImagesWaitingToDispose() {
-        IImageCacheable[] arr = this.waitingToDispose
-                .toArray(new IImageCacheable[waitingToDispose.size()]);
-        this.waitingToDispose.clear();
-        return arr;
+        final IImageCacheable i = item.value;
+        if (this == memoryCache) {
+            i.disposeTextureData();
+        } else if (this == textureCache) {
+            new GLDisposer() {
+                @Override
+                protected void dispose(GL gl) {
+                    i.disposeTexture(gl);
+                }
+            }.dispose();
+        }
     }
 }

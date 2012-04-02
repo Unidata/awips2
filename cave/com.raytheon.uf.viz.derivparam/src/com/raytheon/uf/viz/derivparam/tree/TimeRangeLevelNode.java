@@ -28,6 +28,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
+import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -82,7 +83,7 @@ public class TimeRangeLevelNode extends AbstractAliasLevelNode {
             int timeOut,
             Map<AbstractRequestableLevelNode, List<AbstractRequestableData>> cache)
             throws VizException {
-        Set<DataTime> allTime = sourceNode.timeQuery(false);
+        Set<DataTime> allTime = sourceNode.timeQuery(null, false);
         Map<DataTime, List<DataTime>> goodTimes = new HashMap<DataTime, List<DataTime>>();
         Set<DataTime> timesToRequest = new HashSet<DataTime>();
         for (DataTime time : allTime) {
@@ -126,12 +127,13 @@ public class TimeRangeLevelNode extends AbstractAliasLevelNode {
     }
 
     @Override
-    public Set<DataTime> timeQueryInternal(boolean latestOnly,
+    public Set<DataTime> timeQueryInternal(TimeQueryRequest originalRequest,
+            boolean latestOnly,
             Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
             Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
             throws VizException {
-        Set<DataTime> allTime = sourceNode.timeQuery(false, cache,
-                latestOnlyCache);
+        Set<DataTime> allTime = sourceNode.timeQuery(originalRequest, false,
+                cache, latestOnlyCache);
         Set<DataTime> goodTimes = new HashSet<DataTime>();
         for (DataTime time : allTime) {
             if (allTime.containsAll(calculateNeededTimes(time))) {

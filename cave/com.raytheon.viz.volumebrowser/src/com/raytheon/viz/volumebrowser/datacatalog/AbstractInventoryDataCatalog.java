@@ -35,16 +35,19 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
+import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.level.LevelMapping;
 import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 import com.raytheon.uf.viz.core.level.LevelUtilities;
 import com.raytheon.uf.viz.derivparam.inv.AbstractInventory;
+import com.raytheon.viz.volumebrowser.vbui.DataListsProdTableComp.DataSelection;
 import com.raytheon.viz.volumebrowser.vbui.MenuItemManager;
 import com.raytheon.viz.volumebrowser.vbui.SelectedData;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
@@ -171,20 +174,33 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
             String levelStr = levelQueue.poll();
             while (levelStr != null) {
                 // Convert levels into planes.
-                Level level = LevelFactory.getInstance().getLevel(levelStr);
-                if (levels3D.contains(level)) {
-                    for (String plane : get3DPlanes(sourcesToProcess)) {
-                        request.addAvailablePlane(plane);
+                try {
+                    Level level = LevelFactory.getInstance().getLevel(levelStr);
+
+                    if (levels3D.contains(level)) {
+                        for (String plane : get3DPlanes(sourcesToProcess)) {
+                            request.addAvailablePlane(plane);
+                        }
                     }
-                }
-                request.addAvailablePlane("spatial-"
-                        + level.getMasterLevel().getName());
-                LevelMapping lm = LevelMappingFactory.getInstance()
-                        .getLevelMappingForLevel(level);
-                if (lm != null) {
-                    request.addAvailablePlane(lm.getKey());
+                    request.addAvailablePlane("spatial-"
+                            + level.getMasterLevel().getName());
+                    try {
+                        LevelMapping lm = LevelMappingFactory.getInstance()
+                                .getLevelMappingForLevel(level);
+
+                        if (lm != null) {
+                            request.addAvailablePlane(lm.getKey());
+                        }
+                    } catch (VizCommunicationException e) {
+                        statusHandler.handle(Priority.PROBLEM,
+                                e.getLocalizedMessage(), e);
+                    }
+                } catch (CommunicationException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
                 }
                 levelStr = levelQueue.poll();
+
             }
             if (request.isCanceled()) {
                 Thread thread = inventoryJob.getThread();
@@ -233,7 +249,10 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
         } catch (InterruptedException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
-        return new ArrayList<String>(returnQueue);
+        List<String> result = new ArrayList<String>(returnQueue);
+        result.retainAll(MenuItemManager.getInstance()
+                .getMapOfKeys(DataSelection.SOURCES).keySet());
+        return result;
     }
 
     public List<String> getSupportedSources() {
@@ -265,12 +284,23 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
             for (String plane : selectedPlanes) {
                 Collection<Level> levels = Collections.emptyList();
                 if (plane.startsWith("spatial-")) {
-                    levels = LevelUtilities.getOrderedSetOfStandardLevels(plane
-                            .replace("spatial-", ""));
+                    try {
+                        levels = LevelUtilities
+                                .getOrderedSetOfStandardLevels(plane.replace(
+                                        "spatial-", ""));
+                    } catch (VizCommunicationException e) {
+                        statusHandler.handle(Priority.PROBLEM,
+                                e.getLocalizedMessage(), e);
+                    }
                 } else {
                     LevelMapping lm = lmf.getLevelMappingForKey(plane);
                     if (lm != null) {
-                        levels = lm.getLevels();
+                        try {
+                            levels = lm.getLevels();
+                        } catch (VizCommunicationException e) {
+                            statusHandler.handle(Priority.PROBLEM,
+                                    e.getLocalizedMessage(), e);
+                        }
                     }
                 }
                 for (Level l : levels) {
