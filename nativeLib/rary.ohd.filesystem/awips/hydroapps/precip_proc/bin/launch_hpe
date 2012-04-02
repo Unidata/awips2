@@ -6,5 +6,5 @@ RUN_FROM_DIR=`dirname $0`
 
 export PPROC_BIN=$(get_apps_defaults pproc_bin)
 
-nohup ksh ./start_hpe &
+nohup ksh $PPROC_BIN/start_hpe >&1 > /dev/null &
 exit 0

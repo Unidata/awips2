@@ -36,6 +36,7 @@ import com.raytheon.viz.hydrocommon.datamanager.HydroDBDataManager;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Dec 19, 2008	1787		askripsky	Initial creation
+ * Mar 08, 2012 14600       wkwock      Delete one lid instead of one group
  * 
  * </pre>
  * 
@@ -378,7 +379,7 @@ public class RPFFcstPointData extends HydroDBData implements IHydroDBData {
 
     @Override
     public String getDeleteStatement() {
-        return "DELETE FROM rpffcstpoint WHERE group_id="
+        return "DELETE FROM rpffcstpoint WHERE lid="+getDBString(lid)+" and group_id="
                 + getDBString(groupID);
     }
 

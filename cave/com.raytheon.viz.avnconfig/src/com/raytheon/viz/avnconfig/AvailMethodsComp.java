@@ -34,7 +34,8 @@ import org.eclipse.swt.widgets.Composite;
 
 /**
  * This class creates all of the buttons that corresponds to the available
- * methods.
+ * methods. Example of use is generating the buttons with the various rules
+ * methods in the Monitoring Rules configuration dialog.
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -110,10 +111,8 @@ public class AvailMethodsComp extends Composite {
         }
         Collections.sort(keyList);
 
-        // for (int x = 0; x < methodArray.size(); ++x) {
         for (String key : keyList) {
             methodData = methodArray.get(methodIndex.get(key).intValue());
-            // methodData = methodArray.get(x);
 
             gd = new GridData(160, SWT.DEFAULT);
             Button tmpBtn = new Button(this, SWT.PUSH);

@@ -34,7 +34,7 @@ import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
 import com.raytheon.uf.common.datastorage.records.LongDataRecord;
 import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
 import com.raytheon.uf.common.datastorage.records.StringDataRecord;
-import com.raytheon.uf.common.python.PythonScript;
+import com.raytheon.uf.common.python.PythonInterpreter;
 import com.raytheon.uf.viz.derivparam.library.DerivedParameterRequest;
 import com.raytheon.uf.viz.derivparam.tree.CubeLevel;
 
@@ -55,7 +55,9 @@ import com.raytheon.uf.viz.derivparam.tree.CubeLevel;
  * @version 1.0
  */
 
-public class MasterDerivScript extends PythonScript {
+public class MasterDerivScript extends PythonInterpreter {
+
+    protected static final String RESULT = "__result";
 
     private static final String DATA_NAME = "Data";
 
@@ -117,20 +119,12 @@ public class MasterDerivScript extends PythonScript {
     }
 
     @Override
-    public Object execute(String methodName, Map<String, Object> args) {
-        // TODO maybe refactor architecture so all python scripts
-        // have a master controller and execute becomes obsolete
-        throw new UnsupportedOperationException(
-                "For derived parameters, use executeScript() instead.");
-    }
-
-    @Override
     protected void evaluateArgument(String argName, Object argValue)
             throws JepException {
         if (prevArgs.containsKey(argValue)) {
             jep.eval(argName + " = " + prevArgs.get(argValue));
         } else if (argValue instanceof List) {
-            @SuppressWarnings("unchecked")
+            @SuppressWarnings({ "rawtypes" })
             List valList = (List) argValue;
             Object val = valList.get(0);
             if (val instanceof CubeLevel) {
@@ -261,7 +255,6 @@ public class MasterDerivScript extends PythonScript {
     /**
      * Retrieves the result of the method execution
      */
-    @Override
     protected List<?> getExecutionResult() throws JepException {
         // Retrieve the results and return them
         List<IDataRecord> result = null;

@@ -290,6 +290,7 @@
 
  <trackEnabled>false</trackEnabled>
 
+<!--  This section is required, but unused -->
  <pathcastConfig>
   <withinPolygon>true</withinPolygon>
   <distanceThreshold>8.0</distanceThreshold>
@@ -303,12 +304,17 @@
   <parentAreaField>STATE</parentAreaField>
   <areaNotationField>STATE</areaNotationField>
   <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+  <filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1,2" constraintType="IN" />
+ 		</mapping>
+  </filter>  
   <sortBy>
   	<sort>distance</sort>
   </sortBy>
  </pathcastConfig>
  
-    <pointSource variable="cityList">
+ <pointSource variable="cityList">
  	<pointField>NAME</pointField>
  	<searchMethod>POINTS</searchMethod>
  	<withinPolygon>true</withinPolygon>
@@ -320,11 +326,12 @@
   	</sortBy>
 	<filter>
  		<mapping key="WARNGENLEV">
- 			<constraint constraintValue="1,2" constraintType="IN" />
+ 			<constraint constraintValue="1,2,3" constraintType="IN" />
  		</mapping>
   	</filter>
  </pointSource>
  
+ <!--  This section is required, but unused -->
   <pointSource variable="otherPoints">
  	<pointField>NAME</pointField>
  	<searchMethod>POINTS</searchMethod>

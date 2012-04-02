@@ -2,23 +2,12 @@
 <?eclipse version="3.2"?>
 <plugin>
    <extension
-         point="com.raytheon.viz.core.gl.shader">
-      <shader
-            loaderClass="com.raytheon.uf.viz.radar.gl.mosaic.MosaicShaderLoader"
-            programName="mosaicMaxVal">
-      </shader>
-      <shader
-            loaderClass="com.raytheon.uf.viz.radar.gl.mosaic.MosaicShaderLoader"
-            programName="mosaicMinDist">
-      </shader>
-   </extension>
-   <extension
    		point="com.raytheon.uf.viz.core.graphicsExtension">
    		<graphicsExtension
            class="com.raytheon.uf.viz.radar.gl.GLRadialMeshExtension">
    		</graphicsExtension>
    		<graphicsExtension
-           class="com.raytheon.uf.viz.radar.gl.mosaic.GLRadarMosaicRendererFactory">
+           class="com.raytheon.uf.viz.radar.gl.mosaic.GLRadarMosaicImageExtension">
    		</graphicsExtension>
    </extension>   
 </plugin>

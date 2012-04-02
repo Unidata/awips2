@@ -20,6 +20,26 @@
     -->
 <?eclipse version="3.3"?>
 <plugin>
+	<extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:file.new.Aviation">
+          <command
+                commandId="com.raytheon.viz.aviation.openaviation"
+                label="AvnFPS Menu ..."
+                style="push">
+          </command>
+          <separator
+              name="xxx"
+              visible="true">
+          </separator>
+          <command
+                commandId="com.raytheon.viz.aviation.openavnconfig"
+                label="Configuration GUI ..."
+                style="push">
+          </command>    
+      </menuContribution>
+      </extension>
    <extension
          point="org.eclipse.ui.commands">
       <command
