@@ -36,9 +36,9 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.osgi.framework.Bundle;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
-import com.raytheon.uf.viz.collaboration.data.DataUser.RoleType;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 import com.raytheon.uf.viz.core.icon.IconUtil;
@@ -114,8 +114,9 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
         }
         // TODO Determine user's role and then test getModifier.
         if (image != null) {
-            RoleType[] types = new RoleType[] { RoleType.LEADER,
-                    RoleType.DATA_PROVIDER };
+            ParticipantRole[] types = new ParticipantRole[] {
+                    ParticipantRole.SESSION_LEADER,
+                    ParticipantRole.DATA_PROVIDER };
             image = getModifier(types, user);
         }
         return image;
@@ -163,15 +164,16 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
         return sessionId;
     }
 
-    private Image getModifier(RoleType[] types, CollaborationUser user) {
+    private Image getModifier(ParticipantRole[] types, CollaborationUser user) {
         String key = user.getImageKey();
         StringBuilder modKey = new StringBuilder(key);
-        List<RoleType> t = Arrays.asList(types);
-        if (t.contains(RoleType.LEADER)) {
-            modKey.append(":").append(RoleType.LEADER.toString());
+        List<ParticipantRole> t = Arrays.asList(types);
+        if (t.contains(ParticipantRole.SESSION_LEADER)) {
+            modKey.append(":")
+                    .append(ParticipantRole.SESSION_LEADER.toString());
         }
-        if (t.contains(RoleType.DATA_PROVIDER)) {
-            modKey.append(":").append(RoleType.DATA_PROVIDER.toString());
+        if (t.contains(ParticipantRole.DATA_PROVIDER)) {
+            modKey.append(":").append(ParticipantRole.DATA_PROVIDER.toString());
         }
         Image image = imageMap.get(modKey.toString());
 
@@ -181,13 +183,13 @@ public class ParticipantsLabelProvider implements ITableColorProvider,
             // original image is 16x16
             GC gc = new GC(image, SWT.LEFT_TO_RIGHT);
 
-            if (t.contains(RoleType.LEADER)) {
+            if (t.contains(ParticipantRole.SESSION_LEADER)) {
                 Image im = IconUtil.getImageDescriptor(bundle,
                         "session_leader.png").createImage();
                 gc.drawImage(im, 7, 7);
                 im.dispose();
             }
-            if (t.contains(RoleType.DATA_PROVIDER)) {
+            if (t.contains(ParticipantRole.DATA_PROVIDER)) {
                 Image im = IconUtil.getImageDescriptor(bundle,
                         "data_provider.png").createImage();
                 gc.drawImage(im, 0, 16);
