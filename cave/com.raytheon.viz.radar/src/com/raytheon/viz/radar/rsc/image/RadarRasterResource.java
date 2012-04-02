@@ -21,16 +21,13 @@ package com.raytheon.viz.radar.rsc.image;
 
 import java.awt.Rectangle;
 
-import org.geotools.referencing.CRS;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.opengis.referencing.FactoryException;
+import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
-import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.dataplugin.radar.util.RadarUtil;
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.IMesh;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IImage;
@@ -39,7 +36,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapMeshExtension;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.rsc.hdf5.ImageTile;
 import com.raytheon.viz.radar.VizRadarRecord;
 import com.raytheon.viz.radar.interrogators.IRadarInterrogator;
 import com.raytheon.viz.radar.rsc.RadarImageResource;
@@ -85,22 +81,19 @@ public class RadarRasterResource extends RadarImageResource<MapDescriptor> {
     }
 
     @Override
-    public PixelCoverage buildCoverage(IGraphicsTarget target, ImageTile tile,
+    public PixelCoverage buildCoverage(IGraphicsTarget target,
             VizRadarRecord timeRecord) throws VizException {
         if (sharedCoverage == null) {
-            sharedCoverage = super.buildCoverage(target, tile, timeRecord);
+            double maxExtent = RadarUtil.calculateExtent(timeRecord);
+            GridGeometry2D geom = RadarUtil.constructGridGeometry(
+                    timeRecord.getCRS(),
+                    maxExtent,
+                    Math.max(timeRecord.getNumBins(),
+                            timeRecord.getNumRadials()));
 
-            IMesh mesh = target.getExtension(IMapMeshExtension.class)
-                    .constructMesh(descriptor);
-            try {
-                mesh.calculateMesh(sharedCoverage, tile, CRS.findMathTransform(
-                        timeRecord.getCRS(), DefaultGeographicCRS.WGS84));
-            } catch (FactoryException e) {
-                statusHandler
-                        .handle(Priority.PROBLEM,
-                                "Error finding math transform to lat/lon for radar record",
-                                e);
-            }
+            sharedCoverage = super.buildCoverage(target, timeRecord);
+            sharedCoverage.setMesh(target.getExtension(IMapMeshExtension.class)
+                    .constructMesh(geom, descriptor.getGridGeometry()));
         }
         return sharedCoverage;
     }
@@ -115,17 +108,9 @@ public class RadarRasterResource extends RadarImageResource<MapDescriptor> {
     @Override
     public void project(CoordinateReferenceSystem crs) throws VizException {
         super.project(crs);
-        if (sharedCoverage != null) {
-            sharedCoverage.dispose();
-            sharedCoverage = null;
+        if (sharedCoverage != null && sharedCoverage.getMesh() != null) {
+            sharedCoverage.getMesh().reproject(descriptor.getGridGeometry());
         }
-        // TODO dispose just the coverage, not the image.
-        for (DrawableImage image : images.values()) {
-            if (image != null) {
-                image.dispose();
-            }
-        }
-        images.clear();
     }
 
     @Override

@@ -20,7 +20,6 @@
 package com.raytheon.viz.core.gl;
 
 import com.raytheon.uf.viz.core.drawables.IFont;
-import com.raytheon.viz.core.gl.internal.GLTarget;
 import com.sun.opengl.util.j2d.TextRenderer;
 
 /**
@@ -48,13 +47,6 @@ public interface IGLFont extends IFont {
      * @return
      */
     public TextRenderer getTextRenderer();
-
-    /**
-     * Get the target for the font
-     * 
-     * @return
-     */
-    public GLTarget getTarget();
 
     /**
      * Force a dispose

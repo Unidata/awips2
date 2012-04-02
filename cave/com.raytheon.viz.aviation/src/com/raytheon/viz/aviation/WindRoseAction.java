@@ -37,7 +37,7 @@ import com.raytheon.viz.avncommon.AvnMessageMgr.StatusMessageType;
 import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
 
 /**
- * TODO Add Description
+ * Action class for Climate's Wind Rose Dialog.
  * 
  * <pre>
  * 
@@ -52,7 +52,8 @@ import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
  * @author mnash
  * @version 1.0
  */
-
+@Deprecated
+// TODO no longer used remove from the base line
 public class WindRoseAction extends AbstractHandler {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(WindRoseAction.class);

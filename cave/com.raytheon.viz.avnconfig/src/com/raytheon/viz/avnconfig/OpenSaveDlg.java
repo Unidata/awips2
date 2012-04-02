@@ -43,6 +43,21 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 
+/**
+ * This class generates a list of localized files that can be opened in the
+ * AvnFPS Text Editor.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 
+ * </pre>
+ * 
+ * @version 1.0
+ */
 public class OpenSaveDlg extends Dialog {
     /**
      * Dialog shell.
@@ -54,28 +69,67 @@ public class OpenSaveDlg extends Dialog {
      */
     private Display display;
 
+    /**
+     * Used to indicate if the dialog is being used for open or save as dialog.
+     * Only the OPEN is used.
+     */
+    // TODO remove the SAVE_AS code that is not used change the constructor to
+    // not use.
+    @Deprecated
     public static enum DialogType {
         OPEN, SAVE_AS
     };
 
+    /**
+     * Dialog type. This is always OPEN.
+     */
+    @Deprecated
     private DialogType dialogType;
 
+    /**
+     * Font used to display file list.
+     */
     private Font controlFont;
 
+    /**
+     * List of localized files that can be edited.
+     */
     private List cfgFileList;
 
+    /**
+     * The localize file selected by the user.
+     */
     private LocalizationFile selectedFile;
 
+    /**
+     * List of localized files used to generate the file list.
+     */
     private LocalizationFile[] locFiles;
 
+    /**
+     * Uses file's display name as key to get the associated localized file.
+     */
     private Map<String, LocalizationFile> locFileMap;
 
+    /**
+     * Constructor
+     * 
+     * @param parent
+     *            shell
+     * @param type
+     */
     public OpenSaveDlg(Shell parent, DialogType type) {
         super(parent, 0);
 
         dialogType = type;
     }
 
+    /**
+     * Display dialog and sets the selected file when user clicks on the Open
+     * button. Any other close leaves the the selected file null.
+     * 
+     * @return null
+     */
     public Object open() {
         Shell parent = getParent();
         display = parent.getDisplay();
@@ -106,6 +160,9 @@ public class OpenSaveDlg extends Dialog {
         return null;
     }
 
+    /**
+     * Set up the dialog's display components.
+     */
     private void initializeComponents() {
         locFileMap = new TreeMap<String, LocalizationFile>();
         controlFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
@@ -118,6 +175,10 @@ public class OpenSaveDlg extends Dialog {
         getAvailableConfigFiles();
     }
 
+    /**
+     * Create the label and the scroll list that will contain the files the user
+     * can edit.
+     */
     private void createListControl() {
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Composite listComp = new Composite(shell, SWT.NONE);
@@ -137,7 +198,13 @@ public class OpenSaveDlg extends Dialog {
         cfgFileList.setFont(controlFont);
     }
 
+    /**
+     * Determine based on DialogType what kind of action button to place at the
+     * bottom of the dialog.
+     */
     private void createBottomButtons() {
+        // TODO Only the DialogType.OPEN is ever used. Code needs to be
+        // modified to no longer use DialogType.
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Composite mainButtonComp = new Composite(shell, SWT.NONE);
         mainButtonComp.setLayout(new GridLayout(1, false));
@@ -188,6 +255,10 @@ public class OpenSaveDlg extends Dialog {
         });
     }
 
+    /**
+     * Obtain from localization the configuration file information and populate
+     * the dialog scroll list.
+     */
     private void getAvailableConfigFiles() {
         String[] extensions = new String[] { ".xml", ".cfg" };
         LocalizationType[] types = new LocalizationType[] {
@@ -230,6 +301,12 @@ public class OpenSaveDlg extends Dialog {
         }
     }
 
+    /**
+     * Obtain the localized file selected by the user or null if no file
+     * selected.
+     * 
+     * @return lfile
+     */
     public LocalizationFile getSelectedFile() {
         return selectedFile;
     }

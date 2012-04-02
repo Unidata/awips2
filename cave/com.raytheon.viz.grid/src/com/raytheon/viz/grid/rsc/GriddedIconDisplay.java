@@ -29,8 +29,6 @@ import java.util.Map;
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 
-import com.raytheon.uf.viz.core.DrawableImage;
-import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.data.prep.IODataPreparer;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -38,6 +36,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.viz.core.contours.rsc.displays.AbstractGriddedDisplay;
 import com.raytheon.viz.pointdata.PointIconFactory;
+import com.raytheon.viz.pointdata.drawables.IPointImageExtension;
+import com.raytheon.viz.pointdata.drawables.IPointImageExtension.PointImage;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -160,17 +160,18 @@ public class GriddedIconDisplay extends AbstractGriddedDisplay<IImage> {
     @Override
     protected void paint(PaintProperties paintProps,
             Collection<GridCellRenderable> renderables) throws VizException {
-        List<DrawableImage> images = new ArrayList<DrawableImage>();
+        List<PointImage> images = new ArrayList<PointImage>();
         for (GridCellRenderable renderable : renderables) {
             if (renderable.resource != empty) {
-                images.add(new DrawableImage(renderable.resource,
-                        new PixelCoverage(renderable.plotLocation,
-                                renderable.adjustedSize,
-                                renderable.adjustedSize)));
+                PointImage image = new PointImage(renderable.resource,
+                        renderable.plotLocation);
+                image.setHeight((double) size * magnification);
+                image.setWidth((double) size * magnification);
+                images.add(image);
             }
         }
-        target.drawRasters(paintProps,
-                images.toArray(new DrawableImage[images.size()]));
+        target.getExtension(IPointImageExtension.class).drawPointImages(
+                paintProps, images);
     }
 
 }

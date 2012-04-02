@@ -215,6 +215,9 @@ VTECTable = {
     'RB.Y' : {'phen': 'RB',
               'sig': 'Y',
               'hdln': 'SMALL CRAFT ADVISORY FOR ROUGH BAR'},
+    'RP.S' : {'phen': 'RP',
+              'sig' : 'S',
+              'hdln': 'HIGH RIP CURRENT RISK'}, #DR 21037 change
     'SC.Y' : {'phen': 'SC',
               'sig': 'Y',
               'hdln': 'SMALL CRAFT ADVISORY'},

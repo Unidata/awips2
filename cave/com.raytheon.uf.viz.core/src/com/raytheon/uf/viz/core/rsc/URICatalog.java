@@ -83,7 +83,12 @@ public class URICatalog extends DecisionTree<List<IURIRefreshCallback>> {
     }
 
     protected static synchronized void setCustomInstance(URICatalog catalog) {
-        // TODO what to do if there already is an isntance.
+        if (instance != null) {
+            for (DataPair pair : instance.getDataPairs()) {
+                catalog.insertCriteria(pair.metadata, pair.data, false);
+            }
+            catalog.rebuildTree();
+        }
         instance = catalog;
     }
 
