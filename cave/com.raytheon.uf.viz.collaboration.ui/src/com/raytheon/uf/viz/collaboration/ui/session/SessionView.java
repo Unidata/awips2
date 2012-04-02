@@ -69,10 +69,10 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEv
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationKeywords;
 import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
-import com.raytheon.uf.viz.collaboration.data.DataUser.RoleType;
 import com.raytheon.uf.viz.core.VizApp;
 
 /**
@@ -339,12 +339,12 @@ public class SessionView extends AbstractSessionView {
                     builder.append("type: ").append(user.getType())
                             .append("\n");
                     builder.append("-- Roles --");
-                    for (RoleType type : user.getRoles()) {
+                    for (ParticipantRole type : user.getRoles()) {
                         // TODO fake XXX take this out
-                        if (type == RoleType.UNKNOWN) {
-                            continue;
-                        }
-                        builder.append("\n" + type.value());
+                        // if (type == ParticipantRole.UNKNOWN) {
+                        // continue;
+                        // }
+                        builder.append("\n" + type.toString());
                     }
                     usersTable.getTable().setToolTipText(builder.toString());
                 } else {
@@ -365,12 +365,12 @@ public class SessionView extends AbstractSessionView {
                 user.setMode(Mode.AVAILABLE);
                 user.setType(Type.AVAILABLE);
 
-                // RoleType[] roles = user.getRoles(sessionId);
-                // for (RoleType role : roles) {
+                // ParticipantRole[] roles = user.getRoles(sessionId);
+                // for (ParticipantRole role : roles) {
                 // user.addRole(role);
                 // }
-                user.addRole(RoleType.DATA_PROVIDER);
-                user.addRole(RoleType.LEADER);
+                user.addRole(ParticipantRole.DATA_PROVIDER);
+                user.addRole(ParticipantRole.SESSION_LEADER);
                 user.setText(participant.getFQName());
                 // user.setMode(mode);
                 // user.setType(Type.AVAILABLE);
@@ -458,7 +458,7 @@ public class SessionView extends AbstractSessionView {
             }
         }
 
-        RoleType[] type = null;
+        ParticipantRole[] type = null;
         for (CollaborationUser u : (List<CollaborationUser>) usersTable
                 .getInput()) {
             if (name.equals(u.getId())) {
