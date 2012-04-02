@@ -505,6 +505,7 @@ static PyObject* pyembed_jimport(PyObject* self, PyObject *arg) {
     PyObject     *pvalue = NULL;
     PyObject     *ptrace = NULL;
     char *cname;
+	jstring member;
 
     jepThread = pyembed_get_jepthread();
     if(!jepThread) {
@@ -552,7 +553,7 @@ static PyObject* pyembed_jimport(PyObject* self, PyObject *arg) {
 			}
 		}
 
-		jstring member = (*env)->NewStringUTF(env, cname);
+		member = (*env)->NewStringUTF(env, cname);
 
 		Py_UNBLOCK_THREADS;
 		objclazz = (jclass) (*env)->CallObjectMethod(env,
@@ -1542,11 +1543,15 @@ void pyembed_setnumeric_array(JNIEnv *env,
     PyThreadState *prevThread;
     PyObject      *pymodule;
 
+	jclass floatArrayClass;
+	jclass intArrayClass;
+	jclass byteArrayClass;
+
     GET_COMMON;
 
-    jclass floatArrayClass = (*env)->FindClass(env, "[F");
-    jclass intArrayClass = (*env)->FindClass(env, "[I");
-    jclass byteArrayClass = (*env)->FindClass(env, "[B");
+    floatArrayClass = (*env)->FindClass(env, "[F");
+    intArrayClass = (*env)->FindClass(env, "[I");
+    byteArrayClass = (*env)->FindClass(env, "[B");
 
     if(obj == NULL) {
         Py_INCREF(Py_None);

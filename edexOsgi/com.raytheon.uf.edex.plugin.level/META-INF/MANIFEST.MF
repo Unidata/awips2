@@ -18,3 +18,4 @@ Require-Bundle: com.raytheon.edex.common,
 Export-Package: com.raytheon.uf.edex.plugin.level.adapter,
  com.raytheon.uf.edex.plugin.level.dao
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: com.raytheon.uf.common.comm

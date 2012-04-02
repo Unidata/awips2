@@ -1947,5 +1947,6 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         return [
             ('SU.W', allActions, 'Marine'),      # HIGH SURF WARNING
             ('SU.Y', allActions, 'Marine'),      # HIGH SURF ADVISORY
+            ('RP.S', allActions, 'Rip'),         # High Rip Threat
             ]
 
