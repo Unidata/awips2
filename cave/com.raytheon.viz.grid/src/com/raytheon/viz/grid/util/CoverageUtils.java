@@ -22,8 +22,11 @@ package com.raytheon.viz.grid.util;
 import java.awt.RenderingHints;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.media.jai.BorderExtender;
@@ -40,6 +43,7 @@ import org.geotools.coverage.processing.Operations;
 import org.opengis.geometry.Envelope;
 
 import com.raytheon.uf.common.dataplugin.grib.request.GetCoverageRequest;
+import com.raytheon.uf.common.dataplugin.grib.request.GetCoveragesRequest;
 import com.raytheon.uf.common.dataplugin.grib.spatial.projections.GridCoverage;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -79,28 +83,56 @@ public class CoverageUtils {
     }
 
     public GridCoverage getCoverage(String modelName) throws VizException {
-        GridCoverage rval = coverageCache.get(modelName);
+        synchronized (coverageCache) {
+            GridCoverage rval = coverageCache.get(modelName);
 
-        if (rval == null) {
-            GetCoverageRequest request = new GetCoverageRequest();
-            request.setModelName(modelName);
-            Object obj = ThriftClient.sendRequest(request);
+            if (rval == null) {
+                GetCoverageRequest request = new GetCoverageRequest();
+                request.setModelName(modelName);
+                Object obj = ThriftClient.sendRequest(request);
 
-            if (obj != null) {
-                if (obj instanceof GridCoverage) {
-                    rval = (GridCoverage) obj;
-                    coverageCache.put(modelName, rval);
+                if (obj != null) {
+                    if (obj instanceof GridCoverage) {
+                        rval = (GridCoverage) obj;
+                        coverageCache.put(modelName, rval);
+                    } else {
+                        throw new VizException(
+                                "GetCoverageRequest returned object of type ["
+                                        + obj.getClass().getName()
+                                        + "], expected ["
+                                        + GridCoverage.class.getName() + "]");
+                    }
+                }
+            }
+            return rval;
+        }
+    }
+
+    public Map<String, GridCoverage> getCoverages(Collection<String> modelNames)
+            throws VizException {
+        Map<String, GridCoverage> coverages = new HashMap<String, GridCoverage>();
+        List<String> toRequest = new ArrayList<String>();
+        synchronized (coverageCache) {
+            for (String modelName : modelNames) {
+                GridCoverage coverage = coverageCache.get(modelName);
+                if (coverage == null) {
+                    toRequest.add(modelName);
                 } else {
-                    throw new VizException(
-                            "GetCoverageRequest returned object of type ["
-                                    + obj.getClass().getName()
-                                    + "], expected ["
-                                    + GridCoverage.class.getName() + "]");
+                    coverages.put(modelName, coverage);
+                }
+            }
+            if (!toRequest.isEmpty()) {
+                GetCoveragesRequest request = new GetCoveragesRequest();
+                request.setModelNames(toRequest);
+                List<?> list = (List<?>) ThriftClient.sendRequest(request);
+                for (int i = 0; i < list.size(); i++) {
+                    coverageCache.put(toRequest.get(i),
+                            (GridCoverage) list.get(i));
+                    coverages.put(toRequest.get(i), (GridCoverage) list.get(i));
                 }
             }
         }
-
-        return rval;
+        return coverages;
     }
 
     /**

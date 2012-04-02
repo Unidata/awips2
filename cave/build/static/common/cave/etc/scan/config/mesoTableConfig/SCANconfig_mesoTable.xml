@@ -17,6 +17,13 @@
         
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
+        
+  SOFTWARE HISTORY
+  
+  Date			Ticket#	Engineer	 Description
+  __________________________________________________________________________
+  02/28/2012	14536	Xiaochuan	 Changed DefaultRank to default       
+
     -->
 <ScanConfigMesoTable>
     <LinkToFrame>false</LinkToFrame>
@@ -24,7 +31,7 @@
     <TipsOption>false</TipsOption>
     <FilterOption>false</FilterOption>
     <ZoomFactor>4</ZoomFactor>
-    <DefaultRank>mdaSR</DefaultRank>
+    <DefaultRank>default</DefaultRank>
     
     <!--
           MESO Table attributes 

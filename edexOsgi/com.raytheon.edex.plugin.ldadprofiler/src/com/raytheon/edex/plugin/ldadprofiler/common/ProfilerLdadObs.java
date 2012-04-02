@@ -21,7 +21,6 @@ package com.raytheon.edex.plugin.ldadprofiler.common;
 
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -254,6 +253,7 @@ public class ProfilerLdadObs extends PersistablePluginDataObject implements
     /**
      * @return the pdv
      */
+    @Override
     public PointDataView getPointDataView() {
         return pdv;
     }
@@ -265,6 +265,7 @@ public class ProfilerLdadObs extends PersistablePluginDataObject implements
      * @param pdv
      *            the pdv to set
      */
+    @Override
     public void setPointDataView(PointDataView pdv) {
         this.pdv = pdv;
     }
@@ -313,21 +314,6 @@ public class ProfilerLdadObs extends PersistablePluginDataObject implements
      */
     public void setLocation(SurfaceObsLocation location) {
         this.location = location;
-    }
-
-    /**
-     * 
-     */
-    public Date getPersistenceTime() {
-        return dataTime.getRefTime();
-    }
-
-    /**
-     * 
-     * 
-     */
-    public void setPersistenceTime(Date persistTime) {
-
     }
 
     /**

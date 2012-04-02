@@ -3,6 +3,7 @@
 ####################################
 ## Created by Mike Dangelo 09-19-2011 at Alaska TIM  for zones
 ## Edited by Mike Dangelo 01-26-2012 at CRH TIM
+## Edited by Phil Kurimski 2-29-2012
 ##
 #if(${action} == "EXT")
 	#set($starttime = "000000T0000Z")
@@ -30,7 +31,7 @@
 #end
 #if(${ic} == "SM")
 	#set($hycType = "FOR MELTING SNOW IN")
-#elseif({$ic} == "RS")
+#elseif(${ic} == "RS")
 	#set($hycType = "FOR RAIN AND MELTING SNOW IN")
 #elseif(${ic} == "IJ")
 	#set($hycType = "FOR ICE JAM FLOODING IN")
@@ -117,6 +118,12 @@
 #if(${list.contains($bullets, "trainedSpotters")} && ${list.contains($bullets, "plainRain")})
   #set ($report = "TRAINED WEATHER SPOTTERS REPORTED ${cause} IN !** LOCATION **! THAT WILL CAUSE ${advTypeShort}${report2}")   
 #end
+#if(${list.contains($bullets, "trainedSpotters")} && ${list.contains($bullets, "glacierOutburst")})
+  #set ($report = "A TRAINED SPOTTER REPORTED MINOR FLOODING IN !** LOCATION **! DUE TO A GLACIER-DAMMED LAKE OUTBURST FLOOD")   
+#end
+#if(${list.contains($bullets, "trainedSpotters")} && ${list.contains($bullets, "groundWater")})
+  #set ($report = "A TRAINED SPOTTER REPORTED MINOR FLOODING IN !** LOCATION **! DUE TO RISING GROUND WATER LEVELS")   
+#end
 #if(${list.contains($bullets, "lawEnforcement")})
   #set ($report = "LOCAL LAW ENFORCEMENT REPORTED ${cause} CAUSING ${advTypeShort} IN !** LOCATION **!${report2}")   
 #end
@@ -129,6 +136,30 @@
 #if(${list.contains($bullets, "lawEnforcement")} && ${list.contains($bullets, "plainRain")})
   #set ($report = "LOCAL LAW ENFORCEMENT REPORTED ${cause} IN !** LOCATION **! THAT WILL CAUSE ${advTypeShort}${report2}")   
 #end
+#if(${list.contains($bullets, "lawEnforcement")} && ${list.contains($bullets, "glacierOutburst")})
+  #set ($report = "LOCAL LAW ENFORCEMENT REPORTED MINOR FLOODING IN !** LOCATION **! DUE TO A GLACIER-DAMMED LAKE OUTBURST FLOOD")   
+#end
+#if(${list.contains($bullets, "lawEnforcement")} && ${list.contains($bullets, "groundWater")})
+  #set ($report = "LOCAL LAW ENFORCEMENT REPORTED MINOR FLOODING IN !** LOCATION **! DUE TO RISING GROUND WATER LEVELS")   
+#end
+#if(${list.contains($bullets, "emergencyManagement")})
+  #set ($report = "EMERGENCY MANAGEMENT REPORTED ${cause} CAUSING ${advTypeShort} IN !** LOCATION **!${typeofevent}")   
+#end
+#if(${list.contains($bullets, "emergencyManagement")} && ${list.contains($bullets, "thunder")})
+  #set ($report = "EMERGENCY MANAGEMENT REPORTED ${cause} IN !** LOCATION **! DUE TO A THUNDERSTORM IN THAT WILL CAUSE ${advTypeShort}${typeofevent}")   
+#end
+#if(${list.contains($bullets, "emergencyManagement")} && ${list.contains($bullets, "actual")})
+  #set ($report = "EMERGENCY MANAGEMENT REPORTED ${cause} CAUSING ${advTypeShort} IN !** LOCATION **!${typeofevent}")   
+#end
+#if(${list.contains($bullets, "emergencyManagement")} && ${list.contains($bullets, "plainRain")})
+  #set ($report = "EMERGENCY MANAGEMENT REPORTED ${cause} IN !** LOCATION **! THAT WILL CAUSE ${advTypeShort}${typeofevent}")   
+#end
+#if(${list.contains($bullets, "emergencyManagement")} && ${list.contains($bullets, "glacierOutburst")})
+  #set ($report = "EMERGENCY MANAGEMENT REPORTED MINOR FLOODING IN !** LOCATION **! DUE TO A GLACIER-DAMMED LAKE OUTBURST FLOOD")   
+#end
+#if(${list.contains($bullets, "emergencyManagement")} && ${list.contains($bullets, "groundWater")})
+  #set ($report = "EMERGENCY MANAGEMENT REPORTED MINOR FLOODING IN !** LOCATION **! DUE TO RISING GROUND WATER LEVELS")   
+#end
 #if(${list.contains($bullets, "public")})
   #set ($report = "THE PUBLIC REPORTED ${cause} CAUSING ${advTypeShort} IN !** LOCATION **!${report2}")   
 #end
@@ -140,6 +171,12 @@
 #end
 #if(${list.contains($bullets, "public")} && ${list.contains($bullets, "plainRain")})
   #set ($report = "THE PUBLIC REPORTED ${cause} IN !** LOCATION **! THAT WILL CAUSE MINOR FLOODING${report2}")   
+#end
+#if(${list.contains($bullets, "public")} && ${list.contains($bullets, "glacierOutburst")})
+  #set ($report = "THE PUBLIC REPORTED MINOR FLOODING IN !** LOCATION **! DUE TO A GLACIER-DAMMED LAKE OUTBURST FLOOD")   
+#end
+#if(${list.contains($bullets, "public")} && ${list.contains($bullets, "groundWater")})
+  #set ($report = "THE PUBLIC REPORTED MINOR FLOODING IN !** LOCATION **! DUE TO RISING GROUND WATER LEVELS")   
 #end
 #if(${list.contains($bullets, "doppler")} || ${list.contains($bullets, "dopplerGauge")})
 #set($estimate = "UP TO !** Number **! INCHES OF RAIN HAS FALLEN IN THE PAST HOUR.")
@@ -379,7 +416,7 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE.##
 #end
-...THE ${advType} FOR ##
+...THE ${advType} ${hycType}HAS BEEN CANCELLED FOR ##
 #headlineLocList(${cancelareas} true true true false)
 ...##
 ########### END NEW HEADLINE CODE ####################
@@ -453,6 +490,7 @@ ADDITIONAL RAINFALL OF !** Edit Amount **! INCHES IS EXPECTED OVER THE AREA.  TH
 
 MINOR FLOODING IS OCCURRING NEAR !** Enter Location **!. 
 #end
+
 #if(${list.contains($bullets, "drainages")})
 #drainages(${riverdrainages})
 
@@ -499,7 +537,7 @@ TO REPORT FLOODING...HAVE THE NEAREST LAW ENFORCEMENT AGENCY RELAY YOUR REPORT T
 
 #end
 #if(${list.contains($bullets, "advisoryMeansCTA")})
-A FLOOD ADVISORY MEANS RIVER OR STREAM FLOWS ARE ELEVATED OR PONDING OF WATER IN URBAN OR OTHER AREAS IS OCCURRING OR IS IMMINENT. KEEP AN EYE ON WATERWAYS AND BE PREPARED TO TAKE ACTION.
+A FLOOD ADVISORY MEANS RIVER OR STREAM FLOWS ARE ELEVATED...OR PONDING OF WATER IN URBAN OR OTHER AREAS IS OCCURRING OR IS IMMINENT. DO NOT ATTEMPT TO TRAVEL ACROSS FLOODED ROADS. FIND ALTERNATE ROUTES. IT TAKES ONLY A FEW INCHES OF SWIFTLY FLOWING WATER TO CARRY VEHICLES AWAY.
 
 #end
 #if(${ctaSelected} == "YES") 
@@ -507,10 +545,6 @@ A FLOOD ADVISORY MEANS RIVER OR STREAM FLOWS ARE ELEVATED OR PONDING OF WATER IN
 
 #end
 #################################### END OF CTA STUFF ###################################
-#if(${list.contains($bullets, "advMeans")})
-A FLOOD ADVISORY MEANS RIVER OR STREAM FLOWS ARE ELEVATED OR PONDING OF WATER IN URBAN OR OTHER AREAS IS OCCURRING OR IS IMMINENT.
-
-#end
 #end
 ####################################
 ## END OF FLOOD ADVISORY PRODUCTS ##

@@ -135,6 +135,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * ------------ ---------- ----------- --------------------------
  * May 4, 2010            mschenke     Initial creation
  * 02/01/2012   DR 14491   D. Friedman Load/unload only the maps not already loaded
+ * 02/28/2012   DR 13596   Qinglu Lin  Call GisUtil.restoreAlaskaLon() in figurePoint().
  * 
  * </pre>
  * 
@@ -1701,6 +1702,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
             DataTime currentFrameTime, double speed, double motdir) {
         Coordinate recordDragMePoint = new Coordinate(
                 displayState.dragMePoint.getCoordinate());
+        recordDragMePoint = GisUtil.restoreAlaskaLon(recordDragMePoint);
 
         long currentInMillis = currentFrameTime.getRefTimeAsCalendar()
                 .getTimeInMillis();

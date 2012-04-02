@@ -31,4 +31,27 @@
     		visible="false"/>	
   </perspectiveExtension> 
 </extension>
+
+<extension
+      point="org.eclipse.ui.handlers">
+      <handler
+         class="com.raytheon.uf.viz.d2d.nsharp.rsc.action.NSharpSaveScreenAction"
+         commandId="com.raytheon.viz.ui.actions.saveScreen">
+         <activeWhen>
+         	<with variable="activeEditorId">
+       			<equals value="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor"/>
+    		</with>
+         </activeWhen>
+   </handler>
+   <handler
+         class="com.raytheon.uf.viz.d2d.nsharp.rsc.action.NSharpPrintScreenAction"
+         commandId="com.raytheon.viz.ui.actions.printScreenAction">
+		 <activeWhen>
+         	<with variable="activeEditorId">
+       			<equals value="gov.noaa.nws.ncep.ui.nsharp.skewt.NsharpSkewTEditor"/>
+    		</with>
+         </activeWhen>
+   </handler>
+</extension>
+      
 </plugin>

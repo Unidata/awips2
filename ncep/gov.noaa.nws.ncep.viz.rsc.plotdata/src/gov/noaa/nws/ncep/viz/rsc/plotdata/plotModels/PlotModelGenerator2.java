@@ -446,12 +446,12 @@ public class PlotModelGenerator2 extends Job {
             
             // key is a formatted lat/lon string
             Map<String, PlotInfo> plotMap = new HashMap<String, PlotInfo>();
-            Map<Integer, DataTime> timeMap = new HashMap<Integer, DataTime>();
+            Map<String, DataTime> timeMap = new HashMap<String, DataTime>();
 
             for( PlotInfo info : stationQueue ) {
                 plotMap.put( 
                 		formatLatLonKey(info.latitude, info.longitude ), info);
-                timeMap.put( info.id, info.dataTime);
+                timeMap.put( info.dataURI, info.dataTime);
                 stationQuery.add(info);            		
             }
             
@@ -490,7 +490,7 @@ public class PlotModelGenerator2 extends Job {
             String[] str = new String[stationQuery.size()];
             
             for (int z = 0; z < str.length; z++) {
-                str[z] = "" + stationQuery.get(z).id;
+                str[z] = "" + stationQuery.get(z).dataURI;
             }
 
             int index = 0;
@@ -509,7 +509,7 @@ public class PlotModelGenerator2 extends Job {
                     j++;
                 }
                 
-                map.put("id", rc);
+                map.put("dataURI", rc);
                 
                 try {
                     // Try and get data from datacube

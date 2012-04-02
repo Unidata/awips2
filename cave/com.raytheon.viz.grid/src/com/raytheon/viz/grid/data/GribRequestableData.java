@@ -116,9 +116,7 @@ public class GribRequestableData extends AbstractRequestableData {
     @Override
     public IDataRecord[] getDataValue(Object arg) throws VizException {
 
-        if (arg == null) {
-            return getDataValue(Request.ALL);
-        } else if (arg instanceof Request) {
+        if (arg instanceof Request) {
             Request request = (Request) arg;
             SoftReference<IDataRecord[]> record = cache.get(request);
             if (record != null) {
@@ -176,11 +174,9 @@ public class GribRequestableData extends AbstractRequestableData {
             }
 
             return result;
+        } else {
+            return getDataValue(Request.ALL);
         }
-
-        throw new VizException(this.getClass().getSimpleName()
-                + " cannot process request of type: "
-                + arg.getClass().getSimpleName());
 
     }
 

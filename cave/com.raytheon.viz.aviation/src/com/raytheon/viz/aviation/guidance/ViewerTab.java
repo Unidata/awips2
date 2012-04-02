@@ -123,12 +123,18 @@ public abstract class ViewerTab extends Composite {
      */
     protected IStatusSettable msgStatComp;
 
+    /**
+     * Current site.
+     */
     protected String siteID;
 
+    /**
+     * Taf data for the current site.
+     */
     protected TafSiteData siteData;
 
     /**
-     * When true tab is the active display.
+     * Indicates when the tab is populated with the user's latest request.
      */
     private boolean displayCurrent = false;
 
@@ -149,8 +155,16 @@ public abstract class ViewerTab extends Composite {
      */
     protected boolean allChkIsSelected;
 
+    /**
+     * Dialog the viewer is associated with.
+     */
     protected TafViewerEditorDlg tafViewerEditorDlg;
 
+    /**
+     * Set dialog viewer is associated with.
+     * 
+     * @param tafViewerEditorDlg
+     */
     public void setTafViewerEditorDlg(TafViewerEditorDlg tafViewerEditorDlg) {
         this.tafViewerEditorDlg = tafViewerEditorDlg;
     }
@@ -168,6 +182,13 @@ public abstract class ViewerTab extends Composite {
         PythonGuidanceJob.addViewerTab(this);
     }
 
+    /**
+     * Method sub-classes must implement to request the caching of data
+     * displayed by the tab.
+     * 
+     * @param siteIDs
+     *            list of sites needing data cached
+     */
     abstract public void generateCache(List<String> siteIDs);
 
     /*
@@ -185,18 +206,40 @@ public abstract class ViewerTab extends Composite {
         super.dispose();
     }
 
+    /**
+     * 
+     * @return displayCurrent true when tab is populated with the current
+     *         request
+     */
     public boolean isDisplayCurrent() {
         return displayCurrent;
     }
 
+    /**
+     * Set the current display's status. When true the tab is populate with the
+     * current request. When false the tab is waiting to be updated with the
+     * current request.
+     * 
+     * @param displayCurrent
+     */
     public void setDisplayCurrent(boolean displayCurrent) {
         this.displayCurrent = displayCurrent;
     }
 
+    /**
+     * Indicates the tab is selected as the current tab being displayed.
+     * 
+     * @return currentTab
+     */
     public boolean isCurrentTab() {
         return currentTab;
     }
 
+    /**
+     * Set the current tab state.
+     * 
+     * @param currentTab
+     */
     public void setCurrentTab(boolean currentTab) {
         this.currentTab = currentTab;
     }
@@ -249,20 +292,29 @@ public abstract class ViewerTab extends Composite {
     protected abstract void createTopControls(ResourceConfigMgr configMgr);
 
     /**
-     * This method is called so any extra initialization/setup and be done after
-     * the initializeComponents method is called.
+     * This method is called so any extra initialization/setup can be performed
+     * after the initializeComponents method is called.
      */
     protected abstract void finalInitialization();
 
+    /**
+     * From the GUI the user can select various options to queue another display
+     * request prior to a previous request being finished. This variable is used
+     * to determine the last request queued so it will be the one to populate
+     * the tab.
+     */
     private AtomicInteger generatGuidanceCount = new AtomicInteger(
             Integer.MIN_VALUE);
 
     /**
-     * Generate the guidance. Must override to queue a request.
+     * This method must be overridden by the implementing class to perform the
+     * queue of the type of requested need to populate the tab. The first thing
+     * the override method should do is call its super method to properly set up
+     * the siteID, states and to get the count value to return.
      * 
      * @param siteID
      *            Site ID.
-     * @return cnt unique count
+     * @return cnt unique count that increases each time the method is called.
      */
     public int generateGuidance(String siteID) {
         int cnt = generatGuidanceCount.incrementAndGet();
@@ -271,10 +323,20 @@ public abstract class ViewerTab extends Composite {
         return cnt;
     }
 
+    /**
+     * Used to force request to get the current sites data.
+     */
     void reGenerateGuidance() {
         generateGuidance(siteID);
     }
 
+    /**
+     * This method must to be called by the implementing class' requestComoplete
+     * method after it has populated the textComp header and data section. This
+     * updates the highlighting of the TAF text in the viewer and adjusts the
+     * width of the this tab's header and data text component so they will stay
+     * aligned with each other when the horizontal scroll is moved.
+     */
     public void requestComplete() {
         tafViewerEditorDlg.populateTafViewer();
 
@@ -471,8 +533,17 @@ public abstract class ViewerTab extends Composite {
         }
     }
 
+    /**
+     * 
+     * @return stationList list of sites tab needs to cache data for.
+     */
     public abstract List<String> getStationList();
 
+    /**
+     * Set the list of stations tab needs to cache data for.
+     * 
+     * @param stationList
+     */
     public abstract void setStationList(List<String> stationList);
 
     /**
@@ -503,7 +574,10 @@ public abstract class ViewerTab extends Composite {
 
     /**
      * Queue the retrieval of requests and if still active update display once
-     * data is retrieved.
+     * data is retrieved. This starts up a thread to wait for the cache data to
+     * arrive so this method does not block and freeze the GUI. Once the data
+     * arrives the cnt is used to determine if the user still wants to display
+     * the data.
      * 
      * @param cnt
      *            - Unique count to indicate this request is still active.
@@ -569,6 +643,12 @@ public abstract class ViewerTab extends Composite {
         }
     }
 
+    /**
+     * Get the TAF's sites configuration information.
+     * 
+     * @param site
+     * @return tafSiteData
+     */
     protected TafSiteData getSiteData(String site) {
         ITafSiteConfig config;
         TafSiteData data = null;
@@ -585,8 +665,25 @@ public abstract class ViewerTab extends Composite {
         return data;
     }
 
+    /**
+     * Let the implementing class determine what should be returned for the
+     * site.
+     * 
+     * @param site
+     * @return
+     */
     public abstract String getSite(String site);
 
+    /**
+     * Convince method used by implementing classes to determine what string to
+     * return for the site base on the site and model.
+     * 
+     * @param site
+     *            the site
+     * @param model
+     *            the model being used for the tab
+     * @return siteId
+     */
     public String chooseModel(String site, String model) {
         if ("gfslamp".equals(model)) {
             return getSiteData(site).gfslamp;

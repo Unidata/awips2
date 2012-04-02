@@ -337,7 +337,7 @@ class Procedure (SmartScript.SmartScript):
                      statMagSums[4]=statMagSums[3]*statMagSums[3]
                      statMagSums[7]=statMagSums[3]*statMagSums[5]
                      for k in xrange(numthresh):
-                        statMagSums[8+k]=less(statDirSums[2],magThresholds[k])
+                        statMagSums[8+k]=less(statMagSums[2],magThresholds[k])
                      #
                      #  Setup place for sums
                      #
