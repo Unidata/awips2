@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Guidance request used for caching data.
+ * Guidance request used for caching Metar data.
  * 
  * <pre>
  * 
@@ -39,10 +39,18 @@ import java.util.Map;
  * @version 1.0
  */
 public class MetarCacheGuidanceRequest extends CacheGuidanceRequest {
+    // TODO remove use the one in CacheGuidanceRequest
     protected String siteID;
 
     protected String size;
 
+    /**
+     * Generate tag based on site ID and METAR size.
+     * 
+     * @param siteID
+     * @param size
+     * @return tag
+     */
     public static String getTag(String siteID, String size) {
         return GuidanceType.METAR + ":" + siteID + ":" + size;
     }
@@ -55,10 +63,12 @@ public class MetarCacheGuidanceRequest extends CacheGuidanceRequest {
         return map;
     }
 
+    // TODO remove use the one in CacheGuidanceRequest
     public String getSiteID() {
         return this.siteID;
     }
 
+    // TODO remove use the one in CacheGuidanceRequest
     public void setSiteID(String siteID) {
         this.siteID = siteID;
     }

@@ -5,6 +5,7 @@
                              4-13-2011 Merge in OB11.4 Coding Changes
                              9-15-2011 Merge in OB11.8.0-8 NEW XML SYNTAX CHANGES
      Mike Dangelo    WFO CTP 9-22-2011 to add in remarks and lines which will allow Zone-based products (Alaska TIM)
+     EVAN BOOKBINDER WFO EAX 2-24-2012 corrected parseString errors that prevented auto selection
 -->
 
 <warngenConfig>
@@ -62,11 +63,11 @@
   <bullet bulletName="dopplerSquall" bulletText="Squall line w/ embedded tornadoes" bulletGroup="group1" parseString="SQUALL LINE"/>
   <bullet bulletName="confirmedDoppler" bulletText="Confirmed tornado (WSR-88D was tracking a tornado)" bulletGroup="group1" parseString="DOPPLER RADAR WAS TRACKING A CONFIRMED TORNADO"/>
   <bullet bulletName="confirmedLarge" bulletText="Confirmed large tornado" bulletGroup="group1" parseString="DOPPLER RADAR WAS TRACKING A LARGE"/>
-  <bullet bulletName="spotter" bulletText="Trained weather spotters reported a tornado" bulletGroup="group1" parseString="TRAINED WEATHER SPOTTERS REPORTED A TORNADO"/>
-  <bullet bulletName="lawEnforcement" bulletText="Law enforcement reported a tornado" bulletGroup="group1" parseString="LOCAL LAW ENFORCEMENT REPORTED A TORNADO"/>
-  <bullet bulletName="emergencyManagement" bulletText="Emergency management reported a tornado" bulletGroup="group1" parseString="LOCAL EMERGENCY MANAGEMENT REPORTED A TORNADO"/>
-  <bullet bulletName="public" bulletText="Public reported a tornado" bulletGroup="group1" parseString="A TORNADO WAS REPORTED"/>
-  <bullet bulletName="spotterFunnelCloud" bulletText="Spotters reported a funnel cloud" bulletGroup="group1" parseString="TRAINED WEATHER SPOTTERS REPORTED A FUNNEL CLOUD"/>
+  <bullet bulletName="spotter" bulletText="Trained weather spotters reported a tornado" bulletGroup="group1" parseString="TRAINED WEATHER SPOTTERS REPORTED"/>
+  <bullet bulletName="lawEnforcement" bulletText="Law enforcement reported a tornado" bulletGroup="group1" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
+  <bullet bulletName="emergencyManagement" bulletText="Emergency management reported a tornado" bulletGroup="group1" parseString="EMERGENCY MANAGEMENT REPORTED"/>
+  <bullet bulletName="public" bulletText="Public reported a tornado" bulletGroup="group1" parseString="THE PUBLIC REPORTED"/>
+  <bullet bulletName="spotterFunnelCloud" bulletText="Spotters reported a funnel cloud" bulletGroup="group1" parseString="REPORTED A FUNNEL CLOUD"/>
 <!-- HAIL THREATS FOR TESTBED OFFICES UNCOMMENT IF NEEDED -->
 <!-- 
 <bullet bulletText="" bulletType="title"/>
@@ -103,11 +104,11 @@
   <bullet bulletName="defaultUrbanCTA" bulletText="Default safety rules for urban -- no mobile homes" parseString="IF OUTDOORS" bulletGroup="cta1"/>
   <bullet bulletName="motoristsCTA" bulletText="Safety rules for motorists" parseString="MOTORISTS SHOULD NOT"/>
   <bullet bulletName="rainWrappedCTA" bulletText="Rain wrapped tornado" parseString="HEAVY RAINFALL MAY OBSCURE THIS TORNADO"/>
-  <bullet bulletName="nighttimeCTA" bulletText="Tornadoes at night" parseString="TORNADOES ARE DIFFICULT TO SEE AND CONFIRM AT NIGHT"/>
+  <bullet bulletName="nighttimeCTA" bulletText="Tornadoes at night" parseString="TORNADOES ARE EXTREMELY DIFFICULT TO SEE AND CONFIRM AT NIGHT"/>
   <bullet bulletName="largeTORCTA" bulletText="Large/Violent tornado" parseString="A LARGE AND EXTREMELY DANGEROUS TORNADO IS ON THE GROUND"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="**** SPECIAL CASE CALLS TO ACTION *****" bulletType="title"/>   
-  <bullet bulletName="squallCTA" bulletText="Squall line tornadoes" parseString="THIS LINE OF THUNDERSTORMS IS CAPABLE OF PRODUCING TORNADOES AND"/>
+  <bullet bulletName="squallCTA" bulletText="Squall line tornadoes" parseString="THUNDERSTORMS IS CAPABLE OF PRODUCING TORNADOES"/>
   <bullet bulletName="waterCTA" bulletText="Over water - boaters seek shelter" parseString="GET OUT OF THE WATER"/>
 </bullets>
 </bulletActionGroup>
@@ -120,11 +121,11 @@
   <bullet bulletName="dopplerSquall" bulletText="Squall line w/ embedded tornadoes" bulletGroup="group1" parseString="SQUALL LINE"/>
   <bullet bulletName="confirmedDoppler" bulletText="Confirmed tornado (WSR-88D was tracking a tornado)" bulletGroup="group1" parseString="DOPPLER RADAR WAS TRACKING A CONFIRMED TORNADO"/>
   <bullet bulletName="confirmedLarge" bulletText="Confirmed large tornado" bulletGroup="group1" parseString="DOPPLER RADAR WAS TRACKING A LARGE"/>
-  <bullet bulletName="spotter" bulletText="Trained weather spotters reported a tornado" bulletGroup="group1" parseString="TRAINED WEATHER SPOTTERS REPORTED A TORNADO"/>
-  <bullet bulletName="lawEnforcement" bulletText="Law enforcement reported a tornado" bulletGroup="group1" parseString="LOCAL LAW ENFORCEMENT REPORTED A TORNADO"/>
-  <bullet bulletName="emergencyManagement" bulletText="Emergency management reported a tornado" bulletGroup="group1" parseString="LOCAL EMERGENCY MANAGEMENT REPORTED A TORNADO"/>
-  <bullet bulletName="public" bulletText="Public reported a tornado" bulletGroup="group1" parseString="A TORNADO WAS REPORTED"/>
-  <bullet bulletName="spotterFunnelCloud" bulletText="Spotters reported a funnel cloud" bulletGroup="group1" parseString="TRAINED WEATHER SPOTTERS REPORTED A FUNNEL CLOUD"/>
+  <bullet bulletName="spotter" bulletText="Trained weather spotters reported a tornado" bulletGroup="group1" parseString="TRAINED WEATHER SPOTTERS REPORTED"/>
+  <bullet bulletName="lawEnforcement" bulletText="Law enforcement reported a tornado" bulletGroup="group1" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
+  <bullet bulletName="emergencyManagement" bulletText="Emergency management reported a tornado" bulletGroup="group1" parseString="LOCAL EMERGENCY MANAGEMENT REPORTED"/>
+  <bullet bulletName="public" bulletText="Public reported a tornado" bulletGroup="group1" parseString="THE PUBLIC REPORTED"/>
+  <bullet bulletName="spotterFunnelCloud" bulletText="Spotters reported a funnel cloud" bulletGroup="group1" parseString="REPORTED A FUNNEL CLOUD"/>
 <!-- HAIL THREATS FOR TESTBED OFFICES UNCOMMENT IF NEEDED -->
 <!-- 
 <bullet bulletText="" bulletType="title"/>
@@ -161,11 +162,11 @@
   <bullet bulletName="defaultUrbanCTA" bulletText="Default safety rules for urban -- no mobile homes" parseString="IF OUTDOORS" bulletGroup="cta1"/>
   <bullet bulletName="motoristsCTA" bulletText="Safety rules for motorists" parseString="MOTORISTS SHOULD NOT"/>
   <bullet bulletName="rainWrappedCTA" bulletText="Rain wrapped tornado" parseString="HEAVY RAINFALL MAY OBSCURE THIS TORNADO"/>
-  <bullet bulletName="nighttimeCTA" bulletText="Tornadoes at night" parseString="TORNADOES ARE DIFFICULT TO SEE AND CONFIRM AT NIGHT"/>
+  <bullet bulletName="nighttimeCTA" bulletText="Tornadoes at night" parseString="TORNADOES ARE EXTREMELY DIFFICULT TO SEE AND CONFIRM AT NIGHT"/>
   <bullet bulletName="largeTORCTA" bulletText="Large/Violent tornado" parseString="A LARGE AND EXTREMELY DANGEROUS TORNADO IS ON THE GROUND"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="**** SPECIAL CASE CALLS TO ACTION *****" bulletType="title"/>   
-  <bullet bulletName="squallCTA" bulletText="Squall line tornadoes" parseString="THIS LINE OF THUNDERSTORMS IS CAPABLE OF PRODUCING TORNADOES AND"/>
+  <bullet bulletName="squallCTA" bulletText="Squall line tornadoes" parseString="THUNDERSTORMS IS CAPABLE OF PRODUCING TORNADOES"/>
   <bullet bulletName="waterCTA" bulletText="Over water - boaters seek shelter" parseString="GET OUT OF THE WATER"/>
 </bullets>
 </bulletActionGroup>

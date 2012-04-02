@@ -79,6 +79,7 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * 05/16/08     875         bphillip    Initial Creation
  * 06/17/08     #940       bphillip    Implemented GFE Locking
  * 07/23/09     2342        ryu        Check for null gridConfig in getGridParmInfo
+ * 03/02/12     DR14651     ryu        change time independency of staticTopo, staticCoriolis, staticSpacing
  * 
  * </pre>
  * 
@@ -278,12 +279,6 @@ public class D2DGridDatabase extends VGridDatabase {
                     precision, false, tc, rateParm);
         }
 
-        if (id.getParmName().equals("staticTopo")
-                || id.getParmName().equals("staticSpacing")
-                || id.getParmName().equals("staticCoriolis")) {
-            gpi.setTimeConstraints(new TimeConstraints());
-            gpi.setTimeIndependentParm(true);
-        }
         sr.setPayload(gpi);
         return sr;
     }
