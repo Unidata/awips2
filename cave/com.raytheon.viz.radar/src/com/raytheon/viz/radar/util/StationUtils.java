@@ -73,25 +73,27 @@ public class StationUtils implements IToolChangedListener {
             // String site = lm.getCurrentSite();
 
             Coordinate home = ToolsDataManager.getInstance().getHome();
-            double lat = home.y;
-            double lon = home.x;
-
-            GetRadarSpatialRequest request = new GetRadarSpatialRequest();
-            request.setLat(lat);
-            request.setLon(lon);
-            try {
-                Object response = ThriftClient.sendRequest(request);
-
-                if (response != null && response instanceof RadarStation) {
-                    station = (RadarStation) response;
-                }
-            } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Unable to retrieve home radar", e);
-            }
+            return getClosestRadarStation(home.x, home.y);
         }
 
         return station;
+    }
+
+    public RadarStation getClosestRadarStation(double lon, double lat) {
+        GetRadarSpatialRequest request = new GetRadarSpatialRequest();
+        request.setLat(lat);
+        request.setLon(lon);
+        try {
+            Object response = ThriftClient.sendRequest(request);
+
+            if (response != null && response instanceof RadarStation) {
+                return (RadarStation) response;
+            }
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to retrieve home radar", e);
+        }
+        return null;
     }
 
     /*

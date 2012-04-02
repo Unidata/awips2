@@ -184,6 +184,11 @@
   <sortBy>
   	<sort>distance</sort>
   </sortBy>
+  <filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1,2" constraintType="IN" />
+ 		</mapping>
+  </filter>  
  </pathcastConfig>
  
    <pointSource variable="cityList">
@@ -192,6 +197,11 @@
  	<withinPolygon>true</withinPolygon>
  	<maxResults>20</maxResults>
  	<distanceThreshold>10</distanceThreshold>
+	<filter> 	
+  	  <mapping key="WARNGENLEV">
+ 		<constraint constraintValue="1,2,3" constraintType="IN" />
+ 	  </mapping>
+ 	</filter> 	
  	<sortBy>
   		<sort>warngenlev</sort>
   		<sort>population</sort>

@@ -33,6 +33,7 @@ import com.raytheon.uf.common.monitor.xml.MonAreaConfigXML;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 5, 2010            mpduff     Initial creation
+ * Feb 21 2012  14413     zhao       add code handling "adjacent areas"
  *
  * </pre>
  *
@@ -45,12 +46,17 @@ public class SnowMonitorConfigurationManager extends MonitorConfigurationManager
     private static final String CONFIG_FILE_NAME = "snow" + File.separatorChar
             + "monitoringArea" + File.separatorChar + "monitorAreaConfig.xml";
 
+    /** Path to Adjacent Areas Configuration XML. */
+    private static final String ADJ_AREA_CONFIG_FILE_NAME = "snow" + File.separatorChar
+            + "monitoringArea" + File.separatorChar + "adjacentAreaConfig.xml";
+
     /** Singleton instance of this class */
     private static MonitorConfigurationManager instance = null;
 
     /* Private Constructor */
     private SnowMonitorConfigurationManager() {
         configXml = new MonAreaConfigXML();
+        adjAreaConfigXml = new MonAreaConfigXML();
     }
 
     /**
@@ -77,7 +83,7 @@ public class SnowMonitorConfigurationManager extends MonitorConfigurationManager
      * Read the XML configuration data for the current XML file name.
      */
     public void readConfigXml(String currentSite) {
-        super.readConfigXml(currentSite, CONFIG_FILE_NAME);
+        super.readConfigXml(currentSite, CONFIG_FILE_NAME, ADJ_AREA_CONFIG_FILE_NAME);
     }
 
     /**
