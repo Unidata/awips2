@@ -104,7 +104,7 @@ public class CreateSessionDialog extends CaveSWTDialog {
         gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false);
         gd.horizontalSpan = 2;
         publicCollaboration.setLayoutData(gd);
-        publicCollaboration.setText("Create Public Collaboration");
+        publicCollaboration.setText("Create Collaboration");
 
         if (showInvite) {
             inviteUsers = new Button(body, SWT.CHECK);

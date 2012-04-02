@@ -28,6 +28,7 @@ import java.util.Map;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Mode;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Type;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 
 /**
  * A Data class that contains all the user information needed for the current
@@ -48,40 +49,10 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Type;
  */
 
 public class DataUser {
-    // public static enum StatusType {
-    // AVAILABLE("Available"), AWAY("Away"), DO_NOT_DISTURB("Do Not Disturb"),
-    // NOT_ON_LINE(
-    // "UnAvailable");
-    //
-    // private final String value;
-    //
-    // StatusType(String value) {
-    // this.value = value;
-    // }
-    //
-    // public String value() {
-    // return value;
-    // }
-    // }
-
     private static final Map<String, IPresence.Mode> modeMap = new HashMap<String, IPresence.Mode>();
     static {
         for (Mode mode : Mode.values()) {
             modeMap.put(mode.name(), mode);
-        }
-    }
-
-    public static enum RoleType {
-        LEADER("Session Leader"), DATA_PROVIDER("Data Provider"), PARTICIPANT(
-                "Participant"), UNKNOWN("Unknown");
-        private final String value;
-
-        RoleType(String value) {
-            this.value = value;
-        }
-
-        public String value() {
-            return value;
         }
     }
 
@@ -91,7 +62,7 @@ public class DataUser {
 
     String statusMessage;
 
-    Map<String, List<RoleType>> roleMap;
+    Map<String, List<ParticipantRole>> roleMap;
 
     /**
      * Unique id for the usersData.
@@ -119,48 +90,54 @@ public class DataUser {
         sessionsMap = new HashMap<String, String>();
         mode = Mode.EXTENDED_AWAY;
         type = Type.UNKNOWN;
-        roleMap = new HashMap<String, List<RoleType>>();
+        roleMap = new HashMap<String, List<ParticipantRole>>();
     }
 
-    RoleType[] getSessionRoles(String session) {
-        RoleType[] result = null;
-        List<RoleType> roleList = roleMap.get(session);
+    /**
+     * @param sessionId
+     * @return
+     */
+    ParticipantRole[] getSessionRoles(String sessionId) {
+        ParticipantRole[] result = null;
+        List<ParticipantRole> roleList = roleMap.get(sessionId);
         if (roleList == null) {
-            result = new RoleType[0];
+            result = new ParticipantRole[0];
         } else {
-            result = new RoleType[roleList.size()];
+            result = new ParticipantRole[roleList.size()];
             roleList.toArray(result);
         }
         return result;
     }
 
-    void addSessionRole(final String session, final RoleType role) {
-        List<RoleType> roleList = roleMap.get(session);
+    /**
+     * @param sessionId
+     * @param role
+     */
+    void addSessionRole(final String sessionId, final ParticipantRole role) {
+        List<ParticipantRole> roleList = roleMap.get(sessionId);
         if (roleList == null) {
-            roleList = new ArrayList<DataUser.RoleType>();
-            roleMap.put(session, roleList);
+            roleList = new ArrayList<ParticipantRole>();
+            roleMap.put(sessionId, roleList);
         }
 
-        if (role == DataUser.RoleType.PARTICIPANT
-                || role == DataUser.RoleType.UNKNOWN) {
+        if (role == ParticipantRole.PARTICIPANT) {
             roleList.clear();
             roleList.add(role);
         } else {
             boolean insertRole = true;
-            Iterator<DataUser.RoleType> iter = roleList.iterator();
+            Iterator<ParticipantRole> iter = roleList.iterator();
             while (iter.hasNext()) {
-                DataUser.RoleType r = iter.next();
+                ParticipantRole r = iter.next();
                 if (r == role) {
                     insertRole = false;
                 }
-                if (r == DataUser.RoleType.PARTICIPANT
-                        || r == DataUser.RoleType.UNKNOWN) {
+                if (r == ParticipantRole.PARTICIPANT) {
                     iter.remove();
                 }
             }
             if (insertRole) {
                 // Keep order Leader then provider.
-                if (role == DataUser.RoleType.LEADER) {
+                if (role == ParticipantRole.SESSION_LEADER) {
                     roleList.add(0, role);
                 } else {
                     roleList.add(role);
@@ -169,17 +146,28 @@ public class DataUser {
         }
     }
 
-    void removeSessionRole(String session, RoleType role) {
-        List<RoleType> roleList = roleMap.get(session);
+    /**
+     * @param sessionId
+     * @param role
+     */
+    void removeSessionRole(String sessionId, ParticipantRole role) {
+        List<ParticipantRole> roleList = roleMap.get(sessionId);
         if (roleList != null) {
             roleList.remove(role);
         }
     }
 
-    void removeSession(String session) {
-        roleMap.remove(session);
+    /**
+     * @param sessionId
+     */
+    void removeSession(String sessionId) {
+        roleMap.remove(sessionId);
     }
 
+    /**
+     * @param id
+     * @return
+     */
     DataGroup getGroup(String id) {
         DataGroup group = groupsMap.get(id);
         if (group == null) {
@@ -210,5 +198,13 @@ public class DataUser {
      */
     public Mode getMode() {
         return mode;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
     }
 }
