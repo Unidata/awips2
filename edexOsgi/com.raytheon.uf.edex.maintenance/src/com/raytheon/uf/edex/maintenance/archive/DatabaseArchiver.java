@@ -150,7 +150,7 @@ public class DatabaseArchiver implements IPluginArchiver {
                 return false;
             }
 
-            List<String> datastoreFilesToArchive = new ArrayList<String>();
+            Set<String> datastoreFilesToArchive = new HashSet<String>();
 
             startTime = determineStartTime(pluginName, ct.getExtraInfo(),
                     runTime, dao, conf);
@@ -179,6 +179,16 @@ public class DatabaseArchiver implements IPluginArchiver {
 
             if (pdoMap != null && !pdoMap.isEmpty()) {
                 savePdoMap(pluginName, archivePath, pdoMap);
+                // don't forget to archive the HDF5 for the records that weren't
+                // saved off by the prior while block
+                for (Map.Entry<String, List<PersistableDataObject>> entry : pdoMap
+                        .entrySet()) {
+                    List<PersistableDataObject> pdoList = entry.getValue();
+                    if (pdoList != null && !pdoList.isEmpty()
+                            && pdoList.get(0) instanceof IPersistable) {
+                        datastoreFilesToArchive.add(entry.getKey());
+                    }
+                }
             }
 
             if (!datastoreFilesToArchive.isEmpty()) {
