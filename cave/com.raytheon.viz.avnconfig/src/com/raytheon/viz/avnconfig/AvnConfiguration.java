@@ -43,7 +43,7 @@ import com.raytheon.viz.avnconfig.AvnConfigConstants.DataSource;
 import com.raytheon.viz.avnconfig.AvnConfigConstants.RuleType;
 
 /**
- * Contains the configuration for AVNFPS
+ * Contains the configuration for AVNFPS monitoring rules.
  * 
  * A "master copy" of the configuration is kept in memory for performance
  * reasons for dispatching alerts. This copy is read only...and is reloaded when
@@ -55,7 +55,7 @@ import com.raytheon.viz.avnconfig.AvnConfigConstants.RuleType;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 12, 2009            avarani     Initial creation
- * Oct 29, 2010 7262       rferrel     Replaced deprecated class, improved
+ * Oct 29, 2010 7262       rferrel     Replaced depreciated class, improved
  *                                     parsing and allow msg & comment to have
  *                                     commas in the text.
  * Sep 27, 2011 10958      rferrel     Added checks for required fields in
@@ -171,6 +171,10 @@ public class AvnConfiguration {
         return value.toString();
     }
 
+    /**
+     * Load in information for each rule method in DataSource. Information is
+     * used to populate the Rule Editor section.
+     */
     private void reload() {
         HierarchicalPreferenceStore store = Activator.getDefault()
                 .getPreferenceStore();
@@ -234,6 +238,19 @@ public class AvnConfiguration {
         return configuration;
     }
 
+    /**
+     * Save the monitoring rules to a localized SITE configuration file.
+     * 
+     * @param site
+     *            - site ID rules are for.
+     * @param source
+     *            - the kind of data source
+     * @param data
+     *            - The array of rules
+     * @throws ConfigurationException
+     * @throws IOException
+     * @throws LocalizationOpFailedException
+     */
     public void setRules(String site, DataSource source,
             ArrayList<MethodData> data) throws ConfigurationException,
             IOException, LocalizationOpFailedException {
@@ -296,6 +313,19 @@ public class AvnConfiguration {
         lFile.save();
     }
 
+    /**
+     * Get an array of monitoring rules from the localize SITE file.
+     * 
+     * @param site
+     *            - site ID rules are for.
+     * @param source
+     *            - The desired type of rules
+     * @param maxSeverity
+     *            - The maximum serverity allowed.
+     * @return rules
+     * @throws ConfigurationException
+     * @throws IOException
+     */
     public ArrayList<MethodData> getRules(String site, DataSource source,
             final int maxSeverity) throws ConfigurationException, IOException {
         ArrayList<MethodData> rules = new ArrayList<MethodData>();

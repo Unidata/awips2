@@ -63,6 +63,7 @@ import com.raytheon.viz.texteditor.alarmalert.util.AlarmBeepJob;
  * Sep 21, 2009            mnash       Initial creation
  * Aug 16, 2010 2187	   cjeanbap    Fixed a NullPointerException
  * Dec 23, 2010 7375       cjeanbap    Force dialog ON TOP of over Dialog/Windows.
+ * 03/19/2012              D. Friedman Fix alarming.  Disable runloop in open().
  * </pre>
  * 
  * @author mnash
@@ -178,7 +179,13 @@ public class AlarmAlertBell extends Dialog implements MouseMoveListener,
     public Object open(boolean alarm) {
         // setInitialDialogLocation();
 
-        if (alarmShell.isVisible()) {
+        if (alarm) {
+            // provides the beep to alert the user that an alarm has come in
+            abj = new AlarmBeepJob("AlarmBeepJob");
+            abj.schedule();
+        }
+
+        if (alarmShell != null && alarmShell.isVisible()) {
             alarmShell.setVisible(true);
         } else {
             display = parentShell.getDisplay();
@@ -187,23 +194,21 @@ public class AlarmAlertBell extends Dialog implements MouseMoveListener,
             }
             alarmShell.setLocation(locationX, locationY);
 
-            if (alarm) {
-                // provides the beep to alert the user that an alarm has come in
-                abj = new AlarmBeepJob("AlarmBeepJob");
-                abj.schedule();
-            }
-
             alarmShell.pack();
             alarmShell.setVisible(true);
             alarmShell.setActive();
 
+            /* // TODO: what is this for?
             while (!alarmShell.isDisposed()) {
                 if (!display.isDisposed() && !display.readAndDispatch()) {
                     display.sleep();
                 }
             }
+            */
 
+            /*// TODO: put this in the correct location.
             labelFont.dispose();
+            */
         }
 
         return null;

@@ -49,6 +49,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * Dec 2, 2010            mnash     Initial creation
  * 
+ * 03/15/2012	13939	   Mike Duff    For a SCAN Alarms issue
+ * 
  * </pre>
  * 
  * @author mnash
@@ -81,6 +83,7 @@ public class SCANAlarmsDlg extends CaveSWTDialog {
         mgr = SCANAlarmAlertManager.getInstance(site);
     }
 
+    @Override
     protected void initializeComponents(Shell shell) {
         if (type == ScanTables.CELL) {
             setText("Cell Alarms");
@@ -122,50 +125,54 @@ public class SCANAlarmsDlg extends CaveSWTDialog {
         btnComp.setLayoutData(gd);
 
         for (final AlertedAlarms alarm : mgr.getAlertedAlarms(site, type)) {
-            gd = new GridData(buttonWidth, SWT.DEFAULT);
-            final Button btn = new Button(btnComp, SWT.PUSH);
-            btn.setText(alarm.ident + " --> " + alarm.colName + " "
-                    + alarm.type.getName());
-            btn.setData("ident", alarm.ident);
-            btn.setData("attr", alarm.colName);
-            btn.setLayoutData(gd);
-            btn.setBackground(Display.getDefault()
-                    .getSystemColor(SWT.COLOR_RED));
-            btn.addSelectionListener(new SelectionAdapter() {
-                @Override
-                public void widgetSelected(SelectionEvent e) {
-                    String ident = btn.getData("ident").toString();
-                    String attr = btn.getData("attr").toString();
-                    // get instance of the table dialog to use for the functions
-                    AbstractTableDlg tableDlg = ScanMonitor.getInstance()
-                            .getDialog(type, site);
-                    // display the trend graph dialogs
-                    if (tableDlg instanceof SCANCellTableDlg) {
-                        ((SCANCellTableDlg) tableDlg).getScanTableComp()
-                                .displayTrendGraphDialog(ident, attr);
-                    } else if (tableDlg instanceof SCANDmdTableDlg) {
-                        ((SCANDmdTableDlg) tableDlg).getScanTableComp()
-                                .displayTrendGraphDialog(ident, attr);
+            if (alarm.cleared == false) {
+                gd = new GridData(buttonWidth, SWT.DEFAULT);
+                final Button btn = new Button(btnComp, SWT.PUSH);
+                btn.setText(alarm.ident + " --> " + alarm.colName + " "
+                        + alarm.type.getName());
+                btn.setData("ident", alarm.ident);
+                btn.setData("attr", alarm.colName);
+                btn.setLayoutData(gd);
+                btn.setBackground(Display.getDefault()
+                        .getSystemColor(SWT.COLOR_RED));
+                btn.addSelectionListener(new SelectionAdapter() {
+                    @Override
+                    public void widgetSelected(SelectionEvent e) {
+                        String ident = btn.getData("ident").toString();
+                        String attr = btn.getData("attr").toString();
+                        // get instance of the table dialog to use for the functions
+                        AbstractTableDlg tableDlg = ScanMonitor.getInstance()
+                                .getDialog(type, site);
+                        // display the trend graph dialogs
+                        if (tableDlg instanceof SCANCellTableDlg) {
+                            ((SCANCellTableDlg) tableDlg).getScanTableComp()
+                                    .displayTrendGraphDialog(ident, attr);
+                        } else if (tableDlg instanceof SCANDmdTableDlg) {
+                            ((SCANDmdTableDlg) tableDlg).getScanTableComp()
+                                    .displayTrendGraphDialog(ident, attr);
+                        }
+                        // recenter the map on the ident
+                        tableDlg.fireRecenter(ident, type, site);
+                        // highlight the correct row
+                        // TODO highlight the row 
+                        
+                        if (tableDlg instanceof SCANDmdTableDlg) {
+                            ((SCANDmdTableDlg) tableDlg).alarmSelection(ident);
+                        }
+    
+                        tableDlg.mgr.clearAlarm(site, type, alarm);
+                        clearAllBtn.setText("Clear All "
+                                + mgr.getAlertedAlarms(site, type).size()
+                                + " Alarms");
+                        // remove the btn
+                        btn.dispose();
+                        btnComp.layout();
+                        if (mgr.getAlertedAlarms(site, type).size() <= 0) {
+                            shell.dispose();
+                        }
                     }
-                    // recenter the map on the ident
-                    tableDlg.fireRecenter(ident, type, site);
-                    // highlight the correct row
-                    if (tableDlg instanceof SCANDmdTableDlg) {
-                        ((SCANDmdTableDlg) tableDlg).alarmSelection(ident);
-                    }
-
-                    tableDlg.mgr.removeAlarm(site, type, alarm);
-                    clearAllBtn.setText("Clear All "
-                            + mgr.getAlertedAlarms(site, type).size()
-                            + " Alarms");
-                    // remove the btn
-                    btn.dispose();
-                    btnComp.layout();
-                    if (mgr.getAlertedAlarms(site, type).size() <= 0) {
-                        shell.dispose();
-                    }
-                }
-            });
+                });
+            }
         }
 
         btnComp.layout();
@@ -174,6 +181,7 @@ public class SCANAlarmsDlg extends CaveSWTDialog {
         sc.setExpandHorizontal(true);
         sc.setExpandVertical(true);
         sc.addControlListener(new ControlAdapter() {
+            @Override
             public void controlResized(ControlEvent e) {
                 Rectangle r = sc.getClientArea();
                 sc.setMinSize(btnComp.computeSize(r.width, SWT.DEFAULT));
@@ -186,8 +194,13 @@ public class SCANAlarmsDlg extends CaveSWTDialog {
         GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         gd.widthHint = buttonWidth + 30;
         clearAllBtn = new Button(shell, SWT.PUSH);
-        clearAllBtn.setText("Clear All "
-                + mgr.getAlertedAlarms(site, type).size() + " Alarms");
+        int numAlarms = 0;
+        for (AlertedAlarms alarm: mgr.getAlertedAlarms(site, type)) {
+            if (alarm.cleared == false) {
+                numAlarms++;
+            }
+        }
+        clearAllBtn.setText("Clear All " + numAlarms + " Alarms");
         clearAllBtn.setBackground(Display.getDefault().getSystemColor(
                 SWT.COLOR_RED));
         clearAllBtn.setLayoutData(gd);

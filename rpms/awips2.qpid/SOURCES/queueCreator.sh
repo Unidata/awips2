@@ -27,8 +27,8 @@ do
    qpid-config add queue ${queue}Generate --durable --file-count 16 --file-size 24
 done
 
-#define 24 Meg persistence queues
-QUEUES=('activeTablePending' 'gfeSvcBackupOp' 'gfeIscQueue' 'edex.tpcWatch' 'edex.spcWatch')
+#define 24 Meg persistence queues for GFE
+QUEUES=('activeTablePending' 'gfeSvcBackupOp' 'gfeIscDataReceive' 'edex.tpcWatch' 'edex.spcWatch')
 for queue in ${QUEUES[*]};
 do
    echo "Creating queue $queue"

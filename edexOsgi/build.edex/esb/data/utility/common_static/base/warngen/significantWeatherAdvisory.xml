@@ -3,6 +3,8 @@
      EVAN BOOKBINDER WFO EAX 3-23-2011 Initial creation
                              4-13-2011 Merge in OB11.4 Coding Changes
                              9-15-2011 Merge in OB11.8.0-8 Coding Changes, Zone Codes
+     Mike Dangelo 02-27-2012 minor tweaks
+     Phil Kurimski 3-01-2012
  -->
 <warngenConfig>
 
@@ -20,7 +22,9 @@
 
  <!-- Followups: VTEC actions of allowable followups when this template is selected -->
  <followups>
- </followups>
+   <followup>NEW</followup>
+   <followup>COR</followup>
+  </followups>
  
  <!-- Phensigs: The list of phenomena and significance combinations that this template applies to -->
  <phensigs>
@@ -78,7 +82,7 @@
   <bullet bulletText="******** CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
   <bullet bulletName="torrentialRainfallCTA" bulletText="Torrential rainfall" parseString="TORRENTIAL RAINFALL IS ALSO OCCURRING"/>
   <bullet bulletName="lightningCTA" bulletText="Frequent Lightning" parseString="FREQUENT CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
-  <bullet bulletName="stormIntensify" bulletText="Storm(s) May Intensify" parseString="STORMS MAY INTENSIFY...MONITOR TV"/>
+  <bullet bulletName="stormIntensifyCTA" bulletText="Storm(s) May Intensify" parseString="STORMS MAY INTENSIFY...MONITOR TV"/>
   <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
   <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET OUT OF THE WATER AND MOVE INDOORS"/>
   <!-- 
@@ -112,7 +116,7 @@
   <bullet bulletText="******** CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
   <bullet bulletName="torrentialRainfallCTA" bulletText="Torrential rainfall" parseString="TORRENTIAL RAINFALL IS ALSO OCCURRING"/>
   <bullet bulletName="lightningCTA" bulletText="Frequent Lightning" parseString="FREQUENT CLOUD TO GROUND LIGHTNING IS OCCURRING"/>
-  <bullet bulletName="stormIntensify" bulletText="Storm(s) May Intensify" parseString="STORMS MAY INTENSIFY...MONITOR TV"/>
+  <bullet bulletName="stormIntensifyCTA" bulletText="Storm(s) May Intensify" parseString="STORMS MAY INTENSIFY...MONITOR TV"/>
   <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
   <bullet bulletName="boatersCTA" bulletText="Over Lake - Boaters seek shelter" parseString="GET OUT OF THE WATER AND MOVE INDOORS"/>
   <bullet bulletText="" bulletType="title"/>
@@ -185,7 +189,8 @@
   <delta>5</delta>
   <maxResults>4</maxResults>
   <maxGroup>8</maxGroup>
-  <pointField>Name</pointField>
+  <pointField>Name</pointField> 
+<!--  <areaField>COUNTYNAME</areaField> -->
   <areaField>NAME</areaField>
   <parentAreaField>STATE</parentAreaField>
   <areaNotationField>STATE</areaNotationField>
@@ -193,6 +198,11 @@
   <sortBy>
   	<sort>distance</sort>
   </sortBy>
+  <filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1,2" constraintType="IN" />
+ 		</mapping>
+  </filter>
  </pathcastConfig>
  
  <pointSource variable="cityList">
@@ -201,6 +211,11 @@
  	<withinPolygon>true</withinPolygon>
  	<maxResults>20</maxResults>
  	<distanceThreshold>10</distanceThreshold>
+	<filter> 	
+  	  <mapping key="WARNGENLEV">
+ 		<constraint constraintValue="1,2,3" constraintType="IN" />
+ 	  </mapping>
+ 	</filter>  	
  	<sortBy>
   		<sort>warngenlev</sort>
   		<sort>population</sort>

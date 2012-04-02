@@ -51,9 +51,9 @@ import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.parm.DbParm;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.core.parm.ParmDisplayAttributes.VisMode;
-import com.raytheon.viz.gfe.core.parm.vcparm.VCModule;
 import com.raytheon.viz.gfe.core.parm.VCParm;
 import com.raytheon.viz.gfe.core.parm.VParm;
+import com.raytheon.viz.gfe.core.parm.vcparm.VCModule;
 import com.raytheon.viz.gfe.types.MutableInteger;
 
 /**
@@ -69,6 +69,8 @@ import com.raytheon.viz.gfe.types.MutableInteger;
  * 05/19/08     #875       bphillip    Implemented save forecast for vectors
  * 06/17/08     #940       bphillip    Implemented GFE Locking
  * 08/19/09     2547       rjpeter     Implement Test/Prac database display.
+ * 02/23/12     #346       dgilling    Call Parm's dispose method when removing
+ *                                     a Parm.
  * </pre>
  * 
  * @author bphillip
@@ -529,6 +531,7 @@ public class ParmManager extends AbstractParmManager {
         return mutableDb;
     }
 
+    @Override
     public DatabaseID getOrigMutableDatabase() {
         return origMutableDb;
     }
@@ -765,6 +768,11 @@ public class ParmManager extends AbstractParmManager {
             }
         } catch (GFEServerException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
+
+        // dispose the old parms
+        for (Parm p : removeParms) {
+            p.dispose();
         }
     }
 
@@ -1197,6 +1205,7 @@ public class ParmManager extends AbstractParmManager {
         return new ArrayList<DatabaseID>(iscDbs);
     }
 
+    @Override
     public ParmID getISCParmID(ParmID pid) {
         List<DatabaseID> iscDbs = getIscDatabases();
 

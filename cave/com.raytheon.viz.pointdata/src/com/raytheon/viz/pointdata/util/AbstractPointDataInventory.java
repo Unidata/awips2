@@ -40,6 +40,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.RecordFactory;
 import com.raytheon.uf.viz.core.catalog.CatalogQuery;
+import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.level.LevelMappingFactory;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
@@ -70,9 +71,6 @@ import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableLevelNode;
 public abstract class AbstractPointDataInventory extends AbstractInventory {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractPointDataInventory.class);
-
-    public static final Level STATION = LevelMappingFactory.getInstance()
-            .getLevelMappingForKey("Station").getLevels().get(0);
 
     public static String PLUGIN_NAME = "pluginName";
 
@@ -135,7 +133,7 @@ public abstract class AbstractPointDataInventory extends AbstractInventory {
 
     protected DataTree getInitialTree() {
         DataTree tree = new DataTree();
-        String stationId = Long.toString(STATION.getId());
+        String stationId = Long.toString(getStationLevel().getId());
         for (String pluginName : plugins) {
             try {
                 String[] types = getAvailableTypes(pluginName);
@@ -274,6 +272,16 @@ public abstract class AbstractPointDataInventory extends AbstractInventory {
      */
     public List<String> getPlugins() {
         return plugins;
+    }
+
+    public static Level getStationLevel() {
+        try {
+            return LevelMappingFactory.getInstance()
+                    .getLevelMappingForKey("Station").getLevels().get(0);
+        } catch (VizCommunicationException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+            return null;
+        }
     }
 
 }

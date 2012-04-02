@@ -1499,6 +1499,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             ('AS.O', allActions, 'AirStag'),      # AIR STAGNATION OUTLOOK
             ('SU.W', allActions, 'HighSurf'),     # HIGH SURF WARNING
             ('SU.Y', allActions, 'HighSurf'),     # HIGH SURF ADVISORY
+            ('RP.S', allActions, 'Rip'),          # HIGH RIP CURRENT RISK
             ('AF.W', allActions, 'Ashfall'),      # VOLCANIC ASHFALL WARNING
             ('AF.Y', allActions, 'Ashfall'),      # VOLCANIC ASHFALL ADVISORY
             ('LO.Y', allActions, 'Drought'),      # LOW WATER ADVISORY

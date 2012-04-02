@@ -158,7 +158,7 @@ $zonecombo
 THIS IS A TEST MESSAGE. ##
 #end
 AT ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}...${report} ##
-#handleClosestPoints($list, $closestPoints, $otherClosestPoints, $stormType,"THESE STORMS WERE LOCATED", "OVER", 4, "NM", true)
+#handleClosestPoints($list, $closestPoints, $otherClosestPoints, $stormType, "OVER", 4, "NM", true)
 #if($movementSpeed < 3 || ${stationary})
 . NEARLY STATIONARY.
 #else

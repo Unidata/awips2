@@ -76,6 +76,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * 01/08/2009   1846       J. Sanchez  Updated execFcstFunction to handle basisDate
  * 02/02/2009   1943       J. Sanchez  Add method postRiverStatus.
  * 05/29/2009   2410       J. Sanchez  Posted data for unknstnvalue.
+ * 02/24/2012   14535      W. Kwock    Correct the duration value.
  * 
  * </pre>
  * 
@@ -1307,7 +1308,7 @@ public class PostTables {
             }
             cs.setString(2, shefData.getPhysicalElement().getCode());
 
-            cs.setInt(3, shefData.getDuration().getValue());
+            cs.setInt(3, shefData.getDurationValue());
 
             cs.setString(4, shefData.getTypeSource().getCode());
 
