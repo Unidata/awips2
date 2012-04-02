@@ -566,6 +566,14 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                     .getInstance();
             sessionId = manager.createCollaborationSession(result.getName(),
                     result.getSubject());
+            if (result.isInviteUsers()) {
+                List<String> usersList = new ArrayList<String>();
+                for (CollaborationUser user : getSelectedUsers()) {
+                    usersList.add(user.getId());
+                }
+                String b = result.getInviteMessage();
+                manager.getSession(sessionId).sendInvitation(usersList, b);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -575,7 +583,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         }
 
         try {
-            IViewPart part = PlatformUI
+            PlatformUI
                     .getWorkbench()
                     .getActiveWorkbenchWindow()
                     .getActivePage()
@@ -1061,19 +1069,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
      * @return
      */
     private boolean usersSelected() {
-        IStructuredSelection selection = (IStructuredSelection) usersTreeViewer
-                .getSelection();
-        Object[] nodes = selection.toArray();
-        boolean result = false;
-
-        for (Object node : nodes) {
-            if ((node instanceof LoginUser) == false
-                    && (node instanceof SessionGroup) == false) {
-                result = true;
-                break;
-            }
-        }
-        return result;
+        return getSelectedUsers().size() > 0;
     }
 
     /**
@@ -1103,12 +1099,16 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         return selectedUsers;
     }
 
-    private Collection<CollaborationUser> getSelectedUsers(
-            CollaborationGroup groupNode) {
+    private Set<CollaborationUser> getSelectedUsers(CollaborationGroup groupNode) {
+        CollaborationDataManager manger = CollaborationDataManager
+                .getInstance();
         Set<CollaborationUser> selectedUsers = new HashSet<CollaborationUser>();
         for (CollaborationNode node : groupNode.getChildren()) {
             if (node instanceof CollaborationUser) {
-                selectedUsers.add((CollaborationUser) node);
+                CollaborationNode user = (CollaborationUser) node;
+                if (manger.getUser(user.getId()).getType() == Type.AVAILABLE) {
+                    selectedUsers.add((CollaborationUser) node);
+                }
             } else if (node instanceof CollaborationGroup) {
                 selectedUsers
                         .addAll(getSelectedUsers((CollaborationGroup) node));
@@ -1202,6 +1202,11 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                 }
             }
         } else if (part == this) {
+            // TODO Remove rosterManger handler.
+            // IRosterManager rosterManager =
+            // CollaborationDataManager.getInstance()
+            // .getSessionManager().getRosterManager();
+            // rosterManager.removeEventHandler(this);
             getViewSite().getWorkbenchWindow().getPartService()
                     .removePartListener(this);
         }
@@ -1239,6 +1244,11 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
             activeSessionGroup.addChild(child);
             usersTreeViewer.refresh(activeSessionGroup);
         } else if (part == this) {
+            // TODO register even handler for
+            // IRosterManager rosterManager =
+            // CollaborationDataManager.getInstance()
+            // .getSessionManager().getRosterManager();
+            // rosterManager.registerEventHandler(this);
             populateTree();
         }
     }
