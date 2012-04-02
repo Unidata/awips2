@@ -312,7 +312,7 @@ public class MPEDisplayManager {
     public static MPEDisplayManager getCurrent() {
         MPEDisplayManager instance = null;
         IEditorPart editor = EditorUtil.getActiveEditor();
-        if (editor != null && editor instanceof IDisplayPaneContainer) {
+        if ((editor != null) && (editor instanceof IDisplayPaneContainer)) {
             IDisplayPane pane = null;
             if (editor instanceof IMultiPaneEditor) {
                 IMultiPaneEditor multiPane = (IMultiPaneEditor) editor;
@@ -420,8 +420,7 @@ public class MPEDisplayManager {
         displayMode = EnumSet.noneOf(DisplayMode.class);
         gageDisplay = EnumSet.noneOf(GageDisplay.class);
         gageMissing = GageMissingOptions.MissingNone;
-        gageColor = GageColor.valueOf(String.valueOf(colorCommand.getState(
-                RadioState.STATE_ID).getValue()));
+        gageColor = GageColor.Solid;
 
         VizApp.runAsync(new Runnable() {
             @Override
@@ -891,6 +890,12 @@ public class MPEDisplayManager {
      */
     public void setGageColor(GageColor gc) {
         gageColor = gc;
+
+        final ICommandService service = (ICommandService) PlatformUI
+                .getWorkbench().getService(ICommandService.class);
+
+        service.refreshElements(
+                "com.raytheon.viz.mpe.ui.actions.toggleGageColor", null);
     }
 
     /**

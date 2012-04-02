@@ -5,8 +5,8 @@ overflow="visible"
 xmlns="http://www.w3.org/2000/svg" 
 xmlns:xlink="http://www.w3.org/1999/xlink">
   <defs>
-<font id="LargeSpecialSymbols" horiz-adv-x="1536"><font-face
-  font-family="LargeSpecialSymbolFont"
+<font id="LrgSpecialSymbols" horiz-adv-x="7"><font-face
+  font-family="LrgSpecialSymbolFont"
   units-per-em="12"
   alphabetic="0" />
 <glyph unicode="199" glyph-name="199" d="M-4 6H2L-1 3L2 0L-1 -3V-2M-1 -3H0M-3 -3V6M-2 7H0L-1 9L-2 7" />

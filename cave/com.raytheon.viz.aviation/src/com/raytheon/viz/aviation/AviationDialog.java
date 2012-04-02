@@ -65,7 +65,7 @@ import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
- * Aviation Dialog class.
+ * The Aviation Dialog class that displays the start up menu for AvnFPS.
  * 
  * <pre>
  * 

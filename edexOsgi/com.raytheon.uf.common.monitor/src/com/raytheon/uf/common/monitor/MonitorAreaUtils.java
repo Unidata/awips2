@@ -25,6 +25,7 @@ import com.vividsolutions.jts.io.WKTWriter;
  * ------------ ---------- ----------- --------------------------
  * (previous history missing)
  * Apr 29, 2011 DR#8986   zhao       Read in "counties", not "forecast zones", 
+ * Feb 22, 2012 14413     zhao       modified getAdjacentZones to add "C" or "Z"
  * 
  * </pre>
  *
@@ -427,14 +428,14 @@ public class MonitorAreaUtils {
 				if (resultsCounty.length > 0) {
 					for (int i = 0; i < resultsCounty.length; i++) {
 						Object[] oa = (Object[]) resultsCounty[i];
-						String czn = oa[0].toString() + oa[1].toString().substring(2);
+						String czn = oa[0].toString() + "C" + oa[1].toString().substring(2);
 						zones.add(czn);
 					}
 				}
 				if ( resultsForecastZone.length > 0 ) {
 					for (int i = 0; i < resultsForecastZone.length; i++) {
 						Object[] oa = (Object[]) resultsForecastZone[i];
-						String fcz = oa[0].toString() + oa[1].toString();
+						String fcz = oa[0].toString() + "Z" + oa[1].toString();
 						zones.add(fcz);
 					}
 				}
