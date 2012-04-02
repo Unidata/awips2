@@ -61,20 +61,6 @@ cp -r ${MHS_LIB_DIR}/* \
    ${RPM_BUILD_ROOT}/awips2/edex/lib/native/linux32/awips1
    
 %pre
-if [ "${1}" = "1" ]; then
-   # This Is An Installation - Not An Upgrade.
-   # Ensure That We Are Being Installed To The Correct Location.
-   EDEX_INSTALL=`rpm -q --queryformat '%{INSTALLPREFIX}\n' awips2-edex-base`
-   if [ ! "${RPM_INSTALL_PREFIX}" = "${EDEX_INSTALL}" ]; then
-      echo -e "\e[1;31m--------------------------------------------------------------------------------\e[m"
-      echo -e "\e[1;31m\| ERROR: These Libraries MUST Be Installed At The Same Location As EDEX!!!" 
-      echo -e "\e[1;34m\|  INFO: Use '--prefix=${EDEX_INSTALL}'.\e[m"
-      echo -e "\e[1;31m--------------------------------------------------------------------------------\e[m"
-
-      exit 1
-   fi
-fi
-
 if [ "${1}" = "2" ]; then
    exit 0
 fi

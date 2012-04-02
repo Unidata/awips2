@@ -1,4 +1,5 @@
 #!/bin/bash
+
 if [ ${#AWIPS_HOME} = 0 ]
 then
         path_to_script=`readlink -f $0`
@@ -16,25 +17,10 @@ fi
 
 . ${AWIPS_HOME}/GFESuite/ServiceBackup/configuration/svcbu.env
 
-if [ $EXPORT_GRID = 0 ] 
-then
-	log_msg "You turned off the export grid option. Check EXPORT_GRID"
-	log_msg 100
-	exit 1
-elif [ $EXPORT_GRID = 2 ] && [ "$1" = "-c" ]
-then
-    log_msg "export_grids cron disabled"
-	exit 1
-fi
-
 #while [ "$(ls -A ${LOCK_DIR})" ]
 #do
 #     sleep 5
 #done
-
-SITE=`echo ${2} | tr '[A-Z]' '[a-z]'`
-CAPS_SITE=`echo ${2} | tr [a-z] [A-Z]`
-export SITE
 
 # Create the log file
 logdir=${IFPS_LOG}/`date +%Y%m%d`
@@ -44,128 +30,164 @@ logfile=${logdir}/${logfil}
 touch ${logdir}/${logfil}
 exec 1>${logdir}/${logfil} 2>&1
 
-manuallockFile=${LOCK_DIR}/${SITE}exportGrids
-cronLockFile=${LOCK_DIR}/${SITE}exportGridscron
-lockFile=${manuallockFile}
-LOGGER=log_msg
-if [ $1 = "-c" ]
-then
+# DR14464 - netcdf file creation is now a function to allow it to be called more than once for 
+# national centers
+perform_export() {
+  SITE=`echo ${1} | tr '[A-Z]' '[a-z]'`
+  CAPS_SITE=`echo ${1} | tr [a-z] [A-Z]`
+  export SITE
+
+  manuallockFile=${LOCK_DIR}/${SITE}exportGrids
+  cronLockFile=${LOCK_DIR}/${SITE}exportGridscron
+  lockFile=${manuallockFile}
+  LOGGER=log_msg
+
+  if [ $1 = "-c" ]
+  then
 	LOGGER=echo_msg
 	lockFile=${cronLockFile}
-fi
+  fi
 
-# Check the status of the lock file to see if we are OK to proceed
+  # Check the status of the lock file to see if we are OK to proceed
 
-if [ -f ${manuallockFile} ]
-then
+  if [ -f ${manuallockFile} ]
+  then
 	$LOGGER Cannot export grids for ${CAPS_SITE}.  Export grids process already in progress!  Cron will not run this hour.
 	exit 1
-fi
+  fi
 
 
-touch ${lockFile}
+  touch ${lockFile}
 
-$LOGGER "Starting exporting grids..."
-$LOGGER 0
+  $LOGGER "Starting exporting grids..."
+  $LOGGER 0
 
-#
-# If this is a non-wfo/non-rfc site, they may not have an edit area for clipping - handle it
-#
-if [ "$SVCBU_GRIDAREA" == "" ] ; then
-   SVCBU_MASK=""
-else
-   SVCBU_MASK="-m $SVCBU_GRIDAREA"
-fi
+  #
+  # If this is a non-wfo/non-rfc site, they may not have an edit area for clipping - handle it
+  #
+  if [ "$SVCBU_GRIDAREA" == "" ] ; then
+     SVCBU_MASK=""
+  else
+     SVCBU_MASK="-m $SVCBU_GRIDAREA"
+  fi
 
-# Need to create the start and end time arguments for ifpnetCDF
-# The start time needs to be 6 hours prior to current time, and end time needs to be 6 hours after the 9th day time.
-starttime=`date -d "24 hours ago" +%Y%m%d`_`date -d "24 hours ago" +%H00`
-endtime=`date -d "+8 days 6 hours" +%Y%m%d`_`date -d "+8 days 6 hours" +%H00`
-#
-$LOGGER 25
-$LOGGER "Running ifpnetCDF..." 
-# Name of the database to use in ifpServer to grab grids from.
-# NOTE: SVCBU_DB must be defined in ifps-ccc.env file. Defaults to Official.
-if [ -n "${SVCBU_DB}" ]
-then
-    DB_NAME=${CAPS_SITE}_GRID__${SVCBU_DB}_00000000_0000
-else
-    DB_NAME=${CAPS_SITE}_GRID__Official_00000000_0000
-fi
+  # Need to create the start and end time arguments for ifpnetCDF
+  # The start time needs to be 6 hours prior to current time, and end time needs to be 6 hours after the 9th day time.
+  starttime=`date -d "24 hours ago" +%Y%m%d`_`date -d "24 hours ago" +%H00`
+  endtime=`date -d "+8 days 6 hours" +%Y%m%d`_`date -d "+8 days 6 hours" +%H00`
+  #
+  $LOGGER 25
+  $LOGGER "Running ifpnetCDF..." 
+  # Name of the database to use in ifpServer to grab grids from.
+  # NOTE: SVCBU_DB must be defined in ifps-ccc.env file. Defaults to Official.
+  if [ -n "${SVCBU_DB}" ]
+  then
+      DB_NAME=${CAPS_SITE}_GRID__${SVCBU_DB}_00000000_0000
+  else
+      DB_NAME=${CAPS_SITE}_GRID__Official_00000000_0000
+  fi
 
-$LOGGER ${DB_NAME}
+  $LOGGER ${DB_NAME}
 
 
-NETCDF_PATH=${GFESUITE_HOME}/exportgrids
-export NETCDF_TMP_PATH=${NETCDF_PATH}/tmp
-if [ ! -d ${NETCDF_TMP_PATH} ]; then
-    mkdir ${NETCDF_TMP_PATH}
-    chmod 777 ${NETCDF_TMP_PATH}
-fi
+  NETCDF_PATH=${GFESUITE_HOME}/exportgrids
+  export NETCDF_TMP_PATH=${NETCDF_PATH}/tmp
+  if [ ! -d ${NETCDF_TMP_PATH} ]; then
+      mkdir ${NETCDF_TMP_PATH}
+      chmod 777 ${NETCDF_TMP_PATH}
+  fi
 
-# Implement wx element trimming.
-# For this, we'll read from a flat file in ${IFPS_DATA} that will contain list of element a site wants to include.
-# We'll also check if the site has $SVCBU_TRIM_ELEMS variable set to 1. We will only do wx element trimming if this variable is set to 1.
-# Otherwise, we'll continue to send all grids.
-if [ "${SVCBU_TRIM_ELEMS}" != "" -a "${SVCBU_TRIM_ELEMS}" = "1" ]
-then
-    # Check if we have the file that has list of elements to trim for.
-    if [ -f ${IFPS_DATA}/svcbu_export_elements.${SITE} ]; then
-	# Building the -p arguments to ifpnetCDF.
-	wxflags=""
-	for elem in `cat ${IFPS_DATA}/svcbu_export_elements.${SITE}`
-	do
-	    wxflags="$wxflags -p ${elem}"
-	done
-	#Now run ifpnetCDF with $wxflags as well as time flags.
-	${GFESUITE_BIN}/ifpnetCDF -o ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf -h ${SVCBU_HOST} -r ${CDSPORT} -d ${DB_NAME} -k -t ${SVCBU_MASK} ${wxflags}
-	#check if the netcdf file is there;if not,exit
-	if [ $? -ne 0 ]
-	then
-	    $LOGGER "ifpnetCDF failed. Export exits."
-	    rm -f ${lockFile}
-	    $LOGGER 100
-	    exit 1
-	fi
-    else
-	$LOGGER "export_grid_data was not able to find ${IFPS_DATA}/svcbu_export_elements.${SITE} file."
-	$LOGGER "Without this file, ifpnetCDF will not know how to trim for needed weather elements."
-	$LOGGER "ifpnetCDF will run without doing any trimming."
-	#Starting ifpnetCDF to pack the grids (netcdf file is stored in the IFPS_LOG dir)
-	${GFESUITE_BIN}/ifpnetCDF -o ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf -h $SVCBU_HOST -r ${CDSPORT} -d ${DB_NAME} -k -t ${SVCBU_MASK}
-	#check if the netcdf file is there;if not,exit
-	if [ $? -ne 0 ]
-	then
-	    $LOGGER "ifpnetCDF failed. Export exits."
-	    rm -f ${lockFile}
-	    $LOGGER 100
-	    exit 1	
-	fi
-    fi
-else
-    # NOTE: This is the case when no wx elems trimming will done. ifpnetCDF file will contain everything.
-    #Starting ifpnetCDF to pack the grids (netcdf file is stored in the IFPS_LOG dir)
-    ${GFESUITE_BIN}/ifpnetCDF -o ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf -h $SVCBU_HOST -r ${CDSPORT} -d ${DB_NAME} -k -t ${SVCBU_MASK}
-    #check if the netcdf file is there;if not,exit before we call msg_send
-    if [ $? -ne 0 ]
-    then
+  # Implement wx element trimming.
+  # For this, we'll read from a flat file in ${IFPS_DATA} that will contain list of element a site wants to include.
+  # We'll also check if the site has $SVCBU_TRIM_ELEMS variable set to 1. We will only do wx element trimming if this variable is set to 1.
+  # Otherwise, we'll continue to send all grids.
+  if [ "${SVCBU_TRIM_ELEMS}" != "" -a "${SVCBU_TRIM_ELEMS}" = "1" ]
+  then
+      # Check if we have the file that has list of elements to trim for.
+      if [ -f ${IFPS_DATA}/svcbu_export_elements.${SITE} ]; then
+  	  # Building the -p arguments to ifpnetCDF.
+  	  wxflags=""
+	  for elem in `cat ${IFPS_DATA}/svcbu_export_elements.${SITE}`
+	  do
+	      wxflags="$wxflags -p ${elem}"
+	  done
+	  #Now run ifpnetCDF with $wxflags as well as time flags.
+	  ${GFESUITE_BIN}/ifpnetCDF -o ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf -h ${SVCBU_HOST} -r ${CDSPORT} -d ${DB_NAME} -k -t ${SVCBU_MASK} ${wxflags}
+	  #check if the netcdf file is there;if not,exit
+	  if [ $? -ne 0 ]
+	  then
+	      $LOGGER "ifpnetCDF failed. Export exits."
+	      rm -f ${lockFile}
+	      $LOGGER 100
+	      exit 1
+	  fi
+      else
+  	  $LOGGER "export_grids was not able to find ${IFPS_DATA}/svcbu_export_elements.${SITE} file."
+	  $LOGGER "Without this file, ifpnetCDF will not know how to trim for needed weather elements."
+	  $LOGGER "ifpnetCDF will run without doing any trimming."
+	  #Starting ifpnetCDF to pack the grids (netcdf file is stored in the IFPS_LOG dir)
+	  ${GFESUITE_BIN}/ifpnetCDF -o ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf -h $SVCBU_HOST -r ${CDSPORT} -d ${DB_NAME} -k -t ${SVCBU_MASK}
+	  #check if the netcdf file is there;if not,exit
+	  if [ $? -ne 0 ]
+	  then
+	      $LOGGER "ifpnetCDF failed. Export exits."
+	      rm -f ${lockFile}
+	      $LOGGER 100
+	      exit 1	
+	  fi
+      fi
+  else
+      # NOTE: This is the case when no wx elems trimming will done. ifpnetCDF file will contain everything.
+      #Starting ifpnetCDF to pack the grids (netcdf file is stored in the IFPS_LOG dir)
+      ${GFESUITE_BIN}/ifpnetCDF -o ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf -h $SVCBU_HOST -r ${CDSPORT} -d ${DB_NAME} -k -t ${SVCBU_MASK}
+      #check if the netcdf file is there;if not,exit before we call msg_send
+      if [ $? -ne 0 ]
+      then
 		$LOGGER ifpnetCDF failed.
 		rm -f ${lockFile}
 		$LOGGER 100
 		exit 1
-    fi
-fi
+      fi
+  fi
 
-$LOGGER "Copying ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf to ${NETCDF_PATH}/${SITE}Grd.netcdf"
-cp ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf ${NETCDF_PATH}/${SITE}Grd.netcdf
+  $LOGGER "Copying ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf to ${NETCDF_PATH}/${SITE}Grd.netcdf"
+  cp ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf ${NETCDF_PATH}/${SITE}Grd.netcdf
 
-if [ -f ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf ]
+  if [ -f ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf ]
+  then
+     $LOGGER "Removing ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf"
+     rm -f ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf
+  fi
+
+  rm -f ${lockFile}
+  $LOGGER 100
+}
+# end DR14464 change
+
+if [ $EXPORT_GRID = 0 ] 
 then
-   $LOGGER "Removing ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf"
-   rm -f ${NETCDF_TMP_PATH}/${SITE}Grd.netcdf
-fi
-# If we get here, things are successful.
+	log_msg "You turned off the export grid option. Check EXPORT_GRID"
+	log_msg 100
+	exit 1
+elif [ $EXPORT_GRID = 2 ] && [ "$1" = "-c" ]
+then
+    log_msg "export_grids cron disabled"
+    exit 1
+elif [ $EXPORT_GRID = 1 ] && [ $NATIONAL_CENTER = 1 ]  # DR14464 changes - loop through active sites
+then
+    log_msg "You are configured as a national center.  Will use active sites list for site id generation." 
+    work_site=`echo ${2} | tr [a-z] [A-Z]`
+    site_list=( `cat $LOCALIZATION_PATH/edex_static/site/$work_site/config/activeSites.txt` )
+    for site in "${site_list[@]}"
+    do
+        log_msg "Processing $site"
+        perform_export ${site}
+    done 
+else  # this processes non-national centers the old way using AW_SITE_IDENTIFIER if run by cron
+    log_msg "Processing $2"
+    perform_export ${2}
+fi    # end DR14464 changes
+
+# Completed successfully
 $LOGGER "All done. Export Gridded data has completed"
-rm -f ${lockFile}
-$LOGGER 100
 exit 0

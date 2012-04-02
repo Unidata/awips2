@@ -21,7 +21,6 @@ package com.raytheon.uf.common.dataplugin.ldadmesonet;
 
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.TimeZone;
 
@@ -46,9 +45,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
+import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.pointdata.IPointData;
 import com.raytheon.uf.common.pointdata.PointDataView;
@@ -78,13 +77,13 @@ import com.vividsolutions.jts.geom.Geometry;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class MesonetLdadRecord extends PluginDataObject implements
+public class MesonetLdadRecord extends PersistablePluginDataObject implements
         ISpatialEnabled, IDecoderGettable, IPointData, IPersistable {
 
     private static final long serialVersionUID = 1L;
 
     private static final String OBS_TIME_FMT = "%1$tY/%<tm/%<td %<tH:%<tM:%<tS";
-    
+
     public static final String OBS_TEXT = "text";
 
     public static final Unit<Length> LENGTH_UNIT = SI.METER;
@@ -275,7 +274,7 @@ public class MesonetLdadRecord extends PluginDataObject implements
     @DynamicSerializeElement
     @XmlElement
     private Float pressChange3Hour; // pascal 3 hour pressure change
-    
+
     // Wind direction - time of last change (ALERT)
     @Transient
     @DynamicSerializeElement
@@ -1707,6 +1706,7 @@ public class MesonetLdadRecord extends PluginDataObject implements
 
     }
 
+    @Override
     public void setPointDataView(PointDataView pdv) {
         this.pdv = pdv;
 
@@ -1715,39 +1715,16 @@ public class MesonetLdadRecord extends PluginDataObject implements
     /**
      * @return the pdv
      */
+    @Override
     public PointDataView getPointDataView() {
         return this.pdv;
     }
 
-    @Override
-    public Integer getHdfFileId() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Date getPersistenceTime() {
-        return this.dataTime.getRefTime();
-    }
-
-    @Override
-    public void setHdfFileId(Integer hdfFileId) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void setPersistenceTime(Date persistTime) {
-        // TODO Auto-generated method stub
-
-    }
-
-    
     public String toMessage() {
         StringBuilder sb = null;
-        if((getStationId() != null)&&(observationTime != null)) {
+        if ((getStationId() != null) && (observationTime != null)) {
             sb = new StringBuilder();
-            
+
             sb.append(getStationId());
             sb.append(",");
             sb.append(String.format(OBS_TIME_FMT, observationTime));
@@ -1759,16 +1736,16 @@ public class MesonetLdadRecord extends PluginDataObject implements
             sb.append((relHumidity != null) ? relHumidity : "");
             sb.append(",");
             sb.append((wetBulbTemperature != null) ? wetBulbTemperature : "");
-            //---------------------------------------------------------------
+            // ---------------------------------------------------------------
             sb.append(",");
             sb.append((windDir != null) ? windDir : "");
 
             sb.append(",");
             sb.append((windSpeed != null) ? windSpeed : "");
-            
+
             sb.append(",");
             sb.append((windGust != null) ? windGust : "");
-            //---------------------------------------------------------------
+            // ---------------------------------------------------------------
             sb.append(",");
             sb.append((pressure != null) ? pressure : "");
 
@@ -1777,7 +1754,7 @@ public class MesonetLdadRecord extends PluginDataObject implements
 
             sb.append(",");
             sb.append((altimeter != null) ? altimeter : "");
-            
+
             sb.append(",");
             sb.append((seaLevelPressure != null) ? seaLevelPressure : "");
 
@@ -1786,7 +1763,7 @@ public class MesonetLdadRecord extends PluginDataObject implements
 
             sb.append(",");
             sb.append((pressChange3Hour != null) ? pressChange3Hour : "");
-            //---------------------------------------------------------------
+            // ---------------------------------------------------------------
             sb.append(",");
             sb.append((precipAccum != null) ? precipAccum : "");
 
@@ -1795,7 +1772,7 @@ public class MesonetLdadRecord extends PluginDataObject implements
 
             sb.append(",");
             sb.append((precipType != null) ? precipType : "");
-            //---------------------------------------------------------------
+            // ---------------------------------------------------------------
             sb.append(",");
             sb.append((totalCloudCover != null) ? totalCloudCover : "");
 
@@ -1804,7 +1781,6 @@ public class MesonetLdadRecord extends PluginDataObject implements
 
             sb.append(",");
             sb.append((skyLayerBase != null) ? skyLayerBase : "");
-
 
             sb.append(",");
             sb.append((cloudBaseHeight != null) ? cloudBaseHeight : "");
@@ -1820,9 +1796,9 @@ public class MesonetLdadRecord extends PluginDataObject implements
         }
         return (sb == null) ? null : sb.toString();
     }
-    
-    public static final void main(String [] args) {
-        
+
+    public static final void main(String[] args) {
+
         Calendar c = Calendar.getInstance();
         c.setTimeZone(TimeZone.getTimeZone("Z"));
 
@@ -1837,18 +1813,9 @@ public class MesonetLdadRecord extends PluginDataObject implements
         rec.setPressure(99820f);
         rec.setAltimeter(29.85f);
         rec.setSeaLevelPressure(100215f);
-        
-        
-        
-        
+
         System.out.println(rec.toMessage());
-        
-        
-        
-        
-        
-        
+
     }
-    
-    
+
 }

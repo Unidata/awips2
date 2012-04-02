@@ -117,6 +117,8 @@ public class LRUCacheFS {
         else
             FILESYSTEM_CACHE_SIZE = sz;
 
+        fsCache = new LRUCacheInternal(FILESYSTEM_CACHE_SIZE * 1024 * 1024);
+
         String cache = null; // TODO allow configurable
 
         /** Default to java temp directory */
@@ -124,17 +126,22 @@ public class LRUCacheFS {
             cache = System.getProperty("java.io.tmpdir");
         }
 
-        /** Set the directory */
-        cacheDir = new File(cache, "vizCache");
-        if (cacheDir.exists() == false) {
-            cacheDir.mkdir();
+        String dirName = "vizCache";
+        String user = System.getProperty("user.name");
+        if (user != null) {
+            dirName = dirName + "." + user;
         }
 
-        /** Register any files in the cache with the cache */
-        File[] files = cacheDir.listFiles();
-        fsCache = new LRUCacheInternal(FILESYSTEM_CACHE_SIZE * 1024 * 1024);
-        for (File file : files) {
-            poll(file);
+        /** Set the directory */
+        cacheDir = new File(cache, dirName);
+        if (cacheDir.exists()) {
+            /** Register any files in the cache with the cache */
+            File[] files = cacheDir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    poll(file);
+                }
+            }
         }
     }
 
@@ -152,7 +159,7 @@ public class LRUCacheFS {
     public static File createCacheFile() {
         File file = null;
         try {
-            file = File.createTempFile("cached", ".bin", cacheDir);
+            file = File.createTempFile("cached", ".bin", getCacheDirectory());
             file.setReadable(true, false);
             file.setWritable(true, false);
         } catch (IOException e) {
@@ -181,6 +188,9 @@ public class LRUCacheFS {
      * @return the cache directory
      */
     public static File getCacheDirectory() {
+        if (cacheDir.exists() == false) {
+            cacheDir.mkdir();
+        }
         return cacheDir;
     }
 

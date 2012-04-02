@@ -103,6 +103,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                         addition to wind speed when sampling
  *                                         is on.
  *    01/31/12   14306        kshresth     Cursor readout as you sample the dispay
+ *    02/10/12     14472       mhuang      Fixed VB 'Height' field legend display error
+ *                                         when click 'Diff' button.
  *
  * </pre>
  * 
@@ -178,8 +180,18 @@ public class GridVectorResource extends AbstractMapVectorResource implements
             match.setParameterName(Arrays.asList(modelInfo
                     .getParameterAbbreviation()));
             match.setCreatingEntityNames(Arrays.asList(modelInfo.getModelName()));
+            String parameterName = modelInfo.getParameterName();
+            StyleType st = null;
+            if (parameterName.equals("Height")) {
+            	st = StyleType.CONTOUR;
+            } else if (parameterName.equals("Wind") || parameterName.equals("Total Wind") 
+            		|| parameterName.equals("Total Wind (Vector)")) {
+            	st = StyleType.ARROW;
+            } else {
+            	st = StyleType.IMAGERY;
+            }
             StyleRule secondaryStyleRule = StyleManager.getInstance()
-                    .getStyleRule(StyleType.IMAGERY, match);
+    		.getStyleRule(st, match);
             if (secondaryStyleRule != null
                     && secondaryStyleRule.getPreferences()
                             .getDisplayUnitLabel() != null) {
@@ -189,7 +201,6 @@ public class GridVectorResource extends AbstractMapVectorResource implements
             legendParams.model = modelInfo;
             legendParams.unit = secondaryUnits;
             legendParams.dataTime = getDisplayedDataTime();
-            legendParams.type = "Img";
             secondaryName = secondaryGenerator.getName(legendParams,
                     ((GridResourceData) resourceData).secondaryResourceData);
         } catch (Exception e) {

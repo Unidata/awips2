@@ -71,7 +71,7 @@ public class SyncLocalizationEditor extends BooleanFieldEditor {
     }
 
     private void synchronize() {
-        new Job("Synchronizing Localization Files") {
+        Job job = new Job("Synchronizing Localization Files") {
 
             @Override
             protected IStatus run(IProgressMonitor monitor) {
@@ -81,27 +81,37 @@ public class SyncLocalizationEditor extends BooleanFieldEditor {
                         LocalizationType.CAVE_STATIC,
                         LocalizationType.COMMON_STATIC };
                 for (LocalizationType type : types) {
+                    monitor.beginTask("Downloading " + type
+                            + " localization file data", 1);
                     long startTime = System.currentTimeMillis();
                     LocalizationContext[] contexts = pathManager
                             .getLocalSearchHierarchy(type);
                     LocalizationFile[] files = pathManager.listFiles(contexts,
                             "/", null, true, false);
+                    monitor.worked(1);
+                    monitor.beginTask("Downloading " + type
+                            + " localization files", files.length);
                     for (LocalizationFile file : files) {
                         if (monitor.isCanceled()) {
+                            monitor.done();
                             return Status.OK_STATUS;
                         }
                         if (!file.isDirectory()) {
                             file.getFile();
                         }
+                        monitor.worked(1);
                     }
                     long endTime = System.currentTimeMillis();
                     System.out.println("Time to download " + type + ": "
                             + (endTime - startTime) + "ms");
                 }
+                monitor.done();
                 return Status.OK_STATUS;
             }
 
-        }.schedule();
+        };
+        job.setUser(true);
+        job.schedule();
     }
 
     protected void doFillIntoGrid(Composite parent, int numColumns) {
@@ -110,12 +120,12 @@ public class SyncLocalizationEditor extends BooleanFieldEditor {
             button.dispose();
         }
         button = new Button(parent, SWT.PUSH);
-        button.setText("Sync Files");
+        button.setText("&Sync Files");
         button.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent evt) {
                 MessageBox msgBox = new MessageBox(button.getShell(), SWT.YES
                         | SWT.NO | SWT.ICON_QUESTION);
-                msgBox.setText("Are you you want to synchronize?");
+                msgBox.setText("Are you sure want to synchronize?");
                 msgBox.setMessage("Synchronizing will take lots of time and bandwidth.\n\n Would you like to synchronize now?");
                 int result = msgBox.open();
                 if (result == SWT.YES) {

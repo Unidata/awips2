@@ -74,7 +74,8 @@ public class GLByteDataFormat extends AbstractGLColorMapDataFormat {
      */
     @Override
     public Buffer getCopybackBuffer(GLColorMapData data) {
-        int width = getAlignedWidth(data.getDimensionSize(0));
+        int width = getAlignedWidth(data.getDimensionSize(0)
+                * getValuesPerPixel());
         int height = data.getDimensionSize(1);
         return ByteBuffer.allocate(height * width);
     }
