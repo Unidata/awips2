@@ -26,7 +26,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 
-import com.raytheon.uf.viz.collaboration.data.DataUser.RoleType;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 
 /**
  * TODO Add Description
@@ -46,34 +46,34 @@ import com.raytheon.uf.viz.collaboration.data.DataUser.RoleType;
  */
 
 public class SessionColorAdvisor {
-    private static Map<RoleType, Color> colors = null;
+    private static Map<ParticipantRole, Color> colors = null;
 
-    public static Color getColor(RoleType[] type, boolean isSelf) {
+    public static Color getColor(ParticipantRole[] type, boolean isSelf) {
         if (colors == null) {
-            colors = new HashMap<RoleType, Color>();
-            colors.put(RoleType.LEADER,
-                    Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
-            colors.put(RoleType.DATA_PROVIDER, Display.getCurrent()
+            colors = new HashMap<ParticipantRole, Color>();
+            colors.put(ParticipantRole.SESSION_LEADER, Display.getCurrent()
+                    .getSystemColor(SWT.COLOR_BLUE));
+            colors.put(ParticipantRole.DATA_PROVIDER, Display.getCurrent()
                     .getSystemColor(SWT.COLOR_RED));
-            colors.put(RoleType.PARTICIPANT, Display.getCurrent()
+            colors.put(ParticipantRole.PARTICIPANT, Display.getCurrent()
                     .getSystemColor(SWT.COLOR_DARK_GREEN));
         }
         if (isSelf) {
             return Display.getCurrent().getSystemColor(SWT.COLOR_BLACK);
         }
-        RoleType rType = null;
+        ParticipantRole rType = null;
         if (type == null || type.length == 0) {
-            rType = RoleType.PARTICIPANT;
+            rType = ParticipantRole.PARTICIPANT;
         } else if (type.length == 1) {
             rType = type[0];
         } else {
-            rType = RoleType.PARTICIPANT;
-            for (RoleType rt : type) {
-                if (rt == RoleType.DATA_PROVIDER) {
+            rType = ParticipantRole.PARTICIPANT;
+            for (ParticipantRole rt : type) {
+                if (rt == ParticipantRole.DATA_PROVIDER) {
                     rType = rt;
                     break;
                 }
-                if (rt == RoleType.LEADER) {
+                if (rt == ParticipantRole.SESSION_LEADER) {
                     rType = rt;
                 }
             }
