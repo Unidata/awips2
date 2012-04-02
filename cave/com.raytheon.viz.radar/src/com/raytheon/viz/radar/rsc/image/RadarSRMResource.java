@@ -55,7 +55,8 @@ import com.raytheon.viz.radar.ui.RadarDisplayManager;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 2, 2010            mnash     Initial creation
+ * Jul 2, 2010             mnash       Initial creation
+ * 03/07/2012   DR 14660   D. Friedman Use getSTIDataForRadarRecord
  * 
  * </pre>
  * 
@@ -169,7 +170,7 @@ public class RadarSRMResource extends RadarRadialResource implements
         }
         if (srmSource.equals(SRMSource.STI)) {
             sourceName = "STI";
-            StormTrackData stormTrackData = RadarHelper.getSTIData(icao);
+            StormTrackData stormTrackData = RadarHelper.getSTIDataForRadarRecord(record);
             if (stormTrackData != null && stormTrackData.isValid()) {
                 direction = stormTrackData.getMotionDirection();
                 speed = stormTrackData.getMotionSpeed();

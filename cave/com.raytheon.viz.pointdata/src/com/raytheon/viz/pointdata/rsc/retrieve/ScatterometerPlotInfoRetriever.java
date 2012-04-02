@@ -139,8 +139,9 @@ public class ScatterometerPlotInfoRetriever extends PointDataPlotInfoRetriever {
                     }
                     if (stations != null && stations.size() == MAX_RESULT_SIZE) {
                         for (PlotInfo station : stations) {
-                            if (station.id < request.maxId) {
-                                request.maxId = station.id;
+                            int id = Integer.parseInt(station.stationId);
+                            if (id < request.maxId) {
+                                request.maxId = id;
                             }
                         }
                         synchronized (screenQueue) {
@@ -197,7 +198,22 @@ public class ScatterometerPlotInfoRetriever extends PointDataPlotInfoRetriever {
         dq.setOrderAscending(ResultOrder.DESC);
         dq.addOrderBy("id");
         super.addColumns(dq);
+        dq.addColumn("id");
     }
+    
+    
+
+    /* (non-Javadoc)
+     * @see com.raytheon.viz.pointdata.rsc.retrieve.PointDataPlotInfoRetriever#getPlotInfo(java.lang.Object[])
+     */
+    @Override
+    protected PlotInfo getPlotInfo(Object[] data) {
+        PlotInfo info = super.getPlotInfo(data);
+        info.stationId = data[data.length - 1].toString();
+        return info;
+    }
+
+
 
     public void getStations(IResourceDataChanged listener, DataTime time,
             HashMap<String, RequestConstraint> metadataMap) throws VizException {

@@ -30,7 +30,7 @@ import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
 import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
 
 /**
- * TODO Add Description
+ * Component class for launching the Climate's WindRoseDlg.
  * 
  * <pre>
  * 

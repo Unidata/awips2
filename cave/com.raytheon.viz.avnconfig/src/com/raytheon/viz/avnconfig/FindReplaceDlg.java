@@ -375,6 +375,7 @@ public class FindReplaceDlg extends CaveSWTDialog {
      * "Replace by" text field
      */
     private void replaceAll() {
+        // TODO change to: while(findWhatText() { replaceText();}
         while (1 == 1) {
             if (findWhatText()) {
                 replaceText();

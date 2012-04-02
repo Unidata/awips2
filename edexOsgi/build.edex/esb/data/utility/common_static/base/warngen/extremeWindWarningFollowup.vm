@@ -12,6 +12,14 @@
   #set($expcanHLTag = "IS CANCELLED")
 #end
 #############
+## EWW COR ##
+#############
+#if(${specialCorText})
+${WMOId} ${vtecOffice} 000000 ${BBBId}
+SVS${siteId}
+${specialCorText}
+#else
+#############
 ## EWW CAN ##
 #############
 #if(${action}=="CAN")
@@ -184,6 +192,10 @@ THIS IS A TEST MESSAGE. ##
 #locationsList("LOCATIONS IMPACTED INCLUDE..." "${phenomena} ARE EXPECTED TO REMAIN OVER MAINLY RURAL AREAS OF" 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
 
 #end
+##############################################
+###### mile markers ##############
+##############################################
+#parse("milemarkers.vm")
 #####################
 ## CALL TO ACTIONS ##
 #####################
@@ -383,10 +395,10 @@ THIS IS A TEST MESSAGE. ##
 #locationsList("LOCATIONS IMPACTED INCLUDE..." ${phenomena} 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
 
 #end
-
-## parse file command here is to pull in mile marker info
-## #parse("mileMarkers.vm")
-
+##############################################
+###### mile markers ##############
+##############################################
+#parse("milemarkers.vm")
 #####################
 ## CALL TO ACTIONS ##
 #####################
@@ -485,3 +497,4 @@ ${mathUtil.round(${movementInKnots})}KT ##
 $$
 
 !**NAME/INITIALS**!
+#end
