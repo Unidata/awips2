@@ -19,6 +19,12 @@
  **/
 package com.raytheon.uf.viz.thinclient.cave;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.xml.bind.JAXBException;
 
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -30,10 +36,10 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.localization.BundleScanner;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.thinclient.Activator;
 import com.raytheon.uf.viz.thinclient.IThinClientComponent;
-import com.raytheon.uf.viz.thinclient.JMSConnectivityManager;
 import com.raytheon.uf.viz.thinclient.StatsJob;
 import com.raytheon.uf.viz.thinclient.ThinClientNotificationManagerJob;
 import com.raytheon.uf.viz.thinclient.cache.ThinClientCacheManager;
@@ -42,11 +48,15 @@ import com.raytheon.uf.viz.thinclient.cave.cache.GeometryCachePersistence;
 import com.raytheon.uf.viz.thinclient.cave.cache.MapQueryCachePersistence;
 import com.raytheon.uf.viz.thinclient.cave.refresh.DataRefreshTask;
 import com.raytheon.uf.viz.thinclient.cave.refresh.MenuTimeRefreshTask;
+import com.raytheon.uf.viz.thinclient.cave.refresh.ThinClientDataUpdateTree;
 import com.raytheon.uf.viz.thinclient.cave.refresh.ThinClientURICatalog;
 import com.raytheon.uf.viz.thinclient.localization.LocalizationCachePersistence;
 import com.raytheon.uf.viz.thinclient.localization.ThinClientLocalizationInitializer;
 import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
 import com.raytheon.uf.viz.thinclient.refresh.TimedRefresher;
+import com.raytheon.viz.alerts.jobs.AutoUpdater;
+import com.raytheon.viz.alerts.jobs.MenuUpdater;
+import com.raytheon.viz.alerts.observers.ProductAlertObserver;
 import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
 import com.raytheon.viz.ui.personalities.awips.CAVE;
 
@@ -94,8 +104,6 @@ public class ThinClientComponent extends CAVE implements IThinClientComponent {
         store.addPropertyChangeListener(new TimedRefresher(
                 new MenuTimeRefreshTask(),
                 ThinClientPreferenceConstants.P_MENU_TIME_REFRESH_INTERVAL));
-        // Initialize JMS connectivity manager
-        store.addPropertyChangeListener(new JMSConnectivityManager());
 
         // Start network statistics
         statsJob = new StatsJob();
@@ -105,11 +113,24 @@ public class ThinClientComponent extends CAVE implements IThinClientComponent {
         Activator.getDefault().setComponent(this);
 
         ThinClientURICatalog.getInstance();
+        ThinClientDataUpdateTree.getInstance();
+        List<String> pluginBlacklist = new ArrayList<String>();
+        File blacklistFile = BundleScanner.searchInBundle(
+                com.raytheon.uf.viz.thinclient.cave.Activator.PLUGIN_ID, "",
+                "ThinClientPluginBlacklist.txt");
+        if (blacklistFile != null && blacklistFile.exists()) {
+            BufferedReader reader = new BufferedReader(new FileReader(
+                    blacklistFile));
+            String line = null;
+            while (null != (line = reader.readLine())) {
+                pluginBlacklist.add(line.trim());
+            }
+        }
         try {
             for (Bundle b : Activator.getDefault().getContext().getBundles()) {
-                if ("com.raytheon.viz.warngen".equals(b.getSymbolicName())) {
+                if (pluginBlacklist.contains(b.getSymbolicName())) {
+                    b.stop();
                     b.uninstall();
-                    break;
                 }
             }
         } catch (Throwable t) {
@@ -164,8 +185,9 @@ public class ThinClientComponent extends CAVE implements IThinClientComponent {
      */
     @Override
     protected void initializeObservers() {
-        // Do not register observers, will be preferenced based
         ThinClientNotificationManagerJob.getInstance();
+        ProductAlertObserver.addObserver(null, new MenuUpdater());
+        ProductAlertObserver.addObserver(null, new AutoUpdater());
     }
 
     public void stopComponent() {

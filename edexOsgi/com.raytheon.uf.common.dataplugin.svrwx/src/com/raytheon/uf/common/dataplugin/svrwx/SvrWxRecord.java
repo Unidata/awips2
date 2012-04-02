@@ -20,7 +20,6 @@
 package com.raytheon.uf.common.dataplugin.svrwx;
 
 import java.util.Calendar;
-import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -35,7 +34,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
-import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.pointdata.IPointData;
@@ -66,7 +64,7 @@ import com.vividsolutions.jts.geom.Geometry;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class SvrWxRecord extends PersistablePluginDataObject implements
-        ISpatialEnabled, IPointData, IPersistable {
+        ISpatialEnabled, IPointData {
 
     private static final long serialVersionUID = 1L;
 
@@ -267,22 +265,6 @@ public class SvrWxRecord extends PersistablePluginDataObject implements
     @Override
     public void setPointDataView(PointDataView pdv) {
         this.pdv = pdv;
-    }
-
-    /**
-     * 
-     * @return The time to use for persistence.
-     */
-    @Override
-    public Date getPersistenceTime() {
-        return dataTime.getRefTime();
-    }
-
-    /**
-     * @persistTime
-     */
-    @Override
-    public void setPersistenceTime(Date persistTime) {
     }
 
     @Override

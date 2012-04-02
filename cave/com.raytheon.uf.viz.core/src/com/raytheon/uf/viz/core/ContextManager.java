@@ -29,9 +29,9 @@ import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.contexts.IContextActivation;
 import org.eclipse.ui.contexts.IContextService;
+import org.eclipse.ui.services.IServiceLocator;
 
 /**
  * Uses extension point to look up contexts for editors
@@ -61,7 +61,7 @@ public class ContextManager {
 
     private static final String EXTENSION_POINT = "com.raytheon.uf.viz.core.classContext";
 
-    private static Map<IWorkbenchWindow, ContextManager> instanceMap = new HashMap<IWorkbenchWindow, ContextManager>();
+    private static Map<IServiceLocator, ContextManager> instanceMap = new HashMap<IServiceLocator, ContextManager>();
 
     private static synchronized String[] getContextsForClass(String name) {
         if (contexts == null) {
@@ -126,11 +126,11 @@ public class ContextManager {
     }
 
     public static synchronized ContextManager getInstance(
-            IWorkbenchWindow window) {
-        ContextManager manager = instanceMap.get(window);
+            IServiceLocator locator) {
+        ContextManager manager = instanceMap.get(locator);
         if (manager == null) {
-            manager = new ContextManager(window);
-            instanceMap.put(window, manager);
+            manager = new ContextManager(locator);
+            instanceMap.put(locator, manager);
         }
         return manager;
     }
@@ -141,8 +141,8 @@ public class ContextManager {
 
     private IContextService service;
 
-    private ContextManager(IWorkbenchWindow window) {
-        service = (IContextService) window.getService(IContextService.class);
+    private ContextManager(IServiceLocator locator) {
+        service = (IContextService) locator.getService(IContextService.class);
         activeObjects = new HashSet<Object>();
         activeMap = new HashMap<String, ContextManager.Context>();
     }
