@@ -20,6 +20,9 @@
 
 package com.raytheon.uf.viz.core.drawables;
 
+import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
+import com.raytheon.uf.viz.core.exception.VizException;
+
 /**
  * Describes a generic Image resource. The IImage resource is an interface
  * handle to an image. The image resource manages the lifecycle of the
@@ -64,6 +67,11 @@ public interface IImage {
     };
 
     /**
+     * Stages any data required for the image to load/draw
+     */
+    public abstract void stage() throws VizException;
+
+    /**
      * @return the status
      */
     public abstract Status getStatus();
@@ -106,4 +114,10 @@ public interface IImage {
      */
     public abstract void setContrast(float contrast);
 
+    /**
+     * Gets the extension class for this image
+     * 
+     * @return
+     */
+    public abstract Class<? extends IImagingExtension> getExtensionClass();
 }

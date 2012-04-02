@@ -42,6 +42,14 @@
 #  where the model sounding is representative of the large-scale, but inside
 #  the showers it is cooler.
 #
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    02/16/12        14439         jdynina        modified Haines calculation
+#    
+# 
+##
 USE_WETBULB = 1
 #
 #
@@ -1190,7 +1198,7 @@ class NAM12Forecaster(Forecaster):
     ##  Default is "HIGH".
     ##--------------------------------------------------------------------------
     def calcHaines(self, t_c, rh_c):
-        return self.hainesIndex("HIGH", t_c, rh_c)
+        return self.hainesIndex(self.whichHainesIndex, t_c, rh_c)
 
     #=======================================================================
     #
@@ -1198,44 +1206,44 @@ class NAM12Forecaster(Forecaster):
     #  type is "LOW", "MEDIUM", "HIGH"
     #  NOTE, the default haines index calcaulation is defined by:
     #  self.whichHainesIndex, which can be set to "LOW", "MEDIUM", "HIGH".
-    #
+    #  Commented out below calc for DR14439 (A1 DR21354)
     #=======================================================================
-    def hainesIndex(self, type, t_c, rh_c):
-        dict = {}
-        dict['LOW'] = {'t1Level': 950, 't2Level': 850, 'mLevel': 850,
-           'stabThresh': [3, 8], 'moiThresh': [5, 10]}
-        dict['MEDIUM'] = {'t1Level': 850, 't2Level': 700, 'mLevel': 850,
-           'stabThresh': [5, 11], 'moiThresh': [5, 13]}
-        dict['HIGH'] = {'t1Level': 700, 't2Level': 500, 'mLevel': 700,
-           'stabThresh': [17, 22], 'moiThresh': [14, 21]}
-        dd = dict[type]   # proper dictionary for the level
-
-        # get the needed data, calc dewpoint
-        pres = self.pres
-        t1 = t_c[pres.index(dd['t1Level'])]  #  t1 level
-        t2 = t_c[pres.index(dd['t2Level'])]  #  t2 level
-        tMois = t_c[pres.index(dd['mLevel'])] - 273.15  #  mLevel t , in C.
-        rhMois = rh_c[pres.index(dd['mLevel'])] / 100.0  # mLevel rh
-        rhMois = where(less_equal(rhMois, 0), 0.00001, rhMois)
-
-        a = log10(rhMois) / 7.5 + (tMois / (tMois + 237.3))
-        dpMois = (a * 237.3) / (1.0 - a)
-
-        hainesT = t1 - t2
-        hainesM = tMois - dpMois
-
-        # now make the categories
-        slope = 1.0 / (dd['stabThresh'][1] - dd['stabThresh'][0])
-        intercept = 1.5 - ((dd['stabThresh'][0] + 0.5) * slope)
-        hainesTi = (slope * hainesT) + intercept
-        hainesT = clip(hainesTi, 1.0, 3.0)
-
-        slope = 1.0 / (dd['moiThresh'][1] - dd['moiThresh'][0])
-        intercept = 1.5 - ((dd['moiThresh'][0] + 0.5) * slope)
-        hainesMi = (slope * hainesM) + intercept
-        hainesM = clip(hainesMi, 1.0, 3.0)
-
-        return hainesT + hainesM
+ ##   def hainesIndex(self, type, t_c, rh_c):
+ ##       dict = {}
+ ##       dict['LOW'] = {'t1Level': 950, 't2Level': 850, 'mLevel': 850,
+ ##          'stabThresh': [3, 8], 'moiThresh': [5, 10]}
+ ##       dict['MEDIUM'] = {'t1Level': 850, 't2Level': 700, 'mLevel': 850,
+ ##          'stabThresh': [5, 11], 'moiThresh': [5, 13]}
+ ##       dict['HIGH'] = {'t1Level': 700, 't2Level': 500, 'mLevel': 700,
+ ##          'stabThresh': [17, 22], 'moiThresh': [14, 21]}
+ ##       dd = dict[type]   # proper dictionary for the level
+ ##
+ ##       # get the needed data, calc dewpoint
+ ##       pres = self.pres
+ ##       t1 = t_c[pres.index(dd['t1Level'])]  #  t1 level
+ ##       t2 = t_c[pres.index(dd['t2Level'])]  #  t2 level
+ ##       tMois = t_c[pres.index(dd['mLevel'])] - 273.15  #  mLevel t , in C.
+ ##       rhMois = rh_c[pres.index(dd['mLevel'])] / 100.0  # mLevel rh
+ ##       rhMois = where(less_equal(rhMois, 0), 0.00001, rhMois)
+ ##
+ ##       a = log10(rhMois) / 7.5 + (tMois / (tMois + 237.3))
+ ##       dpMois = (a * 237.3) / (1.0 - a)
+ ##
+ ##       hainesT = t1 - t2
+ ##       hainesM = tMois - dpMois
+ ##
+ ##       # now make the categories
+ ##       slope = 1.0 / (dd['stabThresh'][1] - dd['stabThresh'][0])
+ ##       intercept = 1.5 - ((dd['stabThresh'][0] + 0.5) * slope)
+ ##       hainesTi = (slope * hainesT) + intercept
+ ##       hainesT = clip(hainesTi, 1.0, 3.0)
+ ##
+ ##       slope = 1.0 / (dd['moiThresh'][1] - dd['moiThresh'][0])
+ ##       intercept = 1.5 - ((dd['moiThresh'][0] + 0.5) * slope)
+ ##       hainesMi = (slope * hainesM) + intercept
+ ##       hainesM = clip(hainesMi, 1.0, 3.0)
+ ##
+ ##       return hainesT + hainesM
 
     #---------------------------------------------------------------------------
     # MaxT simply maximum of any T grids during the period
