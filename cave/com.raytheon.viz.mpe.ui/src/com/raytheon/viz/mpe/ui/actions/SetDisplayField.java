@@ -23,13 +23,13 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.viz.mpe.ui.DisplayFieldData;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.rsc.XmrgResource;
+import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 
 /**
@@ -61,8 +61,9 @@ public class SetDisplayField extends AbstractHandler {
     public Object execute(ExecutionEvent event) throws ExecutionException {
         String f = event.getParameter("Field");
 
-        IEditorPart editor = HandlerUtil.getActiveEditor(event);
-        if (editor instanceof IDisplayPaneContainer) {
+        IEditorPart editor = (IEditorPart) EditorUtil
+                .getActiveEditorAs(IDisplayPaneContainer.class);
+        if (editor != null) {
             return setDisplayField((IDisplayPaneContainer) editor, f);
         }
         return null;

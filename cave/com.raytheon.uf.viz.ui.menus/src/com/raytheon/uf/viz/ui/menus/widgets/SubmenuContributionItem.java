@@ -22,13 +22,9 @@ package com.raytheon.uf.viz.ui.menus.widgets;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.jface.action.IContributionItem;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MenuEvent;
-import org.eclipse.swt.events.MenuListener;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
 
 import com.raytheon.uf.common.menus.xml.CommonAbstractMenuContribution;
 import com.raytheon.uf.common.menus.xml.VariableSubstitution;
@@ -57,7 +53,7 @@ import com.raytheon.uf.viz.ui.menus.xml.MenuXMLMap;
  * @version 1.0
  */
 
-public class SubmenuContributionItem extends ContributionItem {
+public class SubmenuContributionItem extends MenuManager {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SubmenuContributionItem.class);
 
@@ -66,88 +62,48 @@ public class SubmenuContributionItem extends ContributionItem {
 
     private CommonAbstractMenuContribution[] contribs;
 
-    private String name;
-
-    private MenuItem widget;
-
-    protected Menu menu;
-
     protected VariableSubstitution[] subs;
 
     protected IContributionItem[][] contributionItems;
 
     protected Set<String> removals;
 
+    /**
+     * 
+     * @param includeSubstitutions
+     * @param name
+     * @param ci
+     * @param removals
+     * @param mListener
+     */
     public SubmenuContributionItem(VariableSubstitution[] includeSubstitutions,
             String name, CommonAbstractMenuContribution[] ci,
             Set<String> removals) {
-        super();
+        super(processNameSubstitution(includeSubstitutions, name));
         this.subs = includeSubstitutions;
         this.contribs = ci;
         this.removals = removals;
+    }
 
+    private static String processNameSubstitution(
+            VariableSubstitution[] includeSubstitutions, String name) {
         if (includeSubstitutions != null && includeSubstitutions.length > 0) {
             Map<String, String> map = VariableSubstitution
                     .toMap(includeSubstitutions);
             try {
-                this.name = VariableSubstitutionUtil
-                        .processVariables(name, map);
+                name = VariableSubstitutionUtil.processVariables(name, map);
             } catch (VizException e) {
-                this.name = name;
                 statusHandler.handle(Priority.PROBLEM,
                         "Error during menu substitution", e);
             }
-        } else {
-            this.name = name;
         }
-
+        return name;
     }
 
     @Override
     public void fill(Menu parent, int index) {
-
-        if (widget != null && widget.isDisposed()) {
-            widget = null;
-        }
-
-        if (widget != null || parent == null) {
-            return;
-        }
-
-        MenuItem item = null;
-        if (index >= 0) {
-            item = new MenuItem(parent, SWT.CASCADE, index);
-        } else {
-            item = new MenuItem(parent, SWT.CASCADE);
-        }
-
-        item.setData(this);
-
-        item.setText(this.name);
-
-        widget = item;
-
-        createMenu();
-
-        update(null);
-    }
-
-    private void createMenu() {
-        menu = new Menu(widget.getParent().getShell(), SWT.DROP_DOWN);
-        menu.addMenuListener(new MenuListener() {
-            @Override
-            public void menuHidden(MenuEvent e) {
-                // should Menu Items be disposed here?
-            }
-
-            @Override
-            public void menuShown(MenuEvent e) {
-                fillMenu();
-            }
-        });
-
-        widget.setMenu(menu);
-
+        removeAll();
+        super.fill(parent, index);
         getContributionItemsJob.schedule(new GetContributionItemsRunnable());
     }
 
@@ -172,30 +128,9 @@ public class SubmenuContributionItem extends ContributionItem {
         return this.contributionItems;
     }
 
-    private void fillMenu() {
-        getContributionItems();
-        if (this.menu.getItemCount() == 0) {
-            for (int i = 0; i < this.contributionItems.length; i++) {
-                for (IContributionItem item : this.contributionItems[i]) {
-                    if (item.isVisible()) {
-                        item.fill(this.menu, -1);
-                    }
-                }
-            }
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.action.ContributionItem#dispose()
-     */
     @Override
-    public void dispose() {
-        super.dispose();
-        if (this.menu != null && !this.menu.isDisposed()) {
-            this.menu.dispose();
-        }
+    public boolean isVisible() {
+        return visible;
     }
 
     // call getContributionItems using the getContributionItems JobPool.
@@ -204,7 +139,11 @@ public class SubmenuContributionItem extends ContributionItem {
         @Override
         public void run() {
             getContributionItems();
+            for (int i = 0; i < contributionItems.length; i++) {
+                for (IContributionItem item : contributionItems[i]) {
+                    add(item);
+                }
+            }
         }
     }
-
 }

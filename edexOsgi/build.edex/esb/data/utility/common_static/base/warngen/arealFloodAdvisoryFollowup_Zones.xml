@@ -1,7 +1,8 @@
 <!-- Areal Flood Advisory Followup ZONES configuration -->
 <!-- Created by Mike Dangelo 09-19-2011 at TIM Alaska to make Zones possible -->
 <!-- Localized for AK by Ed Plumb,Mary-Beth Shereck,Aaron Jacobs 9/23/2011 -->
-<!-- Edited by Mike Dangelo 01-26-2012 at CRH TIM -->
+<!-- Edited by Mike Dangelo 01-26-2012 at CRH TIM 
+               Phil Kurimski 2-29-2012 -->
 
 <warngenConfig>
 
@@ -98,6 +99,7 @@
   <bullet bulletName="trainedSpotters" bulletText="Trained spotters reported" bulletGroup="group2" parseString="TRAINED WEATHER SPOTTERS REPORTED"/>
   <bullet bulletName="public" bulletText="Public reported" bulletGroup="group2" parseString="THE PUBLIC REPORTED"/>
   <bullet bulletName="lawEnforcement" bulletText="Law enforcement reported" bulletGroup="group2" parseString="LAW ENFORCEMENT REPORTED"/>
+  <bullet bulletName="emergencyManagement" bulletText="Emergency Management reported" bulletGroup="group2" parseString="EMERGENCY MANAGEMENT REPORTED"/>
   <bullet bulletText="*********** EVENT (choose 1) *********** " bulletType="title"/>
   <bullet bulletName="thunder" bulletText="Thunderstorm(s)" bulletGroup="group3" parseString="FROM A THUNDERSTORM "/>
   <bullet bulletName="actual" bulletText="Minor flooding occurring" bulletGroup="group3" parseString="REPORTED MINOR "/>
@@ -143,6 +145,7 @@
   <bullet bulletName="trainedSpotters" bulletText="Trained spotters reported" bulletGroup="group2" parseString="TRAINED WEATHER SPOTTERS REPORTED"/>
   <bullet bulletName="public" bulletText="Public reported" bulletGroup="group2" parseString="THE PUBLIC REPORTED"/>
   <bullet bulletName="lawEnforcement" bulletText="Law enforcement reported" bulletGroup="group2" parseString="LAW ENFORCEMENT REPORTED"/>
+  <bullet bulletName="emergencyManagement" bulletText="Emergency Management reported" bulletGroup="group2" parseString="EMERGENCY MANAGEMENT REPORTED"/>
   <bullet bulletText="*********** EVENT (choose 1) *********** " bulletType="title"/>
   <bullet bulletName="thunder" bulletText="Thunderstorm(s)" bulletGroup="group3" parseString="FROM A THUNDERSTORM "/>
   <bullet bulletName="actual" bulletText="Minor flooding occurring" bulletGroup="group3" parseString="REPORTED MINOR "/>
@@ -209,6 +212,7 @@
 
  <trackEnabled>false</trackEnabled>
 
+ <!-- Required, but unused by this template -->
  <pathcastConfig>
   <withinPolygon>true</withinPolygon>
   <distanceThreshold>8.0</distanceThreshold>
@@ -225,25 +229,31 @@
   <sortBy>
   	<sort>distance</sort>
   </sortBy>
+  <filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1,2" constraintType="IN" />
+ 		</mapping>
+  </filter>  
  </pathcastConfig>
  
-   <pointSource variable="cityList">
+ <pointSource variable="cityList">
  	<pointField>NAME</pointField>
  	<searchMethod>POINTS</searchMethod>
  	<withinPolygon>true</withinPolygon>
  	<maxResults>30</maxResults>
  	<distanceThreshold>200</distanceThreshold>
+	<filter> 	
+  	  <mapping key="WARNGENLEV">
+ 		<constraint constraintValue="1,2,3" constraintType="IN" />
+ 	  </mapping>
+ 	</filter>  	
  	<sortBy>
   		<sort>warngenlev</sort>
   		<sort>population</sort>
-  	</sortBy>
-	<filter>
- 		<mapping key="WARNGENLEV">
- 			<constraint constraintValue="1,2" constraintType="IN" />
- 		</mapping>
-  	</filter>
+  	</sortBy>	
  </pointSource>
  
+  <!-- Required, but unused by this template -->
   <pointSource variable="otherPoints">
  	<pointField>NAME</pointField>
  	<searchMethod>POINTS</searchMethod>

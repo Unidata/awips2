@@ -167,6 +167,9 @@ public class MosViewer extends ViewerTab implements
      */
     private List<String> stationList;
 
+    /**
+     * Current header and data information displayed in the tab.
+     */
     private String[] currentGuidance;
 
     /**
@@ -600,7 +603,7 @@ public class MosViewer extends ViewerTab implements
     public String getSite(String site) {
         return chooseModel(site, model);
     }
-    
+
     /**
      * Obtain the model.
      * 

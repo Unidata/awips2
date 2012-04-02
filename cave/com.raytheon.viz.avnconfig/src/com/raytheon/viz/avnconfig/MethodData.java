@@ -100,6 +100,7 @@ public class MethodData implements Comparable<MethodData> {
      * @param methodArgsArray
      *            Array of MethodArgData.
      */
+    // TODO - no references to this constructor. Can it be removed?
     public MethodData(String methodName, String comment,
             ArrayList<MethodArgData> methodArgsArray) {
         this.methodName = methodName;
@@ -314,10 +315,20 @@ public class MethodData implements Comparable<MethodData> {
         }
     }
 
+    /**
+     * Set flag to indicate message comes from a file.
+     * 
+     * @param value
+     */
     public void setMsgFromFile(boolean value) {
         msgFromFile = value;
     }
 
+    /**
+     * Indicates if message comes form a file.
+     * 
+     * @return
+     */
     public boolean getMsgFromFile() {
         return msgFromFile;
     }

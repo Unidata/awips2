@@ -97,7 +97,6 @@ public class GLColormapShadedShapeExtension extends
             throws VizException {
         if (shape instanceof GLColormapShadedShape) {
             GLColormapShadedShape glBaseShape = (GLColormapShadedShape) shape;
-            target.makeContextCurrent();
             GL gl = target.getGl();
             gl.glPolygonMode(GL.GL_BACK, GL.GL_FILL);
             gl.glEnableClientState(GL.GL_VERTEX_ARRAY);
@@ -247,7 +246,7 @@ public class GLColormapShadedShapeExtension extends
      */
     @Override
     public int getCompatibilityValue(IGLTarget target) {
-        return Compatibilty.TARGET_COMPATIBLE.value;
+        return Compatibilty.TARGET_COMPATIBLE;
     }
 
 }

@@ -40,6 +40,7 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.printing.PrintDialog;
 import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.printing.PrinterData;
@@ -64,8 +65,10 @@ public class NsharpPrintHandle {
 	private static int HODO_X_ORIG= SKEWT_X_ORIG + SKEWT_WIDTH-130;
 	private static int HODO_HEIGHT= 130;
 	private static int HODO_WIDTH= HODO_HEIGHT;
-	
-	
+	private Font printerFont;
+    private Color printerForegroundColor, printerBackgroundColor;
+	private Transform transform;
+    
 	private static  NsharpPrintHandle printHandle=null;
 	public static NsharpPrintHandle getPrintHandle() {
 		if(printHandle==null)
@@ -136,9 +139,12 @@ public class NsharpPrintHandle {
 				}
 				try{
 					// Do the printing in a background thread so that spooling does not freeze the UI. 
-					printer = new Printer(data);
-					print(printer);
-					printer.dispose();
+					createPrinter(data);			        
+			        if (startJob()) {
+			            printPage(NsharpSkewTEditor.getActiveNsharpEditor().getNsharpSkewTDescriptor());
+			            endJob();
+			        }
+			        disposePrinter();
 				}
 				catch (Exception e) {
 
@@ -154,177 +160,198 @@ public class NsharpPrintHandle {
 	  
 	}
 
-	private void print(Printer printer) {
-		String tabs;
-		Font printerFont;
-		Color printerForegroundColor, printerBackgroundColor;
-		
-		NsharpSkewTDescriptor desc = NsharpSkewTEditor.getActiveNsharpEditor().getNsharpSkewTDescriptor();
-		NsharpBackgroundResource bkRsc = desc.getSkewTBkGResource();
-		
-		if (printer.startJob("NSHARP")) {   // the string is the job name - shows up in the printer's job list
-			Rectangle clientArea = printer.getClientArea();
-			Rectangle trim = printer.computeTrim(0, 0, 0, 0);
-			Point dpi = printer.getDPI();
-			
-			leftMargin = dpi.x + trim.x; // one inch from left side of paper
-			rightMargin = clientArea.width - dpi.x + trim.x + trim.width; // one inch from right side of paper
-			topMargin = dpi.y + trim.y; // one inch from top edge of paper
-			bottomMargin = clientArea.height - dpi.y + trim.y + trim.height; // one inch from bottom edge of paper
-			//System.out.println("leftMargin="+leftMargin+"rightMargin="+rightMargin+"topMargin"+topMargin+"bottomMargin"+bottomMargin);
-			//leftMargin=54rightMargin=521topMargin54bottomMargin701
-			/* Create a buffer for computing tab width. */
-			int tabSize = 4; // is tab width a user setting in your UI?
-			StringBuffer tabBuffer = new StringBuffer(tabSize);
-			for (int i = 0; i < tabSize; i++) tabBuffer.append(' ');
-			tabs = tabBuffer.toString();
-			
-			/* Create printer GC, and create and set the printer font & foreground color. */
-			gc = new GC(printer);
-			printerFont = new Font(printer, "Courier", 5, SWT.NORMAL);
-			gc.setFont(printerFont);
-			tabWidth = gc.stringExtent(tabs).x;
-			lineHeight = gc.getFontMetrics().getHeight();
-
-			RGB rgb = new RGB(0,0,0);//Black
-			printerForegroundColor = new Color(printer, rgb);
-			gc.setForeground(printerForegroundColor);
-			rgb = new RGB(255,255,255);//white
-			printerBackgroundColor = new Color(printer, rgb);
-			gc.setBackground(printerBackgroundColor);
-
-			printer.startPage();
-			// Print SkewT square
-			gc.drawRectangle(leftMargin+SKEWT_X_ORIG, topMargin, SKEWT_WIDTH, SKEWT_HEIGHT);
-			// set view dimension
-			WGraphics world = new WGraphics(leftMargin+SKEWT_X_ORIG, topMargin, leftMargin+SKEWT_X_ORIG+SKEWT_WIDTH, topMargin+SKEWT_HEIGHT);
-	        //set SKEWT virtual world coordinate. 
-	        world.setWorldCoordinates(NsharpConstants.left, NsharpConstants.top,
-	                NsharpConstants.right, NsharpConstants.bottom);
-	        gc.setLineWidth(1);
-	        NsharpSkewTResource rsc = desc.getSkewtResource();
-	        
-	        
-	        try {
-	        	gc.setClipping(leftMargin-30, topMargin-30, rightMargin+30, bottomMargin);
-	        	gc.drawString(rsc.getPickedStnInfoStr(),leftMargin+SKEWT_X_ORIG, topMargin-20);
-				rsc.printNsharpPressureLinesNumber(world, gc);
-				rsc.printNsharpTempNumber(world, gc);
-				rsc.printHeightMark(world, gc);
-				rsc.printNsharpWind(world, gc);
-				//set clipping 
-				gc.setClipping(leftMargin+SKEWT_X_ORIG, topMargin, SKEWT_WIDTH, SKEWT_HEIGHT);
-				//print skewt background
-				bkRsc.getSkewTBackground().paintForPrint(world, gc);
-	        	gc.setLineWidth(2);
-	        	gc.setLineStyle(SWT.LINE_SOLID);
-				rsc.printNsharpPressureTempCurve( world,  rsc.TEMP_TYPE, gc,  rsc.getSoundingLys());
-				rsc.printNsharpPressureTempCurve( world,  rsc.DEWPOINT_TYPE, gc,rsc.getSoundingLys());
-				
-				gc.setLineStyle(SWT.LINE_DASH);
-				rsc.printNsharpWetbulbTraceCurve(world,  gc);
-				gc.setLineStyle(SWT.LINE_DASHDOTDOT);
-				rsc.printNsharpParcelTraceCurve(world, gc);
-				gc.setLineStyle(SWT.LINE_SOLID);
-				//fill/cover this skewt area to be used by Hodo
-				gc.fillRectangle(leftMargin+HODO_X_ORIG, topMargin, HODO_WIDTH, HODO_HEIGHT);
-			} catch (VizException e) {
-				e.printStackTrace();
-			}
-			gc.setLineWidth(2);
-			// Print Hodo square
-			gc.drawRectangle(leftMargin+HODO_X_ORIG, topMargin, HODO_WIDTH, HODO_HEIGHT);
-			
-			//set HODO view world
-			world = new WGraphics(leftMargin+HODO_X_ORIG, topMargin, leftMargin+HODO_X_ORIG+HODO_WIDTH, topMargin+HODO_HEIGHT);
-	        //set HODO real world coordinate. 
-			world.setWorldCoordinates(-50, 90, 90, -50);
-			
-			gc.setLineWidth(1);
-			//print hodo background
-			bkRsc.getHodoBackground().paintForPrint(world, gc);
-			try {
-				//print hodo 
-				gc.setLineStyle(SWT.LINE_SOLID);
-				
-				rsc.printNsharpHodoWind(world, gc, rsc.getSoundingLys());
-			} catch (VizException e) {
-				e.printStackTrace();
-			}
-			nsharpNative = getNsharpNativePtr();
-			//reset clipping
-			gc.setClipping(leftMargin-15, topMargin+SKEWT_HEIGHT, rightMargin-leftMargin+30,bottomMargin-topMargin+30);
-
-			gc.setLineWidth(2);
-			//print thermodynamic data title and its box
-			gc.drawString("THERMODYNAMIC PARAMETERS",leftMargin+50, topMargin+SKEWT_HEIGHT+20);
-			//gc.drawRectangle(leftMargin-15, topMargin+SKEWT_HEIGHT+30, 220,280);
-			gc.drawLine(leftMargin-15, topMargin+SKEWT_HEIGHT+30, leftMargin+205,topMargin+SKEWT_HEIGHT+30);
-			//set clipping 
-			//gc.setClipping(leftMargin-16, topMargin+SKEWT_HEIGHT+30, 222,280);
-			String textStr = printThermodynamicParametersBox1();
-			//System.out.println(textStr);
-			int curY= printText(textStr,leftMargin-12, topMargin+SKEWT_HEIGHT+35, leftMargin+205,topMargin+SKEWT_HEIGHT+295);
-			gc.drawLine(leftMargin-15, curY, leftMargin+205,curY);
-			gc.drawLine(leftMargin-15, curY, leftMargin-15,topMargin+SKEWT_HEIGHT+30);
-			gc.drawLine(leftMargin+205, curY, leftMargin+205,topMargin+SKEWT_HEIGHT+30);
-			String str1="", str2="", str3="";
-			textStr = printThermodynamicParametersBox2();
-			int gapIndex1 = textStr.indexOf("BOXLINE");
-			str1= textStr.substring(0, gapIndex1);
-			int gapIndex2 = textStr.indexOf("BOXLINE",gapIndex1+1);
-			str2= textStr.substring( gapIndex1+("BOXLINE".length()),gapIndex2);
-			str3= textStr.substring( gapIndex2+("BOXLINE".length()));
-			int preY= curY;
-			curY= printText(str1,leftMargin-12, curY+1, leftMargin+205,topMargin+SKEWT_HEIGHT+295);
-			gc.drawLine(leftMargin-15, curY, leftMargin+205,curY);
-			gc.drawLine(leftMargin-15, curY, leftMargin-15,preY);
-			gc.drawLine(leftMargin+205, curY, leftMargin+205,preY);
-			preY= curY;
-			curY= printText(str2,leftMargin-12, curY+1, leftMargin+205,topMargin+SKEWT_HEIGHT+295);
-			gc.drawLine(leftMargin-15, curY, leftMargin+205,curY);
-			gc.drawLine(leftMargin-15, curY, leftMargin-15,preY);
-			gc.drawLine(leftMargin+205, curY, leftMargin+205,preY);
-			preY= curY;
-			curY= printText(str3,leftMargin-12, curY+1, leftMargin+205,topMargin+SKEWT_HEIGHT+295);
-			gc.drawLine(leftMargin-15, curY, leftMargin+205,curY);
-			gc.drawLine(leftMargin-15, curY, leftMargin-15,preY);
-			gc.drawLine(leftMargin+205, curY, leftMargin+205,preY);
-
-			textStr = "Output produced by: NCO-SIB AWIPS2 NSHARP\nNational SkewT-Hodograph Analysis and Research Program\n";
-			printText(textStr,leftMargin-12, curY+100, leftMargin+300,curY+120);
-
-
-			//print kinematic data title and its box
-			gc.drawString("KINEMATIC PARAMETERS",leftMargin+280, topMargin+SKEWT_HEIGHT+20);
-			gc.drawLine(leftMargin+225, topMargin+SKEWT_HEIGHT+30, leftMargin+445,topMargin+SKEWT_HEIGHT+30);
-			textStr = printKinematicParametersBox();
-			curY= printText(textStr,leftMargin+228,topMargin+SKEWT_HEIGHT+35, leftMargin+444,topMargin+SKEWT_HEIGHT+295);
-			//System.out.println("curreny y = "+ curY);
-			gc.drawLine(leftMargin+225, curY, leftMargin+445,curY);
-			gc.drawLine(leftMargin+225, curY, leftMargin+225,topMargin+SKEWT_HEIGHT+30);
-			gc.drawLine(leftMargin+445, curY, leftMargin+445,topMargin+SKEWT_HEIGHT+30);
-
-			// print STORM STRUCTURE PARAMETERS
-			gc.drawString("STORM STRUCTURE PARAMETERS",leftMargin+280, curY+20);
-			gc.drawLine(leftMargin+225, curY+30, leftMargin+445,curY+30);
-			textStr = printStormStructureParametersBox();
-			preY = curY+30;
-			curY= printText(textStr,leftMargin+228,curY+35, leftMargin+444,topMargin+SKEWT_HEIGHT+295);
-			gc.drawLine(leftMargin+225, curY, leftMargin+445,curY);
-			gc.drawLine(leftMargin+225, curY, leftMargin+225,preY);
-			gc.drawLine(leftMargin+445, curY, leftMargin+445,preY);
-
-			printer.endPage();
-			printer.endJob();
-
-			/* Cleanup graphics resources used in printing */
-			printerFont.dispose();
-			printerForegroundColor.dispose();
-			printerBackgroundColor.dispose();
-			gc.dispose();
-		}
+	public void createPrinter(PrinterData data){
+	    this.printer = new Printer(data);
 	}
+	
+	public boolean startJob(){
+	    String tabs;
+	    if (printer.startJob("NSHARP")) {   // the string is the job name - shows up in the printer's job list
+            Rectangle clientArea = printer.getClientArea();
+            Rectangle trim = printer.computeTrim(0, 0, 0, 0);
+            Point dpi = printer.getDPI();
+            
+            float dpiScaleX = dpi.x/72f;
+            float dpiScaleY = dpi.y/72f;
+            
+            transform = new Transform(printer);
+            transform.scale(dpiScaleX, dpiScaleY);
+            
+            leftMargin = 72 + trim.x; // one inch from left side of paper
+            rightMargin = clientArea.width - 72 + trim.x + trim.width; // one inch from right side of paper
+            topMargin = 72 + trim.y; // one inch from top edge of paper
+            bottomMargin = clientArea.height - 72 + trim.y + trim.height; // one inch from bottom edge of paper
+            //System.out.println("leftMargin="+leftMargin+"rightMargin="+rightMargin+"topMargin"+topMargin+"bottomMargin"+bottomMargin);
+            //leftMargin=54rightMargin=521topMargin54bottomMargin701
+            /* Create a buffer for computing tab width. */
+            int tabSize = 4; // is tab width a user setting in your UI?
+            StringBuffer tabBuffer = new StringBuffer(tabSize);
+            for (int i = 0; i < tabSize; i++) tabBuffer.append(' ');
+            tabs = tabBuffer.toString();
+            
+            /* Create printer GC, and create and set the printer font & foreground color. */
+            gc = new GC(printer);
+            int fontSize = (int) Math.round(5/dpiScaleY);
+            fontSize = Math.max(1, fontSize);
+            printerFont = new Font(printer, "Courier", fontSize, SWT.NORMAL);
+            gc.setFont(printerFont);
+            tabWidth = gc.stringExtent(tabs).x;
+            lineHeight = gc.getFontMetrics().getHeight();
+
+            RGB rgb = new RGB(0,0,0);//Black
+            printerForegroundColor = new Color(printer, rgb);
+            gc.setForeground(printerForegroundColor);
+            rgb = new RGB(255,255,255);//white
+            printerBackgroundColor = new Color(printer, rgb);
+            gc.setBackground(printerBackgroundColor);
+            gc.setTransform(transform);
+            return true;
+	    }
+	    return false;
+	}
+	
+	public void printPage(NsharpSkewTDescriptor desc){
+	    NsharpBackgroundResource bkRsc = desc.getSkewTBkGResource();
+	    printer.startPage();
+        // Print SkewT square
+        gc.drawRectangle(leftMargin+SKEWT_X_ORIG, topMargin, SKEWT_WIDTH, SKEWT_HEIGHT);
+        // set view dimension
+        WGraphics world = new WGraphics(leftMargin+SKEWT_X_ORIG, topMargin, leftMargin+SKEWT_X_ORIG+SKEWT_WIDTH, topMargin+SKEWT_HEIGHT);
+        //set SKEWT virtual world coordinate. 
+        world.setWorldCoordinates(NsharpConstants.left, NsharpConstants.top,
+                NsharpConstants.right, NsharpConstants.bottom);
+        gc.setLineWidth(1);
+        NsharpSkewTResource rsc = desc.getSkewtResource();
+        
+        
+        try {
+            gc.setClipping(leftMargin-30, topMargin-30, rightMargin+30, bottomMargin);
+            gc.drawString(rsc.getPickedStnInfoStr(),leftMargin+SKEWT_X_ORIG, topMargin-20);
+            rsc.printNsharpPressureLinesNumber(world, gc);
+            rsc.printNsharpTempNumber(world, gc);
+            rsc.printHeightMark(world, gc);
+            rsc.printNsharpWind(world, gc);
+            //set clipping 
+            gc.setClipping(leftMargin+SKEWT_X_ORIG, topMargin, SKEWT_WIDTH, SKEWT_HEIGHT);
+            //print skewt background
+            bkRsc.getSkewTBackground().paintForPrint(world, gc);
+            gc.setLineWidth(2);
+            gc.setLineStyle(SWT.LINE_SOLID);
+            rsc.printNsharpPressureTempCurve( world,  rsc.TEMP_TYPE, gc,  rsc.getSoundingLys());
+            rsc.printNsharpPressureTempCurve( world,  rsc.DEWPOINT_TYPE, gc,rsc.getSoundingLys());
+            
+            gc.setLineStyle(SWT.LINE_DASH);
+            rsc.printNsharpWetbulbTraceCurve(world,  gc);
+            gc.setLineStyle(SWT.LINE_DASHDOTDOT);
+            rsc.printNsharpParcelTraceCurve(world, gc);
+            gc.setLineStyle(SWT.LINE_SOLID);
+            //fill/cover this skewt area to be used by Hodo
+            gc.fillRectangle(leftMargin+HODO_X_ORIG, topMargin, HODO_WIDTH, HODO_HEIGHT);
+        } catch (VizException e) {
+            e.printStackTrace();
+        }
+        gc.setLineWidth(2);
+        // Print Hodo square
+        gc.drawRectangle(leftMargin+HODO_X_ORIG, topMargin, HODO_WIDTH, HODO_HEIGHT);
+        
+        //set HODO view world
+        world = new WGraphics(leftMargin+HODO_X_ORIG, topMargin, leftMargin+HODO_X_ORIG+HODO_WIDTH, topMargin+HODO_HEIGHT);
+        //set HODO real world coordinate. 
+        world.setWorldCoordinates(-50, 90, 90, -50);
+        
+        gc.setLineWidth(1);
+        //print hodo background
+        bkRsc.getHodoBackground().paintForPrint(world, gc);
+        try {
+            //print hodo 
+            gc.setLineStyle(SWT.LINE_SOLID);
+            
+            rsc.printNsharpHodoWind(world, gc, rsc.getSoundingLys());
+        } catch (VizException e) {
+            e.printStackTrace();
+        }
+        nsharpNative = getNsharpNativePtr();
+        //reset clipping
+        gc.setClipping(leftMargin-15, topMargin+SKEWT_HEIGHT, rightMargin-leftMargin+30,bottomMargin-topMargin+30);
+
+        gc.setLineWidth(2);
+        //print thermodynamic data title and its box
+        gc.drawString("THERMODYNAMIC PARAMETERS",leftMargin+50, topMargin+SKEWT_HEIGHT+20);
+        //gc.drawRectangle(leftMargin-15, topMargin+SKEWT_HEIGHT+30, 220,280);
+        gc.drawLine(leftMargin-15, topMargin+SKEWT_HEIGHT+30, leftMargin+205,topMargin+SKEWT_HEIGHT+30);
+        //set clipping 
+        //gc.setClipping(leftMargin-16, topMargin+SKEWT_HEIGHT+30, 222,280);
+        String textStr = printThermodynamicParametersBox1();
+        //System.out.println(textStr);
+        int curY= printText(textStr,leftMargin-12, topMargin+SKEWT_HEIGHT+35, leftMargin+205,topMargin+SKEWT_HEIGHT+295);
+        gc.drawLine(leftMargin-15, curY, leftMargin+205,curY);
+        gc.drawLine(leftMargin-15, curY, leftMargin-15,topMargin+SKEWT_HEIGHT+30);
+        gc.drawLine(leftMargin+205, curY, leftMargin+205,topMargin+SKEWT_HEIGHT+30);
+        String str1="", str2="", str3="";
+        textStr = printThermodynamicParametersBox2();
+        int gapIndex1 = textStr.indexOf("BOXLINE");
+        str1= textStr.substring(0, gapIndex1);
+        int gapIndex2 = textStr.indexOf("BOXLINE",gapIndex1+1);
+        str2= textStr.substring( gapIndex1+("BOXLINE".length()),gapIndex2);
+        str3= textStr.substring( gapIndex2+("BOXLINE".length()));
+        int preY= curY;
+        curY= printText(str1,leftMargin-12, curY+1, leftMargin+205,topMargin+SKEWT_HEIGHT+295);
+        gc.drawLine(leftMargin-15, curY, leftMargin+205,curY);
+        gc.drawLine(leftMargin-15, curY, leftMargin-15,preY);
+        gc.drawLine(leftMargin+205, curY, leftMargin+205,preY);
+        preY= curY;
+        curY= printText(str2,leftMargin-12, curY+1, leftMargin+205,topMargin+SKEWT_HEIGHT+295);
+        gc.drawLine(leftMargin-15, curY, leftMargin+205,curY);
+        gc.drawLine(leftMargin-15, curY, leftMargin-15,preY);
+        gc.drawLine(leftMargin+205, curY, leftMargin+205,preY);
+        preY= curY;
+        curY= printText(str3,leftMargin-12, curY+1, leftMargin+205,topMargin+SKEWT_HEIGHT+295);
+        gc.drawLine(leftMargin-15, curY, leftMargin+205,curY);
+        gc.drawLine(leftMargin-15, curY, leftMargin-15,preY);
+        gc.drawLine(leftMargin+205, curY, leftMargin+205,preY);
+
+        textStr = "Output produced by: NCO-SIB AWIPS2 NSHARP\nNational SkewT-Hodograph Analysis and Research Program\n";
+        printText(textStr,leftMargin-12, curY+100, leftMargin+300,curY+120);
+
+
+        //print kinematic data title and its box
+        gc.drawString("KINEMATIC PARAMETERS",leftMargin+280, topMargin+SKEWT_HEIGHT+20);
+        gc.drawLine(leftMargin+225, topMargin+SKEWT_HEIGHT+30, leftMargin+445,topMargin+SKEWT_HEIGHT+30);
+        textStr = printKinematicParametersBox();
+        curY= printText(textStr,leftMargin+228,topMargin+SKEWT_HEIGHT+35, leftMargin+444,topMargin+SKEWT_HEIGHT+295);
+        //System.out.println("curreny y = "+ curY);
+        gc.drawLine(leftMargin+225, curY, leftMargin+445,curY);
+        gc.drawLine(leftMargin+225, curY, leftMargin+225,topMargin+SKEWT_HEIGHT+30);
+        gc.drawLine(leftMargin+445, curY, leftMargin+445,topMargin+SKEWT_HEIGHT+30);
+
+        // print STORM STRUCTURE PARAMETERS
+        gc.drawString("STORM STRUCTURE PARAMETERS",leftMargin+280, curY+20);
+        gc.drawLine(leftMargin+225, curY+30, leftMargin+445,curY+30);
+        textStr = printStormStructureParametersBox();
+        preY = curY+30;
+        curY= printText(textStr,leftMargin+228,curY+35, leftMargin+444,topMargin+SKEWT_HEIGHT+295);
+        gc.drawLine(leftMargin+225, curY, leftMargin+445,curY);
+        gc.drawLine(leftMargin+225, curY, leftMargin+225,preY);
+        gc.drawLine(leftMargin+445, curY, leftMargin+445,preY);
+
+        printer.endPage();
+	}
+	
+   public void endJob(){
+        printer.endJob();
+
+        /* Cleanup graphics resources used in printing */
+        printerFont.dispose();
+        printerForegroundColor.dispose();
+        printerBackgroundColor.dispose();
+        transform.dispose();
+        gc.dispose();
+    }
+   
+   public void disposePrinter(){
+       printer.dispose();
+   }
+	
 	private int x, y;
 	private int index, end;		
 	

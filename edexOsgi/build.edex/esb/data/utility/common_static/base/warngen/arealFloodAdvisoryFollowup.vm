@@ -3,8 +3,10 @@
 ##############################
 ## EDITED BY PHIL KURIMSKI   8-18-2011 FOR OB11.8.0-4
 ##           EVAN BOOKBINDER 9-16-2011 FOR OB11.0.8-8 
-##           Mike Dangelo 09-19-2011 at Alaska TIM 
-##           Mike and Phil 1-25-2012 at CRH TIM
+##           Mike Dangelo    9-19-2011 at Alaska TIM 
+##           Mike and Phil   1-25-2012 at CRH TIM
+##           Evan Bookbinder 2-24-2012 
+##           Phil Kurimski   2-28-2012  for OB 12.2.1-3
 ##
 #if(${action} == "EXT")
 	#set($starttime = "000000T0000Z")
@@ -54,32 +56,36 @@
   #set ($cause = "AN ICE JAM") 
   #set ($hycType = "FOR ICE JAM FLOODING ")  
 #end
+#if(${ic} == "DR")
+  #set ($cause = "A DAM FLOODGATE RELEASE") 
+  #set ($hycType = "FOR A DAM FLOODGATE RELEASE ")  
+#end
 #if(${ic} == "IC")
   #set ($cause = "AN ICE JAM AND HEAVY RAIN")   
 #end
 #if(${list.contains($bullets, "doppler")})
   #set ($report = "DOPPLER RADAR INDICATED ${cause} THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
 #end
-#if(${list.contains($bullets, "doppler")} && ${list.contains($bullets, "thunder")})
-  #set ($report = "DOPPLER RADAR INDICATED ${cause} DUE TO A THUNDERSTORM THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
+#if(${list.contains($bullets, "doppler")} && ${list.contains($bullets, "actual")})
+  #set ($report = "DOPPLER RADAR INDICATED ${cause} CAUSING ${advTypeShort}${report2} IN THE ADVISORY AREA")   
 #end
-#if(${list.contains($bullets, "doppler")} && ${list.contains($bullets, "thunder")} && ${stormType} == "line")
-  #set ($report = "DOPPLER RADAR INDICATED ${cause} DUE TO A LINE OF THUNDERSTORMS THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
+#if(${list.contains($bullets, "doppler")} && ${list.contains($bullets, "thunder")})
+  #set ($report = "DOPPLER RADAR INDICATED ${cause} DUE TO THUNDERSTORMS. THIS WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
 #end
 #if(${list.contains($bullets, "dopplerGauge")})
-  #set ($report = "DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED ${cause} THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
+  #set ($report = "DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED ${cause}. THIS WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
+#end
+#if(${list.contains($bullets, "dopplerGauge")} && ${list.contains($bullets, "actual")})
+  #set ($report = "DOPPLER RADAR INDICATED ${cause} CAUSING ${advTypeShort}${report2} IN THE ADVISORY AREA")   
 #end
 #if(${list.contains($bullets, "dopplerGauge")} && ${list.contains($bullets, "thunder")})
-  #set ($report = "DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED ${cause} DUE TO A THUNDERSTORM THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
-#end
-#if(${list.contains($bullets, "dopplerGauge")} && ${list.contains($bullets, "thunder")} && ${stormType} == "line")
-  #set ($report = "DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED ${cause} DUE TO A LINE OF THUNDERSTORMS THAT WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
+  #set ($report = "DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED ${cause} DUE TO THUNDERSTORMS. THIS WILL CAUSE ${advTypeShort}${report2} IN THE ADVISORY AREA")   
 #end
 #if(${list.contains($bullets, "trainedSpotters")})
   #set ($report = "TRAINED WEATHER SPOTTERS REPORTED ${cause} CAUSING ${advTypeShort} IN !** LOCATION **!${report2}")   
 #end
 #if(${list.contains($bullets, "trainedSpotters")} && ${list.contains($bullets, "thunder")})
-  #set ($report = "TRAINED WEATHER SPOTTERS REPORTED ${cause} IN !** LOCATION **! DUE TO A THUNDERSTORM THAT WILL CAUSE ${advTypeShort}${report2}")   
+  #set ($report = "TRAINED WEATHER SPOTTERS REPORTED ${cause} IN !** LOCATION **! DUE TO THUNDERSTORMS. THIS WILL CAUSE ${advTypeShort}${report2}")   
 #end
 #if(${list.contains($bullets, "trainedSpotters")} && ${list.contains($bullets, "actual")})
   #set ($report = "TRAINED WEATHER SPOTTERS REPORTED ${advTypeShort} IN !** LOCATION **!${report2}")   
@@ -91,7 +97,7 @@
   #set ($report = "LOCAL LAW ENFORCEMENT REPORTED ${cause} CAUSING ${advTypeShort} IN !** LOCATION **!${report2}")   
 #end
 #if(${list.contains($bullets, "lawEnforcement")} && ${list.contains($bullets, "thunder")})
-  #set ($report = "LOCAL LAW ENFORCEMENT REPORTED ${cause} IN !** LOCATION **! DUE TO A THUNDERSTORM IN THAT WILL CAUSE ${advTypeShort}${report2}")   
+  #set ($report = "LOCAL LAW ENFORCEMENT REPORTED ${cause} IN !** LOCATION **! DUE TO THUNDERSTORMS. THIS WILL CAUSE ${advTypeShort}${report2}")   
 #end
 #if(${list.contains($bullets, "lawEnforcement")} && ${list.contains($bullets, "actual")})
   #set ($report = "LOCAL LAW ENFORCEMENT REPORTED ${cause} CAUSING ${advTypeShort} IN !** LOCATION **!${report2}")   
@@ -99,17 +105,29 @@
 #if(${list.contains($bullets, "lawEnforcement")} && ${list.contains($bullets, "plainRain")})
   #set ($report = "LOCAL LAW ENFORCEMENT REPORTED ${cause} IN !** LOCATION **! THAT WILL CAUSE ${advTypeShort}${report2}")   
 #end
+#if(${list.contains($bullets, "emergencyManagement")})
+  #set ($report = "EMERGENCY MANAGEMENT REPORTED ${cause} CAUSING ${advTypeShort} IN !** LOCATION **!${report2}")   
+#end
+#if(${list.contains($bullets, "emergencyManagement")} && ${list.contains($bullets, "thunder")})
+  #set ($report = "EMERGENCY MANAGEMENT REPORTED ${cause} IN !** LOCATION **! DUE TO THUNDERSTORMS. THIS WILL CAUSE ${advTypeShort}${report2}")   
+#end
+#if(${list.contains($bullets, "emergencyManagement")} && ${list.contains($bullets, "actual")})
+  #set ($report = "EMERGENCY MANAGEMENT REPORTED ${cause} CAUSING ${advTypeShort} IN !** LOCATION **!${report2}")   
+#end
+#if(${list.contains($bullets, "emergencyManagement")} && ${list.contains($bullets, "plainRain")})
+  #set ($report = "EMERGENCY MANAGEMENT REPORTED ${cause} IN !** LOCATION **! THAT WILL CAUSE ${advTypeShort}${report2}")   
+#end
 #if(${list.contains($bullets, "public")})
   #set ($report = "THE PUBLIC REPORTED ${cause} CAUSING ${advTypeShort} IN !** LOCATION **!${report2}")   
 #end
 #if(${list.contains($bullets, "public")} && ${list.contains($bullets, "thunder")})
-  #set ($report = "THE PUBLIC REPORTED ${advTypeShort} IN !** LOCATION **! DUE TO A THUNDERSTORM THAT WILL CAUSE ${advTypeShort}")   
+  #set ($report = "THE PUBLIC REPORTED ${advTypeShort} IN !** LOCATION **! DUE TO THUNDERSTORMS. THIS WILL CAUSE ${advTypeShort}")   
 #end
 #if(${list.contains($bullets, "public")} && ${list.contains($bullets, "actual")})
   #set ($report = "THE PUBLIC REPORTED ${advTypeShort} IN !** LOCATION **!${report2}")   
 #end
 #if(${list.contains($bullets, "public")} && ${list.contains($bullets, "plainRain")})
-  #set ($report = "THE PUBLIC REPORTED ${cause} IN !** LOCATION **! THAT WILL CAUSE MINOR FLOODING${report2}")   
+  #set ($report = "THE PUBLIC REPORTED ${cause} IN !** LOCATION **! THAT WILL CAUSE ${advTypeShort}${report2}")   
 #end
 #if(${list.contains($bullets, "doppler")} || ${list.contains($bullets, "dopplerGauge")})
 #set($estimate = "UP TO !** Number **! INCHES OF RAIN HAS FALLEN IN THE PAST HOUR.")
@@ -279,7 +297,7 @@ DO NOT UNDERESTIMATE THE POWER OF FLOOD WATERS. ONLY A FEW INCHES OF RAPIDLY FLO
 TO REPORT FLOODING...HAVE THE NEAREST LAW ENFORCEMENT AGENCY RELAY YOUR REPORT TO THE NATIONAL WEATHER SERVICE FORECAST OFFICE.
 
 #end
-#if(${list.contains($bullets, "advisoryMeans")})
+#if(${list.contains($bullets, "advisoryMeansCTA")})
 A FLOOD ADVISORY MEANS RIVER OR STREAM FLOWS ARE ELEVATED OR PONDING OF WATER IN URBAN OR OTHER AREAS IS OCCURRING OR IS IMMINENT.
 
 #end
@@ -326,15 +344,12 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE.##
 #end
-...THE ${advType} FOR ##
-#headlineLocList(${cancelareas} true true true false)
-...##
+...THE ${advType} ${hycType}HAS BEEN CANCELLED FOR ##
+#headlineLocList(${areas} true true true false)##
+...
 ########### END NEW HEADLINE CODE ####################
 
-## One line explanation - user can delete the one they don't want
-## or delete both and explain why manually
-!** THE HEAVY RAIN HAS ENDED. THEREFORE...THE FLOODING THREAT HAS ENDED. **!
-!** THE FLOOD WATER IS RECEDING. THEREFORE...THE FLOODING THREAT HAS ENDED. **!
+!** THE HEAVY RAIN HAS ENDED (AND/OR) FLOOD WATER IS RECEDING. THEREFORE...THE FLOODING THREAT HAS ENDED. **!
 
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
@@ -416,11 +431,11 @@ MOST FLOOD DEATHS OCCUR IN AUTOMOBILES. NEVER DRIVE YOUR VEHICLE INTO AREAS WHER
 
 #end
 #if(${list.contains($bullets, "urbanCTA")})
-EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE ELEVATED LEVELS ON SMALL CREEKS AND STREAMS...AND PONDING OF WATER IN URBAN AREAS...HIGHWAYS...STREETS AND UNDERPASSES AS WELL AS OTHER POOR DRAINAGE AREAS AND LOW LYING SPOTS.
+EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE PONDING OF WATER IN URBAN AREAS...HIGHWAYS...STREETS AND UNDERPASSES AS WELL AS OTHER POOR DRAINAGE AREAS AND LOW LYING SPOTS. DO NOT ATTEMPT TO TRAVEL ACROSS FLOODED ROADS. FIND ALTERNATE ROUTES. IT TAKES ONLY A FEW INCHES OF SWIFTLY FLOWING WATER TO CARRY VEHICLES AWAY.
 
 #end
 #if(${list.contains($bullets, "ruralCTA")})
-EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE FLOODING OF SMALL CREEKS AND STREAMS...HIGHWAYS AND UNDERPASSES.  ADDITIONALLY...COUNTRY ROADS AND FARMLANDS ALONG THE BANKS OF CREEKS...STREAMS AND OTHER LOW LYING AREAS ARE SUBJECT TO FLOODING.
+EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE FLOODING OF SMALL CREEKS AND STREAMS...AS WELL AS FARM AND COUNTRY ROADS. DO NOT ATTEMPT TO TRAVEL ACROSS FLOODED ROADS. FIND ALTERNATE ROUTES.
 
 #end
 #if(${list.contains($bullets, "donotdriveCTA")})
@@ -440,7 +455,7 @@ TO REPORT FLOODING...HAVE THE NEAREST LAW ENFORCEMENT AGENCY RELAY YOUR REPORT T
 
 #end
 #if(${list.contains($bullets, "advisoryMeansCTA")})
-A FLOOD ADVISORY MEANS RIVER OR STREAM FLOWS ARE ELEVATED OR PONDING OF WATER IN URBAN OR OTHER AREAS IS OCCURRING OR IS IMMINENT.
+A FLOOD ADVISORY MEANS RIVER OR STREAM FLOWS ARE ELEVATED...OR PONDING OF WATER IN URBAN OR OTHER AREAS IS OCCURRING OR IS IMMINENT. DO NOT ATTEMPT TO TRAVEL ACROSS FLOODED ROADS. FIND ALTERNATE ROUTES. IT TAKES ONLY A FEW INCHES OF SWIFTLY FLOWING WATER TO CARRY VEHICLES AWAY.
 
 #end
 #if(${ctaSelected} == "YES") 
@@ -449,10 +464,6 @@ A FLOOD ADVISORY MEANS RIVER OR STREAM FLOWS ARE ELEVATED OR PONDING OF WATER IN
 #end
 #################################### END OF CTA STUFF ###################################
 #end
-
-####################################
-## END OF FLOOD ADVISORY PRODUCTS ##
-####################################
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 

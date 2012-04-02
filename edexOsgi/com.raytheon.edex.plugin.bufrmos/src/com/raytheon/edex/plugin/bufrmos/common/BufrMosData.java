@@ -19,10 +19,7 @@
  **/
 package com.raytheon.edex.plugin.bufrmos.common;
 
-import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
-import java.util.TimeZone;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Embedded;
@@ -228,26 +225,6 @@ public abstract class BufrMosData extends PersistablePluginDataObject implements
     @Override
     public Collection<Amount> getValues(String paramName) {
         return null;
-    }
-
-    /**
-     * Set the time to be used for the persistence time for this object.
-     * 
-     * @param persistTime
-     *            The persistence time to be used.
-     */
-    public void setPersistenceTime(Date persistTime) {
-        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        c.setTime(persistTime);
-        setInsertTime(c);
-    }
-
-    /**
-     * 
-     */
-    @Override
-    public Date getPersistenceTime() {
-        return this.dataTime.getRefTime();
     }
 
     public BufrMosDataLocation getLocation() {

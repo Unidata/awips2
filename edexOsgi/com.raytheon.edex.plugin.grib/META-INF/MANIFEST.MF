@@ -24,6 +24,7 @@ Require-Bundle: javax.measure,
  com.raytheon.uf.common.awipstools;bundle-version="1.12.1174",
  ucar.nc2;bundle-version="1.0.0"
 Import-Package: com.raytheon.edex.exception,
+ com.raytheon.uf.common.comm,
  com.raytheon.uf.common.dataplugin.grib,
  com.raytheon.uf.common.dataplugin.grib.exception,
  com.raytheon.uf.common.dataplugin.grib.request,
