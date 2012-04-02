@@ -30,7 +30,6 @@ import org.apache.commons.logging.LogFactory;
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractDecoder;
-import com.raytheon.edex.plugin.IBinaryDecoder;
 import com.raytheon.edex.plugin.binlightning.impl.BinLightningFactory;
 import com.raytheon.edex.plugin.binlightning.impl.IBinLightningDecoder;
 import com.raytheon.edex.plugin.binlightning.impl.LightningDataSource;
@@ -92,8 +91,8 @@ public class BinLightningDecoder extends AbstractDecoder {
     // Allow ingest up to 10 minutes into the future.
     private static final long TEN_MINUTES = 10 * 60 * 1000L;
 
-    private SimpleDateFormat SDF; 
-    
+    private SimpleDateFormat SDF;
+
     private Log logger = LogFactory.getLog(getClass());
 
     /**
@@ -123,8 +122,6 @@ public class BinLightningDecoder extends AbstractDecoder {
     public PluginDataObject[] decode(byte[] data, Headers headers)
             throws DecoderException {
 
-        
-        
         String traceId = null;
         PluginDataObject[] reports = new PluginDataObject[0];
         if (data != null) {
@@ -134,9 +131,9 @@ public class BinLightningDecoder extends AbstractDecoder {
             WMOHeader wmoHdr = new WMOHeader(data);
             if (wmoHdr.isValid()) {
 
-                Calendar baseTime = TimeTools.findDataTime(wmoHdr.getYYGGgg(), headers);
-                
-                
+                Calendar baseTime = TimeTools.findDataTime(wmoHdr.getYYGGgg(),
+                        headers);
+
                 byte[] pdata = DecoderTools.stripWMOHeader(data, SFUS_PATTERN);
                 if (pdata == null) {
                     pdata = DecoderTools.stripWMOHeader(data, SFPA_PATTERN);
@@ -189,12 +186,11 @@ public class BinLightningDecoder extends AbstractDecoder {
                         throw new DecoderException(traceId
                                 + "-Error decoding times");
                     }
-                    report.setInsertTime(c);
 
                     Calendar cStart = report.getStartTime();
                     if (cStart.getTimeInMillis() > c.getTimeInMillis()
                             + TEN_MINUTES) {
-                        synchronized(SDF) {
+                        synchronized (SDF) {
                             logger.info("Discarding future data for " + traceId
                                     + " at " + SDF.format(cStart.getTime()));
                         }
