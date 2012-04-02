@@ -46,7 +46,8 @@ import com.raytheon.viz.gfe.tasks.AbstractGfeTask.TaskStatus;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 7, 2011            randerso     Initial creation
+ * Apr 07, 2011            randerso    Initial creation
+ * Mar 03, 2012  #346      dgilling    Use identity-based ListenerLists.
  * 
  * </pre>
  * 
@@ -70,7 +71,7 @@ public class TaskScheduler extends Job {
 
     protected TaskScheduler() {
         super("Task Manager Job");
-        listeners = new ListenerList();
+        listeners = new ListenerList(ListenerList.IDENTITY);
 
         PythonPreferenceStore prefs = Activator.getDefault()
                 .getPreferenceStore();

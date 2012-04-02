@@ -156,7 +156,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
         #
         #  Setup DEBUG level
         #
-        self.DEBUG=10
+        self.DEBUG=0
         #
         #  Setup Observed file info
         #

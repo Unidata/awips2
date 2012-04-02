@@ -20,19 +20,13 @@
 package com.raytheon.viz.core.gl;
 
 import javax.media.opengl.GL;
-import javax.media.opengl.GLContext;
 import javax.media.opengl.glu.GLU;
 
 import org.eclipse.swt.graphics.Rectangle;
 
-import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.PixelCoverage;
-import com.raytheon.uf.viz.core.drawables.IImage;
-import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
-import com.raytheon.uf.viz.core.drawables.PaintProperties;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.core.gl.images.GLColormappedImage;
+import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
+import com.raytheon.viz.core.gl.objects.GLTextureObject;
 
 public interface IGLTarget extends IGraphicsTarget {
 
@@ -40,19 +34,21 @@ public interface IGLTarget extends IGraphicsTarget {
 
     public abstract GLU getGlu();
 
-    /**
-     * Active texture unit and bind a texture
-     * 
-     * @param textureUnit
-     * @param GLImage
-     */
-    public abstract void bindTexture(int textureUnit, GLColormappedImage image);
+    public abstract void pushGLState();
+
+    public abstract void popGLState();
 
     /**
      * 
      * @return
      */
     public abstract boolean makeContextCurrent();
+
+    /**
+     * 
+     * @return
+     */
+    public abstract void releaseContext();
 
     /**
      * Get the modle view matrix settings
@@ -102,88 +98,17 @@ public interface IGLTarget extends IGraphicsTarget {
     public abstract Rectangle getBounds();
 
     /**
-     * Get the gl context
+     * Get a colormap texture id for the specified parameters
      * 
+     * @param cmapParams
      * @return
      */
-    public abstract GLContext getContext();
-
-    /**
-     * Dispose luminance texture
-     * 
-     * @param id
-     * @param pboID
-     */
-    public abstract void disposeLuminanceTexture(int id, int pboID);
-
-    /**
-     * Dispose a vbo
-     * 
-     * @param id
-     *            the vbo id
-     */
-    public abstract void disposeVBO(int id);
-
-    /**
-     * Dispose the occlusion query
-     * 
-     * @param id
-     */
-    public abstract void disposeOcclusionQueries(int[] id);
-
-    /**
-     * 
-     * @param display
-     * @throws VizException
-     */
-    public void beginOcclusionTest(IRenderableDisplay display)
-            throws VizException;
-
-    /**
-     * End the occlusion test. Commands will update the framebuffer
-     * 
-     * @throws VizException
-     */
-    public void endOcclusionTest() throws VizException;
-
-    /**
-     * call drawRaster using a specified shader program
-     * 
-     * @param image
-     * @param extent
-     * @param paintProps
-     * @param shaderProgram
-     * @return
-     * @throws VizException
-     */
-    public abstract boolean drawRaster(IImage image, PixelCoverage extent,
-            PaintProperties paintProps, String shaderProgram)
-            throws VizException;
-
-    /**
-     * call drawRaster with a specified shader program
-     * 
-     * @param image
-     *            the image reference object to draw
-     * @param extent
-     *            the extent of the drawable area
-     * @param paintProps
-     *            the paint properties
-     * @param mode
-     *            the drawing mode (synchronous, asynchronous)
-     * @return status whether the raster was able to be drawn
-     * @throws VizException
-     */
-    public abstract boolean drawRaster(IImage image, PixelCoverage extent,
-            PaintProperties paintProps, RasterMode mode, String shaderProgram)
-            throws VizException;
-
-    public abstract boolean drawRasters(String shader,
-            PaintProperties paintProps, DrawableImage... images)
-            throws VizException;
+    public abstract GLTextureObject getColorMapTexture(
+            ColorMapParameters cmapParams);
 
     /**
      * Checks the glError state and does a UFStatus message
      */
     public abstract void handleError(int errorid);
+
 }
