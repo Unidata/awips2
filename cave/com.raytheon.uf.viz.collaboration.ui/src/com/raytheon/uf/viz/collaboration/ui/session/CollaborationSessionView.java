@@ -20,6 +20,9 @@ package com.raytheon.uf.viz.collaboration.ui.session;
  * further licensing information.
  **/
 
+import java.util.Collection;
+import java.util.List;
+
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IMenuCreator;
@@ -32,7 +35,9 @@ import org.eclipse.ui.IWorkbenchPart;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
+import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
 
 /**
  * TODO Add Description
@@ -124,6 +129,43 @@ public class CollaborationSessionView extends SessionView {
     @Override
     protected String getSessionImageName() {
         return COLLABORATION_SESSION_IMAGE_NAME;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView#getRoles
+     * (java.lang.String)
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    protected ParticipantRole[] getRoles(String userId) {
+        for (CollaborationUser u : ((List<CollaborationUser>) usersTable
+                .getInput())) {
+            if (userId.equals(u.getId())) {
+                return u.getRoles();
+            }
+        }
+        return new ParticipantRole[] { ParticipantRole.PARTICIPANT };
+    }
+
+    @Override
+    protected Collection<String> findAlertWords(StringBuilder builder,
+            int offset) {
+        // TODO
+        // 1) if needed read in localized list of key words/sounds
+        // 2) search builder starting at offset for key works. besides the key
+        // words found may also want to return the location(s) of where they are
+        // found along with the sound to used.
+        return super.findAlertWords(builder, offset);
+    }
+
+    @Override
+    protected void executeSightsSounds() {
+        // TODO From the alert words found determine what sound to play and for
+        // how long?
+        super.executeSightsSounds();
     }
 
     /*
