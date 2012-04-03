@@ -21,7 +21,6 @@ package com.raytheon.uf.viz.collaboration.ui.session;
  **/
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import org.eclipse.jface.action.Action;
@@ -35,11 +34,9 @@ import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseTrackAdapter;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -71,7 +68,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
-import com.raytheon.uf.viz.collaboration.data.CollaborationKeywords;
 import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
 import com.raytheon.uf.viz.core.VizApp;
 
@@ -99,7 +95,7 @@ public class SessionView extends AbstractSessionView {
 
     public static final String ID = "com.raytheon.uf.viz.collaboration.SessionView";
 
-    private TableViewer usersTable;
+    protected TableViewer usersTable;
 
     protected String sessionId;
 
@@ -202,7 +198,7 @@ public class SessionView extends AbstractSessionView {
 
             @Override
             public void run() {
-                addMessage(msg);
+                appendMessage(msg);
             }
         });
     }
@@ -400,94 +396,6 @@ public class SessionView extends AbstractSessionView {
         if (image != null && !image.isDisposed()) {
             image.dispose();
         }
-    }
-
-    // @SuppressWarnings("unchecked")
-    // public void addUser(CollaborationUser user) {
-    // List<CollaborationUser> list = (List<CollaborationUser>) usersTable
-    // .getInput();
-    // list.add(user);
-    // }
-    //
-    // @SuppressWarnings("unchecked")
-    // public void clearUsers() {
-    // List<CollaborationUser> list = (List<CollaborationUser>) usersTable
-    // .getInput();
-    // list.clear();
-    // ;
-    // }
-    //
-    // @SuppressWarnings("unchecked")
-    // public void removeUser(CollaborationUser user) {
-    // List<CollaborationUser> list = (List<CollaborationUser>) usersTable
-    // .getInput();
-    // list.remove(user);
-    // }
-
-    public void addMessage(IMessage message) {
-        String name = message.getFrom().getFQName();
-        String user = message.getFrom().getName();
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(message.getTimeStamp());
-        String time = String.format("%1$tI:%1$tM:%1$tS %1$Tp", cal);
-        StringBuilder sb = new StringBuilder();
-        if (messagesText.getCharCount() != 0) {
-            sb.append("\n");
-        }
-        int offset = 0;
-        sb.append("(").append(time).append(") ");
-        offset = sb.length();
-
-        sb.append(user).append(": ").append(message.getBody());
-
-        // here is the place to put the font and color changes for keywords
-        // read in localization file once and then don't read in again, per
-        // chat room?
-        List<String> keywords = CollaborationKeywords.parseKeywords();
-        List<StyleRange> ranges = new ArrayList<StyleRange>();
-        if (keywords != null) {
-            for (String keyword : keywords) {
-                if (sb.toString().toLowerCase().contains(keyword.toLowerCase())) {
-                    StyleRange keywordRange = new StyleRange(
-                            messagesText.getCharCount()
-                                    + sb.toString().toLowerCase()
-                                            .indexOf(keyword.toLowerCase()),
-                            keyword.length(), null, null, SWT.BOLD | SWT.ITALIC);
-                    ranges.add(keywordRange);
-                }
-            }
-        }
-
-        ParticipantRole[] type = null;
-        for (CollaborationUser u : (List<CollaborationUser>) usersTable
-                .getInput()) {
-            if (name.equals(u.getId())) {
-                type = u.getRoles();
-                break;
-            }
-        }
-
-        Color color = SessionColorAdvisor.getColor(type, name
-                .equals(CollaborationDataManager.getInstance().getLoginId()));
-        StyleRange range = new StyleRange(messagesText.getCharCount() + offset,
-                user.length() + 1, color, null, SWT.BOLD);
-        messagesText.append(sb.toString());
-        messagesText.setStyleRange(range);
-        for (StyleRange newRange : ranges) {
-            messagesText.setStyleRange(newRange);
-        }
-        messagesText.setTopIndex(messagesText.getLineCount() - 1);
-
-        // room for other fun things here, such as sounds and such
-        executeSightsSounds();
-    }
-
-    /**
-     * 
-     */
-    private void executeSightsSounds() {
-        // TODO Auto-generated method stub
-        // placeholder for future things
     }
 
     /*

@@ -43,10 +43,13 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Type;
+import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.ITextMessageEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.SessionManager;
 import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginData;
@@ -56,6 +59,7 @@ import com.raytheon.uf.viz.collaboration.ui.role.DataProviderEventController;
 import com.raytheon.uf.viz.collaboration.ui.role.ParticipantEventController;
 import com.raytheon.uf.viz.collaboration.ui.role.SessionLeaderEventController;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
+import com.raytheon.uf.viz.collaboration.ui.session.PeerToPeerView;
 import com.raytheon.uf.viz.core.VizApp;
 
 /**
@@ -220,6 +224,15 @@ public class CollaborationDataManager {
             if (isConnected()) {
                 // Register handlers and events for the new manager.
                 manager.registerEventHandler(this);
+                try {
+                    ISession p2pSession = manager.getPeerToPeerSession();
+                    p2pSession.registerEventHandler(this);
+                } catch (CollaborationException e) {
+                    // TODO Auto-generated catch block. Please revise as
+                    // appropriate.
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
+                }
                 wbListener = new IWorkbenchListener() {
 
                     @Override
@@ -231,6 +244,16 @@ public class CollaborationDataManager {
                     @Override
                     public void postShutdown(IWorkbench workbench) {
                         if (manager != null) {
+                            try {
+                                ISession p2pSession = manager
+                                        .getPeerToPeerSession();
+                                p2pSession.unRegisterEventHandler(this);
+                            } catch (CollaborationException e) {
+                                // TODO Auto-generated catch block. Please
+                                // revise as appropriate.
+                                statusHandler.handle(Priority.PROBLEM,
+                                        e.getLocalizedMessage(), e);
+                            }
                             manager.unRegisterEventHandler(this);
                             manager.closeManager();
                             manager = null;
@@ -453,6 +476,49 @@ public class CollaborationDataManager {
                     // appropriate.
                     statusHandler.handle(Priority.PROBLEM,
                             e.getLocalizedMessage(), e);
+                } catch (PartInitException e) {
+                    // TODO Auto-generated catch block. Please revise as
+                    // appropriate.
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
+                }
+            }
+        });
+    }
+
+    /**
+     * This takes a peer to peer message and displays it in the proper view.
+     * 
+     * @param messageEvent
+     */
+    @Subscribe
+    public void peer2peerMessage(ITextMessageEvent messageEvent) {
+        final TextMessage message = messageEvent.getMessage();
+        // System.out.println("p2pMsg from: " + message.getFrom().getFQName());
+        // System.out.println("p2pMsgt body: " + message.getBody());
+        VizApp.runAsync(new Runnable() {
+
+            @Override
+            public void run() {
+                String id = message.getFrom().getFQName();
+                for (IViewReference ref : PlatformUI.getWorkbench()
+                        .getActiveWorkbenchWindow().getActivePage()
+                        .getViewReferences()) {
+                    if (id.equals(ref.getSecondaryId())) {
+                        PeerToPeerView p2pView = (PeerToPeerView) ref
+                                .getView(false);
+                        p2pView.appendMessage(message);
+                        return;
+                    }
+                }
+                try {
+                    PeerToPeerView p2pView = (PeerToPeerView) PlatformUI
+                            .getWorkbench()
+                            .getActiveWorkbenchWindow()
+                            .getActivePage()
+                            .showView(PeerToPeerView.ID, id,
+                                    IWorkbenchPage.VIEW_ACTIVATE);
+                    p2pView.appendMessage(message);
                 } catch (PartInitException e) {
                     // TODO Auto-generated catch block. Please revise as
                     // appropriate.
