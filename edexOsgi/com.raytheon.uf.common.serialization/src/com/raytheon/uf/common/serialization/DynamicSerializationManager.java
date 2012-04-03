@@ -43,6 +43,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import net.sf.cglib.beans.BeanMap;
 
+import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
 
 import com.raytheon.uf.common.serialization.BuiltInTypeSupport.CalendarSerializer;
@@ -54,6 +55,7 @@ import com.raytheon.uf.common.serialization.adapters.EnumSetAdapter;
 import com.raytheon.uf.common.serialization.adapters.FloatBufferAdapter;
 import com.raytheon.uf.common.serialization.adapters.GeometryTypeAdapter;
 import com.raytheon.uf.common.serialization.adapters.GridGeometry2DAdapter;
+import com.raytheon.uf.common.serialization.adapters.GridGeometryAdapter;
 import com.raytheon.uf.common.serialization.adapters.JTSEnvelopeAdapter;
 import com.raytheon.uf.common.serialization.adapters.PointAdapter;
 import com.raytheon.uf.common.serialization.adapters.StackTraceElementAdapter;
@@ -149,6 +151,10 @@ public class DynamicSerializationManager {
         md.serializationFactory = new GridGeometry2DAdapter();
         md.adapterStructName = GridGeometry2D.class.getName();
         serializedAttributes.put(GridGeometry2D.class.getName(), md);
+        md = new SerializationMetadata();
+        md.serializationFactory = new GridGeometryAdapter();
+        md.adapterStructName = GeneralGridGeometry.class.getName();
+        serializedAttributes.put(GeneralGridGeometry.class.getName(), md);
         md = new SerializationMetadata();
         md.serializationFactory = new EnumSetAdapter();
         md.adapterStructName = EnumSet.class.getName();
