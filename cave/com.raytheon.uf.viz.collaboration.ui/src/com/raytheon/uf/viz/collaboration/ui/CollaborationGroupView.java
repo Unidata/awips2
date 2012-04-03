@@ -27,10 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IMenuCreator;
@@ -98,9 +94,7 @@ import com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.PeerToPeerView;
 import com.raytheon.uf.viz.collaboration.ui.session.SessionView;
-import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.icon.IconUtil;
-import com.raytheon.uf.viz.drawing.PathToolbar;
 import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 
 /**
@@ -193,22 +187,6 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         if (CollaborationDataManager.getInstance().isConnected() == false) {
             usersTreeViewer.getTree().setEnabled(false);
         }
-
-        Job job = new Job("Opening draw toolbar") {
-
-            @Override
-            protected IStatus run(IProgressMonitor monitor) {
-                VizApp.runAsync(new Runnable() {
-                    @Override
-                    public void run() {
-                        final PathToolbar toolbar = PathToolbar.getToolbar();
-                        toolbar.open();
-                    }
-                });
-                return Status.OK_STATUS;
-            }
-        };
-        job.schedule();
     }
 
     /**
