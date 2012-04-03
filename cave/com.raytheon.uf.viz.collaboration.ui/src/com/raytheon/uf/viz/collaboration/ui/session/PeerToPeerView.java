@@ -29,7 +29,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPeerToPeer;
-import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.listener.IMessageListener;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 
@@ -165,32 +164,42 @@ public class PeerToPeerView extends AbstractSessionView {
             // Get any open session to send peer-to-peer message
             IPeerToPeer p2p = null;
             try {
-                p2p = (IPeerToPeer) CollaborationDataManager.getInstance().getSessionManager().getPeerToPeerSession();
+                p2p = (IPeerToPeer) CollaborationDataManager.getInstance()
+                        .getSessionManager().getPeerToPeerSession();
             } catch (CollaborationException e) {
-                // TODO Auto-generated catch block. Please revise as appropriate.
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+                // TODO Auto-generated catch block. Please revise as
+                // appropriate.
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
             }
-            if(p2p != null) {
+            if (p2p != null) {
                 p2p.sendPeerToPeer(toUser, message);
+                // TODO need to put the message in messag text field here.
+                CollaborationDataManager manager = CollaborationDataManager
+                        .getInstance();
+                String fqName = manager.getLoginId();
+                String name = null;
+                long timestamp = System.currentTimeMillis();
+                appendMessage(fqName, name, timestamp, message);
             }
-            
-//          ISession session = CollaborationDataManager.getInstance()
-//          .getSession(null);
-//            if (session != null) {
-//                session.sendTextMessage(toUser, message);
-//            } else {
-//                try {
-//                    session = CollaborationDataManager.getInstance()
-//                            .getSessionManager().createPeerToPeerSession();
-//                    // session.sendTextMessage(toUser, message);
-//                    // session.close();
-//                } catch (CollaborationException e) {
-//                    // TODO Auto-generated catch block. Please revise as
-//                    // appropriate.
-//                    statusHandler.handle(Priority.PROBLEM,
-//                            e.getLocalizedMessage(), e);
-//                }
-//            }
+
+            // ISession session = CollaborationDataManager.getInstance()
+            // .getSession(null);
+            // if (session != null) {
+            // session.sendTextMessage(toUser, message);
+            // } else {
+            // try {
+            // session = CollaborationDataManager.getInstance()
+            // .getSessionManager().createPeerToPeerSession();
+            // // session.sendTextMessage(toUser, message);
+            // // session.close();
+            // } catch (CollaborationException e) {
+            // // TODO Auto-generated catch block. Please revise as
+            // // appropriate.
+            // statusHandler.handle(Priority.PROBLEM,
+            // e.getLocalizedMessage(), e);
+            // }
+            // }
         }
     }
 

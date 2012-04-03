@@ -19,11 +19,16 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.session;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
@@ -40,6 +45,9 @@ import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
+import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
@@ -220,6 +228,104 @@ public abstract class AbstractSessionView extends ViewPart implements
         composeText.setText("");
         composeText.setCaretOffset(0);
         return message;
+    }
+
+    /**
+     * Append the message into the message text field.
+     * 
+     * @param message
+     */
+    public void appendMessage(IMessage message) {
+        String fqName = message.getFrom().getFQName();
+        String name = message.getFrom().getName();
+        long timestamp = message.getTimeStamp();
+        String body = message.getBody();
+        appendMessage(fqName, name, timestamp, body);
+    }
+
+    public void appendMessage(String fqName, String name, long timestamp,
+            String body) {
+        // String fqName = message.getFrom().getFQName();
+        // String name = message.getFrom().getName();
+        if (name == null) {
+            name = fqName.substring(0, fqName.indexOf("@"));
+        }
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(timestamp);
+        String time = String.format("%1$tI:%1$tM:%1$tS %1$Tp", cal);
+        StringBuilder sb = new StringBuilder();
+        if (messagesText.getCharCount() != 0) {
+            sb.append("\n");
+        }
+        sb.append("(").append(time).append(") ");
+        int offset = sb.length();
+
+        sb.append(name).append(": ").append(body);
+
+        // here is the place to put the font and color changes for keywords
+        // read in localization file once and then don't read in again, per
+        // chat room?
+        Collection<String> alertWords = findAlertWords(sb,
+                offset + name.length() + 2);
+        List<StyleRange> ranges = new ArrayList<StyleRange>();
+        if (alertWords != null) {
+            for (String keyword : alertWords) {
+                if (sb.toString().toLowerCase().contains(keyword.toLowerCase())) {
+                    StyleRange keywordRange = new StyleRange(
+                            messagesText.getCharCount()
+                                    + sb.toString().toLowerCase()
+                                            .indexOf(keyword.toLowerCase()),
+                            keyword.length(), null, null, SWT.BOLD | SWT.ITALIC);
+                    ranges.add(keywordRange);
+                }
+            }
+        }
+
+        ParticipantRole[] roles = getRoles(fqName);
+
+        Color color = SessionColorAdvisor.getColor(roles, fqName
+                .equals(CollaborationDataManager.getInstance().getLoginId()));
+        StyleRange range = new StyleRange(messagesText.getCharCount() + offset,
+                name.length() + 1, color, null, SWT.BOLD);
+        messagesText.append(sb.toString());
+        messagesText.setStyleRange(range);
+        for (StyleRange newRange : ranges) {
+            messagesText.setStyleRange(newRange);
+        }
+        messagesText.setTopIndex(messagesText.getLineCount() - 1);
+
+        // room for other fun things here, such as sounds and such
+        executeSightsSounds();
+    }
+
+    /**
+     * Find keys words in body of message starting at offset. /**
+     * 
+     * @param builder
+     * @param offset
+     * @return alertWords
+     */
+    protected Collection<String> findAlertWords(StringBuilder builder,
+            int offset) {
+        return null;
+    }
+
+    /**
+     * Returns a list of Participant roles the user is assigned for the session.
+     * This sets up a default list of user as a PARTICIPANT.
+     * 
+     * @param userId
+     * @return roles
+     */
+    protected ParticipantRole[] getRoles(String userId) {
+        return new ParticipantRole[] { ParticipantRole.PARTICIPANT };
+    }
+
+    /**
+     * Place holder must override to do something.
+     */
+    protected void executeSightsSounds() {
+        // placeholder for future things
     }
 
     /*
