@@ -17,25 +17,58 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.drawing.objects;
+package com.raytheon.uf.viz.drawing.events;
+
+import com.google.common.eventbus.EventBus;
 
 /**
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 26, 2012            mnash     Initial creation
- *
+ * Apr 2, 2012            mnash     Initial creation
+ * 
  * </pre>
- *
+ * 
  * @author mnash
- * @version 1.0	
+ * @version 1.0
  */
 
-public class TransferObject {
+public class DrawingEventBus {
+    private static EventBus eventBus;
 
+    private static DrawingListener drawingListener;
+
+    /**
+     * @return the eventBus
+     */
+    public static EventBus getEventBus() {
+        if (eventBus == null) {
+            eventBus = new EventBus("DrawingEventBus");
+        }
+        return eventBus;
+    }
+
+    /**
+     * @return the drawingListener
+     */
+    public static DrawingListener getDrawingListener() {
+        if (drawingListener == null) {
+            drawingListener = new DrawingListener();
+        }
+        return drawingListener;
+    }
+
+    /**
+     * Send in class to register in the event bus
+     * 
+     * @param ob
+     */
+    public static void register(Object ob) {
+        getEventBus().register(ob);
+    }
 }
