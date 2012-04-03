@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.collaboration.comm.identity.roster;
 
 import java.util.Collection;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
@@ -118,4 +119,19 @@ public interface IRoster {
      */
     boolean isRoomRoster();
    
+    /**
+     * 
+     * @param account
+     * @param nickName
+     * @param groups
+     */
+    void sendRosterAdd(String account, String nickName, String[] groups)
+            throws CollaborationException;
+
+    /**
+     * 
+     * @param userId
+     */
+    void sendRosterRemove(IChatID userId) throws CollaborationException;
+
 }
