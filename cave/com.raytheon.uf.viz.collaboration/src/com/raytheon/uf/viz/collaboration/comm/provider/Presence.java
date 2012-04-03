@@ -223,15 +223,22 @@ public class Presence implements IPresence {
             IPresence presence) {
         org.eclipse.ecf.presence.IPresence newPresence = null;
         if (presence != null) {
-            newPresence = new org.eclipse.ecf.presence.Presence();
+            org.eclipse.ecf.presence.IPresence.Type type = Tools.convertPresenceType(presence.getType());
+            org.eclipse.ecf.presence.IPresence.Mode mode = Tools.convertPresenceMode(presence.getMode());
 
-            // Map<String, String> properties = presence.getProperties();
-            // if(properties != null) {
-            // for(String key : properties.keySet()) {
-            // newPresence.setProperty(key, properties.get(key));
-            // }
-            // }
-
+            Map<String, String> props = new HashMap<String, String>();
+            String status = presence.getStatusMessage();
+            Collection<Property> properties = presence.getProperties();
+            for (Property p : properties) {
+                props.put(p.getKey(), p.getValue());
+            }
+            if (props.size() > 0) {
+                newPresence = new org.eclipse.ecf.presence.Presence(type,
+                        status, mode, props);
+            } else {
+                newPresence = new org.eclipse.ecf.presence.Presence(type,
+                        status, mode);
+            }
         }
         return newPresence;
     }
