@@ -39,5 +39,11 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IPropertied;
  */
 
 public interface IVenueParticipant extends IChatID, IPropertied {
-
+    
+    /**
+     * Return the identifier as a qualified field. Removes the "domain"
+     * conference from the host string if found.
+     * @return The qualified id.
+     */
+    IQualifiedID getQualifiedId();
 }
