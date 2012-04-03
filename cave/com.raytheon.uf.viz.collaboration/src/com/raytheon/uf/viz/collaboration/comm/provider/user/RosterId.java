@@ -43,6 +43,19 @@ public class RosterId extends UserId implements IChatID {
 
     private String nickname;
 
+    
+    
+    /**
+     * 
+     * @param userName
+     * @param hostName
+     * @param nickName
+     * @param resource
+     */
+    public RosterId(String userName, String hostName, String resource) {
+        super(userName, hostName, resource);
+    }
+    
     /**
      * 
      * @param userName
@@ -81,8 +94,6 @@ public class RosterId extends UserId implements IChatID {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result
-                + ((nickname == null) ? 0 : nickname.hashCode());
         return result;
     }
 
@@ -103,8 +114,7 @@ public class RosterId extends UserId implements IChatID {
         if (nickname == null) {
             if (other.nickname != null)
                 return false;
-        } else if (!nickname.equals(other.nickname))
-            return false;
+        }
         return true;
     }
 
