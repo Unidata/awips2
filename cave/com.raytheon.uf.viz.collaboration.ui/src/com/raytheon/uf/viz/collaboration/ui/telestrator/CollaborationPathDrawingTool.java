@@ -17,11 +17,10 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.drawing.objects;
+package com.raytheon.uf.viz.collaboration.ui.telestrator;
 
-import java.util.List;
-
-import com.vividsolutions.jts.geom.Coordinate;
+import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
+import com.raytheon.uf.viz.drawing.tools.PathDrawingTool;
 
 /**
  * TODO Add Description
@@ -32,7 +31,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 26, 2012            mnash     Initial creation
+ * Apr 3, 2012            mnash     Initial creation
  * 
  * </pre>
  * 
@@ -40,21 +39,15 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 
-public class TransferLine {
-    private List<Coordinate> coordinates;
-
-    /**
-     * @param coordinates
-     *            the coordinates to set
+public class CollaborationPathDrawingTool extends PathDrawingTool {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.drawing.tools.PathDrawingTool#constructData()
      */
-    public void setCoordinates(List<Coordinate> coordinates) {
-        this.coordinates = coordinates;
-    }
-
-    /**
-     * @return the coordinates
-     */
-    public List<Coordinate> getCoordinates() {
-        return coordinates;
+    @Override
+    public AbstractResourceData constructData() {
+        CollaborationPathDrawingResourceData data = new CollaborationPathDrawingResourceData();
+        return data;
     }
 }
