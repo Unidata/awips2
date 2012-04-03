@@ -249,6 +249,46 @@ public abstract class Tools {
     }
 
     /**
+     * Converts from an IPresence.Mode to ECF Presence Mode.
+     * 
+     * @param mode
+     *            A mode to convert.
+     * @return The converted mode.
+     */
+    public static org.eclipse.ecf.presence.Presence.Mode convertPresenceMode(
+            IPresence.Mode mode) {
+
+        org.eclipse.ecf.presence.Presence.Mode sMode = null;
+        switch (mode) {
+        case AVAILABLE: {
+            sMode = org.eclipse.ecf.presence.Presence.Mode.AVAILABLE;
+            break;
+        }
+        case AWAY: {
+            sMode = org.eclipse.ecf.presence.Presence.Mode.AWAY;
+            break;
+        }
+        case CHAT: {
+            sMode = org.eclipse.ecf.presence.Presence.Mode.CHAT;
+            break;
+        }
+        case DND: {
+            sMode = org.eclipse.ecf.presence.Presence.Mode.DND;
+            break;
+        }
+        case EXTENDED_AWAY: {
+            sMode = org.eclipse.ecf.presence.Presence.Mode.EXTENDED_AWAY;
+            break;
+        }
+        case INVISIBLE: {
+            sMode = org.eclipse.ecf.presence.Presence.Mode.INVISIBLE;
+            break;
+        }
+        }
+        return sMode;
+    }
+    
+    /**
      * Decode Base64 encoded String data into a byte array.
      * 
      * @param message
