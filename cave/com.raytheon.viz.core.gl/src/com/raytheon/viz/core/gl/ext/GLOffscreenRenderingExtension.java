@@ -1,5 +1,7 @@
 package com.raytheon.viz.core.gl.ext;
 
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 
@@ -8,6 +10,7 @@ import javax.media.opengl.GL;
 import org.eclipse.swt.graphics.Rectangle;
 
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
+import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.ColorMapParameters;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension;
@@ -64,6 +67,24 @@ public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
     @Override
     public int getCompatibilityValue(IGLTarget target) {
         return Compatibilty.TARGET_COMPATIBLE;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.drawables.ext.IOffscreenRenderingExtension#
+     * constructOffscreenImage(int[])
+     */
+    @Override
+    public IImage constructOffscreenImage(final int[] dimensions)
+            throws VizException {
+        return target.initializeRaster(new IRenderedImageCallback() {
+            @Override
+            public RenderedImage getImage() throws VizException {
+                return new BufferedImage(dimensions[0], dimensions[1],
+                        BufferedImage.TYPE_INT_RGB);
+            }
+        });
     }
 
     /*
