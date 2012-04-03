@@ -17,33 +17,50 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.comm.identity.user;
+package com.raytheon.uf.viz.drawing.events;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.IPropertied;
+import com.raytheon.viz.ui.editor.AbstractEditor;
+import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 1, 2012            jkorman     Initial creation
- *
+ * Apr 2, 2012            mnash     Initial creation
+ * 
  * </pre>
- *
- * @author jkorman
- * @version 1.0	
+ * 
+ * @author mnash
+ * @version 1.0
  */
 
-public interface IVenueParticipant extends IChatID, IPropertied {
-    
+public class DrawingEvent {
+
+    private AbstractEditor editor;
+
+    private Geometry geom;
+
+    public DrawingEvent(Geometry geom, AbstractEditor editor) {
+        this.geom = geom;
+        this.editor = editor;
+    }
+
     /**
-     * Return the identifier as a qualified field. Removes the "domain"
-     * conference from the host string if found.
-     * @return The qualified id.
+     * @return the geom
      */
-    IQualifiedID getQualifiedId();
+    public Geometry getGeom() {
+        return geom;
+    }
+
+    /**
+     * @return the editor
+     */
+    public AbstractEditor getEditor() {
+        return editor;
+    }
 }
