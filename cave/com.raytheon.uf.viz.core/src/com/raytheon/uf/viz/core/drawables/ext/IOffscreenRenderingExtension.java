@@ -28,6 +28,16 @@ public interface IOffscreenRenderingExtension extends
     public void renderOnscreen() throws VizException;
 
     /**
+     * Construct an offscreen image with the specified dimensions. This image
+     * will be an RGB based image
+     * 
+     * @param dimensions
+     * @return
+     * @throws VizException
+     */
+    public IImage constructOffscreenImage(int[] dimensions) throws VizException;
+
+    /**
      * Construct an offscreen image for given Buffer type and size
      * 
      * @param dataType
