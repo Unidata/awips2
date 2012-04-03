@@ -129,14 +129,15 @@ public class VenueSession extends BaseSession implements IVenueSession,
     private Map<Object, Object> initSubscribers = new HashMap<Object, Object>();
 
     private String subject;
-    
+
     /**
      * 
      * @param container
      * @param eventBus
      */
     VenueSession(IContainer container, EventBus externalBus,
-            SessionManager manager, String sessionId) throws CollaborationException {
+            SessionManager manager, String sessionId)
+            throws CollaborationException {
         super(container, externalBus, manager, sessionId);
     }
 
@@ -228,7 +229,7 @@ public class VenueSession extends BaseSession implements IVenueSession,
         }
         return venue;
     }
-    
+
     /**
      * @return the subject
      */
@@ -237,7 +238,8 @@ public class VenueSession extends BaseSession implements IVenueSession,
     }
 
     /**
-     * @param subject the subject to set
+     * @param subject
+     *            the subject to set
      */
     public void setSubject(String subject) {
         this.subject = subject;
@@ -271,7 +273,7 @@ public class VenueSession extends BaseSession implements IVenueSession,
 
             ID userId = IDFactory.getDefault().createID(
                     getConnectionNamespace(), id);
-            
+
             try {
                 sender.sendInvitation(roomId, userId, subject, body);
             } catch (ECFException e) {
@@ -309,7 +311,7 @@ public class VenueSession extends BaseSession implements IVenueSession,
         }
         return status;
     }
-    
+
     /**
      * 
      * @param body
@@ -343,14 +345,18 @@ public class VenueSession extends BaseSession implements IVenueSession,
      */
     @Override
     public void sendInitData(
-            com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID participant,
+            com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID participant,
             IInitData initData) throws CollaborationException {
 
         PeerToPeerChat session = getP2PSession();
         if (session != null) {
             String message = Tools.marshallData(initData);
             if (message != null) {
-                session.sendPeerToPeer(participant.getFQName(), message);
+                
+                TextMessage msg = new TextMessage(participant, message);
+                msg.setProperty(Tools.PROP_SESSION_ID, getSessionId());
+                
+                session.sendPeerToPeer(msg);
             }
         }
     }
@@ -367,7 +373,7 @@ public class VenueSession extends BaseSession implements IVenueSession,
         if (!initSubscribers.containsKey(subscriber)) {
             initSubscribers.put(subscriber, subscriber);
         }
-        
+
         PeerToPeerChat session = getP2PSession();
         if (session != null) {
             session.registerEventHandler(subscriber);
@@ -400,7 +406,7 @@ public class VenueSession extends BaseSession implements IVenueSession,
      */
     @Override
     public void sendEvent(
-            com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID participant,
+            com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID participant,
             IDisplayEvent event) throws CollaborationException {
 
         PeerToPeerChat session = null;
@@ -408,7 +414,10 @@ public class VenueSession extends BaseSession implements IVenueSession,
         if (session != null) {
             String message = Tools.marshallData(event);
             if (message != null) {
-                session.sendPeerToPeer(participant.getFQName(), message);
+                
+                TextMessage msg = new TextMessage(participant, message);
+                msg.setProperty(Tools.PROP_SESSION_ID, getSessionId());
+                session.sendPeerToPeer(msg);
             }
         }
     }
@@ -512,7 +521,7 @@ public class VenueSession extends BaseSession implements IVenueSession,
     void setSessionLeader(IChatID id) {
         sessionLeader = id;
     }
-    
+
     /**
      * 
      */

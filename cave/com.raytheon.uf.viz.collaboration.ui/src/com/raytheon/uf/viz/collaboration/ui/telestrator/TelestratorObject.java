@@ -17,33 +17,27 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.comm.identity.user;
+package com.raytheon.uf.viz.collaboration.ui.telestrator;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.IPropertied;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent;
 
 /**
  * TODO Add Description
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 1, 2012            jkorman     Initial creation
- *
+ * Mar 26, 2012            mnash     Initial creation
+ * 
  * </pre>
- *
- * @author jkorman
- * @version 1.0	
+ * 
+ * @author mnash
+ * @version 1.0
  */
 
-public interface IVenueParticipant extends IChatID, IPropertied {
-    
-    /**
-     * Return the identifier as a qualified field. Removes the "domain"
-     * conference from the host string if found.
-     * @return The qualified id.
-     */
-    IQualifiedID getQualifiedId();
+public class TelestratorObject implements IDisplayEvent {
+
 }

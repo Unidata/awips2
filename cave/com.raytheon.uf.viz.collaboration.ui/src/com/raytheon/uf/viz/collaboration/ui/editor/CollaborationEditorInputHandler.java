@@ -77,7 +77,8 @@ public class CollaborationEditorInputHandler implements IInputHandler {
 
     protected boolean isSessionLeader() {
         // TODO does this work?
-        return session.getUserID().equals(session.getCurrentSessionLeader());
+        // return session.getUserID().equals(session.getCurrentSessionLeader());
+        return false;
     }
 
     /*

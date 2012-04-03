@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.viz.collaboration.data;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,6 +35,8 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -51,6 +54,7 @@ import com.raytheon.uf.viz.collaboration.ui.login.LoginDialog;
 import com.raytheon.uf.viz.collaboration.ui.role.AbstractRoleEventController;
 import com.raytheon.uf.viz.collaboration.ui.role.DataProviderEventController;
 import com.raytheon.uf.viz.collaboration.ui.role.ParticipantEventController;
+import com.raytheon.uf.viz.collaboration.ui.role.SessionLeaderEventController;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
 import com.raytheon.uf.viz.core.VizApp;
 
@@ -103,7 +107,7 @@ public class CollaborationDataManager {
      */
     Map<String, IVenueSession> sessionsMap;
 
-    private Map<String, AbstractRoleEventController> roleEventControllersMap;
+    private Multimap<String, AbstractRoleEventController> roleEventControllersMap;
 
     Map<String, CollaborationEditor> editorsMap;
 
@@ -132,7 +136,7 @@ public class CollaborationDataManager {
         linkCollaboration = false;
         usersMap = new HashMap<String, DataUser>();
         sessionsMap = new HashMap<String, IVenueSession>();
-        roleEventControllersMap = new HashMap<String, AbstractRoleEventController>();
+        roleEventControllersMap = HashMultimap.create();
         editorsMap = new HashMap<String, CollaborationEditor>();
     }
 
@@ -302,10 +306,12 @@ public class CollaborationDataManager {
             }
         }
 
-        AbstractRoleEventController controller = roleEventControllersMap
-                .remove(sessionId);
+        Collection<AbstractRoleEventController> controller = roleEventControllersMap
+                .removeAll(sessionId);
         if (controller != null) {
-            controller.shutdown();
+            for (AbstractRoleEventController cont : controller) {
+                cont.shutdown();
+            }
         }
     }
 
@@ -381,7 +387,11 @@ public class CollaborationDataManager {
                 DataProviderEventController dpec = new DataProviderEventController(
                         displaySession);
                 dpec.startup();
+                SessionLeaderEventController slec = new SessionLeaderEventController(
+                        displaySession);
+                slec.startup();
                 roleEventControllersMap.put(sessionId, dpec);
+                roleEventControllersMap.put(sessionId, slec);
                 // TODO set displaySession's data provider and session leader.
             }
         } catch (CollaborationException e) {
@@ -411,6 +421,9 @@ public class CollaborationDataManager {
             public void run() {
                 IQualifiedID inviter = invitation.getInviter();
                 IQualifiedID room = invitation.getRoomId();
+                if (shell.isDisposed()) {
+                    shell = new Shell(Display.getCurrent());
+                }
                 MessageBox box = new MessageBox(shell, SWT.ICON_QUESTION
                         | SWT.OK | SWT.CANCEL);
                 box.setText("Invitation");
