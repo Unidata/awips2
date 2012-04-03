@@ -95,6 +95,10 @@ public class PeerToPeerCommHelper implements IIMMessageListener {
                     routeMessage(msg);
                 }
             }
+        } else {
+            if(messageEvent != null) {
+                System.out.println(messageEvent.getClass().getName() + " trapped in PeerToPeerCommHelper");
+            }
         }
     }
 
