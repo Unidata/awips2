@@ -464,13 +464,18 @@ public class CollaborationDataManager {
                             .joinCollaborationVenue(invitation);
                     String sessionId = session.getSessionId();
                     sessionsMap.put(sessionId, session);
+                    ISharedDisplaySession displaySession = session
+                            .spawnSharedDisplaySession();
+                    ParticipantEventController pec = new ParticipantEventController(
+                            displaySession);
+                    pec.startup();
+                    roleEventControllersMap.put(sessionId, pec);
                     PlatformUI
                             .getWorkbench()
                             .getActiveWorkbenchWindow()
                             .getActivePage()
                             .showView(CollaborationSessionView.ID, sessionId,
                                     IWorkbenchPage.VIEW_ACTIVATE);
-
                 } catch (CollaborationException e) {
                     // TODO Auto-generated catch block. Please revise as
                     // appropriate.
@@ -529,6 +534,7 @@ public class CollaborationDataManager {
         });
     }
 
+    @Deprecated
     public String joinCollaborationSession(String venueName, String sessionId) {
         String result = sessionId;
         if (sessionsMap.get(sessionId) == null) {
