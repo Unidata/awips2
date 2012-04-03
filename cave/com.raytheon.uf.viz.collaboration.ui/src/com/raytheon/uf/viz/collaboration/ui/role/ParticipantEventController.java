@@ -29,6 +29,7 @@ import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditorInputHandler;
 import com.raytheon.uf.viz.collaboration.ui.editor.EditorSetup;
 import com.raytheon.uf.viz.collaboration.ui.editor.SharedEditor;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.rsc.IInputHandler.InputPriority;
 
 /**
@@ -60,13 +61,21 @@ public class ParticipantEventController extends AbstractRoleEventController {
     @Subscribe
     public void initDataArrived(IInitData initData) {
         if (initData instanceof SharedEditor) {
-            SharedEditor se = (SharedEditor) initData;
-            CollaborationEditor editor = EditorSetup.createEditor(se);
-            editor.registerMouseHandler(new CollaborationEditorInputHandler(
-                    session, editor.getDisplayPanes()[0]),
-                    InputPriority.SYSTEM_RESOURCE);
-            CollaborationDataManager.getInstance().editorCreated(
-                    session.getSessionId(), editor);
+            final SharedEditor se = (SharedEditor) initData;
+            VizApp.runAsync(new Runnable() {
+
+                @Override
+                public void run() {
+                    CollaborationEditor editor = EditorSetup.createEditor(se);
+                    editor.registerMouseHandler(
+                            new CollaborationEditorInputHandler(session, editor
+                                    .getDisplayPanes()[0]),
+                            InputPriority.SYSTEM_RESOURCE);
+                    CollaborationDataManager.getInstance().editorCreated(
+                            session.getSessionId(), editor);
+                }
+
+            });
         }
     }
 
