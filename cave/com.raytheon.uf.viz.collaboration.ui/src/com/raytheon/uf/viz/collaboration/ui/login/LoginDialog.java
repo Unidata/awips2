@@ -232,7 +232,7 @@ public class LoginDialog extends CaveSWTDialog {
     @Override
     protected void preOpened() {
         super.preOpened();
-        initLoginData();
+        this.loginData = LoginDialog.openUserLoginData();
         userTF.setText(loginData.getUser());
         serverTF.setText(loginData.getServer());
 
@@ -341,7 +341,7 @@ public class LoginDialog extends CaveSWTDialog {
                             loginData.setModeMessage(modeMessage);
                         }
                         if (doSaveLoginData) {
-                            saveLoginData();
+                            LoginDialog.saveUserLoginData(loginData);
                         }
 
                         // loginData = new LoginData(user, server, password,
@@ -378,8 +378,8 @@ public class LoginDialog extends CaveSWTDialog {
         return button;
     }
 
-    private void initLoginData() {
-        loginData = null;
+    public static LoginData openUserLoginData() {
+        LoginData loginData = null;
         IPathManager pm = PathManagerFactory.getPathManager();
         File fname = pm.getStaticFile(LOGIN_FILE_NAME);
         try {
@@ -393,9 +393,10 @@ public class LoginDialog extends CaveSWTDialog {
                 loginData = new LoginData();
             }
         }
+        return loginData;
     }
 
-    private void saveLoginData() {
+    public static void saveUserLoginData(LoginData loginData) {
         try {
             LocalizationFile lFile = getFile(LOGIN_FILE_NAME);
             File file = lFile.getFile(false);
@@ -418,7 +419,7 @@ public class LoginDialog extends CaveSWTDialog {
      * @return lFile
      * @throws FileNotFoundException
      */
-    private LocalizationFile getFile(String filename)
+    private static LocalizationFile getFile(String filename)
             throws FileNotFoundException {
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext context = pm.getContext(
