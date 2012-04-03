@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
 
 /**
@@ -43,6 +44,8 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
  */
 
 public class VenueParticipant implements IVenueParticipant {
+
+    private static String CONF_ID = "conference.";
 
     private Map<String, String> properties;
 
@@ -185,6 +188,26 @@ public class VenueParticipant implements IVenueParticipant {
             sb.append(resource);
         }
         return sb.toString();
+    }
+
+    /**
+     * Return the identifier as a qualified field. Removes the "domain"
+     * conference from the host string if found.
+     * @return The qualified id.
+     */
+    @Override
+    public IQualifiedID getQualifiedId() {
+        String hostName = host;
+        if(hostName != null) {
+            if(hostName.startsWith(CONF_ID)) {
+                hostName = hostName.substring(CONF_ID.length());
+            }
+        }
+        
+        UserId id = new UserId(getName(), hostName);
+        id.setResource(resource);
+
+        return id;
     }
 
 }
