@@ -23,10 +23,16 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.ecf.core.util.ECFException;
+import org.eclipse.ecf.presence.IPresenceContainerAdapter;
+import org.eclipse.ecf.presence.roster.IRosterSubscriptionSender;
+
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
+import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
@@ -65,11 +71,14 @@ public class Roster extends RosterItem implements IRoster {
 
     private boolean roomRoster = false;
 
+    private IRosterManager rosterManager;
+    
     /**
      * 
      * @param user
      */
-    public Roster(IChatID user) {
+    public Roster(IChatID user, IRosterManager manager) {
+        rosterManager = manager;
         this.user = user;
         internalEntries = new HashMap<IQualifiedID, IRosterEntry>();
         entries = new HashMap<IQualifiedID, IRosterEntry>();
@@ -196,16 +205,29 @@ public class Roster extends RosterItem implements IRoster {
                 entry = new RosterEntry(id);
             }
             internalEntries.put(entry.getUser(), entry);
-
         }
     }
 
     /**
+     * 
      * @see com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster#modifyRosterEntry(com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry)
      */
     @Override
     public void modifyRosterEntry(IRosterEntry entry) {
 
+        // First attempt to find the entry in the internal entry collection
+        if(entry != null) {
+            IRosterEntry re = internalEntries.get(entry.getUser());
+            if(re != null) {
+                // We've found the roster entry in the internal entries
+                // so update with the presence.
+                RosterEntry ret = (RosterEntry) re;
+                ret.setPresence(entry.getPresence());
+            } else {
+            }
+        } else {
+            // nothing to do. And this shouldn't happen!
+        }
     }
 
     /**
@@ -216,7 +238,28 @@ public class Roster extends RosterItem implements IRoster {
      */
     @Override
     public void removeFromRoster(ID user) {
+        
+    }
 
+    /**
+     * 
+     * @param account
+     * @param nickName
+     * @param groups
+     */
+    @Override
+    public void sendRosterAdd(String account, String nickName, String[] groups)
+            throws CollaborationException {
+        rosterManager.sendRosterAdd(account, nickName, groups);
+    }
+
+    /**
+     * 
+     * @param userId
+     */
+    @Override
+    public void sendRosterRemove(IChatID userId) throws CollaborationException {
+        rosterManager.sendRosterRemove(userId);
     }
 
     /**
