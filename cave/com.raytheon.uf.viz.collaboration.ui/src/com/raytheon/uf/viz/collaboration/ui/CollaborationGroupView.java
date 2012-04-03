@@ -81,6 +81,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
+import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.SessionManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationGroup;
@@ -418,11 +419,27 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
 
         LoginData loginData = (LoginData) dialog.getReturnValue();
         if (loginData != null) {
+            // TODO Remove the refresh of the usertree once rostermanger has
+            // handler.
             LoginUser loginUser = getLoginUser();
             loginUser.setMode(loginData.getMode());
             loginUser.setStatusMessage(loginData.getModeMessage());
             usersTreeViewer.refresh(loginUser, true);
-            System.err.println("send mode change here: "
+            SessionManager sessionManager = CollaborationDataManager
+                    .getInstance().getSessionManager();
+            Presence presence = new Presence();
+            presence.setMode(loginData.getMode());
+            presence.setStatusMessage(loginData.getModeMessage());
+            presence.setType(Type.AVAILABLE);
+            try {
+                sessionManager.getAccountManager().sendPresence(presence);
+            } catch (CollaborationException e) {
+                // TODO Auto-generated catch block. Please revise as
+                // appropriate.
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
+            System.out.println("send mode change here: "
                     + loginData.getMode().toString() + ", Message: \""
                     + loginData.getModeMessage() + "\"");
         }
