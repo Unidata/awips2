@@ -21,12 +21,19 @@ package com.raytheon.uf.viz.collaboration.comm.provider.roster;
 
 import java.util.Collection;
 
+import org.eclipse.ecf.core.identity.ID;
+import org.eclipse.ecf.core.util.ECFException;
+import org.eclipse.ecf.presence.IPresenceContainerAdapter;
+import org.eclipse.ecf.presence.roster.IRosterSubscriptionSender;
+
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.listener.IRosterListener;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.SessionManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.RosterId;
 
@@ -54,12 +61,15 @@ public class RosterManager implements IRosterManager {
     private IRoster roster;
 
     private org.eclipse.ecf.presence.roster.IRoster baseRoster;
+    
+    private SessionManager sessionManager;
 
     /**
      * 
      * @param roster
      */
-    public RosterManager(org.eclipse.ecf.presence.roster.IRoster roster) {
+    public RosterManager(org.eclipse.ecf.presence.roster.IRoster roster, SessionManager manager) {
+        sessionManager = manager;
         baseRoster = roster;
         owner = roster.getName();
         this.roster = toLocalRoster(roster);
@@ -110,6 +120,53 @@ public class RosterManager implements IRosterManager {
 
     /**
      * 
+     * @param account
+     * @param nickName
+     * @param groups
+     */
+    @Override
+    public void sendRosterAdd(String account, String nickName, String[] groups)
+            throws CollaborationException {
+        org.eclipse.ecf.presence.roster.IRosterManager manager = baseRoster
+                .getPresenceContainerAdapter().getRosterManager();
+
+        IRosterSubscriptionSender sender = manager
+                .getRosterSubscriptionSender();
+
+        try {
+            sender.sendRosterAdd(account, nickName, groups);
+        } catch (ECFException e) {
+            throw new CollaborationException();
+        }
+    }
+
+    /**
+     * 
+     * @param userId
+     */
+    @Override
+    public void sendRosterRemove(IChatID userId) throws CollaborationException {
+
+        IPresenceContainerAdapter adapter = baseRoster
+                .getPresenceContainerAdapter();
+        org.eclipse.ecf.presence.roster.IRosterManager manager = adapter
+                .getRosterManager();
+        
+        IRosterSubscriptionSender sender = manager
+                .getRosterSubscriptionSender();
+
+        ID id = sessionManager.createID(userId.getFQName());
+
+        try {
+            sender.sendRosterRemove(id);
+        } catch (ECFException e) {
+            throw new CollaborationException();
+        }
+
+    }
+
+    /**
+     * 
      * @param roster
      * @return
      */
@@ -118,7 +175,7 @@ public class RosterManager implements IRosterManager {
 
         if (roster != null) {
             IChatID id = IDConverter.convertFrom(roster.getUser());
-            newRoster = new Roster(id);
+            newRoster = new Roster(id, this);
 
             @SuppressWarnings("rawtypes")
             Collection items = roster.getItems();
@@ -157,5 +214,21 @@ public class RosterManager implements IRosterManager {
         }
         return newRoster;
     }
+
+    public void updateEntry(IChatID fromId, IPresence presence) {
+        RosterEntry re = new RosterEntry(fromId);
+        re.setPresence(presence);
+
+        roster.modifyRosterEntry(re);
+    }
+    
+    /**
+     * 
+     * @return
+     */
+    public SessionManager getSessionManager() {
+        return sessionManager;
+    }
+    
 
 }

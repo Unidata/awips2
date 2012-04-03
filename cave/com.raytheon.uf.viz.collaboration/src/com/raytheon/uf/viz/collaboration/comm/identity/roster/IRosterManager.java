@@ -21,9 +21,9 @@ package com.raytheon.uf.viz.collaboration.comm.identity.roster;
 
 import java.util.Collection;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.listener.IRosterListener;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.ID;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 
 /**
  * TODO
@@ -74,5 +74,20 @@ public interface IRosterManager {
      * @return Was the removal successful.
      */
     IRosterListener removeRosterListener(IRosterListener listener);
+
+    /**
+     * 
+     * @param account
+     * @param nickName
+     * @param groups
+     */
+    void sendRosterAdd(String account, String nickName, String[] groups)
+            throws CollaborationException;
+
+    /**
+     * 
+     * @param userId
+     */
+    void sendRosterRemove(IChatID userId) throws CollaborationException;
 
 }
