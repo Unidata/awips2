@@ -75,7 +75,7 @@ public class DataProviderEventController extends AbstractRoleEventController {
                     .getInstance().getActiveEditor();
             SharedEditor se = EditorSetup.extractSharedEditor(editor);
             try {
-                session.sendInitData(event.getParticipant(), se);
+                session.sendInitData(event.getParticipant().getQualifiedId(), se);
             } catch (CollaborationException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Error sending initialization data to new participant "

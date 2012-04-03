@@ -52,7 +52,8 @@ public class PathDrawingTool extends AbstractDrawingTool {
     protected IInputHandler theHandler;
 
     public AbstractResourceData constructData() {
-        return new PathDrawingResourceData();
+        PathDrawingResourceData data = new PathDrawingResourceData();
+        return data;
     }
 
     /*
@@ -179,8 +180,26 @@ public class PathDrawingTool extends AbstractDrawingTool {
                     theDrawingLayer.finalizeLine(ls, null);
                 }
             }
+
+            // this probably should be put elsewhere or genericized in some
+            // manner
+            // PathToolbar.getToolbar().updateToolbar();
+
             editor.refresh();
             return true;
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.tools.AbstractModalTool#activate()
+     */
+    @Override
+    public void activate() {
+        super.activate();
+        theDrawingLayer.getCapability(EditableCapability.class).setEditable(
+                true);
+        theDrawingLayer.issueRefresh();
     }
 }
