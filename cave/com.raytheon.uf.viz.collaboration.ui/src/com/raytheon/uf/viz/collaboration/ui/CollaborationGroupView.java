@@ -28,8 +28,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.ActionContributionItem;
-import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
@@ -73,6 +71,7 @@ import org.osgi.framework.Bundle;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Type;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
@@ -90,6 +89,8 @@ import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
 import com.raytheon.uf.viz.collaboration.data.LoginUser;
 import com.raytheon.uf.viz.collaboration.data.SessionGroup;
 import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
+import com.raytheon.uf.viz.collaboration.ui.login.ChangeStatusDialog;
+import com.raytheon.uf.viz.collaboration.ui.login.LoginData;
 import com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.PeerToPeerView;
@@ -157,13 +158,11 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
 
     private Action removeUserAction;
 
-    private Action changeMessageAction;
+    private Action changeStatusAction;
 
     private Action changePasswordAction;
 
-    private Action changeStatusAction;
-
-    private Action refreshActiveSessionsAction;
+    // private Action refreshActiveSessionsAction;
 
     private Action collapseAllAction;
 
@@ -227,13 +226,15 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                 String sessionId = getId();
                 IVenueSession session = CollaborationDataManager.getInstance()
                         .getSession(sessionId);
+                String roomName = session.getVenue().getInfo()
+                        .getVenueDescription();
                 List<String> ids = new ArrayList<String>();
+
                 for (CollaborationUser user : getSelectedUsers()) {
+                    // TODO not add to list if user is already in the session.
                     String id = user.getId();
-                    if (!ids.contains(id)) {
-                        System.out.println("Add Selected User: " + id);
-                        ids.add(id);
-                    }
+                    System.out.println("Add Selected User: " + id);
+                    ids.add(id);
                 }
                 IVenueInfo info = session.getVenue().getInfo();
                 System.out.println("room: " + info.getVenueName());
@@ -315,24 +316,24 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
             }
         };
 
-        changeMessageAction = new Action("Change Message...") {
+        changeStatusAction = new Action("Change Status...") {
             public void run() {
-                System.out.println("Change message");
+                changeStatus();
             };
         };
 
         changePasswordAction = new Action("Change password...") {
             public void run() {
-                System.out.println("Change password here");
+                changePassword();
             };
         };
 
-        changeStatusAction = new Action("Change Status",
-                Action.AS_DROP_DOWN_MENU) {
-            public void run() {
-                System.out.println("Change Status here to: " + getId());
-            };
-        };
+        // changeStatusAction = new Action("Change Status",
+        // Action.AS_DROP_DOWN_MENU) {
+        // public void run() {
+        // System.out.println("Change Status here to: " + getId());
+        // };
+        // };
 
         // refreshActiveSessionsAction = new Action("Refresh") {
         // public void run() {
@@ -353,30 +354,30 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         collapseAllAction.setImageDescriptor(IconUtil.getImageDescriptor(
                 bundle, "collapseall.gif"));
 
-        IMenuCreator creator = new IMenuCreator() {
-
-            Menu menu;
-
-            @Override
-            public Menu getMenu(Menu parent) {
-                menu = new Menu(parent);
-                fillStatusMenu(menu);
-                return menu;
-            }
-
-            @Override
-            public Menu getMenu(Control parent) {
-                menu = new Menu(parent);
-                fillStatusMenu(menu);
-                return menu;
-            }
-
-            @Override
-            public void dispose() {
-                menu.dispose();
-            }
-        };
-        changeStatusAction.setMenuCreator(creator);
+        // IMenuCreator creator = new IMenuCreator() {
+        //
+        // Menu menu;
+        //
+        // @Override
+        // public Menu getMenu(Menu parent) {
+        // menu = new Menu(parent);
+        // fillStatusMenu(menu);
+        // return menu;
+        // }
+        //
+        // @Override
+        // public Menu getMenu(Control parent) {
+        // menu = new Menu(parent);
+        // fillStatusMenu(menu);
+        // return menu;
+        // }
+        //
+        // @Override
+        // public void dispose() {
+        // menu.dispose();
+        // }
+        // };
+        // changeStatusAction.setMenuCreator(creator);
 
         removeGroupAction = new Action("Remove Group") {
             public void run() {
@@ -386,6 +387,45 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
             public void run() {
             };
         };
+    }
+
+    private void changePassword() {
+        System.out.println("Change password here");
+        ChangePasswordDialog dialog = new ChangePasswordDialog(Display
+                .getCurrent().getActiveShell());
+        dialog.open();
+
+        Object result = dialog.getReturnValue();
+        if (result != null) {
+            char[] password = result.toString().toCharArray();
+            SessionManager sessionManager = CollaborationDataManager
+                    .getInstance().getSessionManager();
+            try {
+                sessionManager.getAccountManager().changePassword(password);
+            } catch (CollaborationException e) {
+                // TODO Auto-generated catch block. Please revise as
+                // appropriate.
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
+        }
+    }
+
+    private void changeStatus() {
+        ChangeStatusDialog dialog = new ChangeStatusDialog(Display.getCurrent()
+                .getActiveShell());
+        dialog.open();
+
+        LoginData loginData = (LoginData) dialog.getReturnValue();
+        if (loginData != null) {
+            LoginUser loginUser = getLoginUser();
+            loginUser.setMode(loginData.getMode());
+            loginUser.setStatusMessage(loginData.getModeMessage());
+            usersTreeViewer.refresh(loginUser, true);
+            System.err.println("send mode change here: "
+                    + loginData.getMode().toString() + ", Message: \""
+                    + loginData.getModeMessage() + "\"");
+        }
     }
 
     /**
@@ -456,22 +496,22 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
 
     }
 
-    private void fillStatusMenu(Menu menu) {
-        for (IPresence.Mode type : CollaborationUtils.statusModes) {
-            Action action = new Action(type.getMode()) {
-                public void run() {
-                    changeStatusAction.setId(getId());
-                    changeStatusAction.run();
-                };
-            };
-            action.setId(type.name());
-            ActionContributionItem item = new ActionContributionItem(action);
-            action.setImageDescriptor(IconUtil.getImageDescriptor(Activator
-                    .getDefault().getBundle(), type.name().toLowerCase()
-                    + ".gif"));
-            item.fill(menu, -1);
-        }
-    }
+    // private void fillStatusMenu(Menu menu) {
+    // for (IPresence.Mode type : CollaborationUtils.statusModes) {
+    // Action action = new Action(type.getMode()) {
+    // public void run() {
+    // changeStatusAction.setId(getId());
+    // changeStatusAction.run();
+    // };
+    // };
+    // action.setId(type.name());
+    // ActionContributionItem item = new ActionContributionItem(action);
+    // action.setImageDescriptor(IconUtil.getImageDescriptor(Activator
+    // .getDefault().getBundle(), type.name().toLowerCase()
+    // + ".gif"));
+    // item.fill(menu, -1);
+    // }
+    // }
 
     private void createToolbar() {
         IToolBarManager mgr = getViewSite().getActionBars().getToolBarManager();
@@ -500,8 +540,8 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         mgr.add(addUserAction);
         mgr.add(selectGroups);
         mgr.add(new Separator());
+        // mgr.add(changeStatusAction);
         mgr.add(changeStatusAction);
-        mgr.add(changeMessageAction);
         mgr.add(changePasswordAction);
         mgr.add(new Separator());
         if (CollaborationDataManager.getInstance().isConnected()) {
@@ -1043,6 +1083,17 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         }
     }
 
+    private LoginUser getLoginUser() {
+        LoginUser loginUser = null;
+        for (CollaborationNode node : topLevel.getChildren()) {
+            if (node instanceof LoginUser) {
+                loginUser = (LoginUser) node;
+                break;
+            }
+        }
+        return loginUser;
+    }
+
     /**
      * @return
      */
@@ -1051,7 +1102,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
     }
 
     /**
-     * Get the list of selected users that have a Type of AVAILABLE.
+     * Get a unique set of selected users that have a Type of AVAILABLE.
      * 
      * @return
      */
