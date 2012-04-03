@@ -21,5 +21,6 @@ Require-Bundle: com.raytheon.viz.ui,
 Import-Package: com.raytheon.uf.common.status,
  com.raytheon.uf.viz.core.maps.display,
  com.raytheon.uf.viz.core.maps.rsc,
- com.raytheon.uf.viz.drawing
+ com.raytheon.uf.viz.drawing,
+ com.raytheon.viz.awipstools.ui.display
 Bundle-ActivationPolicy: lazy

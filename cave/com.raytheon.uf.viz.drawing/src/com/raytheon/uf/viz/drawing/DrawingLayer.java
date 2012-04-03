@@ -26,13 +26,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.swt.graphics.RGB;
 
+import com.google.common.eventbus.EventBus;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
-import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
@@ -41,14 +40,16 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
-import com.raytheon.viz.ui.cmenu.IContextMenuContributor;
+import com.raytheon.uf.viz.drawing.events.DrawingEvent;
+import com.raytheon.uf.viz.drawing.events.DrawingEventBus;
+import com.raytheon.uf.viz.drawing.events.DrawingListener;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.TopologyException;
 
 /**
  * Implements a basic drawing layer
@@ -57,8 +58,7 @@ import com.vividsolutions.jts.geom.Point;
  * 
  */
 public class DrawingLayer extends
-        AbstractVizResource<AbstractResourceData, MapDescriptor> implements
-        IContextMenuContributor {
+        AbstractVizResource<AbstractResourceData, MapDescriptor> {
 
     protected List<Geometry> tempGeometries;
 
@@ -70,9 +70,6 @@ public class DrawingLayer extends
 
     protected IWireframeShape eraseWireframeShape;
 
-    // TODO take this out
-    private List<IWireframeShape> erasedShapes;
-
     protected IGraphicsTarget target;
 
     protected boolean erase = false;
@@ -81,8 +78,21 @@ public class DrawingLayer extends
 
     private boolean needsRefresh = false;
 
+    protected RGB color;
+
+    protected OutlineCapability outline;
+
+    // allowing for others to get events from the drawing tool, just having to
+    // subscribe
+    private EventBus eventBus;
+
+    private DrawingListener eventListener = null;
+
     public DrawingLayer(PathDrawingResourceData data, LoadProperties props) {
         super(data, props);
+        eventBus = DrawingEventBus.getEventBus();
+        eventListener = DrawingEventBus.getDrawingListener();
+        eventBus.register(eventListener);
     }
 
     /*
@@ -107,11 +117,9 @@ public class DrawingLayer extends
         this.wireframeShapes = new LinkedHashMap<Geometry, IWireframeShape>();
         this.deletedShapes = new LinkedHashMap<Geometry, IWireframeShape>();
 
-        this.erasedShapes = new ArrayList<IWireframeShape>();
         this.target = target;
-
-        getCapability(OutlineCapability.class);
-        getCapability(ColorableCapability.class);
+        outline = getCapability(OutlineCapability.class);
+        color = getCapability(ColorableCapability.class).getColor();
         getCapability(EditableCapability.class);
     }
 
@@ -134,46 +142,27 @@ public class DrawingLayer extends
                     getDescriptor());
         }
 
-        OutlineCapability outline = getCapability(OutlineCapability.class);
-        ColorableCapability colorable = getCapability(ColorableCapability.class);
+        outline = getCapability(OutlineCapability.class);
+        color = getCapability(ColorableCapability.class).getColor();
 
-        // remove after debugging
-        // MagnificationCapability magnification =
-        // getCapability(MagnificationCapability.class);
-        // for (Geometry ls : wireframeShapes.keySet()) {
-        // if (ls instanceof LineString) {
-        // LineString string = (LineString) ls;
-        // for (int i = 0; i < string.getNumPoints(); i++) {
-        // target.drawPoint(string.getPointN(i).getX(), string
-        // .getPointN(i).getY(), 0, colorable.getColor(),
-        // PointStyle.BOX, magnification.getMagnification()
-        // .floatValue());
-        // DrawableString dString = new DrawableString(string
-        // .getPointN(i).getCoordinate().toString(),
-        // colorable.getColor());
-        // dString.basics.x = string.getPointN(i).getX();
-        // dString.basics.y = string.getPointN(i).getY();
-        // target.drawStrings(dString);
-        // }
-        // }
-        // }
         for (IWireframeShape sh : wireframeShapes.values()) {
-            target.drawWireframeShape(sh, colorable.getColor(),
+            target.drawWireframeShape(sh, color,
                     (float) outline.getOutlineWidth(), outline.getLineStyle());
         }
 
         for (Geometry g : this.tempGeometries) {
             drawTempLinePrimitive(g, tempWireframeShape);
         }
-        // if (erase) {
-        // target.drawWireframeShape(tempWireframeShape, new RGB(255, 0, 0),
-        // 1.0f);
-        // } else {
-        target.drawWireframeShape(tempWireframeShape, colorable.getColor(),
+        target.drawWireframeShape(tempWireframeShape, color,
                 outline.getOutlineWidth(), outline.getLineStyle());
-        // }
     }
 
+    /**
+     * Add the geometry to the wireframe shape that is passed in
+     * 
+     * @param shape
+     * @param wShape
+     */
     private void drawTempLinePrimitive(Geometry shape, IWireframeShape wShape) {
         LineString line = (LineString) shape;
 
@@ -225,6 +214,8 @@ public class DrawingLayer extends
     public void finalizeLine(LineString line, String uuid) {
         tempWireframeShape.compile();
         wireframeShapes.put(line, tempWireframeShape);
+        DrawingEvent event = new DrawingEvent(line, null);
+        eventBus.post(event);
     }
 
     public void addTempDrawLine(LineString line) {
@@ -232,7 +223,7 @@ public class DrawingLayer extends
     }
 
     public void addTempEraseLine(LineString line) {
-        this.tempGeometries.add(line);
+        // this.tempGeometries.add(line);
         Map<Geometry, IWireframeShape> shapes = new HashMap<Geometry, IWireframeShape>();
         shapes.putAll(wireframeShapes);
         for (Geometry geom : shapes.keySet()) {
@@ -244,7 +235,12 @@ public class DrawingLayer extends
             if (line.buffer(size / 2).intersects(geom)) {
                 Geometry intersection = line.buffer(size / 2)
                         .intersection(geom);
-                Geometry finalGeom = geom.difference(intersection);
+                Geometry finalGeom = null;
+                try {
+                    finalGeom = geom.difference(intersection);
+                } catch (TopologyException e) {
+                    continue;
+                }
                 deletedShapes.put(geom, wireframeShapes.remove(geom));
 
                 Geometry lString = null;
@@ -259,7 +255,6 @@ public class DrawingLayer extends
                         drawTempLinePrimitive(lineString, eraseWireframeShape);
                         this.wireframeShapes.put(lineString,
                                 eraseWireframeShape);
-                        erasedShapes.add(eraseWireframeShape);
                     }
                 }
                 if (finalGeom instanceof LineString) {
@@ -273,14 +268,8 @@ public class DrawingLayer extends
                             descriptor);
                     drawTempLinePrimitive(lString, eraseWireframeShape);
                     this.wireframeShapes.put(lString, eraseWireframeShape);
-                    erasedShapes.add(eraseWireframeShape);
                 } else {
-                    lString = (GeometryCollection) finalGeom;
-                    // for (int j = 0; j < lString.getNumGeometries(); j++) {
-                    // System.out.println(lString.getGeometryN(j).getClass());
-                    // }
-                    // System.out.println(finalGeom.getClass() + " has "
-                    // + lString.getNumGeometries() + " geometries");
+                    // do nothing
                 }
             }
             tempGeometries.clear();
@@ -293,8 +282,10 @@ public class DrawingLayer extends
         issueRefresh();
     }
 
+    /**
+     * reset the temporary geometries so that we can start a new line
+     */
     public void resetTemp() {
-        // this.tempWireframeShape.dispose();
         this.tempGeometries.clear();
         needsRefresh = true;
     }
@@ -344,23 +335,7 @@ public class DrawingLayer extends
     }
 
     /**
-     * Add items to the right click menu, in this case just a button to launch
-     * the Drawing toolbar
-     */
-    @Override
-    public void addContextMenuItems(IMenuManager menuManager, int x, int y) {
-        ResourcePair pair = new ResourcePair();
-        pair.setResource(this);
-        Action action = new Action("Draw Toolbar...") {
-            public void run() {
-                PathToolbar.getToolbar().open();
-            };
-        };
-        menuManager.add(action);
-    }
-
-    /**
-     * @return the erase
+     * @return are you currently erasing
      */
     public boolean isErase() {
         return erase;
@@ -368,23 +343,39 @@ public class DrawingLayer extends
 
     /**
      * @param erase
-     *            the erase to set
+     *            to erase or not to erase
      */
     public void setErase(boolean erase) {
         this.erase = erase;
     }
 
     /**
-     * @return the deletedShapes
+     * @return the deletedShapes, these shapes will get disposed when the clear
+     *         button is selected
      */
     public Map<Geometry, IWireframeShape> getDeletedShapes() {
         return deletedShapes;
     }
 
     /**
-     * @return the wireframeShapes
+     * @return the wireframeShapes, these shapes will get disposed when the
+     *         clear button is selected
      */
     public Map<Geometry, IWireframeShape> getWireframeShapes() {
         return wireframeShapes;
+    }
+
+    /**
+     * @return the eventBus
+     */
+    public EventBus getEventBus() {
+        return eventBus;
+    }
+
+    /**
+     * @return the eventListener
+     */
+    public DrawingListener getEventListener() {
+        return eventListener;
     }
 }

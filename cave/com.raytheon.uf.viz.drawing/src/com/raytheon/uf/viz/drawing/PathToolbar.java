@@ -37,7 +37,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.contexts.IContextActivation;
 import org.eclipse.ui.contexts.IContextService;
 
-import com.raytheon.uf.viz.core.IDisplayPane;
+import com.google.common.eventbus.AllowConcurrentEvents;
+import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.icon.IconUtil;
@@ -46,12 +47,12 @@ import com.raytheon.uf.viz.drawing.actions.ClearDrawingAction;
 import com.raytheon.uf.viz.drawing.actions.EraseObjectsAction;
 import com.raytheon.uf.viz.drawing.actions.RedoAddAction;
 import com.raytheon.uf.viz.drawing.actions.UndoAddAction;
+import com.raytheon.uf.viz.drawing.events.DrawingEvent;
+import com.raytheon.uf.viz.drawing.events.DrawingEventBus;
 import com.raytheon.uf.viz.drawing.tools.PathDrawingTool;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.editor.AbstractEditor;
-import com.raytheon.viz.ui.editor.ISelectedPanesChangedListener;
-import com.raytheon.viz.ui.editor.VizMultiPaneEditor;
 
 /**
  * TODO Add Description
@@ -70,12 +71,13 @@ import com.raytheon.viz.ui.editor.VizMultiPaneEditor;
  * @version 1.0
  */
 
-public class PathToolbar extends CaveSWTDialog implements
-        ISelectedPanesChangedListener {
+public class PathToolbar extends CaveSWTDialog {
 
-    private static PathToolbar toolbar;
+    protected static PathToolbar pathToolbar;
 
     // private Map<AbstractEditor, ResourcePair> layers;
+
+    protected ToolBar toolbar;
 
     private ToolItem drawItem;
 
@@ -90,10 +92,11 @@ public class PathToolbar extends CaveSWTDialog implements
     private IContextActivation drawingContext;
 
     public static PathToolbar getToolbar() {
-        if (toolbar == null) {
-            toolbar = new PathToolbar(new Shell(Display.getCurrent()));
+        if (pathToolbar == null) {
+            pathToolbar = new PathToolbar(new Shell(Display.getCurrent()));
+            DrawingEventBus.register(PathToolbar.getToolbar());
         }
-        return toolbar;
+        return pathToolbar;
     }
 
     /**
@@ -142,7 +145,7 @@ public class PathToolbar extends CaveSWTDialog implements
         layout.marginHeight = 0;
         layout.marginWidth = 0;
 
-        ToolBar toolbar = new ToolBar(comp, SWT.FLAT);
+        toolbar = new ToolBar(comp, SWT.FLAT);
 
         layout = new GridLayout();
         layout.marginHeight = 0;
@@ -169,8 +172,8 @@ public class PathToolbar extends CaveSWTDialog implements
                         eraserItem.setSelection(false);
                     }
                 }
-                PathDrawingTool tool = new PathDrawingTool();
-                tool.activate();
+
+                startTool();
                 // ((VizMultiPaneEditor) editor)
                 // .addSelectedPaneChangedListener(PathToolbar
                 // .getToolbar());
@@ -234,7 +237,6 @@ public class PathToolbar extends CaveSWTDialog implements
                 executeAction(action);
             }
         });
-        updateToolbar();
     }
 
     @Override
@@ -243,6 +245,7 @@ public class PathToolbar extends CaveSWTDialog implements
                 .getWorkbench().getService(IContextService.class);
         drawingContext = contextService
                 .activateContext("com.raytheon.uf.viz.drawing.context");
+        updateToolbar();
         super.opened();
     }
 
@@ -254,29 +257,14 @@ public class PathToolbar extends CaveSWTDialog implements
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.editor.ISelectedPanesChangedListener#selectedPanesChanged
-     * (java.lang.String, com.raytheon.uf.viz.core.IDisplayPane[])
-     */
-    @Override
-    public void selectedPanesChanged(String id, IDisplayPane[] pane) {
-        AbstractEditor editor = EditorUtil
-                .getActiveEditorAs(AbstractEditor.class);
-        IDescriptor desc = editor.getActiveDisplayPane().getDescriptor();
-        ((VizMultiPaneEditor) editor)
-                .addSelectedPaneChangedListener(PathToolbar.getToolbar());
-        for (ResourcePair pair : desc.getResourceList()) {
-            if (pair.getResource() instanceof DrawingLayer) {
-                break;
-            }
-        }
+    @AllowConcurrentEvents
+    @Subscribe
+    public void handleMessage(DrawingEvent event) {
+        updateToolbar();
     }
 
-    private void updateToolbar() {
-        if (true) {
+    public void updateToolbar() {
+        if (this.isDisposed()) {
             return;
         }
         AbstractEditor editor = EditorUtil
@@ -294,17 +282,13 @@ public class PathToolbar extends CaveSWTDialog implements
                 } else {
                     clearItem.setEnabled(true);
                     if (layer.getDeletedShapes().isEmpty()) {
-                        undoItem.setEnabled(true);
                         redoItem.setEnabled(false);
                     } else {
-                        undoItem.setEnabled(false);
                         redoItem.setEnabled(true);
                     }
                     if (layer.getWireframeShapes().isEmpty()) {
-                        redoItem.setEnabled(true);
                         undoItem.setEnabled(false);
                     } else {
-                        redoItem.setEnabled(false);
                         undoItem.setEnabled(true);
                     }
                 }
@@ -312,4 +296,11 @@ public class PathToolbar extends CaveSWTDialog implements
         }
     }
 
+    /**
+     * 
+     */
+    protected void startTool() {
+        PathDrawingTool tool = new PathDrawingTool();
+        tool.activate();
+    }
 }

@@ -90,7 +90,8 @@ public abstract class BaseSession implements ISession {
      * @param sessionId
      */
     protected BaseSession(IContainer container, EventBus externalBus,
-            SessionManager manager, String sessionId) throws CollaborationException {
+            SessionManager manager, String sessionId)
+            throws CollaborationException {
         // Set the session identifier.
         this.sessionId = sessionId;
         managerEventBus = externalBus;
@@ -100,7 +101,7 @@ public abstract class BaseSession implements ISession {
         eventSubscribers = new HashMap<Object, Object>();
         setup();
     }
-    
+
     /**
      * 
      * @throws ECFException
@@ -240,6 +241,7 @@ public abstract class BaseSession implements ISession {
      */
     public ID createID(String name) throws IDCreateException {
         ID id = null;
+        name += "/foo"; // TODO fix this in a better way
         if (connectionNamespace != null) {
             id = IDFactory.getDefault().createID(connectionNamespace, name);
         }
