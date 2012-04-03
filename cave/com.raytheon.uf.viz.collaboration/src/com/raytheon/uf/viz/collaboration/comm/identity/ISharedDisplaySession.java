@@ -73,7 +73,7 @@ public interface ISharedDisplaySession extends IEventPublisher {
      * @param participant
      * @param initData
      */
-    void sendInitData(IChatID participant, IInitData initData)
+    void sendInitData(IQualifiedID participant, IInitData initData)
             throws CollaborationException;
 
     /**
@@ -95,7 +95,7 @@ public interface ISharedDisplaySession extends IEventPublisher {
      */
     void sendEvent(IDisplayEvent event) throws CollaborationException;
 
-    void sendEvent(IChatID participant, IDisplayEvent event)
+    void sendEvent(IQualifiedID participant, IDisplayEvent event)
             throws CollaborationException;
 
     /**
