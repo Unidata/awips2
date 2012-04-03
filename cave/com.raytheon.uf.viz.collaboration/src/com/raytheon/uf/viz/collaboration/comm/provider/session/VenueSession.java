@@ -345,16 +345,19 @@ public class VenueSession extends BaseSession implements IVenueSession,
      */
     @Override
     public void sendInitData(
-            com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID participant,
+            com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID participant,
             IInitData initData) throws CollaborationException {
 
         PeerToPeerChat session = getP2PSession();
         if (session != null) {
             String message = Tools.marshallData(initData);
-            IMessage msg = new CollaborationMessage(participant, message);
-            msg.setProperty(Tools.PROP_SESSION_ID, this.getSessionId());
-            session.sendPeerToPeer(msg);
-
+            if (message != null) {
+                
+                TextMessage msg = new TextMessage(participant, message);
+                msg.setProperty(Tools.PROP_SESSION_ID, getSessionId());
+                
+                session.sendPeerToPeer(msg);
+            }
         }
     }
 
@@ -403,7 +406,7 @@ public class VenueSession extends BaseSession implements IVenueSession,
      */
     @Override
     public void sendEvent(
-            com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID participant,
+            com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID participant,
             IDisplayEvent event) throws CollaborationException {
 
         PeerToPeerChat session = null;
@@ -411,7 +414,10 @@ public class VenueSession extends BaseSession implements IVenueSession,
         if (session != null) {
             String message = Tools.marshallData(event);
             if (message != null) {
-                session.sendPeerToPeer(participant.getFQName(), message);
+                
+                TextMessage msg = new TextMessage(participant, message);
+                msg.setProperty(Tools.PROP_SESSION_ID, getSessionId());
+                session.sendPeerToPeer(msg);
             }
         }
     }
