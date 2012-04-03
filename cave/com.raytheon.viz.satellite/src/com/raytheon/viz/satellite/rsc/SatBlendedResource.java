@@ -19,7 +19,6 @@
  **/
 package com.raytheon.viz.satellite.rsc;
 
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,10 +31,10 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelCoverage;
-import com.raytheon.uf.viz.core.data.prep.IODataPreparer;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.drawables.ext.IOffscreenRenderingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -214,10 +213,9 @@ public class SatBlendedResource extends
         // Construct texture for fbo
         imageBounds = new int[] { paintProps.getCanvasBounds().width,
                 paintProps.getCanvasBounds().height };
-        offscreenImage = target.initializeRaster(new IODataPreparer(
-                new BufferedImage(imageBounds[0], imageBounds[1],
-                        BufferedImage.TYPE_INT_RGB), "SatBlendedImage", 0),
-                null);
+        offscreenImage = target
+                .getExtension(IOffscreenRenderingExtension.class)
+                .constructOffscreenImage(imageBounds);
     }
 
     private void disposeImage() {
