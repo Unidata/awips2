@@ -30,9 +30,13 @@ import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditorInputHandler;
 import com.raytheon.uf.viz.collaboration.ui.editor.EditorSetup;
 import com.raytheon.uf.viz.collaboration.ui.editor.SharedEditor;
+import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationResource;
+import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationResourceData;
 import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationPathDrawingResourceData;
 import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationPathToolbar;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.drawables.IDescriptor;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.IInputHandler.InputPriority;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
@@ -60,6 +64,8 @@ public class ParticipantEventController extends AbstractRoleEventController {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ParticipantEventController.class);
 
+    private CollaborationResource collabRsc;
+
     public ParticipantEventController(ISharedDisplaySession session) {
         super(session);
     }
@@ -73,6 +79,8 @@ public class ParticipantEventController extends AbstractRoleEventController {
                 @Override
                 public void run() {
                     CollaborationEditor editor = EditorSetup.createEditor(se);
+                    initializeResources(editor.getActiveDisplayPane()
+                            .getDescriptor());
                     editor.registerMouseHandler(
                             new CollaborationEditorInputHandler(session, editor
                                     .getDisplayPanes()[0]),
@@ -100,6 +108,15 @@ public class ParticipantEventController extends AbstractRoleEventController {
 
             });
         }
+    }
+
+    private void initializeResources(IDescriptor desc) {
+        CollaborationResourceData crd = new CollaborationResourceData();
+        ResourcePair rp = ResourcePair.constructSystemResourcePair(crd);
+        desc.getResourceList().add(rp);
+        desc.getResourceList().instantiateResources(desc, false);
+        collabRsc = (CollaborationResource) rp.getResource();
+        this.session.registerEventHandler(collabRsc);
     }
 
     /*
@@ -132,5 +149,9 @@ public class ParticipantEventController extends AbstractRoleEventController {
     public void shutdown() {
         super.shutdown();
         CollaborationPathToolbar.getToolbar().close();
+
+        if (this.collabRsc != null) {
+            this.session.unRegisterEventHandler(collabRsc);
+        }
     }
 }
