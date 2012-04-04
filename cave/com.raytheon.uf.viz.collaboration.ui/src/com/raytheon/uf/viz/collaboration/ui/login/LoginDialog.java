@@ -106,7 +106,7 @@ public class LoginDialog extends CaveSWTDialog {
 
     public LoginDialog(Shell parentShell) {
         super(parentShell, SWT.DIALOG_TRIM);
-        setText("Collaboration Server Log On");
+        setText("Collaboration Server Login");
     }
 
     private Control createDialogArea(Composite parent) {
@@ -223,7 +223,7 @@ public class LoginDialog extends CaveSWTDialog {
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         bar.setLayout(new GridLayout(0, true));
         bar.setLayoutData(gd);
-        logOnButton = createButton(bar, IDialogConstants.OK_ID, "Log On", true);
+        logOnButton = createButton(bar, IDialogConstants.OK_ID, "Login", true);
 
         createButton(bar, IDialogConstants.CANCEL_ID,
                 IDialogConstants.CANCEL_LABEL, false);
@@ -359,7 +359,7 @@ public class LoginDialog extends CaveSWTDialog {
                         }
                         MessageBox messageBox = new MessageBox(event.widget
                                 .getDisplay().getActiveShell(), SWT.ERROR);
-                        messageBox.setText("Log On Error");
+                        messageBox.setText("Login Error");
                         messageBox.setMessage(sb.toString());
                         messageBox.open();
                         event.doit = false;
