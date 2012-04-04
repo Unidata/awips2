@@ -76,9 +76,6 @@ public class PeerToPeerCommHelper implements IIMMessageListener {
     @Override
     public void handleMessageEvent(IIMMessageEvent messageEvent) {
 
-        System.out.println("Handling event "
-                + messageEvent.getClass().getName());
-
         if (messageEvent instanceof IChatMessageEvent) {
             IChatMessageEvent event = (IChatMessageEvent) messageEvent;
             System.out.println("  message event.body "
@@ -94,10 +91,6 @@ public class PeerToPeerCommHelper implements IIMMessageListener {
                     // anything else pass to the normal text
                     routeMessage(msg);
                 }
-            }
-        } else {
-            if(messageEvent != null) {
-                System.out.println(messageEvent.getClass().getName() + " trapped in PeerToPeerCommHelper");
             }
         }
     }
