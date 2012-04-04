@@ -25,7 +25,11 @@ import org.eclipse.ui.IWorkbenchPart;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
+import com.raytheon.uf.viz.collaboration.ui.editor.event.CollaborationInputHandler;
+import com.raytheon.uf.viz.core.rsc.IInputHandler;
+import com.raytheon.uf.viz.core.rsc.IInputHandler.InputPriority;
 import com.raytheon.viz.ui.editor.AbstractEditor;
+import com.raytheon.viz.ui.input.InputManager;
 import com.raytheon.viz.ui.panes.PaneManager;
 
 /**
@@ -50,6 +54,8 @@ public class CollaborationEditor extends AbstractEditor implements
         IPartListener {
 
     public static final String EDITOR_ID = "com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor";
+
+    private CollaborationInputHandler inputHandler = new CollaborationInputHandler();
 
     @Override
     protected PaneManager getNewPaneManager() {
@@ -137,4 +143,20 @@ public class CollaborationEditor extends AbstractEditor implements
             setPartName(name);
         }
     }
+
+    @Override
+    protected void addCustomHandlers(InputManager manager) {
+        super.registerMouseHandler(inputHandler, InputPriority.SYSTEM_RESOURCE);
+    }
+
+    @Override
+    public void registerMouseHandler(IInputHandler handler) {
+        inputHandler.registerInputHandler(handler);
+    }
+
+    @Override
+    public void unregisterMouseHandler(IInputHandler handler) {
+        inputHandler.unregisterInputHandler(handler);
+    }
+
 }
