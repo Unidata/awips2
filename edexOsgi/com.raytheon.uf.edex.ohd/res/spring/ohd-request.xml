@@ -19,9 +19,13 @@
   
 	<camelContext id="mpeFieldGenReq-context"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler">		
+		errorHandlerRef="errorHandler">
+		
+		<endpoint id="mpeHttp_from"
+			uri="jetty:http://0.0.0.0:${http.port}/services/mpeFieldGenHttpService?disableStreamCache=true" />
+			
 		<route id="mpeHttp">
-			<from uri="jetty:http://0.0.0.0:9581/services/mpeFieldGenHttpService?disableStreamCache=true" />
+			<from uri="ref:mpeHttp_from" />
 			<doTry>
 				<bean ref="mpeFieldGenService" method="process" />
 				<doCatch>
