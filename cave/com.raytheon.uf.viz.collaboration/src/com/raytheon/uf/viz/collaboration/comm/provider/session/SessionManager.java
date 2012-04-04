@@ -117,7 +117,7 @@ public class SessionManager implements IEventPublisher {
     private IChatRoomInvitationListener intInvitationListener;
 
     private IPresenceContainerAdapter presenceAdapter;
-    
+
     private Namespace connectionNamespace = null;
 
     private PeerToPeerChat chatInstance = null;
@@ -131,10 +131,12 @@ public class SessionManager implements IEventPublisher {
     private EventBus eventBus;
 
     /**
+     * @throws CollaborationException
      * @throws ContainerCreateException
      * 
      */
-    public SessionManager(String account, String password) throws Exception {
+    public SessionManager(String account, String password)
+            throws CollaborationException {
         XMPPConnection.DEBUG_ENABLED = true;
 
         try {
@@ -147,8 +149,9 @@ public class SessionManager implements IEventPublisher {
         this.password = password;
         try {
             connectToContainer();
-        } catch (Exception e) {
-            throw new Exception("Error creating SessionManager", e);
+        } catch (ContainerConnectException e) {
+            throw new CollaborationException(
+                    "Login failed.  Invalid username or password", e);
         }
         setupAccountManager();
 
@@ -182,27 +185,22 @@ public class SessionManager implements IEventPublisher {
     }
 
     /**
+     * @throws CollaborationException
+     * @throws ContainerConnectException
      * 
      */
-    private void connectToContainer() {
+    private void connectToContainer() throws CollaborationException,
+            ContainerConnectException {
         if (container.getConnectedID() == null) {
             connectionNamespace = container.getConnectNamespace();
 
             // Now connect
-            try {
-                ID targetID = createID(account);
-                container.connect(targetID, ConnectContextFactory
-                        .createPasswordConnectContext(password));
+            ID targetID = createID(account);
+            container.connect(targetID, ConnectContextFactory
+                    .createPasswordConnectContext(password));
 
-                presenceAdapter = Tools.getPresenceContainerAdapter(container,
-                        IPresenceContainerAdapter.class);
-            } catch (ContainerConnectException e) {
-                System.out.println("Error attempting to connect");
-                e.printStackTrace();
-            } catch (CollaborationException ce) {
-                System.out.println("Error attempting to create identifier.");
-                ce.printStackTrace();
-            }
+            presenceAdapter = Tools.getPresenceContainerAdapter(container,
+                    IPresenceContainerAdapter.class);
         }
     }
 
@@ -480,69 +478,81 @@ public class SessionManager implements IEventPublisher {
      */
     private void setupInternalConnectionListeners() {
 
-        presenceAdapter.getRosterManager().addPresenceListener(new IPresenceListener() {
+        presenceAdapter.getRosterManager().addPresenceListener(
+                new IPresenceListener() {
 
-            @Override
-            public void handlePresence(ID fromId,
-                    org.eclipse.ecf.presence.IPresence presence) {
-                System.out.println("Presence from " + fromId.getName());
-                System.out.println("         type " + presence.getType());
-                System.out.println("         mode " + presence.getMode());
-                System.out.println("       status " + presence.getStatus());
-                
-                IPresence p = Presence.convertPresence(presence);
+                    @Override
+                    public void handlePresence(ID fromId,
+                            org.eclipse.ecf.presence.IPresence presence) {
+                        System.out.println("Presence from " + fromId.getName());
+                        System.out.println("         type "
+                                + presence.getType());
+                        System.out.println("         mode "
+                                + presence.getMode());
+                        System.out.println("       status "
+                                + presence.getStatus());
 
-                String name = Tools.parseName(fromId.getName());
-                String host = Tools.parseHost(fromId.getName());
-                String resource = Tools.parseResource(fromId.getName());
-                
-                IChatID id = new RosterId(name, host, resource);
-                
-                if(rosterManager != null) {
-                    ((RosterManager) rosterManager).updateEntry(id, p);
-                } else {
-                    // No rosterManager
-                }
-            }
-        });
-        
-        presenceAdapter.getRosterManager().addRosterListener(new IRosterListener() {
+                        IPresence p = Presence.convertPresence(presence);
 
-            @Override
-            public void handleRosterEntryAdd(IRosterEntry entry) {
-                System.out.println("Roster add " + entry.getUser());
-                System.out.println("         groups " + entry.getGroups());
-                System.out.println("         name " + entry.getName());
-            }
+                        String name = Tools.parseName(fromId.getName());
+                        String host = Tools.parseHost(fromId.getName());
+                        String resource = Tools.parseResource(fromId.getName());
 
-            @Override
-            public void handleRosterUpdate(IRoster roster,
-                    IRosterItem changedValue) {
-                
-                if(changedValue instanceof IRosterEntry) {
-                    IRosterEntry re = (IRosterEntry) changedValue;
-                    System.out.println("Roster update RosterEntry " + re.getUser());
-                    System.out.println("         groups " + re.getGroups());
-                    System.out.println("         name " + re.getName());
-                } else if (changedValue instanceof IRosterGroup) {
-                    IRosterGroup rg = (IRosterGroup) changedValue;
-                    System.out.println("Roster update RosterGroup " + rg.getName());
-                    System.out.println("         entries " + rg.getEntries());
-                    System.out.println("         name " + rg.getName());
-                } else if (changedValue instanceof IRoster) {
-                    IRoster r = (IRoster) changedValue;
-                    System.out.println("Roster update Roster " + r.getName());
-                }
-            }
+                        IChatID id = new RosterId(name, host, resource);
 
-            @Override
-            public void handleRosterEntryRemove(IRosterEntry entry) {
-                System.out.println("Roster  " + entry.getUser());
-                System.out.println("         groups " + entry.getGroups());
-                System.out.println("         name " + entry.getName());
-            }
-        });
-        
+                        if (rosterManager != null) {
+                            ((RosterManager) rosterManager).updateEntry(id, p);
+                        } else {
+                            // No rosterManager
+                        }
+                    }
+                });
+
+        presenceAdapter.getRosterManager().addRosterListener(
+                new IRosterListener() {
+
+                    @Override
+                    public void handleRosterEntryAdd(IRosterEntry entry) {
+                        System.out.println("Roster add " + entry.getUser());
+                        System.out.println("         groups "
+                                + entry.getGroups());
+                        System.out.println("         name " + entry.getName());
+                    }
+
+                    @Override
+                    public void handleRosterUpdate(IRoster roster,
+                            IRosterItem changedValue) {
+
+                        if (changedValue instanceof IRosterEntry) {
+                            IRosterEntry re = (IRosterEntry) changedValue;
+                            System.out.println("Roster update RosterEntry "
+                                    + re.getUser());
+                            System.out.println("         groups "
+                                    + re.getGroups());
+                            System.out.println("         name " + re.getName());
+                        } else if (changedValue instanceof IRosterGroup) {
+                            IRosterGroup rg = (IRosterGroup) changedValue;
+                            System.out.println("Roster update RosterGroup "
+                                    + rg.getName());
+                            System.out.println("         entries "
+                                    + rg.getEntries());
+                            System.out.println("         name " + rg.getName());
+                        } else if (changedValue instanceof IRoster) {
+                            IRoster r = (IRoster) changedValue;
+                            System.out.println("Roster update Roster "
+                                    + r.getName());
+                        }
+                    }
+
+                    @Override
+                    public void handleRosterEntryRemove(IRosterEntry entry) {
+                        System.out.println("Roster  " + entry.getUser());
+                        System.out.println("         groups "
+                                + entry.getGroups());
+                        System.out.println("         name " + entry.getName());
+                    }
+                });
+
         if (container != null) {
             container.addListener(new IContainerListener() {
 
@@ -639,7 +649,7 @@ public class SessionManager implements IEventPublisher {
     public EventBus getEventPublisher() {
         return eventBus;
     }
-    
+
     /**
      * 
      * @param name
@@ -651,11 +661,10 @@ public class SessionManager implements IEventPublisher {
             if (connectionNamespace != null) {
                 id = IDFactory.getDefault().createID(connectionNamespace, name);
             }
-        } catch(IDCreateException idce) {
+        } catch (IDCreateException idce) {
             throw new CollaborationException("Could not create id");
         }
         return id;
     }
-
 
 }
