@@ -49,7 +49,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 public abstract class Tools {
 
     public static final String TAG_INVITE = "[[INVITEID#";
-    
+
     public static final String TAG_INVITE_ID = TAG_INVITE + "%s]]%s";
 
     public static final String PROP_SESSION_ID = "sessionId";
@@ -329,7 +329,7 @@ public abstract class Tools {
                     sb.append(ENV_THRIFT);
                 } catch (SerializationException e) {
                     throw new CollaborationException(
-                            "[THRIFT] Could not serialize object");
+                            "[THRIFT] Could not serialize object", e);
                 }
                 break;
             }
@@ -342,7 +342,7 @@ public abstract class Tools {
                     }
                 } catch (JAXBException je) {
                     throw new CollaborationException(
-                            "[JAXB] Could not serialize object");
+                            "[JAXB] Could not serialize object", je);
                 }
                 break;
             }
@@ -389,7 +389,7 @@ public abstract class Tools {
                     unMarshalledData = SerializationUtil.transformFromThrift(b);
                 } catch (SerializationException e) {
                     throw new CollaborationException(
-                            "Could not deserialize object");
+                            "Could not deserialize object", e);
                 }
             } else if (data.startsWith(ENV_JAXB)) {
                 String s = data.substring(ENV_JAXB.length());
@@ -397,7 +397,7 @@ public abstract class Tools {
                     unMarshalledData = SerializationUtil.unmarshalFromXml(s);
                 } catch (JAXBException je) {
                     throw new CollaborationException(
-                            "[JAXB] Could not deserialize object");
+                            "[JAXB] Could not deserialize object", je);
                 }
             } else if (data.startsWith(ENV_STRING)) {
                 unMarshalledData = data.substring(ENV_STRING.length());

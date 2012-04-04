@@ -4,6 +4,7 @@ Bundle-Name: Drawing
 Bundle-SymbolicName: com.raytheon.uf.viz.drawing;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: com.raytheon.uf.viz.drawing.Activator
+Eclipse-RegisterBuddy: com.raytheon.uf.viz.core
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
