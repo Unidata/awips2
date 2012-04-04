@@ -150,6 +150,40 @@ public abstract class BaseSession implements ISession {
     }
 
     /**
+     * 
+     * @return
+     */
+    EventBus getManagerEventPublisher() {
+        return managerEventBus;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    SessionManager getSessionManager() {
+        return sessionManager;
+    }
+
+    /**
+     * 
+     * @param name
+     * @return
+     */
+    public ID createID(String name) throws IDCreateException {
+        ID id = null;
+        name += "/foo"; // TODO fix this in a better way
+        if (connectionNamespace != null) {
+            id = IDFactory.getDefault().createID(connectionNamespace, name);
+        }
+        return id;
+    }
+
+    // *****************
+    // Implement IEventPublisher methods
+    // *****************
+
+    /**
      * @see com.raytheon.uf.viz.collaboration.comm.identity.ISession#getUserID()
      */
     @Override
@@ -230,21 +264,4 @@ public abstract class BaseSession implements ISession {
         return eventBus;
     }
 
-    EventBus getManagerEventPublisher() {
-        return managerEventBus;
-    }
-
-    /**
-     * 
-     * @param name
-     * @return
-     */
-    public ID createID(String name) throws IDCreateException {
-        ID id = null;
-        name += "/foo"; // TODO fix this in a better way
-        if (connectionNamespace != null) {
-            id = IDFactory.getDefault().createID(connectionNamespace, name);
-        }
-        return id;
-    }
 }
