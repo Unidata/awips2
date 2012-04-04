@@ -96,7 +96,7 @@ public class CollaborationEditorInputHandler implements IInputHandler {
                     coords[1], mouseButton);
             sendEvent(event);
         }
-        return leader;
+        return !leader;
     }
 
     /*
