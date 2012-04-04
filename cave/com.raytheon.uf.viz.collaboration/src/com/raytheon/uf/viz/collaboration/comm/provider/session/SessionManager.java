@@ -218,6 +218,14 @@ public class SessionManager implements IEventPublisher {
     }
 
     /**
+     * Return the account string that was used to create this manager.
+     * @return The account string. 
+     */
+    public String getAccount() {
+        return account;
+    }
+    
+    /**
      * Get the account manager for this connection.
      * 
      * @return The account manager for this connection.
@@ -353,8 +361,10 @@ public class SessionManager implements IEventPublisher {
             if (session != null) {
                 session.createVenue(venueName, subject);
 
-                IChatID me = new VenueUserId("jkorman",
-                        "awipscm.omaha.us.ray.com");
+                String name = Tools.parseName(account);
+                String host = Tools.parseHost(account);
+
+                IChatID me = new VenueUserId(name, host);
 
                 session.setSessionLeader(me);
                 session.setSessionDataProvider(me);
