@@ -209,13 +209,16 @@ public class CollaborationDataManager {
                             user.type = Type.AVAILABLE;
                             user.statusMessage = loginData.getModeMessage();
                         } catch (Exception e) {
-                            statusHandler.handle(Priority.PROBLEM,
-                                    e.getLocalizedMessage(), e);
                             MessageBox box = new MessageBox(shell, SWT.ERROR);
-                            box.setText("Log On Failed");
-                            box.setMessage(e.getMessage());
+                            box.setText("Login Failed");
+                            if (e.getMessage() != null) {
+                                box.setMessage(e.getMessage());
+                            } else {
+                                box.setMessage("Login Failed.");
+                            }
                             box.open();
-                            e.printStackTrace();
+                            // statusHandler.handle(Priority.WARN,
+                            // e.getLocalizedMessage(), e);
                         }
                     }
                 }
