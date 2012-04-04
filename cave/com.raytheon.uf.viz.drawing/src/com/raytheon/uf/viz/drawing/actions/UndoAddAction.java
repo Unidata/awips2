@@ -57,7 +57,7 @@ public class UndoAddAction extends AbstractHandler {
             if (pair.getResource() instanceof DrawingLayer) {
                 ((DrawingLayer) pair.getResource()).undoAdd();
                 ((DrawingLayer) pair.getResource()).getEventBus().post(
-                        new DrawingEvent(null, null));
+                        new DrawingEvent());
                 break;
             }
         }
