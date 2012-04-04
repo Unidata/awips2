@@ -458,6 +458,10 @@ public class CollaborationDataManager {
                 sb.append("Inviter: ").append(inviter.getName()).append("\n");
                 sb.append("Room: ").append(room.getName()).append("\n");
                 sb.append("Subject: ").append(invitation.getSubject());
+                if (invitation.getBody() != null) {
+                    sb.append("\n").append("Message: ")
+                            .append(invitation.getBody());
+                }
                 box.setMessage(sb.toString());
                 if (SWT.OK != box.open()) {
                     return;

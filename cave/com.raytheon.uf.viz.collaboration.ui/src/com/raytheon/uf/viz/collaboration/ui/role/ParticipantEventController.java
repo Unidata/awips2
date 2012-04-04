@@ -27,7 +27,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IInitData;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
-import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditorInputHandler;
 import com.raytheon.uf.viz.collaboration.ui.editor.EditorSetup;
 import com.raytheon.uf.viz.collaboration.ui.editor.SharedEditor;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationResource;
@@ -38,7 +37,6 @@ import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.rsc.IInputHandler.InputPriority;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.drawing.PathDrawingResourceData;
 
@@ -81,10 +79,6 @@ public class ParticipantEventController extends AbstractRoleEventController {
                     CollaborationEditor editor = EditorSetup.createEditor(se);
                     initializeResources(editor.getActiveDisplayPane()
                             .getDescriptor());
-                    editor.registerMouseHandler(
-                            new CollaborationEditorInputHandler(session, editor
-                                    .getDisplayPanes()[0]),
-                            InputPriority.SYSTEM_RESOURCE);
                     CollaborationDataManager.getInstance().editorCreated(
                             session.getSessionId(), editor);
 
