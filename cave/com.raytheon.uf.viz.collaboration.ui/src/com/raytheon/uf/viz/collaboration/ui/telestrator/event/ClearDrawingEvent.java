@@ -17,9 +17,11 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.ui.telestrator;
+package com.raytheon.uf.viz.collaboration.ui.telestrator.event;
 
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent;
+import com.raytheon.uf.viz.drawing.events.DrawingEvent;
 
 /**
  * TODO Add Description
@@ -30,7 +32,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 26, 2012            mnash     Initial creation
+ * Apr 4, 2012            mnash     Initial creation
  * 
  * </pre>
  * 
@@ -38,6 +40,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent;
  * @version 1.0
  */
 
-public class TelestratorObject implements IDisplayEvent {
+@DynamicSerialize
+public class ClearDrawingEvent extends DrawingEvent implements IDisplayEvent {
 
 }

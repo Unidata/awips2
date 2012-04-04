@@ -20,9 +20,11 @@
 package com.raytheon.uf.viz.collaboration.ui.role;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
+import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationPathDrawingTool;
 import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationPathToolbar;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.drawing.PathToolbar;
+import com.raytheon.uf.viz.drawing.tools.PathDrawingTool;
 
 /**
  * TODO Add Description
@@ -63,6 +65,11 @@ public class SessionLeaderEventController extends AbstractRoleEventController {
         VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
+                // activate the drawing tool by default for the session leader
+                PathDrawingTool tool = new CollaborationPathDrawingTool();
+                tool.activate();
+
+                // open the path drawing toolbar
                 PathToolbar toolbar = CollaborationPathToolbar.getToolbar();
                 toolbar.open();
             }

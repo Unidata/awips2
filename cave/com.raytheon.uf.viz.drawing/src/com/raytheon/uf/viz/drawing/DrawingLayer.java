@@ -163,7 +163,7 @@ public class DrawingLayer extends
      * @param shape
      * @param wShape
      */
-    private void drawTempLinePrimitive(Geometry shape, IWireframeShape wShape) {
+    protected void drawTempLinePrimitive(Geometry shape, IWireframeShape wShape) {
         LineString line = (LineString) shape;
 
         int pts = line.getNumPoints();
@@ -214,7 +214,9 @@ public class DrawingLayer extends
     public void finalizeLine(LineString line, String uuid) {
         tempWireframeShape.compile();
         wireframeShapes.put(line, tempWireframeShape);
-        DrawingEvent event = new DrawingEvent(line, null);
+
+        // this will update the toolbar if necessary
+        DrawingEvent event = new DrawingEvent();
         eventBus.post(event);
     }
 
