@@ -19,8 +19,8 @@
  **/
 package com.raytheon.uf.viz.drawing.events;
 
-import com.raytheon.viz.ui.editor.AbstractEditor;
-import com.vividsolutions.jts.geom.Geometry;
+import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
  * TODO Add Description
@@ -39,28 +39,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * @version 1.0
  */
 
-public class DrawingEvent {
+@DynamicSerialize
+public class DrawingEvent implements ISerializableObject {
 
-    private AbstractEditor editor;
-
-    private Geometry geom;
-
-    public DrawingEvent(Geometry geom, AbstractEditor editor) {
-        this.geom = geom;
-        this.editor = editor;
-    }
-
-    /**
-     * @return the geom
-     */
-    public Geometry getGeom() {
-        return geom;
-    }
-
-    /**
-     * @return the editor
-     */
-    public AbstractEditor getEditor() {
-        return editor;
-    }
 }
