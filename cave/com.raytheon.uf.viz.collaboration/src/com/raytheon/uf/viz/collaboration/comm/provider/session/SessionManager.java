@@ -217,12 +217,13 @@ public class SessionManager implements IEventPublisher {
 
     /**
      * Return the account string that was used to create this manager.
-     * @return The account string. 
+     * 
+     * @return The account string.
      */
     public String getAccount() {
         return account;
     }
-    
+
     /**
      * Get the account manager for this connection.
      * 
@@ -612,6 +613,12 @@ public class SessionManager implements IEventPublisher {
 
                             IChatID invitor = new VenueUserId(id.getName(),
                                     id.getHost(), id.getResource());
+
+                            if (subject == null) {
+                                subject = presenceAdapter.getChatRoomManager()
+                                        .getChatRoomInfo(roomID.getName())
+                                        .getSubject();
+                            }
 
                             IVenueInvitationEvent invite = new VenueInvitationEvent(
                                     venueId, invitor, subject, body);
