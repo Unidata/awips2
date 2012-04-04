@@ -19,15 +19,23 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.telestrator;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.RGB;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
+import com.google.common.eventbus.Subscribe;
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
+import com.raytheon.uf.viz.collaboration.ui.telestrator.event.ClearDrawingEvent;
+import com.raytheon.uf.viz.collaboration.ui.telestrator.event.CollaborationDrawingEvent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -37,6 +45,9 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.drawing.DrawingLayer;
 import com.raytheon.uf.viz.drawing.PathDrawingResourceData;
+import com.raytheon.viz.ui.EditorUtil;
+import com.raytheon.viz.ui.editor.AbstractEditor;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
 
 /**
@@ -59,7 +70,11 @@ import com.vividsolutions.jts.geom.LineString;
 
 public class CollaborationDrawingLayer extends DrawingLayer {
 
-    private Multimap<Color, IWireframeShape> collaboratorShapes;
+    private Multimap<RGB, IWireframeShape> collaboratorShapes;
+
+    private List<IWireframeShape> deletedCollaboratorShapes;
+
+    private RGB officialColor = null;
 
     /**
      * @param data
@@ -68,6 +83,48 @@ public class CollaborationDrawingLayer extends DrawingLayer {
     public CollaborationDrawingLayer(PathDrawingResourceData data,
             LoadProperties props) {
         super(data, props);
+        AbstractEditor editor = EditorUtil
+                .getActiveEditorAs(AbstractEditor.class);
+        CollaborationDataManager mgr = CollaborationDataManager.getInstance();
+        for (String str : mgr.getSessions().keySet()) {
+            if (editor.equals(mgr.getEditor(str))) {
+                mgr.getSession(str).registerEventHandler(this);
+                break;
+            }
+        }
+    }
+
+    @Subscribe
+    public void handle(IDisplayEvent event) {
+        if (event instanceof ClearDrawingEvent) {
+            resetTemp();
+            disposeInternal();
+            issueRefresh();
+        } else if (event instanceof CollaborationDrawingEvent) {
+            CollaborationDrawingEvent collEvent = (CollaborationDrawingEvent) event;
+            addCollaborationShape(collEvent.getGeom(),
+                    getCapability(ColorableCapability.class).getColor());
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.drawing.DrawingLayer#reset()
+     */
+    @Override
+    public void reset() {
+        super.reset();
+        ClearDrawingEvent event = new ClearDrawingEvent();
+        Map<String, IVenueSession> sessions = CollaborationDataManager
+                .getInstance().getSessions();
+        for (String str : sessions.keySet()) {
+            try {
+                ((ISharedDisplaySession) sessions.get(str)).sendEvent(event);
+            } catch (CollaborationException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /*
@@ -81,7 +138,13 @@ public class CollaborationDrawingLayer extends DrawingLayer {
     protected void initInternal(IGraphicsTarget target) throws VizException {
         super.initInternal(target);
         this.collaboratorShapes = HashMultimap.create();
-        getCapabilities().removeCapability(ColorableCapability.class);
+        this.collaboratorShapes = Multimaps
+                .synchronizedMultimap(this.collaboratorShapes);
+        this.deletedCollaboratorShapes = new ArrayList<IWireframeShape>();
+        TelestratorColorManager colorManager = TelestratorColorManager
+                .getColorManager();
+        officialColor = colorManager.getColorFromUser(CollaborationDataManager
+                .getInstance().getLoginId());
     }
 
     /*
@@ -99,11 +162,30 @@ public class CollaborationDrawingLayer extends DrawingLayer {
 
         OutlineCapability outline = getCapability(OutlineCapability.class);
         // paint the shapes that come over from others
-        for (Color color : collaboratorShapes.keySet()) {
-            for (IWireframeShape sh : collaboratorShapes.get(color)) {
-                target.drawWireframeShape(sh, color.getRGB(),
-                        outline.getOutlineWidth(), outline.getLineStyle());
+        synchronized (collaboratorShapes) {
+            for (RGB color : collaboratorShapes.keySet()) {
+                for (IWireframeShape sh : collaboratorShapes.get(color)) {
+                    target.drawWireframeShape(sh, color,
+                            outline.getOutlineWidth(), outline.getLineStyle());
+                }
             }
+        }
+    }
+
+    public void addCollaborationShape(Geometry geom, RGB color) {
+        IWireframeShape shape = target.createWireframeShape(false,
+                getDescriptor());
+        drawTempLinePrimitive(geom, shape);
+        synchronized (collaboratorShapes) {
+            collaboratorShapes.put(color, shape);
+        }
+        issueRefresh();
+    }
+
+    public void removeCollaborationShape(Geometry geom, RGB color) {
+        synchronized (collaboratorShapes) {
+            // deletedCollaboratorShapes.
+            // collaboratorShapes.remove(geom, color);
         }
     }
 
@@ -115,10 +197,18 @@ public class CollaborationDrawingLayer extends DrawingLayer {
     @Override
     protected void disposeInternal() {
         super.disposeInternal();
-        for (IWireframeShape shape : collaboratorShapes.values()) {
+        synchronized (collaboratorShapes) {
+            for (IWireframeShape shape : collaboratorShapes.values()) {
+                shape.dispose();
+            }
+        }
+
+        for (IWireframeShape shape : deletedCollaboratorShapes) {
             shape.dispose();
         }
+
         collaboratorShapes.clear();
+        deletedCollaboratorShapes.clear();
     }
 
     /*
@@ -131,21 +221,36 @@ public class CollaborationDrawingLayer extends DrawingLayer {
     @Override
     public void finalizeLine(LineString line, String uuid) {
         super.finalizeLine(line, uuid);
+        sendDrawEvent(line);
+    }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.drawing.DrawingLayer#addTempDrawLine(com.vividsolutions
+     * .jts.geom.LineString)
+     */
+    @Override
+    public void addTempDrawLine(LineString line) {
+        super.addTempDrawLine(line);
+        // sendDrawEvent(line);
+    }
+
+    private void sendDrawEvent(LineString line) {
         Map<String, IVenueSession> sessions = CollaborationDataManager
                 .getInstance().getSessions();
-
-        TelestratorLine tObject = new TelestratorLine();
-        // set the coordinates of the TransferLine
-        tObject.setCoordinates(Arrays.asList(line.getCoordinates()));
+        CollaborationDrawingEvent tObject = new CollaborationDrawingEvent(line,
+                officialColor);
         // get the color of the user here, before sending it off
-        tObject.setColor(null);
-        // for (String str : sessions.keySet()) {
-        // try {
-        // ((ISharedDisplaySession) sessions.get(str)).sendEvent(tObject);
-        // } catch (CollaborationException e) {
-        // e.printStackTrace();
-        // }
-        // }
+        AbstractEditor editor = EditorUtil
+                .getActiveEditorAs(AbstractEditor.class);
+        for (String str : sessions.keySet()) {
+            try {
+                ((ISharedDisplaySession) sessions.get(str)).sendEvent(tObject);
+            } catch (CollaborationException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
