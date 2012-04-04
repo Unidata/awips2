@@ -245,6 +245,7 @@ public class CreateSessionDialog extends CaveSWTDialog {
                             result.setInviteUsers(false);
                         } else {
                             result.setInviteUsers(inviteUsers.getSelection());
+                            result.setInviteMessage(inviteMessageTF.getText());
                         }
                         setReturnValue(result);
                         CreateSessionDialog.this.getShell().dispose();
