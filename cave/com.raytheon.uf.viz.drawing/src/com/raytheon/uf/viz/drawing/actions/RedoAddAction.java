@@ -58,7 +58,7 @@ public class RedoAddAction extends AbstractHandler {
             if (pair.getResource() instanceof DrawingLayer) {
                 ((DrawingLayer) pair.getResource()).redoAdd();
                 ((DrawingLayer) pair.getResource()).getEventBus().post(
-                        new DrawingEvent(null, null));
+                        new DrawingEvent());
                 break;
             }
         }
