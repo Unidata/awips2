@@ -149,7 +149,6 @@ public class VenueSession extends BaseSession implements IVenueSession,
     VenueSession(IContainer container, EventBus externalBus,
             SessionManager manager) throws CollaborationException {
         super(container, externalBus, manager);
-
     }
 
     /**
@@ -352,10 +351,10 @@ public class VenueSession extends BaseSession implements IVenueSession,
         if (session != null) {
             String message = Tools.marshallData(initData);
             if (message != null) {
-                
+
                 TextMessage msg = new TextMessage(participant, message);
                 msg.setProperty(Tools.PROP_SESSION_ID, getSessionId());
-                
+
                 session.sendPeerToPeer(msg);
             }
         }
@@ -414,7 +413,7 @@ public class VenueSession extends BaseSession implements IVenueSession,
         if (session != null) {
             String message = Tools.marshallData(event);
             if (message != null) {
-                
+
                 TextMessage msg = new TextMessage(participant, message);
                 msg.setProperty(Tools.PROP_SESSION_ID, getSessionId());
                 session.sendPeerToPeer(msg);
@@ -659,7 +658,9 @@ public class VenueSession extends BaseSession implements IVenueSession,
                                 IChatRoomMessage m = ((IChatRoomMessageEvent) messageEvent)
                                         .getChatRoomMessage();
 
-                                distributeMessage(convertMessage(m));
+                                if (accept(m)) {
+                                    distributeMessage(convertMessage(m));
+                                }
                             }
                         }
                     };
@@ -671,6 +672,34 @@ public class VenueSession extends BaseSession implements IVenueSession,
             }
         }
         return errorStatus;
+    }
+
+    /**
+     * Examine the incoming message to determine if it should be forwarded. The
+     * method looks at the from identifier to determine who sent the message.
+     * 
+     * @param message
+     *            A message to accept.
+     * @return Should the message be accepted.
+     */
+    private boolean accept(IChatRoomMessage message) {
+        boolean acceptMessage = true;
+
+        String body = message.getMessage();
+        // Command data only
+        if (body.startsWith(SEND_CMD)) {
+            ID from = message.getFromID();
+
+            String name = Tools.parseName(from.getName());
+            String host = Tools.parseHost(from.getName());
+
+            String account = getSessionManager().getAccount();
+            String aName = Tools.parseName(account);
+            if (aName.equals(name)) {
+                acceptMessage = false;
+            }
+        }
+        return acceptMessage;
     }
 
     /**
