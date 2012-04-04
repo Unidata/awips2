@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.telestrator;
 
+import javax.xml.bind.annotation.XmlElement;
+
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
@@ -81,6 +83,6 @@ public class CollaborationPathDrawingResourceData extends
      */
     @Override
     public void setClassT(String classT) {
-
+        System.out.println("setClassT");
     }
 }
