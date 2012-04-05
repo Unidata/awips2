@@ -704,10 +704,11 @@ public interface IGraphicsTarget extends IImagingExtension {
             int sliceCount, double rotation, double lean);
 
     /**
-     * Gets the view type, e.g. 2D
+     * DEPRECATED: Should not be used for anything
      * 
      * @return
      */
+    @Deprecated
     public String getViewType();
 
     /**

@@ -21,7 +21,7 @@
 <?eclipse version="3.2"?>
 <plugin>
    <extension point="com.raytheon.uf.viz.core.graphicsFactory">
-    	<graphicsFactory id="default" type="2D" factoryClass="com.raytheon.viz.core.gl.GLFactoryAdapter"/>            
+    	<graphicsFactory id="default" factoryClass="com.raytheon.viz.core.gl.GLFactoryAdapter"/>            
    </extension>
       <extension
        point="com.raytheon.uf.viz.localization.localizationpath">
