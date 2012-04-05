@@ -241,7 +241,8 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                 System.out.println("room: " + info.getVenueName());
                 System.out.println("subject: "
                         + session.getVenue().getInfo().getVenueSubject());
-                session.sendInvitation(ids, "body");
+                session.sendInvitation(ids, session.getVenue().getInfo()
+                        .getVenueSubject());
             };
         };
         inviteAction.setImageDescriptor(IconUtil.getImageDescriptor(bundle,
@@ -595,19 +596,17 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
     }
 
     private void createCollaborationView(CreateSessionData result) {
-        String sessionId = null;
+        String sessionId = result.getSessionId();
         try {
-            CollaborationDataManager manager = CollaborationDataManager
-                    .getInstance();
-            sessionId = manager.createCollaborationSession(result.getName(),
-                    result.getSubject());
             if (result.isInviteUsers()) {
+                IVenueSession session = CollaborationDataManager.getInstance()
+                        .getSession(sessionId);
                 List<String> usersList = new ArrayList<String>();
                 for (CollaborationUser user : getSelectedUsers()) {
                     usersList.add(user.getId());
                 }
                 String b = result.getInviteMessage();
-                manager.getSession(sessionId).sendInvitation(usersList, b);
+                session.sendInvitation(usersList, b);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -642,20 +641,20 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
     }
 
     private void createPrivateView(CreateSessionData result) {
-        String sessionId = null;
-        try {
-            // TODO Do not use createCollaborationSession once private session
-            // implemented.
-            sessionId = CollaborationDataManager.getInstance()
-                    .createCollaborationSession(result.getName(),
-                            result.getSubject());
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (sessionId == null) {
-                return;
-            }
-        }
+        String sessionId = result.getSessionId();
+        // try {
+        // // TODO Do not use createCollaborationSession once private session
+        // // implemented.
+        // sessionId = CollaborationDataManager.getInstance()
+        // .createCollaborationSession(result.getName(),
+        // result.getSubject());
+        // } catch (Exception e) {
+        // e.printStackTrace();
+        // } finally {
+        // if (sessionId == null) {
+        // return;
+        // }
+        // }
 
         try {
             IViewPart part = PlatformUI
