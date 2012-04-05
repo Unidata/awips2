@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.collaboration.ui.telestrator.event;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent;
 import com.raytheon.uf.viz.drawing.events.DrawingEvent;
 
@@ -43,4 +44,21 @@ import com.raytheon.uf.viz.drawing.events.DrawingEvent;
 @DynamicSerialize
 public class ClearDrawingEvent extends DrawingEvent implements IDisplayEvent {
 
+    @DynamicSerializeElement
+    private String userName;
+
+    /**
+     * @return the userName
+     */
+    public String getUserName() {
+        return userName;
+    }
+
+    /**
+     * @param userName
+     *            the userName to set
+     */
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 }
