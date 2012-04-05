@@ -30,6 +30,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueParticipantEvent;
+import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.editor.EditorSetup;
 import com.raytheon.uf.viz.collaboration.ui.editor.SharedEditor;
 import com.raytheon.uf.viz.collaboration.ui.editor.event.InputEvent;
@@ -75,7 +76,8 @@ public class DataProviderEventController extends AbstractRoleEventController {
                     .getInstance().getActiveEditor();
             SharedEditor se = EditorSetup.extractSharedEditor(editor);
             try {
-                session.sendInitData(event.getParticipant().getQualifiedId(), se);
+                session.sendInitData(event.getParticipant().getQualifiedId(),
+                        se);
             } catch (CollaborationException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Error sending initialization data to new participant "
@@ -92,9 +94,9 @@ public class DataProviderEventController extends AbstractRoleEventController {
         // leader. ideally no InputEvents are sent when data provider and
         // session leader are one and the same
 
-        // TODO get the actively shared editor, not the active editor
-        AbstractEditor editor = (AbstractEditor) VizWorkbenchManager
-                .getInstance().getActiveEditor();
+        // TODO should we handle more than 1?
+        AbstractEditor editor = CollaborationDataManager.getInstance()
+                .getActivelySharedEditors(session.getSessionId()).get(0);
         IDisplayPane pane = editor.getDisplayPanes()[0];
         Event swtEvent = new Event();
 
