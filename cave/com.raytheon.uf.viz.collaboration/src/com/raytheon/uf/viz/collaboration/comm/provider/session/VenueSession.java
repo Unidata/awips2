@@ -62,6 +62,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Errors;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
+import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.info.InfoAdapter;
 import com.raytheon.uf.viz.collaboration.comm.provider.info.Venue;
@@ -125,8 +126,6 @@ public class VenueSession extends BaseSession implements IVenueSession,
 
     private EnumSet<ParticipantRole> roles = EnumSet
             .noneOf(ParticipantRole.class);
-
-    private Map<Object, Object> initSubscribers = new HashMap<Object, Object>();
 
     private String subject;
 
@@ -361,43 +360,6 @@ public class VenueSession extends BaseSession implements IVenueSession,
     }
 
     /**
-     * Subscribe to peer to peer data events.
-     * 
-     * @param An
-     *            object that subscribes to peer to peer events.
-     */
-    @Override
-    public void subscribeToPeerToPeerData(Object subscriber)
-            throws CollaborationException {
-        if (!initSubscribers.containsKey(subscriber)) {
-            initSubscribers.put(subscriber, subscriber);
-        }
-
-        PeerToPeerChat session = getP2PSession();
-        if (session != null) {
-            session.registerEventHandler(subscriber);
-        }
-    }
-
-    /**
-     * UnSubscribe to peer to peer data events.
-     * 
-     * @param An
-     *            object that will be unsubscribed for peer to peer events.
-     */
-    @Override
-    public void unSubscribeToPeerToPeerData(Object subscriber)
-            throws CollaborationException {
-        if (initSubscribers.containsKey(subscriber)) {
-            initSubscribers.remove(subscriber);
-            PeerToPeerChat session = getP2PSession();
-            if (session != null) {
-                session.unRegisterEventHandler(subscriber);
-            }
-        }
-    }
-
-    /**
      * 
      * @param participant
      * @param event
@@ -447,6 +409,20 @@ public class VenueSession extends BaseSession implements IVenueSession,
             throws CollaborationException {
         if (renderable != null) {
             String message = Tools.marshallData(renderable);
+            if (message != null) {
+                sendTextMessage(message);
+            }
+        }
+    }
+
+    @Override
+    public void sendTransferRole(String participant, ParticipantRole role)
+            throws CollaborationException {
+        if (participant != null && role != ParticipantRole.PARTICIPANT) {
+            TransferRoleCommand trc = new TransferRoleCommand();
+            trc.setRole(role);
+            trc.setUser(participant);
+            String message = Tools.marshallData(trc);
             if (message != null) {
                 sendTextMessage(message);
             }

@@ -31,8 +31,8 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
  * 
  * 
  * <ul>
- * <li>EventBus subscription events. Implementors may to post the
- * following events.</li>
+ * <li>EventBus subscription events. Implementors may to post the following
+ * events.</li>
  * <ul>
  * <li><strong>IVenueParticipantEvent</strong> : This event is posted when a
  * venue participant enters, leaves a venue, or updates their status in the
@@ -78,19 +78,6 @@ public interface ISharedDisplaySession extends IEventPublisher {
 
     /**
      * 
-     * @param subscriber
-     */
-    void subscribeToPeerToPeerData(Object subscriber) throws CollaborationException;
-
-    /**
-     * 
-     * @param subscriber
-     * @throws CollaborationException
-     */
-    void unSubscribeToPeerToPeerData(Object subscriber) throws CollaborationException;
-
-    /**
-     * 
      * @param event
      */
     void sendEvent(IDisplayEvent event) throws CollaborationException;
@@ -102,6 +89,9 @@ public interface ISharedDisplaySession extends IEventPublisher {
      * 
      */
     void sendRenderableObject(IRenderable renderable)
+            throws CollaborationException;
+
+    void sendTransferRole(String fqName, ParticipantRole role)
             throws CollaborationException;
 
     /**
