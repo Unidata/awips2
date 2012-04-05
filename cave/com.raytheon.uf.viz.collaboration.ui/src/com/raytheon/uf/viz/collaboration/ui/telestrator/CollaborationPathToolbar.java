@@ -106,4 +106,13 @@ public class CollaborationPathToolbar extends PathToolbar {
         // });
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.drawing.PathToolbar#updateToolbar()
+     */
+    @Override
+    public void updateToolbar() {
+        super.updateToolbar();
+    }
 }
