@@ -24,12 +24,12 @@ import java.util.Map;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 
+import com.raytheon.uf.viz.core.AbstractGraphicsFactoryAdapter;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IView;
-import com.raytheon.uf.viz.core.IView.POVShiftType;
 
 /**
  * This interface defines the combination of a renderable object and the area
@@ -129,13 +129,6 @@ public interface IRenderableDisplay extends IRenderable {
     public void setDescriptor(IDescriptor desc);
 
     /**
-     * Get the type of the display.
-     * 
-     * @return
-     */
-    public abstract String getDisplayType();
-
-    /**
      * Get the internal view representation from this display. Note, this is
      * really only for use in initializing a PaintProperties object and for
      * child classes which need to access their internal view representation,
@@ -222,26 +215,6 @@ public interface IRenderableDisplay extends IRenderable {
      * @param target
      */
     abstract public void shiftExtent(double[] startScreen, double[] endScreen,
-            IGraphicsTarget target);
-
-    /**
-     * Change the point of view based on mouse position change
-     * 
-     * @param shiftType
-     * 
-     * @param last
-     * @param current
-     */
-    public abstract boolean shiftPOV(double[] lastMouse, double[] currentMouse,
-            POVShiftType shiftType, IGraphicsTarget target);
-
-    /**
-     * Set the focus point on the map from the mouse position
-     * 
-     * @param currentMouse
-     * @return
-     */
-    public abstract boolean setFocalPoint(double[] currentMouse,
             IGraphicsTarget target);
 
     /**
@@ -357,4 +330,18 @@ public interface IRenderableDisplay extends IRenderable {
      * Notify the display to refresh
      */
     public void refresh();
+
+    /**
+     * Get the graphics adapter for the display
+     * 
+     * @return
+     */
+    public AbstractGraphicsFactoryAdapter getGraphicsAdapter();
+
+    /**
+     * Set the graphics adapter for the display
+     * 
+     * @param adapter
+     */
+    public void setGraphicsAdapter(AbstractGraphicsFactoryAdapter adapter);
 }

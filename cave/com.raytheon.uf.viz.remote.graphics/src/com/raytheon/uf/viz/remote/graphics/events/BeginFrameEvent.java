@@ -45,6 +45,12 @@ public class BeginFrameEvent extends AbstractRemoteGraphicsEvent {
     @DynamicSerializeElement
     private boolean clear;
 
+    @DynamicSerializeElement
+    private double extentFactor;
+
+    @DynamicSerializeElement
+    private double[] extentCenter;
+
     /**
      * @return the clear
      */
@@ -58,6 +64,36 @@ public class BeginFrameEvent extends AbstractRemoteGraphicsEvent {
      */
     public void setClear(boolean clear) {
         this.clear = clear;
+    }
+
+    /**
+     * @return the extentFactor
+     */
+    public double getExtentFactor() {
+        return extentFactor;
+    }
+
+    /**
+     * @param extentFactor
+     *            the extentFactor to set
+     */
+    public void setExtentFactor(double extentFactor) {
+        this.extentFactor = extentFactor;
+    }
+
+    /**
+     * @return the extentCenter
+     */
+    public double[] getExtentCenter() {
+        return extentCenter;
+    }
+
+    /**
+     * @param extentCenter
+     *            the extentCenter to set
+     */
+    public void setExtentCenter(double[] extentCenter) {
+        this.extentCenter = extentCenter;
     }
 
 }
