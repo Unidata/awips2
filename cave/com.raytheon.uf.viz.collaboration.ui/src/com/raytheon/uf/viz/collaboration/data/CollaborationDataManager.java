@@ -19,8 +19,10 @@
  **/
 package com.raytheon.uf.viz.collaboration.data;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.swt.SWT;
@@ -54,13 +56,15 @@ import com.raytheon.uf.viz.collaboration.comm.provider.session.SessionManager;
 import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginData;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginDialog;
-import com.raytheon.uf.viz.collaboration.ui.role.AbstractRoleEventController;
 import com.raytheon.uf.viz.collaboration.ui.role.DataProviderEventController;
+import com.raytheon.uf.viz.collaboration.ui.role.IRoleEventController;
 import com.raytheon.uf.viz.collaboration.ui.role.ParticipantEventController;
 import com.raytheon.uf.viz.collaboration.ui.role.SessionLeaderEventController;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.PeerToPeerView;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.viz.ui.VizWorkbenchManager;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
  * A single class that contains all data information.
@@ -111,7 +115,7 @@ public class CollaborationDataManager {
      */
     Map<String, IVenueSession> sessionsMap;
 
-    private Multimap<String, AbstractRoleEventController> roleEventControllersMap;
+    private Multimap<String, IRoleEventController> roleEventControllersMap;
 
     Map<String, CollaborationEditor> editorsMap;
 
@@ -332,10 +336,10 @@ public class CollaborationDataManager {
             }
         }
 
-        Collection<AbstractRoleEventController> controller = roleEventControllersMap
+        Collection<IRoleEventController> controller = roleEventControllersMap
                 .removeAll(sessionId);
         if (controller != null) {
-            for (AbstractRoleEventController cont : controller) {
+            for (IRoleEventController cont : controller) {
                 cont.shutdown();
             }
         }
@@ -577,5 +581,19 @@ public class CollaborationDataManager {
             }
         }
         return result;
+    }
+
+    public Collection<IRoleEventController> getEventControllers(String sessionId) {
+        return roleEventControllersMap.get(sessionId);
+    }
+
+    public List<AbstractEditor> getActivelySharedEditors(String sessionId) {
+        List<AbstractEditor> list = new ArrayList<AbstractEditor>();
+
+        // TODO actually keep track of a list and return that
+        // list should be empty if you're not the data provider
+        list.add((AbstractEditor) VizWorkbenchManager.getInstance()
+                .getActiveEditor());
+        return list;
     }
 }
