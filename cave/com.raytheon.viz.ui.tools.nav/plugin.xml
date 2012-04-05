@@ -57,24 +57,6 @@
 	         	     </with>
                  </visibleWhen>
                </command>
-               <command
-                     commandId="com.raytheon.viz.ui.tools.nav.ShiftRollYaw"
-                     icon="icons/rotate.gif"
-                     label="Rotate"
-                     style="toggle">
-                  <visibleWhen>
-                  <and>
-                     <test
-                           forcePluginActivation="true"
-                           property="com.raytheon.viz.ui.tools.nav.is3DEnabled"
-                           value="true">
-                     </test>
-                     <reference
-                           definitionId="com.raytheon.viz.ui.inVizActionSet">
-                     </reference>
-                  </and>
-                  </visibleWhen>
-               </command>
       </menuContribution>
    </extension>
    <extension
@@ -93,11 +75,6 @@
             id="com.raytheon.viz.ui.tools.nav.ZoomTool"
             name="Zoom">
       </command>
-      <command
-            categoryId="com.raytheon.viz.ui.modalTool.nav"
-            id="com.raytheon.viz.ui.tools.nav.ShiftRollYaw"
-            name="Rotate">
-      </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
@@ -109,19 +86,5 @@
             class="com.raytheon.viz.ui.tools.nav.ZoomTool"
             commandId="com.raytheon.viz.ui.tools.nav.ZoomTool">
       </handler>
-      <handler
-            class="com.raytheon.viz.ui.tools.nav.ShiftRollYaw"
-            commandId="com.raytheon.viz.ui.tools.nav.ShiftRollYaw">
-      </handler>
-   </extension>
-   <extension
-         point="org.eclipse.core.expressions.propertyTesters">
-      <propertyTester
-            class="com.raytheon.viz.ui.tools.nav.PropertyTester3D"
-            id="com.raytheon.viz.ui.tools.nav.PropertyTester3D"
-            namespace="com.raytheon.viz.ui.tools.nav"
-            properties="is3DEnabled,in3DMode"
-            type="java.lang.Object">
-      </propertyTester>
    </extension>
 </plugin>
