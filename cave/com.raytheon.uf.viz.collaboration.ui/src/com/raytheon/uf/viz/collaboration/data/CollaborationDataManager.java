@@ -396,37 +396,46 @@ public class CollaborationDataManager {
      * @return sessionId - the key to use to retrieve the sesson or null if
      *         unable to create the session
      */
-    public String createCollaborationSession(String venue, String subject) {
-        SessionManager manager = getSessionManager();
+    public String createCollaborationSession(String venue, String subject)
+            throws CollaborationException {
+        SessionManager sessionManager = getSessionManager();
         IVenueSession session = null;
         String sessionId = null;
-        try {
-            session = manager.createCollaborationVenue(venue, subject);
-            // sessionId = venueIdToSessionId(session.getVenue().getInfo()
-            // .getVenueID());
-            sessionId = session.getSessionId();
-            // TODO throw an exception if unable to make connection?
-            if (session.isConnected()) {
-                ISharedDisplaySession displaySession = session
-                        .spawnSharedDisplaySession();
-                sessionsMap.put(sessionId, session);
-                DataProviderEventController dpec = new DataProviderEventController(
-                        displaySession);
-                dpec.startup();
-                SessionLeaderEventController slec = new SessionLeaderEventController(
-                        displaySession);
-                slec.startup();
-                roleEventControllersMap.put(sessionId, dpec);
-                roleEventControllersMap.put(sessionId, slec);
-                // TODO set displaySession's data provider and session leader.
-            }
-        } catch (CollaborationException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-            sessionId = null;
+        // try {
+        session = sessionManager.createCollaborationVenue(venue, subject);
+        // sessionId = venueIdToSessionId(session.getVenue().getInfo()
+        // .getVenueID());
+        sessionId = session.getSessionId();
+        // TODO throw an exception if unable to make connection?
+        if (session.isConnected()) {
+            ISharedDisplaySession displaySession = session
+                    .spawnSharedDisplaySession();
+            sessionsMap.put(sessionId, session);
+            DataProviderEventController dpec = new DataProviderEventController(
+                    displaySession);
+            dpec.startup();
+            SessionLeaderEventController slec = new SessionLeaderEventController(
+                    displaySession);
+            slec.startup();
+            roleEventControllersMap.put(sessionId, dpec);
+            roleEventControllersMap.put(sessionId, slec);
+            // TODO set displaySession's data provider and session leader.
         }
-
         // TODO Start CAVE editor associated with this session and make sure the
         // user is data provider and session leader.
+        return sessionId;
+    }
+
+    public String createTextOnlySession(String venueName, String subject)
+            throws CollaborationException {
+        SessionManager sessionManager = getSessionManager();
+        IVenueSession session = null;
+        String sessionId = null;
+        session = sessionManager.createTextOnlyVenue(venueName, subject);
+        if (session.isConnected()) {
+            sessionId = session.getSessionId();
+            sessionsMap.put(sessionId, session);
+        }
         return sessionId;
     }
 
