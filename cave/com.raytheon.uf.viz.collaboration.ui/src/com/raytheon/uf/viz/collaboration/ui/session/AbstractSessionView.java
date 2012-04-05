@@ -44,6 +44,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
@@ -245,6 +246,10 @@ public abstract class AbstractSessionView extends ViewPart implements
 
     public void appendMessage(String fqName, String name, long timestamp,
             String body) {
+        IWorkbenchSiteProgressService service = (IWorkbenchSiteProgressService) getSite()
+                .getAdapter(IWorkbenchSiteProgressService.class);
+        service.warnOfContentChange();
+
         // String fqName = message.getFrom().getFQName();
         // String name = message.getFrom().getName();
         if (name == null) {
@@ -349,8 +354,6 @@ public abstract class AbstractSessionView extends ViewPart implements
      */
     @Override
     public void partBroughtToTop(IWorkbenchPart part) {
-        // TODO Auto-generated method stub
-
     }
 
     /*
