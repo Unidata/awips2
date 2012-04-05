@@ -30,6 +30,8 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -41,6 +43,7 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
@@ -95,6 +98,16 @@ public class CreateSessionDialog extends CaveSWTDialog {
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.minimumWidth = 200;
         nameTF.setLayoutData(gd);
+        nameTF.addVerifyListener(new VerifyListener() {
+
+            @Override
+            public void verifyText(VerifyEvent e) {
+                if (" \t\"&'/,<>@".indexOf(e.character) >= 0) {
+                    e.doit = false;
+                    // Toolkit.getDefaultToolkit().beep();
+                }
+            }
+        });
 
         label = new Label(body, SWT.NONE);
         label.setText("Subject: ");
@@ -247,8 +260,29 @@ public class CreateSessionDialog extends CaveSWTDialog {
                             result.setInviteUsers(inviteUsers.getSelection());
                             result.setInviteMessage(inviteMessageTF.getText());
                         }
-                        setReturnValue(result);
-                        CreateSessionDialog.this.getShell().dispose();
+                        CollaborationDataManager manager = CollaborationDataManager
+                                .getInstance();
+                        String sessionId = null;
+                        try {
+                            if (result.isCollaborationSession()) {
+                                sessionId = manager.createCollaborationSession(
+                                        result.getName(), result.getSubject());
+                            } else {
+                                sessionId = manager.createTextOnlySession(
+                                        result.getName(), result.getSubject());
+                            }
+                            result.setSessionId(sessionId);
+                            setReturnValue(result);
+                            CreateSessionDialog.this.getShell().dispose();
+                        } catch (CollaborationException ex) {
+                            MessageBox messageBox = new MessageBox(event.widget
+                                    .getDisplay().getActiveShell(), SWT.ERROR);
+                            messageBox.setText("Session Creation Error");
+                            messageBox.setMessage(ex.getMessage());
+                            messageBox.open();
+                            event.doit = false;
+                            setReturnValue(null);
+                        }
                     } else {
                         StringBuilder sb = new StringBuilder();
                         String prefix = "";
