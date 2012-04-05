@@ -25,11 +25,15 @@ import org.eclipse.swt.widgets.Composite;
 import org.opengis.coverage.grid.GridEnvelope;
 
 import com.raytheon.uf.viz.core.AbstractGraphicsFactoryAdapter;
+import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IView;
+import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.remote.graphics.objects.ViewWrapper;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -69,9 +73,8 @@ public class DispatchingGraphicsFactory extends AbstractGraphicsFactoryAdapter {
      * com.raytheon.uf.viz.core.AbstractGraphicsFactoryAdapter#constructView()
      */
     @Override
-    public IView constructView() throws VizException {
-        // TODO: Construct DispatchingView?
-        return delegate.constructView();
+    public IView constructView() {
+        return new ViewWrapper(delegate.constructView());
     }
 
     /*
@@ -151,32 +154,28 @@ public class DispatchingGraphicsFactory extends AbstractGraphicsFactoryAdapter {
 
     public static void injectRemoteFunctionality(
             IDisplayPaneContainer container, DispatcherFactory factory) {
-        // TODO: Do this more cleanly and effectively
-        // for (IDisplayPane pane : container.getDisplayPanes()) {
-        // Dispatcher dispatcher = factory.createNewDispatcher();
-        //
-        // VizDisplayPane vizPane = (VizDisplayPane) pane;
-        //
-        // // Wrap view in dispatching view
-        // IRenderableDisplay display = pane.getRenderableDisplay();
-        // ((AbstractRenderableDisplay) display).setView(new ViewWrapper(
-        // display.getView()));
-        //
-        // // Wrap the graphics adapter in dispatching one
-        // vizPane.setGraphicsAdapter(new DispatchingGraphicsFactory(vizPane
-        // .getGraphicsAdapter(), dispatcher));
-        //
-        // // Wrap target in dispatching target
-        // vizPane.setTarget(new DispatchGraphicsTarget(vizPane.getTarget(),
-        // dispatcher));
-        // display.setup(vizPane.getTarget());
-        //
-        // for (ResourcePair rp : pane.getDescriptor().getResourceList()) {
-        // if (rp.getResource() != null) {
-        // rp.getResource().recycle();
-        // }
-        // }
-        // }
+        for (IDisplayPane pane : container.getDisplayPanes()) {
+            Dispatcher dispatcher = factory.createNewDispatcher();
+
+            // Wrap view in dispatching view
+            IRenderableDisplay display = pane.getRenderableDisplay();
+            // Wrap the graphics adapter in dispatching one
+            display.setGraphicsAdapter(new DispatchingGraphicsFactory(display
+                    .getGraphicsAdapter(), dispatcher));
+
+            // Force resetting of the pane's display
+            pane.setRenderableDisplay(null);
+            pane.setRenderableDisplay(display);
+
+            display.setup(pane.getTarget());
+
+            for (ResourcePair rp : pane.getDescriptor().getResourceList()) {
+                if (rp.getResource() != null) {
+                    rp.getResource().recycle();
+                }
+            }
+            pane.refresh();
+        }
     }
 
 }
