@@ -2268,6 +2268,7 @@ public class GLTarget implements IGLTarget {
     }
 
     @Override
+    @Deprecated
     public String getViewType() {
         return VizConstants.VIEW_2D;
     }
