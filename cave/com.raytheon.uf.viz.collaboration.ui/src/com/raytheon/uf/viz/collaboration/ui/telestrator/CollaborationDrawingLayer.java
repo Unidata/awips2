@@ -155,9 +155,9 @@ public class CollaborationDrawingLayer extends DrawingLayer {
     public void handle(IDisplayEvent event) {
         if (event instanceof ClearDrawingEvent) {
             resetTemp();
+            clearSelfShapes(((ClearDrawingEvent) event).getUserName());
             // TODO check if session leader, otherwise only remove my wireframe
             // shapes
-            clearSelfShapes(((ClearDrawingEvent) event).getUserName());
             if (/* if session leader */false) {
                 disposeInternal();
             }
