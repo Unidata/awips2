@@ -19,16 +19,12 @@
  **/
 package com.raytheon.uf.viz.remote.graphics.objects;
 
-import javax.vecmath.Vector3d;
-
 import org.eclipse.swt.graphics.Rectangle;
 
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IView;
 import com.raytheon.uf.viz.core.PixelCoverage;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.geom.Plane;
 import com.raytheon.uf.viz.remote.graphics.DispatchGraphicsTarget;
 
 /**
@@ -78,14 +74,6 @@ public class ViewWrapper implements IView {
 
     /**
      * @return
-     * @see com.raytheon.uf.viz.core.IView#getDisplayType()
-     */
-    public String getDisplayType() {
-        return delegate.getDisplayType();
-    }
-
-    /**
-     * @return
      * @see com.raytheon.uf.viz.core.IView#getZoom()
      */
     public double getZoom() {
@@ -99,22 +87,6 @@ public class ViewWrapper implements IView {
      */
     public double recalcZoomLevel(int[] dimensions) {
         return delegate.recalcZoomLevel(dimensions);
-    }
-
-    /**
-     * @param factor
-     * @see com.raytheon.uf.viz.core.IView#setElevationExaggeration(double)
-     */
-    public void setElevationExaggeration(double factor) {
-        delegate.setElevationExaggeration(factor);
-    }
-
-    /**
-     * @return
-     * @see com.raytheon.uf.viz.core.IView#getElevationExaggeration()
-     */
-    public double getElevationExaggeration() {
-        return delegate.getElevationExaggeration();
     }
 
     /**
@@ -174,14 +146,6 @@ public class ViewWrapper implements IView {
     }
 
     /**
-     * @param point
-     * @see com.raytheon.uf.viz.core.IView#setCenter(com.raytheon.uf.viz.core.Vector3d)
-     */
-    public void setCenter(Vector3d point) {
-        delegate.setCenter(point);
-    }
-
-    /**
      * @param screenCoordinate
      * @param target
      * @return
@@ -195,104 +159,12 @@ public class ViewWrapper implements IView {
     }
 
     /**
-     * @param lastMouse
-     * @param currentMouse
-     * @param shiftType
-     * @param target
-     * @return
-     * @see com.raytheon.uf.viz.core.IView#shiftPOV(double[], double[],
-     *      com.raytheon.uf.viz.core.IView.POVShiftType,
-     *      com.raytheon.uf.viz.core.IGraphicsTarget)
-     */
-    public boolean shiftPOV(double[] lastMouse, double[] currentMouse,
-            POVShiftType shiftType, IGraphicsTarget target) {
-        return delegate.shiftPOV(lastMouse, currentMouse, shiftType,
-                getDelegateTarget(target));
-    }
-
-    /**
-     * @param delta
-     * @see com.raytheon.uf.viz.core.IView#setTilt(double)
-     */
-    public void setTilt(double delta) {
-        delegate.setTilt(delta);
-    }
-
-    /**
-     * @return
-     * @see com.raytheon.uf.viz.core.IView#getTilt()
-     */
-    public double getTilt() {
-        return delegate.getTilt();
-    }
-
-    /**
-     * @param currentMouse
-     * @param target
-     * @return
-     * @see com.raytheon.uf.viz.core.IView#setFocalPoint(double[],
-     *      com.raytheon.uf.viz.core.IGraphicsTarget)
-     */
-    public boolean setFocalPoint(double[] currentMouse, IGraphicsTarget target) {
-        return delegate.setFocalPoint(currentMouse, getDelegateTarget(target));
-    }
-
-    /**
-     * @return
-     * @see com.raytheon.uf.viz.core.IView#getClippingPlanes()
-     */
-    public Plane[] getClippingPlanes() {
-        return delegate.getClippingPlanes();
-    }
-
-    /**
-     * @param point
-     * @return
-     * @see com.raytheon.uf.viz.core.IView#getEyeDistance(com.raytheon.uf.viz.core.Vector3d)
-     */
-    public double getEyeDistance(Vector3d point) {
-        return delegate.getEyeDistance(point);
-    }
-
-    /**
-     * @return
-     * @see com.raytheon.uf.viz.core.IView#getEye()
-     */
-    public double[] getEye() {
-        return delegate.getEye();
-    }
-
-    /**
-     * @param eye
-     * @see com.raytheon.uf.viz.core.IView#setEye(double[])
-     */
-    public void setEye(double[] eye) {
-        delegate.setEye(eye);
-    }
-
-    /**
-     * @return
-     * @see com.raytheon.uf.viz.core.IView#getFocalPoint()
-     */
-    public double[] getFocalPoint() {
-        return delegate.getFocalPoint();
-    }
-
-    /**
      * @param pc
      * @return
      * @see com.raytheon.uf.viz.core.IView#createExtent(com.raytheon.uf.viz.core.PixelCoverage)
      */
     public IExtent createExtent(PixelCoverage pc) {
         return delegate.createExtent(pc);
-    }
-
-    /**
-     * @throws VizException
-     * @see com.raytheon.uf.viz.core.IView#setClippingPlanes()
-     */
-    public void setClippingPlanes() throws VizException {
-        delegate.setClippingPlanes();
     }
 
     /**

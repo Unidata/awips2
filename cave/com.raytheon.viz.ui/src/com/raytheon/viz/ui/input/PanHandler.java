@@ -211,13 +211,13 @@ public class PanHandler extends InputAdapter {
 
             if ((0 <= xMinThreshold && width >= xMaxThreshold) == false) {
                 if (((width < xMaxThreshold && theLastScreen[0] < aX) || (0 > xMinThreshold && theLastMouseX > aX)) == false) {
-                    aX2 = (int) theLastScreen[0];
+                    aX2 = theLastScreen[0];
                 }
             }
 
             if ((0 <= yMinThreshold && height >= yMaxThreshold) == false) {
                 if (((height < yMaxThreshold && theLastScreen[1] < aY) || (0 > yMinThreshold && theLastMouseY > aY)) == false) {
-                    aY2 = (int) theLastScreen[1];
+                    aY2 = theLastScreen[1];
                 }
             }
 
