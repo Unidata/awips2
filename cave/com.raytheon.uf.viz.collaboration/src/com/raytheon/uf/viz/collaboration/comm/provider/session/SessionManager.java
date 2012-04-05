@@ -60,6 +60,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.provider.Errors;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueInvitationEvent;
@@ -355,34 +356,55 @@ public class SessionManager implements IEventPublisher {
     public IVenueSession createCollaborationVenue(String venueName,
             String subject) throws CollaborationException {
         VenueSession session = null;
+        int errorStatus = -1;
         try {
             session = new VenueSession(container, eventBus, this);
             if (session != null) {
-                session.createVenue(venueName, subject);
+                errorStatus = session.createVenue(venueName, subject);
+                if (errorStatus == Errors.NO_ERROR) {
+                    String name = Tools.parseName(account);
+                    String host = Tools.parseHost(account);
 
-                String name = Tools.parseName(account);
-                String host = Tools.parseHost(account);
+                    IChatID me = new VenueUserId(name, host);
 
-                IChatID me = new VenueUserId(name, host);
+                    session.setSessionLeader(me);
+                    session.setSessionDataProvider(me);
 
-                session.setSessionLeader(me);
-                session.setSessionDataProvider(me);
+                    IPresence presence = new Presence();
+                    presence.setMode(IPresence.Mode.AVAILABLE);
+                    presence.setType(IPresence.Type.AVAILABLE);
+                    presence.setProperty("DATA_PROVIDER", me.getFQName());
+                    presence.setProperty("SESSION_LEADER", me.getFQName());
 
-                IPresence presence = new Presence();
-                presence.setMode(IPresence.Mode.AVAILABLE);
-                presence.setType(IPresence.Type.AVAILABLE);
-                presence.setProperty("DATA_PROVIDER", me.getFQName());
-                presence.setProperty("SESSION_LEADER", me.getFQName());
+                    presenceAdapter
+                            .getRosterManager()
+                            .getPresenceSender()
+                            .sendPresenceUpdate(null,
+                                    Presence.convertPresence(presence));
 
-                presenceAdapter
-                        .getRosterManager()
-                        .getPresenceSender()
-                        .sendPresenceUpdate(null,
-                                Presence.convertPresence(presence));
-
-                sessions.put(session.getSessionId(), session);
+                    sessions.put(session.getSessionId(), session);
+                }
             }
         } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (errorStatus != Errors.NO_ERROR) {
+                // TODO handle this in a more generic way
+                String message = null;
+                switch (errorStatus) {
+                case Errors.BAD_NAME:
+                    message = "Badly formed session name.";
+                    break;
+                case Errors.VENUE_EXISTS:
+                    message = "Session name already in use.";
+                    break;
+                case Errors.CANNOT_CONNECT:
+                    message = "Unable to connect.";
+                default:
+                    message = "Unknown problem creating session";
+                }
+                throw new CollaborationException(message);
+            }
         }
         return session;
     }
