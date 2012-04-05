@@ -27,6 +27,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
@@ -67,11 +68,7 @@ public class CollaborationSessionView extends SessionView {
         switchToAction = new Action("Transfer Role...",
                 Action.AS_DROP_DOWN_MENU) {
             public void run() {
-                if ("DataProvider".equals(switchToAction.getId())) {
-                    switchDataProvider();
-                } else if ("SessionLeader".equals(switchToAction.getId())) {
-                    switchLeader();
-                }
+                // do nothing
             };
         };
 
@@ -85,8 +82,11 @@ public class CollaborationSessionView extends SessionView {
                 }
                 Action leaderAction = new Action("Session Leader") {
                     public void run() {
-                        switchToAction.setId("SessionLeader");
-                        switchToAction.run();
+                        IStructuredSelection selection = (IStructuredSelection) usersTable
+                                .getSelection();
+                        CollaborationUser selectedUser = (CollaborationUser) selection
+                                .getFirstElement();
+                        switchLeader(selectedUser.getId());
                     };
                 };
                 ActionContributionItem leaderItem = new ActionContributionItem(
@@ -95,8 +95,11 @@ public class CollaborationSessionView extends SessionView {
 
                 Action dataProviderAction = new Action("Data Provider") {
                     public void run() {
-                        switchToAction.setId("DataProvider");
-                        switchToAction.run();
+                        IStructuredSelection selection = (IStructuredSelection) usersTable
+                                .getSelection();
+                        CollaborationUser selectedUser = (CollaborationUser) selection
+                                .getFirstElement();
+                        switchDataProvider(selectedUser.getId());
                     };
                 };
                 ActionContributionItem dataProviderItem = new ActionContributionItem(
@@ -118,12 +121,16 @@ public class CollaborationSessionView extends SessionView {
         switchToAction.setMenuCreator(creator);
     }
 
-    public void switchDataProvider() {
-        System.out.println("Send switchDataProvider request.");
+    private void switchDataProvider(String fqname) {
+        System.out.println("Send switchDataProvider request. " + fqname);
+        // TODO need to send invite/request for transfer, and then if successful
+        // deactivate the local ones since we won't receive the message
     }
 
-    public void switchLeader() {
-        System.out.println("Send switchLeader request");
+    private void switchLeader(String fqname) {
+        System.out.println("Send switchLeader request. " + fqname);
+        // TODO need to send invite/request for transfer, and then if successful
+        // deactivate the local ones since we won't receive the message
     }
 
     @Override
