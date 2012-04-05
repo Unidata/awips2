@@ -22,7 +22,6 @@ package com.raytheon.uf.viz.collaboration.ui.role;
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IInitData;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
@@ -31,14 +30,13 @@ import com.raytheon.uf.viz.collaboration.ui.editor.EditorSetup;
 import com.raytheon.uf.viz.collaboration.ui.editor.SharedEditor;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationResource;
 import com.raytheon.uf.viz.collaboration.ui.rsc.CollaborationResourceData;
-import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationPathDrawingResourceData;
+import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationPathDrawingTool;
 import com.raytheon.uf.viz.collaboration.ui.telestrator.CollaborationPathToolbar;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.drawing.PathDrawingResourceData;
+import com.raytheon.uf.viz.drawing.PathToolbar;
+import com.raytheon.uf.viz.drawing.tools.PathDrawingTool;
 
 /**
  * Handles the events of a session that are specific to the Participant role.
@@ -83,23 +81,9 @@ public class ParticipantEventController extends AbstractRoleEventController {
                             session.getSessionId(), editor);
 
                     // activate the drawing tool by default for participants
-                    PathDrawingResourceData data = new CollaborationPathDrawingResourceData();
-                    try {
-                        editor.getActiveDisplayPane()
-                                .getDescriptor()
-                                .getResourceList()
-                                .add(data.construct(new LoadProperties(),
-                                        editor.getActiveDisplayPane()
-                                                .getDescriptor()));
-                    } catch (VizException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                e.getLocalizedMessage(), e);
-                    }
-                    // PathDrawingTool tool = new
-                    // CollaborationPathDrawingTool();
-                    // tool.activate();
+                    PathDrawingTool tool = new CollaborationPathDrawingTool();
+                    tool.activate();
                 }
-
             });
         }
     }
@@ -123,13 +107,13 @@ public class ParticipantEventController extends AbstractRoleEventController {
     @Override
     public void startup() {
         super.startup();
-        // VizApp.runAsync(new Runnable() {
-        // @Override
-        // public void run() {
-        // PathToolbar toolbar = CollaborationPathToolbar.getToolbar();
-        // toolbar.open();
-        // }
-        // });
+        VizApp.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                PathToolbar toolbar = CollaborationPathToolbar.getToolbar();
+                toolbar.open();
+            }
+        });
     }
 
     /*
