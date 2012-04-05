@@ -587,11 +587,12 @@ public class VenueSession extends BaseSession implements IVenueSession,
                     errorStatus = Errors.VENUE_EXISTS;
                 }
             } else {
-
+                errorStatus = Errors.CANNOT_CONNECT; // is this correct?
             }
         } catch (Exception e) {
             System.out.println(String.format("createVenue(%s)", venueName));
             e.printStackTrace();
+            errorStatus = Errors.BAD_NAME;
         }
         return errorStatus;
     }
