@@ -202,4 +202,19 @@ public class PathDrawingTool extends AbstractDrawingTool {
                 true);
         theDrawingLayer.issueRefresh();
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.tools.AbstractModalTool#deactivate()
+     */
+    @Override
+    public void deactivate() {
+        super.deactivate();
+
+        // change the cursor back
+        Cursor cursor = new Cursor(Display.getCurrent(), SWT.CURSOR_ARROW);
+        Display.getCurrent().getActiveShell().setCursor(cursor);
+        cursor.dispose();
+    }
 }

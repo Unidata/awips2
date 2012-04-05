@@ -20,10 +20,6 @@
 package com.raytheon.uf.viz.collaboration.ui.telestrator.event;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent;
-import com.raytheon.uf.viz.collaboration.ui.telestrator.ShapeContainer;
-import com.raytheon.uf.viz.drawing.events.DrawingEvent;
 
 /**
  * TODO Add Description
@@ -34,7 +30,7 @@ import com.raytheon.uf.viz.drawing.events.DrawingEvent;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 3, 2012            mnash     Initial creation
+ * Apr 4, 2012            mnash     Initial creation
  * 
  * </pre>
  * 
@@ -43,32 +39,6 @@ import com.raytheon.uf.viz.drawing.events.DrawingEvent;
  */
 
 @DynamicSerialize
-public class CollaborationDrawingEvent extends DrawingEvent implements
-        IDisplayEvent {
+public class RedoDrawingEvent extends CollaborationDrawingEvent {
 
-    @DynamicSerializeElement
-    private ShapeContainer container;
-
-    public CollaborationDrawingEvent() {
-
-    }
-
-    public CollaborationDrawingEvent(ShapeContainer cont) {
-        this.container = cont;
-    }
-
-    /**
-     * @return the container
-     */
-    public ShapeContainer getContainer() {
-        return container;
-    }
-
-    /**
-     * @param container
-     *            the container to set
-     */
-    public void setContainer(ShapeContainer container) {
-        this.container = container;
-    }
 }
