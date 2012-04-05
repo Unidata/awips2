@@ -19,8 +19,8 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.telestrator;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.swt.graphics.RGB;
@@ -72,9 +72,9 @@ import com.vividsolutions.jts.geom.LineString;
 
 public class CollaborationDrawingLayer extends DrawingLayer {
 
-    private Multimap<RGB, IWireframeShape> collaboratorShapes;
+    private Multimap<String, ShapeContainer> collaboratorShapes;
 
-    private List<ShapeContainer> deletedCollaboratorShapes;
+    private Multimap<String, ShapeContainer> deletedCollaboratorShapes;
 
     private IWireframeShape tempRemoteShape = null;
 
@@ -111,7 +111,11 @@ public class CollaborationDrawingLayer extends DrawingLayer {
         this.collaboratorShapes = LinkedHashMultimap.create();
         this.collaboratorShapes = Multimaps
                 .synchronizedMultimap(this.collaboratorShapes);
-        this.deletedCollaboratorShapes = new ArrayList<ShapeContainer>();
+
+        this.deletedCollaboratorShapes = LinkedHashMultimap.create();
+        this.deletedCollaboratorShapes = Multimaps
+                .synchronizedMultimap(this.deletedCollaboratorShapes);
+
         TelestratorColorManager colorManager = TelestratorColorManager
                 .getColorManager();
         officialColor = colorManager.getColorFromUser(CollaborationDataManager
@@ -134,10 +138,14 @@ public class CollaborationDrawingLayer extends DrawingLayer {
         OutlineCapability outline = getCapability(OutlineCapability.class);
         // paint the shapes that come over from others
         synchronized (collaboratorShapes) {
-            for (RGB color : collaboratorShapes.keySet()) {
-                for (IWireframeShape sh : collaboratorShapes.get(color)) {
-                    target.drawWireframeShape(sh, color,
-                            outline.getOutlineWidth(), outline.getLineStyle());
+            for (String userName : collaboratorShapes.keySet()) {
+                for (ShapeContainer sh : collaboratorShapes.get(userName)) {
+                    if (sh != null) {
+                        RGB color = RGBColors.getRGBColor(sh.rgb);
+                        target.drawWireframeShape(sh.shape, color,
+                                outline.getOutlineWidth(),
+                                outline.getLineStyle());
+                    }
                 }
             }
         }
@@ -149,24 +157,57 @@ public class CollaborationDrawingLayer extends DrawingLayer {
             resetTemp();
             // TODO check if session leader, otherwise only remove my wireframe
             // shapes
-            disposeInternal();
-            issueRefresh();
-        } else if (event instanceof UndoDrawingEvent) {
-            for (RGB rgb : collaboratorShapes.keySet()) {
-                IWireframeShape lastShape = null;
-                for (IWireframeShape shape : collaboratorShapes.get(rgb)) {
-                    lastShape = shape;
-                }
-                collaboratorShapes.values().remove(lastShape);
+            clearSelfShapes(((ClearDrawingEvent) event).getUserName());
+            if (/* if session leader */false) {
+                disposeInternal();
             }
             issueRefresh();
+        } else if (event instanceof UndoDrawingEvent) {
+            String userName = ((UndoDrawingEvent) event).getUserName();
+            Collection<ShapeContainer> container = collaboratorShapes
+                    .get(userName);
+            Iterator<ShapeContainer> itr = container.iterator();
+            ShapeContainer lastElement = null;
+            if (itr.hasNext()) {
+                lastElement = itr.next();
+            }
+            while (itr.hasNext()) {
+                lastElement = itr.next();
+            }
+            deletedCollaboratorShapes.put(userName, lastElement);
+            collaboratorShapes.get(userName).remove(lastElement);
+            issueRefresh();
         } else if (event instanceof RedoDrawingEvent) {
-
+            String userName = ((RedoDrawingEvent) event).getUserName();
+            Collection<ShapeContainer> container = deletedCollaboratorShapes
+                    .get(userName);
+            Iterator<ShapeContainer> itr = container.iterator();
+            ShapeContainer lastElement = null;
+            if (itr.hasNext()) {
+                lastElement = itr.next();
+            }
+            while (itr.hasNext()) {
+                lastElement = itr.next();
+            }
+            collaboratorShapes.put(userName, lastElement);
+            deletedCollaboratorShapes.get(userName).remove(lastElement);
+            issueRefresh();
         } else if (event instanceof CollaborationDrawingEvent) {
             CollaborationDrawingEvent collEvent = (CollaborationDrawingEvent) event;
-            addCollaborationShape(collEvent.getContainer());
+            addCollaborationShape(collEvent.getUserName(),
+                    collEvent.getContainer());
             issueRefresh();
         }
+    }
+
+    /**
+     * @param userName
+     */
+    private void clearSelfShapes(String userName) {
+        for (ShapeContainer cont : collaboratorShapes.get(userName)) {
+            cont.shape.dispose();
+        }
+        collaboratorShapes.removeAll(userName);
     }
 
     /*
@@ -206,6 +247,7 @@ public class CollaborationDrawingLayer extends DrawingLayer {
     public void undoAdd() {
         super.undoAdd();
         UndoDrawingEvent event = new UndoDrawingEvent();
+        event.setUserName(CollaborationDataManager.getInstance().getLoginId());
         sendGenericEvent(event);
     }
 
@@ -218,6 +260,7 @@ public class CollaborationDrawingLayer extends DrawingLayer {
     public void redoAdd() {
         super.redoAdd();
         RedoDrawingEvent event = new RedoDrawingEvent();
+        event.setUserName(CollaborationDataManager.getInstance().getLoginId());
         sendGenericEvent(event);
     }
 
@@ -228,6 +271,7 @@ public class CollaborationDrawingLayer extends DrawingLayer {
         container.setGeom(line);
         CollaborationDrawingEvent tObject = new CollaborationDrawingEvent();
         tObject.setContainer(container);
+        tObject.setUserName(CollaborationDataManager.getInstance().getLoginId());
         sendGenericEvent(tObject);
     }
 
@@ -239,10 +283,9 @@ public class CollaborationDrawingLayer extends DrawingLayer {
     @Override
     public void reset() {
         super.reset();
-        if (/* is session leader */false) {
-            ClearDrawingEvent event = new ClearDrawingEvent();
-            sendGenericEvent(event);
-        }
+        ClearDrawingEvent event = new ClearDrawingEvent();
+        event.setUserName(CollaborationDataManager.getInstance().getLoginId());
+        sendGenericEvent(event);
     }
 
     private void sendGenericEvent(IDisplayEvent event) {
@@ -257,22 +300,22 @@ public class CollaborationDrawingLayer extends DrawingLayer {
         }
     }
 
-    public void addCollaborationShape(ShapeContainer container) {
+    public void addCollaborationShape(String userName, ShapeContainer container) {
         // if (tempRemoteShape == null){
         tempRemoteShape = target.createWireframeShape(false, getDescriptor());
         // }
         drawTempLinePrimitive(container.getGeom(), tempRemoteShape);
+        container.shape = tempRemoteShape;
         synchronized (collaboratorShapes) {
-            RGB color = RGBColors.getRGBColor(container.getRgb());
-            collaboratorShapes.put(color, tempRemoteShape);
+            collaboratorShapes.put(userName, container);
         }
     }
 
     public void removeCollaborationShape(Geometry geom, RGB color) {
-        synchronized (collaboratorShapes) {
-            // deletedCollaboratorShapes.
-            // collaboratorShapes.remove(geom, color);
-        }
+        // synchronized (collaboratorShapes) {
+        // deletedCollaboratorShapes.
+        // collaboratorShapes.remove(geom, color);
+        // }
     }
 
     /*
@@ -284,13 +327,17 @@ public class CollaborationDrawingLayer extends DrawingLayer {
     protected void disposeInternal() {
         super.disposeInternal();
         if (/* is session leader */false) {
-            synchronized (collaboratorShapes) {
-                for (IWireframeShape shape : collaboratorShapes.values()) {
-                    shape.dispose();
-                }
+            // synchronized (collaboratorShapes) {
+            // for (IWireframeShape shape : collaboratorShapes.values()) {
+            // shape.dispose();
+            // }
+            // }
+
+            for (ShapeContainer cont : collaboratorShapes.values()) {
+                cont.shape.dispose();
             }
 
-            for (ShapeContainer cont : deletedCollaboratorShapes) {
+            for (ShapeContainer cont : deletedCollaboratorShapes.values()) {
                 cont.shape.dispose();
             }
 
