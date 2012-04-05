@@ -61,12 +61,14 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Mode;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Type;
+import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.SessionManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
 import com.raytheon.uf.viz.core.VizApp;
@@ -133,21 +135,24 @@ public class SessionView extends AbstractSessionView {
             @Override
             public void run() {
                 try {
-                    CollaborationDataManager dataManager = CollaborationDataManager
-                            .getInstance();
-                    CollaborationUser user = (CollaborationUser) ((IStructuredSelection) usersTable
-                            .getSelection()).getFirstElement();
-                    String session = dataManager.createCollaborationSession(
-                            user.getId(), "Chatting...");
+                    SessionManager sessionManager = CollaborationDataManager
+                            .getInstance().getSessionManager();
+                    ISession session = sessionManager.getPeerToPeerSession();
                     PlatformUI
                             .getWorkbench()
                             .getActiveWorkbenchWindow()
                             .getActivePage()
-                            .showView(CollaborationSessionView.ID, session,
+                            .showView(PeerToPeerView.ID,
+                                    session.getSessionId(),
                                     IWorkbenchPage.VIEW_ACTIVATE);
                 } catch (PartInitException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Unable to open chat", e);
+                } catch (CollaborationException e) {
+                    // TODO Auto-generated catch block. Please revise as
+                    // appropriate.
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
                 }
             }
         };
