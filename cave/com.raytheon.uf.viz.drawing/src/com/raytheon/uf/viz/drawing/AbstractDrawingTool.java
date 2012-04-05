@@ -26,9 +26,11 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
+import com.raytheon.uf.viz.core.rsc.IInputHandler.InputPriority;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.viz.ui.tools.AbstractModalTool;
+
 /**
  * Describes a basic drawing tool.
  * 
@@ -95,7 +97,8 @@ public abstract class AbstractDrawingTool extends AbstractModalTool {
         }
 
         this.handlerRegistered = getMouseHandler();
-        editor.registerMouseHandler(this.handlerRegistered);
+        editor.registerMouseHandler(this.handlerRegistered,
+                InputPriority.SYSTEM_RESOURCE);
     }
 
     /**
