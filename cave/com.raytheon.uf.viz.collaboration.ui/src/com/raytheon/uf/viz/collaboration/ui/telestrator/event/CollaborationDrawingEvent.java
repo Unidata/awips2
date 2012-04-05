@@ -49,6 +49,9 @@ public class CollaborationDrawingEvent extends DrawingEvent implements
     @DynamicSerializeElement
     private ShapeContainer container;
 
+    @DynamicSerializeElement
+    protected String userName;
+
     public CollaborationDrawingEvent() {
 
     }
@@ -70,5 +73,20 @@ public class CollaborationDrawingEvent extends DrawingEvent implements
      */
     public void setContainer(ShapeContainer container) {
         this.container = container;
+    }
+
+    /**
+     * @return the userName
+     */
+    public String getUserName() {
+        return userName;
+    }
+
+    /**
+     * @param userName
+     *            the userName to set
+     */
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }
