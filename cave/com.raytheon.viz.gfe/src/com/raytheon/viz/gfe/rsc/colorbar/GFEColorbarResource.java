@@ -424,8 +424,7 @@ public class GFEColorbarResource extends
         }
 
         if (graphicsAdapter == null) {
-            graphicsAdapter = GraphicsFactory.getGraphicsAdapter(target
-                    .getViewType());
+            graphicsAdapter = GraphicsFactory.getGraphicsAdapter();
         }
 
         target.setupClippingPlane(graphicsAdapter.constructExtent(descriptor
