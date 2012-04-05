@@ -113,7 +113,8 @@ public class DataUser {
      * @param sessionId
      * @param role
      */
-    void addSessionRole(final String sessionId, final ParticipantRole role) {
+    public void addSessionRole(final String sessionId,
+            final ParticipantRole role) {
         List<ParticipantRole> roleList = roleMap.get(sessionId);
         if (roleList == null) {
             roleList = new ArrayList<ParticipantRole>();
@@ -150,7 +151,7 @@ public class DataUser {
      * @param sessionId
      * @param role
      */
-    void removeSessionRole(String sessionId, ParticipantRole role) {
+    public void removeSessionRole(String sessionId, ParticipantRole role) {
         List<ParticipantRole> roleList = roleMap.get(sessionId);
         if (roleList != null) {
             roleList.remove(role);
