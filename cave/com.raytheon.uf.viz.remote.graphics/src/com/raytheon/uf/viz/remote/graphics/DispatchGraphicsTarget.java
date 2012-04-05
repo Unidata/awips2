@@ -627,8 +627,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
         wrappedObject.init();
     }
 
-    private BeginFrameEvent beginFrame = RemoteGraphicsEventFactory
-            .createEvent(BeginFrameEvent.class, this);
+    private IExtent previousExtent;
 
     /**
      * @param display
@@ -638,8 +637,16 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      */
     public void beginFrame(IRenderableDisplay display, boolean isClearBackground) {
         wrappedObject.beginFrame(display, isClearBackground);
+        BeginFrameEvent beginFrame = RemoteGraphicsEventFactory.createEvent(
+                BeginFrameEvent.class, this);
         beginFrame.setClear(isClearBackground);
+        IExtent curExtent = display.getExtent();
+        if (previousExtent == null || curExtent.equals(previousExtent) == false) {
+            beginFrame.setExtentFactor(curExtent.getScale());
+            beginFrame.setExtentCenter(curExtent.getCenter());
+        }
         dispatch(beginFrame);
+        previousExtent = curExtent.clone();
     }
 
     private EndFrameEvent endFrame = RemoteGraphicsEventFactory.createEvent(
