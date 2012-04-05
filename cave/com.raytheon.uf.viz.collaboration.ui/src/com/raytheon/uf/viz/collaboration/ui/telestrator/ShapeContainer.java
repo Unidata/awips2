@@ -17,13 +17,12 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.ui.telestrator.event;
+package com.raytheon.uf.viz.collaboration.ui.telestrator;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IDisplayEvent;
-import com.raytheon.uf.viz.collaboration.ui.telestrator.ShapeContainer;
-import com.raytheon.uf.viz.drawing.events.DrawingEvent;
+import com.raytheon.uf.viz.core.drawables.IWireframeShape;
+import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * TODO Add Description
@@ -34,7 +33,7 @@ import com.raytheon.uf.viz.drawing.events.DrawingEvent;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 3, 2012            mnash     Initial creation
+ * Apr 4, 2012            mnash     Initial creation
  * 
  * </pre>
  * 
@@ -43,32 +42,65 @@ import com.raytheon.uf.viz.drawing.events.DrawingEvent;
  */
 
 @DynamicSerialize
-public class CollaborationDrawingEvent extends DrawingEvent implements
-        IDisplayEvent {
+public class ShapeContainer {
+
+    public IWireframeShape shape;
 
     @DynamicSerializeElement
-    private ShapeContainer container;
+    public String rgb;
 
-    public CollaborationDrawingEvent() {
+    // public LineStyle lineStyle;
 
-    }
+    // public float lineWidth;
 
-    public CollaborationDrawingEvent(ShapeContainer cont) {
-        this.container = cont;
-    }
+    @DynamicSerializeElement
+    private Geometry geom;
 
-    /**
-     * @return the container
-     */
-    public ShapeContainer getContainer() {
-        return container;
+    public ShapeContainer() {
     }
 
     /**
-     * @param container
-     *            the container to set
+     * @return the shape
      */
-    public void setContainer(ShapeContainer container) {
-        this.container = container;
+    public IWireframeShape getShape() {
+        return shape;
+    }
+
+    /**
+     * @param shape
+     *            the shape to set
+     */
+    public void setShape(IWireframeShape shape) {
+        this.shape = shape;
+    }
+
+    /**
+     * @return the rgb
+     */
+    public String getRgb() {
+        return rgb;
+    }
+
+    /**
+     * @param rgb
+     *            the rgb to set
+     */
+    public void setRgb(String rgb) {
+        this.rgb = rgb;
+    }
+
+    /**
+     * @return the geom
+     */
+    public Geometry getGeom() {
+        return geom;
+    }
+
+    /**
+     * @param geom
+     *            the geom to set
+     */
+    public void setGeom(Geometry geom) {
+        this.geom = geom;
     }
 }
