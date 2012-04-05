@@ -87,7 +87,7 @@ public class PathToolbar extends CaveSWTDialog {
 
     private ToolItem redoItem;
 
-    private ToolItem clearItem;
+    protected ToolItem clearItem;
 
     private IContextActivation drawingContext;
 
@@ -273,23 +273,25 @@ public class PathToolbar extends CaveSWTDialog {
                 .getResourceList();
         for (ResourcePair pair : list) {
             if (pair.getResource() instanceof DrawingLayer) {
-                DrawingLayer layer = (DrawingLayer) pair.getResource();
-                if (layer.getDeletedShapes().isEmpty()
-                        && layer.getWireframeShapes().isEmpty()) {
-                    undoItem.setEnabled(false);
-                    redoItem.setEnabled(false);
-                    clearItem.setEnabled(false);
-                } else {
-                    clearItem.setEnabled(true);
-                    if (layer.getDeletedShapes().isEmpty()) {
-                        redoItem.setEnabled(false);
-                    } else {
-                        redoItem.setEnabled(true);
-                    }
-                    if (layer.getWireframeShapes().isEmpty()) {
+                if (toolbar != null && !toolbar.isDisposed()) {
+                    DrawingLayer layer = (DrawingLayer) pair.getResource();
+                    if (layer.getDeletedShapes().isEmpty()
+                            && layer.getWireframeShapes().isEmpty()) {
                         undoItem.setEnabled(false);
+                        redoItem.setEnabled(false);
+                        clearItem.setEnabled(false);
                     } else {
-                        undoItem.setEnabled(true);
+                        clearItem.setEnabled(true);
+                        if (layer.getDeletedShapes().isEmpty()) {
+                            redoItem.setEnabled(false);
+                        } else {
+                            redoItem.setEnabled(true);
+                        }
+                        if (layer.getWireframeShapes().isEmpty()) {
+                            undoItem.setEnabled(false);
+                        } else {
+                            undoItem.setEnabled(true);
+                        }
                     }
                 }
             }
