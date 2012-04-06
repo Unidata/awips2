@@ -124,9 +124,6 @@ public class RotatePanelsHandler extends AbstractTool {
         IDisplayPane paneToShow = null;
 
         if (panes != null && index < panes.length && panes.length != 1) {
-            for (IDisplayPane displayPane : panes) {
-                mEditor.hidePane(displayPane);
-            }
             boolean from4To1 = mEditor.displayedPaneCount() > 1;
             boolean hasProducts = false;
             if (panes[index] != null) {
@@ -173,6 +170,11 @@ public class RotatePanelsHandler extends AbstractTool {
                         : panes[index];
             }
 
+            for (IDisplayPane displayPane : panes) {
+                if (displayPane != paneToShow) {
+                    mEditor.hidePane(displayPane);
+                }
+            }
             mEditor.showPane(paneToShow);
             mEditor.setSelectedPane(IMultiPaneEditor.VISIBLE_PANE, paneToShow);
 
