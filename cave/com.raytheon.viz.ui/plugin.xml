@@ -506,6 +506,11 @@
          id="com.raytheon.viz.ui.context"
          name="context">
    </context>
+   <context
+   		 description="IDisplayPaneContainer Context, activated if active part is of type IDisplayPaneContainer"
+   		 id="com.raytheon.viz.ui.displayPaneContainer.context"
+   		 name="IDisplayPaneContainer Context">
+   </context>
 </extension>
 <extension
       point="org.eclipse.ui.preferencePages">
@@ -593,6 +598,12 @@
              class="com.raytheon.viz.ui.perspectives.AbstractCAVEPerspectiveManager">
 	          <contextId
 	                id="com.raytheon.viz.ui.context">
+	          </contextId>
+	      </classContext>
+	      <classContext
+             class="com.raytheon.uf.viz.core.IDisplayPaneContainer">
+	          <contextId
+	                id="com.raytheon.viz.ui.displayPaneContainer.context">
 	          </contextId>
 	          <contextId
 	                id="com.raytheon.viz.ui.loopContext">
