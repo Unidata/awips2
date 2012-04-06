@@ -27,6 +27,11 @@
          id="com.raytheon.uf.viz.d2d.ui"
          name="D2DContext">
    </context>
+   <context
+         description="D2D Perspective Context"
+         id="com.raytheon.uf.viz.d2d.ui.perspective"
+         name="D2DPerspectiveContext">
+   </context>
  </extension>
  <extension
        point="org.eclipse.ui.actionSets">
@@ -2103,6 +2108,12 @@
 	      point="com.raytheon.uf.viz.core.classContext">
 	      <classContext
              class="com.raytheon.uf.viz.d2d.ui.perspectives.D2DPerspectiveManager">
+	          <contextId
+	                id="com.raytheon.uf.viz.d2d.ui.perspective">
+	          </contextId>
+	      </classContext>
+	      <classContext
+             class="com.raytheon.uf.viz.d2d.ui.perspectives.D2DContextActivator">
 	          <contextId
 	                id="com.raytheon.uf.viz.d2d.ui">
 	          </contextId>
