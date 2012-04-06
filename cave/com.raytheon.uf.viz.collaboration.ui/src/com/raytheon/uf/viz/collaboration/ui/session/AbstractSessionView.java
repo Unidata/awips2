@@ -30,8 +30,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.graphics.Color;
@@ -51,7 +49,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.core.icon.IconUtil;
-import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 
 /**
  * This performs most of the work for creating a View for a peer-to-peer or
@@ -185,23 +182,6 @@ public abstract class AbstractSessionView extends ViewPart implements
                 if (e.keyCode == SWT.SHIFT) {
                     keyPressed = true;
                 }
-            }
-        });
-
-        composeText.addFocusListener(new FocusListener() {
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                // Restore other perspective's key bindings.
-                VizPerspectiveListener.getCurrentPerspectiveManager()
-                        .activateContexts();
-            }
-
-            @Override
-            public void focusGained(FocusEvent e) {
-                // Remove other perspective's key bindings.
-                VizPerspectiveListener.getCurrentPerspectiveManager()
-                        .deactivateContexts();
             }
         });
     }
