@@ -40,8 +40,6 @@ import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TreeEditor;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseEvent;
@@ -97,7 +95,6 @@ import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.PeerToPeerView;
 import com.raytheon.uf.viz.collaboration.ui.session.SessionView;
 import com.raytheon.uf.viz.core.icon.IconUtil;
-import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
 
 /**
  * TODO Add Description
@@ -744,19 +741,6 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         usersTreeViewer = new TreeViewer(child);
         usersTreeViewer.getTree().setLayoutData(
                 new GridData(SWT.FILL, SWT.FILL, true, true));
-        usersTreeViewer.getTree().addFocusListener(new FocusListener() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                VizPerspectiveListener.getCurrentPerspectiveManager()
-                        .deactivateContexts();
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                VizPerspectiveListener.getCurrentPerspectiveManager()
-                        .activateContexts();
-            }
-        });
         usersTreeViewer.setContentProvider(new UsersTreeContentProvider());
         usersTreeViewer.setLabelProvider(new UsersTreeLabelProvider());
         usersTreeViewer.setSorter(new UsersTreeViewerSorter());
