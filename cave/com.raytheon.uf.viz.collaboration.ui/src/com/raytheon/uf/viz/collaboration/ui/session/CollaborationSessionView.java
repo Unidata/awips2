@@ -28,6 +28,8 @@ import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
@@ -217,7 +219,8 @@ public class CollaborationSessionView extends SessionView {
      * setMessageLabel(org.eclipse.swt.widgets.Label)
      */
     @Override
-    protected void setMessageLabel(Label label) {
+    protected void setMessageLabel(Composite comp) {
+        Label label = new Label(comp, SWT.NONE);
         StringBuilder labelInfo = new StringBuilder();
         IVenueSession session = CollaborationDataManager.getInstance()
                 .getSession(sessionId);
