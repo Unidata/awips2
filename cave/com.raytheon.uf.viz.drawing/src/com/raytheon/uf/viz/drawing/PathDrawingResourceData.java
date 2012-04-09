@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.viz.drawing;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
@@ -41,6 +44,7 @@ import com.raytheon.viz.awipstools.ui.display.AwipsToolsResourceData;
  * @version 1.0
  */
 
+@XmlAccessorType(XmlAccessType.NONE)
 public class PathDrawingResourceData extends
         AwipsToolsResourceData<DrawingLayer> {
 
