@@ -39,6 +39,7 @@ import org.eclipse.ui.PlatformUI;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -92,7 +93,7 @@ public class CollaborationDataManager {
     /**
      * The connection to the server.
      */
-    private SessionManager manager;
+    private SessionManager sessionManager;
 
     String loginId;
 
@@ -119,6 +120,8 @@ public class CollaborationDataManager {
     private Multimap<String, IRoleEventController> roleEventControllersMap;
 
     Map<String, CollaborationEditor> editorsMap;
+
+    private EventBus eventBus;
 
     public static CollaborationDataManager getInstance() {
         if (instance == null) {
@@ -147,6 +150,7 @@ public class CollaborationDataManager {
         sessionsMap = new HashMap<String, IVenueSession>();
         roleEventControllersMap = HashMultimap.create();
         editorsMap = new HashMap<String, CollaborationEditor>();
+        eventBus = new EventBus();
     }
 
     public String getLoginId() {
@@ -179,13 +183,13 @@ public class CollaborationDataManager {
     }
 
     /**
-     * Get the session manager and if needed the user/password.
+     * Get the session sessionManager and if needed the user/password.
      * 
-     * @return manager or null if unable to get connection.
+     * @return sessionManager or null if unable to get connection.
      */
     synchronized public SessionManager getSessionManager() {
         // Get user's server account information and make connection.
-        if (manager == null) {
+        if (isConnected() == false) {
             VizApp.runSync(new Runnable() {
 
                 @Override
@@ -196,16 +200,15 @@ public class CollaborationDataManager {
                     }
                     LoginDialog dlg = new LoginDialog(shell);
                     LoginData loginData = null;
-                    while (manager == null) {
+                    while (isConnected() == false) {
                         loginData = (LoginData) dlg.open();
                         dlg.close();
                         if (loginData == null) {
                             break;
                         }
                         try {
-                            manager = new SessionManager(
-                                    loginData.getAccount(), loginData
-                                            .getPassword());
+                            sessionManager = new SessionManager(loginData
+                                    .getAccount(), loginData.getPassword());
                             loginId = loginData.getAccount();
                             DataUser user = CollaborationDataManager
                                     .getInstance().getUser(loginId);
@@ -230,10 +233,10 @@ public class CollaborationDataManager {
             });
 
             if (isConnected()) {
-                // Register handlers and events for the new manager.
-                manager.registerEventHandler(this);
+                // Register handlers and events for the new sessionManager.
+                sessionManager.registerEventHandler(this);
                 try {
-                    ISession p2pSession = manager.getPeerToPeerSession();
+                    ISession p2pSession = sessionManager.getPeerToPeerSession();
                     p2pSession.registerEventHandler(this);
                 } catch (CollaborationException e) {
                     // TODO Auto-generated catch block. Please revise as
@@ -251,9 +254,9 @@ public class CollaborationDataManager {
 
                     @Override
                     public void postShutdown(IWorkbench workbench) {
-                        if (manager != null) {
+                        if (sessionManager != null) {
                             try {
-                                ISession p2pSession = manager
+                                ISession p2pSession = sessionManager
                                         .getPeerToPeerSession();
                                 p2pSession.unRegisterEventHandler(this);
                             } catch (CollaborationException e) {
@@ -262,9 +265,9 @@ public class CollaborationDataManager {
                                 statusHandler.handle(Priority.PROBLEM,
                                         e.getLocalizedMessage(), e);
                             }
-                            manager.unRegisterEventHandler(this);
-                            manager.closeManager();
-                            manager = null;
+                            sessionManager.unRegisterEventHandler(this);
+                            sessionManager.closeManager();
+                            sessionManager = null;
                         }
                     }
                 };
@@ -272,14 +275,14 @@ public class CollaborationDataManager {
             }
         }
 
-        return manager;
+        return sessionManager;
     }
 
     synchronized public void closeManager() {
-        if (manager != null) {
-            manager.unRegisterEventHandler(this);
-            manager.closeManager();
-            manager = null;
+        if (sessionManager != null) {
+            sessionManager.unRegisterEventHandler(this);
+            sessionManager.closeManager();
+            sessionManager = null;
         }
         if (wbListener != null) {
             PlatformUI.getWorkbench().removeWorkbenchListener(wbListener);
@@ -445,7 +448,7 @@ public class CollaborationDataManager {
     }
 
     public boolean isConnected() {
-        return manager != null;
+        return sessionManager != null && sessionManager.isConnected();
     }
 
     @Subscribe
@@ -481,7 +484,7 @@ public class CollaborationDataManager {
                     return;
                 }
                 try {
-                    IVenueSession session = manager
+                    IVenueSession session = sessionManager
                             .joinCollaborationVenue(invitation);
                     String sessionId = session.getSessionId();
                     sessionsMap.put(sessionId, session);
@@ -562,13 +565,34 @@ public class CollaborationDataManager {
      * @return
      */
     @Subscribe
-    public void handleModifiedPresence(IRosterEntry rosterEntry) {
-        System.out.println("CollaborationDataManager.handleModifiedPresence");
-        System.out.println("    user " + rosterEntry.getUser().getFQName());
-        System.out.println("    mode " + rosterEntry.getPresence().getMode());
-        System.out.println("    type " + rosterEntry.getPresence().getType());
+    public void handleModifiedPresence(IRosterEntry entry) {
+        final IRosterEntry rosterEntry = entry;
+        // System.out.println("CollaborationDataManager.handleModifiedPresence");
+        // System.out.println("    user " + rosterEntry.getUser().getFQName());
+        // System.out.println("    mode " +
+        // rosterEntry.getPresence().getMode());
+        // System.out.println("    type " +
+        // rosterEntry.getPresence().getType());
+        // System.out.println("    message"
+        // + rosterEntry.getPresence().getStatusMessage());
+        // System.out.println("    groups " + rosterEntry.getGroups());
+        String userId = rosterEntry.getUser().getFQName();
+        DataUser user = usersMap.get(userId);
+        if (user != null) {
+            user.mode = rosterEntry.getPresence().getMode();
+            user.type = rosterEntry.getPresence().getType();
+            user.statusMessage = rosterEntry.getPresence().getStatusMessage();
+            // Assumes only UI updates will be registered.
+            VizApp.runAsync(new Runnable() {
+
+                @Override
+                public void run() {
+                    eventBus.post(rosterEntry);
+                }
+            });
+        }
     }
-    
+
     @Deprecated
     public String joinCollaborationSession(String venueName, String sessionId) {
         String result = sessionId;
@@ -610,5 +634,13 @@ public class CollaborationDataManager {
         list.add((AbstractEditor) VizWorkbenchManager.getInstance()
                 .getActiveEditor());
         return list;
+    }
+
+    public void registerEventHandler(Object handler) {
+        eventBus.register(handler);
+    }
+
+    public void unRegisterEventHandler(Object handler) {
+        eventBus.unregister(handler);
     }
 }

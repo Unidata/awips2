@@ -59,8 +59,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
-import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Mode;
-import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Type;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
@@ -68,6 +66,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventTyp
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
+import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.SessionManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationUser;
@@ -218,9 +217,9 @@ public class SessionView extends AbstractSessionView {
         super.createListeners();
         IVenueSession session = CollaborationDataManager.getInstance()
                 .getSession(sessionId);
-        if (session != null) {
-            session.registerEventHandler(this);
-        }
+        // if (session != null) {
+        // session.registerEventHandler(this);
+        // }
     }
 
     protected void createUsersComp(final Composite parent) {
@@ -361,10 +360,11 @@ public class SessionView extends AbstractSessionView {
             for (IVenueParticipant participant : session.getVenue()
                     .getParticipants()) {
 
-                CollaborationUser user = new CollaborationUser(
-                        participant.getFQName());
-                user.setMode(Mode.AVAILABLE);
-                user.setType(Type.AVAILABLE);
+                String userId = getParticipantUserId(participant);
+                CollaborationUser user = new CollaborationUser(userId,
+                        sessionId);
+                // user.setMode(Mode.AVAILABLE);
+                // user.setType(Type.AVAILABLE);
 
                 // ParticipantRole[] roles = user.getRoles(sessionId);
                 // for (ParticipantRole role : roles) {
@@ -385,6 +385,14 @@ public class SessionView extends AbstractSessionView {
         }
         usersTable.setInput(users);
         ((GridData) usersComp.getLayoutData()).exclude = true;
+    }
+
+    private String getParticipantUserId(IVenueParticipant participant) {
+        String pFQName = participant.getFQName();
+        StringBuilder sb = new StringBuilder(pFQName.subSequence(0,
+                pFQName.indexOf('@') + 1));
+        sb.append(Tools.parseHost(pFQName).substring("conference.".length()));
+        return sb.toString();
     }
 
     @Override
@@ -436,7 +444,6 @@ public class SessionView extends AbstractSessionView {
         return SESSION_IMAGE_NAME;
     }
 
-    // @Override
     /*
      * (non-Javadoc)
      * 
@@ -444,12 +451,30 @@ public class SessionView extends AbstractSessionView {
      * com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView#partClosed
      * (org.eclipse.ui.IWorkbenchPart)
      */
+    @Override
     public void partClosed(IWorkbenchPart part) {
         super.partClosed(part);
         if (this == part) {
             CollaborationDataManager.getInstance().getSession(sessionId)
                     .unRegisterEventHandler(this);
             CollaborationDataManager.getInstance().closeSession(sessionId);
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView#partOpened
+     * (org.eclipse.ui.IWorkbenchPart)
+     */
+    @Override
+    public void partOpened(IWorkbenchPart part) {
+        // TODO Auto-generated method stub
+        super.partOpened(part);
+        if (this == part) {
+            CollaborationDataManager.getInstance().getSession(sessionId)
+                    .registerEventHandler(this);
         }
     }
 
@@ -579,12 +604,13 @@ public class SessionView extends AbstractSessionView {
         List<CollaborationUser> users = (List<CollaborationUser>) usersTable
                 .getInput();
         String name = participant.getFQName();
+        String userId = getParticipantUserId(participant);
         for (CollaborationUser user : users) {
-            if (name.equals(user.getId())) {
+            if (userId.equals(user.getId())) {
                 return;
             }
         }
-        CollaborationUser user = new CollaborationUser(name);
+        CollaborationUser user = new CollaborationUser(userId, sessionId);
         user.setText(name);
         users.add(user);
         usersTable.refresh();
@@ -594,11 +620,12 @@ public class SessionView extends AbstractSessionView {
     private void participantDeparted(IVenueParticipant participant) {
         System.out.println("++++ handle departed here: "
                 + participant.getName() + ", " + participant.getFQName());
+        String userId = getParticipantUserId(participant);
         List<CollaborationUser> users = (List<CollaborationUser>) usersTable
                 .getInput();
-        String name = participant.getFQName();
+        // String name = participant.getFQName();
         for (int i = 0; i < users.size(); ++i) {
-            if (name.equals(users.get(i).getId())) {
+            if (userId.equals(users.get(i).getId())) {
                 users.remove(i);
                 usersTable.refresh();
                 break;
@@ -615,8 +642,9 @@ public class SessionView extends AbstractSessionView {
                 + presence.getMode() + "/" + presence.getType() + ": "
                 + participant.getName() + ", " + participant.getFQName());
         String name = participant.getFQName();
+        String userId = getParticipantUserId(participant);
         for (CollaborationUser user : users) {
-            if (name.equals(user.getId())) {
+            if (userId.equals(user.getId())) {
                 user.setMode(presence.getMode());
                 user.setType(presence.getType());
                 usersTable.refresh();
