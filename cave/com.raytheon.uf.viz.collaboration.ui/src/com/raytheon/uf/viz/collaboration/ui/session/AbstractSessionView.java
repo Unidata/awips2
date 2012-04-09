@@ -96,7 +96,7 @@ public abstract class AbstractSessionView extends ViewPart implements
 
     public abstract void sendMessage();
 
-    protected abstract void setMessageLabel(Label label);
+    protected abstract void setMessageLabel(Composite comp);
 
     public AbstractSessionView() {
         imageMap = new HashMap<String, Image>();
@@ -144,8 +144,7 @@ public abstract class AbstractSessionView extends ViewPart implements
         GridLayout layout = new GridLayout(1, false);
         messagesComp.setLayout(layout);
         // TODO, wrap label in view
-        Label label = new Label(messagesComp, SWT.WRAP);
-        setMessageLabel(label);
+        setMessageLabel(messagesComp);
         messagesText = new StyledText(messagesComp, SWT.MULTI | SWT.WRAP
                 | SWT.READ_ONLY | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
         messagesText.setLayoutData(new GridData(GridData.FILL_BOTH));
