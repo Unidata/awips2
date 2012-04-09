@@ -46,6 +46,7 @@ import com.raytheon.uf.common.monitor.data.CommonConfig.AppName;
 import com.raytheon.uf.common.monitor.data.ObConst;
 import com.raytheon.uf.viz.monitor.data.ObMultiHrsReports;
 import com.raytheon.uf.viz.monitor.data.ObTrendDataSet;
+import com.raytheon.uf.viz.monitor.util.ObUtil;
 
 /**
  * The Trend Canvas
@@ -75,7 +76,7 @@ public class TrendPlotCanvas {
 
     private Canvas canvas;
 
-    Calendar curdate;
+    private Calendar curdate;
 
     private SortedMap<Date, Float> trendData;
 
@@ -200,7 +201,8 @@ public class TrendPlotCanvas {
             if (!Float.isNaN(thresholds[1])) {
                 yellowThreshold = thresholds[1];
             }
-            curdate = Calendar.getInstance();
+            curdate = ObUtil.getTimeNow(); // Calendar.getInstance();
+            
             if (trendDataSet.getYAxisMinMaxIncrement() != null) {
                 float[] minMaxIncr = trendDataSet.getYAxisMinMaxIncrement();
                 if (!Float.isNaN(minMaxIncr[0])) {
