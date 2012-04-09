@@ -67,8 +67,9 @@ public interface IRoster {
      * Request that the specified entry be modified in the roster.
      * @param entry The entry to modify. This entry will contain the modifications
      * to apply.
+     * @return The modified roster entry.
      */
-    void modifyRosterEntry(IRosterEntry entry);
+    IRosterEntry modifyRosterEntry(IRosterEntry entry);
     
     /**
      * Request that the user be removed from the roster.

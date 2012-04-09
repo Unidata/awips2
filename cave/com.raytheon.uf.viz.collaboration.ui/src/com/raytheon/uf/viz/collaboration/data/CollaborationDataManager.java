@@ -50,6 +50,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ITextMessageEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
+import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.SessionManager;
@@ -554,6 +555,20 @@ public class CollaborationDataManager {
         });
     }
 
+    /**
+     * 
+     * @param venueName
+     * @param sessionId
+     * @return
+     */
+    @Subscribe
+    public void handleModifiedPresence(IRosterEntry rosterEntry) {
+        System.out.println("CollaborationDataManager.handleModifiedPresence");
+        System.out.println("    user " + rosterEntry.getUser().getFQName());
+        System.out.println("    mode " + rosterEntry.getPresence().getMode());
+        System.out.println("    type " + rosterEntry.getPresence().getType());
+    }
+    
     @Deprecated
     public String joinCollaborationSession(String venueName, String sessionId) {
         String result = sessionId;
