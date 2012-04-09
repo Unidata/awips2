@@ -161,45 +161,20 @@ public class PeerToPeerView extends AbstractSessionView {
         String toUser = getViewSite().getSecondaryId();
         String message = getComposedMessage();
         if (message.length() > 0) {
-            // Get any open session to send peer-to-peer message
-            IPeerToPeer p2p = null;
             try {
-                p2p = (IPeerToPeer) CollaborationDataManager.getInstance()
-                        .getSessionManager().getPeerToPeerSession();
+                CollaborationDataManager manager = CollaborationDataManager
+                        .getInstance();
+                IPeerToPeer p2p = (IPeerToPeer) manager.getSessionManager()
+                        .getPeerToPeerSession();
+                p2p.sendPeerToPeer(toUser, message);
+                appendMessage(manager.getLoginId(), null,
+                        System.currentTimeMillis(), message);
             } catch (CollaborationException e) {
                 // TODO Auto-generated catch block. Please revise as
                 // appropriate.
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
             }
-            if (p2p != null) {
-                p2p.sendPeerToPeer(toUser, message);
-                // TODO need to put the message in messag text field here.
-                CollaborationDataManager manager = CollaborationDataManager
-                        .getInstance();
-                String fqName = manager.getLoginId();
-                String name = null;
-                long timestamp = System.currentTimeMillis();
-                appendMessage(fqName, name, timestamp, message);
-            }
-
-            // ISession session = CollaborationDataManager.getInstance()
-            // .getSession(null);
-            // if (session != null) {
-            // session.sendTextMessage(toUser, message);
-            // } else {
-            // try {
-            // session = CollaborationDataManager.getInstance()
-            // .getSessionManager().createPeerToPeerSession();
-            // // session.sendTextMessage(toUser, message);
-            // // session.close();
-            // } catch (CollaborationException e) {
-            // // TODO Auto-generated catch block. Please revise as
-            // // appropriate.
-            // statusHandler.handle(Priority.PROBLEM,
-            // e.getLocalizedMessage(), e);
-            // }
-            // }
         }
     }
 
