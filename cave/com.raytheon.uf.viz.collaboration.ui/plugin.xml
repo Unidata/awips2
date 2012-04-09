@@ -81,7 +81,7 @@
                class="com.raytheon.uf.viz.collaboration.ui.session.PeerToPeerView"
                id="com.raytheon.uf.viz.collaboration.PeerToPeerView"
                icon="icons/chats.gif"
-               name="Private Chat"
+               name="Chat"
                restorable="false"/>
    </extension>
    <extension

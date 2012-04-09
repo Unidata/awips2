@@ -256,7 +256,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
             }
         };
 
-        peerToPeerChatAction = new Action("Private Chat") {
+        peerToPeerChatAction = new Action("Chat") {
             @Override
             public void run() {
                 createP2PChat(getId());
@@ -747,23 +747,21 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                             CollaborationNode node = (CollaborationNode) item
                                     .getData();
                             StringBuilder builder = new StringBuilder();
-                            builder.append("ID: ").append(node.getId())
-                                    .append("\n");
+                            builder.append("ID: ").append(node.getId());
                             if (node instanceof CollaborationUser) {
                                 CollaborationUser user = (CollaborationUser) node;
-                                builder.append("Mode: ").append(user.getMode())
-                                        .append("\n");
+                                builder.append("\nMode: ")
+                                        .append(user.getMode()).append("\n");
                                 builder.append("Type: ").append(user.getType())
                                         .append("\n");
-                                builder.append("Message: \"")
-                                        .append(user.getStatusMessage())
-                                        .append("\"\n");
+                                builder.append("Message: \"").append(
+                                        user.getStatusMessage() + "\"");
                             } else if (node instanceof SessionGroup
                                     && ((SessionGroup) node).isSessionRoot() == false) {
                                 IVenueInfo info = CollaborationDataManager
                                         .getInstance().getSession(node.getId())
                                         .getVenue().getInfo();
-                                builder.append("VenueName: ")
+                                builder.append("\nVenueName: ")
                                         .append(info.getVenueName())
                                         .append("\n");
                                 // builder.append("VenueID: ")
@@ -771,9 +769,8 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                                 builder.append("Subject: ")
                                         .append(info.getVenueSubject())
                                         .append("\n");
-                                builder.append("ParticipantCount: ")
-                                        .append(info.getParticipantCount())
-                                        .append("\n");
+                                builder.append("ParticipantCount: ").append(
+                                        info.getParticipantCount());
                             }
                             usersTreeViewer.getTree().setToolTipText(
                                     builder.toString());
