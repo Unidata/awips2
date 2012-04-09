@@ -22,7 +22,7 @@
     <property name="connectors">
       <list>
         <bean id="Connector" class="org.eclipse.jetty.server.nio.SelectChannelConnector">
-          <property name="port" value="${jetty.port}"/>
+          <property name="port" value="${web.port}"/>
           <property name="maxIdleTime" value="30000"/>
           <property name="acceptors" value="2"/>
           <property name="confidentialPort" value="${confidential.port}"/>
