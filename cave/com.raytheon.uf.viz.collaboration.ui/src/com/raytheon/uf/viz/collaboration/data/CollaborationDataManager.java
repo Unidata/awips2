@@ -53,6 +53,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.ITextMessageEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.SessionManager;
 import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
@@ -229,6 +230,25 @@ public class CollaborationDataManager {
                             // e.getLocalizedMessage(), e);
                         }
                     }
+                    // TODO this will change will be able to get existing
+                    // presences.
+                    Presence presence = new Presence();
+                    presence.setProperty("dummy", "dummy");
+                    presence.setMode(loginData.getMode());
+                    presence.setStatusMessage(loginData.getModeMessage());
+                    presence.setType(Type.AVAILABLE);
+                    try {
+                        sessionManager.getAccountManager().sendPresence(
+                                presence);
+                    } catch (CollaborationException e) {
+                        // TODO Auto-generated catch block. Please revise as
+                        // appropriate.
+                        statusHandler.handle(Priority.PROBLEM,
+                                e.getLocalizedMessage(), e);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+
                 }
             });
 
