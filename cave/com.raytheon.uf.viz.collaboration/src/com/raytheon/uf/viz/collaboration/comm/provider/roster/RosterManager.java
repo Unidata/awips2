@@ -30,6 +30,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.listener.IRosterListener;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster;
+import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
@@ -156,10 +157,11 @@ public class RosterManager implements IRosterManager {
                 .getRosterSubscriptionSender();
 
         ID id = sessionManager.createID(userId.getFQName());
-
+        System.out.println("  sendRosterRemove(" + id + ")");
         try {
             sender.sendRosterRemove(id);
         } catch (ECFException e) {
+            e.printStackTrace();
             throw new CollaborationException();
         }
 
@@ -183,22 +185,12 @@ public class RosterManager implements IRosterManager {
                 if (o instanceof org.eclipse.ecf.presence.roster.IRosterEntry) {
                     org.eclipse.ecf.presence.roster.IRosterEntry entry = (org.eclipse.ecf.presence.roster.IRosterEntry) o;
 
-                    System.out.println("RosterEntry ");
-                    System.out.println("  --  " + entry.getUser().getName());
-                    System.out.println("      "
-                            + entry.getUser().getID().getName());
-
                     id = RosterId.convertFrom(entry.getUser());
                     RosterEntry re = new RosterEntry(id);
                     if (!newRoster.getEntries().contains(re)) {
                         IPresence p = Presence.convertPresence(entry
                                 .getPresence());
                         re.setPresence(p);
-
-                        System.out.println(" entry:" + re.getName()
-                                + " presence:" + re.getPresence().getMode()
-                                + re.getPresence().getType());
-
                         newRoster.addRosterEntry(re);
                     }
                 } else if (o instanceof org.eclipse.ecf.presence.roster.IRosterGroup) {
@@ -215,11 +207,19 @@ public class RosterManager implements IRosterManager {
         return newRoster;
     }
 
+    /**
+     * 
+     * @param fromId
+     * @param presence
+     */
     public void updateEntry(IChatID fromId, IPresence presence) {
         RosterEntry re = new RosterEntry(fromId);
         re.setPresence(presence);
 
-        roster.modifyRosterEntry(re);
+        IRosterEntry modified = roster.modifyRosterEntry(re);
+        if(modified != null) {
+            sessionManager.getEventPublisher().post(re);
+        }
     }
     
     /**
@@ -229,6 +229,5 @@ public class RosterManager implements IRosterManager {
     public SessionManager getSessionManager() {
         return sessionManager;
     }
-    
 
 }
