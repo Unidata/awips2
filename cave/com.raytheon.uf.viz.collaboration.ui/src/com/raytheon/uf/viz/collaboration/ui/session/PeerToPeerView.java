@@ -22,7 +22,7 @@ package com.raytheon.uf.viz.collaboration.ui.session;
 
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Composite;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -144,10 +144,9 @@ public class PeerToPeerView extends AbstractSessionView {
      * @see com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView#
      * setMessageLabel(org.eclipse.swt.widgets.Label)
      */
-    protected void setMessageLabel(Label label) {
-        StringBuilder labelInfo = new StringBuilder();
-        labelInfo.append("Private Chat");
-        label.setText(labelInfo.toString());
+    protected void setMessageLabel(Composite comp) {
+        // no message needed as there is no subject and we know that it is
+        // private based on the fact that there are no participants
     }
 
     /*
