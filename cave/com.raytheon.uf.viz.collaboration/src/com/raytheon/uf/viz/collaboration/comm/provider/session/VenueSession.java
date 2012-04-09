@@ -31,6 +31,7 @@ import org.eclipse.ecf.core.user.IUser;
 import org.eclipse.ecf.core.util.ECFException;
 import org.eclipse.ecf.presence.IIMMessageEvent;
 import org.eclipse.ecf.presence.IIMMessageListener;
+import org.eclipse.ecf.presence.IPresenceSender;
 import org.eclipse.ecf.presence.chatroom.IChatRoomContainer;
 import org.eclipse.ecf.presence.chatroom.IChatRoomInfo;
 import org.eclipse.ecf.presence.chatroom.IChatRoomInvitationSender;
@@ -53,6 +54,8 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IRenderable;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
+import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster;
+import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
@@ -66,6 +69,8 @@ import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.info.InfoAdapter;
 import com.raytheon.uf.viz.collaboration.comm.provider.info.Venue;
+import com.raytheon.uf.viz.collaboration.comm.provider.roster.Roster;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.RosterId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueUserId;
 
@@ -570,7 +575,54 @@ public class VenueSession extends BaseSession implements IVenueSession,
             e.printStackTrace();
             errorStatus = Errors.BAD_NAME;
         }
+        // TODO : 
+        // sendSubscription(subject);
         return errorStatus;
+    }
+
+    private void sendSubscription(final String name) {
+
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    System.out.println("Sending subscribe message.");
+
+                    boolean remove = "remove".equals(name);
+
+                    String[] groups = { "group2", };
+
+                    // String [] groups = new String [];
+
+                    IRosterManager r = getSessionManager().getRosterManager();
+                    if (remove) {
+                        IChatID id = new RosterId("pkorman",
+                                "awipscm.omaha.us.ray.com", null);
+                        r.sendRosterRemove(id);
+                    } else {
+
+                        r.sendRosterAdd("pkorman@awipscm.omaha.us.ray.com",
+                                "Paul", groups);
+                    }
+                    if ("subscribe".equals(name)) {
+                        IPresenceSender sender = getConnectionPresenceAdapter()
+                                .getRosterManager().getPresenceSender();
+                        org.eclipse.ecf.presence.IPresence presence = new org.eclipse.ecf.presence.Presence(
+                                org.eclipse.ecf.presence.IPresence.Type.SUBSCRIBE);
+                        
+                        sender.sendPresenceUpdate(createID("pkorman@awipscm.omaha.us.ray.com"), presence);
+                    }
+
+                    System.out.println("Subscribe message sent.");
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        Thread t = new Thread(r);
+        t.start();
+        System.out.println("The subscribe test has started.");
     }
 
     /**
