@@ -5,6 +5,10 @@ package gov.noaa.nws.ncep.common.dataplugin.ncairep;
  * NOAA/NWS/NCEP/NCO in order to output point data in HDF5.
  **/
 
+import java.math.RoundingMode;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -30,14 +34,13 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
+import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.pointdata.IPointData;
 import com.raytheon.uf.common.pointdata.PointDataView;
-import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.pointdata.spatial.AircraftObsLocation;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -58,6 +61,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * 08/30/2011    286        qzhou      Use IDecoderConstantsN.INTEGER_MISSING instead -9999 in visibility. 
  * 08/31/2011    286        qzhou      Moved this from ~edex.plugin.airep
  * 9/20/2011     286        qzhou      Change reportType to String
+ * 04/05/2012    420        dgilling   Prevent NullPointerExceptions in
+ *                                     buildMessageData().
  * </pre>
  * 
  * @author jkorman
@@ -70,789 +75,809 @@ import com.vividsolutions.jts.geom.Geometry;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class NcAirepRecord extends PluginDataObject implements ISpatialEnabled,
-		IDecoderGettable, IPointData, IPersistable {
+        IDecoderGettable, IPointData, IPersistable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-//	public static final String PLUGIN_NAME = "ncairep";
-//
-//	public static final String STATION_ID = "stationId";
+    // public static final String PLUGIN_NAME = "ncairep";
+    //
+    // public static final String STATION_ID = "stationId";
 
-	public static final Unit<Temperature> TEMPERATURE_UNIT = SI.CELSIUS;
+    public static final Unit<Temperature> TEMPERATURE_UNIT = SI.CELSIUS;
 
-	public static final Unit<Velocity> WIND_SPEED_UNIT = NonSI.KNOT;
+    public static final Unit<Velocity> WIND_SPEED_UNIT = NonSI.KNOT;
 
-	public static final Unit<Angle> WIND_DIR_UNIT = NonSI.DEGREE_ANGLE;
+    public static final Unit<Angle> WIND_DIR_UNIT = NonSI.DEGREE_ANGLE;
 
-	public static final Unit<Length> ALTITUDE_UNIT = NonSI.FOOT;
+    public static final Unit<Length> ALTITUDE_UNIT = NonSI.FOOT;
 
-	public static final Unit<Angle> LOCATION_UNIT = NonSI.DEGREE_ANGLE;
+    public static final Unit<Angle> LOCATION_UNIT = NonSI.DEGREE_ANGLE;
 
-	private static UnitConverter ftToHft = NonSI.FOOT.getConverterTo(SI
-			.HECTO(NonSI.FOOT));
+    private static UnitConverter ftToHft = NonSI.FOOT.getConverterTo(SI
+            .HECTO(NonSI.FOOT));
 
-	private static final HashMap<String, String> PARM_MAP = new HashMap<String, String>();
+    private static final HashMap<String, String> PARM_MAP = new HashMap<String, String>();
 
-	// private static final HashMap<Integer, String> WX_MAP = new
-	// HashMap<Integer, String>();
+    // private static final HashMap<Integer, String> WX_MAP = new
+    // HashMap<Integer, String>();
 
-	static {
-		PARM_MAP.put("T", SFC_TEMP);
-		PARM_MAP.put("WS", SFC_WNDSPD);
-		PARM_MAP.put("WD", SFC_WNDDIR);
-		PARM_MAP.put("NLAT", STA_LAT);
-		PARM_MAP.put("NLON", STA_LON);
-		PARM_MAP.put("FLT_LVL", UA_FLTLVL);
+    static {
+        PARM_MAP.put("T", SFC_TEMP);
+        PARM_MAP.put("WS", SFC_WNDSPD);
+        PARM_MAP.put("WD", SFC_WNDDIR);
+        PARM_MAP.put("NLAT", STA_LAT);
+        PARM_MAP.put("NLON", STA_LON);
+        PARM_MAP.put("FLT_LVL", UA_FLTLVL);
 
-		// WX_MAP.put(0, "CLR");
-		// WX_MAP.put(1, "SCT");
-		// WX_MAP.put(2, "BKN");
-		// WX_MAP.put(3, "CONT");
-		// WX_MAP.put(4, "LIGHTNING");
-		// WX_MAP.put(5, "DZRA");
-		// WX_MAP.put(6, "CONT RA");
-		// WX_MAP.put(7, "CONT SN");
-		// WX_MAP.put(8, "SH");
-		// WX_MAP.put(9, "TSRA");
-	}
+        // WX_MAP.put(0, "CLR");
+        // WX_MAP.put(1, "SCT");
+        // WX_MAP.put(2, "BKN");
+        // WX_MAP.put(3, "CONT");
+        // WX_MAP.put(4, "LIGHTNING");
+        // WX_MAP.put(5, "DZRA");
+        // WX_MAP.put(6, "CONT RA");
+        // WX_MAP.put(7, "CONT SN");
+        // WX_MAP.put(8, "SH");
+        // WX_MAP.put(9, "TSRA");
+    }
 
-	@Transient
-	@DynamicSerializeElement
-	@XmlAttribute
-	private Integer obsId;
+    @Transient
+    @DynamicSerializeElement
+    @XmlAttribute
+    private Integer obsId;
 
-	// Time of the observation.
-	@Transient
-	@DynamicSerializeElement
-	@XmlAttribute
-	private Calendar timeObs;
+    // Time of the observation.
+    @Transient
+    @DynamicSerializeElement
+    @XmlAttribute
+    private Calendar timeObs;
 
-	// Time of the observation to the nearest hour.
-	@Column
-	@DynamicSerializeElement
-	@XmlAttribute
-	private Calendar refHour;
+    // Time of the observation to the nearest hour.
+    @Column
+    @DynamicSerializeElement
+    @XmlAttribute
+    private Calendar refHour;
 
-	//
-	@DataURI(position = 1)
-	@Column(length = 8)
-	@DynamicSerializeElement
-	@XmlAttribute
-	private String reportType;
+    //
+    @DataURI(position = 1)
+    @Column(length = 8)
+    @DynamicSerializeElement
+    @XmlAttribute
+    private String reportType;
 
-	// Text of the WMO header
-	@Transient
-	@DynamicSerializeElement
-	@XmlElement
-	private String wmoHeader;
+    // Text of the WMO header
+    @Transient
+    @DynamicSerializeElement
+    @XmlElement
+    private String wmoHeader;
 
-	// Correction indicator from wmo header
-	@DataURI(position = 2)
-	@Column(length = 8)
-	@DynamicSerializeElement
-	@XmlElement
-	private String corIndicator;
+    // Correction indicator from wmo header
+    @DataURI(position = 2)
+    @Column(length = 8)
+    @DynamicSerializeElement
+    @XmlElement
+    private String corIndicator;
 
-	// Observation air temperature in degrees Celsius.
-	// Decimal(5,2)
-	@Transient
-	@DynamicSerializeElement
-	@XmlElement
-	private Float temp;
+    // Observation air temperature in degrees Celsius.
+    // Decimal(5,2)
+    @Transient
+    @DynamicSerializeElement
+    @XmlElement
+    private Float temp;
 
-	// Observation wind direction in angular degrees. Integer
-	@Transient
-	@DynamicSerializeElement
-	@XmlElement
-	private Float windDirection;
+    // Observation wind direction in angular degrees. Integer
+    @Transient
+    @DynamicSerializeElement
+    @XmlElement
+    private Float windDirection;
 
-	// Observation wind speed in knots.
-	// Decimal(5,2)
-	@Transient
-	//@Column
-	@DynamicSerializeElement
-	@XmlElement
-	private Float windSpeed;
+    // Observation wind speed in knots.
+    // Decimal(5,2)
+    @Transient
+    // @Column
+    @DynamicSerializeElement
+    @XmlElement
+    private Float windSpeed;
 
-	@Transient
-	@DynamicSerializeElement
-	@XmlElement
-	private Integer flightHazard;
+    @Transient
+    @DynamicSerializeElement
+    @XmlElement
+    private Integer flightHazard;
 
-	@Transient
-	@DynamicSerializeElement
-	@XmlElement
-	private Integer flightWeather;
+    @Transient
+    @DynamicSerializeElement
+    @XmlElement
+    private Integer flightWeather;
 
-	@Transient
-	@DynamicSerializeElement
-	@XmlElement
-	private Integer flightConditions;
+    @Transient
+    @DynamicSerializeElement
+    @XmlElement
+    private Integer flightConditions;
 
-//	@Transient
-//	@DynamicSerializeElement
-//	@XmlElement
-//	private Float latitude;
-//
-//	@Transient
-//	@DynamicSerializeElement
-//	@XmlElement
-//	private Float longitude;
-//
-//	@Transient
-//	@DynamicSerializeElement
-//	@XmlElement
-//	private String stationId;
+    // @Transient
+    // @DynamicSerializeElement
+    // @XmlElement
+    // private Float latitude;
+    //
+    // @Transient
+    // @DynamicSerializeElement
+    // @XmlElement
+    // private Float longitude;
+    //
+    // @Transient
+    // @DynamicSerializeElement
+    // @XmlElement
+    // private String stationId;
 
-//	@Transient
-//	@DynamicSerializeElement
-//	@XmlElement
-//	private String dataURI;
+    // @Transient
+    // @DynamicSerializeElement
+    // @XmlElement
+    // private String dataURI;
 
-	@Transient
-	@DynamicSerializeElement
-	//@XmlElement
-	@XmlAttribute
-	private String turbInten;
-	
+    @Transient
+    @DynamicSerializeElement
+    // @XmlElement
+    @XmlAttribute
+    private String turbInten;
 
-	@Transient
-	@DynamicSerializeElement
-	@XmlElement
-	private String iceInten;
-	
+    @Transient
+    @DynamicSerializeElement
+    @XmlElement
+    private String iceInten;
 
-	@Transient
-	@DynamicSerializeElement
-	@XmlElement
-	private String skyCover;	
+    @Transient
+    @DynamicSerializeElement
+    @XmlElement
+    private String skyCover;
 
-	@Transient
-	@DynamicSerializeElement
-	@XmlElement
-	private String turbType;
-	
+    @Transient
+    @DynamicSerializeElement
+    @XmlElement
+    private String turbType;
 
-	@Transient
-	@DynamicSerializeElement
-	@XmlElement
-	private String iceType;
-	
-	@Transient
-	@DynamicSerializeElement
-	@XmlElement
-	private String turbFreq;
-	
-	@Transient
-	@DynamicSerializeElement
-	@XmlElement
-	private int skyBaseHeight;
-	
-	@Transient
-	@DynamicSerializeElement
-	@XmlElement
-	private int skyTopHeight;	
-	
-	@Transient
-	@DynamicSerializeElement
-	@XmlElement
-	private String suspectTimeFlag;
-	
-	@Embedded
-	@DataURI(position = 3, embedded = true)
-	@XmlElement
-	@DynamicSerializeElement
-	private AircraftObsLocation location;
+    @Transient
+    @DynamicSerializeElement
+    @XmlElement
+    private String iceType;
 
-	@Embedded
-	private PointDataView pdv;
+    @Transient
+    @DynamicSerializeElement
+    @XmlElement
+    private String turbFreq;
 
-	/**
+    @Transient
+    @DynamicSerializeElement
+    @XmlElement
+    private int skyBaseHeight;
+
+    @Transient
+    @DynamicSerializeElement
+    @XmlElement
+    private int skyTopHeight;
+
+    @Transient
+    @DynamicSerializeElement
+    @XmlElement
+    private String suspectTimeFlag;
+
+    @Embedded
+    @DataURI(position = 3, embedded = true)
+    @XmlElement
+    @DynamicSerializeElement
+    private AircraftObsLocation location;
+
+    @Embedded
+    private PointDataView pdv;
+
+    /**
      * 
      */
-	public NcAirepRecord() {
-	}
+    public NcAirepRecord() {
+    }
 
-	/**
-	 * Constructor for DataURI construction through base class. This is used by
-	 * the notification service.
-	 * 
-	 * @param uri
-	 *            A data uri applicable to this class.
-	 * @param tableDef
-	 *            The table definitions for this class.
-	 */
-	public NcAirepRecord(String uri) {
-		super(uri);
-	}
+    /**
+     * Constructor for DataURI construction through base class. This is used by
+     * the notification service.
+     * 
+     * @param uri
+     *            A data uri applicable to this class.
+     * @param tableDef
+     *            The table definitions for this class.
+     */
+    public NcAirepRecord(String uri) {
+        super(uri);
+    }
 
-	public Integer getObsId() {
-		return obsId;
-	}
+    public Integer getObsId() {
+        return obsId;
+    }
 
-	public void setObsId(Integer obsId) {
-		this.obsId = obsId;
-	}
+    public void setObsId(Integer obsId) {
+        this.obsId = obsId;
+    }
 
-	/**
-	 * @return the wmoHeader
-	 */
-	public String getWmoHeader() {
-		return wmoHeader;
-	}
+    /**
+     * @return the wmoHeader
+     */
+    public String getWmoHeader() {
+        return wmoHeader;
+    }
 
-	/**
-	 * @param wmoHeader
-	 *            the wmoHeader to set
-	 */
-	public void setWmoHeader(String wmoHeader) {
-		this.wmoHeader = wmoHeader;
-	}
+    /**
+     * @param wmoHeader
+     *            the wmoHeader to set
+     */
+    public void setWmoHeader(String wmoHeader) {
+        this.wmoHeader = wmoHeader;
+    }
 
-	/**
-	 * Get the report correction indicator.
-	 * 
-	 * @return The corIndicator
-	 */
-	public String getCorIndicator() {
-		return corIndicator;
-	}
+    /**
+     * Get the report correction indicator.
+     * 
+     * @return The corIndicator
+     */
+    public String getCorIndicator() {
+        return corIndicator;
+    }
 
-	/**
-	 * Set the report correction indicator.
-	 * 
-	 * @param corIndicator
-	 *            The corIndicator.
-	 */
-	public void setCorIndicator(String corIndicator) {
-		this.corIndicator = corIndicator;
-	}
+    /**
+     * Set the report correction indicator.
+     * 
+     * @param corIndicator
+     *            The corIndicator.
+     */
+    public void setCorIndicator(String corIndicator) {
+        this.corIndicator = corIndicator;
+    }
 
-	/**
-	 * Get the report data for this observation.
-	 * 
-	 * @return The Report data.
-	 */
-	public String getReportData() {
-		String s = null;
-		if (messageData != null && messageData instanceof String) {
-			s = (String) messageData;
-		} else {
-			s = buildMessageData();
-		}
-		return s;
-	}
+    /**
+     * Get the report data for this observation.
+     * 
+     * @return The Report data.
+     */
+    public String getReportData() {
+        String s = null;
+        if (messageData != null && messageData instanceof String) {
+            s = (String) messageData;
+        } else {
+            s = buildMessageData();
+        }
+        return s;
+    }
 
-	/**
-	 * Set the report data for this observation.
-	 * 
-	 * @param reportData
-	 *            The Report data.
-	 */
-	public void setReportData(String reportData) {
-		messageData = reportData;
-	}
+    /**
+     * Set the report data for this observation.
+     * 
+     * @param reportData
+     *            The Report data.
+     */
+    public void setReportData(String reportData) {
+        messageData = reportData;
+    }
 
-	/**
-	 * Get this observation's geometry.
-	 * 
-	 * @return The geometry for this observation.
-	 */
-	public Geometry getGeometry() {
-		return location.getGeometry();
-	}
+    /**
+     * Get this observation's geometry.
+     * 
+     * @return The geometry for this observation.
+     */
+    public Geometry getGeometry() {
+        return location.getGeometry();
+    }
 
-	/**
-	 * Get the geometry latitude.
-	 * 
-	 * @return The geometry latitude.
-	 */
-	public double getLatitude() {
-		return location.getLatitude();
-	}
+    /**
+     * Get the geometry latitude.
+     * 
+     * @return The geometry latitude.
+     */
+    public double getLatitude() {
+        return location.getLatitude();
+    }
 
-	/**
-	 * Get the geometry longitude.
-	 * 
-	 * @return The geometry longitude.
-	 */
-	public double getLongitude() {
-		return location.getLongitude();
-	}
+    /**
+     * Get the geometry longitude.
+     * 
+     * @return The geometry longitude.
+     */
+    public double getLongitude() {
+        return location.getLongitude();
+    }
 
-	/**
-	 * Boolean for whether location is defined in the spatial tables.
-	 * 
-	 * @return true or false (Is location defined in the spatial tables?)
-	 */
-	public Boolean getLocationDefined() {
-		return location.getLocationDefined();
-	}
+    /**
+     * Boolean for whether location is defined in the spatial tables.
+     * 
+     * @return true or false (Is location defined in the spatial tables?)
+     */
+    public Boolean getLocationDefined() {
+        return location.getLocationDefined();
+    }
 
-	/**
-	 * Get the station identifier for this observation.
-	 * 
-	 * @return the stationId
-	 */
-	public String getStationId() {
-		return location.getStationId();
-	}
+    /**
+     * Get the station identifier for this observation.
+     * 
+     * @return the stationId
+     */
+    public String getStationId() {
+        return location.getStationId();
+    }
 
-	/**
-	 * Get the elevation, in meters, of the observing platform or location.
-	 * 
-	 * @return The observation elevation, in meters.
-	 */
-	public Integer getFlightLevel() {
-		return location.getFlightLevel();
-	}
+    /**
+     * Get the elevation, in meters, of the observing platform or location.
+     * 
+     * @return The observation elevation, in meters.
+     */
+    public Integer getFlightLevel() {
+        return location.getFlightLevel();
+    }
 
-	/**
-	 * @return the reportType
-	 */
-	public String getReportType() {
-		return reportType;
-	}
+    /**
+     * @return the reportType
+     */
+    public String getReportType() {
+        return reportType;
+    }
 
-	/**
-	 * @param reportType
-	 *            the reportType to set
-	 */
-	public void setReportType(String reportType) {
-		this.reportType = reportType;
-	}
+    /**
+     * @param reportType
+     *            the reportType to set
+     */
+    public void setReportType(String reportType) {
+        this.reportType = reportType;
+    }
 
-	/**
-	 * @return the timeObs
-	 */
-	public Calendar getTimeObs() {
-		if (this.dataTime == null)
-			return null;
-		return this.dataTime.getRefTimeAsCalendar();
-	}
+    /**
+     * @return the timeObs
+     */
+    public Calendar getTimeObs() {
+        if (this.dataTime == null) {
+            return null;
+        }
+        return this.dataTime.getRefTimeAsCalendar();
+    }
 
-	/**
-	 * @param timeObs
-	 *            the timeObs to set
-	 */
-	public void setTimeObs(Calendar timeObs) {
-		this.timeObs = timeObs;
-	}
+    /**
+     * @param timeObs
+     *            the timeObs to set
+     */
+    public void setTimeObs(Calendar timeObs) {
+        this.timeObs = timeObs;
+    }
 
-	/**
-	 * @return the refHour
-	 */
-	public Calendar getRefHour() {
-		return refHour;
-	}
+    /**
+     * @return the refHour
+     */
+    public Calendar getRefHour() {
+        return refHour;
+    }
 
-	/**
-	 * @param refHour
-	 *            the refHour to set
-	 */
-	public void setRefHour(Calendar refHour) {
-		this.refHour = refHour;
-	}
+    /**
+     * @param refHour
+     *            the refHour to set
+     */
+    public void setRefHour(Calendar refHour) {
+        this.refHour = refHour;
+    }
 
-	/**
-	 * @return the temp
-	 */
-	public float getTemp() {
-		return temp;
-	}
+    /**
+     * @return the temp
+     */
+    public float getTemp() {
+        return temp;
+    }
 
-	/**
-	 * @param temp
-	 *            the temp to set
-	 */
-	public void setTemp(float temp) {
-		this.temp = temp;
-	}
+    /**
+     * @param temp
+     *            the temp to set
+     */
+    public void setTemp(float temp) {
+        this.temp = temp;
+    }
 
-	/**
-	 * @return the windDirection
-	 */
-	public float getWindDirection() {
-		return windDirection;
-	}
+    /**
+     * @return the windDirection
+     */
+    public float getWindDirection() {
+        return windDirection;
+    }
 
-	/**
-	 * @param windDirection
-	 *            the windDirection to set
-	 */
-	public void setWindDirection(float windDirection) {
-		this.windDirection = windDirection;
-	}
+    /**
+     * @param windDirection
+     *            the windDirection to set
+     */
+    public void setWindDirection(float windDirection) {
+        this.windDirection = windDirection;
+    }
 
-	/**
-	 * @return the windspeed
-	 */
-	public float getWindSpeed() {
-		return windSpeed;
-	}
+    /**
+     * @return the windspeed
+     */
+    public float getWindSpeed() {
+        return windSpeed;
+    }
 
-	/**
-	 * @param windspeed
-	 *            the windspeed to set
-	 */
-	public void setWindSpeed(float windSpeed) {
-		this.windSpeed = windSpeed;
-	}
+    /**
+     * @param windspeed
+     *            the windspeed to set
+     */
+    public void setWindSpeed(float windSpeed) {
+        this.windSpeed = windSpeed;
+    }
 
-	/**
-	 * @return the flightHazard
-	 */
-	public Integer getFlightHazard() {
-		return flightHazard;
-	}
+    /**
+     * @return the flightHazard
+     */
+    public Integer getFlightHazard() {
+        return flightHazard;
+    }
 
-	/**
-	 * @param flightHazard
-	 *            the wx_past_1 to set
-	 */
-	public void setFlightHazard(Integer flightHazard) {
-		this.flightHazard = flightHazard;
-	}
+    /**
+     * @param flightHazard
+     *            the wx_past_1 to set
+     */
+    public void setFlightHazard(Integer flightHazard) {
+        this.flightHazard = flightHazard;
+    }
 
-	/**
-	 * @return the flightWeather
-	 */
-	public Integer getFlightWeather() {
-		return flightWeather;
-	}
+    /**
+     * @return the flightWeather
+     */
+    public Integer getFlightWeather() {
+        return flightWeather;
+    }
 
-	/**
-	 * @param flightWeather
-	 *            the getFlightWeather to set
-	 */
-	public void setFlightWeather(Integer flightWeather) {
-		this.flightWeather = flightWeather;
-	}
+    /**
+     * @param flightWeather
+     *            the getFlightWeather to set
+     */
+    public void setFlightWeather(Integer flightWeather) {
+        this.flightWeather = flightWeather;
+    }
 
-	/**
-	 * @return the flightConditions
-	 */
-	public Integer getFlightConditions() {
-		return flightConditions;
-	}
+    /**
+     * @return the flightConditions
+     */
+    public Integer getFlightConditions() {
+        return flightConditions;
+    }
 
-	/**
-	 * @param flightConditions
-	 *            the flightConditions to set
-	 */
-	public void setFlightConditions(Integer flightConditions) {
-		this.flightConditions = flightConditions;
-	}
-	
-	/**
-	 * @return the wmoHeader
-	 */
-	public String getTurbInten() {
-		return turbInten;
-	}
-	public void setTurbInten(String turbInten) {
-		this.turbInten = turbInten;
-	}
+    /**
+     * @param flightConditions
+     *            the flightConditions to set
+     */
+    public void setFlightConditions(Integer flightConditions) {
+        this.flightConditions = flightConditions;
+    }
 
-	public String getIceInten() {
-		return iceInten;
-	}
-	public void setIceInten(String iceInten) {
-		this.iceInten = iceInten;
-	}
+    /**
+     * @return the wmoHeader
+     */
+    public String getTurbInten() {
+        return turbInten;
+    }
 
-	public String getSkyCover() {
-		return skyCover;
-	}
-	public void setSkyCover(String skyCover) {
-		this.skyCover = skyCover;
-	}
+    public void setTurbInten(String turbInten) {
+        this.turbInten = turbInten;
+    }
 
-	public String getTurbType() {
-		return turbType;
-	}
-	public void setTurbType(String turbType) {
-		this.turbType = turbType;
-	}
+    public String getIceInten() {
+        return iceInten;
+    }
 
-	public String getIceType() {
-		return iceType;
-	}
-	public void setIceType(String iceType) {
-		this.iceType = iceType;
-	}
+    public void setIceInten(String iceInten) {
+        this.iceInten = iceInten;
+    }
 
-	public String getTurbFreq() {
-		return turbFreq;
-	}
-	public void setTurbFreq(String turbFreq) {
-		this.turbFreq = turbFreq;
-	}
+    public String getSkyCover() {
+        return skyCover;
+    }
 
-	public int getSkyBaseHeight() {
-		return skyBaseHeight;
-	}
-	public void setSkyBaseHeight(int skyBaseHeight) {
-		this.skyBaseHeight = skyBaseHeight;
-	}
-	
-	public int getSkyTopHeight() {
-		return skyTopHeight;
-	}
-	public void setSkyTopHeight(int skyTopHeight) {
-		this.skyTopHeight = skyTopHeight;
-	}
-	
-	public String getSuspectTimeFlag() {
+    public void setSkyCover(String skyCover) {
+        this.skyCover = skyCover;
+    }
+
+    public String getTurbType() {
+        return turbType;
+    }
+
+    public void setTurbType(String turbType) {
+        this.turbType = turbType;
+    }
+
+    public String getIceType() {
+        return iceType;
+    }
+
+    public void setIceType(String iceType) {
+        this.iceType = iceType;
+    }
+
+    public String getTurbFreq() {
+        return turbFreq;
+    }
+
+    public void setTurbFreq(String turbFreq) {
+        this.turbFreq = turbFreq;
+    }
+
+    public int getSkyBaseHeight() {
+        return skyBaseHeight;
+    }
+
+    public void setSkyBaseHeight(int skyBaseHeight) {
+        this.skyBaseHeight = skyBaseHeight;
+    }
+
+    public int getSkyTopHeight() {
+        return skyTopHeight;
+    }
+
+    public void setSkyTopHeight(int skyTopHeight) {
+        this.skyTopHeight = skyTopHeight;
+    }
+
+    public String getSuspectTimeFlag() {
         return suspectTimeFlag;
     }
-	public void setSuspectTimeFlag(String suspectTimeFlag) {
+
+    public void setSuspectTimeFlag(String suspectTimeFlag) {
         this.suspectTimeFlag = suspectTimeFlag;
     }
-	
-	@Override
-	public void setDataURI(String dataURI) {
-		identifier = dataURI;
-	}
 
-	/**
-	 * Get the IDecoderGettable reference for this record.
-	 * 
-	 * @return The IDecoderGettable reference for this record.
-	 */
-	@Override
-	public IDecoderGettable getDecoderGettable() {
-		return this;
-	}
+    @Override
+    public void setDataURI(String dataURI) {
+        identifier = dataURI;
+    }
 
-	/**
-	 * Get the value of a parameter that is represented as a String.
-	 * 
-	 * @param paramName
-	 *            The name of the parameter value to retrieve.
-	 * @return The String value of the parameter. If the parameter is unknown, a
-	 *         null reference is returned.
-	 */
-	@Override
-	public String getString(String paramName) {
-		if ("STA".matches(paramName)) {
-			return this.getStationId();
-		}
-		return null;
-	}
+    /**
+     * Get the IDecoderGettable reference for this record.
+     * 
+     * @return The IDecoderGettable reference for this record.
+     */
+    @Override
+    public IDecoderGettable getDecoderGettable() {
+        return this;
+    }
 
-	/**
-	 * Get the value and units of a named parameter within this observation.
-	 * 
-	 * @param paramName
-	 *            The name of the parameter value to retrieve.
-	 * @return An Amount with value and units. If the parameter is unknown, a
-	 *         null reference is returned.
-	 */
-	@Override
-	public Amount getValue(String paramName) {
-		Amount a = null;
+    /**
+     * Get the value of a parameter that is represented as a String.
+     * 
+     * @param paramName
+     *            The name of the parameter value to retrieve.
+     * @return The String value of the parameter. If the parameter is unknown, a
+     *         null reference is returned.
+     */
+    @Override
+    public String getString(String paramName) {
+        if ("STA".matches(paramName)) {
+            return this.getStationId();
+        }
+        return null;
+    }
 
-		String pName = PARM_MAP.get(paramName);
+    /**
+     * Get the value and units of a named parameter within this observation.
+     * 
+     * @param paramName
+     *            The name of the parameter value to retrieve.
+     * @return An Amount with value and units. If the parameter is unknown, a
+     *         null reference is returned.
+     */
+    @Override
+    public Amount getValue(String paramName) {
+        Amount a = null;
 
-		if (SFC_TEMP.equals(pName) && (temp != null)) {
-			a = new Amount(temp, TEMPERATURE_UNIT);
-		} else if (SFC_WNDSPD.equals(pName) && (windSpeed != null)) {
-			a = new Amount(windSpeed, WIND_SPEED_UNIT);
-		} else if (SFC_WNDDIR.equals(pName) && (windDirection != null)) {
-			a = new Amount(windDirection, WIND_DIR_UNIT);
-		} else if (STA_LAT.equals(pName)) {
-			a = new Amount(this.getLatitude(), LOCATION_UNIT);
-		} else if (STA_LON.equals(pName)) {
-			a = new Amount(this.getLongitude(), LOCATION_UNIT);
-		} else if (UA_FLTLVL.equals(pName) && getFlightLevel() != null) {
-			a = new Amount(this.getFlightLevel().intValue(), ALTITUDE_UNIT);
+        String pName = PARM_MAP.get(paramName);
 
-		}
-		return a;
-	}
+        if (SFC_TEMP.equals(pName) && (temp != null)) {
+            a = new Amount(temp, TEMPERATURE_UNIT);
+        } else if (SFC_WNDSPD.equals(pName) && (windSpeed != null)) {
+            a = new Amount(windSpeed, WIND_SPEED_UNIT);
+        } else if (SFC_WNDDIR.equals(pName) && (windDirection != null)) {
+            a = new Amount(windDirection, WIND_DIR_UNIT);
+        } else if (STA_LAT.equals(pName)) {
+            a = new Amount(this.getLatitude(), LOCATION_UNIT);
+        } else if (STA_LON.equals(pName)) {
+            a = new Amount(this.getLongitude(), LOCATION_UNIT);
+        } else if (UA_FLTLVL.equals(pName) && getFlightLevel() != null) {
+            a = new Amount(this.getFlightLevel().intValue(), ALTITUDE_UNIT);
 
-	/**
-	 * Get the value of a parameter that is represented as a String.
-	 * 
-	 * @param paramName
-	 *            The name of the parameter value to retrieve.
-	 * @return The String value of the parameter. If the parameter is unknown, a
-	 *         null reference is returned.
-	 */
-	@Override
-	public Collection<Amount> getValues(String paramName) {
-		return null;
-	}
+        }
+        return a;
+    }
 
-	@Override
-	public String[] getStrings(String paramName) {
-		if ("FLT_HZD".matches(paramName) && flightHazard != null) {
-			String[] flightHazards = { flightHazard.toString() };
-			return flightHazards;
-		}
-		return null;
-	}
+    /**
+     * Get the value of a parameter that is represented as a String.
+     * 
+     * @param paramName
+     *            The name of the parameter value to retrieve.
+     * @return The String value of the parameter. If the parameter is unknown, a
+     *         null reference is returned.
+     */
+    @Override
+    public Collection<Amount> getValues(String paramName) {
+        return null;
+    }
 
-	@Override
-	public AircraftObsLocation getSpatialObject() {
-		return location;
-	}
+    @Override
+    public String[] getStrings(String paramName) {
+        if ("FLT_HZD".matches(paramName) && flightHazard != null) {
+            String[] flightHazards = { flightHazard.toString() };
+            return flightHazards;
+        }
+        return null;
+    }
 
-	public AircraftObsLocation getLocation() {
-		return location;
-	}
+    @Override
+    public AircraftObsLocation getSpatialObject() {
+        return location;
+    }
 
-	public void setLocation(AircraftObsLocation location) {
-		this.location = location;
-	}
+    public AircraftObsLocation getLocation() {
+        return location;
+    }
 
-	@Override
-	public String getMessageData() {
-		return getReportData();
-	}
+    public void setLocation(AircraftObsLocation location) {
+        this.location = location;
+    }
 
-	private String buildMessageData() {
-		String s = "";
+    @Override
+    public String getMessageData() {
+        return getReportData();
+    }
 
-		String lat = String.valueOf(location.getLatitude());
-		String lon = String.valueOf(location.getLongitude());
-		String latDir = location.getLatitude() > 0 ? "N" : "S";
-		String lonDir = location.getLongitude() > 0 ? "E" : "W";
-		String hour = "";
-		String minute = "";
-		if (timeObs != null) {
-			hour = String.valueOf(timeObs.get(Calendar.HOUR_OF_DAY));
-			minute = String.valueOf(timeObs.get(Calendar.MINUTE));
-		}
-		String flightLevel = String.valueOf((int) ftToHft.convert(location
-				.getFlightLevel()));
-		String wind = windDirection != null?
-				String.valueOf(windDirection.intValue()) + "/"
-				+ String.valueOf(windSpeed.intValue()) + "KT" : "";
-		// String wx = flightWeather != null? WX_MAP.get(flightWeather) : "";
-		lat = formatLatLon(lat);
-		lon = formatLatLon(lon);
-		String temperature = "";
-		if (temp != null) {
-			if (temp > 0) {
-				temperature = "P" + temp.intValue();
-			} else {
-				temperature = "M"
-						+ String.valueOf(temp.intValue()).substring(1);
-			}
-		}
-		if (hour.length() < 2) {
-			hour = "0" + hour;
-		}
-		if (minute.length() < 2) {
-			minute = "0" + minute;
-		}
-		s = "ARP " + location.getStationId() + " " + lat + latDir + " " + lon
-				+ lonDir + " " + hour + minute + " F" + flightLevel + " "
-				+ temperature + " " + wind + "TB";
-		return s;
-	}
+    private String buildMessageData() {
+        boolean validLocation = (location != null);
 
-	private String formatLatLon(String str) {
-		str = str.startsWith("-") ? str.substring(1) : str;
+        StringBuilder messageData = new StringBuilder("ARP ");
+        if (validLocation && getStationId() != null) {
+            messageData.append(getStationId());
+        }
+        messageData.append(' ');
 
-		int decimalIndex = str.indexOf(".");
+        if ((validLocation) && (!Double.isNaN(getLatitude()))
+                && (!Double.isNaN(getLongitude()))) {
+            messageData.append(formatLatLon(getLatitude(), true));
+            messageData.append(' ');
+            messageData.append(formatLatLon(getLongitude(), false));
+            messageData.append(' ');
+        }
 
-		if (decimalIndex != -1) {
-			String temp = str.substring(decimalIndex + 1);
-			if (temp.length() > 3) {
-				temp = temp.substring(0, 3);
-			} else if (temp.length() != 3) {
-				while (temp.length() != 3) {
-					temp += "0";
-				}
-			}
-			str = str.substring(0, decimalIndex) + temp;
-		}
+        if (timeObs != null) {
+            DateFormat df = new SimpleDateFormat("HHmm");
+            messageData.append(df.format(timeObs.getTime()));
+        }
+        messageData.append(" F");
 
-		return str;
-	}
+        if (validLocation && getFlightLevel() != null) {
+            int flightLevel = (int) ftToHft.convert(getFlightLevel());
+            messageData.append(flightLevel);
+        }
+        messageData.append(' ');
 
-	/**
-	 * Returns the hashCode for this object. This implementation returns the
-	 * hashCode of the generated dataURI.
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ ((getDataURI() == null) ? 0 : getDataURI().hashCode());
-		return result;
-	}
+        if (temp != null) {
+            if (temp > 0) {
+                messageData.append('P');
+            } else {
+                messageData.append('M');
+            }
+            messageData.append(Math.abs(temp.intValue()));
+        }
+        messageData.append(' ');
 
-	/**
-	 * Checks if this record is equal to another by checking the generated
-	 * dataURI.
-	 * 
-	 * @param obj
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		NcAirepRecord other = (NcAirepRecord) obj;
-		if (getDataURI() == null) {
-			if (other.getDataURI() != null) {
-				return false;
-			}
-		} else if (!getDataURI().equals(other.getDataURI()))
-			return false;
-		return true;
-	}
+        if ((windDirection != null) && (windSpeed != null)) {
+            messageData.append(windDirection.intValue());
+            messageData.append('/');
+            messageData.append(windSpeed.intValue());
+            messageData.append("KT");
+        }
+        messageData.append("TB");
 
-	@Override
-	public Date getPersistenceTime() {
-		return this.dataTime.getRefTime();
-	}
+        return messageData.toString();
+    }
 
-	@Override
-	public void setPersistenceTime(Date persistTime) {
-	}
+    private String formatLatLon(double value, boolean isLatitude) {
+        char dir;
+        if (isLatitude) {
+            if (value > 0) {
+                dir = 'N';
+            } else {
+                dir = 'S';
+            }
+        } else {
+            if (value > 0) {
+                dir = 'E';
+            } else {
+                dir = 'W';
+            }
+        }
 
-	@Override
-	public Integer getHdfFileId() {
-		return null;
-	}
+        DecimalFormat df = new DecimalFormat("###.000");
+        df.setRoundingMode(RoundingMode.DOWN);
 
-	@Override
-	public void setHdfFileId(Integer hdfFileId) {
-	}
+        return df.format(Math.abs(value)) + dir;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.raytheon.uf.common.pointdata.IPointData#getPointDataView()
-	 */
-	@Override
-	public PointDataView getPointDataView() {
-		return this.pdv;
-	}
+    /**
+     * Returns the hashCode for this object. This implementation returns the
+     * hashCode of the generated dataURI.
+     * 
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((getDataURI() == null) ? 0 : getDataURI().hashCode());
+        return result;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.raytheon.uf.common.pointdata.IPointData#setPointDataView(com.raytheon
-	 * .uf.common.pointdata.PointDataView)
-	 */
-	@Override
-	public void setPointDataView(PointDataView pdv) {
-		this.pdv = pdv;
-	}
+    /**
+     * Checks if this record is equal to another by checking the generated
+     * dataURI.
+     * 
+     * @param obj
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        NcAirepRecord other = (NcAirepRecord) obj;
+        if (getDataURI() == null) {
+            if (other.getDataURI() != null) {
+                return false;
+            }
+        } else if (!getDataURI().equals(other.getDataURI())) {
+            return false;
+        }
+        return true;
+    }
 
+    @Override
+    public Date getPersistenceTime() {
+        return this.dataTime.getRefTime();
+    }
+
+    @Override
+    public void setPersistenceTime(Date persistTime) {
+    }
+
+    @Override
+    public Integer getHdfFileId() {
+        return null;
+    }
+
+    @Override
+    public void setHdfFileId(Integer hdfFileId) {
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.common.pointdata.IPointData#getPointDataView()
+     */
+    @Override
+    public PointDataView getPointDataView() {
+        return this.pdv;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.pointdata.IPointData#setPointDataView(com.raytheon
+     * .uf.common.pointdata.PointDataView)
+     */
+    @Override
+    public void setPointDataView(PointDataView pdv) {
+        this.pdv = pdv;
+    }
 
 }
