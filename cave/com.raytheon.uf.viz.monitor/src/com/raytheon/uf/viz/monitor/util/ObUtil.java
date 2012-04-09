@@ -82,6 +82,19 @@ public final class ObUtil {
         dropTime.add(Calendar.HOUR, -(ObConst.THREAT_INTERVAL_HOURS));
         return dropTime.getTime();
     }
+    
+    /**
+     * Method that gets the current time.
+     * 
+     * @return current time.
+     */
+    public static Calendar getTimeNow() {
+        Date now = SimulatedTime.getSystemTime().getTime();
+        Calendar nowTime = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        nowTime.setTime(now);
+
+        return nowTime;
+    }
 
     /**
      * Checks for the existence of a localization-created flag file which
