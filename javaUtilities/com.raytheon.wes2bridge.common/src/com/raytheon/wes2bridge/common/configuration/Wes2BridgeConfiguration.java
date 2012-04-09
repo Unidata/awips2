@@ -19,7 +19,7 @@ import org.apache.commons.configuration.XMLConfiguration;
  * 		<databasePort>int</databasePort>
  * 		<edexHttpPort>int</edexHttpPort>
  * 		<jmsPort>int</jmsPort>
- * 		<jettyPort>int</jettyPort>
+ * 		<webPort>int</webPort>
  * 		<confidentialPort></confidentialPort>
  * </Wes2BridgeCase>
  */
@@ -32,7 +32,7 @@ public class Wes2BridgeConfiguration
 	private int databasePort = -1;
 	private int edexHttpPort = -1;
 	private int jmsPort = -1;
-	private int jettyPort = -1;
+	private int webPort = -1;
 	private int confidentialPort = -1;
 	
 	/**
@@ -47,7 +47,7 @@ public class Wes2BridgeConfiguration
 		this.databasePort = -1;
 		this.edexHttpPort = -1;
 		this.jmsPort = -1;
-		this.jettyPort = -1;
+		this.webPort = -1;
 		this.confidentialPort = -1;
 	}
 	
@@ -80,8 +80,8 @@ public class Wes2BridgeConfiguration
 			xmlConfiguration.getInt("edexHttpPort");
 		this.jmsPort =
 			xmlConfiguration.getInt("jmsPort");
-		this.jettyPort =
-			xmlConfiguration.getInt("jettyPort");
+		this.webPort =
+			xmlConfiguration.getInt("webPort");
 		this.confidentialPort =
 			xmlConfiguration.getInt("confidentialPort");
 	}
@@ -136,14 +136,14 @@ public class Wes2BridgeConfiguration
 		this.jmsPort = jmsPort;
 	}
 
-	public int getJettyPort() 
+	public int getWebPort() 
 	{
-		return jettyPort;
+		return webPort;
 	}
 
-	public void setJettyPort(int jettyPort) 
+	public void setWebPort(int webPort) 
 	{
-		this.jettyPort = jettyPort;
+		this.webPort = webPort;
 	}
 
 	public int getConfidentialPort() 
