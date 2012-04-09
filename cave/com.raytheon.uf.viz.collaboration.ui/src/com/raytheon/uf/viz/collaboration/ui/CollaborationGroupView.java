@@ -259,14 +259,14 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
             }
         };
 
-        logonAction = new Action("Logon...") {
+        logonAction = new Action("Login...") {
             @Override
             public void run() {
                 populateTree();
             }
         };
         logonAction.setImageDescriptor(IconUtil.getImageDescriptor(bundle,
-                "logout.gif"));
+                "login.png"));
 
         logoutAction = new Action("Logout") {
             @Override
@@ -426,6 +426,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
             SessionManager sessionManager = CollaborationDataManager
                     .getInstance().getSessionManager();
             Presence presence = new Presence();
+            presence.setProperty("dummy", "dummy");
             presence.setMode(loginData.getMode());
             presence.setStatusMessage(loginData.getModeMessage());
             presence.setType(Type.AVAILABLE);
