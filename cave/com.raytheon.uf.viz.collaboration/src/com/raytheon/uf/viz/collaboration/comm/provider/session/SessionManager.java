@@ -142,6 +142,21 @@ public class SessionManager implements IEventPublisher {
 
         try {
             container = ContainerFactory.getDefault().createContainer(PROVIDER);
+            
+            if (container != null) {
+                container.addListener(new IContainerListener() {
+
+                    @Override
+                    public void handleEvent(IContainerEvent event) {
+
+                        System.out.println("ContainerEvent.Type = " + event.getClass().getName());
+                        
+                        
+                    }
+                });
+            }
+            
+            
         } catch (ContainerCreateException cce) {
             throw new CollaborationException(String.format(
                     "Could not create container for provider [%s]", PROVIDER));
@@ -507,13 +522,6 @@ public class SessionManager implements IEventPublisher {
                     @Override
                     public void handlePresence(ID fromId,
                             org.eclipse.ecf.presence.IPresence presence) {
-                        System.out.println("Presence from " + fromId.getName());
-                        System.out.println("         type "
-                                + presence.getType());
-                        System.out.println("         mode "
-                                + presence.getMode());
-                        System.out.println("       status "
-                                + presence.getStatus());
 
                         IPresence p = Presence.convertPresence(presence);
 
@@ -526,7 +534,7 @@ public class SessionManager implements IEventPublisher {
                         if (rosterManager != null) {
                             ((RosterManager) rosterManager).updateEntry(id, p);
                         } else {
-                            // No rosterManager
+                            // No rosterManager - nothing to do
                         }
                     }
                 });
@@ -576,15 +584,6 @@ public class SessionManager implements IEventPublisher {
                     }
                 });
 
-        if (container != null) {
-            container.addListener(new IContainerListener() {
-
-                @Override
-                public void handleEvent(IContainerEvent event) {
-
-                }
-            });
-        }
     }
 
     // ***************************
