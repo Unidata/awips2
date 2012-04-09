@@ -94,8 +94,22 @@ public class Presence implements IPresence {
     public Presence() {
         mode = Mode.AVAILABLE;
         type = Type.AVAILABLE;
+        properties = new HashMap<String, Property>();
     }
 
+    /**
+     * Construct a Presence using specified Mode, Type, and status message.
+     * @param mode
+     * @param type
+     * @param status
+     */
+    public Presence(Mode mode, Type type, String status) {
+        this.mode = mode;
+        this.type = type;
+        statusMessage = status;
+        properties = new HashMap<String, Property>();
+    }
+    
     /**
      * 
      */
@@ -229,10 +243,10 @@ public class Presence implements IPresence {
             Map<String, String> props = new HashMap<String, String>();
             String status = presence.getStatusMessage();
             Collection<Property> properties = presence.getProperties();
-            for (Property p : properties) {
-                props.put(p.getKey(), p.getValue());
-            }
-            if (props.size() > 0) {
+            if (properties.size() > 0) {
+                for (Property p : properties) {
+                    props.put(p.getKey(), p.getValue());
+                }
                 newPresence = new org.eclipse.ecf.presence.Presence(type,
                         status, mode, props);
             } else {
