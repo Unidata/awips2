@@ -90,10 +90,12 @@ public class AccountManager implements IAccountManager {
 
         @Override
         public void handleSubscribed(ID fromID) {
+            System.out.println("AccountManager.handleSubscribed " + fromID);
         }
 
         @Override
         public void handleUnsubscribed(ID fromID) {
+            System.out.println("AccountManager.handleUnSubscribed " + fromID);
         }
     };
 
