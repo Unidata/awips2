@@ -536,9 +536,9 @@ public class SessionView extends AbstractSessionView {
      * setMessageLabel(org.eclipse.swt.widgets.Label)
      */
     @Override
-    protected void setMessageLabel(Label label) {
+    protected void setMessageLabel(Composite comp) {
+        Label label = new Label(comp, SWT.WRAP);
         StringBuilder labelInfo = new StringBuilder();
-        labelInfo.append("Private Chat: ");
         IVenueSession session = CollaborationDataManager.getInstance()
                 .getSession(sessionId);
         if (session != null) {
