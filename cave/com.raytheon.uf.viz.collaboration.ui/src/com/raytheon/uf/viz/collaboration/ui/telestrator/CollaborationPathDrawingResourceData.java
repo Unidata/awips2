@@ -19,7 +19,8 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.telestrator;
 
-import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -44,6 +45,7 @@ import com.raytheon.uf.viz.drawing.PathDrawingResourceData;
  * @version 1.0
  */
 
+@XmlAccessorType(XmlAccessType.NONE)
 public class CollaborationPathDrawingResourceData extends
         PathDrawingResourceData {
     /*
