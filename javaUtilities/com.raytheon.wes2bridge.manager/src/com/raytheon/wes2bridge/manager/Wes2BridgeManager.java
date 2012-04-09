@@ -200,41 +200,52 @@ public class Wes2BridgeManager
 		BufferedWriter bw = 
 			new BufferedWriter(new FileWriter(destFile));
 		
-		final String line1 = "wrapper.java.additional.5=";
-		final String line2 = "wrapper.java.additional.23=";
-		final String line3 = "wrapper.java.additional.24=";
-		final String line4 = "wrapper.java.additional.25=";
-		final String line5 = "wrapper.java.additional.42=";
-		final String line6 = "wrapper.java.additional.43=";
+		/*
+		 * We want to replace at least one of the jmx jvm arguments
+		 * with the wes2bridge.instance argument.
+		 */
+		boolean wes2BridgeInstanceAdded = false;
+		
+		/*
+		 * Disable JMX Remote and add a new wes2bridge.instance
+		 * JVM argument so that it will be possible to determine
+		 * which edex instance belongs to which test case.
+		 */
+		/*
+		 * This may apply to multiple jvm arguments including:
+		 * 	1) -Dcom.sun.management.jmxremote.port
+		 *  2) -Dcom.sun.management.jmxremote.authenticate
+		 *  3) -Dcom.sun.management.jmxremote.ssl
+		 */
+		final String line1 = "-Dcom.sun.management.jmxremote";
+		/* Set the web port; used by uengine spring. */
+		final String line2 = "-Dweb.port";
+		/* Set the confidential port; used by uengine spring. */
+		final String line3 = "-Dconfidential.port";
 		
 		String line = "";
 		while ((line = br.readLine()) != null)
 		{
-			if (line.startsWith(line1))
+			if (line.contains(line1))
 			{
-				line = line1;
+				line = this.getJVMArgumentName(line);
+				if (wes2BridgeInstanceAdded == false)
+				{
+					line += "-Dwes2bridge.instance=" + 
+						this.configuration.getTestCaseName();
+					wes2BridgeInstanceAdded = true;
+				}
 			}
-			else if (line.startsWith(line2))
+			else if (line.contains(line2))
 			{
-				line = line2 + "-Dwes2bridge.instance=" + 
-					this.configuration.getTestCaseName();
+				line = this.getJVMArgumentName(line);
+				line += line2 + "=" +
+					this.configuration.getWebPort();
 			}
-			else if (line.startsWith(line3))
+			else if (line.contains(line3))
 			{
-				line = line3;
-			}
-			else if (line.startsWith(line4))
-			{
-				line = line4;
-			}
-			else if (line.startsWith(line5))
-			{
-				line = line5 + "-Dweb.port=" +
-					this.configuration.getJettyPort();
-			}
-			else if (line.startsWith(line6))
-			{
-				line = line6 + "-Dconfidential.port=" +
+				line = this.getJVMArgumentName(line);
+				line += line3 + "=" +
 					this.configuration.getConfidentialPort();
 			}
 			
@@ -242,6 +253,24 @@ public class Wes2BridgeManager
 		}
 		br.close();
 		bw.close();
+	}
+	
+	private String getJVMArgumentName(String jvmArgument)
+	{
+		if (jvmArgument == null)
+		{
+			System.out.println("ERROR: Invalid wrapper.conf file.");
+			System.exit(-1);
+		}
+		
+		String[] splitJVMArg = jvmArgument.split("=");
+		if (splitJVMArg.length <= 0)
+		{
+			System.out.println("ERROR: Invalid wrapper.conf file.");
+			System.exit(-1);			
+		}
+		
+		return splitJVMArg[0] + "=";
 	}
 	
 	private void updateEdexCamel(String edexDirectory)
