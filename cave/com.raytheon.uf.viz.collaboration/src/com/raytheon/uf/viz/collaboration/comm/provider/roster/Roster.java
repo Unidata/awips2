@@ -37,8 +37,10 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
+import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.RosterId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueUserId;
 
 /**
  * TODO Add Description
@@ -210,14 +212,17 @@ public class Roster extends RosterItem implements IRoster {
 
     /**
      * 
+     * @param A roster entry to find and modify.
+     * @return The modifed roster entry.
      * @see com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster#modifyRosterEntry(com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry)
      */
     @Override
-    public void modifyRosterEntry(IRosterEntry entry) {
-
+    public IRosterEntry modifyRosterEntry(IRosterEntry entry) {
+        IRosterEntry re = null;
         // First attempt to find the entry in the internal entry collection
         if(entry != null) {
-            IRosterEntry re = internalEntries.get(entry.getUser());
+            IQualifiedID id = entry.getUser();
+            re = internalEntries.get(id);
             if(re != null) {
                 // We've found the roster entry in the internal entries
                 // so update with the presence.
@@ -228,6 +233,7 @@ public class Roster extends RosterItem implements IRoster {
         } else {
             // nothing to do. And this shouldn't happen!
         }
+        return re; 
     }
 
     /**
@@ -275,12 +281,8 @@ public class Roster extends RosterItem implements IRoster {
                 if (o instanceof org.eclipse.ecf.presence.roster.IRosterEntry) {
                     org.eclipse.ecf.presence.roster.IRosterEntry entry = (org.eclipse.ecf.presence.roster.IRosterEntry) o;
 
-                    IChatID id = IDConverter.convertFrom(entry.getUser());
-                    System.out.println("      "
-                            + entry.getUser().getID().getName());
-                    System.out.println("Group:" + group.getName() + " id:"
-                            + id.getFQName());
-
+                    IChatID id = RosterId.convertFrom(entry.getUser());
+                    
                     RosterEntry re = new RosterEntry(id);
                     // Check to see if we already have an entry
                     IRosterEntry reCurrent = getRosterEntry(re);
@@ -290,9 +292,6 @@ public class Roster extends RosterItem implements IRoster {
                     }
                     IPresence p = Presence.convertPresence(entry.getPresence());
                     re.setPresence(p);
-                    System.out.println(" entry:" + re.getName() + " presence:"
-                            + re.getPresence().getMode()
-                            + re.getPresence().getType());
 
                     re.addGroup(group);
                     group.addEntry(re);
