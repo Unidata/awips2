@@ -18,8 +18,8 @@ public class ConfigurationUtility
 	private static final String FIELD_DBPORT = "-databasePort";
 	private static final String FIELD_HTTPPORT = "-httpPort";
 	private static final String FIELD_JMSPORT = "-jmsPort";
-	private static final String FIELD_JETTYPORT =
-		"-jettyPort";
+	private static final String FIELD_WEBPORT =
+		"-webPort";
 	private static final String FIELD_CONFPORT =
 		"-confidentialPort";
 	
@@ -67,9 +67,9 @@ public class ConfigurationUtility
 		{
 			System.out.print(configuration.getJmsPort());
 		}
-		else if (field.equals(FIELD_JETTYPORT))
+		else if (field.equals(FIELD_WEBPORT))
 		{
-			System.out.println(configuration.getJettyPort());
+			System.out.println(configuration.getWebPort());
 		}
 		else if (field.equals(FIELD_CONFPORT))
 		{
