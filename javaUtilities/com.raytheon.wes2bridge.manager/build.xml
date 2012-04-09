@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" 
+	name="Create Runnable Jar for Project com.raytheon.wes2bridge.manager with Jar-in-Jar Loader"
+	basedir=".">
+	
+	<import file="${basedir}/../build.wes2bridge.utility/ant/setup.xml" />
+	
+    <target name="create_run_jar">
+        <jar destfile="${destination.directory}/Wes2BridgeManager.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
+                <attribute name="Rsrc-Main-Class" value="com.raytheon.wes2bridge.manager.Wes2BridgeManager"/>
+                <attribute name="Class-Path" value="."/>
+                <attribute name="Rsrc-Class-Path" value="./ commons-collections-3.2.jar commons-logging-1.1.1.jar geronimo-jms_1.1_spec-1.1.1.jar org.eclipse.ui_3.6.1.M20100826-1330.jar org.eclipse.swt_3.6.1.v3655c.jar org.eclipse.swt.gtk.linux.x86_3.6.1.v3655c.jar org.eclipse.jface_3.6.1.M20100825-0800.jar org.eclipse.core.commands_3.6.0.I20100512-1500.jar org.eclipse.ui.workbench_3.6.1.M20100826-1330.jar org.eclipse.core.runtime_3.6.0.v20100505.jar org.eclipse.osgi_3.6.1.R36x_v20100806.jar org.eclipse.equinox.common_3.6.0.v20100503.jar org.eclipse.core.jobs_3.5.1.R36x_v20100824.jar runtime_registry_compatibility.jar org.eclipse.equinox.registry_3.5.0.v20100503.jar org.eclipse.equinox.preferences_3.3.0.v20100503.jar org.eclipse.core.contenttype_3.4.100.v20100505-1235.jar org.eclipse.equinox.app_1.3.1.R36x_v20100803.jar log4j-1.2.16.jar log4j.extras-1.0.jar commons-beanutils-1.8.3.jar commons-digester-1.8.1.jar commons-lang-2.3.jar commons-configuration-1.6.jar"/>
+            </manifest>
+            <zipfileset src="${basedir}/../build.wes2bridge.utility/lib/jar-in-jar-loader.zip"/>
+            <zipfileset dir="${baseline.directory}/org.apache.commons.collections" includes="commons-collections-3.2.jar"/>
+            <zipfileset dir="${baseline.directory}/org.apache.commons.logging" includes="commons-logging-1.1.1.jar"/>
+            <zipfileset dir="${baseline.directory}/javax.jms" includes="geronimo-jms_1.1_spec-1.1.1.jar"/>
+            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.ui_3.6.1.M20100826-1330.jar"/>
+            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.swt_3.6.1.v3655c.jar"/>
+            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.swt.gtk.linux.x86_3.6.1.v3655c.jar"/>
+            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.jface_3.6.1.M20100825-0800.jar"/>
+            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.core.commands_3.6.0.I20100512-1500.jar"/>
+            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.ui.workbench_3.6.1.M20100826-1330.jar"/>
+            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.core.runtime_3.6.0.v20100505.jar"/>
+            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.osgi_3.6.1.R36x_v20100806.jar"/>
+            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.equinox.common_3.6.0.v20100503.jar"/>
+            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.core.jobs_3.5.1.R36x_v20100824.jar"/>
+            <zipfileset dir="${eclipse.directory}/plugins/org.eclipse.core.runtime.compatibility.registry_3.3.0.v20100520" includes="runtime_registry_compatibility.jar"/>
+            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.equinox.registry_3.5.0.v20100503.jar"/>
+            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.equinox.preferences_3.3.0.v20100503.jar"/>
+            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.core.contenttype_3.4.100.v20100505-1235.jar"/>
+            <zipfileset dir="${eclipse.directory}/plugins" includes="org.eclipse.equinox.app_1.3.1.R36x_v20100803.jar"/>
+            <zipfileset dir="${baseline.directory}/org.apache.log4j" includes="log4j-1.2.16.jar"/>
+            <zipfileset dir="${baseline.directory}/org.apache.log4j" includes="log4j.extras-1.0.jar"/>
+            <zipfileset dir="${baseline.directory}/org.apache.commons.beanutils" includes="commons-beanutils-1.8.3.jar"/>
+            <zipfileset dir="${baseline.directory}/org.apache.commons.digester" includes="commons-digester-1.8.1.jar"/>
+            <zipfileset dir="${baseline.directory}/org.apache.commons.lang" includes="commons-lang-2.3.jar"/>
+            <zipfileset dir="${baseline.directory}/org.apache.commons.configuration" includes="commons-configuration-1.6.jar"/>
+            <fileset dir="${baseline.directory}/com.raytheon.wes2bridge.common/${bin.dir}"/>
+            <fileset dir="${baseline.directory}/com.raytheon.wes2bridge.manager/${bin.dir}"/>
+        </jar>
+    </target>
+</project>
