@@ -2,6 +2,7 @@ package com.raytheon.uf.viz.collaboration.data;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Type;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 
 /**
@@ -44,6 +45,8 @@ public class CollaborationUser extends CollaborationNode implements
         Comparable<CollaborationUser> {
 
     String session;
+
+    IChatID iChatID;
 
     public CollaborationUser(String id) {
         super(id);
