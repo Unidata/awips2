@@ -66,6 +66,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.osgi.framework.Bundle;
 
+import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -80,6 +81,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
+import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.SessionManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
 import com.raytheon.uf.viz.collaboration.data.CollaborationGroup;
@@ -220,7 +222,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         inviteAction = new Action("Invite...") {
             @Override
             public void run() {
-                System.out.println("Invite... to join room " + getId());
+                System.out.println("Invite... to join session" + getId());
                 String sessionId = getId();
                 IVenueSession session = CollaborationDataManager.getInstance()
                         .getSession(sessionId);
@@ -244,6 +246,8 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         };
         inviteAction.setImageDescriptor(IconUtil.getImageDescriptor(bundle,
                 "invite.gif"));
+        inviteAction
+                .setToolTipText("Invite selected user(s) to join a session.");
 
         joinAction = new Action("Join Session") {
             @Override
@@ -255,7 +259,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         peerToPeerChatAction = new Action("Private Chat") {
             @Override
             public void run() {
-                createPrivateChat(getId());
+                createP2PChat(getId());
             }
         };
 
@@ -290,42 +294,50 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
             @Override
             public void run() {
                 System.out.println("Rename action");
+                nyiFeature("Rename");
             }
         };
 
         addUserAction = new Action("Add User") {
             public void run() {
-                System.out.println("Add User");
+                addUsersToGroup();
             };
         };
         addUserAction.setImageDescriptor(IconUtil.getImageDescriptor(bundle,
                 "add_contact.gif"));
+        addUserAction.setEnabled(false);
 
         addGroupAction = new Action("Create Group") {
             public void run() {
                 System.out.println("Create Group here");
+                nyiFeature("Create Group");
             };
         };
         addGroupAction.setImageDescriptor(IconUtil.getImageDescriptor(bundle,
                 "add_group.gif"));
+        addGroupAction.setEnabled(false);
 
         selectGroups = new Action("Select System Groups...") {
             public void run() {
                 System.out.println("Select System Groups to Display...");
+                nyiFeature("Select System Groups.");
             }
         };
+        selectGroups.setEnabled(false);
 
         changeStatusAction = new Action("Change Status...") {
             public void run() {
                 changeStatus();
             };
         };
+        changeStatusAction.setEnabled(false);
 
         changePasswordAction = new Action("Change password...") {
             public void run() {
                 changePassword();
             };
         };
+        changePasswordAction.setEnabled(false);
 
         // changeStatusAction = new Action("Change Status",
         // Action.AS_DROP_DOWN_MENU) {
@@ -425,6 +437,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
             usersTreeViewer.refresh(loginUser, true);
             SessionManager sessionManager = CollaborationDataManager
                     .getInstance().getSessionManager();
+            // TODO this will change will be able to get existing presences.
             Presence presence = new Presence();
             presence.setProperty("dummy", "dummy");
             presence.setMode(loginData.getMode());
@@ -437,6 +450,8 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                 // appropriate.
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
             System.out.println("send mode change here: "
                     + loginData.getMode().toString() + ", Message: \""
@@ -640,22 +655,8 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
 
     private void createPrivateView(CreateSessionData result) {
         String sessionId = result.getSessionId();
-        // try {
-        // // TODO Do not use createCollaborationSession once private session
-        // // implemented.
-        // sessionId = CollaborationDataManager.getInstance()
-        // .createCollaborationSession(result.getName(),
-        // result.getSubject());
-        // } catch (Exception e) {
-        // e.printStackTrace();
-        // } finally {
-        // if (sessionId == null) {
-        // return;
-        // }
-        // }
-
         try {
-            IViewPart part = PlatformUI
+            PlatformUI
                     .getWorkbench()
                     .getActiveWorkbenchWindow()
                     .getActivePage()
@@ -669,12 +670,11 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                     System.out.println("sessionId - Invite: " + user.getId());
                 }
             }
-            // refreshActiveSessions();
         } catch (PartInitException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to open collaboation sesson", e);
         } catch (Exception e) {
-            statusHandler.handle(Priority.ERROR, "Unexpected excepton", e);
+            statusHandler.handle(Priority.ERROR, "Unexpected exception", e);
         }
     }
 
@@ -709,27 +709,15 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         }
     }
 
-    private void createPrivateChat(String user) {
-        // IStructuredSelection selection = (IStructuredSelection)
-        // usersTreeViewer
-        // .getSelection();
-        // TODO
-        // List<ID> users = new ArrayList<ID>();
-        // ID id = IDFactory.getDefault().createID(
-        // CollaborationData.getInstance().getClient()
-        // .getConnectNamespace(), "abc@awipscm.omaha.us.ray.com");
-        // users.add(id);
+    private void createP2PChat(String user) {
         System.err.println("createPrivateChat with " + user);
         try {
-            // if (users.size() > 0) {
-            // CollaborationUtils.createChat(users);
             PlatformUI
                     .getWorkbench()
                     .getActiveWorkbenchWindow()
                     .getActivePage()
                     .showView(PeerToPeerView.ID, user,
                             IWorkbenchPage.VIEW_ACTIVATE);
-            // }
         } catch (PartInitException e) {
             statusHandler.handle(Priority.PROBLEM, "Unable to open chat", e);
         }
@@ -899,8 +887,18 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         topLevel.removeChildren();
         if (sessionManager == null) {
             usersTreeViewer.getTree().setEnabled(false);
+            addGroupAction.setEnabled(false);
+            addUserAction.setEnabled(false);
+            selectGroups.setEnabled(false);
+            changeStatusAction.setEnabled(false);
+            changePasswordAction.setEnabled(false);
             return;
         }
+        addGroupAction.setEnabled(true);
+        addUserAction.setEnabled(true);
+        selectGroups.setEnabled(true);
+        changeStatusAction.setEnabled(true);
+        changePasswordAction.setEnabled(true);
 
         LoginUser user = new LoginUser(manager.getLoginId());
         topLevel.addChild(user);
@@ -975,19 +973,19 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         int rsize = -1;
         int gsize = -1;
         if (roster != null) {
-            // TODO remove DEBUG start
-            if (roster.getUser() != null) {
-                name = roster.getUser().getName();
-            }
-            if (roster.getEntries() != null) {
-                rsize = roster.getEntries().size();
-            }
-            if (roster.getGroups() != null) {
-                gsize = roster.getGroups().size();
-            }
-            System.out.println("rosterManager Name " + name + ": group size "
-                    + gsize + ": entry size " + rsize);
-            // TODO DEBUG end remove
+            // // TODO remove DEBUG start
+            // if (roster.getUser() != null) {
+            // name = roster.getUser().getName();
+            // }
+            // if (roster.getEntries() != null) {
+            // rsize = roster.getEntries().size();
+            // }
+            // if (roster.getGroups() != null) {
+            // gsize = roster.getGroups().size();
+            // }
+            // System.out.println("rosterManager Name " + name + ": group size "
+            // + gsize + ": entry size " + rsize);
+            // // TODO DEBUG end remove
             for (IRosterGroup rosterGroup : roster.getGroups()) {
                 if (rosterGroup != null) {
                     populateGroup(topLevel, rosterGroup);
@@ -1003,49 +1001,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                             + e.getUser().getResource());
                 }
             }
-
-            // TODO get Groups from server.
-            // for (String g : new String[] { "Mybuddy1", "buddy1" }) {
-            // CollaborationGroup group = new CollaborationGroup(g);
-            // group.setLocal(true);
-            // group.setModifiable(true);
-            // topLevel.addChild(group);
-            // for (String u : new String[] {
-            // "jkorman@awipscm.omaha.us.ray.com",
-            // "abc@awipscm.omaha.us.ray.com",
-            // "mnash@awipscm.omaha.us.ray.com" }) {
-            // CollaborationUser item = new CollaborationUser(u);
-            // group.addChild(item);
-            // item.setMode(Mode.AVAILABLE);
-            // item.setType(Type.AVAILABLE);
-            // }
-            // }
-
-            // // TODO get from server
-            // for (String g : new String[] { "OAX", "DSM", "LBF", "FSD" }) {
-            // CollaborationGroup group = new CollaborationGroup(g);
-            // group.setLocal(false);
-            // topLevel.addChild(group);
-            // for (String u : new String[] { g + "_user2", g + "_user3",
-            // g + "_user1" }) {
-            // CollaborationUser item = new CollaborationUser(u);
-            // group.addChild(item);
-            // item.setMode(Mode.AWAY);
-            // item.setType(Type.AVAILABLE);
-            // }
-            // }
-            //
         }
-
-        // CollaborationUser me = new CollaborationUser("OAX_rferrel");
-        // me.setMode(Mode.AVAILABLE);
-        // me.setType(Type.AVAILABLE);
-        // for (CollaborationNode node : topLevel.getChildren()) {
-        // if ("OAX".equals(node.getId())) {
-        // ((CollaborationGroup) node).addChild(me);
-        // break;
-        // }
-        // }
     }
 
     /**
@@ -1147,6 +1103,59 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
         return selectedUsers;
     }
 
+    private void addUsersToGroup() {
+        Set<CollaborationUser> users = getSelectedUsers();
+        IStructuredSelection selection = (IStructuredSelection) usersTreeViewer
+                .getSelection();
+        Object[] nodes = selection.toArray();
+        System.out.println("Add User: " + users.size());
+        IRosterManager rosterManager = CollaborationDataManager.getInstance()
+                .getSessionManager().getRosterManager();
+        for (Object node : nodes) {
+            if (node instanceof CollaborationUser) {
+                CollaborationUser user = (CollaborationUser) node;
+                try {
+                    String account = user.getId();
+                    String nickname = Tools.parseName(account);
+                    // String[] groups = new String[] { "rogerTestGroup" };
+                    String[] groups = null;
+                    rosterManager.sendRosterAdd(account, nickname, groups);
+                    // rosterManager.sendRosterRemove(userId)
+                } catch (CollaborationException e) {
+                    // TODO Auto-generated catch block. Please revise as
+                    // appropriate.
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
+                }
+            }
+            // for (CollaborationUser user : users) {
+            // try {
+            // String account = user.getId();
+            // String nickname = account.substring(0, account.indexOf('@'));
+            // rosterManager.sendRosterAdd(account, nickname,
+            // new String[] { "rogertestgroup" });
+            // } catch (CollaborationException e) {
+            // // TODO Auto-generated catch block. Please revise as
+            // // appropriate.
+            // statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+            // e);
+            // }
+        }
+    }
+
+    /**
+     * This should go away as all actions are implemented.
+     * 
+     * @param feature
+     */
+    private void nyiFeature(String feature) {
+        MessageBox messageBox = new MessageBox(Display.getCurrent()
+                .getActiveShell(), SWT.ICON_INFORMATION);
+        messageBox.setText("Not Yet Implemented");
+        messageBox.setMessage(feature);
+        messageBox.open();
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -1173,7 +1182,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                     String loginUserId = CollaborationDataManager.getInstance()
                             .getLoginId();
                     if (loginUserId.equals(node.getId()) == false) {
-                        createPrivateChat(node.getId());
+                        createP2PChat(node.getId());
                     }
                 }
             }
@@ -1232,11 +1241,7 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
                 }
             }
         } else if (part == this) {
-            // TODO Remove rosterManger handler.
-            // IRosterManager rosterManager =
-            // CollaborationDataManager.getInstance()
-            // .getSessionManager().getRosterManager();
-            // rosterManager.removeEventHandler(this);
+            CollaborationDataManager.getInstance().unRegisterEventHandler(this);
             getViewSite().getWorkbenchWindow().getPartService()
                     .removePartListener(this);
         }
@@ -1274,12 +1279,17 @@ public class CollaborationGroupView extends ViewPart implements IPartListener {
             activeSessionGroup.addChild(child);
             usersTreeViewer.refresh(activeSessionGroup);
         } else if (part == this) {
-            // TODO register even handler for
-            // IRosterManager rosterManager =
-            // CollaborationDataManager.getInstance()
-            // .getSessionManager().getRosterManager();
-            // rosterManager.registerEventHandler(this);
+            CollaborationDataManager.getInstance().registerEventHandler(this);
             populateTree();
         }
+    }
+
+    @Subscribe
+    public void handleModifiedPresence(IRosterEntry rosterEntry) {
+        System.out.println("group view roster entry for:"
+                + rosterEntry.getUser().getFQName() + " "
+                + rosterEntry.getPresence().getMode() + "/"
+                + rosterEntry.getPresence().getType());
+        usersTreeViewer.refresh(topLevel, true);
     }
 }
