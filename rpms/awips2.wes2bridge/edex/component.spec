@@ -110,6 +110,7 @@ fi
 mkdir -p %{_build_root}/usr/local/wes2bridge
 
 %build
+# build edex
 pushd . > /dev/null 2>&1
 # Run the pde build.
 cd %{_baseline_workspace}/build.edex
@@ -120,10 +121,23 @@ if [ $? -ne 0 ]; then
 fi
 popd > /dev/null 2>&1
 
+# build the wes2bridge utilities
+pushd . > /dev/null 2>&1
+# Run the pde build.
+cd %{_baseline_workspace}/build.wes2bridge.utility
+/awips2/ant/bin/ant -f build.xml \
+   -Declipse.dir=%{_uframe_eclipse}
+if [ $? -ne 0 ]; then
+   echo "ERROR: The pde build of the wes2bridge utilities has failed."
+   exit 1
+fi
+popd > /dev/null 2>&1
+
 %install
-# Run the deployment to the specified: 
+# Run the deployment to the specified directory: 
 #	%{_build_root}%{_installation_directory}/edex
 
+# "install" edex
 pushd . > /dev/null 2>&1
 cd %{_baseline_workspace}/build.edex
 ant -f deploy-install.xml \
@@ -134,6 +148,32 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 popd > /dev/null 2>&1
+
+# "install" the wes2bridge utilities
+cd %{_baseline_workspace}/com.raytheon.wes2bridge.configuration
+/awips2/ant/bin/ant -f build.xml \
+   -Ddestination.directory=%{_build_root}%{_installation_directory}/wes2bridge/macro/utilities \
+   -Declipse.directory=%{_uframe_eclipse} \
+   -Drpm.build=true
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+cd %{_baseline_workspace}/com.raytheon.wes2bridge.datalink
+/awips2/ant/bin/ant -f build.xml \
+   -Ddestination.directory=%{_build_root}%{_installation_directory}/wes2bridge/macro/utilities \
+   -Declipse.directory=%{_uframe_eclipse} \
+   -Drpm.build=true
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+cd %{_baseline_workspace}/com.raytheon.wes2bridge.manager
+/awips2/ant/bin/ant -f build.xml \
+   -Ddestination.directory=%{_build_root}%{_installation_directory}/wes2bridge/macro/utilities \
+   -Declipse.directory=%{_uframe_eclipse} \
+   -Drpm.build=true
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 
 RPM_PROJECT="%{_baseline_workspace}/Installer.rpm"
 POSTGRES_INITD="${RPM_PROJECT}/awips2.core/Installer.postgresql/scripts/init.d/edex_postgres"
@@ -165,13 +205,6 @@ fi
 
 # Copy the wes2bridge macro, functions, and utilities.
 DELIVERABLES="%{_baseline_workspace}/Installer.rpm/awips2.wes2bridge/wes2bridge.files/deliverables"
-
-# Utilities
-cp ${DELIVERABLES}/utility/*.jar \
-   %{_build_root}%{_installation_directory}/wes2bridge/macro/utilities
-if [ $? -ne 0 ]; then
-   exit 1
-fi
 
 # Macro and functions.
 cp ${DELIVERABLES}/scripts/wes2bridge \
