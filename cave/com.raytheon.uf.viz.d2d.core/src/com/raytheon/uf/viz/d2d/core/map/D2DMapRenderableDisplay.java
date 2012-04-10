@@ -31,11 +31,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.VizConstants;
 import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
+import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
@@ -44,6 +44,7 @@ import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.maps.display.MapRenderableDisplay;
+import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.RenderingOrderFactory.ResourceOrder;
@@ -270,27 +271,17 @@ public class D2DMapRenderableDisplay extends MapRenderableDisplay implements
     public void clear(IDisplayPane parentPane) {
         super.clear(parentPane);
         descriptor.getResourceList().clear();
-
-        String scale = getScale();
-
-        int frameCount = descriptor.getNumberOfFrames();
-        double magnification = getMagnification();
-        double density = getDensity();
-
-        try {
-            File scaleFile = MapScales.getInstance().getScaleByName(scale)
-                    .getFile();
-            LoadSerializedXml.loadTo(parentPane, scaleFile, null);
-            parentPane.getRenderableDisplay().setBackgroundColor(
-                    backgroundColor);
-            parentPane.getDescriptor().setNumberOfFrames(frameCount);
-            ((ID2DRenderableDisplay) parentPane.getRenderableDisplay())
-                    .setMagnification(magnification);
-            ((ID2DRenderableDisplay) parentPane.getRenderableDisplay())
-                    .setDensity(density);
-        } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM, "Error clearing display", e);
+        File scaleFile = MapScales.getInstance().getScaleByName(getScale())
+                .getFile();
+        Bundle bundle = (Bundle) LoadSerializedXml.deserialize(scaleFile);
+        for (AbstractRenderableDisplay ard : bundle.getDisplays()) {
+            descriptor.getResourceList().addAll(
+                    ard.getDescriptor().getResourceList());
+            ard.getDescriptor().getResourceList().clear();
+            break;
         }
+        descriptor.getResourceList().instantiateResources(descriptor, true);
+        scaleToClientArea(getBounds());
     }
 
     @Override
