@@ -209,41 +209,13 @@ public class CollaborationDataManager {
                     }
                     LoginDialog dlg = new LoginDialog(shell);
                     loginData = null;
-                    while (isConnected() == false) {
-                        loginData = (LoginData) dlg.open();
-                        dlg.close();
-                        if (loginData == null) {
-                            break;
-                        }
-                        try {
-                            sessionManager = new SessionManager(loginData
-                                    .getAccount(), loginData.getPassword());
-                            loginId = loginData.getAccount();
-                            DataUser user = CollaborationDataManager
-                                    .getInstance().getUser(loginId);
-                            // try {
-                            // System.out.println("enter sleep...");
-                            // Thread.sleep(5000L);
-                            // System.out.println("Wake from sleep...");
-                            // } catch (InterruptedException e) {
-                            // }
-                            // // TODO set mode and message here.
-                            // user.setMode(loginData.getMode());
-                            // user.type = Type.AVAILABLE;
-                            // user.statusMessage = loginData.getModeMessage();
-                        } catch (Exception e) {
-                            MessageBox box = new MessageBox(shell, SWT.ERROR);
-                            box.setText("Login Failed");
-                            if (e.getMessage() != null) {
-                                box.setMessage(e.getMessage());
-                            } else {
-                                box.setMessage("Login Failed.");
-                            }
-                            box.open();
-                            // statusHandler.handle(Priority.WARN,
-                            // e.getLocalizedMessage(), e);
-                        }
+                    loginData = (LoginData) dlg.open();
+                    dlg.close();
+                    if (loginData == null) {
+                        return;
                     }
+                    sessionManager = dlg.getSessionManager();
+                    loginId = loginData.getAccount();
                 }
             });
 
