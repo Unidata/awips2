@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.jface.action.IContributionItem;
@@ -206,7 +207,7 @@ public abstract class AbstractVizPerspectiveManager implements
     public AbstractVizPerspectiveManager() {
         // new up a tool manager for the perspective
         toolManager = new ModalToolManager();
-        perspectiveDialogs = new ArrayList<IPerspectiveSpecificDialog>();
+        perspectiveDialogs = new CopyOnWriteArrayList<IPerspectiveSpecificDialog>();
     }
 
     /**

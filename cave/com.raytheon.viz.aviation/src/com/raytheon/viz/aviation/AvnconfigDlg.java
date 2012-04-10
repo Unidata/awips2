@@ -44,9 +44,9 @@ import com.raytheon.viz.avnconfig.TafSiteInfoEditorDlg;
 import com.raytheon.viz.avnconfig.TextEditorSetupDlg;
 
 /**
- * This is the main AvnFPS setup dialog containing the controls to launch the
- * Text Editor, Monitoring Rules, TAF Site Info, TAF Products, or Triggers
- * dialog.
+ * This class is the main AvnFPS configuration dialog. It contains the controls
+ * to launch the Text Editor, Monitoring Rules, TAF Site Info, TAF Products, or
+ * Climate Data dialogs.
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -79,14 +79,29 @@ public class AvnconfigDlg extends Dialog {
     @SuppressWarnings("unused")
     private MessageStatusComp msgStatusComp;
 
+    /**
+     * Text Editor dialog.
+     */
     private TextEditorSetupDlg editorDlg;
 
+    /**
+     * Monitoring Rules Dialog,
+     */
     private MonitoringCriteriaDlg monCriteriaDlg;
 
+    /**
+     * TAF Site Information dialog.
+     */
     private TafSiteInfoEditorDlg siteInfoDlg;
 
+    /**
+     * TAF Product dialog.
+     */
     private TafProductConfigDlg productsDlg;
 
+    /**
+     * Climate Data dialog.
+     */
     private ClimateDataMenuDlg climateDataDlg;
 
     /**
@@ -100,7 +115,7 @@ public class AvnconfigDlg extends Dialog {
     }
 
     /**
-     * Open method used to display the dialog.
+     * Open method used set up components and display the dialog.
      * 
      * @return Null.
      */
@@ -343,19 +358,6 @@ public class AvnconfigDlg extends Dialog {
                 }
             }
         });
-
-        // The Triggers dialog is no longer needed.
-        // gd = new GridData(buttonWidth, SWT.DEFAULT);
-        // Button triggersBtn = new Button(buttonComp, SWT.PUSH);
-        // triggersBtn.setText("Triggers");
-        // triggersBtn.setLayoutData(gd);
-        // triggersBtn.addSelectionListener(new SelectionAdapter() {
-        // @Override
-        // public void widgetSelected(SelectionEvent event) {
-        // TriggerEditorDlg triggerDlg = new TriggerEditorDlg(shell);
-        // triggerDlg.open();
-        // }
-        // });
 
         gd = new GridData(buttonWidth, SWT.DEFAULT);
         Button climateBtn = new Button(buttonComp, SWT.PUSH);

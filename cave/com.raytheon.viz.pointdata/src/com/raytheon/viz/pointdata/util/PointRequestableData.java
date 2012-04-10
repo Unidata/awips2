@@ -48,7 +48,7 @@ public class PointRequestableData extends AbstractRequestableData {
     public PointRequestableData(IDataRecord rec, Unit<?> unit) {
         this.unit = unit;
         this.rec = rec;
-        this.level = PointDataInventory.STATION;
+        this.level = PointDataInventory.getStationLevel();
         this.parameter = rec.getName();
     }
 

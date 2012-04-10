@@ -39,8 +39,9 @@ fi
 mkdir -p ${RPM_BUILD_ROOT}/awips2/notification
 mkdir -p ${RPM_BUILD_ROOT}/etc/profile.d
 
-PROFILE_D_DIR="Installer.rpm/awips2.core/Installer.notification/scripts/profile.d"
-cp ${WORKSPACE_DIR}/${PROFILE_D_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
+RPM_CORE_PROJECT_DIR="${WORKSPACE_DIR}/Installer.rpm/awips2.core"
+PROFILE_D_DIR="${RPM_CORE_PROJECT_DIR}/Installer.notification/scripts/profile.d"
+cp ${PROFILE_D_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
 
 %build
 #---------------------------------------------------------------------------#
@@ -76,13 +77,21 @@ function copyLegal()
       
    rm -f ${WORKSPACE_DIR}/Installer.rpm/legal/FOSS_licenses.tar    
 }
-NOTIFICATION_TAR_FILE_DIR="packages/notification"
+RPM_CORE_PROJECT_DIR="${WORKSPACE_DIR}/Installer.rpm/awips2.core"
+NOTIFICATION_TAR_FILE_DIR="${RPM_CORE_PROJECT_DIR}/Installer.notification/src"
 NOTIFICATION_TAR_FILE="${NOTIFICATION_TAR_FILE_DIR}/edex_com.tar.bz2"
 
 cd ${RPM_BUILD_ROOT}/awips2
-/bin/gtar -xpf ${AWIPSCM_SHARE}/${NOTIFICATION_TAR_FILE}
+/bin/gtar -xpf ${NOTIFICATION_TAR_FILE}
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 
-cp -r ${RPM_BUILD_ROOT}/awips2/edex_com/* ${RPM_BUILD_ROOT}/awips2/notification/
+cp -r ${RPM_BUILD_ROOT}/awips2/edex_com/* \
+   ${RPM_BUILD_ROOT}/awips2/notification/
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 # Remove the boost rpms directory
 rm -rf ${RPM_BUILD_ROOT}/awips2/notification/rpms
 rm -rf ${RPM_BUILD_ROOT}/awips2/edex_com

@@ -230,12 +230,17 @@ public class CachingDataStore implements IDataStore {
         long t0 = System.currentTimeMillis();
         if (result != null) {
             try {
+                if (!file.getParentFile().exists()) {
+                    file.getParentFile().mkdirs();
+                }
                 FileOutputStream fout = new FileOutputStream(file);
                 DynamicSerializationManager
                         .getManager(SerializationType.Thrift).serialize(result,
                                 fout);
                 fout.close();
                 LRUCacheFS.poll(file);
+                file.setReadable(true, false);
+                file.setWritable(true, false);
             } catch (Exception e) {
                 System.err.println("Error storing object to file: "
                         + e.getLocalizedMessage());

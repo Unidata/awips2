@@ -37,6 +37,7 @@ import com.raytheon.uf.viz.monitor.safeseas.ui.dialogs.SSMonitoringAreaConfigDlg
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 28, 2009 3963       dhladky    Initial creation.
+ * March 5, 2012 14413     zhao       Launch AreaConfigDlg w/o monitor 
  * 
  * </pre>
  * 
@@ -51,12 +52,12 @@ public class SafeseasAreaConfigAction extends AbstractHandler {
     	
     	System.out.println("Activating/Action the Safeseas Area Config...");
         
-        SafeSeasMonitor monitor = SafeSeasMonitor.getInstance(); 
+        //SafeSeasMonitor monitor = SafeSeasMonitor.getInstance(); 
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-        monitor.launchDialog("area", shell);
+        //monitor.launchDialog("area", shell);
         
-        //SSMonitoringAreaConfigDlg configDlg= new SSMonitoringAreaConfigDlg(shell, "Safe Seas Monitor Area Configuration");
-        //configDlg.open();
+        SSMonitoringAreaConfigDlg configDlg= new SSMonitoringAreaConfigDlg(shell, "Safe Seas Monitor Area Configuration");
+        configDlg.open();
    
         return null;
     }
