@@ -26,6 +26,7 @@ import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
@@ -67,11 +68,13 @@ public abstract class AbstractAliasLevelNode extends AbstractDerivedLevelNode {
     }
 
     @Override
-    public Set<DataTime> timeQueryInternal(boolean latestOnly,
+    public Set<DataTime> timeQueryInternal(TimeQueryRequest originalRequest,
+            boolean latestOnly,
             Map<AbstractRequestableLevelNode, Set<DataTime>> cache,
             Map<AbstractRequestableLevelNode, Set<DataTime>> latestOnlyCache)
             throws VizException {
-        return sourceNode.timeQuery(latestOnly, cache, latestOnlyCache);
+        return sourceNode.timeQuery(originalRequest, latestOnly, cache,
+                latestOnlyCache);
     }
 
     @Override

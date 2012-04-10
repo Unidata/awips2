@@ -10,12 +10,14 @@ package gov.noaa.nws.ncep.viz.rsc.ncradar.rsc.image;
 import java.awt.Rectangle;
 import java.util.HashMap;
 
+import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
+import com.raytheon.uf.common.dataplugin.radar.util.RadarUtil;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
@@ -127,22 +129,19 @@ public class RadarRasterResource extends RadarImageResource<MapDescriptor> {
     }
 
     @Override
-    public PixelCoverage buildCoverage(IGraphicsTarget target, ImageTile tile,
+    public PixelCoverage buildCoverage(IGraphicsTarget target, 
             VizRadarRecord timeRecord) throws VizException {
         if (sharedCoverage == null) {
-            sharedCoverage = super.buildCoverage(target, tile, timeRecord);
+            double maxExtent = RadarUtil.calculateExtent(timeRecord);
+            GridGeometry2D geom = RadarUtil.constructGridGeometry(
+                    timeRecord.getCRS(),
+                    maxExtent,
+                    Math.max(timeRecord.getNumBins(),
+                            timeRecord.getNumRadials()));
 
-            IMesh mesh = target.getExtension(IMapMeshExtension.class)
-                    .constructMesh(descriptor);
-            try {
-                mesh.calculateMesh(sharedCoverage, tile, CRS.findMathTransform(
-                        timeRecord.getCRS(), DefaultGeographicCRS.WGS84));
-            } catch (FactoryException e) {
-                statusHandler
-                        .handle(Priority.PROBLEM,
-                                "Error finding math transform to lat/lon for radar record",
-                                e);
-            }
+            sharedCoverage = super.buildCoverage(target, timeRecord);
+            sharedCoverage.setMesh(target.getExtension(IMapMeshExtension.class)
+                    .constructMesh(geom, descriptor.getGridGeometry()));
         }
         return sharedCoverage;
     }

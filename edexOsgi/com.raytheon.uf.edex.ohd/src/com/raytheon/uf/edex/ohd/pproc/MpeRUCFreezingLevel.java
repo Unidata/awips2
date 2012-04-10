@@ -275,8 +275,6 @@ public class MpeRUCFreezingLevel {
                 out = new DataOutputStream(ofstream);
                 bw = new BufferedWriter(new OutputStreamWriter(out));
 
-                bw.write("\r\r\n");
-
                 for (Entry<String, Coordinate> entry : freezingStations
                         .entrySet()) {
 
@@ -513,7 +511,7 @@ public class MpeRUCFreezingLevel {
      */
     private String getFormattedDate(Date date) {
         if (date != null) {
-            SimpleDateFormat formatter = ShefConstants.YYMMDD_FORMAT;
+            SimpleDateFormat formatter = ShefConstants.YYYYMMDD_FORMAT;
             return formatter.format(date);
         } else {
             return null;

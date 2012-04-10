@@ -36,7 +36,9 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.raytheon.viz.grid.data.GribRequestableData;
+import com.raytheon.viz.grid.data.TiltRequestableData.TiltCenterPoint;
 import com.raytheon.viz.grid.util.CoverageUtils;
+import com.raytheon.viz.grid.util.TiltRequest;
 
 /**
  * The RequestableDataRecord Class
@@ -107,7 +109,13 @@ public class RequestableDataRecord extends GribRecord {
     }
 
     public IDataRecord[] getDataRecord(Request request) throws VizException {
-        Object obj = requester.getDataValue(request);
+        Object obj = null;
+        if (request instanceof TiltRequest) {
+            obj = requester.getDataValue(new TiltCenterPoint(
+                    ((TiltRequest) request).getTiltLocation()));
+        } else {
+            obj = requester.getDataValue(request);
+        }
         if (obj instanceof IDataRecord[]) {
             return (IDataRecord[]) obj;
         } else if (obj instanceof IDataRecord) {

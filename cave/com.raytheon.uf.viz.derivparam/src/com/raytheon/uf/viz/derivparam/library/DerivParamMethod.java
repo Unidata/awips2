@@ -38,9 +38,8 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.status.StatusConstants;
-import com.raytheon.uf.viz.derivparam.Activator;
 
 /**
  * Metadata about a derived parameter method.
@@ -61,7 +60,8 @@ import com.raytheon.uf.viz.derivparam.Activator;
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
 public class DerivParamMethod implements ISerializableObject {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(DerivParamMethod.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(DerivParamMethod.class);
 
     public enum FrameworkMethod {
         ALIAS, MODELRUN, TIMERANGE, OR, UNION, SUPPLEMENT, IMPORT, NODERIVATION;
@@ -149,7 +149,7 @@ public class DerivParamMethod implements ISerializableObject {
         fields.add(field);
     }
 
-    public Set<Level> getValidLevels() {
+    public Set<Level> getValidLevels() throws VizCommunicationException {
         if (validLevels == null && levels != null && levels.length() > 0) {
             ValidLevelGenerator lvlGen = new ValidLevelGenerator();
             validLevels = lvlGen.generateLevels(levels);
@@ -253,13 +253,13 @@ public class DerivParamMethod implements ISerializableObject {
                         tmp.append(pFieldTokens[k]);
                     }
 
-                    statusHandler.handle(
-                            Priority.SIGNIFICANT,
-                            "Derived parameter ["
-                                    + "field ["
-                                    + field.getParam()
-                                    + "], contains unknown parameter modifier ["
-                                    + tmp.toString() + "]");
+                    statusHandler
+                            .handle(Priority.SIGNIFICANT,
+                                    "Derived parameter ["
+                                            + "field ["
+                                            + field.getParam()
+                                            + "], contains unknown parameter modifier ["
+                                            + tmp.toString() + "]");
                 }
             }
         }
