@@ -103,6 +103,9 @@ public class TafSiteConfigIni implements ITafSiteConfig {
      */
     private static final String TMPL_EXT = "template";
 
+    /**
+     * The template extension with the "." prefix.
+     */
     private static final String TMPL_DOT_EXT = "." + TMPL_EXT;
 
     /**
@@ -134,6 +137,9 @@ public class TafSiteConfigIni implements ITafSiteConfig {
      */
     private static final String PROD_EXT = "cfg";
 
+    /**
+     * the product extension the the "." prefix.
+     */
     private static final String PROD_DOT_EXT = "." + PROD_EXT;
 
     /**
@@ -259,6 +265,13 @@ public class TafSiteConfigIni implements ITafSiteConfig {
         return triggerMap;
     }
 
+    /**
+     * Get configuration mapping for the product.
+     * 
+     * @param product
+     * @return config - The configuration mapping for the product or null if
+     *         problem getting the mapping.
+     */
     private HierarchicalINIConfiguration getProductConfig(String product) {
         HierarchicalINIConfiguration config = configMaps.get(product);
         if (config == null) {
@@ -647,6 +660,16 @@ public class TafSiteConfigIni implements ITafSiteConfig {
         return config;
     }
 
+    /**
+     * Get an array of localized files from a directory.
+     * 
+     * @param dir
+     *            The directory to check
+     * @param ext
+     *            The extension to look file
+     * @return lFileArray The array of localized files in the directory with the
+     *         desired extension
+     */
     private LocalizationFile[] getLfiles(String dir, String ext) {
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext context = pm.getContext(

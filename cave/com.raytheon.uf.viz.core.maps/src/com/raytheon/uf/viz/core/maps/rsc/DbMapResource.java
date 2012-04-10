@@ -53,6 +53,7 @@ import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.PixelExtent;
+import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
@@ -161,18 +162,18 @@ public class DbMapResource extends
 
             String shadingField;
 
-            String query;
+            Envelope envelope;
 
             Map<Object, RGB> colorMap;
 
             Request(IGraphicsTarget target, IMapDescriptor descriptor,
-                    DbMapResource rsc, String query, String geomField,
+                    DbMapResource rsc, Envelope envelope, String geomField,
                     String labelField, String shadingField,
                     Map<Object, RGB> colorMap) {
                 this.target = target;
                 this.descriptor = descriptor;
                 this.rsc = rsc;
-                this.query = query;
+                this.envelope = envelope;
                 this.geomField = geomField;
                 this.labelField = labelField;
                 this.shadingField = shadingField;
@@ -207,9 +208,9 @@ public class DbMapResource extends
 
             public Throwable cause;
 
-            public String query;
+            public Envelope query;
 
-            private Result(String query) {
+            private Result(Envelope query) {
                 this.query = query;
                 failed = true;
             }
@@ -228,7 +229,7 @@ public class DbMapResource extends
         }
 
         public void request(IGraphicsTarget target, IMapDescriptor descriptor,
-                DbMapResource rsc, String query, String geomField,
+                DbMapResource rsc, Envelope query, String geomField,
                 String labelField, String shadingField,
                 Map<Object, RGB> colorMap) {
             if (requestQueue.size() == QUEUE_LIMIT) {
@@ -255,7 +256,7 @@ public class DbMapResource extends
         protected IStatus run(IProgressMonitor monitor) {
             Request req = requestQueue.poll();
             while (req != null) {
-                Result result = new Result(req.query);
+                Result result = new Result(req.envelope);
                 try {
                     String table = resourceData.getTable();
                     if (canceled) {
@@ -263,10 +264,35 @@ public class DbMapResource extends
                         result = null;
                         return Status.CANCEL_STATUS;
                     }
-                    QueryResult mappedResult = MapQueryCache
-                            .executeMappedQuery(req.query, "maps",
-                                    QueryLanguage.SQL);
+                    List<String> constraints = new ArrayList<String>();
+                    if (resourceData.getConstraints() != null) {
+                        constraints.addAll(Arrays.asList(resourceData
+                                .getConstraints()));
+                    }
+                    List<String> fields = new ArrayList<String>();
+                    fields.add(GID);
+                    if (req.labelField != null
+                            && !fields.contains(req.labelField)) {
+                        fields.add(req.labelField);
+                    }
+                    if (req.shadingField != null
+                            && !fields.contains(req.shadingField)) {
+                        fields.add(req.shadingField);
+                    }
 
+                    if (resourceData.getColumns() != null) {
+                        for (ColumnDefinition column : resourceData
+                                .getColumns()) {
+                            if (fields.contains(column.getName())) {
+                                fields.remove(column.getName());
+                            }
+                            fields.add(column.toString());
+                        }
+                    }
+                    QueryResult mappedResult = DbMapQueryFactory.getMapQuery(
+                            resourceData.getTable(),
+                            resourceData.getGeomField()).queryWithinEnvelope(
+                            req.envelope, fields, constraints);
                     Map<Integer, Geometry> gidMap = new HashMap<Integer, Geometry>(
                             mappedResult.getResultCount() * 2);
                     List<Integer> toRequest = new ArrayList<Integer>(
@@ -309,7 +335,7 @@ public class DbMapResource extends
                             result = null;
                             return Status.CANCEL_STATUS;
                         }
-                        QueryResult geomResults = MapQueryCache
+                        QueryResult geomResults = DirectDbQuery
                                 .executeMappedQuery(geomQuery.toString(),
                                         "maps", QueryLanguage.SQL);
                         for (int i = 0; i < geomResults.getResultCount(); ++i) {
@@ -330,7 +356,7 @@ public class DbMapResource extends
                                         "Expected byte[] received "
                                                 + obj.getClass().getName()
                                                 + ": " + obj.toString()
-                                                + "\n  query=\"" + req.query
+                                                + "\n  query=\"" + req.envelope
                                                 + "\"");
                             }
                             gidMap.put(gid, g);
@@ -514,7 +540,7 @@ public class DbMapResource extends
         if (shadedShape != null) {
             shadedShape.dispose();
         }
-
+        lastExtent = null;
         super.disposeInternal();
     }
 
@@ -525,7 +551,7 @@ public class DbMapResource extends
                 getLabelFields().toArray(new String[0]));
     }
 
-    private String buildQuery(PixelExtent extent) throws VizException {
+    private Envelope buildEnvelope(PixelExtent extent) throws VizException {
         Envelope env = null;
         try {
             Envelope e = descriptor.pixelToWorld(extent, descriptor.getCRS());
@@ -535,60 +561,7 @@ public class DbMapResource extends
         } catch (Exception e) {
             throw new VizException("Error transforming extent", e);
         }
-
-        double[] levels = getLevels();
-        String geometryField = getGeomField(levels[levels.length - 1]);
-
-        // get the geometry field
-        StringBuilder query = new StringBuilder("SELECT ");
-        query.append(GID);
-
-        // add any additional columns
-        List<String> additionalColumns = new ArrayList<String>();
-        if (resourceData.getColumns() != null) {
-            for (ColumnDefinition column : resourceData.getColumns()) {
-                query.append(", ");
-                query.append(column);
-
-                additionalColumns.add(column.getName());
-            }
-        }
-
-        // add the label field
-        String labelField = getCapability(LabelableCapability.class)
-                .getLabelField();
-        if (labelField != null && !additionalColumns.contains(labelField)) {
-            query.append(", ");
-            query.append(labelField);
-        }
-
-        // add the shading field
-        String shadingField = getCapability(ShadeableCapability.class)
-                .getShadingField();
-        if (shadingField != null && !additionalColumns.contains(shadingField)) {
-            query.append(", ");
-            query.append(shadingField);
-        }
-
-        // add the geometry table
-        query.append(" FROM ");
-        query.append(resourceData.getTable());
-
-        // add the geospatial constraint
-        query.append(" WHERE ");
-        query.append(getGeospatialConstraint(geometryField, env));
-
-        // add any additional constraints
-        if (resourceData.getConstraints() != null) {
-            for (String constraint : resourceData.getConstraints()) {
-                query.append(" AND ");
-                query.append(constraint);
-            }
-        }
-
-        query.append(';');
-
-        return query.toString();
+        return env;
     }
 
     protected String getGeomField(double simpLev) {
@@ -597,18 +570,6 @@ public class DbMapResource extends
                 + StringUtils.replaceChars(df.format(simpLev), '.', '_');
 
         return resourceData.getGeomField() + suffix;
-    }
-
-    /**
-     * @return
-     */
-    protected Object getGeospatialConstraint(String geometryField, Envelope env) {
-        // create the geospatial constraint from the envelope
-        String geoConstraint = String.format(
-                "%s && ST_SetSrid('BOX3D(%f %f, %f %f)'::box3d,4326)",
-                geometryField, env.getMinX(), env.getMinY(), env.getMaxX(),
-                env.getMaxY());
-        return geoConstraint;
     }
 
     /**
@@ -665,7 +626,7 @@ public class DbMapResource extends
                         clipToProjExtent(screenExtent).getEnvelope())) {
             if (!paintProps.isZooming()) {
                 PixelExtent expandedExtent = getExpandedExtent(screenExtent);
-                String query = buildQuery(expandedExtent);
+                Envelope query = buildEnvelope(expandedExtent);
                 queryJob.request(aTarget, descriptor, this, query,
                         getGeomField(simpLev), labelField, shadingField,
                         colorMap);
@@ -856,27 +817,13 @@ public class DbMapResource extends
     protected double[] getLevels() {
         if (levels == null) {
             try {
-                int p = resourceData.getTable().indexOf('.');
-                String schema = resourceData.getTable().substring(0, p);
-                String table = resourceData.getTable().substring(p + 1);
-                StringBuilder query = new StringBuilder(
-                        "SELECT f_geometry_column FROM public.geometry_columns WHERE f_table_schema='");
-                query.append(schema);
-                query.append("' AND f_table_name='");
-                query.append(table);
-                query.append("' AND f_geometry_column LIKE '");
-                query.append(resourceData.getGeomField());
-                query.append("_%';");
-                List<Object[]> results = MapQueryCache.executeQuery(
-                        query.toString(), "maps", QueryLanguage.SQL);
-
+                List<Double> results = DbMapQueryFactory.getMapQuery(
+                        resourceData.getTable(), resourceData.getGeomField())
+                        .getLevels();
                 levels = new double[results.size()];
                 int i = 0;
-                for (Object[] objs : results) {
-                    String s = ((String) objs[0]).substring(
-                            resourceData.getGeomField().length() + 1).replace(
-                            '_', '.');
-                    levels[i++] = Double.parseDouble(s);
+                for (Double d : results) {
+                    levels[i++] = d;
                 }
                 Arrays.sort(levels);
             } catch (VizException e) {
@@ -891,19 +838,9 @@ public class DbMapResource extends
     protected String getGeometryType() {
         if (geometryType == null) {
             try {
-                int p = resourceData.getTable().indexOf('.');
-                String schema = resourceData.getTable().substring(0, p);
-                String table = resourceData.getTable().substring(p + 1);
-                StringBuilder query = new StringBuilder(
-                        "SELECT type FROM geometry_columns WHERE f_table_schema='");
-                query.append(schema);
-                query.append("' AND f_table_name='");
-                query.append(table);
-                query.append("' LIMIT 1;");
-                List<Object[]> results = MapQueryCache.executeQuery(
-                        query.toString(), "maps", QueryLanguage.SQL);
-
-                geometryType = (String) results.get(0)[0];
+                geometryType = DbMapQueryFactory.getMapQuery(
+                        resourceData.getTable(), resourceData.getGeomField())
+                        .getGeometryType();
             } catch (Throwable e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Error querying geometry type", e);

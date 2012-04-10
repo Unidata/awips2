@@ -119,5 +119,4 @@ public class IncludeMenuContribution extends
 
         return contribList.toArray(new IContributionItem[contribList.size()]);
     }
-
 }

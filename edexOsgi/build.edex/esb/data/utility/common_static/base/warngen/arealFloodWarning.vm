@@ -4,7 +4,8 @@
 ## EDITED BY MIKE DANGELO 7-13-2011 ##
 ## Edited by Phil Kurimski 8-16-2011 R11.8 ##
 ## EDITED BY MIKE DANGELO 9-19-2011 at Alaska TIM ##
-##
+## EDITED BY Evan Bookbinder 2-24-2012
+## EDITED BY Phil Kurimski   2-28-2012
 #################################### SET SOME VARIABLES ###################################
 ##
 #if(${action} == "EXT")
@@ -104,52 +105,58 @@ THIS IS A TEST MESSAGE. ##
 #end
 #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone})
 
-#set ($report = "HEAVY RAIN THAT WILL CAUSE FLOODING.") 
+#set ($report = "!**YOU DID NOT SELECT AN /EVENT/ BULLET.  PLEASE CLOSE THIS WINDOW AND REGENERATE YOUR WARNING**!") 
 #set ($rainAmount = "") 
 #if(${list.contains($bullets, "doppler")})
   #set ($report = "DOPPLER RADAR INDICATED HEAVY RAIN THAT WILL CAUSE FLOODING.")   
 #end
 #if(${list.contains($bullets, "doppler")} && ${list.contains($bullets, "thunder")})
-  #set ($report = "DOPPLER RADAR INDICATED HEAVY RAIN DUE TO A THUNDERSTORM THAT WILL CAUSE FLOODING.")   
-#end
-#if(${list.contains($bullets, "doppler")} && ${list.contains($bullets, "thunder")} && ${stormType} == "line")
-  #set ($report = "DOPPLER RADAR INDICATED HEAVY RAIN DUE TO A LINE OF THUNDERSTORMS. THE HEAVY RAIN WILL CAUSE FLOODING.")   
+  #set ($report = "DOPPLER RADAR INDICATED THUNDERSTORMS PRODUCING HEAVY RAIN WHICH WILL CAUSE FLOODING.")   
 #end
 #if(${list.contains($bullets, "dopplerGauge")})
   #set ($report = "DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED THAT HEAVY RAIN WAS FALLING OVER THE AREA. THAT HEAVY RAIN WILL CAUSE FLOODING.")   
 #end
 #if(${list.contains($bullets, "dopplerGauge")} && ${list.contains($bullets, "thunder")})
-  #set ($report = "DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED THAT A THUNDERSTORM IS PRODUCING HEAVY RAIN OVER THE AREA. THAT RAIN WILL CAUSE FLOODING.")   
-#end
-#if(${list.contains($bullets, "dopplerGauge")} && ${list.contains($bullets, "thunder")} && ${stormType} == "line")
-  #set ($report = "DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED THAT A LINE OF THUNDERSTORMS IS PRODUCING HEAVY RAIN OVER THE AREA. THAT RAIN WILL CAUSE FLOODING.")   
+  #set ($report = "DOPPLER RADAR AND AUTOMATED RAIN GAUGES INDICATED THUNDERSTORMS WITH HEAVY RAIN OVER THE AREA. THAT RAIN WILL CAUSE FLOODING.")   
 #end
 #if(${list.contains($bullets, "trainedSpotters")} && ${list.contains($bullets, "thunder")})
-  #set ($report = "TRAINED WEATHER SPOTTERS REPORTED HEAVY RAIN IN !** LOCATION **! DUE TO A THUNDERSTORM THAT WILL CAUSE FLOODING.")   
+  #set ($report = "TRAINED WEATHER SPOTTERS REPORTED HEAVY RAIN IN !** LOCATION **! DUE TO THUNDERSTORMS THAT WILL CAUSE FLOODING.")   
 #end
-#if(${list.contains($bullets, "trainedSpotters")} && ${list.contains($bullets, "floodReport")})
+#if(${list.contains($bullets, "trainedSpotters")} && ${list.contains($bullets, "floodOccurring")})
   #set ($report = "TRAINED WEATHER SPOTTERS REPORTED FLOODING IN !** LOCATION **!.")   
 #end
 #if(${list.contains($bullets, "trainedSpotters")} && ${list.contains($bullets, "plainRain")})
   #set ($report = "TRAINED WEATHER SPOTTERS REPORTED HEAVY RAIN IN !** LOCATION **! THAT WILL CAUSE FLOODING.")   
 #end
 #if(${list.contains($bullets, "lawEnforcement")} && ${list.contains($bullets, "thunder")})
-  #set ($report = "LOCAL LAW ENFORCEMENT REPORTED HEAVY RAIN DUE TO A THUNDERSTORM OVER !** LOCATION **! THAT WILL CAUSE FLOODING.")   
+  #set ($report = "LOCAL LAW ENFORCEMENT REPORTED THUNDERSTORMS WITH HEAVY RAIN OVER !** LOCATION **! THAT WILL CAUSE FLOODING.")   
 #end
-#if(${list.contains($bullets, "lawEnforcement")} && ${list.contains($bullets, "floodReport")})
+#if(${list.contains($bullets, "lawEnforcement")} && ${list.contains($bullets, "floodOccurring")})
   #set ($report = "LOCAL LAW ENFORCEMENT REPORTED FLOODING IN !** LOCATION **!.")   
 #end
 #if(${list.contains($bullets, "lawEnforcement")} && ${list.contains($bullets, "plainRain")})
   #set ($report = "LOCAL LAW ENFORCEMENT REPORTED HEAVY RAIN IN !** LOCATION **! THAT WILL CAUSE FLOODING.")   
 #end
-#if(${list.contains($bullets, "public")} && ${list.contains($bullets, "thunder")})
-  #set ($report = "THE PUBLIC REPORTED HEAVY RAIN IN !** LOCATION **! DUE TO A THUNDERSTORM. THE HEAVY RAIN WILL CAUSE FLOODING.")   
+#if(${list.contains($bullets, "emergencyManagement")} && ${list.contains($bullets, "thunder")})
+  #set ($report = "EMERGENCY MANAGEMENT REPORTED THUNDERSTORMS WITH HEAVY RAIN IN !** LOCATION **!. THE HEAVY RAIN WILL CAUSE FLOODING.")   
 #end
-#if(${list.contains($bullets, "public")} && ${list.contains($bullets, "floodReport")})
+#if(${list.contains($bullets, "emergencyManagement")} && ${list.contains($bullets, "floodOccurring")})
+  #set ($report = "EMERGENCY MANAGEMENT REPORTED FLOODING IN !** LOCATION **!.")   
+#end
+#if(${list.contains($bullets, "emergencyManagement")} && ${list.contains($bullets, "plainRain")})
+  #set ($report = "EMERGENCY MANAGEMENT REPORTED HEAVY RAIN IN !** LOCATION **!. THE HEAVY RAIN WILL CAUSE FLOODING.")   
+#end
+#if(${list.contains($bullets, "public")} && ${list.contains($bullets, "thunder")})
+  #set ($report = "THE PUBLIC REPORTED THUNDERSTORMS WITH HEAVY RAIN IN !** LOCATION **!. THE HEAVY RAIN WILL CAUSE FLOODING.")   
+#end
+#if(${list.contains($bullets, "public")} && ${list.contains($bullets, "floodOccurring")})
   #set ($report = "THE PUBLIC REPORTED FLOODING IN !** LOCATION **!.")   
 #end
 #if(${list.contains($bullets, "public")} && ${list.contains($bullets, "plainRain")})
   #set ($report = "THE PUBLIC REPORTED HEAVY RAIN IN !** LOCATION **!. THAT HEAVY RAIN WILL CAUSE FLOODING.")   
+#end
+#if(${list.contains($bullets, "genericFlood")})
+  #set ($report = "!** ENTER REASON AND FORECAST FOR FLOOD **!")
 #end
 #if(${list.contains($bullets, "rain1")} )
   #set ($rainAmount = "UP TO ONE INCH OF RAIN HAS ALREADY FALLEN.")   
@@ -183,7 +190,11 @@ AT ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}...${repor
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
-#locationsList("SOME LOCATIONS THAT WILL EXPERIENCE FLOODING INCLUDE" "THIS FLOODING" 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+#### THE THIRD ARGUMENT IS A NUMBER SPECIFYING THE NUMBER OF COLUMNS TO OUTPUT THE CITIES LIST IN
+#### 0 IS A ... SEPARATED LIST, 1 IS ONE PER LINE, >1 IS A COLUMN FORMAT
+#### IF YOU USE SOMETHING OTHER THAN "LOCATIONS IMPACTED INCLUDE" LEAD IN BELOW, MAKE SURE THE
+#### ACCOMPANYING XML FILE PARSE STRING IS CHANGED TO MATCH!
+#locationsList("SOME LOCATIONS THAT WILL EXPERIENCE FLOODING INCLUDE..." "THIS FLOODING" 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
 
 #end
 
@@ -233,15 +244,19 @@ MOST FLOOD DEATHS OCCUR IN AUTOMOBILES. NEVER DRIVE YOUR VEHICLE INTO AREAS WHER
 
 #end
 #if(${list.contains($bullets, "urbanCTA")})
-EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE ELEVATED LEVELS ON SMALL CREEKS AND STREAMS...AND PONDING OF WATER IN URBAN AREAS...HIGHWAYS...STREETS AND UNDERPASSES AS WELL AS OTHER POOR DRAINAGE AREAS AND LOW LYING SPOTS.
+EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE PONDING OF WATER IN URBAN AREAS...HIGHWAYS...STREETS AND UNDERPASSES AS WELL AS OTHER POOR DRAINAGE AREAS AND LOW LYING SPOTS. DO NOT ATTEMPT TO TRAVEL ACROSS FLOODED ROADS. FIND ALTERNATE ROUTES. IT TAKES ONLY A FEW INCHES OF SWIFTLY FLOWING WATER TO CARRY VEHICLES AWAY.
 
 #end
 #if(${list.contains($bullets, "ruralCTA")})
-EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE ELEVATED LEVELS ON SMALL CREEKS AND STREAMS...AND PONDING OF WATER ON COUNTRY ROADS AND FARMLAND ALONG THE BANKS OF CREEKS AND STREAMS. 
+EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE FLOODING OF SMALL CREEKS AND STREAMS...AS WELL AS FARM AND COUNTRY ROADS. DO NOT ATTEMPT TO TRAVEL ACROSS FLOODED ROADS. FIND ALTERNATE ROUTES.
 
 #end
 #if(${list.contains($bullets, "USS_CTA")})
 EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE FLOODING OF SMALL CREEKS AND STREAMS...HIGHWAYS AND UNDERPASSES IN URBAN AREAS. ADDITIONALLY...COUNTRY ROADS AND FARMLANDS ALONG THE BANKS OF CREEKS...STREAMS AND OTHER LOW LYING AREAS ARE SUBJECT TO FLOODING.
+
+#end
+#if(${list.contains($bullets, "specificCTA")})
+FLOOD WATERS ARE MOVING DOWN !**name of channel**! FROM !**location**! TO !**location**!. THE FLOOD CREST IS EXPECTED TO REACH !**location(s)**! BY !**time(s)**!. 
 
 #end
 #if(${list.contains($bullets, "nightCTA")})

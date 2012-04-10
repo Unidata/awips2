@@ -16,6 +16,12 @@
   		<constructor-arg value="com.raytheon.uf.common.dataplugin.grib.request.GetCoverageRequest"/>
   		<constructor-arg ref="getCoverageHandler"/>
   	</bean>
+  	
+   <bean id="getCoveragesHandler" class="com.raytheon.edex.plugin.grib.handler.GetCoveragesHandler" />
+   <bean factory-bean="handlerRegistry" factory-method="register">
+      <constructor-arg value="com.raytheon.uf.common.dataplugin.grib.request.GetCoveragesRequest"/>
+  	  <constructor-arg ref="getCoveragesHandler"/>
+   </bean>
   
   
  </beans>

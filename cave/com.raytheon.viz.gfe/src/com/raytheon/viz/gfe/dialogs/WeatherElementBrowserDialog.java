@@ -51,6 +51,7 @@ import org.eclipse.swt.widgets.ToolItem;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.viz.core.mode.CAVEMode;
+import com.raytheon.viz.gfe.GFEServerException;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
@@ -68,6 +69,7 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  * 06/27/2008              ebabin      Updated to properly add fields.
  * 04/30/2009   2282       rjpeter     Refactored.
  * 08/19/2009   2547       rjpeter     Fix Test/Prac database display.
+ * 02/22/2012	14351	   mli		   update with incoming new grids.
  * </pre>
  * 
  * @author ebabin
@@ -517,6 +519,48 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
         }
     }
 
+    /*
+     * check for incoming new databases
+     */
+    private void checkForNewSource() {
+        List<String> sortedSources = selectedType.getUpdatedSources();
+
+        if (sortedSources != null) {
+        	List<String> newSources = new ArrayList<String>();
+
+        	// Check for new new database
+        	for (String source : sortedSources) {
+        		boolean found = false;
+            	for (int i = 0; i < sourceMenu.getItemCount(); i++) {
+            		if (sourceMenu.getItem(i).getText().equals(source)) {
+            			found = true;
+            			break;
+            		}
+            	}
+            	
+            	if (!found) {
+            		newSources.add(source);
+            	}
+            }
+            
+        	// create menuItem for new database
+        	if (newSources != null) {
+        		for (String s : newSources) {
+        			selectedType.addNewParmIDs(s);
+        			final MenuItem item = new MenuItem(sourceMenu, SWT.PUSH);
+        			item.setText(s);
+        			item.addSelectionListener(new SelectionAdapter() {
+        				@Override
+        				public void widgetSelected(SelectionEvent e) {
+        					addToList(item.getText(), sourceList);
+        					processSourceSelection();
+        				}
+        			});
+        		}
+        	}
+        } 
+    }
+    
     private void processSourceSelection() {
         java.util.List<String> currentSourceSelection = java.util.Arrays
                 .asList(sourceList.getSelection());
@@ -814,6 +858,9 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
         sourceToolItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
+            	// Check for new source
+            	checkForNewSource();
+            	
                 Rectangle rect = sourceToolItem.getBounds();
                 Point pt = new Point(rect.x, rect.y + rect.height);
                 pt = sourceToolBar.toDisplay(pt);
@@ -1205,9 +1252,18 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
 
     private List<DatabaseID> getDatabases() {
         if (databases == null) {
-            databases = dataManager.getParmManager().getAvailableDbs();
+//            databases = dataManager.getParmManager().getAvailableDbs();
+        	
+        	// Always Retrieve updated databases
+        	try {
+				databases = DataManager.getCurrentInstance().getClient().getAvailableDbs();
+			} catch (GFEServerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
         }
-        return databases;
+        
+         return databases;
     }
 
     private ParmID[] getSelectedParmIDS() {

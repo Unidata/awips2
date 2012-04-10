@@ -1,7 +1,8 @@
 <!-- Flash Flood Statement for Zones configuration -->
 <!-- Created by Mike Dangelo  09-19-2011 at Alaska TIM -->
 <!-- Modified by Phil Kurimski 09-23-2011 for burn scars and mud slides -->
-<!-- Edited by Mike Dangelo  01-26-2012 at CRH TIM -->
+<!-- Edited by Mike Dangelo  01-26-2012 at CRH TIM 
+               Phil Kurimski  2-29-2012 -->
 
 <warngenConfig>
 
@@ -85,6 +86,7 @@
   <bullet bulletName="thunder" bulletText="Thunderstorms with heavy rainfall" bulletGroup="event" parseString="THUNDERSTORMS"/>
   <bullet bulletName="plainRain" bulletText="Heavy rainfall (no thunder)" bulletGroup="event" parseString="&quot;HEAVY RAIN&quot;,&quot;-THUNDERSTORM&quot;"/>
   <bullet bulletName="flash" bulletText="Flooding occurring" bulletGroup="event" parseString="PRODUCING FLOODING"/>
+  <bullet bulletText="*********** (OPTIONAL) DEBRIS FLOW INFO **********" bulletType="title"/>
   <bullet bulletName="burnScar" bulletText="Also Burn areas with debris flow" bulletGroup="addevent" parseString="BURN SCAR "/>
   <bullet bulletName="mudSlide" bulletText="Mud Slides" bulletGroup="addevent" parseString="MUD SLIDE "/>
   <bullet bulletText="*********** RAIN SO FAR (CHOOSE 1) **********" bulletType="title"/>
@@ -104,7 +106,7 @@
   <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding..." parseString="BE ESPECIALLY CAUTIOUS AT NIGHT WHEN"/>
   <bullet bulletName="dontDriveCTA" bulletText="Do not drive into water..." parseString="DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY"/>
   <bullet bulletName="turnAroundCTA" bulletText="Turn around...dont drown" parseString="MOST FLOOD DEATHS OCCUR IN AUTOMOBILES"/>
-  <bullet bulletName="autoSafetyCTA" bulletText="Vehicle safety..." parseString="MOST FLOOD RELATED DEATHS OCCUR IN AUTOMOBILES"/>
+  <bullet bulletName="autoSafetyCTA" bulletText="Automobile safety..." parseString="MOST FLOOD RELATED DEATHS OCCUR IN AUTOMOBILES"/>
   <bullet bulletName="camperSafetyCTA" bulletText="Camper safety..." parseString="CAMPERS AND HIKERS SHOULD AVOID STREAMS OR CREEKS"/>
   <bullet bulletName="lowSpotsCTA" bulletText="Low water crossings in hilly terrain..." parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
   <bullet bulletName="ffwMeansCTA" bulletText="A flood/flash flood warning means..." parseString="A FLASH FLOOD WARNING MEANS THAT"/>
@@ -131,6 +133,7 @@
   <bullet bulletName="thunder" bulletText="Thunderstorms with heavy rainfall" bulletGroup="event" parseString="THUNDERSTORMS"/>
   <bullet bulletName="plainRain" bulletText="Heavy rainfall (no thunder)" bulletGroup="event" parseString="&quot;HEAVY RAIN&quot;,&quot;-THUNDERSTORM&quot;"/>
   <bullet bulletName="flash" bulletText="Flooding occurring" bulletGroup="event" parseString="PRODUCING FLOODING"/>
+  <bullet bulletText="*********** (OPTIONAL) DEBRIS FLOW INFO **********" bulletType="title"/>
   <bullet bulletName="burnScar" bulletText="Also Burn areas with debris flow" bulletGroup="addevent" parseString="BURN SCAR "/>
   <bullet bulletName="mudSlide" bulletText="Mud Slides" bulletGroup="addevent" parseString="MUD SLIDE "/>
   <bullet bulletText="*********** RAIN SO FAR (CHOOSE 1) **********" bulletType="title"/>
@@ -150,7 +153,7 @@
   <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding..." parseString="BE ESPECIALLY CAUTIOUS AT NIGHT WHEN"/>
   <bullet bulletName="dontDriveCTA" bulletText="Do not drive into water..." parseString="DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY"/>
   <bullet bulletName="turnAroundCTA" bulletText="Turn around...dont drown" parseString="MOST FLOOD DEATHS OCCUR IN AUTOMOBILES"/>
-  <bullet bulletName="autoSafetyCTA" bulletText="Vehicle safety..." parseString="MOST FLOOD RELATED DEATHS OCCUR IN AUTOMOBILES"/>
+  <bullet bulletName="autoSafetyCTA" bulletText="Automobile safety..." parseString="MOST FLOOD RELATED DEATHS OCCUR IN AUTOMOBILES"/>
   <bullet bulletName="camperSafetyCTA" bulletText="Camper safety..." parseString="CAMPERS AND HIKERS SHOULD AVOID STREAMS OR CREEKS"/>
   <bullet bulletName="lowSpotsCTA" bulletText="Low water crossings in hilly terrain..." parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
   <bullet bulletName="ffwMeansCTA" bulletText="A flood/flash flood warning means..." parseString="A FLASH FLOOD WARNING MEANS THAT"/>
@@ -195,6 +198,7 @@
 
  <trackEnabled>false</trackEnabled>
 
+ <!-- Required, but unused by this template -->
  <pathcastConfig>
   <withinPolygon>true</withinPolygon>
   <distanceThreshold>8.0</distanceThreshold>
@@ -211,6 +215,11 @@
   <sortBy>
   	<sort>distance</sort>
   </sortBy>
+  <filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1,2" constraintType="IN" />
+ 		</mapping>
+  </filter>  
  </pathcastConfig>
 
   <pointSource variable="cityList">
@@ -219,17 +228,18 @@
  	<withinPolygon>true</withinPolygon>
  	<maxResults>30</maxResults>
  	<distanceThreshold>200</distanceThreshold>
+	<filter> 	
+  	  <mapping key="WARNGENLEV">
+ 		<constraint constraintValue="1,2,3" constraintType="IN" />
+ 	  </mapping>
+ 	</filter> 	 	
  	<sortBy>
   		<sort>warngenlev</sort>
   		<sort>population</sort>
-  	</sortBy>
-	<filter>
- 		<mapping key="WARNGENLEV">
- 			<constraint constraintValue="1,2" constraintType="IN" />
- 		</mapping>
-  	</filter>
+  	</sortBy>	
  </pointSource>
- 
+
+ <!-- Required, but unused by this template --> 
   <pointSource variable="otherPoints">
  	<pointField>NAME</pointField>
  	<searchMethod>POINTS</searchMethod>
