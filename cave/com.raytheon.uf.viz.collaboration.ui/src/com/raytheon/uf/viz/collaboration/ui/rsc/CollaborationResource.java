@@ -19,17 +19,25 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.rsc;
 
-import org.eclipse.swt.graphics.RGB;
+import java.util.LinkedList;
+import java.util.List;
 
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuManager;
+
+import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IRenderable;
-import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
+import com.raytheon.uf.viz.remote.graphics.events.BeginFrameEvent;
+import com.raytheon.uf.viz.remote.graphics.events.EndFrameEvent;
+import com.raytheon.uf.viz.remote.graphics.events.IRenderEvent;
+import com.raytheon.viz.ui.cmenu.IContextMenuProvider;
 
 /**
  * A resource for displaying rendered data that is received from the Data
@@ -50,41 +58,124 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  */
 
 public class CollaborationResource extends
-        AbstractVizResource<CollaborationResourceData, IDescriptor> {
+        AbstractVizResource<CollaborationResourceData, IDescriptor> implements
+        IContextMenuProvider {
+
+    /** List of objects rendered in paint */
+    private List<IRenderEvent> currentRenderables;
+
+    /** Active list of renderable events to add to */
+    private List<IRenderEvent> activeRenderables;
+
+    /** Queue of graphics data update events to process in paint */
+    private List<AbstractRemoteGraphicsEvent> dataChangeEvents;
+
+    /** Internal rendering event object router */
+    private EventBus renderingRouter;
+
+    private CollaborationRenderingHandler renderingHandler;
+
+    private BeginFrameEvent latestBeginFrameEvent;
 
     protected CollaborationResource(CollaborationResourceData resourceData,
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
-        // TODO Auto-generated constructor stub
+        dataChangeEvents = new LinkedList<AbstractRemoteGraphicsEvent>();
+        currentRenderables = new LinkedList<IRenderEvent>();
+        activeRenderables = new LinkedList<IRenderEvent>();
+        renderingRouter = new EventBus();
+        renderingHandler = new CollaborationRenderingHandler();
+        renderingRouter.register(renderingHandler);
     }
 
     @Override
     protected void disposeInternal() {
-        // TODO Auto-generated method stub
-
+        renderingHandler.dispose();
     }
 
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-        // TODO Auto-generated method stub
-        DrawableString string = new DrawableString(
-                "You can't see it but there is a collaboration resource on this editor",
-                new RGB(255, 0, 255));
-        string.setCoordinates(800, 3000);
-        target.drawStrings(string);
+        List<IRenderEvent> toRender = new LinkedList<IRenderEvent>();
+        synchronized (currentRenderables) {
+            toRender.addAll(currentRenderables);
+        }
+
+        List<AbstractRemoteGraphicsEvent> currentDataChangeEvents = new LinkedList<AbstractRemoteGraphicsEvent>();
+        synchronized (dataChangeEvents) {
+            currentDataChangeEvents.addAll(dataChangeEvents);
+            dataChangeEvents.clear();
+        }
+
+        renderingHandler.beginRender(target, paintProps);
+
+        // Handle begin frame
+        if (latestBeginFrameEvent != null) {
+            renderingRouter.post(latestBeginFrameEvent);
+            latestBeginFrameEvent = null;
+        }
+        for (AbstractRemoteGraphicsEvent event : currentDataChangeEvents) {
+            renderingRouter.post(event);
+        }
+
+        for (IRenderEvent event : toRender) {
+            renderingRouter.post(event);
+        }
     }
 
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        // TODO Auto-generated method stub
-
+        // Nothing to do
     }
 
     @Subscribe
-    public void renderableArrived(IRenderable render) {
-        // TODO add it to a list or something
-        System.out.println("Received renderable " + render);
+    public void renderableArrived(AbstractRemoteGraphicsEvent event) {
+        if (event instanceof IRenderEvent) {
+            // Render based event
+            if (event instanceof BeginFrameEvent) {
+                // If begin frame event, clear current active renderables
+                activeRenderables.clear();
+                BeginFrameEvent beginEvent = (BeginFrameEvent) event;
+                if (beginEvent.getExtentCenter() != null) {
+                    // Event modifies extent
+                    latestBeginFrameEvent = beginEvent;
+                    issueRefresh();
+                }
+            } else if (event instanceof EndFrameEvent) {
+                synchronized (currentRenderables) {
+                    currentRenderables.clear();
+                    currentRenderables.addAll(activeRenderables);
+                    activeRenderables.clear();
+                }
+                activeRenderables.clear();
+                issueRefresh();
+            } else {
+                activeRenderables.add((IRenderEvent) event);
+            }
+        } else {
+            // If not IRenderEvent, event modifies data object
+            synchronized (dataChangeEvents) {
+                dataChangeEvents.add(event);
+            }
+            issueRefresh();
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.cmenu.IContextMenuProvider#provideContextMenuItems
+     * (org.eclipse.jface.action.IMenuManager, int, int)
+     */
+    @Override
+    public void provideContextMenuItems(IMenuManager menuManager, int x, int y) {
+        menuManager.add(new Action("Quit Session") {
+            @Override
+            public void run() {
+                System.out.println("TODO: Quit session");
+            }
+        });
     }
 
 }

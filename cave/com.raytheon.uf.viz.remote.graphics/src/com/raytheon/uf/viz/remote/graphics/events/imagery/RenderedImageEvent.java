@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.remote.graphics.events;
+package com.raytheon.uf.viz.remote.graphics.events.imagery;
 
 import java.awt.image.RenderedImage;
 import java.io.ByteArrayInputStream;
@@ -30,6 +30,7 @@ import javax.media.jai.remote.SerializableRenderedImage;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
 
 /**
  * Event that sends a rendered image object for the object id which should be
