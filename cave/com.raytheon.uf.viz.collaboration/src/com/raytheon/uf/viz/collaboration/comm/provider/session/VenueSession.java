@@ -54,7 +54,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IRenderable;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
-import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
@@ -65,11 +64,9 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Errors;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
-import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.info.InfoAdapter;
 import com.raytheon.uf.viz.collaboration.comm.provider.info.Venue;
-import com.raytheon.uf.viz.collaboration.comm.provider.roster.Roster;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.RosterId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueUserId;
@@ -421,15 +418,28 @@ public class VenueSession extends BaseSession implements IVenueSession,
     }
 
     @Override
-    public void sendTransferRole(String participant, ParticipantRole role)
-            throws CollaborationException {
-        if (participant != null && role != ParticipantRole.PARTICIPANT) {
-            TransferRoleCommand trc = new TransferRoleCommand();
-            trc.setRole(role);
-            trc.setUser(participant);
-            String message = Tools.marshallData(trc);
+    public void sendObjectToVenue(Object obj) throws CollaborationException {
+        if (obj != null) {
+            String message = Tools.marshallData(obj);
             if (message != null) {
                 sendTextMessage(message);
+            }
+        }
+    }
+
+    @Override
+    public void sendObjectToPeer(
+            com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID participant,
+            Object obj) throws CollaborationException {
+        PeerToPeerChat session = getP2PSession();
+        if (session != null) {
+            String message = Tools.marshallData(obj);
+            if (message != null) {
+
+                TextMessage msg = new TextMessage(participant, message);
+                msg.setProperty(Tools.PROP_SESSION_ID, getSessionId());
+
+                session.sendPeerToPeer(msg);
             }
         }
     }
@@ -575,7 +585,7 @@ public class VenueSession extends BaseSession implements IVenueSession,
             e.printStackTrace();
             errorStatus = Errors.BAD_NAME;
         }
-        // TODO : 
+        // TODO :
         // sendSubscription(subject);
         return errorStatus;
     }
@@ -609,8 +619,10 @@ public class VenueSession extends BaseSession implements IVenueSession,
                                 .getRosterManager().getPresenceSender();
                         org.eclipse.ecf.presence.IPresence presence = new org.eclipse.ecf.presence.Presence(
                                 org.eclipse.ecf.presence.IPresence.Type.SUBSCRIBE);
-                        
-                        sender.sendPresenceUpdate(createID("pkorman@awipscm.omaha.us.ray.com"), presence);
+
+                        sender.sendPresenceUpdate(
+                                createID("pkorman@awipscm.omaha.us.ray.com"),
+                                presence);
                     }
 
                     System.out.println("Subscribe message sent.");

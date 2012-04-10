@@ -91,7 +91,29 @@ public interface ISharedDisplaySession extends IEventPublisher {
     void sendRenderableObject(IRenderable renderable)
             throws CollaborationException;
 
-    void sendTransferRole(String fqName, ParticipantRole role)
+    /**
+     * Sends the object to the other collaborators on the session. The object
+     * must be serializable and once received by the others, will be posted to
+     * the session's event bus.
+     * 
+     * @param obj
+     *            the serializable object to send
+     * @throws CollaborationException
+     */
+    public void sendObjectToVenue(Object obj) throws CollaborationException;
+
+    /**
+     * Sends the object to a specific collaborator on the session. The object
+     * must be serializable and once received by the other, will be posted to
+     * the session's event bus.
+     * 
+     * @param id
+     *            the id of the collaborator to send to
+     * @param obj
+     *            the serializable object to send
+     * @throws CollaborationException
+     */
+    public void sendObjectToPeer(IQualifiedID id, Object obj)
             throws CollaborationException;
 
     /**
