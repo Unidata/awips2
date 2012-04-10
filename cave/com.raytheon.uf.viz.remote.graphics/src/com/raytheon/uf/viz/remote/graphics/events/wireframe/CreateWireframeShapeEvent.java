@@ -137,8 +137,10 @@ public class CreateWireframeShapeEvent extends AbstractDispatchingObjectEvent {
     }
 
     public void setIExtent(IExtent extent) {
-        setExtent(new double[] { extent.getMinX(), extent.getMaxX(),
-                extent.getMinY(), extent.getMaxY() });
+        if (extent != null) {
+            setExtent(new double[] { extent.getMinX(), extent.getMaxX(),
+                    extent.getMinY(), extent.getMaxY() });
+        }
     }
 
     public IExtent getIExtent() {

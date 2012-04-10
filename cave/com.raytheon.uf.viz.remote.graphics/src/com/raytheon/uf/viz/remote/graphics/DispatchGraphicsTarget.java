@@ -66,6 +66,7 @@ import com.raytheon.uf.viz.remote.graphics.events.BeginFrameEvent;
 import com.raytheon.uf.viz.remote.graphics.events.EndFrameEvent;
 import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
 import com.raytheon.uf.viz.remote.graphics.events.wireframe.CreateWireframeShapeEvent;
+import com.raytheon.uf.viz.remote.graphics.events.wireframe.RenderWireframeShapeEvent;
 import com.raytheon.uf.viz.remote.graphics.objects.DispatchingImage;
 import com.raytheon.uf.viz.remote.graphics.objects.DispatchingImage.DispatchingRenderedImageCallback;
 import com.raytheon.uf.viz.remote.graphics.objects.DispatchingWireframeShape;
@@ -336,7 +337,10 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      */
     public void drawWireframeShape(IWireframeShape shape, RGB color,
             float lineWidth) throws VizException {
+        DispatchingWireframeShape wrapper = (DispatchingWireframeShape) shape;
+        shape = wrapper.getWrappedObject();
         wrappedObject.drawWireframeShape(shape, color, lineWidth);
+        sendDrawWireframeShapeEvent(wrapper, color, lineWidth, null, null, null);
     }
 
     /**
@@ -351,7 +355,11 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
      */
     public void drawWireframeShape(IWireframeShape shape, RGB color,
             float lineWidth, LineStyle lineStyle) throws VizException {
+        DispatchingWireframeShape wrapper = (DispatchingWireframeShape) shape;
+        shape = wrapper.getWrappedObject();
         wrappedObject.drawWireframeShape(shape, color, lineWidth, lineStyle);
+        sendDrawWireframeShapeEvent(wrapper, color, lineWidth, lineStyle, null,
+                null);
     }
 
     /**
@@ -368,7 +376,11 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     public void drawWireframeShape(IWireframeShape shape, RGB color,
             float lineWidth, LineStyle lineStyle, float alpha)
             throws VizException {
+        DispatchingWireframeShape wrapper = (DispatchingWireframeShape) shape;
+        shape = wrapper.getWrappedObject();
         wrappedObject.drawWireframeShape(shape, color, lineWidth, lineStyle,
+                alpha);
+        sendDrawWireframeShapeEvent(wrapper, color, lineWidth, lineStyle, null,
                 alpha);
     }
 
@@ -387,8 +399,12 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     public void drawWireframeShape(IWireframeShape shape, RGB color,
             float lineWidth, LineStyle lineStyle, IFont font)
             throws VizException {
+        DispatchingWireframeShape wrapper = (DispatchingWireframeShape) shape;
+        shape = wrapper.getWrappedObject();
         wrappedObject.drawWireframeShape(shape, color, lineWidth, lineStyle,
                 font);
+        sendDrawWireframeShapeEvent(wrapper, color, lineWidth, lineStyle, font,
+                null);
     }
 
     /**
@@ -407,8 +423,24 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
     public void drawWireframeShape(IWireframeShape shape, RGB color,
             float lineWidth, LineStyle lineStyle, IFont font, float alpha)
             throws VizException {
+        DispatchingWireframeShape wrapper = (DispatchingWireframeShape) shape;
+        shape = wrapper.getWrappedObject();
         wrappedObject.drawWireframeShape(shape, color, lineWidth, lineStyle,
                 font, alpha);
+        sendDrawWireframeShapeEvent(wrapper, color, lineWidth, lineStyle, font,
+                alpha);
+    }
+
+    private void sendDrawWireframeShapeEvent(DispatchingWireframeShape shape,
+            RGB color, Float lineWidth, LineStyle lineStyle, IFont font,
+            Float alpha) {
+        RenderWireframeShapeEvent event = RemoteGraphicsEventFactory
+                .createEvent(RenderWireframeShapeEvent.class, shape);
+        event.setColor(color);
+        event.setLineWidth(lineWidth);
+        event.setLineStyle(lineStyle);
+        event.setAlpha(alpha);
+        dispatch(event);
     }
 
     /**
@@ -639,7 +671,6 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
         wrappedObject.beginFrame(display, isClearBackground);
         BeginFrameEvent beginFrame = RemoteGraphicsEventFactory.createEvent(
                 BeginFrameEvent.class, this);
-        beginFrame.setClear(isClearBackground);
         IExtent curExtent = display.getExtent();
         if (previousExtent == null || curExtent.equals(previousExtent) == false) {
             beginFrame.setExtentFactor(curExtent.getScale());
