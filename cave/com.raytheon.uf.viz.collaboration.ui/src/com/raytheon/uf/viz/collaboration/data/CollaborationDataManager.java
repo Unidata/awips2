@@ -45,7 +45,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
-import com.raytheon.uf.viz.collaboration.comm.identity.IPresence.Type;
+import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
@@ -221,6 +221,12 @@ public class CollaborationDataManager {
                             loginId = loginData.getAccount();
                             DataUser user = CollaborationDataManager
                                     .getInstance().getUser(loginId);
+                            // try {
+                            // System.out.println("enter sleep...");
+                            // Thread.sleep(5000L);
+                            // System.out.println("Wake from sleep...");
+                            // } catch (InterruptedException e) {
+                            // }
                             // // TODO set mode and message here.
                             // user.setMode(loginData.getMode());
                             // user.type = Type.AVAILABLE;
@@ -253,7 +259,6 @@ public class CollaborationDataManager {
                     statusHandler.handle(Priority.PROBLEM,
                             e.getLocalizedMessage(), e);
                 }
-                fireModifiedPresence();
                 wbListener = new IWorkbenchListener() {
 
                     @Override
@@ -282,6 +287,24 @@ public class CollaborationDataManager {
                     }
                 };
                 PlatformUI.getWorkbench().addWorkbenchListener(wbListener);
+                // TODO this sleep needs to go away. It is a temporary fix to
+                // allow the roster manager to get all its entries before we
+                // use
+                // it. Once we have needed eventhandlers for roster updating
+                // this can go away.
+                try {
+                    System.out.println("enter sleep...");
+                    Thread.sleep(5000L);
+                    System.out.println("Wake from sleep...");
+                } catch (InterruptedException e) {
+                }
+                IPresence presence = sessionManager.getPresence();
+                if (sessionManager.getPresence() == null) {
+                    presence = new Presence();
+                    presence.setProperty("dummy", "dummy");
+                    sessionManager.setPresence(presence);
+                }
+                fireModifiedPresence();
             }
         }
 
@@ -565,13 +588,9 @@ public class CollaborationDataManager {
     }
 
     public void fireModifiedPresence() {
-        // TODO this will change will be able to get existing
-        // presences from roster.
-        Presence presence = new Presence();
-        presence.setProperty("dummy", "dummy");
+        IPresence presence = sessionManager.getPresence();
         presence.setMode(loginData.getMode());
         presence.setStatusMessage(loginData.getModeMessage());
-        presence.setType(Type.AVAILABLE);
         try {
             sessionManager.getAccountManager().sendPresence(presence);
             IRoster roster = sessionManager.getRosterManager().getRoster();
@@ -596,15 +615,13 @@ public class CollaborationDataManager {
     @Subscribe
     public void handleModifiedPresence(IRosterEntry entry) {
         final IRosterEntry rosterEntry = entry;
-        // System.out.println("CollaborationDataManager.handleModifiedPresence");
-        // System.out.println("    user " + rosterEntry.getUser().getFQName());
-        // System.out.println("    mode " +
-        // rosterEntry.getPresence().getMode());
-        // System.out.println("    type " +
-        // rosterEntry.getPresence().getType());
-        // System.out.println("    message"
-        // + rosterEntry.getPresence().getStatusMessage());
-        // System.out.println("    groups " + rosterEntry.getGroups());
+        System.out.println("CollaborationDataManager.handleModifiedPresence");
+        System.out.println("    user " + rosterEntry.getUser().getFQName());
+        System.out.println("    mode " + rosterEntry.getPresence().getMode());
+        System.out.println("    type " + rosterEntry.getPresence().getType());
+        System.out.println("    message"
+                + rosterEntry.getPresence().getStatusMessage());
+        System.out.println("    groups " + rosterEntry.getGroups());
         String userId = rosterEntry.getUser().getFQName();
         DataUser user = usersMap.get(userId);
         if (user != null) {
