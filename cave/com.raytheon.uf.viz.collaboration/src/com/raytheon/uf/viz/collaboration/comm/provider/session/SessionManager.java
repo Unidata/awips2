@@ -46,7 +46,6 @@ import org.eclipse.ecf.presence.roster.IRosterGroup;
 import org.eclipse.ecf.presence.roster.IRosterItem;
 import org.eclipse.ecf.presence.roster.IRosterListener;
 import org.eclipse.ecf.provider.xmpp.identity.XMPPRoomID;
-import org.jivesoftware.smack.XMPPConnection;
 
 import com.google.common.eventbus.EventBus;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
@@ -138,25 +137,24 @@ public class SessionManager implements IEventPublisher {
      */
     public SessionManager(String account, String password)
             throws CollaborationException {
-        XMPPConnection.DEBUG_ENABLED = true;
+        // XMPPConnection.DEBUG_ENABLED = true;
 
         try {
             container = ContainerFactory.getDefault().createContainer(PROVIDER);
-            
+
             if (container != null) {
                 container.addListener(new IContainerListener() {
 
                     @Override
                     public void handleEvent(IContainerEvent event) {
 
-                        System.out.println("ContainerEvent.Type = " + event.getClass().getName());
-                        
-                        
+                        System.out.println("ContainerEvent.Type = "
+                                + event.getClass().getName());
+
                     }
                 });
             }
-            
-            
+
         } catch (ContainerCreateException cce) {
             throw new CollaborationException(String.format(
                     "Could not create container for provider [%s]", PROVIDER));
