@@ -605,6 +605,11 @@ public class TafProductConfigDlg extends Dialog {
                 StatusMessageType.TafProdConfig, null, null);
     }
 
+    /**
+     * Get the product list from configuration and repopulate the product list.
+     * This assumes getting the new list will places the default product at the
+     * top of the list.
+     */
     private void update() {
         try {
             ITafSiteConfig config = TafSiteConfigFactory.getInstance();
@@ -625,6 +630,9 @@ public class TafProductConfigDlg extends Dialog {
         }
     }
 
+    /**
+     * The verify action call back. Displays problems in the status message.
+     */
     private void verify() {
         try {
             ITafSiteConfig config = TafSiteConfigFactory.getInstance();

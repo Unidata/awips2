@@ -64,7 +64,7 @@ import com.raytheon.viz.avnconfig.OpenSaveDlg.DialogType;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
- * Text Editor dialog.
+ * A simple text Editor dialog allowing the user to modify a localized file.
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -151,6 +151,14 @@ public class TextEditorSetupDlg extends CaveSWTDialog {
         this(parent, null);
     }
 
+    /**
+     * Construction.
+     * 
+     * @param parent
+     *            Parent shell
+     * @param lFile
+     *            When not null a localized file to load into the editor.
+     */
     public TextEditorSetupDlg(Shell parent, LocalizationFile lFile) {
         super(parent, SWT.DIALOG_TRIM, CAVE.PERSPECTIVE_INDEPENDENT);
         setText("AvnFPS Text Editor");
@@ -642,6 +650,9 @@ public class TextEditorSetupDlg extends CaveSWTDialog {
         editorTextComp.setMenu(popupMenu);
     }
 
+    /**
+     * The call back action for the Undo button.
+     */
     private void undoText() {
         if (undoStack.size() > 0) {
             HashMap<String, Object> undoData = undoStack.remove(undoStack
@@ -666,6 +677,9 @@ public class TextEditorSetupDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Call back action for the Redo button.
+     */
     private void redoText() {
         if (redoStack.size() > 0) {
             HashMap<String, Object> redoData = redoStack.remove(redoStack
@@ -830,6 +844,11 @@ public class TextEditorSetupDlg extends CaveSWTDialog {
         openFile(dlg.getSelectedFile());
     }
 
+    /**
+     * Get the contents of a localized file and populates the editor.
+     * 
+     * @param lFile
+     */
     private void openFile(LocalizationFile lFile) {
         openedFile = lFile;
 

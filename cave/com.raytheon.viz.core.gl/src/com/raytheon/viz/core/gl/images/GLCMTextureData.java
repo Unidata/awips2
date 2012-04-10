@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.media.opengl.GL;
+import javax.media.opengl.glu.GLU;
 
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback.ColorMapData;
@@ -33,6 +34,7 @@ import com.raytheon.viz.core.gl.dataformat.IGLColorMapDataFormatProvider;
 import com.raytheon.viz.core.gl.internal.cache.IImageCacheable;
 import com.raytheon.viz.core.gl.internal.cache.ImageCache;
 import com.raytheon.viz.core.gl.internal.cache.ImageCache.CacheType;
+import com.raytheon.viz.core.gl.objects.GLTextureObject;
 
 /**
  * 
@@ -54,7 +56,7 @@ import com.raytheon.viz.core.gl.internal.cache.ImageCache.CacheType;
  */
 public class GLCMTextureData implements IImageCacheable {
 
-    private int texId = -1;
+    private GLTextureObject tex;
 
     private final IColorMapDataRetrievalCallback callback;
 
@@ -83,8 +85,8 @@ public class GLCMTextureData implements IImageCacheable {
 
     public synchronized void disposeTexture(GL gl) {
         if (isLoaded()) {
-            gl.glDeleteTextures(1, new int[] { texId }, 0);
-            texId = -1;
+            tex.dispose();
+            tex = null;
         }
         ImageCache.getInstance(CacheType.TEXTURE).remove(this);
     }
@@ -131,13 +133,10 @@ public class GLCMTextureData implements IImageCacheable {
         if (!stageTexture()) {
             return false;
         }
-
         int type = getTextureStorageType();
 
-        int[] t = null;
-        t = new int[1];
-        gl.glGenTextures(1, t, 0);
-        gl.glBindTexture(type, t[0]);
+        tex = new GLTextureObject(this);
+        tex.bind(gl, type);
 
         gl.glTexParameteri(type, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE);
         gl.glTexParameteri(type, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE);
@@ -162,9 +161,7 @@ public class GLCMTextureData implements IImageCacheable {
                 getTextureFormat(), getTextureType(), data.getData().rewind());
         gl.glPixelTransferf(GL.GL_RED_SCALE, 1.0f);
         gl.glPixelTransferf(GL.GL_RED_BIAS, 0.0f);
-        texId = t[0];
         ImageCache.getInstance(CacheType.TEXTURE).put(this);
-
         return true;
     }
 
@@ -173,7 +170,7 @@ public class GLCMTextureData implements IImageCacheable {
     }
 
     public boolean isLoaded() {
-        return texId > 0;
+        return tex != null && tex.isValid();
     }
 
     public int getDimensionSize(int dimension) {
@@ -196,21 +193,22 @@ public class GLCMTextureData implements IImageCacheable {
         if (isLoaded()) {
             ImageCache.getInstance(CacheType.TEXTURE).put(this);
         }
-        return texId;
+        return tex.getId();
     }
 
     public int getTextureStorageType() {
         return GL.GL_TEXTURE_2D;
     }
 
-    public double getValue(GL gl, int x, int y, float dataMin, float dataMax) {
+    public double getValue(int x, int y) {
         if (!isStaged() && isLoaded()) {
+            GL gl = GLU.getCurrentGL();
             int textureStorageType = getTextureStorageType();
             int copybackTextureType = data.getCopyBackTextureType();
             Buffer copybackBuffer = data.getCopybackBuffer();
             gl.glEnable(textureStorageType);
             gl.glActiveTexture(GL.GL_TEXTURE0);
-            gl.glBindTexture(textureStorageType, texId);
+            tex.bind(gl, textureStorageType);
             gl.glGetTexImage(textureStorageType, 0, getTextureFormat(),
                     copybackTextureType, copybackBuffer.rewind());
             gl.glActiveTexture(GL.GL_TEXTURE0);
