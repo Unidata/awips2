@@ -26,7 +26,7 @@ import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;
 import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
-import com.raytheon.uf.viz.remote.graphics.events.RenderedImageEvent;
+import com.raytheon.uf.viz.remote.graphics.events.imagery.RenderedImageEvent;
 import com.raytheon.uf.viz.remote.graphics.extensions.DispatchingImagingExtension;
 
 /**
