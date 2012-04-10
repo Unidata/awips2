@@ -39,8 +39,11 @@ import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
 import com.raytheon.uf.common.time.CombinedDataTime;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.capabilities.GroupNamingCapability;
 import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
 import com.raytheon.viz.core.rsc.ICombinedResourceData.CombineOperation;
@@ -64,7 +67,8 @@ import com.raytheon.viz.core.rsc.ICombinedResourceData.CombineUtil;
  * @version 1.0
  */
 public class DifferenceGridResource extends
-        AbstractGridResource<DifferenceGridResourceData> {
+        AbstractGridResource<DifferenceGridResourceData> implements
+        IResourceGroup {
 
     // Defines a constant size for the difference grid
     private static final GridEnvelope GRID_ENVELOPE = new GeneralGridEnvelope(
@@ -89,15 +93,22 @@ public class DifferenceGridResource extends
 
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        super.initInternal(target);
         one.init(target);
         two.init(target);
+        super.initInternal(target);
     }
 
     @Override
     protected void initCapabilities() {
         getCapability(GroupNamingCapability.class);
         super.initCapabilities();
+    }
+
+    @Override
+    protected void paintInternal(IGraphicsTarget target,
+            PaintProperties paintProps) throws VizException {
+        paintProps.setDataTime(null);
+        super.paintInternal(target, paintProps);
     }
 
     @Override
@@ -264,6 +275,11 @@ public class DifferenceGridResource extends
         }
         return CombineUtil.getName(one.getName(), two.getName(),
                 CombineOperation.DIFFERENCE) + " " + oneTime.getLegendString();
+    }
+
+    @Override
+    public ResourceList getResourceList() {
+        return resourceData.getResourceList();
     }
 
 }

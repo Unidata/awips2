@@ -88,7 +88,7 @@ public class MonitoringCriteriaDlg extends Dialog {
     private Text siteIdTF;
 
     /**
-     * Site ID
+     * Site ID initially set to the default id.
      */
     private String siteId = "XXXX";
 
@@ -391,12 +391,22 @@ public class MonitoringCriteriaDlg extends Dialog {
                 StatusMessageType.MonitoringCriteria, null, null);
     }
 
+    /**
+     * Create the rule methods for all pages.
+     */
     private void createDefaultRuleData() {
         for (DataSource source : DataSource.values()) {
             defaultRuleData.addPageData(createPageData(source));
         }
     }
 
+    /**
+     * Get the rule methods for a given page
+     * 
+     * @param dataSource
+     *            source associated with the page
+     * @return pageData
+     */
     private PageData createPageData(DataSource dataSource) {
         PageData pageData = new PageData(dataSource.toString());
         AvnConfiguration configData = AvnConfiguration.load(false);
@@ -409,6 +419,12 @@ public class MonitoringCriteriaDlg extends Dialog {
         return pageData;
     }
 
+    /**
+     * Obtain the data information and comment for a give rule.
+     * 
+     * @param rule
+     * @return methodData
+     */
     private MethodData createMethodData(MethodData rule) {
         MethodData methodData = new MethodData(rule.getMethodName(),
                 rule.getComment(), rule.getMessage(), rule.getType(),
@@ -425,10 +441,22 @@ public class MonitoringCriteriaDlg extends Dialog {
         return methodData;
     }
 
+    /**
+     * Create a Method Data Argument.
+     * 
+     * @param argName
+     *            Name of the argument to be displayed
+     * @param argValue
+     *            Default value for the argument
+     * @return methodArgData
+     */
     private MethodArgData createMethodArgData(String argName, String argValue) {
         return new MethodArgData(argName, argValue);
     }
 
+    /**
+     * Load the monitoring rules currently in use for site selected by the user.
+     */
     private void loadSite() {
         siteId = siteIdTF.getText().trim().toUpperCase();
         siteIdTF.setText(siteId);

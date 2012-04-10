@@ -60,8 +60,7 @@ import com.raytheon.viz.radar.rsc.AbstractRadarResource;
 import com.raytheon.viz.radar.rsc.MosaicPaintProperties;
 import com.raytheon.viz.radar.rsc.RadarImageResource;
 import com.raytheon.viz.radar.rsc.RadarTextResource.IRadarTextGeneratingResource;
-import com.raytheon.viz.radar.rsc.mosaic.ext.IRadarMosaicRendererFactoryExtension;
-import com.raytheon.viz.radar.rsc.mosaic.ext.IRadarMosaicRendererFactoryExtension.IRadarMosaicRenderer;
+import com.raytheon.viz.radar.rsc.mosaic.RadarMosaicRendererFactory.IRadarMosaicRenderer;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -153,10 +152,8 @@ public class RadarMosaicResource extends
      */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-
-        mosaicRenderer = target.getExtension(
-                IRadarMosaicRendererFactoryExtension.class).createNewRenderer(
-                resourceData.getMosaicType());
+        mosaicRenderer = RadarMosaicRendererFactory
+                .createNewRenderer(resourceData.getMosaicType());
 
         // We want to init the most severe resource first so the colormap
         // matches.
@@ -229,11 +226,11 @@ public class RadarMosaicResource extends
         if (recordsToMosaic.isEmpty() == false) {
             DataTime curTime = getTimeForResource(this);
             synchronized (this) {
-                force = force || !curTime.equals(lastTime);
-                mosaicRenderer.mosaic(target, new MosaicPaintProperties(
-                        paintProps, force), this);
+                boolean forceIt = force || !curTime.equals(lastTime);
                 force = false;
                 lastTime = curTime;
+                mosaicRenderer.mosaic(target, new MosaicPaintProperties(
+                        paintProps, forceIt), this);
             }
 
         }
@@ -426,6 +423,8 @@ public class RadarMosaicResource extends
         } catch (Exception e) {
             // ignore
         }
+
+        Map<AbstractRadarResource<?>, DataTime> rscTimeMap = new HashMap<AbstractRadarResource<?>, DataTime>();
         Map<AbstractRadarResource<?>, Map<String, String>> rscInspectMap = new HashMap<AbstractRadarResource<?>, Map<String, String>>();
         AbstractRadarResource<?> highestRsc = null;
         String inspectString = null;
@@ -442,6 +441,7 @@ public class RadarMosaicResource extends
                     if (rsc instanceof AbstractRadarResource) {
                         @SuppressWarnings("unchecked")
                         AbstractRadarResource<MapDescriptor> rr = (AbstractRadarResource<MapDescriptor>) rsc;
+                        rscTimeMap.put(rr, time);
                         try {
                             // Everything in this try block is to only sample
                             // records within range
@@ -478,8 +478,10 @@ public class RadarMosaicResource extends
             if (resources.isEmpty() && highestRsc != null) {
                 resources.add(highestRsc);
             }
+
             for (AbstractRadarResource<?> rr : resources) {
-                Map<String, String> vals = rr.interrogate(coord);
+                Map<String, String> vals = rr.interrogate(rscTimeMap.get(rr),
+                        coord);
                 if (vals != null) {
                     rscInspectMap.put(rr, vals);
                 }
@@ -500,7 +502,8 @@ public class RadarMosaicResource extends
         }
 
         if (highestRsc != null) {
-            inspectString = highestRsc.inspect(rscInspectMap.get(highestRsc));
+            inspectString = highestRsc.inspect(rscTimeMap.get(highestRsc),
+                    rscInspectMap.get(highestRsc));
         }
         return inspectString == null ? "NO DATA" : inspectString;
     }

@@ -19,6 +19,9 @@
  **/
 package com.raytheon.viz.gfe.dialogs;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
@@ -32,6 +35,7 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.progress.UIJob;
 
 import com.raytheon.viz.gfe.core.msgs.IColorTableModifiedListener;
 import com.raytheon.viz.gfe.core.msgs.IPickupValueChangedListener;
@@ -49,6 +53,9 @@ import com.raytheon.viz.gfe.visual.SetValueScalarVisual;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 18, 2009 #1318      randerso     Initial creation
+ * Feb 20, 2012 #346       dgilling     Create PickupChangedJob to fix 
+ *                                      Invalid Thread Access exceptions 
+ *                                      in pickupValueChanged.
  * 
  * </pre>
  * 
@@ -59,6 +66,40 @@ import com.raytheon.viz.gfe.visual.SetValueScalarVisual;
 public class ScalarSetValue extends AbstractSetValue implements
         IPickupValueChangedListener, IColorTableModifiedListener {
 
+    private class PickupChangedJob extends UIJob {
+
+        private WxValue pickupValue;
+
+        public PickupChangedJob() {
+            super("PickupValueChanged");
+            setSystem(true);
+        }
+
+        public void setPickupValue(WxValue newValue) {
+            this.pickupValue = newValue;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * org.eclipse.ui.progress.UIJob#runInUIThread(org.eclipse.core.runtime
+         * .IProgressMonitor)
+         */
+        @Override
+        public IStatus runInUIThread(IProgressMonitor monitor) {
+            if ((!monitor.isCanceled())
+                    && (!ScalarSetValue.this.entryField.isDisposed())
+                    && (!ScalarSetValue.this.mainDA.isDisposed())) {
+                ScalarSetValue.this.entryField.setText(pickupValue.toString());
+                ScalarSetValue.this.mainDA.redraw();
+                return Status.OK_STATUS;
+            }
+
+            return Status.CANCEL_STATUS;
+        }
+    }
+
     private Canvas mainDA;
 
     private SetValueScalarVisual mainVisual;
@@ -68,6 +109,8 @@ public class ScalarSetValue extends AbstractSetValue implements
     private Label entryLabel;
 
     private Text entryField;
+
+    private PickupChangedJob pickupJob;
 
     /**
      * Constructor
@@ -99,6 +142,8 @@ public class ScalarSetValue extends AbstractSetValue implements
 
         });
 
+        pickupJob = new PickupChangedJob();
+
         setParm(parm);
     }
 
@@ -115,6 +160,7 @@ public class ScalarSetValue extends AbstractSetValue implements
     public void dispose() {
         parm.getListeners().removePickupValueChangedListener(this);
         parm.getListeners().removeColorTableModifiedListener(this);
+        pickupJob.cancel();
         mainVisual.dispose();
 
         super.dispose();
@@ -214,8 +260,8 @@ public class ScalarSetValue extends AbstractSetValue implements
      */
     @Override
     public void pickupValueChanged(Parm parm, WxValue pickUpValue) {
-        entryField.setText(pickUpValue.toString());
-        mainDA.redraw();
+        pickupJob.setPickupValue(pickUpValue);
+        pickupJob.schedule();
     }
 
     /*

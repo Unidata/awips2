@@ -279,6 +279,12 @@ public class TugViewer extends ViewerTab implements
         }
     }
 
+    /**
+     * Request desired data for display on the tab. A check is performed and if
+     * all data is cached a request is queued to immediately update the tab.
+     * Otherwise request is made to cache missing data and update the display
+     * once it arrives.
+     */
     @Override
     public int generateGuidance(String siteID) {
         int cnt = super.generateGuidance(siteID);
@@ -356,10 +362,22 @@ public class TugViewer extends ViewerTab implements
         this.stationList = stationList;
     }
 
+    /**
+     * Get the tag for the desired Tamp Cache Request.
+     * 
+     * @param siteID
+     * @return
+     */
     private String getTag(String siteID) {
         return TampCacheGuidanceRequest.getTag(siteID, model);
     }
 
+    /**
+     * This creates a Tamp cache data request.
+     * 
+     * @param siteID
+     * @return
+     */
     private CacheGuidanceRequest createCacheRequest(String siteID) {
         TampCacheGuidanceRequest req = new TampCacheGuidanceRequest();
         req.setTag(getTag(siteID));
@@ -369,6 +387,9 @@ public class TugViewer extends ViewerTab implements
         return req;
     }
 
+    /**
+     * Queue a cache request for the list of sites.
+     */
     @Override
     public void generateCache(List<String> siteIDs) {
         for (String siteID : siteIDs) {

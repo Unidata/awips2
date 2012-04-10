@@ -441,7 +441,7 @@ PyObject* pyjmethod_call_internal(PyJmethod_Object *self,
     JNIEnv        *env        = NULL;
     int            pos        = 0;
     jvalue        *jargs      = NULL;
-    int 			jrelease[self->lenParameters];  // added by njensen
+    int 		   *jrelease;  // added by njensen
     int            foundArray = 0;   /* if params includes pyjarray instance */
     PyThreadState *_save;
     
@@ -471,6 +471,7 @@ PyObject* pyjmethod_call_internal(PyJmethod_Object *self,
     }
 
     jargs = (jvalue *) PyMem_Malloc(sizeof(jvalue) * self->lenParameters);
+	jrelease = (int *) PyMem_Malloc(sizeof(int) * self->lenParameters);
     
     // ------------------------------ build jargs off python values
 

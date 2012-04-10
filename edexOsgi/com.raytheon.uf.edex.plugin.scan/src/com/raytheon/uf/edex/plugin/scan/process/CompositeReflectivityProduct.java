@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import org.geotools.coverage.grid.GridGeometry2D;
@@ -66,6 +67,8 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 05/07/2009   2037      dhladky    Initial Creation.
+ * 02/22/2012	DR14414	  mgamazay   Added initializing the ScanTableData table
+ * 									 to an empty map if no features are present.
  * 
  * </pre>
  * 
@@ -130,6 +133,10 @@ public class CompositeReflectivityProduct extends RadarProduct {
 
         ScanTableData<ScanTableDataRow> table = getTableData();
         table.setFeatureIds(catKeys);
+        // DR14414 - if there are no items in the cat map - remove items from the table
+		if (catKeys.size() == 0) {
+			table.setTableData(new ConcurrentHashMap<String, ScanTableDataRow>());
+		}
         table.setVcp(rec.getVolumeCoveragePattern());
 
         filter.setValidTime(rec.getDataTime().getRefTime());
