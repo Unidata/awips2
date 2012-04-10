@@ -100,6 +100,7 @@ class TextProduct(GenericHazards.TextProduct):
             ('LS.S', allActions, 'CoastalFloodStatement'),     # LAKESHORE FLOOD STATEMENT
             ('SU.W', allActions, 'HighSurf'),         # HIGH SURF WARNING
             ('SU.Y', allActions, 'HighSurf'),         # HIGH SURF ADVISORY
+            ('RP.S', allActions, 'RipCurrent'),       # HIGH RIP CURRENT RISK
         ]
 
     def _bulletDict(self):
@@ -107,9 +108,19 @@ class TextProduct(GenericHazards.TextProduct):
             "CF" : ("COASTAL FLOODING,TIMING,IMPACTS"),  ### coastal flood warning, advisory, watch
             "LS" : ("LAKE SHORE FLOODING,TIMING,IMPACTS"),  ### lake shore flood warning, advisory, watch
             "SU" : ("WAVES AND SURF,TIMING,IMPACTS"),  ### high surf warning, advisory
+            "RP" : ("TIMING,IMPACTS"),                 ### high rip current risk
                }
 
+    def _bulletOrder(self):
+        return [
+            "COASTAL FLOODING",
+            "LAKE SHORE FLOODING",
+            "WAVES AND SURF",
+            "TIMING",
+            "IMPACTS",
+            ]
 
+            
     #
     # Overridden to allow for attribution statement
     #
@@ -227,5 +238,4 @@ class TextProduct(GenericHazards.TextProduct):
         fcst = fcst + "\n" + self._urlText
 
         return fcst
-    
 

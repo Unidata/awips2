@@ -25,11 +25,11 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.viz.mpe.ui.rsc.MPELegendResource;
+import com.raytheon.viz.ui.EditorUtil;
 
 /**
  * TODO Add Description
@@ -58,8 +58,9 @@ public class ToggleMpeInfo extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        IEditorPart part = HandlerUtil.getActiveEditor(event);
-        if (part instanceof IDisplayPaneContainer) {
+        IEditorPart part = (IEditorPart) EditorUtil
+                .getActiveEditorAs(IDisplayPaneContainer.class);
+        if (part != null) {
             IDisplayPane activePane = ((IDisplayPaneContainer) part)
                     .getActiveDisplayPane();
             List<MPELegendResource> rscs = activePane.getDescriptor()

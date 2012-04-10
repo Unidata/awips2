@@ -50,21 +50,7 @@
                      label="Text Workstation"
                      style="push">
                </command>
-               <menu label="Aviation">
-                  <command
-                        commandId="com.raytheon.viz.aviation.openaviation"
-                        label="AvnFPS Menu ..."
-                        style="push">
-                  </command>
-                  <separator
-                      name="xxx"
-                      visible="true">
-                  </separator>
-                  <command
-                        commandId="com.raytheon.viz.aviation.openavnconfig"
-                        label="Configuration GUI ..."
-                        style="push">
-                  </command>
+               <menu id="file.new.Aviation" label="Aviation">
                </menu>
             </menu>
             <menu id="perspectives" label="Perspective">
@@ -95,6 +81,10 @@
             <menu
                   id="import"
                   label="Import">
+            </menu>
+            <menu
+                  id="export"
+                  label="Export">
             </menu>
             <menu id="displaysState"
                   label="Load/Save Displays">

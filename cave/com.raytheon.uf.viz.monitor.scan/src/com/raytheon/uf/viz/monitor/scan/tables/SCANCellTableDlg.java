@@ -73,6 +73,7 @@ import com.raytheon.uf.viz.monitor.scan.commondialogs.StormCellIdDisplayDlg;
 import com.raytheon.uf.viz.monitor.scan.data.ScanDataGenerator;
 import com.raytheon.uf.viz.monitor.scan.data.UnwarnedCell;
 import com.raytheon.uf.viz.monitor.scan.tables.SCANAlarmAlertManager.AlarmType;
+import com.raytheon.uf.viz.monitor.scan.tables.SCANAlarmAlertManager.AlertedAlarms;
 import com.raytheon.viz.ui.EditorUtil;
 
 /**
@@ -84,6 +85,8 @@ import com.raytheon.viz.ui.EditorUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 21, 2009 #3039      lvenable    Initial creation
+ * 
+ * 03/15/2012	13939	   Mike Duff    For a SCAN Alarms issue
  * 
  * </pre>
  * 
@@ -471,7 +474,7 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
                 alarmDlg = new SCANAlarmsDlg(shell, ScanTables.CELL, site);
                 alarmDlg.open();
                 if (!alarmBtn.isDisposed()
-                        && mgr.getAlertedAlarms(site, scanTable).isEmpty()) {
+                        && (mgr.getAlertedAlarmCount(site, scanTable) == 0)) {
                     alarmBtn.setVisible(false);
                     mgr.setRing(false);
                 }
@@ -1174,17 +1177,14 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
     @Override
     public void notify(IMonitorEvent me) {
         if (me.getSource() instanceof IMonitor) {
-
             ScanMonitor scan = (ScanMonitor) me.getSource();
             Date time = null;
             try {
                 if (getLinkToFrame(scanTable.name())) {
                     time = scan.getScanTime(scanTable, site);
                 } else {
-
                     time = scan.getMostRecent(scan, scanTable.name(), site)
                             .getRefTime();
-
                 }
             } catch (Exception e) {
             }
@@ -1231,7 +1231,7 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
                     scanMostRecentTime = scan.getMostRecent(scan,
                             scanTable.name(), site).getRefTime();
                 } catch (NullPointerException npe) {
-                    // scan has beenn turned off
+                    // scan has been turned off
                 }
 
                 if (scanMostRecentTime != null) {
@@ -1245,21 +1245,25 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
                             && !(EditorUtil.getActiveVizContainer()
                                     .getLoopProperties().isLooping())
                             && (mgr.getScheduledAlarms(site, scanTable).size() > 0)
-
                             && currentTime.equals(scanMostRecentTime)
-
                             && !scanCfg.getAlarmsDisabled(scanTable)) {
-                        mgr.clearAlertedAlarms(site, scanTable);
-                        mgr.clearToReset(site, scanTable);
-                        scanTableComp.checkBlink(sdg);
+                        scanTableComp.checkBlink(sdg, scanMostRecentTime);
                         if (mgr.getAlertedAlarms(site, scanTable).size() > 0) {
-                            alarmBtn.setVisible(true);
+                            boolean displayAlarmBtn = false;
+                            for (AlertedAlarms alarm: mgr.getAlertedAlarms(site, scanTable)) {
+                                if (!alarm.cleared) {
+                                    displayAlarmBtn = true;
+                                    break;
+                                }
+                            }
+                            
+                            alarmBtn.setVisible(displayAlarmBtn);
                             addAlarmTimer();
                         } else {
                             alarmBtn.setVisible(false);
                         }
                     } else {
-                        mgr.clearAlertedAlarms(site, scanTable);
+                        mgr.removeAlertedAlarms(site, scanTable);
                         alarmBtn.setVisible(false);
                     }
                 }

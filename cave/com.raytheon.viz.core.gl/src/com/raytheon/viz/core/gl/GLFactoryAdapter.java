@@ -26,7 +26,6 @@ import org.eclipse.swt.opengl.GLCanvas;
 import org.eclipse.swt.opengl.GLData;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Shell;
 import org.opengis.coverage.grid.GridEnvelope;
 
 import com.raytheon.uf.viz.core.AbstractGraphicsFactoryAdapter;
@@ -145,37 +144,11 @@ public class GLFactoryAdapter extends AbstractGraphicsFactoryAdapter {
     @Override
     public Canvas constrcutCanvas(Composite canvasComp) throws VizException {
         GLCanvas canvas;
-        GLData data = new GLData();
-        data.stencilSize = 1;
-        data.depthSize = 1;
-        data.doubleBuffer = true;
-        GLCanvas cachedCanvas = GLCanvasCache.getInstance().getCanvas();
-        if (cachedCanvas == null) {
-            Shell invisibleShell = new Shell();
-            cachedCanvas = new GLCanvas(invisibleShell, SWT.NONE, data);
-            GLCanvasCache.getInstance().setCanvas(cachedCanvas);
-            cachedCanvas.setCurrent();
-        }
-
-        data.shareContext = cachedCanvas;
+        GLData data = GLContextBridge.getGLData();
         canvas = new GLCanvas(canvasComp, SWT.NONE, data);
 
         canvas.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         return canvas;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.AbstractGraphicsFactoryAdapter#disposeCanvas
-     * (org.eclipse.swt.widgets.Canvas)
-     */
-    @Override
-    public void disposeCanvas(Canvas canvas) {
-        GLCanvas cachedCanvas = GLCanvasCache.getInstance().getCanvas();
-        if (cachedCanvas != canvas && !canvas.isDisposed()) {
-            canvas.getParent().dispose();
-        }
-    }
 }
