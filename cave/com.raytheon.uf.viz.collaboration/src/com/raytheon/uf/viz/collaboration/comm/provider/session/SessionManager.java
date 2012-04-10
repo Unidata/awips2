@@ -64,6 +64,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueInvitationEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.info.InfoAdapter;
+import com.raytheon.uf.viz.collaboration.comm.provider.roster.RosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.provider.roster.RosterManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.RosterId;
@@ -113,6 +114,10 @@ public class SessionManager implements IEventPublisher {
     private String account;
 
     private String password;
+
+    private IChatID user;
+
+    private IPresence userPresence;
 
     private IChatRoomInvitationListener intInvitationListener;
 
@@ -167,6 +172,14 @@ public class SessionManager implements IEventPublisher {
             throw new CollaborationException(
                     "Login failed.  Invalid username or password", e);
         }
+        ID id = container.getConnectedID();
+        if(id != null) {
+            String name = Tools.parseName(id.getName());
+            String host = Tools.parseHost(id.getName());
+            String resource = Tools.parseResource(id.getName());
+            user = new RosterId(name, host, resource);
+        }
+        
         setupAccountManager();
 
         eventBus = new EventBus();
@@ -199,6 +212,30 @@ public class SessionManager implements IEventPublisher {
     }
 
     /**
+     * @return
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster#getUser()
+     */
+    public IChatID getUser() {
+        return user;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public IPresence getPresence() {
+        return userPresence;
+    }
+    
+    /**
+     * 
+     * @return
+     */
+    public void setPresence(IPresence presence) {
+        userPresence = presence;
+    }
+
+    /**
      * @throws CollaborationException
      * @throws ContainerConnectException
      * 
@@ -224,7 +261,7 @@ public class SessionManager implements IEventPublisher {
     private void setupAccountManager() {
         if (accountManager == null) {
             if (isConnected() && (presenceAdapter != null)) {
-                accountManager = new AccountManager(presenceAdapter);
+                accountManager = new AccountManager(presenceAdapter, this);
             }
         }
     }
@@ -254,18 +291,17 @@ public class SessionManager implements IEventPublisher {
      * 
      */
     private void setupRosterManager() {
-        IRoster roster = null;
-        IPresenceContainerAdapter presenceAdapter = Tools
-                .getPresenceContainerAdapter(container,
-                        IPresenceContainerAdapter.class);
-        if (presenceAdapter != null) {
-            roster = presenceAdapter.getRosterManager().getRoster();
-            if (roster != null) {
-                rosterManager = new RosterManager(roster, this);
-            }
-        }
+        rosterManager = new RosterManager(this);
     }
 
+    /**
+     * 
+     * @return
+     */
+    public IPresenceContainerAdapter getPresenceContainerAdapter() {
+        return presenceAdapter;
+    }
+    
     /**
      * 
      * @return
@@ -384,8 +420,6 @@ public class SessionManager implements IEventPublisher {
                     session.setSessionDataProvider(me);
 
                     IPresence presence = new Presence();
-                    presence.setMode(IPresence.Mode.AVAILABLE);
-                    presence.setType(IPresence.Type.AVAILABLE);
                     presence.setProperty("DATA_PROVIDER", me.getFQName());
                     presence.setProperty("SESSION_LEADER", me.getFQName());
 
@@ -542,10 +576,11 @@ public class SessionManager implements IEventPublisher {
 
                     @Override
                     public void handleRosterEntryAdd(IRosterEntry entry) {
-                        System.out.println("Roster add " + entry.getUser());
-                        System.out.println("         groups "
-                                + entry.getGroups());
-                        System.out.println("         name " + entry.getName());
+                        com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry re = RosterEntry
+                                .convertEntry(entry);
+                        if (re != null) {
+                            getRosterManager().getRoster().addRosterEntry(re);
+                        }
                     }
 
                     @Override
@@ -554,31 +589,36 @@ public class SessionManager implements IEventPublisher {
 
                         if (changedValue instanceof IRosterEntry) {
                             IRosterEntry re = (IRosterEntry) changedValue;
-                            System.out.println("Roster update RosterEntry "
-                                    + re.getUser());
-                            System.out.println("         groups "
-                                    + re.getGroups());
-                            System.out.println("         name " + re.getName());
+                             System.out.println("Roster update RosterEntry "
+                             + re.getUser());
+                             System.out.println("         groups "
+                             + re.getGroups());
+                             System.out.println("         name " +
+                             re.getName());
                         } else if (changedValue instanceof IRosterGroup) {
                             IRosterGroup rg = (IRosterGroup) changedValue;
-                            System.out.println("Roster update RosterGroup "
-                                    + rg.getName());
-                            System.out.println("         entries "
-                                    + rg.getEntries());
-                            System.out.println("         name " + rg.getName());
+                            
+                            
+                             System.out.println("Roster update RosterGroup "
+                             + rg.getName());
+                             System.out.println("         entries "
+                             + rg.getEntries());
+                             System.out.println("         name " +
+                             rg.getName());
                         } else if (changedValue instanceof IRoster) {
                             IRoster r = (IRoster) changedValue;
                             System.out.println("Roster update Roster "
-                                    + r.getName());
+                            + r.getName());
                         }
                     }
 
                     @Override
                     public void handleRosterEntryRemove(IRosterEntry entry) {
-                        System.out.println("Roster  " + entry.getUser());
-                        System.out.println("         groups "
-                                + entry.getGroups());
-                        System.out.println("         name " + entry.getName());
+                         System.out.println("Roster  " + entry.getUser());
+                         System.out.println("         groups "
+                         + entry.getGroups());
+                         System.out.println("         name " +
+                         entry.getName());
                     }
                 });
 

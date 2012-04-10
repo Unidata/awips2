@@ -69,12 +69,10 @@ public class RosterManager implements IRosterManager {
      * 
      * @param roster
      */
-    public RosterManager(org.eclipse.ecf.presence.roster.IRoster roster, SessionManager manager) {
+    public RosterManager(SessionManager manager) {
         sessionManager = manager;
-        baseRoster = roster;
-        owner = roster.getName();
-        this.roster = toLocalRoster(roster);
-    }
+        updateRoster();
+     }
 
     /**
      * 
@@ -86,6 +84,11 @@ public class RosterManager implements IRosterManager {
         return roster;
     }
 
+    private void updateRoster() {
+        baseRoster = sessionManager.getPresenceContainerAdapter().getRosterManager().getRoster();
+        roster = toLocalRoster(baseRoster);
+    }
+    
     /**
      * 
      * @param listener
@@ -157,7 +160,6 @@ public class RosterManager implements IRosterManager {
                 .getRosterSubscriptionSender();
 
         ID id = sessionManager.createID(userId.getFQName());
-        System.out.println("  sendRosterRemove(" + id + ")");
         try {
             sender.sendRosterRemove(id);
         } catch (ECFException e) {
@@ -167,6 +169,33 @@ public class RosterManager implements IRosterManager {
 
     }
 
+    /**
+     * 
+     * @param fromId
+     * @param presence
+     */
+    public void updateEntry(IChatID fromId, IPresence presence) {
+        RosterEntry re = new RosterEntry(fromId);
+        re.setPresence(presence);
+
+        IRosterEntry modified = roster.modifyRosterEntry(re);
+        if(modified != null) {
+            sessionManager.getEventPublisher().post(re);
+        }
+    }
+    
+    /**
+     * 
+     * @param fromId
+     * @param presence
+     */
+    public void updateEntry(IRosterEntry entry) {
+        IRosterEntry modified = roster.modifyRosterEntry(entry);
+        if(modified != null) {
+            sessionManager.getEventPublisher().post(entry);
+        }
+    }
+    
     /**
      * 
      * @param roster
@@ -207,21 +236,6 @@ public class RosterManager implements IRosterManager {
         return newRoster;
     }
 
-    /**
-     * 
-     * @param fromId
-     * @param presence
-     */
-    public void updateEntry(IChatID fromId, IPresence presence) {
-        RosterEntry re = new RosterEntry(fromId);
-        re.setPresence(presence);
-
-        IRosterEntry modified = roster.modifyRosterEntry(re);
-        if(modified != null) {
-            sessionManager.getEventPublisher().post(re);
-        }
-    }
-    
     /**
      * 
      * @return
