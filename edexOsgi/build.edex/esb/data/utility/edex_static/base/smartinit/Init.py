@@ -17,6 +17,15 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    02/16/12        14439         jdynina        modified haines thresholds
+#    02/16/12        13917         jdynina        merged in changes from TRAC ticket 11391
+#    
+# 
+##
 import string, sys, re, time, types, getopt, fnmatch, LogStream, DatabaseID, JUtil, AbsTime, TimeRange
 import SmartInitParams
 from numpy import *
@@ -234,11 +243,11 @@ class GridUtilities:
     def hainesIndex(self, type, t_c, rh_c):
         dict = {}
         dict['LOW'] = {'t1Level': 950, 't2Level': 850, 'mLevel': 850,
-           'stabThresh': [3, 8], 'moiThresh': [5, 10]}
+           'stabThresh': [4, 8], 'moiThresh': [6, 10]}
         dict['MEDIUM'] = {'t1Level': 850, 't2Level': 700, 'mLevel': 850,
-           'stabThresh': [5, 11], 'moiThresh': [5, 13]}
+           'stabThresh': [6, 11], 'moiThresh': [6, 13]}
         dict['HIGH'] = {'t1Level': 700, 't2Level': 500, 'mLevel': 700,
-           'stabThresh': [17, 22], 'moiThresh': [14, 21]}
+           'stabThresh': [18, 22], 'moiThresh': [15, 21]}
         dd = dict[type]   # proper dictionary for the level
 
         # get the needed data, calc dewpoint
@@ -256,11 +265,11 @@ class GridUtilities:
 
         # now make the categories
         mask3 = greater_equal(hainesT, dd['stabThresh'][1])
-        mask1 = less_equal(hainesT, dd['stabThresh'][0])
+        mask1 = less(hainesT, dd['stabThresh'][0])
         hainesT = where(mask3, 3, where(mask1, 1, 2))
 
         mask3 = greater_equal(hainesM, dd['moiThresh'][1])
-        mask1 = less_equal(hainesM, dd['moiThresh'][0])
+        mask1 = less(hainesM, dd['moiThresh'][0])
         hainesM = where(mask3, 3, where(mask1, 1, 2))
 
         return hainesT + hainesM
@@ -522,7 +531,7 @@ class Forecaster(GridUtilities):
         return rval
 
     #--------------------------------------------------------------------------
-    # Runs the main program. JULIYA
+    # Runs the main program
     #--------------------------------------------------------------------------
     def run(self):
         dbName = SmartInitParams.params['dbName']
@@ -821,6 +830,7 @@ class Forecaster(GridUtilities):
     def __sortTimes(self, methods, validTime):
         rval = []
         calced = []
+        haveNoData = {}
         for we, mthd, args in methods:
             calced.append(we)
             args = filter(lambda x, ma=self.magicArgs().keys() + [we]:
@@ -857,19 +867,18 @@ class Forecaster(GridUtilities):
                           pylist.append(timelist)
 
                     ttimes.append(pylist)
-#                    msg = "Times available for " + p + " " + str(validTime) + ":\n"
-#                    timeList = ttimes[len(ttimes)-1]
-#                    for xtime in timeList:
-#                        msg += '('                                                
-#                        stime = time.gmtime(xtime[0])
-#                        etime = time.gmtime(xtime[1])
-#                        stime = time.strftime('%Y%m%d_%H%M', stime)
-#                        etime = time.strftime('%Y%m%d_%H%M', etime)
-#                        msg += stime + ", " + etime
-#                        msg += ')\n'
-#                    LogStream.logDebug(msg)                    
+                    timeList = ttimes[len(ttimes)-1]
+                    result = 0
+                    for xtime in timeList:                                         
+                        result += xtime[1] - xtime[0]
+                            
+                    if result == 0:
+                        if not haveNoData.has_key(we):
+                            haveNoData[we] = [p]
+                        else:        
+                            haveNoData[we].append(p)                   
 
-            # compare the times of each param and find where they match up
+            # compare the times of each parm and find where they match up
             times = self.__compTimes(None, ttimes)
             hadDataButSkipped = {}
             for i in range(len(ttimes)):                
@@ -881,7 +890,7 @@ class Forecaster(GridUtilities):
                             hadDataButSkipped[xtime].append(parmName)
                         else:
                             hadDataButSkipped[xtime] = [parmName]
-                
+            
             missing = {}                                    
             for xtime in hadDataButSkipped:
                 stime = time.gmtime(xtime[0])
@@ -890,11 +899,20 @@ class Forecaster(GridUtilities):
                 etime = time.strftime('%Y%m%d_%H%M', etime)
                 msg = stime + ", " + etime
                 missing[msg] = []
+                
                 for parmName in nargs:
                     if not hadDataButSkipped[xtime].__contains__(parmName):
-                        missing[msg].append(parmName)
-            
-            if len(missing):                
+                        if parmName in calced:
+                            if haveNoData.has_key(parmName):
+                                missing[msg].append(parmName)
+                        else:
+                            if parmName in haveNoData.values():
+                                missing[msg].append(parmName)
+                                
+                if not len(missing[msg]):
+                    del missing[msg]
+                                          
+            if len(missing):              
                 LogStream.logEvent("Skipping calc" + we + " for some times due to the following " +
                                    "missing data:", missing)
             # these become the times to run the method for
@@ -1009,7 +1027,7 @@ class Forecaster(GridUtilities):
                         exec "rval[1] = " + rval[1]
             cache[we] = (rval, time)        
             if rval is not None and cache['mtime'][0] is not None and doStore:
-                parm = self.__getNewWE(we)            
+                parm = self.__getNewWE(we)          
                 self._ifpio.store(parm, cache['mtime'][0], cache[we][0])
         except:
             LogStream.logProblem("Error while running method " + str(we) +

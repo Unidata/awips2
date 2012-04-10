@@ -42,5 +42,5 @@ public interface IPlotModelGeneratorCaller {
 
     public void clearImages();
 
-    public void messageGenerated(int id, String message);
+    public void messageGenerated(String dataURI, String message);
 }
