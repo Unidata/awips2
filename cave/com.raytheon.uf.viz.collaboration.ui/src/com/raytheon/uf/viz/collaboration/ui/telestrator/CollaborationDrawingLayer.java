@@ -47,6 +47,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.drawing.DrawingLayer;
 import com.raytheon.uf.viz.drawing.PathDrawingResourceData;
+import com.raytheon.uf.viz.remote.graphics.DispatchGraphicsTarget;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.vividsolutions.jts.geom.Geometry;
@@ -107,6 +108,10 @@ public class CollaborationDrawingLayer extends DrawingLayer {
      */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
+        if (target instanceof DispatchGraphicsTarget) {
+            // Ensure we paint to our own target only
+            target = ((DispatchGraphicsTarget) target).getWrappedObject();
+        }
         super.initInternal(target);
         this.collaboratorShapes = LinkedHashMultimap.create();
         this.collaboratorShapes = Multimaps
@@ -133,6 +138,10 @@ public class CollaborationDrawingLayer extends DrawingLayer {
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
+        if (target instanceof DispatchGraphicsTarget) {
+            // Ensure we paint to our own target only
+            target = ((DispatchGraphicsTarget) target).getWrappedObject();
+        }
         super.paintInternal(target, paintProps);
 
         OutlineCapability outline = getCapability(OutlineCapability.class);
