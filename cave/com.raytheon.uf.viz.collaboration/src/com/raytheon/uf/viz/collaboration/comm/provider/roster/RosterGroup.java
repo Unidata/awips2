@@ -19,13 +19,16 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.roster;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterGroup;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterItem;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.RosterId;
 
 /**
  * TODO Add Description
@@ -46,19 +49,17 @@ import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterItem;
 
 public class RosterGroup extends RosterItem implements IRosterGroup {
 
-    private Collection<IRosterEntry> entries = null;
+    private Map<IQualifiedID, IRosterEntry> entries = null;
 
-    private Collection<IRosterGroup> groups = null;
+    private Map<IRosterGroup, IRosterGroup> groups = null;
 
     /**
      * 
      */
     public RosterGroup(String name, IRosterItem parent, IRoster roster) {
         super(name, parent, roster);
-        entries = new ArrayList<IRosterEntry>();
-        if (roster.supportsNestedGroups()) {
-            groups = new ArrayList<IRosterGroup>();
-        }
+        entries = new HashMap<IQualifiedID, IRosterEntry>();
+        groups = new HashMap<IRosterGroup, IRosterGroup>();
     }
 
     /**
@@ -66,7 +67,16 @@ public class RosterGroup extends RosterItem implements IRosterGroup {
      * @param entry
      */
     public void addEntry(IRosterEntry entry) {
-        entries.add(entry);
+
+        IRosterEntry re = entries.get(entry.getUser());
+        if (re == null) {
+            IQualifiedID user = entry.getUser();
+            RosterId id = new RosterId(user.getName(), user.getHost(), null,
+                    user.getResource());
+
+            re = new RosterEntry(id);
+            entries.put(entry.getUser(), entry);
+        }
     }
 
     /**
@@ -75,7 +85,7 @@ public class RosterGroup extends RosterItem implements IRosterGroup {
      */
     @Override
     public Collection<IRosterEntry> getEntries() {
-        return entries;
+        return entries.values();
     }
 
     /**
@@ -84,11 +94,7 @@ public class RosterGroup extends RosterItem implements IRosterGroup {
      * @return
      */
     public IRosterEntry removeEntry(IRosterEntry entry) {
-        IRosterEntry removed = null;
-        if (entries.remove(entry)) {
-            removed = entry;
-        }
-        return removed;
+        return entries.remove(entry.getUser());
     }
 
     /**
@@ -97,6 +103,6 @@ public class RosterGroup extends RosterItem implements IRosterGroup {
      */
     @Override
     public Collection<IRosterGroup> getGroups() {
-        return groups;
+        return groups.values();
     }
 }
