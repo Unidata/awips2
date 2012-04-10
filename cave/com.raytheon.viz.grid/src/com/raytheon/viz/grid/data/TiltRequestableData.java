@@ -30,6 +30,7 @@ import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.raytheon.viz.grid.util.CoverageUtils;
 import com.raytheon.viz.grid.util.SliceUtil;
 import com.raytheon.viz.grid.util.TiltUtils;
+import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * TODO Add Description
@@ -49,6 +50,15 @@ import com.raytheon.viz.grid.util.TiltUtils;
 
 public class TiltRequestableData extends AbstractRequestableData {
 
+    public static class TiltCenterPoint {
+        private final Coordinate latLon;
+
+        public TiltCenterPoint(Coordinate latLon) {
+            this.latLon = latLon;
+        }
+
+    }
+
     public TiltRequestableData(String modelName, Level tiltAngle) {
         this.source = modelName;
         this.unit = SI.METER;
@@ -61,16 +71,20 @@ public class TiltRequestableData extends AbstractRequestableData {
     public FloatDataRecord getDataValue(Object arg) throws VizException {
 
         GridCoverage coverage = CoverageUtils.getInstance().getCoverage(source);
-        FloatDataRecord fdr = TiltUtils.getInstance().getHeightGrid(coverage,
-                level.getLevelonevalue());
-        if (arg == null) {
-            return fdr;
-        } else if (arg instanceof Request) {
-            return SliceUtil.slice(fdr, (Request) arg);
+        FloatDataRecord fdr = null;
+        if (arg instanceof TiltCenterPoint) {
+            Coordinate tiltLoc = ((TiltCenterPoint) arg).latLon;
+            fdr = TiltUtils.getInstance().getHeightGrid(tiltLoc, coverage,
+                    level.getLevelonevalue());
+        } else {
+            fdr = TiltUtils.getInstance().getHeightGrid(coverage,
+                    level.getLevelonevalue());
         }
-        throw new VizException(this.getClass().getSimpleName()
-                + " cannot process request of type: "
-                + arg.getClass().getSimpleName());
+        if (arg instanceof Request) {
+            return SliceUtil.slice(fdr, (Request) arg);
+        } else {
+            return fdr;
+        }
     }
 
 }

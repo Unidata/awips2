@@ -811,6 +811,7 @@ class TextProduct(GenericHazards.TextProduct):
            ('CF.A', allActions, 'CoastalFlood'), # COASTAL FLOOD WATCH
            ('SU.W', allActions, 'HighSurf'),     # HIGH SURF WARNING
            ('SU.Y', allActions, 'HighSurf'),     # HIGH SURF ADVISORY
+           ('RP.S', allActions, 'Rip'),          # HIGH RIP CURRENT RISK
            ('TO.A', allActions, 'Convective'),   # TORNADO WATCH
            ('SR.W', allActions, 'Marine'), 
            ('SR.A', allActions, 'Marine'), 

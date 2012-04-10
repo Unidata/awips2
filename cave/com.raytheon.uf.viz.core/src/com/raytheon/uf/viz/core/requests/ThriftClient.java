@@ -1,5 +1,6 @@
 package com.raytheon.uf.viz.core.requests;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -12,6 +13,7 @@ import com.raytheon.uf.common.auth.req.AbstractPrivilegedRequest;
 import com.raytheon.uf.common.auth.resp.SuccessfulExecution;
 import com.raytheon.uf.common.auth.resp.UserNotAuthenticated;
 import com.raytheon.uf.common.auth.resp.UserNotAuthorized;
+import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.comm.HttpClient;
 import com.raytheon.uf.common.comm.NetworkStatistics;
 import com.raytheon.uf.common.serialization.SerializationException;
@@ -23,6 +25,7 @@ import com.raytheon.uf.common.serialization.comm.response.ServerErrorResponse;
 import com.raytheon.uf.common.serialization.comm.util.ExceptionWrapper;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.auth.UserController;
+import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 
@@ -311,6 +314,12 @@ public class ThriftClient {
             // Log request stats
             stats.log(request.getClass().getSimpleName(), message.length,
                     responseLen);
+        } catch (IOException e) {
+            throw new VizCommunicationException(
+                    "unable to post request to server", e);
+        } catch (CommunicationException e) {
+            throw new VizCommunicationException(
+                    "unable to post request to server", e);
         } catch (Exception e) {
             throw new VizException("unable to post request to server", e);
         }

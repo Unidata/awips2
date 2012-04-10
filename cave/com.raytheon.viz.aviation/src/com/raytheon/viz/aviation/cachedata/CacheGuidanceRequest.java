@@ -25,7 +25,7 @@ import java.util.Map;
 import com.raytheon.viz.aviation.guidance.GuidanceRequest;
 
 /**
- * Guidance request used for caching data.
+ * The base Guidance Request classed used for caching data.
  * 
  * <pre>
  * 
@@ -50,10 +50,20 @@ public class CacheGuidanceRequest extends GuidanceRequest {
         return map;
     }
 
+    /**
+     * The site associated with the request.
+     * 
+     * @return siteID
+     */
     public String getSiteID() {
         return this.siteID;
     }
 
+    /**
+     * Set the site ID associated with the request.
+     * 
+     * @param siteID
+     */
     public void setSiteID(String siteID) {
         this.siteID = siteID;
     }

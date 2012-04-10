@@ -30,7 +30,7 @@ import com.raytheon.viz.avnconfig.TafSiteConfigFactory;
 import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
 
 /**
- * TODO Add Description
+ * This is a component class for lanuching the CigVisTrendDlg dialog.
  * 
  * <pre>
  * 
