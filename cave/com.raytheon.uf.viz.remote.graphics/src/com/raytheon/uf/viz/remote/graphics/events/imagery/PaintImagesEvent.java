@@ -17,11 +17,12 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.remote.graphics.events.paint;
+package com.raytheon.uf.viz.remote.graphics.events.imagery;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
+import com.raytheon.uf.viz.remote.graphics.events.IRenderEvent;
 
 /**
  * TODO Add Description
@@ -40,7 +41,8 @@ import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
  * @version 1.0
  */
 @DynamicSerialize
-public class PaintImagesEvent extends AbstractRemoteGraphicsEvent {
+public class PaintImagesEvent extends AbstractRemoteGraphicsEvent implements
+        IRenderEvent {
 
     @DynamicSerializeElement
     private PaintImageEvent[] imageEvents;

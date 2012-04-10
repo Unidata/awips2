@@ -17,12 +17,13 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.remote.graphics.events.paint;
+package com.raytheon.uf.viz.remote.graphics.events.imagery;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
+import com.raytheon.uf.viz.remote.graphics.events.IRenderEvent;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -42,7 +43,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 @DynamicSerialize
-public class PaintImageEvent extends AbstractDispatchingObjectEvent {
+public class PaintImageEvent extends AbstractDispatchingObjectEvent implements
+        IRenderEvent {
 
     @DynamicSerializeElement
     private int meshId = -1;

@@ -55,12 +55,14 @@ public class D2DContextActivator implements IPartListener2 {
     }
 
     private boolean hasD2DDisplay(IWorkbenchPartReference partRef) {
-        IWorkbenchPart part = partRef.getPart(false);
-        if (part instanceof IDisplayPaneContainer) {
-            for (IDisplayPane pane : ((IDisplayPaneContainer) part)
-                    .getDisplayPanes()) {
-                if (pane.getRenderableDisplay() instanceof ID2DRenderableDisplay) {
-                    return true;
+        if (partRef != null) {
+            IWorkbenchPart part = partRef.getPart(false);
+            if (part instanceof IDisplayPaneContainer) {
+                for (IDisplayPane pane : ((IDisplayPaneContainer) part)
+                        .getDisplayPanes()) {
+                    if (pane.getRenderableDisplay() instanceof ID2DRenderableDisplay) {
+                        return true;
+                    }
                 }
             }
         }
