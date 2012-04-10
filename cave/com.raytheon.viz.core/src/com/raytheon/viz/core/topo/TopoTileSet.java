@@ -142,7 +142,8 @@ public class TopoTileSet extends FileBasedTileSet {
         return target.getExtension(IColormappedImageExtension.class)
                 .initializeRaster(
                         new HDF5DataRetriever(new File(this.hdf5File), dataset,
-                                this.tileSet.getTile(level, i, j).rect),
+                                this.tileSet.getTile(level, i, j)
+                                        .getRectangle()),
                         rsc.getCapability(ColorMapCapability.class)
                                 .getColorMapParameters());
     }

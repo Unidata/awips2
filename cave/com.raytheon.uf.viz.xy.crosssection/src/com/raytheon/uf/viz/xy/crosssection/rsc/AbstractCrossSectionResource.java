@@ -91,7 +91,8 @@ import com.vividsolutions.jts.geom.LineString;
  * ------------ ---------- ----------- --------------------------
  * Dec 4, 2007             njensen     Initial creation
  * 02/17/09                njensen     Refactored to new rsc architecture
- * 
+ * 02/27/12	    14490      kshresth    Fixed cross sections not loading as images
+ *		
  * </pre>
  * 
  * @author njensen
@@ -445,10 +446,10 @@ public abstract class AbstractCrossSectionResource extends
         if (getCapability(DisplayTypeCapability.class).getDisplayType() == DisplayType.IMAGE) {
             completeName += " Img";
         }
-        completeName += " (";
+        completeName += " ( ";
 
         completeName += getUnitString();
-        completeName += ") ";
+        completeName += " ) ";
 
         return completeName;
     }

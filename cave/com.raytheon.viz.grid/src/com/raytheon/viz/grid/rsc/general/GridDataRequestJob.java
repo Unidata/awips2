@@ -55,7 +55,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 class GridDataRequestJob extends Job {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(Job.class);
+            .getHandler(GridDataRequestJob.class);
 
     private static class GridDataRequest {
 

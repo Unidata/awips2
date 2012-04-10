@@ -21,7 +21,8 @@ package com.raytheon.uf.viz.monitor.scan.tables;
 
 import java.awt.Toolkit;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Date;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -56,7 +57,19 @@ import com.raytheon.uf.common.monitor.data.CommonTableConfig.SortDirection;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanColors;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
+import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.TVSTable;
+import com.raytheon.uf.viz.monitor.scan.ScanMonitor;
 import com.raytheon.uf.viz.monitor.scan.data.ScanDataGenerator;
+import com.raytheon.uf.viz.monitor.scan.tables.SCANAlarmAlertManager.AlertedAlarms;
+
+/* Modification History:
+ *  Date         Ticket#    Name        Change
+ * ------------ ---------- ------------ --------------------------
+ * 02/23/2012	14538	   Xiaochuan	Fix TVS table default rank.
+ * 
+ * 03/15/2012	13939	   Mike Duff    For a SCAN Alarms issue 
+ * 										
+ */
 
 public abstract class SCANTable extends Composite {
     protected Table table;
@@ -175,7 +188,7 @@ public abstract class SCANTable extends Composite {
             public void widgetDisposed(DisposeEvent arg0) {
                 if ((scanTable == ScanTables.CELL)
                         || (scanTable == ScanTables.DMD)) {
-                    mgr.clearAlertedAlarms(site, scanTable);
+                    mgr.removeAlertedAlarms(site, scanTable);
                 }
                 tiFont.dispose();
                 columnFont.dispose();
@@ -531,12 +544,6 @@ public abstract class SCANTable extends Composite {
         clearTableSelection();
         tableData = td;
 
-        // System.out.println("--- scanTable = " + scanTable.name());
-        // System.out.println("--- setting table data in SCANTable");
-        //
-        // System.out.println("tableData.getTableRows().size() = "
-        // + tableData.getTableRows().size());
-
         if ((tableData == null) || (tableData.getTableRows().size() == 0)) {
             // System.out.println("*** no data");
             // table.setEnabled(true);
@@ -622,6 +629,10 @@ public abstract class SCANTable extends Composite {
             return;
         }
 
+	if( scanTable == ScanTables.TVS && sortedIndex == -1)
+        {
+            sortedIndex = TVSTable.valueOf("IDENT").ordinal();
+        }
         // get the ident, if a row is outlined in blue
         if (tableIndex >= 0) {
             SCANTableRowData stdr = tableData.getTableRows().get(tableIndex);
@@ -673,9 +684,12 @@ public abstract class SCANTable extends Composite {
         }
 
         ScanDataGenerator sdg = new ScanDataGenerator(site);
-        if ((scanTable == ScanTables.CELL) || (scanTable == ScanTables.DMD)
-                && !mgr.getAlertedAlarms(site, scanTable).isEmpty()) {
-            checkBlink(sdg);
+        if ((scanTable == ScanTables.CELL) || ((scanTable == ScanTables.DMD)
+                && !mgr.getAlertedAlarms(site, scanTable).isEmpty())) {
+            ScanMonitor monitor = ScanMonitor.getInstance();
+            if (monitor.getMostRecent(monitor, scanTable.name(), site) != null) {
+                checkBlink(sdg, monitor.getMostRecent(monitor, scanTable.name(), site).getRefTime());
+            }
         }
 
         // loop thru rows to find ident identified above and set new tableIndex
@@ -704,18 +718,6 @@ public abstract class SCANTable extends Composite {
     /**
      * Pack the table columns.
      */
-    // private void packColumns() {
-    //
-    // for (int i = 0; i < table.getColumnCount(); i++) {
-    //
-    // System.out.println("tc width = " + table.getColumn(i).getWidth());
-    //
-    // if (table.getColumn(i).getWidth() > 0) {
-    // packSingleColumn(table.getColumn(i), i);
-    // }
-    // }
-    // }
-
     public boolean[] getVisibleColumns() {
         TableColumn[] tCols = table.getColumns();
         boolean[] visibleCols = new boolean[tCols.length];
@@ -753,8 +755,6 @@ public abstract class SCANTable extends Composite {
         tc.pack();
         // tCols[i].setWidth(table.getColumn(i).getWidth() + 5);
         tc.setWidth(table.getColumn(index).getWidth() + 2);
-
-        System.out.println("tc.getWidth() = " + tc.getWidth());
 
         if (tc.getWidth() > defaultColWidth) {
             tc.setWidth(defaultColWidth);
@@ -858,9 +858,6 @@ public abstract class SCANTable extends Composite {
         for (int i = 0; i < rowData.size(); i++) {
             rowData.get(i).getTableCellData(index).setColor();
         }
-        if ((scanTable == ScanTables.CELL) || (scanTable == ScanTables.DMD)) {
-            mgr.clearToReset(site, scanTable);
-        }
         sortTableUsingConfig();
     }
 
@@ -923,75 +920,7 @@ public abstract class SCANTable extends Composite {
                 public void run() {
                     Display.getDefault().asyncExec(new Runnable() {
                         public void run() {
-
-                            // Fail-safe check to determine if the we have
-                            // no
-                            // data
-                            // in the table data.
-                            if (timer != null && tableData != null) {
-
-                                if (tableData.getTableRows().size() == 0) {
-                                    if (timer != null) {
-                                        timer.cancel();
-                                        timer.purge();
-                                    }
-                                    return;
-                                }
-
-                                boolean[][] indices = mgr.getIndices(site,
-                                        scanTable);
-                                if (table.isDisposed()) {
-                                    timer.cancel();
-                                    timer.purge();
-                                } else {
-                                    setBlinkColor();
-                                    boolean allClear = true;
-                                    // for (int i = 0; i < table.getItemCount();
-                                    // i++) {
-                                    for (int i = 0; i < tableData
-                                            .getNumberOfDataRows(); i++) {
-                                        TableItem ti = table.getItem(i);
-                                        if (ti == null) {
-                                            continue;
-                                        }
-
-                                        if (i < indices.length) {
-                                            for (int j = 0; j < indices[i].length; j++) {
-
-                                                if (indices[i][j] == true) {
-                                                    allClear = false;
-                                                    ti.setBackground(j,
-                                                            blinkColor);
-
-                                                    // handle the beep while
-                                                    // looking at
-                                                    // all the cells
-                                                    if (SCANConfig
-                                                            .getInstance()
-                                                            .getAlarmBell(
-                                                                    scanTable)) {
-                                                        mgr.setRing(true);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    List<Point> points = mgr.getPointsToReset(
-                                            site, scanTable);
-                                    for (int i = 0; i < points.size(); i++) {
-                                        updateThresholds(points.get(i).x,
-                                                points.get(i).y);
-                                    }
-                                    points.clear();
-                                    // checks if there are no more alarms
-                                    // and then
-                                    // will cancel the timer
-                                    if (allClear == true) {
-                                        timer.cancel();
-                                        timer.purge();
-                                    }
-                                }
-                            }
+                            runTimerTask();
                         }
                     });
                 }
@@ -1008,7 +937,7 @@ public abstract class SCANTable extends Composite {
                             // Fail-safe check to determine if the we have no
                             // data
                             // in the table data.
-                            if (beepTimer != null && tableData != null) {
+                            if ((beepTimer != null) && (tableData != null)) {
 
                                 if (tableData.getTableRows().size() == 0) {
                                     beepTimer.cancel();
@@ -1035,6 +964,75 @@ public abstract class SCANTable extends Composite {
         }
     }
 
+    private void runTimerTask() {
+        // Fail-safe check to determine if the we have
+        // no
+        // data
+        // in the table data.
+        if ((timer != null) && (tableData != null)) {
+            if (tableData.getTableRows().size() == 0) {
+                if (timer != null) {
+                    timer.cancel();
+                    timer.purge();
+                }
+                return;
+            }
+
+            if (table.isDisposed()) {
+                timer.cancel();
+                timer.purge();
+            } else {
+                setBlinkColor();
+                boolean allClear = true;
+
+                ArrayList<Point> points = new ArrayList<Point>();
+                Set<AlertedAlarms> alarmList = mgr.getAlertedAlarms(site, scanTable);
+                for (int i = 0; i < tableData
+                        .getNumberOfDataRows(); i++) {
+                    TableItem ti = table.getItem(i);
+                    if (ti == null) {
+                        continue;
+                    }
+
+                    if ((alarmList != null) && (alarmList.size() > 0)) {
+                        for (AlertedAlarms alarm: alarmList) {
+                            if (tableData.getTableRows().get(i).getIdent().equals(alarm.ident)) {
+                                if (alarm.cleared == false) {
+                                    ti.setBackground(alarm.col, blinkColor);
+                                    allClear = false;
+                                    // handle the beep while
+                                    // looking at
+                                    // all the cells
+                                    if (SCANConfig
+                                            .getInstance()
+                                            .getAlarmBell(
+                                                    scanTable)) {
+                                        mgr.setRing(true);
+                                    }
+                                } else {
+                                    points.add(new Point(alarm.row, alarm.col));
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                for (int i = 0; i < points.size(); i++) {
+                    updateThresholds(points.get(i).x,
+                            points.get(i).y);
+                }
+
+                // checks if there are no more alarms
+                // and then
+                // will cancel the timer
+                if (allClear == true) {
+                    timer.cancel();
+                    timer.purge();
+                }
+            }
+        }        
+    }
+    
     public Timer getBlinkTimer() {
         if (timer == null) {
             timer = new Timer();
@@ -1042,9 +1040,9 @@ public abstract class SCANTable extends Composite {
         return timer;
     }
 
-    public void checkBlink(ScanDataGenerator sdg) {
+    public void checkBlink(ScanDataGenerator sdg, Date latestTime) {
         if (!scanCfg.getAlarmsDisabled(scanTable)) {
-            mgr.calculateScanCells(tableData, scanTable, sdg);
+            mgr.calculateScanCells(tableData, scanTable, sdg, latestTime);
             blinkCells();
         }
     }
@@ -1084,6 +1082,7 @@ public abstract class SCANTable extends Composite {
 
             // Set the background color to the sort color if that column is
             // sorted.
+	    // sortedColumnIndex=-1 is default sort
             if (sortedColumnIndex == -1) {
                 scanCfg.getDefaultName();
                 String sortColName = scanCfg.getDefaultRank(this.scanTable);

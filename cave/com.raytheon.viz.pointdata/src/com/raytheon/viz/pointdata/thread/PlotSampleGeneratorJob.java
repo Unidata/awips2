@@ -80,9 +80,9 @@ public class PlotSampleGeneratorJob extends Job {
             try {
                 PlotInfo[] infos = queue.poll();
                 String message = plotFactory.getStationMessage(infos[0].pdv,
-                        infos[0].id);
+                        infos[0].dataURI);
 
-                caller.messageGenerated(infos[0].id, message);
+                caller.messageGenerated(infos[0].dataURI, message);
             } catch (Exception e) {
                 statusHandler.error("Error creating plot", e);
             }
