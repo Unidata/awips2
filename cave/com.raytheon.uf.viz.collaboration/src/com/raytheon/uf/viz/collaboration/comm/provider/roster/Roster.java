@@ -67,7 +67,7 @@ public class Roster extends RosterItem implements IRoster {
     private boolean roomRoster = false;
 
     private IRosterManager rosterManager;
-    
+
     /**
      * 
      * @param user
@@ -219,7 +219,8 @@ public class Roster extends RosterItem implements IRoster {
 
     /**
      * 
-     * @param A roster entry to find and modify.
+     * @param A
+     *            roster entry to find and modify.
      * @return The modifed roster entry.
      * @see com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster#modifyRosterEntry(com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterEntry)
      */
@@ -227,10 +228,10 @@ public class Roster extends RosterItem implements IRoster {
     public IRosterEntry modifyRosterEntry(IRosterEntry entry) {
         IRosterEntry re = null;
         // First attempt to find the entry in the internal entry collection
-        if(entry != null) {
+        if (entry != null) {
             IQualifiedID id = entry.getUser();
             re = internalEntries.get(id);
-            if(re != null) {
+            if (re != null) {
                 // We've found the roster entry in the internal entries
                 // so update with the presence.
                 RosterEntry ret = (RosterEntry) re;
@@ -240,7 +241,7 @@ public class Roster extends RosterItem implements IRoster {
         } else {
             // nothing to do. And this shouldn't happen!
         }
-        return re; 
+        return re;
     }
 
     /**
@@ -251,7 +252,7 @@ public class Roster extends RosterItem implements IRoster {
      */
     @Override
     public void removeFromRoster(ID user) {
-        
+
     }
 
     /**
@@ -289,7 +290,7 @@ public class Roster extends RosterItem implements IRoster {
                     org.eclipse.ecf.presence.roster.IRosterEntry entry = (org.eclipse.ecf.presence.roster.IRosterEntry) o;
 
                     IChatID id = RosterId.convertFrom(entry.getUser());
-                    
+
                     RosterEntry re = new RosterEntry(id);
                     // Check to see if we already have an entry
                     IRosterEntry reCurrent = getRosterEntry(re);

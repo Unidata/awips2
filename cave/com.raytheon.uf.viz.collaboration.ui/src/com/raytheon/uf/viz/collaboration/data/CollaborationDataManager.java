@@ -456,7 +456,7 @@ public class CollaborationDataManager {
     public void handleInvitationEvent(IVenueInvitationEvent event) {
         final IVenueInvitationEvent invitation = event;
         System.out.println("==== handleInvitationEvent sessionId: "
-                + invitation.getSessionId());
+                + invitation.getInvite().getSessionId());
         System.out.println("==== handleInvitationEvent inviter: "
                 + invitation.getInviter());
         VizApp.runSync(new Runnable() {
@@ -476,9 +476,10 @@ public class CollaborationDataManager {
                 sb.append("Inviter: ").append(inviter.getName()).append("\n");
                 sb.append("Room: ").append(room.getName()).append("\n");
                 sb.append("Subject: ").append(invitation.getSubject());
-                if (invitation.getBody() != null) {
+                if (invitation.getInvite() != null
+                        && invitation.getInvite().getMessage() != null) {
                     sb.append("\n").append("Message: ")
-                            .append(invitation.getBody());
+                            .append(invitation.getInvite().getMessage());
                 }
                 box.setMessage(sb.toString());
                 if (SWT.OK != box.open()) {
