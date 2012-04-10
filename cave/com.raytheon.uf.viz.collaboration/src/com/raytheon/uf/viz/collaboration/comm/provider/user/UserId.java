@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.user;
 
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 
 /**
@@ -37,13 +39,24 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
  * @author jkorman
  * @version 1.0
  */
+@DynamicSerialize
 public class UserId implements IQualifiedID {
 
-    private String name;
+    @DynamicSerializeElement
+    protected String name;
 
-    private String host;
+    @DynamicSerializeElement
+    protected String host;
 
-    private String resource;
+    @DynamicSerializeElement
+    protected String resource;
+
+    /**
+     * 
+     */
+    public UserId() {
+
+    }
 
     /**
      * 
@@ -136,9 +149,13 @@ public class UserId implements IQualifiedID {
         StringBuilder sb = new StringBuilder(name);
         sb.append("@");
         sb.append(host);
+        sb.append("/");
         if (resource != null) {
-            sb.append("/");
             sb.append(resource);
+        } else {
+            // TODO need a better way around this ECF/XMPP flaw that is
+            // requiring a resource for peerToPeer to go through
+            sb.append("resource");
         }
         return sb.toString();
     }

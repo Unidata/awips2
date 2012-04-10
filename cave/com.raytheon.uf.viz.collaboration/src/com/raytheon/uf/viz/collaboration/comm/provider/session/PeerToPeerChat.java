@@ -80,10 +80,7 @@ public class PeerToPeerChat extends BaseSession implements IPeerToPeer {
         // Assume success
         int status = Errors.NO_ERROR;
         if (chatSender != null) {
-            // TODO fix this in a better way
-            String fqName = message.getTo().getFQName()
-                    .replace("conference.", "");
-            ID toID = createID(fqName);
+            ID toID = createID(message.getTo().getFQName());
             String subject = message.getSubject();
             String body = message.getBody();
             Collection<Property> properties = message.getProperties();

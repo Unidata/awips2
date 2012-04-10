@@ -19,53 +19,44 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity.event;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
+import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 
 /**
  * Encapsulates a venue invitation to the user.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 21, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public interface IVenueInvitationEvent {
-    
+
     /**
      * 
      * @return
      */
     IQualifiedID getRoomId();
-    
+
     /**
      * 
      * @return
      */
     IQualifiedID getInviter();
-    
+
     /**
      * 
      */
     String getSubject();
-    
-    /**
-     * 
-     * @return
-     */
-    String getBody();
-    
-    /**
-     * @return The sessionId of the inviter.
-     */
-    String getSessionId();
+
+    public SharedDisplayInvite getInvite();
 }
