@@ -54,6 +54,9 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.SessionManager;
+import com.raytheon.uf.viz.collaboration.data.CollaborationDataManager;
+import com.raytheon.uf.viz.collaboration.data.DataUser;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
@@ -104,9 +107,12 @@ public class LoginDialog extends CaveSWTDialog {
 
     private LoginData loginData;
 
+    private SessionManager sessionManager;
+
     public LoginDialog(Shell parentShell) {
         super(parentShell, SWT.DIALOG_TRIM);
         setText("Collaboration Server Login");
+        this.loginData = loginData;
     }
 
     /**
@@ -367,9 +373,30 @@ public class LoginDialog extends CaveSWTDialog {
                         // CollaborationUtils.statusModes[statusCombo
                         // .getSelectionIndex()], messageTF
                         // .getText().trim());
-                        setReturnValue(loginData);
-                        LoginDialog.this.getShell().dispose();
-                    } else {
+                        try {
+                            sessionManager = new SessionManager(loginData
+                                    .getAccount(), loginData.getPassword());
+                            DataUser dUser = CollaborationDataManager
+                                    .getInstance().getUser(
+                                            loginData.getAccount());
+                            // // TODO set mode and message here.
+                            // dUser.setMode(loginData.getMode());
+                            // dUser.type = Type.AVAILABLE;
+                            // dUser.statusMessage = loginData.getModeMessage();
+                            setReturnValue(loginData);
+                            LoginDialog.this.getShell().dispose();
+                        } catch (Exception e) {
+                            if (focusField == null) {
+                                focusField = passwordTF;
+                            }
+                            errorMessages.add("Inavlid username or password.");
+                            passwordTF.setText("");
+                            if (sessionManager != null) {
+                                sessionManager.closeManager();
+                            }
+                        }
+                    }
+                    if (focusField != null) {
                         StringBuilder sb = new StringBuilder();
                         String prefix = "";
                         for (String msg : errorMessages) {
@@ -451,5 +478,19 @@ public class LoginDialog extends CaveSWTDialog {
 
         }
         return lFile;
+    }
+
+    /**
+     * @return the loginData
+     */
+    public LoginData getLoginData() {
+        return loginData;
+    }
+
+    /**
+     * @return the sessionManager
+     */
+    public SessionManager getSessionManager() {
+        return sessionManager;
     }
 }
