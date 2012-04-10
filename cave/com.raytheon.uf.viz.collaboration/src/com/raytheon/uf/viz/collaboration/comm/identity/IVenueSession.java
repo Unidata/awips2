@@ -19,15 +19,10 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity;
 
-import java.util.Collection;
 import java.util.List;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
-import com.raytheon.uf.viz.collaboration.comm.identity.listener.IInvitation;
-import com.raytheon.uf.viz.collaboration.comm.identity.listener.IMessageFilter;
-import com.raytheon.uf.viz.collaboration.comm.identity.listener.IMessageListener;
-import com.raytheon.uf.viz.collaboration.comm.identity.listener.IVenueParticipantListener;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ParticipantRole;
 
 /**
@@ -117,7 +112,8 @@ public interface IVenueSession extends ISession, IEventPublisher {
      *            The intended subject of the venue conversation.
      * @return
      */
-    int sendInvitation(String id, String body);
+    public int sendInvitation(String id, String body)
+            throws CollaborationException;
 
     /**
      * Send an invitation from this venue to one or more users.
@@ -128,6 +124,7 @@ public interface IVenueSession extends ISession, IEventPublisher {
      *            Any text that the user may wish to include.
      * @return
      */
-    int sendInvitation(List<String> ids, String body);
+    public int sendInvitation(List<String> ids, String body)
+            throws CollaborationException;
 
 }
