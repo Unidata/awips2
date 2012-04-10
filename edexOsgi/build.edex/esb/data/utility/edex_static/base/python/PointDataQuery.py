@@ -18,6 +18,7 @@
 # further licensing information.
 ##
 
+from java.util import ArrayList
 from com.raytheon.uf.edex.pointdata import PointDataQuery as JavaPointDataQuery
 from com.raytheon.uf.common.message.response import ResponseMessageGeneric
 
@@ -52,6 +53,10 @@ class PointDataQuery():
     
     def getAvailableParameters(self):
         return self._pdq.getAvailableParameters()
+    
+    def makeNullResponse(self):        
+        response = ArrayList()
+        return response
     
     def execute(self):
         return ResponseMessageGeneric(self._pdq.execute())
