@@ -1,15 +1,17 @@
-################################################
-## SHORT TERM FORECAST                        ##
-## CREATED BY PHIL KURIMSKI - WFO DTX         ##
-## VERSION AWIPS II 1.0 -- AUG 19 2011 OB11.8 ##
-################################################
+##################################################
+## SHORT TERM FORECAST                          ##
+## CREATED BY PHIL KURIMSKI - WFO DTX           ##
+## VERSION AWIPS II 1.0 -- AUG 19 2011 OB11.8   ##
+## EDITED BY MIKE DANGELO  2-27-2012            ##
+## EDITED BY Phil Kurimski 3-01-2012 OB12.2.1-4 ##
+##################################################
 ##
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 NOW${siteId}
 #if(${productClass}=="T")
 TEST...SHORT TERM FORECAST...TEST##
 #else
-<L>SHORT TERM FORECAST</L>##
+SHORT TERM FORECAST##
 #end
 
 NATIONAL WEATHER SERVICE ${officeShort}
@@ -32,98 +34,111 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
-
-<L>.NOW...</L>
-
 #######################################################################
 ## List of Event Types. 
 #######################################################################
 #set ($eventType = "A THUNDERSTORM")
-#set ($pathcastLead = "THIS STORM")
+#set ($pathcastLead = "THIS STORM WILL BE NEAR...")
 #set ($otherLead = ${pathcastLead})
-#if(${list.contains($bullets, "event1")})
-    #if(${stormType} == "line")
-	    #set ($eventType = "A LINE OF THUNDERSTORMS")
-	    #set ($pathheader = "THESE STORMS WILL BE NEAR...")
-	    #set ($pathcastLead = "THESE STORMS WILL BE NEAR...")
-	    #set ($otherLead = "THESE STORMS")
-	#else
-	    #set ($eventType = "A THUNDERSTORM")
-	    #set ($pathheader = "THIS STORM WILL BE NEAR...")
-	    #set ($pathcastLead = "THIS STORM WILL BE NEAR...")
-	    #set ($otherLead = "THIS STORM")
-	#end
+#if(${list.contains($bullets, "thunderstorm")})
+#if(${stormType} == "line")
+	#set ($eventType = "A LINE OF THUNDERSTORMS")
+	#set ($pathcastLead = "THESE STORMS WILL BE NEAR...")
+	#set ($otherLead = "THESE STORMS")
+	#set ($reportType2 = "${otherLead} WERE")
+#else
+	#set ($eventType = "A THUNDERSTORM")
+	#set ($pathcastLead = "THIS STORM WILL BE NEAR...")
+	#set ($otherLead = "THIS STORM")
+	#set ($reportType2 = "${otherLead} WAS")
+#end
 #end
 #if(${list.contains($bullets, "rainShower")})
-	#if(${stormType} == "line")
-	    #set ($eventType = "A LINE OF SHOWERS")
-	    #set ($pathcastLead = "THESE SHOWERS WILL BE NEAR...")
-	    #set ($otherLead = "THESE SHOWERS")
-	#else
-	    #set ($eventType = "A SHOWER")
-	    #set ($pathcastLead = "THIS SHOWER WILL BE NEAR...")
-	    #set ($otherLead = "THIS SHOWER")
-	#end
+#if(${stormType} == "line")
+	#set ($eventType = "A LINE OF SHOWERS")
+	#set ($pathcastLead = "THESE SHOWERS WILL BE NEAR...")
+	#set ($otherLead = "THESE SHOWERS")
+	#set ($reportType2 = "${otherLead} WERE")
+#else
+	#set ($eventType = "A SHOWER")
+	#set ($pathcastLead = "THIS SHOWER WILL BE NEAR...")
+	#set ($otherLead = "THIS SHOWER")
+	#set ($reportType2 = "${otherLead} WAS")
+#end
 #end
 #if(${list.contains($bullets, "snowShower")})
-	#if(${stormType} == "line")
-	    #set ($eventType = "A LINE OF SNOW SHOWERS")
-	    #set ($pathcastLead = "THESE SNOW SHOWERS WILL BE NEAR...")
-	    #set ($otherLead = "THESE SNOW SHOWERS")
-	#else
-	    #set ($eventType = "A SNOW SHOWER")
-	    #set ($pathcastLead = "THIS SNOW SHOWER WILL BE NEAR...")
-	    #set ($otherLead = "THIS SNOW SHOWER")
-	#end
+#if(${stormType} == "line")
+	#set ($eventType = "A LINE OF SNOW SHOWERS")
+	#set ($pathcastLead = "THESE SNOW SHOWERS WILL BE NEAR...")
+	#set ($otherLead = "THESE SNOW SHOWERS")
+	#set ($reportType2 = "${otherLead} WERE")
+#else
+	#set ($eventType = "A SNOW SHOWER")
+	#set ($pathcastLead = "THIS SNOW SHOWER WILL BE NEAR...")
+	#set ($otherLead = "THIS SNOW SHOWER")
+	#set ($reportType2 = "${otherLead} WAS")
+#end
 #end
 #if(${list.contains($bullets, "snowSquall")})
 	#set ($eventType = "A SNOW SQUALL")
 	#set ($pathcastLead = "THE SNOW SQUALLS WILL BE NEAR...")
 	#set ($otherLead = "THE SNOW SQUALLS")
+	#set ($reportType2 = "${otherLead} WERE")
 #end
 #if(${list.contains($bullets, "leadingRain")})
 	#set ($eventType = "THE LEADING EDGE OF AN AREA OF RAIN")
 	#set ($pathcastLead = "THE RAIN WILL BEGIN AT...")
 	#set ($otherLead = "THE RAIN")
+	#set ($reportType2 = "${otherLead} WAS")
 #end
 #if(${list.contains($bullets, "leadingSnow")})
 	#set ($eventType = "THE LEADING EDGE OF AN AREA OF SNOW")
 	#set ($pathcastLead = "THE SNOW WILL BEGIN AT...")
 	#set ($otherLead = "THE SNOW")
+	#set ($reportType2 = "${otherLead} WAS")
 #end
 #if(${list.contains($bullets, "backedgeRain")})
 	#set ($eventType = "THE BACK EDGE OF AN AREA OF RAIN")
 	#set ($pathcastLead = "THE RAIN WILL END AT...")
 	#set ($otherLead = "THE RAIN")
+	#set ($reportType2 = "${otherLead} WAS")
 #end
 #if(${list.contains($bullets, "backedgeSnow")})
 	#set ($eventType = "THE BACK EDGE OF AN AREA OF SNOW")
 	#set ($pathcastLead = "THE SNOW WILL END AT...")
 	#set ($otherLead = "THE SNOW")
+	#set ($reportType2 = "${otherLead} WAS")
 #end
 #if(${list.contains($bullets, "showerThunderstorm")})
-	#if(${stormType} == "line")
-	    #set ($eventType = "A LINE OF SHOWERS AND THUNDERSTORMS")
-	    #set ($pathheader = "THESE STORMS WILL BE NEAR...")
-	    #set ($pathcastLead = "THESE STORMS WILL BE NEAR...")
-	    #set ($otherLead = "THESE STORMS")
-	#else
-	    #set ($eventType = "SHOWERS AND THUNDERSTORMS")
-	    #set ($pathheader = "THIS STORMS WILL BE NEAR...")
-	    #set ($pathcastLead = "THIS STORM WILL BE NEAR...")
-	    #set ($otherLead = "THIS STORM")
-	#end
+#if(${stormType} == "line")
+	#set ($eventType = "A LINE OF SHOWERS AND THUNDERSTORMS")
+	#set ($pathcastLead = "THESE STORMS WILL BE NEAR...")
+	#set ($otherLead = "THESE STORMS")
+	#set ($reportType2 = "${otherLead} WERE")
+#else
+	#set ($eventType = "SHOWERS AND THUNDERSTORMS")
+	#set ($pathcastLead = "THIS STORM WILL BE NEAR...")
+	#set ($otherLead = "THIS STORM")
+	#set ($reportType2 = "${otherLead} WAS")
 #end
-#if(${list.contains($bullets, "front")})
-	#set ($eventType = "A FRONT")
-	#set ($pathcastLead = "THE FRONT WILL BE NEAR...")
-	#set ($otherLead = "THE FRONT")
+#end
+#if(${list.contains($bullets, "gFront")})
+	#set ($eventType = "A GUST FRONT")
+	#set ($pathcastLead = "THE GUST FRONT WILL BE NEAR...")
+	#set ($otherLead = "THE GUST FRONT")
+	#set ($reportType2 = "${otherLead} WAS")
+#end
+#if(${list.contains($bullets, "cFront")})
+	#set ($eventType = "A COLD FRONT")
+	#set ($pathcastLead = "THE COLD FRONT WILL BE NEAR...")
+	#set ($otherLead = "THE COLD FRONT")
+	#set ($reportType2 = "${otherLead} WAS")
 #end
 #######################################################################
 ## Basis section that incorporates line phenomena...capable vs producing
 ## and based on selections above. 
 #######################################################################
-#set ($report = "!** YOU DIDN'T SELECT A REPORTER **! ${eventType}")
+#set ($report = "!** YOU DIDN'T SELECT A BASIS **! ${eventType}")
 #if(${list.contains($bullets, "doppler")})
   #set ($report = "NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED ${eventType}...")
 #end
@@ -142,13 +157,13 @@ THIS IS A TEST MESSAGE. ##
 ######################################################
 ###### Storm current location description   ##########
 ######################################################
-
-AT ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}... ${report} ##
-#handleClosestPoints($list, $closestPoints, $otherClosestPoints, $stormType,"LOCATED", "NEAR", 4, "MILES", true)
+.NOW...
+AT ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}...${report}##
+#handleClosestPoints($list, $closestPoints, $otherClosestPoints, $stormType, "NEAR", 4, "MILES", true)
 #if($movementSpeed < 3 || ${stationary})
-NEARLY STATIONARY.
+. ${reportType2} NEARLY STATIONARY.
 #else
-MOVING #direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} MPH.
+ MOVING #direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} MPH.
 #end
 
 #if(${productClass}=="T")
@@ -158,35 +173,40 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 #################################################
 ## Set Pathcast
 #################################################
-##set ($pathcastLead = "${phenomena}")
 #if(${list.contains($bullets, "pathcast")})
+* ##
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
-## This pathcast coding will give you other locations include
-##pathCast(${pathcastLead} ${otherLead} ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
-## This pathcast coding will only give you a pathcast by setting otherPoints to zero
-#pathCast(${pathcastLead} ${otherLead} ${pathCast} 0 ${areas} ${dateUtil} ${timeFormat} 0)
+#pathCast("${pathcastLead}" ${otherLead} ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0) 
 
 #elseif(${list.contains($bullets, "listofcities")})
+* ##
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
 #### THE THIRD ARGUMENT IS A NUMBER SPECIFYING THE NUMBER OF COLUMNS TO OUTPUT THE CITIES LIST IN
 #### 0 IS A ... SEPARATED LIST, 1 IS ONE PER LINE, >1 IS A COLUMN FORMAT
-#locationsList("LOCATIONS IMPACTED INCLUDE..." ${otherLead} 0 ${otherPoints} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+#### IF YOU USE SOMETHING OTHER THAN "LOCATIONS IMPACTED INCLUDE" LEAD IN BELOW, MAKE SURE THE
+#### ACCOMPANYING XML FILE PARSE STRING IS CHANGED TO MATCH!
+#locationsList("LOCATIONS IMPACTED INCLUDE..." ${otherLead} 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+
+#else
+* LOCATIONS IMPACTED INCLUDE...  
+  !** YOU DID NOT SELECT A PATHCAST OR LIST OF CITIES BULLET. PLEASE ENTER LOCATIONS IMPACTED OR REGENERATE THE WARNING WITH THE CORRECT LOCATIONS BULLET SELECTED **!.
+
+#end
+
+#if(${list.contains($bullets, "gustFrontWinds")})
+GUSTY WINDS TO !**WIND SPEED**! MPH WILL ACCOMPANY THE FRONT. 
+
+#end
+#if(${list.contains($bullets, "frontalPassage")})
+WINDS BEHIND THE COLD FRONT WILL SUDDENLY SHIFT TO THE !** DIRECTION **! AND INCREASE TO !** SPEED **! MPH.
 
 #end
 #if(${list.contains($bullets, "heavySnow")})
 HEAVY FALLING AND BLOWING SNOW WILL CREATE NEAR ZERO VISIBILITY.
-
-#end
-#if(${list.contains($bullets, "gustyWinds")})
-GUSTY WINDS TO !**WIND SPEED**! MPH WILL ACCOMPANY THE GUST FRONT. 
-
-#end
-#if(${list.contains($bullets, "frontPass")})
-WINDS BEHIND THE FRONT WILL SHIFT SUDDENLY TO THE !** DIRECTION **! AND INCREASE TO !** SPEED **! MPH.
 
 #end
 #if(${list.contains($bullets, "snowAmt")})
@@ -200,11 +220,13 @@ LOCATIONS CAN EXPECT !** EXPECTED SNOW **! INCHES OF SNOW.
 #############
 ## WATCHES ##
 #############
-#if(${list.contains($includedWatches, "torWatches")})
+#if(${list.contains($includedWatches, "torWatches")} && ${list.contains($bullets, "includeTorWatches")})
 #inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
+
 #end
-#if(${list.contains($includedWatches, "svrWatches")})
+#if(${list.contains($includedWatches, "svrWatches")} && ${list.contains($bullets, "includeSvrWatches")})
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
+
 #end
 
 ###printcoords(${areaPoly}, ${list})

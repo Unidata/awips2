@@ -1,0 +1,209 @@
+<!--Fire Warning configuration -->
+<!-- MODIFIED
+     Version 1.1 EVAN BOOKBINDER/MIKE DANGELO 2-07-2012 Initial creation
+ -->
+<warngenConfig>
+
+ <!-- Config distance/speed units -->
+ <unitDistance>mi</unitDistance>
+ <unitSpeed>mph</unitSpeed>
+
+ <!-- No WarnGen Pathcast Track -->
+ <trackEnabled>false</trackEnabled>
+
+ <!-- Maps to load on template selection. Refer to 'Maps' menu in CAVE. 
+ 	The various menu items are also the different maps
+ 	that can be loaded with each template. -->
+ <maps>
+  <map>County Names</map>
+  <map>County Warning Areas</map>
+ </maps>
+
+ <!-- Followups: VTEC actions of allowable followups when this template is selected -->
+ <followups>
+
+ </followups>
+ 
+ <!-- Phensigs: The list of phenomena and significance combinations that this template applies to -->
+ <phensigs>
+ </phensigs>
+ 
+  <!-- Enables/disables user from selecting the Restart button the GUI -->
+ <enableRestart>true</enableRestart>
+ 
+  <!-- Enable/disables the system to lock text based on various patterns -->
+ <autoLockText>true</autoLockText>
+
+ <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
+ 	included with the warning product include torWatches and/or svrWatches, 
+ 	respectively. Please refer to 'includedWatchAreaBuffer' in <areaConfig/>. -->
+ <includedWatches>
+ </includedWatches>
+ 
+ <!-- durations: the list of possible durations of the warning -->
+ <defaultDuration>60</defaultDuration>
+ <durations>
+  <duration>30</duration>
+  <duration>40</duration>
+  <duration>45</duration>
+  <duration>50</duration>
+  <duration>60</duration>
+  <duration>75</duration>
+  <duration>90</duration> 
+  <duration>105</duration> 
+  <duration>120</duration> 
+  <duration>150</duration> 
+  <duration>180</duration> 
+ </durations>
+ 
+<bulletActionGroups>
+<bulletActionGroup action="NEW">
+ <bullets>
+  <bullet bulletName="fireEmergency" bulletText="** SELECT FOR FIRE EMERGENCY **" parseString="FIRE EMERGENCY" />
+  <bullet bulletText="*********** BASIS FOR WARNING (CHOOSE 1) **********" bulletType="title" />
+  <bullet bulletName="generic" bulletText="Generic wording..." bulletGroup="basis" bulletDefault="true" />
+  <bullet bulletName="actual" bulletText="Actual Fire..." bulletGroup="basis" parseText="COULD AFFECT" />
+  <bullet bulletName="racing" bulletText="Fire Racing Toward..." bulletGroup="basis" parseText="RACING" />
+  <bullet bulletText="*********** CALL TO ACTIONS (CHOOSE 1 OR MORE) **********" bulletType="title" />
+  <bullet bulletName="stayIndoorsCTA" bulletText="Stay Indoors..." bulletDefault="true" parseText="STAY INDOORS" />
+  <bullet bulletName="followInstructionsCTA" bulletText="Follow Safety Instructions..." bulletDefault="true" parseText="FOLLOW SAFETY INSTRUCTIONS" />
+  <bullet bulletName="heedEvacuationsCTA" bulletText="Heed Evacuation Orders..." bulletDefault="true" parseText="HEED ANY EVACUATION ORDERS" />
+  </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="COR">
+ <bullets>
+  <bullet bulletName="fireEmergency" bulletText="** SELECT FOR FIRE EMERGENCY **" parseString="FIRE EMERGENCY" />
+  <bullet bulletText="*********** BASIS FOR WARNING (CHOOSE 1) **********" bulletType="title" />
+  <bullet bulletName="generic" bulletText="Generic wording..." bulletGroup="basis" bulletDefault="true" />
+  <bullet bulletName="actual" bulletText="Actual Fire..." bulletGroup="basis" parseText="COULD AFFECT" />
+  <bullet bulletName="racing" bulletText="Fire Racing Toward..." bulletGroup="basis" parseText="RACING" />
+  <bullet bulletText="*********** CALL TO ACTIONS (CHOOSE 1 OR MORE) **********" bulletType="title" />
+  <bullet bulletName="stayIndoorsCTA" bulletText="Stay Indoors..." bulletDefault="true" parseText="STAY INDOORS" />
+  <bullet bulletName="followInstructionsCTA" bulletText="Follow Safety Instructions..." bulletDefault="true" parseText="FOLLOW SAFETY INSTRUCTIONS" />
+  <bullet bulletName="heedEvacuationsCTA" bulletText="Heed Evacuation Orders..." bulletDefault="true" parseText="HEED ANY EVACUATION ORDERS" />
+  </bullets>
+</bulletActionGroup>
+</bulletActionGroups>
+
+ <areaConfig>
+  <inclusionPercent>0.00</inclusionPercent>
+  <inclusionAndOr>AND</inclusionAndOr>
+  <inclusionArea>0</inclusionArea>
+  <areaField>COUNTYNAME</areaField>
+  <parentAreaField>NAME</parentAreaField>
+  <areaNotationField>STATE</areaNotationField>
+  <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+  <fipsField>FIPS</fipsField>
+  <sortBy>
+  	<sort>parent</sort>
+  </sortBy>
+  <pointFilter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1" constraintType="EQUALS" />
+ 		</mapping>
+  </pointFilter>
+  <includedWatchAreaBuffer>25</includedWatchAreaBuffer>
+ </areaConfig>
+ 
+ <pointSource variable="closestPoints">
+ 	<pointField>NAME</pointField>
+ 	<searchMethod>POINTS</searchMethod>
+ 	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1,2" constraintType="IN" />
+ 		</mapping>
+ 	</filter>
+ 	<maxResults>1</maxResults>
+ 	<distanceThreshold>50</distanceThreshold>
+ 	<sortBy>
+ 		<sort>distance</sort>
+  		<sort>warngenlev</sort>
+  		<sort>population</sort>
+  	</sortBy>
+ </pointSource>
+ 
+ <pointSource variable="otherClosestPoints">
+ 	<pointField>NAME</pointField>
+ 	<searchMethod>POINTS</searchMethod>
+ 	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1" constraintType="EQUALS" />
+ 		</mapping>
+ 	</filter>
+ 	<maxResults>5</maxResults>
+ 	<distanceThreshold>100</distanceThreshold>
+ 	<sortBy>
+ 		<sort>distance</sort>
+  	</sortBy>
+ </pointSource>
+ 
+ <pathcastConfig>
+  <withinPolygon>true</withinPolygon>
+  <distanceThreshold>8.0</distanceThreshold>
+  <interval>5</interval>
+  <delta>5</delta>
+  <maxResults>4</maxResults>
+  <maxGroup>8</maxGroup>
+  <pointField>Name</pointField>
+  <areaField>COUNTYNAME</areaField>
+  <parentAreaField>STATE</parentAreaField>
+  <areaNotationField>STATE</areaNotationField>
+  <areaNotationTranslationFile>countyTypes.txt</areaNotationTranslationFile>
+  <sortBy>
+  	<sort>distance</sort>
+  </sortBy>
+  <filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="1,2" constraintType="IN" />
+ 		</mapping>
+  </filter>  
+ </pathcastConfig>
+ 
+ <pointSource variable="cityList">
+ 	<pointField>NAME</pointField>
+ 	<searchMethod>TRACK</searchMethod>
+ 	<withinPolygon>true</withinPolygon>
+ 	<maxResults>20</maxResults>
+ 	<distanceThreshold>10</distanceThreshold>
+	<filter> 	
+  	  <mapping key="WARNGENLEV">
+ 		<constraint constraintValue="1,2,3" constraintType="IN" />
+ 	  </mapping>
+ 	</filter> 	 	
+ 	<sortBy>
+  		<sort>warngenlev</sort>
+  		<sort>population</sort>
+  	</sortBy>
+ </pointSource>
+ 
+  <pointSource variable="otherPoints">
+ 	<pointField>NAME</pointField>
+ 	<searchMethod>TRACK</searchMethod>
+ 	<withinPolygon>true</withinPolygon>
+ 	<maxResults>10</maxResults>
+ 	<distanceThreshold>10</distanceThreshold>
+ 	<sortBy>
+  		<sort>distance</sort>
+  	</sortBy>
+	<filter>
+ 		<mapping key="WARNGENLEV">
+ 			<constraint constraintValue="3" constraintType="IN" />
+ 		</mapping>
+  	</filter>
+ </pointSource>
+
+ <geospatialConfig>
+  <pointSource>City</pointSource>
+  <areaSource>County</areaSource>
+  <parentAreaSource>States</parentAreaSource>
+  <timezoneSource>TIMEZONES</timezoneSource>
+  <timezoneField>TIME_ZONE</timezoneField>
+ </geospatialConfig>
+
+<!-- this "include file" tag will grab the Mile Marker XML pointSource tags, 
+and place into this template  
+-->
+<!-- <include file="mileMarkers.xml"/> -->
+
+
+</warngenConfig>

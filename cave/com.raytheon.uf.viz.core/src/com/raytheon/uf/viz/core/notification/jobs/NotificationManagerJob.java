@@ -193,29 +193,7 @@ public class NotificationManagerJob implements ExceptionListener, IDisposable {
         try {
             ConnectionFactory connectionFactory = JMSConnection.getInstance()
                     .getFactory();
-            if (connection != null) {
-                try {
-                    connection.stop();
-                } catch (Exception e) {
-                    if (notifyError) {
-                        statusHandler
-                                .handle(Priority.SIGNIFICANT,
-                                        "NotificationManager failed to stop a connection.",
-                                        e);
-                    }
-                }
-                try {
-                    connection.close();
-                } catch (Exception e) {
-                    if (notifyError) {
-                        statusHandler
-                                .handle(Priority.SIGNIFICANT,
-                                        "NotificationManager failed to close a connection.",
-                                        e);
-                    }
-                }
-                connection = null;
-            }
+            disconnect(notifyError);
 
             // Create a Connection
             connection = connectionFactory.createConnection();
@@ -247,6 +225,31 @@ public class NotificationManagerJob implements ExceptionListener, IDisposable {
 
         if (!successful) {
             onException(null);
+        }
+    }
+
+    protected void disconnect(boolean notifyError) {
+        if (connection != null) {
+            try {
+                connection.stop();
+            } catch (Exception e) {
+                if (notifyError) {
+                    statusHandler.handle(Priority.SIGNIFICANT,
+                            "NotificationManager failed to stop a connection.",
+                            e);
+                }
+            }
+            try {
+                connection.close();
+            } catch (Exception e) {
+                if (notifyError) {
+                    statusHandler
+                            .handle(Priority.SIGNIFICANT,
+                                    "NotificationManager failed to close a connection.",
+                                    e);
+                }
+            }
+            connection = null;
         }
     }
 

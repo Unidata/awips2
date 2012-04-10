@@ -15,6 +15,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension.IGraphicsExtensionInterface;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 public class GraphicsExtensionManager {
@@ -67,8 +68,8 @@ public class GraphicsExtensionManager {
      * @return
      * @throws VizException
      */
-    public synchronized <T> T getExtension(Class<T> extensionClass)
-            throws VizException {
+    public synchronized <T extends IGraphicsExtensionInterface> T getExtension(
+            Class<T> extensionClass) throws VizException {
         if (cached.containsKey(extensionClass)) {
             return extensionClass.cast(cached.get(extensionClass));
         }
@@ -76,10 +77,14 @@ public class GraphicsExtensionManager {
         int bestVal = -1;
         for (Class<?> eClass : extensions) {
             if (extensionClass.isAssignableFrom(eClass)) {
-                GraphicsExtension<?> graphicsExt;
                 try {
-                    graphicsExt = GraphicsExtension.class.cast(eClass
+                    GraphicsExtension<?> graphicsExt = GraphicsExtension.class.cast(eClass
                             .newInstance());
+                    int val = graphicsExt.setTarget(target);
+                    if (val > bestVal) {
+                        bestVal = val;
+                        bestExt = extensionClass.cast(graphicsExt);
+                    }
                 } catch (InstantiationException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             e.getLocalizedMessage(), e);
@@ -88,11 +93,6 @@ public class GraphicsExtensionManager {
                     statusHandler.handle(Priority.PROBLEM,
                             e.getLocalizedMessage(), e);
                     continue;
-                }
-                int val = graphicsExt.setTarget(target);
-                if (val > bestVal) {
-                    bestVal = val;
-                    bestExt = extensionClass.cast(graphicsExt);
                 }
             }
         }
