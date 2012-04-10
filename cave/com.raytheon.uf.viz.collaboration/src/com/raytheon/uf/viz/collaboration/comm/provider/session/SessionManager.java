@@ -48,6 +48,9 @@ import org.eclipse.ecf.presence.roster.IRosterListener;
 import org.eclipse.ecf.provider.xmpp.identity.XMPPRoomID;
 
 import com.google.common.eventbus.EventBus;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
@@ -56,9 +59,11 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
+import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueParticipant;
 import com.raytheon.uf.viz.collaboration.comm.provider.Errors;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
@@ -69,7 +74,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.roster.RosterManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.RosterId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueUserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
 /**
  * 
@@ -106,6 +111,9 @@ public class SessionManager implements IEventPublisher {
     private enum SessionType {
         SESSION_P2P, SESSION_CHAT_ONLY, SESSION_COLLABORATION;
     }
+
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(SessionManager.class);
 
     private static final String PROVIDER = "ecf.xmpp.smack";
 
@@ -176,13 +184,13 @@ public class SessionManager implements IEventPublisher {
                     "Login failed.  Invalid username or password", e);
         }
         ID id = container.getConnectedID();
-        if(id != null) {
+        if (id != null) {
             String name = Tools.parseName(id.getName());
             String host = Tools.parseHost(id.getName());
             String resource = Tools.parseResource(id.getName());
             user = new RosterId(name, host, resource);
         }
-        
+
         setupAccountManager();
 
         eventBus = new EventBus();
@@ -229,7 +237,7 @@ public class SessionManager implements IEventPublisher {
     public IPresence getPresence() {
         return userPresence;
     }
-    
+
     /**
      * 
      * @return
@@ -304,7 +312,7 @@ public class SessionManager implements IEventPublisher {
     public IPresenceContainerAdapter getPresenceContainerAdapter() {
         return presenceAdapter;
     }
-    
+
     /**
      * 
      * @return
@@ -365,10 +373,20 @@ public class SessionManager implements IEventPublisher {
         VenueSession session = null;
         try {
             String venueName = invitation.getRoomId().getName();
-            String sessionId = invitation.getSessionId();
+            String sessionId = invitation.getInvite().getSessionId();
             session = new VenueSession(container, eventBus, this, sessionId);
             if (session != null) {
                 session.joinVenue(venueName);
+
+                String name = Tools.parseName(account);
+                String host = Tools.parseHost(account);
+                IVenueParticipant me = new VenueParticipant(name, host);
+                session.setUserId(me);
+                session.setCurrentDataProvider(invitation.getInvite()
+                        .getDataProvider());
+                session.setCurrentSessionLeader(invitation.getInvite()
+                        .getSessionLeader());
+
                 sessions.put(session.getSessionId(), session);
             }
         } catch (Exception e) {
@@ -383,6 +401,7 @@ public class SessionManager implements IEventPublisher {
      * @return
      * @throws CollaborationException
      */
+    @Deprecated
     public IVenueSession joinCollaborationVenue(String venueName)
             throws CollaborationException {
         VenueSession session = null;
@@ -417,20 +436,22 @@ public class SessionManager implements IEventPublisher {
                     String name = Tools.parseName(account);
                     String host = Tools.parseHost(account);
 
-                    IChatID me = new VenueUserId(name, host);
+                    IVenueParticipant me = new VenueParticipant(name, host);
 
-                    session.setSessionLeader(me);
-                    session.setSessionDataProvider(me);
+                    session.setCurrentSessionLeader(me);
+                    session.setCurrentDataProvider(me);
+                    session.setUserId(me);
 
                     IPresence presence = new Presence();
                     presence.setProperty("DATA_PROVIDER", me.getFQName());
                     presence.setProperty("SESSION_LEADER", me.getFQName());
 
-                    presenceAdapter
-                            .getRosterManager()
-                            .getPresenceSender()
-                            .sendPresenceUpdate(null,
-                                    Presence.convertPresence(presence));
+                    // TODO why change presence when you create one????!
+                    // presenceAdapter
+                    // .getRosterManager()
+                    // .getPresenceSender()
+                    // .sendPresenceUpdate(null,
+                    // Presence.convertPresence(presence));
 
                     sessions.put(session.getSessionId(), session);
                 }
@@ -592,36 +613,32 @@ public class SessionManager implements IEventPublisher {
 
                         if (changedValue instanceof IRosterEntry) {
                             IRosterEntry re = (IRosterEntry) changedValue;
-                             System.out.println("Roster update RosterEntry "
-                             + re.getUser());
-                             System.out.println("         groups "
-                             + re.getGroups());
-                             System.out.println("         name " +
-                             re.getName());
+                            System.out.println("Roster update RosterEntry "
+                                    + re.getUser());
+                            System.out.println("         groups "
+                                    + re.getGroups());
+                            System.out.println("         name " + re.getName());
                         } else if (changedValue instanceof IRosterGroup) {
                             IRosterGroup rg = (IRosterGroup) changedValue;
-                            
-                            
-                             System.out.println("Roster update RosterGroup "
-                             + rg.getName());
-                             System.out.println("         entries "
-                             + rg.getEntries());
-                             System.out.println("         name " +
-                             rg.getName());
+
+                            System.out.println("Roster update RosterGroup "
+                                    + rg.getName());
+                            System.out.println("         entries "
+                                    + rg.getEntries());
+                            System.out.println("         name " + rg.getName());
                         } else if (changedValue instanceof IRoster) {
                             IRoster r = (IRoster) changedValue;
                             System.out.println("Roster update Roster "
-                            + r.getName());
+                                    + r.getName());
                         }
                     }
 
                     @Override
                     public void handleRosterEntryRemove(IRosterEntry entry) {
-                         System.out.println("Roster  " + entry.getUser());
-                         System.out.println("         groups "
-                         + entry.getGroups());
-                         System.out.println("         name " +
-                         entry.getName());
+                        System.out.println("Roster  " + entry.getUser());
+                        System.out.println("         groups "
+                                + entry.getGroups());
+                        System.out.println("         name " + entry.getName());
                     }
                 });
 
@@ -668,23 +685,39 @@ public class SessionManager implements IEventPublisher {
                             XMPPRoomID room = (XMPPRoomID) roomID;
                             venueId = new VenueId();
                             venueId.setName(room.getLongName());
-
                         }
                         if (venueId != null) {
                             IQualifiedID id = IDConverter.convertFrom(from);
 
-                            IChatID invitor = new VenueUserId(id.getName(),
+                            IChatID invitor = new RosterId(id.getName(),
                                     id.getHost(), id.getResource());
 
-                            if (subject == null) {
-                                subject = presenceAdapter.getChatRoomManager()
-                                        .getChatRoomInfo(roomID.getName())
-                                        .getSubject();
+                            SharedDisplayInvite received;
+                            try {
+                                received = (SharedDisplayInvite) Tools
+                                        .unMarshallData(body);
+
+                                if (subject == null) {
+                                    subject = received.getSubject();
+                                    if (subject == null) {
+                                        subject = presenceAdapter
+                                                .getChatRoomManager()
+                                                .getChatRoomInfo(
+                                                        roomID.getName())
+                                                .getSubject();
+                                    }
+                                }
+
+                                IVenueInvitationEvent invite = new VenueInvitationEvent(
+                                        venueId, invitor, subject, received);
+                                eventBus.post(invite);
+                            } catch (CollaborationException e) {
+                                statusHandler
+                                        .handle(Priority.PROBLEM,
+                                                "Error handling received invite message",
+                                                e);
                             }
 
-                            IVenueInvitationEvent invite = new VenueInvitationEvent(
-                                    venueId, invitor, subject, body);
-                            eventBus.post(invite);
                         }
                     }
                 };
