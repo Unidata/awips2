@@ -19,9 +19,9 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.role;
 
-
 /**
- * TODO Add Description
+ * Interface for an event controller. Starting up an IRoleEventController is
+ * akin to subscribing to events specific to that specific role.
  * 
  * <pre>
  * 

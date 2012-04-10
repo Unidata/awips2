@@ -29,7 +29,8 @@ import com.raytheon.uf.viz.core.rsc.IInputHandler;
 
 /**
  * CollaborationInputHandler that holds other handlers that should only be used
- * when part of a collaboration session.
+ * when part of a collaboration session. Essentially it's a layer of handlers
+ * specific for collaboration.
  * 
  * <pre>
  * 
@@ -232,6 +233,15 @@ public class CollaborationInputHandler implements IInputHandler {
             }
         }
         return true;
+    }
+
+    /**
+     * Get the list of registered handlers
+     * 
+     * @return
+     */
+    public List<IInputHandler> getRegisteredHandlers() {
+        return handlers;
     }
 
 }
