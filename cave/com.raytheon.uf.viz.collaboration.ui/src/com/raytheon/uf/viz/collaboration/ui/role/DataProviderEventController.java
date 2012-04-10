@@ -46,7 +46,6 @@ import com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent;
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;
 import com.raytheon.uf.viz.remote.graphics.DispatcherFactory;
 import com.raytheon.uf.viz.remote.graphics.DispatchingGraphicsFactory;
-import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
@@ -81,10 +80,8 @@ public class DataProviderEventController extends AbstractRoleEventController {
         if (event.getEventType().equals(ParticipantEventType.ARRIVED)) {
             // TODO this seems to trigger when you create the room, in which
             // case you don't need to send it for yourself
-            // TODO instead of going to active editor, should get ones
-            // specifically shared with this session
-            AbstractEditor editor = (AbstractEditor) VizWorkbenchManager
-                    .getInstance().getActiveEditor();
+            AbstractEditor editor = CollaborationDataManager.getInstance()
+                    .getActivelySharedEditors(session.getSessionId()).get(0);
             SharedEditor se = EditorSetup.extractSharedEditor(editor);
             try {
                 session.sendObjectToPeer(event.getParticipant()
@@ -105,8 +102,10 @@ public class DataProviderEventController extends AbstractRoleEventController {
             if (cmd.getUser().equals(session.getUserID().getFQName())) {
                 // this cave should assume session leader control
                 InputUtil.enableDataProviderInput(session.getSessionId());
-            } else if (cmd.getUser().equals(
-                    session.getCurrentSessionLeader().getFQName())) {
+            } else if (session.getCurrentSessionLeader().equals(
+                    session.getUserID().getFQName())
+                    && !session.getCurrentSessionLeader().getFQName()
+                            .equals(cmd.getUser())) {
                 // this cave should release session leader control
                 InputUtil.disableDataProviderInput(session.getSessionId());
             }

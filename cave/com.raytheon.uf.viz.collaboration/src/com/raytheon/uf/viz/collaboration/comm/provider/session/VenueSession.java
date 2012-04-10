@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.session;
 
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +53,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IRenderable;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
+import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRosterManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
@@ -69,7 +69,6 @@ import com.raytheon.uf.viz.collaboration.comm.provider.info.InfoAdapter;
 import com.raytheon.uf.viz.collaboration.comm.provider.info.Venue;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.RosterId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueUserId;
 
 /**
  * 
@@ -122,12 +121,9 @@ public class VenueSession extends BaseSession implements IVenueSession,
 
     private IQualifiedID userID = null;
 
-    private IChatID sessionLeader = null;
+    private IVenueParticipant sessionLeader = null;
 
-    private IChatID sessionDataProvider = null;
-
-    private EnumSet<ParticipantRole> roles = EnumSet
-            .noneOf(ParticipantRole.class);
+    private IVenueParticipant dataProvider = null;
 
     private String subject;
 
@@ -215,9 +211,8 @@ public class VenueSession extends BaseSession implements IVenueSession,
             venue = new Venue();
             ID[] ids = venueContainer.getChatRoomParticipants();
             for (ID id : ids) {
-
-                IVenueParticipant vp = new VenueParticipant();
                 String fullName = id.getName();
+                IVenueParticipant vp = new VenueParticipant();
                 vp.setName(Tools.parseName(fullName));
                 vp.setHost(Tools.parseHost(fullName));
                 vp.setResource(Tools.parseResource(fullName));
@@ -257,17 +252,25 @@ public class VenueSession extends BaseSession implements IVenueSession,
      * @param body
      *            Any text that the user may wish to include.
      * @return
+     * @throws CollaborationException
      * @see com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession#sendInvitation(java.lang.String,
      *      java.lang.String, java.lang.String, java.lang.String)
      */
     @Override
-    public int sendInvitation(String id, String body) {
+    public int sendInvitation(String id, String body)
+            throws CollaborationException {
         // Assume success
         int status = Errors.NO_ERROR;
         IChatRoomInvitationSender sender = getConnectionPresenceAdapter()
                 .getChatRoomManager().getInvitationSender();
         if (sender != null) {
-            body = insertSessionId(body);
+            SharedDisplayInvite invite = new SharedDisplayInvite();
+            invite.setDataProvider(this.getCurrentDataProvider());
+            invite.setSessionLeader(this.getCurrentSessionLeader());
+            invite.setMessage(body);
+            invite.setSessionId(this.sessionId);
+            invite.setSubject(this.getSubject());
+            String msgBody = Tools.marshallData(invite);
 
             ID roomId = venueInfo.getConnectedID();
 
@@ -275,7 +278,7 @@ public class VenueSession extends BaseSession implements IVenueSession,
                     getConnectionNamespace(), id);
 
             try {
-                sender.sendInvitation(roomId, userId, subject, body);
+                sender.sendInvitation(roomId, userId, subject, msgBody);
             } catch (ECFException e) {
                 e.printStackTrace();
             }
@@ -299,7 +302,8 @@ public class VenueSession extends BaseSession implements IVenueSession,
      *      java.lang.String, java.lang.String, java.lang.String)
      */
     @Override
-    public int sendInvitation(List<String> ids, String body) {
+    public int sendInvitation(List<String> ids, String body)
+            throws CollaborationException {
         // Assume success
         int status = Errors.NO_ERROR;
         if (ids != null) {
@@ -310,16 +314,6 @@ public class VenueSession extends BaseSession implements IVenueSession,
             status = -1;
         }
         return status;
-    }
-
-    /**
-     * 
-     * @param body
-     * @return
-     */
-    private String insertSessionId(String body) {
-        return String.format(Tools.TAG_INVITE_ID, sessionId,
-                (body != null) ? body : "");
     }
 
     /**
@@ -451,8 +445,8 @@ public class VenueSession extends BaseSession implements IVenueSession,
      * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#getCurrentDataProvider()
      */
     @Override
-    public IChatID getCurrentDataProvider() {
-        return sessionDataProvider;
+    public IVenueParticipant getCurrentDataProvider() {
+        return dataProvider;
     }
 
     /**
@@ -462,7 +456,7 @@ public class VenueSession extends BaseSession implements IVenueSession,
      * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#getCurrentSessionLeader()
      */
     @Override
-    public IChatID getCurrentSessionLeader() {
+    public IVenueParticipant getCurrentSessionLeader() {
         return sessionLeader;
     }
 
@@ -471,7 +465,16 @@ public class VenueSession extends BaseSession implements IVenueSession,
      */
     @Override
     public boolean hasRole(ParticipantRole role) {
-        return roles.contains(role);
+        // TODO do we need this method?
+        boolean result = true;
+        if (role.equals(ParticipantRole.DATA_PROVIDER)
+                && !this.getUserID().equals(this.getCurrentDataProvider())) {
+            result = false;
+        } else if (role.equals(ParticipantRole.SESSION_LEADER)
+                && !this.getUserID().equals(this.getCurrentSessionLeader())) {
+            result = false;
+        }
+        return result;
     }
 
     // ***************************
@@ -508,15 +511,19 @@ public class VenueSession extends BaseSession implements IVenueSession,
     /**
      * 
      */
-    void setSessionLeader(IChatID id) {
+    protected void setCurrentSessionLeader(IVenueParticipant id) {
         sessionLeader = id;
     }
 
     /**
      * 
      */
-    void setSessionDataProvider(IChatID id) {
-        sessionDataProvider = id;
+    protected void setCurrentDataProvider(IVenueParticipant id) {
+        dataProvider = id;
+    }
+
+    protected void setUserId(IVenueParticipant id) {
+        this.userID = id;
     }
 
     /**
@@ -533,8 +540,6 @@ public class VenueSession extends BaseSession implements IVenueSession,
                 subject = venueInfo.getSubject();
                 if (venueInfo != null) {
                     errorStatus = completeVenueConnection(venueInfo);
-
-                    roles.add(ParticipantRole.PARTICIPANT);
                 } else {
                     // Could not join venue.
                 }
@@ -571,9 +576,6 @@ public class VenueSession extends BaseSession implements IVenueSession,
                     }
                     venueInfo = venueManager.createChatRoom(venueName, props);
                     errorStatus = completeVenueConnection(venueInfo);
-
-                    roles.add(ParticipantRole.DATA_PROVIDER);
-                    roles.add(ParticipantRole.SESSION_LEADER);
                 } else {
                     errorStatus = Errors.VENUE_EXISTS;
                 }
@@ -795,8 +797,7 @@ public class VenueSession extends BaseSession implements IVenueSession,
                     .getFromID();
             XMPPRoomID rID = (XMPPRoomID) msg.getChatRoomID();
 
-            IQualifiedID id = new VenueUserId(cID.getUsername(),
-                    rID.getHostname());
+            IQualifiedID id = new RosterId(cID.getUsername(), rID.getHostname());
             message.setFrom(id);
         }
         return message;

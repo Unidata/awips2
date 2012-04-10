@@ -62,7 +62,9 @@ public class IDConverter {
     public static IChatID convertFrom(org.eclipse.ecf.core.user.IUser user) {
         String name = Tools.parseName(user.getID().getName());
         String host = Tools.parseHost(user.getID().getName());
-        return new VenueUserId(name, user.getNickname(), host);
+        RosterId rosterId = new RosterId(name, host);
+        rosterId.setNickname(user.getNickname());
+        return rosterId;
     }
 
 }
