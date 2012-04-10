@@ -62,7 +62,8 @@ import com.raytheon.viz.texteditor.util.TextEditorUtil;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 18, 2009            mnash     Initial creation
+ * Sep 18, 2009            mnash       Initial creation
+ * 03/19/2012              D. Friedman Fix determination of "Alarm" entries.
  * 
  * </pre>
  * 
@@ -146,17 +147,23 @@ public class AlarmAlertFunctions {
                 for(AlarmAlertProduct p : prods) {
                     String search = p.getSearchString();
                     
+                    boolean match = false;
                     if((search != null) && (search.length() > 0)) {
                         if(s.indexOf(search) >= 0) {
-                            if ("Alarm".equals(p.getAlarmType()) && p.isAlarm()) {
-                                alarm = true;
-                            }
-                            productFound = p;
-                            break;
+                        	match = true;
                         }
                     } else {
-                        productFound = p;
-                        break;
+                    	match = true;
+                    }
+                    if (match) {
+	                    if (productFound == null)
+	                    	productFound = p;
+	                    if ("Alarm".equals(p.getAlarmType()) && p.isAlarm()) {
+	                        alarm = true;
+	                        productFound = p;
+	                    }
+	                    if (alarm)
+	                    	break;
                     }
                 }
             }

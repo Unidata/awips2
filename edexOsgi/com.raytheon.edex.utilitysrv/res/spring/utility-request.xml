@@ -9,6 +9,7 @@
   <bean id="utilitySrv" class="com.raytheon.edex.services.UtilitySrv"/>
   <bean id="privilegedUtilityHandler" class="com.raytheon.edex.services.PrivilegedUtilityHandler"/>
   <bean id="getServers" class="com.raytheon.edex.services.GetServersHandler"/>
+  <bean id="getServerTime" class="com.raytheon.edex.services.GetServerTimeHandler"/>
   <bean id="streamSrv" class="com.raytheon.edex.services.LocalizationStreamHandler"/>
  
   <bean factory-bean="handlerRegistry" factory-method="register">
@@ -22,6 +23,10 @@
   <bean factory-bean="handlerRegistry" factory-method="register">
   	<constructor-arg value="com.raytheon.uf.common.localization.msgs.GetServersRequest"/>
   	<constructor-arg ref="getServers"/>
+  </bean>
+  <bean factory-bean="handlerRegistry" factory-method="register">
+  	<constructor-arg value="com.raytheon.uf.common.time.msgs.GetServerTimeRequest"/>
+  	<constructor-arg ref="getServerTime"/>
   </bean>
   <bean factory-bean="handlerRegistry" factory-method="register">
   	<constructor-arg value="com.raytheon.uf.common.localization.stream.LocalizationStreamPutRequest"/>

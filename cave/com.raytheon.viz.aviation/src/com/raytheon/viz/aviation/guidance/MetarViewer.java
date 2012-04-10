@@ -265,10 +265,23 @@ public class MetarViewer extends ViewerTab implements
         });
     }
 
+    /**
+     * Get the tag for the desired Metar Cache Request.
+     * 
+     * @param siteID
+     * @param size
+     * @return tag
+     */
     private String getTag(String siteID, String size) {
         return MetarCacheGuidanceRequest.getTag(siteID, size);
     }
 
+    /**
+     * Request desired data for display on the tab. A check is performed and if
+     * all data is cached a request is queued to immediately update the tab.
+     * Otherwise request is made to cache missing data and update the display
+     * once it arrives.
+     */
     @Override
     public int generateGuidance(String siteID) {
         int cnt = super.generateGuidance(siteID);
@@ -360,6 +373,11 @@ public class MetarViewer extends ViewerTab implements
         }
     }
 
+    /**
+     * Indicates if flight category alerts are highlighted.
+     * 
+     * @return state true when highlighted otherwise false
+     */
     public boolean highlightAlerts() {
         boolean state = false;
         if (!this.isDisposed()) {
@@ -487,6 +505,13 @@ public class MetarViewer extends ViewerTab implements
         return siteObj;
     }
 
+    /**
+     * This creates a Metar cache data request.
+     * 
+     * @param siteID
+     * @param size
+     * @return req
+     */
     private CacheGuidanceRequest createCacheRequest(String siteID, String size) {
         MetarCacheGuidanceRequest req = new MetarCacheGuidanceRequest();
         req.setTag(getTag(siteID, size));
@@ -496,6 +521,9 @@ public class MetarViewer extends ViewerTab implements
         return req;
     }
 
+    /**
+     * Queue a cache request for the list of sites.
+     */
     @Override
     public void generateCache(List<String> siteIDs) {
         String size = prevChkHrs;

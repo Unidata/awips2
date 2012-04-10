@@ -1,6 +1,7 @@
 <!--Generic Marine Weather Statement configuration -->
 <warngenConfig>
 <!-- Customized by Phil Kurimski WFO DTX 25 January 2012 -->
+<!-- Customized by Phil Kurimski WFO DTX 27 February 2012 -->
 
  <!-- Config distance/speed units -->
  <unitDistance>nmi</unitDistance>
@@ -76,12 +77,14 @@
   <bullet bulletName="mariner" bulletText="Mariner reported" bulletGroup="group5" parseString="A MARINER REPORTED"/>
   <bullet bulletName="public" bulletText="Public reported" bulletGroup="group5" parseString="THE PUBLIC REPORTED"/>
   <bullet bulletName="satellite" bulletText="Satellite imagery indicated" bulletGroup="group5" parseString="SATELLITE IMAGERY INDICATED"/>
+  <bullet bulletName="pilot" bulletText="Pilot reported" bulletGroup="group5" parseString="A PILOT REPORTED"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="  ****EVENT TYPE SECTION****...(Choose 1) " bulletType="title"/>
   <bullet bulletName="thunderstorm" bulletText="Thunderstorm" bulletGroup="group1" bulletDefault="true" parseString="THUNDERSTORM"/>
   <bullet bulletName="shower" bulletText="Shower" bulletGroup="group1" parseString="SHOWER"/>
   <bullet bulletName="cloud" bulletText="Cloud" bulletGroup="group1" parseString="CLOUD"/>
   <bullet bulletName="front" bulletText="Front" bulletGroup="group1" parseString="FRONT"/>
+  <bullet bulletName="fog" bulletText="Dense Fog" bulletGroup="group1" parseString="DENSE FOG"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="  ****HAIL SECTION****(Choose if applicable)... " bulletType="title"/>
   <bullet bulletName="smallHail" bulletText="Small Hail" bulletGroup="group4" parseString="SMALL HAIL"/>
@@ -114,12 +117,14 @@
   <bullet bulletName="mariner" bulletText="Mariner reported" bulletGroup="group5" parseString="A MARINER REPORTED"/>
   <bullet bulletName="public" bulletText="Public reported" bulletGroup="group5" parseString="THE PUBLIC REPORTED"/>
   <bullet bulletName="satellite" bulletText="Satellite imagery indicated" bulletGroup="group5" parseString="SATELLITE IMAGERY INDICATED"/>
+  <bullet bulletName="pilot" bulletText="Pilot reported" bulletGroup="group5" parseString="A PILOT REPORTED"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="  ****EVENT TYPE SECTION****...(Choose 1) " bulletType="title"/>
   <bullet bulletName="thunderstorm" bulletText="Thunderstorm" bulletGroup="group1" bulletDefault="true" parseString="THUNDERSTORM"/>
   <bullet bulletName="shower" bulletText="Shower" bulletGroup="group1" parseString="SHOWER"/>
   <bullet bulletName="cloud" bulletText="Cloud" bulletGroup="group1" parseString="CLOUD"/>
   <bullet bulletName="front" bulletText="Front" bulletGroup="group1" parseString="FRONT"/>
+  <bullet bulletName="fog" bulletText="Dense Fog" bulletGroup="group1" parseString="DENSE FOG"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="  ****HAIL SECTION****(Choose if applicable)... " bulletType="title"/>
   <bullet bulletName="smallHail" bulletText="Small Hail" bulletGroup="group4" parseString="SMALL HAIL"/>

@@ -56,6 +56,9 @@ public class TampRequest extends GuidanceRequest {
 
     protected ArrayList<String> siteObjs;
 
+    /**
+     * Overrides the method to place the arguments needed for TAMP request.
+     */
     @Override
     public Map<String, Object> getPythonArguments() {
         Map<String, Object> map = new HashMap<String, Object>();
