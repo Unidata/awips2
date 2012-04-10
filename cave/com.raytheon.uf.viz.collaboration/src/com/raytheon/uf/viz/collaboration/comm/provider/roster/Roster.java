@@ -23,10 +23,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.ecf.core.util.ECFException;
-import org.eclipse.ecf.presence.IPresenceContainerAdapter;
-import org.eclipse.ecf.presence.roster.IRosterSubscriptionSender;
-
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPresence;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster;
@@ -37,10 +33,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IChatID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.ID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.provider.Presence;
-import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.RosterId;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueUserId;
 
 /**
  * TODO Add Description
@@ -95,7 +88,7 @@ public class Roster extends RosterItem implements IRoster {
     public IChatID getUser() {
         return user;
     }
-
+    
     /**
      * Does this roster support nested groups?
      * 
@@ -123,7 +116,20 @@ public class Roster extends RosterItem implements IRoster {
      */
     @Override
     public void addRosterEntry(IRosterEntry entry) {
-        entries.put(entry.getUser(), entry);
+        IRosterEntry re = null;
+        
+        IQualifiedID id = entry.getUser();
+        re = internalEntries.get(id);
+        // ensure the entry is not present!
+        if(re == null) {
+            // put in the internal entries first.
+            internalEntries.put(entry.getUser(), entry);
+            
+            for(IRosterGroup g : entry.getGroups()) {
+                RosterGroup rg = (RosterGroup) g;
+                rg.setRoster(this);
+            }
+        }
     }
 
     /**
@@ -198,7 +204,6 @@ public class Roster extends RosterItem implements IRoster {
     @Override
     public void addRosterEntry(IQualifiedID user, String nickName,
             String[] groups) {
-
         if (user != null) {
             IRosterEntry entry = internalEntries.get(user.getFQName());
             if (entry == null) {
@@ -207,6 +212,8 @@ public class Roster extends RosterItem implements IRoster {
                 entry = new RosterEntry(id);
             }
             internalEntries.put(entry.getUser(), entry);
+            
+            listRoster();
         }
     }
 
@@ -310,4 +317,34 @@ public class Roster extends RosterItem implements IRoster {
     // </pre>
     // *******************************************
 
+    
+    public void listRoster() {
+        
+        System.out.println("##########################################################################");
+        System.out.println("Roster for : " + user.getFQName());
+        System.out.println("#####################################");
+        System.out.println("# Ungrouped entries");
+        System.out.println("-------------------------------------");
+        Collection<IRosterEntry> entries = getEntries();
+        for(IRosterEntry r : entries) {
+            System.out.print("    " + r.getName());
+        }
+        System.out.println("#####################################");
+        System.out.println("# Groups ");
+        System.out.println("-------------------------------------");
+        Collection<IRosterGroup> groups = getGroups();
+        for(IRosterGroup g : groups) {
+            System.out.print("    " + g.getName());
+            entries = g.getEntries();
+            for(IRosterEntry r : entries) {
+                System.out.print("        " + r.getName());
+            }
+            System.out.println("-----------------");
+        }
+        System.out.println("##########################################################################");
+    }
+    
+    
+    
+    
 }
