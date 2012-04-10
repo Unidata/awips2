@@ -112,7 +112,7 @@ public abstract class GLAbstractView implements IView, Cloneable {
     public void setupView(IGraphicsTarget target) {
         IGLTarget glTarget = asIGLTarget(target);
 
-        glTarget.makeContextCurrent();
+        boolean release = glTarget.makeContextCurrent();
         glTarget.getGl().glMatrixMode(GL.GL_PROJECTION);
         glTarget.getGl().glLoadIdentity();
         setProjectionMatrix(glTarget);
@@ -126,6 +126,9 @@ public abstract class GLAbstractView implements IView, Cloneable {
 
         setViewArea(glTarget);
         // glTarget.setupClippingPlane(getClippingPlanes());
+        if (release) {
+            glTarget.releaseContext();
+        }
     }
 
     protected IGLTarget asIGLTarget(IGraphicsTarget target) {

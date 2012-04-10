@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Guidance request used for caching data.
+ * Guidance request used for caching Tamp data.
  * 
  * <pre>
  * 
@@ -39,8 +39,16 @@ import java.util.Map;
  * @version 1.0
  */
 public class TampCacheGuidanceRequest extends CacheGuidanceRequest {
+    // TODO remove use the one in CacheGuidanceRequest
     protected String siteID;
 
+    /**
+     * Get TAMP tag based on site ID and model.
+     * 
+     * @param siteID
+     * @param model
+     * @return tag
+     */
     public static String getTag(String siteID, String model) {
         return model + ":" + siteID;
     }
@@ -53,10 +61,12 @@ public class TampCacheGuidanceRequest extends CacheGuidanceRequest {
         return map;
     }
 
+    // TODO remove use the one in CacheGuidanceRequest
     public String getSiteID() {
         return this.siteID;
     }
 
+    // TODO remove use the one in CacheGuidanceRequest
     public void setSiteID(String siteID) {
         this.siteID = siteID;
     }

@@ -39,8 +39,6 @@ import com.raytheon.uf.common.time.DataTime;
 
 public class PlotInfo {
 
-    public Integer id;
-
     public String stationId;
 
     public Double latitude;
@@ -68,9 +66,8 @@ public class PlotInfo {
 
     }
 
-    public PlotInfo(Integer id, String stationId, Double latitude,
+    public PlotInfo(String stationId, Double latitude,
             Double longitude, DataTime dataTime, String dataURI) {
-        this.id = id;
         this.stationId = stationId;
         this.latitude = latitude;
         this.longitude = longitude;
